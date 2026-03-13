@@ -67,7 +67,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 5. while this phase keeps the Rust-owned retirement order, do not confuse it with the primary pure-`.hako` blocker
    - the real current blocker is now the exact `Program(JSON v0) -> MIR(JSON)` lowering owner in `src/host_providers/mir_builder/lowering/program_json.rs`
    - pinned live callers:
-     - `src/host_providers/mir_builder/authority.rs`
+     - `src/host_providers/mir_builder/user_box_decls.rs`
      - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
      - `src/runtime/mirbuilder_emit.rs`
    - therefore, a future authority-removal slice should narrow those callers before broad cleanup elsewhere
@@ -79,11 +79,10 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; current review treats that bucket as near thin floor rather than the next automatic shrink target
 - `future-retire bridge` is now smaller on both sides: `program_json/emit_payload.rs`, `program_json/pipeline.rs`, and `program_json_entry/exit.rs` are gone, so the remaining inner bridge leaves are concentrated in `program_json/mod.rs` and `program_json_entry/request.rs`
 - because `program_json_entry/request.rs` still touches env alias precedence and outer-caller-facing request extraction, it is not the default next slice; prefer bridge-local-only collapse before touching that contract leaf
-- current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder/authority.rs` owns `source -> Program(JSON v0)`, `src/host_providers/mir_builder/lowering/program_json.rs` owns `Program(JSON v0) -> MIR(JSON)`, and `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
-- worker order decision is now pinned: move `src/host_providers/mir_builder/authority.rs` before reopening the kernel Program(JSON) route; treat the kernel route as near thin floor unless an exact disappearing leaf appears
-- the test-only transient `(Program JSON, MIR JSON)` tuple helper is no longer owned by `authority.rs`; it now lives in the `src/host_providers/mir_builder.rs` façade test surface
-- the adapter-only `source_to_program_json_for_current_authority(...)` leaf is also gone, so `authority.rs` now exposes only the live `source_to_mir_json(...)` source-route adapter
-- the live adapter also no longer materializes transient Program(JSON) locally; that handoff now lives in shared owner `src/host_providers/mir_builder/user_box_decls.rs`
+- current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder/user_box_decls.rs` owns the shared source-route handoff, `src/host_providers/mir_builder/lowering/program_json.rs` owns `Program(JSON v0) -> MIR(JSON)`, and `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
+- worker order decision is now pinned: retire the dedicated `authority.rs` adapter and then move `src/host_providers/mir_builder/user_box_decls.rs` before reopening the kernel Program(JSON) route; treat the kernel route as near thin floor unless an exact disappearing leaf appears
+- the test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in the `src/host_providers/mir_builder.rs` façade test surface
+- the dedicated `src/host_providers/mir_builder/authority.rs` adapter is gone; live source-route callers now enter through `source_to_mir_json(...)` and reach shared handoff owner `src/host_providers/mir_builder/user_box_decls.rs`
 - the kernel `emit_from_program_json_v0` / `emit_from_source_v0` pair now also shares same-file gate/decode/freeze helpers, so the remaining kernel work is explicitly thin-floor support code rather than a fresh authority-removal front
 - the nearby future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`, so `src/stage1/program_json_v0/authority.rs` no longer mixes bridge-specific error wrapping with strict source authority
 - the next pure-`.hako-only` removal wave should not start by shaving `build_surrogate.rs` more; it should start when the live caller trio of `lowering/program_json.rs` can shrink

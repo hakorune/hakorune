@@ -1,4 +1,3 @@
-mod authority;
 mod lowering;
 mod user_box_decls;
 
@@ -96,7 +95,7 @@ pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, Stri
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    authority::source_to_mir_json(source_text)
+    user_box_decls::source_to_mir_json_with_user_box_decls(source_text)
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.

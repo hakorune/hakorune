@@ -60,12 +60,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - pure `.hako-only hakorune build` gap snapshot (2026-03-14):
   - current main stopper is still Rust authority, not `.hako` caller count
   - Rust authority bucket:
-    - `src/host_providers/mir_builder/authority.rs`
+    - `src/host_providers/mir_builder/user_box_decls.rs`
     - `src/host_providers/mir_builder/lowering/program_json.rs`
     - `src/stage1/program_json_v0/authority.rs`
     - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
     - note: `src/host_providers/mir_builder.rs` and `src/stage1/program_json_v0.rs` are now thin façades; `src/host_providers/mir_builder/lowering/ast_json.rs` is legacy AST JSON compat keep, not the primary pure-`.hako` blocker
-    - latest tightening: kernel source route no longer receives transient Program(JSON) tuples; `authority.rs` now owns source-route `user_box_decls` injection and cross-crate source callers stay on `source_to_mir_json(...)`
+    - latest tightening: kernel source route no longer receives transient Program(JSON) tuples; `user_box_decls.rs` now owns source-route handoff plus `user_box_decls` injection and cross-crate source callers stay on `source_to_mir_json(...)`
   - Rust bootstrap-boundary bucket:
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
     - `src/runner/stage1_bridge/program_json/mod.rs`
@@ -93,19 +93,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - if one collapse is chosen now, prefer collapsing `src/runner/stage1_bridge/program_json` inward before touching `build_surrogate.rs`; do not collapse `build_surrogate.rs` back into shared dispatch and do not collapse `program_json_entry/request.rs`
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
-    1. `src/host_providers/mir_builder/authority.rs`
-       - current source authority still lives here (`source -> Program(JSON v0)`)
+    1. `src/host_providers/mir_builder/user_box_decls.rs`
+       - current source-route handoff still lives here (`source -> Program(JSON v0) -> user_box_decls -> MIR(JSON)`)
        - this is the first real blocker for pure `.hako` compiler authority
-       - note: `user_box_decls` injection is no longer authority-only; it now lives in shared owner `src/host_providers/mir_builder/user_box_decls.rs`
-       - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper is no longer owned here; it now lives in façade test surface `src/host_providers/mir_builder.rs`
-       - latest tightening: adapter-only `source_to_program_json_for_current_authority(...)` is gone; live authority surface is now just `source_to_mir_json(...)`
-       - latest tightening: `authority.rs` no longer materializes transient Program(JSON) locally; it delegates the handoff to shared owner `src/host_providers/mir_builder/user_box_decls.rs`
+       - note: `src/host_providers/mir_builder.rs` is now just the public source-route façade; the dedicated `authority.rs` adapter is retired
+       - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in façade test surface `src/host_providers/mir_builder.rs`
+       - latest tightening: live source-route callers now go straight through `source_to_mir_json(...)` to shared owner `src/host_providers/mir_builder/user_box_decls.rs`
     2. `src/host_providers/mir_builder/lowering/program_json.rs`
        - current Program(JSON v0) -> MIR(JSON) lowering still lives here
        - this is a real blocker for pure `.hako` compiler authority
        - exact live caller map is now pinned:
-         - `src/host_providers/mir_builder/authority.rs`
-           - current `stage1-env-mir-source` source route
+         - `src/host_providers/mir_builder/user_box_decls.rs`
+           - current `stage1-env-mir-source` shared source-route handoff owner
          - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
            - explicit `emit_from_program_json_v0(...)` kernel/plugin route
            - next safest slice on this owner:
@@ -138,7 +137,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `.hako` live/bootstrap callers: `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}` and `lang/src/mir/builder/MirBuilderBox.hako`
     - shared shell keep: `tools/hakorune_emit_mir.sh`, `tools/selfhost/selfhost_build.sh`, `tools/smokes/v2/lib/test_runner.sh`
   - actual priority for pure `.hako-only hakorune build`:
-    1. de-Rust current source authority in `src/host_providers/mir_builder/authority.rs`
+    1. de-Rust current source-route handoff in `src/host_providers/mir_builder/user_box_decls.rs`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
@@ -150,7 +149,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     5. retire compiled-stage1 `build_surrogate.rs`
     6. retire `src/runner/stage1_bridge/**`
   - exact near-term task ladder:
-    1. treat `src/host_providers/mir_builder/authority.rs` as a thin source-authority adapter unless an exact disappearing leaf appears
+    1. `src/host_providers/mir_builder/authority.rs` is retired; treat `src/host_providers/mir_builder/user_box_decls.rs` as the remaining source-route handoff owner
     2. treat `src/host_providers/mir_builder/lowering/program_json.rs` as the main de-Rust front until its live callers shrink further
     3. keep `src/stage1/program_json_v0/authority.rs` focused on strict source authority only; future-retire bridge work now belongs to `src/stage1/program_json_v0/bridge_shim.rs`
     4. do not reopen `build_surrogate.rs` or shared shell/smoke cleanup while the authority owners above are still live

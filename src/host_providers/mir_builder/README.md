@@ -7,11 +7,6 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 - `mir_builder.rs`
   - thin public facade for the current Rust-owned provider surface
   - keeps shared fail-fast / trace / temp-path helpers
-- `mir_builder/authority.rs`
-  - current Rust authority path
-  - `source -> Program(JSON v0) -> MIR(JSON)` owner-local chain
-  - source-route authority still lives here, but `user_box_decls` injection is now shared through `mir_builder/user_box_decls.rs`
-  - no longer owns the transient Program(JSON) helper; it exposes only the live `source_to_mir_json(...)` adapter
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse/emit helpers
 - `mir_builder/user_box_decls.rs`
@@ -29,7 +24,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 
 ## Guardrails
 
-- treat `authority.rs` as the current primary de-Rust blocker
+- treat `user_box_decls.rs` as the current source-route handoff owner
 - treat `lowering/program_json.rs` as the current Rust-owned Program(JSON)->MIR lowering owner
 - treat runtime/plugin `env.mirbuilder.emit` as a separate keep that now bypasses `lowering/program_json.rs`
 - keep `source_to_program_and_mir_json(...)` test-only in the façade; cross-crate source surfaces should stay on `source_to_mir_json(...)`
