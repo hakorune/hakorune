@@ -78,6 +78,7 @@ Related:
 - `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()`, with `emit_program_json_v0_via_buildbox()` and `emit_program_json_v0_via_stageb_compiler()` isolating the two live build-contract lanes while leaving `HAKO_USE_BUILDBOX=1` as an explicit keep
 - `tools/selfhost/selfhost_build.sh` still needs the explicit `HAKO_USE_BUILDBOX=1` build-contract keep today: on `apps/tests/hello_simple_llvm.hako`, the default `compiler.hako --stage-b --stage3` lane still hits a JoinIR freeze while the BuildBox emit-only lane succeeds, so retire/delete claims must wait for a separate route-repair slice
 - `tools/selfhost/selfhost_build.sh` now pins that live keep behind `buildbox_emit_only_keep_requested()`, so the exact `HAKO_USE_BUILDBOX=1` emit-only/no-EXE predicate is code-side SSOT instead of being re-read inline at the top level
+- `tools/selfhost/selfhost_build.sh` now keeps its post-emit raw/extract contract behind `extract_program_json_v0_from_raw()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so remaining helper-local work can target downstream consumers (`--mir` / `--exe` / `--run`) without reopening the raw capture block
 
 ## Immediate Next Slice
 

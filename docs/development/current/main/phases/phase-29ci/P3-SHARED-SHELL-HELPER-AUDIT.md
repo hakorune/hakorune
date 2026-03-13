@@ -91,6 +91,7 @@ shared shell helper keep として残っている 3 file について、
 - `tools/selfhost/selfhost_build.sh` now keeps its Stage-B Program(JSON) raw-production split behind `emit_stageb_program_json_raw()`, with `emit_program_json_v0_via_buildbox()` and `emit_program_json_v0_via_stageb_compiler()` isolating the two live lanes; this keeps `HAKO_USE_BUILDBOX=1` as an explicit build-contract keep without leaving the top-level branch duplicated
 - `tools/selfhost/selfhost_build.sh` still has a real live BuildBox keep: on `apps/tests/hello_simple_llvm.hako`, the default `compiler.hako --stage-b --stage3` lane still freezes in JoinIR lowering while `HAKO_USE_BUILDBOX=1` emits Program(JSON v0) successfully, so helper-local structure work must not be mixed with route-repair/deletion claims yet
 - `tools/selfhost/selfhost_build.sh` now pins that keep behind `buildbox_emit_only_keep_requested()`, so the exact live-contract predicate (`HAKO_USE_BUILDBOX=1` + emit-only + no EXE lane) is SSOT in code as well as docs
+- `tools/selfhost/selfhost_build.sh` now also keeps its post-emit raw/extract funnel behind `extract_program_json_v0_from_raw()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so build-helper cleanup can talk about exact lanes instead of one long post-emit block
 
 ## Immediate Next
 
