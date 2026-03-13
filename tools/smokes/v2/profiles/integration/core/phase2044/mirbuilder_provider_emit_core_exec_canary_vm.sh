@@ -15,12 +15,7 @@ JSON
 
 # Case A: real provider route via MirBuilder(delegate)
 set +e
-HAKO_PREFER_MIRBUILDER=1 \
-NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
-NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
-NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
-verify_program_via_builder_to_core "$prog_json_path"
+run_verify_program_via_preferred_mirbuilder_to_core "$prog_json_path"
 rc=$?
 set -e
 if [ "$rc" -ne 42 ]; then
@@ -32,12 +27,7 @@ fi
 # Case B: stub provider enabled; harness should fallback to Rust CLI and still yield rc=42
 set +e
 HAKO_V1_EXTERN_PROVIDER=1 \
-HAKO_PREFER_MIRBUILDER=1 \
-NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
-NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
-NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
-verify_program_via_builder_to_core "$prog_json_path"
+run_verify_program_via_preferred_mirbuilder_to_core "$prog_json_path"
 rc2=$?
 set -e
 rm -f "$prog_json_path"

@@ -803,6 +803,29 @@ verify_program_via_builder_to_core() {
     return $?
 }
 
+run_verify_program_via_preferred_mirbuilder_to_core() {
+    local prog_json_path="$1"
+    local builder_only="${2:-0}"
+
+    if [ "$builder_only" = "1" ]; then
+        HAKO_VERIFY_BUILDER_ONLY=1 \
+        HAKO_PREFER_MIRBUILDER=1 \
+        NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
+        NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
+        NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
+        NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
+        verify_program_via_builder_to_core "$prog_json_path"
+        return $?
+    fi
+
+    HAKO_PREFER_MIRBUILDER=1 \
+    NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
+    NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
+    NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
+    NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
+    verify_program_via_builder_to_core "$prog_json_path"
+}
+
 # hv1 inline alias-only wrapper (env JSON → hv1 dispatcher)
 # Usage: run_hv1_inline_alias_wrapper "$json_literal" → prints rc line; returns rc
 run_hv1_inline_alias_wrapper() {

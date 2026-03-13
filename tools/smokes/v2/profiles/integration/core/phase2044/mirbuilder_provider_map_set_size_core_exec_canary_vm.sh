@@ -15,13 +15,7 @@ cat >"$prog_json_path" <<'JSON'
 JSON
 
 set +e
-HAKO_VERIFY_BUILDER_ONLY=1 \
-HAKO_PREFER_MIRBUILDER=1 \
-NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
-NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
-NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
-verify_program_via_builder_to_core "$prog_json_path"
+run_verify_program_via_preferred_mirbuilder_to_core "$prog_json_path" 1
 rc=$?
 set -e
 rm -f "$prog_json_path"
