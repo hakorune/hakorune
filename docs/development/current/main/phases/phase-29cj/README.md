@@ -58,12 +58,17 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 
 ## Immediate Next
 
-1. continue from the now-retired shared route-table keep and inventory whether any additional `build_surrogate.rs` leaf can disappear
-2. if `build surrogate keep` is at a thin floor after that, move to `future-retire bridge` leaf retirement
-3. keep the direct-lower probe as explicit evidence until one Rust-owned bucket actually disappears
+1. treat `build_surrogate.rs` as near thin floor unless an exact disappearing leaf is obvious first
+2. continue `future-retire bridge` retirement inside the inner bridge cluster only
+   - `program_json/` is now `mod.rs` + `read_input.rs` + `writeback.rs`
+   - `program_json_entry/` is now `mod.rs` + `request.rs`
+3. do not take `program_json_entry/request.rs` next unless bridge-local-only leaves are truly exhausted
+4. keep the direct-lower probe as explicit evidence until one Rust-owned bucket actually disappears
 
 ## Retreat Finding
 
 - `phase-29ci` already closed the helper-side collapse, so further progress now depends on Rust-owned buckets moving, not on more shell cleanup
 - `registry_optin_method_arraymap_direct_canary_vm.sh` is no longer “cleanup debt”; it is an explicit probe keep and should stay outside the shared-helper accounting
-- the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; the next slice must either remove another Rust-owned leaf there or switch to `future-retire bridge`
+- the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; current review treats that bucket as near thin floor rather than the next automatic shrink target
+- `future-retire bridge` is now smaller on both sides: `program_json/emit_payload.rs`, `program_json/pipeline.rs`, and `program_json_entry/exit.rs` are gone, so the remaining inner bridge leaves are concentrated in `program_json/mod.rs` and `program_json_entry/request.rs`
+- because `program_json_entry/request.rs` still touches env alias precedence and outer-caller-facing request extraction, it is not the default next slice; prefer bridge-local-only collapse before touching that contract leaf
