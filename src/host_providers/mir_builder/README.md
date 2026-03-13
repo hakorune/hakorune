@@ -8,6 +8,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - thin public facade for the current Rust-owned provider surface
   - keeps shared fail-fast / trace / temp-path helpers
   - now also owns the shared `user_box_decls` shaping for the source and explicit Program(JSON) routes
+  - keeps plain `program_json_to_mir_json(...)` and imports-bearing lowering as test-only seams; live cross-crate callers stay on `source_to_mir_json(...)` and `program_json_to_mir_json_with_user_box_decls(...)`
   - keeps `program_json_to_mir_json_with_imports(...)` test-only; live cross-crate callers should not depend on imports-bearing Program(JSON) lowering here
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse/emit helpers

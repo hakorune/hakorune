@@ -1,5 +1,6 @@
 mod lowering;
 
+#[cfg(test)]
 use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -72,7 +73,8 @@ impl Phase0MirJsonEnvGuard {
 
 /// Convert Program(JSON v0) to MIR(JSON v0) and return it as a String.
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
-pub fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
+#[cfg(test)]
+pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
     lowering::program_json_to_mir_json(program_json)
 }
 
