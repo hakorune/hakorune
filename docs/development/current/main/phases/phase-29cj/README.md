@@ -82,6 +82,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
    - do not reopen kernel/plugin route cleanup once `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is down to thin gate/decode/encode support
    - after the current Rust lowering owner is sufficiently thin, switch the phase language from “leaf retirement” to “authority replacement”
    - first `.hako` replacement owner remains `lang/src/mir/builder/MirBuilderBox.hako`; runner owners follow, and `lang/src/compiler/build/build_box.hako` stays behind them because of blast radius
+   - exact stop-line: if a Rust owner only holds route gate/decode/encode, source-route handoff glue, or compat evidence, freeze it and move the phase front elsewhere
 
 ## Retreat Finding
 
@@ -101,6 +102,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the extra `lower_program_json_to_module(...)` leaf is now retired; the live plain lowering path inlines the exact bridge call directly
 - worker consensus now treats `src/host_providers/mir_builder.rs` as near thin floor, not the next place to keep shaving
 - worker consensus also treats `src/stage1/program_json_v0/authority.rs` as frozen strict source-authority core; the next real movement is authority replacement after `src/host_providers/mir_builder/lowering.rs`
+- worker consensus on `src/host_providers/mir_builder/lowering.rs`: `module_to_mir_json(...)` and `parse_input_json(...)` are still real shared seams, `emit_module_to_temp_mir_json(...)` is only local cleanup, so the next meaningful work is authority replacement planning around the remaining live lowering seam rather than more façade shaving
 - worker audit also raised the next non-Rust wave order after the current Rust-owned front: `lang/src/mir/builder/MirBuilderBox.hako` first, then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`, with shared producer `lang/src/compiler/build/build_box.hako` immediately behind that same wave; touching `build_box.hako` before those owner-local callers would be the highest-blast-radius move
 - the kernel `emit_from_program_json_v0` / `emit_from_source_v0` pair now also shares same-file gate/decode/freeze helpers, so the remaining kernel work is explicitly thin-floor support code rather than a fresh authority-removal front
 - the nearby future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`, so `src/stage1/program_json_v0/authority.rs` no longer mixes bridge-specific error wrapping with strict source authority
