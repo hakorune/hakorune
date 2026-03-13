@@ -104,7 +104,8 @@ pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.
-pub fn program_json_to_mir_json_with_imports(
+#[cfg(test)]
+pub(crate) fn program_json_to_mir_json_with_imports(
     program_json: &str,
     imports: BTreeMap<String, String>,
 ) -> Result<String, String> {

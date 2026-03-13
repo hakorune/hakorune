@@ -100,6 +100,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - note: the dedicated `authority.rs` adapter and separate `user_box_decls.rs` owner are both retired
        - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in façade test surface `src/host_providers/mir_builder.rs`
        - latest tightening: `source_to_mir_json_with_user_box_decls(...)` is retired; live source-route callers now enter `src/host_providers/mir_builder.rs::source_to_mir_json(...)`, and shared Program(JSON) shaping is co-located in the same façade owner
+       - latest tightening: `program_json_to_mir_json_with_imports(...)` is now test-only in the façade; live imports-bearing lowering no longer depends on this public front
     2. `src/host_providers/mir_builder/lowering.rs`
        - exact `Program(JSON v0) -> MIR(JSON)` lowering leaf now lives here
        - this is a real blocker for pure `.hako` compiler authority
