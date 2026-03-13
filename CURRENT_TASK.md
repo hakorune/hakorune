@@ -151,17 +151,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
-       - current main front is this lowering owner, not further kernel thinning
+       - current main front reached a stop-line here: `module_to_mir_json(...)` is the remaining Rust host seam, not the next ownership-replacement target
        - second exact slice after the source-route handoff leaf is gone:
         - landed: `lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
         - next focus is the remaining live callers and shaping around that lowering owner, not the deleted leaf file
         - keep kernel route and `src/stage1/program_json_v0/authority.rs` out of that patch
         - latest tightening: plain imports-free Program(JSON) lowering helper is now test-only; the remaining live lowering seam is `module_to_mir_json(...)`
        - worker consensus:
-         - `module_to_mir_json(...)` is still live and not near thin-floor
-         - `parse_input_json(...)` is still shared by prod + test-only imports seam and not the next target
-         - `emit_module_to_temp_mir_json(...)` is thin but only local cleanup, not meaningful de-Rust
-         - therefore the phase should stop shaving `mir_builder.rs` and treat `lowering.rs` as the only remaining Rust authority front
+        - `module_to_mir_json(...)` is still live and not near thin-floor
+        - `parse_input_json(...)` is still shared by prod + test-only imports seam and not the next target
+        - `emit_module_to_temp_mir_json(...)` is thin but only local cleanup, not meaningful de-Rust
+         - therefore the phase should stop shaving `mir_builder.rs` and treat `module_to_mir_json(...)` as the Rust stop-line before the next `.hako` authority wave
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
        - latest tightening: future-retire bridge shim is now split to `src/stage1/program_json_v0/bridge_shim.rs`
        - implication: this owner is now closer to the real strict source-authority core; keep it frozen for now and do not mix bridge-leaf cleanup, host-provider lowering work, or `.hako` caller thinning back into it
@@ -188,13 +188,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - exact stop-line: once a Rust owner only holds route gate/decode/encode, source-route handoff glue, or compat keep evidence, freeze it and move on
     2. finish the Rust-owned authority front at `src/host_providers/mir_builder/lowering.rs`
        - goal: leave only the unavoidable live lowering seam, not helper/decode leaves
-       - next exact review question: which remaining prod seam is truly unavoidable, `module_to_mir_json(...)` or plain Program(JSON) lowering itself
+       - settled answer: `module_to_mir_json(...)` is the unavoidable Rust host seam; do not try to migrate `MirModule` ownership into `.hako`
     3. only then begin the first `.hako` authority replacement wave
        - `lang/src/mir/builder/MirBuilderBox.hako`
        - then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
        - keep `lang/src/compiler/build/build_box.hako` behind those owner-local callers because it has the highest blast radius
        - latest landed slice: `MirBuilderBox.emit_from_program_json_v0(...)` delegate branch now owns local `user_box_decls` MIR finalize before normalization
        - latest tightening: internal/delegate gate decisions in `MirBuilderBox.hako` now read through `lang/src/mir/builder/internal/builder_config_box.hako`; keep `emit_from_source_v0(...)` as a live compat seam because kernel route + route-evidence probes still call it
+       - design lock: the next `.hako` wave owns `Program(JSON v0) -> MIR(JSON)` and should hand Rust canonical MIR(JSON) text, not `MirModule`
     4. keep `src/stage1/program_json_v0/authority.rs` frozen until the replacement wave is ready
        - this file is now the strict source-authority core, not the next generic cleanup target
   - milestone wording lock:

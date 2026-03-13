@@ -182,7 +182,7 @@ Current note:
 Primary owner:
 - `src/runner/json_v0_bridge/**`
 - `src/stage1/program_json_v0/authority.rs`
-- `src/host_providers/mir_builder/user_box_decls.rs`
+- `src/host_providers/mir_builder.rs`
 - `src/host_providers/mir_builder/lowering.rs`
 - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
 
@@ -191,7 +191,8 @@ Responsibility:
 - compiled stage1 artifact が still linked な provider / module dispatch support
 - current reduced authority の compat keep を narrow に維持する
 - `src/stage1/program_json_v0/authority.rs` が current `source -> Program(JSON v0)` authority owner を持つ
-- `src/host_providers/mir_builder/user_box_decls.rs` が current source-route handoff (`source -> Program(JSON v0) -> user_box_decls -> MIR(JSON)`) を持ち、`lowering.rs` が current `Program(JSON v0) -> MIR(JSON)` lowering を持つ
+- `src/host_providers/mir_builder.rs` が current source-route handoff と shared `user_box_decls` shaping を持ち、`src/host_providers/mir_builder/lowering.rs` は test-only Program(JSON) evidence seams と shared `module_to_mir_json(...)` host seam を持つ
+- `module_to_mir_json(...)` は Rust host stop-line として扱い、次の authority-replacement wave は `.hako` owner が canonical MIR(JSON) text をこの seam の手前で作る方向に進める
 - `src/host_providers/mir_builder/lowering/ast_json.rs` は Phase-0 AST JSON compat keep であり、pure `.hako` blocker の主語とは分ける
 - `src/stage1/program_json_v0.rs` façade と `authority.rs` / `routing.rs` / `extract.rs` / `lowering.rs` の owner-local split を維持する
 
