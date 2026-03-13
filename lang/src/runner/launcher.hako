@@ -121,23 +121,11 @@ static box HakoCli {
     local src = me._read_file(tag, source_path)
     if src == null { return 91 }
 
-    local prog = BuildBox.emit_program_json_v0(src, null)
-    if prog == null {
-      print("[hakorune] build exe: BuildBox returned null")
-      return 91
-    }
-    local ps = "" + prog
-    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
-      print("[hakorune] build exe: unexpected Program(JSON) output (missing version/kind)")
-      return 91
-    }
+    local ps = me._emit_program_json_checked(tag, src)
+    if ps == null { return 91 }
 
-    local mir = MirBuilderBox.emit_from_program_json_v0(ps, null)
-    if mir == null {
-      print("[hakorune] build exe: MirBuilderBox returned null")
-      return 91
-    }
-    local ms = "" + mir
+    local ms = me._emit_mir_json_checked(tag, ps)
+    if ms == null { return 91 }
 
     local obj = CodegenBridgeBox.emit_object(ms)
     if obj == null || ("" + obj) == "" {
@@ -232,17 +220,8 @@ static box HakoCli {
     local src = me._read_file(tag, path)
     if src == null { return 92 }
 
-    local prog = BuildBox.emit_program_json_v0(src, null)
-    if prog == null {
-      print("[hakorune] emit program-json: BuildBox returned null")
-      return 92
-    }
-
-    local ps = "" + prog
-    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
-      print("[hakorune] emit program-json: unexpected output (missing version/kind)")
-      return 92
-    }
+    local ps = me._emit_program_json_checked(tag, src)
+    if ps == null { return 92 }
 
     if out_path != null && out_path != "" {
       if me._write_file(tag, out_path, ps, quiet) != 1 {
@@ -320,26 +299,13 @@ static box HakoCli {
     } else {
       local src = me._read_file(tag, source_path)
       if src == null { return 92 }
-      local prog = BuildBox.emit_program_json_v0(src, null)
-      if prog == null {
-        print("[hakorune] emit mir-json: BuildBox returned null")
-        return 92
-      }
-      local ps = "" + prog
-      if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
-        print("[hakorune] emit mir-json: unexpected Program(JSON) output (missing version/kind)")
-        return 92
-      }
+      local ps = me._emit_program_json_checked(tag, src)
+      if ps == null { return 92 }
       prog_json = ps
     }
 
-    local mir = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
-    if mir == null {
-      print("[hakorune] emit mir-json: MirBuilderBox returned null")
-      return 92
-    }
-
-    local ms = "" + mir
+    local ms = me._emit_mir_json_checked(tag, prog_json)
+    if ms == null { return 92 }
     if out_path != null && out_path != "" {
       if me._write_file(tag, out_path, ms, quiet) != 1 {
         return 92
@@ -357,6 +323,30 @@ static box HakoCli {
   method cmd_check(args){
     print("[hakorune] check: not implemented yet")
     return 93
+  }
+
+  method _emit_program_json_checked(tag, source_text){
+    local prog = BuildBox.emit_program_json_v0(source_text, null)
+    if prog == null {
+      print(tag + ": BuildBox returned null")
+      return null
+    }
+
+    local ps = "" + prog
+    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+      print(tag + ": unexpected Program(JSON) output (missing version/kind)")
+      return null
+    }
+    return ps
+  }
+
+  method _emit_mir_json_checked(tag, program_json){
+    local mir = MirBuilderBox.emit_from_program_json_v0(program_json, null)
+    if mir == null {
+      print(tag + ": MirBuilderBox returned null")
+      return null
+    }
+    return "" + mir
   }
 
   // Helpers for file I/O (Phase 25.1a: consolidate Stage‑B friendly patterns)

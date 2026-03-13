@@ -64,6 +64,7 @@ Related:
 - therefore, do not spend the next delete slice on root-runner reshaping yet; treat those two files as `must-stay thin callers` until the bridge bucket itself is ready to retire, and use `P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md` as the exact delete-order SSOT for that bucket
 - `MirBuilderBox.emit_from_source_v0(...)` is still a live keep, not a diagnostics-only probe bucket; do not collapse it into shell/probe cleanup planning yet
 - outside the helper trio in the `shell helper keep` row, there is a test-only smoke/apps tail with 43 direct caller files; record that tail as caller-audit work rather than mixing it into the first Rust-only delete slices, and use `P2-LIVE-CALLER-DELETE-ORDER.md` as the delete-order SSOT for that outer bucket
+- `.hako` owner thinning can proceed one file at a time; `lang/src/runner/launcher.hako` now groups its checked Program(JSON) / MIR direct call sites behind owner-local helpers instead of keeping three duplicated checked paths
 
 ## Immediate Next Slice
 

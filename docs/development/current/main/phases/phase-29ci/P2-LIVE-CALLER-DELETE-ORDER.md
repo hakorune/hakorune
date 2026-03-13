@@ -82,6 +82,7 @@ Related:
 ## Retreat Finding
 
 - bridge 内側が closeout-ready に近づいても、boundary 外側にはまだ 4 `.hako` owner + 3 shared helper + 43 test-only smoke caller が残っている
+- `lang/src/runner/launcher.hako` は direct Program(JSON) / MIR checked path を owner-local helper へまとめられるので、`.hako` owner audit は 4 file を同時に触らず 1 owner ずつ薄くしていくのが安全
 - したがって、次の delete slice を shell helper や `.hako` owner へ広げると scope が跳ねる
 - 次の実 caller audit は `.hako` owner 4 file を先に主語にし、shared helper 3 file と smoke tail 43 file は別 bucket として扱う
 
