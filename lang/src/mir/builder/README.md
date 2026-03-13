@@ -15,6 +15,7 @@ Responsibility
 Interface (stable)
 - `emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null`
   - Returns canonical MIR(JSON v0) on success; returns null and prints a tagged diagnostic on failure.
+  - delegate branch now finalizes returned MIR locally by injecting `user_box_decls` before normalization; this is the first `.hako`-side ownership move inside the Program(JSON)->MIR path.
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
   - Source-entry shim only; current stage1 authority no longer depends on this route, and direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating to `emit_from_program_json_v0(...)`.
 

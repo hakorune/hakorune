@@ -17,6 +17,7 @@
 // Phase 22.0: Hako‑first（registry）を既定ONにする。必要なら 0 を明示して無効化する。
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 using lang.compiler.build.build_box as BuildBox
 using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
@@ -43,6 +44,42 @@ static box MirBuilderBox {
     if nv != null && ("" + nv) == "1" { result = NormBox.normalize_all(result) }
     return result
   }
+
+  method _finalize_delegate_mir(program_json, mir_json, func_defs_mir) {
+    if mir_json == null { return null }
+    local result = "" + mir_json
+    local user_box_decls_json = me._build_user_box_decls_from_program_json_inline(program_json)
+    if user_box_decls_json != "" {
+      result = MirV1MetaInjectBox.inject_user_box_decls(result, user_box_decls_json)
+    }
+    return me._norm_if_apply(result, func_defs_mir)
+  }
+
+  method _build_user_box_decls_from_program_json_inline(program_json) {
+    if program_json == null { return "[{\"name\":\"Main\",\"fields\":[]}]" }
+    local s = "" + program_json
+    local out = "[{\"name\":\"Main\",\"fields\":[]}"
+    local seen = "|Main|"
+    local pos = 0
+    loop(pos < s.length()) {
+      local box_idx = s.indexOf("\"box\":\"", pos)
+      if box_idx < 0 { break }
+      local name_start = box_idx + 7
+      local name_end = s.indexOf("\"", name_start)
+      if name_end < 0 { break }
+      local box_name = s.substring(name_start, name_end)
+      if box_name != "" {
+        local marker = "|" + box_name + "|"
+        if seen.indexOf(marker) < 0 {
+          out = out + ",{\"name\":\"" + box_name + "\",\"fields\":[]}"
+          seen = seen + box_name + "|"
+        }
+      }
+      pos = name_end + 1
+    }
+    return out + "]"
+  }
+
   // Availability probe (for canaries)
   is_available() {
     // For now, availability means delegate toggle is present
@@ -567,7 +604,7 @@ static box MirBuilderBox {
       // Call host provider via extern: env.mirbuilder.emit(program_json)
       local args = new ArrayBox(); args.push(program_json)
       local ret = hostbridge.extern_invoke("env.mirbuilder", "emit", args)
-      return me._norm_if_apply(ret, func_defs_mir)
+      return me._finalize_delegate_mir(program_json, ret, func_defs_mir)
     }
     // Provider not wired → Fail‑Fast tag
     print("[mirbuilder/delegate/missing] no provider; enable HAKO_MIR_BUILDER_DELEGATE=1")
