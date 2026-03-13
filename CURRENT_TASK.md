@@ -77,6 +77,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - closeout-ready MIR-direct bootstrap unification phase
     6. `docs/development/current/main/phases/phase-29ci/README.md`
        - separate queued follow-up for `Program(JSON v0)` retirement
+    6.5. `docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md`
+       - direct CLI vs Rust host-provider vs language-level mirbuilder source-surface route split
     7. `docs/development/current/main/phases/phase-29cg/README.md`
        - solved reduced bootstrap slice that must stay closed
     8. `docs/development/current/main/phases/phase-29cc/README.md`
@@ -199,7 +201,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - `src/runner/stage1_bridge/mod.rs` stays a thin delegate and must not regain child/enable entry guard checks, child command/env assembly, or JSON line parsing / writeback policy
         - do not reintroduce direct `source_to_program_json_v0_strict(...)` calls outside `stage1/program_json_v0.rs`
         - `MirBuilderBox.emit_from_source_v0(...)` is still a live keep; do not fold it into diagnostics/probe cleanup planning
-        - route split remains important: direct CLI `target/release/hakorune --backend mir --emit-mir-json apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako` still reproduces `nested_loop_not_allowed` (`loop_cond_break_continue`), while the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface both lower the same fixture successfully; treat this as a route/boundary blocker, not a single shared BoxCount verdict
+        - route split remains important: direct CLI `target/release/hakorune --backend mir --emit-mir-json apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako` still reproduces `nested_loop_not_allowed` (`loop_cond_break_continue`), while the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface (currently kernel-dispatch owned) both lower the same fixture successfully; treat this as a route/boundary blocker, not a single shared BoxCount verdict, and use `phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md` as the exact route-evidence SSOT
         - shell-helper delete order still has a wider test-only shell/apps caller tail beyond the shared helper trio; keep that caller audit separate from the first Rust-only delete slices
       - owner-2 minimal tightening:
         - compiled-stage1 build surrogate keep is now intended to shrink behind `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`; shared `module_string_dispatch.rs` should remain a thin route table that only includes owner-local surrogate route registrations, while surrogate handler ownership, build-box/launcher MIR handoff regression coverage, and current-mode build surrogate selection all stay behind `build_surrogate.rs` -> owner-1 `emit_program_json_v0_for_current_stage1_build_box_mode(...)`

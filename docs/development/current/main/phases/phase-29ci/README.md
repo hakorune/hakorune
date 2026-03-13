@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
+  - docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md
   - src/stage1/program_json_v0/README.md
   - src/runner/stage1_bridge/README.md
 ---
@@ -76,7 +77,7 @@ Related:
   - the exact live-contract predicate for that keep is now code-side SSOT as `buildbox_emit_only_keep_requested()`, so future reduction work can talk about one explicit build-helper contract instead of repeating the top-level shell condition
   - the `selfhost_build.sh` post-emit raw/extract contract is now split behind `extract_program_json_v0_from_raw()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so downstream `--mir` / `--exe` / `--run` lanes can be audited separately from raw capture
   - the source-direct `--mir` consumer is now isolated behind `emit_mir_json_from_source()`, so downstream audit can treat `--exe` and `--run` as separate remaining lanes
-  - route split is now explicit for `phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`: direct CLI `--backend mir --emit-mir-json` still reproduces `nested_loop_not_allowed` (`loop_cond_break_continue`), while the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface both lower the same fixture successfully; this is route/boundary debt as much as BoxCount debt
+  - route split is now explicit for `phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`: direct CLI `--backend mir --emit-mir-json` still reproduces `nested_loop_not_allowed` (`loop_cond_break_continue`), while the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface (currently kernel-dispatch owned rather than pure `.hako`-internal proof) both lower the same fixture successfully; this is route/boundary debt as much as BoxCount debt, and `P4-MIRBUILDER-ROUTE-SPLIT.md` is the exact call-chain SSOT
   - `MirBuilderBox.emit_from_source_v0(...)` remains a live keep and must not be demoted into the diagnostics/probe bucket
   - shell/helper delete order still has a wider test-only shell/apps tail beyond the three shared helper scripts; keep that caller audit separate from the first Rust-only delete slices
 

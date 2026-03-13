@@ -20,6 +20,7 @@ pub mod json_lint_stringutils_min_vm; // Phase 21.7++: using StringUtils alias r
 pub mod llvm_bitops_test;
 pub mod macro_tests;
 pub mod mir;
+pub mod mir_direct_route_decode_escapes;
 pub mod namingbox_static_method_id; // Phase 21.7++ Phase 1: StaticMethodId structure tests
 pub mod nyash_abi_basic;
 pub mod parser;

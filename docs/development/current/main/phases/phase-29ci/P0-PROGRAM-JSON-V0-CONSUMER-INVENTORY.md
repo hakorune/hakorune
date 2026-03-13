@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
+  - docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md
   - CURRENT_TASK.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
@@ -81,7 +82,7 @@ Related:
 - `tools/selfhost/selfhost_build.sh` now keeps its post-emit raw/extract contract behind `extract_program_json_v0_from_raw()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so remaining helper-local work can target downstream consumers (`--mir` / `--exe` / `--run`) without reopening the raw capture block
 - `tools/selfhost/selfhost_build.sh` now keeps the source-direct `--mir` consumer behind `emit_mir_json_from_source()`, so the remaining downstream helper-local work is the Program(JSON)->MIR->EXE lane and the Core-Direct `--run` lane
 - `tools/selfhost/selfhost_build.sh --mir` is still upstream-blocked by the default Stage-B freeze on `apps/tests/hello_simple_llvm.hako`; this slice only isolates the consumer lane and must not be read as route unblocking
-- route split is now explicit for `apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`: direct CLI `--backend mir --emit-mir-json` still reproduces `nested_loop_not_allowed` (`loop_cond_break_continue`), while the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface both lower the same fixture successfully; treat this as route/boundary debt, not as shell-helper cleanup debt alone
+- route split is now explicit for `apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`: direct CLI `--backend mir --emit-mir-json` still reproduces `nested_loop_not_allowed` (`loop_cond_break_continue`), while the Rust host-provider route and the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface (currently kernel-dispatch owned rather than pure `.hako`-internal proof) both lower the same fixture successfully; treat this as route/boundary debt, not as shell-helper cleanup debt alone, and use `P4-MIRBUILDER-ROUTE-SPLIT.md` for the exact call-chain SSOT
 
 ## Immediate Next Slice
 
