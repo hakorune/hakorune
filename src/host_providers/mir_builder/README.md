@@ -8,13 +8,12 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - thin public facade for the current Rust-owned provider surface
   - keeps shared fail-fast / trace / temp-path helpers
   - now also owns the shared `user_box_decls` shaping for the source and explicit Program(JSON) routes
-  - keeps plain `program_json_to_mir_json(...)` and imports-bearing lowering as test-only seams; live cross-crate callers stay on `source_to_mir_json(...)` and `program_json_to_mir_json_with_user_box_decls(...)`
+  - now also owns the live imports-free `Program(JSON v0) -> MirModule -> MIR(JSON)` handoff for source and explicit Program(JSON) callers; plain `program_json_to_mir_json(...)` stays test-only
   - keeps `program_json_to_mir_json_with_imports(...)` test-only; live cross-crate callers should not depend on imports-bearing Program(JSON) lowering here
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse/emit helpers
-  - now also owns the exact `Program(JSON v0) -> MIR(JSON)` lowering leaf directly
-  - live lowering now uses imports-free `parse_json_v0_to_module(...)`; imports-bearing lowering stays test-only
-  - the extra `lower_program_json_to_module(...)` helper is retired; the live plain lowering path now inlines the exact bridge call inside `program_json_to_mir_json(...)`
+  - imports-bearing and plain `Program(JSON v0) -> MIR(JSON)` helpers are now test-only evidence seams
+  - the remaining live shared seam is `module_to_mir_json(...)`
 - `mir_builder.rs::module_to_mir_json(...)`
   - shared MIR(JSON) emission seam
   - runtime/plugin imports route reuses this seam without staying a live caller of `lowering.rs`

@@ -7,13 +7,16 @@ use std::sync::atomic::{AtomicU64, Ordering};
 // use std::io::Write; // kept for future pretty-print extensions
 
 pub(crate) const FAILFAST_TAG: &str = "[freeze:contract][hako_mirbuilder]";
+#[cfg(test)]
 pub(crate) const TRACE_ENV: &str = "HAKO_STAGE1_MODULE_DISPATCH_TRACE";
 static MIR_JSON_TMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
+#[cfg(test)]
 pub(crate) fn trace_enabled() -> bool {
     std::env::var(TRACE_ENV).ok().as_deref() == Some("1")
 }
 
+#[cfg(test)]
 pub(crate) fn trace_log(message: impl AsRef<str>) {
     if trace_enabled() {
         eprintln!("{}", message.as_ref());
@@ -79,7 +82,7 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 }
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
-    let mir_json = lowering::program_json_to_mir_json(program_json)?;
+    let mir_json = live_program_json_to_mir_json(program_json)?;
     inject_stage1_user_box_decls_from_program_json(program_json, &mir_json)
 }
 
@@ -116,6 +119,15 @@ pub(crate) fn program_json_to_mir_json_with_imports(
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
     lowering::module_to_mir_json(module)
+}
+
+fn live_program_json_to_mir_json(program_json: &str) -> Result<String, String> {
+    let _env_guard = Phase0MirJsonEnvGuard::new();
+    let module = match crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
+        Ok(module) => module,
+        Err(error) => return Err(failfast_error(error)),
+    };
+    module_to_mir_json(&module)
 }
 
 fn inject_stage1_user_box_decls_from_program_json(

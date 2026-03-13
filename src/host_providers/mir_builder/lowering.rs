@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod ast_json;
 
 use crate::mir::MirModule;
@@ -7,10 +8,13 @@ use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 use std::fs;
 
-use super::{trace_enabled, trace_log, unique_mir_json_tmp_path, Phase0MirJsonEnvGuard};
+#[cfg(test)]
+use super::{trace_enabled, trace_log, Phase0MirJsonEnvGuard};
+use super::unique_mir_json_tmp_path;
 
 /// Convert Program(JSON v0) to MIR(JSON v0) and return it as a String.
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
+#[cfg(test)]
 pub(super) fn program_json_to_mir_json(program_json: &str) -> Result<String, String> {
     program_json_to_mir_json_impl(program_json)
 }
@@ -31,6 +35,7 @@ pub(super) fn program_json_to_mir_json_with_imports(
     module_to_mir_json(&module)
 }
 
+#[cfg(test)]
 fn program_json_to_mir_json_impl(program_json: &str) -> Result<String, String> {
     // Phase-0 contract: MIR JSON v0 must be executable via `--mir-json-file` v0 loader.
     // That loader supports `externcall`/`boxcall` but not unified `mir_call` lowering.
@@ -65,6 +70,7 @@ pub(crate) fn module_to_mir_json(module: &MirModule) -> Result<String, String> {
     }
 }
 
+#[cfg(test)]
 fn parse_input_json(program_json: &str) -> Result<JsonValue, String> {
     serde_json::from_str(program_json).map_err(|error| {
         if trace_enabled() {

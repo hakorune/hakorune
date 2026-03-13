@@ -147,14 +147,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - landed: live source-route handoff leaf `source_to_mir_json_with_user_box_decls(...)` is retired
        - current façade now owns only a tiny source-route handoff before shared Program(JSON) shaping
        - current worker judgment: treat this owner as near thin floor; do not keep shaving it unless an exact disappearing route leaf appears
+       - latest tightening: live source + explicit Program(JSON) callers now parse Program(JSON) in `src/host_providers/mir_builder.rs` and cross the shared seam only at `module_to_mir_json(...)`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
        - current main front is this lowering owner, not further kernel thinning
        - second exact slice after the source-route handoff leaf is gone:
-         - landed: `lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
-         - next focus is the remaining live callers and shaping around that lowering owner, not the deleted leaf file
-         - keep kernel route and `src/stage1/program_json_v0/authority.rs` out of that patch
+        - landed: `lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
+        - next focus is the remaining live callers and shaping around that lowering owner, not the deleted leaf file
+        - keep kernel route and `src/stage1/program_json_v0/authority.rs` out of that patch
+        - latest tightening: plain imports-free Program(JSON) lowering helper is now test-only; the remaining live lowering seam is `module_to_mir_json(...)`
        - worker consensus:
          - `module_to_mir_json(...)` is still live and not near thin-floor
          - `parse_input_json(...)` is still shared by prod + test-only imports seam and not the next target
