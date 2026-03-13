@@ -99,9 +99,13 @@ shared shell helper keep として残っている 3 file について、
 - `tools/selfhost/selfhost_build.sh --run` is green on the repaired payload
 - `tools/selfhost/selfhost_build.sh --exe` is green on that same repaired payload
 - for this fixture, `HAKO_USE_BUILDBOX=1` is still an explicit keep contract in code, but it no longer distinguishes success from failure; delete/retire arguments need caller-inventory proof rather than malformed-producer proof from `hello_simple_llvm`
+- `tools/smokes/v2/lib/test_runner.sh` is now safe to thin one lane at a time inside `verify_program_via_builder_to_core()`: the full `MirBuilderBox.emit_from_program_json_v0(...)` fallback now lives behind `emit_mir_json_via_full_mirbuilder()`, so the next helper-local tail is the Rust CLI fallback lane rather than the direct full-mirbuilder call itself
+- do not mix that `test_runner.sh` lane work with the 43-file smoke tail; the shared harness still stays the owner and the tail remains caller-audit-only
+- forced full-mirbuilder canary `tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` is still blocked by `[Phase 88] Ring0Context not initialized`; treat that as a separate runtime/entry blocker, not as a reason to undo or widen the helper-local split
 
 ## Immediate Next
 
 1. keep `tools/hakorune_emit_mir.sh` monitor-only while `selfhost_build.sh` downstream audit is active
 2. keep `tools/selfhost/selfhost_build.sh` monitor-only unless a new helper-local split inside the already isolated consumer helpers becomes necessary
-3. defer `tools/smokes/v2/lib/test_runner.sh` until the smoke tail audit is ready
+3. keep `tools/smokes/v2/lib/test_runner.sh` on helper-local slices only: thin `verify_program_via_builder_to_core()` one fallback lane at a time, without touching the smoke tail yet
+4. if `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` must go green, handle `[Phase 88] Ring0Context not initialized` as a separate runtime/entry owner and do not mix it into the next delete-order patch

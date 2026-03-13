@@ -526,6 +526,40 @@ HCODE
     fi
 }
 
+# Program(JSON v0) -> full MirBuilder fallback (env JSON → MIR JSON)
+emit_mir_json_via_full_mirbuilder() {
+    local prog_json_raw="$1"
+    local builder_stderr="$2"
+    local builder_stdout="$3"
+
+    local builder_code_full=$(cat <<'HCODE'
+using "hako.mir.builder" as MirBuilderBox
+static box Main { method main(args) {
+  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
+  if prog_json == null { print("Builder failed"); return 1 }
+  local mir_out = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
+  if mir_out == null { print("Builder failed"); return 1 }
+  print("[MIR_OUT_BEGIN]")
+  print("" + mir_out)
+  print("[MIR_OUT_END]")
+  return 0
+} }
+HCODE
+)
+
+    HAKO_MIR_BUILDER_INTERNAL=1 \
+        HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
+        HAKO_ROUTE_HAKOVM=1 \
+        NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
+        NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
+        NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
+        NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
+        HAKO_BUILDER_PROGRAM_JSON="$prog_json_raw" \
+        run_nyash_vm -c "$builder_code_full" 2>>"$builder_stderr" \
+        | tee -a "$builder_stdout" \
+        | awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag'
+}
+
 # New function: verify_program_via_builder_to_core
 # Purpose: Program(JSON v0) → MirBuilder(Hako) → MIR(JSON v0) → Core execution
 # This is dev-only for testing builder output quality
@@ -585,29 +619,7 @@ HCODE
 
     # Fallback Option A: try full MirBuilderBox (emit) when minimal runner fails
     if [ "$mir_json" = "Builder failed" ] || [ -z "$mir_json" ]; then
-        local builder_code_full=$(cat <<'HCODE'
-using "hako.mir.builder" as MirBuilderBox
-static box Main { method main(args) {
-  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null { print("Builder failed"); return 1 }
-  local mir_out = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
-  if mir_out == null { print("Builder failed"); return 1 }
-  print("[MIR_OUT_BEGIN]")
-  print("" + mir_out)
-  print("[MIR_OUT_END]")
-  return 0
-} }
-HCODE
-)
-        mir_json=$(HAKO_MIR_BUILDER_INTERNAL=1 \
-                   HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
-                   HAKO_ROUTE_HAKOVM=1 \
-                   NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-                   NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
-                   NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
-                   NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
-                   HAKO_BUILDER_PROGRAM_JSON="$prog_json_raw" \
-                   run_nyash_vm -c "$builder_code_full" 2>>"$builder_stderr" | tee -a "$builder_stdout" | awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag')
+        mir_json=$(emit_mir_json_via_full_mirbuilder "$prog_json_raw" "$builder_stderr" "$builder_stdout")
     fi
 
     # PRIMARY no-fallback: if requested, do not fall back to Rust CLI builder
