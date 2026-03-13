@@ -11,7 +11,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - thin lowering facade + shared parse/emit helpers
 - `mir_builder/user_box_decls.rs`
   - shared `user_box_decls` owner for source authority and explicit Program(JSON) kernel routes
-  - also owns the transient Program(JSON) materialization handoff for the live source route
+  - no longer owns the live source-route handoff leaf; the façade does that and reuses this owner only for shared `user_box_decls` shaping
 - `mir_builder/lowering/program_json.rs`
   - current `Program(JSON v0) -> MIR(JSON)` lowering owner
   - this is the real pure-`.hako` blocker inside the lowering half

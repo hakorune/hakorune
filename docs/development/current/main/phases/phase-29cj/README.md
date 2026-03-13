@@ -72,8 +72,8 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
      - `src/runtime/mirbuilder_emit.rs`
    - therefore, a future authority-removal slice should narrow those callers before broad cleanup elsewhere
 6. exact next ladder after `authority.rs` retirement:
-   - first remove `src/host_providers/mir_builder/user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)`
-   - second target `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)`
+   - landed: `src/host_providers/mir_builder/user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)` is retired
+   - next target `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)`
    - keep `src/stage1/program_json_v0/authority.rs` frozen as the strict source-authority core while those host-provider slices are still live
 
 ## Retreat Finding
@@ -86,7 +86,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder/user_box_decls.rs` owns the shared source-route handoff, `src/host_providers/mir_builder/lowering/program_json.rs` owns `Program(JSON v0) -> MIR(JSON)`, and `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
 - worker order decision is now pinned: retire the dedicated `authority.rs` adapter and then move `src/host_providers/mir_builder/user_box_decls.rs` before reopening the kernel Program(JSON) route; treat the kernel route as near thin floor unless an exact disappearing leaf appears
 - the test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in the `src/host_providers/mir_builder.rs` façade test surface
-- the dedicated `src/host_providers/mir_builder/authority.rs` adapter is gone; live source-route callers now enter through `source_to_mir_json(...)` and reach shared handoff owner `src/host_providers/mir_builder/user_box_decls.rs`
+- the dedicated `src/host_providers/mir_builder/authority.rs` adapter is gone, and the extra `user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)` leaf is gone too; live source-route callers now enter through `src/host_providers/mir_builder.rs::source_to_mir_json(...)` and use `user_box_decls.rs` only for shared Program(JSON) shaping
 - worker audit also raised the next non-Rust wave order after the current Rust-owned front: `lang/src/mir/builder/MirBuilderBox.hako` first, then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`, with shared producer `lang/src/compiler/build/build_box.hako` immediately behind that same wave; touching `build_box.hako` before those owner-local callers would be the highest-blast-radius move
 - the kernel `emit_from_program_json_v0` / `emit_from_source_v0` pair now also shares same-file gate/decode/freeze helpers, so the remaining kernel work is explicitly thin-floor support code rather than a fresh authority-removal front
 - the nearby future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`, so `src/stage1/program_json_v0/authority.rs` no longer mixes bridge-specific error wrapping with strict source authority

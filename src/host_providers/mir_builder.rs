@@ -95,7 +95,12 @@ pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, Stri
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    user_box_decls::source_to_mir_json_with_user_box_decls(source_text)
+    let program_json =
+        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
+            source_text,
+        )
+        .map_err(|e| format!("{FAILFAST_TAG} {}", e))?;
+    user_box_decls::program_json_to_mir_json_with_user_box_decls(&program_json)
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.

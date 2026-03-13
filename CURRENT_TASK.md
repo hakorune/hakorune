@@ -95,17 +95,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder/user_box_decls.rs`
-       - current source-route handoff still lives here (`source -> Program(JSON v0) -> user_box_decls -> MIR(JSON)`)
+       - current shared `user_box_decls` shaping still lives here (`Program(JSON v0) -> user_box_decls -> MIR(JSON)`)
        - this is the first real blocker for pure `.hako` compiler authority
-       - note: `src/host_providers/mir_builder.rs` is now just the public source-route façade; the dedicated `authority.rs` adapter is retired
+       - note: `src/host_providers/mir_builder.rs` is now the public source-route façade and again owns the tiny source-route handoff leaf; the dedicated `authority.rs` adapter is retired
        - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in façade test surface `src/host_providers/mir_builder.rs`
-       - latest tightening: live source-route callers now go straight through `source_to_mir_json(...)` to shared owner `src/host_providers/mir_builder/user_box_decls.rs`
+       - latest tightening: `source_to_mir_json_with_user_box_decls(...)` is retired; live source-route callers now enter `src/host_providers/mir_builder.rs::source_to_mir_json(...)` and reuse `user_box_decls.rs` only for shared Program(JSON) shaping
     2. `src/host_providers/mir_builder/lowering/program_json.rs`
        - current Program(JSON v0) -> MIR(JSON) lowering still lives here
        - this is a real blocker for pure `.hako` compiler authority
        - exact live caller map is now pinned:
-         - `src/host_providers/mir_builder/user_box_decls.rs`
-           - current `stage1-env-mir-source` shared source-route handoff owner
+         - `src/host_providers/mir_builder.rs`
+           - current `stage1-env-mir-source` façade handoff owner
          - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
            - explicit `emit_from_program_json_v0(...)` kernel/plugin route
            - next safest slice on this owner:
@@ -138,11 +138,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `.hako` live/bootstrap callers: `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}` and `lang/src/mir/builder/MirBuilderBox.hako`
     - shared shell keep: `tools/hakorune_emit_mir.sh`, `tools/selfhost/selfhost_build.sh`, `tools/smokes/v2/lib/test_runner.sh`
   - actual priority for pure `.hako-only hakorune build`:
-    1. de-Rust current source-route handoff in `src/host_providers/mir_builder/user_box_decls.rs`
-       - next exact slice:
-         - remove live source-route handoff leaf `source_to_mir_json_with_user_box_decls(...)`
-         - touch only `src/host_providers/mir_builder/user_box_decls.rs` and, if needed, façade entry `src/host_providers/mir_builder.rs`
-         - do not touch `src/host_providers/mir_builder/lowering/program_json.rs`, `src/stage1/program_json_v0/authority.rs`, `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`, or `src/runtime/mirbuilder_emit.rs`
+    1. de-Rust current source-route handoff in `src/host_providers/mir_builder.rs`
+       - landed: live source-route handoff leaf `source_to_mir_json_with_user_box_decls(...)` is retired
+       - current façade now owns only a tiny source-route handoff before shared Program(JSON) shaping
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering/program_json.rs`
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; kernel/plugin Program(JSON) caller is now treated as near thin floor unless an exact disappearing route leaf appears
@@ -158,9 +156,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     5. retire compiled-stage1 `build_surrogate.rs`
     6. retire `src/runner/stage1_bridge/**`
   - exact near-term task ladder:
-    1. `src/host_providers/mir_builder/authority.rs` is retired; treat `src/host_providers/mir_builder/user_box_decls.rs` as the remaining source-route handoff owner
-    2. next exact Rust slice: remove `source_to_mir_json_with_user_box_decls(...)` from `src/host_providers/mir_builder/user_box_decls.rs`
-    3. second exact Rust slice: target `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)`
+    1. `src/host_providers/mir_builder/authority.rs` is retired; `src/host_providers/mir_builder.rs` now owns only the tiny façade handoff leaf for `source_to_mir_json(...)`
+    2. `src/host_providers/mir_builder/user_box_decls.rs` is reduced to shared Program(JSON) shaping owner
+    3. next exact Rust slice: target `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)`
     4. keep `src/stage1/program_json_v0/authority.rs` focused on strict source authority only; future-retire bridge work now belongs to `src/stage1/program_json_v0/bridge_shim.rs`
     5. after the Rust-owned wave, begin `.hako` caller wave in this order:
        - `lang/src/mir/builder/MirBuilderBox.hako`
