@@ -101,6 +101,7 @@ shared shell helper keep として残っている 3 file について、
 - for this fixture, `HAKO_USE_BUILDBOX=1` is still an explicit keep contract in code, but it no longer distinguishes success from failure; delete/retire arguments need caller-inventory proof rather than malformed-producer proof from `hello_simple_llvm`
 - `tools/smokes/v2/lib/test_runner.sh` is now safe to thin one lane at a time inside `verify_program_via_builder_to_core()`: the full `MirBuilderBox.emit_from_program_json_v0(...)` fallback now lives behind `emit_mir_json_via_full_mirbuilder()`, so the next helper-local tail is the Rust CLI fallback lane rather than the direct full-mirbuilder call itself
 - `tools/smokes/v2/lib/test_runner.sh` now keeps that Rust CLI Program(JSON v0) fallback behind `run_program_json_v0_via_rust_cli_builder()`, so both builder lanes are owner-local helpers and the remaining top-level tail is shape/result routing rather than builder-lane duplication
+- `tools/smokes/v2/lib/test_runner.sh` now also keeps its shape/result routing behind `mir_json_looks_like_v0_module_text()` and `run_built_mir_json_via_verify_routes()`, so `verify_program_via_builder_to_core()` is mostly lane selection + no-fallback policy instead of carrying hv1/core/result routing inline
 - do not mix that `test_runner.sh` lane work with the 43-file smoke tail; the shared harness still stays the owner and the tail remains caller-audit-only
 - forced full-mirbuilder canary `tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` is still blocked by `[Phase 88] Ring0Context not initialized`; treat that as a separate runtime/entry blocker, not as a reason to undo or widen the helper-local split
 
@@ -108,5 +109,5 @@ shared shell helper keep として残っている 3 file について、
 
 1. keep `tools/hakorune_emit_mir.sh` monitor-only while `selfhost_build.sh` downstream audit is active
 2. keep `tools/selfhost/selfhost_build.sh` monitor-only unless a new helper-local split inside the already isolated consumer helpers becomes necessary
-3. keep `tools/smokes/v2/lib/test_runner.sh` on helper-local slices only: builder lanes are isolated now, so any next slice should target shape/result routing without touching the smoke tail yet
+3. keep `tools/smokes/v2/lib/test_runner.sh` on helper-local slices only: builder lanes and shape/result routing are isolated now, so any next slice should target the remaining runtime blocker or tiny route leaves without touching the smoke tail yet
 4. if `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` must go green, handle `[Phase 88] Ring0Context not initialized` as a separate runtime/entry owner and do not mix it into the next delete-order patch

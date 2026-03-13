@@ -587,6 +587,67 @@ run_program_json_v0_via_rust_cli_builder() {
     return $rc
 }
 
+mir_json_looks_like_v0_module_text() {
+    local mir_json="$1"
+    grep -q '"functions"' <<<"$mir_json" && grep -q '"blocks"' <<<"$mir_json"
+}
+
+# Built MIR(JSON) result routing after builder lanes are done.
+# - caller handles upstream builder fallback / no-fallback policy
+# - this helper only routes an already-built MIR payload to builder-only / hv1 / hako-core / core-v0 execution
+run_built_mir_json_via_verify_routes() {
+    local mir_json="$1"
+    local mir_json_path="$2"
+
+    if [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" = "1" ]; then
+        if mir_json_looks_like_v0_module_text "$mir_json"; then
+            return 0
+        fi
+        return 1
+    fi
+
+    # Route: if builder output contains v1 hints, run hv1 dispatcher inline.
+    if grep -q '"schema_version"' <<<"$mir_json" || grep -q '"op"\s*:\s*"mir_call"' <<<"$mir_json"; then
+        local hv1_rc
+        local mir_literal; mir_literal="$(printf '%s' "$mir_json" | jq -Rs .)"
+        hv1_rc=$(run_hv1_inline_alias_wrapper "$mir_literal")
+        if [[ "$hv1_rc" =~ ^-?[0-9]+$ ]]; then
+            if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: hakovm (hako)" >&2; fi
+            local n=$hv1_rc; if [ $n -lt 0 ]; then n=$(( (n % 256 + 256) % 256 )); else n=$(( n % 256 )); fi
+            return $n
+        fi
+    fi
+
+    # Route: if builder output is v0 but contains unified-only ops (newbox/boxcall),
+    # execute via Hako Core dispatcher (NyVmDispatcher.run) which supports extended v0.
+    if grep -q '"op"\s*:\s*"newbox"' <<<"$mir_json" || grep -q '"op"\s*:\s*"boxcall"' <<<"$mir_json"; then
+        local mir_literal2; mir_literal2="$(printf '%s' "$mir_json" | jq -Rs .)"
+        local code=$(cat <<'HCODE'
+include "lang/src/vm/core/dispatcher.hako"
+static box Main { method main(args) {
+  local j = env.get("NYASH_VERIFY_JSON")
+  local r = NyVmDispatcher.run(j)
+  print("" + r)
+  return r
+} }
+HCODE
+)
+        local out; out=$(NYASH_VERIFY_JSON="$mir_literal2" NYASH_PREINCLUDE=1 run_nyash_vm -c "$code" 2>/dev/null | tr -d '\r' | awk '/^-?[0-9]+$/{n=$0} END{if(n!="") print n}')
+        if [[ "$out" =~ ^-?[0-9]+$ ]]; then
+            local n=$out; if [ $n -lt 0 ]; then n=$(( (n % 256 + 256) % 256 )); else n=$(( n % 256 )); fi
+            return $n
+        fi
+    fi
+
+    # Default: write MIR JSON to temp file and execute via Core
+    echo "$mir_json" > "$mir_json_path"
+    if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: core (rust)" >&2; fi
+    "$NYASH_BIN" --mir-json-file "$mir_json_path" >/dev/null 2>&1
+    local rc=$?
+    rm -f "$mir_json_path"
+    return $rc
+}
+
 # New function: verify_program_via_builder_to_core
 # Purpose: Program(JSON v0) → MirBuilder(Hako) → MIR(JSON v0) → Core execution
 # This is dev-only for testing builder output quality
@@ -670,64 +731,15 @@ HCODE
     rm -f "$builder_stderr" "$builder_stdout"
 
     # Validate builder output looks like MIR JSON; otherwise fallback to Rust CLI (unless PRIMARY no-fallback)
-    if ! grep -q '"functions"' <<<"$mir_json" || ! grep -q '"blocks"' <<<"$mir_json"; then
+    if ! mir_json_looks_like_v0_module_text "$mir_json"; then
         if [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ]; then
             return 1
         fi
         run_program_json_v0_via_rust_cli_builder "$prog_json_path" 0
         return $?
     fi
-
-    # Route: if builder output contains v1 hints, run hv1 dispatcher inline.
-    if grep -q '"schema_version"' <<<"$mir_json" || grep -q '"op"\s*:\s*"mir_call"' <<<"$mir_json"; then
-        local hv1_rc
-        local mir_literal; mir_literal="$(printf '%s' "$mir_json" | jq -Rs .)"
-        hv1_rc=$(run_hv1_inline_alias_wrapper "$mir_literal")
-        if [[ "$hv1_rc" =~ ^-?[0-9]+$ ]]; then
-            if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: hakovm (hako)" >&2; fi
-            local n=$hv1_rc; if [ $n -lt 0 ]; then n=$(( (n % 256 + 256) % 256 )); else n=$(( n % 256 )); fi
-            return $n
-        fi
-    fi
-
-    # Route: if builder output is v0 but contains unified-only ops (newbox/boxcall),
-    # execute via Hako Core dispatcher (NyVmDispatcher.run) which supports extended v0.
-    if grep -q '"op"\s*:\s*"newbox"' <<<"$mir_json" || grep -q '"op"\s*:\s*"boxcall"' <<<"$mir_json"; then
-        local mir_literal2; mir_literal2="$(printf '%s' "$mir_json" | jq -Rs .)"
-        local code=$(cat <<'HCODE'
-include "lang/src/vm/core/dispatcher.hako"
-static box Main { method main(args) {
-  local j = env.get("NYASH_VERIFY_JSON")
-  local r = NyVmDispatcher.run(j)
-  print("" + r)
-  return r
-} }
-HCODE
-)
-        local out; out=$(NYASH_VERIFY_JSON="$mir_literal2" NYASH_PREINCLUDE=1 run_nyash_vm -c "$code" 2>/dev/null | tr -d '\r' | awk '/^-?[0-9]+$/{n=$0} END{if(n!="") print n}')
-        if [[ "$out" =~ ^-?[0-9]+$ ]]; then
-            local n=$out; if [ $n -lt 0 ]; then n=$(( (n % 256 + 256) % 256 )); else n=$(( n % 256 )); fi
-            return $n
-        fi
-    fi
-
-    # Optional: structure-only check (builder only) for fast mode
-    if [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" = "1" ]; then
-        if echo "$mir_json" | grep -q '"functions"' && echo "$mir_json" | grep -q '"blocks"'; then
-            return 0
-        else
-            return 1
-        fi
-    fi
-
-    # Write MIR JSON to temp file and execute via Core
-    echo "$mir_json" > "$mir_json_path"
-    if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: core (rust)" >&2; fi
-    "$NYASH_BIN" --mir-json-file "$mir_json_path" >/dev/null 2>&1
-    local rc=$?
-
-    rm -f "$mir_json_path"
-    return $rc
+    run_built_mir_json_via_verify_routes "$mir_json" "$mir_json_path"
+    return $?
 }
 
 # hv1 inline alias-only wrapper (env JSON → hv1 dispatcher)
