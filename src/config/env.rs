@@ -286,7 +286,10 @@ pub(crate) fn warn_alias_once(alias: &str, primary: &str) {
     let set = WARNED_ALIASES.get_or_init(|| Mutex::new(HashSet::new()));
     if let Ok(mut s) = set.lock() {
         if !s.contains(alias) {
-            let ring0 = crate::runtime::ring0::get_global_ring0();
+            // Env alias warnings can fire during early CLI parsing, before main() has
+            // explicitly initialized Ring0. Keep the warning path fail-fast but
+            // self-contained by ensuring Ring0 on first use.
+            let ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
             ring0.log.warn(&format!(
                 "[deprecate/env] '{}' is deprecated; use '{}'",
                 alias, primary

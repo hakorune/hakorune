@@ -261,6 +261,33 @@ mod tests {
     }
 
     #[test]
+    fn test_program_json_to_mir_json_keeps_main_params_canonical_for_core_exec() {
+        ensure_test_ring0();
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {"type": "Int", "value": 42}
+                }
+            ]
+        }"#;
+
+        let result = program_json_to_mir_json(program_json);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let mir_json = result.unwrap();
+        let parsed: serde_json::Value =
+            serde_json::from_str(&mir_json).expect("mir json must parse as JSON");
+        assert_eq!(
+            parsed["functions"][0]["params"],
+            serde_json::json!([0]),
+            "main params must stay canonical for core exec"
+        );
+    }
+
+    #[test]
     fn test_imported_alias_qualified_call_uses_json_imports() {
         ensure_test_ring0();
         let program_json = r#"{

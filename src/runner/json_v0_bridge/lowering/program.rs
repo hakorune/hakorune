@@ -249,11 +249,9 @@ pub(super) fn lower_main_body(
     let mut f = MirFunction::new(sig, entry);
     let mut var_map: BTreeMap<String, ValueId> = BTreeMap::new();
     // Stage-3 programs (launcher / CLI entry) implicitly reference `args`.
-    let args_param = ValueId::new(1);
-    f.params = vec![args_param];
-    if f.next_value_id < 2 {
-        f.next_value_id = 2;
-    }
+    // MirFunction::new() already reserves canonical params [0..N-1]; keep that
+    // SSOT so emitted MIR stays executable by both v1 and v0 loaders.
+    let args_param = f.params.first().copied().unwrap_or(ValueId::new(0));
     var_map.insert("args".into(), args_param);
     let mut loop_stack: Vec<LoopContext> = Vec::new();
     let start_bb = f.entry_block;

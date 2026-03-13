@@ -526,38 +526,51 @@ HCODE
     fi
 }
 
-# Program(JSON v0) -> full MirBuilder fallback (env JSON → MIR JSON)
-emit_mir_json_via_full_mirbuilder() {
+# Program(JSON v0) -> provider emit wrapper (MIR v1 extern -> MIR JSON)
+# Keep the provider owner exact while avoiding vm-hako subset debt from
+# compiling a temporary .hako wrapper with newbox(MirBuilderBox/hostbridge).
+emit_mir_json_via_provider_extern_v1() {
     local prog_json_raw="$1"
     local builder_stderr="$2"
     local builder_stdout="$3"
+    local tmp_json
+    local prog_json_quoted
+    tmp_json=$(mktemp /tmp/nyash_provider_emit_v1.XXXXXX.json)
+    prog_json_quoted=$(printf '%s' "$prog_json_raw" | jq -Rs .)
 
-    local builder_code_full=$(cat <<'HCODE'
-using "hako.mir.builder" as MirBuilderBox
-static box Main { method main(args) {
-  local prog_json = env.get("HAKO_BUILDER_PROGRAM_JSON")
-  if prog_json == null { print("Builder failed"); return 1 }
-  local mir_out = MirBuilderBox.emit_from_program_json_v0(prog_json, null)
-  if mir_out == null { print("Builder failed"); return 1 }
-  print("[MIR_OUT_BEGIN]")
-  print("" + mir_out)
-  print("[MIR_OUT_END]")
-  return 0
-} }
-HCODE
-)
+    cat >"$tmp_json" <<JSON
+{
+  "schema_version": "1.0",
+  "functions": [
+    {
+      "name": "main",
+      "blocks": [
+        { "id": 0, "instructions": [
+          {"op":"const","dst":0, "value": {"type": {"kind":"handle","box_type":"StringBox"}, "value": "env.mirbuilder.emit"}},
+          {"op":"const","dst":1, "value": {"type": {"kind":"handle","box_type":"StringBox"}, "value": ${prog_json_quoted}}},
+          {"op":"mir_call","dst":2, "callee": {"type":"Extern","name":"env.mirbuilder.emit"}, "args": [1], "effects": [] },
+          {"op":"const","dst":3, "value": {"type": {"kind":"handle","box_type":"StringBox"}, "value": "[MIR_OUT_BEGIN]"}},
+          {"op":"mir_call","callee": {"type":"Extern","name":"print"}, "args": [3], "effects": [] },
+          {"op":"mir_call","callee": {"type":"Extern","name":"print"}, "args": [2], "effects": [] },
+          {"op":"const","dst":4, "value": {"type": {"kind":"handle","box_type":"StringBox"}, "value": "[MIR_OUT_END]"}},
+          {"op":"mir_call","callee": {"type":"Extern","name":"print"}, "args": [4], "effects": [] },
+          {"op":"const","dst":5, "value": {"type":"i64", "value": 0}},
+          {"op":"ret", "value": 5}
+        ] }
+      ]
+    }
+  ]
+}
+JSON
 
-    HAKO_MIR_BUILDER_INTERNAL=1 \
-        HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
-        HAKO_ROUTE_HAKOVM=1 \
-        NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-        NYASH_USING_AST=1 NYASH_RESOLVE_FIX_BRACES=1 \
-        NYASH_DISABLE_NY_COMPILER=1 NYASH_FEATURES=stage3 \
-        NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 \
-        HAKO_BUILDER_PROGRAM_JSON="$prog_json_raw" \
-        run_nyash_vm -c "$builder_code_full" 2>>"$builder_stderr" \
+    set +e
+    "$NYASH_BIN" --mir-json-file "$tmp_json" 2>>"$builder_stderr" \
         | tee -a "$builder_stdout" \
         | awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag'
+    local rc=${PIPESTATUS[0]}
+    set -e
+    rm -f "$tmp_json" 2>/dev/null || true
+    return $rc
 }
 
 # Program(JSON v0) -> Rust CLI builder fallback
@@ -707,7 +720,7 @@ HCODE
 
     # Fallback Option A: try full MirBuilderBox (emit) when minimal runner fails
     if [ "$mir_json" = "Builder failed" ] || [ -z "$mir_json" ]; then
-        mir_json=$(emit_mir_json_via_full_mirbuilder "$prog_json_raw" "$builder_stderr" "$builder_stdout")
+        mir_json=$(emit_mir_json_via_provider_extern_v1 "$prog_json_raw" "$builder_stderr" "$builder_stdout")
     fi
 
     # PRIMARY no-fallback: if requested, do not fall back to Rust CLI builder
