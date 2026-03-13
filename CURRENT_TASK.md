@@ -57,6 +57,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Immediate Next (this round)
 
+- `phase-29cj` reviewer sync (2026-03-14):
+  - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`
+  - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` is now treated as near `thin floor`; do not keep shrinking it unless an exact disappearing leaf is obvious first
+  - safest next Rust-owned slice is the bridge-local `program_json` cluster, starting from `src/runner/stage1_bridge/program_json/{mod.rs,pipeline.rs}`
+  - do not take `src/runner/stage1_bridge/program_json_entry/request.rs` next; it is closer to env / outer-caller contract blast radius than the bridge-local `program_json` cluster
+  - if one collapse is chosen now, prefer collapsing `src/runner/stage1_bridge/program_json/pipeline.rs` into `src/runner/stage1_bridge/program_json/mod.rs`; do not collapse `build_surrogate.rs` back into shared dispatch and do not collapse `program_json_entry/request.rs`
+
 - de-rust selfhost top-level closeout:
   - `phase-29cc` accepted monitor-only
   - `phase-29ce` accepted
