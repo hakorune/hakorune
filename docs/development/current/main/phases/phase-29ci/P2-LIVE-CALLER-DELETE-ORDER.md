@@ -85,6 +85,7 @@ Related:
 - `lang/src/runner/launcher.hako` は direct Program(JSON) / MIR checked path を owner-local helper へまとめられるので、`.hako` owner audit は 4 file を同時に触らず 1 owner ずつ薄くしていくのが安全
 - `lang/src/runner/stage1_cli.hako` も direct `BuildBox.emit_program_json_v0(...)` checked path を owner-local helper に寄せられるので、`.hako` owner audit は runner file ごとに local helper 化を進めるのが安全
 - `lang/src/runner/stage1_cli_env.hako` も authority box 内の direct `BuildBox.emit_program_json_v0(...)` path を same-file helper に寄せられるので、env-route owner でも direct checked path を増やさずに薄くできる
+- `lang/src/mir/builder/MirBuilderBox.hako` は `emit_from_source_v0(...)` の source-entry shim を local helper 化できるが、`emit_from_program_json_v0(...)` 本体は owner policy が濃いので同じ slice で混ぜない方が安全
 - したがって、次の delete slice を shell helper や `.hako` owner へ広げると scope が跳ねる
 - 次の実 caller audit は `.hako` owner 4 file を先に主語にし、shared helper 3 file と smoke tail 43 file は別 bucket として扱う
 

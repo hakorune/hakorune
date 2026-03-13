@@ -67,6 +67,7 @@ Related:
 - `.hako` owner thinning can proceed one file at a time; `lang/src/runner/launcher.hako` now groups its checked Program(JSON) / MIR direct call sites behind owner-local helpers instead of keeping three duplicated checked paths
 - `.hako` owner thinning is also valid for `lang/src/runner/stage1_cli.hako`; its direct `BuildBox.emit_program_json_v0(...)` checked path now stays behind an owner-local helper instead of remaining duplicated between `emit_program_json(...)` and `_mode_emit_program(...)`
 - `.hako` owner thinning is also valid for `lang/src/runner/stage1_cli_env.hako`; its authority box now keeps direct `BuildBox.emit_program_json_v0(...)` behind a same-file helper shared by authority emit and defs-synthesis lowering
+- `.hako` owner thinning is also valid for `lang/src/mir/builder/MirBuilderBox.hako`; `emit_from_source_v0(...)` now keeps its direct `BuildBox.emit_program_json_v0(...)` source-entry shim behind an owner-local helper, while `emit_from_program_json_v0(...)` remains the separate owner policy surface
 
 ## Immediate Next Slice
 

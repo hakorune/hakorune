@@ -579,11 +579,17 @@ static box MirBuilderBox {
       print("[mirbuilder/input/null] source_text is null")
       return null
     }
+    local program_json = me._emit_program_json_from_source_checked(source_text, opts)
+    if program_json == null { return null }
+    return me.emit_from_program_json_v0(program_json, opts)
+  }
+
+  method _emit_program_json_from_source_checked(source_text, opts) {
     local program_json = BuildBox.emit_program_json_v0("" + source_text, opts)
     if program_json == null {
       print("[mirbuilder/input/invalid] BuildBox returned null")
       return null
     }
-    return me.emit_from_program_json_v0(program_json, opts)
+    return program_json
   }
 }
