@@ -192,6 +192,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
        - keep `lang/src/compiler/build/build_box.hako` behind those owner-local callers because it has the highest blast radius
        - latest landed slice: `MirBuilderBox.emit_from_program_json_v0(...)` delegate branch now owns local `user_box_decls` MIR finalize before normalization
+       - latest tightening: internal/delegate gate decisions in `MirBuilderBox.hako` now read through `lang/src/mir/builder/internal/builder_config_box.hako`; keep `emit_from_source_v0(...)` as a live compat seam because kernel route + route-evidence probes still call it
     4. keep `src/stage1/program_json_v0/authority.rs` frozen until the replacement wave is ready
        - this file is now the strict source-authority core, not the next generic cleanup target
   - milestone wording lock:

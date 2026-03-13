@@ -21,6 +21,8 @@ static box BuilderConfigBox {
     // default ON
     return (v == null) || ("" + v == "1")
   }
+  delegate_on() { return me._is_on("HAKO_MIR_BUILDER_DELEGATE") }
+  selfhost_no_delegate_on() { return me._is_on("HAKO_SELFHOST_NO_DELEGATE") }
   registry_on() {
     local v = env.get("HAKO_MIR_BUILDER_REGISTRY")
     // default ON

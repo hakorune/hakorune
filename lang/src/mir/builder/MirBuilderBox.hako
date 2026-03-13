@@ -19,6 +19,7 @@
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 using lang.compiler.build.build_box as BuildBox
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
 using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using lang.mir.builder.func_lowering as FuncLoweringBox
@@ -82,17 +83,13 @@ static box MirBuilderBox {
 
   // Availability probe (for canaries)
   is_available() {
-    // For now, availability means delegate toggle is present
-    local t = env.get("HAKO_MIR_BUILDER_DELEGATE")
-    if t == null { return 0 }
-    if ("" + t) == "1" { return 1 } else { return 0 }
+    return BuilderConfigBox.delegate_on()
   }
 
 
   // Main entry
   method emit_from_program_json_v0(program_json, opts) {
     // Debug tag (dev toggle only)
-    using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
     if BuilderConfigBox.trace_enabled() == 1 {
       print("[mirbuilder/entry:build]")
     }
@@ -123,9 +120,7 @@ static box MirBuilderBox {
     // Internal path（既定ON） — const(int)+ret, binop+ret ほか、registry 優先の lowering
     // Disable with: HAKO_MIR_BUILDER_INTERNAL=0
     {
-      local internal = env.get("HAKO_MIR_BUILDER_INTERNAL")
-      local internal_on = 0
-      if internal == null || ("" + internal) == "1" { internal_on = 1 }
+      local internal_on = BuilderConfigBox.internal_on()
       if internal_on == 1 {
         // Dev-only: force loop JSONFrag minimal output (pre-optimization bring-up)
         // Guard: HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=1
@@ -590,8 +585,7 @@ static box MirBuilderBox {
     // Selfhost-first profile: when explicitly disabled, do not delegate even if
     // HAKO_MIR_BUILDER_DELEGATE=1 が立っていても env.mirbuilder.emit には逃げない。
     {
-      local no_delegate = env.get("HAKO_SELFHOST_NO_DELEGATE")
-      if no_delegate != null && ("" + no_delegate) == "1" {
+      if BuilderConfigBox.selfhost_no_delegate_on() == 1 {
         if env.get("HAKO_SELFHOST_TRACE") == "1" {
           print("[mirbuilder/delegate/disabled] HAKO_SELFHOST_NO_DELEGATE=1; internal-only mode")
         }
@@ -599,8 +593,7 @@ static box MirBuilderBox {
       }
     }
     // Delegate-first policy (Phase 20.34 Milestone A)
-    local d = env.get("HAKO_MIR_BUILDER_DELEGATE")
-    if d != null && ("" + d) == "1" {
+    if BuilderConfigBox.delegate_on() == 1 {
       // Call host provider via extern: env.mirbuilder.emit(program_json)
       local args = new ArrayBox(); args.push(program_json)
       local ret = hostbridge.extern_invoke("env.mirbuilder", "emit", args)
