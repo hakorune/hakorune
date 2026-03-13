@@ -20,6 +20,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 using lang.compiler.build.build_box as BuildBox
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using "hako.mir.builder.internal.registry_authority" as BuilderRegistryAuthorityBox
 using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using lang.mir.builder.func_lowering as FuncLoweringBox
@@ -134,107 +135,33 @@ static box MirBuilderBox {
             return me._norm_if_apply(mir, func_defs_mir)
           }
         }
-        // Optional: registry-driven lowering (scaffold). When HAKO_MIR_BUILDER_REGISTRY=1,
-        // iterate PatternRegistryBox.candidates() and dispatch by name.
-        // NOTE: using/alias は prelude で解決される（位置に依存しない）。
-        local use_reg = env.get("HAKO_MIR_BUILDER_REGISTRY")
-        local reg_on = 0
-        if use_reg == null || ("" + use_reg) == "1" { reg_on = 1 }
-        if reg_on == 1 {
-          // Optional: restrict registry candidates to a single name for bring-up
-          local only = env.get("HAKO_MIR_BUILDER_REGISTRY_ONLY")
-          // Fast path: registry-only=arraymap → 最小JsonFrag実装（heavy using を回避）
-          if only != null && ("" + only) == "return.method.arraymap" {
-            // Minimal inline lower (Return(Method Var recv, method, args...)) → mir_call(JSON文字列)
-            // Scope: method in {get,set,push,length,size,len}（argsは最大2；Intのみ許容）
-            local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
-            local k_m = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", k_ret); if k_m < 0 { return null }
-            local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{\"type\":\"Var\"", k_m); if k_recv < 0 { return null }
-            local k_mm = JsonFragBox.index_of_from(s, "\"method\":\"", k_m); if k_mm < 0 { return null }
-            local method = JsonFragBox.read_string_after(s, k_mm + 9); if method == null { return null }
-            // allow aliases
-            if method == "len" { method = "length" }
-            // build insts: receiver placeholder const 0 → r1
-            local insts = "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}"
-            // parse up to two Int args
-            local args_text = ""; local next_id = 2; local first = 1
-            local k_args = JsonFragBox.index_of_from(s, "\"args\":", k_m)
-            if k_args >= 0 {
-              // first Int
-              local k_i1 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
-              if k_i1 >= 0 {
-                local kv1 = JsonFragBox.index_of_from(s, "\"value\":", k_i1); if kv1 >= 0 {
-                  local v1 = JsonFragBox.read_int_after(s, kv1 + 8)
-                  if v1 != null { insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v1 + "}}"; args_text = args_text + ("" + next_id); next_id = next_id + 1; first = 0 }
-                }
-              }
-              // second Int
-              local k_i2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args + 1)
-              if k_i2 >= 0 {
-                local kv2 = JsonFragBox.index_of_from(s, "\"value\":", k_i2); if kv2 >= 0 {
-                  local v2 = JsonFragBox.read_int_after(s, kv2 + 8)
-                  if v2 != null { insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v2 + "}}"; if first==0 { args_text = args_text + "," } ; args_text = args_text + ("" + next_id) }
-                }
-              }
-            }
-            local mir = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
-                       insts + "," +
-                       "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":4,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"method\\\":\\\"" + method + "\\\",\\\"receiver\\\":1},\\\"args\\\":[" + args_text + "],\\\"effects\\\":[]}}," +
-                       "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":4}]}]}]}"
-            print("[mirbuilder/registry:return.method.arraymap]")
-            return me._norm_if_apply(mir, func_defs_mir)
-          }
-          // Registry list（汎用）
-          using "hako.mir.builder.pattern_registry" as PatternRegistryBox
-          // Lowers needed by registry dispatch（using は prelude で集約される）
-          using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
-          using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
-          using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
-          using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIntBox
-          using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
-          using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
-          using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
-          using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
-          using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
-          using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
-          using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
-          using "hako.mir.builder.internal.lower_return_float" as LowerReturnFloatBox
-          using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
-          using "hako.mir.builder.internal.lower.logical" as LowerReturnLogicalBox
-          using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
-          using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
-          using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
-          using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
-          using "hako.mir.builder.internal.lower_return_loop_strlen_sum" as LowerReturnLoopStrlenSumBox
-          // Registry list（通常）
-          local names = PatternRegistryBox.candidates()
-          if only != null { local arr = new ArrayBox(); arr.push("" + only); names = arr }
-          local i = 0; local n = names.length()
-          loop(i < n) {
-            local nm = "" + names.get(i)
-            if nm == "if.compare.intint" { local out = LowerIfCompareBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "if.compare.fold.binints" { local out = LowerIfCompareFoldBinIntsBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "if.compare.fold.varint" { local out = LowerIfCompareFoldVarIntBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "if.compare.varint" { local out = LowerIfCompareVarIntBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "if.compare.varvar" { local out = LowerIfCompareVarVarBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "if.merge.local.return.var" { local out = LowerIfMergeLocalReturnVarBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "loop.local.return.var" { local out = LowerLoopLocalReturnVarBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.method.arraymap" { local out = LowerReturnMethodArrayMapBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.method.string.length" { local out = LowerReturnMethodStringLengthBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.loop.strlen.sum" { local out = LowerReturnLoopStrlenSumBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.var.local" { local out = LowerReturnVarLocalBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.string" { local out = LowerReturnStringBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.float" { local out = LowerReturnFloatBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.bool" { local out = LowerReturnBoolBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.logical" { local out = LowerReturnLogicalBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.binop.varint" { local out = LowerReturnBinOpVarIntBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.binop.varvar" { local out = LowerReturnBinOpVarVarBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.binop.intint" { local out = LowerReturnBinOpBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            if nm == "return.int" { local out = LowerReturnIntBox.try_lower(s); if out != null { if env.get("HAKO_MIR_BUILDER_DEBUG")=="1" || env.get("NYASH_CLI_VERBOSE")=="1" { print("[mirbuilder/registry:" + nm + "]") } return me._norm_if_apply(out, func_defs_mir) } }
-            i = i + 1
-          }
-          // Fall-through to chain if none matched
+        // Registry-first mainline authority now lives in the internal owner.
+        // Keep registry-only arraymap probe semantics there, and leave the
+        // generic chain below as fallback/compat for non-registry shapes.
+        {
+          local out_reg = BuilderRegistryAuthorityBox.try_lower(s)
+          if out_reg != null { return me._norm_if_apply(out_reg, func_defs_mir) }
         }
+        // Fallback chain keeps the broader non-registry/internal compat shapes.
+        using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
+        using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
+        using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
+        using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIntBox
+        using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
+        using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
+        using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
+        using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
+        using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
+        using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
+        using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
+        using "hako.mir.builder.internal.lower_return_float" as LowerReturnFloatBox
+        using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
+        using "hako.mir.builder.internal.lower.logical" as LowerReturnLogicalBox
+        using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
+        using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
+        using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
+        using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
+        using "hako.mir.builder.internal.lower_return_loop_strlen_sum" as LowerReturnLoopStrlenSumBox
         // Boxified lowers via using+alias (prefer using over include; VM include unsupported)
         using "hako.mir.builder.internal.lower_if_then_else_following_return" as LowerIfThenElseFollowingReturnBox
         using "hako.mir.builder.internal.lower_if_nested" as LowerIfNestedBox

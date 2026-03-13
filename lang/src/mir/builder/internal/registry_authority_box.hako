@@ -1,0 +1,133 @@
+// registry_authority_box.hako — registry-first Program(JSON) -> MIR authority unit
+// Scope: the normal mainline registry-first lowers inside MirBuilderBox.
+// Non-goals: source-entry shim, delegate/provider compat tail, non-registry fallback chain.
+
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using "hako.mir.builder.pattern_registry" as PatternRegistryBox
+using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
+using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
+using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
+using "hako.mir.builder.internal.lower_if_compare_varint" as LowerIfCompareVarIntBox
+using "hako.mir.builder.internal.lower_if_compare_varvar" as LowerIfCompareVarVarBox
+using "lang.mir.builder.internal.lower_if_merge_local_return_var_box" as LowerIfMergeLocalReturnVarBox
+using "lang.mir.builder.internal.lower_loop_local_return_var_box" as LowerLoopLocalReturnVarBox
+using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
+using "hako.mir.builder.internal.lower_return_method_string_length" as LowerReturnMethodStringLengthBox
+using "hako.mir.builder.internal.lower_return_var_local" as LowerReturnVarLocalBox
+using "hako.mir.builder.internal.lower_return_string" as LowerReturnStringBox
+using "hako.mir.builder.internal.lower_return_float" as LowerReturnFloatBox
+using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
+using "hako.mir.builder.internal.lower.logical" as LowerReturnLogicalBox
+using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
+using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
+using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
+using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
+using "hako.mir.builder.internal.lower_return_loop_strlen_sum" as LowerReturnLoopStrlenSumBox
+
+static box BuilderRegistryAuthorityBox {
+  method try_lower(program_json) {
+    if BuilderConfigBox.registry_on() != 1 { return null }
+    local s = "" + program_json
+    local only = BuilderConfigBox.registry_only()
+
+    // Keep the explicit direct probe lane stable while moving the normal
+    // registry-first mainline into a dedicated owner.
+    if only != null && ("" + only) == "return.method.arraymap" {
+      local raw = me._try_lower_registry_only_arraymap(s)
+      if raw != null {
+        print("[mirbuilder/registry:return.method.arraymap]")
+        return raw
+      }
+      return null
+    }
+
+    local names = PatternRegistryBox.candidates()
+    if only != null {
+      local arr = new ArrayBox()
+      arr.push("" + only)
+      names = arr
+    }
+
+    local i = 0
+    local n = names.length()
+    loop(i < n) {
+      local nm = "" + names.get(i)
+      if nm == "if.compare.intint" { local out = LowerIfCompareBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "if.compare.fold.binints" { local out = LowerIfCompareFoldBinIntsBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "if.compare.fold.varint" { local out = LowerIfCompareFoldVarIntBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "if.compare.varint" { local out = LowerIfCompareVarIntBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "if.compare.varvar" { local out = LowerIfCompareVarVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "if.merge.local.return.var" { local out = LowerIfMergeLocalReturnVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "loop.local.return.var" { local out = LowerLoopLocalReturnVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.method.arraymap" { local out = LowerReturnMethodArrayMapBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.method.string.length" { local out = LowerReturnMethodStringLengthBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.loop.strlen.sum" { local out = LowerReturnLoopStrlenSumBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.var.local" { local out = LowerReturnVarLocalBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.string" { local out = LowerReturnStringBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.float" { local out = LowerReturnFloatBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.bool" { local out = LowerReturnBoolBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.logical" { local out = LowerReturnLogicalBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.binop.varint" { local out = LowerReturnBinOpVarIntBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.binop.varvar" { local out = LowerReturnBinOpVarVarBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.binop.intint" { local out = LowerReturnBinOpBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      if nm == "return.int" { local out = LowerReturnIntBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
+      i = i + 1
+    }
+
+    return null
+  }
+
+  method _debug_registry_hit(name) {
+    if BuilderConfigBox.debug_enabled() == 1 {
+      print("[mirbuilder/registry:" + name + "]")
+    }
+  }
+
+  method _try_lower_registry_only_arraymap(s) {
+    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
+    local k_m = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", k_ret); if k_m < 0 { return null }
+    local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{\"type\":\"Var\"", k_m); if k_recv < 0 { return null }
+    local k_mm = JsonFragBox.index_of_from(s, "\"method\":\"", k_m); if k_mm < 0 { return null }
+    local method = JsonFragBox.read_string_after(s, k_mm + 9); if method == null { return null }
+    if method == "len" { method = "length" }
+
+    local insts = "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}"
+    local args_text = ""
+    local next_id = 2
+    local first = 1
+    local k_args = JsonFragBox.index_of_from(s, "\"args\":", k_m)
+    if k_args >= 0 {
+      local k_i1 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
+      if k_i1 >= 0 {
+        local kv1 = JsonFragBox.index_of_from(s, "\"value\":", k_i1); if kv1 >= 0 {
+          local v1 = JsonFragBox.read_int_after(s, kv1 + 8)
+          if v1 != null {
+            insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v1 + "}}"
+            args_text = args_text + ("" + next_id)
+            next_id = next_id + 1
+            first = 0
+          }
+        }
+      }
+      local k_i2b = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args + 1)
+      if k_i2b >= 0 {
+        local kv2b = JsonFragBox.index_of_from(s, "\"value\":", k_i2b)
+        if kv2b >= 0 {
+          local v2 = JsonFragBox.read_int_after(s, kv2b + 8)
+          if v2 != null {
+            insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v2 + "}}"
+            if first == 0 { args_text = args_text + "," }
+            args_text = args_text + ("" + next_id)
+            next_id = next_id + 1
+          }
+        }
+      }
+    }
+
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
+           insts + "," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":4,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"method\\\":\\\"" + method + "\\\",\\\"receiver\\\":1},\\\"args\\\":[" + args_text + "],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":4}]}]}]}"
+  }
+}
