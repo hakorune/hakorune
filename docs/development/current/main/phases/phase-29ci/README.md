@@ -1,5 +1,5 @@
 ---
-Status: Accepted (queued)
+Status: Accepted (closeout-ready)
 Decision: accepted
 Date: 2026-03-13
 Scope: `phase-29ch` closeout 後に `Program(JSON v0)` bootstrap boundary 自体を retire するための separate phase pointer。
@@ -92,7 +92,7 @@ Related:
   - the adjacent `phase2044/hako_primary_no_fallback_*` caller bucket also uses `run_verify_program_via_hako_primary_no_fallback_to_core()`, so repeated no-fallback/internal-builder env setup no longer lives inline in each script
   - the first `phase2160/builder_min_*` caller bucket now uses `run_program_json_via_builder_module_vm("hako.mir.builder.min", ...)`, so repeated temp wrapper creation and default stage3/using vm launch setup no longer live inline in each script
   - `phase2160/registry_optin_*` now splits into three exact launch contracts: plain wrappers use `run_program_json_via_registry_builder_module_vm(...)`, preinclude-heavy wrappers use `run_program_json_via_registry_builder_module_vm_with_preinclude(...)`, and the visible diagnostic wrapper uses `run_program_json_via_registry_builder_module_vm_diag(...)`
-  - legacy keep to preserve in docs: `registry_optin_method_arraymap_direct_canary_vm.sh` still keeps an explicit direct-lower contract and should retire separately from the shared registry launch buckets
+  - the only remaining explicit registry legacy keep is `registry_optin_method_arraymap_direct_canary_vm.sh`; treat it as a direct-lower probe bucket rather than part of the shared registry launch collapse
   - the old `phase2044` blocker is closed: early alias warnings now self-initialize Ring0, `json_v0_bridge::lower_main_body()` keeps `main` params canonical (`[0]`), and `tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` is green again
   - exact current root cause for `hello_simple_llvm` is now pinned separately in `P5-STAGEB-MALFORMED-PROGRAM-JSON.md`: the producer-side malformed Program(JSON v0) debt is closed for that fixture, so helper/delete-order work should move back to caller inventory unless a new fixture reopens producer debt
   - route split is now explicit for `phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako`: direct CLI `--backend mir --emit-mir-json` now lowers in both default release and strict/dev shadow mode, and the Rust host-provider route plus the language-level `lang.mir.builder.MirBuilderBox.emit_from_source_v0` surface (currently kernel-dispatch owned rather than pure `.hako`-internal proof) also lower the same fixture successfully; keep `P4-MIRBUILDER-ROUTE-SPLIT.md` as the exact call-chain SSOT so this shared success is not misread as a single owner
@@ -120,3 +120,4 @@ Related:
 - retirement work can be explained without mixing authority migration back into `phase-29ch`
 - remaining JSON v0 consumers are inventoried with exact owners
 - next delete/reduction slice can be chosen from this phase alone
+- shared helper / smoke-tail collapse is closeout-ready once the remaining direct-lower probe is documented as explicit keep rather than folded into helper retirement

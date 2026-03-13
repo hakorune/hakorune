@@ -53,14 +53,14 @@ Related:
 
 ### Test-only smoke tail
 
-`tools/smokes/v2/profiles/integration/core/**` 配下に、JSON v0 boundary を直接叩く test-only shell/apps caller が 43 file 残っている。
+`tools/smokes/v2/profiles/integration/core/**` 配下に、JSON v0 boundary を直接叩く test-only shell/apps caller が残っている。
 
 主な群:
 
 - `phase2034/mirbuilder_*`
 - `phase2043/program_new_array_delegate_struct_canary_vm.sh`
 - `phase2160/builder_min_*`
-- `phase2160/registry_optin_*`
+- `phase2160/registry_optin_*`（shared launch collapse は進み、explicit keep は direct-lower probe 1本）
 
 この tail は shared helper でも live/bootstrap owner でもないので、caller-audit 用の後段 bucket として扱う。
 
