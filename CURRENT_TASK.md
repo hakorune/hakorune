@@ -109,7 +109,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
            - next safest slice on this owner:
              - landed: the host-provider call is now narrowed from `program_json_to_mir_json_with_imports(..., BTreeMap::new())` to `program_json_to_mir_json(...)`
              - landed: the route-local `user_box_decls` splice is moved to shared owner `src/host_providers/mir_builder/user_box_decls.rs`
-             - next remaining leaf is only route-local gate/decode/encode, so this caller is close to thin floor
+             - landed: route-local gate/decode/freeze duplication is now shared by same-file MirBuilder dispatch helpers
+             - next remaining leaf is only thin-floor route gate/decode/encode wrapper code; stop here unless an exact disappearing route leaf appears
        - runtime/plugin `env.mirbuilder.emit` is no longer a live caller of this lowering owner
          - `src/runtime/mirbuilder_emit.rs` now lowers `Program(JSON v0)` via `runner::json_v0_bridge::parse_json_v0_to_module_with_imports(...)` and only reuses shared `module_to_mir_json(...)`
          - thin runtime callers remain:

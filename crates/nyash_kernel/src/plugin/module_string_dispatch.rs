@@ -126,22 +126,16 @@ fn handle_mir_builder_emit_from_program_json_v0(
     arg1: i64,
     arg2: i64,
 ) -> Option<i64> {
-    if arg_count < 1 {
-        return Some(encode_string_handle(
-            "[freeze:contract][stage1_mir_builder] missing arg0(program_json)",
-        ));
-    }
-    let program_json = match decode_string_handle(arg1).or_else(|| decode_string_handle(arg2)) {
-        Some(text) => text,
-        None => {
-            trace_log(format!(
-                "[stage1/module_dispatch] mir_builder decode failed: arg1={} arg2={}",
-                arg1, arg2
-            ));
-            return Some(encode_string_handle(
-                "[freeze:contract][stage1_mir_builder] arg0 decode failed",
-            ));
-        }
+    let program_json = match decode_mir_builder_input_text(
+        "mir_builder",
+        "program_json",
+        "arg0 decode failed",
+        arg_count,
+        arg1,
+        arg2,
+    ) {
+        Ok(text) => text,
+        Err(result) => return Some(result),
     };
     trace_log(format!(
         "[stage1/module_dispatch] mir_builder input_bytes={}",
@@ -154,39 +148,16 @@ fn handle_mir_builder_emit_from_program_json_v0(
             preview
         ));
     }
-    let internal_on = mir_builder_internal_on();
-    let delegate_on = mir_builder_delegate_on();
-    let no_delegate = mir_builder_no_delegate();
-    trace_log(format!(
-        "[stage1/module_dispatch] mir_builder gate internal_on={} delegate_on={} no_delegate={}",
-        internal_on, delegate_on, no_delegate
-    ));
-    if !internal_on && (no_delegate || !delegate_on) {
-        let reason = if no_delegate {
-            "delegate disabled by HAKO_SELFHOST_NO_DELEGATE=1"
-        } else {
-            "internal off and delegate off"
-        };
-        return Some(encode_string_handle(&format!(
-            "[freeze:contract][stage1_mir_builder] {}",
-            reason
-        )));
+    if let Some(result) = mir_builder_gate_result("mir_builder") {
+        return Some(result);
     }
-    let mir_json = match nyash_rust::host_providers::mir_builder::
-        program_json_to_mir_json_with_user_box_decls(&program_json)
-    {
-        Ok(json_text) => json_text,
-        Err(error_text) => {
-            trace_log(format!(
-                "[stage1/module_dispatch] mir_builder error: {}",
-                error_text
-            ));
-            return Some(encode_string_handle(&format!(
-                "[freeze:contract][stage1_mir_builder] {}",
-                error_text
-            )));
-        }
-    };
+    let mir_json =
+        match nyash_rust::host_providers::mir_builder::program_json_to_mir_json_with_user_box_decls(
+            &program_json,
+        ) {
+            Ok(json_text) => json_text,
+            Err(error_text) => return Some(mir_builder_error_result("mir_builder", &error_text)),
+        };
     trace_log(format!(
         "[stage1/module_dispatch] mir_builder output_bytes={}",
         mir_json.len()
@@ -200,29 +171,66 @@ fn handle_mir_builder_emit_from_program_json_v0(
 }
 
 fn handle_mir_builder_emit_from_source_v0(arg_count: i64, arg1: i64, arg2: i64) -> Option<i64> {
-    if arg_count < 1 {
-        return Some(encode_string_handle(
-            "[freeze:contract][stage1_mir_builder] missing arg0(source_text)",
-        ));
+    let source_text = match decode_mir_builder_input_text(
+        "mir_builder source",
+        "source_text",
+        "source decode failed",
+        arg_count,
+        arg1,
+        arg2,
+    ) {
+        Ok(text) => text,
+        Err(result) => return Some(result),
+    };
+    if let Some(result) = mir_builder_gate_result("mir_builder source") {
+        return Some(result);
     }
-    let source_text = match decode_string_handle(arg1).or_else(|| decode_string_handle(arg2)) {
-        Some(text) => text,
-        None => {
-            trace_log(format!(
-                "[stage1/module_dispatch] mir_builder source decode failed: arg1={} arg2={}",
-                arg1, arg2
-            ));
-            return Some(encode_string_handle(
-                "[freeze:contract][stage1_mir_builder] source decode failed",
-            ));
+
+    let mir_json = match nyash_rust::host_providers::mir_builder::source_to_mir_json(&source_text) {
+        Ok(json_text) => json_text,
+        Err(error_text) => {
+            return Some(mir_builder_error_result("mir_builder source", &error_text))
         }
     };
+    Some(encode_string_handle(&mir_json))
+}
+
+fn decode_mir_builder_input_text(
+    route_label: &str,
+    arg_name: &str,
+    decode_error_text: &str,
+    arg_count: i64,
+    arg1: i64,
+    arg2: i64,
+) -> Result<String, i64> {
+    if arg_count < 1 {
+        return Err(encode_string_handle(&format!(
+            "[freeze:contract][stage1_mir_builder] missing arg0({})",
+            arg_name
+        )));
+    }
+    match decode_string_handle(arg1).or_else(|| decode_string_handle(arg2)) {
+        Some(text) => Ok(text),
+        None => {
+            trace_log(format!(
+                "[stage1/module_dispatch] {} decode failed: arg1={} arg2={}",
+                route_label, arg1, arg2
+            ));
+            Err(encode_string_handle(&format!(
+                "[freeze:contract][stage1_mir_builder] {}",
+                decode_error_text
+            )))
+        }
+    }
+}
+
+fn mir_builder_gate_result(route_label: &str) -> Option<i64> {
     let internal_on = mir_builder_internal_on();
     let delegate_on = mir_builder_delegate_on();
     let no_delegate = mir_builder_no_delegate();
     trace_log(format!(
-        "[stage1/module_dispatch] mir_builder source gate internal_on={} delegate_on={} no_delegate={}",
-        internal_on, delegate_on, no_delegate
+        "[stage1/module_dispatch] {} gate internal_on={} delegate_on={} no_delegate={}",
+        route_label, internal_on, delegate_on, no_delegate
     ));
     if !internal_on && (no_delegate || !delegate_on) {
         let reason = if no_delegate {
@@ -235,21 +243,18 @@ fn handle_mir_builder_emit_from_source_v0(arg_count: i64, arg1: i64, arg2: i64) 
             reason
         )));
     }
+    None
+}
 
-    let mir_json = match nyash_rust::host_providers::mir_builder::source_to_mir_json(&source_text) {
-        Ok(json_text) => json_text,
-        Err(error_text) => {
-            trace_log(format!(
-                "[stage1/module_dispatch] mir_builder source error: {}",
-                error_text
-            ));
-            return Some(encode_string_handle(&format!(
-                "[freeze:contract][stage1_mir_builder] {}",
-                error_text
-            )));
-        }
-    };
-    Some(encode_string_handle(&mir_json))
+fn mir_builder_error_result(route_label: &str, error_text: &str) -> i64 {
+    trace_log(format!(
+        "[stage1/module_dispatch] {} error: {}",
+        route_label, error_text
+    ));
+    encode_string_handle(&format!(
+        "[freeze:contract][stage1_mir_builder] {}",
+        error_text
+    ))
 }
 
 fn decode_string_handle(handle: i64) -> Option<String> {
