@@ -418,8 +418,31 @@ static box ParserControlBox {
 
   method _skip_ws_with_fallback(src, j, ctx) {
     local next = ctx.skip_ws(src, j)
-    if next != null && next != j { return next }
-    return ParserStringUtilsBox.skip_ws(src, j)
+    if next != null && next >= j && next <= src.length() {
+      local k = j
+      local valid = 1
+      loop(k < next) {
+        local ch = src.substring(k, k + 1)
+        if ch != " " && ch != "\t" && ch != "\n" && ch != "\r" {
+          valid = 0
+          break
+        }
+        k = k + 1
+      }
+      if valid == 1 { return next }
+    }
+
+    local local_j = j
+    local n = src.length()
+    loop(local_j < n) {
+      local ch = src.substring(local_j, local_j + 1)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        local_j = local_j + 1
+        continue
+      }
+      break
+    }
+    return local_j
   }
 
   method _consume_optional_semicolons(src, j, ctx) {

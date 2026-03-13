@@ -37,4 +37,14 @@ fn stageb_compiler_no_longer_falls_back_to_full_source_for_hello_simple_fixture(
         "full-source fallback should not leak `static box Main` into Program(JSON)\njson:\n{}",
         json
     );
+    assert!(
+        json.contains("\"type\":\"Return\",\"expr\":{\"type\":\"Int\",\"value\":0}}"),
+        "default Stage-B route should preserve `return 0` as a Return node\njson:\n{}",
+        json
+    );
+    assert!(
+        !json.contains("\"name\":\"eturn\""),
+        "default Stage-B route must not drop the leading `r` from `return`\njson:\n{}",
+        json
+    );
 }
