@@ -14,6 +14,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - thin lowering facade + shared parse/emit helpers
   - now also owns the exact `Program(JSON v0) -> MIR(JSON)` lowering leaf directly
   - live lowering now uses imports-free `parse_json_v0_to_module(...)`; imports-bearing lowering stays test-only
+  - the extra `lower_program_json_to_module(...)` helper is retired; the live plain lowering path now inlines the exact bridge call inside `program_json_to_mir_json(...)`
 - `mir_builder.rs::module_to_mir_json(...)`
   - shared MIR(JSON) emission seam
   - runtime/plugin imports route reuses this seam without staying a live caller of `lowering.rs`

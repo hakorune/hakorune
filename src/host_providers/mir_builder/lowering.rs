@@ -40,7 +40,10 @@ fn program_json_to_mir_json_impl(program_json: &str) -> Result<String, String> {
     let parsed = parse_input_json(program_json)?;
 
     let module = if parsed.get("version").is_some() && parsed.get("kind").is_some() {
-        lower_program_json_to_module(program_json)?
+        match runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
+            Ok(module) => module,
+            Err(error) => return Err(super::failfast_error(error)),
+        }
     } else {
         ast_json::lower_ast_json_to_module(&parsed)?
     };
@@ -80,13 +83,6 @@ fn emit_module_to_temp_mir_json(module: &MirModule) -> Result<std::path::PathBuf
     let tmp_path = unique_mir_json_tmp_path();
     match runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &tmp_path) {
         Ok(()) => Ok(tmp_path),
-        Err(error) => Err(super::failfast_error(error)),
-    }
-}
-
-fn lower_program_json_to_module(program_json: &str) -> Result<MirModule, String> {
-    match runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
-        Ok(module) => Ok(module),
         Err(error) => Err(super::failfast_error(error)),
     }
 }
