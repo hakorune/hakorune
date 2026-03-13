@@ -6,11 +6,9 @@ Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runne
 
 - `mod.rs`
   - thin facade for the bridge-local Program(JSON v0) emit route
-  - delegates bridge-local read->emit->write orchestration to `pipeline.rs`
+  - owns bridge-local read->emit->write orchestration
+  - owns owner-1 payload emission via `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
   - source-path precedence stays in `program_json_entry/request.rs`
-- `pipeline.rs`
-  - bridge-local source-file read -> owner-1 payload emission -> file write orchestration
-  - exact bridge error-prefix contract stays here
 - `read_input.rs`
   - source file read policy for `emit-program-json-v0`
   - exact bridge-local read error formatting stays here
@@ -21,5 +19,5 @@ Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runne
 
 - keep this lane future-retire only
 - do not add parse/lower policy here
-- do not bypass `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)` from `pipeline.rs`
+- do not bypass `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)` from `mod.rs`
 - next Rust-only retire slices may stay inside this cluster; do not widen them into `src/runner/mod.rs` or `src/runner/emit.rs`
