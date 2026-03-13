@@ -416,6 +416,30 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_hello_simple_llvm(
 }
 
 #[test]
+fn invoke_by_name_stage1_mir_builder_source_route_accepts_decode_escapes_nested_loop_fixture() {
+    ensure_test_ring0();
+    let receiver: Arc<dyn NyashBox> =
+        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
+    let receiver_handle = handles::to_handle_arc(receiver) as i64;
+    let source = include_str!(
+        "../../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako"
+    );
+    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
+    let method = CString::new("emit_from_source_v0").expect("CString");
+
+    let result_handle =
+        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
+    assert!(result_handle > 0, "expected MIR JSON StringBox handle");
+
+    let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
+    assert!(
+        mir_json.starts_with('{'),
+        "expected MIR JSON payload, got: {mir_json}"
+    );
+    assert!(mir_json.contains("\"functions\""));
+}
+
+#[test]
 fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatch() {
     ensure_test_ring0();
     let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(

@@ -329,6 +329,19 @@ mod tests {
     }
 
     #[test]
+    fn test_source_to_program_and_mir_json_accepts_decode_escapes_nested_loop_fixture() {
+        ensure_test_ring0();
+        let source =
+            include_str!("../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako");
+        let result = source_to_program_and_mir_json(source);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let (program_json, mir_json) = result.unwrap();
+        assert!(program_json.contains("\"kind\":\"Program\""));
+        assert!(mir_json.contains("\"functions\""));
+    }
+
+    #[test]
     fn test_source_to_program_and_mir_json_rejects_dev_local_alias_sugar_on_authority_path() {
         ensure_test_ring0();
         let source = r#"
