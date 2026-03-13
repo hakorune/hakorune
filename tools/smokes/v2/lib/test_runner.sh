@@ -718,6 +718,15 @@ HAKO
     return $rc
 }
 
+run_program_json_via_registry_builder_module_vm_with_preinclude() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="${3:-}"
+
+    HAKO_PREINCLUDE=1 \
+    run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only"
+}
+
 emit_mir_json_via_builder_from_program_json_file() {
     local prog_json_path="$1"
     local builder_stderr="$2"
