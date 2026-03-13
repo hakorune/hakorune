@@ -2,6 +2,8 @@
 //!
 //! Layout SSOT:
 //! - `routing.rs`: source-shape and build-route policy
+//! - `authority.rs`: strict source authority
+//! - `bridge_shim.rs`: future-retire stage1 bridge shim
 //! - `extract.rs`: source observation / helper extraction
 //! - `lowering.rs`: AST subset -> Program(JSON v0) lowering
 //!
@@ -13,6 +15,8 @@
 
 #[path = "program_json_v0/authority.rs"]
 mod authority;
+#[path = "program_json_v0/bridge_shim.rs"]
+mod bridge_shim;
 #[path = "program_json_v0/extract.rs"]
 mod extract;
 #[path = "program_json_v0/lowering.rs"]
@@ -59,7 +63,7 @@ pub fn emit_program_json_v0_for_strict_authority_source(
 pub(crate) fn emit_program_json_v0_for_stage1_bridge_emit_program_json(
     source_text: &str,
 ) -> Result<String, String> {
-    authority::emit_program_json_v0_for_stage1_bridge_emit_program_json(source_text)
+    bridge_shim::emit_program_json_v0_for_stage1_bridge_emit_program_json(source_text)
 }
 
 fn format_stage1_program_json_v0_freeze(error_text: String) -> String {

@@ -119,7 +119,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. `src/stage1/program_json_v0/authority.rs`
        - current source->Program(JSON v0) authority still lives here
        - current authority path and compiled-stage1 build surrogate both still depend on this owner
-       - do not take this next as a cleanup target; the only nearby local leaf is the future-retire bridge shim, not the strict source authority itself
+       - future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`
+       - do not take this next as a generic cleanup target; the remaining owner is the strict source authority itself
   - secondary Rust-owned retirement buckets:
     4. `src/host_providers/mir_builder/lowering/ast_json.rs`
        - legacy AST JSON compat keep, not the primary pure-`.hako` blocker
@@ -138,9 +139,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - first by shrinking or redirecting the exact remaining live callers above, not by broad cleanup elsewhere
        - runtime/plugin imports route is already off this owner; current safest next slice is to decide whether the kernel/plugin Program(JSON) caller is already thin-floor enough, or whether source authority should become the next main front
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
+       - latest tightening: future-retire bridge shim is now split to `src/stage1/program_json_v0/bridge_shim.rs`
+       - implication: this owner is now closer to the real strict source-authority core; do not mix bridge-leaf cleanup back into it
     4. retire AST JSON compat keep in `src/host_providers/mir_builder/lowering/ast_json.rs` only after the primary lowering owner is no longer needed
     5. retire compiled-stage1 `build_surrogate.rs`
     6. retire `src/runner/stage1_bridge/**`
+  - exact near-term task ladder:
+    1. treat `src/host_providers/mir_builder/authority.rs` as a thin source-authority adapter unless an exact disappearing leaf appears
+    2. treat `src/host_providers/mir_builder/lowering/program_json.rs` as the main de-Rust front until its live callers shrink further
+    3. keep `src/stage1/program_json_v0/authority.rs` focused on strict source authority only; future-retire bridge work now belongs to `src/stage1/program_json_v0/bridge_shim.rs`
+    4. do not reopen `build_surrogate.rs` or shared shell/smoke cleanup while the authority owners above are still live
   - rule:
     - bridge/helper cleanup is useful, but it is not the same thing as removing the current compiler authority from Rust
     - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering
@@ -253,7 +261,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - owner-1 latest slice:
         - `src/stage1/program_json_v0.rs` no longer auto-wraps bare script bodies into synthetic `static box Main`; unsupported script-body input now fail-fast directly
         - `src/host_providers/mir_builder.rs` now calls `emit_program_json_v0_for_strict_authority_source(...)` on `stage1-env-mir-source`, so current source authority no longer depends on `@local` dev-sugar preexpansion and does not restage the authority check itself
-        - `src/stage1/program_json_v0.rs::source_to_program_json_v0(...)` is now test-only owner-local, `source_to_program_json_v0_strict(...)` is owner-local, relaxed dev-sugar/launcher keep is also owner-local on `source_to_program_json_v0_relaxed(...)`, future-retire `src/runner/stage1_bridge/program_json/mod.rs` uses `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`, and cross-crate callers no longer need a standalone relaxed entrypoint
+        - `src/stage1/program_json_v0.rs::source_to_program_json_v0(...)` is now test-only owner-local, `source_to_program_json_v0_strict(...)` is owner-local, relaxed dev-sugar/launcher keep is also owner-local on `source_to_program_json_v0_relaxed(...)`, future-retire `src/runner/stage1_bridge/program_json/mod.rs` uses `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)` via `src/stage1/program_json_v0/bridge_shim.rs`, and cross-crate callers no longer need a standalone relaxed entrypoint
         - owner-1 layout is now split as `façade / routing / extract / lowering` with module-local AST entry only; see `src/stage1/program_json_v0/README.md`
         - provider callers now reuse owner-1 fail-fast formatting (`strict_authority_rejection()`), while build-route trace stays owner-local to `program_json_v0`
         - build-route selection, build-box route emission, and `ProgramJsonV0BuildRoute` are now routing-local to `src/stage1/program_json_v0/routing.rs`; the façade only freeze-wraps owner-local `emit_program_json_v0_for_stage1_build_box(...)`, while cross-crate callers stay on `emit_*`, no longer read route state through a public build-emission object, use `emit_program_json_v0_for_strict_authority_source(...)` instead of staging authority rejection themselves, and use `emit_program_json_v0_for_current_stage1_build_box_mode(...)` instead of reinterpreting stage1 mode env locally

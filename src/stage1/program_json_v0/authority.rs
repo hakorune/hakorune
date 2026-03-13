@@ -25,13 +25,6 @@ pub(super) fn emit_program_json_v0_for_strict_authority_source(
     source_to_program_json_v0_strict(source_text)
 }
 
-pub(super) fn emit_program_json_v0_for_stage1_bridge_emit_program_json(
-    source_text: &str,
-) -> Result<String, String> {
-    source_to_program_json_v0_strict(source_text)
-        .map_err(|error_text| format!("emit-program-json-v0: {}", error_text))
-}
-
 fn source_to_program_json_v0_impl(
     source_text: &str,
     allow_dev_local_alias_sugar: bool,

@@ -106,7 +106,7 @@ Related:
 - exact `Program(JSON v0) -> MIR(JSON)` lowering caller accounting is now pinned: the remaining live caller owners are `authority.rs` (current source authority), `module_string_dispatch.rs` (explicit Program(JSON) kernel route), and the shared runtime/plugin bridge owner `src/runtime/mirbuilder_emit.rs`; this is narrower than “all of mir_builder” and should guide the next de-Rust slice
 - worker audit on that caller trio said the safest next owner-local slice was the kernel/plugin route in `module_string_dispatch.rs`; both the host-provider call narrowing and the `user_box_decls` splice move are now landed, so the remaining kernel-side leaf is only route-local gate/decode/encode shape
 - runtime/plugin `env.mirbuilder.emit` is now concentrated behind `src/runtime/mirbuilder_emit.rs`; `extern_provider.rs` and `plugin_loader_v2/enabled/extern_functions.rs` are thin callers, and `calls/global.rs` delegates instead of keeping a second direct lowering branch
-- `src/stage1/program_json_v0/authority.rs` should still be treated as the strict source-authority owner, not as generic cleanup debt; the only nearby local leaf is its future-retire bridge shim
+- `src/stage1/program_json_v0/authority.rs` should still be treated as the strict source-authority owner, not as generic cleanup debt; the future-retire bridge shim is now split to `src/stage1/program_json_v0/bridge_shim.rs`, so the remaining owner is even closer to the real authority core
 
 ## Immediate Next Slice
 
