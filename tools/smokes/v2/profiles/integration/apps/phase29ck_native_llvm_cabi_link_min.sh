@@ -11,7 +11,7 @@ set -euo pipefail
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 require_env || exit 2
 
-if ! can_run_llvm; then
+if [ "${SMOKES_FORCE_LLVM:-0}" != "1" ] && ! can_run_llvm; then
     test_skip "phase29ck_native_llvm_cabi_link_min: LLVM backend not available"
     exit 0
 fi

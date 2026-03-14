@@ -28,6 +28,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - phase SSOT: `docs/development/current/main/phases/phase-29ck/README.md`
     - final shape lock: `.hako -> thin backend C ABI/plugin boundary -> object/exe`
     - `crates/nyash-llvm-compiler/src/native_driver.rs` は bootstrap seam only
+    - landed slice:
+      - `lang/src/shared/backend/llvm_backend_box.hako` の first implementation
+      - `compile_obj(json_path)` / `link_exe(obj_path, out_path, libs)` を thin caller facade に固定し、owner は `CodegenBridgeBox` に寄せた
+      - acceptance は `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh` と `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh` で lock 済み
+    - exact next follow-up:
+      - `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c` を official C owner として寄せる
+      - runtime proof blocker (`hostbridge` runtime support / `vm-hako` subset-check) は separate lane として inventory する
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。

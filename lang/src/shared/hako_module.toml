@@ -28,6 +28,7 @@ json.utils.json_number_canonical = "json/utils/json_number_canonical_box.hako"
 # Host bridge & adapters
 host_bridge.host_bridge = "host_bridge/host_bridge_box.hako"
 host_bridge.codegen_bridge = "host_bridge/codegen_bridge_box.hako"
+backend.llvm_backend = "backend/llvm_backend_box.hako"
 adapters.map_kv_string_to_array = "adapters/map_kv_string_to_array.hako"
 
 # MIR helpers (exported as stable module names)

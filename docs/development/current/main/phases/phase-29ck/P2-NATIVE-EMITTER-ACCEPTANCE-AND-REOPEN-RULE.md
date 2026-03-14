@@ -97,7 +97,9 @@ phase docs が要求する evidence は次の順番で積む。
      - `NYASH_LLVM_USE_HARNESS=1 NYASH_LLVM_BACKEND=native NYASH_NY_LLVM_COMPILER=target/release/ny-llvmc NYASH_EMIT_EXE_NYRT=target/release ./target/release/hakorune --backend llvm apps/tests/hello_simple_llvm.hako`
 4. boundary cutover evidence
    - owner/env/archive contract is locked by `P3-THIN-BACKEND-CUTOVER-LOCK.md`
-   - exact replay command is still pending implementation
+   - exact replay commands:
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
+     - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
    - owner paths must be:
      - `lang/src/shared/backend/llvm_backend_box.hako`
      - `lang/c-abi/shims/hako_aot.c`

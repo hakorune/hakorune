@@ -1,24 +1,76 @@
-// LlvmBackendBox — official thin backend boundary (stub)
+// LlvmBackendBox — official thin backend boundary
 // File-handoff only: compile MIR(JSON v0) to object, then link to EXE.
 // Final target: `.hako` callers stop at this facade (and/or lang/c-abi helper),
 // not at a Rust-only lowering owner. Current implementation is still external-tool driven.
 // Legacy script-builder / AotFacade route lives under `lang/src/llvm_ir/archive/**` and
 // is not the owner for new backend-zero work.
 
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+
 static box LlvmBackendBox {
-  // Returns object path on success, or throws (Err) on failure.
+  // Returns object path on success, or null on fail-fast error.
   compile_obj(json_path) {
-    // Stub only (dev): return a deterministic obj path to guide call sites.
-    // Real implementation should call the thin backend boundary (`hako_aot` / helper),
-    // not expose a broad LLVM API surface to `.hako`.
-    if json_path == null { throw "LlvmBackend.compile_obj: json_path is null" }
-    local stem = json_path + ".o"  // naive; callers should pass preferred path later
-    return stem
+    local path = me._require_non_empty("compile_obj", "json_path", json_path)
+    if path == null { return null }
+    local mir_json = me._read_text(path)
+    if mir_json == null { return null }
+    local args = new ArrayBox()
+    args.push(mir_json)
+
+    local obj = CodegenBridgeBox.emit_object_args(args)
+    if obj == null || ("" + obj) == "" {
+      return me._fail("[llvmbackend/emit/failed] env.codegen.emit_object returned empty")
+    }
+    return "" + obj
   }
 
-  // Links an exe. Returns true on success (stub always false to prevent accidental use).
+  // Links an exe. Returns 1 on success, or null on fail-fast error.
   link_exe(obj_path, out_path, libs) {
-    if obj_path == null || out_path == null { throw "LlvmBackend.link_exe: path is null" }
-    return false  // stub
+    local obj = me._require_non_empty("link_exe", "obj_path", obj_path)
+    if obj == null { return null }
+    local out = me._require_non_empty("link_exe", "out_path", out_path)
+    if out == null { return null }
+    if libs != null && ("" + libs) != "" {
+      return me._fail("[llvmbackend/link/libs-unsupported] use HAKO_AOT_LDFLAGS env for now")
+    }
+
+    local args = new ArrayBox()
+    args.push(obj)
+    args.push(out)
+
+    local exe = CodegenBridgeBox.link_object_args(args)
+    if exe == null || ("" + exe) == "" {
+      return me._fail("[llvmbackend/link/failed] env.codegen.link_object returned empty")
+    }
+    if ("" + exe) != out {
+      return me._fail("[llvmbackend/link/path-mismatch] expected=" + out + " got=" + ("" + exe))
+    }
+    return 1
+  }
+
+  _read_text(path) {
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 {
+      return me._fail("[llvmbackend/read/open-failed] " + path)
+    }
+    local text = fb.read()
+    fb.close()
+    if text == null || ("" + text) == "" {
+      return me._fail("[llvmbackend/read/empty] " + path)
+    }
+    return "" + text
+  }
+
+  _require_non_empty(method_name, field_name, value) {
+    if value == null || ("" + value) == "" {
+      return me._fail("[llvmbackend/input/" + method_name + "] " + field_name + " is empty")
+    }
+    return "" + value
+  }
+
+  _fail(tag) {
+    print("" + tag)
+    return null
   }
 }

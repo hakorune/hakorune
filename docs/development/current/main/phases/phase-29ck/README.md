@@ -1,5 +1,5 @@
 ---
-Status: Accepted (queued)
+Status: Active
 Decision: accepted
 Date: 2026-03-14
 Scope: backend-zero を独立 phase に切り、bootstrap seam と thin backend boundary cutover の fixed order を docs-ready な形で固定する。
@@ -85,15 +85,17 @@ Related:
 
 ## Immediate Next
 
-1. `BE0-min6`
-   - thin backend boundary cutover lock
-   - target owners are `LlvmBackendBox` / `lang/c-abi` / caller wiring
-   - legacy `llvm_ir` script-builder route is archive keep, not daily owner
-2. native subset widening
+1. post-`BE0-min6` C owner cleanup
+   - target owners are `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
+   - duplicate truth in `hako_hostbridge.h` / `hako_kernel.c` is the next cleanup target
+2. runtime proof blocker inventory
+   - `hostbridge` runtime support gap in regular VM
+   - `vm-hako` subset-check gap for `newbox(LlvmBackendBox)`
+3. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
-3. post-cutover follow-up
+4. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
-4. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
+5. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance
 

@@ -116,9 +116,18 @@ Note:
   - legacy `llvm_ir` script-builder / AotFacade route は archive keep へ退避する
 - exact owner/env/archive contract:
   - `P3-THIN-BACKEND-CUTOVER-LOCK.md`
+- landed (2026-03-14):
+  - `LlvmBackendBox` first implementation is live under `lang/src/shared/backend/llvm_backend_box.hako`
+  - owner route is pinned to `CodegenBridgeBox.emit_object_args/link_object_args`
+  - public first-cut contract is `compile_obj(json_path)` / `link_exe(obj_path, out_path, libs)`
+  - acceptance smokes are:
+    - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
+    - `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
 
 ## Post-`BE0-min6` Follow-up
 
+- official C owner dedupe (`hako_aot.h` / `hako_aot.c`)
+- runtime proof blocker inventory (`hostbridge` runtime support / `vm-hako` subset-check)
 - backend-specific optimization owner は thin boundary cutover 完了までは `llvmlite`
 - cutover 完了後に新規 backend-specific optimization owner を thin boundary の内側へ移す
 - llvmlite は compat/canary keep へ降格する

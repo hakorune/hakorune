@@ -107,6 +107,16 @@ rule:
 補足:
 - temp file ownership と error wording は `LlvmBackendBox` 実装 slice で lock する
 - ただし owner path はこの文書で先に lock 済みとする
+- landed first cut:
+  - `LlvmBackendBox.compile_obj(json_path)` reads file content and calls `CodegenBridgeBox.emit_object_args(...)`
+  - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` calls `CodegenBridgeBox.link_object_args(...)`
+  - non-empty `libs` is fail-fast for now; use `HAKO_AOT_LDFLAGS` env until C-side arg plumbing is widened
+  - `.hako` surface parser does not accept `throw`, so failure contract is stable tag print (`[llvmbackend/*]`) + `null`
+  - current proof shape is:
+    - direct MIR emit accepts a `.hako` caller that imports `selfhost.shared.backend.llvm_backend`
+    - `LlvmBackendBox` source owner is pinned to `CodegenBridgeBox.emit_object_args/link_object_args`
+    - downstream native app parity stays green on `phase29ck_native_llvm_cabi_link_min.sh`
+  - runtime proof through `LlvmBackendBox` itself is not the proof yet because `hostbridge` execution is still blocked (`vm-hako` subset-check rejects `newbox(LlvmBackendBox)` and regular VM lacks `hostbridge` runtime support)
 
 ## 6. Immediate Cleanup Rule
 
