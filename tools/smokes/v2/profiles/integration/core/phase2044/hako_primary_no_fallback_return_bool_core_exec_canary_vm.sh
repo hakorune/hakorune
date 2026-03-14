@@ -11,14 +11,9 @@ cat >"$prog_json_path" <<'JSON'
 ]}
 JSON
 
-set +e
-run_verify_program_via_hako_primary_no_fallback_to_core "$prog_json_path"
-rc=$?
-set -e
-rm -f "$prog_json_path"
-if [ "$rc" -ne 1 ]; then
-  echo "[FAIL] Return(Bool true) rc=$rc (expected 1)" >&2; exit 1
-fi
-
-echo "[PASS] phase2044/hako_primary_no_fallback_return_bool_core_exec_canary_vm"
-exit 0
+trap 'rm -f "$prog_json_path" || true' EXIT
+run_hako_primary_no_fallback_canary_and_expect_rc \
+  "$prog_json_path" \
+  1 \
+  "Return(Bool true)" \
+  "phase2044/hako_primary_no_fallback_return_bool_core_exec_canary_vm"

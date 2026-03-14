@@ -15,14 +15,10 @@ JSON
 
 # case: true || false => 1
 tmp2="/tmp/prog_2044_return_logical_or_$$.json"; mk_prog "||" > "$tmp2"
-set +e
-run_verify_program_via_hako_primary_no_fallback_to_core "$tmp2" 1
-rc2=$?
-set -e
-rm -f "$tmp2"
-if [ "$rc2" -ne 1 ]; then
-  echo "[FAIL] Return(Logical OR) rc=$rc2 (expected 1)" >&2; exit 1
-fi
-
-echo "[PASS] phase2044/hako_primary_no_fallback_return_logical_and_core_exec_canary_vm"
-exit 0
+trap 'rm -f "$tmp2" || true' EXIT
+run_hako_primary_no_fallback_canary_and_expect_rc \
+  "$tmp2" \
+  1 \
+  "Return(Logical OR)" \
+  "phase2044/hako_primary_no_fallback_return_logical_and_core_exec_canary_vm" \
+  1
