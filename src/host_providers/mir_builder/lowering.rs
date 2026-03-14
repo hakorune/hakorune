@@ -1,16 +1,17 @@
 #[cfg(test)]
 mod ast_json;
 
+#[cfg(test)]
 use crate::mir::MirModule;
+#[cfg(test)]
 use crate::runner;
+#[cfg(test)]
 use serde_json::Value as JsonValue;
 #[cfg(test)]
 use std::collections::BTreeMap;
-use std::fs;
 
 #[cfg(test)]
 use super::{trace_enabled, trace_log, Phase0MirJsonEnvGuard};
-use super::unique_mir_json_tmp_path;
 
 /// Convert Program(JSON v0) to MIR(JSON v0) and return it as a String.
 /// Fail-Fast: prints stable tags on stderr and returns Err with the same tag text.
@@ -32,7 +33,7 @@ pub(super) fn program_json_to_mir_json_with_imports(
     } else {
         ast_json::lower_ast_json_to_module(&parsed)?
     };
-    module_to_mir_json(&module)
+    super::module_to_mir_json(&module)
 }
 
 #[cfg(test)]
@@ -53,21 +54,7 @@ fn program_json_to_mir_json_impl(program_json: &str) -> Result<String, String> {
         ast_json::lower_ast_json_to_module(&parsed)?
     };
 
-    module_to_mir_json(&module)
-}
-
-pub(crate) fn module_to_mir_json(module: &MirModule) -> Result<String, String> {
-    let tmp_path = emit_module_to_temp_mir_json(module)?;
-    match fs::read_to_string(&tmp_path) {
-        Ok(raw) => {
-            let _ = fs::remove_file(&tmp_path);
-            match serde_json::from_str::<JsonValue>(&raw) {
-                Ok(v) => Ok(serde_json::to_string(&v).unwrap_or(raw)),
-                Err(_) => Ok(raw),
-            }
-        }
-        Err(error) => Err(super::failfast_error(error)),
-    }
+    super::module_to_mir_json(&module)
 }
 
 #[cfg(test)]
@@ -83,14 +70,6 @@ fn parse_input_json(program_json: &str) -> Result<JsonValue, String> {
         }
         super::failfast_error(format!("invalid JSON: {}", error))
     })
-}
-
-fn emit_module_to_temp_mir_json(module: &MirModule) -> Result<std::path::PathBuf, String> {
-    let tmp_path = unique_mir_json_tmp_path();
-    match runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &tmp_path) {
-        Ok(()) => Ok(tmp_path),
-        Err(error) => Err(super::failfast_error(error)),
-    }
 }
 
 #[cfg(test)]

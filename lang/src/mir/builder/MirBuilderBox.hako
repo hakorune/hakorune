@@ -92,6 +92,69 @@ static box MirBuilderBox {
     return out + "]"
   }
 
+  method _lower_func_defs_if_enabled(program_json) {
+    local funcs_toggle = env.get("HAKO_MIR_BUILDER_FUNCS")
+    if funcs_toggle != null && ("" + funcs_toggle) == "1" {
+      local defs_json = "" + program_json
+      return FuncLoweringBox.lower_func_defs(program_json, defs_json)
+    }
+    return ""
+  }
+
+  method _emit_internal_program_json(program_json, func_defs_mir) {
+    {
+      local f = env.get("HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG")
+      if f != null && ("" + f) == "1" {
+        local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+          "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+          "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
+          "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
+        return me._norm_if_apply(mir, func_defs_mir)
+      }
+    }
+
+    {
+      local out_reg = BuilderRegistryAuthorityBox.try_lower("" + program_json)
+      if out_reg != null { return me._norm_if_apply(out_reg, func_defs_mir) }
+    }
+
+    {
+      local out_fallback = BuilderFallbackAuthorityBox.try_lower("" + program_json)
+      if out_fallback != null { return me._norm_if_apply(out_fallback, func_defs_mir) }
+    }
+
+    local has_ternary = 0
+    local s = "" + program_json
+    if s.indexOf("\"type\":\"Ternary\"") >= 0 { has_ternary = 1 }
+    print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call), Expr(Call env.console.log Int)+Return(Int), If-nested, and probe nested-ternary")
+    if func_defs_mir != null && func_defs_mir != "" {
+      me._log_builder_fail("defs_only")
+    } else if has_ternary == 1 {
+      me._log_builder_fail("ternary_no_lower")
+    } else {
+      me._log_builder_fail("no_match")
+    }
+    return null
+  }
+
+  method _emit_delegate_program_json(program_json, func_defs_mir) {
+    if BuilderConfigBox.selfhost_no_delegate_on() == 1 {
+      if env.get("HAKO_SELFHOST_TRACE") == "1" {
+        print("[mirbuilder/delegate/disabled] HAKO_SELFHOST_NO_DELEGATE=1; internal-only mode")
+      }
+      return null
+    }
+
+    if BuilderConfigBox.delegate_on() == 1 {
+      local args = new ArrayBox(); args.push(program_json)
+      local ret = hostbridge.extern_invoke("env.mirbuilder", "emit", args)
+      return me._finalize_delegate_mir(program_json, ret, func_defs_mir)
+    }
+
+    print("[mirbuilder/delegate/missing] no provider; enable HAKO_MIR_BUILDER_DELEGATE=1")
+    return null
+  }
+
   is_available() {
     return BuilderConfigBox.delegate_on()
   }
@@ -111,70 +174,11 @@ static box MirBuilderBox {
       return null
     }
 
-    local func_defs_mir = ""
-    {
-      local funcs_toggle = env.get("HAKO_MIR_BUILDER_FUNCS")
-      if funcs_toggle != null && ("" + funcs_toggle) == "1" {
-        local defs_json = "" + s
-        func_defs_mir = FuncLoweringBox.lower_func_defs(s, defs_json)
-      }
+    local func_defs_mir = me._lower_func_defs_if_enabled(s)
+    if BuilderConfigBox.internal_on() == 1 {
+      return me._emit_internal_program_json(s, func_defs_mir)
     }
-
-    {
-      local internal_on = BuilderConfigBox.internal_on()
-      if internal_on == 1 {
-        {
-          local f = env.get("HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG")
-          if f != null && ("" + f) == "1" {
-            local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-              "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-              "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
-              "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
-            return me._norm_if_apply(mir, func_defs_mir)
-          }
-        }
-
-        {
-          local out_reg = BuilderRegistryAuthorityBox.try_lower(s)
-          if out_reg != null { return me._norm_if_apply(out_reg, func_defs_mir) }
-        }
-
-        {
-          local out_fallback = BuilderFallbackAuthorityBox.try_lower(s)
-          if out_fallback != null { return me._norm_if_apply(out_fallback, func_defs_mir) }
-        }
-
-        local has_ternary = 0
-        if s.indexOf("\"type\":\"Ternary\"") >= 0 { has_ternary = 1 }
-        print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call), Expr(Call env.console.log Int)+Return(Int), If-nested, and probe nested-ternary")
-        if func_defs_mir != null && func_defs_mir != "" {
-          me._log_builder_fail("defs_only")
-        } else if has_ternary == 1 {
-          me._log_builder_fail("ternary_no_lower")
-        } else {
-          me._log_builder_fail("no_match")
-        }
-        return null
-      }
-    }
-
-    {
-      if BuilderConfigBox.selfhost_no_delegate_on() == 1 {
-        if env.get("HAKO_SELFHOST_TRACE") == "1" {
-          print("[mirbuilder/delegate/disabled] HAKO_SELFHOST_NO_DELEGATE=1; internal-only mode")
-        }
-        return null
-      }
-    }
-
-    if BuilderConfigBox.delegate_on() == 1 {
-      local args = new ArrayBox(); args.push(program_json)
-      local ret = hostbridge.extern_invoke("env.mirbuilder", "emit", args)
-      return me._finalize_delegate_mir(program_json, ret, func_defs_mir)
-    }
-
-    print("[mirbuilder/delegate/missing] no provider; enable HAKO_MIR_BUILDER_DELEGATE=1")
-    return null
+    return me._emit_delegate_program_json(program_json, func_defs_mir)
   }
 
   method emit_from_source_v0(source_text, opts) {

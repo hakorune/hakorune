@@ -82,7 +82,12 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 }
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
-    let mir_json = live_program_json_to_mir_json(program_json)?;
+    let _env_guard = Phase0MirJsonEnvGuard::new();
+    let module = match crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
+        Ok(module) => module,
+        Err(error) => return Err(failfast_error(error)),
+    };
+    let mir_json = module_to_mir_json(&module)?;
     inject_stage1_user_box_decls_from_program_json(program_json, &mir_json)
 }
 
@@ -118,16 +123,27 @@ pub(crate) fn program_json_to_mir_json_with_imports(
 }
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
-    lowering::module_to_mir_json(module)
+    let tmp_path = emit_module_to_temp_mir_json(module)?;
+    match std::fs::read_to_string(&tmp_path) {
+        Ok(raw) => {
+            let _ = std::fs::remove_file(&tmp_path);
+            match serde_json::from_str::<serde_json::Value>(&raw) {
+                Ok(v) => Ok(serde_json::to_string(&v).unwrap_or(raw)),
+                Err(_) => Ok(raw),
+            }
+        }
+        Err(error) => Err(failfast_error(error)),
+    }
 }
 
-fn live_program_json_to_mir_json(program_json: &str) -> Result<String, String> {
-    let _env_guard = Phase0MirJsonEnvGuard::new();
-    let module = match crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
-        Ok(module) => module,
-        Err(error) => return Err(failfast_error(error)),
-    };
-    module_to_mir_json(&module)
+fn emit_module_to_temp_mir_json(
+    module: &crate::mir::MirModule,
+) -> Result<std::path::PathBuf, String> {
+    let tmp_path = unique_mir_json_tmp_path();
+    match crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &tmp_path) {
+        Ok(()) => Ok(tmp_path),
+        Err(error) => Err(failfast_error(error)),
+    }
 }
 
 fn inject_stage1_user_box_decls_from_program_json(
@@ -331,6 +347,37 @@ mod tests {
         let mir_json = result.unwrap();
         assert!(mir_json.contains("functions"));
         assert!(mir_json.contains("user_box_decls"));
+    }
+
+    #[test]
+    fn test_program_json_to_mir_json_with_user_box_decls_keeps_explicit_route_contract() {
+        ensure_test_ring0();
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "defs": [
+                {
+                    "box": "HelperBox",
+                    "name": "helper",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Int","value":1}}]}
+                }
+            ],
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {"type": "Int", "value": 42}
+                }
+            ]
+        }"#;
+
+        let result = program_json_to_mir_json_with_user_box_decls(program_json);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let mir_json = result.unwrap();
+        assert!(mir_json.contains("user_box_decls"));
+        assert!(mir_json.contains("\"name\":\"Main\""));
+        assert!(mir_json.contains("\"name\":\"HelperBox\""));
     }
 
     #[test]
