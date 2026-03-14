@@ -494,6 +494,61 @@ fn subset_rejects_boxcall_length_with_arg() {
 }
 
 #[test]
+fn subset_accepts_boxcall_link_exe_with_three_args() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "LlvmBackendBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": {
+                            "type": { "box_type": "StringBox", "kind": "handle" },
+                            "value": "/tmp/in.o"
+                        }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 3,
+                        "value": {
+                            "type": { "box_type": "StringBox", "kind": "handle" },
+                            "value": "/tmp/out.exe"
+                        }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 4,
+                        "value": { "type": "void", "value": 0 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "link_exe",
+                        "box": 1,
+                        "dst": 5,
+                        "args": [2, 3, 4]
+                    },
+                    {
+                        "op": "ret",
+                        "value": 5
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_boxcall_read_with_receiver_mirror_arg() {
     let mir_json = json!({
         "functions": [{

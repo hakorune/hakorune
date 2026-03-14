@@ -29,6 +29,8 @@ Related:
 | `length` | `0` | `boxcall(length:args!=0)` | `op=boxcall args>1` |
 | `indexOf` | `1` or `2` | `boxcall(indexOf:args!=1or2)` | `op=boxcall args>2` / `boxcall-indexOf-*` |
 | `substring` | `2` | `boxcall(substring:args!=2)` | `op=boxcall args<2` / `op=boxcall args>2` / `boxcall-substring-*` |
+| `compile_obj` | `1` | `boxcall(compile_obj:args>1)` / `boxcall(compile_obj:arg0:non-reg)` | `boxcall-arg0-missing` / `llvmbackend-compile-path-handle-missing` / `[llvmbackend/read/*]` / `[llvmbackend/emit/*]` |
+| `link_exe` | `3` | `boxcall(link_exe:args!=3)` / `boxcall(link_exe:args:non-reg)` | `op=boxcall args<3` / `llvmbackend-link-*` / `[llvmbackend/link/*]` |
 | (other methods) | `<=1` | `boxcall(args>1)` | `op=boxcall args>1` / method-specific unimplemented |
 
 ## Update Rule

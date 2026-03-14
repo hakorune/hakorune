@@ -6,6 +6,7 @@
 // is not the owner for new backend-zero work.
 
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 
 static box LlvmBackendBox {
   // Returns object path on success, or null on fail-fast error.
@@ -14,8 +15,12 @@ static box LlvmBackendBox {
     if path == null { return null }
     local mir_json = me._read_text(path)
     if mir_json == null { return null }
+    local mir_payload = MirV1MetaInjectBox.inject_meta_externs("" + mir_json, "[]")
+    if mir_payload == null || ("" + mir_payload) == "" {
+      return me._fail("[llvmbackend/emit/invalid-mir] failed to inject schema_version")
+    }
     local args = new ArrayBox()
-    args.push(mir_json)
+    args.push(mir_payload)
 
     local obj = CodegenBridgeBox.emit_object_args(args)
     if obj == null || ("" + obj) == "" {

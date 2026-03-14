@@ -1,0 +1,13 @@
+// mir_vm_s0_backend_bridge.hako — narrow backend extern bridge for vm-hako runtime helpers
+// Responsibility: keep env.codegen routes in direct hostbridge.extern_invoke form
+// so regular VM can lower them as canonical extern calls.
+
+static box MirVmS0BackendBridgeBox {
+  emit_object_args(args) {
+    return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+  }
+
+  link_object_args(args) {
+    return hostbridge.extern_invoke("env.codegen", "link_object", args)
+  }
+}

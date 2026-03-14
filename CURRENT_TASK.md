@@ -35,9 +35,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `lang/c-abi/include/hako_aot.h` を AOT compile/link 宣言の canonical header に固定し、`hako_hostbridge.h` は thin shim 化した
       - `lang/c-abi/shims/hako_aot_shared_impl.inc` を shared source truth にして、`hako_aot.c` / `hako_kernel.c` の AOT compile/link 実装を 1 箇所へ寄せた
     - exact next follow-up:
-      - runtime proof blocker は `docs/development/current/main/phases/phase-29ck/P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` を SSOT として separate lane で inventory する
-      - landed first runtime-proof slice は `vm-hako` subset-check の `newbox(LlvmBackendBox)` allowlist
-      - next runtime-proof slice は observed `boxcall(args>1)` blocker の exact owner/method inventory
+      - runtime proof owner evidence is now pinned by `docs/development/current/main/phases/phase-29ck/P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
+      - landed runtime-proof slices:
+        - `vm-hako` subset-check now allows `newbox(LlvmBackendBox)`
+        - `.hako VM` runtime now has narrow `LlvmBackendBox.compile_obj/1` and `link_exe/3` helpers
+        - regular Rust VM now accepts receiver-less `hostbridge.extern_invoke` method callee and placeholder `newbox(hostbridge)` for the backend bridge seam
+        - acceptance smoke is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+      - next runtime-proof slice is backend input cleanup / promotion docs sync, not VM blocker inventory
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。

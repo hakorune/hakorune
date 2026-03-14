@@ -38,6 +38,17 @@ impl MirInterpreter {
             return Err(self.err_invalid(e));
         }
 
+        if box_type == "hostbridge" {
+            let instance = crate::instance_v2::InstanceBox::from_declaration(
+                "hostbridge".to_string(),
+                vec![],
+                std::collections::HashMap::new(),
+            );
+            let created_vm = VMValue::from_nyash_box(Box::new(instance));
+            self.write_reg(dst, created_vm);
+            return Ok(());
+        }
+
         // Fast path (bench/profile-only): new StringBox(...) without registry roundtrip.
         // Under NYASH_VM_FAST we keep StringBox payload as VMValue::String to avoid Arc/Box churn
         // on tight loops (e.g., box_create_destroy_small).

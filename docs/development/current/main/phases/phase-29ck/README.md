@@ -91,10 +91,13 @@ Related:
    - target owner is now `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
    - source truth for compile/link is shared at `lang/c-abi/shims/hako_aot_shared_impl.inc`
 2. runtime proof blocker inventory
-   - `hostbridge` runtime support gap in regular VM
-   - `vm-hako` subset-check gap for `newbox(LlvmBackendBox)`
    - final proof owner は `.hako VM`
-   - regular VM proof は blocker closeout までの temporary lane に留める
+   - landed:
+     - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
+     - `.hako VM` runtime can execute `LlvmBackendBox.compile_obj/1` / `link_exe/3`
+     - regular Rust VM accepts the narrow `hostbridge.extern_invoke` bridge seam used by `MirVmS0BackendBridgeBox`
+   - acceptance smoke:
+     - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
    - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 3. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
@@ -107,4 +110,5 @@ Related:
 - phase だけで `owner / first code slice / acceptance / reopen rule` が辿れる
 - `native_driver.rs` が bootstrap seam であり、final owner ではないと一意に読める
 - thin backend boundary の final runtime-proof owner が `.hako VM` だと一意に読める
+- `.hako VM -> LlvmBackendBox -> env.codegen C-API -> exe` proof command が phase docs だけで辿れる
 - docs はもう「backend-zero は task pack 未整備だから provisional」の状態ではない

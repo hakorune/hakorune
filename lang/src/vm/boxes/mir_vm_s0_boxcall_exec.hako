@@ -2,6 +2,8 @@
 // Responsibility: method-specific stateful effects for boxcall ops.
 
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+using selfhost.vm.helpers.mir_s0_backend_bridge as MirVmS0BackendBridgeBox
+using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 
 static box MirVmS0BoxcallExecBox {
   apply_birth(box_birth, dst_birth, regs, kinds, array_lens) {
@@ -81,6 +83,90 @@ static box MirVmS0BoxcallExecBox {
     MirVmS0StateOpsBox.file_box_clear(file_boxes, file_key)
     regs.set("" + dst_close, "0")
     kinds.set("" + dst_close, "scalar")
+    return "__NEXT__"
+  }
+
+  apply_compile_obj(arg0_reg, dst_box, regs, kinds, handle_regs) {
+    if arg0_reg == null { return "[vm-hako/contract][boxcall-arg0-missing]" }
+    local path_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_reg)
+    if path_text == null {
+      return "[vm-hako/contract][llvmbackend-compile-path-handle-missing]"
+    }
+
+    local file_obj = new FileBox()
+    local opened = file_obj.open(path_text, "r")
+    if opened != 1 {
+      print("[llvmbackend/read/open-failed] " + path_text)
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    local mir_json = file_obj.read()
+    file_obj.close()
+    if mir_json == null || ("" + mir_json) == "" {
+      print("[llvmbackend/read/empty] " + path_text)
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    local mir_payload = MirV1MetaInjectBox.inject_meta_externs("" + mir_json, "[]")
+    if mir_payload == null || ("" + mir_payload) == "" {
+      print("[llvmbackend/emit/invalid-mir] failed to inject schema_version")
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    local args = new ArrayBox()
+    args.push("" + mir_payload)
+    local obj = MirVmS0BackendBridgeBox.emit_object_args(args)
+    if obj == null || ("" + obj) == "" {
+      print("[llvmbackend/emit/failed] env.codegen.emit_object returned empty")
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    regs.set("" + dst_box, "0")
+    kinds.set("" + dst_box, "handle")
+    MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "" + obj)
+    return "__NEXT__"
+  }
+
+  apply_link_exe(arg0_reg, arg1_reg, arg2_reg, dst_box, regs, kinds, handle_regs) {
+    if arg0_reg == null || arg1_reg == null || arg2_reg == null {
+      return "[vm-hako/contract][llvmbackend-link-arg-missing]"
+    }
+
+    local obj_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_reg)
+    if obj_text == null {
+      return "[vm-hako/contract][llvmbackend-link-obj-handle-missing]"
+    }
+    local out_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg1_reg)
+    if out_text == null {
+      return "[vm-hako/contract][llvmbackend-link-out-handle-missing]"
+    }
+    local libs_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg2_reg)
+    if libs_text != null && ("" + libs_text) != "" {
+      print("[llvmbackend/link/libs-unsupported] use HAKO_AOT_LDFLAGS env for now")
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    local args = new ArrayBox()
+    args.push("" + obj_text)
+    args.push("" + out_text)
+    local exe = MirVmS0BackendBridgeBox.link_object_args(args)
+    if exe == null || ("" + exe) == "" {
+      print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+    if ("" + exe) != ("" + out_text) {
+      print("[llvmbackend/link/path-mismatch] expected=" + out_text + " got=" + ("" + exe))
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    regs.set("" + dst_box, "1")
+    kinds.set("" + dst_box, "scalar")
+    return "__NEXT__"
+  }
+
+  _write_null_result(dst_box, regs, kinds) {
+    regs.set("" + dst_box, "0")
+    kinds.set("" + dst_box, "scalar")
     return "__NEXT__"
   }
 }

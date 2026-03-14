@@ -72,6 +72,8 @@ Related:
   - target owner paths are `LlvmBackendBox` / `lang/c-abi`
   - `native_driver.rs` は final owner ではなく canary-only か retire 対象になる
   - canonical ABI surface は 2 面固定のまま維持する
+  - final runtime-proof owner は `.hako VM`
+  - regular Rust VM は blocker closeout まで temporary proof lane に留める
 
 ### A6. Mainline promotion / llvmlite demotion
 
@@ -107,6 +109,17 @@ phase docs が要求する evidence は次の順番で積む。
      - `lang/src/llvm_ir/archive/legacy_script_builder/**`
    - rule:
      - do not treat `A2`-`A4` alone as final done shape
+5. runtime proof owner evidence
+   - final owner lane:
+     - `.hako VM` route for `LlvmBackendBox` execution
+   - exact replay command:
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+   - pinned env:
+     - `NYASH_LLVM_USE_CAPI=1`
+     - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
+     - `HAKO_CAPI_PURE=1`
+   - rule:
+     - temporary regular-VM proof may exist during migration, but cannot be promoted as done-shape owner evidence
 
 補足:
 - `BE0-min2` で locked selector は `--driver native`

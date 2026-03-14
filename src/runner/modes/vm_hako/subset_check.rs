@@ -305,6 +305,24 @@ fn validate_boxcall_substring_shape(inst: &Value, args: &[Value]) -> Result<(), 
     Ok(())
 }
 
+fn validate_boxcall_link_exe_shape(inst: &Value, args: &[Value]) -> Result<(), String> {
+    if args.len() != 3 {
+        return Err("boxcall(link_exe:args!=3)".to_string());
+    }
+    let args_ok = args.iter().all(|v| v.as_u64().is_some());
+    if !args_ok {
+        return Err("boxcall(link_exe:args:non-reg)".to_string());
+    }
+    ensure_u64_fields(
+        inst,
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
+    )?;
+    Ok(())
+}
+
 fn validate_boxcall_noarg_shape(inst: &Value, args: &[Value], method: &str) -> Result<(), String> {
     if !args.is_empty() {
         return Err(format!("boxcall({}:args!=0)", method));
@@ -365,11 +383,12 @@ fn validate_boxcall_indexof_shape(inst: &Value, args: &[Value]) -> Result<(), St
 }
 
 fn validate_boxcall_default_shape(inst: &Value, args: &[Value]) -> Result<(), String> {
+    let method = inst.get("method").and_then(|v| v.as_str()).unwrap_or("");
     if args.len() > 1 {
-        return Err("boxcall(args>1)".to_string());
+        return Err(format!("boxcall({}:args>1)", method));
     }
     if args.len() == 1 && args.first().and_then(|v| v.as_u64()).is_none() {
-        return Err("boxcall(arg0:non-reg)".to_string());
+        return Err(format!("boxcall({}:arg0:non-reg)", method));
     }
     ensure_u64_fields(
         inst,
@@ -392,6 +411,7 @@ fn validate_boxcall_shape(inst: &Value) -> Result<(), String> {
         "birth" => validate_boxcall_birth_shape(args),
         "push" => validate_boxcall_push_shape(inst, args),
         "open" => validate_boxcall_open_shape(inst, args),
+        "link_exe" => validate_boxcall_link_exe_shape(inst, args),
         "read" | "close" => validate_boxcall_zero_or_one_reg_shape(inst, args, method),
         "length" => validate_boxcall_noarg_shape(inst, args, method),
         "indexOf" => validate_boxcall_indexof_shape(inst, args),

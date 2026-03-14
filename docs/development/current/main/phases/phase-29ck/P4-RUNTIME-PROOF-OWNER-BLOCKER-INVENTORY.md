@@ -53,37 +53,49 @@ Related:
 ### B2. vm-hako execution support after subset-check
 
 - status:
-  - active
-- observed next blocker after `B1`:
-  - `[vm-hako/unimplemented] phase=s5l route=subset-check ... op=boxcall(args>1)`
-- likely owner files:
+  - landed
+- observed progression:
+  - after `B1`: `[vm-hako/unimplemented op=boxcall1 method=compile_obj]`
+  - then regular Rust VM bridge blocker: `Method call: missing receiver for extern_invoke`
+  - then bridge pseudo-box blocker: `NewBox hostbridge: Unknown Box type`
+  - then backend env blocker: `env.codegen.link_object: C-API route disabled`
+  - final backend payload blocker: `env.codegen.emit_object: [llvmemit/capi/failed] missing schema_version`
+- landed owner files:
   - `lang/src/vm/boxes/mir_vm_s0.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_backend_bridge.hako`
   - `src/runner/modes/vm_hako/subset_check.rs`
-  - `lang/src/vm/hakorune-vm/**`
-- note:
-  - `mir_vm_s0.hako` already stores a generic token for `newbox`, so allocation itself is no longer the first blocker
-  - the exact multi-arg boxcall source still needs owner identification before code changes
+  - `src/backend/mir_interpreter/handlers/calls/method.rs`
+  - `src/backend/mir_interpreter/handlers/boxes.rs`
+  - `lang/src/shared/backend/llvm_backend_box.hako`
+- landed shape:
+  - `vm-hako` runtime now has narrow `LlvmBackendBox.compile_obj/1` and `link_exe/3` execution helpers
+  - regular Rust VM accepts receiver-less `hostbridge.extern_invoke` method callee used by the bridge seam
+  - regular Rust VM accepts placeholder `newbox(hostbridge)` for the bridge seam
+  - MIR(JSON v0) payload is normalized to `schema_version: "1.0"` before `env.codegen.emit_object`
+  - final replay is `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
 - rule:
-  - identify the offending method/shape first; do not widen generic `boxcall(args>1)` blindly
+  - keep `compile_obj/1` and `link_exe/3` narrow; do not widen generic custom-box boxcall execution
 
 ### T1. regular VM hostbridge runtime support gap
 
 - status:
-  - known temporary-lane blocker
+  - closed for the backend bridge seam only
 - current meaning:
-  - regular `--backend vm` does not provide final-owner runtime proof for `LlvmBackendBox`
+  - regular `--backend vm` still does not provide final-owner runtime proof for `LlvmBackendBox`
+  - but it now supports the specific bridge seam needed to host `.hako VM`
 - owner area:
   - `lang/src/runtime/host/host_facade_box.hako`
   - Rust VM hostbridge execution path
 - rule:
-  - inventory only for now; no implementation unless vm-hako lane stalls
+  - keep future widening separate from the landed seam-only support
 
 ## Fixed Order
 
 1. `B1` vm-hako subset-check allowlist
-2. identify the exact `boxcall(args>1)` owner/method in vm-hako compile output
-3. implement the minimum `B2` slice for that exact shape
-4. revisit `T1` only if vm-hako lane becomes structurally blocked
+2. implement the narrow `LlvmBackendBox.compile_obj/1` / `link_exe/3` runtime seam
+3. close the regular Rust VM bridge seam needed by `.hako VM`
+4. pin acceptance with `phase29ck_vmhako_llvm_backend_runtime_proof.sh`
 
 ## Non-goals
 
