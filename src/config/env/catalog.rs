@@ -392,6 +392,12 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: None,
         },
         EnvVarMeta {
+            name: "HAKO_CAPI_PURE",
+            description: "Force pure C-API/FFI route for backend-zero proof (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
             name: "HAKO_LLVM_EMIT_PROVIDER",
             description: "Select LLVM emit provider (e.g., llvmlite)",
             applies_to: AppliesTo::Compiler,

@@ -118,6 +118,8 @@ phase docs が要求する evidence は次の順番で積む。
      - `NYASH_LLVM_USE_CAPI=1`
      - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
      - `HAKO_CAPI_PURE=1`
+   - temporary seam rule:
+     - this proof may depend on `P3` temporary seams, but those seams cannot become silent daily owner paths
    - rule:
      - temporary regular-VM proof may exist during migration, but cannot be promoted as done-shape owner evidence
 

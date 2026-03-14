@@ -71,19 +71,31 @@ rule:
 
 ### 4.1 Keep
 
+- `NYASH_LLVM_USE_CAPI`
+- `HAKO_V1_EXTERN_PROVIDER_C_ABI`
 - `NYASH_LLVM_COMPILER`
 - `NYASH_LLVM_BACKEND`
 - `HAKO_AOT_USE_FFI`
 - `HAKO_AOT_FFI_LIB`
 - `HAKO_AOT_LDFLAGS`
 
-### 4.2 Compat-only keep
+### 4.2 Temporary Proof Env
+
+- `HAKO_CAPI_PURE`
+  - role:
+    - exact runtime-proof pin for `phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+  - non-goal:
+    - do not treat as long-term caller selector
+  - retirement trigger:
+    - retire or demote once thin backend boundary no longer needs the legacy pure-FFI route to prove `.hako VM -> exe`
+
+### 4.3 Compat-only keep
 
 - `HAKO_LLVM_EMIT_PROVIDER`
   - `LLVMEmitBox` canary 用
   - thin backend cutover の selector にはしない
 
-### 4.3 Retire / no-new-work
+### 4.4 Retire / no-new-work
 
 - `HAKO_AOT_USE_PLUGIN`
 - `HAKO_LLVM_SCRIPT_BUILDER`
@@ -113,15 +125,37 @@ rule:
   - `LlvmBackendBox.compile_obj(json_path)` reads file content, injects `schema_version: "1.0"` via `MirV1MetaInjectBox`, then calls `CodegenBridgeBox.emit_object_args(...)`
   - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` calls `CodegenBridgeBox.link_object_args(...)`
   - non-empty `libs` is fail-fast for now; use `HAKO_AOT_LDFLAGS` env until C-side arg plumbing is widened
-  - `.hako` surface parser does not accept `throw`, so failure contract is stable tag print (`[llvmbackend/*]`) + `null`
-  - current proof shape is:
+- `.hako` surface parser does not accept `throw`, so failure contract is stable tag print (`[llvmbackend/*]`) + `null`
+- current proof shape is:
     - direct MIR emit accepts a `.hako` caller that imports `selfhost.shared.backend.llvm_backend`
     - `LlvmBackendBox` source owner is pinned to `MirV1MetaInjectBox` + `CodegenBridgeBox.emit_object_args/link_object_args`
     - downstream native app parity stays green on `phase29ck_native_llvm_cabi_link_min.sh`
   - final runtime-proof owner is `.hako VM`, not regular VM
   - runtime proof through `LlvmBackendBox` itself is now pinned by `phase29ck_vmhako_llvm_backend_runtime_proof.sh`
 
-## 6. Immediate Cleanup Rule
+## 6. Temporary Seam Retirement
+
+次の seam は temporary proof 用であり、final owner ではない。
+
+1. `.hako` bridge seam
+   - `lang/src/vm/boxes/mir_vm_s0_backend_bridge.hako`
+   - role:
+     - vm-hako runtime から `hostbridge.extern_invoke("env.codegen", ...)` を narrow に呼ぶ
+   - retirement trigger:
+     - `.hako VM` が direct thin backend boundary call を別 seam なしで証明できる
+2. regular Rust VM seam
+   - `src/backend/mir_interpreter/handlers/calls/method.rs`
+   - `src/backend/mir_interpreter/handlers/boxes.rs`
+   - role:
+     - receiver-less `hostbridge.extern_invoke`
+     - placeholder `newbox(hostbridge)`
+   - retirement trigger:
+     - `.hako VM` proof が regular Rust VM seam に依存しなくなる
+3. rule:
+   - no new mainline behavior may depend on these seams
+   - widening requires reopening `phase-29ck`
+
+## 7. Immediate Cleanup Rule
 
 cutover 実装前に許される cleanup は次だけだよ。
 

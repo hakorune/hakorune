@@ -98,11 +98,16 @@ Related:
      - regular Rust VM accepts the narrow `hostbridge.extern_invoke` bridge seam used by `MirVmS0BackendBridgeBox`
    - acceptance smoke:
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+   - temporary env pin:
+      - `NYASH_LLVM_USE_CAPI=1`
+      - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
+      - `HAKO_CAPI_PURE=1`
    - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 3. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
 4. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
+   - temporary seam/env retirement check
 5. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance

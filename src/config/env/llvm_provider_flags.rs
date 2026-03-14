@@ -20,6 +20,11 @@ pub fn extern_provider_c_abi() -> bool {
     env_bool("HAKO_V1_EXTERN_PROVIDER_C_ABI")
 }
 
+/// Force pure C-API/FFI route for backend-zero runtime proof (HAKO_CAPI_PURE=1).
+pub fn capi_pure() -> bool {
+    env_bool("HAKO_CAPI_PURE")
+}
+
 /// Provider selector for MIR→obj (HAKO_LLVM_EMIT_PROVIDER).
 pub fn llvm_emit_provider() -> Option<String> {
     std::env::var("HAKO_LLVM_EMIT_PROVIDER")
