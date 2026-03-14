@@ -73,12 +73,21 @@ write_buildbox_emit_program_runner_hako() {
   local wrap_path="$1"
   cat > "$wrap_path" <<'HAKO'
 using lang.compiler.build.build_box as BuildBox
-static box Main { method main(args) {
-  local src = env.get("HAKO_SRC");
-  local j = BuildBox.emit_program_json_v0(src, null);
-  print(j);
-  return 0;
-} }
+static box Main {
+  method _emit_program_json_checked(src) {
+    if src == null { print("[selfhost/buildbox:no-src]"); return null; }
+    local j = BuildBox.emit_program_json_v0(src, null);
+    if j == null { print("[selfhost/buildbox:builder-null]"); return null; }
+    return j;
+  }
+
+  method main(args) {
+    local j = me._emit_program_json_checked(env.get("HAKO_SRC"));
+    if j == null { return 1; }
+    print(j);
+    return 0;
+  }
+}
 HAKO
 }
 

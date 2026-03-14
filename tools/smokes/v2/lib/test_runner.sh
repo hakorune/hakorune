@@ -648,22 +648,35 @@ static box Main { method main(args) {
 HCODE
 }
 
+builder_module_program_json_runner_code() {
+    local builder_module="$1"
+    cat <<HAKO
+using "${builder_module}" as MirBuilderBox
+static box Main {
+  method _emit_mir_checked(program_json) {
+    if program_json == null { print("[fail:nojson]"); return null }
+    local out = MirBuilderBox.emit_from_program_json_v0(program_json, null)
+    if out == null { print("[fail:builder]"); return null }
+    return out
+  }
+
+  method main(args) {
+    local out = me._emit_mir_checked(env.get("PROG_JSON"))
+    if out == null { return 1 }
+    print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
+    return 0
+  }
+}
+HAKO
+}
+
 run_program_json_via_builder_module_vm() {
     local builder_module="$1"
     local prog_json="$2"
     local tmp_hako
 
     tmp_hako=$(mktemp --suffix .hako)
-    cat >"${tmp_hako}" <<HAKO
-using "${builder_module}" as MirBuilderBox
-static box Main { method main(args) {
-  local j = env.get("PROG_JSON"); if j == null { print("[fail:nojson]"); return 1 }
-  local out = MirBuilderBox.emit_from_program_json_v0(j, null)
-  if out == null { print("[fail:builder]"); return 1 }
-  print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
-  return 0
-} }
-HAKO
+    builder_module_program_json_runner_code "$builder_module" >"${tmp_hako}"
 
     PROG_JSON="$prog_json" \
     NYASH_FAIL_FAST="${NYASH_FAIL_FAST:-0}" \
@@ -683,16 +696,7 @@ run_program_json_via_registry_builder_module_vm() {
     local tmp_hako
 
     tmp_hako=$(mktemp --suffix .hako)
-    cat >"${tmp_hako}" <<HAKO
-using "${builder_module}" as MirBuilderBox
-static box Main { method main(args) {
-  local j = env.get("PROG_JSON"); if j == null { print("[fail:nojson]"); return 1 }
-  local out = MirBuilderBox.emit_from_program_json_v0(j, null)
-  if out == null { print("[fail:builder]"); return 1 }
-  print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
-  return 0
-} }
-HAKO
+    builder_module_program_json_runner_code "$builder_module" >"${tmp_hako}"
 
     (
         if [ -n "$registry_only" ]; then
