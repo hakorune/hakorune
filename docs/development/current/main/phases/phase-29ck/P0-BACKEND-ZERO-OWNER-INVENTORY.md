@@ -45,6 +45,53 @@ Related:
 | Cranelift backend | `src/backend/cranelift/**`, `src/jit/**` | explicit keep | この phase では置換対象にしない |
 | current harness route select | `NYASH_LLVM_USE_HARNESS` plus caller docs/scripts | compat keep until demotion | silent semantics change は禁止 |
 
+## 2.5 Ownership Split (B0 detail lock)
+
+### 2.5.1 Rust mainline owners to demote
+
+1. `crates/nyash-llvm-compiler/src/main.rs`
+   - current CLI / normalize / static-first link owner
+2. `crates/nyash-llvm-compiler/src/native_driver.rs`
+   - bootstrap seam only
+3. `src/runner/modes/common_util/exec.rs`
+   - runner-side backend selector / child-process launch owner
+4. `src/runner/modes/llvm/{mod.rs,harness_executor.rs,object_emitter.rs,mir_compiler.rs,pyvm_executor.rs,fallback_executor.rs,error.rs,report.rs,plugin_init.rs,using_resolver.rs,method_id_injector.rs,exit_reporter.rs}`
+   - route selection / diagnostics / fallback glue keep
+
+### 2.5.2 Python mainline owners to demote
+
+1. `tools/llvmlite_harness.py`
+   - current harness entry
+2. `src/llvm_py/llvm_builder.py`
+   - current codegen / pass owner
+3. `src/llvm_py/{mir_reader.py,build_ctx.py,resolver.py,mir_analysis.py,build_opts.py,phi_manager.py,phi_placement.py,type_facts.py}`
+   - reader / build context / analysis support owner
+4. `src/llvm_py/instructions/**`
+   - instruction-lowering owner
+
+### 2.5.3 Thin backend boundary targets
+
+1. `lang/src/shared/backend/llvm_backend_box.hako`
+   - `.hako` caller boundary
+2. `lang/c-abi/include/hako_aot.h`
+   - canonical C header
+3. `lang/c-abi/shims/{hako_aot.c,hako_aot_shared_impl.inc,hako_llvmc_ffi.c}`
+   - thin helper / shared source truth / optional FFI support
+
+### 2.5.4 Compat / archive keeps
+
+1. `lang/src/llvm_ir/boxes/{aot_prep.hako,normalize/**}`
+2. `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
+3. `lang/src/llvm_ir/archive/legacy_script_builder/**`
+4. `HAKO_CAPI_PURE=1` historical pure-lowering routes
+5. `NYASH_LLVM_USE_HARNESS` caller-side compat route select
+
+### 2.5.5 Explicit keep
+
+1. `src/backend/cranelift/**`
+2. `src/jit/**`
+   - outside backend-zero replace work
+
 ## 3. First Code Slice Boundary
 
 - first implementation owner は bootstrap seam として `crates/nyash-llvm-compiler/src/**` に閉じてよい

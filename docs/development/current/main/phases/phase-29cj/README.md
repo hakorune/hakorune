@@ -1,5 +1,5 @@
 ---
-Status: Accepted (closeout-ready)
+Status: Accepted (formal-close-sync-ready)
 Decision: accepted
 Date: 2026-03-13
 Scope: `phase-29ci` closeout-ready 後に、Rust-owned `Program(JSON v0)` bootstrap boundary の本体 retirement を 1 owner ずつ進める separate phase pointer。
@@ -58,36 +58,24 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 
 ## Immediate Next
 
-1. treat `build_surrogate.rs` as near thin floor unless an exact disappearing leaf is obvious first
-2. freeze the `.hako` owner/helper cleanup wave as `closeout-ready`
-   - `MirBuilderBox.hako`, runner owners, `build_box.hako`, and the shared shell/helper trio are no longer the active phase front
-   - do not reopen local tiny-leaf cleanup there unless an exact disappearing owner appears first
-3. treat the bridge-local `program_json` façades as near thin floor
-   - `program_json/` is now `mod.rs` + `read_input.rs` + `payload.rs` + `writeback.rs`
-   - `program_json_entry/` is now `mod.rs` + `request.rs` + `exit.rs`
-   - `program_json/mod.rs` is already read -> payload -> write orchestration only
-   - `program_json_entry/mod.rs` is already request-build + dispatch only
-4. once `build_surrogate.rs` is near thin floor, switch the active phase front to bridge retirement and then take `program_json_entry/request.rs`
-5. keep the direct-lower probe as explicit evidence until one Rust-owned bucket actually disappears
-6. while this phase keeps the Rust-owned retirement order, do not confuse it with the primary pure-`.hako` blocker
-   - the real current blocker is the Rust stop-line `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+1. formal close sync
+   - freeze `phase-29cj` as `formal-close-sync-ready`
+   - keep the active exact owner wording pinned to `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+2. keep the strict source-authority and surrogate buckets frozen
+   - `src/stage1/program_json_v0/authority.rs`
+   - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+   - these are exact owners, but no longer active phase fronts
+3. keep bridge and `.hako` helper waves closed
+   - `program_json/` and `program_json_entry/` stay near thin floor
+   - `.hako` owner/helper local cleanup stays `closeout-ready`
+4. keep the direct-lower probe as explicit evidence until the formal close sync lands
+5. do not confuse this phase close sync with the primary pure-`.hako` blocker
+   - the real current blocker is still the Rust stop-line `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
    - `src/host_providers/mir_builder/lowering.rs` is test-only evidence, not the live phase front
-   - pinned live callers:
-     - `src/host_providers/mir_builder.rs`
-     - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
-     - `src/runtime/mirbuilder_emit.rs`
-   - therefore, a future authority-removal slice should narrow those callers before broad cleanup elsewhere
-7. exact next ladder after `authority.rs` retirement:
-   - landed: `src/host_providers/mir_builder.rs::source_to_mir_json(...)` now owns the live source-route handoff directly
-   - landed: `src/host_providers/mir_builder/lowering/program_json.rs::lower_program_json_to_module(...)` is absorbed into `src/host_providers/mir_builder/lowering.rs`
-   - next target is the remaining live caller/shaping around that lowering owner
-   - keep `src/stage1/program_json_v0/authority.rs` frozen as the strict source-authority core while those host-provider slices are still live
-8. authority-replacement rule:
-   - treat `src/host_providers/mir_builder.rs` as near thin floor once only `source_to_mir_json(...)`, `program_json_to_mir_json_with_user_box_decls(...)`, and `module_to_mir_json(...)` remain live
-   - do not reopen kernel/plugin route cleanup once `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is down to thin gate/decode/encode support
-   - after the current Rust lowering owner is sufficiently thin, switch the phase language from “leaf retirement” to “authority replacement”
-   - first `.hako` replacement owner remains `lang/src/mir/builder/MirBuilderBox.hako`; runner owners follow, and `lang/src/compiler/build/build_box.hako` stays behind them because of blast radius
-   - exact stop-line: if a Rust owner only holds route gate/decode/encode, source-route handoff glue, or compat evidence, freeze it and move the phase front elsewhere
+6. after close sync, the next real movement is authority replacement above the stop-line
+   - first `.hako` replacement owner remains `lang/src/mir/builder/MirBuilderBox.hako`
+   - runner owners follow
+   - `lang/src/compiler/build/build_box.hako` stays behind them because of blast radius
 
 ## Status Lock
 

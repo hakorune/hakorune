@@ -73,15 +73,22 @@ rule:
 ### B0. backend-zero ownership demotion inventory
 
 - current owners:
-  - `crates/nyash-llvm-compiler/**`
-  - `src/runner/modes/common_util/exec.rs`
-  - `src/runner/modes/llvm/**`
-  - `src/llvm_py/**`
-  - `tools/llvmlite_harness.py`
+  - Rust:
+    - `crates/nyash-llvm-compiler/**`
+    - `src/runner/modes/common_util/exec.rs`
+    - `src/runner/modes/llvm/**`
+  - Python:
+    - `src/llvm_py/**`
+    - `tools/llvmlite_harness.py`
 - target:
   - Rust/Python mainline owner -> thin backend boundary owner
 - done shape:
   - backend-zero queue is described as ownership moves, not just native canaries
+  - each remaining owner is classified as
+    - Rust mainline keep to demote
+    - Python mainline keep to demote
+    - thin boundary target
+    - compat/archive keep
 
 ### B1. daily caller cutover prep
 

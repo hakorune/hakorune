@@ -130,11 +130,12 @@ Related:
    - `src/native_driver.rs` is temporary seam only
    - final owner target is not Rust CLI, but thin backend boundary
 2. `src/runner/modes/common_util/exec.rs`
-3. `src/runner/modes/llvm/**`
+   - backend selector / child-process launch owner
+3. `src/runner/modes/llvm/{mod.rs,harness_executor.rs,object_emitter.rs,mir_compiler.rs,pyvm_executor.rs,fallback_executor.rs,error.rs,report.rs,plugin_init.rs,using_resolver.rs,method_id_injector.rs,exit_reporter.rs}`
    - Rust runner glue / route selection / diagnostics keep
    - still mainline-owned for LLVM route orchestration
-3. `src/llvm_py/**`
-4. `tools/llvmlite_harness.py`
+4. `src/llvm_py/{llvm_builder.py,mir_reader.py,build_ctx.py,resolver.py,mir_analysis.py,build_opts.py,phi_manager.py,phi_placement.py,type_facts.py,instructions/**}`
+5. `tools/llvmlite_harness.py`
    - current LLVM codegen / optimization owner
    - still Python-owned mainline for `MIR -> object`
 
@@ -142,7 +143,7 @@ Related:
 
 1. `lang/src/shared/backend/llvm_backend_box.hako`
 2. `lang/c-abi/include/hako_aot.h`
-3. `lang/c-abi/shims/hako_aot.c`
+3. `lang/c-abi/shims/{hako_aot.c,hako_aot_shared_impl.inc,hako_llvmc_ffi.c}`
    - official thin backend boundary
    - final shape is `.hako -> thin backend C ABI/plugin boundary -> object/exe`
 

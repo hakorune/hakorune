@@ -191,6 +191,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - the only active exact owner left in this phase is `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
     - `src/stage1/program_json_v0/authority.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` are frozen exact owners, not active phase fronts
     - targeted proof remains `cargo test mir_builder -- --nocapture`
+  - exact next for C0 (2026-03-15):
+    - formal-close-sync docs only
+    - do not reopen bridge / surrogate / `.hako` helper waves while that sync is landing
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder.rs`
@@ -298,7 +301,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering
   - current phase wording lock (2026-03-15):
     - `.hako` owner/helper cleanup wave: `closeout-ready`
-    - `phase-29cj` overall status: `closeout-ready`, but still `open` until formal close sync lands
+    - `phase-29cj` overall status: `formal-close-sync-ready`, but still `open` until the close sync lands
     - remaining active exact owner before phase close discussion:
       1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
     - frozen exact owners after the latest stop-line audit:
