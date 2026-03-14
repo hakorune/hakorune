@@ -434,23 +434,36 @@ static box Stage1Cli {
   }
 
   method _emit_mir_json_from_program_json_checked(tag, program_json) {
+    local prog = me._coerce_program_json_for_emit_mir_checked(tag, program_json)
+    if prog == null { return null }
+    local mir = me._emit_mir_from_program_json_text_checked(prog)
+    if mir == null { return null }
+    return me._coerce_mir_output_checked(mir)
+  }
+
+  method _coerce_program_json_for_emit_mir_checked(tag, program_json) {
     if program_json == null {
       print(tag + ": program_json is null")
       return null
     }
-
     local prog = "" + program_json
     if prog.indexOf("\"version\":0") < 0 || prog.indexOf("\"kind\":\"Program\"") < 0 {
       print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
       return null
     }
+    return prog
+  }
 
-    local mir = MirBuilderBox.emit_from_program_json_v0(prog, null)
+  method _emit_mir_from_program_json_text_checked(program_json_text) {
+    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
     if mir == null {
       print("[freeze:contract][stage1-cli/emit-mir] MirBuilderBox.emit_from_program_json_v0 returned null")
       return null
     }
+    return mir
+  }
 
+  method _coerce_mir_output_checked(mir) {
     local ms = "" + mir
     if ms.indexOf("\"functions\"") < 0 {
       print("[freeze:contract][stage1-cli/emit-mir] output missing MIR functions marker")

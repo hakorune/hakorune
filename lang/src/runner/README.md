@@ -24,6 +24,7 @@ Pointers:
     - authority is still `stage1_cli_env.hako`; this file is a future-retire/raw subcmd lane
     - checked `BuildBox` / `MirBuilderBox` calls stay behind owner-local helpers
     - source/program-json orchestration stays behind same-file helpers (`_resolve_emit_program_source_text(...)`, `_resolve_program_json_for_emit_mir(...)`, `_resolve_program_json_for_run(...)`, `_load_program_json_from_path_or_source(...)`)
+    - emit-mir checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`) so the raw subcmd lane no longer mixes Program(JSON) input validation, MirBuilder call, and MIR output validation inline
 
 - `runner_facade.hako`
   - Contract（draft）:
