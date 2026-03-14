@@ -16,6 +16,15 @@ Pointers:
 
 ## Files
 
+- `stage1_cli.hako`
+  - Contract:
+    - Entry: `Main.main(args: array<string>) -> i64`
+    - Role: embedded/raw Stage1 CLI lane for emit/run bootstrap contracts.
+  - Current status:
+    - authority is still `stage1_cli_env.hako`; this file is a future-retire/raw subcmd lane
+    - checked `BuildBox` / `MirBuilderBox` calls stay behind owner-local helpers
+    - source/program-json orchestration stays behind same-file helpers (`_resolve_emit_program_source_text(...)`, `_resolve_program_json_for_emit_mir(...)`, `_resolve_program_json_for_run(...)`, `_load_program_json_from_path_or_source(...)`)
+
 - `runner_facade.hako`
   - Contract（draft）:
     - Entry: `Runner.run(entry: string, args: array<string>) -> i64`
