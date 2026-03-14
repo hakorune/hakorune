@@ -139,19 +139,19 @@ rule:
 
 ## 6. Temporary Seam Retirement
 
-次の seam は temporary proof 用であり、final owner ではない。
+phase-29ck runtime proof で一時的に必要だった seam は retire 済みだよ。
 
-1. regular Rust VM seam
+1. retired seam
    - `src/backend/mir_interpreter/handlers/calls/method.rs`
    - `src/backend/mir_interpreter/handlers/boxes.rs`
-   - role:
+   - retired shape:
      - receiver-less `hostbridge.extern_invoke`
      - placeholder `newbox(hostbridge)`
-   - retirement trigger:
-     - `.hako VM` proof が direct thin backend boundary call を regular Rust VM seam なしで証明できる
+   - replacement:
+     - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now uses owner-local helpers that lower to canonical `Callee::Extern(env.codegen.*)`
 2. rule:
-   - no new mainline behavior may depend on these seams
-   - widening requires reopening `phase-29ck`
+   - no new mainline behavior may reintroduce these seams
+   - any widening requires reopening `phase-29ck`
 
 ## 7. Immediate Cleanup Rule
 

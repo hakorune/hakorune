@@ -95,8 +95,8 @@ Related:
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
      - `.hako VM` runtime can execute `LlvmBackendBox.compile_obj/1` / `link_exe/3`
-     - `.hako VM` now calls `hostbridge.extern_invoke("env.codegen", ...)` directly from `mir_vm_s0_boxcall_exec.hako`
-     - regular Rust VM accepts the narrow `hostbridge.extern_invoke` seam needed by those backend helpers
+     - backend boxcall helpers in `mir_vm_s0_boxcall_exec.hako` now route through owner-local helper methods that lower to canonical `Callee::Extern(env.codegen.*)`
+     - phase-29ck proof no longer depends on regular Rust VM special-casing `hostbridge.extern_invoke` or `newbox(hostbridge)`
    - acceptance smoke:
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
    - temporary env pin:

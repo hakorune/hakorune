@@ -182,11 +182,6 @@ impl MirInterpreter {
             }
             Ok(out)
         } else {
-            // Temporary phase-29ck seam: receiver-less hostbridge.extern_invoke must
-            // forward to the extern dispatcher so the remaining vm-hako backend seam can run.
-            if box_name == "hostbridge" && method == "extern_invoke" {
-                return self.execute_extern_function("hostbridge.extern_invoke", args);
-            }
             // Receiver not provided: try static singleton instance for the box (methodize PoC fallback)
             if self.static_box_registry.exists(box_name) {
                 // 🎯 Phase 173-B: Static box methods are in MIR function table

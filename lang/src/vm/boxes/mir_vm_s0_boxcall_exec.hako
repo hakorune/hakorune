@@ -114,7 +114,7 @@ static box MirVmS0BoxcallExecBox {
 
     local args = new ArrayBox()
     args.push("" + mir_payload)
-    local obj = hostbridge.extern_invoke("env.codegen", "emit_object", args)
+    local obj = me._emit_codegen_object_args(args)
     if obj == null || ("" + obj) == "" {
       print("[llvmbackend/emit/failed] env.codegen.emit_object returned empty")
       return me._write_null_result(dst_box, regs, kinds)
@@ -148,7 +148,7 @@ static box MirVmS0BoxcallExecBox {
     local args = new ArrayBox()
     args.push("" + obj_text)
     args.push("" + out_text)
-    local exe = hostbridge.extern_invoke("env.codegen", "link_object", args)
+    local exe = me._link_codegen_object_args(args)
     if exe == null || ("" + exe) == "" {
       print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
       return me._write_null_result(dst_box, regs, kinds)
@@ -167,5 +167,13 @@ static box MirVmS0BoxcallExecBox {
     regs.set("" + dst_box, "0")
     kinds.set("" + dst_box, "scalar")
     return "__NEXT__"
+  }
+
+  _emit_codegen_object_args(args) {
+    return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+  }
+
+  _link_codegen_object_args(args) {
+    return hostbridge.extern_invoke("env.codegen", "link_object", args)
   }
 }
