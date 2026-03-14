@@ -84,8 +84,7 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
     let _env_guard = Phase0MirJsonEnvGuard::new();
     let module = parse_program_json_module(program_json)?;
-    let mir_json = module_to_mir_json(&module)?;
-    inject_stage1_user_box_decls_from_program_json(program_json, &mir_json)
+    emit_mir_json_with_user_box_decls(program_json, &module)
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
@@ -125,6 +124,14 @@ fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, Stri
 
 fn parse_program_json_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
     crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
+}
+
+fn emit_mir_json_with_user_box_decls(
+    program_json: &str,
+    module: &crate::mir::MirModule,
+) -> Result<String, String> {
+    let mir_json = module_to_mir_json(module)?;
+    inject_stage1_user_box_decls_from_program_json(program_json, &mir_json)
 }
 
 fn emit_module_to_temp_mir_json(
