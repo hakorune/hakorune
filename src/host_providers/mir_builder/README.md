@@ -13,7 +13,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - strict-source public/test entry now share owner-local Program(JSON) emit via `emit_program_json_for_source(...)` and `emit_program_and_plain_mir_json_for_source(...)`
   - public explicit-route entry and source-route handoff now share owner-local env guard via `emit_guarded_mir_json_from_program_json(...)`
   - public explicit-route entry now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`
-  - explicit-route finalize now keeps `Program(JSON)` parse/build separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `build_stage1_user_box_decls(...)` -> `inject_user_box_decls_into_mir_json(...)`
+  - explicit-route finalize now keeps `Program(JSON)` parse/build separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `build_stage1_user_box_decls_from_program_json(...)` -> `inject_user_box_decls_into_mir_json(...)`
   - keeps `program_json_to_mir_json_with_imports(...)` test-only; live cross-crate callers should not depend on imports-bearing Program(JSON) lowering here
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse helpers

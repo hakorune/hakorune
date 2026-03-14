@@ -199,8 +199,7 @@ fn finalize_mir_json_with_stage1_user_box_decls(
     program_json: &str,
     mir_json: &str,
 ) -> Result<String, String> {
-    let program_value = parse_program_json_value(program_json)?;
-    let user_box_decls = build_stage1_user_box_decls(&program_value);
+    let user_box_decls = build_stage1_user_box_decls_from_program_json(program_json)?;
     inject_user_box_decls_into_mir_json(mir_json, user_box_decls)
 }
 
@@ -236,6 +235,13 @@ fn build_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_j
     seen.into_iter()
         .map(stage1_user_box_decl_from_name)
         .collect()
+}
+
+fn build_stage1_user_box_decls_from_program_json(
+    program_json: &str,
+) -> Result<Vec<serde_json::Value>, String> {
+    let program_value = parse_program_json_value(program_json)?;
+    Ok(build_stage1_user_box_decls(&program_value))
 }
 
 fn serialize_mir_json_value(mir_value: &serde_json::Value) -> Result<String, String> {
