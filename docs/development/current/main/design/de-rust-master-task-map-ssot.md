@@ -7,6 +7,8 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
@@ -72,7 +74,11 @@ Separate lane pointer:
    - final boundary SSOT: `de-rust-backend-zero-boundary-lock-ssot.md`
    - final shape is `.hako -> thin backend C ABI/plugin boundary -> object/exe`
    - `native_driver.rs` stays bootstrap seam only
-4. rule:
+4. remaining Rust bucket inventory:
+`docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md`
+5. remaining Rust task pack:
+`docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md`
+6. rule:
 この split は visibility 用であり、lane A/B/C の current blocker や non-plugin done scope を上書きしない。
 
 ## 3. Fixed Completion Ladder

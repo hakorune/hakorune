@@ -20,6 +20,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - top-level future tracking SSOT:
   - `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+  - `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md`
+  - `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md`
 - split:
   - `runtime-zero`: accepted pointer / inventory-ready
   - `backend-zero`: accepted pointer / `phase-29ck` queued
@@ -184,6 +186,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - latest front shift (2026-03-15):
     - `src/runner/stage1_bridge/program_json_entry/request.rs` is no longer the active phase front
     - keep it frozen as near thin floor and return active slices to `src/host_providers/mir_builder.rs`
+  - closeout-ready confirmation (2026-03-15):
+    - `phase-29cj` is now closeout-ready while still open for formal close sync
+    - the only active exact owner left in this phase is `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+    - `src/stage1/program_json_v0/authority.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` are frozen exact owners, not active phase fronts
+    - targeted proof remains `cargo test mir_builder -- --nocapture`
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder.rs`
@@ -291,11 +298,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering
   - current phase wording lock (2026-03-15):
     - `.hako` owner/helper cleanup wave: `closeout-ready`
-    - `phase-29cj` overall status: still `open`
-    - remaining exact owners before phase close discussion:
+    - `phase-29cj` overall status: `closeout-ready`, but still `open` until formal close sync lands
+    - remaining active exact owner before phase close discussion:
       1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
-      2. `src/stage1/program_json_v0/authority.rs`
-      3. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+    - frozen exact owners after the latest stop-line audit:
+      1. `src/stage1/program_json_v0/authority.rs`
+      2. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
     - do not reopen `.hako` local thinning just because those Rust-owned buckets are still live
 
 - de-rust selfhost top-level closeout:

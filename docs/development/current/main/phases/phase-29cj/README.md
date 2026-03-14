@@ -1,5 +1,5 @@
 ---
-Status: Accepted (queued)
+Status: Accepted (closeout-ready)
 Decision: accepted
 Date: 2026-03-13
 Scope: `phase-29ci` closeout-ready 後に、Rust-owned `Program(JSON v0)` bootstrap boundary の本体 retirement を 1 owner ずつ進める separate phase pointer。
@@ -92,11 +92,12 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 ## Status Lock
 
 - `.hako` owner/helper local thinning wave: `closeout-ready`
-- `phase-29cj` overall: still `open`
-- remaining exact owners before close discussion:
+- `phase-29cj` overall: `closeout-ready`, but still `open` until close sync lands
+- remaining active exact owner before close sync:
   1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
-  2. `src/stage1/program_json_v0/authority.rs`
-  3. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+- frozen exact owners after the latest stop-line audit:
+  1. `src/stage1/program_json_v0/authority.rs`
+  2. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
 - do not reopen `.hako` local thinning only because those Rust-owned owners are still live
 
 ## Retreat Finding
