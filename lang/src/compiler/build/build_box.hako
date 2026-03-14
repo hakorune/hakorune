@@ -18,7 +18,7 @@ static box BuildBox {
     local prepared = me._prepare_scan_src(src, opts)
     if prepared.has("error") == true { return "" + prepared.get("error") }
     local scan_src = prepared.get("scan_src")
-    return me._build_program_json_from_scan_src(scan_src)
+    return me._emit_program_json_from_scan_src(scan_src)
   }
 
   method _prepare_scan_src(src, opts) {
@@ -199,10 +199,14 @@ static box BuildBox {
     return p.parse_program2(parse_src)
   }
 
-  method _build_program_json_from_scan_src(scan_src) {
-    local parse_src = me._resolve_parse_src(scan_src)
-    local ast_json = me._parse_program_json(parse_src)
+  method _emit_program_json_from_scan_src(scan_src) {
+    local ast_json = me._parse_program_json_from_scan_src(scan_src)
     return me._inject_stageb_fragments_json(ast_json, scan_src)
+  }
+
+  method _parse_program_json_from_scan_src(scan_src) {
+    local parse_src = me._resolve_parse_src(scan_src)
+    return me._parse_program_json(parse_src)
   }
 
   method _inject_stageb_fragments_json(ast_json, scan_src) {
@@ -216,15 +220,19 @@ static box BuildBox {
     if func_scan_env != null && ("" + func_scan_env) == "0" { func_scan_on = 0 }
     if func_scan_on != 1 { return ast_json }
 
-    // defs は parser に渡した merged source と同じ境界で収集する。
-    // 元の src だけを見ると using/prefix helper boxes が defs に載らず、
-    // bridge-first Stage2 build で helper symbol closure が崩れる。
-    local methods = FuncScannerBox.scan_all_boxes(scan_src)
-    local defs_json = StageBJsonBuilderBox.build_defs_json(methods)
+    local defs_json = me._build_defs_fragment_json(scan_src)
     if defs_json != "" && defs_json.length() > 0 {
       return StageBJsonBuilderBox.inject_json_fragment(ast_json, defs_json)
     }
     return ast_json
+  }
+
+  method _build_defs_fragment_json(scan_src) {
+    // defs は parser に渡した merged source と同じ境界で収集する。
+    // 元の src だけを見ると using/prefix helper boxes が defs に載らず、
+    // bridge-first Stage2 build で helper symbol closure が崩れる。
+    local methods = FuncScannerBox.scan_all_boxes(scan_src)
+    return StageBJsonBuilderBox.build_defs_json(methods)
   }
 
   method _inject_imports_json(ast_json, scan_src) {

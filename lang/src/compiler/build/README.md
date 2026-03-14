@@ -31,6 +31,8 @@ Notes
     - `_prepare_scan_src(...)`: bundle/env normalization plus `BundleResolver.resolve(...)`
     - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus merged `scan_src` materialization only
     - `_parse_program_json(...)`: parser entry only
-    - `_build_program_json_from_scan_src(...)`: parse + fragment-enrichment sequencing only
+    - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
+    - `_parse_program_json_from_scan_src(...)`: parse-source narrowing plus parser call only
     - `_inject_stageb_fragments_json(...)`: defs/imports enrichment tail only
+    - `_build_defs_fragment_json(...)`: defs-scan plus defs-fragment build only
     - `_inject_defs_json(...)` / `_inject_imports_json(...)`: Stage-B fragment injection only
