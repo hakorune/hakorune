@@ -178,6 +178,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core
     - switch the active phase front to `future-retire bridge`
     - first bridge-entry leaf is `src/runner/stage1_bridge/program_json_entry/request.rs` because `build_surrogate.rs` is now near thin floor and the inner `program_json` façades are already thin
+  - latest bridge-entry tightening (2026-03-15):
+    - `src/runner/stage1_bridge/program_json_entry/request.rs` now keeps emit-flag presence and out-path extraction behind shared helper `emit_program_json_out_path_ref(...)`
+    - after this slice, treat `request.rs` as near thin floor unless another exact disappearing leaf appears first
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder.rs`

@@ -8,7 +8,7 @@ pub(super) struct ProgramJsonEmitRequest {
 }
 
 pub(super) fn emit_program_json_v0_requested(groups: &CliGroups) -> bool {
-    groups.emit.emit_program_json_v0.is_some()
+    emit_program_json_out_path_ref(groups).is_some()
 }
 
 pub(super) fn build_emit_request(groups: &CliGroups) -> Result<ProgramJsonEmitRequest, String> {
@@ -27,12 +27,13 @@ fn resolve_emit_program_json_source_path(groups: &CliGroups) -> Result<String, S
 }
 
 fn resolve_emit_program_json_out_path(groups: &CliGroups) -> String {
-    groups
-        .emit
-        .emit_program_json_v0
-        .as_ref()
+    emit_program_json_out_path_ref(groups)
         .expect("emit-program-json-v0 flag should be present")
         .clone()
+}
+
+fn emit_program_json_out_path_ref(groups: &CliGroups) -> Option<&String> {
+    groups.emit.emit_program_json_v0.as_ref()
 }
 
 #[cfg(test)]
