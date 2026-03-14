@@ -18,17 +18,12 @@ enable_mirbuilder_dev_env
 # Minimal Program(JSON v0): Return(Binary op "+", Int 2, Int 5) → rc=7
 PROG='{"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Binary","op":"+","lhs":{"type":"Int","value":2},"rhs":{"type":"Int","value":5}}}]}'
 
-tmp_stdout=$(mktemp); trap 'rm -f "$tmp_stdout" || true' EXIT
-set +e
-run_program_json_via_registry_builder_module_vm "hako.mir.builder" "$PROG" "return.binop.intint" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-rc=$?
-set -e
-
-if [[ "$rc" -ne 0 ]]; then echo "[SKIP] builder vm exec failed"; exit 0; fi
-if ! grep -q "\[mirbuilder/registry:return.binop.intint\]" "$tmp_stdout"; then
-  echo "[SKIP] registry tag not observed (binop.intint)"; exit 0
-fi
-mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then echo "[SKIP] MIR missing functions"; exit 0; fi
-echo "[PASS] registry_optin_binop_intint"
-exit 0
+run_registry_builder_tag_canary \
+  "hako.mir.builder" \
+  "$PROG" \
+  "return.binop.intint" \
+  "\\[mirbuilder/registry:return.binop.intint\\]" \
+  "registry_optin_binop_intint" \
+  "builder vm exec failed" \
+  "registry tag not observed (binop.intint)" \
+  "MIR missing functions"

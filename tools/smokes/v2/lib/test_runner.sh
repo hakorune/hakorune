@@ -1112,6 +1112,45 @@ run_builder_module_tag_canary() {
     return 0
 }
 
+run_registry_builder_tag_canary() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="$3"
+    local expected_tag_pattern="$4"
+    local pass_label="$5"
+    local skip_exec_label="${6:-builder vm exec failed}"
+    local skip_tag_label="${7:-registry tag not observed}"
+    local skip_mir_label="${8:-MIR missing functions}"
+
+    local tmp_stdout
+    tmp_stdout=$(mktemp)
+    trap 'rm -f "$tmp_stdout" || true' RETURN
+
+    set +e
+    run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    local rc=$?
+    set -e
+
+    if [[ "$rc" -ne 0 ]]; then
+        echo "[SKIP] ${skip_exec_label}"
+        return 0
+    fi
+    if ! grep -E -q "$expected_tag_pattern" "$tmp_stdout"; then
+        echo "[SKIP] ${skip_tag_label}"
+        return 0
+    fi
+
+    local mir
+    mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
+    if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
+        echo "[SKIP] ${skip_mir_label}"
+        return 0
+    fi
+
+    echo "[PASS] ${pass_label}"
+    return 0
+}
+
 # hv1 inline alias-only wrapper (env JSON → hv1 dispatcher)
 # Usage: run_hv1_inline_alias_wrapper "$json_literal" → prints rc line; returns rc
 run_hv1_inline_alias_wrapper() {
