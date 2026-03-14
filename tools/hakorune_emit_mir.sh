@@ -437,7 +437,7 @@ try_selfhost_builder() {
   local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
   write_selfhost_builder_runner_hako "$tmp_hako" "$builder_box"
   local tmp_stdout; tmp_stdout=$(mktemp)
-  trap 'rm -f "$tmp_hako" "$tmp_stdout" || true' RETURN
+  trap 'rm -f "${tmp_hako:-}" "${tmp_stdout:-}" || true' RETURN
 
   # Trace mode: analyze Program(JSON) before passing to builder
   if [ "${HAKO_SELFHOST_TRACE:-0}" = "1" ]; then
@@ -642,32 +642,40 @@ emit_mir_json_from_program_json_delegate_chain() {
   return 1
 }
 
+emit_mir_json_via_non_direct_routes() {
+  local prog_json="$1" out_path="$2"
+
+  if [ "${HAKO_SELFHOST_BUILDER_FIRST:-0}" = "1" ]; then
+    if try_selfhost_builder "$prog_json" "$out_path"; then
+      return 0
+    fi
+    if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" = "1" ]; then
+      echo "[FAIL] selfhost-first failed and delegate disabled" >&2
+      return 1
+    fi
+  fi
+
+  if [ "${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-0}" = "1" ]; then
+    local limit
+    limit="$(extract_loop_force_limit_from_program_json "$prog_json")"
+    write_loop_force_jsonfrag_mir_json "$limit" "$out_path"
+    echo "[OK] MIR JSON written (provider-force-jsonfrag): $out_path"
+    return 0
+  fi
+
+  if emit_mir_json_from_program_json_delegate_chain "$prog_json" "$out_path"; then
+    return 0
+  fi
+  return 1
+}
+
 # When forcing JSONFrag loop, default-enable normalize+purify (dev-only, no default changes)
 if [ "${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-0}" = "1" ]; then
   export HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE="${HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE:-1}"
   export HAKO_MIR_BUILDER_JSONFRAG_PURIFY="${HAKO_MIR_BUILDER_JSONFRAG_PURIFY:-1}"
 fi
 
-if [ "${HAKO_SELFHOST_BUILDER_FIRST:-0}" = "1" ]; then
-  if try_selfhost_builder "$PROG_JSON_OUT" "$OUT"; then
-    exit 0
-  fi
-  if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" = "1" ]; then
-    echo "[FAIL] selfhost-first failed and delegate disabled" >&2
-    exit 1
-  fi
-fi
-
-# Dev: force JsonFrag minimal loop even on provider-first path
-if [ "${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-0}" = "1" ]; then
-  limit="$(extract_loop_force_limit_from_program_json "$PROG_JSON_OUT")"
-  write_loop_force_jsonfrag_mir_json "$limit" "$OUT"
-  echo "[OK] MIR JSON written (provider-force-jsonfrag): $OUT"
-  exit 0
-fi
-
-# Provider-first delegate chain (provider -> legacy CLI)
-if emit_mir_json_from_program_json_delegate_chain "$PROG_JSON_OUT" "$OUT"; then
+if emit_mir_json_via_non_direct_routes "$PROG_JSON_OUT" "$OUT"; then
   exit 0
 fi
 echo "[FAIL] Program→MIR delegate failed (provider+legacy)" >&2
