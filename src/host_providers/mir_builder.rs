@@ -185,8 +185,21 @@ fn insert_user_box_decls(
 fn stage1_user_box_decls_from_program_json(
     program_json: &str,
 ) -> Result<Vec<serde_json::Value>, String> {
-    let program_value: serde_json::Value = serde_json::from_str(program_json)
-        .map_err(|error| format!("program json parse error: {}", error))?;
+    let program_value = parse_program_json_value(program_json)?;
+    let seen = collect_stage1_user_box_decl_names(&program_value);
+    Ok(seen
+        .into_iter()
+        .map(stage1_user_box_decl_from_name)
+        .collect())
+}
+
+fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {
+    serde_json::from_str(program_json).map_err(|error| format!("program json parse error: {}", error))
+}
+
+fn collect_stage1_user_box_decl_names(
+    program_value: &serde_json::Value,
+) -> std::collections::BTreeSet<String> {
     let mut seen = std::collections::BTreeSet::new();
     seen.insert("Main".to_string());
     if let Some(defs) = program_value
@@ -201,10 +214,11 @@ fn stage1_user_box_decls_from_program_json(
             }
         }
     }
-    Ok(seen
-        .into_iter()
-        .map(|name| serde_json::json!({ "name": name, "fields": [] }))
-        .collect())
+    seen
+}
+
+fn stage1_user_box_decl_from_name(name: String) -> serde_json::Value {
+    serde_json::json!({ "name": name, "fields": [] })
 }
 
 #[cfg(test)]

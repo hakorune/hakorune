@@ -181,6 +181,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - latest bridge-entry tightening (2026-03-15):
     - `src/runner/stage1_bridge/program_json_entry/request.rs` now keeps emit-flag presence and out-path extraction behind shared helper `emit_program_json_out_path_ref(...)`
     - after this slice, treat `request.rs` as near thin floor unless another exact disappearing leaf appears first
+  - latest front shift (2026-03-15):
+    - `src/runner/stage1_bridge/program_json_entry/request.rs` is no longer the active phase front
+    - keep it frozen as near thin floor and return active slices to `src/host_providers/mir_builder.rs`
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder.rs`
@@ -286,7 +289,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
       2. `src/stage1/program_json_v0/authority.rs`
       3. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
-      4. `src/runner/stage1_bridge/program_json_entry/request.rs`
     - do not reopen `.hako` local thinning just because those Rust-owned buckets are still live
 
 - de-rust selfhost top-level closeout:

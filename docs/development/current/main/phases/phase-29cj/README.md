@@ -97,7 +97,6 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
   1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
   2. `src/stage1/program_json_v0/authority.rs`
   3. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
-  4. `src/runner/stage1_bridge/program_json_entry/request.rs`
 - do not reopen `.hako` local thinning only because those Rust-owned owners are still live
 
 ## Retreat Finding
@@ -110,9 +109,11 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - `future-retire bridge` is now smaller on both sides: `program_json/emit_payload.rs`, `program_json/pipeline.rs`, and `program_json_entry/exit.rs` are gone, so the remaining inner bridge leaves are concentrated in `program_json/mod.rs` and `program_json_entry/request.rs`
 - because `program_json_entry/request.rs` still touches env alias precedence and outer-caller-facing request extraction, it is not the default next slice; prefer bridge-local-only collapse before touching that contract leaf
 - the latest bridge-entry leaf keeps emit-flag presence and out-path extraction behind shared helper `emit_program_json_out_path_ref(...)` in `program_json_entry/request.rs`; after this, treat that owner as near thin floor unless another exact disappearing leaf appears first
+- after that bridge-entry tightening, `program_json_entry/request.rs` is no longer the active phase front; freeze it as near thin floor and return active slices to the Rust stop-line in `src/host_providers/mir_builder.rs`
 - current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder.rs` owns the source-route handoff, explicit Program(JSON) route, shared `user_box_decls` shaping, and live MIR(JSON) emission stop-line, while `src/host_providers/mir_builder/lowering.rs` is now the test-only Program(JSON)->MIR evidence seam; `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
 - the latest exact leaf on that stop-line keeps temp-file read, cleanup, and JSON canonicalization behind same-file helpers in `src/host_providers/mir_builder.rs::module_to_mir_json(...)`; the Rust stop-line itself is unchanged
 - the latest exact leaf on the explicit Program(JSON) route also keeps MIR JSON parse/root mutation behind `parse_mir_json_value(...)` and `insert_user_box_decls(...)`; the façade owner still holds explicit-route `user_box_decls` shaping
+- the latest explicit-route leaf also keeps Program(JSON) parse / box-name collect / decl materialization behind `parse_program_json_value(...)`, `collect_stage1_user_box_decl_names(...)`, and `stage1_user_box_decl_from_name(...)`; the owner still holds explicit-route shaping, but its inner tail is thinner
 - worker order decision is now pinned: retire the dedicated `authority.rs` adapter, fold the extra shared shaping leaf into `src/host_providers/mir_builder.rs`, and stop the kernel Program(JSON) route at thin floor unless an exact disappearing route leaf appears
 - the test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in the `src/host_providers/mir_builder.rs` façade test surface
 - the dedicated `src/host_providers/mir_builder/authority.rs` adapter is gone, the extra `user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)` leaf is gone, and shared Program(JSON) shaping is now folded into `src/host_providers/mir_builder.rs`; live source-route callers now enter through that façade directly
