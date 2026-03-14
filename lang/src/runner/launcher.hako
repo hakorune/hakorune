@@ -298,12 +298,19 @@ static box HakoCli {
   }
 
   method _emit_program_json_checked(tag, source_text){
-    local prog = BuildBox.emit_program_json_v0(source_text, null)
-    if prog == null {
-      print(tag + ": BuildBox returned null")
-      return null
-    }
+    local prog = me._emit_program_json_raw(tag, source_text)
+    if prog == null { return null }
+    return me._coerce_program_json_output_checked(tag, prog)
+  }
 
+  method _emit_program_json_raw(tag, source_text){
+    local prog = BuildBox.emit_program_json_v0(source_text, null)
+    if prog != null { return prog }
+    print(tag + ": BuildBox returned null")
+    return null
+  }
+
+  method _coerce_program_json_output_checked(tag, prog){
     local ps = "" + prog
     if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
       print(tag + ": unexpected Program(JSON) output (missing version/kind)")
@@ -365,9 +372,13 @@ static box HakoCli {
 
   method _load_program_json_from_path_or_source(tag, prog_path, source_path){
     if prog_path != null && prog_path != "" {
-      return me._read_file(tag, prog_path)
+      return me._load_program_json_from_path_checked(tag, prog_path)
     }
     return me._emit_program_json_from_source_path_checked(tag, source_path)
+  }
+
+  method _load_program_json_from_path_checked(tag, prog_path){
+    return me._read_file(tag, prog_path)
   }
 
   // Helpers for file I/O (Phase 25.1a: consolidate Stage‑B friendly patterns)
@@ -393,10 +404,18 @@ static box HakoCli {
 
   method _print_or_write_output(tag, path, content, quiet){
     if path != null && path != "" {
-      return me._write_file(tag, path, content, quiet)
+      return me._write_output_checked(tag, path, content, quiet)
     }
+    return me._print_output_checked(content)
+  }
+
+  method _print_output_checked(content){
     print(content)
     return 1
+  }
+
+  method _write_output_checked(tag, path, content, quiet){
+    return me._write_file(tag, path, content, quiet)
   }
 
   method _write_file(tag, path, content, quiet){
