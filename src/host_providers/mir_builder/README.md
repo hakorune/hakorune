@@ -10,7 +10,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - now also owns the shared `user_box_decls` shaping for the source and explicit Program(JSON) routes
   - now also owns the live imports-free `Program(JSON v0) -> MirModule -> MIR(JSON)` handoff for source and explicit Program(JSON) callers; plain `program_json_to_mir_json(...)` stays test-only
   - test-only source evidence now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
-  - strict-source public/test entry now share owner-local Program(JSON) emit via `emit_program_json_for_source(...)` and `emit_program_and_plain_mir_json_for_source(...)`
+  - strict-source public/test entry now share owner-local Program(JSON) emit and split into guarded/plain MIR handoff via `emit_program_json_for_source(...)`, `emit_program_and_guarded_mir_json_for_source(...)`, and `emit_program_and_plain_mir_json_for_source(...)`
   - public explicit-route entry and source-route handoff now share owner-local env guard via `emit_guarded_mir_json_from_program_json(...)`
   - public explicit-route entry now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`
   - explicit-route finalize now keeps `Program(JSON)` parse/build separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `build_stage1_user_box_decls_from_program_json(...)` -> `inject_user_box_decls_into_mir_json(...)`

@@ -103,8 +103,8 @@ pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, Stri
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    let program_json = emit_program_json_for_source(source_text)?;
-    emit_mir_json_from_program_json_text(&program_json)
+    let (_, mir_json) = emit_program_and_guarded_mir_json_for_source(source_text)?;
+    Ok(mir_json)
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.
@@ -126,6 +126,14 @@ fn emit_program_and_plain_mir_json_for_source(
 ) -> Result<(String, String), String> {
     let program_json = emit_program_json_for_source(source_text)?;
     let mir_json = emit_plain_mir_json_from_program_json_text(&program_json)?;
+    Ok((program_json, mir_json))
+}
+
+fn emit_program_and_guarded_mir_json_for_source(
+    source_text: &str,
+) -> Result<(String, String), String> {
+    let program_json = emit_program_json_for_source(source_text)?;
+    let mir_json = emit_mir_json_from_program_json_text(&program_json)?;
     Ok((program_json, mir_json))
 }
 

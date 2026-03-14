@@ -211,7 +211,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest tightening: explicit Program(JSON) entry now keeps module parse behind `parse_program_json_module(...)`, and box-name collection now keeps defs iteration behind `insert_stage1_def_box_names(...)`
        - latest tightening: explicit Program(JSON) entry now also keeps `module_to_mir_json(...)` + user-box finalize handoff behind same-file helper `emit_mir_json_with_user_box_decls(...)`
        - latest tightening: source-route handoff now keeps final Program(JSON text) -> explicit-route call behind same-file helper `emit_mir_json_from_program_json_text(...)`
-       - latest tightening: strict-source public/test entries now share same-file Program(JSON) emit helpers `emit_program_json_for_source(...)` and `emit_program_and_plain_mir_json_for_source(...)`; the live stop-line stays unchanged
+       - latest tightening: strict-source public/test entries now share same-file Program(JSON) emit and split into guarded/plain MIR handoff through `emit_program_json_for_source(...)`, `emit_program_and_guarded_mir_json_for_source(...)`, and `emit_program_and_plain_mir_json_for_source(...)`; the live stop-line stays unchanged
        - latest tightening: public explicit-route entry and source-route handoff now share same-file env guard through `emit_guarded_mir_json_from_program_json(...)`
        - latest tightening: explicit-route finalize now also keeps `Program(JSON)` parse/build separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `build_stage1_user_box_decls_from_program_json(...)` -> `inject_user_box_decls_into_mir_json(...)`
     2. `src/host_providers/mir_builder/lowering.rs`
