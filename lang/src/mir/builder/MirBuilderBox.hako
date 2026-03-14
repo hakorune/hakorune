@@ -219,16 +219,27 @@ static box MirBuilderBox {
   }
 
   method _coerce_program_json_checked(program_json) {
-    if program_json == null {
+    if me._program_json_input_present(program_json) != 1 {
       print("[mirbuilder/input/null] program_json is null")
       return null
     }
     local s = "" + program_json
-    if !(s.contains("\"version\"")) || !(s.contains("\"kind\"")) {
+    if me._program_json_header_present(s) != 1 {
       print("[mirbuilder/input/invalid] missing version/kind keys")
       return null
     }
     return s
+  }
+
+  method _program_json_input_present(program_json) {
+    if program_json == null { return 0 }
+    return 1
+  }
+
+  method _program_json_header_present(program_json_text) {
+    if !(program_json_text.contains("\"version\"")) { return 0 }
+    if !(program_json_text.contains("\"kind\"")) { return 0 }
+    return 1
   }
 
   method _emit_mir_from_program_json_text_checked(program_json, func_defs_mir) {

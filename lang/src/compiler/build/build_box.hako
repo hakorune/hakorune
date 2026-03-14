@@ -215,16 +215,21 @@ static box BuildBox {
   }
 
   method _inject_defs_json(ast_json, scan_src) {
-    local func_scan_env = env.get("HAKO_STAGEB_FUNC_SCAN")
-    local func_scan_on = 1
-    if func_scan_env != null && ("" + func_scan_env) == "0" { func_scan_on = 0 }
-    if func_scan_on != 1 { return ast_json }
+    if me._defs_scan_enabled() != 1 { return ast_json }
 
     local defs_json = me._build_defs_fragment_json(scan_src)
-    if defs_json != "" && defs_json.length() > 0 {
-      return StageBJsonBuilderBox.inject_json_fragment(ast_json, defs_json)
-    }
-    return ast_json
+    return me._inject_defs_fragment_if_present(ast_json, defs_json)
+  }
+
+  method _defs_scan_enabled() {
+    local func_scan_env = env.get("HAKO_STAGEB_FUNC_SCAN")
+    if func_scan_env != null && ("" + func_scan_env) == "0" { return 0 }
+    return 1
+  }
+
+  method _inject_defs_fragment_if_present(ast_json, defs_json) {
+    if defs_json == "" || defs_json.length() <= 0 { return ast_json }
+    return StageBJsonBuilderBox.inject_json_fragment(ast_json, defs_json)
   }
 
   method _build_defs_fragment_json(scan_src) {
