@@ -189,6 +189,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest tightening: `program_json_to_mir_json_with_imports(...)` is now test-only in the façade; live imports-bearing lowering no longer depends on this public front
        - latest tightening: plain `program_json_to_mir_json(...)` is also test-only in the façade; live cross-crate Program(JSON) callers stay on `program_json_to_mir_json_with_user_box_decls(...)`
        - latest tightening: live explicit Program(JSON) callers now also stay inside this façade owner, and the shared Rust stop-line `module_to_mir_json(...)` now lives here too
+       - latest tightening: `module_to_mir_json(...)` now keeps temp-file read / cleanup / JSON canonicalization behind same-file helpers; the stop-line itself stays in this owner
     2. `src/host_providers/mir_builder/lowering.rs`
        - this owner is now a test-only `Program(JSON v0) -> MIR(JSON)` evidence seam, not the live shared MIR(JSON) emission owner
        - latest tightening: imports-bearing and plain lowering helpers are both test-only evidence now

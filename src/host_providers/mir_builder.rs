@@ -124,16 +124,9 @@ pub(crate) fn program_json_to_mir_json_with_imports(
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
     let tmp_path = emit_module_to_temp_mir_json(module)?;
-    match std::fs::read_to_string(&tmp_path) {
-        Ok(raw) => {
-            let _ = std::fs::remove_file(&tmp_path);
-            match serde_json::from_str::<serde_json::Value>(&raw) {
-                Ok(v) => Ok(serde_json::to_string(&v).unwrap_or(raw)),
-                Err(_) => Ok(raw),
-            }
-        }
-        Err(error) => Err(failfast_error(error)),
-    }
+    let raw = read_temp_mir_json_output(&tmp_path)?;
+    cleanup_temp_mir_json_output(&tmp_path);
+    Ok(canonicalize_mir_json_output(raw))
 }
 
 fn emit_module_to_temp_mir_json(
@@ -143,6 +136,21 @@ fn emit_module_to_temp_mir_json(
     match crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &tmp_path) {
         Ok(()) => Ok(tmp_path),
         Err(error) => Err(failfast_error(error)),
+    }
+}
+
+fn read_temp_mir_json_output(tmp_path: &std::path::Path) -> Result<String, String> {
+    std::fs::read_to_string(tmp_path).map_err(failfast_error)
+}
+
+fn cleanup_temp_mir_json_output(tmp_path: &std::path::Path) {
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+fn canonicalize_mir_json_output(raw: String) -> String {
+    match serde_json::from_str::<serde_json::Value>(&raw) {
+        Ok(value) => serde_json::to_string(&value).unwrap_or(raw),
+        Err(_) => raw,
     }
 }
 
