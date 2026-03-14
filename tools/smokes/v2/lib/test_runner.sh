@@ -1051,6 +1051,27 @@ run_hako_primary_no_fallback_canary_and_expect_rc() {
     return 0
 }
 
+run_preferred_mirbuilder_canary_and_expect_rc() {
+    local prog_json_path="$1"
+    local expected_rc="$2"
+    local fail_label="$3"
+    local pass_label="$4"
+    local builder_only="${5:-0}"
+
+    set +e
+    run_verify_program_via_preferred_mirbuilder_to_core "$prog_json_path" "$builder_only"
+    local rc=$?
+    set -e
+
+    if [ "$rc" -ne "$expected_rc" ]; then
+        echo "[FAIL] ${fail_label} rc=$rc (expected $expected_rc)" >&2
+        return 1
+    fi
+
+    echo "[PASS] ${pass_label}"
+    return 0
+}
+
 # hv1 inline alias-only wrapper (env JSON → hv1 dispatcher)
 # Usage: run_hv1_inline_alias_wrapper "$json_literal" → prints rc line; returns rc
 run_hv1_inline_alias_wrapper() {

@@ -15,15 +15,10 @@ cat >"$prog_json_path" <<'JSON'
 ]}
 JSON
 
-set +e
-run_verify_program_via_preferred_mirbuilder_to_core "$prog_json_path" 1
-rc=$?
-set -e
-rm -f "$prog_json_path"
-if [ "$rc" -ne 0 ]; then
-  echo "[FAIL] provider array push/size (builder-only) rc=$rc (expected 0)" >&2
-  exit 1
-fi
-
-echo "[PASS] phase2044/mirbuilder_provider_array_push_size_core_exec_canary_vm"
-exit 0
+trap 'rm -f "$prog_json_path" || true' EXIT
+run_preferred_mirbuilder_canary_and_expect_rc \
+  "$prog_json_path" \
+  0 \
+  "provider array push/size (builder-only)" \
+  "phase2044/mirbuilder_provider_array_push_size_core_exec_canary_vm" \
+  1
