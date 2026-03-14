@@ -158,16 +158,28 @@ fn inject_stage1_user_box_decls_from_program_json(
     program_json: &str,
     mir_json: &str,
 ) -> Result<String, String> {
-    let mut mir_value: serde_json::Value =
-        serde_json::from_str(mir_json).map_err(|error| format!("mir json parse error: {}", error))?;
+    let mut mir_value = parse_mir_json_value(mir_json)?;
+    let user_box_decls = stage1_user_box_decls_from_program_json(program_json)?;
+    insert_user_box_decls(&mut mir_value, user_box_decls)?;
+    serde_json::to_string(&mir_value).map_err(|error| format!("mir json serialize error: {}", error))
+}
+
+fn parse_mir_json_value(mir_json: &str) -> Result<serde_json::Value, String> {
+    serde_json::from_str(mir_json).map_err(|error| format!("mir json parse error: {}", error))
+}
+
+fn insert_user_box_decls(
+    mir_value: &mut serde_json::Value,
+    user_box_decls: Vec<serde_json::Value>,
+) -> Result<(), String> {
     let mir_object = mir_value
         .as_object_mut()
         .ok_or_else(|| "mir json root must be object".to_string())?;
     mir_object.insert(
         "user_box_decls".to_string(),
-        serde_json::Value::Array(stage1_user_box_decls_from_program_json(program_json)?),
+        serde_json::Value::Array(user_box_decls),
     );
-    serde_json::to_string(&mir_value).map_err(|error| format!("mir json serialize error: {}", error))
+    Ok(())
 }
 
 fn stage1_user_box_decls_from_program_json(
