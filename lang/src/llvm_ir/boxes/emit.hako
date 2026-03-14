@@ -1,9 +1,0 @@
-// LLVMEmitBox — オブジェクト出力（当面は委譲予定・MVPはFail‑Fast stub）
-static box LLVMEmitBox {
-  write_object(mod_handle, path){
-    // まだスクリプト内で IR→obj を完結させない方針。委譲前提のためFail‑Fast。
-    print("UNSUPPORTED: write_object (delegate to AotBox/libhako_aot)");
-    return -1
-  }
-}
-
