@@ -236,15 +236,20 @@ static box BuildBox {
   }
 
   method _inject_imports_json(ast_json, scan_src) {
-    local usings_json = UsingCollectorBox.collect(scan_src)
-    if usings_json == null || usings_json == "[]" || usings_json == "" { return ast_json }
-
-    local imports_obj = StageBJsonBuilderBox.convert_usings_to_imports(usings_json)
-    if imports_obj != null && imports_obj != "{}" && imports_obj != "" {
-      local imports_frag = ",\"imports\":" + imports_obj
+    local imports_frag = me._build_imports_fragment_json(scan_src)
+    if imports_frag != "" {
       return StageBJsonBuilderBox.inject_json_fragment(ast_json, imports_frag)
     }
     return ast_json
+  }
+
+  method _build_imports_fragment_json(scan_src) {
+    local usings_json = UsingCollectorBox.collect(scan_src)
+    if usings_json == null || usings_json == "[]" || usings_json == "" { return "" }
+
+    local imports_obj = StageBJsonBuilderBox.convert_usings_to_imports(usings_json)
+    if imports_obj == null || imports_obj == "{}" || imports_obj == "" { return "" }
+    return ",\"imports\":" + imports_obj
   }
 
   method _resolve_parse_src(scan_src) {

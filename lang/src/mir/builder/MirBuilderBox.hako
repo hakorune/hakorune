@@ -106,12 +106,19 @@ static box MirBuilderBox {
   }
 
   method _lower_func_defs_if_enabled(program_json) {
+    if me._func_defs_toggle_on() != 1 { return "" }
+    local defs_json = me._coerce_func_defs_json(program_json)
+    return FuncLoweringBox.lower_func_defs(program_json, defs_json)
+  }
+
+  method _func_defs_toggle_on() {
     local funcs_toggle = env.get("HAKO_MIR_BUILDER_FUNCS")
-    if funcs_toggle != null && ("" + funcs_toggle) == "1" {
-      local defs_json = "" + program_json
-      return FuncLoweringBox.lower_func_defs(program_json, defs_json)
-    }
-    return ""
+    if funcs_toggle != null && ("" + funcs_toggle) == "1" { return 1 }
+    return 0
+  }
+
+  method _coerce_func_defs_json(program_json) {
+    return "" + program_json
   }
 
   method _emit_internal_program_json(program_json, func_defs_mir) {
@@ -256,11 +263,15 @@ static box MirBuilderBox {
   }
 
   method _emit_program_json_from_source_checked(source_text, opts) {
-    local program_json = BuildBox.emit_program_json_v0(source_text, opts)
+    local program_json = me._emit_program_json_from_source_raw(source_text, opts)
     if program_json == null {
       print("[mirbuilder/input/invalid] BuildBox returned null")
       return null
     }
     return program_json
+  }
+
+  method _emit_program_json_from_source_raw(source_text, opts) {
+    return BuildBox.emit_program_json_v0(source_text, opts)
   }
 }
