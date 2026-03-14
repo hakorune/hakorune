@@ -17,21 +17,14 @@ enable_mirbuilder_dev_env
 # Program(JSON v0): Return(Method Var recv 'a', method 'set', args [Int 0, Int 1])
 PROG='{"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Method","recv":{"type":"Var","name":"a"},"method":"set","args":[{"type":"Int","value":0},{"type":"Int","value":1}]}}]}'
 
-tmp_stdout=$(mktemp); trap 'rm -f "$tmp_stdout" || true' EXIT
-set +e
-run_program_json_via_registry_builder_module_vm "hako.mir.builder" "$PROG" "return.method.arraymap" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-rc=$?
-set -e
-
-if [[ "$rc" -ne 0 ]]; then echo "[SKIP] builder vm exec failed"; exit 0; fi
-if ! grep -q "\[mirbuilder/registry:return.method.arraymap\]" "$tmp_stdout"; then
-  echo "[SKIP] registry tag not observed (return.method.arraymap set)"; exit 0
-fi
-mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then echo "[SKIP] MIR missing functions"; exit 0; fi
-# Token checks: mir_call + method=set + 2 args
-if ! echo "$mir" | grep -q '"op":"mir_call"'; then echo "[SKIP] mir_call op missing"; exit 0; fi
-if ! echo "$mir" | grep -q '"method":"set"'; then echo "[SKIP] method=set missing"; exit 0; fi
-if ! echo "$mir" | grep -E -q '"args":\[[0-9]+,[0-9]+'; then echo "[SKIP] args[2] missing"; exit 0; fi
-echo "[PASS] registry_optin_method_arraymap_set"
-exit 0
+run_registry_method_arraymap_canary \
+  "$PROG" \
+  "return.method.arraymap" \
+  "[mirbuilder/registry:return.method.arraymap]" \
+  "registry_optin_method_arraymap_set" \
+  '"method":"set"' \
+  '"args":\[[0-9]+,[0-9]+' \
+  0 \
+  "builder vm exec failed" \
+  "registry tag not observed (return.method.arraymap set)" \
+  "MIR missing functions"

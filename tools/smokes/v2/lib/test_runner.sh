@@ -1151,6 +1151,63 @@ run_registry_builder_tag_canary() {
     return 0
 }
 
+run_registry_method_arraymap_canary() {
+    local prog_json="$1"
+    local registry_only="$2"
+    local expected_tag_label="$3"
+    local pass_label="$4"
+    local method_pattern="${5:-}"
+    local args_pattern="${6:-}"
+    local use_preinclude="${7:-0}"
+    local skip_exec_label="${8:-builder vm exec failed}"
+    local skip_tag_label="${9:-registry tag not observed}"
+    local skip_mir_label="${10:-MIR missing functions}"
+
+    local tmp_stdout
+    tmp_stdout=$(mktemp)
+    trap 'rm -f "$tmp_stdout" || true' RETURN
+
+    set +e
+    if [ "$use_preinclude" = "1" ]; then
+        run_program_json_via_registry_builder_module_vm_with_preinclude "hako.mir.builder" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    else
+        run_program_json_via_registry_builder_module_vm "hako.mir.builder" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    fi
+    local rc=$?
+    set -e
+
+    if [[ "$rc" -ne 0 ]]; then
+        echo "[SKIP] ${skip_exec_label}"
+        return 0
+    fi
+    if ! grep -q "$expected_tag_label" "$tmp_stdout"; then
+        echo "[SKIP] ${skip_tag_label}"
+        return 0
+    fi
+
+    local mir
+    mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
+    if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
+        echo "[SKIP] ${skip_mir_label}"
+        return 0
+    fi
+    if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q "$method_pattern"; then
+        echo "[SKIP] method token missing"
+        return 0
+    fi
+    if [ -n "$args_pattern" ] && ! echo "$mir" | grep -E -q "$args_pattern"; then
+        echo "[SKIP] args token missing"
+        return 0
+    fi
+    if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q '"op":"mir_call"'; then
+        echo "[SKIP] mir_call op missing"
+        return 0
+    fi
+
+    echo "[PASS] ${pass_label}"
+    return 0
+}
+
 # hv1 inline alias-only wrapper (env JSON → hv1 dispatcher)
 # Usage: run_hv1_inline_alias_wrapper "$json_literal" → prints rc line; returns rc
 run_hv1_inline_alias_wrapper() {
