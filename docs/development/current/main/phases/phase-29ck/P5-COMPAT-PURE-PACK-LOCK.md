@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P3-THIN-BACKEND-CUTOVER-LOCK.md
   - docs/reference/environment-variables.md
+  - tools/smokes/v2/profiles/integration/core/phase2120/README.md
   - tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh
   - tools/selfhost/run_all.sh
   - tools/selfhost/run_hako_llvm_selfhost.sh
@@ -61,6 +62,7 @@ Related:
 3. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
    - historical pure/TM pack entry
    - must self-identify as compat-only
+   - category map lives in `tools/smokes/v2/profiles/integration/core/phase2120/README.md`
 
 ## Retirement Trigger
 
