@@ -83,6 +83,10 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
     let _env_guard = Phase0MirJsonEnvGuard::new();
+    emit_mir_json_from_program_json_module(program_json)
+}
+
+fn emit_mir_json_from_program_json_module(program_json: &str) -> Result<String, String> {
     let module = parse_program_json_module(program_json)?;
     emit_mir_json_with_user_box_decls(program_json, &module)
 }
@@ -139,8 +143,8 @@ fn emit_mir_json_with_user_box_decls(
     program_json: &str,
     module: &crate::mir::MirModule,
 ) -> Result<String, String> {
-    let mir_json = module_to_mir_json(module)?;
-    inject_stage1_user_box_decls_from_program_json(program_json, &mir_json)
+    let mir_json = emit_module_mir_json(module)?;
+    finalize_mir_json_with_stage1_user_box_decls(program_json, &mir_json)
 }
 
 fn emit_module_to_temp_mir_json(
@@ -166,6 +170,17 @@ fn canonicalize_mir_json_output(raw: String) -> String {
         Ok(value) => serde_json::to_string(&value).unwrap_or(raw),
         Err(_) => raw,
     }
+}
+
+fn emit_module_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
+    module_to_mir_json(module)
+}
+
+fn finalize_mir_json_with_stage1_user_box_decls(
+    program_json: &str,
+    mir_json: &str,
+) -> Result<String, String> {
+    inject_stage1_user_box_decls_from_program_json(program_json, mir_json)
 }
 
 fn inject_stage1_user_box_decls_from_program_json(

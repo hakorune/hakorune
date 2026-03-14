@@ -131,6 +131,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - worker consensus on `src/host_providers/mir_builder/lowering.rs`: the remaining helpers there are evidence-only, while `module_to_mir_json(...)` is the real shared seam and now lives in `src/host_providers/mir_builder.rs`
 - the latest test-only source-evidence leaf now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
 - the latest explicit-route finalize leaf now keeps `user_box_decls` collect/serialize behind same-file helpers `collect_stage1_user_box_decls(...)` and `serialize_mir_json_value(...)`
+- the latest explicit-route entry/finalize leaf now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`, and keeps the stop-line finalize readable as `emit_module_mir_json(...)` -> `finalize_mir_json_with_stage1_user_box_decls(...)`
 - worker audit also raised the next non-Rust wave order after the current Rust-owned front: `lang/src/mir/builder/MirBuilderBox.hako` first, then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`, with shared producer `lang/src/compiler/build/build_box.hako` immediately behind that same wave; touching `build_box.hako` before those owner-local callers would be the highest-blast-radius move
 - owner-role lock for this wave:
   - `authority owner`: live owner that decides input acceptance, route selection, fail-fast tags, and final handoff for the compiler boundary

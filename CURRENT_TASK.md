@@ -231,6 +231,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest tightening: live source + explicit Program(JSON) callers now parse Program(JSON) in `src/host_providers/mir_builder.rs` and cross the shared seam only at `module_to_mir_json(...)`
        - latest tightening: test-only source evidence now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
        - latest tightening: explicit-route finalize now keeps `user_box_decls` collect/serialize behind same-file helpers `collect_stage1_user_box_decls(...)` and `serialize_mir_json_value(...)`
+       - latest tightening: public explicit-route entry now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`, and the stop-line finalize now reads as `emit_module_mir_json(...)` -> `finalize_mir_json_with_stage1_user_box_decls(...)`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
        - this owner is no longer the live blocker surface; treat it as test-only evidence while the live routes above the stop-line keep shrinking
        - runtime/plugin imports route is already off this owner, and the kernel/plugin Program(JSON) caller is near thin floor unless an exact disappearing route leaf appears
