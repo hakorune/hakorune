@@ -27,3 +27,7 @@ Notes
 - Current shape:
   - `scan_src`: full merged source, used for `FuncScannerBox` / `UsingCollectorBox`
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
+  - owner-local helper split:
+    - `_prepare_scan_src(...)`: bundle/env normalization plus `BundleResolver.resolve(...)`
+    - `_parse_program_json(...)`: parser entry only
+    - `_inject_defs_json(...)` / `_inject_imports_json(...)`: Stage-B fragment injection only
