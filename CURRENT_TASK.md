@@ -174,6 +174,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - latest exact leaf landed (2026-03-15):
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` now keeps route match, source-handle decode, stage1 emit, and result encode behind same-file helpers
     - treat that owner as near thin floor after this slice; do not reopen it without another exact disappearing leaf
+  - next bucket switch (2026-03-15):
+    - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core
+    - switch the active phase front to `future-retire bridge`
+    - first bridge-entry leaf is `src/runner/stage1_bridge/program_json_entry/request.rs` because `build_surrogate.rs` is now near thin floor and the inner `program_json` façades are already thin
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder.rs`

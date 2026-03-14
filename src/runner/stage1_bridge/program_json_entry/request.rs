@@ -12,19 +12,27 @@ pub(super) fn emit_program_json_v0_requested(groups: &CliGroups) -> bool {
 }
 
 pub(super) fn build_emit_request(groups: &CliGroups) -> Result<ProgramJsonEmitRequest, String> {
-    let source_path = stage1::input_path()
-        .or_else(|| groups.input.file.as_ref().cloned())
-        .ok_or_else(|| "emit-program-json-v0 requires an input file".to_string())?;
-    let out_path = groups
-        .emit
-        .emit_program_json_v0
-        .as_ref()
-        .expect("emit-program-json-v0 flag should be present")
-        .clone();
+    let source_path = resolve_emit_program_json_source_path(groups)?;
+    let out_path = resolve_emit_program_json_out_path(groups);
     Ok(ProgramJsonEmitRequest {
         source_path,
         out_path,
     })
+}
+
+fn resolve_emit_program_json_source_path(groups: &CliGroups) -> Result<String, String> {
+    stage1::input_path()
+        .or_else(|| groups.input.file.as_ref().cloned())
+        .ok_or_else(|| "emit-program-json-v0 requires an input file".to_string())
+}
+
+fn resolve_emit_program_json_out_path(groups: &CliGroups) -> String {
+    groups
+        .emit
+        .emit_program_json_v0
+        .as_ref()
+        .expect("emit-program-json-v0 flag should be present")
+        .clone()
 }
 
 #[cfg(test)]

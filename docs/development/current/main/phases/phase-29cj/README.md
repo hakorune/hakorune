@@ -67,7 +67,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
    - `program_json_entry/` is now `mod.rs` + `request.rs` + `exit.rs`
    - `program_json/mod.rs` is already read -> payload -> write orchestration only
    - `program_json_entry/mod.rs` is already request-build + dispatch only
-4. do not take `program_json_entry/request.rs` next unless the phase explicitly switches from authority front to bridge retirement
+4. once `build_surrogate.rs` is near thin floor, switch the active phase front to bridge retirement and then take `program_json_entry/request.rs`
 5. keep the direct-lower probe as explicit evidence until one Rust-owned bucket actually disappears
 6. while this phase keeps the Rust-owned retirement order, do not confuse it with the primary pure-`.hako` blocker
    - the real current blocker is the Rust stop-line `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
@@ -106,6 +106,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - `registry_optin_method_arraymap_direct_canary_vm.sh` is no longer “cleanup debt”; it is an explicit probe keep and should stay outside the shared-helper accounting
 - the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; current review treats that bucket as near thin floor rather than the next automatic shrink target
 - the latest exact leaf on that same owner keeps route match, source-handle decode, stage1 emit, and result encode behind same-file helpers in `build_surrogate.rs`; after this, keep treating that owner as near thin floor unless another exact disappearing leaf appears
+- after that `build_surrogate.rs` slice, the phase front may switch to `future-retire bridge`; the first bridge-entry leaf is `src/runner/stage1_bridge/program_json_entry/request.rs`, while `src/stage1/program_json_v0/authority.rs` stays frozen as the strict source-authority core
 - `future-retire bridge` is now smaller on both sides: `program_json/emit_payload.rs`, `program_json/pipeline.rs`, and `program_json_entry/exit.rs` are gone, so the remaining inner bridge leaves are concentrated in `program_json/mod.rs` and `program_json_entry/request.rs`
 - because `program_json_entry/request.rs` still touches env alias precedence and outer-caller-facing request extraction, it is not the default next slice; prefer bridge-local-only collapse before touching that contract leaf
 - current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder.rs` owns the source-route handoff, explicit Program(JSON) route, shared `user_box_decls` shaping, and live MIR(JSON) emission stop-line, while `src/host_providers/mir_builder/lowering.rs` is now the test-only Program(JSON)->MIR evidence seam; `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
