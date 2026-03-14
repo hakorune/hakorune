@@ -7,11 +7,13 @@ Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runne
 - `mod.rs`
   - thin facade for the bridge-local Program(JSON v0) emit route
   - owns bridge-local source-path -> payload helper plus read->emit->write orchestration
-  - owns owner-1 payload emission via `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
-  - source-path precedence stays in `program_json_entry/request.rs`
+- source-path precedence stays in `program_json_entry/request.rs`
 - `read_input.rs`
   - source file read policy for `emit-program-json-v0`
   - exact bridge-local read error formatting stays here
+- `payload.rs`
+  - owner-1 payload emission via `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
+  - keeps bridge-local source-text -> Program(JSON v0) contract outside the facade
 - `writeback.rs`
   - bridge-local file writeback policy for `emit-program-json-v0`
 

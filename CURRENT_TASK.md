@@ -304,6 +304,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest tightening: direct `MirBuilderBox.emit_from_program_json_v0(...)` checked path now lives in same-file helper `Stage1ProgramJsonMirCallerBox`, shared by `Stage1SourceMirAuthorityBox` and `Stage1ProgramJsonCompatBox`
       - latest shell-helper tightening: `tools/smokes/v2/lib/test_runner.sh` now keeps its duplicated embedded `MirBuilderBox.emit_from_program_json_v0(...)` checked path behind generator helper `builder_module_program_json_runner_code()`, so both module-vm helper lanes reuse the same generated `_emit_mir_checked(...)` contract
       - latest shell-helper tightening: `tools/selfhost/selfhost_build.sh` now keeps its generated `BuildBox.emit_program_json_v0(...)` checked path behind wrapper-local `_emit_program_json_checked(...)`, so the explicit `HAKO_USE_BUILDBOX=1` keep stays helper-local instead of repeating the checked path inline
+      - latest bridge tightening: `src/runner/stage1_bridge/program_json/payload.rs` now owns bridge-local owner-1 payload emission, leaving `program_json/mod.rs` as read->emit->write orchestration only
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)
