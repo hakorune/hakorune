@@ -6,7 +6,7 @@ Scope: future-retire bridge-only `emit-program-json-v0` helpers under `src/runne
 
 - `mod.rs`
   - thin facade for the bridge-local Program(JSON v0) emit route
-  - owns bridge-local read->emit->write orchestration
+  - owns bridge-local source-path -> payload helper plus read->emit->write orchestration
   - owns owner-1 payload emission via `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
   - source-path precedence stays in `program_json_entry/request.rs`
 - `read_input.rs`

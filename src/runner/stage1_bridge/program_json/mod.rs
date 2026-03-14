@@ -9,9 +9,13 @@ mod read_input;
 mod writeback;
 
 pub(super) fn emit_program_json_v0(source_path: &str, out_path: &str) -> Result<(), String> {
-    let code = read_input::read_source_text(source_path)?;
-    let out = emit_program_json_payload(&code)?;
+    let out = load_program_json_output(source_path)?;
     writeback::write_program_json_output(out_path, &out)
+}
+
+fn load_program_json_output(source_path: &str) -> Result<String, String> {
+    let code = read_input::read_source_text(source_path)?;
+    emit_program_json_payload(&code)
 }
 
 fn emit_program_json_payload(source_text: &str) -> Result<String, String> {
@@ -22,7 +26,7 @@ fn emit_program_json_payload(source_text: &str) -> Result<String, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{emit_program_json_payload, emit_program_json_v0};
+    use super::{emit_program_json_payload, emit_program_json_v0, load_program_json_output};
 
     #[test]
     fn emit_program_json_payload_preserves_bridge_error_prefix() {
@@ -40,6 +44,23 @@ mod tests {
         let strict_source = include_str!("../../../../lang/src/runner/stage1_cli_env.hako");
         let out = emit_program_json_payload(strict_source).expect("strict source payload");
         assert!(out.contains("\"kind\":\"Program\""));
+    }
+
+    #[test]
+    fn load_program_json_output_preserves_read_error_prefix() {
+        let unique = format!(
+            "/tmp/hakorune-stage1-bridge-program-json-missing-{}-{}.hako",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("unix epoch")
+                .as_nanos()
+        );
+        let error = load_program_json_output(&unique).expect_err("missing path must fail");
+        assert!(error.starts_with(&format!(
+            "emit-program-json-v0 read error: {}",
+            unique
+        )));
     }
 
     #[test]
