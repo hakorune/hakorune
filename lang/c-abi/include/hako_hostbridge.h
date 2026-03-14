@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "hako_aot.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -124,21 +125,8 @@ int64_t     hako_time_now_ms(void);
 // The returned buffer is NUL-terminated and aligned as per allocator guarantees.
 const char* hako_string_to_i8p(const char* s);
 
-// ---- AOT (minimal C API; Phase 20.10 bring-up) ----
-// Compile MIR JSON v0 source to an object file.
-// - json_in: path to MIR JSON (v0) file
-// - obj_out: path to write the object (.o)
-// - err_out: optional; on failure, set to heap-allocated short message (free via hako_mem_free)
-// Returns 0 on success; non-zero on failure.
-int hako_aot_compile_json(const char* json_in, const char* obj_out, char** err_out);
-
-// Link an object file into a native executable.
-// - obj_in: path to object (.o)
-// - exe_out: output executable path
-// - extra_ldflags: optional linker flags (may be NULL)
-// - err_out: optional; on failure, set to heap-allocated short message (free via hako_mem_free)
-// Returns 0 on success; non-zero on failure.
-int hako_aot_link_obj(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out);
+// ---- AOT (minimal C API; canonical owner = hako_aot.h) ----
+// Keep this header as a thin compatibility shim during transition.
 
 #ifdef __cplusplus
 }

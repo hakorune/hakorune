@@ -32,9 +32,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `lang/src/shared/backend/llvm_backend_box.hako` の first implementation
       - `compile_obj(json_path)` / `link_exe(obj_path, out_path, libs)` を thin caller facade に固定し、owner は `CodegenBridgeBox` に寄せた
       - acceptance は `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh` と `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh` で lock 済み
+      - `lang/c-abi/include/hako_aot.h` を AOT compile/link 宣言の canonical header に固定し、`hako_hostbridge.h` は thin shim 化した
+      - `lang/c-abi/shims/hako_aot_shared_impl.inc` を shared source truth にして、`hako_aot.c` / `hako_kernel.c` の AOT compile/link 実装を 1 箇所へ寄せた
     - exact next follow-up:
-      - `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c` を official C owner として寄せる
-      - runtime proof blocker (`hostbridge` runtime support / `vm-hako` subset-check) は separate lane として inventory する
+      - runtime proof blocker (`hostbridge` runtime support / `vm-hako` subset-check) を separate lane として inventory する
+      - thin backend boundary の runtime-proof acceptance をどこで取るかを `phase-29ck` docs に固定する
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。

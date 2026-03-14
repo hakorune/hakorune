@@ -19,9 +19,12 @@ Contracts
   - LLVM lowering emits a short warn (stderr) on missing; return handle remains `0`.
 
 Layout
-- `include/` — public headers (`hako_hostbridge.h` mirror or thin wrapper)
+- `include/` — public headers
+  - `hako_hostbridge.h` — broader C ABI surface
+  - `hako_aot.h` — canonical AOT compile/link header
 - `shims/` — libc-backed reference implementation for canaries (`hako_kernel.c`)
   - `hako_aot.c` — AOT compile/link helper boundary の first cutover target
+  - `hako_aot_shared_impl.inc` — AOT compile/link の shared source truth
 
 Guards
 - No Rust modules or cargo manifests under `lang/`.

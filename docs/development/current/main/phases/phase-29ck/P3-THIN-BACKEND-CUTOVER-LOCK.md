@@ -108,6 +108,8 @@ rule:
 - temp file ownership と error wording は `LlvmBackendBox` 実装 slice で lock する
 - ただし owner path はこの文書で先に lock 済みとする
 - landed first cut:
+  - `lang/c-abi/include/hako_aot.h` is the canonical AOT compile/link header; `hako_hostbridge.h` keeps only thin-shim inclusion for those declarations
+  - `lang/c-abi/shims/hako_aot_shared_impl.inc` is the shared compile/link source truth used by both `hako_aot.c` and `hako_kernel.c`
   - `LlvmBackendBox.compile_obj(json_path)` reads file content and calls `CodegenBridgeBox.emit_object_args(...)`
   - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` calls `CodegenBridgeBox.link_object_args(...)`
   - non-empty `libs` is fail-fast for now; use `HAKO_AOT_LDFLAGS` env until C-side arg plumbing is widened

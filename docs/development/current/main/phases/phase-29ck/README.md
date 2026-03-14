@@ -86,8 +86,8 @@ Related:
 ## Immediate Next
 
 1. post-`BE0-min6` C owner cleanup
-   - target owners are `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
-   - duplicate truth in `hako_hostbridge.h` / `hako_kernel.c` is the next cleanup target
+   - target owner is now `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
+   - source truth for compile/link is shared at `lang/c-abi/shims/hako_aot_shared_impl.inc`
 2. runtime proof blocker inventory
    - `hostbridge` runtime support gap in regular VM
    - `vm-hako` subset-check gap for `newbox(LlvmBackendBox)`
