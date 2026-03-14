@@ -843,13 +843,7 @@ static box Stage1MirResultValidationBox {
   method finalize_emit_result(tag, selected_input, mir) {
     local mir_text = me._materialize_mir_text_with_debug(tag, selected_input, mir)
     if mir_text == null { return 96 }
-    if me._validate_mir_text_checked(mir_text) != 1 {
-      print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
-      print(mir_text)
-      return 96
-    }
-    print(mir_text)
-    return 0
+    return me._print_validated_mir_result_checked(mir_text)
   }
 
   method _materialize_mir_text_with_debug(tag, selected_input, mir) {
@@ -950,6 +944,20 @@ static box Stage1MirResultValidationBox {
     print("[stage1-cli/debug] emit-mir current-route validating materialized payload")
   }
 
+  method _print_validated_mir_result_checked(mir_text) {
+    if me._validate_mir_text_checked(mir_text) != 1 {
+      return me._fail_invalid_mir_text(mir_text)
+    }
+    print(mir_text)
+    return 0
+  }
+
+  method _fail_invalid_mir_text(mir_text) {
+    print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
+    print(mir_text)
+    return 96
+  }
+
   method _stage1_debug_on() {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
     if stage1_debug != null && ("" + stage1_debug) == "1" { return 1 }
@@ -974,11 +982,8 @@ static box Stage1MirResultValidationBox {
 // artifacts can materialize the helper closure without widening authority.
 static box Stage1ProgramJsonCompatBox {
   method fail_fast_mixed_source_mode(tag, supplied_program_json_text) {
-    if supplied_program_json_text != null && supplied_program_json_text != "" {
-      print(tag + " explicit program-json text requires emit-mir-program mode")
-      return 96
-    }
-    return 0
+    if me._has_explicit_program_json_text(supplied_program_json_text) != 1 { return 0 }
+    return me._fail_mixed_source_mode(tag)
   }
 
   method emit_mir_from_text(tag, program_json_text) {
@@ -993,5 +998,15 @@ static box Stage1ProgramJsonCompatBox {
       return null
     }
     return "" + program_json_text
+  }
+
+  method _has_explicit_program_json_text(program_json_text) {
+    if program_json_text != null && program_json_text != "" { return 1 }
+    return 0
+  }
+
+  method _fail_mixed_source_mode(tag) {
+    print(tag + " explicit program-json text requires emit-mir-program mode")
+    return 96
   }
 }
