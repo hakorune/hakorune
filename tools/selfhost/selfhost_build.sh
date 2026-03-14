@@ -224,6 +224,12 @@ cleanup_emit_exe_temp_outputs() {
   fi
 }
 
+emit_mir_json_from_program_json_v0() {
+  local json_path="$1" mir_out_path="$2"
+  echo "[selfhost] converting Program(JSON v0) → MIR(JSON)" >&2
+  "$BIN" --json-file "$json_path" --program-json-to-mir "$mir_out_path"
+}
+
 emit_exe_from_program_json_v0() {
   local json_path="$1" exe_out_path="$2"
   local nyll
@@ -232,8 +238,8 @@ emit_exe_from_program_json_v0() {
   apply_emit_exe_env "$nyll" "$nyrt_dir"
 
   local mir_tmp="${MIR_OUT:-/tmp/hako_stageb_mir_$$.json}"
-  echo "[selfhost] converting Program(JSON v0) → MIR(JSON) → EXE" >&2
-  "$BIN" --json-file "$json_path" --program-json-to-mir "$mir_tmp"
+  emit_mir_json_from_program_json_v0 "$json_path" "$mir_tmp"
+  echo "[selfhost] converting MIR(JSON) → EXE" >&2
   "$nyll" --in "$mir_tmp" --emit exe --nyrt "$nyrt_dir" --out "$exe_out_path"
 
   cleanup_emit_exe_temp_outputs "$json_path" "$mir_tmp"

@@ -65,7 +65,9 @@ Pointers:
 - shared Program(JSON) -> MIR checked call is isolated in `Stage1ProgramJsonMirCallerBox` inside `stage1_cli_env.hako`; keep the direct `MirBuilderBox.emit_from_program_json_v0(...)` contract out of both source authority and compat keep, and keep the helper itself on the same checked split (`_coerce_program_json_text_checked(...)` -> `_emit_mir_from_program_json_text_checked(...)`) as the other runner owners.
 - source-only authority call is isolated in `Stage1SourceMirAuthorityBox` inside `stage1_cli_env.hako`; the box now owns the source-entry `BuildBox.emit_program_json_v0(...)` shim locally and delegates only the Program(JSON) -> MIR step through `Stage1ProgramJsonMirCallerBox`.
 - shared MIR materialization/validation is isolated in `Stage1MirResultValidationBox` inside `stage1_cli_env.hako`; keep result checking out of Main and out of the compat box.
+- `Stage1MirResultValidationBox` now keeps MIR text materialization/debug behind `_materialize_mir_text_with_debug(...)` / `_debug_print_mir_state(...)` and structural payload validation behind `_validate_mir_text_checked(...)`, so the public `finalize_emit_result(...)` no longer mixes those responsibilities inline.
 - explicit Program(JSON) compat keep is quarantined in `Stage1ProgramJsonCompatBox` inside `stage1_cli_env.hako`; current callers are probe/helper-owned only, so keep it outside reduced authority evidence and reuse the shared `Stage1ProgramJsonMirCallerBox` contract slice-by-slice.
+- `Stage1ProgramJsonCompatBox` now also keeps explicit Program(JSON) input coercion behind `_coerce_program_json_text_checked(...)`, so the compat lane no longer mixes input validation with the shared Program(JSON)->MIR caller handoff.
 - Fail-Fast 原則:
   - 未実装コマンドや不正な引数は明示的なメッセージ＋非0終了コードで返す。
   - 暗黙のフォールバックや静かな無視は行わない。

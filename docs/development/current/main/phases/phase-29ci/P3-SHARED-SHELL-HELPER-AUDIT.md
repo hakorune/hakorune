@@ -99,6 +99,7 @@ shared shell helper keep として残っている 3 file について、
 - `tools/selfhost/selfhost_build.sh` now keeps the source-direct `--mir` consumer behind `emit_mir_json_from_source()`, so downstream consumer audit can proceed one lane at a time without mixing `--exe` or `--run`
 - `tools/selfhost/selfhost_build.sh` now also keeps the Core-Direct `--run` consumer behind `run_program_json_v0_via_core_direct()`, so the remaining downstream helper-local work is the Program(JSON)->MIR->EXE lane rather than mixed run/EXE cleanup
 - `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR->EXE consumer behind `emit_exe_from_program_json_v0()`, so the downstream consumer lanes are all owner-local helpers instead of inline top-level branches
+- `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR step behind `emit_mir_json_from_program_json_v0()`, so `emit_exe_from_program_json_v0()` no longer mixes MIR generation with ny-llvmc EXE emission inline
 - `tools/selfhost/selfhost_build.sh --mir` is still green on `apps/tests/hello_simple_llvm.hako` because it uses the source-direct route
 - `tools/selfhost/selfhost_build.sh --run` is green on the repaired payload
 - `tools/selfhost/selfhost_build.sh --exe` is green on that same repaired payload
