@@ -29,5 +29,8 @@ Notes
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
   - owner-local helper split:
     - `_prepare_scan_src(...)`: bundle/env normalization plus `BundleResolver.resolve(...)`
+    - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus merged `scan_src` materialization only
     - `_parse_program_json(...)`: parser entry only
+    - `_build_program_json_from_scan_src(...)`: parse + fragment-enrichment sequencing only
+    - `_inject_stageb_fragments_json(...)`: defs/imports enrichment tail only
     - `_inject_defs_json(...)` / `_inject_imports_json(...)`: Stage-B fragment injection only

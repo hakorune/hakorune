@@ -18,11 +18,7 @@ static box BuildBox {
     local prepared = me._prepare_scan_src(src, opts)
     if prepared.has("error") == true { return "" + prepared.get("error") }
     local scan_src = prepared.get("scan_src")
-    local parse_src = me._resolve_parse_src(scan_src)
-    local ast_json = me._parse_program_json(parse_src)
-    ast_json = me._inject_defs_json(ast_json, scan_src)
-    ast_json = me._inject_imports_json(ast_json, scan_src)
-    return ast_json
+    return me._build_program_json_from_scan_src(scan_src)
   }
 
   method _prepare_scan_src(src, opts) {
@@ -38,15 +34,29 @@ static box BuildBox {
     }
     me._apply_env_bundle_inputs(bundle_ctx)
     me._normalize_bundle_inputs(bundle_ctx)
-    if bundle_ctx.get("bundles") != null || bundle_ctx.get("bundle_names") != null || bundle_ctx.get("bundle_srcs") != null || bundle_ctx.get("require_mods") != null {
-      local merged = BundleResolver.resolve(bundle_ctx.get("bundles"), bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), bundle_ctx.get("require_mods"))
-      if merged == null {
+    if me._bundle_inputs_requested(bundle_ctx) == 1 {
+      local scan_src = me._resolve_scan_src_from_bundle_ctx(src, bundle_ctx)
+      if scan_src == null {
         result.set("error", "[build/resolve/failed]")
         return result
       }
-      result.set("scan_src", merged + src)
+      result.set("scan_src", scan_src)
     }
     return result
+  }
+
+  method _bundle_inputs_requested(bundle_ctx) {
+    if bundle_ctx.get("bundles") != null { return 1 }
+    if bundle_ctx.get("bundle_names") != null { return 1 }
+    if bundle_ctx.get("bundle_srcs") != null { return 1 }
+    if bundle_ctx.get("require_mods") != null { return 1 }
+    return 0
+  }
+
+  method _resolve_scan_src_from_bundle_ctx(src, bundle_ctx) {
+    local merged = BundleResolver.resolve(bundle_ctx.get("bundles"), bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), bundle_ctx.get("require_mods"))
+    if merged == null { return null }
+    return merged + src
   }
 
   method _collect_bundle_inputs(opts) {
@@ -187,6 +197,17 @@ static box BuildBox {
     local p = new ParserBox()
     p.stage3_enable(1)
     return p.parse_program2(parse_src)
+  }
+
+  method _build_program_json_from_scan_src(scan_src) {
+    local parse_src = me._resolve_parse_src(scan_src)
+    local ast_json = me._parse_program_json(parse_src)
+    return me._inject_stageb_fragments_json(ast_json, scan_src)
+  }
+
+  method _inject_stageb_fragments_json(ast_json, scan_src) {
+    local enriched = me._inject_defs_json(ast_json, scan_src)
+    return me._inject_imports_json(enriched, scan_src)
   }
 
   method _inject_defs_json(ast_json, scan_src) {
