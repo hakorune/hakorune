@@ -23,6 +23,7 @@ Interface (stable)
   - outer Program(JSON) entry validation now stays owner-local via `_coerce_program_json_checked(...)` and `_emit_mir_from_program_json_text_checked(...)`, so the public entrypoint only shows checked handoff plus route dispatch
   - route sequencing is owner-local via `_lower_func_defs_if_enabled(...)`, `_emit_internal_program_json(...)`, and `_emit_delegate_program_json(...)`; raw env/hostbridge branching does not stay duplicated inline
   - delegate compat tail is now owner-local via `_delegate_disabled(...)`, `_emit_delegate_provider_checked(...)`, and `_inject_delegate_user_box_decls(...)`, so the delegate lane reads as gate -> provider emit -> local finalize
+  - shared finalize chain is now owner-local via `_inject_func_defs_checked(...)`, `_methodize_if_enabled_checked(...)`, and `_normalize_jsonfrag_if_enabled_checked(...)`, so `_norm_if_apply(...)` reads as a pure finalize order instead of mixing inject/methodize/normalize inline
   - internal route leaves are owner-local via `_try_emit_loop_force_jsonfrag(...)`, `_try_emit_registry_program_json(...)`, and `_try_emit_fallback_program_json(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
   - internal unsupported tail is now isolated in `_fail_internal_unsupported(...)` and `_program_json_has_ternary(...)`, so `_emit_internal_program_json(...)` stays a readable route table
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`

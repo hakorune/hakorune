@@ -399,6 +399,14 @@ static box Stage1Cli {
   }
 
   method _emit_program_json_from_source_text_checked(tag, merged_source, with_debug){
+    local prog = me._emit_program_json_raw_with_debug(merged_source, with_debug)
+    if prog == null {
+      return me._fail_emit_program_json_null(tag, with_debug)
+    }
+    return me._coerce_program_json_output_checked(tag, prog, with_debug)
+  }
+
+  method _emit_program_json_raw_with_debug(merged_source, with_debug) {
     local dbg = env.get("STAGE1_CLI_DEBUG")
     if with_debug == 1 && dbg == "1" {
       print("[stage1-cli/debug] emit_program_json: calling BuildBox.emit_program_json_v0")
@@ -410,15 +418,20 @@ static box Stage1Cli {
       if prog != null { status = "non-null" }
       print("[stage1-cli/debug] emit_program_json: BuildBox.emit_program_json_v0 returned, prog=" + status)
     }
-    if prog == null {
-      if with_debug == 1 {
-        print(tag + ": BuildBox returned null")
-      } else {
-        print(tag + " BuildBox.emit_program_json_v0 returned null")
-      }
-      return null
+    return prog
+  }
+
+  method _fail_emit_program_json_null(tag, with_debug) {
+    if with_debug == 1 {
+      print(tag + ": BuildBox returned null")
+    } else {
+      print(tag + " BuildBox.emit_program_json_v0 returned null")
     }
-    local ps = prog
+    return null
+  }
+
+  method _coerce_program_json_output_checked(tag, prog, with_debug) {
+    local ps = "" + prog
     if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
       if with_debug == 1 {
         print(tag + ": unexpected Program(JSON) output (missing version/kind)")
@@ -427,6 +440,7 @@ static box Stage1Cli {
       }
       return null
     }
+    local dbg = env.get("STAGE1_CLI_DEBUG")
     if with_debug == 1 && dbg == "1" {
       print("[stage1-cli/debug] emit_program_json: validation passed")
     }
