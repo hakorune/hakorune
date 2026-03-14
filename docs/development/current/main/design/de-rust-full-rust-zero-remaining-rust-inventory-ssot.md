@@ -46,6 +46,7 @@ Related:
    - `phase-29ck` は active queued phase
    - `.hako VM -> LlvmBackendBox -> env.codegen C-API -> exe` proof は landed
    - still-Rust / still-Python ownership is substantial, especially `ny-llvmc`, runner glue, and `llvmlite`
+   - latest tightening: `src/runner/modes/llvm/object_emitter.rs` is no longer a direct llvmlite caller; it now reaches the backend boundary through `src/host_providers/llvm_codegen.rs` while pinning `llvmlite` as compat keep
 
 ## 3. Remaining Rust Inventory
 
@@ -131,6 +132,7 @@ Related:
    - final owner target is not Rust CLI, but thin backend boundary
 2. `src/runner/modes/common_util/exec.rs`
    - backend selector / child-process launch owner
+   - latest tightening: `ny-llvmc` EXE routes now read as `MIR JSON emit -> command build -> shared ny-llvmc invoke`
 3. `src/runner/modes/llvm/{mod.rs,harness_executor.rs,object_emitter.rs,mir_compiler.rs,pyvm_executor.rs,fallback_executor.rs,error.rs,report.rs,plugin_init.rs,using_resolver.rs,method_id_injector.rs,exit_reporter.rs}`
    - Rust runner glue / route selection / diagnostics keep
    - still mainline-owned for LLVM route orchestration

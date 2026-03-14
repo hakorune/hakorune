@@ -159,43 +159,49 @@ fn apply_ny_llvmc_driver_arg(cmd: &mut std::process::Command) {
     }
 }
 
-/// Emit native executable via ny-llvmc (lib-side MIR)
-#[allow(dead_code)]
-pub fn ny_llvmc_emit_exe_lib(
-    module: &nyash_rust::mir::MirModule,
+fn append_ny_llvmc_extra_libs_arg(cmd: &mut std::process::Command, extra_libs: Option<&str>) {
+    if let Some(flags) = extra_libs {
+        if !flags.trim().is_empty() {
+            cmd.arg("--libs").arg(flags);
+        }
+    }
+}
+
+fn prepare_ny_llvmc_emit_json_path() -> std::path::PathBuf {
+    let tmp_dir = std::path::Path::new("tmp");
+    let _ = std::fs::create_dir_all(tmp_dir);
+    tmp_dir.join("nyash_cli_emit.json")
+}
+
+fn build_ny_llvmc_emit_exe_command(
+    ny_llvmc: &std::path::Path,
+    json_path: &std::path::Path,
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
-) -> Result<(), String> {
-    let tmp_dir = std::path::Path::new("tmp");
-    let _ = std::fs::create_dir_all(tmp_dir);
-    let json_path = tmp_dir.join("nyash_cli_emit.json");
-    crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
-        .map_err(|e| format!("MIR JSON emit error: {}", e))?;
-    let ny_llvmc = resolve_ny_llvmc();
-    if !ny_llvmc.exists() {
-        return Err(hint_ny_llvmc_missing(&ny_llvmc));
-    }
+) -> Result<std::process::Command, String> {
     let mut cmd = std::process::Command::new(ny_llvmc);
     cmd.arg("--in")
-        .arg(&json_path)
+        .arg(json_path)
         .arg("--emit")
         .arg("exe")
         .arg("--out")
         .arg(exe_out);
     apply_ny_llvmc_driver_arg(&mut cmd);
     apply_nyrt_arg(&mut cmd, nyrt_dir)?;
-    if let Some(flags) = extra_libs {
-        if !flags.trim().is_empty() {
-            cmd.arg("--libs").arg(flags);
-        }
-    }
+    append_ny_llvmc_extra_libs_arg(&mut cmd, extra_libs);
+    Ok(cmd)
+}
+
+fn spawn_ny_llvmc_emit_exe_command(
+    ny_llvmc: &std::path::Path,
+    cmd: &mut std::process::Command,
+) -> Result<(), String> {
     let status = cmd.status().map_err(|e| {
-        let prog_path = std::path::Path::new(cmd.get_program());
         format!(
             "failed to spawn ny-llvmc: {}\n{}",
             e,
-            hint_ny_llvmc_missing(prog_path)
+            hint_ny_llvmc_missing(ny_llvmc)
         )
     })?;
     if !status.success() {
@@ -207,6 +213,35 @@ pub fn ny_llvmc_emit_exe_lib(
     Ok(())
 }
 
+fn run_ny_llvmc_emit_exe(
+    json_path: &std::path::Path,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<(), String> {
+    let ny_llvmc = resolve_ny_llvmc();
+    if !ny_llvmc.exists() {
+        return Err(hint_ny_llvmc_missing(&ny_llvmc));
+    }
+    let mut cmd =
+        build_ny_llvmc_emit_exe_command(&ny_llvmc, json_path, exe_out, nyrt_dir, extra_libs)?;
+    spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
+}
+
+/// Emit native executable via ny-llvmc (lib-side MIR)
+#[allow(dead_code)]
+pub fn ny_llvmc_emit_exe_lib(
+    module: &nyash_rust::mir::MirModule,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<(), String> {
+    let json_path = prepare_ny_llvmc_emit_json_path();
+    crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
+        .map_err(|e| format!("MIR JSON emit error: {}", e))?;
+    run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs)
+}
+
 /// Emit native executable via ny-llvmc (bin-side MIR)
 #[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_bin(
@@ -215,44 +250,10 @@ pub fn ny_llvmc_emit_exe_bin(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    let tmp_dir = std::path::Path::new("tmp");
-    let _ = std::fs::create_dir_all(tmp_dir);
-    let json_path = tmp_dir.join("nyash_cli_emit.json");
+    let json_path = prepare_ny_llvmc_emit_json_path();
     crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &json_path)
         .map_err(|e| format!("MIR JSON emit error: {}", e))?;
-    let ny_llvmc = resolve_ny_llvmc();
-    if !ny_llvmc.exists() {
-        return Err(hint_ny_llvmc_missing(&ny_llvmc));
-    }
-    let mut cmd = std::process::Command::new(ny_llvmc);
-    cmd.arg("--in")
-        .arg(&json_path)
-        .arg("--emit")
-        .arg("exe")
-        .arg("--out")
-        .arg(exe_out);
-    apply_ny_llvmc_driver_arg(&mut cmd);
-    apply_nyrt_arg(&mut cmd, nyrt_dir)?;
-    if let Some(flags) = extra_libs {
-        if !flags.trim().is_empty() {
-            cmd.arg("--libs").arg(flags);
-        }
-    }
-    let status = cmd.status().map_err(|e| {
-        let prog_path = std::path::Path::new(cmd.get_program());
-        format!(
-            "failed to spawn ny-llvmc: {}\n{}",
-            e,
-            hint_ny_llvmc_missing(prog_path)
-        )
-    })?;
-    if !status.success() {
-        return Err(format!(
-            "ny-llvmc failed with status: {:?}.\nTry adding --emit-exe-libs (e.g. \"-ldl -lpthread -lm\") or set --emit-exe-nyrt to NyRT dir (e.g. target/release).",
-            status.code()
-        ));
-    }
-    Ok(())
+    run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs)
 }
 
 /// Run an executable with arguments and a timeout.
@@ -276,7 +277,7 @@ pub fn run_executable(
 
 #[cfg(test)]
 mod tests {
-    use super::ny_llvmc_driver_arg_from_backend;
+    use super::{append_ny_llvmc_extra_libs_arg, ny_llvmc_driver_arg_from_backend};
 
     #[test]
     fn maps_native_backend_to_native_driver() {
@@ -293,5 +294,23 @@ mod tests {
         assert_eq!(ny_llvmc_driver_arg_from_backend(Some("")), None);
         assert_eq!(ny_llvmc_driver_arg_from_backend(Some("crate")), None);
         assert_eq!(ny_llvmc_driver_arg_from_backend(Some("llvmlite")), None);
+    }
+
+    #[test]
+    fn appends_non_empty_extra_libs_as_single_arg() {
+        let mut cmd = std::process::Command::new("ny-llvmc");
+        append_ny_llvmc_extra_libs_arg(&mut cmd, Some("-ldl -lpthread"));
+        let args: Vec<_> = cmd
+            .get_args()
+            .map(|arg| arg.to_string_lossy().into_owned())
+            .collect();
+        assert_eq!(args, vec!["--libs".to_string(), "-ldl -lpthread".to_string()]);
+    }
+
+    #[test]
+    fn ignores_blank_extra_libs() {
+        let mut cmd = std::process::Command::new("ny-llvmc");
+        append_ny_llvmc_extra_libs_arg(&mut cmd, Some("   "));
+        assert!(cmd.get_args().next().is_none());
     }
 }
