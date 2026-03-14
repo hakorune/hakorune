@@ -46,9 +46,9 @@ Pointers:
     - Role: Stage1 hakorune CLI のトップレベル dispatcher。
       - コマンド: `run` / `build` / `emit` / `check`（詳細は docs/development/runtime/cli-hakorune-stage1.md）。
   - Current status（Phase 25.1）:
-    - 構造のみ実装（`HakoCli` box にコマンド別のメソッドを定義）。
-    - 各コマンドはまだプレースホルダで、`"[hakorune] <cmd>: not implemented yet"` を出力して終了コード 90–93 を返す。
-    - 実際のパイプライン（Stage‑B / MirBuilder / AotPrep / ny-llvmc など）への接続は後続フェーズで段階的に実装する。
+    - `build exe` / `emit program-json` / `emit mir-json` は Stage-B / MirBuilder / codegen bridge へ接続済み。
+    - `run` / `check` はまだプレースホルダで、`"[hakorune] <cmd>: not implemented yet"` を出力して終了コード 90–93 を返す。
+    - checked Program(JSON) / MIR routes は owner-local helper に固定され、caller-side choreography も same-file helper に寄せている。
   - Design reference:
     - `docs/development/runtime/cli-hakorune-stage1.md` を Stage1 CLI の仕様 SSOT として参照すること。
 

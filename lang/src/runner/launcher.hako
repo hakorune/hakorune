@@ -118,13 +118,7 @@ static box HakoCli {
     }
 
     local tag = "[hakorune] build exe"
-    local src = me._read_file(tag, source_path)
-    if src == null { return 91 }
-
-    local ps = me._emit_program_json_checked(tag, src)
-    if ps == null { return 91 }
-
-    local ms = me._emit_mir_json_checked(tag, ps)
+    local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
     if ms == null { return 91 }
 
     local obj = CodegenBridgeBox.emit_object(ms)
@@ -217,18 +211,11 @@ static box HakoCli {
     }
 
     local tag = "[hakorune] emit program-json"
-    local src = me._read_file(tag, path)
-    if src == null { return 92 }
-
-    local ps = me._emit_program_json_checked(tag, src)
+    local ps = me._emit_program_json_from_source_path_checked(tag, path)
     if ps == null { return 92 }
 
-    if out_path != null && out_path != "" {
-      if me._write_file(tag, out_path, ps, quiet) != 1 {
-        return 92
-      }
-    } else {
-      print(ps)
+    if me._print_or_write_output(tag, out_path, ps, quiet) != 1 {
+      return 92
     }
 
     return 0
@@ -290,28 +277,13 @@ static box HakoCli {
     }
 
     local tag = "[hakorune] emit mir-json"
-    local prog_json = null
-
-    if prog_path != null && prog_path != "" {
-      local prog_text = me._read_file(tag, prog_path)
-      if prog_text == null { return 92 }
-      prog_json = prog_text
-    } else {
-      local src = me._read_file(tag, source_path)
-      if src == null { return 92 }
-      local ps = me._emit_program_json_checked(tag, src)
-      if ps == null { return 92 }
-      prog_json = ps
-    }
+    local prog_json = me._load_program_json_from_path_or_source(tag, prog_path, source_path)
+    if prog_json == null { return 92 }
 
     local ms = me._emit_mir_json_checked(tag, prog_json)
     if ms == null { return 92 }
-    if out_path != null && out_path != "" {
-      if me._write_file(tag, out_path, ms, quiet) != 1 {
-        return 92
-      }
-    } else {
-      print(ms)
+    if me._print_or_write_output(tag, out_path, ms, quiet) != 1 {
+      return 92
     }
 
     return 0
@@ -340,6 +312,12 @@ static box HakoCli {
     return ps
   }
 
+  method _emit_program_json_from_source_path_checked(tag, source_path){
+    local src = me._read_file(tag, source_path)
+    if src == null { return null }
+    return me._emit_program_json_checked(tag, src)
+  }
+
   method _emit_mir_json_checked(tag, program_json){
     local mir = MirBuilderBox.emit_from_program_json_v0(program_json, null)
     if mir == null {
@@ -347,6 +325,19 @@ static box HakoCli {
       return null
     }
     return "" + mir
+  }
+
+  method _emit_mir_json_from_source_path_checked(tag, source_path){
+    local prog_json = me._emit_program_json_from_source_path_checked(tag, source_path)
+    if prog_json == null { return null }
+    return me._emit_mir_json_checked(tag, prog_json)
+  }
+
+  method _load_program_json_from_path_or_source(tag, prog_path, source_path){
+    if prog_path != null && prog_path != "" {
+      return me._read_file(tag, prog_path)
+    }
+    return me._emit_program_json_from_source_path_checked(tag, source_path)
   }
 
   // Helpers for file I/O (Phase 25.1a: consolidate Stage‑B friendly patterns)
@@ -368,6 +359,14 @@ static box HakoCli {
       return null
     }
     return "" + content
+  }
+
+  method _print_or_write_output(tag, path, content, quiet){
+    if path != null && path != "" {
+      return me._write_file(tag, path, content, quiet)
+    }
+    print(content)
+    return 1
   }
 
   method _write_file(tag, path, content, quiet){
