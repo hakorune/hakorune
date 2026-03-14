@@ -23,7 +23,8 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - binary-only direct-route MIR output-path policy and JSON write live in `direct_route/emit.rs`
 - bridge-local emit output-path resolution lives in `emit_paths.rs`
 - bridge-local Program(JSON v0) entry cluster lives in `program_json_entry/`
-- `program_json_entry/mod.rs` is now a thin facade for the bridge-local `emit-program-json-v0` route and owns the exact success/error process-exit formatting
+- `program_json_entry/mod.rs` is now a thin facade for the bridge-local `emit-program-json-v0` route
+- exact success/error process-exit formatting for that route now lives in `program_json_entry/exit.rs`
 - `program_json_entry/request.rs` owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`, source-path precedence (`stage1::input_path()` aliases first, CLI input fallback second), and exact out-path extraction from the explicit CLI flag
 - outer callers should use the `program_json_entry` module helpers directly; this contract is no longer rebound as `NyashRunner` methods
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
@@ -54,7 +55,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - route execution facade delegated out of `mod.rs`
 - bridge-local Program(JSON v0) entry delegated out of `mod.rs`
 - bridge-local Program(JSON v0) branch selection and success/error formatting delegated out of `src/runner/emit.rs`
-- bridge-local Program(JSON v0) success/error process-exit delegated out of `src/runner/emit.rs`
+- bridge-local Program(JSON v0) success/error process-exit delegated out of `src/runner/emit.rs` and further split into `program_json_entry/exit.rs`
 - direct-route compile / emit policy delegated out of `direct_route/mod.rs`
 - emit output-path policy delegated out of `stub_emit.rs` and `direct_route/emit.rs`
 - stub plain delegate-status execution delegated out of `route_exec/stub.rs`

@@ -7,7 +7,9 @@ Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src
 - `mod.rs`
   - thin entry facade for the bridge-local `emit-program-json-v0` route
   - delegates request classification/building to `request.rs`
+- `exit.rs`
   - owns exact success/error process-exit formatting
+  - keeps bridge-local process-exit contract outside the entry facade
 - `request.rs`
   - bridge-entry request building for `emit-program-json-v0`
   - owns the explicit request predicate used by outer callers
