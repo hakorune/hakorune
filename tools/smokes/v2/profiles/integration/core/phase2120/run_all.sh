@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../../../../../.." && pwd)"
 
-echo "[phase2120] C-API pure (emit+link) reps"
+echo "[phase2120/compat] historical C-API pure (emit+link) reps"
 
 # Flags for pure C-API path
 export NYASH_LLVM_USE_CAPI=1

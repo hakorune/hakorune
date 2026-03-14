@@ -91,6 +91,7 @@ rule:
 - `HAKO_CAPI_PURE`
   - role:
     - legacy pure-lowering selector for phase2120 / historical helper routes
+    - official compat-pack lock is `P5-COMPAT-PURE-PACK-LOCK.md`
   - non-goal:
     - do not treat as phase-29ck runtime-proof pin or long-term caller selector
   - retirement trigger:

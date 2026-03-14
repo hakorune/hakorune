@@ -42,7 +42,8 @@ Related:
 3. `P2-NATIVE-EMITTER-ACCEPTANCE-AND-REOPEN-RULE.md`
 4. `P3-THIN-BACKEND-CUTOVER-LOCK.md`
 5. `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
-6. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+6. `P5-COMPAT-PURE-PACK-LOCK.md`
+7. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
 ## Current Snapshot (2026-03-14)
 
@@ -111,7 +112,11 @@ Related:
 4. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
    - temporary seam/env retirement check
-5. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
+5. compat-only pure pack lock
+   - explicit historical entry is `tools/selfhost/run_compat_pure_pack.sh`
+   - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
+   - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
+6. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance
 

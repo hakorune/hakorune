@@ -120,6 +120,7 @@ phase docs が要求する evidence は次の順番で積む。
    - compat-only env:
      - `HAKO_CAPI_PURE=1`
        - pure-lowering/historical route only; phase-29ck runtime proof must not require it
+       - compat-pack entry/meaning is fixed by `P5-COMPAT-PURE-PACK-LOCK.md`
    - temporary seam rule:
      - this proof may depend on `P3` temporary seams, but those seams cannot become silent daily owner paths
    - rule:

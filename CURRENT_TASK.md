@@ -44,7 +44,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - acceptance smoke is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
         - runtime-proof keep env is `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
         - `HAKO_CAPI_PURE=1` is now compat-only for historical pure-lowering routes and is not required by the phase-29ck `.hako VM` proof
-      - next runtime-proof slice is promotion/cleanup after seam retirement, not VM blocker inventory
+        - explicit compat-pack entry is `tools/selfhost/run_compat_pure_pack.sh` / `tools/selfhost/run_compat_pure_selfhost.sh`; old script names are wrappers only
+      - next runtime-proof slice is promotion/cleanup after compat-pack separation, not VM blocker inventory
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。
