@@ -787,10 +787,20 @@ verify_builder_no_fallback_requested() {
     [ "${HAKO_PRIMARY_NO_FALLBACK:-0}" = "1" ] && [ "$emit_rc" -ne 0 ]
 }
 
+mir_json_file_looks_like_v0_module() {
+    local mir_json_path="$1"
+    grep -q '"functions"' "$mir_json_path" && grep -q '"blocks"' "$mir_json_path"
+}
+
 cleanup_verify_builder_logs() {
     local builder_stderr="$1"
     local builder_stdout="$2"
     rm -f "$builder_stderr" "$builder_stdout"
+}
+
+run_built_mir_json_file_via_core_v0() {
+    local mir_json_path="$1"
+    "$NYASH_BIN" --mir-json-file "$mir_json_path" >/dev/null 2>&1
 }
 
 # Program(JSON v0) -> Rust CLI builder fallback
@@ -806,7 +816,7 @@ run_program_json_v0_via_rust_cli_builder() {
     fi
 
     if [ "$allow_builder_only" = "1" ] && [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" = "1" ]; then
-        if grep -q '"functions"' "$tmp_mir" && grep -q '"blocks"' "$tmp_mir"; then
+        if mir_json_file_looks_like_v0_module "$tmp_mir"; then
             rm -f "$tmp_mir"
             return 0
         fi
@@ -814,7 +824,7 @@ run_program_json_v0_via_rust_cli_builder() {
         return 1
     fi
 
-    "$NYASH_BIN" --mir-json-file "$tmp_mir" >/dev/null 2>&1
+    run_built_mir_json_file_via_core_v0 "$tmp_mir"
     local rc=$?
     rm -f "$tmp_mir"
     return $rc
