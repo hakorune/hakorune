@@ -22,6 +22,7 @@ Related:
 
 - backend-zero を `future idea` ではなく、queued phase として読めるようにする。
 - `native_driver.rs` を final owner にせず、最終 target を `.hako -> thin backend C ABI/plugin boundary -> object/exe` に固定する。
+- thin backend boundary の final runtime-proof owner は `.hako VM` に置く。
 - current bootstrap seam と final cutover target を混線させない。
 - current compiler authority blocker と混線させず、`inventory -> task pack -> acceptance/reopen rule` を phase 内に閉じる。
 
@@ -40,7 +41,8 @@ Related:
 2. `P1-NY-LLVMC-NATIVE-EMITTER-TASK-PACK.md`
 3. `P2-NATIVE-EMITTER-ACCEPTANCE-AND-REOPEN-RULE.md`
 4. `P3-THIN-BACKEND-CUTOVER-LOCK.md`
-5. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+5. `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
+6. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
 ## Current Snapshot (2026-03-14)
 
@@ -91,6 +93,9 @@ Related:
 2. runtime proof blocker inventory
    - `hostbridge` runtime support gap in regular VM
    - `vm-hako` subset-check gap for `newbox(LlvmBackendBox)`
+   - final proof owner は `.hako VM`
+   - regular VM proof は blocker closeout までの temporary lane に留める
+   - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 3. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
 4. post-cutover follow-up
@@ -101,4 +106,5 @@ Related:
 
 - phase だけで `owner / first code slice / acceptance / reopen rule` が辿れる
 - `native_driver.rs` が bootstrap seam であり、final owner ではないと一意に読める
+- thin backend boundary の final runtime-proof owner が `.hako VM` だと一意に読める
 - docs はもう「backend-zero は task pack 未整備だから provisional」の状態ではない

@@ -35,8 +35,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `lang/c-abi/include/hako_aot.h` を AOT compile/link 宣言の canonical header に固定し、`hako_hostbridge.h` は thin shim 化した
       - `lang/c-abi/shims/hako_aot_shared_impl.inc` を shared source truth にして、`hako_aot.c` / `hako_kernel.c` の AOT compile/link 実装を 1 箇所へ寄せた
     - exact next follow-up:
-      - runtime proof blocker (`hostbridge` runtime support / `vm-hako` subset-check) を separate lane として inventory する
-      - thin backend boundary の runtime-proof acceptance をどこで取るかを `phase-29ck` docs に固定する
+      - runtime proof blocker は `docs/development/current/main/phases/phase-29ck/P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` を SSOT として separate lane で inventory する
+      - landed first runtime-proof slice は `vm-hako` subset-check の `newbox(LlvmBackendBox)` allowlist
+      - next runtime-proof slice は observed `boxcall(args>1)` blocker の exact owner/method inventory
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。

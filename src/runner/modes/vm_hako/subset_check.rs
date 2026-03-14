@@ -608,6 +608,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     if box_type != "ArrayBox"
                         && box_type != "StringBox"
                         && box_type != "FileBox"
+                        && box_type != "LlvmBackendBox"
                         && box_type != "Main"
                     {
                         return Err((func_name.clone(), bb, format!("newbox({})", box_type)));
