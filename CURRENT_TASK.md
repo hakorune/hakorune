@@ -309,6 +309,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest bridge tightening: `src/runner/stage1_bridge/program_json/payload.rs` now owns bridge-local owner-1 payload emission, leaving `program_json/mod.rs` as read->emit->write orchestration only
       - latest bridge tightening: `src/runner/stage1_bridge/program_json_entry/exit.rs` now owns exact success/error process-exit formatting, leaving `program_json_entry/mod.rs` as request-build + dispatch only
       - latest runner tightening: `lang/src/runner/stage1_cli.hako` now keeps raw subcmd emit-mir validation behind `_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, and `_coerce_mir_output_checked(...)`, so Program(JSON) input check, MirBuilder call, and MIR output check are separate owner-local steps
+      - latest runner tightening: `lang/src/runner/launcher.hako` now keeps its `emit mir-json` checked contract behind `_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, and `_coerce_mir_output_checked(...)`, so Program(JSON) validation, MirBuilder call, and MIR output validation are separate owner-local steps there too
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)

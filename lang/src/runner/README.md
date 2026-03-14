@@ -50,6 +50,7 @@ Pointers:
     - `build exe` / `emit program-json` / `emit mir-json` は Stage-B / MirBuilder / codegen bridge へ接続済み。
     - `run` / `check` はまだプレースホルダで、`"[hakorune] <cmd>: not implemented yet"` を出力して終了コード 90–93 を返す。
     - checked Program(JSON) / MIR routes は owner-local helper に固定され、caller-side choreography も same-file helper に寄せている。
+    - `emit mir-json` checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`) so the launcher lane no longer mixes Program(JSON) validation, MirBuilder call, and MIR output validation inline.
   - Design reference:
     - `docs/development/runtime/cli-hakorune-stage1.md` を Stage1 CLI の仕様 SSOT として参照すること。
 

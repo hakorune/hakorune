@@ -319,12 +319,42 @@ static box HakoCli {
   }
 
   method _emit_mir_json_checked(tag, program_json){
-    local mir = MirBuilderBox.emit_from_program_json_v0(program_json, null)
+    local prog = me._coerce_program_json_for_emit_mir_checked(tag, program_json)
+    if prog == null { return null }
+    local mir = me._emit_mir_from_program_json_text_checked(tag, prog)
+    if mir == null { return null }
+    return me._coerce_mir_output_checked(tag, mir)
+  }
+
+  method _coerce_program_json_for_emit_mir_checked(tag, program_json){
+    if program_json == null {
+      print(tag + ": program_json is null")
+      return null
+    }
+    local prog = "" + program_json
+    if prog.indexOf("\"version\":0") < 0 || prog.indexOf("\"kind\":\"Program\"") < 0 {
+      print(tag + ": input missing Program(JSON v0) markers")
+      return null
+    }
+    return prog
+  }
+
+  method _emit_mir_from_program_json_text_checked(tag, program_json_text){
+    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
     if mir == null {
       print(tag + ": MirBuilderBox returned null")
       return null
     }
-    return "" + mir
+    return mir
+  }
+
+  method _coerce_mir_output_checked(tag, mir){
+    local ms = "" + mir
+    if ms.indexOf("\"functions\"") < 0 {
+      print(tag + ": output missing MIR functions marker")
+      return null
+    }
+    return ms
   }
 
   method _emit_mir_json_from_source_path_checked(tag, source_path){
