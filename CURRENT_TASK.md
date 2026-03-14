@@ -143,7 +143,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     4. shell helper trio above
   - exact next slices after the latest landed work:
     1. `tools/hakorune_emit_mir.sh`
-       - keep shrinking the helper-local fallback/delegate tail; next candidate is the remaining direct-emit/forced-direct branch, not `selfhost_build.sh`
+       - keep shrinking the helper-local fallback/delegate tail; next candidate is the remaining delegate/fallback route order, not `selfhost_build.sh`
     2. `lang/src/runner/stage1_cli_env.hako`
        - keep shrinking `Stage1ProgramJsonCompatBox` / `Stage1MirResultValidationBox` leaves only; do not reopen source authority/body extraction in the same slice
     3. `tools/selfhost/selfhost_build.sh`
@@ -337,6 +337,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest tightening: direct `MirBuilderBox.emit_from_program_json_v0(...)` checked path now lives in same-file helper `Stage1ProgramJsonMirCallerBox`, shared by `Stage1SourceMirAuthorityBox` and `Stage1ProgramJsonCompatBox`
       - latest shell-helper tightening: `tools/smokes/v2/lib/test_runner.sh` now keeps its duplicated embedded `MirBuilderBox.emit_from_program_json_v0(...)` checked path behind generator helper `builder_module_program_json_runner_code()`, so both module-vm helper lanes reuse the same generated `_emit_mir_checked(...)` contract
       - latest shell-helper tightening: `tools/hakorune_emit_mir.sh` now keeps generated runner stdout -> MIR payload extraction behind `extract_mir_payload_from_stdout_file()` / `persist_mir_payload_from_stdout_file()`, so selfhost/provider helper lanes no longer duplicate `[MIR_OUT_BEGIN]...[MIR_OUT_END]` parsing inline
+      - latest shell-helper tightening: `tools/hakorune_emit_mir.sh` now keeps explicit direct-emit exit and loop-force JSONFrag MIR assembly behind `exit_after_forced_direct_emit()`, `extract_loop_force_limit_from_program_json()`, and `write_loop_force_jsonfrag_mir_json()`, so the remaining helper-local tail is the delegate/fallback route order rather than inline direct/force branches
       - latest shell-helper tightening: `tools/selfhost/selfhost_build.sh` now keeps its generated `BuildBox.emit_program_json_v0(...)` checked path behind wrapper-local `_emit_program_json_checked(...)`, so the explicit `HAKO_USE_BUILDBOX=1` keep stays helper-local instead of repeating the checked path inline
       - latest bridge tightening: `src/runner/stage1_bridge/program_json/payload.rs` now owns bridge-local owner-1 payload emission, leaving `program_json/mod.rs` as read->emit->write orchestration only
       - latest bridge tightening: `src/runner/stage1_bridge/program_json_entry/exit.rs` now owns exact success/error process-exit formatting, leaving `program_json_entry/mod.rs` as request-build + dispatch only

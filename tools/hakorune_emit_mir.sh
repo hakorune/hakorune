@@ -221,6 +221,16 @@ try_direct_emit_mir_json() {
   return 0
 }
 
+exit_after_forced_direct_emit() {
+  local out_path="$1"
+  if try_direct_emit_mir_json "$out_path"; then
+    echo "[OK] MIR JSON written (direct-emit-forced): $out_path"
+    exit 0
+  fi
+  echo "[FAIL] direct MIR emit forced but failed" >&2
+  exit 1
+}
+
 exit_after_direct_emit_fallback() {
   local mainline_only_fail="$1" success_label="$2" direct_emit_fail="$3" out_path="$4"
   if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
@@ -235,14 +245,61 @@ exit_after_direct_emit_fallback() {
   exit 1
 }
 
+extract_loop_force_limit_from_program_json() {
+  local prog_json="$1"
+  printf '%s' "$prog_json" | grep -o '"type":"Int","value":[0-9]*' | head -1 | grep -o '[0-9]*$' || echo "10"
+}
+
+write_loop_force_jsonfrag_mir_json() {
+  local limit="$1" out_path="$2"
+  cat > "$out_path" <<'MIRJSON'
+{
+  "functions": [{
+    "name": "main",
+    "params": [],
+    "locals": [],
+    "blocks": [
+      {
+        "id": 0,
+        "instructions": [
+          {"op": "const", "dst": 1, "value": {"type": "i64", "value": 0}},
+          {"op": "const", "dst": 2, "value": {"type": "i64", "value": LIMIT_PLACEHOLDER}},
+          {"op": "jump", "target": 1}
+        ]
+      },
+      {
+        "id": 1,
+        "instructions": [
+          {"op": "phi", "dst": 6, "incoming": [[2, 0], [6, 2]]},
+          {"op": "phi", "dst": 3, "incoming": [[1, 0], [5, 2]]},
+          {"op": "compare", "operation": "<", "lhs": 3, "rhs": 6, "dst": 4},
+          {"op": "branch", "cond": 4, "then": 2, "else": 3}
+        ]
+      },
+      {
+        "id": 2,
+        "instructions": [
+          {"op": "const", "dst": 10, "value": {"type": "i64", "value": 1}},
+          {"op": "binop", "operation": "+", "lhs": 3, "rhs": 10, "dst": 5},
+          {"op": "jump", "target": 1}
+        ]
+      },
+      {
+        "id": 3,
+        "instructions": [
+          {"op": "ret", "value": 3}
+        ]
+      }
+    ]
+  }]
+}
+MIRJSON
+  sed -i "s/LIMIT_PLACEHOLDER/$limit/g" "$out_path"
+}
+
 # Explicit direct-emit mode (parity baseline)
 if [ "${HAKO_EMIT_MIR_FORCE_DIRECT:-0}" = "1" ]; then
-  if try_direct_emit_mir_json "$OUT"; then
-    echo "[OK] MIR JSON written (direct-emit-forced): $OUT"
-    exit 0
-  fi
-  echo "[FAIL] direct MIR emit forced but failed" >&2
-  exit 1
+  exit_after_forced_direct_emit "$OUT"
 fi
 
 # 1) Stage‑B: Hako parser emits Program(JSON v0) to stdout
@@ -363,56 +420,9 @@ try_selfhost_builder() {
 
   # FORCE=1 direct assembly shortcut (dev toggle, bypasses using resolution)
   if [ "${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-0}" = "1" ]; then
-    # Extract limit from Program(JSON) using grep/awk
-    local limit=$(printf '%s' "$prog_json" | grep -o '"type":"Int","value":[0-9]*' | head -1 | grep -o '[0-9]*$' || echo "10")
-
-    # Generate minimal while-form MIR(JSON) directly (executable semantics)
-    # PHI incoming format: [[value_register, predecessor_block_id], ...]
-    cat > "$out_path" <<'MIRJSON'
-{
-  "functions": [{
-    "name": "main",
-    "params": [],
-    "locals": [],
-    "blocks": [
-      {
-        "id": 0,
-        "instructions": [
-          {"op": "const", "dst": 1, "value": {"type": "i64", "value": 0}},
-          {"op": "const", "dst": 2, "value": {"type": "i64", "value": LIMIT_PLACEHOLDER}},
-          {"op": "jump", "target": 1}
-        ]
-      },
-      {
-        "id": 1,
-        "instructions": [
-          {"op": "phi", "dst": 6, "incoming": [[2, 0], [6, 2]]},
-          {"op": "phi", "dst": 3, "incoming": [[1, 0], [5, 2]]},
-          {"op": "compare", "operation": "<", "lhs": 3, "rhs": 6, "dst": 4},
-          {"op": "branch", "cond": 4, "then": 2, "else": 3}
-        ]
-      },
-      {
-        "id": 2,
-        "instructions": [
-          {"op": "const", "dst": 10, "value": {"type": "i64", "value": 1}},
-          {"op": "binop", "operation": "+", "lhs": 3, "rhs": 10, "dst": 5},
-          {"op": "jump", "target": 1}
-        ]
-      },
-      {
-        "id": 3,
-        "instructions": [
-          {"op": "ret", "value": 3}
-        ]
-      }
-    ]
-  }]
-}
-MIRJSON
-
-    # Replace LIMIT_PLACEHOLDER with actual limit
-    sed -i "s/LIMIT_PLACEHOLDER/$limit/g" "$out_path"
+    local limit
+    limit="$(extract_loop_force_limit_from_program_json "$prog_json")"
+    write_loop_force_jsonfrag_mir_json "$limit" "$out_path"
 
     if [ "${HAKO_SELFHOST_TRACE:-0}" = "1" ]; then
       echo "[selfhost-direct:ok] Direct MIR assembly (FORCE=1), limit=$limit" >&2
@@ -650,38 +660,8 @@ fi
 
 # Dev: force JsonFrag minimal loop even on provider-first path
 if [ "${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-0}" = "1" ]; then
-  # Extract limit from Program(JSON)
-  limit=$(printf '%s' "$PROG_JSON_OUT" | grep -o '"type":"Int","value":[0-9]*' | head -1 | grep -o '[0-9]*$' || echo "10")
-  cat > "$OUT" <<MIRJSON
-{
-  "functions": [{
-    "name": "main",
-    "params": [],
-    "locals": [],
-    "blocks": [
-      { "id": 0, "instructions": [
-        {"op":"const","dst":1,"value":{"type":"i64","value":0}},
-        {"op":"const","dst":2,"value":{"type":"i64","value": ${limit} }},
-        {"op":"jump","target":1}
-      ]},
-      { "id": 1, "instructions": [
-        {"op":"phi","dst":6,"incoming":[[2,0],[6,2]]},
-        {"op":"phi","dst":3,"incoming":[[1,0],[5,2]]},
-        {"op":"compare","operation":"<","lhs":3,"rhs":6,"dst":4},
-        {"op":"branch","cond":4,"then":2,"else":3}
-      ]},
-      { "id": 2, "instructions": [
-        {"op":"const","dst":10,"value":{"type":"i64","value":1}},
-        {"op":"binop","operation":"+","lhs":3,"rhs":10,"dst":5},
-        {"op":"jump","target":1}
-      ]},
-      { "id": 3, "instructions": [
-        {"op":"ret","value":3}
-      ]}
-    ]
-  }]
-}
-MIRJSON
+  limit="$(extract_loop_force_limit_from_program_json "$PROG_JSON_OUT")"
+  write_loop_force_jsonfrag_mir_json "$limit" "$OUT"
   echo "[OK] MIR JSON written (provider-force-jsonfrag): $OUT"
   exit 0
 fi

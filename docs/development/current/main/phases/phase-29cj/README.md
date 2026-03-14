@@ -141,8 +141,9 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - after this slice, the kernel/plugin Program(JSON) route is close to thin floor: route-local gate/decode/encode remain, but host-provider call selection and `user_box_decls` shaping no longer live there
 - `tools/hakorune_emit_mir.sh` now also keeps the direct `MirBuilderBox.emit_from_program_json_v0(...)` checked path behind a generated wrapper-local `_emit_mir_checked(...)` helper, so the shell/helper wave has started without touching `selfhost_build.sh` or `test_runner.sh`
 - `tools/hakorune_emit_mir.sh` now also keeps generated runner stdout -> MIR payload extraction behind `extract_mir_payload_from_stdout_file()` / `persist_mir_payload_from_stdout_file()`, so selfhost/provider helper lanes no longer duplicate `[MIR_OUT_BEGIN]...[MIR_OUT_END]` parsing inline
+- `tools/hakorune_emit_mir.sh` now also keeps explicit direct-emit exit and loop-force JSONFrag MIR assembly behind `exit_after_forced_direct_emit()`, `extract_loop_force_limit_from_program_json()`, and `write_loop_force_jsonfrag_mir_json()`, so the helper-local tail is now mostly delegate/fallback route order
 - immediate next helper-local order after that slice:
-  1. `tools/hakorune_emit_mir.sh` direct-emit / forced-direct tail
+  1. `tools/hakorune_emit_mir.sh` remaining delegate/fallback route order
   2. `lang/src/runner/stage1_cli_env.hako` remaining compat/result tiny leaves
   3. `tools/selfhost/selfhost_build.sh` isolated consumer helpers
 - `tools/selfhost/selfhost_build.sh` now also keeps its generated `BuildBox.emit_program_json_v0(...)` checked path behind wrapper-local `_emit_program_json_checked(...)`, so the explicit `HAKO_USE_BUILDBOX=1` keep stays helper-local instead of repeating the checked path inline
