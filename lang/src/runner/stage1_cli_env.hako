@@ -793,10 +793,20 @@ static box Stage1ProgramResultValidationBox {
 // the current stage1 artifact boundary.
 static box Stage1ProgramJsonMirCallerBox {
   method emit_mir_from_program_json_checked(tag, program_json_text) {
+    local prog = me._coerce_program_json_text_checked(tag, program_json_text)
+    if prog == null { return null }
+    return me._emit_mir_from_program_json_text_checked(tag, prog)
+  }
+
+  method _coerce_program_json_text_checked(tag, program_json_text) {
     if program_json_text == null || program_json_text == "" {
       print(tag + " input missing program-json contract")
       return null
     }
+    return "" + program_json_text
+  }
+
+  method _emit_mir_from_program_json_text_checked(tag, program_json_text) {
     local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
     if mir == null {
       print(tag + " MirBuilderBox.emit_from_program_json_v0 returned null")

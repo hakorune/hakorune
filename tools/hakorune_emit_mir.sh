@@ -174,6 +174,22 @@ print(json.dumps(prog, separators=(",", ":")))
 PY
 }
 
+extract_mir_payload_from_stdout_file() {
+  local stdout_file="$1"
+  awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag' "$stdout_file"
+}
+
+persist_mir_payload_from_stdout_file() {
+  local stdout_file="$1" out_path="$2"
+  local mir
+  mir="$(extract_mir_payload_from_stdout_file "$stdout_file")"
+  if [ -z "$mir" ]; then
+    return 1
+  fi
+  printf '%s' "$mir" > "$out_path"
+  return 0
+}
+
 SOURCE_USING_IMPORTS_JSON="$(extract_using_imports_json_from_source "$IN")"
 BASE_MIRBUILDER_IMPORTS_JSON="${HAKO_MIRBUILDER_IMPORTS-}"
 if [ -z "$BASE_MIRBUILDER_IMPORTS_JSON" ]; then
@@ -488,10 +504,9 @@ MIRJSON
     return 1
   fi
 
-  local mir
-  mir=$(awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag' "$tmp_stdout")
-  if [ -z "$mir" ]; then return 1; fi
-  printf '%s' "$mir" > "$out_path"
+  if ! persist_mir_payload_from_stdout_file "$tmp_stdout" "$out_path"; then
+    return 1
+  fi
   echo "[OK] MIR JSON written (selfhost-first): $out_path"
   return 0
 }
@@ -558,13 +573,10 @@ try_provider_emit() {
     rm -f "$tmp_hako" "$tmp_stdout" || true
     return 1
   fi
-  local mir
-  mir=$(awk '/\[MIR_OUT_BEGIN\]/{flag=1;next}/\[MIR_OUT_END\]/{flag=0}flag' "$tmp_stdout")
-  if [ -z "$mir" ]; then
+  if ! persist_mir_payload_from_stdout_file "$tmp_stdout" "$out_path"; then
     rm -f "$tmp_hako" "$tmp_stdout" || true
     return 1
   fi
-  printf '%s' "$mir" > "$out_path"
   rm -f "$tmp_hako" "$tmp_stdout" || true
   echo "[OK] MIR JSON written (delegate:provider): $out_path"
   return 0
