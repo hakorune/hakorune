@@ -92,7 +92,7 @@ pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Resul
 #[cfg(test)]
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
     let program_json = emit_strict_program_json_for_source(source_text)?;
-    let mir_json = lowering::program_json_to_mir_json(&program_json)?;
+    let mir_json = emit_plain_mir_json_from_program_json_text(&program_json)?;
     Ok((program_json, mir_json))
 }
 
@@ -112,6 +112,11 @@ pub(crate) fn program_json_to_mir_json_with_imports(
 
 fn emit_mir_json_from_program_json_text(program_json: &str) -> Result<String, String> {
     program_json_to_mir_json_with_user_box_decls(program_json)
+}
+
+#[cfg(test)]
+fn emit_plain_mir_json_from_program_json_text(program_json: &str) -> Result<String, String> {
+    lowering::program_json_to_mir_json(program_json)
 }
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
@@ -168,9 +173,9 @@ fn inject_stage1_user_box_decls_from_program_json(
     mir_json: &str,
 ) -> Result<String, String> {
     let mut mir_value = parse_mir_json_value(mir_json)?;
-    let user_box_decls = stage1_user_box_decls_from_program_json(program_json)?;
+    let user_box_decls = collect_stage1_user_box_decls(program_json)?;
     insert_user_box_decls(&mut mir_value, user_box_decls)?;
-    serde_json::to_string(&mir_value).map_err(|error| format!("mir json serialize error: {}", error))
+    serialize_mir_json_value(&mir_value)
 }
 
 fn parse_mir_json_value(mir_json: &str) -> Result<serde_json::Value, String> {
@@ -200,6 +205,14 @@ fn stage1_user_box_decls_from_program_json(
         .into_iter()
         .map(stage1_user_box_decl_from_name)
         .collect())
+}
+
+fn collect_stage1_user_box_decls(program_json: &str) -> Result<Vec<serde_json::Value>, String> {
+    stage1_user_box_decls_from_program_json(program_json)
+}
+
+fn serialize_mir_json_value(mir_value: &serde_json::Value) -> Result<String, String> {
+    serde_json::to_string(mir_value).map_err(|error| format!("mir json serialize error: {}", error))
 }
 
 fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {

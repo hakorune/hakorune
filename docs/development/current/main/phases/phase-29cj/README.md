@@ -126,9 +126,11 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - imports-bearing lowering is also test-only inside `src/host_providers/mir_builder/lowering.rs`
 - live source + explicit Program(JSON) callers now both stay in `src/host_providers/mir_builder.rs`, and cross the shared Rust seam only at `module_to_mir_json(...)`
 - the extra `lower_program_json_to_module(...)` leaf is retired, and `src/host_providers/mir_builder/lowering.rs` now keeps only evidence/test seams around that path
-- worker consensus now treats `src/host_providers/mir_builder.rs` as near thin floor, not the next place to keep shaving
+- worker consensus now keeps `src/host_providers/mir_builder.rs` as the only active phase front until the remaining handoff/finalize leaves above `module_to_mir_json(...)` are thin enough to freeze
 - worker consensus also treats `src/stage1/program_json_v0/authority.rs` as frozen strict source-authority core; the next real movement is authority replacement above the Rust stop-line in `src/host_providers/mir_builder.rs`
 - worker consensus on `src/host_providers/mir_builder/lowering.rs`: the remaining helpers there are evidence-only, while `module_to_mir_json(...)` is the real shared seam and now lives in `src/host_providers/mir_builder.rs`
+- the latest test-only source-evidence leaf now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
+- the latest explicit-route finalize leaf now keeps `user_box_decls` collect/serialize behind same-file helpers `collect_stage1_user_box_decls(...)` and `serialize_mir_json_value(...)`
 - worker audit also raised the next non-Rust wave order after the current Rust-owned front: `lang/src/mir/builder/MirBuilderBox.hako` first, then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`, with shared producer `lang/src/compiler/build/build_box.hako` immediately behind that same wave; touching `build_box.hako` before those owner-local callers would be the highest-blast-radius move
 - owner-role lock for this wave:
   - `authority owner`: live owner that decides input acceptance, route selection, fail-fast tags, and final handoff for the compiler boundary
