@@ -36,12 +36,24 @@ static box MirBuilderBox {
   method _norm_if_apply(m, func_defs_mir) {
     if m == null { return null }
     local result = FuncLoweringBox.inject_funcs(m, func_defs_mir)
-    local methodize = env.get("HAKO_MIR_BUILDER_METHODIZE")
-    if methodize == null || ("" + methodize) != "0" {
-      result = FuncLoweringBox.methodize_calls_in_mir(result)
+    if result == null {
+      me._log_builder_fail("inject_funcs_null")
+      return null
     }
-    local nv = env.get("HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE")
-    if nv != null && ("" + nv) == "1" { result = NormBox.normalize_all(result) }
+    if BuilderConfigBox.methodize_on() == 1 {
+      result = FuncLoweringBox.methodize_calls_in_mir(result)
+      if result == null {
+        me._log_builder_fail("methodize_null")
+        return null
+      }
+    }
+    if BuilderConfigBox.jsonfrag_normalize_on() == 1 {
+      result = NormBox.normalize_all(result)
+      if result == null {
+        me._log_builder_fail("normalize_null")
+        return null
+      }
+    }
     return result
   }
 

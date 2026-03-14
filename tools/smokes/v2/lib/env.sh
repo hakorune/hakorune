@@ -158,6 +158,30 @@ _stage1_trim_ws() {
     printf "%s" "$s"
 }
 
+_stage1_normalize_rel_path() {
+    local path="$1"
+    local -a parts=()
+    local -a out=()
+    local part
+    IFS='/' read -r -a parts <<< "$path"
+    for part in "${parts[@]}"; do
+        case "$part" in
+            ""|".")
+                ;;
+            "..")
+                if [ "${#out[@]}" -gt 0 ]; then
+                    unset 'out[${#out[@]}-1]'
+                fi
+                ;;
+            *)
+                out+=("$part")
+                ;;
+        esac
+    done
+    local IFS='/'
+    printf "%s" "${out[*]}"
+}
+
 stage1_find_toml_config() {
     local root="${1:-${NYASH_ROOT:-$(pwd)}}"
     local candidate
@@ -283,6 +307,7 @@ collect_stageb_modules_list() {
                     if [[ "$resolved" == "$root/"* ]]; then
                         resolved="${resolved#$root/}"
                     fi
+                    resolved="$(_stage1_normalize_rel_path "$resolved")"
                 fi
                 _stage1_add_module_entry "$full_name" "$resolved"
             done < <(awk '
@@ -313,6 +338,7 @@ collect_stageb_modules_list() {
                         eq = index(line, "=")
                         key = trim(substr(line, 1, eq - 1))
                         val = trim(substr(line, eq + 1))
+                        if (val !~ /^".*"$/) next
                         gsub(/^"/, "", key)
                         gsub(/"$/, "", key)
                         gsub(/^"/, "", val)
@@ -429,7 +455,7 @@ collect_stageb_module_roots_list() {
             val="${val%\"}"
             if [ -n "$key" ] && [ -n "$val" ] && [ -z "${seen[$key]+x}" ]; then
                 seen["$key"]=1
-                sortable+=("${#key}\t${key}=${val}")
+                sortable+=("${#key}"$'\t'"${key}=${val}")
             fi
         fi
     done < "$toml"
@@ -448,8 +474,15 @@ collect_stageb_module_roots_list() {
         entries+=("$kv")
     done <<< "$sorted"
 
-    local IFS='|||'
-    echo "${entries[*]}"
+    local out=""
+    for kv in "${entries[@]}"; do
+        if [ -z "$out" ]; then
+            out="$kv"
+        else
+            out="${out}|||${kv}"
+        fi
+    done
+    echo "$out"
 }
 
 # ============================================================================

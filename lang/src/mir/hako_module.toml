@@ -24,11 +24,14 @@ builder.internal.lower_typeop_check_box = "builder/internal/lower_typeop_check_b
 builder.internal.lower_loop_simple_box = "builder/internal/lower_loop_simple_box.hako"
 builder.internal.lower_loop_sum_bc_box = "builder/internal/lower_loop_sum_bc_box.hako"
 builder.internal.lower_loop_multi_carrier_box = "builder/internal/lower_loop_multi_carrier_box.hako"
+builder.internal.lower_loop_count_param_box = "builder/internal/lower_loop_count_param_box.hako"
 builder.internal.lower_if_merge_local_return_var_box = "builder/internal/lower_if_merge_local_return_var_box.hako"
 builder.internal.lower_loop_local_return_var_box = "builder/internal/lower_loop_local_return_var_box.hako"
 builder.internal.loop_opts_adapter_box = "builder/internal/loop_opts_adapter_box.hako"
 builder.internal.builder_config_box = "builder/internal/builder_config_box.hako"
 builder.internal.jsonfrag_normalizer_box = "builder/internal/jsonfrag_normalizer_box.hako"
+builder.internal.registry_authority_box = "builder/internal/registry_authority_box.hako"
+builder.internal.fallback_authority_box = "builder/internal/fallback_authority_box.hako"
 
 # MIR emitter
 min_emitter = "min_emitter.hako"

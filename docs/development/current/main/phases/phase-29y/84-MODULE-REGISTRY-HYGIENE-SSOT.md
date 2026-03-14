@@ -59,13 +59,16 @@ Prefix distribution:
 
 1. 新しい `.hako` box は `*/hako_module.toml` の `[exports]` に追加する
 2. `hako.toml` / `nyash.toml` の `[modules]` へは新規追加しない（direct add は guard fail）
-3. override/compat を追加する場合のみ allowlist を更新し、明示レビューで承認する
-4. alias を移管・削除した場合は allowlist の追従更新を行い、guard を再実行する
+3. Stage1 bridge embedded snapshot が新しい export を必要とする場合は `bash tools/selfhost/refresh_stage1_module_env_snapshot.sh` を同コミットで実行する
+4. override/compat を追加する場合のみ allowlist を更新し、明示レビューで承認する
+5. alias を移管・削除した場合は allowlist の追従更新を行い、guard を再実行する
 
 ## Acceptance
 
 ```bash
+bash tools/selfhost/refresh_stage1_module_env_snapshot.sh
 bash tools/checks/module_registry_hygiene_guard.sh
+cargo test embedded_snapshot_matches_registry_doc -- --nocapture
 bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh
 ```

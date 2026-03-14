@@ -88,28 +88,7 @@ static box Stage1Cli {
   // Program(JSON v0) → MIR(JSON)
   method emit_mir_json(program_json) {
     local tag = "[stage1-cli] emit mir-json"
-    if program_json == null {
-      print(tag + ": program_json is null")
-      return null
-    }
-    local prog = program_json
-    if prog.indexOf("\"version\":0") < 0 || prog.indexOf("\"kind\":\"Program\"") < 0 {
-      print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
-      return null
-    }
-
-    local mir = MirBuilderBox.emit_from_program_json_v0(prog, null)
-    if mir == null {
-      print("[freeze:contract][stage1-cli/emit-mir] MirBuilderBox.emit_from_program_json_v0 returned null")
-      return null
-    }
-
-    local ms = mir
-    if ms.indexOf("\"functions\"") < 0 {
-      print("[freeze:contract][stage1-cli/emit-mir] output missing MIR functions marker")
-      return null
-    }
-    return ms
+    return me._emit_mir_json_from_program_json_checked(tag, program_json)
   }
 
   // Run Program(JSON v0) on selected backend (vm|llvm|pyvm)
@@ -482,6 +461,32 @@ static box Stage1Cli {
       print("[stage1-cli/debug] emit_program_json: validation passed")
     }
     return ps
+  }
+
+  method _emit_mir_json_from_program_json_checked(tag, program_json) {
+    if program_json == null {
+      print(tag + ": program_json is null")
+      return null
+    }
+
+    local prog = "" + program_json
+    if prog.indexOf("\"version\":0") < 0 || prog.indexOf("\"kind\":\"Program\"") < 0 {
+      print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
+      return null
+    }
+
+    local mir = MirBuilderBox.emit_from_program_json_v0(prog, null)
+    if mir == null {
+      print("[freeze:contract][stage1-cli/emit-mir] MirBuilderBox.emit_from_program_json_v0 returned null")
+      return null
+    }
+
+    local ms = "" + mir
+    if ms.indexOf("\"functions\"") < 0 {
+      print("[freeze:contract][stage1-cli/emit-mir] output missing MIR functions marker")
+      return null
+    }
+    return ms
   }
 
   method _cmd_emit_mir_json(args){

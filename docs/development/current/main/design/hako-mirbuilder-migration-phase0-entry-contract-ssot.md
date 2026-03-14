@@ -187,11 +187,14 @@ Pin fixture (SSOT):
   - must-not: `rg --pcre2 -n --glob '*.hako' '\\[freeze:contract\\](?!\\[hako_mirbuilder\\])' lang/src/compiler/mirbuilder`
     - expected: 0 hits
 
-`.hako` box を `using` で追加したら、**nyash.toml `[modules]` 登録が必須**（登録漏れは実行時に別の症状になってデバッグ距離が伸びる）:
+`.hako` box を `using` で追加したら、**workspace export を正本にする**（root `hako.toml` / `nyash.toml` の `[modules]` 直追加で通さない）:
 
-- 追加した box の module key を `nyash.toml` の `[modules]` に登録する（例: `lang.compiler.mirbuilder.*`）
-- drift check（登録漏れ検知）:
-  - `rg -n \"lang/src/compiler/mirbuilder/\" nyash.toml`
+- 追加した box の module key は対応する `*/hako_module.toml` の `[exports]` に登録する（例: `lang/src/compiler/hako_module.toml` の `lang.compiler.mirbuilder.*`）
+- Stage1 bridge embedded snapshot がその key を必要とする場合は `bash tools/selfhost/refresh_stage1_module_env_snapshot.sh` を同コミットで実行する
+- compat alias を root `[modules]` に残す必要がある場合だけ、`tools/checks/module_registry_*_top_only_allowlist.txt` の明示更新つきでレビューする
+- drift check（登録漏れ / direct add 検知）:
+  - `rg -n "lang/src/compiler/mirbuilder/" lang/src/compiler/hako_module.toml`
+  - `bash tools/checks/module_registry_hygiene_guard.sh`
 
 Box naming (SSOT; fail-fast distance reduction):
 

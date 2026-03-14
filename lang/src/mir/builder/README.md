@@ -16,7 +16,7 @@ Interface (stable)
 - `emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null`
   - Returns canonical MIR(JSON v0) on success; returns null and prints a tagged diagnostic on failure.
   - delegate branch now finalizes returned MIR locally by injecting `user_box_decls` before normalization; this is the first `.hako`-side ownership move inside the Program(JSON)->MIR path.
-  - gate decisions (`internal_on`, `delegate_on`, `selfhost_no_delegate_on`) are centralized in `hako.mir.builder.internal.builder_config`, so this file is the owner of route sequencing, not raw env reads.
+  - gate decisions (`internal_on`, `delegate_on`, `selfhost_no_delegate_on`, `methodize_on`, `jsonfrag_normalize_on`) are centralized in `hako.mir.builder.internal.builder_config`, so this file is the owner of route sequencing, not raw env reads.
   - the normal registry-first Program(JSON)->MIR authority block now lives in `hako.mir.builder.internal.registry_authority`
   - the non-registry/internal fallback chain now lives in `hako.mir.builder.internal.fallback_authority`
   - this file keeps route sequencing, generic unsupported/no-match decision, and compat tails around those internal owners
@@ -29,6 +29,9 @@ Tags (Fail‑Fast, stable)
 - `[mirbuilder/internal/unsupported] ...` — Program(JSON) shape not yet supported by internal lowers
 - `[builder/selfhost-first:unsupported:defs_only]` — only defs を lowering できる状態（main なし）のため中止
 - `[builder/selfhost-first:unsupported:no_match]` — internal lowers / defs のどちらにもマッチせず中止
+- `[builder/selfhost-first:unsupported:inject_funcs_null]` — internal lower 後の defs inject が null を返したため中止
+- `[builder/selfhost-first:unsupported:methodize_null]` — internal lower 後の methodize が null を返したため中止
+- `[builder/selfhost-first:unsupported:normalize_null]` — internal lower 後の normalizer が null を返したため中止
 - `[builder/funcs:unsupported:loopform]` — Loop を含むが LoopForm 制約に当てはまらないか、selfhost builder ではまだ扱えない Loop 構造のため中止（Rust provider に退避可能）
 - `[builder/funcs:fail:no-main]` — inject_funcs が main を含まない MIR に defs を差し込もうとしたため拒否（`HAKO_MIR_BUILDER_REQUIRE_MAIN=1` 時）
 - `[mirbuilder/delegate]` — delegate path selected（Runner/extern provider 経由）

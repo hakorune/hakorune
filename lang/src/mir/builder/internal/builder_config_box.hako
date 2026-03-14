@@ -11,26 +11,28 @@ static box BuilderConfigBox {
     return 0
   }
 
+  // Generic on/off reader for default-ON flags.
+  _is_on_default_true(key) {
+    local v = env.get(key)
+    if v == null { return 1 }
+    local s = "" + v
+    if s == "1" || s == "true" || s == "on" { return 1 }
+    return 0
+  }
+
   // Trace controls
   trace_enabled() { return me._is_on("HAKO_MIR_BUILDER_TRACE") }
   debug_enabled() { return me._is_on("HAKO_MIR_BUILDER_DEBUG") || me._is_on("NYASH_CLI_VERBOSE") }
 
   // Registry and internal lowers
-  internal_on() {
-    local v = env.get("HAKO_MIR_BUILDER_INTERNAL")
-    // default ON
-    return (v == null) || ("" + v == "1")
-  }
+  internal_on() { return me._is_on_default_true("HAKO_MIR_BUILDER_INTERNAL") }
   delegate_on() { return me._is_on("HAKO_MIR_BUILDER_DELEGATE") }
   selfhost_no_delegate_on() { return me._is_on("HAKO_SELFHOST_NO_DELEGATE") }
-  registry_on() {
-    local v = env.get("HAKO_MIR_BUILDER_REGISTRY")
-    // default ON
-    return (v == null) || ("" + v == "1")
-  }
+  registry_on() { return me._is_on_default_true("HAKO_MIR_BUILDER_REGISTRY") }
   registry_only() { return env.get("HAKO_MIR_BUILDER_REGISTRY_ONLY") }
 
   // Loop/JsonFrag related
+  methodize_on() { return me._is_on_default_true("HAKO_MIR_BUILDER_METHODIZE") }
   loop_jsonfrag_on() { return me._is_on("HAKO_MIR_BUILDER_LOOP_JSONFRAG") }
   loop_force_jsonfrag_on() { return me._is_on("HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG") }
   jsonfrag_normalize_on() { return me._is_on("HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE") }

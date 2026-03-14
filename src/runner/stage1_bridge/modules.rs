@@ -221,6 +221,14 @@ fn flatten_modules_table(prefix: &str, tbl: &toml::value::Table, out: &mut Vec<(
 }
 
 fn collect_workspace_module_entries(doc: &toml::Value, toml_dir: &Path) -> Vec<(String, String)> {
+    fn normalize_workspace_export_path(path: PathBuf, repo_root: &Path) -> String {
+        let normalized = fs::canonicalize(&path).unwrap_or(path);
+        if let Ok(relative) = normalized.strip_prefix(repo_root) {
+            return relative.to_string_lossy().to_string();
+        }
+        normalized.to_string_lossy().to_string()
+    }
+
     fn flatten_exports_table(
         prefix: &str,
         tbl: &toml::value::Table,
@@ -241,6 +249,11 @@ fn collect_workspace_module_entries(doc: &toml::Value, toml_dir: &Path) -> Vec<(
     }
 
     let mut out = Vec::new();
+    let repo_root = if toml_dir.as_os_str().is_empty() {
+        fs::canonicalize(".").unwrap_or_else(|_| PathBuf::from("."))
+    } else {
+        fs::canonicalize(toml_dir).unwrap_or_else(|_| toml_dir.to_path_buf())
+    };
     let members = match doc
         .get("modules")
         .and_then(|v| v.get("workspace"))
@@ -289,7 +302,7 @@ fn collect_workspace_module_entries(doc: &toml::Value, toml_dir: &Path) -> Vec<(
                 format!("{}.{}", module_name, export_key)
             };
             let resolved = module_dir.join(rel_path);
-            out.push((full_name, resolved.to_string_lossy().to_string()));
+            out.push((full_name, normalize_workspace_export_path(resolved, &repo_root)));
         }
     }
 
@@ -466,6 +479,35 @@ mod tests {
             .collect()
     }
 
+    fn parse_kv_map(raw: &str) -> BTreeMap<String, String> {
+        raw.split("|||")
+            .filter_map(|entry| {
+                let trimmed = entry.trim();
+                if trimmed.is_empty() {
+                    return None;
+                }
+                let (key, value) = trimmed.split_once('=')?;
+                Some((key.to_string(), value.to_string()))
+            })
+            .collect()
+    }
+
+    fn parse_kv_list(raw: &str) -> Vec<(String, String)> {
+        let mut entries: Vec<(String, String)> = raw
+            .split("|||")
+            .filter_map(|entry| {
+                let trimmed = entry.trim();
+                if trimmed.is_empty() {
+                    return None;
+                }
+                let (key, value) = trimmed.split_once('=')?;
+                Some((key.to_string(), value.to_string()))
+            })
+            .collect();
+        entries.sort_by(|a, b| b.0.len().cmp(&a.0.len()).then_with(|| a.0.cmp(&b.0)));
+        entries
+    }
+
     #[test]
     fn embedded_snapshot_is_parseable_and_non_empty() {
         let lists = load_embedded_snapshot_lists().expect("embedded snapshot must parse");
@@ -477,6 +519,63 @@ mod tests {
             .expect("embedded module_roots_list must exist");
         assert!(!mods.trim().is_empty());
         assert!(!roots.trim().is_empty());
+    }
+
+    #[test]
+    fn embedded_snapshot_matches_registry_doc() {
+        let (doc, path) = load_registry_doc().expect("registry doc must exist for snapshot parity");
+        let expected = Stage1ModuleEnvLists {
+            modules_list: collect_modules_list_from_doc(&doc, &path),
+            module_roots_list: collect_module_roots_list_from_doc(&doc),
+        };
+        let embedded = load_embedded_snapshot_lists().expect("embedded snapshot must parse");
+
+        let embedded_modules = embedded
+            .modules_list
+            .as_deref()
+            .map(parse_kv_map);
+        let expected_modules = expected
+            .modules_list
+            .as_deref()
+            .map(parse_kv_map);
+        let embedded_roots = embedded
+            .module_roots_list
+            .as_deref()
+            .map(parse_kv_list);
+        let expected_roots = expected
+            .module_roots_list
+            .as_deref()
+            .map(parse_kv_list);
+        let embedded_modules_map = embedded_modules.clone().unwrap_or_default();
+        let expected_modules_map = expected_modules.clone().unwrap_or_default();
+        let mut only_embedded = Vec::new();
+        let mut only_expected = Vec::new();
+        let mut value_diff = Vec::new();
+
+        for (key, value) in &embedded_modules_map {
+            match expected_modules_map.get(key) {
+                Some(expected_value) if expected_value == value => {}
+                Some(expected_value) => value_diff.push(format!(
+                    "{key}: embedded={value} expected={expected_value}"
+                )),
+                None => only_embedded.push(format!("{key}={value}")),
+            }
+        }
+        for (key, value) in &expected_modules_map {
+            if !embedded_modules_map.contains_key(key) {
+                only_expected.push(format!("{key}={value}"));
+            }
+        }
+
+        assert!(
+            only_embedded.is_empty() && only_expected.is_empty() && value_diff.is_empty(),
+            "embedded modules_list map is stale; run tools/selfhost/refresh_stage1_module_env_snapshot.sh; only_embedded={only_embedded:?}; only_expected={only_expected:?}; value_diff={value_diff:?}",
+        );
+        assert_eq!(
+            embedded_roots,
+            expected_roots,
+            "embedded module_roots_list is stale; run tools/selfhost/refresh_stage1_module_env_snapshot.sh",
+        );
     }
 
     #[test]

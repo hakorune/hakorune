@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-13
+Date: 2026-03-14
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -15,6 +15,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - primary target: `kernel-mainline`（`.hako` kernel）を日常既定経路に固定。
 - no-fallback: `NYASH_VM_USE_FALLBACK=0`（silent fallback 禁止 / fail-fast）。
 - compiler lane は `phase-29bq` を monitor-only 運用（failure-driven reopen のみ）。
+
+## Full Rust 0 Pointer (2026-03-14)
+
+- top-level future tracking SSOT:
+  - `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+- split:
+  - `runtime-zero`: accepted pointer / inventory-ready
+  - `backend-zero`: provisional / docs-first inventory required
+- rule:
+  - この pointer は current blocker を置き換えない。
+  - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。
 
 ## Current Blocker (SSOT)
 
@@ -197,6 +208,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest tightening: internal/delegate gate decisions in `MirBuilderBox.hako` now read through `lang/src/mir/builder/internal/builder_config_box.hako`; keep `emit_from_source_v0(...)` as a live compat seam because kernel route + route-evidence probes still call it
        - latest tightening: the normal registry-first `Program(JSON v0) -> MIR(JSON)` block now lives in `lang/src/mir/builder/internal/registry_authority_box.hako`
        - latest tightening: the non-registry/internal fallback chain now lives in `lang/src/mir/builder/internal/fallback_authority_box.hako`
+       - latest tightening: `BuilderConfigBox.internal_on()/registry_on()` now return numeric `1/0`, and the stage1 module registry/export now includes `lower_loop_count_param_box`, `registry_authority_box`, and `fallback_authority_box`; accepted evidence is `tools/hakorune_emit_mir_mainline.sh lang/src/runner/{stage1_cli.hako,stage1_cli_env.hako}` green on selfhost-first + no-delegate
        - consequence: `MirBuilderBox.hako` now owns route sequencing, generic unsupported/no-match decision, and compat tails around those internal authority units
        - accepted proof stays on `phase2034/mirbuilder_internal_canary_vm.sh` + registry/provider canaries; `phase2034/mirbuilder_internal_if_canary_vm.sh` is currently a probe-only direct script because `vm-hako subset-check` still rejects `newbox(hostbridge)` before the owner split is observable
        - design lock: the next `.hako` wave owns `Program(JSON v0) -> MIR(JSON)` and should hand Rust canonical MIR(JSON) text, not `MirModule`
@@ -239,7 +251,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - de-rust orchestration/top-level scope aftercare (monitor-only)
   - restart quick entry (2026-03-10):
     - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
-    - end state: compiler と plugin behavior は `.hako` mainline へ寄せ、Rust は host/runtime/backend の最小面に縮退する
+    - end state (thin-rust scope): compiler と plugin behavior は `.hako` mainline へ寄せ、Rust は host/runtime/backend の最小面に縮退する
+    - full Rust 0 future pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
     - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
     - current minimal task: `phase-29ch` MIR-direct bootstrap unification is now closeout-ready; do not reopen it for JSON v0 deletion
     - next separate future-wave phase: `phase-29ci` for `Program(JSON v0)` retirement only

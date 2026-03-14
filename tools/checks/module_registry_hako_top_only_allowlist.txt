@@ -11,6 +11,7 @@ hako.compiler.entry.bundle_resolver
 hako.llvm.emit
 hako.mir.builder
 hako.mir.builder.internal.builder_config
+hako.mir.builder.internal.fallback_authority
 hako.mir.builder.internal.jsonfrag_normalizer
 hako.mir.builder.internal.loop_opts_adapter
 hako.mir.builder.internal.loop_scan
@@ -50,6 +51,7 @@ hako.mir.builder.internal.lower_typeop_cast
 hako.mir.builder.internal.lower_typeop_check
 hako.mir.builder.internal.pattern_util
 hako.mir.builder.internal.prog_scan
+hako.mir.builder.internal.registry_authority
 hako.mir.builder.internal.runner_min
 hako.mir.builder.internal.sentinel_extractor
 hako.mir.builder.min
