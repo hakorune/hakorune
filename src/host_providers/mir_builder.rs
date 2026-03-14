@@ -82,6 +82,10 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 }
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
+    emit_guarded_mir_json_from_program_json(program_json)
+}
+
+fn emit_guarded_mir_json_from_program_json(program_json: &str) -> Result<String, String> {
     let _env_guard = Phase0MirJsonEnvGuard::new();
     emit_mir_json_from_program_json_module(program_json)
 }
@@ -113,7 +117,7 @@ pub(crate) fn program_json_to_mir_json_with_imports(
 }
 
 fn emit_mir_json_from_program_json_text(program_json: &str) -> Result<String, String> {
-    program_json_to_mir_json_with_user_box_decls(program_json)
+    emit_guarded_mir_json_from_program_json(program_json)
 }
 
 #[cfg(test)]
