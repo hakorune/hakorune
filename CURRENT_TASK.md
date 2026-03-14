@@ -200,6 +200,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest tightening: strict source-authority entry now keeps duplicate `emit_program_json_v0_for_strict_authority_source(...)` handling behind same-file helper `emit_strict_program_json_for_source(...)`
        - latest tightening: explicit Program(JSON) entry now keeps module parse behind `parse_program_json_module(...)`, and box-name collection now keeps defs iteration behind `insert_stage1_def_box_names(...)`
        - latest tightening: explicit Program(JSON) entry now also keeps `module_to_mir_json(...)` + user-box finalize handoff behind same-file helper `emit_mir_json_with_user_box_decls(...)`
+       - latest tightening: source-route handoff now keeps final Program(JSON text) -> explicit-route call behind same-file helper `emit_mir_json_from_program_json_text(...)`
     2. `src/host_providers/mir_builder/lowering.rs`
        - this owner is now a test-only `Program(JSON v0) -> MIR(JSON)` evidence seam, not the live shared MIR(JSON) emission owner
        - latest tightening: imports-bearing and plain lowering helpers are both test-only evidence now

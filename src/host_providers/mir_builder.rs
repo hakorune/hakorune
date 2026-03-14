@@ -98,7 +98,7 @@ pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, Stri
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
     let program_json = emit_strict_program_json_for_source(source_text)?;
-    program_json_to_mir_json_with_user_box_decls(&program_json)
+    emit_mir_json_from_program_json_text(&program_json)
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.
@@ -108,6 +108,10 @@ pub(crate) fn program_json_to_mir_json_with_imports(
     imports: BTreeMap<String, String>,
 ) -> Result<String, String> {
     lowering::program_json_to_mir_json_with_imports(program_json, imports)
+}
+
+fn emit_mir_json_from_program_json_text(program_json: &str) -> Result<String, String> {
+    program_json_to_mir_json_with_user_box_decls(program_json)
 }
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
