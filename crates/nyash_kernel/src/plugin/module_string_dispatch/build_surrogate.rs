@@ -10,10 +10,14 @@ pub(super) fn try_dispatch(
     arg1: i64,
     arg2: i64,
 ) -> Option<i64> {
-    if module_name != BUILD_BOX_MODULE || method_name != BUILD_BOX_METHOD {
+    if !is_build_box_emit_program_json_route(module_name, method_name) {
         return None;
     }
     Some(handle_build_box_emit_program_json_v0(arg_count, arg1, arg2).unwrap_or(0))
+}
+
+fn is_build_box_emit_program_json_route(module_name: &str, method_name: &str) -> bool {
+    module_name == BUILD_BOX_MODULE && method_name == BUILD_BOX_METHOD
 }
 
 fn handle_build_box_emit_program_json_v0(
@@ -21,23 +25,30 @@ fn handle_build_box_emit_program_json_v0(
     arg1: i64,
     _arg2: i64,
 ) -> Option<i64> {
-    if arg_count < 1 {
-        return Some(0);
-    }
-    let source_text = match decode_string_handle(arg1) {
-        Some(text) => text,
-        None => return Some(0),
-    };
-    let program_json = match nyash_rust::stage1::program_json_v0::
-        emit_program_json_v0_for_current_stage1_build_box_mode(&source_text)
-    {
-        Ok(program_json) => program_json,
-        Err(error_text) => {
-            return Some(encode_string_handle(&error_text));
-        }
-    };
+    let source_text = decode_build_box_source_text(arg_count, arg1)?;
+    let program_json = emit_build_box_program_json(&source_text);
     trace_log("[stage1/module_dispatch] build_surrogate emitted program_json");
-    Some(encode_string_handle(&program_json))
+    Some(encode_build_box_program_json_result(program_json))
+}
+
+fn decode_build_box_source_text(arg_count: i64, arg1: i64) -> Option<String> {
+    if arg_count < 1 {
+        return None;
+    }
+    decode_string_handle(arg1)
+}
+
+fn emit_build_box_program_json(source_text: &str) -> Result<String, String> {
+    nyash_rust::stage1::program_json_v0::emit_program_json_v0_for_current_stage1_build_box_mode(
+        source_text,
+    )
+}
+
+fn encode_build_box_program_json_result(program_json: Result<String, String>) -> i64 {
+    match program_json {
+        Ok(program_json) => encode_string_handle(&program_json),
+        Err(error_text) => encode_string_handle(&error_text),
+    }
 }
 
 #[cfg(test)]

@@ -171,6 +171,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `src/runner/stage1_bridge/program_json/mod.rs` is already read -> payload -> write orchestration only
     - `src/runner/stage1_bridge/program_json_entry/mod.rs` is already request-build + dispatch only
     - therefore, do not keep shaving those façades unless an exact disappearing owner appears first
+  - latest exact leaf landed (2026-03-15):
+    - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` now keeps route match, source-handle decode, stage1 emit, and result encode behind same-file helpers
+    - treat that owner as near thin floor after this slice; do not reopen it without another exact disappearing leaf
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder.rs`
