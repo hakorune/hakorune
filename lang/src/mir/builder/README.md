@@ -21,8 +21,11 @@ Interface (stable)
   - the non-registry/internal fallback chain now lives in `hako.mir.builder.internal.fallback_authority`
   - this file keeps route sequencing, generic unsupported/no-match decision, and compat tails around those internal owners
   - route sequencing is owner-local via `_lower_func_defs_if_enabled(...)`, `_emit_internal_program_json(...)`, and `_emit_delegate_program_json(...)`; raw env/hostbridge branching does not stay duplicated inline
+  - internal unsupported tail is now isolated in `_fail_internal_unsupported(...)` and `_program_json_has_ternary(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
-  - Source-entry shim only; current stage1 authority no longer depends on this route, and direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating to `emit_from_program_json_v0(...)`.
+  - Source-entry shim only; current stage1 authority no longer depends on this route.
+  - source-entry coercion / source->Program(JSON) check / Program(JSON)->MIR handoff now stay owner-local via `_coerce_source_text_checked(...)`, `_emit_program_json_from_source_checked(...)`, and `_emit_mir_from_source_program_json_checked(...)`.
+  - direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating to `emit_from_program_json_v0(...)`.
 
 Tags (Fail‑Fast, stable)
 - `[mirbuilder/input/null]` — input is null

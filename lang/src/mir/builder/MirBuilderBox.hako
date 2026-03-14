@@ -123,9 +123,11 @@ static box MirBuilderBox {
       if out_fallback != null { return me._norm_if_apply(out_fallback, func_defs_mir) }
     }
 
-    local has_ternary = 0
-    local s = "" + program_json
-    if s.indexOf("\"type\":\"Ternary\"") >= 0 { has_ternary = 1 }
+    return me._fail_internal_unsupported(program_json, func_defs_mir)
+  }
+
+  method _fail_internal_unsupported(program_json, func_defs_mir) {
+    local has_ternary = me._program_json_has_ternary(program_json)
     print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call), Expr(Call env.console.log Int)+Return(Int), If-nested, and probe nested-ternary")
     if func_defs_mir != null && func_defs_mir != "" {
       me._log_builder_fail("defs_only")
@@ -135,6 +137,12 @@ static box MirBuilderBox {
       me._log_builder_fail("no_match")
     }
     return null
+  }
+
+  method _program_json_has_ternary(program_json) {
+    local s = "" + program_json
+    if s.indexOf("\"type\":\"Ternary\"") >= 0 { return 1 }
+    return 0
   }
 
   method _emit_delegate_program_json(program_json, func_defs_mir) {
@@ -182,17 +190,31 @@ static box MirBuilderBox {
   }
 
   method emit_from_source_v0(source_text, opts) {
+    return me._emit_mir_from_source_checked(source_text, opts)
+  }
+
+  method _emit_mir_from_source_checked(source_text, opts) {
+    local src = me._coerce_source_text_checked(source_text)
+    if src == null { return null }
+    local program_json = me._emit_program_json_from_source_checked(src, opts)
+    if program_json == null { return null }
+    return me._emit_mir_from_source_program_json_checked(program_json, opts)
+  }
+
+  method _coerce_source_text_checked(source_text) {
     if source_text == null {
       print("[mirbuilder/input/null] source_text is null")
       return null
     }
-    local program_json = me._emit_program_json_from_source_checked(source_text, opts)
-    if program_json == null { return null }
+    return "" + source_text
+  }
+
+  method _emit_mir_from_source_program_json_checked(program_json, opts) {
     return me.emit_from_program_json_v0(program_json, opts)
   }
 
   method _emit_program_json_from_source_checked(source_text, opts) {
-    local program_json = BuildBox.emit_program_json_v0("" + source_text, opts)
+    local program_json = BuildBox.emit_program_json_v0(source_text, opts)
     if program_json == null {
       print("[mirbuilder/input/invalid] BuildBox returned null")
       return null
