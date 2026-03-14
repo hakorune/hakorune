@@ -301,6 +301,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - minimal selfhost helper proof: `tools/dev/phase29ch_selfhost_program_json_helper_probe.sh`
       - `stage1_cli_env.hako` dispatcher now hands shared input/env contract to `Stage1InputContractBox`, emit-program authority to `Stage1ProgramAuthorityBox`, emit-program validation to `Stage1ProgramResultValidationBox`, source authority to `Stage1SourceMirAuthorityBox`, shared MIR validation to `Stage1MirResultValidationBox`, and compat keep to `Stage1ProgramJsonCompatBox`
       - latest tightening: `Stage1SourceMirAuthorityBox` now owns the source-entry `BuildBox.emit_program_json_v0(...)` shim locally and delegates only the Program(JSON) -> MIR step to `MirBuilderBox.emit_from_program_json_v0(...)`
+      - latest tightening: direct `MirBuilderBox.emit_from_program_json_v0(...)` checked path now lives in same-file helper `Stage1ProgramJsonMirCallerBox`, shared by `Stage1SourceMirAuthorityBox` and `Stage1ProgramJsonCompatBox`
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)

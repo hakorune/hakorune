@@ -788,6 +788,24 @@ static box Stage1ProgramResultValidationBox {
   }
 }
 
+// Shared Program(JSON)->MIR checked path stays same-file so source authority and
+// explicit compat keep can reuse the same fail-fast contract without widening
+// the current stage1 artifact boundary.
+static box Stage1ProgramJsonMirCallerBox {
+  method emit_mir_from_program_json_checked(tag, program_json_text) {
+    if program_json_text == null || program_json_text == "" {
+      print(tag + " input missing program-json contract")
+      return null
+    }
+    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+    if mir == null {
+      print(tag + " MirBuilderBox.emit_from_program_json_v0 returned null")
+      return null
+    }
+    return mir
+  }
+}
+
 // Source-only authority keep stays in the same file so Main can remain a thin
 // dispatcher without widening the current stage1 artifact boundary.
 static box Stage1SourceMirAuthorityBox {
@@ -798,7 +816,7 @@ static box Stage1SourceMirAuthorityBox {
     }
     local program_json = me._emit_program_json_from_source_checked(tag, source_text)
     if program_json == null { return null }
-    return MirBuilderBox.emit_from_program_json_v0(program_json, null)
+    return Stage1ProgramJsonMirCallerBox.emit_mir_from_program_json_checked(tag, program_json)
   }
 
   method _emit_program_json_from_source_checked(tag, source_text) {
@@ -939,6 +957,6 @@ static box Stage1ProgramJsonCompatBox {
       print(tag + " missing explicit source-text program-json contract")
       return null
     }
-    return MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+    return Stage1ProgramJsonMirCallerBox.emit_mir_from_program_json_checked(tag, program_json_text)
   }
 }
