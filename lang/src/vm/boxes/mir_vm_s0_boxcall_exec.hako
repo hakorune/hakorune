@@ -2,7 +2,6 @@
 // Responsibility: method-specific stateful effects for boxcall ops.
 
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
-using selfhost.vm.helpers.mir_s0_backend_bridge as MirVmS0BackendBridgeBox
 using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 
 static box MirVmS0BoxcallExecBox {
@@ -115,7 +114,7 @@ static box MirVmS0BoxcallExecBox {
 
     local args = new ArrayBox()
     args.push("" + mir_payload)
-    local obj = MirVmS0BackendBridgeBox.emit_object_args(args)
+    local obj = hostbridge.extern_invoke("env.codegen", "emit_object", args)
     if obj == null || ("" + obj) == "" {
       print("[llvmbackend/emit/failed] env.codegen.emit_object returned empty")
       return me._write_null_result(dst_box, regs, kinds)
@@ -149,7 +148,7 @@ static box MirVmS0BoxcallExecBox {
     local args = new ArrayBox()
     args.push("" + obj_text)
     args.push("" + out_text)
-    local exe = MirVmS0BackendBridgeBox.link_object_args(args)
+    local exe = hostbridge.extern_invoke("env.codegen", "link_object", args)
     if exe == null || ("" + exe) == "" {
       print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
       return me._write_null_result(dst_box, regs, kinds)

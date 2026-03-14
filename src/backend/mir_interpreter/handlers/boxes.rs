@@ -39,7 +39,7 @@ impl MirInterpreter {
         }
 
         // Temporary phase-29ck seam: allow placeholder `newbox(hostbridge)` so the
-        // vm-hako backend bridge can be hosted by the regular Rust VM during proof.
+        // remaining vm-hako backend hostbridge seam can be hosted by the regular Rust VM during proof.
         if box_type == "hostbridge" {
             let instance = crate::instance_v2::InstanceBox::from_declaration(
                 "hostbridge".to_string(),

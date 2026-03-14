@@ -141,21 +141,15 @@ rule:
 
 次の seam は temporary proof 用であり、final owner ではない。
 
-1. `.hako` bridge seam
-   - `lang/src/vm/boxes/mir_vm_s0_backend_bridge.hako`
-   - role:
-     - vm-hako runtime から `hostbridge.extern_invoke("env.codegen", ...)` を narrow に呼ぶ
-   - retirement trigger:
-     - `.hako VM` が direct thin backend boundary call を別 seam なしで証明できる
-2. regular Rust VM seam
+1. regular Rust VM seam
    - `src/backend/mir_interpreter/handlers/calls/method.rs`
    - `src/backend/mir_interpreter/handlers/boxes.rs`
    - role:
      - receiver-less `hostbridge.extern_invoke`
      - placeholder `newbox(hostbridge)`
    - retirement trigger:
-     - `.hako VM` proof が regular Rust VM seam に依存しなくなる
-3. rule:
+     - `.hako VM` proof が direct thin backend boundary call を regular Rust VM seam なしで証明できる
+2. rule:
    - no new mainline behavior may depend on these seams
    - widening requires reopening `phase-29ck`
 

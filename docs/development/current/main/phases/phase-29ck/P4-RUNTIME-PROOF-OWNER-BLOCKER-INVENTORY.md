@@ -63,15 +63,15 @@ Related:
 - landed owner files:
   - `lang/src/vm/boxes/mir_vm_s0.hako`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_backend_bridge.hako`
   - `src/runner/modes/vm_hako/subset_check.rs`
   - `src/backend/mir_interpreter/handlers/calls/method.rs`
   - `src/backend/mir_interpreter/handlers/boxes.rs`
   - `lang/src/shared/backend/llvm_backend_box.hako`
 - landed shape:
   - `vm-hako` runtime now has narrow `LlvmBackendBox.compile_obj/1` and `link_exe/3` execution helpers
-  - regular Rust VM accepts receiver-less `hostbridge.extern_invoke` method callee used by the bridge seam
-  - regular Rust VM accepts placeholder `newbox(hostbridge)` for the bridge seam
+  - vm-hako backend helpers now call `hostbridge.extern_invoke("env.codegen", ...)` directly from `mir_vm_s0_boxcall_exec.hako`
+  - regular Rust VM accepts receiver-less `hostbridge.extern_invoke` method callee used by that remaining seam
+  - regular Rust VM accepts placeholder `newbox(hostbridge)` for that remaining seam
   - MIR(JSON v0) payload is normalized to `schema_version: "1.0"` before `env.codegen.emit_object`
   - final replay is `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
 - rule:
@@ -80,10 +80,10 @@ Related:
 ### T1. regular VM hostbridge runtime support gap
 
 - status:
-  - closed for the backend bridge seam only
+  - closed for the direct hostbridge backend seam only
 - current meaning:
   - regular `--backend vm` still does not provide final-owner runtime proof for `LlvmBackendBox`
-  - but it now supports the specific bridge seam needed to host `.hako VM`
+  - but it now supports the specific hostbridge seam needed to host `.hako VM`
 - owner area:
   - `lang/src/runtime/host/host_facade_box.hako`
   - Rust VM hostbridge execution path
@@ -94,7 +94,7 @@ Related:
 
 1. `B1` vm-hako subset-check allowlist
 2. implement the narrow `LlvmBackendBox.compile_obj/1` / `link_exe/3` runtime seam
-3. close the regular Rust VM bridge seam needed by `.hako VM`
+3. close the regular Rust VM hostbridge seam needed by `.hako VM`
 4. pin acceptance with `phase29ck_vmhako_llvm_backend_runtime_proof.sh`
 
 ## Non-goals
