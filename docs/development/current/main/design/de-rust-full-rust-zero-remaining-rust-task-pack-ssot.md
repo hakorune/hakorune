@@ -42,8 +42,8 @@ rule:
 - exact target:
   - `module_to_mir_json(...)` 周辺の same-file handoff/finalize leaf だけ
 - done shape:
-  - `phase-29cj` が formal close へ進める
-  - active exact owner が stop-line だけだと docs/targeted proof で読める
+  - `phase-29cj` wording/status lock is `formal close-sync-ready`
+  - the remaining live Rust stop-line is concentrated in `src/host_providers/mir_builder.rs`, with targeted proof centered on `module_to_mir_json(...)`
 - acceptance:
   - `cargo test mir_builder -- --nocapture`
 
@@ -56,6 +56,7 @@ rule:
   - reopen せず frozen exact owner として close sync へ持ち込む
 - done shape:
   - compiler lane の “remaining Rust” が stop-line だけに縮む
+  - not deletion; frozen exact owners remain present until a later phase removes them
 
 ### C2. post-phase-29cj authority replacement promotion
 

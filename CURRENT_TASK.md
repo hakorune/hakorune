@@ -186,9 +186,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - latest front shift (2026-03-15):
     - `src/runner/stage1_bridge/program_json_entry/request.rs` is no longer the active phase front
     - keep it frozen as near thin floor and return active slices to `src/host_providers/mir_builder.rs`
-  - closeout-ready confirmation (2026-03-15):
-    - `phase-29cj` is now closeout-ready while still open for formal close sync
-    - the only active exact owner left in this phase is `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+  - formal close-sync-ready confirmation (2026-03-15):
+    - `phase-29cj` is now formal close-sync-ready
+    - the remaining live Rust stop-line for this phase is concentrated in `src/host_providers/mir_builder.rs`, with targeted proof centered on `module_to_mir_json(...)`
     - `src/stage1/program_json_v0/authority.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` are frozen exact owners, not active phase fronts
     - targeted proof remains `cargo test mir_builder -- --nocapture`
   - exact next for C0 (2026-03-15):
@@ -199,7 +199,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     1. `src/host_providers/mir_builder.rs`
        - current source-route handoff plus shared `user_box_decls` shaping now live here
        - this is the first real blocker for pure `.hako` compiler authority
-       - note: the dedicated `authority.rs` adapter and separate `user_box_decls.rs` owner are both retired
+       - note: the dedicated `src/host_providers/mir_builder/authority.rs` adapter and separate `user_box_decls.rs` owner are both retired
        - latest tightening: test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in façade test surface `src/host_providers/mir_builder.rs`
        - latest tightening: `source_to_mir_json_with_user_box_decls(...)` is retired; live source-route callers now enter `src/host_providers/mir_builder.rs::source_to_mir_json(...)`, and shared Program(JSON) shaping is co-located in the same façade owner
        - latest tightening: `program_json_to_mir_json_with_imports(...)` is now test-only in the façade; live imports-bearing lowering no longer depends on this public front
@@ -301,9 +301,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering
   - current phase wording lock (2026-03-15):
     - `.hako` owner/helper cleanup wave: `closeout-ready`
-    - `phase-29cj` overall status: `formal-close-sync-ready`, but still `open` until the close sync lands
-    - remaining active exact owner before phase close discussion:
-      1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+    - `phase-29cj` overall status: `formal-close-sync-ready`
+    - the remaining live Rust stop-line before phase close discussion is concentrated in `src/host_providers/mir_builder.rs`, with targeted proof centered on `module_to_mir_json(...)`
     - frozen exact owners after the latest stop-line audit:
       1. `src/stage1/program_json_v0/authority.rs`
       2. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`

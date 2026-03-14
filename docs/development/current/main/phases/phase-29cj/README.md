@@ -60,7 +60,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 
 1. formal close sync
    - freeze `phase-29cj` as `formal-close-sync-ready`
-   - keep the active exact owner wording pinned to `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+   - keep the remaining live Rust stop-line wording pinned to `src/host_providers/mir_builder.rs`, with targeted proof centered on `module_to_mir_json(...)`
 2. keep the strict source-authority and surrogate buckets frozen
    - `src/stage1/program_json_v0/authority.rs`
    - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
@@ -80,9 +80,8 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 ## Status Lock
 
 - `.hako` owner/helper local thinning wave: `closeout-ready`
-- `phase-29cj` overall: `closeout-ready`, but still `open` until close sync lands
-- remaining active exact owner before close sync:
-  1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+- `phase-29cj` overall: `formal-close-sync-ready`
+- the remaining live Rust stop-line before close sync is concentrated in `src/host_providers/mir_builder.rs`, with targeted proof centered on `module_to_mir_json(...)`
 - frozen exact owners after the latest stop-line audit:
   1. `src/stage1/program_json_v0/authority.rs`
   2. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
@@ -107,9 +106,9 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the latest explicit-entry leaf also keeps Program(JSON) module parse behind `parse_program_json_module(...)`, and defs iteration behind `insert_stage1_def_box_names(...)`; the active front stays in `src/host_providers/mir_builder.rs`
 - the latest explicit-entry leaf also keeps `module_to_mir_json(...)` plus user-box finalize handoff behind same-file helper `emit_mir_json_with_user_box_decls(...)`; the active front still stays in `src/host_providers/mir_builder.rs`
 - the latest source-route leaf also keeps the final Program(JSON text) -> explicit-route call behind same-file helper `emit_mir_json_from_program_json_text(...)`
-- worker order decision is now pinned: retire the dedicated `authority.rs` adapter, fold the extra shared shaping leaf into `src/host_providers/mir_builder.rs`, and stop the kernel Program(JSON) route at thin floor unless an exact disappearing route leaf appears
+- worker order decision is now pinned: retire the dedicated `src/host_providers/mir_builder/authority.rs` adapter, fold the extra shared shaping leaf into `src/host_providers/mir_builder.rs`, and stop the kernel Program(JSON) route at thin floor unless an exact disappearing route leaf appears
 - the test-only transient `(Program JSON, MIR JSON)` tuple helper still lives only in the `src/host_providers/mir_builder.rs` façade test surface
-- the dedicated `src/host_providers/mir_builder/authority.rs` adapter is gone, the extra `user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)` leaf is gone, and shared Program(JSON) shaping is now folded into `src/host_providers/mir_builder.rs`; live source-route callers now enter through that façade directly
+- the dedicated `src/host_providers/mir_builder/authority.rs` adapter is retired from the active owner surface, the extra `user_box_decls.rs::source_to_mir_json_with_user_box_decls(...)` leaf is gone, and shared Program(JSON) shaping is now folded into `src/host_providers/mir_builder.rs`; live source-route callers now enter through that façade directly
 - imports-bearing `program_json_to_mir_json_with_imports(...)` is now test-only in `src/host_providers/mir_builder.rs`; live imports-bearing lowering stays off the façade surface
 - plain `program_json_to_mir_json(...)` is now also test-only in `src/host_providers/mir_builder.rs`; the live explicit Program(JSON) route stays on `program_json_to_mir_json_with_user_box_decls(...)`
 - imports-bearing lowering is also test-only inside `src/host_providers/mir_builder/lowering.rs`
