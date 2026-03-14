@@ -69,6 +69,7 @@ Related:
    - `src/runner/modes/common_util/exec.rs` now forwards `NYASH_LLVM_BACKEND=native` to `ny-llvmc --driver native`
    - `NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm apps/tests/hello_simple_llvm.hako` is green under the same native selector
    - argv capture confirms the runner now invokes `ny-llvmc ... --driver native`
+   - latest tightening: lib/bin EXE routes now share `run_ny_llvmc_emit_exe(...)`, so runner-side ownership is thinner without changing the launch contract
 9. boundary lock:
    - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
    - `native_driver.rs` is bootstrap seam only
