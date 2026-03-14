@@ -96,6 +96,7 @@ Related:
 - `tools/selfhost/selfhost_build.sh` now also keeps the Core-Direct `--run` consumer behind `run_program_json_v0_via_core_direct()`, so the remaining downstream helper-local work is the Program(JSON)->MIR->EXE lane alone
 - `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR->EXE consumer behind `emit_exe_from_program_json_v0()`, so all remaining downstream consumers are explicit owner-local helpers rather than top-level branches
 - `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR step behind `emit_mir_json_from_program_json_v0()`, so the EXE helper itself no longer mixes MIR generation with ny-llvmc emission inline
+- `tools/selfhost/selfhost_build.sh` now also keeps the MIR(JSON)->EXE step behind `emit_exe_from_mir_json()`, so `emit_exe_from_program_json_v0()` is closer to pure orchestration
 - `tools/selfhost/selfhost_build.sh --mir` is green on `apps/tests/hello_simple_llvm.hako` and still bypasses Program(JSON) production
 - `tools/selfhost/selfhost_build.sh --run` is green on the repaired default Stage-B payload
 - `tools/selfhost/selfhost_build.sh --exe` is green on that same repaired payload
