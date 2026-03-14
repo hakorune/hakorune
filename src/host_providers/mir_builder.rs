@@ -95,21 +95,13 @@ pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Resul
 /// while the current authority remains Rust-owned.
 #[cfg(test)]
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    let program_json =
-        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
-            source_text,
-        )
-        .map_err(|e| format!("{FAILFAST_TAG} {}", e))?;
+    let program_json = emit_strict_program_json_for_source(source_text)?;
     let mir_json = lowering::program_json_to_mir_json(&program_json)?;
     Ok((program_json, mir_json))
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    let program_json =
-        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
-            source_text,
-        )
-        .map_err(|e| format!("{FAILFAST_TAG} {}", e))?;
+    let program_json = emit_strict_program_json_for_source(source_text)?;
     program_json_to_mir_json_with_user_box_decls(&program_json)
 }
 
@@ -127,6 +119,11 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
     let raw = read_temp_mir_json_output(&tmp_path)?;
     cleanup_temp_mir_json_output(&tmp_path);
     Ok(canonicalize_mir_json_output(raw))
+}
+
+fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, String> {
+    crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(source_text)
+        .map_err(|error| format!("{FAILFAST_TAG} {}", error))
 }
 
 fn emit_module_to_temp_mir_json(
