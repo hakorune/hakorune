@@ -81,16 +81,20 @@ rule:
 
 ### 4.2 Temporary Proof Env
 
-- `HAKO_CAPI_PURE`
-  - role:
-    - exact runtime-proof pin for `phase29ck_vmhako_llvm_backend_runtime_proof.sh`
-  - non-goal:
-    - do not treat as long-term caller selector
-  - retirement trigger:
-    - retire or demote once thin backend boundary no longer needs the legacy pure-FFI route to prove `.hako VM -> exe`
+- none
+  - phase-29ck runtime proof is now pinned only by:
+    - `NYASH_LLVM_USE_CAPI=1`
+    - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
 
 ### 4.3 Compat-only keep
 
+- `HAKO_CAPI_PURE`
+  - role:
+    - legacy pure-lowering selector for phase2120 / historical helper routes
+  - non-goal:
+    - do not treat as phase-29ck runtime-proof pin or long-term caller selector
+  - retirement trigger:
+    - retire once historical pure-lowering canaries and helper routes no longer need an explicit toggle
 - `HAKO_LLVM_EMIT_PROVIDER`
   - `LLVMEmitBox` canary 用
   - thin backend cutover の selector にはしない

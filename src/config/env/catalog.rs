@@ -393,7 +393,7 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
         },
         EnvVarMeta {
             name: "HAKO_CAPI_PURE",
-            description: "Force pure C-API/FFI route for backend-zero proof (1=true)",
+            description: "Force legacy pure C-API/FFI lowering route (1=true)",
             applies_to: AppliesTo::Compiler,
             default: None,
         },

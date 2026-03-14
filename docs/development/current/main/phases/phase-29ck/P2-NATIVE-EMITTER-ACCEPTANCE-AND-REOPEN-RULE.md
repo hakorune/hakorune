@@ -117,7 +117,9 @@ phase docs が要求する evidence は次の順番で積む。
    - pinned env:
      - `NYASH_LLVM_USE_CAPI=1`
      - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
+   - compat-only env:
      - `HAKO_CAPI_PURE=1`
+       - pure-lowering/historical route only; phase-29ck runtime proof must not require it
    - temporary seam rule:
      - this proof may depend on `P3` temporary seams, but those seams cannot become silent daily owner paths
    - rule:

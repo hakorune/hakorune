@@ -101,7 +101,9 @@ Related:
    - temporary env pin:
       - `NYASH_LLVM_USE_CAPI=1`
       - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
+   - compat-only env:
       - `HAKO_CAPI_PURE=1`
+        - kept only for historical pure-lowering routes; not required by the phase-29ck `.hako VM` runtime proof
    - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 3. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence

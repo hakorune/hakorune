@@ -41,7 +41,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - `.hako VM` runtime now has narrow `LlvmBackendBox.compile_obj/1` and `link_exe/3` helpers
         - regular Rust VM now accepts receiver-less `hostbridge.extern_invoke` method callee and placeholder `newbox(hostbridge)` for the backend bridge seam
         - acceptance smoke is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
-        - temporary proof env pin is `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1 HAKO_CAPI_PURE=1`
+        - runtime-proof keep env is `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
+        - `HAKO_CAPI_PURE=1` is now compat-only for historical pure-lowering routes and is not required by the phase-29ck `.hako VM` proof
       - next runtime-proof slice is backend input cleanup / promotion docs sync, not VM blocker inventory
 - rule:
   - この pointer は current blocker を置き換えない。

@@ -1,8 +1,9 @@
 // hako_llvmc_ffi.c — Minimal FFI bridge that forwards to hako_aot.c
 // Exports functions that hako_aot.c dlopens when HAKO_AOT_USE_FFI=1.
-// Phase 21.2: introduce a guarded "pure C-API" toggle (HAKO_CAPI_PURE=1).
-// For now, pure route is a Fail-Fast stub (UNSUPPORTED), keeping existing
-// CLI-backed helpers as the default path.
+// Phase 21.2 introduced a guarded "pure C-API" toggle (HAKO_CAPI_PURE=1).
+// That route is now legacy/compat-only for historical pure-lowering canaries.
+// The default path delegates to hako_aot helpers and is sufficient for the
+// phase-29ck `.hako VM -> LlvmBackendBox -> C-API -> exe` runtime proof.
 
 #include <stddef.h>
 #include <stdlib.h>

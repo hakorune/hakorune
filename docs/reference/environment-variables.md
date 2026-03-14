@@ -130,7 +130,7 @@ Throw surface policy:
 | `NYASH_FAIL_FAST=0` | ON | Any | フォールバックを許容（既定は拒否） |
 | `NYASH_LLVM_USE_CAPI=1` | OFF | LLVM / backend-zero | LLVM C-API provider を有効化。`phase-29ck` runtime proof では pinned keep env。 |
 | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` | OFF | LLVM / backend-zero | extern provider の C-ABI bridge を有効化。`phase-29ck` runtime proof では pinned keep env。 |
-| `HAKO_CAPI_PURE=1` | OFF | LLVM / backend-zero proof | pure C-API/FFI route を強制。`phase-29ck` runtime proof 用の temporary proof env。 |
+| `HAKO_CAPI_PURE=1` | OFF | LLVM / compat-only pure-lowering | legacy pure C-API/FFI lowering route を強制。phase2120/historical helper 用で、`phase-29ck` runtime proof には不要。 |
 
 PyVM position:
 - 日常運用は Rust VM / LLVM を使う（PyVM は historical / direct-only）。

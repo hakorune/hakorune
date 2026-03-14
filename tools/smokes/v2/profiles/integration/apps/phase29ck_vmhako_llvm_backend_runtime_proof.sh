@@ -57,7 +57,6 @@ set +e
 RUN_OUT=$(
   NYASH_LLVM_USE_CAPI=1 \
   HAKO_V1_EXTERN_PROVIDER_C_ABI=1 \
-  HAKO_CAPI_PURE=1 \
   timeout 120 \
   "$NYASH_ROOT/target/release/hakorune" --backend vm-hako "$TMP_HAKO" 2>&1
 )
