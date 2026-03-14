@@ -670,51 +670,43 @@ static box Main {
 HAKO
 }
 
-run_program_json_via_builder_module_vm() {
+run_program_json_via_builder_module_vm_with_env() {
     local builder_module="$1"
     local prog_json="$2"
-    local tmp_hako
-
-    tmp_hako=$(mktemp --suffix .hako)
-    builder_module_program_json_runner_code "$builder_module" >"${tmp_hako}"
-
-    PROG_JSON="$prog_json" \
-    NYASH_FAIL_FAST="${NYASH_FAIL_FAST:-0}" \
-    NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
-    NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" \
-    HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
-    "$NYASH_BIN" --backend vm "${tmp_hako}"
-    local rc=$?
-    rm -f "${tmp_hako}" 2>/dev/null || true
-    return $rc
-}
-
-run_program_json_via_registry_builder_module_vm() {
-    local builder_module="$1"
-    local prog_json="$2"
-    local registry_only="${3:-}"
+    local use_registry_defaults="${3:-0}"
+    local registry_only="${4:-}"
+    local preinclude="${5:-0}"
+    local diag_skip_loops="${6:-0}"
     local tmp_hako
 
     tmp_hako=$(mktemp --suffix .hako)
     builder_module_program_json_runner_code "$builder_module" >"${tmp_hako}"
 
     (
-        if [ -n "$registry_only" ]; then
-            export HAKO_MIR_BUILDER_REGISTRY_ONLY="$registry_only"
-        else
-            unset HAKO_MIR_BUILDER_REGISTRY_ONLY
+        if [ "$preinclude" = "1" ]; then
+            export HAKO_PREINCLUDE=1
+        fi
+        if [ "$diag_skip_loops" = "1" ]; then
+            export HAKO_MIR_BUILDER_SKIP_LOOPS=1
+        fi
+        if [ "$use_registry_defaults" = "1" ]; then
+            if [ -n "$registry_only" ]; then
+                export HAKO_MIR_BUILDER_REGISTRY_ONLY="$registry_only"
+            else
+                unset HAKO_MIR_BUILDER_REGISTRY_ONLY
+            fi
+            export NYASH_USE_NY_COMPILER="${NYASH_USE_NY_COMPILER:-0}"
+            export HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}"
+            export HAKO_MIR_BUILDER_INTERNAL="${HAKO_MIR_BUILDER_INTERNAL:-1}"
+            export HAKO_MIR_BUILDER_REGISTRY="${HAKO_MIR_BUILDER_REGISTRY:-1}"
+            export HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-1}"
         fi
 
         PROG_JSON="$prog_json" \
         NYASH_FAIL_FAST="${NYASH_FAIL_FAST:-0}" \
-        NYASH_USE_NY_COMPILER="${NYASH_USE_NY_COMPILER:-0}" \
         NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
         NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" \
         HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
-        HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}" \
-        HAKO_MIR_BUILDER_INTERNAL="${HAKO_MIR_BUILDER_INTERNAL:-1}" \
-        HAKO_MIR_BUILDER_REGISTRY="${HAKO_MIR_BUILDER_REGISTRY:-1}" \
-        HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-1}" \
         "$NYASH_BIN" --backend vm "${tmp_hako}"
     )
     local rc=$?
@@ -722,13 +714,25 @@ run_program_json_via_registry_builder_module_vm() {
     return $rc
 }
 
+run_program_json_via_builder_module_vm() {
+    local builder_module="$1"
+    local prog_json="$2"
+    run_program_json_via_builder_module_vm_with_env "$builder_module" "$prog_json" 0 "" 0 0
+}
+
+run_program_json_via_registry_builder_module_vm() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="${3:-}"
+    run_program_json_via_builder_module_vm_with_env "$builder_module" "$prog_json" 1 "$registry_only" 0 0
+}
+
 run_program_json_via_registry_builder_module_vm_with_preinclude() {
     local builder_module="$1"
     local prog_json="$2"
     local registry_only="${3:-}"
 
-    HAKO_PREINCLUDE=1 \
-    run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only"
+    run_program_json_via_builder_module_vm_with_env "$builder_module" "$prog_json" 1 "$registry_only" 1 0
 }
 
 run_program_json_via_registry_builder_module_vm_diag() {
@@ -736,8 +740,7 @@ run_program_json_via_registry_builder_module_vm_diag() {
     local prog_json="$2"
     local registry_only="${3:-}"
 
-    HAKO_MIR_BUILDER_SKIP_LOOPS=1 \
-    run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only"
+    run_program_json_via_builder_module_vm_with_env "$builder_module" "$prog_json" 1 "$registry_only" 0 1
 }
 
 emit_mir_json_via_builder_from_program_json_file() {
