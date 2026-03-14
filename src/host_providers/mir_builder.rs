@@ -92,7 +92,7 @@ fn emit_guarded_mir_json_from_program_json(program_json: &str) -> Result<String,
 
 fn emit_mir_json_from_program_json_module(program_json: &str) -> Result<String, String> {
     let module = parse_program_json_module(program_json)?;
-    emit_mir_json_with_user_box_decls(program_json, &module)
+    emit_module_mir_json_with_stage1_user_box_decls(program_json, &module)
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
@@ -124,16 +124,21 @@ fn emit_mir_json_from_program_json_text(program_json: &str) -> Result<String, St
 fn emit_program_and_plain_mir_json_for_source(
     source_text: &str,
 ) -> Result<(String, String), String> {
-    let program_json = emit_program_json_for_source(source_text)?;
-    let mir_json = emit_plain_mir_json_from_program_json_text(&program_json)?;
-    Ok((program_json, mir_json))
+    emit_program_and_mir_json_for_source(source_text, emit_plain_mir_json_from_program_json_text)
 }
 
 fn emit_program_and_guarded_mir_json_for_source(
     source_text: &str,
 ) -> Result<(String, String), String> {
+    emit_program_and_mir_json_for_source(source_text, emit_mir_json_from_program_json_text)
+}
+
+fn emit_program_and_mir_json_for_source(
+    source_text: &str,
+    emit_mir_json: fn(&str) -> Result<String, String>,
+) -> Result<(String, String), String> {
     let program_json = emit_program_json_for_source(source_text)?;
-    let mir_json = emit_mir_json_from_program_json_text(&program_json)?;
+    let mir_json = emit_mir_json(&program_json)?;
     Ok((program_json, mir_json))
 }
 
@@ -160,7 +165,7 @@ fn parse_program_json_module(program_json: &str) -> Result<crate::mir::MirModule
     crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
 }
 
-fn emit_mir_json_with_user_box_decls(
+fn emit_module_mir_json_with_stage1_user_box_decls(
     program_json: &str,
     module: &crate::mir::MirModule,
 ) -> Result<String, String> {
@@ -215,13 +220,21 @@ fn inject_user_box_decls_into_mir_json(
     mir_json: &str,
     user_box_decls: Vec<serde_json::Value>,
 ) -> Result<String, String> {
-    let mut mir_value = parse_mir_json_value(mir_json)?;
-    insert_user_box_decls(&mut mir_value, user_box_decls)?;
+    let mir_value = build_mir_json_with_user_box_decls(mir_json, user_box_decls)?;
     serialize_mir_json_value(&mir_value)
 }
 
 fn parse_mir_json_value(mir_json: &str) -> Result<serde_json::Value, String> {
     serde_json::from_str(mir_json).map_err(|error| format!("mir json parse error: {}", error))
+}
+
+fn build_mir_json_with_user_box_decls(
+    mir_json: &str,
+    user_box_decls: Vec<serde_json::Value>,
+) -> Result<serde_json::Value, String> {
+    let mut mir_value = parse_mir_json_value(mir_json)?;
+    insert_user_box_decls(&mut mir_value, user_box_decls)?;
+    Ok(mir_value)
 }
 
 fn insert_user_box_decls(
@@ -239,10 +252,8 @@ fn insert_user_box_decls(
 }
 
 fn build_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_json::Value> {
-    let seen = collect_stage1_user_box_decl_names(&program_value);
-    seen.into_iter()
-        .map(stage1_user_box_decl_from_name)
-        .collect()
+    let names = collect_stage1_user_box_decl_names(program_value);
+    build_stage1_user_box_decls_from_names(names)
 }
 
 fn build_stage1_user_box_decls_from_program_json(
@@ -286,6 +297,12 @@ fn insert_stage1_def_box_names(
             }
         }
     }
+}
+
+fn build_stage1_user_box_decls_from_names(
+    names: std::collections::BTreeSet<String>,
+) -> Vec<serde_json::Value> {
+    names.into_iter().map(stage1_user_box_decl_from_name).collect()
 }
 
 fn stage1_user_box_decl_from_name(name: String) -> serde_json::Value {
