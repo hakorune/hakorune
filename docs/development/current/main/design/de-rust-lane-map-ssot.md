@@ -1,11 +1,12 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-03-09
+Date: 2026-03-14
 Scope: 脱Rustタスクを lane A/B/C で固定し、担当境界と導線の混線を防ぐ。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
@@ -55,6 +56,23 @@ Related:
   2. feature matrix で row が `blocked` に戻ったとき。
   3. no-compat mainline 契約が runtime 差分で崩れたとき。
 - 上記に該当しない限り、runtime 実装の優先順位は `LLVM first -> vm-hako parity monitor` を維持する。
+
+## Full Rust 0 Tracking Split (non-blocking)
+
+- top-level future pointer:
+  - `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+- runtime-zero:
+  - `accepted pointer / inventory-ready`
+  - primary docs は `de-rust-post-g1-runtime-plan-ssot.md` / `29cc-220` / `29cc-253`
+  - ただし lane C daily は引き続き `LLVM-first / vm-hako monitor-only`
+- backend-zero:
+  - `accepted pointer / phase-29ck queued`
+  - primary docs は `de-rust-backend-zero-boundary-lock-ssot.md` / `de-rust-backend-zero-provisional-inventory-ssot.md` / `phase-29ck/README.md`
+  - final shape is `.hako -> thin backend C ABI/plugin boundary -> object/exe`
+  - `native_driver.rs` は bootstrap seam only
+  - A/B/C の current blocker にはまだ入れない
+- rule:
+  - この split は future visibility だけを扱い、daily triage と reopen 条件は lane A/B/C の既存 SSOT を維持する。
 
 ## Triage Rule (tag -> lane)
 

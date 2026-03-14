@@ -5,42 +5,68 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use anyhow::{bail, Context, Result};
-use clap::{ArgAction, Parser};
+use clap::{ArgAction, Parser, ValueEnum};
 use serde_json::Value as JsonValue;
+
+mod native_driver;
 
 #[derive(Parser, Debug)]
 #[command(
     name = "ny-llvmc",
-    about = "Nyash LLVM compiler (llvmlite harness wrapper)"
+    about = "Nyash LLVM compiler (llvmlite harness wrapper)",
+    long_about = "Compile MIR(JSON) into an object or executable.\n\
+Stable caller contract: --in, --out, --emit, --dummy, --nyrt, --libs.\n\
+Implementation detail: --driver and --harness are for backend bring-up / wrapper routing only."
 )]
 struct Args {
     /// MIR JSON input file path (use '-' to read from stdin). When omitted with --dummy, a dummy ny_main is emitted.
-    #[arg(long = "in", value_name = "FILE", default_value = "-")]
+    #[arg(long = "in", value_name = "FILE", default_value = "-", help_heading = "Stable CLI")]
     infile: String,
 
     /// Output path. For `--emit obj`, this is an object (.o). For `--emit exe`, this is an executable path.
-    #[arg(long, value_name = "FILE")]
+    #[arg(long, value_name = "FILE", help_heading = "Stable CLI")]
     out: PathBuf,
 
     /// Generate a dummy object (ny_main -> i32 0). Ignores --in when set.
-    #[arg(long, action = ArgAction::SetTrue)]
+    #[arg(long, action = ArgAction::SetTrue, help_heading = "Stable CLI")]
     dummy: bool,
 
     /// Path to Python harness script (defaults to tools/llvmlite_harness.py in CWD)
-    #[arg(long, value_name = "FILE")]
+    #[arg(long, value_name = "FILE", help_heading = "Implementation Detail")]
     harness: Option<PathBuf>,
 
+    /// Object emission driver selector. Default keeps the current llvmlite wrapper route.
+    #[arg(
+        long,
+        value_enum,
+        default_value_t = DriverKind::Harness,
+        help_heading = "Implementation Detail"
+    )]
+    driver: DriverKind,
+
     /// Emit kind: 'obj' (default) or 'exe'.
-    #[arg(long, value_name = "{obj|exe}", default_value = "obj")]
-    emit: String,
+    #[arg(long, value_enum, default_value_t = EmitKind::Obj, help_heading = "Stable CLI")]
+    emit: EmitKind,
 
     /// Path to directory containing libnyash_kernel.a when emitting an executable. If omitted, searches target/release then crates/nyash_kernel/target/release.
-    #[arg(long, value_name = "DIR")]
+    #[arg(long, value_name = "DIR", help_heading = "Stable CLI")]
     nyrt: Option<PathBuf>,
 
     /// Extra linker libs/flags appended when emitting an executable (single string, space-separated).
-    #[arg(long, value_name = "FLAGS")]
+    #[arg(long, value_name = "FLAGS", help_heading = "Stable CLI")]
     libs: Option<String>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+enum EmitKind {
+    Obj,
+    Exe,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+enum DriverKind {
+    Harness,
+    Native,
 }
 
 fn main() -> Result<()> {
@@ -59,7 +85,7 @@ fn main() -> Result<()> {
     };
 
     // Determine emit kind
-    let emit_exe = matches!(args.emit.as_str(), "exe" | "EXE");
+    let emit_exe = matches!(args.emit, EmitKind::Exe);
 
     if args.dummy {
         // Dummy ny_main: always go through harness to produce an object then link if requested
@@ -71,8 +97,8 @@ fn main() -> Result<()> {
         } else {
             args.out.clone()
         };
-        run_harness_dummy(&harness_path, &obj_path)
-            .with_context(|| "failed to run harness in dummy mode")?;
+        emit_dummy_object_via_driver(args.driver, &harness_path, &obj_path)
+            .with_context(|| "failed to emit object in dummy mode")?;
         if emit_exe {
             link_executable(
                 &obj_path,
@@ -174,9 +200,9 @@ fn main() -> Result<()> {
         }
     }
 
-    run_harness_in(&harness_path, &input_path, &obj_path).with_context(|| {
+    emit_object_via_driver(args.driver, &harness_path, &input_path, &obj_path).with_context(|| {
         format!(
-            "failed to compile MIR JSON via harness: {}",
+            "failed to compile MIR JSON via selected driver: {}",
             input_path.display()
         )
     })?;
@@ -332,6 +358,33 @@ fn run_harness_in(harness: &Path, input: &Path, out: &Path) -> Result<()> {
     Ok(())
 }
 
+fn emit_dummy_object_via_driver(driver: DriverKind, harness: &Path, out: &Path) -> Result<()> {
+    match driver {
+        DriverKind::Harness => run_harness_dummy(harness, out),
+        DriverKind::Native => run_native_dummy(out),
+    }
+}
+
+fn emit_object_via_driver(
+    driver: DriverKind,
+    harness: &Path,
+    input: &Path,
+    out: &Path,
+) -> Result<()> {
+    match driver {
+        DriverKind::Harness => run_harness_in(harness, input, out),
+        DriverKind::Native => run_native_in(input, out),
+    }
+}
+
+fn run_native_dummy(_out: &Path) -> Result<()> {
+    native_driver::emit_dummy_object(_out)
+}
+
+fn run_native_in(_input: &Path, _out: &Path) -> Result<()> {
+    native_driver::emit_object_from_json(_input, _out)
+}
+
 fn ensure_python() -> Result<()> {
     match Command::new("python3").arg("--version").output() {
         Ok(out) if out.status.success() => Ok(()),
@@ -443,4 +496,75 @@ fn link_executable(
         bail!("linker exited with status: {:?}", output.status.code());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use clap::CommandFactory;
+    use clap::error::ErrorKind;
+
+    #[test]
+    fn cli_contract_defaults_to_obj_from_stdin() {
+        let args = Args::try_parse_from(["ny-llvmc", "--out", "/tmp/out.o"]).unwrap();
+        assert_eq!(args.infile, "-");
+        assert_eq!(args.emit, EmitKind::Obj);
+        assert_eq!(args.driver, DriverKind::Harness);
+        assert_eq!(args.out, PathBuf::from("/tmp/out.o"));
+        assert!(!args.dummy);
+        assert!(args.nyrt.is_none());
+        assert!(args.libs.is_none());
+    }
+
+    #[test]
+    fn cli_contract_accepts_exe_runtime_and_libs_flags() {
+        let args = Args::try_parse_from([
+            "ny-llvmc",
+            "--in",
+            "input.mir.json",
+            "--out",
+            "out.exe",
+            "--emit",
+            "exe",
+            "--nyrt",
+            "target/release",
+            "--libs=-lssl -lcrypto",
+        ])
+        .unwrap();
+        assert_eq!(args.infile, "input.mir.json");
+        assert_eq!(args.emit, EmitKind::Exe);
+        assert_eq!(args.nyrt, Some(PathBuf::from("target/release")));
+        assert_eq!(args.libs.as_deref(), Some("-lssl -lcrypto"));
+    }
+
+    #[test]
+    fn implementation_detail_driver_selector_accepts_native_opt_in() {
+        let args = Args::try_parse_from([
+            "ny-llvmc",
+            "--out",
+            "out.o",
+            "--driver",
+            "native",
+        ])
+        .unwrap();
+        assert_eq!(args.driver, DriverKind::Native);
+    }
+
+    #[test]
+    fn cli_contract_rejects_unknown_emit_kind() {
+        let err =
+            Args::try_parse_from(["ny-llvmc", "--out", "out.bin", "--emit", "ll"]).unwrap_err();
+        assert_eq!(err.kind(), ErrorKind::InvalidValue);
+    }
+
+    #[test]
+    fn help_text_marks_harness_as_implementation_detail() {
+        let mut buf = Vec::new();
+        Args::command().write_long_help(&mut buf).unwrap();
+        let help = String::from_utf8(buf).unwrap();
+        assert!(help.contains("Stable CLI"));
+        assert!(help.contains("Implementation Detail"));
+        assert!(help.contains("--harness <FILE>"));
+        assert!(help.contains("--driver <DRIVER>"));
+    }
 }

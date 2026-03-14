@@ -3,6 +3,7 @@
 Scope
 - This `lang/` tree hosts the script-driven C ABI kernel artifacts for Phase 20.9+.
 - Goal: keep the runtime data plane callable without Rust on the hot path (Hakorune → LLVM → C ABI).
+- Backend-zero target: `.hako` callers should ultimately hit a thin backend C ABI/plugin boundary from this tree, not a Rust-only backend owner.
 
 Principles
 - Separation: do not mix Rust crates or cargo-specific layout under this tree.

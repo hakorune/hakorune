@@ -4,6 +4,7 @@ Decision: accepted
 Scope: compiler selfhost（G1）達成後に、runtime de-Rust と VM/LLVM 最適化を迷走なく進めるための実行順序と受け入れ基準を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
   - docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
   - docs/development/current/main/phases/phase-29y/README.md
@@ -16,6 +17,7 @@ Related:
 - Yes: 順序は `D4 docs同期 -> runtime de-rust (29y.1) -> source-zero cutover -> .hako VM 本体移行` で正しい。
 - ただし最小差分として、runtime de-rust 着手前に 1 タスクを挟む。
   - D5-min1: Selfhost Stage-A runtime route の Program->MIR（Rust `json_v0_bridge`）境界を切り、MIR-first 契約へ固定する。
+- この文書は runtime-zero lane の execution-order SSOT であり、backend-zero readiness は扱わない。
 
 ## 1. Execution Order (fixed)
 

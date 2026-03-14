@@ -1,0 +1,21 @@
+// LLVMModuleBox — IR 構築の起点（MVPは形のみ）
+static box LLVMModuleBox {
+  new(name, triple, dl){
+    // Gate: opt‑in のみ
+    local on = env.get("HAKO_LLVM_SCRIPT_BUILDER");
+    if !on || on == "0" || on == "false" { return -1 }
+    // For MVP, just return a dummy handle (=1)
+    return 1
+  }
+  set_target_triple(handle, triple){
+    return 0
+  }
+  set_data_layout(handle, dl){
+    return 0
+  }
+  add_function(handle, name, ret_ty, args_array){
+    // Return a dummy function handle (=1)
+    return 1
+  }
+}
+

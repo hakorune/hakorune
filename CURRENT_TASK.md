@@ -22,7 +22,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - split:
   - `runtime-zero`: accepted pointer / inventory-ready
-  - `backend-zero`: provisional / docs-first inventory required
+  - `backend-zero`: accepted pointer / `phase-29ck` queued
+    - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
+    - design SSOT: `docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md`
+    - phase SSOT: `docs/development/current/main/phases/phase-29ck/README.md`
+    - final shape lock: `.hako -> thin backend C ABI/plugin boundary -> object/exe`
+    - `crates/nyash-llvm-compiler/src/native_driver.rs` は bootstrap seam only
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。
@@ -230,6 +235,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - final goal: `parser -> selfhost mirbuilder -> MIR(JSON) -> backend/VM`
     - end state (thin-rust scope): compiler と plugin behavior は `.hako` mainline へ寄せ、Rust は host/runtime/backend の最小面に縮退する
     - full Rust 0 future pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+    - backend-zero queued phase: `docs/development/current/main/phases/phase-29ck/README.md`
     - bootstrap rule: `Program(JSON v0)` bridge is bootstrap-only and remains a retire target
     - current minimal task: `phase-29ch` MIR-direct bootstrap unification is now closeout-ready; do not reopen it for JSON v0 deletion
     - next separate future-wave phase: `phase-29ci` for `Program(JSON v0)` retirement only

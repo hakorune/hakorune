@@ -3,6 +3,7 @@ Status: Active (docs-first)
 Scope: 脱Rust（compiler lane）として、Stage1 bridge の Rust 依存を薄くし、`.hako` compiler が Program/MIR を自力生成するまでの順序を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/design/de-rust-runtime-meaning-decision-red-inventory-ssot.md
@@ -24,6 +25,13 @@ Related:
 - NyRT/runtime の全面 de-Rust（Phase 29y/29z ラインで継続）。
 - 言語仕様拡張や parser grammar 拡張。
 - fallback での通過（silent success）。
+
+## Boundary note (2026-03-14)
+
+- この文書は compiler lane の `thin-rust` 境界だけを定義する。
+- `full Rust 0` の umbrella と runtime-zero / backend-zero の split tracking は
+  `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md` を正本とする。
+- backend-zero acceptance や readiness はこの文書では定義しない。
 
 ## Current boundary inventory (2026-02-11 snapshot, stage1-first)
 

@@ -144,6 +144,21 @@ fn apply_nyrt_arg(cmd: &mut std::process::Command, nyrt_dir: Option<&str>) -> Re
     Ok(())
 }
 
+fn ny_llvmc_driver_arg_from_backend(backend: Option<&str>) -> Option<&'static str> {
+    match backend.map(str::trim).filter(|value| !value.is_empty()) {
+        Some("native") => Some("native"),
+        _ => None,
+    }
+}
+
+fn apply_ny_llvmc_driver_arg(cmd: &mut std::process::Command) {
+    if let Some(driver) = ny_llvmc_driver_arg_from_backend(
+        std::env::var("NYASH_LLVM_BACKEND").ok().as_deref(),
+    ) {
+        cmd.arg("--driver").arg(driver);
+    }
+}
+
 /// Emit native executable via ny-llvmc (lib-side MIR)
 #[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_lib(
@@ -168,6 +183,7 @@ pub fn ny_llvmc_emit_exe_lib(
         .arg("exe")
         .arg("--out")
         .arg(exe_out);
+    apply_ny_llvmc_driver_arg(&mut cmd);
     apply_nyrt_arg(&mut cmd, nyrt_dir)?;
     if let Some(flags) = extra_libs {
         if !flags.trim().is_empty() {
@@ -215,6 +231,7 @@ pub fn ny_llvmc_emit_exe_bin(
         .arg("exe")
         .arg("--out")
         .arg(exe_out);
+    apply_ny_llvmc_driver_arg(&mut cmd);
     apply_nyrt_arg(&mut cmd, nyrt_dir)?;
     if let Some(flags) = extra_libs {
         if !flags.trim().is_empty() {
@@ -255,4 +272,26 @@ pub fn run_executable(
     let code = out.exit_code.unwrap_or(1);
     let stdout_text = String::from_utf8_lossy(&out.stdout).into_owned();
     Ok((code, out.timed_out, stdout_text))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ny_llvmc_driver_arg_from_backend;
+
+    #[test]
+    fn maps_native_backend_to_native_driver() {
+        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("native")), Some("native"));
+        assert_eq!(
+            ny_llvmc_driver_arg_from_backend(Some(" native ")),
+            Some("native")
+        );
+    }
+
+    #[test]
+    fn ignores_empty_or_non_native_backend_values() {
+        assert_eq!(ny_llvmc_driver_arg_from_backend(None), None);
+        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("")), None);
+        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("crate")), None);
+        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("llvmlite")), None);
+    }
 }

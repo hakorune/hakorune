@@ -3,6 +3,8 @@
 Responsibility
 - Provide a portable, minimal C ABI surface used by the LLVM line.
 - Read‑only GC externs first (`hako_gc_stats`, `hako_gc_roots_snapshot`), plus memory/console/time/local-env helpers.
+- backend-zero では `.hako` caller から object/exe emission を受ける thin backend boundary の有力置き場でもある。
+- legacy `llvm_ir/AotFacade` caller は archive 化し、daily route は `LlvmBackendBox -> hako_aot` へ寄せる。
 
 Inputs/Outputs
 - In: Extern calls from Hakorune code compiled to LLVM (llvmlite harness / ny-llvmc).
@@ -19,10 +21,12 @@ Contracts
 Layout
 - `include/` — public headers (`hako_hostbridge.h` mirror or thin wrapper)
 - `shims/` — libc-backed reference implementation for canaries (`hako_kernel.c`)
+  - `hako_aot.c` — AOT compile/link helper boundary の first cutover target
 
 Guards
 - No Rust modules or cargo manifests under `lang/`.
 - No parsing or codegen here; this is a plain ABI surface.
+- Do not turn this into a third canonical ABI. Runtime/plugin canonical ABI remains Core C ABI / TypeBox ABI v2.
 
 Build (example)
 ```

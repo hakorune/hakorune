@@ -1,12 +1,16 @@
-// LlvmBackendBox — Hako ABI (stub)
+// LlvmBackendBox — official thin backend boundary (stub)
 // File-handoff only: compile MIR(JSON v0) to object, then link to EXE.
-// This is a stub for call-site wiring; current implementation is provided by external tools (ny-llvmc).
+// Final target: `.hako` callers stop at this facade (and/or lang/c-abi helper),
+// not at a Rust-only lowering owner. Current implementation is still external-tool driven.
+// Legacy script-builder / AotFacade route lives under `lang/src/llvm_ir/archive/**` and
+// is not the owner for new backend-zero work.
 
 static box LlvmBackendBox {
   // Returns object path on success, or throws (Err) on failure.
   compile_obj(json_path) {
     // Stub only (dev): return a deterministic obj path to guide call sites.
-    // Real implementation should shell out to ny-llvmc / harness.
+    // Real implementation should call the thin backend boundary (`hako_aot` / helper),
+    // not expose a broad LLVM API surface to `.hako`.
     if json_path == null { throw "LlvmBackend.compile_obj: json_path is null" }
     local stem = json_path + ".o"  // naive; callers should pass preferred path later
     return stem

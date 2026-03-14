@@ -18,6 +18,10 @@ Options:
 Requirements:
   - LLVM 18 development (llvm-config-18)
   - Nyash Kernel static runtime (crates/nyash_kernel)
+
+Implementation detail:
+  - `NYASH_LLVM_COMPILER=crate` keeps the ny-llvmc route.
+  - `NYASH_LLVM_BACKEND=native` switches that crate route to `ny-llvmc --driver native`.
 USAGE
 }
 
@@ -118,6 +122,10 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
   COMPILER_MODE=${NYASH_LLVM_COMPILER:-harness}
   case "$COMPILER_MODE" in
     crate)
+      NYLLVMC_ARGS=()
+      if [[ "${NYASH_LLVM_BACKEND:-}" == "native" ]]; then
+        NYLLVMC_ARGS+=(--driver native)
+      fi
       # Use crates/nyash-llvm-compiler (ny-llvmc): requires pre-generated MIR JSON path in NYASH_LLVM_MIR_JSON
       if [[ -z "${NYASH_LLVM_MIR_JSON:-}" ]]; then
         # Auto‑emit MIR JSON via nyash CLI flag
@@ -129,7 +137,7 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
       echo "    using ny-llvmc (crate) with JSON: $NYASH_LLVM_MIR_JSON" >&2
       cargo build --release -p nyash-llvm-compiler >/dev/null
       # Optional schema validation when explicitly requested
-      if [[ "${NYASH_LLVM_VALIDATE_JSON:-0}" == "1" ]]; then
+        if [[ "${NYASH_LLVM_VALIDATE_JSON:-0}" == "1" ]]; then
         if [[ -f tools/validate_mir_json.py ]]; then
           if ! python3 -m jsonschema --version >/dev/null 2>&1; then
             echo "[warn] jsonschema not available; skipping schema validation" >&2
@@ -140,17 +148,17 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
           fi
         fi
       fi
-      if [[ "${NYASH_LLVM_EMIT:-obj}" == "exe" ]]; then
-        echo "    emitting EXE via ny-llvmc (crate) ..." >&2
+        if [[ "${NYASH_LLVM_EMIT:-obj}" == "exe" ]]; then
+          echo "    emitting EXE via ny-llvmc (crate) ..." >&2
         # Ensure Nyash Kernel is built (for libnyash_kernel.a)
         if [[ ! -f crates/nyash_kernel/target/release/libnyash_kernel.a && "${NYASH_LLVM_SKIP_NYRT_BUILD:-0}" != "1" ]]; then
           ( cd crates/nyash_kernel && cargo build --release -j 24 >/dev/null )
         fi
         NYRT_DIR_HINT="${NYASH_LLVM_NYRT:-crates/nyash_kernel/target/release}"
-        ./target/release/ny-llvmc --in "$NYASH_LLVM_MIR_JSON" --out "$OUT" --emit exe --nyrt "$NYRT_DIR_HINT" ${NYASH_LLVM_LIBS:+--libs "$NYASH_LLVM_LIBS"}
+        ./target/release/ny-llvmc "${NYLLVMC_ARGS[@]}" --in "$NYASH_LLVM_MIR_JSON" --out "$OUT" --emit exe --nyrt "$NYRT_DIR_HINT" ${NYASH_LLVM_LIBS:+--libs "$NYASH_LLVM_LIBS"}
         echo "✅ Done: $OUT"; echo "   (runtime may require nyash.toml and plugins depending on app)"; exit 0
       else
-        ./target/release/ny-llvmc --in "$NYASH_LLVM_MIR_JSON" --out "$OBJ"
+        ./target/release/ny-llvmc "${NYLLVMC_ARGS[@]}" --in "$NYASH_LLVM_MIR_JSON" --out "$OBJ"
       fi
       ;;
   esac

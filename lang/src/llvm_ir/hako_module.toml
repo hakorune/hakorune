@@ -1,17 +1,11 @@
 [module]
 name = "selfhost.llvm.ir"
-description = "LLVM Script Builder (IR only; opt-in)"
+description = "LLVM compat helpers (AotPrep / normalize keep; no daily backend caller)"
 
 [exports]
-boxes = [
-  "LLVMModuleBox",
-  "LLVMFunctionBox",
-  "LLVMBuilderBox",
-  "LLVMTypesBox",
-  "LLVMEmitBox",
-  "LLVMV0BuilderBox",
-  "LLVMAotFacadeBox",
-]
+# Legacy script-builder boxes were archived under `archive/legacy_script_builder/**`.
+# Keep module exports focused on still-live helpers only.
+boxes = []
 normalize.print = "boxes/normalize/normalize_print.hako"
 normalize.ref = "boxes/normalize/normalize_ref.hako"
 normalize.array_legacy = "boxes/normalize/normalize_array_legacy.hako"

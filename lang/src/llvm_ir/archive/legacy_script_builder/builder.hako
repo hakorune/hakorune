@@ -1,0 +1,411 @@
+using "../instructions/const.hako" as ConstInst
+using "../instructions/binop.hako" as BinOpInst
+using "../instructions/compare.hako" as CompareInst
+using "../instructions/ret.hako" as RetInst
+using "../instructions/branch.hako" as BranchInst
+using "../instructions/jump.hako" as JumpInst
+using "../instructions/copy.hako" as CopyInst
+using "../instructions/phi.hako" as PhiInst
+using "../instructions/loopform.hako" as LoopFormInst
+using "../instructions/mir_call.hako" as MirCallInst
+
+// LLVMBuilderBox — 命令構築（v0: const/binop/ret の骨格）
+static box LLVMBuilderBox {
+  program_ret0(){
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"ret\",\"value\":1}] } ] } ] }"
+  }
+  program_binop_i64(lhs, rhs, opk){
+    local op = opk ? opk : "+"
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs + "}}," +
+           "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs + "}}," +
+           "{\"op\":\"binop\",\"dst\":3,\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2}," +
+           "{\"op\":\"ret\",\"value\":3}] } ] } ] }"
+  }
+  program_ret_i64(v){
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v + "}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":1}] } ] } ] }"
+  }
+  const_i64(fn_handle, value){
+    local strict = env.get("HAKO_LLVM_SCRIPT_BUILDER_STRICT");
+    if strict && strict != "0" && strict != "false" { print("UNSUPPORTED: const_i64 (stub)"); return -1 }
+    return 0
+  }
+  binop_add(fn_handle, lhs, rhs){
+    local strict = env.get("HAKO_LLVM_SCRIPT_BUILDER_STRICT");
+    if strict && strict != "0" && strict != "false" { print("UNSUPPORTED: binop_add (stub)"); return -1 }
+    return 0
+  }
+  ret(fn_handle, val){
+    local strict = env.get("HAKO_LLVM_SCRIPT_BUILDER_STRICT");
+    if strict && strict != "0" && strict != "false" { print("UNSUPPORTED: ret (stub)"); return -1 }
+    return 0
+  }
+
+  // v1 programs (JSON emitters) — behavior: return JSON string for AOT facade
+  program_compare_branch_ret0(lhs, rhs, opk){
+    local op = opk ? opk : ">"
+    local b0 = "{\"id\":0,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs + "}}," +
+               "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs + "}}," +
+               "{\"op\":\"compare\",\"dst\":3,\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2}," +
+               "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}] }"
+    local b1 = "{\"id\":1,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+               "{\"op\":\"ret\",\"value\":4}] }"
+    local b2 = "{\"id\":2,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+               "{\"op\":\"ret\",\"value\":5}] }"
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [" + b0 + "," + b1 + "," + b2 + "] } ] }"
+  }
+
+  program_phi_if_ret0(val_then, val_else){
+    local b0 = "{\"id\":0,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":1}}," +
+               "{\"op\":\"compare\",\"dst\":2,\"operation\":\"==\",\"lhs\":1,\"rhs\":1}," +
+               "{\"op\":\"branch\",\"cond\":2,\"then\":1,\"else\":2}] }"
+    local b1 = "{\"id\":1,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":" + val_then + "}}," +
+               "{\"op\":\"jump\",\"target\":3}] }"
+    local b2 = "{\"id\":2,\"instructions\":[" +
+               "{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + val_else + "}}," +
+               "{\"op\":\"jump\",\"target\":3}] }"
+    local b3 = "{\"id\":3,\"instructions\":[" +
+               "{\"op\":\"phi\",\"dst\":5,\"type\":\"i64\",\"incoming\":[{\"block\":1,\"value\":3},{\"block\":2,\"value\":4}]}," +
+               "{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":0}}," +
+               "{\"op\":\"ret\",\"value\":6}] }"
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [" + b0 + "," + b1 + "," + b2 + "," + b3 + "] } ] }"
+  }
+
+  // v2 extern calls (console.*) — return JSON for AOT facade
+  program_call_console_log_ret0(){
+    // const s="hello"; mir_call Extern(env.console.log) s; ret 0
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"hello\\\"}}," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":2,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"env.console.log\\\"},\\\"args\\\":[1],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":3,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":3}] } ] } ] }"
+  }
+  program_call_console_warn_ret0(){
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"warn-message\\\"}}," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":2,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"env.console.warn\\\"},\\\"args\\\":[1],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":3,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":3}] } ] } ] }"
+  }
+  program_call_console_error_ret0(){
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"error-message\\\"}}," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":2,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"env.console.error\\\"},\\\"args\\\":[1],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":3,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":3}] } ] } ] }"
+  }
+  // env.mem.alloc/free roundtrip; return 0
+  program_call_mem_alloc_free_ret0(size){
+    local sz = size ? size : 16
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + sz + "}}," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":2,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"env.mem.alloc\\\"},\\\"args\\\":[1],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":3,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"env.mem.free\\\"},\\\"args\\\":[2],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":4,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":4}] } ] } ] }"
+  }
+  // env.local.get (value unused); return 0
+  program_call_env_local_get_ret0(key){
+    local k = key ? key : "SMOKES_ENV_LOCAL_GET"
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"string\\\",\\\"value\\\":\\\"" + k + "\\\"}}," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":2,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"env.local.get\\\"},\\\"args\\\":[1],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":3,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":3}] } ] } ] }"
+  }
+  // v2 extern calls (time.now_ms / JSON.stringify)
+  // Call env.time.now_ms() and return 0 (exe exit code stable)
+  program_call_time_now_ms_ret0(){
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":2,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"env.time.now_ms\\\"},\\\"args\\\":[],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":3,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":3}] } ] } ] }"
+  }
+  // Call JSON.stringify(any) via nyash.json.stringify_h and return 0
+  program_call_json_stringify_ret0(){
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":42}}," +
+           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":2,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Extern\\\",\\\"name\\\":\\\"nyash.json.stringify_h\\\"},\\\"args\\\":[1],\\\"effects\\\":[]}}," +
+           "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":3,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}," +
+           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":3}] } ] } ] }"
+  }
+
+  // 新しい統合定数命令のテスト - ConstInstを使用
+  test_const_instructions(){
+    local result = {}
+    
+    // i64定数テスト
+    result.i64_const = ConstInst.lower_const(1, %{"type" => "i64", "value" => 42})
+    
+    // f64定数テスト
+    result.f64_const = ConstInst.lower_const(2, %{"type" => "f64", "value" => 3.14})
+    
+    // void定数テスト
+    result.void_const = ConstInst.lower_const(3, %{"type" => "void"})
+    
+    // 文字列定数テスト
+    result.string_const = ConstInst.lower_const(4, %{"type" => "string", "value" => "Hello, Hakorune!"})
+    
+    // StringBoxハンドルテスト
+    result.handle_const = ConstInst.lower_const(5, %{"type" => %{"kind" => "handle", "box_type" => "StringBox"}, "value" => "Boxed String"})
+    
+    return result
+  }
+
+  // 単純な定数命令を使ったプログラム生成
+  program_with_new_const(value, const_type){
+    local const_inst = ConstInst.lower_const(1, %{"type" => const_type, "value" => value})
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           const_inst + "," +
+           "{\"op\":\"ret\",\"value\":1}] } ] } ] }"
+  }
+
+  // 新しい統合二項演算命令のテスト - BinOpInstを使用
+  test_binop_instructions(){
+    local result = {}
+    
+    // 算術演算テスト
+    result.add = BinOpInst.lower_binop("+", 1, 2, 3)
+    result.sub = BinOpInst.lower_binop("-", 1, 2, 3)
+    result.mul = BinOpInst.lower_binop("*", 1, 2, 3)
+    result.div = BinOpInst.lower_binop("/", 1, 2, 3)
+    result.mod = BinOpInst.lower_binop("%", 1, 2, 3)
+    
+    // ビット演算テスト
+    result.and = BinOpInst.lower_binop("&", 1, 2, 3)
+    result.or = BinOpInst.lower_binop("|", 1, 2, 3)
+    result.xor = BinOpInst.lower_binop("^", 1, 2, 3)
+    result.shl = BinOpInst.lower_binop("<<", 1, 2, 3)
+    result.shr = BinOpInst.lower_binop(">>", 1, 2, 3)
+    
+    // 比較演算テスト（compareに委譲）
+    result.eq = BinOpInst.lower_binop("==", 1, 2, 3)
+    result.ne = BinOpInst.lower_binop("!=", 1, 2, 3)
+    result.lt = BinOpInst.lower_binop("<", 1, 2, 3)
+    result.gt = BinOpInst.lower_binop(">", 1, 2, 3)
+    result.le = BinOpInst.lower_binop("<=", 1, 2, 3)
+    result.ge = BinOpInst.lower_binop(">=", 1, 2, 3)
+    
+    return result
+  }
+
+  // 二項演算命令を使ったプログラム生成
+  program_with_new_binop(lhs, rhs, op){
+    local lhs_const = ConstInst.lower_const(1, %{"type" => "i64", "value" => lhs})
+    local rhs_const = ConstInst.lower_const(2, %{"type" => "i64", "value" => rhs})
+    local binop_inst = BinOpInst.lower_binop(op, 1, 2, 3)
+    local ret_inst = RetInst.lower_return(3)
+    
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           lhs_const + "," +
+           rhs_const + "," +
+           binop_inst + "," +
+           ret_inst + "] } ] } ] }"
+  }
+
+  // 全命令の統合テスト
+  test_all_instructions() {
+    local result = {}
+    
+    // 定数命令テスト
+    result.const = ConstInst.lower_const(1, %{"type" => "i64", "value" => 42})
+    
+    // 二項演算命令テスト
+    result.binop = BinOpInst.lower_binop("+", 1, 2, 3)
+    
+    // 比較命令テスト
+    result.compare = CompareInst.lower_compare(">", 1, 2, 3)
+    
+    // リターン命令テスト
+    result.ret = RetInst.lower_return(3)
+    
+    return result
+  }
+
+  // 完全なプログラム生成例
+  generate_example_program() {
+    // プログラム: 42 + 100 > 50 ? 1 : 0
+    local const1 = ConstInst.lower_const(1, %{"type" => "i64", "value" => 42})
+    local const2 = ConstInst.lower_const(2, %{"type" => "i64", "value" => 100})
+    local const3 = ConstInst.lower_const(3, %{"type" => "i64", "value" => 50})
+    local add = BinOpInst.lower_binop("+", 1, 2, 4)
+    local cmp = CompareInst.lower_compare(">", 4, 3, 5)
+    local const4 = ConstInst.lower_const(6, %{"type" => "i64", "value" => 1})
+    local const5 = ConstInst.lower_const(7, %{"type" => "i64", "value" => 0})
+    
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [ { \"id\": 0, \"instructions\": [" +
+           const1 + "," +
+           const2 + "," +
+           const3 + "," +
+           add + "," +
+           cmp + "," +
+           const4 + "," +
+           const5 + "," +
+           "{\"op\":\"ret\",\"value\":6}] } ] } ] }"
+  }
+
+  // Phase v1制御フロー命令の統合テスト
+  test_control_flow_instructions() {
+    local result = {}
+    
+    // 分岐命令テスト
+    result.branch = BranchInst.lower_branch(3, 1, 2)
+    
+    // ジャンプ命令テスト
+    result.jump = JumpInst.lower_jump(5)
+    
+    // コピー命令テスト
+    result.copy = CopyInst.lower_copy(4, 2)
+    
+    return result
+  }
+
+  // 制御フロー命令を使ったプログラム生成
+  program_with_control_flow() {
+    // if (x > 0) { return 1 } else { return 0 }
+    local const_x = ConstInst.lower_const(1, %{"type" => "i64", "value" => 10})
+    local const_0 = ConstInst.lower_const(2, %{"type" => "i64", "value" => 0})
+    local const_1 = ConstInst.lower_const(3, %{"type" => "i64", "value" => 1})
+    local const_2 = ConstInst.lower_const(4, %{"type" => "i64", "value" => 2})
+    
+    local cmp = CompareInst.lower_compare(">", 1, 2, 5)
+    local branch = BranchInst.lower_branch(5, 1, 2)
+    local ret1 = RetInst.lower_return(3)
+    local ret2 = RetInst.lower_return(4)
+    
+    // ブロック1 (then)
+    local block1 = "{\"id\":1,\"instructions\":[" + ret1 + "]}"
+    
+    // ブロック2 (else)  
+    local block2 = "{\"id\":2,\"instructions\":[" + ret2 + "]}"
+    
+    // ブロック0 (entry)
+    local block0 = "{\"id\":0,\"instructions\":[" + const_x + "," + const_0 + "," + const_1 + "," + const_2 + "," + cmp + "," + branch + "]}"
+    
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [" + block0 + "," + block1 + "," + block2 + "] } ] }"
+  }
+
+  // 全命令の統合テスト（v0 + v1）
+  test_all_instructions_v1() {
+    local result = me.test_all_instructions()
+
+    // Phase v1命令を追加
+    result.branch = BranchInst.lower_branch(3, 1, 2)
+    result.jump = JumpInst.lower_jump(5)
+    result.copy = CopyInst.lower_copy(4, 2)
+
+    return result
+  }
+
+  // ====== Phase v2-A: PHI Instructions ======
+
+  // PHI命令の生成（ヘルパー）
+  // incoming_list: [{"value":1,"block":1}, {"value":2,"block":2}, ...]
+  emit_phi(dst, incoming_list) {
+    local phi_box = new PhiInst.LLVMPhiInstructionBox()
+    return phi_box.lower_phi(dst, incoming_list)
+  }
+
+  // PHI統合テストプログラム: if-then-else with PHI merge
+  // val_then と val_else の値を PHI で統合
+  program_phi_merge(val_then, val_else) {
+    // Block 0: Entry (分岐判定)
+    local const1 = ConstInst.inst_const_i64(1, 1)
+    local cmp = CompareInst.inst_compare_eq(2, 1, 1)
+    local branch = BranchInst.inst_if_then_else(2, 1, 2)
+    local b0 = "{\"id\":0,\"instructions\":[" + const1 + "," + cmp + "," + branch + "]}"
+
+    // Block 1: Then分岐
+    local const_then = ConstInst.inst_const_i64(3, val_then)
+    local jump1 = JumpInst.lower_jump(3)
+    local b1 = "{\"id\":1,\"instructions\":[" + const_then + "," + jump1 + "]}"
+
+    // Block 2: Else分岐
+    local const_else = ConstInst.inst_const_i64(4, val_else)
+    local jump2 = JumpInst.lower_jump(3)
+    local b2 = "{\"id\":2,\"instructions\":[" + const_else + "," + jump2 + "]}"
+
+    // Block 3: PHI merge + return
+    local incoming = new ArrayBox()
+    local item1 = new MapBox()
+    item1.set("value", 3)
+    item1.set("block", 1)
+    incoming.push(item1)
+
+    local item2 = new MapBox()
+    item2.set("value", 4)
+    item2.set("block", 2)
+    incoming.push(item2)
+
+    local phi = me.emit_phi(5, incoming)
+    local const_zero = ConstInst.inst_const_i64(6, 0)
+    local ret = RetInst.inst_ret_value(6)
+    local b3 = "{\"id\":3,\"instructions\":[" + phi + "," + const_zero + "," + ret + "]}"
+
+    return "{ \"version\": 0, \"functions\": [ { \"name\": \"main\", \"params\": [], \"blocks\": [" + b0 + "," + b1 + "," + b2 + "," + b3 + "] } ] }"
+  }
+
+  // 全命令の統合テスト（v0 + v1 + v2-A）
+  test_all_instructions_v2a() {
+    local result = me.test_all_instructions_v1()
+
+    // Phase v2-A命令を追加
+    local phi_incoming = new ArrayBox()
+    local phi_item1 = new MapBox()
+    phi_item1.set("value", 1)
+    phi_item1.set("block", 1)
+    phi_incoming.push(phi_item1)
+
+    local phi_item2 = new MapBox()
+    phi_item2.set("value", 2)
+    phi_item2.set("block", 2)
+    phi_incoming.push(phi_item2)
+
+    result.phi = me.emit_phi(5, phi_incoming)
+
+    return result
+  }
+
+  // Phase v2 LoopForm 命令
+  // Args:
+  //   self: static box receiver (implicit)
+  //   loop_id: ループID
+  //   blocks: ブロックIDマップ {"preheader": 10, "header": 11, ...}
+  //   condition_vid: 条件式の値ID
+  //   options: オプション設定（省略可）
+  // Returns:
+  //   LoopForm JSON 文字列
+  lower_loopform(self, loop_id, blocks, condition_vid, options) {
+    return LoopFormInst.lower_loopform(self, loop_id, blocks, condition_vid, options)
+  }
+
+  // LoopForm 命令を emit（builder メソッド）
+  emit_loopform(self, loop_id, blocks, condition_vid, options) {
+    return me.lower_loopform(self, loop_id, blocks, condition_vid, options)
+  }
+
+  // Phase v2-C MIR Call 命令（統一Call）
+  // Args:
+  //   self: static box receiver (implicit)
+  //   callee: calleeオブジェクト {type: "Global|Method|Constructor|...", ...}
+  //   args: 引数配列（ArrayBox of register IDs）
+  //   dst: 結果レジスタID
+  //   options: オプション設定（省略可）
+  // Returns:
+  //   MIR Call JSON 文字列
+  lower_mir_call(self, callee, args, dst, options) {
+    return MirCallInst.lower_mir_call(self, callee, args, dst, options)
+  }
+
+  // MIR Call 命令を emit（builder メソッド）
+  emit_mir_call(self, callee, args, dst, options) {
+    return me.lower_mir_call(self, callee, args, dst, options)
+  }
+}

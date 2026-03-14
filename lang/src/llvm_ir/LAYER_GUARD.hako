@@ -1,10 +1,9 @@
-// LAYER_GUARD — このフォルダは「IR 構築のみ」を担当します
-// 禁止: リンク/実行/Extern 直接呼び出し/ファイルI/O の実装
-// 許可: 型・モジュール・関数・基本ブロック・命令の"形"の生成
+// LAYER_GUARD — このフォルダは llvm_ir compat helper だけを担当します
+// 禁止: daily backend caller / link / run / raw LLVM surface の導入
+// 許可: AotPrep / normalize / compat emit のみ
 
 static box LLVM_IR_LAYER_GUARD {
   name(){ return "llvm_ir" }
-  allowed(){ return ["types","module","function","builder","emit"] }
-  forbidden(){ return ["runtime","parser","resolver","linker","run"] }
+  allowed(){ return ["aot_prep","normalize","instructions","compat_emit"] }
+  forbidden(){ return ["runtime","parser","resolver","linker","run","daily_backend_boundary"] }
 }
-

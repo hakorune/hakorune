@@ -1,24 +1,39 @@
-# LLVM Script Builder (opt-in, Phase 20.11)
+# llvm_ir
 
 目的
-- Python llvmlite ハーネスで行っている IR 構築を、Hakorune スクリプトの薄い箱で段階的に置き換える。
-- 責務は「IR 構築」に限定し、リンクおよび実行は小ライブラリ（libhako_aot）/AotBox に委譲する。
+- LLVM line でまだ live な `.hako` 資産を小さく保つ。
+- 現在の live owner は `AotPrep` / `normalize` / compat `emit` だけに絞る。
+- backend-zero の daily caller route はここに増やさず、`lang/src/shared/backend/` と `lang/c-abi/` に寄せる。
 
-ゲート
-- HAKO_LLVM_SCRIPT_BUILDER=1 で有効化（既定OFF）
-- 厳格化（未実装はFAIL）: HAKO_LLVM_SCRIPT_BUILDER_STRICT=1（既定はFAIL推奨）
+Live surfaces
+- `boxes/aot_prep.hako` と `boxes/aot_prep/**`
+  - MIR(JSON) の軽量前処理と perf/compat pass
+- `boxes/normalize/**`
+  - `print` / `ref_*` / legacy `array_*` の normalize helper
+- `instructions/**`
+  - quick/smoke の self-param helper
+- `emit/LLVMEmitBox.hako`
+  - compat keep の emit facade
+  - `hako.llvm.emit` 直参照 canary を壊さないため残す
 
-責務境界（Box）
-- LLVMModuleBox: モジュール作成・型/レイアウト設定・関数登録
-- LLVMFunctionBox: 関数定義・基本ブロック追加
-- LLVMBuilderBox: 命令構築（v0: const/binop/ret から開始）
-- LLVMTypesBox: 代表的なプリミティブ型クエリ
-- LLVMEmitBox: オブジェクト出力（当面は AotBox へ委譲予定）
+Archived surfaces
+- legacy script-builder / AotFacade route は `archive/legacy_script_builder/**` に退避した。
+- old example は `archive/examples/**` に退避した。
+- これらは backend-zero daily route の owner ではない。
 
-Fail‑Fast
-- 未実装/未対応は `UNSUPPORTED: <op>` を短文で出力して負値を返す（将来は統一エラーへ）。
+Non-goals
+- 新しい daily backend caller をここへ追加しない。
+- `AotBox` / legacy script-builder route を復活させない。
+- raw LLVM API surface を `.hako` 側へ広げない。
 
-将来拡張
-- v1: compare/branch/phi、v2: call/extern（hako_* の C-ABI のみ）
-- MIR→IR の対応は SSOT に集約し、Builder は小さな純関数にまとめる。
+Entry pointers
+- official thin backend caller:
+  - `lang/src/shared/backend/llvm_backend_box.hako`
+- C helper side:
+  - `lang/c-abi/shims/hako_aot.c`
+- boundary SSOT:
+  - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
 
+Fail-fast
+- archived route を daily route に戻す変更はここで受けない。
+- compat emit 以外の新しい backend caller が必要なら `llvm_ir` ではなく `shared/backend` 側で設計を起こす。

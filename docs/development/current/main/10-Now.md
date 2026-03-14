@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-02
+Date: 2026-03-14
 Scope: main ラインの「現在地」と「実行入口」だけを置く薄いインデックス。
 Related:
   - CURRENT_TASK.md
@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
   - docs/development/current/main/phases/phase-29cf/README.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
@@ -82,6 +83,11 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
+- Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+- Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
+- Backend-zero boundary lock: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
+- Backend-zero phase pointer: `docs/development/current/main/phases/phase-29ck/README.md`
+- Backend-zero final shape: `.hako -> thin backend C ABI/plugin boundary -> object/exe`（`native_driver.rs` は bootstrap seam only）
 - Optimization policy (runtime): de-rust runtime closeout contract 緑を前提に、最適化 lane（micro/asm -> kilo）へ handoff する。
 - JoinIR port mode（lane A）: monitor-only（failure-driven reopen）
 - JoinIR extension runbook（lane A reopen）:

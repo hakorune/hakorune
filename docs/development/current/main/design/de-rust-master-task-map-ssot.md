@@ -1,11 +1,12 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-03-09
+Date: 2026-03-14
 Scope: 脱Rust完了までの全体順序（lane A/B/C + 29cc orchestration）と done 判定を 1 枚で固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
@@ -59,6 +60,20 @@ Separate lane pointer:
 7. de-rust done declaration (non-plugin): accepted（`phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md`）
 8. `phase-29ce`: accepted（live compat retirement closeout）
 9. `phase-29cf`: accepted monitor-only（`VM fallback compat lane` / `bootstrap boundary reduction` follow-up）
+
+## 2.5 Full Rust 0 Tracking Split (2026-03-14)
+
+1. top-level pointer:
+`docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+2. runtime-zero:
+`accepted pointer / inventory-ready`
+3. backend-zero:
+`accepted pointer / phase-29ck queued`
+   - final boundary SSOT: `de-rust-backend-zero-boundary-lock-ssot.md`
+   - final shape is `.hako -> thin backend C ABI/plugin boundary -> object/exe`
+   - `native_driver.rs` stays bootstrap seam only
+4. rule:
+この split は visibility 用であり、lane A/B/C の current blocker や non-plugin done scope を上書きしない。
 
 ## 3. Fixed Completion Ladder
 
