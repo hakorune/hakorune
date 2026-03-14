@@ -18,18 +18,12 @@ enable_mirbuilder_dev_env
 # Minimal Program(JSON v0): If(Compare Int==Int) → Return(Int)/Return(Int)
 PROG='{"version":0,"kind":"Program","body":[{"type":"If","cond":{"type":"Compare","op":"==","lhs":{"type":"Int","value":1},"rhs":{"type":"Int","value":1}},"then":[{"type":"Return","expr":{"type":"Int","value":42}}],"else":[{"type":"Return","expr":{"type":"Int","value":0}}]}]}'
 
-tmp_stdout=$(mktemp); trap 'rm -f "$tmp_stdout" || true' EXIT
-set +e
-run_program_json_via_registry_builder_module_vm "hako.mir.builder" "$PROG" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-rc=$?
-set -e
-
-if [[ "$rc" -ne 0 ]]; then echo "[SKIP] builder vm exec failed"; exit 0; fi
-# Tag observation (debug on)
-if ! grep -q "\[mirbuilder/registry:if.compare.intint\]" "$tmp_stdout"; then
-  echo "[SKIP] registry tag not observed"; exit 0
-fi
-mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-if [[ -z "$mir" ]]; then echo "[SKIP] empty MIR (registry)"; exit 0; fi
-if echo "$mir" | grep -q '"functions"'; then echo "[PASS] registry_optin"; exit 0; fi
-echo "[SKIP] MIR without functions (registry)"; exit 0
+run_registry_builder_tag_canary \
+  "hako.mir.builder" \
+  "$PROG" \
+  "" \
+  "\\[mirbuilder/registry:if.compare.intint\\]" \
+  "registry_optin" \
+  "builder vm exec failed" \
+  "registry tag not observed" \
+  "MIR without functions (registry)"

@@ -1081,6 +1081,7 @@ run_builder_module_tag_canary() {
     local skip_tag_label="${6:-tag not observed}"
     local skip_mir_label="${7:-MIR missing functions}"
     local require_functions="${8:-1}"
+    local allow_nonzero_rc="${9:-0}"
 
     local tmp_stdout
     tmp_stdout=$(mktemp)
@@ -1091,7 +1092,7 @@ run_builder_module_tag_canary() {
     local rc=${PIPESTATUS[0]}
     set -e
 
-    if [[ "$rc" -ne 0 ]]; then
+    if [[ "$rc" -ne 0 ]] && [ "$allow_nonzero_rc" != "1" ]; then
         echo "[SKIP] ${skip_exec_label}"
         return 0
     fi
@@ -1121,13 +1122,18 @@ run_registry_builder_tag_canary() {
     local skip_exec_label="${6:-builder vm exec failed}"
     local skip_tag_label="${7:-registry tag not observed}"
     local skip_mir_label="${8:-MIR missing functions}"
+    local use_preinclude="${9:-0}"
 
     local tmp_stdout
     tmp_stdout=$(mktemp)
     trap 'rm -f "$tmp_stdout" || true' RETURN
 
     set +e
-    run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    if [ "$use_preinclude" = "1" ]; then
+        run_program_json_via_registry_builder_module_vm_with_preinclude "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    else
+        run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    fi
     local rc=$?
     set -e
 
