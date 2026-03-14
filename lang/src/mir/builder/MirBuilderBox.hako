@@ -59,12 +59,15 @@ static box MirBuilderBox {
 
   method _finalize_delegate_mir(program_json, mir_json, func_defs_mir) {
     if mir_json == null { return null }
+    local result = me._inject_delegate_user_box_decls(program_json, mir_json)
+    return me._norm_if_apply(result, func_defs_mir)
+  }
+
+  method _inject_delegate_user_box_decls(program_json, mir_json) {
     local result = "" + mir_json
     local user_box_decls_json = me._build_user_box_decls_from_program_json_inline(program_json)
-    if user_box_decls_json != "" {
-      result = MirV1MetaInjectBox.inject_user_box_decls(result, user_box_decls_json)
-    }
-    return me._norm_if_apply(result, func_defs_mir)
+    if user_box_decls_json == "" { return result }
+    return MirV1MetaInjectBox.inject_user_box_decls(result, user_box_decls_json)
   }
 
   method _build_user_box_decls_from_program_json_inline(program_json) {
@@ -156,21 +159,27 @@ static box MirBuilderBox {
   }
 
   method _emit_delegate_program_json(program_json, func_defs_mir) {
-    if BuilderConfigBox.selfhost_no_delegate_on() == 1 {
-      if env.get("HAKO_SELFHOST_TRACE") == "1" {
-        print("[mirbuilder/delegate/disabled] HAKO_SELFHOST_NO_DELEGATE=1; internal-only mode")
-      }
+    if me._delegate_disabled() == 1 { return null }
+    local ret = me._emit_delegate_provider_checked(program_json)
+    if ret == null { return null }
+    return me._finalize_delegate_mir(program_json, ret, func_defs_mir)
+  }
+
+  method _delegate_disabled() {
+    if BuilderConfigBox.selfhost_no_delegate_on() != 1 { return 0 }
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      print("[mirbuilder/delegate/disabled] HAKO_SELFHOST_NO_DELEGATE=1; internal-only mode")
+    }
+    return 1
+  }
+
+  method _emit_delegate_provider_checked(program_json) {
+    if BuilderConfigBox.delegate_on() != 1 {
+      print("[mirbuilder/delegate/missing] no provider; enable HAKO_MIR_BUILDER_DELEGATE=1")
       return null
     }
-
-    if BuilderConfigBox.delegate_on() == 1 {
-      local args = new ArrayBox(); args.push(program_json)
-      local ret = hostbridge.extern_invoke("env.mirbuilder", "emit", args)
-      return me._finalize_delegate_mir(program_json, ret, func_defs_mir)
-    }
-
-    print("[mirbuilder/delegate/missing] no provider; enable HAKO_MIR_BUILDER_DELEGATE=1")
-    return null
+    local args = new ArrayBox(); args.push(program_json)
+    return hostbridge.extern_invoke("env.mirbuilder", "emit", args)
   }
 
   is_available() {
