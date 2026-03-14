@@ -212,7 +212,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest tightening: explicit Program(JSON) entry now also keeps `module_to_mir_json(...)` + user-box finalize handoff behind same-file helper `emit_mir_json_with_user_box_decls(...)`
        - latest tightening: source-route handoff now keeps final Program(JSON text) -> explicit-route call behind same-file helper `emit_mir_json_from_program_json_text(...)`
        - latest tightening: strict-source public/test entries now share same-file Program(JSON) emit helpers `emit_program_json_for_source(...)` and `emit_program_and_plain_mir_json_for_source(...)`; the live stop-line stays unchanged
-       - latest tightening: explicit-route finalize now also keeps stage1 decl collect separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `inject_user_box_decls_into_mir_json(...)`
+       - latest tightening: explicit-route finalize now also keeps `Program(JSON)` parse/build separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `build_stage1_user_box_decls(...)` -> `inject_user_box_decls_into_mir_json(...)`
     2. `src/host_providers/mir_builder/lowering.rs`
        - this owner is now a test-only `Program(JSON v0) -> MIR(JSON)` evidence seam, not the live shared MIR(JSON) emission owner
        - latest tightening: imports-bearing and plain lowering helpers are both test-only evidence now
@@ -242,7 +242,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - current worker judgment: keep this owner as the only active front until the remaining handoff/finalize leaves above `module_to_mir_json(...)` are thin enough to freeze
        - latest tightening: live source + explicit Program(JSON) callers now parse Program(JSON) in `src/host_providers/mir_builder.rs` and cross the shared seam only at `module_to_mir_json(...)`
        - latest tightening: test-only source evidence now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
-       - latest tightening: explicit-route finalize now keeps stage1 decl collect and MIR JSON mutation separated behind same-file helpers `collect_stage1_user_box_decls(...)` and `inject_user_box_decls_into_mir_json(...)`
+       - latest tightening: explicit-route finalize now keeps `Program(JSON)` parse/build and MIR JSON mutation separated behind same-file helpers `parse_program_json_value(...)`, `build_stage1_user_box_decls(...)`, and `inject_user_box_decls_into_mir_json(...)`
        - latest tightening: public explicit-route entry now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`, and the stop-line finalize now reads as `emit_module_mir_json(...)` -> `finalize_mir_json_with_stage1_user_box_decls(...)`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
        - this owner is no longer the live blocker surface; treat it as test-only evidence while the live routes above the stop-line keep shrinking

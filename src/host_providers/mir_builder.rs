@@ -117,7 +117,9 @@ fn emit_mir_json_from_program_json_text(program_json: &str) -> Result<String, St
 }
 
 #[cfg(test)]
-fn emit_program_and_plain_mir_json_for_source(source_text: &str) -> Result<(String, String), String> {
+fn emit_program_and_plain_mir_json_for_source(
+    source_text: &str,
+) -> Result<(String, String), String> {
     let program_json = emit_program_json_for_source(source_text)?;
     let mir_json = emit_plain_mir_json_from_program_json_text(&program_json)?;
     Ok((program_json, mir_json))
@@ -189,7 +191,8 @@ fn finalize_mir_json_with_stage1_user_box_decls(
     program_json: &str,
     mir_json: &str,
 ) -> Result<String, String> {
-    let user_box_decls = collect_stage1_user_box_decls(program_json)?;
+    let program_value = parse_program_json_value(program_json)?;
+    let user_box_decls = build_stage1_user_box_decls(&program_value);
     inject_user_box_decls_into_mir_json(mir_json, user_box_decls)
 }
 
@@ -220,19 +223,11 @@ fn insert_user_box_decls(
     Ok(())
 }
 
-fn stage1_user_box_decls_from_program_json(
-    program_json: &str,
-) -> Result<Vec<serde_json::Value>, String> {
-    let program_value = parse_program_json_value(program_json)?;
+fn build_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_json::Value> {
     let seen = collect_stage1_user_box_decl_names(&program_value);
-    Ok(seen
-        .into_iter()
+    seen.into_iter()
         .map(stage1_user_box_decl_from_name)
-        .collect())
-}
-
-fn collect_stage1_user_box_decls(program_json: &str) -> Result<Vec<serde_json::Value>, String> {
-    stage1_user_box_decls_from_program_json(program_json)
+        .collect()
 }
 
 fn serialize_mir_json_value(mir_value: &serde_json::Value) -> Result<String, String> {
@@ -240,7 +235,8 @@ fn serialize_mir_json_value(mir_value: &serde_json::Value) -> Result<String, Str
 }
 
 fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {
-    serde_json::from_str(program_json).map_err(|error| format!("program json parse error: {}", error))
+    serde_json::from_str(program_json)
+        .map_err(|error| format!("program json parse error: {}", error))
 }
 
 fn collect_stage1_user_box_decl_names(
