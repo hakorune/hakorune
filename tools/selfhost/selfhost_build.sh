@@ -250,6 +250,40 @@ emit_exe_from_program_json_v0() {
   cleanup_emit_exe_temp_outputs "$json_path" "$mir_tmp"
 }
 
+cleanup_program_json_tmp_if_needed() {
+  local json_path="$1"
+  if [ "$KEEP_TMP" != "1" ] && [ -z "$JSON_OUT" ]; then
+    rm -f "$json_path" 2>/dev/null || true
+  fi
+}
+
+dispatch_stageb_downstream_outputs() {
+  local json_path="$1"
+
+  if [ -n "$JSON_OUT" ]; then
+    echo "[selfhost] JSON v0 written: $json_path" >&2
+  fi
+
+  if [ -n "$MIR_OUT" ]; then
+    emit_mir_json_from_source "$MIR_OUT"
+  fi
+
+  if [ -n "$EXE_OUT" ]; then
+    emit_exe_from_program_json_v0 "$json_path" "$EXE_OUT"
+    return $?
+  fi
+
+  if [ "$DO_RUN" = "1" ]; then
+    local rc=0
+    run_program_json_v0_via_core_direct "$json_path" || rc=$?
+    cleanup_program_json_tmp_if_needed "$json_path"
+    return $rc
+  fi
+
+  echo "$json_path"
+  return 0
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     --in) IN="$2"; shift 2;;
@@ -289,27 +323,5 @@ if [ "$extract_ok" != "1" ]; then
 fi
 rm -f "$RAW" 2>/dev/null || true
 
-if [ -n "$JSON_OUT" ]; then
-  echo "[selfhost] JSON v0 written: $tmp_json" >&2
-fi
-
-# Optional: emit MIR(JSON) from source (runner compiles .hako directly; Stage‑B JSON is for reference)
-if [ -n "$MIR_OUT" ]; then
-  emit_mir_json_from_source "$MIR_OUT"
-fi
-
-# Optional: build native EXE via ny-llvmc harness (fallback path; parses original source)
-if [ -n "$EXE_OUT" ]; then
-  emit_exe_from_program_json_v0 "$tmp_json" "$EXE_OUT"
-  exit $?
-fi
-
-if [ "$DO_RUN" = "1" ]; then
-  rc=0
-  run_program_json_v0_via_core_direct "$tmp_json" || rc=$?
-  if [ "$KEEP_TMP" != "1" ] && [ -z "$JSON_OUT" ]; then rm -f "$tmp_json" 2>/dev/null || true; fi
-  exit $rc
-else
-  # Emit-only
-  echo "$tmp_json"
-fi
+dispatch_stageb_downstream_outputs "$tmp_json"
+exit $?
