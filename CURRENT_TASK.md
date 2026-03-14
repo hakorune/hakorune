@@ -91,6 +91,28 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Immediate Next (this round)
 
+- owner-role lock for pure `.hako-only hakorune build`:
+  - `authority owner`
+    - meaning: the owner that decides input acceptance, route selection, fail-fast tags, and final handoff for a live compiler boundary
+    - current examples:
+      - `src/host_providers/mir_builder.rs` (Rust stop-line)
+      - `lang/src/mir/builder/MirBuilderBox.hako` (current `.hako` authority-replacement wave)
+  - `thin facade`
+    - meaning: owner-local gate/decode/encode, source-route handoff glue, or route orchestration only; not the place where the live authority decision should keep growing
+    - current examples:
+      - `src/runner/stage1_bridge/program_json/mod.rs`
+      - `src/runner/stage1_bridge/program_json_entry/mod.rs`
+      - near-thin-floor Rust keep in `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+  - `compat keep`
+    - meaning: historical/probe/helper lane kept for exact contract evidence; do not mistake this for the live authority owner
+    - current examples:
+      - `lang/src/mir/builder/MirBuilderBox.hako::emit_from_source_v0(...)`
+      - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox`
+      - shell helper trio `tools/{hakorune_emit_mir.sh,selfhost/selfhost_build.sh}` plus `tools/smokes/v2/lib/test_runner.sh`
+  - task rule:
+    - if an owner is only a thin facade or compat keep, freeze it and move on
+    - spend active slices on current authority owners and helper-local caller leaves above the Rust stop-line
+
 - pure `.hako-only hakorune build` gap snapshot (2026-03-14):
   - current main stopper is still Rust authority, not `.hako` caller count
   - Rust authority bucket:
@@ -119,6 +141,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     2. runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
     3. shared producer `lang/src/compiler/build/build_box.hako`
     4. shell helper trio above
+  - exact next slices after the latest landed work:
+    1. `tools/hakorune_emit_mir.sh`
+       - keep shrinking the helper-local fallback/delegate tail; next candidate is the remaining direct-emit/forced-direct branch, not `selfhost_build.sh`
+    2. `lang/src/runner/stage1_cli_env.hako`
+       - keep shrinking `Stage1ProgramJsonCompatBox` / `Stage1MirResultValidationBox` leaves only; do not reopen source authority/body extraction in the same slice
+    3. `tools/selfhost/selfhost_build.sh`
+       - only after the helper-local `hakorune_emit_mir.sh` tail is thinner
+    4. `src/runner/stage1_bridge/program_json/**`
+       - only if the Rust bootstrap-boundary bucket is chosen instead of helper-local caller work
 
 - `phase-29cj` reviewer sync (2026-03-14):
   - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`

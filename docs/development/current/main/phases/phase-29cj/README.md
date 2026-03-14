@@ -104,6 +104,11 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - worker consensus also treats `src/stage1/program_json_v0/authority.rs` as frozen strict source-authority core; the next real movement is authority replacement above the Rust stop-line in `src/host_providers/mir_builder.rs`
 - worker consensus on `src/host_providers/mir_builder/lowering.rs`: the remaining helpers there are evidence-only, while `module_to_mir_json(...)` is the real shared seam and now lives in `src/host_providers/mir_builder.rs`
 - worker audit also raised the next non-Rust wave order after the current Rust-owned front: `lang/src/mir/builder/MirBuilderBox.hako` first, then runner owners `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`, with shared producer `lang/src/compiler/build/build_box.hako` immediately behind that same wave; touching `build_box.hako` before those owner-local callers would be the highest-blast-radius move
+- owner-role lock for this wave:
+  - `authority owner`: live owner that decides input acceptance, route selection, fail-fast tags, and final handoff for the compiler boundary
+  - `thin facade`: route/decode/encode/orchestration-only owner that should stop growing once the contract is readable
+  - `compat keep`: historical/probe/helper lane retained for exact evidence, not for new authority logic
+- therefore, the next wave should keep spending slices on `MirBuilderBox.hako`, runner owners, and helper-local shell callers above the Rust stop-line; do not reopen thin facades or compat keeps just because they still exist
 - the kernel `emit_from_program_json_v0` / `emit_from_source_v0` pair now also shares same-file gate/decode/freeze helpers, so the remaining kernel work is explicitly thin-floor support code rather than a fresh authority-removal front
 - the nearby future-retire bridge shim is now split out to `src/stage1/program_json_v0/bridge_shim.rs`, so `src/stage1/program_json_v0/authority.rs` no longer mixes bridge-specific error wrapping with strict source authority
 - the first landed `.hako` authority-replacement slice now lives in `lang/src/runner/stage1_cli_env.hako`: `Stage1SourceMirAuthorityBox` owns the source-entry `BuildBox.emit_program_json_v0(...)` shim locally and delegates only Program(JSON) -> MIR to `MirBuilderBox.emit_from_program_json_v0(...)`
@@ -136,6 +141,10 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - after this slice, the kernel/plugin Program(JSON) route is close to thin floor: route-local gate/decode/encode remain, but host-provider call selection and `user_box_decls` shaping no longer live there
 - `tools/hakorune_emit_mir.sh` now also keeps the direct `MirBuilderBox.emit_from_program_json_v0(...)` checked path behind a generated wrapper-local `_emit_mir_checked(...)` helper, so the shell/helper wave has started without touching `selfhost_build.sh` or `test_runner.sh`
 - `tools/hakorune_emit_mir.sh` now also keeps generated runner stdout -> MIR payload extraction behind `extract_mir_payload_from_stdout_file()` / `persist_mir_payload_from_stdout_file()`, so selfhost/provider helper lanes no longer duplicate `[MIR_OUT_BEGIN]...[MIR_OUT_END]` parsing inline
+- immediate next helper-local order after that slice:
+  1. `tools/hakorune_emit_mir.sh` direct-emit / forced-direct tail
+  2. `lang/src/runner/stage1_cli_env.hako` remaining compat/result tiny leaves
+  3. `tools/selfhost/selfhost_build.sh` isolated consumer helpers
 - `tools/selfhost/selfhost_build.sh` now also keeps its generated `BuildBox.emit_program_json_v0(...)` checked path behind wrapper-local `_emit_program_json_checked(...)`, so the explicit `HAKO_USE_BUILDBOX=1` keep stays helper-local instead of repeating the checked path inline
 - `tools/smokes/v2/lib/test_runner.sh` now also keeps the duplicated embedded `MirBuilderBox.emit_from_program_json_v0(...)` checked path behind generator helper `builder_module_program_json_runner_code()`, so both shared module-vm helper lanes reuse the same generated `_emit_mir_checked(...)` contract
 - the `future-retire bridge` inner cluster is also thinner now: `src/runner/stage1_bridge/program_json/payload.rs` owns the bridge-local owner-1 payload emission, leaving `program_json/mod.rs` as read->emit->write orchestration only
