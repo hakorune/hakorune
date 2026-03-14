@@ -13,16 +13,11 @@ source "$ROOT_DIR/tools/smokes/v2/lib/test_runner.sh"; require_env || exit 2
 # Return(Method Var recv 'a', method 'set', args [Int 2, Int 7])
 PROG='{"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Method","recv":{"type":"Var","name":"a"},"method":"set","args":[{"type":"Int","value":2},{"type":"Int","value":7}]}}]}'
 
-tmp_stdout=$(mktemp); trap 'rm -f "$tmp_stdout" || true' EXIT
-set +e
-run_program_json_via_builder_module_vm "hako.mir.builder.min" "$PROG" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-rc=${PIPESTATUS[0]}
-set -e
-if [[ "$rc" -ne 0 ]]; then echo "[SKIP] builder-min vm exec failed"; exit 0; fi
-if ! grep -q "\[mirbuilder/min:return.method.arraymap\]" "$tmp_stdout"; then
-  echo "[SKIP] min tag not observed (set)"; exit 0
-fi
-mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then echo "[SKIP] MIR missing functions (min/set)"; exit 0; fi
-echo "[PASS] builder_min_method_arraymap_set"
-exit 0
+run_builder_module_tag_canary \
+  "hako.mir.builder.min" \
+  "$PROG" \
+  "\[mirbuilder/min:return.method.arraymap\]" \
+  "builder_min_method_arraymap_set" \
+  "builder-min vm exec failed" \
+  "min tag not observed (set)" \
+  "MIR missing functions (min/set)"

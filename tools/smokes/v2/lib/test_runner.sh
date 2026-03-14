@@ -1072,6 +1072,46 @@ run_preferred_mirbuilder_canary_and_expect_rc() {
     return 0
 }
 
+run_builder_module_tag_canary() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local expected_tag="$3"
+    local pass_label="$4"
+    local skip_exec_label="${5:-builder vm exec failed}"
+    local skip_tag_label="${6:-tag not observed}"
+    local skip_mir_label="${7:-MIR missing functions}"
+    local require_functions="${8:-1}"
+
+    local tmp_stdout
+    tmp_stdout=$(mktemp)
+    trap 'rm -f "$tmp_stdout" || true' RETURN
+
+    set +e
+    run_program_json_via_builder_module_vm "$builder_module" "$prog_json" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    local rc=${PIPESTATUS[0]}
+    set -e
+
+    if [[ "$rc" -ne 0 ]]; then
+        echo "[SKIP] ${skip_exec_label}"
+        return 0
+    fi
+    if ! grep -q "$expected_tag" "$tmp_stdout"; then
+        echo "[SKIP] ${skip_tag_label}"
+        return 0
+    fi
+    if [ "$require_functions" = "1" ]; then
+        local mir
+        mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
+        if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
+            echo "[SKIP] ${skip_mir_label}"
+            return 0
+        fi
+    fi
+
+    echo "[PASS] ${pass_label}"
+    return 0
+}
+
 # hv1 inline alias-only wrapper (env JSON → hv1 dispatcher)
 # Usage: run_hv1_inline_alias_wrapper "$json_literal" → prints rc line; returns rc
 run_hv1_inline_alias_wrapper() {
