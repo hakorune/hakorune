@@ -10,7 +10,9 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - now also owns the shared `user_box_decls` shaping for the source and explicit Program(JSON) routes
   - now also owns the live imports-free `Program(JSON v0) -> MirModule -> MIR(JSON)` handoff for source and explicit Program(JSON) callers; plain `program_json_to_mir_json(...)` stays test-only
   - test-only source evidence now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
+  - strict-source public/test entry now share owner-local Program(JSON) emit via `emit_program_json_for_source(...)` and `emit_program_and_plain_mir_json_for_source(...)`
   - public explicit-route entry now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`
+  - explicit-route finalize now keeps stage1 decl collect separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `inject_user_box_decls_into_mir_json(...)`
   - keeps `program_json_to_mir_json_with_imports(...)` test-only; live cross-crate callers should not depend on imports-bearing Program(JSON) lowering here
 - `mir_builder/lowering.rs`
   - thin lowering facade + shared parse helpers
@@ -31,6 +33,6 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
 - treat `lowering.rs` as the test-only Program(JSON)->MIR evidence owner; live MIR(JSON) emission stays in `mir_builder.rs`
 - treat runtime/plugin `env.mirbuilder.emit` as a separate keep that now bypasses `lowering.rs`
 - keep `source_to_program_and_mir_json(...)` test-only in the façade; cross-crate source surfaces should stay on `source_to_mir_json(...)`
-- keep explicit-route `user_box_decls` collect / serialize owner-local here; do not push that shaping back into bridge or `.hako` compat lanes
+- keep explicit-route `user_box_decls` collect / MIR JSON mutation owner-local here; do not push that shaping back into bridge or `.hako` compat lanes
 - do not widen `.hako` workaround contracts here
 - keep fail-fast tags and temp-path policy owner-local to this cluster

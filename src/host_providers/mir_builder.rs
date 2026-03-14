@@ -95,13 +95,11 @@ fn emit_mir_json_from_program_json_module(program_json: &str) -> Result<String, 
 /// while the current authority remains Rust-owned.
 #[cfg(test)]
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    let program_json = emit_strict_program_json_for_source(source_text)?;
-    let mir_json = emit_plain_mir_json_from_program_json_text(&program_json)?;
-    Ok((program_json, mir_json))
+    emit_program_and_plain_mir_json_for_source(source_text)
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    let program_json = emit_strict_program_json_for_source(source_text)?;
+    let program_json = emit_program_json_for_source(source_text)?;
     emit_mir_json_from_program_json_text(&program_json)
 }
 
@@ -119,6 +117,13 @@ fn emit_mir_json_from_program_json_text(program_json: &str) -> Result<String, St
 }
 
 #[cfg(test)]
+fn emit_program_and_plain_mir_json_for_source(source_text: &str) -> Result<(String, String), String> {
+    let program_json = emit_program_json_for_source(source_text)?;
+    let mir_json = emit_plain_mir_json_from_program_json_text(&program_json)?;
+    Ok((program_json, mir_json))
+}
+
+#[cfg(test)]
 fn emit_plain_mir_json_from_program_json_text(program_json: &str) -> Result<String, String> {
     lowering::program_json_to_mir_json(program_json)
 }
@@ -133,6 +138,10 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
 fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, String> {
     crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(source_text)
         .map_err(|error| format!("{FAILFAST_TAG} {}", error))
+}
+
+fn emit_program_json_for_source(source_text: &str) -> Result<String, String> {
+    emit_strict_program_json_for_source(source_text)
 }
 
 fn parse_program_json_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
@@ -180,15 +189,15 @@ fn finalize_mir_json_with_stage1_user_box_decls(
     program_json: &str,
     mir_json: &str,
 ) -> Result<String, String> {
-    inject_stage1_user_box_decls_from_program_json(program_json, mir_json)
+    let user_box_decls = collect_stage1_user_box_decls(program_json)?;
+    inject_user_box_decls_into_mir_json(mir_json, user_box_decls)
 }
 
-fn inject_stage1_user_box_decls_from_program_json(
-    program_json: &str,
+fn inject_user_box_decls_into_mir_json(
     mir_json: &str,
+    user_box_decls: Vec<serde_json::Value>,
 ) -> Result<String, String> {
     let mut mir_value = parse_mir_json_value(mir_json)?;
-    let user_box_decls = collect_stage1_user_box_decls(program_json)?;
     insert_user_box_decls(&mut mir_value, user_box_decls)?;
     serialize_mir_json_value(&mir_value)
 }
