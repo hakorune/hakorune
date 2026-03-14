@@ -168,10 +168,21 @@ static box MirBuilderBox {
   }
 
   method emit_from_program_json_v0(program_json, opts) {
+    return me._emit_mir_from_program_json_checked(program_json, opts)
+  }
+
+  method _emit_mir_from_program_json_checked(program_json, opts) {
     if BuilderConfigBox.trace_enabled() == 1 {
       print("[mirbuilder/entry:build]")
     }
 
+    local s = me._coerce_program_json_checked(program_json)
+    if s == null { return null }
+    local func_defs_mir = me._lower_func_defs_if_enabled(s)
+    return me._emit_mir_from_program_json_text_checked(s, func_defs_mir)
+  }
+
+  method _coerce_program_json_checked(program_json) {
     if program_json == null {
       print("[mirbuilder/input/null] program_json is null")
       return null
@@ -181,10 +192,12 @@ static box MirBuilderBox {
       print("[mirbuilder/input/invalid] missing version/kind keys")
       return null
     }
+    return s
+  }
 
-    local func_defs_mir = me._lower_func_defs_if_enabled(s)
+  method _emit_mir_from_program_json_text_checked(program_json, func_defs_mir) {
     if BuilderConfigBox.internal_on() == 1 {
-      return me._emit_internal_program_json(s, func_defs_mir)
+      return me._emit_internal_program_json(program_json, func_defs_mir)
     }
     return me._emit_delegate_program_json(program_json, func_defs_mir)
   }

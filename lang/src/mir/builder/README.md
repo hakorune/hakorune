@@ -20,6 +20,7 @@ Interface (stable)
   - the normal registry-first Program(JSON)->MIR authority block now lives in `hako.mir.builder.internal.registry_authority`
   - the non-registry/internal fallback chain now lives in `hako.mir.builder.internal.fallback_authority`
   - this file keeps route sequencing, generic unsupported/no-match decision, and compat tails around those internal owners
+  - outer Program(JSON) entry validation now stays owner-local via `_coerce_program_json_checked(...)` and `_emit_mir_from_program_json_text_checked(...)`, so the public entrypoint only shows checked handoff plus route dispatch
   - route sequencing is owner-local via `_lower_func_defs_if_enabled(...)`, `_emit_internal_program_json(...)`, and `_emit_delegate_program_json(...)`; raw env/hostbridge branching does not stay duplicated inline
   - internal unsupported tail is now isolated in `_fail_internal_unsupported(...)` and `_program_json_has_ternary(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
