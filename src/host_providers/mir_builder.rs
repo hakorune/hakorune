@@ -83,10 +83,7 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
     let _env_guard = Phase0MirJsonEnvGuard::new();
-    let module = match crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
-        Ok(module) => module,
-        Err(error) => return Err(failfast_error(error)),
-    };
+    let module = parse_program_json_module(program_json)?;
     let mir_json = module_to_mir_json(&module)?;
     inject_stage1_user_box_decls_from_program_json(program_json, &mir_json)
 }
@@ -124,6 +121,10 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
 fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, String> {
     crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(source_text)
         .map_err(|error| format!("{FAILFAST_TAG} {}", error))
+}
+
+fn parse_program_json_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
+    crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
 }
 
 fn emit_module_to_temp_mir_json(
@@ -199,6 +200,14 @@ fn collect_stage1_user_box_decl_names(
 ) -> std::collections::BTreeSet<String> {
     let mut seen = std::collections::BTreeSet::new();
     seen.insert("Main".to_string());
+    insert_stage1_def_box_names(program_value, &mut seen);
+    seen
+}
+
+fn insert_stage1_def_box_names(
+    program_value: &serde_json::Value,
+    seen: &mut std::collections::BTreeSet<String>,
+) {
     if let Some(defs) = program_value
         .get("defs")
         .and_then(serde_json::Value::as_array)
@@ -211,7 +220,6 @@ fn collect_stage1_user_box_decl_names(
             }
         }
     }
-    seen
 }
 
 fn stage1_user_box_decl_from_name(name: String) -> serde_json::Value {
