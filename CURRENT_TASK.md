@@ -112,6 +112,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - task rule:
     - if an owner is only a thin facade or compat keep, freeze it and move on
     - spend active slices on current authority owners and helper-local caller leaves above the Rust stop-line
+  - current freeze decision (2026-03-15):
+    - the `.hako` owner/helper local cleanup wave is now `closeout-ready`
+    - do not reopen local tiny-leaf cleanup in
+      - `lang/src/mir/builder/MirBuilderBox.hako`
+      - `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
+      - `lang/src/compiler/build/build_box.hako`
+      - `tools/{hakorune_emit_mir.sh,selfhost/selfhost_build.sh}`
+      - `tools/smokes/v2/lib/test_runner.sh`
+    - active work should now stay on exact Rust-owned retirement buckets only
 
 - pure `.hako-only hakorune build` gap snapshot (2026-03-14):
   - current main stopper is still Rust authority, not `.hako` caller count
@@ -157,6 +166,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - safest next Rust-owned slice is the bridge-local `program_json` cluster, starting from `src/runner/stage1_bridge/program_json/mod.rs`
   - do not take `src/runner/stage1_bridge/program_json_entry/request.rs` next; it is closer to env / outer-caller contract blast radius than the bridge-local `program_json` cluster
   - if one collapse is chosen now, prefer collapsing `src/runner/stage1_bridge/program_json` inward before touching `build_surrogate.rs`; do not collapse `build_surrogate.rs` back into shared dispatch and do not collapse `program_json_entry/request.rs`
+  - latest closeout decision (2026-03-15):
+    - the bridge-local `program_json` cluster is now also near thin facade
+    - `src/runner/stage1_bridge/program_json/mod.rs` is already read -> payload -> write orchestration only
+    - `src/runner/stage1_bridge/program_json_entry/mod.rs` is already request-build + dispatch only
+    - therefore, do not keep shaving those façades unless an exact disappearing owner appears first
 - pure `.hako-only hakorune build` blocker map (2026-03-14):
   - primary Rust-owned blockers:
     1. `src/host_providers/mir_builder.rs`
@@ -207,9 +221,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. de-Rust source->Program(JSON v0) authority in `src/stage1/program_json_v0/authority.rs`
        - latest tightening: future-retire bridge shim is now split to `src/stage1/program_json_v0/bridge_shim.rs`
        - implication: this owner is now closer to the real strict source-authority core; keep it frozen for now and do not mix bridge-leaf cleanup, host-provider lowering work, or `.hako` caller thinning back into it
-    4. retire AST JSON compat keep in `src/host_providers/mir_builder/lowering/ast_json.rs` only after the primary lowering owner is no longer needed
-    5. retire compiled-stage1 `build_surrogate.rs`
-    6. retire `src/runner/stage1_bridge/**`
+    4. retire compiled-stage1 `build_surrogate.rs` only after the Rust stop-line above is no longer the active front
+    5. retire `src/runner/stage1_bridge/**` only after the phase explicitly switches from authority front to bridge retirement
+    6. retire AST JSON compat keep in `src/host_providers/mir_builder/lowering/ast_json.rs` only after the primary lowering owner is no longer needed
   - exact near-term task ladder:
     1. `src/host_providers/mir_builder/authority.rs` is retired, and shared Program(JSON) shaping is now folded into `src/host_providers/mir_builder.rs`
     2. `src/host_providers/mir_builder.rs` now owns the remaining source-route handoff + shaping front
@@ -253,6 +267,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - rule:
     - bridge/helper cleanup is useful, but it is not the same thing as removing the current compiler authority from Rust
     - do not let `phase-29cj` local cleanup hide the fact that the main blocker is still current Rust authority/lowering
+  - current phase wording lock (2026-03-15):
+    - `.hako` owner/helper cleanup wave: `closeout-ready`
+    - `phase-29cj` overall status: still `open`
+    - remaining exact owners before phase close discussion:
+      1. `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+      2. `src/stage1/program_json_v0/authority.rs`
+      3. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+      4. `src/runner/stage1_bridge/program_json_entry/request.rs`
+    - do not reopen `.hako` local thinning just because those Rust-owned buckets are still live
 
 - de-rust selfhost top-level closeout:
   - `phase-29cc` accepted monitor-only
