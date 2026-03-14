@@ -22,6 +22,7 @@ Scope: Rust-side current authority / lowering owner under `src/host_providers/mi
   - shared MIR(JSON) emission seam
   - runtime/plugin imports route reuses this seam without staying a live caller of `lowering.rs`
   - treat this as the Rust host stop-line; next authority-replacement work should move `.hako` owners toward producing canonical MIR(JSON) above this seam, not move `MirModule` ownership into `.hako`
+  - now reads as `emit_module_to_temp_mir_json(...)` -> `finalize_temp_mir_json_output(...)`
   - explicit-route finalize above this seam should stay owner-local (`emit_module_mir_json(...)` -> `finalize_mir_json_with_stage1_user_box_decls(...)`)
 - `mir_builder/lowering/ast_json.rs`
   - legacy AST JSON compat route owner

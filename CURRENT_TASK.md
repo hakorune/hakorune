@@ -205,7 +205,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest tightening: `program_json_to_mir_json_with_imports(...)` is now test-only in the façade; live imports-bearing lowering no longer depends on this public front
        - latest tightening: plain `program_json_to_mir_json(...)` is also test-only in the façade; live cross-crate Program(JSON) callers stay on `program_json_to_mir_json_with_user_box_decls(...)`
        - latest tightening: live explicit Program(JSON) callers now also stay inside this façade owner, and the shared Rust stop-line `module_to_mir_json(...)` now lives here too
-       - latest tightening: `module_to_mir_json(...)` now keeps temp-file read / cleanup / JSON canonicalization behind same-file helpers; the stop-line itself stays in this owner
+       - latest tightening: `module_to_mir_json(...)` now reads as `emit_module_to_temp_mir_json(...)` -> `finalize_temp_mir_json_output(...)`, with temp-file read / cleanup / JSON canonicalization closed behind that same-file tail
        - latest tightening: explicit-route `user_box_decls` finalize now keeps MIR JSON parse/root mutation behind `parse_mir_json_value(...)` and `insert_user_box_decls(...)`; the façade owner still holds explicit Program(JSON) shaping
        - latest tightening: strict source-authority entry now keeps duplicate `emit_program_json_v0_for_strict_authority_source(...)` handling behind same-file helper `emit_strict_program_json_for_source(...)`
        - latest tightening: explicit Program(JSON) entry now keeps module parse behind `parse_program_json_module(...)`, and box-name collection now keeps defs iteration behind `insert_stage1_def_box_names(...)`

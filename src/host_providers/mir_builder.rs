@@ -132,9 +132,7 @@ fn emit_plain_mir_json_from_program_json_text(program_json: &str) -> Result<Stri
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
     let tmp_path = emit_module_to_temp_mir_json(module)?;
-    let raw = read_temp_mir_json_output(&tmp_path)?;
-    cleanup_temp_mir_json_output(&tmp_path);
-    Ok(canonicalize_mir_json_output(raw))
+    finalize_temp_mir_json_output(&tmp_path)
 }
 
 fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, String> {
@@ -174,6 +172,12 @@ fn read_temp_mir_json_output(tmp_path: &std::path::Path) -> Result<String, Strin
 
 fn cleanup_temp_mir_json_output(tmp_path: &std::path::Path) {
     let _ = std::fs::remove_file(tmp_path);
+}
+
+fn finalize_temp_mir_json_output(tmp_path: &std::path::Path) -> Result<String, String> {
+    let raw = read_temp_mir_json_output(tmp_path)?;
+    cleanup_temp_mir_json_output(tmp_path);
+    Ok(canonicalize_mir_json_output(raw))
 }
 
 fn canonicalize_mir_json_output(raw: String) -> String {
