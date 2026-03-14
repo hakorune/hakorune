@@ -9,8 +9,8 @@ Related:
   - docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md
   - src/runner/modes/mir.rs
   - src/host_providers/mir_builder.rs
-  - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
   - lang/src/mir/builder/MirBuilderBox.hako
+  - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
   - apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako
 ---
 
@@ -21,7 +21,7 @@ Related:
 `phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako` について、
 
 - direct CLI `--backend mir --emit-mir-json`
-- Rust host-provider `source_to_program_and_mir_json(...)`
+- Rust host-provider `source_to_mir_json(...)`
 - language-level source surface `lang.mir.builder.MirBuilderBox.emit_from_source_v0`
 
 が同じ route ではないことを exact call-chain で固定する。
@@ -54,19 +54,21 @@ Related:
 ### 2. Rust host-provider source route
 
 - entry:
-  - [src/host_providers/mir_builder.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs) (thin façade)
+  - [src/host_providers/mir_builder.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs)
 - chain:
-  1. [src/host_providers/mir_builder/authority.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/authority.rs)::`source_to_mir_json(...)`
+  1. `source_to_mir_json(...)`
   2. `emit_program_json_v0_for_strict_authority_source(...)`
-  3. [src/host_providers/mir_builder/lowering/program_json.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/lowering/program_json.rs)::`lower_program_json_to_module(...)`
-  4. `runner::json_v0_bridge::parse_json_v0_to_module_with_imports(...)`
+  3. `program_json_to_mir_json_with_user_box_decls(...)`
+  4. `runner::json_v0_bridge::parse_json_v0_to_module(...)`
+  5. `module_to_mir_json(...)`
 - current observed result on the same fixture:
   - lowers successfully
   - returns MIR(JSON) only on the cross-crate source surface
 - interpretation:
-  - this is a bootstrap-only authority helper route
-  - it exercises the JSON bridge, not the direct JoinIR CLI route
-  - the façade file is no longer the real blocker owner; the blocker is now split between `authority.rs` and `lowering/program_json.rs`, while `lowering/ast_json.rs` remains legacy compat keep
+  - this is the bootstrap-only authority helper route
+  - it exercises the Program(JSON v0) bridge, not the direct JoinIR CLI route
+  - `mir_builder.rs` is now the live owner for source-route handoff, explicit Program(JSON) route, shared `user_box_decls` shaping, and shared MIR(JSON) emission seam
+  - [src/host_providers/mir_builder/lowering.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/lowering.rs) remains only as test-only Program(JSON)/AST(JSON) evidence, not the live blocker owner
 
 ### 3. Language-level source surface
 
@@ -81,9 +83,11 @@ Related:
   - lowers successfully
 - interpretation:
   - current success here is still a kernel-dispatch-owned source surface success
-  - but the transient Program(JSON) tuple no longer leaks out of the host provider; source-route `user_box_decls` injection is now authority-owned
+  - the transient Program(JSON) tuple no longer leaks out of the live host provider route; `source_to_program_and_mir_json(...)` is now test-only evidence
+  - source-route `user_box_decls` injection is now owned inside `mir_builder.rs`
   - this must not be misread as proof that the pure `.hako` internal body in [lang/src/mir/builder/MirBuilderBox.hako](/home/tomoaki/git/hakorune-selfhost/lang/src/mir/builder/MirBuilderBox.hako) handled the fixture on its own
-  - current `.hako` inventory says the source-entry shim there is already thin (`_emit_program_json_from_source_checked(...)` -> `emit_from_program_json_v0(...)`); the thicker `.hako` policy surface is now the Program(JSON)->MIR body plus raw/env runner lanes, not the source-entry shim itself
+  - current `.hako` inventory says the source-entry shim there is already thin (`_emit_program_json_from_source_checked(...)` -> `emit_from_program_json_v0(...)`) and the Program(JSON)->MIR route sequencing now sits behind owner-local helpers
+  - the thicker `.hako` policy surface is now the Program(JSON)->MIR body plus raw/env runner lanes, not the source-entry shim itself
 
 ## Guardrails
 

@@ -191,28 +191,43 @@ run_program_json_v0_via_core_direct() {
   return $rc
 }
 
-emit_exe_from_program_json_v0() {
-  local json_path="$1" exe_out_path="$2"
+resolve_emit_exe_nyllvm() {
   local nyll="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}"
   if [ ! -x "$nyll" ] && [ ! -f "$nyll" ]; then
     echo "[selfhost] ny-llvmc not found: $nyll (Set NYASH_NY_LLVM_COMPILER or build ny-llvmc)" >&2
     return 2
   fi
+  printf '%s' "$nyll"
+}
 
-  local nyrt_dir="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}"
+apply_emit_exe_env() {
+  local nyll="$1" nyrt_dir="$2"
   export NYASH_LLVM_USE_HARNESS=1
   export NYASH_NY_LLVM_COMPILER="$nyll"
   export NYASH_EMIT_EXE_NYRT="$nyrt_dir"
+}
+
+cleanup_emit_exe_temp_outputs() {
+  local json_path="$1" mir_tmp="$2"
+  if [ "$KEEP_TMP" != "1" ]; then
+    if [ -z "$JSON_OUT" ]; then rm -f "$json_path" 2>/dev/null || true; fi
+    if [ -z "$MIR_OUT" ]; then rm -f "$mir_tmp" 2>/dev/null || true; fi
+  fi
+}
+
+emit_exe_from_program_json_v0() {
+  local json_path="$1" exe_out_path="$2"
+  local nyll
+  nyll="$(resolve_emit_exe_nyllvm)" || return $?
+  local nyrt_dir="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}"
+  apply_emit_exe_env "$nyll" "$nyrt_dir"
 
   local mir_tmp="${MIR_OUT:-/tmp/hako_stageb_mir_$$.json}"
   echo "[selfhost] converting Program(JSON v0) → MIR(JSON) → EXE" >&2
   "$BIN" --json-file "$json_path" --program-json-to-mir "$mir_tmp"
   "$nyll" --in "$mir_tmp" --emit exe --nyrt "$nyrt_dir" --out "$exe_out_path"
 
-  if [ "$KEEP_TMP" != "1" ]; then
-    if [ -z "$JSON_OUT" ]; then rm -f "$json_path" 2>/dev/null || true; fi
-    if [ -z "$MIR_OUT" ]; then rm -f "$mir_tmp" 2>/dev/null || true; fi
-  fi
+  cleanup_emit_exe_temp_outputs "$json_path" "$mir_tmp"
 }
 
 while [ $# -gt 0 ]; do
