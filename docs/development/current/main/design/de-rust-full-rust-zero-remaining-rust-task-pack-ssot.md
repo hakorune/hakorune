@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/phases/phase-29cj/README.md
   - docs/development/current/main/phases/phase-29ck/README.md
+  - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
 ---
 
@@ -122,7 +123,8 @@ rule:
   2. `B1b` daily caller stop-point unification
      - landed: `lang/src/runner/launcher.hako` moved from direct `CodegenBridgeBox` build-exe calls to `LlvmBackendBox`
      - keep `lang/src/runner/stage1_cli.hako` as compat keep until after launcher migration
-     - follow-up: launcher Program(JSON)->MIR now preserves `user_box_decls`; retire the old `Unknown Box type: HakoCli` blocker and treat launcher entry argv handoff as a separate proof blocker
+     - follow-up: launcher Program(JSON)->MIR now preserves `user_box_decls`, and compiled-stage1 module dispatch now carries temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate handling
+     - retire the old `Unknown Box type: HakoCli` and `LlvmBackendBox.compile_obj failed` blockers; keep `stage1_cli.hako` as the visible compat keep while B1c/B1d lock the boundary contract
   3. `B1c` compile contract lock
      - freeze normalized JSON temp ownership and object-output temp ownership between `LlvmBackendBox` and `hako_aot`
      - remove ambiguity between `compile_obj(json_path)` and `hako_aot_compile_json(json_in, obj_out, ...)`
@@ -183,6 +185,32 @@ rule:
   - keep explicit compat names until daily route no longer depends on them
   - do not use them as acceptance owner for backend-zero
 
+### B5. by-name retirement cutover
+
+- phase owner:
+  - `docs/development/current/main/phases/phase-29cl/README.md`
+- exact work:
+  - lock `no-new-mainline` on `nyash.plugin.invoke_by_name_i64`
+  - move visible daily callers off module-string / method-name by-name routes before kernel delete
+  - shrink compiled-stage1 surrogates only after replacement proof exists
+  - demote hook/registry residue to compat-only
+- current worker-backed inventory:
+  - kernel entry owner: `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
+  - upstream daily caller/dependency pack:
+    - `src/llvm_py/instructions/mir_call/method_call.py`
+    - `src/backend/mir_interpreter/handlers/calls/method.rs`
+    - `src/runtime/type_registry.rs`
+    - `src/backend/wasm_v2/unified_dispatch.rs`
+  - compiled-stage1 temporary keeps:
+    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+    - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+    - `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+- done shape:
+  - `by_name` is no longer a daily owner
+  - remaining `by_name` surface is explicit compat/archive only
+- rule:
+  - do not mix this pack with `phase-29ce`; frontend fixture-key / semantic by-name retirement stays there
+
 ## 4. Runtime Task Pack
 
 ### R0. monitor-only keep
@@ -220,7 +248,8 @@ rule:
 6. `B2`
 7. `B3`
 8. `B4`
-9. `R0` / `R1` remain monitor-only documentation unless reopen trigger fires
+9. `B5`
+10. `R0` / `R1` remain monitor-only documentation unless reopen trigger fires
 
 ## 6. Non-goals
 

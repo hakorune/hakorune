@@ -1,0 +1,104 @@
+---
+Status: Active
+Decision: accepted
+Date: 2026-03-15
+Scope: kernel/plugin/backend boundary に残る `by_name` 経路を独立 phase として固定し、mainline owner から compat/temporary keep へ後退させる順序を lock する。
+Related:
+  - CURRENT_TASK.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
+  - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
+  - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
+  - docs/development/current/main/phases/phase-29ce/README.md
+  - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
+  - crates/nyash_kernel/src/plugin/invoke/by_name.rs
+  - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
+  - crates/nyash_kernel/src/hako_forward_bridge.rs
+  - lang/c-abi/shims/hako_llvmc_ffi.c
+  - lang/src/shared/backend/llvm_backend_box.hako
+---
+
+# Phase 29cl: By-Name Retirement Cutover
+
+## Goal
+
+- `by_name` を mainline owner として育て続けないことを phase 単位で固定する。
+- current remaining `by_name` residue を `mainline / compiled-stage1 temporary / compat keep / archive-out-of-scope` に分ける。
+- plugin dispatch は TypeBox ABI v2、runtime/host bootstrap は Core C ABI、backend は thin backend boundary へ寄せる順序を lock する。
+
+## Scope Lock
+
+In scope:
+1. `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
+2. `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+3. `crates/nyash_kernel/src/plugin/module_string_dispatch/{build_surrogate.rs,llvm_backend_surrogate.rs}`
+4. `crates/nyash_kernel/src/hako_forward_bridge.rs`
+5. `crates/nyash_kernel/src/hako_forward.rs`
+6. `crates/nyash_kernel/src/hako_forward_registry.c`
+7. `lang/c-abi/shims/{hako_kernel.c,hako_llvmc_ffi.c}`
+8. upstream caller/dependency inventory that still feeds kernel `by_name`
+   - `src/llvm_py/instructions/mir_call/method_call.py`
+   - `src/backend/mir_interpreter/handlers/calls/method.rs`
+   - `src/runtime/type_registry.rs`
+   - `src/backend/wasm_v2/unified_dispatch.rs`
+
+Out of scope:
+1. JoinIR / frontend fixture-key の historical `by-name` terminology
+2. `phase-29ce` の semantic fixture alias retirement
+3. compiler planner / route policy の “by-name hardcode prohibition” 一般論
+
+Rule:
+- `phase-29cl` は kernel/plugin/backend boundary の `by_name` retire 専用 phase だよ。
+- frontend fixture-key / semantic by-name history は引き続き `phase-29ce` を正本にする。
+- upstream caller inventory はこの phase が order を owner するけど、actual code demotion は `phase-29ck` B3 や runtime keep owner 側に landing してよい。
+
+## Fixed Order
+
+1. `P0-BY-NAME-OWNER-INVENTORY.md`
+2. `P1-BY-NAME-CUTOVER-ORDER.md`
+3. `P2-BY-NAME-ACCEPTANCE-AND-REOPEN-RULE.md`
+4. current daily callers を TypeBox ABI v2 / Core C ABI / thin backend boundary へ寄せ終わってからだけ、kernel-side hard retire 可否を再判定する
+
+## Current Snapshot (2026-03-15)
+
+1. `by_name` は mainline final architecture ではない
+   - plugin dispatch final shape: TypeBox ABI v2
+   - runtime/bootstrap final shape: Core C ABI
+   - backend final shape: `.hako -> LlvmBackendBox -> hako_aot`
+2. current kernel entry is still live
+   - `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
+3. current upstream daily caller/dependency pack is still live
+   - `src/llvm_py/instructions/mir_call/method_call.py`
+   - `src/backend/mir_interpreter/handlers/calls/method.rs`
+   - `src/runtime/type_registry.rs`
+   - `src/backend/wasm_v2/unified_dispatch.rs`
+4. current compiled-stage1 temporary keeps are still needed
+   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+   - `build_surrogate.rs`
+   - `llvm_backend_surrogate.rs`
+5. current compat/archive residue still exists
+   - `crates/nyash_kernel/src/hako_forward_bridge.rs`
+   - `crates/nyash_kernel/src/hako_forward_registry.c`
+   - `lang/c-abi/shims/hako_kernel.c`
+   - `src/llvm_py/instructions/boxcall.py`
+   - `src/llvm_py/instructions/mir_call_legacy.py`
+6. latest landed proof:
+   - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green again because compiled-stage1 `llvm_backend_surrogate.rs` now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` routing
+7. this phase does not mean “delete by_name now”
+   - order is caller cutover first
+   - kernel delete/shrink only after those callers are gone
+
+## Immediate Next
+
+1. freeze the exact owner inventory
+2. classify daily callers and temporary keeps
+3. move visible daily callers off `by_name`
+4. keep compiled-stage1 surrogates only as temporary proof paths
+5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
+
+## Acceptance
+
+- docs make it unambiguous that `by_name` is a retire target, not the final runtime/backend dispatch model
+- exact owner list is frozen
+- next fixed order names the migration targets before any delete
+- `phase-29ck` / full-rust-zero docs can point here without redefining `by_name`

@@ -74,6 +74,7 @@ Separate lane pointer:
    - final boundary SSOT: `de-rust-backend-zero-boundary-lock-ssot.md`
    - final shape is `.hako -> thin backend C ABI/plugin boundary -> object/exe`
    - `native_driver.rs` stays bootstrap seam only
+   - post-B1/B3 by-name cleanup is a separate `phase-29cl` follow-up for kernel/plugin/backend boundary only; it does not replace `phase-29ce` frontend fixture-key retirement
 4. remaining Rust bucket inventory:
 `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md`
 5. remaining Rust task pack:

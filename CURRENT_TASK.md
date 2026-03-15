@@ -28,6 +28,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
     - design SSOT: `docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md`
     - phase SSOT: `docs/development/current/main/phases/phase-29ck/README.md`
+    - post-cutover by-name retirement SSOT: `docs/development/current/main/phases/phase-29cl/README.md`
     - final shape lock: `.hako -> thin backend C ABI/plugin boundary -> object/exe`
     - `crates/nyash-llvm-compiler/src/native_driver.rs` は bootstrap seam only
     - landed slice:
@@ -39,12 +40,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest B1 arg-plumbing: `LlvmBackendBox.link_exe(obj_path, out_path, libs)` now forwards non-empty `libs` as the third `env.codegen.link_object` arg, and vm-hako / regular VM link handlers accept `[obj_path, exe_out?, extra_ldflags?]` while empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
       - landed B1a/B1b: `CodegenBridgeBox` is documented as temporary bridge owner only, and `lang/src/runner/launcher.hako` `build exe` now stops at `LlvmBackendBox`
       - landed launcher Program(JSON)->MIR fix: `src/runner/pipe_io.rs` `--program-json-to-mir` now uses `src/host_providers/mir_builder.rs::program_json_to_mir_json_with_user_box_decls(...)`, so launcher MIR keeps root `user_box_decls` and the old `Unknown Box type: HakoCli` blocker is retired
-      - next launcher-exe proof blocker is now entry argv handoff into `HakoCli.run(args)`, not missing defs / missing user-box registration
+      - landed launcher-exe backend boundary proof: compiled-stage1 module-string dispatch now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate handling in `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+      - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is now green under `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; the old `LlvmBackendBox.compile_obj failed` blocker is retired
       - next B1 front is no longer “generic caller cutover”; it is pinned to compile contract lock and env truth lock after the launcher stop-point migration
       - next B3 front is no longer one Python bucket; it is pinned to `llvmlite_harness.py` / `llvm_builder.py` entry demotion first, then MIR ingest/context, then opcode lowering
       - latest B0 tightening: `crates/nyash-llvm-compiler/src/main.rs` now keeps harness-path resolution, object-output resolution, input temp/normalize ownership, compile-mode diagnostics, and emit finalize output behind same-file helpers `resolve_harness_path(...)`, `resolve_object_output_path(...)`, `prepare_input_json_path(...)`, `maybe_dump_input_json(...)`, `emit_preflight_shape_hint(...)`, `emit_compile_output(...)`, and `finalize_emit_output(...)`; top-level route order dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)`
       - latest B0 tightening: `src/runner/modes/common_util/exec.rs` now keeps lib/bin MIR JSON emit + ny-llvmc EXE launch behind shared helper `emit_json_and_run_ny_llvmc_emit_exe(...)`
       - latest B0 tightening: `src/runner/modes/llvm/harness_executor.rs` now keeps runtime-state log, harness gate, ny-llvmc emit, and executable run behind same-file helpers `log_harness_runtime_state(...)`, `ensure_harness_requested(...)`, `emit_executable_via_ny_llvmc(...)`, and `run_emitted_executable(...)`
+      - by-name follow-up is now split out as `phase-29cl` and must stay narrow to kernel/plugin/backend boundary retirement; do not repoint `phase-29ce` frontend fixture-key/by-name history there
     - exact next follow-up:
       - runtime proof owner evidence is now pinned by `docs/development/current/main/phases/phase-29ck/P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
       - landed runtime-proof slices:
@@ -57,6 +60,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - `HAKO_CAPI_PURE=1` is now compat-only for historical pure-lowering routes and is not required by the phase-29ck `.hako VM` proof
         - explicit compat-pack entry is `tools/selfhost/run_compat_pure_pack.sh` / `tools/selfhost/run_compat_pure_selfhost.sh`; old script names are wrappers only
       - next runtime-proof slice is promotion/cleanup after compat-pack separation, not VM blocker inventory
+      - post-B1/B3 cleanup is queued as `phase-29cl` (`by_name.rs` / `module_string_dispatch.rs` caller-cutover-first retirement), separate from `phase-29ce`
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。

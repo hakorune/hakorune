@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
   - docs/development/current/main/phases/phase-29cj/README.md
   - docs/development/current/main/phases/phase-29ck/README.md
+  - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
 ---
 
@@ -188,6 +189,35 @@ Related:
     - compat keep for now; not the first daily caller migration
   - `lang/src/vm/hakorune-vm/extern_provider.hako`
     - explicit keep / runtime-side bridge surface
+
+#### by-name residue after B1/B3
+
+1. mainline kernel/backend dispatch owner to demote
+   - `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
+   - still exports `nyash.plugin.invoke_by_name_i64`
+2. upstream daily caller / dependency pack
+   - `src/llvm_py/instructions/mir_call/method_call.py`
+   - `src/backend/mir_interpreter/handlers/calls/method.rs`
+   - `src/runtime/type_registry.rs`
+   - `src/backend/wasm_v2/unified_dispatch.rs`
+   - these still rely on method-name resolution and therefore feed the `phase-29cl` cutover order
+3. compiled-stage1 temporary keeps
+   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+   - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+   - `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+   - `lang/src/vm/boxes/mir_call_v1_handler.hako` is observation-only (`[vm/byname:*]`), not a final dispatch target
+4. compat keeps
+   - `crates/nyash_kernel/src/hako_forward_bridge.rs`
+   - `crates/nyash_kernel/src/hako_forward.rs`
+   - `crates/nyash_kernel/src/hako_forward_registry.c`
+   - `lang/c-abi/shims/hako_kernel.c`
+   - `src/llvm_py/instructions/boxcall.py`
+5. archive-candidate / compat-only residue
+   - `src/llvm_py/instructions/mir_call_legacy.py`
+   - dynamic-fallback `by_name` path inside `lang/c-abi/shims/hako_llvmc_ffi.c`
+6. phase owner
+   - retire order is owned by `docs/development/current/main/phases/phase-29cl/README.md`
+   - this inventory is intentionally separate from `phase-29ce` frontend fixture-key / semantic by-name history
 
 ## 4. Fixed Remaining Order
 

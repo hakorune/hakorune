@@ -3,6 +3,8 @@ use nyash_rust::runtime::host_handles;
 
 #[path = "module_string_dispatch/build_surrogate.rs"]
 mod build_surrogate;
+#[path = "module_string_dispatch/llvm_backend_surrogate.rs"]
+mod llvm_backend_surrogate;
 
 const USING_RESOLVER_BOX_MODULE: &str = "lang.compiler.entry.using_resolver_box";
 const USING_RESOLVER_MODULE: &str = "lang.compiler.entry.using_resolver";
@@ -95,6 +97,16 @@ pub(crate) fn try_dispatch(
     {
         trace_log(format!(
             "[stage1/module_dispatch] hit build_surrogate module={} method={}",
+            module_name, method_name
+        ));
+        return Some(result);
+    }
+
+    if let Some(result) =
+        llvm_backend_surrogate::try_dispatch(&module_name, method_name, arg_count, arg1, arg2)
+    {
+        trace_log(format!(
+            "[stage1/module_dispatch] hit llvm_backend_surrogate module={} method={}",
             module_name, method_name
         ));
         return Some(result);

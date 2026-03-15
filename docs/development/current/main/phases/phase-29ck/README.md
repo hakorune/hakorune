@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
+  - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
   - docs/development/current/main/phases/phase-29x/29x-63-llvm-cabi-link-gate-ssot.md
@@ -92,6 +93,7 @@ Related:
 13. next B1/B3 detail lock:
    - B1 now splits into `temporary bridge freeze -> launcher stop-point migration -> compile contract lock -> env truth lock`
    - B3 now splits into `harness/entry -> MIR ingest/context -> opcode lowering -> analysis/support`
+   - post-B1/B3 `by_name` cleanup is tracked separately in `phase-29cl`; do not conflate it with `phase-29ce` frontend fixture-key retirement
 14. landed B1a/B1b slice:
    - `CodegenBridgeBox` is now documented as temporary bridge owner only
    - `lang/src/runner/launcher.hako` `build exe` now stops at `LlvmBackendBox`
@@ -100,7 +102,10 @@ Related:
    - `src/runner/pipe_io.rs` `--program-json-to-mir` now routes through `src/host_providers/mir_builder.rs::program_json_to_mir_json_with_user_box_decls(...)`
    - launcher Stage‑B Program(JSON) still includes `HakoCli.*` defs, and the emitted MIR now retains root `user_box_decls`
    - the old `Unknown Box type: HakoCli` launcher-exe blocker is retired
-   - the next launcher proof blocker is entry argv handoff, not missing defs / missing user-box registration
+16. landed launcher-exe backend boundary proof:
+   - compiled-stage1 module-string dispatch now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate handling in `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+   - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green under `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
+   - the old `LlvmBackendBox.compile_obj failed` blocker is retired
 
 ## Non-goals
 
@@ -115,7 +120,7 @@ Related:
 1. post-`BE0-min6` C owner cleanup
    - target owner is now `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
    - source truth for compile/link is shared at `lang/c-abi/shims/hako_aot_shared_impl.inc`
-   - launcher proof note: do not conflate compile-contract cleanup with entry argv handoff; the current launcher-exe run blocker is argv delivery into `HakoCli.run(args)`
+   - launcher proof note: do not reopen the temporary compiled-stage1 surrogate unless the daily caller route changes again; current B1 front is compile-contract cleanup and env-truth lock
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
@@ -138,6 +143,7 @@ Related:
 4. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
    - temporary seam/env retirement check
+   - `by_name` retirement cutover is a separate follow-up owned by `phase-29cl`
 5. compat-only pure pack lock
    - explicit historical entry is `tools/selfhost/run_compat_pure_pack.sh`
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only

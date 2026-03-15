@@ -50,6 +50,7 @@ Related:
    - owner inventory と keep-vs-retire の高位境界は固定済み
    - final architecture boundary is locked in `de-rust-backend-zero-boundary-lock-ssot.md`
    - phase-29ck が `task pack / acceptance / reopen rule` を owner する
+   - post-B1/B3 by-name retirement follow-up is owned by `docs/development/current/main/phases/phase-29cl/README.md`
    - `native_driver.rs` は bootstrap seam only であり、done shape ではない。
 4. remaining Rust bucket snapshot:
    - exact compiler/runtime/backend residue inventory lives in
@@ -84,6 +85,7 @@ Related:
   - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
   - `docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md`
   - `docs/development/current/main/phases/phase-29ck/README.md`
+  - `docs/development/current/main/phases/phase-29cl/README.md`
   - `docs/development/current/main/phases/phase-29ck/P1-NY-LLVMC-NATIVE-EMITTER-TASK-PACK.md`
   - `docs/development/current/main/phases/phase-29ck/P2-NATIVE-EMITTER-ACCEPTANCE-AND-REOPEN-RULE.md`
 - current gap:
@@ -93,6 +95,7 @@ Related:
 - rule:
   - `phase-29ck` の promotion gate を満たすまでは current blocker に昇格しない。
   - `backend-zero` は現時点では「queued phase」であり、daily 実装順を上書きしない。
+  - kernel/plugin/backend boundary の `by_name` retire work は `phase-29cl` を owner にし、frontend fixture-key history (`phase-29ce`) と混線させない。
 
 ## 4. Fixed Order (high level)
 
