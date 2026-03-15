@@ -175,12 +175,44 @@ impl SourceProgramJsonHandoff {
     }
 }
 
+struct Stage1UserBoxDeclHandoff {
+    program_value: serde_json::Value,
+}
+
+impl Stage1UserBoxDeclHandoff {
+    fn resolve_user_box_decls(self) -> Vec<serde_json::Value> {
+        self.explicit_user_box_decls()
+            .unwrap_or_else(|| self.compat_user_box_decls())
+    }
+
+    fn explicit_user_box_decls(&self) -> Option<Vec<serde_json::Value>> {
+        let decls = self.program_value.get("user_box_decls")?.as_array()?;
+        Some(
+            decls
+                .iter()
+                .filter_map(normalize_stage1_user_box_decl)
+                .collect(),
+        )
+    }
+
+    fn compat_user_box_decls(&self) -> Vec<serde_json::Value> {
+        build_stage1_user_box_decls_from_names(self.collect_decl_names())
+    }
+
+    fn collect_decl_names(&self) -> std::collections::BTreeSet<String> {
+        let mut seen = std::collections::BTreeSet::new();
+        seen.insert("Main".to_string());
+        insert_stage1_def_box_names(&self.program_value, &mut seen);
+        seen
+    }
+}
+
 fn stage1_program_json_module_handoff(
     program_json: &str,
 ) -> Result<Stage1ProgramJsonModuleHandoff, String> {
     Ok(Stage1ProgramJsonModuleHandoff {
         module: parse_program_json_module(program_json)?,
-        user_box_decls: resolve_stage1_user_box_decls_from_program_json(program_json)?,
+        user_box_decls: stage1_user_box_decl_handoff(program_json)?.resolve_user_box_decls(),
     })
 }
 
@@ -207,35 +239,10 @@ fn with_stage1_user_box_decls(
     module
 }
 
-fn build_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_json::Value> {
-    let names = collect_stage1_user_box_decl_names(program_value);
-    build_stage1_user_box_decls_from_names(names)
-}
-
-fn resolve_stage1_user_box_decls_from_program_json(
-    program_json: &str,
-) -> Result<Vec<serde_json::Value>, String> {
-    let program_value = parse_program_json_value(program_json)?;
-    Ok(resolve_stage1_user_box_decls(&program_value))
-}
-
-fn resolve_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_json::Value> {
-    match explicit_stage1_user_box_decls(program_value) {
-        Some(user_box_decls) => user_box_decls,
-        None => build_stage1_user_box_decls(program_value),
-    }
-}
-
-fn explicit_stage1_user_box_decls(
-    program_value: &serde_json::Value,
-) -> Option<Vec<serde_json::Value>> {
-    let decls = program_value.get("user_box_decls")?.as_array()?;
-    Some(
-        decls
-            .iter()
-            .filter_map(normalize_stage1_user_box_decl)
-            .collect(),
-    )
+fn stage1_user_box_decl_handoff(program_json: &str) -> Result<Stage1UserBoxDeclHandoff, String> {
+    Ok(Stage1UserBoxDeclHandoff {
+        program_value: parse_program_json_value(program_json)?,
+    })
 }
 
 fn normalize_stage1_user_box_decl(decl: &serde_json::Value) -> Option<serde_json::Value> {
@@ -282,15 +289,6 @@ fn stage1_user_box_decl_entry(decl: &serde_json::Value) -> Option<(String, Vec<S
 fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {
     serde_json::from_str(program_json)
         .map_err(|error| format!("program json parse error: {}", error))
-}
-
-fn collect_stage1_user_box_decl_names(
-    program_value: &serde_json::Value,
-) -> std::collections::BTreeSet<String> {
-    let mut seen = std::collections::BTreeSet::new();
-    seen.insert("Main".to_string());
-    insert_stage1_def_box_names(program_value, &mut seen);
-    seen
 }
 
 fn insert_stage1_def_box_names(
@@ -551,6 +549,36 @@ mod tests {
         assert!(mir_json.contains("\"name\":\"ExplicitBox\""));
         assert!(mir_json.contains("\"fields\":[\"value\"]"));
         assert!(!mir_json.contains("\"name\":\"CompatOnlyBox\""));
+    }
+
+    #[test]
+    fn test_stage1_user_box_decl_handoff_filters_invalid_explicit_entries() {
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "user_box_decls": [
+                {"name": "   ", "fields": []},
+                {"name": "ExplicitBox", "fields": ["value"]}
+            ],
+            "defs": [
+                {
+                    "box": "CompatOnlyBox",
+                    "name": "helper",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Int","value":1}}]}
+                }
+            ],
+            "body": []
+        }"#;
+
+        let decls = stage1_user_box_decl_handoff(program_json)
+            .expect("handoff must parse")
+            .resolve_user_box_decls();
+
+        assert_eq!(
+            decls,
+            vec![serde_json::json!({"name": "ExplicitBox", "fields": ["value"]})]
+        );
     }
 
     #[test]
