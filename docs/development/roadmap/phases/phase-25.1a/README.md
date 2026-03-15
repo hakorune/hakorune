@@ -97,7 +97,7 @@ Status: hotfix-in-progress（緊急タスク／配線修正フェーズ）
 
 ### E. 次フェーズ（25.1b）に送る selfhost builder 強化項目
 
-- `Program.defs` を MirBuilder 側でも処理し、`HakoCli.run` / `cmd_emit_*` / `cmd_build_*` などのメソッドを MIR 関数として生成する（現状は main 1 本のみ）。
+- Historical note (2026-03-15): this Phase-25.1a note is superseded for the launcher selfhost path. `Program.defs` and `HakoCli.*` MIR functions now materialize on the launcher Program→MIR route; the remaining launcher-exe blocker moved to entry argv handoff, not “main 1 本のみ”.
 - `func_lowering` / `call_resolve` 相当の処理を Hako 側に移植し、`Call("cmd_emit_mir_json")` が `Global` resolved call になるようにする。
 - Loop / branch / compare / Array・Map 操作など Stage1 CLI で出現するステートメントを包括的に lowering するため、`lang/src/mir/builder/internal/*` の helper を本番経路に組み込む。
 - JSON 出力を `jsonfrag` ベースで構造的に生成し、functions 配列に複数関数を格納できるようにする（文字列連結のみの暫定実装を置き換える）。

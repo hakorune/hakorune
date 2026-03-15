@@ -117,6 +117,6 @@ Status: planning（構造整理フェーズ・挙動は変えない）
     - これにより、Stage‑B/LoopBuilder に対する修正を「本番 compiler_stageb.hako 全体」ではなく「ミニマムな Hako 断片」で検証できるようにする。
 
 - 4) Stage‑1 CLI (`HakoCli.run`) の selfhost ラインは Stage‑B が緑になってから扱う
-  - `selfhost_cli_run_basic_vm.sh` の現状の失敗は、Stage‑B が rc=1 で Program(JSON) を 1 行も返していないことが原因であり、HakoCli.run の MIR 生成まで到達していない。
+  - Historical note (2026-03-15): this exact blocker is superseded. Current launcher Stage‑B route does emit Program(JSON) and reaches HakoCli MIR generation; the remaining launcher-exe blocker moved to entry argv handoff.
   - 25.1c ではまず Stage‑B 側（fib defs / stageb_min / mini driver）を rc=0 に戻し、  
     その Program(JSON v0) を固定入力にして Phase 25.1b 側の selfhost builder / HakoCli.run MIR を Rust ラインと diff する、という順番で進める。

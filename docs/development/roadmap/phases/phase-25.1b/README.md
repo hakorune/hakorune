@@ -40,6 +40,8 @@ Status: Step0〜3 実装済み・Step4（Method/Extern）実装フェーズ
 
 #### Stage‑B と selfhost CLI canary（HakoCli.run/2）の現状
 
+- Historical note (2026-03-15): the “launcher Program(JSON) / MIR is defs-less” part of this section is superseded. Current launcher Stage‑B output includes `HakoCli.*` defs, and `--program-json-to-mir` now preserves `user_box_decls`. The remaining launcher-exe blocker is entry argv handoff.
+
 - selfhost CLI の最小ケース（`tools/smokes/v2/profiles/quick/core/phase251/selfhost_cli_run_basic_vm.sh` が生成する HakoCli.run サンプル）に対しては、修正前は Stage‑B 実行中に VM エラー:
   - `❌ VM error: Invalid value: use of undefined value ValueId(N)`（%0 / 97842 / 22 など）が発生し、Program(JSON v0) が 1 行としては出力されなかった（`tools/hakorune_emit_mir.sh` が Program 抽出に失敗する）。
 - `NYASH_VM_VERIFY_MIR=1` を立てて `lang/src/compiler/entry/compiler_stageb.hako` を直接叩くと、修正前は Stage‑B が生成した MIR に対して:

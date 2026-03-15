@@ -122,6 +122,7 @@ rule:
   2. `B1b` daily caller stop-point unification
      - landed: `lang/src/runner/launcher.hako` moved from direct `CodegenBridgeBox` build-exe calls to `LlvmBackendBox`
      - keep `lang/src/runner/stage1_cli.hako` as compat keep until after launcher migration
+     - follow-up: launcher Program(JSON)->MIR now preserves `user_box_decls`; retire the old `Unknown Box type: HakoCli` blocker and treat launcher entry argv handoff as a separate proof blocker
   3. `B1c` compile contract lock
      - freeze normalized JSON temp ownership and object-output temp ownership between `LlvmBackendBox` and `hako_aot`
      - remove ambiguity between `compile_obj(json_path)` and `hako_aot_compile_json(json_in, obj_out, ...)`

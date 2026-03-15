@@ -9,6 +9,26 @@
  */
 
 use super::*;
+use std::io::Write;
+
+fn emit_program_json_to_mir_json_file(
+    program_json: &str,
+    out_path: &std::path::Path,
+) -> Result<(), String> {
+    let mir_json =
+        crate::host_providers::mir_builder::program_json_to_mir_json_with_user_box_decls(
+            program_json,
+        )?;
+    let file = std::fs::File::create(out_path).map_err(|e| format!("write mir json: {}", e))?;
+    let mut writer = std::io::BufWriter::new(file);
+    writer
+        .write_all(mir_json.as_bytes())
+        .map_err(|e| format!("write mir json: {}", e))?;
+    writer
+        .write_all(b"\n")
+        .map_err(|e| format!("write mir json: {}", e))?;
+    writer.flush().map_err(|e| format!("write mir json: {}", e))
+}
 
 impl NyashRunner {
     /// Try to handle `--ny-parser-pipe` / `--json-file` flow.
@@ -37,25 +57,63 @@ impl NyashRunner {
         };
         // Optional: convert Program(JSON v0) → MIR(JSON) and exit when requested
         if let Some(out) = &groups.emit.program_json_to_mir {
-            match super::json_v0_bridge::parse_json_v0_to_module(&json) {
-                Ok(module) => {
-                    let p = std::path::Path::new(out);
-                    if let Err(e) = super::mir_json_emit::emit_mir_json_for_harness_bin(&module, p)
-                    {
-                        eprintln!("❌ Program→MIR emit error: {}", e);
-                        std::process::exit(1);
-                    }
-                    std::process::exit(0);
-                }
-                Err(e) => {
-                    eprintln!("❌ Program(JSON v0) parse error: {}", e);
-                    std::process::exit(1);
-                }
+            let p = std::path::Path::new(out);
+            if let Err(e) = emit_program_json_to_mir_json_file(&json, p) {
+                eprintln!("❌ Program→MIR emit error: {}", e);
+                std::process::exit(1);
             }
+            std::process::exit(0);
         }
 
         // Unified: delegate to CoreExecutor (boxed)
         let rc = crate::runner::core_executor::run_json_v0(self, &json);
         std::process::exit(rc);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::emit_program_json_to_mir_json_file;
+
+    fn temp_output_path(label: &str) -> std::path::PathBuf {
+        std::env::temp_dir().join(format!(
+            "hakorune-pipe-io-{}-{}-{}.json",
+            label,
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos()
+        ))
+    }
+
+    #[test]
+    fn program_json_to_mir_file_keeps_user_box_decls() {
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "defs": [
+                {
+                    "box": "HelperBox",
+                    "name": "helper",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Int","value":1}}]}
+                }
+            ],
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {"type": "Int", "value": 42}
+                }
+            ]
+        }"#;
+        let out = temp_output_path("program-json-to-mir");
+        emit_program_json_to_mir_json_file(program_json, &out).expect("emit mir json");
+        let mir_json = std::fs::read_to_string(&out).expect("read mir json");
+        let _ = std::fs::remove_file(&out);
+
+        assert!(mir_json.contains("\"user_box_decls\""));
+        assert!(mir_json.contains("\"name\":\"Main\""));
+        assert!(mir_json.contains("\"name\":\"HelperBox\""));
     }
 }

@@ -237,8 +237,8 @@ hakorune emit mir-json [-o <out>] [--quiet] <source.hako>
   - 直接 EXE を叩く場合も同じ環境変数を手動で設定すること（`NYASH_NYRT_SILENT_RESULT=1 ./target/selfhost/hakorune ...`）。  
     これにより、stdout は JSON のみを返し、終了コードで成否を判別できる（llvmlite ハーネスと同一の契約）。
 - 現状の制約（2025-11-15 時点）:
-  - `lang/src/runner/launcher.hako` から生成された Program(JSON) がまだ `Main.main` のトップレベル式（`new HakoCli().run(args)`）しか含んでおらず、`HakoCli` / `BuildBox` 定義が JSON に落ちていないため、selfhost EXE 側でも `emit program-json` / `emit mir-json` の実体が欠落している。
-  - `tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit program-json apps/tests/minimal.hako` は exit code 0 だが stdout が空のまま。Stage‑B 側で box 定義を Program(JSON) に含められるようになるまで、Rust CLI / BuildBox (`tools/hakorune_emit_mir.sh`) 経由での JSON 取得を継続する。
+  - `launcher.hako` の Stage‑B Program(JSON) と `--program-json-to-mir` route は、現在は `HakoCli.*` defs と root `user_box_decls` を保持する。`Unknown Box type: HakoCli` は current blocker ではない。
+  - selfhost `launcher-exe` の残 blocker は defs 欠落ではなく entry argv handoff 側で、artifact 実行時に CLI args が `HakoCli.run(args)` まで届かない。したがって `emit program-json` / `emit mir-json` の daily proof は引き続き `tools/selfhost/run_stage1_cli.sh` と mainline emit helper で確認する。
   - using 解決は Stage0（Rust Runner）と Stage1（Hakorune）の二系統に分離する方針。Stage1 側は `lang.compiler.entry.using_resolver_box` で `nyash.toml` の `[modules]` を参照し、`HAKO_STAGEB_MODULES_LIST`（shell 側で生成した `name=path` リスト）をキーに依存 Box を text merge する。Rust 側は既存の Runner using 実装を維持し、Stage1 経路はこの Box で独立した自己ホスト導線を持つ。
 
 ### Stage‑1 CLI デバッグメモ（Stage1Cli + BuildBox + ParserBox）

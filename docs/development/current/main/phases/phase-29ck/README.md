@@ -96,6 +96,11 @@ Related:
    - `CodegenBridgeBox` is now documented as temporary bridge owner only
    - `lang/src/runner/launcher.hako` `build exe` now stops at `LlvmBackendBox`
    - remaining direct `.hako` CodegenBridge daily caller is no longer `launcher`; current visible direct caller keep is `stage1_cli.hako`
+15. landed launcher Program(JSON)->MIR contract fix:
+   - `src/runner/pipe_io.rs` `--program-json-to-mir` now routes through `src/host_providers/mir_builder.rs::program_json_to_mir_json_with_user_box_decls(...)`
+   - launcher Stage‑B Program(JSON) still includes `HakoCli.*` defs, and the emitted MIR now retains root `user_box_decls`
+   - the old `Unknown Box type: HakoCli` launcher-exe blocker is retired
+   - the next launcher proof blocker is entry argv handoff, not missing defs / missing user-box registration
 
 ## Non-goals
 
@@ -110,6 +115,7 @@ Related:
 1. post-`BE0-min6` C owner cleanup
    - target owner is now `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
    - source truth for compile/link is shared at `lang/c-abi/shims/hako_aot_shared_impl.inc`
+   - launcher proof note: do not conflate compile-contract cleanup with entry argv handoff; the current launcher-exe run blocker is argv delivery into `HakoCli.run(args)`
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
