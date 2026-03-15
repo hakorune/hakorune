@@ -181,6 +181,10 @@ Related:
    - `src/llvm_py/utils/values.py` now keeps block-id/name extraction, same-block PHI detection, local def lookup, single-def dominance, PHI-owner dominance, and global-reuse checks behind file-local helpers (`_block_id_from_block_name(...)`, `_block_name(...)`, `_same_block_phi(...)`, `_defined_in_block(...)`, `_single_def_dominates_block(...)`, `_phi_owner_dominates_block(...)`, `_global_reuse_allowed(...)`)
    - `resolve_i64_strict(...)` now reads as local-hit/global-hit/fallback orchestration instead of mixing all dominance and PHI-owner checks inline
    - support-owner proof is pinned by `src/llvm_py/tests/test_resolve_i64_strict_scope.py`
+36. landed B3d function-lower-prepass slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps predecessor dedupe, block defs/uses collection, and multi-pred PHI incoming seeding behind owner-local helpers (`_dedup_non_self_preds(...)`, `_collect_block_defs(...)`, `_collect_block_uses(...)`, `_seed_multi_pred_block_phi_incomings(...)`)
+   - `lower_function(...)` no longer mixes prepass graph scan details inline before `_lower_blocks(...)`
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_phi_prepass.py`
 
 ## Non-goals
 

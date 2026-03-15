@@ -190,6 +190,70 @@ def _propagate_arrayish_value_facts(builder, blocks: List[Dict[str, Any]]) -> No
         _mark_arrayish_param_fact(builder, int(vid))
 
 
+def _dedup_non_self_preds(preds_map: Dict[int, List[int]], block_id: int) -> List[int]:
+    try:
+        preds_raw = [p for p in preds_map.get(int(block_id), []) if p != int(block_id)]
+    except Exception:
+        preds_raw = []
+    seen = set()
+    preds_list: List[int] = []
+    for pred_bid in preds_raw:
+        if pred_bid not in seen:
+            preds_list.append(pred_bid)
+            seen.add(pred_bid)
+    return preds_list
+
+
+def _collect_block_defs(block: Dict[str, Any]) -> set[int]:
+    defs: set[int] = set()
+    for ins in block.get("instructions") or []:
+        try:
+            dstv = ins.get("dst")
+            if isinstance(dstv, int):
+                defs.add(int(dstv))
+        except Exception:
+            continue
+    return defs
+
+
+def _collect_block_uses(block: Dict[str, Any]) -> set[int]:
+    uses: set[int] = set()
+    for ins in block.get("instructions") or []:
+        for key in ("lhs", "rhs", "value", "cond", "box_val"):
+            try:
+                value = ins.get(key)
+                if isinstance(value, int):
+                    uses.add(int(value))
+            except Exception:
+                continue
+    return uses
+
+
+def _seed_multi_pred_block_phi_incomings(builder, block_by_id: Dict[int, Dict[str, Any]]) -> None:
+    from cfg.utils import build_preds_succs
+
+    local_preds, _ = build_preds_succs(block_by_id)
+    for bid, blk in block_by_id.items():
+        preds_list = _dedup_non_self_preds(local_preds, int(bid))
+        if len(preds_list) <= 1:
+            continue
+        defs = _collect_block_defs(blk)
+        need = [vid for vid in _collect_block_uses(blk) if vid not in defs]
+        if not need:
+            continue
+        for vid in need:
+            try:
+                builder.block_phi_incomings.setdefault(int(bid), {})[int(vid)] = [
+                    (int(pred_bid), int(vid)) for pred_bid in preds_list
+                ]
+            except Exception:
+                pass
+    try:
+        builder.resolver.block_phi_incomings = builder.block_phi_incomings
+    except Exception:
+        pass
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -547,57 +611,9 @@ def lower_function(builder, func_data: Dict[str, Any]):
 
     # Predeclare PHIs for used-in-block values defined in predecessors (multi-pred only)
     try:
-        from cfg.utils import build_preds_succs
-        local_preds, _ = build_preds_succs(block_by_id)
-        def _collect_defs(block):
-            defs = set()
-            for ins in block.get('instructions') or []:
-                try:
-                    dstv = ins.get('dst')
-                    if isinstance(dstv, int):
-                        defs.add(int(dstv))
-                except Exception:
-                    pass
-            return defs
-        def _collect_uses(block):
-            uses = set()
-            for ins in block.get('instructions') or []:
-                for k in ('lhs','rhs','value','cond','box_val'):
-                    try:
-                        v = ins.get(k)
-                        if isinstance(v, int):
-                            uses.add(int(v))
-                    except Exception:
-                        pass
-            return uses
         # Phase 132-P1: block_phi_incomings already points to context storage
         # No need to reassign - it's already initialized
-        for bid, blk in block_by_id.items():
-            try:
-                preds_raw = [p for p in local_preds.get(int(bid), []) if p != int(bid)]
-            except Exception:
-                preds_raw = []
-            seen = set(); preds_list = []
-            for p in preds_raw:
-                if p not in seen:
-                    preds_list.append(p); seen.add(p)
-            if len(preds_list) <= 1:
-                continue
-            defs = _collect_defs(blk)
-            uses = _collect_uses(blk)
-            need = [u for u in uses if u not in defs]
-            if not need:
-                continue
-            for vid in need:
-                try:
-                    builder.block_phi_incomings.setdefault(int(bid), {}).setdefault(int(vid), [])
-                    builder.block_phi_incomings[int(bid)][int(vid)] = [(int(p), int(vid)) for p in preds_list]
-                except Exception:
-                    pass
-        try:
-            builder.resolver.block_phi_incomings = builder.block_phi_incomings
-        except Exception:
-            pass
+        _seed_multi_pred_block_phi_incomings(builder, block_by_id)
     except Exception:
         pass
 

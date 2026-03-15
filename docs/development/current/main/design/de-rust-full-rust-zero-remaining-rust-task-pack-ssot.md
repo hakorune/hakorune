@@ -231,6 +231,10 @@ rule:
        - `src/llvm_py/utils/values.py` now owns file-local block-id/name extraction, same-block PHI detection, local def lookup, single-def dominance, PHI-owner dominance, and global-reuse helpers
        - `resolve_i64_strict(...)` now consumes those helpers instead of mixing all dominance and PHI-owner checks inline
        - proof is pinned by `src/llvm_py/tests/test_resolve_i64_strict_scope.py`
+     - landed tenth slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local predecessor dedupe, block defs/uses collection, and multi-pred PHI incoming seed helpers
+       - `lower_function(...)` now consumes those helpers instead of mixing prepass graph scan details inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_phi_prepass.py`
 - done shape:
   - Python is no longer mainline backend owner
 
