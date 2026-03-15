@@ -158,6 +158,41 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - compiled-stage1 surrogate does not currently expose another worthwhile exact disappearing leaf
   - next backend-zero slice should therefore move to the next nearby owner seam outside `function_lower.py`, not reopen sealed surrogate residue
 
+- `0rust selfhost` / `by-name` remaining-work inventory (2026-03-16):
+  - `small`
+    - `phase-29cj` helper-local residual verify lane in `tools/smokes/v2/lib/test_runner.sh`
+    - any additional compiled-stage1 surrogate shrink only if another exact disappearing leaf appears
+  - `medium`
+    - remaining Rust compiler stop-line / bootstrap boundary buckets
+      - `src/host_providers/mir_builder.rs`
+      - `src/stage1/program_json_v0/authority.rs`
+      - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
+      - `src/runner/stage1_bridge/program_json/**`
+    - backend-zero daily-owner cutover prep after the current shell/helper slice
+  - `large`
+    - post-`phase-29cj` authority-replacement promotion wave
+      - `lang/src/mir/builder/MirBuilderBox.hako`
+      - `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
+      - `lang/src/compiler/build/build_box.hako`
+    - stage2/bootstrap closure and later `Program(JSON v0)` bridge retirement beyond the current helper cleanup wave
+  - `by-name` dedicated residue (`phase-29cl`)
+    - landed:
+      - `BYN-min1` owner guard / allowlist lock
+      - `BYN-min2` visible launcher caller cutover
+      - compiled-stage1 `llvm_backend_surrogate.rs` shrink slices 1-3
+    - still live:
+      - kernel entry `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
+      - upstream daily caller/dependency pack
+      - compiled-stage1 temporary keeps under `crates/nyash_kernel/src/plugin/module_string_dispatch/**`
+      - hook/registry compat keeps
+    - delete condition:
+      - caller cutover first
+      - kernel-side `by_name` retire only after reopen rules confirm no caller still needs it
+  - quick estimate:
+    - pure selfhost helper cleanup is late-stage
+    - full `Rust 0` compiler/backend work is still medium remaining
+    - `by-name` retirement is still medium remaining and is not in delete-now state
+
 - owner-role lock for pure `.hako-only hakorune build`:
   - `authority owner`
     - meaning: the owner that decides input acceptance, route selection, fail-fast tags, and final handoff for a live compiler boundary
@@ -186,8 +221,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `lang/src/runner/{stage1_cli_env.hako,stage1_cli.hako,launcher.hako}`
       - `lang/src/compiler/build/build_box.hako`
       - `tools/{hakorune_emit_mir.sh,selfhost/selfhost_build.sh}`
-      - `tools/smokes/v2/lib/test_runner.sh`
-    - active work should now stay on exact Rust-owned retirement buckets only
+    - current exception:
+      - `tools/smokes/v2/lib/test_runner.sh` residual verify lane is the already-queued final shell/helper slice before the next full Rust-owned retirement bucket
+    - after that exact slice, active work should return to exact Rust-owned retirement buckets only
 
 - pure `.hako-only hakorune build` gap snapshot (2026-03-14):
   - current main stopper is still Rust authority, not `.hako` caller count
