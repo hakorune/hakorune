@@ -9,6 +9,18 @@ from trace import phi as trace_phi
 from trace import values as trace_values
 import llvmlite.ir as ir
 from phi_wiring.debug_helper import is_phi_debug_enabled
+try:
+    from type_facts import (
+        is_arrayish_fact,
+        is_stringish_fact,
+        make_box_handle_fact,
+    )
+except ImportError:
+    from .type_facts import (
+        is_arrayish_fact,
+        is_stringish_fact,
+        make_box_handle_fact,
+    )
 
 class Resolver:
     """
@@ -66,6 +78,7 @@ class Resolver:
         self.hoisted_string_ptrs: Dict[str, ir.Value] = {}
         self.non_negative_ids: Set[int] = set()
         self.integerish_ids: Set[int] = set()
+        self.value_types: Dict[int, Any] = {}
 
         # Type shortcuts
         self.i64 = ir.IntType(64)
@@ -122,26 +135,29 @@ class Resolver:
         self.phi_trivial_aliases = context.phi_trivial_aliases
         # Note: block_end_values access goes through context methods
 
+    def _ensure_value_types(self) -> Dict[int, Any]:
+        if not isinstance(getattr(self, "value_types", None), dict):
+            self.value_types = {}
+        return self.value_types
+
+    def _value_type_meta(self, value_id: int) -> Any:
+        return self._ensure_value_types().get(int(value_id))
+
+    def _set_box_handle_type_if_missing(self, value_id: int, box_type: str) -> None:
+        value_types = self._ensure_value_types()
+        vid = int(value_id)
+        current = value_types.get(vid)
+        if box_type == "StringBox" and is_stringish_fact(current):
+            return
+        if box_type == "ArrayBox" and is_arrayish_fact(current):
+            return
+        value_types[vid] = make_box_handle_fact(box_type)
+
     def mark_string(self, value_id: int) -> None:
         try:
             vid = int(value_id)
             self.string_ids.add(vid)
-            # TypeFacts SSOT: keep value_types in sync so downstream decisions
-            # (e.g., '+' concat tag checks) can treat this as a StringBox handle.
-            try:
-                if not hasattr(self, 'value_types') or self.value_types is None:
-                    self.value_types = {}
-                cur = self.value_types.get(vid) if isinstance(self.value_types, dict) else None
-                is_already_string = False
-                if isinstance(cur, dict):
-                    if cur.get('kind') == 'string':
-                        is_already_string = True
-                    if cur.get('kind') == 'handle' and cur.get('box_type') == 'StringBox':
-                        is_already_string = True
-                if not is_already_string and isinstance(self.value_types, dict):
-                    self.value_types[vid] = {'kind': 'handle', 'box_type': 'StringBox'}
-            except Exception:
-                pass
+            self._set_box_handle_type_if_missing(vid, "StringBox")
         except Exception:
             pass
 
@@ -150,26 +166,14 @@ class Resolver:
             vid = int(value_id)
             if vid in self.string_ids:
                 return True
-            # TypeFacts fallback: some loop/phi paths carry only metadata kind=string.
-            vtypes = getattr(self, "value_types", None)
-            if isinstance(vtypes, dict):
-                meta = vtypes.get(vid)
-                if isinstance(meta, dict):
-                    kind = meta.get("kind")
-                    if kind == "string":
-                        return True
-                    if kind == "handle" and meta.get("box_type") == "StringBox":
-                        return True
-                elif isinstance(meta, str):
-                    if meta in ("string", "String", "StringBox"):
-                        return True
-            return False
+            return is_stringish_fact(self._value_type_meta(vid))
         except Exception:
             return False
 
     def is_arrayish(self, value_id: int) -> bool:
         try:
-            return int(value_id) in self.array_ids
+            vid = int(value_id)
+            return vid in self.array_ids or is_arrayish_fact(self._value_type_meta(vid))
         except Exception:
             return False
 

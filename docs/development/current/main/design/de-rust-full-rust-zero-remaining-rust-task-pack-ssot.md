@@ -189,12 +189,28 @@ rule:
      - landed fourth slice:
        - `src/llvm_py/instructions/mir_call/method_fallback_tail.py` now owns the final `direct known-box -> by-name plugin` route order
        - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of carrying duplicate fallback tails
+     - landed fifth slice:
+       - `src/llvm_py/instructions/mir_call/string_console_method_call.py` now owns shared `substring/indexOf/lastIndexOf/log` route order
+       - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of carrying duplicate string/console branches
+       - `length/size` specialization intentionally stays owner-local to `method_call.py`
   4. `B3d` analysis/support demotion inventory
      - classify `src/llvm_py/{builders/**,resolver.py,mir_analysis.py,phi_manager.py,phi_placement.py,phi_wiring/**,type_facts.py}`
      - prefer early compat/canary demotion instead of treating the whole tree as one owner
      - landed first slice:
        - `src/llvm_py/build_ctx.py` now owns `current_vmap` / `lower_ctx` as part of the lowering-side aggregated context
        - `src/llvm_py/builders/instruction_lower.py` now consumes those seams instead of reading `_current_vmap` / `ctx` off the builder owner inline
+     - landed second slice:
+       - `src/llvm_py/type_facts.py` now owns shared `StringBox` / `ArrayBox` fact predicates and handle-fact construction
+       - `src/llvm_py/resolver.py` now consumes those helpers through owner-local `value_types` accessors instead of keeping ad-hoc fact-shape checks inline
+       - proof is pinned by `src/llvm_py/tests/test_resolver_type_tags.py` and `src/llvm_py/tests/test_type_facts.py`
+     - landed third slice:
+       - `src/llvm_py/phi_manager.py` now owns cross-block safety helpers for global-safe / PHI-owner / single-def dominance checks
+       - `filter_vmap_preserve_phis(...)` now consumes those helpers instead of keeping all dominance cases inline
+       - proof is pinned by `src/llvm_py/tests/test_phi_manager_snapshot_filter.py`
+     - landed fourth slice:
+       - `src/llvm_py/mir_analysis.py` now owns helper-local const-string scan and call-arity record helpers
+       - `scan_call_arities(...)` now consumes those helpers instead of mixing seed collection and max-arity update inline
+       - proof is pinned by `src/llvm_py/tests/test_mir_analysis.py`
 - done shape:
   - Python is no longer mainline backend owner
 

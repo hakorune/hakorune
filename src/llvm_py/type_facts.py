@@ -3,7 +3,31 @@
 Phase 97 Refactoring: stringish等のtype tag伝播を一箇所に集約。
 """
 
-from typing import Dict, Set, Any
+from typing import Dict, Any, Optional
+
+
+def make_box_handle_fact(box_type: str) -> Dict[str, Any]:
+    return {"kind": "handle", "box_type": box_type}
+
+
+def is_box_handle_fact(fact: Any, box_type: str) -> bool:
+    return (
+        isinstance(fact, dict)
+        and fact.get("kind") == "handle"
+        and fact.get("box_type") == box_type
+    )
+
+
+def is_stringish_fact(fact: Any) -> bool:
+    if isinstance(fact, dict):
+        return fact.get("kind") == "string" or is_box_handle_fact(fact, "StringBox")
+    return isinstance(fact, str) and fact in ("string", "String", "StringBox")
+
+
+def is_arrayish_fact(fact: Any) -> bool:
+    if isinstance(fact, dict):
+        return is_box_handle_fact(fact, "ArrayBox")
+    return isinstance(fact, str) and fact in ("array", "Array", "ArrayBox")
 
 
 class TypeFactsBox:
@@ -31,6 +55,11 @@ class TypeFactsBox:
     def __init__(self):
         self._facts: Dict[Any, Dict[str, Any]] = {}
 
+    def _ensure_slot(self, value_id: Any) -> Dict[str, Any]:
+        if value_id not in self._facts:
+            self._facts[value_id] = {}
+        return self._facts[value_id]
+
     def mark_string(self, value_id: Any, reason: str = "explicit"):
         """ValueIdをstringishとしてマーク
 
@@ -38,16 +67,14 @@ class TypeFactsBox:
             value_id: ValueId
             reason: マーク理由（デバッグ用）
         """
-        if value_id not in self._facts:
-            self._facts[value_id] = {}
-
+        facts = self._ensure_slot(value_id)
         # monotonic check
-        if "stringish" in self._facts[value_id]:
-            assert self._facts[value_id]["stringish"], \
+        if "stringish" in facts:
+            assert facts["stringish"], \
                 f"[TypeFactsBox] Cannot change stringish tag for {value_id}"
 
-        self._facts[value_id]["stringish"] = True
-        self._facts[value_id]["reason"] = reason
+        facts["stringish"] = True
+        facts["reason"] = reason
 
     def propagate_copy(self, dst: Any, src: Any):
         """Copy命令での型伝播
@@ -63,6 +90,13 @@ class TypeFactsBox:
             src_facts["reason"] = f"copy from {src}"
             self._facts[dst] = src_facts
 
+    def _common_incoming_stringish_reason(self, incoming_ids: list) -> Optional[str]:
+        if not incoming_ids:
+            return None
+        if all(self.is_stringish(vid) for vid in incoming_ids):
+            return f"phi from {incoming_ids}"
+        return None
+
     def propagate_phi(self, phi_id: Any, incoming_ids: list):
         """PHI命令での型伝播
 
@@ -72,21 +106,9 @@ class TypeFactsBox:
             phi_id: PHI結果ValueId
             incoming_ids: PHI入力ValueId list
         """
-        # 全入力が同じtype factを持つ場合のみ伝播
-        if not incoming_ids:
-            return
-
-        # 最初の入力の型情報を基準
-        first_facts = self._facts.get(incoming_ids[0], {})
-
-        # 全入力が同じstringish tagを持つか確認
-        all_stringish = all(
-            self._facts.get(vid, {}).get("stringish", False)
-            for vid in incoming_ids
-        )
-
-        if all_stringish and "stringish" in first_facts:
-            self.mark_string(phi_id, reason=f"phi from {incoming_ids}")
+        reason = self._common_incoming_stringish_reason(incoming_ids)
+        if reason is not None:
+            self.mark_string(phi_id, reason=reason)
 
     def is_stringish(self, value_id: Any) -> bool:
         """ValueIdがstringishか判定

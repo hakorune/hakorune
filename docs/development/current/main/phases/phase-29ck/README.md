@@ -141,9 +141,25 @@ Related:
 25. landed B3c method-tail slice:
    - `src/llvm_py/instructions/mir_call/method_fallback_tail.py` now owns the final `direct known-box -> by-name plugin` route order
    - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of each carrying the same fallback tail
-26. landed B3d first slice:
+26. landed B3c string/console-method slice:
+   - `src/llvm_py/instructions/mir_call/string_console_method_call.py` now owns the shared `substring/indexOf/lastIndexOf/log` route order
+   - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of each carrying duplicate string/console dispatch
+   - `length/size` specialization remains owner-local to `method_call.py`; this slice is shrink-only and does not widen the route contract
+27. landed B3d first slice:
    - `src/llvm_py/build_ctx.py` now owns `current_vmap` / `lower_ctx` in addition to the lowering-side aggregated context
    - `src/llvm_py/builders/instruction_lower.py` now consumes those seams instead of reading `_current_vmap` / `ctx` off the builder owner inline
+28. landed B3d resolver/type-facts slice:
+   - `src/llvm_py/type_facts.py` now owns shared `StringBox` / `ArrayBox` fact helpers (`make_box_handle_fact`, `is_stringish_fact`, `is_arrayish_fact`)
+   - `src/llvm_py/resolver.py` now consumes those helpers through owner-local `value_types` accessors, so `mark_string` / `is_stringish` / `is_arrayish` no longer keep ad-hoc fact-shape checks inline
+   - support-owner proof is pinned by `src/llvm_py/tests/{test_resolver_type_tags.py,test_type_facts.py}`
+29. landed B3d phi-manager slice:
+   - `src/llvm_py/phi_manager.py` now keeps cross-block safety judgment behind owner-local helpers (`_is_global_safe_value`, `_phi_owner_dominates_target`, `_single_def_dominates_target`)
+   - `filter_vmap_preserve_phis(...)` now reads as pure filter + predeclared merge instead of mixing all dominance cases inline
+   - support-owner proof is pinned by `src/llvm_py/tests/test_phi_manager_snapshot_filter.py`
+30. landed B3d mir-analysis slice:
+   - `src/llvm_py/mir_analysis.py` now keeps const-string scan and call-arity record behind owner-local helpers (`_collect_const_string_names`, `_record_call_arity`)
+   - `scan_call_arities(...)` now reads as function-level orchestration instead of mixing seed collection and max-arity update inline
+   - support-owner proof is pinned by `src/llvm_py/tests/test_mir_analysis.py`
 
 ## Non-goals
 
@@ -178,15 +194,18 @@ Related:
    - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 3. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
-4. post-cutover follow-up
+4. next backend demotion front
+   - `phase-29cl` compiled-stage1 surrogate shrink remains the first exact next slice
+   - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py`; move to the next support owner pack (`phi_wiring/**` / related analysis seams)
+5. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
    - temporary seam/env retirement check
    - `by_name` retirement cutover is a separate follow-up owned by `phase-29cl`
-5. compat-only pure pack lock
+6. compat-only pure pack lock
    - explicit historical entry is `tools/selfhost/run_compat_pure_pack.sh`
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
-6. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
+7. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance
 

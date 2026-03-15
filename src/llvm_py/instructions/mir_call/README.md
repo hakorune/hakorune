@@ -23,6 +23,11 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
     2. `resolve_i64_strict(..., hot_scope="call")` fallback,
     3. no throw from helper (unresolved -> `None`).
 
+- `string_console_method_call.py`
+  - owns the shared `substring/indexOf/lastIndexOf/log` route order.
+  - `method_call.py` and `mir_call_legacy.py` consume it so string/console lowering
+    does not drift while length/size specialization remains owner-local to the modern route.
+
 This keeps call hot-trace counters (`resolve_*_call`) consistent across routes.
 
 ## Print marshalling utility

@@ -87,6 +87,21 @@ class PhiManagerSnapshotFilterTests(unittest.TestCase):
         )
         self.assertNotIn(40, filtered)
 
+    def test_context_none_keeps_only_global_safe_values(self):
+        manager = PhiManager()
+        filtered = manager.filter_vmap_preserve_phis(
+            {
+                1: self.func.args[0],
+                2: ir.Constant(ir.IntType(64), 7),
+                10: self.entry_add,
+            },
+            3,
+            context=None,
+        )
+        self.assertIn(1, filtered)
+        self.assertIn(2, filtered)
+        self.assertNotIn(10, filtered)
+
 
 if __name__ == "__main__":
     unittest.main()

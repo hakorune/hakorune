@@ -19,6 +19,7 @@ from .intrinsic_registry import (
 from instructions.by_name_method import mark_string_result_if_needed
 from .collection_method_call import lower_collection_method_call
 from .method_fallback_tail import lower_direct_or_plugin_method_call
+from .string_console_method_call import lower_string_or_console_method_call
 
 
 def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid, vmap, resolver, owner):
@@ -203,36 +204,6 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 call_name = "unified_size" if method == "size" else "unified_length"
                 result = builder.call(callee, [recv_h], name=call_name)
 
-    elif method == "substring":
-        if len(args) >= 2:
-            if requires_string_receiver_tag(method):
-                _mark_receiver_stringish()
-            s = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            e = _resolve_arg(args[1]) or ir.Constant(i64, 0)
-            callee = _declare("nyash.string.substring_hii", i64, [i64, i64, i64])
-            result = builder.call(callee, [recv_h, s, e], name="unified_substring")
-        else:
-            result = recv_h
-
-    elif method == "lastIndexOf":
-        if args:
-            if requires_string_receiver_tag(method):
-                _mark_receiver_stringish()
-            needle = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            needle_h = _ensure_handle(needle)
-            callee = _declare("nyash.string.lastIndexOf_hh", i64, [i64, i64])
-            result = builder.call(callee, [recv_h, needle_h], name="unified_lastIndexOf")
-        else:
-            result = ir.Constant(i64, -1)
-
-    elif method == "indexOf" and len(args) == 1:
-        if requires_string_receiver_tag(method):
-            _mark_receiver_stringish()
-        needle = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-        needle_h = _ensure_handle(needle)
-        callee = _declare("nyash.string.indexOf_hh", i64, [i64, i64])
-        result = builder.call(callee, [recv_h, needle_h], name="unified_indexOf")
-
     elif method in {"get", "push", "set", "has"}:
         result = lower_collection_method_call(
             builder=builder,
@@ -246,33 +217,32 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             receiver_vid=receiver,
         )
 
-    elif method == "log":
-        if args:
-            arg0 = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            if isinstance(arg0.type, ir.IntType) and arg0.type.width == 64:
-                bridge = _declare("nyash.string.to_i8p_h", i8p, [i64])
-                p = builder.call(bridge, [arg0], name="unified_str_h2p")
-                callee = _declare("nyash.console.log", i64, [i8p])
-                result = builder.call(callee, [p], name="unified_console_log")
-            else:
-                callee = _declare("nyash.console.log", i64, [i8p])
-                result = builder.call(callee, [arg0], name="unified_console_log")
-        else:
-            result = ir.Constant(i64, 0)
-
     else:
-        result = lower_direct_or_plugin_method_call(
+        result = lower_string_or_console_method_call(
             builder=builder,
-            module=module,
-            box_name=box_name,
+            declare=_declare,
             method_name=method,
             recv_h=recv_h,
-            args=args,
+            arg_ids=args,
             resolve_arg=_resolve_arg,
             ensure_handle=_ensure_handle,
-            direct_call_name=f"known_box_{method}",
-            plugin_call_name="unified_plugin_invoke",
+            mark_receiver_stringish=(
+                _mark_receiver_stringish if requires_string_receiver_tag(method) else None
+            ),
         )
+        if result is None:
+            result = lower_direct_or_plugin_method_call(
+                builder=builder,
+                module=module,
+                box_name=box_name,
+                method_name=method,
+                recv_h=recv_h,
+                args=args,
+                resolve_arg=_resolve_arg,
+                ensure_handle=_ensure_handle,
+                direct_call_name=f"known_box_{method}",
+                plugin_call_name="unified_plugin_invoke",
+            )
 
     # Store result
     if dst_vid is not None:

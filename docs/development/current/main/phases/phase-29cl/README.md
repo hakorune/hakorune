@@ -99,6 +99,12 @@ Rule:
    - `llvm_backend_surrogate.rs` now keeps compile-path decode, compile opts, and link-arg decode behind owner-local helpers
    - parent `module_string_dispatch.rs` still probes it only through `try_dispatch(...)`
    - this is shrink-only; it does not reopen launcher daily caller ownership
+11. compiled-stage1 surrogate shrink second slice is landed
+   - `llvm_backend_surrogate.rs` now keeps backend route match and compile/link execute-error tails behind owner-local helpers (`match_route(...)`, `dispatch_route(...)`, `finish_*_result(...)`)
+   - route contract proof stays local to the owner tests; parent `module_string_dispatch.rs` still only sees `try_dispatch(...)`
+12. compiled-stage1 surrogate shrink third slice is landed
+   - `llvm_backend_surrogate.rs` now keeps compile/link payload decode and execution behind owner-local request helpers (`decode_*_request(...)`, `execute_*_request(...)`)
+   - `handle_compile_obj(...)` / `handle_link_exe(...)` now read as decode -> execute -> finish only, while the parent dispatch contract remains unchanged
 
 ## Immediate Next
 
