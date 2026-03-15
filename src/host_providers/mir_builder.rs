@@ -151,7 +151,7 @@ fn emit_program_json_for_source(source_text: &str) -> Result<String, String> {
 
 struct Stage1ProgramJsonModuleHandoff {
     module: crate::mir::MirModule,
-    user_box_decls: Vec<serde_json::Value>,
+    user_box_decls: Stage1UserBoxDecls,
 }
 
 impl Stage1ProgramJsonModuleHandoff {
@@ -161,7 +161,7 @@ impl Stage1ProgramJsonModuleHandoff {
 
     fn into_module_with_user_box_decls(self) -> crate::mir::MirModule {
         let mut module = self.module;
-        module.metadata.user_box_decls = stage1_user_box_decl_map(&self.user_box_decls);
+        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
         module
     }
 }
@@ -184,10 +184,34 @@ struct Stage1UserBoxDeclHandoff {
     program_value: serde_json::Value,
 }
 
+struct Stage1UserBoxDecls {
+    decls: Vec<serde_json::Value>,
+}
+
+impl Stage1UserBoxDecls {
+    fn new(decls: Vec<serde_json::Value>) -> Self {
+        Self { decls }
+    }
+
+    fn into_metadata_map(self) -> std::collections::HashMap<String, Vec<String>> {
+        self.decls
+            .into_iter()
+            .filter_map(stage1_user_box_decl_metadata_entry)
+            .collect()
+    }
+
+    #[cfg(test)]
+    fn into_decl_values(self) -> Vec<serde_json::Value> {
+        self.decls
+    }
+}
+
 impl Stage1UserBoxDeclHandoff {
-    fn resolve_user_box_decls(self) -> Vec<serde_json::Value> {
-        self.explicit_user_box_decls()
-            .unwrap_or_else(|| self.compat_user_box_decls())
+    fn resolve_user_box_decls(self) -> Stage1UserBoxDecls {
+        Stage1UserBoxDecls::new(
+            self.explicit_user_box_decls()
+                .unwrap_or_else(|| self.compat_user_box_decls()),
+        )
     }
 
     fn explicit_user_box_decls(&self) -> Option<Vec<serde_json::Value>> {
@@ -250,16 +274,7 @@ fn normalize_stage1_user_box_decl(decl: &serde_json::Value) -> Option<serde_json
     Some(serde_json::json!({ "name": name, "fields": fields }))
 }
 
-fn stage1_user_box_decl_map(
-    user_box_decls: &[serde_json::Value],
-) -> std::collections::HashMap<String, Vec<String>> {
-    user_box_decls
-        .iter()
-        .filter_map(stage1_user_box_decl_entry)
-        .collect()
-}
-
-fn stage1_user_box_decl_entry(decl: &serde_json::Value) -> Option<(String, Vec<String>)> {
+fn stage1_user_box_decl_metadata_entry(decl: serde_json::Value) -> Option<(String, Vec<String>)> {
     let name = decl.get("name")?.as_str()?.trim();
     if name.is_empty() {
         return None;
@@ -565,7 +580,8 @@ mod tests {
 
         let decls = stage1_user_box_decl_handoff(program_json)
             .expect("handoff must parse")
-            .resolve_user_box_decls();
+            .resolve_user_box_decls()
+            .into_decl_values();
 
         assert_eq!(
             decls,
