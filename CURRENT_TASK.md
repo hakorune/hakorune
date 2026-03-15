@@ -148,9 +148,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
   - current active owner is `src/host_providers/mir_builder.rs`
-  - latest landed leaf is explicit-route `user_box_decls` passthrough: `program_json_to_mir_json_with_user_box_decls(...)` now prefers root payload `user_box_decls` and falls back to defs-mining only for compat
+  - latest landed leaf is explicit-route `user_box_decls` passthrough: `program_json_to_mir_json_with_user_box_decls(...)` now prefers root payload `user_box_decls`, maps it into `MirModule.metadata.user_box_decls`, and falls back to defs-mining only for compat
   - targeted proof stays `cargo test user_box_decls -- --nocapture`
-  - exact next leaf is no longer `user_box_decls` shaping; it is the remaining shared stop-line around `module_to_mir_json(...)` / temp-MIR finalize passthrough in the same owner
+  - exact next leaf is no longer `user_box_decls` JSON mutate; it is the remaining shared stop-line around `module_to_mir_json(...)` / temp-MIR finalize passthrough in the same owner
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
 - backend-zero / `phase-29ck` exact front (2026-03-16):
@@ -198,7 +198,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
     - note: `src/host_providers/mir_builder.rs` and `src/stage1/program_json_v0.rs` are now thin façades; `src/host_providers/mir_builder/lowering/ast_json.rs` is legacy AST JSON compat keep, not the primary pure-`.hako` blocker
     - latest tightening: shared `user_box_decls` shaping is now folded into `src/host_providers/mir_builder.rs`; there is no separate `user_box_decls.rs` owner file anymore
-    - latest tightening: explicit Program(JSON) route now prefers root `user_box_decls` payload and only falls back to defs-mining for compat, so Rust no longer re-decides that boundary when the caller already supplied it
+    - latest tightening: explicit Program(JSON) route now prefers root `user_box_decls` payload, maps it into `MirModule.metadata.user_box_decls`, and only falls back to defs-mining for compat, so Rust no longer re-decides that boundary when the caller already supplied it or reparses emitted MIR JSON to splice it back
   - Rust bootstrap-boundary bucket:
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
     - `src/runner/stage1_bridge/program_json/mod.rs`

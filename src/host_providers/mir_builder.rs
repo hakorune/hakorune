@@ -169,8 +169,9 @@ fn emit_module_mir_json_with_stage1_user_box_decls(
     program_json: &str,
     module: &crate::mir::MirModule,
 ) -> Result<String, String> {
-    let mir_json = emit_module_mir_json(module)?;
-    finalize_mir_json_with_stage1_user_box_decls(program_json, &mir_json)
+    let user_box_decls = resolve_stage1_user_box_decls_from_program_json(program_json)?;
+    let module = with_stage1_user_box_decls(module, &user_box_decls);
+    emit_module_mir_json(&module)
 }
 
 fn emit_module_to_temp_mir_json(
@@ -208,47 +209,13 @@ fn emit_module_mir_json(module: &crate::mir::MirModule) -> Result<String, String
     module_to_mir_json(module)
 }
 
-fn finalize_mir_json_with_stage1_user_box_decls(
-    program_json: &str,
-    mir_json: &str,
-) -> Result<String, String> {
-    let user_box_decls = resolve_stage1_user_box_decls_from_program_json(program_json)?;
-    inject_user_box_decls_into_mir_json(mir_json, user_box_decls)
-}
-
-fn inject_user_box_decls_into_mir_json(
-    mir_json: &str,
-    user_box_decls: Vec<serde_json::Value>,
-) -> Result<String, String> {
-    let mir_value = build_mir_json_with_user_box_decls(mir_json, user_box_decls)?;
-    serialize_mir_json_value(&mir_value)
-}
-
-fn parse_mir_json_value(mir_json: &str) -> Result<serde_json::Value, String> {
-    serde_json::from_str(mir_json).map_err(|error| format!("mir json parse error: {}", error))
-}
-
-fn build_mir_json_with_user_box_decls(
-    mir_json: &str,
-    user_box_decls: Vec<serde_json::Value>,
-) -> Result<serde_json::Value, String> {
-    let mut mir_value = parse_mir_json_value(mir_json)?;
-    insert_user_box_decls(&mut mir_value, user_box_decls)?;
-    Ok(mir_value)
-}
-
-fn insert_user_box_decls(
-    mir_value: &mut serde_json::Value,
-    user_box_decls: Vec<serde_json::Value>,
-) -> Result<(), String> {
-    let mir_object = mir_value
-        .as_object_mut()
-        .ok_or_else(|| "mir json root must be object".to_string())?;
-    mir_object.insert(
-        "user_box_decls".to_string(),
-        serde_json::Value::Array(user_box_decls),
-    );
-    Ok(())
+fn with_stage1_user_box_decls(
+    module: &crate::mir::MirModule,
+    user_box_decls: &[serde_json::Value],
+) -> crate::mir::MirModule {
+    let mut module = module.clone();
+    module.metadata.user_box_decls = stage1_user_box_decl_map(user_box_decls);
+    module
 }
 
 fn build_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_json::Value> {
@@ -295,8 +262,34 @@ fn normalize_stage1_user_box_decl(decl: &serde_json::Value) -> Option<serde_json
     Some(serde_json::json!({ "name": name, "fields": fields }))
 }
 
-fn serialize_mir_json_value(mir_value: &serde_json::Value) -> Result<String, String> {
-    serde_json::to_string(mir_value).map_err(|error| format!("mir json serialize error: {}", error))
+fn stage1_user_box_decl_map(
+    user_box_decls: &[serde_json::Value],
+) -> std::collections::HashMap<String, Vec<String>> {
+    user_box_decls
+        .iter()
+        .filter_map(stage1_user_box_decl_entry)
+        .collect()
+}
+
+fn stage1_user_box_decl_entry(
+    decl: &serde_json::Value,
+) -> Option<(String, Vec<String>)> {
+    let name = decl.get("name")?.as_str()?.trim();
+    if name.is_empty() {
+        return None;
+    }
+    let fields = decl
+        .get("fields")
+        .and_then(serde_json::Value::as_array)
+        .map(|fields| {
+            fields
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .map(str::to_string)
+                .collect()
+        })
+        .unwrap_or_default();
+    Some((name.to_string(), fields))
 }
 
 fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {
