@@ -263,6 +263,10 @@ rule:
        - `src/llvm_py/builders/function_lower.py` now owns file-local param binding helpers `_collect_param_candidate_value_ids(...)` and `_map_function_params_to_vmap(...)`
        - `lower_function(...)` now consumes those helpers instead of mixing explicit-param vs heuristic ValueId binding scan inline
        - proof is pinned by `src/llvm_py/tests/test_function_lower_param_map.py`
+     - landed tenth-i slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local CFG scaffold helpers `_build_predecessor_map(...)`, `_create_basic_blocks(...)`, and `_index_blocks_by_id(...)`
+       - `lower_function(...)` now consumes those helpers instead of mixing predecessor-map build, basic-block append, and block-id indexing loops inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_cfg_scaffold.py`
      - landed eleventh slice:
        - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization
        - `lower_binop(...)` now consumes those helpers instead of mixing string-vs-integer route selection inline

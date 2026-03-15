@@ -213,6 +213,10 @@ Related:
    - `src/llvm_py/builders/function_lower.py` now keeps explicit-param vs heuristic ValueId binding behind owner-local helpers `_collect_param_candidate_value_ids(...)` and `_map_function_params_to_vmap(...)`
    - `lower_function(...)` no longer mixes param binding scan details inline in the setup section
    - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_param_map.py`
+36i. landed B3d function-lower-cfg-scaffold slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps predecessor-map build, basic-block append, and block-id indexing behind owner-local helpers `_build_predecessor_map(...)`, `_create_basic_blocks(...)`, and `_index_blocks_by_id(...)`
+   - `lower_function(...)` no longer mixes CFG scaffold loops inline in the setup section
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_cfg_scaffold.py`
 37. landed B3d binop-route slice:
    - `src/llvm_py/instructions/binop.py` now keeps `+` route policy behind file-local helpers (`_binop_plus_explicit_route(...)`, `_binop_plus_operand_is_stringish(...)`, `_binop_plus_any_tagged_string(...)`, `_binop_plus_prefers_string_path(...)`, `_binop_plus_string_tags(...)`) together with op-alias normalization helper `_normalize_binop_op(...)`
    - `lower_binop(...)` no longer mixes explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization inline before concat/integer dispatch

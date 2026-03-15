@@ -490,6 +490,39 @@ def _map_function_params_to_vmap(builder, func, params_list: List[Any], blocks: 
     return param_value_ids
 
 
+def _build_predecessor_map(blocks: List[Dict[str, Any]]) -> Dict[int, List[int]]:
+    preds: Dict[int, List[int]] = {}
+    for block_data in blocks:
+        bid = block_data.get("id", 0)
+        preds.setdefault(bid, [])
+    for block_data in blocks:
+        src = block_data.get("id", 0)
+        for inst in block_data.get("instructions", []):
+            op = inst.get("op")
+            if op == "jump":
+                target = inst.get("target")
+                if target is not None:
+                    preds.setdefault(target, []).append(src)
+            elif op == "branch":
+                then_bid = inst.get("then")
+                else_bid = inst.get("else")
+                if then_bid is not None:
+                    preds.setdefault(then_bid, []).append(src)
+                if else_bid is not None:
+                    preds.setdefault(else_bid, []).append(src)
+    return preds
+
+
+def _create_basic_blocks(builder, func: ir.Function, blocks: List[Dict[str, Any]]) -> None:
+    for block_data in blocks:
+        bid = block_data.get("id", 0)
+        builder.bb_map[bid] = func.append_basic_block(f"bb{bid}")
+
+
+def _index_blocks_by_id(blocks: List[Dict[str, Any]]) -> Dict[int, Dict[str, Any]]:
+    return {block_data.get("id", 0): block_data for block_data in blocks}
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -618,37 +651,13 @@ def lower_function(builder, func_data: Dict[str, Any]):
         pass
 
     # Build predecessor map from control-flow edges
-    builder.preds = {}
-    for block_data in blocks:
-        bid = block_data.get("id", 0)
-        builder.preds.setdefault(bid, [])
-    for block_data in blocks:
-        src = block_data.get("id", 0)
-        for inst in block_data.get("instructions", []):
-            op = inst.get("op")
-            if op == "jump":
-                t = inst.get("target")
-                if t is not None:
-                    builder.preds.setdefault(t, []).append(src)
-            elif op == "branch":
-                th = inst.get("then")
-                el = inst.get("else")
-                if th is not None:
-                    builder.preds.setdefault(th, []).append(src)
-                if el is not None:
-                    builder.preds.setdefault(el, []).append(src)
+    builder.preds = _build_predecessor_map(blocks)
 
     # Create all blocks first
-    for block_data in blocks:
-        bid = block_data.get("id", 0)
-        block_name = f"bb{bid}"
-        bb = func.append_basic_block(block_name)
-        builder.bb_map[bid] = bb
+    _create_basic_blocks(builder, func, blocks)
 
     # Build quick lookup for blocks by id
-    block_by_id: Dict[int, Dict[str, Any]] = {}
-    for block_data in blocks:
-        block_by_id[block_data.get("id", 0)] = block_data
+    block_by_id = _index_blocks_by_id(blocks)
 
     # FAST compare contract: identify compare results consumed only by branch cond.
     # This allows compare lowering to keep those values as i1 in hot loops.
