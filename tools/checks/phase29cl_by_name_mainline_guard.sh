@@ -31,6 +31,7 @@ HITS="$(
     crates/nyash_kernel/src \
     src/llvm_py \
     lang/c-abi/shims \
+    -g '!src/llvm_py/tests/**' \
     -S || true
 )"
 
