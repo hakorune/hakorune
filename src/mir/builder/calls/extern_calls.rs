@@ -70,6 +70,26 @@ pub fn get_env_method_spec(
             false,
         )),
 
+        // Backend/codegen operations
+        ("codegen", "emit_object") => Some((
+            "env.codegen".to_string(),
+            "emit_object".to_string(),
+            EffectMask::IO,
+            true,
+        )),
+        ("codegen", "compile_json_path") => Some((
+            "env.codegen".to_string(),
+            "compile_json_path".to_string(),
+            EffectMask::IO,
+            true,
+        )),
+        ("codegen", "link_object") => Some((
+            "env.codegen".to_string(),
+            "link_object".to_string(),
+            EffectMask::IO,
+            true,
+        )),
+
         // File system
         ("fs", "readFile") => Some((
             "env.fs".to_string(),
@@ -158,6 +178,7 @@ pub fn is_env_interface(name: &str) -> bool {
         name,
         "env"
             | "env.console"
+            | "env.codegen"
             | "env.fs"
             | "env.net"
             | "env.canvas"

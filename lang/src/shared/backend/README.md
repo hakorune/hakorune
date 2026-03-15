@@ -9,6 +9,7 @@ Current owner
   - thin backend boundary の caller facade
   - final target は `LlvmBackendBox -> hako_aot -> backend helper`
   - daily compile owner is now path-based `CodegenBridgeBox.compile_json_path_args(...)`
+  - shared compile/link helper lowering now reaches canonical `env.codegen.*` externs directly; daily compile/link does not depend on `hostbridge.extern_invoke(...)`
   - MIR normalization (`schema_version: "1.0"` / `metadata.extern_c`) is owned by Rust backend boundary `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
   - `emit_object` remains compat keep for legacy/provider probes only
   - public first-cut contract:

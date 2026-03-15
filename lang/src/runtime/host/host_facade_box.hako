@@ -101,15 +101,30 @@ static box HostFacadeBox {
   }
 
   _invoke_codegen_compile_json_path(payload) {
-    return hostbridge.extern_invoke("env.codegen", "compile_json_path", payload)
+    local args = me._payload_as_array(payload)
+    local json_path = me._array_arg_or_null(args, 0)
+    if json_path == null { return null }
+    local out_path = me._array_arg_or_null(args, 1)
+    if out_path == null { return env.codegen.compile_json_path(json_path) }
+    return env.codegen.compile_json_path(json_path, out_path)
   }
 
   _invoke_codegen_emit_object(payload) {
-    return hostbridge.extern_invoke("env.codegen", "emit_object", payload)
+    local args = me._payload_as_array(payload)
+    local mir_json = me._array_arg_or_null(args, 0)
+    if mir_json == null { return null }
+    return env.codegen.emit_object(mir_json)
   }
 
   _invoke_codegen_link_object(payload) {
-    return hostbridge.extern_invoke("env.codegen", "link_object", payload)
+    local args = me._payload_as_array(payload)
+    local obj_path = me._array_arg_or_null(args, 0)
+    if obj_path == null { return null }
+    local exe_path = me._array_arg_or_null(args, 1)
+    if exe_path == null { return env.codegen.link_object(obj_path) }
+    local extra_ldflags = me._array_arg_or_null(args, 2)
+    if extra_ldflags == null { return env.codegen.link_object(obj_path, exe_path) }
+    return env.codegen.link_object(obj_path, exe_path, extra_ldflags)
   }
 
   _dispatch_loader_box(selector, payload) {
@@ -177,6 +192,13 @@ static box HostFacadeBox {
     local out = new ArrayBox()
     if payload != null { out.push(payload) }
     return out
+  }
+
+  _array_arg_or_null(arr, idx) {
+    if arr == null { return null }
+    if idx == null { return null }
+    if arr.length() <= idx { return null }
+    return arr.get(idx)
   }
 
   _console_print(prefix, payload) {

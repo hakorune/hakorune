@@ -111,6 +111,10 @@ Related:
    - backend MIR normalization is owned by `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
    - compiled-stage1 `llvm_backend_surrogate.rs` now shares the same path-based compile contract through `mir_json_file_to_object(...)`
    - env truth is pinned to `NYASH_NY_LLVM_COMPILER` for ny-llvmc path resolution, while `NYASH_LLVM_COMPILER` remains `tools/build_llvm.sh` local mode selector only
+18. landed B1e direct extern lowering:
+   - shared compile/link helpers in `lang/src/runtime/host/host_facade_box.hako` now lower `codegen.compile_json_path` / `emit_object` / `link_object` through direct `env.codegen.*` extern calls
+   - `.hako VM` backend helpers in `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now match the same canonical `env.codegen.*` lowering shape for compile/link
+   - daily compile/link proof no longer depends on `hostbridge.extern_invoke(...)` inside shared host/vm helper paths
 
 ## Non-goals
 

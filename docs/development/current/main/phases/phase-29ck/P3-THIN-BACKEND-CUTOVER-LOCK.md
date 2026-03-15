@@ -127,7 +127,7 @@ rule:
 補足:
 - temp file ownership と error wording は `LlvmBackendBox` 実装 slice で lock する
 - ただし owner path はこの文書で先に lock 済みとする
-- landed first cut:
+  - landed first cut:
   - `lang/c-abi/include/hako_aot.h` is the canonical AOT compile/link header; `hako_hostbridge.h` keeps only thin-shim inclusion for those declarations
   - `lang/c-abi/shims/hako_aot_shared_impl.inc` is the shared compile/link source truth used by both `hako_aot.c` and `hako_kernel.c`
   - `LlvmBackendBox.compile_obj(json_path)` forwards file-path ownership to `CodegenBridgeBox.compile_json_path_args(...)`
@@ -140,6 +140,7 @@ rule:
   - current proof shape is:
     - direct MIR emit accepts a `.hako` caller that imports `selfhost.shared.backend.llvm_backend`
     - `LlvmBackendBox` source owner is pinned to `CodegenBridgeBox.compile_json_path_args/link_object_args`
+    - shared compile/link helpers in `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now lower directly to canonical `env.codegen.*` extern calls, not `hostbridge.extern_invoke(...)`
     - compiled-stage1 temporary `llvm_backend_surrogate.rs` now shares the same path-based compile contract through `mir_json_file_to_object(...)`
     - downstream native app parity stays green on `phase29ck_native_llvm_cabi_link_min.sh`
     - non-empty `libs` is pinned by `phase29ck_llvm_backend_box_capi_link_min.sh`

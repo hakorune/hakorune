@@ -13,6 +13,7 @@ Scope:
   - path-based daily compile helper is `compile_json_path[_args]`
   - raw `emit_object[_args]` stays compat keep only
   - do not treat as final backend-zero daily caller stop-point
+  - shared host/vm compile-link helpers now lower directly to canonical `env.codegen.*` extern calls; do not reintroduce `hostbridge.extern_invoke(...)` for daily backend compile/link routes
 
 Rules:
 - Do not call `hostbridge.*` directly from new shared/vm/runtime code.
