@@ -95,6 +95,10 @@ Rule:
    - `tools/checks/phase29cl_by_name_mainline_guard.sh`
    - `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
    - `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
+10. compiled-stage1 surrogate shrink first slice is landed
+   - `llvm_backend_surrogate.rs` now keeps compile-path decode, compile opts, and link-arg decode behind owner-local helpers
+   - parent `module_string_dispatch.rs` still probes it only through `try_dispatch(...)`
+   - this is shrink-only; it does not reopen launcher daily caller ownership
 
 ## Immediate Next
 
