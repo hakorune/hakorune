@@ -236,13 +236,17 @@ rule:
        - `lower_function(...)` now consumes those helpers instead of mixing prepass graph scan details inline
        - proof is pinned by `src/llvm_py/tests/test_function_lower_phi_prepass.py`
      - landed eleventh slice:
-       - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, and string-tag collection
+       - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization
        - `lower_binop(...)` now consumes those helpers instead of mixing string-vs-integer route selection inline
-       - proof is pinned by `src/llvm_py/tests/test_binop_route_policy.py`
+       - proof is pinned by `src/llvm_py/tests/test_binop_route_policy.py` and `src/llvm_py/tests/test_binop_numeric_resolution.py`
      - landed twelfth slice:
        - `src/llvm_py/instructions/binop.py` now owns file-local i64 operand resolve/canonicalize and textual-op alias normalization helpers
        - `lower_binop(...)` now consumes those helpers instead of mixing numeric operand prep with route selection inline
        - proof is pinned by `src/llvm_py/tests/test_binop_numeric_resolution.py`
+     - landed thirteenth slice:
+       - `src/llvm_py/instructions/binop.py` now owns file-local string-handle materialization, `any.toString_h` bridge, module-function ensure, and concat dispatch helpers
+       - `lower_binop(...)` now consumes those helpers instead of mixing concat handle prep and `concat_hh/concat3_hhh` dispatch inline
+       - proof is pinned by `src/llvm_py/tests/test_binop_concat_helpers.py`, `src/llvm_py/tests/test_binop_string_partial_tag.py`, and `src/llvm_py/tests/test_strlen_fast.py`
 - done shape:
   - Python is no longer mainline backend owner
 

@@ -156,6 +156,108 @@ def _binop_plus_string_tags(resolver, lhs: int, rhs: int) -> tuple[bool, bool]:
     return lhs_tag, rhs_tag
 
 
+def _ensure_module_function(module, name: str, return_type, arg_types):
+    for func in module.functions:
+        if func.name == name:
+            return func
+    return ir.Function(module, ir.FunctionType(return_type, arg_types), name=name)
+
+
+def _binop_to_string_handle(builder: ir.IRBuilder, raw, value, tag: str, dst: int, i64, i8p):
+    if raw is not None and hasattr(raw, "type") and isinstance(raw.type, ir.IntType) and raw.type.width == 64:
+        return raw
+    if raw is not None and hasattr(raw, "type") and isinstance(raw.type, ir.PointerType):
+        try:
+            if isinstance(raw.type.pointee, ir.ArrayType):
+                c0 = ir.Constant(ir.IntType(32), 0)
+                raw = builder.gep(raw, [c0, c0], name=f"bin_gep_{tag}_{dst}")
+        except Exception:
+            pass
+        callee = _ensure_module_function(
+            builder.module,
+            "nyash.box.from_i8_string",
+            i64,
+            [i8p],
+        )
+        return builder.call(callee, [raw], name=f"str_ptr2h_{tag}_{dst}")
+    if value is not None and hasattr(value, "type") and isinstance(value.type, ir.IntType) and value.type.width == 64:
+        return value
+    return ir.Constant(i64, 0)
+
+
+def _binop_any_to_string_handle(builder: ir.IRBuilder, handle_val, tag: str, dst: int, i64):
+    callee = _ensure_module_function(
+        builder.module,
+        "nyash.any.toString_h",
+        i64,
+        [i64],
+    )
+    return builder.call(callee, [handle_val], name=f"any_tostr_h_{tag}_{dst}")
+
+
+def _binop_needs_stringify_bridge(tagged: bool, raw, value) -> bool:
+    if tagged:
+        return False
+    try:
+        candidate = raw if isinstance(raw, ir.Constant) else value
+        return bool(
+            isinstance(candidate, ir.Constant)
+            and isinstance(candidate.type, ir.IntType)
+            and candidate.type.width == 64
+        )
+    except Exception:
+        return False
+
+
+def _materialize_string_concat_handles(
+    builder: ir.IRBuilder,
+    resolver,
+    lhs: int,
+    rhs: int,
+    dst: int,
+    lhs_raw,
+    rhs_raw,
+    lhs_val,
+    rhs_val,
+):
+    i64 = ir.IntType(64)
+    i8p = ir.IntType(8).as_pointer()
+    lhs_tag, rhs_tag = _binop_plus_string_tags(resolver, lhs, rhs)
+    if os.environ.get("NYASH_BINOP_DEBUG") == "1":
+        print(f"  [concat path] lhs_tag={lhs_tag} rhs_tag={rhs_tag}")
+    hl = _binop_to_string_handle(builder, lhs_raw, lhs_val, "l", dst, i64, i8p)
+    hr = _binop_to_string_handle(builder, rhs_raw, rhs_val, "r", dst, i64, i8p)
+    if _binop_needs_stringify_bridge(lhs_tag, lhs_raw, lhs_val):
+        hl = _binop_any_to_string_handle(builder, hl, "l", dst, i64)
+    if _binop_needs_stringify_bridge(rhs_tag, rhs_raw, rhs_val):
+        hr = _binop_any_to_string_handle(builder, hr, "r", dst, i64)
+    return hl, hr
+
+
+def _dispatch_string_concat(builder: ir.IRBuilder, dst: int, lhs_raw, rhs_raw, hl, hr):
+    i64 = ir.IntType(64)
+    concat3_info = _concat3_chain_args(lhs_raw, rhs_raw, hl, hr)
+    if concat3_info is not None:
+        concat3_args, folded_call = concat3_info
+        callee3 = _ensure_module_function(
+            builder.module,
+            "nyash.string.concat3_hhh",
+            i64,
+            [i64, i64, i64],
+        )
+        result = builder.call(callee3, list(concat3_args), name=f"concat3_hhh_{dst}")
+        _prune_dead_chain_call(builder, folded_call, replacement_call=result)
+        return result
+
+    callee = _ensure_module_function(
+        builder.module,
+        "nyash.string.concat_hh",
+        i64,
+        [i64, i64],
+    )
+    return builder.call(callee, [hl, hr], name=f"concat_hh_{dst}")
+
+
 def _value_sig(val, fallback_vid: int):
     # Prefer literal identity for constants so repeated const ValueIds share cache key.
     try:
@@ -270,6 +372,123 @@ def _resolve_binop_i64_operands(
     if rhs_val is None:
         rhs_val = ir.Constant(ir.IntType(64), 0)
     return lhs_val, rhs_val
+
+
+def _binop_numeric_meta_kind(meta) -> Optional[str]:
+    if meta == "i64" or meta == "Integer" or (
+        isinstance(meta, dict) and meta.get("kind") in ("i64", "Integer")
+    ):
+        return "Integer"
+    if meta == "f64" or meta == "Float" or (
+        isinstance(meta, dict) and meta.get("kind") in ("f64", "Float")
+    ):
+        return "Float"
+    return None
+
+
+def _binop_plus_numeric_types(resolver, lhs: int, rhs: int) -> tuple[Optional[str], Optional[str]]:
+    if resolver is None or not hasattr(resolver, "value_types") or not isinstance(resolver.value_types, dict):
+        return None, None
+    return (
+        _binop_numeric_meta_kind(resolver.value_types.get(lhs)),
+        _binop_numeric_meta_kind(resolver.value_types.get(rhs)),
+    )
+
+
+def _resolve_binop_value(
+    resolver,
+    value_id: int,
+    vmap: Dict[int, ir.Value],
+    current_block: ir.Block,
+    preds=None,
+    block_end_values=None,
+    bb_map=None,
+):
+    value = vmap.get(value_id)
+    if value is not None:
+        return value
+    if resolver is None:
+        return ir.Constant(ir.IntType(64), 0)
+    return resolve_i64_strict(
+        resolver,
+        value_id,
+        current_block,
+        preds,
+        block_end_values,
+        vmap,
+        bb_map,
+        hot_scope="binop",
+    )
+
+
+def _coerce_float_operand_to_f64(builder: ir.IRBuilder, operand, *, trace_values=None):
+    i64 = ir.IntType(64)
+    f64 = ir.DoubleType()
+    if operand is None:
+        return ir.Constant(f64, 0.0)
+    try:
+        val_type = operand.type
+        if isinstance(val_type, ir.DoubleType):
+            if trace_values is not None:
+                trace_values("[binop] Float is double constant, using directly")
+            return operand
+        if isinstance(val_type, ir.IntType) and val_type.width == 64:
+            if trace_values is not None:
+                trace_values("[binop] Float is i64 handle, unboxing")
+            callee = _ensure_module_function(
+                builder.module,
+                "nyash.float.unbox_to_f64",
+                f64,
+                [i64],
+            )
+            return builder.call(callee, [operand], name="unbox_float")
+    except Exception as exc:
+        if trace_values is not None:
+            trace_values(f"[binop] Exception checking Float type: {exc}, assuming constant")
+        return operand
+    return ir.Constant(f64, 0.0)
+
+
+def _lower_int_float_addition(
+    builder: ir.IRBuilder,
+    resolver,
+    lhs: int,
+    rhs: int,
+    dst: int,
+    vmap: Dict[int, ir.Value],
+    current_block: ir.Block,
+    preds=None,
+    block_end_values=None,
+    bb_map=None,
+) -> bool:
+    lhs_type, rhs_type = _binop_plus_numeric_types(resolver, lhs, rhs)
+    if (lhs_type, rhs_type) not in {("Integer", "Float"), ("Float", "Integer")}:
+        return False
+
+    from trace import values as trace_values
+
+    trace_values(f"[binop] Int+Float addition: lhs={lhs}({lhs_type}) rhs={rhs}({rhs_type})")
+    f64 = ir.DoubleType()
+    lhs_val = _resolve_binop_value(resolver, lhs, vmap, current_block, preds, block_end_values, bb_map)
+    rhs_val = _resolve_binop_value(resolver, rhs, vmap, current_block, preds, block_end_values, bb_map)
+
+    if lhs_type == "Integer":
+        int_val = lhs_val
+        float_val_or_handle = rhs_val
+    else:
+        float_val_or_handle = lhs_val
+        int_val = rhs_val
+
+    int_as_float = builder.sitofp(int_val, f64, name="int_to_f64")
+    float_val = _coerce_float_operand_to_f64(builder, float_val_or_handle, trace_values=trace_values)
+
+    if lhs_type == "Integer":
+        result = builder.fadd(int_as_float, float_val, name="int_float_add")
+    else:
+        result = builder.fadd(float_val, int_as_float, name="float_int_add")
+
+    safe_vmap_write(vmap, dst, result, "binop_int_float_add", resolver=resolver)
+    return True
 
 
 def _const_i64_literal(val):
@@ -450,8 +669,6 @@ def lower_binop(
     # Use concat_hh when either side is a pointer string OR either side is tagged as string handle
     # (including literal strings and PHI-propagated tags).
     if op == '+':
-        i64 = ir.IntType(64)
-        i8p = ir.IntType(8).as_pointer()
         lhs_raw = vmap.get(lhs)
         rhs_raw = vmap.get(rhs)
         is_str, explicit_integer, explicit_string, operand_is_string = _binop_plus_prefers_string_path(
@@ -473,98 +690,18 @@ def lower_binop(
                 rhs_vt = resolver.value_types.get(rhs)
                 print(f"  value_types: lhs={lhs_vt} rhs={rhs_vt}")
         if is_str:
-            # Helper: convert raw or resolved value to string handle
-            def to_handle(raw, val, tag: str, vid: int):
-                # If we already have an i64 SSA (handle) in vmap/raw or resolved val, prefer pass-through.
-                if raw is not None and hasattr(raw, 'type') and isinstance(raw.type, ir.IntType) and raw.type.width == 64:
-                    return raw
-                if raw is not None and hasattr(raw, 'type') and isinstance(raw.type, ir.PointerType):
-                    # pointer-to-array -> GEP
-                    try:
-                        if isinstance(raw.type.pointee, ir.ArrayType):
-                            c0 = ir.Constant(ir.IntType(32), 0)
-                            raw = builder.gep(raw, [c0, c0], name=f"bin_gep_{tag}_{dst}")
-                    except Exception:
-                        pass
-                    cal = None
-                    for f in builder.module.functions:
-                        if f.name == 'nyash.box.from_i8_string':
-                            cal = f; break
-                    if cal is None:
-                        cal = ir.Function(builder.module, ir.FunctionType(i64, [i8p]), name='nyash.box.from_i8_string')
-                    return builder.call(cal, [raw], name=f"str_ptr2h_{tag}_{dst}")
-                # if already i64
-                if val is not None and hasattr(val, 'type') and isinstance(val.type, ir.IntType) and val.type.width == 64:
-                    # Treat resolved i64 as a handle in string domain（never box numeric here）
-                    return val
-                return ir.Constant(i64, 0)
-
-            def any_to_string_handle(handle_val, tag: str):
-                callee = None
-                for f in builder.module.functions:
-                    if f.name == 'nyash.any.toString_h':
-                        callee = f
-                        break
-                if callee is None:
-                    callee = ir.Function(
-                        builder.module,
-                        ir.FunctionType(i64, [i64]),
-                        name='nyash.any.toString_h',
-                    )
-                return builder.call(callee, [handle_val], name=f"any_tostr_h_{tag}_{dst}")
-
-            def needs_stringify_bridge(vid: int, tagged: bool, raw, val) -> bool:
-                if tagged:
-                    return False
-                # Plain i64 constants are likely primitive numerics.
-                try:
-                    c = raw if isinstance(raw, ir.Constant) else val
-                    if isinstance(c, ir.Constant) and isinstance(c.type, ir.IntType) and c.type.width == 64:
-                        return True
-                except Exception:
-                    pass
-                return False
-
-            # Phase 196: TypeFacts/Resolver SSOT - Use handle+handle only when BOTH are strings.
-            # Root cause (Phase 102): loop-carried string accumulator may be i64-handle but not present in value_types;
-            # tag lookup MUST consult resolver.is_stringish()/string_ids.
-            lhs_tag, rhs_tag = _binop_plus_string_tags(resolver, lhs, rhs)
-            # Phase 131-15-P1 DEBUG
-            if os.environ.get('NYASH_BINOP_DEBUG') == '1':
-                print(f"  [concat path] lhs_tag={lhs_tag} rhs_tag={rhs_tag}")
-            # Always materialize concat result in string path.
-            # If tags are partial/missing, bridge through any.toString_h to avoid
-            # treating raw numeric i64 as a host-handle.
-            hl = to_handle(lhs_raw, lhs_val, 'l', lhs)
-            hr = to_handle(rhs_raw, rhs_val, 'r', rhs)
-            if needs_stringify_bridge(lhs, lhs_tag, lhs_raw, lhs_val):
-                hl = any_to_string_handle(hl, 'l')
-            if needs_stringify_bridge(rhs, rhs_tag, rhs_raw, rhs_val):
-                hr = any_to_string_handle(hr, 'r')
-
-            concat3_info = _concat3_chain_args(lhs_raw, rhs_raw, hl, hr)
-            if concat3_info is not None:
-                concat3_args, folded_call = concat3_info
-                hhh_fnty = ir.FunctionType(i64, [i64, i64, i64])
-                callee3 = None
-                for f in builder.module.functions:
-                    if f.name == 'nyash.string.concat3_hhh':
-                        callee3 = f
-                        break
-                if callee3 is None:
-                    callee3 = ir.Function(builder.module, hhh_fnty, name='nyash.string.concat3_hhh')
-                res = builder.call(callee3, list(concat3_args), name=f"concat3_hhh_{dst}")
-                _prune_dead_chain_call(builder, folded_call, replacement_call=res)
-            else:
-                hh_fnty = ir.FunctionType(i64, [i64, i64])
-                callee = None
-                for f in builder.module.functions:
-                    if f.name == 'nyash.string.concat_hh':
-                        callee = f
-                        break
-                if callee is None:
-                    callee = ir.Function(builder.module, hh_fnty, name='nyash.string.concat_hh')
-                res = builder.call(callee, [hl, hr], name=f"concat_hh_{dst}")
+            hl, hr = _materialize_string_concat_handles(
+                builder,
+                resolver,
+                lhs,
+                rhs,
+                dst,
+                lhs_raw,
+                rhs_raw,
+                lhs_val,
+                rhs_val,
+            )
+            res = _dispatch_string_concat(builder, dst, lhs_raw, rhs_raw, hl, hr)
             safe_vmap_write(vmap, dst, res, "binop_concat", resolver=resolver)
             # Phase 275 C2: String+String only - mixed concat removed
             # Tag result as string handle so subsequent '+' stays in string domain
@@ -575,108 +712,19 @@ def lower_binop(
                 pass
             return
 
-    # Phase 275 C2: Int+Float promotion (number-only)
-    # Type discrimination BEFORE resolve (to avoid premature i64 conversion)
-    if op == '+':
-        lhs_type = None
-        rhs_type = None
-        if resolver is not None and hasattr(resolver, 'value_types') and isinstance(resolver.value_types, dict):
-            lhs_meta = resolver.value_types.get(lhs)
-            rhs_meta = resolver.value_types.get(rhs)
-            # Normalize type metadata
-            if lhs_meta == 'i64' or lhs_meta == 'Integer' or (isinstance(lhs_meta, dict) and lhs_meta.get('kind') in ('i64', 'Integer')):
-                lhs_type = 'Integer'
-            elif lhs_meta == 'f64' or lhs_meta == 'Float' or (isinstance(lhs_meta, dict) and lhs_meta.get('kind') in ('f64', 'Float')):
-                lhs_type = 'Float'
-            if rhs_meta == 'i64' or rhs_meta == 'Integer' or (isinstance(rhs_meta, dict) and rhs_meta.get('kind') in ('i64', 'Integer')):
-                rhs_type = 'Integer'
-            elif rhs_meta == 'f64' or rhs_meta == 'Float' or (isinstance(rhs_meta, dict) and rhs_meta.get('kind') in ('f64', 'Float')):
-                rhs_type = 'Float'
-
-        # Int+Float or Float+Int detected: promote Int to Float, use fadd
-        if (lhs_type == 'Integer' and rhs_type == 'Float') or (lhs_type == 'Float' and rhs_type == 'Integer'):
-            from trace import values as trace_values
-            trace_values(f"[binop] Int+Float addition: lhs={lhs}({lhs_type}) rhs={rhs}({rhs_type})")
-
-            i64 = ir.IntType(64)
-            f64 = ir.DoubleType()
-
-            # Get values from vmap (as handles/values, don't resolve to i64 yet)
-            lhs_val = vmap.get(lhs)
-            rhs_val = vmap.get(rhs)
-            if lhs_val is None:
-                lhs_val = resolve_i64_strict(
-                    resolver,
-                    lhs,
-                    current_block,
-                    preds,
-                    block_end_values,
-                    vmap,
-                    bb_map,
-                    hot_scope="binop",
-                ) if resolver else ir.Constant(i64, 0)
-            if rhs_val is None:
-                rhs_val = resolve_i64_strict(
-                    resolver,
-                    rhs,
-                    current_block,
-                    preds,
-                    block_end_values,
-                    vmap,
-                    bb_map,
-                    hot_scope="binop",
-                ) if resolver else ir.Constant(i64, 0)
-
-            # Determine which is Integer (i64 value) and which is Float (handle or double constant)
-            if lhs_type == 'Integer' and rhs_type == 'Float':
-                int_val = lhs_val  # i64 integer value
-                float_val_or_handle = rhs_val  # Could be double constant or i64 handle
-            else:  # lhs_type == 'Float' and rhs_type == 'Integer'
-                float_val_or_handle = lhs_val  # Could be double constant or i64 handle
-                int_val = rhs_val  # i64 integer value
-
-            # Convert Integer (i64) to Float (f64) using sitofp
-            int_as_float = builder.sitofp(int_val, f64, name='int_to_f64')
-
-            # Phase 275 C2: Float might be double constant (from const.py) or i64 handle
-            # Check actual LLVM type to determine which path
-            float_val = None
-            try:
-                val_type = float_val_or_handle.type
-                if isinstance(val_type, ir.DoubleType):
-                    # Already a double constant - use directly
-                    float_val = float_val_or_handle
-                    trace_values(f"[binop] Float is double constant, using directly")
-                elif isinstance(val_type, ir.IntType) and val_type.width == 64:
-                    # i64 handle - needs unboxing via kernel helper
-                    trace_values(f"[binop] Float is i64 handle, unboxing")
-                    unbox_func_name = 'nyash.float.unbox_to_f64'
-                    unbox_func = None
-                    for f in builder.module.functions:
-                        if f.name == unbox_func_name:
-                            unbox_func = f
-                            break
-                    if not unbox_func:
-                        unbox_func = ir.Function(builder.module, ir.FunctionType(f64, [i64]), name=unbox_func_name)
-                    float_val = builder.call(unbox_func, [float_val_or_handle], name='unbox_float')
-            except Exception as e:
-                trace_values(f"[binop] Exception checking Float type: {e}, assuming constant")
-                # Fallback: assume constant
-                float_val = float_val_or_handle
-
-            if float_val is None:
-                float_val = ir.Constant(f64, 0.0)
-
-            # Add using fadd (double + double)
-            if lhs_type == 'Integer':
-                result = builder.fadd(int_as_float, float_val, name='int_float_add')
-            else:  # lhs was Float
-                result = builder.fadd(float_val, int_as_float, name='float_int_add')
-
-            # Phase 275 P0: Store double directly in vmap (no boxing)
-            # vmap can hold both i64 and double values
-            safe_vmap_write(vmap, dst, result, "binop_int_float_add", resolver=resolver)
-            return  # Don't fall through to integer add
+    if op == "+" and _lower_int_float_addition(
+        builder,
+        resolver,
+        lhs,
+        rhs,
+        dst,
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+    ):
+        return
 
     # Ensure both are i64
     i64 = ir.IntType(64)

@@ -193,7 +193,10 @@ Related:
    - `src/llvm_py/instructions/binop.py` now keeps i64 operand resolve/canonicalize and textual-op alias normalization behind file-local helpers (`_resolve_binop_i64_operands(...)`, `_normalize_binop_op(...)`)
    - `lower_binop(...)` now enters through `resolve operands -> normalize op -> route` orchestration instead of mixing numeric operand prep with route selection inline
    - support-owner proof is pinned by `src/llvm_py/tests/test_binop_numeric_resolution.py`
-   - support-owner proof is pinned by `src/llvm_py/tests/test_binop_route_policy.py`
+39. landed B3d binop-concat slice:
+   - `src/llvm_py/instructions/binop.py` now keeps string-handle materialization, `any.toString_h` bridge, module-function ensure, and concat dispatch behind file-local helpers (`_ensure_module_function(...)`, `_binop_to_string_handle(...)`, `_binop_any_to_string_handle(...)`, `_binop_needs_stringify_bridge(...)`, `_materialize_string_concat_handles(...)`, `_dispatch_string_concat(...)`)
+   - `lower_binop(...)` no longer mixes concat handle prep and `concat_hh/concat3_hhh` dispatch inline after route selection
+   - support-owner proof is pinned by `src/llvm_py/tests/{test_binop_concat_helpers.py,test_binop_string_partial_tag.py,test_strlen_fast.py}`
 
 ## Non-goals
 
