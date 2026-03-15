@@ -71,6 +71,7 @@ Related:
    - argv capture confirms the runner now invokes `ny-llvmc ... --driver native`
    - latest tightening: lib/bin EXE routes now share `run_ny_llvmc_emit_exe(...)`, so runner-side ownership is thinner without changing the launch contract
    - latest tightening: `crates/nyash-llvm-compiler/src/main.rs` now keeps harness-path resolution, object-output resolution, input temp/normalize ownership, compile-mode diagnostics, and emit finalize output behind same-file helpers `resolve_harness_path(...)`, `resolve_object_output_path(...)`, `prepare_input_json_path(...)`, `maybe_dump_input_json(...)`, `emit_preflight_shape_hint(...)`, `emit_compile_output(...)`, and `finalize_emit_output(...)`; top-level route order now dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)`
+   - latest tightening: `src/runner/modes/llvm/harness_executor.rs` now keeps runtime-state log, harness gate, ny-llvmc emit, and executable run behind same-file helpers `log_harness_runtime_state(...)`, `ensure_harness_requested(...)`, `emit_executable_via_ny_llvmc(...)`, and `run_emitted_executable(...)`
 9. boundary lock:
    - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
    - `native_driver.rs` is bootstrap seam only
