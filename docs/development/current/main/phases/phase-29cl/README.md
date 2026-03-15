@@ -84,10 +84,14 @@ Rule:
    - `src/llvm_py/instructions/mir_call_legacy.py`
 6. latest landed proof:
    - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green again because compiled-stage1 `llvm_backend_surrogate.rs` now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` routing
-7. this phase does not mean “delete by_name now”
+7. `BYN-min2` source cutover is landed
+   - `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly
+   - visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`
+   - `llvm_backend_surrogate.rs` is no longer the visible launcher daily caller path; it is temporary compiled-stage1 residue only
+8. this phase does not mean “delete by_name now”
    - order is caller cutover first
    - kernel delete/shrink only after those callers are gone
-8. `BYN-min1` lock is landed
+9. `BYN-min1` lock is landed
    - `tools/checks/phase29cl_by_name_mainline_guard.sh`
    - `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
    - `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
@@ -95,8 +99,8 @@ Rule:
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
-2. move visible daily callers off `by_name`
-3. keep compiled-stage1 surrogates only as temporary proof paths
+2. keep visible launcher caller off `by_name`
+3. shrink compiled-stage1 surrogates now that launcher source route no longer feeds `selfhost.shared.backend.llvm_backend`
 4. reduce hook/registry keeps to explicit compat-only
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 

@@ -53,7 +53,7 @@ Pointers:
     - `emit mir-json` checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`) so the launcher lane no longer mixes Program(JSON) validation, MirBuilder call, and MIR output validation inline.
     - `emit program-json` checked tail is also split owner-locally (`_emit_program_json_raw(...)`, `_coerce_program_json_output_checked(...)`) so the launcher lane no longer mixes BuildBox call and Program(JSON) validation inline.
     - program-json load / stdout-vs-file output tails are also split owner-locally (`_load_program_json_from_path_checked(...)`, `_print_output_checked(...)`, `_write_output_checked(...)`) so `cmd_emit_program_json(...)` / `cmd_emit_mir_json(...)` no longer branch directly on readback/output side effects inline.
-    - `build exe` now stops at `LlvmBackendBox` instead of direct `CodegenBridgeBox` calls; launcher owns only the temp MIR handoff / default output-path helper shape around that boundary.
+    - `build exe` now owns only temp MIR handoff / default output-path helper shape and lowers compile/link through direct `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; it no longer imports `LlvmBackendBox` for the compiled-stage1 lane.
   - Design reference:
     - `docs/development/runtime/cli-hakorune-stage1.md` を Stage1 CLI の仕様 SSOT として参照すること。
 

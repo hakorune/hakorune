@@ -115,6 +115,10 @@ Related:
    - shared compile/link helpers in `lang/src/runtime/host/host_facade_box.hako` now lower `codegen.compile_json_path` / `emit_object` / `link_object` through direct `env.codegen.*` extern calls
    - `.hako VM` backend helpers in `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now match the same canonical `env.codegen.*` lowering shape for compile/link
    - daily compile/link proof no longer depends on `hostbridge.extern_invoke(...)` inside shared host/vm helper paths
+19. landed `phase-29cl / BYN-min2` launcher cutover:
+   - `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly for its compiled-stage1 build lane
+   - visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`
+   - `llvm_backend_surrogate.rs` remains temporary compiled-stage1 residue only; do not treat it as the daily caller stop-point again
 
 ## Non-goals
 

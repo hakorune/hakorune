@@ -20,7 +20,8 @@ Related:
    - landed allowlist: `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
 2. `BYN-min2` backend caller cutover
    - move visible backend daily callers off module-string `by_name`
-   - first owner remains `phase-29ck` B1c/B1d
+   - launcher `build exe` source lane is now cut over to direct `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`
+   - next owner is compiled-stage1 surrogate shrink, not another visible launcher caller rewrite
 3. `BYN-min3` compiled-stage1 surrogate shrink
    - keep `build_surrogate.rs` / `llvm_backend_surrogate.rs` only while proofs still need them
 4. `BYN-min4` hook/registry demotion
@@ -33,6 +34,7 @@ Related:
 1. backend
    - current daily route target is `LlvmBackendBox -> hako_aot`
    - any remaining module-string `by_name` there is temporary
+   - visible launcher source lane is now direct `env.codegen.*`; `selfhost.shared.backend.llvm_backend` no longer appears in `lang/src/runner/launcher.hako`
 2. compiler selfhost
    - compiled-stage1 `build_surrogate` is temporary bridge keep, not final architecture
 3. runtime/plugin
