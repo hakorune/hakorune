@@ -177,6 +177,9 @@ rule:
   3. `B3c` opcode-lowering demotion inventory
      - classify `src/llvm_py/instructions/**` as opcode owner pack
      - split “mainline must replace” from “compat canary can remain”
+     - landed first slice:
+       - generic by-name method fallback now lives in `src/llvm_py/instructions/by_name_method.py`
+       - `boxcall.py`, `mir_call/method_call.py`, and `mir_call_legacy.py` no longer each own their own `nyash.plugin.invoke_by_name_i64` wiring
   4. `B3d` analysis/support demotion inventory
      - classify `src/llvm_py/{builders/**,resolver.py,mir_analysis.py,phi_manager.py,phi_placement.py,phi_wiring/**,type_facts.py}`
      - prefer early compat/canary demotion instead of treating the whole tree as one owner

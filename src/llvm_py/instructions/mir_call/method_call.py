@@ -14,11 +14,11 @@ from .arg_resolver import make_call_arg_resolver
 from .auto_specialize import prefer_array_len_h_route, prefer_string_len_h_route
 from .intrinsic_registry import (
     is_length_like_method,
-    produces_string_result,
     requires_string_receiver_tag,
 )
 from .runtime_data_dispatch import lower_runtime_data_method_call
 from instructions.direct_box_method import try_lower_known_box_method_call
+from instructions.by_name_method import lower_plugin_invoke_by_name, mark_string_result_if_needed
 
 
 def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid, vmap, resolver, owner):
@@ -352,31 +352,22 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             result = direct_result
         else:
             # Generic plugin method invocation
-            method_str = method.encode('utf-8') + b'\0'
-            method_gname = f"unified_method_{method}"
-            if method_gname in module.globals:
-                method_global = module.get_global(method_gname)
-            else:
-                method_global = ir.GlobalVariable(
-                    module, ir.ArrayType(i8, len(method_str)), name=method_gname
-                )
-                method_global.initializer = ir.Constant(
-                    ir.ArrayType(i8, len(method_str)), bytearray(method_str)
-                )
-                method_global.global_constant = True
-            mptr = builder.gep(method_global, [ir.Constant(ir.IntType(32), 0), ir.Constant(ir.IntType(32), 0)])
-
             argc = ir.Constant(i64, len(args))
             a1 = _resolve_arg(args[0]) if args else ir.Constant(i64, 0)
             a2 = _resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
-
-            callee = _declare("nyash.plugin.invoke_by_name_i64", i64, [i64, i8p, i64, i64, i64])
-            result = builder.call(callee, [recv_h, mptr, argc, a1, a2], name="unified_plugin_invoke")
+            result = lower_plugin_invoke_by_name(
+                builder=builder,
+                module=module,
+                recv_h=recv_h,
+                method_name=method,
+                argc_value=argc,
+                arg1_value=a1,
+                arg2_value=a2,
+                call_name="unified_plugin_invoke",
+            )
 
     # Store result
     if dst_vid is not None:
         vmap[dst_vid] = result
         # Mark string-producing methods
-        if resolver and hasattr(resolver, 'mark_string'):
-            if produces_string_result(method):
-                resolver.mark_string(dst_vid)
+        mark_string_result_if_needed(resolver, dst_vid, method)

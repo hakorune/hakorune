@@ -128,6 +128,10 @@ Related:
    - `src/llvm_py/build_opts.py` now owns compile-time env context through `BuildOptions` / `resolve_build_options()`
    - `src/llvm_py/llvm_builder.py` now consumes those seams instead of re-owning MIR ingest + env-codegen flag reads inline
    - `src/llvm_py/build_ctx.py` now exposes `build_ctx_from_owner(...)`, and `src/llvm_py/builders/instruction_lower.py` consumes it as the lowering-side context aggregator
+22. landed B3c opcode first slice:
+   - generic `nyash.plugin.invoke_by_name_i64` method fallback now lives in `src/llvm_py/instructions/by_name_method.py`
+   - `src/llvm_py/instructions/{boxcall.py,mir_call/method_call.py,mir_call_legacy.py}` now consume the shared helper instead of owning duplicate by-name wiring and string-result tagging
+   - this slice is shrink-only; method specialization/runtime-data routing still stays in the opcode owners for later B3c rows
 
 ## Non-goals
 

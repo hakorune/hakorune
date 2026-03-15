@@ -18,7 +18,7 @@ from instructions.mir_call.auto_specialize import (
     receiver_is_arrayish,
     receiver_is_stringish,
 )
-from instructions.mir_call.intrinsic_registry import produces_string_result
+from instructions.by_name_method import lower_plugin_invoke_by_name, mark_string_result_if_needed
 from instructions.direct_box_method import try_lower_known_box_method_call
 from utils.values import resolve_i64_strict
 from utils.resolver_helpers import get_box_type, mark_as_handle
@@ -346,8 +346,7 @@ def lower_boxcall(
             if dst_vid is not None:
                 vmap[dst_vid] = direct_result
                 try:
-                    if produces_string_result(method_name) and resolver is not None and hasattr(resolver, 'mark_string'):
-                        resolver.mark_string(dst_vid)
+                    mark_string_result_if_needed(resolver, dst_vid, method_name)
                 except Exception:
                     pass
             return
@@ -400,21 +399,28 @@ def lower_boxcall(
     a1 = _resolve_arg_i64(args[0]) if len(args) >= 1 else ir.Constant(i64, 0)
     a2 = _resolve_arg_i64(args[1]) if len(args) >= 2 else ir.Constant(i64, 0)
 
-    callee = _declare(module, "nyash.plugin.invoke_by_name_i64", i64, [i64, i8p, i64, i64, i64])
-    result = builder.call(callee, [recv_h, mptr, argc, a1, a2], name="pinvoke_by_name")
+    result = lower_plugin_invoke_by_name(
+        builder=builder,
+        module=module,
+        recv_h=recv_h,
+        method_name=method_name,
+        argc_value=argc,
+        arg1_value=a1,
+        arg2_value=a2,
+        call_name="pinvoke_by_name",
+    )
     if dst_vid is not None:
         vmap[dst_vid] = result
         # Type tagging: mark handles for downstream consumers (e.g., print)
         try:
             if resolver is not None and hasattr(resolver, 'value_types'):
                 # String-returning plugin methods share the MIR call registry SSOT.
-                if hasattr(resolver, 'mark_string') and produces_string_result(method_name):
-                    resolver.mark_string(dst_vid)
+                mark_string_result_if_needed(resolver, dst_vid, method_name)
 
                 # Phase 285LLVM-1.5: Tag getField results as handles (unified via mark_as_handle)
                 # getField returns a handle to the field value (e.g., handle to IntegerBox(42))
                 # This prevents print from boxing the handle itself
-                elif method_name == "getField":
+                if method_name == "getField":
                     # Mark as generic handle (box_type unknown - could be IntegerBox, StringBox, etc.)
                     mark_as_handle(resolver, dst_vid)
                     # Debug logging: getField tagging
