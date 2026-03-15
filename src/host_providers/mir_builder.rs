@@ -3,13 +3,11 @@ mod lowering;
 #[cfg(test)]
 use std::collections::BTreeMap;
 use std::fmt::Display;
-use std::sync::atomic::{AtomicU64, Ordering};
 // use std::io::Write; // kept for future pretty-print extensions
 
 pub(crate) const FAILFAST_TAG: &str = "[freeze:contract][hako_mirbuilder]";
 #[cfg(test)]
 pub(crate) const TRACE_ENV: &str = "HAKO_STAGE1_MODULE_DISPATCH_TRACE";
-static MIR_JSON_TMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[cfg(test)]
 pub(crate) fn trace_enabled() -> bool {
@@ -27,15 +25,6 @@ pub(crate) fn failfast_error(message: impl Display) -> String {
     let tag = format!("{FAILFAST_TAG} {}", message);
     crate::runtime::get_global_ring0().log.error(&tag);
     tag
-}
-
-pub(crate) fn unique_mir_json_tmp_path() -> std::path::PathBuf {
-    let seq = MIR_JSON_TMP_COUNTER.fetch_add(1, Ordering::Relaxed);
-    std::env::temp_dir().join(format!(
-        "hako_mirbuilder_out-{}-{}.json",
-        std::process::id(),
-        seq
-    ))
 }
 
 pub(crate) struct ScopedEnvVar {
@@ -148,8 +137,7 @@ fn emit_plain_mir_json_from_program_json_text(program_json: &str) -> Result<Stri
 }
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
-    let tmp_path = emit_module_to_temp_mir_json(module)?;
-    finalize_temp_mir_json_output(&tmp_path)
+    crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(module).map_err(failfast_error)
 }
 
 fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, String> {
@@ -172,37 +160,6 @@ fn emit_module_mir_json_with_stage1_user_box_decls(
     let user_box_decls = resolve_stage1_user_box_decls_from_program_json(program_json)?;
     let module = with_stage1_user_box_decls(module, &user_box_decls);
     emit_module_mir_json(&module)
-}
-
-fn emit_module_to_temp_mir_json(
-    module: &crate::mir::MirModule,
-) -> Result<std::path::PathBuf, String> {
-    let tmp_path = unique_mir_json_tmp_path();
-    match crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &tmp_path) {
-        Ok(()) => Ok(tmp_path),
-        Err(error) => Err(failfast_error(error)),
-    }
-}
-
-fn read_temp_mir_json_output(tmp_path: &std::path::Path) -> Result<String, String> {
-    std::fs::read_to_string(tmp_path).map_err(failfast_error)
-}
-
-fn cleanup_temp_mir_json_output(tmp_path: &std::path::Path) {
-    let _ = std::fs::remove_file(tmp_path);
-}
-
-fn finalize_temp_mir_json_output(tmp_path: &std::path::Path) -> Result<String, String> {
-    let raw = read_temp_mir_json_output(tmp_path)?;
-    cleanup_temp_mir_json_output(tmp_path);
-    Ok(canonicalize_mir_json_output(raw))
-}
-
-fn canonicalize_mir_json_output(raw: String) -> String {
-    match serde_json::from_str::<serde_json::Value>(&raw) {
-        Ok(value) => serde_json::to_string(&value).unwrap_or(raw),
-        Err(_) => raw,
-    }
 }
 
 fn emit_module_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {

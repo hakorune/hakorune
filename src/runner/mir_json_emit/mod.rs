@@ -24,7 +24,19 @@ pub fn emit_mir_json_for_harness_bin(
     emit_mir_json(module, path)
 }
 
+pub fn emit_mir_json_string_for_harness_bin(
+    module: &crate::mir::MirModule,
+) -> Result<String, String> {
+    let root = build_mir_json_root(module)?;
+    serialize_mir_json_root(&root)
+}
+
 fn emit_mir_json(module: &crate::mir::MirModule, path: &std::path::Path) -> Result<(), String> {
+    let root = build_mir_json_root(module)?;
+    write_mir_json_root(path, &root)
+}
+
+fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Value, String> {
     use crate::mir::MirType;
 
     let mut funs = Vec::new();
@@ -127,7 +139,14 @@ fn emit_mir_json(module: &crate::mir::MirModule, path: &std::path::Path) -> Resu
     // (tools/hakorune_emit_mir.sh) rather than at raw MIR emit time. This keeps
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
+    Ok(root)
+}
 
+fn serialize_mir_json_root(root: &serde_json::Value) -> Result<String, String> {
+    serde_json::to_string(root).map_err(|e| format!("write mir json: {}", e))
+}
+
+fn write_mir_json_root(path: &std::path::Path, root: &serde_json::Value) -> Result<(), String> {
     let file = std::fs::File::create(path).map_err(|e| format!("write mir json: {}", e))?;
     let mut writer = std::io::BufWriter::new(file);
     serde_json::to_writer_pretty(&mut writer, &root)
