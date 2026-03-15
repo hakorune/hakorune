@@ -17,18 +17,14 @@ enable_mirbuilder_dev_env
 # Program(JSON v0): Return(Method Var recv 'a', method 'get', args [Int 0])
 PROG='{"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Method","recv":{"type":"Var","name":"a"},"method":"get","args":[{"type":"Int","value":0}]}}]}'
 
-tmp_stdout=$(mktemp); trap 'rm -f "$tmp_stdout" || true' EXIT
-set +e
-run_program_json_via_registry_builder_module_vm_diag "hako.mir.builder" "$PROG" "return.method.arraymap" | tee "$tmp_stdout"
-rc=$?
-set -e
-
-echo "[diag] rc=$rc"
-if [[ "$rc" -ne 0 ]]; then echo "[SKIP] builder vm exec failed (diag)"; exit 0; fi
-if ! grep -q "\[mirbuilder/registry:return.method.arraymap\]" "$tmp_stdout"; then
-  echo "[SKIP] registry tag not observed (diag)"; exit 0
-fi
-mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then echo "[SKIP] MIR missing functions (diag)"; exit 0; fi
-echo "[PASS] registry_optin_method_arraymap_get (diag)"
+run_registry_builder_diag_canary \
+  "hako.mir.builder" \
+  "$PROG" \
+  "return.method.arraymap" \
+  "[mirbuilder/registry:return.method.arraymap]" \
+  "registry_optin_method_arraymap_get (diag)" \
+  fixed \
+  "builder vm exec failed (diag)" \
+  "registry tag not observed (diag)" \
+  "MIR missing functions (diag)"
 exit 0

@@ -1361,6 +1361,47 @@ prepare_registry_tagged_mir_canary_stdout() {
     return 0
 }
 
+run_registry_builder_diag_canary() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="$3"
+    local expected_tag_pattern="$4"
+    local pass_label="$5"
+    local grep_mode="${6:-basic}"
+    local skip_exec_label="${7:-builder vm exec failed (diag)}"
+    local skip_tag_label="${8:-registry tag not observed (diag)}"
+    local skip_mir_label="${9:-MIR missing functions (diag)}"
+
+    local tmp_stdout
+    tmp_stdout=$(mktemp)
+
+    set +e
+    run_program_json_via_registry_builder_module_vm_diag "$builder_module" "$prog_json" "$registry_only" | tee "$tmp_stdout"
+    local rc=$?
+    set -e
+
+    echo "[diag] rc=$rc"
+    if [[ "$rc" -ne 0 ]]; then
+        echo "[SKIP] ${skip_exec_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+    if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
+        echo "[SKIP] ${skip_tag_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+    if ! stdout_file_has_functions_mir "$tmp_stdout"; then
+        echo "[SKIP] ${skip_mir_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+
+    echo "[PASS] ${pass_label}"
+    cleanup_stdout_file "$tmp_stdout"
+    return 0
+}
+
 run_registry_method_arraymap_canary() {
     local prog_json="$1"
     local registry_only="$2"
