@@ -13,10 +13,15 @@ from instructions.safepoint import insert_automatic_safepoint
 from naming_helper import encode_static_method
 from console_bridge import emit_console_call  # Phase 133: Console 箱化モジュール
 from instructions.stringbox import emit_stringbox_call  # Phase 134-B: StringBox 箱化モジュール
-from instructions.mir_call.auto_specialize import receiver_is_arrayish, receiver_is_stringish
+from instructions.mir_call.auto_specialize import (
+    prefer_runtime_data_array_i64_key_route,
+    receiver_is_arrayish,
+    receiver_is_stringish,
+)
 from instructions.mir_call.intrinsic_registry import produces_string_result
+from instructions.direct_box_method import try_lower_known_box_method_call
 from utils.values import resolve_i64_strict
-from utils.resolver_helpers import mark_as_handle
+from utils.resolver_helpers import get_box_type, mark_as_handle
 
 def _declare(module: ir.Module, name: str, ret, args):
     for f in module.functions:
@@ -208,8 +213,21 @@ def lower_boxcall(
         k = _res_i64(args[0]) if args else ir.Constant(i64, 0)
         if k is None:
             k = vmap.get(args[0], ir.Constant(i64, 0)) if args else ir.Constant(i64, 0)
-        callee_map = _declare(module, "nyash.map.get_hh", i64, [i64, i64])
-        res = builder.call(callee_map, [recv_h, k], name="map_get_hh")
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
+            if prefer_runtime_data_array_i64_key_route(
+                method=method_name,
+                resolver=resolver,
+                arg_vids=args,
+            ):
+                callee = _declare(module, "nyash.array.get_hi", i64, [i64, i64])
+                res = builder.call(callee, [recv_h, k], name="array_get_hi")
+            else:
+                callee = _declare(module, "nyash.array.get_hh", i64, [i64, i64])
+                res = builder.call(callee, [recv_h, k], name="array_get_hh")
+        else:
+            callee = _declare(module, "nyash.map.get_hh", i64, [i64, i64])
+            res = builder.call(callee, [recv_h, k], name="map_get_hh")
         if dst_vid is not None:
             vmap[dst_vid] = res
         return
@@ -305,6 +323,30 @@ def lower_boxcall(
                 vmap[dst_vid] = res
                 try:
                     if method_name in ("esc_json", "node_json", "dirname", "join", "read_all") and resolver is not None and hasattr(resolver, 'mark_string'):
+                        resolver.mark_string(dst_vid)
+                except Exception:
+                    pass
+            return
+
+    known_box_name = get_box_type(resolver, box_vid)
+    if known_box_name:
+        recv_h = _ensure_handle(builder, module, recv_val)
+        direct_result = try_lower_known_box_method_call(
+            builder=builder,
+            module=module,
+            box_name=known_box_name,
+            method_name=method_name,
+            recv_h=recv_h,
+            args=args,
+            resolve_arg=lambda vid: _res_i64(vid),
+            ensure_handle=lambda value: _ensure_handle(builder, module, value),
+            call_name=f"call_known_{method_name}",
+        )
+        if direct_result is not None:
+            if dst_vid is not None:
+                vmap[dst_vid] = direct_result
+                try:
+                    if produces_string_result(method_name) and resolver is not None and hasattr(resolver, 'mark_string'):
                         resolver.mark_string(dst_vid)
                 except Exception:
                     pass

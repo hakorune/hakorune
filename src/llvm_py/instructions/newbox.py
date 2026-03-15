@@ -7,6 +7,7 @@ import llvmlite.ir as ir
 import os
 from typing import Dict, List, Optional, Any
 from instructions.string_fast import can_reuse_literal_string_handle
+from utils.resolver_helpers import mark_as_handle
 
 def lower_newbox(
     builder: ir.IRBuilder,
@@ -32,6 +33,12 @@ def lower_newbox(
         vmap: Value map
         resolver: Optional resolver for type handling
     """
+    def _mark_box_handle():
+        try:
+            mark_as_handle(resolver, dst_vid, box_type)
+        except Exception:
+            pass
+
     # Use NyRT shim: prefer dedicated core-box paths, otherwise env.box.new_i64x
     i64 = ir.IntType(64)
     i8p = ir.IntType(8).as_pointer()
@@ -89,6 +96,7 @@ def lower_newbox(
         if fast_on and can_reuse_literal_string_handle(resolver, arg0_vid, arg0):
             vmap[dst_vid] = arg0
             _track_stringbox_origin()
+            _mark_box_handle()
             return
 
         if arg0 is not None:
@@ -111,6 +119,7 @@ def lower_newbox(
 
         vmap[dst_vid] = handle
         _track_stringbox_origin()
+        _mark_box_handle()
         return
 
     # Core fast paths
@@ -125,6 +134,7 @@ def lower_newbox(
             birth = ir.Function(module, ir.FunctionType(i64, []), name=birth_name)
         handle = builder.call(birth, [], name=f"birth_{box_type}")
         vmap[dst_vid] = handle
+        _mark_box_handle()
         return
     # Prefer variadic shim: nyash.env.box.new_i64x(type_name, argc, a1, a2, a3, a4)
     new_i64x = None
@@ -160,6 +170,7 @@ def lower_newbox(
     vmap[dst_vid] = handle
 
     _track_stringbox_origin()
+    _mark_box_handle()
 
 def lower_newbox_generic(
     builder: ir.IRBuilder,

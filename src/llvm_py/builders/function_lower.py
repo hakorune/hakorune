@@ -11,6 +11,7 @@ from cfg.utils import (
     collect_arrayish_value_ids,
     collect_integerish_value_ids,
     collect_non_negative_value_ids,
+    propagate_arrayish_value_ids,
     collect_stringish_value_ids,
 )
 from phi_wiring import (
@@ -107,6 +108,86 @@ def _emit_hot_summary(context: FunctionLowerContext) -> None:
         return
     counts = getattr(context, "hot_trace_counts", {})
     trace_hot(trace_format_hot_summary(context.func_name, counts))
+
+
+def _mark_arrayish_param_fact(builder, value_id: int) -> None:
+    try:
+        vid = int(value_id)
+    except (TypeError, ValueError):
+        return
+
+    try:
+        builder.resolver.array_ids.add(vid)
+    except Exception:
+        pass
+
+    try:
+        if not hasattr(builder.resolver, "value_types") or not isinstance(builder.resolver.value_types, dict):
+            builder.resolver.value_types = {}
+        builder.resolver.value_types[vid] = {"kind": "handle", "box_type": "ArrayBox"}
+    except Exception:
+        pass
+
+
+def _seed_hakocli_args_array_fact(
+    *,
+    func_name: str,
+    params_list: List[Any],
+    param_value_ids: List[int],
+    builder,
+) -> None:
+    """
+    Seed the Stage1 launcher CLI argv contract in one place.
+
+    HakoCli.run/2 and HakoCli.cmd_*/2 receive the argv array as their second
+    parameter. The current MIR emit path does not attach metadata for that
+    parameter, so LLVM lowering must freeze the contract here until caller-side
+    metadata becomes the SSOT.
+    """
+    name = str(func_name or "")
+    if not name.startswith("HakoCli."):
+        return
+
+    try:
+        method_with_arity = name.split(".", 1)[1]
+        method_name = method_with_arity.split("/", 1)[0]
+    except Exception:
+        return
+
+    if method_name != "run" and not method_name.startswith("cmd_"):
+        return
+
+    if len(param_value_ids) < 2:
+        return
+
+    param_name = None
+    if isinstance(params_list, list) and len(params_list) >= 2 and isinstance(params_list[1], str):
+        param_name = str(params_list[1])
+    if param_name is not None and param_name != "args":
+        return
+
+    _mark_arrayish_param_fact(builder, param_value_ids[1])
+
+
+def _propagate_arrayish_value_facts(builder, blocks: List[Dict[str, Any]]) -> None:
+    """Expand seeded ArrayBox facts across copy/phi carrier chains."""
+    try:
+        seeded = set(getattr(builder.resolver, "array_ids", set()) or set())
+        propagated = propagate_arrayish_value_ids(blocks, seeded)
+    except Exception:
+        return
+
+    try:
+        builder.resolver.array_ids.clear()
+        builder.resolver.array_ids.update(propagated)
+    except Exception:
+        try:
+            builder.resolver.array_ids = set(propagated)
+        except Exception:
+            pass
+
+    for vid in propagated:
+        _mark_arrayish_param_fact(builder, int(vid))
 
 
 def lower_function(builder, func_data: Dict[str, Any]):
@@ -246,6 +327,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
     try:
         arity = len(func.args)
         params_list = func_data.get("params", []) or []
+        param_value_ids: List[int] = []
 
         if (
             isinstance(params_list, list)
@@ -254,6 +336,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
         ):
             for i in range(arity):
                 builder.vmap[int(params_list[i])] = func.args[i]
+                param_value_ids.append(int(params_list[i]))
         else:
             # Collect defined and used ids
             defs = set()
@@ -301,11 +384,22 @@ def lower_function(builder, func_data: Dict[str, Any]):
             cand.sort()
             for i in range(min(arity, len(cand))):
                 builder.vmap[int(cand[i])] = func.args[i]
+                param_value_ids.append(int(cand[i]))
 
             # Legacy fallback: map positional 0..arity-1 only when params are missing.
             for i in range(arity):
                 if i not in builder.vmap:
                     builder.vmap[i] = func.args[i]
+                if len(param_value_ids) <= i:
+                    param_value_ids.append(i)
+
+        _seed_hakocli_args_array_fact(
+            func_name=name,
+            params_list=params_list if isinstance(params_list, list) else [],
+            param_value_ids=param_value_ids,
+            builder=builder,
+        )
+        _propagate_arrayish_value_facts(builder, blocks)
     except Exception:
         pass
 

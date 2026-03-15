@@ -410,9 +410,16 @@ def collect_integerish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
     return integerish
 
 
-def collect_arrayish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
-    """Conservative ArrayBox-handle VID analysis from newbox/copy/phi chains."""
-    arrayish: Set[int] = set()
+def propagate_arrayish_value_ids(
+    blocks: List[Dict[str, Any]],
+    initial_arrayish: Set[int] | None = None,
+) -> Set[int]:
+    """Conservative ArrayBox-handle VID analysis from newbox/copy/phi chains.
+
+    `initial_arrayish` lets caller-side contracts seed known ArrayBox handles
+    (for example HakoCli argv params) before carrier propagation runs.
+    """
+    arrayish: Set[int] = set(int(v) for v in (initial_arrayish or set()))
 
     # Build carrier graph (copy/phi only) for SCC-aware self-carry filtering.
     carrier_edges: Dict[int, List[int]] = {}
@@ -544,6 +551,10 @@ def collect_arrayish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
             break
 
     return arrayish
+
+
+def collect_arrayish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
+    return propagate_arrayish_value_ids(blocks)
 
 
 def collect_stringish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:

@@ -3,6 +3,7 @@ from typing import Dict, List, Any
 
 from .common import trace
 from .analysis import analyze_incomings, collect_produced_stringish
+from .fact_propagation import mark_arrayish_handle, should_mark_phi_arrayish
 from .wiring import ensure_phi
 from .debug_helper import is_phi_debug_enabled
 
@@ -56,6 +57,16 @@ def _propagate_string_tag(builder, dst_vid: int, dst_type0, incoming0, produced_
                     pass
         if mark_str and hasattr(builder.resolver, "mark_string"):
             builder.resolver.mark_string(int(dst_vid))
+    except Exception:
+        pass
+
+
+def _propagate_array_tag(builder, dst_vid: int, dst_type0, incoming0) -> None:
+    """Propagate ArrayBox handle fact for PHI destinations."""
+    try:
+        resolver = getattr(builder, "resolver", None)
+        if should_mark_phi_arrayish(resolver, dst_type0, incoming0):
+            mark_arrayish_handle(resolver, int(dst_vid))
     except Exception:
         pass
 
@@ -149,6 +160,12 @@ def setup_phi_placeholders(builder, blocks: List[Dict[str, Any]]):
                         incoming0,
                         produced_str,
                     )
+                    _propagate_array_tag(
+                        builder,
+                        int(dst0),
+                        inst.get("dst_type"),
+                        incoming0,
+                    )
                     # Continue: no placeholder PHI needed for trivial alias.
                     continue
 
@@ -203,6 +220,12 @@ def setup_phi_placeholders(builder, blocks: List[Dict[str, Any]]):
                     inst.get("dst_type"),
                     incoming0,
                     produced_str,
+                )
+                _propagate_array_tag(
+                    builder,
+                    int(dst0),
+                    inst.get("dst_type"),
+                    incoming0,
                 )
                 # Definition hint: PHI defines dst in this block
                 try:

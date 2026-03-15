@@ -10,6 +10,7 @@ from .debug_helper import (
     is_phi_trace_enabled,
 )
 from .error_helpers import PhiStrictError, PhiDebugMessage
+from .fact_propagation import mark_arrayish_handle, should_mark_phi_arrayish
 
 def _const_i64(builder, n: int) -> ir.Constant:
     try:
@@ -396,6 +397,12 @@ def finalize_phis(builder, context):
                                 break
                         except Exception:
                             continue
+            except Exception:
+                pass
+            try:
+                resolver = getattr(builder, "resolver", None)
+                if should_mark_phi_arrayish(resolver, None, incoming):
+                    mark_arrayish_handle(resolver, int(dst_vid))
             except Exception:
                 pass
             # StringBox origin propagation:
