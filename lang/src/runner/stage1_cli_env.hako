@@ -841,21 +841,33 @@ static box Stage1SourceMirAuthorityBox {
 
 static box Stage1MirResultValidationBox {
   method finalize_emit_result(tag, selected_input, mir) {
-    local mir_text = me._materialize_mir_text_with_debug(tag, selected_input, mir)
+    local mir_text = me._coerce_materialized_mir_text_checked(tag, selected_input, mir)
     if mir_text == null { return 96 }
-    return me._print_validated_mir_result_checked(mir_text)
+    return me._emit_validated_mir_text_checked(mir_text)
   }
 
-  method _materialize_mir_text_with_debug(tag, selected_input, mir) {
-    local stage1_debug_on = me._stage1_debug_on()
-    if stage1_debug_on {
-      print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(selected_input) + " preview=" + me._debug_preview_inline(selected_input))
-    }
-    local mir_text = "" + mir
-    if stage1_debug_on {
-      me._debug_print_mir_state(mir, mir_text)
-    }
+  method _coerce_materialized_mir_text_checked(tag, selected_input, mir) {
+    me._debug_print_selected_input(tag, selected_input)
+    local mir_text = me._materialize_mir_text(mir)
+    me._debug_print_materialized_mir(mir, mir_text)
     return mir_text
+  }
+
+  method _debug_print_selected_input(tag, selected_input) {
+    if me._stage1_debug_on() != 1 { return 0 }
+    print("[stage1-cli/debug] emit-mir selected_input.len=" + me._debug_len_inline(selected_input) + " preview=" + me._debug_preview_inline(selected_input))
+    return 1
+  }
+
+  method _materialize_mir_text(mir) {
+    local mir_text = "" + mir
+    return mir_text
+  }
+
+  method _debug_print_materialized_mir(mir, mir_text) {
+    if me._stage1_debug_on() != 1 { return 0 }
+    me._debug_print_mir_state(mir, mir_text)
+    return 1
   }
 
   method _validate_mir_text_checked(mir_text) {
@@ -944,7 +956,7 @@ static box Stage1MirResultValidationBox {
     print("[stage1-cli/debug] emit-mir current-route validating materialized payload")
   }
 
-  method _print_validated_mir_result_checked(mir_text) {
+  method _emit_validated_mir_text_checked(mir_text) {
     if me._validate_mir_text_checked(mir_text) != 1 {
       return me._fail_invalid_mir_text(mir_text)
     }
@@ -989,7 +1001,7 @@ static box Stage1ProgramJsonCompatBox {
   method emit_mir_from_text(tag, program_json_text) {
     local prog = me._coerce_program_json_text_checked(tag, program_json_text)
     if prog == null { return null }
-    return Stage1ProgramJsonMirCallerBox.emit_mir_from_program_json_checked(tag, prog)
+    return me._emit_mir_from_text_checked(tag, prog)
   }
 
   method _coerce_program_json_text_checked(tag, program_json_text) {
@@ -998,6 +1010,10 @@ static box Stage1ProgramJsonCompatBox {
       return null
     }
     return "" + program_json_text
+  }
+
+  method _emit_mir_from_text_checked(tag, program_json_text) {
+    return Stage1ProgramJsonMirCallerBox.emit_mir_from_program_json_checked(tag, program_json_text)
   }
 
   method _has_explicit_program_json_text(program_json_text) {

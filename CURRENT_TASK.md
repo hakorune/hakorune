@@ -147,10 +147,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Immediate Next (this round)
 
 - pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
-  - current active owner is `tools/hakorune_emit_mir.sh`
-  - latest landed bundle is non-direct route-table consolidation: `try_selfhost_builder_first_route()`, `try_loop_force_jsonfrag_route()`, and `emit_mir_json_via_delegate_routes()` now keep selfhost/delegate/fallback detail helper-local, so `emit_mir_json_via_non_direct_routes()` reads as thin orchestration
-  - targeted proof is `bash tools/hakorune_emit_mir.sh apps/tests/hello_simple_llvm.hako <tmp-out>` plus payload check, and `bash -n tools/hakorune_emit_mir.sh`
-  - exact next leaf is no longer the shell helper fallback/delegate tail; it is `lang/src/runner/stage1_cli_env.hako` compat/result tiny leaves only
+  - current active owner is `lang/src/runner/stage1_cli_env.hako`
+  - latest landed bundle is compat/result tiny-leaf consolidation: `Stage1ProgramJsonCompatBox` now keeps explicit Program(JSON) emit behind `_emit_mir_from_text_checked(...)`, and `Stage1MirResultValidationBox` now keeps result-materialize/debug/print behind `_coerce_materialized_mir_text_checked(...)`, `_debug_print_selected_input(...)`, `_debug_print_materialized_mir(...)`, and `_emit_validated_mir_text_checked(...)`
+  - targeted proof is `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako <tmp-out>` with MIR payload check
+  - exact next leaf is no longer `stage1_cli_env.hako` compat/result tiny leaves; it is `tools/selfhost/selfhost_build.sh` isolated consumer helpers
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
 - backend-zero / `phase-29ck` exact front (2026-03-16):
@@ -219,12 +219,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. shared producer `lang/src/compiler/build/build_box.hako`
     4. shell helper trio above
   - exact next slices after the latest landed work:
-    1. `lang/src/runner/stage1_cli_env.hako`
-       - keep shrinking `Stage1ProgramJsonCompatBox` / `Stage1MirResultValidationBox` leaves only; do not reopen source authority/body extraction in the same slice
-    2. `tools/selfhost/selfhost_build.sh`
-       - only after the helper-local `hakorune_emit_mir.sh` tail is thinner
-    3. `tools/smokes/v2/lib/test_runner.sh`
-       - only after the isolated consumer helper in `selfhost_build.sh` is thinner
+    1. `tools/selfhost/selfhost_build.sh`
+       - now that `tools/hakorune_emit_mir.sh` and `stage1_cli_env.hako` helper-local tails are thinner, take the isolated consumer helpers next
+    2. `tools/smokes/v2/lib/test_runner.sh`
+       - keep residual helper-local verify lanes thin after `selfhost_build.sh`
 
 - `phase-29cj` reviewer sync (2026-03-14):
   - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`
@@ -491,8 +489,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest `MirBuilderBox` tightening: defs-toggle/source-entry compat tails now keep func-defs gate/coerce behind `_func_defs_toggle_on(...)` / `_coerce_func_defs_json(...)` and BuildBox source-entry call behind `_emit_program_json_from_source_raw(...)`, so those tiny leaves no longer mix inline with checked handoff
       - latest `MirBuilderBox` tightening: Program(JSON) fail-fast tiny leaves now keep input/header predicates behind `_program_json_input_present(...)` and `_program_json_header_present(...)`, so `_coerce_program_json_checked(...)` reads as input-present -> header-present -> handoff only
       - latest runner tightening: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` now keeps its checked Program(JSON)->MIR path behind `_coerce_program_json_text_checked(...)` and `_emit_mir_from_program_json_text_checked(...)`, so source authority and explicit Program(JSON) compat keep reuse the same split caller contract instead of sharing a mixed body
-      - latest runner tightening: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` now keeps explicit Program(JSON) compat input coercion behind `_coerce_program_json_text_checked(...)`, and `Stage1MirResultValidationBox` now keeps MIR text materialization/debug behind `_materialize_mir_text_with_debug(...)` / `_debug_print_mir_state(...)` plus structural validation behind `_validate_mir_text_checked(...)`
-      - latest runner tightening: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` now also keeps mixed-source fail-fast behind `_has_explicit_program_json_text(...)` and `_fail_mixed_source_mode(...)`, while `Stage1MirResultValidationBox` now keeps the final print/fail tail behind `_print_validated_mir_result_checked(...)` and `_fail_invalid_mir_text(...)`
+      - latest runner tightening: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` now keeps explicit Program(JSON) compat emit behind `_emit_mir_from_text_checked(...)`, while `Stage1MirResultValidationBox` now keeps result-materialize/debug behind `_coerce_materialized_mir_text_checked(...)`, `_debug_print_selected_input(...)`, `_materialize_mir_text(...)`, and `_debug_print_materialized_mir(...)`
+      - latest runner tightening: `lang/src/runner/stage1_cli_env.hako::Stage1MirResultValidationBox` now also keeps the final validate/print tail behind `_emit_validated_mir_text_checked(...)`, while mixed-source fail-fast remains quarantined in `Stage1ProgramJsonCompatBox` behind `_has_explicit_program_json_text(...)` and `_fail_mixed_source_mode(...)`
       - code-side quarantine owner: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonCompatBox` (explicit compat call + mixed-input fail-fast gate)
       - explicit mode is exact-only: `emit-mir-program`
       - shell-side exact compat helper/entry/mode SSOT: `tools/selfhost/lib/stage1_contract.sh` (`stage1_contract_exec_program_json_compat()`)
