@@ -1069,15 +1069,16 @@ run_verify_program_via_hako_primary_no_fallback_to_core() {
     run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 0 1 1
 }
 
-run_hako_primary_no_fallback_canary_and_expect_rc() {
-    local prog_json_path="$1"
-    local expected_rc="$2"
-    local fail_label="$3"
-    local pass_label="$4"
-    local prefer_mirbuilder="${5:-0}"
+run_verify_canary_and_expect_rc() {
+    local runner_fn="$1"
+    local prog_json_path="$2"
+    local expected_rc="$3"
+    local fail_label="$4"
+    local pass_label="$5"
+    local runner_arg="${6:-0}"
 
     set +e
-    run_verify_program_via_hako_primary_no_fallback_to_core "$prog_json_path" "$prefer_mirbuilder"
+    "$runner_fn" "$prog_json_path" "$runner_arg"
     local rc=$?
     set -e
 
@@ -1090,6 +1091,22 @@ run_hako_primary_no_fallback_canary_and_expect_rc() {
     return 0
 }
 
+run_hako_primary_no_fallback_canary_and_expect_rc() {
+    local prog_json_path="$1"
+    local expected_rc="$2"
+    local fail_label="$3"
+    local pass_label="$4"
+    local prefer_mirbuilder="${5:-0}"
+
+    run_verify_canary_and_expect_rc \
+        run_verify_program_via_hako_primary_no_fallback_to_core \
+        "$prog_json_path" \
+        "$expected_rc" \
+        "$fail_label" \
+        "$pass_label" \
+        "$prefer_mirbuilder"
+}
+
 run_preferred_mirbuilder_canary_and_expect_rc() {
     local prog_json_path="$1"
     local expected_rc="$2"
@@ -1097,18 +1114,13 @@ run_preferred_mirbuilder_canary_and_expect_rc() {
     local pass_label="$4"
     local builder_only="${5:-0}"
 
-    set +e
-    run_verify_program_via_preferred_mirbuilder_to_core "$prog_json_path" "$builder_only"
-    local rc=$?
-    set -e
-
-    if [ "$rc" -ne "$expected_rc" ]; then
-        echo "[FAIL] ${fail_label} rc=$rc (expected $expected_rc)" >&2
-        return 1
-    fi
-
-    echo "[PASS] ${pass_label}"
-    return 0
+    run_verify_canary_and_expect_rc \
+        run_verify_program_via_preferred_mirbuilder_to_core \
+        "$prog_json_path" \
+        "$expected_rc" \
+        "$fail_label" \
+        "$pass_label" \
+        "$builder_only"
 }
 
 run_builder_module_vm_to_stdout_file() {
@@ -1121,6 +1133,16 @@ run_builder_module_vm_to_stdout_file() {
     local rc=${PIPESTATUS[0]}
     set -e
     return "$rc"
+}
+
+run_builder_module_tag_to_stdout_file() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local _registry_only="${3:-}"
+    local _use_preinclude="${4:-0}"
+    local tmp_stdout="$5"
+
+    run_builder_module_vm_to_stdout_file "$builder_module" "$prog_json" "$tmp_stdout"
 }
 
 run_registry_builder_module_vm_to_stdout_file() {
@@ -1141,9 +1163,41 @@ run_registry_builder_module_vm_to_stdout_file() {
     return "$rc"
 }
 
+run_registry_builder_tag_to_stdout_file() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="$3"
+    local use_preinclude="${4:-0}"
+    local tmp_stdout="$5"
+
+    run_registry_builder_module_vm_to_stdout_file \
+        "$builder_module" \
+        "$prog_json" \
+        "$registry_only" \
+        "$use_preinclude" \
+        "$tmp_stdout"
+}
+
 extract_builder_mir_from_stdout_file() {
     local tmp_stdout="$1"
     awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout"
+}
+
+stdout_file_has_tag_match() {
+    local grep_mode="$1"
+    local expected_tag_pattern="$2"
+    local tmp_stdout="$3"
+
+    if [ "$grep_mode" = "fixed" ]; then
+        grep -F -q "$expected_tag_pattern" "$tmp_stdout"
+        return $?
+    fi
+    if [ "$grep_mode" = "extended" ]; then
+        grep -E -q "$expected_tag_pattern" "$tmp_stdout"
+        return $?
+    fi
+
+    grep -q "$expected_tag_pattern" "$tmp_stdout"
 }
 
 stdout_file_has_functions_mir() {
@@ -1153,6 +1207,59 @@ stdout_file_has_functions_mir() {
     if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
         return 1
     fi
+    return 0
+}
+
+cleanup_stdout_file() {
+    local tmp_stdout="${1:-}"
+    if [ -n "$tmp_stdout" ]; then
+        rm -f "$tmp_stdout" || true
+    fi
+}
+
+run_stdout_tag_canary() {
+    local runner_fn="$1"
+    local grep_mode="$2"
+    local builder_module="$3"
+    local prog_json="$4"
+    local runner_arg3="$5"
+    local runner_arg4="$6"
+    local expected_tag_pattern="$7"
+    local pass_label="$8"
+    local skip_exec_label="$9"
+    local skip_tag_label="${10}"
+    local skip_mir_label="${11}"
+    local require_functions="${12:-1}"
+    local allow_nonzero_rc="${13:-0}"
+
+    local tmp_stdout
+    tmp_stdout=$(mktemp)
+
+    set +e
+    (
+        "$runner_fn" "$builder_module" "$prog_json" "$runner_arg3" "$runner_arg4" "$tmp_stdout"
+    )
+    local rc=$?
+    set -e
+
+    if [[ "$rc" -ne 0 ]] && [ "$allow_nonzero_rc" != "1" ]; then
+        echo "[SKIP] ${skip_exec_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+    if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
+        echo "[SKIP] ${skip_tag_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+    if [ "$require_functions" = "1" ] && ! stdout_file_has_functions_mir "$tmp_stdout"; then
+        echo "[SKIP] ${skip_mir_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+
+    echo "[PASS] ${pass_label}"
+    cleanup_stdout_file "$tmp_stdout"
     return 0
 }
 
@@ -1167,28 +1274,20 @@ run_builder_module_tag_canary() {
     local require_functions="${8:-1}"
     local allow_nonzero_rc="${9:-0}"
 
-    local tmp_stdout
-    tmp_stdout=$(mktemp)
-    trap 'rm -f "$tmp_stdout" || true' RETURN
-
-    run_builder_module_vm_to_stdout_file "$builder_module" "$prog_json" "$tmp_stdout"
-    local rc=$?
-
-    if [[ "$rc" -ne 0 ]] && [ "$allow_nonzero_rc" != "1" ]; then
-        echo "[SKIP] ${skip_exec_label}"
-        return 0
-    fi
-    if ! grep -q "$expected_tag" "$tmp_stdout"; then
-        echo "[SKIP] ${skip_tag_label}"
-        return 0
-    fi
-    if [ "$require_functions" = "1" ] && ! stdout_file_has_functions_mir "$tmp_stdout"; then
-        echo "[SKIP] ${skip_mir_label}"
-        return 0
-    fi
-
-    echo "[PASS] ${pass_label}"
-    return 0
+    run_stdout_tag_canary \
+        run_builder_module_tag_to_stdout_file \
+        basic \
+        "$builder_module" \
+        "$prog_json" \
+        "" \
+        0 \
+        "$expected_tag" \
+        "$pass_label" \
+        "$skip_exec_label" \
+        "$skip_tag_label" \
+        "$skip_mir_label" \
+        "$require_functions" \
+        "$allow_nonzero_rc"
 }
 
 run_registry_builder_tag_canary() {
@@ -1202,28 +1301,63 @@ run_registry_builder_tag_canary() {
     local skip_mir_label="${8:-MIR missing functions}"
     local use_preinclude="${9:-0}"
 
+    run_stdout_tag_canary \
+        run_registry_builder_tag_to_stdout_file \
+        extended \
+        "$builder_module" \
+        "$prog_json" \
+        "$registry_only" \
+        "$use_preinclude" \
+        "$expected_tag_pattern" \
+        "$pass_label" \
+        "$skip_exec_label" \
+        "$skip_tag_label" \
+        "$skip_mir_label"
+}
+
+prepare_registry_tagged_mir_canary_stdout() {
+    local prog_json="$1"
+    local registry_only="$2"
+    local expected_tag_pattern="$3"
+    local grep_mode="$4"
+    local use_preinclude="$5"
+    local skip_exec_label="$6"
+    local skip_tag_label="$7"
+    local skip_mir_label="$8"
+    local out_tmp_stdout_var="$9"
+
     local tmp_stdout
     tmp_stdout=$(mktemp)
-    trap 'rm -f "$tmp_stdout" || true' RETURN
 
-    run_registry_builder_module_vm_to_stdout_file "$builder_module" "$prog_json" "$registry_only" "$use_preinclude" "$tmp_stdout"
+    set +e
+    (
+        run_registry_builder_module_vm_to_stdout_file \
+            "hako.mir.builder" \
+            "$prog_json" \
+            "$registry_only" \
+            "$use_preinclude" \
+            "$tmp_stdout"
+    )
     local rc=$?
+    set -e
 
     if [[ "$rc" -ne 0 ]]; then
         echo "[SKIP] ${skip_exec_label}"
-        return 0
+        cleanup_stdout_file "$tmp_stdout"
+        return 1
     fi
-    if ! grep -E -q "$expected_tag_pattern" "$tmp_stdout"; then
+    if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
         echo "[SKIP] ${skip_tag_label}"
-        return 0
+        cleanup_stdout_file "$tmp_stdout"
+        return 1
     fi
-
     if ! stdout_file_has_functions_mir "$tmp_stdout"; then
         echo "[SKIP] ${skip_mir_label}"
-        return 0
+        cleanup_stdout_file "$tmp_stdout"
+        return 1
     fi
 
-    echo "[PASS] ${pass_label}"
+    printf -v "$out_tmp_stdout_var" '%s' "$tmp_stdout"
     return 0
 }
 
@@ -1239,42 +1373,40 @@ run_registry_method_arraymap_canary() {
     local skip_tag_label="${9:-registry tag not observed}"
     local skip_mir_label="${10:-MIR missing functions}"
 
-    local tmp_stdout
-    tmp_stdout=$(mktemp)
-    trap 'rm -f "$tmp_stdout" || true' RETURN
-
-    run_registry_builder_module_vm_to_stdout_file "hako.mir.builder" "$prog_json" "$registry_only" "$use_preinclude" "$tmp_stdout"
-    local rc=$?
-
-    if [[ "$rc" -ne 0 ]]; then
-        echo "[SKIP] ${skip_exec_label}"
-        return 0
-    fi
-    if ! grep -q "$expected_tag_label" "$tmp_stdout"; then
-        echo "[SKIP] ${skip_tag_label}"
+    local tmp_stdout=""
+    if ! prepare_registry_tagged_mir_canary_stdout \
+        "$prog_json" \
+        "$registry_only" \
+        "$expected_tag_label" \
+        fixed \
+        "$use_preinclude" \
+        "$skip_exec_label" \
+        "$skip_tag_label" \
+        "$skip_mir_label" \
+        tmp_stdout; then
         return 0
     fi
 
     local mir
     mir=$(extract_builder_mir_from_stdout_file "$tmp_stdout")
-    if ! stdout_file_has_functions_mir "$tmp_stdout"; then
-        echo "[SKIP] ${skip_mir_label}"
-        return 0
-    fi
     if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q "$method_pattern"; then
         echo "[SKIP] method token missing"
+        cleanup_stdout_file "$tmp_stdout"
         return 0
     fi
     if [ -n "$args_pattern" ] && ! echo "$mir" | grep -E -q "$args_pattern"; then
         echo "[SKIP] args token missing"
+        cleanup_stdout_file "$tmp_stdout"
         return 0
     fi
     if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q '"op":"mir_call"'; then
         echo "[SKIP] mir_call op missing"
+        cleanup_stdout_file "$tmp_stdout"
         return 0
     fi
 
     echo "[PASS] ${pass_label}"
+    cleanup_stdout_file "$tmp_stdout"
     return 0
 }
 
