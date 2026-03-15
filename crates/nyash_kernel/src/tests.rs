@@ -113,6 +113,109 @@ fn env_box_new_i64x_creates_array_box() {
 }
 
 #[test]
+fn env_box_new_i64x_creates_file_box() {
+    ensure_test_ring0();
+    let type_name = CString::new("FileBox").expect("CString");
+    let handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(handle > 0, "expected FileBox handle");
+    let object = handles::get(handle as u64).expect("handle must exist");
+    assert_eq!(object.type_name(), "FileBox");
+}
+
+#[test]
+fn filebox_invoke_by_name_open_read_roundtrip() {
+    ensure_test_ring0();
+
+    let tmp_path = "/tmp/nyash_kernel_filebox_read_roundtrip.txt";
+    std::fs::write(tmp_path, "kernel-filebox-read").expect("seed file");
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = handles::to_handle_arc(Arc::new(StringBox::new(tmp_path.to_string()))) as i64;
+    let mode_handle = handles::to_handle_arc(Arc::new(StringBox::new("r".to_string()))) as i64;
+    let open_method = CString::new("open").expect("CString");
+    assert_eq!(
+        nyash_plugin_invoke_by_name_i64(
+            filebox_handle,
+            open_method.as_ptr(),
+            2,
+            path_handle,
+            mode_handle
+        ),
+        1
+    );
+
+    let read_method = CString::new("read").expect("CString");
+    let content_handle =
+        nyash_plugin_invoke_by_name_i64(filebox_handle, read_method.as_ptr(), 0, 0, 0);
+    assert_eq!(
+        decode_string_like_handle(content_handle).as_deref(),
+        Some("kernel-filebox-read")
+    );
+
+    let close_method = CString::new("close").expect("CString");
+    assert_eq!(
+        nyash_plugin_invoke_by_name_i64(filebox_handle, close_method.as_ptr(), 0, 0, 0),
+        0
+    );
+
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
+fn filebox_invoke_by_name_open_write_roundtrip() {
+    ensure_test_ring0();
+
+    let tmp_path = "/tmp/nyash_kernel_filebox_write_roundtrip.txt";
+    let _ = std::fs::remove_file(tmp_path);
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = handles::to_handle_arc(Arc::new(StringBox::new(tmp_path.to_string()))) as i64;
+    let mode_handle = handles::to_handle_arc(Arc::new(StringBox::new("w".to_string()))) as i64;
+    let open_method = CString::new("open").expect("CString");
+    assert_eq!(
+        nyash_plugin_invoke_by_name_i64(
+            filebox_handle,
+            open_method.as_ptr(),
+            2,
+            path_handle,
+            mode_handle
+        ),
+        1
+    );
+
+    let content_handle =
+        handles::to_handle_arc(Arc::new(StringBox::new("kernel-filebox-write".to_string()))) as i64;
+    let write_method = CString::new("write").expect("CString");
+    let write_result = nyash_plugin_invoke_by_name_i64(
+        filebox_handle,
+        write_method.as_ptr(),
+        1,
+        content_handle,
+        0,
+    );
+    assert_eq!(
+        decode_string_like_handle(write_result).as_deref(),
+        Some("OK")
+    );
+
+    let close_method = CString::new("close").expect("CString");
+    assert_eq!(
+        nyash_plugin_invoke_by_name_i64(filebox_handle, close_method.as_ptr(), 0, 0, 0),
+        0
+    );
+
+    let written = std::fs::read_to_string(tmp_path).expect("written file");
+    assert_eq!(written, "kernel-filebox-write");
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
 fn box_from_i8_string_const_reuses_handle() {
     let s = CString::new("phase21_5_fast").expect("CString");
     let h1 = nyash_box_from_i8_string_const(s.as_ptr());

@@ -157,6 +157,22 @@ impl FileBox {
     pub fn ny_open(&self, path: &str, mode: &str) -> Result<(), String> {
         let provider = self.provider.as_ref().ok_or_else(no_provider_available)?;
         provider.caps().check_mode(mode)?;
+        if let Some(ring0_provider) = provider
+            .as_any()
+            .downcast_ref::<crate::providers::ring1::file::ring0_fs_fileio::Ring0FsFileIo>(
+        ) {
+            ring0_provider.set_mode(mode.to_string());
+            if mode == "w" || mode == "a" {
+                let ring0 = crate::runtime::get_global_ring0();
+                let path_obj = std::path::Path::new(path);
+                if !ring0.fs.exists(path_obj) {
+                    ring0
+                        .fs
+                        .write_all(path_obj, &[])
+                        .map_err(|e| format!("Failed to create file: {}", e))?;
+                }
+            }
+        }
         provider.open(path).map_err(|e| format!("{}", e))?;
         Ok(())
     }
@@ -510,6 +526,25 @@ mod tests {
 
         let roundtrip = fb.read_bytes().expect("read bytes failed");
         assert_eq!(roundtrip, bytes);
+
+        cleanup_test_file(tmp_path);
+    }
+
+    #[test]
+    fn test_filebox_ny_open_write_mode_supports_missing_output() {
+        init_test_provider();
+
+        let tmp_path = "/tmp/phase110_test_filebox_ny_open_write.txt";
+        cleanup_test_file(tmp_path);
+
+        let fb = FileBox::new();
+        fb.ny_open(tmp_path, "w").expect("ny_open write failed");
+        let result_box = fb.write(Box::new(StringBox::new("written by ny_open")));
+        assert_eq!(result_box.to_string_box().value, "OK");
+        fb.ny_close().expect("ny_close failed");
+
+        let written = fs::read_to_string(tmp_path).expect("written file");
+        assert_eq!(written, "written by ny_open");
 
         cleanup_test_file(tmp_path);
     }

@@ -24,6 +24,21 @@ fn env_string_to_handle(value: &str) -> i64 {
     handles::to_handle_arc(arc) as i64
 }
 
+fn new_filebox_handle() -> i64 {
+    use nyash_rust::box_trait::NyashBox;
+    use nyash_rust::boxes::file::FileBox;
+    use nyash_rust::providers::ring1::file::ring0_fs_fileio::Ring0FsFileIo;
+    use nyash_rust::runtime::{host_handles as handles, provider_lock};
+
+    let provider = provider_lock::new_filebox_provider_instance(None).unwrap_or_else(|_| {
+        std::sync::Arc::new(Ring0FsFileIo::new(
+            nyash_rust::runtime::ring0::ensure_global_ring0_initialized(),
+        ))
+    });
+    let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(FileBox::with_provider(provider));
+    handles::to_handle_arc(arc) as i64
+}
+
 // nyash.env.get(key_handle: i64) -> handle (StringBox|null)
 #[export_name = "nyash.env.get"]
 pub extern "C" fn nyash_env_get(key_handle: i64) -> i64 {
@@ -114,6 +129,9 @@ pub extern "C" fn nyash_env_box_new(type_name: *const i8) -> i64 {
         }
         return h;
     }
+    if ty == "FileBox" {
+        return new_filebox_handle();
+    }
     let reg = get_global_registry();
     match reg.create_box(ty, &[]) {
         Ok(b) => {
@@ -158,6 +176,9 @@ pub extern "C" fn nyash_env_box_new_i64x(
         use nyash_rust::boxes::array::ArrayBox;
         let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::new(ArrayBox::new());
         return handles::to_handle_arc(arc) as i64;
+    }
+    if ty == "FileBox" {
+        return new_filebox_handle();
     }
 
     // Build args vec from provided i64 words
