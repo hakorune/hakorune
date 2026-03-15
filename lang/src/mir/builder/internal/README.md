@@ -4,7 +4,7 @@ MirBuilder Internals — Toggle Aggregation
 - Use `registry_authority_box.hako` (`hako.mir.builder.internal.registry_authority`) as the dedicated owner for the normal registry-first `Program(JSON v0) -> MIR(JSON)` authority block.
 - Use `fallback_authority_box.hako` (`hako.mir.builder.internal.fallback_authority`) as the dedicated owner for the non-registry/internal fallback chain that still belongs to `.hako` authority.
 - Use `delegate_provider_box.hako` (`hako.mir.builder.internal.delegate_provider`) as the dedicated owner for the selfhost builder delegate gate and provider emit call.
-- Use `delegate_finalize_box.hako` (`hako.mir.builder.internal.delegate_finalize`) as the dedicated owner for delegate-side `user_box_decls` MIR finalize before the shared outer normalization chain.
+- Use `delegate_finalize_box.hako` (`hako.mir.builder.internal.delegate_finalize`) as the dedicated owner for delegate-side `user_box_decls` MIR finalize and its handoff into the shared outer normalization chain.
 - Use `finalize_chain_box.hako` (`hako.mir.builder.internal.finalize_chain`) as the dedicated owner for the shared outer finalize order (`inject funcs -> methodize -> normalize`) and its stable fail tags.
 - Do not call `env.get` directly in lowers; prefer helper methods like:
   - `trace_enabled()`, `debug_enabled()`

@@ -3,8 +3,15 @@
 // Non-goals: delegate gate/provider call, shared func-defs/methodize/normalize finalize chain.
 
 using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
+using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
 
 static box BuilderDelegateFinalizeBox {
+  method finalize_mir(program_json, mir_json, func_defs_mir) {
+    if mir_json == null { return null }
+    local result = me.inject_user_box_decls(program_json, mir_json)
+    return BuilderFinalizeChainBox.apply(result, func_defs_mir)
+  }
+
   method inject_user_box_decls(program_json, mir_json) {
     local result = "" + mir_json
     local user_box_decls_json = me._build_user_box_decls_from_program_json(program_json)

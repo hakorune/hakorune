@@ -26,12 +26,6 @@ using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
 using lang.mir.builder.func_lowering as FuncLoweringBox
 
 static box MirBuilderBox {
-  method _finalize_delegate_mir(program_json, mir_json, func_defs_mir) {
-    if mir_json == null { return null }
-    local result = BuilderDelegateFinalizeBox.inject_user_box_decls(program_json, mir_json)
-    return BuilderFinalizeChainBox.apply(result, func_defs_mir)
-  }
-
   method _lower_func_defs_if_enabled(program_json) {
     if me._func_defs_toggle_on() != 1 { return "" }
     local defs_json = me._coerce_func_defs_json(program_json)
@@ -105,7 +99,7 @@ static box MirBuilderBox {
   method _emit_delegate_program_json(program_json, func_defs_mir) {
     local ret = BuilderDelegateProviderBox.try_emit(program_json)
     if ret == null { return null }
-    return me._finalize_delegate_mir(program_json, ret, func_defs_mir)
+    return BuilderDelegateFinalizeBox.finalize_mir(program_json, ret, func_defs_mir)
   }
 
   is_available() {
