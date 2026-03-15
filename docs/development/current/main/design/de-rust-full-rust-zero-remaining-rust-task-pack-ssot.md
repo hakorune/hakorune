@@ -267,6 +267,14 @@ rule:
        - `src/llvm_py/builders/function_lower.py` now owns file-local CFG scaffold helpers `_build_predecessor_map(...)`, `_create_basic_blocks(...)`, and `_index_blocks_by_id(...)`
        - `lower_function(...)` now consumes those helpers instead of mixing predecessor-map build, basic-block append, and block-id indexing loops inline
        - proof is pinned by `src/llvm_py/tests/test_function_lower_cfg_scaffold.py`
+     - landed tenth-j slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local state/context setup helpers `_reset_function_lower_state(...)` and `_create_function_context(...)`
+       - `lower_function(...)` now consumes those helpers instead of mixing per-function builder reset and context wiring inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_context_setup.py`
+     - landed tenth-k slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local metadata/fact seed helpers `_load_value_types_metadata(...)` and `_seed_resolver_fact_sets(...)`
+       - `lower_function(...)` now consumes those helpers instead of mixing value-type metadata load and resolver fact initialization inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_resolver_seed.py`
      - landed eleventh slice:
        - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization
        - `lower_binop(...)` now consumes those helpers instead of mixing string-vs-integer route selection inline

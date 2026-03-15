@@ -217,6 +217,14 @@ Related:
    - `src/llvm_py/builders/function_lower.py` now keeps predecessor-map build, basic-block append, and block-id indexing behind owner-local helpers `_build_predecessor_map(...)`, `_create_basic_blocks(...)`, and `_index_blocks_by_id(...)`
    - `lower_function(...)` no longer mixes CFG scaffold loops inline in the setup section
    - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_cfg_scaffold.py`
+36j. landed B3d function-lower-context-setup slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps per-function state reset and context binding behind owner-local helpers `_reset_function_lower_state(...)` and `_create_function_context(...)`
+   - `lower_function(...)` no longer mixes builder reset and context wiring inline in the setup section
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_context_setup.py`
+36k. landed B3d function-lower-resolver-seed slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps value-type metadata load and resolver fact seeding behind owner-local helpers `_load_value_types_metadata(...)` and `_seed_resolver_fact_sets(...)`
+   - `lower_function(...)` no longer mixes metadata/fact initialization inline in the setup section
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_resolver_seed.py`
 37. landed B3d binop-route slice:
    - `src/llvm_py/instructions/binop.py` now keeps `+` route policy behind file-local helpers (`_binop_plus_explicit_route(...)`, `_binop_plus_operand_is_stringish(...)`, `_binop_plus_any_tagged_string(...)`, `_binop_plus_prefers_string_path(...)`, `_binop_plus_string_tags(...)`) together with op-alias normalization helper `_normalize_binop_op(...)`
    - `lower_binop(...)` no longer mixes explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization inline before concat/integer dispatch

@@ -523,6 +523,84 @@ def _index_blocks_by_id(blocks: List[Dict[str, Any]]) -> Dict[int, Dict[str, Any
     return {block_data.get("id", 0): block_data for block_data in blocks}
 
 
+def _reset_function_lower_state(builder) -> None:
+    try:
+        builder.vmap.clear()
+    except Exception:
+        builder.vmap = {}
+    try:
+        builder.bb_map.clear()
+    except Exception:
+        builder.bb_map = {}
+    try:
+        builder.predeclared_ret_phis.clear()
+    except Exception:
+        try:
+            builder.predeclared_ret_phis = {}
+        except Exception:
+            pass
+
+
+def _create_function_context(builder, name: str) -> FunctionLowerContext:
+    context = FunctionLowerContext(name)
+    context.phi_manager = PhiManager()
+
+    builder.phi_manager = context.phi_manager
+    builder.block_phi_incomings = context.block_phi_incomings
+    builder.phi_trivial_aliases = context.phi_trivial_aliases
+    builder.def_blocks = context.def_blocks
+    builder.block_end_values = context.block_end_values
+    builder.resolver.bind_context(context)
+    builder.context = context
+    return context
+
+
+def _load_value_types_metadata(builder, func_data: Dict[str, Any]) -> None:
+    try:
+        metadata = func_data.get("metadata", {})
+        value_types_json = metadata.get("value_types", {})
+        builder.resolver.value_types = {}
+        for vid_str, vtype in value_types_json.items():
+            try:
+                builder.resolver.value_types[int(vid_str)] = vtype
+            except (ValueError, TypeError):
+                pass
+    except Exception:
+        builder.resolver.value_types = {}
+
+
+def _seed_resolver_fact_sets(builder, context: FunctionLowerContext, blocks: List[Dict[str, Any]]) -> None:
+    try:
+        context.non_negative_value_ids = collect_non_negative_value_ids(blocks)
+        builder.resolver.non_negative_ids = context.non_negative_value_ids
+    except Exception:
+        context.non_negative_value_ids = set()
+        builder.resolver.non_negative_ids = context.non_negative_value_ids
+
+    try:
+        context.integerish_value_ids = collect_integerish_value_ids(blocks)
+        builder.resolver.integerish_ids = context.integerish_value_ids
+    except Exception:
+        context.integerish_value_ids = set()
+        builder.resolver.integerish_ids = context.integerish_value_ids
+
+    try:
+        context.resolver_array_ids = collect_arrayish_value_ids(blocks)
+        builder.resolver.array_ids = context.resolver_array_ids
+    except Exception:
+        context.resolver_array_ids = set()
+        builder.resolver.array_ids = context.resolver_array_ids
+
+    try:
+        inferred_stringish = collect_stringish_value_ids(blocks)
+        context.resolver_string_ids.clear()
+        context.resolver_string_ids.update(inferred_stringish)
+        builder.resolver.string_ids = context.resolver_string_ids
+    except Exception:
+        context.resolver_string_ids.clear()
+        builder.resolver.string_ids = context.resolver_string_ids
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -538,93 +616,17 @@ def lower_function(builder, func_data: Dict[str, Any]):
     func_ty = _build_function_type(builder, name, params)
 
     # Reset per-function maps and resolver caches to avoid cross-function collisions
-    try:
-        builder.vmap.clear()
-    except Exception:
-        builder.vmap = {}
-    try:
-        builder.bb_map.clear()
-    except Exception:
-        builder.bb_map = {}
-    # Phase 132-P1: Clear per-function predeclared PHI placeholders (avoid cross-function leakage)
-    try:
-        builder.predeclared_ret_phis.clear()
-    except Exception:
-        try:
-            builder.predeclared_ret_phis = {}
-        except Exception:
-            pass
+    _reset_function_lower_state(builder)
 
     # Phase 132-P1: Create function-local context Box
     # This automatically isolates all function-scoped state
-    context = FunctionLowerContext(name)
-
-    # Initialize PHI manager within context
-    context.phi_manager = PhiManager()
-
-    # Connect builder attributes to context storage (for backward compatibility)
-    builder.phi_manager = context.phi_manager
-    builder.block_phi_incomings = context.block_phi_incomings
-    builder.phi_trivial_aliases = context.phi_trivial_aliases
-    builder.def_blocks = context.def_blocks
-    builder.block_end_values = context.block_end_values
-
-    # Bind resolver to context (redirects caches to context storage)
-    builder.resolver.bind_context(context)
-
-    # Store context in builder for access by sub-components
-    builder.context = context
+    context = _create_function_context(builder, name)
 
     # Phase 131-15-P1: Load value_types metadata from JSON into resolver
-    try:
-        metadata = func_data.get('metadata', {})
-        value_types_json = metadata.get('value_types', {})
-        # Convert string keys to integers and store in resolver
-        builder.resolver.value_types = {}
-        for vid_str, vtype in value_types_json.items():
-            try:
-                vid = int(vid_str)
-                builder.resolver.value_types[vid] = vtype
-            except (ValueError, TypeError):
-                pass
-    except Exception:
-        # If metadata loading fails, ensure value_types exists (empty fallback)
-        builder.resolver.value_types = {}
+    _load_value_types_metadata(builder, func_data)
 
     # Conservative sign analysis for power-of-two modulo fast path.
-    try:
-        context.non_negative_value_ids = collect_non_negative_value_ids(blocks)
-        builder.resolver.non_negative_ids = context.non_negative_value_ids
-    except Exception:
-        context.non_negative_value_ids = set()
-        builder.resolver.non_negative_ids = context.non_negative_value_ids
-
-    # Conservative integer-like VID analysis for RuntimeData integer-key routes.
-    try:
-        context.integerish_value_ids = collect_integerish_value_ids(blocks)
-        builder.resolver.integerish_ids = context.integerish_value_ids
-    except Exception:
-        context.integerish_value_ids = set()
-        builder.resolver.integerish_ids = context.integerish_value_ids
-
-    # Conservative ArrayBox-handle analysis for RuntimeData mono-route (AS-03).
-    try:
-        context.resolver_array_ids = collect_arrayish_value_ids(blocks)
-        builder.resolver.array_ids = context.resolver_array_ids
-    except Exception:
-        context.resolver_array_ids = set()
-        builder.resolver.array_ids = context.resolver_array_ids
-
-    # Conservative StringBox-handle analysis (cleanup-11):
-    # infer stringish receiver/value facts before lowering order reaches length/size sites.
-    try:
-        inferred_stringish = collect_stringish_value_ids(blocks)
-        context.resolver_string_ids.clear()
-        context.resolver_string_ids.update(inferred_stringish)
-        builder.resolver.string_ids = context.resolver_string_ids
-    except Exception:
-        context.resolver_string_ids.clear()
-        builder.resolver.string_ids = context.resolver_string_ids
+    _seed_resolver_fact_sets(builder, context, blocks)
 
     # Create or reuse function
     func = _get_or_create_function(builder, name, func_ty)
