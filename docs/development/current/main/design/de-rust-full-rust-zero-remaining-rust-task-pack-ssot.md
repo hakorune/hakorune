@@ -180,6 +180,9 @@ rule:
      - landed first slice:
        - generic by-name method fallback now lives in `src/llvm_py/instructions/by_name_method.py`
        - `boxcall.py`, `mir_call/method_call.py`, and `mir_call_legacy.py` no longer each own their own `nyash.plugin.invoke_by_name_i64` wiring
+     - landed second slice:
+       - `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering for generic BoxCall
+       - `src/llvm_py/instructions/boxcall.py` now consumes the shared helper instead of keeping the collection route table inline
   4. `B3d` analysis/support demotion inventory
      - classify `src/llvm_py/{builders/**,resolver.py,mir_analysis.py,phi_manager.py,phi_placement.py,phi_wiring/**,type_facts.py}`
      - prefer early compat/canary demotion instead of treating the whole tree as one owner

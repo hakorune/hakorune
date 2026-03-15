@@ -19,6 +19,7 @@ from instructions.mir_call.auto_specialize import (
     receiver_is_stringish,
 )
 from instructions.by_name_method import lower_plugin_invoke_by_name, mark_string_result_if_needed
+from instructions.boxcall_runtime_data import try_lower_collection_boxcall
 from instructions.direct_box_method import try_lower_known_box_method_call
 from utils.values import resolve_i64_strict
 from utils.resolver_helpers import get_box_type, mark_as_handle
@@ -188,87 +189,21 @@ def lower_boxcall(
     if emit_stringbox_call(builder, module, method_name, recv_val, args, dst_vid, vmap, box_vid, resolver, preds, block_end_values, bb_map, ctx):
         return
 
-    if method_name == "size":
-        # Prefer direct routes when receiver facts are available (cleanup-9):
-        # StringBox -> nyash.string.len_h, ArrayBox -> nyash.array.len_h.
-        # Unknown receiver kinds keep generic any.length_h contract.
-        recv_h = _ensure_handle(builder, module, recv_val)
-        if receiver_is_stringish(resolver, box_vid):
-            callee = _declare(module, "nyash.string.len_h", i64, [i64])
-            result = builder.call(callee, [recv_h], name="string_size_h")
-        elif receiver_is_arrayish(resolver, box_vid):
-            callee = _declare(module, "nyash.array.len_h", i64, [i64])
-            result = builder.call(callee, [recv_h], name="array_size_h")
-        else:
-            callee = _declare(module, "nyash.any.length_h", i64, [i64])
-            result = builder.call(callee, [recv_h], name="any_size_h")
+    collection_result = try_lower_collection_boxcall(
+        builder=builder,
+        module=module,
+        method_name=method_name,
+        recv_val=recv_val,
+        box_vid=box_vid,
+        args=args,
+        resolve_arg=lambda vid: _res_i64(vid) or vmap.get(vid),
+        ensure_handle=lambda value: _ensure_handle(builder, module, value),
+        declare=_declare,
+        resolver=resolver,
+    )
+    if collection_result is not None:
         if dst_vid is not None:
-            vmap[dst_vid] = result
-        return
-
-    if method_name == "get":
-        # ArrayBox.get(index) → nyash.array.get_h(handle, idx)
-        # MapBox.get(key) → nyash.map.get_hh(handle, key_any)
-        recv_h = _ensure_handle(builder, module, recv_val)
-        k = _res_i64(args[0]) if args else ir.Constant(i64, 0)
-        if k is None:
-            k = vmap.get(args[0], ir.Constant(i64, 0)) if args else ir.Constant(i64, 0)
-        known_box_name = get_box_type(resolver, box_vid)
-        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
-            if prefer_runtime_data_array_i64_key_route(
-                method=method_name,
-                resolver=resolver,
-                arg_vids=args,
-            ):
-                callee = _declare(module, "nyash.array.get_hi", i64, [i64, i64])
-                res = builder.call(callee, [recv_h, k], name="array_get_hi")
-            else:
-                callee = _declare(module, "nyash.array.get_hh", i64, [i64, i64])
-                res = builder.call(callee, [recv_h, k], name="array_get_hh")
-        else:
-            callee = _declare(module, "nyash.map.get_hh", i64, [i64, i64])
-            res = builder.call(callee, [recv_h, k], name="map_get_hh")
-        if dst_vid is not None:
-            vmap[dst_vid] = res
-        return
-
-    if method_name == "push":
-        # ArrayBox.push(val) → nyash.array.push_h(handle, val)
-        recv_h = _ensure_handle(builder, module, recv_val)
-        v0 = _res_i64(args[0]) if args else ir.Constant(i64, 0)
-        if v0 is None:
-            v0 = vmap.get(args[0], ir.Constant(i64, 0)) if args else ir.Constant(i64, 0)
-        callee = _declare(module, "nyash.array.push_h", i64, [i64, i64])
-        res = builder.call(callee, [recv_h, v0], name="arr_push_h")
-        if dst_vid is not None:
-            vmap[dst_vid] = res
-        return
-
-    if method_name == "set":
-        # MapBox.set(key, val) → nyash.map.set_hh(handle, key_any, val_any)
-        recv_h = _ensure_handle(builder, module, recv_val)
-        k = _res_i64(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
-        if k is None:
-            k = vmap.get(args[0], ir.Constant(i64, 0)) if len(args) > 0 else ir.Constant(i64, 0)
-        v = _res_i64(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
-        if v is None:
-            v = vmap.get(args[1], ir.Constant(i64, 0)) if len(args) > 1 else ir.Constant(i64, 0)
-        callee = _declare(module, "nyash.map.set_hh", i64, [i64, i64, i64])
-        res = builder.call(callee, [recv_h, k, v], name="map_set_hh")
-        if dst_vid is not None:
-            vmap[dst_vid] = res
-        return
-
-    if method_name == "has":
-        # MapBox.has(key) → nyash.map.has_hh(handle, key_any)
-        recv_h = _ensure_handle(builder, module, recv_val)
-        k = _res_i64(args[0]) if args else ir.Constant(i64, 0)
-        if k is None:
-            k = vmap.get(args[0], ir.Constant(i64, 0)) if args else ir.Constant(i64, 0)
-        callee = _declare(module, "nyash.map.has_hh", i64, [i64, i64])
-        res = builder.call(callee, [recv_h, k], name="map_has_hh")
-        if dst_vid is not None:
-            vmap[dst_vid] = res
+            vmap[dst_vid] = collection_result
         return
 
     # Phase 133: Console 箱化 - ConsoleBox メソッドを console_bridge に委譲

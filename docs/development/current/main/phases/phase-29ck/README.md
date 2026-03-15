@@ -132,6 +132,9 @@ Related:
    - generic `nyash.plugin.invoke_by_name_i64` method fallback now lives in `src/llvm_py/instructions/by_name_method.py`
    - `src/llvm_py/instructions/{boxcall.py,mir_call/method_call.py,mir_call_legacy.py}` now consume the shared helper instead of owning duplicate by-name wiring and string-result tagging
    - this slice is shrink-only; method specialization/runtime-data routing still stays in the opcode owners for later B3c rows
+23. landed B3c collection-route slice:
+   - `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering for generic BoxCall
+   - `src/llvm_py/instructions/boxcall.py` now consumes that helper instead of keeping the collection route table inline
 
 ## Non-goals
 
