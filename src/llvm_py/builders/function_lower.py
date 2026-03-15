@@ -283,6 +283,20 @@ def _run_if_merge_prepass(builder, block_by_id: Dict[int, Dict[str, Any]]) -> No
         _seed_if_merge_ret_phi_incomings(builder, plan)
 
 
+def _run_loop_prepass(block_by_id: Dict[int, Dict[str, Any]]):
+    import os
+
+    if os.environ.get("NYASH_LLVM_PREPASS_LOOP") != "1":
+        return None
+    loop_plan = detect_simple_while(block_by_id)
+    if loop_plan is not None:
+        trace_debug(
+            f"[prepass] detect loop header=bb{loop_plan['header']} then=bb{loop_plan['then']} "
+            f"latch=bb{loop_plan['latch']} exit=bb{loop_plan['exit']}"
+        )
+    return loop_plan
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -623,12 +637,8 @@ def lower_function(builder, func_data: Dict[str, Any]):
         pass
 
     # Optional: simple loop prepass
-    loop_plan = None
     try:
-        if os.environ.get('NYASH_LLVM_PREPASS_LOOP') == '1':
-            loop_plan = detect_simple_while(block_by_id)
-            if loop_plan is not None:
-                trace_debug(f"[prepass] detect loop header=bb{loop_plan['header']} then=bb{loop_plan['then']} latch=bb{loop_plan['latch']} exit=bb{loop_plan['exit']}")
+        loop_plan = _run_loop_prepass(block_by_id)
     except Exception:
         loop_plan = None
 
