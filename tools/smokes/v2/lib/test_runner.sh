@@ -1402,6 +1402,79 @@ run_registry_builder_diag_canary() {
     return 0
 }
 
+direct_lower_box_runner_code() {
+    local box_module="$1"
+    local method_name="$2"
+    cat <<HAKO
+using "${box_module}" as LowerBox
+static box Main { method main(args){
+  local j = env.get("PROG_JSON"); if j == null { print("[fail:nojson]"); return 1 }
+  local out = LowerBox.${method_name}(j)
+  if out == null { print("[lower:null]"); return 0 }
+  print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
+  return 0 }
+}
+HAKO
+}
+
+run_direct_lower_box_vm_to_stdout_file() {
+    local box_module="$1"
+    local method_name="$2"
+    local prog_json="$3"
+    local tmp_stdout="$4"
+    local tmp_hako
+
+    tmp_hako=$(mktemp --suffix .hako)
+    direct_lower_box_runner_code "$box_module" "$method_name" >"${tmp_hako}"
+
+    set +e
+    PROG_JSON="$prog_json" \
+    NYASH_FAIL_FAST="${NYASH_FAIL_FAST:-0}" \
+    NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
+    NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" \
+    HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
+    "$NYASH_BIN" --backend vm "${tmp_hako}" | tee "$tmp_stdout" >/dev/null
+    local rc=$?
+    set -e
+
+    rm -f "${tmp_hako}" 2>/dev/null || true
+    return "$rc"
+}
+
+run_direct_lower_box_canary() {
+    local box_module="$1"
+    local method_name="$2"
+    local prog_json="$3"
+    local pass_label="$4"
+    local skip_exec_label="${5:-direct lower vm exec failed}"
+    local skip_mir_label="${6:-MIR missing functions (direct)}"
+
+    local tmp_stdout
+    tmp_stdout=$(mktemp)
+
+    set +e
+    (
+        run_direct_lower_box_vm_to_stdout_file "$box_module" "$method_name" "$prog_json" "$tmp_stdout"
+    )
+    local rc=$?
+    set -e
+
+    if [[ "$rc" -ne 0 ]]; then
+        echo "[SKIP] ${skip_exec_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+    if ! stdout_file_has_functions_mir "$tmp_stdout"; then
+        echo "[SKIP] ${skip_mir_label}"
+        cleanup_stdout_file "$tmp_stdout"
+        return 0
+    fi
+
+    echo "[PASS] ${pass_label}"
+    cleanup_stdout_file "$tmp_stdout"
+    return 0
+}
+
 run_registry_method_arraymap_canary() {
     local prog_json="$1"
     local registry_only="$2"

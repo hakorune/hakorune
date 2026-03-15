@@ -147,10 +147,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Immediate Next (this round)
 
 - pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
-  - current active owner is `tools/smokes/v2/lib/test_runner.sh`
-  - latest landed bundle now also keeps shared canary rc assertion behind `run_verify_canary_and_expect_rc()`, shared builder/registry stdout-tag skip/pass cleanup behind `run_stdout_tag_canary()` / `cleanup_stdout_file()` / `stdout_file_has_tag_match()`, the stable `phase2160/registry_optin_method_arraymap*` front behind `prepare_registry_tagged_mir_canary_stdout()`, and the explicit diag probe behind `run_registry_builder_diag_canary()`
-  - targeted proof is `bash tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_return_binop_core_exec_canary_vm.sh`, `bash tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_compare_varvar_canary_vm.sh`, `bash tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_method_arraymap_canary_vm.sh`, and `bash tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh`
-  - exact next leaf is now the remaining explicit direct probe wrapper `tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh`; if no exact disappearing leaf remains there, return the active front to the next Rust-owned retirement bucket in `src/runner/stage1_bridge/program_json/**`
+  - current active owner is back on the Rust stop-line `src/host_providers/mir_builder.rs`
+  - latest landed shell/helper bundle now keeps shared canary rc assertion behind `run_verify_canary_and_expect_rc()`, shared builder/registry stdout-tag skip/pass cleanup behind `run_stdout_tag_canary()` / `cleanup_stdout_file()` / `stdout_file_has_tag_match()`, the stable `phase2160/registry_optin_method_arraymap*` front behind `prepare_registry_tagged_mir_canary_stdout()`, the explicit diag probe behind `run_registry_builder_diag_canary()`, and the explicit direct lower probe behind `run_direct_lower_box_canary()`
+  - targeted proof for the latest shell/helper slice is `bash tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_return_binop_core_exec_canary_vm.sh`, `bash tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_compare_varvar_canary_vm.sh`, `bash tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_method_arraymap_canary_vm.sh`, `bash tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh`, and `bash tools/smokes/v2/profiles/integration/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh`
+  - exact next leaf returns to `src/host_providers/mir_builder.rs`: keep spending slices on the remaining handoff/finalize leaves above `module_to_mir_json(...)`, and do not reopen bridge / surrogate / shell-helper waves unless another exact disappearing leaf appears first
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
 - backend-zero / `phase-29ck` exact front (2026-03-16):
@@ -160,7 +160,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - `0rust selfhost` / `by-name` remaining-work inventory (2026-03-16):
   - `small`
-    - `phase-29cj` helper-local residual verify lane in `tools/smokes/v2/lib/test_runner.sh`
+    - another `phase-29cj` shell/helper slice only if a new exact disappearing leaf appears in `tools/smokes/v2/lib/test_runner.sh` or the `phase2160` probe wrappers
     - any additional compiled-stage1 surrogate shrink only if another exact disappearing leaf appears
   - `medium`
     - remaining Rust compiler stop-line / bootstrap boundary buckets
@@ -508,6 +508,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest caller-tail collapse: shared canary rc assertion for `phase2044` now stays behind `run_verify_canary_and_expect_rc()`, and the stable builder/registry stdout-tag callers now also keep skip/pass cleanup behind `run_stdout_tag_canary()`, `cleanup_stdout_file()`, and matcher helper `stdout_file_has_tag_match()` with `basic` / `extended` / `fixed` modes
       - latest caller-tail collapse: the stable `phase2160/registry_optin_method_arraymap*` wrappers now also keep their shared registry exec/tag/functions front behind `prepare_registry_tagged_mir_canary_stdout()`, leaving only method/args/`mir_call` token checks in `run_registry_method_arraymap_canary()`, while `registry_optin_method_arraymap_get_diag_canary_vm.sh` and `registry_optin_method_arraymap_direct_canary_vm.sh` remain explicit diag/direct keeps
       - latest caller-tail collapse: the explicit `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` probe now also keeps its diag exec/tag/functions boilerplate behind `run_registry_builder_diag_canary()`, leaving only the direct lower probe wrapper as the remaining explicit `phase2160` keep
+      - latest caller-tail collapse: the explicit `phase2160/registry_optin_method_arraymap_direct_canary_vm.sh` probe now also keeps temp-Hako runner generation, VM exec, and MIR-functions proof behind `run_direct_lower_box_canary()` / `run_direct_lower_box_vm_to_stdout_file()` / `direct_lower_box_runner_code()`, so the shell/helper wave is now near thin floor and active slices can return to `src/host_providers/mir_builder.rs`
       - latest bridge tightening: `src/runner/stage1_bridge/program_json/payload.rs` now owns bridge-local owner-1 payload emission, leaving `program_json/mod.rs` as read->emit->write orchestration only
       - latest bridge tightening: `src/runner/stage1_bridge/program_json_entry/exit.rs` now owns exact success/error process-exit formatting, leaving `program_json_entry/mod.rs` as request-build + dispatch only
       - latest runner tightening: `lang/src/runner/stage1_cli.hako` now keeps raw subcmd emit-mir validation behind `_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, and `_coerce_mir_output_checked(...)`, so Program(JSON) input check, MirBuilder call, and MIR output check are separate owner-local steps
