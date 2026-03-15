@@ -116,4 +116,39 @@ mod tests {
         assert!(mir_json.contains("\"name\":\"Main\""));
         assert!(mir_json.contains("\"name\":\"HelperBox\""));
     }
+
+    #[test]
+    fn program_json_to_mir_file_prefers_explicit_user_box_decls() {
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "user_box_decls": [
+                {"name":"Main","fields":[]},
+                {"name":"PipeBox","fields":["slot"]}
+            ],
+            "defs": [
+                {
+                    "box": "CompatOnlyBox",
+                    "name": "helper",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Int","value":1}}]}
+                }
+            ],
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {"type": "Int", "value": 42}
+                }
+            ]
+        }"#;
+        let out = temp_output_path("program-json-to-mir-explicit");
+        emit_program_json_to_mir_json_file(program_json, &out).expect("emit mir json");
+        let mir_json = std::fs::read_to_string(&out).expect("read mir json");
+        let _ = std::fs::remove_file(&out);
+
+        assert!(mir_json.contains("\"user_box_decls\""));
+        assert!(mir_json.contains("\"name\":\"PipeBox\""));
+        assert!(mir_json.contains("\"fields\":[\"slot\"]"));
+        assert!(!mir_json.contains("\"name\":\"CompatOnlyBox\""));
+    }
 }

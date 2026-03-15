@@ -212,7 +212,7 @@ fn finalize_mir_json_with_stage1_user_box_decls(
     program_json: &str,
     mir_json: &str,
 ) -> Result<String, String> {
-    let user_box_decls = build_stage1_user_box_decls_from_program_json(program_json)?;
+    let user_box_decls = resolve_stage1_user_box_decls_from_program_json(program_json)?;
     inject_user_box_decls_into_mir_json(mir_json, user_box_decls)
 }
 
@@ -256,11 +256,43 @@ fn build_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_j
     build_stage1_user_box_decls_from_names(names)
 }
 
-fn build_stage1_user_box_decls_from_program_json(
+fn resolve_stage1_user_box_decls_from_program_json(
     program_json: &str,
 ) -> Result<Vec<serde_json::Value>, String> {
     let program_value = parse_program_json_value(program_json)?;
-    Ok(build_stage1_user_box_decls(&program_value))
+    Ok(resolve_stage1_user_box_decls(&program_value))
+}
+
+fn resolve_stage1_user_box_decls(program_value: &serde_json::Value) -> Vec<serde_json::Value> {
+    match explicit_stage1_user_box_decls(program_value) {
+        Some(user_box_decls) => user_box_decls,
+        None => build_stage1_user_box_decls(program_value),
+    }
+}
+
+fn explicit_stage1_user_box_decls(
+    program_value: &serde_json::Value,
+) -> Option<Vec<serde_json::Value>> {
+    let decls = program_value.get("user_box_decls")?.as_array()?;
+    Some(
+        decls
+            .iter()
+            .filter_map(normalize_stage1_user_box_decl)
+            .collect(),
+    )
+}
+
+fn normalize_stage1_user_box_decl(decl: &serde_json::Value) -> Option<serde_json::Value> {
+    let name = decl.get("name")?.as_str()?.trim();
+    if name.is_empty() {
+        return None;
+    }
+    let fields = decl
+        .get("fields")
+        .and_then(serde_json::Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    Some(serde_json::json!({ "name": name, "fields": fields }))
 }
 
 fn serialize_mir_json_value(mir_value: &serde_json::Value) -> Result<String, String> {
@@ -503,6 +535,42 @@ mod tests {
         assert!(mir_json.contains("user_box_decls"));
         assert!(mir_json.contains("\"name\":\"Main\""));
         assert!(mir_json.contains("\"name\":\"HelperBox\""));
+    }
+
+    #[test]
+    fn test_program_json_to_mir_json_with_user_box_decls_prefers_explicit_payload() {
+        ensure_test_ring0();
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "user_box_decls": [
+                {"name": "Main", "fields": []},
+                {"name": "ExplicitBox", "fields": ["value"]}
+            ],
+            "defs": [
+                {
+                    "box": "CompatOnlyBox",
+                    "name": "helper",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Int","value":1}}]}
+                }
+            ],
+            "body": [
+                {
+                    "type": "Return",
+                    "expr": {"type": "Int", "value": 42}
+                }
+            ]
+        }"#;
+
+        let result = program_json_to_mir_json_with_user_box_decls(program_json);
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let mir_json = result.unwrap();
+        assert!(mir_json.contains("\"user_box_decls\""));
+        assert!(mir_json.contains("\"name\":\"ExplicitBox\""));
+        assert!(mir_json.contains("\"fields\":[\"value\"]"));
+        assert!(!mir_json.contains("\"name\":\"CompatOnlyBox\""));
     }
 
     #[test]

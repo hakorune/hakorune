@@ -146,12 +146,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Immediate Next (this round)
 
+- pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
+  - current active owner is `src/host_providers/mir_builder.rs`
+  - latest landed leaf is explicit-route `user_box_decls` passthrough: `program_json_to_mir_json_with_user_box_decls(...)` now prefers root payload `user_box_decls` and falls back to defs-mining only for compat
+  - targeted proof stays `cargo test user_box_decls -- --nocapture`
+  - exact next leaf is no longer `user_box_decls` shaping; it is the remaining shared stop-line around `module_to_mir_json(...)` / temp-MIR finalize passthrough in the same owner
+  - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
+
 - backend-zero / `phase-29ck` exact front (2026-03-16):
-  - current active owner is `src/llvm_py/instructions/binop.py`
-  - latest landed slices are `binop-route` / `binop-entry` / `binop-concat` / `binop-int-float`
-  - exact next leaf is `numeric expr-cache / arithmetic tail` helper demotion in `src/llvm_py/instructions/binop.py`
-  - after that, return to the next smaller cross-block seam in `src/llvm_py/builders/function_lower.py`
-  - `by_name` retirement is still separate in `phase-29cl`; do not reopen kernel delete before compiled-stage1 residue shrink says no caller still needs it
+  - `src/llvm_py/builders/function_lower.py` setup/tail buckets are substantially demoted
+  - compiled-stage1 surrogate does not currently expose another worthwhile exact disappearing leaf
+  - next backend-zero slice should therefore move to the next nearby owner seam outside `function_lower.py`, not reopen sealed surrogate residue
 
 - owner-role lock for pure `.hako-only hakorune build`:
   - `authority owner`
@@ -193,6 +198,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - why it matters: current `stage1-env-mir-source` authority still materializes `Program(JSON v0)` before MIR(JSON)
     - note: `src/host_providers/mir_builder.rs` and `src/stage1/program_json_v0.rs` are now thin façades; `src/host_providers/mir_builder/lowering/ast_json.rs` is legacy AST JSON compat keep, not the primary pure-`.hako` blocker
     - latest tightening: shared `user_box_decls` shaping is now folded into `src/host_providers/mir_builder.rs`; there is no separate `user_box_decls.rs` owner file anymore
+    - latest tightening: explicit Program(JSON) route now prefers root `user_box_decls` payload and only falls back to defs-mining for compat, so Rust no longer re-decides that boundary when the caller already supplied it
   - Rust bootstrap-boundary bucket:
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
     - `src/runner/stage1_bridge/program_json/mod.rs`
@@ -213,14 +219,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. shared producer `lang/src/compiler/build/build_box.hako`
     4. shell helper trio above
   - exact next slices after the latest landed work:
-    1. `tools/hakorune_emit_mir.sh`
-       - keep shrinking the helper-local fallback/delegate tail; next candidate is the remaining delegate/fallback route order, not `selfhost_build.sh`
-    2. `lang/src/runner/stage1_cli_env.hako`
+    1. `src/host_providers/mir_builder.rs`
+       - keep shrinking the remaining shared stop-line above `module_to_mir_json(...)`; the `user_box_decls` decision itself is no longer the active Rust authority leaf
+    2. `tools/hakorune_emit_mir.sh`
+       - keep shrinking the helper-local fallback/delegate tail only after the Rust stop-line leaf above is thinner
+    3. `lang/src/runner/stage1_cli_env.hako`
        - keep shrinking `Stage1ProgramJsonCompatBox` / `Stage1MirResultValidationBox` leaves only; do not reopen source authority/body extraction in the same slice
-    3. `tools/selfhost/selfhost_build.sh`
+    4. `tools/selfhost/selfhost_build.sh`
        - only after the helper-local `hakorune_emit_mir.sh` tail is thinner
-    4. `src/runner/stage1_bridge/program_json/**`
-       - only if the Rust bootstrap-boundary bucket is chosen instead of helper-local caller work
 
 - `phase-29cj` reviewer sync (2026-03-14):
   - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`
