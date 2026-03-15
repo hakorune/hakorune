@@ -254,6 +254,35 @@ def _seed_multi_pred_block_phi_incomings(builder, block_by_id: Dict[int, Dict[st
         pass
 
 
+def _seed_if_merge_ret_phi_incomings(builder, plan: Dict[int, int]) -> None:
+    for bbid, ret_vid in (plan or {}).items():
+        preds_list = _dedup_non_self_preds(getattr(builder, "preds", {}) or {}, int(bbid))
+        try:
+            builder.block_phi_incomings.setdefault(int(bbid), {})[int(ret_vid)] = [
+                (int(pred_bid), int(ret_vid)) for pred_bid in preds_list
+            ]
+        except Exception:
+            pass
+        try:
+            trace_debug(f"[prepass] if-merge: plan metadata at bb{bbid} for v{ret_vid} preds={preds_list}")
+        except Exception:
+            pass
+    try:
+        builder.resolver.block_phi_incomings = builder.block_phi_incomings
+    except Exception:
+        pass
+
+
+def _run_if_merge_prepass(builder, block_by_id: Dict[int, Dict[str, Any]]) -> None:
+    import os
+
+    if os.environ.get("NYASH_LLVM_PREPASS_IFMERGE") != "1":
+        return
+    plan = plan_ret_phi_predeclare(block_by_id)
+    if plan:
+        _seed_if_merge_ret_phi_incomings(builder, plan)
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -581,31 +610,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
 
     # Optional: if-merge prepass (gate NYASH_LLVM_PREPASS_IFMERGE)
     try:
-        if os.environ.get('NYASH_LLVM_PREPASS_IFMERGE') == '1':
-            plan = plan_ret_phi_predeclare(block_by_id)
-            if plan:
-                # Phase 132-P1: block_phi_incomings already points to context storage
-                # No need to reassign - just ensure it exists
-                pass
-                for bbid, ret_vid in plan.items():
-                    try:
-                        preds_raw = [p for p in builder.preds.get(bbid, []) if p != bbid]
-                    except Exception:
-                        preds_raw = []
-                    seen = set(); preds_list = []
-                    for p in preds_raw:
-                        if p not in seen:
-                            preds_list.append(p); seen.add(p)
-                    try:
-                        builder.block_phi_incomings.setdefault(int(bbid), {})[int(ret_vid)] = [
-                            (int(p), int(ret_vid)) for p in preds_list
-                        ]
-                    except Exception:
-                        pass
-                    try:
-                        trace_debug(f"[prepass] if-merge: plan metadata at bb{bbid} for v{ret_vid} preds={preds_list}")
-                    except Exception:
-                        pass
+        _run_if_merge_prepass(builder, block_by_id)
     except Exception:
         pass
 

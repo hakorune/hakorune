@@ -185,6 +185,10 @@ Related:
    - `src/llvm_py/builders/function_lower.py` now keeps predecessor dedupe, block defs/uses collection, and multi-pred PHI incoming seeding behind owner-local helpers (`_dedup_non_self_preds(...)`, `_collect_block_defs(...)`, `_collect_block_uses(...)`, `_seed_multi_pred_block_phi_incomings(...)`)
    - `lower_function(...)` no longer mixes prepass graph scan details inline before `_lower_blocks(...)`
    - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_phi_prepass.py`
+36b. landed B3d function-lower-if-merge slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps if-merge ret-PHI incoming seeding behind owner-local helpers (`_seed_if_merge_ret_phi_incomings(...)`, `_run_if_merge_prepass(...)`)
+   - `lower_function(...)` no longer mixes `plan_ret_phi_predeclare(...)` expansion and resolver sync inline in the prepass section
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_if_merge_prepass.py`
 37. landed B3d binop-route slice:
    - `src/llvm_py/instructions/binop.py` now keeps `+` route policy behind file-local helpers (`_binop_plus_explicit_route(...)`, `_binop_plus_operand_is_stringish(...)`, `_binop_plus_any_tagged_string(...)`, `_binop_plus_prefers_string_path(...)`, `_binop_plus_string_tags(...)`) together with op-alias normalization helper `_normalize_binop_op(...)`
    - `lower_binop(...)` no longer mixes explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization inline before concat/integer dispatch
