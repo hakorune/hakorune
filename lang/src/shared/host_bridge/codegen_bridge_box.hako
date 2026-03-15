@@ -2,6 +2,8 @@
 // Responsibility:
 //   - Provide emit_object/link_object helpers instead of duplicating
 //     HostFacadeBox.call("loader","codegen.*", ...) everywhere.
+//   - backend-zero B1 rule: this box is a temporary bridge owner only.
+//     New daily callers should stop at LlvmBackendBox instead.
 
 using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 using lang.runtime.host.host_facade_box as HostFacadeBox

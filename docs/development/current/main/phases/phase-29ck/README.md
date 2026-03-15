@@ -92,6 +92,10 @@ Related:
 13. next B1/B3 detail lock:
    - B1 now splits into `temporary bridge freeze -> launcher stop-point migration -> compile contract lock -> env truth lock`
    - B3 now splits into `harness/entry -> MIR ingest/context -> opcode lowering -> analysis/support`
+14. landed B1a/B1b slice:
+   - `CodegenBridgeBox` is now documented as temporary bridge owner only
+   - `lang/src/runner/launcher.hako` `build exe` now stops at `LlvmBackendBox`
+   - remaining direct `.hako` CodegenBridge daily caller is no longer `launcher`; current visible direct caller keep is `stage1_cli.hako`
 
 ## Non-goals
 

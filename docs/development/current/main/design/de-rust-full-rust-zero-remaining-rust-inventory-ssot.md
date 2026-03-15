@@ -182,12 +182,12 @@ Related:
    - explicit keep
    - not part of backend-zero replace work
 3. direct `.hako` CodegenBridge callers outside the official boundary
-   - `lang/src/runner/launcher.hako`
-     - mainline move-now candidate; currently bypasses `LlvmBackendBox`
-   - `lang/src/runner/stage1_cli.hako`
-     - compat keep for now; not the first daily caller migration
-   - `lang/src/vm/hakorune-vm/extern_provider.hako`
-     - explicit keep / runtime-side bridge surface
+  - `lang/src/runner/launcher.hako`
+    - moved to `LlvmBackendBox`; no longer a direct CodegenBridge daily caller
+  - `lang/src/runner/stage1_cli.hako`
+    - compat keep for now; not the first daily caller migration
+  - `lang/src/vm/hakorune-vm/extern_provider.hako`
+    - explicit keep / runtime-side bridge surface
 
 ## 4. Fixed Remaining Order
 

@@ -57,7 +57,7 @@ hakorune <command> [<subcommand>] [options] [-- script_args...]
 | コマンド                          | 役割                                      | Phase 25.1a 実装状況 |
 |-----------------------------------|-------------------------------------------|----------------------|
 | `run`                             | .hako をコンパイルして実行（既定 VM）     | プレースホルダ（`[hakorune] run: not implemented yet`） |
-| `build exe`                       | .hako からネイティブ EXE を AOT ビルド    | 実装済み（env.codegen経由で `.o` → EXE を生成） |
+| `build exe`                       | .hako からネイティブ EXE を AOT ビルド    | 実装済み（`LlvmBackendBox` 経由で `.o` → EXE を生成） |
 | `emit program-json`               | Stage‑B で Program(JSON v0) を出力        | 実装済み（Stage0 ブリッジ + `.hako` Stage1Cli 完了） |
 | `emit mir-json`                   | Program(JSON) → MIR(JSON) を出力          | 実装済み（Stage0 ブリッジ + `.hako` Stage1Cli 完了） |
 | `check`                           | 将来の構文/型/using チェック（予約）      | プレースホルダ（`[hakorune] check: not implemented yet`） |
@@ -140,9 +140,10 @@ hakorune build exe [-o <out>] [--quiet] <source.hako>
   2. Program(JSON v0) → MIR(JSON):
      - `MirBuilderBox.emit_from_program_json_v0(program_json, null)` を呼び出し。
   3. MIR(JSON) → object:
-     - `hostbridge.extern_invoke("env.codegen", "emit_object", [mir_json])` を呼び出し、`.o` パスを取得。
+     - `LlvmBackendBox.compile_obj(mir_json_path)` を呼び出し、`.o` パスを取得。
   4. object → EXE:
-     - `hostbridge.extern_invoke("env.codegen", "link_object", [obj_path, out?])` を呼び出し、EXE パスを取得。
+     - `LlvmBackendBox.link_exe(obj_path, out?, libs)` を呼び出し、EXE パスを取得。
+  5. `launcher.hako` は MIR(JSON) を temp file に materialize してから backend boundary へ渡す。
 - 実行には C-API ルートの有効化が前提:
   - 例: `NYASH_LLVM_USE_CAPI=1`, `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`, `NYASH_EMIT_EXE_NYRT` など。
 

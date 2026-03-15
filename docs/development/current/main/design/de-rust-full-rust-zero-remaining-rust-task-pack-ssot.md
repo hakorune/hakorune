@@ -120,7 +120,7 @@ rule:
      - freeze `lang/src/shared/host_bridge/codegen_bridge_box.hako` as temporary bridge owner only
      - do not let docs or new callers treat it as the final daily boundary
   2. `B1b` daily caller stop-point unification
-     - move mainline direct caller `lang/src/runner/launcher.hako` from `CodegenBridgeBox` to `LlvmBackendBox`
+     - landed: `lang/src/runner/launcher.hako` moved from direct `CodegenBridgeBox` build-exe calls to `LlvmBackendBox`
      - keep `lang/src/runner/stage1_cli.hako` as compat keep until after launcher migration
   3. `B1c` compile contract lock
      - freeze normalized JSON temp ownership and object-output temp ownership between `LlvmBackendBox` and `hako_aot`

@@ -13,7 +13,7 @@
 
 using lang.mir.builder.MirBuilderBox
 using lang.compiler.build.build_box as BuildBox
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 
 static box HakoCli {
   // Entry from Main.main(args)
@@ -72,8 +72,8 @@ static box HakoCli {
   }
 
   // hakorune build exe [-o <out>] [--quiet] <source.hako>
-  // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) → env.codegen.emit_object/link_object → EXE
-  // - Requires env.codegen C-API route to be有効化されていること（NYASH_LLVM_USE_CAPI=1, HAKO_V1_EXTERN_PROVIDER_C_ABI=1 等）。
+  // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) -> LlvmBackendBox -> EXE
+  // - Requires backend-zero C-API route to be有効化されていること（NYASH_LLVM_USE_CAPI=1, HAKO_V1_EXTERN_PROVIDER_C_ABI=1 等）。
   method cmd_build_exe(args){
     @argc = 0
     if args { argc = args.size() }
@@ -121,19 +121,8 @@ static box HakoCli {
     local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
     if ms == null { return 91 }
 
-    local obj = CodegenBridgeBox.emit_object(ms)
-    if obj == null || ("" + obj) == "" {
-      print("[hakorune] build exe: env.codegen.emit_object failed")
-      return 91
-    }
-    local obj_path = "" + obj
-
-    local exe = CodegenBridgeBox.link_object(obj_path, out_path)
-    if exe == null || ("" + exe) == "" {
-      print("[hakorune] build exe: env.codegen.link_object failed")
-      return 91
-    }
-    local exe_path = "" + exe
+    local exe_path = me._emit_exe_from_mir_json_checked(tag, source_path, ms, out_path)
+    if exe_path == null { return 91 }
 
     if quiet != 1 {
       print("[hakorune] build exe: " + exe_path)
@@ -368,6 +357,40 @@ static box HakoCli {
     local prog_json = me._emit_program_json_from_source_path_checked(tag, source_path)
     if prog_json == null { return null }
     return me._emit_mir_json_checked(tag, prog_json)
+  }
+
+  method _emit_exe_from_mir_json_checked(tag, source_path, mir_json, requested_out_path){
+    local exe_path = me._resolve_build_exe_out_path(source_path, requested_out_path)
+    if exe_path == null { return null }
+    local mir_path = me._resolve_build_exe_mir_path(exe_path)
+    if mir_path == null { return null }
+    if me._write_file(tag, mir_path, mir_json, 1) != 1 { return null }
+
+    local obj = LlvmBackendBox.compile_obj(mir_path)
+    if obj == null || ("" + obj) == "" {
+      print(tag + ": LlvmBackendBox.compile_obj failed")
+      return null
+    }
+    local ok = LlvmBackendBox.link_exe("" + obj, exe_path, null)
+    if ok != 1 {
+      print(tag + ": LlvmBackendBox.link_exe failed")
+      return null
+    }
+    return exe_path
+  }
+
+  method _resolve_build_exe_out_path(source_path, requested_out_path){
+    if requested_out_path != null && ("" + requested_out_path) != "" {
+      return "" + requested_out_path
+    }
+    return "/tmp/hako_link_out.exe"
+  }
+
+  method _resolve_build_exe_mir_path(exe_path){
+    if exe_path == null || ("" + exe_path) == "" {
+      return null
+    }
+    return ("" + exe_path) + ".mir.json"
   }
 
   method _load_program_json_from_path_or_source(tag, prog_path, source_path){
