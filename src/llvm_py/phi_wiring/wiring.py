@@ -186,6 +186,129 @@ def nearest_pred_on_path(
     return None
 
 
+def _snapshot_phi_candidate(builder, block_id: int, dst_vid: int, bb: ir.Block, context=None):
+    phi = None
+    try:
+        if context is not None:
+            snapshot = context.get_block_snapshot(int(block_id))
+            cur = snapshot.get(int(dst_vid))
+        else:
+            snap = getattr(builder, "block_end_values", {}) or {}
+            cur = snap.get(int(block_id), {}).get(int(dst_vid))
+        if cur is None or not hasattr(cur, "add_incoming"):
+            return None
+
+        cur_bb_name = getattr(getattr(cur, "basic_block", None), "name", None)
+        bb_name = getattr(bb, "name", None)
+        try:
+            if isinstance(cur_bb_name, bytes):
+                cur_bb_name = cur_bb_name.decode()
+        except Exception:
+            pass
+        try:
+            if isinstance(bb_name, bytes):
+                bb_name = bb_name.decode()
+        except Exception:
+            pass
+        if cur_bb_name == bb_name:
+            phi = cur
+            try:
+                builder.vmap[dst_vid] = phi
+            except Exception:
+                pass
+    except Exception:
+        return None
+    return phi
+
+
+def _dedup_predecessors(builder, block_id: int) -> List[int]:
+    preds_raw = [p for p in builder.preds.get(block_id, []) if p != block_id]
+    seen = set()
+    preds_list: List[int] = []
+    for pred_bid in preds_raw:
+        if pred_bid not in seen:
+            preds_list.append(pred_bid)
+            seen.add(pred_bid)
+    return preds_list
+
+
+def _initial_non_self_source(dst_vid: int, incoming: List[Tuple[int, int]]) -> int | None:
+    for (_decl_b, v_src) in incoming:
+        try:
+            src_vid = int(v_src)
+        except Exception:
+            continue
+        if src_vid != int(dst_vid):
+            return src_vid
+    return None
+
+
+def _normalize_incoming_source(dst_vid: int, src_vid: int, init_src_vid: int | None) -> int:
+    if src_vid == int(dst_vid) and init_src_vid is not None:
+        trace({"phi": "wire_self_carry", "dst": int(dst_vid), "vs": int(src_vid), "init_src_vid": int(init_src_vid)})
+        return int(init_src_vid)
+    return int(src_vid)
+
+
+def _resolve_incoming_value(builder, block_id: int, dst_vid: int, pred_match: int, src_vid: int, context=None):
+    try:
+        val = builder.resolver.resolve_incoming(pred_match, src_vid, context=context)
+        trace({"phi": "wire_resolved", "vs": int(src_vid), "pred": int(pred_match), "val_type": type(val).__name__})
+    except Exception as e:
+        trace({"phi": "wire_resolve_fail", "vs": int(src_vid), "pred": int(pred_match), "error": str(e)})
+        val = None
+
+    resolved_ok = val is not None
+    if val is None:
+        error = PhiStrictError(
+            message=f"PHI v{dst_vid} incoming from bb{pred_match} could not be resolved (vs={src_vid}). Silent fallback to 0 is forbidden in strict mode.",
+            next_file="llvm_builder.py::_value_at_end_i64",
+            block_id=block_id,
+            dst_vid=dst_vid,
+            context=f"pred={pred_match}",
+        )
+        error.raise_if_strict()
+        return _const_i64(builder, 0), resolved_ok
+
+    try:
+        if not hasattr(val, "type"):
+            val = _const_i64(builder, int(val))
+    except Exception as e:
+        error = PhiStrictError(
+            message=f"PHI v{dst_vid} incoming type coercion failed (vs={src_vid}, pred={pred_match}): {e}",
+            next_file="phi_wiring.py::get_phi_operand_type",
+            block_id=block_id,
+            dst_vid=dst_vid,
+        )
+        error.raise_if_strict()
+        return _const_i64(builder, 0), False
+
+    return val, resolved_ok
+
+
+def _is_zero_const(v: ir.Value) -> bool:
+    try:
+        if isinstance(v, ir.Constant) and isinstance(v.type, ir.IntType) and v.type.width == 64:
+            return int(getattr(v, "constant", 1)) == 0
+    except Exception:
+        pass
+    return False
+
+
+def _record_chosen_incoming(
+    chosen: Dict[int, ir.Value],
+    pred_match: int,
+    value: ir.Value,
+    resolved_ok: bool,
+) -> None:
+    prev = chosen.get(pred_match)
+    if prev is None:
+        chosen[pred_match] = value
+        return
+    if _is_zero_const(prev) and not _is_zero_const(value) and resolved_ok:
+        chosen[pred_match] = value
+
+
 def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[int, int]], context=None):
     """Wire PHI incoming edges for (block_id, dst_vid) using declared (decl_b, v_src) pairs.
 
@@ -211,39 +334,7 @@ def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[in
     if bb is None:
         return
     # Prefer an existing PHI already materialized in this block (e.g., by resolver)
-    phi = None
-    try:
-        # Phase 132-P1: Use context.get_block_snapshot (simple block_id key)
-        if context is not None:
-            snapshot = context.get_block_snapshot(int(block_id))
-            cur = snapshot.get(int(dst_vid))
-        else:
-            # Fallback for backward compatibility
-            snap = getattr(builder, 'block_end_values', {}) or {}
-            cur = snap.get(int(block_id), {}).get(int(dst_vid))
-        if cur is not None and hasattr(cur, 'add_incoming'):
-            # Ensure it belongs to the same block
-            cur_bb_name = getattr(getattr(cur, 'basic_block', None), 'name', None)
-            bb_name = getattr(bb, 'name', None)
-            try:
-                if isinstance(cur_bb_name, bytes):
-                    cur_bb_name = cur_bb_name.decode()
-            except Exception:
-                pass
-            try:
-                if isinstance(bb_name, bytes):
-                    bb_name = bb_name.decode()
-            except Exception:
-                pass
-            if cur_bb_name == bb_name:
-                phi = cur
-                # Mirror to global vmap for downstream lookups
-                try:
-                    builder.vmap[dst_vid] = phi
-                except Exception:
-                    pass
-    except Exception:
-        phi = None
+    phi = _snapshot_phi_candidate(builder, block_id, dst_vid, bb, context=context)
     if phi is None:
         # Phase 275 P0: Get dst_type from resolver's value_types (SSOT)
         from .type_helper import get_phi_dst_type
@@ -252,32 +343,10 @@ def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[in
         if is_phi_debug_enabled():
             print(f"[phi_wiring] v{dst_vid} -> dst_type='{dst_type}'", file=sys.stderr)
         phi = ensure_phi(builder, block_id, dst_vid, bb, dst_type=dst_type)
-    preds_raw = [p for p in builder.preds.get(block_id, []) if p != block_id]
-    seen = set()
-    preds_list: List[int] = []
-    for p in preds_raw:
-        if p not in seen:
-            preds_list.append(p)
-            seen.add(p)
+    preds_list = _dedup_predecessors(builder, block_id)
     succs = build_succs(builder.preds)
-    init_src_vid = None
-    for (_bd0, vs0) in incoming:
-        try:
-            vi = int(vs0)
-        except Exception:
-            continue
-        if vi != int(dst_vid):
-            init_src_vid = vi
-            break
+    init_src_vid = _initial_non_self_source(dst_vid, incoming)
     chosen: Dict[int, ir.Value] = {}
-
-    def _is_zero_const(v: ir.Value) -> bool:
-        try:
-            if isinstance(v, ir.Constant) and isinstance(v.type, ir.IntType) and v.type.width == 64:
-                return int(getattr(v, "constant", 1)) == 0
-        except Exception:
-            pass
-        return False
 
     for (b_decl, v_src) in incoming:
         try:
@@ -292,56 +361,18 @@ def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[in
             trace({"phi": "wire_skip_no_path", "decl_b": bd, "target": int(block_id), "src": vs})
             continue
         original_vs = vs
-        if vs == int(dst_vid) and init_src_vid is not None:
-            trace({"phi": "wire_self_carry", "dst": int(dst_vid), "vs": vs, "init_src_vid": init_src_vid})
-            vs = int(init_src_vid)
+        vs = _normalize_incoming_source(dst_vid, vs, init_src_vid)
         if original_vs != vs:
             trace({"phi": "wire_replaced_src", "original": original_vs, "replaced": vs})
-        try:
-            # P0-4: Use resolve_incoming for PHI incoming values
-            # Phase 132-P1: Pass context for function-local state isolation
-            val = builder.resolver.resolve_incoming(pred_match, vs, context=context)
-            trace({"phi": "wire_resolved", "vs": vs, "pred": pred_match, "val_type": type(val).__name__})
-        except Exception as e:
-            trace({"phi": "wire_resolve_fail", "vs": vs, "pred": pred_match, "error": str(e)})
-            val = None
-        resolved_ok = val is not None
-        # Phase 277 P1: Strict mode forbids silent fallback to 0
-        if val is None:
-            error = PhiStrictError(
-                message=f"PHI v{dst_vid} incoming from bb{pred_match} could not be resolved (vs={vs}). Silent fallback to 0 is forbidden in strict mode.",
-                next_file="llvm_builder.py::_value_at_end_i64",
-                block_id=block_id,
-                dst_vid=dst_vid,
-                context=f"pred={pred_match}",
-            )
-            error.raise_if_strict()
-            # Default: silent fallback (existing behavior)
-            val = _const_i64(builder, 0)
-        else:
-            try:
-                # Some paths can accidentally pass plain integers; coerce to i64 const
-                if not hasattr(val, 'type'):
-                    val = _const_i64(builder, int(val))
-            except Exception as e:
-                error = PhiStrictError(
-                    message=f"PHI v{dst_vid} incoming type coercion failed (vs={vs}, pred={pred_match}): {e}",
-                    next_file="phi_wiring.py::get_phi_operand_type",
-                    block_id=block_id,
-                    dst_vid=dst_vid,
-                )
-                error.raise_if_strict()
-                # Default: silent fallback (existing behavior)
-                val = _const_i64(builder, 0)
-        # SSOT for ambiguous PHI incoming (same pred_match multiple times):
-        # - prefer a non-zero / successfully-resolved value over a synthesized zero,
-        # - otherwise keep the first choice to avoid last-wins "overwrite to 0".
-        prev = chosen.get(pred_match)
-        if prev is None:
-            chosen[pred_match] = val
-        else:
-            if _is_zero_const(prev) and not _is_zero_const(val) and resolved_ok:
-                chosen[pred_match] = val
+        val, resolved_ok = _resolve_incoming_value(
+            builder,
+            block_id,
+            dst_vid,
+            pred_match,
+            vs,
+            context=context,
+        )
+        _record_chosen_incoming(chosen, pred_match, val, resolved_ok)
         trace({"phi": "wire_choose", "pred": int(pred_match), "dst": int(dst_vid), "src": int(vs)})
     wired = 0
     for pred_bid, val in chosen.items():

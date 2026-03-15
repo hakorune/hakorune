@@ -223,6 +223,10 @@ rule:
        - `src/llvm_py/phi_wiring/wiring.py` now owns helper-local post-wire string/array/origin propagation helpers, and `src/llvm_py/phi_wiring/fact_propagation.py` now owns incoming-shape-tolerant ArrayBox carry
        - `finalize_phis(...)` now consumes those helpers instead of mixing incoming wiring and resolver fact propagation inline
        - proof is pinned by `src/llvm_py/tests/test_phi_wiring_finalize.py` and `src/llvm_py/tests/test_phi_fact_propagation.py`
+     - landed eighth slice:
+       - `src/llvm_py/phi_wiring/wiring.py` now owns helper-local snapshot-candidate reuse, predecessor dedupe, self-carry normalization, incoming resolve/coercion, and per-predecessor selection helpers
+       - `wire_incomings(...)` now consumes those helpers instead of mixing snapshot lookup, self-carry rewrite, resolve/coercion, and selection policy inline
+       - proof is pinned by `src/llvm_py/tests/test_phi_wiring_selection.py`
 - done shape:
   - Python is no longer mainline backend owner
 

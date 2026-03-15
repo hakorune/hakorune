@@ -28,6 +28,8 @@ class DummyResolver:
             return ir.Constant(self.i64, 7)
         if int(vs) == 201:
             return ir.Constant(self.i64, 9)
+        if int(vs) == 301:
+            return 11
         return None
 
 
@@ -74,6 +76,18 @@ class TestPhiWiringSelection(unittest.TestCase):
         wire_incomings(self.builder, 2, dst_vid, [(1, 101), (1, 100)], context=self.ctx)
         self.assertIn(dst_vid, self.builder.vmap)
         self.assertEqual(self._phi_incoming_values(dst_vid), [7])
+
+    def test_self_carry_reuses_first_non_self_source(self):
+        dst_vid = 500
+        wire_incomings(self.builder, 2, dst_vid, [(1, 500), (1, 101)], context=self.ctx)
+        self.assertIn(dst_vid, self.builder.vmap)
+        self.assertEqual(self._phi_incoming_values(dst_vid), [7])
+
+    def test_coerces_plain_int_resolve_result_to_i64_constant(self):
+        dst_vid = 502
+        wire_incomings(self.builder, 2, dst_vid, [(1, 301)], context=self.ctx)
+        self.assertIn(dst_vid, self.builder.vmap)
+        self.assertEqual(self._phi_incoming_values(dst_vid), [11])
 
 
 if __name__ == "__main__":

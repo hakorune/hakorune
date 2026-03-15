@@ -173,6 +173,10 @@ Related:
    - `src/llvm_py/phi_wiring/fact_propagation.py` now accepts both raw `(value, block)` and normalized `(block, value)` incoming shapes when carrying ArrayBox facts across PHI
    - `finalize_phis(...)` now reads as `wire -> propagate facts -> trace` instead of mixing incoming wiring and resolver fact updates inline
    - support-owner proof is pinned by `src/llvm_py/tests/{test_phi_wiring_finalize.py,test_phi_fact_propagation.py}`
+34. landed B3d phi-wiring-selection slice:
+   - `src/llvm_py/phi_wiring/wiring.py` now keeps snapshot-candidate reuse, predecessor dedupe, self-carry normalization, incoming resolve/coercion, and per-predecessor selection behind owner-local helpers (`_snapshot_phi_candidate(...)`, `_dedup_predecessors(...)`, `_normalize_incoming_source(...)`, `_resolve_incoming_value(...)`, `_record_chosen_incoming(...)`)
+   - `wire_incomings(...)` now reads as `acquire phi -> match pred -> resolve/select -> add incoming` instead of mixing snapshot lookup, self-carry rewrite, resolve/coercion, and selection policy inline
+   - support-owner proof is pinned by `src/llvm_py/tests/test_phi_wiring_selection.py`
 
 ## Non-goals
 
