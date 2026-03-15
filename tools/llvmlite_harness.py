@@ -20,23 +20,30 @@ import os
 import sys
 from pathlib import Path
 
-_default_root = Path(__file__).resolve().parents[1]
-_env_root = None
-try:
-    env_root_str = os.environ.get('NYASH_ROOT')
-    if env_root_str:
-        cand = Path(env_root_str).resolve()
-        if (cand / "src" / "llvm_py" / "llvm_builder.py").exists():
-            _env_root = cand
-except Exception:
-    _env_root = None
 
-ROOT = _env_root or _default_root
-PY_BUILDER = ROOT / "src" / "llvm_py" / "llvm_builder.py"
-LLVM_PY_DIR = ROOT / "src" / "llvm_py"
+def resolve_repo_root() -> Path:
+    default_root = Path(__file__).resolve().parents[1]
+    try:
+        env_root_str = os.environ.get("NYASH_ROOT")
+        if env_root_str:
+            candidate = Path(env_root_str).resolve()
+            if (candidate / "src" / "llvm_py" / "llvm_builder.py").exists():
+                return candidate
+    except Exception:
+        pass
+    return default_root
 
-if str(LLVM_PY_DIR) not in sys.path:
-    sys.path.insert(0, str(LLVM_PY_DIR))
+
+def bootstrap_builder_paths(root: Path) -> tuple[Path, Path]:
+    builder = root / "src" / "llvm_py" / "llvm_builder.py"
+    llvm_py_dir = root / "src" / "llvm_py"
+    if str(llvm_py_dir) not in sys.path:
+        sys.path.insert(0, str(llvm_py_dir))
+    return builder, llvm_py_dir
+
+
+ROOT = resolve_repo_root()
+PY_BUILDER, LLVM_PY_DIR = bootstrap_builder_paths(ROOT)
 
 from build_opts import create_target_machine_for_target, parse_opt_level_env
 
@@ -79,10 +86,10 @@ def run_dummy(out_path: str) -> None:
 def run_from_json(in_path: str, out_path: str) -> None:
     # Delegate to python builder to keep code unified
     import runpy
+
     # Enable safe defaults for prepasses unless explicitly disabled by env
     os.environ.setdefault('NYASH_LLVM_PREPASS_LOOP', os.environ.get('NYASH_LLVM_PREPASS_LOOP', '0'))
     os.environ.setdefault('NYASH_LLVM_PREPASS_IFMERGE', os.environ.get('NYASH_LLVM_PREPASS_IFMERGE', '1'))
-    # Ensure src/llvm_py is on sys.path for relative imports
     builder_dir = str(PY_BUILDER.parent)
     if builder_dir not in sys.path:
         sys.path.insert(0, builder_dir)
@@ -90,23 +97,28 @@ def run_from_json(in_path: str, out_path: str) -> None:
     sys.argv = [str(PY_BUILDER), str(in_path), "-o", str(out_path)]
     runpy.run_path(str(PY_BUILDER), run_name="__main__")
 
-def main():
+
+def parse_cli_args(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="infile", help="MIR JSON input", default=None)
     ap.add_argument("--out", dest="outfile", help="output object (.o)", required=True)
-    args = ap.parse_args()
+    return ap.parse_args(argv)
 
+
+def main(argv=None) -> int:
+    args = parse_cli_args(argv)
     if args.infile is None:
-        # Dummy path
         run_dummy(args.outfile)
         print(f"[harness] dummy object written: {args.outfile}")
+        return 0
     else:
         run_from_json(args.infile, args.outfile)
         print(f"[harness] object written: {args.outfile}")
+        return 0
 
 if __name__ == "__main__":
     try:
-        main()
+        raise SystemExit(main())
     except Exception as e:
         import traceback
         print(f"[harness] error: {e}", file=sys.stderr)

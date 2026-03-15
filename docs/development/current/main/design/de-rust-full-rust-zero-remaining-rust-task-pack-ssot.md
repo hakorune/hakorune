@@ -164,6 +164,10 @@ rule:
   1. `B3a` harness/entry demotion inventory
      - classify `tools/llvmlite_harness.py` and `src/llvm_py/llvm_builder.py` as entry/orchestration owners
      - define which one remains compat-only first
+     - landed first shell demotion:
+       - `tools/llvmlite_harness.py` keeps repo-root bootstrap, CLI parse, and `runpy` delegation behind owner-local helpers
+       - `src/llvm_py/llvm_builder.py` keeps CLI parse, MIR file load, and output-file write behind owner-local helpers
+       - `NyashLLVMBuilder` / lowering/support stay out of scope for B3a
   2. `B3b` MIR ingest/context demotion inventory
      - classify `src/llvm_py/mir_reader.py` and `src/llvm_py/{build_ctx.py,build_opts.py}` as decode/context owners
   3. `B3c` opcode-lowering demotion inventory

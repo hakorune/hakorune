@@ -119,6 +119,10 @@ Related:
    - `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly for its compiled-stage1 build lane
    - visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`
    - `llvm_backend_surrogate.rs` remains temporary compiled-stage1 residue only; do not treat it as the daily caller stop-point again
+20. landed B3a harness/entry demotion:
+   - `tools/llvmlite_harness.py` now keeps repo-root bootstrap, CLI parse, and `runpy` delegation behind owner-local helpers
+   - `src/llvm_py/llvm_builder.py` now keeps CLI parse, MIR file load, and output-file write behind owner-local helpers
+   - `NyashLLVMBuilder` itself and Python lowering/support are not part of this slice; next B3 front is ingest/context demotion
 
 ## Non-goals
 

@@ -391,17 +391,18 @@ class NyashLLVMBuilder:
         with open(output_path, 'wb') as f:
             f.write(obj)
 
-def main():
-    # CLI:
-    #   llvm_builder.py <input.mir.json> [-o output.o]
-    #   llvm_builder.py --dummy [-o output.o]
-    output_file = os.path.join('tmp', 'nyash_llvm_py.o')
-    args = sys.argv[1:]
+def default_output_file():
+    return os.path.join('tmp', 'nyash_llvm_py.o')
+
+
+def parse_cli_args(argv):
+    output_file = default_output_file()
+    args = list(argv)
     dummy = False
 
     if not args:
         print("Usage: llvm_builder.py <input.mir.json> [-o output.o] | --dummy [-o output.o]")
-        sys.exit(1)
+        raise SystemExit(1)
 
     if "-o" in args:
         idx = args.index("-o")
@@ -413,37 +414,59 @@ def main():
         dummy = True
         del args[0]
 
-    builder = NyashLLVMBuilder()
+    input_file = None
+    if not dummy:
+        if not args:
+            print("error: missing input MIR JSON (or use --dummy)", file=sys.stderr)
+            raise SystemExit(2)
+        input_file = args[0]
 
-    if dummy:
-        # Emit dummy ny_main
-        ir_text = builder._create_dummy_main()
-        trace_debug(f"[Python LLVM] Generated dummy IR:\n{ir_text}")
-        try:
-            os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        except Exception:
-            pass
-        builder.compile_to_object(output_file)
-        print(f"Compiled to {output_file}")
-        return
+    return dummy, input_file, output_file
 
-    if not args:
-        print("error: missing input MIR JSON (or use --dummy)", file=sys.stderr)
-        sys.exit(2)
 
-    input_file = args[0]
-    with open(input_file, 'r') as f:
-        mir_json = json.load(f)
-
-    llvm_ir = builder.build_from_mir(mir_json)
-    trace_debug("[Python LLVM] Generated LLVM IR (see NYASH_LLVM_DUMP_IR or tmp/nyash_harness.ll)")
-
+def ensure_output_dir(output_file):
     try:
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
     except Exception:
         pass
+
+
+def load_input_mir_json(input_file):
+    with open(input_file, 'r') as f:
+        return json.load(f)
+
+
+def run_dummy_cli(builder, output_file):
+    ir_text = builder._create_dummy_main()
+    trace_debug(f"[Python LLVM] Generated dummy IR:\n{ir_text}")
+    ensure_output_dir(output_file)
     builder.compile_to_object(output_file)
     print(f"Compiled to {output_file}")
 
+
+def run_input_cli(builder, input_file, output_file):
+    mir_json = load_input_mir_json(input_file)
+    builder.build_from_mir(mir_json)
+    trace_debug("[Python LLVM] Generated LLVM IR (see NYASH_LLVM_DUMP_IR or tmp/nyash_harness.ll)")
+    ensure_output_dir(output_file)
+    builder.compile_to_object(output_file)
+    print(f"Compiled to {output_file}")
+
+
+def main(argv=None):
+    # CLI:
+    #   llvm_builder.py <input.mir.json> [-o output.o]
+    #   llvm_builder.py --dummy [-o output.o]
+    dummy, input_file, output_file = parse_cli_args(sys.argv[1:] if argv is None else argv)
+    builder = NyashLLVMBuilder()
+
+    if dummy:
+        run_dummy_cli(builder, output_file)
+        return 0
+
+    run_input_cli(builder, input_file, output_file)
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
