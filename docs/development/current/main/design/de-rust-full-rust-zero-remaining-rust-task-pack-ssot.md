@@ -115,6 +115,18 @@ rule:
   - vm-hako / regular-VM `env.codegen.link_object` handlers now accept `[obj_path, exe_out?, extra_ldflags?]`
   - canonical encoding remains `libs -> single extra_ldflags string`
   - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
+- remaining fixed order inside B1:
+  1. `B1a` temporary bridge freeze
+     - freeze `lang/src/shared/host_bridge/codegen_bridge_box.hako` as temporary bridge owner only
+     - do not let docs or new callers treat it as the final daily boundary
+  2. `B1b` daily caller stop-point unification
+     - move mainline direct caller `lang/src/runner/launcher.hako` from `CodegenBridgeBox` to `LlvmBackendBox`
+     - keep `lang/src/runner/stage1_cli.hako` as compat keep until after launcher migration
+  3. `B1c` compile contract lock
+     - freeze normalized JSON temp ownership and object-output temp ownership between `LlvmBackendBox` and `hako_aot`
+     - remove ambiguity between `compile_obj(json_path)` and `hako_aot_compile_json(json_in, obj_out, ...)`
+  4. `B1d` env truth lock
+     - unify `NYASH_LLVM_COMPILER` / `NYASH_NY_LLVM_COMPILER` wording and boundary docs
 - acceptance anchor:
   - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
@@ -143,6 +155,18 @@ rule:
 - exact work:
   - move mainline `MIR -> object` ownership away from llvmlite
   - keep Python only as compat/canary lane until retired
+- remaining fixed order inside B3:
+  1. `B3a` harness/entry demotion inventory
+     - classify `tools/llvmlite_harness.py` and `src/llvm_py/llvm_builder.py` as entry/orchestration owners
+     - define which one remains compat-only first
+  2. `B3b` MIR ingest/context demotion inventory
+     - classify `src/llvm_py/mir_reader.py` and `src/llvm_py/{build_ctx.py,build_opts.py}` as decode/context owners
+  3. `B3c` opcode-lowering demotion inventory
+     - classify `src/llvm_py/instructions/**` as opcode owner pack
+     - split “mainline must replace” from “compat canary can remain”
+  4. `B3d` analysis/support demotion inventory
+     - classify `src/llvm_py/{builders/**,resolver.py,mir_analysis.py,phi_manager.py,phi_placement.py,phi_wiring/**,type_facts.py}`
+     - prefer early compat/canary demotion instead of treating the whole tree as one owner
 - done shape:
   - Python is no longer mainline backend owner
 

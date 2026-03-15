@@ -136,9 +136,20 @@ Related:
 3. `src/runner/modes/llvm/{mod.rs,harness_executor.rs,object_emitter.rs,mir_compiler.rs,pyvm_executor.rs,fallback_executor.rs,error.rs,report.rs,plugin_init.rs,using_resolver.rs,method_id_injector.rs,exit_reporter.rs}`
    - Rust runner glue / route selection / diagnostics keep
    - still mainline-owned for LLVM route orchestration
-4. `src/llvm_py/{llvm_builder.py,mir_reader.py,build_ctx.py,resolver.py,mir_analysis.py,build_opts.py,phi_manager.py,phi_placement.py,type_facts.py,instructions/**}`
-5. `tools/llvmlite_harness.py`
-   - current LLVM codegen / optimization owner
+4. `src/llvm_py/llvm_builder.py`
+   - Python mainline entry/orchestration owner for `MIR -> object`
+   - still owns the broadest llvmlite-facing route
+5. `src/llvm_py/mir_reader.py`
+   - Python MIR ingest / decode owner
+6. `src/llvm_py/{build_ctx.py,build_opts.py}`
+   - Python build-context / opt-level / output-shape owner
+7. `src/llvm_py/instructions/**`
+   - Python opcode-lowering / emit owner
+8. `src/llvm_py/{builders/**,resolver.py,mir_analysis.py,phi_manager.py,phi_placement.py,phi_wiring/**,type_facts.py}`
+   - Python lowering-analysis support owners
+   - likely to become compat/canary keep earlier than the mainline entry path
+9. `tools/llvmlite_harness.py`
+   - Python harness/CLI glue owner
    - still Python-owned mainline for `MIR -> object`
 
 #### official future target / non-Rust boundary
@@ -148,6 +159,9 @@ Related:
 3. `lang/c-abi/shims/{hako_aot.c,hako_aot_shared_impl.inc,hako_llvmc_ffi.c}`
    - official thin backend boundary
    - final shape is `.hako -> thin backend C ABI/plugin boundary -> object/exe`
+4. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+   - temporary bridge owner only
+   - do not treat as final daily caller stop-point
 
 #### compat / archive keep
 
@@ -167,6 +181,13 @@ Related:
 2. `src/jit/**`
    - explicit keep
    - not part of backend-zero replace work
+3. direct `.hako` CodegenBridge callers outside the official boundary
+   - `lang/src/runner/launcher.hako`
+     - mainline move-now candidate; currently bypasses `LlvmBackendBox`
+   - `lang/src/runner/stage1_cli.hako`
+     - compat keep for now; not the first daily caller migration
+   - `lang/src/vm/hakorune-vm/extern_provider.hako`
+     - explicit keep / runtime-side bridge surface
 
 ## 4. Fixed Remaining Order
 

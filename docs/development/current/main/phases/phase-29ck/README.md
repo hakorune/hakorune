@@ -89,6 +89,9 @@ Related:
    - vm-hako / regular VM `env.codegen.link_object` handlers now accept `[obj_path, exe_out?, extra_ldflags?]`
    - current canonical encoding remains `libs -> single extra_ldflags string`
    - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
+13. next B1/B3 detail lock:
+   - B1 now splits into `temporary bridge freeze -> launcher stop-point migration -> compile contract lock -> env truth lock`
+   - B3 now splits into `harness/entry -> MIR ingest/context -> opcode lowering -> analysis/support`
 
 ## Non-goals
 
