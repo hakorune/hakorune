@@ -1,4 +1,4 @@
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, List, Set, Tuple
 
 from llvmlite import ir
 from trace import debug as trace_debug
@@ -297,6 +297,62 @@ def _run_loop_prepass(block_by_id: Dict[int, Dict[str, Any]]):
     return loop_plan
 
 
+def _determine_entry_block_id(preds_map: Dict[int, List[int]], blocks: List[Dict[str, Any]]):
+    for bid, preds in preds_map.items():
+        if len(preds) == 0:
+            return bid
+    if blocks:
+        return blocks[0].get("id", 0)
+    return None
+
+
+def _compute_lower_order(
+    block_by_id: Dict[int, Dict[str, Any]],
+    entry_bid,
+) -> Tuple[List[int], Set[int], Dict[int, Set[int]]]:
+    visited: set[int] = set()
+    post: List[int] = []
+    succs2: Dict[int, List[int]] = {}
+    block_dominators: Dict[int, Set[int]] = {}
+
+    try:
+        from cfg.utils import (
+            build_preds_succs as _build_preds_succs,
+            compute_dominators as _compute_dominators,
+        )
+
+        _preds2, succs2 = _build_preds_succs(block_by_id)
+        if entry_bid is not None:
+            block_dominators = _compute_dominators(int(entry_bid), _preds2, succs2)
+    except Exception:
+        succs2 = {}
+        block_dominators = {}
+
+    def dfs(bid: int):
+        if bid in visited:
+            return
+        visited.add(bid)
+        try:
+            succ_list = list(succs2.get(bid, []) or [])
+            succ_list = [int(x) for x in succ_list]
+            succ_list.sort()
+        except Exception:
+            succ_list = []
+        for succ_bid in succ_list:
+            dfs(succ_bid)
+        post.append(bid)
+
+    reachable_from_entry: Set[int] = set()
+    if entry_bid is not None:
+        dfs(int(entry_bid))
+        reachable_from_entry = set(visited)
+    for bid in sorted(block_by_id.keys()):
+        if bid not in visited:
+            dfs(int(bid))
+
+    return list(reversed(post)), reachable_from_entry, block_dominators
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -552,13 +608,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
         context.fast_branch_only_compare_dsts = set()
 
     # Determine entry block: first with no predecessors; fallback to first block
-    entry_bid = None
-    for bid, preds in builder.preds.items():
-        if len(preds) == 0:
-            entry_bid = bid
-            break
-    if entry_bid is None and blocks:
-        entry_bid = blocks[0].get("id", 0)
+    entry_bid = _determine_entry_block_id(builder.preds, blocks)
 
     # Function-local entry metadata for dominance-safe hoist paths.
     try:
@@ -573,45 +623,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
     # Compute reverse-postorder over successors (SSOT):
     # - Ensures a stable, mostly-forward lowering order (preds before succs) even with loops.
     # - Avoids lowering a block before its dominating setup/copies when possible.
-    visited: set[int] = set()
-    post: List[int] = []
-    try:
-        from cfg.utils import (
-            build_preds_succs as _build_preds_succs,
-            compute_dominators as _compute_dominators,
-        )
-        _preds2, succs2 = _build_preds_succs(block_by_id)
-        if entry_bid is not None:
-            context.block_dominators = _compute_dominators(int(entry_bid), _preds2, succs2)
-        else:
-            context.block_dominators = {}
-    except Exception:
-        succs2 = {}
-        context.block_dominators = {}
-
-    def dfs(bid: int):
-        if bid in visited:
-            return
-        visited.add(bid)
-        try:
-            succ_list = list(succs2.get(bid, []) or [])
-            succ_list = [int(x) for x in succ_list]
-            succ_list.sort()
-        except Exception:
-            succ_list = []
-        for s in succ_list:
-            dfs(s)
-        post.append(bid)
-
-    reachable_from_entry: Set[int] = set()
-    if entry_bid is not None:
-        dfs(int(entry_bid))
-        reachable_from_entry = set(visited)
-    # Include unreachable blocks deterministically
-    for bid in sorted(block_by_id.keys()):
-        if bid not in visited:
-            dfs(int(bid))
-    order: List[int] = list(reversed(post))
+    order, reachable_from_entry, context.block_dominators = _compute_lower_order(block_by_id, entry_bid)
 
     try:
         context.reachable_block_ids = reachable_from_entry

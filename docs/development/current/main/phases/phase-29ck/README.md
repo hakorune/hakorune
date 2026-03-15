@@ -193,6 +193,10 @@ Related:
    - `src/llvm_py/builders/function_lower.py` now keeps loop-prepass gate/debug handling behind owner-local helper `_run_loop_prepass(...)`
    - `lower_function(...)` no longer mixes `detect_simple_while(...)` gate and trace inline in the prepass section
    - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_loop_prepass.py`
+36d. landed B3d function-lower-ordering slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps entry-block selection and reverse-postorder/dominator/reachable computation behind owner-local helpers `_determine_entry_block_id(...)` and `_compute_lower_order(...)`
+   - `lower_function(...)` no longer mixes CFG ordering details inline before block lowering
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_ordering.py`
 37. landed B3d binop-route slice:
    - `src/llvm_py/instructions/binop.py` now keeps `+` route policy behind file-local helpers (`_binop_plus_explicit_route(...)`, `_binop_plus_operand_is_stringish(...)`, `_binop_plus_any_tagged_string(...)`, `_binop_plus_prefers_string_path(...)`, `_binop_plus_string_tags(...)`) together with op-alias normalization helper `_normalize_binop_op(...)`
    - `lower_binop(...)` no longer mixes explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization inline before concat/integer dispatch

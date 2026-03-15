@@ -243,6 +243,10 @@ rule:
        - `src/llvm_py/builders/function_lower.py` now owns file-local loop-prepass gate/debug helper `_run_loop_prepass(...)`
        - `lower_function(...)` now consumes that helper instead of mixing `detect_simple_while(...)` gate and trace inline
        - proof is pinned by `src/llvm_py/tests/test_function_lower_loop_prepass.py`
+     - landed tenth-d slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local CFG ordering helpers `_determine_entry_block_id(...)` and `_compute_lower_order(...)`
+       - `lower_function(...)` now consumes those helpers instead of mixing entry-block selection and reverse-postorder/dominator/reachable computation inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_ordering.py`
      - landed eleventh slice:
        - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization
        - `lower_binop(...)` now consumes those helpers instead of mixing string-vs-integer route selection inline
