@@ -183,6 +183,12 @@ rule:
      - landed second slice:
        - `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering for generic BoxCall
        - `src/llvm_py/instructions/boxcall.py` now consumes the shared helper instead of keeping the collection route table inline
+     - landed third slice:
+       - `src/llvm_py/instructions/mir_call/collection_method_call.py` now owns shared `get/push/set/has` route order
+       - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of carrying duplicate collection tails
+     - landed fourth slice:
+       - `src/llvm_py/instructions/mir_call/method_fallback_tail.py` now owns the final `direct known-box -> by-name plugin` route order
+       - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of carrying duplicate fallback tails
   4. `B3d` analysis/support demotion inventory
      - classify `src/llvm_py/{builders/**,resolver.py,mir_analysis.py,phi_manager.py,phi_placement.py,phi_wiring/**,type_facts.py}`
      - prefer early compat/canary demotion instead of treating the whole tree as one owner

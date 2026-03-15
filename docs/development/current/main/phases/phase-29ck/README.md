@@ -135,6 +135,12 @@ Related:
 23. landed B3c collection-route slice:
    - `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering for generic BoxCall
    - `src/llvm_py/instructions/boxcall.py` now consumes that helper instead of keeping the collection route table inline
+24. landed B3c collection-method slice:
+   - `src/llvm_py/instructions/mir_call/collection_method_call.py` now owns shared `get/push/set/has` route order
+   - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of each keeping the collection tail inline
+25. landed B3c method-tail slice:
+   - `src/llvm_py/instructions/mir_call/method_fallback_tail.py` now owns the final `direct known-box -> by-name plugin` route order
+   - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of each carrying the same fallback tail
 
 ## Non-goals
 

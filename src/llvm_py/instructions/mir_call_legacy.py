@@ -8,9 +8,9 @@ from llvmlite import ir
 import os
 import json
 from instructions.mir_call.arg_resolver import make_call_arg_resolver
-from instructions.direct_box_method import try_lower_known_box_method_call
-from instructions.by_name_method import lower_plugin_invoke_by_name, mark_string_result_if_needed
-from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_method_call
+from instructions.by_name_method import mark_string_result_if_needed
+from instructions.mir_call.collection_method_call import lower_collection_method_call
+from instructions.mir_call.method_fallback_tail import lower_direct_or_plugin_method_call
 
 
 def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_vid: Optional[int], vmap: Dict, resolver):
@@ -249,94 +249,18 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         callee = _declare("nyash.string.indexOf_hh", i64, [i64, i64])
         result = builder.call(callee, [recv_h, needle_h], name="unified_indexOf")
 
-    elif method == "get":
-        if args:
-            k = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            runtime_result = lower_runtime_data_method_call(
-                builder=builder,
-                declare=_declare,
-                box_name=box_name,
-                method=method,
-                recv_h=recv_h,
-                args=[k],
-                resolver=resolver,
-                receiver_vid=receiver,
-                arg_vids=args,
-            )
-            if runtime_result is not None:
-                result = runtime_result
-            else:
-                callee = _declare("nyash.map.get_hh", i64, [i64, i64])
-                result = builder.call(callee, [recv_h, k], name="unified_map_get")
-        else:
-            result = ir.Constant(i64, 0)
-
-    elif method == "push":
-        if args:
-            v = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            runtime_result = lower_runtime_data_method_call(
-                builder=builder,
-                declare=_declare,
-                box_name=box_name,
-                method=method,
-                recv_h=recv_h,
-                args=[v],
-                resolver=resolver,
-                receiver_vid=receiver,
-                arg_vids=args,
-            )
-            if runtime_result is not None:
-                result = runtime_result
-            else:
-                callee = _declare("nyash.array.push_h", i64, [i64, i64])
-                result = builder.call(callee, [recv_h, v], name="unified_array_push")
-        else:
-            result = recv_h
-
-    elif method == "set":
-        if len(args) >= 2:
-            k = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            v = _resolve_arg(args[1]) or ir.Constant(i64, 0)
-            runtime_result = lower_runtime_data_method_call(
-                builder=builder,
-                declare=_declare,
-                box_name=box_name,
-                method=method,
-                recv_h=recv_h,
-                args=[k, v],
-                resolver=resolver,
-                receiver_vid=receiver,
-                arg_vids=args,
-            )
-            if runtime_result is not None:
-                result = runtime_result
-            else:
-                callee = _declare("nyash.map.set_hh", i64, [i64, i64, i64])
-                result = builder.call(callee, [recv_h, k, v], name="unified_map_set")
-        else:
-            result = recv_h
-
-    elif method == "has":
-        if args:
-            k = _resolve_arg(args[0]) or ir.Constant(i64, 0)
-            runtime_result = lower_runtime_data_method_call(
-                builder=builder,
-                declare=_declare,
-                box_name=box_name,
-                method=method,
-                recv_h=recv_h,
-                args=[k],
-                resolver=resolver,
-                receiver_vid=receiver,
-                arg_vids=args,
-            )
-            if runtime_result is not None:
-                result = runtime_result
-            else:
-                callee = _declare("nyash.map.has_hh", i64, [i64, i64])
-                result = builder.call(callee, [recv_h, k], name="unified_map_has")
-        else:
-            result = ir.Constant(i64, 0)
+    elif method in {"get", "push", "set", "has"}:
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=_declare,
+            box_name=box_name,
+            method_name=method,
+            recv_h=recv_h,
+            arg_ids=args,
+            resolve_arg=_resolve_arg,
+            resolver=resolver,
+            receiver_vid=receiver,
+        )
 
     elif method == "log":
         if args:
@@ -353,7 +277,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             result = ir.Constant(i64, 0)
 
     else:
-        direct_result = try_lower_known_box_method_call(
+        result = lower_direct_or_plugin_method_call(
             builder=builder,
             module=module,
             box_name=box_name,
@@ -362,24 +286,9 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             args=args,
             resolve_arg=_resolve_arg,
             ensure_handle=_ensure_handle,
-            call_name=f"known_box_{method}",
+            direct_call_name=f"known_box_{method}",
+            plugin_call_name="unified_plugin_invoke",
         )
-        if direct_result is not None:
-            result = direct_result
-        else:
-            argc = ir.Constant(i64, len(args))
-            a1 = _resolve_arg(args[0]) if args else ir.Constant(i64, 0)
-            a2 = _resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
-            result = lower_plugin_invoke_by_name(
-                builder=builder,
-                module=module,
-                recv_h=recv_h,
-                method_name=method,
-                argc_value=argc,
-                arg1_value=a1,
-                arg2_value=a2,
-                call_name="unified_plugin_invoke",
-            )
 
     # Store result
     if dst_vid is not None:
