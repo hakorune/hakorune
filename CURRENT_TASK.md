@@ -36,7 +36,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - acceptance は `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh` と `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh` で lock 済み
       - `lang/c-abi/include/hako_aot.h` を AOT compile/link 宣言の canonical header に固定し、`hako_hostbridge.h` は thin shim 化した
       - `lang/c-abi/shims/hako_aot_shared_impl.inc` を shared source truth にして、`hako_aot.c` / `hako_kernel.c` の AOT compile/link 実装を 1 箇所へ寄せた
-      - latest B0 tightening: `crates/nyash-llvm-compiler/src/main.rs` now keeps harness-path resolution, object-output resolution, and input temp/normalize ownership behind same-file helpers `resolve_harness_path(...)`, `resolve_object_output_path(...)`, and `prepare_input_json_path(...)`
+      - latest B0 tightening: `crates/nyash-llvm-compiler/src/main.rs` now keeps harness-path resolution, object-output resolution, and input temp/normalize ownership behind same-file helpers `resolve_harness_path(...)`, `resolve_object_output_path(...)`, and `prepare_input_json_path(...)`, and top-level route order now dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)`
     - exact next follow-up:
       - runtime proof owner evidence is now pinned by `docs/development/current/main/phases/phase-29ck/P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
       - landed runtime-proof slices:

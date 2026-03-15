@@ -84,30 +84,34 @@ fn main() -> Result<()> {
     let emit_exe = matches!(args.emit, EmitKind::Exe);
 
     if args.dummy {
-        // Dummy ny_main: always go through harness to produce an object then link if requested
-        let obj_path = resolve_object_output_path(&args.out, emit_exe);
-        emit_dummy_object_via_driver(args.driver, &harness_path, &obj_path)
-            .with_context(|| "failed to emit object in dummy mode")?;
-        if emit_exe {
-            link_executable(
-                &obj_path,
-                &args.out,
-                args.nyrt.as_ref(),
-                args.libs.as_deref(),
-            )?;
-            println!("[ny-llvmc] executable written: {}", args.out.display());
-        } else {
-            println!("[ny-llvmc] dummy object written: {}", obj_path.display());
-        }
-        return Ok(());
+        return run_dummy_mode(&args, &harness_path, emit_exe);
     }
 
+    run_compile_mode(&args, &harness_path, emit_exe)
+}
+
+fn run_dummy_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()> {
+    let obj_path = resolve_object_output_path(&args.out, emit_exe);
+    emit_dummy_object_via_driver(args.driver, harness_path, &obj_path)
+        .with_context(|| "failed to emit object in dummy mode")?;
+    if emit_exe {
+        link_executable(
+            &obj_path,
+            &args.out,
+            args.nyrt.as_ref(),
+            args.libs.as_deref(),
+        )?;
+        println!("[ny-llvmc] executable written: {}", args.out.display());
+    } else {
+        println!("[ny-llvmc] dummy object written: {}", obj_path.display());
+    }
+    Ok(())
+}
+
+fn run_compile_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()> {
     let canary_norm = env::var("HAKO_LLVM_CANARY_NORMALIZE").ok().as_deref() == Some("1");
     let (input_path, temp_path) = prepare_input_json_path(&args.infile, canary_norm)?;
-
-    if !input_path.exists() {
-        bail!("input JSON not found: {}", input_path.display());
-    }
+    ensure_input_json_exists(&input_path)?;
 
     // Optional: dump incoming MIR JSON for diagnostics (AotPrep 後の入力を観測)
     if let Ok(dump_path) = env::var("NYASH_LLVM_DUMP_MIR_IN") {
@@ -196,6 +200,13 @@ fn prepare_input_json_path(infile: &str, canary_norm: bool) -> Result<(PathBuf, 
     } else {
         Ok((input_path, None))
     }
+}
+
+fn ensure_input_json_exists(input_path: &Path) -> Result<()> {
+    if !input_path.exists() {
+        bail!("input JSON not found: {}", input_path.display());
+    }
+    Ok(())
 }
 
 fn read_input_json_value_from_stdin(canary_norm: bool) -> Result<serde_json::Value> {
