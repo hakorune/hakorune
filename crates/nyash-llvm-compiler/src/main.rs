@@ -94,76 +94,26 @@ fn run_dummy_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()
     let obj_path = resolve_object_output_path(&args.out, emit_exe);
     emit_dummy_object_via_driver(args.driver, harness_path, &obj_path)
         .with_context(|| "failed to emit object in dummy mode")?;
-    if emit_exe {
-        link_executable(
-            &obj_path,
-            &args.out,
-            args.nyrt.as_ref(),
-            args.libs.as_deref(),
-        )?;
-        println!("[ny-llvmc] executable written: {}", args.out.display());
-    } else {
-        println!("[ny-llvmc] dummy object written: {}", obj_path.display());
-    }
-    Ok(())
+    finalize_emit_output(
+        &obj_path,
+        &args.out,
+        emit_exe,
+        args.nyrt.as_ref(),
+        args.libs.as_deref(),
+        "dummy object",
+    )
 }
 
 fn run_compile_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()> {
     let canary_norm = env::var("HAKO_LLVM_CANARY_NORMALIZE").ok().as_deref() == Some("1");
     let (input_path, temp_path) = prepare_input_json_path(&args.infile, canary_norm)?;
     ensure_input_json_exists(&input_path)?;
+    maybe_dump_input_json(&input_path);
+    emit_preflight_shape_hint(&input_path);
 
-    // Optional: dump incoming MIR JSON for diagnostics (AotPrep 後の入力を観測)
-    if let Ok(dump_path) = env::var("NYASH_LLVM_DUMP_MIR_IN") {
-        let _ = std::fs::copy(&input_path, &dump_path);
-        eprintln!("[ny-llvmc] dumped MIR input to {}", dump_path);
-    }
-
-    // Optional: preflight shape/hints (best-effort; no behavior change)
-    if let Ok(s) = std::fs::read_to_string(&input_path) {
-        if let Ok(val) = serde_json::from_str::<JsonValue>(&s) {
-            if let Some(hint) = shape_hint(&val) {
-                eprintln!("[ny-llvmc/hint] {}", hint);
-            }
-        }
-    }
-
-    // Produce object first
     let obj_path = resolve_object_output_path(&args.out, emit_exe);
-
-    // Optional: print concise shape hint in verbose mode when not normalizing
-    if env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1")
-        && env::var("HAKO_LLVM_CANARY_NORMALIZE").ok().as_deref() != Some("1")
-    {
-        if let Ok(mut f) = File::open(&input_path) {
-            let mut buf = String::new();
-            if f.read_to_string(&mut buf).is_ok() {
-                if let Ok(val) = serde_json::from_str::<serde_json::Value>(&buf) {
-                    if let Some(h) = shape_hint(&val) {
-                        eprintln!("[ny-llvmc/hint] {}", h);
-                    }
-                }
-            }
-        }
-    }
-
-    emit_object_via_driver(args.driver, &harness_path, &input_path, &obj_path).with_context(|| {
-        format!(
-            "failed to compile MIR JSON via selected driver: {}",
-            input_path.display()
-        )
-    })?;
-    if emit_exe {
-        link_executable(
-            &obj_path,
-            &args.out,
-            args.nyrt.as_ref(),
-            args.libs.as_deref(),
-        )?;
-        println!("[ny-llvmc] executable written: {}", args.out.display());
-    } else {
-        println!("[ny-llvmc] object written: {}", obj_path.display());
-    }
+    maybe_emit_verbose_shape_hint(&input_path, canary_norm);
+    emit_compile_output(args, harness_path, &input_path, &obj_path, emit_exe)?;
 
     // Cleanup temp file if used
     cleanup_temp_input_json(temp_path);
@@ -249,6 +199,73 @@ fn cleanup_temp_input_json(temp_path: Option<PathBuf>) {
     if let Some(path) = temp_path {
         let _ = std::fs::remove_file(path);
     }
+}
+
+fn maybe_dump_input_json(input_path: &Path) {
+    if let Ok(dump_path) = env::var("NYASH_LLVM_DUMP_MIR_IN") {
+        let _ = std::fs::copy(input_path, &dump_path);
+        eprintln!("[ny-llvmc] dumped MIR input to {}", dump_path);
+    }
+}
+
+fn emit_preflight_shape_hint(input_path: &Path) {
+    if let Some(hint) = read_shape_hint_from_path(input_path) {
+        eprintln!("[ny-llvmc/hint] {}", hint);
+    }
+}
+
+fn maybe_emit_verbose_shape_hint(input_path: &Path, canary_norm: bool) {
+    if env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") && !canary_norm {
+        if let Some(hint) = read_shape_hint_from_path(input_path) {
+            eprintln!("[ny-llvmc/hint] {}", hint);
+        }
+    }
+}
+
+fn read_shape_hint_from_path(input_path: &Path) -> Option<String> {
+    let input = std::fs::read_to_string(input_path).ok()?;
+    let value = serde_json::from_str::<JsonValue>(&input).ok()?;
+    shape_hint(&value)
+}
+
+fn emit_compile_output(
+    args: &Args,
+    harness_path: &Path,
+    input_path: &Path,
+    obj_path: &Path,
+    emit_exe: bool,
+) -> Result<()> {
+    emit_object_via_driver(args.driver, harness_path, input_path, obj_path).with_context(|| {
+        format!(
+            "failed to compile MIR JSON via selected driver: {}",
+            input_path.display()
+        )
+    })?;
+    finalize_emit_output(
+        obj_path,
+        &args.out,
+        emit_exe,
+        args.nyrt.as_ref(),
+        args.libs.as_deref(),
+        "object",
+    )
+}
+
+fn finalize_emit_output(
+    obj_path: &Path,
+    out_path: &Path,
+    emit_exe: bool,
+    nyrt_dir: Option<&PathBuf>,
+    extra_libs: Option<&str>,
+    object_label: &str,
+) -> Result<()> {
+    if emit_exe {
+        link_executable(obj_path, out_path, nyrt_dir, extra_libs)?;
+        println!("[ny-llvmc] executable written: {}", out_path.display());
+    } else {
+        println!("[ny-llvmc] {} written: {}", object_label, obj_path.display());
+    }
+    Ok(())
 }
 
 /// Return a concise hint if the MIR JSON likely has a schema/shape mismatch for the Python harness.

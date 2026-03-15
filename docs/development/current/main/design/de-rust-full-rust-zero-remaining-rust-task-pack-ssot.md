@@ -96,7 +96,7 @@ rule:
     - compat/archive keep
 - current active front:
   - `crates/nyash-llvm-compiler/src/main.rs`
-  - latest tightening keeps harness-path resolution, object-output resolution, and input temp/normalize ownership behind same-file helpers, and top-level route order now dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)` instead of inline `main()` logic
+  - latest tightening keeps harness-path resolution, object-output resolution, input temp/normalize ownership, compile-mode diagnostics, and emit finalize output behind same-file helpers, and top-level route order now dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)` instead of inline `main()` logic
 
 ### B1. daily caller cutover prep
 
