@@ -48,6 +48,114 @@ def _block_id_from_name(current_block) -> Optional[int]:
         return None
 
 
+def _stringbox_type(meta: Any) -> bool:
+    return bool(
+        meta
+        and (
+            meta.get("kind") == "string"
+            or (meta.get("kind") == "handle" and meta.get("box_type") == "StringBox")
+        )
+    )
+
+
+def _binop_plus_explicit_route(dst_type: Optional[Any]) -> tuple[bool, bool]:
+    explicit_integer = False
+    explicit_string = False
+    try:
+        if dst_type == "i64":
+            explicit_integer = True
+        elif isinstance(dst_type, dict) and dst_type.get("kind") == "handle" and dst_type.get("box_type") == "StringBox":
+            explicit_string = True
+    except Exception:
+        pass
+    return explicit_integer, explicit_string
+
+
+def _binop_plus_operand_is_stringish(resolver, lhs: int, rhs: int, lhs_raw, rhs_raw) -> bool:
+    try:
+        if resolver is not None and hasattr(resolver, "string_literals"):
+            if lhs in resolver.string_literals or rhs in resolver.string_literals:
+                return True
+        if resolver is not None and hasattr(resolver, "value_types"):
+            lhs_type = resolver.value_types.get(lhs)
+            rhs_type = resolver.value_types.get(rhs)
+            if _stringbox_type(lhs_type) or _stringbox_type(rhs_type):
+                return True
+        if lhs_raw is not None and hasattr(lhs_raw, "type") and isinstance(lhs_raw.type, ir.PointerType):
+            return True
+        if rhs_raw is not None and hasattr(rhs_raw, "type") and isinstance(rhs_raw.type, ir.PointerType):
+            return True
+    except Exception:
+        return False
+    return False
+
+
+def _binop_plus_any_tagged_string(resolver, lhs: int, rhs: int) -> bool:
+    try:
+        if resolver is None:
+            return False
+        if hasattr(resolver, "string_literals") and (
+            lhs in resolver.string_literals or rhs in resolver.string_literals
+        ):
+            return True
+        if hasattr(resolver, "value_types"):
+            lhs_ty = resolver.value_types.get(lhs)
+            rhs_ty = resolver.value_types.get(rhs)
+            return _stringbox_type(lhs_ty) or _stringbox_type(rhs_ty)
+    except Exception:
+        return False
+    return False
+
+
+def _binop_plus_prefers_string_path(
+    resolver,
+    lhs: int,
+    rhs: int,
+    lhs_raw,
+    rhs_raw,
+    dst_type: Optional[Any],
+) -> tuple[bool, bool, bool, bool]:
+    explicit_integer, explicit_string = _binop_plus_explicit_route(dst_type)
+    operand_is_string = _binop_plus_operand_is_stringish(resolver, lhs, rhs, lhs_raw, rhs_raw)
+    is_ptr_side = (
+        (hasattr(lhs_raw, "type") and isinstance(lhs_raw.type, ir.PointerType))
+        or (hasattr(rhs_raw, "type") and isinstance(rhs_raw.type, ir.PointerType))
+    )
+
+    if operand_is_string:
+        if explicit_integer and os.environ.get("NYASH_LLVM_STRICT") == "1":
+            raise RuntimeError(
+                f"[LLVM_PY/STRICT] Type conflict: dst_type=i64 but operand is string. lhs={lhs} rhs={rhs}"
+            )
+        return True, explicit_integer, explicit_string, operand_is_string
+    if explicit_integer:
+        return False, explicit_integer, explicit_string, operand_is_string
+    if explicit_string:
+        return True, explicit_integer, explicit_string, operand_is_string
+    return is_ptr_side or _binop_plus_any_tagged_string(resolver, lhs, rhs), explicit_integer, explicit_string, operand_is_string
+
+
+def _binop_plus_string_tags(resolver, lhs: int, rhs: int) -> tuple[bool, bool]:
+    lhs_tag = False
+    rhs_tag = False
+    try:
+        if resolver is not None:
+            if hasattr(resolver, "is_stringish"):
+                lhs_tag = bool(resolver.is_stringish(lhs))
+                rhs_tag = bool(resolver.is_stringish(rhs))
+            if hasattr(resolver, "string_literals"):
+                lhs_tag = lhs_tag or (lhs in resolver.string_literals)
+                rhs_tag = rhs_tag or (rhs in resolver.string_literals)
+            if hasattr(resolver, "value_types"):
+                if not lhs_tag:
+                    lhs_tag = _stringbox_type(resolver.value_types.get(lhs))
+                if not rhs_tag:
+                    rhs_tag = _stringbox_type(resolver.value_types.get(rhs))
+    except Exception:
+        pass
+    return lhs_tag, rhs_tag
+
+
 def _value_sig(val, fallback_vid: int):
     # Prefer literal identity for constants so repeated const ValueIds share cache key.
     try:
@@ -91,6 +199,77 @@ def _cache_entry_reusable(resolver, current_bid: Optional[int], def_bid: Optiona
         return bool(ctx.dominates(def_bid, current_bid))
     except Exception:
         return False
+
+
+def _normalize_binop_op(op: str) -> str:
+    op_raw = op or ""
+    op_l = op_raw.lower()
+    alias = {
+        "add": "+",
+        "plus": "+",
+        "sub": "-",
+        "minus": "-",
+        "mul": "*",
+        "times": "*",
+        "div": "/",
+        "mod": "%",
+        "rem": "%",
+        "band": "&",
+        "bitand": "&",
+        "bor": "|",
+        "bitor": "|",
+        "bxor": "^",
+        "xor": "^",
+        "shl": "<<",
+        "shr": ">>",
+        "ashr": ">>",
+    }
+    return alias.get(op_l, op_raw)
+
+
+def _resolve_binop_i64_operands(
+    builder: ir.IRBuilder,
+    resolver,
+    lhs: int,
+    rhs: int,
+    vmap: Dict[int, ir.Value],
+    current_block: ir.Block,
+    preds=None,
+    block_end_values=None,
+    bb_map=None,
+):
+    fast_int = os.environ.get("NYASH_LLVM_FAST_INT") == "1"
+    lhs_val = vmap.get(lhs) if fast_int else None
+    rhs_val = vmap.get(rhs) if fast_int else None
+    if lhs_val is None:
+        lhs_val = resolve_i64_strict(
+            resolver,
+            lhs,
+            current_block,
+            preds,
+            block_end_values,
+            vmap,
+            bb_map,
+            hot_scope="binop",
+        )
+    if rhs_val is None:
+        rhs_val = resolve_i64_strict(
+            resolver,
+            rhs,
+            current_block,
+            preds,
+            block_end_values,
+            vmap,
+            bb_map,
+            hot_scope="binop",
+        )
+    lhs_val = _canonicalize_i64(builder, lhs_val, lhs, vmap, "bin_lhs")
+    rhs_val = _canonicalize_i64(builder, rhs_val, rhs, vmap, "bin_rhs")
+    if lhs_val is None:
+        lhs_val = ir.Constant(ir.IntType(64), 0)
+    if rhs_val is None:
+        rhs_val = ir.Constant(ir.IntType(64), 0)
+    return lhs_val, rhs_val
 
 
 def _const_i64_literal(val):
@@ -233,58 +412,18 @@ def lower_binop(
     """
     trace_hot_count(resolver, "binop_total")
 
-    # Resolve operands as i64
-    fast_int = os.environ.get('NYASH_LLVM_FAST_INT') == '1'
-    lhs_val = None
-    rhs_val = None
-    if fast_int:
-        # Prefer same-block SSA directly to avoid resolver/PHI materialization cost in hot loops
-        lhs_val = vmap.get(lhs)
-        rhs_val = vmap.get(rhs)
-    if lhs_val is None:
-        lhs_val = resolve_i64_strict(
-            resolver,
-            lhs,
-            current_block,
-            preds,
-            block_end_values,
-            vmap,
-            bb_map,
-            hot_scope="binop",
-        )
-    if rhs_val is None:
-        rhs_val = resolve_i64_strict(
-            resolver,
-            rhs,
-            current_block,
-            preds,
-            block_end_values,
-            vmap,
-            bb_map,
-            hot_scope="binop",
-        )
-    lhs_val = _canonicalize_i64(builder, lhs_val, lhs, vmap, "bin_lhs")
-    rhs_val = _canonicalize_i64(builder, rhs_val, rhs, vmap, "bin_rhs")
-    if lhs_val is None:
-        lhs_val = ir.Constant(ir.IntType(64), 0)
-    if rhs_val is None:
-        rhs_val = ir.Constant(ir.IntType(64), 0)
-    # Normalize operation aliases (textual -> symbolic)
-    op_raw = op or ''
-    op_l = op_raw.lower()
-    alias = {
-        'add': '+', 'plus': '+',
-        'sub': '-', 'minus': '-',
-        'mul': '*', 'times': '*',
-        'div': '/',
-        'mod': '%', 'rem': '%',
-        'band': '&', 'bitand': '&',
-        'bor': '|', 'bitor': '|',
-        'bxor': '^', 'xor': '^',
-        'shl': '<<',
-        'shr': '>>', 'ashr': '>>',
-    }
-    op = alias.get(op_l, op_raw)
+    lhs_val, rhs_val = _resolve_binop_i64_operands(
+        builder,
+        resolver,
+        lhs,
+        rhs,
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+    )
+    op = _normalize_binop_op(op)
     if op == '%':
         trace_hot_count(resolver, "binop_mod")
 
@@ -315,97 +454,20 @@ def lower_binop(
         i8p = ir.IntType(8).as_pointer()
         lhs_raw = vmap.get(lhs)
         rhs_raw = vmap.get(rhs)
-        # Prefer handle pipeline to keep handles consistent across blocks/ret
-        # pointer present?
-        is_ptr_side = (hasattr(lhs_raw, 'type') and isinstance(lhs_raw.type, ir.PointerType)) or \
-                      (hasattr(rhs_raw, 'type') and isinstance(rhs_raw.type, ir.PointerType))
-
-        # Phase 131-11-E: Use dst_type as authoritative hint
-        # After Phase 131-11-E, dst_type is correctly set by BinOp re-propagation
-        # - "i64" means integer arithmetic (even if operands are unknown)
-        # - {"kind": "handle", "box_type": "StringBox"} means string concat
-        # - None/missing means fallback to operand analysis
-        explicit_integer = False
-        explicit_string = False
-        try:
-            if dst_type == "i64":
-                explicit_integer = True
-            elif isinstance(dst_type, dict) and dst_type.get('kind') == 'handle' and dst_type.get('box_type') == 'StringBox':
-                explicit_string = True
-        except Exception:
-            pass
-
-        # Phase 131-15-P1: TypeFacts > dst_type hint
-        # Check operand facts before applying dst_type hint
-        operand_is_string = False
-        try:
-            # Check 1: string literals
-            if resolver is not None and hasattr(resolver, 'string_literals'):
-                if lhs in resolver.string_literals or rhs in resolver.string_literals:
-                    operand_is_string = True
-            # Check 2: value_types
-            if not operand_is_string and resolver is not None and hasattr(resolver, 'value_types'):
-                lhs_type = resolver.value_types.get(lhs)
-                rhs_type = resolver.value_types.get(rhs)
-                if lhs_type and (lhs_type.get('kind') == 'string' or
-                                (lhs_type.get('kind') == 'handle' and lhs_type.get('box_type') == 'StringBox')):
-                    operand_is_string = True
-                if rhs_type and (rhs_type.get('kind') == 'string' or
-                                (rhs_type.get('kind') == 'handle' and rhs_type.get('box_type') == 'StringBox')):
-                    operand_is_string = True
-            # Check 3: pointer type
-            if not operand_is_string:
-                if lhs_raw is not None and hasattr(lhs_raw, 'type') and isinstance(lhs_raw.type, ir.PointerType):
-                    operand_is_string = True
-                if rhs_raw is not None and hasattr(rhs_raw, 'type') and isinstance(rhs_raw.type, ir.PointerType):
-                    operand_is_string = True
-        except Exception:
-            pass
-
-        # Phase 131-15-P1: Operand facts take priority over dst_type hint
-        if operand_is_string:
-            # Operand is string: MUST use string concat
-            if explicit_integer and os.environ.get('NYASH_LLVM_STRICT') == '1':
-                # Fail-Fast in STRICT mode
-                raise RuntimeError(
-                    f"[LLVM_PY/STRICT] Type conflict: dst_type=i64 but operand is string. "
-                    f"lhs={lhs} rhs={rhs}"
-                )
-            # Force string concatenation when operand facts say so
-            is_str = True
-        elif explicit_integer:
-            # No string operands + explicit i64 hint: integer arithmetic
-            is_str = False
-        elif explicit_string:
-            # Explicit string hint: string concat
-            is_str = True
-        else:
-            # Phase 196: TypeFacts SSOT - Only check for actual string types (not use-site demands)
-            # Check if BOTH operands are known to be strings from their definition
-            any_tagged = False
-            try:
-                if resolver is not None:
-                    # Only check string_literals (TypeFacts), NOT is_stringish (TypeDemands)
-                    if hasattr(resolver, 'string_literals'):
-                        any_tagged = (lhs in resolver.string_literals) or (rhs in resolver.string_literals)
-                    # Check if resolver has explicit type information (MirType::String or StringBox)
-                    if not any_tagged and hasattr(resolver, 'value_types'):
-                        lhs_ty = resolver.value_types.get(lhs)
-                        rhs_ty = resolver.value_types.get(rhs)
-                        lhs_str = lhs_ty and (lhs_ty.get('kind') == 'string' or
-                                             (lhs_ty.get('kind') == 'handle' and lhs_ty.get('box_type') == 'StringBox'))
-                        rhs_str = rhs_ty and (rhs_ty.get('kind') == 'string' or
-                                             (rhs_ty.get('kind') == 'handle' and rhs_ty.get('box_type') == 'StringBox'))
-                        any_tagged = lhs_str or rhs_str
-            except Exception:
-                pass
-            is_str = is_ptr_side or any_tagged
+        is_str, explicit_integer, explicit_string, operand_is_string = _binop_plus_prefers_string_path(
+            resolver,
+            lhs,
+            rhs,
+            lhs_raw,
+            rhs_raw,
+            dst_type,
+        )
 
         # Phase 131-11-E DEBUG
         if os.environ.get('NYASH_BINOP_DEBUG') == '1':
             print(f"[binop +] lhs={lhs} rhs={rhs} dst={dst}")
             print(f"  dst_type={dst_type} explicit_integer={explicit_integer} explicit_string={explicit_string}")
-            print(f"  operand_is_string={operand_is_string} is_ptr_side={is_ptr_side} is_str={is_str}")
+            print(f"  operand_is_string={operand_is_string} is_str={is_str}")
             if hasattr(resolver, 'value_types'):
                 lhs_vt = resolver.value_types.get(lhs)
                 rhs_vt = resolver.value_types.get(rhs)
@@ -466,32 +528,7 @@ def lower_binop(
             # Phase 196: TypeFacts/Resolver SSOT - Use handle+handle only when BOTH are strings.
             # Root cause (Phase 102): loop-carried string accumulator may be i64-handle but not present in value_types;
             # tag lookup MUST consult resolver.is_stringish()/string_ids.
-            lhs_tag = False
-            rhs_tag = False
-            try:
-                if resolver is not None:
-                    # SSOT: resolver's stringish tag (propagated via Copy/PHI)
-                    if hasattr(resolver, 'is_stringish'):
-                        lhs_tag = bool(resolver.is_stringish(lhs))
-                        rhs_tag = bool(resolver.is_stringish(rhs))
-                    # Legacy: actual string constants by ValueId
-                    if hasattr(resolver, 'string_literals'):
-                        lhs_tag = lhs_tag or (lhs in resolver.string_literals)
-                        rhs_tag = rhs_tag or (rhs in resolver.string_literals)
-                    # Legacy: value_types hints (best-effort)
-                    if hasattr(resolver, 'value_types'):
-                        if not lhs_tag:
-                            lhs_ty = resolver.value_types.get(lhs)
-                            if lhs_ty and (lhs_ty.get('kind') == 'string' or
-                                          (lhs_ty.get('kind') == 'handle' and lhs_ty.get('box_type') == 'StringBox')):
-                                lhs_tag = True
-                        if not rhs_tag:
-                            rhs_ty = resolver.value_types.get(rhs)
-                            if rhs_ty and (rhs_ty.get('kind') == 'string' or
-                                          (rhs_ty.get('kind') == 'handle' and rhs_ty.get('box_type') == 'StringBox')):
-                                rhs_tag = True
-            except Exception:
-                pass
+            lhs_tag, rhs_tag = _binop_plus_string_tags(resolver, lhs, rhs)
             # Phase 131-15-P1 DEBUG
             if os.environ.get('NYASH_BINOP_DEBUG') == '1':
                 print(f"  [concat path] lhs_tag={lhs_tag} rhs_tag={rhs_tag}")

@@ -235,6 +235,14 @@ rule:
        - `src/llvm_py/builders/function_lower.py` now owns file-local predecessor dedupe, block defs/uses collection, and multi-pred PHI incoming seed helpers
        - `lower_function(...)` now consumes those helpers instead of mixing prepass graph scan details inline
        - proof is pinned by `src/llvm_py/tests/test_function_lower_phi_prepass.py`
+     - landed eleventh slice:
+       - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, and string-tag collection
+       - `lower_binop(...)` now consumes those helpers instead of mixing string-vs-integer route selection inline
+       - proof is pinned by `src/llvm_py/tests/test_binop_route_policy.py`
+     - landed twelfth slice:
+       - `src/llvm_py/instructions/binop.py` now owns file-local i64 operand resolve/canonicalize and textual-op alias normalization helpers
+       - `lower_binop(...)` now consumes those helpers instead of mixing numeric operand prep with route selection inline
+       - proof is pinned by `src/llvm_py/tests/test_binop_numeric_resolution.py`
 - done shape:
   - Python is no longer mainline backend owner
 
