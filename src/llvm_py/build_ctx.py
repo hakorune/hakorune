@@ -21,6 +21,7 @@ class BuildCtx:
 
     # SSA maps and CFG
     vmap: Dict[int, ir.Value]
+    current_vmap: Dict[int, ir.Value]
     bb_map: Dict[int, ir.Block]
     preds: Dict[int, List[int]]
     block_end_values: Dict[int, Dict[int, ir.Value]]
@@ -28,6 +29,7 @@ class BuildCtx:
 
     # Resolver (value queries, casts, string-ish tags)
     resolver: Any
+    lower_ctx: Any
 
     # Optional diagnostics toggles (read from env by the builder)
     trace_phi: bool = False
@@ -44,11 +46,13 @@ def build_ctx_from_owner(owner: Any) -> BuildCtx:
         i1=owner.i1,
         i8p=owner.i8p,
         vmap=owner.vmap,
+        current_vmap=getattr(owner, "_current_vmap", owner.vmap),
         bb_map=owner.bb_map,
         preds=owner.preds,
         block_end_values=owner.block_end_values,
         def_blocks=owner.def_blocks,
         resolver=owner.resolver,
+        lower_ctx=getattr(owner, "ctx", None),
         trace_phi=bool(getattr(getattr(owner, "context", None), "trace_phi", False)),
         verbose=False,
     )

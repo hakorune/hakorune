@@ -18,6 +18,8 @@ class DummyOwner:
         self.block_end_values = {0: {1: "v1"}}
         self.def_blocks = {1: {0}}
         self.resolver = object()
+        self._current_vmap = {2: "v2"}
+        self.ctx = object()
 
 
 class TestBuildCtxOwner(unittest.TestCase):
@@ -26,8 +28,10 @@ class TestBuildCtxOwner(unittest.TestCase):
         ctx = build_ctx_from_owner(owner)
         self.assertIs(ctx.module, owner.module)
         self.assertEqual(ctx.vmap[1], "v1")
+        self.assertEqual(ctx.current_vmap[2], "v2")
         self.assertEqual(ctx.bb_map[0], "bb0")
         self.assertEqual(ctx.def_blocks[1], {0})
+        self.assertIs(ctx.lower_ctx, owner.ctx)
 
 
 if __name__ == "__main__":

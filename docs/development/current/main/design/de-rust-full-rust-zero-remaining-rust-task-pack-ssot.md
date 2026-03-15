@@ -192,6 +192,9 @@ rule:
   4. `B3d` analysis/support demotion inventory
      - classify `src/llvm_py/{builders/**,resolver.py,mir_analysis.py,phi_manager.py,phi_placement.py,phi_wiring/**,type_facts.py}`
      - prefer early compat/canary demotion instead of treating the whole tree as one owner
+     - landed first slice:
+       - `src/llvm_py/build_ctx.py` now owns `current_vmap` / `lower_ctx` as part of the lowering-side aggregated context
+       - `src/llvm_py/builders/instruction_lower.py` now consumes those seams instead of reading `_current_vmap` / `ctx` off the builder owner inline
 - done shape:
   - Python is no longer mainline backend owner
 

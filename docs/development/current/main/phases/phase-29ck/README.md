@@ -141,6 +141,9 @@ Related:
 25. landed B3c method-tail slice:
    - `src/llvm_py/instructions/mir_call/method_fallback_tail.py` now owns the final `direct known-box -> by-name plugin` route order
    - `src/llvm_py/instructions/mir_call/method_call.py` and `src/llvm_py/instructions/mir_call_legacy.py` now consume that helper instead of each carrying the same fallback tail
+26. landed B3d first slice:
+   - `src/llvm_py/build_ctx.py` now owns `current_vmap` / `lower_ctx` in addition to the lowering-side aggregated context
+   - `src/llvm_py/builders/instruction_lower.py` now consumes those seams instead of reading `_current_vmap` / `ctx` off the builder owner inline
 
 ## Non-goals
 

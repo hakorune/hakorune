@@ -65,8 +65,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         raise RuntimeError(msg)
 
     ctx = build_ctx_from_owner(owner)
-    # Pick current vmap context (per-block context during lowering)
-    vmap_ctx = getattr(owner, '_current_vmap', ctx.vmap)
+    vmap_ctx = ctx.current_vmap
     # Phase 131-12-P1: Object identity trace for vmap_ctx investigation
     import os, sys
     if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
@@ -94,7 +93,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
     elif op == "copy":
         dst = inst.get("dst")
         src = inst.get("src")
-        lower_copy(builder, dst, src, vmap_ctx, ctx.resolver, builder.block, ctx.preds, ctx.block_end_values, ctx.bb_map, getattr(owner, 'ctx', None))
+        lower_copy(builder, dst, src, vmap_ctx, ctx.resolver, builder.block, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx)
 
     elif op == "branch":
         cond = inst.get("cond")
@@ -105,7 +104,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
     elif op == "ret":
         value = inst.get("value")
         lower_return(builder, value, vmap_ctx, func.function_type.return_type,
-                     ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, getattr(owner, 'ctx', None))
+                     ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx)
 
     elif op == "phi":
         # No-op here: プレースホルダは前処理（setup_phi_placeholders）で一元管理。
@@ -121,7 +120,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         lower_compare(builder, operation, lhs, rhs, dst, vmap_ctx,
                       ctx.resolver, builder.block, ctx.preds, ctx.block_end_values, ctx.bb_map,
                       meta={"cmp_kind": cmp_kind} if cmp_kind else None,
-                      ctx=getattr(owner, 'ctx', None))
+                      ctx=ctx.lower_ctx)
 
     elif op == "unop":
         # Unary op: kind in {'neg','not','bitnot'}; src is operand
@@ -133,7 +132,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         srcv = inst.get("src") or inst.get("operand")
         dst = inst.get("dst")
         lower_unop(builder, ctx.resolver, kind, srcv, dst, vmap_ctx, builder.block,
-                   ctx.preds, ctx.block_end_values, ctx.bb_map, ctx=getattr(owner, 'ctx', None))
+                   ctx.preds, ctx.block_end_values, ctx.bb_map, ctx=ctx.lower_ctx)
 
     elif op == "mir_call":
         # Unified MIR Call handling (accept both nested and flat shapes)
@@ -154,7 +153,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
             func_name = inst.get("callee")
         args = inst.get("args", [])
         dst = inst.get("dst")
-        lower_call(builder, ctx.module, func_name, args, dst, vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, getattr(owner, 'ctx', None))
+        lower_call(builder, ctx.module, func_name, args, dst, vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx)
 
     elif op == "boxcall":
         box_vid = inst.get("box")
@@ -163,7 +162,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         args = inst.get("args", [])
         dst = inst.get("dst")
         lower_boxcall(builder, ctx.module, box_vid, method, args, dst,
-                      vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, getattr(owner, 'ctx', None), method_id)
+                      vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx, method_id)
         # Optional: honor explicit dst_type for tagging (string handle)
         try:
             dst_type = inst.get("dst_type")
@@ -185,14 +184,14 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         args = inst.get("args", [])
         dst = inst.get("dst")
         lower_externcall(builder, ctx.module, func_name, args, dst,
-                         vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, getattr(owner, 'ctx', None))
+                         vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx)
 
     elif op == "newbox":
         box_type = inst.get("type")
         args = inst.get("args", [])
         dst = inst.get("dst")
         lower_newbox(builder, ctx.module, box_type, args, dst,
-                     vmap_ctx, ctx.resolver, getattr(owner, 'ctx', None))
+                     vmap_ctx, ctx.resolver, ctx.lower_ctx)
 
     elif op == "typeop":
         operation = inst.get("operation")
@@ -200,18 +199,18 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         dst = inst.get("dst")
         target_type = inst.get("target_type")
         lower_typeop(builder, operation, src, dst, target_type,
-                     vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, getattr(owner, 'ctx', None))
+                     vmap_ctx, ctx.resolver, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx)
 
     elif op == "safepoint":
         live = inst.get("live", [])
         lower_safepoint(builder, ctx.module, live, vmap_ctx,
                         resolver=ctx.resolver, preds=ctx.preds,
                         block_end_values=ctx.block_end_values, bb_map=ctx.bb_map,
-                        ctx=getattr(owner, 'ctx', None))
+                        ctx=ctx.lower_ctx)
 
     elif op == "barrier":
         barrier_type = inst.get("type", "memory")
-        lower_barrier(builder, barrier_type, ctx=getattr(owner, 'ctx', None))
+        lower_barrier(builder, barrier_type, ctx=ctx.lower_ctx)
 
     elif op == "keepalive":
         # Phase 287: KeepAlive (no-op in LLVM, affects DCE/liveness only)
@@ -219,7 +218,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         lower_keepalive(builder, ctx.module, values, vmap_ctx,
                         resolver=ctx.resolver, preds=ctx.preds,
                         block_end_values=ctx.block_end_values, bb_map=ctx.bb_map,
-                        ctx=getattr(owner, 'ctx', None))
+                        ctx=ctx.lower_ctx)
 
     elif op == "release_strong":
         # Phase 287: ReleaseStrong (variable overwrite semantics)
@@ -227,7 +226,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         lower_release_strong(builder, ctx.module, values, vmap_ctx,
                              resolver=ctx.resolver, preds=ctx.preds,
                              block_end_values=ctx.block_end_values, bb_map=ctx.bb_map,
-                             ctx=getattr(owner, 'ctx', None))
+                             ctx=ctx.lower_ctx)
 
     elif op == "select":
         # Phase 256 P1.5: Select instruction (ternary conditional)
@@ -237,19 +236,19 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         dst = inst.get("dst")
         lower_select(builder, ctx.resolver, cond, then_val, else_val, dst,
                      vmap_ctx, ctx.preds, ctx.block_end_values, ctx.bb_map,
-                     ctx=getattr(owner, 'ctx', None))
+                     ctx=ctx.lower_ctx)
 
     elif op == "weak_new":
         # Phase 285LLVM-1: WeakRef(New) instruction (strong → weak)
         dst = inst.get("dst")
         box_val = inst.get("box_val")
-        lower_weak_new(builder, ctx.module, dst, box_val, vmap_ctx, ctx=getattr(owner, 'ctx', None))
+        lower_weak_new(builder, ctx.module, dst, box_val, vmap_ctx, ctx=ctx.lower_ctx)
 
     elif op == "weak_load":
         # Phase 285LLVM-1: WeakRef(Load) instruction (weak → strong or 0/Void)
         dst = inst.get("dst")
         weak_ref = inst.get("weak_ref")
-        lower_weak_load(builder, ctx.module, dst, weak_ref, vmap_ctx, ctx=getattr(owner, 'ctx', None))
+        lower_weak_load(builder, ctx.module, dst, weak_ref, vmap_ctx, ctx=ctx.lower_ctx)
 
     elif op == "while":
         # Experimental LoopForm lowering inside a block
@@ -259,7 +258,7 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         if not lower_while_loopform(builder, func, cond, body,
                                     owner.loop_count, ctx.vmap, ctx.bb_map,
                                     ctx.resolver, ctx.preds, ctx.block_end_values,
-                                    getattr(owner, 'ctx', None)):
+                                    ctx.lower_ctx):
             # Fallback to regular while (structured)
             try:
                 owner.resolver._owner_lower_instruction = owner.lower_instruction
