@@ -97,7 +97,7 @@ rule:
 - current active front:
   - `crates/nyash-llvm-compiler/src/main.rs`
   - latest tightening keeps harness-path resolution, object-output resolution, input temp/normalize ownership, compile-mode diagnostics, and emit finalize output behind same-file helpers, and top-level route order now dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)` instead of inline `main()` logic
-  - nearby runner-owner tightening now keeps `src/runner/modes/llvm/harness_executor.rs` and `src/runner/modes/llvm/object_emitter.rs` on the same boundary-dispatch shape through owner-local helpers, without changing the current harness/object contract
+  - nearby runner-owner tightening now keeps `src/runner/modes/llvm/harness_executor.rs`, `src/runner/modes/llvm/object_emitter.rs`, and `src/runner/modes/llvm/mod.rs` on the same boundary-dispatch shape through owner-local helpers, without changing the current harness/object contract
   - nearby runner-owner tightening also keeps `src/runner/modes/common_util/exec.rs` lib/bin MIR JSON emit + ny-llvmc EXE launch behind shared helper `emit_json_and_run_ny_llvmc_emit_exe(...)`
   - nearby runner-owner tightening now keeps `src/runner/modes/llvm/harness_executor.rs` on the same `guard -> emit -> run` shape through owner-local helpers, without changing the harness route contract
 

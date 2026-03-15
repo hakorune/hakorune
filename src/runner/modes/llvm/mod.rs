@@ -199,16 +199,9 @@ impl NyashRunner {
             }
         }
 
-        // Execute via LLVM backend (harness preferred)
-        match harness_executor::HarnessExecutorBox::try_execute(&module) {
+        match execute_via_harness_or_fallback(&module) {
             Ok(code) => exit_reporter::ExitReporterBox::emit_and_exit(code),
-            Err(_e) => {
-                // If harness failed, try fallback path
-                match fallback_executor::FallbackExecutorBox::execute(&module) {
-                    Ok(code) => exit_reporter::ExitReporterBox::emit_and_exit(code),
-                    Err(fallback_err) => report::emit_error_and_exit(fallback_err),
-                }
-            }
+            Err(e) => report::emit_error_and_exit(e),
         }
 
         // Execute via LLVM backend (mock or real)
@@ -238,6 +231,15 @@ impl NyashRunner {
                 }
             }
         }
+    }
+}
+
+fn execute_via_harness_or_fallback(
+    module: &nyash_rust::mir::MirModule,
+) -> Result<i32, LlvmRunError> {
+    match harness_executor::HarnessExecutorBox::try_execute(module) {
+        Ok(code) => Ok(code),
+        Err(_e) => fallback_executor::FallbackExecutorBox::execute(module),
     }
 }
 
