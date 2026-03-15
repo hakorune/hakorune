@@ -147,10 +147,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Immediate Next (this round)
 
 - pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
-  - current active owner is `tools/selfhost/selfhost_build.sh`
-  - latest landed bundle is isolated consumer-helper consolidation: downstream route order now stays helper-local behind `announce_program_json_output_if_requested()`, `emit_requested_mir_output_if_needed()`, `exe_output_requested()`, `emit_requested_exe_output()`, `run_program_json_requested()`, `run_requested_program_json()`, and `print_program_json_path_result()`, so `dispatch_stageb_downstream_outputs()` reads as thin orchestration
-  - targeted proof is `bash tools/selfhost/selfhost_build.sh --in apps/tests/hello_simple_llvm.hako --json <tmp-out>` and `bash tools/selfhost/selfhost_build.sh --in apps/tests/hello_simple_llvm.hako --run`
-  - exact next leaf is no longer `tools/selfhost/selfhost_build.sh` isolated consumer helpers; it is `tools/smokes/v2/lib/test_runner.sh` residual helper-local verify lanes
+  - current active owner is `tools/smokes/v2/lib/test_runner.sh`
+  - latest landed bundle is residual verify-lane consolidation: built-MIR verify route now stays helper-local behind `run_built_mir_json_via_builder_only_route()` / `run_built_mir_json_via_preferred_vm_routes()`, emit-result tail now stays behind `run_verify_builder_emit_rust_cli_fallback()` / `cleanup_verify_builder_logs_and_run_built_mir()`, and builder/registry stdout->MIR extraction now stays behind `run_builder_module_vm_to_stdout_file()`, `run_registry_builder_module_vm_to_stdout_file()`, `extract_builder_mir_from_stdout_file()`, and `stdout_file_has_functions_mir()`
+  - targeted proof is `bash tools/smokes/v2/profiles/integration/core/phase2043/mirbuilder_runner_min_typeop_check_core_exec_canary_vm.sh` and `bash tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_return_binop_core_exec_canary_vm.sh`
+  - exact next leaf is still `tools/smokes/v2/lib/test_runner.sh`: the remaining canary/probe wrappers are the last helper-local verify tail before returning to exact Rust-owned retirement buckets
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
 - backend-zero / `phase-29ck` exact front (2026-03-16):

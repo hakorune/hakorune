@@ -898,19 +898,20 @@ run_built_mir_json_via_core_v0_route() {
     return $rc
 }
 
-# Built MIR(JSON) result routing after builder lanes are done.
-# - caller handles upstream builder fallback / no-fallback policy
-# - this helper only routes an already-built MIR payload to builder-only / hv1 / hako-core / core-v0 execution
-run_built_mir_json_via_verify_routes() {
+run_built_mir_json_via_builder_only_route() {
     local mir_json="$1"
-    local mir_json_path="$2"
 
-    if [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" = "1" ]; then
-        if mir_json_looks_like_v0_module_text "$mir_json"; then
-            return 0
-        fi
-        return 1
+    if [ "${HAKO_VERIFY_BUILDER_ONLY:-0}" != "1" ]; then
+        return 2
     fi
+    if mir_json_looks_like_v0_module_text "$mir_json"; then
+        return 0
+    fi
+    return 1
+}
+
+run_built_mir_json_via_preferred_vm_routes() {
+    local mir_json="$1"
 
     run_built_mir_json_via_hv1_route "$mir_json"
     local hv1_rc=$?
@@ -919,13 +920,48 @@ run_built_mir_json_via_verify_routes() {
     fi
 
     run_built_mir_json_via_hako_core_route "$mir_json"
-    local hako_core_rc=$?
-    if [ "$hako_core_rc" != "2" ]; then
-        return "$hako_core_rc"
+    return $?
+}
+
+# Built MIR(JSON) result routing after builder lanes are done.
+# - caller handles upstream builder fallback / no-fallback policy
+# - this helper only routes an already-built MIR payload to builder-only / hv1 / hako-core / core-v0 execution
+run_built_mir_json_via_verify_routes() {
+    local mir_json="$1"
+    local mir_json_path="$2"
+
+    run_built_mir_json_via_builder_only_route "$mir_json"
+    local builder_only_rc=$?
+    if [ "$builder_only_rc" != "2" ]; then
+        return "$builder_only_rc"
+    fi
+
+    run_built_mir_json_via_preferred_vm_routes "$mir_json"
+    local preferred_vm_rc=$?
+    if [ "$preferred_vm_rc" != "2" ]; then
+        return "$preferred_vm_rc"
     fi
 
     run_built_mir_json_via_core_v0_route "$mir_json" "$mir_json_path"
     return $?
+}
+
+run_verify_builder_emit_rust_cli_fallback() {
+    local prog_json_path="$1"
+    local builder_stderr="$2"
+    local builder_stdout="$3"
+
+    run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 1
+}
+
+cleanup_verify_builder_logs_and_run_built_mir() {
+    local builder_stderr="$1"
+    local builder_stdout="$2"
+    local mir_json="$3"
+    local mir_json_path="$4"
+
+    cleanup_verify_builder_logs "$builder_stderr" "$builder_stdout"
+    run_built_mir_json_via_verify_routes "$mir_json" "$mir_json_path"
 }
 
 handle_verify_builder_emit_result() {
@@ -942,12 +978,15 @@ handle_verify_builder_emit_result() {
     fi
 
     if [ "$emit_rc" -ne 0 ]; then
-        run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 1
+        run_verify_builder_emit_rust_cli_fallback "$prog_json_path" "$builder_stderr" "$builder_stdout"
         return $?
     fi
 
-    cleanup_verify_builder_logs "$builder_stderr" "$builder_stdout"
-    run_built_mir_json_via_verify_routes "$mir_json" "$mir_json_path"
+    cleanup_verify_builder_logs_and_run_built_mir \
+        "$builder_stderr" \
+        "$builder_stdout" \
+        "$mir_json" \
+        "$mir_json_path"
     return $?
 }
 
@@ -1072,6 +1111,51 @@ run_preferred_mirbuilder_canary_and_expect_rc() {
     return 0
 }
 
+run_builder_module_vm_to_stdout_file() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local tmp_stdout="$3"
+
+    set +e
+    run_program_json_via_builder_module_vm "$builder_module" "$prog_json" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    local rc=${PIPESTATUS[0]}
+    set -e
+    return "$rc"
+}
+
+run_registry_builder_module_vm_to_stdout_file() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="$3"
+    local use_preinclude="${4:-0}"
+    local tmp_stdout="$5"
+
+    set +e
+    if [ "$use_preinclude" = "1" ]; then
+        run_program_json_via_registry_builder_module_vm_with_preinclude "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    else
+        run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    fi
+    local rc=$?
+    set -e
+    return "$rc"
+}
+
+extract_builder_mir_from_stdout_file() {
+    local tmp_stdout="$1"
+    awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout"
+}
+
+stdout_file_has_functions_mir() {
+    local tmp_stdout="$1"
+    local mir
+    mir=$(extract_builder_mir_from_stdout_file "$tmp_stdout")
+    if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
+        return 1
+    fi
+    return 0
+}
+
 run_builder_module_tag_canary() {
     local builder_module="$1"
     local prog_json="$2"
@@ -1087,10 +1171,8 @@ run_builder_module_tag_canary() {
     tmp_stdout=$(mktemp)
     trap 'rm -f "$tmp_stdout" || true' RETURN
 
-    set +e
-    run_program_json_via_builder_module_vm "$builder_module" "$prog_json" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    local rc=${PIPESTATUS[0]}
-    set -e
+    run_builder_module_vm_to_stdout_file "$builder_module" "$prog_json" "$tmp_stdout"
+    local rc=$?
 
     if [[ "$rc" -ne 0 ]] && [ "$allow_nonzero_rc" != "1" ]; then
         echo "[SKIP] ${skip_exec_label}"
@@ -1100,13 +1182,9 @@ run_builder_module_tag_canary() {
         echo "[SKIP] ${skip_tag_label}"
         return 0
     fi
-    if [ "$require_functions" = "1" ]; then
-        local mir
-        mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-        if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
-            echo "[SKIP] ${skip_mir_label}"
-            return 0
-        fi
+    if [ "$require_functions" = "1" ] && ! stdout_file_has_functions_mir "$tmp_stdout"; then
+        echo "[SKIP] ${skip_mir_label}"
+        return 0
     fi
 
     echo "[PASS] ${pass_label}"
@@ -1128,14 +1206,8 @@ run_registry_builder_tag_canary() {
     tmp_stdout=$(mktemp)
     trap 'rm -f "$tmp_stdout" || true' RETURN
 
-    set +e
-    if [ "$use_preinclude" = "1" ]; then
-        run_program_json_via_registry_builder_module_vm_with_preinclude "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    else
-        run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    fi
+    run_registry_builder_module_vm_to_stdout_file "$builder_module" "$prog_json" "$registry_only" "$use_preinclude" "$tmp_stdout"
     local rc=$?
-    set -e
 
     if [[ "$rc" -ne 0 ]]; then
         echo "[SKIP] ${skip_exec_label}"
@@ -1146,9 +1218,7 @@ run_registry_builder_tag_canary() {
         return 0
     fi
 
-    local mir
-    mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-    if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
+    if ! stdout_file_has_functions_mir "$tmp_stdout"; then
         echo "[SKIP] ${skip_mir_label}"
         return 0
     fi
@@ -1173,14 +1243,8 @@ run_registry_method_arraymap_canary() {
     tmp_stdout=$(mktemp)
     trap 'rm -f "$tmp_stdout" || true' RETURN
 
-    set +e
-    if [ "$use_preinclude" = "1" ]; then
-        run_program_json_via_registry_builder_module_vm_with_preinclude "hako.mir.builder" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    else
-        run_program_json_via_registry_builder_module_vm "hako.mir.builder" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    fi
+    run_registry_builder_module_vm_to_stdout_file "hako.mir.builder" "$prog_json" "$registry_only" "$use_preinclude" "$tmp_stdout"
     local rc=$?
-    set -e
 
     if [[ "$rc" -ne 0 ]]; then
         echo "[SKIP] ${skip_exec_label}"
@@ -1192,8 +1256,8 @@ run_registry_method_arraymap_canary() {
     fi
 
     local mir
-    mir=$(awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout")
-    if [[ -z "$mir" ]] || ! echo "$mir" | grep -q '"functions"'; then
+    mir=$(extract_builder_mir_from_stdout_file "$tmp_stdout")
+    if ! stdout_file_has_functions_mir "$tmp_stdout"; then
         echo "[SKIP] ${skip_mir_label}"
         return 0
     fi
