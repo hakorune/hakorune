@@ -184,14 +184,28 @@ impl<'a> Stage1ProgramJsonInput<'a> {
     fn into_module_handoff(self) -> Result<Stage1ProgramJsonModuleHandoff, String> {
         Ok(Stage1ProgramJsonModuleHandoff {
             module: self.parse_module()?,
-            user_box_decls: Stage1UserBoxDeclHandoff::parse(self.program_json)?
-                .resolve_user_box_decls(),
+            user_box_decls: self.resolve_user_box_decls()?,
         })
     }
 
     fn parse_module(&self) -> Result<crate::mir::MirModule, String> {
         crate::runner::json_v0_bridge::parse_json_v0_to_module(self.program_json)
             .map_err(failfast_error)
+    }
+
+    fn resolve_user_box_decls(&self) -> Result<Stage1UserBoxDecls, String> {
+        Ok(self.parse_user_box_decl_handoff()?.resolve_user_box_decls())
+    }
+
+    fn parse_user_box_decl_handoff(&self) -> Result<Stage1UserBoxDeclHandoff, String> {
+        Ok(Stage1UserBoxDeclHandoff::from_program_value(
+            self.parse_value()?,
+        ))
+    }
+
+    fn parse_value(&self) -> Result<serde_json::Value, String> {
+        serde_json::from_str(self.program_json)
+            .map_err(|error| format!("program json parse error: {}", error))
     }
 }
 
@@ -290,10 +304,8 @@ impl Stage1UserBoxDecls {
 }
 
 impl Stage1UserBoxDeclHandoff {
-    fn parse(program_json: &str) -> Result<Self, String> {
-        Ok(Self {
-            program_value: parse_program_json_value(program_json)?,
-        })
+    fn from_program_value(program_value: serde_json::Value) -> Self {
+        Self { program_value }
     }
 
     fn resolve_user_box_decls(self) -> Stage1UserBoxDecls {
@@ -323,11 +335,6 @@ impl Stage1UserBoxDeclHandoff {
         insert_stage1_def_box_names(&self.program_value, &mut seen);
         seen
     }
-}
-
-fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {
-    serde_json::from_str(program_json)
-        .map_err(|error| format!("program json parse error: {}", error))
 }
 
 fn insert_stage1_def_box_names(
@@ -587,7 +594,7 @@ mod tests {
     }
 
     #[test]
-    fn test_stage1_user_box_decl_handoff_filters_invalid_explicit_entries() {
+    fn test_stage1_program_json_input_filters_invalid_explicit_decl_entries() {
         let program_json = r#"{
             "version": 0,
             "kind": "Program",
@@ -606,14 +613,28 @@ mod tests {
             "body": []
         }"#;
 
-        let decls = Stage1UserBoxDeclHandoff::parse(program_json)
-            .expect("handoff must parse")
+        let decls = Stage1ProgramJsonInput::new(program_json)
             .resolve_user_box_decls()
+            .expect("input must resolve user box decls")
             .into_decl_values();
 
         assert_eq!(
             decls,
             vec![serde_json::json!({"name": "ExplicitBox", "fields": ["value"]})]
+        );
+    }
+
+    #[test]
+    fn test_stage1_program_json_input_rejects_invalid_json_for_decl_resolution() {
+        let result = Stage1ProgramJsonInput::new("{").resolve_user_box_decls();
+        let error = match result {
+            Ok(_) => panic!("invalid json must fail fast"),
+            Err(error) => error,
+        };
+
+        assert!(
+            error.contains("program json parse error"),
+            "unexpected error: {error}"
         );
     }
 
