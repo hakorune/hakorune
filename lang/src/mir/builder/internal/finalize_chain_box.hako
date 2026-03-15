@@ -1,0 +1,51 @@
+// finalize_chain_box.hako — shared outer finalize chain for MirBuilder authority lanes
+// Scope: func-def injection, methodize, jsonfrag normalize, and stable finalize fail tags.
+// Non-goals: route sequencing, delegate/provider gate, delegate-side MIR shaping.
+
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
+using lang.mir.builder.func_lowering as FuncLoweringBox
+
+static box BuilderFinalizeChainBox {
+  method apply(m, func_defs_mir) {
+    if m == null { return null }
+    local result = me._inject_func_defs_checked(m, func_defs_mir)
+    if result == null { return null }
+    result = me._methodize_if_enabled_checked(result)
+    if result == null { return null }
+    result = me._normalize_jsonfrag_if_enabled_checked(result)
+    if result == null { return null }
+    return result
+  }
+
+  method log_fail(reason) {
+    local tag = "[builder/selfhost-first:unsupported:" + reason + "]"
+    print(tag)
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      print("[builder/selfhost-first:trace] fail_reason=" + reason)
+    }
+  }
+
+  method _inject_func_defs_checked(m, func_defs_mir) {
+    local result = FuncLoweringBox.inject_funcs(m, func_defs_mir)
+    if result != null { return result }
+    me.log_fail("inject_funcs_null")
+    return null
+  }
+
+  method _methodize_if_enabled_checked(m) {
+    if BuilderConfigBox.methodize_on() != 1 { return m }
+    local result = FuncLoweringBox.methodize_calls_in_mir(m)
+    if result != null { return result }
+    me.log_fail("methodize_null")
+    return null
+  }
+
+  method _normalize_jsonfrag_if_enabled_checked(m) {
+    if BuilderConfigBox.jsonfrag_normalize_on() != 1 { return m }
+    local result = NormBox.normalize_all(m)
+    if result != null { return result }
+    me.log_fail("normalize_null")
+    return null
+  }
+}

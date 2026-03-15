@@ -21,12 +21,13 @@ Interface (stable)
   - the non-registry/internal fallback chain now lives in `hako.mir.builder.internal.fallback_authority`
   - the delegate/provider compat gate now lives in `hako.mir.builder.internal.delegate_provider`
   - the delegate-side `user_box_decls` finalize now also lives in `hako.mir.builder.internal.delegate_finalize`
-  - this file keeps route sequencing, generic unsupported/no-match decision, and the shared outer finalize/compat tails around those internal owners
+  - the shared outer finalize chain now also lives in `hako.mir.builder.internal.finalize_chain`
+  - this file keeps route sequencing, generic unsupported/no-match decision, and only the remaining outer compat tails around those internal owners
   - outer Program(JSON) entry validation now stays owner-local via `_coerce_program_json_checked(...)` and `_emit_mir_from_program_json_text_checked(...)`, so the public entrypoint only shows checked handoff plus route dispatch
   - Program(JSON) fail-fast tiny leaves are now owner-local via `_program_json_input_present(...)` and `_program_json_header_present(...)`, so `_coerce_program_json_checked(...)` reads as input-present -> header-present -> handoff only
   - route sequencing is owner-local via `_lower_func_defs_if_enabled(...)`, `_emit_internal_program_json(...)`, and `_emit_delegate_program_json(...)`; raw env/hostbridge branching does not stay duplicated inline
   - delegate compat gate/provider call is now internal via `BuilderDelegateProviderBox.try_emit(...)`, and delegate-side `user_box_decls` finalize is now internal via `BuilderDelegateFinalizeBox.inject_user_box_decls(...)`, so the delegate lane reads as internal gate/provider -> internal finalize -> shared normalize
-  - shared finalize chain is now owner-local via `_inject_func_defs_checked(...)`, `_methodize_if_enabled_checked(...)`, and `_normalize_jsonfrag_if_enabled_checked(...)`, so `_norm_if_apply(...)` reads as a pure finalize order instead of mixing inject/methodize/normalize inline
+  - shared finalize chain is now internal via `BuilderFinalizeChainBox.apply(...)` and `BuilderFinalizeChainBox.log_fail(...)`, so route leaves no longer carry inject/methodize/normalize/fail-tag logic inline
   - defs-toggle/source-entry compat tails are now owner-local via `_func_defs_toggle_on(...)`, `_coerce_func_defs_json(...)`, and `_emit_program_json_from_source_raw(...)`, so those tiny leaves no longer mix inline with checked handoff
   - internal route leaves are owner-local via `_try_emit_loop_force_jsonfrag(...)`, `_try_emit_registry_program_json(...)`, and `_try_emit_fallback_program_json(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
   - internal unsupported tail is now isolated in `_fail_internal_unsupported(...)` and `_program_json_has_ternary(...)`, so `_emit_internal_program_json(...)` stays a readable route table

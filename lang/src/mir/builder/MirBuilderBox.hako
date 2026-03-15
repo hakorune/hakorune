@@ -22,56 +22,14 @@ using "hako.mir.builder.internal.registry_authority" as BuilderRegistryAuthority
 using "hako.mir.builder.internal.fallback_authority" as BuilderFallbackAuthorityBox
 using "hako.mir.builder.internal.delegate_provider" as BuilderDelegateProviderBox
 using "hako.mir.builder.internal.delegate_finalize" as BuilderDelegateFinalizeBox
-using "hako.mir.builder.internal.jsonfrag_normalizer" as NormBox
+using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
 using lang.mir.builder.func_lowering as FuncLoweringBox
 
 static box MirBuilderBox {
-  method _log_builder_fail(reason) {
-    local tag = "[builder/selfhost-first:unsupported:" + reason + "]"
-    print(tag)
-    if env.get("HAKO_SELFHOST_TRACE") == "1" {
-      print("[builder/selfhost-first:trace] fail_reason=" + reason)
-    }
-  }
-
-  method _norm_if_apply(m, func_defs_mir) {
-    if m == null { return null }
-    local result = me._inject_func_defs_checked(m, func_defs_mir)
-    if result == null { return null }
-    result = me._methodize_if_enabled_checked(result)
-    if result == null { return null }
-    result = me._normalize_jsonfrag_if_enabled_checked(result)
-    if result == null { return null }
-    return result
-  }
-
-  method _inject_func_defs_checked(m, func_defs_mir) {
-    local result = FuncLoweringBox.inject_funcs(m, func_defs_mir)
-    if result != null { return result }
-    me._log_builder_fail("inject_funcs_null")
-    return null
-  }
-
-  method _methodize_if_enabled_checked(m) {
-    if BuilderConfigBox.methodize_on() != 1 { return m }
-    local result = FuncLoweringBox.methodize_calls_in_mir(m)
-    if result != null { return result }
-    me._log_builder_fail("methodize_null")
-    return null
-  }
-
-  method _normalize_jsonfrag_if_enabled_checked(m) {
-    if BuilderConfigBox.jsonfrag_normalize_on() != 1 { return m }
-    local result = NormBox.normalize_all(m)
-    if result != null { return result }
-    me._log_builder_fail("normalize_null")
-    return null
-  }
-
   method _finalize_delegate_mir(program_json, mir_json, func_defs_mir) {
     if mir_json == null { return null }
     local result = BuilderDelegateFinalizeBox.inject_user_box_decls(program_json, mir_json)
-    return me._norm_if_apply(result, func_defs_mir)
+    return BuilderFinalizeChainBox.apply(result, func_defs_mir)
   }
 
   method _lower_func_defs_if_enabled(program_json) {
@@ -110,30 +68,30 @@ static box MirBuilderBox {
       "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
       "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
       "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
-    return me._norm_if_apply(mir, func_defs_mir)
+    return BuilderFinalizeChainBox.apply(mir, func_defs_mir)
   }
 
   method _try_emit_registry_program_json(program_json, func_defs_mir) {
     local out_reg = BuilderRegistryAuthorityBox.try_lower("" + program_json)
     if out_reg == null { return null }
-    return me._norm_if_apply(out_reg, func_defs_mir)
+    return BuilderFinalizeChainBox.apply(out_reg, func_defs_mir)
   }
 
   method _try_emit_fallback_program_json(program_json, func_defs_mir) {
     local out_fallback = BuilderFallbackAuthorityBox.try_lower("" + program_json)
     if out_fallback == null { return null }
-    return me._norm_if_apply(out_fallback, func_defs_mir)
+    return BuilderFinalizeChainBox.apply(out_fallback, func_defs_mir)
   }
 
   method _fail_internal_unsupported(program_json, func_defs_mir) {
     local has_ternary = me._program_json_has_ternary(program_json)
     print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call), Expr(Call env.console.log Int)+Return(Int), If-nested, and probe nested-ternary")
     if func_defs_mir != null && func_defs_mir != "" {
-      me._log_builder_fail("defs_only")
+      BuilderFinalizeChainBox.log_fail("defs_only")
     } else if has_ternary == 1 {
-      me._log_builder_fail("ternary_no_lower")
+      BuilderFinalizeChainBox.log_fail("ternary_no_lower")
     } else {
-      me._log_builder_fail("no_match")
+      BuilderFinalizeChainBox.log_fail("no_match")
     }
     return null
   }
