@@ -76,6 +76,19 @@ impl MirInterpreter {
                 return Ok(());
             }
         }
+        if let Some(Callee::Method {
+            box_name,
+            method,
+            receiver,
+            ..
+        }) = callee
+        {
+            if receiver.is_none() && box_name == "hostbridge" && method == "extern_invoke" {
+                let v = self.execute_extern_function("hostbridge.extern_invoke", args)?;
+                self.write_result(dst, v);
+                return Ok(());
+            }
+        }
         let call_result = if let Some(callee_type) = callee {
             self.execute_callee_call(callee_type, args)?
         } else {

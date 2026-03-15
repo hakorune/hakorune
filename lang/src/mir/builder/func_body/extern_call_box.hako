@@ -3,6 +3,7 @@
 //   Lower simple hostbridge.extern_invoke-based patterns in defs to canonical call(callee=Extern).
 // Scope (MVP):
 //   Return(hostbridge.extern_invoke("env.codegen","emit_object", Var(arg)))
+//   Return(hostbridge.extern_invoke("env.codegen","compile_json_path", Var(arg)))
 //   Return(hostbridge.extern_invoke("env.codegen","link_object", Var(arg)))
 // Notes:
 //   - Only params-based argument (Var that refers to a function parameter) is supported.
@@ -37,7 +38,7 @@ static box ExternCallLowerBox {
     local recv_name = JsonFragBox.read_string_after(s, rname_idx + 7)
     if recv_name == null || recv_name != "hostbridge" { return null }
 
-    // args[0]: "env.codegen", args[1]: "emit_object" | "link_object", args[2]: Var(arg)
+    // args[0]: "env.codegen", args[1]: "emit_object" | "compile_json_path" | "link_object", args[2]: Var(arg)
     local args_idx = JsonFragBox.index_of_from(s, "\"args\":[", m_idx)
     if args_idx < 0 { return null }
 
@@ -63,7 +64,7 @@ static box ExternCallLowerBox {
       method = JsonFragBox.read_string_after(s, v1 + 8)
       if method == null { return null }
     }
-    if !(method == "emit_object" || method == "link_object") { return null }
+    if !(method == "emit_object" || method == "compile_json_path" || method == "link_object") { return null }
 
     // arg Var name (third arg)
     local arg_name = null
