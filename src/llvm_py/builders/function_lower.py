@@ -353,6 +353,47 @@ def _compute_lower_order(
     return list(reversed(post)), reachable_from_entry, block_dominators
 
 
+def _enforce_phi_ordering_contract(builder) -> None:
+    from phi_placement import verify_phi_ordering
+    from phi_wiring.debug_helper import is_phi_strict_enabled, is_phi_debug_enabled
+    import sys
+
+    ordering_results = verify_phi_ordering(builder)
+    failed_blocks = [bid for bid, ok in ordering_results.items() if not ok]
+
+    if failed_blocks:
+        msg = f"[function_lower/PHI] {len(failed_blocks)} blocks have incorrect PHI ordering: {failed_blocks}"
+
+        if is_phi_strict_enabled():
+            print(f"[CRITICAL] {msg}", file=sys.stderr)
+            print(f"  → Blocks: {failed_blocks}", file=sys.stderr)
+            print(f"  → Required order: PHI → non-PHI → terminator", file=sys.stderr)
+            raise RuntimeError(msg)
+
+        if is_phi_debug_enabled():
+            print(f"[WARNING] {msg}", file=sys.stderr)
+        return
+
+    if is_phi_debug_enabled():
+        print(f"[function_lower/PHI] ✅ All {len(ordering_results)} blocks have correct PHI ordering", file=sys.stderr)
+
+
+def _run_finalize_tail(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, Any]], context: FunctionLowerContext) -> None:
+    from builders.block_lower import lower_terminators as _lower_terminators
+
+    _finalize_phis(builder, context)
+    _lower_terminators(builder, func)
+    _enforce_phi_ordering_contract(builder)
+    try:
+        _enforce_terminators(builder, func, block_by_id)
+    except Exception:
+        pass
+    try:
+        _emit_hot_summary(context)
+    except Exception:
+        pass
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
@@ -667,50 +708,9 @@ def lower_function(builder, func_data: Dict[str, Any]):
     # Phase 132-P2: Dict ctx removed; FunctionLowerContext is now SSOT
     # All context access goes through owner.context (passed to instruction handlers)
 
-    # Phase 131-4 Pass B (now Pass B2): Finalize PHIs (wires incoming edges)
-    # Phase 132-P1: Pass context Box for function-local state isolation
-    _finalize_phis(builder, context)
-
-    # Phase 131-4 Pass C: Lower deferred terminators (after PHIs are placed)
-    from builders.block_lower import lower_terminators as _lower_terminators
-    _lower_terminators(builder, func)
-
-    # Phase 277 P1: Verify PHI ordering after all instructions are emitted
-    from phi_placement import verify_phi_ordering
-    from phi_wiring.debug_helper import is_phi_strict_enabled, is_phi_debug_enabled
-    import sys
-
-    ordering_results = verify_phi_ordering(builder)
-
-    # Check results
-    failed_blocks = [bid for bid, ok in ordering_results.items() if not ok]
-
-    if failed_blocks:
-        msg = f"[function_lower/PHI] {len(failed_blocks)} blocks have incorrect PHI ordering: {failed_blocks}"
-
-        if is_phi_strict_enabled():
-            print(f"[CRITICAL] {msg}", file=sys.stderr)
-            print(f"  → Blocks: {failed_blocks}", file=sys.stderr)
-            print(f"  → Required order: PHI → non-PHI → terminator", file=sys.stderr)
-            raise RuntimeError(msg)
-
-        if is_phi_debug_enabled():
-            print(f"[WARNING] {msg}", file=sys.stderr)
-
-    elif is_phi_debug_enabled():
-        print(f"[function_lower/PHI] ✅ All {len(ordering_results)} blocks have correct PHI ordering", file=sys.stderr)
-
-    # Safety pass: ensure every basic block ends with a terminator.
-    # This avoids llvmlite IR parse errors like "expected instruction opcode" on empty blocks.
-    try:
-        _enforce_terminators(builder, func, block_by_id)
-    except Exception:
-        # Non-fatal in bring-up; better to emit IR than crash
-        pass
-    try:
-        _emit_hot_summary(context)
-    except Exception:
-        pass
+    # Finalize PHIs, lower deferred terminators, verify PHI ordering,
+    # then synthesize missing terminators / hot summary as non-fatal tail work.
+    _run_finalize_tail(builder, func, block_by_id, context)
 
 
 def _enforce_terminators(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, Any]]):

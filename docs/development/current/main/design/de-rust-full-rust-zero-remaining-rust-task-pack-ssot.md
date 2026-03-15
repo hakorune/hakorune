@@ -247,6 +247,14 @@ rule:
        - `src/llvm_py/builders/function_lower.py` now owns file-local CFG ordering helpers `_determine_entry_block_id(...)` and `_compute_lower_order(...)`
        - `lower_function(...)` now consumes those helpers instead of mixing entry-block selection and reverse-postorder/dominator/reachable computation inline
        - proof is pinned by `src/llvm_py/tests/test_function_lower_ordering.py`
+     - landed tenth-e slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local PHI ordering contract helper `_enforce_phi_ordering_contract(...)`
+       - `lower_function(...)` now consumes that helper instead of mixing strict/debug PHI ordering verification inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_phi_ordering_tail.py`
+     - landed tenth-f slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local finalize-tail orchestration helper `_run_finalize_tail(...)`
+       - `lower_function(...)` now consumes that helper instead of mixing `finalize_phis -> lower_terminators -> phi-ordering contract -> terminator safety -> hot summary` inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_finalize_tail.py`
      - landed eleventh slice:
        - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization
        - `lower_binop(...)` now consumes those helpers instead of mixing string-vs-integer route selection inline
