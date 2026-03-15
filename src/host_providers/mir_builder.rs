@@ -156,8 +156,13 @@ struct Stage1ProgramJsonModuleHandoff {
 
 impl Stage1ProgramJsonModuleHandoff {
     fn emit_mir_json(self) -> Result<String, String> {
-        let module = with_stage1_user_box_decls(&self.module, &self.user_box_decls);
-        emit_module_mir_json(&module)
+        module_to_mir_json(&self.into_module_with_user_box_decls())
+    }
+
+    fn into_module_with_user_box_decls(self) -> crate::mir::MirModule {
+        let mut module = self.module;
+        module.metadata.user_box_decls = stage1_user_box_decl_map(&self.user_box_decls);
+        module
     }
 }
 
@@ -224,19 +229,6 @@ fn source_program_json_handoff(source_text: &str) -> Result<SourceProgramJsonHan
 
 fn parse_program_json_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
     crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
-}
-
-fn emit_module_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
-    module_to_mir_json(module)
-}
-
-fn with_stage1_user_box_decls(
-    module: &crate::mir::MirModule,
-    user_box_decls: &[serde_json::Value],
-) -> crate::mir::MirModule {
-    let mut module = module.clone();
-    module.metadata.user_box_decls = stage1_user_box_decl_map(user_box_decls);
-    module
 }
 
 fn stage1_user_box_decl_handoff(program_json: &str) -> Result<Stage1UserBoxDeclHandoff, String> {
