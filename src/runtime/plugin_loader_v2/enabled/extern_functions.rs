@@ -383,27 +383,51 @@ fn handle_codegen(
     method_name: &str,
     args: &[Box<dyn NyashBox>],
 ) -> BidResult<Option<Box<dyn NyashBox>>> {
+    fn codegen_opts(out: Option<std::path::PathBuf>) -> crate::host_providers::llvm_codegen::Opts {
+        crate::host_providers::llvm_codegen::Opts {
+            out,
+            nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
+                .ok()
+                .map(std::path::PathBuf::from),
+            opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
+                .ok()
+                .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
+                .or(Some("0".to_string())),
+            timeout_ms: None,
+        }
+    }
+
     match method_name {
+        "compile_json_path" => {
+            let json_path = args
+                .first()
+                .map(|b| b.to_string_box().value)
+                .unwrap_or_default();
+            let out = args
+                .get(1)
+                .map(|b| b.to_string_box().value)
+                .filter(|s| !s.is_empty() && s != "null")
+                .map(std::path::PathBuf::from);
+            match crate::host_providers::llvm_codegen::mir_json_file_to_object(
+                std::path::Path::new(&json_path),
+                codegen_opts(out),
+            ) {
+                Ok(p) => {
+                    let s = p.to_string_lossy().into_owned();
+                    Ok(Some(Box::new(StringBox::new(s)) as Box<dyn NyashBox>))
+                }
+                Err(_e) => Ok(None),
+            }
+        }
         "emit_object" => {
             let mir_json = args
                 .get(0)
                 .map(|b| b.to_string_box().value)
                 .unwrap_or_default();
-            // Collect minimal options from env (optional)
-            let opt_level = std::env::var("HAKO_LLVM_OPT_LEVEL")
-                .ok()
-                .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok());
-            let out = None;
-            let nyrt = std::env::var("NYASH_EMIT_EXE_NYRT")
-                .ok()
-                .map(std::path::PathBuf::from);
-            let opts = crate::host_providers::llvm_codegen::Opts {
-                out,
-                nyrt,
-                opt_level,
-                timeout_ms: None,
-            };
-            match crate::host_providers::llvm_codegen::mir_json_to_object(&mir_json, opts) {
+            match crate::host_providers::llvm_codegen::mir_json_to_object(
+                &mir_json,
+                codegen_opts(None),
+            ) {
                 Ok(p) => {
                     // Convert PathBuf → String via lossy conversion (owned)
                     let s = p.to_string_lossy().into_owned();

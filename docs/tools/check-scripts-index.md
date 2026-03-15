@@ -16,6 +16,7 @@ tools/checks/dev_gate.sh quick
 | --- | --- |
 | `tools/checks/dev_gate.sh` | 日常ゲートの統合実行（quick/hotpath/portability/milestone）。 |
 | `tools/checks/module_registry_hygiene_guard.sh` | `hako.toml` / `nyash.toml` の module registry 境界検証。 |
+| `tools/checks/phase29cl_by_name_mainline_guard.sh` | `nyash.plugin.invoke_by_name_i64` の owner 集合を allowlist で固定し、新しい mainline caller を fail-fast で防ぐ。 |
 | `tools/checks/ring1_core_scope_guard.sh` | ring1 provider の受理ドメイン境界検証。 |
 
 ## Env Hygiene

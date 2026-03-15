@@ -9,6 +9,17 @@ using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 using lang.runtime.host.host_facade_box as HostFacadeBox
 
 static box CodegenBridgeBox {
+  method compile_json_path(json_path) {
+    local args = new ArrayBox()
+    if json_path != null { args.push("" + json_path) }
+    return HostFacadeBox.call("loader", "codegen.compile_json_path", args)
+  }
+
+  method compile_json_path_args(args) {
+    local arr = me._ensure_array(args)
+    return HostFacadeBox.call("loader", "codegen.compile_json_path", arr)
+  }
+
   method emit_object(mir_json) {
     local args = new ArrayBox()
     if mir_json != null { args.push("" + mir_json) }

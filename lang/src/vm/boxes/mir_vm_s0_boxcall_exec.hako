@@ -2,7 +2,6 @@
 // Responsibility: method-specific stateful effects for boxcall ops.
 
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
-using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 
 static box MirVmS0BoxcallExecBox {
   apply_birth(box_birth, dst_birth, regs, kinds, array_lens) {
@@ -91,32 +90,11 @@ static box MirVmS0BoxcallExecBox {
     if path_text == null {
       return "[vm-hako/contract][llvmbackend-compile-path-handle-missing]"
     }
-
-    local file_obj = new FileBox()
-    local opened = file_obj.open(path_text, "r")
-    if opened != 1 {
-      print("[llvmbackend/read/open-failed] " + path_text)
-      return me._write_null_result(dst_box, regs, kinds)
-    }
-
-    local mir_json = file_obj.read()
-    file_obj.close()
-    if mir_json == null || ("" + mir_json) == "" {
-      print("[llvmbackend/read/empty] " + path_text)
-      return me._write_null_result(dst_box, regs, kinds)
-    }
-
-    local mir_payload = MirV1MetaInjectBox.inject_meta_externs("" + mir_json, "[]")
-    if mir_payload == null || ("" + mir_payload) == "" {
-      print("[llvmbackend/emit/invalid-mir] failed to inject schema_version")
-      return me._write_null_result(dst_box, regs, kinds)
-    }
-
     local args = new ArrayBox()
-    args.push("" + mir_payload)
-    local obj = me._emit_codegen_object_args(args)
+    args.push("" + path_text)
+    local obj = me._compile_codegen_json_path_args(args)
     if obj == null || ("" + obj) == "" {
-      print("[llvmbackend/emit/failed] env.codegen.emit_object returned empty")
+      print("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
       return me._write_null_result(dst_box, regs, kinds)
     }
 
@@ -170,6 +148,10 @@ static box MirVmS0BoxcallExecBox {
 
   _emit_codegen_object_args(args) {
     return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+  }
+
+  _compile_codegen_json_path_args(args) {
+    return hostbridge.extern_invoke("env.codegen", "compile_json_path", args)
   }
 
   _link_codegen_object_args(args) {

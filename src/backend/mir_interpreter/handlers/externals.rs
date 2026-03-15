@@ -201,6 +201,13 @@ impl MirInterpreter {
                 self.write_result(dst, ret);
                 Ok(())
             }
+            ("env.codegen", "compile_json_path") => {
+                let ret = self
+                    .extern_provider_dispatch("env.codegen.compile_json_path", args)
+                    .unwrap_or(Ok(VMValue::Void))?;
+                self.write_result(dst, ret);
+                Ok(())
+            }
             ("env.codegen", "link_object") => {
                 // Args in third param (ArrayBox): [obj_path, exe_out?, extra_ldflags?]
                 // Note: This branch is used for ExternCall form; provider toggles must be ON.

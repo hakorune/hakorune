@@ -38,6 +38,30 @@ impl MirInterpreter {
         }
     }
 
+    fn codegen_object_opts(
+        out: Option<std::path::PathBuf>,
+    ) -> crate::host_providers::llvm_codegen::Opts {
+        crate::host_providers::llvm_codegen::Opts {
+            out,
+            nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
+                .ok()
+                .map(std::path::PathBuf::from),
+            opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
+                .ok()
+                .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
+                .or(Some("0".to_string())),
+            timeout_ms: None,
+        }
+    }
+
+    fn optional_codegen_text(text: String) -> Option<String> {
+        if text.is_empty() || text == "null" {
+            None
+        } else {
+            Some(text)
+        }
+    }
+
     fn emit_mirbuilder_program_json(&mut self, program_json: &str) -> Result<VMValue, VMError> {
         match crate::runtime::mirbuilder_emit::emit_program_json_to_mir_json_with_env_imports(
             program_json,
@@ -219,22 +243,51 @@ impl MirInterpreter {
                 };
                 // Normalize to v1 shape if missing/legacy (prevents harness NoneType errors)
                 let mir_json = Self::patch_mir_json_version(&mir_json_raw);
-                let opts = crate::host_providers::llvm_codegen::Opts {
-                    out: None,
-                    nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
-                        .ok()
-                        .map(std::path::PathBuf::from),
-                    opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
-                        .ok()
-                        .or(Some("0".to_string())),
-                    timeout_ms: None,
-                };
+                let opts = Self::codegen_object_opts(None);
                 let res = match crate::host_providers::llvm_codegen::mir_json_to_object(
                     &mir_json, opts,
                 ) {
                     Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
                     Err(e) => Err(ErrorBuilder::with_context(
                         "env.codegen.emit_object",
+                        &e.to_string(),
+                    )),
+                };
+                Some(res)
+            }
+            "env.codegen.compile_json_path" => {
+                // Guarded stub path for verify/Hakorune-primary bring-up
+                if std::env::var("HAKO_V1_EXTERN_PROVIDER").ok().as_deref() == Some("1") {
+                    return Some(Ok(VMValue::String(String::new())));
+                }
+                let json_path = match args.get(0) {
+                    Some(v) => match self.reg_load(*v) {
+                        Ok(v) => v.to_string(),
+                        Err(e) => return Some(Err(e)),
+                    },
+                    None => {
+                        return Some(Err(
+                            self.err_invalid("env.codegen.compile_json_path expects 1+ args")
+                        ))
+                    }
+                };
+                let out = match args.get(1) {
+                    Some(v) => match self.reg_load(*v) {
+                        Ok(v) => {
+                            Self::optional_codegen_text(v.to_string()).map(std::path::PathBuf::from)
+                        }
+                        Err(e) => return Some(Err(e)),
+                    },
+                    None => None,
+                };
+                let opts = Self::codegen_object_opts(out);
+                let res = match crate::host_providers::llvm_codegen::mir_json_file_to_object(
+                    std::path::Path::new(&json_path),
+                    opts,
+                ) {
+                    Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
+                    Err(e) => Err(ErrorBuilder::with_context(
+                        "env.codegen.compile_json_path",
                         &e.to_string(),
                     )),
                 };
@@ -491,14 +544,14 @@ impl MirInterpreter {
                                         let idx1: Box<dyn crate::box_trait::NyashBox> =
                                             Box::new(crate::box_trait::IntegerBox::new(1));
                                         let e1 = ab.get(idx1).to_string_box().value;
-                                        if !e1.is_empty() {
+                                        if let Some(e1) = Self::optional_codegen_text(e1) {
                                             exe = Some(e1);
                                         }
                                         let mut extra: Option<String> = None;
                                         let idx2: Box<dyn crate::box_trait::NyashBox> =
                                             Box::new(crate::box_trait::IntegerBox::new(2));
                                         let e2 = ab.get(idx2).to_string_box().value;
-                                        if !e2.is_empty() {
+                                        if let Some(e2) = Self::optional_codegen_text(e2) {
                                             extra = Some(e2);
                                         }
                                         (elem0, exe, extra)
@@ -555,14 +608,7 @@ impl MirInterpreter {
                     }
                     ("env.codegen", "emit_object") => {
                         if let Some(s) = first_arg_str {
-                            let opts = crate::host_providers::llvm_codegen::Opts {
-                                out: None,
-                                nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
-                                    .ok()
-                                    .map(std::path::PathBuf::from),
-                                opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL").ok(),
-                                timeout_ms: None,
-                            };
+                            let opts = Self::codegen_object_opts(None);
                             match crate::host_providers::llvm_codegen::mir_json_to_object(&s, opts)
                             {
                                 Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
@@ -572,6 +618,54 @@ impl MirInterpreter {
                         } else {
                             Err(self
                                 .err_invalid("extern_invoke env.codegen.emit_object expects 1 arg"))
+                        }
+                    }
+                    ("env.codegen", "compile_json_path") => {
+                        let json_path =
+                            match first_arg_str {
+                                Some(s) => s,
+                                None => return Some(Err(self.err_invalid(
+                                    "extern_invoke env.codegen.compile_json_path expects 1+ args",
+                                ))),
+                            };
+                        let out = if let Some(a2) = args.get(2) {
+                            let v = match self.reg_load(*a2) {
+                                Ok(v) => v,
+                                Err(e) => return Some(Err(e)),
+                            };
+                            match v {
+                                VMValue::BoxRef(b) => {
+                                    if let Some(ab) =
+                                        b.as_any().downcast_ref::<crate::boxes::array::ArrayBox>()
+                                    {
+                                        let idx1: Box<dyn crate::box_trait::NyashBox> =
+                                            Box::new(crate::box_trait::IntegerBox::new(1));
+                                        let s1 = ab.get(idx1).to_string_box().value;
+                                        Self::optional_codegen_text(s1)
+                                            .map(std::path::PathBuf::from)
+                                    } else {
+                                        let text = b.to_string_box().value;
+                                        Self::optional_codegen_text(text)
+                                            .map(std::path::PathBuf::from)
+                                    }
+                                }
+                                other => {
+                                    let text = other.to_string();
+                                    Self::optional_codegen_text(text)
+                                        .map(std::path::PathBuf::from)
+                                }
+                            }
+                        } else {
+                            None
+                        };
+                        let opts = Self::codegen_object_opts(out);
+                        match crate::host_providers::llvm_codegen::mir_json_file_to_object(
+                            std::path::Path::new(&json_path),
+                            opts,
+                        ) {
+                            Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
+                            Err(e) => Err(self
+                                .err_with_context("env.codegen.compile_json_path", &e.to_string())),
                         }
                     }
                     ("env.codegen", "link_object") => {
@@ -597,13 +691,13 @@ impl MirInterpreter {
                                         let idx1: Box<dyn crate::box_trait::NyashBox> =
                                             Box::new(crate::box_trait::IntegerBox::new(1));
                                         let s1 = ab.get(idx1).to_string_box().value;
-                                        if !s1.is_empty() {
+                                        if let Some(s1) = Self::optional_codegen_text(s1) {
                                             exe_s = Some(s1);
                                         }
                                         let idx2: Box<dyn crate::box_trait::NyashBox> =
                                             Box::new(crate::box_trait::IntegerBox::new(2));
                                         let s2 = ab.get(idx2).to_string_box().value;
-                                        if !s2.is_empty() {
+                                        if let Some(s2) = Self::optional_codegen_text(s2) {
                                             extra_s = Some(s2);
                                         }
                                     } else {

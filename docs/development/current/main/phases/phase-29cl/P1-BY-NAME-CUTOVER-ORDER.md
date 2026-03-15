@@ -16,6 +16,8 @@ Related:
 1. `BYN-min1` no-new-mainline lock
    - no new daily caller may be introduced on `nyash.plugin.invoke_by_name_i64`
    - new backend/runtime work must stop at TypeBox ABI v2 / Core C ABI / thin backend boundary
+   - landed guard: `tools/checks/phase29cl_by_name_mainline_guard.sh`
+   - landed allowlist: `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
 2. `BYN-min2` backend caller cutover
    - move visible backend daily callers off module-string `by_name`
    - first owner remains `phase-29ck` B1c/B1d

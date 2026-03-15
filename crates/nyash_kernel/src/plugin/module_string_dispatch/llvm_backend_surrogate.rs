@@ -1,6 +1,4 @@
 use super::{decode_string_handle, encode_string_handle, trace_log};
-use serde_json::json;
-use std::fs;
 use std::path::Path;
 
 const LLVM_BACKEND_MODULE: &str = "selfhost.shared.backend.llvm_backend";
@@ -33,8 +31,6 @@ fn is_link_exe_route(module_name: &str, method_name: &str) -> bool {
 
 fn handle_compile_obj(arg_count: i64, arg1: i64, arg2: i64) -> Option<i64> {
     let mir_path = decode_required_arg(arg_count, arg1, arg2)?;
-    let mir_json = fs::read_to_string(&mir_path).ok()?;
-    let mir_payload = inject_v1_meta_externs(&mir_json)?;
     let opts = nyash_rust::host_providers::llvm_codegen::Opts {
         out: None,
         nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
@@ -46,7 +42,10 @@ fn handle_compile_obj(arg_count: i64, arg1: i64, arg2: i64) -> Option<i64> {
             .or(Some("0".to_string())),
         timeout_ms: None,
     };
-    match nyash_rust::host_providers::llvm_codegen::mir_json_to_object(&mir_payload, opts) {
+    match nyash_rust::host_providers::llvm_codegen::mir_json_file_to_object(
+        Path::new(&mir_path),
+        opts,
+    ) {
         Ok(obj_path) => Some(encode_string_handle(&obj_path.to_string_lossy())),
         Err(error_text) => {
             trace_log(format!(
@@ -87,35 +86,9 @@ fn decode_required_arg(arg_count: i64, arg1: i64, arg2: i64) -> Option<String> {
     decode_string_handle(arg1).or_else(|| decode_string_handle(arg2))
 }
 
-fn inject_v1_meta_externs(mir_json: &str) -> Option<String> {
-    let mut value: serde_json::Value = serde_json::from_str(mir_json).ok()?;
-    let root = value.as_object_mut()?;
-    root.insert("kind".to_string(), serde_json::Value::String("MIR".to_string()));
-    root.insert(
-        "schema_version".to_string(),
-        serde_json::Value::String("1.0".to_string()),
-    );
-
-    match root.get_mut("metadata") {
-        Some(serde_json::Value::Object(metadata)) => {
-            metadata
-                .entry("extern_c".to_string())
-                .or_insert_with(|| json!([]));
-        }
-        _ => {
-            root.insert("metadata".to_string(), json!({ "extern_c": [] }));
-        }
-    }
-
-    serde_json::to_string(&value).ok()
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{
-        inject_v1_meta_externs, try_dispatch, COMPILE_OBJ_METHOD, LINK_EXE_METHOD,
-        LLVM_BACKEND_MODULE,
-    };
+    use super::{try_dispatch, COMPILE_OBJ_METHOD, LINK_EXE_METHOD, LLVM_BACKEND_MODULE};
     use crate::plugin::module_string_dispatch::{decode_string_handle, encode_string_handle};
 
     #[test]
@@ -139,21 +112,10 @@ mod tests {
     }
 
     #[test]
-    fn llvm_backend_inject_meta_adds_schema_and_metadata() {
-        let mir_json = r#"{"functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"ret","value":1}]}]}]}"#;
-        let out = inject_v1_meta_externs(mir_json).expect("json");
-        let value: serde_json::Value = serde_json::from_str(&out).expect("valid json");
-        assert_eq!(value["kind"], "MIR");
-        assert_eq!(value["schema_version"], "1.0");
-        assert_eq!(value["metadata"]["extern_c"], serde_json::json!([]));
-        assert!(value["functions"].is_array());
-    }
-
-    #[test]
     fn llvm_backend_compile_obj_decode_prefers_first_string_handle() {
         let mir_path = encode_string_handle("/tmp/any.mir.json");
-        let out = try_dispatch(LLVM_BACKEND_MODULE, COMPILE_OBJ_METHOD, 1, mir_path, 0)
-            .expect("route");
+        let out =
+            try_dispatch(LLVM_BACKEND_MODULE, COMPILE_OBJ_METHOD, 1, mir_path, 0).expect("route");
         if out > 0 {
             let text = decode_string_handle(out).expect("string handle");
             assert!(!text.is_empty());

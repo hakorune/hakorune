@@ -68,7 +68,8 @@ Related:
 - landed shape:
   - `vm-hako` runtime now has narrow `LlvmBackendBox.compile_obj/1` and `link_exe/3` execution helpers
   - vm-hako backend helpers now route through owner-local helper methods that lower to canonical `Callee::Extern(env.codegen.*)`
-  - MIR(JSON v0) payload is normalized to `schema_version: "1.0"` before `env.codegen.emit_object`
+  - daily compile path now calls `env.codegen.compile_json_path`
+  - MIR(JSON v0) payload normalization is owned by Rust backend boundary `normalize_mir_json_for_backend(...)`, not by `.hako` caller-side file reads
   - final replay is `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
 - rule:
   - keep `compile_obj/1` and `link_exe/3` narrow; do not widen generic custom-box boxcall execution

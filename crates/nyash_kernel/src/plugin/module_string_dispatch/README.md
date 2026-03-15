@@ -20,6 +20,7 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate only
   - temporary B1 bridge owner for launcher/stage1-cli daily callers that still lower imported `LlvmBackendBox` methods to module-string receiver dispatch
   - owner of the backend boundary route match/dispatch contract and its regression coverage
+  - compile side now shares the same path-based contract as the daily boundary through `mir_json_file_to_object(...)`
   - does not become the final backend owner; it remains a compiled-stage1 stop-gap until daily callers stop at the thin backend C boundary directly
 
 ## Retirement Note

@@ -128,8 +128,10 @@ rule:
   3. `B1c` compile contract lock
      - freeze normalized JSON temp ownership and object-output temp ownership between `LlvmBackendBox` and `hako_aot`
      - remove ambiguity between `compile_obj(json_path)` and `hako_aot_compile_json(json_in, obj_out, ...)`
+     - landed: daily compile owner is now path-based `CodegenBridgeBox.compile_json_path_args(...)`, and Rust boundary normalization moved into `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
   4. `B1d` env truth lock
      - unify `NYASH_LLVM_COMPILER` / `NYASH_NY_LLVM_COMPILER` wording and boundary docs
+     - landed: `NYASH_NY_LLVM_COMPILER` is the ny-llvmc path truth; `NYASH_LLVM_COMPILER` remains `tools/build_llvm.sh` selector only
 - acceptance anchor:
   - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
@@ -194,6 +196,10 @@ rule:
   - move visible daily callers off module-string / method-name by-name routes before kernel delete
   - shrink compiled-stage1 surrogates only after replacement proof exists
   - demote hook/registry residue to compat-only
+- landed first slice:
+  - `tools/checks/phase29cl_by_name_mainline_guard.sh`
+  - `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
+  - `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
 - current worker-backed inventory:
   - kernel entry owner: `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
   - upstream daily caller/dependency pack:

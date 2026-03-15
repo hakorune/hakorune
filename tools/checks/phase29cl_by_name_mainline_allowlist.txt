@@ -1,0 +1,12 @@
+# Phase 29cl BYN-min1: by-name mainline lock allowlist
+# Files allowed to reference `nyash.plugin.invoke_by_name_i64` while by-name retirement is in progress.
+
+lang/c-abi/shims/hako_llvmc_ffi.c
+crates/nyash_kernel/src/plugin/invoke/by_name.rs
+crates/nyash_kernel/src/plugin/invoke/tests.rs
+crates/nyash_kernel/src/plugin/mod.rs
+crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs
+crates/nyash_kernel/src/tests.rs
+src/llvm_py/instructions/boxcall.py
+src/llvm_py/instructions/mir_call/method_call.py
+src/llvm_py/instructions/mir_call_legacy.py

@@ -239,13 +239,15 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 ## LLVM Build Pipeline
 
 `tools/build_llvm.sh` で使用される環境変数。詳細は [`phase87-selfhost-llvm-exe-line.md`](../development/current/main/phase87-selfhost-llvm-exe-line.md) を参照。
+この節の `NYASH_LLVM_COMPILER` は build-helper の mode selector だけを指すよ。backend-zero daily boundary の ny-llvmc path truth は `NYASH_NY_LLVM_COMPILER` だよ。
 
 ### Control Variables
 
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
 | `NYASH_BIN` | `./target/release/hakorune` | hakorune バイナリのパス |
-| `NYASH_LLVM_COMPILER` | `harness` | コンパイラモード: `harness` または `crate` |
+| `NYASH_LLVM_COMPILER` | `harness` | `tools/build_llvm.sh` のローカル mode selector。`harness` または `crate`。mainline backend boundary の ny-llvmc path truth には使わない |
+| `NYASH_NY_LLVM_COMPILER` | `target/release/ny-llvmc` | ny-llvmc バイナリのパス。backend-zero thin boundary / selfhost / stage1 helper で使う path truth |
 | `NYASH_LLVM_FEATURE` | `llvm` | LLVM feature flag (`llvm` または `llvm-inkwell-legacy`) |
 | `NYASH_LLVM_OBJ_OUT` | `target/aot_objects/<stem>.o` | オブジェクトファイル出力パス |
 | `NYASH_CLI_VERBOSE` | `0` | 詳細ビルド出力を有効化 |

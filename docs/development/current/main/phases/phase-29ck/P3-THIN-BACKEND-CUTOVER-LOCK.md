@@ -73,7 +73,7 @@ rule:
 
 - `NYASH_LLVM_USE_CAPI`
 - `HAKO_V1_EXTERN_PROVIDER_C_ABI`
-- `NYASH_LLVM_COMPILER`
+- `NYASH_NY_LLVM_COMPILER`
 - `NYASH_LLVM_BACKEND`
 - `HAKO_AOT_USE_FFI`
 - `HAKO_AOT_FFI_LIB`
@@ -99,6 +99,9 @@ rule:
 - `HAKO_LLVM_EMIT_PROVIDER`
   - `LLVMEmitBox` canary 用
   - thin backend cutover の selector にはしない
+- `NYASH_LLVM_COMPILER`
+  - `tools/build_llvm.sh` の local mode selector (`harness|crate`) only
+  - thin backend boundary / daily caller の ny-llvmc path truth にはしない
 
 ### 4.4 Retire / no-new-work
 
@@ -127,15 +130,17 @@ rule:
 - landed first cut:
   - `lang/c-abi/include/hako_aot.h` is the canonical AOT compile/link header; `hako_hostbridge.h` keeps only thin-shim inclusion for those declarations
   - `lang/c-abi/shims/hako_aot_shared_impl.inc` is the shared compile/link source truth used by both `hako_aot.c` and `hako_kernel.c`
-  - `LlvmBackendBox.compile_obj(json_path)` reads file content, injects `schema_version: "1.0"` via `MirV1MetaInjectBox`, then calls `CodegenBridgeBox.emit_object_args(...)`
+  - `LlvmBackendBox.compile_obj(json_path)` forwards file-path ownership to `CodegenBridgeBox.compile_json_path_args(...)`
+  - MIR normalization (`kind: "MIR"`, `schema_version: "1.0"`, `metadata.extern_c`) is now owned by `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
   - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` calls `CodegenBridgeBox.link_object_args(...)`
   - non-empty `libs` is now forwarded as the third `env.codegen.link_object` arg
   - current canonical encoding is `libs -> single extra_ldflags string`
   - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under `llvm_codegen::link_object_capi(...)` / `hako_aot_link_obj(...)`
 - `.hako` surface parser does not accept `throw`, so failure contract is stable tag print (`[llvmbackend/*]`) + `null`
-- current proof shape is:
+  - current proof shape is:
     - direct MIR emit accepts a `.hako` caller that imports `selfhost.shared.backend.llvm_backend`
-    - `LlvmBackendBox` source owner is pinned to `MirV1MetaInjectBox` + `CodegenBridgeBox.emit_object_args/link_object_args`
+    - `LlvmBackendBox` source owner is pinned to `CodegenBridgeBox.compile_json_path_args/link_object_args`
+    - compiled-stage1 temporary `llvm_backend_surrogate.rs` now shares the same path-based compile contract through `mir_json_file_to_object(...)`
     - downstream native app parity stays green on `phase29ck_native_llvm_cabi_link_min.sh`
     - non-empty `libs` is pinned by `phase29ck_llvm_backend_box_capi_link_min.sh`
   - final runtime-proof owner is `.hako VM`, not regular VM

@@ -87,13 +87,17 @@ Rule:
 7. this phase does not mean “delete by_name now”
    - order is caller cutover first
    - kernel delete/shrink only after those callers are gone
+8. `BYN-min1` lock is landed
+   - `tools/checks/phase29cl_by_name_mainline_guard.sh`
+   - `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
+   - `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
 
 ## Immediate Next
 
-1. freeze the exact owner inventory
-2. classify daily callers and temporary keeps
-3. move visible daily callers off `by_name`
-4. keep compiled-stage1 surrogates only as temporary proof paths
+1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
+2. move visible daily callers off `by_name`
+3. keep compiled-stage1 surrogates only as temporary proof paths
+4. reduce hook/registry keeps to explicit compat-only
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 
 ## Acceptance

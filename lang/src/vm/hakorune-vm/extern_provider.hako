@@ -48,9 +48,19 @@ static box HakoruneExternProviderBox {
         // 現段階では Core 側で C-API/llvmlite の切替を行う。
         // 互換のため *_ny も最終的に emit_object へ委譲する。
         local out = CodegenBridgeBox.emit_object_args(args)
+        if out == null { return null }
         return "" + out
       }
       // Default: return empty string (verify/dev stub keeps rc=0)
+      return ""
+    }
+    if name == "env.codegen.compile_json_path" {
+      if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
+        if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:codegen.compile_json_path]") }
+        local out = CodegenBridgeBox.compile_json_path_args(args)
+        if out == null { return null }
+        return "" + out
+      }
       return ""
     }
     if name == "env.box_introspect.kind" {

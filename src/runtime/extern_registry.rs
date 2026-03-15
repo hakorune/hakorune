@@ -177,6 +177,13 @@ static EXTERNS: Lazy<Vec<ExternSpec>> = Lazy::new(|| {
             max_arity: 2,
             slot: Some(71),
         },
+        ExternSpec {
+            iface: "env.codegen",
+            method: "compile_json_path",
+            min_arity: 1,
+            max_arity: 2,
+            slot: Some(72),
+        },
         // hostbridge trampoline (dev/testing)
         ExternSpec {
             iface: "hostbridge",

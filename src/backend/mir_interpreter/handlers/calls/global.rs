@@ -164,6 +164,39 @@ impl MirInterpreter {
             "env.mirbuilder.emit" | "env.mirbuilder.emit/1" => {
                 return self.execute_extern_function("env.mirbuilder.emit", args);
             }
+            "env.codegen.compile_json_path" | "env.codegen.compile_json_path/1" => {
+                let json_path = if let Some(a0) = args.get(0) {
+                    self.reg_load(*a0)?.to_string()
+                } else {
+                    return Err(self.err_invalid("env.codegen.compile_json_path expects 1+ args"));
+                };
+                let out = args
+                    .get(1)
+                    .map(|a1| self.reg_load(*a1))
+                    .transpose()?
+                    .map(|v| v.to_string())
+                    .filter(|s| !s.is_empty() && s != "null")
+                    .map(std::path::PathBuf::from);
+                let opts = crate::host_providers::llvm_codegen::Opts {
+                    out,
+                    nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
+                        .ok()
+                        .map(std::path::PathBuf::from),
+                    opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
+                        .ok()
+                        .or(Some("0".to_string())),
+                    timeout_ms: None,
+                };
+                match crate::host_providers::llvm_codegen::mir_json_file_to_object(
+                    std::path::Path::new(&json_path),
+                    opts,
+                ) {
+                    Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
+                    Err(e) => {
+                        Err(self.err_with_context("env.codegen.compile_json_path", &e.to_string()))
+                    }
+                }
+            }
             "env.codegen.emit_object" | "env.codegen.emit_object/1" => {
                 if let Some(a0) = args.get(0) {
                     let s = self.reg_load(*a0)?.to_string();

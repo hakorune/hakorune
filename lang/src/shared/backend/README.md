@@ -8,7 +8,9 @@ Current owner
   - `llvm_backend_box.hako`
   - thin backend boundary の caller facade
   - final target は `LlvmBackendBox -> hako_aot -> backend helper`
-  - first implementation uses `MirV1MetaInjectBox` + `CodegenBridgeBox -> HostFacadeBox.call("loader","codegen.*", ...)`
+  - daily compile owner is now path-based `CodegenBridgeBox.compile_json_path_args(...)`
+  - MIR normalization (`schema_version: "1.0"` / `metadata.extern_c`) is owned by Rust backend boundary `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
+  - `emit_object` remains compat keep for legacy/provider probes only
   - public first-cut contract:
     - `compile_obj(json_path)` -> object path or `null` with `[llvmbackend/*]`
     - `link_exe(obj_path, out_path, libs)` -> `1` or `null` with `[llvmbackend/*]`

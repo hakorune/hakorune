@@ -10,6 +10,8 @@ Scope:
 - convenience wrappers (`box_new0`, `box_call0`, `box_call1`) for existing call sites.
 - `CodegenBridgeBox`
   - temporary bridge for `env.codegen.*`
+  - path-based daily compile helper is `compile_json_path[_args]`
+  - raw `emit_object[_args]` stays compat keep only
   - do not treat as final backend-zero daily caller stop-point
 
 Rules:

@@ -88,15 +88,28 @@ static box HostFacadeBox {
   }
 
   _dispatch_loader_codegen(selector, payload) {
+    if selector == "codegen.compile_json_path" {
+      return me._invoke_codegen_compile_json_path(payload)
+    }
     if selector == "codegen.emit_object" {
-      local args = me._payload_as_array(payload)
-      return hostbridge.extern_invoke("env.codegen", "emit_object", args)
+      return me._invoke_codegen_emit_object(payload)
     }
     if selector == "codegen.link_object" {
-      local args = me._payload_as_array(payload)
-      return hostbridge.extern_invoke("env.codegen", "link_object", args)
+      return me._invoke_codegen_link_object(payload)
     }
     return null
+  }
+
+  _invoke_codegen_compile_json_path(payload) {
+    return hostbridge.extern_invoke("env.codegen", "compile_json_path", payload)
+  }
+
+  _invoke_codegen_emit_object(payload) {
+    return hostbridge.extern_invoke("env.codegen", "emit_object", payload)
+  }
+
+  _invoke_codegen_link_object(payload) {
+    return hostbridge.extern_invoke("env.codegen", "link_object", payload)
   }
 
   _dispatch_loader_box(selector, payload) {

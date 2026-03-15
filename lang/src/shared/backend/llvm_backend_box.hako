@@ -6,25 +6,18 @@
 // is not the owner for new backend-zero work.
 
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
-using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
 
 static box LlvmBackendBox {
   // Returns object path on success, or null on fail-fast error.
   compile_obj(json_path) {
     local path = me._require_non_empty("compile_obj", "json_path", json_path)
     if path == null { return null }
-    local mir_json = me._read_text(path)
-    if mir_json == null { return null }
-    local mir_payload = MirV1MetaInjectBox.inject_meta_externs("" + mir_json, "[]")
-    if mir_payload == null || ("" + mir_payload) == "" {
-      return me._fail("[llvmbackend/emit/invalid-mir] failed to inject schema_version")
-    }
     local args = new ArrayBox()
-    args.push(mir_payload)
+    args.push(path)
 
-    local obj = CodegenBridgeBox.emit_object_args(args)
+    local obj = CodegenBridgeBox.compile_json_path_args(args)
     if obj == null || ("" + obj) == "" {
-      return me._fail("[llvmbackend/emit/failed] env.codegen.emit_object returned empty")
+      return me._fail("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
     }
     return "" + obj
   }
@@ -51,20 +44,6 @@ static box LlvmBackendBox {
       return me._fail("[llvmbackend/link/path-mismatch] expected=" + out + " got=" + ("" + exe))
     }
     return 1
-  }
-
-  _read_text(path) {
-    local fb = new FileBox()
-    local ok = fb.open(path, "r")
-    if ok != 1 {
-      return me._fail("[llvmbackend/read/open-failed] " + path)
-    }
-    local text = fb.read()
-    fb.close()
-    if text == null || ("" + text) == "" {
-      return me._fail("[llvmbackend/read/empty] " + path)
-    }
-    return "" + text
   }
 
   _require_non_empty(method_name, field_name, value) {

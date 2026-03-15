@@ -1,3 +1,4 @@
+use serde_json::json;
 use std::ffi::{CStr, CString};
 use std::fs;
 use std::io::Write;
@@ -66,9 +67,43 @@ fn ffi_library_default_candidates() -> Vec<PathBuf> {
     out
 }
 
+pub fn normalize_mir_json_for_backend(mir_json: &str) -> Result<String, String> {
+    let mut value: serde_json::Value = serde_json::from_str(mir_json)
+        .map_err(|e| format!("[llvmemit/input/invalid-json] {}", e))?;
+    let root = value
+        .as_object_mut()
+        .ok_or_else(|| "[llvmemit/input/invalid-root] expected object".to_string())?;
+    root.insert(
+        "kind".to_string(),
+        serde_json::Value::String("MIR".to_string()),
+    );
+    root.insert(
+        "schema_version".to_string(),
+        serde_json::Value::String("1.0".to_string()),
+    );
+    match root.get_mut("metadata") {
+        Some(serde_json::Value::Object(metadata)) => {
+            metadata
+                .entry("extern_c".to_string())
+                .or_insert_with(|| json!([]));
+        }
+        _ => {
+            root.insert("metadata".to_string(), json!({ "extern_c": [] }));
+        }
+    }
+    serde_json::to_string(&value).map_err(|e| format!("[llvmemit/input/serialize-failed] {}", e))
+}
+
+pub fn mir_json_file_to_object(input_json_path: &Path, opts: Opts) -> Result<PathBuf, String> {
+    let mir_json = fs::read_to_string(input_json_path)
+        .map_err(|e| format!("[llvmemit/input/read-failed] {}", e))?;
+    mir_json_to_object(&mir_json, opts)
+}
+
 /// Compile MIR(JSON v0) to an object file (.o) using ny-llvmc. Returns the output path.
 /// Fail‑Fast: prints stable tags and returns Err with the same message.
 pub fn mir_json_to_object(mir_json: &str, opts: Opts) -> Result<PathBuf, String> {
+    let mir_json = normalize_mir_json_for_backend(mir_json)?;
     // Optional provider selection (C-API) — guarded by env flags
     // NYASH_LLVM_USE_CAPI=1 and HAKO_V1_EXTERN_PROVIDER_C_ABI=1
     if crate::config::env::llvm_use_capi() && crate::config::env::extern_provider_c_abi() {
@@ -106,7 +141,7 @@ pub fn mir_json_to_object(mir_json: &str, opts: Opts) -> Result<PathBuf, String>
     }
     // Optional provider selection (default: ny-llvmc)
     match crate::config::env::llvm_emit_provider().as_deref() {
-        Some("llvmlite") => return mir_json_to_object_llvmlite(mir_json, &opts),
+        Some("llvmlite") => return mir_json_to_object_llvmlite(&mir_json, &opts),
         _ => {}
     }
     // Basic shape check for MIR(JSON v0)

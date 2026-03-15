@@ -74,8 +74,8 @@ if ! grep -q '"name": "link_exe"' "$OUT_MIR"; then
   exit 1
 fi
 
-if ! grep -q 'CodegenBridgeBox.emit_object_args' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
-  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via CodegenBridgeBox.emit_object_args)" >&2
+if ! grep -q 'CodegenBridgeBox.compile_json_path_args' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
+  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via CodegenBridgeBox.compile_json_path_args)" >&2
   exit 1
 fi
 
@@ -86,4 +86,4 @@ fi
 
 SMOKES_FORCE_LLVM=1 bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh" >/dev/null
 
-echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller compiles, libs 3rd arg reaches CodegenBridgeBox, native downstream parity stays green)"
+echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller compiles via compile_json_path, libs 3rd arg reaches CodegenBridgeBox, native downstream parity stays green)"
