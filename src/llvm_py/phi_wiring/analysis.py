@@ -4,6 +4,98 @@ from typing import Dict, List, Any, Tuple
 from .common import trace
 
 
+def _string_handle_type(value_type: Any) -> bool:
+    if value_type == "string":
+        return True
+    if not isinstance(value_type, dict):
+        return False
+    return (
+        value_type.get("kind") in ("handle", "ptr")
+        and value_type.get("box_type") == "StringBox"
+    )
+
+
+def _seed_stringish_dst(inst: Dict[str, Any]) -> int | None:
+    try:
+        opx = inst.get("op")
+        dstx = inst.get("dst")
+        if dstx is None:
+            return None
+
+        if opx == "const":
+            value = inst.get("value", {}) or {}
+            if _string_handle_type(value.get("type")):
+                return int(dstx)
+            return None
+
+        if opx == "newbox":
+            box_type = inst.get("type") or inst.get("box_type")
+            if box_type == "StringBox":
+                return int(dstx)
+            return None
+
+        if opx in ("binop", "boxcall", "externcall"):
+            if _string_handle_type(inst.get("dst_type")):
+                return int(dstx)
+    except Exception:
+        return None
+
+    return None
+
+
+def _seed_produced_stringish(blocks: List[Dict[str, Any]]) -> Dict[int, bool]:
+    produced_str: Dict[int, bool] = {}
+    for block_data in blocks:
+        for inst in block_data.get("instructions", []) or []:
+            dst_i = _seed_stringish_dst(inst)
+            if dst_i is not None:
+                produced_str[dst_i] = True
+    return produced_str
+
+
+def _propagate_stringish_from_inst(
+    produced_str: Dict[int, bool],
+    inst: Dict[str, Any],
+) -> bool:
+    try:
+        dstx = inst.get("dst")
+        if dstx is None:
+            return False
+        dst_i = int(dstx)
+        if produced_str.get(dst_i):
+            return False
+
+        opx = inst.get("op")
+        if opx == "copy":
+            src = inst.get("src")
+            if src is not None and produced_str.get(int(src)):
+                produced_str[dst_i] = True
+                return True
+            return False
+
+        if opx == "phi":
+            for pair in inst.get("incoming", []) or []:
+                try:
+                    v_src, _b = pair
+                except Exception:
+                    continue
+                if produced_str.get(int(v_src)):
+                    produced_str[dst_i] = True
+                    return True
+            return False
+
+        if opx == "binop" and inst.get("operation") == "+":
+            for side in ("lhs", "rhs"):
+                value_id = inst.get(side)
+                if value_id is not None and produced_str.get(int(value_id)):
+                    produced_str[dst_i] = True
+                    return True
+    except Exception:
+        return False
+
+    return False
+
+
 def collect_produced_stringish(blocks: List[Dict[str, Any]]) -> Dict[int, bool]:
     """Collect value-ids that are known to be string handles (best-effort).
 
@@ -16,42 +108,7 @@ def collect_produced_stringish(blocks: List[Dict[str, Any]]) -> Dict[int, bool]:
       PHI dst won't be tagged early, and the concat lowerer may incorrectly box
       an i64-handle as an IntegerBox (breaking runtime string length/parity).
     """
-    produced_str: Dict[int, bool] = {}
-
-    # Seed: explicit producers with reliable type signals.
-    for block_data in blocks:
-        for inst in block_data.get("instructions", []) or []:
-            try:
-                opx = inst.get("op")
-                dstx = inst.get("dst")
-                if dstx is None:
-                    continue
-                is_str = False
-                if opx == "const":
-                    v = inst.get("value", {}) or {}
-                    t = v.get("type")
-                    if t == "string" or (
-                        isinstance(t, dict)
-                        and t.get("kind") in ("handle", "ptr")
-                        and t.get("box_type") == "StringBox"
-                    ):
-                        is_str = True
-                elif opx == "newbox":
-                    t = inst.get("type") or inst.get("box_type")
-                    if t == "StringBox":
-                        is_str = True
-                elif opx in ("binop", "boxcall", "externcall"):
-                    t = inst.get("dst_type")
-                    if (
-                        isinstance(t, dict)
-                        and t.get("kind") == "handle"
-                        and t.get("box_type") == "StringBox"
-                    ):
-                        is_str = True
-                if is_str:
-                    produced_str[int(dstx)] = True
-            except Exception:
-                pass
+    produced_str = _seed_produced_stringish(blocks)
 
     # Propagate: copy/phi/binop('+') can carry/produce stringish values even when
     # dst_type metadata is missing. Use a small fixpoint iteration to cover chains.
@@ -60,48 +117,8 @@ def collect_produced_stringish(blocks: List[Dict[str, Any]]) -> Dict[int, bool]:
         changed = False
         for block_data in blocks:
             for inst in block_data.get("instructions", []) or []:
-                try:
-                    opx = inst.get("op")
-                    dstx = inst.get("dst")
-                    if dstx is None:
-                        continue
-                    dst_i = int(dstx)
-                    if produced_str.get(dst_i):
-                        continue
-
-                    if opx == "copy":
-                        src = inst.get("src")
-                        if src is not None and produced_str.get(int(src)):
-                            produced_str[dst_i] = True
-                            changed = True
-                            continue
-
-                    if opx == "phi":
-                        incoming0 = inst.get("incoming", []) or []
-                        # JSON v0 incoming pairs are (value_id, block_id)
-                        for (v_src, _b) in incoming0:
-                            try:
-                                if produced_str.get(int(v_src)):
-                                    produced_str[dst_i] = True
-                                    changed = True
-                                    break
-                            except Exception:
-                                continue
-                        continue
-
-                    if opx == "binop" and inst.get("operation") == "+":
-                        lhs = inst.get("lhs")
-                        rhs = inst.get("rhs")
-                        if lhs is not None and produced_str.get(int(lhs)):
-                            produced_str[dst_i] = True
-                            changed = True
-                            continue
-                        if rhs is not None and produced_str.get(int(rhs)):
-                            produced_str[dst_i] = True
-                            changed = True
-                            continue
-                except Exception:
-                    continue
+                if _propagate_stringish_from_inst(produced_str, inst):
+                    changed = True
 
     return produced_str
 

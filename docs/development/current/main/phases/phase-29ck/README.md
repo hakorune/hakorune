@@ -160,6 +160,10 @@ Related:
    - `src/llvm_py/mir_analysis.py` now keeps const-string scan and call-arity record behind owner-local helpers (`_collect_const_string_names`, `_record_call_arity`)
    - `scan_call_arities(...)` now reads as function-level orchestration instead of mixing seed collection and max-arity update inline
    - support-owner proof is pinned by `src/llvm_py/tests/test_mir_analysis.py`
+31. landed B3d phi-wiring-analysis slice:
+   - `src/llvm_py/phi_wiring/analysis.py` now keeps stringish seed classification and fixpoint propagation behind owner-local helpers (`_seed_produced_stringish(...)`, `_propagate_stringish_from_inst(...)`)
+   - `collect_produced_stringish(...)` now reads as orchestration instead of mixing producer classification with copy/phi/binop propagation inline
+   - support-owner proof is pinned by `src/llvm_py/tests/test_phi_wiring.py`
 
 ## Non-goals
 
@@ -196,7 +200,7 @@ Related:
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
 4. next backend demotion front
    - `phase-29cl` compiled-stage1 surrogate shrink remains the first exact next slice
-   - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py`; move to the next support owner pack (`phi_wiring/**` / related analysis seams)
+   - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py` / `phi_wiring/analysis.py`; move to the next `phi_wiring/**` owner seam (`tagging.py` / `fact_propagation.py` / `wiring.py`)
 5. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
    - temporary seam/env retirement check

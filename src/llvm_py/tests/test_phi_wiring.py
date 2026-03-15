@@ -13,6 +13,46 @@ from src.llvm_py import phi_wiring
 
 
 class TestPhiWiringHelpers(unittest.TestCase):
+    def test_collect_produced_stringish_seeds_explicit_string_producers(self):
+        blocks = [
+            {
+                "id": 0,
+                "instructions": [
+                    {"op": "const", "dst": 7, "value": {"type": "string", "value": "hi"}},
+                    {"op": "newbox", "dst": 8, "type": "StringBox"},
+                    {
+                        "op": "externcall",
+                        "dst": 9,
+                        "dst_type": {"kind": "handle", "box_type": "StringBox"},
+                    },
+                ],
+            }
+        ]
+
+        produced = phi_wiring.collect_produced_stringish(blocks)
+        self.assertEqual(produced, {7: True, 8: True, 9: True})
+
+    def test_collect_produced_stringish_propagates_copy_phi_and_binop(self):
+        blocks = [
+            {
+                "id": 0,
+                "instructions": [
+                    {"op": "const", "dst": 10, "value": {"type": "string", "value": "seed"}},
+                    {"op": "copy", "dst": 11, "src": 10},
+                ],
+            },
+            {
+                "id": 1,
+                "instructions": [
+                    {"op": "phi", "dst": 12, "incoming": [(11, 0), (99, 2)]},
+                    {"op": "binop", "dst": 13, "operation": "+", "lhs": 12, "rhs": 14},
+                ],
+            },
+        ]
+
+        produced = phi_wiring.collect_produced_stringish(blocks)
+        self.assertEqual(produced, {10: True, 11: True, 12: True, 13: True})
+
     def test_analyze_incomings_simple(self):
         blocks = [
             {

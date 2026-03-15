@@ -211,6 +211,10 @@ rule:
        - `src/llvm_py/mir_analysis.py` now owns helper-local const-string scan and call-arity record helpers
        - `scan_call_arities(...)` now consumes those helpers instead of mixing seed collection and max-arity update inline
        - proof is pinned by `src/llvm_py/tests/test_mir_analysis.py`
+     - landed fifth slice:
+       - `src/llvm_py/phi_wiring/analysis.py` now owns helper-local stringish seed classification and fixpoint propagation helpers
+       - `collect_produced_stringish(...)` now consumes those helpers instead of mixing producer classification and copy/phi/binop propagation inline
+       - proof is pinned by `src/llvm_py/tests/test_phi_wiring.py`
 - done shape:
   - Python is no longer mainline backend owner
 
