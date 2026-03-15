@@ -228,6 +228,17 @@ fn run_ny_llvmc_emit_exe(
     spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
 
+fn emit_json_and_run_ny_llvmc_emit_exe(
+    emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<(), String> {
+    let json_path = prepare_ny_llvmc_emit_json_path();
+    emit_json(&json_path)?;
+    run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs)
+}
+
 /// Emit native executable via ny-llvmc (lib-side MIR)
 #[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_lib(
@@ -236,10 +247,15 @@ pub fn ny_llvmc_emit_exe_lib(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    let json_path = prepare_ny_llvmc_emit_json_path();
-    crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
-        .map_err(|e| format!("MIR JSON emit error: {}", e))?;
-    run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs)
+    emit_json_and_run_ny_llvmc_emit_exe(
+        |json_path| {
+            crate::runner::mir_json_emit::emit_mir_json_for_harness(module, json_path)
+                .map_err(|e| format!("MIR JSON emit error: {}", e))
+        },
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+    )
 }
 
 /// Emit native executable via ny-llvmc (bin-side MIR)
@@ -250,10 +266,15 @@ pub fn ny_llvmc_emit_exe_bin(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<(), String> {
-    let json_path = prepare_ny_llvmc_emit_json_path();
-    crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &json_path)
-        .map_err(|e| format!("MIR JSON emit error: {}", e))?;
-    run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs)
+    emit_json_and_run_ny_llvmc_emit_exe(
+        |json_path| {
+            crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, json_path)
+                .map_err(|e| format!("MIR JSON emit error: {}", e))
+        },
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+    )
 }
 
 /// Run an executable with arguments and a timeout.
