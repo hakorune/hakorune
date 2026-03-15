@@ -170,6 +170,10 @@ rule:
        - `NyashLLVMBuilder` / lowering/support stay out of scope for B3a
   2. `B3b` MIR ingest/context demotion inventory
      - classify `src/llvm_py/mir_reader.py` and `src/llvm_py/{build_ctx.py,build_opts.py}` as decode/context owners
+     - landed first slice:
+       - `src/llvm_py/mir_reader.py` now owns normalized `BuilderInput` ingest for `llvm_builder.py`
+       - `src/llvm_py/build_opts.py` now owns `BuildOptions` env/codegen context for object emission
+       - `src/llvm_py/build_ctx.py` remains a context-owner keep without a mainline caller yet; do not force eager wiring just to satisfy inventory symmetry
   3. `B3c` opcode-lowering demotion inventory
      - classify `src/llvm_py/instructions/**` as opcode owner pack
      - split “mainline must replace” from “compat canary can remain”

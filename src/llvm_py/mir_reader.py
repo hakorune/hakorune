@@ -4,7 +4,7 @@ Parses Nyash MIR JSON format into Python structures
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional, Union, Tuple
+from typing import Callable, Dict, List, Any, Optional, Union, Tuple
 from enum import Enum
 
 class MirType(Enum):
@@ -55,6 +55,14 @@ class MirInstruction:
     box_val: Optional[int] = None # For BoxCall
     method: Optional[str] = None
     args: Optional[List[int]] = None
+
+
+@dataclass
+class BuilderInput:
+    """Normalized MIR payload for llvm_builder orchestration."""
+    user_box_decls: List[Dict[str, Any]]
+    functions: List[Dict[str, Any]]
+    call_arities: Dict[str, int]
     
 def parse_mir_json(data: Dict[str, Any]) -> Dict[str, MirFunction]:
     """Parse MIR JSON into Python structures"""
@@ -115,6 +123,43 @@ def parse_instruction(data: Dict[str, Any]) -> MirInstruction:
     
     return instr
 
+
+def normalize_functions_payload(mir_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Normalize v0/v1 MIR `functions` payload into llvm_builder list form."""
+    funcs = mir_json.get("functions", [])
+    if isinstance(funcs, list):
+        return funcs
+
+    normalized: List[Dict[str, Any]] = []
+    if isinstance(funcs, dict):
+        for name, func_data in funcs.items():
+            entry = dict(func_data)
+            entry["name"] = name
+            normalized.append(entry)
+    return normalized
+
+
+def build_builder_input(
+    mir_json: Dict[str, Any],
+    scan_call_arities_fn: Callable[[List[Dict[str, Any]]], Dict[str, int]],
+) -> BuilderInput:
+    """Collect llvm_builder ingest payload in one owner-local seam."""
+    functions = normalize_functions_payload(mir_json)
+    try:
+        call_arities = scan_call_arities_fn(functions)
+    except Exception:
+        call_arities = {}
+
+    user_box_decls = mir_json.get("user_box_decls", [])
+    if not isinstance(user_box_decls, list):
+        user_box_decls = []
+
+    return BuilderInput(
+        user_box_decls=user_box_decls,
+        functions=functions,
+        call_arities=call_arities,
+    )
+
 class MIRReader:
     """MIR JSON reader wrapper - supports v0 and v1 schema"""
     def __init__(self, mir_json: Dict[str, Any]):
@@ -142,26 +187,7 @@ class MIRReader:
         if self.functions is not None:
             return self.functions
 
-        # Convert from the existing JSON format to what llvm_builder expects
-        self.functions = []
-
-        # Phase 15.5: v1 schema support
-        if self.schema_version.startswith("1."):
-            # v1 schema: {"schema_version": "1.0", "functions": [...]}
-            funcs = self.mir_json.get("functions", [])
-        else:
-            # v0 schema: {"functions": [...]} (legacy)
-            funcs = self.mir_json.get("functions", [])
-
-        if isinstance(funcs, list):
-            # Already in list format (standard)
-            self.functions = funcs
-        elif isinstance(funcs, dict):
-            # Convert dict format to list (legacy format)
-            for name, func_data in funcs.items():
-                func_data["name"] = name
-                self.functions.append(func_data)
-
+        self.functions = normalize_functions_payload(self.mir_json)
         return self.functions
 
     def get_metadata(self) -> Dict[str, Any]:

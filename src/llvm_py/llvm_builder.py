@@ -18,11 +18,11 @@ from builders.legacy_block_lower import (
     finalize_phis as _legacy_finalize_phis,
 )
 from trace import debug as trace_debug
-from build_opts import create_target_machine_for_target, parse_opt_level_env
+from build_opts import create_target_machine_for_target, resolve_build_options
 from mir_analysis import scan_call_arities
 
 from resolver import Resolver
-from mir_reader import MIRReader
+from mir_reader import build_builder_input
 
 _FUNC_DECL_RE = re.compile(r"^define\b.*@([^(]+)\(")
 _BLOCK_LABEL_RE = re.compile(r"^([A-Za-z$._][\w$.-]*):")
@@ -162,17 +162,10 @@ class NyashLLVMBuilder:
         
     def build_from_mir(self, mir_json: Dict[str, Any]) -> str:
         """Build LLVM IR from MIR JSON"""
-        # Phase 285LLVM-1.1: Extract user box declarations for registration
-        self.user_box_decls = mir_json.get("user_box_decls", [])
-
-        # Parse MIR
-        reader = MIRReader(mir_json)
-        functions = reader.get_functions()
-
-        try:
-            self.call_arities = scan_call_arities(functions)
-        except Exception:
-            self.call_arities = {}
+        builder_input = build_builder_input(mir_json, scan_call_arities)
+        self.user_box_decls = builder_input.user_box_decls
+        functions = builder_input.functions
+        self.call_arities = builder_input.call_arities
         
         if not functions:
             # No functions - create dummy ny_main
@@ -310,11 +303,15 @@ class NyashLLVMBuilder:
     
     def compile_to_object(self, output_path: str):
         """Compile module to object file"""
+        build_opts = resolve_build_options()
         # Create target machine
         target = llvm.Target.from_default_triple()
-        target_machine = create_target_machine_for_target(target)
+        target_machine = create_target_machine_for_target(
+            target,
+            opt_level=build_opts.opt_level,
+        )
         try:
-            trace_debug(f"[Python LLVM] opt-level={parse_opt_level_env()}")
+            trace_debug(f"[Python LLVM] opt-level={build_opts.opt_level}")
         except Exception:
             pass
         
@@ -331,7 +328,7 @@ class NyashLLVMBuilder:
                 print(f"[llvm_builder] IR dump failed: {e}", file=sys.stderr)
         # Optional sanitize: drop any empty PHI rows (no incoming list) to satisfy IR parser.
         # Gate with NYASH_LLVM_SANITIZE_EMPTY_PHI=1. Additionally, auto-enable when harness is requested.
-        if os.environ.get('NYASH_LLVM_SANITIZE_EMPTY_PHI') == '1' or os.environ.get('NYASH_LLVM_USE_HARNESS') == '1':
+        if build_opts.sanitize_empty_phi:
             try:
                 fixed_lines = []
                 for line in ir_text.splitlines():
@@ -344,7 +341,7 @@ class NyashLLVMBuilder:
                 pass
         mod = llvm.parse_assembly(ir_text)
         # Allow skipping verifier for iterative bring-up
-        if os.environ.get('NYASH_LLVM_SKIP_VERIFY') != '1':
+        if build_opts.verify_ir:
             try:
                 mod.verify()
             except Exception:
@@ -368,10 +365,10 @@ class NyashLLVMBuilder:
 
         # PERF-only fast path: run standard LLVM module optimization passes before codegen.
         # Keep default behavior unchanged; this is gated by NYASH_LLVM_FAST=1.
-        if os.environ.get('NYASH_LLVM_FAST') == '1' and os.environ.get('NYASH_LLVM_FAST_IR_PASSES', '1') == '1':
+        if build_opts.fast_ir_passes:
             try:
                 pmb = llvm.create_pass_manager_builder()
-                pmb.opt_level = int(parse_opt_level_env())
+                pmb.opt_level = int(build_opts.opt_level)
                 pmb.size_level = 0
                 pmb.loop_vectorize = pmb.opt_level >= 2
                 pmb.slp_vectorize = pmb.opt_level >= 2

@@ -1,8 +1,17 @@
 import os
+from dataclasses import dataclass
 import llvmlite.binding as llvm
 
 _OPT_ENV_KEYS = ("HAKO_LLVM_OPT_LEVEL", "NYASH_LLVM_OPT_LEVEL")
 _FAST_NATIVE_ENV_KEYS = ("NYASH_LLVM_FAST_NATIVE", "HAKO_LLVM_FAST_NATIVE")
+
+
+@dataclass(frozen=True)
+class BuildOptions:
+    opt_level: int
+    sanitize_empty_phi: bool
+    verify_ir: bool
+    fast_ir_passes: bool
 
 
 def parse_opt_level_env() -> int:
@@ -29,9 +38,30 @@ def parse_opt_level_env() -> int:
     return 2
 
 
+def resolve_build_options() -> BuildOptions:
+    opt_level = parse_opt_level_env()
+    return BuildOptions(
+        opt_level=opt_level,
+        sanitize_empty_phi=(
+            os.environ.get("NYASH_LLVM_SANITIZE_EMPTY_PHI") == "1"
+            or os.environ.get("NYASH_LLVM_USE_HARNESS") == "1"
+        ),
+        verify_ir=(os.environ.get("NYASH_LLVM_SKIP_VERIFY") != "1"),
+        fast_ir_passes=(
+            os.environ.get("NYASH_LLVM_FAST") == "1"
+            and os.environ.get("NYASH_LLVM_FAST_IR_PASSES", "1") == "1"
+        ),
+    )
+
+
 def resolve_codegen_opt_level():
     """Map env level to llvmlite CodeGenOptLevel enum (fallback to int). Never returns None."""
     level = parse_opt_level_env()
+    return resolve_codegen_opt_level_for_level(level)
+
+
+def resolve_codegen_opt_level_for_level(level: int):
+    """Map explicit level to llvmlite CodeGenOptLevel enum (fallback to int)."""
     if level is None:
         level = 2
     try:
@@ -69,8 +99,10 @@ def fast_native_enabled() -> bool:
     return True
 
 
-def resolve_target_machine_kwargs():
-    kwargs = {"opt": resolve_codegen_opt_level()}
+def resolve_target_machine_kwargs(opt_level: int | None = None):
+    if opt_level is None:
+        opt_level = parse_opt_level_env()
+    kwargs = {"opt": resolve_codegen_opt_level_for_level(opt_level)}
     if not fast_native_enabled():
         return kwargs
 
@@ -95,10 +127,11 @@ def resolve_target_machine_kwargs():
     return kwargs
 
 
-def create_target_machine_for_target(target):
-    kwargs = resolve_target_machine_kwargs()
+def create_target_machine_for_target(target, *, opt_level: int | None = None):
+    kwargs = resolve_target_machine_kwargs(opt_level=opt_level)
     try:
         return target.create_target_machine(**kwargs)
     except TypeError:
         # llvmlite compatibility fallback (e.g., older signatures).
-        return target.create_target_machine(opt=resolve_codegen_opt_level())
+        fallback_opt = resolve_codegen_opt_level_for_level(opt_level)
+        return target.create_target_machine(opt=fallback_opt)

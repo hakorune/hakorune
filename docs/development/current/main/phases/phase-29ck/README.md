@@ -123,6 +123,11 @@ Related:
    - `tools/llvmlite_harness.py` now keeps repo-root bootstrap, CLI parse, and `runpy` delegation behind owner-local helpers
    - `src/llvm_py/llvm_builder.py` now keeps CLI parse, MIR file load, and output-file write behind owner-local helpers
    - `NyashLLVMBuilder` itself and Python lowering/support are not part of this slice; next B3 front is ingest/context demotion
+21. landed B3b ingest/context first slice:
+   - `src/llvm_py/mir_reader.py` now owns normalized builder ingest through `BuilderInput` / `build_builder_input(...)`
+   - `src/llvm_py/build_opts.py` now owns compile-time env context through `BuildOptions` / `resolve_build_options()`
+   - `src/llvm_py/llvm_builder.py` now consumes those seams instead of re-owning MIR ingest + env-codegen flag reads inline
+   - `src/llvm_py/build_ctx.py` remains an explicit context-owner keep, but still has no mainline caller in this slice
 
 ## Non-goals
 

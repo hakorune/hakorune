@@ -14,8 +14,10 @@ ChatGPTが設計した`docs/development/design/legacy/LLVM_LAYER_OVERVIEW.md`の
 ```
 llvm_py/
 ├── README.md                  # このファイル
-├── llvm_builder.py            # メインのLLVM IR生成（パスのオーケストレーション）
-├── mir_reader.py              # MIR(JSON) ローダ
+├── llvm_builder.py            # メインのLLVM IR生成（オーケストレーションのみ）
+├── mir_reader.py              # MIR(JSON) ingest / BuilderInput 正規化
+├── build_opts.py              # codegen env / target-machine context
+├── build_ctx.py               # lowering 時の共有コンテキスト箱
 ├── resolver.py                # 値解決（SSA/PHIの局所化とキャッシュ）
 ├── utils/
 │   └── values.py              # 同一ブロック優先の解決などの共通ポリシー
