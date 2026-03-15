@@ -148,9 +148,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
   - current active owner is `src/host_providers/mir_builder.rs`
-  - latest landed leaf is explicit-route in-memory MIR emit passthrough: `module_to_mir_json(...)` now emits through `src/runner/mir_json_emit/mod.rs::emit_mir_json_string_for_harness_bin(...)`, so the active route no longer round-trips through temp MIR files
+  - latest landed bundle is explicit Program(JSON) + strict source handoff consolidation: `Stage1ProgramJsonModuleHandoff`, `SourceProgramJsonHandoff`, and `with_phase0_mir_json_env(...)` now keep parse/handoff/env-guard detail owner-local in the same file
   - targeted proof stays `cargo test user_box_decls -- --nocapture`
-  - exact next leaf is no longer temp-MIR finalize passthrough; it is the remaining shared stop-line around explicit Program(JSON) module parse / source handoff in the same owner
+  - exact next leaf is no longer explicit Program(JSON) module parse / source handoff; that bundle is landed, so the immediate post-stop-line non-Rust owner is `tools/hakorune_emit_mir.sh` fallback/delegate tail
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
 - backend-zero / `phase-29ck` exact front (2026-03-16):
@@ -219,13 +219,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. shared producer `lang/src/compiler/build/build_box.hako`
     4. shell helper trio above
   - exact next slices after the latest landed work:
-    1. `src/host_providers/mir_builder.rs`
-       - keep shrinking the remaining shared stop-line above `module_to_mir_json(...)`; the `user_box_decls` decision itself is no longer the active Rust authority leaf
-    2. `tools/hakorune_emit_mir.sh`
-       - keep shrinking the helper-local fallback/delegate tail only after the Rust stop-line leaf above is thinner
-    3. `lang/src/runner/stage1_cli_env.hako`
+    1. `tools/hakorune_emit_mir.sh`
+       - now that the remaining explicit Program(JSON) / source handoff bundle in `src/host_providers/mir_builder.rs` is landed, take the generated helper-local fallback/delegate tail next
+    2. `lang/src/runner/stage1_cli_env.hako`
        - keep shrinking `Stage1ProgramJsonCompatBox` / `Stage1MirResultValidationBox` leaves only; do not reopen source authority/body extraction in the same slice
-    4. `tools/selfhost/selfhost_build.sh`
+    3. `tools/selfhost/selfhost_build.sh`
        - only after the helper-local `hakorune_emit_mir.sh` tail is thinner
 
 - `phase-29cj` reviewer sync (2026-03-14):
@@ -309,8 +307,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - current worker judgment: keep this owner as the only active front until the remaining handoff/finalize leaves above `module_to_mir_json(...)` are thin enough to freeze
        - latest tightening: live source + explicit Program(JSON) callers now parse Program(JSON) in `src/host_providers/mir_builder.rs` and cross the shared seam only at `module_to_mir_json(...)`
        - latest tightening: test-only source evidence now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
-       - latest tightening: explicit-route finalize now keeps `Program(JSON)` parse/build and MIR JSON mutation separated behind same-file helpers `build_stage1_user_box_decls_from_program_json(...)`, `parse_program_json_value(...)`, `build_stage1_user_box_decls(...)`, `build_stage1_user_box_decls_from_names(...)`, and `inject_user_box_decls_into_mir_json(...)`
-       - latest tightening: public explicit-route entry now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`, and the stop-line finalize now reads as `emit_module_mir_json_with_stage1_user_box_decls(...)` -> `emit_module_mir_json(...)` -> `finalize_mir_json_with_stage1_user_box_decls(...)`
+       - latest tightening: explicit-route finalize now keeps `Program(JSON)` parse/build and metadata hydration separated behind same-file helpers `resolve_stage1_user_box_decls_from_program_json(...)`, `resolve_stage1_user_box_decls(...)`, `explicit_stage1_user_box_decls(...)`, and `with_stage1_user_box_decls(...)`
+       - latest tightening: public explicit-route entry now keeps shared handoff/env detail behind `Stage1ProgramJsonModuleHandoff`, `SourceProgramJsonHandoff`, and `with_phase0_mir_json_env(...)`, so both live routes read as owner-local handoff -> `module_to_mir_json(...)`
     2. de-Rust current Program(JSON v0) -> MIR(JSON) lowering in `src/host_providers/mir_builder/lowering.rs`
        - this owner is no longer the live blocker surface; treat it as test-only evidence while the live routes above the stop-line keep shrinking
        - runtime/plugin imports route is already off this owner, and the kernel/plugin Program(JSON) caller is near thin floor unless an exact disappearing route leaf appears

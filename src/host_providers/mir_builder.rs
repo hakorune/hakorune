@@ -75,13 +75,7 @@ pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Resul
 }
 
 fn emit_guarded_mir_json_from_program_json(program_json: &str) -> Result<String, String> {
-    let _env_guard = Phase0MirJsonEnvGuard::new();
-    emit_mir_json_from_program_json_module(program_json)
-}
-
-fn emit_mir_json_from_program_json_module(program_json: &str) -> Result<String, String> {
-    let module = parse_program_json_module(program_json)?;
-    emit_module_mir_json_with_stage1_user_box_decls(program_json, &module)
+    with_phase0_mir_json_env(|| stage1_program_json_module_handoff(program_json)?.emit_mir_json())
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
@@ -126,9 +120,7 @@ fn emit_program_and_mir_json_for_source(
     source_text: &str,
     emit_mir_json: fn(&str) -> Result<String, String>,
 ) -> Result<(String, String), String> {
-    let program_json = emit_program_json_for_source(source_text)?;
-    let mir_json = emit_mir_json(&program_json)?;
-    Ok((program_json, mir_json))
+    source_program_json_handoff(source_text)?.emit_program_and_mir_json(emit_mir_json)
 }
 
 #[cfg(test)]
@@ -137,7 +129,15 @@ fn emit_plain_mir_json_from_program_json_text(program_json: &str) -> Result<Stri
 }
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
-    crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(module).map_err(failfast_error)
+    crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(module)
+        .map_err(failfast_error)
+}
+
+fn with_phase0_mir_json_env<T>(
+    emit_mir_json: impl FnOnce() -> Result<T, String>,
+) -> Result<T, String> {
+    let _env_guard = Phase0MirJsonEnvGuard::new();
+    emit_mir_json()
 }
 
 fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, String> {
@@ -149,17 +149,49 @@ fn emit_program_json_for_source(source_text: &str) -> Result<String, String> {
     emit_strict_program_json_for_source(source_text)
 }
 
-fn parse_program_json_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
-    crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
+struct Stage1ProgramJsonModuleHandoff {
+    module: crate::mir::MirModule,
+    user_box_decls: Vec<serde_json::Value>,
 }
 
-fn emit_module_mir_json_with_stage1_user_box_decls(
+impl Stage1ProgramJsonModuleHandoff {
+    fn emit_mir_json(self) -> Result<String, String> {
+        let module = with_stage1_user_box_decls(&self.module, &self.user_box_decls);
+        emit_module_mir_json(&module)
+    }
+}
+
+struct SourceProgramJsonHandoff {
+    program_json: String,
+}
+
+impl SourceProgramJsonHandoff {
+    fn emit_program_and_mir_json(
+        self,
+        emit_mir_json: fn(&str) -> Result<String, String>,
+    ) -> Result<(String, String), String> {
+        let mir_json = emit_mir_json(&self.program_json)?;
+        Ok((self.program_json, mir_json))
+    }
+}
+
+fn stage1_program_json_module_handoff(
     program_json: &str,
-    module: &crate::mir::MirModule,
-) -> Result<String, String> {
-    let user_box_decls = resolve_stage1_user_box_decls_from_program_json(program_json)?;
-    let module = with_stage1_user_box_decls(module, &user_box_decls);
-    emit_module_mir_json(&module)
+) -> Result<Stage1ProgramJsonModuleHandoff, String> {
+    Ok(Stage1ProgramJsonModuleHandoff {
+        module: parse_program_json_module(program_json)?,
+        user_box_decls: resolve_stage1_user_box_decls_from_program_json(program_json)?,
+    })
+}
+
+fn source_program_json_handoff(source_text: &str) -> Result<SourceProgramJsonHandoff, String> {
+    Ok(SourceProgramJsonHandoff {
+        program_json: emit_program_json_for_source(source_text)?,
+    })
+}
+
+fn parse_program_json_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
+    crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
 }
 
 fn emit_module_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
@@ -228,9 +260,7 @@ fn stage1_user_box_decl_map(
         .collect()
 }
 
-fn stage1_user_box_decl_entry(
-    decl: &serde_json::Value,
-) -> Option<(String, Vec<String>)> {
+fn stage1_user_box_decl_entry(decl: &serde_json::Value) -> Option<(String, Vec<String>)> {
     let name = decl.get("name")?.as_str()?.trim();
     if name.is_empty() {
         return None;

@@ -122,7 +122,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - worker consensus on `src/host_providers/mir_builder/lowering.rs`: the remaining helpers there are evidence-only, while `module_to_mir_json(...)` is the real shared seam and now lives in `src/host_providers/mir_builder.rs`
 - the latest test-only source-evidence leaf now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
 - the latest explicit-route finalize leaf now keeps `Program(JSON)` parse/build and MIR JSON mutation separated behind same-file helpers `build_stage1_user_box_decls_from_program_json(...)`, `parse_program_json_value(...)`, `build_stage1_user_box_decls(...)`, and `inject_user_box_decls_into_mir_json(...)`
-- the latest explicit-route entry/finalize leaf now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`, and keeps the stop-line finalize readable as `emit_module_mir_json(...)` -> `finalize_mir_json_with_stage1_user_box_decls(...)`
+- the latest explicit/source handoff bundle now keeps shared route detail behind `Stage1ProgramJsonModuleHandoff`, `SourceProgramJsonHandoff`, and `with_phase0_mir_json_env(...)`, so both live entries read as owner-local handoff -> `module_to_mir_json(...)`
 - the latest explicit-route authority cut now keeps root `user_box_decls` payload authoritative when it is already present, through `resolve_stage1_user_box_decls_from_program_json(...)` -> `resolve_stage1_user_box_decls(...)` -> `explicit_stage1_user_box_decls(...)`, then maps that payload into `MirModule.metadata.user_box_decls` via `with_stage1_user_box_decls(...)`; defs-mining remains compat fallback only
 - that same cut retires the old emitted-MIR reparse/root-mutation tail from the active route; explicit Program(JSON) now reaches `module_to_mir_json(...)` through module-metadata passthrough instead of post-emit JSON splice
 - the latest stop-line cut after that also retires temp MIR file round-trip from `module_to_mir_json(...)`: the owner now emits through `src/runner/mir_json_emit/mod.rs::emit_mir_json_string_for_harness_bin(...)`, so the active route no longer writes temp MIR, rereads it, deletes it, and canonicalizes it back to compact JSON
@@ -179,7 +179,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - `tools/hakorune_emit_mir.sh` now also keeps generated runner stdout -> MIR payload extraction behind `extract_mir_payload_from_stdout_file()` / `persist_mir_payload_from_stdout_file()`, so selfhost/provider helper lanes no longer duplicate `[MIR_OUT_BEGIN]...[MIR_OUT_END]` parsing inline
 - `tools/hakorune_emit_mir.sh` now also keeps explicit direct-emit exit and loop-force JSONFrag MIR assembly behind `exit_after_forced_direct_emit()`, `extract_loop_force_limit_from_program_json()`, and `write_loop_force_jsonfrag_mir_json()`, so the helper-local tail is now mostly delegate/fallback route order
 - `tools/hakorune_emit_mir.sh` now also keeps that remaining non-direct route order behind `emit_mir_json_via_non_direct_routes()`, so the script top-level is now closer to pure Stage-B -> route handoff orchestration
-- immediate next helper-local order after that slice:
+- immediate next helper-local order after that Rust stop-line bundle:
   1. `tools/hakorune_emit_mir.sh` remaining delegate/fallback route order
   2. `lang/src/runner/stage1_cli_env.hako` remaining compat/result tiny leaves
   3. `tools/selfhost/selfhost_build.sh` isolated consumer helpers
