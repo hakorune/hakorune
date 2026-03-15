@@ -9,6 +9,8 @@ class DummyResolver:
         self.marked = set()
         self.array_ids = set()
         self.value_types = {}
+        self.phi_trivial_aliases = {}
+        self.block_phi_incomings = {}
 
     def mark_string(self, vid: int):
         self.marked.add(int(vid))
@@ -128,6 +130,50 @@ class TestPhiTagging(unittest.TestCase):
             builder.resolver.value_types.get(45),
             {"kind": "handle", "box_type": "ArrayBox"},
         )
+
+    def test_trivial_alias_syncs_builder_and_resolver_maps(self):
+        _mod, bb_map = self._mk_blocks_and_bbs()
+        builder = DummyBuilder(bb_map)
+        blocks = [
+            {
+                "id": 1,
+                "instructions": [
+                    {
+                        "op": "phi",
+                        "dst": 46,
+                        "incoming": [[7, 0], [7, 2]],
+                    }
+                ],
+            }
+        ]
+
+        setup_phi_placeholders(builder, blocks)
+
+        self.assertEqual(builder.phi_trivial_aliases[(1, 46)], 7)
+        self.assertEqual(builder.resolver.phi_trivial_aliases[(1, 46)], 7)
+        self.assertEqual(builder.def_blocks[46], {1})
+        self.assertNotIn(46, builder.vmap)
+
+    def test_syncs_block_phi_incomings_to_resolver(self):
+        _mod, bb_map = self._mk_blocks_and_bbs()
+        builder = DummyBuilder(bb_map)
+        blocks = [
+            {
+                "id": 1,
+                "instructions": [
+                    {
+                        "op": "phi",
+                        "dst": 47,
+                        "incoming": [[7, 0], [8, 2]],
+                    }
+                ],
+            }
+        ]
+
+        setup_phi_placeholders(builder, blocks)
+
+        self.assertEqual(builder.block_phi_incomings, {1: {47: [(0, 7), (2, 8)]}})
+        self.assertIs(builder.resolver.block_phi_incomings, builder.block_phi_incomings)
 
 
 if __name__ == "__main__":

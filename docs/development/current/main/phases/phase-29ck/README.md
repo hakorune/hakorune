@@ -164,6 +164,10 @@ Related:
    - `src/llvm_py/phi_wiring/analysis.py` now keeps stringish seed classification and fixpoint propagation behind owner-local helpers (`_seed_produced_stringish(...)`, `_propagate_stringish_from_inst(...)`)
    - `collect_produced_stringish(...)` now reads as orchestration instead of mixing producer classification with copy/phi/binop propagation inline
    - support-owner proof is pinned by `src/llvm_py/tests/test_phi_wiring.py`
+32. landed B3d phi-wiring-tagging slice:
+   - `src/llvm_py/phi_wiring/tagging.py` now keeps PHI incoming sync, trivial-alias registration, placeholder registration, and tag propagation behind owner-local helpers (`_sync_block_phi_incomings(...)`, `_register_trivial_alias(...)`, `_create_phi_placeholder(...)`, `_propagate_phi_tags(...)`)
+   - `setup_phi_placeholders(...)` now reads as block-level orchestration instead of mixing owner sync and per-PHI side effects inline
+   - support-owner proof is pinned by `src/llvm_py/tests/test_phi_tagging.py`
 
 ## Non-goals
 

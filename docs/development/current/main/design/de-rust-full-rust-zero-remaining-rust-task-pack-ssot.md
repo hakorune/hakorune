@@ -215,6 +215,10 @@ rule:
        - `src/llvm_py/phi_wiring/analysis.py` now owns helper-local stringish seed classification and fixpoint propagation helpers
        - `collect_produced_stringish(...)` now consumes those helpers instead of mixing producer classification and copy/phi/binop propagation inline
        - proof is pinned by `src/llvm_py/tests/test_phi_wiring.py`
+     - landed sixth slice:
+       - `src/llvm_py/phi_wiring/tagging.py` now owns helper-local PHI incoming sync, trivial-alias registration, placeholder registration, and tag propagation helpers
+       - `setup_phi_placeholders(...)` now consumes those helpers instead of mixing owner sync and per-PHI side effects inline
+       - proof is pinned by `src/llvm_py/tests/test_phi_tagging.py`
 - done shape:
   - Python is no longer mainline backend owner
 
