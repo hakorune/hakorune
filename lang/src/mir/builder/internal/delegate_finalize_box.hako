@@ -1,0 +1,39 @@
+// delegate_finalize_box.hako — delegate MIR local finalize for MirBuilder compat lane
+// Scope: inject delegate-side user_box_decls into MIR(JSON) before outer shared normalization.
+// Non-goals: delegate gate/provider call, shared func-defs/methodize/normalize finalize chain.
+
+using selfhost.shared.json.mir_v1_meta_inject_box as MirV1MetaInjectBox
+
+static box BuilderDelegateFinalizeBox {
+  method inject_user_box_decls(program_json, mir_json) {
+    local result = "" + mir_json
+    local user_box_decls_json = me._build_user_box_decls_from_program_json(program_json)
+    if user_box_decls_json == "" { return result }
+    return MirV1MetaInjectBox.inject_user_box_decls(result, user_box_decls_json)
+  }
+
+  method _build_user_box_decls_from_program_json(program_json) {
+    if program_json == null { return "[{\"name\":\"Main\",\"fields\":[]}]" }
+    local s = "" + program_json
+    local out = "[{\"name\":\"Main\",\"fields\":[]}"
+    local seen = "|Main|"
+    local pos = 0
+    loop(pos < s.length()) {
+      local box_idx = s.indexOf("\"box\":\"", pos)
+      if box_idx < 0 { break }
+      local name_start = box_idx + 7
+      local name_end = s.indexOf("\"", name_start)
+      if name_end < 0 { break }
+      local box_name = s.substring(name_start, name_end)
+      if box_name != "" {
+        local marker = "|" + box_name + "|"
+        if seen.indexOf(marker) < 0 {
+          out = out + ",{\"name\":\"" + box_name + "\",\"fields\":[]}"
+          seen = seen + box_name + "|"
+        }
+      }
+      pos = name_end + 1
+    }
+    return out + "]"
+  }
+}
