@@ -117,86 +117,9 @@ impl NyashRunner {
             Err(e) => report::emit_error_and_exit(e),
         }
 
-        // If explicit object path is requested, emit object only
-        if let Ok(_out_path) = std::env::var("NYASH_LLVM_OBJ_OUT") {
-            #[cfg(feature = "llvm-harness")]
-            {
-                // Harness path (optional): if NYASH_LLVM_USE_HARNESS=1, try Python/llvmlite first.
-                if crate::config::env::llvm_use_harness() {
-                    if let Err(e) = object_emitter::ObjectEmitterBox::try_emit(&module) {
-                        report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
-                    }
-                    return;
-                }
-                // Verify object presence and size (>0)
-                match std::fs::metadata(&_out_path) {
-                    Ok(meta) => {
-                        if meta.len() == 0 {
-                            report::emit_error_and_exit(LlvmRunError::fatal(format!(
-                                "harness object is empty: {}",
-                                _out_path
-                            )));
-                        }
-                        if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
-                            crate::console_println!(
-                                "[LLVM] object emitted: {} ({} bytes)",
-                                _out_path,
-                                meta.len()
-                            );
-                        }
-                    }
-                    Err(e) => {
-                        report::emit_error_and_exit(LlvmRunError::fatal(format!(
-                            "harness output not found after emit: {} ({})",
-                            _out_path, e
-                        )));
-                    }
-                }
-                return;
-            }
-            #[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
-            {
-                use nyash_rust::backend::llvm_compile_to_object;
-                // Ensure parent directory exists for the object file
-                if let Some(parent) = std::path::Path::new(&_out_path).parent() {
-                    let _ = std::fs::create_dir_all(parent);
-                }
-                crate::cli_v!(
-                    "[Runner/LLVM] emitting object to {} (cwd={})",
-                    _out_path,
-                    std::env::current_dir()
-                        .map(|p| p.display().to_string())
-                        .unwrap_or_default()
-                );
-                if let Err(e) = llvm_compile_to_object(&module, &_out_path) {
-                    report::emit_error_and_exit(LlvmRunError::fatal(format!(
-                        "LLVM object emit error: {}",
-                        e
-                    )));
-                }
-                match std::fs::metadata(&_out_path) {
-                    Ok(meta) if meta.len() > 0 => {
-                        crate::cli_v!(
-                            "[LLVM] object emitted: {} ({} bytes)",
-                            _out_path,
-                            meta.len()
-                        );
-                    }
-                    _ => {
-                        report::emit_error_and_exit(LlvmRunError::fatal(format!(
-                            "LLVM object not found or empty: {}",
-                            _out_path
-                        )));
-                    }
-                }
-                return;
-            }
-            #[cfg(all(not(feature = "llvm-harness"), not(feature = "llvm-inkwell-legacy")))]
-            {
-                report::emit_error_and_exit(LlvmRunError::fatal(
-                    "LLVM backend not available (object emit)",
-                ));
-            }
+        if let Some(out_path) = requested_object_output_path() {
+            emit_requested_object_or_exit(&module, &out_path);
+            return;
         }
 
         match execute_via_harness_or_fallback(&module) {
@@ -240,6 +163,90 @@ fn execute_via_harness_or_fallback(
     match harness_executor::HarnessExecutorBox::try_execute(module) {
         Ok(code) => Ok(code),
         Err(_e) => fallback_executor::FallbackExecutorBox::execute(module),
+    }
+}
+
+fn requested_object_output_path() -> Option<String> {
+    std::env::var("NYASH_LLVM_OBJ_OUT").ok()
+}
+
+fn emit_requested_object_or_exit(module: &nyash_rust::mir::MirModule, out_path: &str) {
+    #[cfg(feature = "llvm-harness")]
+    {
+        if crate::config::env::llvm_use_harness() {
+            if let Err(e) = object_emitter::ObjectEmitterBox::try_emit(module) {
+                report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
+            }
+            return;
+        }
+        verify_requested_harness_object_output_or_exit(out_path);
+        return;
+    }
+    #[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
+    {
+        emit_requested_legacy_object_or_exit(module, out_path);
+        return;
+    }
+    #[cfg(all(not(feature = "llvm-harness"), not(feature = "llvm-inkwell-legacy")))]
+    {
+        report::emit_error_and_exit(LlvmRunError::fatal(
+            "LLVM backend not available (object emit)",
+        ));
+    }
+}
+
+#[cfg(feature = "llvm-harness")]
+fn verify_requested_harness_object_output_or_exit(out_path: &str) {
+    match std::fs::metadata(out_path) {
+        Ok(meta) => {
+            if meta.len() == 0 {
+                report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                    "harness object is empty: {}",
+                    out_path
+                )));
+            }
+            if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
+                crate::console_println!("[LLVM] object emitted: {} ({} bytes)", out_path, meta.len());
+            }
+        }
+        Err(e) => {
+            report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                "harness output not found after emit: {} ({})",
+                out_path, e
+            )));
+        }
+    }
+}
+
+#[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
+fn emit_requested_legacy_object_or_exit(module: &nyash_rust::mir::MirModule, out_path: &str) {
+    use nyash_rust::backend::llvm_compile_to_object;
+    if let Some(parent) = std::path::Path::new(out_path).parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+    crate::cli_v!(
+        "[Runner/LLVM] emitting object to {} (cwd={})",
+        out_path,
+        std::env::current_dir()
+            .map(|p| p.display().to_string())
+            .unwrap_or_default()
+    );
+    if let Err(e) = llvm_compile_to_object(module, out_path) {
+        report::emit_error_and_exit(LlvmRunError::fatal(format!(
+            "LLVM object emit error: {}",
+            e
+        )));
+    }
+    match std::fs::metadata(out_path) {
+        Ok(meta) if meta.len() > 0 => {
+            crate::cli_v!("[LLVM] object emitted: {} ({} bytes)", out_path, meta.len());
+        }
+        _ => {
+            report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                "LLVM object not found or empty: {}",
+                out_path
+            )));
+        }
     }
 }
 
