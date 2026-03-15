@@ -147,10 +147,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Immediate Next (this round)
 
 - pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
-  - current active owner is `src/host_providers/mir_builder.rs`
-  - latest landed bundle is explicit Program(JSON) + strict source handoff consolidation: `Stage1ProgramJsonModuleHandoff`, `SourceProgramJsonHandoff`, and `with_phase0_mir_json_env(...)` now keep parse/handoff/env-guard detail owner-local in the same file
-  - targeted proof stays `cargo test user_box_decls -- --nocapture`
-  - exact next leaf is no longer explicit Program(JSON) module parse / source handoff; that bundle is landed, so the immediate post-stop-line non-Rust owner is `tools/hakorune_emit_mir.sh` fallback/delegate tail
+  - current active owner is `tools/hakorune_emit_mir.sh`
+  - latest landed bundle is non-direct route-table consolidation: `try_selfhost_builder_first_route()`, `try_loop_force_jsonfrag_route()`, and `emit_mir_json_via_delegate_routes()` now keep selfhost/delegate/fallback detail helper-local, so `emit_mir_json_via_non_direct_routes()` reads as thin orchestration
+  - targeted proof is `bash tools/hakorune_emit_mir.sh apps/tests/hello_simple_llvm.hako <tmp-out>` plus payload check, and `bash -n tools/hakorune_emit_mir.sh`
+  - exact next leaf is no longer the shell helper fallback/delegate tail; it is `lang/src/runner/stage1_cli_env.hako` compat/result tiny leaves only
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
 - backend-zero / `phase-29ck` exact front (2026-03-16):
@@ -219,12 +219,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. shared producer `lang/src/compiler/build/build_box.hako`
     4. shell helper trio above
   - exact next slices after the latest landed work:
-    1. `tools/hakorune_emit_mir.sh`
-       - now that the remaining explicit Program(JSON) / source handoff bundle in `src/host_providers/mir_builder.rs` is landed, take the generated helper-local fallback/delegate tail next
-    2. `lang/src/runner/stage1_cli_env.hako`
+    1. `lang/src/runner/stage1_cli_env.hako`
        - keep shrinking `Stage1ProgramJsonCompatBox` / `Stage1MirResultValidationBox` leaves only; do not reopen source authority/body extraction in the same slice
-    3. `tools/selfhost/selfhost_build.sh`
+    2. `tools/selfhost/selfhost_build.sh`
        - only after the helper-local `hakorune_emit_mir.sh` tail is thinner
+    3. `tools/smokes/v2/lib/test_runner.sh`
+       - only after the isolated consumer helper in `selfhost_build.sh` is thinner
 
 - `phase-29cj` reviewer sync (2026-03-14):
   - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`

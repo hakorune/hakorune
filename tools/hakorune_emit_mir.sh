@@ -631,7 +631,7 @@ try_legacy_program_json_delegate() {
   return 1
 }
 
-emit_mir_json_from_program_json_delegate_chain() {
+emit_mir_json_via_delegate_routes() {
   local prog_json="$1" out_path="$2"
   if try_provider_emit "$prog_json" "$out_path"; then
     return 0
@@ -642,28 +642,51 @@ emit_mir_json_from_program_json_delegate_chain() {
   return 1
 }
 
-emit_mir_json_via_non_direct_routes() {
+try_selfhost_builder_first_route() {
   local prog_json="$1" out_path="$2"
-
-  if [ "${HAKO_SELFHOST_BUILDER_FIRST:-0}" = "1" ]; then
-    if try_selfhost_builder "$prog_json" "$out_path"; then
-      return 0
-    fi
-    if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" = "1" ]; then
-      echo "[FAIL] selfhost-first failed and delegate disabled" >&2
-      return 1
-    fi
+  if [ "${HAKO_SELFHOST_BUILDER_FIRST:-0}" != "1" ]; then
+    return 1
   fi
-
-  if [ "${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-0}" = "1" ]; then
-    local limit
-    limit="$(extract_loop_force_limit_from_program_json "$prog_json")"
-    write_loop_force_jsonfrag_mir_json "$limit" "$out_path"
-    echo "[OK] MIR JSON written (provider-force-jsonfrag): $out_path"
+  if try_selfhost_builder "$prog_json" "$out_path"; then
     return 0
   fi
+  if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" = "1" ]; then
+    echo "[FAIL] selfhost-first failed and delegate disabled" >&2
+    return 2
+  fi
+  return 1
+}
 
-  if emit_mir_json_from_program_json_delegate_chain "$prog_json" "$out_path"; then
+try_loop_force_jsonfrag_route() {
+  local prog_json="$1" out_path="$2"
+  if [ "${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-0}" != "1" ]; then
+    return 1
+  fi
+  local limit
+  limit="$(extract_loop_force_limit_from_program_json "$prog_json")"
+  write_loop_force_jsonfrag_mir_json "$limit" "$out_path"
+  echo "[OK] MIR JSON written (provider-force-jsonfrag): $out_path"
+  return 0
+}
+
+emit_mir_json_via_non_direct_routes() {
+  local prog_json="$1" out_path="$2"
+  local selfhost_rc=0
+
+  try_selfhost_builder_first_route "$prog_json" "$out_path" || selfhost_rc=$?
+  case "$selfhost_rc" in
+    0)
+      return 0
+      ;;
+    2)
+      return 1
+      ;;
+  esac
+
+  if try_loop_force_jsonfrag_route "$prog_json" "$out_path"; then
+    return 0
+  fi
+  if emit_mir_json_via_delegate_routes "$prog_json" "$out_path"; then
     return 0
   fi
   return 1

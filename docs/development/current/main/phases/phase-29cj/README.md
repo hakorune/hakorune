@@ -179,10 +179,11 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - `tools/hakorune_emit_mir.sh` now also keeps generated runner stdout -> MIR payload extraction behind `extract_mir_payload_from_stdout_file()` / `persist_mir_payload_from_stdout_file()`, so selfhost/provider helper lanes no longer duplicate `[MIR_OUT_BEGIN]...[MIR_OUT_END]` parsing inline
 - `tools/hakorune_emit_mir.sh` now also keeps explicit direct-emit exit and loop-force JSONFrag MIR assembly behind `exit_after_forced_direct_emit()`, `extract_loop_force_limit_from_program_json()`, and `write_loop_force_jsonfrag_mir_json()`, so the helper-local tail is now mostly delegate/fallback route order
 - `tools/hakorune_emit_mir.sh` now also keeps that remaining non-direct route order behind `emit_mir_json_via_non_direct_routes()`, so the script top-level is now closer to pure Stage-B -> route handoff orchestration
-- immediate next helper-local order after that Rust stop-line bundle:
-  1. `tools/hakorune_emit_mir.sh` remaining delegate/fallback route order
-  2. `lang/src/runner/stage1_cli_env.hako` remaining compat/result tiny leaves
-  3. `tools/selfhost/selfhost_build.sh` isolated consumer helpers
+- the latest shell-helper tightening now also keeps selfhost-first gate/fail-fast, loop-force route, and provider/legacy delegate sequencing behind `try_selfhost_builder_first_route()`, `try_loop_force_jsonfrag_route()`, and `emit_mir_json_via_delegate_routes()`, so `emit_mir_json_via_non_direct_routes()` is down to a small route table
+- immediate next helper-local order after that shell-helper slice:
+  1. `lang/src/runner/stage1_cli_env.hako` remaining compat/result tiny leaves
+  2. `tools/selfhost/selfhost_build.sh` isolated consumer helpers
+  3. `tools/smokes/v2/lib/test_runner.sh` residual helper-local verify lanes
 - `tools/selfhost/selfhost_build.sh` now also keeps its generated `BuildBox.emit_program_json_v0(...)` checked path behind wrapper-local `_emit_program_json_checked(...)`, so the explicit `HAKO_USE_BUILDBOX=1` keep stays helper-local instead of repeating the checked path inline
 - `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR step behind `emit_mir_json_from_program_json_v0()`, so the downstream EXE helper reads as MIR generation -> ny-llvmc emission instead of mixing both inline
 - `tools/selfhost/selfhost_build.sh` now also keeps the MIR(JSON)->EXE step behind `emit_exe_from_mir_json()`, so the downstream EXE helper is now mostly route/env orchestration
