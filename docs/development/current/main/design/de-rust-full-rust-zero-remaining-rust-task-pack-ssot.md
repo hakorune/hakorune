@@ -110,6 +110,11 @@ rule:
 - exact work:
   - file-path / temp ownership / diagnostics / arg plumbing contract freeze
   - runner docs must say daily caller target is this boundary, not `native_driver.rs`
+- landed first slice:
+  - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` now forwards `libs` as the third `env.codegen.link_object` arg
+  - vm-hako / regular-VM `env.codegen.link_object` handlers now accept `[obj_path, exe_out?, extra_ldflags?]`
+  - canonical encoding remains `libs -> single extra_ldflags string`
+  - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
 - acceptance anchor:
   - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`

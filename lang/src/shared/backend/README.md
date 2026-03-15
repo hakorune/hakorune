@@ -12,6 +12,8 @@ Current owner
   - public first-cut contract:
     - `compile_obj(json_path)` -> object path or `null` with `[llvmbackend/*]`
     - `link_exe(obj_path, out_path, libs)` -> `1` or `null` with `[llvmbackend/*]`
+      - non-empty `libs` is currently forwarded as a single extra-ldflags string
+      - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
 
 Non-goals
 - legacy `llvm_ir/AotFacade` route をここへ混ぜない。

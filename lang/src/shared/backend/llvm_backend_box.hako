@@ -35,13 +35,13 @@ static box LlvmBackendBox {
     if obj == null { return null }
     local out = me._require_non_empty("link_exe", "out_path", out_path)
     if out == null { return null }
-    if libs != null && ("" + libs) != "" {
-      return me._fail("[llvmbackend/link/libs-unsupported] use HAKO_AOT_LDFLAGS env for now")
-    }
 
     local args = new ArrayBox()
     args.push(obj)
     args.push(out)
+    if libs != null && ("" + libs) != "" {
+      args.push("" + libs)
+    }
 
     local exe = CodegenBridgeBox.link_object_args(args)
     if exe == null || ("" + exe) == "" {

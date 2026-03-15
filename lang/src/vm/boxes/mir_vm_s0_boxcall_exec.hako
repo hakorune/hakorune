@@ -140,14 +140,13 @@ static box MirVmS0BoxcallExecBox {
       return "[vm-hako/contract][llvmbackend-link-out-handle-missing]"
     }
     local libs_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg2_reg)
-    if libs_text != null && ("" + libs_text) != "" {
-      print("[llvmbackend/link/libs-unsupported] use HAKO_AOT_LDFLAGS env for now")
-      return me._write_null_result(dst_box, regs, kinds)
-    }
 
     local args = new ArrayBox()
     args.push("" + obj_text)
     args.push("" + out_text)
+    if libs_text != null && ("" + libs_text) != "" {
+      args.push("" + libs_text)
+    }
     local exe = me._link_codegen_object_args(args)
     if exe == null || ("" + exe) == "" {
       print("[llvmbackend/link/failed] env.codegen.link_object returned empty")

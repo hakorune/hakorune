@@ -84,6 +84,11 @@ Related:
    - historical `llvm_ir` script-builder / AotFacade route is archived under `lang/src/llvm_ir/archive/legacy_script_builder/**`
    - live `llvm_ir` keeps only `AotPrep` / `normalize` / compat `emit`
 11. `.hako` backend caller wave や optimization handoff は、この boundary cutover の後段で扱う
+12. landed B1 arg-plumbing slice:
+   - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` no longer fail-fast on non-empty `libs`
+   - vm-hako / regular VM `env.codegen.link_object` handlers now accept `[obj_path, exe_out?, extra_ldflags?]`
+   - current canonical encoding remains `libs -> single extra_ldflags string`
+   - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
 
 ## Non-goals
 
@@ -107,6 +112,7 @@ Related:
      - phase-29ck proof no longer depends on regular Rust VM special-casing `hostbridge.extern_invoke` or `newbox(hostbridge)`
    - acceptance smoke:
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+     - proof now pins non-empty `libs` through `LlvmBackendBox.link_exe(..., "-lm")`
    - temporary env pin:
       - `NYASH_LLVM_USE_CAPI=1`
       - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`

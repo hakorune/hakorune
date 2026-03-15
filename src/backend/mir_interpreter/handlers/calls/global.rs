@@ -188,7 +188,8 @@ impl MirInterpreter {
                 }
             }
             "env.codegen.link_object" | "env.codegen.link_object/3" => {
-                // C-API route only; args[2] is expected to be an ArrayBox [obj_path, exe_out?]
+                // C-API route only; args[2] is expected to be an ArrayBox
+                // [obj_path, exe_out?, extra_ldflags?].
                 if std::env::var("NYASH_LLVM_USE_CAPI").ok().as_deref() != Some("1")
                     || std::env::var("HAKO_V1_EXTERN_PROVIDER_C_ABI")
                         .ok()
@@ -201,7 +202,7 @@ impl MirInterpreter {
                     return Err(self.err_arg_count("env.codegen.link_object", 3, args.len()));
                 }
                 let v = self.reg_load(args[2])?;
-                let (obj_path, exe_out) = match v {
+                let (obj_path, exe_out, extra) = match v {
                     VMValue::BoxRef(b) => {
                         if let Some(ab) = b.as_any().downcast_ref::<crate::boxes::array::ArrayBox>()
                         {
@@ -209,20 +210,26 @@ impl MirInterpreter {
                                 Box::new(crate::box_trait::IntegerBox::new(0));
                             let elem0 = ab.get(idx0).to_string_box().value;
                             let mut exe: Option<String> = None;
+                            let mut extra: Option<String> = None;
                             let idx1: Box<dyn crate::box_trait::NyashBox> =
                                 Box::new(crate::box_trait::IntegerBox::new(1));
                             let e1 = ab.get(idx1).to_string_box().value;
                             if !e1.is_empty() {
                                 exe = Some(e1);
                             }
-                            (elem0, exe)
+                            let idx2: Box<dyn crate::box_trait::NyashBox> =
+                                Box::new(crate::box_trait::IntegerBox::new(2));
+                            let e2 = ab.get(idx2).to_string_box().value;
+                            if !e2.is_empty() {
+                                extra = Some(e2);
+                            }
+                            (elem0, exe, extra)
                         } else {
-                            (b.to_string_box().value, None)
+                            (b.to_string_box().value, None, None)
                         }
                     }
-                    _ => (v.to_string(), None),
+                    _ => (v.to_string(), None, None),
                 };
-                let extra = std::env::var("HAKO_AOT_LDFLAGS").ok();
                 let obj = std::path::PathBuf::from(obj_path);
                 let exe = exe_out
                     .map(std::path::PathBuf::from)

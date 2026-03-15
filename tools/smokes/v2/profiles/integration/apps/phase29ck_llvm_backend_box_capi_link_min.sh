@@ -5,7 +5,8 @@
 # 1) `.hako` caller uses `selfhost.shared.backend.llvm_backend`.
 # 2) direct MIR emit accepts the official caller route (`selfhost.shared.backend.llvm_backend`).
 # 3) official owner still routes through `CodegenBridgeBox`.
-# 4) downstream native route stays green on the existing app-seed parity smoke.
+# 4) non-empty `libs` reaches the thin backend boundary as arg 3.
+# 5) downstream native route stays green on the existing app-seed parity smoke.
 
 set -euo pipefail
 
@@ -23,7 +24,7 @@ using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 static box Main {
   method main(args) {
     local obj = LlvmBackendBox.compile_obj("/tmp/hello_simple_llvm_native_probe.mir.json")
-    local ok = LlvmBackendBox.link_exe(obj, "/tmp/hello_simple_llvm_native_probe.exe", null)
+    local ok = LlvmBackendBox.link_exe(obj, "/tmp/hello_simple_llvm_native_probe.exe", "-lm")
     return ok
   }
 }
@@ -85,4 +86,4 @@ fi
 
 SMOKES_FORCE_LLVM=1 bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh" >/dev/null
 
-echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller compiles, owner stays on CodegenBridgeBox, native downstream parity stays green)"
+echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller compiles, libs 3rd arg reaches CodegenBridgeBox, native downstream parity stays green)"

@@ -260,7 +260,13 @@ impl MirInterpreter {
                     }),
                     None => None,
                 };
-                let extra = std::env::var("HAKO_AOT_LDFLAGS").ok();
+                let extra = match args.get(2) {
+                    Some(v) => Some(match self.reg_load(*v) {
+                        Ok(v) => v.to_string(),
+                        Err(e) => return Some(Err(e)),
+                    }),
+                    None => None,
+                };
                 // Require C-API toggles
                 if std::env::var("NYASH_LLVM_USE_CAPI").ok().as_deref() != Some("1")
                     || std::env::var("HAKO_V1_EXTERN_PROVIDER_C_ABI")
@@ -467,8 +473,8 @@ impl MirInterpreter {
                                 .debug("[hb:provider:args] link_object third=<none>");
                         }
                         // fallthrough to real handler below by duplicating arm
-                        // Args in third param (ArrayBox): [obj_path, exe_out?]
-                        let (objs, exe_out) = if let Some(a2) = args.get(2) {
+                        // Args in third param (ArrayBox): [obj_path, exe_out?, extra_ldflags?]
+                        let (objs, exe_out, extra) = if let Some(a2) = args.get(2) {
                             let v = match self.reg_load(*a2) {
                                 Ok(v) => v,
                                 Err(e) => return Some(Err(e)),
@@ -488,12 +494,19 @@ impl MirInterpreter {
                                         if !e1.is_empty() {
                                             exe = Some(e1);
                                         }
-                                        (elem0, exe)
+                                        let mut extra: Option<String> = None;
+                                        let idx2: Box<dyn crate::box_trait::NyashBox> =
+                                            Box::new(crate::box_trait::IntegerBox::new(2));
+                                        let e2 = ab.get(idx2).to_string_box().value;
+                                        if !e2.is_empty() {
+                                            extra = Some(e2);
+                                        }
+                                        (elem0, exe, extra)
                                     } else {
-                                        (b.to_string_box().value, None)
+                                        (b.to_string_box().value, None, None)
                                     }
                                 }
-                                _ => (v.to_string(), None),
+                                _ => (v.to_string(), None, None),
                             }
                         } else {
                             return Some(Err(self.err_invalid(
@@ -510,7 +523,6 @@ impl MirInterpreter {
                                 "env.codegen.link_object: C-API route disabled",
                             )));
                         }
-                        let extra = std::env::var("HAKO_AOT_LDFLAGS").ok();
                         let obj = std::path::PathBuf::from(objs);
                         let exe = exe_out
                             .map(std::path::PathBuf::from)
@@ -568,6 +580,7 @@ impl MirInterpreter {
                         // 2) first_arg_str has obj and third arg has optional exe
                         let mut obj_s: Option<String> = None;
                         let mut exe_s: Option<String> = None;
+                        let mut extra_s: Option<String> = None;
                         if let Some(a2) = args.get(2) {
                             let v = match self.reg_load(*a2) {
                                 Ok(v) => v,
@@ -586,6 +599,12 @@ impl MirInterpreter {
                                         let s1 = ab.get(idx1).to_string_box().value;
                                         if !s1.is_empty() {
                                             exe_s = Some(s1);
+                                        }
+                                        let idx2: Box<dyn crate::box_trait::NyashBox> =
+                                            Box::new(crate::box_trait::IntegerBox::new(2));
+                                        let s2 = ab.get(idx2).to_string_box().value;
+                                        if !s2.is_empty() {
+                                            extra_s = Some(s2);
                                         }
                                     } else {
                                         obj_s = Some(b.to_string_box().value);
@@ -615,7 +634,6 @@ impl MirInterpreter {
                                 "env.codegen.link_object: C-API route disabled",
                             )));
                         }
-                        let extra = std::env::var("HAKO_AOT_LDFLAGS").ok();
                         let obj = std::path::PathBuf::from(objs);
                         let exe = exe_s
                             .map(std::path::PathBuf::from)
@@ -623,7 +641,7 @@ impl MirInterpreter {
                         match crate::host_providers::llvm_codegen::link_object_capi(
                             &obj,
                             &exe,
-                            extra.as_deref(),
+                            extra_s.as_deref(),
                         ) {
                             Ok(()) => Ok(VMValue::String(exe.to_string_lossy().into_owned())),
                             Err(e) => Err(ErrorBuilder::with_context(

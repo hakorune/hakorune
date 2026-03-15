@@ -129,14 +129,17 @@ rule:
   - `lang/c-abi/shims/hako_aot_shared_impl.inc` is the shared compile/link source truth used by both `hako_aot.c` and `hako_kernel.c`
   - `LlvmBackendBox.compile_obj(json_path)` reads file content, injects `schema_version: "1.0"` via `MirV1MetaInjectBox`, then calls `CodegenBridgeBox.emit_object_args(...)`
   - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` calls `CodegenBridgeBox.link_object_args(...)`
-  - non-empty `libs` is fail-fast for now; use `HAKO_AOT_LDFLAGS` env until C-side arg plumbing is widened
+  - non-empty `libs` is now forwarded as the third `env.codegen.link_object` arg
+  - current canonical encoding is `libs -> single extra_ldflags string`
+  - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under `llvm_codegen::link_object_capi(...)` / `hako_aot_link_obj(...)`
 - `.hako` surface parser does not accept `throw`, so failure contract is stable tag print (`[llvmbackend/*]`) + `null`
 - current proof shape is:
     - direct MIR emit accepts a `.hako` caller that imports `selfhost.shared.backend.llvm_backend`
     - `LlvmBackendBox` source owner is pinned to `MirV1MetaInjectBox` + `CodegenBridgeBox.emit_object_args/link_object_args`
     - downstream native app parity stays green on `phase29ck_native_llvm_cabi_link_min.sh`
+    - non-empty `libs` is pinned by `phase29ck_llvm_backend_box_capi_link_min.sh`
   - final runtime-proof owner is `.hako VM`, not regular VM
-  - runtime proof through `LlvmBackendBox` itself is now pinned by `phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+  - runtime proof through `LlvmBackendBox` itself is now pinned by `phase29ck_vmhako_llvm_backend_runtime_proof.sh` with non-empty `libs`
 
 ## 6. Temporary Seam Retirement
 
