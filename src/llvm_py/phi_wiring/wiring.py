@@ -355,6 +355,92 @@ def wire_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[in
     return wired
 
 
+def _mark_phi_stringish(builder, dst_vid: int, incoming: List[Tuple[int, int]]) -> None:
+    try:
+        resolver = getattr(builder, "resolver", None)
+        if not (
+            resolver is not None
+            and hasattr(resolver, "is_stringish")
+            and hasattr(resolver, "mark_string")
+        ):
+            return
+        for (_decl_b, v_src) in incoming or []:
+            try:
+                if resolver.is_stringish(int(v_src)):
+                    resolver.mark_string(int(dst_vid))
+                    return
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+
+def _mark_phi_arrayish(builder, dst_vid: int, incoming: List[Tuple[int, int]]) -> None:
+    try:
+        resolver = getattr(builder, "resolver", None)
+        if should_mark_phi_arrayish(resolver, None, incoming):
+            mark_arrayish_handle(resolver, int(dst_vid))
+    except Exception:
+        pass
+
+
+def _consensus_incoming_mapping(
+    mapping: Any,
+    dst_vid: int,
+    incoming: List[Tuple[int, int]],
+    value_ok,
+):
+    if not isinstance(mapping, dict):
+        return None
+
+    candidate = None
+    conflict = False
+    for (_decl_b, v_src) in incoming or []:
+        try:
+            v_src_i = int(v_src)
+        except Exception:
+            continue
+        mapped = candidate if v_src_i == int(dst_vid) and candidate is not None else mapping.get(v_src_i)
+        if not value_ok(mapped):
+            continue
+        if candidate is None:
+            candidate = mapped
+        elif candidate != mapped:
+            conflict = True
+            break
+    if conflict:
+        return None
+    return candidate
+
+
+def _propagate_phi_origin_maps(builder, dst_vid: int, incoming: List[Tuple[int, int]]) -> None:
+    resolver = getattr(builder, "resolver", None)
+    if resolver is None:
+        return
+
+    try:
+        src_map = getattr(resolver, "newbox_string_args", None)
+        candidate = _consensus_incoming_mapping(src_map, dst_vid, incoming, lambda value: value is not None)
+        if candidate is not None and isinstance(src_map, dict):
+            src_map[int(dst_vid)] = candidate
+    except Exception:
+        pass
+
+    try:
+        lit_map = getattr(resolver, "string_literals", None)
+        candidate = _consensus_incoming_mapping(lit_map, dst_vid, incoming, lambda value: isinstance(value, str))
+        if isinstance(candidate, str) and isinstance(lit_map, dict):
+            lit_map[int(dst_vid)] = candidate
+    except Exception:
+        pass
+
+
+def _propagate_finalized_phi_facts(builder, dst_vid: int, incoming: List[Tuple[int, int]]) -> None:
+    _mark_phi_stringish(builder, dst_vid, incoming)
+    _mark_phi_arrayish(builder, dst_vid, incoming)
+    _propagate_phi_origin_maps(builder, dst_vid, incoming)
+
+
 def finalize_phis(builder, context):
     """Finalize PHI nodes by wiring their incoming edges.
     Phase 132-P1: Use context Box for function-local state isolation.
@@ -382,86 +468,6 @@ def finalize_phis(builder, context):
                 continue
             wired = wire_incomings(builder, int(block_id), int(dst_vid), incoming, context=context)
             total_wired += int(wired or 0)
-            # TypeFacts propagation (SSOT): if any incoming source is stringish, mark dst stringish.
-            # This prevents string PHIs from falling back to integer/handle paths (e.g., out += ch).
-            try:
-                if (
-                    hasattr(builder, "resolver")
-                    and hasattr(builder.resolver, "is_stringish")
-                    and hasattr(builder.resolver, "mark_string")
-                ):
-                    for (_decl_b, v_src) in (incoming or []):
-                        try:
-                            if builder.resolver.is_stringish(int(v_src)):
-                                builder.resolver.mark_string(int(dst_vid))
-                                break
-                        except Exception:
-                            continue
-            except Exception:
-                pass
-            try:
-                resolver = getattr(builder, "resolver", None)
-                if should_mark_phi_arrayish(resolver, None, incoming):
-                    mark_arrayish_handle(resolver, int(dst_vid))
-            except Exception:
-                pass
-            # StringBox origin propagation:
-            # preserve newbox(StringBox, literal_arg) provenance across PHI (including self-carry),
-            # so method_call FAST length/len can keep using literal/ptr metadata.
-            try:
-                resolver = getattr(builder, "resolver", None)
-                src_map = getattr(resolver, "newbox_string_args", None) if resolver is not None else None
-                if isinstance(src_map, dict):
-                    candidate = None
-                    conflict = False
-                    for (_decl_b, v_src) in (incoming or []):
-                        try:
-                            v_src_i = int(v_src)
-                        except Exception:
-                            continue
-                        mapped = None
-                        if v_src_i == int(dst_vid) and candidate is not None:
-                            mapped = candidate
-                        else:
-                            mapped = src_map.get(v_src_i)
-                        if mapped is None:
-                            continue
-                        if candidate is None:
-                            candidate = mapped
-                        elif candidate != mapped:
-                            conflict = True
-                            break
-                    if not conflict and candidate is not None:
-                        src_map[int(dst_vid)] = candidate
-            except Exception:
-                pass
-            # Literal string table propagation across PHI when incoming literals agree.
-            try:
-                resolver = getattr(builder, "resolver", None)
-                lit_map = getattr(resolver, "string_literals", None) if resolver is not None else None
-                if isinstance(lit_map, dict):
-                    candidate = None
-                    conflict = False
-                    for (_decl_b, v_src) in (incoming or []):
-                        try:
-                            v_src_i = int(v_src)
-                        except Exception:
-                            continue
-                        mapped = None
-                        if v_src_i == int(dst_vid) and candidate is not None:
-                            mapped = candidate
-                        else:
-                            mapped = lit_map.get(v_src_i)
-                        if not isinstance(mapped, str):
-                            continue
-                        if candidate is None:
-                            candidate = mapped
-                        elif candidate != mapped:
-                            conflict = True
-                            break
-                    if not conflict and isinstance(candidate, str):
-                        lit_map[int(dst_vid)] = candidate
-            except Exception:
-                pass
+            _propagate_finalized_phi_facts(builder, int(dst_vid), incoming)
             trace({"phi": "finalize", "block": int(block_id), "dst": int(dst_vid), "wired": int(wired or 0)})
     trace({"phi": "finalize_summary", "blocks": int(total_blocks), "dsts": int(total_dsts), "incoming_wired": int(total_wired)})

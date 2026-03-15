@@ -29,6 +29,18 @@ def resolver_is_arrayish_vid(resolver: Any, value_id: Any) -> bool:
     return get_box_type(resolver, vid) == "ArrayBox"
 
 
+def _incoming_pair_has_arrayish_source(resolver: Any, pair: Any) -> bool:
+    try:
+        left, right = pair
+    except Exception:
+        return False
+
+    # setup_phi_placeholders sees raw JSON order (value, block), while
+    # finalize_phis sees normalized order (block, value). Accept either shape
+    # and stay conservative by requiring that one side already carries ArrayBox fact.
+    return resolver_is_arrayish_vid(resolver, left) or resolver_is_arrayish_vid(resolver, right)
+
+
 def should_mark_phi_arrayish(
     resolver: Any,
     dst_type: Any,
@@ -38,11 +50,7 @@ def should_mark_phi_arrayish(
         return True
 
     for pair in incoming or []:
-        try:
-            v_src, _decl_b = pair
-        except Exception:
-            continue
-        if resolver_is_arrayish_vid(resolver, v_src):
+        if _incoming_pair_has_arrayish_source(resolver, pair):
             return True
 
     return False

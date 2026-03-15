@@ -219,6 +219,10 @@ rule:
        - `src/llvm_py/phi_wiring/tagging.py` now owns helper-local PHI incoming sync, trivial-alias registration, placeholder registration, and tag propagation helpers
        - `setup_phi_placeholders(...)` now consumes those helpers instead of mixing owner sync and per-PHI side effects inline
        - proof is pinned by `src/llvm_py/tests/test_phi_tagging.py`
+     - landed seventh slice:
+       - `src/llvm_py/phi_wiring/wiring.py` now owns helper-local post-wire string/array/origin propagation helpers, and `src/llvm_py/phi_wiring/fact_propagation.py` now owns incoming-shape-tolerant ArrayBox carry
+       - `finalize_phis(...)` now consumes those helpers instead of mixing incoming wiring and resolver fact propagation inline
+       - proof is pinned by `src/llvm_py/tests/test_phi_wiring_finalize.py` and `src/llvm_py/tests/test_phi_fact_propagation.py`
 - done shape:
   - Python is no longer mainline backend owner
 

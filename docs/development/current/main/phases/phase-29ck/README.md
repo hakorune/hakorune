@@ -168,6 +168,11 @@ Related:
    - `src/llvm_py/phi_wiring/tagging.py` now keeps PHI incoming sync, trivial-alias registration, placeholder registration, and tag propagation behind owner-local helpers (`_sync_block_phi_incomings(...)`, `_register_trivial_alias(...)`, `_create_phi_placeholder(...)`, `_propagate_phi_tags(...)`)
    - `setup_phi_placeholders(...)` now reads as block-level orchestration instead of mixing owner sync and per-PHI side effects inline
    - support-owner proof is pinned by `src/llvm_py/tests/test_phi_tagging.py`
+33. landed B3d phi-wiring-finalize slice:
+   - `src/llvm_py/phi_wiring/wiring.py` now keeps post-wire string/array/origin propagation behind owner-local helpers (`_mark_phi_stringish(...)`, `_mark_phi_arrayish(...)`, `_propagate_phi_origin_maps(...)`, `_propagate_finalized_phi_facts(...)`)
+   - `src/llvm_py/phi_wiring/fact_propagation.py` now accepts both raw `(value, block)` and normalized `(block, value)` incoming shapes when carrying ArrayBox facts across PHI
+   - `finalize_phis(...)` now reads as `wire -> propagate facts -> trace` instead of mixing incoming wiring and resolver fact updates inline
+   - support-owner proof is pinned by `src/llvm_py/tests/{test_phi_wiring_finalize.py,test_phi_fact_propagation.py}`
 
 ## Non-goals
 
@@ -204,7 +209,7 @@ Related:
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
 4. next backend demotion front
    - `phase-29cl` compiled-stage1 surrogate shrink remains the first exact next slice
-   - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py` / `phi_wiring/analysis.py`; move to the next `phi_wiring/**` owner seam (`tagging.py` / `fact_propagation.py` / `wiring.py`)
+   - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py` / `phi_wiring/analysis.py` / `phi_wiring/tagging.py`; move to the next `phi_wiring/**` owner seam, with `wiring.py::wire_incomings(...)` resolution/selection path the most natural exact leaf
 5. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
    - temporary seam/env retirement check
