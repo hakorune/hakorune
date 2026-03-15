@@ -1,0 +1,26 @@
+// delegate_provider_box.hako — delegate/provider gate for MirBuilder compat lane
+// Scope: selfhost builder delegate gate, provider availability check, and hostbridge emit call.
+// Non-goals: source-entry shim, internal registry/fallback lowers, delegate finalize/norm tail.
+
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+
+static box BuilderDelegateProviderBox {
+  method try_emit(program_json) {
+    if me._delegate_disabled() == 1 { return null }
+    if BuilderConfigBox.delegate_on() != 1 {
+      print("[mirbuilder/delegate/missing] no provider; enable HAKO_MIR_BUILDER_DELEGATE=1")
+      return null
+    }
+    local args = new ArrayBox()
+    args.push(program_json)
+    return hostbridge.extern_invoke("env.mirbuilder", "emit", args)
+  }
+
+  method _delegate_disabled() {
+    if BuilderConfigBox.selfhost_no_delegate_on() != 1 { return 0 }
+    if env.get("HAKO_SELFHOST_TRACE") == "1" {
+      print("[mirbuilder/delegate/disabled] HAKO_SELFHOST_NO_DELEGATE=1; internal-only mode")
+    }
+    return 1
+  }
+}

@@ -263,6 +263,7 @@ search_paths = ["target/release"]
 "hako.mir.builder.internal.builder_config" = "lang/src/mir/builder/internal/builder_config_box.hako"
 "hako.mir.builder.internal.registry_authority" = "lang/src/mir/builder/internal/registry_authority_box.hako"
 "hako.mir.builder.internal.fallback_authority" = "lang/src/mir/builder/internal/fallback_authority_box.hako"
+"hako.mir.builder.internal.delegate_provider" = "lang/src/mir/builder/internal/delegate_provider_box.hako"
 "hako.mir.builder.internal.loop_opts_adapter" = "lang/src/mir/builder/internal/loop_opts_adapter_box.hako"
 
 # Stage‑B support modules
