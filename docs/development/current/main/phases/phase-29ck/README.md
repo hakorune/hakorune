@@ -75,6 +75,7 @@ Related:
    - latest tightening: `src/runner/modes/llvm/harness_executor.rs` now keeps runtime-state log, harness gate, ny-llvmc emit, and executable run behind same-file helpers `log_harness_runtime_state(...)`, `ensure_harness_requested(...)`, `emit_executable_via_ny_llvmc(...)`, and `run_emitted_executable(...)`
    - latest tightening: `src/runner/modes/llvm/object_emitter.rs` now keeps object-request gate and boundary temp-json finalize behind same-file helpers `requested_object_output_path(...)`, `emit_requested_object_if_harness_enabled(...)`, and `finalize_boundary_mir_json_output(...)`
    - latest tightening: `src/runner/modes/llvm/mod.rs` now keeps top-level harness->fallback execution behind same-file helper `execute_via_harness_or_fallback(...)`
+   - latest tightening: `src/runner/modes/llvm/mod.rs` now also keeps object-only route selection and feature-specific emit tails behind `requested_object_output_path(...)`, `emit_requested_object_or_exit(...)`, `verify_requested_harness_object_output_or_exit(...)`, and `emit_requested_legacy_object_or_exit(...)`
 9. boundary lock:
    - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
    - `native_driver.rs` is bootstrap seam only
