@@ -23,19 +23,10 @@ impl ObjectEmitterBox {
     /// If set, emits object file and verifies it's not empty.
     #[cfg(feature = "llvm-harness")]
     pub fn try_emit(module: &MirModule) -> Result<bool, String> {
-        let Some(out_path) = env::env_string("NYASH_LLVM_OBJ_OUT") else {
-            return Ok(false); // Not requested
+        let Some(out_path) = requested_object_output_path() else {
+            return Ok(false);
         };
-
-        if crate::config::env::llvm_use_harness() {
-            emit_object_via_boundary_llvmlite_keep(module, &out_path)?;
-
-            // Verify object file
-            Self::verify_object(&out_path)?;
-            return Ok(true);
-        }
-
-        // Verify object presence and size (>0)
+        emit_requested_object_if_harness_enabled(module, &out_path)?;
         Self::verify_object(&out_path)?;
         Ok(true)
     }
@@ -63,6 +54,19 @@ impl ObjectEmitterBox {
     pub fn try_emit(_module: &MirModule) -> Result<bool, String> {
         Ok(false)
     }
+}
+
+#[cfg(feature = "llvm-harness")]
+fn requested_object_output_path() -> Option<String> {
+    env::env_string("NYASH_LLVM_OBJ_OUT")
+}
+
+#[cfg(feature = "llvm-harness")]
+fn emit_requested_object_if_harness_enabled(module: &MirModule, out_path: &str) -> Result<(), String> {
+    if crate::config::env::llvm_use_harness() {
+        emit_object_via_boundary_llvmlite_keep(module, out_path)?;
+    }
+    Ok(())
 }
 
 #[cfg(feature = "llvm-harness")]
@@ -110,10 +114,7 @@ fn emit_object_via_boundary_llvmlite_keep(
 fn emit_module_mir_json_for_backend_boundary(module: &MirModule) -> Result<String, String> {
     let tmp_path = temporary_mir_json_path();
     crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &tmp_path)?;
-    let mir_json_result = std::fs::read_to_string(&tmp_path)
-        .map_err(|error| format!("read boundary mir json: {}", error));
-    let _ = std::fs::remove_file(&tmp_path);
-    mir_json_result
+    finalize_boundary_mir_json_output(&tmp_path)
 }
 
 #[cfg(feature = "llvm-harness")]
@@ -126,4 +127,21 @@ fn temporary_mir_json_path() -> PathBuf {
             .map(|duration| duration.as_nanos())
             .unwrap_or_default()
     ))
+}
+
+#[cfg(feature = "llvm-harness")]
+fn read_boundary_mir_json_output(tmp_path: &std::path::Path) -> Result<String, String> {
+    std::fs::read_to_string(tmp_path).map_err(|error| format!("read boundary mir json: {}", error))
+}
+
+#[cfg(feature = "llvm-harness")]
+fn cleanup_boundary_mir_json_output(tmp_path: &std::path::Path) {
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[cfg(feature = "llvm-harness")]
+fn finalize_boundary_mir_json_output(tmp_path: &std::path::Path) -> Result<String, String> {
+    let mir_json = read_boundary_mir_json_output(tmp_path);
+    cleanup_boundary_mir_json_output(tmp_path);
+    mir_json
 }
