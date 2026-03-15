@@ -147,10 +147,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Immediate Next (this round)
 
 - pure `.hako-only hakorune build` Rust stop-line / `phase-29cj` exact front (2026-03-16):
-  - current active owner is `lang/src/runner/stage1_cli_env.hako`
-  - latest landed bundle is compat/result tiny-leaf consolidation: `Stage1ProgramJsonCompatBox` now keeps explicit Program(JSON) emit behind `_emit_mir_from_text_checked(...)`, and `Stage1MirResultValidationBox` now keeps result-materialize/debug/print behind `_coerce_materialized_mir_text_checked(...)`, `_debug_print_selected_input(...)`, `_debug_print_materialized_mir(...)`, and `_emit_validated_mir_text_checked(...)`
-  - targeted proof is `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako <tmp-out>` with MIR payload check
-  - exact next leaf is no longer `stage1_cli_env.hako` compat/result tiny leaves; it is `tools/selfhost/selfhost_build.sh` isolated consumer helpers
+  - current active owner is `tools/selfhost/selfhost_build.sh`
+  - latest landed bundle is isolated consumer-helper consolidation: downstream route order now stays helper-local behind `announce_program_json_output_if_requested()`, `emit_requested_mir_output_if_needed()`, `exe_output_requested()`, `emit_requested_exe_output()`, `run_program_json_requested()`, `run_requested_program_json()`, and `print_program_json_path_result()`, so `dispatch_stageb_downstream_outputs()` reads as thin orchestration
+  - targeted proof is `bash tools/selfhost/selfhost_build.sh --in apps/tests/hello_simple_llvm.hako --json <tmp-out>` and `bash tools/selfhost/selfhost_build.sh --in apps/tests/hello_simple_llvm.hako --run`
+  - exact next leaf is no longer `tools/selfhost/selfhost_build.sh` isolated consumer helpers; it is `tools/smokes/v2/lib/test_runner.sh` residual helper-local verify lanes
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
 - backend-zero / `phase-29ck` exact front (2026-03-16):
@@ -219,10 +219,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. shared producer `lang/src/compiler/build/build_box.hako`
     4. shell helper trio above
   - exact next slices after the latest landed work:
-    1. `tools/selfhost/selfhost_build.sh`
-       - now that `tools/hakorune_emit_mir.sh` and `stage1_cli_env.hako` helper-local tails are thinner, take the isolated consumer helpers next
-    2. `tools/smokes/v2/lib/test_runner.sh`
-       - keep residual helper-local verify lanes thin after `selfhost_build.sh`
+    1. `tools/smokes/v2/lib/test_runner.sh`
+       - now that `tools/hakorune_emit_mir.sh`, `stage1_cli_env.hako`, and `tools/selfhost/selfhost_build.sh` helper-local tails are thinner, take the residual verify lanes next
 
 - `phase-29cj` reviewer sync (2026-03-14):
   - external review agrees the bucket order stays `build surrogate keep` -> `future-retire bridge`

@@ -257,31 +257,63 @@ cleanup_program_json_tmp_if_needed() {
   fi
 }
 
-dispatch_stageb_downstream_outputs() {
+announce_program_json_output_if_requested() {
   local json_path="$1"
-
   if [ -n "$JSON_OUT" ]; then
     echo "[selfhost] JSON v0 written: $json_path" >&2
   fi
+}
 
-  if [ -n "$MIR_OUT" ]; then
-    emit_mir_json_from_source "$MIR_OUT"
+emit_requested_mir_output_if_needed() {
+  if [ -z "$MIR_OUT" ]; then
+    return 0
   fi
+  emit_mir_json_from_source "$MIR_OUT"
+}
 
-  if [ -n "$EXE_OUT" ]; then
-    emit_exe_from_program_json_v0 "$json_path" "$EXE_OUT"
+exe_output_requested() {
+  [ -n "$EXE_OUT" ]
+}
+
+emit_requested_exe_output() {
+  local json_path="$1"
+  emit_exe_from_program_json_v0 "$json_path" "$EXE_OUT"
+}
+
+run_program_json_requested() {
+  [ "$DO_RUN" = "1" ]
+}
+
+run_requested_program_json() {
+  local json_path="$1"
+  local rc=0
+  run_program_json_v0_via_core_direct "$json_path" || rc=$?
+  cleanup_program_json_tmp_if_needed "$json_path"
+  return $rc
+}
+
+print_program_json_path_result() {
+  local json_path="$1"
+  echo "$json_path"
+  return 0
+}
+
+dispatch_stageb_downstream_outputs() {
+  local json_path="$1"
+  announce_program_json_output_if_requested "$json_path"
+  emit_requested_mir_output_if_needed
+
+  if exe_output_requested; then
+    emit_requested_exe_output "$json_path"
     return $?
   fi
 
-  if [ "$DO_RUN" = "1" ]; then
-    local rc=0
-    run_program_json_v0_via_core_direct "$json_path" || rc=$?
-    cleanup_program_json_tmp_if_needed "$json_path"
-    return $rc
+  if run_program_json_requested; then
+    run_requested_program_json "$json_path"
+    return $?
   fi
 
-  echo "$json_path"
-  return 0
+  print_program_json_path_result "$json_path"
 }
 
 while [ $# -gt 0 ]; do
