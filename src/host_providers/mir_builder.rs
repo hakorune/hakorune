@@ -184,25 +184,73 @@ struct Stage1UserBoxDeclHandoff {
     program_value: serde_json::Value,
 }
 
+struct Stage1UserBoxDecl {
+    name: String,
+    fields: Vec<String>,
+}
+
 struct Stage1UserBoxDecls {
-    decls: Vec<serde_json::Value>,
+    decls: Vec<Stage1UserBoxDecl>,
+}
+
+impl Stage1UserBoxDecl {
+    fn from_json_value(decl: &serde_json::Value) -> Option<Self> {
+        let name = decl.get("name")?.as_str()?.trim();
+        if name.is_empty() {
+            return None;
+        }
+        let fields = decl
+            .get("fields")
+            .and_then(serde_json::Value::as_array)
+            .map(|fields| {
+                fields
+                    .iter()
+                    .filter_map(serde_json::Value::as_str)
+                    .map(str::to_string)
+                    .collect()
+            })
+            .unwrap_or_default();
+        Some(Self {
+            name: name.to_string(),
+            fields,
+        })
+    }
+
+    fn from_name(name: String) -> Self {
+        Self {
+            name,
+            fields: Vec::new(),
+        }
+    }
+
+    fn into_metadata_entry(self) -> (String, Vec<String>) {
+        (self.name, self.fields)
+    }
+
+    #[cfg(test)]
+    fn into_json_value(self) -> serde_json::Value {
+        serde_json::json!({ "name": self.name, "fields": self.fields })
+    }
 }
 
 impl Stage1UserBoxDecls {
-    fn new(decls: Vec<serde_json::Value>) -> Self {
+    fn new(decls: Vec<Stage1UserBoxDecl>) -> Self {
         Self { decls }
     }
 
     fn into_metadata_map(self) -> std::collections::HashMap<String, Vec<String>> {
         self.decls
             .into_iter()
-            .filter_map(stage1_user_box_decl_metadata_entry)
+            .map(Stage1UserBoxDecl::into_metadata_entry)
             .collect()
     }
 
     #[cfg(test)]
     fn into_decl_values(self) -> Vec<serde_json::Value> {
         self.decls
+            .into_iter()
+            .map(Stage1UserBoxDecl::into_json_value)
+            .collect()
     }
 }
 
@@ -214,17 +262,17 @@ impl Stage1UserBoxDeclHandoff {
         )
     }
 
-    fn explicit_user_box_decls(&self) -> Option<Vec<serde_json::Value>> {
+    fn explicit_user_box_decls(&self) -> Option<Vec<Stage1UserBoxDecl>> {
         let decls = self.program_value.get("user_box_decls")?.as_array()?;
         Some(
             decls
                 .iter()
-                .filter_map(normalize_stage1_user_box_decl)
+                .filter_map(Stage1UserBoxDecl::from_json_value)
                 .collect(),
         )
     }
 
-    fn compat_user_box_decls(&self) -> Vec<serde_json::Value> {
+    fn compat_user_box_decls(&self) -> Vec<Stage1UserBoxDecl> {
         build_stage1_user_box_decls_from_names(self.collect_decl_names())
     }
 
@@ -261,38 +309,6 @@ fn stage1_user_box_decl_handoff(program_json: &str) -> Result<Stage1UserBoxDeclH
     })
 }
 
-fn normalize_stage1_user_box_decl(decl: &serde_json::Value) -> Option<serde_json::Value> {
-    let name = decl.get("name")?.as_str()?.trim();
-    if name.is_empty() {
-        return None;
-    }
-    let fields = decl
-        .get("fields")
-        .and_then(serde_json::Value::as_array)
-        .cloned()
-        .unwrap_or_default();
-    Some(serde_json::json!({ "name": name, "fields": fields }))
-}
-
-fn stage1_user_box_decl_metadata_entry(decl: serde_json::Value) -> Option<(String, Vec<String>)> {
-    let name = decl.get("name")?.as_str()?.trim();
-    if name.is_empty() {
-        return None;
-    }
-    let fields = decl
-        .get("fields")
-        .and_then(serde_json::Value::as_array)
-        .map(|fields| {
-            fields
-                .iter()
-                .filter_map(serde_json::Value::as_str)
-                .map(str::to_string)
-                .collect()
-        })
-        .unwrap_or_default();
-    Some((name.to_string(), fields))
-}
-
 fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {
     serde_json::from_str(program_json)
         .map_err(|error| format!("program json parse error: {}", error))
@@ -318,15 +334,11 @@ fn insert_stage1_def_box_names(
 
 fn build_stage1_user_box_decls_from_names(
     names: std::collections::BTreeSet<String>,
-) -> Vec<serde_json::Value> {
+) -> Vec<Stage1UserBoxDecl> {
     names
         .into_iter()
-        .map(stage1_user_box_decl_from_name)
+        .map(Stage1UserBoxDecl::from_name)
         .collect()
-}
-
-fn stage1_user_box_decl_from_name(name: String) -> serde_json::Value {
-    serde_json::json!({ "name": name, "fields": [] })
 }
 
 #[cfg(test)]
