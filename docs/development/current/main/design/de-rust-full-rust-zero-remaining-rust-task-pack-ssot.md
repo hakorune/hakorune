@@ -227,6 +227,10 @@ rule:
        - `src/llvm_py/phi_wiring/wiring.py` now owns helper-local snapshot-candidate reuse, predecessor dedupe, self-carry normalization, incoming resolve/coercion, and per-predecessor selection helpers
        - `wire_incomings(...)` now consumes those helpers instead of mixing snapshot lookup, self-carry rewrite, resolve/coercion, and selection policy inline
        - proof is pinned by `src/llvm_py/tests/test_phi_wiring_selection.py`
+     - landed ninth slice:
+       - `src/llvm_py/utils/values.py` now owns file-local block-id/name extraction, same-block PHI detection, local def lookup, single-def dominance, PHI-owner dominance, and global-reuse helpers
+       - `resolve_i64_strict(...)` now consumes those helpers instead of mixing all dominance and PHI-owner checks inline
+       - proof is pinned by `src/llvm_py/tests/test_resolve_i64_strict_scope.py`
 - done shape:
   - Python is no longer mainline backend owner
 

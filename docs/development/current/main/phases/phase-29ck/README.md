@@ -177,6 +177,10 @@ Related:
    - `src/llvm_py/phi_wiring/wiring.py` now keeps snapshot-candidate reuse, predecessor dedupe, self-carry normalization, incoming resolve/coercion, and per-predecessor selection behind owner-local helpers (`_snapshot_phi_candidate(...)`, `_dedup_predecessors(...)`, `_normalize_incoming_source(...)`, `_resolve_incoming_value(...)`, `_record_chosen_incoming(...)`)
    - `wire_incomings(...)` now reads as `acquire phi -> match pred -> resolve/select -> add incoming` instead of mixing snapshot lookup, self-carry rewrite, resolve/coercion, and selection policy inline
    - support-owner proof is pinned by `src/llvm_py/tests/test_phi_wiring_selection.py`
+35. landed B3d values-dominance slice:
+   - `src/llvm_py/utils/values.py` now keeps block-id/name extraction, same-block PHI detection, local def lookup, single-def dominance, PHI-owner dominance, and global-reuse checks behind file-local helpers (`_block_id_from_block_name(...)`, `_block_name(...)`, `_same_block_phi(...)`, `_defined_in_block(...)`, `_single_def_dominates_block(...)`, `_phi_owner_dominates_block(...)`, `_global_reuse_allowed(...)`)
+   - `resolve_i64_strict(...)` now reads as local-hit/global-hit/fallback orchestration instead of mixing all dominance and PHI-owner checks inline
+   - support-owner proof is pinned by `src/llvm_py/tests/test_resolve_i64_strict_scope.py`
 
 ## Non-goals
 
