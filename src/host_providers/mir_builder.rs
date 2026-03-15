@@ -160,6 +160,10 @@ struct Stage1ProgramJsonInput<'a> {
     program_json: &'a str,
 }
 
+struct Stage1ProgramJsonValue {
+    program_value: serde_json::Value,
+}
+
 impl Stage1ProgramJsonModuleHandoff {
     fn parse(program_json: &str) -> Result<Self, String> {
         Stage1ProgramJsonInput::new(program_json).into_module_handoff()
@@ -194,18 +198,11 @@ impl<'a> Stage1ProgramJsonInput<'a> {
     }
 
     fn resolve_user_box_decls(&self) -> Result<Stage1UserBoxDecls, String> {
-        Ok(self.parse_user_box_decl_handoff()?.resolve_user_box_decls())
+        Ok(self.parse_value()?.resolve_user_box_decls())
     }
 
-    fn parse_user_box_decl_handoff(&self) -> Result<Stage1UserBoxDeclHandoff, String> {
-        Ok(Stage1UserBoxDeclHandoff::from_program_value(
-            self.parse_value()?,
-        ))
-    }
-
-    fn parse_value(&self) -> Result<serde_json::Value, String> {
-        serde_json::from_str(self.program_json)
-            .map_err(|error| format!("program json parse error: {}", error))
+    fn parse_value(&self) -> Result<Stage1ProgramJsonValue, String> {
+        Stage1ProgramJsonValue::parse(self.program_json)
     }
 }
 
@@ -227,10 +224,6 @@ impl SourceProgramJsonHandoff {
         let mir_json = emit_mir_json(&self.program_json)?;
         Ok((self.program_json, mir_json))
     }
-}
-
-struct Stage1UserBoxDeclHandoff {
-    program_value: serde_json::Value,
 }
 
 struct Stage1UserBoxDecl {
@@ -303,9 +296,12 @@ impl Stage1UserBoxDecls {
     }
 }
 
-impl Stage1UserBoxDeclHandoff {
-    fn from_program_value(program_value: serde_json::Value) -> Self {
-        Self { program_value }
+impl Stage1ProgramJsonValue {
+    fn parse(program_json: &str) -> Result<Self, String> {
+        Ok(Self {
+            program_value: serde_json::from_str(program_json)
+                .map_err(|error| format!("program json parse error: {}", error))?,
+        })
     }
 
     fn resolve_user_box_decls(self) -> Stage1UserBoxDecls {
@@ -594,7 +590,7 @@ mod tests {
     }
 
     #[test]
-    fn test_stage1_program_json_input_filters_invalid_explicit_decl_entries() {
+    fn test_stage1_program_json_value_filters_invalid_explicit_decl_entries() {
         let program_json = r#"{
             "version": 0,
             "kind": "Program",
@@ -614,8 +610,9 @@ mod tests {
         }"#;
 
         let decls = Stage1ProgramJsonInput::new(program_json)
+            .parse_value()
+            .expect("input must parse program value")
             .resolve_user_box_decls()
-            .expect("input must resolve user box decls")
             .into_decl_values();
 
         assert_eq!(
