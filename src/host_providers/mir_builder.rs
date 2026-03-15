@@ -75,7 +75,9 @@ pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Resul
 }
 
 fn emit_guarded_mir_json_from_program_json(program_json: &str) -> Result<String, String> {
-    with_phase0_mir_json_env(|| stage1_program_json_module_handoff(program_json)?.emit_mir_json())
+    with_phase0_mir_json_env(|| {
+        Stage1ProgramJsonModuleHandoff::parse(program_json)?.emit_mir_json()
+    })
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
@@ -120,7 +122,7 @@ fn emit_program_and_mir_json_for_source(
     source_text: &str,
     emit_mir_json: fn(&str) -> Result<String, String>,
 ) -> Result<(String, String), String> {
-    source_program_json_handoff(source_text)?.emit_program_and_mir_json(emit_mir_json)
+    SourceProgramJsonHandoff::for_source(source_text)?.emit_program_and_mir_json(emit_mir_json)
 }
 
 #[cfg(test)]
@@ -159,6 +161,10 @@ struct Stage1ProgramJsonInput<'a> {
 }
 
 impl Stage1ProgramJsonModuleHandoff {
+    fn parse(program_json: &str) -> Result<Self, String> {
+        Stage1ProgramJsonInput::new(program_json).into_module_handoff()
+    }
+
     fn emit_mir_json(self) -> Result<String, String> {
         module_to_mir_json(&self.into_module_with_user_box_decls())
     }
@@ -194,6 +200,12 @@ struct SourceProgramJsonHandoff {
 }
 
 impl SourceProgramJsonHandoff {
+    fn for_source(source_text: &str) -> Result<Self, String> {
+        Ok(Self {
+            program_json: emit_program_json_for_source(source_text)?,
+        })
+    }
+
     fn emit_program_and_mir_json(
         self,
         emit_mir_json: fn(&str) -> Result<String, String>,
@@ -311,18 +323,6 @@ impl Stage1UserBoxDeclHandoff {
         insert_stage1_def_box_names(&self.program_value, &mut seen);
         seen
     }
-}
-
-fn stage1_program_json_module_handoff(
-    program_json: &str,
-) -> Result<Stage1ProgramJsonModuleHandoff, String> {
-    Stage1ProgramJsonInput::new(program_json).into_module_handoff()
-}
-
-fn source_program_json_handoff(source_text: &str) -> Result<SourceProgramJsonHandoff, String> {
-    Ok(SourceProgramJsonHandoff {
-        program_json: emit_program_json_for_source(source_text)?,
-    })
 }
 
 fn parse_program_json_value(program_json: &str) -> Result<serde_json::Value, String> {
