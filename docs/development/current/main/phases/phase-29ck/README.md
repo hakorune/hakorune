@@ -197,6 +197,10 @@ Related:
    - `src/llvm_py/instructions/binop.py` now keeps string-handle materialization, `any.toString_h` bridge, module-function ensure, and concat dispatch behind file-local helpers (`_ensure_module_function(...)`, `_binop_to_string_handle(...)`, `_binop_any_to_string_handle(...)`, `_binop_needs_stringify_bridge(...)`, `_materialize_string_concat_handles(...)`, `_dispatch_string_concat(...)`)
    - `lower_binop(...)` no longer mixes concat handle prep and `concat_hh/concat3_hhh` dispatch inline after route selection
    - support-owner proof is pinned by `src/llvm_py/tests/{test_binop_concat_helpers.py,test_binop_string_partial_tag.py,test_strlen_fast.py}`
+40. landed B3d binop-int-float slice:
+   - `src/llvm_py/instructions/binop.py` now keeps numeric meta-kind decode, raw-or-resolved operand pickup, float operand coercion, and `fadd` emission behind file-local helpers (`_binop_plus_numeric_types(...)`, `_resolve_binop_value(...)`, `_coerce_float_operand_to_f64(...)`, `_lower_int_float_addition(...)`)
+   - `lower_binop(...)` now routes `+` through string/int-float checks before i64 canonicalization, so double constants no longer spuriously hit `nyash.float.unbox_to_f64`
+   - support-owner proof is pinned by `src/llvm_py/tests/test_binop_int_float_promotion.py`
 
 ## Non-goals
 

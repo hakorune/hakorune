@@ -630,18 +630,6 @@ def lower_binop(
         current_block: Current basic block
     """
     trace_hot_count(resolver, "binop_total")
-
-    lhs_val, rhs_val = _resolve_binop_i64_operands(
-        builder,
-        resolver,
-        lhs,
-        rhs,
-        vmap,
-        current_block,
-        preds,
-        block_end_values,
-        bb_map,
-    )
     op = _normalize_binop_op(op)
     if op == '%':
         trace_hot_count(resolver, "binop_mod")
@@ -671,6 +659,24 @@ def lower_binop(
     if op == '+':
         lhs_raw = vmap.get(lhs)
         rhs_raw = vmap.get(rhs)
+        lhs_val = _resolve_binop_value(
+            resolver,
+            lhs,
+            vmap,
+            current_block,
+            preds,
+            block_end_values,
+            bb_map,
+        )
+        rhs_val = _resolve_binop_value(
+            resolver,
+            rhs,
+            vmap,
+            current_block,
+            preds,
+            block_end_values,
+            bb_map,
+        )
         is_str, explicit_integer, explicit_string, operand_is_string = _binop_plus_prefers_string_path(
             resolver,
             lhs,
@@ -725,6 +731,18 @@ def lower_binop(
         bb_map,
     ):
         return
+
+    lhs_val, rhs_val = _resolve_binop_i64_operands(
+        builder,
+        resolver,
+        lhs,
+        rhs,
+        vmap,
+        current_block,
+        preds,
+        block_end_values,
+        bb_map,
+    )
 
     # Ensure both are i64
     i64 = ir.IntType(64)

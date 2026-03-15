@@ -247,6 +247,10 @@ rule:
        - `src/llvm_py/instructions/binop.py` now owns file-local string-handle materialization, `any.toString_h` bridge, module-function ensure, and concat dispatch helpers
        - `lower_binop(...)` now consumes those helpers instead of mixing concat handle prep and `concat_hh/concat3_hhh` dispatch inline
        - proof is pinned by `src/llvm_py/tests/test_binop_concat_helpers.py`, `src/llvm_py/tests/test_binop_string_partial_tag.py`, and `src/llvm_py/tests/test_strlen_fast.py`
+     - landed fourteenth slice:
+       - `src/llvm_py/instructions/binop.py` now owns file-local numeric meta-kind decode, raw-or-resolved operand pickup, float operand coercion, and `fadd` emission helpers
+       - `lower_binop(...)` now consumes those helpers and routes `+` through string/int-float checks before i64 canonicalization, so double constants no longer spuriously hit `nyash.float.unbox_to_f64`
+       - proof is pinned by `src/llvm_py/tests/test_binop_int_float_promotion.py`
 - done shape:
   - Python is no longer mainline backend owner
 
