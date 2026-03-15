@@ -17,7 +17,7 @@ llvm_py/
 ├── llvm_builder.py            # メインのLLVM IR生成（オーケストレーションのみ）
 ├── mir_reader.py              # MIR(JSON) ingest / BuilderInput 正規化
 ├── build_opts.py              # codegen env / target-machine context
-├── build_ctx.py               # lowering 時の共有コンテキスト箱
+├── build_ctx.py               # lowering 時の共有コンテキスト箱（instruction_lower 側で集約）
 ├── resolver.py                # 値解決（SSA/PHIの局所化とキャッシュ）
 ├── utils/
 │   └── values.py              # 同一ブロック優先の解決などの共通ポリシー

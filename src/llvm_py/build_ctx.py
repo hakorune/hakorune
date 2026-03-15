@@ -24,6 +24,7 @@ class BuildCtx:
     bb_map: Dict[int, ir.Block]
     preds: Dict[int, List[int]]
     block_end_values: Dict[int, Dict[int, ir.Value]]
+    def_blocks: Dict[int, Any]
 
     # Resolver (value queries, casts, string-ish tags)
     resolver: Any
@@ -32,3 +33,22 @@ class BuildCtx:
     trace_phi: bool = False
     verbose: bool = False
 
+
+def build_ctx_from_owner(owner: Any) -> BuildCtx:
+    """Collect the current lowering context from NyashLLVMBuilder."""
+    return BuildCtx(
+        module=owner.module,
+        i64=owner.i64,
+        i32=owner.i32,
+        i8=owner.i8,
+        i1=owner.i1,
+        i8p=owner.i8p,
+        vmap=owner.vmap,
+        bb_map=owner.bb_map,
+        preds=owner.preds,
+        block_end_values=owner.block_end_values,
+        def_blocks=owner.def_blocks,
+        resolver=owner.resolver,
+        trace_phi=bool(getattr(getattr(owner, "context", None), "trace_phi", False)),
+        verbose=False,
+    )
