@@ -5,8 +5,8 @@
  * separated from CLI parsing and the main entry point.
  */
 
-use nyash_rust::cli::CliConfig;
 use crate::runner::stage1_bridge::program_json_entry;
+use nyash_rust::cli::CliConfig;
 // prune heavy unused imports here; modules import what they need locally
 // pruned unused runtime imports in this module
 

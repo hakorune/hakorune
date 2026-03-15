@@ -152,9 +152,9 @@ fn ny_llvmc_driver_arg_from_backend(backend: Option<&str>) -> Option<&'static st
 }
 
 fn apply_ny_llvmc_driver_arg(cmd: &mut std::process::Command) {
-    if let Some(driver) = ny_llvmc_driver_arg_from_backend(
-        std::env::var("NYASH_LLVM_BACKEND").ok().as_deref(),
-    ) {
+    if let Some(driver) =
+        ny_llvmc_driver_arg_from_backend(std::env::var("NYASH_LLVM_BACKEND").ok().as_deref())
+    {
         cmd.arg("--driver").arg(driver);
     }
 }
@@ -302,7 +302,10 @@ mod tests {
 
     #[test]
     fn maps_native_backend_to_native_driver() {
-        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("native")), Some("native"));
+        assert_eq!(
+            ny_llvmc_driver_arg_from_backend(Some("native")),
+            Some("native")
+        );
         assert_eq!(
             ny_llvmc_driver_arg_from_backend(Some(" native ")),
             Some("native")
@@ -325,7 +328,10 @@ mod tests {
             .get_args()
             .map(|arg| arg.to_string_lossy().into_owned())
             .collect();
-        assert_eq!(args, vec!["--libs".to_string(), "-ldl -lpthread".to_string()]);
+        assert_eq!(
+            args,
+            vec!["--libs".to_string(), "-ldl -lpthread".to_string()]
+        );
     }
 
     #[test]

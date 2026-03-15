@@ -302,7 +302,10 @@ fn insert_stage1_def_box_names(
 fn build_stage1_user_box_decls_from_names(
     names: std::collections::BTreeSet<String>,
 ) -> Vec<serde_json::Value> {
-    names.into_iter().map(stage1_user_box_decl_from_name).collect()
+    names
+        .into_iter()
+        .map(stage1_user_box_decl_from_name)
+        .collect()
 }
 
 fn stage1_user_box_decl_from_name(name: String) -> serde_json::Value {

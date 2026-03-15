@@ -62,7 +62,10 @@ fn requested_object_output_path() -> Option<String> {
 }
 
 #[cfg(feature = "llvm-harness")]
-fn emit_requested_object_if_harness_enabled(module: &MirModule, out_path: &str) -> Result<(), String> {
+fn emit_requested_object_if_harness_enabled(
+    module: &MirModule,
+    out_path: &str,
+) -> Result<(), String> {
     if crate::config::env::llvm_use_harness() {
         emit_object_via_boundary_llvmlite_keep(module, out_path)?;
     }

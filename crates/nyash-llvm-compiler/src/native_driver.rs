@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use anyhow::{Context, Result, bail};
+use anyhow::{bail, Context, Result};
 use serde_json::Value as JsonValue;
 
 pub fn emit_dummy_object(out: &Path) -> Result<()> {
@@ -24,7 +24,8 @@ fn build_dummy_ir() -> String {
 }
 
 fn build_ir_from_mir_json(json: &JsonValue) -> Result<String> {
-    let func = find_entry_function(json).context("native driver currently requires an entry function named `main` or `ny_main`")?;
+    let func = find_entry_function(json)
+        .context("native driver currently requires an entry function named `main` or `ny_main`")?;
     let blocks = func
         .get("blocks")
         .and_then(JsonValue::as_array)
@@ -65,7 +66,10 @@ fn build_ir_from_mir_json(json: &JsonValue) -> Result<String> {
                         .and_then(JsonValue::as_str)
                         .unwrap_or("i64");
                     if ty != "i64" {
-                        bail!("native driver currently supports only i64 const, got {}", ty);
+                        bail!(
+                            "native driver currently supports only i64 const, got {}",
+                            ty
+                        );
                     }
                     let int_value = value
                         .get("value")
@@ -127,7 +131,10 @@ fn build_ir_from_mir_json(json: &JsonValue) -> Result<String> {
     }
 
     if needs_printf {
-        prologue.push("@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\", align 1".to_string());
+        prologue.push(
+            "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\", align 1"
+                .to_string(),
+        );
         prologue.push("declare i32 @printf(ptr, ...)".to_string());
     }
 
@@ -151,7 +158,8 @@ fn compile_ir_to_object(ir: &str, out: &Path) -> Result<()> {
         fs::create_dir_all(parent).ok();
     }
     let ll_path = temporary_ll_path(out);
-    fs::write(&ll_path, ir).with_context(|| format!("failed to write IR file: {}", ll_path.display()))?;
+    fs::write(&ll_path, ir)
+        .with_context(|| format!("failed to write IR file: {}", ll_path.display()))?;
     let llc = resolve_llc().context("llc not found in PATH for native driver")?;
 
     let output = Command::new(&llc)
@@ -230,10 +238,8 @@ mod tests {
             "nyllvmc_native_fixture_{}.mir.json",
             std::process::id()
         ));
-        let tmp_out = std::env::temp_dir().join(format!(
-            "nyllvmc_native_fixture_{}.o",
-            std::process::id()
-        ));
+        let tmp_out =
+            std::env::temp_dir().join(format!("nyllvmc_native_fixture_{}.o", std::process::id()));
         fs::write(&tmp_in, fixture).unwrap();
 
         let result = emit_object_from_json(&tmp_in, &tmp_out);

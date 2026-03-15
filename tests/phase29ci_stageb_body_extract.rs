@@ -24,7 +24,10 @@ fn stageb_compiler_no_longer_falls_back_to_full_source_for_hello_simple_fixture(
         .arg("--")
         .arg("--stage-b")
         .arg("--stage3")
-        .env("HAKO_SRC", include_str!("../apps/tests/hello_simple_llvm.hako"))
+        .env(
+            "HAKO_SRC",
+            include_str!("../apps/tests/hello_simple_llvm.hako"),
+        )
         .output()
         .expect("failed to run compiler.hako stage-b route");
 
@@ -82,7 +85,10 @@ static box Main {
         .arg("--backend")
         .arg("vm")
         .arg(&script_path)
-        .env("HAKO_SRC", include_str!("../apps/tests/hello_simple_llvm.hako"))
+        .env(
+            "HAKO_SRC",
+            include_str!("../apps/tests/hello_simple_llvm.hako"),
+        )
         .output()
         .expect("failed to run BuildBox probe");
     let _ = fs::remove_file(&script_path);

@@ -5,8 +5,8 @@
 //! writeback policy for the future-retire lane. Source-path precedence
 //! stays in the bridge-entry owner (`program_json_entry/request.rs`).
 
-mod read_input;
 mod payload;
+mod read_input;
 mod writeback;
 
 pub(super) fn emit_program_json_v0(source_path: &str, out_path: &str) -> Result<(), String> {
@@ -34,10 +34,7 @@ mod tests {
                 .as_nanos()
         );
         let error = load_program_json_output(&unique).expect_err("missing path must fail");
-        assert!(error.starts_with(&format!(
-            "emit-program-json-v0 read error: {}",
-            unique
-        )));
+        assert!(error.starts_with(&format!("emit-program-json-v0 read error: {}", unique)));
     }
 
     #[test]

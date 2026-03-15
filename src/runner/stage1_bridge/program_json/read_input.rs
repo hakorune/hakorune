@@ -1,6 +1,10 @@
 pub(super) fn read_source_text(source_path: &str) -> Result<String, String> {
-    std::fs::read_to_string(source_path)
-        .map_err(|error| format!("emit-program-json-v0 read error: {}: {}", source_path, error))
+    std::fs::read_to_string(source_path).map_err(|error| {
+        format!(
+            "emit-program-json-v0 read error: {}: {}",
+            source_path, error
+        )
+    })
 }
 
 #[cfg(test)]

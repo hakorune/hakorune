@@ -302,7 +302,10 @@ fn collect_workspace_module_entries(doc: &toml::Value, toml_dir: &Path) -> Vec<(
                 format!("{}.{}", module_name, export_key)
             };
             let resolved = module_dir.join(rel_path);
-            out.push((full_name, normalize_workspace_export_path(resolved, &repo_root)));
+            out.push((
+                full_name,
+                normalize_workspace_export_path(resolved, &repo_root),
+            ));
         }
     }
 
@@ -530,22 +533,10 @@ mod tests {
         };
         let embedded = load_embedded_snapshot_lists().expect("embedded snapshot must parse");
 
-        let embedded_modules = embedded
-            .modules_list
-            .as_deref()
-            .map(parse_kv_map);
-        let expected_modules = expected
-            .modules_list
-            .as_deref()
-            .map(parse_kv_map);
-        let embedded_roots = embedded
-            .module_roots_list
-            .as_deref()
-            .map(parse_kv_list);
-        let expected_roots = expected
-            .module_roots_list
-            .as_deref()
-            .map(parse_kv_list);
+        let embedded_modules = embedded.modules_list.as_deref().map(parse_kv_map);
+        let expected_modules = expected.modules_list.as_deref().map(parse_kv_map);
+        let embedded_roots = embedded.module_roots_list.as_deref().map(parse_kv_list);
+        let expected_roots = expected.module_roots_list.as_deref().map(parse_kv_list);
         let embedded_modules_map = embedded_modules.clone().unwrap_or_default();
         let expected_modules_map = expected_modules.clone().unwrap_or_default();
         let mut only_embedded = Vec::new();
@@ -555,9 +546,9 @@ mod tests {
         for (key, value) in &embedded_modules_map {
             match expected_modules_map.get(key) {
                 Some(expected_value) if expected_value == value => {}
-                Some(expected_value) => value_diff.push(format!(
-                    "{key}: embedded={value} expected={expected_value}"
-                )),
+                Some(expected_value) => {
+                    value_diff.push(format!("{key}: embedded={value} expected={expected_value}"))
+                }
                 None => only_embedded.push(format!("{key}={value}")),
             }
         }

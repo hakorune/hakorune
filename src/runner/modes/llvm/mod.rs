@@ -206,7 +206,11 @@ fn verify_requested_harness_object_output_or_exit(out_path: &str) {
                 )));
             }
             if std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1") {
-                crate::console_println!("[LLVM] object emitted: {} ({} bytes)", out_path, meta.len());
+                crate::console_println!(
+                    "[LLVM] object emitted: {} ({} bytes)",
+                    out_path,
+                    meta.len()
+                );
             }
         }
         Err(e) => {

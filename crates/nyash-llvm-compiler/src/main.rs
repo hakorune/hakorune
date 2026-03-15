@@ -20,7 +20,12 @@ Implementation detail: --driver and --harness are for backend bring-up / wrapper
 )]
 struct Args {
     /// MIR JSON input file path (use '-' to read from stdin). When omitted with --dummy, a dummy ny_main is emitted.
-    #[arg(long = "in", value_name = "FILE", default_value = "-", help_heading = "Stable CLI")]
+    #[arg(
+        long = "in",
+        value_name = "FILE",
+        default_value = "-",
+        help_heading = "Stable CLI"
+    )]
     infile: String,
 
     /// Output path. For `--emit obj`, this is an object (.o). For `--emit exe`, this is an executable path.
@@ -263,7 +268,11 @@ fn finalize_emit_output(
         link_executable(obj_path, out_path, nyrt_dir, extra_libs)?;
         println!("[ny-llvmc] executable written: {}", out_path.display());
     } else {
-        println!("[ny-llvmc] {} written: {}", object_label, obj_path.display());
+        println!(
+            "[ny-llvmc] {} written: {}",
+            object_label,
+            obj_path.display()
+        );
     }
     Ok(())
 }
@@ -543,8 +552,8 @@ fn link_executable(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use clap::CommandFactory;
     use clap::error::ErrorKind;
+    use clap::CommandFactory;
 
     #[test]
     fn cli_contract_defaults_to_obj_from_stdin() {
@@ -581,14 +590,8 @@ mod tests {
 
     #[test]
     fn implementation_detail_driver_selector_accepts_native_opt_in() {
-        let args = Args::try_parse_from([
-            "ny-llvmc",
-            "--out",
-            "out.o",
-            "--driver",
-            "native",
-        ])
-        .unwrap();
+        let args =
+            Args::try_parse_from(["ny-llvmc", "--out", "out.o", "--driver", "native"]).unwrap();
         assert_eq!(args.driver, DriverKind::Native);
     }
 

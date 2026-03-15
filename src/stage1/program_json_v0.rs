@@ -432,7 +432,7 @@ static box Main {
 
         let strict_authority =
             super::routing::emit_stage1_build_box_program_json(strict_source, true)
-            .expect("strict authority build emission");
+                .expect("strict authority build emission");
         assert_eq!(
             strict_authority.trace_summary(),
             "route=strict-authority relaxed_reason=none"
@@ -440,7 +440,7 @@ static box Main {
 
         let strict_default =
             super::routing::emit_stage1_build_box_program_json(strict_source, false)
-            .expect("strict default build emission");
+                .expect("strict default build emission");
         assert_eq!(
             strict_default.trace_summary(),
             "route=strict-default relaxed_reason=none"
@@ -502,9 +502,8 @@ return 0
     #[test]
     fn emit_program_json_v0_for_current_stage1_build_box_mode_returns_payload_only() {
         let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
-        let program_json =
-            super::emit_program_json_v0_for_current_stage1_build_box_mode(source)
-                .expect("program json");
+        let program_json = super::emit_program_json_v0_for_current_stage1_build_box_mode(source)
+            .expect("program json");
         assert!(program_json.contains("\"kind\":\"Program\""));
         assert!(program_json.contains("\"version\":0"));
     }
