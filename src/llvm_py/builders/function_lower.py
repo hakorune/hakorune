@@ -394,11 +394,107 @@ def _run_finalize_tail(builder, func: ir.Function, block_by_id: Dict[int, Dict[s
         pass
 
 
+def _build_function_type(builder, name: str, params: List[Any]) -> ir.FunctionType:
+    import re
+
+    if name == "ny_main":
+        return ir.FunctionType(builder.i64, [])
+
+    m = re.search(r"/(\d+)$", name)
+    arity = int(m.group(1)) if m else len(params)
+    if arity == 0 and "." in name:
+        try:
+            arity = int(builder.call_arities.get(name, 0))
+        except Exception:
+            pass
+    return ir.FunctionType(builder.i64, [builder.i64] * arity)
+
+
+def _get_or_create_function(builder, name: str, func_ty: ir.FunctionType) -> ir.Function:
+    for func in builder.module.functions:
+        if func.name == name:
+            return func
+    return ir.Function(builder.module, func_ty, name=name)
+
+
+def _collect_param_candidate_value_ids(blocks: List[Dict[str, Any]]) -> List[int]:
+    defs = set()
+    uses = set()
+    for block in (blocks or []):
+        for ins in (block.get("instructions") or []):
+            try:
+                dstv = ins.get("dst")
+                if isinstance(dstv, int):
+                    defs.add(int(dstv))
+            except Exception:
+                pass
+
+            for key in ("lhs", "rhs", "value", "cond", "box_val", "box", "src"):
+                try:
+                    value = ins.get(key)
+                    if isinstance(value, int):
+                        uses.add(int(value))
+                except Exception:
+                    pass
+
+            try:
+                args = ins.get("args")
+                if isinstance(args, list):
+                    for value in args:
+                        if isinstance(value, int):
+                            uses.add(int(value))
+            except Exception:
+                pass
+
+            try:
+                mir_call = ins.get("mir_call")
+                if isinstance(mir_call, dict):
+                    args = mir_call.get("args")
+                    if isinstance(args, list):
+                        for value in args:
+                            if isinstance(value, int):
+                                uses.add(int(value))
+            except Exception:
+                pass
+
+    candidates = [vid for vid in uses if vid not in defs]
+    candidates.sort()
+    return candidates
+
+
+def _map_function_params_to_vmap(builder, func, params_list: List[Any], blocks: List[Dict[str, Any]]) -> List[int]:
+    arity = len(func.args)
+    param_value_ids: List[int] = []
+
+    if (
+        isinstance(params_list, list)
+        and len(params_list) == arity
+        and all(isinstance(value, int) for value in params_list)
+    ):
+        for index in range(arity):
+            builder.vmap[int(params_list[index])] = func.args[index]
+            param_value_ids.append(int(params_list[index]))
+        return param_value_ids
+
+    candidates = _collect_param_candidate_value_ids(blocks)
+    for index in range(min(arity, len(candidates))):
+        builder.vmap[int(candidates[index])] = func.args[index]
+        param_value_ids.append(int(candidates[index]))
+
+    for index in range(arity):
+        if index not in builder.vmap:
+            builder.vmap[index] = func.args[index]
+        if len(param_value_ids) <= index:
+            param_value_ids.append(index)
+
+    return param_value_ids
+
+
 def lower_function(builder, func_data: Dict[str, Any]):
     """Lower a single MIR function to LLVM IR using the given builder context.
     This is a faithful extraction of NyashLLVMBuilder.lower_function.
     """
-    import os, re
+    import os
 
     name = func_data.get("name", "unknown")
     builder.current_function_name = name
@@ -406,22 +502,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
     blocks = func_data.get("blocks", [])
 
     # Determine function signature
-    if name == "ny_main":
-        # Special case: ny_main returns i64 to match runtime (nyrt) expectations
-        func_ty = ir.FunctionType(builder.i64, [])
-    else:
-        # Default: i64(i64, ...) signature; derive arity from '/N' suffix when params missing
-        m = re.search(r"/(\d+)$", name)
-        arity = int(m.group(1)) if m else len(params)
-        # Dev fallback: when params are missing for global (Box.method) functions,
-        # use observed call-site arity if available (scanned in builder.build_from_mir)
-        if arity == 0 and '.' in name:
-            try:
-                arity = int(builder.call_arities.get(name, 0))
-            except Exception:
-                pass
-        param_types = [builder.i64] * arity
-        func_ty = ir.FunctionType(builder.i64, param_types)
+    func_ty = _build_function_type(builder, name, params)
 
     # Reset per-function maps and resolver caches to avoid cross-function collisions
     try:
@@ -513,13 +594,7 @@ def lower_function(builder, func_data: Dict[str, Any]):
         builder.resolver.string_ids = context.resolver_string_ids
 
     # Create or reuse function
-    func = None
-    for f in builder.module.functions:
-        if f.name == name:
-            func = f
-            break
-    if func is None:
-        func = ir.Function(builder.module, func_ty, name=name)
+    func = _get_or_create_function(builder, name, func_ty)
 
     # Map parameters to vmap.
     #
@@ -529,73 +604,8 @@ def lower_function(builder, func_data: Dict[str, Any]):
     # Fallback: If params are missing (older JSON / legacy emit), use a heuristic:
     # - map "used but not defined" ValueIds to args in ascending ValueId order.
     try:
-        arity = len(func.args)
         params_list = func_data.get("params", []) or []
-        param_value_ids: List[int] = []
-
-        if (
-            isinstance(params_list, list)
-            and len(params_list) == arity
-            and all(isinstance(v, int) for v in params_list)
-        ):
-            for i in range(arity):
-                builder.vmap[int(params_list[i])] = func.args[i]
-                param_value_ids.append(int(params_list[i]))
-        else:
-            # Collect defined and used ids
-            defs = set()
-            uses = set()
-            for bb in (blocks or []):
-                for ins in (bb.get('instructions') or []):
-                    try:
-                        dstv = ins.get('dst')
-                        if isinstance(dstv, int):
-                            defs.add(int(dstv))
-                    except Exception:
-                        pass
-
-                    for k in ('lhs', 'rhs', 'value', 'cond', 'box_val', 'box', 'src'):
-                        try:
-                            v = ins.get(k)
-                            if isinstance(v, int):
-                                uses.add(int(v))
-                        except Exception:
-                            pass
-
-                    # List operands
-                    try:
-                        a = ins.get('args')
-                        if isinstance(a, list):
-                            for v in a:
-                                if isinstance(v, int):
-                                    uses.add(int(v))
-                    except Exception:
-                        pass
-
-                    # Unified calls: mir_call.args
-                    try:
-                        mc = ins.get('mir_call')
-                        if isinstance(mc, dict):
-                            a = mc.get('args')
-                            if isinstance(a, list):
-                                for v in a:
-                                    if isinstance(v, int):
-                                        uses.add(int(v))
-                    except Exception:
-                        pass
-
-            cand = [vid for vid in uses if vid not in defs]
-            cand.sort()
-            for i in range(min(arity, len(cand))):
-                builder.vmap[int(cand[i])] = func.args[i]
-                param_value_ids.append(int(cand[i]))
-
-            # Legacy fallback: map positional 0..arity-1 only when params are missing.
-            for i in range(arity):
-                if i not in builder.vmap:
-                    builder.vmap[i] = func.args[i]
-                if len(param_value_ids) <= i:
-                    param_value_ids.append(i)
+        param_value_ids = _map_function_params_to_vmap(builder, func, params_list, blocks)
 
         _seed_hakocli_args_array_fact(
             func_name=name,

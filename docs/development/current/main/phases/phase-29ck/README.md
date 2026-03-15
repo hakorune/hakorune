@@ -205,6 +205,14 @@ Related:
    - `src/llvm_py/builders/function_lower.py` now keeps `finalize_phis -> lower_terminators -> phi-ordering contract -> terminator safety -> hot summary` orchestration behind owner-local helper `_run_finalize_tail(...)`
    - `lower_function(...)` no longer mixes finalize-tail sequence inline after block lowering
    - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_finalize_tail.py`
+36g. landed B3d function-lower-signature slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps function signature policy and module reuse behind owner-local helpers `_build_function_type(...)` and `_get_or_create_function(...)`
+   - `lower_function(...)` no longer mixes arity policy and function lookup inline in the setup section
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_signature.py`
+36h. landed B3d function-lower-param-map slice:
+   - `src/llvm_py/builders/function_lower.py` now keeps explicit-param vs heuristic ValueId binding behind owner-local helpers `_collect_param_candidate_value_ids(...)` and `_map_function_params_to_vmap(...)`
+   - `lower_function(...)` no longer mixes param binding scan details inline in the setup section
+   - support-owner proof is pinned by `src/llvm_py/tests/test_function_lower_param_map.py`
 37. landed B3d binop-route slice:
    - `src/llvm_py/instructions/binop.py` now keeps `+` route policy behind file-local helpers (`_binop_plus_explicit_route(...)`, `_binop_plus_operand_is_stringish(...)`, `_binop_plus_any_tagged_string(...)`, `_binop_plus_prefers_string_path(...)`, `_binop_plus_string_tags(...)`) together with op-alias normalization helper `_normalize_binop_op(...)`
    - `lower_binop(...)` no longer mixes explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization inline before concat/integer dispatch

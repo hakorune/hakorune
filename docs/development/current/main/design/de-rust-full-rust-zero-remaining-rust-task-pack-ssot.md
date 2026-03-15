@@ -255,6 +255,14 @@ rule:
        - `src/llvm_py/builders/function_lower.py` now owns file-local finalize-tail orchestration helper `_run_finalize_tail(...)`
        - `lower_function(...)` now consumes that helper instead of mixing `finalize_phis -> lower_terminators -> phi-ordering contract -> terminator safety -> hot summary` inline
        - proof is pinned by `src/llvm_py/tests/test_function_lower_finalize_tail.py`
+     - landed tenth-g slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local signature policy helpers `_build_function_type(...)` and `_get_or_create_function(...)`
+       - `lower_function(...)` now consumes those helpers instead of mixing arity policy and module lookup inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_signature.py`
+     - landed tenth-h slice:
+       - `src/llvm_py/builders/function_lower.py` now owns file-local param binding helpers `_collect_param_candidate_value_ids(...)` and `_map_function_params_to_vmap(...)`
+       - `lower_function(...)` now consumes those helpers instead of mixing explicit-param vs heuristic ValueId binding scan inline
+       - proof is pinned by `src/llvm_py/tests/test_function_lower_param_map.py`
      - landed eleventh slice:
        - `src/llvm_py/instructions/binop.py` now owns file-local `+` route policy helpers for explicit dst-hint decode, operand string-fact detection, tagged-string fallback, string-tag collection, and op-alias normalization
        - `lower_binop(...)` now consumes those helpers instead of mixing string-vs-integer route selection inline
