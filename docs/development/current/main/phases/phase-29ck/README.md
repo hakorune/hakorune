@@ -201,6 +201,10 @@ Related:
    - `src/llvm_py/instructions/binop.py` now keeps numeric meta-kind decode, raw-or-resolved operand pickup, float operand coercion, and `fadd` emission behind file-local helpers (`_binop_plus_numeric_types(...)`, `_resolve_binop_value(...)`, `_coerce_float_operand_to_f64(...)`, `_lower_int_float_addition(...)`)
    - `lower_binop(...)` now routes `+` through string/int-float checks before i64 canonicalization, so double constants no longer spuriously hit `nyash.float.unbox_to_f64`
    - support-owner proof is pinned by `src/llvm_py/tests/test_binop_int_float_promotion.py`
+41. landed B3d binop-numeric-tail slice:
+   - `src/llvm_py/instructions/binop.py` now keeps i64 pointer coercion, expr-cache state/decode, cache-hit reuse, arithmetic-tail dispatch, vmap-trace, and result store behind file-local helpers (`_coerce_binop_i64_pair(...)`, `_binop_expr_cache_state(...)`, `_reuse_cached_binop_result(...)`, `_emit_numeric_binop(...)`, `_trace_binop_vmap_write(...)`, `_store_numeric_binop_result(...)`)
+   - `lower_binop(...)` no longer mixes numeric expr-cache orchestration and arithmetic tail emission inline after the string/int-float fast paths
+   - support-owner proof is pinned by `src/llvm_py/tests/test_binop_numeric_tail.py`
 
 ## Non-goals
 

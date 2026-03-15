@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-14
+Date: 2026-03-16
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -66,12 +66,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - landed B3d binop-entry slice: the same owner now keeps i64 operand resolve/canonicalize and textual-op alias normalization behind file-local helpers, so `lower_binop(...)` enters through `resolve operands -> normalize op -> route` orchestration with proof pinned by `test_binop_numeric_resolution.py`
       - landed B3d binop-concat slice: the same owner now keeps string-handle materialization, `any.toString_h` bridge, module-function ensure, and `concat_hh/concat3_hhh` dispatch behind file-local helpers, so `lower_binop(...)` no longer mixes concat handle prep and concat dispatch inline, with proof pinned by `test_binop_concat_helpers.py`, `test_binop_string_partial_tag.py`, and `test_strlen_fast.py`
       - landed B3d binop-int-float slice: the same owner now keeps numeric meta-kind decode, raw-or-resolved operand pickup, float operand coercion, and `fadd` emission behind file-local helpers, and `lower_binop(...)` now routes `+` through string/int-float checks before i64 canonicalization so double constants no longer spuriously hit `nyash.float.unbox_to_f64`, with proof pinned by `test_binop_int_float_promotion.py`
+      - landed B3d binop-numeric-tail slice: the same owner now keeps i64 pointer coercion, expr-cache state/decode, cache-hit reuse, arithmetic-tail dispatch, vmap-trace, and result store behind file-local helpers, so `lower_binop(...)` no longer mixes numeric expr-cache orchestration and arithmetic tail emission inline, with proof pinned by `test_binop_numeric_tail.py`
       - landed compiled-stage1 surrogate shrink first slice: `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now keeps compile-path decode, compile opts, and link-arg decode behind owner-local helpers while `module_string_dispatch.rs` continues to see only `try_dispatch(...)`
       - landed compiled-stage1 surrogate shrink second slice: the same owner now keeps backend route match and compile/link execute-error tails behind `match_route(...)`, `dispatch_route(...)`, and `finish_*_result(...)`, while parent dispatch still sees only `try_dispatch(...)`
       - landed compiled-stage1 surrogate shrink third slice: the same owner now keeps compile/link payload decode and execution behind request helpers `decode_*_request(...)` and `execute_*_request(...)`, leaving `handle_*` as decode -> execute -> finish only
       - next backend front is no longer launcher caller cutover; it stays pinned to any remaining compiled-stage1 surrogate shrink and then the next B3d analysis/support row
-      - next B3 front is no longer one Python bucket; after the resolver/type-facts, phi-manager, mir-analysis, phi-wiring analysis/tagging/finalize/selection, values-dominance, function-lower-prepass, and binop route/entry/concat/int-float rows it is pinned to the next `src/llvm_py/instructions/binop.py` exact leaf (numeric expr-cache / arithmetic tail), then the next smaller `src/llvm_py/builders/function_lower.py` seam
-      - restart handoff: safest next slices are `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` temporary residue shrink if another exact disappearing leaf appears, then the next `instructions/binop.py` support-owner row (numeric expr-cache / arithmetic tail) or a smaller remaining `function_lower.py` seam
+      - next B3 front is no longer one Python bucket; after the resolver/type-facts, phi-manager, mir-analysis, phi-wiring analysis/tagging/finalize/selection, values-dominance, function-lower-prepass, and binop route/entry/concat/int-float/numeric-tail rows it is pinned to the next smaller cross-block seam in `src/llvm_py/builders/function_lower.py`, unless another exact disappearing leaf appears in compiled-stage1 surrogate shrink first
+      - restart handoff: safest next slices are `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` temporary residue shrink if another exact disappearing leaf appears, then the next smaller `function_lower.py` seam
       - latest B0 tightening: `crates/nyash-llvm-compiler/src/main.rs` now keeps harness-path resolution, object-output resolution, input temp/normalize ownership, compile-mode diagnostics, and emit finalize output behind same-file helpers `resolve_harness_path(...)`, `resolve_object_output_path(...)`, `prepare_input_json_path(...)`, `maybe_dump_input_json(...)`, `emit_preflight_shape_hint(...)`, `emit_compile_output(...)`, and `finalize_emit_output(...)`; top-level route order dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)`
       - latest B0 tightening: `src/runner/modes/common_util/exec.rs` now keeps lib/bin MIR JSON emit + ny-llvmc EXE launch behind shared helper `emit_json_and_run_ny_llvmc_emit_exe(...)`
       - latest B0 tightening: `src/runner/modes/llvm/harness_executor.rs` now keeps runtime-state log, harness gate, ny-llvmc emit, and executable run behind same-file helpers `log_harness_runtime_state(...)`, `ensure_harness_requested(...)`, `emit_executable_via_ny_llvmc(...)`, and `run_emitted_executable(...)`
@@ -134,6 +135,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `docs/private/roadmap/phases/phase-21.5/PLAN.md`
 
 ## Immediate Next (this round)
+
+- backend-zero / `phase-29ck` exact front (2026-03-16):
+  - current active owner is `src/llvm_py/instructions/binop.py`
+  - latest landed slices are `binop-route` / `binop-entry` / `binop-concat` / `binop-int-float`
+  - exact next leaf is `numeric expr-cache / arithmetic tail` helper demotion in `src/llvm_py/instructions/binop.py`
+  - after that, return to the next smaller cross-block seam in `src/llvm_py/builders/function_lower.py`
+  - `by_name` retirement is still separate in `phase-29cl`; do not reopen kernel delete before compiled-stage1 residue shrink says no caller still needs it
 
 - owner-role lock for pure `.hako-only hakorune build`:
   - `authority owner`

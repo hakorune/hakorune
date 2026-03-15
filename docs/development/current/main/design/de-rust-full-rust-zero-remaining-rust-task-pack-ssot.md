@@ -251,6 +251,10 @@ rule:
        - `src/llvm_py/instructions/binop.py` now owns file-local numeric meta-kind decode, raw-or-resolved operand pickup, float operand coercion, and `fadd` emission helpers
        - `lower_binop(...)` now consumes those helpers and routes `+` through string/int-float checks before i64 canonicalization, so double constants no longer spuriously hit `nyash.float.unbox_to_f64`
        - proof is pinned by `src/llvm_py/tests/test_binop_int_float_promotion.py`
+     - landed fifteenth slice:
+       - `src/llvm_py/instructions/binop.py` now owns file-local i64 pointer coercion, expr-cache state/decode, cache-hit reuse, arithmetic-tail dispatch, vmap-trace, and result store helpers
+       - `lower_binop(...)` now consumes those helpers instead of mixing numeric expr-cache orchestration and arithmetic tail emission inline
+       - proof is pinned by `src/llvm_py/tests/test_binop_numeric_tail.py`
 - done shape:
   - Python is no longer mainline backend owner
 

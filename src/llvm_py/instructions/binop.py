@@ -303,6 +303,122 @@ def _cache_entry_reusable(resolver, current_bid: Optional[int], def_bid: Optiona
         return False
 
 
+def _coerce_binop_i64_pair(builder: ir.IRBuilder, lhs_val, rhs_val, dst: int):
+    i64 = ir.IntType(64)
+    if hasattr(lhs_val, "type") and lhs_val.type != i64 and getattr(lhs_val.type, "is_pointer", False):
+        lhs_val = builder.ptrtoint(lhs_val, i64, name=f"binop_lhs_p2i_{dst}")
+    if hasattr(rhs_val, "type") and rhs_val.type != i64 and getattr(rhs_val.type, "is_pointer", False):
+        rhs_val = builder.ptrtoint(rhs_val, i64, name=f"binop_rhs_p2i_{dst}")
+    return lhs_val, rhs_val
+
+
+def _binop_expr_cache_state(
+    resolver,
+    op: str,
+    lhs_val,
+    rhs_val,
+    lhs: int,
+    rhs: int,
+    current_bid: Optional[int],
+):
+    if os.environ.get("NYASH_LLVM_FAST") != "1" or resolver is None:
+        return None, None, None
+
+    cache_candidate = getattr(resolver, "binop_expr_cache", None)
+    if not isinstance(cache_candidate, dict):
+        return None, None, None
+
+    expr_key = _binop_expr_cache_key(op, lhs_val, rhs_val, lhs, rhs)
+    if expr_key is None:
+        return cache_candidate, None, None
+
+    cached_entry = cache_candidate.get(expr_key)
+    cached = None
+    cached_def_bid = current_bid
+    if isinstance(cached_entry, tuple) and len(cached_entry) == 2:
+        cached = cached_entry[0]
+        try:
+            cached_def_bid = int(cached_entry[1])
+        except Exception:
+            cached_def_bid = None
+    else:
+        cached = cached_entry
+
+    return cache_candidate, expr_key, (cached, cached_def_bid)
+
+
+def _reuse_cached_binop_result(
+    resolver,
+    vmap: Dict[int, ir.Value],
+    dst: int,
+    op: str,
+    current_bid: Optional[int],
+    expr_cache,
+    expr_key,
+    cached_state,
+) -> bool:
+    if expr_cache is None or expr_key is None or cached_state is None:
+        return False
+
+    cached, cached_def_bid = cached_state
+    if cached is not None and _cache_entry_reusable(resolver, current_bid, cached_def_bid):
+        trace_hot_count(resolver, "binop_expr_cache_hit")
+        safe_vmap_write(vmap, dst, cached, f"binop_{op}_expr_cache_hit")
+        return True
+
+    trace_hot_count(resolver, "binop_expr_cache_miss")
+    return False
+
+
+def _emit_numeric_binop(builder: ir.IRBuilder, resolver, op: str, lhs_val, rhs_val, lhs: int, dst: int):
+    i64 = ir.IntType(64)
+    if op == "+":
+        return builder.add(lhs_val, rhs_val, name=f"add_{dst}")
+    if op == "-":
+        return builder.sub(lhs_val, rhs_val, name=f"sub_{dst}")
+    if op == "*":
+        return builder.mul(lhs_val, rhs_val, name=f"mul_{dst}")
+    if op == "/":
+        return builder.sdiv(lhs_val, rhs_val, name=f"div_{dst}")
+    if op == "%":
+        return _lower_mod_op(builder, resolver, lhs_val, rhs_val, lhs, dst, i64)
+    if op == "&":
+        return builder.and_(lhs_val, rhs_val, name=f"and_{dst}")
+    if op == "|":
+        return builder.or_(lhs_val, rhs_val, name=f"or_{dst}")
+    if op == "^":
+        return builder.xor(lhs_val, rhs_val, name=f"xor_{dst}")
+    if op == "<<":
+        return builder.shl(lhs_val, rhs_val, name=f"shl_{dst}")
+    if op == ">>":
+        return builder.ashr(lhs_val, rhs_val, name=f"ashr_{dst}")
+    return ir.Constant(i64, 0)
+
+
+def _trace_binop_vmap_write(op: str, dst: int, vmap: Dict[int, ir.Value]) -> None:
+    if os.environ.get("NYASH_LLVM_VMAP_TRACE") != "1":
+        return
+    import sys
+
+    print(f"[vmap/id] binop op={op} dst={dst} vmap id={id(vmap)} before_write", file=sys.stderr)
+
+
+def _store_numeric_binop_result(
+    resolver,
+    vmap: Dict[int, ir.Value],
+    dst: int,
+    op: str,
+    result,
+    expr_cache,
+    expr_key,
+    current_bid: Optional[int],
+) -> None:
+    _trace_binop_vmap_write(op, dst, vmap)
+    if expr_cache is not None and expr_key is not None:
+        expr_cache[expr_key] = (result, current_bid)
+    safe_vmap_write(vmap, dst, result, f"binop_{op}")
+
+
 def _normalize_binop_op(op: str) -> str:
     op_raw = op or ""
     op_l = op_raw.lower()
@@ -745,75 +861,38 @@ def lower_binop(
     )
 
     # Ensure both are i64
-    i64 = ir.IntType(64)
-    if hasattr(lhs_val, 'type') and lhs_val.type != i64:
-        # Type conversion if needed
-        if lhs_val.type.is_pointer:
-            lhs_val = builder.ptrtoint(lhs_val, i64, name=f"binop_lhs_p2i_{dst}")
-    if hasattr(rhs_val, 'type') and rhs_val.type != i64:
-        if rhs_val.type.is_pointer:
-            rhs_val = builder.ptrtoint(rhs_val, i64, name=f"binop_rhs_p2i_{dst}")
+    lhs_val, rhs_val = _coerce_binop_i64_pair(builder, lhs_val, rhs_val, dst)
 
     current_bid = _block_id_from_name(current_block)
-    expr_cache = None
-    expr_key = None
-    if os.environ.get('NYASH_LLVM_FAST') == '1' and resolver is not None:
-        cache_candidate = getattr(resolver, "binop_expr_cache", None)
-        if isinstance(cache_candidate, dict):
-            expr_cache = cache_candidate
-            expr_key = _binop_expr_cache_key(op, lhs_val, rhs_val, lhs, rhs)
-            if expr_key is not None:
-                cached_entry = expr_cache.get(expr_key)
-                cached = None
-                cached_def_bid = current_bid
-                if isinstance(cached_entry, tuple) and len(cached_entry) == 2:
-                    cached = cached_entry[0]
-                    try:
-                        cached_def_bid = int(cached_entry[1])
-                    except Exception:
-                        cached_def_bid = None
-                else:
-                    cached = cached_entry
-                if cached is not None and _cache_entry_reusable(resolver, current_bid, cached_def_bid):
-                    trace_hot_count(resolver, "binop_expr_cache_hit")
-                    safe_vmap_write(vmap, dst, cached, f"binop_{op}_expr_cache_hit")
-                    return
-                trace_hot_count(resolver, "binop_expr_cache_miss")
-    
-    # Perform operation
-    if op == '+':
-        result = builder.add(lhs_val, rhs_val, name=f"add_{dst}")
-    elif op == '-':
-        result = builder.sub(lhs_val, rhs_val, name=f"sub_{dst}")
-    elif op == '*':
-        result = builder.mul(lhs_val, rhs_val, name=f"mul_{dst}")
-    elif op == '/':
-        # Signed division
-        result = builder.sdiv(lhs_val, rhs_val, name=f"div_{dst}")
-    elif op == '%':
-        result = _lower_mod_op(builder, resolver, lhs_val, rhs_val, lhs, dst, i64)
-    elif op == '&':
-        result = builder.and_(lhs_val, rhs_val, name=f"and_{dst}")
-    elif op == '|':
-        result = builder.or_(lhs_val, rhs_val, name=f"or_{dst}")
-    elif op == '^':
-        result = builder.xor(lhs_val, rhs_val, name=f"xor_{dst}")
-    elif op == '<<':
-        result = builder.shl(lhs_val, rhs_val, name=f"shl_{dst}")
-    elif op == '>>':
-        # Arithmetic shift right
-        result = builder.ashr(lhs_val, rhs_val, name=f"ashr_{dst}")
-    else:
-        # Unknown op - return zero
-        result = ir.Constant(i64, 0)
+    expr_cache, expr_key, cached_state = _binop_expr_cache_state(
+        resolver,
+        op,
+        lhs_val,
+        rhs_val,
+        lhs,
+        rhs,
+        current_bid,
+    )
+    if _reuse_cached_binop_result(
+        resolver,
+        vmap,
+        dst,
+        op,
+        current_bid,
+        expr_cache,
+        expr_key,
+        cached_state,
+    ):
+        return
 
-    # Phase 131-12-P1: Object identity trace before write
-    import sys  # os already imported at module level
-    if os.environ.get('NYASH_LLVM_VMAP_TRACE') == '1':
-        print(f"[vmap/id] binop op={op} dst={dst} vmap id={id(vmap)} before_write", file=sys.stderr)
-
-    if expr_cache is not None and expr_key is not None:
-        expr_cache[expr_key] = (result, current_bid)
-
-    # Store result
-    safe_vmap_write(vmap, dst, result, f"binop_{op}")
+    result = _emit_numeric_binop(builder, resolver, op, lhs_val, rhs_val, lhs, dst)
+    _store_numeric_binop_result(
+        resolver,
+        vmap,
+        dst,
+        op,
+        result,
+        expr_cache,
+        expr_key,
+        current_bid,
+    )
