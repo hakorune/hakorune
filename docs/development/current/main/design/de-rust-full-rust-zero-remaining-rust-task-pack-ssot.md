@@ -46,6 +46,8 @@ rule:
   - the remaining live Rust stop-line is concentrated in `src/host_providers/mir_builder.rs`, with targeted proof centered on `module_to_mir_json(...)`
 - acceptance:
   - `cargo test mir_builder -- --nocapture`
+- status:
+  - landed / frozen; do not reopen bridge-surrogate-helper waves for additional local thinning
 
 ### C1. strict source-authority freeze confirmation
 
@@ -57,6 +59,8 @@ rule:
 - done shape:
   - compiler lane の “remaining Rust” が stop-line だけに縮む
   - not deletion; frozen exact owners remain present until a later phase removes them
+- status:
+  - landed / frozen
 
 ### C2. post-phase-29cj authority replacement promotion
 
@@ -90,6 +94,9 @@ rule:
     - Python mainline keep to demote
     - thin boundary target
     - compat/archive keep
+- current active front:
+  - `crates/nyash-llvm-compiler/src/main.rs`
+  - latest tightening keeps harness-path resolution, object-output resolution, and input temp/normalize ownership behind same-file helpers instead of inline `main()` logic
 
 ### B1. daily caller cutover prep
 

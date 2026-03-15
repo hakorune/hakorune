@@ -78,25 +78,14 @@ fn main() -> Result<()> {
     }
 
     // Resolve harness path
-    let harness_path = if let Some(p) = args.harness.clone() {
-        p
-    } else {
-        PathBuf::from("tools/llvmlite_harness.py")
-    };
+    let harness_path = resolve_harness_path(args.harness.clone());
 
     // Determine emit kind
     let emit_exe = matches!(args.emit, EmitKind::Exe);
 
     if args.dummy {
         // Dummy ny_main: always go through harness to produce an object then link if requested
-        let obj_path = if emit_exe {
-            // derive a temporary .o path next to output
-            let mut p = args.out.clone();
-            p.set_extension("o");
-            p
-        } else {
-            args.out.clone()
-        };
+        let obj_path = resolve_object_output_path(&args.out, emit_exe);
         emit_dummy_object_via_driver(args.driver, &harness_path, &obj_path)
             .with_context(|| "failed to emit object in dummy mode")?;
         if emit_exe {
@@ -113,48 +102,8 @@ fn main() -> Result<()> {
         return Ok(());
     }
 
-    // Prepare input JSON path: either from file or stdin -> temp file.
-    // Optionally normalize canary JSON into the shape expected by the Python builder
-    // when HAKO_LLVM_CANARY_NORMALIZE=1 (no default behavior change).
-    let mut temp_path: Option<PathBuf> = None;
     let canary_norm = env::var("HAKO_LLVM_CANARY_NORMALIZE").ok().as_deref() == Some("1");
-    let input_path = if args.infile == "-" {
-        let mut buf = String::new();
-        std::io::stdin()
-            .read_to_string(&mut buf)
-            .context("reading MIR JSON from stdin")?;
-        let mut val: serde_json::Value =
-            serde_json::from_str(&buf).context("stdin does not contain valid JSON")?;
-        if canary_norm {
-            val = normalize_canary_json(val);
-        }
-        let tmp = std::env::temp_dir().join("ny_llvmc_stdin.json");
-        let mut f = File::create(&tmp).context("create temp json file")?;
-        let out = serde_json::to_vec(&val).context("serialize normalized json")?;
-        f.write_all(&out).context("write temp json")?;
-        temp_path = Some(tmp.clone());
-        tmp
-    } else {
-        let p = PathBuf::from(&args.infile);
-        if canary_norm {
-            // Read file, normalize, and write to a temp path
-            let mut buf = String::new();
-            File::open(&p)
-                .and_then(|mut f| f.read_to_string(&mut buf))
-                .context("read input json")?;
-            let mut val: serde_json::Value =
-                serde_json::from_str(&buf).context("input is not valid JSON")?;
-            val = normalize_canary_json(val);
-            let tmp = std::env::temp_dir().join("ny_llvmc_in.json");
-            let mut f = File::create(&tmp).context("create temp json file")?;
-            let out = serde_json::to_vec(&val).context("serialize normalized json")?;
-            f.write_all(&out).context("write temp json")?;
-            temp_path = Some(tmp.clone());
-            tmp
-        } else {
-            p
-        }
-    };
+    let (input_path, temp_path) = prepare_input_json_path(&args.infile, canary_norm)?;
 
     if !input_path.exists() {
         bail!("input JSON not found: {}", input_path.display());
@@ -176,13 +125,7 @@ fn main() -> Result<()> {
     }
 
     // Produce object first
-    let obj_path = if emit_exe {
-        let mut p = args.out.clone();
-        p.set_extension("o");
-        p
-    } else {
-        args.out.clone()
-    };
+    let obj_path = resolve_object_output_path(&args.out, emit_exe);
 
     // Optional: print concise shape hint in verbose mode when not normalizing
     if env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1")
@@ -219,11 +162,82 @@ fn main() -> Result<()> {
     }
 
     // Cleanup temp file if used
-    if let Some(p) = temp_path {
-        let _ = std::fs::remove_file(p);
-    }
+    cleanup_temp_input_json(temp_path);
 
     Ok(())
+}
+
+fn resolve_harness_path(harness: Option<PathBuf>) -> PathBuf {
+    harness.unwrap_or_else(|| PathBuf::from("tools/llvmlite_harness.py"))
+}
+
+fn resolve_object_output_path(out: &Path, emit_exe: bool) -> PathBuf {
+    if emit_exe {
+        let mut path = out.to_path_buf();
+        path.set_extension("o");
+        path
+    } else {
+        out.to_path_buf()
+    }
+}
+
+fn prepare_input_json_path(infile: &str, canary_norm: bool) -> Result<(PathBuf, Option<PathBuf>)> {
+    if infile == "-" {
+        let value = read_input_json_value_from_stdin(canary_norm)?;
+        let tmp = write_temp_input_json("ny_llvmc_stdin.json", &value)?;
+        return Ok((tmp.clone(), Some(tmp)));
+    }
+
+    let input_path = PathBuf::from(infile);
+    if canary_norm {
+        let value = read_input_json_value_from_path(&input_path, canary_norm)?;
+        let tmp = write_temp_input_json("ny_llvmc_in.json", &value)?;
+        Ok((tmp.clone(), Some(tmp)))
+    } else {
+        Ok((input_path, None))
+    }
+}
+
+fn read_input_json_value_from_stdin(canary_norm: bool) -> Result<serde_json::Value> {
+    let mut buf = String::new();
+    std::io::stdin()
+        .read_to_string(&mut buf)
+        .context("reading MIR JSON from stdin")?;
+    parse_input_json_value(&buf, "stdin does not contain valid JSON", canary_norm)
+}
+
+fn read_input_json_value_from_path(path: &Path, canary_norm: bool) -> Result<serde_json::Value> {
+    let mut buf = String::new();
+    File::open(path)
+        .and_then(|mut f| f.read_to_string(&mut buf))
+        .context("read input json")?;
+    parse_input_json_value(&buf, "input is not valid JSON", canary_norm)
+}
+
+fn parse_input_json_value(
+    input: &str,
+    invalid_context: &'static str,
+    canary_norm: bool,
+) -> Result<serde_json::Value> {
+    let mut value: serde_json::Value = serde_json::from_str(input).context(invalid_context)?;
+    if canary_norm {
+        value = normalize_canary_json(value);
+    }
+    Ok(value)
+}
+
+fn write_temp_input_json(filename: &str, value: &serde_json::Value) -> Result<PathBuf> {
+    let tmp = std::env::temp_dir().join(filename);
+    let mut file = File::create(&tmp).context("create temp json file")?;
+    let serialized = serde_json::to_vec(value).context("serialize normalized json")?;
+    file.write_all(&serialized).context("write temp json")?;
+    Ok(tmp)
+}
+
+fn cleanup_temp_input_json(temp_path: Option<PathBuf>) {
+    if let Some(path) = temp_path {
+        let _ = std::fs::remove_file(path);
+    }
 }
 
 /// Return a concise hint if the MIR JSON likely has a schema/shape mismatch for the Python harness.
@@ -566,5 +580,25 @@ mod tests {
         assert!(help.contains("Implementation Detail"));
         assert!(help.contains("--harness <FILE>"));
         assert!(help.contains("--driver <DRIVER>"));
+    }
+
+    #[test]
+    fn resolve_harness_path_defaults_to_workspace_wrapper() {
+        assert_eq!(
+            resolve_harness_path(None),
+            PathBuf::from("tools/llvmlite_harness.py")
+        );
+    }
+
+    #[test]
+    fn resolve_object_output_path_uses_o_suffix_for_exe() {
+        assert_eq!(
+            resolve_object_output_path(Path::new("/tmp/out.exe"), true),
+            PathBuf::from("/tmp/out.o")
+        );
+        assert_eq!(
+            resolve_object_output_path(Path::new("/tmp/out.o"), false),
+            PathBuf::from("/tmp/out.o")
+        );
     }
 }
