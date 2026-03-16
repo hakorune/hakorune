@@ -13,7 +13,7 @@ static box BuilderDelegateFinalizeBox {
   }
 
   method inject_user_box_decls(program_json, mir_json) {
-    local result = "" + mir_json
+    local result = me._coerce_text_compat(mir_json)
     local user_box_decls_json = me._build_user_box_decls_from_program_json(program_json)
     if user_box_decls_json == "" { return result }
     return MirV1MetaInjectBox.inject_user_box_decls(result, user_box_decls_json)
@@ -21,7 +21,7 @@ static box BuilderDelegateFinalizeBox {
 
   method _build_user_box_decls_from_program_json(program_json) {
     if program_json == null { return "[{\"name\":\"Main\",\"fields\":[]}]" }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local out = "[{\"name\":\"Main\",\"fields\":[]}"
     local seen = "|Main|"
     local pos = 0
@@ -42,5 +42,9 @@ static box BuilderDelegateFinalizeBox {
       pos = name_end + 1
     }
     return out + "]"
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }
