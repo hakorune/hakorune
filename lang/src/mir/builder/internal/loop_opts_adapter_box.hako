@@ -22,7 +22,7 @@ static box LoopOptsBox {
     // Force toggle: always return JsonFrag (dev/test override)
     if BuilderConfigBox.loop_force_jsonfrag_on() == 1 {
       local limit = opts.get("limit"); if limit == null { limit = 0 }
-      local limit_s = "" + limit
+      local limit_s = me._coerce_text_compat(limit)
       // Minimal while-loop semantics (executable, not just structure):
       // Block 0 (entry): i0=0, limit=N, jump to loop
       // Block 1 (loop header): phi i={i0,0}|{i_next,2}, cmp i<limit, branch
@@ -60,7 +60,7 @@ static box LoopOptsBox {
       // Read limit if present, else default to 0 (safe)
       local limit = opts.get("limit"); if limit == null { limit = 0 }
       // Normalize to string
-      local limit_s = "" + limit
+      local limit_s = me._coerce_text_compat(limit)
       // Minimal MIR: const 0, const limit, compare <, branch then/else, both paths ret
       local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
         "{\"id\":0,\"instructions\":[" +
@@ -194,7 +194,7 @@ static box LoopOptsBox {
   }
 
   method _emit_inst(inst) {
-    local op = "" + inst.get("op")
+    local op = me._coerce_text_compat(inst.get("op"))
     if op == "const" {
       return "{\"op\":\"const\",\"dst\":" + me._i64(inst.get("dst")) + ",\"value\":" + me._emit_box_value(inst.get("value")) + "}"
     }
@@ -267,7 +267,7 @@ static box LoopOptsBox {
     local ty = "i64"
     if BoxHelpers.is_map(val) {
       local ty_box = BoxHelpers.map_get(val, "type")
-      if ty_box != null { ty = "" + ty_box }
+      if ty_box != null { ty = me._coerce_text_compat(ty_box) }
       local inner = BoxHelpers.value_i64(val)
       return "{\"type\":" + me._quote(ty) + ",\"value\":" + me._i64(inner) + "}"
     }
@@ -296,5 +296,8 @@ static box LoopOptsBox {
   method _quote(val) {
     if val == null { return "\"\"" }
     return StringHelpers.json_quote("" + val)
+  }
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }
