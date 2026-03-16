@@ -145,7 +145,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
   - current exact issue は 2 本:
     1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
-    2. LLVM object daily route は backend-boundary default まで寄ったが、Python `llvmlite` keep がまだ broad owner なので `tools/llvmlite_harness.py` / `src/llvm_py/**` を explicit compat/canary keep へさらに demote する必要がある
+    2. caller-facing route は backend-boundary default まで寄ったが、`ny-llvmc` internal default driver がまだ `Harness` なので `llvmlite` が exe path の in-path に残っている。次は `crates/nyash-llvm-compiler/src/main.rs` default cutover と、その後の Python keep demotion が必要
 - do not do yet:
   - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
   - new `id-name` style intermediate contract
@@ -153,11 +153,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - active owner buckets:
   - `src/llvm_py/instructions/boxcall.py`
   - `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
+  - `crates/nyash-llvm-compiler/src/main.rs`
+  - `src/host_providers/llvm_codegen.rs`
   - `tools/llvmlite_harness.py`
   - `src/llvm_py/llvm_builder.py`
 - success condition for the current wave:
   - `by-name` is compat-only / no longer a daily mainline owner
-  - `llvmlite` is compat/probe keep / no longer the daily object-emission route
+  - `llvmlite` is explicit compat/probe keep, and the effective default exe/object route avoids it by default
 
 ## Large-Grain LlvmLite Migration Board (2026-03-17)
 
@@ -187,10 +189,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - role:
        - keep `ny-llvmc` as internal helper/wrapper, not caller-owned final boundary
        - move wording/route shape from `llvmlite harness wrapper` toward `backend helper with native/canary keep`
-       - do wording/help-text cleanup before any route-widening or delete work
+       - cut the internal default exe/object path off `DriverKind::Harness` so default route no longer enters `tools/llvmlite_harness.py`
      - acceptance:
-       - `ny-llvmc --driver native --emit obj ...`
-       - `ny-llvmc --driver native --emit exe ...`
+       - default `ny-llvmc --emit obj ...` avoids Python harness
+       - default `ny-llvmc --emit exe ...` avoids Python harness
+       - explicit `--driver harness` remains replayable
        - phase docs must still read `native_driver.rs` as bootstrap seam only
   3. runner / host-provider route demotion
      - exact paths:
@@ -218,10 +221,19 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - acceptance:
        - Python/llvmlite route is still replayable for probe/canary
        - daily route docs and runner stop-points no longer depend on it
+- route inventory:
+  - already daily-off:
+    - visible `.hako` backend caller route stops at `LlvmBackendBox` / `env.codegen.*`
+    - host-provider explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is opt-in keep only
+    - `tools/llvmlite_harness.py` no longer re-enters `llvm_builder.py` via `runpy`
+  - still in-path:
+    - `ny-llvmc` default `DriverKind::Harness`
+    - explicit keep envs `HAKO_LLVM_EMIT_PROVIDER=llvmlite` / `NYASH_LLVM_USE_HARNESS=1`
+    - Python keep owners under `tools/llvmlite_harness.py` + `src/llvm_py/**`
 - fixed order:
   1. finish thin backend boundary hardening
-  2. demote `ny-llvmc` wrapper wording/route ownership
-  3. demote runner/host-provider daily route off implicit `llvmlite`
+  2. cut `ny-llvmc` default object/exe route off `DriverKind::Harness`
+  3. verify runner/host-provider daily route stays off implicit `llvmlite`
   4. continue Python owner demotion until it is explicit compat/canary keep
   5. only then reconsider deleting any `llvmlite` keep route
 - do not do:
@@ -301,7 +313,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - kernel delete stays blocked until compat callers are gone
   3. pivot daily LLVM object emission from `llvmlite keep` to `.hako` backend boundary
      - target final shape remains `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
-     - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and the runner-side daily route should follow backend-boundary default
+     - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and runner-side callers now target backend-boundary default even though `ny-llvmc` internal default still needs final cutover
      - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
      - C helper cleanup is now near thin floor; do not keep micro-splitting without a fresh exact blocker
      - next large-grain front in order is Python owner demotion under `tools/llvmlite_harness.py` + `src/llvm_py/**`

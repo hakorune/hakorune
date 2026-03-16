@@ -74,7 +74,8 @@ backend-zero の final target は次の形に固定する。
 2026-03-14 時点の current line はこうである。
 
 1. mainline:
-   - `hakorune -> ny-llvmc -> llvmlite -> object/exe`
+   - caller-facing route is `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe`
+   - but `ny-llvmc` internal default driver still routes through harness/llvmlite unless explicitly cut over
 2. bootstrap seam:
    - `crates/nyash-llvm-compiler/src/native_driver.rs`
    - role:
@@ -90,7 +91,8 @@ backend-zero の final target は次の形に固定する。
      - no longer the preferred caller target for backend-zero
 
 ここで重要なのは、
-`native_driver.rs` が green でも backend-zero の final architecture が確定したことにはならない、
+`native_driver.rs` が green でも backend-zero の final architecture が確定したことにはならないし、
+`ny-llvmc` の current internal default が harness のままなら llvmlite は in-path に残る、
 という点だよ。
 
 ## 4. Temporary Seam Rule

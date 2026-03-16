@@ -50,9 +50,11 @@ Related:
 
 ## Current Snapshot (2026-03-14)
 
-1. current daily LLVM route は `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe` で、`llvmlite` は explicit compat/probe keep である
-2. `ny-llvmc` はすでに CLI / normalize / opt-level env / static-first link / backend-helper wording を owner している
-3. missing leg は Python `llvmlite` keep owner を explicit compat/canary only まで demote することである
+1. caller-facing daily LLVM route は `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe` まで寄っている
+2. ただし `ny-llvmc` internal default driver はまだ `Harness` なので、`llvmlite` は current exe/object in-path からは完全には外れていない
+3. missing legs は 2 本である
+   - `ny-llvmc` default object/exe route を `DriverKind::Harness` から外すこと
+   - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`
@@ -60,7 +62,7 @@ Related:
 5. landed second seam slice:
    - `BE0-min2` native driver selector
    - `--driver {harness|native}` now exists as implementation-detail opt-in
-   - default route stays `harness`
+   - current internal default route still stays `harness`; removing that default is now an explicit remaining migration item
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line
