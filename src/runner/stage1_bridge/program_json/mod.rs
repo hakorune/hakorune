@@ -10,21 +10,38 @@ mod read_input;
 mod writeback;
 
 pub(super) fn emit_program_json_v0(source_path: &str, out_path: &str) -> Result<(), String> {
-    let out = load_program_json_output(source_path)?;
-    writeback::write_program_json_output(out_path, &out)
+    ProgramJsonOutput::read_from_source_path(source_path)?.write_to_path(out_path)
 }
 
-fn load_program_json_output(source_path: &str) -> Result<String, String> {
-    let code = read_input::read_source_text(source_path)?;
-    payload::emit_program_json_payload(&code)
+#[derive(Debug)]
+struct ProgramJsonOutput {
+    payload: String,
+}
+
+impl ProgramJsonOutput {
+    fn read_from_source_path(source_path: &str) -> Result<Self, String> {
+        let code = read_input::read_source_text(source_path)?;
+        Ok(Self {
+            payload: payload::emit_program_json_payload(&code)?,
+        })
+    }
+
+    #[cfg(test)]
+    fn into_payload(self) -> String {
+        self.payload
+    }
+
+    fn write_to_path(self, out_path: &str) -> Result<(), String> {
+        writeback::write_program_json_output(out_path, &self.payload)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{emit_program_json_v0, load_program_json_output};
+    use super::{emit_program_json_v0, ProgramJsonOutput};
 
     #[test]
-    fn load_program_json_output_preserves_read_error_prefix() {
+    fn program_json_output_preserves_read_error_prefix() {
         let unique = format!(
             "/tmp/hakorune-stage1-bridge-program-json-missing-{}-{}.hako",
             std::process::id(),
@@ -33,7 +50,8 @@ mod tests {
                 .expect("unix epoch")
                 .as_nanos()
         );
-        let error = load_program_json_output(&unique).expect_err("missing path must fail");
+        let error =
+            ProgramJsonOutput::read_from_source_path(&unique).expect_err("missing path must fail");
         assert!(error.starts_with(&format!("emit-program-json-v0 read error: {}", unique)));
     }
 
@@ -66,5 +84,34 @@ mod tests {
 
         assert!(written.contains("\"kind\":\"Program\""));
         assert!(written.contains("\"version\":0"));
+    }
+
+    #[test]
+    fn program_json_output_reads_payload_from_source_path() {
+        let unique = format!(
+            "hakorune-stage1-bridge-payload-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("unix epoch")
+                .as_nanos()
+        );
+        let source_path = std::env::temp_dir().join(format!("{unique}.hako"));
+        let source_path_str = source_path.to_string_lossy().into_owned();
+
+        std::fs::write(
+            &source_path,
+            include_str!("../../../../lang/src/runner/stage1_cli_env.hako"),
+        )
+        .expect("write temp source");
+
+        let out = ProgramJsonOutput::read_from_source_path(&source_path_str)
+            .expect("program json output")
+            .into_payload();
+
+        let _ = std::fs::remove_file(&source_path);
+
+        assert!(out.contains("\"kind\":\"Program\""));
+        assert!(out.contains("\"version\":0"));
     }
 }
