@@ -60,6 +60,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - `lang/c-abi/include/hako_aot.h` を AOT compile/link 宣言の canonical header に固定し、`hako_hostbridge.h` は thin shim 化した
       - `lang/c-abi/shims/hako_aot_shared_impl.inc` を shared source truth にして、`hako_aot.c` / `hako_kernel.c` の AOT compile/link 実装を 1 箇所へ寄せた
       - latest BE0-min6 follow-up: `lang/c-abi/shims/hako_diag_mem_shared_impl.inc` now owns shared TLS diagnostics + libc memory for `hako_aot.c` / `hako_kernel.c`, so `hako_aot_shared_impl.inc` stays compile/link-only
+      - latest BE0-min6 command/log cleanup: `lang/c-abi/include/hako_aot.h` now names the path-owner contract explicitly (`mir_json_path` / `obj_path` / `exe_path`), and `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps compile/link command + log handling behind owner-local helpers
       - latest B1 arg-plumbing: `LlvmBackendBox.link_exe(obj_path, out_path, libs)` now forwards non-empty `libs` as the third `env.codegen.link_object` arg, and vm-hako / regular VM link handlers accept `[obj_path, exe_out?, extra_ldflags?]` while empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
       - landed B1a/B1b: `CodegenBridgeBox` is documented as temporary bridge owner only, and `lang/src/runner/launcher.hako` `build exe` stop-point was first moved off direct `CodegenBridgeBox`
       - landed launcher Program(JSON)->MIR fix: `src/runner/pipe_io.rs` `--program-json-to-mir` now uses `src/host_providers/mir_builder.rs::program_json_to_mir_json_with_user_box_decls(...)`, so launcher MIR keeps root `user_box_decls` and the old `Unknown Box type: HakoCli` blocker is retired
@@ -227,7 +228,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - target final shape remains `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
      - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and the runner-side daily route should follow backend-boundary default
      - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
-     - next exact front is `lang/c-abi/shims/hako_aot_shared_impl.inc` command/log helper cleanup now that TLS/memory foundation is shared
+     - next exact front is `lang/c-abi/shims/hako_aot_shared_impl.inc` FFI/lib/runtime-lib resolution cleanup now that command/log handling is shared
   4. keep these lanes frozen unless a fresh exact blocker appears:
      - `phase-29cj` micro-thinning
      - bridge/program-json/stub-emit cleanup

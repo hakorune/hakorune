@@ -259,7 +259,8 @@ Related:
 1. post-`BE0-min6` C owner cleanup follow-up
    - target owner is now `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
    - shared TLS diagnostics + libc memory now live at `lang/c-abi/shims/hako_diag_mem_shared_impl.inc`
-   - next exact front is command/log helper cleanup inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
+   - path-owner naming is now explicit at `lang/c-abi/include/hako_aot.h` (`mir_json_path` / `obj_path` / `exe_path`)
+   - next exact front is FFI/lib/runtime-lib resolution cleanup inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
    - launcher proof note: do not reopen the temporary compiled-stage1 surrogate unless the daily caller route changes again; current B1 front is compile-contract cleanup and env-truth lock
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`

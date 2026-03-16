@@ -26,6 +26,7 @@ Layout
   - `hako_aot.c` — AOT compile/link helper boundary の first cutover target
   - `hako_diag_mem_shared_impl.inc` — TLS diagnostics / libc memory の shared source truth
   - `hako_aot_shared_impl.inc` — AOT compile/link の shared source truth
+  - public path-owner names are `mir_json_path` / `obj_path` / `exe_path` under `hako_aot.h`
 
 Guards
 - No Rust modules or cargo manifests under `lang/`.

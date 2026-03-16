@@ -23,17 +23,16 @@ void*       hako_mem_alloc(uint64_t size);
 void*       hako_mem_realloc(void* ptr, uint64_t new_size);
 void        hako_mem_free(void* ptr);
 
-// AOT: compile MIR(JSON v0) → object file
+// AOT: compile MIR(JSON v0) path → object file path
 // Returns 0 on success; non‑zero on failure. On failure, err_out (optional)
 // receives a short heap message (free via hako_mem_free). hako_last_error()
 // is set to a short token (VALIDATION/NOT_FOUND/FAILED…)
-int hako_aot_compile_json(const char* json_in, const char* obj_out, char** err_out);
+int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char** err_out);
 
-// AOT: link object → native executable
+// AOT: link object path → native executable path
 // extra_ldflags may be NULL. Returns 0 on success; non‑zero on failure.
-int hako_aot_link_obj(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out);
+int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out);
 
 #ifdef __cplusplus
 }
 #endif
-
