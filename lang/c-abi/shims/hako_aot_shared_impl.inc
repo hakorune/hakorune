@@ -206,6 +206,52 @@ static int hako_aot_set_log_first_line_or(char** err_out, const char* log_path, 
   return -1;
 }
 
+static void hako_aot_cleanup_log_path(const char* log_path) {
+  if (log_path && *log_path) {
+    remove(log_path);
+  }
+}
+
+static int hako_aot_finish_failed_command(
+    char** err_out,
+    const char* log_path,
+    const char* fallback) {
+  hako_set_last_error("FAILED");
+  hako_aot_set_log_first_line_or(err_out, log_path, fallback);
+  hako_aot_cleanup_log_path(log_path);
+  return -1;
+}
+
+static int hako_aot_finish_success_command(const char* log_path) {
+  hako_set_last_error(NULL);
+  hako_aot_cleanup_log_path(log_path);
+  return 0;
+}
+
+static int hako_aot_run_command_or_project_fail(
+    const char* cmd,
+    char** err_out,
+    const char* log_path,
+    const char* fallback) {
+  int rc = system(cmd);
+  if (rc != 0) {
+    return hako_aot_finish_failed_command(err_out, log_path, fallback);
+  }
+  return 0;
+}
+
+static int hako_aot_finish_compile_success(
+    const char* obj_path,
+    char** err_out,
+    const char* log_path) {
+  if (!hako_aot_file_exists(obj_path)) {
+    hako_set_last_error("FAILED");
+    hako_aot_cleanup_log_path(log_path);
+    return hako_aot_set_err(err_out, "object not produced");
+  }
+  return hako_aot_finish_success_command(log_path);
+}
+
 static int hako_aot_pick_existing_dir(
     char* out,
     size_t out_len,
@@ -339,20 +385,14 @@ int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char*
     return hako_aot_set_err(err_out, "command too long");
   }
   (void)hako_aot_write_command_seed(logpath, cmd);
-  int rc = system(cmd);
-  if (rc != 0) {
-    hako_set_last_error("FAILED");
-    hako_aot_set_log_first_line_or(err_out, logpath, "COMPILE_FAILED");
-    remove(logpath);
+  if (hako_aot_run_command_or_project_fail(
+          cmd,
+          err_out,
+          logpath,
+          "COMPILE_FAILED") != 0) {
     return -1;
   }
-  hako_set_last_error(NULL);
-  if (!hako_aot_file_exists(obj_path)) {
-    hako_set_last_error("FAILED");
-    return hako_aot_set_err(err_out, "object not produced");
-  }
-  remove(logpath);
-  return 0;
+  return hako_aot_finish_compile_success(obj_path, err_out, logpath);
 }
 
 int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out) {
@@ -436,14 +476,12 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
       return hako_aot_set_err(err_out, "command too long");
     }
   }
-  int rc = system(cmd);
-  if (rc != 0) {
-    hako_set_last_error("FAILED");
-    hako_aot_set_log_first_line_or(err_out, logpath, "LINK_FAILED");
-    remove(logpath);
+  if (hako_aot_run_command_or_project_fail(
+          cmd,
+          err_out,
+          logpath,
+          "LINK_FAILED") != 0) {
     return -1;
   }
-  hako_set_last_error(NULL);
-  remove(logpath);
-  return 0;
+  return hako_aot_finish_success_command(logpath);
 }

@@ -261,7 +261,8 @@ Related:
    - shared TLS diagnostics + libc memory now live at `lang/c-abi/shims/hako_diag_mem_shared_impl.inc`
    - path-owner naming is now explicit at `lang/c-abi/include/hako_aot.h` (`mir_json_path` / `obj_path` / `exe_path`)
    - FFI library selection and runtime archive path resolution now live behind owner-local helpers inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
-   - next exact front is compile/link execute-fail projection cleanup inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
+   - compile/link execute-fail projection now lives behind shared helpers inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
+   - next exact front is shim-flag / linker option finalize cleanup inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
    - launcher proof note: do not reopen the temporary compiled-stage1 surrogate unless the daily caller route changes again; current B1 front is compile-contract cleanup and env-truth lock
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`
