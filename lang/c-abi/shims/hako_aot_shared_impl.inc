@@ -289,6 +289,60 @@ static const char* hako_aot_resolve_runtime_archive(char* buf, size_t buflen, co
   return NULL;
 }
 
+static const char* hako_aot_link_os_libs(void) {
+#if defined(__linux__)
+  return "-ldl -lpthread -lm";
+#elif defined(__APPLE__)
+  return "";
+#elif defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__)
+  return "-lws2_32 -lbcrypt";
+#else
+  return "";
+#endif
+}
+
+static const char* hako_aot_link_pie_avoid_flag(void) {
+#if defined(__linux__)
+  return " -no-pie";
+#else
+  return "";
+#endif
+}
+
+static const char* hako_aot_resolve_shim_flag(char* buf, size_t buflen, const char* dir) {
+  buf[0] = '\0';
+#if defined(__linux__) || defined(__APPLE__)
+  char shim_so[1024];
+#if defined(__APPLE__)
+  snprintf(shim_so, sizeof(shim_so), "%s/libhako_kernel_shim.dylib", dir);
+#else
+  snprintf(shim_so, sizeof(shim_so), "%s/libhako_kernel_shim.so", dir);
+#endif
+  if (hako_aot_file_exists(shim_so)) {
+    snprintf(buf, buflen, " -L\"%s\" -Wl,-rpath,\"%s\" -lhako_kernel_shim", dir, dir);
+  }
+#else
+  (void)dir;
+#endif
+  return buf;
+}
+
+static int hako_aot_append_linker_option_keeps(
+    char* cmd,
+    size_t cmd_len,
+    const char* extra_ldflags) {
+  if (hako_aot_append_flag_string(cmd, cmd_len, extra_ldflags) != 0) {
+    return -1;
+  }
+  {
+    const char* env_ld = getenv("HAKO_AOT_LDFLAGS");
+    if (hako_aot_append_flag_string(cmd, cmd_len, env_ld) != 0) {
+      return -1;
+    }
+  }
+  return 0;
+}
+
 #if !defined(_WIN32)
 static int hako_aot_try_ffi_compile(const char* mir_json_path, const char* obj_path, char** err_out) {
   void* h = hako_aot_open_ffi_lib();
@@ -421,60 +475,30 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
   }
   const char* linker = getenv("CC");
   if (!linker || !*linker) linker = "cc";
-  const char* os_libs = "";
-#if defined(__linux__)
-  os_libs = "-ldl -lpthread -lm";
-#elif defined(__APPLE__)
-  os_libs = "";
-#elif defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__)
-  os_libs = "-lws2_32 -lbcrypt";
-#endif
   char logpath[1024];
   if (hako_aot_build_link_log_path(logpath, sizeof(logpath)) != 0) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "command too long");
   }
   char shim_flag[1024] = "";
-#if defined(__linux__) || defined(__APPLE__)
-  char shim_so[1024];
-#if defined(__APPLE__)
-  snprintf(shim_so, sizeof(shim_so), "%s/libhako_kernel_shim.dylib", dir);
-#else
-  snprintf(shim_so, sizeof(shim_so), "%s/libhako_kernel_shim.so", dir);
-#endif
-  if (hako_aot_file_exists(shim_so)) {
-    snprintf(shim_flag, sizeof(shim_flag), " -L\"%s\" -Wl,-rpath,\"%s\" -lhako_kernel_shim", dir, dir);
-  }
-#endif
-  const char* pie_avoid = "";
-#if defined(__linux__)
-  pie_avoid = " -no-pie";
-#endif
   char cmd[8192];
   if (hako_aot_build_link_command(
           cmd,
           sizeof(cmd),
           linker,
-          pie_avoid,
+          hako_aot_link_pie_avoid_flag(),
           exe_path,
           obj_path,
           lib,
-          shim_flag,
-          os_libs,
+          hako_aot_resolve_shim_flag(shim_flag, sizeof(shim_flag), dir),
+          hako_aot_link_os_libs(),
           logpath) != 0) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "command too long");
   }
-  if (hako_aot_append_flag_string(cmd, sizeof(cmd), extra_ldflags) != 0) {
+  if (hako_aot_append_linker_option_keeps(cmd, sizeof(cmd), extra_ldflags) != 0) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "command too long");
-  }
-  {
-    const char* env_ld = getenv("HAKO_AOT_LDFLAGS");
-    if (hako_aot_append_flag_string(cmd, sizeof(cmd), env_ld) != 0) {
-      hako_set_last_error("VALIDATION");
-      return hako_aot_set_err(err_out, "command too long");
-    }
   }
   if (hako_aot_run_command_or_project_fail(
           cmd,

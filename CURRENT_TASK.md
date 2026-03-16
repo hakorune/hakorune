@@ -63,6 +63,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest BE0-min6 command/log cleanup: `lang/c-abi/include/hako_aot.h` now names the path-owner contract explicitly (`mir_json_path` / `obj_path` / `exe_path`), and `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps compile/link command + log handling behind owner-local helpers
       - latest BE0-min6 resolution cleanup: `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps FFI library selection and runtime archive path resolution behind owner-local helpers, instead of repeating env/default path probes inline
       - latest BE0-min6 execute-fail cleanup: `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps compile/link `system(cmd)` failure projection, log cleanup, and compile success-finalize behind shared helpers instead of repeating them inline
+      - latest BE0-min6 linker-finalize cleanup: `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps shim flag resolution, OS libs, PIE avoid, and appended linker-option keeps behind owner-local helpers instead of mixing them inline in `hako_aot_link_obj(...)`
       - latest runner/host-provider demotion: `src/host_providers/llvm_codegen.rs` now splits `C-API keep` / explicit `llvmlite` keep / default `ny-llvmc` route through owner-local helpers, so the host-provider default path reads as backend-boundary-first while `src/runner/modes/llvm/mod.rs` no longer carries stale harness-only object emit warnings
       - latest B1 arg-plumbing: `LlvmBackendBox.link_exe(obj_path, out_path, libs)` now forwards non-empty `libs` as the third `env.codegen.link_object` arg, and vm-hako / regular VM link handlers accept `[obj_path, exe_out?, extra_ldflags?]` while empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
       - landed B1a/B1b: `CodegenBridgeBox` is documented as temporary bridge owner only, and `lang/src/runner/launcher.hako` `build exe` stop-point was first moved off direct `CodegenBridgeBox`
@@ -299,10 +300,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - target final shape remains `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
      - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and the runner-side daily route should follow backend-boundary default
      - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
-     - next exact front is `lang/c-abi/shims/hako_aot_shared_impl.inc` shim-flag / linker option finalize cleanup now that execute-fail projection is shared
-     - after that, open the next large-grain front in order:
-       - `src/runner/modes/llvm/**` + `src/host_providers/llvm_codegen.rs` route demotion
-       - then Python owner demotion under `tools/llvmlite_harness.py` + `src/llvm_py/**`
+     - C helper cleanup is now near thin floor; do not keep micro-splitting without a fresh exact blocker
+     - next large-grain front in order is Python owner demotion under `tools/llvmlite_harness.py` + `src/llvm_py/**`
   4. keep these lanes frozen unless a fresh exact blocker appears:
      - `phase-29cj` micro-thinning
      - bridge/program-json/stub-emit cleanup
