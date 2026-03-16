@@ -264,7 +264,11 @@ Related:
    - compile/link execute-fail projection now lives behind shared helpers inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
    - next exact front is shim-flag / linker option finalize cleanup inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
    - launcher proof note: do not reopen the temporary compiled-stage1 surrogate unless the daily caller route changes again; current B1 front is compile-contract cleanup and env-truth lock
-2. runtime proof blocker inventory
+2. runner / host-provider demotion follow-up
+   - `src/host_providers/llvm_codegen.rs` now keeps `C-API keep`, explicit `llvmlite` keep, and default `ny-llvmc` route behind owner-local helpers
+   - `src/runner/modes/llvm/mod.rs` no longer carries stale harness-only object emit warnings
+   - next large-grain front after the current C helper cleanup is Python owner demotion (`tools/llvmlite_harness.py` / `src/llvm_py/**`)
+3. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`

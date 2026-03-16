@@ -170,21 +170,21 @@ fn requested_object_output_path() -> Option<String> {
     std::env::var("NYASH_LLVM_OBJ_OUT").ok()
 }
 
-fn emit_requested_object_or_exit(module: &nyash_rust::mir::MirModule, out_path: &str) {
+fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path: &str) {
     #[cfg(feature = "llvm-harness")]
     {
         if crate::config::env::llvm_use_harness() {
-            if let Err(e) = object_emitter::ObjectEmitterBox::try_emit(module) {
+            if let Err(e) = object_emitter::ObjectEmitterBox::try_emit(_module) {
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
             }
             return;
         }
-        verify_requested_harness_object_output_or_exit(out_path);
+        verify_requested_harness_object_output_or_exit(_out_path);
         return;
     }
     #[cfg(all(not(feature = "llvm-harness"), feature = "llvm-inkwell-legacy"))]
     {
-        emit_requested_legacy_object_or_exit(module, out_path);
+        emit_requested_legacy_object_or_exit(_module, _out_path);
         return;
     }
     #[cfg(all(not(feature = "llvm-harness"), not(feature = "llvm-inkwell-legacy")))]
