@@ -106,17 +106,7 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
     let cfg_info = nyash_rust::mir::extract_cfg_info(module);
 
     // Phase 285LLVM-1.1: Extract user box declarations for LLVM harness
-    let user_box_decls: Vec<serde_json::Value> = module
-        .metadata
-        .user_box_decls
-        .iter()
-        .map(|(name, fields)| {
-            json!({
-                "name": name,
-                "fields": fields
-            })
-        })
-        .collect();
+    let user_box_decls = collect_sorted_user_box_decl_values(module);
 
     let root = if use_v1_schema {
         let mut root = helpers::create_json_v1_root(json!(funs));
@@ -146,6 +136,22 @@ fn serialize_mir_json_root(root: &serde_json::Value) -> Result<String, String> {
     serde_json::to_string(root).map_err(|e| format!("write mir json: {}", e))
 }
 
+fn collect_sorted_user_box_decl_values(
+    module: &crate::mir::MirModule,
+) -> Vec<serde_json::Value> {
+    let mut decls: Vec<_> = module.metadata.user_box_decls.iter().collect();
+    decls.sort_by(|(lhs_name, _), (rhs_name, _)| lhs_name.cmp(rhs_name));
+    decls
+        .into_iter()
+        .map(|(name, fields)| {
+            json!({
+                "name": name,
+                "fields": fields
+            })
+        })
+        .collect()
+}
+
 fn write_mir_json_root(path: &std::path::Path, root: &serde_json::Value) -> Result<(), String> {
     let file = std::fs::File::create(path).map_err(|e| format!("write mir json: {}", e))?;
     let mut writer = std::io::BufWriter::new(file);
@@ -155,4 +161,46 @@ fn write_mir_json_root(path: &std::path::Path, root: &serde_json::Value) -> Resu
         .write_all(b"\n")
         .map_err(|e| format!("write mir json: {}", e))?;
     writer.flush().map_err(|e| format!("write mir json: {}", e))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn collect_sorted_user_box_decl_values_sorts_by_box_name() {
+        let mut module = crate::mir::MirModule::new("test".to_string());
+        module
+            .metadata
+            .user_box_decls
+            .insert("Stage1ProgramResultValidationBox".to_string(), Vec::new());
+        module
+            .metadata
+            .user_box_decls
+            .insert("Main".to_string(), Vec::new());
+        module
+            .metadata
+            .user_box_decls
+            .insert("Stage1InputContractBox".to_string(), Vec::new());
+
+        let decls = collect_sorted_user_box_decl_values(&module);
+        let names: Vec<_> = decls
+            .iter()
+            .map(|decl| {
+                decl.get("name")
+                    .and_then(serde_json::Value::as_str)
+                    .unwrap_or("")
+                    .to_string()
+            })
+            .collect();
+
+        assert_eq!(
+            names,
+            vec![
+                "Main".to_string(),
+                "Stage1InputContractBox".to_string(),
+                "Stage1ProgramResultValidationBox".to_string(),
+            ]
+        );
+    }
 }
