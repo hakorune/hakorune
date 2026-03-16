@@ -1,7 +1,9 @@
-pub(super) fn exit_with_emit_program_json_result(out_path: &str, result: Result<(), String>) -> ! {
-    match result {
+use super::request::ProgramJsonEmitResponse;
+
+pub(super) fn exit_with_emit_program_json_response(response: ProgramJsonEmitResponse) -> ! {
+    match response.result {
         Ok(()) => {
-            println!("Program JSON written: {}", out_path);
+            println!("Program JSON written: {}", response.out_path);
             std::process::exit(0);
         }
         Err(error) => exit_with_emit_program_json_error(&error),

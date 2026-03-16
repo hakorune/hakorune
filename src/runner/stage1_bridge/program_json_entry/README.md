@@ -9,6 +9,7 @@ Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src
   - delegates request classification/building to `request.rs`
 - `exit.rs`
   - owns exact success/error process-exit formatting
+  - owns response->process-exit handling for the bridge-local emit route
   - keeps bridge-local process-exit contract outside the entry facade
 - `request.rs`
   - bridge-entry request building for `emit-program-json-v0`
@@ -16,6 +17,7 @@ Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src
   - owns source-path precedence (`stage1::input_path()` aliases first, CLI input fallback second)
   - owns out-path extraction from the explicit CLI flag
   - owns request-local bridge emit execution once the request is built
+  - owns the typed response handoff consumed by `exit.rs`
   - keeps the request build path on `ProgramJsonEmitRequest::build(...)`
 
 ## Guardrails

@@ -12,6 +12,5 @@ pub(in crate::runner) fn emit_program_json_v0_and_exit(groups: &CliGroups) -> ! 
         Ok(request) => request,
         Err(error) => exit::exit_with_emit_program_json_error(&error),
     };
-    let out_path = request.out_path.clone();
-    exit::exit_with_emit_program_json_result(&out_path, request.emit_program_json_v0())
+    exit::exit_with_emit_program_json_response(request.execute())
 }
