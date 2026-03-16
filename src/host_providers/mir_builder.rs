@@ -82,9 +82,7 @@ pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, Stri
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    let (_, mir_json) =
-        SourceProgramJsonHandoff::for_source(source_text)?.emit_guarded_program_and_mir_json()?;
-    Ok(mir_json)
+    SourceProgramJsonHandoff::for_source(source_text)?.emit_guarded_mir_json()
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.
@@ -152,6 +150,11 @@ impl SourceProgramJsonHandoff {
         let mir_json = Stage1ProgramJsonModuleHandoff::parse(&self.program_json)?
             .emit_guarded_mir_json()?;
         Ok((self.program_json, mir_json))
+    }
+
+    fn emit_guarded_mir_json(self) -> Result<String, String> {
+        self.emit_guarded_program_and_mir_json()
+            .map(|(_, mir_json)| mir_json)
     }
 
     #[cfg(test)]
