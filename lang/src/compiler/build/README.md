@@ -37,4 +37,4 @@ Notes
     - `_build_defs_fragment_json(...)`: defs-scan plus defs-fragment build only
     - `_inject_defs_json(...)` / `_inject_imports_json(...)`: Stage-B fragment injection only
     - `_defs_scan_enabled(...)` / `_inject_defs_fragment_if_present(...)`: defs gate and inject tail only
-    - `_build_imports_fragment_json(...)`: imports-fragment build only
+    - `_build_imports_fragment_json(...)` / `_inject_imports_fragment_if_present(...)`: imports-fragment build and inject tail only

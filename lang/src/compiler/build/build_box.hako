@@ -242,10 +242,7 @@ static box BuildBox {
 
   method _inject_imports_json(ast_json, scan_src) {
     local imports_frag = me._build_imports_fragment_json(scan_src)
-    if imports_frag != "" {
-      return StageBJsonBuilderBox.inject_json_fragment(ast_json, imports_frag)
-    }
-    return ast_json
+    return me._inject_imports_fragment_if_present(ast_json, imports_frag)
   }
 
   method _build_imports_fragment_json(scan_src) {
@@ -255,6 +252,11 @@ static box BuildBox {
     local imports_obj = StageBJsonBuilderBox.convert_usings_to_imports(usings_json)
     if imports_obj == null || imports_obj == "{}" || imports_obj == "" { return "" }
     return ",\"imports\":" + imports_obj
+  }
+
+  method _inject_imports_fragment_if_present(ast_json, imports_frag) {
+    if imports_frag == "" || imports_frag.length() <= 0 { return ast_json }
+    return StageBJsonBuilderBox.inject_json_fragment(ast_json, imports_frag)
   }
 
   method _resolve_parse_src(scan_src) {
