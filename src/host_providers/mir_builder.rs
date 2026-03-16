@@ -313,19 +313,28 @@ impl Stage1UserBoxDecls {
         Some(box_name.to_string())
     }
 
-    fn into_metadata_map(self) -> std::collections::HashMap<String, Vec<String>> {
+    fn into_metadata_entries(self) -> Vec<(String, Vec<String>)> {
         self.decls
             .into_iter()
             .map(Stage1UserBoxDecl::into_metadata_entry)
             .collect()
     }
 
+    fn into_metadata_map(self) -> std::collections::HashMap<String, Vec<String>> {
+        self.into_metadata_entries().into_iter().collect()
+    }
+
     #[cfg(test)]
-    fn into_decl_values(self) -> Vec<serde_json::Value> {
+    fn into_decl_json_values(self) -> Vec<serde_json::Value> {
         self.decls
             .into_iter()
             .map(Stage1UserBoxDecl::into_json_value)
             .collect()
+    }
+
+    #[cfg(test)]
+    fn into_decl_values(self) -> Vec<serde_json::Value> {
+        self.into_decl_json_values()
     }
 }
 
