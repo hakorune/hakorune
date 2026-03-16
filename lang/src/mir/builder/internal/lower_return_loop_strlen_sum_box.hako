@@ -10,7 +10,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 static box LowerReturnLoopStrlenSumBox {
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
 
     // Quick guards for required nodes
     if JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0) < 0 { return null }
@@ -77,13 +77,13 @@ static box LowerReturnLoopStrlenSumBox {
         if kv2 >= 0 {
           local v = JsonFragBox.read_int_after(s, kv2 + 8)
           if v != null {
-            local vi = 0 + ("" + v)
+            local vi = me._coerce_i64_compat(v)
             if vi > best { best = vi }
           }
         }
         pos2 = kti + 1
       }
-      if best > 1 { limit = ("" + best) } else { return null }
+      if best > 1 { limit = me._coerce_text_compat(best) } else { return null }
     }
 
     // Verify body contains '+=' like total = total + s.length()
@@ -92,13 +92,19 @@ static box LowerReturnLoopStrlenSumBox {
     if JsonFragBox.index_of_from(s, "\"method\":\"length\"", 0) < 0 && JsonFragBox.index_of_from(s, "\"method\":\"size\"", 0) < 0 { return null }
 
     // Compute byte-length (bench strings are ASCII)
-    local slen = ("" + s_val).length()
-    local lim_i = 0 + ("" + limit)
-    local len_i = 0 + ("" + slen)
+    local slen = me._coerce_text_compat(s_val).length()
+    local lim_i = me._coerce_i64_compat(limit)
+    local len_i = me._coerce_i64_compat(slen)
     local res = lim_i * len_i
 
     // Emit MIR v1 const+ret
     local mir = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + res + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
     return mir
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _coerce_i64_compat(value) {
+    return 0 + me._coerce_text_compat(value)
   }
 }

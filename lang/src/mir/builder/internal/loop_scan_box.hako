@@ -52,7 +52,7 @@ static box LoopScanBox {
       local sentinel_val = JsonFragBox.read_int_after(s, kv + 8)
       // Safety check: must be valid numeric string
       if sentinel_val == null { return null }
-      local sval_str = "" + sentinel_val
+      local sval_str = me._coerce_text_compat(sentinel_val)
       if sval_str.length() == 0 { return null }
       if sval_str.length() > 10 { return null }
       // Must be numeric (basic check)
@@ -73,7 +73,7 @@ static box LoopScanBox {
     local sentinel_val2 = JsonFragBox.read_int_after(s, kv2 + 8)
     // Safety check for rhs case
     if sentinel_val2 == null { return null }
-    local sval_str2 = "" + sentinel_val2
+    local sval_str2 = me._coerce_text_compat(sentinel_val2)
     if sval_str2.length() == 0 { return null }
     if sval_str2.length() > 10 { return null }
     local i2 = 0; local len2 = sval_str2.length()
@@ -85,5 +85,8 @@ static box LoopScanBox {
       i2 = i2 + 1
     }
     return sentinel_val2
+  }
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }
