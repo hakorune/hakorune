@@ -7,7 +7,7 @@ duplicate route-order logic.
 
 Contract:
 - plugin fallback sees i64 handles for both receiver and args
-- pointer/string args must be boxed before `nyash.plugin.invoke_by_name_i64`
+- pointer/string args must be boxed before the generic plugin invoke entrypoint
 """
 
 from typing import Callable, List, Optional

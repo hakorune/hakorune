@@ -247,6 +247,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `small`
     - another `phase-29cj` shell/helper slice only if a new exact disappearing leaf appears in `tools/smokes/v2/lib/test_runner.sh` or the `phase2160` probe wrappers
     - any additional compiled-stage1 surrogate shrink only if another exact disappearing leaf appears
+    - keep `BYN-min4a` C hook/registry surface shared under `lang/c-abi/shims/hako_forward_registry_shared_impl.inc`; do not let `crates/nyash_kernel/src/hako_forward_registry.c` and `lang/c-abi/shims/hako_kernel.c` drift apart again
   - `medium`
     - remaining Rust compiler stop-line / bootstrap boundary buckets
       - `src/host_providers/mir_builder.rs`

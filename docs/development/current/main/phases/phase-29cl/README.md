@@ -105,13 +105,16 @@ Rule:
 12. compiled-stage1 surrogate shrink third slice is landed
    - `llvm_backend_surrogate.rs` now keeps compile/link payload decode and execution behind owner-local request helpers (`decode_*_request(...)`, `execute_*_request(...)`)
    - `handle_compile_obj(...)` / `handle_link_exe(...)` now read as decode -> execute -> finish only, while the parent dispatch contract remains unchanged
+13. `BYN-min4a` compat registry demotion slice is landed
+   - `lang/c-abi/shims/hako_forward_registry_shared_impl.inc` is now the shared compat-only owner for the C hook registry surface
+   - `crates/nyash_kernel/src/hako_forward_registry.c` and `lang/c-abi/shims/hako_kernel.c` no longer duplicate `plugin_invoke_by_name` / `future_spawn_instance` / `string_dispatch` registration and try-call behavior inline
 
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
 2. keep visible launcher caller off `by_name`
 3. shrink compiled-stage1 surrogates now that launcher source route no longer feeds `selfhost.shared.backend.llvm_backend`
-4. reduce hook/registry keeps to explicit compat-only
+4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 
 ## Acceptance
