@@ -156,6 +156,73 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `by-name` is compat-only / no longer a daily mainline owner
   - `llvmlite` is compat/probe keep / no longer the daily object-emission route
 
+## Large-Grain LlvmLite Migration Board (2026-03-17)
+
+- goal:
+  - move the daily LLVM route off `llvmlite` without inventing a third ABI or promoting `native_driver.rs` to final owner
+  - keep final shape fixed to `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
+- stop rule:
+  - stop demotion work when `llvmlite` is compat/canary keep only
+  - do not delete `tools/llvmlite_harness.py` / `src/llvm_py/**` until caller docs, runner route, and acceptance scripts all read them as keep-only
+- remaining owner buckets by grain:
+  1. thin backend boundary hardening
+     - exact paths:
+       - `lang/src/shared/backend/llvm_backend_box.hako`
+       - `lang/c-abi/include/hako_aot.h`
+       - `lang/c-abi/shims/{hako_aot.c,hako_diag_mem_shared_impl.inc,hako_aot_shared_impl.inc,hako_llvmc_ffi.c}`
+     - role:
+       - keep `MIR(JSON path) -> object path -> exe path` contract single-sourced
+       - absorb command/log/resolve/error-projection cleanup here, not in runner callers
+     - acceptance:
+       - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
+       - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
+  2. ny-llvmc wrapper demotion
+     - exact paths:
+       - `crates/nyash-llvm-compiler/src/main.rs`
+       - `crates/nyash-llvm-compiler/src/native_driver.rs`
+     - role:
+       - keep `ny-llvmc` as internal helper/wrapper, not caller-owned final boundary
+       - move wording/route shape from `llvmlite harness wrapper` toward `backend helper with native/canary keep`
+     - acceptance:
+       - `ny-llvmc --driver native --emit obj ...`
+       - `ny-llvmc --driver native --emit exe ...`
+       - phase docs must still read `native_driver.rs` as bootstrap seam only
+  3. runner / host-provider route demotion
+     - exact paths:
+       - `src/runner/modes/llvm/**`
+       - `src/runner/modes/common_util/exec.rs`
+       - `src/host_providers/llvm_codegen.rs`
+     - role:
+       - make runner-side daily route follow backend-boundary default
+       - keep explicit `llvmlite` selection as compat/probe keep only
+       - do not let route glue silently auto-fallback back into `llvmlite`
+     - acceptance:
+       - `cargo check --bin hakorune`
+       - backend app smokes stay green with default route
+       - explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` remains opt-in only
+  4. Python llvmlite owner demotion
+     - exact paths:
+       - `tools/llvmlite_harness.py`
+       - `src/llvm_py/llvm_builder.py`
+       - `src/llvm_py/{mir_reader.py,build_ctx.py,build_opts.py,resolver.py,mir_analysis.py,phi_manager.py,type_facts.py,phi_placement.py}`
+       - `src/llvm_py/instructions/**`
+     - role:
+       - continue reducing Python mainline ownership until it is clearly compat/canary only
+       - do not mix this with backend-boundary docs; this is downstream demotion work
+     - acceptance:
+       - Python/llvmlite route is still replayable for probe/canary
+       - daily route docs and runner stop-points no longer depend on it
+- fixed order:
+  1. finish thin backend boundary hardening
+  2. demote `ny-llvmc` wrapper wording/route ownership
+  3. demote runner/host-provider daily route off implicit `llvmlite`
+  4. continue Python owner demotion until it is explicit compat/canary keep
+  5. only then reconsider deleting any `llvmlite` keep route
+- do not do:
+  - do not reopen `native_driver.rs` as final owner
+  - do not add a new intermediate ABI or hidden env for migration convenience
+  - do not silently route native failure into `llvmlite` fallback
+
 - compiler lane: `phase-29bq / none`（active: failure-driven reopen only）
   - current blocker: `none`
   - reopen condition: `emit_fail > 0` または `route_blocker > 0`
@@ -230,6 +297,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and the runner-side daily route should follow backend-boundary default
      - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
      - next exact front is `lang/c-abi/shims/hako_aot_shared_impl.inc` compile/link execute-fail projection cleanup now that path resolution is shared
+     - after that, open the next large-grain front in order:
+       - `crates/nyash-llvm-compiler/src/main.rs` wording/route demotion
+       - then `src/runner/modes/llvm/**` + `src/host_providers/llvm_codegen.rs` route demotion
   4. keep these lanes frozen unless a fresh exact blocker appears:
      - `phase-29cj` micro-thinning
      - bridge/program-json/stub-emit cleanup
