@@ -242,6 +242,171 @@ class TestMethodCallStage1ModuleAlias(unittest.TestCase):
         self.assertIn("nyash.box.from_i8_string", ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_func_scanner_literal_receiver_prefers_direct_call(self):
+        module = ir.Module(name="test_method_call_func_scanner_alias")
+        i64 = ir.IntType(64)
+        i8p = ir.IntType(8).as_pointer()
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        text_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_scan_text_ptr")
+        text_ptr = builder.call(text_seed, [], name="scan_text_ptr")
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64, i64]),
+            name="FuncScannerBox.find_matching_brace/2",
+        )
+
+        resolver = _ResolverStub()
+        resolver.string_literals[1] = "lang.compiler.entry.func_scanner"
+        vmap = {
+            1: ir.Constant(i64, 0),
+            2: text_ptr,
+            3: ir.Constant(i64, 12),
+        }
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name=None,
+            method="find_matching_brace",
+            receiver=1,
+            args=[2, 3],
+            dst_vid=4,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[4])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"FuncScannerBox.find_matching_brace/2"', ir_text)
+        self.assertIn("nyash.box.from_i8_string", ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
+    def test_stageb_json_builder_literal_receiver_prefers_direct_call(self):
+        module = ir.Module(name="test_method_call_stageb_json_builder_alias")
+        i64 = ir.IntType(64)
+        i8p = ir.IntType(8).as_pointer()
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        methods_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_methods_ptr")
+        methods_ptr = builder.call(methods_seed, [], name="methods_ptr")
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64]),
+            name="StageBJsonBuilderBox.build_defs_json/1",
+        )
+
+        resolver = _ResolverStub()
+        resolver.string_literals[1] = "lang.compiler.entry.stageb.stageb_json_builder_box"
+        vmap = {
+            1: ir.Constant(i64, 0),
+            2: methods_ptr,
+        }
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name=None,
+            method="build_defs_json",
+            receiver=1,
+            args=[2],
+            dst_vid=3,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[3])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"StageBJsonBuilderBox.build_defs_json/1"', ir_text)
+        self.assertIn("nyash.box.from_i8_string", ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
+    def test_box_type_inspector_literal_receiver_prefers_direct_call(self):
+        module = ir.Module(name="test_method_call_box_type_inspector_alias")
+        i64 = ir.IntType(64)
+        i8p = ir.IntType(8).as_pointer()
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        target_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_target_ptr")
+        target_ptr = builder.call(target_seed, [], name="target_ptr")
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64]),
+            name="BoxTypeInspectorBox.kind/1",
+        )
+
+        resolver = _ResolverStub()
+        resolver.string_literals[1] = "selfhost.shared.common.box_type_inspector"
+        vmap = {
+            1: ir.Constant(i64, 0),
+            2: target_ptr,
+        }
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name=None,
+            method="kind",
+            receiver=1,
+            args=[2],
+            dst_vid=3,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[3])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"BoxTypeInspectorBox.kind/1"', ir_text)
+        self.assertIn("nyash.box.from_i8_string", ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
+    def test_string_helpers_literal_receiver_prefers_direct_call(self):
+        module = ir.Module(name="test_method_call_string_helpers_alias")
+        i64 = ir.IntType(64)
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64]),
+            name="StringHelpers.int_to_str/1",
+        )
+
+        resolver = _ResolverStub()
+        resolver.string_literals[1] = "selfhost.shared.common.string_helpers"
+        vmap = {
+            1: ir.Constant(i64, 0),
+            2: ir.Constant(i64, 33),
+        }
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name=None,
+            method="int_to_str",
+            receiver=1,
+            args=[2],
+            dst_vid=3,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[3])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"StringHelpers.int_to_str/1"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

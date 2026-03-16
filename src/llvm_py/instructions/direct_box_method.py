@@ -21,10 +21,14 @@ from naming_helper import encode_static_method
 
 _MODULE_RECEIVER_BOX_ALIASES = {
     "lang.compiler.build.build_box": "BuildBox",
+    "lang.compiler.entry.func_scanner": "FuncScannerBox",
+    "lang.compiler.entry.stageb.stageb_json_builder_box": "StageBJsonBuilderBox",
     "lang.compiler.entry.using_resolver": "Stage1UsingResolverBox",
     "lang.compiler.entry.using_resolver_box": "Stage1UsingResolverBox",
     "lang.mir.builder.MirBuilderBox": "MirBuilderBox",
     "selfhost.shared.backend.llvm_backend": "LlvmBackendBox",
+    "selfhost.shared.common.box_type_inspector": "BoxTypeInspectorBox",
+    "selfhost.shared.common.string_helpers": "StringHelpers",
 }
 
 

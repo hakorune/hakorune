@@ -16,6 +16,28 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - no-fallback: `NYASH_VM_USE_FALLBACK=0`（silent fallback 禁止 / fail-fast）。
 - compiler lane は `phase-29bq` を monitor-only 運用（failure-driven reopen のみ）。
 
+## Quick Task Board (2026-03-17)
+
+- current main goal:
+  - `backend-zero` を final shape `.hako -> LlvmBackendBox -> hako_aot -> backend helper` へ寄せる
+- already stopped:
+  - bootstrap closure wave は fixed-point compare まで完了
+  - `stage7 launcher` / `stage9 launcher` と fresh `stage1-cli` rebuild は byte-identical
+  - 以後は fresh semantic mismatch が出ない限り `stageN` を増やさない
+- active order:
+  1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
+  2. `llvmlite` daily route を `.hako` backend boundary へ退かせる
+  3. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
+- freeze unless blocker:
+  - `phase-29cj` micro-thinning
+  - bridge/program-json/stub-emit cleanup
+  - string coercion cleanup
+  - compiled-stage1 surrogate shrink
+- read-first for this lane:
+  - `docs/development/current/main/phases/phase-29cl/README.md`
+  - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
+  - `lang/src/shared/backend/README.md`
+
 ## Full Rust 0 Pointer (2026-03-14)
 
 - top-level future tracking SSOT:
@@ -55,6 +77,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - landed `phase-29cl / BYN-min4c`: the same alias resolver now also covers `lang.compiler.entry.using_resolver(_box)` -> `Stage1UsingResolverBox`, and direct-first lowering now also reaches `Stage1UsingResolverBox.resolve_for_source(...)` plus `MirBuilderBox.emit_from_source_v0(...)` before generic plugin fallback when receiver literals are known
       - landed `phase-29cl / BYN-min4d`: the same alias resolver now also covers `selfhost.shared.backend.llvm_backend` -> `LlvmBackendBox`, so compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` before generic plugin fallback when receiver literals are known
       - landed `phase-29cl / BYN-min4e`: `src/llvm_py/instructions/boxcall.py` no longer keeps a separate manual plugin tail; it now uses `src/llvm_py/instructions/mir_call/method_fallback_tail.py` as the shared direct-or-plugin owner, while preserving the legacy BoxCall `argc=min(len(args), 2)` compat contract through the shared helper
+      - landed `phase-29cl / BYN-min4f`: the same direct-call alias resolver now also covers `lang.compiler.entry.func_scanner` -> `FuncScannerBox`, `lang.compiler.entry.stageb.stageb_json_builder_box` -> `StageBJsonBuilderBox`, `selfhost.shared.common.box_type_inspector` -> `BoxTypeInspectorBox`, and `selfhost.shared.common.string_helpers` -> `StringHelpers`, so compiled-stage1 helper routes such as `find_matching_brace`, `build_defs_json`, `kind`, and `int_to_str` can also prefer direct lowered functions before generic plugin fallback when receiver literals are known
       - landed B3c string/console-method slice: `src/llvm_py/instructions/mir_call/string_console_method_call.py` now owns shared `substring/indexOf/lastIndexOf/log` route order for `mir_call/method_call.py` and `mir_call_legacy.py`, while `length/size` specialization intentionally remains owner-local to `method_call.py`
       - landed B3d first slice: `src/llvm_py/build_ctx.py` now owns `current_vmap` / `lower_ctx`, and `src/llvm_py/builders/instruction_lower.py` consumes those context seams instead of reading `_current_vmap` / `ctx` off the builder owner inline
       - landed B3d resolver/type-facts slice: `src/llvm_py/type_facts.py` now owns shared `StringBox` / `ArrayBox` fact helpers and `src/llvm_py/resolver.py` now consumes them through owner-local `value_types` accessors, with proof pinned by `test_resolver_type_tags.py` and `test_type_facts.py`
@@ -111,6 +134,25 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Blocker (SSOT)
 
+- primary blocker:
+  - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
+  - current exact issue は 2 本:
+    1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
+    2. LLVM object daily route に `llvmlite keep` がまだ live で、`.hako -> LlvmBackendBox -> hako_aot` へ fully cut over できていない
+- do not do yet:
+  - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
+  - new `id-name` style intermediate contract
+  - more bootstrap `stageN` extension without a fresh mismatch
+- active owner buckets:
+  - `src/llvm_py/instructions/boxcall.py`
+  - `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
+  - `src/runner/modes/llvm/object_emitter.rs`
+  - `lang/src/shared/backend/llvm_backend_box.hako`
+  - `lang/c-abi/shims/hako_aot.c`
+- success condition for the current wave:
+  - `by-name` is compat-only / no longer a daily mainline owner
+  - `llvmlite` is compat/probe keep / no longer the daily object-emission route
+
 - compiler lane: `phase-29bq / none`（active: failure-driven reopen only）
   - current blocker: `none`
   - reopen condition: `emit_fail > 0` または `route_blocker > 0`
@@ -161,31 +203,38 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Immediate Next (this round)
 
-- pure `.hako-only hakorune build` / Stage2 bootstrap closure exact front (2026-03-17):
-  - latest proof 1: `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.stage2.bridge.probe --force-rebuild` is green, so the older bridge-first `stage1-cli` build blocker is retired
-  - latest proof 2: `NYASH_BIN=target/selfhost/hakorune.stage1_cli.stage2.bridge.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage3.launcher.probe --force-rebuild` is also green; `launcher.hako` is now strict-safe on the visible Program(JSON) source route and the old `dev-local-alias-sugar` / `env.codegen.*` field-access blocker is retired
-  - latest proof 3: `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1 HAKORUNE_BOOTSTRAP_MODE=emit-mir HAKORUNE_BOOTSTRAP_INPUT=lang/src/runner/stage1_cli_env.hako HAKORUNE_BOOTSTRAP_OUT=<tmp> target/selfhost/hakorune.stage3.launcher.probe` is green with `OUT_SIZE=294049`, and trace confirms `lang.compiler.build.build_box.emit_program_json_v0` plus `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` compiled-stage1 surrogate routes both fire on the launcher-exe path
-  - latest proof 4: `NYASH_BIN=target/selfhost/hakorune.stage3.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage4.stage1_cli.probe --force-rebuild` is green, so the launcher-bootstrap caller/entry contract blocker is retired
-  - latest proof 5: `NYASH_BIN=target/selfhost/hakorune.stage4.stage1_cli.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage5.launcher.probe --force-rebuild` is green
-  - latest proof 6: `NYASH_BIN=target/selfhost/hakorune.stage5.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage6.stage1_cli.probe --force-rebuild` is green
-  - latest proof 7: `NYASH_BIN=target/selfhost/hakorune.stage6.stage1_cli.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage7.launcher.probe --force-rebuild` is green
-  - latest proof 8: `NYASH_BIN=target/selfhost/hakorune.stage7.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage8.stage1_cli.probe --force-rebuild` is green
-  - latest proof 9: `NYASH_BIN=target/selfhost/hakorune.stage8.stage1_cli.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage9.launcher.probe --force-rebuild` is green
-  - latest proof 10: `NYASH_BIN=target/selfhost/hakorune.stage9.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage10.stage1_cli.probe --force-rebuild` is green
-  - current default front is no longer `phase-29cj` micro-thinning; bridge/program-json/stub-emit buckets are near thin floor and stay frozen unless a fresh exact disappearing leaf appears first
-  - exact next order is pinned:
-    1. keep lane-A mirror sync green from this root pointer (`bash tools/selfhost/run_lane_a_daily.sh`)
-    2. keep `target/selfhost/hakorune.stage3.launcher.probe` as a proven bootstrap-capable launcher artifact; direct env bootstrap now materializes MIR payload/file output instead of returning `Result: 0` with an empty file
-    3. retired blocker: compiled native launcher bootstrap was failing before imported helper dispatch because user instance methods such as `HakoCli.run_native_entry()` and `ProbeBox.run()` were lowered to `nyash.plugin.invoke_by_name_i64` instead of direct calls; `src/llvm_py/instructions/direct_box_method.py` now accepts both `Box.method/args` and `Box.method/(args+1)` shapes, and plugin fallback args now box pointer strings before by-name dispatch
-    4. retired blocker: the first `stage8` vs `stage10` mismatch was not a closure failure but a determinism bug in MIR emit; `src/runner/mir_json_emit/mod.rs` now sorts `user_box_decls` by box name before JSON serialization, so repeated launcher `emit-mir` and repeated same-kind fresh builds are byte-identical again
-    5. closure stop state is now fixed:
-       - `stage7 launcher` vs `stage9 launcher` are byte-identical
-       - pre-fix `stage8 stage1-cli` vs `stage10 stage1-cli` exposed the `user_box_decls` order bug above
-       - post-fix fresh proofs `target/selfhost/hakorune.det.launcher` vs `.b` and `target/selfhost/hakorune.det.stage1_cli.a` vs `.b` are byte-identical
-       - stop the bootstrap closure wave here unless a fresh semantic mismatch appears
-    6. unfreeze `phase-29cl` only as caller-cutover-first `by-name` retirement work; kernel delete stays after daily callers are gone
-    7. latest `phase-29cl` caller-cutover slice is landed: LLVM direct-call lowering now recognizes the current stage1+backend helper families module-string receivers (`resolve_for_source`, `emit_program_json_v0`, `emit_from_program_json_v0`, `emit_from_source_v0`, `compile_obj`, `link_exe`), and the remaining generic BoxCall compat tail now flows through the shared fallback owner, so the next by-name front is the remaining generic/mainline caller set beyond those tightened helper families, not kernel delete
-  - `by-name` deletion does not move ahead of this front; `phase-29cl` stays caller-cutover-first and shrink-only until the bootstrap/selfhost blocker is gone
+- ordered task stack (2026-03-17):
+  1. keep bootstrap closure frozen at fixed point
+     - keep `bash tools/selfhost/run_lane_a_daily.sh` green
+     - keep `target/selfhost/hakorune.stage3.launcher.probe` as the proven bootstrap-capable launcher artifact
+     - do not extend `stageN` again unless a fresh semantic mismatch appears
+  2. continue `phase-29cl` as caller-cutover-first only
+     - latest landed slice already covers the current stage1+backend helper families:
+       - `resolve_for_source`
+       - `emit_program_json_v0`
+       - `emit_from_program_json_v0`
+       - `emit_from_source_v0`
+       - `find_matching_brace`
+       - `build_defs_json`
+       - `kind`
+       - `int_to_str`
+       - `compile_obj`
+       - `link_exe`
+     - next front is the remaining generic/mainline LLVM caller set beyond those helper families
+     - kernel delete stays blocked until compat callers are gone
+  3. pivot daily LLVM object emission from `llvmlite keep` to `.hako` backend boundary
+     - target final shape remains `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
+     - `src/runner/modes/llvm/object_emitter.rs` is now compat/probe keep, not the design target
+  4. keep these lanes frozen unless a fresh exact blocker appears:
+     - `phase-29cj` micro-thinning
+     - bridge/program-json/stub-emit cleanup
+     - string coercion cleanup
+     - compiled-stage1 surrogate shrink
+
+- latest closure proof (stopped here on purpose):
+  - `stage7 launcher` vs `stage9 launcher` are byte-identical
+  - fresh `stage1-cli` rebuilds after the `user_box_decls` sort fix are byte-identical
+  - the old `stage8` vs `stage10` mismatch was a determinism bug, not a remaining bootstrap blocker
 
 - pure `.hako-only hakorune build` authority-replacement / `phase-29cj` exact front (2026-03-16):
   - current active owner is now the Rust authority seam in `src/host_providers/mir_builder.rs`; the runner/build/helper wave above it is near thin floor and should stay frozen unless a fresh exact disappearing leaf appears first
@@ -2040,17 +2089,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Next Exact Steps
 
-1. keep `phase-29cg` docs-first and narrow:
-  - treat `Program(JSON v0)` as bootstrap-only bridge, not as final route
-  - do not reopen `phase-29cf` or generic bridge/fallback cleanup while `phase-29cg` is active
-2. fix exactly one owner bucket for the reduced Stage2 object:
-  - prefer `src/stage1/program_json_v0.rs` source/helper closure first
-  - if still needed, add minimal `using_resolver` closure in `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
-3. rerun exact proof:
-  - `tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`
-  - `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.stage2.bridge --force-rebuild`
-4. only after one Stage2 bootstrap dependency is actually reduced:
-  - open the next phase for MIR-direct bootstrap unification
+1. keep the stop line fixed:
+  - `bash tools/selfhost/run_lane_a_daily.sh`
+  - do not reopen bootstrap closure unless fresh semantic mismatch appears
+2. cut one more remaining `phase-29cl` generic/mainline caller bucket:
+  - prefer `src/llvm_py/instructions/boxcall.py`
+  - then `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
+  - do not touch kernel delete in the same wave
+3. after one more caller-cutover slice lands, open the `llvmlite -> .hako` daily-route pivot:
+  - start from `src/runner/modes/llvm/object_emitter.rs`
+  - keep target boundary fixed to `lang/src/shared/backend/llvm_backend_box.hako` + `lang/c-abi/shims/hako_aot.c`
+4. only after `llvmlite` is compat/probe keep and `by-name` is compat-only:
+  - re-evaluate kernel-side `by_name` retirement
 
 ## Archive
 

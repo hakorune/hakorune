@@ -121,12 +121,15 @@ Rule:
 17. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` no longer owns its own manual plugin invoke tail
    - the final direct-or-plugin path is shared through `src/llvm_py/instructions/mir_call/method_fallback_tail.py`, while BoxCall keeps its legacy `argc=min(len(args), 2)` compat contract explicitly through the shared owner
+18. stage1 helper alias cutover second wave is landed
+   - the same direct-call alias resolver now also covers `lang.compiler.entry.func_scanner` -> `FuncScannerBox`, `lang.compiler.entry.stageb.stageb_json_builder_box` -> `StageBJsonBuilderBox`, `selfhost.shared.common.box_type_inspector` -> `BoxTypeInspectorBox`, and `selfhost.shared.common.string_helpers` -> `StringHelpers`
+   - current compiled-stage1 helper routes such as `find_matching_brace`, `build_defs_json`, `kind`, and `int_to_str` can now prefer direct lowered functions before generic plugin fallback when receiver literals are known
 
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
 2. keep visible launcher caller off `by_name`
-3. keep shrinking the remaining generic/mainline LLVM caller set after the stage1+backend helper families and shared generic tail tightening
+3. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 

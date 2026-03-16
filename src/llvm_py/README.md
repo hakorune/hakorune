@@ -80,8 +80,12 @@ NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
   - legacy BoxCall compat still reports plugin argc as `min(len(args), 2)`; that clamp is now owned by the shared fallback tail
 - compiled-stage1 module-string helper routes first try direct box alias resolution
   - `lang.compiler.build.build_box` can resolve to direct `BuildBox.*`
+  - `lang.compiler.entry.func_scanner` can resolve to direct `FuncScannerBox.*`
+  - `lang.compiler.entry.stageb.stageb_json_builder_box` can resolve to direct `StageBJsonBuilderBox.*`
   - `lang.compiler.entry.using_resolver` and `lang.compiler.entry.using_resolver_box` can resolve to direct `Stage1UsingResolverBox.*`
   - `lang.mir.builder.MirBuilderBox` can resolve to direct `MirBuilderBox.*`
+  - `selfhost.shared.common.box_type_inspector` can resolve to direct `BoxTypeInspectorBox.*`
+  - `selfhost.shared.common.string_helpers` can resolve to direct `StringHelpers.*`
   - `selfhost.shared.backend.llvm_backend` can resolve to direct `LlvmBackendBox.{compile_obj,link_exe}`
 - if those routes still fall back to generic plugin dispatch, by-name fallback must see StringBox handles, not raw `i8*` pointers
 
