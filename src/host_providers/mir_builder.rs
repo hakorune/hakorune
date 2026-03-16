@@ -282,8 +282,29 @@ impl Stage1UserBoxDecls {
     ) -> std::collections::BTreeSet<String> {
         let mut seen = std::collections::BTreeSet::new();
         seen.insert("Main".to_string());
-        insert_stage1_def_box_names(program_value, &mut seen);
+        Self::insert_compat_def_box_names(program_value, &mut seen);
         seen
+    }
+
+    fn insert_compat_def_box_names(
+        program_value: &serde_json::Value,
+        seen: &mut std::collections::BTreeSet<String>,
+    ) {
+        if let Some(defs) = program_value.get("defs").and_then(serde_json::Value::as_array) {
+            for def in defs {
+                if let Some(box_name) = Self::compat_def_box_name(def) {
+                    seen.insert(box_name);
+                }
+            }
+        }
+    }
+
+    fn compat_def_box_name(def: &serde_json::Value) -> Option<String> {
+        let box_name = def.get("box").and_then(serde_json::Value::as_str)?;
+        if box_name.is_empty() {
+            return None;
+        }
+        Some(box_name.to_string())
     }
 
     fn into_metadata_map(self) -> std::collections::HashMap<String, Vec<String>> {
@@ -299,24 +320,6 @@ impl Stage1UserBoxDecls {
             .into_iter()
             .map(Stage1UserBoxDecl::into_json_value)
             .collect()
-    }
-}
-
-fn insert_stage1_def_box_names(
-    program_value: &serde_json::Value,
-    seen: &mut std::collections::BTreeSet<String>,
-) {
-    if let Some(defs) = program_value
-        .get("defs")
-        .and_then(serde_json::Value::as_array)
-    {
-        for def in defs {
-            if let Some(box_name) = def.get("box").and_then(serde_json::Value::as_str) {
-                if !box_name.is_empty() {
-                    seen.insert(box_name.to_string());
-                }
-            }
-        }
     }
 }
 
