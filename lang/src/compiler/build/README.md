@@ -31,6 +31,7 @@ Notes
     - `_prepare_scan_src(...)`: bundle/env normalization plus `BundleResolver.resolve(...)`
     - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus merged `scan_src` materialization only
     - `_ensure_bundle_alias_arrays(...)` / `_ensure_require_mods_array(...)`: bundle ctx container setup only
+    - `_fail_bundle_ctx(...)`: bundle opts validation error handoff only
     - `_parse_program_json(...)`: parser entry only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
     - `_parse_program_json_from_scan_src(...)`: parse-source narrowing plus parser call only

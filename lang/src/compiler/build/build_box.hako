@@ -46,10 +46,10 @@ static box BuildBox {
   }
 
   method _bundle_inputs_requested(bundle_ctx) {
-    if bundle_ctx.get("bundles") != null { return 1 }
-    if bundle_ctx.get("bundle_names") != null { return 1 }
-    if bundle_ctx.get("bundle_srcs") != null { return 1 }
-    if bundle_ctx.get("require_mods") != null { return 1 }
+    if me._bundle_input_present(bundle_ctx, "bundles") == 1 { return 1 }
+    if me._bundle_input_present(bundle_ctx, "bundle_names") == 1 { return 1 }
+    if me._bundle_input_present(bundle_ctx, "bundle_srcs") == 1 { return 1 }
+    if me._bundle_input_present(bundle_ctx, "require_mods") == 1 { return 1 }
     return 0
   }
 
@@ -72,8 +72,7 @@ static box BuildBox {
       local i = 0; loop(i < b.length()) {
         local s = "" + b.get(i)
         if s == "" {
-          bundle_ctx.set("error", "[build/opts/bad-bundle] index=" + i)
-          return bundle_ctx
+          return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bad-bundle] index=" + i)
         }
         i = i + 1
       }
@@ -84,20 +83,17 @@ static box BuildBox {
     local bs = opts.get("bundle_srcs")
     if bn != null && bs != null {
       if bn.length() != bs.length() {
-        bundle_ctx.set("error", "[build/opts/mismatch] bundle_names vs bundle_srcs")
-        return bundle_ctx
+        return me._fail_bundle_ctx(bundle_ctx, "[build/opts/mismatch] bundle_names vs bundle_srcs")
       }
       local i0 = 0; loop(i0 < bn.length()) {
         local n = "" + bn.get(i0)
         local c = "" + bs.get(i0)
         if n == "" || c == "" {
-          bundle_ctx.set("error", "[build/opts/bundle-pair/bad] index=" + i0)
-          return bundle_ctx
+          return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bundle-pair/bad] index=" + i0)
         }
         local j = i0 + 1; loop(j < bn.length()) {
           if ("" + bn.get(j)) == n {
-            bundle_ctx.set("error", "[build/opts/duplicate] " + n)
-            return bundle_ctx
+            return me._fail_bundle_ctx(bundle_ctx, "[build/opts/duplicate] " + n)
           }
           j = j + 1
         }
@@ -117,8 +113,7 @@ static box BuildBox {
     if rm != null {
       local k0 = 0; loop(k0 < rm.length()) {
         if ("" + rm.get(k0)) == "" {
-          bundle_ctx.set("error", "[build/opts/bad-require] index=" + k0)
-          return bundle_ctx
+          return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bad-require] index=" + k0)
         }
         k0 = k0 + 1
       }
@@ -194,10 +189,25 @@ static box BuildBox {
   }
 
   method _normalize_bundle_inputs(bundle_ctx) {
-    if bundle_ctx.get("bundles") != null && bundle_ctx.get("bundles").length() == 0 { bundle_ctx.set("bundles", null) }
-    if bundle_ctx.get("bundle_names") != null && bundle_ctx.get("bundle_names").length() == 0 { bundle_ctx.set("bundle_names", null) }
-    if bundle_ctx.get("bundle_srcs") != null && bundle_ctx.get("bundle_srcs").length() == 0 { bundle_ctx.set("bundle_srcs", null) }
-    if bundle_ctx.get("require_mods") != null && bundle_ctx.get("require_mods").length() == 0 { bundle_ctx.set("require_mods", null) }
+    me._clear_bundle_input_if_empty(bundle_ctx, "bundles")
+    me._clear_bundle_input_if_empty(bundle_ctx, "bundle_names")
+    me._clear_bundle_input_if_empty(bundle_ctx, "bundle_srcs")
+    me._clear_bundle_input_if_empty(bundle_ctx, "require_mods")
+  }
+
+  method _bundle_input_present(bundle_ctx, key) {
+    if bundle_ctx.get(key) != null { return 1 }
+    return 0
+  }
+
+  method _fail_bundle_ctx(bundle_ctx, error_tag) {
+    bundle_ctx.set("error", error_tag)
+    return bundle_ctx
+  }
+
+  method _clear_bundle_input_if_empty(bundle_ctx, key) {
+    local current = bundle_ctx.get(key)
+    if current != null && current.length() == 0 { bundle_ctx.set(key, null) }
   }
 
   method _parse_program_json(parse_src) {
