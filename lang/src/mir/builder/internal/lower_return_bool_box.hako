@@ -4,7 +4,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerReturnBoolBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
     if k_ret < 0 { return null }
     // Strict match: only accept Return(expr=Bool) at expression root.
@@ -23,5 +23,9 @@ static box LowerReturnBoolBox {
                 "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + v + "}}," +
                 "{\"op\":\"ret\",\"value\":1}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

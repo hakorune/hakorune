@@ -4,7 +4,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerReturnIntBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
     if k_ret < 0 { return null }
     // Find expr object
@@ -28,5 +28,9 @@ static box LowerReturnIntBox {
     // Shape expected by src/runner/mir_json_v0.rs::parse_mir_v0_to_module
     local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + val + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
     return mir
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

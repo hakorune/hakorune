@@ -5,7 +5,7 @@ using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 static box LowerMethodArrayPushBox {
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", 0) < 0 { return null }
     // Reverse-lookup (safe subset): prefer Local(Int) for push values when present
@@ -30,5 +30,9 @@ static box LowerMethodArrayPushBox {
                "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":0}}," +
                "{\"op\":\"ret\",\"value\":5}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

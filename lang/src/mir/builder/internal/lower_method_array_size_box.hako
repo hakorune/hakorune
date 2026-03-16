@@ -5,7 +5,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 static box LowerMethodArraySizeBox {
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     if JsonFragBox.index_of_from(s, "\"class\":\"ArrayBox\"", 0) < 0 { return null }
     // Emit MIR v1 JSON: new ArrayBox -> r1, size(r1) -> r2, const 0 -> r3, ret r3
@@ -15,5 +15,9 @@ static box LowerMethodArraySizeBox {
                "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
                "{\"op\":\"ret\",\"value\":3}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

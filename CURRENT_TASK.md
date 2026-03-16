@@ -163,10 +163,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - latest landed slice: `lang/src/compiler/build/build_box.hako` now centralizes bundle/env empty-text checks behind `_non_empty_text(...)` on top of the existing `_coerce_text(...)` helpers, so BuildBox no longer repeats raw `== \"\"` validation across its bundle collectors
   - latest landed slice: `lang/src/runner/stage1_cli.hako` now centralizes visible env/debug/argv stringify behind `_coerce_text_compat(...)`, so the raw/subcmd lane no longer repeats raw `\"\" + x` across emit/run helper paths
   - latest landed slice: `lang/src/runner/stage1_cli_env.hako` now centralizes env/debug stringify in `Stage1InputContractBox`, Program(JSON)/defs text coercion in `Stage1ProgramAuthorityBox`, checked source/program/materialize coercion in `Stage1{ProgramResultValidationBox,ProgramJsonTextGuardBox,SourceMirAuthorityBox}`, and MIR debug stringify in `Stage1MirResultValidationBox`, leaving only helper implementations and intentional JSON string assembly on the raw `\"\" + x` residue path
+  - latest landed slice: the nearby mini lowers under `lang/src/mir/builder/internal/{lower_return_*,lower_typeop_*,lower_method_array_size_box,lower_method_map_size_box,lower_method_array_push_box,lower_loop_local_return_var_box,lower_if_compare*}.hako` now centralize Program(JSON) entry coercion behind owner-local `_coerce_text_compat(...)`, so their raw `\"\" + x` residue is reduced to helper implementations and intentional JSON assembly only
   - next fixed order:
     1. sync reference docs to current executable semantics while keeping `x.toString()` as the preferred source style
     2. freeze broad `\"\" + x` replacement until one generic stringify contract/helper is chosen
-    3. keep `launcher.hako` / `build_box.hako` / `stage1_cli.hako` / `stage1_cli_env.hako` at thin floor and only reopen if a fresh exact leaf appears; otherwise move the next residue audit to the next nearby owner outside the runner/build quartet
+    3. keep `launcher.hako` / `build_box.hako` / `stage1_cli.hako` / `stage1_cli_env.hako` at thin floor and continue the nearby residue audit owner-by-owner inside `lang/src/mir/builder/internal/**`
   - task rule:
     - do not silently tighten `String + non-string` to `TypeError` in one backend while VM/LLVM/selfhost still disagree
     - do not broad-rewrite `\"\" + x` until the replacement contract is single-sourced and proof-backed

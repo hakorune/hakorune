@@ -31,6 +31,7 @@ Interface (stable)
   - defs-toggle/source-entry compat tails are now owner-local via `_func_defs_toggle_on(...)`, `_coerce_func_defs_json(...)`, and `_emit_program_json_from_source_raw(...)`, so those tiny leaves no longer mix inline with checked handoff
   - internal route leaves are owner-local via `_try_emit_loop_force_jsonfrag(...)`, `_try_emit_registry_program_json(...)`, and `_try_emit_fallback_program_json(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
   - internal unsupported tail is now isolated in `_fail_internal_unsupported(...)` and `_program_json_has_ternary(...)`, so `_emit_internal_program_json(...)` stays a readable route table
+  - mini internal lowers are allowed to keep tiny owner-local stringify helpers such as `_coerce_text_compat(...)` when their only legacy `"" + x` usage is the Program(JSON) entry coercion
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
   - Source-entry shim only; current stage1 authority no longer depends on this route.
   - source-entry coercion / source->Program(JSON) check / Program(JSON)->MIR handoff now stay owner-local via `_coerce_source_text_checked(...)`, `_emit_program_json_from_source_checked(...)`, and `_emit_mir_from_source_program_json_checked(...)`.

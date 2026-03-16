@@ -14,7 +14,7 @@ static box LowerTypeOpCheckBox {
 
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     if me._accept_shape(s) != 1 { return null }
     local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
                // const 42 -> v1, typeop Check v1 -> v2, const 0 -> v3, ret v3
@@ -23,5 +23,9 @@ static box LowerTypeOpCheckBox {
                "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
                "{\"op\":\"ret\",\"value\":3}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

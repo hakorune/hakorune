@@ -10,7 +10,7 @@ static box LowerReturnLogicalBox {
   // Removed: _find_local_bool_before (use PatternUtilBox.find_local_bool_before instead)
 
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
     if k_ret < 0 { return null }
     local k_log = JsonFragBox.index_of_from(s, "\"type\":\"Logical\"", k_ret)
@@ -93,5 +93,9 @@ static box LowerReturnLogicalBox {
       local bb2 = "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + rhs_true + "}},{\"op\":\"ret\",\"value\":4}]}"
       return json_head + bb0 + "," + bb1 + "," + bb2 + "]}]}"
     }
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

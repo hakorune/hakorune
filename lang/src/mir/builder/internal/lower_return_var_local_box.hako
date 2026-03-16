@@ -4,7 +4,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerReturnVarLocalBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     // Find Local with name:"x" and expr Int value
     local k_loc = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
     if k_loc < 0 { return null }
@@ -37,5 +37,9 @@ static box LowerReturnVarLocalBox {
     return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
            "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + val + "}}," +
            "{\"op\":\"ret\",\"value\":1}]}]}]}"
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

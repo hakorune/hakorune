@@ -98,7 +98,7 @@ static box LowerLoopLocalReturnVarBox {
 
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
 
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
     if k_loop < 0 { return null }
@@ -135,5 +135,9 @@ static box LowerLoopLocalReturnVarBox {
       "{\"id\":3,\"instructions\":[{\"op\":\"jump\",\"target\":1}]}," +
       "{\"id\":4,\"instructions\":[{\"op\":\"ret\",\"value\":2}]}]}]}"
     return mir
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

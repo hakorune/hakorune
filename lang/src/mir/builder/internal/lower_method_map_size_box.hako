@@ -4,7 +4,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 static box LowerMethodMapSizeBox {
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     if JsonFragBox.index_of_from(s, "\"class\":\"MapBox\"", 0) < 0 { return null }
     local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
@@ -13,5 +13,9 @@ static box LowerMethodMapSizeBox {
                "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
                "{\"op\":\"ret\",\"value\":3}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }
