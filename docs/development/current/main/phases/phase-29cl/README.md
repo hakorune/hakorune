@@ -118,12 +118,15 @@ Rule:
 16. backend helper alias cutover slice is landed
    - the same direct-call alias resolver now also covers `selfhost.shared.backend.llvm_backend` -> `LlvmBackendBox`
    - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` before generic plugin fallback when receiver literals are known
+17. generic boxcall fallback tail is tighter
+   - `src/llvm_py/instructions/boxcall.py` no longer owns its own manual plugin invoke tail
+   - the final direct-or-plugin path is shared through `src/llvm_py/instructions/mir_call/method_fallback_tail.py`, while BoxCall keeps its legacy `argc=min(len(args), 2)` compat contract explicitly through the shared owner
 
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
 2. keep visible launcher caller off `by_name`
-3. keep shrinking the remaining generic/mainline LLVM caller set after the stage1+backend helper families
+3. keep shrinking the remaining generic/mainline LLVM caller set after the stage1+backend helper families and shared generic tail tightening
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 

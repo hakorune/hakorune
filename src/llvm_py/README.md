@@ -77,6 +77,7 @@ NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
 - generic plugin fallback entrypoint always receives i64 handles
   - receiver is boxed/coerced before dispatch
   - args are also boxed/coerced before dispatch; raw string pointers are not passed through
+  - legacy BoxCall compat still reports plugin argc as `min(len(args), 2)`; that clamp is now owned by the shared fallback tail
 - compiled-stage1 module-string helper routes first try direct box alias resolution
   - `lang.compiler.build.build_box` can resolve to direct `BuildBox.*`
   - `lang.compiler.entry.using_resolver` and `lang.compiler.entry.using_resolver_box` can resolve to direct `Stage1UsingResolverBox.*`

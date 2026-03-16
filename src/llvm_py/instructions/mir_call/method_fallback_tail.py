@@ -8,6 +8,7 @@ duplicate route-order logic.
 Contract:
 - plugin fallback sees i64 handles for both receiver and args
 - pointer/string args must be boxed before the generic plugin invoke entrypoint
+- callers may optionally clamp the reported plugin argc (legacy BoxCall compat)
 """
 
 from typing import Callable, List, Optional
@@ -31,6 +32,7 @@ def lower_direct_or_plugin_method_call(
     direct_call_name: str,
     plugin_call_name: str,
     receiver_literal: Optional[str] = None,
+    plugin_argc_cap: Optional[int] = None,
 ):
     direct_result = try_lower_known_box_method_call(
         builder=builder,
@@ -48,7 +50,10 @@ def lower_direct_or_plugin_method_call(
         return direct_result
 
     i64 = ir.IntType(64)
-    argc = ir.Constant(i64, len(args))
+    argc_len = len(args)
+    if plugin_argc_cap is not None:
+        argc_len = min(argc_len, plugin_argc_cap)
+    argc = ir.Constant(i64, argc_len)
     a1 = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
     a2 = resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
     if a1 is None:

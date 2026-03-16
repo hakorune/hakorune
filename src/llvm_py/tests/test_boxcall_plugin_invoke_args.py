@@ -85,6 +85,43 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         self.assertIn("pinvoke_by_name", ir_text)
         self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_plugin_invoke_keeps_boxcall_argc_clamped_to_two(self):
+        module = ir.Module(name="test_boxcall_plugin_invoke_argc_cap")
+        i64 = ir.IntType(64)
+        i8p = ir.IntType(8).as_pointer()
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        recv_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_recv_ptr")
+        arg1_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_arg1_ptr")
+        recv_ptr = builder.call(recv_seed, [], name="recv_ptr")
+        arg1_ptr = builder.call(arg1_seed, [], name="arg1_ptr")
+
+        vmap = {
+            1: recv_ptr,
+            2: arg1_ptr,
+            3: ir.Constant(i64, 33),
+            4: ir.Constant(i64, 44),
+        }
+        resolver = _ResolverStub()
+
+        lower_boxcall(
+            builder=builder,
+            module=module,
+            box_vid=1,
+            method_name="emit_program_json_v0",
+            args=[2, 3, 4],
+            dst_vid=5,
+            vmap=vmap,
+            resolver=resolver,
+        )
+        builder.ret(vmap[5])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"nyash.plugin.invoke_by_name_i64"', ir_text)
+        self.assertIn("i64 2", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

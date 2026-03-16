@@ -18,9 +18,9 @@ from instructions.mir_call.auto_specialize import (
     receiver_is_arrayish,
     receiver_is_stringish,
 )
-from instructions.by_name_method import lower_plugin_invoke_by_name, mark_string_result_if_needed
+from instructions.by_name_method import mark_string_result_if_needed
 from instructions.boxcall_runtime_data import try_lower_collection_boxcall
-from instructions.direct_box_method import try_lower_known_box_method_call
+from instructions.mir_call.method_fallback_tail import lower_direct_or_plugin_method_call
 from instructions.string_fast import literal_string_for_receiver
 from utils.values import resolve_i64_strict
 from utils.resolver_helpers import get_box_type, mark_as_handle
@@ -266,108 +266,22 @@ def lower_boxcall(
 
     known_box_name = get_box_type(resolver, box_vid)
     receiver_literal = literal_string_for_receiver(resolver, box_vid)
-    if known_box_name:
-        recv_h = _ensure_handle(builder, module, recv_val)
-        direct_result = try_lower_known_box_method_call(
-            builder=builder,
-            module=module,
-            box_name=known_box_name,
-            method_name=method_name,
-            recv_h=recv_h,
-            args=args,
-            resolve_arg=lambda vid: _res_i64(vid),
-            ensure_handle=lambda value: _ensure_handle(builder, module, value),
-            call_name=f"call_known_{method_name}",
-            receiver_literal=receiver_literal,
-        )
-        if direct_result is not None:
-            if dst_vid is not None:
-                vmap[dst_vid] = direct_result
-                try:
-                    mark_string_result_if_needed(resolver, dst_vid, method_name)
-                except Exception:
-                    pass
-            return
-    elif receiver_literal is not None:
-        recv_h = _ensure_handle(builder, module, recv_val)
-        direct_result = try_lower_known_box_method_call(
-            builder=builder,
-            module=module,
-            box_name=None,
-            method_name=method_name,
-            recv_h=recv_h,
-            args=args,
-            resolve_arg=lambda vid: _res_i64(vid),
-            ensure_handle=lambda value: _ensure_handle(builder, module, value),
-            call_name=f"call_stage1_{method_name}",
-            receiver_literal=receiver_literal,
-        )
-        if direct_result is not None:
-            if dst_vid is not None:
-                vmap[dst_vid] = direct_result
-                try:
-                    mark_string_result_if_needed(resolver, dst_vid, method_name)
-                except Exception:
-                    pass
-            return
-
-    # Default: invoke via NyRT by-name shim (runtime resolves method id)
     recv_h = _ensure_handle(builder, module, recv_val)
-    # Build C string for method name
-    mbytes = (method_name + "\0").encode('utf-8')
-    arr_ty = ir.ArrayType(ir.IntType(8), len(mbytes))
-    try:
-        fn = builder.block.parent
-        fn_name = getattr(fn, 'name', 'fn')
-    except Exception:
-        fn_name = 'fn'
-    base = f".meth_{fn_name}_{method_name}"
-    existing = {g.name for g in module.global_values}
-    gname = base
-    k = 1
-    while gname in existing:
-        gname = f"{base}.{k}"; k += 1
-    g = ir.GlobalVariable(module, arr_ty, name=gname)
-    g.linkage = 'private'
-    g.global_constant = True
-    g.initializer = ir.Constant(arr_ty, bytearray(mbytes))
-    c0 = ir.Constant(ir.IntType(32), 0)
-    # Compute GEP in the current block so it is naturally ordered before the call
-    # Use constant GEP so we don't depend on instruction ordering
-    mptr = ir.Constant.gep(g, (c0, c0))
-
-    # Up to 2 args for minimal path
-    argc = ir.Constant(i64, min(len(args), 2))
-
-    def _resolve_arg_i64(arg_vid):
-        # Prefer current vmap first. Resolver fallback can return zero when
-        # dominance metadata is incomplete for branch/phi-heavy blocks.
-        val = vmap.get(arg_vid)
-        if val is None:
-            if resolver is not None and preds is not None and block_end_values is not None and bb_map is not None:
-                val = resolver.resolve_i64(arg_vid, builder.block, preds, block_end_values, vmap, bb_map)
-            else:
-                val = ir.Constant(i64, 0)
-        if hasattr(val, 'type') and isinstance(val.type, ir.PointerType):
-            return _ensure_handle(builder, module, val)
-        if hasattr(val, 'type') and isinstance(val.type, ir.IntType) and val.type.width != 64:
-            if val.type.width < 64:
-                return builder.zext(val, i64)
-            return builder.trunc(val, i64)
-        return val
-
-    a1 = _resolve_arg_i64(args[0]) if len(args) >= 1 else ir.Constant(i64, 0)
-    a2 = _resolve_arg_i64(args[1]) if len(args) >= 2 else ir.Constant(i64, 0)
-
-    result = lower_plugin_invoke_by_name(
+    result = lower_direct_or_plugin_method_call(
         builder=builder,
         module=module,
-        recv_h=recv_h,
+        box_name=known_box_name,
         method_name=method_name,
-        argc_value=argc,
-        arg1_value=a1,
-        arg2_value=a2,
-        call_name="pinvoke_by_name",
+        recv_h=recv_h,
+        args=args,
+        resolve_arg=lambda vid: _res_i64(vid),
+        ensure_handle=lambda value: _ensure_handle(builder, module, value),
+        direct_call_name=(
+            f"call_known_{method_name}" if known_box_name else f"call_stage1_{method_name}"
+        ),
+        plugin_call_name="pinvoke_by_name",
+        receiver_literal=receiver_literal,
+        plugin_argc_cap=2,
     )
     if dst_vid is not None:
         vmap[dst_vid] = result
