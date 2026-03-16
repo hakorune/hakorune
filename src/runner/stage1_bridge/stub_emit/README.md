@@ -6,7 +6,7 @@ Scope: stub emit helpers under `src/runner/stage1_bridge/stub_emit/`.
 
 - `../stub_emit.rs`: facade (`run_capture(...)`, child timeout/exit handling, mode selection)
 - `parse.rs`: stdout parse / validation for MIR(JSON) and Program(JSON)
-- `writeback.rs`: writeback policy, optional MIR dump, file/stdout emission
+- `writeback.rs`: writeback policy, optional MIR dump, file/stdout emission via helper-local output routes
 
 ## Forbidden
 
