@@ -3,7 +3,7 @@
 ## Purpose
 
 - `ny-llvmc` は `MIR(JSON) -> {object, executable}` を受け持つ backend CLI だよ。
-- current implementation は `llvmlite harness wrapper` だけど、caller は内部実装ではなく CLI contract だけに依存する。
+- current implementation は `backend helper / compat wrapper` だけど、caller は内部実装ではなく CLI contract だけに依存する。
 - backend-zero の final target は `native_driver.rs` そのものではなく、`.hako -> thin backend boundary` だよ。
 - backend-zero `BE0-min1` では、この文書を stable caller contract の入口にする。
 
@@ -43,7 +43,7 @@
 
 ## Current Implementation Note
 
-- current `ny-llvmc` は `python3` と `tools/llvmlite_harness.py` に依存している
+- current `ny-llvmc` は compat keep として `python3` と `tools/llvmlite_harness.py` に依存している
 - これは implementation detail であり、backend-zero の final target は `.hako -> thin backend C ABI/plugin boundary` を daily route にすること
 - `--driver native` は bootstrap seam 用の opt-in selector で、final owner ではない
 - current native subset (`BE0-min3` / `BE0-min4`):

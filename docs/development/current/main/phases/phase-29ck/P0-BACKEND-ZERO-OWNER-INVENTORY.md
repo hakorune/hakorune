@@ -22,7 +22,7 @@ Related:
 
 ## 1. Current Observable Facts
 
-1. `crates/nyash-llvm-compiler/src/main.rs` は自分自身を `llvmlite harness wrapper` と名乗っている
+1. `crates/nyash-llvm-compiler/src/main.rs` は自分自身を backend helper CLI として名乗るべきで、`llvmlite harness wrapper` wording は demotion target である
 2. `run_harness_in(...)` / `run_harness_dummy(...)` は `python3` を必須にしている
 3. `link_executable(...)` はすでに native/static-first link line を owner している
 4. canonical ABI surface は引き続き次の 2 面だけである

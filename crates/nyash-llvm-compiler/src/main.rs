@@ -13,10 +13,10 @@ mod native_driver;
 #[derive(Parser, Debug)]
 #[command(
     name = "ny-llvmc",
-    about = "Nyash LLVM compiler (llvmlite harness wrapper)",
+    about = "Nyash LLVM backend helper CLI",
     long_about = "Compile MIR(JSON) into an object or executable.\n\
 Stable caller contract: --in, --out, --emit, --dummy, --nyrt, --libs.\n\
-Implementation detail: --driver and --harness are for backend bring-up / wrapper routing only."
+Implementation detail: --driver and --harness are for backend bring-up / compat wrapper routing only."
 )]
 struct Args {
     /// MIR JSON input file path (use '-' to read from stdin). When omitted with --dummy, a dummy ny_main is emitted.
@@ -36,11 +36,11 @@ struct Args {
     #[arg(long, action = ArgAction::SetTrue, help_heading = "Stable CLI")]
     dummy: bool,
 
-    /// Path to Python harness script (defaults to tools/llvmlite_harness.py in CWD)
+    /// Path to Python compat harness script (defaults to tools/llvmlite_harness.py in CWD)
     #[arg(long, value_name = "FILE", help_heading = "Implementation Detail")]
     harness: Option<PathBuf>,
 
-    /// Object emission driver selector. Default keeps the current llvmlite wrapper route.
+    /// Object emission driver selector. Default keeps the current compat harness route.
     #[arg(
         long,
         value_enum,
@@ -439,7 +439,7 @@ fn run_native_in(_input: &Path, _out: &Path) -> Result<()> {
 fn ensure_python() -> Result<()> {
     match Command::new("python3").arg("--version").output() {
         Ok(out) if out.status.success() => Ok(()),
-        _ => bail!("python3 not found in PATH (required for llvmlite harness)"),
+        _ => bail!("python3 not found in PATH (required for compat llvmlite harness)"),
     }
 }
 

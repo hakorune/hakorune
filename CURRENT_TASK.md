@@ -184,6 +184,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - role:
        - keep `ny-llvmc` as internal helper/wrapper, not caller-owned final boundary
        - move wording/route shape from `llvmlite harness wrapper` toward `backend helper with native/canary keep`
+       - do wording/help-text cleanup before any route-widening or delete work
      - acceptance:
        - `ny-llvmc --driver native --emit obj ...`
        - `ny-llvmc --driver native --emit exe ...`
