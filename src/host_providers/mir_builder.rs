@@ -122,10 +122,6 @@ struct Stage1ProgramJsonInput<'a> {
     program_json: &'a str,
 }
 
-struct Stage1ProgramJsonValue {
-    program_value: serde_json::Value,
-}
-
 impl Stage1ProgramJsonModuleHandoff {
     fn parse(program_json: &str) -> Result<Self, String> {
         Stage1ProgramJsonInput::new(program_json).into_module_handoff()
@@ -148,9 +144,10 @@ impl<'a> Stage1ProgramJsonInput<'a> {
     }
 
     fn into_module_handoff(self) -> Result<Stage1ProgramJsonModuleHandoff, String> {
+        let (module, user_box_decls) = self.parse_module_and_user_box_decls()?;
         Ok(Stage1ProgramJsonModuleHandoff {
-            module: self.parse_module()?,
-            user_box_decls: self.resolve_user_box_decls()?,
+            module,
+            user_box_decls,
         })
     }
 
@@ -160,17 +157,19 @@ impl<'a> Stage1ProgramJsonInput<'a> {
         })
     }
 
+    fn parse_module_and_user_box_decls(
+        &self,
+    ) -> Result<(crate::mir::MirModule, Stage1UserBoxDecls), String> {
+        Ok((self.parse_module()?, self.resolve_user_box_decls()?))
+    }
+
     fn parse_module(&self) -> Result<crate::mir::MirModule, String> {
         crate::runner::json_v0_bridge::parse_json_v0_to_module(self.program_json)
             .map_err(failfast_error)
     }
 
     fn resolve_user_box_decls(&self) -> Result<Stage1UserBoxDecls, String> {
-        Ok(self.parse_value()?.into_user_box_decls())
-    }
-
-    fn parse_value(&self) -> Result<Stage1ProgramJsonValue, String> {
-        Stage1ProgramJsonValue::parse(self.program_json)
+        Stage1UserBoxDecls::parse_program_json(self.program_json)
     }
 
     #[cfg(test)]
@@ -256,6 +255,12 @@ impl Stage1UserBoxDecls {
         Self { decls }
     }
 
+    fn parse_program_json(program_json: &str) -> Result<Self, String> {
+        let program_value: serde_json::Value = serde_json::from_str(program_json)
+            .map_err(|error| format!("program json parse error: {}", error))?;
+        Ok(Self::from_program_value(&program_value))
+    }
+
     fn from_program_value(program_value: &serde_json::Value) -> Self {
         Self::new(
             Self::explicit_from_program_value(program_value)
@@ -302,19 +307,6 @@ impl Stage1UserBoxDecls {
             .into_iter()
             .map(Stage1UserBoxDecl::into_json_value)
             .collect()
-    }
-}
-
-impl Stage1ProgramJsonValue {
-    fn parse(program_json: &str) -> Result<Self, String> {
-        Ok(Self {
-            program_value: serde_json::from_str(program_json)
-                .map_err(|error| format!("program json parse error: {}", error))?,
-        })
-    }
-
-    fn into_user_box_decls(self) -> Stage1UserBoxDecls {
-        Stage1UserBoxDecls::from_program_value(&self.program_value)
     }
 }
 
@@ -566,7 +558,7 @@ mod tests {
     }
 
     #[test]
-    fn test_stage1_program_json_value_filters_invalid_explicit_decl_entries() {
+    fn test_stage1_user_box_decls_parse_program_json_filters_invalid_explicit_decl_entries() {
         let program_json = r#"{
             "version": 0,
             "kind": "Program",
@@ -585,10 +577,8 @@ mod tests {
             "body": []
         }"#;
 
-        let decls = Stage1ProgramJsonInput::new(program_json)
-            .parse_value()
+        let decls = Stage1UserBoxDecls::parse_program_json(program_json)
             .expect("input must parse program value")
-            .into_user_box_decls()
             .into_decl_values();
 
         assert_eq!(
