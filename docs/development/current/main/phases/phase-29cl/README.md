@@ -117,7 +117,7 @@ Rule:
    - current stage1 helper family (`resolve_for_source`, `emit_program_json_v0`, `emit_from_program_json_v0`, `emit_from_source_v0`) now prefers direct lowered functions before generic plugin fallback when receiver literals are known
 16. backend helper alias cutover slice is landed
    - the same direct-call alias resolver now also covers `selfhost.shared.backend.llvm_backend` -> `LlvmBackendBox`
-   - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` before generic plugin fallback when receiver literals are known
+   - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` before generic plugin fallback when receiver literals are known
 
 ## Immediate Next
 

@@ -143,6 +143,33 @@ class TestMethodFallbackTail(unittest.TestCase):
         self.assertIn('call i64 @"LlvmBackendBox.compile_obj/1"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_prefers_direct_llvm_backend_link_alias_when_receiver_literal_matches(self):
+        i64, module, builder = _new_builder()
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64, i64, i64]),
+            name="LlvmBackendBox.link_exe/3",
+        )
+
+        result = lower_direct_or_plugin_method_call(
+            builder=builder,
+            module=module,
+            box_name=None,
+            method_name="link_exe",
+            recv_h=ir.Constant(i64, 0),
+            args=[2, 3, 4],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+            direct_call_name="known_box_link_exe",
+            plugin_call_name="unified_plugin_invoke",
+            receiver_literal="selfhost.shared.backend.llvm_backend",
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"LlvmBackendBox.link_exe/3"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
     def test_falls_back_to_plugin_invoke_when_direct_target_missing(self):
         i64, module, builder = _new_builder()
 
