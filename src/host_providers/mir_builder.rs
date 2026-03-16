@@ -189,12 +189,24 @@ struct Stage1UserBoxDecls {
 
 impl Stage1UserBoxDecl {
     fn from_json_value(decl: &serde_json::Value) -> Option<Self> {
+        let name = Self::parse_name(decl)?;
+        let fields = Self::parse_fields(decl);
+        Some(Self {
+            name,
+            fields,
+        })
+    }
+
+    fn parse_name(decl: &serde_json::Value) -> Option<String> {
         let name = decl.get("name")?.as_str()?.trim();
         if name.is_empty() {
             return None;
         }
-        let fields = decl
-            .get("fields")
+        Some(name.to_string())
+    }
+
+    fn parse_fields(decl: &serde_json::Value) -> Vec<String> {
+        decl.get("fields")
             .and_then(serde_json::Value::as_array)
             .map(|fields| {
                 fields
@@ -203,11 +215,7 @@ impl Stage1UserBoxDecl {
                     .map(str::to_string)
                     .collect()
             })
-            .unwrap_or_default();
-        Some(Self {
-            name: name.to_string(),
-            fields,
-        })
+            .unwrap_or_default()
     }
 
     fn from_name(name: String) -> Self {
@@ -568,6 +576,27 @@ mod tests {
         assert_eq!(
             decls,
             vec![serde_json::json!({"name": "ExplicitBox", "fields": ["value"]})]
+        );
+    }
+
+    #[test]
+    fn test_stage1_user_box_decls_parse_program_json_filters_non_string_explicit_fields() {
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "user_box_decls": [
+                {"name": "ExplicitBox", "fields": ["value", 42, true, "next"]}
+            ],
+            "body": []
+        }"#;
+
+        let decls = Stage1UserBoxDecls::parse_program_json(program_json)
+            .expect("input must parse program value")
+            .into_decl_values();
+
+        assert_eq!(
+            decls,
+            vec![serde_json::json!({"name": "ExplicitBox", "fields": ["value", "next"]})]
         );
     }
 
