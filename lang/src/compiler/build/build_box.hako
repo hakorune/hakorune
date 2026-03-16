@@ -37,7 +37,7 @@ static box BuildBox {
       if scan_src == null {
         return me._fail_prepare_scan_src(result, "[build/resolve/failed]")
       }
-      result.set("scan_src", scan_src)
+      return me._apply_prepare_scan_src_result(result, scan_src)
     }
     return result
   }
@@ -50,6 +50,11 @@ static box BuildBox {
 
   method _fail_prepare_scan_src(result, error_tag) {
     result.set("error", error_tag)
+    return result
+  }
+
+  method _apply_prepare_scan_src_result(result, scan_src) {
+    result.set("scan_src", scan_src)
     return result
   }
 
