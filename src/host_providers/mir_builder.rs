@@ -71,7 +71,7 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 }
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
-    Stage1ProgramJsonInput::new(program_json).emit_guarded_mir_json()
+    emit_guarded_mir_json_from_program_json(program_json)
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
@@ -101,6 +101,10 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
         .map_err(failfast_error)
 }
 
+fn emit_guarded_mir_json_from_program_json(program_json: &str) -> Result<String, String> {
+    with_phase0_mir_json_env(|| Stage1ProgramJsonModuleHandoff::parse(program_json)?.emit_mir_json())
+}
+
 fn with_phase0_mir_json_env<T>(
     emit_mir_json: impl FnOnce() -> Result<T, String>,
 ) -> Result<T, String> {
@@ -118,13 +122,13 @@ struct Stage1ProgramJsonModuleHandoff {
     user_box_decls: Stage1UserBoxDecls,
 }
 
-struct Stage1ProgramJsonInput<'a> {
-    program_json: &'a str,
-}
-
 impl Stage1ProgramJsonModuleHandoff {
     fn parse(program_json: &str) -> Result<Self, String> {
-        Stage1ProgramJsonInput::new(program_json).into_module_handoff()
+        Ok(Self {
+            module: crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json)
+                .map_err(failfast_error)?,
+            user_box_decls: Stage1UserBoxDecls::parse_program_json(program_json)?,
+        })
     }
 
     fn emit_mir_json(self) -> Result<String, String> {
@@ -135,46 +139,6 @@ impl Stage1ProgramJsonModuleHandoff {
         let mut module = self.module;
         module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
         module
-    }
-}
-
-impl<'a> Stage1ProgramJsonInput<'a> {
-    fn new(program_json: &'a str) -> Self {
-        Self { program_json }
-    }
-
-    fn into_module_handoff(self) -> Result<Stage1ProgramJsonModuleHandoff, String> {
-        let (module, user_box_decls) = self.parse_module_and_user_box_decls()?;
-        Ok(Stage1ProgramJsonModuleHandoff {
-            module,
-            user_box_decls,
-        })
-    }
-
-    fn emit_guarded_mir_json(self) -> Result<String, String> {
-        with_phase0_mir_json_env(|| {
-            Stage1ProgramJsonModuleHandoff::parse(self.program_json)?.emit_mir_json()
-        })
-    }
-
-    fn parse_module_and_user_box_decls(
-        &self,
-    ) -> Result<(crate::mir::MirModule, Stage1UserBoxDecls), String> {
-        Ok((self.parse_module()?, self.resolve_user_box_decls()?))
-    }
-
-    fn parse_module(&self) -> Result<crate::mir::MirModule, String> {
-        crate::runner::json_v0_bridge::parse_json_v0_to_module(self.program_json)
-            .map_err(failfast_error)
-    }
-
-    fn resolve_user_box_decls(&self) -> Result<Stage1UserBoxDecls, String> {
-        Stage1UserBoxDecls::parse_program_json(self.program_json)
-    }
-
-    #[cfg(test)]
-    fn emit_plain_mir_json(self) -> Result<String, String> {
-        lowering::program_json_to_mir_json(self.program_json)
     }
 }
 
@@ -190,13 +154,13 @@ impl SourceProgramJsonHandoff {
     }
 
     fn emit_guarded_program_and_mir_json(self) -> Result<(String, String), String> {
-        let mir_json = Stage1ProgramJsonInput::new(&self.program_json).emit_guarded_mir_json()?;
+        let mir_json = emit_guarded_mir_json_from_program_json(&self.program_json)?;
         Ok((self.program_json, mir_json))
     }
 
     #[cfg(test)]
     fn emit_plain_program_and_mir_json(self) -> Result<(String, String), String> {
-        let mir_json = Stage1ProgramJsonInput::new(&self.program_json).emit_plain_mir_json()?;
+        let mir_json = lowering::program_json_to_mir_json(&self.program_json)?;
         Ok((self.program_json, mir_json))
     }
 }
@@ -589,7 +553,7 @@ mod tests {
 
     #[test]
     fn test_stage1_program_json_input_rejects_invalid_json_for_decl_resolution() {
-        let result = Stage1ProgramJsonInput::new("{").resolve_user_box_decls();
+        let result = Stage1UserBoxDecls::parse_program_json("{");
         let error = match result {
             Ok(_) => panic!("invalid json must fail fast"),
             Err(error) => error,
