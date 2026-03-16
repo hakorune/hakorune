@@ -396,17 +396,28 @@ static box HakoCli {
     if mir_path == null { return null }
     if me._write_file(tag, mir_path, mir_json, 1) != 1 { return null }
 
+    local obj = me._compile_object_from_mir_path_checked(tag, mir_path)
+    if obj == null { return null }
+    return me._link_exe_object_checked(tag, obj, exe_path)
+  }
+
+  method _compile_object_from_mir_path_checked(tag, mir_path){
     local obj = env.codegen.compile_json_path(mir_path)
     if obj == null || ("" + obj) == "" {
       print(tag + ": env.codegen.compile_json_path failed")
       return null
     }
-    local linked = env.codegen.link_object("" + obj, exe_path)
+    return "" + obj
+  }
+
+  method _link_exe_object_checked(tag, obj_path, exe_path){
+    local linked = env.codegen.link_object(obj_path, exe_path)
     if linked == null || ("" + linked) == "" {
       print(tag + ": env.codegen.link_object failed")
       return null
     }
-    if ("" + linked) != exe_path {
+    local linked_path = "" + linked
+    if linked_path != exe_path {
       print(tag + ": env.codegen.link_object path mismatch")
       return null
     }
