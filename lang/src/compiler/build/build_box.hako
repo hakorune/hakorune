@@ -32,14 +32,7 @@ static box BuildBox {
     }
     me._apply_env_bundle_inputs(bundle_ctx)
     me._normalize_bundle_inputs(bundle_ctx)
-    if me._bundle_inputs_requested(bundle_ctx) == 1 {
-      local scan_src = me._resolve_scan_src_from_bundle_ctx(src, bundle_ctx)
-      if scan_src == null {
-        return me._fail_prepare_scan_src(result, "[build/resolve/failed]")
-      }
-      return me._apply_prepare_scan_src_result(result, scan_src)
-    }
-    return result
+    return me._resolve_prepare_scan_src_if_needed(result, src, bundle_ctx)
   }
 
   method _new_prepare_scan_src_result(src) {
@@ -56,6 +49,15 @@ static box BuildBox {
   method _apply_prepare_scan_src_result(result, scan_src) {
     result.set("scan_src", scan_src)
     return result
+  }
+
+  method _resolve_prepare_scan_src_if_needed(result, src, bundle_ctx) {
+    if me._bundle_inputs_requested(bundle_ctx) != 1 { return result }
+    local scan_src = me._resolve_scan_src_from_bundle_ctx(src, bundle_ctx)
+    if scan_src == null {
+      return me._fail_prepare_scan_src(result, "[build/resolve/failed]")
+    }
+    return me._apply_prepare_scan_src_result(result, scan_src)
   }
 
   method _bundle_inputs_requested(bundle_ctx) {
