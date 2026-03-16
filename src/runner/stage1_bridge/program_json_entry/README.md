@@ -15,6 +15,8 @@ Scope: future-retire bridge-only `emit-program-json-v0` entry helpers under `src
   - owns the explicit request predicate used by outer callers
   - owns source-path precedence (`stage1::input_path()` aliases first, CLI input fallback second)
   - owns out-path extraction from the explicit CLI flag
+  - owns request-local bridge emit execution once the request is built
+  - keeps the request build path on `ProgramJsonEmitRequest::build(...)`
 
 ## Guardrails
 

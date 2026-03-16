@@ -8,12 +8,10 @@ pub(in crate::runner) fn emit_program_json_v0_requested(groups: &CliGroups) -> b
 }
 
 pub(in crate::runner) fn emit_program_json_v0_and_exit(groups: &CliGroups) -> ! {
-    let request = match request::build_emit_request(groups) {
+    let request = match request::ProgramJsonEmitRequest::build(groups) {
         Ok(request) => request,
         Err(error) => exit::exit_with_emit_program_json_error(&error),
     };
-    exit::exit_with_emit_program_json_result(
-        &request.out_path,
-        super::program_json::emit_program_json_v0(&request.source_path, &request.out_path),
-    )
+    let out_path = request.out_path.clone();
+    exit::exit_with_emit_program_json_result(&out_path, request.emit_program_json_v0())
 }
