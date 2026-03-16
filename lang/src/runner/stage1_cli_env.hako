@@ -97,8 +97,7 @@ static box Main {
 // share input resolution without widening the current stage1 artifact boundary.
 static box Stage1InputContractBox {
   method resolve_supplied_program_json_text() {
-    local stage1_debug = env.get("STAGE1_CLI_DEBUG")
-    local stage1_debug_on = stage1_debug != null && ("" + stage1_debug) == "1"
+    local stage1_debug_on = me._stage1_debug_on()
     local stage1_prog_json_text = me.clean_env_value(env.get("STAGE1_PROGRAM_JSON_TEXT"))
     if stage1_debug_on {
       print("[stage1-cli/debug] emit-mir STAGE1_PROGRAM_JSON_TEXT.len=" + me._debug_len_inline(stage1_prog_json_text) + " preview=" + me._debug_preview_inline(stage1_prog_json_text))
@@ -111,7 +110,7 @@ static box Stage1InputContractBox {
 
   method resolve_emit_program_source_text() {
     local text = me.resolve_source_text()
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    if me._stage1_debug_on() == 1 {
       print("[stage1-cli/debug] emit-program resolved-text.len=" + me._debug_len_inline(text) +
             " preview=" + me._debug_preview_inline(text))
     }
@@ -120,7 +119,7 @@ static box Stage1InputContractBox {
     }
 
     local source = me.resolve_source_path()
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    if me._stage1_debug_on() == 1 {
       print("[stage1-cli/debug] emit-program resolved-source.len=" + me._debug_len_inline(source) +
             " preview=" + me._debug_preview_inline(source))
     }
@@ -138,7 +137,7 @@ static box Stage1InputContractBox {
     local loaded = fb.read()
     fb.close()
 
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    if me._stage1_debug_on() == 1 {
       print("[stage1-cli/debug] emit-program loaded-text.len=" + me._debug_len_inline(loaded) +
             " preview=" + me._debug_preview_inline(loaded))
     }
@@ -162,7 +161,7 @@ static box Stage1InputContractBox {
   }
 
   method clean_env_value(v) {
-    local s = "" + v
+    local s = me._coerce_text_compat(v)
     if s == "null" || s == "Null" || s == "void" || s == "Void" {
       return ""
     }
@@ -171,15 +170,29 @@ static box Stage1InputContractBox {
 
   method _debug_len_inline(value) {
     if value == null { return "null" }
-    local s = "" + value
+    local s = me._coerce_text_compat(value)
     return StringHelpers.int_to_str(s.length())
   }
 
   method _debug_preview_inline(value) {
     if value == null { return "<null>" }
-    local s = "" + value
+    local s = me._coerce_text_compat(value)
     if s.length() <= 64 { return s }
     return s.substring(0, 64)
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+
+  method _stage1_debug_on() {
+    return me._env_flag_enabled("STAGE1_CLI_DEBUG")
+  }
+
+  method _env_flag_enabled(name) {
+    local flag = env.get(name)
+    if flag != null && me._coerce_text_compat(flag) == "1" { return 1 }
+    return 0
   }
 }
 
@@ -231,7 +244,7 @@ static box Stage1ProgramAuthorityBox {
       print("[freeze:contract][stage1-cli/emit-program] BuildBox.emit_program_json_v0 returned null")
       return null
     }
-    return "" + raw_prog
+    return me._coerce_text_compat(raw_prog)
   }
 
   method _should_synthesize_entry_defs_inline(source_path) {
@@ -288,7 +301,7 @@ static box Stage1ProgramAuthorityBox {
 
   method _build_all_defs_fragment_inline(source_text) {
     if source_text == null || source_text == "" { return "" }
-    local s = "" + source_text
+    local s = me._coerce_text_compat(source_text)
     local defs = ""
     local first = 1
     local pos = 0
@@ -302,7 +315,7 @@ static box Stage1ProgramAuthorityBox {
       }
       local name_start = FuncScannerBox.skip_whitespace(s, box_idx + 3)
       local ident = FuncScannerBox._extract_ident(s, name_start)
-      local box_name = "" + ident.get("name")
+      local box_name = me._coerce_text_compat(ident.get("name"))
       if box_name == "" {
         pos = name_start + 1
         continue
@@ -416,7 +429,7 @@ static box Stage1ProgramAuthorityBox {
         if env.get("STAGE1_CLI_DEBUG") == "1" {
           local body_json_len = 0
           if body_json != null { body_json_len = body_json.length() }
-          print("[stage1-cli/debug] defs-scan lowered method=" + box_name + "." + name + " body_json_len=" + ("" + body_json_len))
+          print("[stage1-cli/debug] defs-scan lowered method=" + box_name + "." + name + " body_json_len=" + me._coerce_text_compat(body_json_len))
         }
         if body_json != null && body_json != "" {
           if emitted == 1 { defs = defs + "," }
@@ -433,7 +446,7 @@ static box Stage1ProgramAuthorityBox {
 
   method _extract_box_body_inline(source_text, box_name) {
     if source_text == null { return null }
-    local s = "" + source_text
+    local s = me._coerce_text_compat(source_text)
     local box_idx = s.indexOf("static box " + box_name)
     if box_idx < 0 { box_idx = s.indexOf("box " + box_name) }
     if env.get("STAGE1_CLI_DEBUG") == "1" {
@@ -486,7 +499,7 @@ static box Stage1ProgramAuthorityBox {
 
   method _extract_program_body_inline(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local body_idx = s.indexOf("\"body\":")
     if body_idx < 0 { return null }
     local open_idx = s.indexOf("[", body_idx)
@@ -533,7 +546,7 @@ static box Stage1ProgramAuthorityBox {
   method _inject_json_fragment_inline(json, fragment) {
     if json == null { return null }
     if fragment == null || fragment == "" { return json }
-    local s = "" + json
+    local s = me._coerce_text_compat(json)
     local close_idx = s.length() - 1
     loop(close_idx >= 0) {
       if s.substring(close_idx, close_idx + 1) == "}" {
@@ -649,7 +662,7 @@ static box Stage1ProgramAuthorityBox {
 
   method _trim_inline(s) {
     if s == null { return "" }
-    local str = "" + s
+    local str = me._coerce_text_compat(s)
     local start = me._skip_ws_inline(str, 0)
     local stop = str.length()
     loop(stop > start) {
@@ -679,7 +692,7 @@ static box Stage1ProgramAuthorityBox {
 
   method _build_user_box_decls_json_inline(source_text) {
     if source_text == null || source_text == "" { return "" }
-    local s = "" + source_text
+    local s = me._coerce_text_compat(source_text)
     local out = "["
     local first = 1
     local seen = "|"
@@ -725,7 +738,7 @@ static box Stage1ProgramAuthorityBox {
 
   method _build_user_box_decls_fallback_inline(source_text) {
     if source_text == null || source_text == "" { return "" }
-    local s = "" + source_text
+    local s = me._coerce_text_compat(source_text)
     local out = "["
     local first = 1
     local seen = "|"
@@ -740,7 +753,7 @@ static box Stage1ProgramAuthorityBox {
       }
       local name_start = FuncScannerBox.skip_whitespace(s, box_idx + 3)
       local ident = FuncScannerBox._extract_ident(s, name_start)
-      local box_name = "" + ident.get("name")
+      local box_name = me._coerce_text_compat(ident.get("name"))
       if box_name == "" {
         pos = name_start + 1
         continue
@@ -765,13 +778,17 @@ static box Stage1ProgramAuthorityBox {
     if first == 1 { return "" }
     return out
   }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
 }
 
 // Materialized Program(JSON) validation stays same-file so emit-program can use
 // the same thin-dispatch pattern as emit-mir without widening the boundary.
 static box Stage1ProgramResultValidationBox {
   method finalize_emit_result(program_json) {
-    local prog_text = "" + program_json
+    local prog_text = me._coerce_text_compat(program_json)
     local prog_head = prog_text.substring(0, 1)
     if prog_head != "{" {
       print("[freeze:contract][stage1-cli/emit-program] output is not Program JSON")
@@ -786,6 +803,10 @@ static box Stage1ProgramResultValidationBox {
     print(prog_text)
     return 0
   }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
 }
 
 // Shared Program(JSON) text guard stays same-file so source authority and
@@ -797,12 +818,16 @@ static box Stage1ProgramJsonTextGuardBox {
       print(tag + " " + missing_contract)
       return null
     }
-    return "" + program_json_text
+    return me._coerce_text_compat(program_json_text)
   }
 
   method input_present(program_json_text) {
     if program_json_text != null && program_json_text != "" { return 1 }
     return 0
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }
 
@@ -848,12 +873,16 @@ static box Stage1SourceMirAuthorityBox {
   }
 
   method _emit_program_json_from_source_checked(tag, source_text) {
-    local program_json = BuildBox.emit_program_json_v0("" + source_text, null)
+    local program_json = BuildBox.emit_program_json_v0(me._coerce_text_compat(source_text), null)
     if program_json == null {
       print(tag + " BuildBox.emit_program_json_v0 returned null")
       return null
     }
     return program_json
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }
 
@@ -878,7 +907,7 @@ static box Stage1MirResultValidationBox {
   }
 
   method _materialize_mir_text(mir) {
-    local mir_text = "" + mir
+    local mir_text = me._coerce_text_compat(mir)
     return mir_text
   }
 
@@ -929,16 +958,16 @@ static box Stage1MirResultValidationBox {
     local mir_text_has_functions = mir_text.indexOf("functions")
     local mir_text_has_functions_flag = 0
     if mir_text_has_functions >= 0 { mir_text_has_functions_flag = 1 }
-    print("[stage1-cli/debug] emit-mir result.kind=" + ("" + mir_kind) +
-          " is_null=" + ("" + mir_is_null) +
-          " is_empty=" + ("" + mir_is_empty) +
-          " text_kind=" + ("" + mir_text_kind) +
-          " text_is_empty=" + ("" + mir_text_is_empty) +
+    print("[stage1-cli/debug] emit-mir result.kind=" + me._coerce_text_compat(mir_kind) +
+          " is_null=" + me._coerce_text_compat(mir_is_null) +
+          " is_empty=" + me._coerce_text_compat(mir_is_empty) +
+          " text_kind=" + me._coerce_text_compat(mir_text_kind) +
+          " text_is_empty=" + me._coerce_text_compat(mir_text_is_empty) +
           " text_len_sign=" + mir_text_len_sign +
           " text_len=" + me._debug_len_inline(mir_text) +
           " text_head_preview=" + me._debug_preview_inline(mir_text_head) +
-          " text_head_is_lbrace=" + ("" + mir_text_head_is_lbrace) +
-          " text_has_functions=" + ("" + mir_text_has_functions_flag) +
+          " text_head_is_lbrace=" + me._coerce_text_compat(mir_text_head_is_lbrace) +
+          " text_has_functions=" + me._coerce_text_compat(mir_text_has_functions_flag) +
           " desc=" + me._debug_preview_inline(mir_desc) +
           " preview=" + me._debug_preview_inline(mir) +
           " text_preview=" + me._debug_preview_inline(mir_text))
@@ -998,21 +1027,25 @@ static box Stage1MirResultValidationBox {
 
   method _stage1_debug_on() {
     local stage1_debug = env.get("STAGE1_CLI_DEBUG")
-    if stage1_debug != null && ("" + stage1_debug) == "1" { return 1 }
+    if stage1_debug != null && me._coerce_text_compat(stage1_debug) == "1" { return 1 }
     return 0
   }
 
   method _debug_len_inline(value) {
     if value == null { return "null" }
-    local s = "" + value
+    local s = me._coerce_text_compat(value)
     return StringHelpers.int_to_str(s.length())
   }
 
   method _debug_preview_inline(value) {
     if value == null { return "<null>" }
-    local s = "" + value
+    local s = me._coerce_text_compat(value)
     if s.length() <= 64 { return s }
     return s.substring(0, 64)
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }
 
