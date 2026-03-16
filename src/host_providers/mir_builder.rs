@@ -233,16 +233,21 @@ impl Stage1UserBoxDecls {
     }
 
     fn parse_program_json(program_json: &str) -> Result<Self, String> {
-        let program_value: serde_json::Value = serde_json::from_str(program_json)
-            .map_err(|error| format!("program json parse error: {}", error))?;
+        let program_value = Self::parse_program_value(program_json)?;
         Ok(Self::from_program_value(&program_value))
     }
 
+    fn parse_program_value(program_json: &str) -> Result<serde_json::Value, String> {
+        serde_json::from_str(program_json).map_err(|error| format!("program json parse error: {}", error))
+    }
+
     fn from_program_value(program_value: &serde_json::Value) -> Self {
-        Self::new(
-            Self::explicit_from_program_value(program_value)
-                .unwrap_or_else(|| Self::compat_from_program_value(program_value)),
-        )
+        Self::new(Self::resolve_decls(program_value))
+    }
+
+    fn resolve_decls(program_value: &serde_json::Value) -> Vec<Stage1UserBoxDecl> {
+        Self::explicit_from_program_value(program_value)
+            .unwrap_or_else(|| Self::compat_from_program_value(program_value))
     }
 
     fn explicit_from_program_value(
@@ -258,13 +263,15 @@ impl Stage1UserBoxDecls {
     }
 
     fn compat_from_program_value(program_value: &serde_json::Value) -> Vec<Stage1UserBoxDecl> {
-        Self::collect_decl_names(program_value)
+        Self::collect_compat_decl_names(program_value)
             .into_iter()
             .map(Stage1UserBoxDecl::from_name)
             .collect()
     }
 
-    fn collect_decl_names(program_value: &serde_json::Value) -> std::collections::BTreeSet<String> {
+    fn collect_compat_decl_names(
+        program_value: &serde_json::Value,
+    ) -> std::collections::BTreeSet<String> {
         let mut seen = std::collections::BTreeSet::new();
         seen.insert("Main".to_string());
         insert_stage1_def_box_names(program_value, &mut seen);
@@ -561,6 +568,36 @@ mod tests {
         assert_eq!(
             decls,
             vec![serde_json::json!({"name": "ExplicitBox", "fields": ["value"]})]
+        );
+    }
+
+    #[test]
+    fn test_stage1_user_box_decls_parse_program_json_uses_compat_decl_names_without_explicit_payload()
+    {
+        let program_json = r#"{
+            "version": 0,
+            "kind": "Program",
+            "defs": [
+                {
+                    "box": "HelperBox",
+                    "name": "helper",
+                    "params": [],
+                    "body": {"version":0,"kind":"Program","body":[{"type":"Return","expr":{"type":"Int","value":1}}]}
+                }
+            ],
+            "body": []
+        }"#;
+
+        let decls = Stage1UserBoxDecls::parse_program_json(program_json)
+            .expect("input must parse program value")
+            .into_decl_values();
+
+        assert_eq!(
+            decls,
+            vec![
+                serde_json::json!({"name": "HelperBox", "fields": []}),
+                serde_json::json!({"name": "Main", "fields": []}),
+            ]
         );
     }
 
