@@ -13,11 +13,12 @@
 
 using lang.mir.builder.MirBuilderBox
 using lang.compiler.build.build_box as BuildBox
+using lang.runtime.host.host_facade_box as HostFacadeBox
 
 static box HakoCli {
   // Entry from Main.main(args)
   method run(args){
-    @argc = 0
+    local argc = 0
     if args { argc = args.size() }
     if argc == 0 {
       // No command: print minimal usage and fail-fast
@@ -25,8 +26,8 @@ static box HakoCli {
       return 1
     }
 
-    @cmd_raw = args.get(0)
-    @cmd = me._coerce_text_compat(cmd_raw)
+    local cmd_raw = args.get(0)
+    local cmd = me._coerce_text_compat(cmd_raw)
 
     if cmd == "run" {
       return me.cmd_run(args)
@@ -53,15 +54,15 @@ static box HakoCli {
   // hakorune build exe [options] <entry.hako>
   // - High-level wrapper around selfhost_exe_stageb / ny_mir_builder.
   method cmd_build(args){
-    @argc = 0
+    local argc = 0
     if args { argc = args.size() }
     if argc < 2 {
       print("[hakorune] build: usage: hakorune build exe <source.hako>")
       return 91
     }
 
-    @sub_raw = args.get(1)
-    @sub = me._coerce_text_compat(sub_raw)
+    local sub_raw = args.get(1)
+    local sub = me._coerce_text_compat(sub_raw)
     if sub == "exe" {
       return me.cmd_build_exe(args)
     }
@@ -74,27 +75,27 @@ static box HakoCli {
   // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) -> env.codegen.compile_json_path/link_object -> EXE
   // - Requires backend-zero C-API route to be有効化されていること（NYASH_LLVM_USE_CAPI=1, HAKO_V1_EXTERN_PROVIDER_C_ABI=1 等）。
   method cmd_build_exe(args){
-    @argc = 0
+    local argc = 0
     if args { argc = args.size() }
     if argc < 3 {
       print("[hakorune] build exe: usage: hakorune build exe [-o <out>] [--quiet] <source.hako>")
       return 91
     }
 
-    @out_path = null
-    @quiet = 0
-    @source_path = null
+    local out_path = null
+    local quiet = 0
+    local source_path = null
 
-    @i = 2
+    local i = 2
     loop(i < argc) {
-      @arg_raw = args.get(i)
-      @arg = me._coerce_text_compat(arg_raw)
+      local arg_raw = args.get(i)
+      local arg = me._coerce_text_compat(arg_raw)
       if arg == "-o" || arg == "--out" {
         if i + 1 >= argc {
           print("[hakorune] build exe: -o/--out requires a path")
           return 91
         }
-        @op_raw = args.get(i + 1)
+        local op_raw = args.get(i + 1)
         out_path = me._coerce_text_compat(op_raw)
         i = i + 2
         continue
@@ -138,15 +139,15 @@ static box HakoCli {
   // hakorune emit {program-json|mir-json} ...
   // - Surface for Stage-B / MirBuilder pipeline.
   method cmd_emit(args){
-    @argc = 0
+    local argc = 0
     if args { argc = args.size() }
     if argc < 2 {
       print("[hakorune] emit: usage: hakorune emit mir-json --from-program-json <file>")
       return 92
     }
 
-    @sub_raw = args.get(1)
-    @sub = me._coerce_text_compat(sub_raw)
+    local sub_raw = args.get(1)
+    local sub = me._coerce_text_compat(sub_raw)
     if sub == "mir-json" {
       return me.cmd_emit_mir_json(args)
     } else if sub == "program-json" {
@@ -161,7 +162,7 @@ static box HakoCli {
   // - Compile Hako source to Program(JSON v0) using BuildBox.emit_program_json_v0.
   // - Output is written to stdout on success.
   method cmd_emit_program_json(args){
-    @argc = 0
+    local argc = 0
     if args { argc = args.size() }
     if argc < 3 {
       print("[hakorune] emit program-json: usage: hakorune emit program-json [-o <out>] [--quiet] <source.hako>")
@@ -402,7 +403,7 @@ static box HakoCli {
   }
 
   method _compile_object_from_mir_path_checked(tag, mir_path){
-    local obj = env.codegen.compile_json_path(mir_path)
+    local obj = me._call_codegen_compile_json_path(mir_path)
     if me._non_empty_text(obj) != 1 {
       print(tag + ": env.codegen.compile_json_path failed")
       return null
@@ -411,7 +412,7 @@ static box HakoCli {
   }
 
   method _link_exe_object_checked(tag, obj_path, exe_path){
-    local linked = env.codegen.link_object(obj_path, exe_path)
+    local linked = me._call_codegen_link_object(obj_path, exe_path)
     if me._non_empty_text(linked) != 1 {
       print(tag + ": env.codegen.link_object failed")
       return null
@@ -447,6 +448,21 @@ static box HakoCli {
 
   method _load_program_json_from_path_checked(tag, prog_path){
     return me._read_file(tag, prog_path)
+  }
+
+  method _call_codegen_compile_json_path(mir_path){
+    local args = new ArrayBox()
+    if mir_path != null { args.push(me._coerce_text_compat(mir_path)) }
+    return HostFacadeBox.call("loader", "codegen.compile_json_path", args)
+  }
+
+  method _call_codegen_link_object(obj_path, exe_path){
+    local args = new ArrayBox()
+    if obj_path != null { args.push(me._coerce_text_compat(obj_path)) }
+    if me._non_empty_text(exe_path) == 1 {
+      args.push(me._coerce_text_compat(exe_path))
+    }
+    return HostFacadeBox.call("loader", "codegen.link_object", args)
   }
 
   // Helpers for file I/O (Phase 25.1a: consolidate Stage‑B friendly patterns)
@@ -517,7 +533,7 @@ static box Main {
   // Main entrypoint for Stage1 hakorune CLI.
   // args: raw argv array (excluding executable name).
   method main(args){
-    @cli = new HakoCli()
+    local cli = new HakoCli()
     return cli.run(args)
   }
 }

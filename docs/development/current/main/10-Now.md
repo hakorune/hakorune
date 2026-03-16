@@ -89,7 +89,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Backend-zero phase pointer: `docs/development/current/main/phases/phase-29ck/README.md`
 - Backend-zero final shape: `.hako -> thin backend C ABI/plugin boundary -> object/exe`（`native_driver.rs` は bootstrap seam only）
 - Optimization policy (runtime): de-rust runtime closeout contract 緑を前提に、最適化 lane（micro/asm -> kilo）へ handoff する。
-- JoinIR port mode（lane A）: monitor-only（failure-driven reopen）
+- JoinIR port mode（lane A）: monitor-only（failure-driven）
 - JoinIR extension runbook（lane A reopen）:
   - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
   - active green seed: `JIR-EXT-SHAPE-01`

@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-16
+Date: 2026-03-17
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -107,12 +107,23 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Blocker (SSOT)
 
-- compiler lane: `phase-29bq / monitor-only`
+- compiler lane: `phase-29bq / none`（active: failure-driven reopen only）
   - current blocker: `none`
   - reopen condition: `emit_fail > 0` または `route_blocker > 0`
+  - lane A mirror sync helper:
+    - `bash tools/selfhost/sync_lane_a_state.sh`
   - task SSOT:
     - `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
     - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
+  - done: `JIR-PORT-00`（Boundary Lock, docs-first）
+  - done: `JIR-PORT-01`（Parity Probe）
+  - done: `JIR-PORT-02`（if/merge minimal port）
+  - done: `JIR-PORT-03`（loop minimal port）
+  - done: `JIR-PORT-04`（PHI / Exit invariant lock）
+  - done: `JIR-PORT-05`（promotion boundary lock）
+  - done: `JIR-PORT-06`（monitor-only boundary lock）
+  - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
+  - next: `none`（failure-driven reopen only）
 - runtime lane: `phase-29y / none`
   - fixed order SSOT:
     - `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
@@ -145,6 +156,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `docs/private/roadmap/phases/phase-21.5/PLAN.md`
 
 ## Immediate Next (this round)
+
+- pure `.hako-only hakorune build` / Stage2 bootstrap closure exact front (2026-03-17):
+  - latest proof 1: `NYASH_BIN=target/selfhost/hakorune.stage1_cli bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage1_cli.stage2.bridge.probe --force-rebuild` is green, so the older bridge-first `stage1-cli` build blocker is retired
+  - latest proof 2: `NYASH_BIN=target/selfhost/hakorune.stage1_cli.stage2.bridge.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage3.launcher.probe --force-rebuild` is also green; `launcher.hako` is now strict-safe on the visible Program(JSON) source route and the old `dev-local-alias-sugar` / `env.codegen.*` field-access blocker is retired
+  - current default front is no longer `phase-29cj` micro-thinning; bridge/program-json/stub-emit buckets are near thin floor and stay frozen unless a fresh exact disappearing leaf appears first
+  - exact next order is pinned:
+    1. keep lane-A mirror sync green from this root pointer (`bash tools/selfhost/run_lane_a_daily.sh`)
+    2. treat `target/selfhost/hakorune.stage3.launcher.probe` as the next closure probe source and test `NYASH_BIN=target/selfhost/hakorune.stage3.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage4.stage1_cli.probe --force-rebuild`
+    3. current exact blocker from that probe is the launcher-bootstrap caller/entry contract: `tools/selfhost/selfhost_exe_stageb.sh` still assumes Stage0-style `--backend vm compiler_stageb.hako` / `--program-json-to-mir` flags, and a direct `target/selfhost/hakorune.stage3.launcher.probe emit {program-json|mir-json} ...` smoke currently returns `Result: 0` without payload/file output, so the launcher artifact is not yet a drop-in bootstrap binary
+    4. fix only that bootstrap caller/contract seam, rerun the same Stage4 probe, and keep `by-name` retirement frozen behind it
+  - `by-name` deletion does not move ahead of this front; `phase-29cl` stays caller-cutover-first and shrink-only until the bootstrap/selfhost blocker is gone
 
 - pure `.hako-only hakorune build` authority-replacement / `phase-29cj` exact front (2026-03-16):
   - current active owner is now the Rust authority seam in `src/host_providers/mir_builder.rs`; the runner/build/helper wave above it is near thin floor and should stay frozen unless a fresh exact disappearing leaf appears first
@@ -237,6 +259,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - delete condition:
       - caller cutover first
       - kernel-side `by_name` retire only after reopen rules confirm no caller still needs it
+    - order lock:
+      - this lane is not the current blocker and must not move ahead of Stage2/bootstrap closure proof
   - quick estimate:
     - pure selfhost helper cleanup is late-stage
     - full `Rust 0` compiler/backend work is still medium remaining
