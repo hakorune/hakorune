@@ -8,7 +8,13 @@ ChatGPTが設計した`docs/development/design/legacy/LLVM_LAYER_OVERVIEW.md`の
 1. **検証ハーネス** - PHI/SSA構造の高速検証
 2. **プロトタイプ** - 新機能の迅速な試作
 3. **教育的価値** - シンプルで理解しやすい実装
-4. **バックアップ** - Rustが詰まった時の代替案
+4. **compat/canary keep** - daily route ではなく、明示 opt-in 比較経路として保つ
+
+## Current Keep Rule
+- `tools/llvmlite_harness.py` と `src/llvm_py/**` は current daily owner ではない
+- daily backend route は `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
+- Python/llvmlite line は explicit opt-in probe/canary keep としてだけ保守する
+- compat harness は `llvm_builder.py` CLI を `runpy` で再入せず、narrow library seam を直接呼ぶ
 
 ## 📂 構造
 ```

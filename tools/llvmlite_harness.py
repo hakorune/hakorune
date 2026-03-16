@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Nyash llvmlite harness (internal)
+Nyash llvmlite harness (compat/canary keep)
 
 Primary AOT/EXE pipeline is the ny-llvmc crate backend. This script serves as
-an internal harness that ny-llvmc delegates to for object emission.
+an internal compat harness that ny-llvmc can still delegate to for object emission.
 
 Usage (debugging only):
   - python3 tools/llvmlite_harness.py --out out.o                # dummy ny_main -> object
@@ -15,7 +15,6 @@ Notes:
 """
 
 import argparse
-import json
 import os
 import sys
 from pathlib import Path
@@ -34,18 +33,28 @@ def resolve_repo_root() -> Path:
     return default_root
 
 
-def bootstrap_builder_paths(root: Path) -> tuple[Path, Path]:
-    builder = root / "src" / "llvm_py" / "llvm_builder.py"
-    llvm_py_dir = root / "src" / "llvm_py"
+def resolve_llvm_py_dir(root: Path) -> Path:
+    return root / "src" / "llvm_py"
+
+
+def bootstrap_llvm_py_import_path(root: Path) -> Path:
+    llvm_py_dir = resolve_llvm_py_dir(root)
     if str(llvm_py_dir) not in sys.path:
         sys.path.insert(0, str(llvm_py_dir))
-    return builder, llvm_py_dir
+    return llvm_py_dir
 
 
-ROOT = resolve_repo_root()
-PY_BUILDER, LLVM_PY_DIR = bootstrap_builder_paths(ROOT)
+def bootstrap_harness_context() -> tuple[Path, Path]:
+    root = resolve_repo_root()
+    llvm_py_dir = bootstrap_llvm_py_import_path(root)
+    return root, llvm_py_dir
+
+
+ROOT, LLVM_PY_DIR = bootstrap_harness_context()
 
 from build_opts import create_target_machine_for_target, parse_opt_level_env
+from llvm_builder import build_object_from_input_file
+
 
 def _maybe_trace_opt(source: str) -> None:
     if os.environ.get("NYASH_CLI_VERBOSE") == "1":
@@ -55,7 +64,8 @@ def _maybe_trace_opt(source: str) -> None:
         except Exception:
             pass
 
-def run_dummy(out_path: str) -> None:
+
+def emit_dummy_object(out_path: str) -> None:
     # Minimal llvmlite program: ny_main() -> i32 0
     import llvmlite.ir as ir
     import llvmlite.binding as llvm
@@ -83,45 +93,59 @@ def run_dummy(out_path: str) -> None:
     with open(out_path, "wb") as f:
         f.write(obj)
 
-def run_from_json(in_path: str, out_path: str) -> None:
-    # Delegate to python builder to keep code unified
-    import runpy
 
+def configure_builder_keep_env() -> None:
     # Enable safe defaults for prepasses unless explicitly disabled by env
-    os.environ.setdefault('NYASH_LLVM_PREPASS_LOOP', os.environ.get('NYASH_LLVM_PREPASS_LOOP', '0'))
-    os.environ.setdefault('NYASH_LLVM_PREPASS_IFMERGE', os.environ.get('NYASH_LLVM_PREPASS_IFMERGE', '1'))
-    builder_dir = str(PY_BUILDER.parent)
-    if builder_dir not in sys.path:
-        sys.path.insert(0, builder_dir)
-    # Simulate "python llvm_builder.py <in> -o <out>"
-    sys.argv = [str(PY_BUILDER), str(in_path), "-o", str(out_path)]
-    runpy.run_path(str(PY_BUILDER), run_name="__main__")
+    os.environ.setdefault(
+        "NYASH_LLVM_PREPASS_LOOP",
+        os.environ.get("NYASH_LLVM_PREPASS_LOOP", "0"),
+    )
+    os.environ.setdefault(
+        "NYASH_LLVM_PREPASS_IFMERGE",
+        os.environ.get("NYASH_LLVM_PREPASS_IFMERGE", "1"),
+    )
+
+
+def run_builder_keep(in_path: str, out_path: str) -> None:
+    # Delegate to python builder to keep compat/probe code unified
+    configure_builder_keep_env()
+    build_object_from_input_file(in_path, out_path)
 
 
 def parse_cli_args(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in", dest="infile", help="MIR JSON input", default=None)
+    ap.add_argument(
+        "--in",
+        dest="infile",
+        help="MIR JSON input (compat/canary keep route)",
+        default=None,
+    )
     ap.add_argument("--out", dest="outfile", help="output object (.o)", required=True)
     return ap.parse_args(argv)
 
 
+def run_selected_mode(infile: str | None, outfile: str) -> int:
+    if infile is None:
+        emit_dummy_object(outfile)
+        print(f"[harness] dummy object written: {outfile}")
+        return 0
+    run_builder_keep(infile, outfile)
+    print(f"[harness] object written: {outfile}")
+    return 0
+
+
 def main(argv=None) -> int:
     args = parse_cli_args(argv)
-    if args.infile is None:
-        run_dummy(args.outfile)
-        print(f"[harness] dummy object written: {args.outfile}")
-        return 0
-    else:
-        run_from_json(args.infile, args.outfile)
-        print(f"[harness] object written: {args.outfile}")
-        return 0
+    return run_selected_mode(args.infile, args.outfile)
+
 
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as e:
         import traceback
+
         print(f"[harness] error: {e}", file=sys.stderr)
-        if os.environ.get('NYASH_CLI_VERBOSE') == '1':
+        if os.environ.get("NYASH_CLI_VERBOSE") == "1":
             traceback.print_exc()
         sys.exit(1)

@@ -120,8 +120,8 @@ Related:
    - visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`
    - `llvm_backend_surrogate.rs` remains temporary compiled-stage1 residue only; do not treat it as the daily caller stop-point again
 20. landed B3a harness/entry demotion:
-   - `tools/llvmlite_harness.py` now keeps repo-root bootstrap, CLI parse, and `runpy` delegation behind owner-local helpers
-   - `src/llvm_py/llvm_builder.py` now keeps CLI parse, MIR file load, and output-file write behind owner-local helpers
+   - `tools/llvmlite_harness.py` now keeps repo-root bootstrap, CLI parse, and direct builder-library delegation behind owner-local helpers
+   - `src/llvm_py/llvm_builder.py` now keeps CLI parse, MIR file load, output-file write, and narrow file-based library entrypoints behind owner-local helpers
    - `NyashLLVMBuilder` itself and Python lowering/support are not part of this slice; next B3 front is ingest/context demotion
 21. landed B3b ingest/context first slice:
    - `src/llvm_py/mir_reader.py` now owns normalized builder ingest through `BuilderInput` / `build_builder_input(...)`

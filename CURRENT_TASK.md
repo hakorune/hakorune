@@ -73,7 +73,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - landed B1c/B1d contract lock: `LlvmBackendBox.compile_obj(json_path)` is locked to the path-based thin backend contract, backend MIR normalization is owned by `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`, compiled-stage1 `llvm_backend_surrogate.rs` shares the same path-based contract through `mir_json_file_to_object(...)`, and env truth is pinned to `NYASH_NY_LLVM_COMPILER` while `NYASH_LLVM_COMPILER` remains `tools/build_llvm.sh` selector only
       - landed B1e direct extern lowering: shared compile/link helpers in `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now lower directly to canonical `env.codegen.*` extern calls; daily compile/link no longer depends on `hostbridge.extern_invoke(...)`
       - landed `phase-29cl / BYN-min2`: `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly, so the visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`; `llvm_backend_surrogate.rs` is now temporary compiled-stage1 residue only
-      - landed B3a harness/entry demotion: `tools/llvmlite_harness.py` and `src/llvm_py/llvm_builder.py` now keep repo-root bootstrap, CLI parse, MIR file load, and output-file write behind owner-local helpers; `NyashLLVMBuilder` / lowering/support remain untouched
+      - landed B3a harness/entry demotion: `tools/llvmlite_harness.py` and `src/llvm_py/llvm_builder.py` now keep repo-root bootstrap, CLI parse, MIR file load, and output-file write behind owner-local helpers; `tools/llvmlite_harness.py` now calls `llvm_builder.build_object_from_input_file(...)` directly instead of re-entering the builder CLI through `runpy` + `sys.argv`; `NyashLLVMBuilder` / lowering/support remain untouched
       - landed B3b ingest/context first slice: `src/llvm_py/mir_reader.py` now owns normalized `BuilderInput` ingest, `src/llvm_py/build_opts.py` now owns `BuildOptions` env/codegen context, and `src/llvm_py/build_ctx.py` now owns lowering-side aggregated context via `build_ctx_from_owner(...)`; `src/llvm_py/llvm_builder.py` / `src/llvm_py/builders/instruction_lower.py` consume those seams without re-owning them inline
       - landed B3c opcode first slice: `src/llvm_py/instructions/by_name_method.py` now owns generic `nyash.plugin.invoke_by_name_i64` method fallback, and `boxcall.py` / `mir_call/method_call.py` / `mir_call_legacy.py` now consume the shared helper instead of duplicating the wiring
       - landed B3c collection-route slice: `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering, and `src/llvm_py/instructions/boxcall.py` now consumes that helper instead of carrying the route table inline
@@ -212,6 +212,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - `src/llvm_py/instructions/**`
      - role:
        - continue reducing Python mainline ownership until it is clearly compat/canary only
+       - keep the compat harness on narrow library seams, not CLI re-entry or argv mutation
        - do not mix this with backend-boundary docs; this is downstream demotion work
      - acceptance:
        - Python/llvmlite route is still replayable for probe/canary

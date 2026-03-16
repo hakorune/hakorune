@@ -433,20 +433,32 @@ def load_input_mir_json(input_file):
         return json.load(f)
 
 
-def run_dummy_cli(builder, output_file):
+def build_dummy_object(output_file, builder=None):
+    if builder is None:
+        builder = NyashLLVMBuilder()
     ir_text = builder._create_dummy_main()
     trace_debug(f"[Python LLVM] Generated dummy IR:\n{ir_text}")
     ensure_output_dir(output_file)
     builder.compile_to_object(output_file)
-    print(f"Compiled to {output_file}")
 
 
-def run_input_cli(builder, input_file, output_file):
+def build_object_from_input_file(input_file, output_file, builder=None):
+    if builder is None:
+        builder = NyashLLVMBuilder()
     mir_json = load_input_mir_json(input_file)
     builder.build_from_mir(mir_json)
     trace_debug("[Python LLVM] Generated LLVM IR (see NYASH_LLVM_DUMP_IR or tmp/nyash_harness.ll)")
     ensure_output_dir(output_file)
     builder.compile_to_object(output_file)
+
+
+def run_dummy_cli(builder, output_file):
+    build_dummy_object(output_file, builder=builder)
+    print(f"Compiled to {output_file}")
+
+
+def run_input_cli(builder, input_file, output_file):
+    build_object_from_input_file(input_file, output_file, builder=builder)
     print(f"Compiled to {output_file}")
 
 
