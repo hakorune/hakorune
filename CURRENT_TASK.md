@@ -20,6 +20,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - current main goal:
   - `backend-zero` を final shape `.hako -> LlvmBackendBox -> hako_aot -> backend helper` へ寄せる
+  - `src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/main.rs`, `crates/nyash-llvm-compiler/src/native_driver.rs` は途中の Rust glue / keep lane であり、final owner ではない
 - already stopped:
   - bootstrap closure wave は fixed-point compare まで完了
   - `stage7 launcher` / `stage9 launcher` と fresh `stage1-cli` rebuild は byte-identical
@@ -161,6 +162,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/c-abi/shims/hako_aot_shared_impl.inc`
   - `tools/llvmlite_harness.py`
   - `src/llvm_py/llvm_builder.py`
+- final-owner reminder:
+  - `.hako` 側は `LlvmBackendBox -> env.codegen.*` で止まる
+  - final backend daily owner は Core C ABI `hako_aot` boundary
+  - `llvm_codegen.rs` / `main.rs` / `native_driver.rs` は順に thin glue / wrapper / canary へ後退させる
 - success condition for the current wave:
   - `by-name` is compat-only / no longer a daily mainline owner
   - `llvmlite` is explicit compat/probe keep only
@@ -185,6 +190,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - role:
        - keep `MIR(JSON path) -> object path -> exe path` contract single-sourced
        - absorb command/log/resolve/error-projection cleanup here, not in runner callers
+       - become the final daily owner that `llvm_codegen.rs` only forwards into, not the other way around
      - acceptance:
        - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
        - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
@@ -211,6 +217,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - `src/host_providers/llvm_codegen.rs`
      - role:
        - make runner-side daily route follow backend-boundary default
+       - shrink `src/host_providers/llvm_codegen.rs` to normalization/path/env glue only
        - keep explicit `llvmlite` selection as compat/probe keep only
        - do not let route glue silently auto-fallback back into `llvmlite`
      - acceptance:
