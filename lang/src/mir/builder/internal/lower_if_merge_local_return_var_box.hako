@@ -45,7 +45,7 @@ static box LowerIfMergeLocalReturnVarBox {
   }
 
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
 
     local k_local = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", 0)
     if k_local < 0 { return null }
@@ -95,15 +95,15 @@ static box LowerIfMergeLocalReturnVarBox {
 
     local then_v = me._branch_update_int(
       s,
-      JsonFragBox._str_to_int("" + then_bounds.get("lb")),
-      JsonFragBox._str_to_int("" + then_bounds.get("rb")),
+      me._coerce_i64_compat(then_bounds.get("lb")),
+      me._coerce_i64_compat(then_bounds.get("rb")),
       local_name
     )
     if then_v == null { return null }
     local else_v = me._branch_update_int(
       s,
-      JsonFragBox._str_to_int("" + else_bounds.get("lb")),
-      JsonFragBox._str_to_int("" + else_bounds.get("rb")),
+      me._coerce_i64_compat(else_bounds.get("lb")),
+      me._coerce_i64_compat(else_bounds.get("rb")),
       local_name
     )
     if else_v == null { return null }
@@ -111,7 +111,7 @@ static box LowerIfMergeLocalReturnVarBox {
     local k_ret = JsonFragBox.index_of_from(
       s,
       "\"type\":\"Return\"",
-      JsonFragBox._str_to_int("" + else_bounds.get("rb"))
+      me._coerce_i64_compat(else_bounds.get("rb"))
     )
     if k_ret < 0 { return null }
     local k_ret_var = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_ret)
@@ -130,5 +130,11 @@ static box LowerIfMergeLocalReturnVarBox {
       "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_v + "}},{\"op\":\"jump\",\"target\":3}]}," +
       "{\"id\":3,\"instructions\":[{\"op\":\"phi\",\"dst\":6,\"incoming\":[[4,1],[5,2]]},{\"op\":\"ret\",\"value\":6}]}]}]}"
     return mir
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _coerce_i64_compat(value) {
+    return JsonFragBox._str_to_int(me._coerce_text_compat(value))
   }
 }

@@ -17,7 +17,7 @@ static box JsonFragNormalizerBox {
   // Internal: ensure ret has explicit value (minimal, numeric or keep as-is if present)
   _ret_ensure_value(obj) {
     if obj == null { return null }
-    local s = "" + obj
+    local s = me._coerce_text_compat(obj)
     // If key exists anywhere, keep as-is
     if s.indexOf(me._dq()+"value"+me._dq()+":") >= 0 { return s }
     // Insert before the last '}'
@@ -31,7 +31,7 @@ static box JsonFragNormalizerBox {
   // Internal: normalize a single block's instructions array text
   _normalize_instructions_array(arr_text) {
     if arr_text == null { return "" }
-    local s = "" + arr_text
+    local s = me._coerce_text_compat(arr_text)
     local n = s.length()
     local i = 0
     local guard = 0
@@ -40,7 +40,7 @@ static box JsonFragNormalizerBox {
     local others_list = new ArrayBox()
     local seen = new MapBox()  // signature -> 1
     // Dev-only: purify flag to drop builder-side allocations (e.g., newbox) from JSONFrag output
-    local purify = 0; { local pv = env.get("HAKO_MIR_BUILDER_JSONFRAG_PURIFY"); if pv != null { local pvs = "" + pv; if pvs == "1" { purify = 1 } } }
+    local purify = 0; if me._env_flag_is_one("HAKO_MIR_BUILDER_JSONFRAG_PURIFY") == 1 { purify = 1 }
     local seen_ret = 0
     loop(i < n) {
       guard = guard + 1
@@ -127,7 +127,7 @@ static box JsonFragNormalizerBox {
   // Build a canonical value signature for a const instruction object text
   _const_value_sig(obj_text) {
     if obj_text == null { return "?" }
-    local s = "" + obj_text
+    local s = me._coerce_text_compat(obj_text)
     // locate '"value":'
     local k = s.indexOf(me._dq()+"value"+me._dq()+":")
     if k < 0 { return "?" }
@@ -173,7 +173,7 @@ static box JsonFragNormalizerBox {
   // Canonicalize const object textual representation for known patterns (f64 formatting)
   _const_canonicalize(obj_text) {
     if obj_text == null { return null }
-    local s = "" + obj_text
+    local s = me._coerce_text_compat(obj_text)
     // narrow to object; if malformed, return as-is
     local t = JsonFragBox.get_str(s, "type")
     if t == "f64" {
@@ -202,7 +202,7 @@ static box JsonFragNormalizerBox {
   // Make a minimal canonical float string (trim trailing zeros; ensure at least one fractional digit)
   _canonicalize_f64_str(fs) {
     if fs == null { return "0.0" }
-    local s = "" + fs
+    local s = me._coerce_text_compat(fs)
     // Normalize case
     local raw = s
     // Split sign
@@ -299,7 +299,7 @@ static box JsonFragNormalizerBox {
   // Read a numeric token (digits, optional dot, optional exponent) starting at pos
   _read_num_token(text, pos) {
     if text == null { return null }
-    local s = "" + text
+    local s = me._coerce_text_compat(text)
     local n = s.length()
     local i = pos
     if i >= n { return null }
@@ -346,7 +346,7 @@ static box JsonFragNormalizerBox {
   // Shared normalization runner: rewrites each instructions array using _normalize_instructions_array
   _normalize_all_blocks(mir_json_text, mode) {
     if mir_json_text == null { return null }
-    local src = "" + mir_json_text
+    local src = me._coerce_text_compat(mir_json_text)
     local key = me._dq()+"instructions"+me._dq()+":"+me._lsq()
     local out = ""
     local pos = 0
@@ -386,8 +386,16 @@ static box JsonFragNormalizerBox {
     local s2 = JsonFragNormalizerBox.normalize_phi(s1)
     local s3 = JsonFragNormalizerBox.normalize_ret(s2)
     // Optional tag (quiet by default)
-    local tag = env.get("HAKO_MIR_BUILDER_NORMALIZE_TAG")
-    if tag != null && ("" + tag) == "1" { print("[mirbuilder/normalize:jsonfrag:pass]") }
+    if me._env_flag_is_one("HAKO_MIR_BUILDER_NORMALIZE_TAG") == 1 { print("[mirbuilder/normalize:jsonfrag:pass]") }
     return s3
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _env_flag_is_one(name) {
+    local value = env.get(name)
+    if value == null { return 0 }
+    if me._coerce_text_compat(value) == "1" { return 1 }
+    return 0
   }
 }

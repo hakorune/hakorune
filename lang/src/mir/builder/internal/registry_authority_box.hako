@@ -28,12 +28,12 @@ using "hako.mir.builder.internal.lower_return_loop_strlen_sum" as LowerReturnLoo
 static box BuilderRegistryAuthorityBox {
   method try_lower(program_json) {
     if BuilderConfigBox.registry_on() != 1 { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local only = BuilderConfigBox.registry_only()
 
     // Keep the explicit direct probe lane stable while moving the normal
     // registry-first mainline into a dedicated owner.
-    if only != null && ("" + only) == "return.method.arraymap" {
+    if only != null && me._coerce_text_compat(only) == "return.method.arraymap" {
       local raw = me._try_lower_registry_only_arraymap(s)
       if raw != null {
         print("[mirbuilder/registry:return.method.arraymap]")
@@ -45,14 +45,14 @@ static box BuilderRegistryAuthorityBox {
     local names = PatternRegistryBox.candidates()
     if only != null {
       local arr = new ArrayBox()
-      arr.push("" + only)
+      arr.push(me._coerce_text_compat(only))
       names = arr
     }
 
     local i = 0
     local n = names.length()
     loop(i < n) {
-      local nm = "" + names.get(i)
+      local nm = me._coerce_text_compat(names.get(i))
       if nm == "if.compare.intint" { local out = LowerIfCompareBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "if.compare.fold.binints" { local out = LowerIfCompareFoldBinIntsBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
       if nm == "if.compare.fold.varint" { local out = LowerIfCompareFoldVarIntBox.try_lower(s); if out != null { me._debug_registry_hit(nm) return out } }
@@ -104,7 +104,7 @@ static box BuilderRegistryAuthorityBox {
           local v1 = JsonFragBox.read_int_after(s, kv1 + 8)
           if v1 != null {
             insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v1 + "}}"
-            args_text = args_text + ("" + next_id)
+            args_text = args_text + me._coerce_text_compat(next_id)
             next_id = next_id + 1
             first = 0
           }
@@ -118,7 +118,7 @@ static box BuilderRegistryAuthorityBox {
           if v2 != null {
             insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v2 + "}}"
             if first == 0 { args_text = args_text + "," }
-            args_text = args_text + ("" + next_id)
+            args_text = args_text + me._coerce_text_compat(next_id)
             next_id = next_id + 1
           }
         }
@@ -129,5 +129,8 @@ static box BuilderRegistryAuthorityBox {
            insts + "," +
            "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":4,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"method\\\":\\\"" + method + "\\\",\\\"receiver\\\":1},\\\"args\\\":[" + args_text + "],\\\"effects\\\":[]}}," +
            "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":4}]}]}]}"
+  }
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }

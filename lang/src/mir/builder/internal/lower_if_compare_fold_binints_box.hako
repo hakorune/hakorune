@@ -20,14 +20,14 @@ static box LowerIfCompareFoldBinIntsBox {
     local r = JsonFragBox.read_int_after(s, kv2 + 8); if r == null { return null }
     // compute
     local li = 0; local ri = 0; // string to int by simple parse (assume i64 fits)
-    // naive parse via accumulate; rely on toString of concatenation is ok
-    li = 0 + ("" + l); ri = 0 + ("" + r)
+    // naive parse via accumulate; rely on compat coercion helper
+    li = me._coerce_i64_compat(l); ri = me._coerce_i64_compat(r)
     local res = 0
     if op == "+" { res = li + ri }
     else if op == "-" { res = li - ri }
     else if op == "*" { res = li * ri }
     else { res = li / ri }
-    return ("" + res)
+    return me._coerce_text_compat(res)
   }
   _resolve_side_int(s, node_pos, if_pos) {
     // node may be Int, Binary(Int,Int), or Var with Local Int before if_pos
@@ -51,7 +51,7 @@ static box LowerIfCompareFoldBinIntsBox {
     return null
   }
   try_lower(program_json){
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_if = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0); if k_if < 0 { return null }
     local k_cmp = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if); if k_cmp < 0 { return null }
     local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_cmp); if k_op < 0 { return null }
@@ -91,5 +91,11 @@ static box LowerIfCompareFoldBinIntsBox {
       "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_v + "}},{\"op\":\"ret\",\"value\":4}]}," +
       "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_v + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
     return mir
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _coerce_i64_compat(value) {
+    return 0 + me._coerce_text_compat(value)
   }
 }

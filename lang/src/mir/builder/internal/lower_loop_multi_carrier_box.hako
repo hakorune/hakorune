@@ -18,7 +18,7 @@ static box LowerLoopMultiCarrierBox {
   // Pattern: loop with multiple Local/Assign indicating carried state (fibonacci-style)
   method try_lower(program_json, params_arr) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
 
     // 1) Find Loop with cond Compare
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
@@ -39,9 +39,9 @@ static box LowerLoopMultiCarrierBox {
       }
       return null
     }
-    local limit_kind = "" + limit_info.get("kind")
+    local limit_kind = me._coerce_text_compat(limit_info.get("kind"))
     local limit_value = limit_info.get("value")
-    local limit_param_reg = JsonFragBox._str_to_int("" + limit_info.get("param_reg"))
+    local limit_param_reg = me._coerce_i64_compat(limit_info.get("param_reg"))
     if limit_kind != "const" && limit_kind != "param" { return null }
 
     // 4) Collect initial carrier values (Local Int assignments before the Loop)
@@ -107,7 +107,7 @@ static box LowerLoopMultiCarrierBox {
       if val_idx < 0 { search = k_local + 1  continue }
       local val = JsonFragBox.read_int_after(body_json, val_idx + 8)
       if val != null {
-        vals.push(JsonFragBox._str_to_int("" + val))
+        vals.push(me._coerce_i64_compat(val))
       }
       search = k_local + 1
     }
@@ -115,7 +115,7 @@ static box LowerLoopMultiCarrierBox {
   }
 
   method _extract_limit_info(body_json, cmp_idx, loop_var, params_arr) {
-    local s = "" + body_json
+    local s = me._coerce_text_compat(body_json)
     local has_lhs = JsonFragBox.index_of_from(s, "\"lhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
     local has_rhs = JsonFragBox.index_of_from(s, "\"rhs\":{\"type\":\"Var\",\"name\":\"" + loop_var + "\"}", cmp_idx) >= 0
     local trace_on = BuilderConfigBox.trace_enabled()
@@ -162,7 +162,7 @@ static box LowerLoopMultiCarrierBox {
       }
       local info = new MapBox()
       info.set("kind", "const")
-      info.set("value", JsonFragBox._str_to_int("" + val))
+      info.set("value", me._coerce_i64_compat(val))
       return info
     }
     if typ == "Var" {
@@ -202,12 +202,18 @@ static box LowerLoopMultiCarrierBox {
     local idx = 0
     local total = params_arr.length()
     loop(idx < total) {
-      local pname = "" + params_arr.get(idx)
+      local pname = me._coerce_text_compat(params_arr.get(idx))
       if pname == name {
-        return JsonFragBox._str_to_int("" + (idx + 1))
+        return me._coerce_i64_compat(idx + 1)
       }
       idx = idx + 1
     }
     return 0
+  }
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+  method _coerce_i64_compat(value) {
+    return JsonFragBox._str_to_int(me._coerce_text_compat(value))
   }
 }

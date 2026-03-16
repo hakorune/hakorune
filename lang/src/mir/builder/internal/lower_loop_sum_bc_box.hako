@@ -17,9 +17,9 @@ using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
 
 static box LowerLoopSumBcBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local trace = env.get("HAKO_MIR_BUILDER_TRACE_SUMBC")
-    if trace != null && ("" + trace) == "1" {
+    if me._flag_is_one(trace) == 1 {
       print("[sum_bc] enter lower")
     }
     // Loop and Compare normalize to canonical (<) with dynamic var name
@@ -39,7 +39,7 @@ static box LowerLoopSumBcBox {
       }
     }
     if varname == null { return null }
-    if trace != null && ("" + trace) == "1" {
+    if me._flag_is_one(trace) == 1 {
       print("[sum_bc] var=" + varname)
     }
     // op: accept '<'/'<=' with var on lhs; also accept swapped '>'/'>=' with var on rhs
@@ -78,17 +78,17 @@ static box LowerLoopSumBcBox {
     if break_value == null { break_value = limit }
 
     // Trace detected values
-    if trace != null && ("" + trace) == "1" {
-      local skip_str = "" + skip_value
-      local break_str = "" + break_value
-      local limit_str = "" + limit
+    if me._flag_is_one(trace) == 1 {
+      local skip_str = me._coerce_text_compat(skip_value)
+      local break_str = me._coerce_text_compat(break_value)
+      local limit_str = me._coerce_text_compat(limit)
       print("[sum_bc] limit=" + limit_str + " skip=" + skip_str + " break=" + break_str)
     }
 
     // JsonFrag 直組立（opt-in）: HAKO_MIR_BUILDER_LOOP_JSONFRAG=1
     {
       local jf = env.get("HAKO_MIR_BUILDER_LOOP_JSONFRAG")
-      if jf != null && ("" + jf) == "1" {
+      if me._flag_is_one(jf) == 1 {
         // Minimal MIR(JSON) with compare + branch + ret（構造検証用）
         local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
           "{\"id\":0,\"instructions\":[" +
@@ -108,9 +108,17 @@ static box LowerLoopSumBcBox {
     LoopOptsBox.put(opts, "limit", limit)
     LoopOptsBox.put(opts, "skip", skip_value)
     LoopOptsBox.put(opts, "break", break_value)
-    if trace != null && ("" + trace) == "1" {
+    if me._flag_is_one(trace) == 1 {
       print("[sum_bc] building MIR with LoopFormBox")
     }
     return LoopOptsBox.build2(opts)
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _flag_is_one(value) {
+    if value == null { return 0 }
+    if me._coerce_text_compat(value) == "1" { return 1 }
+    return 0
   }
 }

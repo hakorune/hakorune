@@ -14,12 +14,12 @@ static box ProgScanBox {
   }
   // Find substring starting at or after pos; returns index or -1
   find(s, pat, pos) {
-    local s1 = "" + s
+    local s1 = me._coerce_text_compat(s)
     local p = pos
     if p < 0 { p = 0 }
     if p >= s1.length() { return -1 }
     local sub = s1.substring(p)
-    local k = sub.indexOf("" + pat)
+    local k = sub.indexOf(me._coerce_pattern_compat(pat))
     if k < 0 { return -1 }
     return p + k
   }
@@ -27,30 +27,32 @@ static box ProgScanBox {
   // Skip ASCII spaces from pos; returns first non-space index
   skip_spaces(s, pos) {
     local i = pos
-    local n = ("" + s).length()
-    loop(i < n) { if ("" + s).substring(i,i+1) != " " { break } i = i + 1 }
+    local s1 = me._coerce_text_compat(s)
+    local n = s1.length()
+    loop(i < n) { if s1.substring(i,i+1) != " " { break } i = i + 1 }
     return i
   }
 
   // Read an integer (optional '-') starting at pos; returns string or null
   read_int_at(s, pos) {
     local i = pos
-    local n = ("" + s).length()
-    if i < n && ("" + s).substring(i,i+1) == "-" { i = i + 1 }
+    local s1 = me._coerce_text_compat(s)
+    local n = s1.length()
+    if i < n && s1.substring(i,i+1) == "-" { i = i + 1 }
     local j = i
     local had = 0
     loop(j < n) {
-      local ch = ("" + s).substring(j,j+1)
+      local ch = s1.substring(j,j+1)
       if ch >= "0" && ch <= "9" { had = 1 j = j + 1 } else { break }
     }
-    if had == 1 { return ("" + s).substring(pos, j) }
+    if had == 1 { return s1.substring(pos, j) }
     return null
   }
 
   // Read quoted string at or after key: "key": "..." (returns content or null)
   read_quoted_after_key(s, start, key) {
-    local s1 = "" + s
-    local k = me.find(s1, "\"" + key + "\":", start)
+    local s1 = me._coerce_text_compat(s)
+    local k = me.find(s1, "\"" + me._coerce_pattern_compat(key) + "\":", start)
     if k < 0 { return null }
     local i = k + 3 + key.length() // position after colon
     local n = s1.length()
@@ -73,10 +75,16 @@ static box ProgScanBox {
 
   // Read integer value after a "value": key near start
   read_value_int_after(s, start) {
-    local s1 = "" + s
+    local s1 = me._coerce_text_compat(s)
     local k = me.find(s1, "\"value\":", start)
     if k < 0 { return null }
     local i = me.skip_spaces(s1, k + 8)
     return me.read_int_at(s1, i)
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _coerce_pattern_compat(value) {
+    return me._coerce_text_compat(value)
   }
 }
