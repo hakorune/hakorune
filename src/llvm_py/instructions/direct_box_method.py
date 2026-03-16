@@ -5,6 +5,11 @@ When the receiver box type is statically known and the lowered module already
 contains a matching `Box.method/arity` function, prefer a direct call over the
 generic plugin invoke shim. This keeps user-defined box methods executable on
 native LLVM/AOT routes without relying on plugin-host method resolution.
+
+Contract:
+- lowered user-box methods may appear as `Box.method/<args>` or
+  `Box.method/<args+1>`
+- the latter expects the receiver as implicit `me`, the former does not
 """
 
 from typing import Callable, List, Optional, Tuple

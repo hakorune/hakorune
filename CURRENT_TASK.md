@@ -164,12 +164,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - latest proof 4: `NYASH_BIN=target/selfhost/hakorune.stage3.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage4.stage1_cli.probe --force-rebuild` is green, so the launcher-bootstrap caller/entry contract blocker is retired
   - latest proof 5: `NYASH_BIN=target/selfhost/hakorune.stage4.stage1_cli.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage5.launcher.probe --force-rebuild` is green
   - latest proof 6: `NYASH_BIN=target/selfhost/hakorune.stage5.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage6.stage1_cli.probe --force-rebuild` is green
+  - latest proof 7: `NYASH_BIN=target/selfhost/hakorune.stage6.stage1_cli.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage7.launcher.probe --force-rebuild` is green
   - current default front is no longer `phase-29cj` micro-thinning; bridge/program-json/stub-emit buckets are near thin floor and stay frozen unless a fresh exact disappearing leaf appears first
   - exact next order is pinned:
     1. keep lane-A mirror sync green from this root pointer (`bash tools/selfhost/run_lane_a_daily.sh`)
     2. keep `target/selfhost/hakorune.stage3.launcher.probe` as a proven bootstrap-capable launcher artifact; direct env bootstrap now materializes MIR payload/file output instead of returning `Result: 0` with an empty file
     3. retired blocker: compiled native launcher bootstrap was failing before imported helper dispatch because user instance methods such as `HakoCli.run_native_entry()` and `ProbeBox.run()` were lowered to `nyash.plugin.invoke_by_name_i64` instead of direct calls; `src/llvm_py/instructions/direct_box_method.py` now accepts both `Box.method/args` and `Box.method/(args+1)` shapes, and plugin fallback args now box pointer strings before by-name dispatch
-    4. next closure probe is `NYASH_BIN=target/selfhost/hakorune.stage6.stage1_cli.probe bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --out target/selfhost/hakorune.stage7.launcher.probe --force-rebuild`; keep `by-name` retirement frozen behind that closure wave
+    4. next closure probe is `NYASH_BIN=target/selfhost/hakorune.stage7.launcher.probe bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --out target/selfhost/hakorune.stage8.stage1_cli.probe --force-rebuild`; keep `by-name` retirement frozen behind that closure wave
   - `by-name` deletion does not move ahead of this front; `phase-29cl` stays caller-cutover-first and shrink-only until the bootstrap/selfhost blocker is gone
 
 - pure `.hako-only hakorune build` authority-replacement / `phase-29cj` exact front (2026-03-16):

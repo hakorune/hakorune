@@ -70,6 +70,16 @@ NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
 3. Sealed SSA: ブロック末 snapshot を用いた finalize_phis 配線
 4. Builder cursor discipline: 生成位置の厳格化（terminator 後に emit しない）
 
+## Current Call Contracts
+- user-box direct method lowering accepts both `Box.method/<args>` and `Box.method/<args+1>`
+  - `/<args+1>` means the lowered callee expects the receiver as implicit `me`
+  - `/<args>` means the lowered callee already owns receiver materialization and must be called without prepending `recv_h`
+- generic plugin fallback (`nyash.plugin.invoke_by_name_i64`) always receives i64 handles
+  - receiver is boxed/coerced before dispatch
+  - args are also boxed/coerced before dispatch; raw string pointers are not passed through
+- compiled-stage1 module-string helper dispatch (`BuildBox.emit_program_json_v0`, `MirBuilderBox.emit_from_program_json_v0`) therefore relies on one invariant:
+  - by-name fallback must see StringBox handles, not raw `i8*` pointers
+
 ## 🎨 実装状況
 - [ ] 基本構造（MIR読み込み）
 - [x] ControlFlow 分離（branch/jump/while_regular）

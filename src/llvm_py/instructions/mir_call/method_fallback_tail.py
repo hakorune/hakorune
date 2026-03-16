@@ -4,6 +4,10 @@ Shared method-call fallback tail for MIR call lowerers.
 This module owns the final "direct known-box or generic by-name plugin"
 dispatch tail so `method_call.py` and `mir_call_legacy.py` do not keep
 duplicate route-order logic.
+
+Contract:
+- plugin fallback sees i64 handles for both receiver and args
+- pointer/string args must be boxed before `nyash.plugin.invoke_by_name_i64`
 """
 
 from typing import Callable, List, Optional

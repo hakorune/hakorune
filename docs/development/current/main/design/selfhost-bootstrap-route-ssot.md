@@ -62,6 +62,14 @@ Current blocker (2026-03-11):
 - G1 full is now raw-exact green again on the same authority contract for both `Program(JSON v0)` and `MIR JSON v0`
 - therefore there is no active reduced-case blocker on the authority route itself; next work is to choose the first true bootstrap reduction slice without changing the current authority contract
 
+Bootstrap closure note (2026-03-17):
+- `launcher-exe` remains non-authority for G1 identity, but it is now an accepted bootstrap-capable artifact for `build_stage1.sh`
+- success on that lane is defined by emitted payload/file materialization
+  - a trailing `Result: 0` is not sufficient evidence by itself
+  - accepted proof is `HAKORUNE_BOOTSTRAP_OUT=<tmp>` (or build output path) becoming non-empty with the expected payload shape
+- the current proven alternating closure is:
+  - `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
+
 SSOT:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
 

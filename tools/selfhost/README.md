@@ -146,7 +146,11 @@ How it works
   - Falls back to `target/release/nyash` otherwise.
 
 Notes
-- `launcher-exe` is a run artifact and does not satisfy G1 identity emit contract by itself.
+- `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
+- bootstrap contract is narrower and now explicit:
+  - `launcher-exe` may be used as the next bootstrap binary for `build_stage1.sh`
+  - success is defined by payload/file materialization, not by the `Result: 0` trailer alone
+  - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` requires Stage1 CLI emit capability in full mode.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.
 
