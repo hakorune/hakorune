@@ -152,6 +152,48 @@ class TestMethodCallStage1ModuleAlias(unittest.TestCase):
         self.assertIn("nyash.box.from_i8_string", ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_llvm_backend_literal_receiver_prefers_direct_call(self):
+        module = ir.Module(name="test_method_call_llvm_backend_alias")
+        i64 = ir.IntType(64)
+        i8p = ir.IntType(8).as_pointer()
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        arg_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_mir_path_ptr")
+        arg_ptr = builder.call(arg_seed, [], name="mir_path_ptr")
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64]),
+            name="LlvmBackendBox.compile_obj/1",
+        )
+
+        resolver = _ResolverStub()
+        resolver.string_literals[1] = "selfhost.shared.backend.llvm_backend"
+        vmap = {
+            1: ir.Constant(i64, 0),
+            2: arg_ptr,
+        }
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name=None,
+            method="compile_obj",
+            receiver=1,
+            args=[2],
+            dst_vid=3,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[3])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"LlvmBackendBox.compile_obj/1"', ir_text)
+        self.assertIn("nyash.box.from_i8_string", ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

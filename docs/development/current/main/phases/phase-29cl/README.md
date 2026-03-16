@@ -115,12 +115,15 @@ Rule:
 15. stage1 helper alias cutover extension is landed
    - the same direct-call alias resolver now also covers `lang.compiler.entry.using_resolver(_box)` -> `Stage1UsingResolverBox` and `MirBuilderBox.emit_from_source_v0(...)`
    - current stage1 helper family (`resolve_for_source`, `emit_program_json_v0`, `emit_from_program_json_v0`, `emit_from_source_v0`) now prefers direct lowered functions before generic plugin fallback when receiver literals are known
+16. backend helper alias cutover slice is landed
+   - the same direct-call alias resolver now also covers `selfhost.shared.backend.llvm_backend` -> `LlvmBackendBox`
+   - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` before generic plugin fallback when receiver literals are known
 
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
 2. keep visible launcher caller off `by_name`
-3. keep shrinking the remaining mainline LLVM caller set after the full stage1 helper family
+3. keep shrinking the remaining generic/mainline LLVM caller set after the stage1+backend helper families
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 

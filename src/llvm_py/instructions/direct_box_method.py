@@ -24,6 +24,7 @@ _MODULE_RECEIVER_BOX_ALIASES = {
     "lang.compiler.entry.using_resolver": "Stage1UsingResolverBox",
     "lang.compiler.entry.using_resolver_box": "Stage1UsingResolverBox",
     "lang.mir.builder.MirBuilderBox": "MirBuilderBox",
+    "selfhost.shared.backend.llvm_backend": "LlvmBackendBox",
 }
 
 

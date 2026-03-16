@@ -81,6 +81,7 @@ NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
   - `lang.compiler.build.build_box` can resolve to direct `BuildBox.*`
   - `lang.compiler.entry.using_resolver` and `lang.compiler.entry.using_resolver_box` can resolve to direct `Stage1UsingResolverBox.*`
   - `lang.mir.builder.MirBuilderBox` can resolve to direct `MirBuilderBox.*`
+  - `selfhost.shared.backend.llvm_backend` can resolve to direct `LlvmBackendBox.*`
 - if those routes still fall back to generic plugin dispatch, by-name fallback must see StringBox handles, not raw `i8*` pointers
 
 ## 🎨 実装状況
