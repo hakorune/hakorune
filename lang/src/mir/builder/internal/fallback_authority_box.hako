@@ -43,7 +43,7 @@ using "hako.mir.builder.internal.lower_loop_simple" as LowerLoopSimpleBox
 
 static box BuilderFallbackAuthorityBox {
   method try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local boxed = me._try_boxed_lowerers(s)
     if boxed != null { return boxed }
     return me._try_inline_jsonfrag_cases(s)
@@ -348,5 +348,8 @@ static box BuilderFallbackAuthorityBox {
     }
 
     return null
+  }
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }
