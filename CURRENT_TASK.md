@@ -36,6 +36,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - read-first for this lane:
   - `docs/development/current/main/phases/phase-29cl/README.md`
   - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
+  - `docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md`
   - `lang/src/shared/backend/README.md`
 
 ## Full Rust 0 Pointer (2026-03-14)
@@ -166,6 +167,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - stop rule:
   - stop demotion work when `llvmlite` is compat/canary keep only
   - do not delete `tools/llvmlite_harness.py` / `src/llvm_py/**` until caller docs, runner route, and acceptance scripts all read them as keep-only
+  - do not delete Rust / llvmlite lanes from this repo until source + artifact preservation is completed in an external archive repo
 - remaining owner buckets by grain:
   1. thin backend boundary hardening
      - exact paths:
@@ -226,6 +228,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - do not reopen `native_driver.rs` as final owner
   - do not add a new intermediate ABI or hidden env for migration convenience
   - do not silently route native failure into `llvmlite` fallback
+  - do not treat backend-zero completion as permission to delete Rust / llvmlite immediately
 
 - compiler lane: `phase-29bq / none`（active: failure-driven reopen only）
   - current blocker: `none`

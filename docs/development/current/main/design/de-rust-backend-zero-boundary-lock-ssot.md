@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
+  - docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P0-BACKEND-ZERO-OWNER-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/P1-NY-LLVMC-NATIVE-EMITTER-TASK-PACK.md
@@ -134,3 +135,14 @@ backend-zero の final target は次の形に固定する。
 3. `.hako` 側へ libLLVM API の広い surface を露出すること
 4. `Cranelift keep` を reopen すること
 5. archived `llvm_ir` script-builder route を silently daily route へ戻すこと
+6. backend-zero 完了を理由に Rust / llvmlite source を即 delete すること
+
+## 8. Preservation Before Retirement
+
+Rust backend lane と Python/llvmlite lane は、backend-zero 後も preservation-first で扱う。
+
+1. current repo から retire してよいのは external archive repo が ready の時だけ
+2. archive repo には source snapshot / platform artifacts / checksums / restore docs を置く
+3. Windows / Ubuntu/Linux / macOS artifact は少なくとも preservation target に含める
+4. iOS lane を実運用する場合は iOS deliverable も preservation target に含める
+5. archive repo と release bundle が揃うまで、この repo 側では demote はしても delete はしない

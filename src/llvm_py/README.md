@@ -15,6 +15,7 @@ ChatGPTが設計した`docs/development/design/legacy/LLVM_LAYER_OVERVIEW.md`の
 - daily backend route は `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
 - Python/llvmlite line は explicit opt-in probe/canary keep としてだけ保守する
 - compat harness は `llvm_builder.py` CLI を `runpy` で再入せず、narrow library seam を直接呼ぶ
+- この repo から retire するのはまだ先で、retire する場合も source + artifact を external archive repo に保存してからだけ行う
 
 ## 📂 構造
 ```
