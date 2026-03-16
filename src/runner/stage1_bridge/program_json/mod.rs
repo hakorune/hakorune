@@ -10,7 +10,7 @@ mod read_input;
 mod writeback;
 
 pub(super) fn emit_program_json_v0(source_path: &str, out_path: &str) -> Result<(), String> {
-    ProgramJsonOutput::read_from_source_path(source_path)?.write_to_path(out_path)
+    ProgramJsonOutput::from_source_path(source_path)?.write_to_path(out_path)
 }
 
 #[derive(Debug)]
@@ -19,10 +19,13 @@ struct ProgramJsonOutput {
 }
 
 impl ProgramJsonOutput {
-    fn read_from_source_path(source_path: &str) -> Result<Self, String> {
-        let code = read_input::read_source_text(source_path)?;
+    fn from_source_path(source_path: &str) -> Result<Self, String> {
+        Self::from_source_text(&read_input::read_source_text(source_path)?)
+    }
+
+    fn from_source_text(source_text: &str) -> Result<Self, String> {
         Ok(Self {
-            payload: payload::emit_program_json_payload(&code)?,
+            payload: payload::emit_program_json_payload(source_text)?,
         })
     }
 
@@ -51,7 +54,7 @@ mod tests {
                 .as_nanos()
         );
         let error =
-            ProgramJsonOutput::read_from_source_path(&unique).expect_err("missing path must fail");
+            ProgramJsonOutput::from_source_path(&unique).expect_err("missing path must fail");
         assert!(error.starts_with(&format!("emit-program-json-v0 read error: {}", unique)));
     }
 
@@ -105,11 +108,23 @@ mod tests {
         )
         .expect("write temp source");
 
-        let out = ProgramJsonOutput::read_from_source_path(&source_path_str)
+        let out = ProgramJsonOutput::from_source_path(&source_path_str)
             .expect("program json output")
             .into_payload();
 
         let _ = std::fs::remove_file(&source_path);
+
+        assert!(out.contains("\"kind\":\"Program\""));
+        assert!(out.contains("\"version\":0"));
+    }
+
+    #[test]
+    fn program_json_output_builds_payload_from_source_text() {
+        let out = ProgramJsonOutput::from_source_text(
+            include_str!("../../../../lang/src/runner/stage1_cli_env.hako"),
+        )
+        .expect("program json output")
+        .into_payload();
 
         assert!(out.contains("\"kind\":\"Program\""));
         assert!(out.contains("\"version\":0"));
