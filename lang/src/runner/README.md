@@ -53,6 +53,7 @@ Pointers:
     - checked Program(JSON) / MIR routes は owner-local helper に固定され、caller-side choreography も same-file helper に寄せている。
     - `emit mir-json` checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`) so the launcher lane no longer mixes Program(JSON) validation, MirBuilder call, and MIR output validation inline.
     - `emit program-json` checked tail is also split owner-locally (`_emit_program_json_raw(...)`, `_coerce_program_json_output_checked(...)`) so the launcher lane no longer mixes BuildBox call and Program(JSON) validation inline.
+    - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so launcher emit-program output validation and emit-mir input validation share one same-file contract.
     - program-json load / stdout-vs-file output tails are also split owner-locally (`_load_program_json_from_path_checked(...)`, `_print_output_checked(...)`, `_write_output_checked(...)`) so `cmd_emit_program_json(...)` / `cmd_emit_mir_json(...)` no longer branch directly on readback/output side effects inline.
     - `build exe` now owns only temp MIR handoff / default output-path helper shape and lowers compile/link through direct `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; it no longer imports `LlvmBackendBox` for the compiled-stage1 lane.
   - Design reference:
@@ -78,6 +79,7 @@ Pointers:
 - `Stage1ProgramJsonCompatBox` now also keeps explicit Program(JSON) input coercion behind `_coerce_program_json_text_checked(...)`, which itself reuses `Stage1ProgramJsonTextGuardBox.coerce_text_checked(...)`, so the compat lane no longer mixes input validation with the shared Program(JSON)->MIR caller handoff.
 - `Stage1ProgramJsonCompatBox` now also keeps mixed-source fail-fast behind `_has_explicit_program_json_text(...)` and `_fail_mixed_source_mode(...)`, so the compat lane no longer mixes the predicate with the fail tag.
 - `Stage1ProgramJsonCompatBox` now also keeps the final explicit Program(JSON) checked emit behind `_emit_mir_from_text_checked(...)`, so the public compat entry is down to input coercion -> checked emit handoff only.
+- `launcher.hako` now also keeps shared Program(JSON) marker predicates behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so emit-program output validation and emit-mir input validation reuse the same same-file check there too.
 - Fail-Fast 原則:
   - 未実装コマンドや不正な引数は明示的なメッセージ＋非0終了コードで返す。
   - 暗黙のフォールバックや静かな無視は行わない。

@@ -318,7 +318,7 @@ static box HakoCli {
 
   method _coerce_program_json_output_checked(tag, prog){
     local ps = "" + prog
-    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+    if me._program_json_has_markers(ps) != 1 {
       print(tag + ": unexpected Program(JSON) output (missing version/kind)")
       return null
     }
@@ -345,11 +345,24 @@ static box HakoCli {
       return null
     }
     local prog = "" + program_json
-    if prog.indexOf("\"version\":0") < 0 || prog.indexOf("\"kind\":\"Program\"") < 0 {
+    if me._program_json_has_markers(prog) != 1 {
       print(tag + ": input missing Program(JSON v0) markers")
       return null
     }
     return prog
+  }
+
+  method _program_json_text_present(input_text){
+    if input_text != null && input_text != "" { return 1 }
+    return 0
+  }
+
+  method _program_json_has_markers(program_json_text){
+    if me._program_json_text_present(program_json_text) != 1 { return 0 }
+    if program_json_text.indexOf("\"version\":0") < 0 || program_json_text.indexOf("\"kind\":\"Program\"") < 0 {
+      return 0
+    }
+    return 1
   }
 
   method _emit_mir_from_program_json_text_checked(tag, program_json_text){
