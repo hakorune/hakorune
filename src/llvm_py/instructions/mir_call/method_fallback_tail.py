@@ -47,8 +47,12 @@ def lower_direct_or_plugin_method_call(
     a2 = resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
     if a1 is None:
         a1 = ir.Constant(i64, 0)
+    else:
+        a1 = ensure_handle(a1)
     if a2 is None:
         a2 = ir.Constant(i64, 0)
+    else:
+        a2 = ensure_handle(a2)
     return lower_plugin_invoke_by_name(
         builder=builder,
         module=module,

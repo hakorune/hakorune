@@ -450,6 +450,46 @@ static box HakoCli {
     return me._read_file(tag, prog_path)
   }
 
+  method run_bootstrap_from_env(){
+    local mode_raw = env.get("HAKORUNE_BOOTSTRAP_MODE")
+    local mode = me._coerce_text_compat(mode_raw)
+    if mode == "" {
+      print("[hakorune/bootstrap] HAKORUNE_BOOTSTRAP_MODE is required")
+      return 95
+    }
+    if mode == "emit-mir" {
+      return me._bootstrap_emit_mir_from_env()
+    }
+    print("[hakorune/bootstrap] unsupported mode: " + mode)
+    return 95
+  }
+
+  method run_native_entry(){
+    if me._non_empty_text(env.get("HAKORUNE_BOOTSTRAP_MODE")) == 1 {
+      return me.run_bootstrap_from_env()
+    }
+    return me.run(null)
+  }
+
+  method _bootstrap_emit_mir_from_env(){
+    local tag = "[hakorune/bootstrap emit mir]"
+    local source_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_INPUT"))
+    if source_path == "" {
+      print(tag + ": HAKORUNE_BOOTSTRAP_INPUT is required")
+      return 95
+    }
+    local out_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_OUT"))
+    if out_path == "" {
+      print(tag + ": HAKORUNE_BOOTSTRAP_OUT is required")
+      return 95
+    }
+
+    local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
+    if ms == null { return 95 }
+    if me._write_file(tag, out_path, ms, 1) != 1 { return 95 }
+    return 0
+  }
+
   method _call_codegen_compile_json_path(mir_path){
     local args = new ArrayBox()
     if mir_path != null { args.push(me._coerce_text_compat(mir_path)) }
@@ -530,10 +570,11 @@ static box HakoCli {
 }
 
 static box Main {
-  // Main entrypoint for Stage1 hakorune CLI.
-  // args: raw argv array (excluding executable name).
-  method main(args){
+  // Native/selfhost entrypoint currently lands on Main.main/0.
+  // Bootstrap callers use HAKORUNE_BOOTSTRAP_* env; non-bootstrap falls back to
+  // the regular CLI with a null argv and fails fast on missing command.
+  method main(){
     local cli = new HakoCli()
-    return cli.run(args)
+    return cli.run_native_entry()
   }
 }

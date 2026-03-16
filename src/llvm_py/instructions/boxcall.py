@@ -324,7 +324,7 @@ def lower_boxcall(
             else:
                 val = ir.Constant(i64, 0)
         if hasattr(val, 'type') and isinstance(val.type, ir.PointerType):
-            return builder.ptrtoint(val, i64)
+            return _ensure_handle(builder, module, val)
         if hasattr(val, 'type') and isinstance(val.type, ir.IntType) and val.type.width != 64:
             if val.type.width < 64:
                 return builder.zext(val, i64)

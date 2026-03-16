@@ -7,27 +7,36 @@ generic plugin invoke shim. This keeps user-defined box methods executable on
 native LLVM/AOT routes without relying on plugin-host method resolution.
 """
 
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Tuple
 
 from llvmlite import ir
 
 from naming_helper import encode_static_method
 
 
-def resolve_known_box_method(module: ir.Module, box_name: Optional[str], method_name: Optional[str], arity: int):
+def resolve_known_box_method(
+    module: ir.Module,
+    box_name: Optional[str],
+    method_name: Optional[str],
+    arities: Tuple[int, ...],
+):
     """Return the matching lowered function for a known box method, if present."""
     if not box_name or not method_name:
         return None
 
-    candidates = [
-        encode_static_method(box_name, method_name, arity),
-        f"{box_name}.{method_name}/{arity}",
-        f"{box_name}.{method_name}",
-    ]
-    for candidate in candidates:
-        for func in module.functions:
-            if func.name == candidate:
-                return func
+    for arity in arities:
+        candidates = [
+            encode_static_method(box_name, method_name, arity),
+            f"{box_name}.{method_name}/{arity}",
+        ]
+        for candidate in candidates:
+            for func in module.functions:
+                if func.name == candidate:
+                    return func
+    plain_candidate = f"{box_name}.{method_name}"
+    for func in module.functions:
+        if func.name == plain_candidate:
+            return func
     return None
 
 
@@ -45,11 +54,12 @@ def try_lower_known_box_method_call(
 ):
     """Lower to a direct `Box.method/arity` call when the target exists."""
     i64 = ir.IntType(64)
-    callee = resolve_known_box_method(module, box_name, method_name, len(args) + 1)
+    callee = resolve_known_box_method(module, box_name, method_name, (len(args) + 1, len(args)))
     if callee is None:
         return None
 
-    argv = [recv_h]
+    want_receiver = len(callee.args) == len(args) + 1
+    argv = [recv_h] if want_receiver else []
     for arg_vid in args:
         arg_val = resolve_arg(arg_vid)
         if arg_val is None:

@@ -164,6 +164,22 @@ build_with_stage1_cli_bootstrap() {
   cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
 }
 
+build_with_launcher_bootstrap() {
+  local tmp_mir
+  tmp_mir="$(mktemp --suffix .launcher_bootstrap.mir.json)"
+  trap 'rm -f "$tmp_mir" 2>/dev/null || true' RETURN
+
+  HAKORUNE_BOOTSTRAP_MODE=emit-mir \
+  HAKORUNE_BOOTSTRAP_INPUT="$ENTRY" \
+  HAKORUNE_BOOTSTRAP_OUT="$tmp_mir" \
+    "$NYASH_BIN"
+
+  NYASH_LLVM_BACKEND=crate \
+  NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+  NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+    bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+}
+
 ENTRY_DEFAULT_LAUNCHER="$ROOT/lang/src/runner/launcher.hako"
 ENTRY_DEFAULT_STAGE1_CLI="$ROOT/lang/src/runner/stage1_cli_env.hako"
 OUT_DEFAULT_LAUNCHER="$ROOT/target/selfhost/hakorune"
@@ -328,6 +344,41 @@ if [ "$SKIPPED_BUILD" -ne 1 ]; then
       fi
     else
       build_with_stage1_cli_bootstrap
+    fi
+  elif [ "$BOOTSTRAP_KIND" = "launcher-exe" ]; then
+    echo "         bootstrap: launcher-exe env-build" >&2
+    if [ "$TIMEOUT_SECS" -gt 0 ]; then
+      set +e
+      timeout --preserve-status "${TIMEOUT_SECS}s" bash -lc '
+        set -euo pipefail
+        ROOT="$1"
+        ENTRY="$2"
+        OUT="$3"
+        NYASH_BIN="$4"
+        tmp_mir="$(mktemp --suffix .launcher_bootstrap.mir.json)"
+        trap '\''rm -f "$tmp_mir" 2>/dev/null || true'\'' EXIT
+        HAKORUNE_BOOTSTRAP_MODE=emit-mir \
+        HAKORUNE_BOOTSTRAP_INPUT="$ENTRY" \
+        HAKORUNE_BOOTSTRAP_OUT="$tmp_mir" \
+          "$NYASH_BIN"
+        NYASH_LLVM_BACKEND=crate \
+        NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+        NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+          bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+      ' bash "$ROOT" "$ENTRY" "$OUT" "$NYASH_BIN"
+      RC=$?
+      set -e
+      if [ "$RC" -eq 124 ] || [ "$RC" -eq 137 ] || [ "$RC" -eq 143 ]; then
+        echo "[stage1] build timed out after ${TIMEOUT_SECS}s" >&2
+        echo "         hint: rerun with larger --timeout-secs or use --skip-build with prebuilt binaries" >&2
+        exit 2
+      fi
+      if [ "$RC" -ne 0 ]; then
+        echo "[stage1] build failed (rc=$RC)" >&2
+        exit "$RC"
+      fi
+    else
+      build_with_launcher_bootstrap
     fi
   elif [ "$TIMEOUT_SECS" -gt 0 ]; then
     set +e
