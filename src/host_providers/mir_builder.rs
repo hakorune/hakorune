@@ -166,7 +166,7 @@ impl<'a> Stage1ProgramJsonInput<'a> {
     }
 
     fn resolve_user_box_decls(&self) -> Result<Stage1UserBoxDecls, String> {
-        Ok(self.parse_value()?.resolve_user_box_decls())
+        Ok(self.parse_value()?.into_user_box_decls())
     }
 
     fn parse_value(&self) -> Result<Stage1ProgramJsonValue, String> {
@@ -256,6 +256,39 @@ impl Stage1UserBoxDecls {
         Self { decls }
     }
 
+    fn from_program_value(program_value: &serde_json::Value) -> Self {
+        Self::new(
+            Self::explicit_from_program_value(program_value)
+                .unwrap_or_else(|| Self::compat_from_program_value(program_value)),
+        )
+    }
+
+    fn explicit_from_program_value(
+        program_value: &serde_json::Value,
+    ) -> Option<Vec<Stage1UserBoxDecl>> {
+        let decls = program_value.get("user_box_decls")?.as_array()?;
+        Some(
+            decls
+                .iter()
+                .filter_map(Stage1UserBoxDecl::from_json_value)
+                .collect(),
+        )
+    }
+
+    fn compat_from_program_value(program_value: &serde_json::Value) -> Vec<Stage1UserBoxDecl> {
+        Self::collect_decl_names(program_value)
+            .into_iter()
+            .map(Stage1UserBoxDecl::from_name)
+            .collect()
+    }
+
+    fn collect_decl_names(program_value: &serde_json::Value) -> std::collections::BTreeSet<String> {
+        let mut seen = std::collections::BTreeSet::new();
+        seen.insert("Main".to_string());
+        insert_stage1_def_box_names(program_value, &mut seen);
+        seen
+    }
+
     fn into_metadata_map(self) -> std::collections::HashMap<String, Vec<String>> {
         self.decls
             .into_iter()
@@ -280,32 +313,8 @@ impl Stage1ProgramJsonValue {
         })
     }
 
-    fn resolve_user_box_decls(self) -> Stage1UserBoxDecls {
-        Stage1UserBoxDecls::new(
-            self.explicit_user_box_decls()
-                .unwrap_or_else(|| self.compat_user_box_decls()),
-        )
-    }
-
-    fn explicit_user_box_decls(&self) -> Option<Vec<Stage1UserBoxDecl>> {
-        let decls = self.program_value.get("user_box_decls")?.as_array()?;
-        Some(
-            decls
-                .iter()
-                .filter_map(Stage1UserBoxDecl::from_json_value)
-                .collect(),
-        )
-    }
-
-    fn compat_user_box_decls(&self) -> Vec<Stage1UserBoxDecl> {
-        build_stage1_user_box_decls_from_names(self.collect_decl_names())
-    }
-
-    fn collect_decl_names(&self) -> std::collections::BTreeSet<String> {
-        let mut seen = std::collections::BTreeSet::new();
-        seen.insert("Main".to_string());
-        insert_stage1_def_box_names(&self.program_value, &mut seen);
-        seen
+    fn into_user_box_decls(self) -> Stage1UserBoxDecls {
+        Stage1UserBoxDecls::from_program_value(&self.program_value)
     }
 }
 
@@ -325,15 +334,6 @@ fn insert_stage1_def_box_names(
             }
         }
     }
-}
-
-fn build_stage1_user_box_decls_from_names(
-    names: std::collections::BTreeSet<String>,
-) -> Vec<Stage1UserBoxDecl> {
-    names
-        .into_iter()
-        .map(Stage1UserBoxDecl::from_name)
-        .collect()
 }
 
 #[cfg(test)]
@@ -588,7 +588,7 @@ mod tests {
         let decls = Stage1ProgramJsonInput::new(program_json)
             .parse_value()
             .expect("input must parse program value")
-            .resolve_user_box_decls()
+            .into_user_box_decls()
             .into_decl_values();
 
         assert_eq!(
