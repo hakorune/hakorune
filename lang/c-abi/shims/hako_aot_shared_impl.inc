@@ -64,17 +64,36 @@ static int hako_aot_env_truthy(const char* raw) {
 
 #if !defined(_WIN32)
 #include <dlfcn.h>
+static void* hako_aot_open_ffi_lib_path(const char* lib_path) {
+  if (!lib_path || !*lib_path) {
+    return NULL;
+  }
+  return dlopen(lib_path, RTLD_NOW);
+}
+
+static void* hako_aot_try_open_default_ffi_lib(char* buf, size_t buflen, const char* relpath) {
+  int n = snprintf(buf, buflen, "%s", relpath);
+  if (n <= 0 || (size_t)n >= buflen) {
+    return NULL;
+  }
+  return hako_aot_open_ffi_lib_path(buf);
+}
+
 static void* hako_aot_open_ffi_lib(void) {
   const char* lib = getenv("HAKO_AOT_FFI_LIB");
   char buf[1024];
-  if (!lib || !*lib) {
-    snprintf(buf, sizeof(buf), "%s", "target/release/libhako_llvmc_ffi.so");
-    lib = buf;
+  if (lib && *lib) {
+    return hako_aot_open_ffi_lib_path(lib);
   }
-  void* h = dlopen(lib, RTLD_NOW);
-  if (!h && (!getenv("HAKO_AOT_FFI_LIB") || !*getenv("HAKO_AOT_FFI_LIB"))) {
-    snprintf(buf, sizeof(buf), "%s", "lib/libhako_llvmc_ffi.so");
-    h = dlopen(buf, RTLD_NOW);
+  void* h = hako_aot_try_open_default_ffi_lib(
+      buf,
+      sizeof(buf),
+      "target/release/libhako_llvmc_ffi.so");
+  if (!h) {
+    h = hako_aot_try_open_default_ffi_lib(
+        buf,
+        sizeof(buf),
+        "lib/libhako_llvmc_ffi.so");
   }
   return h;
 }
@@ -187,6 +206,43 @@ static int hako_aot_set_log_first_line_or(char** err_out, const char* log_path, 
   return -1;
 }
 
+static int hako_aot_pick_existing_dir(
+    char* out,
+    size_t out_len,
+    const char* primary_dir,
+    const char* secondary_dir,
+    const char* lib_name) {
+  char primary_path[1024];
+  char secondary_path[1024];
+  snprintf(primary_path, sizeof(primary_path), "%s/%s", primary_dir, lib_name);
+  snprintf(secondary_path, sizeof(secondary_path), "%s/%s", secondary_dir, lib_name);
+  if (hako_aot_file_exists(primary_path)) {
+    snprintf(out, out_len, "%s", primary_dir);
+    return 1;
+  }
+  if (hako_aot_file_exists(secondary_path)) {
+    snprintf(out, out_len, "%s", secondary_dir);
+    return 1;
+  }
+  return 0;
+}
+
+static const char* hako_aot_resolve_runtime_archive(char* buf, size_t buflen, const char* dir) {
+  char primary_path[1024];
+  char legacy_path[1024];
+  snprintf(primary_path, sizeof(primary_path), "%s/libhako_kernel.a", dir);
+  if (hako_aot_file_exists(primary_path)) {
+    snprintf(buf, buflen, "%s", primary_path);
+    return buf;
+  }
+  snprintf(legacy_path, sizeof(legacy_path), "%s/libnyash_kernel.a", dir);
+  if (hako_aot_file_exists(legacy_path)) {
+    snprintf(buf, buflen, "%s", legacy_path);
+    return buf;
+  }
+  return NULL;
+}
+
 #if !defined(_WIN32)
 static int hako_aot_try_ffi_compile(const char* mir_json_path, const char* obj_path, char** err_out) {
   void* h = hako_aot_open_ffi_lib();
@@ -248,18 +304,10 @@ static const char* hako_aot_resolve_nyrt_dir(char* buf, size_t buflen) {
   }
   const char* a = "target/release";
   const char* b = "crates/hako_kernel/target/release";
-  char path_a[1024];
-  char path_b[1024];
-  snprintf(path_a, sizeof(path_a), "%s/%s", a, "libhako_kernel.a");
-  snprintf(path_b, sizeof(path_b), "%s/%s", b, "libhako_kernel.a");
-  if (hako_aot_file_exists(path_a) || hako_aot_file_exists(path_b)) {
-    snprintf(buf, buflen, "%s", hako_aot_file_exists(path_a) ? a : b);
+  if (hako_aot_pick_existing_dir(buf, buflen, a, b, "libhako_kernel.a")) {
     return buf;
   }
-  snprintf(path_a, sizeof(path_a), "%s/%s", a, "libnyash_kernel.a");
-  snprintf(path_b, sizeof(path_b), "%s/%s", b, "libnyash_kernel.a");
-  if (hako_aot_file_exists(path_a) || hako_aot_file_exists(path_b)) {
-    snprintf(buf, buflen, "%s", hako_aot_file_exists(path_a) ? a : b);
+  if (hako_aot_pick_existing_dir(buf, buflen, a, b, "libnyash_kernel.a")) {
     return buf;
   }
   return NULL;
@@ -325,11 +373,12 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
     hako_set_last_error("NOT_FOUND");
     return hako_aot_set_err(err_out, "libhako_kernel.a not found (NYASH_EMIT_EXE_NYRT)");
   }
-  char lib_a[1024];
-  char lib_legacy[1024];
-  snprintf(lib_a, sizeof(lib_a), "%s/libhako_kernel.a", dir);
-  snprintf(lib_legacy, sizeof(lib_legacy), "%s/libnyash_kernel.a", dir);
-  const char* lib = hako_aot_file_exists(lib_a) ? lib_a : lib_legacy;
+  char runtime_archive[1024];
+  const char* lib = hako_aot_resolve_runtime_archive(runtime_archive, sizeof(runtime_archive), dir);
+  if (!lib) {
+    hako_set_last_error("NOT_FOUND");
+    return hako_aot_set_err(err_out, "libhako_kernel.a not found (NYASH_EMIT_EXE_NYRT)");
+  }
   const char* linker = getenv("CC");
   if (!linker || !*linker) linker = "cc";
   const char* os_libs = "";
