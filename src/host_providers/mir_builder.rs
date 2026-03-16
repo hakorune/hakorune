@@ -261,13 +261,19 @@ impl Stage1UserBoxDecls {
     fn explicit_from_program_value(
         program_value: &serde_json::Value,
     ) -> Option<Vec<Stage1UserBoxDecl>> {
-        let decls = program_value.get("user_box_decls")?.as_array()?;
-        Some(
-            decls
-                .iter()
-                .filter_map(Stage1UserBoxDecl::from_json_value)
-                .collect(),
-        )
+        let decls = Self::explicit_decl_values(program_value)?;
+        Some(Self::collect_explicit_decls(decls))
+    }
+
+    fn explicit_decl_values(program_value: &serde_json::Value) -> Option<&Vec<serde_json::Value>> {
+        program_value.get("user_box_decls")?.as_array()
+    }
+
+    fn collect_explicit_decls(decls: &[serde_json::Value]) -> Vec<Stage1UserBoxDecl> {
+        decls
+            .iter()
+            .filter_map(Stage1UserBoxDecl::from_json_value)
+            .collect()
     }
 
     fn compat_from_program_value(program_value: &serde_json::Value) -> Vec<Stage1UserBoxDecl> {
