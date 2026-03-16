@@ -9,8 +9,8 @@ static box PatternUtilBox {
   // Normalize (op, swapped, limit) → (cmp, limit') where cmp in {Lt, Le, Gt, Ge}
   // swapped=0: i ? L, swapped=1: L ? i
   normalize_cmp_limit(op, swapped, limit_str) {
-    local op1 = "" + op
-    local ls = "" + limit_str
+    local op1 = me._coerce_text_compat(op)
+    local ls = me._coerce_text_compat(limit_str)
     if swapped == 0 {
       if op1 == "<" { return "Lt:" + ls }
       if op1 == "<=" { return "Lt:" + StringHelpers.int_to_str(JsonFragBox._str_to_int(ls) + 1) }
@@ -31,8 +31,8 @@ static box PatternUtilBox {
   // When swapped==0, expects op in {'<','<='}; when swapped==1 (Int on lhs, Var on rhs), expects op in {'>','>='}.
   // Returns adjusted limit string or null if unsupported.
   normalize_limit_for_lt(op, swapped, limit_str) {
-    local op1 = "" + op
-    local ls = "" + limit_str
+    local op1 = me._coerce_text_compat(op)
+    local ls = me._coerce_text_compat(limit_str)
     if swapped == 0 {
       if op1 == "<" { return ls }
       if op1 == "<=" { return StringHelpers.int_to_str(JsonFragBox._str_to_int(ls) + 1) }
@@ -111,8 +111,8 @@ static box PatternUtilBox {
             }
           }
           if lhs_v != null && rhs_v != null {
-            local lhs_n = JsonFragBox._str_to_int("" + lhs_v)
-            local rhs_n = JsonFragBox._str_to_int("" + rhs_v)
+            local lhs_n = me._coerce_i64_compat(lhs_v)
+            local rhs_n = me._coerce_i64_compat(rhs_v)
             if op == "+" { return lhs_n + rhs_n }
             if op == "-" { return lhs_n - rhs_n }
             if op == "*" { return lhs_n * rhs_n }
@@ -196,8 +196,8 @@ static box PatternUtilBox {
           }
         }
         if lhs_v != null && rhs_v != null {
-          local lhs_n = JsonFragBox._str_to_int("" + lhs_v)
-          local rhs_n = JsonFragBox._str_to_int("" + rhs_v)
+          local lhs_n = me._coerce_i64_compat(lhs_v)
+          local rhs_n = me._coerce_i64_compat(rhs_v)
           if op == "==" { return (lhs_n == rhs_n) ? 1 : 0 }
           if op == "!=" { return (lhs_n != rhs_n) ? 1 : 0 }
           if op == "<" { return (lhs_n < rhs_n) ? 1 : 0 }
@@ -261,7 +261,7 @@ static box PatternUtilBox {
   // Find the last Local(Int) before a given position (name-agnostic).
   // Returns string digits or null when not found.
   find_any_local_int_before(s, before_pos) {
-    local pos = 0; local last_k = -1; local n = ("" + s).length()
+    local pos = 0; local last_k = -1; local n = me._coerce_text_compat(s).length()
     loop(true) {
       local k = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", pos)
       if k < 0 || k >= before_pos { break }
@@ -311,7 +311,7 @@ static box PatternUtilBox {
     if lb < 0 { return null }
     local rb = JsonFragBox._seek_array_end(s, lb)
     if rb < 0 { return null }
-    return ("" + lb) + ":" + ("" + rb)
+    return me._encode_bounds(lb, rb)
   }
   // Find [start,end] bounds for the else array that follows the then array of the same If node.
   // Returns a pair encoded as "lb:rb" or null when not found.
@@ -330,6 +330,15 @@ static box PatternUtilBox {
     if lb < 0 { return null }
     local rb = JsonFragBox._seek_array_end(s, lb)
     if rb < 0 { return null }
-    return ("" + lb) + ":" + ("" + rb)
+    return me._encode_bounds(lb, rb)
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _coerce_i64_compat(value) {
+    return JsonFragBox._str_to_int(me._coerce_text_compat(value))
+  }
+  _encode_bounds(lb, rb) {
+    return me._coerce_text_compat(lb) + ":" + me._coerce_text_compat(rb)
   }
 }

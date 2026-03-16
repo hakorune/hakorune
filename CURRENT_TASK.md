@@ -173,6 +173,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - latest landed slice: `lang/src/mir/builder/internal/{lower_return_loop_strlen_sum_box,loop_scan_box}.hako` now centralize entry/numeric-text coercion behind owner-local compat helpers, so their remaining raw `\"\" + x` residue is reduced to helper implementations and intentional pattern assembly only
   - latest landed slice: `lang/src/mir/builder/internal/loop_opts_adapter_box.hako` now centralizes loop limit/op/type text coercion behind `_coerce_text_compat(...)`, leaving only helper-floor `_i64/_quote` implementations on the raw `\"\" + x` residue path
   - latest landed slice: `lang/src/mir/builder/internal/fallback_authority_box.hako` now centralizes Program(JSON) entry coercion behind `_coerce_text_compat(...)`, leaving only inline fallback MIR/pattern assembly on the raw `\"\" + x` residue path
+  - latest landed slice: `lang/src/mir/builder/internal/pattern_util_box.hako` now centralizes the safe subset of op/limit text coercion, arithmetic compare operand coercion, and bounds encoding behind owner-local helpers, while deferring any broader fan-out cleanup beyond that safe subset
   - next fixed order:
     1. sync reference docs to current executable semantics while keeping `x.toString()` as the preferred source style
     2. freeze broad `\"\" + x` replacement until one generic stringify contract/helper is chosen
