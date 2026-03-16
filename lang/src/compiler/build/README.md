@@ -29,6 +29,7 @@ Notes
   - `parse_src`: `BodyExtractionBox.extract_main_body(scan_src)` when available, else `scan_src`
   - owner-local helper split:
     - `_prepare_scan_src(...)`: bundle/env normalization plus `BundleResolver.resolve(...)`
+    - `_new_prepare_scan_src_result(...)` / `_fail_prepare_scan_src(...)`: prepared-scan-src result/error handoff only
     - `_bundle_inputs_requested(...)` / `_resolve_scan_src_from_bundle_ctx(...)`: bundle resolve decision plus merged `scan_src` materialization only
     - `_ensure_bundle_alias_arrays(...)` / `_ensure_require_mods_array(...)`: bundle ctx container setup only
     - `_fail_bundle_ctx(...)`: bundle opts validation error handoff only

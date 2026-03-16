@@ -22,26 +22,34 @@ static box BuildBox {
   }
 
   method _prepare_scan_src(src, opts) {
-    local result = new MapBox()
-    result.set("scan_src", src)
+    local result = me._new_prepare_scan_src_result(src)
     // Optional: env-driven alias/require bundling (lightweight)
     // HAKO_BUNDLE_ALIAS_TABLE='Name:code|||Name2:code2', HAKO_REQUIRE_MODS='U1,U2'
     // BuildBox では BundleResolver.resolve を使って前置連結のみを行う（Fail‑Fastタグは箱外へ伝播）
     local bundle_ctx = me._collect_bundle_inputs(opts)
     if bundle_ctx.has("error") == true {
-      result.set("error", bundle_ctx.get("error"))
-      return result
+      return me._fail_prepare_scan_src(result, bundle_ctx.get("error"))
     }
     me._apply_env_bundle_inputs(bundle_ctx)
     me._normalize_bundle_inputs(bundle_ctx)
     if me._bundle_inputs_requested(bundle_ctx) == 1 {
       local scan_src = me._resolve_scan_src_from_bundle_ctx(src, bundle_ctx)
       if scan_src == null {
-        result.set("error", "[build/resolve/failed]")
-        return result
+        return me._fail_prepare_scan_src(result, "[build/resolve/failed]")
       }
       result.set("scan_src", scan_src)
     }
+    return result
+  }
+
+  method _new_prepare_scan_src_result(src) {
+    local result = new MapBox()
+    result.set("scan_src", src)
+    return result
+  }
+
+  method _fail_prepare_scan_src(result, error_tag) {
+    result.set("error", error_tag)
     return result
   }
 
