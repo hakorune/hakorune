@@ -452,13 +452,12 @@ def build_object_from_input_file(input_file, output_file, builder=None):
     builder.compile_to_object(output_file)
 
 
-def run_dummy_cli(builder, output_file):
-    build_dummy_object(output_file, builder=builder)
-    print(f"Compiled to {output_file}")
-
-
-def run_input_cli(builder, input_file, output_file):
-    build_object_from_input_file(input_file, output_file, builder=builder)
+def emit_cli_output(dummy, input_file, output_file):
+    builder = NyashLLVMBuilder()
+    if dummy:
+        build_dummy_object(output_file, builder=builder)
+    else:
+        build_object_from_input_file(input_file, output_file, builder=builder)
     print(f"Compiled to {output_file}")
 
 
@@ -467,13 +466,7 @@ def main(argv=None):
     #   llvm_builder.py <input.mir.json> [-o output.o]
     #   llvm_builder.py --dummy [-o output.o]
     dummy, input_file, output_file = parse_cli_args(sys.argv[1:] if argv is None else argv)
-    builder = NyashLLVMBuilder()
-
-    if dummy:
-        run_dummy_cli(builder, output_file)
-        return 0
-
-    run_input_cli(builder, input_file, output_file)
+    emit_cli_output(dummy, input_file, output_file)
     return 0
 
 

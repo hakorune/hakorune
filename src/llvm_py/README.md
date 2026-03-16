@@ -54,15 +54,15 @@ llvm_py/
 
 ## 🚀 使い方
 ```bash
-# MIR JSONからオブジェクトファイル生成
+# compat/probe 用に MIR JSON からオブジェクトファイル生成
 python src/llvm_py/llvm_builder.py input.mir.json -o output.o
 
-# 環境変数で切り替え（将来）
+# explicit keep route として llvmlite harness へ委譲
 NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
 ```
 
 ## 🔧 開発用フラグ（プリパス/トレース）
-- `NYASH_LLVM_USE_HARNESS=1` … Rust 実行から llvmlite ハーネスへ委譲
+- `NYASH_LLVM_USE_HARNESS=1` … Rust 実行から llvmlite ハーネスへ explicit compat/probe keep として委譲
 - `NYASH_LLVM_PREPASS_LOOP=1` … ループ検出プリパスON（while 形を構造化）
 - `NYASH_LLVM_PREPASS_IFMERGE=1` … if-merge（ret-merge）プリパスON（ret値 PHI を前宣言）
 - `NYASH_LLVM_TRACE_PHI=1` … PHI 配線と end-of-block 解決の詳細トレース
