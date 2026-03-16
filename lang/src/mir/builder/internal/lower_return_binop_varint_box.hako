@@ -8,7 +8,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerReturnBinOpVarIntBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0)
     if k_ret < 0 { return null }
     local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret)
@@ -71,5 +71,9 @@ static box LowerReturnBinOpVarIntBox {
       }
     }
     return null
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

@@ -5,7 +5,7 @@ using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 static box LowerMethodMapGetSetBox {
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     if JsonFragBox.index_of_from(s, "\"class\":\"MapBox\"", 0) < 0 { return null }
     // Reverse-lookup (safe subset): prefer Local(String) for key, Local(Int) for value
@@ -26,5 +26,9 @@ static box LowerMethodMapGetSetBox {
                 "{\"op\":\"const\",\"dst\":3,\"value\":{\"type\":\"i64\",\"value\":0}}," +
                 "{\"op\":\"ret\",\"value\":3}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

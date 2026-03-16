@@ -7,7 +7,7 @@ using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
 
 static box LowerLoopSimpleBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
     if k_loop < 0 { return null }
 
@@ -44,5 +44,9 @@ static box LowerLoopSimpleBox {
     LoopOptsBox.put(opts, "mode", "count")
     LoopOptsBox.put(opts, "limit", limit)
     return LoopOptsBox.build2(opts)
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

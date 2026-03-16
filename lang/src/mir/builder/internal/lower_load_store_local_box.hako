@@ -125,7 +125,7 @@ static box LowerLoadStoreLocalBox {
 
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     if me._accept_shape(s) != 1 { return null }
 
     local k_local0 = me._find_from(s, "\"type\":\"Local\"", 0)
@@ -160,5 +160,9 @@ static box LowerLoadStoreLocalBox {
                "{\"op\":\"load\",\"dst\":2,\"ptr\":10}," +
                "{\"op\":\"ret\",\"value\":2}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

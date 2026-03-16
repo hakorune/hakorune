@@ -19,11 +19,9 @@ using "hako.mir.builder.internal.lower_return_bool" as LowerReturnBoolBox
 static box BuilderRunnerMinBox {
   run(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     // Optional profile: when HAKO_MIR_RUNNER_MIN_NO_METHODS=1, skip method lowers (Core exec-friendly)
-    local no_methods = env.get("HAKO_MIR_RUNNER_MIN_NO_METHODS")
-    local skip_methods = 0
-    if no_methods != null { if ("" + no_methods) == "1" { skip_methods = 1 } }
+    local skip_methods = me._env_flag_is_one("HAKO_MIR_RUNNER_MIN_NO_METHODS")
     // Prefer method lowers before constructor to allow method cases to win
     // Prefer push over size so push canary wins
     if skip_methods == 0 {
@@ -32,8 +30,8 @@ static box BuilderRunnerMinBox {
       { local o = LowerMethodArrayGetSetBox.try_lower(s); if o != null { return o } }
       // Map lowers: allow preference override via HAKO_MIR_RUNNER_MIN_PREF_MAP
       // default: size → get_set; when pref == "getset": get_set → size
-      local map_pref = env.get("HAKO_MIR_RUNNER_MIN_PREF_MAP")
-      if map_pref != null && ("" + map_pref) == "getset" {
+      local map_pref = me._env_text_compat("HAKO_MIR_RUNNER_MIN_PREF_MAP")
+      if map_pref == "getset" {
         { local o = LowerMethodMapGetSetBox.try_lower(s); if o != null { return o } }
         { local o = LowerMethodMapSizeBox.try_lower(s); if o != null { return o } }
       } else {
@@ -52,5 +50,20 @@ static box BuilderRunnerMinBox {
     { local o = LowerReturnIntBox.try_lower(s); if o != null { return o } }
     { local o = LowerNewboxConstructorBox.try_lower(s); if o != null { return o } }
     return null
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+
+  _env_text_compat(key) {
+    local value = env.get(key)
+    if value == null { return null }
+    return me._coerce_text_compat(value)
+  }
+
+  _env_flag_is_one(key) {
+    if me._env_text_compat(key) == "1" { return 1 }
+    return 0
   }
 }
