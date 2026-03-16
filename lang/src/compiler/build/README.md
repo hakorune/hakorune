@@ -34,6 +34,7 @@ Notes
     - `_ensure_bundle_alias_arrays(...)` / `_ensure_require_mods_array(...)`: bundle ctx container setup only
     - `_fail_bundle_ctx(...)`: bundle opts validation error handoff only
     - `_collect_named_bundle_inputs(...)`: named-bundle pair validation and assign only
+    - `_collect_plain_bundle_inputs(...)` / `_collect_require_mod_inputs(...)`: plain bundle / require-mod validation and assign only
     - `_parse_program_json(...)`: parser entry only
     - `_main_body_parse_src_if_present(...)`: parse-src narrowing helper only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
