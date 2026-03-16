@@ -78,7 +78,7 @@ pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Resul
 /// while the current authority remains Rust-owned.
 #[cfg(test)]
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    emit_program_and_plain_mir_json_for_source(source_text)
+    SourceProgramJsonHandoff::for_source(source_text)?.emit_plain_program_and_mir_json()
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
@@ -96,13 +96,6 @@ pub(crate) fn program_json_to_mir_json_with_imports(
     lowering::program_json_to_mir_json_with_imports(program_json, imports)
 }
 
-#[cfg(test)]
-fn emit_program_and_plain_mir_json_for_source(
-    source_text: &str,
-) -> Result<(String, String), String> {
-    SourceProgramJsonHandoff::for_source(source_text)?.emit_plain_program_and_mir_json()
-}
-
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
     crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(module)
         .map_err(failfast_error)
@@ -118,10 +111,6 @@ fn with_phase0_mir_json_env<T>(
 fn emit_strict_program_json_for_source(source_text: &str) -> Result<String, String> {
     crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(source_text)
         .map_err(|error| format!("{FAILFAST_TAG} {}", error))
-}
-
-fn emit_program_json_for_source(source_text: &str) -> Result<String, String> {
-    emit_strict_program_json_for_source(source_text)
 }
 
 struct Stage1ProgramJsonModuleHandoff {
@@ -197,7 +186,7 @@ struct SourceProgramJsonHandoff {
 impl SourceProgramJsonHandoff {
     fn for_source(source_text: &str) -> Result<Self, String> {
         Ok(Self {
-            program_json: emit_program_json_for_source(source_text)?,
+            program_json: emit_strict_program_json_for_source(source_text)?,
         })
     }
 
