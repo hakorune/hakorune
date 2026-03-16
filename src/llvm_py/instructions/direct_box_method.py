@@ -21,6 +21,8 @@ from naming_helper import encode_static_method
 
 _MODULE_RECEIVER_BOX_ALIASES = {
     "lang.compiler.build.build_box": "BuildBox",
+    "lang.compiler.entry.using_resolver": "Stage1UsingResolverBox",
+    "lang.compiler.entry.using_resolver_box": "Stage1UsingResolverBox",
     "lang.mir.builder.MirBuilderBox": "MirBuilderBox",
 }
 

@@ -112,12 +112,15 @@ Rule:
    - `src/llvm_py/instructions/direct_box_method.py` now resolves module-string receivers `lang.compiler.build.build_box` -> `BuildBox` and `lang.mir.builder.MirBuilderBox` -> `MirBuilderBox` before generic plugin fallback
    - `src/llvm_py/instructions/boxcall.py` and `src/llvm_py/instructions/mir_call/method_call.py` now pass receiver literals into that direct-call resolver, so compiled-stage1 daily helper routes prefer direct `BuildBox.emit_program_json_v0(...)` / `MirBuilderBox.emit_from_program_json_v0(...)` when lowered functions already exist
    - `nyash.plugin.invoke_by_name_i64` remains the compat tail only for direct-miss cases
+15. stage1 helper alias cutover extension is landed
+   - the same direct-call alias resolver now also covers `lang.compiler.entry.using_resolver(_box)` -> `Stage1UsingResolverBox` and `MirBuilderBox.emit_from_source_v0(...)`
+   - current stage1 helper family (`resolve_for_source`, `emit_program_json_v0`, `emit_from_program_json_v0`, `emit_from_source_v0`) now prefers direct lowered functions before generic plugin fallback when receiver literals are known
 
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
 2. keep visible launcher caller off `by_name`
-3. keep shrinking the remaining mainline LLVM caller set after the `BuildBox` / `MirBuilderBox` stage1 helper pair
+3. keep shrinking the remaining mainline LLVM caller set after the full stage1 helper family
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 

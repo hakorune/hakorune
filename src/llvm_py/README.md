@@ -79,6 +79,7 @@ NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
   - args are also boxed/coerced before dispatch; raw string pointers are not passed through
 - compiled-stage1 module-string helper routes first try direct box alias resolution
   - `lang.compiler.build.build_box` can resolve to direct `BuildBox.*`
+  - `lang.compiler.entry.using_resolver` and `lang.compiler.entry.using_resolver_box` can resolve to direct `Stage1UsingResolverBox.*`
   - `lang.mir.builder.MirBuilderBox` can resolve to direct `MirBuilderBox.*`
 - if those routes still fall back to generic plugin dispatch, by-name fallback must see StringBox handles, not raw `i8*` pointers
 
