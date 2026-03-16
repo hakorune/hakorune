@@ -5,7 +5,7 @@
 static box LowerNewboxConstructorBox {
   try_lower(program_json) {
     if program_json == null { return null }
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     // Quick pattern check
     if JsonFragBox.index_of_from(s, "\"type\":\"New\"", 0) < 0 { return null }
     // Find class name (minimal scan)
@@ -22,5 +22,9 @@ static box LowerNewboxConstructorBox {
                  "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}}," +
                  "{\"op\":\"ret\",\"value\":2}]}]}]}"
     return json
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

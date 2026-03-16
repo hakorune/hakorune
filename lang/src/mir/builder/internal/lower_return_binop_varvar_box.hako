@@ -5,7 +5,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 
 static box LowerReturnBinOpVarVarBox {
   try_lower(program_json){
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
     local k_bin = JsonFragBox.index_of_from(s, "\"type\":\"Binary\"", k_ret); if k_bin < 0 { return null }
     local k_op = JsonFragBox.index_of_from(s, "\"op\":", k_bin); if k_op < 0 { return null }
@@ -26,5 +26,9 @@ static box LowerReturnBinOpVarVarBox {
       "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
       "{\"op\":\"ret\",\"value\":3}]}]}]}"
     return mir
+  }
+
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }
