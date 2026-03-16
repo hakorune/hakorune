@@ -97,25 +97,7 @@ static box BuildBox {
     local bn = opts.get("bundle_names")
     local bs = opts.get("bundle_srcs")
     if bn != null && bs != null {
-      if bn.length() != bs.length() {
-        return me._fail_bundle_ctx(bundle_ctx, "[build/opts/mismatch] bundle_names vs bundle_srcs")
-      }
-      local i0 = 0; loop(i0 < bn.length()) {
-        local n = "" + bn.get(i0)
-        local c = "" + bs.get(i0)
-        if n == "" || c == "" {
-          return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bundle-pair/bad] index=" + i0)
-        }
-        local j = i0 + 1; loop(j < bn.length()) {
-          if ("" + bn.get(j)) == n {
-            return me._fail_bundle_ctx(bundle_ctx, "[build/opts/duplicate] " + n)
-          }
-          j = j + 1
-        }
-        i0 = i0 + 1
-      }
-      bundle_ctx.set("bundle_names", bn)
-      bundle_ctx.set("bundle_srcs", bs)
+      return me._collect_named_bundle_inputs(bundle_ctx, bn, bs)
     }
 
     local at = opts.get("alias_table")
@@ -152,6 +134,29 @@ static box BuildBox {
       me._ensure_require_mods_array(bundle_ctx)
       me._append_require_mods_csv(bundle_ctx.get("require_mods"), requires)
     }
+  }
+
+  method _collect_named_bundle_inputs(bundle_ctx, bundle_names, bundle_srcs) {
+    if bundle_names.length() != bundle_srcs.length() {
+      return me._fail_bundle_ctx(bundle_ctx, "[build/opts/mismatch] bundle_names vs bundle_srcs")
+    }
+    local i0 = 0; loop(i0 < bundle_names.length()) {
+      local n = "" + bundle_names.get(i0)
+      local c = "" + bundle_srcs.get(i0)
+      if n == "" || c == "" {
+        return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bundle-pair/bad] index=" + i0)
+      }
+      local j = i0 + 1; loop(j < bundle_names.length()) {
+        if ("" + bundle_names.get(j)) == n {
+          return me._fail_bundle_ctx(bundle_ctx, "[build/opts/duplicate] " + n)
+        }
+        j = j + 1
+      }
+      i0 = i0 + 1
+    }
+    bundle_ctx.set("bundle_names", bundle_names)
+    bundle_ctx.set("bundle_srcs", bundle_srcs)
+    return bundle_ctx
   }
 
   method _ensure_bundle_alias_arrays(bundle_ctx) {
