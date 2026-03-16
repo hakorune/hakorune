@@ -92,7 +92,8 @@ backend-zero の final target は次の形に固定する。
 
 ここで重要なのは、
 `native_driver.rs` が green でも backend-zero の final architecture が確定したことにはならないし、
-`ny-llvmc` の current internal default が harness のままなら llvmlite は in-path に残る、
+`ny-llvmc` の current internal default が harness のままなら llvmlite は in-path に残るし、
+`native_driver.rs` をその代替 default に上げても final shape から外れる、
 という点だよ。
 
 ## 4. Temporary Seam Rule
@@ -129,6 +130,7 @@ backend-zero の final target は次の形に固定する。
    - legacy `llvm_ir` route archive / compat keep rule
 4. `native_driver.rs` を canary-only へ降格する
 5. llvmlite demotion / optimization handoff を mainline 側で固定する
+6. both `Harness` and `Native` stay explicit keep lanes only
 
 ## 7. Non-goals
 

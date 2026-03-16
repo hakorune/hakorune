@@ -26,8 +26,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - 以後は fresh semantic mismatch が出ない限り `stageN` を増やさない
 - active order:
   1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
-  2. `llvmlite` daily route を `.hako` backend boundary へ退かせる
-  3. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
+  2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
+  3. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を作る
+  4. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
 - freeze unless blocker:
   - `phase-29cj` micro-thinning
   - bridge/program-json/stub-emit cleanup
@@ -143,9 +144,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - primary blocker:
   - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
-  - current exact issue は 2 本:
+  - current exact issue は 3 本:
     1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
-    2. caller-facing route は backend-boundary default まで寄ったが、`ny-llvmc` internal default driver がまだ `Harness` なので `llvmlite` が exe path の in-path に残っている。次は `crates/nyash-llvm-compiler/src/main.rs` default cutover と、その後の Python keep demotion が必要
+    2. caller-facing route は backend-boundary default まで寄ったが、`ny-llvmc` internal default driver がまだ `Harness` なので `llvmlite` が exe/object path の in-path に残っている
+    3. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Harness` の代替 default に昇格させてはいけない。つまり次は `main.rs` に non-`Harness` / non-`Native` の boundary-owned default path を作る必要がある
 - do not do yet:
   - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
   - new `id-name` style intermediate contract
@@ -154,12 +156,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/llvm_py/instructions/boxcall.py`
   - `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
   - `crates/nyash-llvm-compiler/src/main.rs`
+  - `crates/nyash-llvm-compiler/src/native_driver.rs`
   - `src/host_providers/llvm_codegen.rs`
+  - `lang/c-abi/shims/hako_aot_shared_impl.inc`
   - `tools/llvmlite_harness.py`
   - `src/llvm_py/llvm_builder.py`
 - success condition for the current wave:
   - `by-name` is compat-only / no longer a daily mainline owner
-  - `llvmlite` is explicit compat/probe keep, and the effective default exe/object route avoids it by default
+  - `llvmlite` is explicit compat/probe keep only
+  - `native_driver` is explicit bootstrap/canary keep only
+  - the effective default exe/object route avoids both by default
 
 ## Large-Grain LlvmLite Migration Board (2026-03-17)
 
@@ -184,16 +190,19 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
   2. ny-llvmc wrapper demotion
      - exact paths:
-       - `crates/nyash-llvm-compiler/src/main.rs`
-       - `crates/nyash-llvm-compiler/src/native_driver.rs`
+        - `crates/nyash-llvm-compiler/src/main.rs`
+        - `crates/nyash-llvm-compiler/src/native_driver.rs`
      - role:
-       - keep `ny-llvmc` as internal helper/wrapper, not caller-owned final boundary
-       - move wording/route shape from `llvmlite harness wrapper` toward `backend helper with native/canary keep`
-       - cut the internal default exe/object path off `DriverKind::Harness` so default route no longer enters `tools/llvmlite_harness.py`
+        - keep `ny-llvmc` as internal helper/wrapper, not caller-owned final boundary
+       - move wording/route shape from `llvmlite harness wrapper` toward `backend helper with harness/native keeps`
+       - cut the internal default exe/object path off both `DriverKind::Harness` and `DriverKind::Native`
+       - keep `native_driver.rs` bootstrap-only; do not let it become the replacement default owner
      - acceptance:
        - default `ny-llvmc --emit obj ...` avoids Python harness
        - default `ny-llvmc --emit exe ...` avoids Python harness
+       - default `ny-llvmc` path also avoids `native_driver.rs`
        - explicit `--driver harness` remains replayable
+       - explicit `--driver native` remains replayable
        - phase docs must still read `native_driver.rs` as bootstrap seam only
   3. runner / host-provider route demotion
      - exact paths:
@@ -230,12 +239,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `ny-llvmc` default `DriverKind::Harness`
     - explicit keep envs `HAKO_LLVM_EMIT_PROVIDER=llvmlite` / `NYASH_LLVM_USE_HARNESS=1`
     - Python keep owners under `tools/llvmlite_harness.py` + `src/llvm_py/**`
+    - `native_driver.rs` remains the only non-llvmlite non-boundary object/exe path, but it is still bootstrap-only and must not be promoted to default
 - fixed order:
   1. finish thin backend boundary hardening
-  2. cut `ny-llvmc` default object/exe route off `DriverKind::Harness`
-  3. verify runner/host-provider daily route stays off implicit `llvmlite`
-  4. continue Python owner demotion until it is explicit compat/canary keep
-  5. only then reconsider deleting any `llvmlite` keep route
+  2. add a boundary-owned default object/exe path in `ny-llvmc` that is neither `Harness` nor `Native`
+  3. cut `ny-llvmc` default object/exe route off `DriverKind::Harness`
+  4. verify runner/host-provider daily route stays off implicit `llvmlite` and off `native_driver`
+  5. continue Python owner demotion until it is explicit compat/canary keep
+  6. only then reconsider deleting any keep route
 - do not do:
   - do not reopen `native_driver.rs` as final owner
   - do not add a new intermediate ABI or hidden env for migration convenience

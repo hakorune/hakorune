@@ -52,7 +52,9 @@ Related:
 
 1. caller-facing daily LLVM route は `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe` まで寄っている
 2. ただし `ny-llvmc` internal default driver はまだ `Harness` なので、`llvmlite` は current exe/object in-path からは完全には外れていない
-3. missing legs は 2 本である
+3. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Harness` の代替 default owner に昇格させてはいけない
+4. missing legs は 3 本である
+   - `ny-llvmc` に non-`Harness` / non-`Native` の boundary-owned default object/exe path を作ること
    - `ny-llvmc` default object/exe route を `DriverKind::Harness` から外すこと
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
 4. landed first docs/code slice:
@@ -63,6 +65,7 @@ Related:
    - `BE0-min2` native driver selector
    - `--driver {harness|native}` now exists as implementation-detail opt-in
    - current internal default route still stays `harness`; removing that default is now an explicit remaining migration item
+   - `native` is bootstrap/canary keep only and is not the target replacement default
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line

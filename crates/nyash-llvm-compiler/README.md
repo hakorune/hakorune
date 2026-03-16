@@ -47,6 +47,7 @@
 - これは implementation detail であり、backend-zero の final target は `.hako -> thin backend C ABI/plugin boundary` を daily route にすること
 - `--driver native` は bootstrap seam 用の opt-in selector で、final owner ではない
 - current internal default driver は still `harness` で、removal of that default is a remaining llvmlite-migration task
+- next migration step is not `native` defaulting; the replacement default must stay boundary-owned and keep both `harness` and `native` as explicit replay lanes
 - Rust backend lane をこの repo から retire するのはまだ先で、もし retire する場合も source + artifact を external archive repo に保存してからだけ行う
 - current native subset (`BE0-min3` / `BE0-min4`):
   - entry function `main` or `ny_main`
