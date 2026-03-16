@@ -71,13 +71,7 @@ pub(crate) fn program_json_to_mir_json(program_json: &str) -> Result<String, Str
 }
 
 pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Result<String, String> {
-    emit_guarded_mir_json_from_program_json(program_json)
-}
-
-fn emit_guarded_mir_json_from_program_json(program_json: &str) -> Result<String, String> {
-    with_phase0_mir_json_env(|| {
-        Stage1ProgramJsonModuleHandoff::parse(program_json)?.emit_mir_json()
-    })
+    Stage1ProgramJsonInput::new(program_json).emit_guarded_mir_json()
 }
 
 /// Test-only helper that still exposes the transient Program(JSON v0) plus MIR(JSON)
@@ -88,7 +82,8 @@ pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, Stri
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    let (_, mir_json) = emit_program_and_guarded_mir_json_for_source(source_text)?;
+    let (_, mir_json) =
+        SourceProgramJsonHandoff::for_source(source_text)?.emit_guarded_program_and_mir_json()?;
     Ok(mir_json)
 }
 
@@ -101,33 +96,11 @@ pub(crate) fn program_json_to_mir_json_with_imports(
     lowering::program_json_to_mir_json_with_imports(program_json, imports)
 }
 
-fn emit_mir_json_from_program_json_text(program_json: &str) -> Result<String, String> {
-    emit_guarded_mir_json_from_program_json(program_json)
-}
-
 #[cfg(test)]
 fn emit_program_and_plain_mir_json_for_source(
     source_text: &str,
 ) -> Result<(String, String), String> {
-    emit_program_and_mir_json_for_source(source_text, emit_plain_mir_json_from_program_json_text)
-}
-
-fn emit_program_and_guarded_mir_json_for_source(
-    source_text: &str,
-) -> Result<(String, String), String> {
-    emit_program_and_mir_json_for_source(source_text, emit_mir_json_from_program_json_text)
-}
-
-fn emit_program_and_mir_json_for_source(
-    source_text: &str,
-    emit_mir_json: fn(&str) -> Result<String, String>,
-) -> Result<(String, String), String> {
-    SourceProgramJsonHandoff::for_source(source_text)?.emit_program_and_mir_json(emit_mir_json)
-}
-
-#[cfg(test)]
-fn emit_plain_mir_json_from_program_json_text(program_json: &str) -> Result<String, String> {
-    lowering::program_json_to_mir_json(program_json)
+    SourceProgramJsonHandoff::for_source(source_text)?.emit_plain_program_and_mir_json()
 }
 
 pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<String, String> {
@@ -192,6 +165,12 @@ impl<'a> Stage1ProgramJsonInput<'a> {
         })
     }
 
+    fn emit_guarded_mir_json(self) -> Result<String, String> {
+        with_phase0_mir_json_env(|| {
+            Stage1ProgramJsonModuleHandoff::parse(self.program_json)?.emit_mir_json()
+        })
+    }
+
     fn parse_module(&self) -> Result<crate::mir::MirModule, String> {
         crate::runner::json_v0_bridge::parse_json_v0_to_module(self.program_json)
             .map_err(failfast_error)
@@ -203,6 +182,11 @@ impl<'a> Stage1ProgramJsonInput<'a> {
 
     fn parse_value(&self) -> Result<Stage1ProgramJsonValue, String> {
         Stage1ProgramJsonValue::parse(self.program_json)
+    }
+
+    #[cfg(test)]
+    fn emit_plain_mir_json(self) -> Result<String, String> {
+        lowering::program_json_to_mir_json(self.program_json)
     }
 }
 
@@ -217,11 +201,14 @@ impl SourceProgramJsonHandoff {
         })
     }
 
-    fn emit_program_and_mir_json(
-        self,
-        emit_mir_json: fn(&str) -> Result<String, String>,
-    ) -> Result<(String, String), String> {
-        let mir_json = emit_mir_json(&self.program_json)?;
+    fn emit_guarded_program_and_mir_json(self) -> Result<(String, String), String> {
+        let mir_json = Stage1ProgramJsonInput::new(&self.program_json).emit_guarded_mir_json()?;
+        Ok((self.program_json, mir_json))
+    }
+
+    #[cfg(test)]
+    fn emit_plain_program_and_mir_json(self) -> Result<(String, String), String> {
+        let mir_json = Stage1ProgramJsonInput::new(&self.program_json).emit_plain_mir_json()?;
         Ok((self.program_json, mir_json))
     }
 }
