@@ -277,11 +277,15 @@ static box BuildBox {
   }
 
   method _resolve_parse_src(scan_src) {
-    local body_src = BodyExtractionBox.extract_main_body(scan_src)
-    if body_src != null && body_src != "" {
-      return body_src
-    }
+    local body_src = me._main_body_parse_src_if_present(scan_src)
+    if body_src != null { return body_src }
     return scan_src
+  }
+
+  method _main_body_parse_src_if_present(scan_src) {
+    local body_src = BodyExtractionBox.extract_main_body(scan_src)
+    if body_src != null && body_src != "" { return body_src }
+    return null
   }
 
   method verify_program_json_v0(json) {

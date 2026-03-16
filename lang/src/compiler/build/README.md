@@ -33,6 +33,7 @@ Notes
     - `_ensure_bundle_alias_arrays(...)` / `_ensure_require_mods_array(...)`: bundle ctx container setup only
     - `_fail_bundle_ctx(...)`: bundle opts validation error handoff only
     - `_parse_program_json(...)`: parser entry only
+    - `_main_body_parse_src_if_present(...)`: parse-src narrowing helper only
     - `_emit_program_json_from_scan_src(...)`: outer producer sequencing only
     - `_parse_program_json_from_scan_src(...)`: parse-source narrowing plus parser call only
     - `_inject_stageb_fragments_json(...)`: defs/imports enrichment tail only
