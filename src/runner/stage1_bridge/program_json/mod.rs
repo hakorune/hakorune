@@ -10,7 +10,7 @@ mod read_input;
 mod writeback;
 
 pub(super) fn emit_program_json_v0(source_path: &str, out_path: &str) -> Result<(), String> {
-    ProgramJsonOutput::from_source_path(source_path)?.write_to_path(out_path)
+    ProgramJsonOutput::from_source_path(source_path)?.emit_to_path(out_path)
 }
 
 #[derive(Debug)]
@@ -34,7 +34,7 @@ impl ProgramJsonOutput {
         self.payload
     }
 
-    fn write_to_path(self, out_path: &str) -> Result<(), String> {
+    fn emit_to_path(self, out_path: &str) -> Result<(), String> {
         writeback::write_program_json_output(out_path, &self.payload)
     }
 }
