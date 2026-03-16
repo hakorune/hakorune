@@ -144,7 +144,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
   - current exact issue は 2 本:
     1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
-    2. LLVM object daily route に `llvmlite keep` がまだ live で、`.hako -> LlvmBackendBox -> hako_aot` へ fully cut over できていない
+    2. LLVM object daily route は backend-boundary default まで寄ったが、Python `llvmlite` keep がまだ broad owner なので `tools/llvmlite_harness.py` / `src/llvm_py/**` を explicit compat/canary keep へさらに demote する必要がある
 - do not do yet:
   - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
   - new `id-name` style intermediate contract
@@ -152,9 +152,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - active owner buckets:
   - `src/llvm_py/instructions/boxcall.py`
   - `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
-  - `src/runner/modes/llvm/object_emitter.rs`
-  - `lang/src/shared/backend/llvm_backend_box.hako`
-  - `lang/c-abi/shims/hako_aot.c`
+  - `tools/llvmlite_harness.py`
+  - `src/llvm_py/llvm_builder.py`
 - success condition for the current wave:
   - `by-name` is compat-only / no longer a daily mainline owner
   - `llvmlite` is compat/probe keep / no longer the daily object-emission route

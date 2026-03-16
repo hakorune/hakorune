@@ -48,9 +48,9 @@ Related:
 
 ## Current Snapshot (2026-03-14)
 
-1. current LLVM route は `hakorune -> ny-llvmc -> llvmlite -> object/exe`
-2. `ny-llvmc` はすでに CLI / normalize / opt-level env / static-first link を owner している
-3. missing leg は `MIR -> .o` の native object emission である
+1. current daily LLVM route は `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe` で、`llvmlite` は explicit compat/probe keep である
+2. `ny-llvmc` はすでに CLI / normalize / opt-level env / static-first link / backend-helper wording を owner している
+3. missing leg は Python `llvmlite` keep owner を explicit compat/canary only まで demote することである
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`
