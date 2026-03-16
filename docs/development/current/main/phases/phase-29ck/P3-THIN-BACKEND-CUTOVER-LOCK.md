@@ -130,16 +130,16 @@ rule:
   - landed first cut:
   - `lang/c-abi/include/hako_aot.h` is the canonical AOT compile/link header; `hako_hostbridge.h` keeps only thin-shim inclusion for those declarations
   - `lang/c-abi/shims/hako_aot_shared_impl.inc` is the shared compile/link source truth used by both `hako_aot.c` and `hako_kernel.c`
-  - `LlvmBackendBox.compile_obj(json_path)` forwards file-path ownership to `CodegenBridgeBox.compile_json_path_args(...)`
+  - `LlvmBackendBox.compile_obj(json_path)` forwards file-path ownership to canonical `env.codegen.compile_json_path(...)`
   - MIR normalization (`kind: "MIR"`, `schema_version: "1.0"`, `metadata.extern_c`) is now owned by `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
-  - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` calls `CodegenBridgeBox.link_object_args(...)`
+  - `LlvmBackendBox.link_exe(obj_path, out_path, libs)` calls canonical `env.codegen.link_object(...)`
   - non-empty `libs` is now forwarded as the third `env.codegen.link_object` arg
   - current canonical encoding is `libs -> single extra_ldflags string`
   - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under `llvm_codegen::link_object_capi(...)` / `hako_aot_link_obj(...)`
 - `.hako` surface parser does not accept `throw`, so failure contract is stable tag print (`[llvmbackend/*]`) + `null`
   - current proof shape is:
     - direct MIR emit accepts a `.hako` caller that imports `selfhost.shared.backend.llvm_backend`
-    - `LlvmBackendBox` source owner is pinned to `CodegenBridgeBox.compile_json_path_args/link_object_args`
+    - `LlvmBackendBox` source owner is pinned to canonical `env.codegen.compile_json_path/link_object`
     - shared compile/link helpers in `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now lower directly to canonical `env.codegen.*` extern calls, not `hostbridge.extern_invoke(...)`
     - compiled-stage1 temporary `llvm_backend_surrogate.rs` now shares the same path-based compile contract through `mir_json_file_to_object(...)`
     - downstream native app parity stays green on `phase29ck_native_llvm_cabi_link_min.sh`

@@ -107,7 +107,7 @@ Related:
    - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green under `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
    - the old `LlvmBackendBox.compile_obj failed` blocker is retired
 17. landed B1c/B1d contract lock:
-   - `LlvmBackendBox.compile_obj(json_path)` now routes through `CodegenBridgeBox.compile_json_path_args(...)`, not caller-side file reads + `emit_object`
+   - `LlvmBackendBox.compile_obj(json_path)` is locked to the path-based compile contract, not caller-side file reads + `emit_object`
    - backend MIR normalization is owned by `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
    - compiled-stage1 `llvm_backend_surrogate.rs` now shares the same path-based compile contract through `mir_json_file_to_object(...)`
    - env truth is pinned to `NYASH_NY_LLVM_COMPILER` for ny-llvmc path resolution, while `NYASH_LLVM_COMPILER` remains `tools/build_llvm.sh` local mode selector only

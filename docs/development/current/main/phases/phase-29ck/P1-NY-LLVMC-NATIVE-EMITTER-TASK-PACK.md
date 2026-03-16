@@ -118,7 +118,7 @@ Note:
   - `P3-THIN-BACKEND-CUTOVER-LOCK.md`
 - landed (2026-03-14):
   - `LlvmBackendBox` first implementation is live under `lang/src/shared/backend/llvm_backend_box.hako`
-  - owner route is pinned to `CodegenBridgeBox.compile_json_path_args/link_object_args`
+  - owner route is pinned to `LlvmBackendBox.compile_obj(json_path)` / `LlvmBackendBox.link_exe(obj_path, out_path, libs)` lowering to canonical `env.codegen.compile_json_path/link_object`
   - public first-cut contract is `compile_obj(json_path)` / `link_exe(obj_path, out_path, libs)`
   - acceptance smokes are:
     - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`

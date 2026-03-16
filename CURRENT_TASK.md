@@ -64,7 +64,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - landed launcher Program(JSON)->MIR fix: `src/runner/pipe_io.rs` `--program-json-to-mir` now uses `src/host_providers/mir_builder.rs::program_json_to_mir_json_with_user_box_decls(...)`, so launcher MIR keeps root `user_box_decls` and the old `Unknown Box type: HakoCli` blocker is retired
       - landed launcher-exe backend boundary proof: compiled-stage1 module-string dispatch now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate handling in `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
       - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is now green under `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; the old `LlvmBackendBox.compile_obj failed` blocker is retired
-      - landed B1c/B1d contract lock: `LlvmBackendBox.compile_obj(json_path)` now routes through `CodegenBridgeBox.compile_json_path_args(...)`, backend MIR normalization is owned by `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`, compiled-stage1 `llvm_backend_surrogate.rs` shares the same path-based contract through `mir_json_file_to_object(...)`, and env truth is pinned to `NYASH_NY_LLVM_COMPILER` while `NYASH_LLVM_COMPILER` remains `tools/build_llvm.sh` selector only
+      - landed B1c/B1d contract lock: `LlvmBackendBox.compile_obj(json_path)` is locked to the path-based thin backend contract, backend MIR normalization is owned by `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`, compiled-stage1 `llvm_backend_surrogate.rs` shares the same path-based contract through `mir_json_file_to_object(...)`, and env truth is pinned to `NYASH_NY_LLVM_COMPILER` while `NYASH_LLVM_COMPILER` remains `tools/build_llvm.sh` selector only
       - landed B1e direct extern lowering: shared compile/link helpers in `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now lower directly to canonical `env.codegen.*` extern calls; daily compile/link no longer depends on `hostbridge.extern_invoke(...)`
       - landed `phase-29cl / BYN-min2`: `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly, so the visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`; `llvm_backend_surrogate.rs` is now temporary compiled-stage1 residue only
       - landed B3a harness/entry demotion: `tools/llvmlite_harness.py` and `src/llvm_py/llvm_builder.py` now keep repo-root bootstrap, CLI parse, MIR file load, and output-file write behind owner-local helpers; `NyashLLVMBuilder` / lowering/support remain untouched
@@ -224,7 +224,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - kernel delete stays blocked until compat callers are gone
   3. pivot daily LLVM object emission from `llvmlite keep` to `.hako` backend boundary
      - target final shape remains `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
-     - `src/runner/modes/llvm/object_emitter.rs` is now compat/probe keep, not the design target
+     - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and the runner-side daily route should follow backend-boundary default
+     - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
   4. keep these lanes frozen unless a fresh exact blocker appears:
      - `phase-29cj` micro-thinning
      - bridge/program-json/stub-emit cleanup

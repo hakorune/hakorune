@@ -47,7 +47,7 @@ Related:
    - `phase-29ck` は active queued phase
    - `.hako VM -> LlvmBackendBox -> env.codegen C-API -> exe` proof は landed
    - still-Rust / still-Python ownership is substantial, especially `ny-llvmc`, runner glue, and `llvmlite`
-   - latest tightening: `src/runner/modes/llvm/object_emitter.rs` is no longer a direct llvmlite caller; it now reaches the backend boundary through `src/host_providers/llvm_codegen.rs` while pinning `llvmlite` as compat keep
+   - latest tightening: `src/runner/modes/llvm/object_emitter.rs` is no longer a direct llvmlite caller and no longer pins `llvmlite`; it now reaches the backend boundary through `src/host_providers/llvm_codegen.rs`, while `llvmlite` remains explicit compat keep only when `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is set
 
 ## 3. Remaining Rust Inventory
 

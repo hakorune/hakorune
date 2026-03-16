@@ -67,42 +67,13 @@ fn emit_requested_object_if_harness_enabled(
     out_path: &str,
 ) -> Result<(), String> {
     if crate::config::env::llvm_use_harness() {
-        emit_object_via_boundary_llvmlite_keep(module, out_path)?;
+        emit_object_via_backend_boundary(module, out_path)?;
     }
     Ok(())
 }
 
 #[cfg(feature = "llvm-harness")]
-struct ScopedEnvOverride {
-    key: &'static str,
-    prev: Option<String>,
-}
-
-#[cfg(feature = "llvm-harness")]
-impl ScopedEnvOverride {
-    fn set(key: &'static str, value: &'static str) -> Self {
-        let prev = std::env::var(key).ok();
-        std::env::set_var(key, value);
-        Self { key, prev }
-    }
-}
-
-#[cfg(feature = "llvm-harness")]
-impl Drop for ScopedEnvOverride {
-    fn drop(&mut self) {
-        match self.prev.take() {
-            Some(value) => std::env::set_var(self.key, value),
-            None => std::env::remove_var(self.key),
-        }
-    }
-}
-
-#[cfg(feature = "llvm-harness")]
-fn emit_object_via_boundary_llvmlite_keep(
-    module: &MirModule,
-    out_path: &str,
-) -> Result<(), String> {
-    let _provider_keep = ScopedEnvOverride::set("HAKO_LLVM_EMIT_PROVIDER", "llvmlite");
+fn emit_object_via_backend_boundary(module: &MirModule, out_path: &str) -> Result<(), String> {
     let mir_json = emit_module_mir_json_for_backend_boundary(module)?;
     let opts = crate::host_providers::llvm_codegen::Opts {
         out: Some(PathBuf::from(out_path)),

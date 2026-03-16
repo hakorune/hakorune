@@ -5,17 +5,13 @@
 // Legacy script-builder / AotFacade route lives under `lang/src/llvm_ir/archive/**` and
 // is not the owner for new backend-zero work.
 
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
-
 static box LlvmBackendBox {
   // Returns object path on success, or null on fail-fast error.
   compile_obj(json_path) {
     local path = me._require_non_empty("compile_obj", "json_path", json_path)
     if path == null { return null }
-    local args = new ArrayBox()
-    args.push(path)
 
-    local obj = CodegenBridgeBox.compile_json_path_args(args)
+    local obj = env.codegen.compile_json_path(path)
     if obj == null || ("" + obj) == "" {
       return me._fail("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
     }
@@ -29,14 +25,7 @@ static box LlvmBackendBox {
     local out = me._require_non_empty("link_exe", "out_path", out_path)
     if out == null { return null }
 
-    local args = new ArrayBox()
-    args.push(obj)
-    args.push(out)
-    if libs != null && ("" + libs) != "" {
-      args.push("" + libs)
-    }
-
-    local exe = CodegenBridgeBox.link_object_args(args)
+    local exe = me._invoke_link_object(obj, out, libs)
     if exe == null || ("" + exe) == "" {
       return me._fail("[llvmbackend/link/failed] env.codegen.link_object returned empty")
     }
@@ -51,6 +40,13 @@ static box LlvmBackendBox {
       return me._fail("[llvmbackend/input/" + method_name + "] " + field_name + " is empty")
     }
     return "" + value
+  }
+
+  _invoke_link_object(obj, out, libs) {
+    if libs != null && ("" + libs) != "" {
+      return env.codegen.link_object(obj, out, "" + libs)
+    }
+    return env.codegen.link_object(obj, out)
   }
 
   _fail(tag) {

@@ -4,7 +4,7 @@
 # Contract pin:
 # 1) `.hako` caller uses `selfhost.shared.backend.llvm_backend`.
 # 2) direct MIR emit accepts the official caller route (`selfhost.shared.backend.llvm_backend`).
-# 3) official owner still routes through `CodegenBridgeBox`.
+# 3) official owner routes directly through canonical `env.codegen.*`.
 # 4) non-empty `libs` reaches the thin backend boundary as arg 3.
 # 5) downstream native route stays green on the existing app-seed parity smoke.
 
@@ -74,16 +74,16 @@ if ! grep -q '"name": "link_exe"' "$OUT_MIR"; then
   exit 1
 fi
 
-if ! grep -q 'CodegenBridgeBox.compile_json_path_args' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
-  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via CodegenBridgeBox.compile_json_path_args)" >&2
+if ! grep -q 'env.codegen.compile_json_path(path)' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
+  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via env.codegen.compile_json_path)" >&2
   exit 1
 fi
 
-if ! grep -q 'CodegenBridgeBox.link_object_args' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
-  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via CodegenBridgeBox.link_object_args)" >&2
+if ! grep -q 'env.codegen.link_object(obj, out' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
+  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via env.codegen.link_object)" >&2
   exit 1
 fi
 
 SMOKES_FORCE_LLVM=1 bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh" >/dev/null
 
-echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller compiles via compile_json_path, libs 3rd arg reaches CodegenBridgeBox, native downstream parity stays green)"
+echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller compiles via env.codegen.compile_json_path/link_object, libs 3rd arg reaches the thin boundary, native downstream parity stays green)"

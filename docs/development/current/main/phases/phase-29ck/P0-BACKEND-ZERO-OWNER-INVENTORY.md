@@ -58,7 +58,9 @@ Related:
    - latest tightening: lib/bin EXE routes now share `run_ny_llvmc_emit_exe(...)`, and the invoke path itself is split into `build_ny_llvmc_emit_exe_command(...)` -> `spawn_ny_llvmc_emit_exe_command(...)`, so this owner reads as `MIR JSON emit -> command build -> shared ny-llvmc invoke`
 4. `src/runner/modes/llvm/{mod.rs,harness_executor.rs,object_emitter.rs,mir_compiler.rs,pyvm_executor.rs,fallback_executor.rs,error.rs,report.rs,plugin_init.rs,using_resolver.rs,method_id_injector.rs,exit_reporter.rs}`
    - route selection / diagnostics / fallback glue keep
-   - latest tightening: `object_emitter.rs` now reaches `src/host_providers/llvm_codegen.rs::mir_json_to_object(...)` with `llvmlite` pinned as compat keep, instead of owning a direct llvmlite harness call
+   - latest tightening: `object_emitter.rs` now reaches `src/host_providers/llvm_codegen.rs::mir_json_to_object(...)` without pinning `llvmlite`; explicit `llvmlite` selection stays compat keep behind `HAKO_LLVM_EMIT_PROVIDER=llvmlite`, instead of the runner owning a direct llvmlite harness call
+5. `lang/src/shared/backend/llvm_backend_box.hako`
+   - latest tightening: daily compile/link owner now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` remains temporary compat helper only
 
 ### 2.5.2 Python mainline owners to demote
 
