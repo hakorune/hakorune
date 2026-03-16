@@ -154,8 +154,8 @@ impl SourceProgramJsonHandoff {
     }
 
     fn emit_guarded_program_and_mir_json(self) -> Result<(String, String), String> {
-        let mir_json = Stage1ProgramJsonModuleHandoff::parse(&self.program_json)?
-            .emit_guarded_mir_json()?;
+        let mir_json =
+            Stage1ProgramJsonModuleHandoff::parse(&self.program_json)?.emit_guarded_mir_json()?;
         Ok((self.program_json, mir_json))
     }
 
@@ -191,10 +191,7 @@ impl Stage1UserBoxDecl {
     fn from_json_value(decl: &serde_json::Value) -> Option<Self> {
         let name = Self::parse_name(decl)?;
         let fields = Self::parse_fields(decl);
-        Some(Self {
-            name,
-            fields,
-        })
+        Some(Self { name, fields })
     }
 
     fn parse_name(decl: &serde_json::Value) -> Option<String> {
@@ -246,7 +243,8 @@ impl Stage1UserBoxDecls {
     }
 
     fn parse_program_value(program_json: &str) -> Result<serde_json::Value, String> {
-        serde_json::from_str(program_json).map_err(|error| format!("program json parse error: {}", error))
+        serde_json::from_str(program_json)
+            .map_err(|error| format!("program json parse error: {}", error))
     }
 
     fn from_program_value(program_value: &serde_json::Value) -> Self {
@@ -296,7 +294,10 @@ impl Stage1UserBoxDecls {
         program_value: &serde_json::Value,
         seen: &mut std::collections::BTreeSet<String>,
     ) {
-        if let Some(defs) = program_value.get("defs").and_then(serde_json::Value::as_array) {
+        if let Some(defs) = program_value
+            .get("defs")
+            .and_then(serde_json::Value::as_array)
+        {
             for def in defs {
                 if let Some(box_name) = Self::compat_def_box_name(def) {
                     seen.insert(box_name);
@@ -619,8 +620,8 @@ mod tests {
     }
 
     #[test]
-    fn test_stage1_user_box_decls_parse_program_json_uses_compat_decl_names_without_explicit_payload()
-    {
+    fn test_stage1_user_box_decls_parse_program_json_uses_compat_decl_names_without_explicit_payload(
+    ) {
         let program_json = r#"{
             "version": 0,
             "kind": "Program",

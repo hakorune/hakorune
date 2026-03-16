@@ -120,9 +120,9 @@ mod tests {
 
     #[test]
     fn program_json_output_builds_payload_from_source_text() {
-        let out = ProgramJsonOutput::from_source_text(
-            include_str!("../../../../lang/src/runner/stage1_cli_env.hako"),
-        )
+        let out = ProgramJsonOutput::from_source_text(include_str!(
+            "../../../../lang/src/runner/stage1_cli_env.hako"
+        ))
         .expect("program json output")
         .into_payload();
 

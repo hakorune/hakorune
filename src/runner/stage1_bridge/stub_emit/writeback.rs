@@ -85,7 +85,9 @@ fn emit_program_json_output(groups: &CliGroups, line: &str) -> Result<(), String
 }
 
 fn program_json_out_path(groups: &CliGroups) -> Option<String> {
-    super::super::emit_paths::resolve_program_json_out_path(groups.emit.emit_program_json_v0.clone())
+    super::super::emit_paths::resolve_program_json_out_path(
+        groups.emit.emit_program_json_v0.clone(),
+    )
 }
 
 fn write_program_json_file(path: &str, line: &str) -> Result<(), String> {

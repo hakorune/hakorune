@@ -52,7 +52,11 @@ fn handle_child_output(
     parse_and_write_payload(groups, &output, mode)
 }
 
-fn timeout_exit_code(output: &ChildOutput, mode: Stage1StubEmitMode, timeout_ms: u64) -> Option<i32> {
+fn timeout_exit_code(
+    output: &ChildOutput,
+    mode: Stage1StubEmitMode,
+    timeout_ms: u64,
+) -> Option<i32> {
     if !output.timed_out {
         return None;
     }

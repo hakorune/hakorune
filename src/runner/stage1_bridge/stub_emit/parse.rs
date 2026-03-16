@@ -44,26 +44,26 @@ fn parse_mir_json_line(line: &str) -> Result<MirModule, String> {
 }
 
 fn first_program_json_line(stdout: &str) -> Result<String, String> {
-    crate::runner::modes::common_util::selfhost::json::first_json_v0_line(stdout).ok_or_else(
-        || "[stage1-cli] emit-program: no Program(JSON v0) found in stub output".to_string(),
-    )
+    crate::runner::modes::common_util::selfhost::json::first_json_v0_line(stdout).ok_or_else(|| {
+        "[stage1-cli] emit-program: no Program(JSON v0) found in stub output".to_string()
+    })
 }
 
 fn parse_program_json_line(line: &str) -> Result<(), String> {
-    crate::runner::modes::common_util::selfhost::json::parse_json_v0_line(line).map_err(|error| {
-        format!(
-            "[stage1-cli] emit-program: Program(JSON v0) parse error: {}",
-            error
-        )
-    })?;
+    crate::runner::modes::common_util::selfhost::json::parse_json_v0_line(line).map_err(
+        |error| {
+            format!(
+                "[stage1-cli] emit-program: Program(JSON v0) parse error: {}",
+                error
+            )
+        },
+    )?;
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        parse_payload, ParsedStage1StubEmitPayload,
-    };
+    use super::{parse_payload, ParsedStage1StubEmitPayload};
     use crate::runner::stage1_bridge::args::Stage1StubEmitMode;
 
     #[test]
