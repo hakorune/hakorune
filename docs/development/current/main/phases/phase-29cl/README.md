@@ -108,12 +108,16 @@ Rule:
 13. `BYN-min4a` compat registry demotion slice is landed
    - `lang/c-abi/shims/hako_forward_registry_shared_impl.inc` is now the shared compat-only owner for the C hook registry surface
    - `crates/nyash_kernel/src/hako_forward_registry.c` and `lang/c-abi/shims/hako_kernel.c` no longer duplicate `plugin_invoke_by_name` / `future_spawn_instance` / `string_dispatch` registration and try-call behavior inline
+14. `BYN-min4b` stage1 helper caller-cutover slice is landed
+   - `src/llvm_py/instructions/direct_box_method.py` now resolves module-string receivers `lang.compiler.build.build_box` -> `BuildBox` and `lang.mir.builder.MirBuilderBox` -> `MirBuilderBox` before generic plugin fallback
+   - `src/llvm_py/instructions/boxcall.py` and `src/llvm_py/instructions/mir_call/method_call.py` now pass receiver literals into that direct-call resolver, so compiled-stage1 daily helper routes prefer direct `BuildBox.emit_program_json_v0(...)` / `MirBuilderBox.emit_from_program_json_v0(...)` when lowered functions already exist
+   - `nyash.plugin.invoke_by_name_i64` remains the compat tail only for direct-miss cases
 
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
 2. keep visible launcher caller off `by_name`
-3. shrink compiled-stage1 surrogates now that launcher source route no longer feeds `selfhost.shared.backend.llvm_backend`
+3. keep shrinking the remaining mainline LLVM caller set after the `BuildBox` / `MirBuilderBox` stage1 helper pair
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
 

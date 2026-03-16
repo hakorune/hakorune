@@ -21,6 +21,7 @@ from instructions.mir_call.auto_specialize import (
 from instructions.by_name_method import lower_plugin_invoke_by_name, mark_string_result_if_needed
 from instructions.boxcall_runtime_data import try_lower_collection_boxcall
 from instructions.direct_box_method import try_lower_known_box_method_call
+from instructions.string_fast import literal_string_for_receiver
 from utils.values import resolve_i64_strict
 from utils.resolver_helpers import get_box_type, mark_as_handle
 
@@ -264,6 +265,7 @@ def lower_boxcall(
             return
 
     known_box_name = get_box_type(resolver, box_vid)
+    receiver_literal = literal_string_for_receiver(resolver, box_vid)
     if known_box_name:
         recv_h = _ensure_handle(builder, module, recv_val)
         direct_result = try_lower_known_box_method_call(
@@ -276,6 +278,29 @@ def lower_boxcall(
             resolve_arg=lambda vid: _res_i64(vid),
             ensure_handle=lambda value: _ensure_handle(builder, module, value),
             call_name=f"call_known_{method_name}",
+            receiver_literal=receiver_literal,
+        )
+        if direct_result is not None:
+            if dst_vid is not None:
+                vmap[dst_vid] = direct_result
+                try:
+                    mark_string_result_if_needed(resolver, dst_vid, method_name)
+                except Exception:
+                    pass
+            return
+    elif receiver_literal is not None:
+        recv_h = _ensure_handle(builder, module, recv_val)
+        direct_result = try_lower_known_box_method_call(
+            builder=builder,
+            module=module,
+            box_name=None,
+            method_name=method_name,
+            recv_h=recv_h,
+            args=args,
+            resolve_arg=lambda vid: _res_i64(vid),
+            ensure_handle=lambda value: _ensure_handle(builder, module, value),
+            call_name=f"call_stage1_{method_name}",
+            receiver_literal=receiver_literal,
         )
         if direct_result is not None:
             if dst_vid is not None:

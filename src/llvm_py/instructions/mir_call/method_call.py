@@ -51,11 +51,8 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     i8 = ir.IntType(8)
     i8p = i8.as_pointer()
     fast_on = llvm_fast_enabled()
-    literal_recv = (
-        literal_string_for_receiver(resolver, receiver)
-        if fast_on and is_length_like_method(method)
-        else None
-    )
+    receiver_literal = literal_string_for_receiver(resolver, receiver)
+    literal_recv = receiver_literal if fast_on and is_length_like_method(method) else None
 
     # Helper to declare function
     def _declare(name: str, ret, args_types):
@@ -242,6 +239,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 ensure_handle=_ensure_handle,
                 direct_call_name=f"known_box_{method}",
                 plugin_call_name="unified_plugin_invoke",
+                receiver_literal=receiver_literal,
             )
 
     # Store result

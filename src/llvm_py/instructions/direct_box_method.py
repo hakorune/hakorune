@@ -19,26 +19,46 @@ from llvmlite import ir
 from naming_helper import encode_static_method
 
 
+_MODULE_RECEIVER_BOX_ALIASES = {
+    "lang.compiler.build.build_box": "BuildBox",
+    "lang.mir.builder.MirBuilderBox": "MirBuilderBox",
+}
+
+
+def resolve_known_box_name(
+    box_name: Optional[str],
+    receiver_literal: Optional[str] = None,
+) -> Optional[str]:
+    """Resolve a direct-call box name from the explicit box or module-string receiver."""
+    if box_name:
+        return box_name
+    if not receiver_literal:
+        return None
+    return _MODULE_RECEIVER_BOX_ALIASES.get(receiver_literal)
+
+
 def resolve_known_box_method(
     module: ir.Module,
     box_name: Optional[str],
     method_name: Optional[str],
     arities: Tuple[int, ...],
+    receiver_literal: Optional[str] = None,
 ):
     """Return the matching lowered function for a known box method, if present."""
-    if not box_name or not method_name:
+    resolved_box_name = resolve_known_box_name(box_name, receiver_literal)
+    if not resolved_box_name or not method_name:
         return None
 
     for arity in arities:
         candidates = [
-            encode_static_method(box_name, method_name, arity),
-            f"{box_name}.{method_name}/{arity}",
+            encode_static_method(resolved_box_name, method_name, arity),
+            f"{resolved_box_name}.{method_name}/{arity}",
         ]
         for candidate in candidates:
             for func in module.functions:
                 if func.name == candidate:
                     return func
-    plain_candidate = f"{box_name}.{method_name}"
+    plain_candidate = f"{resolved_box_name}.{method_name}"
     for func in module.functions:
         if func.name == plain_candidate:
             return func
@@ -56,10 +76,17 @@ def try_lower_known_box_method_call(
     resolve_arg: Callable[[int], Optional[ir.Value]],
     ensure_handle: Callable[[ir.Value], ir.Value],
     call_name: str,
+    receiver_literal: Optional[str] = None,
 ):
     """Lower to a direct `Box.method/arity` call when the target exists."""
     i64 = ir.IntType(64)
-    callee = resolve_known_box_method(module, box_name, method_name, (len(args) + 1, len(args)))
+    callee = resolve_known_box_method(
+        module,
+        box_name,
+        method_name,
+        (len(args) + 1, len(args)),
+        receiver_literal,
+    )
     if callee is None:
         return None
 

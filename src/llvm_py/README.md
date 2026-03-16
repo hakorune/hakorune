@@ -77,8 +77,10 @@ NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
 - generic plugin fallback entrypoint always receives i64 handles
   - receiver is boxed/coerced before dispatch
   - args are also boxed/coerced before dispatch; raw string pointers are not passed through
-- compiled-stage1 module-string helper dispatch (`BuildBox.emit_program_json_v0`, `MirBuilderBox.emit_from_program_json_v0`) therefore relies on one invariant:
-  - by-name fallback must see StringBox handles, not raw `i8*` pointers
+- compiled-stage1 module-string helper routes first try direct box alias resolution
+  - `lang.compiler.build.build_box` can resolve to direct `BuildBox.*`
+  - `lang.mir.builder.MirBuilderBox` can resolve to direct `MirBuilderBox.*`
+- if those routes still fall back to generic plugin dispatch, by-name fallback must see StringBox handles, not raw `i8*` pointers
 
 ## 🎨 実装状況
 - [ ] 基本構造（MIR読み込み）

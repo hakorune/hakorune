@@ -30,6 +30,7 @@ def lower_direct_or_plugin_method_call(
     ensure_handle: Callable[[ir.Value], ir.Value],
     direct_call_name: str,
     plugin_call_name: str,
+    receiver_literal: Optional[str] = None,
 ):
     direct_result = try_lower_known_box_method_call(
         builder=builder,
@@ -41,6 +42,7 @@ def lower_direct_or_plugin_method_call(
         resolve_arg=resolve_arg,
         ensure_handle=ensure_handle,
         call_name=direct_call_name,
+        receiver_literal=receiver_literal,
     )
     if direct_result is not None:
         return direct_result
