@@ -651,8 +651,7 @@ impl MirInterpreter {
                                 }
                                 other => {
                                     let text = other.to_string();
-                                    Self::optional_codegen_text(text)
-                                        .map(std::path::PathBuf::from)
+                                    Self::optional_codegen_text(text).map(std::path::PathBuf::from)
                                 }
                             }
                         } else {

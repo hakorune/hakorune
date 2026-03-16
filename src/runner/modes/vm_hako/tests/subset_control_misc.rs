@@ -424,6 +424,39 @@ fn subset_accepts_externcall_env_get() {
 }
 
 #[test]
+fn subset_accepts_externcall_env_mirbuilder_emit() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": {
+                            "type": { "kind": "handle", "box_type": "StringBox" },
+                            "value": "{\"type\":\"Program\",\"body\":[]}"
+                        }
+                    },
+                    {
+                        "op": "externcall",
+                        "func": "env.mirbuilder_emit/1",
+                        "args": [1],
+                        "dst": 2
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_rejects_externcall_env_get_with_missing_arg() {
     let mir_json = json!({
         "functions": [{

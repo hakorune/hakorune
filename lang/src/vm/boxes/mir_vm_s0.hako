@@ -1,5 +1,5 @@
 // mir_vm_s0.hako — S0 bootstrap MIR(JSON v0) runner for vm-hako backend
-// Responsibility: execute minimal subset (const(i64/bool/void)/load/array_get/array_set/store/copy/unop(neg/not)/binop(+,-,*,/,%)/compare(==,!=,<,>=)/select/branch/jump/phi/typeop/ref_new/weak_new/weak_load/future_new/future_set/await/nop/safepoint/keepalive/release_strong/barrier/debug/debug_log/call(id 0/1-arg + method-call legacy args=2 bridge)/externcall(print 1-reg, env.get 1-reg)/newbox(ArrayBox/StringBox/FileBox/LlvmBackendBox/Main)/boxcall(birth/id 0/1-arg + StringBox length/indexOf/substring + FileBox open/read/close + LlvmBackendBox compile_obj/link_exe)/ret)
+// Responsibility: execute minimal subset (const(i64/bool/void)/load/array_get/array_set/store/copy/unop(neg/not)/binop(+,-,*,/,%)/compare(==,!=,<,>=)/select/branch/jump/phi/typeop/ref_new/weak_new/weak_load/future_new/future_set/await/nop/safepoint/keepalive/release_strong/barrier/debug/debug_log/call(id 0/1-arg + method-call legacy args=2 bridge)/externcall(print 1-reg, env.get 1-reg, env.mirbuilder_emit 1-reg)/newbox(ArrayBox/StringBox/FileBox/LlvmBackendBox/Main)/boxcall(birth/id 0/1-arg + StringBox length/indexOf/substring + FileBox open/read/close + LlvmBackendBox compile_obj/link_exe)/ret)
 // Contract note: print execution path is externcall-only (`externcall(nyash.console.log,args=1)`).
 // Non-goal: full MIR compatibility. Fail-fast on unknown ops/shapes.
 // Boxcall args contract SSOT: docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md
@@ -928,6 +928,33 @@ static box MirVmS0Box {
             me._reg_set(regs, dst_env, 0)
             me._reg_kind_set(kinds, dst_env, "handle")
             MirVmS0StateOpsBox.handle_set(handle_regs, dst_env, env_val)
+          }
+        }
+        return "__NEXT__"
+      }
+      if func == "env.mirbuilder_emit" || func == "env.mirbuilder_emit/1" || func == "env.mirbuilder.emit" || func == "env.mirbuilder.emit/1" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(env.mirbuilder.emit) args>1]" }
+        local input_reg = me._args_first(seg)
+        if input_reg == null { return "[vm-hako/contract][externcall-env.mirbuilder.emit-arg0-missing]" }
+        local input_payload = null
+        if me._reg_kind_get(kinds, input_reg) == "handle" {
+          input_payload = MirVmS0StateOpsBox.handle_get(handle_regs, input_reg)
+          if input_payload == null {
+            return "[vm-hako/contract][externcall-env.mirbuilder.emit-arg0-handle-missing]"
+          }
+        } else {
+          input_payload = me._reg_get(regs, input_reg)
+        }
+        local emit_out = HostFacadeBox.call("loader", "mirbuilder.emit", input_payload)
+        local dst_emit = me._find_int(seg, "dst")
+        if dst_emit != null {
+          if emit_out == null {
+            me._reg_set(regs, dst_emit, 0)
+            me._reg_kind_set(kinds, dst_emit, "scalar")
+          } else {
+            me._reg_set(regs, dst_emit, 0)
+            me._reg_kind_set(kinds, dst_emit, "handle")
+            MirVmS0StateOpsBox.handle_set(handle_regs, dst_emit, emit_out)
           }
         }
         return "__NEXT__"

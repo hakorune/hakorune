@@ -35,7 +35,6 @@ static box Main {
     }
 
     // ExternCall form (Phase-0): env.mirbuilder_emit(program_json)
-    // Note: `env.<iface>.<method>` is not a surface syntax in the Rust parser yet.
     local mir_json = env.mirbuilder_emit("" + program_json)
 
     if mir_json == null || ("" + mir_json) == "" {

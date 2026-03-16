@@ -439,6 +439,25 @@ fn validate_env_get_externcall_shape(inst: &Value) -> Result<(), String> {
     Ok(())
 }
 
+fn validate_mirbuilder_emit_externcall_shape(inst: &Value) -> Result<(), String> {
+    let args = inst
+        .get("args")
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| "externcall(env.mirbuilder.emit:malformed)".to_string())?;
+    if args.len() != 1 {
+        return Err("externcall(env.mirbuilder.emit:args!=1)".to_string());
+    }
+    if args.first().and_then(|v| v.as_u64()).is_none() {
+        return Err("externcall(env.mirbuilder.emit:arg0:non-reg)".to_string());
+    }
+    if let Some(dst) = inst.get("dst") {
+        if !dst.is_null() && dst.as_u64().is_none() {
+            return Err("externcall(env.mirbuilder.emit:dst:non-reg)".to_string());
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, u32, String)> {
     let mut root: Value = serde_json::from_str(json_text)
         .map_err(|_| ("<json>".to_string(), 0, "InvalidJson".to_string()))?;
@@ -679,6 +698,16 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     let func = inst.get("func").and_then(|v| v.as_str()).unwrap_or("");
                     if func == "env.get" || func == "env.get/1" {
                         if let Err(reason) = validate_env_get_externcall_shape(inst) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "env.mirbuilder_emit"
+                        || func == "env.mirbuilder_emit/1"
+                        || func == "env.mirbuilder.emit"
+                        || func == "env.mirbuilder.emit/1"
+                    {
+                        if let Err(reason) = validate_mirbuilder_emit_externcall_shape(inst) {
                             return Err((func_name.clone(), bb, reason));
                         }
                         continue;
