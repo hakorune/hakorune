@@ -109,8 +109,7 @@ static box BuildBox {
 
     local at = opts.get("alias_table")
     if at != null && at != "" {
-      if bundle_ctx.get("bundle_names") == null { bundle_ctx.set("bundle_names", new ArrayBox()) }
-      if bundle_ctx.get("bundle_srcs") == null { bundle_ctx.set("bundle_srcs", new ArrayBox()) }
+      me._ensure_bundle_alias_arrays(bundle_ctx)
       me._append_alias_pairs(bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), at)
     }
 
@@ -133,17 +132,25 @@ static box BuildBox {
     local table = env.get("HAKO_BUNDLE_ALIAS_TABLE")
     if table == null || table == "" { table = env.get("NYASH_BUNDLE_ALIAS_TABLE") }
     if table != null && table != "" {
-      if bundle_ctx.get("bundle_names") == null { bundle_ctx.set("bundle_names", new ArrayBox()) }
-      if bundle_ctx.get("bundle_srcs") == null { bundle_ctx.set("bundle_srcs", new ArrayBox()) }
+      me._ensure_bundle_alias_arrays(bundle_ctx)
       me._append_alias_pairs(bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), table)
     }
 
     local requires = env.get("HAKO_REQUIRE_MODS")
     if requires == null || requires == "" { requires = env.get("NYASH_REQUIRE_MODS") }
     if requires != null && requires != "" {
-      if bundle_ctx.get("require_mods") == null { bundle_ctx.set("require_mods", new ArrayBox()) }
+      me._ensure_require_mods_array(bundle_ctx)
       me._append_require_mods_csv(bundle_ctx.get("require_mods"), requires)
     }
+  }
+
+  method _ensure_bundle_alias_arrays(bundle_ctx) {
+    if bundle_ctx.get("bundle_names") == null { bundle_ctx.set("bundle_names", new ArrayBox()) }
+    if bundle_ctx.get("bundle_srcs") == null { bundle_ctx.set("bundle_srcs", new ArrayBox()) }
+  }
+
+  method _ensure_require_mods_array(bundle_ctx) {
+    if bundle_ctx.get("require_mods") == null { bundle_ctx.set("require_mods", new ArrayBox()) }
   }
 
   method _append_alias_pairs(bundle_names, bundle_srcs, table) {
