@@ -103,7 +103,7 @@ static box LowerIfNestedBox {
   }
 
   _try_lower_nested_ternary(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_t_first = JsonFragBox.index_of_from(s, "\"type\":\"Ternary\"", 0)
     if k_t_first < 0 { return null }
 
@@ -185,7 +185,7 @@ static box LowerIfNestedBox {
     local ternary_mir = me._try_lower_nested_ternary(program_json)
     if ternary_mir != null { return ternary_mir }
 
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_if1 = JsonFragBox.index_of_from(s, "\"type\":\"If\"", 0)
     if k_if1 < 0 { return null }
     local k_cmp1 = JsonFragBox.index_of_from(s, "\"type\":\"Compare\"", k_if1)
@@ -256,5 +256,8 @@ static box LowerIfNestedBox {
       // bb4
       "{\"id\":4,\"instructions\":[{\"op\":\"const\",\"dst\":9,\"value\":{\"type\":\"i64\",\"value\":" + cval + "}},{\"op\":\"ret\",\"value\":9}]}]}]}"
     return mir
+  }
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }

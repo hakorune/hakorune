@@ -10,7 +10,7 @@ using "hako.mir.builder.internal.loop_opts_adapter" as LoopOptsBox
 
 static box LowerLoopCountParamBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     // Discover loop variable name from Compare first
     // We'll accept either lhs Var(name) or rhs Var(name)
     local k_loop = JsonFragBox.index_of_from(s, "\"type\":\"Loop\"", 0)
@@ -115,7 +115,7 @@ static box LowerLoopCountParamBox {
     // JsonFrag 直組立（opt-in）: HAKO_MIR_BUILDER_LOOP_JSONFRAG=1
     {
       local jf = env.get("HAKO_MIR_BUILDER_LOOP_JSONFRAG")
-      if jf != null && ("" + jf) == "1" {
+      if me._flag_is_one(jf) == 1 {
         local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
           "{\"id\":0,\"instructions\":[" +
             "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
@@ -142,7 +142,7 @@ static box LowerLoopCountParamBox {
   // Seek matching object end index '}' for object starting at lbrace_pos.
   _seek_object_end(text, lbrace_pos) {
     if text == null { return -1 }
-    local s = "" + text
+    local s = me._coerce_text_compat(text)
     local n = s.length()
     local depth = 0
     local i = lbrace_pos
@@ -163,5 +163,13 @@ static box LowerLoopCountParamBox {
       i = i + 1
     }
     return -1
+  }
+  _coerce_text_compat(value) {
+    return "" + value
+  }
+  _flag_is_one(value) {
+    if value == null { return 0 }
+    if me._coerce_text_compat(value) == "1" { return 1 }
+    return 0
   }
 }

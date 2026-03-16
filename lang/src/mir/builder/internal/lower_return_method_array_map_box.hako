@@ -7,7 +7,7 @@ using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 
 static box LowerReturnMethodArrayMapBox {
   try_lower(program_json) {
-    local s = "" + program_json
+    local s = me._coerce_text_compat(program_json)
     local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
     local k_m = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", k_ret); if k_m < 0 { return null }
     // receiver must be Var(name)
@@ -56,7 +56,7 @@ static box LowerReturnMethodArrayMapBox {
           if v1 != null {
             insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v1 + "}}"
             if first_arg == 0 { args_text = args_text + "," } else { first_arg = 0 }
-            args_text = args_text + ("" + next_id)
+            args_text = args_text + me._coerce_text_compat(next_id)
             next_id = next_id + 1
           }
         }
@@ -70,7 +70,7 @@ static box LowerReturnMethodArrayMapBox {
             if v2 != null {
               insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v2 + "}}"
               if first_arg == 0 { args_text = args_text + "," } else { first_arg = 0 }
-              args_text = args_text + ("" + next_id)
+              args_text = args_text + me._coerce_text_compat(next_id)
               next_id = next_id + 1
             }
           }
@@ -83,7 +83,7 @@ static box LowerReturnMethodArrayMapBox {
             if v != null {
               insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v + "}}"
               if first_arg == 0 { args_text = args_text + "," } else { first_arg = 0 }
-              args_text = args_text + ("" + next_id)
+              args_text = args_text + me._coerce_text_compat(next_id)
               next_id = next_id + 1
             }
           }
@@ -100,7 +100,7 @@ static box LowerReturnMethodArrayMapBox {
             if vi != null {
               insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + vi + "}}"
               if first_arg == 0 { args_text = args_text + "," } else { first_arg = 0 }
-              args_text = args_text + ("" + next_id)
+              args_text = args_text + me._coerce_text_compat(next_id)
               next_id = next_id + 1
             }
           }
@@ -109,7 +109,7 @@ static box LowerReturnMethodArrayMapBox {
             if vb != null {
               insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + vb + "}}"
               if first_arg == 0 { args_text = args_text + "," } else { first_arg = 0 }
-              args_text = args_text + ("" + next_id)
+              args_text = args_text + me._coerce_text_compat(next_id)
               next_id = next_id + 1
             }
           }
@@ -118,7 +118,7 @@ static box LowerReturnMethodArrayMapBox {
             if vf != null {
               insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"f64\\\",\\\"value\\\":" + vf + "}}"
               if first_arg == 0 { args_text = args_text + "," } else { first_arg = 0 }
-              args_text = args_text + ("" + next_id)
+              args_text = args_text + me._coerce_text_compat(next_id)
               next_id = next_id + 1
             }
           }
@@ -140,5 +140,8 @@ static box LowerReturnMethodArrayMapBox {
                "{\"op\":\"mir_call\",\"dst\":4,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"method\":\"" + method + "\",\"receiver\":1},\"args\":[" + args_text + "],\"effects\":[]}}," +
                "{\"op\":\"ret\",\"value\":4}]}]}]}"
     return mir
+  }
+  _coerce_text_compat(value) {
+    return "" + value
   }
 }
