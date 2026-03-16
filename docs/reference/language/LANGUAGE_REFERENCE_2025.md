@@ -319,8 +319,10 @@ match status {
 sum = 10 + 20           # IntegerBox + IntegerBox = IntegerBox
 concat = "Hi" + " !"    # StringBox + StringBox = StringBox  
 repeat = "Ha" * 3       # StringBox * IntegerBox = "HaHaHa"
-mixed = 42 + " answer"  # 混合型 → 自動文字列結合フォールバック
+mixed = 42 + " answer"  # 現行実装では legacy-compatible mixed concat として動く
 ```
+
+> Note: mixed string concat は current executable behavior としてまだ live だが、新規コードでは `x.toString()` を使う方を推奨する。
 
 #### **演算子優先順位**
 ```nyash

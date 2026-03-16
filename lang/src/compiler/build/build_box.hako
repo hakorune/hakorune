@@ -16,9 +16,23 @@ static box BuildBox {
     // - parse_src narrows to Main.main body when available, and only then falls back
     //   to full-source parse for non-box / non-main inputs
     local prepared = me._prepare_scan_src(src, opts)
-    if prepared.has("error") == true { return "" + prepared.get("error") }
+    if prepared.has("error") == true { return me._coerce_text(prepared.get("error")) }
     local scan_src = prepared.get("scan_src")
     return me._emit_program_json_from_scan_src(scan_src)
+  }
+
+  method _coerce_text(value) {
+    return "" + value
+  }
+
+  method _coerce_array_item_text(items, index) {
+    return me._coerce_text(items.get(index))
+  }
+
+  method _non_empty_text(value) {
+    if value == null { return 0 }
+    if me._coerce_text(value) == "" { return 0 }
+    return 1
   }
 
   method _prepare_scan_src(src, opts) {
@@ -130,13 +144,13 @@ static box BuildBox {
       return me._fail_bundle_ctx(bundle_ctx, "[build/opts/mismatch] bundle_names vs bundle_srcs")
     }
     local i0 = 0; loop(i0 < bundle_names.length()) {
-      local n = "" + bundle_names.get(i0)
-      local c = "" + bundle_srcs.get(i0)
-      if n == "" || c == "" {
+      local n = me._coerce_array_item_text(bundle_names, i0)
+      local c = me._coerce_array_item_text(bundle_srcs, i0)
+      if me._non_empty_text(n) != 1 || me._non_empty_text(c) != 1 {
         return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bundle-pair/bad] index=" + i0)
       }
       local j = i0 + 1; loop(j < bundle_names.length()) {
-        if ("" + bundle_names.get(j)) == n {
+        if me._coerce_array_item_text(bundle_names, j) == n {
           return me._fail_bundle_ctx(bundle_ctx, "[build/opts/duplicate] " + n)
         }
         j = j + 1
@@ -150,8 +164,8 @@ static box BuildBox {
 
   method _collect_plain_bundle_inputs(bundle_ctx, bundles) {
     local i = 0; loop(i < bundles.length()) {
-      local s = "" + bundles.get(i)
-      if s == "" {
+      local s = me._coerce_array_item_text(bundles, i)
+      if me._non_empty_text(s) != 1 {
         return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bad-bundle] index=" + i)
       }
       i = i + 1
@@ -162,7 +176,7 @@ static box BuildBox {
 
   method _collect_require_mod_inputs(bundle_ctx, require_mods) {
     local k0 = 0; loop(k0 < require_mods.length()) {
-      if ("" + require_mods.get(k0)) == "" {
+      if me._non_empty_text(me._coerce_array_item_text(require_mods, k0)) != 1 {
         return me._fail_bundle_ctx(bundle_ctx, "[build/opts/bad-require] index=" + k0)
       }
       k0 = k0 + 1
@@ -272,7 +286,7 @@ static box BuildBox {
 
   method _defs_scan_enabled() {
     local func_scan_env = env.get("HAKO_STAGEB_FUNC_SCAN")
-    if func_scan_env != null && ("" + func_scan_env) == "0" { return 0 }
+    if func_scan_env != null && me._coerce_text(func_scan_env) == "0" { return 0 }
     return 1
   }
 

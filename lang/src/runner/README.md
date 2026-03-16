@@ -26,6 +26,7 @@ Pointers:
     - source/program-json orchestration stays behind same-file helpers (`_resolve_emit_program_source_text(...)`, `_resolve_program_json_for_emit_mir(...)`, `_resolve_program_json_for_run(...)`, `_load_program_json_from_path_or_source(...)`)
     - emit-mir checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`, `_emit_validated_mir_from_program_json_text(...)`) so the raw subcmd lane no longer mixes Program(JSON) input validation, MirBuilder call, and MIR output validation inline
     - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so inline payload probing, emit-program output validation, and emit-mir input validation share one same-file contract
+    - visible legacy stringify in env/debug/argv shaping is now centralized behind `_coerce_text_compat(...)`, so raw/subcmd cleanup can reduce `"" + x` residue without changing the lane contract
 
 - `runner_facade.hako`
   - Contract（draft）:
@@ -56,6 +57,7 @@ Pointers:
     - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so launcher emit-program output validation and emit-mir input validation share one same-file contract.
     - program-json load / stdout-vs-file output tails are also split owner-locally (`_load_program_json_from_path_checked(...)`, `_print_output_checked(...)`, `_write_output_checked(...)`) so `cmd_emit_program_json(...)` / `cmd_emit_mir_json(...)` no longer branch directly on readback/output side effects inline.
     - `build exe` now owns only temp MIR handoff / default output-path helper shape and lowers compile/link through `_compile_object_from_mir_path_checked(...)` / `_link_exe_object_checked(...)`, so the launcher lane no longer mixes compile/link fail-fast tails inline.
+    - visible legacy stringify/path coercion is now centralized behind `_coerce_text_compat(...)` and `_non_empty_text(...)`, so future string-coercion cleanup can tighten the contract owner-by-owner without touching every launcher call site at once.
   - Design reference:
     - `docs/development/runtime/cli-hakorune-stage1.md` を Stage1 CLI の仕様 SSOT として参照すること。
 

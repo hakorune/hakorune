@@ -349,7 +349,7 @@ static box Stage1Cli {
   }
 
   method _clean_env_value(v) {
-    local s = "" + v
+    local s = me._coerce_text_compat(v)
     if s == "null" || s == "Null" || s == "void" || s == "Void" {
       return ""
     }
@@ -362,13 +362,13 @@ static box Stage1Cli {
     }
     local argc = 0; if args != null { argc = args.size() }
     if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit: argc=" + ("" + argc))
+      print("[stage1-cli/debug] _cmd_emit: argc=" + me._coerce_text_compat(argc))
     }
     if argc < 2 {
       print("[stage1-cli] emit: usage: emit program-json <source.hako> | emit mir-json [--from-program-json <file>] <source.hako>")
       return 96
     }
-    local sub = "" + args.get(1)
+    local sub = me._coerce_text_compat(args.get(1))
     if env.get("STAGE1_CLI_DEBUG") == "1" {
       print("[stage1-cli/debug] _cmd_emit: sub=" + sub)
     }
@@ -383,13 +383,13 @@ static box Stage1Cli {
     }
     local argc = 0; if args != null { argc = args.size() }
     if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit_program_json: argc=" + ("" + argc))
+      print("[stage1-cli/debug] _cmd_emit_program_json: argc=" + me._coerce_text_compat(argc))
     }
     if argc < 3 {
       print("[stage1-cli] emit program-json: usage: emit program-json <source.hako>")
       return 96
     }
-    local path = "" + args.get(2)
+    local path = me._coerce_text_compat(args.get(2))
     if env.get("STAGE1_CLI_DEBUG") == "1" {
       print("[stage1-cli/debug] _cmd_emit_program_json: calling emit_program_json with path=" + path)
     }
@@ -437,7 +437,7 @@ static box Stage1Cli {
   }
 
   method _coerce_program_json_output_checked(tag, prog, with_debug) {
-    local ps = "" + prog
+    local ps = me._coerce_text_compat(prog)
     if me._program_json_has_markers(ps) != 1 {
       if with_debug == 1 {
         print(tag + ": unexpected Program(JSON) output (missing version/kind)")
@@ -464,7 +464,7 @@ static box Stage1Cli {
       print(tag + ": program_json is null")
       return null
     }
-    local prog = "" + program_json
+    local prog = me._coerce_text_compat(program_json)
     if me._program_json_has_markers(prog) != 1 {
       print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
       return null
@@ -482,7 +482,7 @@ static box Stage1Cli {
   }
 
   method _coerce_mir_output_checked(mir) {
-    local ms = "" + mir
+    local ms = me._coerce_text_compat(mir)
     if me._mir_output_has_functions(ms) != 1 {
       print("[freeze:contract][stage1-cli/emit-mir] output missing MIR functions marker")
       return null
@@ -506,7 +506,7 @@ static box Stage1Cli {
     }
     local argc = 0; if args != null { argc = args.size() }
     if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit_mir_json: argc=" + ("" + argc))
+      print("[stage1-cli/debug] _cmd_emit_mir_json: argc=" + me._coerce_text_compat(argc))
     }
     local prog_path = null
     local source_path = null
@@ -515,13 +515,13 @@ static box Stage1Cli {
 
     local i = 2
     loop(i < argc) {
-      arg = "" + args.get(i)
+      arg = me._coerce_text_compat(args.get(i))
       if arg == "--from-program-json" {
         if i + 1 >= argc {
           print("[stage1-cli] emit mir-json: --from-program-json requires a path")
           return 96
         }
-        prog_path = "" + args.get(i + 1)
+        prog_path = me._coerce_text_compat(args.get(i + 1))
         i = i + 2
       } else {
         if source_path == null {
@@ -575,13 +575,13 @@ static box Stage1Cli {
 
     local i = 1
     loop(i < argc) {
-      arg = "" + args.get(i)
+      arg = me._coerce_text_compat(args.get(i))
       if arg == "--backend" {
         if i + 1 >= argc {
           print("[stage1-cli] run: --backend requires a value (vm|llvm|pyvm)")
           return 96
         }
-        backend = "" + args.get(i + 1)
+        backend = me._coerce_text_compat(args.get(i + 1))
         i = i + 2
         continue
       }
@@ -601,7 +601,7 @@ static box Stage1Cli {
     {
       local extras = new ArrayBox()
       loop(i < argc) {
-        extras.push("" + args.get(i))
+        extras.push(me._coerce_text_compat(args.get(i)))
         i = i + 1
       }
       if extras.length() > 0 {
@@ -610,7 +610,7 @@ static box Stage1Cli {
         local j = 0; loop(j < extras.length()) {
           if j > 0 { json = json + "," }
           local s = extras.get(j)
-          json = json + "\"" + me._escape_json_string("" + s) + "\""
+          json = json + "\"" + me._escape_json_string(me._coerce_text_compat(s)) + "\""
           j = j + 1
         }
         json = json + "]"
@@ -642,6 +642,10 @@ static box Stage1Cli {
       return null
     }
     return content
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 
   method _escape_json_string(s) {

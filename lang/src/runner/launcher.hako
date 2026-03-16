@@ -26,7 +26,7 @@ static box HakoCli {
     }
 
     @cmd_raw = args.get(0)
-    @cmd = "" + cmd_raw
+    @cmd = me._coerce_text_compat(cmd_raw)
 
     if cmd == "run" {
       return me.cmd_run(args)
@@ -61,7 +61,7 @@ static box HakoCli {
     }
 
     @sub_raw = args.get(1)
-    @sub = "" + sub_raw
+    @sub = me._coerce_text_compat(sub_raw)
     if sub == "exe" {
       return me.cmd_build_exe(args)
     }
@@ -88,14 +88,14 @@ static box HakoCli {
     @i = 2
     loop(i < argc) {
       @arg_raw = args.get(i)
-      @arg = "" + arg_raw
+      @arg = me._coerce_text_compat(arg_raw)
       if arg == "-o" || arg == "--out" {
         if i + 1 >= argc {
           print("[hakorune] build exe: -o/--out requires a path")
           return 91
         }
         @op_raw = args.get(i + 1)
-        out_path = "" + op_raw
+        out_path = me._coerce_text_compat(op_raw)
         i = i + 2
         continue
       }
@@ -146,7 +146,7 @@ static box HakoCli {
     }
 
     @sub_raw = args.get(1)
-    @sub = "" + sub_raw
+    @sub = me._coerce_text_compat(sub_raw)
     if sub == "mir-json" {
       return me.cmd_emit_mir_json(args)
     } else if sub == "program-json" {
@@ -175,14 +175,14 @@ static box HakoCli {
     local i = 2
     loop(i < argc) {
       local arg_raw = args.get(i)
-      local arg = "" + arg_raw
+      local arg = me._coerce_text_compat(arg_raw)
       if arg == "-o" || arg == "--out" {
         if i + 1 >= argc {
           print("[hakorune] emit program-json: -o/--out requires a path")
           return 92
         }
         local op_raw = args.get(i + 1)
-        out_path = "" + op_raw
+        out_path = me._coerce_text_compat(op_raw)
         i = i + 2
         continue
       }
@@ -233,14 +233,14 @@ static box HakoCli {
     local i = 2
     loop(i < argc) {
       local arg_raw = args.get(i)
-      local arg = "" + arg_raw
+      local arg = me._coerce_text_compat(arg_raw)
       if arg == "--from-program-json" {
         if i + 1 >= argc {
           print("[hakorune] emit mir-json: --from-program-json requires a path")
           return 92
         }
         local p_raw = args.get(i + 1)
-        prog_path = "" + p_raw
+        prog_path = me._coerce_text_compat(p_raw)
         i = i + 2
         continue
       }
@@ -251,7 +251,7 @@ static box HakoCli {
           return 92
         }
         local op_raw = args.get(i + 1)
-        out_path = "" + op_raw
+        out_path = me._coerce_text_compat(op_raw)
         i = i + 2
         continue
       }
@@ -317,7 +317,7 @@ static box HakoCli {
   }
 
   method _coerce_program_json_output_checked(tag, prog){
-    local ps = "" + prog
+    local ps = me._coerce_text_compat(prog)
     if me._program_json_has_markers(ps) != 1 {
       print(tag + ": unexpected Program(JSON) output (missing version/kind)")
       return null
@@ -344,7 +344,7 @@ static box HakoCli {
       print(tag + ": program_json is null")
       return null
     }
-    local prog = "" + program_json
+    local prog = me._coerce_text_compat(program_json)
     if me._program_json_has_markers(prog) != 1 {
       print(tag + ": input missing Program(JSON v0) markers")
       return null
@@ -375,7 +375,7 @@ static box HakoCli {
   }
 
   method _coerce_mir_output_checked(tag, mir){
-    local ms = "" + mir
+    local ms = me._coerce_text_compat(mir)
     if ms.indexOf("\"functions\"") < 0 {
       print(tag + ": output missing MIR functions marker")
       return null
@@ -403,20 +403,20 @@ static box HakoCli {
 
   method _compile_object_from_mir_path_checked(tag, mir_path){
     local obj = env.codegen.compile_json_path(mir_path)
-    if obj == null || ("" + obj) == "" {
+    if me._non_empty_text(obj) != 1 {
       print(tag + ": env.codegen.compile_json_path failed")
       return null
     }
-    return "" + obj
+    return me._coerce_text_compat(obj)
   }
 
   method _link_exe_object_checked(tag, obj_path, exe_path){
     local linked = env.codegen.link_object(obj_path, exe_path)
-    if linked == null || ("" + linked) == "" {
+    if me._non_empty_text(linked) != 1 {
       print(tag + ": env.codegen.link_object failed")
       return null
     }
-    local linked_path = "" + linked
+    local linked_path = me._coerce_text_compat(linked)
     if linked_path != exe_path {
       print(tag + ": env.codegen.link_object path mismatch")
       return null
@@ -425,17 +425,17 @@ static box HakoCli {
   }
 
   method _resolve_build_exe_out_path(source_path, requested_out_path){
-    if requested_out_path != null && ("" + requested_out_path) != "" {
-      return "" + requested_out_path
+    if me._non_empty_text(requested_out_path) == 1 {
+      return me._coerce_text_compat(requested_out_path)
     }
     return "/tmp/hako_link_out.exe"
   }
 
   method _resolve_build_exe_mir_path(exe_path){
-    if exe_path == null || ("" + exe_path) == "" {
+    if me._non_empty_text(exe_path) != 1 {
       return null
     }
-    return ("" + exe_path) + ".mir.json"
+    return me._coerce_text_compat(exe_path) + ".mir.json"
   }
 
   method _load_program_json_from_path_or_source(tag, prog_path, source_path){
@@ -467,7 +467,17 @@ static box HakoCli {
       print(tag + ": source is empty")
       return null
     }
-    return "" + content
+    return me._coerce_text_compat(content)
+  }
+
+  method _coerce_text_compat(value){
+    return "" + value
+  }
+
+  method _non_empty_text(value){
+    if value == null { return 0 }
+    if me._coerce_text_compat(value) == "" { return 0 }
+    return 1
   }
 
   method _print_or_write_output(tag, path, content, quiet){

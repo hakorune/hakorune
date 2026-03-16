@@ -96,6 +96,7 @@ Runtime semantics are defined in the Rust VM (`eval_binop` in `src/backend/mir_i
   - Decision: accepted (Phase 29bq selfhost unblock; keep fail-fast for Void/Null)
   - `String + <any>` → `String` (right operand is `to_string()`-coerced)
   - `Void`/`Null` on either side → **TypeError** (fail-fast)
+  - source-style note: new code should still prefer explicit `x.toString()` when stringify intent matters; broad `"" + x` residue is legacy compatibility still used by selfhost/compiler owners
 - Other combinations are `TypeError` (e.g., `Integer + Bool`, `Bool + Bool`, `BoxRef + ...`).
   - Backends that do not implement `String + <any>` must fail-fast with a `TypeError`.
 

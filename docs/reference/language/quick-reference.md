@@ -51,8 +51,9 @@ Equality and Comparison
 String and Numeric `+`
 - SSOT: `reference/language/types.md`（runtime `+` 仕様）
 - `Integer+Integer` は加算、`Float+Float` は加算、`Integer↔Float` は `Float` に昇格して加算。
-- 文字列連結は **`String + String` のみ**。`"a"+1` / `1+"a"` は `TypeError`（暗黙 stringify なし）。
-- 文字列化して連結したい場合は明示的に `x.toString()` を使う。
+- 現行の executable semantics では、文字列連結は `String + String` に加えて `String + <non-void>` / `<non-void> + String` も許可され、非文字列側は文字列化される。
+- ただし `Void` / `Null` を文字列 `+` に混ぜるのは `TypeError`。
+- 新規コードで文字列化して連結したい場合は明示的に `x.toString()` を使う。`"" + x` は legacy compatibility としてまだ残っているが、推奨スタイルではない。
 
 Blocks and Control
 - `if (cond) { ... } [else { ... }]`

@@ -155,6 +155,21 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - the delegate-only probe now reaches the pre-existing `Unknown Box type: hostbridge` residue after `BuilderDelegateProviderBox`, so do not treat that probe failure as a regression from these delegate-lane slices
   - keep `src/stage1/program_json_v0/authority.rs` frozen as strict source-authority core and do not reopen compiled-stage1 surrogate shrink unless a new exact disappearing leaf appears first
 
+- string coercion contract cleanup / cross-lane drift (2026-03-16):
+  - current executable semantics still keep legacy-compatible `String + <non-void>` on the live VM path `src/backend/mir_interpreter/helpers.rs::eval_binop(...)`, and the LLVM/selfhost lowering path still routes mixed string concat through `src/llvm_py/instructions/binop.py` `nyash.any.toString_h` + `nyash.string.concat_hh`
+  - selfhost `.hako` owners still rely on `\"\" + x` broadly for generic stringify/coercion; the visible runner example is `lang/src/runner/launcher.hako` (`linked_path`, CLI arg decode), but the same pattern remains widespread in builder/runner owners
+  - reference drift exists today: `docs/reference/language/types.md` matches executable semantics, while `docs/reference/language/quick-reference.md` and `docs/reference/language/LANGUAGE_REFERENCE_2025.md` had stricter explicit-only wording; use `docs/development/current/main/investigations/string-plus-coercion-contract-drift-2026-03-16.md` as the cleanup note
+  - latest landed slice: `lang/src/runner/launcher.hako` now centralizes visible legacy stringify/path checks behind `_coerce_text_compat(...)` and `_non_empty_text(...)`, so the runner lane no longer hardcodes raw `\"\" + x` at every CLI/build-exe call site
+  - latest landed slice: `lang/src/compiler/build/build_box.hako` now centralizes bundle/env empty-text checks behind `_non_empty_text(...)` on top of the existing `_coerce_text(...)` helpers, so BuildBox no longer repeats raw `== \"\"` validation across its bundle collectors
+  - latest landed slice: `lang/src/runner/stage1_cli.hako` now centralizes visible env/debug/argv stringify behind `_coerce_text_compat(...)`, so the raw/subcmd lane no longer repeats raw `\"\" + x` across emit/run helper paths
+  - next fixed order:
+    1. sync reference docs to current executable semantics while keeping `x.toString()` as the preferred source style
+    2. freeze broad `\"\" + x` replacement until one generic stringify contract/helper is chosen
+    3. continue owner-by-owner residue audit after `launcher.hako` / `build_box.hako` / `stage1_cli.hako`, starting with `stage1_cli_env.hako`
+  - task rule:
+    - do not silently tighten `String + non-string` to `TypeError` in one backend while VM/LLVM/selfhost still disagree
+    - do not broad-rewrite `\"\" + x` until the replacement contract is single-sourced and proof-backed
+
 - backend-zero / `phase-29ck` exact front (2026-03-16):
   - `src/llvm_py/builders/function_lower.py` setup/tail buckets are substantially demoted
   - compiled-stage1 surrogate does not currently expose another worthwhile exact disappearing leaf
