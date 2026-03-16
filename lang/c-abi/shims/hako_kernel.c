@@ -27,49 +27,8 @@ int64_t hako_time_now_ms(void);
 // ---- Hako forward hook registry (C ABI canonical surface) ----
 #include "hako_forward_registry_shared_impl.inc"
 
-// ---- Diagnostics (thread-local short message) ----
-#if defined(_MSC_VER)
-__declspec(thread) static const char* hako_tls_last_error = "OK";
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
-static _Thread_local const char* hako_tls_last_error = "OK";
-#else
-static __thread const char* hako_tls_last_error = "OK";
-#endif
-
-// Forward declaration of opaque ctx from header; we intentionally ignore ctx here.
-struct hako_ctx;
-
-const char* hako_last_error(struct hako_ctx* ctx) {
-  (void)ctx;
-  return hako_tls_last_error ? hako_tls_last_error : "OK";
-}
-
-void hako_set_last_error(const char* short_msg) {
-  hako_tls_last_error = short_msg ? short_msg : "OK";
-}
-
-// ---- Memory API (libc-backed)
-void* hako_mem_alloc(uint64_t size) {
-  if (size == 0) size = 1; // avoid undefined behavior
-  void* p = malloc((size_t)size);
-  if (!p) {
-    hako_set_last_error("OOM");
-  }
-  return p;
-}
-
-void* hako_mem_realloc(void* ptr, uint64_t new_size) {
-  if (new_size == 0) new_size = 1;
-  void* p = realloc(ptr, (size_t)new_size);
-  if (!p) {
-    hako_set_last_error("OOM");
-  }
-  return p;
-}
-
-void hako_mem_free(void* ptr) {
-  if (ptr) free(ptr);
-}
+// ---- Shared diagnostics + memory (libc-backed)
+#include "hako_diag_mem_shared_impl.inc"
 
 // ---- GC read-only externs
 // Returns a newly allocated JSON string with basic counters (dummy values).

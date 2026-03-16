@@ -79,8 +79,8 @@ Related:
    - `.hako` caller boundary
 2. `lang/c-abi/include/hako_aot.h`
    - canonical C header
-3. `lang/c-abi/shims/{hako_aot.c,hako_aot_shared_impl.inc,hako_llvmc_ffi.c}`
-   - thin helper / shared source truth / optional FFI support
+3. `lang/c-abi/shims/{hako_aot.c,hako_diag_mem_shared_impl.inc,hako_aot_shared_impl.inc,hako_llvmc_ffi.c}`
+   - thin helper / shared TLS+memory foundation / compile-link source truth / optional FFI support
 
 ### 2.5.4 Compat / archive keeps
 
