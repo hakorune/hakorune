@@ -25,6 +25,7 @@ Pointers:
     - checked `BuildBox` / `MirBuilderBox` calls stay behind owner-local helpers
     - source/program-json orchestration stays behind same-file helpers (`_resolve_emit_program_source_text(...)`, `_resolve_program_json_for_emit_mir(...)`, `_resolve_program_json_for_run(...)`, `_load_program_json_from_path_or_source(...)`)
     - emit-mir checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`) so the raw subcmd lane no longer mixes Program(JSON) input validation, MirBuilder call, and MIR output validation inline
+    - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so inline payload probing, emit-program output validation, and emit-mir input validation share one same-file contract
 
 - `runner_facade.hako`
   - Contract（draft）:
@@ -69,6 +70,7 @@ Pointers:
 - shared Program(JSON) -> MIR checked call is isolated in `Stage1ProgramJsonMirCallerBox` inside `stage1_cli_env.hako`; keep the direct `MirBuilderBox.emit_from_program_json_v0(...)` contract out of both source authority and compat keep, and keep the helper itself on the same checked split (`_coerce_program_json_text_checked(...)` -> `_emit_mir_from_program_json_text_checked(...)`) as the other runner owners.
 - source-only authority call is isolated in `Stage1SourceMirAuthorityBox` inside `stage1_cli_env.hako`; the box now owns the source-entry `BuildBox.emit_program_json_v0(...)` shim locally and delegates only the Program(JSON) -> MIR step through `Stage1ProgramJsonMirCallerBox`.
 - the raw/subcmd `stage1_cli.hako` keep now also owns its emit-program checked tail behind `_emit_program_json_raw_with_debug(...)`, `_fail_emit_program_json_null(...)`, and `_coerce_program_json_output_checked(...)`, so the future-retire raw lane no longer mixes BuildBox call, null fail-fast, and Program(JSON) validation inline.
+- the raw/subcmd `stage1_cli.hako` keep now also owns shared Program(JSON) marker predicates behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so inline Program(JSON) payload detection, emit-program validation, and emit-mir validation reuse the same same-file check.
 - shared MIR materialization/validation is isolated in `Stage1MirResultValidationBox` inside `stage1_cli_env.hako`; keep result checking out of Main and out of the compat box.
 - `Stage1MirResultValidationBox` now keeps selected-input debug, MIR text materialization, and MIR debug print behind `_debug_print_selected_input(...)`, `_materialize_mir_text(...)`, `_debug_print_materialized_mir(...)`, and `_coerce_materialized_mir_text_checked(...)`, while structural payload validation stays behind `_validate_mir_text_checked(...)`.
 - `Stage1MirResultValidationBox` now also keeps the final print/fail tail behind `_emit_validated_mir_text_checked(...)` and `_fail_invalid_mir_text(...)`, so `finalize_emit_result(...)` is down to materialize -> validate/emit handoff only.

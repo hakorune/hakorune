@@ -212,12 +212,18 @@ static box Stage1Cli {
   }
 
   method _materialized_program_json_payload(input_text) {
-    if input_text == null || input_text == "" {
-      return 0
-    }
-    local has_kind = input_text.indexOf("\"kind\":\"Program\"")
-    local has_version = input_text.indexOf("\"version\":0")
-    if has_kind < 0 || has_version < 0 {
+    if me._program_json_text_present(input_text) != 1 { return 0 }
+    return me._program_json_has_markers(input_text)
+  }
+
+  method _program_json_text_present(input_text) {
+    if input_text != null && input_text != "" { return 1 }
+    return 0
+  }
+
+  method _program_json_has_markers(program_json_text) {
+    if me._program_json_text_present(program_json_text) != 1 { return 0 }
+    if program_json_text.indexOf("\"version\":0") < 0 || program_json_text.indexOf("\"kind\":\"Program\"") < 0 {
       return 0
     }
     return 1
@@ -432,7 +438,7 @@ static box Stage1Cli {
 
   method _coerce_program_json_output_checked(tag, prog, with_debug) {
     local ps = "" + prog
-    if ps.indexOf("\"version\":0") < 0 || ps.indexOf("\"kind\":\"Program\"") < 0 {
+    if me._program_json_has_markers(ps) != 1 {
       if with_debug == 1 {
         print(tag + ": unexpected Program(JSON) output (missing version/kind)")
       } else {
@@ -461,7 +467,7 @@ static box Stage1Cli {
       return null
     }
     local prog = "" + program_json
-    if prog.indexOf("\"version\":0") < 0 || prog.indexOf("\"kind\":\"Program\"") < 0 {
+    if me._program_json_has_markers(prog) != 1 {
       print("[freeze:contract][stage1-cli/emit-mir] input missing Program(JSON v0) markers")
       return null
     }
