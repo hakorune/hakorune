@@ -114,10 +114,17 @@ struct Stage1ProgramJsonModuleHandoff {
 impl Stage1ProgramJsonModuleHandoff {
     fn parse(program_json: &str) -> Result<Self, String> {
         Ok(Self {
-            module: crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json)
-                .map_err(failfast_error)?,
-            user_box_decls: Stage1UserBoxDecls::parse_program_json(program_json)?,
+            module: Self::parse_module(program_json)?,
+            user_box_decls: Self::parse_user_box_decls(program_json)?,
         })
+    }
+
+    fn parse_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
+        crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
+    }
+
+    fn parse_user_box_decls(program_json: &str) -> Result<Stage1UserBoxDecls, String> {
+        Stage1UserBoxDecls::parse_program_json(program_json)
     }
 
     fn emit_mir_json(self) -> Result<String, String> {
