@@ -177,6 +177,18 @@ impl MirInterpreter {
                     .map(|v| v.to_string())
                     .filter(|s| !s.is_empty() && s != "null")
                     .map(std::path::PathBuf::from);
+                let compile_recipe = args
+                    .get(2)
+                    .map(|arg| self.reg_load(*arg))
+                    .transpose()?
+                    .map(|v| v.to_string())
+                    .filter(|s| !s.is_empty() && s != "null");
+                let compat_replay = args
+                    .get(3)
+                    .map(|arg| self.reg_load(*arg))
+                    .transpose()?
+                    .map(|v| v.to_string())
+                    .filter(|s| !s.is_empty() && s != "null");
                 let opts = crate::host_providers::llvm_codegen::Opts {
                     out,
                     nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
@@ -186,6 +198,8 @@ impl MirInterpreter {
                         .ok()
                         .or(Some("0".to_string())),
                     timeout_ms: None,
+                    compile_recipe,
+                    compat_replay,
                 };
                 match crate::host_providers::llvm_codegen::mir_json_file_to_object(
                     std::path::Path::new(&json_path),
@@ -209,6 +223,8 @@ impl MirInterpreter {
                             .ok()
                             .or(Some("0".to_string())),
                         timeout_ms: None,
+                        compile_recipe: None,
+                        compat_replay: None,
                     };
                     match crate::host_providers::llvm_codegen::mir_json_to_object(&s, opts) {
                         Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),

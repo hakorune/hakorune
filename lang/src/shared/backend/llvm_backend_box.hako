@@ -12,8 +12,10 @@ static box LlvmBackendBox {
   compile_obj(json_path) {
     local path = BackendRecipeBox.prepare_compile_pure_first(json_path)
     if path == null { return null }
+    local recipe = BackendRecipeBox.compile_recipe_pure_first()
+    local compat = BackendRecipeBox.compat_replay_harness()
 
-    local obj = env.codegen.compile_json_path(path)
+    local obj = env.codegen.compile_json_path(path, "", recipe, compat)
     if obj == null || ("" + obj) == "" {
       return me._fail("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
     }

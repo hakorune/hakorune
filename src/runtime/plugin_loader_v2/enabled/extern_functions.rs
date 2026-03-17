@@ -383,7 +383,11 @@ fn handle_codegen(
     method_name: &str,
     args: &[Box<dyn NyashBox>],
 ) -> BidResult<Option<Box<dyn NyashBox>>> {
-    fn codegen_opts(out: Option<std::path::PathBuf>) -> crate::host_providers::llvm_codegen::Opts {
+    fn codegen_opts(
+        out: Option<std::path::PathBuf>,
+        compile_recipe: Option<String>,
+        compat_replay: Option<String>,
+    ) -> crate::host_providers::llvm_codegen::Opts {
         crate::host_providers::llvm_codegen::Opts {
             out,
             nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
@@ -394,6 +398,8 @@ fn handle_codegen(
                 .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
                 .or(Some("0".to_string())),
             timeout_ms: None,
+            compile_recipe,
+            compat_replay,
         }
     }
 
@@ -408,9 +414,17 @@ fn handle_codegen(
                 .map(|b| b.to_string_box().value)
                 .filter(|s| !s.is_empty() && s != "null")
                 .map(std::path::PathBuf::from);
+            let compile_recipe = args
+                .get(2)
+                .map(|b| b.to_string_box().value)
+                .filter(|s| !s.is_empty() && s != "null");
+            let compat_replay = args
+                .get(3)
+                .map(|b| b.to_string_box().value)
+                .filter(|s| !s.is_empty() && s != "null");
             match crate::host_providers::llvm_codegen::mir_json_file_to_object(
                 std::path::Path::new(&json_path),
-                codegen_opts(out),
+                codegen_opts(out, compile_recipe, compat_replay),
             ) {
                 Ok(p) => {
                     let s = p.to_string_lossy().into_owned();
@@ -426,7 +440,7 @@ fn handle_codegen(
                 .unwrap_or_default();
             match crate::host_providers::llvm_codegen::mir_json_to_object(
                 &mir_json,
-                codegen_opts(None),
+                codegen_opts(None, None, None),
             ) {
                 Ok(p) => {
                     // Convert PathBuf → String via lossy conversion (owned)

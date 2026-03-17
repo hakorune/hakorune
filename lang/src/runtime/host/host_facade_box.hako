@@ -105,8 +105,16 @@ static box HostFacadeBox {
     local json_path = me._array_arg_or_null(args, 0)
     if json_path == null { return null }
     local out_path = me._array_arg_or_null(args, 1)
-    if out_path == null { return env.codegen.compile_json_path(json_path) }
-    return env.codegen.compile_json_path(json_path, out_path)
+    local recipe = me._array_arg_or_null(args, 2)
+    local compat = me._array_arg_or_null(args, 3)
+    if out_path == null {
+      if recipe == null { return env.codegen.compile_json_path(json_path) }
+      if compat == null { return env.codegen.compile_json_path(json_path, "", recipe) }
+      return env.codegen.compile_json_path(json_path, "", recipe, compat)
+    }
+    if recipe == null { return env.codegen.compile_json_path(json_path, out_path) }
+    if compat == null { return env.codegen.compile_json_path(json_path, out_path, recipe) }
+    return env.codegen.compile_json_path(json_path, out_path, recipe, compat)
   }
 
   _invoke_codegen_emit_object(payload) {

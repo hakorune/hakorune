@@ -80,6 +80,8 @@ fn emit_object_via_backend_boundary(module: &MirModule, out_path: &str) -> Resul
         nyrt: None,
         opt_level: crate::config::env::llvm_opt_level_env(),
         timeout_ms: Some(20_000),
+        compile_recipe: None,
+        compat_replay: None,
     };
     crate::host_providers::llvm_codegen::mir_json_to_object(&mir_json, opts).map(|_| ())
 }

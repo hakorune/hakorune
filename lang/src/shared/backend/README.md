@@ -9,7 +9,8 @@ Current owner
   - thin backend boundary の caller facade
   - `backend_recipe_box.hako`
   - caller-side compile/link recipe owner; prepare route/policy, but do not own transport calls
-  - current compile recipe names are `HAKO_BACKEND_COMPILE_RECIPE=pure-first` and `HAKO_BACKEND_COMPAT_REPLAY=harness`
+  - current `.hako` daily caller passes recipe payload explicitly (`pure-first` / `harness`) to `env.codegen.compile_json_path(...)`
+  - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary
   - final target は `LlvmBackendBox -> BackendRecipeBox -> hako_aot -> backend helper`
   - daily compile/link owner now stops directly at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`
   - shared compile/link helper lowering now reaches canonical `env.codegen.*` externs directly; daily compile/link does not depend on `hostbridge.extern_invoke(...)`

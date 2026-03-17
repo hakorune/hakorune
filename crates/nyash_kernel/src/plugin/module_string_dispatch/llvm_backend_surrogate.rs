@@ -101,6 +101,8 @@ fn compile_obj_opts_from_env() -> nyash_rust::host_providers::llvm_codegen::Opts
             .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
             .or(Some("0".to_string())),
         timeout_ms: None,
+        compile_recipe: None,
+        compat_replay: None,
     }
 }
 

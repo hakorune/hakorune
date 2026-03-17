@@ -31,6 +31,8 @@ pub struct Opts {
     pub nyrt: Option<PathBuf>,
     pub opt_level: Option<String>,
     pub timeout_ms: Option<u64>,
+    pub compile_recipe: Option<String>,
+    pub compat_replay: Option<String>,
 }
 
 fn resolve_ny_llvmc() -> PathBuf {
@@ -114,7 +116,7 @@ fn try_compile_via_capi_keep(mir_json: &str, opts: &Opts) -> Result<Option<PathB
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
     ensure_backend_output_parent(&out_path);
-    match compile_via_capi(&in_path, &out_path) {
+    match compile_via_capi(&in_path, &out_path, opts) {
         Ok(()) => Ok(Some(out_path)),
         Err(e) => {
             llvm_emit_error!("[llvmemit/capi/failed] {}", e);
@@ -149,7 +151,7 @@ fn try_compile_via_boundary_default(
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
     ensure_backend_output_parent(&out_path);
-    match compile_via_capi(&in_path, &out_path) {
+    match compile_via_capi(&in_path, &out_path, opts) {
         Ok(()) => Ok(Some(out_path)),
         Err(error) if capi_boundary_unavailable(&error) => Ok(None),
         Err(error) => {
@@ -261,8 +263,29 @@ fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result<PathBuf, S
     Ok(out_path)
 }
 
+fn requested_compile_recipe(opts: &Opts) -> Option<String> {
+    opts.compile_recipe
+        .clone()
+        .or_else(crate::config::env::backend_compile_recipe)
+        .or_else(|| Some("pure-first".to_string()))
+}
+
+fn requested_compat_replay(opts: &Opts) -> Option<String> {
+    opts.compat_replay
+        .clone()
+        .or_else(crate::config::env::backend_compat_replay)
+        .or_else(|| Some("harness".to_string()))
+}
+
+fn compile_symbol_for_recipe(recipe: Option<&str>) -> &'static [u8] {
+    match recipe {
+        Some("pure-first") => COMPILE_SYMBOL_PURE_FIRST,
+        _ => COMPILE_SYMBOL_DEFAULT,
+    }
+}
+
 #[cfg(feature = "plugins")]
-fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
+fn compile_via_capi(json_in: &Path, obj_out: &Path, opts: &Opts) -> Result<(), String> {
     use libloading::Library;
     use std::os::raw::{c_char, c_int, c_void};
 
@@ -287,8 +310,10 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
         // route selection stays outside the generic C shim surface.
         type CompileFn =
             unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
+        let compile_recipe = requested_compile_recipe(opts);
+        let compat_replay = requested_compat_replay(opts);
         let func: libloading::Symbol<CompileFn> = lib
-            .get(COMPILE_SYMBOL_PURE_FIRST)
+            .get(compile_symbol_for_recipe(compile_recipe.as_deref()))
             .or_else(|_| lib.get(COMPILE_SYMBOL_DEFAULT))
             .map_err(|e| format!("dlsym failed: {}", e))?;
         let cin = CString::new(json_in.to_string_lossy().as_bytes())
@@ -298,8 +323,16 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
         let mut err_ptr: *mut c_char = std::ptr::null_mut();
         let prev_recipe = std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok();
         let prev_replay = std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok();
-        std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", "pure-first");
-        std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", "harness");
+        if let Some(value) = compile_recipe.as_deref() {
+            std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", value);
+        } else {
+            std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
+        }
+        if let Some(value) = compat_replay.as_deref() {
+            std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", value);
+        } else {
+            std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY");
+        }
 
         // Inject opt_level defaults for Python harness (insurance against None)
         if crate::config::env::llvm_opt_level_envs().0.is_none() {
@@ -354,7 +387,7 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
 }
 
 #[cfg(not(feature = "plugins"))]
-fn compile_via_capi(_json_in: &Path, _obj_out: &Path) -> Result<(), String> {
+fn compile_via_capi(_json_in: &Path, _obj_out: &Path, _opts: &Opts) -> Result<(), String> {
     Err("capi not available (plugins feature disabled)".into())
 }
 

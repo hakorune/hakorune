@@ -40,6 +40,8 @@ impl MirInterpreter {
 
     fn codegen_object_opts(
         out: Option<std::path::PathBuf>,
+        compile_recipe: Option<String>,
+        compat_replay: Option<String>,
     ) -> crate::host_providers::llvm_codegen::Opts {
         crate::host_providers::llvm_codegen::Opts {
             out,
@@ -51,6 +53,8 @@ impl MirInterpreter {
                 .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
                 .or(Some("0".to_string())),
             timeout_ms: None,
+            compile_recipe,
+            compat_replay,
         }
     }
 
@@ -243,7 +247,7 @@ impl MirInterpreter {
                 };
                 // Normalize to v1 shape if missing/legacy (prevents harness NoneType errors)
                 let mir_json = Self::patch_mir_json_version(&mir_json_raw);
-                let opts = Self::codegen_object_opts(None);
+                let opts = Self::codegen_object_opts(None, None, None);
                 let res = match crate::host_providers::llvm_codegen::mir_json_to_object(
                     &mir_json, opts,
                 ) {
@@ -280,7 +284,21 @@ impl MirInterpreter {
                     },
                     None => None,
                 };
-                let opts = Self::codegen_object_opts(out);
+                let compile_recipe = match args.get(2) {
+                    Some(v) => match self.reg_load(*v) {
+                        Ok(v) => Self::optional_codegen_text(v.to_string()),
+                        Err(e) => return Some(Err(e)),
+                    },
+                    None => None,
+                };
+                let compat_replay = match args.get(3) {
+                    Some(v) => match self.reg_load(*v) {
+                        Ok(v) => Self::optional_codegen_text(v.to_string()),
+                        Err(e) => return Some(Err(e)),
+                    },
+                    None => None,
+                };
+                let opts = Self::codegen_object_opts(out, compile_recipe, compat_replay);
                 let res = match crate::host_providers::llvm_codegen::mir_json_file_to_object(
                     std::path::Path::new(&json_path),
                     opts,
@@ -608,7 +626,7 @@ impl MirInterpreter {
                     }
                     ("env.codegen", "emit_object") => {
                         if let Some(s) = first_arg_str {
-                            let opts = Self::codegen_object_opts(None);
+                            let opts = Self::codegen_object_opts(None, None, None);
                             match crate::host_providers::llvm_codegen::mir_json_to_object(&s, opts)
                             {
                                 Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
@@ -628,7 +646,7 @@ impl MirInterpreter {
                                     "extern_invoke env.codegen.compile_json_path expects 1+ args",
                                 ))),
                             };
-                        let out = if let Some(a2) = args.get(2) {
+                        let (out, compile_recipe, compat_replay) = if let Some(a2) = args.get(2) {
                             let v = match self.reg_load(*a2) {
                                 Ok(v) => v,
                                 Err(e) => return Some(Err(e)),
@@ -641,23 +659,43 @@ impl MirInterpreter {
                                         let idx1: Box<dyn crate::box_trait::NyashBox> =
                                             Box::new(crate::box_trait::IntegerBox::new(1));
                                         let s1 = ab.get(idx1).to_string_box().value;
-                                        Self::optional_codegen_text(s1)
-                                            .map(std::path::PathBuf::from)
+                                        let idx2: Box<dyn crate::box_trait::NyashBox> =
+                                            Box::new(crate::box_trait::IntegerBox::new(2));
+                                        let s2 = ab.get(idx2).to_string_box().value;
+                                        let idx3: Box<dyn crate::box_trait::NyashBox> =
+                                            Box::new(crate::box_trait::IntegerBox::new(3));
+                                        let s3 = ab.get(idx3).to_string_box().value;
+                                        (
+                                            Self::optional_codegen_text(s1)
+                                                .map(std::path::PathBuf::from),
+                                            Self::optional_codegen_text(s2),
+                                            Self::optional_codegen_text(s3),
+                                        )
                                     } else {
                                         let text = b.to_string_box().value;
-                                        Self::optional_codegen_text(text)
-                                            .map(std::path::PathBuf::from)
+                                        (
+                                            Self::optional_codegen_text(text)
+                                                .map(std::path::PathBuf::from),
+                                            None,
+                                            None,
+                                        )
                                     }
                                 }
                                 other => {
                                     let text = other.to_string();
-                                    Self::optional_codegen_text(text).map(std::path::PathBuf::from)
+                                    (
+                                        Self::optional_codegen_text(text)
+                                            .map(std::path::PathBuf::from),
+                                        None,
+                                        None,
+                                    )
                                 }
                             }
                         } else {
-                            None
+                            (None, None, None)
                         };
-                        let opts = Self::codegen_object_opts(out);
+                        let opts =
+                            Self::codegen_object_opts(out, compile_recipe, compat_replay);
                         match crate::host_providers::llvm_codegen::mir_json_file_to_object(
                             std::path::Path::new(&json_path),
                             opts,
