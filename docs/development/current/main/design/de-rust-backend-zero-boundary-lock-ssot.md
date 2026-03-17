@@ -77,6 +77,7 @@ backend-zero の final target は次の形に固定する。
    - caller-facing route is `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe`
    - `ny-llvmc` internal default driver now enters the boundary-owned lane first, not `Harness`
    - `src/host_providers/llvm_codegen.rs` default object path now also tries the direct C ABI boundary before any wrapper keep lane
+   - `src/host_providers/llvm_codegen.rs::link_object_capi(...)` now forwards linker keeps directly into `hako_aot_link_obj(...)` instead of re-owning runtime archive / env ldflags synthesis on the Rust side
    - `lang/c-abi/shims/hako_llvmc_ffi.c` default compile/link exports now read as `hako_aot` forwarders, while `HAKO_CAPI_PURE=1` stays a compat-only pure-lowering branch
    - explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` keeps remain replayable, but the wrapper path is no longer part of the default route
    - unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` remains an indirect compat keep inside the boundary fallback lane

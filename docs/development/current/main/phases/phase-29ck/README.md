@@ -70,6 +70,7 @@ Related:
    - `hako_aot_compile_json(...)` compat fallback now pins `ny-llvmc --driver harness` explicitly to avoid recursive `boundary -> hako_aot -> ny-llvmc` loops
    - `native` is bootstrap/canary keep only and is not the target replacement default
    - follow-up host-provider default slice: `src/host_providers/llvm_codegen.rs` now also tries the direct C ABI boundary before any wrapper keep lane, so default object emission is boundary-first on both the selector and host-provider layers while explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` remains replayable
+   - follow-up host-provider link slice: `link_object_capi(...)` no longer re-synthesizes runtime archive / `HAKO_AOT_LDFLAGS` fallback in Rust; linker keeps now pass straight through to `hako_aot_link_obj(...)`, with empty/null proof covered by the `.hako VM -> LlvmBackendBox -> C-API -> exe` runtime smoke
    - follow-up FFI-owner slice: `lang/c-abi/shims/hako_llvmc_ffi.c` now reads as `default -> hako_aot forwarder`, while the `HAKO_CAPI_PURE=1` branch stays parked as compat-only pure-lowering legacy
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`

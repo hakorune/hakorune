@@ -350,38 +350,10 @@ pub fn link_object_capi(
     exe_out: &Path,
     extra_ldflags: Option<&str>,
 ) -> Result<(), String> {
-    // Compute effective ldflags
-    let mut eff: Option<String> = extra_ldflags.map(|s| s.to_string());
-    let empty = eff.as_deref().map(|s| s.trim().is_empty()).unwrap_or(true);
-    if empty {
-        if let Some(s) = crate::config::env::aot_ldflags() {
-            eff = Some(s);
-        }
-    }
-    if eff.is_none() {
-        // Try to auto-detect NyRT static lib; append common libs
-        let candidates = [
-            // New kernel name
-            "target/release/libnyash_kernel.a",
-            "crates/nyash_kernel/target/release/libnyash_kernel.a",
-            "dist/lib/libnyash_kernel.a",
-            // Legacy names (fallback)
-            "target/release/libnyrt.a",
-            "crates/nyrt/target/release/libnyrt.a",
-            "dist/lib/libnyrt.a",
-        ];
-        for c in candidates.iter() {
-            let p = PathBuf::from(c);
-            if p.exists() {
-                eff = Some(format!("{} -ldl -lpthread -lm", p.to_string_lossy()));
-                break;
-            }
-        }
-    }
     if crate::config::env::cabi_trace() {
-        llvm_emit_debug!("[hb:link:ldflags] {}", eff.as_deref().unwrap_or("<none>"));
+        llvm_emit_debug!("[hb:link:ldflags] {}", extra_ldflags.unwrap_or("<none>"));
     }
-    link_via_capi(obj_in, exe_out, eff.as_deref())
+    link_via_capi(obj_in, exe_out, extra_ldflags)
 }
 
 #[cfg(feature = "plugins")]
