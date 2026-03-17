@@ -7,9 +7,13 @@
 
 static box BackendRecipeBox {
   prepare_compile_route(json_path) {
+    return me.prepare_compile_pure_first(json_path)
+  }
+
+  prepare_compile_pure_first(json_path) {
     local path = me._require_non_empty("prepare_compile_route", "json_path", json_path)
     if path == null { return null }
-    me._set_compile_recipe_pure_first()
+    me._export_compile_recipe(me.compile_recipe_pure_first(), me.compat_replay_harness())
     return "" + path
   }
 
@@ -27,9 +31,17 @@ static box BackendRecipeBox {
     return "" + value
   }
 
-  _set_compile_recipe_pure_first() {
-    env.set("HAKO_BACKEND_COMPILE_RECIPE", "pure-first")
-    env.set("HAKO_BACKEND_COMPAT_REPLAY", "harness")
+  compile_recipe_pure_first() {
+    return "pure-first"
+  }
+
+  compat_replay_harness() {
+    return "harness"
+  }
+
+  _export_compile_recipe(recipe_name, compat_replay) {
+    env.set("HAKO_BACKEND_COMPILE_RECIPE", "" + recipe_name)
+    env.set("HAKO_BACKEND_COMPAT_REPLAY", "" + compat_replay)
   }
 
   _fail(tag) {

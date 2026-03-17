@@ -393,13 +393,13 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
         },
         EnvVarMeta {
             name: "HAKO_BACKEND_COMPILE_RECIPE",
-            description: "Backend compile recipe selector (for example pure-first)",
+            description: "Backend compile recipe selector (for example pure-first; recipe-aware callers may pick an explicit FFI export from this)",
             applies_to: AppliesTo::Compiler,
             default: None,
         },
         EnvVarMeta {
             name: "HAKO_BACKEND_COMPAT_REPLAY",
-            description: "Backend compat replay selector (for example harness)",
+            description: "Backend compat replay selector (for example harness) for unsupported pure-first shapes",
             applies_to: AppliesTo::Compiler,
             default: None,
         },

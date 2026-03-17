@@ -58,6 +58,7 @@ pub fn backend_compat_replay() -> Option<String> {
 }
 
 /// Pure-first compile request for the current backend recipe.
+/// Recipe-aware callers may bind an explicit pure-first FFI export from this.
 pub fn backend_recipe_requests_pure_first() -> bool {
     matches!(backend_compile_recipe().as_deref(), Some("pure-first")) || env_bool("HAKO_CAPI_PURE")
 }

@@ -14,6 +14,9 @@ type CompileFn = unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_
 type LinkFn =
     unsafe extern "C" fn(*const c_char, *const c_char, *const c_char, *mut *mut c_char) -> c_int;
 
+const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
+const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
+
 pub fn emit_dummy_object(out: &Path) -> Result<()> {
     let tmp = temporary_dummy_mir_path(out);
     fs::write(&tmp, build_dummy_mir_json())
@@ -109,8 +112,9 @@ where
 {
     let lib = open_ffi_library()?;
     let func: CompileFn = *lib
-        .get(b"hako_llvmc_compile_json\0")
-        .context("missing symbol hako_llvmc_compile_json")?;
+        .get(COMPILE_SYMBOL_PURE_FIRST)
+        .or_else(|_| lib.get(COMPILE_SYMBOL_DEFAULT))
+        .context("missing symbol hako_llvmc_compile_json{_pure_first}")?;
     action(func)
 }
 

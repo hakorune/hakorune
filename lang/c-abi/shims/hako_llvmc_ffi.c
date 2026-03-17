@@ -7,7 +7,9 @@
 // Supported seeds still try the pure-first boundary subset here, and
 // unsupported shapes in that lane replay the explicit `--driver harness`
 // keep lane directly from this shim.
-// The default export surface still presents as a thin hako_aot forwarder.
+// The default export surface still presents as a thin hako_aot forwarder,
+// while recipe-aware callers can use an explicit pure-first export so route
+// selection no longer depends on this shim's generic symbol.
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -250,14 +252,29 @@ static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, cons
 
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
 
+static int compile_json_with_selected_route(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out,
+    int pure_first_selected) {
+  if (!pure_first_selected) {
+    return forward_compile_json_to_aot(json_in, obj_out, err_out);
+  }
+  return compile_json_compat_pure(json_in, obj_out, err_out);
+}
+
 // Exported symbols expected by hako_aot.c when loading libhako_llvmc_ffi.so
 // Signature must match: int (*)(const char*, const char*, char**)
 __attribute__((visibility("default")))
 int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err_out) {
-  if (!capi_pure_enabled()) {
-    return forward_compile_json_to_aot(json_in, obj_out, err_out);
-  }
-  return compile_json_compat_pure(json_in, obj_out, err_out);
+  return compile_json_with_selected_route(json_in, obj_out, err_out, capi_pure_enabled());
+}
+
+// Recipe-aware daily callers use this explicit pure-first transport entry so
+// generic route selection stays outside the C shim.
+__attribute__((visibility("default")))
+int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out, char** err_out) {
+  return compile_json_with_selected_route(json_in, obj_out, err_out, 1);
 }
 
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out) {

@@ -10,7 +10,7 @@ using selfhost.shared.backend.recipe as BackendRecipeBox
 static box LlvmBackendBox {
   // Returns object path on success, or null on fail-fast error.
   compile_obj(json_path) {
-    local path = BackendRecipeBox.prepare_compile_route(json_path)
+    local path = BackendRecipeBox.prepare_compile_pure_first(json_path)
     if path == null { return null }
 
     local obj = env.codegen.compile_json_path(path)

@@ -130,8 +130,8 @@ Throw surface policy:
 | `NYASH_FAIL_FAST=0` | ON | Any | フォールバックを許容（既定は拒否） |
 | `NYASH_LLVM_USE_CAPI=1` | OFF | LLVM / backend-zero | LLVM C-API provider を有効化。`phase-29ck` runtime proof では pinned keep env。 |
 | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` | OFF | LLVM / backend-zero | extern provider の C-ABI bridge を有効化。`phase-29ck` runtime proof では pinned keep env。 |
-| `HAKO_BACKEND_COMPILE_RECIPE=pure-first` | OFF | LLVM / backend-zero | backend-zero の current caller-side compile recipe。daily route は `.hako` / boundary caller からこれを立て、C shim は transport-only に寄せる。 |
-| `HAKO_BACKEND_COMPAT_REPLAY=harness` | OFF | LLVM / backend-zero | pure-first route で unsupported shape をどの compat keep へ流すかを示す recipe selector。 |
+| `HAKO_BACKEND_COMPILE_RECIPE=pure-first` | OFF | LLVM / backend-zero | backend-zero の current caller-side compile recipe。daily route は `.hako` / boundary caller からこれを立て、recipe-aware caller は explicit `pure-first` FFI export を選び、generic C export には route 意味論を増やさない。 |
+| `HAKO_BACKEND_COMPAT_REPLAY=harness` | OFF | LLVM / backend-zero | pure-first route で unsupported shape をどの compat keep へ流すかを示す recipe selector。explicit pure-first FFI export でも unsupported shape replay の transport hint として読む。 |
 | `HAKO_AOT_LDFLAGS` | OFF | LLVM / backend-zero | AOT link の compat append ldflags。daily caller の main route は `LlvmBackendBox.link_exe(..., libs)` の 3rd arg。 |
 | `HAKO_CAPI_PURE=1` | OFF | LLVM / compat-only pure-lowering | legacy alias。historical pure C-API/FFI lowering route を強制。phase2120/historical helper 用で、daily backend-zero route は `HAKO_BACKEND_COMPILE_RECIPE` を正本にする。 |
 

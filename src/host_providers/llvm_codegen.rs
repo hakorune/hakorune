@@ -5,6 +5,9 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
+const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
+
 macro_rules! llvm_emit_error {
     ($($arg:tt)*) => {{
         if crate::config::env::cli_verbose_enabled() {
@@ -280,11 +283,13 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
             .find(|p| p.exists())
             .ok_or_else(|| "FFI library not found (set HAKO_AOT_FFI_LIB)".to_string())?;
         let lib = Library::new(lib_path).map_err(|e| format!("dlopen failed: {}", e))?;
-        // Symbol: int hako_llvmc_compile_json(const char*, const char*, char**)
+        // Recipe-aware daily callers prefer the explicit pure-first export so
+        // route selection stays outside the generic C shim surface.
         type CompileFn =
             unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
         let func: libloading::Symbol<CompileFn> = lib
-            .get(b"hako_llvmc_compile_json\0")
+            .get(COMPILE_SYMBOL_PURE_FIRST)
+            .or_else(|_| lib.get(COMPILE_SYMBOL_DEFAULT))
             .map_err(|e| format!("dlsym failed: {}", e))?;
         let cin = CString::new(json_in.to_string_lossy().as_bytes())
             .map_err(|_| "invalid json path".to_string())?;
