@@ -27,6 +27,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `BackendRecipeBox.compile_route_profile(...)` now also names `acceptance_policy=boundary-pure-seed-matrix-v1`
     - `RuntimeDataBox.get(ArrayBox missing index)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-array-get-missing-v1`
     - this is the first visible `.hako`-owned label for why daily route stays `pure-first + harness`, while transport behavior remains unchanged
+  - remaining backend-zero tasks, in order:
+    1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
+    2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
+    3. `BackendRecipeBox` の recipe/profile evidence rows は、新しい exact fixture が出るまで増やさない
+    4. `hako_llvmc_ffi.c` は export / marshal / fallback transport only に固定し、policy を戻さない
   - current clean stop-line:
     - `.hako` policy owner is `BackendRecipeBox`
     - `.hako` caller stop-line is `LlvmBackendBox -> env.codegen.*`
