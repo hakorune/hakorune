@@ -21,6 +21,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - current main goal:
   - `backend-zero` を final shape `.hako -> LlvmBackendBox -> hako_aot -> backend helper` へ寄せる
   - `src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/main.rs`, `crates/nyash-llvm-compiler/src/native_driver.rs` は途中の Rust glue / keep lane であり、final owner ではない
+  - `lang/c-abi/shims/hako_llvmc_ffi.c` は急いで delete せず、まず `transport-only` の tiny C substrate に縮める
 - already stopped:
   - bootstrap closure wave は fixed-point compare まで完了
   - `stage7 launcher` / `stage9 launcher` と fresh `stage1-cli` rebuild は byte-identical
@@ -28,8 +29,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - active order:
   1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
   2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
-  3. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を thin floor まで固める
-  4. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
+  3. backend-zero は `.hako = policy/recipe owner`, `C = export/transport owner` に固定し、C を急いで delete しない
+  4. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を thin floor まで固める
+  5. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
 - freeze unless blocker:
   - `phase-29cj` micro-thinning
   - bridge/program-json/stub-emit cleanup
@@ -78,6 +80,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - post-cutover by-name retirement SSOT: `docs/development/current/main/phases/phase-29cl/README.md`
     - final shape lock: `.hako -> thin backend C ABI/plugin boundary -> object/exe`
     - `crates/nyash-llvm-compiler/src/native_driver.rs` は bootstrap seam only
+    - design lock (2026-03-18):
+      - `.hako` is the owner for `pure-first seed selection`, `route selection`, `compile recipe`, `unsupported-shape classification`, `compat replay policy`, and backend diagnostics/fail-fast policy
+      - `lang/c-abi/shims/hako_llvmc_ffi.c` stays as a tiny C substrate for `extern "C"` export, `char** err_out` ownership, allocator boundary, `dlopen/dlsym`, `system()`, and path/env/process glue
+      - do not optimize for `0C`; optimize for `0rust + policy-in-.hako + transport-only C`
+      - `hako_llvmc_ffi.c` should lose meaning/policy before it loses existence
     - landed slice:
       - `lang/src/shared/backend/llvm_backend_box.hako` の first implementation
       - `compile_obj(json_path)` / `link_exe(obj_path, out_path, libs)` を thin caller facade に固定し、owner は `CodegenBridgeBox` に寄せた
@@ -185,7 +192,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current exact issue は 3 本:
     1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
     2. `ny-llvmc` selector-level default と `src/host_providers/llvm_codegen.rs` default object path は `boundary`-first になり、`lang/c-abi/shims/hako_aot_shared_impl.inc` compile command も `--driver boundary` に寄った; supported v1 seeds `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` と `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` は pure C subset で object emit できる一方、unsupported shapes are replayed from `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` directly, so `llvmlite` remains an indirect compat in-path while the `ny-llvmc` wrapper path itself is explicit keep only
-    3. `native_driver.rs` は bootstrap seam のまま keep すべきで、次は `main.rs` / `llvm_codegen.rs` の Rust glue をさらに薄くしつつ、`hako_llvmc_ffi.c` / boundary fallback reliance を減らす必要がある
+    3. `native_driver.rs` は bootstrap seam のまま keep すべきで、次は `main.rs` / `llvm_codegen.rs` の Rust glue をさらに薄くしつつ、`hako_llvmc_ffi.c` から policy を抜いて `transport-only` C substrate へ寄せる必要がある
 - do not do yet:
   - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
   - new `id-name` style intermediate contract
@@ -203,6 +210,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - final-owner reminder:
   - `.hako` 側は `LlvmBackendBox -> env.codegen.*` で止まる
   - final backend daily owner は Core C ABI `hako_aot` boundary
+  - backend meaning/policy は `.hako` owner へ寄せ、C は export/transport だけを持つ
   - `llvm_codegen.rs` / `main.rs` / `native_driver.rs` は順に thin glue / wrapper / canary へ後退させる
 - success condition for the current wave:
   - `by-name` is compat-only / no longer a daily mainline owner
@@ -229,12 +237,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - keep `MIR(JSON path) -> object path -> exe path` contract single-sourced
        - absorb command/log/resolve/error-projection cleanup here, not in runner callers
        - become the final daily owner that `llvm_codegen.rs` only forwards into, not the other way around
+       - fix the architectural split as `.hako policy/recipe owner + transport-only C substrate`
        - reduce `hako_llvmc_ffi.c -> ny-llvmc --driver harness` fallback reliance from `ret_const_min_v1` upward until `llvm_codegen.rs` can stay boundary-first without reopening Rust/CLI ownership
        - fixed order:
-         - first widen boundary-owned compile coverage in `lang/c-abi/shims/hako_llvmc_ffi.c`
-         - then move unsupported compile replay ownership into `lang/c-abi/shims/hako_llvmc_ffi.c` itself, so the boundary pure-first lane replays `--driver harness` directly instead of re-entering `hako_aot_compile_json(...)`
+         - first keep widening boundary-owned compile coverage in `lang/c-abi/shims/hako_llvmc_ffi.c` for narrow pure seeds
+         - then introduce a `.hako` recipe owner (`BackendRecipeBox` / `LlvmCompileRecipeBox` shape) for pure/boundary/compat-harness selection
+         - then move unsupported compile replay and seed/route policy out of `lang/c-abi/shims/hako_llvmc_ffi.c`, leaving it as export/marshal glue
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
-         - next focus is no longer command repointing; it is shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
+         - next focus is no longer command repointing; it is shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface while preparing the `.hako` recipe seam
          - exact next slice: widen boundary-owned compile coverage from the landed `RuntimeDataBox.{get(MapBox),push(ArrayBox),has(ArrayBox)}` seeds to the next smallest unsupported seed `RuntimeDataBox.get(ArrayBox missing index)`, then broader method-loop packs
      - acceptance:
        - `cargo run -p nyash-llvm-compiler -- --emit obj --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json --out target/tmp/phase29ck_boundary_min.o`
