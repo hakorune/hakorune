@@ -101,19 +101,9 @@ static box MirCallV1HandlerBox {
               // 第1引数はインデックスを指すレジスタID（arg0）、第2引数は値を指すレジスタID（arg1）
               local arg0 = MiniMirV1Scan.first_arg_register(seg)
               local idx = 0; if arg0 >= 0 { local sv = regs.getField(StringHelpers.int_to_str(arg0)); if sv != null { idx = JsonFragBox._str_to_int(""+sv) } }
-              if idx + 1 > cur_len { cur_len = idx + 1 }
+              local arg1_id_fb = MiniMirV1Scan.nth_arg_register(seg, 1)
+              cur_len = ArrayCoreBox.record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id_fb)
               regs.setField(key, StringHelpers.int_to_str(cur_len))
-              // 値状態ON時: 値を保存
-              if value_state == "1" {
-                local arg1_id = MiniMirV1Scan.nth_arg_register(seg, 1)
-                if arg1_id >= 0 {
-                  local val_str = regs.getField(StringHelpers.int_to_str(arg1_id))
-                  if val_str != null {
-                    local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
-                    regs.setField(val_key, ""+val_str)
-                  }
-                }
-              }
               local d_seta = JsonFragBox.get_int(seg, "dst"); if d_seta != null { regs.setField(StringHelpers.int_to_str(d_seta), "0") }
               return
             }
@@ -132,13 +122,22 @@ static box MirCallV1HandlerBox {
               if value_state == "1" {
                 local arg0 = MiniMirV1Scan.first_arg_register(seg)
                 local idx = 0; if arg0 >= 0 { local sv = regs.getField(StringHelpers.int_to_str(arg0)); if sv != null { idx = JsonFragBox._str_to_int(""+sv) } }
-                local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
-                local val_str = regs.getField(val_key)
+                local val_str = ArrayCoreBox.get_state_value(regs, per_recv, rid, idx)
                 local dst_get = JsonFragBox.get_int(seg, "dst")
                 if dst_get != null {
                   if val_str != null { regs.setField(StringHelpers.int_to_str(dst_get), ""+val_str) }
                   // val_str == null の時は setField しない（null 表現）
                 }
+                return
+              }
+            }
+            if btype == "ArrayBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
+              local recv_ha = me._read_reg_i64_or_null(regs, rid)
+              if recv_ha != null && recv_ha > 0 {
+                local len_i64 = ArrayCoreBox.len_i64(recv_ha)
+                local dst_al = JsonFragBox.get_int(seg, "dst")
+                if dst_al != null { regs.setField(StringHelpers.int_to_str(dst_al), StringHelpers.int_to_str(len_i64)) }
+                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/array_core:len_i64]") }
                 return
               }
             }
@@ -154,8 +153,9 @@ static box MirCallV1HandlerBox {
               }
             }
             // Array.push: 要素数を+1（構造的サイズ）
-            if mname == "push" {
-              cur_len = cur_len + 1
+            if btype == "ArrayBox" && mname == "push" {
+              local arg0_push = MiniMirV1Scan.first_arg_register(seg)
+              cur_len = ArrayCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_push)
               regs.setField(key, StringHelpers.int_to_str(cur_len))
               local d_ad = JsonFragBox.get_int(seg, "dst"); if d_ad != null { regs.setField(StringHelpers.int_to_str(d_ad), "0") }
               return
@@ -253,6 +253,14 @@ static box MirCallV1HandlerBox {
         }
         local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
         local cur_len = JsonFragBox._str_to_int(cur_len_raw)
+        if btype == "ArrayBox" && mname == "push" {
+          local value_state_push = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state_push == null { value_state_push = "0" }
+          local arg0_push = MiniMirV1Scan.first_arg_register(seg)
+          cur_len = ArrayCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state_push, arg0_push)
+          regs.setField(key, StringHelpers.int_to_str(cur_len))
+          local d1 = JsonFragBox.get_int(seg, "dst"); if d1 != null { regs.setField(StringHelpers.int_to_str(d1), "0") }
+          return
+        }
         if mname == "push" {
           cur_len = cur_len + 1
           regs.setField(key, StringHelpers.int_to_str(cur_len))
@@ -282,6 +290,14 @@ static box MirCallV1HandlerBox {
           }
           local dset = JsonFragBox.get_int(seg, "dst"); if dset != null { regs.setField(StringHelpers.int_to_str(dset), "0") }
           return
+        }
+        if btype == "ArrayBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
+          local recv_ha2 = me._read_reg_i64_or_null(regs, rid)
+          if recv_ha2 != null && recv_ha2 > 0 {
+            local len_i642 = ArrayCoreBox.len_i64(recv_ha2)
+            local d2a = JsonFragBox.get_int(seg, "dst"); if d2a != null { regs.setField(StringHelpers.int_to_str(d2a), StringHelpers.int_to_str(len_i642)) }
+            return
+          }
         }
         if MethodAliasPolicy.is_size_alias(mname) == 1 {
           local d2 = JsonFragBox.get_int(seg, "dst"); if d2 != null { regs.setField(StringHelpers.int_to_str(d2), StringHelpers.int_to_str(cur_len)) }

@@ -66,6 +66,7 @@ Related:
   - `.hako` 側は ABI vocabulary を thin に束ねる。
   - latest visible-owner slice:
     - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox` size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
+    - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox` len/state helpers consumed by the same handler
   - collection semantics の最終 owner ではなく、現時点では Rust owner への adapter surface である。
 
 ### 2.4 Legacy residue

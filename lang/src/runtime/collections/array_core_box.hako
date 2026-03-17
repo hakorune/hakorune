@@ -1,5 +1,10 @@
-// ArrayCoreBox — thin VM runtime wrapper over array i64 ABI helpers
-// Responsibility: provide VM-low-level i64 get/set path without std-layer coupling.
+// ArrayCoreBox — thin VM runtime wrapper over array i64 ABI/state helpers
+// Responsibility:
+// - provide VM-low-level i64 get/set/len path without std-layer coupling
+// - own adapter-on ArrayBox state updates so VM handler stays orchestration-only
+
+using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box ArrayCoreBox {
   get_i64(handle, idx) {
@@ -9,5 +14,37 @@ static box ArrayCoreBox {
   set_i64(handle, idx, value) {
     return externcall "nyash.array.set_hii"(handle, idx, value)
   }
-}
 
+  len_i64(handle) {
+    return externcall "nyash.array.len_h"(handle)
+  }
+
+  record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id) {
+    if value_state == "1" && arg0_id != null && arg0_id >= 0 {
+      local val_str = regs.getField(StringHelpers.int_to_str(arg0_id))
+      if val_str != null {
+        local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, cur_len)
+        regs.setField(val_key, "" + val_str)
+      }
+    }
+    return cur_len + 1
+  }
+
+  record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id) {
+    local next_len = cur_len
+    if idx + 1 > next_len { next_len = idx + 1 }
+    if value_state == "1" && arg1_id != null && arg1_id >= 0 {
+      local val_str = regs.getField(StringHelpers.int_to_str(arg1_id))
+      if val_str != null {
+        local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+        regs.setField(val_key, "" + val_str)
+      }
+    }
+    return next_len
+  }
+
+  get_state_value(regs, per_recv, rid, idx) {
+    local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+    return regs.getField(val_key)
+  }
+}

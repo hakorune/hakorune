@@ -88,6 +88,22 @@ if ! rg -F -q 'ArrayCoreBox.set_i64(' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox set route" >&2
   exit 1
 fi
+if ! rg -F -q 'ArrayCoreBox.len_i64(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox len route" >&2
+  exit 1
+fi
+if ! rg -F -q 'ArrayCoreBox.record_push_state(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox push-state route" >&2
+  exit 1
+fi
+if ! rg -F -q 'ArrayCoreBox.record_set_state(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox set-state route" >&2
+  exit 1
+fi
+if ! rg -F -q 'ArrayCoreBox.get_state_value(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox get-state route" >&2
+  exit 1
+fi
 if ! rg -F -q 'externcall "nyash.string.len_h"' "$STRING_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] string core missing nyash.string.len_h extern route" >&2
   exit 1
@@ -98,6 +114,22 @@ if ! rg -F -q 'externcall "nyash.array.get_hi"' "$ARRAY_CORE_FILE"; then
 fi
 if ! rg -F -q 'externcall "nyash.array.set_hii"' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.set_hii extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.array.len_h"' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.len_h extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing push-state helper contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing set-state helper contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing get-state helper contract" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.map.size_h"' "$MAP_CORE_FILE"; then
