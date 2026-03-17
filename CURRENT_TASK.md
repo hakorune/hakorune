@@ -246,6 +246,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - first keep widening boundary-owned compile coverage in `lang/c-abi/shims/hako_llvmc_ffi.c` for narrow pure seeds
          - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
          - landed: `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)`; Rust transport mirrors that payload to env only at the boundary handoff
+         - landed: Rust VM direct `env.codegen.compile_json_path` / `emit_object` globals now delegate back to `extern_provider.rs`, so compile payload decode truth is no longer duplicated in `handlers/calls/global.rs`
          - landed: recipe-aware daily transport now prefers the explicit pure-first FFI export instead of asking the generic C export to decide that route
          - then move unsupported compile replay and seed/route policy out of `lang/c-abi/shims/hako_llvmc_ffi.c`, leaving it as export/marshal glue
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
