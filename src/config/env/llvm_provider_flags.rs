@@ -20,7 +20,7 @@ pub fn extern_provider_c_abi() -> bool {
     env_bool("HAKO_V1_EXTERN_PROVIDER_C_ABI")
 }
 
-/// Provider selector for MIR→obj (HAKO_LLVM_EMIT_PROVIDER).
+/// Provider selector for MIR→obj compat keeps (HAKO_LLVM_EMIT_PROVIDER=llvmlite|ny-llvmc).
 pub fn llvm_emit_provider() -> Option<String> {
     std::env::var("HAKO_LLVM_EMIT_PROVIDER")
         .ok()

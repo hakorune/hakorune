@@ -67,7 +67,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest BE0-min6 resolution cleanup: `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps FFI library selection and runtime archive path resolution behind owner-local helpers, instead of repeating env/default path probes inline
       - latest BE0-min6 execute-fail cleanup: `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps compile/link `system(cmd)` failure projection, log cleanup, and compile success-finalize behind shared helpers instead of repeating them inline
       - latest BE0-min6 linker-finalize cleanup: `lang/c-abi/shims/hako_aot_shared_impl.inc` now keeps shim flag resolution, OS libs, PIE avoid, and appended linker-option keeps behind owner-local helpers instead of mixing them inline in `hako_aot_link_obj(...)`
-      - latest runner/host-provider demotion: `src/host_providers/llvm_codegen.rs` now splits `C-API keep` / explicit `llvmlite` keep / default `ny-llvmc` route through owner-local helpers, so the host-provider default path reads as backend-boundary-first while `src/runner/modes/llvm/mod.rs` no longer carries stale harness-only object emit warnings
+      - latest runner/host-provider demotion: `src/host_providers/llvm_codegen.rs` now splits `C-API keep` / explicit `{llvmlite|ny-llvmc}` keep / boundary-first default through owner-local helpers, so the host-provider default object path now tries the direct C ABI boundary first and only the explicit keep lane may route through the `ny-llvmc` wrapper while `src/runner/modes/llvm/mod.rs` no longer carries stale harness-only object emit warnings
       - latest B1 arg-plumbing: `LlvmBackendBox.link_exe(obj_path, out_path, libs)` now forwards non-empty `libs` as the third `env.codegen.link_object` arg, and vm-hako / regular VM link handlers accept `[obj_path, exe_out?, extra_ldflags?]` while empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary
       - landed B1a/B1b: `CodegenBridgeBox` is documented as temporary bridge owner only, and `lang/src/runner/launcher.hako` `build exe` stop-point was first moved off direct `CodegenBridgeBox`
       - landed launcher Program(JSON)->MIR fix: `src/runner/pipe_io.rs` `--program-json-to-mir` now uses `src/host_providers/mir_builder.rs::program_json_to_mir_json_with_user_box_decls(...)`, so launcher MIR keeps root `user_box_decls` and the old `Unknown Box type: HakoCli` blocker is retired
@@ -148,7 +148,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
   - current exact issue は 3 本:
     1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
-    2. `ny-llvmc` selector-level default は `boundary` に切れたが、unsupported shapes are still allowed to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` is still an indirect compat in-path inside the boundary fallback lane
+    2. `ny-llvmc` selector-level default と `src/host_providers/llvm_codegen.rs` default object path は `boundary`-first に切れたが、unsupported shapes are still allowed to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness` inside the boundary fallback lane, so `llvmlite` is still an indirect compat in-path while the `ny-llvmc` wrapper path itself is explicit keep only
     3. `native_driver.rs` は bootstrap seam のまま keep すべきで、次は `main.rs` / `llvm_codegen.rs` の Rust glue をさらに薄くしつつ、boundary fallback reliance を減らす必要がある
 - do not do yet:
   - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
@@ -161,6 +161,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/nyash-llvm-compiler/src/native_driver.rs`
   - `src/host_providers/llvm_codegen.rs`
   - `lang/c-abi/shims/hako_aot_shared_impl.inc`
+  - `lang/c-abi/shims/hako_llvmc_ffi.c`
   - `tools/llvmlite_harness.py`
   - `src/llvm_py/llvm_builder.py`
 - final-owner reminder:
@@ -192,6 +193,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - keep `MIR(JSON path) -> object path -> exe path` contract single-sourced
        - absorb command/log/resolve/error-projection cleanup here, not in runner callers
        - become the final daily owner that `llvm_codegen.rs` only forwards into, not the other way around
+       - reduce `hako_llvmc_ffi.c` / `hako_aot_compile_json(...) -> ny-llvmc --driver harness` fallback reliance until `llvm_codegen.rs` can stay boundary-first without reopening Rust/CLI ownership
      - acceptance:
        - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
        - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
@@ -219,13 +221,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - `src/host_providers/llvm_codegen.rs`
      - role:
        - make runner-side daily route follow backend-boundary default
-       - shrink `src/host_providers/llvm_codegen.rs` to normalization/path/env glue only
-       - keep explicit `llvmlite` selection as compat/probe keep only
+       - shrink `src/host_providers/llvm_codegen.rs` to normalization/path/env glue only once boundary-first compile no longer needs wrapper fallthrough except explicit keep lanes
+       - keep explicit `{llvmlite|ny-llvmc}` selection as compat/probe keep only
        - do not let route glue silently auto-fallback back into `llvmlite`
      - acceptance:
        - `cargo check --bin hakorune`
        - backend app smokes stay green with default route
-       - explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` remains opt-in only
+       - explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` remains opt-in only
   4. Python llvmlite owner demotion
      - exact paths:
        - `tools/llvmlite_harness.py`
@@ -242,11 +244,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - route inventory:
   - already daily-off:
     - visible `.hako` backend caller route stops at `LlvmBackendBox` / `env.codegen.*`
-    - host-provider explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is opt-in keep only
+    - host-provider explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` is opt-in keep only
+    - host-provider default object path now tries direct C ABI boundary before `ny-llvmc`
     - `tools/llvmlite_harness.py` no longer re-enters `llvm_builder.py` via `runpy`
   - still in-path:
-    - `ny-llvmc` default `DriverKind::Boundary` still allows unsupported shapes to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`
-    - explicit keep envs `HAKO_LLVM_EMIT_PROVIDER=llvmlite` / `NYASH_LLVM_USE_HARNESS=1`
+    - `ny-llvmc` default `DriverKind::Boundary` and `llvm_codegen.rs` boundary-first compile still allow unsupported shapes to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`
+    - explicit keep envs `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` / `NYASH_LLVM_USE_HARNESS=1`
     - Python keep owners under `tools/llvmlite_harness.py` + `src/llvm_py/**`
     - `native_driver.rs` remains the only non-llvmlite non-boundary object/exe path, but it is still bootstrap-only and must not be promoted to default
 - fixed order:

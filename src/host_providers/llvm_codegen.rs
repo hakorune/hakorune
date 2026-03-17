@@ -126,8 +126,35 @@ fn try_compile_via_explicit_provider_keep(
 ) -> Result<Option<PathBuf>, String> {
     match crate::config::env::llvm_emit_provider().as_deref() {
         Some("llvmlite") => mir_json_to_object_llvmlite(mir_json, opts).map(Some),
+        Some("ny-llvmc") => mir_json_to_object_ny_llvmc(mir_json, opts).map(Some),
         _ => Ok(None),
     }
+}
+
+fn capi_boundary_unavailable(error: &str) -> bool {
+    error.contains("FFI library not found")
+        || error.contains("capi not available")
+        || error.contains("dlopen failed")
+        || error.contains("dlsym failed")
+}
+
+fn try_compile_via_boundary_default(mir_json: &str, opts: &Opts) -> Result<Option<PathBuf>, String> {
+    validate_backend_mir_shape(mir_json)?;
+    let in_path = prepare_backend_input_json_file(mir_json)?;
+    let out_path = resolve_backend_object_output(opts);
+    ensure_backend_output_parent(&out_path);
+    match compile_via_capi(&in_path, &out_path) {
+        Ok(()) => Ok(Some(out_path)),
+        Err(error) if capi_boundary_unavailable(&error) => Ok(None),
+        Err(error) => {
+            llvm_emit_error!("[llvmemit/capi/default-failed] {}", error);
+            Err(format!("[llvmemit/capi/default-failed] {}", error))
+        }
+    }
+}
+
+fn boundary_default_unavailable_tag() -> String {
+    "[llvmemit/capi/default-unavailable] build libhako_llvmc_ffi.so or set HAKO_LLVM_EMIT_PROVIDER=llvmlite".into()
 }
 
 pub fn normalize_mir_json_for_backend(mir_json: &str) -> Result<String, String> {
@@ -173,9 +200,17 @@ pub fn mir_json_to_object(mir_json: &str, opts: Opts) -> Result<PathBuf, String>
     if let Some(out_path) = try_compile_via_explicit_provider_keep(&mir_json, &opts)? {
         return Ok(out_path);
     }
-    validate_backend_mir_shape(&mir_json)?;
+    if let Some(out_path) = try_compile_via_boundary_default(&mir_json, &opts)? {
+        return Ok(out_path);
+    }
+    let tag = boundary_default_unavailable_tag();
+    llvm_emit_error!("{}", tag);
+    Err(tag)
+}
 
-    // Default route: ny-llvmc helper path. llvmlite remains explicit compat keep only.
+/// Compile via ny-llvmc wrapper (explicit compat keep). Returns output path or tagged error.
+fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
+    validate_backend_mir_shape(mir_json)?;
     let ny_llvmc = resolve_ny_llvmc();
     if !ny_llvmc.exists() {
         let tag = format!("[llvmemit/ny-llvmc/not-found] path={}", ny_llvmc.display());

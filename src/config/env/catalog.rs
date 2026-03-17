@@ -399,7 +399,7 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
         },
         EnvVarMeta {
             name: "HAKO_LLVM_EMIT_PROVIDER",
-            description: "Select LLVM emit provider (e.g., llvmlite)",
+            description: "Select LLVM emit compat keep (llvmlite|ny-llvmc)",
             applies_to: AppliesTo::Compiler,
             default: None,
         },

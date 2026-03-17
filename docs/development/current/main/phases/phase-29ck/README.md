@@ -50,11 +50,12 @@ Related:
 
 ## Current Snapshot (2026-03-14)
 
-1. caller-facing daily LLVM route は `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe` まで寄っている
+1. caller-facing daily LLVM route は `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe` まで寄っている
 2. `ny-llvmc` internal default driver は `Boundary` に切り替わり、default object/exe route は `Harness` / `Native` selector を daily owner にしなくなった
-3. ただし unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` は indirect compat in-path としてまだ残っている
-4. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
-5. missing legs は 3 本である
+3. `src/host_providers/llvm_codegen.rs` default object path も direct C ABI boundary を先に試すようになり、`ny-llvmc` wrapper path は explicit `HAKO_LLVM_EMIT_PROVIDER=ny-llvmc` keep へ後退した
+4. ただし unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness` inside the boundary fallback lane, so `llvmlite` は indirect compat in-path としてまだ残っている
+5. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
+6. missing legs は 3 本である
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
    - `main.rs` / `llvm_codegen.rs` の Rust glue を further thin にすること
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
@@ -68,6 +69,7 @@ Related:
    - current internal default route is now `boundary`
    - `hako_aot_compile_json(...)` compat fallback now pins `ny-llvmc --driver harness` explicitly to avoid recursive `boundary -> hako_aot -> ny-llvmc` loops
    - `native` is bootstrap/canary keep only and is not the target replacement default
+   - follow-up host-provider default slice: `src/host_providers/llvm_codegen.rs` now also tries the direct C ABI boundary before any wrapper keep lane, so default object emission is boundary-first on both the selector and host-provider layers while explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` remains replayable
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line
