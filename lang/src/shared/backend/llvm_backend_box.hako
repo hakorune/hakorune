@@ -1,3 +1,5 @@
+using selfhost.shared.backend.recipe as BackendRecipeBox
+
 // LlvmBackendBox — official thin backend boundary
 // File-handoff only: compile MIR(JSON v0) to object, then link to EXE.
 // Final target: `.hako` callers stop at this facade (and/or lang/c-abi helper),
@@ -8,7 +10,7 @@
 static box LlvmBackendBox {
   // Returns object path on success, or null on fail-fast error.
   compile_obj(json_path) {
-    local path = me._require_non_empty("compile_obj", "json_path", json_path)
+    local path = BackendRecipeBox.prepare_compile_route(json_path)
     if path == null { return null }
 
     local obj = env.codegen.compile_json_path(path)
@@ -25,7 +27,13 @@ static box LlvmBackendBox {
     local out = me._require_non_empty("link_exe", "out_path", out_path)
     if out == null { return null }
 
-    local exe = me._invoke_link_object(obj, out, libs)
+    local extra = BackendRecipeBox.prepare_link_route(libs)
+    local exe
+    if extra == null {
+      exe = env.codegen.link_object(obj, out)
+    } else {
+      exe = env.codegen.link_object(obj, out, extra)
+    }
     if exe == null || ("" + exe) == "" {
       return me._fail("[llvmbackend/link/failed] env.codegen.link_object returned empty")
     }
@@ -40,13 +48,6 @@ static box LlvmBackendBox {
       return me._fail("[llvmbackend/input/" + method_name + "] " + field_name + " is empty")
     }
     return "" + value
-  }
-
-  _invoke_link_object(obj, out, libs) {
-    if libs != null && ("" + libs) != "" {
-      return env.codegen.link_object(obj, out, "" + libs)
-    }
-    return env.codegen.link_object(obj, out)
   }
 
   _fail(tag) {

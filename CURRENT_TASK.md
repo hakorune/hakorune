@@ -241,12 +241,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - reduce `hako_llvmc_ffi.c -> ny-llvmc --driver harness` fallback reliance from `ret_const_min_v1` upward until `llvm_codegen.rs` can stay boundary-first without reopening Rust/CLI ownership
        - fixed order:
          - first keep widening boundary-owned compile coverage in `lang/c-abi/shims/hako_llvmc_ffi.c` for narrow pure seeds
-         - then introduce a `.hako` recipe owner (`BackendRecipeBox` / `LlvmCompileRecipeBox` shape) for pure/boundary/compat-harness selection
+         - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
          - then move unsupported compile replay and seed/route policy out of `lang/c-abi/shims/hako_llvmc_ffi.c`, leaving it as export/marshal glue
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
          - next focus is no longer command repointing; it is shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface while preparing the `.hako` recipe seam
          - landed: boundary-owned compile coverage now includes `RuntimeDataBox.{get(MapBox),get(ArrayBox),push(ArrayBox),has(ArrayBox)}` for narrow missing-key/index seeds
-         - exact next slice: widen from those landed `RuntimeDataBox` collection seeds to broader method-loop packs, then cut the `.hako` recipe seam (`LlvmBackendBox` sibling `BackendRecipeBox` / `LlvmCompileRecipeBox` shape) so `hako_llvmc_ffi.c` can shed seed/route policy
+         - exact next slice: widen from those landed `RuntimeDataBox` collection seeds to broader method-loop packs, while `BackendRecipeBox` remains the caller-side policy seam so `hako_llvmc_ffi.c` can shed seed/route policy gradually
      - acceptance:
        - `cargo run -p nyash-llvm-compiler -- --emit obj --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json --out target/tmp/phase29ck_boundary_min.o`
        - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh`

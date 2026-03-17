@@ -1,0 +1,34 @@
+// BackendRecipeBox — `.hako` policy/recipe owner for backend-zero.
+// Responsibility:
+//   - Keep caller-side compile recipe state in one place.
+//   - Prepare link recipe normalization without owning transport calls.
+//   - Stay adjacent to LlvmBackendBox so policy can be widened before the C shim
+//     loses its own seed/route logic.
+
+static box BackendRecipeBox {
+  prepare_compile_route(json_path) {
+    local path = me._require_non_empty("prepare_compile_route", "json_path", json_path)
+    if path == null { return null }
+    env.set("HAKO_CAPI_PURE", "1")
+    return "" + path
+  }
+
+  prepare_link_route(libs) {
+    if libs == null { return null }
+    local text = "" + libs
+    if text == "" { return null }
+    return text
+  }
+
+  _require_non_empty(method_name, field_name, value) {
+    if value == null || ("" + value) == "" {
+      return me._fail("[backendrecipe/input/" + method_name + "] " + field_name + " is empty")
+    }
+    return "" + value
+  }
+
+  _fail(tag) {
+    print("" + tag)
+    return null
+  }
+}
