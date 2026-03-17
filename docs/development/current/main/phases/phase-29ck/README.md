@@ -72,9 +72,9 @@ Related:
    - `native` is bootstrap/canary keep only and is not the target replacement default
    - follow-up host-provider default slice: `src/host_providers/llvm_codegen.rs` now also tries the direct C ABI boundary before any wrapper keep lane, so default object emission is boundary-first on both the selector and host-provider layers while explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` remains replayable
    - follow-up host-provider link slice: `link_object_capi(...)` no longer re-synthesizes runtime archive / `HAKO_AOT_LDFLAGS` fallback in Rust; linker keeps now pass straight through to `hako_aot_link_obj(...)`, with empty/null proof covered by the `.hako VM -> LlvmBackendBox -> C-API -> exe` runtime smoke
-   - follow-up FFI-owner slice: `lang/c-abi/shims/hako_llvmc_ffi.c` now reads as `default -> hako_aot forwarder`, while the `HAKO_CAPI_PURE=1` branch stays parked as compat-only pure-lowering legacy
+   - follow-up FFI-owner slice: `lang/c-abi/shims/hako_llvmc_ffi.c` now reads as `default -> hako_aot forwarder`, while the pure-lowering branch is selected by caller-side recipe names (`HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY`) and `HAKO_CAPI_PURE=1` stays parked as historical compat alias only
    - follow-up keep-lane isolation slice: `crates/nyash-llvm-compiler/src/boundary_driver.rs` now hides FFI library open / symbol lookup behind `with_compile_symbol(...)` / `with_link_symbol(...)`, and `lang/c-abi/shims/hako_llvmc_ffi.c` now parks the pure compile owner behind `compile_json_compat_pure(...)`, so default boundary exports read as forwarders and the compat pure lane stays visibly isolated
-  - follow-up pure-first slice: default boundary compile now sets `HAKO_CAPI_PURE=1` from the Rust boundary callers, while `lang/c-abi/shims/hako_llvmc_ffi.c` owns recursion-safe forwarders for compile/link fallback; supported `ret_const_min_v1` / `hello_simple_llvm_native_probe_v1` are now pinned by `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_print_min.sh`
+  - follow-up pure-first slice: default boundary compile now sets caller-side recipe names (`HAKO_BACKEND_COMPILE_RECIPE=pure-first`, `HAKO_BACKEND_COMPAT_REPLAY=harness`) from `.hako` and Rust boundary callers, while `lang/c-abi/shims/hako_llvmc_ffi.c` owns recursion-safe transport/fallback execution; supported `ret_const_min_v1` / `hello_simple_llvm_native_probe_v1` are now pinned by `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_print_min.sh`
   - follow-up direct compat-keep slice: unsupported compile shapes in that pure-first lane now replay `ny-llvmc --driver harness` directly from `lang/c-abi/shims/hako_llvmc_ffi.c` instead of re-entering `hako_aot_compile_json(...)`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_compat_keep_min.sh` pins `apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json` as the current unsupported compat-keep seed
   - follow-up pure-string-length slice: the same boundary-owned pure-first lane now accepts a narrow ASCII-literal `StringBox.length/size` v1 seed, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_string_length_min.sh` pins `apps/tests/mir_shape_guard/string_length_ascii_min_v1.mir.json` so that supported method-shaped coverage grows without reopening the harness lane
   - follow-up pure-runtime-data-length slice: the same pure-first lane now also accepts `RuntimeDataBox.length/size` when the receiver is a `StringBox`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_length_min.sh` pins `apps/tests/mir_shape_guard/runtime_data_string_length_ascii_min_v1.mir.json` as the first narrow RuntimeDataBox method-shaped coverage lock
@@ -89,7 +89,7 @@ Related:
   - caller-side recipe seam now lives in `lang/src/shared/backend/backend_recipe_box.hako`; it owns the pure-first compile preflight and link recipe normalization, while `lang/c-abi/shims/hako_llvmc_ffi.c` keeps the remaining transport-only compat replay logic
   - stop-line: `lang/c-abi/shims/hako_aot_shared_impl.inc` is near thin floor as transport helper, and `lang/c-abi/shims/hako_llvmc_ffi.c` should only keep export/marshal plus explicit compat replay; further value is in moving pure-seed / route classification into `BackendRecipeBox`, not in more C micro-splitting
   - next exact front is therefore the `.hako` recipe seam, with broader method-loop packs used only as evidence when `BackendRecipeBox` needs new narrow accept/reject coverage
-  - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver boundary`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the `HAKO_CAPI_PURE`-unset default `hako_llvmc_compile_json` forwarder path against that boundary-owned command route
+  - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver boundary`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the default `hako_llvmc_compile_json` forwarder path when no backend recipe is requested
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line
@@ -313,8 +313,10 @@ Related:
       - `NYASH_LLVM_USE_CAPI=1`
       - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
    - compat-only env:
+      - `HAKO_BACKEND_COMPILE_RECIPE=pure-first`
+      - `HAKO_BACKEND_COMPAT_REPLAY=harness`
       - `HAKO_CAPI_PURE=1`
-        - kept only for historical pure-lowering routes; not required by the phase-29ck `.hako VM` runtime proof
+        - kept only for historical pure-lowering routes; not required by the phase-29ck `.hako VM` runtime proof and no longer the daily recipe SSOT
    - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 3. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence

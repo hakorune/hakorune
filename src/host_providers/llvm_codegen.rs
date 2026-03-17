@@ -291,8 +291,10 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
         let cout = CString::new(obj_out.to_string_lossy().as_bytes())
             .map_err(|_| "invalid out path".to_string())?;
         let mut err_ptr: *mut c_char = std::ptr::null_mut();
-        let prev_pure = std::env::var("HAKO_CAPI_PURE").ok();
-        std::env::set_var("HAKO_CAPI_PURE", "1");
+        let prev_recipe = std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok();
+        let prev_replay = std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok();
+        std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", "pure-first");
+        std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", "harness");
 
         // Inject opt_level defaults for Python harness (insurance against None)
         if crate::config::env::llvm_opt_level_envs().0.is_none() {
@@ -317,10 +319,15 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
             cout.as_ptr(),
             &mut err_ptr as *mut *mut c_char,
         );
-        if let Some(v) = prev_pure {
-            std::env::set_var("HAKO_CAPI_PURE", v);
+        if let Some(v) = prev_recipe {
+            std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", v);
         } else {
-            std::env::remove_var("HAKO_CAPI_PURE");
+            std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
+        }
+        if let Some(v) = prev_replay {
+            std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", v);
+        } else {
+            std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY");
         }
         if rc != 0 {
             let msg = if !err_ptr.is_null() {

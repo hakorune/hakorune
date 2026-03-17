@@ -546,7 +546,7 @@ impl NyashRunner {
                 };
                 // For C‑API pure pipeline, suppress "RC:" text to keep last line = exe path
                 let capi = std::env::var("NYASH_LLVM_USE_CAPI").ok().as_deref() == Some("1");
-                let pure = std::env::var("HAKO_CAPI_PURE").ok().as_deref() == Some("1");
+                let pure = crate::config::env::backend_recipe_requests_pure_first();
                 if !(capi && pure) {
                     println!("RC: {}", rc);
                 }

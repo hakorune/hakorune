@@ -9,7 +9,7 @@ static box BackendRecipeBox {
   prepare_compile_route(json_path) {
     local path = me._require_non_empty("prepare_compile_route", "json_path", json_path)
     if path == null { return null }
-    env.set("HAKO_CAPI_PURE", "1")
+    me._set_compile_recipe_pure_first()
     return "" + path
   }
 
@@ -25,6 +25,11 @@ static box BackendRecipeBox {
       return me._fail("[backendrecipe/input/" + method_name + "] " + field_name + " is empty")
     }
     return "" + value
+  }
+
+  _set_compile_recipe_pure_first() {
+    env.set("HAKO_BACKEND_COMPILE_RECIPE", "pure-first")
+    env.set("HAKO_BACKEND_COMPAT_REPLAY", "harness")
   }
 
   _fail(tag) {

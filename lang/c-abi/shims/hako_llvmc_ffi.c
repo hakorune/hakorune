@@ -1,9 +1,12 @@
 // hako_llvmc_ffi.c — Minimal FFI bridge that forwards to hako_aot.c
 // Exports functions that hako_aot.c dlopens when HAKO_AOT_USE_FFI=1.
 // Phase 21.2 introduced a guarded "pure C-API" toggle (HAKO_CAPI_PURE=1).
-// Phase 29ck now uses that pure subset as the first boundary compile step for
-// supported seeds, while unsupported shapes in the pure-first lane replay the
-// explicit `--driver harness` keep lane directly from this shim.
+// Phase 29ck now names the current compile policy through
+// HAKO_BACKEND_COMPILE_RECIPE / HAKO_BACKEND_COMPAT_REPLAY, while keeping
+// HAKO_CAPI_PURE as a legacy compat alias for historical pure packs.
+// Supported seeds still try the pure-first boundary subset here, and
+// unsupported shapes in that lane replay the explicit `--driver harness`
+// keep lane directly from this shim.
 // The default export surface still presents as a thin hako_aot forwarder.
 
 #include <stddef.h>
@@ -21,9 +24,29 @@
 #include <dlfcn.h>
 #endif
 
+static const char* hako_llvmc_backend_compile_recipe(void) {
+  return getenv("HAKO_BACKEND_COMPILE_RECIPE");
+}
+
+static const char* hako_llvmc_backend_compat_replay(void) {
+  return getenv("HAKO_BACKEND_COMPAT_REPLAY");
+}
+
 static int capi_pure_enabled(void) {
+  const char* recipe = hako_llvmc_backend_compile_recipe();
+  if (recipe && strcmp(recipe, "pure-first") == 0) {
+    return 1;
+  }
   const char* v = getenv("HAKO_CAPI_PURE");
   return (v && v[0] == '1');
+}
+
+static int compat_harness_replay_enabled(void) {
+  const char* replay = hako_llvmc_backend_compat_replay();
+  if (replay && replay[0]) {
+    return strcmp(replay, "harness") == 0;
+  }
+  return 1;
 }
 
 static int set_err_owned(char** err_out, const char* msg) {
@@ -789,7 +812,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 remove(llpath);
                 yyjson_doc_free(doc);
                 if (rc != 0) {
-                  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+                  if (compat_harness_replay_enabled()) {
+                    return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+                  }
+                  return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
                 }
                 return 0;
               }
@@ -1109,7 +1135,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
       }
     }
-  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+  if (compat_harness_replay_enabled()) {
+    return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+  }
+  return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
 }
 
 __attribute__((visibility("default")))

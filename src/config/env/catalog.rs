@@ -392,8 +392,20 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: None,
         },
         EnvVarMeta {
+            name: "HAKO_BACKEND_COMPILE_RECIPE",
+            description: "Backend compile recipe selector (for example pure-first)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
+            name: "HAKO_BACKEND_COMPAT_REPLAY",
+            description: "Backend compat replay selector (for example harness)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
             name: "HAKO_CAPI_PURE",
-            description: "Force legacy pure C-API/FFI lowering route (1=true)",
+            description: "Legacy alias for historical pure C-API/FFI lowering route (1=true)",
             applies_to: AppliesTo::Compiler,
             default: None,
         },

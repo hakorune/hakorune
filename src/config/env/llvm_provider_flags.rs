@@ -41,6 +41,27 @@ pub fn aot_use_ffi_env() -> Option<String> {
     std::env::var("HAKO_AOT_USE_FFI").ok()
 }
 
+/// Backend compile recipe selector (HAKO_BACKEND_COMPILE_RECIPE).
+pub fn backend_compile_recipe() -> Option<String> {
+    std::env::var("HAKO_BACKEND_COMPILE_RECIPE")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+/// Backend compat replay selector (HAKO_BACKEND_COMPAT_REPLAY).
+pub fn backend_compat_replay() -> Option<String> {
+    std::env::var("HAKO_BACKEND_COMPAT_REPLAY")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+/// Pure-first compile request for the current backend recipe.
+pub fn backend_recipe_requests_pure_first() -> bool {
+    matches!(backend_compile_recipe().as_deref(), Some("pure-first")) || env_bool("HAKO_CAPI_PURE")
+}
+
 /// AOT ldflags override (HAKO_AOT_LDFLAGS).
 pub fn aot_ldflags() -> Option<String> {
     std::env::var("HAKO_AOT_LDFLAGS")

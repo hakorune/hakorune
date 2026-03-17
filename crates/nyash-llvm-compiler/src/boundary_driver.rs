@@ -133,13 +133,15 @@ fn call_compile_symbol(input: &Path, out: &Path) -> Result<()> {
     let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
         with_compile_symbol(|func| {
-            with_env_override("HAKO_CAPI_PURE", Some("1"), || {
-                let rc = func(
-                    cin.as_ptr(),
-                    cout.as_ptr(),
-                    &mut err_ptr as *mut *mut c_char,
-                );
-                interpret_result(rc, err_ptr, out, "object not produced")
+            with_env_override("HAKO_BACKEND_COMPILE_RECIPE", Some("pure-first"), || {
+                with_env_override("HAKO_BACKEND_COMPAT_REPLAY", Some("harness"), || {
+                    let rc = func(
+                        cin.as_ptr(),
+                        cout.as_ptr(),
+                        &mut err_ptr as *mut *mut c_char,
+                    );
+                    interpret_result(rc, err_ptr, out, "object not produced")
+                })
             })
         })
     }
