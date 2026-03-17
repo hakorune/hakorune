@@ -45,6 +45,7 @@
 
 - current `ny-llvmc` default route first enters the boundary-owned C ABI lane
 - unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` remains an explicit compat keep inside the boundary fallback lane
+- `Boundary` / `Native` default routes do not resolve the Python harness path unless the explicit `--driver harness` keep lane is selected
 - this is still implementation detail であり、backend-zero の final target は `.hako -> thin backend C ABI/plugin boundary` を daily route にすること
 - `--driver native` は bootstrap seam 用の opt-in selector で、final owner ではない
 - current internal default driver は `boundary` で、`native` defaulting はしない

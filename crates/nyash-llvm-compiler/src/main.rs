@@ -84,22 +84,19 @@ fn main() -> Result<()> {
         std::fs::create_dir_all(parent).ok();
     }
 
-    // Resolve harness path
-    let harness_path = resolve_harness_path(args.harness.clone());
-
     // Determine emit kind
     let emit_exe = matches!(args.emit, EmitKind::Exe);
 
     if args.dummy {
-        return run_dummy_mode(&args, &harness_path, emit_exe);
+        return run_dummy_mode(&args, emit_exe);
     }
 
-    run_compile_mode(&args, &harness_path, emit_exe)
+    run_compile_mode(&args, emit_exe)
 }
 
-fn run_dummy_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()> {
+fn run_dummy_mode(args: &Args, emit_exe: bool) -> Result<()> {
     let obj_path = resolve_object_output_path(&args.out, emit_exe);
-    emit_dummy_object_via_driver(args.driver, harness_path, &obj_path)
+    emit_dummy_object_via_driver(args.driver, args.harness.as_ref(), &obj_path)
         .with_context(|| "failed to emit object in dummy mode")?;
     finalize_emit_output(
         args.driver,
@@ -112,7 +109,7 @@ fn run_dummy_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()
     )
 }
 
-fn run_compile_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()> {
+fn run_compile_mode(args: &Args, emit_exe: bool) -> Result<()> {
     let canary_norm = env::var("HAKO_LLVM_CANARY_NORMALIZE").ok().as_deref() == Some("1");
     let (input_path, temp_path) = prepare_input_json_path(&args.infile, canary_norm)?;
     ensure_input_json_exists(&input_path)?;
@@ -121,7 +118,7 @@ fn run_compile_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<
 
     let obj_path = resolve_object_output_path(&args.out, emit_exe);
     maybe_emit_verbose_shape_hint(&input_path, canary_norm);
-    emit_compile_output(args, harness_path, &input_path, &obj_path, emit_exe)?;
+    emit_compile_output(args, &input_path, &obj_path, emit_exe)?;
 
     // Cleanup temp file if used
     cleanup_temp_input_json(temp_path);
@@ -238,12 +235,11 @@ fn read_shape_hint_from_path(input_path: &Path) -> Option<String> {
 
 fn emit_compile_output(
     args: &Args,
-    harness_path: &Path,
     input_path: &Path,
     obj_path: &Path,
     emit_exe: bool,
 ) -> Result<()> {
-    emit_object_via_driver(args.driver, harness_path, input_path, obj_path).with_context(|| {
+    emit_object_via_driver(args.driver, args.harness.as_ref(), input_path, obj_path).with_context(|| {
         format!(
             "failed to compile MIR JSON via selected driver: {}",
             input_path.display()
@@ -384,10 +380,15 @@ fn normalize_canary_json(mut v: serde_json::Value) -> serde_json::Value {
     v
 }
 
-fn run_harness_dummy(harness: &Path, out: &Path) -> Result<()> {
+fn resolve_harness_path_ref(harness: Option<&PathBuf>) -> PathBuf {
+    resolve_harness_path(harness.cloned())
+}
+
+fn run_harness_dummy(harness: Option<&PathBuf>, out: &Path) -> Result<()> {
     ensure_python()?;
+    let harness = resolve_harness_path_ref(harness);
     let mut cmd = Command::new("python3");
-    cmd.arg(harness).arg("--out").arg(out);
+    cmd.arg(&harness).arg("--out").arg(out);
     propagate_opt_level(&mut cmd);
     let status = cmd
         .status()
@@ -398,10 +399,11 @@ fn run_harness_dummy(harness: &Path, out: &Path) -> Result<()> {
     Ok(())
 }
 
-fn run_harness_in(harness: &Path, input: &Path, out: &Path) -> Result<()> {
+fn run_harness_in(harness: Option<&PathBuf>, input: &Path, out: &Path) -> Result<()> {
     ensure_python()?;
+    let harness = resolve_harness_path_ref(harness);
     let mut cmd = Command::new("python3");
-    cmd.arg(harness)
+    cmd.arg(&harness)
         .arg("--in")
         .arg(input)
         .arg("--out")
@@ -414,7 +416,11 @@ fn run_harness_in(harness: &Path, input: &Path, out: &Path) -> Result<()> {
     Ok(())
 }
 
-fn emit_dummy_object_via_driver(driver: DriverKind, harness: &Path, out: &Path) -> Result<()> {
+fn emit_dummy_object_via_driver(
+    driver: DriverKind,
+    harness: Option<&PathBuf>,
+    out: &Path,
+) -> Result<()> {
     match driver {
         DriverKind::Boundary => boundary_driver::emit_dummy_object(out),
         DriverKind::Harness => run_harness_dummy(harness, out),
@@ -424,7 +430,7 @@ fn emit_dummy_object_via_driver(driver: DriverKind, harness: &Path, out: &Path) 
 
 fn emit_object_via_driver(
     driver: DriverKind,
-    harness: &Path,
+    harness: Option<&PathBuf>,
     input: &Path,
     out: &Path,
 ) -> Result<()> {
