@@ -28,7 +28,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - active order:
   1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
   2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
-  3. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を作る
+  3. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を thin floor まで固める
   4. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
 - freeze unless blocker:
   - `phase-29cj` micro-thinning
@@ -122,6 +122,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest B0 tightening: `crates/nyash-llvm-compiler/src/main.rs` now keeps harness-path resolution, object-output resolution, input temp/normalize ownership, compile-mode diagnostics, and emit finalize output behind same-file helpers `resolve_harness_path(...)`, `resolve_object_output_path(...)`, `prepare_input_json_path(...)`, `maybe_dump_input_json(...)`, `emit_preflight_shape_hint(...)`, `emit_compile_output(...)`, and `finalize_emit_output(...)`; top-level route order dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)`
       - latest B0 tightening: `src/runner/modes/common_util/exec.rs` now keeps lib/bin MIR JSON emit + ny-llvmc EXE launch behind shared helper `emit_json_and_run_ny_llvmc_emit_exe(...)`
       - latest B0 tightening: `src/runner/modes/llvm/harness_executor.rs` now keeps runtime-state log, harness gate, ny-llvmc emit, and executable run behind same-file helpers `log_harness_runtime_state(...)`, `ensure_harness_requested(...)`, `emit_executable_via_ny_llvmc(...)`, and `run_emitted_executable(...)`
+      - latest BE0-min2b boundary-default slice: `crates/nyash-llvm-compiler/src/main.rs` now defaults `--driver` to `boundary` instead of `harness`, new `crates/nyash-llvm-compiler/src/boundary_driver.rs` routes default object/exe emission through the C ABI FFI bridge, and `lang/c-abi/shims/hako_aot_shared_impl.inc` now pins its compat fallback compile command to `--driver harness` explicitly so unsupported boundary shapes replay the keep lane without recursive `boundary -> hako_aot -> ny-llvmc` loops
       - by-name follow-up is now split out as `phase-29cl` and must stay narrow to kernel/plugin/backend boundary retirement; do not repoint `phase-29ce` frontend fixture-key/by-name history there
       - landed `phase-29cl / BYN-min1`: `tools/checks/phase29cl_by_name_mainline_guard.sh` locks the `nyash.plugin.invoke_by_name_i64` owner set, and `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh` replays the lock together with backend proof
     - exact next follow-up:
@@ -147,8 +148,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
   - current exact issue は 3 本:
     1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
-    2. caller-facing route は backend-boundary default まで寄ったが、`ny-llvmc` internal default driver がまだ `Harness` なので `llvmlite` が exe/object path の in-path に残っている
-    3. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Harness` の代替 default に昇格させてはいけない。つまり次は `main.rs` に non-`Harness` / non-`Native` の boundary-owned default path を作る必要がある
+    2. `ny-llvmc` selector-level default は `boundary` に切れたが、unsupported shapes are still allowed to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` is still an indirect compat in-path inside the boundary fallback lane
+    3. `native_driver.rs` は bootstrap seam のまま keep すべきで、次は `main.rs` / `llvm_codegen.rs` の Rust glue をさらに薄くしつつ、boundary fallback reliance を減らす必要がある
 - do not do yet:
   - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
   - new `id-name` style intermediate contract
@@ -200,12 +201,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - `crates/nyash-llvm-compiler/src/native_driver.rs`
      - role:
         - keep `ny-llvmc` as internal helper/wrapper, not caller-owned final boundary
-       - move wording/route shape from `llvmlite harness wrapper` toward `backend helper with harness/native keeps`
-       - cut the internal default exe/object path off both `DriverKind::Harness` and `DriverKind::Native`
+       - move wording/route shape from `llvmlite harness wrapper` toward `backend helper with boundary/harness/native keeps`
+       - keep the selector-level default exe/object path off both `DriverKind::Harness` and `DriverKind::Native`
        - keep `native_driver.rs` bootstrap-only; do not let it become the replacement default owner
      - acceptance:
-       - default `ny-llvmc --emit obj ...` avoids Python harness
-       - default `ny-llvmc --emit exe ...` avoids Python harness
+       - default `ny-llvmc --emit obj ...` enters `DriverKind::Boundary`
+       - default `ny-llvmc --emit exe ...` enters `DriverKind::Boundary`
+       - explicit `--driver harness` remains replayable for compat fallback
        - default `ny-llvmc` path also avoids `native_driver.rs`
        - explicit `--driver harness` remains replayable
        - explicit `--driver native` remains replayable
@@ -243,17 +245,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - host-provider explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is opt-in keep only
     - `tools/llvmlite_harness.py` no longer re-enters `llvm_builder.py` via `runpy`
   - still in-path:
-    - `ny-llvmc` default `DriverKind::Harness`
+    - `ny-llvmc` default `DriverKind::Boundary` still allows unsupported shapes to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`
     - explicit keep envs `HAKO_LLVM_EMIT_PROVIDER=llvmlite` / `NYASH_LLVM_USE_HARNESS=1`
     - Python keep owners under `tools/llvmlite_harness.py` + `src/llvm_py/**`
     - `native_driver.rs` remains the only non-llvmlite non-boundary object/exe path, but it is still bootstrap-only and must not be promoted to default
 - fixed order:
   1. finish thin backend boundary hardening
-  2. add a boundary-owned default object/exe path in `ny-llvmc` that is neither `Harness` nor `Native`
-  3. cut `ny-llvmc` default object/exe route off `DriverKind::Harness`
-  4. verify runner/host-provider daily route stays off implicit `llvmlite` and off `native_driver`
-  5. continue Python owner demotion until it is explicit compat/canary keep
-  6. only then reconsider deleting any keep route
+  2. keep `ny-llvmc` default object/exe route on `DriverKind::Boundary` and shrink implicit harness reliance behind explicit compat fallback only
+  3. verify runner/host-provider daily route stays off implicit `native_driver` and off direct `Harness` selection
+  4. continue Python owner demotion until it is explicit compat/canary keep
+  5. only then reconsider deleting any keep route
 - do not do:
   - do not reopen `native_driver.rs` as final owner
   - do not add a new intermediate ABI or hidden env for migration convenience
@@ -331,7 +332,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - kernel delete stays blocked until compat callers are gone
   3. pivot daily LLVM object emission from `llvmlite keep` to `.hako` backend boundary
      - target final shape remains `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
-     - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and runner-side callers now target backend-boundary default even though `ny-llvmc` internal default still needs final cutover
+     - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and runner-side callers now target backend-boundary default while `ny-llvmc` selector-level default has already moved to `boundary`
      - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
      - C helper cleanup is now near thin floor; do not keep micro-splitting without a fresh exact blocker
      - next large-grain front in order is Python owner demotion under `tools/llvmlite_harness.py` + `src/llvm_py/**`

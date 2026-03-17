@@ -66,8 +66,9 @@ Note:
 - 一時 selector を env にするなら、隠しトグル禁止ルールに従い docs を同時更新する
 - 可能なら repo-wide env 追加ではなく `ny-llvmc` 局所の contract で済ませる
 - landed (2026-03-14):
-  - implementation-detail selector is now `--driver {harness|native}`
-  - default route is still `harness`
+  - implementation-detail selector is now `--driver {boundary|harness|native}`
+  - default route is now `boundary`
+  - `hako_aot_compile_json(...)` compat fallback now pins `ny-llvmc --driver harness` explicitly
   - `native` is currently fail-fast seam only; no silent fallback
 
 ### `BE0-min3` minimal native object canary

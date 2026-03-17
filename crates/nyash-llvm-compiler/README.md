@@ -26,7 +26,7 @@
 
 | flag | current role | rule |
 | --- | --- | --- |
-| `--driver <DRIVER>` | object emission driver select | default は `harness`。`native` は opt-in seam で、stable caller contract ではない |
+| `--driver <DRIVER>` | object emission driver select | default は `boundary`。`harness` と `native` は opt-in keep lanes で、stable caller contract ではない |
 | `--harness <FILE>` | Python harness path override | wrapper/debug 用。上位 caller はこれに結合しない |
 
 ## Fixed Semantics
@@ -43,11 +43,12 @@
 
 ## Current Implementation Note
 
-- current `ny-llvmc` は compat keep として `python3` と `tools/llvmlite_harness.py` に依存している
-- これは implementation detail であり、backend-zero の final target は `.hako -> thin backend C ABI/plugin boundary` を daily route にすること
+- current `ny-llvmc` default route first enters the boundary-owned C ABI lane
+- unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` remains an explicit compat keep inside the boundary fallback lane
+- this is still implementation detail であり、backend-zero の final target は `.hako -> thin backend C ABI/plugin boundary` を daily route にすること
 - `--driver native` は bootstrap seam 用の opt-in selector で、final owner ではない
-- current internal default driver は still `harness` で、removal of that default is a remaining llvmlite-migration task
-- next migration step is not `native` defaulting; the replacement default must stay boundary-owned and keep both `harness` and `native` as explicit replay lanes
+- current internal default driver は `boundary` で、`native` defaulting はしない
+- next migration step is boundary fallback reliance の縮小であり、`harness` と `native` は explicit replay lanes のまま keep する
 - Rust backend lane をこの repo から retire するのはまだ先で、もし retire する場合も source + artifact を external archive repo に保存してからだけ行う
 - current native subset (`BE0-min3` / `BE0-min4`):
   - entry function `main` or `ny_main`
@@ -69,6 +70,15 @@
   --emit exe \
   --nyrt target/release \
   --out /tmp/collapsed_min.exe
+```
+
+## Harness Replay (implementation detail / compat keep)
+
+```bash
+./target/release/ny-llvmc \
+  --driver harness \
+  --in apps/tests/mir_shape_guard/collapsed_min.mir.json \
+  --out /tmp/collapsed_min.harness.o
 ```
 
 ## Native Driver Canary (implementation detail / temporary seam)

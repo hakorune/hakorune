@@ -51,11 +51,12 @@ Related:
 ## Current Snapshot (2026-03-14)
 
 1. caller-facing daily LLVM route は `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe` まで寄っている
-2. ただし `ny-llvmc` internal default driver はまだ `Harness` なので、`llvmlite` は current exe/object in-path からは完全には外れていない
-3. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Harness` の代替 default owner に昇格させてはいけない
-4. missing legs は 3 本である
-   - `ny-llvmc` に non-`Harness` / non-`Native` の boundary-owned default object/exe path を作ること
-   - `ny-llvmc` default object/exe route を `DriverKind::Harness` から外すこと
+2. `ny-llvmc` internal default driver は `Boundary` に切り替わり、default object/exe route は `Harness` / `Native` selector を daily owner にしなくなった
+3. ただし unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` は indirect compat in-path としてまだ残っている
+4. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
+5. missing legs は 3 本である
+   - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
+   - `main.rs` / `llvm_codegen.rs` の Rust glue を further thin にすること
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
@@ -63,8 +64,9 @@ Related:
    - `clap` parse contract is pinned by unit tests in `crates/nyash-llvm-compiler/src/main.rs`
 5. landed second seam slice:
    - `BE0-min2` native driver selector
-   - `--driver {harness|native}` now exists as implementation-detail opt-in
-   - current internal default route still stays `harness`; removing that default is now an explicit remaining migration item
+   - `--driver {boundary|harness|native}` now exists as implementation-detail opt-in
+   - current internal default route is now `boundary`
+   - `hako_aot_compile_json(...)` compat fallback now pins `ny-llvmc --driver harness` explicitly to avoid recursive `boundary -> hako_aot -> ny-llvmc` loops
    - `native` is bootstrap/canary keep only and is not the target replacement default
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`

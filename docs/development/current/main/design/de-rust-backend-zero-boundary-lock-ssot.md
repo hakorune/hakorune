@@ -75,7 +75,8 @@ backend-zero の final target は次の形に固定する。
 
 1. mainline:
    - caller-facing route is `hakorune -> ny-llvmc -> backend helper/native boundary -> object/exe`
-   - but `ny-llvmc` internal default driver still routes through harness/llvmlite unless explicitly cut over
+   - `ny-llvmc` internal default driver now enters the boundary-owned lane first, not `Harness`
+   - unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` remains an indirect compat keep inside the boundary fallback lane
 2. bootstrap seam:
    - `crates/nyash-llvm-compiler/src/native_driver.rs`
    - role:
@@ -92,7 +93,7 @@ backend-zero の final target は次の形に固定する。
 
 ここで重要なのは、
 `native_driver.rs` が green でも backend-zero の final architecture が確定したことにはならないし、
-`ny-llvmc` の current internal default が harness のままなら llvmlite は in-path に残るし、
+`ny-llvmc` の current internal default が boundary になっても unsupported shapes を compat fallback へ流し続ける限り llvmlite は indirect in-path に残るし、
 `native_driver.rs` をその代替 default に上げても final shape から外れる、
 という点だよ。
 

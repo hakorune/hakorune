@@ -9,6 +9,7 @@ use clap::{ArgAction, Parser, ValueEnum};
 use serde_json::Value as JsonValue;
 
 mod native_driver;
+mod boundary_driver;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -40,11 +41,11 @@ struct Args {
     #[arg(long, value_name = "FILE", help_heading = "Implementation Detail")]
     harness: Option<PathBuf>,
 
-    /// Object emission driver selector. Default keeps the current compat harness route.
+    /// Object emission driver selector. Default enters the boundary-owned route.
     #[arg(
         long,
         value_enum,
-        default_value_t = DriverKind::Harness,
+        default_value_t = DriverKind::Boundary,
         help_heading = "Implementation Detail"
     )]
     driver: DriverKind,
@@ -70,6 +71,7 @@ enum EmitKind {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
 enum DriverKind {
+    Boundary,
     Harness,
     Native,
 }
@@ -100,6 +102,7 @@ fn run_dummy_mode(args: &Args, harness_path: &Path, emit_exe: bool) -> Result<()
     emit_dummy_object_via_driver(args.driver, harness_path, &obj_path)
         .with_context(|| "failed to emit object in dummy mode")?;
     finalize_emit_output(
+        args.driver,
         &obj_path,
         &args.out,
         emit_exe,
@@ -247,6 +250,7 @@ fn emit_compile_output(
         )
     })?;
     finalize_emit_output(
+        args.driver,
         obj_path,
         &args.out,
         emit_exe,
@@ -257,6 +261,7 @@ fn emit_compile_output(
 }
 
 fn finalize_emit_output(
+    driver: DriverKind,
     obj_path: &Path,
     out_path: &Path,
     emit_exe: bool,
@@ -265,7 +270,7 @@ fn finalize_emit_output(
     object_label: &str,
 ) -> Result<()> {
     if emit_exe {
-        link_executable(obj_path, out_path, nyrt_dir, extra_libs)?;
+        link_executable_via_driver(driver, obj_path, out_path, nyrt_dir, extra_libs)?;
         println!("[ny-llvmc] executable written: {}", out_path.display());
     } else {
         println!(
@@ -411,6 +416,7 @@ fn run_harness_in(harness: &Path, input: &Path, out: &Path) -> Result<()> {
 
 fn emit_dummy_object_via_driver(driver: DriverKind, harness: &Path, out: &Path) -> Result<()> {
     match driver {
+        DriverKind::Boundary => boundary_driver::emit_dummy_object(out),
         DriverKind::Harness => run_harness_dummy(harness, out),
         DriverKind::Native => run_native_dummy(out),
     }
@@ -423,8 +429,29 @@ fn emit_object_via_driver(
     out: &Path,
 ) -> Result<()> {
     match driver {
+        DriverKind::Boundary => boundary_driver::emit_object_from_json(input, out),
         DriverKind::Harness => run_harness_in(harness, input, out),
         DriverKind::Native => run_native_in(input, out),
+    }
+}
+
+fn link_executable_via_driver(
+    driver: DriverKind,
+    obj: &Path,
+    out_exe: &Path,
+    nyrt_dir_opt: Option<&PathBuf>,
+    extra_libs: Option<&str>,
+) -> Result<()> {
+    match driver {
+        DriverKind::Boundary => boundary_driver::link_object_to_exe(
+            obj,
+            out_exe,
+            nyrt_dir_opt.map(|path| path.as_path()),
+            extra_libs,
+        ),
+        DriverKind::Harness | DriverKind::Native => {
+            link_executable(obj, out_exe, nyrt_dir_opt, extra_libs)
+        }
     }
 }
 
@@ -560,7 +587,7 @@ mod tests {
         let args = Args::try_parse_from(["ny-llvmc", "--out", "/tmp/out.o"]).unwrap();
         assert_eq!(args.infile, "-");
         assert_eq!(args.emit, EmitKind::Obj);
-        assert_eq!(args.driver, DriverKind::Harness);
+        assert_eq!(args.driver, DriverKind::Boundary);
         assert_eq!(args.out, PathBuf::from("/tmp/out.o"));
         assert!(!args.dummy);
         assert!(args.nyrt.is_none());
@@ -593,6 +620,13 @@ mod tests {
         let args =
             Args::try_parse_from(["ny-llvmc", "--out", "out.o", "--driver", "native"]).unwrap();
         assert_eq!(args.driver, DriverKind::Native);
+    }
+
+    #[test]
+    fn implementation_detail_driver_selector_accepts_harness_opt_in() {
+        let args =
+            Args::try_parse_from(["ny-llvmc", "--out", "out.o", "--driver", "harness"]).unwrap();
+        assert_eq!(args.driver, DriverKind::Harness);
     }
 
     #[test]

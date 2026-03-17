@@ -87,17 +87,22 @@ Related:
 phase docs が要求する evidence は次の順番で積む。
 
 1. direct CLI object evidence
-   - `ny-llvmc --driver native --emit obj --in apps/tests/mir_shape_guard/collapsed_min.mir.json --out <tmp.o>`
+   - `ny-llvmc --emit obj --in apps/tests/mir_shape_guard/collapsed_min.mir.json --out <tmp.o>`
+   - default driver must be boundary-owned; no `--driver harness` or `--driver native` required
 2. direct CLI executable evidence
+   - `ny-llvmc --emit exe --in apps/tests/mir_shape_guard/collapsed_min.mir.json --nyrt target/release --out <tmp.exe>`
+   - default driver must be boundary-owned; no `--driver harness` or `--driver native` required
+3. native seam evidence
+   - `ny-llvmc --driver native --emit obj --in apps/tests/mir_shape_guard/collapsed_min.mir.json --out <tmp.o>`
    - `ny-llvmc --driver native --emit exe --in apps/tests/mir_shape_guard/collapsed_min.mir.json --nyrt target/release --out <tmp.exe>`
-3. app fixture parity evidence
+4. app fixture parity evidence
    - `apps/tests/hello_simple_llvm.hako`
    - current downstream meaning target は `phase29x_llvm_cabi_link_min.sh`
    - native opt-in smoke:
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
    - direct runner evidence:
      - `NYASH_LLVM_USE_HARNESS=1 NYASH_LLVM_BACKEND=native NYASH_NY_LLVM_COMPILER=target/release/ny-llvmc NYASH_EMIT_EXE_NYRT=target/release ./target/release/hakorune --backend llvm apps/tests/hello_simple_llvm.hako`
-4. boundary cutover evidence
+5. boundary cutover evidence
    - owner/env/archive contract is locked by `P3-THIN-BACKEND-CUTOVER-LOCK.md`
    - exact replay commands:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
@@ -109,7 +114,7 @@ phase docs が要求する evidence は次の順番で積む。
      - `lang/src/llvm_ir/archive/legacy_script_builder/**`
    - rule:
      - do not treat `A2`-`A4` alone as final done shape
-5. runtime proof owner evidence
+6. runtime proof owner evidence
    - final owner lane:
      - `.hako VM` route for `LlvmBackendBox` execution
    - exact replay command:
@@ -128,7 +133,8 @@ phase docs が要求する evidence は次の順番で積む。
 
 補足:
 - `BE0-min2` で locked selector は `--driver native`
-- default route は引き続き `--driver harness`
+- default route is now `--driver boundary`
+- unsupported shapes may still replay `--driver harness` through `hako_aot_compile_json(...)` compat fallback, but that fallback must stay explicit and must not silently re-promote `Harness` as the selector-level default
 
 ## 3. Reopen / Promotion Rule
 

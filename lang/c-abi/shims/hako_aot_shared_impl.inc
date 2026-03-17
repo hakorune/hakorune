@@ -142,7 +142,7 @@ static int hako_aot_build_compile_command(
   int n = snprintf(
       cmd,
       cmd_len,
-      "\"%s\" --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
+      "\"%s\" --driver harness --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
       llvmc,
       mir_json_path,
       obj_path,
