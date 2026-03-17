@@ -60,11 +60,12 @@ Semantic contract reference:
 
 ## 4. Runtime V0 Helper Slice (execution-path-zero)
 
-execution-path-zero cutover では、以下 3 語彙を固定する。
+execution-path-zero cutover では、以下 4 語彙を固定する。
 
 1. `string_len`
 2. `array_get_i64`
 3. `array_set_i64`
+4. `map_size_i64`
 
 Ownership contract:
 
@@ -75,6 +76,7 @@ Entry lock:
 
 1. `lang/src/runtime/collections/string_core_box.hako` (`string_len`)
 2. `lang/src/runtime/collections/array_core_box.hako` (`array_get_i64`, `array_set_i64`)
+3. `lang/src/runtime/collections/map_core_box.hako` (`map_size_i64`)
 
 Detailed SSOT:
 

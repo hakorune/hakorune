@@ -57,6 +57,7 @@ NYASH_DISABLE_PLUGINS = "1"
   - 出力先: 原則 stderr（Hakovm は stdout）。テストランナーは numeric rc 抽出時に非数値行を無視します。
 - HAKO_VERIFY_SHOW_LOGS: verify_v1_inline_file() のログ透過（"1" で有効）
   - hv1 inline 実行の全出力を stderr に表示し、数値 rc は別途抽出します。
+  - hv1 inline verifier は env-sanitized のまま `HAKO_ABI_*`, `HAKO_VM_MIRCALL_*`, `HAKO_V1_DISPATCHER_FLOW`, `HAKO_V1_EXTERN_PROVIDER*` を narrow forward し、adapter/value-state/dispatcher-flow canary の意味論を維持します。
 - HAKO_DEBUG: 開発向け一括トグル（"1" で `HAKO_TRACE_EXECUTION=1` と `HAKO_VERIFY_SHOW_LOGS=1` を自動有効化）
   - 実装箇所: tools/smokes/v2/lib/test_runner.sh のデバッグ便宜機能
 

@@ -28,7 +28,7 @@ cat > "$tmp_json" <<'JSON'
 JSON
 
 set +e
-HAKO_VERIFY_PRIMARY=hakovm HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 verify_mir_rc "$tmp_json" >/dev/null 2>&1
+HAKO_VERIFY_PRIMARY=hakovm HAKO_ABI_ADAPTER=${HAKO_ABI_ADAPTER:-1} HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 verify_mir_rc "$tmp_json" >/dev/null 2>&1
 rc=$?
 set -e
 rm -f "$tmp_json" || true

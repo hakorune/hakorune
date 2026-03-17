@@ -1,0 +1,65 @@
+// MapCoreBox — thin VM runtime wrapper over map ABI/state helpers
+// Responsibility:
+// - provide VM-low-level i64 size path without std-layer coupling
+// - own adapter-on MapBox state keys/updates so VM handler stays orchestration-only
+
+using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box MapCoreBox {
+  size_i64(handle) {
+    return externcall "nyash.map.size_h"(handle)
+  }
+
+  norm_key_str(s) {
+    if s == null { return null }
+    local out = s
+    local len = out.length()
+    if len >= 2 {
+      local first = out.substring(0, 1)
+      local last = out.substring(len - 1, len)
+      if first == "\"" && last == "\"" {
+        out = out.substring(1, len - 1)
+      }
+    }
+    if out.indexOf("[map/missing]") >= 0 { return null }
+    return out
+  }
+
+  _presence_key(per_recv, rid, key_str) {
+    local rid_s = rid == null ? "null" : ("" + rid)
+    return "hvm.map.k:" + (per_recv == "1" ? rid_s : "*") + ":" + key_str
+  }
+
+  record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id) {
+    local next_len = cur_len
+    if key_str != null {
+      local pres_key = me._presence_key(per_recv, rid, key_str)
+      local had = regs.getField(pres_key)
+      if had == null {
+        regs.setField(pres_key, "1")
+        next_len = next_len + 1
+      }
+      if value_state == "1" && arg1_id != null && arg1_id >= 0 {
+        local val_str = regs.getField(StringHelpers.int_to_str(arg1_id))
+        if val_str != null {
+          local val_key = MethodAliasPolicy.recv_map_key(per_recv, rid, key_str)
+          regs.setField(val_key, "" + val_str)
+        }
+      }
+      return next_len
+    }
+    return next_len + 1
+  }
+
+  get_state_value(regs, per_recv, rid, key_str) {
+    if key_str == null { return null }
+    local val_key = MethodAliasPolicy.recv_map_key(per_recv, rid, key_str)
+    return regs.getField(val_key)
+  }
+
+  has_state_value(regs, per_recv, rid, key_str) {
+    if me.get_state_value(regs, per_recv, rid, key_str) == null { return 0 }
+    return 1
+  }
+}

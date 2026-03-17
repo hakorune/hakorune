@@ -1783,21 +1783,55 @@ verify_v1_inline_file() {
         echo "[FAIL] verify_v1_inline_file: json not found: $json_path" >&2
         return 2
     fi
+    build_verify_v1_inline_env() {
+        local source_json_path="$1"
+        VERIFY_V1_INLINE_ENV=(
+            env -i
+            PATH="$PATH"
+            HAKO_TRACE_EXECUTION="${HAKO_TRACE_EXECUTION:-0}"
+            HAKO_VERIFY_SHOW_LOGS="${HAKO_VERIFY_SHOW_LOGS:-0}"
+            HAKO_ROUTE_HAKOVM=1
+            HAKO_VERIFY_V1_FORCE_HAKOVM=1
+            NYASH_VERIFY_JSON="$(cat "$source_json_path")"
+        )
+        local name
+        for name in \
+            HAKO_ABI_ADAPTER \
+            HAKO_ABI_ADAPTER_DEV \
+            HAKO_DEV_SILENCE_MISSING_CALLEE \
+            HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM \
+            HAKO_V1_DISPATCHER_FLOW \
+            HAKO_V1_EXTERN_PROVIDER \
+            HAKO_V1_EXTERN_PROVIDER_C_ABI \
+            HAKO_VM_DYN_FALLBACK \
+            HAKO_VM_MIRCALL_SIZESTATE \
+            HAKO_VM_MIRCALL_SIZESTATE_PER_RECV \
+            HAKO_VM_MIRCALL_STUB \
+            HAKO_VM_MIRCALL_TRACE \
+            HAKO_VM_MIRCALL_TRACE_KEYS \
+            HAKO_VM_MIRCALL_VALUESTATE \
+            NYASH_ALLOW_USING_FILE \
+            NYASH_ENABLE_USING \
+            NYASH_FAIL_FAST \
+            NYASH_PREINCLUDE \
+            NYASH_RESOLVE_FIX_BRACES \
+            NYASH_USING_AST
+        do
+            if [ "${!name+x}" = "x" ]; then
+                VERIFY_V1_INLINE_ENV+=("$name=${!name}")
+            fi
+        done
+    }
+    build_verify_v1_inline_env "$json_path"
     local out
     # Optional: show full logs for debugging (default OFF)
     if [ "${HAKO_VERIFY_SHOW_LOGS:-0}" = "1" ]; then
         # Show all output to stderr, then extract numeric rc (env-sanitized for determinism)
-        env -i PATH="$PATH" \
-              HAKO_TRACE_EXECUTION="${HAKO_TRACE_EXECUTION:-0}" HAKO_VERIFY_SHOW_LOGS="${HAKO_VERIFY_SHOW_LOGS:-0}" \
-              HAKO_ROUTE_HAKOVM=1 HAKO_VERIFY_V1_FORCE_HAKOVM=1 \
-              NYASH_VERIFY_JSON="$(cat "$json_path")" \
+        "${VERIFY_V1_INLINE_ENV[@]}" \
               "$NYASH_BIN" --backend vm /dev/null 2>&1 | tr -d '\r' | tee /tmp/hv1_debug.log >&2
         out=$(awk '/^-?[0-9]+$/{n=$0} END{if(n!="") print n}' /tmp/hv1_debug.log)
     else
-        out=$(env -i PATH="$PATH" \
-                 HAKO_TRACE_EXECUTION="${HAKO_TRACE_EXECUTION:-0}" \
-                 HAKO_ROUTE_HAKOVM=1 HAKO_VERIFY_V1_FORCE_HAKOVM=1 \
-                 NYASH_VERIFY_JSON="$(cat "$json_path")" \
+        out=$("${VERIFY_V1_INLINE_ENV[@]}" \
                  "$NYASH_BIN" --backend vm /dev/null 2>/dev/null | tr -d '\r' | awk '/^-?[0-9]+$/{n=$0} END{if(n!="") print n}')
     fi
     if [[ "$out" =~ ^-?[0-9]+$ ]]; then

@@ -25,5 +25,10 @@ Rule:
 - `array_core_box.hako`
   - `get_i64(handle, idx)` -> `nyash.array.get_hi`
   - `set_i64(handle, idx, value)` -> `nyash.array.set_hii`
+- `map_core_box.hako`
+  - `size_i64(handle)` -> `nyash.map.size_h`
+  - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state
+  - `record_set_state(...)` / `get_state_value(...)` / `has_state_value(...)`
+    -> adapter-on MapBox state ownership for `mir_call_v1_handler`
 - `string_core_box.hako`
   - `len_i64(handle)` -> `nyash.string.len_h`

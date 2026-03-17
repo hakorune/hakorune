@@ -54,6 +54,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - collection owner SSOT: `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
     - ring lock: `array` / `map` are `ring1`, not `ring0`
     - current truth: runtime/provider lane is still wired by Rust `src/providers/ring1/{array,map}/mod.rs`, while AOT/LLVM collection paths still rely on Rust `crates/nyash_kernel/src/{exports/birth.rs,plugin/array.rs,plugin/map.rs,plugin/runtime_data.rs}` and `.hako` `lang/src/runtime/collections/**` / `lang/src/vm/boxes/abi_adapter_registry.hako` are thin wrapper/adapter owners
+    - latest visible-owner slice: `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox` size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
+    - latest proof lock: `tools/smokes/v2/lib/test_runner.sh::verify_v1_inline_file()` now forwards `HAKO_ABI_*` / `HAKO_VM_*` / `HAKO_V1_*` canary toggles into hv1-inline, so phase2170 adapter/value-state canaries actually observe the same MapCoreBox route under `HAKO_VERIFY_PRIMARY=hakovm`
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`

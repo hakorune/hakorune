@@ -12,6 +12,7 @@ REGISTRY_FILE="lang/src/vm/boxes/abi_adapter_registry.hako"
 HANDLER_FILE="lang/src/vm/boxes/mir_call_v1_handler.hako"
 ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
+MAP_CORE_FILE="lang/src/runtime/collections/map_core_box.hako"
 
 for file in \
   "$LOCK_DOC" \
@@ -21,14 +22,15 @@ for file in \
   "$REGISTRY_FILE" \
   "$HANDLER_FILE" \
   "$ARRAY_CORE_FILE" \
-  "$STRING_CORE_FILE"; do
+  "$STRING_CORE_FILE" \
+  "$MAP_CORE_FILE"; do
   if [ ! -f "$file" ]; then
     echo "[runtime-v0-abi-slice-guard] missing file: $file" >&2
     exit 1
   fi
 done
 
-for keyword in "string_len" "array_get_i64" "array_set_i64" "args borrowed / return owned"; do
+for keyword in "string_len" "array_get_i64" "array_set_i64" "map_size_i64" "args borrowed / return owned"; do
   if ! rg -F -q "$keyword" "$LOCK_DOC" "$CUTOVER_SSOT"; then
     echo "[runtime-v0-abi-slice-guard] missing keyword: $keyword" >&2
     exit 1
@@ -62,6 +64,22 @@ if ! rg -F -q 'StringCoreBox.len_i64(' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing StringCoreBox len route" >&2
   exit 1
 fi
+if ! rg -F -q 'MapCoreBox.size_i64(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox size route" >&2
+  exit 1
+fi
+if ! rg -F -q 'MapCoreBox.record_set_state(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox set-state route" >&2
+  exit 1
+fi
+if ! rg -F -q 'MapCoreBox.get_state_value(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox get-state route" >&2
+  exit 1
+fi
+if ! rg -F -q 'MapCoreBox.has_state_value(' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox has-state route" >&2
+  exit 1
+fi
 if ! rg -F -q 'ArrayCoreBox.get_i64(' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox get route" >&2
   exit 1
@@ -80,6 +98,22 @@ if ! rg -F -q 'externcall "nyash.array.get_hi"' "$ARRAY_CORE_FILE"; then
 fi
 if ! rg -F -q 'externcall "nyash.array.set_hii"' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.set_hii extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.map.size_h"' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing nyash.map.size_h extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing set-state helper contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'get_state_value(regs, per_recv, rid, key_str)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing get-state helper contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'has_state_value(regs, per_recv, rid, key_str)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing has-state helper contract" >&2
   exit 1
 fi
 

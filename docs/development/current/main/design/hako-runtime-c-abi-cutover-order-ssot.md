@@ -65,9 +65,11 @@ Related:
 ### Step 1: V0 ABI slice lock (docs + tests)
 
 - まず 3 関数だけを cutover 対象に固定する。
+ - まず 4 関数だけを cutover 対象に固定する。
   - `string_len`
   - `array_get_i64`
   - `array_set_i64`
+  - `map_size_i64`
 - 各関数で以下を明記:
   - 入力型
   - 所有権
@@ -89,14 +91,16 @@ Related:
 ### Step 3: `.hako` adapter lock (small code)
 
 - `.hako` 側に同形 adapter を作り、3 関数だけ直結する。
+ - `.hako` 側に同形 adapter を作り、4 関数だけ直結する。
 - VM low-level の配線は
   `lang/src/runtime/collections/array_core_box.hako`（array系）と
+  `lang/src/runtime/collections/map_core_box.hako`（map_size）と
   `lang/src/runtime/collections/string_core_box.hako`（string_len）を正本入口とし、
   `lang/src/vm/boxes/mir_call_v1_handler.hako` からのみ呼ぶ。
 - Rust fallback を暗黙利用しない（strict で fail-fast）。
 - 受け入れ:
-  - adapter fixture smoke（3 関数）
-  - `string_len` は adapter route 契約（registry + handler tag + core box）で固定
+  - adapter fixture smoke（4 関数）
+  - `string_len` と `map_size_i64` は adapter route 契約（registry + handler tag + core box）で固定
     （実行値検証は behavior smoke、経路監査は source contract として分離）
   - lane C quick gate 緑
 

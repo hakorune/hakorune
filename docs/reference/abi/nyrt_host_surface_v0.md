@@ -33,7 +33,7 @@ Host-facing API は次の 6 カテゴリに限定する。
 | Runtime verification/safety | `nyrt_verify_mir_json`, `nyrt_safety_check_mir_json` | `include/nyrt.h` | fail-fast verifier/safety gates |
 | Host reverse-call bridge | `nyrt_hostcall`, `nyrt_host_call_name`, `nyrt_host_call_slot` | `include/nyrt.h`, `include/nyrt_host_api.h` | TLV bridge (`slot` preferred for stable dispatch) |
 | Handle lifecycle | `nyrt_handle_retain_h`, `nyrt_handle_release_h` | `include/nyrt.h` | borrowed/owned lifecycle boundary |
-| Runtime V0 helper slice | `string_len`, `array_get_i64`, `array_set_i64` (route lock) | runtime/plugin route lock docs | `.hako` runtime entry boxes from VM callsite (`string_core_box`/`array_core_box`) |
+| Runtime V0 helper slice | `string_len`, `array_get_i64`, `array_set_i64`, `map_size_i64` (route lock) | runtime/plugin route lock docs | `.hako` runtime entry boxes from VM callsite (`string_core_box`/`array_core_box`/`map_core_box`) |
 | Hako forward hook registry | `nyrt_hako_register_*`, `nyrt_hako_try_*` | `include/nyrt.h` | C registry for `.hako` callback forward (dot-name aliases remain compatibility surface) |
 
 ## 2.1 Current vs Planned Extensions (explicit)

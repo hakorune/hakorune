@@ -70,6 +70,8 @@ Mini‑VM Flags (20.36)
   - Array/Map の最小状態（size/len/push）を擬似的に追跡する（既定OFF）。
 - `HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1`
   - 受信者（Constructor の dst＝仮ハンドル）ごとにサイズを独立管理する（既定OFF）。
+- `verify_v1_inline_file()` は `HAKO_ABI_*` / `HAKO_VM_*` / `HAKO_V1_*` の canary toggles を引き継いで hv1-inline を起動する。
+  - adapter/value-state/dispatcher-flow canary は hakovm primary でも direct VM 実行と同じ route を観測する。
 - Canary:
   - phase2036/v1_minivm_size_state_on_canary_vm.sh → rc=2（push×2→size）
   - phase2036/v1_minivm_size_state_per_recv_on_canary_vm.sh → rc=2（A/B 各1push→size(A)+size(B)=2）
