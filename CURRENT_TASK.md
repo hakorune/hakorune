@@ -124,6 +124,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest B0 tightening: `src/runner/modes/llvm/harness_executor.rs` now keeps runtime-state log, harness gate, ny-llvmc emit, and executable run behind same-file helpers `log_harness_runtime_state(...)`, `ensure_harness_requested(...)`, `emit_executable_via_ny_llvmc(...)`, and `run_emitted_executable(...)`
       - latest BE0-min2b boundary-default slice: `crates/nyash-llvm-compiler/src/main.rs` now defaults `--driver` to `boundary` instead of `harness`, new `crates/nyash-llvm-compiler/src/boundary_driver.rs` routes default object/exe emission through the C ABI FFI bridge, and `lang/c-abi/shims/hako_aot_shared_impl.inc` now pins its compat fallback compile command to `--driver harness` explicitly so unsupported boundary shapes replay the keep lane without recursive `boundary -> hako_aot -> ny-llvmc` loops
       - latest BE0-min2b keep-lane isolation: `crates/nyash-llvm-compiler/src/boundary_driver.rs` now hides FFI library open / symbol lookup behind `with_compile_symbol(...)` / `with_link_symbol(...)`, and `lang/c-abi/shims/hako_llvmc_ffi.c` now parks the `HAKO_CAPI_PURE=1` compile branch behind `compile_json_compat_pure(...)`, so the exported default route reads as `hako_aot` forwarder while pure-lowering stays compat-only
+      - latest BE0-min2c pure-first boundary slice: default boundary compile now enables the pure C subset first from `crates/nyash-llvm-compiler/src/boundary_driver.rs` and `src/host_providers/llvm_codegen.rs`, while `lang/c-abi/shims/hako_llvmc_ffi.c` now owns recursion-safe forwarders for compile/link fallback; supported v1 seed `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` is now locked by `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh` to emit without relying on `NYASH_NY_LLVM_COMPILER`
       - by-name follow-up is now split out as `phase-29cl` and must stay narrow to kernel/plugin/backend boundary retirement; do not repoint `phase-29ce` frontend fixture-key/by-name history there
       - landed `phase-29cl / BYN-min1`: `tools/checks/phase29cl_by_name_mainline_guard.sh` locks the `nyash.plugin.invoke_by_name_i64` owner set, and `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh` replays the lock together with backend proof
     - exact next follow-up:
@@ -149,7 +150,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
   - current exact issue は 3 本:
     1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
-    2. `ny-llvmc` selector-level default と `src/host_providers/llvm_codegen.rs` default object path は `boundary`-first に切れたが、unsupported shapes are still allowed to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness` inside the boundary fallback lane, so `llvmlite` is still an indirect compat in-path while the `ny-llvmc` wrapper path itself is explicit keep only
+    2. `ny-llvmc` selector-level default と `src/host_providers/llvm_codegen.rs` default object path は `boundary`-first になり、supported v1 seed `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` は pure C subset で object emit できる; however unsupported shapes are still allowed to fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` remains an indirect compat in-path while the `ny-llvmc` wrapper path itself is explicit keep only
     3. `native_driver.rs` は bootstrap seam のまま keep すべきで、次は `main.rs` / `llvm_codegen.rs` の Rust glue をさらに薄くしつつ、`hako_llvmc_ffi.c` / boundary fallback reliance を減らす必要がある
 - do not do yet:
   - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
@@ -194,8 +195,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - keep `MIR(JSON path) -> object path -> exe path` contract single-sourced
        - absorb command/log/resolve/error-projection cleanup here, not in runner callers
        - become the final daily owner that `llvm_codegen.rs` only forwards into, not the other way around
-       - reduce `hako_llvmc_ffi.c` / `hako_aot_compile_json(...) -> ny-llvmc --driver harness` fallback reliance until `llvm_codegen.rs` can stay boundary-first without reopening Rust/CLI ownership
+       - reduce `hako_llvmc_ffi.c` / `hako_aot_compile_json(...) -> ny-llvmc --driver harness` fallback reliance from `ret_const_min_v1` upward until `llvm_codegen.rs` can stay boundary-first without reopening Rust/CLI ownership
+       - fixed order:
+         - first widen boundary-owned compile coverage in `lang/c-abi/shims/hako_llvmc_ffi.c`
+         - only after that, repoint `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command off explicit `--driver harness`
      - acceptance:
+       - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh`
        - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
        - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
   2. ny-llvmc wrapper demotion

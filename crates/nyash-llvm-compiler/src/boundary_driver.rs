@@ -133,7 +133,7 @@ fn call_compile_symbol(input: &Path, out: &Path) -> Result<()> {
     let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
         with_compile_symbol(|func| {
-            with_env_override("HAKO_AOT_USE_FFI", Some("0"), || {
+            with_env_override("HAKO_CAPI_PURE", Some("1"), || {
                 let rc = func(
                     cin.as_ptr(),
                     cout.as_ptr(),
@@ -170,16 +170,14 @@ fn call_link_symbol(
     let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
         with_link_symbol(|func| {
-            with_env_override("HAKO_AOT_USE_FFI", Some("0"), || {
-                with_env_override("NYASH_EMIT_EXE_NYRT", nyrt_owned.as_deref(), || {
-                    let rc = func(
-                        cobj.as_ptr(),
-                        cexe.as_ptr(),
-                        libs_ptr,
-                        &mut err_ptr as *mut *mut c_char,
-                    );
-                    interpret_result(rc, err_ptr, out_exe, "exe not produced")
-                })
+            with_env_override("NYASH_EMIT_EXE_NYRT", nyrt_owned.as_deref(), || {
+                let rc = func(
+                    cobj.as_ptr(),
+                    cexe.as_ptr(),
+                    libs_ptr,
+                    &mut err_ptr as *mut *mut c_char,
+                );
+                interpret_result(rc, err_ptr, out_exe, "exe not produced")
             })
         })
     }

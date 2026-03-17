@@ -138,7 +138,10 @@ fn capi_boundary_unavailable(error: &str) -> bool {
         || error.contains("dlsym failed")
 }
 
-fn try_compile_via_boundary_default(mir_json: &str, opts: &Opts) -> Result<Option<PathBuf>, String> {
+fn try_compile_via_boundary_default(
+    mir_json: &str,
+    opts: &Opts,
+) -> Result<Option<PathBuf>, String> {
     validate_backend_mir_shape(mir_json)?;
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
@@ -288,9 +291,8 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
         let cout = CString::new(obj_out.to_string_lossy().as_bytes())
             .map_err(|_| "invalid out path".to_string())?;
         let mut err_ptr: *mut c_char = std::ptr::null_mut();
-        // Avoid recursive FFI-in-FFI: force inner AOT to use CLI path
-        let prev = crate::config::env::aot_use_ffi_env();
-        std::env::set_var("HAKO_AOT_USE_FFI", "0");
+        let prev_pure = std::env::var("HAKO_CAPI_PURE").ok();
+        std::env::set_var("HAKO_CAPI_PURE", "1");
 
         // Inject opt_level defaults for Python harness (insurance against None)
         if crate::config::env::llvm_opt_level_envs().0.is_none() {
@@ -315,10 +317,10 @@ fn compile_via_capi(json_in: &Path, obj_out: &Path) -> Result<(), String> {
             cout.as_ptr(),
             &mut err_ptr as *mut *mut c_char,
         );
-        if let Some(v) = prev {
-            std::env::set_var("HAKO_AOT_USE_FFI", v);
+        if let Some(v) = prev_pure {
+            std::env::set_var("HAKO_CAPI_PURE", v);
         } else {
-            std::env::remove_var("HAKO_AOT_USE_FFI");
+            std::env::remove_var("HAKO_CAPI_PURE");
         }
         if rc != 0 {
             let msg = if !err_ptr.is_null() {
@@ -399,20 +401,12 @@ fn link_via_capi(obj_in: &Path, exe_out: &Path, extra_ldflags: Option<&str>) -> 
             std::ptr::null()
         };
         let mut err_ptr: *mut c_char = std::ptr::null_mut();
-        // Avoid recursive FFI-in-FFI
-        let prev = crate::config::env::aot_use_ffi_env();
-        std::env::set_var("HAKO_AOT_USE_FFI", "0");
         let rc = func(
             cobj.as_ptr(),
             cexe.as_ptr(),
             cflags_ptr,
             &mut err_ptr as *mut *mut c_char,
         );
-        if let Some(v) = prev {
-            std::env::set_var("HAKO_AOT_USE_FFI", v);
-        } else {
-            std::env::remove_var("HAKO_AOT_USE_FFI");
-        }
         if rc != 0 {
             let msg = if !err_ptr.is_null() {
                 CStr::from_ptr(err_ptr).to_string_lossy().to_string()

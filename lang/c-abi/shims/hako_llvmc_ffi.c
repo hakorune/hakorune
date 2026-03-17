@@ -1,9 +1,10 @@
 // hako_llvmc_ffi.c — Minimal FFI bridge that forwards to hako_aot.c
 // Exports functions that hako_aot.c dlopens when HAKO_AOT_USE_FFI=1.
 // Phase 21.2 introduced a guarded "pure C-API" toggle (HAKO_CAPI_PURE=1).
-// That route is now legacy/compat-only for historical pure-lowering canaries.
-// The default path delegates to hako_aot helpers and is sufficient for the
-// phase-29ck `.hako VM -> LlvmBackendBox -> C-API -> exe` runtime proof.
+// Phase 29ck now uses that pure subset as the first boundary compile step for
+// supported seeds, while unsupported shapes still fall back through hako_aot
+// helpers into explicit compat keep lanes.
+// The default export surface still presents as a thin hako_aot forwarder.
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -36,12 +37,57 @@ static int set_err_owned(char** err_out, const char* msg) {
   return -1;
 }
 
+static void hako_llvmc_set_env_value(const char* key, const char* value) {
+#if defined(_WIN32)
+  _putenv_s(key, value ? value : "");
+#else
+  if (value) {
+    setenv(key, value, 1);
+  } else {
+    unsetenv(key);
+  }
+#endif
+}
+
+static int hako_llvmc_forward_compile_to_aot_without_ffi(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out) {
+  const char* prev_raw = getenv("HAKO_AOT_USE_FFI");
+  char prev_buf[64];
+  int had_prev = prev_raw && prev_raw[0];
+  if (had_prev) {
+    snprintf(prev_buf, sizeof(prev_buf), "%s", prev_raw);
+  }
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", "0");
+  int rc = hako_aot_compile_json(json_in, obj_out, err_out);
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", had_prev ? prev_buf : NULL);
+  return rc;
+}
+
+static int hako_llvmc_forward_link_to_aot_without_ffi(
+    const char* obj_in,
+    const char* exe_out,
+    const char* extra_ldflags,
+    char** err_out) {
+  const char* prev_raw = getenv("HAKO_AOT_USE_FFI");
+  char prev_buf[64];
+  int had_prev = prev_raw && prev_raw[0];
+  if (had_prev) {
+    snprintf(prev_buf, sizeof(prev_buf), "%s", prev_raw);
+  }
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", "0");
+  int rc = hako_aot_link_obj(obj_in, exe_out, extra_ldflags, err_out);
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", had_prev ? prev_buf : NULL);
+  return rc;
+}
+
 static int forward_compile_json_to_aot(const char* json_in, const char* obj_out, char** err_out) {
-  return hako_aot_compile_json(json_in, obj_out, err_out);
+  return hako_llvmc_forward_compile_to_aot_without_ffi(json_in, obj_out, err_out);
 }
 
 static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
-  return hako_aot_link_obj(obj_in, exe_out, extra_ldflags, err_out);
+  return hako_llvmc_forward_link_to_aot_without_ffi(obj_in, exe_out, extra_ldflags, err_out);
 }
 
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
