@@ -1919,8 +1919,10 @@ can_run_llvm() {
     if "$NYASH_BIN" --version 2>/dev/null | grep -q "features.*llvm"; then
         return 0
     fi
-    # Fallback check: binary contains LLVM harness symbols (ny-llvmc / NYASH_LLVM_USE_HARNESS)
-    if strings "$NYASH_BIN" 2>/dev/null | grep -E -q 'ny-llvmc|NYASH_LLVM_USE_HARNESS'; then
+    # Fallback check: binary contains LLVM route symbols.
+    # Avoid `strings | grep -q` under `pipefail`, because grep's early success
+    # can SIGPIPE `strings` and turn a true-positive into exit 141.
+    if grep -a -E -q 'ny-llvmc|NYASH_LLVM_USE_HARNESS' "$NYASH_BIN" 2>/dev/null; then
         return 0
     fi
     return 1
