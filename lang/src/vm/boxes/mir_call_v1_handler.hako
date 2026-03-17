@@ -97,70 +97,8 @@ static box MirCallV1HandlerBox {
                 return
               }
             }
-            // Map.set: 重複キー検知つきでサイズ更新 + 値保存（値状態ON時）
-            if btype == "MapBox" && mname == "set" {
-              print("[DEBUG_ADAPTER_MAP_SET] ENTER")
-              // 受信者・キー抽出
-              local arg0 = MiniMirV1Scan.first_arg_register(seg)
-              local key_str = null
-              if arg0 >= 0 {
-                local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
-                key_str = MapCoreBox.norm_key_str(key_str_raw)
-                me._norm_key_dbg(key_str_raw, key_str)
-                print("[DEBUG_ADAPTER_MAP_SET] raw=" + key_str_raw + " norm=" + key_str)
-              }
-              local arg1_id = MiniMirV1Scan.nth_arg_register(seg, 1)
-              cur_len = MapCoreBox.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)
-              regs.setField(key, StringHelpers.int_to_str(cur_len))
-              if env.get("HAKO_VM_MIRCALL_TRACE") == "1" {
-                if key_str != null {
-                  print("[vm/trace] map.set(adapter,key) cur_len=" + cur_len)
-                } else {
-                  print("[vm/trace] map.set(adapter,unknown-key) cur_len=" + cur_len)
-                }
-              }
-              local d_set = JsonFragBox.get_int(seg, "dst"); if d_set != null { regs.setField(StringHelpers.int_to_str(d_set), "0") }
-              return
-            }
-            // Map.get: 値状態ON時、値取得（なければnull）
-            if btype == "MapBox" && mname == "get" && value_state == "1" {
-              local arg0 = MiniMirV1Scan.first_arg_register(seg)
-              if arg0 >= 0 {
-                local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
-                local key_str = MapCoreBox.norm_key_str(key_str_raw)
-                me._norm_key_dbg(key_str_raw, key_str)
-                local val_str = MapCoreBox.get_state_value(regs, per_recv, rid, key_str)
-                local dst_get = JsonFragBox.get_int(seg, "dst")
-                if dst_get != null {
-                  if val_str != null { regs.setField(StringHelpers.int_to_str(dst_get), ""+val_str) }
-                  // val_str == null の時は setField しない（null 表現）
-                }
-              }
-              return
-            }
-            // Map.has: 値状態ON時、キー存在確認（1=存在、0=なし）
-            if btype == "MapBox" && mname == "has" && value_state == "1" {
-              local arg0 = MiniMirV1Scan.first_arg_register(seg)
-              local has_result = 0
-              if arg0 >= 0 {
-                local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
-                local key_str = MapCoreBox.norm_key_str(key_str_raw)
-                me._norm_key_dbg(key_str_raw, key_str)
-                has_result = MapCoreBox.has_state_value(regs, per_recv, rid, key_str)
-              }
-              local dst_has = JsonFragBox.get_int(seg, "dst")
-              if dst_has != null { regs.setField(StringHelpers.int_to_str(dst_has), StringHelpers.int_to_str(has_result)) }
-              return
-            }
-            if btype == "MapBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
-              local recv_hm = me._read_reg_i64_or_null(regs, rid)
-              if recv_hm != null && recv_hm > 0 {
-                local size_i64 = MapCoreBox.size_i64(recv_hm)
-                local dst_msz = JsonFragBox.get_int(seg, "dst")
-                if dst_msz != null { regs.setField(StringHelpers.int_to_str(dst_msz), StringHelpers.int_to_str(size_i64)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/map_core:size_i64]") }
-                return
-              }
+            if btype == "MapBox" {
+              if MapCoreBox.try_handle(seg, regs, mname) == 1 { return }
             }
             if MethodAliasPolicy.is_size_alias(mname) == 1 {
               local d_sz = JsonFragBox.get_int(seg, "dst"); if d_sz != null { regs.setField(StringHelpers.int_to_str(d_sz), StringHelpers.int_to_str(cur_len)) }

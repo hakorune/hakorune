@@ -68,14 +68,14 @@ Related:
   - meaning:
     - `.hako` 側は ABI vocabulary を thin に束ねる。
   - latest visible-owner slice:
-    - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox` size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
+    - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox.{set,get,has,size/len/length}` orchestration plus size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
     - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox.{set,get,push,len/length/size}` orchestration plus len/state helpers consumed by the same handler
     - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns narrow `RuntimeDataBox.{get,set,has,push}` method dispatch plus the same extern routes consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
   - current proof lock:
     - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` pins the source-contract (`registry/handler/core-box`) wiring for the current `.hako` collection owner slice
     - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` pins the standalone AOT/runtime-data e2e fixture
   - next owner-growing slice:
-    - move `MapBox.{set,get,has,size/len/length}` adapter-on orchestration from `lang/src/vm/boxes/mir_call_v1_handler.hako` into `lang/src/runtime/collections/map_core_box.hako::try_handle(...)` before reopening broader provider semantics
+    - reopen broader provider semantics only after the next narrow collection/runtime seam is justified by fixture+gate
   - caution:
     - `verify_v1_inline_file()` / `HAKO_VERIFY_PRIMARY=hakovm` still routes through Rust `hv1_inline::run_json_v1_inline(...)`; those canaries are not `.hako` `MirCallV1HandlerBox` owner proofs
   - collection semantics の最終 owner ではなく、現時点では Rust owner への adapter surface である。

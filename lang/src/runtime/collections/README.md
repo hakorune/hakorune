@@ -35,6 +35,8 @@ Rule:
   - `get_hh(recv_h, key_any)` / `set_hhh(recv_h, key_any, val_any)` / `has_hh(recv_h, key_any)` / `push_hh(recv_h, val_any)`
     -> `nyash.runtime_data.*` thin extern wrapper used by the same owner
 - `map_core_box.hako`
+  - `try_handle(seg, regs, mname)`
+    -> owns adapter-on `MapBox.{set,get,has,size/len/length}` orchestration for `mir_call_v1_handler`
   - `size_i64(handle)` -> `nyash.map.size_h`
   - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state
   - `record_set_state(...)` / `get_state_value(...)` / `has_state_value(...)`

@@ -134,28 +134,16 @@ check_string_adapter_route_contract() {
     test_fail "$SMOKE_NAME: MapBox.size adapter registry contract missing"
     exit 1
   fi
-  if ! rg -F -q 'MapCoreBox.size_i64(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler map core route contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'MapCoreBox.record_set_state(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler map set-state contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'MapCoreBox.get_state_value(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler map get-state contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'MapCoreBox.has_state_value(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler map has-state contract missing"
-    exit 1
-  fi
-  if ! rg -F -q '[vm/adapter/map_core:size_i64]' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler map adapter trace tag contract missing"
+  if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler map orchestration contract missing"
     exit 1
   fi
   if ! rg -F -q 'externcall "nyash.map.size_h"' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'try_handle(seg, regs, mname)' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core orchestration helper contract missing"
     exit 1
   fi
   if ! rg -F -q 'record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)' "$MAP_CORE_FILE"; then
@@ -168,6 +156,18 @@ check_string_adapter_route_contract() {
   fi
   if ! rg -F -q 'has_state_value(regs, per_recv, rid, key_str)' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core has-state helper contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'me.size_i64(recv_h)' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core size_i64 dispatch contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/map_core:size_i64]' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core size trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/map_core:set_state]' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core set trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'using lang.runtime.collections.runtime_data_core_box as RuntimeDataCoreBox' "$HANDLER_FILE"; then

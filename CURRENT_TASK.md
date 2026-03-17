@@ -55,7 +55,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - ring lock: `array` / `map` are `ring1`, not `ring0`
     - current truth: runtime/provider lane is still wired by Rust `src/providers/ring1/{array,map}/mod.rs`, while AOT/LLVM collection paths still rely on Rust `crates/nyash_kernel/src/{exports/birth.rs,plugin/array.rs,plugin/map.rs,plugin/runtime_data.rs}` and `.hako` `lang/src/runtime/collections/**` / `lang/src/vm/boxes/abi_adapter_registry.hako` are thin wrapper/adapter owners
     - latest visible-owner slices:
-      - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox` size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
+      - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox.{set,get,has,size/len/length}` orchestration plus size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
       - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox.{set,get,push,len/length/size}` orchestration plus len/state helpers consumed by the same handler
       - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns narrow `RuntimeDataBox.{get,set,has,push}` method dispatch plus the same extern routes consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
       - `src/providers/ring1/array/mod.rs` now keeps `Ring1ArrayService` type-gate / index boxing behind owner-local helpers and locks invalid-type contract with unit tests, so runtime/provider lane is slightly thinner without changing semantics
@@ -67,7 +67,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - exact next front:
       - keep `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_contract_vm.sh` as deferred lower-level cargo-test contract keep
       - runtime/provider lane is monitor-only after helper-thinning in `src/providers/ring1/{array,map}/mod.rs`
-      - next `.hako ring1` front is `MapBox` adapter-on orchestration: move `MapBox.{set,get,has,size/len/length}` handling from `lang/src/vm/boxes/mir_call_v1_handler.hako` into `lang/src/runtime/collections/map_core_box.hako::try_handle(...)`, then re-lock with `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` plus `tools/smokes/v2/profiles/integration/core/phase2170/map_set_dup_key_size_canary_vm.sh`
+      - next `.hako ring1` front is only worth reopening when a new narrow collection/runtime seam appears with fixture+gate value; current collection adapter-on orchestration slices are landed for `ArrayBox`, `MapBox`, and `RuntimeDataBox`
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`

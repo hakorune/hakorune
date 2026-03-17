@@ -64,20 +64,8 @@ if ! rg -F -q 'StringCoreBox.len_i64(' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing StringCoreBox len route" >&2
   exit 1
 fi
-if ! rg -F -q 'MapCoreBox.size_i64(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox size route" >&2
-  exit 1
-fi
-if ! rg -F -q 'MapCoreBox.record_set_state(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox set-state route" >&2
-  exit 1
-fi
-if ! rg -F -q 'MapCoreBox.get_state_value(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox get-state route" >&2
-  exit 1
-fi
-if ! rg -F -q 'MapCoreBox.has_state_value(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox has-state route" >&2
+if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox orchestration route" >&2
   exit 1
 fi
 if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
@@ -142,6 +130,14 @@ if ! rg -F -q 'get_state_value(regs, per_recv, rid, key_str)' "$MAP_CORE_FILE"; 
 fi
 if ! rg -F -q 'has_state_value(regs, per_recv, rid, key_str)' "$MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] map core missing has-state helper contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'try_handle(seg, regs, mname)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing try_handle contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'me.size_i64(recv_h)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing size_i64 dispatch contract" >&2
   exit 1
 fi
 
