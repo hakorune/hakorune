@@ -79,7 +79,7 @@ backend-zero の final target は次の形に固定する。
    - `src/host_providers/llvm_codegen.rs` default object path now also tries the direct C ABI boundary before any wrapper keep lane
    - `src/host_providers/llvm_codegen.rs::link_object_capi(...)` now forwards linker keeps directly into `hako_aot_link_obj(...)` instead of re-owning runtime archive / env ldflags synthesis on the Rust side
    - `lang/c-abi/shims/hako_llvmc_ffi.c` default compile/link exports now read as `hako_aot` forwarders, and compile fallback/link fallback disable recursive FFI inside the C owner
-   - supported boundary compile seeds now try the pure C subset first; `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` is accepted without relying on `NYASH_NY_LLVM_COMPILER`
+   - supported boundary compile seeds now try the pure C subset first; `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` and `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` are accepted without relying on `NYASH_NY_LLVM_COMPILER`
    - explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` keeps remain replayable, but the wrapper path is no longer part of the default route
    - unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` remains an indirect compat keep inside the boundary fallback lane
 2. bootstrap seam:

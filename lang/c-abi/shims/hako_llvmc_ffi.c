@@ -111,7 +111,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   }
 
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---
-    // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal)
+    // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal, Global print)
     do {
       yyjson_read_err rerr_g; yyjson_doc* d = yyjson_read_file(json_in, 0, NULL, &rerr_g);
       if (!d) break;
@@ -150,6 +150,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       // Pre-scan: consts + phis + needed method decls
       int need_map_birth=0, need_map_set=0, need_map_size=0, need_map_get=0, need_map_has=0;
       int need_arr_birth=0, need_arr_push=0, need_arr_len=0, need_arr_set=0, need_arr_get=0;
+      int need_printf=0;
       size_t blen = yyjson_arr_size(blocks);
       for (size_t bi=0; bi<blen; bi++) {
         yyjson_val* b = yyjson_arr_get(blocks, bi);
@@ -201,6 +202,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   else if (strcmp(mname, "set")==0) need_arr_set=1; else if (strcmp(mname, "get")==0) need_arr_get=1;
                 }
               }
+            } else if (ctype && strcmp(ctype, "Global")==0) {
+              if (mname && strcmp(mname, "print")==0) need_printf=1;
             }
           }
         }
@@ -221,8 +224,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_arr_len)   fprintf(f, "declare i64 @\"nyash.array.len_h\"(i64)\n");
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_h\"(i64, i64, i64)\n");
       if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.get_h\"(i64, i64)\n");
+      if (need_printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
+      if (need_printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
       fprintf(f, "\n");
       // Dynamic fallback invoke decl (optional utilization)
       fprintf(f, "declare i64 @\"nyash.plugin.invoke_by_name_i64\"(i64, i8*, i64, i64, i64)\n");
@@ -339,6 +344,19 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   } else { yyjson_doc_free(d); goto GEN_ABORT; }
                 } else { yyjson_doc_free(d); goto GEN_ABORT; }
               }
+            } else if (ctype && !strcmp(ctype, "Global")) {
+              if (mname && !strcmp(mname, "print")) {
+                long long print_arg = a0;
+                long long cv = 0;
+                if (!print_arg) { yyjson_doc_free(d); goto GEN_ABORT; }
+                if (has_const(print_arg, &cv)) {
+                  EMIT("  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %lld)\n",
+                       print_arg, cv);
+                } else {
+                  EMIT("  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %%r%lld)\n",
+                       print_arg, print_arg);
+                }
+              } else { yyjson_doc_free(d); goto GEN_ABORT; }
             } else { yyjson_doc_free(d); goto GEN_ABORT; }
             continue;
           }
