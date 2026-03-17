@@ -52,10 +52,6 @@ mod tests {
     use super::{try_dispatch, BUILD_BOX_METHOD, BUILD_BOX_MODULE};
     use crate::plugin::module_string_dispatch::{decode_string_handle, encode_string_handle};
     use crate::test_support::{with_env_var, with_env_vars};
-    use nyash_rust::box_trait::{NyashBox, StringBox};
-    use nyash_rust::runtime::host_handles as handles;
-    use std::ffi::CString;
-    use std::sync::Arc;
 
     fn dispatch_build_box_emit_program_json(source: &str) -> String {
         let source_handle = encode_string_handle(source);
@@ -81,23 +77,6 @@ mod tests {
         .expect("dispatch");
         assert!(out > 0, "expected MIR JSON StringBox handle");
         decode_string_handle(out).expect("MIR JSON string handle")
-    }
-
-    fn invoke_by_name_build_box_emit_program_json(source: &str) -> String {
-        let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(BUILD_BOX_MODULE.to_string()));
-        let receiver_handle = handles::to_handle_arc(receiver) as i64;
-        let source_handle =
-            handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-        let method = CString::new(BUILD_BOX_METHOD).expect("CString");
-        let result_handle = crate::nyash_plugin_invoke_by_name_i64(
-            receiver_handle,
-            method.as_ptr(),
-            2,
-            source_handle,
-            0,
-        );
-        assert!(result_handle > 0, "expected StringBox handle");
-        decode_string_handle(result_handle).expect("program json string handle")
     }
 
     #[test]
@@ -243,15 +222,6 @@ static box Main {
             "static box NotMain { main() { return 0 } }",
         );
         assert!(result_text.contains("[freeze:contract][stage1_program_json_v0]"));
-    }
-
-    #[test]
-    fn invoke_by_name_build_box_compat_route_still_works() {
-        let program_json = invoke_by_name_build_box_emit_program_json(
-            "static box Main { main() { print(42) return 0 } }",
-        );
-        assert!(program_json.contains("\"kind\":\"Program\""));
-        assert!(program_json.contains("\"version\":0"));
     }
 
     #[test]

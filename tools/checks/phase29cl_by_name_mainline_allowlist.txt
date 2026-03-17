@@ -5,6 +5,5 @@ lang/c-abi/shims/hako_llvmc_ffi.c
 crates/nyash_kernel/src/plugin/invoke/by_name.rs
 crates/nyash_kernel/src/plugin/invoke/tests.rs
 crates/nyash_kernel/src/plugin/mod.rs
-crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs
 crates/nyash_kernel/src/tests.rs
 src/llvm_py/instructions/by_name_method.py

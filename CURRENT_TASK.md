@@ -35,7 +35,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `BYN-min4` hook/registry bridge and its Rust register entrypoints are now compat-only and crate-private; remaining by-name work is kernel hard retire readiness after caller shrink
   - `by_name.rs` FileBox named-method compat tail now lives in `compat_invoke_core.rs`; remaining kernel caller shrink is `module_string_dispatch.rs` / compiled-stage1 surrogate residue before hard retire readiness
   - `src/llvm_py/instructions/mir_call_legacy.py` now forwards receiver literals into the shared direct-or-plugin tail, so the legacy BuildBox module-string path can resolve direct lowered methods before `nyash.plugin.invoke_by_name_i64`
-  - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` tests are now direct-dispatch oriented; BuildBox surrogate proof no longer uses by-name as the default regression carrier
+  - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` tests are now direct-dispatch only; by-name compat proof lives elsewhere and is no longer owned there
   - current clean stop-line:
     - `.hako` policy owner is `BackendRecipeBox`
     - `.hako` caller stop-line is `LlvmBackendBox -> env.codegen.*`

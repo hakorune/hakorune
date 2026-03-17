@@ -16,7 +16,7 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - owner of the surrogate route match/dispatch contract and its regression coverage
   - owner of the launcher/stage1-cli-env Program(JSON) -> MIR handoff regression coverage too
   - the surrogate handler and route match stay owner-local; parent modules only probe via `try_dispatch(...)`
-  - regression tests now prefer direct surrogate dispatch; by-name is only a compat proof elsewhere, not the default BuildBox proof owner
+  - regression tests are direct surrogate dispatch by default; by-name compat proof lives elsewhere and is not owned here
 - `llvm_backend_surrogate.rs`
   - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate only
   - temporary B1 bridge owner for launcher/stage1-cli daily callers that still lower imported `LlvmBackendBox` methods to module-string receiver dispatch

@@ -74,7 +74,7 @@ Rule:
    - `src/backend/wasm_v2/unified_dispatch.rs`
 4. current compiled-stage1 temporary keeps are still needed
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
-   - `build_surrogate.rs`
+   - `build_surrogate.rs` (direct-dispatch default; by-name compat lives elsewhere)
    - `llvm_backend_surrogate.rs`
 5. current compat/archive residue still exists
    - `crates/nyash_kernel/src/hako_forward_bridge.rs`
