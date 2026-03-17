@@ -7,13 +7,37 @@
 
 static box BackendRecipeBox {
   prepare_compile_route(json_path) {
-    return me.prepare_compile_pure_first(json_path)
+    local profile = me.compile_route_profile(json_path)
+    if profile == null { return null }
+    return "" + profile.get("json_path")
   }
 
   prepare_compile_pure_first(json_path) {
     local path = me._require_non_empty("prepare_compile_route", "json_path", json_path)
     if path == null { return null }
     return "" + path
+  }
+
+  compile_route_profile(json_path) {
+    local path = me._require_non_empty("compile_route_profile", "json_path", json_path)
+    if path == null { return null }
+    local profile = new MapBox()
+    profile.set("json_path", "" + path)
+    profile.set("compile_recipe", "" + me.compile_recipe_for(json_path))
+    profile.set("compat_replay", "" + me.compat_replay_for(json_path))
+    return profile
+  }
+
+  compile_recipe_for(json_path) {
+    local path = me._require_non_empty("compile_recipe_for", "json_path", json_path)
+    if path == null { return null }
+    return me.compile_recipe_pure_first()
+  }
+
+  compat_replay_for(json_path) {
+    local path = me._require_non_empty("compat_replay_for", "json_path", json_path)
+    if path == null { return null }
+    return me.compat_replay_harness()
   }
 
   prepare_link_route(libs) {

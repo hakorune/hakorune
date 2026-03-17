@@ -252,7 +252,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
          - next focus is no longer command repointing or C micro-thinning; it is moving pure-seed / route / compat classification into `lang/src/shared/backend/backend_recipe_box.hako` while shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
          - landed: boundary-owned compile coverage now includes `RuntimeDataBox.{get(MapBox),get(ArrayBox),push(ArrayBox),has(ArrayBox)}` for narrow missing-key/index seeds
-         - exact next slice: make `BackendRecipeBox` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence
+         - exact next slice: make `BackendRecipeBox.compile_route_profile(...)` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence
      - acceptance:
        - canonical runtime proof: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
        - acceptance pair: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
