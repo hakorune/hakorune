@@ -41,6 +41,9 @@ Related:
 - `acceptance_policy`
   - stable label for the current pure/compat acceptance basis
   - example: `boundary-pure-seed-matrix-v1`
+- `acceptance_case`
+  - shape-specific evidence row owned by `.hako`
+  - example: `runtime-data-array-get-missing-v1`
 - `json_path`
   - normalized MIR JSON path
 - `compile_recipe`
@@ -54,7 +57,7 @@ Related:
 
 1. `.hako` policy owner
    - `lang/src/shared/backend/backend_recipe_box.hako`
-   - decides route profile name and caller-facing recipe policy
+   - decides route profile name, caller-facing recipe policy, and visible acceptance evidence rows
    - prepares link recipe normalization
 2. `.hako` caller facade
    - `lang/src/shared/backend/llvm_backend_box.hako`
@@ -90,7 +93,7 @@ Related:
 
 1. `.hako` policy owner
 - `BackendRecipeBox`
-  - owns compile recipe, compat replay, route-profile naming, and narrow pure-seed acceptance policy
+  - owns compile recipe, compat replay, route-profile naming, narrow pure-seed acceptance policy, and shape-specific acceptance-case naming
 2. `.hako` caller facade
    - `LlvmBackendBox`
    - validates the route profile and stops at `env.codegen.*`
@@ -102,7 +105,7 @@ Related:
 ## Clean Stop Line For This Wave
 
 - Stop after `BackendRecipeBox` is the only visible owner for route profile and recipe naming.
-- Stop after `BackendRecipeBox` is also the only visible owner for acceptance-policy naming.
+- Stop after `BackendRecipeBox` is also the only visible owner for acceptance-policy naming and acceptance-case naming.
 - Stop after `LlvmBackendBox` reads the profile and transport layers only mirror it.
 - Do not keep thinning `hako_aot_shared_impl.inc` without a fresh exact blocker.
 - Do not move broad CFG/pattern acceptance logic out of `hako_llvmc_ffi.c` in the same wave as policy handoff.

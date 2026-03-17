@@ -25,6 +25,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `.hako` の next exact slice は `BackendRecipeBox` の route profile SSOT 化で、policy owner / transport owner / compile recipe / compat replay を 1 枚の profile で明示すること
   - landed recipe classification row:
     - `BackendRecipeBox.compile_route_profile(...)` now also names `acceptance_policy=boundary-pure-seed-matrix-v1`
+    - `RuntimeDataBox.get(ArrayBox missing index)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-array-get-missing-v1`
     - this is the first visible `.hako`-owned label for why daily route stays `pure-first + harness`, while transport behavior remains unchanged
   - current clean stop-line:
     - `.hako` policy owner is `BackendRecipeBox`
@@ -258,13 +259,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
         - landed: `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)`; Rust transport mirrors that payload to env only at the boundary handoff
         - landed: `.hako` route profile now also names `acceptance_policy=boundary-pure-seed-matrix-v1`, so the current pure/compat acceptance basis is visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-array-get-missing-v1`, so the narrow `RuntimeDataBox.get(ArrayBox missing index)` evidence row stays visible at the policy owner before any transport handoff
         - landed: Rust VM direct `env.codegen.compile_json_path` / `emit_object` globals now delegate back to `extern_provider.rs`, so compile payload decode truth is no longer duplicated in `handlers/calls/global.rs`
          - landed: recipe-aware daily transport now prefers the explicit pure-first FFI export instead of asking the generic C export to decide that route
          - then move unsupported compile replay and seed/route policy out of `lang/c-abi/shims/hako_llvmc_ffi.c`, leaving it as export/marshal glue
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
          - next focus is no longer command repointing or C micro-thinning; it is moving pure-seed / route / compat classification into `lang/src/shared/backend/backend_recipe_box.hako` while shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
          - landed: boundary-owned compile coverage now includes `RuntimeDataBox.{get(MapBox),get(ArrayBox),push(ArrayBox),has(ArrayBox)}` for narrow missing-key/index seeds
-      - exact next slice: make `BackendRecipeBox.compile_route_profile(...)` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence; route-profile shape and owner names are now fixed by `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
+      - exact next slice: make `BackendRecipeBox.compile_route_profile(...)` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence; route-profile shape and owner names are now fixed by `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`, and the first shape-specific evidence row is now `acceptance_case=runtime-data-array-get-missing-v1`
      - acceptance:
        - canonical runtime proof: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
        - acceptance pair: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
