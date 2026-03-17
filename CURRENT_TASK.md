@@ -67,7 +67,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - exact next front:
       - keep `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_contract_vm.sh` as deferred lower-level cargo-test contract keep
       - runtime/provider lane is monitor-only after helper-thinning in `src/providers/ring1/{array,map}/mod.rs`
-      - next `.hako ring1` front is the next collection-method seam under `lang/src/vm/boxes/mir_call_v1_handler.hako` / `lang/src/runtime/collections/**`, not broader Rust provider semantics
+      - next `.hako ring1` front is `ArrayBox` adapter-on orchestration: move `ArrayBox.{set,get,push,len/length/size}` handling from `lang/src/vm/boxes/mir_call_v1_handler.hako` into `lang/src/runtime/collections/array_core_box.hako::try_handle(...)`, then re-lock with `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` plus `tools/smokes/v2/profiles/integration/core/phase2170/array_push_size_5_vm.sh`
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
@@ -153,6 +153,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - latest BE0-min2i pure-runtime-data-array-length slice: the same generic boundary-owned pure-first lane now accepts narrow `RuntimeDataBox.length/size` when the receiver is an `ArrayBox`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_array_length_min.sh` locks `apps/tests/mir_shape_guard/runtime_data_array_length_min_v1.mir.json` so the harness keep surface shrinks one RuntimeDataBox collection method shape at a time
       - latest BE0-min2j pure-runtime-data-map-size slice: the same generic boundary-owned pure-first lane now accepts narrow `RuntimeDataBox.length/size` when the receiver is a `MapBox`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_map_size_min.sh` locks `apps/tests/mir_shape_guard/runtime_data_map_size_min_v1.mir.json` so the harness keep surface shrinks one RuntimeDataBox collection method shape at a time
       - latest BE0-min2k pure-runtime-data-map-has slice: the same generic boundary-owned pure-first lane now accepts narrow `RuntimeDataBox.has` when the receiver is a `MapBox`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_map_has_min.sh` locks `apps/tests/mir_shape_guard/runtime_data_map_has_missing_min_v1.mir.json`
+      - latest BE0-min2l pure-runtime-data-map-get slice: the same generic boundary-owned pure-first lane now accepts narrow `RuntimeDataBox.get` when the receiver is a `MapBox`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_map_get_min.sh` locks `apps/tests/mir_shape_guard/runtime_data_map_get_missing_min_v1.mir.json`
       - by-name follow-up is now split out as `phase-29cl` and must stay narrow to kernel/plugin/backend boundary retirement; do not repoint `phase-29ce` frontend fixture-key/by-name history there
       - landed `phase-29cl / BYN-min1`: `tools/checks/phase29cl_by_name_mainline_guard.sh` locks the `nyash.plugin.invoke_by_name_i64` owner set, and `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh` replays the lock together with backend proof
     - exact next follow-up:
@@ -229,7 +230,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - then move unsupported compile replay ownership into `lang/c-abi/shims/hako_llvmc_ffi.c` itself, so the boundary pure-first lane replays `--driver harness` directly instead of re-entering `hako_aot_compile_json(...)`
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
          - next focus is no longer command repointing; it is shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
-         - exact next slice: widen boundary-owned compile coverage beyond `ret_const` / `Global.print` / `StringBox.length` / `RuntimeDataBox.length(StringBox)` / `StringBox.indexOf/1` / `RuntimeDataBox.length(ArrayBox)` / `RuntimeDataBox.size(MapBox)` into the next unsupported narrow RuntimeDataBox array/map method-shaped seed before broader method-loop packs
+         - exact next slice: widen boundary-owned compile coverage from `RuntimeDataBox.get(MapBox)` to the next smallest unsupported seed `RuntimeDataBox.push(ArrayBox immediate value)`, then `RuntimeDataBox.has(ArrayBox empty index)` before broader method-loop packs
      - acceptance:
        - `cargo run -p nyash-llvm-compiler -- --emit obj --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json --out target/tmp/phase29ck_boundary_min.o`
        - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh`
