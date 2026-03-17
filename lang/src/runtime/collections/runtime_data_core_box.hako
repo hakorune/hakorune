@@ -1,0 +1,22 @@
+// RuntimeDataCoreBox — thin VM runtime wrapper over RuntimeDataBox dispatch ABI
+// Responsibility:
+// - provide VM-visible direct extern routes for RuntimeDataBox.{get,set,has,push}
+// - keep runtime_data symbol ownership out of mir_call_v1_handler orchestration
+
+static box RuntimeDataCoreBox {
+  get_hh(recv_h, key_any) {
+    return externcall "nyash.runtime_data.get_hh"(recv_h, key_any)
+  }
+
+  set_hhh(recv_h, key_any, val_any) {
+    return externcall "nyash.runtime_data.set_hhh"(recv_h, key_any, val_any)
+  }
+
+  has_hh(recv_h, key_any) {
+    return externcall "nyash.runtime_data.has_hh"(recv_h, key_any)
+  }
+
+  push_hh(recv_h, val_any) {
+    return externcall "nyash.runtime_data.push_hh"(recv_h, val_any)
+  }
+}

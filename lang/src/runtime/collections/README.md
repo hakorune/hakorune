@@ -27,6 +27,9 @@ Rule:
     -> `nyash.array.get_hi` / `nyash.array.set_hii` / `nyash.array.len_h`
   - `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`
     -> adapter-on ArrayBox size/value-state ownership for `mir_call_v1_handler`
+- `runtime_data_core_box.hako`
+  - `get_hh(recv_h, key_any)` / `set_hhh(recv_h, key_any, val_any)` / `has_hh(recv_h, key_any)` / `push_hh(recv_h, val_any)`
+    -> `nyash.runtime_data.*` thin wrapper for `RuntimeDataBox` method dispatch
 - `map_core_box.hako`
   - `size_i64(handle)` -> `nyash.map.size_h`
   - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state
@@ -34,3 +37,10 @@ Rule:
     -> adapter-on MapBox state ownership for `mir_call_v1_handler`
 - `string_core_box.hako`
   - `len_i64(handle)` -> `nyash.string.len_h`
+
+## Current proof lock
+
+- source-contract smoke:
+  - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
+- standalone RuntimeDataBox e2e smoke:
+  - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`

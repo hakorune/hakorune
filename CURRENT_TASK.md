@@ -57,7 +57,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - latest visible-owner slices:
       - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox` size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
       - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox` len/state helpers consumed by the same handler
-    - latest proof lock: `tools/smokes/v2/lib/test_runner.sh::verify_v1_inline_file()` now forwards `HAKO_ABI_*` / `HAKO_VM_*` / `HAKO_V1_*` canary toggles into hv1-inline, so phase2170 adapter/value-state canaries actually observe the same `ArrayCoreBox` / `MapCoreBox` route under `HAKO_VERIFY_PRIMARY=hakovm`
+      - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns narrow `RuntimeDataBox.{get,set,has,push}` extern routes consumed by the same handler
+    - latest proof lock:
+      - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` is the source-contract lock for `StringCoreBox` / `ArrayCoreBox` / `MapCoreBox` / `RuntimeDataCoreBox` wiring under `lang/src/vm/boxes/mir_call_v1_handler.hako`
+      - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` is the current standalone AOT/runtime-data e2e smoke for `apps/tests/phase29x_runtime_data_dispatch_e2e_min_v1.mir.json`
+      - note: `tools/smokes/v2/lib/test_runner.sh::verify_v1_inline_file()` still routes `HAKO_VERIFY_PRIMARY=hakovm` through `src/main.rs` `hv1_inline::run_json_v1_inline(...)`, so phase2170 hakovm-primary canaries remain Rust hv1_inline proofs, not `.hako` `MirCallV1HandlerBox` owner proofs
+    - exact next front:
+      - keep `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_contract_vm.sh` as deferred lower-level cargo-test contract keep
+      - next reopen should be another narrow `RuntimeDataBox` method seam only if it yields a new `.hako` owner bucket; otherwise move to the runtime provider lane (`src/providers/ring1/{array,map}/mod.rs`) and keep collection owner growth focused on `.hako ring1`
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`

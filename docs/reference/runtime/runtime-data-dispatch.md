@@ -128,7 +128,7 @@ The LLVM/AOT route is pinned with a prebuilt MIR fixture that forces
 `RuntimeDataBox` dispatch for `push/get/has/set`:
 
 - fixture: `apps/tests/phase29x_runtime_data_dispatch_e2e_min_v1.mir.json`
-- smoke: `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+- smoke: `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
 
 Smoke checks:
 - IR contains dispatch symbols for each method:

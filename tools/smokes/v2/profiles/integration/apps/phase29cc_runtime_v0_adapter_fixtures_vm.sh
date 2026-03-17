@@ -5,6 +5,7 @@
 # - strict mode freeze contract exists in handler source
 # - string_len adapter route contract exists in source (registry + handler + core box)
 # - map_size_i64 adapter route contract exists in source (registry + handler + core box)
+# - runtime_data get/set/has/push route contract exists in source (handler + core box)
 # - string fixture remains green under adapter ON (behavior smoke)
 # - map size alias fixture remains green under adapter ON (behavior smoke)
 
@@ -20,6 +21,7 @@ REGISTRY_FILE="$NYASH_ROOT/lang/src/vm/boxes/abi_adapter_registry.hako"
 ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_core_box.hako"
 STRING_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/map_core_box.hako"
+RUNTIME_DATA_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/runtime_data_core_box.hako"
 
 JSON_ARRAY_OK='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"mir_call","dst":1,"mir_call":{"callee":{"type":"Constructor","box_type":"ArrayBox"},"args":[],"effects":["alloc"],"flags":{}}},{"op":"const","dst":2,"value":{"type":"i64","value":0}},{"op":"const","dst":3,"value":{"type":"i64","value":42}},{"op":"mir_call","dst":4,"mir_call":{"callee":{"type":"Method","box_name":"ArrayBox","method":"set","receiver":1},"args":[2,3],"effects":[],"flags":{}}},{"op":"mir_call","dst":5,"mir_call":{"callee":{"type":"Method","box_name":"ArrayBox","method":"get","receiver":1},"args":[2],"effects":[],"flags":{}}},{"op":"ret","value":5}]}]}]}'
 JSON_ARRAY_SET_FAIL='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"mir_call","dst":1,"mir_call":{"callee":{"type":"Constructor","box_type":"ArrayBox"},"args":[],"effects":["alloc"],"flags":{}}},{"op":"const","dst":2,"value":{"type":"i64","value":-1}},{"op":"const","dst":3,"value":{"type":"i64","value":7}},{"op":"mir_call","dst":4,"mir_call":{"callee":{"type":"Method","box_name":"ArrayBox","method":"set","receiver":1},"args":[2,3],"effects":[],"flags":{}}},{"op":"ret","value":4}]}]}]}'
@@ -57,7 +59,7 @@ run_array_semantics_checks() {
 }
 
 check_string_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE"; do
+  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
@@ -154,6 +156,58 @@ check_string_adapter_route_contract() {
   fi
   if ! rg -F -q 'has_state_value(regs, per_recv, rid, key_str)' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core has-state helper contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'using lang.runtime.collections.runtime_data_core_box as RuntimeDataCoreBox' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data core import contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'RuntimeDataCoreBox.get_hh(' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data get contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'RuntimeDataCoreBox.set_hhh(' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data set contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'RuntimeDataCoreBox.has_hh(' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data has contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'RuntimeDataCoreBox.push_hh(' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data push contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/runtime_data_core:get_hh]' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data get trace contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/runtime_data_core:set_hhh]' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data set trace contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/runtime_data_core:has_hh]' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data has trace contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/runtime_data_core:push_hh]' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data push trace contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.runtime_data.get_hh"' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core get extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.runtime_data.set_hhh"' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core set extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.runtime_data.has_hh"' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core has extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.runtime_data.push_hh"' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core push extern route contract missing"
     exit 1
   fi
 }

@@ -67,6 +67,12 @@ Related:
   - latest visible-owner slice:
     - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox` size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
     - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox` len/state helpers consumed by the same handler
+    - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns narrow `RuntimeDataBox.{get,set,has,push}` extern routes consumed by the same handler
+  - current proof lock:
+    - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` pins the source-contract (`registry/handler/core-box`) wiring for the current `.hako` collection owner slice
+    - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` pins the standalone AOT/runtime-data e2e fixture
+  - caution:
+    - `verify_v1_inline_file()` / `HAKO_VERIFY_PRIMARY=hakovm` still routes through Rust `hv1_inline::run_json_v1_inline(...)`; those canaries are not `.hako` `MirCallV1HandlerBox` owner proofs
   - collection semantics の最終 owner ではなく、現時点では Rust owner への adapter surface である。
 
 ### 2.4 Legacy residue
