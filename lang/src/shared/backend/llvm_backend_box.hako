@@ -18,6 +18,8 @@ static box LlvmBackendBox {
     if policy_owner == null { return me._fail("[llvmbackend/profile-missing] policy_owner is empty") }
     local transport_owner = profile.get("transport_owner")
     if transport_owner == null { return me._fail("[llvmbackend/profile-missing] transport_owner is empty") }
+    local acceptance_policy = profile.get("acceptance_policy")
+    if acceptance_policy == null { return me._fail("[llvmbackend/profile-missing] acceptance_policy is empty") }
     local path = profile.get("json_path")
     if path == null { return null }
     local recipe = profile.get("compile_recipe")

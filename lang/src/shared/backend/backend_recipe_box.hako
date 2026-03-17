@@ -25,6 +25,7 @@ static box BackendRecipeBox {
     profile.set("route_profile", "" + me.route_profile_name(path))
     profile.set("policy_owner", "" + me.policy_owner_name())
     profile.set("transport_owner", "" + me.transport_owner_name())
+    profile.set("acceptance_policy", "" + me.acceptance_policy_for(path))
     profile.set("json_path", "" + path)
     profile.set("compile_recipe", "" + me.compile_recipe_for(json_path))
     profile.set("compat_replay", "" + me.compat_replay_for(json_path))
@@ -57,6 +58,12 @@ static box BackendRecipeBox {
     return "hako_llvmc_ffi"
   }
 
+  acceptance_policy_for(json_path) {
+    local path = me._require_non_empty("acceptance_policy_for", "json_path", json_path)
+    if path == null { return null }
+    return me.acceptance_policy_seed_matrix_v1()
+  }
+
   prepare_link_route(libs) {
     if libs == null { return null }
     local text = "" + libs
@@ -77,6 +84,10 @@ static box BackendRecipeBox {
 
   compat_replay_harness() {
     return "harness"
+  }
+
+  acceptance_policy_seed_matrix_v1() {
+    return "boundary-pure-seed-matrix-v1"
   }
 
   _fail(tag) {

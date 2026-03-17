@@ -23,6 +23,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/main.rs`, `crates/nyash-llvm-compiler/src/native_driver.rs` は途中の Rust glue / keep lane であり、final owner ではない
   - `lang/c-abi/shims/hako_llvmc_ffi.c` は急いで delete せず、まず `transport-only` の tiny C substrate に縮める
   - `.hako` の next exact slice は `BackendRecipeBox` の route profile SSOT 化で、policy owner / transport owner / compile recipe / compat replay を 1 枚の profile で明示すること
+  - landed recipe classification row:
+    - `BackendRecipeBox.compile_route_profile(...)` now also names `acceptance_policy=boundary-pure-seed-matrix-v1`
+    - this is the first visible `.hako`-owned label for why daily route stays `pure-first + harness`, while transport behavior remains unchanged
   - current clean stop-line:
     - `.hako` policy owner is `BackendRecipeBox`
     - `.hako` caller stop-line is `LlvmBackendBox -> env.codegen.*`
@@ -252,9 +255,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - reduce `hako_llvmc_ffi.c -> ny-llvmc --driver harness` fallback reliance from `ret_const_min_v1` upward until `llvm_codegen.rs` can stay boundary-first without reopening Rust/CLI ownership
        - fixed order:
          - first keep widening boundary-owned compile coverage in `lang/c-abi/shims/hako_llvmc_ffi.c` for narrow pure seeds
-         - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
-         - landed: `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)`; Rust transport mirrors that payload to env only at the boundary handoff
-         - landed: Rust VM direct `env.codegen.compile_json_path` / `emit_object` globals now delegate back to `extern_provider.rs`, so compile payload decode truth is no longer duplicated in `handlers/calls/global.rs`
+        - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
+        - landed: `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)`; Rust transport mirrors that payload to env only at the boundary handoff
+        - landed: `.hako` route profile now also names `acceptance_policy=boundary-pure-seed-matrix-v1`, so the current pure/compat acceptance basis is visible at the policy owner before any transport handoff
+        - landed: Rust VM direct `env.codegen.compile_json_path` / `emit_object` globals now delegate back to `extern_provider.rs`, so compile payload decode truth is no longer duplicated in `handlers/calls/global.rs`
          - landed: recipe-aware daily transport now prefers the explicit pure-first FFI export instead of asking the generic C export to decide that route
          - then move unsupported compile replay and seed/route policy out of `lang/c-abi/shims/hako_llvmc_ffi.c`, leaving it as export/marshal glue
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`

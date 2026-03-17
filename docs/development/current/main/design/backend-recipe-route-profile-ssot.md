@@ -38,6 +38,9 @@ Related:
 - `transport_owner`
   - thin transport substrate owner name
   - example: `hako_llvmc_ffi`
+- `acceptance_policy`
+  - stable label for the current pure/compat acceptance basis
+  - example: `boundary-pure-seed-matrix-v1`
 - `json_path`
   - normalized MIR JSON path
 - `compile_recipe`
@@ -86,8 +89,8 @@ Related:
 ## Final Shape
 
 1. `.hako` policy owner
-   - `BackendRecipeBox`
-   - owns compile recipe, compat replay, route-profile naming, and narrow pure-seed acceptance policy
+- `BackendRecipeBox`
+  - owns compile recipe, compat replay, route-profile naming, and narrow pure-seed acceptance policy
 2. `.hako` caller facade
    - `LlvmBackendBox`
    - validates the route profile and stops at `env.codegen.*`
@@ -99,6 +102,7 @@ Related:
 ## Clean Stop Line For This Wave
 
 - Stop after `BackendRecipeBox` is the only visible owner for route profile and recipe naming.
+- Stop after `BackendRecipeBox` is also the only visible owner for acceptance-policy naming.
 - Stop after `LlvmBackendBox` reads the profile and transport layers only mirror it.
 - Do not keep thinning `hako_aot_shared_impl.inc` without a fresh exact blocker.
 - Do not move broad CFG/pattern acceptance logic out of `hako_llvmc_ffi.c` in the same wave as policy handoff.
