@@ -162,36 +162,44 @@ check_string_adapter_route_contract() {
     test_fail "$SMOKE_NAME: handler runtime_data core import contract missing"
     exit 1
   fi
-  if ! rg -F -q 'RuntimeDataCoreBox.get_hh(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data get contract missing"
+  if ! rg -F -q 'RuntimeDataCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler runtime_data orchestration contract missing"
     exit 1
   fi
-  if ! rg -F -q 'RuntimeDataCoreBox.set_hhh(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data set contract missing"
+  if ! rg -F -q 'try_handle(seg, regs, mname)' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core orchestration helper contract missing"
     exit 1
   fi
-  if ! rg -F -q 'RuntimeDataCoreBox.has_hh(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data has contract missing"
+  if ! rg -F -q 'me.get_hh(recv_hrt, key_any)' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core get dispatch contract missing"
     exit 1
   fi
-  if ! rg -F -q 'RuntimeDataCoreBox.push_hh(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data push contract missing"
+  if ! rg -F -q 'me.set_hhh(recv_hrt, key_any, val_any)' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core set dispatch contract missing"
     exit 1
   fi
-  if ! rg -F -q '[vm/runtime_data_core:get_hh]' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data get trace contract missing"
+  if ! rg -F -q 'me.has_hh(recv_hrt, key_any)' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core has dispatch contract missing"
     exit 1
   fi
-  if ! rg -F -q '[vm/runtime_data_core:set_hhh]' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data set trace contract missing"
+  if ! rg -F -q 'me.push_hh(recv_hrt, val_any)' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core push dispatch contract missing"
     exit 1
   fi
-  if ! rg -F -q '[vm/runtime_data_core:has_hh]' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data has trace contract missing"
+  if ! rg -F -q '[vm/runtime_data_core:get_hh]' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core get trace contract missing"
     exit 1
   fi
-  if ! rg -F -q '[vm/runtime_data_core:push_hh]' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler runtime_data push trace contract missing"
+  if ! rg -F -q '[vm/runtime_data_core:set_hhh]' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core set trace contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/runtime_data_core:has_hh]' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core has trace contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/runtime_data_core:push_hh]' "$RUNTIME_DATA_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: runtime_data core push trace contract missing"
     exit 1
   fi
   if ! rg -F -q 'externcall "nyash.runtime_data.get_hh"' "$RUNTIME_DATA_CORE_FILE"; then

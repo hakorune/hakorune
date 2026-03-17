@@ -65,53 +65,7 @@ static box MirCallV1HandlerBox {
         // Try to resolve box type/name for logging/fallbacks
         local btype = JsonFragBox.get_str(seg, "box_name"); if btype == null { btype = JsonFragBox.get_str(seg, "box_type") }
         if btype == "RuntimeDataBox" {
-          local rid_rt = MiniMirV1Scan.receiver_id(seg)
-          local recv_hrt = me._read_reg_i64_or_null(regs, rid_rt)
-          if recv_hrt != null {
-            local dst_rt = JsonFragBox.get_int(seg, "dst")
-            if mname == "get" {
-              local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-              local key_any = me._read_reg_i64_or_null(regs, arg0_rt)
-              if key_any != null {
-                local got_rt = RuntimeDataCoreBox.get_hh(recv_hrt, key_any)
-                if dst_rt != null { regs.setField(StringHelpers.int_to_str(dst_rt), StringHelpers.int_to_str(got_rt)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/runtime_data_core:get_hh]") }
-                return
-              }
-            }
-            if mname == "set" {
-              local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-              local arg1_rt = MiniMirV1Scan.nth_arg_register(seg, 1)
-              local key_any = me._read_reg_i64_or_null(regs, arg0_rt)
-              local val_any = me._read_reg_i64_or_null(regs, arg1_rt)
-              if key_any != null && val_any != null {
-                local set_rt = RuntimeDataCoreBox.set_hhh(recv_hrt, key_any, val_any)
-                if dst_rt != null { regs.setField(StringHelpers.int_to_str(dst_rt), StringHelpers.int_to_str(set_rt)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/runtime_data_core:set_hhh]") }
-                return
-              }
-            }
-            if mname == "has" {
-              local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-              local key_any = me._read_reg_i64_or_null(regs, arg0_rt)
-              if key_any != null {
-                local has_rt = RuntimeDataCoreBox.has_hh(recv_hrt, key_any)
-                if dst_rt != null { regs.setField(StringHelpers.int_to_str(dst_rt), StringHelpers.int_to_str(has_rt)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/runtime_data_core:has_hh]") }
-                return
-              }
-            }
-            if mname == "push" {
-              local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-              local val_any = me._read_reg_i64_or_null(regs, arg0_rt)
-              if val_any != null {
-                local push_rt = RuntimeDataCoreBox.push_hh(recv_hrt, val_any)
-                if dst_rt != null { regs.setField(StringHelpers.int_to_str(dst_rt), StringHelpers.int_to_str(push_rt)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/runtime_data_core:push_hh]") }
-                return
-              }
-            }
-          }
+          if RuntimeDataCoreBox.try_handle(seg, regs, mname) == 1 { return }
         }
         // Optional AdapterRegistry 経路（箱化）
         local use_adapter = env.get("HAKO_ABI_ADAPTER"); if use_adapter == null { use_adapter = "0" }

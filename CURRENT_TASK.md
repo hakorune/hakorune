@@ -57,7 +57,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - latest visible-owner slices:
       - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox` size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
       - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox` len/state helpers consumed by the same handler
-      - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns narrow `RuntimeDataBox.{get,set,has,push}` extern routes consumed by the same handler
+      - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns narrow `RuntimeDataBox.{get,set,has,push}` method dispatch plus the same extern routes consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
       - `src/providers/ring1/array/mod.rs` now keeps `Ring1ArrayService` type-gate / index boxing behind owner-local helpers and locks invalid-type contract with unit tests, so runtime/provider lane is slightly thinner without changing semantics
       - `src/providers/ring1/map/mod.rs` now keeps `Ring1MapService` type-gate / key boxing / size-bool extraction behind owner-local helpers and locks invalid-type contract with unit tests
     - latest proof lock:
@@ -66,8 +66,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - note: `tools/smokes/v2/lib/test_runner.sh::verify_v1_inline_file()` still routes `HAKO_VERIFY_PRIMARY=hakovm` through `src/main.rs` `hv1_inline::run_json_v1_inline(...)`, so phase2170 hakovm-primary canaries remain Rust hv1_inline proofs, not `.hako` `MirCallV1HandlerBox` owner proofs
     - exact next front:
       - keep `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_contract_vm.sh` as deferred lower-level cargo-test contract keep
-      - re-evaluate whether another provider-lane slice is still worth it before reopening broader `.hako ring1` collection growth
-      - if runtime/provider lane stays monitor-only after that review, pivot back to the next `.hako ring1` owner seam rather than broadening Rust provider semantics
+      - runtime/provider lane is monitor-only after helper-thinning in `src/providers/ring1/{array,map}/mod.rs`
+      - next `.hako ring1` front is the next collection-method seam under `lang/src/vm/boxes/mir_call_v1_handler.hako` / `lang/src/runtime/collections/**`, not broader Rust provider semantics
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
