@@ -1,6 +1,6 @@
-pub type HakoPluginInvokeByNameFn = extern "C" fn(i64, *const i8, i64, i64, i64) -> i64;
-pub type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
-pub type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
+pub(crate) type HakoPluginInvokeByNameFn = extern "C" fn(i64, *const i8, i64, i64, i64) -> i64;
+pub(crate) type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
+pub(crate) type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 
 mod ffi {
     use super::{HakoFutureSpawnInstanceFn, HakoPluginInvokeByNameFn, HakoStringDispatchFn};
@@ -38,7 +38,7 @@ mod ffi {
     }
 }
 
-pub mod string_ops {
+pub(crate) mod string_ops {
     pub const LEN_H: i64 = 1;
     pub const CHARCODE_AT_H: i64 = 2;
     pub const CONCAT_HH: i64 = 3;
@@ -75,7 +75,7 @@ fn string_op_name(op: i64) -> &'static str {
     }
 }
 
-pub fn call_plugin_invoke_by_name(
+pub(crate) fn call_plugin_invoke_by_name(
     recv_handle: i64,
     method: *const i8,
     argc: i64,
@@ -94,7 +94,7 @@ pub fn call_plugin_invoke_by_name(
     }
 }
 
-pub fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -> Option<i64> {
+pub(crate) fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -> Option<i64> {
     let mut out = 0i64;
     // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
     let ok = unsafe { ffi::nyrt_hako_try_future_spawn_instance(a0, a1, a2, argc, &mut out) };
@@ -105,7 +105,7 @@ pub fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -> Optio
     }
 }
 
-pub fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
+pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
     let mut out = 0i64;
     // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
     let ok = unsafe { ffi::nyrt_hako_try_string_dispatch(op, a0, a1, a2, &mut out) };
@@ -127,17 +127,17 @@ pub fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
     }
 }
 
-pub fn register_plugin_invoke_by_name(f: Option<HakoPluginInvokeByNameFn>) -> i64 {
+pub(crate) fn register_plugin_invoke_by_name(f: Option<HakoPluginInvokeByNameFn>) -> i64 {
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
     unsafe { ffi::nyrt_hako_register_plugin_invoke_by_name(f) }
 }
 
-pub fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn>) -> i64 {
+pub(crate) fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn>) -> i64 {
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
     unsafe { ffi::nyrt_hako_register_future_spawn_instance(f) }
 }
 
-pub fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
+pub(crate) fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
     unsafe { ffi::nyrt_hako_register_string_dispatch(f) }
 }
@@ -147,7 +147,7 @@ pub fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
 /// `NYASH_VM_USE_FALLBACK=0` means "do not execute Rust fallback routes"
 /// when a `.hako` hook is not registered.
 #[inline]
-pub fn rust_fallback_allowed() -> bool {
+pub(crate) fn rust_fallback_allowed() -> bool {
     nyash_rust::config::env::vm_compat_fallback_allowed()
 }
 
@@ -160,16 +160,16 @@ fn trace_hook_miss(route: &str, policy: &str) {
 
 /// Canonical error code when a hook-capable scalar route misses registration
 /// while `NYASH_VM_USE_FALLBACK=0`.
-pub const NYRT_E_HOOK_MISS: i64 = -0x4E59_0001;
+pub(crate) const NYRT_E_HOOK_MISS: i64 = -0x4E59_0001;
 
 #[inline]
-pub fn hook_miss_error_code(route: &str) -> i64 {
+pub(crate) fn hook_miss_error_code(route: &str) -> i64 {
     trace_hook_miss(route, "error_code_on_fallback_off");
     NYRT_E_HOOK_MISS
 }
 
 #[inline]
-pub fn hook_miss_freeze_handle(route: &str) -> i64 {
+pub(crate) fn hook_miss_freeze_handle(route: &str) -> i64 {
     use nyash_rust::box_trait::{NyashBox, StringBox};
     use nyash_rust::runtime::host_handles;
     use std::sync::Arc;

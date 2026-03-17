@@ -32,6 +32,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
     3. `BackendRecipeBox` の recipe/profile evidence rows は、新しい exact fixture が出るまで増やさない
     4. `hako_llvmc_ffi.c` は export / marshal / fallback transport only に固定し、policy を戻さない
+  - `BYN-min4` hook/registry bridge is now compat-only and crate-private; remaining by-name work is kernel hard retire readiness after caller shrink
   - current clean stop-line:
     - `.hako` policy owner is `BackendRecipeBox`
     - `.hako` caller stop-line is `LlvmBackendBox -> env.codegen.*`
