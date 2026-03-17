@@ -72,6 +72,7 @@ Related:
    - follow-up host-provider default slice: `src/host_providers/llvm_codegen.rs` now also tries the direct C ABI boundary before any wrapper keep lane, so default object emission is boundary-first on both the selector and host-provider layers while explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` remains replayable
    - follow-up host-provider link slice: `link_object_capi(...)` no longer re-synthesizes runtime archive / `HAKO_AOT_LDFLAGS` fallback in Rust; linker keeps now pass straight through to `hako_aot_link_obj(...)`, with empty/null proof covered by the `.hako VM -> LlvmBackendBox -> C-API -> exe` runtime smoke
    - follow-up FFI-owner slice: `lang/c-abi/shims/hako_llvmc_ffi.c` now reads as `default -> hako_aot forwarder`, while the `HAKO_CAPI_PURE=1` branch stays parked as compat-only pure-lowering legacy
+   - follow-up keep-lane isolation slice: `crates/nyash-llvm-compiler/src/boundary_driver.rs` now hides FFI library open / symbol lookup behind `with_compile_symbol(...)` / `with_link_symbol(...)`, and `lang/c-abi/shims/hako_llvmc_ffi.c` now parks the pure compile owner behind `compile_json_compat_pure(...)`, so default boundary exports read as forwarders and the compat pure lane stays visibly isolated
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line

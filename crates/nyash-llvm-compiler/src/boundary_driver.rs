@@ -103,20 +103,44 @@ fn resolve_ffi_library() -> Result<PathBuf> {
         })
 }
 
+unsafe fn with_compile_symbol<T, F>(action: F) -> Result<T>
+where
+    F: FnOnce(CompileFn) -> Result<T>,
+{
+    let lib = open_ffi_library()?;
+    let func: CompileFn = *lib
+        .get(b"hako_llvmc_compile_json\0")
+        .context("missing symbol hako_llvmc_compile_json")?;
+    action(func)
+}
+
+unsafe fn with_link_symbol<T, F>(action: F) -> Result<T>
+where
+    F: FnOnce(LinkFn) -> Result<T>,
+{
+    let lib = open_ffi_library()?;
+    let func: LinkFn = *lib
+        .get(b"hako_llvmc_link_obj\0")
+        .context("missing symbol hako_llvmc_link_obj")?;
+    action(func)
+}
+
 fn call_compile_symbol(input: &Path, out: &Path) -> Result<()> {
+    let cin =
+        CString::new(input.to_string_lossy().as_bytes()).context("invalid input path for C ABI")?;
+    let cout =
+        CString::new(out.to_string_lossy().as_bytes()).context("invalid output path for C ABI")?;
+    let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
-        let lib = open_ffi_library()?;
-        let func: libloading::Symbol<CompileFn> = lib
-            .get(b"hako_llvmc_compile_json\0")
-            .context("missing symbol hako_llvmc_compile_json")?;
-        let cin = CString::new(input.to_string_lossy().as_bytes())
-            .context("invalid input path for C ABI")?;
-        let cout =
-            CString::new(out.to_string_lossy().as_bytes()).context("invalid output path for C ABI")?;
-        let mut err_ptr: *mut c_char = std::ptr::null_mut();
-        with_env_override("HAKO_AOT_USE_FFI", Some("0"), || {
-            let rc = func(cin.as_ptr(), cout.as_ptr(), &mut err_ptr as *mut *mut c_char);
-            interpret_result(rc, err_ptr, out, "object not produced")
+        with_compile_symbol(|func| {
+            with_env_override("HAKO_AOT_USE_FFI", Some("0"), || {
+                let rc = func(
+                    cin.as_ptr(),
+                    cout.as_ptr(),
+                    &mut err_ptr as *mut *mut c_char,
+                );
+                interpret_result(rc, err_ptr, out, "object not produced")
+            })
         })
     }
 }
@@ -127,37 +151,35 @@ fn call_link_symbol(
     nyrt_dir: Option<&Path>,
     extra_libs: Option<&str>,
 ) -> Result<()> {
+    let cobj =
+        CString::new(obj.to_string_lossy().as_bytes()).context("invalid object path for C ABI")?;
+    let cexe = CString::new(out_exe.to_string_lossy().as_bytes())
+        .context("invalid executable path for C ABI")?;
+    let libs_owned = extra_libs
+        .filter(|value| !value.trim().is_empty())
+        .map(CString::new)
+        .transpose()
+        .context("invalid linker flags for C ABI")?;
+    let libs_ptr = libs_owned
+        .as_ref()
+        .map(|value| value.as_ptr())
+        .unwrap_or(std::ptr::null());
+    let nyrt_owned = nyrt_dir
+        .map(|path| path.to_string_lossy().to_string())
+        .filter(|value| !value.trim().is_empty());
+    let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
-        let lib = open_ffi_library()?;
-        let func: libloading::Symbol<LinkFn> = lib
-            .get(b"hako_llvmc_link_obj\0")
-            .context("missing symbol hako_llvmc_link_obj")?;
-        let cobj =
-            CString::new(obj.to_string_lossy().as_bytes()).context("invalid object path for C ABI")?;
-        let cexe = CString::new(out_exe.to_string_lossy().as_bytes())
-            .context("invalid executable path for C ABI")?;
-        let libs_owned = extra_libs
-            .filter(|value| !value.trim().is_empty())
-            .map(CString::new)
-            .transpose()
-            .context("invalid linker flags for C ABI")?;
-        let libs_ptr = libs_owned
-            .as_ref()
-            .map(|value| value.as_ptr())
-            .unwrap_or(std::ptr::null());
-        let nyrt_owned = nyrt_dir
-            .map(|path| path.to_string_lossy().to_string())
-            .filter(|value| !value.trim().is_empty());
-        let mut err_ptr: *mut c_char = std::ptr::null_mut();
-        with_env_override("HAKO_AOT_USE_FFI", Some("0"), || {
-            with_env_override("NYASH_EMIT_EXE_NYRT", nyrt_owned.as_deref(), || {
-                let rc = func(
-                    cobj.as_ptr(),
-                    cexe.as_ptr(),
-                    libs_ptr,
-                    &mut err_ptr as *mut *mut c_char,
-                );
-                interpret_result(rc, err_ptr, out_exe, "exe not produced")
+        with_link_symbol(|func| {
+            with_env_override("HAKO_AOT_USE_FFI", Some("0"), || {
+                with_env_override("NYASH_EMIT_EXE_NYRT", nyrt_owned.as_deref(), || {
+                    let rc = func(
+                        cobj.as_ptr(),
+                        cexe.as_ptr(),
+                        libs_ptr,
+                        &mut err_ptr as *mut *mut c_char,
+                    );
+                    interpret_result(rc, err_ptr, out_exe, "exe not produced")
+                })
             })
         })
     }

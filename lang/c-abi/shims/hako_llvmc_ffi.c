@@ -44,6 +44,8 @@ static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, cons
   return hako_aot_link_obj(obj_in, exe_out, extra_ldflags, err_out);
 }
 
+static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
+
 // Exported symbols expected by hako_aot.c when loading libhako_llvmc_ffi.so
 // Signature must match: int (*)(const char*, const char*, char**)
 __attribute__((visibility("default")))
@@ -51,6 +53,10 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
   if (!capi_pure_enabled()) {
     return forward_compile_json_to_aot(json_in, obj_out, err_out);
   }
+  return compile_json_compat_pure(json_in, obj_out, err_out);
+}
+
+static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out) {
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
   char* verr = NULL;
