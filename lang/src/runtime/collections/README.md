@@ -43,6 +43,8 @@ Rule:
     -> adapter-on MapBox state ownership for `mir_call_v1_handler`
 - `string_core_box.hako`
   - `len_i64(handle)` -> `nyash.string.len_h`
+  - `try_handle(seg, regs, mname)`
+    -> owns adapter-on `StringBox.length/len/size` orchestration for `mir_call_v1_handler`
 
 ## Current proof lock
 

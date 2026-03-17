@@ -58,7 +58,7 @@ run_array_semantics_checks() {
   fi
 }
 
-check_string_adapter_route_contract() {
+check_collection_adapter_route_contract() {
   for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
@@ -70,16 +70,12 @@ check_string_adapter_route_contract() {
     test_fail "$SMOKE_NAME: StringBox.length adapter registry contract missing"
     exit 1
   fi
-  if ! rg -F -q 'StringCoreBox.len_i64(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler string core route contract missing"
+  if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler string core orchestration contract missing"
     exit 1
   fi
   if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler array orchestration contract missing"
-    exit 1
-  fi
-  if ! rg -F -q '[vm/adapter/string_core:len_i64]' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler string adapter trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'externcall "nyash.array.len_h"' "$ARRAY_CORE_FILE"; then
@@ -128,6 +124,14 @@ check_string_adapter_route_contract() {
   fi
   if ! rg -F -q 'externcall "nyash.string.len_h"' "$STRING_CORE_FILE"; then
     test_fail "$SMOKE_NAME: string core extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'try_handle(seg, regs, mname)' "$STRING_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: string core orchestration helper contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/string_core:len_i64]' "$STRING_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: string core trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'me._put("MapBox", "size",    "nyash.map.size_h"' "$REGISTRY_FILE"; then
@@ -293,7 +297,7 @@ run_map_behavior_smoke() {
 }
 
 run_array_semantics_checks
-check_string_adapter_route_contract
+check_collection_adapter_route_contract
 check_array_strict_contract
 run_string_behavior_smoke
 run_map_behavior_smoke

@@ -60,8 +60,8 @@ if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_h"' "$REGISTRY_FIL
   echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.set adapter mapping" >&2
   exit 1
 fi
-if ! rg -F -q 'StringCoreBox.len_i64(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing StringCoreBox len route" >&2
+if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing StringCoreBox orchestration route" >&2
   exit 1
 fi
 if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
@@ -74,6 +74,10 @@ if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
 fi
 if ! rg -F -q 'externcall "nyash.string.len_h"' "$STRING_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] string core missing nyash.string.len_h extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'try_handle(seg, regs, mname)' "$STRING_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] string core missing try_handle contract" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.array.get_hi"' "$ARRAY_CORE_FILE"; then

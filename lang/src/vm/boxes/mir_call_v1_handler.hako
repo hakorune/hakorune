@@ -86,16 +86,8 @@ static box MirCallV1HandlerBox {
             local cur_len = JsonFragBox._str_to_int(cur_len_raw)
             // 値状態トグル（既定OFF）
             local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
-            // String.length/len/size: prefer VM runtime core i64 route
-            if btype == "StringBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
-              local recv_hs = me._read_reg_i64_or_null(regs, rid)
-              if recv_hs != null {
-                local len_i64 = StringCoreBox.len_i64(recv_hs)
-                local dst_sl = JsonFragBox.get_int(seg, "dst")
-                if dst_sl != null { regs.setField(StringHelpers.int_to_str(dst_sl), StringHelpers.int_to_str(len_i64)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/string_core:len_i64]") }
-                return
-              }
+            if btype == "StringBox" {
+              if StringCoreBox.try_handle(seg, regs, mname) == 1 { return }
             }
             if btype == "MapBox" {
               if MapCoreBox.try_handle(seg, regs, mname) == 1 { return }
