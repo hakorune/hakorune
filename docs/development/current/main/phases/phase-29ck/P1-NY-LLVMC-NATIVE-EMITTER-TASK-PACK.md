@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P2-NATIVE-EMITTER-ACCEPTANCE-AND-REOPEN-RULE.md
   - docs/development/current/main/phases/phase-29ck/P3-THIN-BACKEND-CUTOVER-LOCK.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
+  - docs/development/current/main/design/backend-recipe-route-profile-ssot.md
   - crates/nyash-llvm-compiler/README.md
   - crates/nyash-llvm-compiler/src/main.rs
 ---

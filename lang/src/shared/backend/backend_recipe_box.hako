@@ -22,6 +22,9 @@ static box BackendRecipeBox {
     local path = me._require_non_empty("compile_route_profile", "json_path", json_path)
     if path == null { return null }
     local profile = new MapBox()
+    profile.set("route_profile", "" + me.route_profile_name(path))
+    profile.set("policy_owner", "" + me.policy_owner_name())
+    profile.set("transport_owner", "" + me.transport_owner_name())
     profile.set("json_path", "" + path)
     profile.set("compile_recipe", "" + me.compile_recipe_for(json_path))
     profile.set("compat_replay", "" + me.compat_replay_for(json_path))
@@ -38,6 +41,20 @@ static box BackendRecipeBox {
     local path = me._require_non_empty("compat_replay_for", "json_path", json_path)
     if path == null { return null }
     return me.compat_replay_harness()
+  }
+
+  route_profile_name(json_path) {
+    local path = me._require_non_empty("route_profile_name", "json_path", json_path)
+    if path == null { return null }
+    return "backend-zero/pure-first+harness"
+  }
+
+  policy_owner_name() {
+    return "BackendRecipeBox"
+  }
+
+  transport_owner_name() {
+    return "hako_llvmc_ffi"
   }
 
   prepare_link_route(libs) {

@@ -22,6 +22,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `backend-zero` を final shape `.hako -> LlvmBackendBox -> hako_aot -> backend helper` へ寄せる
   - `src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/main.rs`, `crates/nyash-llvm-compiler/src/native_driver.rs` は途中の Rust glue / keep lane であり、final owner ではない
   - `lang/c-abi/shims/hako_llvmc_ffi.c` は急いで delete せず、まず `transport-only` の tiny C substrate に縮める
+  - `.hako` の next exact slice は `BackendRecipeBox` の route profile SSOT 化で、policy owner / transport owner / compile recipe / compat replay を 1 枚の profile で明示すること
 - already stopped:
   - bootstrap closure wave は fixed-point compare まで完了
   - `stage7 launcher` / `stage9 launcher` と fresh `stage1-cli` rebuild は byte-identical
@@ -42,6 +43,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
   - `docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+  - `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - `docs/development/current/main/design/frontend-owner-proof-index.md`
   - `lang/src/shared/backend/README.md`
 
@@ -252,7 +254,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
          - next focus is no longer command repointing or C micro-thinning; it is moving pure-seed / route / compat classification into `lang/src/shared/backend/backend_recipe_box.hako` while shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
          - landed: boundary-owned compile coverage now includes `RuntimeDataBox.{get(MapBox),get(ArrayBox),push(ArrayBox),has(ArrayBox)}` for narrow missing-key/index seeds
-         - exact next slice: make `BackendRecipeBox.compile_route_profile(...)` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence
+      - exact next slice: make `BackendRecipeBox.compile_route_profile(...)` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence; route-profile shape and owner names are now fixed by `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
      - acceptance:
        - canonical runtime proof: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
        - acceptance pair: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`

@@ -6,6 +6,7 @@ Scope: backend-zero の bootstrap seam / boundary cutover line をいつ accepta
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
+  - docs/development/current/main/design/backend-recipe-route-profile-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P1-NY-LLVMC-NATIVE-EMITTER-TASK-PACK.md
   - docs/development/current/main/phases/phase-29ck/P3-THIN-BACKEND-CUTOVER-LOCK.md

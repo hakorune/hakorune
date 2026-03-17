@@ -12,6 +12,12 @@ static box LlvmBackendBox {
   compile_obj(json_path) {
     local profile = BackendRecipeBox.compile_route_profile(json_path)
     if profile == null { return null }
+    local route_profile = profile.get("route_profile")
+    if route_profile == null { return me._fail("[llvmbackend/profile-missing] route_profile is empty") }
+    local policy_owner = profile.get("policy_owner")
+    if policy_owner == null { return me._fail("[llvmbackend/profile-missing] policy_owner is empty") }
+    local transport_owner = profile.get("transport_owner")
+    if transport_owner == null { return me._fail("[llvmbackend/profile-missing] transport_owner is empty") }
     local path = profile.get("json_path")
     if path == null { return null }
     local recipe = profile.get("compile_recipe")
