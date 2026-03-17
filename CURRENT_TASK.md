@@ -68,6 +68,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - keep `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_contract_vm.sh` as deferred lower-level cargo-test contract keep
       - runtime/provider lane is monitor-only after helper-thinning in `src/providers/ring1/{array,map}/mod.rs`
       - next `.hako ring1` front is only worth reopening when a new narrow collection/runtime seam appears with fixture+gate value; current collection adapter-on orchestration slices are landed for `ArrayBox`, `MapBox`, and `RuntimeDataBox`
+      - if reopened now, the smallest worthwhile owner-growing slice is `StringBox.length/len/size`: move the remaining handler-inline leaf into `lang/src/runtime/collections/string_core_box.hako::try_handle(...)`; `ArrayCoreBox` / `MapCoreBox` size-state fallback tails are compat cleanup only, not blocker work
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
@@ -232,7 +233,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - then move unsupported compile replay ownership into `lang/c-abi/shims/hako_llvmc_ffi.c` itself, so the boundary pure-first lane replays `--driver harness` directly instead of re-entering `hako_aot_compile_json(...)`
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
          - next focus is no longer command repointing; it is shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
-         - exact next slice: widen boundary-owned compile coverage from `RuntimeDataBox.get(MapBox)` to the next smallest unsupported seed `RuntimeDataBox.push(ArrayBox immediate value)`, then `RuntimeDataBox.has(ArrayBox empty index)` before broader method-loop packs
+         - exact next slice: widen boundary-owned compile coverage from the landed `RuntimeDataBox.{get(MapBox),push(ArrayBox)}` seeds to the next smallest unsupported seed `RuntimeDataBox.has(ArrayBox empty index)`, then `RuntimeDataBox.get(ArrayBox missing index)` before broader method-loop packs
      - acceptance:
        - `cargo run -p nyash-llvm-compiler -- --emit obj --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json --out target/tmp/phase29ck_boundary_min.o`
        - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh`

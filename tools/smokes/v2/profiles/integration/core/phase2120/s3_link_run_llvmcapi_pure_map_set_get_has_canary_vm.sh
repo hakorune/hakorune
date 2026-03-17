@@ -1,11 +1,15 @@
 #!/bin/bash
-# S3 (C‑API pure): map set→get/has → rc=9（get）、rc=1（has）を検証（3回、決定性）
+# S3 (C‑API pure): map set→has -> rc=1（historical pure-lowering / pureフラグON）
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then ROOT="$ROOT_GIT"; else ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"; fi
 source "$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/boundary_pure_helper.sh"
 phase2120_boundary_pure_prepare "$ROOT" "s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm"
 
+# Historical note:
+# - filename is legacy
+# - current payload locks `MapBox.set -> has`
+# - `MapBox.get -> ret` has its own dedicated canary
 # GEN2: map set/has → has returns 1 → rc=1
 json_has='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[
   {"op":"const","dst":2,"value":{"type":"i64","value":5}},

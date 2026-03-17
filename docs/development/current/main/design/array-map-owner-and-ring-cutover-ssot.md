@@ -76,6 +76,7 @@ Related:
     - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` pins the standalone AOT/runtime-data e2e fixture
   - next owner-growing slice:
     - reopen broader provider semantics only after the next narrow collection/runtime seam is justified by fixture+gate
+    - if reopened now, the smallest worthwhile owner-growing slice is `StringBox.length/len/size`: move the remaining handler-inline leaf into `lang/src/runtime/collections/string_core_box.hako::try_handle(...)`
   - caution:
     - `verify_v1_inline_file()` / `HAKO_VERIFY_PRIMARY=hakovm` still routes through Rust `hv1_inline::run_json_v1_inline(...)`; those canaries are not `.hako` `MirCallV1HandlerBox` owner proofs
   - collection semantics の最終 owner ではなく、現時点では Rust owner への adapter surface である。
