@@ -5,6 +5,8 @@ Pointers:
   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
 - current bootstrap/authority contract:
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+- owner/proof reopen index:
+  - `docs/development/current/main/design/frontend-owner-proof-index.md`
 - active MIR-direct bootstrap phase:
   - `docs/development/current/main/phases/phase-29ch/README.md`
 
@@ -18,8 +20,8 @@ Pointers:
 
 - `stage1_cli.hako`
   - Contract:
-    - Entry: `Main.main(args: array<string>) -> i64`
-    - Role: embedded/raw Stage1 CLI lane for emit/run bootstrap contracts.
+    - Entry: `Main.main() -> i64`
+    - Role: embedded/raw Stage1 CLI lane for env/bootstrap emit/run contracts.
   - Current status:
     - authority is still `stage1_cli_env.hako`; this file is a future-retire/raw subcmd lane
     - checked `BuildBox` / `MirBuilderBox` calls stay behind owner-local helpers
@@ -45,7 +47,7 @@ Pointers:
 
 - `launcher.hako`
   - Contract（draft）:
-    - Entry: `Main.main(args: array<string>) -> i64`
+    - Entry: `Main.main() -> i64`
     - Role: Stage1 hakorune CLI のトップレベル dispatcher。
       - コマンド: `run` / `build` / `emit` / `check`（詳細は docs/development/runtime/cli-hakorune-stage1.md）。
   - Current status（Phase 25.1）:
@@ -66,6 +68,7 @@ Pointers:
   - 言語意味論・最適化ロジックは compiler / opt / AotPrep に留める。
   - VM/LLVM の実行コアは Rust 側（Stage0 / NyRT）に委譲する。
 - current selfhost authority entry is `stage1_cli_env.hako`; `launcher.hako` / raw subcmd lane は authority ではなく compat/future retire target として扱う。
+- shell-side exact env transport lives in `tools/selfhost/lib/stage1_contract.sh`; `tools/selfhost/run_stage1_cli.sh` is a compatibility wrapper around that contract, not a second authority route.
 - shared env/source resolution contract is isolated in `Stage1InputContractBox` inside `stage1_cli_env.hako`; keep input shaping out of `Main` and out of authority/compat boxes.
 - `Stage1InputContractBox` now also centralizes env/debug stringify behind `_coerce_text_compat(...)`, `_env_flag_enabled(...)`, and `_stage1_debug_on(...)`, so source/program-json resolution no longer repeats raw `"" + x` checks inline.
 - emit-program authority is isolated in `Stage1ProgramAuthorityBox` inside `stage1_cli_env.hako`; keep defs synthesis/materialization out of `Main`.

@@ -28,6 +28,23 @@ stage1_contract_program_json_compat_entry() {
   printf '%s' '__stage1_program_json__'
 }
 
+# Shared mode decode for both live env wrappers and low-level compat probes.
+# Keep mode -> emit-flag truth single-sourced here.
+stage1_contract_emit_flags_for_mode() {
+  local mode="$1"
+  case "$mode" in
+    emit-program|emit_program_json|emit-program-json)
+      printf '%s\n' '1 0'
+      ;;
+    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
+      printf '%s\n' '0 1'
+      ;;
+    *)
+      printf '%s\n' '0 0'
+      ;;
+  esac
+}
+
 stage1_contract_emit_stdout_has_marker() {
   local mode="$1"
   local stdout_file="$2"
@@ -187,109 +204,19 @@ stage1_contract_run_bin_with_env() {
   env "${cmd_env[@]}" "$bin"
 }
 
-# Low-level text transport helper for probes/diagnostics. Live shell callers
-# should prefer stage1_contract_exec_program_json_compat().
-stage1_contract_exec_program_json_text() {
-  local bin="$1"
-  local entry="$2"
-  local program_json_text="$3"
-  local mode="${4:-$(stage1_contract_program_json_compat_mode)}"
-  local emit_program_flag=0
-  local emit_mir_flag=0
-  local tmp_stdout=""
-  local tmp_stderr=""
-  local rc=0
-
-  stage1_contract_export_runner_defaults
-
-  case "$mode" in
-    emit-program|emit_program_json|emit-program-json)
-      emit_program_flag=1
-      ;;
-    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
-      emit_mir_flag=1
-      ;;
-  esac
-
-  if [[ "$emit_program_flag" -eq 1 || "$emit_mir_flag" -eq 1 ]]; then
-    tmp_stdout="$(mktemp)"
-    tmp_stderr="$(mktemp)"
-  fi
-
-  if [[ -n "$tmp_stdout" ]]; then
-    if stage1_contract_run_bin_with_env \
-      "$bin" \
-      "$mode" \
-      "$entry" \
-      "$program_json_text" \
-      "$emit_program_flag" \
-      "$emit_mir_flag" \
-      "$tmp_stdout" \
-      "$tmp_stderr"; then
-      rc=0
-    else
-      rc=$?
-    fi
-    if [[ "$rc" -ne 0 ]]; then
-      stage1_contract_report_emit_failure "$mode" "$rc" "$tmp_stdout" "$tmp_stderr"
-      stage1_contract_cleanup_exec_temp "$tmp_stdout" "$tmp_stderr"
-      return "$rc"
-    fi
-    stage1_contract_validate_emit_output "$mode" "$tmp_stdout" "$tmp_stderr" || {
-      rc=$?
-      stage1_contract_cleanup_exec_temp "$tmp_stdout" "$tmp_stderr"
-      return "$rc"
-    }
-    cat "$tmp_stdout"
-    cat "$tmp_stderr" >&2
-    stage1_contract_cleanup_exec_temp "$tmp_stdout" "$tmp_stderr"
-    return 0
-  fi
-
-  stage1_contract_run_bin_with_env \
-    "$bin" \
-    "$mode" \
-    "$entry" \
-    "$program_json_text" \
-    "$emit_program_flag" \
-    "$emit_mir_flag" \
-    ""
-}
-
-# Exact-only monitor/probe compat helper. Keep the generic text helper above it
-# as the low-level probe/diagnostics entry so the quarantine surface stays thin.
-stage1_contract_exec_program_json_compat() {
-  local bin="$1"
-  local program_json_text="$2"
-  stage1_contract_exec_program_json_text \
-    "$bin" \
-    "$(stage1_contract_program_json_compat_entry)" \
-    "$program_json_text" \
-    "$(stage1_contract_program_json_compat_mode)"
-}
-
-stage1_contract_exec_mode() {
+# Shared checked emit runner.
+# Live wrappers and low-level probe helpers should both reuse this path so
+# stdout/stderr validation stays single-sourced in shell space.
+stage1_contract_exec_checked_mode() {
   local bin="$1"
   local mode="$2"
   local entry="$3"
-  local source_text="$4"
-  local source_text_for_mode="$source_text"
-  local emit_program_flag=0
-  local emit_mir_flag=0
+  local source_text_for_mode="$4"
+  local emit_program_flag="$5"
+  local emit_mir_flag="$6"
   local tmp_stdout=""
   local tmp_stderr=""
   local rc=0
-
-  stage1_contract_export_runner_defaults
-
-  case "$mode" in
-    emit-program|emit_program_json|emit-program-json)
-      emit_program_flag=1
-      ;;
-    emit-mir|emit_mir_json|emit-mir-json)
-      emit_mir_flag=1
-      ;;
-  esac
 
   if [[ "$emit_program_flag" -eq 1 || "$emit_mir_flag" -eq 1 ]]; then
     tmp_stdout="$(mktemp)"
@@ -327,6 +254,66 @@ stage1_contract_exec_mode() {
   fi
 
   stage1_contract_run_bin_with_env \
+    "$bin" \
+    "$mode" \
+    "$entry" \
+    "$source_text_for_mode" \
+    "$emit_program_flag" \
+    "$emit_mir_flag" \
+    ""
+}
+
+# Low-level text transport helper for probes/diagnostics only.
+# Live shell callers should prefer stage1_contract_exec_program_json_compat()
+# or stage1_contract_exec_mode() so the exact contract surface stays narrow.
+stage1_contract_exec_program_json_text() {
+  local bin="$1"
+  local entry="$2"
+  local program_json_text="$3"
+  local mode="${4:-$(stage1_contract_program_json_compat_mode)}"
+  local emit_program_flag=0
+  local emit_mir_flag=0
+
+  stage1_contract_export_runner_defaults
+
+  read -r emit_program_flag emit_mir_flag < <(stage1_contract_emit_flags_for_mode "$mode")
+
+  stage1_contract_exec_checked_mode \
+    "$bin" \
+    "$mode" \
+    "$entry" \
+    "$program_json_text" \
+    "$emit_program_flag" \
+    "$emit_mir_flag"
+}
+
+# Exact-only compat helper for the current live shell contract.
+# Keep the generic text helper above it as probe/diagnostics-only entry so the
+# quarantine surface stays thin and explicit.
+stage1_contract_exec_program_json_compat() {
+  local bin="$1"
+  local program_json_text="$2"
+  stage1_contract_exec_program_json_text \
+    "$bin" \
+    "$(stage1_contract_program_json_compat_entry)" \
+    "$program_json_text" \
+    "$(stage1_contract_program_json_compat_mode)"
+}
+
+stage1_contract_exec_mode() {
+  local bin="$1"
+  local mode="$2"
+  local entry="$3"
+  local source_text="$4"
+  local source_text_for_mode="$source_text"
+  local emit_program_flag=0
+  local emit_mir_flag=0
+
+  stage1_contract_export_runner_defaults
+
+  read -r emit_program_flag emit_mir_flag < <(stage1_contract_emit_flags_for_mode "$mode")
+
+  stage1_contract_exec_checked_mode \
     "$bin" \
     "$mode" \
     "$entry" \

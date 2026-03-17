@@ -39,6 +39,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/phases/phase-29cl/README.md`
   - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
   - `docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md`
+  - `docs/development/current/main/design/frontend-owner-proof-index.md`
   - `lang/src/shared/backend/README.md`
 
 ## Full Rust 0 Pointer (2026-03-14)

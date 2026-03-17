@@ -5,7 +5,10 @@
 # - Locate the Stage1 binary (default: target/selfhost/hakorune).
 # - Ensure NyRT emits clean JSON/stdout by default (NYASH_NYRT_SILENT_RESULT=1).
 # - Apply minimal runtime defaults so FileBox/hostbridge work without plugins.
-# - Forward all remaining arguments to the Stage1 binary and propagate exit code.
+# - Forward all remaining arguments through `stage1_contract.sh` and propagate exit code.
+#
+# This script is a compatibility wrapper around the shell-side exact contract.
+# It is not a separate authority route.
 
 set -euo pipefail
 

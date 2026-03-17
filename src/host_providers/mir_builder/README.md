@@ -1,40 +1,55 @@
 # Host Provider MIR Builder
 
-Scope: Rust-side current authority / lowering owner under `src/host_providers/mir_builder.rs`.
+Scope: Rust-side current authority owner for `source / Program(JSON) -> MIR(JSON)` under [mir_builder.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs).
 
-## Responsibility Split
+Related SSOT:
+- [CURRENT_TASK.md](/home/tomoaki/git/hakorune-selfhost/CURRENT_TASK.md)
+- [selfhost-bootstrap-route-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/selfhost-bootstrap-route-ssot.md)
+- [frontend-owner-proof-index.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/frontend-owner-proof-index.md)
 
-- `mir_builder.rs`
-  - thin public facade for the current Rust-owned provider surface
-  - keeps shared fail-fast / trace / temp-path helpers
-  - now also owns the shared `user_box_decls` shaping for the source and explicit Program(JSON) routes
-  - now also owns the live imports-free `Program(JSON v0) -> MirModule -> MIR(JSON)` handoff for source and explicit Program(JSON) callers; plain `program_json_to_mir_json(...)` stays test-only
-  - test-only source evidence now keeps plain `Program(JSON)` -> MIR handoff behind same-file helper `emit_plain_mir_json_from_program_json_text(...)`
-  - strict-source public/test entry now share owner-local Program(JSON) emit and a shared source-pair helper `emit_program_and_mir_json_for_source(...)`, with guarded/plain MIR handoff exposed through `emit_program_and_guarded_mir_json_for_source(...)` and `emit_program_and_plain_mir_json_for_source(...)`
-  - public explicit-route entry and source-route handoff now share owner-local env guard via `emit_guarded_mir_json_from_program_json(...)`
-  - public explicit-route entry now keeps env-guard -> module-parse handoff behind `emit_mir_json_from_program_json_module(...)`, which then crosses the stop-line through `emit_module_mir_json_with_stage1_user_box_decls(...)`
-  - explicit-route finalize now keeps `Program(JSON)` parse/build separate from MIR JSON mutation at `finalize_mir_json_with_stage1_user_box_decls(...)` -> `build_stage1_user_box_decls_from_program_json(...)` -> `build_stage1_user_box_decls(...)` -> `build_stage1_user_box_decls_from_names(...)` -> `inject_user_box_decls_into_mir_json(...)`
-  - keeps `program_json_to_mir_json_with_imports(...)` test-only; live cross-crate callers should not depend on imports-bearing Program(JSON) lowering here
-- `mir_builder/lowering.rs`
-  - thin lowering facade + shared parse helpers
-  - imports-bearing and plain `Program(JSON v0) -> MIR(JSON)` helpers are now test-only evidence seams
-  - live MIR(JSON) emission no longer lives here
-- `mir_builder.rs::module_to_mir_json(...)`
-  - shared MIR(JSON) emission seam
-  - runtime/plugin imports route reuses this seam without staying a live caller of `lowering.rs`
-  - treat this as the Rust host stop-line; next authority-replacement work should move `.hako` owners toward producing canonical MIR(JSON) above this seam, not move `MirModule` ownership into `.hako`
-  - now reads as `emit_module_to_temp_mir_json(...)` -> `finalize_temp_mir_json_output(...)`
-  - explicit-route finalize above this seam should stay owner-local (`emit_module_mir_json_with_stage1_user_box_decls(...)` -> `emit_module_mir_json(...)` -> `finalize_mir_json_with_stage1_user_box_decls(...)`)
-- `mir_builder/lowering/ast_json.rs`
-  - legacy AST JSON compat route owner
-  - treat this as compat keep, not as the primary pure-`.hako` blocker
+## Current Owner Graph
+
+Public entries:
+- `program_json_to_mir_json_with_user_box_decls(program_json)`
+- `source_to_mir_json(source_text)`
+
+Test-only evidence seams:
+- `program_json_to_mir_json(program_json)`
+- `program_json_to_mir_json_with_imports(program_json, imports)`
+- `source_to_program_and_mir_json(source_text)`
+
+Current owner split:
+- `Stage1ProgramJsonModuleHandoff`
+  - parse `Program(JSON)` into `MirModule`
+  - parse `user_box_decls`
+  - materialize final `MirModule.metadata.user_box_decls`
+  - emit guarded MIR JSON
+- `SourceProgramJsonHandoff`
+  - strict source -> Program(JSON) authority
+  - delegates Program(JSON) -> MIR(JSON) to `Stage1ProgramJsonModuleHandoff`
+- `Stage1UserBoxDecls`
+  - explicit payload parse
+  - compat fallback from defs/body
+  - metadata projection for `MirModule`
+- `module_to_mir_json(module)`
+  - shared MIR JSON stop-line
+  - implemented through `runner::mir_json_emit`
 
 ## Guardrails
 
-- treat `mir_builder.rs` as the current source-route handoff + shared `user_box_decls` shaping owner
-- treat `lowering.rs` as the test-only Program(JSON)->MIR evidence owner; live MIR(JSON) emission stays in `mir_builder.rs`
-- treat runtime/plugin `env.mirbuilder.emit` as a separate keep that now bypasses `lowering.rs`
-- keep `source_to_program_and_mir_json(...)` test-only in the façade; cross-crate source surfaces should stay on `source_to_mir_json(...)`
-- keep explicit-route `user_box_decls` parse/build / MIR JSON mutation owner-local here; do not push that shaping back into bridge or `.hako` compat lanes
-- do not widen `.hako` workaround contracts here
-- keep fail-fast tags and temp-path policy owner-local to this cluster
+- `mir_builder.rs` is the live authority owner for source/explicit Program(JSON) handoff.
+- `lowering.rs` is test-only evidence; do not reopen it as the daily source of MIR emission.
+- `module_to_mir_json(...)` is the shared Rust stop-line; push caller ownership above it, not MIR emitter ownership back outward.
+- `user_box_decls` shaping stays owner-local here; do not duplicate it in bridge or runner compat lanes.
+- fail-fast tags and temporary env guards stay same-owner here.
+
+## Proofs
+
+Primary proofs:
+- `cargo test mir_builder -- --nocapture`
+- `cargo test user_box_decls -- --nocapture`
+- `cargo test program_json_to_mir_file -- --nocapture`
+- `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
+
+See also:
+- [frontend-owner-proof-index.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/frontend-owner-proof-index.md)
