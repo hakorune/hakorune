@@ -68,7 +68,7 @@ Related:
    - `BE0-min2` native driver selector
    - `--driver {boundary|harness|native}` now exists as implementation-detail opt-in
    - current internal default route is now `boundary`
-   - `hako_aot_compile_json(...)` compat fallback now pins `ny-llvmc --driver harness` explicitly to avoid recursive `boundary -> hako_aot -> ny-llvmc` loops
+  - `hako_aot_compile_json(...)` compile command now pins `ny-llvmc --driver boundary` explicitly; unsupported compile replay stays in `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`, so recursive `boundary -> hako_aot -> ny-llvmc` ownership is avoided
    - `native` is bootstrap/canary keep only and is not the target replacement default
    - follow-up host-provider default slice: `src/host_providers/llvm_codegen.rs` now also tries the direct C ABI boundary before any wrapper keep lane, so default object emission is boundary-first on both the selector and host-provider layers while explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` remains replayable
    - follow-up host-provider link slice: `link_object_capi(...)` no longer re-synthesizes runtime archive / `HAKO_AOT_LDFLAGS` fallback in Rust; linker keeps now pass straight through to `hako_aot_link_obj(...)`, with empty/null proof covered by the `.hako VM -> LlvmBackendBox -> C-API -> exe` runtime smoke
@@ -76,6 +76,7 @@ Related:
    - follow-up keep-lane isolation slice: `crates/nyash-llvm-compiler/src/boundary_driver.rs` now hides FFI library open / symbol lookup behind `with_compile_symbol(...)` / `with_link_symbol(...)`, and `lang/c-abi/shims/hako_llvmc_ffi.c` now parks the pure compile owner behind `compile_json_compat_pure(...)`, so default boundary exports read as forwarders and the compat pure lane stays visibly isolated
   - follow-up pure-first slice: default boundary compile now sets `HAKO_CAPI_PURE=1` from the Rust boundary callers, while `lang/c-abi/shims/hako_llvmc_ffi.c` owns recursion-safe forwarders for compile/link fallback; supported `ret_const_min_v1` / `hello_simple_llvm_native_probe_v1` are now pinned by `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_print_min.sh`
   - follow-up direct compat-keep slice: unsupported compile shapes in that pure-first lane now replay `ny-llvmc --driver harness` directly from `lang/c-abi/shims/hako_llvmc_ffi.c` instead of re-entering `hako_aot_compile_json(...)`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_compat_keep_min.sh` pins `apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json` as the current unsupported compat-keep seed
+  - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver boundary`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the `HAKO_CAPI_PURE`-unset default `hako_llvmc_compile_json` forwarder path against that boundary-owned command route
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line
