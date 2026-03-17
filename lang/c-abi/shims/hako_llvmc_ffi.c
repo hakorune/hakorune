@@ -259,9 +259,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
       struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
+      struct { long long reg; int kind; } scan_origin[2048]; size_t scan_origin_n = 0;
       // Track simple origin kinds for selective unbox at ret
       enum { ORG_NONE=0, ORG_MAP_GET=1, ORG_MAP_BIRTH=2, ORG_ARRAY_BIRTH=3 };
       struct { long long reg; int kind; } origin[2048]; size_t origin_n = 0;
+      auto int get_scan_origin(long long r){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r) return scan_origin[i].kind; } return ORG_NONE; }
+      auto void set_scan_origin(long long r,int k){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r){ scan_origin[i].kind=k; return;} } if(scan_origin_n<2048){ scan_origin[scan_origin_n].reg=r; scan_origin[scan_origin_n].kind=k; scan_origin_n++; } }
       auto int get_origin(long long r){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r) return origin[i].kind; } return ORG_NONE; }
       auto void set_origin(long long r,int k){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r){ origin[i].kind=k; return;} } if(origin_n<2048){ origin[origin_n].reg=r; origin[origin_n].kind=k; origin_n++; } }
       // Dynamic fallback (by-name) method strings
@@ -323,9 +326,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             const char* bname = cal? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
             const char* mname = cal? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
             if (ctype && strcmp(ctype, "Constructor")==0) {
-              if (bname && strcmp(bname, "MapBox")==0) need_map_birth=1;
-              if (bname && strcmp(bname, "ArrayBox")==0) need_arr_birth=1;
+              long long dst = read_int(ins, "dst");
+              if (bname && strcmp(bname, "MapBox")==0) { need_map_birth=1; if (dst) set_scan_origin(dst, ORG_MAP_BIRTH); }
+              if (bname && strcmp(bname, "ArrayBox")==0) { need_arr_birth=1; if (dst) set_scan_origin(dst, ORG_ARRAY_BIRTH); }
             } else if (ctype && strcmp(ctype, "Method")==0) {
+              long long recv = cal ? read_int(cal, "receiver") : 0;
+              int scan_org = recv ? get_scan_origin(recv) : ORG_NONE;
               if (bname && strcmp(bname, "MapBox")==0) {
                 if (mname) {
                   if (strcmp(mname, "set")==0) need_map_set=1; else if (strcmp(mname, "size")==0||strcmp(mname, "len")==0) need_map_size=1;
@@ -336,6 +342,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   if (strcmp(mname, "push")==0) need_arr_push=1; else if (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0) need_arr_len=1;
                   else if (strcmp(mname, "set")==0) need_arr_set=1; else if (strcmp(mname, "get")==0) need_arr_get=1;
                 }
+              } else if (bname && strcmp(bname, "RuntimeDataBox")==0) {
+                if (scan_org == ORG_ARRAY_BIRTH && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_arr_len=1;
               }
             } else if (ctype && strcmp(ctype, "Global")==0) {
               if (mname && strcmp(mname, "print")==0) need_printf=1;
@@ -454,10 +462,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               else if (bname && !strcmp(bname, "ArrayBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst); set_type(dst, T_I64); set_origin(dst, ORG_ARRAY_BIRTH);} else { EMIT("  %%_ = call i64 @\"nyash.array.birth_h\"()\n"); } }
               else { yyjson_doc_free(d); goto GEN_ABORT; }
             } else if (ctype && !strcmp(ctype, "Method")) {
+              int recv_org = recv ? get_origin(recv) : ORG_NONE;
+              int runtime_array_len = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
               if (recv) app(recv, 1);
               if (mname && !strcmp(mname, "set")) { if (a0) app(a0, ab[0]=='\0'); if (a1) app(a1, 0); if (bname && !strcmp(bname, "MapBox")) EMIT("  %%_ = call i64 @\"nyash.map.set_h\"(%s)\n", ab); else if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.set_h\"(%s)\n", ab); else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "get")) { if (a0) app(a0, ab[0]=='\0'); if (bname && !strcmp(bname, "MapBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.get_h\"(%s)\n", dst, ab); set_type(dst, T_I64); set_origin(dst, ORG_MAP_GET);} else { EMIT("  %%_ = call i64 @\"nyash.map.get_h\"(%s)\n", ab);} } else if (bname && !strcmp(bname, "ArrayBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.get_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.get_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
-              else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if (bname && !strcmp(bname, "MapBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.size_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.map.size_h\"(%s)\n", ab);} } else if (bname && !strcmp(bname, "ArrayBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
+              else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if (bname && !strcmp(bname, "MapBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.size_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.map.size_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "push")) { if (a0) app(a0, ab[0]=='\0'); if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.push_h\"(%s)\n", ab); else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "has")) { if (a0) app(a0, ab[0]=='\0'); if (bname && !strcmp(bname, "MapBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.has_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.map.has_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else {
