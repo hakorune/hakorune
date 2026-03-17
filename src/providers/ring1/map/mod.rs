@@ -7,6 +7,8 @@ use crate::box_trait::{BoolBox, IntegerBox, NyashBox, StringBox};
 use crate::boxes::map_box::MapBox;
 use crate::runtime::core_services::MapService;
 
+const INVALID_MAP_BOX: &str = "Not a MapBox";
+
 #[derive(Debug, Default)]
 pub struct Ring1MapService;
 
@@ -14,50 +16,60 @@ impl Ring1MapService {
     pub fn new() -> Self {
         Self
     }
-}
 
-impl MapService for Ring1MapService {
-    fn size(&self, map: &dyn NyashBox) -> i64 {
-        map.as_any()
-            .downcast_ref::<MapBox>()
-            .map(|m| {
-                let size_box = m.size();
-                size_box
-                    .as_any()
-                    .downcast_ref::<IntegerBox>()
-                    .map(|i| i.value)
-                    .unwrap_or(0)
-            })
+    fn map_box<'a>(&self, map: &'a dyn NyashBox) -> Option<&'a MapBox> {
+        map.as_any().downcast_ref::<MapBox>()
+    }
+
+    fn require_map_box<'a>(&self, map: &'a dyn NyashBox) -> Result<&'a MapBox, String> {
+        self.map_box(map)
+            .ok_or_else(|| INVALID_MAP_BOX.to_string())
+    }
+
+    fn box_key(&self, key: &str) -> Box<dyn NyashBox> {
+        Box::new(StringBox::new(key))
+    }
+
+    fn extract_size(&self, size_box: Box<dyn NyashBox>) -> i64 {
+        size_box
+            .as_any()
+            .downcast_ref::<IntegerBox>()
+            .map(|i| i.value)
             .unwrap_or(0)
     }
 
-    fn has(&self, map: &dyn NyashBox, key: &str) -> bool {
-        let map_box = match map.as_any().downcast_ref::<MapBox>() {
-            Some(m) => m,
-            None => return false,
-        };
-        let key_box = Box::new(StringBox::new(key));
-        let result = map_box.has(key_box);
-        result
+    fn extract_bool(&self, value_box: Box<dyn NyashBox>) -> bool {
+        value_box
             .as_any()
             .downcast_ref::<BoolBox>()
             .map(|b| b.value)
             .unwrap_or(false)
     }
+}
+
+impl MapService for Ring1MapService {
+    fn size(&self, map: &dyn NyashBox) -> i64 {
+        self.map_box(map)
+            .map(|m| self.extract_size(m.size()))
+            .unwrap_or(0)
+    }
+
+    fn has(&self, map: &dyn NyashBox, key: &str) -> bool {
+        let map_box = match self.map_box(map) {
+            Some(m) => m,
+            None => return false,
+        };
+        self.extract_bool(map_box.has(self.box_key(key)))
+    }
 
     fn get(&self, map: &dyn NyashBox, key: &str) -> Option<Box<dyn NyashBox>> {
-        let map_box = map.as_any().downcast_ref::<MapBox>()?;
-        let key_box = Box::new(StringBox::new(key));
-        Some(map_box.get(key_box))
+        let map_box = self.map_box(map)?;
+        Some(map_box.get(self.box_key(key)))
     }
 
     fn set(&self, map: &dyn NyashBox, key: &str, value: Box<dyn NyashBox>) -> Result<(), String> {
-        let map_box = map
-            .as_any()
-            .downcast_ref::<MapBox>()
-            .ok_or("Not a MapBox")?;
-        let key_box = Box::new(StringBox::new(key));
-        map_box.set(key_box, value);
+        let map_box = self.require_map_box(map)?;
+        map_box.set(self.box_key(key), value);
         Ok(())
     }
 }
@@ -85,5 +97,21 @@ mod tests {
         let got = provider.get(&map, "k2").unwrap();
         let got_int = got.as_any().downcast_ref::<IntegerBox>().unwrap();
         assert_eq!(got_int.value, 42);
+    }
+
+    #[test]
+    fn ring1_map_service_invalid_type_contract() {
+        let provider = Ring1MapService::new();
+        let not_map = IntegerBox::new(7);
+
+        assert_eq!(provider.size(&not_map), 0);
+        assert!(!provider.has(&not_map, "k1"));
+        assert!(provider.get(&not_map, "k1").is_none());
+        assert_eq!(
+            provider
+                .set(&not_map, "k1", Box::new(IntegerBox::new(1)))
+                .unwrap_err(),
+            INVALID_MAP_BOX
+        );
     }
 }

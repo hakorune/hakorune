@@ -17,3 +17,11 @@ Current contract
 
 Rules
 - Keep ring1 implementation free from ring2/plugin dependencies.
+
+Latest slice
+- `Ring1MapService` now keeps `type-gate` / `key boxing` / `size-bool extraction` behind owner-local helpers.
+- invalid-type contract is fixed in unit tests:
+  - `size -> 0`
+  - `has -> false`
+  - `get -> None`
+  - `set -> "Not a MapBox"`

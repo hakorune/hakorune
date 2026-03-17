@@ -45,6 +45,7 @@ Related:
   - ただし service implementation 自体はまだ Rust `ArrayBox` / `MapBox` を直接 downcast している。
   - latest provider-lane thin slice:
     - `src/providers/ring1/array/mod.rs` now keeps `type-gate` / `index boxing` behind owner-local helpers and fixes invalid-type contract in unit tests without changing service semantics
+    - `src/providers/ring1/map/mod.rs` now keeps `type-gate` / `key boxing` / `size-bool extraction` behind owner-local helpers and fixes invalid-type contract in unit tests without changing service semantics
 
 ### 2.2 AOT/LLVM and RuntimeData lane
 
