@@ -287,7 +287,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
 
       // Pre-scan: consts + phis + needed method decls
       int need_map_birth=0, need_map_set=0, need_map_size=0, need_map_get=0, need_map_has=0;
-      int need_arr_birth=0, need_arr_push=0, need_arr_len=0, need_arr_set=0, need_arr_get=0;
+      int need_arr_birth=0, need_arr_push=0, need_arr_len=0, need_arr_set=0, need_arr_get=0, need_arr_has=0;
       int need_printf=0;
       size_t blen = yyjson_arr_size(blocks);
       for (size_t bi=0; bi<blen; bi++) {
@@ -345,6 +345,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               } else if (bname && strcmp(bname, "RuntimeDataBox")==0) {
                 if (scan_org == ORG_ARRAY_BIRTH && mname && strcmp(mname, "push")==0) need_arr_push=1;
                 if (scan_org == ORG_ARRAY_BIRTH && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_arr_len=1;
+                if (scan_org == ORG_ARRAY_BIRTH && mname && strcmp(mname, "has")==0) need_arr_has=1;
                 if (scan_org == ORG_MAP_BIRTH && mname && strcmp(mname, "get")==0) need_map_get=1;
                 if (scan_org == ORG_MAP_BIRTH && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_map_size=1;
                 if (scan_org == ORG_MAP_BIRTH && mname && strcmp(mname, "has")==0) need_map_has=1;
@@ -371,6 +372,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_arr_len)   fprintf(f, "declare i64 @\"nyash.array.len_h\"(i64)\n");
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_h\"(i64, i64, i64)\n");
       if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.get_h\"(i64, i64)\n");
+      if (need_arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
       if (need_printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
@@ -471,6 +473,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               int recv_org = recv ? get_origin(recv) : ORG_NONE;
               int runtime_array_len = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
               int runtime_array_push = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
+              int runtime_array_has = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
               int runtime_map_get = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               int runtime_map_size = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               int runtime_map_has = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
@@ -486,7 +489,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 } else if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.push_h\"(%s)\n", ab);
                 else { yyjson_doc_free(d); goto GEN_ABORT; }
               }
-              else if (mname && !strcmp(mname, "has")) { if (a0) app(a0, ab[0]=='\0'); if ((bname && !strcmp(bname, "MapBox")) || runtime_map_has) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.has_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.map.has_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
+              else if (mname && !strcmp(mname, "has")) {
+                if (a0) app(a0, ab[0]=='\0');
+                if (runtime_array_has) {
+                  if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.has_hi\"(%s)\n", dst, ab); set_type(dst, T_I64); }
+                  else { EMIT("  %%_ = call i64 @\"nyash.array.has_hi\"(%s)\n", ab); }
+                } else if ((bname && !strcmp(bname, "MapBox")) || runtime_map_has) {
+                  if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.has_h\"(%s)\n", dst, ab); set_type(dst, T_I64); }
+                  else { EMIT("  %%_ = call i64 @\"nyash.map.has_h\"(%s)\n", ab); }
+                } else { yyjson_doc_free(d); goto GEN_ABORT; }
+              }
               else {
                 // Dynamic fallback by name (dev only): invoke_by_name(recv, "method", argc, a0, a1)
                 const char* fb = getenv("HAKO_CAPI_DYN_FALLBACK");
