@@ -64,21 +64,26 @@ mod tests {
         decode_string_handle(out).expect("program json string handle")
     }
 
-    fn decode_string_like_handle(handle: i64) -> String {
-        let object = handles::get(handle as u64).expect("result handle");
-        object
-            .as_any()
-            .downcast_ref::<StringBox>()
-            .map(|string_box| string_box.value.clone())
-            .unwrap_or_else(|| object.to_string_box().value)
+    fn module_handle(name: &str) -> i64 {
+        encode_string_handle(name)
     }
 
-    fn ensure_test_ring0() {
-        let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
+    fn dispatch_stage1_mir_builder_for_program_json(program_json: String) -> String {
+        let receiver_handle = module_handle("lang.mir.builder.MirBuilderBox");
+        let program_handle = encode_string_handle(&program_json);
+        let out = crate::plugin::module_string_dispatch::try_dispatch(
+            receiver_handle,
+            "emit_from_program_json_v0",
+            1,
+            program_handle,
+            0,
+        )
+        .expect("dispatch");
+        assert!(out > 0, "expected MIR JSON StringBox handle");
+        decode_string_handle(out).expect("MIR JSON string handle")
     }
 
     fn invoke_by_name_build_box_emit_program_json(source: &str) -> String {
-        ensure_test_ring0();
         let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(BUILD_BOX_MODULE.to_string()));
         let receiver_handle = handles::to_handle_arc(receiver) as i64;
         let source_handle =
@@ -95,26 +100,6 @@ mod tests {
         decode_string_handle(result_handle).expect("program json string handle")
     }
 
-    fn invoke_stage1_mir_builder_for_program_json(program_json: String) -> String {
-        ensure_test_ring0();
-        let receiver: Arc<dyn NyashBox> =
-            Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
-        let receiver_handle = handles::to_handle_arc(receiver) as i64;
-        let program_handle = handles::to_handle_arc(Arc::new(StringBox::new(program_json))) as i64;
-        let method = CString::new("emit_from_program_json_v0").expect("CString");
-
-        let result_handle = crate::nyash_plugin_invoke_by_name_i64(
-            receiver_handle,
-            method.as_ptr(),
-            1,
-            program_handle,
-            0,
-        );
-        assert!(result_handle > 0, "expected MIR JSON StringBox handle");
-
-        decode_string_like_handle(result_handle)
-    }
-
     #[test]
     fn build_surrogate_route_contract_is_stable() {
         assert_eq!(BUILD_BOX_MODULE, "lang.compiler.build.build_box");
@@ -128,8 +113,8 @@ mod tests {
     }
 
     #[test]
-    fn invoke_by_name_accepts_stage1_build_box_module_receiver() {
-        let program_json = invoke_by_name_build_box_emit_program_json(
+    fn dispatch_accepts_stage1_build_box_module_receiver() {
+        let program_json = dispatch_build_box_emit_program_json(
             "static box Main { main() { print(42) return 0 } }",
         );
         assert!(program_json.contains("\"kind\":\"Program\""));
@@ -181,9 +166,9 @@ mod tests {
     }
 
     #[test]
-    fn invoke_by_name_stage1_build_box_route_emits_stage1_cli_env_imports() {
+    fn dispatch_stage1_build_box_route_emits_stage1_cli_env_imports() {
         with_env_vars(&[], || {
-            let program_json = invoke_by_name_build_box_emit_program_json(include_str!(
+            let program_json = dispatch_build_box_emit_program_json(include_str!(
                 "../../../../../lang/src/runner/stage1_cli_env.hako"
             ));
             assert!(program_json.contains("\"kind\":\"Program\""));
@@ -200,9 +185,9 @@ mod tests {
     }
 
     #[test]
-    fn invoke_by_name_stage1_build_box_route_emits_launcher_multibox_defs() {
+    fn dispatch_stage1_build_box_route_emits_launcher_multibox_defs() {
         with_env_vars(&[], || {
-            let program_json = invoke_by_name_build_box_emit_program_json(include_str!(
+            let program_json = dispatch_build_box_emit_program_json(include_str!(
                 "../../../../../lang/src/runner/launcher.hako"
             ));
             assert!(program_json.contains("\"kind\":\"Program\""));
@@ -213,9 +198,9 @@ mod tests {
     }
 
     #[test]
-    fn invoke_by_name_stage1_build_box_route_keeps_dev_local_alias_compat_only_when_needed() {
+    fn dispatch_stage1_build_box_route_keeps_dev_local_alias_compat_only_when_needed() {
         with_env_vars(&[], || {
-            let program_json = invoke_by_name_build_box_emit_program_json(
+            let program_json = dispatch_build_box_emit_program_json(
                 r#"
 static box Main {
   main() {
@@ -231,9 +216,9 @@ static box Main {
     }
 
     #[test]
-    fn invoke_by_name_stage1_build_box_route_is_strict_in_emit_program_mode() {
+    fn dispatch_stage1_build_box_route_is_strict_in_emit_program_mode() {
         with_env_var("NYASH_STAGE1_MODE", "emit-program", || {
-            let result_text = invoke_by_name_build_box_emit_program_json(
+            let result_text = dispatch_build_box_emit_program_json(
                 r#"
 static box Main {
   main() {
@@ -253,18 +238,27 @@ static box Main {
     }
 
     #[test]
-    fn invoke_by_name_build_box_unsupported_source_returns_freeze_tag() {
-        let result_text = invoke_by_name_build_box_emit_program_json(
+    fn dispatch_build_box_unsupported_source_returns_freeze_tag() {
+        let result_text = dispatch_build_box_emit_program_json(
             "static box NotMain { main() { return 0 } }",
         );
         assert!(result_text.contains("[freeze:contract][stage1_program_json_v0]"));
     }
 
     #[test]
-    fn invoke_by_name_accepts_stage1_mir_builder_for_stage1_cli_env_program_json() {
+    fn invoke_by_name_build_box_compat_route_still_works() {
+        let program_json = invoke_by_name_build_box_emit_program_json(
+            "static box Main { main() { print(42) return 0 } }",
+        );
+        assert!(program_json.contains("\"kind\":\"Program\""));
+        assert!(program_json.contains("\"version\":0"));
+    }
+
+    #[test]
+    fn dispatch_accepts_stage1_mir_builder_for_stage1_cli_env_program_json() {
         let source = include_str!("../../../../../lang/src/runner/stage1_cli_env.hako");
-        let build_result_text = invoke_by_name_build_box_emit_program_json(source);
-        let mir_json = invoke_stage1_mir_builder_for_program_json(build_result_text);
+        let build_result_text = dispatch_build_box_emit_program_json(source);
+        let mir_json = dispatch_stage1_mir_builder_for_program_json(build_result_text);
         assert!(
             mir_json.starts_with('{'),
             "expected MIR JSON payload, got: {}",
@@ -274,10 +268,10 @@ static box Main {
     }
 
     #[test]
-    fn invoke_by_name_accepts_stage1_mir_builder_for_launcher_program_json() {
+    fn dispatch_accepts_stage1_mir_builder_for_launcher_program_json() {
         let source = include_str!("../../../../../lang/src/runner/launcher.hako");
-        let build_result_text = invoke_by_name_build_box_emit_program_json(source);
-        let mir_json = invoke_stage1_mir_builder_for_program_json(build_result_text);
+        let build_result_text = dispatch_build_box_emit_program_json(source);
+        let mir_json = dispatch_stage1_mir_builder_for_program_json(build_result_text);
         assert!(mir_json.contains("\"functions\""));
         assert!(
             mir_json.contains("\"name\":\"Main\""),
