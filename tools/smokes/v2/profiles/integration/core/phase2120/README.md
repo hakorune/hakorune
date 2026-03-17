@@ -8,6 +8,7 @@
    - `s3_link_run_llvmcapi_pure_*.sh`
    - `HAKO_CAPI_PURE=1` 必須
    - historical pure-lowering evidence
+   - caller path is allowed to use `ny-llvmc --driver boundary`; do not depend on the retired direct `hostbridge.extern_invoke("env.codegen", ...)` lane here
 2. VM adapter canaries
    - `s3_vm_adapter_*.sh`
    - Hako VM adapter / state alias の観測
