@@ -1,0 +1,57 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "nyash"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "StringBox",
+              "args": [1]
+            },
+            {
+              "op": "mir_call",
+              "dst": 3,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "length",
+                  "receiver": 2,
+                  "certainty": "Union"
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

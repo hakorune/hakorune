@@ -870,7 +870,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
     }
 
-    // Try minimal pure path #5: const ASCII string handle -> newbox StringBox -> length/size -> ret
+    // Try minimal pure path #5: const ASCII string handle -> newbox StringBox ->
+    // StringBox/RuntimeDataBox length/size -> ret
     {
       yyjson_read_err rerr; yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
       if (doc) {
@@ -920,7 +921,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 lit_dst != 0 &&
                 arg0 == lit_dst &&
                 ctype && strcmp(ctype, "Method") == 0 &&
-                bname && strcmp(bname, "StringBox") == 0 &&
+                bname && (strcmp(bname, "StringBox") == 0 || strcmp(bname, "RuntimeDataBox") == 0) &&
                 mname && (strcmp(mname, "length") == 0 || strcmp(mname, "size") == 0) &&
                 recv == box_dst &&
                 argc == 0 &&
