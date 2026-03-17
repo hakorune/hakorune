@@ -1,0 +1,61 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "mir_call",
+              "dst": 1,
+              "mir_call": {
+                "callee": {
+                  "type": "Constructor",
+                  "box_name": "ArrayBox"
+                },
+                "args": [],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 3,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "get",
+                  "receiver": 1,
+                  "certainty": "Union"
+                },
+                "args": [2],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
