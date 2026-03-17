@@ -44,7 +44,7 @@
 ## Current Implementation Note
 
 - current `ny-llvmc` default route first enters the boundary-owned C ABI lane
-- default boundary compile now tries the pure C subset first for supported seeds such as `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json`, `apps/tests/hello_simple_llvm_native_probe_v1.mir.json`, `apps/tests/mir_shape_guard/string_length_ascii_min_v1.mir.json`, `apps/tests/mir_shape_guard/runtime_data_string_length_ascii_min_v1.mir.json`, `apps/tests/mir_shape_guard/string_indexof_ascii_min_v1.mir.json`, and `apps/tests/mir_shape_guard/runtime_data_array_length_min_v1.mir.json`
+- default boundary compile now tries the pure C subset first for supported seeds such as `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json`, `apps/tests/hello_simple_llvm_native_probe_v1.mir.json`, `apps/tests/mir_shape_guard/string_length_ascii_min_v1.mir.json`, `apps/tests/mir_shape_guard/runtime_data_string_length_ascii_min_v1.mir.json`, `apps/tests/mir_shape_guard/string_indexof_ascii_min_v1.mir.json`, `apps/tests/mir_shape_guard/runtime_data_array_length_min_v1.mir.json`, and `apps/tests/mir_shape_guard/runtime_data_map_size_min_v1.mir.json`
 - unsupported shapes now replay directly from `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`, so `llvmlite` remains an explicit compat keep inside the boundary fallback lane
 - `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses `--driver boundary`, so the default `hako_aot` command route matches the boundary-owned daily path
 - `Boundary` / `Native` default routes do not resolve the Python harness path unless the explicit `--driver harness` keep lane is selected
