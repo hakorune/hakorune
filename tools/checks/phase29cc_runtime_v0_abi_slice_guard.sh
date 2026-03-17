@@ -80,28 +80,8 @@ if ! rg -F -q 'MapCoreBox.has_state_value(' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox has-state route" >&2
   exit 1
 fi
-if ! rg -F -q 'ArrayCoreBox.get_i64(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox get route" >&2
-  exit 1
-fi
-if ! rg -F -q 'ArrayCoreBox.set_i64(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox set route" >&2
-  exit 1
-fi
-if ! rg -F -q 'ArrayCoreBox.len_i64(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox len route" >&2
-  exit 1
-fi
-if ! rg -F -q 'ArrayCoreBox.record_push_state(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox push-state route" >&2
-  exit 1
-fi
-if ! rg -F -q 'ArrayCoreBox.record_set_state(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox set-state route" >&2
-  exit 1
-fi
-if ! rg -F -q 'ArrayCoreBox.get_state_value(' "$HANDLER_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox get-state route" >&2
+if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox orchestration route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.string.len_h"' "$STRING_CORE_FILE"; then
@@ -130,6 +110,22 @@ if ! rg -F -q 'record_set_state(regs, per_recv, rid, idx, cur_len, value_state, 
 fi
 if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing get-state helper contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'try_handle(seg, regs, mname)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing try_handle contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'me.set_i64(recv_h, idx_i64, val_i64)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing set_i64 dispatch contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'me.get_i64(recv_h, idx_i64)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing get_i64 dispatch contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'me.len_i64(recv_h)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing len_i64 dispatch contract" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.map.size_h"' "$MAP_CORE_FILE"; then

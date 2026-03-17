@@ -25,6 +25,8 @@ Rule:
 - `array_core_box.hako`
   - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `len_i64(handle)`
     -> `nyash.array.get_hi` / `nyash.array.set_hii` / `nyash.array.len_h`
+  - `try_handle(seg, regs, mname)`
+    -> owns adapter-on `ArrayBox.{set,get,push,len/length/size}` orchestration for `mir_call_v1_handler`
   - `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`
     -> adapter-on ArrayBox size/value-state ownership for `mir_call_v1_handler`
 - `runtime_data_core_box.hako`

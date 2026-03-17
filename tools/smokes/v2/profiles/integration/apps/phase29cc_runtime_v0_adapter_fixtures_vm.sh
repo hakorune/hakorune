@@ -74,32 +74,32 @@ check_string_adapter_route_contract() {
     test_fail "$SMOKE_NAME: handler string core route contract missing"
     exit 1
   fi
+  if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+    test_fail "$SMOKE_NAME: handler array orchestration contract missing"
+    exit 1
+  fi
   if ! rg -F -q '[vm/adapter/string_core:len_i64]' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler string adapter trace tag contract missing"
     exit 1
   fi
-  if ! rg -F -q 'ArrayCoreBox.len_i64(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler array core len route contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'ArrayCoreBox.record_push_state(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler array push-state contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'ArrayCoreBox.record_set_state(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler array set-state contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'ArrayCoreBox.get_state_value(' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler array get-state contract missing"
-    exit 1
-  fi
-  if ! rg -F -q '[vm/adapter/array_core:len_i64]' "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: handler array adapter trace tag contract missing"
-    exit 1
-  fi
   if ! rg -F -q 'externcall "nyash.array.len_h"' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core len extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'try_handle(seg, regs, mname)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core orchestration helper contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'me.set_i64(recv_h, idx_i64, val_i64)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core set_i64 dispatch contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'me.get_i64(recv_h, idx_i64)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core get_i64 dispatch contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'me.len_i64(recv_h)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core len_i64 dispatch contract missing"
     exit 1
   fi
   if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_CORE_FILE"; then
@@ -112,6 +112,18 @@ check_string_adapter_route_contract() {
   fi
   if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core get-state helper contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/array_core:set_i64]' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core set trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/array_core:get_i64]' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core get trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/array_core:len_i64]' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core len trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'externcall "nyash.string.len_h"' "$STRING_CORE_FILE"; then
@@ -221,12 +233,12 @@ check_string_adapter_route_contract() {
 }
 
 check_array_strict_contract() {
-  if ! rg -F -q "[vm/adapter/freeze:array_set_i64]" "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: strict freeze tag contract missing in handler"
+  if ! rg -F -q "[vm/adapter/freeze:array_set_i64]" "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: strict freeze tag contract missing in array core"
     exit 1
   fi
-  if ! rg -F -q "HAKO_VM_ARRAY_CORE_STRICT" "$HANDLER_FILE"; then
-    test_fail "$SMOKE_NAME: strict env contract missing in handler"
+  if ! rg -F -q "HAKO_VM_ARRAY_CORE_STRICT" "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: strict env contract missing in array core"
     exit 1
   fi
 }

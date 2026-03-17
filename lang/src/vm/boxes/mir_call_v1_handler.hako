@@ -75,6 +75,9 @@ static box MirCallV1HandlerBox {
           if btype != null { cfg = AbiAdapterRegistryBox.resolve(btype, mname) }
           // Adapter が見つかった場合、最小規則で size/push を優先実装、それ以外はスタブ
           if cfg != null {
+            if btype == "ArrayBox" {
+              if ArrayCoreBox.try_handle(seg, regs, mname) == 1 { return }
+            }
             // 受信者ID（size state のキーに使用）
             local rid = MiniMirV1Scan.receiver_id(seg)
             local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
@@ -83,68 +86,6 @@ static box MirCallV1HandlerBox {
             local cur_len = JsonFragBox._str_to_int(cur_len_raw)
             // 値状態トグル（既定OFF）
             local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
-            // Array.set: prefer VM runtime core i64 route, fallback to metadata emulation
-            if btype == "ArrayBox" && mname == "set" {
-              local recv_h = me._read_reg_i64_or_null(regs, rid)
-              local arg0_i = MiniMirV1Scan.first_arg_register(seg)
-              local arg1_i = MiniMirV1Scan.nth_arg_register(seg, 1)
-              local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
-              local val_i64 = me._read_reg_i64_or_null(regs, arg1_i)
-              if recv_h != null && idx_i64 != null && val_i64 != null {
-                local rc = ArrayCoreBox.set_i64(recv_h, idx_i64, val_i64)
-                local strict = env.get("HAKO_VM_ARRAY_CORE_STRICT"); if strict == null { strict = "0" }
-                if strict == "1" && rc == 0 {
-                  print("[vm/adapter/freeze:array_set_i64]")
-                  return
-                }
-                local d_seth = JsonFragBox.get_int(seg, "dst")
-                if d_seth != null { regs.setField(StringHelpers.int_to_str(d_seth), "0") }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/array_core:set_i64]") }
-                return
-              }
-              // 第1引数はインデックスを指すレジスタID（arg0）、第2引数は値を指すレジスタID（arg1）
-              local arg0 = MiniMirV1Scan.first_arg_register(seg)
-              local idx = 0; if arg0 >= 0 { local sv = regs.getField(StringHelpers.int_to_str(arg0)); if sv != null { idx = JsonFragBox._str_to_int(""+sv) } }
-              local arg1_id_fb = MiniMirV1Scan.nth_arg_register(seg, 1)
-              cur_len = ArrayCoreBox.record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id_fb)
-              regs.setField(key, StringHelpers.int_to_str(cur_len))
-              local d_seta = JsonFragBox.get_int(seg, "dst"); if d_seta != null { regs.setField(StringHelpers.int_to_str(d_seta), "0") }
-              return
-            }
-            // Array.get: prefer VM runtime core i64 route, fallback to metadata emulation (value_state only)
-            if btype == "ArrayBox" && mname == "get" {
-              local recv_h = me._read_reg_i64_or_null(regs, rid)
-              local arg0_i = MiniMirV1Scan.first_arg_register(seg)
-              local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
-              if recv_h != null && idx_i64 != null {
-                local got_i64 = ArrayCoreBox.get_i64(recv_h, idx_i64)
-                local dst_geth = JsonFragBox.get_int(seg, "dst")
-                if dst_geth != null { regs.setField(StringHelpers.int_to_str(dst_geth), StringHelpers.int_to_str(got_i64)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/array_core:get_i64]") }
-                return
-              }
-              if value_state == "1" {
-                local arg0 = MiniMirV1Scan.first_arg_register(seg)
-                local idx = 0; if arg0 >= 0 { local sv = regs.getField(StringHelpers.int_to_str(arg0)); if sv != null { idx = JsonFragBox._str_to_int(""+sv) } }
-                local val_str = ArrayCoreBox.get_state_value(regs, per_recv, rid, idx)
-                local dst_get = JsonFragBox.get_int(seg, "dst")
-                if dst_get != null {
-                  if val_str != null { regs.setField(StringHelpers.int_to_str(dst_get), ""+val_str) }
-                  // val_str == null の時は setField しない（null 表現）
-                }
-                return
-              }
-            }
-            if btype == "ArrayBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
-              local recv_ha = me._read_reg_i64_or_null(regs, rid)
-              if recv_ha != null && recv_ha > 0 {
-                local len_i64 = ArrayCoreBox.len_i64(recv_ha)
-                local dst_al = JsonFragBox.get_int(seg, "dst")
-                if dst_al != null { regs.setField(StringHelpers.int_to_str(dst_al), StringHelpers.int_to_str(len_i64)) }
-                if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/array_core:len_i64]") }
-                return
-              }
-            }
             // String.length/len/size: prefer VM runtime core i64 route
             if btype == "StringBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
               local recv_hs = me._read_reg_i64_or_null(regs, rid)
@@ -155,14 +96,6 @@ static box MirCallV1HandlerBox {
                 if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/adapter/string_core:len_i64]") }
                 return
               }
-            }
-            // Array.push: 要素数を+1（構造的サイズ）
-            if btype == "ArrayBox" && mname == "push" {
-              local arg0_push = MiniMirV1Scan.first_arg_register(seg)
-              cur_len = ArrayCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_push)
-              regs.setField(key, StringHelpers.int_to_str(cur_len))
-              local d_ad = JsonFragBox.get_int(seg, "dst"); if d_ad != null { regs.setField(StringHelpers.int_to_str(d_ad), "0") }
-              return
             }
             // Map.set: 重複キー検知つきでサイズ更新 + 値保存（値状態ON時）
             if btype == "MapBox" && mname == "set" {
