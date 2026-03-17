@@ -82,6 +82,7 @@ Rule:
    - `lang/c-abi/shims/hako_kernel.c`
    - `src/llvm_py/instructions/boxcall.py`
    - `src/llvm_py/instructions/mir_call_legacy.py`
+   - the legacy MIR tail now forwards receiver literals into the shared direct-or-plugin helper, so module-string BuildBox routes can resolve direct lowered methods before `nyash.plugin.invoke_by_name_i64`
 6. latest landed proof:
    - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green again because compiled-stage1 `llvm_backend_surrogate.rs` now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` routing
 7. `BYN-min2` source cutover is landed

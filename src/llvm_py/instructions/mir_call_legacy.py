@@ -14,6 +14,7 @@ from instructions.mir_call.method_fallback_tail import lower_direct_or_plugin_me
 from instructions.mir_call.string_console_method_call import (
     lower_string_or_console_method_call,
 )
+from instructions.string_fast import literal_string_for_receiver
 
 
 def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_vid: Optional[int], vmap: Dict, resolver):
@@ -218,6 +219,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     if recv_val is None:
         recv_val = ir.Constant(i64, 0)
     recv_h = _ensure_handle(recv_val)
+    receiver_literal = literal_string_for_receiver(resolver, receiver)
 
     # TRUE UNIFIED METHOD DISPATCH - Everything is Box philosophy
     if method in ["length", "len"]:
@@ -263,6 +265,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 ensure_handle=_ensure_handle,
                 direct_call_name=f"known_box_{method}",
                 plugin_call_name="unified_plugin_invoke",
+                receiver_literal=receiver_literal,
             )
 
     # Store result
