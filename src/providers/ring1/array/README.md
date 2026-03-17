@@ -18,3 +18,10 @@ Current contract
 Rules
 - Keep ring1 implementation free from ring2/plugin dependencies.
 - Keep provider logic thin (ArrayBox behavior mirror; no language-semantics branching).
+
+Latest slice
+- `Ring1ArrayService` now keeps `type-gate` / `index boxing` behind owner-local helpers.
+- invalid-type contract is fixed in unit tests:
+  - `len -> 0`
+  - `get -> None`
+  - `set/push -> "Not an ArrayBox"`
