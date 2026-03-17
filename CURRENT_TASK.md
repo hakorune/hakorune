@@ -70,7 +70,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - exact next front:
       - keep `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_contract_vm.sh` as deferred lower-level cargo-test contract keep
       - runtime/provider lane is monitor-only after helper-thinning in `src/providers/ring1/{array,map}/mod.rs`
-      - next `.hako ring1` front is only worth reopening when a new narrow collection/runtime seam appears with fixture+gate value; current collection adapter-on orchestration slices are landed for `ArrayBox`, `MapBox`, `RuntimeDataBox`, and `StringBox` size aliases
+      - next `.hako ring1` front is only worth reopening when a new narrow collection/runtime seam appears with fixture+gate value; current collection adapter-on orchestration slices are landed for `ArrayBox`, `MapBox`, `RuntimeDataBox`, and `StringBox` size aliases, so this lane is now near thin floor
       - `ArrayCoreBox` / `MapCoreBox` size-state fallback tails are compat cleanup only, not blocker work
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
@@ -244,16 +244,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
          - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
          - then move unsupported compile replay and seed/route policy out of `lang/c-abi/shims/hako_llvmc_ffi.c`, leaving it as export/marshal glue
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
-         - next focus is no longer command repointing; it is shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface while preparing the `.hako` recipe seam
+         - next focus is no longer command repointing or C micro-thinning; it is moving pure-seed / route / compat classification into `lang/src/shared/backend/backend_recipe_box.hako` while shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
          - landed: boundary-owned compile coverage now includes `RuntimeDataBox.{get(MapBox),get(ArrayBox),push(ArrayBox),has(ArrayBox)}` for narrow missing-key/index seeds
-         - exact next slice: widen from those landed `RuntimeDataBox` collection seeds to broader method-loop packs, while `BackendRecipeBox` remains the caller-side policy seam so `hako_llvmc_ffi.c` can shed seed/route policy gradually
+         - exact next slice: make `BackendRecipeBox` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence
      - acceptance:
-       - `cargo run -p nyash-llvm-compiler -- --emit obj --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json --out target/tmp/phase29ck_boundary_min.o`
-       - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh`
-       - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_compat_keep_min.sh`
-       - `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh`
-       - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
-       - `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
+       - canonical runtime proof: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+       - acceptance pair: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
+       - acceptance pair: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
+       - seed matrix / compat keep live in `docs/development/current/main/phases/phase-29ck/README.md` and `docs/development/current/main/phases/phase-29ck/P5-COMPAT-PURE-PACK-LOCK.md`
   2. ny-llvmc wrapper demotion
      - exact paths:
         - `crates/nyash-llvm-compiler/src/main.rs`

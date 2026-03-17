@@ -83,16 +83,13 @@ Responsibilities:
 - explicit compat keep replay
 
 Canonical proofs:
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_print_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_string_length_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_length_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_string_indexof_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_array_length_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_map_size_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_compat_keep_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh`
-- `SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
+- `bash tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
+
+Seed matrix / historical packs:
+- current widening matrix lives in [phase-29ck/README.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ck/README.md)
+- compat-only historical pure pack lives in [P5-COMPAT-PURE-PACK-LOCK.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/phases/phase-29ck/P5-COMPAT-PURE-PACK-LOCK.md)
 
 ## Reopen Rule
 
