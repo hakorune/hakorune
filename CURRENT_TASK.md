@@ -23,6 +23,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/main.rs`, `crates/nyash-llvm-compiler/src/native_driver.rs` は途中の Rust glue / keep lane であり、final owner ではない
   - `lang/c-abi/shims/hako_llvmc_ffi.c` は急いで delete せず、まず `transport-only` の tiny C substrate に縮める
   - `.hako` の next exact slice は `BackendRecipeBox` の route profile SSOT 化で、policy owner / transport owner / compile recipe / compat replay を 1 枚の profile で明示すること
+  - current clean stop-line:
+    - `.hako` policy owner is `BackendRecipeBox`
+    - `.hako` caller stop-line is `LlvmBackendBox -> env.codegen.*`
+    - Rust is payload decode / symbol selection / boundary glue only
+    - C is export / marshal / loader / process / compat transport only
+    - do not reopen C micro-thinning or broad pure-seed widening unless a new exact blocker requires it
 - already stopped:
   - bootstrap closure wave は fixed-point compare まで完了
   - `stage7 launcher` / `stage9 launcher` と fresh `stage1-cli` rebuild は byte-identical
@@ -402,6 +408,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
      - C helper cleanup is now near thin floor; do not keep micro-splitting without a fresh exact blocker
      - next large-grain front in order is Python owner demotion under `tools/llvmlite_harness.py` + `src/llvm_py/**`
+  3.5. backend-zero stop rule for the current wave
+     - `BackendRecipeBox` should be the only visible policy/recipe owner
+     - `LlvmBackendBox` should remain a facade only
+     - `llvm_codegen.rs` / `boundary_driver.rs` should not accumulate pure-shape acceptance policy
+     - `hako_llvmc_ffi.c` should keep explicit compat transport only; do not move more meaning there
+     - if a next slice is needed, prefer one exact recipe-classification row before any new transport refactor
   4. keep these lanes frozen unless a fresh exact blocker appears:
      - `phase-29cj` micro-thinning
      - bridge/program-json/stub-emit cleanup

@@ -82,3 +82,31 @@ Related:
 
 - Broader seed classification belongs here, not in the C shim, when a new exact fixture proves that the route profile needs more evidence.
 - Until then, profile growth should stay at the `.hako` owner level and remain visible in `CURRENT_TASK.md` plus phase-29ck docs.
+
+## Final Shape
+
+1. `.hako` policy owner
+   - `BackendRecipeBox`
+   - owns compile recipe, compat replay, route-profile naming, and narrow pure-seed acceptance policy
+2. `.hako` caller facade
+   - `LlvmBackendBox`
+   - validates the route profile and stops at `env.codegen.*`
+3. Rust glue
+   - payload decode, symbol selection, boundary-call glue only
+4. C substrate
+   - `extern "C"` export, allocator/error ownership, loader/process/path glue, and compat transport execution only
+
+## Clean Stop Line For This Wave
+
+- Stop after `BackendRecipeBox` is the only visible owner for route profile and recipe naming.
+- Stop after `LlvmBackendBox` reads the profile and transport layers only mirror it.
+- Do not keep thinning `hako_aot_shared_impl.inc` without a fresh exact blocker.
+- Do not move broad CFG/pattern acceptance logic out of `hako_llvmc_ffi.c` in the same wave as policy handoff.
+- Do not mix one more pure-seed widening with transport refactor unless the route profile needs that evidence.
+
+## Explicit Non-Goals Right Now
+
+- Replacing `hako_llvmc_ffi.c` with `.hako`
+- Promoting `native_driver.rs` to daily owner
+- Turning `boundary_driver.rs` or `llvm_codegen.rs` into shape-policy owners
+- Adding a new ABI surface or transport contract
