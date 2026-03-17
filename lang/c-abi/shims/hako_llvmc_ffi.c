@@ -36,17 +36,27 @@ static int set_err_owned(char** err_out, const char* msg) {
   return -1;
 }
 
+static int forward_compile_json_to_aot(const char* json_in, const char* obj_out, char** err_out) {
+  return hako_aot_compile_json(json_in, obj_out, err_out);
+}
+
+static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
+  return hako_aot_link_obj(obj_in, exe_out, extra_ldflags, err_out);
+}
+
 // Exported symbols expected by hako_aot.c when loading libhako_llvmc_ffi.so
 // Signature must match: int (*)(const char*, const char*, char**)
 __attribute__((visibility("default")))
 int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err_out) {
-  if (capi_pure_enabled()) {
-    // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
-    // then fall back to a few pattern lowers, and finally to AOT helper.
-    char* verr = NULL;
-    if (hako_json_v1_validate_file(json_in, &verr) != 0) {
-      return set_err_owned(err_out, verr ? verr : "invalid v1 json");
-    }
+  if (!capi_pure_enabled()) {
+    return forward_compile_json_to_aot(json_in, obj_out, err_out);
+  }
+  // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
+  // then fall back to a few pattern lowers, and finally to AOT helper.
+  char* verr = NULL;
+  if (hako_json_v1_validate_file(json_in, &verr) != 0) {
+    return set_err_owned(err_out, verr ? verr : "invalid v1 json");
+  }
 
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---
     // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal)
@@ -546,8 +556,6 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
       return hako_aot_compile_json(json_in, obj_out, err_out);
     }
     return 0;
-  }
-
     // Try minimal pure path #3: Map birth → set → size → ret
     {
       yyjson_read_err rerr; yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
@@ -683,14 +691,10 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
         }
       }
     }
-  return hako_aot_compile_json(json_in, obj_out, err_out);
+  return forward_compile_json_to_aot(json_in, obj_out, err_out);
 }
 
 __attribute__((visibility("default")))
 int hako_llvmc_link_obj(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
-  if (capi_pure_enabled()) {
-    // Phase 21.2 (step-1): route to existing AOT helper (linker) first.
-    return hako_aot_link_obj(obj_in, exe_out, extra_ldflags, err_out);
-  }
-  return hako_aot_link_obj(obj_in, exe_out, extra_ldflags, err_out);
+  return forward_link_obj_to_aot(obj_in, exe_out, extra_ldflags, err_out);
 }
