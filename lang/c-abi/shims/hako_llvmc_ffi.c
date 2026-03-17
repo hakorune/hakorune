@@ -93,6 +93,21 @@ static int hako_llvmc_build_harness_log_path(char* log_path, size_t log_path_len
   return (n <= 0 || (size_t)n >= log_path_len) ? -1 : 0;
 }
 
+static int hako_llvmc_ascii_strlen(const char* s, long long* out_len) {
+  size_t n = 0;
+  if (!s) return 0;
+  while (s[n]) {
+    if (((unsigned char)s[n]) & 0x80) {
+      return 0;
+    }
+    n++;
+  }
+  if (out_len) {
+    *out_len = (long long)n;
+  }
+  return 1;
+}
+
 static int compile_json_compat_harness_keep(const char* json_in, const char* obj_out, char** err_out) {
   const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
   char log_path[1024];
@@ -625,103 +640,100 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     yyjson_val* fns = yyjson_obj_get(root, "functions");
     yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
     yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
-    if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 3)) {
-      yyjson_doc_free(doc);
-      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
-    }
-    // Expect block0: const a, const b, compare Lt, branch then=t else=e
-    yyjson_val* b0 = yyjson_arr_get_first(blocks);
-    yyjson_val* i0 = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
-    if (!(i0 && yyjson_is_arr(i0) && yyjson_arr_size(i0) >= 4)) {
-      yyjson_doc_free(doc);
-      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
-    }
-    // const #1
-    yyjson_val* ins0 = yyjson_arr_get(i0, 0);
-    yyjson_val* ins1 = yyjson_arr_get(i0, 1);
-    yyjson_val* ins2 = yyjson_arr_get(i0, 2);
-    yyjson_val* ins3 = yyjson_arr_get(i0, 3);
-    const char *op0 = yyjson_get_str(yyjson_obj_get(ins0, "op"));
-    const char *op1 = yyjson_get_str(yyjson_obj_get(ins1, "op"));
-    const char *op2 = yyjson_get_str(yyjson_obj_get(ins2, "op"));
-    const char *op3 = yyjson_get_str(yyjson_obj_get(ins3, "op"));
-    if (!(op0 && op1 && op2 && op3 && strcmp(op0,"const")==0 && strcmp(op1,"const")==0 && strcmp(op2,"compare")==0 && strcmp(op3,"branch")==0)) {
-      yyjson_doc_free(doc);
-      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
-    }
-    // Read const values and branch targets
-    yyjson_val* v0 = yyjson_obj_get(yyjson_obj_get(ins0, "value"), "value");
-    yyjson_val* v1 = yyjson_obj_get(yyjson_obj_get(ins1, "value"), "value");
-    long long c0 = v0 ? (long long)yyjson_get_sint(v0) : 0;
-    long long c1 = v1 ? (long long)yyjson_get_sint(v1) : 0;
-    const char* cmp = yyjson_get_str(yyjson_obj_get(ins2, "cmp"));
-    const char* pred = NULL;
-    if (!cmp) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
-    if (strcmp(cmp,"Lt")==0 || strcmp(cmp,"lt")==0) pred = "slt";
-    else if (strcmp(cmp,"Le")==0 || strcmp(cmp,"LE")==0 || strcmp(cmp,"le")==0) pred = "sle";
-    else if (strcmp(cmp,"Eq")==0 || strcmp(cmp,"eq")==0) pred = "eq";
-    else if (strcmp(cmp,"Ne")==0 || strcmp(cmp,"ne")==0) pred = "ne";
-    else if (strcmp(cmp,"Ge")==0 || strcmp(cmp,"ge")==0) pred = "sge";
-    else if (strcmp(cmp,"Gt")==0 || strcmp(cmp,"gt")==0) pred = "sgt";
-    else { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
-    int then_id = (int)yyjson_get_sint(yyjson_obj_get(ins3, "then"));
-    int else_id = (int)yyjson_get_sint(yyjson_obj_get(ins3, "else"));
-    // Fetch then/else blocks and merge ret block
-    yyjson_val* b_then = NULL; yyjson_val* b_else = NULL; yyjson_val* b_merge = NULL;
-    size_t blen = yyjson_arr_size(blocks);
-    for (size_t i=0;i<blen;i++) {
-      yyjson_val* bi = yyjson_arr_get(blocks, i);
-      int bid = (int)yyjson_get_sint(yyjson_obj_get(bi, "id"));
-      if (bid == then_id) b_then = bi; else if (bid == else_id) b_else = bi;
-    }
-    // Merge is any block that has a ret; find it
-    for (size_t i=0;i<blen;i++) {
-      yyjson_val* bi = yyjson_arr_get(blocks, i);
-      yyjson_val* insts = yyjson_obj_get(bi, "instructions");
-      size_t ilen = insts && yyjson_is_arr(insts) ? yyjson_arr_size(insts) : 0;
-      for (size_t k=0;k<ilen;k++) {
-        yyjson_val* ins = yyjson_arr_get(insts, k);
-        const char* op = yyjson_get_str(yyjson_obj_get(ins, "op"));
-        if (op && strcmp(op, "ret")==0) { b_merge = bi; break; }
+    if (blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 3) {
+      // Expect block0: const a, const b, compare Lt, branch then=t else=e
+      yyjson_val* b0 = yyjson_arr_get_first(blocks);
+      yyjson_val* i0 = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
+      if (i0 && yyjson_is_arr(i0) && yyjson_arr_size(i0) >= 4) {
+        yyjson_val* ins0 = yyjson_arr_get(i0, 0);
+        yyjson_val* ins1 = yyjson_arr_get(i0, 1);
+        yyjson_val* ins2 = yyjson_arr_get(i0, 2);
+        yyjson_val* ins3 = yyjson_arr_get(i0, 3);
+        const char *op0 = yyjson_get_str(yyjson_obj_get(ins0, "op"));
+        const char *op1 = yyjson_get_str(yyjson_obj_get(ins1, "op"));
+        const char *op2 = yyjson_get_str(yyjson_obj_get(ins2, "op"));
+        const char *op3 = yyjson_get_str(yyjson_obj_get(ins3, "op"));
+        if (op0 && op1 && op2 && op3 &&
+            strcmp(op0,"const")==0 &&
+            strcmp(op1,"const")==0 &&
+            strcmp(op2,"compare")==0 &&
+            strcmp(op3,"branch")==0) {
+          yyjson_val* v0 = yyjson_obj_get(yyjson_obj_get(ins0, "value"), "value");
+          yyjson_val* v1 = yyjson_obj_get(yyjson_obj_get(ins1, "value"), "value");
+          long long c0 = v0 ? (long long)yyjson_get_sint(v0) : 0;
+          long long c1 = v1 ? (long long)yyjson_get_sint(v1) : 0;
+          const char* cmp = yyjson_get_str(yyjson_obj_get(ins2, "cmp"));
+          const char* pred = NULL;
+          if (cmp) {
+            if (strcmp(cmp,"Lt")==0 || strcmp(cmp,"lt")==0) pred = "slt";
+            else if (strcmp(cmp,"Le")==0 || strcmp(cmp,"LE")==0 || strcmp(cmp,"le")==0) pred = "sle";
+            else if (strcmp(cmp,"Eq")==0 || strcmp(cmp,"eq")==0) pred = "eq";
+            else if (strcmp(cmp,"Ne")==0 || strcmp(cmp,"ne")==0) pred = "ne";
+            else if (strcmp(cmp,"Ge")==0 || strcmp(cmp,"ge")==0) pred = "sge";
+            else if (strcmp(cmp,"Gt")==0 || strcmp(cmp,"gt")==0) pred = "sgt";
+          }
+          if (pred) {
+            int then_id = (int)yyjson_get_sint(yyjson_obj_get(ins3, "then"));
+            int else_id = (int)yyjson_get_sint(yyjson_obj_get(ins3, "else"));
+            yyjson_val* b_then = NULL;
+            yyjson_val* b_else = NULL;
+            yyjson_val* b_merge = NULL;
+            size_t blen = yyjson_arr_size(blocks);
+            for (size_t i=0;i<blen;i++) {
+              yyjson_val* bi = yyjson_arr_get(blocks, i);
+              int bid = (int)yyjson_get_sint(yyjson_obj_get(bi, "id"));
+              if (bid == then_id) b_then = bi;
+              else if (bid == else_id) b_else = bi;
+            }
+            for (size_t i=0;i<blen;i++) {
+              yyjson_val* bi = yyjson_arr_get(blocks, i);
+              yyjson_val* insts = yyjson_obj_get(bi, "instructions");
+              size_t ilen = insts && yyjson_is_arr(insts) ? yyjson_arr_size(insts) : 0;
+              for (size_t k=0;k<ilen;k++) {
+                yyjson_val* ins = yyjson_arr_get(insts, k);
+                const char* op = yyjson_get_str(yyjson_obj_get(ins, "op"));
+                if (op && strcmp(op, "ret")==0) { b_merge = bi; break; }
+              }
+              if (b_merge) break;
+            }
+            if (b_then && b_else && b_merge) {
+              yyjson_val* it = yyjson_obj_get(b_then, "instructions");
+              yyjson_val* ie = yyjson_obj_get(b_else, "instructions");
+              yyjson_val* t0 = it ? yyjson_arr_get(it, 0) : NULL;
+              yyjson_val* e0 = ie ? yyjson_arr_get(ie, 0) : NULL;
+              if (t0 && e0) {
+                yyjson_val* tv = yyjson_obj_get(yyjson_obj_get(t0, "value"), "value");
+                yyjson_val* ev = yyjson_obj_get(yyjson_obj_get(e0, "value"), "value");
+                long long then_const = tv ? (long long)yyjson_get_sint(tv) : 0;
+                long long else_const = ev ? (long long)yyjson_get_sint(ev) : 0;
+                char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_%d.ll", "/tmp", (int)getpid());
+                FILE* f = fopen(llpath, "wb");
+                if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+                fprintf(f, "; nyash minimal pure IR\n");
+                fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+                fprintf(f, "define i64 @ny_main() {\n");
+                fprintf(f, "bb0:\n");
+                fprintf(f, "  %%cmp = icmp %s i64 %lld, %lld\n", pred, c0, c1);
+                fprintf(f, "  br i1 %%cmp, label %%bb_then, label %%bb_else\n\n");
+                fprintf(f, "bb_then:\n  br label %%bb_merge\n\n");
+                fprintf(f, "bb_else:\n  br label %%bb_merge\n\n");
+                fprintf(f, "bb_merge:\n  %%r = phi i64 [ %lld, %%bb_then ], [ %lld, %%bb_else ]\n  ret i64 %%r\n}\n", then_const, else_const);
+                fclose(f);
+                char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
+                int rc = system(cmd);
+                remove(llpath);
+                yyjson_doc_free(doc);
+                if (rc != 0) {
+                  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+                }
+                return 0;
+              }
+            }
+          }
+        }
       }
-      if (b_merge) break;
     }
-    if (!(b_then && b_else && b_merge)) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
-    // Extract constants in then/else blocks
-    yyjson_val* it = yyjson_obj_get(b_then, "instructions");
-    yyjson_val* ie = yyjson_obj_get(b_else, "instructions");
-    if (!(it && ie)) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
-    yyjson_val* t0 = yyjson_arr_get(it, 0);
-    yyjson_val* e0 = yyjson_arr_get(ie, 0);
-    if (!(t0 && e0)) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
-    yyjson_val* tv = yyjson_obj_get(yyjson_obj_get(t0, "value"), "value");
-    yyjson_val* ev = yyjson_obj_get(yyjson_obj_get(e0, "value"), "value");
-    long long then_const = tv ? (long long)yyjson_get_sint(tv) : 0;
-    long long else_const = ev ? (long long)yyjson_get_sint(ev) : 0;
-    // Synthesize minimal IR
-    char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_%d.ll", "/tmp", (int)getpid());
-    FILE* f = fopen(llpath, "wb");
-    if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
-    fprintf(f, "; nyash minimal pure IR\n");
-    fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-    fprintf(f, "define i64 @ny_main() {\n");
-    fprintf(f, "bb0:\n");
-    fprintf(f, "  %%cmp = icmp %s i64 %lld, %lld\n", pred, c0, c1);
-    fprintf(f, "  br i1 %%cmp, label %%bb_then, label %%bb_else\n\n");
-    fprintf(f, "bb_then:\n  br label %%bb_merge\n\n");
-    fprintf(f, "bb_else:\n  br label %%bb_merge\n\n");
-    fprintf(f, "bb_merge:\n  %%r = phi i64 [ %lld, %%bb_then ], [ %lld, %%bb_else ]\n  ret i64 %%r\n}\n", then_const, else_const);
-    fclose(f);
-    // Run llc to emit object
-    char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-    int rc = system(cmd);
-    remove(llpath);
     yyjson_doc_free(doc);
-    if (rc != 0) {
-      // Fallback for environments without llc
-      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
-    }
-    return 0;
     // Try minimal pure path #3: Map birth → set → size → ret
     {
       yyjson_read_err rerr; yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
@@ -848,6 +860,82 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "  %%_p = call i64 @\"nyash.array.push_h\"(i64 %%h, i64 %lld)\n", val_c);
           fprintf(f, "  %%len = call i64 @\"nyash.array.len_h\"(i64 %%h)\n");
           fprintf(f, "  ret i64 %%len\n}\n");
+          fclose(f);
+          char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
+          int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
+          if (rc == 0) return 0;
+        } else {
+          yyjson_doc_free(doc);
+        }
+      }
+    }
+
+    // Try minimal pure path #5: const ASCII string handle -> newbox StringBox -> length/size -> ret
+    {
+      yyjson_read_err rerr; yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
+      if (doc) {
+        yyjson_val* root = yyjson_doc_get_root(doc);
+        yyjson_val* fns = yyjson_obj_get(root, "functions");
+        yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+        yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
+        yyjson_val* b0 = blocks && yyjson_is_arr(blocks) ? yyjson_arr_get_first(blocks) : NULL;
+        yyjson_val* insts = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
+        long long lit_len = 0;
+        int have = 0;
+        if (insts && yyjson_is_arr(insts) && yyjson_arr_size(insts) >= 4) {
+          yyjson_val* i0 = yyjson_arr_get(insts, 0);
+          yyjson_val* i1 = yyjson_arr_get(insts, 1);
+          yyjson_val* i2 = yyjson_arr_get(insts, 2);
+          yyjson_val* i3 = yyjson_arr_get(insts, 3);
+          const char* op0 = yyjson_get_str(yyjson_obj_get(i0, "op"));
+          const char* op1 = yyjson_get_str(yyjson_obj_get(i1, "op"));
+          const char* op2 = yyjson_get_str(yyjson_obj_get(i2, "op"));
+          const char* op3 = yyjson_get_str(yyjson_obj_get(i3, "op"));
+          if (op0 && op1 && op2 && op3 &&
+              strcmp(op0, "const") == 0 &&
+              strcmp(op1, "newbox") == 0 &&
+              strcmp(op2, "mir_call") == 0 &&
+              strcmp(op3, "ret") == 0) {
+            long long lit_dst = (long long)yyjson_get_sint(yyjson_obj_get(i0, "dst"));
+            long long box_dst = (long long)yyjson_get_sint(yyjson_obj_get(i1, "dst"));
+            long long call_dst = (long long)yyjson_get_sint(yyjson_obj_get(i2, "dst"));
+            long long ret_val = (long long)yyjson_get_sint(yyjson_obj_get(i3, "value"));
+            const char* box_type = yyjson_get_str(yyjson_obj_get(i1, "type"));
+            yyjson_val* val0 = yyjson_obj_get(yyjson_obj_get(i0, "value"), "value");
+            const char* lit = val0 ? yyjson_get_str(val0) : NULL;
+            yyjson_val* nb_args = yyjson_obj_get(i1, "args");
+            yyjson_val* nb0 = nb_args && yyjson_is_arr(nb_args) ? yyjson_arr_get_first(nb_args) : NULL;
+            long long arg0 = nb0 ? (long long)yyjson_get_sint(nb0) : 0;
+            yyjson_val* mc = yyjson_obj_get(i2, "mir_call");
+            yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+            const char* ctype = cal ? yyjson_get_str(yyjson_obj_get(cal, "type")) : NULL;
+            const char* bname = cal ? (yyjson_get_str(yyjson_obj_get(cal, "box_name")) ? yyjson_get_str(yyjson_obj_get(cal, "box_name")) : yyjson_get_str(yyjson_obj_get(cal, "box_type"))) : NULL;
+            const char* mname = cal ? (yyjson_get_str(yyjson_obj_get(cal, "method")) ? yyjson_get_str(yyjson_obj_get(cal, "method")) : yyjson_get_str(yyjson_obj_get(cal, "name"))) : NULL;
+            long long recv = cal ? (long long)yyjson_get_sint(yyjson_obj_get(cal, "receiver")) : 0;
+            yyjson_val* call_args = mc ? yyjson_obj_get(mc, "args") : NULL;
+            size_t argc = call_args && yyjson_is_arr(call_args) ? yyjson_arr_size(call_args) : 0;
+            if (lit &&
+                hako_llvmc_ascii_strlen(lit, &lit_len) &&
+                box_type && strcmp(box_type, "StringBox") == 0 &&
+                lit_dst != 0 &&
+                arg0 == lit_dst &&
+                ctype && strcmp(ctype, "Method") == 0 &&
+                bname && strcmp(bname, "StringBox") == 0 &&
+                mname && (strcmp(mname, "length") == 0 || strcmp(mname, "size") == 0) &&
+                recv == box_dst &&
+                argc == 0 &&
+                call_dst != 0 &&
+                ret_val == call_dst) {
+              have = 1;
+            }
+          }
+        }
+        if (have) {
+          char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_string_len_%d.ll", "/tmp", (int)getpid());
+          FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+          fprintf(f, "; nyash minimal pure IR (string length const)\n");
+          fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+          fprintf(f, "define i64 @ny_main() {\n  ret i64 %lld\n}\n", lit_len);
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
           int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
