@@ -108,6 +108,30 @@ static int hako_llvmc_ascii_strlen(const char* s, long long* out_len) {
   return 1;
 }
 
+static int hako_llvmc_ascii_index_of(const char* haystack, const char* needle, long long* out_idx) {
+  size_t hlen = 0;
+  size_t nlen = 0;
+  size_t i = 0;
+  if (!hako_llvmc_ascii_strlen(haystack, (long long*)&hlen)) return 0;
+  if (!hako_llvmc_ascii_strlen(needle, (long long*)&nlen)) return 0;
+  if (nlen == 0) {
+    if (out_idx) *out_idx = 0;
+    return 1;
+  }
+  if (nlen > hlen) {
+    if (out_idx) *out_idx = -1;
+    return 1;
+  }
+  for (i = 0; i + nlen <= hlen; i++) {
+    if (memcmp(haystack + i, needle, nlen) == 0) {
+      if (out_idx) *out_idx = (long long)i;
+      return 1;
+    }
+  }
+  if (out_idx) *out_idx = -1;
+  return 1;
+}
+
 static int compile_json_compat_harness_keep(const char* json_in, const char* obj_out, char** err_out) {
   const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
   char log_path[1024];
@@ -937,6 +961,104 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "; nyash minimal pure IR (string length const)\n");
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
           fprintf(f, "define i64 @ny_main() {\n  ret i64 %lld\n}\n", lit_len);
+          fclose(f);
+          char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
+          int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
+          if (rc == 0) return 0;
+        } else {
+          yyjson_doc_free(doc);
+        }
+      }
+    }
+
+    // Try minimal pure path #6: const ASCII string handle -> newbox StringBox ->
+    // const ASCII needle -> newbox StringBox -> StringBox.indexOf(needle) -> ret
+    {
+      yyjson_read_err rerr; yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
+      if (doc) {
+        yyjson_val* root = yyjson_doc_get_root(doc);
+        yyjson_val* fns = yyjson_obj_get(root, "functions");
+        yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+        yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
+        yyjson_val* b0 = blocks && yyjson_is_arr(blocks) ? yyjson_arr_get_first(blocks) : NULL;
+        yyjson_val* insts = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
+        long long found_idx = -1;
+        int have = 0;
+        if (insts && yyjson_is_arr(insts) && yyjson_arr_size(insts) >= 6) {
+          yyjson_val* i0 = yyjson_arr_get(insts, 0);
+          yyjson_val* i1 = yyjson_arr_get(insts, 1);
+          yyjson_val* i2 = yyjson_arr_get(insts, 2);
+          yyjson_val* i3 = yyjson_arr_get(insts, 3);
+          yyjson_val* i4 = yyjson_arr_get(insts, 4);
+          yyjson_val* i5 = yyjson_arr_get(insts, 5);
+          const char* op0 = yyjson_get_str(yyjson_obj_get(i0, "op"));
+          const char* op1 = yyjson_get_str(yyjson_obj_get(i1, "op"));
+          const char* op2 = yyjson_get_str(yyjson_obj_get(i2, "op"));
+          const char* op3 = yyjson_get_str(yyjson_obj_get(i3, "op"));
+          const char* op4 = yyjson_get_str(yyjson_obj_get(i4, "op"));
+          const char* op5 = yyjson_get_str(yyjson_obj_get(i5, "op"));
+          if (op0 && op1 && op2 && op3 && op4 && op5 &&
+              strcmp(op0, "const") == 0 &&
+              strcmp(op1, "newbox") == 0 &&
+              strcmp(op2, "const") == 0 &&
+              strcmp(op3, "newbox") == 0 &&
+              strcmp(op4, "mir_call") == 0 &&
+              strcmp(op5, "ret") == 0) {
+            long long hay_dst = (long long)yyjson_get_sint(yyjson_obj_get(i0, "dst"));
+            long long hay_box_dst = (long long)yyjson_get_sint(yyjson_obj_get(i1, "dst"));
+            long long needle_dst = (long long)yyjson_get_sint(yyjson_obj_get(i2, "dst"));
+            long long needle_box_dst = (long long)yyjson_get_sint(yyjson_obj_get(i3, "dst"));
+            long long call_dst = (long long)yyjson_get_sint(yyjson_obj_get(i4, "dst"));
+            long long ret_val = (long long)yyjson_get_sint(yyjson_obj_get(i5, "value"));
+            const char* box_type1 = yyjson_get_str(yyjson_obj_get(i1, "type"));
+            const char* box_type3 = yyjson_get_str(yyjson_obj_get(i3, "type"));
+            yyjson_val* hay_val = yyjson_obj_get(yyjson_obj_get(i0, "value"), "value");
+            yyjson_val* needle_val = yyjson_obj_get(yyjson_obj_get(i2, "value"), "value");
+            const char* hay = hay_val ? yyjson_get_str(hay_val) : NULL;
+            const char* needle = needle_val ? yyjson_get_str(needle_val) : NULL;
+            yyjson_val* nb1_args = yyjson_obj_get(i1, "args");
+            yyjson_val* nb3_args = yyjson_obj_get(i3, "args");
+            yyjson_val* nb1_0 = nb1_args && yyjson_is_arr(nb1_args) ? yyjson_arr_get_first(nb1_args) : NULL;
+            yyjson_val* nb3_0 = nb3_args && yyjson_is_arr(nb3_args) ? yyjson_arr_get_first(nb3_args) : NULL;
+            long long arg1_0 = nb1_0 ? (long long)yyjson_get_sint(nb1_0) : 0;
+            long long arg3_0 = nb3_0 ? (long long)yyjson_get_sint(nb3_0) : 0;
+            yyjson_val* mc = yyjson_obj_get(i4, "mir_call");
+            yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+            const char* ctype = cal ? yyjson_get_str(yyjson_obj_get(cal, "type")) : NULL;
+            const char* bname = cal ? (yyjson_get_str(yyjson_obj_get(cal, "box_name")) ? yyjson_get_str(yyjson_obj_get(cal, "box_name")) : yyjson_get_str(yyjson_obj_get(cal, "box_type"))) : NULL;
+            const char* mname = cal ? (yyjson_get_str(yyjson_obj_get(cal, "method")) ? yyjson_get_str(yyjson_obj_get(cal, "method")) : yyjson_get_str(yyjson_obj_get(cal, "name"))) : NULL;
+            long long recv = cal ? (long long)yyjson_get_sint(yyjson_obj_get(cal, "receiver")) : 0;
+            yyjson_val* call_args = mc ? yyjson_obj_get(mc, "args") : NULL;
+            yyjson_val* call_arg0 = call_args && yyjson_is_arr(call_args) ? yyjson_arr_get_first(call_args) : NULL;
+            size_t argc = call_args && yyjson_is_arr(call_args) ? yyjson_arr_size(call_args) : 0;
+            long long call_arg0_v = call_arg0 ? (long long)yyjson_get_sint(call_arg0) : 0;
+            if (hay &&
+                needle &&
+                hako_llvmc_ascii_index_of(hay, needle, &found_idx) &&
+                box_type1 && strcmp(box_type1, "StringBox") == 0 &&
+                box_type3 && strcmp(box_type3, "StringBox") == 0 &&
+                hay_dst != 0 &&
+                needle_dst != 0 &&
+                arg1_0 == hay_dst &&
+                arg3_0 == needle_dst &&
+                ctype && strcmp(ctype, "Method") == 0 &&
+                bname && strcmp(bname, "StringBox") == 0 &&
+                mname && strcmp(mname, "indexOf") == 0 &&
+                recv == hay_box_dst &&
+                argc == 1 &&
+                call_arg0_v == needle_box_dst &&
+                call_dst != 0 &&
+                ret_val == call_dst) {
+              have = 1;
+            }
+          }
+        }
+        if (have) {
+          char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_string_indexof_%d.ll", "/tmp", (int)getpid());
+          FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+          fprintf(f, "; nyash minimal pure IR (string indexOf const)\n");
+          fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+          fprintf(f, "define i64 @ny_main() {\n  ret i64 %lld\n}\n", found_idx);
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
           int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);

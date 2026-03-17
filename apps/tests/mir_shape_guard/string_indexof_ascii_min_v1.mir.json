@@ -1,0 +1,73 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "abc"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "StringBox",
+              "args": [1]
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "b"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 4,
+              "type": "StringBox",
+              "args": [3]
+            },
+            {
+              "op": "mir_call",
+              "dst": 5,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "StringBox",
+                  "name": "indexOf",
+                  "receiver": 2
+                },
+                "args": [4],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
