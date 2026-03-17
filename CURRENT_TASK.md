@@ -39,6 +39,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/phases/phase-29cl/README.md`
   - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
   - `docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md`
+  - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
   - `docs/development/current/main/design/frontend-owner-proof-index.md`
   - `lang/src/shared/backend/README.md`
 
@@ -50,6 +51,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md`
 - split:
   - `runtime-zero`: accepted pointer / inventory-ready
+    - collection owner SSOT: `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+    - ring lock: `array` / `map` are `ring1`, not `ring0`
+    - current truth: runtime/provider lane is still wired by Rust `src/providers/ring1/{array,map}/mod.rs`, while AOT/LLVM collection paths still rely on Rust `crates/nyash_kernel/src/{exports/birth.rs,plugin/array.rs,plugin/map.rs,plugin/runtime_data.rs}` and `.hako` `lang/src/runtime/collections/**` / `lang/src/vm/boxes/abi_adapter_registry.hako` are thin wrapper/adapter owners
+    - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
     - design SSOT: `docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md`

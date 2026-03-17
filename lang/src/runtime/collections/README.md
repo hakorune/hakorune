@@ -8,6 +8,18 @@ Scope: VM low-level collection runtime wrappers for cutover phases.
 - Keep std-layer helpers (`apps/std/*`) out of VM low-level execution path.
 - Delegate storage/primitive operations to ABI symbols (`nyash.array.*`, etc.) without adding policy logic.
 
+## Current Truth
+
+- This folder is not yet the concrete collection owner.
+- Current mainline still delegates primitive storage/ops to Rust-owned ABI/plugin exports.
+- Runtime/provider current-truth and `0rust` cutover order are tracked in:
+  - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+
+Rule:
+- keep this layer thin
+- do not move collection semantics into ring0
+- future owner growth belongs to `.hako` ring1 collection/runtime, not OS-facing ring0
+
 ## Current modules
 
 - `array_core_box.hako`

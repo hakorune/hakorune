@@ -358,6 +358,13 @@ rule:
 - exact work:
   - split “regular VM keep” from “runtime-zero must eventually shrink”
   - keep portability/build-scaffolding paths explicit
+  - lock `array/map` current truth as:
+    - `ring1` domain, not `ring0`
+    - runtime/provider lane still wired by Rust `src/providers/ring1/{array,map}/mod.rs`
+    - AOT/LLVM lane still depends on Rust `crates/nyash_kernel/src/{exports/birth.rs,plugin/array.rs,plugin/map.rs,plugin/runtime_data.rs}`
+    - `.hako` `lang/src/runtime/collections/**` and `lang/src/vm/boxes/abi_adapter_registry.hako` remain thin wrapper / adapter owners today
+  - fix the future order so collection daily ownership moves toward `.hako ring1` before any Rust keep delete is reconsidered
+  - SSOT: `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
 
 ### R2. source-zero reopen trigger pack
 

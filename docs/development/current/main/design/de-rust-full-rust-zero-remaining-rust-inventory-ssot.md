@@ -106,6 +106,32 @@ Related:
    - Windows/macOS guards and ABI/build support remain in Rust by policy
    - tracked by `de-rust-post-g1-runtime-plan-ssot.md`
 
+#### queued collection owner cutover
+
+1. runtime/provider current owners
+   - `src/providers/ring1/{array,map}/mod.rs`
+   - `src/runtime/provider_lock/{array,map}.rs`
+   - `src/runtime/plugin_host.rs`
+   - current truth:
+     - `array` / `map` are fixed as `ring1` domains
+     - runtime/provider lane is wired through Rust `Ring1ArrayService` / `Ring1MapService`
+2. AOT/LLVM collection keep owners
+   - `crates/nyash_kernel/src/exports/birth.rs`
+   - `crates/nyash_kernel/src/plugin/{array,map,runtime_data}.rs`
+   - current truth:
+     - collection birth and ABI execution for AOT/LLVM still land in Rust kernel/plugin keeps
+3. `.hako` adapter owners
+   - `lang/src/runtime/collections/**`
+   - `lang/src/vm/boxes/abi_adapter_registry.hako`
+   - current truth:
+     - `.hako` side is thin wrapper / adapter today, not the concrete collection owner
+4. target lock
+   - collection semantics stay in `ring1`, not `ring0`
+   - future daily owner should move toward `.hako ring1` collection/runtime layer
+   - Rust births/plugins/builtin residue become compat/archive keep only
+5. SSOT:
+   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+
 #### landed / not current blocker
 
 1. `lang/src/vm/**`
@@ -120,6 +146,7 @@ Related:
 1. remaining Rust is mostly:
    - regular VM keep
    - ABI / runner / portability keep
+   - collection owner split between Rust ring1 provider wiring and Rust kernel/plugin keeps
    - runtime/plugin source-zero follow-up not yet promoted as active blocker
 2. runtime-zero is closer than backend-zero, but still not “0 Rust now”
 
