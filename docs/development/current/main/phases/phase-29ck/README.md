@@ -97,6 +97,7 @@ Related:
     - `LlvmBackendBox` is facade-only
     - Rust boundary code (`llvm_codegen.rs`, `boundary_driver.rs`) keeps payload decode / symbol selection / boundary glue only
     - `hako_llvmc_ffi.c` keeps export/marshal plus explicit compat transport only
+  - landed transport-default cleanup: `src/host_providers/llvm_codegen.rs` now injects `pure-first` / `harness` only in the boundary-default caller path, and `src/runner/modes/llvm/object_emitter.rs` plus `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now call `boundary_default_object_opts(...)` explicitly instead of relying on implicit transport defaults
   - next exact front is therefore the `.hako` recipe seam, with broader method-loop packs used only as evidence when `BackendRecipeBox` needs new narrow accept/reject coverage
   - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver boundary`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the default `hako_llvmc_compile_json` forwarder path when no backend recipe is requested
 6. landed canary slice:

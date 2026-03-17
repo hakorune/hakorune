@@ -35,6 +35,22 @@ pub struct Opts {
     pub compat_replay: Option<String>,
 }
 
+pub fn boundary_default_object_opts(
+    out: Option<PathBuf>,
+    nyrt: Option<PathBuf>,
+    opt_level: Option<String>,
+    timeout_ms: Option<u64>,
+) -> Opts {
+    Opts {
+        out,
+        nyrt,
+        opt_level,
+        timeout_ms,
+        compile_recipe: Some("pure-first".to_string()),
+        compat_replay: Some("harness".to_string()),
+    }
+}
+
 fn resolve_ny_llvmc() -> PathBuf {
     if let Some(s) = crate::config::env::ny_llvm_compiler_path() {
         return PathBuf::from(s);
@@ -151,7 +167,8 @@ fn try_compile_via_boundary_default(
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
     ensure_backend_output_parent(&out_path);
-    match compile_via_capi(&in_path, &out_path, opts) {
+    let boundary_opts = with_boundary_default_route(opts);
+    match compile_via_capi(&in_path, &out_path, &boundary_opts) {
         Ok(()) => Ok(Some(out_path)),
         Err(error) if capi_boundary_unavailable(&error) => Ok(None),
         Err(error) => {
@@ -267,14 +284,24 @@ fn requested_compile_recipe(opts: &Opts) -> Option<String> {
     opts.compile_recipe
         .clone()
         .or_else(crate::config::env::backend_compile_recipe)
-        .or_else(|| Some("pure-first".to_string()))
 }
 
 fn requested_compat_replay(opts: &Opts) -> Option<String> {
     opts.compat_replay
         .clone()
         .or_else(crate::config::env::backend_compat_replay)
-        .or_else(|| Some("harness".to_string()))
+}
+
+fn with_boundary_default_route(opts: &Opts) -> Opts {
+    let mut route = boundary_default_object_opts(
+        opts.out.clone(),
+        opts.nyrt.clone(),
+        opts.opt_level.clone(),
+        opts.timeout_ms,
+    );
+    route.compile_recipe = opts.compile_recipe.clone().or(route.compile_recipe);
+    route.compat_replay = opts.compat_replay.clone().or(route.compat_replay);
+    route
 }
 
 fn compile_symbol_for_recipe(recipe: Option<&str>) -> &'static [u8] {

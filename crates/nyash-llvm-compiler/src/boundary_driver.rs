@@ -16,6 +16,8 @@ type LinkFn =
 
 const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
+const BOUNDARY_DEFAULT_COMPILE_RECIPE: &str = "pure-first";
+const BOUNDARY_DEFAULT_COMPAT_REPLAY: &str = "harness";
 
 pub fn emit_dummy_object(out: &Path) -> Result<()> {
     let tmp = temporary_dummy_mir_path(out);
@@ -137,18 +139,27 @@ fn call_compile_symbol(input: &Path, out: &Path) -> Result<()> {
     let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
         with_compile_symbol(|func| {
-            with_env_override("HAKO_BACKEND_COMPILE_RECIPE", Some("pure-first"), || {
-                with_env_override("HAKO_BACKEND_COMPAT_REPLAY", Some("harness"), || {
+            with_boundary_default_route(|| {
+                with_env_override("HAKO_BACKEND_COMPILE_RECIPE", Some(BOUNDARY_DEFAULT_COMPILE_RECIPE), || {
+                    with_env_override("HAKO_BACKEND_COMPAT_REPLAY", Some(BOUNDARY_DEFAULT_COMPAT_REPLAY), || {
                     let rc = func(
                         cin.as_ptr(),
                         cout.as_ptr(),
                         &mut err_ptr as *mut *mut c_char,
                     );
                     interpret_result(rc, err_ptr, out, "object not produced")
+                    })
                 })
             })
         })
     }
+}
+
+fn with_boundary_default_route<T, F>(action: F) -> T
+where
+    F: FnOnce() -> T,
+{
+    action()
 }
 
 fn call_link_symbol(

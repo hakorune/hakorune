@@ -414,6 +414,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - `llvm_codegen.rs` / `boundary_driver.rs` should not accumulate pure-shape acceptance policy
      - `hako_llvmc_ffi.c` should keep explicit compat transport only; do not move more meaning there
      - if a next slice is needed, prefer one exact recipe-classification row before any new transport refactor
+  3.6. exact backend-zero implementation order from here
+     - first: remove implicit `pure-first` / `harness` defaults from Rust transport helpers and make boundary-default callers pass them explicitly
+       - landed: `src/host_providers/llvm_codegen.rs` now injects boundary defaults only in `try_compile_via_boundary_default(...)`, while `requested_compile_recipe` / `requested_compat_replay` no longer hardcode transport-side defaults
+       - landed: `src/runner/modes/llvm/object_emitter.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now mark boundary-default ownership explicitly through `boundary_default_object_opts(...)`
+     - second: grow `BackendRecipeBox.compile_route_profile(...)` classification one row at a time
+     - third: widen one new pure seed only when the route profile needs new evidence
   4. keep these lanes frozen unless a fresh exact blocker appears:
      - `phase-29cj` micro-thinning
      - bridge/program-json/stub-emit cleanup

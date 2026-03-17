@@ -91,19 +91,17 @@ fn compile_obj_from_json_path(mir_path: &str) -> Result<std::path::PathBuf, Stri
 }
 
 fn compile_obj_opts_from_env() -> nyash_rust::host_providers::llvm_codegen::Opts {
-    nyash_rust::host_providers::llvm_codegen::Opts {
-        out: None,
-        nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
+    nyash_rust::host_providers::llvm_codegen::boundary_default_object_opts(
+        None,
+        std::env::var("NYASH_EMIT_EXE_NYRT")
             .ok()
             .map(std::path::PathBuf::from),
-        opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
+        std::env::var("HAKO_LLVM_OPT_LEVEL")
             .ok()
             .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
             .or(Some("0".to_string())),
-        timeout_ms: None,
-        compile_recipe: None,
-        compat_replay: None,
-    }
+        None,
+    )
 }
 
 fn decode_compile_obj_request(arg_count: i64, arg1: i64, arg2: i64) -> Option<CompileObjRequest> {
