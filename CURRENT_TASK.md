@@ -168,6 +168,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - runtime-proof keep env is `NYASH_LLVM_USE_CAPI=1 HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
         - `HAKO_CAPI_PURE=1` is now compat-only for historical pure-lowering routes and is not required by the phase-29ck `.hako VM` proof
         - explicit compat-pack entry is `tools/selfhost/run_compat_pure_pack.sh` / `tools/selfhost/run_compat_pure_selfhost.sh`; old script names are wrappers only
+        - phase2120 pure canaries now route through `tools/smokes/v2/profiles/integration/core/phase2120/boundary_pure_helper.sh -> ny-llvmc --driver boundary`; do not reopen the retired direct `hostbridge.extern_invoke("env.codegen", ...)` caller lane here
       - next runtime-proof slice is promotion/cleanup after compat-pack separation, not VM blocker inventory
       - post-B1/B3 cleanup is queued as `phase-29cl` (`by_name.rs` / `module_string_dispatch.rs` caller-cutover-first retirement), separate from `phase-29ce`
 - rule:

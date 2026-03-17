@@ -8,7 +8,7 @@
    - `s3_link_run_llvmcapi_pure_*.sh`
    - `HAKO_CAPI_PURE=1` 必須
    - historical pure-lowering evidence
-   - caller path is allowed to use `ny-llvmc --driver boundary`; do not depend on the retired direct `hostbridge.extern_invoke("env.codegen", ...)` lane here
+   - caller path is `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; do not depend on the retired direct `hostbridge.extern_invoke("env.codegen", ...)` lane here
 2. VM adapter canaries
    - `s3_vm_adapter_*.sh`
    - Hako VM adapter / state alias の観測
@@ -22,6 +22,7 @@
 
 - historical compat pack entry:
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+  - filter contract inside the pack is `--profile integration --filter 'core/phase2120/...sh'`
 - shell wrapper:
   - `tools/selfhost/run_compat_pure_pack.sh`
 - SSOT:

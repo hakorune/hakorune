@@ -3,28 +3,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then ROOT="$ROOT_GIT"; else ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"; fi
-source "$ROOT/tools/smokes/v2/lib/test_runner.sh"; require_env || exit 2
-
-export NYASH_LLVM_USE_CAPI=${NYASH_LLVM_USE_CAPI:-1}
-export HAKO_V1_EXTERN_PROVIDER_C_ABI=${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}
-export HAKO_CAPI_PURE=${HAKO_CAPI_PURE:-1}
-if [[ "${NYASH_LLVM_USE_CAPI}" != "1" || "${HAKO_V1_EXTERN_PROVIDER_C_ABI}" != "1" || "${HAKO_CAPI_PURE}" != "1" ]]; then
-  echo "[SKIP] s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm (toggles off)" >&2
-  exit 0
-fi
-
-ffi_candidates=(
-  "$ROOT/target/release/libhako_llvmc_ffi.so"
-  "$ROOT/lib/libhako_llvmc_ffi.so"
-)
-ffi_found=0
-for c in "${ffi_candidates[@]}"; do
-  if [[ -f "$c" ]]; then ffi_found=1; break; fi
-done
-if [[ "$ffi_found" != "1" ]]; then
-  echo "[SKIP] s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm (FFI library not found)" >&2
-  exit 0
-fi
+source "$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/boundary_pure_helper.sh"
+phase2120_boundary_pure_prepare "$ROOT" "s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm"
 
 # GEN2: map set/has → has returns 1 → rc=1
 json_has='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[
@@ -35,34 +15,7 @@ json_has='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,
   {"op":"mir_call","dst":4,"mir_call":{"callee":{"type":"Method","box_name":"MapBox","method":"has","receiver":1},"args":[2],"effects":[]}},
   {"op":"ret","value":4}
 ]}]}]}'
-
-code=$(cat <<'HCODE'
-static box Main { method main(args) {
-  local j = env.get("_MIR_JSON")
-  local a = new ArrayBox(); a.push(j)
-  local obj = hostbridge.extern_invoke("env.codegen", "emit_object", a)
-  if obj == null { print("NULL"); return 1 }
-  local b = new ArrayBox(); b.push(obj); b.push(env.get("_EXE_OUT"))
-  local exe = hostbridge.extern_invoke("env.codegen", "link_object", b)
-  if exe == null { print("NULL"); return 1 }
-  print("" + exe)
-  return 0
-} }
-HCODE
-)
-
-run_case() {
-  local expect_rc="$1"; local json="$2"; export _MIR_JSON="$json"
-  exe="/tmp/s3_exe_map_case_pure_${$}_$expect_rc"
-  export _EXE_OUT="$exe"
-  out=$(run_nyash_vm -c "$code")
-  path=$(echo "$out" | tail -n1 | tr -d '\r')
-  if [[ ! -f "$path" ]]; then echo "[FAIL] exe not produced: $path" >&2; exit 1; fi
-  set +e; "$path" >/dev/null 2>&1; rc=$?; set -e
-  if [[ "$rc" -ne "$expect_rc" ]]; then echo "[FAIL] rc=$rc (expect $expect_rc)" >&2; exit 1; fi
-}
-
-for i in 1 2 3; do run_case 1 "$json_has"; done
+phase2120_boundary_pure_run "$json_has" 1 "s3_exe_map_case_pure"
 
 echo "[PASS] s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm"
 exit 0

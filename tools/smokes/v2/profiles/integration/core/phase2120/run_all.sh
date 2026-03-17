@@ -24,28 +24,28 @@ if [[ "$ffi_found" != "1" ]]; then
 fi
 
 PURE_CANARIES=(
-  'phase2120/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh'
-  'phase2120/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh'
-  'phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh'
-  'phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh'
-  'phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh'
-  'phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh'
 )
 
 ADAPTER_CANARIES=(
-  'phase2120/s3_vm_adapter_array_len_canary_vm.sh'
-  'phase2120/s3_vm_adapter_array_length_alias_canary_vm.sh'
-  'phase2120/s3_vm_adapter_array_size_alias_canary_vm.sh'
-  'phase2120/s3_vm_adapter_array_len_per_recv_canary_vm.sh'
-  'phase2120/s3_vm_adapter_map_size_struct_canary_vm.sh'
-  'phase2120/s3_vm_adapter_register_userbox_length_canary_vm.sh'
-  'phase2120/s3_vm_adapter_map_len_alias_state_canary_vm.sh'
-  'phase2120/s3_vm_adapter_map_length_alias_state_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_array_len_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_array_length_alias_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_array_size_alias_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_array_len_per_recv_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_map_size_struct_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_register_userbox_length_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_map_len_alias_state_canary_vm.sh'
+  'core/phase2120/s3_vm_adapter_map_length_alias_state_canary_vm.sh'
 )
 
 echo "[phase2120/compat] pure-lowering canaries"
 for filter in "${PURE_CANARIES[@]}"; do
-  bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter "$filter"
+  bash "$ROOT/tools/smokes/v2/run.sh" --profile integration --filter "$filter"
 done
 
 # VM adapter reps are legacy cluster mates, not mainline backend-zero proof.
@@ -64,7 +64,7 @@ set -e
 if [ "$USING_OK" -eq 0 ]; then
   echo "[phase2120/compat] vm-adapter canaries"
   for filter in "${ADAPTER_CANARIES[@]}"; do
-    bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter "$filter"
+    bash "$ROOT/tools/smokes/v2/run.sh" --profile integration --filter "$filter"
   done
 else
   echo "[phase2120] SKIP adapter reps (inline using unsupported)" >&2

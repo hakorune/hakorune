@@ -63,6 +63,7 @@ Related:
    - historical pure/TM pack entry
    - must self-identify as compat-only
    - category map lives in `tools/smokes/v2/profiles/integration/core/phase2120/README.md`
+   - pure C-API canaries in this pack must use `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; retired direct `hostbridge.extern_invoke("env.codegen", ...)` is outside the pack contract
 
 ## Retirement Trigger
 
