@@ -81,7 +81,7 @@ backend-zero の final target は次の形に固定する。
    - `lang/c-abi/shims/hako_llvmc_ffi.c` default compile/link exports now read as `hako_aot` forwarders, and compile fallback/link fallback disable recursive FFI inside the C owner
    - supported boundary compile seeds now try the pure C subset first; `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` and `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` are accepted without relying on `NYASH_NY_LLVM_COMPILER`
    - explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` keeps remain replayable, but the wrapper path is no longer part of the default route
-   - unsupported shapes may still fall through `hako_aot_compile_json(...) -> ny-llvmc --driver harness`, so `llvmlite` remains an indirect compat keep inside the boundary fallback lane
+   - unsupported shapes now replay directly from `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`, so `llvmlite` remains an indirect compat keep inside the boundary fallback lane
 2. bootstrap seam:
    - `crates/nyash-llvm-compiler/src/native_driver.rs`
    - role:

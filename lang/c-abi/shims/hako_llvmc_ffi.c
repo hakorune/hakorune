@@ -2,8 +2,8 @@
 // Exports functions that hako_aot.c dlopens when HAKO_AOT_USE_FFI=1.
 // Phase 21.2 introduced a guarded "pure C-API" toggle (HAKO_CAPI_PURE=1).
 // Phase 29ck now uses that pure subset as the first boundary compile step for
-// supported seeds, while unsupported shapes still fall back through hako_aot
-// helpers into explicit compat keep lanes.
+// supported seeds, while unsupported shapes in the pure-first lane replay the
+// explicit `--driver harness` keep lane directly from this shim.
 // The default export surface still presents as a thin hako_aot forwarder.
 
 #include <stddef.h>
@@ -47,6 +47,102 @@ static void hako_llvmc_set_env_value(const char* key, const char* value) {
     unsetenv(key);
   }
 #endif
+}
+
+static const char* hako_llvmc_tmp_dir_fallback(void) {
+  const char* tmp = getenv("TMPDIR");
+  return (tmp && tmp[0]) ? tmp : "/tmp";
+}
+
+static int hako_llvmc_file_exists(const char* path) {
+  FILE* f;
+  if (!path || !path[0]) return 0;
+  f = fopen(path, "rb");
+  if (!f) return 0;
+  fclose(f);
+  return 1;
+}
+
+static char* hako_llvmc_read_first_line_owned(const char* path) {
+  FILE* f = fopen(path, "rb");
+  char buf[512];
+  size_t n;
+  char* out;
+  if (!f) return NULL;
+  if (!fgets(buf, sizeof(buf), f)) {
+    fclose(f);
+    return NULL;
+  }
+  fclose(f);
+  n = strcspn(buf, "\r\n");
+  buf[n] = '\0';
+  if (!buf[0]) return NULL;
+  out = (char*)malloc(n + 1);
+  if (!out) return NULL;
+  memcpy(out, buf, n + 1);
+  return out;
+}
+
+static int hako_llvmc_build_harness_log_path(char* log_path, size_t log_path_len) {
+  int n = snprintf(
+      log_path,
+      log_path_len,
+      "%s/hako_llvmc_harness_compile_%ld.log",
+      hako_llvmc_tmp_dir_fallback(),
+      (long)getpid());
+  return (n <= 0 || (size_t)n >= log_path_len) ? -1 : 0;
+}
+
+static int compile_json_compat_harness_keep(const char* json_in, const char* obj_out, char** err_out) {
+  const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
+  char log_path[1024];
+  char cmd[4096];
+  char* first_line;
+  int n;
+  int rc;
+  if (!llvmc || !*llvmc) llvmc = "target/release/ny-llvmc";
+  if (!hako_llvmc_file_exists(llvmc)) {
+    hako_set_last_error("NOT_FOUND");
+    return set_err_owned(err_out, "ny-llvmc not found (NYASH_NY_LLVM_COMPILER)");
+  }
+  if (hako_llvmc_build_harness_log_path(log_path, sizeof(log_path)) != 0) {
+    hako_set_last_error("FAILED");
+    return set_err_owned(err_out, "hako_llvmc harness log path too long");
+  }
+  remove(log_path);
+  n = snprintf(
+      cmd,
+      sizeof(cmd),
+      "\"%s\" --driver harness --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
+      llvmc,
+      json_in,
+      obj_out,
+      log_path);
+  if (n <= 0 || (size_t)n >= sizeof(cmd)) {
+    hako_set_last_error("FAILED");
+    return set_err_owned(err_out, "hako_llvmc harness compile command too long");
+  }
+  remove(obj_out);
+  rc = system(cmd);
+  if (rc == 0 && hako_llvmc_file_exists(obj_out)) {
+    remove(log_path);
+    return 0;
+  }
+  hako_set_last_error("FAILED");
+  first_line = hako_llvmc_read_first_line_owned(log_path);
+  remove(log_path);
+  if (first_line) {
+    if (err_out) {
+      *err_out = first_line;
+    } else {
+      free(first_line);
+    }
+    return -1;
+  }
+  if (rc == 0) {
+    return set_err_owned(err_out, "ny-llvmc harness compile finished without object");
+  }
+  return set_err_owned(err_out, "ny-llvmc harness compile failed");
 }
 
 static int hako_llvmc_forward_compile_to_aot_without_ffi(
@@ -531,14 +627,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
     if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 3)) {
       yyjson_doc_free(doc);
-      return hako_aot_compile_json(json_in, obj_out, err_out);
+      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
     }
     // Expect block0: const a, const b, compare Lt, branch then=t else=e
     yyjson_val* b0 = yyjson_arr_get_first(blocks);
     yyjson_val* i0 = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
     if (!(i0 && yyjson_is_arr(i0) && yyjson_arr_size(i0) >= 4)) {
       yyjson_doc_free(doc);
-      return hako_aot_compile_json(json_in, obj_out, err_out);
+      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
     }
     // const #1
     yyjson_val* ins0 = yyjson_arr_get(i0, 0);
@@ -551,7 +647,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     const char *op3 = yyjson_get_str(yyjson_obj_get(ins3, "op"));
     if (!(op0 && op1 && op2 && op3 && strcmp(op0,"const")==0 && strcmp(op1,"const")==0 && strcmp(op2,"compare")==0 && strcmp(op3,"branch")==0)) {
       yyjson_doc_free(doc);
-      return hako_aot_compile_json(json_in, obj_out, err_out);
+      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
     }
     // Read const values and branch targets
     yyjson_val* v0 = yyjson_obj_get(yyjson_obj_get(ins0, "value"), "value");
@@ -560,14 +656,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     long long c1 = v1 ? (long long)yyjson_get_sint(v1) : 0;
     const char* cmp = yyjson_get_str(yyjson_obj_get(ins2, "cmp"));
     const char* pred = NULL;
-    if (!cmp) { yyjson_doc_free(doc); return hako_aot_compile_json(json_in, obj_out, err_out); }
+    if (!cmp) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
     if (strcmp(cmp,"Lt")==0 || strcmp(cmp,"lt")==0) pred = "slt";
     else if (strcmp(cmp,"Le")==0 || strcmp(cmp,"LE")==0 || strcmp(cmp,"le")==0) pred = "sle";
     else if (strcmp(cmp,"Eq")==0 || strcmp(cmp,"eq")==0) pred = "eq";
     else if (strcmp(cmp,"Ne")==0 || strcmp(cmp,"ne")==0) pred = "ne";
     else if (strcmp(cmp,"Ge")==0 || strcmp(cmp,"ge")==0) pred = "sge";
     else if (strcmp(cmp,"Gt")==0 || strcmp(cmp,"gt")==0) pred = "sgt";
-    else { yyjson_doc_free(doc); return hako_aot_compile_json(json_in, obj_out, err_out); }
+    else { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
     int then_id = (int)yyjson_get_sint(yyjson_obj_get(ins3, "then"));
     int else_id = (int)yyjson_get_sint(yyjson_obj_get(ins3, "else"));
     // Fetch then/else blocks and merge ret block
@@ -590,14 +686,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       if (b_merge) break;
     }
-    if (!(b_then && b_else && b_merge)) { yyjson_doc_free(doc); return hako_aot_compile_json(json_in, obj_out, err_out); }
+    if (!(b_then && b_else && b_merge)) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
     // Extract constants in then/else blocks
     yyjson_val* it = yyjson_obj_get(b_then, "instructions");
     yyjson_val* ie = yyjson_obj_get(b_else, "instructions");
-    if (!(it && ie)) { yyjson_doc_free(doc); return hako_aot_compile_json(json_in, obj_out, err_out); }
+    if (!(it && ie)) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
     yyjson_val* t0 = yyjson_arr_get(it, 0);
     yyjson_val* e0 = yyjson_arr_get(ie, 0);
-    if (!(t0 && e0)) { yyjson_doc_free(doc); return hako_aot_compile_json(json_in, obj_out, err_out); }
+    if (!(t0 && e0)) { yyjson_doc_free(doc); return compile_json_compat_harness_keep(json_in, obj_out, err_out); }
     yyjson_val* tv = yyjson_obj_get(yyjson_obj_get(t0, "value"), "value");
     yyjson_val* ev = yyjson_obj_get(yyjson_obj_get(e0, "value"), "value");
     long long then_const = tv ? (long long)yyjson_get_sint(tv) : 0;
@@ -623,7 +719,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     yyjson_doc_free(doc);
     if (rc != 0) {
       // Fallback for environments without llc
-      return hako_aot_compile_json(json_in, obj_out, err_out);
+      return compile_json_compat_harness_keep(json_in, obj_out, err_out);
     }
     return 0;
     // Try minimal pure path #3: Map birth → set → size → ret
@@ -761,7 +857,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
       }
     }
-  return forward_compile_json_to_aot(json_in, obj_out, err_out);
+  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
 }
 
 __attribute__((visibility("default")))
