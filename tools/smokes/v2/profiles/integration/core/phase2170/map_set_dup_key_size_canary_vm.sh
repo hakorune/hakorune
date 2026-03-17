@@ -27,12 +27,8 @@ cat > "$tmp_json" <<'JSON'
 }
 JSON
 
-set +e
-HAKO_VERIFY_PRIMARY=hakovm HAKO_ABI_ADAPTER=${HAKO_ABI_ADAPTER:-1} HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 verify_mir_rc "$tmp_json" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_json" || true
+trap 'rm -f "$tmp_json" || true' EXIT
 
 # k1 (new) -> size=1, k1 (dup) -> size stays 1, k2 (new) -> size=2
-if [ "$rc" -eq 2 ]; then echo "[PASS] map_set_dup_key_size_canary_vm"; exit 0; fi
-echo "[FAIL] map_set_dup_key_size_canary_vm (rc=$rc, want=2)" >&2; exit 1
+HAKO_VERIFY_PRIMARY=hakovm HAKO_ABI_ADAPTER=${HAKO_ABI_ADAPTER:-1} HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 \
+  run_verify_mir_rc_and_expect "$tmp_json" 2 "map_set_dup_key_size_canary_vm" "map_set_dup_key_size_canary_vm"

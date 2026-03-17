@@ -32,12 +32,7 @@ cat > "$tmp_json" <<'JSON'
 }
 JSON
 
-set +e
-HAKO_VERIFY_PRIMARY=hakovm HAKO_V1_DISPATCHER_FLOW=1 HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 verify_mir_rc "$tmp_json" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_json" || true
+trap 'rm -f "$tmp_json" || true' EXIT
 
-if [ "$rc" -eq 3 ]; then echo "[PASS] flow_across_blocks_array_size_canary_vm"; exit 0; fi
-echo "[FAIL] flow_across_blocks_array_size_canary_vm (rc=$rc, want=3)" >&2; exit 1
-
+HAKO_VERIFY_PRIMARY=hakovm HAKO_V1_DISPATCHER_FLOW=1 HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 \
+  run_verify_mir_rc_and_expect "$tmp_json" 3 "flow_across_blocks_array_size_canary_vm" "flow_across_blocks_array_size_canary_vm"

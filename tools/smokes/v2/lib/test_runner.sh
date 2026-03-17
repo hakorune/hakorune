@@ -1091,6 +1091,26 @@ run_verify_canary_and_expect_rc() {
     return 0
 }
 
+run_verify_mir_rc_and_expect() {
+    local json_path="$1"
+    local expected_rc="$2"
+    local fail_label="$3"
+    local pass_label="$4"
+
+    set +e
+    verify_mir_rc "$json_path" >/dev/null 2>&1
+    local rc=$?
+    set -e
+
+    if [ "$rc" -ne "$expected_rc" ]; then
+        echo "[FAIL] ${fail_label} (rc=$rc, want=$expected_rc)" >&2
+        return 1
+    fi
+
+    echo "[PASS] ${pass_label}"
+    return 0
+}
+
 run_hako_primary_no_fallback_canary_and_expect_rc() {
     local prog_json_path="$1"
     local expected_rc="$2"
