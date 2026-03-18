@@ -19,6 +19,7 @@ STRING_FIXTURE="$NYASH_ROOT/apps/tests/phase29cc_plg04_stringbox_pilot_min.hako"
 HANDLER_FILE="$NYASH_ROOT/lang/src/vm/boxes/mir_call_v1_handler.hako"
 REGISTRY_FILE="$NYASH_ROOT/lang/src/vm/boxes/abi_adapter_registry.hako"
 ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_core_box.hako"
+ARRAY_STATE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_state_core_box.hako"
 STRING_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/map_core_box.hako"
 RUNTIME_DATA_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/runtime_data_core_box.hako"
@@ -59,7 +60,7 @@ run_array_semantics_checks() {
 }
 
 check_collection_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
+  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
@@ -98,16 +99,16 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: array core len_i64 dispatch contract missing"
     exit 1
   fi
-  if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: array core push-state helper contract missing"
+  if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_STATE_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array state core push-state helper contract missing"
     exit 1
   fi
-  if ! rg -F -q 'record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id)' "$ARRAY_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: array core set-state helper contract missing"
+  if ! rg -F -q 'record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id)' "$ARRAY_STATE_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array state core set-state helper contract missing"
     exit 1
   fi
-  if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: array core get-state helper contract missing"
+  if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_STATE_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array state core get-state helper contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/array_core:set_i64]' "$ARRAY_CORE_FILE"; then

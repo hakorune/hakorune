@@ -65,9 +65,11 @@ Related:
    - next `.hako` kernel family order is `array` -> `numeric`; `map` stays in `runtime/collections` ring1
    - numeric first narrow pilot is `MatI64.mul_naive` in `lang/src/runtime/kernel/numeric/`, and the ring1 wrapper remains in `lang/src/runtime/numeric/`
    - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; a new `lang/src/runtime/kernel/array/` module is deferred until a concrete policy difference appears, and the move is trigger-based (owner-local policy / normalization / birth handling, or a dedicated acceptance row + smoke that cannot stay as a thin ring1 wrapper)
-   - landed array thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now returns the observer-only `ArrayBox.length/len/size` alias before `set/get/push` stateful prep, so the ring1 wrapper stays thin without opening `lang/src/runtime/kernel/array/`
-   - quick array canary now uses `print(a.length())` directly; `toString` is treated as a separate blocker, so array-length smoke failures are no longer conflated with display conversion gaps
-   - landed array stateful thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now delegates `set/get/push` into owner-local helpers, keeping observer and stateful write paths separate while preserving the same defer boundary
+  - landed array thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now returns the observer-only `ArrayBox.length/len/size` alias before `set/get/push` stateful prep, so the ring1 wrapper stays thin without opening `lang/src/runtime/kernel/array/`
+  - quick array canary now uses `print(a.length())` directly; `toString` is treated as a separate blocker, so array-length smoke failures are no longer conflated with display conversion gaps
+  - landed array stateful thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now delegates `set/get/push` into owner-local helpers, keeping observer and stateful write paths separate while preserving the same defer boundary
+  - landed array observer fast-path slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now keeps `ArrayBox.length/len/size` on a lazy observer-only fast path and delays stateful len/key plumbing until `set/get/push` is actually selected
+  - landed array stateful helper split: `lang/src/runtime/collections/array_state_core_box.hako` now owns `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`, so `array_core_box.hako` stays more router-only without opening `lang/src/runtime/kernel/array/`
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`

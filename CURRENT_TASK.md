@@ -51,6 +51,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `tools/smokes/v2/profiles/quick/core/array/array_length_vm.sh` now uses `print(a.length())` directly; `toString` is treated as a separate blocker and no longer hides array-length canary failures
   - landed array stateful thin slice:
     - `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now delegates `set/get/push` into owner-local helpers, so observer path and stateful write path are split without changing the ring1 defer boundary
+  - landed array observer fast-path slice:
+    - `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now keeps `ArrayBox.length/len/size` on a lazy observer-only fast path and delays stateful len/key plumbing until `set/get/push` is actually selected
+  - landed array stateful helper split:
+    - `lang/src/runtime/collections/array_state_core_box.hako` now owns `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`, so `array_core_box.hako` is more router-only while remaining in collections ring1
 - owner scope lock for this wave:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`

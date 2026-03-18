@@ -1,0 +1,42 @@
+// ArrayStateCoreBox — stateful ArrayBox helper owner for collections ring1.
+// Responsibility:
+// - own ArrayBox state/value bookkeeping for set/get/push
+// - keep stateful array mutation helpers out of the router-only wrapper
+// Non-responsibility:
+// - ABI exports
+// - observer len/size fast path
+// - kernel promotion
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+
+static box ArrayStateCoreBox {
+  record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id) {
+    if value_state == "1" && arg0_id != null && arg0_id >= 0 {
+      local val_str = regs.getField(StringHelpers.int_to_str(arg0_id))
+      if val_str != null {
+        local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, cur_len)
+        regs.setField(val_key, "" + val_str)
+      }
+    }
+    return cur_len + 1
+  }
+
+  record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id) {
+    local next_len = cur_len
+    if idx + 1 > next_len { next_len = idx + 1 }
+    if value_state == "1" && arg1_id != null && arg1_id >= 0 {
+      local val_str = regs.getField(StringHelpers.int_to_str(arg1_id))
+      if val_str != null {
+        local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+        regs.setField(val_key, "" + val_str)
+      }
+    }
+    return next_len
+  }
+
+  get_state_value(regs, per_recv, rid, idx) {
+    local val_key = MethodAliasPolicy.recv_arr_key(per_recv, rid, idx)
+    return regs.getField(val_key)
+  }
+}

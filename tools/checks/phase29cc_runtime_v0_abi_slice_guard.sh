@@ -11,6 +11,7 @@ DEV_GATE="tools/checks/dev_gate.sh"
 REGISTRY_FILE="lang/src/vm/boxes/abi_adapter_registry.hako"
 HANDLER_FILE="lang/src/vm/boxes/mir_call_v1_handler.hako"
 ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
+ARRAY_STATE_CORE_FILE="lang/src/runtime/collections/array_state_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="lang/src/runtime/collections/map_core_box.hako"
 
@@ -22,6 +23,7 @@ for file in \
   "$REGISTRY_FILE" \
   "$HANDLER_FILE" \
   "$ARRAY_CORE_FILE" \
+  "$ARRAY_STATE_CORE_FILE" \
   "$STRING_CORE_FILE" \
   "$MAP_CORE_FILE"; do
   if [ ! -f "$file" ]; then
@@ -92,16 +94,16 @@ if ! rg -F -q 'externcall "nyash.array.len_h"' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.len_h extern route" >&2
   exit 1
 fi
-if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing push-state helper contract" >&2
+if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_STATE_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array state core missing push-state helper contract" >&2
   exit 1
 fi
-if ! rg -F -q 'record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id)' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing set-state helper contract" >&2
+if ! rg -F -q 'record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_id)' "$ARRAY_STATE_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array state core missing set-state helper contract" >&2
   exit 1
 fi
-if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing get-state helper contract" >&2
+if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_STATE_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array state core missing get-state helper contract" >&2
   exit 1
 fi
 if ! rg -F -q 'try_handle(seg, regs, mname)' "$ARRAY_CORE_FILE"; then
