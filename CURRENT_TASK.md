@@ -104,6 +104,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/box-identity-view-allocation-design-note.md`
   - `docs/development/current/main/design/boxbase-new-external-consultation-question.md`
   - `docs/development/current/main/design/transient-string-chain-external-consultation-question.md`
+  - `docs/development/current/main/design/kernel-authority-cutover-external-consultation-question.md`
   - `docs/development/current/main/investigations/phase21_5-kilo-hotspot-triage-2026-02-23.md`
   - `docs/development/current/main/investigations/substring-concat-observer-fast-path-and-upstream-cut-2026-03-18.md`
 
