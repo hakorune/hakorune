@@ -7,6 +7,7 @@ Related:
 - CURRENT_TASK.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/design/perf-optimization-method-ssot.md
+- docs/development/current/main/design/rep-mir-string-lowering-ssot.md
 - docs/development/current/main/design/box-identity-view-allocation-design-note.md
 - docs/development/current/main/design/substring-view-materialize-boundary-ssot.md
 - crates/nyash_kernel/src/exports/string.rs
@@ -79,6 +80,9 @@ string hot path を
 
 - transient は「root span 群 + small inline piece」のような正規化表現として考える
 - transport token を導入する場合でも、それは意味の owner ではなく transient 表現の容器に留める
+- narrow pilot としては `RepMIR` / `RepKind` の AOT backend-local representation を許可する
+- ただしその場合でも owner は docs / `.hako authority` に置き、Rust private enum を truth にしない
+- `RepMIR` は runtime の新しい層ではなく、AOT consumer が一瞬だけ使う shadow representation として扱う
 
 ## 3. Birth Boundary
 
@@ -180,6 +184,20 @@ fn freeze_string(/* transient repr */, boundary: BoundaryKind) -> i64
 1. `borrowed_substring_plan_from_handle(...)` から substrate-specific birth を薄くする
 2. `substring_hii` / `concat3_hhh` の中で直接 `string_handle_from_owned(...)` する責務を、将来の freeze 境界へ寄せる
 3. `BoxBase::new` / id semantics には触らない
+4. placement は runtime helper 常設ではなく、AOT consumer 側の shadow lowering を優先する
+
+## Pilot Lock
+
+`RepMIR` をやるなら、いきなり runtime 全体へ広げない。
+
+最初の pilot は次だけに限定する。
+
+1. AOT backend only
+2. `kilo_micro_substring_concat`
+3. `thaw.str -> str.slice -> str.cat3 -> str.len -> freeze.str`
+4. runtime / VM / plugin / FFI には transient token を見せない
+
+これを超える widening は、別判断にする。
 
 ## Non-goals
 
@@ -188,4 +206,3 @@ fn freeze_string(/* transient repr */, boundary: BoundaryKind) -> i64
 3. generic handle reuse
 4. current flat `<= 8 bytes` short-slice policy を再び動かすこと
 5. `src/llvm_py/**` keep lane を reopen すること
-

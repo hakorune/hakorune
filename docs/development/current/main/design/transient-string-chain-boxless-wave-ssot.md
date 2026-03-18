@@ -6,6 +6,7 @@ Scope: `kilo_micro_substring_concat` を起点に、`substring -> concat3 -> len
 Related:
 - CURRENT_TASK.md
 - docs/development/current/main/design/string-transient-lifecycle-ssot.md
+- docs/development/current/main/design/rep-mir-string-lowering-ssot.md
 - docs/development/current/main/design/perf-optimization-method-ssot.md
 - docs/development/current/main/design/substring-view-materialize-boundary-ssot.md
 - docs/development/current/main/design/box-identity-view-allocation-design-note.md
@@ -108,6 +109,20 @@ Related:
 
 要するに、**authority は `.hako` / SSOT に寄せるが、substrate はまだ Rust に残す** がこの wave の前提だよ。
 
+### temporary backend-local pilot
+
+もし `RepMIR` / `freeze-thaw` を使うなら、それは current wave では temporary backend-local pilot に限る。
+
+- allowed:
+  - AOT backend internal representation
+  - narrow fixture-only proof
+  - `ny-llvmc(boundary)` 側の shadow lowering
+- forbidden:
+  - VM / plugin / FFI visible token contract
+  - Rust-only semantics owner
+  - automatic widening to generic string lowering
+  - runtime helper ABI に new transient layer を常設すること
+
 ## Next Structural Shape
 
 current code では `plan` と `birth` がまだ混ざっている。
@@ -126,6 +141,7 @@ current code では `plan` と `birth` がまだ混ざっている。
    - inner transient chain と escape boundary をこの文書と `string-transient-lifecycle-ssot.md` で固定する
 2. inventory
    - `substring_hii`, `concat3_hhh`, `string_len_from_handle`, `string_handle_from_owned` のどこで box/handle birth が起きるかを 1 枚で棚卸しする
+   - the inventory must be a birth map, not just a function list
 3. structure-first code change
    - current `<= 8 bytes` policyを変えず、plan と birth を薄く分ける exact slice だけを試す
    - accepted first: keep file-local `concat3_hhh` as `plan -> freeze -> handle`; this improves readability without pretending to solve birth density by itself
@@ -133,7 +149,10 @@ current code では `plan` と `birth` がまだ混ざっている。
 4. perf proof
    - micro と stable の両方で keep/discard を決める
 5. authority prep
-   - `.hako` 側の string contract / orchestration owner を shadow 化する
+  - `.hako` 側の string contract / orchestration owner を shadow 化する
+6. RepMIR reopen
+   - narrow pilot が効いた時だけ `RepKind/freeze-thaw` を reopen する
+   - その時も owner は docs / `.hako authority` のまま維持する
 
 ## Acceptance
 

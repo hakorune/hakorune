@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
+  - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
   - lang/README.md
   - lang/src/runtime/kernel/
 ---
@@ -83,6 +84,19 @@ Related:
 - `host_handles`
 - ABI export / marshal
 - pointer/string helper の native leaf
+
+### temporary pilot allowance
+
+exe optimization wave の narrow pilot として、Rust 側に backend-local lowering substrate を置くこと自体は許可する。
+ただし条件は固定する。
+
+1. AOT backend-local only
+2. owner は docs / `.hako authority`
+3. VM / plugin / FFI contract を広げない
+4. pilot scope は narrow fixture に限定する
+5. `.hako` へ戻せる命令/境界名を docs に先に書く
+
+つまり、temporary pilot はよいが、**temporary pilot を Rust の新しい meaning owner にしない**。
 
 ## 5. Fixed Order
 
