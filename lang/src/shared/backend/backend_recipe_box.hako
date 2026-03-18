@@ -98,6 +98,9 @@ static box BackendRecipeBox {
     if path.contains("string_length_ascii_min_v1") {
       return me.acceptance_case_string_length_ascii_v1()
     }
+    if path.contains("substring_concat_loop_pure_min_v1") {
+      return me.acceptance_case_substring_concat_loop_v1()
+    }
     if path.contains("ret_const_min_v1") {
       return me.acceptance_case_ret_const_v1()
     }
@@ -175,6 +178,10 @@ static box BackendRecipeBox {
 
   acceptance_case_string_length_ascii_v1() {
     return "string-length-ascii-v1"
+  }
+
+  acceptance_case_substring_concat_loop_v1() {
+    return "substring-concat-loop-v1"
   }
 
   acceptance_case_ret_const_v1() {

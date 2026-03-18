@@ -1,0 +1,758 @@
+{
+  "capabilities": [
+    "unified_call",
+    "phi",
+    "effects",
+    "callee_typing"
+  ],
+  "cfg": {
+    "functions": [
+      {
+        "blocks": [
+          {
+            "id": 0,
+            "reachable": false,
+            "successors": [
+              18
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 18,
+            "reachable": false,
+            "successors": [
+              19,
+              21
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 19,
+            "reachable": false,
+            "successors": [
+              20
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 20,
+            "reachable": false,
+            "successors": [
+              18
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 21,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 0,
+        "name": "main"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "dst": 3,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "line-seed-abcdef"
+              }
+            },
+            {
+              "dst": 4,
+              "op": "copy",
+              "src": 3
+            },
+            {
+              "dst": 9,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "line-seed-abcdef"
+              }
+            },
+            {
+              "dst": 8,
+              "op": "copy",
+              "src": 9
+            },
+            {
+              "dst": 5,
+              "mir_call": {
+                "args": [],
+                "callee": {
+                  "box_name": "StringBox",
+                  "certainty": "Known",
+                  "name": "length",
+                  "receiver": 8,
+                  "type": "Method"
+                },
+                "effects": [],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 11,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 12,
+              "op": "copy",
+              "src": 11
+            },
+            {
+              "dst": 13,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 14,
+              "op": "copy",
+              "src": 13
+            },
+            {
+              "op": "jump",
+              "target": 18
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "instructions": [
+            {
+              "dst": 15,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  12,
+                  0
+                ],
+                [
+                  16,
+                  20
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 19,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  14,
+                  0
+                ],
+                [
+                  20,
+                  20
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 21,
+              "dst_type": {
+                "kind": "string"
+              },
+              "incoming": [
+                [
+                  4,
+                  0
+                ],
+                [
+                  22,
+                  20
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 39,
+              "op": "copy",
+              "src": 15
+            },
+            {
+              "dst": 41,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 300000
+              }
+            },
+            {
+              "dst": 40,
+              "op": "copy",
+              "src": 41
+            },
+            {
+              "dst": 37,
+              "lhs": 39,
+              "op": "compare",
+              "operation": "<",
+              "rhs": 40
+            },
+            {
+              "cond": 37,
+              "else": 21,
+              "op": "branch",
+              "then": 19
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "instructions": [
+            {
+              "dst": 43,
+              "op": "copy",
+              "src": 5
+            },
+            {
+              "dst": 42,
+              "op": "copy",
+              "src": 43
+            },
+            {
+              "dst": 45,
+              "op": "copy",
+              "src": 21
+            },
+            {
+              "dst": 46,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "dst": 49,
+              "op": "copy",
+              "src": 43
+            },
+            {
+              "dst": 48,
+              "op": "copy",
+              "src": 49
+            },
+            {
+              "dst": 50,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "dst": 47,
+              "lhs": 48,
+              "op": "binop",
+              "operation": "/",
+              "rhs": 50
+            },
+            {
+              "dst": 51,
+              "op": "copy",
+              "src": 45
+            },
+            {
+              "dst": 26,
+              "mir_call": {
+                "args": [
+                  46,
+                  47
+                ],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "substring",
+                  "receiver": 51,
+                  "type": "Method"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 27,
+              "mir_call": {
+                "args": [
+                  47,
+                  42
+                ],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "substring",
+                  "receiver": 51,
+                  "type": "Method"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 52,
+              "op": "copy",
+              "src": 26
+            },
+            {
+              "dst": 55,
+              "op": "copy",
+              "src": 52
+            },
+            {
+              "dst": 57,
+              "op": "copy",
+              "src": 27
+            },
+            {
+              "dst": 60,
+              "op": "copy",
+              "src": 55
+            },
+            {
+              "dst": 62,
+              "op": "copy",
+              "src": 57
+            },
+            {
+              "dst": 65,
+              "op": "copy",
+              "src": 60
+            },
+            {
+              "dst": 66,
+              "op": "const",
+              "value": {
+                "type": {
+                  "box_type": "StringBox",
+                  "kind": "handle"
+                },
+                "value": "xx"
+              }
+            },
+            {
+              "dst": 64,
+              "dst_type": "i64",
+              "lhs": 65,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 66
+            },
+            {
+              "dst": 67,
+              "op": "copy",
+              "src": 62
+            },
+            {
+              "dst": 63,
+              "dst_type": "i64",
+              "lhs": 64,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 67
+            },
+            {
+              "dst": 31,
+              "mir_call": {
+                "args": [],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "length",
+                  "receiver": 63,
+                  "type": "Method"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 68,
+              "op": "copy",
+              "src": 19
+            },
+            {
+              "dst": 69,
+              "op": "copy",
+              "src": 31
+            },
+            {
+              "dst": 32,
+              "dst_type": "i64",
+              "lhs": 68,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 69
+            },
+            {
+              "dst": 71,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 73,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 72,
+              "dst_type": "i64",
+              "lhs": 48,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 73
+            },
+            {
+              "dst": 36,
+              "mir_call": {
+                "args": [
+                  71,
+                  72
+                ],
+                "callee": {
+                  "box_name": "RuntimeDataBox",
+                  "certainty": "Union",
+                  "name": "substring",
+                  "receiver": 63,
+                  "type": "Method"
+                },
+                "effects": [
+                  "IO"
+                ],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "op": "jump",
+              "target": 20
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "instructions": [
+            {
+              "dst": 20,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  32,
+                  19
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 22,
+              "dst_type": "i64",
+              "incoming": [
+                [
+                  36,
+                  19
+                ]
+              ],
+              "op": "phi"
+            },
+            {
+              "dst": 79,
+              "op": "copy",
+              "src": 15
+            },
+            {
+              "dst": 80,
+              "op": "const",
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "dst": 16,
+              "dst_type": "i64",
+              "lhs": 79,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 80
+            },
+            {
+              "op": "jump",
+              "target": 18
+            }
+          ]
+        },
+        {
+          "id": 21,
+          "instructions": [
+            {
+              "dst": 83,
+              "op": "copy",
+              "src": 21
+            },
+            {
+              "dst": 84,
+              "op": "copy",
+              "src": 83
+            },
+            {
+              "dst": 82,
+              "mir_call": {
+                "args": [],
+                "callee": {
+                  "box_name": "StringBox",
+                  "certainty": "Known",
+                  "name": "length",
+                  "receiver": 84,
+                  "type": "Method"
+                },
+                "effects": [],
+                "flags": {}
+              },
+              "op": "mir_call"
+            },
+            {
+              "dst": 85,
+              "op": "copy",
+              "src": 19
+            },
+            {
+              "dst": 86,
+              "op": "copy",
+              "src": 82
+            },
+            {
+              "dst": 87,
+              "dst_type": "i64",
+              "lhs": 85,
+              "op": "binop",
+              "operation": "+",
+              "rhs": 86
+            },
+            {
+              "op": "ret",
+              "value": 87
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "value_types": {
+          "1": "i64",
+          "10": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "11": "i64",
+          "12": "i64",
+          "13": "i64",
+          "14": "i64",
+          "15": "i64",
+          "16": "i64",
+          "17": "i1",
+          "18": "i64",
+          "19": "i64",
+          "2": "i64",
+          "20": "i64",
+          "21": {
+            "kind": "string"
+          },
+          "22": "i64",
+          "23": "i64",
+          "24": "i64",
+          "25": "i64",
+          "26": "i64",
+          "27": "i64",
+          "28": {
+            "kind": "string"
+          },
+          "29": "i64",
+          "3": {
+            "kind": "string"
+          },
+          "30": "i64",
+          "31": "i64",
+          "32": "i64",
+          "33": "i64",
+          "34": "i64",
+          "35": "i64",
+          "36": "i64",
+          "37": "i1",
+          "38": "i64",
+          "39": "i64",
+          "4": {
+            "kind": "string"
+          },
+          "40": "i64",
+          "41": "i64",
+          "42": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "43": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "44": "i64",
+          "45": {
+            "kind": "string"
+          },
+          "46": "i64",
+          "47": "i64",
+          "48": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "49": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "5": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "50": "i64",
+          "51": {
+            "kind": "string"
+          },
+          "52": "i64",
+          "53": {
+            "kind": "string"
+          },
+          "54": "i64",
+          "55": "i64",
+          "56": {
+            "kind": "string"
+          },
+          "57": "i64",
+          "58": "i64",
+          "59": "i64",
+          "6": {
+            "kind": "string"
+          },
+          "60": "i64",
+          "61": {
+            "kind": "string"
+          },
+          "62": "i64",
+          "63": "i64",
+          "64": "i64",
+          "65": "i64",
+          "66": {
+            "kind": "string"
+          },
+          "67": "i64",
+          "68": "i64",
+          "69": "i64",
+          "7": {
+            "kind": "string"
+          },
+          "70": "i64",
+          "71": "i64",
+          "72": "i64",
+          "73": "i64",
+          "74": "i64",
+          "75": "i64",
+          "76": "i64",
+          "77": "i64",
+          "78": "i64",
+          "79": "i64",
+          "8": {
+            "kind": "string"
+          },
+          "80": "i64",
+          "81": "void",
+          "82": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "83": {
+            "kind": "string"
+          },
+          "84": {
+            "kind": "string"
+          },
+          "85": "i64",
+          "86": {
+            "box_type": "IntegerBox",
+            "kind": "handle"
+          },
+          "87": "i64",
+          "9": {
+            "kind": "string"
+          }
+        }
+      },
+      "name": "main",
+      "params": []
+    }
+  ],
+  "metadata": {
+    "build_time": "Phase 15.5 Development",
+    "features": [
+      "mir_call_unification",
+      "json_v1_schema"
+    ],
+    "generator": "nyash-rust",
+    "phase": "15.5"
+  },
+  "schema_version": "1.0",
+  "user_box_decls": [
+    {
+      "fields": [],
+      "name": "AddOperator"
+    },
+    {
+      "fields": [],
+      "name": "CompareOperator"
+    },
+    {
+      "fields": [],
+      "name": "Main"
+    },
+    {
+      "fields": [],
+      "name": "StringifyOperator"
+    }
+  ]
+}

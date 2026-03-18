@@ -2471,3 +2471,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - worker inventory found a likely `loop self-carry PHI` ptr-provenance loss under `src/llvm_py/**`
     - that is useful diagnostic evidence only; it is not the next edit target in this exe optimization wave
     - the next active slices stay on kernel/runtime/C-boundary owners until asm top symbols move off `substring_hii` / `Registry::alloc` / `BoxBase::new`
+  - active support slice:
+    - `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1.mir.json` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_substring_concat_loop_min.sh` now pin the active boundary pure substring-concat-loop seed
+    - the current pilot stays backend-local inside `lang/c-abi/shims/hako_llvmc_ffi.c` and does not widen runtime/VM/plugin token surfaces
