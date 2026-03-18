@@ -54,12 +54,13 @@ freeze.str
   - `contains(hay, needle) -> i64`
   - `starts_with(hay, needle) -> i64`
   - `ends_with(hay, needle) -> i64`
+  - `split_once_index(hay, needle) -> i64`
   - keep it narrow; no widening to the rest of the string kernel yet
 
-## Next Narrow Op
+## Current Narrow Frontier
 
-- `split_once_index(hay, needle) -> i64`
-  - add only after prefix/suffix checks are fixed
+- `search.hako` is at the v0 landing point for the current string-search pilot
+- further widening is paused until a new exact blocker appears
 
 ## Examples
 

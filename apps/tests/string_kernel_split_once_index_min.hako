@@ -1,0 +1,21 @@
+using lang.runtime.kernel.string.search as StringSearchKernelBox
+
+static box Main {
+  main() {
+    local fails
+    fails = 0
+
+    if StringSearchKernelBox.split_once_index("banana", "na") != 2 { fails = fails + 1 }
+    if StringSearchKernelBox.split_once_index("banana", "ba") != 0 { fails = fails + 1 }
+    if StringSearchKernelBox.split_once_index("banana", "zz") != -1 { fails = fails + 1 }
+    if StringSearchKernelBox.split_once_index("banana", "") != 0 { fails = fails + 1 }
+    if StringSearchKernelBox.split_once_index("", "") != 0 { fails = fails + 1 }
+
+    if fails == 0 {
+      print("OK: string split_once_index")
+      return 0
+    }
+    print("FAIL: string split_once_index (" + ("" + fails) + ")")
+    return 1
+  }
+}
