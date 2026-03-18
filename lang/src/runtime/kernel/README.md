@@ -24,6 +24,7 @@ Next family order:
 Array first narrow op:
 - `ArrayBox.length/len/size` observer path stays in `lang/src/runtime/collections/array_core_box.hako` first
 - defer a new `lang/src/runtime/kernel/array/` module until a concrete policy difference appears
+  - promotion is trigger-based, not calendar-based: move only when the ring1 wrapper is no longer thin enough (owner-local policy / normalization / birth handling, or a dedicated acceptance case that cannot stay as a wrapper-only lane)
 
 Non-goals:
 - No direct host category routing.

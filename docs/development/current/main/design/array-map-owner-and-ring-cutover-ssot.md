@@ -111,6 +111,18 @@ Related:
   2. Rust provider/kernel plugin は thin ABI or compat keep に後退させる
   3. daily path が Rust collection semantics を直接 owner しなくなってから、archive/preservation-first retire を検討する
 
+### 3.3 Promotion Trigger: defer から dedicated kernel module へ移すタイミング
+
+- `defer` は「今は collections ring1 の wrapper だけで contract を保てる」状態を意味する。
+- dedicated `.hako` kernel module へ昇格するタイミングは calendar ではなく trigger-based で決める。
+- promote してよい条件は、少なくとも次のどれかが true になった時だけ。
+  1. wrapper-only では policy / normalization / bounds / birth-materialize の責務を薄く保てなくなった
+  2. 同じ collection 形が複数 caller に広がり、ring1 wrapper が transport-only ではなく policy owner になってしまう
+  3. dedicated fixture + smoke row が必要になり、collections ring1 の既存 owner では acceptance case を薄く表せなくなった
+  4. `.hako` 側で owner-local の契約差分が必要になり、ring1 wrapper が単なる forwarder 以上の責務を持つようになった
+- 逆に、thin wrapper のまま contract を保てる限りは defer のまま維持する。
+- array の current rule はこの trigger を満たすまで `lang/src/runtime/collections/array_core_box.hako` に置き、`lang/src/runtime/kernel/array/` は作らない。
+
 ## 4. Fixed Cutover Order
 
 1. current owner truth を docs で固定する

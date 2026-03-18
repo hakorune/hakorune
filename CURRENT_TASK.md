@@ -37,6 +37,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `lang/src/runtime/kernel/numeric/matrix_i64.hako` now owns `MatI64.mul_naive` loop/body and `lang/src/runtime/numeric/mat_i64_box.hako` is the thin `new MatI64(rows, cols)` wrapper
   - next `.hako` kernel family order after string.search v0:
     1. `array` kernel family on the same runtime/kernel lane
+       - defer -> kernel promotion is trigger-based, not calendar-based: keep `ArrayBox.length/len/size` in `lang/src/runtime/collections/array_core_box.hako` while it stays wrapper-only, and move to `lang/src/runtime/kernel/array/` only when a concrete policy difference appears (owner-local policy/normalization/birth handling, or a dedicated acceptance row / smoke that cannot stay as a thin ring1 wrapper)
     2. `numeric` kernel family after array stabilizes
        - first narrow pilot is `MatI64.mul_naive` in `lang/src/runtime/kernel/numeric/`
        - ring1 wrapper stays in `lang/src/runtime/numeric/` and only delegates to the kernel owner

@@ -64,7 +64,7 @@ Related:
    - further widening is paused until a new exact blocker appears
    - next `.hako` kernel family order is `array` -> `numeric`; `map` stays in `runtime/collections` ring1
    - numeric first narrow pilot is `MatI64.mul_naive` in `lang/src/runtime/kernel/numeric/`, and the ring1 wrapper remains in `lang/src/runtime/numeric/`
-   - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; a new `lang/src/runtime/kernel/array/` module is deferred until a concrete policy difference appears
+   - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; a new `lang/src/runtime/kernel/array/` module is deferred until a concrete policy difference appears, and the move is trigger-based (owner-local policy / normalization / birth handling, or a dedicated acceptance row + smoke that cannot stay as a thin ring1 wrapper)
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`
