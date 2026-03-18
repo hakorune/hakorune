@@ -55,6 +55,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now keeps `ArrayBox.length/len/size` on a lazy observer-only fast path and delays stateful len/key plumbing until `set/get/push` is actually selected
   - landed array stateful helper split:
     - `lang/src/runtime/collections/array_state_core_box.hako` now owns `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`, so `array_core_box.hako` is more router-only while remaining in collections ring1
+  - landed array plugin helper split:
+    - `crates/nyash_kernel/src/plugin/array.rs` now delegates handle-based get/set/has route helpers into `crates/nyash_kernel/src/plugin/array_route_helpers.rs`, so the substrate file is thinner while the ring1 defer boundary stays unchanged
 - owner scope lock for this wave:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`

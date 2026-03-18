@@ -70,6 +70,7 @@ Related:
   - landed array stateful thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now delegates `set/get/push` into owner-local helpers, keeping observer and stateful write paths separate while preserving the same defer boundary
   - landed array observer fast-path slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now keeps `ArrayBox.length/len/size` on a lazy observer-only fast path and delays stateful len/key plumbing until `set/get/push` is actually selected
   - landed array stateful helper split: `lang/src/runtime/collections/array_state_core_box.hako` now owns `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`, so `array_core_box.hako` stays more router-only without opening `lang/src/runtime/kernel/array/`
+  - landed array plugin helper split: `crates/nyash_kernel/src/plugin/array.rs` now delegates handle-based get/set/has route helpers into `crates/nyash_kernel/src/plugin/array_route_helpers.rs`, so the substrate file is thinner while the ring1 defer boundary stays unchanged
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`
