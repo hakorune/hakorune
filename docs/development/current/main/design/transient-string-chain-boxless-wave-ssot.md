@@ -4,10 +4,11 @@ Decision: provisional
 Date: 2026-03-18
 Scope: `kilo_micro_substring_concat` を起点に、`substring -> concat3 -> length` の inner chain を transient/span-first にほどく次 wave の設計を固定する。
 Related:
-  - CURRENT_TASK.md
-  - docs/development/current/main/design/perf-optimization-method-ssot.md
-  - docs/development/current/main/design/substring-view-materialize-boundary-ssot.md
-  - docs/development/current/main/design/box-identity-view-allocation-design-note.md
+- CURRENT_TASK.md
+- docs/development/current/main/design/string-transient-lifecycle-ssot.md
+- docs/development/current/main/design/perf-optimization-method-ssot.md
+- docs/development/current/main/design/substring-view-materialize-boundary-ssot.md
+- docs/development/current/main/design/box-identity-view-allocation-design-note.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/optimization-ssot-string-helper-density.md
   - crates/nyash_kernel/src/exports/string.rs
@@ -27,6 +28,14 @@ Related:
 
 1. `substring -> concat3 -> length` の inner chain を transient/span-first に切り分ける。
 2. loop-carried state と escape boundary を先に固定して、benchmark-shaped workaround を防ぐ。
+
+この wave の architectural reading は [`string-transient-lifecycle-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/string-transient-lifecycle-ssot.md) に従う。
+つまり、current code は次の 4 層で読む。
+
+1. authority / contract
+2. transient
+3. birth boundary
+4. substrate
 
 ## Exact Target Chain
 
@@ -70,6 +79,13 @@ Related:
 - `src/llvm_py/**`
 - current flat short-slice policy `<= 8 bytes`
 
+### current adoption from external consultation
+
+- `BoxBase::new` の generic 削減ではなく、birth 密度の削減を本線にする
+- `observable` ではなく `substrate-visible / retained` を birth ルールに置く
+- `length` / `size` / read-only chain は transient のままでよい
+- `text = out.substring(1, len + 1)` は first escape boundary として維持する
+
 ## Current Owner Split
 
 ### `.hako` / docs 側が先に owner するもの
@@ -92,14 +108,26 @@ Related:
 
 要するに、**authority は `.hako` / SSOT に寄せるが、substrate はまだ Rust に残す** がこの wave の前提だよ。
 
+## Next Structural Shape
+
+current code では `plan` と `birth` がまだ混ざっている。
+次に目指す形はこれだよ。
+
+1. transient planning
+   - substring / concat / observer chain を substrate-independent に表す
+2. freeze boundary
+   - escaped/retained point だけが `StringBox` / `StringViewBox` / handle を作る
+
+言い換えると、`BorrowedSubstringPlan::Materialize/CreateView` のような substrate-specific branch は最終的に freeze 側へ寄せたい。
+
 ## Fixed Order
 
 1. docs-first
-   - inner transient chain と escape boundary をこの文書で固定する
+   - inner transient chain と escape boundary をこの文書と `string-transient-lifecycle-ssot.md` で固定する
 2. inventory
    - `substring_hii`, `concat3_hhh`, `string_len_from_handle`, `string_handle_from_owned` のどこで box/handle birth が起きるかを 1 枚で棚卸しする
-3. contract-neutral code change
-   - current `<= 8 bytes` policyを変えず、transient chain を span-first に寄せる exact slice だけを試す
+3. structure-first code change
+   - current `<= 8 bytes` policyを変えず、plan と birth を薄く分ける exact slice だけを試す
 4. perf proof
    - micro と stable の両方で keep/discard を決める
 5. authority prep

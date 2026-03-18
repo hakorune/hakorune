@@ -134,10 +134,14 @@ Hotspot は次の分類で読む。
   - `nyash.string.concat3_hhh`
   - `string_len_from_handle` / `string_handle_from_owned`
 - `BoxBase::new` is the current stop-line: it is tied to box identity via `next_box_id()`, so the next safe cut must reduce `StringViewBox::new` call count or another upstream owner instead of reusing IDs
+- adopted design reading after external consultation:
+  - this is a birth-density problem, not a `BoxBase::new` micro-cost problem
+  - the next wave should separate `authority / transient / birth boundary / substrate`
+  - read-only observer chains may stay transient; only substrate-visible / retained values should birth
 - interpretation:
   - keep the short-slice materialize change if whole-program stable is the primary metric
   - do not treat isolated micro regression as automatic revert when the stable lane improves
-  - next queued wave is transient string chain design-first, not another threshold experiment
+  - next queued wave is transient string chain design-first with a future `freeze` boundary, not another threshold experiment
 
 ## Evidence To Record
 

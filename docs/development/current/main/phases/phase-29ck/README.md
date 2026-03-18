@@ -374,6 +374,6 @@ Related:
   - rejected follow-up: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved the isolated micro to `262468757 cycles / 69 ms`, but stable median regressed to `819 ms`, so this phase keeps the flat `<= 8 bytes` policy
   - rejected observer-only follow-up: explicit `string_len_from_handle` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median (`min=786`, `max=1841`), so the patch was reverted immediately
   - current asm top is `BoxBase::new 26.17%`, `Registry::alloc 25.12%`, `substring_hii 23.64%`
-  - next blocker is still on kernel/runtime/C-boundary owners, but `BoxBase::new` itself is a stop-line because it is tied to box identity; the next safe cut must reduce view creation count upstream instead of reusing box IDs
+  - next blocker is still on kernel/runtime/C-boundary owners, but `BoxBase::new` itself is a stop-line because it is tied to box identity; the next safe cut must reduce birth density upstream instead of reusing box IDs
   - `LLVM-Py loop self-carry PHI` is diagnostic evidence only and is not the next edit target in this perf wave
-  - next queued design wave is `docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md`: make the inner `substring -> concat3 -> length` chain more transient/span-first while keeping loop-carried `text` as the first escape boundary
+  - next queued design wave is `docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md`: adopt the `authority / transient / birth boundary / substrate` reading, then make the inner `substring -> concat3 -> length` chain more transient/span-first while keeping loop-carried `text` as the first escape boundary

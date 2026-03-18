@@ -6,6 +6,7 @@ Related:
 - crates/nyash_kernel/src/exports/string_view.rs
 - crates/nyash_kernel/src/tests.rs
 - docs/development/current/main/design/perf-optimization-method-ssot.md
+- docs/development/current/main/design/string-transient-lifecycle-ssot.md
 - docs/development/current/main/design/substring-view-materialize-boundary-ssot.md
 - CURRENT_TASK.md
 ---
@@ -107,11 +108,12 @@ repo 内の言葉で固定するためのメモだよ。
 - clearly safe:
   - `StringViewBox` は distinct box のまま維持する
   - `CreateView` に到達する回数を upstream で減らす
-  - 特に `substring` の view/materialize boundary を policy SSOT で調整する
+  - `BoxBase::new` を削るのではなく、transient layer を 1 枚足して birth 密度を減らす
+  - `plan` と `birth` を分け、read-only chain は transient のまま流す
 - contract-change:
   - short slice を eager materialize に寄せる
   - lazy id generation
-  - transient / generation-based identity
+  - transient token / new SSA kind / explicit freeze boundary
 - unsafe:
   - `source_handle` の直 reuse
   - generic id reuse
@@ -121,7 +123,9 @@ repo 内の言葉で固定するためのメモだよ。
 
 1. `BoxBase::new` 自体は触らない
 2. `StringViewBox::new` を呼ぶ回数を減らす
-3. 最初の具体策として `very short slice <= 8 bytes` を eager materialize へ寄せる
+3. `observable` ではなく `substrate-visible / retained` を birth ルールにする
+4. `plan` と `birth` を分ける future `freeze` boundary を前提に読む
+5. 最初の具体策として `very short slice <= 8 bytes` を eager materialize へ寄せる
    - current repo state already adopts this policy because whole-program stable improved even though the isolated micro leaf regressed slightly
 
 ## Decision Frame For External Consultation

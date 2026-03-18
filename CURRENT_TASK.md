@@ -76,6 +76,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/perf-optimization-method-ssot.md`
   - `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
   - `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
+  - `docs/development/current/main/design/string-transient-lifecycle-ssot.md`
   - `docs/development/current/main/design/box-identity-view-allocation-design-note.md`
   - `docs/development/current/main/design/boxbase-new-external-consultation-question.md`
   - `docs/development/current/main/design/transient-string-chain-external-consultation-question.md`
@@ -86,9 +87,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - main goal:
   - `substring -> concat3 -> length` chain を more transient / span-first に寄せ、rejected threshold split を reopen せずに box birth を減らす
-  - loop-carried `text = out.substring(...)` は first escape boundary として扱い、inner read-only chain を先にほどく
+  - `observable` ではなく `substrate-visible / retained` を birth ルールにし、loop-carried `text = out.substring(...)` を first escape boundary として扱う
+  - code を `authority / transient / birth boundary / substrate` の 4 層で読める形へ寄せる
 - design SSOT:
   - `docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md`
+  - `docs/development/current/main/design/string-transient-lifecycle-ssot.md`
 - owner scope lock:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`
@@ -102,9 +105,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `lang/c-abi/shims/hako_aot.c`
     - `lang/c-abi/shims/hako_aot_shared_impl.inc`
 - design-first tasks:
-  1. transient chain / escape boundary を SSOT で固定する
-  2. `substring_hii`, `concat3_hhh`, `string_len_from_handle`, `string_handle_from_owned` の box birth inventory を切る
-  3. current flat `<= 8 bytes` policyを変えない contract-neutral slice だけ試す
+  1. transient chain / escape boundary / 4-layer reading を SSOT で固定する
+  2. current code の `plan` と `birth` の混線点を `substring_hii` / `concat3_hhh` / `string_handle_from_owned` / `borrowed_substring_plan_from_handle(...)` で棚卸しする
+  3. current flat `<= 8 bytes` policyを変えないまま、future `freeze` boundary へ寄せる structure-first slice だけ試す
      - rejected and do-not-repeat first: `string_len_from_handle` explicit downcast observer fast path
   4. `.hako authority / Rust substrate` の string owner map を維持したまま shadow-owner wave へ備える
 - acceptance:
