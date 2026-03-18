@@ -29,6 +29,7 @@ Related:
 
 1. `substring -> concat3 -> length` の inner chain を transient/span-first に切り分ける。
 2. loop-carried state と escape boundary を先に固定して、benchmark-shaped workaround を防ぐ。
+3. surface は `Everything is Box` のままにして、low-level string algorithm control structure は `.hako` owner、raw byte/memory leaf は substrate owner に固定する。
 
 この wave の architectural reading は [`string-transient-lifecycle-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/string-transient-lifecycle-ssot.md) に従う。
 つまり、current code は次の 4 層で読む。
@@ -92,6 +93,7 @@ Related:
 ### `.hako` / docs 側が先に owner するもの
 
 - method contract
+- low-level string algorithm control structure
 - view/materialize policy
 - escape boundary の意味
 - visible proof / smoke owner
@@ -106,6 +108,8 @@ Related:
 - `host_handles`
 - `string_handle_from_owned`
 - native string/C ABI leaf
+- raw byte scan / compare / copy / flatten
+- `freeze.str` leaf
 
 要するに、**authority は `.hako` / SSOT に寄せるが、substrate はまだ Rust に残す** がこの wave の前提だよ。
 
@@ -135,6 +139,21 @@ current code では `plan` と `birth` がまだ混ざっている。
 
 言い換えると、`BorrowedSubstringPlan::Materialize/CreateView` のような substrate-specific branch は最終的に freeze 側へ寄せたい。
 
+### lowering contract view
+
+この wave を widening する時は、docs 上の contract 名で読む。
+
+- `thaw.str`
+- `str.slice`
+- `str.concat3`
+- `str.len`
+- `str.find_byte_from`
+- `str.eq_at`
+- `freeze.str`
+
+`.hako` 側の internal kernel spellings は `__str.*` にしてよい。
+ただし current `substring_concat` pilot は narrow に保ち、search/control kernel wave は follow-up として分離する。
+
 ## Fixed Order
 
 1. docs-first
@@ -153,6 +172,7 @@ current code では `plan` と `birth` がまだ混ざっている。
 6. RepMIR reopen
    - narrow pilot が効いた時だけ `RepKind/freeze-thaw` を reopen する
    - その時も owner は docs / `.hako authority` のまま維持する
+   - search/control intrinsic を足す時も、current `substring_concat` pilot に silently widen しない
 
 ## Acceptance
 
@@ -177,6 +197,7 @@ Keep rule:
 3. `StringViewBox` alias 化
 4. flat `<= 8 bytes` policy の再変更
 5. kernel wholesale rewrite into `.hako`
+6. raw byte/memory leaf を current wave で `.hako` へ移すこと
 
 ## Non-goals
 
@@ -184,3 +205,4 @@ Keep rule:
 2. perf 問題を `.hako` workaround で隠すこと
 3. `llvmlite` / `llvm_py` keep lane を reopen すること
 4. benchmark 専用の provenance-sensitive threshold を常設すること
+5. current `substring_concat` pilot を search/control kernel redesign まで一気に widen すること

@@ -57,10 +57,22 @@ string hot path を
 
 - escape boundary の意味
 - view/materialize policy
+- low-level string algorithm control structure
+- intrinsic contract naming
 - benchmark/workload に対する禁止事項
 - `.hako` / docs 側の owner truth
 
 この層では具体的な `StringBox` / `StringViewBox` / handle を作らない。
+
+具体例:
+
+- `str.find_byte_from`
+- `str.eq_at`
+- `str.len`
+- `freeze.str`
+
+SSOT 上の canonical 名は `str.*` / `freeze.str` だよ。
+`.hako` 側の internal spellings は `__str.*` にしてよい。
 
 ## 2. Transient
 
@@ -83,6 +95,7 @@ string hot path を
 - narrow pilot としては `RepMIR` / `RepKind` の AOT backend-local representation を許可する
 - ただしその場合でも owner は docs / `.hako authority` に置き、Rust private enum を truth にしない
 - `RepMIR` は runtime の新しい層ではなく、AOT consumer が一瞬だけ使う shadow representation として扱う
+- compiler-local な transport に留め、VM / plugin / FFI / host handle へ見せない
 
 ## 3. Birth Boundary
 
@@ -117,6 +130,8 @@ fn freeze_string(/* transient repr */, boundary: BoundaryKind) -> i64
 - handle registry
 - GC / finalization
 - native string helpers
+- raw byte scan / compare / copy / flatten
+- `freeze.str` leaf 実装
 
 この層は hot でも、今 wave では原則としていじらない。
 
@@ -157,6 +172,7 @@ fn freeze_string(/* transient repr */, boundary: BoundaryKind) -> i64
 - `docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md`
 - `docs/development/current/main/design/substring-view-materialize-boundary-ssot.md`
 - `CURRENT_TASK.md`
+- `lang/src/runtime/kernel/string/README.md`
 
 ### Transient
 
@@ -185,6 +201,7 @@ fn freeze_string(/* transient repr */, boundary: BoundaryKind) -> i64
 2. `substring_hii` / `concat3_hhh` の中で直接 `string_handle_from_owned(...)` する責務を、将来の freeze 境界へ寄せる
 3. `BoxBase::new` / id semantics には触らない
 4. placement は runtime helper 常設ではなく、AOT consumer 側の shadow lowering を優先する
+5. low-level string algorithm control structure は `.hako` owner へ寄せ、raw byte leaf を substrate に残す
 
 ## Pilot Lock
 

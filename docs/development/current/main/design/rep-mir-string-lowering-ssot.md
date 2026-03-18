@@ -46,6 +46,30 @@ Related:
 つまり、**Box は observable / retained / substrate-visible boundary でだけ生まれる**。
 内部 SSA / register / stack まで Box にするのはやめる方向だよ。
 
+## Lowering Contract Ownership
+
+Shadow RepMIR は独立した意味層ではない。
+この文書で固定する contract を、AOT consumer が一時的に mirror するだけだよ。
+
+### owner
+
+- `.hako` / docs:
+  - string algorithm control structure
+  - escape/birth rule
+  - intrinsic contract
+- Rust/C substrate:
+  - raw byte scan / compare / copy
+  - allocation / flatten
+  - `freeze.str` の leaf 実装
+
+### non-owner
+
+- Shadow RepMIR 自体
+- private Rust enum / struct
+- runtime helper ABI
+
+要するに、**RepMIR は `.hako` owner の lowering contract を映す影であって、新しい runtime semantics ではない**。
+
 ## Rust Growth Lock
 
 この pilot は Rust に新しい意味 owner を作るためのものではない。
@@ -157,6 +181,61 @@ freeze.str
 
 この 5 つで `kilo_micro_substring_concat` の loop body を読めれば十分だよ。
 
+## Canonical Naming
+
+命名は 2 層に固定する。
+
+### canonical contract names
+
+```text
+thaw.str
+str.slice
+str.concat3
+str.len
+str.find_byte_from
+str.eq_at
+freeze.str
+```
+
+### `.hako` kernel-side spellings
+
+```text
+__str.thaw_box
+__str.slice
+__str.concat3
+__str.len
+__str.find_byte_from
+__str.eq_at
+__str.freeze
+```
+
+`.hako` 側は `__str.*` を使ってよい。
+ただし docs/SSOT では contract 名を `str.*` / `freeze.str` に寄せて、backend-local 実装差分を増やさない。
+
+## Intrinsic Contract
+
+low-level string kernel を `.hako` に寄せるときの contract は、次の分割に固定する。
+
+### `.hako` owner
+
+- `find_index`
+- `contains`
+- `starts_with`
+- `ends_with`
+- `split_once_index`
+
+これは algorithm/control structure の owner だよ。
+
+### substrate leaves
+
+- `str.find_byte_from`
+- `str.eq_at`
+- raw byte copy / flatten
+- flat string allocation
+- `freeze.str`
+
+これは raw byte/memory/freeze leaf であり、当面 Rust/C substrate に残す。
+
 ## Pilot Scope Lock
 
 ### in scope
@@ -218,6 +297,7 @@ freeze.str
 4. `.hako` 側が同じ `RepKind/freeze/thaw` を表現できる構造を保つ
 5. backend-local helper は transport であって semantics owner ではないと明記する
 6. runtime helper ABI や `NyashBox` trait に transient representation を混ぜない
+7. low-level string algorithm control structure は `.hako` kernel library へ戻す前提で naming と boundary を固定する
 
 ## Birth Map Requirement
 
@@ -242,6 +322,7 @@ freeze.str
    - current birth site と future shadow op を 1 枚で固定する
 3. narrow pilot
    - `kilo_micro_substring_concat` だけ
+   - search/control kernel wave は follow-up に分離し、current pilot へ黙って混ぜない
 4. perf proof
    - asm/stat を主証拠
    - stable whole-program は guard
@@ -258,8 +339,9 @@ freeze.str
 2. plugin/FFI に `StrView/StrPieces` を見せたくなった
 3. backend ごとに別 `RepKind` を作りたくなった
 4. Rust docs なしで private optimizer rule を増やしたくなった
-5. `BoxBase::new` / `box_id` の semantics を変えたくなった
-6. runtime layer に `TransientStringBox` のような permanent type を足したくなった
+5. `TransientStringBox` や新しい runtime layer を足したくなった
+6. raw byte leaf まで `.hako` に即移したくなった
+7. `BoxBase::new` / `box_id` の semantics を変えたくなった
 
 ## Non-goals
 

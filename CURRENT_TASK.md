@@ -23,6 +23,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - C / Python / Hako を stable baseline と micro ladder で比較し、確認できた hot leaf だけを詰める
   - `.hako` の `@hint(inline)` は advisory trial としてのみ使う。意味を変える workaround にはしない
   - C ABI / bridge / loader は transport-only に寄せ、policy は `.hako` に残す
+  - surface / boundary protocol は `Everything is Box` のまま維持し、low-level string algorithm control structure は `.hako` / docs 側の owner として読む
+  - raw byte scan / compare / copy / allocation / freeze leaf は当面 Rust/C substrate に残し、この wave では leaf substrate delete と混ぜない
   - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`; `llvmlite` / `native` / harness keep lanes are not valid in this wave
 - owner scope lock for this wave:
   - touch-first owners:
@@ -80,6 +82,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
   - `docs/development/current/main/design/string-transient-lifecycle-ssot.md`
   - `docs/development/current/main/design/rep-mir-string-lowering-ssot.md`
+  - `lang/src/runtime/kernel/string/README.md`
   - `docs/development/current/main/design/box-identity-view-allocation-design-note.md`
   - `docs/development/current/main/design/boxbase-new-external-consultation-question.md`
   - `docs/development/current/main/design/transient-string-chain-external-consultation-question.md`
@@ -92,17 +95,22 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `substring -> concat3 -> length` chain を more transient / span-first に寄せ、rejected threshold split を reopen せずに box birth を減らす
   - `observable` ではなく `substrate-visible / retained` を birth ルールにし、loop-carried `text = out.substring(...)` を first escape boundary として扱う
   - code を `authority / transient / birth boundary / substrate` の 4 層で読める形へ寄せる
+  - surface は `Everything is Box` を維持しつつ、low-level string algorithm control structure を `.hako` owner に寄せ、raw byte/memory/freeze leaf は substrate に残す
 - design SSOT:
   - `docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md`
   - `docs/development/current/main/design/string-transient-lifecycle-ssot.md`
   - `docs/development/current/main/design/rep-mir-string-lowering-ssot.md`
   - `docs/development/current/main/design/rep-mir-string-birth-map-inventory.md`
+  - `lang/src/runtime/kernel/string/README.md`
 - Rust growth lock:
   - `RepMIR` / `freeze-thaw` pilot is allowed only as a temporary AOT backend-local consumer
   - owner of `RepKind`, birth rule, and escape rule stays in docs / `.hako authority`, not in private Rust-only optimizer logic
   - do not widen pilot scope beyond `kilo_micro_substring_concat` until the first narrow lane proves out
   - do not add a new runtime layer, `NyashBox` variant, or host-handle token type for this pilot
   - best placement is `ny-llvmc(boundary)`-side shadow lowering, not `crates/nyash_kernel/src/exports/string.rs` as a new permanent owner
+  - canonical contract naming:
+    - Shadow RepMIR op names stay `thaw.str`, `str.slice`, `str.concat3`, `str.len`, `str.find_byte_from`, `str.eq_at`, `freeze.str`
+    - `.hako` kernel-side intrinsic spellings use `__str.*` and map 1:1 onto those ops
 - owner scope lock:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`
@@ -125,6 +133,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   4. `Shadow RepMIR` docs-first pilot を `kilo_micro_substring_concat` 限定で定義し、Rust を temporary backend-local lane に固定する
   5. `substring_hii` / `concat3_hhh` / `string_len_from_handle` / `string_handle_from_owned` / `borrowed_substring_plan_from_handle(...)` の birth map を 1 枚に固定する
   6. `.hako authority / Rust substrate` の string owner map を維持したまま shadow-owner wave へ備える
+  7. `substring_concat` pilot と別に、search/control kernel wave は `.hako` string kernel op set v0 として narrow に切り出し、黙って widen しない
 - acceptance:
   1. `cargo test -q -p nyash_kernel substring_hii -- --nocapture`
   2. `cargo test -q -p nyash_kernel string_concat3_hhh_contract -- --nocapture`

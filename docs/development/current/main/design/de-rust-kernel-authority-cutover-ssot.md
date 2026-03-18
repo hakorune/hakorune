@@ -31,6 +31,7 @@ Related:
      - method/box の意味
      - route/fallback policy
      - acceptance/contract
+     - low-level string algorithm control structure
      - visible runtime kernel orchestration
      を `.hako` が owner する状態
    - `substrate zero`:
@@ -63,6 +64,7 @@ Related:
 具体例:
 
 - `StringBox.length/indexOf/substring` の visible contract
+- `StringBox.indexOf/contains/startsWith/endsWith` を支える low-level string algorithm control structure
 - `RuntimeDataBox` / `ArrayBox` / `MapBox` の method acceptance
 - fallback を許すか freeze するかの判断
 - `.hako` kernel の high-level orchestration
@@ -84,6 +86,9 @@ Related:
 - `host_handles`
 - ABI export / marshal
 - pointer/string helper の native leaf
+- raw byte scan / compare / copy
+- flat string allocation / flatten
+- `freeze.str` leaf 実装
 
 ### temporary pilot allowance
 
@@ -97,6 +102,7 @@ exe optimization wave の narrow pilot として、Rust 側に backend-local low
 5. `.hako` へ戻せる命令/境界名を docs に先に書く
 
 つまり、temporary pilot はよいが、**temporary pilot を Rust の新しい meaning owner にしない**。
+string kernel について言い換えると、`.hako` が algorithm/control owner、Rust/C が raw leaf substrate owner のままに保つ。
 
 ## 5. Fixed Order
 
@@ -126,9 +132,10 @@ exe optimization wave の narrow pilot として、Rust 側に backend-local low
 `kernel authority zero` done は次の状態だよ。
 
 1. kernel meaning/policy の SSOT が `.hako` にある
-2. daily owner は `.hako` kernel である
-3. Rust runtime は substrate / portability / compat keep に限定されている
-4. Rust source が残っていても、それが meaning owner ではない
+2. low-level string algorithm control structure の SSOT が `.hako` / docs にある
+3. daily owner は `.hako` kernel である
+4. Rust runtime は substrate / portability / compat keep に限定されている
+5. Rust source が残っていても、それが meaning owner ではない
 
 ## 8. Non-goals
 
