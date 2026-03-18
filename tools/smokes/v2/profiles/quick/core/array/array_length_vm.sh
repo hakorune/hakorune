@@ -15,13 +15,13 @@ require_env || exit 2
 code='static box Main {
   main() {
     local a = new ArrayBox()
-    print("" + a.length().toString())
+    print(a.length())
     a.push(1)
-    print("" + a.length().toString())
+    print(a.length())
     a.push(2)
-    print("" + a.length().toString())
+    print(a.length())
     a.push(3)
-    print("" + a.length().toString())
+    print(a.length())
     return 0
   }
 }'
