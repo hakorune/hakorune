@@ -67,6 +67,7 @@ Related:
    - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; a new `lang/src/runtime/kernel/array/` module is deferred until a concrete policy difference appears, and the move is trigger-based (owner-local policy / normalization / birth handling, or a dedicated acceptance row + smoke that cannot stay as a thin ring1 wrapper)
    - landed array thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now returns the observer-only `ArrayBox.length/len/size` alias before `set/get/push` stateful prep, so the ring1 wrapper stays thin without opening `lang/src/runtime/kernel/array/`
    - quick array canary now uses `print(a.length())` directly; `toString` is treated as a separate blocker, so array-length smoke failures are no longer conflated with display conversion gaps
+   - landed array stateful thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now delegates `set/get/push` into owner-local helpers, keeping observer and stateful write paths separate while preserving the same defer boundary
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`
