@@ -13,11 +13,12 @@ Scope: Phase 21.6+ / 21.8 / 25 で導入する **数値コア箱（numeric core 
   - 数値一次元配列コア（IntArrayCore）の Box ラッパ。
   - Phase 21.6: Rust プラグイン `IntArrayCore` に委譲。
   - Phase 25: `.hako` 実装に移行し、Ring0 は `alloc/free/load/store` などの intrinsic のみ提供する方針。
+  - constructor は `new IntArrayCore(len)` を用いる。
 - `mat_i64_box.hako`
   - 行列箱 `MatI64`（i64 行列）の Box 実装。
-  - Phase 21.6/21.8: IntArrayCore に委譲する naive 実装。
+  - 現状: `ArrayBox` を core にした ring1 wrapper で、数値核 `mul_naive` の本体は `lang.runtime.kernel.numeric.matrix_i64` 側に寄せる。
   - Phase 25: numeric ABI（`ny_numeric_mat_i64_*`）の薄ラッパとして整理し、VM / LLVM ともに「BoxCall → numeric core 関数への Call」という同じ MIR を実行する形を目指す（numeric 専用の ExternCall 境界は増やさない）。
-  - 現状: 数値核 `mul_naive` の本体は `NyNumericMatI64.mul_naive` に分離し、`MatI64.mul_naive` はその薄ラッパとして実装。
+  - constructor は `new MatI64(rows, cols)` を用いる。
 
 ## Phase 25 との関係
 
@@ -86,7 +87,7 @@ Scope: Phase 21.6+ / 21.8 / 25 で導入する **数値コア箱（numeric core 
 - `stride: i64`
   - 1 行あたりのステップ幅。現行実装では `cols` と同一（row‑major の連続配置）。
   - 将来、ビューやサブ行列を導入する場合に `stride != cols` を許容する余地を残す。
-- `core: IntArrayCore`
+- `core: ArrayBox`
   - 実データを保持する一次元配列コア（長さは `rows * cols` を前提）。
 
 ### メソッド仕様（Box レベル）
@@ -97,7 +98,7 @@ Scope: Phase 21.6+ / 21.8 / 25 で導入する **数値コア箱（numeric core 
     - `rows >= 0`, `cols >= 0`。
     - `rows * cols` が i64 の範囲内に収まること（オーバーフロー時は Fail‑Fast 寄りに扱う）。
   - 実装メモ:
-    - `IntArrayCore.new(rows * cols)` を呼び出し、`stride = cols` として初期化。
+    - `new ArrayBox()` を呼び出し、`stride = cols` として初期化。
 
 - `rowsCount() -> i64`
   - 役割: 行数を返す（読み取り専用）。
@@ -110,7 +111,7 @@ Scope: Phase 21.6+ / 21.8 / 25 で導入する **数値コア箱（numeric core 
   - 事前条件:
     - `0 <= r < rows`, `0 <= c < cols` を呼び出し側が保証。
   - 実装メモ:
-    - `idx = r * stride + c` を計算し、`core.get_unchecked(idx)` を呼ぶ。
+    - `idx = r * stride + c` を計算し、`core.get(idx)` を呼ぶ。
   - 将来:
     - デバッグ/strict モードでは範囲チェックを追加するオプションを検討（prod ではループ性能優先）。
 
@@ -119,7 +120,7 @@ Scope: Phase 21.6+ / 21.8 / 25 で導入する **数値コア箱（numeric core 
   - 事前条件:
     - `0 <= r < rows`, `0 <= c < cols`。
   - 実装メモ:
-    - `idx = r * stride + c` を計算し、`core.set_unchecked(idx, v)` を呼ぶ。
+    - `idx = r * stride + c` を計算し、`core.set(idx, v)` を呼ぶ。
 
 - `mul_naive(b: MatI64) -> MatI64`
   - 役割: `me * b` のナイーブな O(n³) 行列積を計算する。
@@ -128,6 +129,7 @@ Scope: Phase 21.6+ / 21.8 / 25 で導入する **数値コア箱（numeric core 
     - 最低限 `me.cols == b.rows` を事前条件とし、満たさない場合は Fail‑Fast とする方向。
   - 実装メモ:
     - 三重ループ (`i`,`k`,`j`) で `out[i,j] += me[i,k] * b[k,j]` を計算。
-    - `out` 行列は `MatI64.new(me.rows, b.cols)` で確保。
+    - `out` 行列は `new MatI64(me.rows, b.cols)` で確保。
+    - 実ループ本体は `lang.runtime.kernel.numeric.matrix_i64` の narrow kernel helper に委譲する。
   - Phase 25 以降:
     - Box メソッドとしての `mul_naive` は numeric ABI の薄ラッパに縮退し、ループ本体は System Hakorune subset 上の別関数（`ny_numeric_mat_i64_mul_naive`）に切り出す。

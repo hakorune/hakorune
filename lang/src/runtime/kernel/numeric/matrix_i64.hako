@@ -1,0 +1,47 @@
+// MatrixI64KernelBox — .hako numeric kernel owner for MatI64 core loops.
+// Responsibility:
+// - own matrix mul_naive loop/control structure
+// - keep algorithm policy on the .hako side
+// Non-responsibility:
+// - matrix allocation / box construction
+// - numeric substrate ownership
+// - raw storage ABI implementation
+
+static box MatrixI64KernelBox {
+  _accumulate_cell(out, b, i, aik, k, j) {
+    local v = out.at(i, j) + aik * b.at(k, j)
+    out.set(i, j, v)
+    return null
+  }
+
+  _accumulate_row(out, b, i, aik, k) {
+    local bcols = b.colsCount()
+    local j = 0
+    loop(j < bcols) {
+      me._accumulate_cell(out, b, i, aik, k, j)
+      j = j + 1
+    }
+    return null
+  }
+
+  _mul_row(out, a, b, i) {
+    local mcols = a.colsCount()
+    local k = 0
+    loop(k < mcols) {
+      local aik = a.at(i, k)
+      me._accumulate_row(out, b, i, aik, k)
+      k = k + 1
+    }
+    return null
+  }
+
+  fill_mul_naive(out, a, b) {
+    local n = a.rowsCount()
+    local i = 0
+    loop(i < n) {
+      me._mul_row(out, a, b, i)
+      i = i + 1
+    }
+    return out
+  }
+}

@@ -12,6 +12,9 @@ Subdirectories:
 Current narrow pilot:
 - `string.search` (`string/search.hako`)
   - current public surface: `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index`
+- `numeric` (`numeric/matrix_i64.hako`)
+  - current public surface: `MatI64.mul_naive`
+  - ring1 numeric wrapper stays in `lang/src/runtime/numeric/` and delegates into this kernel owner
 
 Next family order:
 - `array/`

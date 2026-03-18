@@ -1,0 +1,27 @@
+using nyash.core.numeric.matrix_i64 as MatI64
+
+static box Main {
+  main(args) {
+    local a = new MatI64(2, 2)
+    local b = new MatI64(2, 2)
+
+    a.set(0, 0, 1)
+    a.set(0, 1, 2)
+    a.set(1, 0, 3)
+    a.set(1, 1, 4)
+
+    b.set(0, 0, 5)
+    b.set(0, 1, 6)
+    b.set(1, 0, 7)
+    b.set(1, 1, 8)
+
+    local out = a.mul_naive(b)
+    if out.at(0, 0) != 19 { return 1 }
+    if out.at(0, 1) != 22 { return 2 }
+    if out.at(1, 0) != 43 { return 3 }
+    if out.at(1, 1) != 50 { return 4 }
+
+    print("OK: numeric mat_i64 mul_naive")
+    return 0
+  }
+}

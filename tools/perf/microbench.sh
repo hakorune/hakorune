@@ -575,9 +575,9 @@ using nyash.core.numeric.matrix_i64 as MatI64
 static box Main { method main(args) {
   local n = ${N}
   // Initialize A, B, C as n x n matrices
-  local A = MatI64.new(n, n)
-  local B = MatI64.new(n, n)
-  local C = MatI64.new(n, n)
+  local A = new MatI64(n, n)
+  local B = new MatI64(n, n)
+  local C = new MatI64(n, n)
   local i = 0
   loop(i < n) {
     local j = 0

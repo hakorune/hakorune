@@ -25,7 +25,7 @@ static box AotPrepNumericCoreBox {
     local copy_map = AotPrepNumericCoreBox.build_copy_map(text, trace)
 
     // Iterative type propagation: alternate copy and phi propagation to handle chains
-    // like: MatI64.new() → r2 → copy → r10 → phi → r15 → copy → r31
+    // like: new MatI64() → r2 → copy → r10 → phi → r15 → copy → r31
     local iter = 0
     loop(iter < 4) {
       tmap = AotPrepNumericCoreBox.propagate_copy_types(text, tmap, trace)
@@ -107,7 +107,7 @@ static box AotPrepNumericCoreBox {
           }
         }
       } else if op == "boxcall" {
-        // Check for MatI64.new() pattern
+        // Check for new MatI64() pattern
         local box_vid = AotPrepNumericCoreBox.read_digits_field(inst, "box")
         local method = AotPrepNumericCoreBox.read_field(inst, "method")
         if method == "new" && box_vid != "" {
@@ -120,7 +120,7 @@ static box AotPrepNumericCoreBox {
             if dst != "" {
               tmap.set(dst, "MatI64")
               if trace != null && ("" + trace) == "1" {
-                print("[aot/numeric_core] MatI64.new() result at r" + dst)
+                print("[aot/numeric_core] new MatI64() result at r" + dst)
               }
             }
           }

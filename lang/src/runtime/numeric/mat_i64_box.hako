@@ -1,20 +1,16 @@
-// MatI64 — simple i64 matrix box built on top of IntArrayCore.
-// Internal layout: rows, cols, stride, core (IntArrayCore).
+// MatI64 — ring1 numeric wrapper for the current narrow pilot.
+// Internal layout: rows, cols, stride, core (ArrayBox).
 
-using nyash.core.numeric.intarray as IntArrayCore
+using lang.runtime.kernel.numeric.matrix_i64 as MatrixI64KernelBox
 
-static box MatI64 {
-  init { rows, cols, stride, core }
-
-  static new(rows, cols) {
+box MatI64 {
+  birth(rows, cols) {
     local total = rows * cols
-    local core = IntArrayCore.new(total)
-    local m = new MatI64()
-    m.rows = rows
-    m.cols = cols
-    m.stride = cols
-    m.core = core
-    return m
+    me.rows = rows
+    me.cols = cols
+    me.stride = cols
+    me.core = new ArrayBox()
+    me._fill_zero_core(total, 0)
   }
 
   rowsCount() {
@@ -25,48 +21,27 @@ static box MatI64 {
     return me.cols
   }
 
+  _fill_zero_core(total, idx) {
+    if idx >= total { return null }
+    me.core.push(0)
+    return me._fill_zero_core(total, idx + 1)
+  }
+
   at(r, c) {
     local idx = r * me.stride + c
-    return me.core.get_unchecked(idx)
+    return me.core.get(idx)
   }
 
   set(r, c, v) {
     local idx = r * me.stride + c
-    me.core.set_unchecked(idx, v)
+    me.core.set(idx, v)
     return null
   }
 
   // Naive O(n^3) matmul: this * b
-  // Box メソッドは numeric core への薄ラッパとして扱う。
+  // Box メソッドは numeric kernel への薄ラッパとして扱う。
   mul_naive(b) {
-    return NyNumericMatI64.mul_naive(me, b)
-  }
-}
-
-// NyNumericMatI64 — numeric core for MatI64 operations (System Hakorune subset)
-static box NyNumericMatI64 {
-  static mul_naive(a, b) {
-    local n = a.rows
-    local mcols = a.cols
-    local bcols = b.cols
-    // assume shapes are compatible and square for now (Phase 21.6/25 draft)
-    local out = MatI64.new(n, bcols)
-    local i = 0
-    loop(i < n) {
-      local k = 0
-      loop(k < mcols) {
-        local aik = a.at(i, k)
-        local j = 0
-        loop(j < bcols) {
-          local idx = i * out.stride + j
-          local v = out.core.get_unchecked(idx) + aik * b.at(k, j)
-          out.core.set_unchecked(idx, v)
-          j = j + 1
-        }
-        k = k + 1
-      }
-      i = i + 1
-    }
-    return out
+    local out = new MatI64(me.rows, b.cols)
+    return MatrixI64KernelBox.fill_mul_naive(out, me, b)
   }
 }

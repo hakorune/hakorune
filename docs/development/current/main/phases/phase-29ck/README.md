@@ -63,6 +63,7 @@ Related:
 8. `.hako` string kernel op set v0 の current pilot は `string.search` で、いまは `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index` まで landed している
    - further widening is paused until a new exact blocker appears
    - next `.hako` kernel family order is `array` -> `numeric`; `map` stays in `runtime/collections` ring1
+   - numeric first narrow pilot is `MatI64.mul_naive` in `lang/src/runtime/kernel/numeric/`, and the ring1 wrapper remains in `lang/src/runtime/numeric/`
    - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; a new `lang/src/runtime/kernel/array/` module is deferred until a concrete policy difference appears
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
@@ -95,6 +96,7 @@ Related:
   - follow-up pure-runtime-data-array-get slice: the same generic pure-first lane now also accepts narrow `RuntimeDataBox.get` when the receiver is an `ArrayBox`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_runtime_data_array_get_min.sh` pins `apps/tests/mir_shape_guard/runtime_data_array_get_missing_min_v1.mir.json` as the next `ArrayBox` method-shaped coverage lock
   - follow-up pure-substring-concat-loop slice: the same boundary-owned pure-first lane now also accepts a narrow ASCII `substring + concat + length + rotate-substring` loop seed without reopening harness fallback, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_substring_concat_loop_min.sh` pins `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1.mir.json` as the first active boundary-local boxless string-chain pilot
   - follow-up pure-indexof-line slice: the same boundary-owned pure-first lane now also accepts a narrow ASCII `indexOf("line")` loop seed with stable array routing, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_indexof_line_min.sh` pins `apps/tests/mir_shape_guard/indexof_line_pure_min_v1.mir.json` as the next active boundary-local string-search pilot
+  - numeric first narrow pilot landed: `lang/src/runtime/kernel/numeric/matrix_i64.hako` now owns `MatI64.mul_naive` loop/body and `lang/src/runtime/numeric/mat_i64_box.hako` is the thin `new MatI64(rows, cols)` wrapper
   - caller-side recipe seam now lives in `lang/src/shared/backend/backend_recipe_box.hako`; it owns the pure-first compile preflight, route profile, and link recipe normalization, and `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)` while `lang/c-abi/shims/hako_llvmc_ffi.c` keeps the remaining transport-only compat replay logic
   - Rust VM direct `env.codegen.compile_json_path` / `emit_object` globals now delegate back to `src/backend/mir_interpreter/handlers/extern_provider.rs`, so compile payload decode truth stays in one owner instead of drifting in `handlers/calls/global.rs`
   - recipe-aware daily transport now prefers the explicit `hako_llvmc_compile_json_pure_first` export, so further backend-zero value is in widening `.hako` recipe classification rather than teaching the generic C export more route meaning
