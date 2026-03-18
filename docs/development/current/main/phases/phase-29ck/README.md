@@ -62,6 +62,8 @@ Related:
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
 8. `.hako` string kernel op set v0 の current pilot は `string.search` で、いまは `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index` まで landed している
    - further widening is paused until a new exact blocker appears
+   - next `.hako` kernel family order is `array` -> `numeric`; `map` stays in `runtime/collections` ring1
+   - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; a new `lang/src/runtime/kernel/array/` module is deferred until a concrete policy difference appears
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`

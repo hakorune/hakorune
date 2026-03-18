@@ -34,8 +34,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `apps/tests/string_kernel_starts_with_min.hako` is the direct VM fixture for the next narrow op
     - `apps/tests/string_kernel_ends_with_min.hako` is the direct VM fixture for the latest narrow op
     - `apps/tests/string_kernel_split_once_index_min.hako` is the direct VM fixture for the latest narrow op
+  - next `.hako` kernel family order after string.search v0:
+    1. `array` kernel family on the same runtime/kernel lane
+    2. `numeric` kernel family after array stabilizes
+    3. `map` stays in `lang/src/runtime/collections/` ring1 and is not part of this kernel lane
   - next narrow op order for this lane:
-    1. further widening paused until a new exact blocker appears
+    1. `ArrayBox.length/len/size` observer path stays in collections ring1 first; do not create a new array kernel module yet
+    2. further widening paused until a new exact blocker appears
 - owner scope lock for this wave:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`

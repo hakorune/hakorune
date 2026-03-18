@@ -64,6 +64,18 @@ static box ArrayCoreBox {
     return externcall "nyash.array.len_h"(handle)
   }
 
+  _try_handle_size_alias(regs, mname, dst, recv_h, cur_len) {
+    if MethodAliasPolicy.is_size_alias(mname) != 1 { return 0 }
+    if recv_h != null && recv_h > 0 {
+      local len_i64 = me.len_i64(recv_h)
+      me._write_i64_dst(regs, dst, len_i64)
+      me._trace("[vm/adapter/array_core:len_i64]")
+      return 1
+    }
+    me._write_i64_dst(regs, dst, cur_len)
+    return 1
+  }
+
   record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id) {
     if value_state == "1" && arg0_id != null && arg0_id >= 0 {
       local val_str = regs.getField(StringHelpers.int_to_str(arg0_id))
@@ -146,14 +158,7 @@ static box ArrayCoreBox {
       }
     }
 
-    if MethodAliasPolicy.is_size_alias(mname) == 1 {
-      if recv_h != null && recv_h > 0 {
-        local len_i64 = me.len_i64(recv_h)
-        me._write_i64_dst(regs, dst, len_i64)
-        me._trace("[vm/adapter/array_core:len_i64]")
-        return 1
-      }
-      me._write_i64_dst(regs, dst, cur_len)
+    if me._try_handle_size_alias(regs, mname, dst, recv_h, cur_len) == 1 {
       return 1
     }
 
