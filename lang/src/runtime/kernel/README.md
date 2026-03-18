@@ -11,7 +11,7 @@ Subdirectories:
 
 Current narrow pilot:
 - `string.search` (`string/search.hako`)
-  - current public surface: `find_index` / `contains` / `starts_with`
+  - current public surface: `find_index` / `contains` / `starts_with` / `ends_with`
 
 Non-goals:
 - No direct host category routing.

@@ -1,0 +1,20 @@
+using lang.runtime.kernel.string.search as StringSearchKernelBox
+
+static box Main {
+  main() {
+    local fails
+    fails = 0
+
+    if StringSearchKernelBox.ends_with("banana", "na") != 1 { fails = fails + 1 }
+    if StringSearchKernelBox.ends_with("banana", "ba") != 0 { fails = fails + 1 }
+    if StringSearchKernelBox.ends_with("banana", "") != 1 { fails = fails + 1 }
+    if StringSearchKernelBox.ends_with("", "") != 1 { fails = fails + 1 }
+
+    if fails == 0 {
+      print("OK: string ends_with")
+      return 0
+    }
+    print("FAIL: string ends_with (" + ("" + fails) + ")")
+    return 1
+  }
+}

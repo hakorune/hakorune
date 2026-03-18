@@ -61,8 +61,8 @@ Related:
    - `main.rs` / `llvm_codegen.rs` の Rust glue を further thin にすること
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
 8. `.hako` string kernel op set v0 の current pilot は `string.search` で、直近の次 narrow op は `starts_with` である
-   - current public surface is `find_index` / `contains` / `starts_with`
-   - next narrow op order is `ends_with` then `split_once_index`
+   - current public surface is `find_index` / `contains` / `starts_with` / `ends_with`
+   - next narrow op order is `split_once_index`
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`
