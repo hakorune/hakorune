@@ -2474,3 +2474,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - active support slice:
     - `apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1.mir.json` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_substring_concat_loop_min.sh` now pin the active boundary pure substring-concat-loop seed
     - the current pilot stays backend-local inside `lang/c-abi/shims/hako_llvmc_ffi.c` and does not widen runtime/VM/plugin token surfaces
+  - next narrow follow-up:
+    - `indexof_line` is the next supported boundary-local string-search seed; keep it on the same C-boundary pure-path seam and do not reopen `src/llvm_py/**`
+    - current exact seed shape: `apps/tests/mir_shape_guard/indexof_line_pure_min_v1.mir.json` with `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_indexof_line_min.sh`
