@@ -52,7 +52,15 @@ freeze.str
 - `search.hako`
   - `find_index(hay, needle) -> i64`
   - `contains(hay, needle) -> i64`
+  - `starts_with(hay, needle) -> i64`
   - keep it narrow; no widening to the rest of the string kernel yet
+
+## Next Narrow Op
+
+- `ends_with(hay, needle) -> i64`
+  - add only after `starts_with` is stable and fixture-backed
+- `split_once_index(hay, needle) -> i64`
+  - add only after prefix/suffix checks are fixed
 
 ## Examples
 

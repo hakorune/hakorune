@@ -1,6 +1,6 @@
 // StringSearchKernelBox — .hako string search kernel owner
 // Responsibility:
-// - own low-level search/control structure for indexOf/contains
+// - own low-level search/control structure for indexOf/contains/starts_with
 // - keep the algorithm policy on the .hako side
 // Non-responsibility:
 // - box identity / handle allocation
@@ -40,6 +40,12 @@ static box StringSearchKernelBox {
       i = i + 1
     }
     return -1
+  }
+
+  starts_with(hay, needle) {
+    if hay == null { return 0 }
+    if needle == null { needle = "" }
+    return me._starts_with_at(hay, 0, needle)
   }
 
   contains(hay, needle) {

@@ -28,9 +28,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`; `llvmlite` / `native` / harness keep lanes are not valid in this wave
   - `.hako` string kernel op set v0 の narrow pilot は `lang.runtime.kernel.string.search` で切り、`find_index` / `contains` を先に固定する
   - current narrow pilot landed:
-    - `lang/src/runtime/kernel/string/search.hako` now owns `find_index` / `contains`
+    - `lang/src/runtime/kernel/string/search.hako` now owns `find_index` / `contains` / `starts_with`
     - `lang/src/runtime/kernel/hako_module.toml` exports it as `string.search`
     - `apps/tests/string_kernel_search_min.hako` is the direct VM fixture
+    - `apps/tests/string_kernel_starts_with_min.hako` is the direct VM fixture for the next narrow op
+  - next narrow op order for this lane:
+    1. `ends_with` on the same `string.search` owner
+    2. `split_once_index` only after prefix/suffix checks are fixed
 - owner scope lock for this wave:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`
@@ -140,6 +144,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   5. `substring_hii` / `concat3_hhh` / `string_len_from_handle` / `string_handle_from_owned` / `borrowed_substring_plan_from_handle(...)` の birth map を 1 枚に固定する
   6. `.hako authority / Rust substrate` の string owner map を維持したまま shadow-owner wave へ備える
   7. `substring_concat` pilot と別に、search/control kernel wave は `.hako` string kernel op set v0 として narrow に切り出し、黙って widen しない
+     - next narrow op: `ends_with`
 - acceptance:
   1. `cargo test -q -p nyash_kernel substring_hii -- --nocapture`
   2. `cargo test -q -p nyash_kernel string_concat3_hhh_contract -- --nocapture`

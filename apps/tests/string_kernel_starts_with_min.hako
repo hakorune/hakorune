@@ -1,0 +1,20 @@
+using lang.runtime.kernel.string.search as StringSearchKernelBox
+
+static box Main {
+  main() {
+    local fails
+    fails = 0
+
+    if StringSearchKernelBox.starts_with("banana", "ba") != 1 { fails = fails + 1 }
+    if StringSearchKernelBox.starts_with("banana", "na") != 0 { fails = fails + 1 }
+    if StringSearchKernelBox.starts_with("banana", "") != 1 { fails = fails + 1 }
+    if StringSearchKernelBox.starts_with("", "") != 1 { fails = fails + 1 }
+
+    if fails == 0 {
+      print("OK: string starts_with")
+      return 0
+    }
+    print("FAIL: string starts_with (" + fails.toString() + ")")
+    return 1
+  }
+}
