@@ -111,9 +111,15 @@ static box ArrayCoreBox {
     local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
     local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
     local cur_len = JsonFragBox._str_to_int(cur_len_raw)
-    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
     local recv_h = me._read_reg_i64_or_null(regs, rid)
     local dst = JsonFragBox.get_int(seg, "dst")
+
+    // Keep the observer-only size alias on the thin wrapper fast path.
+    if me._try_handle_size_alias(regs, mname, dst, recv_h, cur_len) == 1 {
+      return 1
+    }
+
+    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
 
     if mname == "set" {
       local arg0_i = MiniMirV1Scan.first_arg_register(seg)
@@ -156,10 +162,6 @@ static box ArrayCoreBox {
         }
         return 1
       }
-    }
-
-    if me._try_handle_size_alias(regs, mname, dst, recv_h, cur_len) == 1 {
-      return 1
     }
 
     if mname == "push" {
