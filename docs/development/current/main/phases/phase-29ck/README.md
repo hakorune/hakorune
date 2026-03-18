@@ -369,8 +369,9 @@ Related:
   - fresh stable `kilo_kernel_small_hk` baseline is `c_ms=79`, `py_ms=111`, `ny_vm_ms=989`, `ny_aot_ms=804`, `ratio_c_aot=0.10`, `aot_status=ok`
   - `kilo_micro_substring_concat` short-slice runtime rule now eager-materializes `<= 8 bytes` instead of always creating `StringViewBox`
   - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is back on direct `with_handle(...)` instead of cache-backed span lookup
+  - accepted structure-first follow-up: `crates/nyash_kernel/src/exports/string.rs::concat3_hhh` now splits transient planning from birth via `concat3_plan_from_*` + `freeze_concat3_plan(...)`
   - `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers
-  - isolated micro checkpoint is now `266891899 cycles / 73 ms`, but the stable whole-program lane improved to `804 ms`
+  - isolated micro checkpoint is now `266244455 cycles / 72 ms`, and the stable whole-program lane is `798 ms` median (`min=791`, `max=1607`)
   - rejected follow-up: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved the isolated micro to `262468757 cycles / 69 ms`, but stable median regressed to `819 ms`, so this phase keeps the flat `<= 8 bytes` policy
   - rejected observer-only follow-up: explicit `string_len_from_handle` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median (`min=786`, `max=1841`), so the patch was reverted immediately
   - rejected structure-first follow-up: planner-side `OwnedSubstring/ViewRecipe` plus `substring_hii`-side `StringViewBox` freeze reached `267397179 cycles / 72 ms`, but stable `kilo_kernel_small_hk` regressed to `901 ms` median (`min=794`, `max=1146`), so this phase will not treat a pure birth-site shuffle as progress toward the transient wave

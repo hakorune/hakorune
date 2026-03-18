@@ -120,11 +120,12 @@ Hotspot は次の分類で読む。
 - micro profile で見えている `std::env::_var_os` は、まず bridge 側の per-call probe を疑う
 - `substring_concat` の current exact leaf は kernel/runtime owner に固定する
 - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is reduced to dispatch + match
+- `crates/nyash_kernel/src/exports/string.rs::concat3_hhh` is now split file-locally into transient planning (`concat3_plan_from_parts`, `concat3_plan_from_fast_str`, `concat3_plan_from_spans`) plus birth sink (`freeze_concat3_plan`)
 - `substring_hii` の hot path must stay on direct `with_handle(...)`; cache-backed span lookup is diagnostic-only here because it regressed `string_span_cache_get/put` back into the top symbols
 - `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers; this is the current bridge/allocation slice
 - current contract-change slice raises the short-slice eager materialize threshold to `<= 8 bytes`
-- fresh micro recheck after the current slices is `266891899 cycles / 73 ms` for `kilo_micro_substring_concat`
-- fresh stable recheck after the current slices is `804 ms` for `kilo_kernel_small_hk`
+- fresh micro recheck after the current slices is `266244455 cycles / 72 ms` for `kilo_micro_substring_concat`
+- fresh stable recheck after the current slices is `798 ms` median for `kilo_kernel_small_hk` (`min=791`, `max=1607`)
 - rejected variant: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`; do not keep this split while stable is the primary metric
 - rejected observer-only variant: `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` explicit `StringBox` / `StringViewBox` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median (`min=786`, `max=1841`); revert immediately and do not reopen this cut before a stronger owner-level reason appears
 - rejected structure-first variant: `BorrowedSubstringPlan::{OwnedSubstring,ViewRecipe}` moved `StringViewBox` birth from `borrowed_substring_plan_from_handle(...)` into `substring_hii`, but without a real transient carrier this only shuffled the birth site; isolated `substring_concat` landed at `267397179 cycles / 72 ms`, while stable `kilo_kernel_small_hk` regressed to `901 ms` median (`min=794`, `max=1146`); do not reopen this cut until a larger `TStr`/freeze-boundary design is ready
@@ -170,7 +171,8 @@ Hotspot は次の分類で読む。
 - `kilo_micro_substring_concat`:
   - asm-guided slice first changed `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `8` to `0`, then contract-change follow-up restored eager materialize for `<= 8 bytes`
   - short `substring_hii` results now materialize under FAST lane, while mid slice still stays `StringViewBox`
-  - current checkpoint is `266891899 cycles / 73 ms`, while stable `kilo_kernel_small_hk` improved to `804 ms`
+  - pre-structure-first checkpoint was `266891899 cycles / 73 ms`, while stable `kilo_kernel_small_hk` sat at `804 ms`
+  - accepted structure-first follow-up: `concat3_hhh` now reads `plan -> freeze -> handle` inside `string.rs`; current recheck is `266244455 cycles / 72 ms` and stable `kilo_kernel_small_hk` median `798 ms`
   - rejected observer-only follow-up: explicit `string_len_from_handle` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median, so this wave keeps the previous observer path unchanged
   - rejected structure-first follow-up: planner-side `OwnedSubstring/ViewRecipe` plus `substring_hii`-side view freeze reached `267397179 cycles / 72 ms`, but stable `kilo_kernel_small_hk` regressed to `901 ms` median, so plan/birth separation needs a real transient carrier instead of a pure birth-site shuffle
   - current top symbols are:

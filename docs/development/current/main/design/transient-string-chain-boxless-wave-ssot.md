@@ -128,6 +128,7 @@ current code では `plan` と `birth` がまだ混ざっている。
    - `substring_hii`, `concat3_hhh`, `string_len_from_handle`, `string_handle_from_owned` のどこで box/handle birth が起きるかを 1 枚で棚卸しする
 3. structure-first code change
    - current `<= 8 bytes` policyを変えず、plan と birth を薄く分ける exact slice だけを試す
+   - accepted first: keep file-local `concat3_hhh` as `plan -> freeze -> handle`; this improves readability without pretending to solve birth density by itself
    - do not repeat the rejected minimal split `BorrowedSubstringPlan::{OwnedSubstring,ViewRecipe}`: moving `StringViewBox` birth from planner to `substring_hii` without a real transient carrier regressed stable to `901 ms` median even though the code shape looked cleaner
 4. perf proof
    - micro と stable の両方で keep/discard を決める

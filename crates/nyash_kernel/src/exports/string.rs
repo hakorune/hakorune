@@ -3,9 +3,8 @@
 use super::string_view::{
     borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
     resolve_string_span_from_handle_nocache, resolve_string_span_from_obj,
-    resolve_string_span_pair_from_handles,
-    string_is_empty_from_handle as string_is_empty_impl, string_len_from_handle as string_len_impl,
-    BorrowedSubstringPlan,
+    resolve_string_span_pair_from_handles, string_is_empty_from_handle as string_is_empty_impl,
+    string_len_from_handle as string_len_impl, BorrowedSubstringPlan,
 };
 use crate::hako_forward_bridge;
 use memchr::{memchr, memmem, memrchr};
@@ -208,6 +207,99 @@ fn concat_to_string_handle(parts: &[&str]) -> i64 {
         out.push_str(p);
     }
     string_handle_from_owned(out)
+}
+
+enum Concat3Plan {
+    ReuseHandle(i64),
+    Materialize(String),
+}
+
+#[inline(always)]
+fn freeze_concat3_plan(plan: Concat3Plan) -> i64 {
+    match plan {
+        Concat3Plan::ReuseHandle(handle) => handle,
+        Concat3Plan::Materialize(value) => string_handle_from_owned(value),
+    }
+}
+
+#[inline(always)]
+fn concat3_plan_from_parts(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    a: &str,
+    b: &str,
+    c: &str,
+    allow_handle_reuse: bool,
+) -> Concat3Plan {
+    if a.is_empty() {
+        if b.is_empty() {
+            return if allow_handle_reuse {
+                Concat3Plan::ReuseHandle(c_h)
+            } else {
+                Concat3Plan::Materialize(c.to_string())
+            };
+        }
+        if c.is_empty() {
+            return if allow_handle_reuse {
+                Concat3Plan::ReuseHandle(b_h)
+            } else {
+                Concat3Plan::Materialize(b.to_string())
+            };
+        }
+        return Concat3Plan::Materialize(concat_two_str(b, c));
+    }
+    if b.is_empty() {
+        if c.is_empty() {
+            return if allow_handle_reuse {
+                Concat3Plan::ReuseHandle(a_h)
+            } else {
+                Concat3Plan::Materialize(a.to_string())
+            };
+        }
+        return Concat3Plan::Materialize(concat_two_str(a, c));
+    }
+    if c.is_empty() {
+        return Concat3Plan::Materialize(concat_two_str(a, b));
+    }
+    Concat3Plan::Materialize(concat_three_str(a, b, c))
+}
+
+#[inline(always)]
+fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<Concat3Plan> {
+    if a_h <= 0 || b_h <= 0 || c_h <= 0 {
+        return None;
+    }
+    handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
+        concat3_plan_from_parts(a_h, b_h, c_h, a, b, c, true)
+    })
+}
+
+#[inline(always)]
+fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64) -> Option<Concat3Plan> {
+    if a_h <= 0 || b_h <= 0 || c_h <= 0 {
+        return None;
+    }
+    let (a_obj, b_obj, c_obj) = handles::get3(a_h as u64, b_h as u64, c_h as u64);
+    let (Some(a_obj), Some(b_obj), Some(c_obj)) = (a_obj, b_obj, c_obj) else {
+        return None;
+    };
+    let (Some(a_span), Some(b_span), Some(c_span)) = (
+        resolve_string_span_from_obj(a_h, a_obj),
+        resolve_string_span_from_obj(b_h, b_obj),
+        resolve_string_span_from_obj(c_h, c_obj),
+    ) else {
+        return None;
+    };
+    Some(concat3_plan_from_parts(
+        a_h,
+        b_h,
+        c_h,
+        a_span.as_str(),
+        b_span.as_str(),
+        c_span.as_str(),
+        true,
+    ))
 }
 
 fn to_owned_string_handle_arg(h: i64) -> String {
@@ -509,73 +601,26 @@ pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) 
     if !allow_rust_string_fallback() {
         return hook_miss_freeze_handle("string.concat3_hhh");
     }
-    // Hot path: resolve all 3 handles once and reuse the same objects for
-    // both direct String route and StringView-compatible fallback route.
-    if a_h > 0 && b_h > 0 && c_h > 0 {
-        if let Some(out) = handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
-            if a.is_empty() {
-                if b.is_empty() {
-                    return Ok(c_h);
-                }
-                if c.is_empty() {
-                    return Ok(b_h);
-                }
-                return Err(concat_two_str(b, c));
-            }
-            if b.is_empty() {
-                if c.is_empty() {
-                    return Ok(a_h);
-                }
-                return Err(concat_two_str(a, c));
-            }
-            if c.is_empty() {
-                return Err(concat_two_str(a, b));
-            }
-            Err(concat_three_str(a, b, c))
-        }) {
-            return match out {
-                Ok(h) => h,
-                Err(merged) => string_handle_from_owned(merged),
-            };
-        }
+    if let Some(plan) = concat3_plan_from_fast_str(a_h, b_h, c_h) {
+        return freeze_concat3_plan(plan);
+    }
 
-        let (a_obj, b_obj, c_obj) = handles::get3(a_h as u64, b_h as u64, c_h as u64);
-        if let (Some(a_obj), Some(b_obj), Some(c_obj)) = (a_obj, b_obj, c_obj) {
-            if let (Some(a_span), Some(b_span), Some(c_span)) = (
-                resolve_string_span_from_obj(a_h, a_obj),
-                resolve_string_span_from_obj(b_h, b_obj),
-                resolve_string_span_from_obj(c_h, c_obj),
-            ) {
-                let a = a_span.as_str();
-                let b = b_span.as_str();
-                let c = c_span.as_str();
-                if a.is_empty() {
-                    if b.is_empty() {
-                        return c_h;
-                    }
-                    if c.is_empty() {
-                        return b_h;
-                    }
-                    return string_handle_from_owned(concat_two_str(b, c));
-                }
-                if b.is_empty() {
-                    if c.is_empty() {
-                        return a_h;
-                    }
-                    return string_handle_from_owned(concat_two_str(a, c));
-                }
-                if c.is_empty() {
-                    return string_handle_from_owned(concat_two_str(a, b));
-                }
-                return concat_to_string_handle(&[a, b, c]);
-            }
-        }
+    if let Some(plan) = concat3_plan_from_spans(a_h, b_h, c_h) {
+        return freeze_concat3_plan(plan);
     }
 
     let a = to_owned_string_handle_arg(a_h);
     let b = to_owned_string_handle_arg(b_h);
     let c = to_owned_string_handle_arg(c_h);
-    concat_to_string_handle(&[a.as_str(), b.as_str(), c.as_str()])
+    freeze_concat3_plan(concat3_plan_from_parts(
+        a_h,
+        b_h,
+        c_h,
+        a.as_str(),
+        b.as_str(),
+        c.as_str(),
+        false,
+    ))
 }
 
 // String.eq_hh(lhs_h, rhs_h) -> i64 (0/1)
@@ -617,7 +662,9 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
         BorrowedSubstringPlan::ReturnHandle => h,
         BorrowedSubstringPlan::ReturnEmpty => shared_empty_string_handle(),
         BorrowedSubstringPlan::Materialize(value) => string_handle_from_owned(value),
-        BorrowedSubstringPlan::CreateView(view) => handles::to_handle_arc(std::sync::Arc::new(view)) as i64,
+        BorrowedSubstringPlan::CreateView(view) => {
+            handles::to_handle_arc(std::sync::Arc::new(view)) as i64
+        }
     }
 }
 
