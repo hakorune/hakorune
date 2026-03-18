@@ -126,6 +126,7 @@ Hotspot は次の分類で読む。
 - fresh micro recheck after the current slices is `266891899 cycles / 73 ms` for `kilo_micro_substring_concat`
 - fresh stable recheck after the current slices is `804 ms` for `kilo_kernel_small_hk`
 - rejected variant: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`; do not keep this split while stable is the primary metric
+- rejected observer-only variant: `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` explicit `StringBox` / `StringViewBox` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median (`min=786`, `max=1841`); revert immediately and do not reopen this cut before a stronger owner-level reason appears
 - current asm top is:
   - `BoxBase::new`
   - `Registry::alloc`
@@ -165,6 +166,7 @@ Hotspot は次の分類で読む。
   - asm-guided slice first changed `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `8` to `0`, then contract-change follow-up restored eager materialize for `<= 8 bytes`
   - short `substring_hii` results now materialize under FAST lane, while mid slice still stays `StringViewBox`
   - current checkpoint is `266891899 cycles / 73 ms`, while stable `kilo_kernel_small_hk` improved to `804 ms`
+  - rejected observer-only follow-up: explicit `string_len_from_handle` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median, so this wave keeps the previous observer path unchanged
   - current top symbols are:
     - `BoxBase::new`
     - `Registry::alloc`

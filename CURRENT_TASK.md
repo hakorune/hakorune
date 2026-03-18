@@ -65,6 +65,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current runtime follow-up slice for `substring_concat`: `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant panics in cold helpers, so the success path stays straight-line
   - current contract-change slice: `crates/nyash_kernel/src/exports/string_view.rs` now allows `<= 8 bytes` short slices to eager-materialize instead of always creating `StringViewBox`; this reduces view churn and improves stable whole-program baseline, even though the isolated micro leaf regressed slightly
   - rejected experiment (not kept): splitting the policy to `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` micro to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`, so the wave stays on the flat `<= 8 bytes` policy while whole-program stable remains the primary metric
+  - rejected experiment (reverted immediately): `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` tried explicit `StringBox` / `StringViewBox` downcast fast paths; isolated `substring_concat` micro landed at `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed hard to `1066 ms` median (`min=786`, `max=1841`), so observer-only fast path is not a keep candidate
   - fresh recheck after those follow-up slices: `substring_concat ny_aot_cycles=266891899 ny_aot_ms=73` on `bench_micro_c_vs_aot_stat.sh ... 1 9`; asm top is now `BoxBase::new 26.17%`, `Registry::alloc 25.12%`, `substring_hii 23.64%`, and `string_handle_from_owned 3.25%`
   - stop-line for this exact wave: `BoxBase::new` is identity-bound and is not a safe optimization target; the next cut must reduce `StringViewBox::new` call count or another upstream owner, not reuse box IDs
 - likely remaining hotspot family from the last inventory:
@@ -78,6 +79,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/box-identity-view-allocation-design-note.md`
   - `docs/development/current/main/design/boxbase-new-external-consultation-question.md`
   - `docs/development/current/main/investigations/phase21_5-kilo-hotspot-triage-2026-02-23.md`
+  - `docs/development/current/main/investigations/substring-concat-observer-fast-path-and-upstream-cut-2026-03-18.md`
 
 ## Next Wave Board (queued)
 
@@ -102,6 +104,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   1. transient chain / escape boundary を SSOT で固定する
   2. `substring_hii`, `concat3_hhh`, `string_len_from_handle`, `string_handle_from_owned` の box birth inventory を切る
   3. current flat `<= 8 bytes` policyを変えない contract-neutral slice だけ試す
+     - rejected and do-not-repeat first: `string_len_from_handle` explicit downcast observer fast path
   4. `.hako authority / Rust substrate` の string owner map を維持したまま shadow-owner wave へ備える
 - acceptance:
   1. `cargo test -q -p nyash_kernel substring_hii -- --nocapture`
