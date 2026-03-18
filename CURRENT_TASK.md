@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-17
+Date: 2026-03-18
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -16,17 +16,97 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - no-fallback: `NYASH_VM_USE_FALLBACK=0`（silent fallback 禁止 / fail-fast）。
 - compiler lane は `phase-29bq` を monitor-only 運用（failure-driven reopen のみ）。
 
-## Quick Task Board (2026-03-17)
+## Exe Optimization Wave (2026-03-18)
 
 - current main goal:
+  - `kilo` / `micro kilo` の exe 最適化に移る
+  - C / Python / Hako を stable baseline と micro ladder で比較し、確認できた hot leaf だけを詰める
+  - `.hako` の `@hint(inline)` は advisory trial としてのみ使う。意味を変える workaround にはしない
+  - C ABI / bridge / loader は transport-only に寄せ、policy は `.hako` に残す
+  - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`; `llvmlite` / `native` / harness keep lanes are not valid in this wave
+- owner scope lock for this wave:
+  - touch-first owners:
+    - `crates/nyash_kernel/src/exports/string.rs`
+    - `crates/nyash_kernel/src/exports/string_view.rs`
+    - `crates/nyash_kernel/src/plugin/string.rs`
+    - `src/runtime/host_handles.rs`
+    - `lang/c-abi/shims/hako_aot.c`
+    - `lang/c-abi/shims/hako_aot_shared_impl.inc`
+  - do-not-touch owners unless the route contract itself is broken:
+    - `src/llvm_py/**`
+    - `tools/llvmlite_harness.py`
+    - `crates/nyash-llvm-compiler/src/harness_driver.rs`
+    - explicit keep-lane selectors (`NYASH_LLVM_BACKEND=llvmlite|native`, `NYASH_LLVM_USE_HARNESS=1`, `HAKO_LLVM_EMIT_PROVIDER=llvmlite`)
+  - investigation rule:
+    - start from the asm top symbol owner, not from keyword grep hits
+    - if the top symbol lives under kernel/runtime/C boundary, do not reopen `llvm_py` in this wave
+- canonical entry points:
+  - `PERF_VM_FORCE_NO_FALLBACK=1 PERF_AOT_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako_stable.sh kilo_kernel_small_hk auto 5 5 11`
+  - `bash tools/perf/run_kilo_micro_machine_ladder.sh 1 15`
+  - `PERF_AOT_SKIP_BUILD=0 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 15`
+  - `PERF_AOT_SKIP_BUILD=0 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_substring_concat 1 15`
+  - `PERF_AOT_SKIP_BUILD=0 bash tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 15`
+- decision rule:
+  - `ratio_c_aot >= 0.95` かつ `aot_status=ok` なら、その lane は monitor-only に落とす
+  - それ未満なら、micro ladder で次の exact hot leaf を選んで続きを詰める
+- fresh-build rule:
+  - `AUTO` skip-build の baseline は診断専用
+  - first baseline は `PERF_AOT_SKIP_BUILD=0` で取り直して、release binary の stale mix を避ける
+- latest verified baseline (2026-03-18):
+  - `kilo_kernel_small_hk` -> `c_ms=79`, `py_ms=110`, `ny_vm_ms=1012`, `ny_aot_ms=844`, `ratio_c_aot=0.09`, `aot_status=ok`
+  - the benchmark is still bridge/helper-density bound; the next move is exact leaf trimming, not route rewrites
+- latest verified micro ladder (2026-03-18):
+  - `kilo_micro_substring_concat` is the thickest lane
+  - `kilo_micro_array_getset` is next
+  - `kilo_micro_indexof_line` is the least bad of the three
+  - after caching hot bridge trace env probes, the ladder is still ordered the same, but `indexof_line` and `substring_concat` moved down a little in AOT cycles
+  - current round (2026-03-18): `indexof_line ratio_cycles=0.04 ny_aot_cycles=191774168`, `substring_concat ratio_cycles=0.00 ny_aot_cycles=263193549`, `array_getset ratio_cycles=0.01 ny_aot_cycles=364903842`
+  - current exact leaf slice for `substring_concat`: `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, so `crates/nyash_kernel/src/exports/string.rs::substring_hii` stays a thin dispatch/match wrapper while the hot path remains on direct `with_handle(...)` instead of cache-backed span lookup
+  - current runtime follow-up slice for `substring_concat`: `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant panics in cold helpers, so the success path stays straight-line
+  - fresh recheck after those follow-up slices: `substring_concat ny_aot_cycles=263193549 ny_aot_ms=70` on `bench_micro_c_vs_aot_stat.sh ... 1 9`; asm top is now `substring_hii 42.91%`, `Registry::alloc 24.35%`, `BoxBase::new 12.16%`
+  - stop-line for this exact wave: `BoxBase::new` is identity-bound and is not a safe optimization target; the next cut must reduce `StringViewBox::new` call count or another upstream owner, not reuse box IDs
+- likely remaining hotspot family from the last inventory:
+  - `TLS / LocalKey::with`
+  - `array_get_hi`
+  - `find_substr_byte_index`
+- read-first for this wave:
+  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
+  - `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
+  - `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
+  - `docs/development/current/main/design/box-identity-view-allocation-design-note.md`
+  - `docs/development/current/main/design/boxbase-new-external-consultation-question.md`
+  - `docs/development/current/main/investigations/phase21_5-kilo-hotspot-triage-2026-02-23.md`
+
+## Quick Task Board (2026-03-17)
+
+- note:
+  - this block is the legacy backend-zero / llvmlite closeout log; the active exe optimization wave is above
+- legacy closeout snapshot:
   - `backend-zero` を final shape `.hako -> LlvmBackendBox -> hako_aot -> backend helper` へ寄せる
   - `src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/main.rs`, `crates/nyash-llvm-compiler/src/native_driver.rs` は途中の Rust glue / keep lane であり、final owner ではない
   - `lang/c-abi/shims/hako_llvmc_ffi.c` は急いで delete せず、まず `transport-only` の tiny C substrate に縮める
   - `.hako` の next exact slice は `BackendRecipeBox` の route profile SSOT 化で、policy owner / transport owner / compile recipe / compat replay を 1 枚の profile で明示すること
   - landed recipe classification row:
-    - `BackendRecipeBox.compile_route_profile(...)` now also names `acceptance_policy=boundary-pure-seed-matrix-v1`
-    - `RuntimeDataBox.get(ArrayBox missing index)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-array-get-missing-v1`
+  - `BackendRecipeBox.compile_route_profile(...)` now also names `acceptance_policy=boundary-pure-seed-matrix-v1`
+  - `ret_const_min_v1` now also has an explicit `.hako` evidence row via `acceptance_case=ret-const-v1`
+  - `hello_simple_llvm_native_probe_v1` now also has an explicit `.hako` evidence row via `acceptance_case=hello-simple-llvm-native-probe-v1`
+  - `RuntimeDataBox.get(ArrayBox missing index)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-array-get-missing-v1`
+  - `RuntimeDataBox.length(StringBox)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-string-length-ascii-v1`
+  - `RuntimeDataBox.length(ArrayBox)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-array-length-v1`
+  - `RuntimeDataBox.push(ArrayBox)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-array-push-v1`
+  - `RuntimeDataBox.length(MapBox)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-map-size-v1`
+  - `RuntimeDataBox.has(ArrayBox missing index)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-array-has-missing-v1`
+  - `RuntimeDataBox.has(MapBox missing key)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-map-has-missing-v1`
+  - `RuntimeDataBox.get(MapBox missing key)` now also has an explicit `.hako` evidence row via `acceptance_case=runtime-data-map-get-missing-v1`
+  - `StringBox.indexOf/1` now also has an explicit `.hako` evidence row via `acceptance_case=string-indexof-ascii-v1`
+  - `StringBox.length/size` now also has an explicit `.hako` evidence row via `acceptance_case=string-length-ascii-v1`
     - this is the first visible `.hako`-owned label for why daily route stays `pure-first + harness`, while transport behavior remains unchanged
+  - rust-layer inventory for the next cleanup wave:
+    - `src/host_providers/llvm_codegen.rs` has already split its route-selection helpers into `src/host_providers/llvm_codegen/route.rs` and now also delegates MIR normalization / transport helpers into `src/host_providers/llvm_codegen/normalize.rs` plus `src/host_providers/llvm_codegen/transport.rs`, so the parent file is now closer to orchestration glue than policy owner
+    - `crates/nyash-llvm-compiler/src/main.rs` is CLI routing glue and now delegates input shaping into `crates/nyash-llvm-compiler/src/compile_input.rs` plus emit/link driver dispatch into `crates/nyash-llvm-compiler/src/driver_dispatch.rs`; `driver_dispatch.rs` now further delegates Python-harness duties into `crates/nyash-llvm-compiler/src/harness_driver.rs` and link/finalize duties into `crates/nyash-llvm-compiler/src/link_driver.rs`, so Rust thin-up is now at its stop line and the next move is exe optimization
+    - `crates/nyash-llvm-compiler/src/boundary_driver.rs` is transport-only keep and should stay out of the daily-owner cutover
+    - `crates/nyash-llvm-compiler/src/native_driver.rs` is bootstrap/canary keep only
+    - `src/runner/modes/llvm/object_emitter.rs` is already thin and is not the first deletion target
   - remaining backend-zero tasks, in order:
     1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
     2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
@@ -36,6 +116,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `by_name.rs` FileBox named-method compat tail now lives in `compat_invoke_core.rs`; remaining kernel caller shrink is `module_string_dispatch.rs` / compiled-stage1 surrogate residue before hard retire readiness
   - `src/llvm_py/instructions/mir_call_legacy.py` now forwards receiver literals into the shared direct-or-plugin tail, so the legacy BuildBox module-string path can resolve direct lowered methods before `nyash.plugin.invoke_by_name_i64`
   - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs` tests are now direct-dispatch only; by-name compat proof lives elsewhere and is no longer owned there
+  - `src/backend/mir_interpreter/handlers/boxes_file.rs` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` are the current FileBox direct-contract owners to inspect before any `by_name` delete
   - current clean stop-line:
     - `.hako` policy owner is `BackendRecipeBox`
     - `.hako` caller stop-line is `LlvmBackendBox -> env.codegen.*`
@@ -46,10 +127,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - bootstrap closure wave は fixed-point compare まで完了
   - `stage7 launcher` / `stage9 launcher` と fresh `stage1-cli` rebuild は byte-identical
   - 以後は fresh semantic mismatch が出ない限り `stageN` を増やさない
-- active order:
-  1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
-  2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
-  3. backend-zero は `.hako = policy/recipe owner`, `C = export/transport owner` に固定し、C を急いで delete しない
+  - active order:
+    1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
+    2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
+    3. backend-zero は `.hako = policy/recipe owner`, `C = export/transport owner` に固定し、C を急いで delete しない
+    4. Rust thin-up はここで止めて、次は exe optimization に移る
   4. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を thin floor まで固める
   5. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
 - freeze unless blocker:
@@ -70,6 +152,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - top-level future tracking SSOT:
   - `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
   - `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md`
   - `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md`
 - split:
@@ -94,6 +177,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - next `.hako ring1` front is only worth reopening when a new narrow collection/runtime seam appears with fixture+gate value; current collection adapter-on orchestration slices are landed for `ArrayBox`, `MapBox`, `RuntimeDataBox`, and `StringBox` size aliases, so this lane is now near thin floor
       - `ArrayCoreBox` / `MapCoreBox` size-state fallback tails are compat cleanup only, not blocker work
     - target lock: move mainline collection ownership toward `.hako ring1` collection/runtime layer first, then shrink Rust births/plugins/builtin residue to compat/archive keep
+  - `kernel-authority-zero`: queued pointer
+    - SSOT: `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+    - meaning/policy owner を `.hako` 側へ寄せる波であり、Rust substrate delete と同じ task にしない
+    - current rule: active exe optimization wave と混ぜない
+    - start trigger: current perf / backend-zero stop-line が揃ってからだけ reopen する
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
     - design SSOT: `docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md`
@@ -129,7 +217,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - landed `phase-29cl / BYN-min2`: `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly, so the visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`; `llvm_backend_surrogate.rs` is now temporary compiled-stage1 residue only
       - landed B3a harness/entry demotion: `tools/llvmlite_harness.py` and `src/llvm_py/llvm_builder.py` now keep repo-root bootstrap, CLI parse, MIR file load, and output-file write behind owner-local helpers; `tools/llvmlite_harness.py` now calls `llvm_builder.build_object_from_input_file(...)` directly instead of re-entering the builder CLI through `runpy` + `sys.argv`; `NyashLLVMBuilder` / lowering/support remain untouched
       - landed B3b ingest/context first slice: `src/llvm_py/mir_reader.py` now owns normalized `BuilderInput` ingest, `src/llvm_py/build_opts.py` now owns `BuildOptions` env/codegen context, and `src/llvm_py/build_ctx.py` now owns lowering-side aggregated context via `build_ctx_from_owner(...)`; `src/llvm_py/llvm_builder.py` / `src/llvm_py/builders/instruction_lower.py` consume those seams without re-owning them inline
-      - landed B3c opcode first slice: `src/llvm_py/instructions/by_name_method.py` now owns generic `nyash.plugin.invoke_by_name_i64` method fallback, and `boxcall.py` / `mir_call/method_call.py` / `mir_call_legacy.py` now consume the shared helper instead of duplicating the wiring
+      - landed B3c opcode first slice: `src/llvm_py/instructions/by_name_method.py` once owned generic `nyash.plugin.invoke_by_name_i64` method fallback, and that wiring later moved to `src/llvm_py/instructions/plugin_invoke_lowering.py` while `boxcall.py` / `mir_call/method_call.py` / `mir_call_legacy.py` kept consuming the shared helper
       - landed B3c collection-route slice: `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering, and `src/llvm_py/instructions/boxcall.py` now consumes that helper instead of carrying the route table inline
       - landed B3c collection-method slice: `src/llvm_py/instructions/mir_call/collection_method_call.py` now owns shared `get/push/set/has` route order for `mir_call/method_call.py` and `mir_call_legacy.py`
       - landed B3c method-tail slice: `src/llvm_py/instructions/mir_call/method_fallback_tail.py` now owns the final `direct known-box -> by-name plugin` route order for `mir_call/method_call.py` and `mir_call_legacy.py`
@@ -167,6 +255,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       - landed compiled-stage1 surrogate shrink first slice: `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now keeps compile-path decode, compile opts, and link-arg decode behind owner-local helpers while `module_string_dispatch.rs` continues to see only `try_dispatch(...)`
       - landed compiled-stage1 surrogate shrink second slice: the same owner now keeps backend route match and compile/link execute-error tails behind `match_route(...)`, `dispatch_route(...)`, and `finish_*_result(...)`, while parent dispatch still sees only `try_dispatch(...)`
       - landed compiled-stage1 surrogate shrink third slice: the same owner now keeps compile/link payload decode and execution behind request helpers `decode_*_request(...)` and `execute_*_request(...)`, leaving `handle_*` as decode -> execute -> finish only
+      - latest compiled-stage1 residue shave: `decode_compile_obj_request(...)` is now primary-arg only, so the old arg2 rescue tail is gone and the compile route stays strict to the incoming MIR path handle
       - next backend front is no longer launcher caller cutover; it stays pinned to any remaining compiled-stage1 surrogate shrink and then the next B3d analysis/support row
       - next B3 front is no longer one Python bucket; after the resolver/type-facts, phi-manager, mir-analysis, phi-wiring analysis/tagging/finalize/selection, values-dominance, function-lower-prepass/if-merge/loop-prepass/ordering/phi-ordering/finalize-tail/signature/param-map/cfg-scaffold/context-setup/resolver-seed, and binop route/entry/concat/int-float/numeric-tail rows it is pinned to the next smaller owner seam outside `function_lower.py` unless another exact disappearing leaf appears first
       - restart handoff: safest next slices are `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` temporary residue shrink if another exact disappearing leaf appears, otherwise the next nearby owner seam should be chosen outside `function_lower.py` because its setup/tail buckets are now substantially demoted
@@ -212,13 +301,27 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Blocker (SSOT)
 
 - primary blocker:
-  - bootstrap closure は止められる段階まで来たので、次の main blocker は `by-name delete` ではなく migration order だよ
-  - current exact issue は 3 本:
-    1. remaining generic/mainline caller set がまだ `nyash.plugin.invoke_by_name_i64` compat tail を必要としている
-    2. `ny-llvmc` selector-level default と `src/host_providers/llvm_codegen.rs` default object path は `boundary`-first になり、`lang/c-abi/shims/hako_aot_shared_impl.inc` compile command も `--driver boundary` に寄った; supported v1 seeds `apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` と `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` は pure C subset で object emit できる一方、unsupported shapes are replayed from `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` directly, so `llvmlite` remains an indirect compat in-path while the `ny-llvmc` wrapper path itself is explicit keep only
-    3. `native_driver.rs` は bootstrap seam のまま keep すべきで、次は `main.rs` / `llvm_codegen.rs` の Rust glue をさらに薄くしつつ、`hako_llvmc_ffi.c` から policy を抜いて `transport-only` C substrate へ寄せる必要がある
+  - exe-optimization lane now has a fresh stable baseline after the Rust stop line
+  - current exact issue is to pin which remaining `kilo` / `micro kilo` leaf is still bridge/helper-density bound versus just noise
+  - if the stable baseline already keeps `ratio_c_aot >= 0.95` with `aot_status=ok`, that lane can move to monitor-only; otherwise continue the lane and trim the exact hot leaf only
+  - likely remaining hotspot family from the latest inventory is `TLS / LocalKey::with`, `array_get_hi`, and `find_substr_byte_index`
+- current exact issue:
+  1. refresh the stable `kilo_kernel_small_hk` comparison against C / Python / Hako
+  2. run the micro ladder and rank the three leaves by `ratio_cycles` and `ratio_instr`
+  3. if one leaf is still bridge/helper-density bound, trial `@hint(inline)` or a C bridge split on that exact leaf only
+  4. the AOT contract blockers for `array_get_hi_bool_returns_i64_contract` and `substring_hii_view_materialize_boundary_contract` are now fixed in `crates/nyash_kernel/src/plugin/value_codec/decode.rs`
+  5. hot bridge trace env probes are now cached in `crates/nyash_kernel/src/hako_forward_bridge.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
+  6. the next blocker is whichever micro leaf stays thick after fresh measurement
+  7. latest AOT asm probe says `indexof_line` is still dominated by env/fallback guard + handle registry (`std::env::_var_os`, `LocalKey::with`, `with_str_pair`, `with_handle`) while `substring_concat` is still dominated by env/fallback guard + allocation (`std::env::_var_os`, `substring_hii`, `concat3_hhh`, `Registry::alloc`, `BoxBase::new`)
+- stop line:
+  - do not reopen Rust thinning or llvmlite migration for this wave
+  - C bridge stays transport-only
+  - `@hint(inline)` is advisory only, not a workaround
+- acceptance:
+  - fresh stable baseline recorded
+  - micro ladder reproducible
+  - any change is locked by the parity/micro smoke that covers the touched leaf
 - do not do yet:
-  - kernel-side `crates/nyash_kernel/src/plugin/invoke/by_name.rs` delete
   - new `id-name` style intermediate contract
   - more bootstrap `stageN` extension without a fresh mismatch
 - active owner buckets:
@@ -268,14 +371,25 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
         - landed: `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)`; Rust transport mirrors that payload to env only at the boundary handoff
         - landed: `.hako` route profile now also names `acceptance_policy=boundary-pure-seed-matrix-v1`, so the current pure/compat acceptance basis is visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=ret-const-v1`, so the narrow `ret_const_min_v1` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=hello-simple-llvm-native-probe-v1`, so the narrow `hello_simple_llvm_native_probe_v1` evidence row stays visible at the policy owner before any transport handoff
         - landed: `.hako` route profile now also names `acceptance_case=runtime-data-array-get-missing-v1`, so the narrow `RuntimeDataBox.get(ArrayBox missing index)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-string-length-ascii-v1`, so the narrow `RuntimeDataBox.length(StringBox)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-array-length-v1`, so the narrow `RuntimeDataBox.length(ArrayBox)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-array-push-v1`, so the narrow `RuntimeDataBox.push(ArrayBox)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-map-size-v1`, so the narrow `RuntimeDataBox.length(MapBox)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-array-has-missing-v1`, so the narrow `RuntimeDataBox.has(ArrayBox missing index)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-map-has-missing-v1`, so the narrow `RuntimeDataBox.has(MapBox missing key)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=runtime-data-map-get-missing-v1`, so the narrow `RuntimeDataBox.get(MapBox missing key)` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=string-indexof-ascii-v1`, so the narrow `StringBox.indexOf/1` evidence row stays visible at the policy owner before any transport handoff
+        - landed: `.hako` route profile now also names `acceptance_case=string-length-ascii-v1`, so narrow `StringBox.length/size` evidence stays visible at the policy owner before any transport handoff
         - landed: Rust VM direct `env.codegen.compile_json_path` / `emit_object` globals now delegate back to `extern_provider.rs`, so compile payload decode truth is no longer duplicated in `handlers/calls/global.rs`
          - landed: recipe-aware daily transport now prefers the explicit pure-first FFI export instead of asking the generic C export to decide that route
          - then move unsupported compile replay and seed/route policy out of `lang/c-abi/shims/hako_llvmc_ffi.c`, leaving it as export/marshal glue
          - landed: `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses explicit `--driver boundary`
          - next focus is no longer command repointing or C micro-thinning; it is moving pure-seed / route / compat classification into `lang/src/shared/backend/backend_recipe_box.hako` while shrinking the remaining `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` compat surface
          - landed: boundary-owned compile coverage now includes `RuntimeDataBox.{get(MapBox),get(ArrayBox),push(ArrayBox),has(ArrayBox)}` for narrow missing-key/index seeds
-      - exact next slice: make `BackendRecipeBox.compile_route_profile(...)` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence; route-profile shape and owner names are now fixed by `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`, and the first shape-specific evidence row is now `acceptance_case=runtime-data-array-get-missing-v1`
+      - exact next slice: make `BackendRecipeBox.compile_route_profile(...)` the first owner of broader pure/compat recipe classification, then widen from the landed `RuntimeDataBox` collection seeds to broader method-loop packs only when that recipe seam needs new evidence; route-profile shape and owner names are now fixed by `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`, and the current visible evidence rows now include `acceptance_case=ret-const-v1`, `acceptance_case=hello-simple-llvm-native-probe-v1`, `acceptance_case=runtime-data-array-get-missing-v1`, `acceptance_case=runtime-data-string-length-ascii-v1`, `acceptance_case=runtime-data-array-length-v1`, `acceptance_case=runtime-data-array-push-v1`, `acceptance_case=runtime-data-map-size-v1`, `acceptance_case=runtime-data-array-has-missing-v1`, `acceptance_case=runtime-data-map-has-missing-v1`, `acceptance_case=runtime-data-map-get-missing-v1`, `acceptance_case=string-indexof-ascii-v1`, plus `acceptance_case=string-length-ascii-v1`
      - acceptance:
        - canonical runtime proof: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
        - acceptance pair: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
@@ -398,48 +512,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Immediate Next (this round)
 
-- ordered task stack (2026-03-17):
-  1. keep bootstrap closure frozen at fixed point
-     - keep `bash tools/selfhost/run_lane_a_daily.sh` green
-     - keep `target/selfhost/hakorune.stage3.launcher.probe` as the proven bootstrap-capable launcher artifact
-     - do not extend `stageN` again unless a fresh semantic mismatch appears
-  2. continue `phase-29cl` as caller-cutover-first only
-     - latest landed slice already covers the current stage1+backend helper families:
-       - `resolve_for_source`
-       - `emit_program_json_v0`
-       - `emit_from_program_json_v0`
-       - `emit_from_source_v0`
-       - `find_matching_brace`
-       - `build_defs_json`
-       - `kind`
-       - `int_to_str`
-       - `compile_obj`
-       - `link_exe`
-     - next front is the remaining generic/mainline LLVM caller set beyond those helper families
-     - kernel delete stays blocked until compat callers are gone
-  3. pivot daily LLVM object emission from `llvmlite keep` to `.hako` backend boundary
-     - target final shape remains `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
-     - `src/runner/modes/llvm/object_emitter.rs` no longer pins `llvmlite`; explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is compat/probe keep only, and runner-side callers now target backend-boundary default while `ny-llvmc` selector-level default has already moved to `boundary`
-     - `lang/src/shared/backend/llvm_backend_box.hako` now stops directly at canonical `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`; `CodegenBridgeBox` is no longer the daily owner for this boundary
-     - C helper cleanup is now near thin floor; do not keep micro-splitting without a fresh exact blocker
-     - next large-grain front in order is Python owner demotion under `tools/llvmlite_harness.py` + `src/llvm_py/**`
-  3.5. backend-zero stop rule for the current wave
-     - `BackendRecipeBox` should be the only visible policy/recipe owner
-     - `LlvmBackendBox` should remain a facade only
-     - `llvm_codegen.rs` / `boundary_driver.rs` should not accumulate pure-shape acceptance policy
-     - `hako_llvmc_ffi.c` should keep explicit compat transport only; do not move more meaning there
-     - if a next slice is needed, prefer one exact recipe-classification row before any new transport refactor
-  3.6. exact backend-zero implementation order from here
-     - first: remove implicit `pure-first` / `harness` defaults from Rust transport helpers and make boundary-default callers pass them explicitly
-       - landed: `src/host_providers/llvm_codegen.rs` now injects boundary defaults only in `try_compile_via_boundary_default(...)`, while `requested_compile_recipe` / `requested_compat_replay` no longer hardcode transport-side defaults
-       - landed: `src/runner/modes/llvm/object_emitter.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now mark boundary-default ownership explicitly through `boundary_default_object_opts(...)`
-     - second: grow `BackendRecipeBox.compile_route_profile(...)` classification one row at a time
-     - third: widen one new pure seed only when the route profile needs new evidence
-  4. keep these lanes frozen unless a fresh exact blocker appears:
-     - `phase-29cj` micro-thinning
-     - bridge/program-json/stub-emit cleanup
-     - string coercion cleanup
-     - compiled-stage1 surrogate shrink
+- ordered task stack (2026-03-18):
+  1. record a fresh stable `kilo_kernel_small_hk` baseline with the C / Python / Hako comparison runner
+  2. run `tools/perf/run_kilo_micro_machine_ladder.sh` and identify the current top hotspot by `ratio_cycles`
+  3. if the hotspot is bridge/helper-density bound, trial `@hint(inline)` or a C bridge refactor on that exact leaf only
+  4. close the slice with the parity lock and micro-ladder smoke that covers the touched leaf
+- keep frozen:
+  - Rust thin-up, llvmlite demotion, and broad backend-zero route rewriting stay frozen until a fresh mismatch reopens them
 
 - latest closure proof (stopped here on purpose):
   - `stage7 launcher` vs `stage9 launcher` are byte-identical
@@ -2302,15 +2381,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 1. keep the stop line fixed:
   - `bash tools/selfhost/run_lane_a_daily.sh`
   - do not reopen bootstrap closure unless fresh semantic mismatch appears
-2. cut one more remaining `phase-29cl` generic/mainline caller bucket:
-  - prefer `src/llvm_py/instructions/boxcall.py`
-  - then `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
-  - do not touch kernel delete in the same wave
-3. after one more caller-cutover slice lands, open the `llvmlite -> .hako` daily-route pivot:
+2. open the `llvmlite -> .hako` daily-route pivot:
   - start from `src/runner/modes/llvm/object_emitter.rs`
   - keep target boundary fixed to `lang/src/shared/backend/llvm_backend_box.hako` + `lang/c-abi/shims/hako_aot.c`
-4. only after `llvmlite` is compat/probe keep and `by-name` is compat-only:
-  - re-evaluate kernel-side `by_name` retirement
+3. keep `llvmlite` / `native_driver` compat-probe keep only while the boundary-owned daily route is tightened:
+  - do not reopen by-name; that surface is already retired
+  - re-evaluate backend-zero defaults only after the boundary route is thin and green
 
 ## Archive
 
@@ -2320,3 +2396,23 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/investigations/current_task_archive_2026-03-06_compiler_cleanup.md`
 - policy:
   - 長文の時系列ログは以後 archive 側へ追記し、`CURRENT_TASK.md` は再起動用の薄い入口を維持する。
+  - 2026-03-18 perf/exe wave:
+  - route contract is fixed to `.hako -> ny-llvmc(boundary) -> C ABI`; perf lane must fail-fast on `llvmlite/native/harness`
+  - `kilo_micro_substring_concat` asm-guided slice:
+    - `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: 8 -> 0`
+    - short `substring_hii` results now stay `StringViewBox` until container/materialize boundary
+    - targeted kernel tests stay green
+  - fresh micro result:
+    - `kilo_micro_substring_concat -> ny_aot_cycles=265476416, ny_aot_ms=67`
+    - previous checkpoint was `ny_aot_cycles=295536812, ny_aot_ms=76`
+  - fresh asm top:
+    - `substring_hii 34.56%`
+    - `Registry::alloc 26.13%`
+    - `BoxBase::new 14.86%`
+    - `string_len_from_handle 7.01%`
+    - `concat3_hhh 5.37%`
+    - `string_handle_from_owned` is no longer a top owner after the short-slice view shift
+  - note on non-target inventory:
+    - worker inventory found a likely `loop self-carry PHI` ptr-provenance loss under `src/llvm_py/**`
+    - that is useful diagnostic evidence only; it is not the next edit target in this exe optimization wave
+    - the next active slices stay on kernel/runtime/C-boundary owners until asm top symbols move off `substring_hii` / `Registry::alloc` / `BoxBase::new`

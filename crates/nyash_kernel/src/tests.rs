@@ -2,6 +2,7 @@ use super::*;
 use crate::test_support::with_env_var;
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
+    boxes::file::FileBox,
     runtime::{host_handles as handles, plugin_loader_v2::make_plugin_box_v2},
 };
 use std::ffi::CString;
@@ -20,6 +21,24 @@ fn decode_string_like_handle(handle: i64) -> Option<String> {
 
 fn ensure_test_ring0() {
     let _ = nyash_rust::runtime::ring0::ensure_global_ring0_initialized();
+}
+
+fn with_filebox_from_handle<R>(handle: i64, f: impl FnOnce(&FileBox) -> R) -> R {
+    let object = handles::get(handle as u64).expect("FileBox handle must exist");
+    let filebox = object
+        .as_any()
+        .downcast_ref::<FileBox>()
+        .expect("handle must be a FileBox");
+    f(filebox)
+}
+
+fn dispatch_stage1_module(receiver_name: &str, method: &str, source_text: &str) -> i64 {
+    let receiver_handle =
+        handles::to_handle_arc(Arc::new(StringBox::new(receiver_name.to_string()))) as i64;
+    let source_handle =
+        handles::to_handle_arc(Arc::new(StringBox::new(source_text.to_string()))) as i64;
+    crate::plugin::try_module_string_dispatch(receiver_handle, method, 1, source_handle, 0)
+        .expect("stage1 direct dispatch")
 }
 
 unsafe extern "C" fn fake_i32(
@@ -123,7 +142,7 @@ fn env_box_new_i64x_creates_file_box() {
 }
 
 #[test]
-fn filebox_invoke_by_name_open_read_roundtrip() {
+fn filebox_direct_open_read_roundtrip() {
     ensure_test_ring0();
 
     let tmp_path = "/tmp/nyash_kernel_filebox_read_roundtrip.txt";
@@ -133,39 +152,22 @@ fn filebox_invoke_by_name_open_read_roundtrip() {
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
-    let path_handle = handles::to_handle_arc(Arc::new(StringBox::new(tmp_path.to_string()))) as i64;
-    let mode_handle = handles::to_handle_arc(Arc::new(StringBox::new("r".to_string()))) as i64;
-    let open_method = CString::new("open").expect("CString");
-    assert_eq!(
-        nyash_plugin_invoke_by_name_i64(
-            filebox_handle,
-            open_method.as_ptr(),
-            2,
-            path_handle,
-            mode_handle
-        ),
-        1
-    );
-
-    let read_method = CString::new("read").expect("CString");
-    let content_handle =
-        nyash_plugin_invoke_by_name_i64(filebox_handle, read_method.as_ptr(), 0, 0, 0);
-    assert_eq!(
-        decode_string_like_handle(content_handle).as_deref(),
-        Some("kernel-filebox-read")
-    );
-
-    let close_method = CString::new("close").expect("CString");
-    assert_eq!(
-        nyash_plugin_invoke_by_name_i64(filebox_handle, close_method.as_ptr(), 0, 0, 0),
-        0
-    );
+    with_filebox_from_handle(filebox_handle, |filebox| {
+        filebox
+            .ny_open(tmp_path, "r")
+            .expect("direct open should succeed");
+        assert_eq!(
+            filebox.read_to_string().expect("direct read should succeed"),
+            "kernel-filebox-read"
+        );
+        filebox.ny_close().expect("direct close should succeed");
+    });
 
     let _ = std::fs::remove_file(tmp_path);
 }
 
 #[test]
-fn filebox_invoke_by_name_open_write_roundtrip() {
+fn filebox_direct_open_write_roundtrip() {
     ensure_test_ring0();
 
     let tmp_path = "/tmp/nyash_kernel_filebox_write_roundtrip.txt";
@@ -175,40 +177,17 @@ fn filebox_invoke_by_name_open_write_roundtrip() {
     let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
     assert!(filebox_handle > 0, "expected FileBox handle");
 
-    let path_handle = handles::to_handle_arc(Arc::new(StringBox::new(tmp_path.to_string()))) as i64;
-    let mode_handle = handles::to_handle_arc(Arc::new(StringBox::new("w".to_string()))) as i64;
-    let open_method = CString::new("open").expect("CString");
-    assert_eq!(
-        nyash_plugin_invoke_by_name_i64(
-            filebox_handle,
-            open_method.as_ptr(),
-            2,
-            path_handle,
-            mode_handle
-        ),
-        1
-    );
-
-    let content_handle =
-        handles::to_handle_arc(Arc::new(StringBox::new("kernel-filebox-write".to_string()))) as i64;
-    let write_method = CString::new("write").expect("CString");
-    let write_result = nyash_plugin_invoke_by_name_i64(
-        filebox_handle,
-        write_method.as_ptr(),
-        1,
-        content_handle,
-        0,
-    );
-    assert_eq!(
-        decode_string_like_handle(write_result).as_deref(),
-        Some("OK")
-    );
-
-    let close_method = CString::new("close").expect("CString");
-    assert_eq!(
-        nyash_plugin_invoke_by_name_i64(filebox_handle, close_method.as_ptr(), 0, 0, 0),
-        0
-    );
+    with_filebox_from_handle(filebox_handle, |filebox| {
+        filebox
+            .ny_open(tmp_path, "w")
+            .expect("direct open should succeed");
+        let write_result = filebox.write(Box::new(StringBox::new(
+            "kernel-filebox-write".to_string(),
+        )));
+        let write_result = write_result.to_string_box().value;
+        assert_eq!(write_result, "OK");
+        filebox.ny_close().expect("direct close should succeed");
+    });
 
     let written = std::fs::read_to_string(tmp_path).expect("written file");
     assert_eq!(written, "kernel-filebox-write");
@@ -372,7 +351,7 @@ fn string_indexof_lastindexof_multibyte_contract() {
 }
 
 #[test]
-fn substring_hii_view_materialize_boundary_contract() {
+fn substring_hii_short_slice_keeps_view_until_container_boundary_contract() {
     use nyash_rust::boxes::array::ArrayBox;
     use std::ffi::CStr;
 
@@ -397,7 +376,7 @@ fn substring_hii_view_materialize_boundary_contract() {
             .expect("substring utf8");
         assert_eq!(c_view, "akor");
 
-        // Persistent container boundary: view is materialized before array storage.
+        // Persistent container boundary: short slices materialize before array storage.
         let array: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
         let array_handle = handles::to_handle_arc(array) as i64;
         assert_eq!(nyash_runtime_data_push_hh(array_handle, sub_handle), 1);
@@ -409,6 +388,44 @@ fn substring_hii_view_materialize_boundary_contract() {
             .downcast_ref::<StringBox>()
             .expect("stored value should materialize to StringBox");
         assert_eq!(stored_sb.value, "akor");
+    });
+}
+
+#[test]
+fn substring_hii_short_nested_slice_keeps_stringview_contract() {
+    with_env_var("NYASH_LLVM_FAST", "1", || {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("hakorune".to_string()));
+        let source_handle = handles::to_handle_arc(source) as i64;
+        let view_handle = nyash_string_substring_hii_export(source_handle, 1, 5);
+        assert!(view_handle > 0, "view handle");
+
+        let nested_handle = nyash_string_substring_hii_export(view_handle, 0, 2);
+        assert!(nested_handle > 0, "nested substring handle");
+
+        let nested_obj = handles::get(nested_handle as u64).expect("nested substring object");
+        assert_eq!(nested_obj.type_name(), "StringViewBox");
+        assert_eq!(nyash_string_len_h(nested_handle), 2);
+        let c_ptr = nyash_string_to_i8p_h(nested_handle);
+        assert!(!c_ptr.is_null());
+        let c_view = unsafe { std::ffi::CStr::from_ptr(c_ptr) }
+            .to_str()
+            .expect("nested substring utf8");
+        assert_eq!(c_view, "ak");
+    });
+}
+
+#[test]
+fn substring_hii_mid_slice_keeps_stringview_contract() {
+    with_env_var("NYASH_LLVM_FAST", "1", || {
+        let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("line-seed-abcdefxx".to_string()));
+        let source_handle = handles::to_handle_arc(source) as i64;
+
+        let view_handle = nyash_string_substring_hii_export(source_handle, 1, 17);
+        assert!(view_handle > 0, "mid substring handle");
+
+        let view_obj = handles::get(view_handle as u64).expect("mid substring object");
+        assert_eq!(view_obj.type_name(), "StringViewBox");
+        assert_eq!(nyash_string_len_h(view_handle), 16);
     });
 }
 
@@ -430,18 +447,11 @@ fn substring_hii_fast_off_keeps_stringbox_contract() {
 
 #[test]
 fn invoke_by_name_accepts_stage1_using_resolver_module_receiver() {
-    let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-        "lang.compiler.entry.using_resolver_box".to_string(),
-    ));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-        "static box Main { main() { return 0 } }".to_string(),
-    ));
-    let source_handle = handles::to_handle_arc(source) as i64;
-    let method = CString::new("resolve_for_source").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
+    let result_handle = dispatch_stage1_module(
+        "lang.compiler.entry.using_resolver_box",
+        "resolve_for_source",
+        "static box Main { main() { return 0 } }",
+    );
     assert!(result_handle > 0, "expected StringBox handle");
 
     let result_object = handles::get(result_handle as u64).expect("result handle");
@@ -454,16 +464,11 @@ fn invoke_by_name_accepts_stage1_using_resolver_module_receiver() {
 
 #[test]
 fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
-    ensure_test_ring0();
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = include_str!("../../../lang/src/runner/stage1_cli_env.hako");
-    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-    let method = CString::new("emit_from_source_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
+    let result_handle = dispatch_stage1_module(
+        "lang.mir.builder.MirBuilderBox",
+        "emit_from_source_v0",
+        include_str!("../../../lang/src/runner/stage1_cli_env.hako"),
+    );
     assert!(result_handle > 0, "expected MIR JSON StringBox handle");
 
     let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
@@ -498,15 +503,11 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
 #[test]
 fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_hello_simple_llvm() {
     ensure_test_ring0();
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = include_str!("../../../apps/tests/hello_simple_llvm.hako");
-    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-    let method = CString::new("emit_from_source_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
+    let result_handle = dispatch_stage1_module(
+        "lang.mir.builder.MirBuilderBox",
+        "emit_from_source_v0",
+        include_str!("../../../apps/tests/hello_simple_llvm.hako"),
+    );
     assert!(result_handle > 0, "expected MIR JSON StringBox handle");
 
     let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
@@ -521,17 +522,11 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_hello_simple_llvm(
 #[test]
 fn invoke_by_name_stage1_mir_builder_source_route_accepts_decode_escapes_nested_loop_fixture() {
     ensure_test_ring0();
-    let receiver: Arc<dyn NyashBox> =
-        Arc::new(StringBox::new("lang.mir.builder.MirBuilderBox".to_string()));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = include_str!(
-        "../../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako"
+    let result_handle = dispatch_stage1_module(
+        "lang.mir.builder.MirBuilderBox",
+        "emit_from_source_v0",
+        include_str!("../../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako"),
     );
-    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-    let method = CString::new("emit_from_source_v0").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
     assert!(result_handle > 0, "expected MIR JSON StringBox handle");
 
     let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
@@ -545,16 +540,11 @@ fn invoke_by_name_stage1_mir_builder_source_route_accepts_decode_escapes_nested_
 #[test]
 fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatch() {
     ensure_test_ring0();
-    let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-        "lang.compiler.entry.using_resolver_box".to_string(),
-    ));
-    let receiver_handle = handles::to_handle_arc(receiver) as i64;
-    let source = include_str!("../../../lang/src/runner/stage1_cli_env.hako");
-    let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(source.to_string()))) as i64;
-    let method = CString::new("resolve_for_source").expect("CString");
-
-    let result_handle =
-        nyash_plugin_invoke_by_name_i64(receiver_handle, method.as_ptr(), 1, source_handle, 0);
+    let result_handle = dispatch_stage1_module(
+        "lang.compiler.entry.using_resolver_box",
+        "resolve_for_source",
+        include_str!("../../../lang/src/runner/stage1_cli_env.hako"),
+    );
     assert!(result_handle > 0, "expected stub StringBox handle");
 
     let prefix = decode_string_like_handle(result_handle).expect("prefix text");
@@ -562,36 +552,6 @@ fn invoke_by_name_stage1_using_resolver_route_is_stubbed_empty_in_kernel_dispatc
         prefix, "",
         "kernel direct module dispatch intentionally stubs resolve_for_source"
     );
-}
-
-#[test]
-fn invoke_by_name_disable_rust_fallback_when_policy_is_off() {
-    with_env_var("NYASH_VM_USE_FALLBACK", "0", || {
-        crate::hako_forward_bridge::with_test_reset(|| {
-            let receiver: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-                "lang.compiler.entry.using_resolver_box".to_string(),
-            ));
-            let receiver_handle = handles::to_handle_arc(receiver) as i64;
-            let source: Arc<dyn NyashBox> = Arc::new(StringBox::new(
-                "static box Main { main() { return 0 } }".to_string(),
-            ));
-            let source_handle = handles::to_handle_arc(source) as i64;
-            let method = CString::new("resolve_for_source").expect("CString");
-
-            let result_handle = nyash_plugin_invoke_by_name_i64(
-                receiver_handle,
-                method.as_ptr(),
-                1,
-                source_handle,
-                0,
-            );
-            assert!(result_handle > 0);
-            let result_text =
-                decode_string_like_handle(result_handle).expect("hook-miss freeze string");
-            assert!(result_text.contains("[freeze:contract][hako_forward/hook_miss]"));
-            assert!(result_text.contains("route=plugin.invoke_by_name"));
-        });
-    });
 }
 
 #[test]

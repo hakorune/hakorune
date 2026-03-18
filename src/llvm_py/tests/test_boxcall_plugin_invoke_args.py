@@ -52,7 +52,7 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         self.assertIn("nyash.box.from_i8_string", ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
-    def test_plugin_invoke_boxes_pointer_args_before_dispatch(self):
+    def test_unsupported_boxcall_method_fails_fast_before_plugin_invoke(self):
         module = ir.Module(name="test_boxcall_plugin_invoke_args")
         i64 = ir.IntType(64)
         i8p = ir.IntType(8).as_pointer()
@@ -68,24 +68,19 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         vmap = {1: recv_ptr, 2: arg_ptr}
         resolver = _ResolverStub()
 
-        lower_boxcall(
-            builder=builder,
-            module=module,
-            box_vid=1,
-            method_name="emit_program_json_v0",
-            args=[2],
-            dst_vid=3,
-            vmap=vmap,
-            resolver=resolver,
-        )
-        builder.ret(vmap[3])
+        with self.assertRaisesRegex(NotImplementedError, "Unsupported BoxCall method"):
+            lower_boxcall(
+                builder=builder,
+                module=module,
+                box_vid=1,
+                method_name="emit_program_json_v0",
+                args=[2, 3, 4],
+                dst_vid=5,
+                vmap=vmap,
+                resolver=resolver,
+            )
 
-        ir_text = str(module)
-        self.assertGreaterEqual(ir_text.count("nyash.box.from_i8_string"), 2)
-        self.assertIn("pinvoke_by_name", ir_text)
-        self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
-
-    def test_plugin_invoke_keeps_boxcall_argc_clamped_to_two(self):
+    def test_unsupported_boxcall_method_fails_fast_for_pointer_args(self):
         module = ir.Module(name="test_boxcall_plugin_invoke_argc_cap")
         i64 = ir.IntType(64)
         i8p = ir.IntType(8).as_pointer()
@@ -106,21 +101,17 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         }
         resolver = _ResolverStub()
 
-        lower_boxcall(
-            builder=builder,
-            module=module,
-            box_vid=1,
-            method_name="emit_program_json_v0",
-            args=[2, 3, 4],
-            dst_vid=5,
-            vmap=vmap,
-            resolver=resolver,
-        )
-        builder.ret(vmap[5])
-
-        ir_text = str(module)
-        self.assertIn('call i64 @"nyash.plugin.invoke_by_name_i64"', ir_text)
-        self.assertIn("i64 2", ir_text)
+        with self.assertRaisesRegex(NotImplementedError, "Unsupported BoxCall method"):
+            lower_boxcall(
+                builder=builder,
+                module=module,
+                box_vid=1,
+                method_name="emit_program_json_v0",
+                args=[2],
+                dst_vid=5,
+                vmap=vmap,
+                resolver=resolver,
+            )
 
 
 if __name__ == "__main__":

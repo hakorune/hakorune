@@ -2,9 +2,12 @@
 import os
 import unittest
 
+import llvmlite.ir as ir
+
 from src.llvm_py.instructions.mir_call.runtime_data_dispatch import (
     _prefer_array_mono_route_default,
     _reset_runtime_data_array_route_policy_cache_for_tests,
+    lower_runtime_data_field_call,
     select_runtime_data_call_spec,
 )
 
@@ -17,6 +20,14 @@ class _DummyResolver:
     def is_arrayish(self, value_id: int) -> bool:
         value = self.value_types.get(int(value_id))
         return isinstance(value, dict) and value.get("box_type") == "ArrayBox"
+
+
+def _declare(module, name, ret, args):
+    for f in module.functions:
+        if f.name == name:
+            return f
+    fnty = ir.FunctionType(ret, args)
+    return ir.Function(module, fnty, name=name)
 
 
 class TestRuntimeDataDispatchPolicy(unittest.TestCase):
@@ -87,6 +98,46 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         _reset_runtime_data_array_route_policy_cache_for_tests()
         with self.assertRaises(RuntimeError):
             _prefer_array_mono_route_default()
+
+    def test_runtime_data_get_field_uses_map_kernel(self):
+        i64 = ir.IntType(64)
+        module = ir.Module(name="test_runtime_data_get_field")
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        result = lower_runtime_data_field_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            box_name="RuntimeDataBox",
+            method="getField",
+            recv_h=ir.Constant(i64, 1),
+            args=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+        )
+        builder.ret(result)
+
+        self.assertIn("nyash.map.get_hh", str(module))
+
+    def test_runtime_data_set_field_uses_map_kernel(self):
+        i64 = ir.IntType(64)
+        module = ir.Module(name="test_runtime_data_set_field")
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        result = lower_runtime_data_field_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            box_name="RuntimeDataBox",
+            method="setField",
+            recv_h=ir.Constant(i64, 1),
+            args=[2, 3],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+        )
+        builder.ret(result)
+
+        self.assertIn("nyash.map.set_hh", str(module))
 
 
 if __name__ == "__main__":

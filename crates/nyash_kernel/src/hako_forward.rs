@@ -1,13 +1,6 @@
 use crate::hako_forward_bridge::{
-    self, HakoFutureSpawnInstanceFn, HakoPluginInvokeByNameFn, HakoStringDispatchFn,
+    self, HakoFutureSpawnInstanceFn, HakoStringDispatchFn,
 };
-
-#[export_name = "nyrt.hako.register_plugin_invoke_by_name"]
-pub(crate) extern "C" fn nyrt_hako_register_plugin_invoke_by_name(
-    f: HakoPluginInvokeByNameFn,
-) -> i64 {
-    hako_forward_bridge::register_plugin_invoke_by_name(Some(f))
-}
 
 #[export_name = "nyrt.hako.register_future_spawn_instance"]
 pub(crate) extern "C" fn nyrt_hako_register_future_spawn_instance(

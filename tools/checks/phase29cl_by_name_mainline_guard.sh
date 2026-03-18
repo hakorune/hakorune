@@ -36,8 +36,8 @@ HITS="$(
 )"
 
 if [[ -z "$HITS" ]]; then
-  echo "[phase29cl-by-name-mainline-guard] ERROR: no invoke_by_name owner found" >&2
-  exit 1
+  echo "[phase29cl-by-name-mainline-guard] ok (retired: no invoke_by_name owners remain)"
+  exit 0
 fi
 
 printf "%s\n" "$HITS" | cut -d: -f1 | sort -u >"$tmp_actual"

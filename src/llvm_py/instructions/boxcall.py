@@ -18,10 +18,10 @@ from instructions.mir_call.auto_specialize import (
     receiver_is_arrayish,
     receiver_is_stringish,
 )
-from instructions.by_name_method import mark_string_result_if_needed
 from instructions.boxcall_runtime_data import try_lower_collection_boxcall
-from instructions.mir_call.method_fallback_tail import lower_direct_or_plugin_method_call
+from instructions.direct_box_method import try_lower_known_box_method_call
 from instructions.string_fast import literal_string_for_receiver
+from instructions.string_result_policy import mark_string_result_if_needed
 from utils.values import resolve_i64_strict
 from utils.resolver_helpers import get_box_type, mark_as_handle
 
@@ -267,7 +267,7 @@ def lower_boxcall(
     known_box_name = get_box_type(resolver, box_vid)
     receiver_literal = literal_string_for_receiver(resolver, box_vid)
     recv_h = _ensure_handle(builder, module, recv_val)
-    result = lower_direct_or_plugin_method_call(
+    result = try_lower_known_box_method_call(
         builder=builder,
         module=module,
         box_name=known_box_name,
@@ -276,13 +276,13 @@ def lower_boxcall(
         args=args,
         resolve_arg=lambda vid: _res_i64(vid),
         ensure_handle=lambda value: _ensure_handle(builder, module, value),
-        direct_call_name=(
+        call_name=(
             f"call_known_{method_name}" if known_box_name else f"call_stage1_{method_name}"
         ),
-        plugin_call_name="pinvoke_by_name",
         receiver_literal=receiver_literal,
-        plugin_argc_cap=2,
     )
+    if result is None:
+        raise NotImplementedError(f"Unsupported BoxCall method: {method_name!r}")
     if dst_vid is not None:
         vmap[dst_vid] = result
         # Type tagging: mark handles for downstream consumers (e.g., print)

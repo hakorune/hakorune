@@ -99,3 +99,13 @@ def lower_copy(
                 lit_map[dst] = lit_map[src]
     except Exception:
         pass
+
+    # Keep pointer provenance across Copy so FAST string routes do not
+    # immediately fall back to handle-based lowering on trivial move chains.
+    try:
+        if resolver is not None and hasattr(resolver, "string_ptrs"):
+            ptr_map = resolver.string_ptrs
+            if isinstance(ptr_map, dict) and src in ptr_map:
+                ptr_map[dst] = ptr_map[src]
+    except Exception:
+        pass

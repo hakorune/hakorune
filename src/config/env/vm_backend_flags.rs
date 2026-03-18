@@ -64,7 +64,16 @@ pub fn vm_use_fallback() -> bool {
 /// - `NYASH_VM_USE_FALLBACK=0` => compat fallback prohibited
 /// - otherwise => compat fallback allowed by policy (subject to additional gates)
 pub fn vm_compat_fallback_allowed() -> bool {
-    std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0")
+    #[cfg(debug_assertions)]
+    {
+        std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0")
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        static VM_COMPAT_FALLBACK_ALLOWED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+        *VM_COMPAT_FALLBACK_ALLOWED
+            .get_or_init(|| std::env::var("NYASH_VM_USE_FALLBACK").ok().as_deref() != Some("0"))
+    }
 }
 
 /// Trace VM route selection decisions.

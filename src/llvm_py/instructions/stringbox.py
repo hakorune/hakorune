@@ -15,6 +15,7 @@ import llvmlite.ir as ir
 from typing import Dict, List, Optional, Any
 import os
 from utils.values import resolve_i64_strict
+from instructions.string_fast import string_ptr_for_value
 
 
 # StringBox method mapping (TypeRegistry slots 410-413)
@@ -58,6 +59,18 @@ def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.
             # extend/trunc to i64
             return builder.zext(v, i64) if v.type.width < 64 else builder.trunc(v, i64)
     return ir.Constant(i64, 0)
+
+
+def _as_i8_pointer(builder: ir.IRBuilder, value: ir.Value) -> Optional[ir.Value]:
+    if not hasattr(value, "type") or not isinstance(value.type, ir.PointerType):
+        return None
+    try:
+        if isinstance(value.type.pointee, ir.ArrayType):
+            c0 = ir.IntType(32)(0)
+            return builder.gep(value, [c0, c0], name="sb_str_gep")
+    except Exception:
+        pass
+    return value
 
 
 def emit_stringbox_call(
@@ -141,7 +154,7 @@ def emit_stringbox_call(
         )
     elif method_name == "substring":
         return _emit_substring(
-            builder, module, recv_val, args, dst_vid, vmap, r, p, bev, bbm, _res_i64
+            builder, module, recv_val, args, dst_vid, vmap, box_vid, r, p, bev, bbm, _res_i64
         )
     elif method_name == "lastIndexOf":
         return _emit_lastindexof(
@@ -287,6 +300,7 @@ def _emit_substring(
     args: List[int],
     dst_vid: Optional[int],
     vmap: Dict[int, ir.Value],
+    box_vid: int,
     resolver,
     preds,
     block_end_values,
@@ -312,6 +326,34 @@ def _emit_substring(
         e = vmap.get(args[1], ir.Constant(i64, 0)) if len(args) > 1 else ir.Constant(i64, 0)
 
     # Handle-based path
+    if os.environ.get("NYASH_LLVM_FAST") == "1" and resolver is not None:
+        recv_ptr = None
+        if hasattr(recv_val, "type") and isinstance(recv_val.type, ir.PointerType):
+            recv_ptr = _as_i8_pointer(builder, recv_val)
+        if recv_ptr is None:
+            recv_ptr = string_ptr_for_value(resolver, box_vid)
+        if recv_ptr is not None:
+            if hasattr(s, 'type') and isinstance(s.type, ir.PointerType):
+                s = builder.ptrtoint(s, i64)
+            if hasattr(e, 'type') and isinstance(e.type, ir.PointerType):
+                e = builder.ptrtoint(e, i64)
+
+            callee = _declare(module, "nyash.string.substring_sii", i8p, [i8p, i64, i64])
+            p = builder.call(callee, [recv_ptr, s, e], name="substring_fast")
+            conv = _declare(module, "nyash.box.from_i8_string", i64, [i8p])
+            h = builder.call(conv, [p], name="str_ptr2h_sub_fast")
+
+            if dst_vid is not None:
+                vmap[dst_vid] = h
+                try:
+                    if resolver is not None and hasattr(resolver, 'mark_string'):
+                        resolver.mark_string(dst_vid)
+                    if resolver is not None and hasattr(resolver, 'string_ptrs'):
+                        resolver.string_ptrs[int(dst_vid)] = p
+                except Exception:
+                    pass
+            return True
+
     if hasattr(recv_val, 'type') and isinstance(recv_val.type, ir.IntType):
         callee = _declare(module, "nyash.string.substring_hii", i64, [i64, i64, i64])
         h = builder.call(callee, [recv_val, s, e], name="substring_h")

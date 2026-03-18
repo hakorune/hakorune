@@ -46,13 +46,13 @@ fn match_route(module_name: &str, method_name: &str) -> Option<LlvmBackendRoute>
 
 fn dispatch_route(route: LlvmBackendRoute, arg_count: i64, arg1: i64, arg2: i64) -> Option<i64> {
     match route {
-        LlvmBackendRoute::CompileObj => handle_compile_obj(arg_count, arg1, arg2),
+        LlvmBackendRoute::CompileObj => handle_compile_obj(arg_count, arg1),
         LlvmBackendRoute::LinkExe => handle_link_exe(arg_count, arg1, arg2),
     }
 }
 
-fn handle_compile_obj(arg_count: i64, arg1: i64, arg2: i64) -> Option<i64> {
-    let request = decode_compile_obj_request(arg_count, arg1, arg2)?;
+fn handle_compile_obj(arg_count: i64, arg1: i64) -> Option<i64> {
+    let request = decode_compile_obj_request(arg_count, arg1)?;
     finish_compile_obj_result(execute_compile_obj_request(&request))
 }
 
@@ -104,9 +104,12 @@ fn compile_obj_opts_from_env() -> nyash_rust::host_providers::llvm_codegen::Opts
     )
 }
 
-fn decode_compile_obj_request(arg_count: i64, arg1: i64, arg2: i64) -> Option<CompileObjRequest> {
+fn decode_compile_obj_request(arg_count: i64, arg1: i64) -> Option<CompileObjRequest> {
+    if arg_count < 1 {
+        return None;
+    }
     Some(CompileObjRequest {
-        mir_path: decode_required_arg(arg_count, arg1, arg2)?,
+        mir_path: decode_string_handle(arg1)?,
     })
 }
 
@@ -130,13 +133,6 @@ fn execute_link_exe_request(request: &LinkExeRequest) -> Result<(), String> {
 
 fn link_exe_from_object_paths(obj_path: &Path, exe_path: &Path) -> Result<(), String> {
     nyash_rust::host_providers::llvm_codegen::link_object_capi(obj_path, exe_path, None)
-}
-
-fn decode_required_arg(arg_count: i64, arg1: i64, arg2: i64) -> Option<String> {
-    if arg_count < 1 {
-        return None;
-    }
-    decode_string_handle(arg1).or_else(|| decode_string_handle(arg2))
 }
 
 #[cfg(test)]
@@ -200,10 +196,15 @@ mod tests {
     fn llvm_backend_compile_obj_request_prefers_first_string_handle() {
         let mir_path = encode_string_handle("/tmp/any.mir.json");
         assert_eq!(
-            decode_compile_obj_request(1, mir_path, 0),
+            decode_compile_obj_request(1, mir_path),
             Some(CompileObjRequest {
                 mir_path: "/tmp/any.mir.json".to_string(),
             })
+        );
+        assert_eq!(decode_compile_obj_request(1, 0), None);
+        assert_eq!(
+            try_dispatch(LLVM_BACKEND_MODULE, COMPILE_OBJ_METHOD, 1, 0, mir_path),
+            Some(0)
         );
         let out =
             try_dispatch(LLVM_BACKEND_MODULE, COMPILE_OBJ_METHOD, 1, mir_path, 0).expect("route");

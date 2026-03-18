@@ -5,6 +5,7 @@ Date: 2026-03-15
 Scope: `full Rust 0` の remaining Rust/Python inventory を、compiler / runtime / backend の fixed-order task pack に落として迷走を防ぐ。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/phases/phase-29cj/README.md
@@ -366,6 +367,22 @@ rule:
   - fix the future order so collection daily ownership moves toward `.hako ring1` before any Rust keep delete is reconsidered
   - SSOT: `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
 
+### R1a. kernel-authority-zero queued pack
+
+- target owners:
+  - `lang/src/runtime/kernel/**`
+  - `lang/src/vm/**`
+  - `crates/nyash_kernel/src/**`
+- exact work:
+  - split kernel meaning/policy owner from substrate owner
+  - move visible method/box contract, route policy, and acceptance ownership toward `.hako`
+  - keep handle registry / GC / ABI / hot native leaf in Rust/C until a later substrate wave
+  - SSOT: `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+- rule:
+  - queued only while compiler stop-line / exe optimization wave is active
+  - do not mix kernel authority cutover with wholesale substrate delete
+  - do not let `.hako` workaround code silently replace runtime substrate semantics
+
 ### R2. source-zero reopen trigger pack
 
 - reopen only when:
@@ -385,7 +402,7 @@ rule:
 7. `B3`
 8. `B4`
 9. `B5`
-10. `R0` / `R1` remain monitor-only documentation unless reopen trigger fires
+10. `R0` / `R1` / `R1a` remain monitor-only documentation unless reopen trigger fires
 
 ## 6. Non-goals
 

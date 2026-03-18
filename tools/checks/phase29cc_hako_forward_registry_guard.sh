@@ -12,13 +12,8 @@ if rg -n "AtomicUsize|HAKO_PLUGIN_INVOKE_BY_NAME|HAKO_FUTURE_SPAWN_INSTANCE|HAKO
   exit 1
 fi
 
-if rg -n "call_plugin_invoke_by_name|call_future_spawn_instance|call_string_dispatch|pub mod string_ops|nyrt_hako_try_" "$COMPAT_FILE" >/dev/null; then
+if rg -n "call_plugin_invoke_by_name|register_plugin_invoke_by_name|nyrt_hako_try_plugin_invoke_by_name|pub mod string_ops|nyrt_hako_try_" "$COMPAT_FILE" >/dev/null; then
   echo "[phase29cc-hako-forward-registry-guard] violation: hako_forward.rs must stay compat-export only" >&2
-  exit 1
-fi
-
-if ! rg -n "export_name = \"nyrt\\.hako\\.register_plugin_invoke_by_name\"" "$COMPAT_FILE" >/dev/null; then
-  echo "[phase29cc-hako-forward-registry-guard] violation: dot-name compatibility export missing (plugin invoke)" >&2
   exit 1
 fi
 
@@ -32,12 +27,17 @@ if ! rg -n "export_name = \"nyrt\\.hako\\.register_string_dispatch\"" "$COMPAT_F
   exit 1
 fi
 
-if ! rg -n "nyrt_hako_try_plugin_invoke_by_name|nyrt_hako_try_future_spawn_instance|nyrt_hako_try_string_dispatch" "$BRIDGE_FILE" >/dev/null; then
+if ! rg -n "nyrt_hako_try_future_spawn_instance|nyrt_hako_try_string_dispatch" "$BRIDGE_FILE" >/dev/null; then
   echo "[phase29cc-hako-forward-registry-guard] violation: C registry try API call path missing in bridge" >&2
   exit 1
 fi
 
-if ! rg -n "pub fn call_plugin_invoke_by_name|pub fn call_future_spawn_instance|pub fn call_string_dispatch" "$BRIDGE_FILE" >/dev/null; then
+if rg -n "register_plugin_invoke_by_name|call_plugin_invoke_by_name|nyrt_hako_try_plugin_invoke_by_name|nyrt_hako_register_plugin_invoke_by_name|HakoPluginInvokeByNameFn" "$BRIDGE_FILE" >/dev/null; then
+  echo "[phase29cc-hako-forward-registry-guard] violation: by-name registry residue reappeared in hako_forward_bridge.rs" >&2
+  exit 1
+fi
+
+if ! rg -n "call_future_spawn_instance|call_string_dispatch" "$BRIDGE_FILE" >/dev/null; then
   echo "[phase29cc-hako-forward-registry-guard] violation: bridge call entrypoints missing" >&2
   exit 1
 fi

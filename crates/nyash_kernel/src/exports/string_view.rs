@@ -139,19 +139,6 @@ impl StringSpan {
     }
 }
 
-pub(crate) fn string_view_from_span_range(
-    span: &StringSpan,
-    start_rel: usize,
-    end_rel: usize,
-) -> StringViewBox {
-    StringViewBox::new(
-        span.base_handle,
-        span.base_obj.clone(),
-        span.start.saturating_add(start_rel),
-        span.start.saturating_add(end_rel),
-    )
-}
-
 pub(crate) fn clamp_i64_range(len: usize, start: i64, end: i64) -> (usize, usize) {
     let n = len as i64;
     let mut st = if start < 0 { 0 } else { start };
@@ -166,6 +153,81 @@ pub(crate) fn clamp_i64_range(len: usize, start: i64, end: i64) -> (usize, usize
         std::mem::swap(&mut st, &mut en);
     }
     (st as usize, en as usize)
+}
+
+pub(crate) enum BorrowedSubstringPlan {
+    ReturnHandle,
+    ReturnEmpty,
+    Materialize(String),
+    CreateView(StringViewBox),
+}
+
+const SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: usize = 0;
+
+pub(crate) fn borrowed_substring_plan_from_handle(
+    handle: i64,
+    start: i64,
+    end: i64,
+    view_enabled: bool,
+) -> Option<BorrowedSubstringPlan> {
+    if handle <= 0 {
+        return None;
+    }
+    handles::with_handle(handle as u64, |obj| {
+        let Some(obj) = obj else {
+            return None;
+        };
+        if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
+            let (st_rel, en_rel) = clamp_i64_range(sb.value.len(), start, end);
+            if st_rel == 0 && en_rel == sb.value.len() {
+                return Some(BorrowedSubstringPlan::ReturnHandle);
+            }
+            if st_rel == en_rel {
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            }
+            let Some(sub_slice) = sb.value.get(st_rel..en_rel) else {
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            };
+            if !view_enabled || sub_slice.len() <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
+                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
+            }
+            return Some(BorrowedSubstringPlan::CreateView(StringViewBox::new(
+                handle,
+                obj.clone(),
+                st_rel,
+                en_rel,
+            )));
+        }
+        if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
+            let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
+                return None;
+            };
+            let (parent_st, parent_en) = clamp_usize_range(base_sb.value.len(), view.start, view.end);
+            let parent_len = parent_en.saturating_sub(parent_st);
+            let (st_rel, en_rel) = clamp_i64_range(parent_len, start, end);
+            if st_rel == 0 && en_rel == parent_len {
+                return Some(BorrowedSubstringPlan::ReturnHandle);
+            }
+            if st_rel == en_rel {
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            }
+            let abs_st = parent_st.saturating_add(st_rel);
+            let abs_en = parent_st.saturating_add(en_rel);
+            let Some(sub_slice) = base_sb.value.get(abs_st..abs_en) else {
+                return Some(BorrowedSubstringPlan::ReturnEmpty);
+            };
+            if !view_enabled || sub_slice.len() <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
+                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
+            }
+            return Some(BorrowedSubstringPlan::CreateView(StringViewBox::new(
+                view.base_handle,
+                view.base_obj.clone(),
+                abs_st,
+                abs_en,
+            )));
+        }
+        None
+    })
 }
 
 fn clamp_usize_range(len: usize, start: usize, end: usize) -> (usize, usize) {

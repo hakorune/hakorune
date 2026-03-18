@@ -44,6 +44,13 @@ _RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS = {
     "set": ("nyash.array.set_hii", "unified_array_set_hii", 2),
 }
 
+
+_RUNTIME_DATA_FIELD_METHODS = {
+    "getField": ("nyash.map.get_hh", "unified_runtime_data_getField", 1),
+    "setField": ("nyash.map.set_hh", "unified_runtime_data_setField", 2),
+}
+
+
 @lru_cache(maxsize=1)
 def _runtime_data_array_route_policy():
     """
@@ -181,5 +188,71 @@ def lower_runtime_data_method_call(
             [recv_h, call_args[0] or zero, call_args[1] or zero],
             name=call_name,
         )
+
+    return None
+
+
+def lower_runtime_data_field_call(
+    builder,
+    declare,
+    box_name,
+    method,
+    recv_h,
+    args,
+    *,
+    resolve_arg=None,
+    ensure_handle=None,
+):
+    """
+    Lower RuntimeDataBox field-store access to the map ABI.
+
+    RuntimeDataCoreBox uses a string-backed MiniMap for register state, so the
+    `getField/setField` surface is the register-store read/write path. Keep the
+    lowering explicit here so the direct route remains fail-fast for other boxes.
+    """
+    if str(box_name or "") != "RuntimeDataBox":
+        return None
+
+    method_name = str(method or "")
+    spec = _RUNTIME_DATA_FIELD_METHODS.get(method_name)
+    if spec is None:
+        return None
+
+    symbol, call_name, arity = spec
+    i64 = ir.IntType(64)
+    zero = ir.Constant(i64, 0)
+    call_args = args if isinstance(args, list) else []
+
+    def _maybe_handle(value):
+        if ensure_handle is None or value is None:
+            return value
+        try:
+            return ensure_handle(value)
+        except Exception:
+            return value
+
+    if arity == 1:
+        if len(call_args) < 1:
+            return zero
+        key = resolve_arg(call_args[0]) if resolve_arg is not None else call_args[0]
+        if key is None:
+            key = zero
+        key = _maybe_handle(key)
+        callee = declare(symbol, i64, [i64, i64])
+        return builder.call(callee, [recv_h, key], name=call_name)
+
+    if arity == 2:
+        if len(call_args) < 2:
+            return zero
+        key = resolve_arg(call_args[0]) if resolve_arg is not None else call_args[0]
+        value = resolve_arg(call_args[1]) if resolve_arg is not None else call_args[1]
+        if key is None:
+            key = zero
+        if value is None:
+            value = zero
+        key = _maybe_handle(key)
+        value = _maybe_handle(value)
+        callee = declare(symbol, i64, [i64, i64, i64])
+        return builder.call(callee, [recv_h, key, value], name=call_name)
 
     return None

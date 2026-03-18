@@ -1,26 +1,17 @@
-pub(crate) type HakoPluginInvokeByNameFn = extern "C" fn(i64, *const i8, i64, i64, i64) -> i64;
 pub(crate) type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 pub(crate) type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
+#[cfg(not(test))]
+use std::sync::OnceLock;
 
 mod ffi {
-    use super::{HakoFutureSpawnInstanceFn, HakoPluginInvokeByNameFn, HakoStringDispatchFn};
+    use super::{HakoFutureSpawnInstanceFn, HakoStringDispatchFn};
 
     unsafe extern "C" {
-        pub fn nyrt_hako_register_plugin_invoke_by_name(f: Option<HakoPluginInvokeByNameFn>)
-            -> i64;
         pub fn nyrt_hako_register_future_spawn_instance(
             f: Option<HakoFutureSpawnInstanceFn>,
         ) -> i64;
         pub fn nyrt_hako_register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64;
 
-        pub fn nyrt_hako_try_plugin_invoke_by_name(
-            recv_handle: i64,
-            method: *const i8,
-            argc: i64,
-            a1: i64,
-            a2: i64,
-            out_value: *mut i64,
-        ) -> i32;
         pub fn nyrt_hako_try_future_spawn_instance(
             a0: i64,
             a1: i64,
@@ -52,11 +43,25 @@ pub(crate) mod string_ops {
 }
 
 fn stage1_string_dispatch_trace_enabled() -> bool {
-    std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
-        || std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
-            .ok()
-            .as_deref()
-            == Some("1")
+    #[cfg(test)]
+    {
+        std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
+            || std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
+                .ok()
+                .as_deref()
+                == Some("1")
+    }
+    #[cfg(not(test))]
+    {
+        static TRACE_ENABLED: OnceLock<bool> = OnceLock::new();
+        *TRACE_ENABLED.get_or_init(|| {
+            std::env::var("STAGE1_CLI_DEBUG").ok().as_deref() == Some("1")
+                || std::env::var("HAKO_STAGE1_MODULE_DISPATCH_TRACE")
+                    .ok()
+                    .as_deref()
+                    == Some("1")
+        })
+    }
 }
 
 fn string_op_name(op: i64) -> &'static str {
@@ -72,25 +77,6 @@ fn string_op_name(op: i64) -> &'static str {
         string_ops::LT_HH => "lt_hh",
         string_ops::FROM_U64X2 => "from_u64x2",
         _ => "unknown",
-    }
-}
-
-pub(crate) fn call_plugin_invoke_by_name(
-    recv_handle: i64,
-    method: *const i8,
-    argc: i64,
-    a1: i64,
-    a2: i64,
-) -> Option<i64> {
-    let mut out = 0i64;
-    // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
-    let ok = unsafe {
-        ffi::nyrt_hako_try_plugin_invoke_by_name(recv_handle, method, argc, a1, a2, &mut out)
-    };
-    if ok == 0 {
-        None
-    } else {
-        Some(out)
     }
 }
 
@@ -125,11 +111,6 @@ pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option
         }
         Some(out)
     }
-}
-
-pub(crate) fn register_plugin_invoke_by_name(f: Option<HakoPluginInvokeByNameFn>) -> i64 {
-    // SAFETY: function pointer is passed through to C registry as an opaque callback.
-    unsafe { ffi::nyrt_hako_register_plugin_invoke_by_name(f) }
 }
 
 pub(crate) fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn>) -> i64 {
@@ -185,7 +166,6 @@ pub(crate) fn hook_miss_freeze_handle(route: &str) -> i64 {
 
 #[cfg(test)]
 pub(crate) fn reset_for_tests() {
-    let _ = register_plugin_invoke_by_name(None);
     let _ = register_future_spawn_instance(None);
     let _ = register_string_dispatch(None);
 }
@@ -205,10 +185,6 @@ pub(crate) fn with_test_reset<F: FnOnce()>(f: F) {
 mod tests {
     use super::*;
 
-    extern "C" fn invoke_stub(_recv: i64, _m: *const i8, argc: i64, a1: i64, a2: i64) -> i64 {
-        argc + a1 + a2
-    }
-
     extern "C" fn future_stub(a0: i64, a1: i64, a2: i64, argc: i64) -> i64 {
         a0 + a1 + a2 + argc
     }
@@ -220,18 +196,12 @@ mod tests {
     #[test]
     fn hako_forward_registration_and_call_contract() {
         with_test_reset(|| {
-            assert!(call_plugin_invoke_by_name(1, std::ptr::null(), 1, 2, 3).is_none());
             assert!(call_future_spawn_instance(1, 2, 3, 4).is_none());
             assert!(call_string_dispatch(1, 2, 3, 4).is_none());
 
-            assert_eq!(register_plugin_invoke_by_name(Some(invoke_stub)), 1);
             assert_eq!(register_future_spawn_instance(Some(future_stub)), 1);
             assert_eq!(register_string_dispatch(Some(string_stub)), 1);
 
-            assert_eq!(
-                call_plugin_invoke_by_name(1, std::ptr::null(), 1, 2, 3),
-                Some(6)
-            );
             assert_eq!(call_future_spawn_instance(1, 2, 3, 4), Some(10));
             assert_eq!(
                 call_string_dispatch(string_ops::CONCAT_HH, 1, 2, 3),

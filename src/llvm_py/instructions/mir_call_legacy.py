@@ -8,13 +8,14 @@ from llvmlite import ir
 import os
 import json
 from instructions.mir_call.arg_resolver import make_call_arg_resolver
-from instructions.by_name_method import mark_string_result_if_needed
 from instructions.mir_call.collection_method_call import lower_collection_method_call
 from instructions.mir_call.method_fallback_tail import lower_direct_or_plugin_method_call
+from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_field_call
 from instructions.mir_call.string_console_method_call import (
     lower_string_or_console_method_call,
 )
 from instructions.string_fast import literal_string_for_receiver
+from instructions.string_result_policy import mark_string_result_if_needed
 
 
 def lower_mir_call(owner, builder: ir.IRBuilder, mir_call: Dict[str, Any], dst_vid: Optional[int], vmap: Dict, resolver):
@@ -221,8 +222,52 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     recv_h = _ensure_handle(recv_val)
     receiver_literal = literal_string_for_receiver(resolver, receiver)
 
+    def _resolve_string_ptr_for_receiver(receiver_vid: int):
+        if resolver is None:
+            return None
+        string_ptrs = getattr(resolver, "string_ptrs", None)
+        if string_ptrs is None:
+            return None
+        try:
+            receiver_key = int(receiver_vid)
+        except (TypeError, ValueError):
+            return None
+        try:
+            ptr = string_ptrs.get(receiver_key)
+        except AttributeError:
+            ptr = None
+        if ptr is not None:
+            return ptr
+        newbox_string_args = getattr(resolver, "newbox_string_args", None)
+        if newbox_string_args is None:
+            return None
+        try:
+            arg_vid = newbox_string_args.get(receiver_key)
+            if arg_vid is None:
+                return None
+            return string_ptrs.get(int(arg_vid))
+        except (AttributeError, TypeError, ValueError):
+            return None
+
+    def _box_string_ptr(ptr):
+        callee = _declare("nyash.box.from_i8_string", i64, [i8p])
+        return builder.call(callee, [ptr], name="unified_str_ptr2h")
+
+    def _store_result_string_ptr(ptr):
+        try:
+            if dst_vid is not None and resolver is not None and hasattr(resolver, "string_ptrs"):
+                resolver.string_ptrs[int(dst_vid)] = ptr
+            if dst_vid is not None and resolver is not None and hasattr(resolver, "mark_string"):
+                resolver.mark_string(int(dst_vid))
+        except Exception:
+            pass
+
     # TRUE UNIFIED METHOD DISPATCH - Everything is Box philosophy
-    if method in ["length", "len"]:
+    if method in ("toString", "stringify", "str"):
+        callee = _declare("nyash.any.toString_h", i64, [i64])
+        result = builder.call(callee, [recv_h], name="slot0_tostring")
+
+    elif method in ["length", "len"]:
         callee = _declare("nyash.any.length_h", i64, [i64])
         result = builder.call(callee, [recv_h], name="unified_length")
 
@@ -243,15 +288,30 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             receiver_vid=receiver,
         )
 
+    elif box_name == "RuntimeDataBox" and method in {"getField", "setField"}:
+        result = lower_runtime_data_field_call(
+            builder=builder,
+            declare=_declare,
+            box_name=box_name,
+            method=method,
+            recv_h=recv_h,
+            args=args,
+            resolve_arg=_resolve_arg,
+            ensure_handle=_ensure_handle,
+        )
+
     else:
         result = lower_string_or_console_method_call(
             builder=builder,
             declare=_declare,
             method_name=method,
             recv_h=recv_h,
+            recv_ptr=_resolve_string_ptr_for_receiver(receiver),
             arg_ids=args,
             resolve_arg=_resolve_arg,
             ensure_handle=_ensure_handle,
+            box_string_ptr=_box_string_ptr,
+            store_result_string_ptr=_store_result_string_ptr,
         )
         if result is None:
             result = lower_direct_or_plugin_method_call(

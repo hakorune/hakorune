@@ -224,63 +224,54 @@ class TestMethodFallbackTail(unittest.TestCase):
         self.assertIn('call i64 @"StringHelpers.int_to_str/1"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
-    def test_falls_back_to_plugin_invoke_when_direct_target_missing(self):
+    def test_unsupported_direct_target_fails_fast_when_plugin_tail_is_retired(self):
         i64, module, builder = _new_builder()
 
-        result = lower_direct_or_plugin_method_call(
-            builder=builder,
-            module=module,
-            box_name="StringBox",
-            method_name="length",
-            recv_h=ir.Constant(i64, 1),
-            args=[2],
-            resolve_arg=lambda vid: ir.Constant(i64, vid),
-            ensure_handle=lambda value: value,
-            direct_call_name="known_box_length",
-            plugin_call_name="unified_plugin_invoke",
-        )
-        builder.ret(result)
+        with self.assertRaisesRegex(NotImplementedError, "Unsupported MIR method call"):
+            lower_direct_or_plugin_method_call(
+                builder=builder,
+                module=module,
+                box_name="StringBox",
+                method_name="length",
+                recv_h=ir.Constant(i64, 1),
+                args=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                direct_call_name="known_box_length",
+                plugin_call_name="unified_plugin_invoke",
+            )
 
-        ir_text = str(module)
-        self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
-        self.assertNotIn('call i64 @"StringBox.length/2"', ir_text)
-
-    def test_plugin_invoke_boxes_pointer_args_before_dispatch(self):
+    def test_unsupported_direct_target_fails_fast_for_pointer_args(self):
         i64, module, builder = _new_builder()
         i8p = ir.IntType(8).as_pointer()
         str_fn = ir.Function(module, ir.FunctionType(i8p, []), name="seed_str_ptr")
         arg_ptr = builder.call(str_fn, [], name="str_ptr")
 
-        result = lower_direct_or_plugin_method_call(
-            builder=builder,
-            module=module,
-            box_name="Stage1Box",
-            method_name="emit",
-            recv_h=ir.Constant(i64, 1),
-            args=[2],
-            resolve_arg=lambda vid: arg_ptr if vid == 2 else ir.Constant(i64, vid),
-            ensure_handle=lambda value: (
-                builder.call(
-                    ir.Function(
-                        module,
-                        ir.FunctionType(i64, [i8p]),
-                        name="nyash.box.from_i8_string",
-                    ),
-                    [value],
-                    name="boxed_ptr_arg",
-                )
-                if hasattr(value, "type") and value.type == i8p
-                else value
-            ),
-            direct_call_name="known_box_emit",
-            plugin_call_name="unified_plugin_invoke",
-        )
-        builder.ret(result)
-
-        ir_text = str(module)
-        self.assertIn("nyash.box.from_i8_string", ir_text)
-        self.assertIn("boxed_ptr_arg", ir_text)
-        self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
+        with self.assertRaisesRegex(NotImplementedError, "Unsupported MIR method call"):
+            lower_direct_or_plugin_method_call(
+                builder=builder,
+                module=module,
+                box_name="Stage1Box",
+                method_name="emit",
+                recv_h=ir.Constant(i64, 1),
+                args=[2],
+                resolve_arg=lambda vid: arg_ptr if vid == 2 else ir.Constant(i64, vid),
+                ensure_handle=lambda value: (
+                    builder.call(
+                        ir.Function(
+                            module,
+                            ir.FunctionType(i64, [i8p]),
+                            name="nyash.box.from_i8_string",
+                        ),
+                        [value],
+                        name="boxed_ptr_arg",
+                    )
+                    if hasattr(value, "type") and value.type == i8p
+                    else value
+                ),
+                direct_call_name="known_box_emit",
+                plugin_call_name="unified_plugin_invoke",
+            )
 
 
 if __name__ == "__main__":

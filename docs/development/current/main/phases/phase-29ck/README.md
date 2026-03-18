@@ -53,7 +53,7 @@ Related:
 1. caller-facing daily LLVM route は `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe` まで寄っている
 2. `ny-llvmc` internal default driver は `Boundary` に切り替わり、default object/exe route は `Harness` / `Native` selector を daily owner にしなくなった
 3. `src/host_providers/llvm_codegen.rs` default object path も direct C ABI boundary を先に試すようになり、`ny-llvmc` wrapper path は explicit `HAKO_LLVM_EMIT_PROVIDER=ny-llvmc` keep へ後退した
-4. supported v1 seeds は boundary compile が pure C subset を先に試すようになり、`apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` と `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` は `NYASH_NY_LLVM_COMPILER` を壊しても object emit できる
+4. supported v1 seeds は boundary compile が pure C subset を先に試すようになり、`apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` と `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` は `NYASH_NY_LLVM_COMPILER` を壊しても object emit でき、`.hako` では `acceptance_case=ret-const-v1` / `acceptance_case=hello-simple-llvm-native-probe-v1` として visible に row 化された
 5. ただし unsupported shapes are still replayed through `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` inside the boundary compat lane, so `llvmlite` は indirect compat in-path としてまだ残っている
 6. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 7. missing legs は 3 本である
@@ -75,7 +75,8 @@ Related:
    - follow-up FFI-owner slice: `lang/c-abi/shims/hako_llvmc_ffi.c` now reads as `default -> hako_aot forwarder`, while the pure-lowering branch is selected by caller-side recipe names (`HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY`) and `HAKO_CAPI_PURE=1` stays parked as historical compat alias only
    - follow-up recipe-transport slice: recipe-aware daily callers (`src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/boundary_driver.rs`) now prefer the explicit `hako_llvmc_compile_json_pure_first` export; `hako_llvmc_compile_json` stays generic forwarder / historical compat entry instead of deciding the daily pure-first route
    - follow-up keep-lane isolation slice: `crates/nyash-llvm-compiler/src/boundary_driver.rs` now hides FFI library open / symbol lookup behind `with_compile_symbol(...)` / `with_link_symbol(...)`, and `lang/c-abi/shims/hako_llvmc_ffi.c` now parks the pure compile owner behind `compile_json_compat_pure(...)`, so default boundary exports read as forwarders and the compat pure lane stays visibly isolated
-  - follow-up pure-first slice: default boundary compile now carries caller-side recipe ownership from `.hako` and Rust boundary callers; `BackendRecipeBox.compile_route_profile(...)` is the current `.hako` recipe owner, `.hako` daily compile passes its explicit `compile_json_path(..., "", "pure-first", "harness")` payload while Rust transport mirrors those names to env only at the C handoff, and `lang/c-abi/shims/hako_llvmc_ffi.c` owns recursion-safe transport/fallback execution; supported `ret_const_min_v1` / `hello_simple_llvm_native_probe_v1` are now pinned by `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_print_min.sh`
+  - follow-up pure-first slice: default boundary compile now carries caller-side recipe ownership from `.hako` and Rust boundary callers; `BackendRecipeBox.compile_route_profile(...)` is the current `.hako` recipe owner, `.hako` daily compile passes its explicit `compile_json_path(..., "", "pure-first", "harness")` payload while Rust transport mirrors those names to env only at the C handoff, and `lang/c-abi/shims/hako_llvmc_ffi.c` owns recursion-safe transport/fallback execution; supported `ret_const_min_v1` / `hello_simple_llvm_native_probe_v1` are now pinned by `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_print_min.sh`, and the visible `.hako` evidence rows are now `acceptance_case=ret-const-v1` / `acceptance_case=hello-simple-llvm-native-probe-v1`
+  - follow-up rust-glue split slice: `src/host_providers/llvm_codegen.rs` has already moved route-selection helpers into `src/host_providers/llvm_codegen/route.rs` and now also delegates MIR normalization / transport helpers into `src/host_providers/llvm_codegen/normalize.rs` plus `src/host_providers/llvm_codegen/transport.rs`, while `crates/nyash-llvm-compiler/src/main.rs` now delegates input shaping into `crates/nyash-llvm-compiler/src/compile_input.rs` plus emit/link driver dispatch into `crates/nyash-llvm-compiler/src/driver_dispatch.rs`, and `crates/nyash-llvm-compiler/src/driver_dispatch.rs` now further splits harness duties into `crates/nyash-llvm-compiler/src/harness_driver.rs` plus link/finalize duties into `crates/nyash-llvm-compiler/src/link_driver.rs`, so the Rust thin-up wave is now at its stop line and the next cleanup wave should move to exe optimization
   - follow-up route-profile SSOT slice: `docs/development/current/main/design/backend-recipe-route-profile-ssot.md` now fixes the canonical `BackendRecipeBox` route profile shape (`route_profile`, `policy_owner`, `transport_owner`, `acceptance_policy`, `acceptance_case`, `json_path`, `compile_recipe`, `compat_replay`) so seed expansion can stay at the `.hako` policy owner and not drift back into the C shim
   - follow-up direct compat-keep slice: unsupported compile shapes in that pure-first lane now replay `ny-llvmc --driver harness` directly from `lang/c-abi/shims/hako_llvmc_ffi.c` instead of re-entering `hako_aot_compile_json(...)`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_compat_keep_min.sh` pins `apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json` as the current unsupported compat-keep seed
   - follow-up pure-string-length slice: the same boundary-owned pure-first lane now accepts a narrow ASCII-literal `StringBox.length/size` v1 seed, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_string_length_min.sh` pins `apps/tests/mir_shape_guard/string_length_ascii_min_v1.mir.json` so that supported method-shaped coverage grows without reopening the harness lane
@@ -98,7 +99,7 @@ Related:
     - Rust boundary code (`llvm_codegen.rs`, `boundary_driver.rs`) keeps payload decode / symbol selection / boundary glue only
     - `hako_llvmc_ffi.c` keeps export/marshal plus explicit compat transport only
   - landed transport-default cleanup: `src/host_providers/llvm_codegen.rs` now injects `pure-first` / `harness` only in the boundary-default caller path, and `src/runner/modes/llvm/object_emitter.rs` plus `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now call `boundary_default_object_opts(...)` explicitly instead of relying on implicit transport defaults
-  - next exact front is therefore the `.hako` recipe seam, with broader method-loop packs used only as evidence when `BackendRecipeBox` needs new narrow accept/reject coverage; `acceptance_policy=boundary-pure-seed-matrix-v1` is now the first visible classification basis and `acceptance_case=runtime-data-array-get-missing-v1` is the first visible shape-specific row owned by `.hako`
+  - next exact front is therefore the `.hako` recipe seam, with broader method-loop packs used only as evidence when `BackendRecipeBox` needs new narrow accept/reject coverage; `acceptance_policy=boundary-pure-seed-matrix-v1` is now the first visible classification basis and `acceptance_case=ret-const-v1`, `acceptance_case=hello-simple-llvm-native-probe-v1`, `acceptance_case=runtime-data-array-get-missing-v1`, `acceptance_case=runtime-data-string-length-ascii-v1`, `acceptance_case=runtime-data-array-length-v1`, `acceptance_case=runtime-data-array-push-v1`, `acceptance_case=runtime-data-map-size-v1`, `acceptance_case=runtime-data-array-has-missing-v1`, `acceptance_case=runtime-data-map-has-missing-v1`, `acceptance_case=runtime-data-map-get-missing-v1`, `acceptance_case=string-indexof-ascii-v1`, plus `acceptance_case=string-length-ascii-v1` are the first visible shape-specific rows owned by `.hako`
   - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver boundary`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the default `hako_llvmc_compile_json` forwarder path when no backend recipe is requested
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
@@ -170,8 +171,8 @@ Related:
    - `src/llvm_py/llvm_builder.py` now consumes those seams instead of re-owning MIR ingest + env-codegen flag reads inline
    - `src/llvm_py/build_ctx.py` now exposes `build_ctx_from_owner(...)`, and `src/llvm_py/builders/instruction_lower.py` consumes it as the lowering-side context aggregator
 22. landed B3c opcode first slice:
-   - generic `nyash.plugin.invoke_by_name_i64` method fallback now lives in `src/llvm_py/instructions/by_name_method.py`
-   - `src/llvm_py/instructions/{boxcall.py,mir_call/method_call.py,mir_call_legacy.py}` now consume the shared helper instead of owning duplicate by-name wiring and string-result tagging
+   - generic `nyash.plugin.invoke_by_name_i64` method fallback was later retired in `phase-29cl`; this slice predates that cutover
+   - `src/llvm_py/instructions/{boxcall.py,mir_call/method_call.py,mir_call_legacy.py}` later dropped their by-name fallback and now fail fast on unsupported unknown methods
    - this slice is shrink-only; method specialization/runtime-data routing still stays in the opcode owners for later B3c rows
 23. landed B3c collection-route slice:
    - `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering for generic BoxCall
@@ -286,6 +287,19 @@ Related:
    - `src/llvm_py/instructions/binop.py` now keeps i64 pointer coercion, expr-cache state/decode, cache-hit reuse, arithmetic-tail dispatch, vmap-trace, and result store behind file-local helpers (`_coerce_binop_i64_pair(...)`, `_binop_expr_cache_state(...)`, `_reuse_cached_binop_result(...)`, `_emit_numeric_binop(...)`, `_trace_binop_vmap_write(...)`, `_store_numeric_binop_result(...)`)
    - `lower_binop(...)` no longer mixes numeric expr-cache orchestration and arithmetic tail emission inline after the string/int-float fast paths
    - support-owner proof is pinned by `src/llvm_py/tests/test_binop_numeric_tail.py`
+42. landed B3d string-pointer propagation slice:
+   - `src/llvm_py/instructions/stringbox.py` now keeps `substring` lowering on the `nyash.string.substring_sii` pointer path when `string_ptrs` are available, and stores the result pointer back into `resolver.string_ptrs` for downstream consumers
+   - `src/llvm_py/instructions/binop.py` now keeps `+` on the `nyash.string.concat_ss` pointer path when both operands have known pointers, and stores the result pointer back into `resolver.string_ptrs`
+   - `src/llvm_py/tests/test_strlen_fast.py` now pins the `substring_sii` + `concat_ss` pointer-route contract for the `substring_concat` fast lane
+   - this slice keeps the old handle-based `substring_hii` / `concat_hh` / `concat3_hhh` contract as fallback only; it does not widen the route contract
+43. landed B3d substring runtime follow-up slice:
+   - `crates/nyash_kernel/src/plugin/string.rs` now keeps `nyash.string.concat_ss` / `nyash.string.substring_sii` on raw byte slices instead of rebuilding temporary `String` values before copying out to C ABI buffers
+   - `crates/nyash_kernel/src/exports/string.rs` now lowers `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `16` to `8`, so the `kilo_micro_substring_concat` rotate slice (`substring(1, 17)`) can remain `StringViewBox`-backed in FAST lane while the short-slice materialize contracts still stay fixed
+   - support-owner proof is pinned by `crates/nyash_kernel/src/plugin/string.rs` unit tests plus `crates/nyash_kernel/src/tests.rs::{substring_hii_view_materialize_boundary_contract,substring_hii_short_view_source_materializes_to_stringbox_contract,substring_hii_mid_slice_keeps_stringview_contract}`
+44. landed B3d string-pointer provenance follow-up slice:
+   - `src/llvm_py/instructions/copy.py` now propagates `resolver.string_ptrs` across Copy, so exact move chains do not immediately drop the `substring_sii` / `concat_ss` fast lane
+   - `src/llvm_py/phi_wiring/tagging.py` now mirrors that provenance on trivial PHI aliases, so alias-only merge shapes keep the same pointer route without widening the runtime contract
+   - support-owner proof is pinned by `src/llvm_py/tests/test_strlen_fast.py::test_fast_substring_concat_copy_chain_keeps_pointer_route`
 
 ## Non-goals
 
@@ -350,3 +364,13 @@ Related:
 - thin backend boundary の final runtime-proof owner が `.hako VM` だと一意に読める
 - `.hako VM -> LlvmBackendBox -> env.codegen C-API -> exe` proof command が phase docs だけで辿れる
 - docs はもう「backend-zero は task pack 未整備だから provisional」の状態ではない
+- 2026-03-18 perf/exe update:
+  - perf lane is boundary-fixed (`.hako -> ny-llvmc(boundary) -> C ABI`)
+  - fresh stable `kilo_kernel_small_hk` baseline is `c_ms=79`, `py_ms=110`, `ny_vm_ms=1012`, `ny_aot_ms=844`, `ratio_c_aot=0.09`, `aot_status=ok`
+  - `kilo_micro_substring_concat` short-slice runtime rule changed to prefer `StringViewBox` (`SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES=0`)
+  - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is back on direct `with_handle(...)` instead of cache-backed span lookup
+  - `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers
+  - measured checkpoint moved from `295536812 cycles / 76 ms` to `263193549 cycles / 70 ms`
+  - current asm top is `substring_hii 42.91%`, `Registry::alloc 24.35%`, `BoxBase::new 12.16%`
+  - next blocker is still on kernel/runtime/C-boundary owners, but `BoxBase::new` itself is a stop-line because it is tied to box identity; the next safe cut must reduce view creation count upstream instead of reusing box IDs
+  - `LLVM-Py loop self-carry PHI` is diagnostic evidence only and is not the next edit target in this perf wave

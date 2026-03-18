@@ -117,6 +117,16 @@ def _register_trivial_alias(builder, block_id: int, dst_vid: int, alias_src: int
     })
 
 
+def _propagate_trivial_alias_string_ptr(builder, dst_vid: int, alias_src: int) -> None:
+    try:
+        resolver = getattr(builder, "resolver", None)
+        ptr_map = getattr(resolver, "string_ptrs", None)
+        if isinstance(ptr_map, dict) and int(alias_src) in ptr_map:
+            ptr_map[int(dst_vid)] = ptr_map[int(alias_src)]
+    except Exception:
+        pass
+
+
 def _register_phi_definition(builder, block_id: int, dst_vid: int) -> None:
     try:
         builder.def_blocks.setdefault(int(dst_vid), set()).add(int(block_id))
@@ -201,6 +211,7 @@ def _setup_phi_instruction(
     alias_src = _trivial_phi_alias(dst0, incoming0)
     if alias_src is not None:
         _register_trivial_alias(builder, block_id, dst0, alias_src)
+        _propagate_trivial_alias_string_ptr(builder, dst0, alias_src)
         _register_phi_definition(builder, block_id, dst0)
         _propagate_phi_tags(builder, int(dst0), inst.get("dst_type"), incoming0, produced_str)
         return

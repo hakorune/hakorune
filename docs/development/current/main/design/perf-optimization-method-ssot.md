@@ -1,0 +1,169 @@
+---
+Status: SSOT
+Scope: `kilo` / `micro kilo` を起点にした exe 最適化の測定順序・判断順序・止め線
+Related:
+- docs/development/current/main/DOCS_LAYOUT.md
+- docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
+- docs/development/current/main/design/optimization-ssot-string-helper-density.md
+- docs/development/current/main/phases/phase-29ck/README.md
+- CURRENT_TASK.md
+---
+
+# Perf Optimization Method SSOT
+
+## Goal
+
+この文書は、`.hako` / C ABI / Rust bridge / micro leaf をまたぐ exe 最適化を、毎回同じ手順で進めるための正本だよ。
+
+目的は 2 つだけ。
+
+1. whole-program の差をまず安定 baseline で固定する。
+2. そこから micro leaf を 1 本ずつ exact に削る。
+
+## Owner Scope Lock
+
+この wave で触る owner と、keep lane として読むだけに留める owner を最初に固定する。
+
+- active edit owners:
+  - `crates/nyash_kernel/src/exports/string.rs`
+  - `crates/nyash_kernel/src/exports/string_view.rs`
+  - `crates/nyash_kernel/src/plugin/string.rs`
+  - `src/runtime/host_handles.rs`
+  - `lang/c-abi/shims/hako_aot.c`
+  - `lang/c-abi/shims/hako_aot_shared_impl.inc`
+- keep-lane owners for this wave:
+  - `src/llvm_py/**`
+  - `tools/llvmlite_harness.py`
+  - `crates/nyash-llvm-compiler/src/harness_driver.rs`
+  - explicit keep-lane selectors and their docs/tests
+- operational rule:
+  - start from `bench_micro_aot_asm.sh` top symbols and follow the symbol owner
+  - do not pivot into `llvm_py` just because keyword grep finds matching names
+  - only reopen keep-lane owners when the route contract itself is broken
+
+## Measurement Ladder
+
+最適化は、必ずこの順で進める。
+
+1. Stable baseline
+   - 入口: `tools/perf/bench_compare_c_py_vs_hako_stable.sh`
+   - 役割: C / Python / Hako / AOT の whole-program 差を見る
+   - 使い方: `PERF_AOT_SKIP_BUILD=0` の fresh build を baseline にする
+   - route contract: AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`; `llvmlite` / `native` / harness は fail-fast
+
+2. Micro ladder
+   - 入口: `tools/perf/run_kilo_micro_machine_ladder.sh`
+   - 役割: `indexof_line` / `substring_concat` / `array_getset` の leaf 密度を比較する
+   - 使い方: `ratio_cycles` と `ratio_instr` を優先して順位を決める
+   - route contract: same as stable baseline; explicit keep lanes are not valid perf comparisons here
+
+3. ASM probe
+   - 入口: `tools/perf/bench_micro_aot_asm.sh`
+   - 役割: micro ladder で一番厚い leaf の原因関数を確認する
+   - 使い方: `perf report --stdio --no-children` の top symbol を読む
+
+## Classification
+
+Hotspot は次の分類で読む。
+
+- startup
+  - process 起動、引数解析、runner 配線
+- driver
+  - `ny-llvmc` / runner / bridge の選択
+- bridge
+  - FFI、handle registry、dispatch、env probe
+- allocation
+  - `StringBox` / `ArrayBox` / `Registry::alloc`
+- algorithm
+  - `find_substr_byte_index` などの pure leaf
+- cache
+  - OnceLock / handle cache / span cache
+
+判断に迷ったら、まず bridge と allocation を疑う。
+
+## Stop Line
+
+次の条件なら、その lane は「最適化より構造修正」を優先する。
+
+- route がまだ揺れている
+- contract テストが落ちている
+- benchmark が startup dominated で leaf を見分けられない
+- 1回の変更で 2 枚以上の leaf を同時に触りたくなった
+
+`ratio_c_aot >= 0.95` かつ `aot_status=ok` なら、その lane は monitor-only へ落とす。
+
+## Recommended Order
+
+最適化の順番は原則こうだよ。
+
+1. hot path の per-call env probe を cache 化する
+2. hot bridge の dispatch / registry を薄くする
+3. `substring_concat` や `array_getset` の exact leaf を 1 本だけ削る
+4. それでも残るなら `@hint(inline)` を exact hot leaf にだけ試す
+
+理由:
+
+- env probe は leaf の形を変えずに固定費を落としやすい
+- dispatch / registry は多くの benchmark に横断で効く
+- `@hint(inline)` は最後に試す補助輪で、workaround ではない
+
+## Current Wave Snapshot
+
+2026-03-18 時点では、次の理解で進める。
+
+- `kilo_kernel_small_hk` は whole-program baseline として固定済み
+- latest fresh stable baseline is `c_ms=79`, `py_ms=110`, `ny_vm_ms=1012`, `ny_aot_ms=844`, `ratio_c_aot=0.09`, `aot_status=ok`
+- `kilo_micro_substring_concat` が最厚
+- `kilo_micro_array_getset` が次
+- `kilo_micro_indexof_line` が一番マシ
+- micro profile で見えている `std::env::_var_os` は、まず bridge 側の per-call probe を疑う
+- `substring_concat` の current exact leaf は kernel/runtime owner に固定する
+- `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is reduced to dispatch + match
+- `substring_hii` の hot path must stay on direct `with_handle(...)`; cache-backed span lookup is diagnostic-only here because it regressed `string_span_cache_get/put` back into the top symbols
+- `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers; this is the current bridge/allocation slice
+- fresh micro recheck after the current slices is `263193549 cycles / 70 ms` for `kilo_micro_substring_concat`
+- current asm top is:
+  - `nyash.string.substring_hii`
+  - `Registry::alloc`
+  - `BoxBase::new`
+  - `nyash.string.concat3_hhh`
+  - `string_len_from_handle`
+- `BoxBase::new` is the current stop-line: it is tied to box identity via `next_box_id()`, so the next safe cut must reduce `StringViewBox::new` call count or another upstream owner instead of reusing IDs
+
+## Evidence To Record
+
+最適化を 1 slice 終えたら、必ず次を更新する。
+
+- `CURRENT_TASK.md`
+- 該当 phase README
+- その wave の design / investigation doc
+
+記録する内容は最小でよい。
+
+- baseline 数値
+- top symbol
+- 変更した exact leaf
+- 再実行した gate / smoke
+
+## Non-goals
+
+- 大きな route rewrite を先にやること
+- benchmark を見ずに一般論だけで最適化すること
+- hint を workaround として使うこと
+- Route contract for this wave:
+  - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`
+  - `llvmlite/native/harness` are invalid and must fail-fast
+- `kilo_micro_substring_concat`:
+  - asm-guided slice changed `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `8` to `0`
+  - short `substring_hii` results now stay `StringViewBox` until container/materialize boundary
+  - checkpoint improved from `295536812 cycles / 76 ms` to `263193549 cycles / 70 ms`
+  - current top symbols are:
+    - `nyash.string.substring_hii`
+    - `Registry::alloc`
+    - `BoxBase::new`
+    - `nyash.string.concat3_hhh`
+    - `string_len_from_handle`
+- Keep-lane diagnostic note:
+  - worker inventory found likely `loop self-carry PHI` string pointer loss under `src/llvm_py/**`
+  - this is diagnostic evidence only in the current wave
+  - next edits still stay on kernel/runtime/C-boundary owners until asm top symbols move away from `substring_hii` / `Registry::alloc` / `BoxBase::new`

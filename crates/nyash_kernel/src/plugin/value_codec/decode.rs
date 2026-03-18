@@ -1,6 +1,6 @@
 use super::borrowed_handle::{maybe_borrow_string_handle, maybe_borrow_string_handle_with_epoch};
 use nyash_rust::{
-    box_trait::{IntegerBox, NyashBox, StringBox},
+    box_trait::{BoolBox, IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
 };
 
@@ -60,8 +60,16 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                 return int_arg_to_box(arg);
             };
             if profile == CodecProfile::ArrayFastBorrowString {
-                if obj.as_any().downcast_ref::<StringBox>().is_some() {
+                if obj.as_any().downcast_ref::<StringBox>().is_some()
+                    || obj
+                        .as_any()
+                        .downcast_ref::<crate::exports::string_view::StringViewBox>()
+                        .is_some()
+                {
                     return maybe_borrow_string_handle(obj.clone(), arg);
+                }
+                if let Some(bb) = obj.as_any().downcast_ref::<BoolBox>() {
+                    return Box::new(BoolBox::new(bb.value));
                 }
                 if scalar_prefer {
                     if let Some(ib) = obj.as_any().downcast_ref::<IntegerBox>() {
@@ -88,7 +96,9 @@ pub(crate) fn string_handle_or_immediate_box_from_obj(
     let Some(obj) = obj else {
         return int_arg_to_box(source_handle);
     };
-    if obj.as_any().downcast_ref::<StringBox>().is_some() {
+    if obj.as_any().downcast_ref::<StringBox>().is_some()
+        || obj.as_any().downcast_ref::<crate::exports::string_view::StringViewBox>().is_some()
+    {
         return maybe_borrow_string_handle_with_epoch(
             obj.clone(),
             source_handle,

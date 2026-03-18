@@ -65,16 +65,17 @@ Rule:
    - plugin dispatch final shape: TypeBox ABI v2
    - runtime/bootstrap final shape: Core C ABI
    - backend final shape: `.hako -> LlvmBackendBox -> hako_aot`
-2. current kernel entry is still live
-   - `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
-3. current upstream daily caller/dependency pack is still live
+2. current kernel entry is retired
+   - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` is gone
+   - the public `nyash_plugin_invoke_by_name_i64` export is gone
+3. current upstream caller inventory is now migration-only
    - `src/llvm_py/instructions/mir_call/method_call.py`
    - `src/backend/mir_interpreter/handlers/calls/method.rs`
    - `src/runtime/type_registry.rs`
    - `src/backend/wasm_v2/unified_dispatch.rs`
-4. current compiled-stage1 temporary keeps are still needed
+4. current compiled-stage1 temporary keeps are still needed for backend cutover
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
-   - `build_surrogate.rs` (direct-dispatch default; by-name compat lives elsewhere)
+   - `build_surrogate.rs` (direct-dispatch default; by-name tail is retired)
    - `llvm_backend_surrogate.rs`
 5. current compat/archive residue still exists
    - `crates/nyash_kernel/src/hako_forward_bridge.rs`
@@ -82,7 +83,7 @@ Rule:
    - `lang/c-abi/shims/hako_kernel.c`
    - `src/llvm_py/instructions/boxcall.py`
    - `src/llvm_py/instructions/mir_call_legacy.py`
-   - the legacy MIR tail now forwards receiver literals into the shared direct-or-plugin helper, so module-string BuildBox routes can resolve direct lowered methods before `nyash.plugin.invoke_by_name_i64`
+   - the legacy MIR tail now fails fast on unsupported unknown methods, so module-string BuildBox routes can resolve direct lowered methods without a by-name tail
 6. latest landed proof:
    - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green again because compiled-stage1 `llvm_backend_surrogate.rs` now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` routing
 7. `BYN-min2` source cutover is landed
@@ -106,6 +107,7 @@ Rule:
 12. compiled-stage1 surrogate shrink third slice is landed
    - `llvm_backend_surrogate.rs` now keeps compile/link payload decode and execution behind owner-local request helpers (`decode_*_request(...)`, `execute_*_request(...)`)
    - `handle_compile_obj(...)` / `handle_link_exe(...)` now read as decode -> execute -> finish only, while the parent dispatch contract remains unchanged
+   - `decode_compile_obj_request(...)` is now primary-arg only, so the old arg2 rescue tail is gone and the compile route stays strict to the incoming MIR path handle
 13. `BYN-min4a` compat registry demotion slice is landed
    - `lang/c-abi/shims/hako_forward_registry_shared_impl.inc` is now the shared compat-only owner for the C hook registry surface
    - `crates/nyash_kernel/src/hako_forward_registry.c` and `lang/c-abi/shims/hako_kernel.c` no longer duplicate `plugin_invoke_by_name` / `future_spawn_instance` / `string_dispatch` registration and try-call behavior inline
@@ -119,12 +121,21 @@ Rule:
 16. backend helper alias cutover slice is landed
    - the same direct-call alias resolver now also covers `selfhost.shared.backend.llvm_backend` -> `LlvmBackendBox`
    - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` before generic plugin fallback when receiver literals are known
-17. generic boxcall fallback tail is tighter
-   - `src/llvm_py/instructions/boxcall.py` no longer owns its own manual plugin invoke tail
-   - the final direct-or-plugin path is shared through `src/llvm_py/instructions/mir_call/method_fallback_tail.py`, while BoxCall keeps its legacy `argc=min(len(args), 2)` compat contract explicitly through the shared owner
-18. stage1 helper alias cutover second wave is landed
+17. FileBox kernel roundtrip tests are now direct-contract
+   - `crates/nyash_kernel/src/tests.rs` no longer uses `nyash_plugin_invoke_by_name_i64` for FileBox open/read/write/close roundtrips
+   - `by_name` no longer has a FileBox compat branch; the next safe step is generic/mainline caller shrink rather than more FileBox migration
+   - the stage1 module-string tests in `crates/nyash_kernel/src/tests.rs` have also been rehomed to direct dispatch, and the public `nyash.plugin.invoke_by_name_i64` export is now retired
+18. generic boxcall fallback tail is tighter
+   - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
+   - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback
+   - BoxCall no longer owns `nyash.plugin.invoke_by_name_i64`
+   - `src/llvm_py/instructions/by_name_method.py` and `src/llvm_py/instructions/plugin_invoke_lowering.py` have been retired
+   - string-result annotation lives in `src/llvm_py/instructions/string_result_policy.py`
+   - the kernel hook-bridge by-name registration surface has also been retired; only future/string hook glue remains
+19. stage1 helper alias cutover second wave is landed
    - the same direct-call alias resolver now also covers `lang.compiler.entry.func_scanner` -> `FuncScannerBox`, `lang.compiler.entry.stageb.stageb_json_builder_box` -> `StageBJsonBuilderBox`, `selfhost.shared.common.box_type_inspector` -> `BoxTypeInspectorBox`, and `selfhost.shared.common.string_helpers` -> `StringHelpers`
    - current compiled-stage1 helper routes such as `find_matching_brace`, `build_defs_json`, `kind`, and `int_to_str` can now prefer direct lowered functions before generic plugin fallback when receiver literals are known
+   - C ABI `.hako` execution stays on direct boundary routes; `lang/c-abi/shims/hako_llvmc_ffi.c` no longer emits `by_name` and now behaves as a transport-only shim
 
 ## Immediate Next
 
@@ -133,6 +144,7 @@ Rule:
 3. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
+6. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 

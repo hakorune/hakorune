@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # ny_mir_builder.sh — Minimal MIR Builder CLI (shell wrapper)
 # Purpose: consume Nyash JSON IR and emit {obj|exe|ll|json} via the ny-llvmc crate backend by default.
-# Notes: llvmlite harness remains internal; choose it explicitly with NYASH_LLVM_BACKEND=llvmlite when debugging.
+# Notes:
+# - daily route is crate -> ny-llvmc(boundary)
+# - llvmlite harness remains internal compat/debug keep only; choose it explicitly with NYASH_LLVM_BACKEND=llvmlite when debugging.
 
 set -euo pipefail
 [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]] && set -x

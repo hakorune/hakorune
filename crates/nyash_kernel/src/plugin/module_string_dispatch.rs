@@ -1,5 +1,9 @@
 use nyash_rust::box_trait::{NyashBox, StringBox};
 use nyash_rust::runtime::host_handles;
+#[cfg(test)]
+use crate::test_support::with_env_vars;
+#[cfg(not(test))]
+use std::sync::OnceLock;
 
 #[path = "module_string_dispatch/build_surrogate.rs"]
 mod build_surrogate;
@@ -13,7 +17,15 @@ const TRACE_ENV: &str = "HAKO_STAGE1_MODULE_DISPATCH_TRACE";
 
 #[inline(always)]
 fn trace_enabled() -> bool {
-    std::env::var(TRACE_ENV).ok().as_deref() == Some("1")
+    #[cfg(test)]
+    {
+        std::env::var(TRACE_ENV).ok().as_deref() == Some("1")
+    }
+    #[cfg(not(test))]
+    {
+        static TRACE_ENABLED: OnceLock<bool> = OnceLock::new();
+        *TRACE_ENABLED.get_or_init(|| std::env::var(TRACE_ENV).ok().as_deref() == Some("1"))
+    }
 }
 
 #[inline(always)]
@@ -24,29 +36,66 @@ fn trace_log(message: impl AsRef<str>) {
 }
 
 #[inline(always)]
-fn env_is_on(key: &str) -> bool {
-    matches!(
-        std::env::var(key).ok().as_deref(),
-        Some("1" | "true" | "on" | "TRUE" | "ON")
-    )
-}
-
-#[inline(always)]
 fn mir_builder_internal_on() -> bool {
-    !matches!(
-        std::env::var("HAKO_MIR_BUILDER_INTERNAL").ok().as_deref(),
-        Some("0" | "false" | "off" | "FALSE" | "OFF")
-    )
+    #[cfg(test)]
+    {
+        !matches!(
+            std::env::var("HAKO_MIR_BUILDER_INTERNAL").ok().as_deref(),
+            Some("0" | "false" | "off" | "FALSE" | "OFF")
+        )
+    }
+    #[cfg(not(test))]
+    {
+        static MIR_BUILDER_INTERNAL_ON: OnceLock<bool> = OnceLock::new();
+        *MIR_BUILDER_INTERNAL_ON.get_or_init(|| {
+            !matches!(
+                std::env::var("HAKO_MIR_BUILDER_INTERNAL").ok().as_deref(),
+                Some("0" | "false" | "off" | "FALSE" | "OFF")
+            )
+        })
+    }
 }
 
 #[inline(always)]
 fn mir_builder_delegate_on() -> bool {
-    env_is_on("HAKO_MIR_BUILDER_DELEGATE")
+    #[cfg(test)]
+    {
+        matches!(
+            std::env::var("HAKO_MIR_BUILDER_DELEGATE").ok().as_deref(),
+            Some("1" | "true" | "on" | "TRUE" | "ON")
+        )
+    }
+    #[cfg(not(test))]
+    {
+        static MIR_BUILDER_DELEGATE_ON: OnceLock<bool> = OnceLock::new();
+        *MIR_BUILDER_DELEGATE_ON.get_or_init(|| {
+            matches!(
+                std::env::var("HAKO_MIR_BUILDER_DELEGATE").ok().as_deref(),
+                Some("1" | "true" | "on" | "TRUE" | "ON")
+            )
+        })
+    }
 }
 
 #[inline(always)]
 fn mir_builder_no_delegate() -> bool {
-    env_is_on("HAKO_SELFHOST_NO_DELEGATE")
+    #[cfg(test)]
+    {
+        matches!(
+            std::env::var("HAKO_SELFHOST_NO_DELEGATE").ok().as_deref(),
+            Some("1" | "true" | "on" | "TRUE" | "ON")
+        )
+    }
+    #[cfg(not(test))]
+    {
+        static MIR_BUILDER_NO_DELEGATE: OnceLock<bool> = OnceLock::new();
+        *MIR_BUILDER_NO_DELEGATE.get_or_init(|| {
+            matches!(
+                std::env::var("HAKO_SELFHOST_NO_DELEGATE").ok().as_deref(),
+                Some("1" | "true" | "on" | "TRUE" | "ON")
+            )
+        })
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -350,24 +399,25 @@ mod tests {
 
     #[test]
     fn mir_builder_respects_impossible_gate_contract() {
-        let recv = module_handle(MIR_BUILDER_MODULE);
-        let program_json = encode_string_handle(
-            r#"{"body":[{"expr":{"type":"Int","value":1},"type":"Return"}],"kind":"Program","version":0}"#,
+        with_env_vars(
+            &[
+                ("HAKO_MIR_BUILDER_INTERNAL", "0"),
+                ("HAKO_MIR_BUILDER_DELEGATE", "0"),
+                ("HAKO_SELFHOST_NO_DELEGATE", "1"),
+            ],
+            || {
+                let recv = module_handle(MIR_BUILDER_MODULE);
+                let program_json = encode_string_handle(
+                    r#"{"body":[{"expr":{"type":"Int","value":1},"type":"Return"}],"kind":"Program","version":0}"#,
+                );
+
+                let out = try_dispatch(recv, "emit_from_program_json_v0", 1, program_json, 0)
+                    .expect("dispatch result");
+                let message = decode_result(out);
+
+                assert!(message.starts_with("[freeze:contract][stage1_mir_builder]"));
+                assert!(message.contains("delegate disabled") || message.contains("internal off"));
+            },
         );
-
-        std::env::set_var("HAKO_MIR_BUILDER_INTERNAL", "0");
-        std::env::set_var("HAKO_MIR_BUILDER_DELEGATE", "0");
-        std::env::set_var("HAKO_SELFHOST_NO_DELEGATE", "1");
-
-        let out = try_dispatch(recv, "emit_from_program_json_v0", 1, program_json, 0)
-            .expect("dispatch result");
-        let message = decode_result(out);
-
-        std::env::remove_var("HAKO_MIR_BUILDER_INTERNAL");
-        std::env::remove_var("HAKO_MIR_BUILDER_DELEGATE");
-        std::env::remove_var("HAKO_SELFHOST_NO_DELEGATE");
-
-        assert!(message.starts_with("[freeze:contract][stage1_mir_builder]"));
-        assert!(message.contains("delegate disabled") || message.contains("internal off"));
     }
 }

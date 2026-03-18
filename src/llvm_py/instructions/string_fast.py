@@ -62,3 +62,32 @@ def literal_string_for_receiver(
     except (TypeError, ValueError):
         mapped = None
     return mapped if isinstance(mapped, str) else None
+
+
+def string_ptr_for_value(
+    resolver: Optional[Any], value_id: Optional[int]
+) -> Optional[ir.Value]:
+    if resolver is None or value_id is None:
+        return None
+    ptrs = getattr(resolver, "string_ptrs", None)
+    if not isinstance(ptrs, dict):
+        return None
+    try:
+        key = int(value_id)
+    except (TypeError, ValueError):
+        return None
+
+    ptr = ptrs.get(key)
+    if ptr is not None:
+        return ptr
+
+    src_map = getattr(resolver, "newbox_string_args", None)
+    if not isinstance(src_map, dict):
+        return None
+    arg_vid = src_map.get(key)
+    if arg_vid is None:
+        return None
+    try:
+        return ptrs.get(int(arg_vid))
+    except (TypeError, ValueError):
+        return None

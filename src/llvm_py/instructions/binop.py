@@ -7,6 +7,7 @@ import llvmlite.ir as ir
 from typing import Dict, Optional, Any
 from utils.values import resolve_i64_strict, safe_vmap_write
 import os
+from instructions.string_fast import string_ptr_for_value
 from .compare import lower_compare
 from trace import hot_count as trace_hot_count
 
@@ -185,6 +186,21 @@ def _binop_to_string_handle(builder: ir.IRBuilder, raw, value, tag: str, dst: in
     return ir.Constant(i64, 0)
 
 
+def _binop_to_string_ptr(builder: ir.IRBuilder, resolver, value_id: int, raw, value):
+    ptr = None
+    if raw is not None and hasattr(raw, "type") and isinstance(raw.type, ir.PointerType):
+        ptr = raw
+        try:
+            if isinstance(raw.type.pointee, ir.ArrayType):
+                c0 = ir.Constant(ir.IntType(32), 0)
+                ptr = builder.gep(raw, [c0, c0], name="bin_str_gep")
+        except Exception:
+            pass
+    if ptr is None:
+        ptr = string_ptr_for_value(resolver, value_id)
+    return ptr
+
+
 def _binop_any_to_string_handle(builder: ir.IRBuilder, handle_val, tag: str, dst: int, i64):
     callee = _ensure_module_function(
         builder.module,
@@ -232,6 +248,53 @@ def _materialize_string_concat_handles(
     if _binop_needs_stringify_bridge(rhs_tag, rhs_raw, rhs_val):
         hr = _binop_any_to_string_handle(builder, hr, "r", dst, i64)
     return hl, hr
+
+
+def _try_lower_string_concat_fast(
+    builder: ir.IRBuilder,
+    resolver,
+    lhs: int,
+    rhs: int,
+    dst: int,
+    lhs_raw,
+    rhs_raw,
+    lhs_val,
+    rhs_val,
+):
+    if os.environ.get("NYASH_LLVM_FAST") != "1" or resolver is None:
+        return None
+
+    i64 = ir.IntType(64)
+    i8p = ir.IntType(8).as_pointer()
+    lhs_ptr = _binop_to_string_ptr(builder, resolver, lhs, lhs_raw, lhs_val)
+    rhs_ptr = _binop_to_string_ptr(builder, resolver, rhs, rhs_raw, rhs_val)
+    if lhs_ptr is None or rhs_ptr is None:
+        return None
+
+    concat = _ensure_module_function(
+        builder.module,
+        "nyash.string.concat_ss",
+        i8p,
+        [i8p, i8p],
+    )
+    out_ptr = builder.call(concat, [lhs_ptr, rhs_ptr], name=f"concat_ss_{dst}")
+    boxer = _ensure_module_function(
+        builder.module,
+        "nyash.box.from_i8_string",
+        i64,
+        [i8p],
+    )
+    out_h = builder.call(boxer, [out_ptr], name=f"str_ptr2h_concat_{dst}")
+
+    try:
+        if hasattr(resolver, "string_ptrs"):
+            resolver.string_ptrs[int(dst)] = out_ptr
+        if hasattr(resolver, "mark_string"):
+            resolver.mark_string(dst)
+    except Exception:
+        pass
+
+    return out_h
 
 
 def _dispatch_string_concat(builder: ir.IRBuilder, dst: int, lhs_raw, rhs_raw, hl, hr):
@@ -812,6 +875,25 @@ def lower_binop(
                 rhs_vt = resolver.value_types.get(rhs)
                 print(f"  value_types: lhs={lhs_vt} rhs={rhs_vt}")
         if is_str:
+            fast_res = _try_lower_string_concat_fast(
+                builder,
+                resolver,
+                lhs,
+                rhs,
+                dst,
+                lhs_raw,
+                rhs_raw,
+                lhs_val,
+                rhs_val,
+            )
+            if fast_res is not None:
+                safe_vmap_write(vmap, dst, fast_res, "binop_concat_fast", resolver=resolver)
+                try:
+                    if resolver is not None and hasattr(resolver, "mark_string"):
+                        resolver.mark_string(dst)
+                except Exception:
+                    pass
+                return
             hl, hr = _materialize_string_concat_handles(
                 builder,
                 resolver,

@@ -16,10 +16,11 @@ from .intrinsic_registry import (
     is_length_like_method,
     requires_string_receiver_tag,
 )
-from instructions.by_name_method import mark_string_result_if_needed
 from .collection_method_call import lower_collection_method_call
 from .method_fallback_tail import lower_direct_or_plugin_method_call
+from .runtime_data_dispatch import lower_runtime_data_field_call
 from .string_console_method_call import lower_string_or_console_method_call
+from instructions.string_result_policy import mark_string_result_if_needed
 
 
 def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid, vmap, resolver, owner):
@@ -76,7 +77,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     # Resolve receiver and arguments
     _resolve_arg = make_call_arg_resolver(builder, vmap, resolver, owner)
 
-    def _resolve_string_ptr_for_len(receiver_vid: int):
+    def _resolve_string_ptr_for_receiver(receiver_vid: int):
         if resolver is None:
             return None
         string_ptrs = getattr(resolver, 'string_ptrs', None)
@@ -105,6 +106,19 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         except (AttributeError, TypeError, ValueError):
             return None
 
+    def _box_string_ptr(ptr):
+        callee = _declare("nyash.box.from_i8_string", i64, [i8p])
+        return builder.call(callee, [ptr], name="unified_str_ptr2h")
+
+    def _store_result_string_ptr(ptr):
+        try:
+            if dst_vid is not None and resolver is not None and hasattr(resolver, "string_ptrs"):
+                resolver.string_ptrs[int(dst_vid)] = ptr
+            if dst_vid is not None and resolver is not None and hasattr(resolver, "mark_string"):
+                resolver.mark_string(int(dst_vid))
+        except Exception:
+            pass
+
     def _mark_receiver_stringish():
         try:
             if resolver is not None and hasattr(resolver, "mark_string"):
@@ -112,7 +126,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         except Exception:
             pass
 
-    len_ptr_hint = _resolve_string_ptr_for_len(receiver)
+    len_ptr_hint = _resolve_string_ptr_for_receiver(receiver)
 
     # FAST length/size path can skip safepoint:
     # - literal fold (const i64)
@@ -138,7 +152,11 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
     recv_h = _ensure_handle(recv_val)
 
     # TRUE UNIFIED METHOD DISPATCH - Everything is Box philosophy
-    if is_length_like_method(method):
+    if method in ("toString", "stringify", "str"):
+        callee = _declare("nyash.any.toString_h", i64, [i64])
+        result = builder.call(callee, [recv_h], name="slot0_tostring")
+
+    elif is_length_like_method(method):
         result = None
         # Ultra-fast literal fold in MIRCall route.
         if fast_on and not args and isinstance(literal_recv, str):
@@ -214,18 +232,33 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             receiver_vid=receiver,
         )
 
+    elif box_name == "RuntimeDataBox" and method in {"getField", "setField"}:
+        result = lower_runtime_data_field_call(
+            builder=builder,
+            declare=_declare,
+            box_name=box_name,
+            method=method,
+            recv_h=recv_h,
+            args=args,
+            resolve_arg=_resolve_arg,
+            ensure_handle=_ensure_handle,
+        )
+
     else:
         result = lower_string_or_console_method_call(
             builder=builder,
             declare=_declare,
             method_name=method,
             recv_h=recv_h,
+            recv_ptr=_resolve_string_ptr_for_receiver(receiver),
             arg_ids=args,
             resolve_arg=_resolve_arg,
             ensure_handle=_ensure_handle,
             mark_receiver_stringish=(
                 _mark_receiver_stringish if requires_string_receiver_tag(method) else None
             ),
+            box_string_ptr=_box_string_ptr,
+            store_result_string_ptr=_store_result_string_ptr,
         )
         if result is None:
             result = lower_direct_or_plugin_method_call(

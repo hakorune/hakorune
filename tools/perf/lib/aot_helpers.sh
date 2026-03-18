@@ -12,6 +12,9 @@ PERF_AOT_LAST_MED_MS=0
 # Perf lane policy for AOT series/probe:
 # run with deterministic runtime knobs (GC off + poll off) by default.
 # Callers can override via env exports.
+# Route contract:
+# - perf AOT always measures `.hako -> ny-llvmc(boundary) -> C ABI`
+# - explicit keep lanes (`llvmlite` / `native` / harness) are fail-fast here
 perf_aot_runtime_env_cmd() {
   env \
     NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \
@@ -32,6 +35,37 @@ perf_aot_reset_status() {
   perf_aot_set_status "skip" "not_attempted" "none"
   PERF_AOT_LAST_EMIT_ROUTE="none"
   PERF_AOT_LAST_MED_MS=0
+}
+
+perf_aot_assert_boundary_route_contract() {
+  local backend="${NYASH_LLVM_BACKEND:-crate}"
+  local use_harness="${NYASH_LLVM_USE_HARNESS:-0}"
+  local emit_provider="${HAKO_LLVM_EMIT_PROVIDER:-}"
+
+  case "${backend}" in
+    ""|crate)
+      ;;
+    llvmlite|native)
+      echo "[error] perf AOT route must not use NYASH_LLVM_BACKEND=${backend}; expected crate -> ny-llvmc(boundary)" >&2
+      return 1
+      ;;
+    *)
+      echo "[error] perf AOT route only accepts NYASH_LLVM_BACKEND=crate (or unset); got '${backend}'" >&2
+      return 1
+      ;;
+  esac
+
+  if [[ "${use_harness}" == "1" ]]; then
+    echo "[error] perf AOT route must not use NYASH_LLVM_USE_HARNESS=1; harness/llvmlite is keep-lane only" >&2
+    return 1
+  fi
+
+  if [[ "${emit_provider}" == "llvmlite" ]]; then
+    echo "[error] perf AOT route must not use HAKO_LLVM_EMIT_PROVIDER=llvmlite; expected boundary-owned default route" >&2
+    return 1
+  fi
+
+  return 0
 }
 
 perf_aot_resolve_skip_build() {
@@ -167,12 +201,21 @@ perf_build_aot_exe() {
   local out_exe=$3
   local skip_build
 
+  if ! perf_aot_assert_boundary_route_contract; then
+    perf_aot_set_status "skip" "invalid_perf_route_contract" "contract"
+    return 1
+  fi
+
   if ! skip_build="$(perf_aot_resolve_skip_build "${root_dir}")"; then
     perf_aot_set_status "skip" "invalid_skip_build_env" "contract"
     return 1
   fi
 
-  if ! NYASH_LLVM_SKIP_BUILD="${skip_build}" \
+  if ! NYASH_LLVM_BACKEND=crate \
+      NYASH_LLVM_USE_HARNESS=0 \
+      NYASH_LLVM_USE_CAPI="${NYASH_LLVM_USE_CAPI:-1}" \
+      HAKO_V1_EXTERN_PROVIDER_C_ABI="${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}" \
+      NYASH_LLVM_SKIP_BUILD="${skip_build}" \
       NYASH_LLVM_FAST=1 \
       NYASH_LLVM_FAST_INT="${NYASH_LLVM_FAST_INT:-1}" \
       NYASH_GC_MODE="${NYASH_GC_MODE:-off}" \

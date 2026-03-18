@@ -6,6 +6,7 @@ Scope: `full Rust 0` を runtime-zero / backend-zero に分割して可視化し
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -45,6 +46,7 @@ Related:
 2. runtime-zero:
    - accepted pointer / inventory-ready
    - source-zero と static-link boundary の入口が既に揃っている。
+   - `kernel authority zero` は queued pointer として別建てで tracking し、meaning/policy owner の cutover と substrate delete を混ぜない。
 3. backend-zero:
    - accepted pointer / phase-cut queued
    - owner inventory と keep-vs-retire の高位境界は固定済み
@@ -74,6 +76,21 @@ Related:
 - operation rule:
   - daily は `phase-29y` の failure-driven monitor-only を維持する。
   - full Rust 0 pointer を作ったこと自体では lane C を reopen しない。
+
+### 3.1b kernel-authority-zero
+
+- 定義:
+  - kernel meaning/policy の final owner を `.hako` 側へ移し、Rust runtime を substrate / portability / compat keep に降格する。
+- status:
+  - queued pointer
+- primary SSOT:
+  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+  - `lang/README.md`
+  - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+- current rule:
+  - current exe optimization wave と混ぜない。
+  - `kernel authority zero` は `substrate zero` と同じ task にしない。
+  - start trigger を満たすまでは visibility only に留める。
 
 ### 3.2 backend-zero
 

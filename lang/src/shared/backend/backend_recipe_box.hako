@@ -68,8 +68,41 @@ static box BackendRecipeBox {
   acceptance_case_for(json_path) {
     local path = me._require_non_empty("acceptance_case_for", "json_path", json_path)
     if path == null { return null }
+    if path.contains("string_indexof_ascii_min_v1") {
+      return me.acceptance_case_string_indexof_ascii_v1()
+    }
+    if path.contains("runtime_data_string_length_ascii_min_v1") {
+      return me.acceptance_case_runtime_data_string_length_ascii_v1()
+    }
+    if path.contains("runtime_data_array_length_min_v1") {
+      return me.acceptance_case_runtime_data_array_length_v1()
+    }
+    if path.contains("runtime_data_array_push_min_v1") {
+      return me.acceptance_case_runtime_data_array_push_v1()
+    }
+    if path.contains("runtime_data_map_size_min_v1") {
+      return me.acceptance_case_runtime_data_map_size_v1()
+    }
+    if path.contains("runtime_data_array_has_missing_min_v1") {
+      return me.acceptance_case_runtime_data_array_has_v1()
+    }
+    if path.contains("runtime_data_map_has_missing_min_v1") {
+      return me.acceptance_case_runtime_data_map_has_v1()
+    }
+    if path.contains("runtime_data_map_get_missing_min_v1") {
+      return me.acceptance_case_runtime_data_map_get_v1()
+    }
     if path.contains("runtime_data_array_get_missing_min_v1") {
       return me.acceptance_case_runtime_data_array_get_missing_v1()
+    }
+    if path.contains("string_length_ascii_min_v1") {
+      return me.acceptance_case_string_length_ascii_v1()
+    }
+    if path.contains("ret_const_min_v1") {
+      return me.acceptance_case_ret_const_v1()
+    }
+    if path.contains("hello_simple_llvm_native_probe_v1") {
+      return me.acceptance_case_hello_simple_llvm_native_probe_v1()
     }
     return me.acceptance_case_seed_matrix_v1()
   }
@@ -106,6 +139,50 @@ static box BackendRecipeBox {
 
   acceptance_case_runtime_data_array_get_missing_v1() {
     return "runtime-data-array-get-missing-v1"
+  }
+
+  acceptance_case_runtime_data_string_length_ascii_v1() {
+    return "runtime-data-string-length-ascii-v1"
+  }
+
+  acceptance_case_runtime_data_array_length_v1() {
+    return "runtime-data-array-length-v1"
+  }
+
+  acceptance_case_runtime_data_array_push_v1() {
+    return "runtime-data-array-push-v1"
+  }
+
+  acceptance_case_runtime_data_map_size_v1() {
+    return "runtime-data-map-size-v1"
+  }
+
+  acceptance_case_runtime_data_array_has_v1() {
+    return "runtime-data-array-has-missing-v1"
+  }
+
+  acceptance_case_runtime_data_map_has_v1() {
+    return "runtime-data-map-has-missing-v1"
+  }
+
+  acceptance_case_runtime_data_map_get_v1() {
+    return "runtime-data-map-get-missing-v1"
+  }
+
+  acceptance_case_string_indexof_ascii_v1() {
+    return "string-indexof-ascii-v1"
+  }
+
+  acceptance_case_string_length_ascii_v1() {
+    return "string-length-ascii-v1"
+  }
+
+  acceptance_case_ret_const_v1() {
+    return "ret-const-v1"
+  }
+
+  acceptance_case_hello_simple_llvm_native_probe_v1() {
+    return "hello-simple-llvm-native-probe-v1"
   }
 
   _fail(tag) {

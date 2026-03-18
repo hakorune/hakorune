@@ -307,10 +307,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       auto void set_scan_origin(long long r,int k){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r){ scan_origin[i].kind=k; return;} } if(scan_origin_n<2048){ scan_origin[scan_origin_n].reg=r; scan_origin[scan_origin_n].kind=k; scan_origin_n++; } }
       auto int get_origin(long long r){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r) return origin[i].kind; } return ORG_NONE; }
       auto void set_origin(long long r,int k){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r){ origin[i].kind=k; return;} } if(origin_n<2048){ origin[origin_n].reg=r; origin[origin_n].kind=k; origin_n++; } }
-      // Dynamic fallback (by-name) method strings
-      struct { char name[64]; int len; } mnames[64]; int mnames_n = 0;
-      auto int find_mname(const char* s){ for(int i=0;i<mnames_n;i++){ if (strcmp(mnames[i].name,s)==0) return i; } return -1; }
-      auto int add_mname(const char* s){ int idx=find_mname(s); if (idx>=0) return idx; if (mnames_n<64){ strncpy(mnames[mnames_n].name, s, 63); mnames[mnames_n].name[63]='\0'; mnames[mnames_n].len=strlen(mnames[mnames_n].name); return mnames_n++; } return -1; }
       struct Incoming { long long pred; long long val_reg; };
       struct PhiRec { long long dst; struct Incoming in[16]; int in_n; };
       struct BlockPhi { long long bid; struct PhiRec recs[16]; int rec_n; } phis[512]; int phi_n = 0;
@@ -419,13 +415,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
       if (need_printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
       fprintf(f, "\n");
-      // Dynamic fallback invoke decl (optional utilization)
-      fprintf(f, "declare i64 @\"nyash.plugin.invoke_by_name_i64\"(i64, i8*, i64, i64, i64)\n");
-      // Emit method name constants collected for fallback
-      for (int si=0; si<mnames_n; si++) {
-        // Note: method names are assumed ASCII and safe here
-        fprintf(f, "@.hako_mname_%d = private unnamed_addr constant [%d x i8] c\"%s\\00\", align 1\n", si, mnames[si].len+1, mnames[si].name);
-      }
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "define i64 @ny_main() {\n");
       // Emit blocks
@@ -541,25 +530,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   else { EMIT("  %%_ = call i64 @\"nyash.map.has_h\"(%s)\n", ab); }
                 } else { yyjson_doc_free(d); goto GEN_ABORT; }
               }
-              else {
-                // Dynamic fallback by name (dev only): invoke_by_name(recv, "method", argc, a0, a1)
-                const char* fb = getenv("HAKO_CAPI_DYN_FALLBACK");
-                if (fb && fb[0]=='1' && mname && recv) {
-                  int idx = add_mname(mname);
-                  if (idx >= 0) {
-                    long long argc = 0; if (a0) argc++; if (a1) argc++;
-                    long long ctmp;
-                    char arg0[64]; arg0[0]='\0';
-                    char arg1[64]; arg1[0]='\0';
-                    if (a0) { if (has_const(a0,&ctmp)) snprintf(arg0,sizeof(arg0),"%lld", ctmp); else snprintf(arg0,sizeof(arg0),"%%r%lld", a0); } else { snprintf(arg0,sizeof(arg0),"0"); }
-                    if (a1) { if (has_const(a1,&ctmp)) snprintf(arg1,sizeof(arg1),"%lld", ctmp); else snprintf(arg1,sizeof(arg1),"%%r%lld", a1); } else { snprintf(arg1,sizeof(arg1),"0"); }
-                    // build method ptr IR and call by-name
-                    EMIT("  %%r%lld = call i64 @\"nyash.plugin.invoke_by_name_i64\"(i64 %%r%lld, i8* getelementptr inbounds ([%d x i8], [%d x i8]* @.hako_mname_%d, i64 0, i64 0), i64 %lld, i64 %s, i64 %s)\n",
-                         dst?dst:0, recv, mnames[idx].len+1, mnames[idx].len+1, idx, argc, arg0, arg1);
-                    set_type(dst, T_I64);
-                  } else { yyjson_doc_free(d); goto GEN_ABORT; }
-                } else { yyjson_doc_free(d); goto GEN_ABORT; }
-              }
+              else { yyjson_doc_free(d); goto GEN_ABORT; }
             } else if (ctype && !strcmp(ctype, "Global")) {
               if (mname && !strcmp(mname, "print")) {
                 long long print_arg = a0;

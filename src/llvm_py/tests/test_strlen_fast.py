@@ -812,7 +812,7 @@ class TestStrlenFast(unittest.TestCase):
         ir_txt = b.build_from_mir(mir) or ""
         self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
 
-    def test_binop_string_concat_chain_prefers_concat3_hhh(self):
+    def test_binop_string_concat_chain_prefers_pointer_concat_ss(self):
         mir = {
             "functions": [
                 {
@@ -840,10 +840,11 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
 
-    def test_binop_string_concat_chain_right_assoc_prefers_concat3_hhh(self):
+    def test_binop_string_concat_chain_right_assoc_prefers_pointer_concat_ss(self):
         mir = {
             "functions": [
                 {
@@ -871,10 +872,11 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
 
-    def test_binop_string_concat_non_chain_uses_concat_hh_only(self):
+    def test_binop_string_concat_non_chain_prefers_pointer_concat_ss(self):
         mir = {
             "functions": [
                 {
@@ -899,8 +901,139 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
+
+    def test_fast_substring_concat_chain_prefers_pointer_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": "string", "value": "line-seed-abcdef"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "const", "dst": 3, "value": {"type": "i64", "value": 0}},
+                                {"op": "const", "dst": 4, "value": {"type": "i64", "value": 8}},
+                                {"op": "const", "dst": 5, "value": {"type": "i64", "value": 16}},
+                                {"op": "boxcall", "dst": 6, "box": 2, "method": "substring", "args": [3, 4]},
+                                {"op": "boxcall", "dst": 7, "box": 2, "method": "substring", "args": [4, 5]},
+                                {"op": "const", "dst": 8, "value": {"type": "string", "value": "xx"}},
+                                {"op": "newbox", "dst": 9, "type": "StringBox", "args": [8]},
+                                {"op": "binop", "dst": 10, "lhs": 6, "rhs": 9, "operation": "+"},
+                                {"op": "binop", "dst": 11, "lhs": 10, "rhs": 7, "operation": "+"},
+                                {"op": "ret", "value": 11},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i8* @"nyash.string.substring_sii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.box.from_i8_string"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.substring_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+
+    def test_fast_substring_concat_copy_chain_keeps_pointer_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": "string", "value": "line-seed-abcdef"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "copy", "dst": 3, "src": 2},
+                                {"op": "const", "dst": 4, "value": {"type": "i64", "value": 0}},
+                                {"op": "const", "dst": 5, "value": {"type": "i64", "value": 8}},
+                                {"op": "const", "dst": 6, "value": {"type": "i64", "value": 16}},
+                                {"op": "boxcall", "dst": 7, "box": 3, "method": "substring", "args": [4, 5]},
+                                {"op": "boxcall", "dst": 8, "box": 3, "method": "substring", "args": [5, 6]},
+                                {"op": "const", "dst": 9, "value": {"type": "string", "value": "xx"}},
+                                {"op": "newbox", "dst": 10, "type": "StringBox", "args": [9]},
+                                {"op": "binop", "dst": 11, "lhs": 7, "rhs": 10, "operation": "+"},
+                                {"op": "binop", "dst": 12, "lhs": 11, "rhs": 8, "operation": "+"},
+                                {"op": "ret", "value": 12},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i8* @"nyash.string.substring_sii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.substring_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+
+    def test_mircall_substring_concat_prefers_pointer_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": {"kind": "handle", "box_type": "StringBox"}, "value": "line-seed-abcdef"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "copy", "dst": 3, "src": 2},
+                                {"op": "const", "dst": 4, "value": {"type": "i64", "value": 0}},
+                                {"op": "const", "dst": 5, "value": {"type": "i64", "value": 8}},
+                                {"op": "const", "dst": 6, "value": {"type": "i64", "value": 16}},
+                                {"op": "mir_call", "dst": 7, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "substring",
+                                        "receiver": 3,
+                                        "certainty": "Union"
+                                    },
+                                    "args": [4, 5]
+                                }},
+                                {"op": "mir_call", "dst": 8, "mir_call": {
+                                    "callee": {
+                                        "type": "Method",
+                                        "box_name": "RuntimeDataBox",
+                                        "name": "substring",
+                                        "receiver": 3,
+                                        "certainty": "Union"
+                                    },
+                                    "args": [5, 6]
+                                }},
+                                {"op": "const", "dst": 9, "value": {"type": {"kind": "handle", "box_type": "StringBox"}, "value": "xx"}},
+                                {"op": "newbox", "dst": 10, "type": "StringBox", "args": [9]},
+                                {"op": "binop", "dst": 11, "lhs": 7, "rhs": 10, "operation": "+"},
+                                {"op": "binop", "dst": 12, "lhs": 11, "rhs": 8, "operation": "+"},
+                                {"op": "ret", "value": 12},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ''
+        self.assertIn('call i8* @"nyash.string.substring_sii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.substring_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
 
     def test_mir_call_length_phi_self_carry_uses_fast_path(self):
         # Bench-like shape: receiver goes through loop PHI self-carry.

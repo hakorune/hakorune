@@ -12,6 +12,14 @@ fn string_to_c_string_ptr(s: String) -> *mut i8 {
     into_c_string_ptr(s.into_bytes())
 }
 
+#[inline]
+fn c_string_bytes<'a>(ptr: *const i8) -> &'a [u8] {
+    if ptr.is_null() {
+        return &[];
+    }
+    unsafe { std::ffi::CStr::from_ptr(ptr).to_bytes() }
+}
+
 // Exported as: nyash_string_new(i8* ptr, i32 len) -> i8*
 #[no_mangle]
 pub extern "C" fn nyash_string_new(ptr: *const u8, len: i32) -> *mut i8 {
@@ -33,20 +41,12 @@ pub extern "C" fn nyash_string_new(ptr: *const u8, len: i32) -> *mut i8 {
 // Exported as: nyash.string.concat_ss(i8* a, i8* b) -> i8*
 #[export_name = "nyash.string.concat_ss"]
 pub extern "C" fn nyash_string_concat_ss(a: *const i8, b: *const i8) -> *mut i8 {
-    let mut s = String::new();
-    unsafe {
-        if !a.is_null() {
-            if let Ok(sa) = std::ffi::CStr::from_ptr(a).to_str() {
-                s.push_str(sa);
-            }
-        }
-        if !b.is_null() {
-            if let Ok(sb) = std::ffi::CStr::from_ptr(b).to_str() {
-                s.push_str(sb);
-            }
-        }
-    }
-    string_to_c_string_ptr(s)
+    let a_bytes = c_string_bytes(a);
+    let b_bytes = c_string_bytes(b);
+    let mut out = Vec::with_capacity(a_bytes.len() + b_bytes.len() + 1);
+    out.extend_from_slice(a_bytes);
+    out.extend_from_slice(b_bytes);
+    into_c_string_ptr(out)
 }
 
 // Exported as: nyash.string.concat_si(i8* a, i64 b) -> i8*
@@ -85,15 +85,10 @@ pub extern "C" fn nyash_string_concat_is(a: i64, b: *const i8) -> *mut i8 {
 // Exported as: nyash.string.substring_sii(i8* s, i64 start, i64 end) -> i8*
 #[export_name = "nyash.string.substring_sii"]
 pub extern "C" fn nyash_string_substring_sii(s: *const i8, start: i64, end: i64) -> *mut i8 {
-    use std::ffi::CStr;
     if s.is_null() {
         return std::ptr::null_mut();
     }
-    let src = unsafe { CStr::from_ptr(s) };
-    let src = match src.to_str() {
-        Ok(v) => v,
-        Err(_) => return std::ptr::null_mut(),
-    };
+    let src = c_string_bytes(s);
     let n = src.len() as i64;
     let mut st = if start < 0 { 0 } else { start };
     let mut en = if end < 0 { 0 } else { end };
@@ -107,8 +102,7 @@ pub extern "C" fn nyash_string_substring_sii(s: *const i8, start: i64, end: i64)
         std::mem::swap(&mut st, &mut en);
     }
     let (st_u, en_u) = (st as usize, en as usize);
-    let sub = &src[st_u.min(src.len())..en_u.min(src.len())];
-    into_c_string_ptr(sub.as_bytes().to_vec())
+    into_c_string_ptr(src[st_u..en_u].to_vec())
 }
 
 // Exported as: nyash.string.lastIndexOf_ss(i8* s, i8* needle) -> i64
@@ -183,5 +177,31 @@ pub extern "C" fn nyash_string_to_i8p_h(handle: i64) -> *mut i8 {
     } else {
         // not found -> print numeric handle string
         string_to_c_string_ptr(handle.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::ffi::CStr;
+
+    fn to_string(ptr: *mut i8) -> String {
+        assert!(!ptr.is_null());
+        unsafe { CStr::from_ptr(ptr) }.to_string_lossy().into_owned()
+    }
+
+    #[test]
+    fn concat_ss_keeps_ascii_contract() {
+        let a = c"line-".as_ptr();
+        let b = c"seed".as_ptr();
+        let out = nyash_string_concat_ss(a, b);
+        assert_eq!(to_string(out), "line-seed");
+    }
+
+    #[test]
+    fn substring_sii_keeps_byte_slice_contract() {
+        let src = c"line-seed-abcdef".as_ptr();
+        let out = nyash_string_substring_sii(src, 5, 9);
+        assert_eq!(to_string(out), "seed");
     }
 }

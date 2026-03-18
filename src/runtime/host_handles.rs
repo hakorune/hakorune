@@ -133,6 +133,32 @@ fn slot_str_ref<'a>(table: &'a SlotTable, h: u64) -> Option<&'a str> {
     slot_ref(table, h).and_then(|obj| obj.as_ref().as_str_fast())
 }
 
+#[cold]
+#[inline(never)]
+fn host_handle_panic(message: &'static str) -> ! {
+    panic!("{}", message);
+}
+
+#[inline(always)]
+fn handle_index_or_panic(handle: u64, overflow_message: &'static str) -> usize {
+    usize::try_from(handle).unwrap_or_else(|_| host_handle_panic(overflow_message))
+}
+
+#[inline(always)]
+fn ensure_slot_vacant_or_panic(
+    table: &SlotTable,
+    idx: usize,
+    range_message: &'static str,
+    occupied_message: &'static str,
+) {
+    if idx >= table.slots.len() {
+        host_handle_panic(range_message);
+    }
+    if table.slots[idx].is_some() {
+        host_handle_panic(occupied_message);
+    }
+}
+
 impl Registry {
     fn new() -> Self {
         #[cfg(not(test))]
@@ -167,34 +193,30 @@ impl Registry {
     }
 
     fn alloc(&self, obj: Arc<dyn NyashBox>) -> u64 {
-        let mut table = self.table.write();
         let policy_mode = self.alloc_policy_mode();
+        let mut table = self.table.write();
         if let Some(h) = take_reusable_handle(policy_mode, &mut table.free) {
-            let idx = usize::try_from(h).expect("[host_handles] reusable handle overflow");
-            assert!(
-                idx < table.slots.len(),
-                "[host_handles] reusable handle out of slots range"
-            );
-            assert!(
-                table.slots[idx].is_none(),
-                "[host_handles] reusable handle points to occupied slot"
+            let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
+            ensure_slot_vacant_or_panic(
+                &table,
+                idx,
+                "[host_handles] reusable handle out of slots range",
+                "[host_handles] reusable handle points to occupied slot",
             );
             table.slots[idx] = Some(obj);
             return h;
         }
 
         let h = issue_fresh_handle(policy_mode, &mut table.next);
-        let idx = usize::try_from(h).expect("[host_handles] fresh handle overflow");
+        let idx = handle_index_or_panic(h, "[host_handles] fresh handle overflow");
         if idx == table.slots.len() {
             table.slots.push(Some(obj));
         } else {
-            assert!(
-                idx < table.slots.len(),
-                "[host_handles] fresh handle out of slots range"
-            );
-            assert!(
-                table.slots[idx].is_none(),
-                "[host_handles] fresh handle points to occupied slot"
+            ensure_slot_vacant_or_panic(
+                &table,
+                idx,
+                "[host_handles] fresh handle out of slots range",
+                "[host_handles] fresh handle points to occupied slot",
             );
             table.slots[idx] = Some(obj);
         }

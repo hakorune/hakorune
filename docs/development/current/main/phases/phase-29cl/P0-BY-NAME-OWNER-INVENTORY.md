@@ -13,6 +13,12 @@ Related:
 
 # P0: By-Name Owner Inventory
 
+Note:
+- This inventory was accepted while Python-side generic by-name emitters were still live.
+- `src/llvm_py/instructions/boxcall.py`, `src/llvm_py/instructions/mir_call/method_call.py`, and `src/llvm_py/instructions/mir_call_legacy.py` have since been fail-fast retired on the Python side.
+- `crates/nyash_kernel/src/plugin/invoke/by_name.rs` and the public `nyash_plugin_invoke_by_name_i64` export have since been retired.
+- The remaining live residue is hook-bridge compat glue for future spawn / string dispatch only.
+
 ## 1. Mainline Owners To Demote
 
 1. `crates/nyash_kernel/src/plugin/invoke/by_name.rs`

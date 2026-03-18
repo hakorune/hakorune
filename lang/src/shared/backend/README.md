@@ -11,7 +11,7 @@ Current owner
   - caller-side compile/link recipe owner; prepare route/policy, but do not own transport calls
   - current `.hako` daily caller passes recipe payload explicitly via `BackendRecipeBox.compile_route_profile(...)` and then into `env.codegen.compile_json_path(...)`
   - `BackendRecipeBox` also names the current acceptance basis (`acceptance_policy`) so pure/compat classification does not drift back into C
-  - `BackendRecipeBox` also names the current acceptance case (`acceptance_case`) so shape-specific evidence such as `runtime-data-array-get-missing-v1` stays visible in `.hako`
+  - `BackendRecipeBox` also names the current acceptance case (`acceptance_case`) so shape-specific evidence such as `ret-const-v1`, `hello-simple-llvm-native-probe-v1`, `runtime-data-array-get-missing-v1`, `runtime-data-string-length-ascii-v1`, `runtime-data-array-length-v1`, `runtime-data-array-push-v1`, `runtime-data-map-size-v1`, `runtime-data-array-has-missing-v1`, `runtime-data-map-has-missing-v1`, `runtime-data-map-get-missing-v1`, and `string-indexof-ascii-v1` stays visible in `.hako`
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary
   - final target は `LlvmBackendBox -> BackendRecipeBox -> hako_aot -> backend helper`

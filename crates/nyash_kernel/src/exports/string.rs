@@ -1,10 +1,11 @@
 // String-related C ABI exports.
 
 use super::string_view::{
-    clamp_i64_range, resolve_string_span_from_handle, resolve_string_span_from_handle_nocache,
-    resolve_string_span_from_obj, resolve_string_span_pair_from_handles,
+    borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
+    resolve_string_span_from_handle_nocache, resolve_string_span_from_obj,
+    resolve_string_span_pair_from_handles,
     string_is_empty_from_handle as string_is_empty_impl, string_len_from_handle as string_len_impl,
-    string_view_from_span_range, StringViewBox,
+    BorrowedSubstringPlan,
 };
 use crate::hako_forward_bridge;
 use memchr::{memchr, memmem, memrchr};
@@ -241,18 +242,18 @@ fn with_string_pair_lossy_span<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str)
 #[inline(always)]
 fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R) -> R {
     let mut f_opt = Some(f);
-    if let Some(out) = with_string_pair_fast_str(a_h, b_h, |a, b| {
-        let f = f_opt
-            .take()
-            .expect("[string/export] with_lossy_string_pair closure missing (fast)");
-        f(a, b)
-    }) {
-        return out;
-    }
     if let Some(out) = with_string_pair_span(a_h, b_h, |a, b| {
         let f = f_opt
             .take()
             .expect("[string/export] with_lossy_string_pair closure missing (span)");
+        f(a, b)
+    }) {
+        return out;
+    }
+    if let Some(out) = with_string_pair_fast_str(a_h, b_h, |a, b| {
+        let f = f_opt
+            .take()
+            .expect("[string/export] with_lossy_string_pair closure missing (fast)");
         f(a, b)
     }) {
         return out;
@@ -487,10 +488,10 @@ pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
     if !allow_rust_string_fallback() {
         return hook_miss_freeze_handle("string.concat_hh");
     }
-    if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
+    if let Some(out) = concat_pair_from_spans(a_h, b_h) {
         return out;
     }
-    if let Some(out) = concat_pair_from_spans(a_h, b_h) {
+    if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
         return out;
     }
 
@@ -608,121 +609,16 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
     if h <= 0 {
         return 0;
     }
-    enum BorrowedSubstringPlan {
-        ReturnHandle,
-        ReturnEmpty,
-        Materialize(String),
-        CreateView {
-            base_handle: i64,
-            base_obj: Arc<dyn NyashBox>,
-            start: usize,
-            end: usize,
-        },
-        Fallback,
-    }
-    if let Some(plan) = handles::with_handle(h as u64, |obj| {
-        let Some(obj) = obj else {
-            return None;
-        };
-        if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
-            let (st_rel, en_rel) = clamp_i64_range(sb.value.len(), start, end);
-            if st_rel == 0 && en_rel == sb.value.len() {
-                return Some(BorrowedSubstringPlan::ReturnHandle);
-            }
-            if st_rel == en_rel {
-                return Some(BorrowedSubstringPlan::ReturnEmpty);
-            }
-            let Some(sub_slice) = sb.value.get(st_rel..en_rel) else {
-                // Preserve legacy byte-range contract: invalid UTF-8 boundary slice => empty string.
-                return Some(BorrowedSubstringPlan::ReturnEmpty);
-            };
-            if !substring_view_enabled() {
-                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
-            }
-            return Some(BorrowedSubstringPlan::CreateView {
-                base_handle: h,
-                base_obj: obj.clone(),
-                start: st_rel,
-                end: en_rel,
-            });
-        }
-        if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
-            let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
-                return Some(BorrowedSubstringPlan::Fallback);
-            };
-            let mut parent_st = view.start.min(base_sb.value.len());
-            let mut parent_en = view.end.min(base_sb.value.len());
-            if parent_en < parent_st {
-                std::mem::swap(&mut parent_st, &mut parent_en);
-            }
-            let parent_len = parent_en.saturating_sub(parent_st);
-            let (st_rel, en_rel) = clamp_i64_range(parent_len, start, end);
-            if st_rel == 0 && en_rel == parent_len {
-                return Some(BorrowedSubstringPlan::ReturnHandle);
-            }
-            if st_rel == en_rel {
-                return Some(BorrowedSubstringPlan::ReturnEmpty);
-            }
-            let abs_st = parent_st.saturating_add(st_rel);
-            let abs_en = parent_st.saturating_add(en_rel);
-            let Some(sub_slice) = base_sb.value.get(abs_st..abs_en) else {
-                return Some(BorrowedSubstringPlan::ReturnEmpty);
-            };
-            if !substring_view_enabled() {
-                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
-            }
-            return Some(BorrowedSubstringPlan::CreateView {
-                base_handle: view.base_handle,
-                base_obj: view.base_obj.clone(),
-                start: abs_st,
-                end: abs_en,
-            });
-        }
-        Some(BorrowedSubstringPlan::Fallback)
-    }) {
-        match plan {
-            BorrowedSubstringPlan::ReturnHandle => return h,
-            BorrowedSubstringPlan::ReturnEmpty => return shared_empty_string_handle(),
-            BorrowedSubstringPlan::Materialize(value) => return string_handle_from_owned(value),
-            BorrowedSubstringPlan::CreateView {
-                base_handle,
-                base_obj,
-                start,
-                end,
-            } => {
-                let view = StringViewBox::new(base_handle, base_obj, start, end);
-                let arc: Arc<dyn NyashBox> = Arc::new(view);
-                return handles::to_handle_arc(arc) as i64;
-            }
-            BorrowedSubstringPlan::Fallback => {}
-        }
-    }
-    let Some(span) = resolve_string_span_from_handle_nocache(h) else {
+    let view_enabled = substring_view_enabled();
+    let Some(plan) = borrowed_substring_plan_from_handle(h, start, end, view_enabled) else {
         return shared_empty_string_handle();
     };
-    let span_len = span.len();
-    let (st_rel, en_rel) = clamp_i64_range(span.len(), start, end);
-    if st_rel == 0 && en_rel == span_len {
-        return h;
+    match plan {
+        BorrowedSubstringPlan::ReturnHandle => h,
+        BorrowedSubstringPlan::ReturnEmpty => shared_empty_string_handle(),
+        BorrowedSubstringPlan::Materialize(value) => string_handle_from_owned(value),
+        BorrowedSubstringPlan::CreateView(view) => handles::to_handle_arc(std::sync::Arc::new(view)) as i64,
     }
-    if st_rel == en_rel {
-        return shared_empty_string_handle();
-    }
-    let sub_opt = span.as_str().get(st_rel..en_rel);
-    let sub_slice = sub_opt.unwrap_or("");
-
-    if !substring_view_enabled() {
-        return string_handle_from_owned(sub_slice.to_string());
-    }
-
-    if sub_opt.is_none() {
-        // Preserve legacy byte-range contract: invalid UTF-8 boundary slice => empty string.
-        return shared_empty_string_handle();
-    }
-
-    let view = string_view_from_span_range(&span, st_rel, en_rel);
-    let arc: Arc<dyn NyashBox> = Arc::new(view);
-    handles::to_handle_arc(arc) as i64
 }
 
 // String.indexOf_hh(haystack_h, needle_h) -> i64

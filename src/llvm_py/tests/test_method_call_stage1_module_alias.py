@@ -407,6 +407,36 @@ class TestMethodCallStage1ModuleAlias(unittest.TestCase):
         self.assertIn('call i64 @"StringHelpers.int_to_str/1"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_runtime_data_stringify_uses_universal_tostring_slot(self):
+        module = ir.Module(name="test_method_call_runtime_data_stringify")
+        i64 = ir.IntType(64)
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        resolver = _ResolverStub()
+        vmap = {
+            1: ir.Constant(i64, 7),
+        }
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name="RuntimeDataBox",
+            method="stringify",
+            receiver=1,
+            args=[],
+            dst_vid=2,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[2])
+
+        ir_text = str(module)
+        self.assertIn('@"nyash.any.toString_h"', ir_text)
+        self.assertIn(2, resolver.marked_strings)
+
 
 if __name__ == "__main__":
     unittest.main()

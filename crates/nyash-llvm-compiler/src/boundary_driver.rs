@@ -140,16 +140,24 @@ fn call_compile_symbol(input: &Path, out: &Path) -> Result<()> {
     unsafe {
         with_compile_symbol(|func| {
             with_boundary_default_route(|| {
-                with_env_override("HAKO_BACKEND_COMPILE_RECIPE", Some(BOUNDARY_DEFAULT_COMPILE_RECIPE), || {
-                    with_env_override("HAKO_BACKEND_COMPAT_REPLAY", Some(BOUNDARY_DEFAULT_COMPAT_REPLAY), || {
-                    let rc = func(
-                        cin.as_ptr(),
-                        cout.as_ptr(),
-                        &mut err_ptr as *mut *mut c_char,
-                    );
-                    interpret_result(rc, err_ptr, out, "object not produced")
-                    })
-                })
+                with_env_override(
+                    "HAKO_BACKEND_COMPILE_RECIPE",
+                    Some(BOUNDARY_DEFAULT_COMPILE_RECIPE),
+                    || {
+                        with_env_override(
+                            "HAKO_BACKEND_COMPAT_REPLAY",
+                            Some(BOUNDARY_DEFAULT_COMPAT_REPLAY),
+                            || {
+                                let rc = func(
+                                    cin.as_ptr(),
+                                    cout.as_ptr(),
+                                    &mut err_ptr as *mut *mut c_char,
+                                );
+                                interpret_result(rc, err_ptr, out, "object not produced")
+                            },
+                        )
+                    },
+                )
             })
         })
     }

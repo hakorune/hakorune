@@ -16,10 +16,13 @@ def lower_string_or_console_method_call(
     declare: Callable,
     method_name: Optional[str],
     recv_h,
+    recv_ptr=None,
     arg_ids: List[int],
     resolve_arg: Callable[[int], Optional[ir.Value]],
     ensure_handle: Callable[[ir.Value], ir.Value],
     mark_receiver_stringish: Optional[Callable[[], None]] = None,
+    box_string_ptr: Optional[Callable[[ir.Value], ir.Value]] = None,
+    store_result_string_ptr: Optional[Callable[[ir.Value], None]] = None,
 ):
     i64 = ir.IntType(64)
     i8 = ir.IntType(8)
@@ -35,6 +38,12 @@ def lower_string_or_console_method_call(
             _mark_receiver()
             start = resolve_arg(arg_ids[0]) or zero
             stop = resolve_arg(arg_ids[1]) or zero
+            if recv_ptr is not None and box_string_ptr is not None:
+                callee = declare("nyash.string.substring_sii", i8p, [i8p, i64, i64])
+                out_ptr = builder.call(callee, [recv_ptr, start, stop], name="unified_substring_sii")
+                if store_result_string_ptr is not None:
+                    store_result_string_ptr(out_ptr)
+                return box_string_ptr(out_ptr)
             callee = declare("nyash.string.substring_hii", i64, [i64, i64, i64])
             return builder.call(callee, [recv_h, start, stop], name="unified_substring")
         return recv_h
