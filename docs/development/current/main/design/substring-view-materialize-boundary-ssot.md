@@ -25,6 +25,9 @@ Related:
 - `substring_hii` は「即 materialize」ではなく view を返してよい。
 - view は `base_handle + range` だけを保持する。
 - view 判定・解決は runtime 側 1 箇所に集約し、lowering 側に散らさない。
+- ただし very short slice は eager materialize を許可する。
+  - current threshold: `<= 8 bytes`
+  - 理由: `StringViewBox::new` / `BoxBase::new` の identity cost を減らし、transient view churn を抑えるため
 
 ## Materialize Boundary (fixed)
 
@@ -39,6 +42,12 @@ Related:
 1. `length` / `size`
 2. `indexOf` / `lastIndexOf`
 3. 同一関数内の read-only 連鎖
+
+補足:
+
+- 上の「view のまま許可」は mid/long slice を前提にした rule だよ。
+- very short slice (`<= 8 bytes`) は例外で、read-only chain でも eager materialize を許可する。
+- これは view semantics の撤回ではなく、transient view creation を減らすための explicit policy。
 
 ## Fail-Fast Contract
 

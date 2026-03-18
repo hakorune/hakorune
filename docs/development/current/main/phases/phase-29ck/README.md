@@ -366,11 +366,11 @@ Related:
 - docs はもう「backend-zero は task pack 未整備だから provisional」の状態ではない
 - 2026-03-18 perf/exe update:
   - perf lane is boundary-fixed (`.hako -> ny-llvmc(boundary) -> C ABI`)
-  - fresh stable `kilo_kernel_small_hk` baseline is `c_ms=79`, `py_ms=110`, `ny_vm_ms=1012`, `ny_aot_ms=844`, `ratio_c_aot=0.09`, `aot_status=ok`
-  - `kilo_micro_substring_concat` short-slice runtime rule changed to prefer `StringViewBox` (`SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES=0`)
+  - fresh stable `kilo_kernel_small_hk` baseline is `c_ms=79`, `py_ms=111`, `ny_vm_ms=989`, `ny_aot_ms=804`, `ratio_c_aot=0.10`, `aot_status=ok`
+  - `kilo_micro_substring_concat` short-slice runtime rule now eager-materializes `<= 8 bytes` instead of always creating `StringViewBox`
   - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is back on direct `with_handle(...)` instead of cache-backed span lookup
   - `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers
-  - measured checkpoint moved from `295536812 cycles / 76 ms` to `263193549 cycles / 70 ms`
-  - current asm top is `substring_hii 42.91%`, `Registry::alloc 24.35%`, `BoxBase::new 12.16%`
+  - isolated micro checkpoint is now `266891899 cycles / 73 ms`, but the stable whole-program lane improved to `804 ms`
+  - current asm top is `BoxBase::new 26.17%`, `Registry::alloc 25.12%`, `substring_hii 23.64%`
   - next blocker is still on kernel/runtime/C-boundary owners, but `BoxBase::new` itself is a stop-line because it is tied to box identity; the next safe cut must reduce view creation count upstream instead of reusing box IDs
   - `LLVM-Py loop self-carry PHI` is diagnostic evidence only and is not the next edit target in this perf wave

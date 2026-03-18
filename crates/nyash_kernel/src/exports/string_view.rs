@@ -162,7 +162,7 @@ pub(crate) enum BorrowedSubstringPlan {
     CreateView(StringViewBox),
 }
 
-const SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: usize = 0;
+const SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: usize = 8;
 
 pub(crate) fn borrowed_substring_plan_from_handle(
     handle: i64,

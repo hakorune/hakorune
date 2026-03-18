@@ -351,7 +351,7 @@ fn string_indexof_lastindexof_multibyte_contract() {
 }
 
 #[test]
-fn substring_hii_short_slice_keeps_view_until_container_boundary_contract() {
+fn substring_hii_short_slice_materializes_under_fast_contract() {
     use nyash_rust::boxes::array::ArrayBox;
     use std::ffi::CStr;
 
@@ -362,7 +362,11 @@ fn substring_hii_short_slice_keeps_view_until_container_boundary_contract() {
         assert!(sub_handle > 0, "substring handle");
 
         let sub_obj = handles::get(sub_handle as u64).expect("substring object");
-        assert_eq!(sub_obj.type_name(), "StringViewBox");
+        let sub_sb = sub_obj
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .expect("short fast slice should materialize to StringBox");
+        assert_eq!(sub_sb.value, "akor");
         assert_eq!(nyash_string_len_h(sub_handle), 4);
 
         let needle: Arc<dyn NyashBox> = Arc::new(StringBox::new("ko".to_string()));
@@ -376,7 +380,7 @@ fn substring_hii_short_slice_keeps_view_until_container_boundary_contract() {
             .expect("substring utf8");
         assert_eq!(c_view, "akor");
 
-        // Persistent container boundary: short slices materialize before array storage.
+        // Persistent container boundary still stores owned StringBox.
         let array: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
         let array_handle = handles::to_handle_arc(array) as i64;
         assert_eq!(nyash_runtime_data_push_hh(array_handle, sub_handle), 1);
@@ -392,7 +396,7 @@ fn substring_hii_short_slice_keeps_view_until_container_boundary_contract() {
 }
 
 #[test]
-fn substring_hii_short_nested_slice_keeps_stringview_contract() {
+fn substring_hii_short_nested_slice_materializes_under_fast_contract() {
     with_env_var("NYASH_LLVM_FAST", "1", || {
         let source: Arc<dyn NyashBox> = Arc::new(StringBox::new("hakorune".to_string()));
         let source_handle = handles::to_handle_arc(source) as i64;
@@ -403,7 +407,11 @@ fn substring_hii_short_nested_slice_keeps_stringview_contract() {
         assert!(nested_handle > 0, "nested substring handle");
 
         let nested_obj = handles::get(nested_handle as u64).expect("nested substring object");
-        assert_eq!(nested_obj.type_name(), "StringViewBox");
+        let nested_sb = nested_obj
+            .as_any()
+            .downcast_ref::<StringBox>()
+            .expect("short nested slice should materialize to StringBox");
+        assert_eq!(nested_sb.value, "ak");
         assert_eq!(nyash_string_len_h(nested_handle), 2);
         let c_ptr = nyash_string_to_i8p_h(nested_handle);
         assert!(!c_ptr.is_null());

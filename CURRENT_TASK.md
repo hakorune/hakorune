@@ -53,17 +53,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `AUTO` skip-build の baseline は診断専用
   - first baseline は `PERF_AOT_SKIP_BUILD=0` で取り直して、release binary の stale mix を避ける
 - latest verified baseline (2026-03-18):
-  - `kilo_kernel_small_hk` -> `c_ms=79`, `py_ms=110`, `ny_vm_ms=1012`, `ny_aot_ms=844`, `ratio_c_aot=0.09`, `aot_status=ok`
+  - `kilo_kernel_small_hk` -> `c_ms=79`, `py_ms=111`, `ny_vm_ms=989`, `ny_aot_ms=804`, `ratio_c_aot=0.10`, `aot_status=ok`
   - the benchmark is still bridge/helper-density bound; the next move is exact leaf trimming, not route rewrites
 - latest verified micro ladder (2026-03-18):
   - `kilo_micro_substring_concat` is the thickest lane
   - `kilo_micro_array_getset` is next
   - `kilo_micro_indexof_line` is the least bad of the three
   - after caching hot bridge trace env probes, the ladder is still ordered the same, but `indexof_line` and `substring_concat` moved down a little in AOT cycles
-  - current round (2026-03-18): `indexof_line ratio_cycles=0.04 ny_aot_cycles=191774168`, `substring_concat ratio_cycles=0.00 ny_aot_cycles=263193549`, `array_getset ratio_cycles=0.01 ny_aot_cycles=364903842`
+  - current round (2026-03-18): `indexof_line ratio_cycles=0.04 ny_aot_cycles=191774168`, `substring_concat ratio_cycles=0.00 ny_aot_cycles=266891899`, `array_getset ratio_cycles=0.01 ny_aot_cycles=364903842`
   - current exact leaf slice for `substring_concat`: `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, so `crates/nyash_kernel/src/exports/string.rs::substring_hii` stays a thin dispatch/match wrapper while the hot path remains on direct `with_handle(...)` instead of cache-backed span lookup
   - current runtime follow-up slice for `substring_concat`: `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant panics in cold helpers, so the success path stays straight-line
-  - fresh recheck after those follow-up slices: `substring_concat ny_aot_cycles=263193549 ny_aot_ms=70` on `bench_micro_c_vs_aot_stat.sh ... 1 9`; asm top is now `substring_hii 42.91%`, `Registry::alloc 24.35%`, `BoxBase::new 12.16%`
+  - current contract-change slice: `crates/nyash_kernel/src/exports/string_view.rs` now allows `<= 8 bytes` short slices to eager-materialize instead of always creating `StringViewBox`; this reduces view churn and improves stable whole-program baseline, even though the isolated micro leaf regressed slightly
+  - fresh recheck after those follow-up slices: `substring_concat ny_aot_cycles=266891899 ny_aot_ms=73` on `bench_micro_c_vs_aot_stat.sh ... 1 9`; asm top is now `BoxBase::new 26.17%`, `Registry::alloc 25.12%`, `substring_hii 23.64%`, and `string_handle_from_owned 3.25%`
   - stop-line for this exact wave: `BoxBase::new` is identity-bound and is not a safe optimization target; the next cut must reduce `StringViewBox::new` call count or another upstream owner, not reuse box IDs
 - likely remaining hotspot family from the last inventory:
   - `TLS / LocalKey::with`

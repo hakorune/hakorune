@@ -100,6 +100,30 @@ repo 内の言葉で固定するためのメモだよ。
 
 ただし 2 と 3 は、いまの substring-view 契約を変更する可能性がある。
 
+## External Consultation Outcome
+
+外部相談の結論も、repo 内の見立てと一致している。
+
+- clearly safe:
+  - `StringViewBox` は distinct box のまま維持する
+  - `CreateView` に到達する回数を upstream で減らす
+  - 特に `substring` の view/materialize boundary を policy SSOT で調整する
+- contract-change:
+  - short slice を eager materialize に寄せる
+  - lazy id generation
+  - transient / generation-based identity
+- unsafe:
+  - `source_handle` の直 reuse
+  - generic id reuse
+  - pooled live ids
+
+今 wave で採る方針はこれだよ。
+
+1. `BoxBase::new` 自体は触らない
+2. `StringViewBox::new` を呼ぶ回数を減らす
+3. 最初の具体策として `very short slice <= 8 bytes` を eager materialize へ寄せる
+   - current repo state already adopts this policy because whole-program stable improved even though the isolated micro leaf regressed slightly
+
 ## Decision Frame For External Consultation
 
 外に相談するときは、質問を次のどれかに狭める。
@@ -123,4 +147,3 @@ repo 内の言葉で固定するためのメモだよ。
 - interpretation:
   - `BoxBase::new` は hot だが、current wave では stop-line
   - next safe cut is upstream of `StringViewBox::new`, not inside `BoxBase::new`
-

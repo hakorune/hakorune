@@ -112,7 +112,7 @@ Hotspot は次の分類で読む。
 2026-03-18 時点では、次の理解で進める。
 
 - `kilo_kernel_small_hk` は whole-program baseline として固定済み
-- latest fresh stable baseline is `c_ms=79`, `py_ms=110`, `ny_vm_ms=1012`, `ny_aot_ms=844`, `ratio_c_aot=0.09`, `aot_status=ok`
+- latest fresh stable baseline is `c_ms=79`, `py_ms=111`, `ny_vm_ms=989`, `ny_aot_ms=804`, `ratio_c_aot=0.10`, `aot_status=ok`
 - `kilo_micro_substring_concat` が最厚
 - `kilo_micro_array_getset` が次
 - `kilo_micro_indexof_line` が一番マシ
@@ -121,14 +121,19 @@ Hotspot は次の分類で読む。
 - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is reduced to dispatch + match
 - `substring_hii` の hot path must stay on direct `with_handle(...)`; cache-backed span lookup is diagnostic-only here because it regressed `string_span_cache_get/put` back into the top symbols
 - `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers; this is the current bridge/allocation slice
-- fresh micro recheck after the current slices is `263193549 cycles / 70 ms` for `kilo_micro_substring_concat`
+- current contract-change slice raises the short-slice eager materialize threshold to `<= 8 bytes`
+- fresh micro recheck after the current slices is `266891899 cycles / 73 ms` for `kilo_micro_substring_concat`
+- fresh stable recheck after the current slices is `804 ms` for `kilo_kernel_small_hk`
 - current asm top is:
-  - `nyash.string.substring_hii`
-  - `Registry::alloc`
   - `BoxBase::new`
+  - `Registry::alloc`
+  - `nyash.string.substring_hii`
   - `nyash.string.concat3_hhh`
-  - `string_len_from_handle`
+  - `string_len_from_handle` / `string_handle_from_owned`
 - `BoxBase::new` is the current stop-line: it is tied to box identity via `next_box_id()`, so the next safe cut must reduce `StringViewBox::new` call count or another upstream owner instead of reusing IDs
+- interpretation:
+  - keep the short-slice materialize change if whole-program stable is the primary metric
+  - do not treat isolated micro regression as automatic revert when the stable lane improves
 
 ## Evidence To Record
 
@@ -154,15 +159,15 @@ Hotspot は次の分類で読む。
   - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`
   - `llvmlite/native/harness` are invalid and must fail-fast
 - `kilo_micro_substring_concat`:
-  - asm-guided slice changed `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `8` to `0`
-  - short `substring_hii` results now stay `StringViewBox` until container/materialize boundary
-  - checkpoint improved from `295536812 cycles / 76 ms` to `263193549 cycles / 70 ms`
+  - asm-guided slice first changed `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `8` to `0`, then contract-change follow-up restored eager materialize for `<= 8 bytes`
+  - short `substring_hii` results now materialize under FAST lane, while mid slice still stays `StringViewBox`
+  - current checkpoint is `266891899 cycles / 73 ms`, while stable `kilo_kernel_small_hk` improved to `804 ms`
   - current top symbols are:
-    - `nyash.string.substring_hii`
-    - `Registry::alloc`
     - `BoxBase::new`
+    - `Registry::alloc`
+    - `nyash.string.substring_hii`
     - `nyash.string.concat3_hhh`
-    - `string_len_from_handle`
+    - `string_len_from_handle` / `string_handle_from_owned`
 - Keep-lane diagnostic note:
   - worker inventory found likely `loop self-carry PHI` string pointer loss under `src/llvm_py/**`
   - this is diagnostic evidence only in the current wave
