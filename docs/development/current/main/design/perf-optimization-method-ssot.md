@@ -5,6 +5,7 @@ Related:
 - docs/development/current/main/DOCS_LAYOUT.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
+- docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
 - CURRENT_TASK.md
 ---
@@ -124,6 +125,7 @@ Hotspot は次の分類で読む。
 - current contract-change slice raises the short-slice eager materialize threshold to `<= 8 bytes`
 - fresh micro recheck after the current slices is `266891899 cycles / 73 ms` for `kilo_micro_substring_concat`
 - fresh stable recheck after the current slices is `804 ms` for `kilo_kernel_small_hk`
+- rejected variant: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`; do not keep this split while stable is the primary metric
 - current asm top is:
   - `BoxBase::new`
   - `Registry::alloc`
@@ -134,6 +136,7 @@ Hotspot は次の分類で読む。
 - interpretation:
   - keep the short-slice materialize change if whole-program stable is the primary metric
   - do not treat isolated micro regression as automatic revert when the stable lane improves
+  - next queued wave is transient string chain design-first, not another threshold experiment
 
 ## Evidence To Record
 

@@ -371,6 +371,8 @@ Related:
   - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is back on direct `with_handle(...)` instead of cache-backed span lookup
   - `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers
   - isolated micro checkpoint is now `266891899 cycles / 73 ms`, but the stable whole-program lane improved to `804 ms`
+  - rejected follow-up: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved the isolated micro to `262468757 cycles / 69 ms`, but stable median regressed to `819 ms`, so this phase keeps the flat `<= 8 bytes` policy
   - current asm top is `BoxBase::new 26.17%`, `Registry::alloc 25.12%`, `substring_hii 23.64%`
   - next blocker is still on kernel/runtime/C-boundary owners, but `BoxBase::new` itself is a stop-line because it is tied to box identity; the next safe cut must reduce view creation count upstream instead of reusing box IDs
   - `LLVM-Py loop self-carry PHI` is diagnostic evidence only and is not the next edit target in this perf wave
+  - next queued design wave is `docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md`: make the inner `substring -> concat3 -> length` chain more transient/span-first while keeping loop-carried `text` as the first escape boundary
