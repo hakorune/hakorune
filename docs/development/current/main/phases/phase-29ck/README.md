@@ -60,17 +60,20 @@ Related:
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
    - `main.rs` / `llvm_codegen.rs` の Rust glue を further thin にすること
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
-8. `.hako` string kernel op set v0 の current pilot は `string.search` で、いまは `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index` まで landed している
+8. `.hako` kernel migration order is now the current main thread: `string` is already landed, then `array` -> `numeric` -> `map`, and perf/asm follow-up is secondary until that order is fixed
+   - `.hako` string kernel op set v0 の current pilot は `string.search` で、いまは `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index` まで landed している
    - further widening is paused until a new exact blocker appears
-   - next `.hako` kernel family order is `array` -> `numeric`; `map` stays in `runtime/collections` ring1
+   - `array` stays in `runtime/collections` ring1 first; a new `lang/src/runtime/kernel/array/` module is still deferred until a concrete policy difference appears
    - numeric first narrow pilot is `MatI64.mul_naive` in `lang/src/runtime/kernel/numeric/`, and the ring1 wrapper remains in `lang/src/runtime/numeric/`
-   - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; a new `lang/src/runtime/kernel/array/` module is deferred until a concrete policy difference appears, and the move is trigger-based (owner-local policy / normalization / birth handling, or a dedicated acceptance row + smoke that cannot stay as a thin ring1 wrapper)
+   - map stays in `runtime/collections` ring1 and is not part of this kernel lane
+   - array family first narrow op stays in `runtime/collections/array_core_box.hako` as `ArrayBox.length/len/size` observer path; the move is trigger-based (owner-local policy / normalization / birth handling, or a dedicated acceptance row + smoke that cannot stay as a thin ring1 wrapper)
   - landed array thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now returns the observer-only `ArrayBox.length/len/size` alias before `set/get/push` stateful prep, so the ring1 wrapper stays thin without opening `lang/src/runtime/kernel/array/`
   - quick array canary now uses `print(a.length())` directly; `toString` is treated as a separate blocker, so array-length smoke failures are no longer conflated with display conversion gaps
   - landed array stateful thin slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now delegates `set/get/push` into owner-local helpers, keeping observer and stateful write paths separate while preserving the same defer boundary
   - landed array observer fast-path slice: `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now keeps `ArrayBox.length/len/size` on a lazy observer-only fast path and delays stateful len/key plumbing until `set/get/push` is actually selected
   - landed array stateful helper split: `lang/src/runtime/collections/array_state_core_box.hako` now owns `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`, so `array_core_box.hako` stays more router-only without opening `lang/src/runtime/kernel/array/`
   - landed array plugin helper split: `crates/nyash_kernel/src/plugin/array.rs` now delegates handle-based get/set/has route helpers into `crates/nyash_kernel/src/plugin/array_route_helpers.rs`, so the substrate file is thinner while the ring1 defer boundary stays unchanged
+  - landed array string-slot helper split: `crates/nyash_kernel/src/plugin/array_route_helpers.rs` now delegates string-handle slot retargeting for `set_his` into `crates/nyash_kernel/src/plugin/array_string_slot.rs`, so the route helper is more route-only while the ring1 defer boundary stays unchanged
 4. landed first docs/code slice:
    - `BE0-min1` CLI contract freeze
    - stable caller contract is now pinned in `crates/nyash-llvm-compiler/README.md`

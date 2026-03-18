@@ -9,17 +9,17 @@ Subdirectories:
 - `array/`: array/list kernel routines and policies.
 - `numeric/`: numeric kernel routines and policies.
 
-Current narrow pilot:
-- `string.search` (`string/search.hako`)
+Current migration order:
+- `string` is already landed via `string.search` (`string/search.hako`)
   - current public surface: `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index`
+- `array/`
+  - keep `ArrayBox.length/len/size` in `lang/src/runtime/collections/array_core_box.hako` while it stays wrapper-only
+  - promote to `lang/src/runtime/kernel/array/` only when a concrete policy difference appears
 - `numeric` (`numeric/matrix_i64.hako`)
   - current public surface: `MatI64.mul_naive`
   - ring1 numeric wrapper stays in `lang/src/runtime/numeric/` and delegates into this kernel owner
-
-Next family order:
-- `array/`
-- `numeric/`
-- `map` is kept in `lang/src/runtime/collections/` ring1, not in this kernel lane
+- `map`
+  - keep in `lang/src/runtime/collections/` ring1 and do not place it in this kernel lane yet
 
 Array first narrow op:
 - `ArrayBox.length/len/size` observer path stays in `lang/src/runtime/collections/array_core_box.hako` first

@@ -16,9 +16,24 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - no-fallback: `NYASH_VM_USE_FALLBACK=0`（silent fallback 禁止 / fail-fast）。
 - compiler lane は `phase-29bq` を monitor-only 運用（failure-driven reopen のみ）。
 
-## Exe Optimization Wave (2026-03-18)
+## Kernel Migration First (2026-03-19)
 
 - current main goal:
+  - kernel authority migration を先に終わらせてから exe optimization に進む
+  - fixed order:
+    1. `string`
+       - `string.search` v0 は landed 済み。これ以上の widening は新しい exact blocker が出るまで pause
+    2. `array`
+       - collections ring1 を first owner に保ち、`lang/src/runtime/kernel/array/` への promotion は trigger-based
+    3. `numeric`
+       - `MatI64.mul_naive` landed 済み。array が落ち着いたら次の narrow op を切る
+    4. `map`
+       - collections ring1 に残し、kernel lane には入れない
+  - perf / asm optimization はこの順番を固定してから follow-up に回す
+
+## Exe Optimization Wave (secondary / follow-up after kernel migration) (2026-03-18)
+
+- follow-up goal:
   - `kilo` / `micro kilo` の exe 最適化に移る
   - C / Python / Hako を stable baseline と micro ladder で比較し、確認できた hot leaf だけを詰める
   - `.hako` の `@hint(inline)` は advisory trial としてのみ使う。意味を変える workaround にはしない
@@ -57,6 +72,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `lang/src/runtime/collections/array_state_core_box.hako` now owns `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`, so `array_core_box.hako` is more router-only while remaining in collections ring1
   - landed array plugin helper split:
     - `crates/nyash_kernel/src/plugin/array.rs` now delegates handle-based get/set/has route helpers into `crates/nyash_kernel/src/plugin/array_route_helpers.rs`, so the substrate file is thinner while the ring1 defer boundary stays unchanged
+  - landed array string-slot helper split:
+    - `crates/nyash_kernel/src/plugin/array_route_helpers.rs` now delegates string-handle slot retargeting for `set_his` into `crates/nyash_kernel/src/plugin/array_string_slot.rs`, so the route helper is more route-only while the ring1 defer boundary stays unchanged
 - owner scope lock for this wave:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`
