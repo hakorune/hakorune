@@ -96,6 +96,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md`
   - `docs/development/current/main/design/string-transient-lifecycle-ssot.md`
   - `docs/development/current/main/design/rep-mir-string-lowering-ssot.md`
+  - `docs/development/current/main/design/rep-mir-string-birth-map-inventory.md`
 - Rust growth lock:
   - `RepMIR` / `freeze-thaw` pilot is allowed only as a temporary AOT backend-local consumer
   - owner of `RepKind`, birth rule, and escape rule stays in docs / `.hako authority`, not in private Rust-only optimizer logic
@@ -122,7 +123,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - rejected and do-not-repeat first: planner-only `OwnedSubstring/ViewRecipe` split that merely moves `StringViewBox` birth from planner to `substring_hii` without introducing a real transient carrier
      - accepted first: file-local `concat3_hhh` `plan -> freeze` split; continue only if the next slice reduces actual birth density rather than just shuffling call sites
   4. `Shadow RepMIR` docs-first pilot を `kilo_micro_substring_concat` 限定で定義し、Rust を temporary backend-local lane に固定する
-  5. `substring_hii` / `concat3_hhh` / `string_len_from_handle` / `string_handle_from_owned` の birth map を切って、future shadow op との対応を 1 枚にする
+  5. `substring_hii` / `concat3_hhh` / `string_len_from_handle` / `string_handle_from_owned` / `borrowed_substring_plan_from_handle(...)` の birth map を 1 枚に固定する
   6. `.hako authority / Rust substrate` の string owner map を維持したまま shadow-owner wave へ備える
 - acceptance:
   1. `cargo test -q -p nyash_kernel substring_hii -- --nocapture`

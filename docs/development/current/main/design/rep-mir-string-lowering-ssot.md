@@ -5,6 +5,7 @@ Date: 2026-03-19
 Scope: `substring -> concat3 -> length` hot chain を AOT backend 内でだけ boxless/native value に寄せる temporary pilot の境界と手順を固定する
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/design/rep-mir-string-birth-map-inventory.md
 - docs/development/current/main/design/string-transient-lifecycle-ssot.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
