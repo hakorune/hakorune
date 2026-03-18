@@ -66,6 +66,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current contract-change slice: `crates/nyash_kernel/src/exports/string_view.rs` now allows `<= 8 bytes` short slices to eager-materialize instead of always creating `StringViewBox`; this reduces view churn and improves stable whole-program baseline, even though the isolated micro leaf regressed slightly
   - rejected experiment (not kept): splitting the policy to `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` micro to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`, so the wave stays on the flat `<= 8 bytes` policy while whole-program stable remains the primary metric
   - rejected experiment (reverted immediately): `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` tried explicit `StringBox` / `StringViewBox` downcast fast paths; isolated `substring_concat` micro landed at `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed hard to `1066 ms` median (`min=786`, `max=1841`), so observer-only fast path is not a keep candidate
+  - rejected structure-first experiment (reverted immediately): moving `StringViewBox` birth out of `borrowed_substring_plan_from_handle(...)` into `substring_hii` via `BorrowedSubstringPlan::{OwnedSubstring,ViewRecipe}` kept the planner thinner and matched the future `freeze` direction, but it was only a birth-site shuffle, not a real transient layer; isolated `substring_concat` landed at `267397179 cycles / 72 ms`, while stable `kilo_kernel_small_hk` regressed to `901 ms` median (`min=794`, `max=1146`), so this cut is do-not-repeat until a larger `TStr`/freeze boundary exists
   - fresh recheck after those follow-up slices: `substring_concat ny_aot_cycles=266891899 ny_aot_ms=73` on `bench_micro_c_vs_aot_stat.sh ... 1 9`; asm top is now `BoxBase::new 26.17%`, `Registry::alloc 25.12%`, `substring_hii 23.64%`, and `string_handle_from_owned 3.25%`
   - stop-line for this exact wave: `BoxBase::new` is identity-bound and is not a safe optimization target; the next cut must reduce `StringViewBox::new` call count or another upstream owner, not reuse box IDs
 - likely remaining hotspot family from the last inventory:
@@ -109,6 +110,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   2. current code の `plan` と `birth` の混線点を `substring_hii` / `concat3_hhh` / `string_handle_from_owned` / `borrowed_substring_plan_from_handle(...)` で棚卸しする
   3. current flat `<= 8 bytes` policyを変えないまま、future `freeze` boundary へ寄せる structure-first slice だけ試す
      - rejected and do-not-repeat first: `string_len_from_handle` explicit downcast observer fast path
+     - rejected and do-not-repeat first: planner-only `OwnedSubstring/ViewRecipe` split that merely moves `StringViewBox` birth from planner to `substring_hii` without introducing a real transient carrier
   4. `.hako authority / Rust substrate` の string owner map を維持したまま shadow-owner wave へ備える
 - acceptance:
   1. `cargo test -q -p nyash_kernel substring_hii -- --nocapture`

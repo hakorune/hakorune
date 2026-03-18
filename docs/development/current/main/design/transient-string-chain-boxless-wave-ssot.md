@@ -128,6 +128,7 @@ current code では `plan` と `birth` がまだ混ざっている。
    - `substring_hii`, `concat3_hhh`, `string_len_from_handle`, `string_handle_from_owned` のどこで box/handle birth が起きるかを 1 枚で棚卸しする
 3. structure-first code change
    - current `<= 8 bytes` policyを変えず、plan と birth を薄く分ける exact slice だけを試す
+   - do not repeat the rejected minimal split `BorrowedSubstringPlan::{OwnedSubstring,ViewRecipe}`: moving `StringViewBox` birth from planner to `substring_hii` without a real transient carrier regressed stable to `901 ms` median even though the code shape looked cleaner
 4. perf proof
    - micro と stable の両方で keep/discard を決める
 5. authority prep
@@ -145,6 +146,7 @@ Keep rule:
 
 - stable median を `804 ms` 以下に維持、または改善する
 - micro-only 改善は診断扱いに留め、stable が悪化したら discard する
+- planner/birth separation is only keep-worthy if it also reduces birth density; a pure birth-site relocation is reject-by-default
 
 ## Stop Lines
 

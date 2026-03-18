@@ -127,6 +127,7 @@ Hotspot は次の分類で読む。
 - fresh stable recheck after the current slices is `804 ms` for `kilo_kernel_small_hk`
 - rejected variant: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`; do not keep this split while stable is the primary metric
 - rejected observer-only variant: `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` explicit `StringBox` / `StringViewBox` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median (`min=786`, `max=1841`); revert immediately and do not reopen this cut before a stronger owner-level reason appears
+- rejected structure-first variant: `BorrowedSubstringPlan::{OwnedSubstring,ViewRecipe}` moved `StringViewBox` birth from `borrowed_substring_plan_from_handle(...)` into `substring_hii`, but without a real transient carrier this only shuffled the birth site; isolated `substring_concat` landed at `267397179 cycles / 72 ms`, while stable `kilo_kernel_small_hk` regressed to `901 ms` median (`min=794`, `max=1146`); do not reopen this cut until a larger `TStr`/freeze-boundary design is ready
 - current asm top is:
   - `BoxBase::new`
   - `Registry::alloc`
@@ -171,6 +172,7 @@ Hotspot は次の分類で読む。
   - short `substring_hii` results now materialize under FAST lane, while mid slice still stays `StringViewBox`
   - current checkpoint is `266891899 cycles / 73 ms`, while stable `kilo_kernel_small_hk` improved to `804 ms`
   - rejected observer-only follow-up: explicit `string_len_from_handle` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median, so this wave keeps the previous observer path unchanged
+  - rejected structure-first follow-up: planner-side `OwnedSubstring/ViewRecipe` plus `substring_hii`-side view freeze reached `267397179 cycles / 72 ms`, but stable `kilo_kernel_small_hk` regressed to `901 ms` median, so plan/birth separation needs a real transient carrier instead of a pure birth-site shuffle
   - current top symbols are:
     - `BoxBase::new`
     - `Registry::alloc`
