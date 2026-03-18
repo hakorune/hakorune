@@ -16,6 +16,7 @@
 - `substring` / `concat` / `length` chain の orchestration policy
 - materialize/view boundary rule
 - `.hako` string kernel library の entry shape
+- current narrow pilot: `search.hako`
 
 ## This Directory Does Not Own
 
@@ -45,6 +46,13 @@ freeze.str
 
 `.hako` 側では internal spelling として `__str.*` を使ってよい。
 ただし docs/SSOT では contract 名を上の canonical 形で揃える。
+
+## Current Module
+
+- `search.hako`
+  - `find_index(hay, needle) -> i64`
+  - `contains(hay, needle) -> i64`
+  - keep it narrow; no widening to the rest of the string kernel yet
 
 ## Examples
 

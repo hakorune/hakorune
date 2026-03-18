@@ -26,6 +26,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - surface / boundary protocol は `Everything is Box` のまま維持し、low-level string algorithm control structure は `.hako` / docs 側の owner として読む
   - raw byte scan / compare / copy / allocation / freeze leaf は当面 Rust/C substrate に残し、この wave では leaf substrate delete と混ぜない
   - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`; `llvmlite` / `native` / harness keep lanes are not valid in this wave
+  - `.hako` string kernel op set v0 の narrow pilot は `lang.runtime.kernel.string.search` で切り、`find_index` / `contains` を先に固定する
+  - current narrow pilot landed:
+    - `lang/src/runtime/kernel/string/search.hako` now owns `find_index` / `contains`
+    - `lang/src/runtime/kernel/hako_module.toml` exports it as `string.search`
+    - `apps/tests/string_kernel_search_min.hako` is the direct VM fixture
 - owner scope lock for this wave:
   - touch-first owners:
     - `crates/nyash_kernel/src/exports/string.rs`
@@ -102,6 +107,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/rep-mir-string-lowering-ssot.md`
   - `docs/development/current/main/design/rep-mir-string-birth-map-inventory.md`
   - `lang/src/runtime/kernel/string/README.md`
+  - `lang/src/runtime/kernel/string/search.hako`
 - Rust growth lock:
   - `RepMIR` / `freeze-thaw` pilot is allowed only as a temporary AOT backend-local consumer
   - owner of `RepKind`, birth rule, and escape rule stays in docs / `.hako authority`, not in private Rust-only optimizer logic

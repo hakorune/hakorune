@@ -9,6 +9,9 @@ Subdirectories:
 - `array/`: array/list kernel routines and policies.
 - `numeric/`: numeric kernel routines and policies.
 
+Current narrow pilot:
+- `string.search` (`string/search.hako`)
+
 Non-goals:
 - No direct host category routing.
 - No plugin/loader process orchestration.

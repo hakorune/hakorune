@@ -1,0 +1,49 @@
+// StringSearchKernelBox — .hako string search kernel owner
+// Responsibility:
+// - own low-level search/control structure for indexOf/contains
+// - keep the algorithm policy on the .hako side
+// Non-responsibility:
+// - box identity / handle allocation
+// - host boundary routing
+// - raw memory leaf implementation
+
+static box StringSearchKernelBox {
+  _starts_with_at(hay, pos, needle) {
+    if hay == null { return 0 }
+    if needle == null { needle = "" }
+    local n = hay.length()
+    local m = needle.length()
+    if pos < 0 { return 0 }
+    if pos + m > n { return 0 }
+    local i = 0
+    loop(i < m) {
+      if hay.substring(pos + i, pos + i + 1) != needle.substring(i, i + 1) {
+        return 0
+      }
+      i = i + 1
+    }
+    return 1
+  }
+
+  find_index(hay, needle) {
+    if hay == null { return -1 }
+    if needle == null { needle = "" }
+    local n = hay.length()
+    local m = needle.length()
+    if m == 0 { return 0 }
+    if n < m { return -1 }
+    local i = 0
+    loop(i <= (n - m)) {
+      if me._starts_with_at(hay, i, needle) == 1 {
+        return i
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  contains(hay, needle) {
+    if me.find_index(hay, needle) >= 0 { return 1 }
+    return 0
+  }
+}
