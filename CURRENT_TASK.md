@@ -16,9 +16,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - `src/host_providers/llvm_codegen/route.rs` keeps the generic `compile_symbol_for_recipe()` default as a compat lane while explicit daily callers stay on `pure-first`
+  - no mandatory Rust thin-up blocker remains; `src/host_providers/llvm_codegen/route.rs` keeps the generic `compile_symbol_for_recipe()` default as a parked compat lane
 - Next exact files:
-  - `src/host_providers/llvm_codegen/route.rs`
+  - `lang/src/shared/backend/llvm_backend_box.hako`
+  - `lang/src/shared/backend/backend_recipe_box.hako`
+  - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+  - `lang/src/runtime/host/host_facade_box.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
 - Execution checklist:
   - `[x]` daily `.hako` owner is fixed at `lang/src/shared/backend/llvm_backend_box.hako`
   - `[x]` upstream legacy caller inventory is pinned in `CURRENT_TASK.md`
@@ -26,14 +31,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
   - `[x]` remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
   - `[x]` re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
+  - `[ ]` optional compat-polish: tighten `route.rs` generic default only when compat keep lanes retire
 - Stop condition:
   - daily compile path stays explicit at `LlvmBackendBox`
-  - `route.rs` no longer needs env fallback for daily callers; the remaining generic symbol is compat-only
+  - `.hako` migration can proceed without new mandatory Rust thin-up work
   - Rust build/bootstrap route remains green
 - Do not mix:
   - kernel migration refactors
-  - `boundary_driver.rs` compat keep reduction
-  - `native_driver.rs` bootstrap keep reduction
   - optimization hot-leaf trimming
   - C shim transport micro-splitting
 
@@ -42,18 +46,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - first: `0rust` / backend-zero を先に終える
 - operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- next backend-zero slice: `compile_symbol_for_recipe()` default branch re-evaluation after caller proof
-- current owner-cutover sub-order:
-  1. keep daily `.hako` owner at `lang/src/shared/backend/llvm_backend_box.hako`
-  2. inventory legacy upstream `env.codegen.emit_object` / `env.codegen.compile_json_path` callers
-  3. explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
-  4. only then remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
-  5. re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
-- current exact upstream inventory targets:
-  - `lang/src/runtime/host/host_facade_box.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-  - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
-  - `src/backend/mir_interpreter/handlers/extern_provider.rs`
+- current backend-zero posture: Rust thin-up is done enough; keep `route.rs` compat default parked and move attention to `.hako` migration
+- current `.hako` authoring order:
+  1. `lang/src/shared/backend/llvm_backend_box.hako`
+  2. `lang/src/shared/backend/backend_recipe_box.hako`
+  3. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+  4. `lang/src/runtime/host/host_facade_box.hako`
+  5. `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  6. `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening until a new exact blocker appears
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
 - second: exe optimization wave は backend-zero handoff の後段に置く
@@ -81,7 +81,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `boundary_default_object_opts(...)` is now transport-only; `route.rs` no longer synthesizes a hidden `pure-first/harness` route, and the two explicit caller sites now set `compile_recipe=pure-first` / `compat_replay=harness` themselves
   - caller-side explicitization is now also mirrored in `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` and `src/backend/mir_interpreter/handlers/extern_provider.rs`, so `route.rs` can stop reading env defaults for daily callers
   - `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)` is now the single shared helper for backend recipe env fallback at compat bridges
-  - `src/host_providers/llvm_codegen/route.rs` now reads explicit `Opts` only; the remaining cleanup is the `compile_symbol_for_recipe()` default branch re-evaluation
+  - `src/host_providers/llvm_codegen/route.rs` now reads explicit `Opts` only; the remaining generic symbol is parked as compat-only, not a blocker
   - `crates/nyash-llvm-compiler/src/boundary_driver.rs` no longer injects boundary-local recipe/replay env defaults; it now just calls the explicit pure-first export and mirrors caller env when needed for link-side plumbing
   - `crates/nyash-llvm-compiler/src/link_driver.rs` now requires an explicit `--nyrt <DIR>` for `Harness` / `Native` exe linking instead of synthesizing a default search dir
   - `crates/nyash-llvm-compiler/README.md` and `src/main.rs` now describe that keep-lane exe linking contract explicitly
@@ -100,10 +100,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - C shim transport micro-splitting
 - restart read order:
   1. this file
-  2. `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
-  3. `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
-  4. `lang/src/shared/backend/README.md`
-  5. `src/host_providers/llvm_codegen.rs`
+  2. `lang/src/shared/backend/README.md`
+  3. `lang/src/shared/host_bridge/README.md`
+  4. `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
+  5. `lang/src/shared/backend/backend_recipe_box.hako`
 
 ## Focus Lock (2026-03-02)
 
