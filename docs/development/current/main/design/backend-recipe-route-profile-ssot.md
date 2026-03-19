@@ -53,6 +53,27 @@ Related:
   - compat replay lane name
   - example: `harness`
 
+## Grouped Evidence Buckets
+
+- `acceptance_case` の個々の名前は transport trivia ではなく、`BackendRecipeBox.compile_route_profile(...)` が owned する grouped evidence bucket だと読む。
+- 現在の evidence bucket は次の粒度で維持する。
+  - seed / pure-first baseline
+    - `ret-const-v1`
+    - `hello-simple-llvm-native-probe-v1`
+  - string evidence
+    - `string-length-ascii-v1`
+    - `string-indexof-ascii-v1`
+  - runtime-data evidence
+    - `runtime-data-array-get-missing-v1`
+    - `runtime-data-string-length-ascii-v1`
+    - `runtime-data-array-length-v1`
+    - `runtime-data-array-push-v1`
+    - `runtime-data-map-size-v1`
+    - `runtime-data-array-has-missing-v1`
+    - `runtime-data-map-has-missing-v1`
+    - `runtime-data-map-get-missing-v1`
+- 新しい bucket は、新しい exact fixture が classification family の不足を証明したときだけ追加する。
+
 ## Ownership Split
 
 1. `.hako` policy owner
@@ -83,11 +104,12 @@ Related:
 - Daily `.hako` callers should first ask `BackendRecipeBox` for a route profile.
 - `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then stop at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`.
 - Rust and C layers may mirror the same policy names, but they must not invent new policy names.
+- `acceptance_case` growth must stay grouped at the `.hako` policy owner; do not add per-case transport ownership in Rust/C.
 
 ## Next Expansion Rule
 
-- Broader seed classification belongs here, not in the C shim, when a new exact fixture proves that the route profile needs more evidence.
-- Until then, profile growth should stay at the `.hako` owner level and remain visible in `CURRENT_TASK.md` plus phase-29ck docs.
+- Broader seed classification belongs here, not in the C shim, when a new exact fixture proves that the route profile needs another evidence bucket.
+- Until then, profile growth should stay grouped at the `.hako` owner level and remain visible in `CURRENT_TASK.md` plus phase-29ck docs.
 
 ## Final Shape
 

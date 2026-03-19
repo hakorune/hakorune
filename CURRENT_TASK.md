@@ -17,7 +17,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - first: `0rust` / backend-zero を先に終える
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- next immediate slice: docs/inventory closeout for `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` + `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`; code deletion stays blocked until caller-proof says the temporary lane is truly removable
+- next immediate slice: route-profile evidence closeout in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`; `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` + `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` stay frozen exact owners and docs/inventory closeout only; code deletion stays blocked until caller-proof says the temporary lane is truly removable
 - second: exe optimization wave は backend-zero handoff の後段に置く
 - parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
 - do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
@@ -45,6 +45,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/runner/modes/common_util/exec.rs` and `tools/build_llvm.sh` no longer route `NYASH_LLVM_BACKEND=native`; native replay is now direct `ny-llvmc --driver native` canary only
   - `src/stage1/program_json_v0.rs` now inlines the future-retire bridge error-prefix helper and drops the legacy test-only `source_to_program_json_v0(...)` alias, so `program_json_v0/bridge_shim.rs` is gone and the remaining bootstrap keep is smaller
   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` / `build_surrogate.rs` / `llvm_backend_surrogate.rs` are now frozen exact owners; docs/inventory closeout only until caller-proof says the temporary lane can disappear
+  - `src/runner/modes/common_util/exec.rs` no longer carries dead `llvmlite_emit_object(...)`, so runner-side llvmlite residue shrank by one helper
+  - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
 - do not mix this slice with:
   - kernel migration refactors
   - `boundary_driver.rs` compat keep reduction

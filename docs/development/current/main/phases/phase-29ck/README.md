@@ -54,7 +54,7 @@ Related:
 1. caller-facing daily LLVM route は `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe` まで寄っている
 2. `ny-llvmc` internal default driver は `Boundary` に切り替わり、default object/exe route は `Harness` / `Native` selector を daily owner にしなくなった
 3. `src/host_providers/llvm_codegen.rs` default object path も direct C ABI boundary を先に試すようになり、`ny-llvmc` wrapper path は explicit `HAKO_LLVM_EMIT_PROVIDER=ny-llvmc` keep へ後退した
-4. supported v1 seeds は boundary compile が pure C subset を先に試すようになり、`apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` と `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` は `NYASH_NY_LLVM_COMPILER` を壊しても object emit でき、`.hako` では `acceptance_case=ret-const-v1` / `acceptance_case=hello-simple-llvm-native-probe-v1` として visible に row 化された
+4. supported v1 seeds は boundary compile が pure C subset を先に試すようになり、`apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` と `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` は `NYASH_NY_LLVM_COMPILER` を壊しても object emit でき、`.hako` では `acceptance_case=ret-const-v1` / `acceptance_case=hello-simple-llvm-native-probe-v1` として visible に row 化された。これらは `BackendRecipeBox.compile_route_profile(...)` が owned する grouped evidence bucket として読む
 5. ただし unsupported shapes are still replayed through `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` inside the boundary compat lane, so `llvmlite` は indirect compat in-path としてまだ残っている
 6. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 7. missing legs は 3 本である
