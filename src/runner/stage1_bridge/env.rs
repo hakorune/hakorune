@@ -121,7 +121,7 @@ mod tests {
 
         let envs = configure_fixture(Stage1ChildEnvConfig {
             entry_path: Some("lang/src/runner/stage1_cli_env.hako"),
-            entry_fn: "Stage1CliMain.main/0",
+            entry_fn: "Main.main/0",
             backend_hint: None,
             module_env_lists: Stage1ModuleEnvLists::default(),
         });
@@ -177,7 +177,7 @@ mod tests {
 
         let envs = configure_fixture(Stage1ChildEnvConfig {
             entry_path: Some("lang/src/runner/stage1_cli_env.hako"),
-            entry_fn: "Stage1CliMain.main/0",
+            entry_fn: "Main.main/0",
             backend_hint: Some("vm"),
             module_env_lists: Stage1ModuleEnvLists {
                 modules_list: Some("core=lang/core".into()),
@@ -218,7 +218,7 @@ mod tests {
         );
         assert_eq!(
             envs.get("NYASH_ENTRY"),
-            Some(&"Stage1CliMain.main/0".to_string())
+            Some(&"Main.main/0".to_string())
         );
         assert_eq!(
             envs.get("STAGE1_CLI_ENTRY"),
@@ -255,7 +255,7 @@ mod tests {
 
         let envs = configure_fixture(Stage1ChildEnvConfig {
             entry_path: Some("lang/src/runner/stage1_cli_env.hako"),
-            entry_fn: "Stage1CliMain.main/0",
+            entry_fn: "Main.main/0",
             backend_hint: None,
             module_env_lists: Stage1ModuleEnvLists::default(),
         });

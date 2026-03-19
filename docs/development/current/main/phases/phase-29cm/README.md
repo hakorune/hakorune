@@ -50,6 +50,14 @@ Related:
    - keep: `lang/src/runtime/collections/` ring1
    - rule: kernel lane へは入れない（最後寄り）
 
+## Migration Checklist
+
+- [x] `string` lane reached the stop line
+  - further widening is paused until a new exact blocker appears
+- [ ] `array` promotion trigger not yet fired
+- [ ] `numeric` remains deferred until a new narrow op is justified
+- [ ] `map` remains ring1 keep / defer
+
 ## Latest Inventory (2026-03-19)
 
 - `array`

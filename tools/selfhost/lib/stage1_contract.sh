@@ -28,6 +28,22 @@ stage1_contract_program_json_compat_entry() {
   printf '%s' '__stage1_program_json__'
 }
 
+stage1_contract_artifact_kind() {
+  local bin="$1"
+  local meta="${bin}.artifact_kind"
+  if [[ ! -f "$meta" ]]; then
+    printf '%s' 'unknown'
+    return 0
+  fi
+  local kind
+  kind="$(awk -F= '$1=="artifact_kind"{print $2; exit}' "$meta" 2>/dev/null || true)"
+  if [[ -z "$kind" ]]; then
+    printf '%s' 'unknown'
+    return 0
+  fi
+  printf '%s' "$kind"
+}
+
 # Shared mode decode for both live env wrappers and low-level compat probes.
 # Keep mode -> emit-flag truth single-sourced here.
 stage1_contract_emit_flags_for_mode() {
@@ -373,10 +389,23 @@ stage1_contract_exec_mode() {
   local source_text_for_mode="$source_text"
   local emit_program_flag=0
   local emit_mir_flag=0
+  local artifact_kind
+  artifact_kind="$(stage1_contract_artifact_kind "$bin")"
 
   stage1_contract_export_runner_defaults
 
   read -r emit_program_flag emit_mir_flag < <(stage1_contract_emit_flags_for_mode "$mode")
+
+  if [[ "$artifact_kind" == "stage1-cli" ]]; then
+    stage1_contract_exec_checked_mode \
+      "$bin" \
+      "$mode" \
+      "$entry" \
+      "$source_text_for_mode" \
+      "$emit_program_flag" \
+      "$emit_mir_flag"
+    return $?
+  fi
 
   if [[ "$emit_program_flag" -eq 1 || "$emit_mir_flag" -eq 1 ]]; then
     stage1_contract_exec_direct_emit_mode "$bin" "$mode" "$entry"

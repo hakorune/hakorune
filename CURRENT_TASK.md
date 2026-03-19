@@ -43,6 +43,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Bootstrap Check
 
 - observed failure: `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` now gets past the C ABI rebuild seam and the bridge-first MIR build, but the reduced artifact itself is runnable bootstrap output while the payload proof now stays on the stage0 bootstrap route
+- exact blocker: `NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_PROGRAM_JSON=1 ... target/selfhost/hakorune.stage1_cli` still returns `Result: 0` instead of a Program(JSON v0) payload, so the `stage1-env-program` / `stage1-env-mir-source` route probe remains `unknown`
 - current reduced source: the stage1-cli artifact is no longer treated as the payload-emitting contract; keep the bootstrap route proof and the runnable artifact check separate
 - the bootstrap capability probe is now single-sourced in `stage1_contract_verify_stage1_cli_bootstrap_capability()`
 - this is a separate bootstrap blocker; do not mix it with the `.hako` authoring slice above
@@ -72,6 +73,30 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
 - do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
 - directory rule: keep `Stage1/Stage2` as artifact/proof names; Rust physical split stays `src/stage1/**` vs `src/runner/stage1_bridge/**`, do not create a mirrored `src/stage2/`
+
+## Remaining Migration Checklist
+
+- [ ] backend-zero `.hako` authoring lane
+  - [ ] `lang/src/shared/backend/llvm_backend_box.hako`
+  - [ ] `lang/src/shared/backend/backend_recipe_box.hako`
+  - [ ] `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+  - [ ] `lang/src/runtime/host/host_facade_box.hako`
+  - [ ] `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+- [ ] bootstrap check / `phase-29cp`
+  - [ ] `stage1-cli` env route materializes Program(JSON v0) / MIR(JSON v0) instead of `Result: 0`
+  - [ ] `tools/selfhost/lib/stage1_contract.sh`
+  - [ ] `tools/selfhost/lib/identity_routes.sh`
+  - [ ] `tools/selfhost/build_stage1.sh`
+  - [ ] `src/runner/stage1_bridge/env.rs`
+  - [ ] `src/runner/stage1_bridge/env/stage1_aliases.rs`
+  - [ ] `src/runner/stage1_bridge/stub_child.rs`
+- [x] kernel migration is at the stop line
+  - [x] `string` lane stopped at helper extraction; no widening unless a new exact blocker appears
+  - [ ] `array` promotion trigger pending
+  - [ ] `numeric` deferred
+  - [ ] `map` deferred
+- [ ] backend-zero closeout docs only
+  - [ ] `phase-29cl` compat/archive closeout
 
 ## Restart Handoff (2026-03-19)
 

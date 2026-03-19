@@ -55,8 +55,7 @@ fn prepare_with(
     module_env_lists: Stage1ModuleEnvLists,
     executable: PathBuf,
 ) -> PreparedStage1StubChild {
-    let entry_fn =
-        std::env::var("NYASH_ENTRY").unwrap_or_else(|_| "Stage1CliMain.main/0".to_string());
+    let entry_fn = std::env::var("NYASH_ENTRY").unwrap_or_else(|_| "Main.main/0".to_string());
     let mut cmd = Command::new(executable);
     cmd.arg(&entry).arg("--");
     for arg in &args_result.args {
