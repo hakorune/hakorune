@@ -13,6 +13,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
 
+## Current Priority
+
+- first: `0rust` / backend-zero を先に終える
+- order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
+- second: exe optimization wave は backend-zero handoff の後段に置く
+- do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
+
 ## Restart Handoff (2026-03-19)
 
 - last landed:
