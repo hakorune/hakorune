@@ -121,13 +121,6 @@ static box BackendRecipeBox {
     return me.acceptance_case_seed_matrix_v1()
   }
 
-  prepare_link_route(libs) {
-    if libs == null { return null }
-    local text = "" + libs
-    if text == "" { return null }
-    return text
-  }
-
   _require_non_empty(method_name, field_name, value) {
     if value == null || ("" + value) == "" {
       return me._fail("[backendrecipe/input/" + method_name + "] " + field_name + " is empty")

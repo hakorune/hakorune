@@ -29,7 +29,13 @@ static box LlvmBackendBox {
     local out = me._require_non_empty("link_exe", "out_path", out_path)
     if out == null { return null }
 
-    local extra = BackendRecipeBox.prepare_link_route(libs)
+    local extra = null
+    if libs != null {
+      local text = "" + libs
+      if text != "" {
+        extra = text
+      }
+    }
     local exe
     if extra == null {
       exe = env.codegen.link_object(obj, out)
