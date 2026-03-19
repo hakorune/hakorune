@@ -388,6 +388,8 @@ fn handle_codegen(
         compile_recipe: Option<String>,
         compat_replay: Option<String>,
     ) -> crate::host_providers::llvm_codegen::Opts {
+        let compile_recipe = compile_recipe.or_else(crate::config::env::backend_compile_recipe);
+        let compat_replay = compat_replay.or_else(crate::config::env::backend_compat_replay);
         crate::host_providers::llvm_codegen::Opts {
             out,
             nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")

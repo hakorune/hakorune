@@ -16,19 +16,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - `src/host_providers/llvm_codegen/route.rs` still carries env fallback because legacy `env.codegen.emit_object` / `env.codegen.compile_json_path` callers may still pass `None` for `compile_recipe` / `compat_replay`
+  - `src/host_providers/llvm_codegen/route.rs` still carries the `compile_symbol_for_recipe()` default branch while caller proof is being settled
 - Next exact files:
-  - `lang/src/runtime/host/host_facade_box.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-  - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
-  - `src/backend/mir_interpreter/handlers/extern_provider.rs`
   - `src/host_providers/llvm_codegen/route.rs`
 - Execution checklist:
   - `[x]` daily `.hako` owner is fixed at `lang/src/shared/backend/llvm_backend_box.hako`
   - `[x]` upstream legacy caller inventory is pinned in `CURRENT_TASK.md`
   - `[x]` `.hako` host/vm wrappers isolate legacy optional `env.codegen.*` caller shapes into owner-local helpers
-  - `[ ]` explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
-  - `[ ]` remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
+  - `[x]` explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
+  - `[x]` remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
   - `[ ]` re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
 - Stop condition:
   - daily compile path stays explicit at `LlvmBackendBox`
@@ -46,7 +42,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - first: `0rust` / backend-zero を先に終える
 - operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- next backend-zero slice: caller-side route/profile explicitization ahead of `route.rs` cleanup
+- next backend-zero slice: `compile_symbol_for_recipe()` default branch re-evaluation after caller proof
 - current owner-cutover sub-order:
   1. keep daily `.hako` owner at `lang/src/shared/backend/llvm_backend_box.hako`
   2. inventory legacy upstream `env.codegen.emit_object` / `env.codegen.compile_json_path` callers
@@ -83,6 +79,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - remove the remaining implicit route-default synthesis in `src/host_providers/llvm_codegen/route.rs` only after caller proof
 - current session completion:
   - `boundary_default_object_opts(...)` is now transport-only; `route.rs` no longer synthesizes a hidden `pure-first/harness` route, and the two explicit caller sites now set `compile_recipe=pure-first` / `compat_replay=harness` themselves
+  - caller-side explicitization is now also mirrored in `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` and `src/backend/mir_interpreter/handlers/extern_provider.rs`, so `route.rs` can stop reading env defaults for daily callers
+  - `src/host_providers/llvm_codegen/route.rs` now reads explicit `Opts` only; the remaining cleanup is the `compile_symbol_for_recipe()` default branch re-evaluation
   - `crates/nyash-llvm-compiler/src/boundary_driver.rs` no longer injects boundary-local recipe/replay env defaults; it now just calls the explicit pure-first export and mirrors caller env when needed for link-side plumbing
   - `crates/nyash-llvm-compiler/src/link_driver.rs` now requires an explicit `--nyrt <DIR>` for `Harness` / `Native` exe linking instead of synthesizing a default search dir
   - `crates/nyash-llvm-compiler/README.md` and `src/main.rs` now describe that keep-lane exe linking contract explicitly

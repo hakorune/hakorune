@@ -37,10 +37,9 @@ Related:
 - `llvmlite` / `harness` / `native` keep lanes は explicit keep として残してよいが、daily owner にはしない。
 - current cleanup order inside this step is:
   1. keep the daily `.hako` owner explicit at `lang/src/shared/backend/llvm_backend_box.hako`
-  2. inventory upstream `env.codegen.emit_object` / `env.codegen.compile_json_path` callers that still allow `recipe/replay = None`
-  3. explicitize caller-side `compile_recipe` / `compat_replay` where behavior stays unchanged
-  4. only then remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
-  5. re-evaluate `compile_symbol_for_recipe()` default branching after caller proof
+  2. explicitize caller-side `compile_recipe` / `compat_replay` where behavior stays unchanged
+  3. remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
+  4. re-evaluate `compile_symbol_for_recipe()` default branching after caller proof
 
 ### 2. Compat keep reduction
 
@@ -99,7 +98,7 @@ Related:
 - Do not mix backend-zero order changes with kernel migration refactors.
 - Do not turn buildability into a separate authority that can override owner cutover.
 - Do not silently delete Rust build routes while the migration is still in flight.
-- Do not delete `requested_compile_recipe` / `requested_compat_replay` from `route.rs` until legacy `env.codegen.emit_object` / `env.codegen.compile_json_path` callers stop passing `None` for recipe/replay.
+- Do not remove the last `compile_symbol_for_recipe()` default branch until caller proof is settled.
 
 ## 5. Practical Acceptance
 

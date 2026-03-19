@@ -20,8 +20,8 @@ pub(super) fn try_compile_via_capi_keep(
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
     ensure_backend_output_parent(&out_path);
-    let compile_recipe = requested_compile_recipe(opts);
-    let compat_replay = requested_compat_replay(opts);
+    let compile_recipe = opts.compile_recipe.clone();
+    let compat_replay = opts.compat_replay.clone();
     let compile_symbol = compile_symbol_for_recipe(compile_recipe.as_deref());
     match compile_via_capi(
         &in_path,
@@ -58,8 +58,8 @@ pub(super) fn try_compile_via_boundary_default(
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
     ensure_backend_output_parent(&out_path);
-    let compile_recipe = requested_compile_recipe(opts);
-    let compat_replay = requested_compat_replay(opts);
+    let compile_recipe = opts.compile_recipe.clone();
+    let compat_replay = opts.compat_replay.clone();
     let compile_symbol = compile_symbol_for_recipe(compile_recipe.as_deref());
     match compile_via_capi(
         &in_path,
@@ -80,18 +80,6 @@ pub(super) fn try_compile_via_boundary_default(
 
 pub(super) fn boundary_default_unavailable_tag() -> String {
     "[llvmemit/capi/default-unavailable] build libhako_llvmc_ffi.so or set HAKO_LLVM_EMIT_PROVIDER=llvmlite".into()
-}
-
-fn requested_compile_recipe(opts: &Opts) -> Option<String> {
-    opts.compile_recipe
-        .clone()
-        .or_else(crate::config::env::backend_compile_recipe)
-}
-
-fn requested_compat_replay(opts: &Opts) -> Option<String> {
-    opts.compat_replay
-        .clone()
-        .or_else(crate::config::env::backend_compat_replay)
 }
 
 fn compile_symbol_for_recipe(recipe: Option<&str>) -> &'static [u8] {
