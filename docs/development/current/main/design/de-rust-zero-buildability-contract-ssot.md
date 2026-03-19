@@ -20,6 +20,7 @@ Related:
 
 - `0rust` は Rust を意味の owner から降ろすための定義であり、Rust の buildability を消すための定義ではない。
 - daily mainline の owner が `.hako` 側へ移っても、repo は Rust ベースの build/bootstrap route を常時保持する。
+- operational reading は `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline` で固定する。
 - buildability は workaround ではなく contract である。
 
 ## Boundary Lock
@@ -28,10 +29,13 @@ Related:
 2. Rust は build/bootstrap / substrate / compat keep として残してよい。
 3. Rust ベースの build route は、migration slice の前後でいつでも再実行できる状態を保つ。
 4. daily owner が Rust から外れても、Rust build route を silent delete しない。
+5. `stage0` は Rust bootstrap でよいが、`stage2+` の mainline build は Rust dependency ではない状態を target にする。
 
 ## What Must Remain Buildable
 
-- stage1 / bootstrap build paths
+- stage0 / bootstrap build paths
+- stage1 proof artifact build paths
+- stage2+ selfhost mainline rebuild path
 - compat / canary build paths
 - `.hako` mainline を Rust から再構築するための最小導線
 - archive / preservation-first restore path
@@ -42,6 +46,7 @@ Related:
 - `build only from .hako` に固定することではない
 - buildability を失う代わりに LOC を減らすことではない
 - ring0 へ semantics を押し込むことではない
+- `stage0 bootstrap まで Rust-free` を immediate acceptance にすることではない
 
 ## Relationship to Current Phases
 
@@ -53,4 +58,6 @@ Related:
 
 - meaning owner は `.hako` にある
 - Rust は build/bootstrap / substrate / compat keep として再実行可能である
+- `stage0` first build / recovery lane として Rust を残してよい
+- `stage2+` daily mainline build は `.hako` owner で回り、Rust は normal dependency ではない
 - migration slice を切った後でも、Rust から build できることを確認できる

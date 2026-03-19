@@ -24,6 +24,7 @@ Related:
 - `kernel を .hako 化するか` を、wholesale rewrite の議論ではなく owner cutover の順番として固定する。
 - `hakorune` の独り立ちを「Rust source が 1 行も残らないこと」ではなく、「kernel meaning/policy の最終 owner が `.hako` であること」として定義する。
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
+- operational reading は `stage0 Rust bootstrap keep / stage2+ selfhost mainline` であり、kernel authority zero は後者の owner cutover を指す。
 - current exe optimization wave と kernel wholesale migration を混ぜて、測定や責務境界を濁さない。
 
 ## 1. Boundary Lock
@@ -52,6 +53,7 @@ Related:
 - `.hako` 側の runtime kernel edit lane は [`lang/src/runtime/kernel/`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/kernel/) である。
 - ただし current runtime substrate はまだ Rust/C 側に多く残っている。
 - backend-zero SSOT でも final shape は `.hako -> thin boundary` であって、Rust 全消しを immediate goal にはしていない。
+- stage0 first-build / recovery lane としての Rust bootstrap keep は、この wave の失敗条件ではない。
 - したがって、次に固定すべきは `kernel authority zero` であり、`substrate zero` ではない。
 
 ## 3. What Moves First

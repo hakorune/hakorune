@@ -33,6 +33,7 @@ Related:
 - 既存の current blocker（compiler authority removal）を future vision で上書きしない。
 - runtime 側は inventory-ready、backend 側は phase-cut queued という温度差を明文化する。
 - `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を壊すことではない。
+- operational reading は `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline` だと読む。
 
 ## 1. Boundary Lock
 
@@ -41,6 +42,7 @@ Related:
 - `phase-29y` の runtime daily policy（`LLVM-first / vm-hako monitor-only`）はこの文書では変更しない。
 - non-plugin done の判定範囲は `de-rust-scope-decision-ssot.md` を維持し、この文書で広げない。
 - buildability は preservation-first で扱い、Rust build route を migration 中に silent delete しない。
+- stage0 bootstrap keep と stage2+ selfhost mainline を同じ acceptance に混ぜない。
 
 ## 2. Current Snapshot (2026-03-14)
 
@@ -65,6 +67,7 @@ Related:
      `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md`
    - fixed-order task pack lives in
      `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md`
+   - stage0 first-build / recovery lane is allowed to remain Rust-based while stage2+ mainline is cut over
 
 ## 3. Split Tracking Rule
 
@@ -137,6 +140,8 @@ Related:
   - compiler authority removal
   - runtime-zero
   - backend-zero
+  - stage2+ daily selfhost build no longer depends on Rust as a normal owner path
+  - stage0 Rust bootstrap remains only as first-build / recovery / preservation lane
   - 上記 3 本が docs 間で矛盾なく closeout されている。
 
 ## 6. Not in this doc

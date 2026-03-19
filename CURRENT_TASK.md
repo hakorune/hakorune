@@ -16,6 +16,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Priority
 
 - first: `0rust` / backend-zero を先に終える
+- operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
 - next immediate slice: route-profile evidence closeout in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`; `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` + `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` stay frozen exact owners and docs/inventory closeout only; code deletion stays blocked until caller-proof says the temporary lane is truly removable
 - second: exe optimization wave は backend-zero handoff の後段に置く
@@ -71,6 +72,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - kernel authority migration を先に終わらせてから exe optimization に進む
   - plan SSOT: `docs/development/current/main/phases/phase-29cm/README.md`
   - `0rust` は Rust meaning owner zero の意味であり、Rust ベースの build/bootstrap route は常時保持する
+  - operationally, `stage0` Rust bootstrap keep is allowed; target the `stage2+` selfhost mainline for `0rust`
   - fixed order:
     1. `string`
        - `string.search` v0 は landed 済み。これ以上の widening は新しい exact blocker が出るまで pause

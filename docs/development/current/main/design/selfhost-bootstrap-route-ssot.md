@@ -29,6 +29,7 @@ selfhost を目的化せず、compiler-first の方針を守りつつ、
 End-state note:
 - bootstrap route の最終目標は `.hako` compiler mainline が compiler meaning を持ち、
   plugin behavior も `.hako` 側へ寄り、Rust は host/runtime/backend の最小面だけを残すこと
+- operationally, `stage0` Rust bootstrap is allowed to remain as the first-build / recovery lane, while `stage2+` is the first `0rust` selfhost mainline
 - `Program(JSON v0)` / stage1 wrapper / surrogate provider はその途中にある bootstrap-only boundary で、authority ではなく最終 retire target だと扱う
 
 ## Reading Order
@@ -222,8 +223,8 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
 最短で後戻りを減らすための段階固定（compiler-first の自己ホスト）。
 
 - **Stage0**: Rust コンパイラ（既存の hakorune）で `.hako` compiler をビルド
-- **Stage1**: Stage0 で生成された `.hako` compiler
-- **Stage2**: Stage1 で同一ソースを再ビルドした `.hako` compiler
+- **Stage1**: Stage0 で生成された `.hako` compiler。proof / handoff artifact として扱う
+- **Stage2**: Stage1 で同一ソースを再ビルドした `.hako` compiler。最初の `0rust` mainline artifact として扱う
 - **Stage3 (optional)**: Stage2 で再ビルドした出力の一致確認（必要なら）
 
 Directory note:
@@ -235,6 +236,7 @@ Directory note:
 
 **Acceptance (SSOT)**:
 - Stage1 と Stage2 の出力が一致すること（Program JSON v0 / MIR JSON v0 の比較で固定）
+- Stage2 が daily selfhost mainline として読めること。Stage0 Rust bootstrap は acceptance failure ではなく keep lane として扱う
 - 差分が出たらその stage で停止（自動で次へ進まない）
 
 **Gate (G1)**:
