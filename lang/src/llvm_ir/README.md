@@ -14,7 +14,7 @@ Live surfaces
   - quick/smoke の self-param helper
 - `emit/LLVMEmitBox.hako`
   - compat keep の emit facade
-  - `hako.llvm.emit` 直参照 canary を壊さないため残す
+  - legacy phase2034 canary scripts are deleted; this box is not an active smoke gate
 
 Archived surfaces
 - legacy script-builder / AotFacade route は `archive/legacy_script_builder/**` に退避した。

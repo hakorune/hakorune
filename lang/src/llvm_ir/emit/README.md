@@ -4,6 +4,7 @@ Responsibility
 - Generate an object file from MIR(JSON v0) via a provider.
 - Phase 20.34 starts with a provider‑first stub; connects to a Plugin v2 wrapper for ny-llvmc (or llvmlite) next.
 - Keep the box as a strict provider router; do not move daily backend policy here.
+- Legacy phase2034 canary scripts were deleted from the active smoke set; this box is compat keep only.
 
 Interface (stable)
 - `emit_object(mir_json: String, opts: Map|Null) -> String|Null`
