@@ -106,6 +106,7 @@ Stage1 Selfhost Binary (Phase 25.1 — initial wiring)
 Purpose
 - Provide concrete selfhost artifacts built from Hako sources.
 - Separate artifact contracts to avoid route drift between `launcher-exe` and `stage1-cli`.
+- The `stage1-cli` artifact is a runnable bootstrap output; payload proof stays on the stage0 bootstrap route.
 
 Script
 - tools/selfhost/build_stage1.sh
@@ -114,8 +115,8 @@ Script
     - `launcher-exe` (default): run-oriented launcher artifact
       - entry: `lang/src/runner/launcher.hako`
       - output: `target/selfhost/hakorune`
-    - `stage1-cli`: emit-oriented Stage1 CLI artifact
-      - entry: `lang/src/runner/stage1_cli.hako`
+    - `stage1-cli`: bootstrap output artifact for the reduced Stage1 lane
+      - entry: `lang/src/runner/stage1_cli_env.hako`
       - output: `target/selfhost/hakorune.stage1_cli`
   - Writes sidecar metadata: `<out>.artifact_kind`
 
@@ -147,11 +148,10 @@ How it works
 
 Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
-- bootstrap contract is narrower and now explicit:
-  - `launcher-exe` may be used as the next bootstrap binary for `build_stage1.sh`
-  - success is defined by payload/file materialization, not by the `Result: 0` trailer alone
-  - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
-- `tools/selfhost_identity_check.sh` requires Stage1 CLI emit capability in full mode.
+- `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact liveness, not by reduced artifact payload emission.
+- `stage0` bootstrap proof stays on the payload/file materialization route.
+- current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
+- `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.
 
 Helper — G1 Identity Check
@@ -202,10 +202,10 @@ Helper — Stage1 CLI Runner
   - Wraps a Stage1 binary (default `target/selfhost/hakorune`) with the required runtime env:
     - `NYASH_NYRT_SILENT_RESULT=1`（Result 行を抑止して JSON stdout を維持）
     - `NYASH_DISABLE_PLUGINS=1`, `NYASH_FILEBOX_MODE=core-ro`（FileBox などのコア実装を強制）
-  - For `emit program-json` / `emit mir-json`, translate the raw CLI surface into the current env contract (`stage1_contract_exec_mode`) so the wrapper stays compatible even when the artifact entry itself is env-only.
+  - For `emit program-json` / `emit mir-json`, translate the raw CLI surface into the compatibility env contract (`stage1_contract_exec_mode`); this is a compatibility wrapper, not the bootstrap proof route.
   - Non-`emit` arguments are passed verbatim to the Stage1 binary:
     ```bash
     tools/selfhost/run_stage1_cli.sh emit program-json apps/tests/minimal.hako
     tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako
     ```
-  - Use this helper (or set the env vars manually) whenever CLI output is consumed by scripts, so that stdout matches llvmlite harness expectations.
+  - Use this helper (or set the env vars manually) whenever CLI output is consumed by compatibility scripts. The bootstrap acceptance path is `stage1_contract_verify_stage1_cli_bootstrap_capability()`.

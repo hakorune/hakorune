@@ -76,10 +76,14 @@ route_file_value() {
 }
 
 stage1_env_program_route_id() {
+  # Legacy reduced-artifact diagnostics route id.
+  # Bootstrap acceptance now lives in stage1_contract_verify_stage1_cli_bootstrap_capability().
   printf '%s' 'stage1-env-program'
 }
 
 stage1_env_mir_source_route_id() {
+  # Legacy reduced-artifact diagnostics route id.
+  # Bootstrap acceptance now lives in stage1_contract_verify_stage1_cli_bootstrap_capability().
   printf '%s' 'stage1-env-mir-source'
 }
 
@@ -246,7 +250,9 @@ run_stage1_env_route() {
 }
 
 probe_exact_stage1_env_authority() {
-  # Route evidence probe for identity checks.
+  # Route evidence probe for legacy env diagnostics.
+  # Stage1 bootstrap acceptance is handled separately by
+  # stage1_contract_verify_stage1_cli_bootstrap_capability().
   # Build-stage bootstrap capability is verified separately by
   # stage1_contract_verify_stage1_cli_bootstrap_capability() so the two
   # contracts do not drift into one another.

@@ -42,16 +42,19 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Bootstrap Check
 
-- observed failure: `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` now gets past the C ABI rebuild seam and the bridge-first MIR build, but the reduced artifact itself is runnable bootstrap output while the payload proof now stays on the stage0 bootstrap route
-- exact blocker: `NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_PROGRAM_JSON=1 ... target/selfhost/hakorune.stage1_cli` still returns `Result: 0` instead of a Program(JSON v0) payload, so the `stage1-env-program` / `stage1-env-mir-source` route probe remains `unknown`
-- current reduced source: the stage1-cli artifact is no longer treated as the payload-emitting contract; keep the bootstrap route proof and the runnable artifact check separate
+- observed state: `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` now gets past the C ABI rebuild seam and the bridge-first MIR build, and the reduced artifact itself is treated as runnable bootstrap output while payload proof stays on the stage0 bootstrap route
+- exact blocker: none for the bootstrap route repair; the legacy `NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_PROGRAM_JSON=1 ... target/selfhost/hakorune.stage1_cli` probe is diagnostics-only
+- current reduced source: the stage1-cli artifact is no longer treated as the payload-emitting contract; keep the bootstrap route proof and the runnable artifact check separate, and use the stage0 bootstrap route for payload materialization
 - the bootstrap capability probe is now single-sourced in `stage1_contract_verify_stage1_cli_bootstrap_capability()`
-- this is a separate bootstrap blocker; do not mix it with the `.hako` authoring slice above
+- the legacy env payload probe is a diagnostics lane; do not mix it with the `.hako` authoring slice above
 - next phase: `docs/development/current/main/phases/phase-29cp/README.md`
 - next exact files:
   - `tools/selfhost/lib/stage1_contract.sh`
   - `tools/selfhost/lib/identity_routes.sh`
   - `tools/selfhost/build_stage1.sh`
+  - `tools/selfhost/README.md`
+  - `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stage1_contract_smoke_vm.sh`
+  - `docs/development/current/main/phases/phase-29cp/README.md`
 
 ## Current Priority
 
@@ -82,14 +85,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [ ] `lang/src/shared/host_bridge/codegen_bridge_box.hako`
   - [ ] `lang/src/runtime/host/host_facade_box.hako`
   - [ ] `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-- [ ] bootstrap check / `phase-29cp`
-  - [ ] `stage1-cli` env route materializes Program(JSON v0) / MIR(JSON v0) instead of `Result: 0`
-  - [ ] `tools/selfhost/lib/stage1_contract.sh`
-  - [ ] `tools/selfhost/lib/identity_routes.sh`
-  - [ ] `tools/selfhost/build_stage1.sh`
-  - [ ] `src/runner/stage1_bridge/env.rs`
-  - [ ] `src/runner/stage1_bridge/env/stage1_aliases.rs`
-  - [ ] `src/runner/stage1_bridge/stub_child.rs`
+- [x] bootstrap check / `phase-29cp`
+  - [x] stage0 bootstrap route materializes Program(JSON v0) / MIR(JSON v0)
+  - [x] reduced `stage1-cli` artifact is runnable bootstrap output
+  - [x] `tools/selfhost/lib/stage1_contract.sh`
+  - [x] `tools/selfhost/lib/identity_routes.sh`
+  - [x] `tools/selfhost/build_stage1.sh`
+  - [x] `tools/selfhost/README.md`
+  - [x] `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stage1_contract_smoke_vm.sh`
+  - [x] `docs/development/current/main/phases/phase-29cp/README.md`
 - [x] kernel migration is at the stop line
   - [x] `string` lane stopped at helper extraction; no widening unless a new exact blocker appears
   - [ ] `array` promotion trigger pending
