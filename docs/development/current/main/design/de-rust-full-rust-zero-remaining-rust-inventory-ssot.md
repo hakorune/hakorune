@@ -235,7 +235,7 @@ Related:
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
    - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
    - `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
-   - current judgment: this cluster is at thin floor; prefer docs/inventory closeout over refactor-only churn until caller-proof says the temporary lane can be removed
+   - current judgment: this cluster is at thin floor; treat it as frozen exact owners and prefer docs/inventory closeout over refactor-only churn until caller-proof says the temporary lane can be removed
    - `lang/src/vm/boxes/mir_call_v1_handler.hako` is observation-only (`[vm/byname:*]`), not a final dispatch target
 4. compat keeps
    - `crates/nyash_kernel/src/hako_forward_bridge.rs`

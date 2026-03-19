@@ -331,7 +331,7 @@ rule:
     - `src/backend/mir_interpreter/handlers/calls/method.rs`
     - `src/runtime/type_registry.rs`
     - `src/backend/wasm_v2/unified_dispatch.rs`
-  - compiled-stage1 temporary keeps:
+  - compiled-stage1 temporary keeps (frozen exact owners):
     - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
     - `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`

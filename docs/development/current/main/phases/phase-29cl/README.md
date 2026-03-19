@@ -73,7 +73,7 @@ Rule:
    - `src/backend/mir_interpreter/handlers/calls/method.rs`
    - `src/runtime/type_registry.rs`
    - `src/backend/wasm_v2/unified_dispatch.rs`
-4. current compiled-stage1 temporary keeps are still needed for backend cutover
+4. current compiled-stage1 temporary keeps are frozen exact owners for backend cutover
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
    - `build_surrogate.rs` (direct-dispatch default; by-name tail is retired)
    - `llvm_backend_surrogate.rs`
@@ -136,9 +136,9 @@ Rule:
    - the same direct-call alias resolver now also covers `lang.compiler.entry.func_scanner` -> `FuncScannerBox`, `lang.compiler.entry.stageb.stageb_json_builder_box` -> `StageBJsonBuilderBox`, `selfhost.shared.common.box_type_inspector` -> `BoxTypeInspectorBox`, and `selfhost.shared.common.string_helpers` -> `StringHelpers`
    - current compiled-stage1 helper routes such as `find_matching_brace`, `build_defs_json`, `kind`, and `int_to_str` can now prefer direct lowered functions before generic plugin fallback when receiver literals are known
    - C ABI `.hako` execution stays on direct boundary routes; `lang/c-abi/shims/hako_llvmc_ffi.c` no longer emits `by_name` and now behaves as a transport-only shim
-20. current module-string dispatch residue is at thin floor
+20. current module-string dispatch residue is at thin floor and frozen
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is a thin parent router plus shared decode/gate helpers
-   - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain compiled-stage1 temporary keeps, not fresh mainline owners
+   - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain frozen compiled-stage1 exact owners, not fresh mainline owners
    - next move is docs/inventory closeout until caller-proof says the surrogate code can actually be removed
 
 ## Immediate Next

@@ -17,7 +17,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - first: `0rust` / backend-zero を先に終える
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- next immediate code slice: remaining bootstrap keep buckets (`src/stage1/program_json_v0.rs` + `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`) after native canary demotion
+- next immediate slice: docs/inventory closeout for `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` + `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`; code deletion stays blocked until caller-proof says the temporary lane is truly removable
 - second: exe optimization wave は backend-zero handoff の後段に置く
 - parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
 - do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
@@ -44,6 +44,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/nyash-llvm-compiler/src/native_driver.rs` now delegates MIR-to-IR construction into `src/native_ir.rs`, so the native bootstrap lane is mostly orchestration plus object emission
   - `src/runner/modes/common_util/exec.rs` and `tools/build_llvm.sh` no longer route `NYASH_LLVM_BACKEND=native`; native replay is now direct `ny-llvmc --driver native` canary only
   - `src/stage1/program_json_v0.rs` now inlines the future-retire bridge error-prefix helper and drops the legacy test-only `source_to_program_json_v0(...)` alias, so `program_json_v0/bridge_shim.rs` is gone and the remaining bootstrap keep is smaller
+  - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` / `build_surrogate.rs` / `llvm_backend_surrogate.rs` are now frozen exact owners; docs/inventory closeout only until caller-proof says the temporary lane can disappear
 - do not mix this slice with:
   - kernel migration refactors
   - `boundary_driver.rs` compat keep reduction
