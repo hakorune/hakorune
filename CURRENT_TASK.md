@@ -66,7 +66,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   3. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
   4. `lang/src/runtime/host/host_facade_box.hako`
   5. `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-- parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening until a new exact blocker appears
+  - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
 - second: exe optimization wave は backend-zero handoff の後段に置く
 - parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
@@ -143,7 +143,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - plan SSOT: `docs/development/current/main/phases/phase-29cm/README.md`
   - `0rust` は Rust meaning owner zero の意味であり、Rust ベースの build/bootstrap route は常時保持する
   - operationally, `stage0` Rust bootstrap keep is allowed; target the `stage2+` selfhost mainline for `0rust`
-  - current `.hako` authoring lane is `lang/src/runtime/kernel/string/search.hako`; helper extraction / control-structure cleanup only, no widening until a new exact blocker appears
+  - current `.hako` authoring lane is `lang/src/runtime/kernel/string/search.hako`; helper extraction / control-structure cleanup only, no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
   - fixed order:
     1. `string`
        - `string.search` v0 は landed 済み。これ以上の widening は新しい exact blocker が出るまで pause
@@ -200,7 +200,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     3. `map` stays in `lang/src/runtime/collections/` ring1 and is not part of this kernel lane
   - next narrow op order for this lane:
     1. `ArrayBox.length/len/size` observer path stays in collections ring1 first; do not create a new array kernel module yet
-    2. further widening paused until a new exact blocker appears
+    2. further widening paused until a new exact blocker appears; if none appears, stop the lane and move to inventory or the next fixed order
   - landed array thin slice:
     - `lang/src/runtime/collections/array_core_box.hako::try_handle(...)` now returns the observer-only `ArrayBox.length/len/size` alias before `set/get/push` stateful prep, so the ring1 wrapper stays thin without opening `lang/src/runtime/kernel/array/`
   - quick array canary shape:
@@ -326,7 +326,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   6. `.hako authority / Rust substrate` の string owner map を維持したまま shadow-owner wave へ備える
   7. `substring_concat` pilot と別に、search/control kernel wave は `.hako` string kernel op set v0 として narrow に切り出し、黙って widen しない
      - current public surface is `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index`
-     - further widening paused until a new exact blocker appears
+     - further widening paused until a new exact blocker appears; if none appears, stop the lane and move to inventory or the next fixed order
 - acceptance:
   1. `cargo test -q -p nyash_kernel substring_hii -- --nocapture`
   2. `cargo test -q -p nyash_kernel string_concat3_hhh_contract -- --nocapture`

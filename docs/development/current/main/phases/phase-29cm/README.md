@@ -36,7 +36,7 @@ Related:
 
 1. `string`
    - landed: `lang.runtime.kernel.string.search` (`find_index/contains/starts_with/ends_with/split_once_index`)
-   - rule: further widening is paused until a new exact blocker appears
+   - rule: further widening is paused until a new exact blocker appears; if none appears, stop the lane and move to inventory or the next fixed order
 
 2. `array`
    - first owner: `lang/src/runtime/collections/` ring1

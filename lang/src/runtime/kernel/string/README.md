@@ -61,7 +61,7 @@ freeze.str
 
 - `search.hako` is at the v0 landing point for the current string-search pilot
 - current authoring lane is helper extraction / control-structure cleanup only
-- further widening is paused until a new exact blocker appears
+- further widening is paused until a new exact blocker appears; if none appears, stop the lane and move to inventory or the next fixed order
 
 ## Examples
 
