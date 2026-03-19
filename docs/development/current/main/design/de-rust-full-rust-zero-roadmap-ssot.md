@@ -34,6 +34,7 @@ Related:
 - runtime 側は inventory-ready、backend 側は phase-cut queued という温度差を明文化する。
 - `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を壊すことではない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline` だと読む。
+- preferred end-state is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to bootstrap / ABI / raw leaf / LLVM backend emission.
 
 ## 1. Boundary Lock
 
@@ -142,6 +143,7 @@ Related:
   - backend-zero
   - stage2+ daily selfhost build no longer depends on Rust as a normal owner path
   - stage0 Rust bootstrap remains only as first-build / recovery / preservation lane
+  - LLVM remains the primary backend substrate unless another SSOT explicitly reassigns it
   - 上記 3 本が docs 間で矛盾なく closeout されている。
 
 ## 6. Not in this doc
