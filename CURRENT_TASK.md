@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-18
+Date: 2026-03-20
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -12,6 +12,34 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - de-rust runtime lane の Next は `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md` を単一正本に固定する。
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
+
+## Active Slice
+
+- Current blocker:
+  - `src/host_providers/llvm_codegen/route.rs` still carries env fallback because legacy `env.codegen.emit_object` / `env.codegen.compile_json_path` callers may still pass `None` for `compile_recipe` / `compat_replay`
+- Next exact files:
+  - `lang/src/runtime/host/host_facade_box.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - `src/backend/mir_interpreter/handlers/extern_provider.rs`
+  - `src/host_providers/llvm_codegen/route.rs`
+- Execution checklist:
+  - `[x]` daily `.hako` owner is fixed at `lang/src/shared/backend/llvm_backend_box.hako`
+  - `[x]` upstream legacy caller inventory is pinned in `CURRENT_TASK.md`
+  - `[x]` `.hako` host/vm wrappers isolate legacy optional `env.codegen.*` caller shapes into owner-local helpers
+  - `[ ]` explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
+  - `[ ]` remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
+  - `[ ]` re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
+- Stop condition:
+  - daily compile path stays explicit at `LlvmBackendBox`
+  - `route.rs` no longer needs env fallback for daily callers
+  - Rust build/bootstrap route remains green
+- Do not mix:
+  - kernel migration refactors
+  - `boundary_driver.rs` compat keep reduction
+  - `native_driver.rs` bootstrap keep reduction
+  - optimization hot-leaf trimming
+  - C shim transport micro-splitting
 
 ## Current Priority
 
