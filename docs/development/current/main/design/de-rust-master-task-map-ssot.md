@@ -67,6 +67,7 @@ Separate lane pointer:
 
 1. top-level pointer:
 `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
+   - operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
 2. runtime-zero:
 `accepted pointer / inventory-ready`
 3. backend-zero:
@@ -81,6 +82,7 @@ Separate lane pointer:
 `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md`
 6. rule:
 この split は visibility 用であり、lane A/B/C の current blocker や non-plugin done scope を上書きしない。
+   - `stage0` Rust bootstrap keep は done failure ではなく、`stage2+` mainline owner cutover が `0rust` の target である。
 
 ## 3. Fixed Completion Ladder
 
@@ -109,6 +111,7 @@ de-rust done 宣言は次をすべて満たした時だけ許可する。
 3. Rust-optional strict readiness が PASS
 4. done の対象範囲が `de-rust-scope-decision-ssot.md` に明記済み
 5. done 宣言証跡が `phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md` で固定済み
+6. `stage0` Rust bootstrap keep と `stage2+` daily selfhost mainline が docs 上で切り分けられている
 
 ## 5. Failure-Driven Reopen Rules
 

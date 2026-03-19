@@ -86,6 +86,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
+- 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
 - Backend-zero boundary lock: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
 - Backend-zero fixed order / buildability gate: `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
 - Backend-zero phase pointer: `docs/development/current/main/phases/phase-29ck/README.md`
@@ -179,6 +180,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 7. Rust source は保存固定とし、削除タスクは現時点で開始しない。
 8. `phase-29cf` の `VM fallback compat lane` / `bootstrap boundary reduction` は future-wave follow-up として monitor-only で維持する。
 9. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
+10. `stage0` Rust bootstrap keep と `stage2+` daily selfhost mainline は別物として扱い、同じ acceptance に混ぜない。
 
 ## Read First Order
 
