@@ -90,30 +90,18 @@ static box HostFacadeBox {
 
   _dispatch_loader_codegen(selector, payload) {
     if selector == "codegen.compile_json_path" {
-      return me._invoke_codegen_compile_json_path(payload)
+      local args = me._payload_as_array(payload)
+      return CodegenBridgeBox.compile_json_path_args(args)
     }
     if selector == "codegen.emit_object" {
-      return me._invoke_codegen_emit_object(payload)
+      local args = me._payload_as_array(payload)
+      return CodegenBridgeBox.emit_object_args(args)
     }
     if selector == "codegen.link_object" {
-      return me._invoke_codegen_link_object(payload)
+      local args = me._payload_as_array(payload)
+      return CodegenBridgeBox.link_object_args(args)
     }
     return null
-  }
-
-  _invoke_codegen_compile_json_path(payload) {
-    local args = me._payload_as_array(payload)
-    return CodegenBridgeBox.compile_json_path_args(args)
-  }
-
-  _invoke_codegen_emit_object(payload) {
-    local args = me._payload_as_array(payload)
-    return CodegenBridgeBox.emit_object_args(args)
-  }
-
-  _invoke_codegen_link_object(payload) {
-    local args = me._payload_as_array(payload)
-    return CodegenBridgeBox.link_object_args(args)
   }
 
   _dispatch_loader_box(selector, payload) {

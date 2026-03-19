@@ -93,7 +93,7 @@ static box MirVmS0BoxcallExecBox {
     }
     local args = new ArrayBox()
     args.push("" + path_text)
-    local obj = me._compile_codegen_json_path_args(args)
+    local obj = CodegenBridgeBox.compile_json_path_args(args)
     if obj == null || ("" + obj) == "" {
       print("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
       return me._write_null_result(dst_box, regs, kinds)
@@ -126,7 +126,7 @@ static box MirVmS0BoxcallExecBox {
     if libs_text != null && ("" + libs_text) != "" {
       args.push("" + libs_text)
     }
-    local exe = me._link_codegen_object_args(args)
+    local exe = CodegenBridgeBox.link_object_args(args)
     if exe == null || ("" + exe) == "" {
       print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
       return me._write_null_result(dst_box, regs, kinds)
@@ -145,18 +145,6 @@ static box MirVmS0BoxcallExecBox {
     regs.set("" + dst_box, "0")
     kinds.set("" + dst_box, "scalar")
     return "__NEXT__"
-  }
-
-  _emit_codegen_object_args(args) {
-    return CodegenBridgeBox.emit_object_args(args)
-  }
-
-  _compile_codegen_json_path_args(args) {
-    return CodegenBridgeBox.compile_json_path_args(args)
-  }
-
-  _link_codegen_object_args(args) {
-    return CodegenBridgeBox.link_object_args(args)
   }
 
   _array_arg_or_null(arr, idx) {
