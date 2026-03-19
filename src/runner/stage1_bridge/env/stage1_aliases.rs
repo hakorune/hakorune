@@ -36,6 +36,18 @@ pub(super) fn apply(cmd: &mut Command, config: &Stage1ChildEnvConfig<'_>) {
         }
     }
 
+    if std::env::var("STAGE1_CLI_ENTRY").is_err() {
+        if let Some(entry_path) = config.entry_path {
+            cmd.env("STAGE1_CLI_ENTRY", entry_path);
+        }
+    }
+
+    if std::env::var("HAKORUNE_STAGE1_ENTRY").is_err() {
+        if let Some(entry_path) = config.entry_path {
+            cmd.env("HAKORUNE_STAGE1_ENTRY", entry_path);
+        }
+    }
+
     if std::env::var("NYASH_ENTRY").is_err() {
         cmd.env("NYASH_ENTRY", config.entry_fn);
     }

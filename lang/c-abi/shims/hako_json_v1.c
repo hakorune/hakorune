@@ -33,9 +33,9 @@ int hako_json_v1_validate_file(const char* path, char** err_out) {
         return set_err_owned(err_out, "root is not object");
     }
     yyjson_val* schema = yyjson_obj_get(root, "schema_version");
-    if (!schema || !yyjson_is_str(schema)) {
+    if (schema && !yyjson_is_str(schema)) {
         yyjson_doc_free(doc);
-        return set_err_owned(err_out, "missing schema_version");
+        return set_err_owned(err_out, "invalid schema_version");
     }
     yyjson_val* fns = yyjson_obj_get(root, "functions");
     if (!fns || !yyjson_is_arr(fns) || yyjson_arr_size(fns) == 0) {

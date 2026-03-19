@@ -16,6 +16,7 @@ use super::modules::Stage1ModuleEnvLists;
 use std::process::Command;
 
 pub(super) struct Stage1ChildEnvConfig<'a> {
+    pub(super) entry_path: Option<&'a str>,
     pub(super) entry_fn: &'a str,
     pub(super) backend_hint: Option<&'a str>,
     pub(super) module_env_lists: Stage1ModuleEnvLists,
@@ -119,6 +120,7 @@ mod tests {
         ]);
 
         let envs = configure_fixture(Stage1ChildEnvConfig {
+            entry_path: Some("lang/src/runner/stage1_cli_env.hako"),
             entry_fn: "Stage1CliMain.main/0",
             backend_hint: None,
             module_env_lists: Stage1ModuleEnvLists::default(),
@@ -138,6 +140,14 @@ mod tests {
             Some(&"target/demo.program.json".to_string())
         );
         assert_eq!(envs.get("NYASH_STAGE1_BACKEND"), Some(&"llvm".to_string()));
+        assert_eq!(
+            envs.get("STAGE1_CLI_ENTRY"),
+            Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKORUNE_STAGE1_ENTRY"),
+            Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
+        );
     }
 
     #[test]
@@ -157,6 +167,8 @@ mod tests {
             "HAKO_PARSER_STAGE3",
             "HAKO_STAGEB_MODULES_LIST",
             "HAKO_STAGEB_MODULE_ROOTS_LIST",
+            "STAGE1_CLI_ENTRY",
+            "HAKORUNE_STAGE1_ENTRY",
             "NYASH_ENTRY",
             "STAGE1_BACKEND",
             "HAKO_STAGE1_BACKEND",
@@ -164,6 +176,7 @@ mod tests {
         ]);
 
         let envs = configure_fixture(Stage1ChildEnvConfig {
+            entry_path: Some("lang/src/runner/stage1_cli_env.hako"),
             entry_fn: "Stage1CliMain.main/0",
             backend_hint: Some("vm"),
             module_env_lists: Stage1ModuleEnvLists {
@@ -207,6 +220,14 @@ mod tests {
             envs.get("NYASH_ENTRY"),
             Some(&"Stage1CliMain.main/0".to_string())
         );
+        assert_eq!(
+            envs.get("STAGE1_CLI_ENTRY"),
+            Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKORUNE_STAGE1_ENTRY"),
+            Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
+        );
         assert_eq!(envs.get("STAGE1_BACKEND"), Some(&"vm".to_string()));
     }
 
@@ -220,6 +241,8 @@ mod tests {
             "HAKO_ENABLE_USING",
             "NYASH_FEATURES",
             "NYASH_ENTRY",
+            "STAGE1_CLI_ENTRY",
+            "HAKORUNE_STAGE1_ENTRY",
         ]);
         let _set = EnvGuard::set(&[
             ("NYASH_NYRT_SILENT_RESULT", "0"),
@@ -231,6 +254,7 @@ mod tests {
         ]);
 
         let envs = configure_fixture(Stage1ChildEnvConfig {
+            entry_path: Some("lang/src/runner/stage1_cli_env.hako"),
             entry_fn: "Stage1CliMain.main/0",
             backend_hint: None,
             module_env_lists: Stage1ModuleEnvLists::default(),
@@ -241,6 +265,14 @@ mod tests {
         assert!(!envs.contains_key("NYASH_ENABLE_USING"));
         assert!(!envs.contains_key("HAKO_ENABLE_USING"));
         assert!(!envs.contains_key("NYASH_ENTRY"));
+        assert_eq!(
+            envs.get("STAGE1_CLI_ENTRY"),
+            Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
+        );
+        assert_eq!(
+            envs.get("HAKORUNE_STAGE1_ENTRY"),
+            Some(&"lang/src/runner/stage1_cli_env.hako".to_string())
+        );
         assert_eq!(
             envs.get("NYASH_FEATURES"),
             Some(&"macro,stage3".to_string())

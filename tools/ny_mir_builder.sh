@@ -27,6 +27,7 @@ TARGET=""
 NYRT_DIR=""
 VERIFY=0
 QUIET=0
+TMP_FILES=()
 # Backend selection (21.13): default to 'crate' when ny-llvmc is available,
 # otherwise use 'native' when llc exists. llvmlite is deprecated from auto-select
 # and must be requested explicitly via NYASH_LLVM_BACKEND=llvmlite.
@@ -108,7 +109,12 @@ if [[ "$IN_MODE" == "stdin" ]]; then
   IN_FILE="$_TMP_JSON"
 fi
 
-cleanup() { [[ -n "${_TMP_JSON:-}" && -f "$_TMP_JSON" ]] && rm -f "$_TMP_JSON" || true; }
+cleanup() {
+  [[ -n "${_TMP_JSON:-}" && -f "$_TMP_JSON" ]] && rm -f "$_TMP_JSON" || true
+  if ((${#TMP_FILES[@]} > 0)); then
+    rm -f -- "${TMP_FILES[@]}" || true
+  fi
+}
 trap cleanup EXIT
 
 case "$EMIT" in
@@ -142,8 +148,13 @@ case "$EMIT" in
         if [[ ! -x "$BIN_NYLLVMC" ]]; then
           echo "error: ny-llvmc not found (cargo build -p nyash-llvm-compiler)" >&2; exit 4
         fi
+        INPUT_FOR_CRATE="$IN_FILE"
+        if [[ ! -f "$INPUT_FOR_CRATE" ]]; then
+          echo "error: input not found: $INPUT_FOR_CRATE" >&2
+          exit 2
+        fi
         rm -f "$OUT"
-        "$BIN_NYLLVMC" --in "$IN_FILE" --emit obj --out "$OUT" >/dev/null 2>&1 || { echo "error: ny-llvmc failed" >&2; exit 4; }
+        "$BIN_NYLLVMC" --in "$INPUT_FOR_CRATE" --emit obj --out "$OUT" >/dev/null 2>&1 || { echo "error: ny-llvmc failed" >&2; exit 4; }
         ;;
       native)
         if ! command -v llc >/dev/null 2>&1; then
@@ -186,10 +197,15 @@ case "$EMIT" in
         if [[ ! -x "$BIN_NYLLVMC" ]]; then
           echo "error: ny-llvmc not found (cargo build -p nyash-llvm-compiler)" >&2; exit 4
         fi
+        INPUT_FOR_CRATE="$IN_FILE"
+        if [[ ! -f "$INPUT_FOR_CRATE" ]]; then
+          echo "error: input not found: $INPUT_FOR_CRATE" >&2
+          exit 2
+        fi
         # Produce exe directly via ny-llvmc (lets ny-llvmc link)
         LIBS="${HAKO_AOT_LDFLAGS:-}"
         # Run and surface linker diagnostics on failure
-        if ! "$BIN_NYLLVMC" --in "$IN_FILE" --emit exe --nyrt target/release --libs "$LIBS" --out "$OUT"; then
+        if ! "$BIN_NYLLVMC" --in "$INPUT_FOR_CRATE" --emit exe --nyrt target/release --libs "$LIBS" --out "$OUT"; then
           echo "error: ny-llvmc failed to link exe" >&2; exit 4
         fi
         ;;

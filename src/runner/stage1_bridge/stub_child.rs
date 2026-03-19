@@ -12,7 +12,10 @@ use crate::config::env::stage1;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-const EMBEDDED_STAGE1_ENTRY_SRC: &str = include_str!("../../../lang/src/runner/stage1_cli.hako");
+// Default embedded child entry stays on the env authority so the stage1 stub
+// preserves payload materialization instead of falling back to the raw lane.
+const EMBEDDED_STAGE1_ENTRY_SRC: &str =
+    include_str!("../../../lang/src/runner/stage1_cli_env.hako");
 const EMBEDDED_STAGE1_ENTRY_FILE: &str = "stage1_cli.embedded.hako";
 
 pub(super) struct PreparedStage1StubChild {
@@ -64,6 +67,7 @@ fn prepare_with(
     super::env::configure_stage1_env(
         &mut cmd,
         super::env::Stage1ChildEnvConfig {
+            entry_path: Some(entry.as_str()),
             entry_fn: &entry_fn,
             backend_hint: args_result.backend_cli_hint(),
             module_env_lists,

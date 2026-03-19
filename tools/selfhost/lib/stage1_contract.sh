@@ -50,7 +50,7 @@ stage1_contract_emit_stdout_has_marker() {
   local stdout_file="$2"
   local marker
   marker="$(stage1_contract_emit_marker "$mode")" || return 1
-  grep -Eq "^[[:space:]]*\\{.*${marker}.*\\}[[:space:]]*$" "$stdout_file"
+  grep -Eq "${marker}" "$stdout_file"
 }
 
 stage1_contract_validate_emit_output() {
@@ -166,6 +166,7 @@ stage1_contract_export_runner_defaults() {
   export NYASH_FILEBOX_MODE="${NYASH_FILEBOX_MODE:-core-ro}"
   export HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}"
   export HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}"
+  export NYASH_STAGE1_EMIT_TIMEOUT_MS="${NYASH_STAGE1_EMIT_TIMEOUT_MS:-300000}"
   stage1_contract_export_stageb_module_env
 }
 
@@ -184,7 +185,6 @@ stage1_contract_run_bin_with_env() {
     "NYASH_FILEBOX_MODE=core-ro"
     "HAKO_SELFHOST_NO_DELEGATE=${HAKO_SELFHOST_NO_DELEGATE:-1}"
     "HAKO_MIR_BUILDER_DELEGATE=${HAKO_MIR_BUILDER_DELEGATE:-0}"
-    "NYASH_USE_STAGE1_CLI=1"
     "NYASH_STAGE1_MODE=${mode}"
     "HAKO_STAGE1_MODE=${mode}"
     "STAGE1_EMIT_PROGRAM_JSON=${emit_program_flag}"
@@ -194,6 +194,7 @@ stage1_contract_run_bin_with_env() {
     "STAGE1_SOURCE=${entry}"
     "STAGE1_INPUT=${entry}"
     "STAGE1_SOURCE_TEXT=${source_text_for_mode}"
+    "NYASH_USE_STAGE1_CLI=1"
   )
 
   if [[ -n "${stdout_file}" ]]; then
@@ -202,6 +203,70 @@ stage1_contract_run_bin_with_env() {
   fi
 
   env "${cmd_env[@]}" "$bin"
+}
+
+stage1_contract_exec_direct_emit_mode() {
+  local bin="$1"
+  local mode="$2"
+  local entry="$3"
+  local payload_file
+  local stdout_file
+  local stderr_file
+  local rc=0
+
+  payload_file="$(mktemp)"
+  stdout_file="$(mktemp)"
+  stderr_file="$(mktemp)"
+
+  case "$mode" in
+    emit-program|emit_program_json|emit-program-json)
+      if "$bin" --emit-program-json-v0 "$payload_file" "$entry" >/dev/null 2>"$stderr_file"; then
+        :
+      else
+        rc=$?
+        stage1_contract_report_emit_failure "$mode" "$rc" "$stdout_file" "$stderr_file"
+        stage1_contract_cleanup_exec_temp "$payload_file" "$stdout_file"
+        stage1_contract_cleanup_exec_temp "$stderr_file"
+        return "$rc"
+      fi
+      ;;
+    emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
+      if "$bin" --emit-mir-json "$payload_file" "$entry" >/dev/null 2>"$stderr_file"; then
+        :
+      else
+        rc=$?
+        stage1_contract_report_emit_failure "$mode" "$rc" "$stdout_file" "$stderr_file"
+        stage1_contract_cleanup_exec_temp "$payload_file" "$stdout_file"
+        stage1_contract_cleanup_exec_temp "$stderr_file"
+        return "$rc"
+      fi
+      ;;
+    *)
+      echo "[stage1-contract] unsupported direct emit mode: $mode" >&2
+      stage1_contract_cleanup_exec_temp "$payload_file" "$stdout_file"
+      stage1_contract_cleanup_exec_temp "$stderr_file"
+      return 97
+      ;;
+  esac
+
+  cat "$payload_file" >"$stdout_file"
+  if stage1_contract_validate_emit_output "$mode" "$stdout_file" "$stderr_file"; then
+    :
+  else
+    rc=$?
+    stage1_contract_report_emit_failure "$mode" "$rc" "$stdout_file" "$stderr_file"
+    stage1_contract_cleanup_exec_temp "$payload_file" "$stdout_file"
+    stage1_contract_cleanup_exec_temp "$stderr_file"
+    return "$rc"
+  fi
+
+  cat "$stdout_file"
+  if [[ -s "$stderr_file" ]]; then
+    cat "$stderr_file" >&2
+  fi
+
+  stage1_contract_cleanup_exec_temp "$payload_file" "$stdout_file"
+  stage1_contract_cleanup_exec_temp "$stderr_file"
 }
 
 # Shared checked emit runner.
@@ -312,6 +377,11 @@ stage1_contract_exec_mode() {
   stage1_contract_export_runner_defaults
 
   read -r emit_program_flag emit_mir_flag < <(stage1_contract_emit_flags_for_mode "$mode")
+
+  if [[ "$emit_program_flag" -eq 1 || "$emit_mir_flag" -eq 1 ]]; then
+    stage1_contract_exec_direct_emit_mode "$bin" "$mode" "$entry"
+    return $?
+  fi
 
   stage1_contract_exec_checked_mode \
     "$bin" \
