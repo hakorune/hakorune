@@ -93,6 +93,7 @@ Related:
 - Do not mix backend-zero order changes with kernel migration refactors.
 - Do not turn buildability into a separate authority that can override owner cutover.
 - Do not silently delete Rust build routes while the migration is still in flight.
+- Do not delete `requested_compile_recipe` / `requested_compat_replay` from `route.rs` until legacy `env.codegen.emit_object` / `env.codegen.compile_json_path` callers stop passing `None` for recipe/replay.
 
 ## 5. Practical Acceptance
 

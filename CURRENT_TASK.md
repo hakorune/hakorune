@@ -18,7 +18,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - first: `0rust` / backend-zero を先に終える
 - operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- next backend-zero slice: `src/host_providers/llvm_codegen.rs` + `src/host_providers/llvm_codegen/route.rs` to remove the remaining implicit route-default synthesis on the Rust side
+- next backend-zero slice: `src/host_providers/llvm_codegen.rs` + `src/host_providers/llvm_codegen/route.rs` to remove the remaining implicit route-default synthesis on the Rust side; blocked until legacy `env.codegen.emit_object` / `env.codegen.compile_json_path` callers stop passing `None` for recipe/replay
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening until a new exact blocker appears
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
 - second: exe optimization wave は backend-zero handoff の後段に置く
@@ -50,6 +50,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` / `build_surrogate.rs` / `llvm_backend_surrogate.rs` are now frozen exact owners; docs/inventory closeout only until caller-proof says the temporary lane can disappear
   - `src/runner/modes/common_util/exec.rs` no longer carries dead `llvmlite_emit_object(...)`, so runner-side llvmlite residue shrank by one helper
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
+  - worker inventory: `src/host_providers/llvm_codegen/route.rs` cannot yet drop `requested_compile_recipe` / `requested_compat_replay` because legacy `env.codegen.emit_object` and `env.codegen.compile_json_path` callers still pass `None`; this lane is inventory-only until caller-side route/profile explicitization lands
 - do not mix this slice with:
   - kernel migration refactors
   - `boundary_driver.rs` compat keep reduction
