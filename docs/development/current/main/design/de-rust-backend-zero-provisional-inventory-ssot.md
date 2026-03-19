@@ -60,7 +60,7 @@ Related:
    - native canary owner は landed したが、これは bootstrap seam であり final owner ではない
 3. `hakorune` LLVM route:
    - `hakorune -> ny-llvmc -> llvmlite -> object/exe`
-   - app-seed opt-in parity is now green both from `tools/build_llvm.sh` and from direct `hakorune --backend llvm` runner glue when `NYASH_LLVM_BACKEND=native`
+   - app-seed native parity is now green only through direct `hakorune --emit-mir-json ...` + `ny-llvmc --driver native` canary replay
    - final caller target is still future: `.hako -> LlvmBackendBox / hako_aot -> backend helper -> object/exe`
 4. `Cranelift`:
    - keep
@@ -113,7 +113,7 @@ Related:
 1. inventory lock
    - current owner / keep / replace をこの文書で固定する
 2. bootstrap seam evidence
-   - `ny-llvmc --driver native` が llvmlite 非依存で最小 canary / runner parity を通す
+   - `ny-llvmc --driver native` が llvmlite 非依存で最小 canary replay を通す
 3. thin backend boundary cutover
    - `LlvmBackendBox` / `hako_aot` / caller wiring を daily route に寄せる
 4. native seam demotion

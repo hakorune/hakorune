@@ -17,7 +17,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - first: `0rust` / backend-zero を先に終える
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- next immediate code slice: `crates/nyash-llvm-compiler/src/native_driver.rs` bootstrap keep reduction
+- next immediate code slice: remaining bootstrap keep buckets (`src/stage1/program_json_v0.rs` + `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`) after native canary demotion
 - second: exe optimization wave は backend-zero handoff の後段に置く
 - parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
 - do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
@@ -41,6 +41,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/nyash-llvm-compiler/src/link_driver.rs` now requires an explicit `--nyrt <DIR>` for `Harness` / `Native` exe linking instead of synthesizing a default search dir
   - `crates/nyash-llvm-compiler/README.md` and `src/main.rs` now describe that keep-lane exe linking contract explicitly
   - `crates/nyash-llvm-compiler/src/native_driver.rs` now delegates MIR-to-IR construction into `src/native_ir.rs`, so the native bootstrap lane is mostly orchestration plus object emission
+  - `src/runner/modes/common_util/exec.rs` and `tools/build_llvm.sh` no longer route `NYASH_LLVM_BACKEND=native`; native replay is now direct `ny-llvmc --driver native` canary only
 - do not mix this slice with:
   - kernel migration refactors
   - `boundary_driver.rs` compat keep reduction

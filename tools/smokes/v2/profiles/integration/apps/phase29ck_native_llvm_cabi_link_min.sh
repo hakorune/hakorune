@@ -2,8 +2,8 @@
 # Phase 29ck BE0-min5: native ny-llvmc app-seed parity gate
 #
 # Contract pin:
-# 1) `hello_simple_llvm.hako` goes through source -> MIR -> ny-llvmc --driver native.
-# 2) build_llvm.sh links a native executable without Python/llvmlite.
+# 1) `hello_simple_llvm.hako` goes through source -> MIR(JSON) -> ny-llvmc --driver native.
+# 2) native canary replay links an executable without Python/llvmlite or build_llvm wrapper routing.
 # 3) The executable exits 0 and emits a `42` line.
 
 set -euo pipefail
@@ -29,10 +29,14 @@ fi
 INPUT="$NYASH_ROOT/apps/tests/hello_simple_llvm.hako"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-90}"
 OUTPUT_EXE="${TMPDIR:-/tmp}/phase29ck_native_llvm_cabi_link_min_$$"
+MIR_JSON="${TMPDIR:-/tmp}/phase29ck_native_llvm_cabi_link_min_$$.mir.json"
 BUILD_LOG="${TMPDIR:-/tmp}/phase29ck_native_llvm_cabi_link_min_build_$$.log"
+BIN="${NYASH_BIN:-$NYASH_ROOT/target/release/hakorune}"
+NYLLVMC="${NYASH_NY_LLVM_COMPILER:-$NYASH_ROOT/target/release/ny-llvmc}"
+NYRT_DIR="${NYASH_EMIT_EXE_NYRT:-$NYASH_ROOT/target/release}"
 
 cleanup() {
-    rm -f "$OUTPUT_EXE" "$BUILD_LOG"
+    rm -f "$OUTPUT_EXE" "$MIR_JSON" "$BUILD_LOG"
 }
 trap cleanup EXIT
 
@@ -44,10 +48,12 @@ fi
 set +e
 BUILD_OUT=$(
   NYASH_DISABLE_PLUGINS=1 \
-  NYASH_LLVM_COMPILER=crate \
-  NYASH_LLVM_BACKEND=native \
+  CARGO_INCREMENTAL=0 cargo build --release -j 24 -p nyash-rust --features llvm 2>&1 &&
+  cargo build --release -j 24 -p nyash-llvm-compiler 2>&1 &&
+  cargo build --release -j 24 -p nyash_kernel 2>&1 &&
+  "$BIN" --emit-mir-json "$MIR_JSON" --backend mir "$INPUT" 2>&1 &&
   timeout "$RUN_TIMEOUT_SECS" \
-  "$NYASH_ROOT/tools/build_llvm.sh" "$INPUT" -o "$OUTPUT_EXE" 2>&1
+  "$NYLLVMC" --driver native --in "$MIR_JSON" --emit exe --nyrt "$NYRT_DIR" --out "$OUTPUT_EXE" 2>&1
 )
 BUILD_RC=$?
 set -e
@@ -95,4 +101,4 @@ if ! echo "$RUN_OUT" | rg -q '^42$'; then
     exit 1
 fi
 
-test_pass "phase29ck_native_llvm_cabi_link_min: PASS (source -> MIR -> ny-llvmc --driver native -> exe)"
+test_pass "phase29ck_native_llvm_cabi_link_min: PASS (source -> MIR JSON -> ny-llvmc --driver native -> exe)"

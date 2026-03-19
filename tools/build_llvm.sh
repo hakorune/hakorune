@@ -21,7 +21,7 @@ Requirements:
 
 Implementation detail:
   - `NYASH_LLVM_COMPILER=crate` keeps the ny-llvmc route.
-  - `NYASH_LLVM_BACKEND=native` switches that crate route to `ny-llvmc --driver native`.
+  - `NYASH_LLVM_BACKEND=native` is no longer accepted here; native canary replay must call `ny-llvmc --driver native` directly.
 USAGE
 }
 
@@ -40,6 +40,12 @@ done
 if [[ ! -f "$INPUT" ]]; then
   echo "error: input file not found: $INPUT" >&2
   exit 1
+fi
+
+if [[ "${NYASH_LLVM_BACKEND:-}" == "native" ]]; then
+  echo "error: NYASH_LLVM_BACKEND=native is canary-only and no longer routes through tools/build_llvm.sh" >&2
+  echo "hint: emit MIR JSON first, then invoke target/release/ny-llvmc --driver native directly" >&2
+  exit 4
 fi
 
 if ! command -v llvm-config-18 >/dev/null 2>&1; then
@@ -122,10 +128,6 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
   COMPILER_MODE=${NYASH_LLVM_COMPILER:-harness}
   case "$COMPILER_MODE" in
     crate)
-      NYLLVMC_ARGS=()
-      if [[ "${NYASH_LLVM_BACKEND:-}" == "native" ]]; then
-        NYLLVMC_ARGS+=(--driver native)
-      fi
       # Use crates/nyash-llvm-compiler (ny-llvmc): requires pre-generated MIR JSON path in NYASH_LLVM_MIR_JSON
       if [[ -z "${NYASH_LLVM_MIR_JSON:-}" ]]; then
         # Auto‑emit MIR JSON via nyash CLI flag
@@ -155,10 +157,10 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
           ( cd crates/nyash_kernel && cargo build --release -j 24 >/dev/null )
         fi
         NYRT_DIR_HINT="${NYASH_LLVM_NYRT:-crates/nyash_kernel/target/release}"
-        ./target/release/ny-llvmc "${NYLLVMC_ARGS[@]}" --in "$NYASH_LLVM_MIR_JSON" --out "$OUT" --emit exe --nyrt "$NYRT_DIR_HINT" ${NYASH_LLVM_LIBS:+--libs "$NYASH_LLVM_LIBS"}
+        ./target/release/ny-llvmc --in "$NYASH_LLVM_MIR_JSON" --out "$OUT" --emit exe --nyrt "$NYRT_DIR_HINT" ${NYASH_LLVM_LIBS:+--libs "$NYASH_LLVM_LIBS"}
         echo "✅ Done: $OUT"; echo "   (runtime may require nyash.toml and plugins depending on app)"; exit 0
       else
-        ./target/release/ny-llvmc "${NYLLVMC_ARGS[@]}" --in "$NYASH_LLVM_MIR_JSON" --out "$OBJ"
+        ./target/release/ny-llvmc --in "$NYASH_LLVM_MIR_JSON" --out "$OBJ"
       fi
       ;;
   esac

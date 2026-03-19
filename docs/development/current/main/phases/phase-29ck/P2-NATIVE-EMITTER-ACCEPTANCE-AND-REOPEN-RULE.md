@@ -101,8 +101,9 @@ phase docs が要求する evidence は次の順番で積む。
    - current downstream meaning target は `phase29x_llvm_cabi_link_min.sh`
    - native opt-in smoke:
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
-   - direct runner evidence:
-     - `NYASH_LLVM_USE_HARNESS=1 NYASH_LLVM_BACKEND=native NYASH_NY_LLVM_COMPILER=target/release/ny-llvmc NYASH_EMIT_EXE_NYRT=target/release ./target/release/hakorune --backend llvm apps/tests/hello_simple_llvm.hako`
+   - rule:
+     - app-seed native parity is canary-only through direct `hakorune --emit-mir-json ...` + `ny-llvmc --driver native`
+     - regular runner/build routes must not accept `NYASH_LLVM_BACKEND=native`
 5. boundary cutover evidence
    - owner/env/archive contract is locked by `P3-THIN-BACKEND-CUTOVER-LOCK.md`
    - exact replay commands:

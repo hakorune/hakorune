@@ -124,12 +124,12 @@ Related:
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line
 7. landed app-seed opt-in parity:
    - `BE0-min5` is green for `apps/tests/hello_simple_llvm.hako`
-   - `tools/build_llvm.sh` now honors `NYASH_LLVM_COMPILER=crate` + `NYASH_LLVM_BACKEND=native`
+   - native app-seed parity now replays through direct `hakorune --emit-mir-json ...` + `ny-llvmc --driver native`, not through `tools/build_llvm.sh`
    - acceptance smoke is `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh`
 8. landed direct runner opt-in parity:
-   - `src/runner/modes/common_util/exec.rs` now forwards `NYASH_LLVM_BACKEND=native` to `ny-llvmc --driver native`
-   - `NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm apps/tests/hello_simple_llvm.hako` is green under the same native selector
-   - argv capture confirms the runner now invokes `ny-llvmc ... --driver native`
+   - `src/runner/modes/common_util/exec.rs` now fail-fast rejects `NYASH_LLVM_BACKEND=native` on the regular runner route
+   - native seam replay remains available only through direct `ny-llvmc --driver native`
+   - daily runner/build wiring no longer treats `native` as an env-selectable route
    - latest tightening: lib/bin EXE routes now share `run_ny_llvmc_emit_exe(...)`, so runner-side ownership is thinner without changing the launch contract
    - latest tightening: lib/bin EXE routes now also share MIR JSON emit + launch orchestration through `emit_json_and_run_ny_llvmc_emit_exe(...)`
    - latest tightening: `crates/nyash-llvm-compiler/src/main.rs` now keeps harness-path resolution, object-output resolution, input temp/normalize ownership, compile-mode diagnostics, and emit finalize output behind same-file helpers `resolve_harness_path(...)`, `resolve_object_output_path(...)`, `prepare_input_json_path(...)`, `maybe_dump_input_json(...)`, `emit_preflight_shape_hint(...)`, `emit_compile_output(...)`, and `finalize_emit_output(...)`; top-level route order now dispatches through `run_dummy_mode(...)` / `run_compile_mode(...)`, and `Boundary` / `Native` routes no longer resolve the Python harness path unless the explicit `Harness` keep lane is selected

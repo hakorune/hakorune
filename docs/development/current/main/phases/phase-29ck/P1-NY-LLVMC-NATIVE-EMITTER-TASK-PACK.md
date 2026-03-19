@@ -99,10 +99,9 @@ Note:
 - current llvmlite default route はこの min が閉じるまで keep
 - landed (2026-03-14):
   - `crates/nyash-llvm-compiler/src/native_driver.rs` now supports `mir_call(print/1)` for the app seed
-  - `tools/build_llvm.sh` honors `NYASH_LLVM_COMPILER=crate` + `NYASH_LLVM_BACKEND=native`
-  - `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh` is green
-  - `src/runner/modes/common_util/exec.rs` now forwards `NYASH_LLVM_BACKEND=native` to `ny-llvmc --driver native`
-  - direct runner parity is green for `NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm apps/tests/hello_simple_llvm.hako`
+  - `tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh` is green through direct `hakorune --emit-mir-json` + `ny-llvmc --driver native`
+  - `tools/build_llvm.sh` and `src/runner/modes/common_util/exec.rs` no longer expose `NYASH_LLVM_BACKEND=native` as a daily-route selector
+  - native app parity stays canary-only through direct `ny-llvmc --driver native`
 
 ### `BE0-min6` thin backend boundary cutover lock
 

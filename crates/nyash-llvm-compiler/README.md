@@ -56,9 +56,10 @@
 - Rust backend lane をこの repo から retire するのはまだ先で、もし retire する場合も source + artifact を external archive repo に保存してからだけ行う
 - current native subset (`BE0-min3` / `BE0-min4`):
   - entry function `main` or `ny_main`
-  - `const(i64)` and `ret`
+  - `const(i64)`, `ret`, and `mir_call(print/1)`
   - object emission via `llc`
   - executable emission via the existing static-first link line
+  - direct `ny-llvmc --driver native` replay only; runner/build wrappers no longer select it through `NYASH_LLVM_BACKEND=native`
 
 ## Minimal Examples
 

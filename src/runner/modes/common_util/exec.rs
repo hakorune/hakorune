@@ -144,19 +144,22 @@ fn apply_nyrt_arg(cmd: &mut std::process::Command, nyrt_dir: Option<&str>) -> Re
     Ok(())
 }
 
-fn ny_llvmc_driver_arg_from_backend(backend: Option<&str>) -> Option<&'static str> {
+fn ny_llvmc_driver_arg_from_backend(backend: Option<&str>) -> Result<Option<&'static str>, String> {
     match backend.map(str::trim).filter(|value| !value.is_empty()) {
-        Some("native") => Some("native"),
-        _ => None,
+        Some("native") => Err(
+            "NYASH_LLVM_BACKEND=native is canary-only now; invoke ny-llvmc --driver native directly instead of routing it through hakorune".to_string(),
+        ),
+        _ => Ok(None),
     }
 }
 
-fn apply_ny_llvmc_driver_arg(cmd: &mut std::process::Command) {
+fn apply_ny_llvmc_driver_arg(cmd: &mut std::process::Command) -> Result<(), String> {
     if let Some(driver) =
-        ny_llvmc_driver_arg_from_backend(std::env::var("NYASH_LLVM_BACKEND").ok().as_deref())
+        ny_llvmc_driver_arg_from_backend(std::env::var("NYASH_LLVM_BACKEND").ok().as_deref())?
     {
         cmd.arg("--driver").arg(driver);
     }
+    Ok(())
 }
 
 fn append_ny_llvmc_extra_libs_arg(cmd: &mut std::process::Command, extra_libs: Option<&str>) {
@@ -187,7 +190,7 @@ fn build_ny_llvmc_emit_exe_command(
         .arg("exe")
         .arg("--out")
         .arg(exe_out);
-    apply_ny_llvmc_driver_arg(&mut cmd);
+    apply_ny_llvmc_driver_arg(&mut cmd)?;
     apply_nyrt_arg(&mut cmd, nyrt_dir)?;
     append_ny_llvmc_extra_libs_arg(&mut cmd, extra_libs);
     Ok(cmd)
@@ -301,23 +304,19 @@ mod tests {
     use super::{append_ny_llvmc_extra_libs_arg, ny_llvmc_driver_arg_from_backend};
 
     #[test]
-    fn maps_native_backend_to_native_driver() {
-        assert_eq!(
-            ny_llvmc_driver_arg_from_backend(Some("native")),
-            Some("native")
-        );
-        assert_eq!(
-            ny_llvmc_driver_arg_from_backend(Some(" native ")),
-            Some("native")
-        );
+    fn rejects_native_backend_selector_for_runner_route() {
+        let err = ny_llvmc_driver_arg_from_backend(Some("native")).unwrap_err();
+        assert!(err.contains("canary-only"));
+        let err = ny_llvmc_driver_arg_from_backend(Some(" native ")).unwrap_err();
+        assert!(err.contains("ny-llvmc --driver native"));
     }
 
     #[test]
     fn ignores_empty_or_non_native_backend_values() {
-        assert_eq!(ny_llvmc_driver_arg_from_backend(None), None);
-        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("")), None);
-        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("crate")), None);
-        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("llvmlite")), None);
+        assert_eq!(ny_llvmc_driver_arg_from_backend(None).unwrap(), None);
+        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("")).unwrap(), None);
+        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("crate")).unwrap(), None);
+        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("llvmlite")).unwrap(), None);
     }
 
     #[test]
