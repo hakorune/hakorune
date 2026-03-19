@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - lang/src/runtime/kernel/README.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
+  - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/build-lane-separation-ssot.md
   - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
@@ -19,11 +20,13 @@ Related:
 
 - kernel の「意味/contract/policy/control structure」の owner を `.hako` / docs 側へ寄せる。
 - Rust/C は substrate（allocation / handle registry / GC / ABI / raw leaf）に固定し、meaning owner に戻さない。
+- `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を消すことではない。
 - “境界だけいじって進まない” 状態を防ぐため、fixed order と promotion trigger を SSOT 化する。
 
 ## Non-Goals
 
 - Rust substrate の wholesale delete はしない（authority migration と混ぜない）。
+- Rust ベースの buildability を壊す slice は、この phase の mainline に入れない。
 - perf/asm optimization を主線にしない（kernel authority migration 完了後の follow-up）。
 - silent fallback を許可しない（`NYASH_VM_USE_FALLBACK=0` を前提）。
 - `map` を早期に kernel lane に入れない（ring1 keep）。
@@ -45,6 +48,13 @@ Related:
 4. `map`
    - keep: `lang/src/runtime/collections/` ring1
    - rule: kernel lane へは入れない（最後寄り）
+
+## Buildability Lock
+
+- any migration slice:
+  - Rust からの build/bootstrap route は常に再実行可能であること
+  - owner cutover と buildability cutover を同じ slice で壊さないこと
+  - `.hako` へ寄せる順番と Rust buildability の保持順番を混ぜないこと
 
 ## Promotion Trigger (array)
 

@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
+  - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
@@ -22,6 +23,7 @@ Related:
 
 - `kernel を .hako 化するか` を、wholesale rewrite の議論ではなく owner cutover の順番として固定する。
 - `hakorune` の独り立ちを「Rust source が 1 行も残らないこと」ではなく、「kernel meaning/policy の最終 owner が `.hako` であること」として定義する。
+- `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
 - current exe optimization wave と kernel wholesale migration を混ぜて、測定や責務境界を濁さない。
 
 ## 1. Boundary Lock
@@ -43,6 +45,7 @@ Related:
 2. current immediate blocker は引き続き compiler / exe optimization wave であり、この文書で blocker を上書きしない。
 3. current exe optimization wave の最中は、kernel wholesale rewrite を始めない。
 4. `.hako` が先に持つべきなのは policy/contract であり、native substrate ではない。
+5. Rust ベースの buildability は migration 中も維持する。
 
 ## 2. Current Truth
 
@@ -89,6 +92,7 @@ Related:
 - raw byte scan / compare / copy
 - flat string allocation / flatten
 - `freeze.str` leaf 実装
+- stage1 / bootstrap build path
 
 ### temporary pilot allowance
 
@@ -103,6 +107,12 @@ exe optimization wave の narrow pilot として、Rust 側に backend-local low
 
 つまり、temporary pilot はよいが、**temporary pilot を Rust の新しい meaning owner にしない**。
 string kernel について言い換えると、`.hako` が algorithm/control owner、Rust/C が raw leaf substrate owner のままに保つ。
+
+### 1.5 0rust buildability lock
+
+- `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を消すことではない。
+- migration slice を切っても、Rust から daily / compat / bootstrap build が再実行できる状態を保つ。
+- Rust buildability が壊れる slice は authority migration の keep 条件を満たさない。
 
 ## 5. Fixed Order
 

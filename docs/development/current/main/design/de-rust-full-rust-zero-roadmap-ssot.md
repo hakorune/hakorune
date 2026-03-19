@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
+  - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -30,6 +31,7 @@ Related:
 - `full Rust 0` を 1 本の曖昧な将来案として扱わず、runtime-zero と backend-zero に分けて見通しを固定する。
 - 既存の current blocker（compiler authority removal）を future vision で上書きしない。
 - runtime 側は inventory-ready、backend 側は phase-cut queued という温度差を明文化する。
+- `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を壊すことではない。
 
 ## 1. Boundary Lock
 
@@ -37,6 +39,7 @@ Related:
 - 現在の immediate blocker は引き続き compiler authority removal（pure `.hako`-only hakorune build）である。
 - `phase-29y` の runtime daily policy（`LLVM-first / vm-hako monitor-only`）はこの文書では変更しない。
 - non-plugin done の判定範囲は `de-rust-scope-decision-ssot.md` を維持し、この文書で広げない。
+- buildability は preservation-first で扱い、Rust build route を migration 中に silent delete しない。
 
 ## 2. Current Snapshot (2026-03-14)
 
@@ -54,6 +57,7 @@ Related:
    - phase-29ck が `task pack / acceptance / reopen rule` を owner する
    - post-B1/B3 by-name retirement follow-up is owned by `docs/development/current/main/phases/phase-29cl/README.md`
    - `native_driver.rs` は bootstrap seam only であり、done shape ではない。
+   - migration slice は Rust ベースの buildability を保持することを前提にする。
 4. remaining Rust bucket snapshot:
    - exact compiler/runtime/backend residue inventory lives in
      `docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md`
