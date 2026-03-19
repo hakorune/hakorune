@@ -5,7 +5,7 @@ use super::transport::{
     compile_via_capi, ensure_backend_output_parent, prepare_backend_input_json_file,
     resolve_backend_object_output,
 };
-use super::{boundary_default_object_opts, Opts};
+use super::Opts;
 
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 
@@ -58,15 +58,16 @@ pub(super) fn try_compile_via_boundary_default(
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
     ensure_backend_output_parent(&out_path);
-    let boundary_opts = with_boundary_default_route(opts);
-    let compile_symbol = compile_symbol_for_recipe(boundary_opts.compile_recipe.as_deref());
+    let compile_recipe = requested_compile_recipe(opts);
+    let compat_replay = requested_compat_replay(opts);
+    let compile_symbol = compile_symbol_for_recipe(compile_recipe.as_deref());
     match compile_via_capi(
         &in_path,
         &out_path,
         compile_symbol,
-        boundary_opts.compile_recipe.as_deref(),
-        boundary_opts.compat_replay.as_deref(),
-        &boundary_opts,
+        compile_recipe.as_deref(),
+        compat_replay.as_deref(),
+        opts,
     ) {
         Ok(()) => Ok(Some(out_path)),
         Err(error) if capi_boundary_unavailable(&error) => Ok(None),
@@ -91,18 +92,6 @@ fn requested_compat_replay(opts: &Opts) -> Option<String> {
     opts.compat_replay
         .clone()
         .or_else(crate::config::env::backend_compat_replay)
-}
-
-fn with_boundary_default_route(opts: &Opts) -> Opts {
-    let mut route = boundary_default_object_opts(
-        opts.out.clone(),
-        opts.nyrt.clone(),
-        opts.opt_level.clone(),
-        opts.timeout_ms,
-    );
-    route.compile_recipe = opts.compile_recipe.clone().or(route.compile_recipe);
-    route.compat_replay = opts.compat_replay.clone().or(route.compat_replay);
-    route
 }
 
 fn compile_symbol_for_recipe(recipe: Option<&str>) -> &'static [u8] {

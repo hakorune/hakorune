@@ -75,12 +75,14 @@ fn emit_requested_object_if_harness_enabled(
 #[cfg(feature = "llvm-harness")]
 fn emit_object_via_backend_boundary(module: &MirModule, out_path: &str) -> Result<(), String> {
     let mir_json = emit_module_mir_json_for_backend_boundary(module)?;
-    let opts = crate::host_providers::llvm_codegen::boundary_default_object_opts(
+    let mut opts = crate::host_providers::llvm_codegen::boundary_default_object_opts(
         Some(PathBuf::from(out_path)),
         None,
         crate::config::env::llvm_opt_level_env(),
         Some(20_000),
     );
+    opts.compile_recipe = Some("pure-first".to_string());
+    opts.compat_replay = Some("harness".to_string());
     crate::host_providers::llvm_codegen::mir_json_to_object(&mir_json, opts).map(|_| ())
 }
 

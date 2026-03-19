@@ -13,6 +13,34 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
 
+## Restart Handoff (2026-03-19)
+
+- last landed:
+  - `bf800ec79` `backend-zero: enforce route profile ownership`
+  - `LlvmBackendBox.compile_obj(...)` now exact-validates the canonical owner names and route evidence from `BackendRecipeBox`
+- current stable shape:
+  - `.hako` route/profile owner is visible and enforced
+  - Rust build/bootstrap route remains runnable
+  - buildability is a gate contract, not an authority
+- next code slice after restart:
+  - `src/host_providers/llvm_codegen.rs`
+  - `src/host_providers/llvm_codegen/route.rs`
+  - remove the remaining implicit route-default synthesis on the Rust side
+- current session completion:
+  - `boundary_default_object_opts(...)` is now transport-only; `route.rs` no longer synthesizes a hidden `pure-first/harness` route, and the two explicit caller sites now set `compile_recipe=pure-first` / `compat_replay=harness` themselves
+  - `crates/nyash-llvm-compiler/src/boundary_driver.rs` no longer injects boundary-local recipe/replay env defaults; it now just calls the explicit pure-first export and mirrors caller env when needed for link-side plumbing
+- do not mix this slice with:
+  - kernel migration refactors
+  - `boundary_driver.rs` compat keep reduction
+  - `native_driver.rs` bootstrap keep reduction
+  - C shim transport micro-splitting
+- restart read order:
+  1. this file
+  2. `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
+  3. `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
+  4. `lang/src/shared/backend/README.md`
+  5. `src/host_providers/llvm_codegen.rs`
+
 ## Focus Lock (2026-03-02)
 
 - primary target: `kernel-mainline`（`.hako` kernel）を日常既定経路に固定。

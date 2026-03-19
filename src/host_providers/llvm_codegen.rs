@@ -45,8 +45,8 @@ pub fn boundary_default_object_opts(
         nyrt,
         opt_level,
         timeout_ms,
-        compile_recipe: Some("pure-first".to_string()),
-        compat_replay: Some("harness".to_string()),
+        compile_recipe: None,
+        compat_replay: None,
     }
 }
 
@@ -88,4 +88,16 @@ pub fn link_object_capi(
 
 pub fn normalize_mir_json_for_backend(mir_json: &str) -> Result<String, String> {
     normalize::normalize_mir_json_for_backend(mir_json)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::boundary_default_object_opts;
+
+    #[test]
+    fn boundary_default_object_opts_is_transport_only() {
+        let opts = boundary_default_object_opts(None, None, None, None);
+        assert!(opts.compile_recipe.is_none());
+        assert!(opts.compat_replay.is_none());
+    }
 }
