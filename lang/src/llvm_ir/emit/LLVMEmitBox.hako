@@ -48,7 +48,9 @@ static box LLVMEmitProviderBox {
     local pv = "" + p
     if pv == "ny-llvmc" {
       // env.codegen.emit_object(mir_json)
-      return CodegenBridgeBox.emit_object(validated_mir_json)
+      local args = new ArrayBox()
+      args.push(validated_mir_json)
+      return CodegenBridgeBox.emit_object_args(args)
     }
     if pv == "llvmlite" {
       // Not wired yet for llvmlite provider

@@ -106,7 +106,9 @@ static box Stage1Cli {
     if mir == null { return 98 }
 
     if backend == "llvm" {
-      local obj = CodegenBridgeBox.emit_object(mir)
+      local args = new ArrayBox()
+      args.push(mir)
+      local obj = CodegenBridgeBox.emit_object_args(args)
       if obj == null || obj == "" {
         print(tag + ": env.codegen.emit_object failed")
         return 98

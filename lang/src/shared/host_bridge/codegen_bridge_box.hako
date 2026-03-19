@@ -8,12 +8,6 @@
 using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 
 static box CodegenBridgeBox {
-  method compile_json_path(json_path) {
-    local args = new ArrayBox()
-    if json_path != null { args.push("" + json_path) }
-    return me.compile_json_path_args(args)
-  }
-
   method compile_json_path_args(args) {
     local arr = me._ensure_array(args)
     local json_path = me._array_arg_or_null(arr, 0)
@@ -24,26 +18,11 @@ static box CodegenBridgeBox {
     return me._compile_json_path_legacy(json_path, out_path, recipe, compat)
   }
 
-  method emit_object(mir_json) {
-    local args = new ArrayBox()
-    if mir_json != null { args.push("" + mir_json) }
-    return me.emit_object_args(args)
-  }
-
   method emit_object_args(args) {
     local arr = me._ensure_array(args)
     local mir_json = me._array_arg_or_null(arr, 0)
     if mir_json == null { return null }
     return me._emit_object_legacy(mir_json)
-  }
-
-  method link_object(obj_path, out_path) {
-    local args = new ArrayBox()
-    if obj_path != null { args.push("" + obj_path) }
-    if out_path != null && ("" + out_path) != "" {
-      args.push("" + out_path)
-    }
-    return me.link_object_args(args)
   }
 
   method link_object_args(args) {
