@@ -98,7 +98,7 @@ Related:
 - Do not mix backend-zero order changes with kernel migration refactors.
 - Do not turn buildability into a separate authority that can override owner cutover.
 - Do not silently delete Rust build routes while the migration is still in flight.
-- Do not remove the last `compile_symbol_for_recipe()` default branch until caller proof is settled.
+- Do not remove the last `compile_symbol_for_recipe()` default branch while compat keep lanes still need the generic export.
 
 ## 5. Practical Acceptance
 

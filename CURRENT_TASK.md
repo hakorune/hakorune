@@ -16,7 +16,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - `src/host_providers/llvm_codegen/route.rs` still carries the `compile_symbol_for_recipe()` default branch while caller proof is being settled
+  - `src/host_providers/llvm_codegen/route.rs` keeps the generic `compile_symbol_for_recipe()` default as a compat lane while explicit daily callers stay on `pure-first`
 - Next exact files:
   - `src/host_providers/llvm_codegen/route.rs`
 - Execution checklist:
@@ -25,10 +25,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` `.hako` host/vm wrappers isolate legacy optional `env.codegen.*` caller shapes into owner-local helpers
   - `[x]` explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
   - `[x]` remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
-  - `[ ]` re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
+  - `[x]` re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
 - Stop condition:
   - daily compile path stays explicit at `LlvmBackendBox`
-  - `route.rs` no longer needs env fallback for daily callers
+  - `route.rs` no longer needs env fallback for daily callers; the remaining generic symbol is compat-only
   - Rust build/bootstrap route remains green
 - Do not mix:
   - kernel migration refactors

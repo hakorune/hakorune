@@ -57,6 +57,20 @@ pub fn backend_compat_replay() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
+/// Canonical caller-side backend codegen defaults.
+///
+/// Daily callers may pass explicit values. Compat callers may leave either
+/// field empty, in which case the current env override is applied here.
+pub fn backend_codegen_request_defaults(
+    compile_recipe: Option<String>,
+    compat_replay: Option<String>,
+) -> (Option<String>, Option<String>) {
+    (
+        compile_recipe.or_else(backend_compile_recipe),
+        compat_replay.or_else(backend_compat_replay),
+    )
+}
+
 /// Pure-first compile request for the current backend recipe.
 /// Recipe-aware callers may bind an explicit pure-first FFI export from this.
 pub fn backend_recipe_requests_pure_first() -> bool {

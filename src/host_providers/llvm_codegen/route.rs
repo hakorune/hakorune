@@ -83,6 +83,8 @@ pub(super) fn boundary_default_unavailable_tag() -> String {
 }
 
 fn compile_symbol_for_recipe(recipe: Option<&str>) -> &'static [u8] {
+    // Keep lanes may still reuse the historical generic export.
+    // Daily pure-first callers should already be explicit before reaching here.
     match recipe {
         Some("pure-first") => COMPILE_SYMBOL_PURE_FIRST,
         _ => super::COMPILE_SYMBOL_DEFAULT,
