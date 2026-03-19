@@ -67,7 +67,7 @@ freeze.str
 
 - concat/substring/indexOf specialization policy
 - materialize/view boundary rules
-- `find_index` / `contains` / `starts_with_at` の control structure
+- `find_index` / `contains` / `starts_with` の control structure
 
 ## Non-goals
 

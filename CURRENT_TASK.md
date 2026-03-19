@@ -107,6 +107,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/shared/backend/backend_recipe_box.hako` now inlines `compile_recipe_pure_first()` / `compat_replay_harness()` directly, so the route-profile owner has no extra recipe indirection left
   - `lang/src/shared/backend/llvm_backend_box.hako` now forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)` after route-profile validation
   - `lang/src/runtime/kernel/string/search.hako` dropped dead `_starts_with_at(...)`, so the string-search owner is thinner without widening scope
+  - `lang/src/runtime/kernel/string/search.hako` also folded `_find_index_core(...)` into `find_index(...)`, so the string-search control structure is a bit flatter
   - `lang/src/shared/host_bridge/codegen_bridge_box.hako` is now args-only; the 1-arg convenience wrappers were removed and `stage1_cli` / `LLVMEmitBox` moved to `*_args`
   - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now call `CodegenBridgeBox.*_args` directly, with their pass-through helper layers removed
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia

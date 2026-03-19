@@ -30,10 +30,6 @@ static box StringSearchKernelBox {
   }
 
   find_index(hay, needle) {
-    return me._find_index_core(hay, needle)
-  }
-
-  _find_index_core(hay, needle) {
     if hay == null { return -1 }
     local needle_text = me._normalize_needle(needle)
     local n = hay.length()
