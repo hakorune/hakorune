@@ -21,6 +21,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - second: exe optimization wave は backend-zero handoff の後段に置く
 - parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
 - do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
+- directory rule: keep `Stage1/Stage2` as artifact/proof names; Rust physical split stays `src/stage1/**` vs `src/runner/stage1_bridge/**`, do not create a mirrored `src/stage2/`
 
 ## Restart Handoff (2026-03-19)
 

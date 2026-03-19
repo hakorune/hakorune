@@ -73,12 +73,15 @@ Related:
 2. `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
    - compiled-stage1 keep
    - near thin floor, frozen
-3. `src/runner/stage1_bridge/program_json/mod.rs`
-4. `src/runner/stage1_bridge/program_json_entry/mod.rs`
-5. `src/runner/stage1_bridge/program_json_entry/request.rs`
+3. `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+   - compiled-stage1 backend temporary keep
+   - near thin floor, frozen until caller-proof closes
+4. `src/runner/stage1_bridge/program_json/mod.rs`
+5. `src/runner/stage1_bridge/program_json_entry/mod.rs`
+6. `src/runner/stage1_bridge/program_json_entry/request.rs`
    - future-retire bridge cluster
    - near thin floor, frozen
-6. `src/host_providers/mir_builder/lowering.rs`
+7. `src/host_providers/mir_builder/lowering.rs`
    - test-only evidence seam
    - not a live blocker surface
 
@@ -232,6 +235,7 @@ Related:
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
    - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
    - `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+   - current judgment: this cluster is at thin floor; prefer docs/inventory closeout over refactor-only churn until caller-proof says the temporary lane can be removed
    - `lang/src/vm/boxes/mir_call_v1_handler.hako` is observation-only (`[vm/byname:*]`), not a final dispatch target
 4. compat keeps
    - `crates/nyash_kernel/src/hako_forward_bridge.rs`

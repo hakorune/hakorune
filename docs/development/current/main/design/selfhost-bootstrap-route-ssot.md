@@ -226,6 +226,13 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
 - **Stage2**: Stage1 で同一ソースを再ビルドした `.hako` compiler
 - **Stage3 (optional)**: Stage2 で再ビルドした出力の一致確認（必要なら）
 
+Directory note:
+- `Stage1` / `Stage2` here are artifact/proof stages, not Rust directory owners.
+- Keep Rust physical layout split by responsibility:
+  - `src/stage1/**` for the narrow Rust bootstrap authority boundary
+  - `src/runner/stage1_bridge/**` for the future-retire bridge lane
+- Do not create a mirrored `src/stage2/` tree just to reflect artifact names.
+
 **Acceptance (SSOT)**:
 - Stage1 と Stage2 の出力が一致すること（Program JSON v0 / MIR JSON v0 の比較で固定）
 - 差分が出たらその stage で停止（自動で次へ進まない）

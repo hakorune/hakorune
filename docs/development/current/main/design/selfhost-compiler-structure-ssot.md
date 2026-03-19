@@ -198,12 +198,14 @@ Responsibility:
 
 Important entry doc:
 - `src/runner/json_v0_bridge/README.md`
+- `src/stage1/README.md`
 - `src/stage1/program_json_v0/README.md`
 - `src/host_providers/mir_builder/README.md`
 
 Must not:
 - current authority をここへ戻さない
 - generic fallback / silent rescue を増やさない
+- `Stage1` / `Stage2` artifact naming を Rust directory split と混同しない
 
 ### 6. Shell orchestration / proof contract
 
@@ -278,6 +280,10 @@ Do not leave plugin ownership ambiguous.
 - linked Rust stage1 bridge lane (`src/runner/stage1_bridge/program_json/mod.rs` strict-parse shim + `src/runner/stage1_bridge/stub_child.rs` child-command helper + `src/runner/stage1_bridge/stub_delegate.rs` delegate-status helper + `src/runner/stage1_bridge/stub_emit.rs` emit-output helper + thin `src/runner/stage1_bridge/mod.rs` delegate / embedded `stage1_cli.hako`)
 - delegate route
 - raw/subcmd direct `stage1-cli emit ...` as authority candidate
+
+Directory rule:
+- `src/stage1/**` and `src/runner/stage1_bridge/**` are already the intended physical split.
+- Stage2 remains an artifact/proof concept in `tools/selfhost/**` and docs, not a separate Rust owner tree.
 
 ### Rust bootstrap boundary details
 

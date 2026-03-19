@@ -136,6 +136,10 @@ Rule:
    - the same direct-call alias resolver now also covers `lang.compiler.entry.func_scanner` -> `FuncScannerBox`, `lang.compiler.entry.stageb.stageb_json_builder_box` -> `StageBJsonBuilderBox`, `selfhost.shared.common.box_type_inspector` -> `BoxTypeInspectorBox`, and `selfhost.shared.common.string_helpers` -> `StringHelpers`
    - current compiled-stage1 helper routes such as `find_matching_brace`, `build_defs_json`, `kind`, and `int_to_str` can now prefer direct lowered functions before generic plugin fallback when receiver literals are known
    - C ABI `.hako` execution stays on direct boundary routes; `lang/c-abi/shims/hako_llvmc_ffi.c` no longer emits `by_name` and now behaves as a transport-only shim
+20. current module-string dispatch residue is at thin floor
+   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is a thin parent router plus shared decode/gate helpers
+   - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain compiled-stage1 temporary keeps, not fresh mainline owners
+   - next move is docs/inventory closeout until caller-proof says the surrogate code can actually be removed
 
 ## Immediate Next
 
@@ -143,8 +147,9 @@ Rule:
 2. keep visible launcher caller off `by_name`
 3. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
-5. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
-6. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+5. keep `module_string_dispatch` / `llvm_backend_surrogate` frozen unless caller-proof shows the compiled-stage1 temporary lane is truly removable
+6. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
+7. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 
