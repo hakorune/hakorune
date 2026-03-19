@@ -138,7 +138,7 @@ Rule:
    - C ABI `.hako` execution stays on direct boundary routes; `lang/c-abi/shims/hako_llvmc_ffi.c` no longer emits `by_name` and now behaves as a transport-only shim
 20. current module-string dispatch residue is at thin floor and frozen
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is a thin parent router plus shared decode/gate helpers
-   - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain frozen compiled-stage1 exact owners, not fresh mainline owners
+   - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain frozen compiled-stage1 exact owners; docs/inventory closeout only until caller-proof says removable
    - next move is docs/inventory closeout until caller-proof says the surrogate code can actually be removed
 
 ## Immediate Next

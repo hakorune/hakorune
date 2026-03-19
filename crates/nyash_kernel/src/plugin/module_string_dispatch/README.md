@@ -12,14 +12,14 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - probes `build_surrogate.rs` as an owner-local route before the shared table; it does not own `BuildBox.emit_program_json_v0` module/method strings or route registration
 - `build_surrogate.rs`
   - compiled-stage1 `BuildBox.emit_program_json_v0` surrogate only
-  - owner of the `build surrogate keep` bucket for `phase-29ci`
+  - frozen exact owner for the build surrogate residue bucket; docs/inventory closeout only until caller-proof says removable
   - owner of the surrogate route match/dispatch contract and its regression coverage
   - owner of the launcher/stage1-cli-env Program(JSON) -> MIR handoff regression coverage too
   - the surrogate handler and route match stay owner-local; parent modules only probe via `try_dispatch(...)`
   - regression tests are direct surrogate dispatch by default; by-name compat proof lives elsewhere and is not owned here
 - `llvm_backend_surrogate.rs`
   - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate only
-  - temporary B1 bridge owner for launcher/stage1-cli daily callers that still lower imported `LlvmBackendBox` methods to module-string receiver dispatch
+  - frozen exact owner for the backend boundary residue bucket; docs/inventory closeout only until caller-proof says removable
   - owner of the backend boundary route match/dispatch contract and its regression coverage
   - compile side now shares the same path-based contract as the daily boundary through `mir_json_file_to_object(...)`
   - latest shrink keeps path decode / compile opts / link arg decode behind owner-local helpers; parent modules still probe only via `try_dispatch(...)`
@@ -30,3 +30,4 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
 - do not mix `build_surrogate.rs` retirement with `stage1_bridge` or `.hako` live/bootstrap caller deletion
 - if the surrogate still cannot be removed, record that retreat in `phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
 - treat the shared `emit_from_program_json_v0` / `emit_from_source_v0` gate-decode helpers as thin-floor support code, not as a new authority owner
+- treat `build_surrogate.rs` and `llvm_backend_surrogate.rs` as frozen exact owners; do not reopen either without caller-proof
