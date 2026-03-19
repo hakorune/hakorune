@@ -14,8 +14,12 @@ static box StringSearchKernelBox {
   }
 
   _starts_with_at(hay, pos, needle) {
-    if hay == null { return 0 }
     local needle_text = me._normalize_needle(needle)
+    return me._starts_with_at_norm(hay, pos, needle_text)
+  }
+
+  _starts_with_at_norm(hay, pos, needle_text) {
+    if hay == null { return 0 }
     local n = hay.length()
     local m = needle_text.length()
     if pos < 0 { return 0 }
@@ -47,7 +51,7 @@ static box StringSearchKernelBox {
   _find_index_loop(hay, needle, n, m) {
     local i = 0
     loop(i <= (n - m)) {
-      if me._starts_with_at(hay, i, needle) == 1 {
+      if me._starts_with_at_norm(hay, i, needle) == 1 {
         return i
       }
       i = i + 1
@@ -58,7 +62,7 @@ static box StringSearchKernelBox {
   starts_with(hay, needle) {
     if hay == null { return 0 }
     local needle_text = me._normalize_needle(needle)
-    return me._starts_with_at(hay, 0, needle_text)
+    return me._starts_with_at_norm(hay, 0, needle_text)
   }
 
   ends_with(hay, needle) {
@@ -67,13 +71,12 @@ static box StringSearchKernelBox {
     local n = hay.length()
     local m = needle_text.length()
     if m > n { return 0 }
-    return me._starts_with_at(hay, n - m, needle_text)
+    return me._starts_with_at_norm(hay, n - m, needle_text)
   }
 
   split_once_index(hay, needle) {
     if hay == null { return -1 }
-    local needle_text = me._normalize_needle(needle)
-    return me.find_index(hay, needle_text)
+    return me.find_index(hay, needle)
   }
 
   contains(hay, needle) {
