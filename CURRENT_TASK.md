@@ -18,7 +18,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - first: `0rust` / backend-zero を先に終える
 - operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- next backend-zero slice: `src/host_providers/llvm_codegen.rs` + `src/host_providers/llvm_codegen/route.rs` to remove the remaining implicit route-default synthesis on the Rust side; blocked until legacy `env.codegen.emit_object` / `env.codegen.compile_json_path` callers stop passing `None` for recipe/replay
+- next backend-zero slice: caller-side route/profile explicitization ahead of `route.rs` cleanup
+- current owner-cutover sub-order:
+  1. keep daily `.hako` owner at `lang/src/shared/backend/llvm_backend_box.hako`
+  2. inventory legacy upstream `env.codegen.emit_object` / `env.codegen.compile_json_path` callers
+  3. explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
+  4. only then remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
+  5. re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
+- current exact upstream inventory targets:
+  - `lang/src/runtime/host/host_facade_box.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - `src/backend/mir_interpreter/handlers/extern_provider.rs`
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening until a new exact blocker appears
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
 - second: exe optimization wave は backend-zero handoff の後段に置く
@@ -36,9 +47,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - Rust build/bootstrap route remains runnable
   - buildability is a gate contract, not an authority
 - next code slice after restart:
-  - `src/host_providers/llvm_codegen.rs`
-  - `src/host_providers/llvm_codegen/route.rs`
-  - remove the remaining implicit route-default synthesis on the Rust side
+  - inventory / explicitize upstream `env.codegen.emit_object` / `env.codegen.compile_json_path` callers first
+  - `lang/src/runtime/host/host_facade_box.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - `src/backend/mir_interpreter/handlers/extern_provider.rs`
+  - remove the remaining implicit route-default synthesis in `src/host_providers/llvm_codegen/route.rs` only after caller proof
 - current session completion:
   - `boundary_default_object_opts(...)` is now transport-only; `route.rs` no longer synthesizes a hidden `pure-first/harness` route, and the two explicit caller sites now set `compile_recipe=pure-first` / `compat_replay=harness` themselves
   - `crates/nyash-llvm-compiler/src/boundary_driver.rs` no longer injects boundary-local recipe/replay env defaults; it now just calls the explicit pure-first export and mirrors caller env when needed for link-side plumbing

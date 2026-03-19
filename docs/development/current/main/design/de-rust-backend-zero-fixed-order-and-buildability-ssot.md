@@ -35,6 +35,12 @@ Related:
 - `BackendRecipeBox` / `LlvmBackendBox` の route/profile/pure-first policy は `.hako` 側が持つ。
 - `native_driver.rs` は bootstrap seam only のままにする。
 - `llvmlite` / `harness` / `native` keep lanes は explicit keep として残してよいが、daily owner にはしない。
+- current cleanup order inside this step is:
+  1. keep the daily `.hako` owner explicit at `lang/src/shared/backend/llvm_backend_box.hako`
+  2. inventory upstream `env.codegen.emit_object` / `env.codegen.compile_json_path` callers that still allow `recipe/replay = None`
+  3. explicitize caller-side `compile_recipe` / `compat_replay` where behavior stays unchanged
+  4. only then remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
+  5. re-evaluate `compile_symbol_for_recipe()` default branching after caller proof
 
 ### 2. Compat keep reduction
 
