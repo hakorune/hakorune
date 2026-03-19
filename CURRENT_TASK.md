@@ -141,6 +141,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now call `CodegenBridgeBox.*_args` directly, with their pass-through helper layers removed
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
   - `BackendRecipeBox.compile_route_profile(...)` now owns the exact route-profile contract validation, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
+  - `BackendRecipeBox.require_non_empty_field(...)` is now the shared backend input guard, so `LlvmBackendBox` no longer carries its own duplicate non-empty validation helper
   - `CodegenBridgeBox` now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox` / `MirVmS0BoxcallExecBox`, so that caller shape lives in one shared bridge instead of being duplicated
   - `LLVMEmitBox` now keeps its provider-stub slice thin by splitting input validation from provider dispatch; it remains a strict provider router and does not widen provider policy
   - `lang/src/runtime/kernel/string/search.hako` dropped the dead `_starts_with_at(...)` helper; all callers use `_starts_with_at_norm(...)` directly

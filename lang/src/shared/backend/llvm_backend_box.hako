@@ -24,9 +24,9 @@ static box LlvmBackendBox {
 
   // Links an exe. Returns 1 on success, or null on fail-fast error.
   link_exe(obj_path, out_path, libs) {
-    local obj = me._require_non_empty("link_exe", "obj_path", obj_path)
+    local obj = BackendRecipeBox.require_non_empty_field("link_exe", "obj_path", obj_path)
     if obj == null { return null }
-    local out = me._require_non_empty("link_exe", "out_path", out_path)
+    local out = BackendRecipeBox.require_non_empty_field("link_exe", "out_path", out_path)
     if out == null { return null }
 
     local extra = null
@@ -49,13 +49,6 @@ static box LlvmBackendBox {
       return me._fail("[llvmbackend/link/path-mismatch] expected=" + out + " got=" + ("" + exe))
     }
     return 1
-  }
-
-  _require_non_empty(method_name, field_name, value) {
-    if value == null || ("" + value) == "" {
-      return me._fail("[llvmbackend/input/" + method_name + "] " + field_name + " is empty")
-    }
-    return "" + value
   }
 
   _fail(tag) {

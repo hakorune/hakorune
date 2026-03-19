@@ -1,12 +1,13 @@
 // BackendRecipeBox — `.hako` policy/recipe owner for backend-zero.
 // Responsibility:
 //   - Keep caller-side compile recipe state in one place.
+//   - Own shared backend route/profile validation helpers.
 //   - Stay adjacent to LlvmBackendBox so policy can be widened before the C shim
 //     loses its own seed/route logic.
 
 static box BackendRecipeBox {
   compile_route_profile(json_path) {
-    local path = me._require_non_empty("compile_route_profile", "json_path", json_path)
+    local path = me.require_non_empty_field("compile_route_profile", "json_path", json_path)
     if path == null { return null }
     local profile = new MapBox()
     profile.set("route_profile", "" + me.route_profile_name(path))
@@ -74,7 +75,7 @@ static box BackendRecipeBox {
   }
 
   route_profile_name(json_path) {
-    local path = me._require_non_empty("route_profile_name", "json_path", json_path)
+    local path = me.require_non_empty_field("route_profile_name", "json_path", json_path)
     if path == null { return null }
     return "backend-zero/pure-first+harness"
   }
@@ -88,13 +89,13 @@ static box BackendRecipeBox {
   }
 
   acceptance_policy_for(json_path) {
-    local path = me._require_non_empty("acceptance_policy_for", "json_path", json_path)
+    local path = me.require_non_empty_field("acceptance_policy_for", "json_path", json_path)
     if path == null { return null }
     return me.acceptance_policy_seed_matrix_v1()
   }
 
   acceptance_case_for(json_path) {
-    local path = me._require_non_empty("acceptance_case_for", "json_path", json_path)
+    local path = me.require_non_empty_field("acceptance_case_for", "json_path", json_path)
     if path == null { return null }
     local grouped = me._acceptance_case_string_bucket_for(path)
     if grouped != null { return grouped }
@@ -108,7 +109,7 @@ static box BackendRecipeBox {
     return me.acceptance_case_seed_matrix_v1()
   }
 
-  _require_non_empty(method_name, field_name, value) {
+  require_non_empty_field(method_name, field_name, value) {
     if value == null || ("" + value) == "" {
       return me._fail("[backendrecipe/input/" + method_name + "] " + field_name + " is empty")
     }

@@ -9,6 +9,7 @@ Current owner
   - thin backend boundary の caller facade
   - `backend_recipe_box.hako`
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
+  - shared non-empty validation helper also lives here so `LlvmBackendBox` can stay transport-focused without duplicating input guards
   - current `.hako` daily caller passes recipe payload explicitly via `BackendRecipeBox.compile_route_profile(...)` and then forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)`
   - `BackendRecipeBox.compile_route_profile(...)` validates the exact owner names and evidence labels before returning the profile, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
   - `BackendRecipeBox` also names the current acceptance basis (`acceptance_policy`) so pure/compat classification does not drift back into C
