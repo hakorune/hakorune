@@ -49,6 +49,20 @@ Related:
    - keep: `lang/src/runtime/collections/` ring1
    - rule: kernel lane へは入れない（最後寄り）
 
+## Latest Inventory (2026-03-19)
+
+- `array`
+  - `lang/src/runtime/collections/array_core_box.hako` / `array_state_core_box.hako` / `crates/nyash_kernel/src/plugin/array*.rs` are already split at the natural seams.
+  - no new dedicated `lang/src/runtime/kernel/array/` slice is justified yet.
+  - keep defer until the promotion trigger is genuinely hit.
+- `numeric`
+  - `lang/src/runtime/kernel/numeric/matrix_i64.hako` plus `lang/src/runtime/numeric/{mat_i64_box.hako,intarray_core_box.hako}` are already thin enough.
+  - no credible next narrow op was found in the inventory.
+  - stop here until a new exact blocker appears.
+- `map`
+  - still ring1 keep / defer.
+  - not part of the current kernel migration slice.
+
 ## Buildability Lock
 
 - any migration slice:

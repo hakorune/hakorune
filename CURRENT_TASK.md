@@ -29,10 +29,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - `string.search` v0 は landed 済み。これ以上の widening は新しい exact blocker が出るまで pause
     2. `array`
        - collections ring1 を first owner に保ち、`lang/src/runtime/kernel/array/` への promotion は trigger-based
+       - latest inventory (2026-03-19): no next code slice; wrapper/state/helper split is already thin enough, so keep defer until promotion trigger appears
     3. `numeric`
        - `MatI64.mul_naive` landed 済み。array が落ち着いたら次の narrow op を切る
+       - latest inventory (2026-03-19): no credible next narrow op; keep thin wrapper and stop here
     4. `map`
        - collections ring1 に残し、kernel lane には入れない
+       - latest inventory (2026-03-19): still defer / no kernel migration slice
   - perf / asm optimization はこの順番を固定してから follow-up に回す
 
 ## Exe Optimization Wave (secondary / follow-up after kernel migration) (2026-03-18)
