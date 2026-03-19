@@ -14,6 +14,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
 - practical end-state: `.hako` owns kernel meaning/policy/control, Rust stays bootstrap/recovery/raw substrate, and LLVM remains the primary backend substrate
 
+## End-State Checklist
+
+- [ ] compiler authority zero
+- [ ] kernel authority zero
+- [ ] backend-zero daily owner cutover
+- [ ] substrate reconsideration
+  - LLVM remains the primary backend substrate unless another SSOT explicitly reassigns it
+
 ## Active Slice
 
 - Current blocker:

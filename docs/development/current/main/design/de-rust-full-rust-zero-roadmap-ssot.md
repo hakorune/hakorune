@@ -35,6 +35,7 @@ Related:
 - `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を壊すことではない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline` だと読む。
 - preferred end-state is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to bootstrap / ABI / raw leaf / LLVM backend emission.
+- practical sequence for the end-state is: compiler authority removal -> kernel authority zero -> backend-zero daily owner cutover -> substrate reconsideration.
 
 ## 1. Boundary Lock
 
