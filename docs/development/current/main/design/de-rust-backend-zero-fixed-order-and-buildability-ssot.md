@@ -109,7 +109,7 @@ Related:
 - `phase-29ck`:
   - backend-zero execution lane and promotion gate
 - `phase-29cl`:
-  - caller-cutover-first follow-up for by-name / compat shrink
+  - by-name zero-caller closeout / compat archive maintenance
 
 ## 7. Done Shape
 
@@ -118,4 +118,3 @@ Related:
 - compat keeps are explicit, thin, and non-authoritative
 - bootstrap seams are canary-only or retired
 - no new semantic owner has leaked back into Rust
-

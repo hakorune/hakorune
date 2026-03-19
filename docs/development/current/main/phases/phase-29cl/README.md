@@ -90,9 +90,9 @@ Rule:
    - `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly
    - visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`
    - `llvm_backend_surrogate.rs` is no longer the visible launcher daily caller path; it is temporary compiled-stage1 residue only
-8. this phase does not mean “delete by_name now”
-   - order is caller cutover first
-   - kernel delete/shrink only after those callers are gone
+8. this phase does not mean “re-open by_name now”
+   - current mainline caller set is already zero
+   - remaining work is compat/archive maintenance, not a new daily caller cutover
 9. `BYN-min1` lock is landed
    - `tools/checks/phase29cl_by_name_mainline_guard.sh`
    - `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
@@ -143,12 +143,12 @@ Rule:
 
 ## Immediate Next
 
-1. keep the `BYN-min1` owner guard green while `phase-29ck` B1 caller cutover continues
-2. keep visible launcher caller off `by_name`
+1. keep the `BYN-min1` owner guard green as a zero-caller regression check
+2. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 3. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. keep `module_string_dispatch` / `llvm_backend_surrogate` frozen unless caller-proof shows the compiled-stage1 temporary lane is truly removable
-6. retire kernel-side `by_name` entry only after reopen rules say no caller still needs it
+6. keep kernel-side `by_name` retired; reopen only if a new live caller appears
 7. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance

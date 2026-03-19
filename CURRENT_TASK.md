@@ -19,6 +19,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
 - next immediate slice: route-profile evidence closeout in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`; `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` + `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` stay frozen exact owners and docs/inventory closeout only; code deletion stays blocked until caller-proof says the temporary lane is truly removable
+- `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
 - second: exe optimization wave は backend-zero handoff の後段に置く
 - parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
 - do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
@@ -294,7 +295,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `crates/nyash-llvm-compiler/src/native_driver.rs` is bootstrap/canary keep only
     - `src/runner/modes/llvm/object_emitter.rs` is already thin and is not the first deletion target
   - remaining backend-zero tasks, in order:
-    1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
+    1. `phase-29cl` caller-cutover closeout: `by-name` は daily mainline から既に外れており、compat/archive residue だけを維持する
     2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
     3. `BackendRecipeBox` の recipe/profile evidence rows は、新しい exact fixture が出るまで増やさない
     - `BackendRecipeBox.acceptance_case_for(...)` is now bucketed by string/runtime_data/loop/seed and keeps `boundary-pure-seed-matrix-v1` as the catch-all fallback
@@ -315,12 +316,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `stage7 launcher` / `stage9 launcher` と fresh `stage1-cli` rebuild は byte-identical
   - 以後は fresh semantic mismatch が出ない限り `stageN` を増やさない
   - active order:
-    1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
+    1. `phase-29cl` caller-cutover closeout: `by-name` は daily mainline から既に外れており、compat/archive residue だけを維持する
     2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
     3. backend-zero は `.hako = policy/recipe owner`, `C = export/transport owner` に固定し、C を急いで delete しない
     4. Rust thin-up はここで止めて、次は exe optimization に移る
-  4. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を thin floor まで固める
-  5. 残 compat caller が消えてからだけ kernel-side `by_name` retire を再判定する
+    4. `llvmlite` / `native_driver` は compat/canary keep に固定したまま、boundary-owned default route を thin floor まで固める
+    5. kernel-side `by_name` は retire 済みのまま維持し、新しい live caller が現れた時だけ reopen を再判定する
 - freeze unless blocker:
   - `phase-29cj` micro-thinning
   - bridge/program-json/stub-emit cleanup
@@ -481,7 +482,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
         - explicit compat-pack entry is `tools/selfhost/run_compat_pure_pack.sh` / `tools/selfhost/run_compat_pure_selfhost.sh`; old script names are wrappers only
         - phase2120 pure canaries now route through `tools/smokes/v2/profiles/integration/core/phase2120/boundary_pure_helper.sh -> ny-llvmc --driver boundary`; do not reopen the retired direct `hostbridge.extern_invoke("env.codegen", ...)` caller lane here
       - next runtime-proof slice is promotion/cleanup after compat-pack separation, not VM blocker inventory
-      - post-B1/B3 cleanup is queued as `phase-29cl` (`by_name.rs` / `module_string_dispatch.rs` caller-cutover-first retirement), separate from `phase-29ce`
+      - post-B1/B3 cleanup is queued as `phase-29cl` (`by_name.rs` / `module_string_dispatch.rs` caller-cutover closeout), separate from `phase-29ce`
 - rule:
   - この pointer は current blocker を置き換えない。
   - immediate blocker は引き続き pure `.hako`-only hakorune build の compiler authority removal である。
