@@ -297,6 +297,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     1. `phase-29cl` caller-cutover-first で `by-name` を daily mainline から外す
     2. LLVM daily exe/object route から `llvmlite` と `native_driver` の両方を外す
     3. `BackendRecipeBox` の recipe/profile evidence rows は、新しい exact fixture が出るまで増やさない
+    - `BackendRecipeBox.acceptance_case_for(...)` is now bucketed by string/runtime_data/loop/seed and keeps `boundary-pure-seed-matrix-v1` as the catch-all fallback
     4. `hako_llvmc_ffi.c` は export / marshal / fallback transport only に固定し、policy を戻さない
   - `BYN-min4` hook/registry bridge and its Rust register entrypoints are now compat-only and crate-private; remaining by-name work is kernel hard retire readiness after caller shrink
   - `by_name.rs` FileBox named-method compat tail now lives in `compat_invoke_core.rs`; remaining kernel caller shrink is `module_string_dispatch.rs` / compiled-stage1 surrogate residue before hard retire readiness
