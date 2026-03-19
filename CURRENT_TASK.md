@@ -80,6 +80,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - current session completion:
   - `boundary_default_object_opts(...)` is now transport-only; `route.rs` no longer synthesizes a hidden `pure-first/harness` route, and the two explicit caller sites now set `compile_recipe=pure-first` / `compat_replay=harness` themselves
   - caller-side explicitization is now also mirrored in `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` and `src/backend/mir_interpreter/handlers/extern_provider.rs`, so `route.rs` can stop reading env defaults for daily callers
+  - `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)` is now the single shared helper for backend recipe env fallback at compat bridges
   - `src/host_providers/llvm_codegen/route.rs` now reads explicit `Opts` only; the remaining cleanup is the `compile_symbol_for_recipe()` default branch re-evaluation
   - `crates/nyash-llvm-compiler/src/boundary_driver.rs` no longer injects boundary-local recipe/replay env defaults; it now just calls the explicit pure-first export and mirrors caller env when needed for link-side plumbing
   - `crates/nyash-llvm-compiler/src/link_driver.rs` now requires an explicit `--nyrt <DIR>` for `Harness` / `Native` exe linking instead of synthesizing a default search dir

@@ -18,6 +18,7 @@ Current owner
   - final target は `LlvmBackendBox -> BackendRecipeBox -> hako_aot -> backend helper`
   - daily compile/link owner now stops directly at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`
   - shared compile/link helper lowering now reaches canonical `env.codegen.*` externs directly; daily compile/link does not depend on `hostbridge.extern_invoke(...)`
+  - caller-side codegen request defaults are centralized in `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)`; compat bridges may mirror the same names, but daily owners stay explicit
   - MIR normalization (`schema_version: "1.0"` / `metadata.extern_c`) is owned by Rust backend boundary `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
   - `emit_object` remains compat keep for legacy/provider probes only
   - public first-cut contract:

@@ -89,3 +89,61 @@ pub fn aot_ldflags() -> Option<String> {
 pub fn cabi_trace() -> bool {
     env_bool("HAKO_CABI_TRACE")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::backend_codegen_request_defaults;
+    use std::ffi::OsString;
+    use std::sync::{Mutex, OnceLock};
+
+    fn env_lock() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(()))
+            .lock()
+            .expect("env lock")
+    }
+
+    struct EnvRestore {
+        compile_recipe: Option<OsString>,
+        compat_replay: Option<OsString>,
+    }
+
+    impl Drop for EnvRestore {
+        fn drop(&mut self) {
+            match self.compile_recipe.take() {
+                Some(v) => std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", v),
+                None => std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE"),
+            }
+            match self.compat_replay.take() {
+                Some(v) => std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", v),
+                None => std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY"),
+            }
+        }
+    }
+
+    #[test]
+    fn backend_codegen_request_defaults_preserves_explicit_values() {
+        let _guard = env_lock();
+        let (compile_recipe, compat_replay) = backend_codegen_request_defaults(
+            Some("pure-first".to_string()),
+            Some("harness".to_string()),
+        );
+        assert_eq!(compile_recipe.as_deref(), Some("pure-first"));
+        assert_eq!(compat_replay.as_deref(), Some("harness"));
+    }
+
+    #[test]
+    fn backend_codegen_request_defaults_fills_missing_from_env() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+        };
+        std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", "pure-first");
+        std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", "harness");
+
+        let (compile_recipe, compat_replay) = backend_codegen_request_defaults(None, None);
+        assert_eq!(compile_recipe.as_deref(), Some("pure-first"));
+        assert_eq!(compat_replay.as_deref(), Some("harness"));
+    }
+}
