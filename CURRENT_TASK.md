@@ -106,12 +106,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/shared/backend/backend_recipe_box.hako` no longer exposes `prepare_link_route(...)`; link `libs` normalization is now inlined in `LlvmBackendBox.link_exe(...)`
   - `lang/src/shared/backend/backend_recipe_box.hako` now inlines `compile_recipe_pure_first()` / `compat_replay_harness()` directly, so the route-profile owner has no extra recipe indirection left
   - `lang/src/shared/backend/llvm_backend_box.hako` now forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)` after route-profile validation
+  - `lang/src/runtime/kernel/string/search.hako` dropped dead `_starts_with_at(...)`, so the string-search owner is thinner without widening scope
   - `lang/src/shared/host_bridge/codegen_bridge_box.hako` is now args-only; the 1-arg convenience wrappers were removed and `stage1_cli` / `LLVMEmitBox` moved to `*_args`
   - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now call `CodegenBridgeBox.*_args` directly, with their pass-through helper layers removed
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
   - `BackendRecipeBox.compile_route_profile(...)` now owns the exact route-profile contract validation, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
   - `CodegenBridgeBox` now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox` / `MirVmS0BoxcallExecBox`, so that caller shape lives in one shared bridge instead of being duplicated
   - `LLVMEmitBox` now keeps its provider-stub slice thin by splitting input validation from provider dispatch; it remains a strict provider router and does not widen provider policy
+  - `lang/src/runtime/kernel/string/search.hako` dropped the dead `_starts_with_at(...)` helper; all callers use `_starts_with_at_norm(...)` directly
   - legacy `phase2034/llvmemit_canary_vm.sh` and `phase2034/llvmemit_llvmlite_canary_vm.sh` were deleted; they are not part of the active smoke set
   - worker inventory: `src/host_providers/llvm_codegen/route.rs` cannot yet drop `requested_compile_recipe` / `requested_compat_replay` because legacy `env.codegen.emit_object` and `env.codegen.compile_json_path` callers still pass `None`; this lane is inventory-only until caller-side route/profile explicitization lands
   - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now delegate the legacy optional `env.codegen.emit_object` / `env.codegen.compile_json_path` caller shape to `CodegenBridgeBox`; behavior stays unchanged and the daily owner remains `LlvmBackendBox`

@@ -13,11 +13,6 @@ static box StringSearchKernelBox {
     return needle
   }
 
-  _starts_with_at(hay, pos, needle) {
-    local needle_text = me._normalize_needle(needle)
-    return me._starts_with_at_norm(hay, pos, needle_text)
-  }
-
   _starts_with_at_norm(hay, pos, needle_text) {
     if hay == null { return 0 }
     local n = hay.length()
