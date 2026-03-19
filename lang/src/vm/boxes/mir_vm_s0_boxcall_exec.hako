@@ -1,6 +1,7 @@
 // mir_vm_s0_boxcall_exec.hako — boxcall execution helpers split from mir_vm_s0
 // Responsibility: method-specific stateful effects for boxcall ops.
 
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0BoxcallExecBox {
@@ -147,44 +148,15 @@ static box MirVmS0BoxcallExecBox {
   }
 
   _emit_codegen_object_args(args) {
-    local mir_json = me._array_arg_or_null(args, 0)
-    if mir_json == null { return null }
-    return me._emit_codegen_object_legacy(mir_json)
-  }
-
-  _emit_codegen_object_legacy(mir_json) {
-    return env.codegen.emit_object(mir_json)
+    return CodegenBridgeBox.emit_object_args(args)
   }
 
   _compile_codegen_json_path_args(args) {
-    local json_path = me._array_arg_or_null(args, 0)
-    if json_path == null { return null }
-    local out_path = me._array_arg_or_null(args, 1)
-    local recipe = me._array_arg_or_null(args, 2)
-    local compat = me._array_arg_or_null(args, 3)
-    return me._compile_codegen_json_path_legacy(json_path, out_path, recipe, compat)
-  }
-
-  _compile_codegen_json_path_legacy(json_path, out_path, recipe, compat) {
-    // Legacy optional caller shape stays here until caller-side route/profile explicitization lands.
-    if out_path == null {
-      if recipe == null { return env.codegen.compile_json_path(json_path) }
-      if compat == null { return env.codegen.compile_json_path(json_path, "", recipe) }
-      return env.codegen.compile_json_path(json_path, "", recipe, compat)
-    }
-    if recipe == null { return env.codegen.compile_json_path(json_path, out_path) }
-    if compat == null { return env.codegen.compile_json_path(json_path, out_path, recipe) }
-    return env.codegen.compile_json_path(json_path, out_path, recipe, compat)
+    return CodegenBridgeBox.compile_json_path_args(args)
   }
 
   _link_codegen_object_args(args) {
-    local obj_path = me._array_arg_or_null(args, 0)
-    if obj_path == null { return null }
-    local exe_path = me._array_arg_or_null(args, 1)
-    if exe_path == null { return env.codegen.link_object(obj_path) }
-    local extra_ldflags = me._array_arg_or_null(args, 2)
-    if extra_ldflags == null { return env.codegen.link_object(obj_path, exe_path) }
-    return env.codegen.link_object(obj_path, exe_path, extra_ldflags)
+    return CodegenBridgeBox.link_object_args(args)
   }
 
   _array_arg_or_null(arr, idx) {

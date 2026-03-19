@@ -65,7 +65,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - last landed:
   - `bf800ec79` `backend-zero: enforce route profile ownership`
-  - `LlvmBackendBox.compile_obj(...)` now exact-validates the canonical owner names and route evidence from `BackendRecipeBox`
+  - `BackendRecipeBox.compile_route_profile(...)` now exact-validates the canonical owner names and route evidence before returning the profile
 - current stable shape:
   - `.hako` route/profile owner is visible and enforced
   - Rust build/bootstrap route remains runnable
@@ -91,8 +91,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` / `build_surrogate.rs` / `llvm_backend_surrogate.rs` are now frozen exact owners; docs/inventory closeout only until caller-proof says the temporary lane can disappear
   - `src/runner/modes/common_util/exec.rs` no longer carries dead `llvmlite_emit_object(...)`, so runner-side llvmlite residue shrank by one helper
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
+  - `BackendRecipeBox.compile_route_profile(...)` now owns the exact route-profile contract validation, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
+  - `CodegenBridgeBox` now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox` / `MirVmS0BoxcallExecBox`, so that caller shape lives in one shared bridge instead of being duplicated
   - worker inventory: `src/host_providers/llvm_codegen/route.rs` cannot yet drop `requested_compile_recipe` / `requested_compat_replay` because legacy `env.codegen.emit_object` and `env.codegen.compile_json_path` callers still pass `None`; this lane is inventory-only until caller-side route/profile explicitization lands
-  - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now isolate the legacy optional `env.codegen.emit_object` / `env.codegen.compile_json_path` caller shape into owner-local helpers; behavior stays unchanged and the daily owner remains `LlvmBackendBox`
+  - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now delegate the legacy optional `env.codegen.emit_object` / `env.codegen.compile_json_path` caller shape to `CodegenBridgeBox`; behavior stays unchanged and the daily owner remains `LlvmBackendBox`
 - do not mix this slice with:
   - kernel migration refactors
   - `boundary_driver.rs` compat keep reduction

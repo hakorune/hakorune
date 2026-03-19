@@ -2,6 +2,7 @@
 // Responsibility: single `.hako` host-call entry for runtime/vm callers.
 
 using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
 
 static box HostFacadeBox {
   call(kind, selector, payload) {
@@ -102,47 +103,17 @@ static box HostFacadeBox {
 
   _invoke_codegen_compile_json_path(payload) {
     local args = me._payload_as_array(payload)
-    local json_path = me._array_arg_or_null(args, 0)
-    if json_path == null { return null }
-    local out_path = me._array_arg_or_null(args, 1)
-    local recipe = me._array_arg_or_null(args, 2)
-    local compat = me._array_arg_or_null(args, 3)
-    return me._invoke_codegen_compile_json_path_legacy(json_path, out_path, recipe, compat)
-  }
-
-  _invoke_codegen_compile_json_path_legacy(json_path, out_path, recipe, compat) {
-    // Legacy optional caller shape stays here until caller-side route/profile explicitization lands.
-    // Daily backend-zero owner should stop at LlvmBackendBox instead of this helper.
-    if out_path == null {
-      if recipe == null { return env.codegen.compile_json_path(json_path) }
-      if compat == null { return env.codegen.compile_json_path(json_path, "", recipe) }
-      return env.codegen.compile_json_path(json_path, "", recipe, compat)
-    }
-    if recipe == null { return env.codegen.compile_json_path(json_path, out_path) }
-    if compat == null { return env.codegen.compile_json_path(json_path, out_path, recipe) }
-    return env.codegen.compile_json_path(json_path, out_path, recipe, compat)
+    return CodegenBridgeBox.compile_json_path_args(args)
   }
 
   _invoke_codegen_emit_object(payload) {
     local args = me._payload_as_array(payload)
-    local mir_json = me._array_arg_or_null(args, 0)
-    if mir_json == null { return null }
-    return me._invoke_codegen_emit_object_legacy(mir_json)
-  }
-
-  _invoke_codegen_emit_object_legacy(mir_json) {
-    return env.codegen.emit_object(mir_json)
+    return CodegenBridgeBox.emit_object_args(args)
   }
 
   _invoke_codegen_link_object(payload) {
     local args = me._payload_as_array(payload)
-    local obj_path = me._array_arg_or_null(args, 0)
-    if obj_path == null { return null }
-    local exe_path = me._array_arg_or_null(args, 1)
-    if exe_path == null { return env.codegen.link_object(obj_path) }
-    local extra_ldflags = me._array_arg_or_null(args, 2)
-    if extra_ldflags == null { return env.codegen.link_object(obj_path, exe_path) }
-    return env.codegen.link_object(obj_path, exe_path, extra_ldflags)
+    return CodegenBridgeBox.link_object_args(args)
   }
 
   _dispatch_loader_box(selector, payload) {
