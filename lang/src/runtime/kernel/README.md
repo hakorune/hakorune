@@ -13,6 +13,8 @@ Subdirectories:
 Current migration order:
 - `string` is already landed via `string.search` (`string/search.hako`)
   - current public surface: `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index`
+  - current authoring lane: `search.hako` helper extraction / control-structure cleanup only
+  - widening stays paused until a new exact blocker appears
 - `array/`
   - keep `ArrayBox.length/len/size` in `lang/src/runtime/collections/array_core_box.hako` while it stays wrapper-only
   - promote to `lang/src/runtime/kernel/array/` only when a concrete policy difference appears

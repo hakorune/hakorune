@@ -60,6 +60,7 @@ freeze.str
 ## Current Narrow Frontier
 
 - `search.hako` is at the v0 landing point for the current string-search pilot
+- current authoring lane is helper extraction / control-structure cleanup only
 - further widening is paused until a new exact blocker appears
 
 ## Examples

@@ -26,12 +26,20 @@ static box StringSearchKernelBox {
   }
 
   find_index(hay, needle) {
+    return me._find_index_core(hay, needle)
+  }
+
+  _find_index_core(hay, needle) {
     if hay == null { return -1 }
     if needle == null { needle = "" }
     local n = hay.length()
     local m = needle.length()
     if m == 0 { return 0 }
     if n < m { return -1 }
+    return me._find_index_loop(hay, needle, n, m)
+  }
+
+  _find_index_loop(hay, needle, n, m) {
     local i = 0
     loop(i <= (n - m)) {
       if me._starts_with_at(hay, i, needle) == 1 {

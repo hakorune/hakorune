@@ -54,6 +54,7 @@ Related:
 - ただし current runtime substrate はまだ Rust/C 側に多く残っている。
 - backend-zero SSOT でも final shape は `.hako -> thin boundary` であって、Rust 全消しを immediate goal にはしていない。
 - stage0 first-build / recovery lane としての Rust bootstrap keep は、この wave の失敗条件ではない。
+- current active `.hako` authoring lane is `lang/src/runtime/kernel/string/search.hako`; helper extraction / control-structure cleanup only, no widening until a new exact blocker appears.
 - したがって、次に固定すべきは `kernel authority zero` であり、`substrate zero` ではない。
 
 ## 3. What Moves First
