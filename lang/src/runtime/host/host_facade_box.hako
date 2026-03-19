@@ -107,6 +107,12 @@ static box HostFacadeBox {
     local out_path = me._array_arg_or_null(args, 1)
     local recipe = me._array_arg_or_null(args, 2)
     local compat = me._array_arg_or_null(args, 3)
+    return me._invoke_codegen_compile_json_path_legacy(json_path, out_path, recipe, compat)
+  }
+
+  _invoke_codegen_compile_json_path_legacy(json_path, out_path, recipe, compat) {
+    // Legacy optional caller shape stays here until caller-side route/profile explicitization lands.
+    // Daily backend-zero owner should stop at LlvmBackendBox instead of this helper.
     if out_path == null {
       if recipe == null { return env.codegen.compile_json_path(json_path) }
       if compat == null { return env.codegen.compile_json_path(json_path, "", recipe) }
@@ -121,6 +127,10 @@ static box HostFacadeBox {
     local args = me._payload_as_array(payload)
     local mir_json = me._array_arg_or_null(args, 0)
     if mir_json == null { return null }
+    return me._invoke_codegen_emit_object_legacy(mir_json)
+  }
+
+  _invoke_codegen_emit_object_legacy(mir_json) {
     return env.codegen.emit_object(mir_json)
   }
 

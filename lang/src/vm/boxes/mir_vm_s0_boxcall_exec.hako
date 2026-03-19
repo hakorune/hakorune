@@ -149,6 +149,10 @@ static box MirVmS0BoxcallExecBox {
   _emit_codegen_object_args(args) {
     local mir_json = me._array_arg_or_null(args, 0)
     if mir_json == null { return null }
+    return me._emit_codegen_object_legacy(mir_json)
+  }
+
+  _emit_codegen_object_legacy(mir_json) {
     return env.codegen.emit_object(mir_json)
   }
 
@@ -158,6 +162,11 @@ static box MirVmS0BoxcallExecBox {
     local out_path = me._array_arg_or_null(args, 1)
     local recipe = me._array_arg_or_null(args, 2)
     local compat = me._array_arg_or_null(args, 3)
+    return me._compile_codegen_json_path_legacy(json_path, out_path, recipe, compat)
+  }
+
+  _compile_codegen_json_path_legacy(json_path, out_path, recipe, compat) {
+    // Legacy optional caller shape stays here until caller-side route/profile explicitization lands.
     if out_path == null {
       if recipe == null { return env.codegen.compile_json_path(json_path) }
       if compat == null { return env.codegen.compile_json_path(json_path, "", recipe) }

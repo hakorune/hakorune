@@ -14,6 +14,7 @@ Scope:
   - raw `emit_object[_args]` stays compat keep only
   - do not treat as final backend-zero daily caller stop-point
   - shared host/vm compile-link helpers now lower directly to canonical `env.codegen.*` extern calls; do not reintroduce `hostbridge.extern_invoke(...)` for daily backend compile/link routes
+  - `HostFacadeBox` / `MirVmS0BoxcallExecBox` still keep the optional-arg `env.codegen.*` caller shape as legacy keep; new daily callers should stay explicit at `LlvmBackendBox`
 
 Rules:
 - Do not call `hostbridge.*` directly from new shared/vm/runtime code.
