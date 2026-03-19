@@ -1,7 +1,7 @@
 // ---- Array helpers for LLVM lowering (handle-based) ----
+use super::array_index_helpers::{array_get_by_index, array_has_by_index, decode_index_key};
 use super::array_route_helpers::{
-    array_get_by_index, array_has_by_index, array_set_by_index, array_set_by_index_i64_value,
-    array_set_by_index_string_handle_value, decode_index_key,
+    array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
 };
 use super::value_codec::{any_arg_to_box, any_arg_to_box_with_profile, CodecProfile};
 use super::handle_helpers::with_array_box;

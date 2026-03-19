@@ -1,4 +1,5 @@
 pub mod array;
+mod array_index_helpers;
 mod array_route_helpers;
 mod array_string_slot;
 pub mod birth;
