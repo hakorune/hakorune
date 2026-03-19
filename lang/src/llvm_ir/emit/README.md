@@ -3,6 +3,7 @@
 Responsibility
 - Generate an object file from MIR(JSON v0) via a provider.
 - Phase 20.34 starts with a provider‑first stub; connects to a Plugin v2 wrapper for ny-llvmc (or llvmlite) next.
+- Keep the box as a strict provider router; do not move daily backend policy here.
 
 Interface (stable)
 - `emit_object(mir_json: String, opts: Map|Null) -> String|Null`
@@ -24,4 +25,5 @@ Toggles (default OFF)
 
 Notes
 - Box‑First: keep provider behind a single Plugin v2 method `LLVMCodegenBox.emit_object/2`.
+- `opts` is currently compat-stub only; this box validates MIR shape, resolves provider, and forwards to the compat bridge.
 - Environments must not change defaults silently; Fail‑Fast with stable tags.

@@ -16,15 +16,17 @@ using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
 static box LLVMEmitProviderBox {
   // Availability probe (for canaries)
   is_available() {
-    // Treat HAKO_LLVM_EMIT_PROVIDER=ny-llvmc|llvmlite as availability hint
-    local p = env.get("HAKO_LLVM_EMIT_PROVIDER")
-    if p == null { return 0 }
-    local v = "" + p
-    if v == "ny-llvmc" || v == "llvmlite" { return 1 } else { return 0 }
+    return me._provider_is_supported(env.get("HAKO_LLVM_EMIT_PROVIDER"))
   }
 
   // Main entry
   method emit_object(mir_json, opts) {
+    local validated = me._validate_mir_json(mir_json)
+    if validated == null { return null }
+    return me._dispatch_provider_emit(validated)
+  }
+
+  method _validate_mir_json(mir_json) {
     if mir_json == null {
       print("[llvmemit/input/null] mir_json is null")
       return null
@@ -34,6 +36,10 @@ static box LLVMEmitProviderBox {
       print("[llvmemit/input/invalid] missing functions/blocks keys")
       return null
     }
+    return s
+  }
+
+  method _dispatch_provider_emit(validated_mir_json) {
     local p = env.get("HAKO_LLVM_EMIT_PROVIDER")
     if p == null {
       print("[llvmemit/provider/missing] set HAKO_LLVM_EMIT_PROVIDER=ny-llvmc|llvmlite")
@@ -42,9 +48,8 @@ static box LLVMEmitProviderBox {
     local pv = "" + p
     if pv == "ny-llvmc" {
       // env.codegen.emit_object(mir_json)
-      local ret = CodegenBridgeBox.emit_object(mir_json)
-      return ret
-   }
+      return CodegenBridgeBox.emit_object(validated_mir_json)
+    }
     if pv == "llvmlite" {
       // Not wired yet for llvmlite provider
       print("[llvmemit/skip] provider stub; implement llvmlite Plugin v2 call")
@@ -52,5 +57,12 @@ static box LLVMEmitProviderBox {
     }
     print("[llvmemit/provider/unsupported] " + pv)
     return null
+  }
+
+  method _provider_is_supported(provider_name) {
+    if provider_name == null { return 0 }
+    local v = "" + provider_name
+    if v == "ny-llvmc" || v == "llvmlite" { return 1 }
+    return 0
   }
 }

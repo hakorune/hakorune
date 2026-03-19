@@ -20,10 +20,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - Next exact files:
   - `lang/src/shared/backend/llvm_backend_box.hako`
   - `lang/src/shared/backend/backend_recipe_box.hako`
-  - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
-  - `lang/src/runtime/host/host_facade_box.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-  - `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
+- `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+- `lang/src/runtime/host/host_facade_box.hako`
+- `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+- `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
 - Execution checklist:
   - `[x]` daily `.hako` owner is fixed at `lang/src/shared/backend/llvm_backend_box.hako`
   - `[x]` upstream legacy caller inventory is pinned in `CURRENT_TASK.md`
@@ -107,6 +107,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
   - `BackendRecipeBox.compile_route_profile(...)` now owns the exact route-profile contract validation, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
   - `CodegenBridgeBox` now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox` / `MirVmS0BoxcallExecBox`, so that caller shape lives in one shared bridge instead of being duplicated
+  - `LLVMEmitBox` now keeps its provider-stub slice thin by splitting input validation from provider dispatch; it remains a strict provider router and does not widen provider policy
   - worker inventory: `src/host_providers/llvm_codegen/route.rs` cannot yet drop `requested_compile_recipe` / `requested_compat_replay` because legacy `env.codegen.emit_object` and `env.codegen.compile_json_path` callers still pass `None`; this lane is inventory-only until caller-side route/profile explicitization lands
   - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now delegate the legacy optional `env.codegen.emit_object` / `env.codegen.compile_json_path` caller shape to `CodegenBridgeBox`; behavior stays unchanged and the daily owner remains `LlvmBackendBox`
 - do not mix this slice with:
