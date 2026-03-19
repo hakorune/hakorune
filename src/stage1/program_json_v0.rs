@@ -3,20 +3,16 @@
 //! Layout SSOT:
 //! - `routing.rs`: source-shape and build-route policy
 //! - `authority.rs`: strict source authority
-//! - `bridge_shim.rs`: future-retire stage1 bridge shim
 //! - `extract.rs`: source observation / helper extraction
 //! - `lowering.rs`: AST subset -> Program(JSON v0) lowering
 //!
 //! Cross-crate surface:
 //! - allowed: `emit_program_json_v0_for_strict_authority_source(...)`,
 //!   `emit_program_json_v0_for_current_stage1_build_box_mode(...)`
-//! - forbidden: legacy default alias, route/source-shape internals,
-//!   parse/lower orchestration
+//! - forbidden: route/source-shape internals, parse/lower orchestration
 
 #[path = "program_json_v0/authority.rs"]
 mod authority;
-#[path = "program_json_v0/bridge_shim.rs"]
-mod bridge_shim;
 #[path = "program_json_v0/extract.rs"]
 mod extract;
 #[path = "program_json_v0/lowering.rs"]
@@ -59,11 +55,12 @@ pub fn emit_program_json_v0_for_strict_authority_source(
     authority::emit_program_json_v0_for_strict_authority_source(source_text)
 }
 
-/// Crate-local shim for the future-retire Rust Stage1 bridge emit-program route.
+/// Crate-local helper for the future-retire Rust Stage1 bridge emit-program route.
 pub(crate) fn emit_program_json_v0_for_stage1_bridge_emit_program_json(
     source_text: &str,
 ) -> Result<String, String> {
-    bridge_shim::emit_program_json_v0_for_stage1_bridge_emit_program_json(source_text)
+    authority::source_to_program_json_v0_strict(source_text)
+        .map_err(|error_text| format!("emit-program-json-v0: {}", error_text))
 }
 
 fn format_stage1_program_json_v0_freeze(error_text: String) -> String {
@@ -90,19 +87,13 @@ pub fn emit_program_json_v0_for_current_stage1_build_box_mode(
     )
 }
 
-/// Legacy strict alias kept owner-local only.
-#[cfg(test)]
-pub(crate) fn source_to_program_json_v0(source_text: &str) -> Result<String, String> {
-    source_to_program_json_v0_strict(source_text)
-}
-
 #[cfg(test)]
 mod tests {
     use super::{
         emit_program_json_v0_for_stage1_bridge_emit_program_json,
         emit_program_json_v0_for_stage1_build_box,
-        emit_program_json_v0_for_strict_authority_source, source_to_program_json_v0,
-        source_to_program_json_v0_relaxed, source_to_program_json_v0_strict,
+        emit_program_json_v0_for_strict_authority_source, source_to_program_json_v0_relaxed,
+        source_to_program_json_v0_strict,
         strict_authority_program_json_v0_source_rejection,
     };
     use std::collections::BTreeSet;
@@ -412,9 +403,16 @@ static box Main {
 
     #[test]
     fn emit_program_json_v0_for_stage1_bridge_emit_program_json_wraps_bridge_error() {
-        let relaxed_source = include_str!("../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
         let error = emit_program_json_v0_for_stage1_bridge_emit_program_json(relaxed_source)
-            .expect_err("stage1 bridge strict parse should fail on launcher source");
+            .expect_err("stage1 bridge strict parse should fail on compat-only source");
         assert!(
             error.starts_with("emit-program-json-v0: "),
             "unexpected error: {error}"
@@ -477,12 +475,13 @@ static box Main {
     }
 
     #[test]
-    fn source_to_program_json_v0_rejects_script_body_without_static_main() {
+    fn source_to_program_json_v0_strict_rejects_script_body_without_static_main() {
         let source = r#"
 print(42)
 return 0
 "#;
-        let error = source_to_program_json_v0(source).expect_err("script body should fail-fast");
+        let error = source_to_program_json_v0_strict(source)
+            .expect_err("script body should fail-fast");
         assert!(
             error.contains("expected `static box Main { main() { ... } }`")
                 || error.contains("parse error (Rust parser, v0 subset):"),
@@ -526,20 +525,4 @@ static box Main {
         );
     }
 
-    #[test]
-    fn source_to_program_json_v0_default_is_now_strict() {
-        let source = r#"
-static box Main {
-  main() {
-    @x = 41
-    return x + 1
-  }
-}
-"#;
-        let error = source_to_program_json_v0(source).expect_err("default path should be strict");
-        assert!(
-            error.contains("parse error (Rust parser, v0 subset):"),
-            "unexpected error: {error}"
-        );
-    }
 }

@@ -8,7 +8,7 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
   - façade entry
   - public authority / compat / build-surrogate API surface
   - delegates current source authority to `authority.rs`
-  - delegates future-retire bridge shim to `bridge_shim.rs`
+  - keeps future-retire bridge error-prefix wrapping as a tiny crate-local facade leaf
 - `src/stage1/program_json_v0/routing.rs`
   - source-shape SSOT
   - build-surrogate route selection SSOT
@@ -16,8 +16,6 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
 - `src/stage1/program_json_v0/authority.rs`
   - current strict source authority owner
   - strict/relaxed source parse orchestration
-- `src/stage1/program_json_v0/bridge_shim.rs`
-  - future-retire bridge emit-program shim
 - `src/stage1/program_json_v0/extract.rs`
   - source-text observation only
   - `using` import collection
@@ -31,13 +29,12 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
 
 - strict parse stays crate-local (`source_to_program_json_v0_strict(...)`)
 - relaxed compat keep stays owner-local (`source_to_program_json_v0_relaxed(...)`)
-- future-retire `stage1_bridge` uses crate-local shim `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
+- future-retire `stage1_bridge` uses crate-local facade helper `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
 - current authority source route should prefer `emit_program_json_v0_for_strict_authority_source(...)`
 - the real source-authority owner is `authority.rs`; `program_json_v0.rs` is no longer the owner of the parse/lower chain itself
-- future-retire bridge shim is no longer mixed into `authority.rs`; it now lives in `bridge_shim.rs`
+- future-retire bridge error-prefix wrapping is no longer mixed into `authority.rs`; it stays as a tiny facade leaf in `program_json_v0.rs`
 - build-box surrogate callers use `emit_program_json_v0_for_current_stage1_build_box_mode(...)`
 - current-mode build surrogate follows `crate::config::env::stage1::emit_program_json()` as env SSOT
-- legacy default alias (`source_to_program_json_v0(...)`) stays test-only owner-local
 - build-route selection (`select_program_json_v0_build_route(...)`) stays routing-local inside `routing.rs`
 - build-route enum (`ProgramJsonV0BuildRoute`) stays routing-local; cross-crate callers do not read route state directly
 - build-box route emission also stays routing-local; the façade only freeze-wraps owner-local `emit_program_json_v0_for_stage1_build_box(...)`
@@ -62,7 +59,6 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
 
 ## Forbidden Cross-Crate Calls
 
-- `source_to_program_json_v0(...)` in non-test builds
 - `source_to_program_json_v0_relaxed(...)` across crate boundaries
 - `source_to_program_json_v0_strict(...)` across crate boundaries
 - direct `source_to_program_json_v0_strict(...)` calls from `src/runner/stage1_bridge/**`

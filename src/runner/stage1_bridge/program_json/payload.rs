@@ -10,9 +10,16 @@ mod tests {
 
     #[test]
     fn emit_program_json_payload_preserves_bridge_error_prefix() {
-        let relaxed_source = include_str!("../../../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
         let error =
-            emit_program_json_payload(relaxed_source).expect_err("launcher source should fail");
+            emit_program_json_payload(relaxed_source).expect_err("compat-only source should fail");
         assert!(
             error.starts_with("emit-program-json-v0: "),
             "unexpected error: {error}"

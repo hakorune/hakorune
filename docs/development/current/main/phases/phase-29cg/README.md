@@ -80,7 +80,7 @@ Final direction:
       - both now suffix unsuffixed dotted helper `Global` callees when a matching `name/arity` definition exists
     - the current reduced-case helper/source closure bucket is now closed in the stage1 bridge lane
     - kernel-direct `lang.compiler.entry.using_resolver_box.resolve_for_source` is intentionally stubbed empty in `module_string_dispatch.rs`
-    - kernel-direct `lang.compiler.build.build_box.emit_program_json_v0` delegates to Rust `source_to_program_json_v0(...)`, which materializes entry-local `Main` helper defs only
+    - kernel-direct `lang.compiler.build.build_box.emit_program_json_v0` delegates to the Rust `src/stage1/program_json_v0.rs` strict source lowering path, which materializes entry-local `Main` helper defs only
     - the reduced bridge-first Program(JSON v0) path now carries `imports` for `using ... as ...`, bridge alias-lowering routes those imports into MIR lowering, and `stage1_cli_env.hako` env-mode source/program-json contracts no longer false-negative on fresh `.next` artifacts
     - exact reduced-case proof is now green:
       - `bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh`

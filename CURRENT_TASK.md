@@ -42,6 +42,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/nyash-llvm-compiler/README.md` and `src/main.rs` now describe that keep-lane exe linking contract explicitly
   - `crates/nyash-llvm-compiler/src/native_driver.rs` now delegates MIR-to-IR construction into `src/native_ir.rs`, so the native bootstrap lane is mostly orchestration plus object emission
   - `src/runner/modes/common_util/exec.rs` and `tools/build_llvm.sh` no longer route `NYASH_LLVM_BACKEND=native`; native replay is now direct `ny-llvmc --driver native` canary only
+  - `src/stage1/program_json_v0.rs` now inlines the future-retire bridge error-prefix helper and drops the legacy test-only `source_to_program_json_v0(...)` alias, so `program_json_v0/bridge_shim.rs` is gone and the remaining bootstrap keep is smaller
 - do not mix this slice with:
   - kernel migration refactors
   - `boundary_driver.rs` compat keep reduction
