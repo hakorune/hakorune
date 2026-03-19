@@ -48,6 +48,13 @@ Related:
 4. `.hako` が先に持つべきなのは policy/contract であり、native substrate ではない。
 5. Rust ベースの buildability は migration 中も維持する。
 
+## Practical Substrate Target
+
+- The preferred final shape is not "delete every native line immediately".
+- The preferred final shape is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to the minimum required for bootstrap, ABI/transport, raw leaf memory, handle registry, GC hooks, and LLVM backend emission.
+- If a concern can be expressed as policy, route, or control structure, prefer `.hako`.
+- Keep LLVM as the primary backend substrate unless a separate SSOT says otherwise.
+
 ## 2. Current Truth
 
 - `.hako` 側の runtime kernel edit lane は [`lang/src/runtime/kernel/`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/kernel/) である。
