@@ -55,17 +55,9 @@ pub(super) fn link_executable(
     nyrt_dir_opt: Option<&PathBuf>,
     extra_libs: Option<&str>,
 ) -> Result<()> {
-    let nyrt_dir = if let Some(dir) = nyrt_dir_opt {
-        dir.clone()
-    } else {
-        let a = PathBuf::from("target/release");
-        let b = PathBuf::from("crates/nyash_kernel/target/release");
-        if a.join("libnyash_kernel.a").exists() {
-            a
-        } else {
-            b
-        }
-    };
+    let nyrt_dir = nyrt_dir_opt.cloned().context(
+        "explicit --nyrt <DIR> is required for Harness/Native exe linking; boundary route handles fallback",
+    )?;
     let libnyrt = nyrt_dir.join("libnyash_kernel.a");
     if !libnyrt.exists() {
         bail!(
@@ -127,4 +119,18 @@ pub(super) fn link_executable(
         bail!("linker exited with status: {:?}", output.status.code());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn harness_and_native_exe_linking_requires_explicit_nyrt_dir() {
+        let err = link_executable(Path::new("/tmp/in.o"), Path::new("/tmp/out.exe"), None, None)
+            .unwrap_err();
+        let message = err.to_string();
+        assert!(message.contains("explicit --nyrt <DIR> is required for Harness/Native exe linking"));
+    }
 }

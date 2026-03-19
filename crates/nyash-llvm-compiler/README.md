@@ -17,7 +17,7 @@
 | `--out <FILE>` | output path | `--emit obj` では `.o`、`--emit exe` では実行ファイル |
 | `--emit {obj|exe}` | emit kind | default は `obj` |
 | `--dummy` | dummy `ny_main` を生成 | `--in` を無視する |
-| `--nyrt <DIR>` | `libnyash_kernel.a` search dir | `--emit exe` でだけ意味を持つ |
+| `--nyrt <DIR>` | `libnyash_kernel.a` search dir | `--emit exe` で意味を持つ。`--driver harness/native` の exe linking では必須 |
 | `--libs <FLAGS>` | linker extras | `--emit exe` でだけ意味を持つ |
 
 ## Implementation Detail Flag
@@ -48,6 +48,7 @@
 - unsupported shapes now replay directly from `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`, so `llvmlite` remains an explicit compat keep inside the boundary fallback lane
 - `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now uses `--driver boundary`, so the default `hako_aot` command route matches the boundary-owned daily path
 - `Boundary` / `Native` default routes do not resolve the Python harness path unless the explicit `--driver harness` keep lane is selected
+- `Harness` / `Native` keep lanes no longer synthesize a default `nyrt` search dir for exe linking; `--emit exe` では explicit `--nyrt <DIR>` を渡す
 - this is still implementation detail であり、backend-zero の final target は `.hako -> thin backend C ABI/plugin boundary` を daily route にすること
 - `--driver native` は bootstrap seam 用の opt-in selector で、final owner ではない
 - current internal default driver は `boundary` で、`native` defaulting はしない

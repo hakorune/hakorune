@@ -29,6 +29,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - current session completion:
   - `boundary_default_object_opts(...)` is now transport-only; `route.rs` no longer synthesizes a hidden `pure-first/harness` route, and the two explicit caller sites now set `compile_recipe=pure-first` / `compat_replay=harness` themselves
   - `crates/nyash-llvm-compiler/src/boundary_driver.rs` no longer injects boundary-local recipe/replay env defaults; it now just calls the explicit pure-first export and mirrors caller env when needed for link-side plumbing
+  - `crates/nyash-llvm-compiler/src/link_driver.rs` now requires an explicit `--nyrt <DIR>` for `Harness` / `Native` exe linking instead of synthesizing a default search dir
+  - `crates/nyash-llvm-compiler/README.md` and `src/main.rs` now describe that keep-lane exe linking contract explicitly
 - do not mix this slice with:
   - kernel migration refactors
   - `boundary_driver.rs` compat keep reduction

@@ -54,7 +54,7 @@ struct Args {
     #[arg(long, value_enum, default_value_t = EmitKind::Obj, help_heading = "Stable CLI")]
     emit: EmitKind,
 
-    /// Path to directory containing libnyash_kernel.a when emitting an executable. If omitted, searches target/release then crates/nyash_kernel/target/release.
+    /// Path to directory containing libnyash_kernel.a when emitting an executable. Boundary may resolve a fallback, but Harness/Native exe linking requires an explicit --nyrt <DIR>.
     #[arg(long, value_name = "DIR", help_heading = "Stable CLI")]
     nyrt: Option<PathBuf>,
 
