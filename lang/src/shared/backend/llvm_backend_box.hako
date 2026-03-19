@@ -27,6 +27,47 @@ static box LlvmBackendBox {
     local recipe = profile.get("compile_recipe")
     local compat = profile.get("compat_replay")
 
+    if me._require_profile_equals(
+      "route_profile",
+      route_profile,
+      BackendRecipeBox.route_profile_name(path),
+    ) == null { return null }
+    if me._require_profile_equals(
+      "policy_owner",
+      policy_owner,
+      BackendRecipeBox.policy_owner_name(),
+    ) == null { return null }
+    if me._require_profile_equals(
+      "transport_owner",
+      transport_owner,
+      BackendRecipeBox.transport_owner_name(),
+    ) == null { return null }
+    if me._require_profile_equals(
+      "acceptance_policy",
+      acceptance_policy,
+      BackendRecipeBox.acceptance_policy_for(path),
+    ) == null { return null }
+    if me._require_profile_equals(
+      "acceptance_case",
+      acceptance_case,
+      BackendRecipeBox.acceptance_case_for(path),
+    ) == null { return null }
+    if me._require_profile_equals(
+      "json_path",
+      path,
+      json_path,
+    ) == null { return null }
+    if me._require_profile_equals(
+      "compile_recipe",
+      recipe,
+      BackendRecipeBox.compile_recipe_for(path),
+    ) == null { return null }
+    if me._require_profile_equals(
+      "compat_replay",
+      compat,
+      BackendRecipeBox.compat_replay_for(path),
+    ) == null { return null }
+
     local obj = env.codegen.compile_json_path(path, "", recipe, compat)
     if obj == null || ("" + obj) == "" {
       return me._fail("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
@@ -67,5 +108,20 @@ static box LlvmBackendBox {
   _fail(tag) {
     print("" + tag)
     return null
+  }
+
+  _require_profile_equals(field_name, actual, expected) {
+    if actual == null {
+      return me._fail("[llvmbackend/profile-missing] " + field_name + " is empty")
+    }
+    if expected == null {
+      return me._fail("[llvmbackend/profile-missing] expected " + field_name + " is empty")
+    }
+    if ("" + actual) != ("" + expected) {
+      return me._fail(
+        "[llvmbackend/profile-mismatch] " + field_name + " expected=" + ("" + expected) + " got=" + ("" + actual)
+      )
+    }
+    return "" + actual
   }
 }

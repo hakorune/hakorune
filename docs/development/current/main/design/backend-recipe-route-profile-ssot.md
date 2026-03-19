@@ -81,7 +81,7 @@ Related:
 ## Current Rule
 
 - Daily `.hako` callers should first ask `BackendRecipeBox` for a route profile.
-- `LlvmBackendBox` should validate the returned profile and then stop at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`.
+- `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then stop at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`.
 - Rust and C layers may mirror the same policy names, but they must not invent new policy names.
 
 ## Next Expansion Rule
