@@ -77,7 +77,7 @@ backend-zero の final target は次の形に固定する。
 
 1. mainline:
    - caller-facing route is `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe`
-   - `crates/nyash-llvm-compiler/src/main.rs` now delegates input shaping into `src/compile_input.rs` plus emit/link driver dispatch into `src/driver_dispatch.rs`, and `src/driver_dispatch.rs` now further splits harness duties into `src/harness_driver.rs` plus link/finalize duties into `src/link_driver.rs`, so Rust thin-up is now at its stop line and the next move is exe optimization
+   - `crates/nyash-llvm-compiler/src/main.rs` now delegates input shaping into `src/compile_input.rs` plus emit/link driver dispatch into `src/driver_dispatch.rs`, and `src/driver_dispatch.rs` now further splits harness duties into `src/harness_driver.rs` plus link/finalize duties into `src/link_driver.rs`, so Rust thin-up is now at its stop line and the next backend-zero move is `native_driver.rs` bootstrap keep reduction before exe optimization
    - `ny-llvmc` internal default driver now enters the boundary-owned lane first, not `Harness`
    - `src/host_providers/llvm_codegen.rs` default object path now also tries the direct C ABI boundary before any wrapper keep lane, and the parent file now delegates MIR normalization / transport helpers into `src/host_providers/llvm_codegen/normalize.rs` plus `src/host_providers/llvm_codegen/transport.rs`
    - `src/host_providers/llvm_codegen.rs::link_object_capi(...)` now forwards linker keeps directly into `hako_aot_link_obj(...)` instead of re-owning runtime archive / env ldflags synthesis on the Rust side

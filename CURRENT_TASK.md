@@ -17,7 +17,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - first: `0rust` / backend-zero を先に終える
 - order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
+- next immediate code slice: `crates/nyash-llvm-compiler/src/native_driver.rs` bootstrap keep reduction
 - second: exe optimization wave は backend-zero handoff の後段に置く
+- parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
 - do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
 
 ## Restart Handoff (2026-03-19)
