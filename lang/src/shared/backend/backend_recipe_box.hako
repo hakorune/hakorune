@@ -1,7 +1,6 @@
 // BackendRecipeBox — `.hako` policy/recipe owner for backend-zero.
 // Responsibility:
 //   - Keep caller-side compile recipe state in one place.
-//   - Prepare link recipe normalization without owning transport calls.
 //   - Stay adjacent to LlvmBackendBox so policy can be widened before the C shim
 //     loses its own seed/route logic.
 

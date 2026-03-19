@@ -103,8 +103,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` / `build_surrogate.rs` / `llvm_backend_surrogate.rs` are now frozen exact owners; docs/inventory closeout only until caller-proof says the temporary lane can disappear
   - `src/runner/modes/common_util/exec.rs` no longer carries dead `llvmlite_emit_object(...)`, so runner-side llvmlite residue shrank by one helper
   - `lang/src/shared/backend/backend_recipe_box.hako` dropped dead `prepare_compile_route(...)` / `prepare_compile_pure_first(...)` wrappers, so route-profile ownership is now tighter
-  - `lang/src/shared/backend/llvm_backend_box.hako` now forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)` after route-profile validation
   - `lang/src/shared/backend/backend_recipe_box.hako` no longer exposes `prepare_link_route(...)`; link `libs` normalization is now inlined in `LlvmBackendBox.link_exe(...)`
+  - `lang/src/shared/backend/llvm_backend_box.hako` now forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)` after route-profile validation
   - `lang/src/shared/host_bridge/codegen_bridge_box.hako` is now args-only; the 1-arg convenience wrappers were removed and `stage1_cli` / `LLVMEmitBox` moved to `*_args`
   - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now call `CodegenBridgeBox.*_args` directly, with their pass-through helper layers removed
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
@@ -623,7 +623,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - reduce `hako_llvmc_ffi.c -> ny-llvmc --driver harness` fallback reliance from `ret_const_min_v1` upward until `llvm_codegen.rs` can stay boundary-first without reopening Rust/CLI ownership
        - fixed order:
          - first keep widening boundary-owned compile coverage in `lang/c-abi/shims/hako_llvmc_ffi.c` for narrow pure seeds
-        - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight and link recipe normalization
+        - landed: `.hako` recipe seam now exists as `lang/src/shared/backend/backend_recipe_box.hako`, which owns the caller-side compile recipe preflight
         - landed: `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)`; Rust transport mirrors that payload to env only at the boundary handoff
         - landed: `.hako` route profile now also names `acceptance_policy=boundary-pure-seed-matrix-v1`, so the current pure/compat acceptance basis is visible at the policy owner before any transport handoff
         - landed: `.hako` route profile now also names `acceptance_case=ret-const-v1`, so the narrow `ret_const_min_v1` evidence row stays visible at the policy owner before any transport handoff
