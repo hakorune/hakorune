@@ -60,7 +60,7 @@ Related:
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
    - `main.rs` / `llvm_codegen.rs` の Rust glue を further thin にすること
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
-8. `.hako` kernel migration order is now the current main thread: `string` is already landed, then `array` -> `numeric` -> `map`, and perf/asm follow-up is secondary until that order is fixed
+8. `.hako` kernel migration order is now the current main thread: `string` is already landed, then `array` -> `numeric` -> `map`, and perf/asm follow-up is secondary until that order is fixed (SSOT: `docs/development/current/main/phases/phase-29cm/README.md`)
    - `.hako` string kernel op set v0 の current pilot は `string.search` で、いまは `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index` まで landed している
    - further widening is paused until a new exact blocker appears
    - `array` stays in `runtime/collections` ring1 first; a new `lang/src/runtime/kernel/array/` module is still deferred until a concrete policy difference appears

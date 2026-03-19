@@ -8,7 +8,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - root から最短で `Current Blocker` と `next fixed order` に到達する。
 - 本ファイルは薄い入口に保ち、長文履歴はアーカイブへ逃がす。
-- runtime lane の Next は `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md` を単一正本に固定する。
+- kernel migration lane の Next は `docs/development/current/main/phases/phase-29cm/README.md` を単一正本に固定する。
+- de-rust runtime lane の Next は `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md` を単一正本に固定する。
 
 ## Focus Lock (2026-03-02)
 
@@ -20,6 +21,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - current main goal:
   - kernel authority migration を先に終わらせてから exe optimization に進む
+  - plan SSOT: `docs/development/current/main/phases/phase-29cm/README.md`
   - fixed order:
     1. `string`
        - `string.search` v0 は landed 済み。これ以上の widening は新しい exact blocker が出るまで pause

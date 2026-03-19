@@ -3,6 +3,7 @@
 Scope:
 - Home for `.hako` runtime kernel logic (`*_hk` bench line).
 - Keep behavior/policy here; keep host-call transport in `../host/`.
+- Migration plan SSOT: `docs/development/current/main/phases/phase-29cm/README.md`.
 
 Subdirectories:
 - `string/`: string kernel routines and policies.
