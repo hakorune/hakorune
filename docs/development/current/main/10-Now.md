@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
   - docs/development/current/main/phases/phase-29cf/README.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
+  - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
@@ -86,6 +87,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - Backend-zero boundary lock: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
+- Backend-zero fixed order / buildability gate: `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
 - Backend-zero phase pointer: `docs/development/current/main/phases/phase-29ck/README.md`
 - Backend-zero final shape: `.hako -> thin backend C ABI/plugin boundary -> object/exe`（`native_driver.rs` は bootstrap seam only）
 - Optimization policy (runtime): de-rust runtime closeout contract 緑を前提に、最適化 lane（micro/asm -> kilo）へ handoff する。

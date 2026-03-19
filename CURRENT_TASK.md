@@ -11,6 +11,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - kernel migration lane の Next は `docs/development/current/main/phases/phase-29cm/README.md` を単一正本に固定する。
 - de-rust runtime lane の Next は `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md` を単一正本に固定する。
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
+- backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
 
 ## Focus Lock (2026-03-02)
 
@@ -38,7 +39,21 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - latest inventory (2026-03-19): still defer / no kernel migration slice
   - perf / asm optimization はこの順番を固定してから follow-up に回す
 
-## Exe Optimization Wave (secondary / follow-up after kernel migration) (2026-03-18)
+## Backend-Zero Next (queued)
+
+- current hard lane after kernel stop line:
+  - backend-zero を active lane にする
+  - fixed order / buildability gate は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を正本にする
+  - order:
+    1. current owner cutover
+    2. compat keep reduction
+    3. bootstrap keep reduction
+- rule:
+  - buildability は gate contract であり authority ではない
+  - kernel migration の再調整と同じ slice で backend-zero を進めない
+  - Rust build/bootstrap route は常時保持する
+
+## Exe Optimization Wave (secondary / parked behind backend-zero handoff) (2026-03-18)
 
 - follow-up goal:
   - `kilo` / `micro kilo` の exe 最適化に移る
@@ -307,6 +322,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - start trigger: current perf / backend-zero stop-line が揃ってからだけ reopen する
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
+    - fixed order / buildability gate: `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
     - design SSOT: `docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md`
     - phase SSOT: `docs/development/current/main/phases/phase-29ck/README.md`
     - post-cutover by-name retirement SSOT: `docs/development/current/main/phases/phase-29cl/README.md`

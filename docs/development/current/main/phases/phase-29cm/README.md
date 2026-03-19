@@ -8,6 +8,7 @@ Related:
   - lang/src/runtime/kernel/README.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
+  - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/build-lane-separation-ssot.md
   - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
@@ -101,3 +102,9 @@ Promote しない条件（defer 維持）:
 - `string`/`numeric` の landed pilots が smoke で固定されている
 - `array` は ring1 thin floor を達成していて、promotion trigger の判定が「未発火」または「発火→promotion」どちらかに確定している
 - `map` は ring1 keep のまま（kernel lane に混ぜない）
+
+## Backend-Zero Handoff
+
+- この phase は kernel authority stop line までを owner にする。
+- backend-zero の active order と buildability gate は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を正本に渡す。
+- ここから先は kernel 境界をいじらず、backend-zero / buildability / bootstrap の lane へ移る。

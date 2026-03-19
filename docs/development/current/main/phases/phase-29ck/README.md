@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
+  - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md

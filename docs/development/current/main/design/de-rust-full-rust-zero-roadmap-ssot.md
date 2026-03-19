@@ -6,6 +6,7 @@ Scope: `full Rust 0` を runtime-zero / backend-zero に分割して可視化し
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
@@ -54,6 +55,7 @@ Related:
    - accepted pointer / phase-cut queued
    - owner inventory と keep-vs-retire の高位境界は固定済み
    - final architecture boundary is locked in `de-rust-backend-zero-boundary-lock-ssot.md`
+   - execution order / buildability gate is fixed in `de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
    - phase-29ck が `task pack / acceptance / reopen rule` を owner する
    - post-B1/B3 by-name retirement follow-up is owned by `docs/development/current/main/phases/phase-29cl/README.md`
    - `native_driver.rs` は bootstrap seam only であり、done shape ではない。

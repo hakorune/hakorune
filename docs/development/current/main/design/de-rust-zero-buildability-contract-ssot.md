@@ -6,6 +6,7 @@ Scope: `0rust` を「Rust meaning owner zero」と定義し、Rust ベースの 
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29cm/README.md
+  - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -46,10 +47,10 @@ Related:
 
 - `phase-29cm`: kernel authority migration の fixed order を進めつつ、Rust ベースの buildability は維持する
 - `phase-29ck` / `de-rust-*`: backend/runtime cutover で Rust build route を壊さない
+- backend-zero の daily order は `de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を正本にする
 
 ## Done Shape
 
 - meaning owner は `.hako` にある
 - Rust は build/bootstrap / substrate / compat keep として再実行可能である
 - migration slice を切った後でも、Rust から build できることを確認できる
-

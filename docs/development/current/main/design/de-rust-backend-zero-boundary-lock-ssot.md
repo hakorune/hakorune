@@ -6,6 +6,7 @@ Scope: backend-zero の最終アーキテクチャ境界を固定し、`native_d
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
   - docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md
@@ -145,6 +146,10 @@ backend-zero の final target は次の形に固定する。
 4. `native_driver.rs` を canary-only へ降格する
 5. llvmlite demotion / optimization handoff を mainline 側で固定する
 6. both `Harness` and `Native` stay explicit keep lanes only
+
+補足:
+- この文書は architecture boundary lock を固定する。
+- `current owner cutover -> compat keep reduction -> bootstrap keep reduction` の daily 実行順は `de-rust-backend-zero-fixed-order-and-buildability-ssot.md` が正本である。
 
 ## 7. Non-goals
 
