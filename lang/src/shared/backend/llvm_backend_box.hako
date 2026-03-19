@@ -12,12 +12,10 @@ static box LlvmBackendBox {
   compile_obj(json_path) {
     local profile = BackendRecipeBox.compile_route_profile(json_path)
     if profile == null { return null }
-    local path = profile.get("json_path")
-    if path == null { return null }
     local recipe = profile.get("compile_recipe")
     local compat = profile.get("compat_replay")
 
-    local obj = env.codegen.compile_json_path(path, "", recipe, compat)
+    local obj = env.codegen.compile_json_path(json_path, "", recipe, compat)
     if obj == null || ("" + obj) == "" {
       return me._fail("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
     }

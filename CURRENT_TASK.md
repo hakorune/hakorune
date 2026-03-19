@@ -102,6 +102,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/stage1/program_json_v0.rs` now inlines the future-retire bridge error-prefix helper and drops the legacy test-only `source_to_program_json_v0(...)` alias, so `program_json_v0/bridge_shim.rs` is gone and the remaining bootstrap keep is smaller
   - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` / `build_surrogate.rs` / `llvm_backend_surrogate.rs` are now frozen exact owners; docs/inventory closeout only until caller-proof says the temporary lane can disappear
   - `src/runner/modes/common_util/exec.rs` no longer carries dead `llvmlite_emit_object(...)`, so runner-side llvmlite residue shrank by one helper
+  - `lang/src/shared/backend/backend_recipe_box.hako` dropped dead `prepare_compile_route(...)` / `prepare_compile_pure_first(...)` wrappers, so route-profile ownership is now tighter
+  - `lang/src/shared/backend/llvm_backend_box.hako` now forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)` after route-profile validation
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
   - `BackendRecipeBox.compile_route_profile(...)` now owns the exact route-profile contract validation, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
   - `CodegenBridgeBox` now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox` / `MirVmS0BoxcallExecBox`, so that caller shape lives in one shared bridge instead of being duplicated

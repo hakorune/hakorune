@@ -6,18 +6,6 @@
 //     loses its own seed/route logic.
 
 static box BackendRecipeBox {
-  prepare_compile_route(json_path) {
-    local profile = me.compile_route_profile(json_path)
-    if profile == null { return null }
-    return "" + profile.get("json_path")
-  }
-
-  prepare_compile_pure_first(json_path) {
-    local path = me._require_non_empty("prepare_compile_route", "json_path", json_path)
-    if path == null { return null }
-    return "" + path
-  }
-
   compile_route_profile(json_path) {
     local path = me._require_non_empty("compile_route_profile", "json_path", json_path)
     if path == null { return null }
