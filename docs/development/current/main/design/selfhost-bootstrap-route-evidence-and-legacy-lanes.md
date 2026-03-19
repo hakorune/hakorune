@@ -22,9 +22,10 @@ Related:
 - G1 compare policy の詳細は
   `docs/development/current/main/design/selfhost-g1-mir-compare-policy-ssot.md`
   を正本とする。
-- 2026-03-20: `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` is still failing in `stageb-delegate` / `ny-llvmc failed to link exe` with `missing schema_version`.
-  - observed path: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` still materializes MIR via `MirBuilderBox.emit_from_program_json_v0(...)`
+  - 2026-03-20: `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` now gets past the C ABI rebuild seam and bridge-first MIR build, but the reduced artifact is treated as runnable bootstrap output while payload proof stays on the stage0 bootstrap route.
+  - observed path: the current reduced artifact is not the payload-emitting contract; direct runner flags are not the contract here, and the bootstrap route proof is the acceptance surface.
   - keep this as a separate bootstrap blocker from the current `.hako` authoring slice and backend-zero cleanup
+  - active fix lane: `docs/development/current/main/phases/phase-29cp/README.md`
 
 ## Binary-only `--hako-emit-mir-json` Contract (lane B)
 

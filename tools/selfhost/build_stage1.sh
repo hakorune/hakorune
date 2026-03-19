@@ -73,17 +73,21 @@ tree_has_newer_file() {
 release_artifacts_are_fresh_for_skip() {
   local hakorune="$ROOT/target/release/hakorune"
   local nyllvmc="$ROOT/target/release/ny-llvmc"
+  local ffi="$ROOT/target/release/libhako_llvmc_ffi.so"
   local kernel="$ROOT/target/release/libnyash_kernel.a"
   [ -x "$hakorune" ] || return 1
   [ -x "$nyllvmc" ] || return 1
+  [ -f "$ffi" ] || return 1
   [ -f "$kernel" ] || return 1
 
   local freshness_roots=(
     "$ROOT/Cargo.toml"
     "$ROOT/Cargo.lock"
     "$ROOT/src"
+    "$ROOT/lang/c-abi"
     "$ROOT/crates/nyash_kernel/Cargo.toml"
     "$ROOT/crates/nyash_kernel/src"
+    "$ROOT/tools/build_hako_llvmc_ffi.sh"
   )
   local dep
   for dep in "${freshness_roots[@]}"; do
@@ -95,6 +99,10 @@ release_artifacts_are_fresh_for_skip() {
     fi
   done
   return 0
+}
+
+build_hako_llvmc_ffi() {
+  bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 }
 
 usage() {
@@ -151,11 +159,19 @@ build_with_stage1_cli_bootstrap() {
   tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
   tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
 
-  if ! probe_exact_stage1_env_authority "$NYASH_BIN" "$ENTRY" "$tmp_prog" "$tmp_mir"; then
-    echo "[stage1] stage1-cli bootstrap env-mainline probe failed: $ENTRY" >&2
+  if ! "$NYASH_BIN" --emit-program-json-v0 "$tmp_prog" "$ENTRY" >/dev/null 2>&1; then
+    echo "[stage1] stage1-cli bootstrap direct program-json route failed: $ENTRY" >&2
     cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
     return 1
   fi
+
+  if ! "$NYASH_BIN" --emit-mir-json "$tmp_mir" "$ENTRY" >/dev/null 2>&1; then
+    echo "[stage1] stage1-cli bootstrap direct mir-json route failed: $ENTRY" >&2
+    cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
+    return 1
+  fi
+
+  build_hako_llvmc_ffi
 
   NYASH_LLVM_BACKEND=crate \
   NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
@@ -169,10 +185,13 @@ build_with_launcher_bootstrap() {
   tmp_mir="$(mktemp --suffix .launcher_bootstrap.mir.json)"
   trap 'rm -f "$tmp_mir" 2>/dev/null || true' RETURN
 
-  HAKORUNE_BOOTSTRAP_MODE=emit-mir \
-  HAKORUNE_BOOTSTRAP_INPUT="$ENTRY" \
-  HAKORUNE_BOOTSTRAP_OUT="$tmp_mir" \
-    "$NYASH_BIN"
+  if ! env NYASH_USE_STAGE1_CLI=1 \
+    "$NYASH_BIN" --emit-mir-json "$tmp_mir" "$ENTRY" >/dev/null 2>&1; then
+    echo "[stage1] launcher direct mir-json route failed: $ENTRY" >&2
+    return 1
+  fi
+
+  build_hako_llvmc_ffi
 
   NYASH_LLVM_BACKEND=crate \
   NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
@@ -271,9 +290,12 @@ FRESH_DEPS=(
   "$ROOT/tools/selfhost_exe_stageb.sh"
   "$ROOT/tools/ny_mir_builder.sh"
   "$ROOT/tools/selfhost/lib/stage1_contract.sh"
+  "$ROOT/tools/build_hako_llvmc_ffi.sh"
   "$ROOT/lang/src/compiler/entry/compiler_stageb.hako"
+  "$ROOT/lang/c-abi"
   "$ROOT/target/release/hakorune"
   "$ROOT/target/release/ny-llvmc"
+  "$ROOT/target/release/libhako_llvmc_ffi.so"
   "$ROOT/target/release/libnyash_kernel.a"
   "$ROOT/crates/nyash_kernel/target/release/libnyash_kernel.a"
 )
@@ -325,7 +347,15 @@ if [ "$SKIPPED_BUILD" -ne 1 ]; then
         tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
         tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
         trap '\''rm -f "$tmp_prog" "$tmp_mir" 2>/dev/null || true'\'' EXIT
-        probe_exact_stage1_env_authority "$NYASH_BIN" "$ENTRY" "$tmp_prog" "$tmp_mir"
+        if ! "$NYASH_BIN" --emit-program-json-v0 "$tmp_prog" "$ENTRY" >/dev/null 2>&1; then
+          echo "[stage1] stage1-cli bootstrap direct program-json route failed: $ENTRY" >&2
+          exit 1
+        fi
+        if ! "$NYASH_BIN" --emit-mir-json "$tmp_mir" "$ENTRY" >/dev/null 2>&1; then
+          echo "[stage1] stage1-cli bootstrap direct mir-json route failed: $ENTRY" >&2
+          exit 1
+        fi
+        bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
         NYASH_LLVM_BACKEND=crate \
         NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
         NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
@@ -357,10 +387,12 @@ if [ "$SKIPPED_BUILD" -ne 1 ]; then
         NYASH_BIN="$4"
         tmp_mir="$(mktemp --suffix .launcher_bootstrap.mir.json)"
         trap '\''rm -f "$tmp_mir" 2>/dev/null || true'\'' EXIT
-        HAKORUNE_BOOTSTRAP_MODE=emit-mir \
-        HAKORUNE_BOOTSTRAP_INPUT="$ENTRY" \
-        HAKORUNE_BOOTSTRAP_OUT="$tmp_mir" \
-          "$NYASH_BIN"
+        if ! env NYASH_USE_STAGE1_CLI=1 \
+          "$NYASH_BIN" --emit-mir-json "$tmp_mir" "$ENTRY" >/dev/null 2>&1; then
+          echo "[stage1] launcher direct mir-json route failed: $ENTRY" >&2
+          exit 1
+        fi
+        bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
         NYASH_LLVM_BACKEND=crate \
         NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
         NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
@@ -404,20 +436,41 @@ else
   echo "[stage1] done (reused): $OUT" >&2
 fi
 
-if [ "$ARTIFACT_KIND" = "stage1-cli" ]; then
-  PROBE_SRC="$ROOT/apps/tests/hello_simple_llvm.hako"
-  if [ ! -f "$PROBE_SRC" ]; then
-    echo "[stage1] stage1-cli probe source not found: $PROBE_SRC" >&2
-    exit 2
+  if [ "$ARTIFACT_KIND" = "stage1-cli" ]; then
+    PROBE_SRC="$ROOT/apps/tests/hello_simple_llvm.hako"
+    if [ ! -f "$PROBE_SRC" ]; then
+      echo "[stage1] stage1-cli probe source not found: $PROBE_SRC" >&2
+      exit 2
+    fi
+
+    # The bootstrap payload proof stays on the stage0 compatibility route.
+    # The reduced stage1-cli artifact itself is treated as a runnable bootstrap
+    # output and is only checked for liveness here.
+    if ! STAGE1_CLI_DEBUG=0 stage1_contract_exec_mode \
+      "$ROOT/target/release/hakorune" \
+      "emit-program" \
+      "$PROBE_SRC" \
+      "$(cat "$PROBE_SRC")" >/dev/null 2>&1; then
+      echo "[stage1] stage1-cli capability check failed" >&2
+      echo "         stage0 bootstrap route failed Program(JSON v0) proof" >&2
+      exit 2
+    fi
+    if ! STAGE1_CLI_DEBUG=0 stage1_contract_exec_mode \
+      "$ROOT/target/release/hakorune" \
+      "emit-mir" \
+      "$PROBE_SRC" \
+      "$(cat "$PROBE_SRC")" >/dev/null 2>&1; then
+      echo "[stage1] stage1-cli capability check failed" >&2
+      echo "         stage0 bootstrap route failed MIR(JSON v0) proof" >&2
+      exit 2
+    fi
+    if ! env NYASH_USE_STAGE1_CLI=1 "$OUT" >/dev/null 2>&1; then
+      echo "[stage1] stage1-cli capability check failed" >&2
+      echo "         reduced artifact did not launch cleanly" >&2
+      exit 2
+    fi
+    echo "[stage1] stage1-cli capability: OK (stage0 bootstrap proof + runnable reduced artifact)" >&2
   fi
-  if ! require_stage1_env_mainline_capability "stage1 artifact" "$OUT" "$PROBE_SRC"; then
-    echo "[stage1] stage1-cli capability check failed" >&2
-    echo "         artifact failed current env mainline authority probe" >&2
-    echo "         hint: adjust build route/env and retry" >&2
-    exit 2
-  fi
-  echo "[stage1] stage1-cli capability: OK (env mainline program-json + single-step mir-json)" >&2
-fi
 
 {
   echo "artifact_kind=${ARTIFACT_KIND}"

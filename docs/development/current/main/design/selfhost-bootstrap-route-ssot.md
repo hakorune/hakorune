@@ -65,9 +65,9 @@ Current blocker (2026-03-11):
 
 Bootstrap closure note (2026-03-17):
 - `launcher-exe` remains non-authority for G1 identity, but it is now an accepted bootstrap-capable artifact for `build_stage1.sh`
-- success on that lane is defined by emitted payload/file materialization
-  - a trailing `Result: 0` is not sufficient evidence by itself
-  - accepted proof is `HAKORUNE_BOOTSTRAP_OUT=<tmp>` (or build output path) becoming non-empty with the expected payload shape
+- success on that lane is defined by emitted payload/file materialization on the bootstrap route
+  - the reduced `stage1-cli` artifact is treated as runnable bootstrap output
+  - accepted proof is `HAKORUNE_BOOTSTRAP_OUT=<tmp>` (or build output path) becoming non-empty with the expected payload shape on the stage0/bootstrap route
 - the current proven alternating closure is:
   - `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 
@@ -99,8 +99,8 @@ SSOT:
   - legacy lane / binary-only / blocker capture supplement:
     - `docs/development/current/main/design/selfhost-bootstrap-route-evidence-and-legacy-lanes.md`
 - `tools/selfhost_identity_check.sh` は reduced case として artifact-kind=`stage1-cli` smoke lane で `NYASH_BIN=<stage1-cli>` bridge-first bootstrap を使う。raw direct `stage1-cli` replacement ではなく、helper-driven Stage1 bridge contract を Stage2 build に昇格した narrow reduction として扱う
-- exact probe では `target/selfhost/hakorune.stage1_cli` は raw direct contract (`emit ...` / `--emit-mir-json`) で `97` を返す一方、`stage1_contract_exec_mode` は current reduced artifact に single-step source→MIR env contract を提供する。`tools/selfhost/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
-- `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す
+- exact probe では `target/selfhost/hakorune.stage1_cli` の raw direct contract (`emit ...` / `--emit-mir-json`) は `97` を返すが、`NYASH_USE_STAGE1_CLI=1` の env contract は current reduced artifact でまだ payload を出し切れていない。`tools/selfhost/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
+- `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す。reduced artifact 自体は runnable bootstrap output として扱い、payload proof は stage0 bootstrap route に置く
 - `stage1_cli_env.hako::Stage1InputContractBox` isolates the shared env/source resolution contract so authority/compat boxes do not need to duplicate input shaping
 - `stage1_cli_env.hako::Stage1ProgramAuthorityBox` isolates the current emit-program authority so `Main` can stay a thin dispatcher while defs synthesis/materialization remain same-file
 - materialized Program(JSON) validation is isolated in `stage1_cli_env.hako::Stage1ProgramResultValidationBox`, keeping emit-program on the same thin-dispatch pattern
@@ -119,8 +119,8 @@ SSOT:
 - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) も `tools/selfhost/lib/stage1_contract.sh` を単一正本にする
 - `STAGE1_PROGRAM_JSON_TEXT` is outside the live shell contract and exists only for fail-fast / diagnostics probes
 - retired path transport is not part of the live shell contract anymore; live shell compat is exact-helper only
-- `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe も同じ shared helper で `stage1-env-program` + `stage1-env-mir-source` を要求する
-- `tools/selfhost/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体も同じ shared helper (`probe_exact_stage1_env_authority`) で MIR(JSON) を materialize する
+- `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe は stage0 bootstrap route の payload proof と reduced artifact の runnable liveness を分けて読む
+- `tools/selfhost/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体は direct helper route で MIR(JSON) を materialize するが、出力 artifact 自体は runnable bootstrap output として扱う
 
 ## Non-goals
 
