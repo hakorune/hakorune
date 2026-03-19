@@ -41,6 +41,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - optimization hot-leaf trimming
   - C shim transport micro-splitting
 
+## Bootstrap Check
+
+- observed failure: `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` currently fails in `stageb-delegate` / `ny-llvmc failed to link exe` with `missing schema_version`
+- current reduced source: `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` still materializes MIR via `MirBuilderBox.emit_from_program_json_v0(...)`
+- this is a separate bootstrap blocker; do not mix it with the `.hako` authoring slice above
+
 ## Current Priority
 
 - first: `0rust` / backend-zero を先に終える
