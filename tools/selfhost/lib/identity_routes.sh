@@ -246,6 +246,10 @@ run_stage1_env_route() {
 }
 
 probe_exact_stage1_env_authority() {
+  # Route evidence probe for identity checks.
+  # Build-stage bootstrap capability is verified separately by
+  # stage1_contract_verify_stage1_cli_bootstrap_capability() so the two
+  # contracts do not drift into one another.
   local bin="$1"
   local entry="$2"
   local program_out="$3"

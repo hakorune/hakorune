@@ -45,6 +45,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - observed failure: `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` now gets past the C ABI rebuild seam and the bridge-first MIR build, but the reduced artifact itself is runnable bootstrap output while the payload proof now stays on the stage0 bootstrap route
 - current reduced source: the stage1-cli artifact is no longer treated as the payload-emitting contract; keep the bootstrap route proof and the runnable artifact check separate
+- the bootstrap capability probe is now single-sourced in `stage1_contract_verify_stage1_cli_bootstrap_capability()`
 - this is a separate bootstrap blocker; do not mix it with the `.hako` authoring slice above
 - next phase: `docs/development/current/main/phases/phase-29cp/README.md`
 - next exact files:
@@ -54,7 +55,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: `phase-29cp` stage1-cli bootstrap route clarification
+- immediate: `.hako` authoring lane（stage1-cli bootstrap route clarification は整理済み）
 - operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, and use it to prove payload materialization while the reduced stage1-cli artifact stays runnable
 - first: `0rust` / backend-zero を先に終える
 - operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline

@@ -391,3 +391,36 @@ stage1_contract_exec_mode() {
     "$emit_program_flag" \
     "$emit_mir_flag"
 }
+
+# Build-stage bootstrap capability SSOT.
+# Keep the bootstrap payload proof and reduced-artifact liveness check in one
+# shell helper so callers do not drift on the exact stage0/stage1 split.
+stage1_contract_verify_stage1_cli_bootstrap_capability() {
+  local bootstrap_bin="$1"
+  local probe_source="$2"
+  local reduced_bin="$3"
+  local probe_text
+  probe_text="$(stage1_contract_source_text "$probe_source")"
+
+  if ! stage1_contract_exec_mode \
+    "$bootstrap_bin" \
+    "emit-program" \
+    "$probe_source" \
+    "$probe_text" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  if ! stage1_contract_exec_mode \
+    "$bootstrap_bin" \
+    "emit-mir" \
+    "$probe_source" \
+    "$probe_text" >/dev/null 2>&1; then
+    return 2
+  fi
+
+  if ! env NYASH_USE_STAGE1_CLI=1 "$reduced_bin" >/dev/null 2>&1; then
+    return 3
+  fi
+
+  return 0
+}

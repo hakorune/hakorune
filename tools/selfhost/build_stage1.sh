@@ -446,27 +446,18 @@ fi
     # The bootstrap payload proof stays on the stage0 compatibility route.
     # The reduced stage1-cli artifact itself is treated as a runnable bootstrap
     # output and is only checked for liveness here.
-    if ! STAGE1_CLI_DEBUG=0 stage1_contract_exec_mode \
+    if ! stage1_contract_verify_stage1_cli_bootstrap_capability \
       "$ROOT/target/release/hakorune" \
-      "emit-program" \
       "$PROBE_SRC" \
-      "$(cat "$PROBE_SRC")" >/dev/null 2>&1; then
+      "$OUT"; then
+      rc=$?
       echo "[stage1] stage1-cli capability check failed" >&2
-      echo "         stage0 bootstrap route failed Program(JSON v0) proof" >&2
-      exit 2
-    fi
-    if ! STAGE1_CLI_DEBUG=0 stage1_contract_exec_mode \
-      "$ROOT/target/release/hakorune" \
-      "emit-mir" \
-      "$PROBE_SRC" \
-      "$(cat "$PROBE_SRC")" >/dev/null 2>&1; then
-      echo "[stage1] stage1-cli capability check failed" >&2
-      echo "         stage0 bootstrap route failed MIR(JSON v0) proof" >&2
-      exit 2
-    fi
-    if ! env NYASH_USE_STAGE1_CLI=1 "$OUT" >/dev/null 2>&1; then
-      echo "[stage1] stage1-cli capability check failed" >&2
-      echo "         reduced artifact did not launch cleanly" >&2
+      case "$rc" in
+        1) echo "         stage0 bootstrap route failed Program(JSON v0) proof" >&2 ;;
+        2) echo "         stage0 bootstrap route failed MIR(JSON v0) proof" >&2 ;;
+        3) echo "         reduced artifact did not launch cleanly" >&2 ;;
+        *) echo "         bootstrap capability helper failed (rc=$rc)" >&2 ;;
+      esac
       exit 2
     fi
     echo "[stage1] stage1-cli capability: OK (stage0 bootstrap proof + runnable reduced artifact)" >&2
