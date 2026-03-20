@@ -117,6 +117,8 @@ Hotspot は次の分類で読む。
 - `kilo_micro_substring_concat` が最厚
 - `kilo_micro_array_getset` が次
 - `kilo_micro_indexof_line` が一番マシ
+- `kilo_micro_array_getset` の current exact leaf is now Rust substrate: `crates/nyash_kernel/src/plugin/handle_helpers.rs::with_object_from_handle_cached_with_epoch(...)` stays the cache seam, and the newest ASM top is `crates/nyash_kernel/src/plugin/array_index_helpers.rs::array_get_by_index` plus `crates/nyash_kernel/src/plugin/array_route_helpers.rs::array_set_by_index_i64_value`
+- fresh `kilo_micro_array_getset` recheck after the cache-seam specialization landed at `ny_aot_ms=43` (`ny_aot_cycles=217761871`), so the next cut should stay on the Rust substrate array helpers rather than reopening `array_core_box.hako`
 - micro profile で見えている `std::env::_var_os` は、まず bridge 側の per-call probe を疑う
 - `substring_concat` の current exact leaf は kernel/runtime owner に固定する
 - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is reduced to dispatch + match
