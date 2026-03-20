@@ -111,6 +111,7 @@ Related:
 - call/externcall/newbox/ret helpers が `mir_vm_s0_call_exec.hako` 側へ寄っている
 - builtin file/string/array boxcall helpers が `mir_vm_s0_boxcall_builtin.hako` 側へ寄っている
 - boxcall routing が `mir_vm_s0_boxcall_exec.hako` 側へ寄っている
+- duplicated `phi` / `branch` / `jump` handling is SSOT inside `mir_vm_s0_block_runner.hako`
 - compile/link apply helpers が `mir_vm_s0_codegen.hako` 側へ寄っている
 - `mini_vm_s0_entry.hako` が薄い entry wrapper になっている
 - 新規 helper が責務ごとに分割され、重複ロジックが減っている

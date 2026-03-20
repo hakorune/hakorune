@@ -10,6 +10,37 @@ using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0BlockRunnerBox {
+  _exec_phi(seg, regs, kinds, array_lens, handle_regs, file_boxes, pred_bb) {
+    local dst_phi = MirVmS0JsonScanBox._find_int(seg, "dst")
+    if dst_phi == null { return "[vm-hako/contract][phi-missing-dst]" }
+    local phi_src = MirVmS0ArgsPhiBox._phi_pick_incoming(seg, pred_bb)
+    if phi_src == null { return "[vm-hako/contract][phi-missing-incoming]" }
+    MirVmS0RegUtilsBox._reg_set(regs, dst_phi, MirVmS0RegUtilsBox._reg_get(regs, phi_src))
+    MirVmS0RegUtilsBox._reg_kind_copy(kinds, dst_phi, phi_src)
+    MirVmS0StateOpsBox.box_len_copy(array_lens, dst_phi, phi_src)
+    MirVmS0StateOpsBox.handle_copy(handle_regs, dst_phi, phi_src)
+    MirVmS0StateOpsBox.file_box_copy(file_boxes, dst_phi, phi_src)
+    return "__NEXT__"
+  }
+
+  _exec_branch(seg, regs) {
+    local cond = MirVmS0JsonScanBox._find_int(seg, "cond")
+    local then_bb = MirVmS0JsonScanBox._find_int(seg, "then")
+    local else_bb = MirVmS0JsonScanBox._find_int(seg, "else")
+    if cond == null || then_bb == null || else_bb == null {
+      return "[vm-hako/contract][branch-missing-fields]"
+    }
+    local cv = MirVmS0RegUtilsBox._reg_get(regs, cond)
+    if cv != 0 { return "BR:" + ("" + then_bb) }
+    return "BR:" + ("" + else_bb)
+  }
+
+  _exec_jump(seg) {
+    local target = MirVmS0JsonScanBox._find_int(seg, "target")
+    if target == null { return "[vm-hako/contract][jump-missing-target]" }
+    return "JMP:" + ("" + target)
+  }
+
   _exec_insts(json, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, src) {
     if pos >= rb { return 0 }
     local obj_start = MirVmS0JsonScanBox._index_of_from(json, "{", pos)
@@ -41,34 +72,17 @@ static box MirVmS0BlockRunnerBox {
     local op = MirVmS0JsonScanBox._find_str(seg, "op")
 
     if op == "phi" {
-      local dst_phi = MirVmS0JsonScanBox._find_int(seg, "dst")
-      if dst_phi == null { return "[vm-hako/contract][phi-missing-dst]" }
-      local phi_src = MirVmS0ArgsPhiBox._phi_pick_incoming(seg, pred_bb)
-      if phi_src == null { return "[vm-hako/contract][phi-missing-incoming]" }
-      MirVmS0RegUtilsBox._reg_set(regs, dst_phi, MirVmS0RegUtilsBox._reg_get(regs, phi_src))
-      MirVmS0RegUtilsBox._reg_kind_copy(kinds, dst_phi, phi_src)
-      MirVmS0StateOpsBox.box_len_copy(array_lens, dst_phi, phi_src)
-      MirVmS0StateOpsBox.handle_copy(handle_regs, dst_phi, phi_src)
-      MirVmS0StateOpsBox.file_box_copy(file_boxes, dst_phi, phi_src)
+      local phi_res = me._exec_phi(seg, regs, kinds, array_lens, handle_regs, file_boxes, pred_bb)
+      if phi_res != "__NEXT__" { return phi_res }
       return me._exec_block_insts(inst_seg, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
     }
 
     if op == "branch" {
-      local cond = MirVmS0JsonScanBox._find_int(seg, "cond")
-      local then_bb = MirVmS0JsonScanBox._find_int(seg, "then")
-      local else_bb = MirVmS0JsonScanBox._find_int(seg, "else")
-      if cond == null || then_bb == null || else_bb == null {
-        return "[vm-hako/contract][branch-missing-fields]"
-      }
-      local cv = MirVmS0RegUtilsBox._reg_get(regs, cond)
-      if cv != 0 { return "BR:" + ("" + then_bb) }
-      return "BR:" + ("" + else_bb)
+      return me._exec_branch(seg, regs)
     }
 
     if op == "jump" {
-      local target = MirVmS0JsonScanBox._find_int(seg, "target")
-      if target == null { return "[vm-hako/contract][jump-missing-target]" }
-      return "JMP:" + ("" + target)
+      return me._exec_jump(seg)
     }
 
     local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
@@ -87,34 +101,17 @@ static box MirVmS0BlockRunnerBox {
     local op = MirVmS0JsonScanBox._find_str(seg, "op")
 
     if op == "phi" {
-      local dst_phi = MirVmS0JsonScanBox._find_int(seg, "dst")
-      if dst_phi == null { return "[vm-hako/contract][phi-missing-dst]" }
-      local phi_src = MirVmS0ArgsPhiBox._phi_pick_incoming(seg, pred_bb)
-      if phi_src == null { return "[vm-hako/contract][phi-missing-incoming]" }
-      MirVmS0RegUtilsBox._reg_set(regs, dst_phi, MirVmS0RegUtilsBox._reg_get(regs, phi_src))
-      MirVmS0RegUtilsBox._reg_kind_copy(kinds, dst_phi, phi_src)
-      MirVmS0StateOpsBox.box_len_copy(array_lens, dst_phi, phi_src)
-      MirVmS0StateOpsBox.handle_copy(handle_regs, dst_phi, phi_src)
-      MirVmS0StateOpsBox.file_box_copy(file_boxes, dst_phi, phi_src)
+      local phi_res = me._exec_phi(seg, regs, kinds, array_lens, handle_regs, file_boxes, pred_bb)
+      if phi_res != "__NEXT__" { return phi_res }
       return me._exec_block_insts_cached(inst_objs, idx + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
     }
 
     if op == "branch" {
-      local cond = MirVmS0JsonScanBox._find_int(seg, "cond")
-      local then_bb = MirVmS0JsonScanBox._find_int(seg, "then")
-      local else_bb = MirVmS0JsonScanBox._find_int(seg, "else")
-      if cond == null || then_bb == null || else_bb == null {
-        return "[vm-hako/contract][branch-missing-fields]"
-      }
-      local cv = MirVmS0RegUtilsBox._reg_get(regs, cond)
-      if cv != 0 { return "BR:" + ("" + then_bb) }
-      return "BR:" + ("" + else_bb)
+      return me._exec_branch(seg, regs)
     }
 
     if op == "jump" {
-      local target = MirVmS0JsonScanBox._find_int(seg, "target")
-      if target == null { return "[vm-hako/contract][jump-missing-target]" }
-      return "JMP:" + ("" + target)
+      return me._exec_jump(seg)
     }
 
     local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
