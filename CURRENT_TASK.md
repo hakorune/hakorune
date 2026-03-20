@@ -65,7 +65,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/shared/backend/backend_recipe_box.hako`
   - `lang/src/shared/backend/llvm_backend_box.hako`
   - `src/host_providers/llvm_codegen/route.rs`
-  - `crates/nyash-llvm-compiler/src/boundary_driver.rs`
+  - `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` kernel lane reached stop-line maintenance (`string` stop line, `array/numeric/map` defer confirmed)
@@ -75,6 +75,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` first compat keep reduction slice is fixed to `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs`
   - `[x]` `route.rs` shared keep compile setup is factored behind `compile_via_capi_keep_internal(...)`
   - `[x]` `src/host_providers/llvm_codegen.rs` is already thin enough; no further code slice stays in that file
+  - `[x]` `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; FFI plumbing moved into `boundary_driver_ffi.rs`
   - `[ ]` keep `compile_symbol_for_keep_recipe()` generic default parked until compat keep lanes are explicitly reduced
 - Stop condition:
   - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
@@ -108,8 +109,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - immediate: `backend-zero` fixed order（current owner cutover -> compat keep reduction -> bootstrap keep reduction）
 - first: treat current owner cutover as closed enough; do not reopen it except for correctness-level cleanup
 - second: first compat keep reduction slice is `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs` only
-- third: keep the generic export branch parked and documented as keep-only until compat lanes are explicitly reduced
-- fourth: keep bootstrap seams (`program_json_v0` / `module_string_dispatch` / `native_driver.rs`) out of this slice
+- third: `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; its FFI plumbing now lives in `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs`
+- fourth: keep the generic export branch parked and documented as keep-only until compat lanes are explicitly reduced
+- fifth: keep bootstrap seams (`program_json_v0` / `module_string_dispatch` / `native_driver.rs`) out of this slice
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: exe optimization stays behind backend-zero handoff
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
@@ -155,6 +157,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - [x] `src/host_providers/llvm_codegen.rs`
     - [x] `src/host_providers/llvm_codegen/route.rs`
     - [x] `route.rs` shared keep compile setup is factored behind `compile_via_capi_keep_internal(...)`
+    - [x] `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; FFI plumbing moved into `boundary_driver_ffi.rs`
   - [ ] bootstrap keep reduction stays parked until compat keep reduction settles
 
 ## Restart Handoff (2026-03-19)
