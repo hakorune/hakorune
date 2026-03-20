@@ -143,7 +143,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/runner/modes/common_util/exec.rs` no longer carries dead `llvmlite_emit_object(...)`, so runner-side llvmlite residue shrank by one helper
   - `lang/src/shared/backend/backend_recipe_box.hako` dropped dead `prepare_compile_route(...)` / `prepare_compile_pure_first(...)` wrappers, so route-profile ownership is now tighter
   - `lang/src/shared/backend/backend_recipe_box.hako` no longer exposes `prepare_link_route(...)`; link `libs` normalization is now inlined in `LlvmBackendBox.link_exe(...)`
-  - `lang/src/shared/backend/backend_recipe_box.hako` now inlines `compile_recipe_pure_first()` / `compat_replay_harness()` directly, so the route-profile owner has no extra recipe indirection left
+  - `lang/src/shared/backend/backend_recipe_box.hako` now inlines the `pure-first` / `harness` recipe labels and the seed-matrix fallback literal directly, so the route-profile owner has no extra recipe indirection left
   - `lang/src/shared/backend/llvm_backend_box.hako` now forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)` after route-profile validation
   - `lang/src/runtime/kernel/string/search.hako` dropped dead `_starts_with_at(...)`, so the string-search owner is thinner without widening scope
   - `lang/src/runtime/kernel/string/search.hako` also folded `_find_index_core(...)` into `find_index(...)`, so the string-search control structure is a bit flatter

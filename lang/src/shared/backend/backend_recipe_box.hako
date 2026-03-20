@@ -16,8 +16,8 @@ static box BackendRecipeBox {
     profile.set("acceptance_policy", "" + me.acceptance_policy_for(path))
     profile.set("acceptance_case", "" + me.acceptance_case_for(path))
     profile.set("json_path", "" + path)
-    profile.set("compile_recipe", "" + me.compile_recipe_pure_first())
-    profile.set("compat_replay", "" + me.compat_replay_harness())
+    profile.set("compile_recipe", "pure-first")
+    profile.set("compat_replay", "harness")
     if me._validate_compile_route_profile(profile, path) == null { return null }
     return profile
   }
@@ -91,7 +91,7 @@ static box BackendRecipeBox {
   acceptance_policy_for(json_path) {
     local path = me.require_non_empty_field("acceptance_policy_for", "json_path", json_path)
     if path == null { return null }
-    return me.acceptance_policy_seed_matrix_v1()
+    return "boundary-pure-seed-matrix-v1"
   }
 
   acceptance_case_for(json_path) {
@@ -106,7 +106,7 @@ static box BackendRecipeBox {
     grouped = me._acceptance_case_seed_bucket_for(path)
     if grouped != null { return grouped }
     // Keep the catch-all stable; new evidence should be added to a bucket first.
-    return me.acceptance_case_seed_matrix_v1()
+    return "boundary-pure-seed-matrix-v1"
   }
 
   require_non_empty_field(method_name, field_name, value) {
@@ -129,22 +129,6 @@ static box BackendRecipeBox {
       )
     }
     return "" + actual
-  }
-
-  compile_recipe_pure_first() {
-    return "pure-first"
-  }
-
-  compat_replay_harness() {
-    return "harness"
-  }
-
-  acceptance_policy_seed_matrix_v1() {
-    return "boundary-pure-seed-matrix-v1"
-  }
-
-  acceptance_case_seed_matrix_v1() {
-    return "boundary-pure-seed-matrix-v1"
   }
 
   _acceptance_case_string_bucket_for(path) {
