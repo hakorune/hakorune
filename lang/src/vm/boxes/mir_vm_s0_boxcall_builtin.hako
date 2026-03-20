@@ -420,7 +420,15 @@ static box MirVmS0BoxcallBuiltinBox {
       local set_arg1 = me._args_second(seg)
       if set_arg0 == null || set_arg1 == null { return "[vm-hako/contract][boxcall-set-arg-missing]" }
       local arg0_kind = kinds.get("" + set_arg0)
-      if arg0_kind != "handle" { return "[vm-hako/unimplemented op=boxcall method=set]" }
+      if arg0_kind != "handle" {
+        local dst_set_bad = me._find_int(seg, "dst")
+        if dst_set_bad != null {
+          regs.set("" + dst_set_bad, "0")
+          kinds.set("" + dst_set_bad, "handle")
+          MirVmS0StateOpsBox.handle_set(handle_regs, dst_set_bad, "[map/bad-key] key must be string")
+        }
+        return "__NEXT__"
+      }
       local box_key_set = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
       local set_next = me.apply_map_set(box_key_set, set_arg0, set_arg1, regs, kinds, array_lens, handle_regs)
       if set_next != "__NEXT__" { return set_next }

@@ -1,5 +1,5 @@
 ---
-Status: Active (Y1/Y2/Y3 done, min1/min2/min3 done, RVP-0..RVP-5 done, RING1-CORE-06..09 done; reopened by RVP-C26)
+Status: Active (Y1/Y2/Y3 done, min1/min2/min3 done, RVP-0..RVP-5 done, RING1-CORE-06..09 done; reopened by RVP-C27)
 Decision: provisional
 Date: 2026-02-19
 Scope: 脱Rust selfhost の Phase 29y runtime lane（lane C）の current/next と運用契約を短く維持する。
@@ -25,7 +25,7 @@ Related:
 - APP-1（Gate Log Summarizer）acceptance は PASS。
 - APP-2（Controlflow Probe）acceptance は PASS。
 - APP-3（MIR Shape Guard）acceptance は PASS。
-- Current blocker（脱Rust selfhost runtime lane）は `RVP-C26`。
+- Current blocker（脱Rust selfhost runtime lane）は `RVP-C27`。
 - 2026-03-21 reopen:
   - quick map smokes (`map_basic_get_set_vm.sh` / `map_len_size_vm.sh`) are not Rust VM failures; they route through `.hako VM` (`vm-hako`) under strict/dev prefer and stop at subset-check.
   - `RVP-C16 newbox(MapBox)` is now ported and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`.
@@ -36,7 +36,7 @@ Related:
   - `RVP-C21 MapBox.delete(key)` is now ported and pinned by `vm_hako_caps_mapbox_delete_ported_vm.sh`.
   - `RVP-C22 MapBox.keys()` is now ported and pinned by `vm_hako_caps_mapbox_keys_ported_vm.sh`.
   - `RVP-C23 MapBox.clear()` is now ported and pinned by `vm_hako_caps_mapbox_clear_ported_vm.sh`.
-  - the next exact blocker is `RVP-C26 MapBox.set(non-string key, value)` stale unimplemented route.
+  - the next exact blocker is `RVP-C27 MapBox.getField(non-string key)` stale unimplemented route.
 - 2026-03-09 monitor refresh:
   - `bash tools/checks/dev_gate.sh quick` PASS
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS
@@ -76,7 +76,7 @@ Related:
 ## 0.3 RVP Commit Boundary Lock (active rule)
 
 - active status:
-  - RVP open blocker は `RVP-C26 MapBox.set(non-string key, value)` stale unimplemented route.
+  - RVP open blocker は `RVP-C27 MapBox.getField(non-string key)` stale unimplemented route.
   - fix order is back to `1 blocker = 1 fixture = 1 smoke = 1 commit`.
 - 実装ルール（再発時のみ適用）:
   - `1 blocker = 1 fixture = 1 smoke = 1 commit`。
@@ -184,13 +184,13 @@ Related:
 
 ## 1. Next Tasks (fixed order, 1 task = 1 commit)
 
-- next-1: `RVP-C26`
+- next-1: `RVP-C27`
 - exact blocker:
-  - capability: `MapBox.set(non-string key, value)` visible bad-key contract
+  - capability: `MapBox.getField(non-string key)` visible bad-key contract
   - current route: `.hako VM` / `vm-hako` runtime
-  - current blocked behavior: runtime still reports `[vm-hako/unimplemented op=boxcall method=set]`
+  - current blocked behavior: runtime still reports `[vm-hako/unimplemented op=boxcall1 method=getField]`
   - blocked pin:
-    - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_set_bad_key_block_vm.sh`
+    - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_getfield_bad_key_block_vm.sh`
 - already returned after `RVP-C19`:
   - `map_basic_get_set_vm.sh`
   - `map_len_size_vm.sh`
@@ -207,7 +207,8 @@ Related:
 - latest complete: `RVP-C23`（`MapBox.clear()` zero-arg boxcall accepted and visible `size/has/keys` reset parity pinned）
 - latest complete: `RVP-C24`（`MapBox.get(missing-key)` now returns stable `[map/missing] Key not found: <key>` text and is pinned）
 - latest complete: `RVP-C25`（`MapBox.get(non-string key)` now returns stable `[map/bad-key] key must be string` text and is pinned）
-- next-1: `RVP-C26`
+- latest complete: `RVP-C26`（`MapBox.set(non-string key, value)` now returns stable `[map/bad-key] key must be string` text and is pinned）
+- next-1: `RVP-C27`
 - full timeline archive:
   - `docs/development/current/main/phases/phase-29y/61-NEXT-TASK-HISTORY.md`
 
