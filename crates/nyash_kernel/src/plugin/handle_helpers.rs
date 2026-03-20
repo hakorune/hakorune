@@ -145,7 +145,24 @@ fn with_typed_box<T: 'static, R>(handle: i64, f: impl FnOnce(&T) -> R) -> Option
 
 #[inline(always)]
 pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
-    with_typed_box::<ArrayBox, _>(handle, f)
+    if handle <= 0 {
+        return None;
+    }
+    let drop_epoch = handles::drop_epoch();
+    let mut f = Some(f);
+    if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
+        let arr = entry.obj.as_any().downcast_ref::<ArrayBox>()?;
+        let f = f.take().expect("array callback");
+        Some(f(arr))
+    }) {
+        return Some(out);
+    }
+
+    let obj = handles::get(handle as u64)?;
+    let arr = obj.as_any().downcast_ref::<ArrayBox>()?;
+    cache_store(handle, drop_epoch, obj.clone());
+    let f = f.take().expect("array callback");
+    Some(f(arr))
 }
 
 #[inline(always)]
