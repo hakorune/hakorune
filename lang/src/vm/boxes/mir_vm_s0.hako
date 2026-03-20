@@ -5,7 +5,7 @@
 // Boxcall args contract SSOT: docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md
 // Remaining in this file:
 // - thin execution dispatch glue (`_exec_data_op`, `_exec_call_op`, `_exec_boxcall`, `_exec_op`)
-// - thin block runner delegates (`_exec_insts`, `_exec_block_insts`, `_exec_block_insts_cached`, `_build_inst_cache_rec`, `_run_block_payload*`, `run_min`)
+// - thin block runner delegates (`_exec_insts`, `_exec_block_insts`, `_exec_block_insts_cached`, `_build_inst_cache_rec`, `_run_block_payload*`)
 // - keep only the glue that still needs whole-run context; pure scan/state helpers live in `mir_vm_s0_*.hako`
 // Already delegated:
 // - JSON scan / args & PHI / register-state / block-location / lifecycle / boxcall leaf helpers
@@ -343,7 +343,4 @@ static box MirVmS0Box {
     return MirVmS0BlockRunnerBox._run_block_payload(src)
   }
 
-  run_min(json) {
-    return MirVmS0BlockRunnerBox.run_min(json)
-  }
 }

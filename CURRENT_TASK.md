@@ -40,7 +40,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `_exec_data_op(...)`
   - `_exec_call_op(...)`
   - `_exec_boxcall(...)` and its file/string/misc helpers
-  - thin block runner delegates (`_exec_insts(...)`, `_exec_block_insts(...)`, `_exec_block_insts_cached(...)`, `_build_inst_cache_rec(...)`, `_run_block_payload_rec(...)`, `_run_block_payload(...)`, `run_min(...)`)
+  - thin block runner delegates (`_exec_insts(...)`, `_exec_block_insts(...)`, `_exec_block_insts_cached(...)`, `_build_inst_cache_rec(...)`, `_run_block_payload_rec(...)`, `_run_block_payload(...)`)
 - next slice order:
   1. responsibility inventory freeze in `mir_vm_s0.hako`
   2. split the remaining execution helpers
@@ -67,6 +67,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` VM helper split baseline already exists (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec` / `exec_dispatch`)
   - `[ ]` freeze the remaining `mir_vm_s0.hako` responsibilities in comments
   - `[ ]` split the remaining execution helpers out of `mir_vm_s0.hako`
+  - `[ ]` thin entry / module wiring
   - `[ ]` thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - `[ ]` keep the VM boxcall contract and lane gates green
 - Stop condition:
@@ -114,6 +115,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] responsibility inventory freeze for `mir_vm_s0.hako`
   - [x] split remaining execution helpers out of `mir_vm_s0.hako`（`mir_vm_s0_exec_dispatch.hako`）
   - [x] split block runner helpers out of `mir_vm_s0.hako`（`mir_vm_s0_block_runner.hako`）
+  - [x] thin entry / module wiring（`mini_vm_s0_entry.hako` now binds directly to `MirVmS0BlockRunnerBox.run_min(...)`）
   - [ ] thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - [ ] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`

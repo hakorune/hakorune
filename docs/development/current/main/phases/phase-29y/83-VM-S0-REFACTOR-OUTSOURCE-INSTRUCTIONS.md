@@ -48,7 +48,8 @@ Related:
    - 最低 3 分割（例: `*_json_scan`, `*_value_ops`, `*_block_runner`）
 3. 各 helper の先頭に Responsibility コメントを追加する
 4. `hako_module.toml` の配線を更新し、`using selfhost.vm.helpers.*` を壊さない
-5. 既存 gate/smoke が全て PASS する状態で提出する
+5. `mini_vm_s0_entry.hako` を thin stable entry として保ち、`run_min` を helper runner 側へ寄せる
+6. 既存 gate/smoke が全て PASS する状態で提出する
 
 ## 4. Contract (behavior lock)
 
@@ -101,6 +102,7 @@ Related:
 ## 8. Reviewer Checklist
 
 - `mir_vm_s0.hako` が「実行入口 + 配線」中心になっている
+- `mini_vm_s0_entry.hako` が薄い entry wrapper になっている
 - 新規 helper が責務ごとに分割され、重複ロジックが減っている
 - 受理形や契約文言を変えていない
 - acceptance 6コマンドが PASS

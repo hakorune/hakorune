@@ -1,7 +1,6 @@
 // mini_vm_s0_entry.hako — thin stable entry for vm-hako S0 runner
-using selfhost.vm.mir_s0 as MirVmS0Box
+using selfhost.vm.helpers.mir_s0_block_runner as MirVmS0BlockRunnerBox
 
 static box MiniVmS0EntryBox {
-  run_min(json) { return MirVmS0Box.run_min(json) }
+  run_min(json) { return MirVmS0BlockRunnerBox.run_min(json) }
 }
-
