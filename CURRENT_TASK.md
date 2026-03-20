@@ -56,32 +56,33 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no mandatory VM blocker remains; VM `.hako` migration is done-enough and parked unless a new exact blocker appears
+  - no new kernel blocker remains; kernel migration is at the stop line and the active lane switches to backend-zero fixed order
 - Next exact files:
-  - `docs/development/current/main/phases/phase-29cm/README.md`
-  - `lang/src/runtime/kernel/README.md`
-  - `lang/src/runtime/kernel/string/README.md`
-  - `lang/src/runtime/kernel/string/search.hako`
-  - `lang/src/runtime/collections/array_core_box.hako`
-  - `lang/src/runtime/collections/array_state_core_box.hako`
-  - `lang/src/runtime/kernel/numeric/matrix_i64.hako`
+  - `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
+  - `docs/development/current/main/phases/phase-29ck/README.md`
+  - `docs/development/current/main/phases/phase-29cl/README.md`
+  - `docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md`
+  - `lang/src/shared/backend/backend_recipe_box.hako`
+  - `lang/src/shared/backend/llvm_backend_box.hako`
+  - `src/host_providers/llvm_codegen/route.rs`
+  - `src/host_providers/llvm_codegen.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
-  - `[x]` `mir_vm_s0.hako` is facade-only and helper ownership is localized
-  - `[x]` `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` are green
-  - `[ ]` keep `string` lane at stop line unless a new exact blocker appears
-  - `[x]` re-ran `array` promotion-trigger inventory; no dedicated `kernel/array` slice is justified yet
-  - `[x]` re-ran `numeric` inventory; no credible next narrow op is justified
-  - `[x]` keep `map` as ring1 keep / defer
+  - `[x]` kernel lane reached stop-line maintenance (`string` stop line, `array/numeric/map` defer confirmed)
+  - `[x]` backend-zero current owner cutover is closed enough for handoff
+  - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
+  - `[ ]` inventory the first compat keep reduction slice without mixing bootstrap keep reduction
+  - `[ ]` keep `compile_symbol_for_recipe()` generic default parked until compat keep lanes are explicitly reduced
 - Stop condition:
-  - kernel migration stays within the fixed order in `phase-29cm`
-  - no widening happens in `string` unless a new exact blocker appears
+  - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
+  - no compat keep reduction is mixed with bootstrap keep reduction
   - Rust `stage0` bootstrap / recovery route remains green
 - Do not mix:
+  - kernel widening without a new exact blocker
   - VM strict-polish reopening without a new exact blocker
   - optimization hot-leaf trimming
   - C shim transport micro-splitting
-  - backend-zero compat-polish
+  - `native_driver.rs` bootstrap keep reduction
 
 ## Bootstrap Check
 
@@ -101,13 +102,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: `kernel-mainline` fixed order（`phase-29cm`）
-- first: `string` lane is already at the stop line; do not widen unless a new exact blocker appears
-- second: `array` promotion-trigger inventory is rechecked and still unfired; do not open `kernel/array` without a new exact blocker
-- third: `numeric` / `map` stay deferred exactly as `phase-29cm` says unless a new blocker justifies reopening
-- handoff: if no new kernel blocker appears, stop the lane here and move to queued backend-zero order
+- immediate: `backend-zero` fixed order（current owner cutover -> compat keep reduction -> bootstrap keep reduction）
+- first: treat current owner cutover as closed enough; do not reopen it except for correctness-level cleanup
+- second: inventory the first compat keep reduction slice and keep the generic export branch parked until that lane starts
+- third: keep bootstrap seams (`program_json_v0` / `module_string_dispatch` / `native_driver.rs`) out of this slice
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
-- parked: backend-zero compat-polish / exe optimization stay behind the kernel stop line
+- parked: exe optimization stays behind backend-zero handoff
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
@@ -145,8 +145,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] `array` promotion trigger rechecked and still unfired
   - [x] `numeric` inventory rechecked; still deferred
   - [x] `map` still ring1 keep / defer
-- [ ] backend-zero closeout docs only
-  - [ ] `phase-29cl` compat/archive closeout
+- [ ] backend-zero active lane
+  - [x] current owner cutover is closed enough for handoff
+  - [ ] compat keep reduction inventory / first exact slice
+  - [ ] bootstrap keep reduction stays parked until compat keep reduction settles
 
 ## Restart Handoff (2026-03-19)
 

@@ -63,13 +63,13 @@ static box BackendRecipeBox {
     if me._require_profile_equals(
       "compile_recipe",
       compile_recipe,
-      me.compile_recipe_pure_first(),
+      "pure-first",
     ) == null { return null }
     local compat_replay = profile.get("compat_replay")
     if me._require_profile_equals(
       "compat_replay",
       compat_replay,
-      me.compat_replay_harness(),
+      "harness",
     ) == null { return null }
     return profile
   }
