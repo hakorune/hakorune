@@ -10,29 +10,36 @@ using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 static box CodegenBridgeBox {
   method compile_json_path_args(args) {
     local arr = me._ensure_array(args)
-    local json_path = me._array_arg_or_null(arr, 0)
+    local json_path = me.array_arg_or_null(arr, 0)
     if json_path == null { return null }
-    local out_path = me._array_arg_or_null(arr, 1)
-    local recipe = me._array_arg_or_null(arr, 2)
-    local compat = me._array_arg_or_null(arr, 3)
+    local out_path = me.array_arg_or_null(arr, 1)
+    local recipe = me.array_arg_or_null(arr, 2)
+    local compat = me.array_arg_or_null(arr, 3)
     return me._compile_json_path_legacy(json_path, out_path, recipe, compat)
   }
 
   method emit_object_args(args) {
     local arr = me._ensure_array(args)
-    local mir_json = me._array_arg_or_null(arr, 0)
+    local mir_json = me.array_arg_or_null(arr, 0)
     if mir_json == null { return null }
     return me._emit_object_legacy(mir_json)
   }
 
   method link_object_args(args) {
     local arr = me._ensure_array(args)
-    local obj_path = me._array_arg_or_null(arr, 0)
+    local obj_path = me.array_arg_or_null(arr, 0)
     if obj_path == null { return null }
-    local exe_path = me._array_arg_or_null(arr, 1)
+    local exe_path = me.array_arg_or_null(arr, 1)
     if exe_path == null { return me._link_object_legacy(obj_path, null, null) }
-    local extra_ldflags = me._array_arg_or_null(arr, 2)
+    local extra_ldflags = me.array_arg_or_null(arr, 2)
     return me._link_object_legacy(obj_path, exe_path, extra_ldflags)
+  }
+
+  method array_arg_or_null(arr, idx) {
+    if arr == null { return null }
+    if idx == null { return null }
+    if arr.length() <= idx { return null }
+    return arr.get(idx)
   }
 
   method _ensure_array(value) {
@@ -63,12 +70,5 @@ static box CodegenBridgeBox {
     if exe_path == null { return env.codegen.link_object(obj_path) }
     if extra_ldflags == null { return env.codegen.link_object(obj_path, exe_path) }
     return env.codegen.link_object(obj_path, exe_path, extra_ldflags)
-  }
-
-  _array_arg_or_null(arr, idx) {
-    if arr == null { return null }
-    if idx == null { return null }
-    if arr.length() <= idx { return null }
-    return arr.get(idx)
   }
 }

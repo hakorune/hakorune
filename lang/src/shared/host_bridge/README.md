@@ -11,6 +11,7 @@ Scope:
   - `CodegenBridgeBox`
   - temporary bridge for `env.codegen.*`
   - args-only helpers are `compile_json_path_args`, `emit_object_args`, and `link_object_args`
+  - shared payload normalization helper is `array_arg_or_null`
   - 1-arg convenience wrappers were removed so caller normalization stays explicit
   - do not treat as final backend-zero daily caller stop-point
   - caller-side backend recipe defaults are centralized in `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)`; this bridge may mirror compat names, but daily callers should stay explicit at `LlvmBackendBox`

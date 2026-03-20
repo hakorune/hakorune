@@ -171,13 +171,6 @@ static box HostFacadeBox {
     return out
   }
 
-  _array_arg_or_null(arr, idx) {
-    if arr == null { return null }
-    if idx == null { return null }
-    if arr.length() <= idx { return null }
-    return arr.get(idx)
-  }
-
   _console_print(prefix, payload) {
     local text = ""
     if payload != null { text = "" + payload }

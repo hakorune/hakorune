@@ -146,11 +146,4 @@ static box MirVmS0BoxcallExecBox {
     kinds.set("" + dst_box, "scalar")
     return "__NEXT__"
   }
-
-  _array_arg_or_null(arr, idx) {
-    if arr == null { return null }
-    if idx == null { return null }
-    if arr.length() <= idx { return null }
-    return arr.get(idx)
-  }
 }
