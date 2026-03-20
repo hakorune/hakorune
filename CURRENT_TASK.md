@@ -71,8 +71,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` kernel lane reached stop-line maintenance (`string` stop line, `array/numeric/map` defer confirmed)
   - `[x]` backend-zero current owner cutover is closed enough for handoff
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
-  - `[ ]` inventory the first compat keep reduction slice without mixing bootstrap keep reduction
-  - `[ ]` keep `compile_symbol_for_recipe()` generic default parked until compat keep lanes are explicitly reduced
+  - `[x]` inventory the first compat keep reduction slice without mixing bootstrap keep reduction
+  - `[x]` first compat keep reduction slice is fixed to `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs`
+  - `[ ]` keep `compile_symbol_for_keep_recipe()` generic default parked until compat keep lanes are explicitly reduced
 - Stop condition:
   - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
   - no compat keep reduction is mixed with bootstrap keep reduction
@@ -104,8 +105,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - immediate: `backend-zero` fixed order（current owner cutover -> compat keep reduction -> bootstrap keep reduction）
 - first: treat current owner cutover as closed enough; do not reopen it except for correctness-level cleanup
-- second: inventory the first compat keep reduction slice and keep the generic export branch parked until that lane starts
-- third: keep bootstrap seams (`program_json_v0` / `module_string_dispatch` / `native_driver.rs`) out of this slice
+- second: first compat keep reduction slice is `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs` only
+- third: keep the generic export branch parked and documented as keep-only until compat lanes are explicitly reduced
+- fourth: keep bootstrap seams (`program_json_v0` / `module_string_dispatch` / `native_driver.rs`) out of this slice
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: exe optimization stays behind backend-zero handoff
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
@@ -147,7 +149,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] `map` still ring1 keep / defer
 - [ ] backend-zero active lane
   - [x] current owner cutover is closed enough for handoff
-  - [ ] compat keep reduction inventory / first exact slice
+  - [x] compat keep reduction inventory / first exact slice
+    - [x] `src/host_providers/llvm_codegen.rs`
+    - [x] `src/host_providers/llvm_codegen/route.rs`
   - [ ] bootstrap keep reduction stays parked until compat keep reduction settles
 
 ## Restart Handoff (2026-03-19)

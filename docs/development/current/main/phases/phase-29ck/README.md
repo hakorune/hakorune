@@ -341,7 +341,9 @@ Related:
 2. runner / host-provider demotion follow-up
    - `src/host_providers/llvm_codegen.rs` now keeps `C-API keep`, explicit `llvmlite` keep, and default `ny-llvmc` route behind owner-local helpers
    - `src/runner/modes/llvm/mod.rs` no longer carries stale harness-only object emit warnings
-   - C helper cleanup is near thin floor; next large-grain front is Python owner demotion (`tools/llvmlite_harness.py` / `src/llvm_py/**`)
+   - first compat keep reduction slice is limited to `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs`
+   - keep the generic compile symbol branch parked as keep-only; do not mix `crates/nyash-llvm-compiler/src/boundary_driver.rs` or `lang/c-abi/shims/hako_llvmc_ffi.c` into the same slice
+   - C helper cleanup is near thin floor; next large-grain front after that remains Python owner demotion (`tools/llvmlite_harness.py` / `src/llvm_py/**`)
 3. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
