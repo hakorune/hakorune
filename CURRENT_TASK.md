@@ -74,6 +74,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` optimization tag/knob inventory is pinned by reach (`pre-boundary` / `boundary` / `keep-lane-only` / `perf-only`)
   - `[x]` `array_getset` proved the remaining method-shaped collection hotspot still lives in Rust substrate
   - `[x]` reopen kernel authority lane as collection owner cutover (`array -> map -> runtime_data cleanup`)
+  - `[x]` A1 first slice landed: `ArrayCoreBox` owns `ArrayBox` push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
   - `[ ]` move `ArrayBox` user-visible semantics into `.hako` ring1 collection core
   - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
@@ -139,10 +140,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - `lang/src/runtime/collections/array_core_box.hako`
      - `lang/src/runtime/collections/array_state_core_box.hako`
    - fix the visible owner for:
-     - `ArrayBox.{get,set,push,len,length,size}`
-     - bounds policy
-     - normalization decisions
-     - visible fallback/error contract
+      - `ArrayBox.{get,set,push,len,length,size}`
+      - bounds policy
+      - normalization decisions
+      - visible fallback/error contract
+   - first landed slice:
+      - `ArrayCoreBox` owns `push/get/set/size` fallback routing
+      - `mir_call_v1_handler.hako` delegates `ArrayBox` semantics instead of owning them
 2. `A2: Array raw substrate contract`
    - SSOT:
      - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`

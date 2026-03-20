@@ -30,8 +30,10 @@ Rule:
 - `array_core_box.hako`
   - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `len_i64(handle)`
     -> `nyash.array.get_hi` / `nyash.array.set_hii` / `nyash.array.len_h`
+  - `push_hh(handle, value_any)`
+    -> `nyash.array.push_hh`
   - `try_handle(seg, regs, mname)`
-    -> owner frontier for `ArrayBox.{set,get,push,len/length/size}` orchestration and future visible contract
+    -> visible owner for `ArrayBox.{set,get,push,len/length/size}` orchestration, bounds contract, and fallback
 - `array_state_core_box.hako`
   - `record_push_state(...)` / `record_set_state(...)` / `get_state_value(...)`
     -> ArrayBox state bookkeeping support for the `.hako` owner

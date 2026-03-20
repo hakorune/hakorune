@@ -62,6 +62,7 @@ Related:
 - [x] `string` lane reached the stop line
   - further widening is paused until a new exact blocker appears
 - [ ] `array` owner cutover is active
+  - first slice landed: `ArrayCoreBox` owns ArrayBox push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
 - [ ] `map` owner cutover follows `array`
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot

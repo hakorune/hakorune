@@ -120,13 +120,8 @@ static box MirCallV1HandlerBox {
         }
         local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
         local cur_len = JsonFragBox._str_to_int(cur_len_raw)
-        if btype == "ArrayBox" && mname == "push" {
-          local value_state_push = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state_push == null { value_state_push = "0" }
-          local arg0_push = MiniMirV1Scan.first_arg_register(seg)
-          cur_len = ArrayCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state_push, arg0_push)
-          regs.setField(key, StringHelpers.int_to_str(cur_len))
-          local d1 = JsonFragBox.get_int(seg, "dst"); if d1 != null { regs.setField(StringHelpers.int_to_str(d1), "0") }
-          return
+        if btype == "ArrayBox" {
+          if ArrayCoreBox.try_handle(seg, regs, mname) == 1 { return }
         }
         if mname == "push" {
           cur_len = cur_len + 1
@@ -157,14 +152,6 @@ static box MirCallV1HandlerBox {
           }
           local dset = JsonFragBox.get_int(seg, "dst"); if dset != null { regs.setField(StringHelpers.int_to_str(dset), "0") }
           return
-        }
-        if btype == "ArrayBox" && MethodAliasPolicy.is_size_alias(mname) == 1 {
-          local recv_ha2 = me._read_reg_i64_or_null(regs, rid)
-          if recv_ha2 != null && recv_ha2 > 0 {
-            local len_i642 = ArrayCoreBox.len_i64(recv_ha2)
-            local d2a = JsonFragBox.get_int(seg, "dst"); if d2a != null { regs.setField(StringHelpers.int_to_str(d2a), StringHelpers.int_to_str(len_i642)) }
-            return
-          }
         }
         if MethodAliasPolicy.is_size_alias(mname) == 1 {
           local d2 = JsonFragBox.get_int(seg, "dst"); if d2 != null { regs.setField(StringHelpers.int_to_str(d2), StringHelpers.int_to_str(cur_len)) }

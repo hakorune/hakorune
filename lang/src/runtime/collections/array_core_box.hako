@@ -1,7 +1,11 @@
-// ArrayCoreBox — thin VM runtime wrapper over array i64 ABI/state helpers
+// ArrayCoreBox — visible ArrayBox semantics owner over array ABI/state helpers
 // Responsibility:
-// - provide VM-low-level i64 get/set/len path without std-layer coupling
-// - own adapter-on ArrayBox state updates so VM handler stays orchestration-only
+// - own user-visible ArrayBox method contract in ring1 (`get/set/push/len/length/size`)
+// - keep bounds / fallback / size-alias decisions local to the `.hako` owner
+// - delegate raw storage ops to ABI symbols or state bookkeeping helpers
+// Non-responsibility:
+// - raw storage/layout/cache/downcast substrate details
+// - ring0/runtime transport
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
@@ -49,6 +53,10 @@ static box ArrayCoreBox {
     }
   }
 
+  _write_zero_dst(regs, dst) {
+    me._write_i64_dst(regs, dst, 0)
+  }
+
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
@@ -65,6 +73,33 @@ static box ArrayCoreBox {
     return externcall "nyash.array.len_h"(handle)
   }
 
+  push_hh(handle, value_any) {
+    return externcall "nyash.array.push_hh"(handle, value_any)
+  }
+
+  _size_state_per_recv() {
+    local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV")
+    if per_recv == null { per_recv = "0" }
+    return per_recv
+  }
+
+  _value_state() {
+    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE")
+    if value_state == null { value_state = "0" }
+    return value_state
+  }
+
+  _len_state_key(rid) {
+    local per_recv = me._size_state_per_recv()
+    return MethodAliasPolicy.recv_len_key(per_recv, rid)
+  }
+
+  _len_state_value(regs, key) {
+    local cur_len_raw = regs.getField(key)
+    if cur_len_raw == null { cur_len_raw = "0" }
+    return JsonFragBox._str_to_int(cur_len_raw)
+  }
+
   _try_handle_size_alias(regs, mname, dst, rid, recv_h) {
     if MethodAliasPolicy.is_size_alias(mname) != 1 { return 0 }
     if recv_h != null && recv_h > 0 {
@@ -73,10 +108,8 @@ static box ArrayCoreBox {
       me._trace("[vm/adapter/array_core:len_i64]")
       return 1
     }
-    local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-    local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
-    local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
-    local cur_len = JsonFragBox._str_to_int(cur_len_raw)
+    local key = me._len_state_key(rid)
+    local cur_len = me._len_state_value(regs, key)
     me._write_i64_dst(regs, dst, cur_len)
     return 1
   }
@@ -86,6 +119,10 @@ static box ArrayCoreBox {
     local arg1_i = MiniMirV1Scan.nth_arg_register(seg, 1)
     local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
     local val_i64 = me._read_reg_i64_or_null(regs, arg1_i)
+    if idx_i64 != null && idx_i64 < 0 {
+      me._write_zero_dst(regs, dst)
+      return 1
+    }
     if recv_h != null && idx_i64 != null && val_i64 != null {
       local rc = me.set_i64(recv_h, idx_i64, val_i64)
       local strict = env.get("HAKO_VM_ARRAY_CORE_STRICT"); if strict == null { strict = "0" }
@@ -93,22 +130,35 @@ static box ArrayCoreBox {
         print("[vm/adapter/freeze:array_set_i64]")
         return 1
       }
-      me._write_i64_dst(regs, dst, 0)
+      if rc != 0 {
+        local value_state_rt = me._value_state()
+        local next_len_rt = ArrayStateCoreBox.record_set_state(regs, per_recv, rid, idx_i64, cur_len, value_state_rt, arg1_i)
+        regs.setField(key, StringHelpers.int_to_str(next_len_rt))
+      }
+      me._write_zero_dst(regs, dst)
       me._trace("[vm/adapter/array_core:set_i64]")
       return 1
     }
 
-    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
+    local value_state = me._value_state()
     local idx = me._read_reg_int_or_zero(regs, arg0_i)
+    if idx < 0 {
+      me._write_zero_dst(regs, dst)
+      return 1
+    }
     local next_len = ArrayStateCoreBox.record_set_state(regs, per_recv, rid, idx, cur_len, value_state, arg1_i)
     regs.setField(key, StringHelpers.int_to_str(next_len))
-    me._write_i64_dst(regs, dst, 0)
+    me._write_zero_dst(regs, dst)
     return 1
   }
 
   _try_handle_get(seg, regs, rid, per_recv, value_state, recv_h, dst) {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
     local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
+    if idx_i64 != null && idx_i64 < 0 {
+      me._write_zero_dst(regs, dst)
+      return 1
+    }
     if recv_h != null && idx_i64 != null {
       local got_i64 = me.get_i64(recv_h, idx_i64)
       me._write_i64_dst(regs, dst, got_i64)
@@ -117,21 +167,41 @@ static box ArrayCoreBox {
     }
     if value_state == "1" {
       local idx = me._read_reg_int_or_zero(regs, arg0_i)
+      if idx < 0 {
+        me._write_zero_dst(regs, dst)
+        return 1
+      }
       local val_str = ArrayStateCoreBox.get_state_value(regs, per_recv, rid, idx)
-      if dst != null && val_str != null {
-        regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
+      if dst != null {
+        if val_str != null {
+          regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
+        } else {
+          regs.setField(StringHelpers.int_to_str(dst), "0")
+        }
       }
       return 1
     }
     return 0
   }
 
-  _try_handle_push(seg, regs, rid, per_recv, key, cur_len, dst) {
-    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
+  _try_handle_push(seg, regs, rid, per_recv, key, cur_len, recv_h, dst) {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
+    local val_any = me._read_reg_i64_or_null(regs, arg0_i)
+    if recv_h != null && val_any != null {
+      local next_len_rt = me.push_hh(recv_h, val_any)
+      if next_len_rt > 0 {
+        local value_state_rt = me._value_state()
+        local _next_len_state = ArrayStateCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state_rt, arg0_i)
+        regs.setField(key, StringHelpers.int_to_str(next_len_rt))
+      }
+      me._write_zero_dst(regs, dst)
+      me._trace("[vm/adapter/array_core:push_hh]")
+      return 1
+    }
+    local value_state = me._value_state()
     local next_len = ArrayStateCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_i)
     regs.setField(key, StringHelpers.int_to_str(next_len))
-    me._write_i64_dst(regs, dst, 0)
+    me._write_zero_dst(regs, dst)
     return 1
   }
 
@@ -146,25 +216,23 @@ static box ArrayCoreBox {
     }
 
     if mname == "set" {
-      local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-      local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
-      local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
-      local cur_len = JsonFragBox._str_to_int(cur_len_raw)
+      local per_recv = me._size_state_per_recv()
+      local key = me._len_state_key(rid)
+      local cur_len = me._len_state_value(regs, key)
       return me._try_handle_set(seg, regs, rid, per_recv, key, cur_len, recv_h, dst)
     }
 
     if mname == "get" {
-      local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-      local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
+      local per_recv = me._size_state_per_recv()
+      local value_state = me._value_state()
       return me._try_handle_get(seg, regs, rid, per_recv, value_state, recv_h, dst)
     }
 
     if mname == "push" {
-      local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-      local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
-      local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
-      local cur_len = JsonFragBox._str_to_int(cur_len_raw)
-      return me._try_handle_push(seg, regs, rid, per_recv, key, cur_len, dst)
+      local per_recv = me._size_state_per_recv()
+      local key = me._len_state_key(rid)
+      local cur_len = me._len_state_value(regs, key)
+      return me._try_handle_push(seg, regs, rid, per_recv, key, cur_len, recv_h, dst)
     }
 
     return 0
