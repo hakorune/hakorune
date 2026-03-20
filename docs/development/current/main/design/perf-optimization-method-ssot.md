@@ -3,6 +3,7 @@ Status: SSOT
 Scope: `kilo` / `micro kilo` を起点にした exe 最適化の測定順序・判断順序・止め線
 Related:
 - docs/development/current/main/DOCS_LAYOUT.md
+- docs/development/current/main/design/optimization-tag-flow-ssot.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
@@ -63,6 +64,17 @@ Related:
    - 役割: micro ladder で一番厚い leaf の原因関数を確認する
    - 使い方: `perf report --stdio --no-children` の top symbol を読む
 
+## Tag Coverage
+
+最適化 tag / knob の到達範囲は [optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md) を正本にする。
+
+この wave での短い読みは次。
+
+- language annotations (`@hint` / `@contract` / `@intrinsic_candidate`) are not backend-active yet
+- AotPrep knobs act before `ny-llvmc`
+- boundary compile/link knobs are the only tags that truly cross into `ny-llvmc(boundary)` / object / exe generation
+- perf-only knobs are measurement controls, not backend optimization tags
+
 ## Classification
 
 Hotspot は次の分類で読む。
@@ -100,13 +112,13 @@ Hotspot は次の分類で読む。
 1. hot path の per-call env probe を cache 化する
 2. hot bridge の dispatch / registry を薄くする
 3. `substring_concat` や `array_getset` の exact leaf を 1 本だけ削る
-4. それでも残るなら `@hint(inline)` を exact hot leaf にだけ試す
+4. それでも残るなら native leaf-local hint を exact hot leaf にだけ試す
 
 理由:
 
 - env probe は leaf の形を変えずに固定費を落としやすい
 - dispatch / registry は多くの benchmark に横断で効く
-- `@hint(inline)` は最後に試す補助輪で、workaround ではない
+- language-level `@hint(inline)` is not backend-active in the current wave; only leaf-local native hints count here
 
 ## Current Wave Snapshot
 

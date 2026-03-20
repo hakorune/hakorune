@@ -56,17 +56,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - backend-zero compat keep reduction has reached its stop line; no further safe thinning remains in the llvm_codegen / boundary_driver keep slice, so the active lane returns to exe optimization hot-leaf trimming
+  - no route blocker remains for the current optimization wave; the active lane is exact hot-leaf trimming on the fixed `.hako -> ny-llvmc(boundary) -> C ABI` contract, and `array_getset` currently points at Rust substrate helpers
 - Next exact files:
   - `docs/development/current/main/design/perf-optimization-method-ssot.md`
+  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
   - `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
   - `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
-  - `src/llvm_py/instructions/boxcall.py`
-  - `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
-  - `src/llvm_py/llvm_builder.py`
-  - `src/runtime/host_handles.rs`
-  - `lang/c-abi/shims/hako_aot_shared_impl.inc`
-  - `lang/c-abi/shims/hako_llvmc_ffi.c`
+  - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+  - `crates/nyash_kernel/src/plugin/array_index_helpers.rs`
+  - `crates/nyash_kernel/src/plugin/array_route_helpers.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` kernel lane reached stop-line maintenance (`string` stop line, `array/numeric/map` defer confirmed)
@@ -78,12 +76,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` `src/host_providers/llvm_codegen.rs` is already thin enough; no further code slice stays in that file
   - `[x]` `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; FFI plumbing moved into `boundary_driver_ffi.rs`
   - `[x]` `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs` has no further safe thinning slice
-  - `[ ]` keep `compile_symbol_for_keep_recipe()` generic default parked until compat keep lanes are explicitly reduced
+  - `[x]` optimization tag/knob inventory is pinned by reach (`pre-boundary` / `boundary` / `keep-lane-only` / `perf-only`)
+  - `[x]` `array_getset` current exact leaf is pinned to Rust substrate (`handle_helpers` seam -> `array_index_helpers` / `array_route_helpers`)
+  - `[x]` keep `compile_symbol_for_keep_recipe()` generic default parked; do not reopen it during the current optimization wave
 - Stop condition:
   - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
   - no compat keep reduction is mixed with bootstrap keep reduction
   - Rust `stage0` bootstrap / recovery route remains green
   - when compat keep reduction reaches stop line, return the active lane to exe optimization rather than reopening backend-zero
+  - do not treat language-level `@hint` / `@contract` annotations as backend-active until their SSOT says so
 - Do not mix:
   - kernel widening without a new exact blocker
   - VM strict-polish reopening without a new exact blocker
@@ -112,7 +113,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - immediate: exe optimization wave（fresh stable baseline after backend-zero stop line）
 - first: refresh the stable `kilo_kernel_small_hk` comparison against C / Python / Hako
 - second: run the micro ladder and rank the thickest leaf by `ratio_cycles` / `ratio_instr`
-- third: if one leaf is still bridge/helper-density bound, trial `@hint(inline)` or a C bridge split on that exact leaf only
+- third: cut the exact Rust substrate leaf for `array_getset` (`handle_helpers` seam, then `array_get_by_index` / `array_set_by_index_i64_value`) before reopening any keep lane
+- fourth: only after measurement says the native leaf shape wants it, trial a native local inline hint; language-level `@hint` remains not-active
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: bootstrap keep reduction stays parked unless compat keep lanes reopen
@@ -361,6 +363,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `find_substr_byte_index`
 - read-first for this wave:
   - `docs/development/current/main/design/perf-optimization-method-ssot.md`
+  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
   - `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
   - `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
   - `docs/development/current/main/design/string-transient-lifecycle-ssot.md`
