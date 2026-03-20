@@ -7,6 +7,15 @@ using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0BoxcallBuiltinBox {
+  _starts_with(text, prefix) {
+    if text == null || prefix == null { return 0 }
+    local t = "" + text
+    local p = "" + prefix
+    if t.length() < p.length() { return 0 }
+    if t.substring(0, p.length()) == p { return 1 }
+    return 0
+  }
+
   _find_int(seg, key) {
     return MirVmS0JsonScanBox._find_int(seg, key)
   }
@@ -216,6 +225,30 @@ static box MirVmS0BoxcallBuiltinBox {
     regs.set("" + dst_box, "" + dst_box)
     kinds.set("" + dst_box, "box")
     MirVmS0StateOpsBox.box_len_set(array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    return "__NEXT__"
+  }
+
+  apply_map_clear(box_key, dst_box, regs, kinds, array_lens) {
+    local pres_prefix = "mk:" + box_key + ":"
+    local kind_prefix = "mkind:" + box_key + ":"
+    local raw_prefix = "mval:" + box_key + ":"
+    local keys = array_lens.keys()
+    if keys != null {
+      local i = 0
+      local n = keys.length()
+      loop(i < n) {
+        local key = "" + keys.get(i)
+        if me._starts_with(key, pres_prefix) == 1 || me._starts_with(key, kind_prefix) == 1 || me._starts_with(key, raw_prefix) == 1 {
+          array_lens.set(key, null)
+        }
+        i = i + 1
+      }
+    }
+    MirVmS0StateOpsBox.box_len_set(array_lens, box_key, 0)
+    if dst_box != null {
+      regs.set("" + dst_box, "0")
+      kinds.set("" + dst_box, "scalar")
+    }
     return "__NEXT__"
   }
 
@@ -459,6 +492,13 @@ static box MirVmS0BoxcallBuiltinBox {
       local dst_keys = me._find_int(seg, "dst")
       local box_key_keys = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
       return me.apply_map_keys(box_key_keys, dst_keys, regs, kinds, array_lens)
+    }
+
+    if method == "clear" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_clear = me._find_int(seg, "dst")
+      local box_key_clear = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return me.apply_map_clear(box_key_clear, dst_clear, regs, kinds, array_lens)
     }
 
     return ""

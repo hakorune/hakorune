@@ -60,11 +60,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
-  - the adjacent exact blocker is lane C / `.hako VM` (`vm-hako`), not Rust VM: `RVP-C16 newbox(MapBox)`, `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, `RVP-C19 MapBox.get(key)`, `RVP-C20 MapBox.has(key)`, `RVP-C21 MapBox.delete(key)`, and `RVP-C22 MapBox.keys()` are now ported, and the current exact blocker is `RVP-C23 MapBox.clear()` unimplemented route
+  - the adjacent exact blocker is lane C / `.hako VM` (`vm-hako`), not Rust VM: `RVP-C16 newbox(MapBox)`, `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, `RVP-C19 MapBox.get(key)`, `RVP-C20 MapBox.has(key)`, `RVP-C21 MapBox.delete(key)`, `RVP-C22 MapBox.keys()`, and `RVP-C23 MapBox.clear()` are now ported, and the current exact blocker is `RVP-C24 MapBox.get(missing-key)` stale scalar route
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
   - factor `filter_noise || true` handling into a shared smoke helper instead of per-smoke local glue
-  - revisit `mir_vm_s0_boxcall_builtin.hako` `set/get/has/delete/keys` routing once `MapBox` semantics are fully owner-local
+  - revisit `mir_vm_s0_boxcall_builtin.hako` `set/get/has/delete/keys/clear` routing once `MapBox` semantics are fully owner-local
 - Next exact files:
   - `docs/development/current/main/phases/phase-29bq/29bq-116-emit-mir-entry-order-blocker.md`
   - `docs/development/current/main/phases/phase-29bq/29bq-117-arraybox-birth-harness-blocker.md`
@@ -79,14 +79,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `apps/tests/vm_hako_caps/mapbox_has_ported_min.hako`
   - `apps/tests/vm_hako_caps/mapbox_delete_ported_min.hako`
   - `apps/tests/vm_hako_caps/mapbox_keys_ported_min.hako`
-  - `apps/tests/vm_hako_caps/mapbox_clear_block_min.hako`
+  - `apps/tests/vm_hako_caps/mapbox_clear_ported_min.hako`
+  - `apps/tests/vm_hako_caps/mapbox_get_missing_block_min.hako`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_set_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_size_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_has_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_delete_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_keys_ported_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_clear_block_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_clear_ported_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_missing_block_vm.sh`
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_harness_arraybox_birth_ternary_basic_vm.sh`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
@@ -120,7 +122,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` RVP-C20 is closed: `MapBox.has(key)` now preserves visible bool parity (`true/false`) and is pinned by `vm_hako_caps_mapbox_has_ported_vm.sh`
   - `[x]` RVP-C21 is closed: `MapBox.delete(key)` now removes presence/value state, preserves `has/size` parity, and is pinned by `vm_hako_caps_mapbox_delete_ported_vm.sh`
   - `[x]` RVP-C22 is closed: `MapBox.keys()` now returns an ArrayBox-like token whose `size()` matches the map size, and is pinned by `vm_hako_caps_mapbox_keys_ported_vm.sh`
-  - `[ ]` RVP-C23 now owns the adjacent blocker: `MapBox.clear()` still stops at `op=boxcall0 method=clear`
+  - `[x]` RVP-C23 is closed: `MapBox.clear()` now resets visible `size/has/keys` state and is pinned by `vm_hako_caps_mapbox_clear_ported_vm.sh`
+  - `[ ]` RVP-C24 now owns the adjacent blocker: `MapBox.get(missing-key)` still returns stale scalar `0`
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
   - `[x]` backend-zero current owner cutover is closed enough for handoff
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
@@ -165,7 +168,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
-- first: clear lane C / `.hako VM` blocker `RVP-C23 MapBox.clear()` unimplemented route
+- first: clear lane C / `.hako VM` blocker `RVP-C24 MapBox.get(missing-key)` stale scalar route
 - second: pin `MapBox` user-visible contract (`get/set/has/len/length/size`, key normalization, visible fallback/error contract) to `.hako` ring1 collection core
 - third: retarget Rust `map` plugin/helpers to raw substrate verbs only (`probe/rehash/load/store/cache/downcast/layout`)
 - third: clean up `RuntimeDataBox` into protocol / facade only after `array` and `map` are cut over
@@ -942,7 +945,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - done: `JIR-PORT-06`（monitor-only boundary lock）
   - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
   - next: `none`（failure-driven reopen only）
-- runtime lane: `phase-29y / RVP-C23` current blocker: `MapBox.clear()` unimplemented route
+- runtime lane: `phase-29y / RVP-C24` current blocker: `MapBox.get(missing-key)` stale scalar route
   - fixed order SSOT:
     - `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
 - compiler pipeline lane: `hako-using-resolver-parity / monitor-only`
