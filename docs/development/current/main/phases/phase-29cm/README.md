@@ -63,6 +63,7 @@ Related:
   - further widening is paused until a new exact blocker appears
 - [ ] `array` owner cutover is active
   - first slice landed: `ArrayCoreBox` owns ArrayBox push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
+  - second slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
 - [ ] `map` owner cutover follows `array`
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot

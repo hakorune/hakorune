@@ -75,6 +75,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` `array_getset` proved the remaining method-shaped collection hotspot still lives in Rust substrate
   - `[x]` reopen kernel authority lane as collection owner cutover (`array -> map -> runtime_data cleanup`)
   - `[x]` A1 first slice landed: `ArrayCoreBox` owns `ArrayBox` push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
+  - `[x]` A2 first slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
   - `[ ]` move `ArrayBox` user-visible semantics into `.hako` ring1 collection core
   - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
@@ -160,6 +161,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - `slot_store`
      - `reserve/grow`
      - cache/downcast/layout
+   - first landed slice:
+      - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+      - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+      - `array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers over raw slot helpers
 3. `A3: Array retarget`
    - point `.hako` array owner at raw substrate verbs only
    - remove method-shaped Rust ownership from the daily path

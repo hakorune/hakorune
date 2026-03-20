@@ -127,6 +127,11 @@ Target:
 - prefer raw naming and raw contracts over method-shaped naming
 - keep handle/cache/downcast/layout logic local to Rust
 
+Current first slice:
+- `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+- `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+- `array_index_helpers.rs` / `array_route_helpers.rs` remain as thin compatibility wrappers while raw slot verbs become the structural owner
+
 ### A3. Retarget `.hako` Array owner to raw verbs
 
 Target:
