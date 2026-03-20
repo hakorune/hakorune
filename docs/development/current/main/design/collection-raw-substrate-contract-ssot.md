@@ -139,6 +139,11 @@ Target:
 - Rust exports become storage/mechanics substrate only
 - acceptance stays on existing array/provider/runtime-data smokes while the boundary moves downward
 
+Current first slice:
+- `ArrayCoreBox.get_i64` -> `nyash.array.slot_load_hi`
+- `ArrayCoreBox.set_i64` -> `nyash.array.slot_store_hii`
+- legacy `nyash.array.get_hi` / `nyash.array.set_hii` stay as compatibility shell during the retarget wave
+
 ### M1. Repeat for Map
 
 Owners:

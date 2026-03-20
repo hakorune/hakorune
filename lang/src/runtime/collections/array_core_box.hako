@@ -62,11 +62,11 @@ static box ArrayCoreBox {
   }
 
   get_i64(handle, idx) {
-    return externcall "nyash.array.get_hi"(handle, idx)
+    return externcall "nyash.array.slot_load_hi"(handle, idx)
   }
 
   set_i64(handle, idx, value) {
-    return externcall "nyash.array.set_hii"(handle, idx, value)
+    return externcall "nyash.array.slot_store_hii"(handle, idx, value)
   }
 
   len_i64(handle) {

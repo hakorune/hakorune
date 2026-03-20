@@ -76,6 +76,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` reopen kernel authority lane as collection owner cutover (`array -> map -> runtime_data cleanup`)
   - `[x]` A1 first slice landed: `ArrayCoreBox` owns `ArrayBox` push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
   - `[x]` A2 first slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
+  - `[x]` A3 first slice landed: `ArrayCoreBox.get_i64/set_i64` now target raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
   - `[ ]` move `ArrayBox` user-visible semantics into `.hako` ring1 collection core
   - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
@@ -168,6 +169,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 3. `A3: Array retarget`
    - point `.hako` array owner at raw substrate verbs only
    - remove method-shaped Rust ownership from the daily path
+   - first landed slice:
+      - `ArrayCoreBox.get_i64/set_i64` now target raw `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii`
+      - legacy `nyash.array.get_hi/set_hii` remain as compat shell
 4. `M1: Map semantics + substrate split`
    - repeat `A1 -> A3` for `MapBox`
 5. `R1: RuntimeData cleanup`

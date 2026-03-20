@@ -3,6 +3,8 @@ use super::array_index_helpers::{array_get_by_index, array_has_by_index, decode_
 use super::array_route_helpers::{
     array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
 };
+use super::array_slot_load::array_slot_load_encoded_i64;
+use super::array_slot_store::array_slot_store_i64;
 use super::value_codec::{any_arg_to_box, any_arg_to_box_with_profile, CodecProfile};
 use super::handle_helpers::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
@@ -176,6 +178,17 @@ pub extern "C" fn nyash_array_has_hi_alias(handle: i64, idx: i64) -> i64 {
     array_has_by_index(handle, idx)
 }
 
+// Raw slot substrate aliases used by `.hako` collection owners.
+#[export_name = "nyash.array.slot_load_hi"]
+pub extern "C" fn nyash_array_slot_load_hi_alias(handle: i64, idx: i64) -> i64 {
+    array_slot_load_encoded_i64(handle, idx)
+}
+
+#[export_name = "nyash.array.slot_store_hii"]
+pub extern "C" fn nyash_array_slot_store_hii_alias(handle: i64, idx: i64, value_i64: i64) -> i64 {
+    array_slot_store_i64(handle, idx, value_i64)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -222,6 +235,19 @@ mod tests {
         assert_eq!(nyash_array_push_hi_alias(handle, 9), 2);
         assert_eq!(nyash_array_get_hi_alias(handle, 0), 7);
         assert_eq!(nyash_array_get_hi_alias(handle, 1), 9);
+    }
+
+    #[test]
+    fn slot_load_store_raw_aliases_keep_contract() {
+        let handle = new_array_handle();
+        assert_eq!(nyash_array_push_h(handle, 10), 1);
+
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 10);
+        assert_eq!(nyash_array_slot_store_hii_alias(handle, 0, 44), 1);
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 44);
+
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 3), 0);
+        assert_eq!(nyash_array_slot_store_hii_alias(handle, 3, 9), 0);
     }
 
     #[test]

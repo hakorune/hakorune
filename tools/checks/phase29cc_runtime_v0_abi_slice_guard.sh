@@ -82,12 +82,12 @@ if ! rg -F -q 'try_handle(seg, regs, mname)' "$STRING_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] string core missing try_handle contract" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.array.get_hi"' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.get_hi extern route" >&2
+if ! rg -F -q 'externcall "nyash.array.slot_load_hi"' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_load_hi extern route" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.array.set_hii"' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.set_hii extern route" >&2
+if ! rg -F -q 'externcall "nyash.array.slot_store_hii"' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_store_hii extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.array.len_h"' "$ARRAY_CORE_FILE"; then

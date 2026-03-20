@@ -29,7 +29,7 @@ Rule:
 
 - `array_core_box.hako`
   - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `len_i64(handle)`
-    -> `nyash.array.get_hi` / `nyash.array.set_hii` / `nyash.array.len_h`
+    -> `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` / `nyash.array.len_h`
   - `push_hh(handle, value_any)`
     -> `nyash.array.push_hh`
   - `try_handle(seg, regs, mname)`
