@@ -65,7 +65,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/shared/backend/backend_recipe_box.hako`
   - `lang/src/shared/backend/llvm_backend_box.hako`
   - `src/host_providers/llvm_codegen/route.rs`
-  - `src/host_providers/llvm_codegen.rs`
+  - `crates/nyash-llvm-compiler/src/boundary_driver.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` kernel lane reached stop-line maintenance (`string` stop line, `array/numeric/map` defer confirmed)
@@ -74,6 +74,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` inventory the first compat keep reduction slice without mixing bootstrap keep reduction
   - `[x]` first compat keep reduction slice is fixed to `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs`
   - `[x]` `route.rs` shared keep compile setup is factored behind `compile_via_capi_keep_internal(...)`
+  - `[x]` `src/host_providers/llvm_codegen.rs` is already thin enough; no further code slice stays in that file
   - `[ ]` keep `compile_symbol_for_keep_recipe()` generic default parked until compat keep lanes are explicitly reduced
 - Stop condition:
   - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
