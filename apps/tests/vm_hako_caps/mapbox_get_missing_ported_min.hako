@@ -1,0 +1,11 @@
+// RVP-C24 ported fixture
+// Contract:
+// - vm-hako route returns the stable `[map/missing] Key not found: <key>` string for `MapBox.get(missing-key)`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    print(m.get("nope"))
+    return 0
+  }
+}

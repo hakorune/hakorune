@@ -158,7 +158,8 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
     regs.set("" + dst_box, "0")
-    kinds.set("" + dst_box, "scalar")
+    kinds.set("" + dst_box, "handle")
+    MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "[map/missing] Key not found: " + key_text)
     return "__NEXT__"
   }
 

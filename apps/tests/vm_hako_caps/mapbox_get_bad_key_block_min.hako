@@ -1,0 +1,11 @@
+// RVP-C25 blocked fixture
+// Contract:
+// - vm-hako route still returns stale scalar `0` for `MapBox.get(non-string key)`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    print(m.get(123))
+    return 0
+  }
+}

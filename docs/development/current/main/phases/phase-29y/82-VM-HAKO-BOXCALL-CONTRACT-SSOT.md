@@ -47,8 +47,9 @@ Current exact blocker note:
 - `MapBox.delete(key)` is now tracked as `RVP-C21` ported.
 - `MapBox.keys()` is now tracked as `RVP-C22` ported.
 - `MapBox.clear()` is now tracked as `RVP-C23` ported.
-- The current exact blocker is `RVP-C24` (`MapBox.get(missing-key)` -> stale scalar `0`).
-- Do not widen the generic rule silently; close `RVP-C24` with fixture + smoke + contract update in the same commit.
+- `MapBox.get(missing-key)` is now tracked as `RVP-C24` ported.
+- The current exact blocker is `RVP-C25` (`MapBox.get(non-string key)` -> stale scalar `0`).
+- Do not widen the generic rule silently; close `RVP-C25` with fixture + smoke + contract update in the same commit.
 
 ## Update Rule
 

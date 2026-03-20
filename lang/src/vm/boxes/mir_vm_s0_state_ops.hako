@@ -23,6 +23,12 @@ static box MirVmS0StateOpsBox {
     return v
   }
 
+  map_get_raw_or_null(m, key) {
+    local v = m.get("" + key)
+    if v == null { return null }
+    return v
+  }
+
   _to_i64(x) {
     if x == null { return 0 }
     return StringHelpers.to_i64("" + x)
@@ -63,7 +69,7 @@ static box MirVmS0StateOpsBox {
   }
 
   handle_get(handle_regs, id) {
-    return me.map_get_or_null(handle_regs, id)
+    return me.map_get_raw_or_null(handle_regs, id)
   }
 
   handle_set(handle_regs, id, text) {
@@ -78,7 +84,7 @@ static box MirVmS0StateOpsBox {
   }
 
   file_box_get(file_boxes, id) {
-    return me.map_get_or_null(file_boxes, id)
+    return me.map_get_raw_or_null(file_boxes, id)
   }
 
   file_box_set(file_boxes, id, file_obj) {
