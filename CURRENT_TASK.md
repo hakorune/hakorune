@@ -116,6 +116,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] split remaining execution helpers out of `mir_vm_s0.hako`（`mir_vm_s0_exec_dispatch.hako`）
   - [x] split block runner helpers out of `mir_vm_s0.hako`（`mir_vm_s0_block_runner.hako`）
   - [x] thin entry / module wiring（`mini_vm_s0_entry.hako` now binds directly to `MirVmS0BlockRunnerBox.run_min(...)`）
+  - [x] remove legacy top-array recovery from `mir_vm_s0_block_runner.hako`（structured payload only; unsupported payload shapes fail fast）
   - [ ] thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - [ ] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`

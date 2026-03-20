@@ -1,5 +1,6 @@
 // mir_vm_s0_block_runner.hako — block payload traversal and run orchestration split from mir_vm_s0
-// Responsibility: instruction walk, block cache assembly, and top-level run_min orchestration.
+// Responsibility: structured payload instruction walk, block cache assembly, and top-level run_min orchestration.
+// Non-goal: legacy top-array recovery. Fail-fast on unsupported payload shape.
 
 using selfhost.vm.helpers.mir_s0_args_phi as MirVmS0ArgsPhiBox
 using selfhost.vm.helpers.mir_s0_block_loc as MirVmS0BlockLocBox
@@ -256,39 +257,8 @@ static box MirVmS0BlockRunnerBox {
     local file_boxes = new MapBox()
     local probe = MirVmS0BlockLocBox._find_block_obj_bounds(src, blocks_lb, blocks_rb, entry)
     if probe == "" {
-      // Fallback: when block object scan is unavailable, run first instruction array linearly.
-      local p_inst = MirVmS0JsonScanBox._index_of_from(src, "\"instructions\"", blocks_lb)
-      if p_inst < 0 || p_inst > blocks_rb {
-        print("[vm-hako/contract][missing-instructions-fallback id=" + ("" + entry) + "]")
-        return 1
-      }
-      local inst_lb = MirVmS0JsonScanBox._index_of_from(src, "[", p_inst)
-      if inst_lb < 0 || inst_lb > blocks_rb {
-        print("[vm-hako/contract][missing-instructions-fallback id=" + ("" + entry) + "]")
-        return 1
-      }
-      local inst_rb = MirVmS0JsonScanBox._scan_array_end(src, inst_lb)
-      if inst_rb == -2 {
-        print("[vm-hako/contract][scan-depth-exceeded kind=instructions-fallback]")
-        return 1
-      }
-      if inst_rb <= inst_lb || inst_rb > blocks_rb {
-        print("[vm-hako/contract][missing-instructions-fallback id=" + ("" + entry) + "]")
-        return 1
-      }
-      if inst_lb < 0 || inst_rb <= inst_lb {
-        print("[vm-hako/contract][invalid-instructions-array]")
-        return 1
-      }
-      local out = me._exec_insts(src, inst_rb, inst_lb + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-      if out != null {
-        local os = "" + out
-        if os.length() > 0 && os.substring(0, 1) == "[" {
-          print(os)
-          return 1
-        }
-      }
-      return MirVmS0JsonScanBox._to_i64(out)
+      print("[vm-hako/contract][missing-block-object id=" + ("" + entry) + "]")
+      return 1
     }
     local block_inst_cache = new MapBox()
     return me._run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, block_inst_cache, entry, null, 0)
@@ -305,32 +275,7 @@ static box MirVmS0BlockRunnerBox {
     if MirVmS0JsonScanBox._index_of_from(src, "\"entry_block\"", 0) >= 0 && MirVmS0JsonScanBox._index_of_from(src, "\"blocks\"", 0) >= 0 {
       return me._run_block_payload(src)
     }
-
-    local lb = MirVmS0JsonScanBox._index_of_from(src, "[", 0)
-    local rb = MirVmS0JsonScanBox._scan_array_end(src, lb)
-    if rb == -2 {
-      print("[vm-hako/contract][scan-depth-exceeded kind=top-array]")
-      return 1
-    }
-    if rb <= lb {
-      print("[vm-hako/contract][invalid-instructions-array lb=" + ("" + lb) + " rb=" + ("" + rb) + "]")
-      return 1
-    }
-
-    local regs = new MapBox()
-    local kinds = new MapBox()
-    local mem = new MapBox()
-    local array_lens = new MapBox()
-    local handle_regs = new MapBox()
-    local file_boxes = new MapBox()
-    local out = me._exec_insts(src, rb, lb + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-    if out != null {
-      local os = "" + out
-      if os.length() > 0 && os.substring(0, 1) == "[" {
-        print(os)
-        return 1
-      }
-    }
-    return MirVmS0JsonScanBox._to_i64(out)
+    print("[vm-hako/contract][missing-structured-payload]")
+    return 1
   }
 }
