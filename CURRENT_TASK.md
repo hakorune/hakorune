@@ -34,6 +34,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/vm/boxes/mir_vm_s0_block_loc.hako`
   - `lang/src/vm/boxes/mir_vm_s0_lifecycle_ops.hako`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
 - still concentrated in `mir_vm_s0.hako`:
   - `_exec_data_op(...)`
   - `_exec_call_op(...)`
@@ -68,7 +69,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
   - `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md`
 - Execution checklist:
-  - `[x]` VM helper split baseline already exists (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec`)
+  - `[x]` VM helper split baseline already exists (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec` / `exec_dispatch`)
   - `[ ]` freeze the remaining `mir_vm_s0.hako` responsibilities in comments
   - `[ ]` split the remaining execution helpers out of `mir_vm_s0.hako`
   - `[ ]` thin `mir_vm_s0.hako` to orchestration / dispatch glue
@@ -115,8 +116,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - [ ] VM `.hako` migration lane
   - [x] helper split baseline already in place (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec`)
-  - [ ] responsibility inventory freeze for `mir_vm_s0.hako`
-  - [ ] split remaining execution helpers out of `mir_vm_s0.hako`
+  - [x] responsibility inventory freeze for `mir_vm_s0.hako`
+  - [x] split remaining execution helpers out of `mir_vm_s0.hako`（`mir_vm_s0_exec_dispatch.hako`）
   - [ ] thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - [ ] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`
@@ -803,7 +804,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - done: `JIR-PORT-06`（monitor-only boundary lock）
   - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
   - next: `none`（failure-driven reopen only）
-- runtime lane: `phase-29y / none`
+- runtime lane: `phase-29y / none` current blocker: `none`
   - fixed order SSOT:
     - `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
 - compiler pipeline lane: `hako-using-resolver-parity / monitor-only`
