@@ -1,7 +1,11 @@
-// MapCoreBox — thin VM runtime wrapper over map ABI/state helpers
+// MapCoreBox — visible MapBox semantics owner over map ABI/state helpers
 // Responsibility:
-// - provide VM-low-level i64 size path without std-layer coupling
-// - own adapter-on MapBox state keys/updates so VM handler stays orchestration-only
+// - own user-visible MapBox method contract in ring1 (`get/set/has/len/length/size`)
+// - keep key normalization / size alias / state bookkeeping local to the `.hako` owner
+// - delegate raw map storage/probe/layout mechanics to ABI symbols
+// Non-responsibility:
+// - raw hash-table substrate details
+// - ring0/runtime transport
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
@@ -41,6 +45,10 @@ static box MapCoreBox {
     }
   }
 
+  _write_zero_dst(regs, dst) {
+    me._write_i64_dst(regs, dst, 0)
+  }
+
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
@@ -67,6 +75,29 @@ static box MapCoreBox {
   _presence_key(per_recv, rid, key_str) {
     local rid_s = rid == null ? "null" : ("" + rid)
     return "hvm.map.k:" + (per_recv == "1" ? rid_s : "*") + ":" + key_str
+  }
+
+  _size_state_per_recv() {
+    local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV")
+    if per_recv == null { per_recv = "0" }
+    return per_recv
+  }
+
+  _value_state() {
+    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE")
+    if value_state == null { value_state = "0" }
+    return value_state
+  }
+
+  _len_state_key(rid) {
+    local per_recv = me._size_state_per_recv()
+    return MethodAliasPolicy.recv_len_key(per_recv, rid)
+  }
+
+  _len_state_value(regs, key) {
+    local cur_len_raw = regs.getField(key)
+    if cur_len_raw == null { cur_len_raw = "0" }
+    return JsonFragBox._str_to_int(cur_len_raw)
   }
 
   record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id) {
@@ -103,11 +134,10 @@ static box MapCoreBox {
 
   try_handle(seg, regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
-    local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-    local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
-    local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
-    local cur_len = JsonFragBox._str_to_int(cur_len_raw)
-    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
+    local per_recv = me._size_state_per_recv()
+    local key = me._len_state_key(rid)
+    local cur_len = me._len_state_value(regs, key)
+    local value_state = me._value_state()
     local dst = JsonFragBox.get_int(seg, "dst")
     local recv_h = me._read_reg_i64_or_null(regs, rid)
 
@@ -121,7 +151,7 @@ static box MapCoreBox {
       local arg1_id = MiniMirV1Scan.nth_arg_register(seg, 1)
       cur_len = me.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)
       regs.setField(key, StringHelpers.int_to_str(cur_len))
-      me._write_i64_dst(regs, dst, 0)
+      me._write_zero_dst(regs, dst)
       me._trace("[vm/adapter/map_core:set_state]")
       return 1
     }

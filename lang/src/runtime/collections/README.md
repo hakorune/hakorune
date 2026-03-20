@@ -44,7 +44,7 @@ Rule:
     -> `nyash.runtime_data.*` thin extern wrapper used by the same facade
 - `map_core_box.hako`
   - `try_handle(seg, regs, mname)`
-    -> owner frontier for `MapBox.{set,get,has,size/len/length}` orchestration and future visible contract
+    -> visible owner for `MapBox.{set,get,has,size/len/length}` orchestration and current handler-side contract
   - `size_i64(handle)` -> `nyash.map.size_h`
   - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state
   - `record_set_state(...)` / `get_state_value(...)` / `has_state_value(...)`

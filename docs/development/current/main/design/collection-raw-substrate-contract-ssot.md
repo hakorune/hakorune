@@ -154,6 +154,10 @@ Target:
 - `.hako` owns visible `MapBox` semantics
 - Rust owns hash/probe/rehash/layout mechanics only
 
+Current first slice:
+- `MapCoreBox.try_handle(...)` is now the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}`
+- `lang/src/vm/boxes/mir_call_v1_handler.hako` no longer carries inline `MapBox.set` fallback logic
+
 ### R1. Cleanup RuntimeData
 
 Owner:

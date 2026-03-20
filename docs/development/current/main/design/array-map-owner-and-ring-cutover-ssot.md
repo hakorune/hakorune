@@ -71,6 +71,7 @@ Related:
     - `.hako` 側は ABI vocabulary を thin に束ねるだけで止めず、ring1 collection semantics owner へ成長させる。
   - latest visible-owner slice:
     - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox.{set,get,has,size/len/length}` orchestration plus size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
+    - `lang/src/vm/boxes/mir_call_v1_handler.hako` no longer carries inline `MapBox.set` fallback logic; handler-side MapBox routing now goes through `MapCoreBox.try_handle(...)`
     - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox.{set,get,push,len/length/size}` orchestration plus len/state helpers consumed by the same handler
     - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns narrow `RuntimeDataBox.{get,set,has,push}` method dispatch plus the same extern routes consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
     - `lang/src/runtime/collections/string_core_box.hako` now owns adapter-on `StringBox.length/len/size` orchestration plus the `nyash.string.len_h` thin extern route consumed by the same handler

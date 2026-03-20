@@ -66,6 +66,7 @@ Related:
   - second slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
   - third slice landed: `ArrayCoreBox.get_i64/set_i64` retarget to raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
 - [ ] `map` owner cutover follows `array`
+  - first slice landed: `MapCoreBox` is now the single visible owner frontier for handler-side `MapBox.{set,get,has,size/len/length}` routing and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot
 
@@ -78,6 +79,7 @@ Related:
   - Rust `array` plugin/helpers currently still own method-shaped leaves on the hot path; this is the reason to cut over now rather than continue micro-optimizing them in place.
 - `map`
   - `map_core_box.hako` already owns key normalization plus method-shaped aliases/orchestration.
+  - first owner-lock slice is to keep `mir_call_v1_handler.hako` orchestration-only and route MapBox visible semantics through `MapCoreBox.try_handle(...)`.
   - `MapBox` follows `array`; do not treat it as forever-defer just because it lives under `collections/`.
   - Rust `map` plugin/helpers should end at raw hash-table substrate, not method-shaped semantics.
 - `runtime_data`

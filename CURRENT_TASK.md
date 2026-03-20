@@ -56,18 +56,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no backend route blocker remains; the active lane is collection owner cutover, starting with `array`, because method-shaped collection verbs are still owned by Rust substrate while the target end-state is `.hako` ring1 collection ownership
+  - no backend route blocker remains; the active lane is collection owner cutover, and the current exact step is `map`, because the `array` first wave reached its stop line while `MapBox` handler-side visible semantics still need the same owner lock
 - Next exact files:
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
   - `lang/src/runtime/collections/README.md`
-  - `lang/src/runtime/collections/array_core_box.hako`
-  - `lang/src/runtime/collections/array_state_core_box.hako`
-  - `crates/nyash_kernel/src/plugin/array.rs`
-  - `crates/nyash_kernel/src/plugin/array_index_helpers.rs`
-  - `crates/nyash_kernel/src/plugin/array_route_helpers.rs`
+  - `lang/src/runtime/collections/map_core_box.hako`
+  - `lang/src/vm/boxes/mir_call_v1_handler.hako`
+  - `crates/nyash_kernel/src/plugin/map.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -77,8 +76,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` A1 first slice landed: `ArrayCoreBox` owns `ArrayBox` push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
   - `[x]` A2 first slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
   - `[x]` A3 first slice landed: `ArrayCoreBox.get_i64/set_i64` now target raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
+  - `[x]` array first wave reached the current stop line: `len` stays on the existing raw-ish `nyash.array.len_h` route and `push_hh` remains transitional until a dedicated raw append boundary is justified
   - `[ ]` move `ArrayBox` user-visible semantics into `.hako` ring1 collection core
   - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
+  - `[x]` M1 first slice landed: `MapCoreBox` is the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}` and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
   - `[x]` backend-zero current owner cutover is closed enough for handoff
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
@@ -122,10 +123,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Priority
 
 - immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
-- first: pin `ArrayBox` user-visible contract (`get/set/push/len/length/size`, bounds, normalization, visible error contract) to `.hako` ring1 collection core
-- second: retarget Rust `array` plugin/helpers to raw substrate verbs only (`load/store/cache/downcast/layout`)
-- third: repeat the same owner split for `MapBox`
-- fourth: clean up `RuntimeDataBox` into protocol / facade only after `array` and `map` are cut over
+- first: pin `MapBox` user-visible contract (`get/set/has/len/length/size`, key normalization, visible fallback/error contract) to `.hako` ring1 collection core
+- second: retarget Rust `map` plugin/helpers to raw substrate verbs only (`probe/rehash/load/store/cache/downcast/layout`)
+- third: clean up `RuntimeDataBox` into protocol / facade only after `array` and `map` are cut over
 - parked: exe optimization wave stays paused until the collection owner boundary is fixed
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears

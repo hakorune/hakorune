@@ -14,14 +14,6 @@ using lang.runtime.collections.runtime_data_core_box as RuntimeDataCoreBox
 using lang.runtime.collections.string_core_box as StringCoreBox
 
 static box MirCallV1HandlerBox {
-  // デバッグトレース（任意）
-  _norm_key_dbg(raw, norm) {
-    local trace_keys = env.get("HAKO_VM_MIRCALL_TRACE_KEYS")
-    if trace_keys == "1" {
-      print("[vm/trace/keys] raw=" + raw + " norm=" + norm)
-    }
-  }
-
   // Strict integer scanner for vm adapter i64 routes
   _is_i64_text(s) {
     if s == null { return 0 }
@@ -123,34 +115,13 @@ static box MirCallV1HandlerBox {
         if btype == "ArrayBox" {
           if ArrayCoreBox.try_handle(seg, regs, mname) == 1 { return }
         }
+        if btype == "MapBox" {
+          if MapCoreBox.try_handle(seg, regs, mname) == 1 { return }
+        }
         if mname == "push" {
           cur_len = cur_len + 1
           regs.setField(key, StringHelpers.int_to_str(cur_len))
           local d1 = JsonFragBox.get_int(seg, "dst"); if d1 != null { regs.setField(StringHelpers.int_to_str(d1), "0") }
-          return
-        }
-        // Map.set: 重複キー検知つきサイズ更新（値状態ONなら値も保存）
-        if btype == "MapBox" && mname == "set" {
-          // キー抽出
-          local arg0 = MiniMirV1Scan.first_arg_register(seg)
-          if arg0 >= 0 {
-            local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
-            local key_str = MapCoreBox.norm_key_str(key_str_raw)
-            me._norm_key_dbg(key_str_raw, key_str)
-            print("[DEBUG_MAP_SET] raw=" + key_str_raw + " norm=" + key_str)
-            local value_state2 = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state2 == null { value_state2 = "0" }
-            local arg1_id2 = MiniMirV1Scan.nth_arg_register(seg, 1)
-            cur_len = MapCoreBox.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state2, arg1_id2)
-            regs.setField(key, StringHelpers.int_to_str(cur_len))
-            if key_str != null {
-              print("[DEBUG_MAP_SET] key known, cur_len now=" + cur_len)
-              if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace] map.set(fallback,key) cur_len=" + cur_len) }
-            } else {
-              print("[DEBUG_MAP_SET] key unknown, cur_len now=" + cur_len)
-              if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print("[vm/trace] map.set(fallback,unknown-key) cur_len=" + cur_len) }
-            }
-          }
-          local dset = JsonFragBox.get_int(seg, "dst"); if dset != null { regs.setField(StringHelpers.int_to_str(dset), "0") }
           return
         }
         if MethodAliasPolicy.is_size_alias(mname) == 1 {
