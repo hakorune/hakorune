@@ -5,6 +5,7 @@ Date: 2026-03-17
 Scope: `ArrayBox` / `MapBox` の current owner truth と、`0rust` に向けた ring/owner cutover 順序を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/ring1-core-provider-scope-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
@@ -134,6 +135,19 @@ Related:
 Short rule:
 - method-shaped names belong to `.hako`
 - substrate-shaped names belong to Rust
+
+### 3.2c First cutover order
+
+- first:
+  - `ArrayCoreBox` / `array_state_core_box.hako`
+- second:
+  - Rust `array` helpers are renamed/reduced behind raw substrate verbs
+- third:
+  - `MapCoreBox`
+- fourth:
+  - `RuntimeDataCoreBox` cleanup as protocol / facade only
+- details for raw naming and demotion live in:
+  - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
 
 ### 3.3 Promotion Trigger: defer から dedicated kernel module へ移すタイミング
 

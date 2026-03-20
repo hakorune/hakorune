@@ -16,6 +16,7 @@ Scope: `.hako` ring1 collection core for user-visible collection semantics durin
 - `RuntimeDataBox` stays protocol / facade only; do not turn it into a collection-semantics owner.
 - Runtime/provider current-truth and `0rust` cutover order are tracked in:
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+  - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
 
 Rule:
 - keep this layer ring1
@@ -61,3 +62,14 @@ Rule:
   - `tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh`
 - standalone RuntimeDataBox e2e smoke:
   - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+
+## First Cutover Order
+
+1. `ArrayCoreBox` / `array_state_core_box.hako`
+   - become the visible `ArrayBox` semantics owner
+2. Rust array helpers
+   - shrink to raw substrate verbs only
+3. `MapCoreBox`
+   - follows the same split
+4. `RuntimeDataCoreBox`
+   - cleanup to protocol / facade only

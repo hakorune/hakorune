@@ -60,6 +60,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - Next exact files:
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+  - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
   - `lang/src/runtime/collections/README.md`
   - `lang/src/runtime/collections/array_core_box.hako`
@@ -130,6 +131,41 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` remains at stop line; reopen only if a new exact blocker appears
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
 - directory rule: keep `Stage1/Stage2` as artifact/proof names; Rust physical split stays `src/stage1/**` vs `src/runner/stage1_bridge/**`, do not create a mirrored `src/stage2/`
+
+## Implementation Order (Array First)
+
+1. `A1: Array semantics lock`
+   - `.hako` owners:
+     - `lang/src/runtime/collections/array_core_box.hako`
+     - `lang/src/runtime/collections/array_state_core_box.hako`
+   - fix the visible owner for:
+     - `ArrayBox.{get,set,push,len,length,size}`
+     - bounds policy
+     - normalization decisions
+     - visible fallback/error contract
+2. `A2: Array raw substrate contract`
+   - SSOT:
+     - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
+   - Rust owners:
+     - `crates/nyash_kernel/src/plugin/array.rs`
+     - `crates/nyash_kernel/src/plugin/array_index_helpers.rs`
+     - `crates/nyash_kernel/src/plugin/array_route_helpers.rs`
+     - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+   - demote to raw verbs only:
+     - `slot_load`
+     - `slot_store`
+     - `reserve/grow`
+     - cache/downcast/layout
+3. `A3: Array retarget`
+   - point `.hako` array owner at raw substrate verbs only
+   - remove method-shaped Rust ownership from the daily path
+4. `M1: Map semantics + substrate split`
+   - repeat `A1 -> A3` for `MapBox`
+5. `R1: RuntimeData cleanup`
+   - keep `RuntimeDataBox` as protocol / facade only
+   - do not absorb array/map semantics
+6. `P1: Raw substrate perf reopen`
+   - only after `array/map` method ownership leaves Rust
 
 ## Remaining Migration Checklist
 

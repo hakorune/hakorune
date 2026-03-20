@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - lang/src/runtime/kernel/README.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
+  - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
@@ -132,6 +133,24 @@ Move to `.hako`:
 - parked pilots:
   - string: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_string_kernel_search_min.sh`
   - numeric: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_numeric_mat_i64_mul_naive_min.sh`
+
+## First Implementation Order
+
+1. `A1: Array semantics lock`
+   - make `array_core_box.hako` / `array_state_core_box.hako` the visible owner for `ArrayBox.{get,set,push,len/length/size}`
+   - bounds / normalization / visible fallback contract move here first
+2. `A2: Array raw substrate contract`
+   - `collection-raw-substrate-contract-ssot.md` is the naming/ownership SSOT
+   - Rust array helpers must shrink to raw verbs only
+3. `A3: Array retarget`
+   - `.hako` array owner calls raw substrate verbs
+   - method-shaped Rust ownership leaves the daily path
+4. `M1: Map repeat`
+   - `MapBox` follows the same owner/substrate split
+5. `R1: RuntimeData cleanup`
+   - `RuntimeDataBox` remains protocol / facade only
+6. `P1: Raw substrate perf reopen`
+   - only after `array` and `map` method ownership is no longer Rust-owned
 
 ## Done Shape (phase closeout)
 

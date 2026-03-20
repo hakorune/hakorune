@@ -5,6 +5,7 @@ Date: 2026-03-18
 Scope: `hakorune` の独り立ちを「repo から Rust を即 delete すること」ではなく、kernel meaning/policy の owner を `.hako` 側へ移すこととして固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
@@ -66,6 +67,8 @@ Related:
   - `ArrayBox` semantics first
   - `MapBox` semantics second
   - `RuntimeDataBox` cleanup as protocol / facade only
+- raw boundary naming / demotion contract is pinned in:
+  - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
 - したがって、次に固定すべきは `kernel authority zero` であり、`substrate zero` ではない。
 
 ## 3. What Moves First
