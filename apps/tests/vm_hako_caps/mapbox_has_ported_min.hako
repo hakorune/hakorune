@@ -1,12 +1,13 @@
-// RVP-C20 blocked fixture
+// RVP-C20 ported fixture
 // Contract:
-// - vm-hako route still stops at `op=boxcall1 method=has`.
+// - vm-hako route prints `1` for a present key and `0` for a missing key.
 
 static box Main {
   main() {
     local m = new MapBox()
     m.set("a", 42)
     print(m.has("a"))
+    print(m.has("z"))
     return 0
   }
 }

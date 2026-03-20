@@ -153,6 +153,21 @@ static box MirVmS0BoxcallBuiltinBox {
     return "__NEXT__"
   }
 
+  apply_map_has(box_key, key_reg, dst_box, regs, kinds, array_lens, handle_regs) {
+    if key_reg == null { return "[vm-hako/contract][boxcall-has-arg0-missing]" }
+    local key_text_raw = MirVmS0StateOpsBox.handle_get(handle_regs, key_reg)
+    if key_text_raw == null { return "[vm-hako/contract][boxcall-has-key-handle-missing]" }
+    local key_text = me._norm_map_key_text(key_text_raw)
+    if key_text == null { return "[vm-hako/contract][boxcall-has-key-handle-missing]" }
+    local pres_key = me._map_presence_key(box_key, key_text)
+    local had = MirVmS0StateOpsBox.map_get_or_null(array_lens, pres_key)
+    local out = 0
+    if had != null { out = 1 }
+    regs.set("" + dst_box, "" + out)
+    kinds.set("" + dst_box, "scalar")
+    return "__NEXT__"
+  }
+
   apply_open(file_key, dst_open, path_text, mode_text, regs, kinds, file_boxes) {
     local file_obj = MirVmS0StateOpsBox.file_box_get(file_boxes, file_key)
     if file_obj == null {
@@ -358,6 +373,17 @@ static box MirVmS0BoxcallBuiltinBox {
         return me.apply_map_get(box_key_get, get_arg0, dst_get, regs, kinds, array_lens, handle_regs)
       }
       return me.apply_get(box_key_get, get_arg0, dst_get, regs, kinds, array_lens)
+    }
+
+    if method == "has" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_has = me._find_int(seg, "dst")
+      if dst_has == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local has_arg0 = me._args_first(seg)
+      local box_key_has = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      local arg0_kind_has = kinds.get("" + has_arg0)
+      if arg0_kind_has != "handle" { return "[vm-hako/unimplemented op=boxcall1 method=has]" }
+      return me.apply_map_has(box_key_has, has_arg0, dst_has, regs, kinds, array_lens, handle_regs)
     }
 
     return ""

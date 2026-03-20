@@ -1,0 +1,15 @@
+// RVP-C21 blocked fixture
+// Contract:
+// - vm-hako route still stops at `op=boxcall1 method=delete`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.delete("a")
+    print(m.has("a"))
+    print(m.size())
+    return 0
+  }
+}

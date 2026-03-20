@@ -67,7 +67,7 @@ Related:
   - third slice landed: `ArrayCoreBox.get_i64/set_i64` retarget to raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
 - [ ] `map` owner cutover follows `array`
   - first slice landed: `MapCoreBox` is now the single visible owner frontier for handler-side `MapBox.{set,get,has,size/len/length}` routing and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
-  - current adjacent blocker is lane C / `.hako VM`: `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, and `RVP-C19 MapBox.get(key)` are ported, and the next hard blocker is `RVP-C20 MapBox.has(key)` unimplemented route
+  - current adjacent blocker is lane C / `.hako VM`: `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, `RVP-C19 MapBox.get(key)`, and `RVP-C20 MapBox.has(key)` are ported, and the next hard blocker is `RVP-C21 MapBox.delete(key)` unimplemented route
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot
 
