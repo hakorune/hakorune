@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md
   - docs/development/current/main/phases/phase-29bq/29bq-115-selfhost-to-go-checklist.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
+  - docs/development/current/main/phases/phase-29bq/29bq-116-emit-mir-entry-order-blocker.md
   - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
   - docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md
   - docs/development/current/main/design/ai-handoff-and-debug-contract.md
@@ -101,6 +102,8 @@ stdout 比較の揺れを避けるため、原則 `HAKO_JOINIR_DEBUG=0`。
 - [ ] bq同時再確認が必要なときだけ: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_quick_suite_vm.sh --with-stage1 --with-bq`
 - [ ] `.hako` parser/mirbuilder 変更で quick が FAIL した場合は subset PROMOTEを止め、`CURRENT_TASK.md` に freeze/reject 先頭1行を記録する。
 - [ ] docs-only / Rust-only 変更ではこの節を必須にしない（`--only bq` を優先）。
+- [ ] Rust `--emit-mir-json` / MIR JSON externalization を触ったら: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_emit_mir_entry_order_ternary_basic_vm.sh`
+- [ ] llvmlite harness `mir_call` collection initializer lowering を触ったら: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_harness_arraybox_birth_ternary_basic_vm.sh`
 
 ### 2.3.5 Identity check（stage1-first 既定）
 

@@ -22,6 +22,7 @@ Related:
   - docs/development/current/main/phases/phase-29cf/README.md
   - docs/development/current/main/phases/phase-29y/80-RUST-VM-FEATURE-AUDIT-AND-HAKO-PORT-SSOT.md
   - docs/development/current/main/phases/phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md
+  - docs/development/current/main/phases/phase-29bq/29bq-116-emit-mir-entry-order-blocker.md
 ---
 
 # De-Rust Lane Map (SSOT)
@@ -37,7 +38,7 @@ Related:
 | lane | name | scope | primary SSOT | current status |
 | --- | --- | --- | --- | --- |
 | A | Compiler Meaning | JoinIR / Planner / CorePlan の受理・意味決定 | `de-rust-compiler-thin-rust-roadmap-ssot.md` + JoinIR gate SSOT | active（monitor-only, blocker=`none`） |
-| B | Compiler Pipeline | `.hako` parser / mirbuilder / Stage1 compiler 導線 | `selfhost-parser-mirbuilder-migration-order-ssot.md` | active（monitor-only, blocker=`none`; failure-driven reopen） |
+| B | Compiler Pipeline | `.hako` parser / mirbuilder / Stage1 compiler 導線 | `selfhost-parser-mirbuilder-migration-order-ssot.md` | active（monitor-only, blocker=`none`; latest reopen/fix=`29bq-116 emit-mir-json entry order`） |
 | C | Runtime Port | Rust VM 依存機能の `.hako VM` 置換（RVP） | `phase-29y/60-NEXT-TASK-PLAN.md` + `phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` | active（current blocker: `RVP-C20`, capability=`MapBox.has(key)` unimplemented route） |
 
 ## Scope Boundary (must keep)
@@ -138,6 +139,9 @@ Related:
 - lane B:
   - 固定順序は `selfhost-parser-mirbuilder-migration-order-ssot.md`（mirbuilder先行 / parser後行）。
   - current blocker: `none`（binary-only emit route は ported、lane B は monitor-only）
+  - latest fixed blockers:
+    - `29bq-116`: `--emit-mir-json` now serializes `main` before helper functions
+    - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` on the fast EXE entry-prologue path
   - 実運用は `29bq-90-selfhost-checklist.md` の daily/milestone checklist を回し、PROBE->FIX->PROMOTE で継続する。
   - known parity debt（non-gating）: expression lowering（nested ternary family）は Rust/.hako route の canonical compare で監視し、Rust-only green を観測した時点で blocker を再起動する。
   - monitor probe: `phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`（strict check: `STRICT=1`）

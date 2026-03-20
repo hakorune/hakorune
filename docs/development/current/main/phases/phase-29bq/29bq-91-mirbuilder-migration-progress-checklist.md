@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
   - docs/development/current/main/phases/phase-29bq/29bq-109-hako-mirbuilder-handler-extraction-backlog.md
   - docs/development/current/main/phases/phase-29bq/29bq-113-hako-recipe-first-migration-lane.md
+  - docs/development/current/main/phases/phase-29bq/29bq-116-emit-mir-entry-order-blocker.md
   - docs/development/current/main/phases/phase-29bq/29bq-115-selfhost-to-go-checklist.md
   - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
   - tools/smokes/v2/profiles/integration/selfhost/planner_required_selfhost_subset.tsv
@@ -78,6 +79,19 @@ Related:
 - [x] `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4` PASS（`5/5`, `stageb_total_secs=19`, `avg_case_secs=3.80`）
 - [x] `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq` PASS
 - [x] blocker refresh: `runtime lane = none`, `phase-29bq = monitor-only`, `phase-29cc = monitor-only`
+
+### 2.3.3 Fast-CI emit-mir-json refresh（2026-03-21）
+
+- [x] `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_emit_mir_entry_order_ternary_basic_vm.sh` PASS
+- [x] contract: Rust `--emit-mir-json` serializes `main` at `functions[0]` when the module has an entry function
+- [x] follow-up blocker moved to `29bq-117` once `main` became `functions[0]`
+
+### 2.3.4 Harness ArrayBox.birth compat refresh（2026-03-21）
+
+- [x] `PYTHONPATH=src/llvm_py:. python3 -m unittest src.llvm_py.tests.test_method_call_collection_birth` PASS
+- [x] `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_harness_arraybox_birth_ternary_basic_vm.sh` PASS
+- [x] contract: llvmlite harness lowers `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
+- [x] regression evidence: fast-smoke EXE trio (`ternary_basic`, `ternary_nested`, `peek_expr_block`) is green again after `29bq-117`
 
 ### 2.4 Post-migration default checks（.hako MirBuilder移植後）
 

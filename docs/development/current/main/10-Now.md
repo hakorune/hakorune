@@ -80,6 +80,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 ## Current Snapshot
 
 - Compiler lane: `phase-29bq`（JIR-PORT-00..07 done / active blocker=`none` / next=`none`）
+- Compiler lane latest fix: `29bq-117` completed the fast EXE smoke repair by pairing `29bq-116` main-first MIR JSON ordering with llvmlite-harness `ArrayBox.birth()` no-op lowering
 - Lane A status mirror SSOT: `CURRENT_TASK.md`（この文書は mirror）
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）

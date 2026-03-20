@@ -57,12 +57,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - Current blocker:
   - no backend route blocker remains; the active lane is collection owner cutover, and the current exact step is still `map`
+  - lane B fast-CI blocker is closed in two exact steps:
+    - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
+    - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
   - the adjacent exact blocker is lane C / `.hako VM` (`vm-hako`), not Rust VM: `RVP-C16 newbox(MapBox)`, `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, and `RVP-C19 MapBox.get(key)` are now ported, and the current exact blocker is `RVP-C20 MapBox.has(key)` unimplemented route
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
   - factor `filter_noise || true` handling into a shared smoke helper instead of per-smoke local glue
   - revisit `mir_vm_s0_boxcall_builtin.hako` `set/get/has` routing once `MapBox` semantics are fully owner-local
 - Next exact files:
+  - `docs/development/current/main/phases/phase-29bq/29bq-116-emit-mir-entry-order-blocker.md`
+  - `docs/development/current/main/phases/phase-29bq/29bq-117-arraybox-birth-harness-blocker.md`
   - `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
   - `docs/development/current/main/phases/phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md`
   - `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
@@ -76,6 +81,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_size_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_has_block_vm.sh`
+  - `tools/smokes/v2/profiles/integration/joinir/phase29bq_harness_arraybox_birth_ternary_basic_vm.sh`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
@@ -102,6 +108,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` RVP-C17 is closed: `MapBox.set(key,value)` now clears subset/runtime args>1 blockers and is pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`
   - `[x]` RVP-C18 is closed: `MapBox.size()` now completes in vm-hako and is pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`
   - `[x]` RVP-C19 is closed: `MapBox.get(key)` now returns the stored scalar value and is pinned by `vm_hako_caps_mapbox_get_ported_vm.sh`
+  - `[x]` lane B blocker `29bq-116` is closed: Rust `--emit-mir-json` now serializes `main` first
+  - `[x]` lane B blocker `29bq-117` is closed: llvmlite harness accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
+  - `[x]` fast-smoke EXE trio is green again: `ternary_basic -> 10`, `ternary_nested -> 50`, `peek_expr_block -> 1`
   - `[ ]` RVP-C20 now owns the adjacent blocker: `MapBox.has(key)` still stops at `op=boxcall1 method=has`
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
   - `[x]` backend-zero current owner cutover is closed enough for handoff
@@ -146,6 +155,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Priority
 
 - immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
+- side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: clear lane C / `.hako VM` blocker `RVP-C20 MapBox.has(key)` unimplemented route
 - second: pin `MapBox` user-visible contract (`get/set/has/len/length/size`, key normalization, visible fallback/error contract) to `.hako` ring1 collection core
 - third: retarget Rust `map` plugin/helpers to raw substrate verbs only (`probe/rehash/load/store/cache/downcast/layout`)

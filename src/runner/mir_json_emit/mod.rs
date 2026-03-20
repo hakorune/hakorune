@@ -40,7 +40,7 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
     use crate::mir::MirType;
 
     let mut funs = Vec::new();
-    for (name, f) in &module.functions {
+    for (name, f) in ordered_harness_functions(module) {
         let mut blocks = Vec::new();
         let mut ids: Vec<_> = f.blocks.keys().copied().collect();
         ids.sort();
@@ -132,6 +132,34 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
     Ok(root)
 }
 
+fn ordered_harness_functions<'a>(
+    module: &'a crate::mir::MirModule,
+) -> Vec<(&'a String, &'a crate::mir::MirFunction)> {
+    let mut functions: Vec<_> = module.functions.iter().collect();
+    functions.sort_by(|(lhs_name, lhs_func), (rhs_name, rhs_func)| {
+        harness_entry_priority(lhs_name, lhs_func)
+            .cmp(&harness_entry_priority(rhs_name, rhs_func))
+            .then_with(|| lhs_name.cmp(rhs_name))
+    });
+    functions
+}
+
+fn harness_entry_priority(name: &str, func: &crate::mir::MirFunction) -> (u8, u8) {
+    if func.metadata.is_entry_point {
+        return (0, 0);
+    }
+    if name == "main" {
+        return (0, 1);
+    }
+    if name == "ny_main" {
+        return (0, 2);
+    }
+    if name.ends_with(".main/0") || name.ends_with(".main/1") {
+        return (1, 0);
+    }
+    (2, 0)
+}
+
 fn serialize_mir_json_root(root: &serde_json::Value) -> Result<String, String> {
     serde_json::to_string(root).map_err(|e| format!("write mir json: {}", e))
 }
@@ -166,6 +194,19 @@ fn write_mir_json_root(path: &std::path::Path, root: &serde_json::Value) -> Resu
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
+
+    fn make_function(name: &str, is_entry_point: bool) -> MirFunction {
+        let signature = FunctionSignature {
+            name: name.to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function.metadata.is_entry_point = is_entry_point;
+        function
+    }
 
     #[test]
     fn collect_sorted_user_box_decl_values_sorts_by_box_name() {
@@ -202,5 +243,28 @@ mod tests {
                 "Stage1ProgramResultValidationBox".to_string(),
             ]
         );
+    }
+
+    #[test]
+    fn ordered_harness_functions_puts_entry_main_first() {
+        let mut module = MirModule::new("test".to_string());
+        module
+            .functions
+            .insert("Main.equals/1".to_string(), make_function("Main.equals/1", false));
+        module
+            .functions
+            .insert("condition_fn".to_string(), make_function("condition_fn", false));
+        module
+            .functions
+            .insert("main".to_string(), make_function("main", true));
+
+        let ordered: Vec<_> = ordered_harness_functions(&module)
+            .into_iter()
+            .map(|(name, _)| name.as_str())
+            .collect();
+
+        assert_eq!(ordered[0], "main");
+        assert_eq!(ordered[1], "Main.equals/1");
+        assert_eq!(ordered[2], "condition_fn");
     }
 }

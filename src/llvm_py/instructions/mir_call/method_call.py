@@ -219,6 +219,11 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 call_name = "unified_size" if method == "size" else "unified_length"
                 result = builder.call(callee, [recv_h], name=call_name)
 
+    elif box_name == "ArrayBox" and method == "birth" and not args:
+        # `newbox ArrayBox` already materializes the handle; the follow-up
+        # `ArrayBox.birth()` in MIR is an initializer marker only.
+        result = ir.Constant(i64, 0)
+
     elif method in {"get", "push", "set", "has"}:
         result = lower_collection_method_call(
             builder=builder,
