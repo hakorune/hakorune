@@ -10,6 +10,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - 本ファイルは薄い入口に保ち、長文履歴はアーカイブへ逃がす。
 - kernel migration lane の Next は `docs/development/current/main/phases/phase-29cm/README.md` を単一正本に固定する。
 - de-rust runtime lane の Next は `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md` を単一正本に固定する。
+- VM `.hako` migration / BoxShape の Next は `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md` を単一正本に固定する。
+- VM boxcall contract の Next は `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md` を単一正本に固定する。
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
 - practical end-state: `.hako` owns kernel meaning/policy/control, Rust stays bootstrap/recovery/raw substrate, and LLVM remains the primary backend substrate
@@ -22,32 +24,64 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - [ ] substrate reconsideration
   - LLVM remains the primary backend substrate unless another SSOT explicitly reassigns it
 
+## VM Migration Inventory
+
+- already split from `mir_vm_s0.hako`:
+  - `lang/src/vm/boxes/mir_vm_s0_json_scan.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_state_ops.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_reg_utils.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_args_phi.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_block_loc.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_lifecycle_ops.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+- still concentrated in `mir_vm_s0.hako`:
+  - `_exec_data_op(...)`
+  - `_exec_call_op(...)`
+  - `_exec_boxcall(...)` and its file/string/misc helpers
+  - `_exec_insts(...)`
+  - `_exec_block_insts(...)`
+  - `_exec_block_insts_cached(...)`
+  - `_build_inst_cache_rec(...)`
+  - `_run_block_payload_rec(...)`
+  - `_run_block_payload(...)`
+  - `run_min(...)`
+- next slice order:
+  1. responsibility inventory freeze in `mir_vm_s0.hako`
+  2. split the remaining execution helpers
+  3. thin entry / module wiring
+  4. keep the VM boxcall contract and lane gates green
+
+## VM Migration Quick Entry
+
+1. `docs/development/current/main/phases/phase-29y/80-RUST-VM-FEATURE-AUDIT-AND-HAKO-PORT-SSOT.md`
+2. `docs/development/current/main/phases/phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md`
+3. `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
+4. `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md`
+
 ## Active Slice
 
 - Current blocker:
-  - no mandatory Rust thin-up blocker remains; `src/host_providers/llvm_codegen/route.rs` keeps the generic `compile_symbol_for_recipe()` default as a parked compat lane
+  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0.hako`
 - Next exact files:
-  - `lang/src/shared/backend/llvm_backend_box.hako`
-  - `lang/src/shared/backend/backend_recipe_box.hako`
-  - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
-  - `lang/src/runtime/host/host_facade_box.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `lang/src/vm/boxes/mir_vm_s0.hako`
+  - `lang/src/vm/hako_module.toml`
+  - `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
+  - `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md`
 - Execution checklist:
-  - `[x]` daily `.hako` owner is fixed at `lang/src/shared/backend/llvm_backend_box.hako`
-  - `[x]` upstream legacy caller inventory is pinned in `CURRENT_TASK.md`
-  - `[x]` `.hako` host/vm wrappers isolate legacy optional `env.codegen.*` caller shapes into owner-local helpers
-  - `[x]` explicitize caller-side `compile_recipe` / `compat_replay` where behavior does not change
-  - `[x]` remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
-  - `[x]` re-evaluate `compile_symbol_for_recipe()` default branch after caller proof
-  - `[ ]` optional compat-polish: tighten `route.rs` generic default only when compat keep lanes retire
+  - `[x]` VM helper split baseline already exists (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec`)
+  - `[ ]` freeze the remaining `mir_vm_s0.hako` responsibilities in comments
+  - `[ ]` split the remaining execution helpers out of `mir_vm_s0.hako`
+  - `[ ]` thin `mir_vm_s0.hako` to orchestration / dispatch glue
+  - `[ ]` keep the VM boxcall contract and lane gates green
 - Stop condition:
-  - daily compile path stays explicit at `LlvmBackendBox`
-  - `.hako` migration can proceed without new mandatory Rust thin-up work
-  - Rust build/bootstrap route remains green
+  - VM migration stays behavior-preserving and BoxShape-only
+  - `stage0` Rust bootstrap / recovery route remains green
+  - `phase29y_vm_hako_caps_gate_vm.sh`, `phase29y_no_compat_mainline_vm.sh`, and `phase29y_lane_gate_vm.sh` stay green
 - Do not mix:
   - kernel migration refactors
   - optimization hot-leaf trimming
   - C shim transport micro-splitting
+  - backend-zero compat-polish
 
 ## Bootstrap Check
 
@@ -67,33 +101,24 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: `.hako` authoring lane（stage1-cli bootstrap route clarification は整理済み）
-- operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, and use it to prove payload materialization while the reduced stage1-cli artifact stays runnable
-- first: `0rust` / backend-zero を先に終える
-- operational reading: keep `stage0` Rust bootstrap as first-build / recovery lane, treat `stage2+` selfhost artifact as the `0rust` mainline
-- order inside backend-zero: `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-- current backend-zero posture: Rust thin-up is done enough; keep `route.rs` compat default parked and move attention to `.hako` migration
-- current `.hako` authoring order:
-  1. `lang/src/shared/backend/llvm_backend_box.hako`
-  2. `lang/src/shared/backend/backend_recipe_box.hako`
-  3. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
-  4. `lang/src/runtime/host/host_facade_box.hako`
-  5. `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-  - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
+- immediate: `.hako VM` authoring lane（`mir_vm_s0.hako` BoxShape）
+- first: `mir_vm_s0.hako` の責務棚卸しを固定して、残りの execution helpers を薄くする
+- second: `hako_module.toml` / VM helper wiring を崩さずに entry を thin にする
+- third: `phase-29y/82` boxcall contract と `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` を green に保つ
+- parked: backend-zero compat-polish / exe optimization は VM lane が落ち着くまで混ぜない
+- operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
+- parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
-- second: exe optimization wave は backend-zero handoff の後段に置く
-- parked optimization resume target: `crates/nyash_kernel/src/exports/string_view.rs` + `crates/nyash_kernel/src/exports/string.rs`
-- do not mix: backend-zero keep reduction と optimization hot-leaf trimming を同じ slice に入れない
 - directory rule: keep `Stage1/Stage2` as artifact/proof names; Rust physical split stays `src/stage1/**` vs `src/runner/stage1_bridge/**`, do not create a mirrored `src/stage2/`
 
 ## Remaining Migration Checklist
 
-- [ ] backend-zero `.hako` authoring lane
-  - [ ] `lang/src/shared/backend/llvm_backend_box.hako`
-  - [ ] `lang/src/shared/backend/backend_recipe_box.hako`
-  - [ ] `lang/src/shared/host_bridge/codegen_bridge_box.hako`
-  - [ ] `lang/src/runtime/host/host_facade_box.hako`
-  - [ ] `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+- [ ] VM `.hako` migration lane
+  - [x] helper split baseline already in place (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec`)
+  - [ ] responsibility inventory freeze for `mir_vm_s0.hako`
+  - [ ] split remaining execution helpers out of `mir_vm_s0.hako`
+  - [ ] thin `mir_vm_s0.hako` to orchestration / dispatch glue
+  - [ ] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`
   - [x] stage0 bootstrap route materializes Program(JSON v0) / MIR(JSON v0)
   - [x] reduced `stage1-cli` artifact is runnable bootstrap output
