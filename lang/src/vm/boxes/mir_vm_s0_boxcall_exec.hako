@@ -1,7 +1,8 @@
 // mir_vm_s0_boxcall_exec.hako — boxcall execution helpers split from mir_vm_s0
-// Responsibility: boxcall method routing plus method-specific stateful effects.
+// Responsibility: boxcall method routing plus file/string/misc stateful effects.
+// LlvmBackendBox compile_obj/link_exe bridge effects live in `mir_vm_s0_codegen.hako`.
 
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.vm.helpers.mir_s0_codegen as MirVmS0CodegenBox
 using selfhost.vm.helpers.mir_s0_args_phi as MirVmS0ArgsPhiBox
 using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
@@ -142,62 +143,6 @@ static box MirVmS0BoxcallExecBox {
     MirVmS0StateOpsBox.file_box_clear(file_boxes, file_key)
     regs.set("" + dst_close, "0")
     kinds.set("" + dst_close, "scalar")
-    return "__NEXT__"
-  }
-
-  apply_compile_obj(arg0_reg, dst_box, regs, kinds, handle_regs) {
-    if arg0_reg == null { return "[vm-hako/contract][boxcall-arg0-missing]" }
-    local path_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_reg)
-    if path_text == null {
-      return "[vm-hako/contract][llvmbackend-compile-path-handle-missing]"
-    }
-    local args = new ArrayBox()
-    args.push("" + path_text)
-    local obj = CodegenBridgeBox.compile_json_path_args(args)
-    if obj == null || ("" + obj) == "" {
-      print("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
-      return me._write_null_result(dst_box, regs, kinds)
-    }
-
-    regs.set("" + dst_box, "0")
-    kinds.set("" + dst_box, "handle")
-    MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "" + obj)
-    return "__NEXT__"
-  }
-
-  apply_link_exe(arg0_reg, arg1_reg, arg2_reg, dst_box, regs, kinds, handle_regs) {
-    if arg0_reg == null || arg1_reg == null || arg2_reg == null {
-      return "[vm-hako/contract][llvmbackend-link-arg-missing]"
-    }
-
-    local obj_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_reg)
-    if obj_text == null {
-      return "[vm-hako/contract][llvmbackend-link-obj-handle-missing]"
-    }
-    local out_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg1_reg)
-    if out_text == null {
-      return "[vm-hako/contract][llvmbackend-link-out-handle-missing]"
-    }
-    local libs_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg2_reg)
-
-    local args = new ArrayBox()
-    args.push("" + obj_text)
-    args.push("" + out_text)
-    if libs_text != null && ("" + libs_text) != "" {
-      args.push("" + libs_text)
-    }
-    local exe = CodegenBridgeBox.link_object_args(args)
-    if exe == null || ("" + exe) == "" {
-      print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
-      return me._write_null_result(dst_box, regs, kinds)
-    }
-    if ("" + exe) != ("" + out_text) {
-      print("[llvmbackend/link/path-mismatch] expected=" + out_text + " got=" + ("" + exe))
-      return me._write_null_result(dst_box, regs, kinds)
-    }
-
-    regs.set("" + dst_box, "1")
-    kinds.set("" + dst_box, "scalar")
     return "__NEXT__"
   }
 
@@ -343,7 +288,7 @@ static box MirVmS0BoxcallExecBox {
       local dst_compile = me._find_int(seg, "dst")
       if dst_compile == null { return "[vm-hako/contract][boxcall-missing-dst]" }
       local compile_arg0 = me._args_first(seg)
-      return me.apply_compile_obj(compile_arg0, dst_compile, regs, kinds, handle_regs)
+      return MirVmS0CodegenBox.apply_compile_obj(compile_arg0, dst_compile, regs, kinds, handle_regs)
     }
 
     if method == "link_exe" {
@@ -353,7 +298,7 @@ static box MirVmS0BoxcallExecBox {
       local link_arg0 = me._args_first(seg)
       local link_arg1 = me._args_second(seg)
       local link_arg2 = me._args_third(seg)
-      return me.apply_link_exe(link_arg0, link_arg1, link_arg2, dst_link, regs, kinds, handle_regs)
+      return MirVmS0CodegenBox.apply_link_exe(link_arg0, link_arg1, link_arg2, dst_link, regs, kinds, handle_regs)
     }
 
     local dst_box = me._find_int(seg, "dst")
@@ -395,9 +340,4 @@ static box MirVmS0BoxcallExecBox {
     return me._dispatch_boxcall_misc_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs, src)
   }
 
-  _write_null_result(dst_box, regs, kinds) {
-    regs.set("" + dst_box, "0")
-    kinds.set("" + dst_box, "scalar")
-    return "__NEXT__"
-  }
 }

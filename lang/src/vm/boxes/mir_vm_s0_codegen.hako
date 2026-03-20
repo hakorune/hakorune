@@ -1,0 +1,71 @@
+// mir_vm_s0_codegen.hako — boxcall codegen helpers split from mir_vm_s0_boxcall_exec
+// Responsibility: LlvmBackendBox compile_obj/link_exe stateful bridge effects.
+// Non-goal: route/profile policy or boxcall routing. Keep this box small and
+// focused on codegen bridge writes only.
+
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+
+static box MirVmS0CodegenBox {
+  apply_compile_obj(arg0_reg, dst_box, regs, kinds, handle_regs) {
+    if arg0_reg == null { return "[vm-hako/contract][boxcall-arg0-missing]" }
+    local path_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_reg)
+    if path_text == null {
+      return "[vm-hako/contract][llvmbackend-compile-path-handle-missing]"
+    }
+    local args = new ArrayBox()
+    args.push("" + path_text)
+    local obj = CodegenBridgeBox.compile_json_path_args(args)
+    if obj == null || ("" + obj) == "" {
+      print("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    regs.set("" + dst_box, "0")
+    kinds.set("" + dst_box, "handle")
+    MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "" + obj)
+    return "__NEXT__"
+  }
+
+  apply_link_exe(arg0_reg, arg1_reg, arg2_reg, dst_box, regs, kinds, handle_regs) {
+    if arg0_reg == null || arg1_reg == null || arg2_reg == null {
+      return "[vm-hako/contract][llvmbackend-link-arg-missing]"
+    }
+
+    local obj_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_reg)
+    if obj_text == null {
+      return "[vm-hako/contract][llvmbackend-link-obj-handle-missing]"
+    }
+    local out_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg1_reg)
+    if out_text == null {
+      return "[vm-hako/contract][llvmbackend-link-out-handle-missing]"
+    }
+    local libs_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg2_reg)
+
+    local args = new ArrayBox()
+    args.push("" + obj_text)
+    args.push("" + out_text)
+    if libs_text != null && ("" + libs_text) != "" {
+      args.push("" + libs_text)
+    }
+    local exe = CodegenBridgeBox.link_object_args(args)
+    if exe == null || ("" + exe) == "" {
+      print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+    if ("" + exe) != ("" + out_text) {
+      print("[llvmbackend/link/path-mismatch] expected=" + out_text + " got=" + ("" + exe))
+      return me._write_null_result(dst_box, regs, kinds)
+    }
+
+    regs.set("" + dst_box, "1")
+    kinds.set("" + dst_box, "scalar")
+    return "__NEXT__"
+  }
+
+  _write_null_result(dst_box, regs, kinds) {
+    regs.set("" + dst_box, "0")
+    kinds.set("" + dst_box, "scalar")
+    return "__NEXT__"
+  }
+}

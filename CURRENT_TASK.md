@@ -33,13 +33,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/vm/boxes/mir_vm_s0_args_phi.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_loc.hako`
   - `lang/src/vm/boxes/mir_vm_s0_lifecycle_ops.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_codegen.hako`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
-- `mir_vm_s0.hako` is now a thin facade; the remaining VM execution logic is owned by `mir_vm_s0_exec_dispatch.hako` and `mir_vm_s0_block_runner.hako`
+- `mir_vm_s0.hako` is now a thin facade; the remaining VM execution logic is owned by `mir_vm_s0_exec_dispatch.hako`, `mir_vm_s0_boxcall_exec.hako`, `mir_vm_s0_codegen.hako`, and `mir_vm_s0_block_runner.hako`
 - next slice order:
   1. keep the `mir_vm_s0.hako` facade thin
-  2. keep `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_block_runner.hako` thin and localize any further helper spill
+  2. keep `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_boxcall_exec.hako` / `mir_vm_s0_codegen.hako` / `mir_vm_s0_block_runner.hako` thin and localize any further helper spill
   3. keep entry / module wiring green
   4. keep the VM boxcall contract and lane gates green
 
@@ -53,10 +54,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`, `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`, and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
+  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`, `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`, `lang/src/vm/boxes/mir_vm_s0_codegen.hako`, and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
 - Next exact files:
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_codegen.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
   - `lang/src/vm/hako_module.toml`
   - `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
@@ -116,6 +118,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] thin entry / module wiring（`mini_vm_s0_entry.hako` now binds directly to `MirVmS0BlockRunnerBox.run_min(...)`）
   - [x] remove legacy top-array recovery from `mir_vm_s0_block_runner.hako`（structured payload only; unsupported payload shapes fail fast）
   - [x] split boxcall routing out of `mir_vm_s0_exec_dispatch.hako`（`mir_vm_s0_boxcall_exec.hako`）
+  - [x] split backend codegen apply helpers out of `mir_vm_s0_boxcall_exec.hako`（`mir_vm_s0_codegen.hako`）
   - [x] thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - [x] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`
@@ -172,11 +175,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/runtime/kernel/string/search.hako` dropped dead `_starts_with_at(...)`, so the string-search owner is thinner without widening scope
   - `lang/src/runtime/kernel/string/search.hako` also folded `_find_index_core(...)` into `find_index(...)`, so the string-search control structure is a bit flatter
   - `lang/src/shared/host_bridge/codegen_bridge_box.hako` is now args-only; the 1-arg convenience wrappers were removed and `stage1_cli` / `LLVMEmitBox` moved to `*_args`
-  - `lang/src/runtime/host/host_facade_box.hako` and `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako` now call `CodegenBridgeBox.*_args` directly, with their pass-through helper layers removed
+  - `lang/src/runtime/host/host_facade_box.hako` now calls `CodegenBridgeBox.*_args` directly, with its pass-through helper layer removed; the VM boxcall path now routes compile/link effects through `lang/src/vm/boxes/mir_vm_s0_codegen.hako`
   - `BackendRecipeBox.compile_route_profile(...)` now treats `acceptance_case` rows as grouped evidence buckets rather than per-case transport trivia
   - `BackendRecipeBox.compile_route_profile(...)` now owns the exact route-profile contract validation, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
   - `BackendRecipeBox.require_non_empty_field(...)` is now the shared backend input guard, so `LlvmBackendBox` no longer carries its own duplicate non-empty validation helper
-  - `CodegenBridgeBox` now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox` / `MirVmS0BoxcallExecBox`, so that caller shape lives in one shared bridge instead of being duplicated
+  - `CodegenBridgeBox` now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox`, so that caller shape lives in one shared bridge instead of being duplicated
+  - `MirVmS0CodegenBox` now owns the VM-side compile/link apply helpers and uses `CodegenBridgeBox.*_args` internally, keeping `MirVmS0BoxcallExecBox` focused on file/string/misc routing
   - `LLVMEmitBox` now keeps its provider-stub slice thin by splitting input validation from provider dispatch; it remains a strict provider router and does not widen provider policy
   - `lang/src/runtime/kernel/string/search.hako` dropped the dead `_starts_with_at(...)` helper; all callers use `_starts_with_at_norm(...)` directly
   - legacy `phase2034/llvmemit_canary_vm.sh` and `phase2034/llvmemit_llvmlite_canary_vm.sh` were deleted; they are not part of the active smoke set
