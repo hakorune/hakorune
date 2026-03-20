@@ -73,6 +73,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
   - `[x]` inventory the first compat keep reduction slice without mixing bootstrap keep reduction
   - `[x]` first compat keep reduction slice is fixed to `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs`
+  - `[x]` `route.rs` shared keep compile setup is factored behind `compile_via_capi_keep_internal(...)`
   - `[ ]` keep `compile_symbol_for_keep_recipe()` generic default parked until compat keep lanes are explicitly reduced
 - Stop condition:
   - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
@@ -152,6 +153,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] compat keep reduction inventory / first exact slice
     - [x] `src/host_providers/llvm_codegen.rs`
     - [x] `src/host_providers/llvm_codegen/route.rs`
+    - [x] `route.rs` shared keep compile setup is factored behind `compile_via_capi_keep_internal(...)`
   - [ ] bootstrap keep reduction stays parked until compat keep reduction settles
 
 ## Restart Handoff (2026-03-19)

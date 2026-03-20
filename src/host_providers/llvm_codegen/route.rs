@@ -16,6 +16,16 @@ pub(super) fn try_compile_via_capi_keep(
     if !(crate::config::env::llvm_use_capi() && crate::config::env::extern_provider_c_abi()) {
         return Ok(None);
     }
+    match compile_via_capi_keep_internal(mir_json, opts) {
+        Ok(out_path) => Ok(Some(out_path)),
+        Err(e) => {
+            llvm_emit_error!("[llvmemit/capi/failed] {}", e);
+            Err(format!("[llvmemit/capi/failed] {}", e))
+        }
+    }
+}
+
+fn compile_via_capi_keep_internal(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
     validate_backend_mir_shape(mir_json)?;
     let in_path = prepare_backend_input_json_file(mir_json)?;
     let out_path = resolve_backend_object_output(opts);
@@ -31,11 +41,8 @@ pub(super) fn try_compile_via_capi_keep(
         compat_replay.as_deref(),
         opts,
     ) {
-        Ok(()) => Ok(Some(out_path)),
-        Err(e) => {
-            llvm_emit_error!("[llvmemit/capi/failed] {}", e);
-            Err(format!("[llvmemit/capi/failed] {}", e))
-        }
+        Ok(()) => Ok(out_path),
+        Err(e) => Err(e),
     }
 }
 
@@ -54,22 +61,8 @@ pub(super) fn try_compile_via_boundary_default(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
-    validate_backend_mir_shape(mir_json)?;
-    let in_path = prepare_backend_input_json_file(mir_json)?;
-    let out_path = resolve_backend_object_output(opts);
-    ensure_backend_output_parent(&out_path);
-    let compile_recipe = opts.compile_recipe.clone();
-    let compat_replay = opts.compat_replay.clone();
-    let compile_symbol = compile_symbol_for_keep_recipe(compile_recipe.as_deref());
-    match compile_via_capi(
-        &in_path,
-        &out_path,
-        compile_symbol,
-        compile_recipe.as_deref(),
-        compat_replay.as_deref(),
-        opts,
-    ) {
-        Ok(()) => Ok(Some(out_path)),
+    match compile_via_capi_keep_internal(mir_json, opts) {
+        Ok(out_path) => Ok(Some(out_path)),
         Err(error) if capi_boundary_unavailable(&error) => Ok(None),
         Err(error) => {
             llvm_emit_error!("[llvmemit/capi/default-failed] {}", error);
