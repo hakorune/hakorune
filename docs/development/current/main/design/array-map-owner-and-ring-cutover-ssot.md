@@ -17,11 +17,12 @@ Related:
 ## 0. Conclusion
 
 - `ArrayBox` / `MapBox` は `ring0` ではなく `ring1` の責務である。
-- ただし current mainline owner はまだ `.hako` 単独ではなく、runtime lane と AOT/LLVM lane で Rust owner が残っている。
+- current active direction is to move `ArrayBox` / `MapBox` user-visible semantics into `.hako` ring1 collection core.
+- `RuntimeDataBox` is not the target owner for collection semantics; it stays protocol / facade only.
 - `0rust` の target は `ring0` へ移すことではない。
   - `ring0` は OS API abstraction に限定する。
   - collection mainline owner は `.hako` ring1 collection layer へ寄せる。
-- Rust の `ArrayBox` / `MapBox` / kernel plugin / builtin residue は、daily owner から外したあとに compat/archive keep へ後退させる。
+- Rust の `ArrayBox` / `MapBox` / kernel plugin / builtin residue は、daily owner から外したあとに raw substrate / compat/archive keep へ後退させる。
 
 ## 1. Ring Lock
 
@@ -61,12 +62,12 @@ Related:
 
 ### 2.3 `.hako` collection layer
 
-- `.hako` 側は current mainline では thin wrapper / adapter であり、まだ storage/primitive owner ではない。
+- `.hako` 側は current mainline では still-thin だが、next owner-growth frontier として扱う。
 - exact owners:
   - `lang/src/runtime/collections/**`
   - `lang/src/vm/boxes/abi_adapter_registry.hako`
   - meaning:
-    - `.hako` 側は ABI vocabulary を thin に束ねる。
+    - `.hako` 側は ABI vocabulary を thin に束ねるだけで止めず、ring1 collection semantics owner へ成長させる。
   - latest visible-owner slice:
     - `lang/src/runtime/collections/map_core_box.hako` now owns adapter-on `MapBox.{set,get,has,size/len/length}` orchestration plus size/state helpers consumed by `lang/src/vm/boxes/mir_call_v1_handler.hako`
     - `lang/src/runtime/collections/array_core_box.hako` now owns adapter-on `ArrayBox.{set,get,push,len/length/size}` orchestration plus len/state helpers consumed by the same handler
@@ -76,11 +77,12 @@ Related:
     - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh` pins the source-contract (`registry/handler/core-box`) wiring for the current `.hako` collection owner slice
     - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` pins the standalone AOT/runtime-data e2e fixture
   - next owner-growing slice:
-    - reopen broader provider semantics only after the next narrow collection/runtime seam is justified by fixture+gate
-    - current collection adapter-on orchestration slices are landed for `ArrayBox`, `MapBox`, `RuntimeDataBox`, and `StringBox` size aliases; `ArrayCoreBox` / `MapCoreBox` fallback tails are compat cleanup only
+    - `ArrayCoreBox` is the first active owner-growth slice
+    - `MapCoreBox` follows after `ArrayCoreBox`
+    - `RuntimeDataCoreBox` is cleanup-only after `array/map`; do not grow it into a collection owner
   - caution:
     - `verify_v1_inline_file()` / `HAKO_VERIFY_PRIMARY=hakovm` still routes through Rust `hv1_inline::run_json_v1_inline(...)`; those canaries are not `.hako` `MirCallV1HandlerBox` owner proofs
-  - collection semantics の最終 owner ではなく、現時点では Rust owner への adapter surface である。
+  - current slices are not yet the final collection semantics owner, but they are the intended ring1 owner frontier for `array/map`.
 
 ### 2.4 Legacy residue
 
@@ -108,8 +110,30 @@ Related:
 - `.hako` 側に thin wrapper を増やすだけでは不十分。
 - move の意味は次の順で固定する。
   1. visible/mainline caller ownership を `.hako` ring1 collection layer に寄せる
-  2. Rust provider/kernel plugin は thin ABI or compat keep に後退させる
-  3. daily path が Rust collection semantics を直接 owner しなくなってから、archive/preservation-first retire を検討する
+  2. `ArrayBox` / `MapBox` の method-shaped semantics を `.hako` ring1 collection core が持つ
+  3. Rust provider/kernel plugin は raw substrate or thin ABI / compat keep に後退させる
+  4. `RuntimeDataBox` は protocol / facade に固定し、array/map semantics を吸い込まない
+  5. daily path が Rust collection semantics を直接 owner しなくなってから、archive/preservation-first retire を検討する
+
+### 3.2b Owner litmus test
+
+- `.hako` に置く:
+  - `get/set/push/has/len/length/size`
+  - bounds policy
+  - index/key normalization
+  - visible fallback / error contract
+  - smoke/docs/tests がそのまま語る collection semantics
+- Rust に残す:
+  - `encode/decode`
+  - cache / downcast
+  - slot load/store
+  - growth / probe / rehash
+  - object layout / allocator / GC barrier
+  - ABI marshal
+
+Short rule:
+- method-shaped names belong to `.hako`
+- substrate-shaped names belong to Rust
 
 ### 3.3 Promotion Trigger: defer から dedicated kernel module へ移すタイミング
 
@@ -121,21 +145,30 @@ Related:
   3. dedicated fixture + smoke row が必要になり、collections ring1 の既存 owner では acceptance case を薄く表せなくなった
   4. `.hako` 側で owner-local の契約差分が必要になり、ring1 wrapper が単なる forwarder 以上の責務を持つようになった
 - 逆に、thin wrapper のまま contract を保てる限りは defer のまま維持する。
-- array の current rule はこの trigger を満たすまで `lang/src/runtime/collections/array_core_box.hako` に置き、`lang/src/runtime/kernel/array/` は作らない。
+- historical defer rule:
+  - `array` was kept in `lang/src/runtime/collections/array_core_box.hako` until this trigger clearly fired
+  - no dedicated `lang/src/runtime/kernel/array/` was required
+- current decision:
+  - `array` / `map` are promoted within `lang/src/runtime/collections/` ring1 collection core now.
+  - this is not a `ring0` move and not a new `lang/src/runtime/kernel/{array,map}/` requirement.
+  - `runtime_data` does not share that promotion; it stays facade-only.
 
 ## 4. Fixed Cutover Order
 
 1. current owner truth を docs で固定する
    - `ring1 accepted` と `still-Rust mainline` を同時に読めるようにする
-2. runtime provider の mainline owner を `.hako ring1` 側へ寄せる
-   - `provider_lock` / `plugin_host` から見た visible owner を `.hako` collection layer に近づける
-3. AOT/LLVM collection path を `.hako ring1`-compatible boundary へ寄せる
-   - `nyash.array.*` / `nyash.map.*` / `nyash.runtime_data.*` の daily dependency を thin keep に縮める
-4. Rust concrete births/plugins/builtin residue を compat/archive keep に限定する
-5. preservation-first rule を満たした後だけ delete/retire を再判定する
+2. `array` の visible/mainline owner を `.hako ring1` collection core へ寄せる
+   - `ArrayCoreBox` / `array_state_core_box.hako` が user-visible semantics を持ち、Rust `array` plugin は raw substrate へ後退する
+3. `map` の visible/mainline owner を `.hako ring1` collection core へ寄せる
+   - `MapCoreBox` が user-visible semantics を持ち、Rust `map` plugin は raw substrate へ後退する
+4. `runtime_data` を protocol / facade に retarget する
+   - `RuntimeDataCoreBox` は route/dynamic dispatch owner に留め、array/map semantics owner にはしない
+5. Rust concrete births/plugins/builtin residue を raw substrate / compat/archive keep に限定する
+6. preservation-first rule を満たした後だけ delete/retire を再判定する
 
 ## 5. Non-goals
 
 1. `ring0` に collection semantics を持ち込むこと
 2. `ring1 accepted` を理由に current Rust owner を見えなくすること
 3. backend-zero の current blocker を runtime collection cutover で上書きすること
+4. `RuntimeDataBox` を collection semantics owner へ育てること

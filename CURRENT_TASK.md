@@ -56,18 +56,26 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no route blocker remains for the current optimization wave; the active lane is exact hot-leaf trimming on the fixed `.hako -> ny-llvmc(boundary) -> C ABI` contract, and `array_getset` currently points at Rust substrate helpers
+  - no backend route blocker remains; the active lane is collection owner cutover, starting with `array`, because method-shaped collection verbs are still owned by Rust substrate while the target end-state is `.hako` ring1 collection ownership
 - Next exact files:
-  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
-  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
-  - `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
-  - `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
-  - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+  - `docs/development/current/main/phases/phase-29cm/README.md`
+  - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+  - `lang/src/runtime/collections/README.md`
+  - `lang/src/runtime/collections/array_core_box.hako`
+  - `lang/src/runtime/collections/array_state_core_box.hako`
+  - `crates/nyash_kernel/src/plugin/array.rs`
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs`
   - `crates/nyash_kernel/src/plugin/array_route_helpers.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
-  - `[x]` kernel lane reached stop-line maintenance (`string` stop line, `array/numeric/map` defer confirmed)
+  - `[x]` backend-zero reached stop line for the current owner/compat keep waves
+  - `[x]` optimization tag/knob inventory is pinned by reach (`pre-boundary` / `boundary` / `keep-lane-only` / `perf-only`)
+  - `[x]` `array_getset` proved the remaining method-shaped collection hotspot still lives in Rust substrate
+  - `[x]` reopen kernel authority lane as collection owner cutover (`array -> map -> runtime_data cleanup`)
+  - `[ ]` move `ArrayBox` user-visible semantics into `.hako` ring1 collection core
+  - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
+  - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
   - `[x]` backend-zero current owner cutover is closed enough for handoff
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
   - `[x]` inventory the first compat keep reduction slice without mixing bootstrap keep reduction
@@ -76,19 +84,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` `src/host_providers/llvm_codegen.rs` is already thin enough; no further code slice stays in that file
   - `[x]` `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; FFI plumbing moved into `boundary_driver_ffi.rs`
   - `[x]` `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs` has no further safe thinning slice
-  - `[x]` optimization tag/knob inventory is pinned by reach (`pre-boundary` / `boundary` / `keep-lane-only` / `perf-only`)
-  - `[x]` `array_getset` current exact leaf is pinned to Rust substrate (`handle_helpers` seam -> `array_index_helpers` / `array_route_helpers`)
-  - `[x]` keep `compile_symbol_for_keep_recipe()` generic default parked; do not reopen it during the current optimization wave
+  - `[x]` keep `compile_symbol_for_keep_recipe()` generic default parked; do not reopen it during collection owner cutover
 - Stop condition:
-  - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
-  - no compat keep reduction is mixed with bootstrap keep reduction
+  - collection cutover order stays `array -> map -> runtime_data cleanup`
+  - `string` remains at stop line unless a new exact blocker appears
+  - `numeric` remains parked until collection owner cutover settles or a new exact blocker appears
+  - do not move collection semantics into `ring0`
   - Rust `stage0` bootstrap / recovery route remains green
-  - when compat keep reduction reaches stop line, return the active lane to exe optimization rather than reopening backend-zero
-  - do not treat language-level `@hint` / `@contract` annotations as backend-active until their SSOT says so
+  - raw substrate micro-opt stays parked until method-shaped `array` / `map` verbs leave Rust ownership or an exact blocker says otherwise
 - Do not mix:
-  - kernel widening without a new exact blocker
   - VM strict-polish reopening without a new exact blocker
-  - optimization hot-leaf trimming
+  - Rust substrate micro-optimization before `array` owner cutover
+  - `runtime_data` owner growth
   - C shim transport micro-splitting
   - `native_driver.rs` bootstrap keep reduction
 
@@ -110,16 +117,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: exe optimization wave（fresh stable baseline after backend-zero stop line）
-- first: refresh the stable `kilo_kernel_small_hk` comparison against C / Python / Hako
-- second: run the micro ladder and rank the thickest leaf by `ratio_cycles` / `ratio_instr`
-- third: cut the exact Rust substrate leaf for `array_getset` (`handle_helpers` seam, then `array_get_by_index` / `array_set_by_index_i64_value`) before reopening any keep lane
-- fourth: only after measurement says the native leaf shape wants it, trial a native local inline hint; language-level `@hint` remains not-active
+- immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
+- first: pin `ArrayBox` user-visible contract (`get/set/push/len/length/size`, bounds, normalization, visible error contract) to `.hako` ring1 collection core
+- second: retarget Rust `array` plugin/helpers to raw substrate verbs only (`load/store/cache/downcast/layout`)
+- third: repeat the same owner split for `MapBox`
+- fourth: clean up `RuntimeDataBox` into protocol / facade only after `array` and `map` are cut over
+- parked: exe optimization wave stays paused until the collection owner boundary is fixed
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: bootstrap keep reduction stays parked unless compat keep lanes reopen
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
-- parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
+- parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` remains at stop line; reopen only if a new exact blocker appears
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
 - directory rule: keep `Stage1/Stage2` as artifact/proof names; Rust physical split stays `src/stage1/**` vs `src/runner/stage1_bridge/**`, do not create a mirrored `src/stage2/`
 
@@ -150,19 +158,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] `tools/selfhost/README.md`
   - [x] `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stage1_contract_smoke_vm.sh`
   - [x] `docs/development/current/main/phases/phase-29cp/README.md`
-- [x] kernel migration is at the stop line
+- [ ] kernel collection owner cutover
   - [x] `string` lane stopped at helper extraction; no widening unless a new exact blocker appears
-  - [x] `array` promotion trigger rechecked and still unfired
-  - [x] `numeric` inventory rechecked; still deferred
-  - [x] `map` still ring1 keep / defer
-- [ ] backend-zero active lane
+  - [ ] `array` owner cutover to `.hako` ring1 collection core
+  - [ ] `map` owner cutover to `.hako` ring1 collection core
+  - [ ] `runtime_data` cleanup to protocol / facade only
+  - [x] `numeric` remains parked as a narrow pilot outside the collection owner order
+- [x] backend-zero stop line / handoff
   - [x] current owner cutover is closed enough for handoff
   - [x] compat keep reduction inventory / first exact slice
     - [x] `src/host_providers/llvm_codegen.rs`
     - [x] `src/host_providers/llvm_codegen/route.rs`
     - [x] `route.rs` shared keep compile setup is factored behind `compile_via_capi_keep_internal(...)`
     - [x] `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; FFI plumbing moved into `boundary_driver_ffi.rs`
-  - [ ] bootstrap keep reduction stays parked until compat keep reduction settles
+  - [x] bootstrap keep reduction stays parked while collection owner cutover is active
 
 ## Restart Handoff (2026-03-19)
 
@@ -233,24 +242,29 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Kernel Migration First (2026-03-20)
 
 - current main goal:
-  - kernel authority migration を先に終わらせてから exe optimization に進む
+  - kernel authority migration を collection owner cutover として先に終わらせてから raw substrate optimization に進む
   - plan SSOT: `docs/development/current/main/phases/phase-29cm/README.md`
   - `0rust` は Rust meaning owner zero の意味であり、Rust ベースの build/bootstrap route は常時保持する
   - operationally, `stage0` Rust bootstrap keep is allowed; target the `stage2+` selfhost mainline for `0rust`
-  - current `.hako` authoring lane is `lang/src/runtime/kernel/string/search.hako`; helper extraction / control-structure cleanup only, no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
+  - current `.hako` authoring lane is no longer `string` widening; `string` is parked at stop line while collection owner cutover reopens
   - fixed order:
     1. `string`
        - `string.search` v0 は landed 済み。これ以上の widening は新しい exact blocker が出るまで pause
     2. `array`
-       - collections ring1 を first owner に保ち、`lang/src/runtime/kernel/array/` への promotion は trigger-based
-       - latest inventory (2026-03-20): no next code slice; `array_core_box.hako` / `array_state_core_box.hako` are still ring1-thin, so keep defer until the promotion trigger appears
-    3. `numeric`
-       - `MatI64.mul_naive` landed 済み。array が落ち着いたら次の narrow op を切る
-       - latest inventory (2026-03-20): no credible next narrow op; keep thin wrapper and stop here
-    4. `map`
-       - collections ring1 に残し、kernel lane には入れない
-       - latest inventory (2026-03-20): still defer / no kernel migration slice
-  - perf / asm optimization はこの順番を固定してから follow-up に回す
+       - collections ring1 を first owner に保つのではなく、`.hako` ring1 collection core owner へ昇格する
+       - move `get/set/push/len/length/size`, bounds policy, normalization, fallback, visible error contract into `.hako`
+       - Rust `array` plugin/helpers are demoted to raw storage/cache/load/store substrate verbs only
+    3. `map`
+       - `array` のあとで `.hako` ring1 collection core owner へ昇格する
+       - move `get/set/has/len/length/size`, key normalization, visible error contract into `.hako`
+       - Rust `map` plugin/helpers are demoted to hash/probe/rehash/layout substrate verbs only
+    4. `runtime_data cleanup`
+       - `RuntimeDataBox` は owner へ昇格させず、protocol / facade に固定する
+       - array/map semantics を吸い込む god-box 化は禁止
+    5. `numeric`
+       - `MatI64.mul_naive` landed 済みの narrow pilot として parked
+       - collection owner cutover が落ち着くまで新しい narrow op は増やさない
+  - perf / asm optimization は raw substrate 境界を固定してから follow-up に回す
 
 ## Backend-Zero Next (queued)
 
@@ -434,7 +448,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Quick Task Board (2026-03-17)
 
 - note:
-  - this block is the legacy backend-zero / llvmlite closeout log; the active exe optimization wave is above
+  - this block is legacy backend-zero / llvmlite closeout history; the current active lane is collection owner cutover above
 - legacy closeout snapshot:
   - `backend-zero` を final shape `.hako -> LlvmBackendBox -> hako_aot -> backend helper` へ寄せる
   - `src/host_providers/llvm_codegen.rs`, `crates/nyash-llvm-compiler/src/main.rs`, `crates/nyash-llvm-compiler/src/native_driver.rs` は途中の Rust glue / keep lane であり、final owner ではない
@@ -535,8 +549,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `kernel-authority-zero`: queued pointer
     - SSOT: `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
     - meaning/policy owner を `.hako` 側へ寄せる波であり、Rust substrate delete と同じ task にしない
-    - current rule: active exe optimization wave と混ぜない
-    - start trigger: current perf / backend-zero stop-line が揃ってからだけ reopen する
+    - historical rule at this snapshot: active exe optimization wave と混ぜない
+    - historical start trigger at this snapshot: current perf / backend-zero stop-line が揃ってからだけ reopen する
   - `backend-zero`: accepted pointer / `phase-29ck` queued
     - boundary SSOT: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
     - fixed order / buildability gate: `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`

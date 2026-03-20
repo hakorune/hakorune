@@ -93,15 +93,16 @@ Related:
 - 定義:
   - kernel meaning/policy の final owner を `.hako` 側へ移し、Rust runtime を substrate / portability / compat keep に降格する。
 - status:
-  - queued pointer
+  - active pointer
 - primary SSOT:
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
   - `lang/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
 - current rule:
-  - current exe optimization wave と混ぜない。
+  - current order is `array -> map -> runtime_data cleanup`.
+  - raw substrate micro-opt と混ぜない。
   - `kernel authority zero` は `substrate zero` と同じ task にしない。
-  - start trigger を満たすまでは visibility only に留める。
+  - `runtime_data` は owner に昇格させず protocol / facade に留める。
 
 ### 3.2 backend-zero
 

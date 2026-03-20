@@ -91,7 +91,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Backend-zero fixed order / buildability gate: `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
 - Backend-zero phase pointer: `docs/development/current/main/phases/phase-29ck/README.md`
 - Backend-zero final shape: `.hako -> thin backend C ABI/plugin boundary -> object/exe`（`native_driver.rs` は bootstrap seam only）
-- Optimization policy (runtime): de-rust runtime closeout contract 緑を前提に、最適化 lane（micro/asm -> kilo）へ handoff する。
+- Collection-owner policy (runtime): `array -> map -> runtime_data cleanup` を current architecture lane とし、raw substrate optimization は parked とする。
+- Optimization policy (runtime): collection owner boundary が固定されるまでは、最適化 lane（micro/asm -> kilo）を reopen しない。
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - JoinIR extension runbook（lane A reopen）:
   - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
@@ -143,11 +144,11 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - note: `phase-29cf` handles post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` as accepted monitor-only, without reopening `phase-29cc`
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
-  - monitor-only（runtime lane とは別コミット境界で運用）
+  - parked / monitor-only（runtime lane とは別コミット境界で運用）
   - latest closeout evidence (2026-03-01, head=`68ea40af29`):
     - `tools/checks/dev_gate.sh runtime-exec-zero` green
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
-  - handoff 先（micro/asm -> kilo の順で再開）
+  - handoff 先（collection owner cutover closeout 後に micro/asm -> kilo の順で再開）
   - source keep policy とは分離して進める
   - current scope lock:
     - primary: `kernel-mainline`（`.hako` no-compat）
@@ -179,7 +180,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 6. `build-maintenance`（cargo）は host 保守時のみ実行する。
 7. Rust source は保存固定とし、削除タスクは現時点で開始しない。
 8. `phase-29cf` の `VM fallback compat lane` / `bootstrap boundary reduction` は future-wave follow-up として monitor-only で維持する。
-9. 最適化 lane（micro/asm -> kilo）は runtime closeout contract 緑を前提に別コミット境界で再開する。
+9. 最適化 lane（micro/asm -> kilo）は collection owner cutover closeout 後に別コミット境界で再開する。
 10. `stage0` Rust bootstrap keep と `stage2+` daily selfhost mainline は別物として扱い、同じ acceptance に混ぜない。
 
 ## Read First Order
