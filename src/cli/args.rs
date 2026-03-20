@@ -29,8 +29,20 @@ pub fn parse() -> CliConfig {
 }
 
 pub fn build_command() -> Command {
+    let version = if cfg!(feature = "llvm-harness") {
+        if cfg!(feature = "llvm") {
+            "1.0 features:llvm,llvm-harness"
+        } else {
+            "1.0 features:llvm-harness"
+        }
+    } else if cfg!(feature = "llvm") {
+        "1.0 features:llvm"
+    } else {
+        "1.0"
+    };
+
     Command::new("nyash")
-        .version(if cfg!(feature = "llvm") { "1.0 features:llvm" } else { "1.0" })
+        .version(version)
         .author("Claude Code <claude@anthropic.com>")
         .about("🦀 Nyash Programming Language - Everything is Box in Rust! 🦀")
         .arg(Arg::new("dev").long("dev").help("Enable development defaults (AST using ON; Operator Boxes observe; safe diagnostics)").action(clap::ArgAction::SetTrue))

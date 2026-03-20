@@ -15,7 +15,7 @@ CASES_FILE="$NYASH_ROOT/tools/checks/rc_gc_alignment_g1_lifecycle_cases.txt"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-45}"
 
 llvm_harness_enabled() {
-    "$NYASH_BIN" --version 2>/dev/null | grep -q "features.*llvm"
+    "$NYASH_BIN" --version 2>/dev/null | grep -q "llvm-harness"
 }
 
 run_step() {
@@ -59,7 +59,7 @@ fi
 run_step "tools/checks/rc_gc_alignment_g1_guard.sh"
 
 if ! llvm_harness_enabled; then
-    test_skip "rc_gc_alignment_g1_lifecycle_parity_vm_llvm: hakorune built without --features llvm (harness lane unavailable)"
+    test_skip "rc_gc_alignment_g1_lifecycle_parity_vm_llvm: hakorune built without --features llvm-harness (harness lane unavailable)"
     exit 0
 fi
 
