@@ -1,0 +1,12 @@
+// RVP-C20 blocked fixture
+// Contract:
+// - vm-hako route still stops at `op=boxcall1 method=has`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 42)
+    print(m.has("a"))
+    return 0
+  }
+}

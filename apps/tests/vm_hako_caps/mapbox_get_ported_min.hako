@@ -1,6 +1,6 @@
-// RVP-C19 blocked fixture
+// RVP-C19 ported fixture
 // Contract:
-// - vm-hako route still returns stale scalar zero for MapBox.get("a").
+// - vm-hako route returns the stored scalar value for MapBox.get("a").
 
 static box Main {
   main() {

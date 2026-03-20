@@ -28,6 +28,7 @@ Related:
 | `close` | `0` or `1`（receiver mirror） | `boxcall(close:args>1)` / `boxcall(close:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-close-file-missing` |
 | `length` | `0` | `boxcall(length:args!=0)` | `op=boxcall args>1` |
 | `get` | `0` or `1`（receiver mirror / generic keep） | `boxcall(get:args>1)` / `boxcall(get:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-get-arg0-missing` |
+| `has` | `0` or `1`（receiver mirror / generic keep） | `boxcall(has:args>1)` / `boxcall(has:arg0:non-reg)` | `op=boxcall args>1` / `op=boxcall1 method=has` |
 | `set` | `2` | `boxcall(set:args!=2)` / `boxcall(set:args:non-reg)` | `op=boxcall args>2` / `boxcall-set-arg-missing` / `op=boxcall method=set` |
 | `size` | `0` | `boxcall(size:args>1)` / `boxcall(size:arg0:non-reg)` | `op=boxcall args>1` |
 | `indexOf` | `1` or `2` | `boxcall(indexOf:args!=1or2)` | `op=boxcall args>2` / `boxcall-indexOf-*` |
@@ -39,8 +40,9 @@ Related:
 Current exact blocker note:
 - `MapBox.set(key, value)` is now tracked as `RVP-C17` ported.
 - `MapBox.size()` is now tracked as `RVP-C18` ported.
-- The current exact blocker is `RVP-C19` (`MapBox.get(key)` stale-zero semantics).
-- Do not widen the generic rule silently; close `RVP-C19` with fixture + smoke + contract update in the same commit.
+- `MapBox.get(key)` is now tracked as `RVP-C19` ported.
+- The current exact blocker is `RVP-C20` (`MapBox.has(key)` -> `op=boxcall1 method=has`).
+- Do not widen the generic rule silently; close `RVP-C20` with fixture + smoke + contract update in the same commit.
 
 ## Update Rule
 

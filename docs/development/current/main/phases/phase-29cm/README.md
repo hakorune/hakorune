@@ -67,7 +67,7 @@ Related:
   - third slice landed: `ArrayCoreBox.get_i64/set_i64` retarget to raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
 - [ ] `map` owner cutover follows `array`
   - first slice landed: `MapCoreBox` is now the single visible owner frontier for handler-side `MapBox.{set,get,has,size/len/length}` routing and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
-  - current adjacent blocker is lane C / `.hako VM`: `RVP-C17 MapBox.set(key,value)` and `RVP-C18 MapBox.size()` are ported, and the next hard blocker is `RVP-C19 MapBox.get(key)` stale-zero semantics
+  - current adjacent blocker is lane C / `.hako VM`: `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, and `RVP-C19 MapBox.get(key)` are ported, and the next hard blocker is `RVP-C20 MapBox.has(key)` unimplemented route
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot
 
@@ -131,9 +131,8 @@ Move to `.hako`:
 - quick available now:
   - `bash tools/smokes/v2/profiles/quick/core/array/array_length_vm.sh`
 - quick available now:
-  - `bash tools/smokes/v2/profiles/quick/core/map/map_len_size_vm.sh`
-- quick after `phase-29y / RVP-C19` closes:
   - `bash tools/smokes/v2/profiles/quick/core/map/map_basic_get_set_vm.sh`
+  - `bash tools/smokes/v2/profiles/quick/core/map/map_len_size_vm.sh`
 - integration:
   - `bash tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh`

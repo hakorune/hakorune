@@ -38,7 +38,7 @@ Related:
 | --- | --- | --- | --- | --- |
 | A | Compiler Meaning | JoinIR / Planner / CorePlan の受理・意味決定 | `de-rust-compiler-thin-rust-roadmap-ssot.md` + JoinIR gate SSOT | active（monitor-only, blocker=`none`） |
 | B | Compiler Pipeline | `.hako` parser / mirbuilder / Stage1 compiler 導線 | `selfhost-parser-mirbuilder-migration-order-ssot.md` | active（monitor-only, blocker=`none`; failure-driven reopen） |
-| C | Runtime Port | Rust VM 依存機能の `.hako VM` 置換（RVP） | `phase-29y/60-NEXT-TASK-PLAN.md` + `phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` | active（current blocker: `RVP-C19`, capability=`MapBox.get(key)` stale-zero semantics） |
+| C | Runtime Port | Rust VM 依存機能の `.hako VM` 置換（RVP） | `phase-29y/60-NEXT-TASK-PLAN.md` + `phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` | active（current blocker: `RVP-C20`, capability=`MapBox.has(key)` unimplemented route） |
 
 ## Scope Boundary (must keep)
 
@@ -147,7 +147,7 @@ Related:
   - current focus: `binary-only --hako-emit-mir-json`（SSOT: `selfhost-bootstrap-route-ssot.md` の Binary-only contract）
 - lane C:
   - `RVP-C16` まで `ported` 昇格済み。
-  - current blocker は `RVP-C19 MapBox.get(key)` stale-zero semantics。
+  - current blocker は `RVP-C20 MapBox.has(key)` unimplemented route。
   - quick map collection smokes are currently blocked in `.hako VM` (`vm-hako`) subset-check, not in Rust VM.
 - orchestration / aftercare:
   - `phase-29cc`: accepted monitor-only（top-level de-rust selfhost closeout done）
