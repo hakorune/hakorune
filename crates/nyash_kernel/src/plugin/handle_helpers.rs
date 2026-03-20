@@ -105,21 +105,42 @@ fn object_from_handle_cached(handle: i64) -> Option<Arc<dyn NyashBox>> {
 }
 
 #[inline(always)]
-fn object_from_handle_cached_with_epoch(handle: i64, drop_epoch: u64) -> Option<Arc<dyn NyashBox>> {
-    if let Some(obj) = cache_load(handle, drop_epoch) {
-        return Some(obj);
+fn with_object_from_handle_cached_with_epoch<R>(
+    handle: i64,
+    drop_epoch: u64,
+    f: impl FnMut(&Arc<dyn NyashBox>) -> Option<R>,
+) -> Option<R> {
+    let mut f = Some(f);
+    if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
+        let mut f = f.take().expect("cache callback");
+        f(&entry.obj)
+    }) {
+        return Some(out);
     }
 
     let obj = handles::get(handle as u64)?;
     cache_store(handle, drop_epoch, obj.clone());
-    Some(obj)
+    let mut f = f.take().expect("cache callback");
+    f(&obj)
+}
+
+#[inline(always)]
+fn object_from_handle_cached_with_epoch(handle: i64, drop_epoch: u64) -> Option<Arc<dyn NyashBox>> {
+    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| Some(obj.clone()))
 }
 
 #[inline(always)]
 fn with_typed_box<T: 'static, R>(handle: i64, f: impl FnOnce(&T) -> R) -> Option<R> {
-    let obj = object_from_handle_cached(handle)?;
-    let typed = obj.as_any().downcast_ref::<T>()?;
-    Some(f(typed))
+    if handle <= 0 {
+        return None;
+    }
+    let drop_epoch = handles::drop_epoch();
+    let mut f = Some(f);
+    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| {
+        let typed = obj.as_any().downcast_ref::<T>()?;
+        let f = f.take().expect("typed callback");
+        Some(f(typed))
+    })
 }
 
 #[inline(always)]
