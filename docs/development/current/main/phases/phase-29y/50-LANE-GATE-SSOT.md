@@ -41,6 +41,7 @@ Quick profile:
    - `tools/smokes/v2/profiles/integration/apps/phase29y_direct_v0_bridge_guard_vm.sh`
 7. Mainline no-compat gate:
    - `tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
+   - runtime stage-a no-compat probe only; bootstrap diagnostics are covered by the phase29bq contract smoke
 8. Phase29y core contracts gate:
    - `tools/smokes/v2/profiles/integration/apps/phase29y_core_contracts_vm.sh`
 
@@ -68,7 +69,7 @@ Core contracts gate（fixed order）:
 10. binary-only run ported gate は repo外 `--hako-run` 成功契約（`lang/src/**` 読み依存不在）を no-compat gate より前に固定する。
 11. mir-shape guard gate は selfhost-first emit MIR が collapse していないことを strict で固定し、collapsed fixture は必ず fail-fast させる。
 12. direct-v0 guard gate は `--parser ny` 削除（CLI reject）と `NYASH_USE_NY_PARSER=1` no-op 化を固定する。
-13. no-compat gate は通常運用経路（stage1-first identity / stage-a runtime probe）で compat lane 漏れを先に検知する。
+13. no-compat gate は stage-a runtime probe で compat lane 漏れを先に検知する。stage1 bootstrap diagnostics は phase29bq contract smoke に分離する。
 14. optional GC lane は full profile でのみ実行し、quick profile の日常運用から分離する。
 15. `PHASE29Y_DERUST_DONE_MATRIX_CHECK=1` のときだけ quick profile 末尾で
     `phase29x_derust_done_matrix_vm.sh` を追加実行する（既定は OFF）。
@@ -94,6 +95,7 @@ Core contracts gate（fixed order）:
   - `tools/smokes/v2/profiles/integration/apps/phase29y_core_contracts_vm.sh`
 - No-compat gate:
   - `tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
+  - runtime stage-a no-compat probe only; bootstrap diagnostics are separate
 - Compiler pipeline parity gate:
   - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_using_resolver_parity_vm.sh`
 - Binary-only run ported gate:
