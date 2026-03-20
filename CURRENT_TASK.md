@@ -10,7 +10,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - 本ファイルは薄い入口に保ち、長文履歴はアーカイブへ逃がす。
 - kernel migration lane の Next は `docs/development/current/main/phases/phase-29cm/README.md` を単一正本に固定する。
 - de-rust runtime lane の Next は `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md` を単一正本に固定する。
-- VM `.hako` migration / BoxShape の Next は `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md` を単一正本に固定する。
+- VM `.hako` migration / BoxShape の Next は `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md` を parked strict-polish 読みの単一正本に固定する。
 - VM boxcall contract の Next は `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md` を単一正本に固定する。
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
@@ -40,11 +40,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
 - `mir_vm_s0.hako` is now a thin facade; the remaining VM execution logic is owned by `mir_vm_s0_exec_dispatch.hako`, `mir_vm_s0_call_exec.hako`, `mir_vm_s0_boxcall_builtin.hako`, `mir_vm_s0_boxcall_exec.hako`, `mir_vm_s0_codegen.hako`, and `mir_vm_s0_block_runner.hako`
-- next slice order:
-  1. keep the `mir_vm_s0.hako` facade thin
-  2. keep `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_call_exec.hako` / `mir_vm_s0_boxcall_builtin.hako` / `mir_vm_s0_boxcall_exec.hako` / `mir_vm_s0_codegen.hako` / `mir_vm_s0_block_runner.hako` thin and localize any further helper spill
-  3. keep entry / module wiring green
-  4. keep the VM boxcall contract and lane gates green
+- done-enough reading:
+  1. `mir_vm_s0.hako` facade-only shape is landed
+  2. execution ownership is already localized in `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_call_exec.hako` / `mir_vm_s0_boxcall_builtin.hako` / `mir_vm_s0_boxcall_exec.hako` / `mir_vm_s0_codegen.hako` / `mir_vm_s0_block_runner.hako`
+  3. entry / module wiring is green
+  4. remaining work is strict-polish only; do not reopen unless a new exact blocker appears
 
 ## VM Migration Quick Entry
 
@@ -56,30 +56,28 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`, `lang/src/vm/boxes/mir_vm_s0_call_exec.hako`, `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`, `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`, `lang/src/vm/boxes/mir_vm_s0_codegen.hako`, and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
+  - no mandatory VM blocker remains; VM `.hako` migration is done-enough and parked unless a new exact blocker appears
 - Next exact files:
-  - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_call_exec.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_codegen.hako`
-  - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
-  - `lang/src/vm/hako_module.toml`
-  - `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
-  - `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md`
+  - `docs/development/current/main/phases/phase-29cm/README.md`
+  - `lang/src/runtime/kernel/README.md`
+  - `lang/src/runtime/kernel/string/README.md`
+  - `lang/src/runtime/kernel/string/search.hako`
+  - `lang/src/runtime/collections/array_core_box.hako`
+  - `lang/src/runtime/collections/array_state_core_box.hako`
+  - `lang/src/runtime/kernel/numeric/matrix_i64.hako`
 - Execution checklist:
-  - `[x]` VM helper split baseline already exists (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec` / `exec_dispatch`)
-  - `[x]` freeze the remaining `mir_vm_s0.hako` responsibilities in comments
-  - `[x]` split the remaining execution helpers out of `mir_vm_s0.hako`
-  - `[x]` thin entry / module wiring
-  - `[x]` thin `mir_vm_s0.hako` to orchestration / dispatch glue
-  - `[x]` keep the VM boxcall contract and lane gates green
+  - `[x]` VM lane reached done-enough stop line
+  - `[x]` `mir_vm_s0.hako` is facade-only and helper ownership is localized
+  - `[x]` `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` are green
+  - `[ ]` keep `string` lane at stop line unless a new exact blocker appears
+  - `[ ]` re-run `array` promotion-trigger inventory before opening a dedicated kernel/array slice
+  - `[ ]` keep `numeric` deferred until a credible next narrow op appears
 - Stop condition:
-  - VM migration stays behavior-preserving and BoxShape-only
-  - `stage0` Rust bootstrap / recovery route remains green
-  - `phase29y_vm_hako_caps_gate_vm.sh`, `phase29y_no_compat_mainline_vm.sh`, and `phase29y_lane_gate_vm.sh` stay green
+  - kernel migration stays within the fixed order in `phase-29cm`
+  - no widening happens in `string` unless a new exact blocker appears
+  - Rust `stage0` bootstrap / recovery route remains green
 - Do not mix:
-  - kernel migration refactors
+  - VM strict-polish reopening without a new exact blocker
   - optimization hot-leaf trimming
   - C shim transport micro-splitting
   - backend-zero compat-polish
@@ -102,11 +100,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: `.hako VM` authoring lane（`mir_vm_s0.hako` BoxShape）
-- first: `mir_vm_s0.hako` は facade-only に固定済み。残りの VM execution logic を `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_boxcall_exec.hako` / `mir_vm_s0_block_runner.hako` 側に閉じる
-- second: `hako_module.toml` / VM helper wiring を崩さずに entry と dispatch を thin に保つ
-- third: `phase-29y/82` boxcall contract と `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` を green に保つ
-- parked: backend-zero compat-polish / exe optimization は VM lane が落ち着くまで混ぜない
+- immediate: `kernel-mainline` fixed order（`phase-29cm`）
+- first: `string` lane is already at the stop line; do not widen unless a new exact blocker appears
+- second: inventory `array` against the promotion trigger before opening any new `kernel/array` owner slice
+- third: keep `numeric` / `map` deferred exactly as `phase-29cm` says unless a new blocker justifies reopening
+- parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
+- parked: backend-zero compat-polish / exe optimization stay behind the kernel stop line
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
@@ -114,7 +113,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Remaining Migration Checklist
 
-- [ ] VM `.hako` migration lane
+- [x] VM `.hako` migration lane reached done-enough stop line
   - [x] helper split baseline already in place (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec`)
   - [x] responsibility inventory freeze for `mir_vm_s0.hako`
   - [x] split remaining execution helpers out of `mir_vm_s0.hako`（`mir_vm_s0_exec_dispatch.hako`）
@@ -129,6 +128,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] split backend codegen apply helpers out of `mir_vm_s0_boxcall_exec.hako`（`mir_vm_s0_codegen.hako`）
   - [x] thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - [x] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
+  - [x] park strict-polish unless a new exact blocker appears
 - [x] bootstrap check / `phase-29cp`
   - [x] stage0 bootstrap route materializes Program(JSON v0) / MIR(JSON v0)
   - [x] reduced `stage1-cli` artifact is runnable bootstrap output

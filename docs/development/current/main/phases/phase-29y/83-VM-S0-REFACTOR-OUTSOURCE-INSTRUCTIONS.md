@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Parked
 Decision: provisional
 Date: 2026-02-18
 Scope: `mir_vm_s0.hako` など 1000行超ファイルを BoxShape 方針で分割し、挙動不変で保守性を上げるための外部AI向け固定指示書。
@@ -12,6 +12,11 @@ Related:
 ---
 
 # VM S0 Refactor Outsource Instructions (BoxShape, behavior-preserving)
+
+Status reading:
+- done-enough stop line reached on 2026-03-20
+- reopen only if a new exact blocker appears in VM `.hako` mainline or lane gates
+- remaining work is strict-polish only (`mir_vm_s0.hako` forwarding shrink / export-surface freeze), not an active lane
 
 ## 0. Goal
 
