@@ -10,10 +10,10 @@ static box BackendRecipeBox {
     local path = me.require_non_empty_field("compile_route_profile", "json_path", json_path)
     if path == null { return null }
     local profile = new MapBox()
-    profile.set("route_profile", "" + me.route_profile_name(path))
-    profile.set("policy_owner", "" + me.policy_owner_name())
-    profile.set("transport_owner", "" + me.transport_owner_name())
-    profile.set("acceptance_policy", "" + me.acceptance_policy_for(path))
+    profile.set("route_profile", "backend-zero/pure-first+harness")
+    profile.set("policy_owner", "BackendRecipeBox")
+    profile.set("transport_owner", "hako_llvmc_ffi")
+    profile.set("acceptance_policy", "boundary-pure-seed-matrix-v1")
     profile.set("acceptance_case", "" + me.acceptance_case_for(path))
     profile.set("json_path", "" + path)
     profile.set("compile_recipe", "pure-first")
@@ -31,25 +31,25 @@ static box BackendRecipeBox {
     if me._require_profile_equals(
       "route_profile",
       route_profile,
-      me.route_profile_name(path),
+      "backend-zero/pure-first+harness",
     ) == null { return null }
     local policy_owner = profile.get("policy_owner")
     if me._require_profile_equals(
       "policy_owner",
       policy_owner,
-      me.policy_owner_name(),
+      "BackendRecipeBox",
     ) == null { return null }
     local transport_owner = profile.get("transport_owner")
     if me._require_profile_equals(
       "transport_owner",
       transport_owner,
-      me.transport_owner_name(),
+      "hako_llvmc_ffi",
     ) == null { return null }
     local acceptance_policy = profile.get("acceptance_policy")
     if me._require_profile_equals(
       "acceptance_policy",
       acceptance_policy,
-      me.acceptance_policy_for(path),
+      "boundary-pure-seed-matrix-v1",
     ) == null { return null }
     local acceptance_case = profile.get("acceptance_case")
     if me._require_profile_equals(
@@ -72,26 +72,6 @@ static box BackendRecipeBox {
       me.compat_replay_harness(),
     ) == null { return null }
     return profile
-  }
-
-  route_profile_name(json_path) {
-    local path = me.require_non_empty_field("route_profile_name", "json_path", json_path)
-    if path == null { return null }
-    return "backend-zero/pure-first+harness"
-  }
-
-  policy_owner_name() {
-    return "BackendRecipeBox"
-  }
-
-  transport_owner_name() {
-    return "hako_llvmc_ffi"
-  }
-
-  acceptance_policy_for(json_path) {
-    local path = me.require_non_empty_field("acceptance_policy_for", "json_path", json_path)
-    if path == null { return null }
-    return "boundary-pure-seed-matrix-v1"
   }
 
   acceptance_case_for(json_path) {
