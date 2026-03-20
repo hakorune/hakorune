@@ -1,10 +1,70 @@
 // mir_vm_s0_boxcall_exec.hako — boxcall execution helpers split from mir_vm_s0
-// Responsibility: method-specific stateful effects for boxcall ops.
+// Responsibility: boxcall method routing plus method-specific stateful effects.
 
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.vm.helpers.mir_s0_args_phi as MirVmS0ArgsPhiBox
+using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0BoxcallExecBox {
+  _find_int(seg, key) {
+    return MirVmS0JsonScanBox._find_int(seg, key)
+  }
+
+  _find_str(seg, key) {
+    return MirVmS0JsonScanBox._find_str(seg, key)
+  }
+
+  _args_is_empty(seg) {
+    return MirVmS0ArgsPhiBox._args_is_empty(seg)
+  }
+
+  _args_has_second(seg) {
+    return MirVmS0ArgsPhiBox._args_has_second(seg)
+  }
+
+  _args_has_third(seg) {
+    return MirVmS0ArgsPhiBox._args_has_third(seg)
+  }
+
+  _args_first(seg) {
+    return MirVmS0ArgsPhiBox._args_first(seg)
+  }
+
+  _args_second(seg) {
+    return MirVmS0ArgsPhiBox._args_second(seg)
+  }
+
+  _args_third(seg) {
+    return MirVmS0ArgsPhiBox._args_third(seg)
+  }
+
+  _find_boxcall0_const(src, method_name) {
+    local p_map = MirVmS0JsonScanBox._index_of_from(src, "\"boxcall0_const_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + method_name + "\""
+    local p_key = MirVmS0JsonScanBox._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
+  _find_boxcall1_arg0(src, method_name) {
+    local p_map = MirVmS0JsonScanBox._index_of_from(src, "\"boxcall1_arg0_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + method_name + "\""
+    local p_key = MirVmS0JsonScanBox._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
   apply_birth(box_birth, dst_birth, regs, kinds, array_lens) {
     if box_birth != null {
       MirVmS0StateOpsBox.box_len_set(array_lens, box_birth, 0)
@@ -139,6 +199,200 @@ static box MirVmS0BoxcallExecBox {
     regs.set("" + dst_box, "1")
     kinds.set("" + dst_box, "scalar")
     return "__NEXT__"
+  }
+
+  _dispatch_boxcall_file_method(method, seg, box_recv, regs, kinds, handle_regs, file_boxes) {
+    if method == "open" {
+      local file_key_open = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      local dst_open = me._find_int(seg, "dst")
+      if dst_open == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local has_second = me._args_has_second(seg)
+      if has_second == 0 {
+        return "[vm-hako/unimplemented op=boxcall args<2]"
+      }
+      local path_arg = me._args_first(seg)
+      local mode_arg = me._args_second(seg)
+      if me._args_has_third(seg) {
+        path_arg = me._args_second(seg)
+        mode_arg = me._args_third(seg)
+      }
+      if path_arg == null || mode_arg == null {
+        return "[vm-hako/contract][boxcall-open-arg-missing]"
+      }
+      local path_text = MirVmS0StateOpsBox.handle_get(handle_regs, path_arg)
+      local mode_text = MirVmS0StateOpsBox.handle_get(handle_regs, mode_arg)
+      if path_text == null || mode_text == null {
+        return "[vm-hako/contract][boxcall-open-handle-missing]"
+      }
+      return me.apply_open(file_key_open, dst_open, path_text, mode_text, regs, kinds, file_boxes)
+    }
+
+    if method == "read" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local file_key_read = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      local dst_read = me._find_int(seg, "dst")
+      if dst_read == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      return me.apply_read(file_key_read, dst_read, regs, kinds, handle_regs, file_boxes)
+    }
+
+    if method == "close" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local file_key_close = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      local dst_close = me._find_int(seg, "dst")
+      if dst_close == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      return me.apply_close(file_key_close, dst_close, regs, kinds, file_boxes)
+    }
+
+    return ""
+  }
+
+  _dispatch_boxcall_string_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs) {
+    if method == "length" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_len = me._find_int(seg, "dst")
+      if dst_len == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+
+      local recv_text_len = MirVmS0StateOpsBox.handle_get(handle_regs, box_recv)
+      if recv_text_len != null {
+        regs.set("" + dst_len, "" + MirVmS0JsonScanBox._to_i64(recv_text_len.length()))
+        kinds.set("" + dst_len, "scalar")
+        return "__NEXT__"
+      }
+      local box_key_len = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return me.apply_length(box_key_len, dst_len, regs, kinds, array_lens)
+    }
+
+    if method == "indexOf" {
+      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
+      local dst_idx = me._find_int(seg, "dst")
+      if dst_idx == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local needle_reg = me._args_first(seg)
+      if needle_reg == null { return "[vm-hako/contract][boxcall-indexOf-arg0-missing]" }
+
+      local recv_text = MirVmS0StateOpsBox.handle_get(handle_regs, box_recv)
+      if recv_text == null { return "[vm-hako/contract][boxcall-indexOf-recv-handle-missing]" }
+      local needle_text = MirVmS0StateOpsBox.handle_get(handle_regs, needle_reg)
+      if needle_text == null { return "[vm-hako/contract][boxcall-indexOf-needle-handle-missing]" }
+
+      local idx = 0
+      if me._args_has_second(seg) {
+        local start_reg = me._args_second(seg)
+        if start_reg == null { return "[vm-hako/contract][boxcall-indexOf-arg1-missing]" }
+        local start_idx = MirVmS0StateOpsBox.reg_i64_get(regs, start_reg)
+        if start_idx < 0 { start_idx = 0 }
+        idx = recv_text.indexOf(needle_text, start_idx)
+      } else {
+        idx = recv_text.indexOf(needle_text)
+      }
+      regs.set("" + dst_idx, "" + idx)
+      kinds.set("" + dst_idx, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "substring" {
+      local has_second_sub = me._args_has_second(seg)
+      if has_second_sub == 0 { return "[vm-hako/unimplemented op=boxcall args<2]" }
+      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
+      local dst_sub = me._find_int(seg, "dst")
+      if dst_sub == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local start_reg = me._args_first(seg)
+      local end_reg = me._args_second(seg)
+      if start_reg == null || end_reg == null { return "[vm-hako/contract][boxcall-substring-arg-missing]" }
+
+      local recv_text_sub = MirVmS0StateOpsBox.handle_get(handle_regs, box_recv)
+      if recv_text_sub == null { return "[vm-hako/contract][boxcall-substring-recv-handle-missing]" }
+
+      local text_len = MirVmS0JsonScanBox._to_i64(recv_text_sub.length())
+      local start_idx = MirVmS0StateOpsBox.reg_i64_get(regs, start_reg)
+      local end_idx = MirVmS0StateOpsBox.reg_i64_get(regs, end_reg)
+      if start_idx < 0 { start_idx = 0 }
+      if end_idx < 0 { end_idx = 0 }
+      if start_idx > text_len { start_idx = text_len }
+      if end_idx > text_len { end_idx = text_len }
+      if end_idx < start_idx { end_idx = start_idx }
+
+      local out_sub = recv_text_sub.substring(start_idx, end_idx)
+      regs.set("" + dst_sub, "0")
+      kinds.set("" + dst_sub, "handle")
+      MirVmS0StateOpsBox.handle_set(handle_regs, dst_sub, out_sub)
+      return "__NEXT__"
+    }
+
+    return ""
+  }
+
+  _dispatch_boxcall_misc_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs, src) {
+    if method == "push" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local push_arg0 = me._args_first(seg)
+      local box_key_push = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return me.apply_push(box_key_push, push_arg0, regs, array_lens)
+    }
+
+    if method == "get" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_get = me._find_int(seg, "dst")
+      if dst_get == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local get_arg0 = me._args_first(seg)
+      local box_key_get = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return me.apply_get(box_key_get, get_arg0, dst_get, regs, kinds, array_lens)
+    }
+
+    if method == "compile_obj" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_compile = me._find_int(seg, "dst")
+      if dst_compile == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local compile_arg0 = me._args_first(seg)
+      return me.apply_compile_obj(compile_arg0, dst_compile, regs, kinds, handle_regs)
+    }
+
+    if method == "link_exe" {
+      if me._args_has_third(seg) == 0 { return "[vm-hako/unimplemented op=boxcall args<3]" }
+      local dst_link = me._find_int(seg, "dst")
+      if dst_link == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local link_arg0 = me._args_first(seg)
+      local link_arg1 = me._args_second(seg)
+      local link_arg2 = me._args_third(seg)
+      return me.apply_link_exe(link_arg0, link_arg1, link_arg2, dst_link, regs, kinds, handle_regs)
+    }
+
+    local dst_box = me._find_int(seg, "dst")
+    if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+    if me._args_is_empty(seg) {
+      local out_box0 = me._find_boxcall0_const(src, method)
+      if out_box0 == null { return "[vm-hako/unimplemented op=boxcall0 method=" + method + "]" }
+      regs.set("" + dst_box, "" + out_box0)
+      kinds.set("" + dst_box, "scalar")
+      return "__NEXT__"
+    }
+    if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+    local arg0_box = me._args_first(seg)
+    if arg0_box == null { return "[vm-hako/contract][boxcall-arg0-missing]" }
+    local box1 = me._find_boxcall1_arg0(src, method)
+    if box1 == null { return "[vm-hako/unimplemented op=boxcall1 method=" + method + "]" }
+    regs.set("" + dst_box, "" + MirVmS0StateOpsBox.reg_i64_get(regs, arg0_box))
+    kinds.set("" + dst_box, "scalar")
+    return "__NEXT__"
+  }
+
+  _exec_boxcall(seg, regs, kinds, array_lens, handle_regs, file_boxes, src) {
+    local method = me._find_str(seg, "method")
+    if method == "birth" {
+      local box_birth = me._find_int(seg, "box")
+      local dst_birth = me._find_int(seg, "dst")
+      return me.apply_birth(box_birth, dst_birth, regs, kinds, array_lens)
+    }
+
+    local box_recv = me._find_int(seg, "box")
+    if box_recv == null { return "[vm-hako/contract][boxcall-missing-box]" }
+
+    local file_next = me._dispatch_boxcall_file_method(method, seg, box_recv, regs, kinds, handle_regs, file_boxes)
+    if file_next != "" { return file_next }
+
+    local string_next = me._dispatch_boxcall_string_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs)
+    if string_next != "" { return string_next }
+
+    return me._dispatch_boxcall_misc_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs, src)
   }
 
   _write_null_result(dst_box, regs, kinds) {

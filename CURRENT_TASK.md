@@ -53,9 +53,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako` and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
+  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`, `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`, and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
 - Next exact files:
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
   - `lang/src/vm/hako_module.toml`
   - `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
@@ -96,7 +97,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Priority
 
 - immediate: `.hako VM` authoring lane（`mir_vm_s0.hako` BoxShape）
-- first: `mir_vm_s0.hako` は facade-only に固定済み。残りの VM execution logic を `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_block_runner.hako` 側に閉じる
+- first: `mir_vm_s0.hako` は facade-only に固定済み。残りの VM execution logic を `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_boxcall_exec.hako` / `mir_vm_s0_block_runner.hako` 側に閉じる
 - second: `hako_module.toml` / VM helper wiring を崩さずに entry と dispatch を thin に保つ
 - third: `phase-29y/82` boxcall contract と `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` を green に保つ
 - parked: backend-zero compat-polish / exe optimization は VM lane が落ち着くまで混ぜない
@@ -114,8 +115,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] split block runner helpers out of `mir_vm_s0.hako`（`mir_vm_s0_block_runner.hako`）
   - [x] thin entry / module wiring（`mini_vm_s0_entry.hako` now binds directly to `MirVmS0BlockRunnerBox.run_min(...)`）
   - [x] remove legacy top-array recovery from `mir_vm_s0_block_runner.hako`（structured payload only; unsupported payload shapes fail fast）
+  - [x] split boxcall routing out of `mir_vm_s0_exec_dispatch.hako`（`mir_vm_s0_boxcall_exec.hako`）
   - [x] thin `mir_vm_s0.hako` to orchestration / dispatch glue
-  - [ ] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
+  - [x] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`
   - [x] stage0 bootstrap route materializes Program(JSON v0) / MIR(JSON v0)
   - [x] reduced `stage1-cli` artifact is runnable bootstrap output
