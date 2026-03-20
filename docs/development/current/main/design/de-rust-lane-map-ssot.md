@@ -38,7 +38,7 @@ Related:
 | --- | --- | --- | --- | --- |
 | A | Compiler Meaning | JoinIR / Planner / CorePlan の受理・意味決定 | `de-rust-compiler-thin-rust-roadmap-ssot.md` + JoinIR gate SSOT | active（monitor-only, blocker=`none`） |
 | B | Compiler Pipeline | `.hako` parser / mirbuilder / Stage1 compiler 導線 | `selfhost-parser-mirbuilder-migration-order-ssot.md` | active（monitor-only, blocker=`none`; failure-driven reopen） |
-| C | Runtime Port | Rust VM 依存機能の `.hako VM` 置換（RVP） | `phase-29y/60-NEXT-TASK-PLAN.md` + `phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` | active（current blocker: `none`, capability=`none`） |
+| C | Runtime Port | Rust VM 依存機能の `.hako VM` 置換（RVP） | `phase-29y/60-NEXT-TASK-PLAN.md` + `phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` | active（current blocker: `RVP-C17`, capability=`boxcall(set:args>1)`） |
 
 ## Scope Boundary (must keep)
 
@@ -146,8 +146,9 @@ Related:
   - non-gating monitor pin: `phase29y_hako_emit_mir_preemit_io_monitor_vm.sh`（pre-emit I/O cold/hot 観測。`--strict` は手動 triage 専用）
   - current focus: `binary-only --hako-emit-mir-json`（SSOT: `selfhost-bootstrap-route-ssot.md` の Binary-only contract）
 - lane C:
-  - `RVP-C15` まで `ported` 昇格済み（feature matrix 全row ported）。
-  - fixed backlog は置かず、`phase29y_vm_hako_caps_gate_vm.sh` fail 起点の failure-driven monitor-only で維持する。
+  - `RVP-C16` まで `ported` 昇格済み。
+  - current blocker は `RVP-C17 boxcall(set:args>1)`。
+  - quick map collection smokes are currently blocked in `.hako VM` (`vm-hako`) subset-check, not in Rust VM.
 - orchestration / aftercare:
   - `phase-29cc`: accepted monitor-only（top-level de-rust selfhost closeout done）
   - `phase-29ce`: accepted（live compat retirement closeout）

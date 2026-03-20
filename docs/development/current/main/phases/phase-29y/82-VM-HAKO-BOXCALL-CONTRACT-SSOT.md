@@ -33,6 +33,11 @@ Related:
 | `link_exe` | `3` | `boxcall(link_exe:args!=3)` / `boxcall(link_exe:args:non-reg)` | `op=boxcall args<3` / `llvmbackend-link-*` / `[llvmbackend/link/*]` |
 | (other methods) | `<=1` | `boxcall(args>1)` | `op=boxcall args>1` / method-specific unimplemented |
 
+Current exact blocker note:
+- `MapBox.set(key, value)` still falls under the generic `(other methods)` rule above.
+- This is tracked as `RVP-C17` in `81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md`.
+- Do not widen the generic rule silently; close `RVP-C17` with fixture + smoke + contract update in the same commit.
+
 ## Update Rule
 
 - `boxcall` 引数契約を変更する場合は、次を同一コミットで更新する。
@@ -40,6 +45,7 @@ Related:
   - `src/runner/modes/vm_hako/tests/boxcall_contract.rs`
   - `lang/src/vm/boxes/mir_vm_s0.hako`
 - capability row（RVP-C11/C12）に影響する場合は `81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` も同一コミットで同期する。
+- `MapBox.set/get/has/size` のような collection-owner verbs を widen する場合も `81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` を同一コミットで同期する。
 
 ## Validation
 

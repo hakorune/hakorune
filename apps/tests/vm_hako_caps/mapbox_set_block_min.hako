@@ -1,0 +1,11 @@
+// RVP-C17 blocked fixture
+// Contract:
+// - vm-hako route currently stops at subset-check with `boxcall(set:args>1)`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 42)
+    return 0
+  }
+}
