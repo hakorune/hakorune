@@ -145,28 +145,21 @@ static box ArrayCoreBox {
       return 1
     }
 
+    local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
+    local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
+    local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
+    local cur_len = JsonFragBox._str_to_int(cur_len_raw)
+    local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
+
     if mname == "set" {
-      local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-      local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
-      local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
-      local cur_len = JsonFragBox._str_to_int(cur_len_raw)
       return me._try_handle_set(seg, regs, rid, per_recv, key, cur_len, recv_h, dst)
     }
 
     if mname == "get" {
-      local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-      local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
-      local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
-      local cur_len = JsonFragBox._str_to_int(cur_len_raw)
-      local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
       return me._try_handle_get(seg, regs, rid, per_recv, cur_len, value_state, recv_h, dst)
     }
 
     if mname == "push" {
-      local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
-      local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
-      local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
-      local cur_len = JsonFragBox._str_to_int(cur_len_raw)
       return me._try_handle_push(seg, regs, rid, per_recv, key, cur_len, dst)
     }
 
