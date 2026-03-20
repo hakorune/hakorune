@@ -31,6 +31,8 @@ Related:
 | `has` | `0` or `1`（receiver mirror / generic keep） | `boxcall(has:args>1)` / `boxcall(has:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-has-arg0-missing` / `boxcall-has-key-handle-missing` |
 | `set` | `2` | `boxcall(set:args!=2)` / `boxcall(set:args:non-reg)` | `op=boxcall args>2` / `boxcall-set-arg-missing` / `op=boxcall method=set` |
 | `size` | `0` | `boxcall(size:args>1)` / `boxcall(size:arg0:non-reg)` | `op=boxcall args>1` |
+| `keys` | `0` | `boxcall(keys:args>1)` / `boxcall(keys:arg0:non-reg)` | `op=boxcall args>1` / `op=boxcall0 method=keys` |
+| `clear` | `0` | `boxcall(clear:args>1)` / `boxcall(clear:arg0:non-reg)` | `op=boxcall args>1` / `op=boxcall0 method=clear` |
 | `indexOf` | `1` or `2` | `boxcall(indexOf:args!=1or2)` | `op=boxcall args>2` / `boxcall-indexOf-*` |
 | `substring` | `2` | `boxcall(substring:args!=2)` | `op=boxcall args<2` / `op=boxcall args>2` / `boxcall-substring-*` |
 | `compile_obj` | `1` | `boxcall(compile_obj:args>1)` / `boxcall(compile_obj:arg0:non-reg)` | `boxcall-arg0-missing` / `llvmbackend-compile-path-handle-missing` / `[llvmbackend/read/*]` / `[llvmbackend/emit/*]` |
@@ -43,8 +45,9 @@ Current exact blocker note:
 - `MapBox.get(key)` is now tracked as `RVP-C19` ported.
 - `MapBox.has(key)` is now tracked as `RVP-C20` ported.
 - `MapBox.delete(key)` is now tracked as `RVP-C21` ported.
-- The current exact blocker is `RVP-C22` (`MapBox.keys()` -> `op=boxcall0 method=keys`).
-- Do not widen the generic rule silently; close `RVP-C22` with fixture + smoke + contract update in the same commit.
+- `MapBox.keys()` is now tracked as `RVP-C22` ported.
+- The current exact blocker is `RVP-C23` (`MapBox.clear()` -> `op=boxcall0 method=clear`).
+- Do not widen the generic rule silently; close `RVP-C23` with fixture + smoke + contract update in the same commit.
 
 ## Update Rule
 

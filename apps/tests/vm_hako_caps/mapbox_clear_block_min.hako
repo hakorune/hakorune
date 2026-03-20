@@ -1,0 +1,17 @@
+// RVP-C23 blocked fixture
+// Contract:
+// - vm-hako route still stops at `op=boxcall0 method=clear`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.clear()
+    print(m.size())
+    print(m.has("a"))
+    local ks = m.keys()
+    print(ks.size())
+    return 0
+  }
+}

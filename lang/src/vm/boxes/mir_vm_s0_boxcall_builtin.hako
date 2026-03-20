@@ -211,6 +211,14 @@ static box MirVmS0BoxcallBuiltinBox {
     return "__NEXT__"
   }
 
+  apply_map_keys(box_key, dst_box, regs, kinds, array_lens) {
+    if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+    regs.set("" + dst_box, "" + dst_box)
+    kinds.set("" + dst_box, "box")
+    MirVmS0StateOpsBox.box_len_set(array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    return "__NEXT__"
+  }
+
   apply_open(file_key, dst_open, path_text, mode_text, regs, kinds, file_boxes) {
     local file_obj = MirVmS0StateOpsBox.file_box_get(file_boxes, file_key)
     if file_obj == null {
@@ -444,6 +452,13 @@ static box MirVmS0BoxcallBuiltinBox {
       }
       local box_key_delete = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
       return me.apply_map_delete(box_key_delete, delete_arg0, dst_delete, regs, kinds, array_lens, handle_regs)
+    }
+
+    if method == "keys" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_keys = me._find_int(seg, "dst")
+      local box_key_keys = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return me.apply_map_keys(box_key_keys, dst_keys, regs, kinds, array_lens)
     }
 
     return ""
