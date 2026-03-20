@@ -232,6 +232,21 @@ static box MirVmS0BoxcallBuiltinBox {
   }
 
   dispatch_misc_builtin_method(method, seg, box_recv, regs, kinds, array_lens) {
+    if method == "set" {
+      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
+      local set_arg0 = me._args_first(seg)
+      local set_arg1 = me._args_second(seg)
+      if set_arg0 == null || set_arg1 == null { return "[vm-hako/contract][boxcall-set-arg-missing]" }
+      local arg0_kind = kinds.get("" + set_arg0)
+      if arg0_kind != "handle" { return "[vm-hako/unimplemented op=boxcall method=set]" }
+      local dst_set = me._find_int(seg, "dst")
+      if dst_set != null {
+        regs.set("" + dst_set, "0")
+        kinds.set("" + dst_set, "scalar")
+      }
+      return "__NEXT__"
+    }
+
     if method == "push" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local push_arg0 = me._args_first(seg)

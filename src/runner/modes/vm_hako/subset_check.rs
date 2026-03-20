@@ -305,6 +305,24 @@ fn validate_boxcall_substring_shape(inst: &Value, args: &[Value]) -> Result<(), 
     Ok(())
 }
 
+fn validate_boxcall_set_shape(inst: &Value, args: &[Value]) -> Result<(), String> {
+    if args.len() != 2 {
+        return Err("boxcall(set:args!=2)".to_string());
+    }
+    let args_ok = args.iter().all(|v| v.as_u64().is_some());
+    if !args_ok {
+        return Err("boxcall(set:args:non-reg)".to_string());
+    }
+    ensure_u64_fields(
+        inst,
+        &[
+            ("dst", "boxcall(missing-dst)"),
+            ("box", "boxcall(missing-box)"),
+        ],
+    )?;
+    Ok(())
+}
+
 fn validate_boxcall_link_exe_shape(inst: &Value, args: &[Value]) -> Result<(), String> {
     if args.len() != 3 {
         return Err("boxcall(link_exe:args!=3)".to_string());
@@ -412,6 +430,7 @@ fn validate_boxcall_shape(inst: &Value) -> Result<(), String> {
         "push" => validate_boxcall_push_shape(inst, args),
         "open" => validate_boxcall_open_shape(inst, args),
         "link_exe" => validate_boxcall_link_exe_shape(inst, args),
+        "set" => validate_boxcall_set_shape(inst, args),
         "read" | "close" => validate_boxcall_zero_or_one_reg_shape(inst, args, method),
         "length" => validate_boxcall_noarg_shape(inst, args, method),
         "indexOf" => validate_boxcall_indexof_shape(inst, args),

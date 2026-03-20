@@ -1,0 +1,13 @@
+// RVP-C18 blocked fixture
+// Contract:
+// - vm-hako route currently stops at runtime `op=boxcall0 method=size`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.size()
+    return 0
+  }
+}
