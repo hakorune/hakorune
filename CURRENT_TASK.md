@@ -36,15 +36,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
-- still concentrated in `mir_vm_s0.hako`:
-  - `_exec_data_op(...)`
-  - `_exec_call_op(...)`
-  - `_exec_boxcall(...)` and its file/string/misc helpers
-  - thin block runner delegates (`_exec_insts(...)`, `_exec_block_insts(...)`, `_exec_block_insts_cached(...)`, `_build_inst_cache_rec(...)`, `_run_block_payload_rec(...)`, `_run_block_payload(...)`)
+- `mir_vm_s0.hako` is now a thin facade; the remaining VM execution logic is owned by `mir_vm_s0_exec_dispatch.hako` and `mir_vm_s0_block_runner.hako`
 - next slice order:
-  1. responsibility inventory freeze in `mir_vm_s0.hako`
-  2. split the remaining execution helpers
-  3. thin entry / module wiring
+  1. keep the `mir_vm_s0.hako` facade thin
+  2. keep `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_block_runner.hako` thin and localize any further helper spill
+  3. keep entry / module wiring green
   4. keep the VM boxcall contract and lane gates green
 
 ## VM Migration Quick Entry
@@ -57,19 +53,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0.hako`
+  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako` and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
 - Next exact files:
-  - `lang/src/vm/boxes/mir_vm_s0.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
   - `lang/src/vm/hako_module.toml`
   - `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md`
   - `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md`
 - Execution checklist:
   - `[x]` VM helper split baseline already exists (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec` / `exec_dispatch`)
-  - `[ ]` freeze the remaining `mir_vm_s0.hako` responsibilities in comments
-  - `[ ]` split the remaining execution helpers out of `mir_vm_s0.hako`
-  - `[ ]` thin entry / module wiring
-  - `[ ]` thin `mir_vm_s0.hako` to orchestration / dispatch glue
-  - `[ ]` keep the VM boxcall contract and lane gates green
+  - `[x]` freeze the remaining `mir_vm_s0.hako` responsibilities in comments
+  - `[x]` split the remaining execution helpers out of `mir_vm_s0.hako`
+  - `[x]` thin entry / module wiring
+  - `[x]` thin `mir_vm_s0.hako` to orchestration / dispatch glue
+  - `[x]` keep the VM boxcall contract and lane gates green
 - Stop condition:
   - VM migration stays behavior-preserving and BoxShape-only
   - `stage0` Rust bootstrap / recovery route remains green
@@ -99,8 +96,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Priority
 
 - immediate: `.hako VM` authoring lane（`mir_vm_s0.hako` BoxShape）
-- first: `mir_vm_s0.hako` の責務棚卸しを固定して、残りの block runner / entry helpers を薄くする
-- second: `hako_module.toml` / VM helper wiring を崩さずに entry を thin にする
+- first: `mir_vm_s0.hako` は facade-only に固定済み。残りの VM execution logic を `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_block_runner.hako` 側に閉じる
+- second: `hako_module.toml` / VM helper wiring を崩さずに entry と dispatch を thin に保つ
 - third: `phase-29y/82` boxcall contract と `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` を green に保つ
 - parked: backend-zero compat-polish / exe optimization は VM lane が落ち着くまで混ぜない
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
@@ -117,7 +114,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] split block runner helpers out of `mir_vm_s0.hako`（`mir_vm_s0_block_runner.hako`）
   - [x] thin entry / module wiring（`mini_vm_s0_entry.hako` now binds directly to `MirVmS0BlockRunnerBox.run_min(...)`）
   - [x] remove legacy top-array recovery from `mir_vm_s0_block_runner.hako`（structured payload only; unsupported payload shapes fail fast）
-  - [ ] thin `mir_vm_s0.hako` to orchestration / dispatch glue
+  - [x] thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - [ ] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`
   - [x] stage0 bootstrap route materializes Program(JSON v0) / MIR(JSON v0)

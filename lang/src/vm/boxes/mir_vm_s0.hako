@@ -4,8 +4,7 @@
 // Non-goal: full MIR compatibility. Fail-fast on unknown ops/shapes.
 // Boxcall args contract SSOT: docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md
 // Remaining in this file:
-// - thin execution dispatch glue (`_exec_data_op`, `_exec_call_op`, `_exec_boxcall`, `_exec_op`)
-// - thin block runner delegates (`_exec_insts`, `_exec_block_insts`, `_exec_block_insts_cached`, `_build_inst_cache_rec`, `_run_block_payload*`)
+// - thin execution dispatch / block runner delegates only
 // - keep only the glue that still needs whole-run context; pure scan/state helpers live in `mir_vm_s0_*.hako`
 // Already delegated:
 // - JSON scan / args & PHI / register-state / block-location / lifecycle / boxcall leaf helpers
@@ -168,73 +167,6 @@ static box MirVmS0Box {
 
   _call_is_env_get(seg) {
     return MirVmS0RegUtilsBox._call_is_env_get(seg)
-  }
-
-  // ==================== Const Map Lookups ====================
-
-  _find_call0_const(src, func_id) {
-    local p_map = me._index_of_from(src, "\"call0_const_map\"", 0)
-    if p_map < 0 { return null }
-    local key = "\"" + ("" + func_id) + "\""
-    local p_key = me._index_of_from(src, key, p_map)
-    if p_key < 0 { return null }
-    local p_colon = me._index_of_from(src, ":", p_key + key.length())
-    if p_colon < 0 { return null }
-    local ds = me._read_digits(src, p_colon + 1)
-    if ds == "" || ds == "-" { return null }
-    return me._to_i64(ds)
-  }
-
-  _find_boxcall0_const(src, method_name) {
-    local p_map = me._index_of_from(src, "\"boxcall0_const_map\"", 0)
-    if p_map < 0 { return null }
-    local key = "\"" + method_name + "\""
-    local p_key = me._index_of_from(src, key, p_map)
-    if p_key < 0 { return null }
-    local p_colon = me._index_of_from(src, ":", p_key + key.length())
-    if p_colon < 0 { return null }
-    local ds = me._read_digits(src, p_colon + 1)
-    if ds == "" || ds == "-" { return null }
-    return me._to_i64(ds)
-  }
-
-  _find_call1_arg0(src, func_id) {
-    local p_map = me._index_of_from(src, "\"call1_arg0_map\"", 0)
-    if p_map < 0 { return null }
-    local key = "\"" + ("" + func_id) + "\""
-    local p_key = me._index_of_from(src, key, p_map)
-    if p_key < 0 { return null }
-    local p_colon = me._index_of_from(src, ":", p_key + key.length())
-    if p_colon < 0 { return null }
-    local ds = me._read_digits(src, p_colon + 1)
-    if ds == "" || ds == "-" { return null }
-    return me._to_i64(ds)
-  }
-
-  _find_call2_arg1(src, func_id) {
-    local p_map = me._index_of_from(src, "\"call2_arg1_map\"", 0)
-    if p_map < 0 { return null }
-    local key = "\"" + ("" + func_id) + "\""
-    local p_key = me._index_of_from(src, key, p_map)
-    if p_key < 0 { return null }
-    local p_colon = me._index_of_from(src, ":", p_key + key.length())
-    if p_colon < 0 { return null }
-    local ds = me._read_digits(src, p_colon + 1)
-    if ds == "" || ds == "-" { return null }
-    return me._to_i64(ds)
-  }
-
-  _find_boxcall1_arg0(src, method_name) {
-    local p_map = me._index_of_from(src, "\"boxcall1_arg0_map\"", 0)
-    if p_map < 0 { return null }
-    local key = "\"" + method_name + "\""
-    local p_key = me._index_of_from(src, key, p_map)
-    if p_key < 0 { return null }
-    local p_colon = me._index_of_from(src, ":", p_key + key.length())
-    if p_colon < 0 { return null }
-    local ds = me._read_digits(src, p_colon + 1)
-    if ds == "" || ds == "-" { return null }
-    return me._to_i64(ds)
   }
 
   // ==================== Args/PHI Delegates ====================

@@ -16,6 +16,7 @@ Related:
 ## 0. Goal
 
 - `lang/src/vm/boxes/mir_vm_s0.hako` の責務混在を解消し、導線を薄くする。
+- `mir_vm_s0.hako` は facade-only を目標にし、const lookup helpers のような局所ロジックは helper box 側へ寄せる。
 - 機能追加ではなく、**挙動不変の構造改善**だけを行う。
 - `.hako VM` の現在契約（RVP-C14 ported / C15 blocked）を壊さない。
 
@@ -101,7 +102,8 @@ Related:
 
 ## 8. Reviewer Checklist
 
-- `mir_vm_s0.hako` が「実行入口 + 配線」中心になっている
+- `mir_vm_s0.hako` が facade-only になっている
+- const lookup helpers が `mir_vm_s0_exec_dispatch.hako` 側へ寄っている
 - `mini_vm_s0_entry.hako` が薄い entry wrapper になっている
 - 新規 helper が責務ごとに分割され、重複ロジックが減っている
 - 受理形や契約文言を変えていない

@@ -96,6 +96,73 @@ static box MirVmS0ExecDispatchBox {
     return MirVmS0RegUtilsBox._call_is_env_get(seg)
   }
 
+  // ==================== Const Map Lookups ====================
+
+  _find_call0_const(src, func_id) {
+    local p_map = me._index_of_from(src, "\"call0_const_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + ("" + func_id) + "\""
+    local p_key = me._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = me._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = me._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return me._to_i64(ds)
+  }
+
+  _find_boxcall0_const(src, method_name) {
+    local p_map = me._index_of_from(src, "\"boxcall0_const_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + method_name + "\""
+    local p_key = me._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = me._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = me._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return me._to_i64(ds)
+  }
+
+  _find_call1_arg0(src, func_id) {
+    local p_map = me._index_of_from(src, "\"call1_arg0_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + ("" + func_id) + "\""
+    local p_key = me._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = me._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = me._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return me._to_i64(ds)
+  }
+
+  _find_call2_arg1(src, func_id) {
+    local p_map = me._index_of_from(src, "\"call2_arg1_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + ("" + func_id) + "\""
+    local p_key = me._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = me._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = me._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return me._to_i64(ds)
+  }
+
+  _find_boxcall1_arg0(src, method_name) {
+    local p_map = me._index_of_from(src, "\"boxcall1_arg0_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + method_name + "\""
+    local p_key = me._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = me._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = me._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return me._to_i64(ds)
+  }
+
   _args_is_empty(seg) {
     return MirVmS0ArgsPhiBox._args_is_empty(seg)
   }
