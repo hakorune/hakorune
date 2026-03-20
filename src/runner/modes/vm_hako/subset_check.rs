@@ -645,6 +645,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                 "newbox" => {
                     let box_type = inst.get("type").and_then(|v| v.as_str()).unwrap_or("");
                     if box_type != "ArrayBox"
+                        && box_type != "MapBox"
                         && box_type != "StringBox"
                         && box_type != "FileBox"
                         && box_type != "LlvmBackendBox"

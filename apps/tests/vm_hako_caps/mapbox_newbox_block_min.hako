@@ -1,0 +1,10 @@
+// RVP-C16 capability fixture
+// Contract:
+// - vm-hako route must accept newbox(MapBox) and return success.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    return 0
+  }
+}

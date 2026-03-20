@@ -255,6 +255,26 @@ fn subset_accepts_load() {
 }
 
 #[test]
+fn subset_accepts_newbox_mapbox() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    { "op": "newbox", "dst": 1, "type": "MapBox" },
+                    { "op": "ret", "value": 1 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_rejects_load_missing_ptr() {
     let mir_json = json!({
         "functions": [{
