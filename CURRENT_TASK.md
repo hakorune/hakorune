@@ -56,16 +56,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no new kernel blocker remains; kernel migration is at the stop line and the active lane switches to backend-zero fixed order
+  - backend-zero compat keep reduction has reached its stop line; no further safe thinning remains in the llvm_codegen / boundary_driver keep slice, so the active lane returns to exe optimization hot-leaf trimming
 - Next exact files:
-  - `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
-  - `docs/development/current/main/phases/phase-29ck/README.md`
-  - `docs/development/current/main/phases/phase-29cl/README.md`
-  - `docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md`
-  - `lang/src/shared/backend/backend_recipe_box.hako`
-  - `lang/src/shared/backend/llvm_backend_box.hako`
-  - `src/host_providers/llvm_codegen/route.rs`
-  - `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs`
+  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
+  - `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
+  - `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
+  - `src/llvm_py/instructions/boxcall.py`
+  - `src/llvm_py/instructions/mir_call/method_fallback_tail.py`
+  - `src/llvm_py/llvm_builder.py`
+  - `src/runtime/host_handles.rs`
+  - `lang/c-abi/shims/hako_aot_shared_impl.inc`
+  - `lang/c-abi/shims/hako_llvmc_ffi.c`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` kernel lane reached stop-line maintenance (`string` stop line, `array/numeric/map` defer confirmed)
@@ -76,11 +77,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` `route.rs` shared keep compile setup is factored behind `compile_via_capi_keep_internal(...)`
   - `[x]` `src/host_providers/llvm_codegen.rs` is already thin enough; no further code slice stays in that file
   - `[x]` `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; FFI plumbing moved into `boundary_driver_ffi.rs`
+  - `[x]` `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs` has no further safe thinning slice
   - `[ ]` keep `compile_symbol_for_keep_recipe()` generic default parked until compat keep lanes are explicitly reduced
 - Stop condition:
   - backend-zero stays within `current owner cutover -> compat keep reduction -> bootstrap keep reduction`
   - no compat keep reduction is mixed with bootstrap keep reduction
   - Rust `stage0` bootstrap / recovery route remains green
+  - when compat keep reduction reaches stop line, return the active lane to exe optimization rather than reopening backend-zero
 - Do not mix:
   - kernel widening without a new exact blocker
   - VM strict-polish reopening without a new exact blocker
@@ -106,14 +109,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: `backend-zero` fixed order（current owner cutover -> compat keep reduction -> bootstrap keep reduction）
-- first: treat current owner cutover as closed enough; do not reopen it except for correctness-level cleanup
-- second: first compat keep reduction slice is `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs` only
-- third: `crates/nyash-llvm-compiler/src/boundary_driver.rs` is facade-only; its FFI plumbing now lives in `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs`
-- fourth: keep the generic export branch parked and documented as keep-only until compat lanes are explicitly reduced
-- fifth: keep bootstrap seams (`program_json_v0` / `module_string_dispatch` / `native_driver.rs`) out of this slice
+- immediate: exe optimization wave（fresh stable baseline after backend-zero stop line）
+- first: refresh the stable `kilo_kernel_small_hk` comparison against C / Python / Hako
+- second: run the micro ladder and rank the thickest leaf by `ratio_cycles` / `ratio_instr`
+- third: if one leaf is still bridge/helper-density bound, trial `@hint(inline)` or a C bridge split on that exact leaf only
+- parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
-- parked: exe optimization stays behind backend-zero handoff
+- parked: bootstrap keep reduction stays parked unless compat keep lanes reopen
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` helper extraction / control-structure cleanup only; no widening unless a new exact blocker appears, and if none appears then stop the lane and move to inventory/next fixed order
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only
