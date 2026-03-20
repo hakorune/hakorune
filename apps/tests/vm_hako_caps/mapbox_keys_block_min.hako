@@ -1,0 +1,14 @@
+// RVP-C22 blocked fixture
+// Contract:
+// - vm-hako route still stops at `op=boxcall0 method=keys`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    local ks = m.keys()
+    print(ks.size())
+    return 0
+  }
+}

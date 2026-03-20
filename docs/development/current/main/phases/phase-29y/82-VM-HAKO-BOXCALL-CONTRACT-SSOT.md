@@ -42,8 +42,9 @@ Current exact blocker note:
 - `MapBox.size()` is now tracked as `RVP-C18` ported.
 - `MapBox.get(key)` is now tracked as `RVP-C19` ported.
 - `MapBox.has(key)` is now tracked as `RVP-C20` ported.
-- The current exact blocker is `RVP-C21` (`MapBox.delete(key)` -> `op=boxcall1 method=delete`).
-- Do not widen the generic rule silently; close `RVP-C21` with fixture + smoke + contract update in the same commit.
+- `MapBox.delete(key)` is now tracked as `RVP-C21` ported.
+- The current exact blocker is `RVP-C22` (`MapBox.keys()` -> `op=boxcall0 method=keys`).
+- Do not widen the generic rule silently; close `RVP-C22` with fixture + smoke + contract update in the same commit.
 
 ## Update Rule
 

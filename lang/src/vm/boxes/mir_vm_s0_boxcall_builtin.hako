@@ -164,7 +164,50 @@ static box MirVmS0BoxcallBuiltinBox {
     local out = 0
     if had != null { out = 1 }
     regs.set("" + dst_box, "" + out)
-    kinds.set("" + dst_box, "scalar")
+    kinds.set("" + dst_box, "bool")
+    return "__NEXT__"
+  }
+
+  apply_map_delete(box_key, key_reg, dst_box, regs, kinds, array_lens, handle_regs) {
+    if key_reg == null { return "[vm-hako/contract][boxcall-delete-arg0-missing]" }
+    local key_text_raw = MirVmS0StateOpsBox.handle_get(handle_regs, key_reg)
+    if key_text_raw == null { return "[vm-hako/contract][boxcall-delete-key-handle-missing]" }
+    local key_text = me._norm_map_key_text(key_text_raw)
+    if key_text == null { return "[vm-hako/contract][boxcall-delete-key-handle-missing]" }
+    local pres_key = me._map_presence_key(box_key, key_text)
+    local kind_key = me._map_value_kind_key(box_key, key_text)
+    local raw_key = me._map_value_raw_key(box_key, key_text)
+    local had = MirVmS0StateOpsBox.map_get_or_null(array_lens, pres_key)
+    if had == null {
+      if dst_box != null {
+        regs.set("" + dst_box, "0")
+        kinds.set("" + dst_box, "handle")
+        MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "Key not found: " + key_text)
+      }
+      return "__NEXT__"
+    }
+
+    local value_kind = MirVmS0StateOpsBox.map_get_or_null(array_lens, kind_key)
+    local value_raw = MirVmS0StateOpsBox.map_get_or_null(array_lens, raw_key)
+    if dst_box != null {
+      if value_kind == "handle" && value_raw != null {
+        regs.set("" + dst_box, "0")
+        kinds.set("" + dst_box, "handle")
+        MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, value_raw)
+      } else {
+        if value_raw == null { value_raw = "0" }
+        regs.set("" + dst_box, "" + value_raw)
+        kinds.set("" + dst_box, "scalar")
+      }
+    }
+
+    array_lens.set(pres_key, null)
+    array_lens.set(kind_key, null)
+    array_lens.set(raw_key, null)
+    local cur_len = MirVmS0StateOpsBox.box_len_get(array_lens, box_key)
+    if cur_len > 0 {
+      MirVmS0StateOpsBox.box_len_set(array_lens, box_key, cur_len - 1)
+    }
     return "__NEXT__"
   }
 
@@ -384,6 +427,23 @@ static box MirVmS0BoxcallBuiltinBox {
       local arg0_kind_has = kinds.get("" + has_arg0)
       if arg0_kind_has != "handle" { return "[vm-hako/unimplemented op=boxcall1 method=has]" }
       return me.apply_map_has(box_key_has, has_arg0, dst_has, regs, kinds, array_lens, handle_regs)
+    }
+
+    if method == "delete" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_delete = me._find_int(seg, "dst")
+      local delete_arg0 = me._args_first(seg)
+      local arg0_kind_delete = kinds.get("" + delete_arg0)
+      if arg0_kind_delete != "handle" {
+        if dst_delete != null {
+          regs.set("" + dst_delete, "0")
+          kinds.set("" + dst_delete, "handle")
+          MirVmS0StateOpsBox.handle_set(handle_regs, dst_delete, "[map/bad-key] key must be string")
+        }
+        return "__NEXT__"
+      }
+      local box_key_delete = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      return me.apply_map_delete(box_key_delete, delete_arg0, dst_delete, regs, kinds, array_lens, handle_regs)
     }
 
     return ""

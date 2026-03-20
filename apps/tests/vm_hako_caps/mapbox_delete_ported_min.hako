@@ -1,0 +1,15 @@
+// RVP-C21 ported fixture
+// Contract:
+// - vm-hako route accepts `MapBox.delete(key)` and preserves visible `has/size` parity.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    m.delete("a")
+    print(m.has("a"))
+    print(m.size())
+    return 0
+  }
+}

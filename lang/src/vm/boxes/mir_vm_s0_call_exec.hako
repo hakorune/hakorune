@@ -163,12 +163,19 @@ static box MirVmS0CallExecBox {
         if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall args>1]" }
         local arg0 = me._args_first(seg)
         if arg0 == null { return "[vm-hako/contract][externcall-arg0-missing]" }
-        if MirVmS0RegUtilsBox._reg_kind_get(kinds, arg0) == "handle" {
+        local arg0_kind = MirVmS0RegUtilsBox._reg_kind_get(kinds, arg0)
+        if arg0_kind == "handle" {
           local out_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0)
           if out_text == null { return "[vm-hako/contract][externcall-print-handle-missing]" }
           HostFacadeBox.call("runtime", "console.log", out_text)
         } else {
-          HostFacadeBox.call("runtime", "console.log", MirVmS0RegUtilsBox._reg_get(regs, arg0))
+          if arg0_kind == "bool" {
+            local bool_out = "false"
+            if MirVmS0RegUtilsBox._reg_get(regs, arg0) != 0 { bool_out = "true" }
+            HostFacadeBox.call("runtime", "console.log", bool_out)
+          } else {
+            HostFacadeBox.call("runtime", "console.log", MirVmS0RegUtilsBox._reg_get(regs, arg0))
+          }
         }
         return "__NEXT__"
       }

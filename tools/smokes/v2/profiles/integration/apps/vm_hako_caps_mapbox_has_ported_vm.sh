@@ -3,7 +3,7 @@
 #
 # Contract:
 # 1) MIR preflight must contain `boxcall(method=has,args=1)`.
-# 2) vm-hako route must print `1` for present key and `0` for missing key, then finish with RC=0.
+# 2) vm-hako route must print `true` for present key and `false` for missing key, then finish with RC=0.
 # 3) stale `op=boxcall1 method=has` blocker must not reappear.
 # 4) timeout is forbidden.
 
@@ -39,14 +39,14 @@ if printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^\[vm-hako/unimplemented op=boxcall1 m
   test_fail "vm_hako_caps_mapbox_has_ported_vm: stale runtime blocker op=boxcall1 method=has remained"
   exit 1
 fi
-if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^1$'; then
+if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^true$'; then
   echo "$OUTPUT_CLEAN" | tail -n 120 || true
-  test_fail "vm_hako_caps_mapbox_has_ported_vm: expected printed present-key result 1"
+  test_fail "vm_hako_caps_mapbox_has_ported_vm: expected printed present-key result true"
   exit 1
 fi
-if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^0$'; then
+if ! printf '%s\n' "$OUTPUT_CLEAN" | rg -q '^false$'; then
   echo "$OUTPUT_CLEAN" | tail -n 120 || true
-  test_fail "vm_hako_caps_mapbox_has_ported_vm: expected printed missing-key result 0"
+  test_fail "vm_hako_caps_mapbox_has_ported_vm: expected printed missing-key result false"
   exit 1
 fi
 if [ "$VM_HAKO_CAPS_EXIT_CODE" -ne 0 ]; then
