@@ -57,7 +57,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - Current blocker:
   - no backend route blocker remains; the active lane is collection owner cutover, and the current exact step is still `map`
-  - the adjacent exact blocker is lane C / `.hako VM` (`vm-hako`), not Rust VM: `RVP-C16 newbox(MapBox)` and `RVP-C17 MapBox.set(key,value)` are now ported, and the current exact blocker is `RVP-C18 boxcall0 size`
+  - the adjacent exact blocker is lane C / `.hako VM` (`vm-hako`), not Rust VM: `RVP-C16 newbox(MapBox)`, `RVP-C17 MapBox.set(key,value)`, and `RVP-C18 MapBox.size()` are now ported, and the current exact blocker is `RVP-C19 MapBox.get(key)` stale-zero semantics
+- Later cleanup (not this slice):
+  - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
+  - factor `filter_noise || true` handling into a shared smoke helper instead of per-smoke local glue
+  - revisit `mir_vm_s0_boxcall_builtin.hako` `set/get` routing once `MapBox` semantics are fully owner-local
 - Next exact files:
   - `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
   - `docs/development/current/main/phases/phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md`
@@ -65,9 +69,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/runner/modes/vm_hako/subset_check.rs`
   - `src/runner/modes/vm_hako/tests/boxcall_contract.rs`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`
-  - `apps/tests/vm_hako_caps/mapbox_size_block_min.hako`
+  - `apps/tests/vm_hako_caps/mapbox_size_ported_min.hako`
+  - `apps/tests/vm_hako_caps/mapbox_get_block_min.hako`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_set_ported_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_size_block_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_size_ported_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_block_vm.sh`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
@@ -92,7 +98,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` M1 first slice landed: `MapCoreBox` is the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}` and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
   - `[x]` RVP-C16 first vm-hako blocker is closed: `newbox(MapBox)` is accepted in subset-check and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`
   - `[x]` RVP-C17 is closed: `MapBox.set(key,value)` now clears subset/runtime args>1 blockers and is pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`
-  - `[ ]` RVP-C18 now owns the adjacent blocker: `MapBox.size()` still stops at vm-hako runtime with `op=boxcall0 method=size`
+  - `[x]` RVP-C18 is closed: `MapBox.size()` now completes in vm-hako and is pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`
+  - `[ ]` RVP-C19 now owns the adjacent blocker: `MapBox.get(key)` still returns stale scalar `0` instead of the stored value
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
   - `[x]` backend-zero current owner cutover is closed enough for handoff
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
@@ -136,7 +143,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Priority
 
 - immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
-- first: clear lane C / `.hako VM` blocker `RVP-C18 boxcall0 size`
+- first: clear lane C / `.hako VM` blocker `RVP-C19 MapBox.get(key)` stale-zero semantics
 - second: pin `MapBox` user-visible contract (`get/set/has/len/length/size`, key normalization, visible fallback/error contract) to `.hako` ring1 collection core
 - third: retarget Rust `map` plugin/helpers to raw substrate verbs only (`probe/rehash/load/store/cache/downcast/layout`)
 - third: clean up `RuntimeDataBox` into protocol / facade only after `array` and `map` are cut over
@@ -913,7 +920,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - done: `JIR-PORT-06`（monitor-only boundary lock）
   - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
   - next: `none`（failure-driven reopen only）
-- runtime lane: `phase-29y / RVP-C18` current blocker: `boxcall0 size`
+- runtime lane: `phase-29y / RVP-C19` current blocker: `MapBox.get(key)` stale-zero semantics
   - fixed order SSOT:
     - `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
 - compiler pipeline lane: `hako-using-resolver-parity / monitor-only`

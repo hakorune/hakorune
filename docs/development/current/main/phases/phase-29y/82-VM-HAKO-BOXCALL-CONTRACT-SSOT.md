@@ -27,8 +27,9 @@ Related:
 | `read` | `0` or `1`（receiver mirror） | `boxcall(read:args>1)` / `boxcall(read:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-read-file-missing` |
 | `close` | `0` or `1`（receiver mirror） | `boxcall(close:args>1)` / `boxcall(close:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-close-file-missing` |
 | `length` | `0` | `boxcall(length:args!=0)` | `op=boxcall args>1` |
+| `get` | `0` or `1`（receiver mirror / generic keep） | `boxcall(get:args>1)` / `boxcall(get:arg0:non-reg)` | `op=boxcall args>1` / `boxcall-get-arg0-missing` |
 | `set` | `2` | `boxcall(set:args!=2)` / `boxcall(set:args:non-reg)` | `op=boxcall args>2` / `boxcall-set-arg-missing` / `op=boxcall method=set` |
-| `size` | `0` | `boxcall(args>1)`（generic keep） | `op=boxcall0 method=size` |
+| `size` | `0` | `boxcall(size:args>1)` / `boxcall(size:arg0:non-reg)` | `op=boxcall args>1` |
 | `indexOf` | `1` or `2` | `boxcall(indexOf:args!=1or2)` | `op=boxcall args>2` / `boxcall-indexOf-*` |
 | `substring` | `2` | `boxcall(substring:args!=2)` | `op=boxcall args<2` / `op=boxcall args>2` / `boxcall-substring-*` |
 | `compile_obj` | `1` | `boxcall(compile_obj:args>1)` / `boxcall(compile_obj:arg0:non-reg)` | `boxcall-arg0-missing` / `llvmbackend-compile-path-handle-missing` / `[llvmbackend/read/*]` / `[llvmbackend/emit/*]` |
@@ -37,8 +38,9 @@ Related:
 
 Current exact blocker note:
 - `MapBox.set(key, value)` is now tracked as `RVP-C17` ported.
-- The current exact blocker is `RVP-C18` (`MapBox.size()` -> `op=boxcall0 method=size`).
-- Do not widen the generic rule silently; close `RVP-C18` with fixture + smoke + contract update in the same commit.
+- `MapBox.size()` is now tracked as `RVP-C18` ported.
+- The current exact blocker is `RVP-C19` (`MapBox.get(key)` stale-zero semantics).
+- Do not widen the generic rule silently; close `RVP-C19` with fixture + smoke + contract update in the same commit.
 
 ## Update Rule
 

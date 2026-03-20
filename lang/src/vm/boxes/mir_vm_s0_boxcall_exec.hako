@@ -69,7 +69,7 @@ static box MirVmS0BoxcallExecBox {
   }
 
   _dispatch_boxcall_misc_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs, src) {
-    local builtin_next = MirVmS0BoxcallBuiltinBox.dispatch_misc_builtin_method(method, seg, box_recv, regs, kinds, array_lens)
+    local builtin_next = MirVmS0BoxcallBuiltinBox.dispatch_misc_builtin_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs)
     if builtin_next != "" { return builtin_next }
 
     if method == "compile_obj" {

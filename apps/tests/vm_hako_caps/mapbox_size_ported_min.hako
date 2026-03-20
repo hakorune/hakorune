@@ -1,0 +1,13 @@
+// RVP-C18 ported fixture
+// Contract:
+// - vm-hako route prints `2` for MapBox.size() after two distinct set operations.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    m.set("a", 1)
+    m.set("b", 2)
+    print(m.size())
+    return 0
+  }
+}

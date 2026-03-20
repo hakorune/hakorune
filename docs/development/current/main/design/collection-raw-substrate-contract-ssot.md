@@ -180,9 +180,10 @@ Target:
   - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
 - array quick:
   - `bash tools/smokes/v2/profiles/quick/core/array/array_length_vm.sh`
-- map quick (after `phase-29y / RVP-C18` closes):
-  - `bash tools/smokes/v2/profiles/quick/core/map/map_basic_get_set_vm.sh`
+- map quick available now:
   - `bash tools/smokes/v2/profiles/quick/core/map/map_len_size_vm.sh`
+- map quick after `phase-29y / RVP-C19` closes:
+  - `bash tools/smokes/v2/profiles/quick/core/map/map_basic_get_set_vm.sh`
 - provider integration:
   - `bash tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh`

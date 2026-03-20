@@ -1,5 +1,5 @@
 ---
-Status: Active (Y1/Y2/Y3 done, min1/min2/min3 done, RVP-0..RVP-5 done, RING1-CORE-06..09 done; reopened by RVP-C18)
+Status: Active (Y1/Y2/Y3 done, min1/min2/min3 done, RVP-0..RVP-5 done, RING1-CORE-06..09 done; reopened by RVP-C19)
 Decision: provisional
 Date: 2026-02-19
 Scope: 脱Rust selfhost の Phase 29y runtime lane（lane C）の current/next と運用契約を短く維持する。
@@ -25,12 +25,13 @@ Related:
 - APP-1（Gate Log Summarizer）acceptance は PASS。
 - APP-2（Controlflow Probe）acceptance は PASS。
 - APP-3（MIR Shape Guard）acceptance は PASS。
-- Current blocker（脱Rust selfhost runtime lane）は `RVP-C18`。
+- Current blocker（脱Rust selfhost runtime lane）は `RVP-C19`。
 - 2026-03-21 reopen:
   - quick map smokes (`map_basic_get_set_vm.sh` / `map_len_size_vm.sh`) are not Rust VM failures; they route through `.hako VM` (`vm-hako`) under strict/dev prefer and stop at subset-check.
   - `RVP-C16 newbox(MapBox)` is now ported and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`.
   - `RVP-C17 MapBox.set(key, value)` is now ported and pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`.
-  - the next exact blocker is `RVP-C18 boxcall0 size`.
+  - `RVP-C18 MapBox.size()` is now ported and pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`.
+  - the next exact blocker is `RVP-C19 MapBox.get(key)` stale-zero semantics.
 - 2026-03-09 monitor refresh:
   - `bash tools/checks/dev_gate.sh quick` PASS
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` PASS
@@ -70,7 +71,7 @@ Related:
 ## 0.3 RVP Commit Boundary Lock (active rule)
 
 - active status:
-  - RVP open blocker は `RVP-C18 boxcall0 size`.
+  - RVP open blocker は `RVP-C19 MapBox.get(key)` stale-zero semantics.
   - fix order is back to `1 blocker = 1 fixture = 1 smoke = 1 commit`.
 - 実装ルール（再発時のみ適用）:
   - `1 blocker = 1 fixture = 1 smoke = 1 commit`。
@@ -178,23 +179,25 @@ Related:
 
 ## 1. Next Tasks (fixed order, 1 task = 1 commit)
 
-- next-1: `RVP-C18`
+- next-1: `RVP-C19`
 - exact blocker:
-  - capability: `MapBox.size()` zero-arg `boxcall`
+  - capability: `MapBox.get(key)` one-arg `boxcall`
   - current route: `.hako VM` / `vm-hako` runtime
-  - current reject tag: `op=boxcall0 method=size`
+  - current blocked behavior: stale scalar `0` is returned instead of the stored value
   - blocked pin:
-    - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_size_block_vm.sh`
-- after `RVP-C18` closes:
+    - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_block_vm.sh`
+- after `RVP-C19` closes:
   - `map_basic_get_set_vm.sh`
+  returns to collection owner cutover acceptance as a valid quick smoke
+- already returned after `RVP-C18`:
   - `map_len_size_vm.sh`
-  return to collection owner cutover acceptance as valid quick smokes
 
 ## 2. Schedule (short)
 
 - latest complete: `RVP-C16`（`newbox(MapBox)` accepted in subset-check and pinned）
 - latest complete: `RVP-C17`（`MapBox.set(key,value)` multi-arg boxcall accepted and pinned）
-- next-1: `RVP-C18`
+- latest complete: `RVP-C18`（`MapBox.size()` zero-arg boxcall accepted and pinned）
+- next-1: `RVP-C19`
 - full timeline archive:
   - `docs/development/current/main/phases/phase-29y/61-NEXT-TASK-HISTORY.md`
 
