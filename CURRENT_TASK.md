@@ -35,17 +35,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/vm/boxes/mir_vm_s0_lifecycle_ops.hako`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
 - still concentrated in `mir_vm_s0.hako`:
   - `_exec_data_op(...)`
   - `_exec_call_op(...)`
   - `_exec_boxcall(...)` and its file/string/misc helpers
-  - `_exec_insts(...)`
-  - `_exec_block_insts(...)`
-  - `_exec_block_insts_cached(...)`
-  - `_build_inst_cache_rec(...)`
-  - `_run_block_payload_rec(...)`
-  - `_run_block_payload(...)`
-  - `run_min(...)`
+  - thin block runner delegates (`_exec_insts(...)`, `_exec_block_insts(...)`, `_exec_block_insts_cached(...)`, `_build_inst_cache_rec(...)`, `_run_block_payload_rec(...)`, `_run_block_payload(...)`, `run_min(...)`)
 - next slice order:
   1. responsibility inventory freeze in `mir_vm_s0.hako`
   2. split the remaining execution helpers
@@ -103,7 +98,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Current Priority
 
 - immediate: `.hako VM` authoring lane（`mir_vm_s0.hako` BoxShape）
-- first: `mir_vm_s0.hako` の責務棚卸しを固定して、残りの execution helpers を薄くする
+- first: `mir_vm_s0.hako` の責務棚卸しを固定して、残りの block runner / entry helpers を薄くする
 - second: `hako_module.toml` / VM helper wiring を崩さずに entry を thin にする
 - third: `phase-29y/82` boxcall contract と `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` を green に保つ
 - parked: backend-zero compat-polish / exe optimization は VM lane が落ち着くまで混ぜない
@@ -118,6 +113,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] helper split baseline already in place (`json_scan` / `state_ops` / `reg_utils` / `args_phi` / `block_loc` / `lifecycle_ops` / `boxcall_exec`)
   - [x] responsibility inventory freeze for `mir_vm_s0.hako`
   - [x] split remaining execution helpers out of `mir_vm_s0.hako`（`mir_vm_s0_exec_dispatch.hako`）
+  - [x] split block runner helpers out of `mir_vm_s0.hako`（`mir_vm_s0_block_runner.hako`）
   - [ ] thin `mir_vm_s0.hako` to orchestration / dispatch glue
   - [ ] keep `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` green
 - [x] bootstrap check / `phase-29cp`

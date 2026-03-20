@@ -4,18 +4,17 @@
 // Non-goal: full MIR compatibility. Fail-fast on unknown ops/shapes.
 // Boxcall args contract SSOT: docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md
 // Remaining in this file:
-// - top-level orchestration (`run_min`)
-// - block payload traversal / cache assembly (`_run_block_payload*`, `_build_inst_cache_rec`)
-// - execution dispatch glue (`_exec_data_op`, `_exec_call_op`, `_exec_boxcall`, `_exec_op`)
-// - block/instruction stepping and terminators (`_exec_insts`, `_exec_block_insts`, `_exec_block_insts_cached`)
+// - thin execution dispatch glue (`_exec_data_op`, `_exec_call_op`, `_exec_boxcall`, `_exec_op`)
+// - thin block runner delegates (`_exec_insts`, `_exec_block_insts`, `_exec_block_insts_cached`, `_build_inst_cache_rec`, `_run_block_payload*`, `run_min`)
 // - keep only the glue that still needs whole-run context; pure scan/state helpers live in `mir_vm_s0_*.hako`
 // Already delegated:
 // - JSON scan / args & PHI / register-state / block-location / lifecycle / boxcall leaf helpers
+// - execution dispatch helpers
 
-using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using selfhost.vm.helpers.mir_s0_boxcall_exec as MirVmS0BoxcallExecBox
 using selfhost.vm.helpers.mir_s0_exec_dispatch as MirVmS0ExecDispatchBox
+using selfhost.vm.helpers.mir_s0_block_runner as MirVmS0BlockRunnerBox
 using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
 using selfhost.vm.helpers.mir_s0_args_phi as MirVmS0ArgsPhiBox
@@ -321,327 +320,30 @@ static box MirVmS0Box {
   }
 
   _exec_insts(json, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, src) {
-    if pos >= rb { return 0 }
-    local obj_start = me._index_of_from(json, "{", pos)
-    if obj_start < 0 || obj_start >= rb { return 0 }
-
-    local obj_end = me._scan_obj_end(json, obj_start)
-    if obj_end == -2 { return "[vm-hako/contract][scan-depth-exceeded kind=obj]" }
-    if obj_end < obj_start || obj_end > rb { return "[vm-hako/contract][invalid-inst-object]" }
-
-    local seg = json.substring(obj_start, obj_end + 1)
-    local op = me._find_str(seg, "op")
-    local res = me._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-    if res == "__NEXT__" {
-      return me._exec_insts(json, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-    }
-    return res
+    return MirVmS0BlockRunnerBox._exec_insts(json, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
   }
 
   _exec_block_insts(inst_seg, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb) {
-    if pos >= rb { return "__FALLTHROUGH__" }
-    local obj_start = me._index_of_from(inst_seg, "{", pos)
-    if obj_start < 0 || obj_start >= rb { return "__FALLTHROUGH__" }
-
-    local obj_end = me._scan_obj_end(inst_seg, obj_start)
-    if obj_end == -2 { return "[vm-hako/contract][scan-depth-exceeded kind=obj]" }
-    if obj_end < obj_start || obj_end > rb { return "[vm-hako/contract][invalid-inst-object]" }
-
-    local seg = inst_seg.substring(obj_start, obj_end + 1)
-    local op = me._find_str(seg, "op")
-
-    if op == "phi" {
-      local dst_phi = me._find_int(seg, "dst")
-      if dst_phi == null { return "[vm-hako/contract][phi-missing-dst]" }
-      local phi_src = me._phi_pick_incoming(seg, pred_bb)
-      if phi_src == null { return "[vm-hako/contract][phi-missing-incoming]" }
-      me._reg_set(regs, dst_phi, me._reg_get(regs, phi_src))
-      me._reg_kind_copy(kinds, dst_phi, phi_src)
-      MirVmS0StateOpsBox.box_len_copy(array_lens, dst_phi, phi_src)
-      MirVmS0StateOpsBox.handle_copy(handle_regs, dst_phi, phi_src)
-      MirVmS0StateOpsBox.file_box_copy(file_boxes, dst_phi, phi_src)
-      return me._exec_block_insts(inst_seg, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
-    }
-
-    if op == "branch" {
-      local cond = me._find_int(seg, "cond")
-      local then_bb = me._find_int(seg, "then")
-      local else_bb = me._find_int(seg, "else")
-      if cond == null || then_bb == null || else_bb == null {
-        return "[vm-hako/contract][branch-missing-fields]"
-      }
-      local cv = me._reg_get(regs, cond)
-      if cv != 0 { return "BR:" + ("" + then_bb) }
-      return "BR:" + ("" + else_bb)
-    }
-
-    if op == "jump" {
-      local target = me._find_int(seg, "target")
-      if target == null { return "[vm-hako/contract][jump-missing-target]" }
-      return "JMP:" + ("" + target)
-    }
-
-    local res = me._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-    if ("" + res) == "__NEXT__" {
-      return me._exec_block_insts(inst_seg, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
-    }
-    return res
+    return MirVmS0BlockRunnerBox._exec_block_insts(inst_seg, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
   }
 
   _exec_block_insts_cached(inst_objs, idx, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb) {
-    if idx >= inst_objs.length() { return "__FALLTHROUGH__" }
-
-    local seg = inst_objs.get(idx)
-    if seg == null { return "[vm-hako/contract][invalid-inst-cache-entry]" }
-
-    local op = me._find_str(seg, "op")
-
-    if op == "phi" {
-      local dst_phi = me._find_int(seg, "dst")
-      if dst_phi == null { return "[vm-hako/contract][phi-missing-dst]" }
-      local phi_src = me._phi_pick_incoming(seg, pred_bb)
-      if phi_src == null { return "[vm-hako/contract][phi-missing-incoming]" }
-      me._reg_set(regs, dst_phi, me._reg_get(regs, phi_src))
-      me._reg_kind_copy(kinds, dst_phi, phi_src)
-      MirVmS0StateOpsBox.box_len_copy(array_lens, dst_phi, phi_src)
-      MirVmS0StateOpsBox.handle_copy(handle_regs, dst_phi, phi_src)
-      MirVmS0StateOpsBox.file_box_copy(file_boxes, dst_phi, phi_src)
-      return me._exec_block_insts_cached(inst_objs, idx + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
-    }
-
-    if op == "branch" {
-      local cond = me._find_int(seg, "cond")
-      local then_bb = me._find_int(seg, "then")
-      local else_bb = me._find_int(seg, "else")
-      if cond == null || then_bb == null || else_bb == null {
-        return "[vm-hako/contract][branch-missing-fields]"
-      }
-      local cv = me._reg_get(regs, cond)
-      if cv != 0 { return "BR:" + ("" + then_bb) }
-      return "BR:" + ("" + else_bb)
-    }
-
-    if op == "jump" {
-      local target = me._find_int(seg, "target")
-      if target == null { return "[vm-hako/contract][jump-missing-target]" }
-      return "JMP:" + ("" + target)
-    }
-
-    local res = me._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-    if ("" + res) == "__NEXT__" {
-      return me._exec_block_insts_cached(inst_objs, idx + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
-    }
-    return res
+    return MirVmS0BlockRunnerBox._exec_block_insts_cached(inst_objs, idx, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
   }
 
   _build_inst_cache_rec(inst_seg, scan_pos, scan_rb, inst_objs) {
-    if scan_pos >= scan_rb { return 0 }
-    local obj_start = me._index_of_from(inst_seg, "{", scan_pos)
-    if obj_start < 0 || obj_start >= scan_rb { return 0 }
-
-    local obj_end = me._scan_obj_end(inst_seg, obj_start)
-    if obj_end == -2 { return -2 }
-    if obj_end < obj_start || obj_end > scan_rb { return -1 }
-
-    inst_objs.push(inst_seg.substring(obj_start, obj_end + 1))
-    return me._build_inst_cache_rec(inst_seg, obj_end + 1, scan_rb, inst_objs)
+    return MirVmS0BlockRunnerBox._build_inst_cache_rec(inst_seg, scan_pos, scan_rb, inst_objs)
   }
 
   _run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, block_inst_cache, current, prev_bb, steps) {
-    local current_bb = current
-    local prev_bb_local = prev_bb
-    local step_count = steps
-
-    loop (step_count < 4096) {
-      local cache_key = "" + current_bb
-      local inst_objs = MirVmS0StateOpsBox.map_get_or_null(block_inst_cache, cache_key)
-      if inst_objs == null {
-        local obj_pair = me._find_block_obj_bounds(src, blocks_lb, blocks_rb, current_bb)
-        if obj_pair == "SCAN_DEPTH" {
-          print("[vm-hako/contract][scan-depth-exceeded kind=block-obj]")
-          return 1
-        }
-        if obj_pair == "" {
-          print("[vm-hako/contract][missing-block id=" + ("" + current_bb) + "]")
-          return 1
-        }
-
-        local obj_lb = me._pair_first(obj_pair)
-        local obj_rb = me._pair_second(obj_pair)
-        if obj_lb < 0 || obj_rb <= obj_lb {
-          print("[vm-hako/contract][invalid-block-object id=" + ("" + current_bb) + "]")
-          return 1
-        }
-
-        local block_seg = src.substring(obj_lb, obj_rb + 1)
-        local inst_pair = me._find_block_insts_bounds(block_seg)
-        if inst_pair == "SCAN_DEPTH" {
-          print("[vm-hako/contract][scan-depth-exceeded kind=block-insts]")
-          return 1
-        }
-        if inst_pair == "" {
-          print("[vm-hako/contract][missing-block-instructions id=" + ("" + current_bb) + "]")
-          return 1
-        }
-
-        local inst_lb = me._pair_first(inst_pair)
-        local inst_rb = me._pair_second(inst_pair)
-        if inst_lb < 0 || inst_rb <= inst_lb {
-          print("[vm-hako/contract][invalid-block-instructions id=" + ("" + current_bb) + "]")
-          return 1
-        }
-
-        local inst_seg = block_seg.substring(inst_lb, inst_rb + 1)
-        inst_objs = new ArrayBox()
-        local cache_rc = me._build_inst_cache_rec(inst_seg, 1, inst_seg.length() - 1, inst_objs)
-        if cache_rc == -2 {
-          print("[vm-hako/contract][scan-depth-exceeded kind=obj-cache]")
-          return 1
-        }
-        if cache_rc == -1 {
-          print("[vm-hako/contract][invalid-inst-object-cache]")
-          return 1
-        }
-        block_inst_cache.set(cache_key, inst_objs)
-      }
-      local out = me._exec_block_insts_cached(inst_objs, 0, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, prev_bb_local)
-      local os = "" + out
-
-      if os == "__FALLTHROUGH__" {
-        print("[vm-hako/contract][block-without-terminator id=" + ("" + current_bb) + "]")
-        return 1
-      }
-      if os.length() > 0 && os.substring(0, 1) == "[" {
-        print(os)
-        return 1
-      }
-      local moved = 0
-      if os.length() >= 3 && os.substring(0, 3) == "BR:" {
-        prev_bb_local = current_bb
-        current_bb = me._to_i64(os.substring(3, os.length()))
-        moved = 1
-      } else {
-        if os.length() >= 4 && os.substring(0, 4) == "JMP:" {
-          prev_bb_local = current_bb
-          current_bb = me._to_i64(os.substring(4, os.length()))
-          moved = 1
-        } else {
-          return me._to_i64(out)
-        }
-      }
-      step_count = step_count + 1
-    }
-
-    print("[vm-hako/contract][max-steps-exceeded]")
-    return 1
+    return MirVmS0BlockRunnerBox._run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, block_inst_cache, current, prev_bb, steps)
   }
 
   _run_block_payload(src) {
-    local entry = me._find_int(src, "entry_block")
-    if entry == null {
-      print("[vm-hako/contract][missing-entry-block]")
-      return 1
-    }
-
-    local blocks_pair = me._find_blocks_bounds(src)
-    if blocks_pair == "SCAN_DEPTH" {
-      print("[vm-hako/contract][scan-depth-exceeded kind=blocks]")
-      return 1
-    }
-    if blocks_pair == "" {
-      print("[vm-hako/contract][missing-blocks-array]")
-      return 1
-    }
-    local blocks_lb = me._pair_first(blocks_pair)
-    local blocks_rb = me._pair_second(blocks_pair)
-    if blocks_lb < 0 || blocks_rb <= blocks_lb {
-      print("[vm-hako/contract][invalid-blocks-array]")
-      return 1
-    }
-
-    local regs = new MapBox()
-    local kinds = new MapBox()
-    local mem = new MapBox()
-    local array_lens = new MapBox()
-    local handle_regs = new MapBox()
-    local file_boxes = new MapBox()
-    local probe = me._find_block_obj_bounds(src, blocks_lb, blocks_rb, entry)
-    if probe == "" {
-      // Fallback: when block object scan is unavailable, run first instruction array linearly.
-      local p_inst = me._index_of_from(src, "\"instructions\"", blocks_lb)
-      if p_inst < 0 || p_inst > blocks_rb {
-        print("[vm-hako/contract][missing-instructions-fallback id=" + ("" + entry) + "]")
-        return 1
-      }
-      local inst_lb = me._index_of_from(src, "[", p_inst)
-      if inst_lb < 0 || inst_lb > blocks_rb {
-        print("[vm-hako/contract][missing-instructions-fallback id=" + ("" + entry) + "]")
-        return 1
-      }
-      local inst_rb = me._scan_array_end(src, inst_lb)
-      if inst_rb == -2 {
-        print("[vm-hako/contract][scan-depth-exceeded kind=instructions-fallback]")
-        return 1
-      }
-      if inst_rb <= inst_lb || inst_rb > blocks_rb {
-        print("[vm-hako/contract][missing-instructions-fallback id=" + ("" + entry) + "]")
-        return 1
-      }
-      if inst_lb < 0 || inst_rb <= inst_lb {
-        print("[vm-hako/contract][invalid-instructions-array]")
-        return 1
-      }
-      local out = me._exec_insts(src, inst_rb, inst_lb + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-      if out != null {
-        local os = "" + out
-        if os.length() > 0 && os.substring(0, 1) == "[" {
-          print(os)
-          return 1
-        }
-      }
-      return me._to_i64(out)
-    }
-    local block_inst_cache = new MapBox()
-    return me._run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, block_inst_cache, entry, null, 0)
+    return MirVmS0BlockRunnerBox._run_block_payload(src)
   }
 
   run_min(json) {
-    if json == null || json == "" {
-      print("[vm-hako/contract][missing-json]")
-      return 1
-    }
-    local src = "" + json
-
-    // S0l: structured payload from Rust runner
-    if me._index_of_from(src, "\"entry_block\"", 0) >= 0 && me._index_of_from(src, "\"blocks\"", 0) >= 0 {
-      return me._run_block_payload(src)
-    }
-
-    local lb = me._index_of_from(src, "[", 0)
-    local rb = me._scan_array_end(src, lb)
-    if rb == -2 {
-      print("[vm-hako/contract][scan-depth-exceeded kind=top-array]")
-      return 1
-    }
-    if rb <= lb {
-      print("[vm-hako/contract][invalid-instructions-array lb=" + ("" + lb) + " rb=" + ("" + rb) + "]")
-      return 1
-    }
-
-    local regs = new MapBox()
-    local kinds = new MapBox()
-    local mem = new MapBox()
-    local array_lens = new MapBox()
-    local handle_regs = new MapBox()
-    local file_boxes = new MapBox()
-    local out = me._exec_insts(src, rb, lb + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-    if out != null {
-      local os = "" + out
-      if os.length() > 0 && os.substring(0, 1) == "[" {
-        print(os)
-        return 1
-      }
-    }
-    return me._to_i64(out)
+    return MirVmS0BlockRunnerBox.run_min(json)
   }
 }

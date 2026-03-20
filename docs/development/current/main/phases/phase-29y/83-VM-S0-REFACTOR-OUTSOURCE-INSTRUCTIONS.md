@@ -77,7 +77,9 @@ Related:
    - block walk/branch/jump/phi
 3. call/externcall/boxcall の実行層を分離
    - `mir_vm_s0_exec_dispatch.hako`
-4. 最後に入口ファイルを薄くして配線整理
+4. block payload traversal / cache assembly / run orchestration を分離
+   - `mir_vm_s0_block_runner.hako`
+5. 最後に入口ファイルを薄くして配線整理
 
 ## 6. Commit Policy
 
