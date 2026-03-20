@@ -353,11 +353,7 @@ static box MirVmS0ExecDispatchBox {
       local dst = me._find_int(seg, "dst")
       local src_id = me._find_int(seg, "src")
       if dst == null || src_id == null { return "[vm-hako/contract][copy-missing-operand]" }
-      me._reg_set(regs, dst, me._reg_get(regs, src_id))
-      me._reg_kind_copy(kinds, dst, src_id)
-      MirVmS0StateOpsBox.box_len_copy(array_lens, dst, src_id)
-      MirVmS0StateOpsBox.handle_copy(handle_regs, dst, src_id)
-      MirVmS0StateOpsBox.file_box_copy(file_boxes, dst, src_id)
+      MirVmS0StateOpsBox.copy_reg_payload(regs, kinds, array_lens, handle_regs, file_boxes, dst, src_id)
       return "__NEXT__"
     }
 

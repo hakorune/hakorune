@@ -15,11 +15,7 @@ static box MirVmS0BlockRunnerBox {
     if dst_phi == null { return "[vm-hako/contract][phi-missing-dst]" }
     local phi_src = MirVmS0ArgsPhiBox._phi_pick_incoming(seg, pred_bb)
     if phi_src == null { return "[vm-hako/contract][phi-missing-incoming]" }
-    MirVmS0RegUtilsBox._reg_set(regs, dst_phi, MirVmS0RegUtilsBox._reg_get(regs, phi_src))
-    MirVmS0RegUtilsBox._reg_kind_copy(kinds, dst_phi, phi_src)
-    MirVmS0StateOpsBox.box_len_copy(array_lens, dst_phi, phi_src)
-    MirVmS0StateOpsBox.handle_copy(handle_regs, dst_phi, phi_src)
-    MirVmS0StateOpsBox.file_box_copy(file_boxes, dst_phi, phi_src)
+    MirVmS0StateOpsBox.copy_reg_payload(regs, kinds, array_lens, handle_regs, file_boxes, dst_phi, phi_src)
     return "__NEXT__"
   }
 

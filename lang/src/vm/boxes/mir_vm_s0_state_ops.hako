@@ -2,6 +2,7 @@
 // Responsibility: small state operations for array length, handle maps, and FileBox state.
 
 using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
 
 static box MirVmS0StateOpsBox {
   _missing_prefix() { return "[map/missing]" }
@@ -93,6 +94,14 @@ static box MirVmS0StateOpsBox {
     if obj != null {
       me.file_box_set(file_boxes, dst, obj)
     }
+  }
+
+  copy_reg_payload(regs, kinds, array_lens, handle_regs, file_boxes, dst, src) {
+    MirVmS0RegUtilsBox._reg_set(regs, dst, MirVmS0RegUtilsBox._reg_get(regs, src))
+    MirVmS0RegUtilsBox._reg_kind_copy(kinds, dst, src)
+    me.box_len_copy(array_lens, dst, src)
+    me.handle_copy(handle_regs, dst, src)
+    me.file_box_copy(file_boxes, dst, src)
   }
 
   filebox_token_for_newbox(box_type, dst) {

@@ -120,6 +120,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] split remaining execution helpers out of `mir_vm_s0.hako`（`mir_vm_s0_exec_dispatch.hako`）
   - [x] split block runner helpers out of `mir_vm_s0.hako`（`mir_vm_s0_block_runner.hako`）
   - [x] unify duplicated `phi` / `branch` / `jump` control-flow helpers inside `mir_vm_s0_block_runner.hako`
+  - [x] centralize register payload transfer for `phi` / `copy` in `mir_vm_s0_state_ops.hako`
   - [x] split call / externcall / newbox / ret helpers out of `mir_vm_s0_exec_dispatch.hako`（`mir_vm_s0_call_exec.hako`）
   - [x] split builtin file/string/array boxcall helpers out of `mir_vm_s0_boxcall_exec.hako`（`mir_vm_s0_boxcall_builtin.hako`）
   - [x] thin entry / module wiring（`mini_vm_s0_entry.hako` now binds directly to `MirVmS0BlockRunnerBox.run_min(...)`）
