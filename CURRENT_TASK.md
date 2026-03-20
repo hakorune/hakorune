@@ -33,14 +33,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/vm/boxes/mir_vm_s0_args_phi.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_loc.hako`
   - `lang/src/vm/boxes/mir_vm_s0_lifecycle_ops.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_call_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_codegen.hako`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
-- `mir_vm_s0.hako` is now a thin facade; the remaining VM execution logic is owned by `mir_vm_s0_exec_dispatch.hako`, `mir_vm_s0_boxcall_exec.hako`, `mir_vm_s0_codegen.hako`, and `mir_vm_s0_block_runner.hako`
+- `mir_vm_s0.hako` is now a thin facade; the remaining VM execution logic is owned by `mir_vm_s0_exec_dispatch.hako`, `mir_vm_s0_call_exec.hako`, `mir_vm_s0_boxcall_exec.hako`, `mir_vm_s0_codegen.hako`, and `mir_vm_s0_block_runner.hako`
 - next slice order:
   1. keep the `mir_vm_s0.hako` facade thin
-  2. keep `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_boxcall_exec.hako` / `mir_vm_s0_codegen.hako` / `mir_vm_s0_block_runner.hako` thin and localize any further helper spill
+  2. keep `mir_vm_s0_exec_dispatch.hako` / `mir_vm_s0_call_exec.hako` / `mir_vm_s0_boxcall_exec.hako` / `mir_vm_s0_codegen.hako` / `mir_vm_s0_block_runner.hako` thin and localize any further helper spill
   3. keep entry / module wiring green
   4. keep the VM boxcall contract and lane gates green
 
@@ -54,9 +55,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`, `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`, `lang/src/vm/boxes/mir_vm_s0_codegen.hako`, and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
+  - no mandatory Rust thin-up blocker remains; current active lane is VM `.hako` BoxShape work on `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`, `lang/src/vm/boxes/mir_vm_s0_call_exec.hako`, `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`, `lang/src/vm/boxes/mir_vm_s0_codegen.hako`, and `lang/src/vm/boxes/mir_vm_s0_block_runner.hako` (the `mir_vm_s0.hako` facade is already thin)
 - Next exact files:
   - `lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_call_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_boxcall_exec.hako`
   - `lang/src/vm/boxes/mir_vm_s0_codegen.hako`
   - `lang/src/vm/boxes/mir_vm_s0_block_runner.hako`
@@ -115,6 +117,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] responsibility inventory freeze for `mir_vm_s0.hako`
   - [x] split remaining execution helpers out of `mir_vm_s0.hako`（`mir_vm_s0_exec_dispatch.hako`）
   - [x] split block runner helpers out of `mir_vm_s0.hako`（`mir_vm_s0_block_runner.hako`）
+  - [x] split call / externcall / newbox / ret helpers out of `mir_vm_s0_exec_dispatch.hako`（`mir_vm_s0_call_exec.hako`）
   - [x] thin entry / module wiring（`mini_vm_s0_entry.hako` now binds directly to `MirVmS0BlockRunnerBox.run_min(...)`）
   - [x] remove legacy top-array recovery from `mir_vm_s0_block_runner.hako`（structured payload only; unsupported payload shapes fail fast）
   - [x] split boxcall routing out of `mir_vm_s0_exec_dispatch.hako`（`mir_vm_s0_boxcall_exec.hako`）

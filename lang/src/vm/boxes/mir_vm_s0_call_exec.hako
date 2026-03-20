@@ -1,0 +1,246 @@
+// mir_vm_s0_call_exec.hako — call/externcall/newbox/ret helpers split from mir_vm_s0_exec_dispatch
+// Responsibility: call op routing, externcall bridging, newbox allocation, and ret projection.
+// Non-goal: data op handling, boxcall routing, or block traversal orchestration.
+
+using lang.runtime.host.host_facade_box as HostFacadeBox
+using selfhost.vm.helpers.mir_s0_args_phi as MirVmS0ArgsPhiBox
+using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
+using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+
+static box MirVmS0CallExecBox {
+  _to_i64(x) {
+    return MirVmS0JsonScanBox._to_i64(x)
+  }
+
+  _index_of_from(text, needle, pos) {
+    return MirVmS0JsonScanBox._index_of_from(text, needle, pos)
+  }
+
+  _read_digits(text, pos) {
+    return MirVmS0JsonScanBox._read_digits(text, pos)
+  }
+
+  _find_int(seg, key) {
+    return MirVmS0JsonScanBox._find_int(seg, key)
+  }
+
+  _find_str(seg, key) {
+    return MirVmS0JsonScanBox._find_str(seg, key)
+  }
+
+  _args_is_empty(seg) {
+    return MirVmS0ArgsPhiBox._args_is_empty(seg)
+  }
+
+  _args_has_second(seg) {
+    return MirVmS0ArgsPhiBox._args_has_second(seg)
+  }
+
+  _args_has_third(seg) {
+    return MirVmS0ArgsPhiBox._args_has_third(seg)
+  }
+
+  _args_first(seg) {
+    return MirVmS0ArgsPhiBox._args_first(seg)
+  }
+
+  _args_second(seg) {
+    return MirVmS0ArgsPhiBox._args_second(seg)
+  }
+
+  _args_third(seg) {
+    return MirVmS0ArgsPhiBox._args_third(seg)
+  }
+
+  _reg_get(regs, id) {
+    return MirVmS0RegUtilsBox._reg_get(regs, id)
+  }
+
+  _reg_set(regs, id, value) {
+    MirVmS0RegUtilsBox._reg_set(regs, id, value)
+  }
+
+  _reg_kind_get(kinds, id) {
+    return MirVmS0RegUtilsBox._reg_kind_get(kinds, id)
+  }
+
+  _reg_kind_set(kinds, id, kind) {
+    MirVmS0RegUtilsBox._reg_kind_set(kinds, id, kind)
+  }
+
+  _call_is_env_get(seg) {
+    return MirVmS0StateOpsBox._call_is_env_get(seg)
+  }
+
+  _find_call0_const(src, func_id) {
+    local p_map = MirVmS0JsonScanBox._index_of_from(src, "\"call0_const_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + ("" + func_id) + "\""
+    local p_key = MirVmS0JsonScanBox._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
+  _find_call1_arg0(src, func_id) {
+    local p_map = MirVmS0JsonScanBox._index_of_from(src, "\"call1_arg0_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + ("" + func_id) + "\""
+    local p_key = MirVmS0JsonScanBox._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
+  _find_call2_arg1(src, func_id) {
+    local p_map = MirVmS0JsonScanBox._index_of_from(src, "\"call2_arg1_map\"", 0)
+    if p_map < 0 { return null }
+    local key = "\"" + ("" + func_id) + "\""
+    local p_key = MirVmS0JsonScanBox._index_of_from(src, key, p_map)
+    if p_key < 0 { return null }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(src, ":", p_key + key.length())
+    if p_colon < 0 { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(src, p_colon + 1)
+    if ds == "" || ds == "-" { return null }
+    return MirVmS0JsonScanBox._to_i64(ds)
+  }
+
+  _exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src) {
+    if op == "call" {
+      local dst = me._find_int(seg, "dst")
+      local func_id = me._find_int(seg, "func")
+      if dst == null || func_id == null { return "[vm-hako/contract][call-missing-fields]" }
+      if me._args_is_empty(seg) {
+        local out0 = me._find_call0_const(src, func_id)
+        if out0 == null { return "[vm-hako/unimplemented op=call func=" + ("" + func_id) + "]" }
+        MirVmS0RegUtilsBox._reg_set(regs, dst, out0)
+        MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar")
+        return "__NEXT__"
+      }
+      if me._args_has_second(seg) {
+        if me._args_has_third(seg) { return "[vm-hako/unimplemented op=call args>2]" }
+        local arg1 = me._args_second(seg)
+        if arg1 == null { return "[vm-hako/contract][call-arg1-missing]" }
+        local call2 = me._find_call2_arg1(src, func_id)
+        if call2 == null { return "[vm-hako/unimplemented op=call2 func=" + ("" + func_id) + "]" }
+        MirVmS0RegUtilsBox._reg_set(regs, dst, MirVmS0RegUtilsBox._reg_get(regs, arg1))
+        MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar")
+        return "__NEXT__"
+      }
+      local arg0 = me._args_first(seg)
+      if arg0 == null { return "[vm-hako/contract][call-arg0-missing]" }
+      if me._call_is_env_get(seg) {
+        local key_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0)
+        if key_text == null { return "[vm-hako/contract][call-env.get-key-handle-missing]" }
+        local env_val = HostFacadeBox.call("runtime", "env.get", key_text)
+        if env_val == null {
+          MirVmS0RegUtilsBox._reg_set(regs, dst, 0)
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar")
+        } else {
+          MirVmS0RegUtilsBox._reg_set(regs, dst, 0)
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "handle")
+          MirVmS0StateOpsBox.handle_set(handle_regs, dst, env_val)
+        }
+        return "__NEXT__"
+      }
+      local call1 = me._find_call1_arg0(src, func_id)
+      if call1 == null { return "[vm-hako/unimplemented op=call1 func=" + ("" + func_id) + "]" }
+      MirVmS0RegUtilsBox._reg_set(regs, dst, MirVmS0RegUtilsBox._reg_get(regs, arg0))
+      MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar")
+      return "__NEXT__"
+    }
+
+    if op == "externcall" {
+      local func = me._find_str(seg, "func")
+      if func == "nyash.console.log" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall args>1]" }
+        local arg0 = me._args_first(seg)
+        if arg0 == null { return "[vm-hako/contract][externcall-arg0-missing]" }
+        if MirVmS0RegUtilsBox._reg_kind_get(kinds, arg0) == "handle" {
+          local out_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0)
+          if out_text == null { return "[vm-hako/contract][externcall-print-handle-missing]" }
+          HostFacadeBox.call("runtime", "console.log", out_text)
+        } else {
+          HostFacadeBox.call("runtime", "console.log", MirVmS0RegUtilsBox._reg_get(regs, arg0))
+        }
+        return "__NEXT__"
+      }
+      if func == "env.get" || func == "env.get/1" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(env.get) args>1]" }
+        local key_reg = me._args_first(seg)
+        if key_reg == null { return "[vm-hako/contract][externcall-env.get-arg0-missing]" }
+        local key_text = MirVmS0StateOpsBox.handle_get(handle_regs, key_reg)
+        if key_text == null { return "[vm-hako/contract][externcall-env.get-key-handle-missing]" }
+        local env_val = HostFacadeBox.call("runtime", "env.get", key_text)
+        local dst_env = me._find_int(seg, "dst")
+        if dst_env != null {
+          if env_val == null {
+            MirVmS0RegUtilsBox._reg_set(regs, dst_env, 0)
+            MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_env, "scalar")
+          } else {
+            MirVmS0RegUtilsBox._reg_set(regs, dst_env, 0)
+            MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_env, "handle")
+            MirVmS0StateOpsBox.handle_set(handle_regs, dst_env, env_val)
+          }
+        }
+        return "__NEXT__"
+      }
+      if func == "env.mirbuilder_emit" || func == "env.mirbuilder_emit/1" || func == "env.mirbuilder.emit" || func == "env.mirbuilder.emit/1" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(env.mirbuilder.emit) args>1]" }
+        local input_reg = me._args_first(seg)
+        if input_reg == null { return "[vm-hako/contract][externcall-env.mirbuilder.emit-arg0-missing]" }
+        local input_payload = null
+        if MirVmS0RegUtilsBox._reg_kind_get(kinds, input_reg) == "handle" {
+          input_payload = MirVmS0StateOpsBox.handle_get(handle_regs, input_reg)
+          if input_payload == null {
+            return "[vm-hako/contract][externcall-env.mirbuilder.emit-arg0-handle-missing]"
+          }
+        } else {
+          input_payload = MirVmS0RegUtilsBox._reg_get(regs, input_reg)
+        }
+        local emit_out = HostFacadeBox.call("loader", "mirbuilder.emit", input_payload)
+        local dst_emit = me._find_int(seg, "dst")
+        if dst_emit != null {
+          if emit_out == null {
+            MirVmS0RegUtilsBox._reg_set(regs, dst_emit, 0)
+            MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_emit, "scalar")
+          } else {
+            MirVmS0RegUtilsBox._reg_set(regs, dst_emit, 0)
+            MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_emit, "handle")
+            MirVmS0StateOpsBox.handle_set(handle_regs, dst_emit, emit_out)
+          }
+        }
+        return "__NEXT__"
+      }
+      return "[vm-hako/unimplemented op=externcall func=" + func + "]"
+    }
+
+    if op == "newbox" {
+      local dst = me._find_int(seg, "dst")
+      if dst != null {
+        local box_type = me._find_str(seg, "type")
+        MirVmS0RegUtilsBox._reg_set(regs, dst, MirVmS0StateOpsBox.filebox_token_for_newbox(box_type, dst))
+        MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "box")
+        if box_type == "ArrayBox" {
+          MirVmS0StateOpsBox.box_len_set(array_lens, dst, 0)
+        }
+      }
+      return "__NEXT__"
+    }
+
+    if op == "ret" {
+      local rid = me._find_int(seg, "value")
+      if rid == null { return "[vm-hako/contract][ret-missing-value]" }
+      return MirVmS0RegUtilsBox._reg_get(regs, rid)
+    }
+
+    return ""
+  }
+}

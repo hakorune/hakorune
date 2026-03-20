@@ -18,6 +18,7 @@ Related:
 - `lang/src/vm/boxes/mir_vm_s0.hako` の責務混在を解消し、導線を薄くする。
 - `mir_vm_s0.hako` は facade-only を目標にし、const lookup helpers のような局所ロジックは helper box 側へ寄せる。
 - boxcall method routing は `mir_vm_s0_boxcall_exec.hako` に寄せ、`mir_vm_s0_exec_dispatch.hako` は data/call/block glue を中心に保つ。
+- call / externcall / newbox / ret helpers は `mir_vm_s0_call_exec.hako` に寄せ、`mir_vm_s0_exec_dispatch.hako` は data/block glue を中心に保つ。
 - LlvmBackendBox compile/link の apply helpers は `mir_vm_s0_codegen.hako` に寄せ、`mir_vm_s0_boxcall_exec.hako` は file/string/misc routing を中心に保つ。
 - 機能追加ではなく、**挙動不変の構造改善**だけを行う。
 - `.hako VM` の現在契約（RVP-C14 ported / C15 blocked）を壊さない。
@@ -106,6 +107,7 @@ Related:
 
 - `mir_vm_s0.hako` が facade-only になっている
 - const lookup helpers が `mir_vm_s0_exec_dispatch.hako` 側へ寄っている
+- call/externcall/newbox/ret helpers が `mir_vm_s0_call_exec.hako` 側へ寄っている
 - boxcall routing が `mir_vm_s0_boxcall_exec.hako` 側へ寄っている
 - compile/link apply helpers が `mir_vm_s0_codegen.hako` 側へ寄っている
 - `mini_vm_s0_entry.hako` が薄い entry wrapper になっている
