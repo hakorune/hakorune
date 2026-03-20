@@ -457,7 +457,10 @@ static box MirVmS0BoxcallBuiltinBox {
       if arg0_kind_get == "handle" {
         return me.apply_map_get(box_key_get, get_arg0, dst_get, regs, kinds, array_lens, handle_regs)
       }
-      return me.apply_get(box_key_get, get_arg0, dst_get, regs, kinds, array_lens)
+      regs.set("" + dst_get, "0")
+      kinds.set("" + dst_get, "handle")
+      MirVmS0StateOpsBox.handle_set(handle_regs, dst_get, "[map/bad-key] key must be string")
+      return "__NEXT__"
     }
 
     if method == "has" {

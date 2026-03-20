@@ -1,0 +1,11 @@
+// RVP-C25 ported fixture
+// Contract:
+// - vm-hako route returns stable `[map/bad-key] key must be string` text for `MapBox.get(non-string key)`.
+
+static box Main {
+  main() {
+    local m = new MapBox()
+    print(m.get(123))
+    return 0
+  }
+}
