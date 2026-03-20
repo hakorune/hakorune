@@ -70,8 +70,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` `mir_vm_s0.hako` is facade-only and helper ownership is localized
   - `[x]` `phase29y_vm_hako_caps_gate_vm.sh` / `phase29y_no_compat_mainline_vm.sh` / `phase29y_lane_gate_vm.sh` are green
   - `[ ]` keep `string` lane at stop line unless a new exact blocker appears
-  - `[ ]` re-run `array` promotion-trigger inventory before opening a dedicated kernel/array slice
-  - `[ ]` keep `numeric` deferred until a credible next narrow op appears
+  - `[x]` re-ran `array` promotion-trigger inventory; no dedicated `kernel/array` slice is justified yet
+  - `[x]` re-ran `numeric` inventory; no credible next narrow op is justified
+  - `[x]` keep `map` as ring1 keep / defer
 - Stop condition:
   - kernel migration stays within the fixed order in `phase-29cm`
   - no widening happens in `string` unless a new exact blocker appears
@@ -102,8 +103,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - immediate: `kernel-mainline` fixed order（`phase-29cm`）
 - first: `string` lane is already at the stop line; do not widen unless a new exact blocker appears
-- second: inventory `array` against the promotion trigger before opening any new `kernel/array` owner slice
-- third: keep `numeric` / `map` deferred exactly as `phase-29cm` says unless a new blocker justifies reopening
+- second: `array` promotion-trigger inventory is rechecked and still unfired; do not open `kernel/array` without a new exact blocker
+- third: `numeric` / `map` stay deferred exactly as `phase-29cm` says unless a new blocker justifies reopening
+- handoff: if no new kernel blocker appears, stop the lane here and move to queued backend-zero order
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: backend-zero compat-polish / exe optimization stay behind the kernel stop line
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
@@ -140,9 +142,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - [x] `docs/development/current/main/phases/phase-29cp/README.md`
 - [x] kernel migration is at the stop line
   - [x] `string` lane stopped at helper extraction; no widening unless a new exact blocker appears
-  - [ ] `array` promotion trigger pending
-  - [ ] `numeric` deferred
-  - [ ] `map` deferred
+  - [x] `array` promotion trigger rechecked and still unfired
+  - [x] `numeric` inventory rechecked; still deferred
+  - [x] `map` still ring1 keep / defer
 - [ ] backend-zero closeout docs only
   - [ ] `phase-29cl` compat/archive closeout
 
@@ -212,7 +214,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - no-fallback: `NYASH_VM_USE_FALLBACK=0`（silent fallback 禁止 / fail-fast）。
 - compiler lane は `phase-29bq` を monitor-only 運用（failure-driven reopen のみ）。
 
-## Kernel Migration First (2026-03-19)
+## Kernel Migration First (2026-03-20)
 
 - current main goal:
   - kernel authority migration を先に終わらせてから exe optimization に進む
@@ -225,13 +227,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
        - `string.search` v0 は landed 済み。これ以上の widening は新しい exact blocker が出るまで pause
     2. `array`
        - collections ring1 を first owner に保ち、`lang/src/runtime/kernel/array/` への promotion は trigger-based
-       - latest inventory (2026-03-19): no next code slice; wrapper/state/helper split is already thin enough, so keep defer until promotion trigger appears
+       - latest inventory (2026-03-20): no next code slice; `array_core_box.hako` / `array_state_core_box.hako` are still ring1-thin, so keep defer until the promotion trigger appears
     3. `numeric`
        - `MatI64.mul_naive` landed 済み。array が落ち着いたら次の narrow op を切る
-       - latest inventory (2026-03-19): no credible next narrow op; keep thin wrapper and stop here
+       - latest inventory (2026-03-20): no credible next narrow op; keep thin wrapper and stop here
     4. `map`
        - collections ring1 に残し、kernel lane には入れない
-       - latest inventory (2026-03-19): still defer / no kernel migration slice
+       - latest inventory (2026-03-20): still defer / no kernel migration slice
   - perf / asm optimization はこの順番を固定してから follow-up に回す
 
 ## Backend-Zero Next (queued)

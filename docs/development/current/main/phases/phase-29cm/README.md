@@ -1,7 +1,7 @@
 ---
 Status: Active
 Decision: provisional
-Date: 2026-03-19
+Date: 2026-03-20
 Scope: `kernel-mainline`（`.hako` kernel）authority migration の fixed order と promotion trigger を 1 枚で固定する（中途半端な境界いじりを止める）。
 Related:
   - CURRENT_TASK.md
@@ -54,23 +54,31 @@ Related:
 
 - [x] `string` lane reached the stop line
   - further widening is paused until a new exact blocker appears
-- [ ] `array` promotion trigger not yet fired
-- [ ] `numeric` remains deferred until a new narrow op is justified
-- [ ] `map` remains ring1 keep / defer
+- [x] `array` promotion trigger was rechecked and is still not fired
+- [x] `numeric` inventory was rechecked and no new narrow op is justified
+- [x] `map` remains ring1 keep / defer
 
-## Latest Inventory (2026-03-19)
+## Latest Inventory (2026-03-20)
 
 - `array`
   - `lang/src/runtime/collections/array_core_box.hako` / `array_state_core_box.hako` / `crates/nyash_kernel/src/plugin/array*.rs` are already split at the natural seams.
+  - `array_core_box.hako` still reads as ring1 adapter-on orchestration over ABI/state helpers, not as a dedicated kernel policy owner.
+  - `array_state_core_box.hako` still owns only state/value bookkeeping and does not justify a separate `lang/src/runtime/kernel/array/` owner.
   - no new dedicated `lang/src/runtime/kernel/array/` slice is justified yet.
   - keep defer until the promotion trigger is genuinely hit.
 - `numeric`
   - `lang/src/runtime/kernel/numeric/matrix_i64.hako` plus `lang/src/runtime/numeric/{mat_i64_box.hako,intarray_core_box.hako}` are already thin enough.
+  - `MatI64.mul_naive` remains the only credible kernel pilot; no second narrow op is justified by the current inventory.
   - no credible next narrow op was found in the inventory.
   - stop here until a new exact blocker appears.
 - `map`
   - still ring1 keep / defer.
   - not part of the current kernel migration slice.
+
+## Current Reading
+
+- kernel lane is in stop-line maintenance, not active widening.
+- if no new exact blocker appears in `string` / `array` / `numeric`, stop here and hand off to the queued backend-zero order.
 
 ## Buildability Lock
 
