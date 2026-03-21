@@ -68,6 +68,7 @@ Related:
 - [ ] `map` owner cutover follows `array`
   - first slice landed: `MapCoreBox` is now the single visible owner frontier for handler-side `MapBox.{set,get,has,size/len/length}` routing and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
   - second slice landed: Rust `map` helper ownership is split into raw `slot_load` / `slot_store` / `probe` modules while legacy `nyash.map.{get,set,has}_*` exports remain thin wrappers
+  - third slice landed: `map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing and `mir_vm_s0_boxcall_builtin.hako` only delegates
   - adjacent lane C blocker sweep is now fully ported through `RVP-C28`; no current `.hako VM` blocker remains for MapBox bad-key field routes
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
   - first slice landed: `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`
@@ -85,6 +86,7 @@ Related:
 - `map`
   - `map_core_box.hako` already owns key normalization plus method-shaped aliases/orchestration.
   - first owner-lock slice is to keep `mir_call_v1_handler.hako` orchestration-only and route MapBox visible semantics through `MapCoreBox.try_handle(...)`.
+  - `map_state_core_box.hako` is now the vm-hako-visible stateful helper frontier for `set/get/has/getField/setField/delete/keys/clear`.
   - `MapBox` follows `array`; do not treat it as forever-defer just because it lives under `collections/`.
   - Rust `map` plugin/helpers should end at raw hash-table substrate, not method-shaped semantics.
 - `runtime_data`

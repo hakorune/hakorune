@@ -1,0 +1,222 @@
+// MapStateCoreBox — stateful MapBox helper owner for collections ring1.
+// Responsibility:
+// - own vm-hako-visible MapBox state/value bookkeeping for set/get/has/delete/keys/clear
+// - keep key normalization and visible bad-key/missing-key contract out of vm builtin routing
+// Non-responsibility:
+// - ABI exports
+// - observer size/len fast path
+// - kernel promotion
+
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+
+static box MapStateCoreBox {
+  _starts_with(text, prefix) {
+    if text == null || prefix == null { return 0 }
+    local t = "" + text
+    local p = "" + prefix
+    if t.length() < p.length() { return 0 }
+    if t.substring(0, p.length()) == p { return 1 }
+    return 0
+  }
+
+  _norm_key_text(raw) {
+    if raw == null { return null }
+    local out = "" + raw
+    local len = out.length()
+    if len >= 2 {
+      local first = out.substring(0, 1)
+      local last = out.substring(len - 1, len)
+      if first == "\"" && last == "\"" {
+        out = out.substring(1, len - 1)
+      }
+    }
+    return out
+  }
+
+  _presence_key(box_id, key_text) {
+    return "mk:" + box_id + ":" + key_text
+  }
+
+  _value_kind_key(box_id, key_text) {
+    return "mkind:" + box_id + ":" + key_text
+  }
+
+  _value_raw_key(box_id, key_text) {
+    return "mval:" + box_id + ":" + key_text
+  }
+
+  _write_bad_key_handle(regs, kinds, handle_regs, dst_box, message) {
+    if dst_box != null {
+      regs.set("" + dst_box, "0")
+      kinds.set("" + dst_box, "handle")
+      MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, message)
+    }
+    return "__NEXT__"
+  }
+
+  _map_key_text_or_contract(key_reg, handle_regs, missing_tag) {
+    if key_reg == null { return missing_tag }
+    local key_text_raw = MirVmS0StateOpsBox.handle_get(handle_regs, key_reg)
+    if key_text_raw == null { return missing_tag }
+    local key_text = me._norm_key_text(key_text_raw)
+    if key_text == null { return missing_tag }
+    return key_text
+  }
+
+  apply_set(box_key, key_reg, value_reg, dst_box, bad_key_message, regs, kinds, array_lens, handle_regs) {
+    if key_reg == null || value_reg == null { return "[vm-hako/contract][boxcall-set-arg-missing]" }
+    local arg0_kind = kinds.get("" + key_reg)
+    if arg0_kind != "handle" {
+      return me._write_bad_key_handle(regs, kinds, handle_regs, dst_box, bad_key_message)
+    }
+    local key_text = me._map_key_text_or_contract(key_reg, handle_regs, "[vm-hako/contract][boxcall-set-key-handle-missing]")
+    if me._starts_with(key_text, "[vm-hako/contract]") == 1 { return key_text }
+    local pres_key = me._presence_key(box_key, key_text)
+    local kind_key = me._value_kind_key(box_key, key_text)
+    local raw_key = me._value_raw_key(box_key, key_text)
+    local had = MirVmS0StateOpsBox.map_get_or_null(array_lens, pres_key)
+    if had == null {
+      local cur_len = MirVmS0StateOpsBox.box_len_get(array_lens, box_key)
+      MirVmS0StateOpsBox.box_len_set(array_lens, box_key, cur_len + 1)
+      array_lens.set(pres_key, "1")
+    }
+    local value_kind = kinds.get("" + value_reg)
+    if value_kind == "handle" {
+      local value_text = MirVmS0StateOpsBox.handle_get(handle_regs, value_reg)
+      if value_text == null { return "[vm-hako/contract][boxcall-set-value-handle-missing]" }
+      array_lens.set(kind_key, "handle")
+      array_lens.set(raw_key, "" + value_text)
+    } else {
+      local value_raw = regs.get("" + value_reg)
+      if value_raw == null { value_raw = "0" }
+      array_lens.set(kind_key, "scalar")
+      array_lens.set(raw_key, "" + value_raw)
+    }
+    if dst_box != null {
+      regs.set("" + dst_box, "0")
+      kinds.set("" + dst_box, "scalar")
+    }
+    return "__NEXT__"
+  }
+
+  apply_get(box_key, key_reg, dst_box, bad_key_message, regs, kinds, array_lens, handle_regs) {
+    if key_reg == null { return "[vm-hako/contract][boxcall-get-arg0-missing]" }
+    local arg0_kind = kinds.get("" + key_reg)
+    if arg0_kind != "handle" {
+      return me._write_bad_key_handle(regs, kinds, handle_regs, dst_box, bad_key_message)
+    }
+    local key_text = me._map_key_text_or_contract(key_reg, handle_regs, "[vm-hako/contract][boxcall-get-key-handle-missing]")
+    if me._starts_with(key_text, "[vm-hako/contract]") == 1 { return key_text }
+    local kind_key = me._value_kind_key(box_key, key_text)
+    local raw_key = me._value_raw_key(box_key, key_text)
+    local value_kind = MirVmS0StateOpsBox.map_get_or_null(array_lens, kind_key)
+    local value_raw = MirVmS0StateOpsBox.map_get_or_null(array_lens, raw_key)
+    if value_kind == "handle" && value_raw != null {
+      regs.set("" + dst_box, "0")
+      kinds.set("" + dst_box, "handle")
+      MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, value_raw)
+      return "__NEXT__"
+    }
+    if value_raw != null {
+      regs.set("" + dst_box, "" + value_raw)
+      kinds.set("" + dst_box, "scalar")
+      return "__NEXT__"
+    }
+    regs.set("" + dst_box, "0")
+    kinds.set("" + dst_box, "handle")
+    MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "[map/missing] Key not found: " + key_text)
+    return "__NEXT__"
+  }
+
+  apply_has(box_key, key_reg, dst_box, bad_key_tag, regs, kinds, array_lens, handle_regs) {
+    if key_reg == null { return "[vm-hako/contract][boxcall-has-arg0-missing]" }
+    local arg0_kind = kinds.get("" + key_reg)
+    if arg0_kind != "handle" { return bad_key_tag }
+    local key_text = me._map_key_text_or_contract(key_reg, handle_regs, "[vm-hako/contract][boxcall-has-key-handle-missing]")
+    if me._starts_with(key_text, "[vm-hako/contract]") == 1 { return key_text }
+    local pres_key = me._presence_key(box_key, key_text)
+    local had = MirVmS0StateOpsBox.map_get_or_null(array_lens, pres_key)
+    local out = 0
+    if had != null { out = 1 }
+    regs.set("" + dst_box, "" + out)
+    kinds.set("" + dst_box, "bool")
+    return "__NEXT__"
+  }
+
+  apply_delete(box_key, key_reg, dst_box, bad_key_message, regs, kinds, array_lens, handle_regs) {
+    if key_reg == null { return "[vm-hako/contract][boxcall-delete-arg0-missing]" }
+    local arg0_kind = kinds.get("" + key_reg)
+    if arg0_kind != "handle" {
+      return me._write_bad_key_handle(regs, kinds, handle_regs, dst_box, bad_key_message)
+    }
+    local key_text = me._map_key_text_or_contract(key_reg, handle_regs, "[vm-hako/contract][boxcall-delete-key-handle-missing]")
+    if me._starts_with(key_text, "[vm-hako/contract]") == 1 { return key_text }
+    local pres_key = me._presence_key(box_key, key_text)
+    local kind_key = me._value_kind_key(box_key, key_text)
+    local raw_key = me._value_raw_key(box_key, key_text)
+    local had = MirVmS0StateOpsBox.map_get_or_null(array_lens, pres_key)
+    if had == null {
+      if dst_box != null {
+        regs.set("" + dst_box, "0")
+        kinds.set("" + dst_box, "handle")
+        MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "Key not found: " + key_text)
+      }
+      return "__NEXT__"
+    }
+
+    local value_kind = MirVmS0StateOpsBox.map_get_or_null(array_lens, kind_key)
+    local value_raw = MirVmS0StateOpsBox.map_get_or_null(array_lens, raw_key)
+    if dst_box != null {
+      if value_kind == "handle" && value_raw != null {
+        regs.set("" + dst_box, "0")
+        kinds.set("" + dst_box, "handle")
+        MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, value_raw)
+      } else {
+        if value_raw == null { value_raw = "0" }
+        regs.set("" + dst_box, "" + value_raw)
+        kinds.set("" + dst_box, "scalar")
+      }
+    }
+
+    array_lens.set(pres_key, null)
+    array_lens.set(kind_key, null)
+    array_lens.set(raw_key, null)
+    local cur_len = MirVmS0StateOpsBox.box_len_get(array_lens, box_key)
+    if cur_len > 0 {
+      MirVmS0StateOpsBox.box_len_set(array_lens, box_key, cur_len - 1)
+    }
+    return "__NEXT__"
+  }
+
+  apply_keys(box_key, dst_box, regs, kinds, array_lens) {
+    if dst_box == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+    regs.set("" + dst_box, "" + dst_box)
+    kinds.set("" + dst_box, "box")
+    MirVmS0StateOpsBox.box_len_set(array_lens, dst_box, MirVmS0StateOpsBox.box_len_get(array_lens, box_key))
+    return "__NEXT__"
+  }
+
+  apply_clear(box_key, dst_box, regs, kinds, array_lens) {
+    local pres_prefix = "mk:" + box_key + ":"
+    local kind_prefix = "mkind:" + box_key + ":"
+    local raw_prefix = "mval:" + box_key + ":"
+    local keys = array_lens.keys()
+    if keys != null {
+      local i = 0
+      local n = keys.length()
+      loop(i < n) {
+        local key = "" + keys.get(i)
+        if me._starts_with(key, pres_prefix) == 1 || me._starts_with(key, kind_prefix) == 1 || me._starts_with(key, raw_prefix) == 1 {
+          array_lens.set(key, null)
+        }
+        i = i + 1
+      }
+    }
+    MirVmS0StateOpsBox.box_len_set(array_lens, box_key, 0)
+    if dst_box != null {
+      regs.set("" + dst_box, "0")
+      kinds.set("" + dst_box, "scalar")
+    }
+    return "__NEXT__"
+  }
+}

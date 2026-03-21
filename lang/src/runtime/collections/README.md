@@ -58,6 +58,10 @@ Rule:
     - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
     - `crates/nyash_kernel/src/plugin/map_probe.rs`
     - legacy `nyash.map.{get,set,has}_*` exports stay as thin compatibility shells above those raw verbs
+- `map_state_core_box.hako`
+  - `apply_set/get/has/getField/setField/delete/keys/clear(...)`
+    -> vm-hako-visible MapBox stateful routing for collections ring1
+  - keeps key normalization, visible missing/bad-key contract, and state bookkeeping out of `mir_vm_s0_boxcall_builtin.hako`
 - `string_core_box.hako`
   - `len_i64(handle)` -> `nyash.string.len_h`
   - `try_handle(seg, regs, mname)`

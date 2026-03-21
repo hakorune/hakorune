@@ -164,6 +164,10 @@ Current second slice:
 - `crates/nyash_kernel/src/plugin/map_probe.rs`
 - legacy `nyash.map.{get,set,has}_*` exports stay as thin compatibility wrappers while raw `slot_load` / `slot_store` / `probe` verbs become the structural owner
 
+Current third slice:
+- `lang/src/runtime/collections/map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing
+- `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako` only delegates those method-shaped routes instead of owning inline map state semantics
+
 ### R1. Cleanup RuntimeData
 
 Owner:

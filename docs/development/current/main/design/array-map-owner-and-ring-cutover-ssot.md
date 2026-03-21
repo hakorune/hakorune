@@ -177,6 +177,7 @@ Short rule:
    - `ArrayCoreBox` / `array_state_core_box.hako` が user-visible semantics を持ち、Rust `array` plugin は raw substrate へ後退する
 3. `map` の visible/mainline owner を `.hako ring1` collection core へ寄せる
    - `MapCoreBox` が user-visible semantics を持ち、Rust `map` plugin は raw substrate へ後退する
+   - current vm-hako-visible stateful methods now live in `lang/src/runtime/collections/map_state_core_box.hako`, not inline in `mir_vm_s0_boxcall_builtin.hako`
 4. `runtime_data` を protocol / facade に retarget する
    - `RuntimeDataCoreBox` は route/dynamic dispatch owner に留め、array/map semantics owner にはしない
    - current first slice: `crates/nyash_kernel/src/plugin/runtime_data.rs` is already a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`

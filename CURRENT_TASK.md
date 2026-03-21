@@ -56,7 +56,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no backend route blocker remains; the active lane is collection owner cutover, and the current exact step is now `runtime_data` facade cleanup after the `map` raw substrate split
+  - no backend route blocker remains; the active lane is collection owner cutover, and the current exact step is now stop-line closeout after `map` stateful vm routing moved into collections ring1
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
@@ -65,7 +65,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
   - factor `filter_noise || true` handling into a shared smoke helper instead of per-smoke local glue
-  - revisit `mir_vm_s0_boxcall_builtin.hako` `set/get/has/delete/keys/clear` routing once `MapBox` semantics are fully owner-local
   - smoke hygiene: `tools/smokes/v2/profiles/integration/apps/*.sh` is now dense enough that new scripts should be added only for `1 blocker = 1 pin`; after each lane reaches stop line, fold day-to-day execution back to gate packs and inventory scripts instead of keeping every pin in the daily read path
   - smoke hygiene: keep `tools/checks/dev_gate.sh` / lane gate packs as the daily entry, and treat single-purpose app smokes as evidence pins or blocker probes
   - smoke hygiene: use `tools/checks/smoke_inventory_report.sh` at milestones instead of ad-hoc manual pruning
@@ -75,11 +74,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-lane-map-ssot.md`
   - `lang/src/runtime/collections/README.md`
+  - `lang/src/runtime/collections/map_core_box.hako`
+  - `lang/src/runtime/collections/map_state_core_box.hako`
   - `lang/src/runtime/collections/runtime_data_core_box.hako`
+  - `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako`
   - `lang/src/vm/boxes/mir_call_v1_handler.hako`
-  - `crates/nyash_kernel/src/plugin/runtime_data.rs`
-  - `crates/nyash_kernel/src/plugin/runtime_data_array_route.rs`
-  - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -94,6 +93,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
   - `[x]` M1 first slice landed: `MapCoreBox` is the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}` and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
   - `[x]` M1 second slice landed: Rust `map` helper ownership is split into raw `slot_load` / `slot_store` / `probe` modules while legacy `nyash.map.{get,set,has}_*` exports remain thin compatibility wrappers
+  - `[x]` M1 third slice landed: `map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing and `mir_vm_s0_boxcall_builtin.hako` only delegates
   - `[x]` R1 first slice landed: `runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`, while `RuntimeDataBox` remains protocol/facade-only and keeps the same `nyash.runtime_data.*` export contract
   - `[x]` R1 second slice landed: `runtime_data_core_box.hako` now owns its own arg-decode/ABI-dispatch helpers and `mir_call_v1_handler.hako` treats `RuntimeDataBox` as a single delegated branch
   - `[x]` RVP-C16 first vm-hako blocker is closed: `newbox(MapBox)` is accepted in subset-check and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`
@@ -157,9 +157,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
-- first: continue collection owner cutover after lane C parked; the current exact code slice is `runtime_data` facade cleanup
+- first: continue collection owner cutover stop-line closeout after the landed `map_state_core_box.hako` / `runtime_data` helper splits
 - second: keep `RuntimeDataBox` as protocol / facade only while `runtime_data_core_box.hako` stays a thin delegated bridge
-- third: only reopen deeper runtime-data cleanup if `runtime_data_core_box.hako` or `mir_call_v1_handler.hako` starts carrying collection semantics again after this second slice
+- third: reopen only if a new exact collection seam appears after the current stop-line inventory
 - note: this is a `.hako VM` capability blocker, not a Rust VM blocker
 - parked: exe optimization wave stays paused until the collection owner boundary is fixed
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
