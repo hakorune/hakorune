@@ -72,6 +72,8 @@ Current seeded suites:
 - `integration/selfhost-core`
 - `integration/joinir-bq`
 
+Smoke split work is parked while the kernel migration lane resumes; the suite list below remains the future-facing organization map for any later smoke wave.
+
 ## Discovery fallback contract
 
 - `tools/smokes/v2/run.sh` auto-discovers `*.sh` under `profiles/$PROFILE`.
@@ -199,9 +201,8 @@ First live split already landed:
 - `tools/smokes/v2/profiles/integration/phase21_5/perf/apps/emit_mir_jsonfile_route/`
 - `tools/smokes/v2/profiles/integration/phase21_5/perf/apps/startup_subtract/`
 
-Recommended next semantic groups:
+Recommended next semantic groups for a future smoke wave:
 
-- `phase29x/derust`
 - `phase29x/observability`
 - `phase29x/optimization`
 - `phase29x/runtime`

@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/vm_route_pin.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/vm_route_pin.sh"
 require_env || exit 2
 
 VM_INPUT="$NYASH_ROOT/apps/tests/phase285_leak_report.hako"

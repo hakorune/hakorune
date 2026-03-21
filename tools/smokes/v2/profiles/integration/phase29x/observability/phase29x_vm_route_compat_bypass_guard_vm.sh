@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 if ! bash "$NYASH_ROOT/tools/checks/vm_route_bypass_guard.sh"; then

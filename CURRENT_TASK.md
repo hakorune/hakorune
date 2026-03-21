@@ -58,8 +58,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - Current blocker:
   - `dev_gate portability` is green again; the `phase21_5_perf_kilo_text_concat_contract_vm.sh` residual route slice is closed after `ArrayBox` string-element propagation + boxcall set-route alignment, so the last blocker is no longer the `nyash.any.length_h` route
   - the macOS portability helper move remains committed and green; `src/host_providers/llvm_codegen.rs` still centralizes FFI library candidate resolution, and `tools/checks/macos_portability_guard.sh` remains green
-  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, the first twenty-seven semantic splits have landed, `phase29ck_boundary` now lives under `integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` now lives under `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, the first eight `phase29cc_wsm` splits (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, and `p8`) now live under `integration/phase29cc_wsm/{g3_canvas,g2_browser,g4,p10,p5,p6,p7,p8}/`, `phase29cc/plg_hm1` now lives under `integration/phase29cc/plg_hm1/`, `phase29x/vm_hako` now lives under `integration/phase29x/vm_hako/`, `phase29y/hako/emit_mir` now lives under `integration/phase29y/hako/emit_mir/`, `phase21_5/perf/{chip8,kilo}` now live under `integration/phase21_5/perf/{chip8,kilo}/`, and `phase21_5/perf/numeric` now lives under `integration/phase21_5/perf/numeric/`
-  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, `phase29ck_boundary`, `vm_hako_caps`, the first eight `phase29cc_wsm` subfamilies (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, `p8`), `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` have been split into semantic subtrees, and the bundle root should no longer receive new live `phase21_5/perf/apps` scripts
+  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, the first twenty-nine semantic splits have landed, `phase29ck_boundary` now lives under `integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` now lives under `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, the first eight `phase29cc_wsm` splits (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, and `p8`) now live under `integration/phase29cc_wsm/{g3_canvas,g2_browser,g4,p10,p5,p6,p7,p8}/`, `phase29cc/plg_hm1` now lives under `integration/phase29cc/plg_hm1/`, `phase29x/vm_hako` now lives under `integration/phase29x/vm_hako/`, `phase29x/derust` now lives under `integration/phase29x/derust/`, `phase29x/observability` now lives under `integration/phase29x/observability/`, `phase29y/hako/emit_mir` now lives under `integration/phase29y/hako/emit_mir/`, `phase21_5/perf/{chip8,kilo}` now live under `integration/phase21_5/perf/{chip8,kilo}/`, and `phase21_5/perf/numeric` now lives under `integration/phase21_5/perf/numeric/`
+  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, `phase29ck_boundary`, `vm_hako_caps`, the first eight `phase29cc_wsm` subfamilies (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, `p8`), `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` have been split into semantic subtrees, and the bundle root should no longer receive new live `phase21_5/perf/apps` scripts
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
@@ -73,18 +73,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: use `tools/checks/smoke_inventory_report.sh` at milestones instead of ad-hoc manual pruning
   - smoke hygiene: `tools/smokes/v2/run.sh` now discovery-prunes `archive/lib/tmp/fixtures`; treat those names as non-live support buckets and keep new semantic growth under `profile -> domain -> intent`
   - smoke hygiene: suite manifests live under `tools/smokes/v2/suites/<profile>/<suite>.txt`; keep them small, active-only, and human-meaningful
-  - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
+  - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29x/derust,phase29x/observability,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `tools/smokes/v2/profiles/integration/phase29x/README.md`
-  - `tools/smokes/v2/profiles/integration/phase29x/vm_hako/README.md`
-  - `tools/smokes/v2/profiles/integration/apps/phase29x_derust_safety_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase29x_derust_verifier_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase29x_derust_route_dualrun_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase29x_derust_done_matrix_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase29x_derust_strict_default_route_vm.sh`
-  - `docs/development/current/main/phases/phase-29cq/README.md`
-  - `docs/development/current/main/design/smoke-taxonomy-and-discovery-ssot.md`
+  - `docs/development/current/main/phases/phase-29cm/README.md`
+  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+  - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -181,7 +175,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: phase-29cq semantic split of the next live family out of `tools/smokes/v2/profiles/integration/apps/` (currently the `phase29x` residual family, starting with `derust`)
+- immediate: resume the `.hako` kernel migration lane in `phase-29cm`; the smoke split backlog is parked after `phase29x/derust` and `phase29x/observability`
 - second: raw substrate perf reopen (`P1`) after the portability slice is fully absorbed
 - side-fix complete: backend-zero macOS portability slice is green; `src/host_providers/llvm_codegen.rs` centralizes FFI library candidate resolution
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
@@ -192,6 +186,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: bootstrap keep reduction stays parked unless compat keep lanes reopen
+- parked: smoke split backlog is no longer the daily read path; `phase29x/derust` and `phase29x/observability` are landed, and further phase29x residual splits are inventory-only until kernel migration is explicitly reopened
 - operational reading: `stage0` Rust bootstrap remains first-build / recovery lane; `stage2+` mainline stays separate
 - parallel `.hako` authoring lane: `lang/src/runtime/kernel/string/search.hako` remains at stop line; reopen only if a new exact blocker appears
 - `phase-29cl` by_name mainline callers are already zero; remaining work is compat/archive closeout only

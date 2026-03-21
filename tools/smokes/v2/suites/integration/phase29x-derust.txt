@@ -1,0 +1,6 @@
+# Integration phase29x-derust suite
+# Active phase29x de-rust contract cases.
+phase29x/derust/phase29x_derust_route_dualrun_vm.sh
+phase29x/derust/phase29x_derust_verifier_vm.sh
+phase29x/derust/phase29x_derust_safety_vm.sh
+phase29x/derust/phase29x_derust_strict_default_route_vm.sh

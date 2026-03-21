@@ -1,0 +1,6 @@
+# Integration phase29x-vm-route suite
+# Active phase29x route observability cases.
+phase29x/observability/phase29x_vm_route_observability_vm.sh
+phase29x/observability/phase29x_vm_route_strict_dev_priority_vm.sh
+phase29x/observability/phase29x_vm_route_compat_bypass_guard_vm.sh
+phase29x/observability/phase29x_vm_route_pin_guard_vm.sh

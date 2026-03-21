@@ -33,6 +33,7 @@ HITS="$(
     printf "%s\n" "$HITS_HELPER"
   } \
   | rg -v '^tools/smokes/v2/lib/vm_route_pin.sh:' \
+  | rg -v '/(archive|lib|tmp|fixtures)/' \
   | sed '/^$/d'
 )"
 if [[ -z "$HITS" ]]; then

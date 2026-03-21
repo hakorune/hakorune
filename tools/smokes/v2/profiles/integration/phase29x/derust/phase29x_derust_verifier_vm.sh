@@ -8,8 +8,8 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/vm_route_pin.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/vm_route_pin.sh"
 require_env || exit 2
 
 INPUT="$NYASH_ROOT/lang/src/vm/verifier_gate_skeleton.hako"

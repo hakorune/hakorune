@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 if ! bash "$NYASH_ROOT/tools/checks/phase29x_vm_route_pin_guard.sh"; then

@@ -430,7 +430,7 @@ run_milestone_runtime() {
   run_step "phase29y no-compat mainline smoke" \
     bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   run_step "phase29x de-rust done matrix smoke" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29x_derust_done_matrix_vm.sh
+    bash tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_derust_done_matrix_vm.sh
 }
 
 run_milestone_perf() {

@@ -22,7 +22,7 @@ run_gate_step "phase29y_lane_gate_quick_vm" "tools/smokes/v2/profiles/integratio
 run_gate_step "phase29y_lane_gate_quick_vm" "tools/smokes/v2/profiles/integration/apps/phase29y_core_contracts_vm.sh"
 
 if [ "${PHASE29Y_DERUST_DONE_MATRIX_CHECK:-0}" = "1" ]; then
-    run_gate_step "phase29y_lane_gate_quick_vm" "tools/smokes/v2/profiles/integration/apps/phase29x_derust_done_matrix_vm.sh"
+    run_gate_step "phase29y_lane_gate_quick_vm" "tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_derust_done_matrix_vm.sh"
 fi
 
 test_pass "phase29y_lane_gate_quick_vm: PASS (phase29y quick contracts locked)"

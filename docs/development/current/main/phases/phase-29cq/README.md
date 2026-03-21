@@ -24,6 +24,8 @@ Related:
   - tools/smokes/v2/profiles/integration/phase29cc/plg_hm1/README.md
   - tools/smokes/v2/profiles/integration/phase29x/README.md
   - tools/smokes/v2/profiles/integration/phase29x/vm_hako/README.md
+  - tools/smokes/v2/profiles/integration/phase29x/derust/README.md
+  - tools/smokes/v2/profiles/integration/phase29x/observability/README.md
   - tools/smokes/v2/profiles/integration/phase29y/README.md
   - tools/smokes/v2/profiles/integration/phase29y/hako/README.md
   - tools/smokes/v2/profiles/integration/phase29y/hako/emit_mir/README.md
@@ -38,6 +40,8 @@ Related:
   - tools/smokes/v2/suites/integration/phase29cc-wsm-p10.txt
   - tools/smokes/v2/suites/integration/phase29cc-plg-hm1.txt
   - tools/smokes/v2/suites/integration/phase29x-vm-hako.txt
+  - tools/smokes/v2/suites/integration/phase29x-derust.txt
+  - tools/smokes/v2/suites/integration/phase29x-vm-route.txt
   - tools/smokes/v2/suites/integration/phase29y-hako-emit-mir.txt
   - tools/smokes/v2/suites/integration/phase21_5-perf-chip8.txt
   - tools/smokes/v2/suites/integration/phase21_5-perf-kilo.txt
@@ -104,4 +108,4 @@ Related:
 
 ## Next
 
-- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` / `phase29ck_boundary` / `vm_hako_caps` / `phase29cc_wsm/g3_canvas` / `phase29cc_wsm/g2_browser` / `phase29cc_wsm/g4` / `phase29cc_wsm/p10` / `phase29cc_wsm/p5` / `phase29cc_wsm/p6` / `phase29cc_wsm/p7` / `phase29cc/plg_hm1` / `phase29x/vm_hako` / `phase29y/hako/emit_mir` / `phase21_5/perf/chip8` / `phase21_5/perf/kilo` / `phase21_5/perf/numeric` の first live split は landed 済み。`integration/apps` の bundle root への新規追加は凍結したまま、次は `phase29x` residual family（`derust` から）を切る
+- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` / `phase29ck_boundary` / `vm_hako_caps` / `phase29cc_wsm/g3_canvas` / `phase29cc_wsm/g2_browser` / `phase29cc_wsm/g4` / `phase29cc_wsm/p10` / `phase29cc_wsm/p5` / `phase29cc_wsm/p6` / `phase29cc_wsm/p7` / `phase29cc/plg_hm1` / `phase29x/vm_hako` / `phase29x/derust` / `phase29x/observability` / `phase29y/hako/emit_mir` / `phase21_5/perf/chip8` / `phase21_5/perf/kilo` / `phase21_5/perf/numeric` の first live split は landed 済み。`integration/apps` の bundle root への新規追加は凍結したまま、`phase29x/derust` と `phase29x/observability` は landed + parked として扱い、今は kernel migration lane に戻る
