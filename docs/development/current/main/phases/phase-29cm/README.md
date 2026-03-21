@@ -103,6 +103,10 @@ Related:
 - collection owner cutover reached the current done-enough stop line.
 - `array -> map -> runtime_data cleanup` is parked unless a new exact collection blocker appears; `string` is parked at stop line and `numeric` is parked as a narrow pilot.
 - raw substrate perf reopen (`P1`) is now allowed because method-shaped collection verbs are no longer the daily Rust owner path.
+- first `P1` reopen target is the `array` raw read seam:
+  - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+  - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+- `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary perf edit target.
 
 ## Buildability Lock
 
@@ -167,6 +171,10 @@ Move to `.hako`:
    - second landed slice: `runtime_data_core_box.hako` centralizes unary/binary arg decode + ABI dispatch helpers and `mir_call_v1_handler.hako` only delegates
 6. `P1: Raw substrate perf reopen`
    - only after `array` and `map` method ownership is no longer Rust-owned
+   - first exact slice:
+     - collapse the duplicate `array` read path behind `array_slot_load_encoded_i64(...)`
+     - keep the cache/encode seam in `handle_helpers.rs`
+   - do not start from `array_index_helpers.rs` / `array_route_helpers.rs`; they are wrapper-only now
 
 ## Done Shape (phase closeout)
 
@@ -192,6 +200,7 @@ Move to `.hako`:
   - `array`, `map`, and `runtime_data` are done-enough for this phase
   - reopen only on a new exact collection blocker
   - next fixed order is `P1: Raw substrate perf reopen`
+  - first `P1` target is `array_slot_load.rs` + `handle_helpers.rs`, not the wrapper files above them
 
 ## Backend-Zero Handoff
 

@@ -65,6 +65,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
   - the adjacent lane C / `.hako VM` (`vm-hako`) map blocker sweep is now closed through `RVP-C28`; no current vm-hako map blocker remains, and phase-29y is parked until a new exact blocker appears
   - regression repair pinned: `RVP-C02 args.length()` no longer treats missing `handle_regs/file_boxes` entries as visible `[map/missing] ...` text; runtime state maps now use presence-aware storage reads
+  - collection owner cutover is at stop line, so the active next slice is `P1: Raw substrate perf reopen`
+  - worker inventory agrees that `map` stays parked for P1; the first exact perf slice is `array` raw read seam only:
+    - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+    - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+  - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
   - factor `filter_noise || true` handling into a shared smoke helper instead of per-smoke local glue
@@ -76,9 +81,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29x/derust,phase29x/observability,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
+  - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+  - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
   - `docs/development/current/main/phases/phase-29cm/README.md`
-  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
-  - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
+  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
+  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -175,11 +182,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: resume the `.hako` kernel migration lane in `phase-29cm`; the smoke split backlog is parked after `phase29x/derust` and `phase29x/observability`
-- second: raw substrate perf reopen (`P1`) after the portability slice is fully absorbed
+- immediate: `P1` raw substrate perf reopen on the `array` read seam (`array_slot_load.rs` + `handle_helpers.rs`)
+- second: keep the collection owner cutover parked unless a new exact collection blocker appears
 - side-fix complete: backend-zero macOS portability slice is green; `src/host_providers/llvm_codegen.rs` centralizes FFI library candidate resolution
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
-- first: keep collection owner cutover parked unless a new exact collection blocker appears
+- first: the smoke split backlog stays parked after `phase29x/derust` and `phase29x/observability`
 - third: keep `RuntimeDataBox` as protocol / facade only; do not reopen owner growth
 - note: this is a `.hako VM` capability blocker, not a Rust VM blocker
 - parked: exe optimization wave stays paused until the collection owner boundary is fixed
@@ -469,8 +476,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current exact leaf slice for `substring_concat`: `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, so `crates/nyash_kernel/src/exports/string.rs::substring_hii` stays a thin dispatch/match wrapper while the hot path remains on direct `with_handle(...)` instead of cache-backed span lookup
   - accepted structure-first slice: `crates/nyash_kernel/src/exports/string.rs::concat3_hhh` is now split into `concat3_plan_from_parts(...)` / `concat3_plan_from_fast_str(...)` / `concat3_plan_from_spans(...)` plus `freeze_concat3_plan(...)`, so route selection and birth are separated file-locally without reopening substrate semantics
   - current runtime follow-up slice for `substring_concat`: `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant panics in cold helpers, so the success path stays straight-line
-  - current exact leaf slice for `array_getset`: the cache-seam split in `crates/nyash_kernel/src/plugin/handle_helpers.rs::with_object_from_handle_cached_with_epoch(...)` is kept, and the newest ASM top is `crates/nyash_kernel/src/plugin/array_index_helpers.rs::array_get_by_index` plus `crates/nyash_kernel/src/plugin/array_route_helpers.rs::array_set_by_index_i64_value`; this means the next exact cut is now the Rust substrate call boundary, not `array_core_box.hako`
-  - fresh `kilo_micro_array_getset` recheck after the cache-seam split landed at `ny_aot_ms=43` (`ratio_cycles=0.01`), so the lane is still thickest but the next cut should stay on the Rust substrate array helpers rather than reopening `array_core_box.hako`
+  - current exact leaf slice for `array_getset`: the cache seam stays in `crates/nyash_kernel/src/plugin/handle_helpers.rs`, but the direct P1 edit target is now the single-read array load path:
+    - `crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`
+    - `crates/nyash_kernel/src/plugin/handle_helpers.rs::array_get_index_encoded_i64`
+  - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers, so they are no longer the primary P1 target
+  - fresh `kilo_micro_array_getset` recheck after the cache-seam split landed at `ny_aot_ms=43` (`ratio_cycles=0.01`), so the lane is still thickest but the next cut should stay on the Rust substrate read seam rather than reopening `array_core_box.hako`
   - current contract-change slice: `crates/nyash_kernel/src/exports/string_view.rs` now allows `<= 8 bytes` short slices to eager-materialize instead of always creating `StringViewBox`; this reduces view churn and improves stable whole-program baseline, even though the isolated micro leaf regressed slightly
   - rejected experiment (not kept): splitting the policy to `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` micro to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`, so the wave stays on the flat `<= 8 bytes` policy while whole-program stable remains the primary metric
   - rejected experiment (reverted immediately): `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` tried explicit `StringBox` / `StringViewBox` downcast fast paths; isolated `substring_concat` micro landed at `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed hard to `1066 ms` median (`min=786`, `max=1841`), so observer-only fast path is not a keep candidate

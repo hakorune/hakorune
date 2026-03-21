@@ -125,8 +125,13 @@ backend optimization coverage の議論に混ぜない。
 `kilo_micro_array_getset` の current exact leaf は次。
 
 - cache seam: [handle_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_helpers.rs)
-- newest ASM top:
+- direct reopen target:
+  - [array_slot_load.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_slot_load.rs)
+- wrapper status:
   - [array_index_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_index_helpers.rs)
   - [array_route_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_route_helpers.rs)
+  - these are now thin wrappers and are no longer the primary edit target
+
+`map` stays parked for this wave because its raw aliases still sit too close to `MapBox.get/set/has` semantics.
 
 したがって、この lane で `route not supported after ny-llvmc` を再調査する必要はない。
