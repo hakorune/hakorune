@@ -44,8 +44,8 @@ Related:
      - object layout
      - ABI/FFI substrate
      まで Rust/C から退役させる状態
-2. current active lane is collection owner cutover (`array -> map -> runtime_data cleanup`) and this document must match that reading.
-3. current collection owner cutover の最中は、raw substrate micro-opt を reopen しない。
+2. current active reading is that collection owner cutover (`array -> map -> runtime_data cleanup`) has reached its current stop line.
+3. raw substrate micro-opt may reopen only after that stop line is confirmed by the phase acceptance set.
 4. `.hako` が先に持つべきなのは policy/contract であり、native substrate ではない。
 5. Rust ベースの buildability は migration 中も維持する。
 
@@ -67,6 +67,10 @@ Related:
   - `ArrayBox` semantics first
   - `MapBox` semantics second
   - `RuntimeDataBox` cleanup as protocol / facade only
+- current stop-line reading:
+  - the collection owner cutover acceptance set is green
+  - `array` / `map` / `runtime_data` are parked unless a new exact blocker appears
+  - raw substrate perf is the next allowed reopen wave
 - raw boundary naming / demotion contract is pinned in:
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
 - したがって、次に固定すべきは `kernel authority zero` であり、`substrate zero` ではない。

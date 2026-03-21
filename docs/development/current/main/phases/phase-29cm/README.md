@@ -61,16 +61,16 @@ Related:
 
 - [x] `string` lane reached the stop line
   - further widening is paused until a new exact blocker appears
-- [ ] `array` owner cutover is active
+- [x] `array` owner cutover reached the current stop line
   - first slice landed: `ArrayCoreBox` owns ArrayBox push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
   - second slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
   - third slice landed: `ArrayCoreBox.get_i64/set_i64` retarget to raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
-- [ ] `map` owner cutover follows `array`
+- [x] `map` owner cutover reached the current stop line
   - first slice landed: `MapCoreBox` is now the single visible owner frontier for handler-side `MapBox.{set,get,has,size/len/length}` routing and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
   - second slice landed: Rust `map` helper ownership is split into raw `slot_load` / `slot_store` / `probe` modules while legacy `nyash.map.{get,set,has}_*` exports remain thin wrappers
   - third slice landed: `map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing and `mir_vm_s0_boxcall_builtin.hako` only delegates
   - adjacent lane C blocker sweep is now fully ported through `RVP-C28`; no current `.hako VM` blocker remains for MapBox bad-key field routes
-- [ ] `runtime_data` cleanup keeps protocol/facade-only shape
+- [x] `runtime_data` cleanup keeps protocol/facade-only shape
   - first slice landed: `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`
   - second slice landed: `runtime_data_core_box.hako` owns arg-decode/ABI-dispatch helpers and `mir_call_v1_handler.hako` now sees `RuntimeDataBox` as one delegated branch
   - `RuntimeDataBox` still does not own array/map semantics; it only routes to them
@@ -100,9 +100,9 @@ Related:
 
 ## Current Reading
 
-- kernel lane is active again as collection owner cutover.
-- the current order is `array -> map -> runtime_data cleanup`; `string` is parked at stop line and `numeric` is parked as a narrow pilot.
-- raw substrate micro-opt is not the current lane; park it until method-shaped collection verbs leave Rust ownership.
+- collection owner cutover reached the current done-enough stop line.
+- `array -> map -> runtime_data cleanup` is parked unless a new exact collection blocker appears; `string` is parked at stop line and `numeric` is parked as a narrow pilot.
+- raw substrate perf reopen (`P1`) is now allowed because method-shaped collection verbs are no longer the daily Rust owner path.
 
 ## Buildability Lock
 
@@ -176,6 +176,22 @@ Move to `.hako`:
 - `map` の user-visible semantics owner が `.hako` ring1 collection core にある
 - `runtime_data` は protocol / facade だけを持ち、array/map semantics owner ではない
 - Rust collection code is reduced to raw substrate verbs and no longer owns method-shaped collection semantics
+
+## Stop-Line Confirmation (2026-03-21)
+
+- minimum acceptance is green:
+  - `phase29cc_runtime_v0_adapter_fixtures_vm`
+  - `phase29cc_runtime_v0_abi_slice_guard`
+  - `array_length_vm`
+  - `map_basic_get_set_vm`
+  - `map_len_size_vm`
+  - `ring1_array_provider_vm`
+  - `ring1_map_provider_vm`
+  - `phase29x_runtime_data_dispatch_llvm_e2e_vm`
+- current reading:
+  - `array`, `map`, and `runtime_data` are done-enough for this phase
+  - reopen only on a new exact collection blocker
+  - next fixed order is `P1: Raw substrate perf reopen`
 
 ## Backend-Zero Handoff
 
