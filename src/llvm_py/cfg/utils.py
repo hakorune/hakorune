@@ -636,6 +636,7 @@ def collect_stringish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
                 comp_external.setdefault(dst_c, set()).add(int(src))
 
     string_receiver_methods = {"substring", "indexOf", "lastIndexOf"}
+    string_element_container_boxes = {"RuntimeDataBox", "ArrayBox"}
 
     for _ in range(20):
         changed = False
@@ -730,18 +731,30 @@ def collect_stringish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
                                 receiver_string_elements.add(dst_i)
                                 changed = True
 
-                if op != "mir_call":
+                method = ""
+                recv_i = None
+                args = []
+                box_name = ""
+
+                if op == "mir_call":
+                    mc = ins.get("mir_call")
+                    if not isinstance(mc, dict):
+                        continue
+                    callee = mc.get("callee")
+                    if not isinstance(callee, dict):
+                        continue
+                    method = str(callee.get("name") or "")
+                    recv = callee.get("receiver")
+                    recv_i = int(recv) if isinstance(recv, int) else None
+                    args = mc.get("args") or []
+                    box_name = str(callee.get("box_name") or "")
+                elif op == "boxcall":
+                    method = str(ins.get("method") or "")
+                    recv = ins.get("box")
+                    recv_i = int(recv) if isinstance(recv, int) else None
+                    args = ins.get("args") or []
+                else:
                     continue
-                mc = ins.get("mir_call")
-                if not isinstance(mc, dict):
-                    continue
-                callee = mc.get("callee")
-                if not isinstance(callee, dict):
-                    continue
-                method = str(callee.get("name") or "")
-                recv = callee.get("receiver")
-                recv_i = int(recv) if isinstance(recv, int) else None
-                args = mc.get("args") or []
 
                 # Use-based inference: methods with string-only receiver contract.
                 if method in string_receiver_methods and recv_i is not None:
@@ -749,8 +762,13 @@ def collect_stringish_value_ids(blocks: List[Dict[str, Any]]) -> Set[int]:
                         stringish.add(recv_i)
                         changed = True
 
-                # Container element type inference for RuntimeData routes.
-                if str(callee.get("box_name") or "") == "RuntimeDataBox" and recv_i is not None:
+                # Container element type inference for RuntimeData/Array routes.
+                # `boxcall` instructions no longer carry box_name, so treat them as
+                # collection-style carriers when the method shape matches.
+                if (
+                    (op == "boxcall")
+                    or box_name in string_element_container_boxes
+                ) and recv_i is not None:
                     if method == "push" and len(args) >= 1 and isinstance(args[0], int):
                         if int(args[0]) in stringish and recv_i not in receiver_string_elements:
                             receiver_string_elements.add(recv_i)

@@ -395,7 +395,7 @@ mono-route while preserving runtime_data semantics.
       - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_optional_steps.tsv`
   - updated smoke:
     - `phase21_5_perf_kilo_text_concat_contract_vm.sh`
-      - accepts both set routes (`runtime_data.set_hhh` / `array.set_hhh`)
+      - accepts concat-consuming set routes (`runtime_data.set_hhh` / `array.set_hhh` / `map.set_hh`)
   - updated e2e runtime_data smoke:
     - `phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
       - accepts both dispatch symbols per method

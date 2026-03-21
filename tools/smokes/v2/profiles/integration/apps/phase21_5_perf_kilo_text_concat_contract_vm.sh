@@ -4,7 +4,7 @@
 # Contract pin (LLVM-HOT-20 structural hotspot):
 # - kilo text loop must preserve string concat route in nested append path.
 # - main IR should keep concat helper density (concat_hh / concat3_hhh).
-# - data set route (runtime_data.set_hhh / array.set_hhh) must consume concat result
+# - data set route (runtime_data.set_hhh / array.set_hhh / map.set_hh) must consume concat result
 #   and must not fall back to literal 0.
 
 set -euo pipefail
@@ -102,7 +102,7 @@ if grep -q 'nyash.any.length_h' "$tmp_main"; then
   exit 1
 fi
 
-if ! grep -Eq '(nyash\.runtime_data\.set_hhh|nyash\.array\.set_hhh|nyash\.array\.set_hih|nyash\.array\.set_hii)"\(.*%\"(concat_hh_|concat3_hhh_)' "$tmp_main"; then
+if ! grep -Eq '(nyash\.runtime_data\.set_hhh|nyash\.array\.set_hhh|nyash\.array\.set_hih|nyash\.array\.set_hii|nyash\.map\.set_hh)"\(.*%\"(concat_hh_|concat3_hhh_)' "$tmp_main"; then
   test_fail "$SMOKE_NAME: set route does not consume concat result"
   exit 1
 fi

@@ -10,6 +10,11 @@ class _ResolverStub:
     def __init__(self):
         self.value_types = {}
         self.string_literals = {}
+        self.integerish_ids = set()
+
+    def is_arrayish(self, value_id: int) -> bool:
+        value = self.value_types.get(int(value_id))
+        return isinstance(value, dict) and value.get("box_type") == "ArrayBox"
 
 
 class TestBoxcallPluginInvokeArgs(unittest.TestCase):
@@ -112,6 +117,46 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
                 vmap=vmap,
                 resolver=resolver,
             )
+
+    def test_arraybox_boxcall_set_prefers_array_route(self):
+        module = ir.Module(name="test_boxcall_arraybox_set_route")
+        i64 = ir.IntType(64)
+        i8p = ir.IntType(8).as_pointer()
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        recv_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_recv_ptr")
+        recv_ptr = builder.call(recv_seed, [], name="recv_ptr")
+
+        vmap = {
+            1: recv_ptr,
+            2: ir.Constant(i64, 7),
+            3: ir.Constant(i64, 99),
+        }
+        resolver = _ResolverStub()
+        resolver.value_types = {
+            1: {"kind": "handle", "box_type": "ArrayBox"},
+            2: "i64",
+            3: {"kind": "handle", "box_type": "StringBox"},
+        }
+        resolver.integerish_ids = {2}
+
+        lower_boxcall(
+            builder=builder,
+            module=module,
+            box_vid=1,
+            method_name="set",
+            args=[2, 3],
+            dst_vid=4,
+            vmap=vmap,
+            resolver=resolver,
+        )
+        builder.ret(ir.Constant(i64, 0))
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"nyash.array.set_hih"', ir_text)
+        self.assertNotIn('call i64 @"nyash.map.set_hh"', ir_text)
 
 
 if __name__ == "__main__":

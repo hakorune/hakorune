@@ -10,6 +10,7 @@ from typing import Callable, Optional
 from llvmlite import ir
 
 from instructions.mir_call.auto_specialize import (
+    prefer_runtime_data_array_i64_key_i64_value_route,
     prefer_runtime_data_array_i64_key_route,
     receiver_is_arrayish,
     receiver_is_stringish,
@@ -75,6 +76,24 @@ def try_lower_collection_boxcall(
         v = resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
         if v is None:
             v = ir.Constant(i64, 0)
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
+            if prefer_runtime_data_array_i64_key_route(
+                method=method_name,
+                resolver=resolver,
+                arg_vids=args,
+            ):
+                if prefer_runtime_data_array_i64_key_i64_value_route(
+                    method=method_name,
+                    resolver=resolver,
+                    arg_vids=args,
+                ):
+                    callee = declare(module, "nyash.array.set_hii", i64, [i64, i64, i64])
+                    return builder.call(callee, [recv_h, k, v], name="array_set_hii")
+                callee = declare(module, "nyash.array.set_hih", i64, [i64, i64, i64])
+                return builder.call(callee, [recv_h, k, v], name="array_set_hih")
+            callee = declare(module, "nyash.array.set_hhh", i64, [i64, i64, i64])
+            return builder.call(callee, [recv_h, k, v], name="array_set_hhh")
         callee = declare(module, "nyash.map.set_hh", i64, [i64, i64, i64])
         return builder.call(callee, [recv_h, k, v], name="map_set_hh")
 

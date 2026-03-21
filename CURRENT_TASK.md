@@ -56,9 +56,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - `dev_gate portability` is red on the macOS portability guard: `src/host_providers/llvm_codegen.rs` no longer centralizes FFI library candidate resolution, so `tools/checks/macos_portability_guard.sh` fails on `llvm_codegen must centralize FFI library candidate resolution`; this is a backend-zero portability slice, not a smoke taxonomy slice
-  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, the first thirteen semantic splits have landed, `phase29ck_boundary` now lives under `integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` now lives under `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, and the first seven `phase29cc_wsm` splits (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, and `p7`) now live under `integration/phase29cc_wsm/{g3_canvas,g2_browser,g4,p10,p5,p6,p7}/`, so `phase29cc_wsm/p8` is parked until the portability slice clears
-  - active phase is now `phase-29ck`: suite-manifest first + suite-aware inventory landed, `phase29ck_boundary`, `vm_hako_caps`, and the first seven `phase29cc_wsm` subfamilies (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`) have been split into semantic subtrees, while the next live blocker is the backend-zero macOS portability slice
+  - `dev_gate portability` is green again; the `phase21_5_perf_kilo_text_concat_contract_vm.sh` residual route slice is closed after `ArrayBox` string-element propagation + boxcall set-route alignment, so the last blocker is no longer the `nyash.any.length_h` route
+  - the macOS portability helper move remains committed and green; `src/host_providers/llvm_codegen.rs` still centralizes FFI library candidate resolution, and `tools/checks/macos_portability_guard.sh` remains green
+  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, the first thirteen semantic splits have landed, `phase29ck_boundary` now lives under `integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` now lives under `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, and the first seven `phase29cc_wsm` splits (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, and `p7`) now live under `integration/phase29cc_wsm/{g3_canvas,g2_browser,g4,p10,p5,p6,p7}/`, so `phase29cc_wsm/p8` is the next live family again
+  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, `phase29ck_boundary`, `vm_hako_caps`, and the first seven `phase29cc_wsm` subfamilies (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`) have been split into semantic subtrees, and the next live blocker is `phase29cc_wsm/p8`
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
@@ -75,16 +76,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, and `phase29cc_wsm/{g3_canvas,g2_browser,g4,p10,p5,p6,p7}` now live under `tools/smokes/v2/profiles/integration/phase29cc_wsm/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain after the portability slice clears, with `phase29cc_wsm/p8` next
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `docs/development/current/main/phases/phase-29ck/P6-MACOS-PORTABILITY-FFI-CANDIDATE-LOCK.md`
-  - `src/host_providers/llvm_codegen.rs`
-  - `src/host_providers/llvm_codegen/transport.rs`
-  - `tools/checks/macos_portability_guard.sh`
-  - `docs/development/current/main/phases/phase-29ck/README.md`
-  - `docs/development/current/main/10-Now.md`
-  - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p8/README.md`
-  - `tools/smokes/v2/suites/integration/phase29cc-wsm-p8.txt`
-  - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p8/phase29cc_wsm_p8_common.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`
+  - `tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`
+  - `docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md`
+  - `docs/development/current/main/phases/phase-29cc/README.md`
   - `docs/development/current/main/phases/phase-29cq/README.md`
   - `docs/development/current/main/design/smoke-taxonomy-and-discovery-ssot.md`
 - Execution checklist:
@@ -183,9 +178,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: backend-zero macOS portability slice first (centralize FFI library candidate resolution in `src/host_providers/llvm_codegen.rs`)
-- second: phase-29cq semantic split of the next live family out of `tools/smokes/v2/profiles/integration/apps/` (`phase29cc_wsm/p8` next)
-- third: raw substrate perf reopen (`P1`) after the portability slice lands
+- immediate: phase-29cq semantic split of the next live family out of `tools/smokes/v2/profiles/integration/apps/` (`phase29cc_wsm/p8` next)
+- second: raw substrate perf reopen (`P1`) after the portability slice is fully absorbed
+- side-fix complete: backend-zero macOS portability slice is green; `src/host_providers/llvm_codegen.rs` centralizes FFI library candidate resolution
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: keep collection owner cutover parked unless a new exact collection blocker appears
 - third: keep `RuntimeDataBox` as protocol / facade only; do not reopen owner growth
