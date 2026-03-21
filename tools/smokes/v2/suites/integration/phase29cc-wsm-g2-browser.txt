@@ -1,0 +1,4 @@
+# Integration phase29cc-wsm-g2-browser suite
+# Active WSM G2 browser bridge cases only.
+phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh
+phase29cc_wsm/g2_browser/phase29cc_wsm_g2_browser_run_vm.sh

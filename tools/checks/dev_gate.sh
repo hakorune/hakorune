@@ -87,8 +87,8 @@ list_profiles() {
     - phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
     - phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
   wasm-demo-g2:
-    - phase29cc_wsm_g2_min1_bridge_build_vm.sh
-    - phase29cc_wsm_g2_browser_run_vm.sh
+    - phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh
+    - phase29cc_wsm/g2_browser/phase29cc_wsm_g2_browser_run_vm.sh
     - phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
     - phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
     - phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh
@@ -300,9 +300,9 @@ run_wasm_boundary_lite() {
 
 run_wasm_demo_g2() {
   run_step "wasm g2 min1 bridge build baseline" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh
+    bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh
   run_step "wasm g2 min2 headless run baseline" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh
+    bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_browser_run_vm.sh
   run_step "wasm g4 min1 playground console baseline lock" \
     bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
   run_step "wasm g4 min2 playground canvas primer lock" \

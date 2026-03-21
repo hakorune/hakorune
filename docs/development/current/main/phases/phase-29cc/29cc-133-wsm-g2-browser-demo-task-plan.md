@@ -25,7 +25,7 @@ WSM lane が `projects/nyash-wasm` を G2 (browser demo minimum) で再到達す
    - Acceptance: `projects/nyash-wasm/build.sh`（もしくは今後の `--compile-wasm` 書式）で wasm を再ビルドし、ローカル HTTP サーバーで `nyash_playground.html` を開いて Run ボタンをクリックしたときにログが 1行ずつ流れる手順を書く。これにより「ブラウザ run loop の最小仕様」が決まる。
 
 2. **G2 run automation (WSM-G2-min2, done)**
-   - ブラウザ run loop を headless で再現する smoke を追加（例: `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh`）し、`tools/checks/dev_gate.sh wasm-demo-g2` エントリで milestone 確認を入れる。
+   - ブラウザ run loop を headless で再現する smoke を追加（例: `tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_browser_run_vm.sh`）し、`tools/checks/dev_gate.sh wasm-demo-g2` エントリで milestone 確認を入れる。
    - スモークは `projects/nyash-wasm/build.sh` で wasm を産み、`python3 -m http.server` などで静的サーバーを立て、`node`/`puppeteer`/`playwright` などの軽量 headless で `nyash_playground.html` を開いて Run → コンソール出力を期待値（`wsm02d_demo_min_*`）と比較する構成の手順を docs でまとめる。
    - Refer to bootstrap scripts such as `phase29cc_wsm02d_demo_min_boundary_vm.sh` for instrumentation (logging markers, strict failure on missing markers) so the cc gate remains deterministic.
 

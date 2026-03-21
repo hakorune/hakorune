@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md
   - projects/nyash-wasm/build.sh
   - projects/nyash-wasm/bridge/Cargo.toml
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh
 ---
 
 # 29cc-134 WSM-G2-min1 Bridge Run Loop Lock
@@ -21,11 +21,11 @@ Related:
 1. `projects/nyash-wasm/bridge` を独立 wasm bridge crate として追加し、`wasm-pack` のビルド対象をここに固定する。
 2. `projects/nyash-wasm/build.sh` は bridge crate を build して `projects/nyash-wasm/pkg/` に成果物を出力する。
 3. `nyash_playground.html` の初期コードを `phase29cc_wsm02d_demo_min.hako` と同じ 5メソッド contract に揃える。
-4. `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh` を追加し、build + export + playground marker を fail-fast で固定する。
+4. `tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh` を追加し、build + export + playground marker を fail-fast で固定する。
 
 ## Acceptance
 - `bash projects/nyash-wasm/build.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm02d_demo_min_boundary_vm.sh`
 
 ## Notes

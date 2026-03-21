@@ -5,8 +5,8 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 ## ✅ 現行の運用入口（G2固定）
 
 - build: `bash projects/nyash-wasm/build.sh`
-- min1 gate: `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
-- min2 gate: `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_browser_run_vm.sh`
+- min1 gate: `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh`
+- min2 gate: `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_browser_run_vm.sh`
 - 日常まとめ実行: `tools/checks/dev_gate.sh wasm-demo-g2`
 - G3最小実行: `tools/checks/dev_gate.sh wasm-demo-g3-core`
 - G3フル実行: `tools/checks/dev_gate.sh wasm-demo-g3-full`（`wasm-demo-g3` は互換alias）

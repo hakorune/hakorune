@@ -34,8 +34,8 @@ Related:
 
 ## Implemented
 1. `phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh` を追加し、次を同時固定:
-   - bridge build baseline（`phase29cc_wsm_g2_min1_bridge_build_vm.sh`）
-   - browser autorun marker parity（`phase29cc_wsm_g2_browser_run_vm.sh`）
+   - bridge build baseline（`tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh`）
+   - browser autorun marker parity（`tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_browser_run_vm.sh`）
    - fixture compile boundary parity（`phase29cc_wsm02d_demo_min_boundary_vm.sh`）
 2. `tools/checks/dev_gate.sh wasm-demo-g2` に G4-min1 smoke を追加し、日常実行で回帰を止める。
 

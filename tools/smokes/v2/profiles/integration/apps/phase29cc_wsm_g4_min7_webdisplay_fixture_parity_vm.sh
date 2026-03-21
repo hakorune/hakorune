@@ -38,7 +38,7 @@ for needle in \
   fi
 done
 
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g2_min1_bridge_build_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/phase29cc_wsm_g2_min1_bridge_build_vm.sh"
 bash "$NYASH_ROOT/projects/nyash-wasm/build.sh"
 
 if ! command -v chromium-browser >/dev/null 2>&1; then

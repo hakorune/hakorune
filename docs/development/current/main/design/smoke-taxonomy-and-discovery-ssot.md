@@ -28,7 +28,7 @@ The structural target is:
 As of 2026-03-21, the smoke tree is heavily concentrated in a few leaves:
 
 - `integration`: about `1200+` scripts
-- `integration/apps`: about `202` active scripts at the leaf root
+- `integration/apps`: about `200` active scripts at the leaf root
 - `integration/rc_gc_alignment`: `4` scripts, split out of `integration/apps` as the first live semantic family
 - `integration/json`: `3` scripts, split out of `integration/apps` as the second live semantic family
 - `integration/mir_shape`: `1` script, split out of `integration/apps` as the third live semantic family
@@ -36,11 +36,12 @@ As of 2026-03-21, the smoke tree is heavily concentrated in a few leaves:
 - `integration/phase29ck_boundary`: `16` scripts, split out of `integration/apps` as the fifth live semantic family
 - `integration/vm_hako_caps`: `32` scripts, split out of `integration/apps` as the sixth live semantic family
 - `integration/phase29cc_wsm/g3_canvas`: `11` scripts, split out of `integration/apps` as the seventh live semantic family
+- `integration/phase29cc_wsm/g2_browser`: `2` scripts, split out of `integration/apps` as the eighth live semantic family
 - `integration/apps/archive`: about `225` archived scripts
 - `integration/joinir`: about `170` scripts
 - `quick/core`: about `63` scripts
 
-This is still too dense for casual human navigation, especially under `integration/apps`, but the first seven live splits have already been carved out as `integration/rc_gc_alignment`, `integration/json`, `integration/mir_shape`, `integration/ring1_providers`, `integration/phase29ck_boundary`, `integration/vm_hako_caps`, and `integration/phase29cc_wsm/g3_canvas`.
+This is still too dense for casual human navigation, especially under `integration/apps`, but the first eight live splits have already been carved out as `integration/rc_gc_alignment`, `integration/json`, `integration/mir_shape`, `integration/ring1_providers`, `integration/phase29ck_boundary`, `integration/vm_hako_caps`, `integration/phase29cc_wsm/g3_canvas`, and `integration/phase29cc_wsm/g2_browser`.
 
 ## Suite-first contract
 
@@ -148,7 +149,7 @@ These names are reserved and should not contain live profile entries that must r
 2. Introduce suite manifests without changing `--profile` compatibility.
 3. Prefer suite manifests for daily/presubmit entry before any semantic path split.
 4. Keep inventory tooling aligned with the same prune contract.
-5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, `integration/phase29ck_boundary/`, `integration/vm_hako_caps/`, and `integration/phase29cc_wsm/g3_canvas/`, and the next active family should be `phase29cc_wsm/g2_browser`.
+5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, `integration/phase29ck_boundary/`, `integration/vm_hako_caps/`, `integration/phase29cc_wsm/g3_canvas/`, and `integration/phase29cc_wsm/g2_browser/`, and the next active family should be `phase29cc_wsm/g4`.
 6. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
 
 ## First safe target
@@ -166,9 +167,10 @@ First live split already landed:
 - `tools/smokes/v2/profiles/integration/phase29ck_boundary/`
 - `tools/smokes/v2/profiles/integration/vm_hako_caps/`
 - `tools/smokes/v2/profiles/integration/phase29cc_wsm/g3_canvas/`
+- `tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/`
 
 Recommended next semantic groups:
 
-- `phase29cc_wsm/g2_browser`
+- `phase29cc_wsm/g4`
 
 Do not mass-move all archived content in the same slice. Archive separation and active semantic split should remain separate commits.
