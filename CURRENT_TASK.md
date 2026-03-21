@@ -74,11 +74,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - immediate write-side probes were rejected and reverted:
     - dedicated `handle_helpers` i64 write helper: `43 -> 47 ms`
     - `ArrayBox::try_set_index_i64_integer()` cold-split: `43 -> 48 ms`
-  - the next collection task is boundary-deepen work on transitional method-shaped Rust exports still used by `.hako` owners:
-    - `nyash.array.len_h`
-    - `nyash.array.push_hh`
-    - `nyash.map.size_h`
-  - keep `RuntimeDataBox` facade-only while the boundary deepens; do not grow it into a collection owner
+  - the next collection task is exact `B1` taskization:
+    1. demote `nyash.array.len_h` from the daily `.hako` path
+    2. demote `nyash.array.push_hh` from the daily `.hako` path
+    3. demote `nyash.map.size_h` from the daily `.hako` path
+    4. deepen hidden array write residue inside `nyash.array.slot_store_hii` (`append/rebox` semantics still live below the raw name)
+    5. deepen hidden map residue inside `nyash.map.slot_* / probe_*` (still implemented via `MapBox.get_opt/set/has`)
+  - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
@@ -92,9 +94,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
   - `lang/src/runtime/collections/array_core_box.hako`
+  - `lang/src/runtime/collections/array_state_core_box.hako`
   - `lang/src/runtime/collections/map_core_box.hako`
+  - `lang/src/runtime/collections/map_state_core_box.hako`
   - `crates/nyash_kernel/src/plugin/array.rs`
+  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+  - `src/boxes/array/mod.rs`
   - `crates/nyash_kernel/src/plugin/map.rs`
+  - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
+  - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
+  - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `lang/src/runtime/collections/README.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
@@ -155,7 +164,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` RVP-C27 is closed: `MapBox.getField(non-string key)` now returns the stable `[map/bad-key] field name must be string` text and is pinned by `vm_hako_caps_mapbox_getfield_bad_key_ported_vm.sh`
   - `[x]` RVP-C28 is closed: `MapBox.setField(non-string key, value)` now returns the stable `[map/bad-key] field name must be string` text and is pinned by `vm_hako_caps_mapbox_setfield_bad_key_ported_vm.sh`
   - `[x]` lane C map bad-key field sweep reached the stop line; reopen only if a new exact vm-hako blocker appears
-  - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
+  - `[x]` `RuntimeDataBox` facade-only stop line reached
+    - reopen only on an exact protocol/dispatch blocker; do not reopen for collection-owner growth
   - `[x]` backend-zero current owner cutover is closed enough for handoff
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
   - `[x]` inventory the first compat keep reduction slice without mixing bootstrap keep reduction

@@ -119,10 +119,13 @@ Related:
   - dedicated i64 write helper (`43 -> 47 ms`)
   - `ArrayBox::try_set_index_i64_integer()` cold-split (`43 -> 48 ms`)
 - next exact boundary-deepen task is to demote the transitional method-shaped Rust exports still used by `.hako` owners:
-  - `nyash.array.len_h`
-  - `nyash.array.push_hh`
-  - `nyash.map.size_h`
-- `RuntimeDataBox` remains facade-only while the boundary deepens.
+  1. `nyash.array.len_h`
+  2. `nyash.array.push_hh`
+  3. `nyash.map.size_h`
+- after those explicit exports, deepen the hidden raw-named residue:
+  - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
+  - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
+- `RuntimeDataBox` remains facade-only while the boundary deepens, and it has no active code task now.
 - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary boundary owner.
 
 ## Buildability Lock
@@ -187,11 +190,12 @@ Move to `.hako`:
    - first landed slice: `runtime_data.rs` delegates array/map behavior to dedicated Rust route helpers instead of owning inline collection logic
    - second landed slice: `runtime_data_core_box.hako` centralizes unary/binary arg decode + ABI dispatch helpers and `mir_call_v1_handler.hako` only delegates
 6. `B1: Deeper collection boundary before perf`
-   - inventory and demote the transitional method-shaped Rust exports still used by `.hako` owners:
-     - `nyash.array.len_h`
-     - `nyash.array.push_hh`
-     - `nyash.map.size_h`
-   - keep `RuntimeDataBox` facade-only while doing this
+   - `B1a`: demote `nyash.array.len_h`
+   - `B1b`: demote `nyash.array.push_hh`
+   - `B1c`: demote `nyash.map.size_h`
+   - `B1d`: deepen hidden array write residue under `nyash.array.slot_store_hii`
+   - `B1e`: deepen hidden map residue under `nyash.map.slot_* / probe_*`
+   - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
    - do not describe this phase as finished until these transitional exports are either removed from the daily path or explicitly accepted as the long-term substrate boundary
 7. `P1: Raw substrate perf reopen`
    - only after the deeper collection boundary is fixed

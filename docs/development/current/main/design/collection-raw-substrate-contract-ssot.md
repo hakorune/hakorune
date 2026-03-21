@@ -208,8 +208,26 @@ Current second slice:
   - `nyash.array.len_h`
   - `nyash.array.push_hh`
   - `nyash.map.size_h`
+- current hidden residue after those explicit exports:
+  - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
+  - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
 - raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
+
+### Current B1 taskization
+
+1. `B1a / array-observer`
+   - remove `nyash.array.len_h` from the daily `.hako` path
+2. `B1b / array-append`
+   - remove `nyash.array.push_hh` from the daily `.hako` path
+3. `B1c / map-observer`
+   - remove `nyash.map.size_h` from the daily `.hako` path
+4. `B1d / array-write-hidden-residue`
+   - move append/rebox policy out from under `nyash.array.slot_store_hii`
+5. `B1e / map-hidden-residue`
+   - move `get_opt/set/has`-shaped semantics out from under `nyash.map.slot_* / probe_*`
+6. `B1r / runtime_data lock`
+   - no active code task; only reopen on an exact protocol/dispatch bug
 
 ## 5. Naming Rule
 

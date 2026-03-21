@@ -153,13 +153,23 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
   - next exact boundary-deepen target:
     - `lang/src/runtime/collections/array_core_box.hako`
+    - `lang/src/runtime/collections/array_state_core_box.hako`
     - `lang/src/runtime/collections/map_core_box.hako`
+    - `lang/src/runtime/collections/map_state_core_box.hako`
     - `crates/nyash_kernel/src/plugin/array.rs`
+    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+    - `src/boxes/array/mod.rs`
     - `crates/nyash_kernel/src/plugin/map.rs`
+    - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
+    - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
+    - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - transitional exports to demote/inventory:
     - `nyash.array.len_h`
     - `nyash.array.push_hh`
     - `nyash.map.size_h`
+  - hidden residue after those exports:
+    - `nyash.array.slot_store_hii` still carries append/rebox semantics
+    - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
   - source keep policy とは分離して進める
   - current scope lock:
     - primary: `kernel-mainline`（`.hako` no-compat）

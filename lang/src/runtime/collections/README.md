@@ -87,4 +87,8 @@ Rule:
 3. `MapCoreBox`
    - follows the same split
 4. `RuntimeDataCoreBox`
-   - cleanup to protocol / facade only
+  - cleanup to protocol / facade only
+5. `B1`
+  - demote `nyash.array.len_h` / `nyash.array.push_hh` / `nyash.map.size_h`
+  - then deepen hidden residue under `array slot_store` and `map slot/probe`
+  - keep `RuntimeDataBox` facade-only while doing so
