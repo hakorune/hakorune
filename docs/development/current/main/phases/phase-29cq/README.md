@@ -83,6 +83,6 @@ Related:
 
 ## Next
 
-- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` / `phase29ck_boundary` / `vm_hako_caps` / `phase29cc_wsm/g3_canvas` / `phase29cc_wsm/g2_browser` の first live split はそれぞれ `integration/rc_gc_alignment/` / `integration/json/` / `integration/mir_shape/` / `integration/ring1_providers/` / `integration/phase29ck_boundary/{entry,string,runtime_data}/` / `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/` / `integration/phase29cc_wsm/g3_canvas/` / `integration/phase29cc_wsm/g2_browser/` に出したので、次は `integration/apps` の残り family を semantic split する
+- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` / `phase29ck_boundary` / `vm_hako_caps` / `phase29cc_wsm/g3_canvas` / `phase29cc_wsm/g2_browser` / `phase29cc_wsm/g4` の first live split はそれぞれ `integration/rc_gc_alignment/` / `integration/json/` / `integration/mir_shape/` / `integration/ring1_providers/` / `integration/phase29ck_boundary/{entry,string,runtime_data}/` / `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/` / `integration/phase29cc_wsm/g3_canvas/` / `integration/phase29cc_wsm/g2_browser/` / `integration/phase29cc_wsm/g4/` に出したので、次は `integration/apps` の残り family を semantic split する
 - `integration/apps` の新規追加を凍結し、新規 smoke は semantic domain 配下へ置く
-- 次の active family は `phase29cc_wsm/g4` を優先して `integration/apps` から切る
+- 次の active family は `phase29cc_wsm/p10` を優先して `integration/apps` から切る

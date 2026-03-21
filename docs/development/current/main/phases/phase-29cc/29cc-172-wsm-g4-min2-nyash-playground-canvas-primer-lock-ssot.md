@@ -7,7 +7,7 @@ Depends:
   - docs/development/current/main/phases/phase-29cc/29cc-171-wsm-g4-min1-nyash-playground-console-baseline-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-137-wsm-g3-min1-gap-inventory-lock-ssot.md
   - projects/nyash-wasm/nyash_playground.html
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh
 ---
 
 # 29cc-172 WSM-G4-min2 Nyash Playground Canvas Primer Lock
@@ -46,7 +46,7 @@ advanced 形や追加 API 拡張は次タスクへ分離する。
 
 ## Acceptance
 
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min2_playground_canvas_primer_vm.sh`
 - `tools/checks/dev_gate.sh wasm-demo-g2`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 

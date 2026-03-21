@@ -26,6 +26,6 @@ for needle in \
   fi
 done
 
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh"
 
 test_pass "phase29cc_wsm_p7_min3_two_demo_lock_vm: PASS (WSM-P7-min3 two-demo lock)"

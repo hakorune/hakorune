@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-175-wsm-g4-min5-headless-two-example-parity-lock-ssot.md"
@@ -34,7 +34,7 @@ if ! command -v chromium-browser >/dev/null 2>&1; then
   exit 2
 fi
 
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh"
 
 set +e
 build_out=$(cd "$NYASH_ROOT" && bash "$build_script" 2>&1)

@@ -8,7 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md
   - projects/nyash-wasm/nyash_playground.html
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -40,7 +40,7 @@ Related:
 2. `tools/checks/dev_gate.sh wasm-demo-g2` に G4-min1 smoke を追加し、日常実行で回帰を止める。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh`
 - `tools/checks/dev_gate.sh wasm-demo-g2`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 

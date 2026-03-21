@@ -21,6 +21,7 @@ This directory is the shared helper layer for the remaining `tools/smokes/v2/pro
 - `phase29cc_wsm_g3_canvas_contract_common_vm.sh` moved to `tools/smokes/v2/profiles/integration/phase29cc_wsm/g3_canvas/lib/phase29cc_wsm_g3_canvas_contract_common_vm.sh`.
 - The first `phase29cc_wsm` split now lives under `tools/smokes/v2/profiles/integration/phase29cc_wsm/g3_canvas/`.
 - `phase29cc_wsm_g2_*` browser bridge cases moved to `tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/`.
+- `phase29cc_wsm_g4_*` playground/browser progression cases moved to `tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/`.
 
 ## Usage Rule
 

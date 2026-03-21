@@ -5,7 +5,7 @@ Task: WSM-G4-min5
 Title: Nyash Playground Headless Two-Example Parity Lock
 Depends:
   - docs/development/current/main/phases/phase-29cc/29cc-174-wsm-g4-min4-canvas-advanced-fixture-parity-lock-ssot.md
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh
   - projects/nyash-wasm/nyash_playground.html
 ---
 
@@ -35,7 +35,7 @@ Depends:
 
 ## Acceptance
 
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`
 - `tools/checks/dev_gate.sh wasm-demo-g2`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 

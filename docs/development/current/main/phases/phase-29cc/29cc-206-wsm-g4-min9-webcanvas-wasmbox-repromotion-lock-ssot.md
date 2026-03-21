@@ -23,7 +23,7 @@ Marker lock:
 
 ## 3. Gate
 
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh`
 
 ## 4. Next
 

@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-172-wsm-g4-min2-nyash-playground-canvas-primer-lock-ssot.md"
@@ -47,6 +47,6 @@ for needle in \
   fi
 done
 
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min1_playground_console_baseline_vm.sh"
 
 test_pass "phase29cc_wsm_g4_min2_playground_canvas_primer_vm: PASS (WSM-G4-min2 playground canvas primer lock)"

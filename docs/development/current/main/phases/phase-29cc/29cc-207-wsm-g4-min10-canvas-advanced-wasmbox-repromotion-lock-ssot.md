@@ -26,7 +26,7 @@ Marker lock:
 
 ## 3. Gate
 
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min10_canvas_advanced_wasmbox_repromotion_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min10_canvas_advanced_wasmbox_repromotion_vm.sh`
 
 ## 4. Note
 

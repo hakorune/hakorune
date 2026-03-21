@@ -7,7 +7,7 @@ Depends:
   - docs/development/current/main/phases/phase-29cc/29cc-173-wsm-g4-min3-webcanvas-fixture-parity-lock-ssot.md
   - projects/nyash-wasm/nyash_playground.html
   - apps/tests/phase29cc_wsm_g4_min4_canvas_advanced_fixture_min.hako
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh
 ---
 
 # 29cc-174 WSM-G4-min4 Canvas Advanced Fixture Parity Lock
@@ -38,7 +38,7 @@ fixture compile parity（loop + draw primitives）を同時に固定する。
 
 ## Acceptance
 
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min4_canvas_advanced_fixture_parity_vm.sh`
 - `tools/checks/dev_gate.sh wasm-demo-g2`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 

@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-176-wsm-g4-min6-gate-promotion-closeout-lock-ssot.md"
@@ -36,6 +36,6 @@ if ! grep -Fq "phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh" "$gate"; the
   exit 1
 fi
 
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min5_headless_two_examples_vm.sh"
 
 test_pass "phase29cc_wsm_g4_min6_gate_promotion_closeout_vm: PASS (WSM-G4-min6 gate promotion closeout lock)"

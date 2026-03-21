@@ -8,7 +8,7 @@ Depends:
   - src/backend/wasm/codegen/instructions.rs
   - apps/tests/phase29cc_wsm_g4_min8_global_call_probe_min.hako
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min8_global_call_probe_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min8_global_call_probe_vm.sh
 ---
 
 # 29cc-205 WSM-G4-min8 Global Call Native Box Lock
@@ -28,7 +28,7 @@ native wasm compile で fail-fast せず通す。
 
 ## Acceptance
 
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min8_global_call_probe_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min8_global_call_probe_vm.sh`
 
 ## Notes
 

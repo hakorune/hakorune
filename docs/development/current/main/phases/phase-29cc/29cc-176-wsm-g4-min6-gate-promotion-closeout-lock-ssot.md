@@ -6,7 +6,7 @@ Title: Nyash Playground G4 Gate Promotion Closeout Lock
 Depends:
   - docs/development/current/main/phases/phase-29cc/29cc-175-wsm-g4-min5-headless-two-example-parity-lock-ssot.md
   - tools/checks/dev_gate.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh
 ---
 
 # 29cc-176 WSM-G4-min6 Gate Promotion Closeout Lock
@@ -32,7 +32,7 @@ G4 min1..min5 の lock を `wasm-demo-g2` 標準ゲートへ昇格し、G4 を c
 
 ## Acceptance
 
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh`
 - `tools/checks/dev_gate.sh wasm-demo-g2`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 

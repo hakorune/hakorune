@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-207-wsm-g4-min10-canvas-advanced-wasmbox-repromotion-lock-ssot.md"
@@ -54,7 +54,7 @@ for needle in \
   fi
 done
 
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min9_webcanvas_wasmbox_repromotion_vm.sh"
 
 set +e
 output=$(cd "$NYASH_ROOT" && cargo test --features wasm-backend wasm_demo_g4_min4_canvas_advanced_fixture_compile_to_wat_contract -- --nocapture 2>&1)
