@@ -103,9 +103,14 @@ Related:
 - collection owner cutover reached the current done-enough stop line.
 - `array -> map -> runtime_data cleanup` is parked unless a new exact collection blocker appears; `string` is parked at stop line and `numeric` is parked as a narrow pilot.
 - raw substrate perf reopen (`P1`) is now allowed because method-shaped collection verbs are no longer the daily Rust owner path.
-- first `P1` reopen target is the `array` raw read seam:
-  - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+- first `P1` read-seam slice is landed at `ny_aot_ms=43`.
+- current `P1` state is probe-mode on the `array` write/TLS seam:
+  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
   - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+  - `src/boxes/array/mod.rs`
+- immediate rejected probes (reverted):
+  - dedicated i64 write helper (`43 -> 47 ms`)
+  - `ArrayBox::try_set_index_i64_integer()` cold-split (`43 -> 48 ms`)
 - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary perf edit target.
 
 ## Buildability Lock
@@ -174,6 +179,9 @@ Move to `.hako`:
    - first exact slice:
      - collapse the duplicate `array` read path behind `array_slot_load_encoded_i64(...)`
      - keep the cache/encode seam in `handle_helpers.rs`
+   - current probe target:
+     - measure `array_slot_store_i64(...)` + `with_array_box(...)` + `ArrayBox::try_set_index_i64_integer(...)` together
+     - do not keep another write-side helper split unless it beats the `43 ms` baseline
    - do not start from `array_index_helpers.rs` / `array_route_helpers.rs`; they are wrapper-only now
 
 ## Done Shape (phase closeout)
@@ -200,7 +208,7 @@ Move to `.hako`:
   - `array`, `map`, and `runtime_data` are done-enough for this phase
   - reopen only on a new exact collection blocker
   - next fixed order is `P1: Raw substrate perf reopen`
-  - first `P1` target is `array_slot_load.rs` + `handle_helpers.rs`, not the wrapper files above them
+  - first `P1` read slice is landed; current probe target is the write/TLS seam, not the wrapper files above it
 
 ## Backend-Zero Handoff
 

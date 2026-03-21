@@ -150,10 +150,14 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `tools/checks/dev_gate.sh runtime-exec-zero` green
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
   - current exact reopen target:
-    - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
     - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+    - `src/boxes/array/mod.rs`
   - wrapper note:
     - `array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and are not the primary edit target
+  - rejected probes:
+    - dedicated i64 write helper (`43 -> 47 ms`)
+    - `ArrayBox::try_set_index_i64_integer` cold-split (`43 -> 48 ms`)
   - source keep policy とは分離して進める
   - current scope lock:
     - primary: `kernel-mainline`（`.hako` no-compat）

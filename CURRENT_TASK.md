@@ -66,9 +66,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - the adjacent lane C / `.hako VM` (`vm-hako`) map blocker sweep is now closed through `RVP-C28`; no current vm-hako map blocker remains, and phase-29y is parked until a new exact blocker appears
   - regression repair pinned: `RVP-C02 args.length()` no longer treats missing `handle_regs/file_boxes` entries as visible `[map/missing] ...` text; runtime state maps now use presence-aware storage reads
   - collection owner cutover is at stop line, so the active next slice is `P1: Raw substrate perf reopen`
-  - worker inventory agrees that `map` stays parked for P1; the first exact perf slice is `array` raw read seam only:
-    - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+  - worker inventory agrees that `map` stays parked for P1; the first `array` read-seam slice is landed at `ny_aot_ms=43`
+  - immediate write-side probes were rejected and reverted:
+    - dedicated `handle_helpers` i64 write helper: `43 -> 47 ms`
+    - `ArrayBox::try_set_index_i64_integer()` cold-split: `43 -> 48 ms`
+  - current exact `P1` reading is probe-mode on the write/TLS seam:
+    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
     - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+    - `src/boxes/array/mod.rs`
+    - `std::thread::local::LocalKey::with` as seen in `bench_micro_aot_asm.sh kilo_micro_array_getset`
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
@@ -81,8 +87,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29x/derust,phase29x/observability,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
   - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+  - `src/boxes/array/mod.rs`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
   - `docs/development/current/main/design/perf-optimization-method-ssot.md`
@@ -182,7 +189,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: `P1` raw substrate perf reopen on the `array` read seam (`array_slot_load.rs` + `handle_helpers.rs`)
+- immediate: `P1` raw substrate perf reopen in probe mode on the `array` write/TLS seam (`array_slot_store.rs` + `handle_helpers.rs` + `ArrayBox::try_set_index_i64_integer`)
 - second: keep the collection owner cutover parked unless a new exact collection blocker appears
 - side-fix complete: backend-zero macOS portability slice is green; `src/host_providers/llvm_codegen.rs` centralizes FFI library candidate resolution
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
@@ -476,11 +483,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current exact leaf slice for `substring_concat`: `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, so `crates/nyash_kernel/src/exports/string.rs::substring_hii` stays a thin dispatch/match wrapper while the hot path remains on direct `with_handle(...)` instead of cache-backed span lookup
   - accepted structure-first slice: `crates/nyash_kernel/src/exports/string.rs::concat3_hhh` is now split into `concat3_plan_from_parts(...)` / `concat3_plan_from_fast_str(...)` / `concat3_plan_from_spans(...)` plus `freeze_concat3_plan(...)`, so route selection and birth are separated file-locally without reopening substrate semantics
   - current runtime follow-up slice for `substring_concat`: `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant panics in cold helpers, so the success path stays straight-line
-  - current exact leaf slice for `array_getset`: the cache seam stays in `crates/nyash_kernel/src/plugin/handle_helpers.rs`, but the direct P1 edit target is now the single-read array load path:
-    - `crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`
-    - `crates/nyash_kernel/src/plugin/handle_helpers.rs::array_get_index_encoded_i64`
+  - current exact leaf slice for `array_getset`: the read seam (`crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`) is landed and kept
+  - current probe target is the write/TLS seam:
+    - `crates/nyash_kernel/src/plugin/array_slot_store.rs::array_slot_store_i64`
+    - `crates/nyash_kernel/src/plugin/handle_helpers.rs::with_array_box`
+    - `src/boxes/array/mod.rs::ArrayBox::try_set_index_i64_integer`
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers, so they are no longer the primary P1 target
-  - fresh `kilo_micro_array_getset` recheck after the cache-seam split landed at `ny_aot_ms=43` (`ratio_cycles=0.01`), so the lane is still thickest but the next cut should stay on the Rust substrate read seam rather than reopening `array_core_box.hako`
+  - fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=43` (`ratio_cycles=0.01`)
+  - rejected probes (reverted immediately): dedicated i64 write helper regressed to `47 ms`, and `try_set_index_i64_integer` cold-split regressed to `48 ms`
+  - fresh `bench_micro_aot_asm.sh kilo_micro_array_getset` now shows `array_slot_store_i64` closure plus `LocalKey::with` as the dominant pair, so the next cut must be measurement-led rather than another blind helper split
   - current contract-change slice: `crates/nyash_kernel/src/exports/string_view.rs` now allows `<= 8 bytes` short slices to eager-materialize instead of always creating `StringViewBox`; this reduces view churn and improves stable whole-program baseline, even though the isolated micro leaf regressed slightly
   - rejected experiment (not kept): splitting the policy to `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` micro to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`, so the wave stays on the flat `<= 8 bytes` policy while whole-program stable remains the primary metric
   - rejected experiment (reverted immediately): `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` tried explicit `StringBox` / `StringViewBox` downcast fast paths; isolated `substring_concat` micro landed at `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed hard to `1066 ms` median (`min=786`, `max=1841`), so observer-only fast path is not a keep candidate

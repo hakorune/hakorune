@@ -129,9 +129,16 @@ Hotspot は次の分類で読む。
 - `kilo_micro_substring_concat` が最厚
 - `kilo_micro_array_getset` が次
 - `kilo_micro_indexof_line` が一番マシ
-- `kilo_micro_array_getset` の current exact leaf is now Rust substrate: `crates/nyash_kernel/src/plugin/handle_helpers.rs` stays the cache seam, and the first direct reopen target is `crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`
+- `kilo_micro_array_getset` の current exact leaf is now Rust substrate: the first read-seam slice (`crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`) is landed, and the current probe target is the write/TLS seam:
+  - `crates/nyash_kernel/src/plugin/array_slot_store.rs::array_slot_store_i64`
+  - `crates/nyash_kernel/src/plugin/handle_helpers.rs::with_array_box`
+  - `src/boxes/array/mod.rs::ArrayBox::try_set_index_i64_integer`
 - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers, so they are no longer the primary exact leaf target
-- fresh `kilo_micro_array_getset` recheck after the cache-seam specialization landed at `ny_aot_ms=43` (`ny_aot_cycles=217761871`), so the next cut should stay on the Rust substrate read seam rather than reopening `array_core_box.hako`
+- fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=43`
+- rejected probes (reverted immediately):
+  - dedicated i64 write helper: `47 ms`
+  - `try_set_index_i64_integer` cold-split: `48 ms`
+- fresh microasm now concentrates on `array_slot_store_i64` closure + `LocalKey::with`, so the next cut must be measurement-led rather than another blind helper split
 - micro profile で見えている `std::env::_var_os` は、まず bridge 側の per-call probe を疑う
 - `substring_concat` の current exact leaf は kernel/runtime owner に固定する
 - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is reduced to dispatch + match
