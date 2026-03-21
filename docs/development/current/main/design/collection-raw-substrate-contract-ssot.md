@@ -180,6 +180,10 @@ Current first slice:
   - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
 - the exported `nyash.runtime_data.{get,set,has,push}_*` ABI contract stays unchanged while route ownership becomes explicit
 
+Current second slice:
+- `lang/src/runtime/collections/runtime_data_core_box.hako` now owns its own unary/binary arg decode helpers plus ABI dispatch helpers
+- `lang/src/vm/boxes/mir_call_v1_handler.hako` treats `RuntimeDataBox` as one delegated branch instead of carrying per-method routing
+
 ## 5. Naming Rule
 
 - `.hako` names should stay user-visible and method-shaped

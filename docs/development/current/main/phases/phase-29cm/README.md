@@ -71,6 +71,7 @@ Related:
   - adjacent lane C blocker sweep is now fully ported through `RVP-C28`; no current `.hako VM` blocker remains for MapBox bad-key field routes
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
   - first slice landed: `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`
+  - second slice landed: `runtime_data_core_box.hako` owns arg-decode/ABI-dispatch helpers and `mir_call_v1_handler.hako` now sees `RuntimeDataBox` as one delegated branch
   - `RuntimeDataBox` still does not own array/map semantics; it only routes to them
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot
 
@@ -161,6 +162,7 @@ Move to `.hako`:
 5. `R1: RuntimeData cleanup`
    - `RuntimeDataBox` remains protocol / facade only
    - first landed slice: `runtime_data.rs` delegates array/map behavior to dedicated Rust route helpers instead of owning inline collection logic
+   - second landed slice: `runtime_data_core_box.hako` centralizes unary/binary arg decode + ABI dispatch helpers and `mir_call_v1_handler.hako` only delegates
 6. `P1: Raw substrate perf reopen`
    - only after `array` and `map` method ownership is no longer Rust-owned
 

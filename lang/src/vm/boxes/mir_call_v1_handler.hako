@@ -41,6 +41,11 @@ static box MirCallV1HandlerBox {
     return JsonFragBox._str_to_int("" + raw)
   }
 
+  _try_handle_runtime_data_box(seg, regs, btype, mname) {
+    if btype != "RuntimeDataBox" { return 0 }
+    return RuntimeDataCoreBox.try_handle(seg, regs, mname)
+  }
+
   handle(seg, regs) {
     print("[DEBUG_HANDLER_ENTRY] seg=" + seg.substring(0, 80))
     // Constructor: write dst=0 (SSA continuity)
@@ -56,9 +61,7 @@ static box MirCallV1HandlerBox {
       if mname != "" {
         // Try to resolve box type/name for logging/fallbacks
         local btype = JsonFragBox.get_str(seg, "box_name"); if btype == null { btype = JsonFragBox.get_str(seg, "box_type") }
-        if btype == "RuntimeDataBox" {
-          if RuntimeDataCoreBox.try_handle(seg, regs, mname) == 1 { return }
-        }
+        if me._try_handle_runtime_data_box(seg, regs, btype, mname) == 1 { return }
         // Optional AdapterRegistry 経路（箱化）
         local use_adapter = env.get("HAKO_ABI_ADAPTER"); if use_adapter == null { use_adapter = "0" }
         if use_adapter == "1" {

@@ -35,7 +35,7 @@ static box RuntimeDataCoreBox {
     return JsonFragBox._str_to_int("" + raw)
   }
 
-  _write_dst(regs, dst_rt, value_rt) {
+  _write_i64_dst(regs, dst_rt, value_rt) {
     if dst_rt != null {
       regs.setField(StringHelpers.int_to_str(dst_rt), StringHelpers.int_to_str(value_rt))
     }
@@ -61,54 +61,67 @@ static box RuntimeDataCoreBox {
     return externcall "nyash.runtime_data.push_hh"(recv_h, val_any)
   }
 
-  try_handle(seg, regs, mname) {
+  _recv_handle_or_null(seg, regs) {
     local rid_rt = MiniMirV1Scan.receiver_id(seg)
-    local recv_hrt = me._read_reg_i64_or_null(regs, rid_rt)
+    return me._read_reg_i64_or_null(regs, rid_rt)
+  }
+
+  _read_first_arg_i64_or_null(seg, regs) {
+    local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
+    return me._read_reg_i64_or_null(regs, arg0_rt)
+  }
+
+  _read_nth_arg_i64_or_null(seg, regs, idx) {
+    local arg_rt = MiniMirV1Scan.nth_arg_register(seg, idx)
+    return me._read_reg_i64_or_null(regs, arg_rt)
+  }
+
+  _try_handle_get(seg, regs, recv_hrt, dst_rt) {
+    local key_any = me._read_first_arg_i64_or_null(seg, regs)
+    if key_any == null { return 0 }
+    local got_rt = me.get_hh(recv_hrt, key_any)
+    me._write_i64_dst(regs, dst_rt, got_rt)
+    me._trace("[vm/runtime_data_core:get_hh]")
+    return 1
+  }
+
+  _try_handle_set(seg, regs, recv_hrt, dst_rt) {
+    local key_any = me._read_first_arg_i64_or_null(seg, regs)
+    local val_any = me._read_nth_arg_i64_or_null(seg, regs, 1)
+    if key_any == null || val_any == null { return 0 }
+    local set_rt = me.set_hhh(recv_hrt, key_any, val_any)
+    me._write_i64_dst(regs, dst_rt, set_rt)
+    me._trace("[vm/runtime_data_core:set_hhh]")
+    return 1
+  }
+
+  _try_handle_has(seg, regs, recv_hrt, dst_rt) {
+    local key_any = me._read_first_arg_i64_or_null(seg, regs)
+    if key_any == null { return 0 }
+    local has_rt = me.has_hh(recv_hrt, key_any)
+    me._write_i64_dst(regs, dst_rt, has_rt)
+    me._trace("[vm/runtime_data_core:has_hh]")
+    return 1
+  }
+
+  _try_handle_push(seg, regs, recv_hrt, dst_rt) {
+    local val_any = me._read_first_arg_i64_or_null(seg, regs)
+    if val_any == null { return 0 }
+    local push_rt = me.push_hh(recv_hrt, val_any)
+    me._write_i64_dst(regs, dst_rt, push_rt)
+    me._trace("[vm/runtime_data_core:push_hh]")
+    return 1
+  }
+
+  try_handle(seg, regs, mname) {
+    local recv_hrt = me._recv_handle_or_null(seg, regs)
     if recv_hrt == null { return 0 }
 
     local dst_rt = JsonFragBox.get_int(seg, "dst")
-    if mname == "get" {
-      local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-      local key_any = me._read_reg_i64_or_null(regs, arg0_rt)
-      if key_any != null {
-        local got_rt = me.get_hh(recv_hrt, key_any)
-        me._write_dst(regs, dst_rt, got_rt)
-        me._trace("[vm/runtime_data_core:get_hh]")
-        return 1
-      }
-    }
-    if mname == "set" {
-      local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-      local arg1_rt = MiniMirV1Scan.nth_arg_register(seg, 1)
-      local key_any = me._read_reg_i64_or_null(regs, arg0_rt)
-      local val_any = me._read_reg_i64_or_null(regs, arg1_rt)
-      if key_any != null && val_any != null {
-        local set_rt = me.set_hhh(recv_hrt, key_any, val_any)
-        me._write_dst(regs, dst_rt, set_rt)
-        me._trace("[vm/runtime_data_core:set_hhh]")
-        return 1
-      }
-    }
-    if mname == "has" {
-      local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-      local key_any = me._read_reg_i64_or_null(regs, arg0_rt)
-      if key_any != null {
-        local has_rt = me.has_hh(recv_hrt, key_any)
-        me._write_dst(regs, dst_rt, has_rt)
-        me._trace("[vm/runtime_data_core:has_hh]")
-        return 1
-      }
-    }
-    if mname == "push" {
-      local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
-      local val_any = me._read_reg_i64_or_null(regs, arg0_rt)
-      if val_any != null {
-        local push_rt = me.push_hh(recv_hrt, val_any)
-        me._write_dst(regs, dst_rt, push_rt)
-        me._trace("[vm/runtime_data_core:push_hh]")
-        return 1
-      }
-    }
+    if mname == "get" { return me._try_handle_get(seg, regs, recv_hrt, dst_rt) }
+    if mname == "set" { return me._try_handle_set(seg, regs, recv_hrt, dst_rt) }
+    if mname == "has" { return me._try_handle_has(seg, regs, recv_hrt, dst_rt) }
+    if mname == "push" { return me._try_handle_push(seg, regs, recv_hrt, dst_rt) }
     return 0
   }
 }
