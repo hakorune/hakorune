@@ -11,7 +11,7 @@ set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_apps_entry_mode_delta_contract_vm"
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../../lib/test_runner.sh"
 require_env || exit 2
 
 COMPARE="$NYASH_ROOT/tools/perf/bench_apps_entry_mode_compare.sh"

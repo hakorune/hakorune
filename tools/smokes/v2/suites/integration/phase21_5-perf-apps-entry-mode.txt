@@ -1,0 +1,6 @@
+# phase21_5 perf apps entry_mode suite
+phase21_5/perf/apps/entry_mode/phase21_5_perf_apps_entry_mode_contract_vm.sh
+phase21_5/perf/apps/entry_mode/phase21_5_perf_apps_entry_mode_delta_contract_vm.sh
+phase21_5/perf/apps/entry_mode/phase21_5_perf_apps_entry_mode_significance_contract_vm.sh
+phase21_5/perf/apps/entry_mode/phase21_5_perf_apps_entry_mode_spread_contract_vm.sh
+phase21_5/perf/apps/entry_mode/phase21_5_perf_apps_entry_mode_case_hotspot_contract_vm.sh

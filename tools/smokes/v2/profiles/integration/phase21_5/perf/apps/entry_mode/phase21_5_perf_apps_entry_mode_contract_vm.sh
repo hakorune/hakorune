@@ -12,8 +12,8 @@ set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_apps_entry_mode_contract_vm"
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/perf_apps_contract.sh"
+source "$(dirname "$0")/../../../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../../lib/perf_apps_contract.sh"
 require_env || exit 2
 APP_BENCH="$NYASH_ROOT/tools/perf/bench_apps_wallclock.sh"
 source "$NYASH_ROOT/tools/perf/lib/apps_wallclock_cases.sh"

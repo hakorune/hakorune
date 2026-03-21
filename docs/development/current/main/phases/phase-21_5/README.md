@@ -10,6 +10,9 @@ Related:
   - tools/smokes/v2/profiles/integration/phase21_5/perf/README.md
   - tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/README.md
   - tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/apps/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/apps/entry_mode/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/apps/mir_mode/README.md
   - src/llvm_py/cfg/utils.py
   - src/llvm_py/tests/test_cfg_stringish_arraybox.py
   - tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh
@@ -37,7 +40,7 @@ Related:
 2. 回帰テストで `ArrayBox.push/get` の stringish propagation を固定する。
 3. `phase21_5_perf_kilo_text_concat_contract_vm.sh` を再実行して `nyash.any.length_h` 不在を確認する。
 4. `tools/checks/dev_gate.sh portability` を green に戻す。
-5. そのあとで `phase21_5/perf/apps` か、続く semantic split に戻る。
+5. そのあとで `phase21_5/perf/apps/{entry_mode,mir_mode}` を前提に、残りの singleton `phase21_5/perf/apps` slices に戻る。
 
 ## Acceptance
 
@@ -49,4 +52,4 @@ Related:
 ## Next
 
 1. Keep the residual route slice parked unless the `any.length_h` route regresses again.
-2. `phase21_5/perf/{chip8,kilo}` は別 family として landed 済みなので、必要なら `phase21_5/perf/apps` を次に切る。
+2. `phase21_5/perf/{chip8,kilo}` と `phase21_5/perf/apps/{entry_mode,mir_mode}` は別 family として landed 済みなので、必要なら remaining singleton `phase21_5/perf/apps` slices（`case_breakdown`, `compile_run_split`, `crosslang_bundle`, `emit_mir_jsonfile_route`, `startup_subtract`）を次に切る。

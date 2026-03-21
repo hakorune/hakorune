@@ -21,8 +21,9 @@ Related:
   - tools/smokes/v2/profiles/integration/phase29cc_wsm/g2_browser/README.md
   - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/README.md
   - tools/smokes/v2/profiles/integration/phase21_5/perf/README.md
-  - tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/README.md
-  - tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/apps/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/apps/entry_mode/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/apps/mir_mode/README.md
   - tools/smokes/v2/suites/integration/phase29cc-wsm-g3-canvas.txt
   - tools/smokes/v2/suites/integration/phase29cc-wsm-g2-browser.txt
   - tools/smokes/v2/suites/integration/phase29cc-wsm-g4.txt
@@ -93,4 +94,4 @@ Related:
 
 - `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` / `phase29ck_boundary` / `vm_hako_caps` / `phase29cc_wsm/g3_canvas` / `phase29cc_wsm/g2_browser` / `phase29cc_wsm/g4` / `phase29cc_wsm/p10` / `phase29cc_wsm/p5` / `phase29cc_wsm/p6` / `phase29cc_wsm/p7` / `phase21_5/perf/chip8` / `phase21_5/perf/kilo` の first live split はそれぞれ `integration/rc_gc_alignment/` / `integration/json/` / `integration/mir_shape/` / `integration/ring1_providers/` / `integration/phase29ck_boundary/{entry,string,runtime_data}/` / `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/` / `integration/phase29cc_wsm/g3_canvas/` / `integration/phase29cc_wsm/g2_browser/` / `integration/phase29cc_wsm/g4/` / `integration/phase29cc_wsm/p10/` / `integration/phase29cc_wsm/p5/` / `integration/phase29cc_wsm/p6/` / `integration/phase29cc_wsm/p7/` / `integration/phase21_5/perf/chip8/` / `integration/phase21_5/perf/kilo/` に出したので、次は `integration/apps` の残り family を semantic split する
 - `integration/apps` の新規追加を凍結し、新規 smoke は semantic domain 配下へ置く
-- `phase29cc_wsm/p8` の切り出しも完了し、`phase21_5/perf/{chip8,kilo}` も landed したので、次の active family は `phase21_5/perf/apps` を優先して `integration/apps` から切る
+- `phase29cc_wsm/p8` の切り出しも完了し、`phase21_5/perf/{chip8,kilo}` と `phase21_5/perf/apps/{entry_mode,mir_mode}` も landed したので、次の active family は singleton `phase21_5/perf/apps` slices（`case_breakdown`, `compile_run_split`, `crosslang_bundle`, `emit_mir_jsonfile_route`, `startup_subtract`）を優先して `integration/apps` から切る
