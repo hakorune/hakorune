@@ -49,6 +49,11 @@ Rule:
   - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state
   - `record_set_state(...)` / `get_state_value(...)` / `has_state_value(...)`
     -> MapBox state bookkeeping support for the `.hako` owner
+  - paired Rust raw substrate:
+    - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
+    - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
+    - `crates/nyash_kernel/src/plugin/map_probe.rs`
+    - legacy `nyash.map.{get,set,has}_*` exports stay as thin compatibility shells above those raw verbs
 - `string_core_box.hako`
   - `len_i64(handle)` -> `nyash.string.len_h`
   - `try_handle(seg, regs, mname)`

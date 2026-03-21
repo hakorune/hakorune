@@ -158,6 +158,12 @@ Current first slice:
 - `MapCoreBox.try_handle(...)` is now the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}`
 - `lang/src/vm/boxes/mir_call_v1_handler.hako` no longer carries inline `MapBox.set` fallback logic
 
+Current second slice:
+- `crates/nyash_kernel/src/plugin/map_slot_load.rs`
+- `crates/nyash_kernel/src/plugin/map_slot_store.rs`
+- `crates/nyash_kernel/src/plugin/map_probe.rs`
+- legacy `nyash.map.{get,set,has}_*` exports stay as thin compatibility wrappers while raw `slot_load` / `slot_store` / `probe` verbs become the structural owner
+
 ### R1. Cleanup RuntimeData
 
 Owner:

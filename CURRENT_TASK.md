@@ -75,6 +75,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/runtime/collections/map_core_box.hako`
   - `lang/src/vm/boxes/mir_call_v1_handler.hako`
   - `crates/nyash_kernel/src/plugin/map.rs`
+  - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
+  - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
+  - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - `crates/nyash_kernel/src/plugin/runtime_data.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
@@ -89,6 +92,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[ ]` move `ArrayBox` user-visible semantics into `.hako` ring1 collection core
   - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
   - `[x]` M1 first slice landed: `MapCoreBox` is the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}` and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
+  - `[x]` M1 second slice landed: Rust `map` helper ownership is split into raw `slot_load` / `slot_store` / `probe` modules while legacy `nyash.map.{get,set,has}_*` exports remain thin compatibility wrappers
   - `[x]` RVP-C16 first vm-hako blocker is closed: `newbox(MapBox)` is accepted in subset-check and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`
   - `[x]` RVP-C17 is closed: `MapBox.set(key,value)` now clears subset/runtime args>1 blockers and is pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`
   - `[x]` RVP-C18 is closed: `MapBox.size()` now completes in vm-hako and is pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`
