@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -30,7 +30,7 @@ min7 で導入した route trace 契約を使い、判定根拠を lightweight g
 
 ## Implemented
 1. smoke 追加:
-   - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh`
+   - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh`
    - lock doc keyword と route-trace 契約テストを検証。
 2. gate 接続:
    - `tools/checks/dev_gate.sh` の `wasm-boundary-lite` に `WSM-P5-min8` step を追加。
@@ -38,7 +38,7 @@ min7 で導入した route trace 契約を使い、判定根拠を lightweight g
    - `CURRENT_TASK.md` / `phase-29cc/README.md` / `10-Now.md` を `next=WSM-P5-min9` へ同期。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

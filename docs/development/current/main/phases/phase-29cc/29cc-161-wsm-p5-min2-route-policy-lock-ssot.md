@@ -8,7 +8,7 @@ Related:
   - docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md
   - src/config/env/runner_flags.rs
   - src/runner/modes/wasm.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min2_route_policy_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min2_route_policy_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -26,7 +26,7 @@ Related:
 4. cutover の本体（default を `.hako` emitter/binary writer 実装へ切替）は次タスクで行う。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min2_route_policy_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min2_route_policy_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

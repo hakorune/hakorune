@@ -9,7 +9,7 @@ Related:
   - src/config/env/runner_flags.rs
   - src/runner/modes/wasm.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -38,7 +38,7 @@ Related:
    - `wasm-boundary-lite` へ `phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh` を追加し、min8/min9 実行ロックを置換。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

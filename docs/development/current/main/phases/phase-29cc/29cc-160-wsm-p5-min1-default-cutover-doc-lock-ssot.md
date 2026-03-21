@@ -6,7 +6,7 @@ Scope: WSM-P5-min1（.hako-only roadmap P5）として default cutover の境界
 Related:
   - docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-159-wsm-p4-min6-shape-table-lock-ssot.md
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min1_default_cutover_docs_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min1_default_cutover_docs_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -28,7 +28,7 @@ P5 の default cutover（既定経路切替）に入る前に、切替境界・�
 3. 受け入れは既存 `wasm-boundary-lite` 緑を前提に、cutover 専用 smoke を追加して固定する。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min1_default_cutover_docs_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min1_default_cutover_docs_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

@@ -3,7 +3,8 @@
 # Shared route-trace contract runners for WSM-P5 min7/min8/min9 smoke scripts.
 
 set -euo pipefail
-source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
+_phase29cc_wsm_p5_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$_phase29cc_wsm_p5_dir/../../apps/phase29cc_wsm_cargo_test_common.sh"
 
 run_wsm_p5_route_trace_contract_tests_full() {
   run_wsm_targeted_contract_test "wasm_route_policy_name_contract"

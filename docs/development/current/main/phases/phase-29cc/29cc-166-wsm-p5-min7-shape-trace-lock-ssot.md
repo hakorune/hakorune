@@ -12,7 +12,7 @@ Related:
   - src/runner/modes/wasm.rs
   - src/config/env/runner_flags.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -44,7 +44,7 @@ shape-table native path の採用可否を「どの shape_id で決まったか�
    - `tools/smokes/.../phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh` を追加。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

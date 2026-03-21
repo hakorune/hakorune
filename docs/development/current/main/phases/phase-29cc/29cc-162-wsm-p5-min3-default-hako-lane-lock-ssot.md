@@ -8,7 +8,7 @@ Related:
   - docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md
   - src/runner/modes/wasm.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min3_default_hako_lane_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min3_default_hako_lane_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -35,7 +35,7 @@ Related:
    - `wasm_demo_min_fixture_legacy_route_policy_rejected_contract`（min10更新後）
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min3_default_hako_lane_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min3_default_hako_lane_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

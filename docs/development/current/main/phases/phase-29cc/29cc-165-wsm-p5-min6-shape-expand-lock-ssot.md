@@ -11,7 +11,7 @@ Related:
   - src/runner/modes/wasm.rs
   - tests/wasm_demo_min_fixture.rs
   - apps/tests/phase29cc_wsm_p5_min6_const_copy_return.hako
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -40,7 +40,7 @@ default(hako-lane) の native helper 対象を pilot 1shape から shape-table 2
    - const-copy fixture が native helper 経由になる契約テストを追加。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

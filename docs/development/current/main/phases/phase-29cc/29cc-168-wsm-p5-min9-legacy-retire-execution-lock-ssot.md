@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/design/ai-handoff-and-debug-contract.md
   - src/runner/modes/wasm.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -36,11 +36,11 @@ min8 で固定した readiness 判定を、実行境界の契約へ昇格する�
    - `tests/wasm_demo_min_fixture.rs`
    - legacy success/parity 前提を retire fail-fast 契約へ更新。
 3. smoke/gate:
-   - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh`
+   - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh`
    - `tools/checks/dev_gate.sh` の `wasm-boundary-lite` へ統合。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

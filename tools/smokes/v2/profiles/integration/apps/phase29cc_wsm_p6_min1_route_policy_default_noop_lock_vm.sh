@@ -6,7 +6,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/phase29cc_wsm_p5_route_trace_common.sh"
+source "$(dirname "$0")/../phase29cc_wsm/p5/phase29cc_wsm_p5_route_trace_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md"

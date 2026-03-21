@@ -9,7 +9,7 @@ Related:
   - src/backend/wasm/mod.rs
   - src/runner/modes/wasm.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min5_native_helper_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min5_native_helper_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -38,7 +38,7 @@ default(hako-lane) の pilot 1shape について、bridge 経路に依存しな�
    - `wasm_demo_default_route_native_helper_rejects_non_pilot_contract`
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min5_native_helper_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min5_native_helper_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

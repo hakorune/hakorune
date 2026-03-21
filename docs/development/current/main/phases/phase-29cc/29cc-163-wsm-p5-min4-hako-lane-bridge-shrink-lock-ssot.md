@@ -9,7 +9,7 @@ Related:
   - src/backend/wasm/mod.rs
   - src/runner/modes/wasm.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -41,7 +41,7 @@ pilot shape では native path、非pilot shape では bridge fallback とし、
      - `wasm_demo_default_hako_lane_bridge_non_pilot_contract`
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

@@ -1,0 +1,12 @@
+# Integration phase29cc-wsm-p5 suite
+# Active WSM P5 cases only.
+phase29cc_wsm/p5/phase29cc_wsm_p5_min1_default_cutover_docs_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min2_route_policy_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min3_default_hako_lane_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min4_hako_lane_bridge_shrink_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min5_native_helper_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min6_shape_expand_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min7_shape_trace_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min8_legacy_retire_readiness_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min9_legacy_retire_execution_lock_vm.sh
+phase29cc_wsm/p5/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
