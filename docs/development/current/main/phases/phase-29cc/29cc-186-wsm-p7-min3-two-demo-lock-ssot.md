@@ -6,7 +6,7 @@ Scope: WSM-P7-min3 として `projects/nyash-wasm` 由来の 2 デモを `.hako`
 Related:
   - docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-175-wsm-g4-min5-headless-two-example-parity-lock-ssot.md
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh
   - projects/nyash-wasm/nyash_playground.html
 ---
 
@@ -22,13 +22,13 @@ Related:
 
 ## Implemented
 1. lock smoke 追加:
-   - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh`
+   - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh`
 2. smoke は次を実行する:
    - `phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`
 3. lock doc は `projects/nyash-wasm` と 2 例の対応を明記する。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh`
 2. `tools/checks/dev_gate.sh wasm-demo-g3-full`
 
 ## Next

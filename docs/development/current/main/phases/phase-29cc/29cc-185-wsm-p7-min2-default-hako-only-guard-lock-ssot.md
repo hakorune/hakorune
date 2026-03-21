@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-184-wsm-p7-min1-hako-only-done-criteria-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md
   - tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -29,14 +29,14 @@ default route が `.hako`-only 契約から逸脱していないことを、軽�
 1. guard 追加:
    - `tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`
 2. smoke 追加:
-   - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh`
+   - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh`
 3. gate 接続:
    - `tools/checks/dev_gate.sh portability`
 
 ## Acceptance
 1. `cargo check --features wasm-backend --bin hakorune`
 2. `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`
-3. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh`
+3. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh`
 4. `tools/checks/dev_gate.sh portability`
 
 ## Next

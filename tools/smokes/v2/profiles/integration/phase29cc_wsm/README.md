@@ -1,6 +1,6 @@
 # Integration phase29cc_wsm family
 
-This family is the next live semantic split after `vm_hako_caps`, and it currently hosts the `g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, and `p6` subfamilies.
+This family is the next live semantic split after `vm_hako_caps`, and it currently hosts the `g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, and `p7` subfamilies.
 
 ## Active Split
 
@@ -22,9 +22,12 @@ This family is the next live semantic split after `vm_hako_caps`, and it current
 - `p6/`
   - route-policy freeze pin for WSM-P6
   - shared helper: `p6/phase29cc_wsm_p6_common.sh`
+- `p7/`
+  - default hako-only guard and compat retention progression for WSM-P7
+  - shared helper: `p7/phase29cc_wsm_p7_common.sh`
 
 ## Migration Note
 
 - The remaining `phase29cc_wsm_*` scripts still live under `tools/smokes/v2/profiles/integration/apps/`.
 - Keep new `phase29cc_wsm` work under this family tree; do not add more `phase29cc_wsm_*` files to `apps/`.
-- The next subfamily to inspect is `p7/`.
+- The next subfamily to inspect is `p8/`.

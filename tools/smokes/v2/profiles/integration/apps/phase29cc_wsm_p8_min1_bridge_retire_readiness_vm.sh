@@ -29,7 +29,7 @@ for needle in \
   fi
 done
 
-bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min4_compat_retention_lock_vm.sh
+bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min4_compat_retention_lock_vm.sh
 run_wsm_targeted_contract_test "wasm_hako_default_lane_plan_bridge_for_non_pilot_shape_contract"
 run_wsm_targeted_contract_test "wasm_hako_default_lane_trace_has_none_shape_id_for_bridge_contract"
 run_wsm_targeted_contract_test "wasm_demo_default_hako_lane_bridge_non_pilot_contract"

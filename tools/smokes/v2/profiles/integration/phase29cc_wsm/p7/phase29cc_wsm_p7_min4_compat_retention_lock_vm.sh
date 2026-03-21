@@ -26,7 +26,7 @@ for needle in \
   fi
 done
 
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh"
-bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min2_default_hako_only_guard_vm.sh"
+bash "$NYASH_ROOT/tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/phase29cc_wsm_p7_min3_two_demo_lock_vm.sh"
 
 test_pass "phase29cc_wsm_p7_min4_compat_retention_lock_vm: PASS (WSM-P7-min4 compat retention lock)"
