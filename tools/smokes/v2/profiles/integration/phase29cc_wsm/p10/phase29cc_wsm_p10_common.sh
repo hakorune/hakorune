@@ -2,7 +2,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
+source "$(dirname "$0")/../../apps/phase29cc_wsm_cargo_test_common.sh"
 require_env || exit 2
 
 require_p10_doc_keywords() {

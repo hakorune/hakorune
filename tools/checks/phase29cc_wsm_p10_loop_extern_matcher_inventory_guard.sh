@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 DOC="docs/development/current/main/phases/phase-29cc/29cc-195-wsm-p10-min2-loop-extern-matcher-inventory-lock-ssot.md"
-SMOKE="tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min2_loop_extern_matcher_inventory_lock_vm.sh"
+SMOKE="tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min2_loop_extern_matcher_inventory_lock_vm.sh"
 DEV_GATE="tools/checks/dev_gate.sh"
 SHAPE_TABLE="src/backend/wasm/shape_table.rs"
 

@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min1_loop_extern_native_emit_design_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min1_loop_extern_native_emit_design_lock_vm.sh
   - tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh
 ---
 
@@ -34,6 +34,6 @@ native lane の設計契約を先に固定する。
 3. `WSM-P10-min4`: 1 fixture を native emit へ昇格。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min1_loop_extern_native_emit_design_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min1_loop_extern_native_emit_design_lock_vm.sh`
 2. `bash tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`
 3. `tools/checks/dev_gate.sh portability`

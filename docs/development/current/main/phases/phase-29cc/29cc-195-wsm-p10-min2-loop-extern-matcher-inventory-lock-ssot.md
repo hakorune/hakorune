@@ -6,7 +6,7 @@ Scope: WSM-P10-min2 として loop+extern の candidate matcher を analysis-onl
 Related:
   - docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md
   - src/backend/wasm/shape_table.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min2_loop_extern_matcher_inventory_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min2_loop_extern_matcher_inventory_lock_vm.sh
   - tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh
 ---
 
@@ -23,7 +23,7 @@ Related:
 4. 非loop extern（single block）は candidate として受理しない。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min2_loop_extern_matcher_inventory_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min2_loop_extern_matcher_inventory_lock_vm.sh`
 2. `bash tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh`
 3. `tools/checks/dev_gate.sh portability`
 

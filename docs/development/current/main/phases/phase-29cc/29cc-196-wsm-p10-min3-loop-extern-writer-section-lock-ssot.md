@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-195-wsm-p10-min2-loop-extern-matcher-inventory-lock-ssot.md
   - src/backend/wasm/binary_writer.rs
   - src/backend/wasm/mod.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min3_loop_extern_writer_section_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min3_loop_extern_writer_section_lock_vm.sh
   - tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh
 ---
 
@@ -28,7 +28,7 @@ loop/branch/call を含む writer section 合成 API を固定する。
 5. route は bridge 維持（`plan=bridge-rust-backend`）とし、min3 では shape promotion を行わない。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min3_loop_extern_writer_section_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min3_loop_extern_writer_section_lock_vm.sh`
 2. `bash tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh`
 3. `tools/checks/dev_gate.sh portability`
 

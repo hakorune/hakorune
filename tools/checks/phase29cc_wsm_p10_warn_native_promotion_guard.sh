@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 DOC="docs/development/current/main/phases/phase-29cc/29cc-199-wsm-p10-min6-warn-native-promotion-lock-ssot.md"
-SMOKE="tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min6_warn_native_promotion_lock_vm.sh"
+SMOKE="tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min6_warn_native_promotion_lock_vm.sh"
 DEV_GATE="tools/checks/dev_gate.sh"
 SHAPE_TABLE="src/backend/wasm/shape_table.rs"
 WASM_MOD="src/backend/wasm/mod.rs"

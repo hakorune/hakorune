@@ -5,7 +5,7 @@ Date: 2026-02-27
 Scope: WSM-P10-min10 として loop/extern native promotion family（warn/info/error/debug fixed4）の closeout を固定し、fixed3 inventory の bridge-only 境界を最終ロックする。
 Related:
   - docs/development/current/main/phases/phase-29cc/29cc-202-wsm-p10-min9-debug-native-promotion-lock-ssot.md
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min10_native_promotion_closeout_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min10_native_promotion_closeout_lock_vm.sh
   - tools/checks/phase29cc_wsm_p10_native_promotion_closeout_guard.sh
   - tools/checks/dev_gate.sh
 ---
@@ -27,7 +27,7 @@ Related:
 4. closeout smoke は min6/min7/min8/min9 lock smoke を束ねて実行し、family 契約をまとめて固定する。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min10_native_promotion_closeout_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min10_native_promotion_closeout_lock_vm.sh`
 2. `bash tools/checks/phase29cc_wsm_p10_native_promotion_closeout_guard.sh`
 3. `tools/checks/dev_gate.sh portability`
 

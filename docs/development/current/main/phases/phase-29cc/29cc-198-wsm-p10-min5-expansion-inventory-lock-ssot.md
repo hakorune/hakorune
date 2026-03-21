@@ -10,7 +10,7 @@ Related:
   - src/backend/wasm/shape_table.rs
   - src/backend/wasm/mod.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min5_expansion_inventory_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min5_expansion_inventory_lock_vm.sh
   - tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh
 ---
 
@@ -32,7 +32,7 @@ loop/extern の隣接 shape（warn/info/error/debug）を inventory として固
 4. `WSM-P10-min4` (`wsm.p10.main_loop_extern_call.fixed3.v0`) の native 昇格契約は回帰させない。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min5_expansion_inventory_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min5_expansion_inventory_lock_vm.sh`
 2. `bash tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh`
 3. `tools/checks/dev_gate.sh portability`
 

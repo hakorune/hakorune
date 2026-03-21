@@ -10,7 +10,7 @@ Related:
   - src/backend/wasm/mod.rs
   - src/backend/wasm/binary_writer.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min7_info_native_promotion_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min7_info_native_promotion_lock_vm.sh
   - tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh
 ---
 
@@ -27,7 +27,7 @@ Related:
 4. route trace は min7 fixture で `shape_id=wsm.p10.main_loop_extern_call.info.fixed4.v0` を出力する。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min7_info_native_promotion_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min7_info_native_promotion_lock_vm.sh`
 2. `bash tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh`
 3. `tools/checks/dev_gate.sh portability`
 

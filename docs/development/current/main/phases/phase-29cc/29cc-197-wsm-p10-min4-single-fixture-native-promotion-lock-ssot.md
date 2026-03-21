@@ -9,7 +9,7 @@ Related:
   - src/backend/wasm/shape_table.rs
   - src/backend/wasm/mod.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min4_single_fixture_native_promotion_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min4_single_fixture_native_promotion_lock_vm.sh
   - tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh
 ---
 
@@ -27,7 +27,7 @@ loop/extern 1 fixture を native emit へ昇格する。
 4. webcanvas/canvas_advanced の bridge 契約は変更しない（回帰禁止）。
 
 ## Acceptance
-1. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min4_single_fixture_native_promotion_lock_vm.sh`
+1. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min4_single_fixture_native_promotion_lock_vm.sh`
 2. `bash tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh`
 3. `tools/checks/dev_gate.sh portability`
 

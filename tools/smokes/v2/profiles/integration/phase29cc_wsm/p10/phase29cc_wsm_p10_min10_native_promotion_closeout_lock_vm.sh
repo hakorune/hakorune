@@ -24,9 +24,9 @@ require_p10_doc_keywords \
   "monitor-only"
 
 run_p10_contract_tests \
-  "bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min6_warn_native_promotion_lock_vm.sh" \
-  "bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min7_info_native_promotion_lock_vm.sh" \
-  "bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min8_error_native_promotion_lock_vm.sh" \
-  "bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p10_min9_debug_native_promotion_lock_vm.sh"
+  "bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min6_warn_native_promotion_lock_vm.sh" \
+  "bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min7_info_native_promotion_lock_vm.sh" \
+  "bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min8_error_native_promotion_lock_vm.sh" \
+  "bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p10/phase29cc_wsm_p10_min9_debug_native_promotion_lock_vm.sh"
 
 test_pass "phase29cc_wsm_p10_min10_native_promotion_closeout_lock_vm: PASS (WSM-P10-min10 native promotion closeout lock)"
