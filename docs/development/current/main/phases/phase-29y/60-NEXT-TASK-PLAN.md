@@ -232,7 +232,7 @@ Related:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_debt_probe_vm.sh`
 - push前/週次終端/回帰疑い:
-  - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
+  - `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - FAIL 時:
   - failure-driven 保守へ切替（上限60分）。
   - 60分で復旧しない場合は blocker メモを `CURRENT_TASK.md` に固定。

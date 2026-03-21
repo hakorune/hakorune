@@ -11,7 +11,7 @@ Related:
   - docs/development/current/main/20-Decisions.md
   - tools/checks/rc_gc_alignment_g3_cycle_timing_cases.txt
   - tools/checks/rc_gc_alignment_g3_cycle_timing_guard.sh
-  - tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g3_cycle_timing_gate.sh
+  - tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g3_cycle_timing_gate.sh
 ---
 
 # RC/GC Alignment G-RC-3: Weak/Strong Cycle + Explicit-Drop Timing Lock (SSOT)
@@ -29,7 +29,7 @@ Source of truth:
 
 Fixed matrix:
 1. `g1_weak_and_drop_parity` (`weak_and_drop`)
-   - gate: `tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g1_lifecycle_parity_vm_llvm.sh`
+   - gate: `tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g1_lifecycle_parity_vm_llvm.sh`
    - coverage: weak upgrade success/fail + explicit drop parity
 2. `strong_cycle_observability` (`strong_cycle`)
    - gate: `tools/smokes/v2/profiles/integration/apps/phase29x_observability_summary_vm.sh`
@@ -53,7 +53,7 @@ Fixed matrix:
 - Guard:
   - `tools/checks/rc_gc_alignment_g3_cycle_timing_guard.sh`
 - Gate:
-  - `tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g3_cycle_timing_gate.sh`
+  - `tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g3_cycle_timing_gate.sh`
 
 Gate steps:
 1. guard（matrix/docs/gate wiring）
@@ -64,7 +64,7 @@ Gate steps:
 ## 4. Evidence command
 
 - `bash tools/checks/rc_gc_alignment_g3_cycle_timing_guard.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g3_cycle_timing_gate.sh`
+- `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g3_cycle_timing_gate.sh`
 
 ## 5. Next
 

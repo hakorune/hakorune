@@ -28,12 +28,13 @@ The structural target is:
 As of 2026-03-21, the smoke tree is heavily concentrated in a few leaves:
 
 - `integration`: about `1200+` scripts
-- `integration/apps`: about `275` active scripts at the leaf root
+- `integration/apps`: about `271` active scripts at the leaf root
+- `integration/rc_gc_alignment`: `4` scripts, split out of `integration/apps` as the first live semantic family
 - `integration/apps/archive`: about `225` archived scripts
 - `integration/joinir`: about `170` scripts
 - `quick/core`: about `63` scripts
 
-This is too dense for casual human navigation, especially under `integration/apps`.
+This is still too dense for casual human navigation, especially under `integration/apps`, but the first live split has already been carved out as `integration/rc_gc_alignment`.
 
 ## Suite-first contract
 
@@ -140,7 +141,7 @@ These names are reserved and should not contain live profile entries that must r
 2. Introduce suite manifests without changing `--profile` compatibility.
 3. Prefer suite manifests for daily/presubmit entry before any semantic path split.
 4. Keep inventory tooling aligned with the same prune contract.
-5. Split `integration/apps` by semantic domain before any mass rename.
+5. Split `integration/apps` by semantic domain before any mass rename; the first live split is `integration/rc_gc_alignment/`, and the next active family should be `json`.
 6. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
 
 ## First safe target
@@ -149,15 +150,15 @@ The first overloaded bucket to split is:
 
 - `tools/smokes/v2/profiles/integration/apps/`
 
-Recommended first semantic groups:
+First live split already landed:
 
-- `array`
-- `map`
-- `string`
-- `selfhost`
-- `stageb`
-- `analyze`
-- `core_direct`
-- `parity`
+- `tools/smokes/v2/profiles/integration/rc_gc_alignment/`
+
+Recommended next semantic groups:
+
+- `json`
+- `ring1_providers`
+- `mir_shape`
+- `phase29ck_boundary`
 
 Do not mass-move all archived content in the same slice. Archive separation and active semantic split should remain separate commits.

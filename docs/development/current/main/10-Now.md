@@ -282,7 +282,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 
 ## Milestone Commands
 
-- `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
+- `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g2_fast_milestone_gate.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - `tools/checks/dev_gate.sh portability`（cross-platform preflight）
 - `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero observability。source-zero までの中間ゲート）

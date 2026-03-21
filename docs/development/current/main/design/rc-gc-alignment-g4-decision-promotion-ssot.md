@@ -23,13 +23,13 @@ Related:
 
 1. G-RC-1 lock:
    - `bash tools/checks/rc_gc_alignment_g1_guard.sh`
-   - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g1_lifecycle_parity_vm_llvm.sh`
+   - `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g1_lifecycle_parity_vm_llvm.sh`
 2. G-RC-2 lock:
    - `bash tools/checks/rc_gc_alignment_g2_gate_matrix_guard.sh`
-   - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g2_fast_milestone_gate.sh`
+   - `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g2_fast_milestone_gate.sh`
 3. G-RC-3 lock:
    - `bash tools/checks/rc_gc_alignment_g3_cycle_timing_guard.sh`
-   - `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g3_cycle_timing_gate.sh`
+   - `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g3_cycle_timing_gate.sh`
 
 ## 2. Accepted contract
 

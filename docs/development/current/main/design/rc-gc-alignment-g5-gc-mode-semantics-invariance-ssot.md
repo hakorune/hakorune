@@ -14,7 +14,7 @@ Related:
   - docs/development/current/main/20-Decisions.md
   - tools/checks/rc_gc_alignment_g5_mode_invariance_cases.txt
   - tools/checks/rc_gc_alignment_g5_mode_invariance_guard.sh
-  - tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g5_mode_invariance_vm_llvm.sh
+  - tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g5_mode_invariance_vm_llvm.sh
 ---
 
 # RC/GC Alignment G-RC-5: GC Mode Semantics Invariance Lock (SSOT)
@@ -56,7 +56,7 @@ Fixed cases:
 - Guard:
   - `tools/checks/rc_gc_alignment_g5_mode_invariance_guard.sh`
 - Gate:
-  - `tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g5_mode_invariance_vm_llvm.sh`
+  - `tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g5_mode_invariance_vm_llvm.sh`
 
 Gate steps:
 1. guard（inventory/docs/gate wiring）
@@ -70,7 +70,7 @@ Gate steps:
 ## 4. Evidence command
 
 - `bash tools/checks/rc_gc_alignment_g5_mode_invariance_guard.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/rc_gc_alignment_g5_mode_invariance_vm_llvm.sh`
+- `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g5_mode_invariance_vm_llvm.sh`
 
 ## 5. Note
 

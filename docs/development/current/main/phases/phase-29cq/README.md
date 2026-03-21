@@ -75,6 +75,6 @@ Related:
 
 ## Next
 
-- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。次は `integration/apps` の semantic split を進める
+- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` の first live split は `integration/rc_gc_alignment/` に出したので、次は `integration/apps` の残り family を semantic split する
 - `integration/apps` の新規追加を凍結し、新規 smoke は semantic domain 配下へ置く
-- active family を小さく `integration/<domain>/` へ移し始める
+- 次の active family は `json_*` を優先して `integration/json/` へ移す
