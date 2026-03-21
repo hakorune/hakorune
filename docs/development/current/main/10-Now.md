@@ -314,7 +314,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_var_values_lock_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`
 
 ## Runtime Next (SSOT Pointer)
 

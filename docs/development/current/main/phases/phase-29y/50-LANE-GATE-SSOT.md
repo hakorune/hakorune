@@ -36,7 +36,7 @@ Quick profile:
 4. Binary-only run ported gate:
    - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_ported_vm.sh`
 5. MIR shape guard gate:
-   - `tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
+   - `tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`
 6. Direct v0 bridge guard gate:
    - `tools/smokes/v2/profiles/integration/apps/phase29y_direct_v0_bridge_guard_vm.sh`
 7. Mainline no-compat gate:
@@ -101,7 +101,7 @@ Core contracts gate（fixed order）:
 - Binary-only run ported gate:
   - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_ported_vm.sh`
 - MIR shape guard gate:
-  - `tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
+  - `tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`
 - Direct v0 guard gate:
   - `tools/smokes/v2/profiles/integration/apps/phase29y_direct_v0_bridge_guard_vm.sh`
 
@@ -112,7 +112,7 @@ Core contracts gate（fixed order）:
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_ring1_gate_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_using_resolver_parity_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_run_binary_only_ported_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_direct_v0_bridge_guard_vm.sh`
 - `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_quick_vm.sh`

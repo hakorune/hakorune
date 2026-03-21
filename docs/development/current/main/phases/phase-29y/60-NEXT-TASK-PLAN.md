@@ -59,7 +59,7 @@ Related:
   - `D-B-binary-only-ported`
   - `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`
   - `D-B-mir-shape-guard`
-  - `tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
+  - `tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`
 - ring1 promotion（`array/map/path/console`）は `RING1-CORE-09` まで昇格完了（accepted固定）。
 
 ## 0.1 Next-Task Doc Boundary (single source)
@@ -261,4 +261,4 @@ Related:
 - APP-3 実装:
   - `apps/tools/mir_shape_guard/README.md`
 - APP-3 smoke:
-  - `tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
+  - `tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`

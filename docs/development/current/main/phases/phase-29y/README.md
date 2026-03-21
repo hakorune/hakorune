@@ -29,7 +29,7 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
   - app smoke: `tools/smokes/v2/profiles/integration/apps/archive/controlflow_probe_vm.sh`
 - APP-3（MIR Shape Guard）導線:
   - app README: `apps/tools/mir_shape_guard/README.md`
-  - app smoke: `tools/smokes/v2/profiles/integration/apps/mir_shape_guard_vm.sh`
+  - app smoke: `tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`
   - stale-guard pin（non-gating）: `tools/smokes/v2/profiles/integration/apps/phase29y_continue_assignment_in_continue_stale_guard_vm.sh`
   - lane B blocked pin（non-gating）: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_continue_assignment_timeout_block_vm.sh`
   - lane B monitor pin（non-gating）: `tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`

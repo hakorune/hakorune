@@ -75,6 +75,6 @@ Related:
 
 ## Next
 
-- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` と `json` の first live split はそれぞれ `integration/rc_gc_alignment/` と `integration/json/` に出したので、次は `integration/apps` の残り family を semantic split する
+- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` の first live split はそれぞれ `integration/rc_gc_alignment/` / `integration/json/` / `integration/mir_shape/` / `integration/ring1_providers/` に出したので、次は `integration/apps` の残り family を semantic split する
 - `integration/apps` の新規追加を凍結し、新規 smoke は semantic domain 配下へ置く
-- 次の active family は `mir_shape_guard` を優先して `integration/mir_shape/` へ移す
+- 次の active family は `phase29ck_boundary` を優先して `integration/phase29ck_boundary/` へ移す
