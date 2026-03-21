@@ -34,7 +34,7 @@ Related:
 2. 回帰テストで `ArrayBox.push/get` の stringish propagation を固定する。
 3. `phase21_5_perf_kilo_text_concat_contract_vm.sh` を再実行して `nyash.any.length_h` 不在を確認する。
 4. `tools/checks/dev_gate.sh portability` を green に戻す。
-5. そのあとで `phase29cc_wsm/p8` を再開する。
+5. そのあとで `phase21_5/perf` か、続く semantic split に戻る。
 
 ## Acceptance
 

@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md
   - tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p8/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
 ---
@@ -26,7 +26,7 @@ Related:
 
 ## Implemented
 1. lock smoke 追加:
-   - `tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`
+   - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p8/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`
 2. guard 追加:
    - `tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`
 3. smoke は次を固定:
@@ -37,7 +37,7 @@ Related:
 
 ## Acceptance
 1. `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`
-2. `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`
+2. `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p8/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`
 3. `tools/checks/dev_gate.sh portability`
 4. `tools/checks/dev_gate.sh wasm-demo-g3-full`
 

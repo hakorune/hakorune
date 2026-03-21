@@ -7,7 +7,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/phase29cc_wsm_cargo_test_common.sh"
+source "$(dirname "$0")/../../apps/phase29cc_wsm_cargo_test_common.sh"
 require_env || exit 2
 
 doc="$NYASH_ROOT/docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md"

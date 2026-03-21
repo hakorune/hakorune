@@ -164,7 +164,7 @@ WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route
    - compat retention lock（accepted-but-blocked done）: `29cc-187`（`phase29cc_wsm_p7_min4_compat_retention_lock_vm.sh`）。
 10. **P8 Compat Bridge Retire Readiness Lock**
    - default-only 契約を維持しつつ、`BridgeRustBackend` 撤去判定を accepted-but-blocked で固定する。
-   - bridge retire readiness lock（accepted-but-blocked done）: `29cc-188`（`phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`）。
+   - bridge retire readiness lock（accepted-but-blocked done）: `29cc-188`（`phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh`）。実体は `tools/smokes/v2/profiles/integration/phase29cc_wsm/p8/` に移動済み。
 11. **P9 Non-Native Shrink (shape-by-shape)**
    - min0 inventory lock（done）: `29cc-189`（`phase29cc_wsm_p9_min0_non_native_inventory_lock_vm.sh`）。
    - min1 const-binop native shape lock（done）: `29cc-190`（`phase29cc_wsm_p9_min1_const_binop_native_lock_vm.sh`）。

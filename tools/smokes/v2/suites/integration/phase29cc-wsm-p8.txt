@@ -1,0 +1,2 @@
+# phase29cc_wsm p8 bridge-retire readiness suite
+phase29cc_wsm/p8/phase29cc_wsm_p8_min1_bridge_retire_readiness_vm.sh
