@@ -12,19 +12,19 @@ set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_numeric_hot_trace_contract_vm"
 KEY="numeric_mixed_medium"
-BACKEND="${PERF_NUMERIC_HOT_TRACE_BACKEND:-llvmlite}"
+BACKEND="${PERF_NUMERIC_HOT_TRACE_BACKEND:-crate}"
 MAX_FALLBACK_BINOP="${PERF_NUMERIC_HOT_TRACE_MAX_FALLBACK_BINOP:-0}"
 MAX_FALLBACK_COMPARE="${PERF_NUMERIC_HOT_TRACE_MAX_FALLBACK_COMPARE:-0}"
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/perf_hot_trace_contract.sh"
+source "$(dirname "$0")/../../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../lib/perf_hot_trace_contract.sh"
 require_env || exit 2
 
 BENCH_COMPARE="$NYASH_ROOT/tools/perf/bench_compare_c_vs_hako.sh"
 TRACE_PY="$NYASH_ROOT/src/llvm_py/trace.py"
 perf_hot_trace_require_file "$SMOKE_NAME" "$BENCH_COMPARE" || exit 2
 perf_hot_trace_require_file "$SMOKE_NAME" "$TRACE_PY" || exit 2
-perf_hot_trace_require_llvmlite_backend "$SMOKE_NAME" "PERF_NUMERIC_HOT_TRACE_BACKEND" "$BACKEND" || exit 2
+perf_hot_trace_require_boundary_backend "$SMOKE_NAME" "PERF_NUMERIC_HOT_TRACE_BACKEND" "$BACKEND" || exit 2
 perf_hot_trace_require_uint_env "$SMOKE_NAME" "PERF_NUMERIC_HOT_TRACE_MAX_FALLBACK_BINOP" "$MAX_FALLBACK_BINOP" || exit 2
 perf_hot_trace_require_uint_env "$SMOKE_NAME" "PERF_NUMERIC_HOT_TRACE_MAX_FALLBACK_COMPARE" "$MAX_FALLBACK_COMPARE" || exit 2
 
@@ -37,6 +37,7 @@ trap cleanup EXIT
 set +e
 OUT=$(NYASH_LLVM_FAST=1 \
   NYASH_LLVM_BACKEND="$BACKEND" \
+  NYASH_LLVM_USE_HARNESS=0 \
   NYASH_LLVM_HOT_TRACE=1 \
   NYASH_LLVM_TRACE_OUT="$TRACE_FILE" \
   NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \

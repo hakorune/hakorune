@@ -1,7 +1,7 @@
 # phase21_5 / perf
 
 This family is the next live semantic split after `phase29cc_wsm/p8`.
-It currently hosts the `chip8`, `kilo`, and `apps` subfamilies.
+It currently hosts the `chip8`, `kilo`, `numeric`, and `apps` subfamilies.
 
 ## Active Split
 
@@ -11,6 +11,9 @@ It currently hosts the `chip8`, `kilo`, and `apps` subfamilies.
 - `kilo/`
   - kilo kernel crosslang + route-hotspot baseline
   - 7 smokes
+- `numeric/`
+  - numeric_mixed_medium AOT / hot-trace / compare-chain pins
+  - 4 smokes
 - `apps/`
   - app wallclock bundle
   - first semantic subfamilies: `entry_mode/` and `mir_mode/`
@@ -26,4 +29,4 @@ It currently hosts the `chip8`, `kilo`, and `apps` subfamilies.
 
 - The remaining `phase21_5_perf_*` scripts have been split out of `tools/smokes/v2/profiles/integration/apps/`.
 - Keep new `phase21_5_perf` work under this family tree; do not add more `phase21_5_perf_*` files to the bundle root.
-- After `chip8/`, `kilo/`, `entry_mode/`, `mir_mode/`, and the singleton app subfamilies, this bundle is considered done enough for the current smoke-taxonomy pass.
+- After `chip8/`, `kilo/`, `numeric/`, `entry_mode/`, `mir_mode/`, and the singleton app subfamilies, this bundle is considered done enough for the current smoke-taxonomy pass.

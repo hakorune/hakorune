@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 STRICT=0

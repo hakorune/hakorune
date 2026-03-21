@@ -1,0 +1,6 @@
+# phase29cc plg_hm1 suite
+phase29cc/plg_hm1/phase29cc_plg_hm1_contract_tests_vm.sh
+phase29cc/plg_hm1/phase29cc_plg_hm1_min1_plugin_exec_mode_lock_vm.sh
+phase29cc/plg_hm1/phase29cc_plg_hm1_min2_core_module_route_skip_lock_vm.sh
+phase29cc/plg_hm1/phase29cc_plg_hm1_min3_file_path_module_first_lock_vm.sh
+phase29cc/plg_hm1/phase29cc_plg_hm1_min4_math_net_compat_inventory_lock_vm.sh

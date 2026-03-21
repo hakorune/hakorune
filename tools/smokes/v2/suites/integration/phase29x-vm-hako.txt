@@ -1,0 +1,6 @@
+# Integration phase29x-vm-hako suite
+# Active phase-29x vm-hako contract cases.
+phase29x/vm_hako/phase29x_vm_hako_s6_vocab_guard_vm.sh
+phase29x/vm_hako/phase29x_vm_hako_s6_parity_gate_vm.sh
+phase29x/vm_hako/phase29x_vm_hako_newclosure_contract_vm.sh
+phase29x/vm_hako/phase29x_vm_hako_newclosure_decision_refresh_vm.sh

@@ -6,8 +6,8 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/lib/phase29y_binary_only_common.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../apps/lib/phase29y_binary_only_common.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase29y_hako_emit_mir_jsonfile_exec_contract_vm"

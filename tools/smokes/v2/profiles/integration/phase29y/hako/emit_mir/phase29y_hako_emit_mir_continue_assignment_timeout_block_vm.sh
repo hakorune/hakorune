@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 INPUT="${1:-$NYASH_ROOT/apps/tests/phase29y_continue_assignment_in_continue_min.hako}"

@@ -10,17 +10,17 @@ set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_numeric_arith_cse_contract_vm"
 KEY="numeric_mixed_medium"
-BACKEND="${PERF_NUMERIC_ARITH_CSE_BACKEND:-llvmlite}"
+BACKEND="${PERF_NUMERIC_ARITH_CSE_BACKEND:-crate}"
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/perf_hot_trace_contract.sh"
+source "$(dirname "$0")/../../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../lib/perf_hot_trace_contract.sh"
 require_env || exit 2
 
 BENCH_COMPARE="$NYASH_ROOT/tools/perf/bench_compare_c_vs_hako.sh"
 TRACE_PY="$NYASH_ROOT/src/llvm_py/trace.py"
 perf_hot_trace_require_file "$SMOKE_NAME" "$BENCH_COMPARE" || exit 2
 perf_hot_trace_require_file "$SMOKE_NAME" "$TRACE_PY" || exit 2
-perf_hot_trace_require_llvmlite_backend "$SMOKE_NAME" "PERF_NUMERIC_ARITH_CSE_BACKEND" "$BACKEND" || exit 2
+perf_hot_trace_require_boundary_backend "$SMOKE_NAME" "PERF_NUMERIC_ARITH_CSE_BACKEND" "$BACKEND" || exit 2
 
 TRACE_FILE="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.trace.log")"
 cleanup() {
@@ -31,6 +31,7 @@ trap cleanup EXIT
 set +e
 OUT=$(NYASH_LLVM_FAST=1 \
   NYASH_LLVM_BACKEND="$BACKEND" \
+  NYASH_LLVM_USE_HARNESS=0 \
   NYASH_LLVM_HOT_TRACE=1 \
   NYASH_LLVM_TRACE_OUT="$TRACE_FILE" \
   NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \

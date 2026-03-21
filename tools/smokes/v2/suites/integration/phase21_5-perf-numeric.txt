@@ -1,0 +1,5 @@
+# phase21_5 perf numeric suite
+phase21_5/perf/numeric/phase21_5_perf_numeric_arith_cse_contract_vm.sh
+phase21_5/perf/numeric/phase21_5_perf_numeric_compare_chain_contract_vm.sh
+phase21_5/perf/numeric/phase21_5_perf_numeric_hot_trace_contract_vm.sh
+phase21_5/perf/numeric/phase21_5_perf_numeric_mixed_medium_aot_contract_vm.sh

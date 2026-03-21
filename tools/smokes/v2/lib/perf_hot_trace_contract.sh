@@ -21,6 +21,16 @@ perf_hot_trace_require_llvmlite_backend() {
   fi
 }
 
+perf_hot_trace_require_boundary_backend() {
+  local smoke_name="$1"
+  local env_name="$2"
+  local backend="$3"
+  if [ -n "$backend" ] && [ "$backend" != "crate" ]; then
+    test_fail "$smoke_name: ${env_name} must be crate or unset (got: $backend)"
+    return 1
+  fi
+}
+
 perf_hot_trace_require_uint_env() {
   local smoke_name="$1"
   local env_name="$2"

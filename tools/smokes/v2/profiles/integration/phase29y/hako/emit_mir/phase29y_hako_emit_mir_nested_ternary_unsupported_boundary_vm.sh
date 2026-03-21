@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm"

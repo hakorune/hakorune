@@ -7,7 +7,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/vm_route_pin.sh"
+source "$(dirname "$0")/../../../../lib/vm_route_pin.sh"
 require_env || exit 2
 
 run_step() {
@@ -26,7 +26,7 @@ run_step_with_route_pin() {
     fi
 }
 
-run_step "tools/smokes/v2/profiles/integration/apps/phase29x_vm_hako_s6_vocab_guard_vm.sh"
+run_step "tools/smokes/v2/profiles/integration/phase29x/vm_hako/phase29x_vm_hako_s6_vocab_guard_vm.sh"
 run_step_with_route_pin "tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_get_parity_vm.sh"
 run_step_with_route_pin "tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_array_set_parity_vm.sh"
 run_step_with_route_pin "tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_non_future_reject_vm.sh"
