@@ -56,7 +56,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no backend route blocker remains; collection owner cutover reached the current stop line and no exact collection blocker remains
+  - no collection/runtime blocker remains, but smoke execution is still path-first at the runner boundary; daily/presubmit packs need a first-class suite manifest contract before semantic directory splits can proceed safely
+  - active phase is now `phase-29cq`: suite-manifest first (`--profile` compat keep, `--suite` opt-in, no mass move)
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
@@ -69,20 +70,21 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: keep `tools/checks/dev_gate.sh` / lane gate packs as the daily entry, and treat single-purpose app smokes as evidence pins or blocker probes
   - smoke hygiene: use `tools/checks/smoke_inventory_report.sh` at milestones instead of ad-hoc manual pruning
   - smoke hygiene: `tools/smokes/v2/run.sh` now discovery-prunes `archive/lib/tmp/fixtures`; treat those names as non-live support buckets and keep new semantic growth under `profile -> domain -> intent`
-  - smoke hygiene: first future split target is `tools/smokes/v2/profiles/integration/apps/`; do not mass-move it in one slice, split by domain before phase-number cleanup
+  - smoke hygiene: suite manifests live under `tools/smokes/v2/suites/<profile>/<suite>.txt`; keep them small, active-only, and human-meaningful
+  - smoke hygiene: first future split target is `tools/smokes/v2/profiles/integration/apps/`; do not mass-move it in one slice, split by domain after suite manifests and `--suite` are stable
 - Next exact files:
+  - `docs/development/current/main/phases/phase-29cq/README.md`
   - `docs/development/current/main/design/smoke-taxonomy-and-discovery-ssot.md`
   - `tools/smokes/v2/run.sh`
+  - `tools/smokes/v2/suites/README.md`
+  - `tools/smokes/v2/suites/integration/presubmit.txt`
+  - `tools/smokes/v2/suites/integration/collection-core.txt`
+  - `tools/smokes/v2/suites/integration/vm-hako-core.txt`
+  - `tools/smokes/v2/suites/integration/selfhost-core.txt`
+  - `tools/smokes/v2/suites/integration/joinir-bq.txt`
   - `tools/checks/smoke_inventory_report.sh`
-  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
-  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
-  - `docs/development/current/main/phases/phase-29cm/README.md`
-  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
-  - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
-  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-  - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
-  - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
-  - `crates/nyash_kernel/src/plugin/map_probe.rs`
+  - `docs/development/testing/smoke-tests-v2.md`
+  - `docs/tools/README.md`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -102,6 +104,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` R1 second slice landed: `runtime_data_core_box.hako` now owns its own arg-decode/ABI-dispatch helpers and `mir_call_v1_handler.hako` treats `RuntimeDataBox` as a single delegated branch
   - `[x]` phase-29cm minimum acceptance is green (`phase29cc_runtime_v0_adapter_fixtures_vm`, `phase29cc_runtime_v0_abi_slice_guard`, `array_length_vm`, `map_basic_get_set_vm`, `map_len_size_vm`, `ring1_array_provider_vm`, `ring1_map_provider_vm`, `phase29x_runtime_data_dispatch_llvm_e2e_vm`)
   - `[x]` collection owner cutover reached done-enough stop line for `array` / `map` / `runtime_data`
+  - `[ ]` phase-29cq first slice: introduce suite manifests as the smoke execution contract (`--profile` stays compatible, `--suite` is opt-in)
+  - `[ ]` phase-29cq first slice: seed integration suites (`presubmit`, `collection-core`, `vm-hako-core`, `selfhost-core`, `joinir-bq`)
+  - `[ ]` phase-29cq first slice: keep `integration/apps` new additions frozen while suite manifests stabilize
   - `[x]` RVP-C16 first vm-hako blocker is closed: `newbox(MapBox)` is accepted in subset-check and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`
   - `[x]` RVP-C17 is closed: `MapBox.set(key,value)` now clears subset/runtime args>1 blockers and is pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`
   - `[x]` RVP-C18 is closed: `MapBox.size()` now completes in vm-hako and is pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`
@@ -161,11 +166,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
-- immediate: raw substrate perf reopen (`P1`) after collection owner cutover stop line
+- immediate: phase-29cq smoke suite manifest cutover (`--profile` compat keep, `--suite` opt-in, no mass move)
+- second: raw substrate perf reopen (`P1`) after suite-manifest first slice lands
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: keep collection owner cutover parked unless a new exact collection blocker appears
-- second: reopen `P1: Raw substrate perf reopen` now that method-shaped `array` / `map` ownership is out of the daily Rust path
 - third: keep `RuntimeDataBox` as protocol / facade only; do not reopen owner growth
 - note: this is a `.hako VM` capability blocker, not a Rust VM blocker
 - parked: exe optimization wave stays paused until the collection owner boundary is fixed

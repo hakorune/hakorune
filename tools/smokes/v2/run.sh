@@ -9,6 +9,7 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # デフォルト値
 PROFILE="quick"
+SUITE=""
 FORMAT="text"
 JOBS=1
 TIMEOUT=""
@@ -63,6 +64,7 @@ Profiles:
 
 Options:
   --profile PROFILE         Test profile to run
+  --suite SUITE            Optional suite manifest under suites/<profile>/
   --filter "PATTERN"        Test filter (e.g., "boxes:string")
   --format FORMAT           Output format: text|json|junit
   --jobs N                  Parallel execution count
@@ -85,6 +87,9 @@ Examples:
   # Integration with filter
   ./run.sh --profile integration --filter "plugins:*"
 
+  # Integration suite manifest
+  ./run.sh --profile integration --suite presubmit
+
   # Full testing with JSON output
   ./run.sh --profile full --format json --jobs 4 --timeout 300
 
@@ -105,6 +110,10 @@ parse_arguments() {
         case $1 in
             --profile)
                 PROFILE="$2"
+                shift 2
+                ;;
+            --suite)
+                SUITE="$2"
                 shift 2
                 ;;
             --filter)
@@ -176,6 +185,86 @@ parse_arguments() {
             exit 1
             ;;
     esac
+}
+
+trim_manifest_line() {
+    printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
+declare -A SUITE_ALLOWLIST=()
+declare -A SUITE_DISCOVERED=()
+
+load_suite_manifest() {
+    if [ -z "$SUITE" ]; then
+        return 0
+    fi
+
+    local manifest="$SCRIPT_DIR/suites/$PROFILE/$SUITE.txt"
+    local raw_line=""
+    local line=""
+    local line_no=0
+
+    if [ ! -f "$manifest" ]; then
+        log_error "Suite manifest not found: $manifest"
+        return 1
+    fi
+
+    SUITE_ALLOWLIST=()
+    SUITE_DISCOVERED=()
+
+    while IFS= read -r raw_line || [ -n "$raw_line" ]; do
+        line_no=$((line_no + 1))
+        line="$(trim_manifest_line "$raw_line")"
+        case "$line" in
+            ""|\#*)
+                continue
+                ;;
+        esac
+
+        if [[ "$line" = /* ]]; then
+            log_error "Suite manifest must use profile-relative paths: $manifest:$line_no"
+            return 1
+        fi
+
+        if [ -n "${SUITE_ALLOWLIST[$line]+x}" ]; then
+            log_error "Duplicate suite entry: $manifest:$line_no -> $line"
+            return 1
+        fi
+
+        SUITE_ALLOWLIST["$line"]=1
+        SUITE_DISCOVERED["$line"]=0
+    done < "$manifest"
+
+    if [ ${#SUITE_ALLOWLIST[@]} -eq 0 ]; then
+        log_error "Suite manifest is empty: $manifest"
+        return 1
+    fi
+}
+
+validate_suite_manifest_hits() {
+    if [ -z "$SUITE" ]; then
+        return 0
+    fi
+
+    local manifest="$SCRIPT_DIR/suites/$PROFILE/$SUITE.txt"
+    local entry=""
+    local missing=()
+
+    for entry in "${!SUITE_ALLOWLIST[@]}"; do
+        if [ "${SUITE_DISCOVERED[$entry]:-0}" != "1" ]; then
+            missing+=("$entry")
+        fi
+    done
+
+    if [ ${#missing[@]} -eq 0 ]; then
+        return 0
+    fi
+
+    log_error "Suite manifest contains non-live or missing entries: $manifest"
+    for entry in "${missing[@]}"; do
+        echo "  - $entry" >&2
+    done
+    return 1
 }
 
 # 環境設定
@@ -272,8 +361,10 @@ find_test_files() {
 
     if [ ! -d "$profile_dir" ]; then
         log_error "Profile directory not found: $profile_dir"
-        exit 1
+        return 1
     fi
+
+    load_suite_manifest || return 1
 
     IFS=':' read -r -a prune_names <<< "$prune_dirs"
     for prune_name in "${prune_names[@]}"; do
@@ -296,10 +387,18 @@ find_test_files() {
 
     # テストファイル検索
     while IFS= read -r -d '' file; do
+        local relative_path
+        relative_path=$(realpath --relative-to="$profile_dir" "$file")
+
+        if [ -n "$SUITE" ]; then
+            if [ -z "${SUITE_ALLOWLIST[$relative_path]+x}" ]; then
+                continue
+            fi
+            SUITE_DISCOVERED["$relative_path"]=1
+        fi
+
         # フィルタ適用
         if [ -n "$FILTER" ]; then
-            local relative_path
-            relative_path=$(realpath --relative-to="$profile_dir" "$file")
             if ! grep -q "$FILTER" <<<"$relative_path"; then
                 continue
             fi
@@ -311,6 +410,8 @@ find_test_files() {
         fi
         test_files+=("$file")
     done < <(find "$profile_dir" "${find_expr[@]}")
+
+    validate_suite_manifest_hits || return 1
 
     if [ ${#test_files[@]} -gt 0 ]; then
         printf '%s\n' "${test_files[@]}"
@@ -420,10 +521,21 @@ run_single_test() {
 # テスト実行
 run_tests() {
     local test_files
-    mapfile -t test_files < <(find_test_files)
+    local test_files_raw=""
+    if ! test_files_raw="$(find_test_files)"; then
+        return 1
+    fi
+    if [ -n "$test_files_raw" ]; then
+        mapfile -t test_files <<< "$test_files_raw"
+    else
+        test_files=()
+    fi
 
     if [ ${#test_files[@]} -eq 0 ]; then
         log_warn "No test files found for profile: $PROFILE"
+        if [ -n "$SUITE" ]; then
+            log_warn "Suite applied: $SUITE"
+        fi
         if [ -n "$FILTER" ]; then
             log_warn "Filter applied: $FILTER"
         fi
@@ -539,6 +651,9 @@ main() {
     if [ "$FORMAT" = "text" ]; then
         log_header "🔥 Hakorune Smoke Tests v2 - 2-Pillar Testing System"
         log_info "Profile: $PROFILE | Format: $FORMAT | Jobs: $JOBS"
+        if [ -n "$SUITE" ]; then
+            log_info "Suite: $SUITE"
+        fi
         if [ -n "$FILTER" ]; then
             log_info "Filter: $FILTER"
         fi

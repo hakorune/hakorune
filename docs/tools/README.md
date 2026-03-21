@@ -70,9 +70,16 @@ integration:
 
 ```bash
 tools/smokes/v2/run.sh --profile integration
+tools/smokes/v2/run.sh --profile integration --suite presubmit
+tools/smokes/v2/run.sh --profile integration --suite collection-core
 ```
 
 詳細は `docs/how-to/smokes.md` を参照。
+
+補足:
+- `--profile` は coarse lane selector として維持
+- `--suite` は `tools/smokes/v2/suites/<profile>/<suite>.txt` を読む curated allowlist
+- `archive/lib/tmp/fixtures` は live discovery から除外済み
 
 ## 4. CLI オプション確認
 

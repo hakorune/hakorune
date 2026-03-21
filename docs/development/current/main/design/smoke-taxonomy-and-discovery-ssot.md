@@ -4,6 +4,7 @@ Scope: smoke profile taxonomy and discovery rules
 Decision: accepted
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/phases/phase-29cq/README.md
 - tools/smokes/v2/run.sh
 - tools/checks/smoke_inventory_report.sh
 - docs/tools/check-scripts-index.md
@@ -20,6 +21,7 @@ The structural target is:
 - daily entry stays small
 - blocker pins stay traceable
 - support buckets do not become live profile members by accident
+- suite manifests become the human-facing execution contract
 
 ## Current pressure snapshot
 
@@ -33,7 +35,23 @@ As of 2026-03-21, the smoke tree is heavily concentrated in a few leaves:
 
 This is too dense for casual human navigation, especially under `integration/apps`.
 
-## Discovery contract
+## Suite-first contract
+
+- `tools/smokes/v2/suites/<profile>/<suite>.txt` is the primary human-facing execution contract.
+- `run.sh --profile <profile> --suite <suite>` is the preferred daily/presubmit entry for curated packs.
+- `--profile` remains the compatibility floor and coarse lane selector.
+- `--suite` is additive: it applies an allowlist intersection over the live profile set.
+- recursive discovery remains as a compatibility mechanism for uncatalogued profile runs, not as the long-term organization model.
+
+Current seeded suites:
+
+- `integration/presubmit`
+- `integration/collection-core`
+- `integration/vm-hako-core`
+- `integration/selfhost-core`
+- `integration/joinir-bq`
+
+## Discovery fallback contract
 
 - `tools/smokes/v2/run.sh` auto-discovers `*.sh` under `profiles/$PROFILE`.
 - Discovery is recursive, but it now prunes support buckets by directory name:
@@ -42,6 +60,18 @@ This is too dense for casual human navigation, especially under `integration/app
   - `tmp`
   - `fixtures`
 - Scripts under those directories remain directly runnable by `bash ...`, but they are not live profile members in `run.sh`.
+- suite manifests may only reference paths that survive this live discovery fallback.
+
+## Manifest format and failure contract
+
+- manifest format:
+  - `#` comment allowed
+  - one relative path per line
+  - path is relative to `tools/smokes/v2/profiles/<profile>/`
+- fail-fast cases:
+  - missing manifest
+  - duplicate manifest entry
+  - manifest entry that is not part of live discovery for that profile
 
 ## Taxonomy rules
 
@@ -98,6 +128,7 @@ These names are reserved and should not contain live profile entries that must r
 ## Operating rules
 
 - Daily entry uses `tools/checks/dev_gate.sh` or lane gate packs.
+- runner-level suite entry is allowed for curated packs (`run.sh --profile ... --suite ...`), but `--profile` remains the compatibility floor.
 - Single-purpose scripts are evidence pins or blocker probes.
 - `1 blocker = 1 pin` remains valid, but pins should fold back into packs after the lane reaches stop line.
 - Use `tools/checks/smoke_inventory_report.sh` for milestone inventory instead of manual ad-hoc pruning.
@@ -105,9 +136,11 @@ These names are reserved and should not contain live profile entries that must r
 ## First reorganization order
 
 1. Fix discovery semantics so support buckets are not live.
-2. Keep inventory tooling aligned with the same prune contract.
-3. Split `integration/apps` by semantic domain before any mass rename.
-4. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
+2. Introduce suite manifests without changing `--profile` compatibility.
+3. Prefer suite manifests for daily/presubmit entry before any semantic path split.
+4. Keep inventory tooling aligned with the same prune contract.
+5. Split `integration/apps` by semantic domain before any mass rename.
+6. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
 
 ## First safe target
 

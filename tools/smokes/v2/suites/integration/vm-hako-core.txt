@@ -1,0 +1,12 @@
+# Integration vm-hako-core suite
+# Core vm-hako capabilities and contract fixtures.
+apps/vm_hako_caps_app1_summary_contract_ported_vm.sh
+apps/vm_hako_caps_args_vm.sh
+apps/vm_hako_caps_boxcall_args_gt1_ported_vm.sh
+apps/vm_hako_caps_compare_ported_vm.sh
+apps/vm_hako_caps_const_void_ported_vm.sh
+apps/vm_hako_caps_env_get_ported_vm.sh
+apps/vm_hako_caps_file_close_ported_vm.sh
+apps/vm_hako_caps_file_read_ported_vm.sh
+apps/vm_hako_caps_open_handle_phi_ported_vm.sh
+

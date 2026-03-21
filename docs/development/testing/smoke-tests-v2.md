@@ -13,6 +13,10 @@ Phase 15.5でCore Box完全削除後のNyashテストシステム。すべての
 # 統合テスト
 ./tools/smokes/v2/run.sh --profile integration
 
+# integration の curated suite（推奨）
+./tools/smokes/v2/run.sh --profile integration --suite presubmit
+./tools/smokes/v2/run.sh --profile integration --suite collection-core
+
 # 完全テスト
 ./tools/smokes/v2/run.sh --profile full
 ```
@@ -72,6 +76,14 @@ Net plugin: LOG_ON=false, LOG_PATH=net_plugin.log
 tools/smokes/v2/
 ├── run.sh                    # メインエントリポイント
 ├── README.md                 # ユーザーガイド
+├── suites/                   # curated suite manifests
+│   ├── README.md
+│   └── integration/
+│       ├── presubmit.txt
+│       ├── collection-core.txt
+│       ├── vm-hako-core.txt
+│       ├── selfhost-core.txt
+│       └── joinir-bq.txt
 ├── profiles/                 # テストプロファイル
 │   ├── quick/                # 1-2分の高速テスト
 │   ├── integration/          # 5-10分の統合テスト
@@ -89,9 +101,12 @@ tools/smokes/v2/
 ```
 
 補足:
-- `run.sh` は profile 配下を再帰で探索する
+- `run.sh` の人間向け daily/presubmit 入口は `--suite` を優先する
+- `run.sh` は互換のため profile 配下の再帰探索も維持する
 - ただし `archive/`, `lib/`, `tmp/`, `fixtures/` は discovery-pruned support bucket として扱う
 - 新しい意味階層は `profile -> domain -> intent` を優先する
+- curated daily/presubmit 実行は `tools/smokes/v2/suites/<profile>/<suite>.txt` を使う
+- `--suite` は live discovery を置き換えず、allowlist intersection として働く
 
 ## 🧪 テストの作成方法
 

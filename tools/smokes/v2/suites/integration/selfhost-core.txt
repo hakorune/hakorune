@@ -1,0 +1,12 @@
+# Integration selfhost-core suite
+# Mainline selfhost / lane-gate coverage.
+apps/phase29y_core_contracts_vm.sh
+apps/phase29y_direct_v0_bridge_guard_vm.sh
+apps/phase29y_hako_binary_only_selfhost_readiness_vm.sh
+apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh
+apps/phase29y_hako_run_binary_only_ported_vm.sh
+apps/phase29y_lane_gate_quick_vm.sh
+apps/phase29y_lane_gate_vm.sh
+apps/phase29y_no_compat_mainline_vm.sh
+apps/phase29x_runtime_handoff_gate_vm.sh
+apps/phase29y_vm_hako_caps_gate_vm.sh
