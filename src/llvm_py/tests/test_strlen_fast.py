@@ -512,7 +512,7 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.array.push_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.array.slot_append_hh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.runtime_data.push_hh"', ir_txt, msg=ir_txt)
 
     def test_mir_call_runtime_data_get_arrayish_integer_key_prefers_array_route(self):

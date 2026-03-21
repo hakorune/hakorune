@@ -78,7 +78,7 @@ Related:
 
 Current exact residue below the owner frontier:
 - `nyash.array.len_h`
-- `nyash.array.push_hh`
+- `nyash.array.push_hh` (compat-only after `slot_append_hh` daily retarget)
 - `nyash.map.size_h`
 
 Therefore the next fixed order is:

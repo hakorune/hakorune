@@ -151,11 +151,12 @@ Short rule:
   - `RuntimeDataCoreBox` cleanup as protocol / facade only
 - fifth:
   - deepen the boundary below the remaining method-shaped Rust exports used by `.hako` owners:
-    - `nyash.array.push_hh`
     - `nyash.map.size_h`
   - landed:
     - daily array observer route now uses `nyash.array.slot_len_h`
     - `nyash.array.len_h` is compat-only
+    - daily array append route now uses `nyash.array.slot_append_hh`
+    - `nyash.array.push_hh` is compat-only
 - sixth:
   - only then reopen raw substrate perf
 - details for raw naming and demotion live in:

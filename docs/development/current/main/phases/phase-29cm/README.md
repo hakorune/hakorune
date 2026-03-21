@@ -119,10 +119,11 @@ Related:
   - dedicated i64 write helper (`43 -> 47 ms`)
   - `ArrayBox::try_set_index_i64_integer()` cold-split (`43 -> 48 ms`)
 - `B1a` landed: the daily `.hako` array observer path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only.
+- `B1b` landed: the daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only.
 - next exact boundary-deepen task is to demote the remaining transitional method-shaped Rust exports still used by `.hako` owners:
-  1. `nyash.array.push_hh`
-  2. `nyash.map.size_h`
+  1. `nyash.map.size_h`
 - after those explicit exports, deepen the hidden raw-named residue:
+  - `nyash.array.slot_append_hh` still carries append/boxing semantics below the raw name
   - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
 - `RuntimeDataBox` remains facade-only while the boundary deepens, and it has no active code task now.
@@ -191,9 +192,9 @@ Move to `.hako`:
    - second landed slice: `runtime_data_core_box.hako` centralizes unary/binary arg decode + ABI dispatch helpers and `mir_call_v1_handler.hako` only delegates
 6. `B1: Deeper collection boundary before perf`
    - `B1a`: landed; daily `.hako` array observer path now uses `nyash.array.slot_len_h`
-   - `B1b`: demote `nyash.array.push_hh`
+   - `B1b`: landed; daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`
    - `B1c`: demote `nyash.map.size_h`
-   - `B1d`: deepen hidden array write residue under `nyash.array.slot_store_hii`
+   - `B1d`: deepen hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
    - `B1e`: deepen hidden map residue under `nyash.map.slot_* / probe_*`
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
    - do not describe this phase as finished until these transitional exports are either removed from the daily path or explicitly accepted as the long-term substrate boundary

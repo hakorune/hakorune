@@ -86,7 +86,7 @@ route 変換:
 - `get` -> `nyash.array.get_hh`
 - `set` -> `nyash.array.set_hhh`
 - `has` -> `nyash.array.has_hh`
-- `push` -> `nyash.array.push_hh`
+- `push` -> `nyash.array.slot_append_hh`
 
 不成立時は既存 `nyash.runtime_data.*` route に戻す（意味不変）。
 
@@ -106,7 +106,7 @@ route 変換:
 - `set` -> `nyash.array.set_hih`
 - `has` -> `nyash.array.has_hi`
 
-`push` は従来どおり `nyash.array.push_hh` を使用する。
+`push` は `nyash.array.slot_append_hh` を使用する。
 不成立時は AS-03 (`*_hh/*_hhh`) へ戻す（意味不変）。
 
 ### rule AS-03c: runtime_data array integer-key + integer-value set route

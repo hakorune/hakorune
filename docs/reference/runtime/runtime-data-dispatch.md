@@ -20,7 +20,7 @@ array専用 alias を使う場合がある（AS-03）:
 - `nyash.array.get_hh(recv_h, key_any) -> i64`
 - `nyash.array.set_hhh(recv_h, key_any, val_any) -> i64`
 - `nyash.array.has_hh(recv_h, key_any) -> i64`
-- `nyash.array.push_hh(recv_h, val_any) -> i64`
+- `nyash.array.slot_append_hh(recv_h, val_any) -> i64`
 
 さらに key が i64 と判定できる callsite では、
 array mono-route を整数キー版へ縮退できる（AS-03b）:

@@ -83,6 +83,10 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: array core len extern route contract missing"
     exit 1
   fi
+  if ! rg -F -q 'externcall "nyash.array.slot_append_hh"' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core push extern route contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'try_handle(seg, regs, mname)' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core orchestration helper contract missing"
     exit 1

@@ -74,7 +74,7 @@ static box ArrayCoreBox {
   }
 
   push_hh(handle, value_any) {
-    return externcall "nyash.array.push_hh"(handle, value_any)
+    return externcall "nyash.array.slot_append_hh"(handle, value_any)
   }
 
   _size_state_per_recv() {
@@ -195,7 +195,7 @@ static box ArrayCoreBox {
         regs.setField(key, StringHelpers.int_to_str(next_len_rt))
       }
       me._write_zero_dst(regs, dst)
-      me._trace("[vm/adapter/array_core:push_hh]")
+      me._trace("[vm/adapter/array_core:slot_append_hh]")
       return 1
     }
     local value_state = me._value_state()

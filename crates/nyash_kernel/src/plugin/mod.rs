@@ -1,6 +1,7 @@
 pub mod array;
 mod array_index_helpers;
 mod array_route_helpers;
+mod array_slot_append;
 mod array_slot_load;
 mod array_slot_store;
 mod array_string_slot;

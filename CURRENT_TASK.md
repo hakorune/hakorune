@@ -75,11 +75,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - dedicated `handle_helpers` i64 write helper: `43 -> 47 ms`
     - `ArrayBox::try_set_index_i64_integer()` cold-split: `43 -> 48 ms`
   - `B1a` landed: the daily `.hako` path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only
+  - `B1b` landed: the daily `.hako` path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only
   - the next collection task is exact `B1` taskization:
-    1. demote `nyash.array.push_hh` from the daily `.hako` path
-    2. demote `nyash.map.size_h` from the daily `.hako` path
-    3. deepen hidden array write residue inside `nyash.array.slot_store_hii` (`append/rebox` semantics still live below the raw name)
-    4. deepen hidden map residue inside `nyash.map.slot_* / probe_*` (still implemented via `MapBox.get_opt/set/has`)
+    1. demote `nyash.map.size_h` from the daily `.hako` path
+    2. deepen hidden array write residue inside `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
+    3. deepen hidden map residue inside `nyash.map.slot_* / probe_*` (still implemented via `MapBox.get_opt/set/has`)
   - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
 - Later cleanup (not this slice):
@@ -116,7 +116,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` A1 first slice landed: `ArrayCoreBox` owns `ArrayBox` push/get/set/size fallback routing and `mir_call_v1_handler.hako` no longer carries Array-specific size/push branches
   - `[x]` A2 first slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
   - `[x]` A3 first slice landed: `ArrayCoreBox.get_i64/set_i64` now target raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
-  - `[x]` array first wave reached the current stop line: `len` now sits on `nyash.array.slot_len_h`, while `push_hh` remains transitional until a dedicated raw append boundary is justified
+  - `[x]` array first wave reached the current stop line: `len` now sits on `nyash.array.slot_len_h`, and `push` now sits on `nyash.array.slot_append_hh`; hidden append/write residue still remains below those raw names
   - `[ ]` complete the end-state `ArrayBox` owner migration below the remaining transitional raw boundary
   - `[ ]` complete the end-state `MapBox` owner migration below the remaining transitional raw boundary
   - `[x]` M1 first slice landed: `MapCoreBox` is the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}` and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
@@ -127,7 +127,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` phase-29cm minimum acceptance is green (`phase29cc_runtime_v0_adapter_fixtures_vm`, `phase29cc_runtime_v0_abi_slice_guard`, `array_length_vm`, `map_basic_get_set_vm`, `map_len_size_vm`, `ring1_array_provider_vm`, `ring1_map_provider_vm`, `phase29x_runtime_data_dispatch_llvm_e2e_vm`)
   - `[x]` collection owner shift reached the done-enough stop line for `array` / `map` / `runtime_data`
   - `[x]` `.hako` ring1 is now the visible owner frontier for `ArrayBox` / `MapBox`, and `RuntimeDataBox` is facade-only
-  - `[ ]` deepen the boundary below the remaining transitional method-shaped Rust exports (`nyash.array.push_hh`, `nyash.map.size_h`) and the hidden raw-named residue below them
+  - `[ ]` deepen the boundary below the remaining transitional method-shaped Rust export (`nyash.map.size_h`) and the hidden raw-named residue below it
   - `[ ]` reopen raw substrate perf only after the deeper boundary is fixed or the transitional exports are explicitly accepted as the long-term substrate cut
   - `[x]` phase-29cq first slice: introduce suite manifests as the smoke execution contract (`--profile` stays compatible, `--suite` is opt-in)
   - `[x]` phase-29cq first slice: seed integration suites (`presubmit`, `collection-core`, `vm-hako-core`, `selfhost-core`, `joinir-bq`)
@@ -268,10 +268,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - do not absorb array/map semantics
 6. `B1: Deeper collection boundary before perf`
    - demote the remaining transitional method-shaped Rust exports from the daily `.hako` path:
-     - `nyash.array.push_hh`
      - `nyash.map.size_h`
    - landed:
      - `nyash.array.len_h` -> `nyash.array.slot_len_h` on the daily `.hako` path
+     - `nyash.array.push_hh` -> `nyash.array.slot_append_hh` on the daily `.hako` path and arrayish runtime-data mono-route
 7. `P1: Raw substrate perf reopen`
    - only after `B1` is fixed or those exports are explicitly accepted as the long-term substrate boundary
 
@@ -510,10 +510,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current exact leaf slice for `array_getset`: the read seam (`crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`) is landed and kept
   - raw substrate perf is parked again until the collection boundary deepens below the transitional method-shaped Rust exports still used by `.hako` owners
   - next non-perf task is to inventory and demote:
-    - `nyash.array.push_hh`
     - `nyash.map.size_h`
   - landed boundary-deepen step:
     - daily `.hako` array observer route now uses `nyash.array.slot_len_h`
+    - daily `.hako` array append route now uses `nyash.array.slot_append_hh`
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers, so they are no longer the primary P1 target
   - fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=43` (`ratio_cycles=0.01`)
   - rejected probes (reverted immediately): dedicated i64 write helper regressed to `47 ms`, and `try_set_index_i64_integer` cold-split regressed to `48 ms`

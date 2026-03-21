@@ -3,9 +3,10 @@ use super::array_index_helpers::{array_get_by_index, array_has_by_index, decode_
 use super::array_route_helpers::{
     array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
 };
+use super::array_slot_append::array_slot_append_any;
 use super::array_slot_load::array_slot_load_encoded_i64;
 use super::array_slot_store::array_slot_store_i64;
-use super::value_codec::{any_arg_to_box, any_arg_to_box_with_profile, CodecProfile};
+use super::value_codec::any_arg_to_box;
 use super::handle_helpers::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
 
@@ -131,17 +132,7 @@ pub extern "C" fn nyash_array_has_hh_alias(handle: i64, key_any: i64) -> i64 {
 
 #[export_name = "nyash.array.push_hh"]
 pub extern "C" fn nyash_array_push_hh_alias(handle: i64, val_any: i64) -> i64 {
-    if handle <= 0 {
-        return 0;
-    }
-    with_array_box(handle, |arr| {
-        let _ = arr.push(any_arg_to_box_with_profile(
-            val_any,
-            CodecProfile::ArrayFastBorrowString,
-        ));
-        arr.len() as i64
-    })
-    .unwrap_or(0)
+    array_slot_append_any(handle, val_any)
 }
 
 #[export_name = "nyash.array.push_hi"]
@@ -192,6 +183,11 @@ pub extern "C" fn nyash_array_slot_load_hi_alias(handle: i64, idx: i64) -> i64 {
 #[export_name = "nyash.array.slot_store_hii"]
 pub extern "C" fn nyash_array_slot_store_hii_alias(handle: i64, idx: i64, value_i64: i64) -> i64 {
     array_slot_store_i64(handle, idx, value_i64)
+}
+
+#[export_name = "nyash.array.slot_append_hh"]
+pub extern "C" fn nyash_array_slot_append_hh_alias(handle: i64, val_any: i64) -> i64 {
+    array_slot_append_any(handle, val_any)
 }
 
 #[cfg(test)]
@@ -256,6 +252,20 @@ mod tests {
         assert_eq!(nyash_array_slot_len_h_alias(0), 0);
         assert_eq!(nyash_array_slot_load_hi_alias(handle, 3), 0);
         assert_eq!(nyash_array_slot_store_hii_alias(handle, 3, 9), 0);
+    }
+
+    #[test]
+    fn slot_append_raw_alias_keeps_contract() {
+        let handle = new_array_handle();
+        let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("slot-append".to_string()),
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
+
+        assert_eq!(nyash_array_slot_append_hh_alias(handle, string_handle), 1);
+        assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
+        assert_eq!(nyash_array_get_hh_alias(handle, 0), string_handle);
+        assert_eq!(nyash_array_slot_append_hh_alias(0, string_handle), 0);
     }
 
     #[test]

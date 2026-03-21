@@ -27,7 +27,7 @@ _RUNTIME_DATA_METHODS = {
 
 _RUNTIME_DATA_ARRAY_METHODS = {
     "get": ("nyash.array.get_hh", "unified_array_get_hh", 1),
-    "push": ("nyash.array.push_hh", "unified_array_push_hh", 1),
+    "push": ("nyash.array.slot_append_hh", "unified_array_slot_append_hh", 1),
     "set": ("nyash.array.set_hhh", "unified_array_set_hhh", 2),
     "has": ("nyash.array.has_hh", "unified_array_has_hh", 1),
 }

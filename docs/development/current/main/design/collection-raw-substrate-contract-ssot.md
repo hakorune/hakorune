@@ -151,9 +151,10 @@ Current first slice:
 - `ArrayCoreBox.get_i64` -> `nyash.array.slot_load_hi`
 - `ArrayCoreBox.set_i64` -> `nyash.array.slot_store_hii`
 - `ArrayCoreBox.len_i64` -> `nyash.array.slot_len_h`
+- `ArrayCoreBox.push_hh` -> `nyash.array.slot_append_hh`
 - legacy `nyash.array.get_hi` / `nyash.array.set_hii` stay as compatibility shell during the retarget wave
 - transitional method-shaped Rust exports still visible from `.hako`:
-  - `nyash.array.push_hh`
+  - none in the current daily `.hako` owner path
 
 ### M1. Repeat for Map
 
@@ -205,12 +206,16 @@ Current second slice:
 
 - before reopening raw substrate perf, first inventory and demote the transitional method-shaped Rust exports that still sit in the daily `.hako` path
 - current exact transitional list:
-  - `nyash.array.push_hh`
   - `nyash.map.size_h`
 - landed observer demotion:
   - daily `.hako` array observer path now uses `nyash.array.slot_len_h`
   - `nyash.array.len_h` remains compatibility-only
+- landed append demotion:
+  - daily `.hako` array append path now uses `nyash.array.slot_append_hh`
+  - arrayish runtime-data mono-route now uses `nyash.array.slot_append_hh`
+  - `nyash.array.push_hh` remains compatibility-only
 - current hidden residue after those explicit exports:
+  - `nyash.array.slot_append_hh` still carries append/boxing semantics below the raw name
   - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
@@ -222,7 +227,8 @@ Current second slice:
    - landed: remove `nyash.array.len_h` from the daily `.hako` path
    - daily route now targets `nyash.array.slot_len_h`
 2. `B1b / array-append`
-   - remove `nyash.array.push_hh` from the daily `.hako` path
+   - landed: remove `nyash.array.push_hh` from the daily `.hako` path
+   - daily route now targets `nyash.array.slot_append_hh`
 3. `B1c / map-observer`
    - remove `nyash.map.size_h` from the daily `.hako` path
 4. `B1d / array-write-hidden-residue`

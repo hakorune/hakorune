@@ -90,6 +90,10 @@ if ! rg -F -q 'externcall "nyash.array.slot_store_hii"' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_store_hii extern route" >&2
   exit 1
 fi
+if ! rg -F -q 'externcall "nyash.array.slot_append_hh"' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_append_hh extern route" >&2
+  exit 1
+fi
 if ! rg -F -q 'externcall "nyash.array.slot_len_h"' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_len_h extern route" >&2
   exit 1

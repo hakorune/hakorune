@@ -31,7 +31,7 @@ Rule:
   - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `len_i64(handle)`
     -> `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` / `nyash.array.slot_len_h`
   - `push_hh(handle, value_any)`
-    -> `nyash.array.push_hh`
+    -> `nyash.array.slot_append_hh`
   - `try_handle(seg, regs, mname)`
     -> visible owner for `ArrayBox.{set,get,push,len/length/size}` orchestration, bounds contract, and fallback
 - `array_state_core_box.hako`
@@ -90,6 +90,7 @@ Rule:
   - cleanup to protocol / facade only
 5. `B1`
   - landed: daily array observer route now uses `nyash.array.slot_len_h`
-  - demote `nyash.array.push_hh` / `nyash.map.size_h`
-  - then deepen hidden residue under `array slot_store` and `map slot/probe`
+  - landed: daily array append route now uses `nyash.array.slot_append_hh`
+  - demote `nyash.map.size_h`
+  - then deepen hidden residue under `array slot_append` / `array slot_store` and `map slot/probe`
   - keep `RuntimeDataBox` facade-only while doing so
