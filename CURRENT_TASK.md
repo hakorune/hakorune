@@ -68,7 +68,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: `tools/smokes/v2/profiles/integration/apps/*.sh` is now dense enough that new scripts should be added only for `1 blocker = 1 pin`; after each lane reaches stop line, fold day-to-day execution back to gate packs and inventory scripts instead of keeping every pin in the daily read path
   - smoke hygiene: keep `tools/checks/dev_gate.sh` / lane gate packs as the daily entry, and treat single-purpose app smokes as evidence pins or blocker probes
   - smoke hygiene: use `tools/checks/smoke_inventory_report.sh` at milestones instead of ad-hoc manual pruning
+  - smoke hygiene: `tools/smokes/v2/run.sh` now discovery-prunes `archive/lib/tmp/fixtures`; treat those names as non-live support buckets and keep new semantic growth under `profile -> domain -> intent`
+  - smoke hygiene: first future split target is `tools/smokes/v2/profiles/integration/apps/`; do not mass-move it in one slice, split by domain before phase-number cleanup
 - Next exact files:
+  - `docs/development/current/main/design/smoke-taxonomy-and-discovery-ssot.md`
+  - `tools/smokes/v2/run.sh`
+  - `tools/checks/smoke_inventory_report.sh`
   - `docs/development/current/main/design/perf-optimization-method-ssot.md`
   - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`

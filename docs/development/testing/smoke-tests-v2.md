@@ -74,10 +74,10 @@ tools/smokes/v2/
 ├── README.md                 # ユーザーガイド
 ├── profiles/                 # テストプロファイル
 │   ├── quick/                # 1-2分の高速テスト
-│   │   ├── core/             # 言語基本機能
-│   │   └── boxes/            # Box操作（現在一部動作せず）
 │   ├── integration/          # 5-10分の統合テスト
-│   └── full/                 # 15-30分の完全テスト
+│   ├── full/                 # 15-30分の完全テスト
+│   ├── plugins/              # plugin専用
+│   └── archive/              # manual replay / retired pins
 ├── lib/                      # 共通ライブラリ
 │   ├── test_runner.sh        # テスト実行器
 │   ├── plugin_manager.sh     # プラグイン管理
@@ -87,6 +87,11 @@ tools/smokes/v2/
     ├── rust_vm_dynamic.conf  # Rust VM設定
     └── llvm_static.conf      # LLVM設定
 ```
+
+補足:
+- `run.sh` は profile 配下を再帰で探索する
+- ただし `archive/`, `lib/`, `tmp/`, `fixtures/` は discovery-pruned support bucket として扱う
+- 新しい意味階層は `profile -> domain -> intent` を優先する
 
 ## 🧪 テストの作成方法
 

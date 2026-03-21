@@ -2,23 +2,50 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-APPS_DIR="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps"
+DEFAULT_DIR="$ROOT_DIR/tools/smokes/v2/profiles/integration/apps"
+TARGET_DIR="${SMOKE_INVENTORY_DIR:-$DEFAULT_DIR}"
 OUT_DIR="${SMOKE_INVENTORY_OUT_DIR:-$ROOT_DIR/target/smoke_inventory}"
 INCLUDE_ARCHIVE="${SMOKE_INVENTORY_INCLUDE_ARCHIVE:-0}"
+INCLUDE_PRUNED="${SMOKE_INVENTORY_INCLUDE_PRUNED:-$INCLUDE_ARCHIVE}"
+PRUNE_DIRS="${SMOKE_INVENTORY_PRUNE_DIRS:-archive:lib:tmp:fixtures}"
 mkdir -p "$OUT_DIR"
 
-REPORT_TSV="$OUT_DIR/integration_apps_inventory.tsv"
-SUMMARY_TXT="$OUT_DIR/integration_apps_summary.txt"
+if rel_path="$(realpath --relative-to="$ROOT_DIR/tools/smokes/v2/profiles" "$TARGET_DIR" 2>/dev/null)"; then
+  LABEL_DEFAULT="$(printf '%s' "$rel_path" | tr '/-' '__')"
+else
+  LABEL_DEFAULT="$(basename "$TARGET_DIR" | tr '-' '_')"
+fi
+LABEL="${SMOKE_INVENTORY_LABEL:-$LABEL_DEFAULT}"
 
-if [[ ! -d "$APPS_DIR" ]]; then
-  echo "[FAIL] missing apps directory: $APPS_DIR" >&2
+REPORT_TSV="$OUT_DIR/${LABEL}_inventory.tsv"
+SUMMARY_TXT="$OUT_DIR/${LABEL}_summary.txt"
+
+if [[ ! -d "$TARGET_DIR" ]]; then
+  echo "[FAIL] missing inventory directory: $TARGET_DIR" >&2
   exit 1
 fi
 
-if [[ "$INCLUDE_ARCHIVE" == "1" ]]; then
-  mapfile -t scripts < <(find "$APPS_DIR" -type f -name '*.sh' | sort)
+if [[ "$INCLUDE_PRUNED" == "1" ]]; then
+  mapfile -t scripts < <(find "$TARGET_DIR" -type f -name '*.sh' | sort)
 else
-  mapfile -t scripts < <(find "$APPS_DIR" -type f -name '*.sh' -not -path '*/archive/*' | sort)
+  find_args=()
+  IFS=':' read -r -a prune_names <<< "$PRUNE_DIRS"
+  prune_added=0
+  for prune_name in "${prune_names[@]}"; do
+    [[ -n "$prune_name" ]] || continue
+    if [[ "$prune_added" -eq 0 ]]; then
+      find_args+=( "(" -type d "(" -name "$prune_name" )
+    else
+      find_args+=( -o -name "$prune_name" )
+    fi
+    prune_added=1
+  done
+  if [[ "$prune_added" -eq 1 ]]; then
+    find_args+=( ")" -prune ")" -o "(" -type f -name '*.sh' -print ")" )
+  else
+    find_args=( -type f -name '*.sh' -print )
+  fi
+  mapfile -t scripts < <(find "$TARGET_DIR" "${find_args[@]}" | sort)
 fi
 
 {
@@ -76,8 +103,10 @@ referenced="$(( data_rows - orphans ))"
 {
   echo "Smoke Inventory Summary"
   echo "Date: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-  echo "Dir: $APPS_DIR"
-  echo "Include archive: $INCLUDE_ARCHIVE"
+  echo "Dir: $TARGET_DIR"
+  echo "Label: $LABEL"
+  echo "Include pruned buckets: $INCLUDE_PRUNED"
+  echo "Pruned dir names: $PRUNE_DIRS"
   echo "Total: $data_rows"
   echo "Referenced: $referenced"
   echo "Orphan candidates: $orphans"

@@ -184,16 +184,24 @@ bash tools/checks/macos_portability_guard.sh
 
 ## 11. Smoke Inventory (overgrowth triage)
 
-`integration/apps` の過密状態を可視化して、orphan 候補を洗い出す:
+任意の smoke subtree の過密状態を可視化して、orphan 候補を洗い出す:
 
 ```bash
 bash tools/checks/smoke_inventory_report.sh
 cat target/smoke_inventory/integration_apps_summary.txt
+
+# 別 subtree を見る例
+SMOKE_INVENTORY_DIR=tools/smokes/v2/profiles/integration/joinir \
+  bash tools/checks/smoke_inventory_report.sh
 ```
 
 出力:
 - `target/smoke_inventory/integration_apps_inventory.tsv`
 - `target/smoke_inventory/integration_apps_summary.txt`
+
+注意:
+- `archive/lib/tmp/fixtures` は既定で live inventory から除外される
+- それらを含めて見たいときだけ `SMOKE_INVENTORY_INCLUDE_PRUNED=1` を使う
 
 ## 12. Checks Script Index
 

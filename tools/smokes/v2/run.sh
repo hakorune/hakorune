@@ -250,6 +250,10 @@ dump_fail_env() {
 find_test_files() {
     local profile_dir="$SCRIPT_DIR/profiles/$PROFILE"
     local test_files=()
+    local prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS:-archive:lib:tmp:fixtures}"
+    local -a prune_names=()
+    local -a find_expr=()
+    local prune_added=0
     local have_llvm=0
     if [ "${SMOKES_FORCE_LLVM:-0}" = "1" ]; then
         have_llvm=1
@@ -271,6 +275,25 @@ find_test_files() {
         exit 1
     fi
 
+    IFS=':' read -r -a prune_names <<< "$prune_dirs"
+    for prune_name in "${prune_names[@]}"; do
+        if [ -z "$prune_name" ]; then
+            continue
+        fi
+        if [ $prune_added -eq 0 ]; then
+            find_expr+=( "(" -type d "(" -name "$prune_name" )
+        else
+            find_expr+=( -o -name "$prune_name" )
+        fi
+        prune_added=1
+    done
+
+    if [ $prune_added -eq 1 ]; then
+        find_expr+=( ")" -prune ")" -o "(" -type f -name "*.sh" -print0 ")" )
+    else
+        find_expr=( -type f -name "*.sh" -print0 )
+    fi
+
     # テストファイル検索
     while IFS= read -r -d '' file; do
         # フィルタ適用
@@ -287,7 +310,7 @@ find_test_files() {
             continue
         fi
         test_files+=("$file")
-    done < <(find "$profile_dir" -name "*.sh" -type f -print0)
+    done < <(find "$profile_dir" "${find_expr[@]}")
 
     if [ ${#test_files[@]} -gt 0 ]; then
         printf '%s\n' "${test_files[@]}"

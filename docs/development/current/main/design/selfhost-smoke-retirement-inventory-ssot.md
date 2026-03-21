@@ -18,8 +18,11 @@ smokes so future cleanup does not delete live profile entries by mistake.
 ## Rules
 
 - Do not delete selfhost smoke scripts only because repo grep shows few or zero callers.
-- `tools/smokes/v2/run.sh` auto-discovers `*.sh` under a profile directory, so profile members are
-  live until they move to archive or a dedicated allowlist.
+- `tools/smokes/v2/run.sh` auto-discovers `*.sh` under a profile directory, but support buckets
+  named `archive/lib/tmp/fixtures` are pruned from live discovery.
+- Profile members stay live until they either:
+  - move into a discovery-pruned support bucket or archive profile, or
+  - are replaced by a documented semantic successor and removed from active docs/gates.
 - Remove a selfhost smoke only after the script is either:
   - moved out of the active profile directory, or
   - replaced by a documented semantic successor and verified to be absent from active docs/gates.
