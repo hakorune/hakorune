@@ -14,8 +14,8 @@ EXTERN_TEST="$2"
 RUNTIME_TEST="$3"
 PASS_MESSAGE="$4"
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/wasm_g3_contract.sh"
+source "$(dirname "$0")/../../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../lib/wasm_g3_contract.sh"
 require_env || exit 2
 
 run_wasm_g3_contract_smoke \

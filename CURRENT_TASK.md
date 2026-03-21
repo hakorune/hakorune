@@ -56,8 +56,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, the first four semantic splits have landed, `phase29ck_boundary` now lives under `integration/phase29ck_boundary/{entry,string,runtime_data}/`, and `vm_hako_caps` now lives under `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, so the next blocker is the next live family split under `integration/apps` (`phase29cc_wsm` first)
-  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, `phase29ck_boundary` and `vm_hako_caps` have been split into semantic subtrees, and the next slice continues semantic split of `integration/apps` (`--profile` compat keep, `--suite` opt-in, no mass move)
+  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, the first four semantic splits have landed, `phase29ck_boundary` now lives under `integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` now lives under `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, and the first `phase29cc_wsm` split (`g3_canvas`) now lives under `integration/phase29cc_wsm/g3_canvas/`, so the next blocker is the next live family split under `integration/apps` (`phase29cc_wsm/g2_browser` next)
+  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, `phase29ck_boundary`, `vm_hako_caps`, and the first `phase29cc_wsm` subfamily (`g3_canvas`) have been split into semantic subtrees, and the next slice continues semantic split of `integration/apps` (`--profile` compat keep, `--suite` opt-in, no mass move)
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
@@ -71,11 +71,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: use `tools/checks/smoke_inventory_report.sh` at milestones instead of ad-hoc manual pruning
   - smoke hygiene: `tools/smokes/v2/run.sh` now discovery-prunes `archive/lib/tmp/fixtures`; treat those names as non-live support buckets and keep new semantic growth under `profile -> domain -> intent`
   - smoke hygiene: suite manifests live under `tools/smokes/v2/suites/<profile>/<suite>.txt`; keep them small, active-only, and human-meaningful
-  - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, with `phase29cc_wsm` next
+  - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, and `phase29cc_wsm/g3_canvas` now lives under `tools/smokes/v2/profiles/integration/phase29cc_wsm/g3_canvas/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, with `phase29cc_wsm/g2_browser` next
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `tools/smokes/v2/profiles/integration/vm_hako_caps/README.md`
-  - `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
+  - `tools/smokes/v2/profiles/integration/phase29cc_wsm/README.md`
+  - `tools/smokes/v2/suites/integration/phase29cc-wsm-g3-canvas.txt`
   - `docs/development/current/main/phases/phase-29cq/README.md`
   - `docs/development/current/main/design/smoke-taxonomy-and-discovery-ssot.md`
 - Execution checklist:
@@ -107,7 +107,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` phase-29cq fourth semantic split: move `ring1_{array,console,map,path}_provider` out of `integration/apps` into `integration/ring1_providers/`
   - `[x]` phase-29cq fifth semantic split: move `phase29ck_boundary` out of `integration/apps` into `integration/phase29ck_boundary/{entry,string,runtime_data}/`
   - `[x]` phase-29cq sixth semantic split: move `vm_hako_caps` out of `integration/apps` into `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`
-  - `[ ]` phase-29cq ongoing split: continue splitting the remaining `integration/apps` families by semantic domain (next family: `phase29cc_wsm`)
+  - `[x]` phase-29cq ongoing split: move `phase29cc_wsm/g3_canvas` out of `integration/apps` into `integration/phase29cc_wsm/g3_canvas/`
+  - `[ ]` phase-29cq ongoing split: continue splitting the remaining `phase29cc_wsm` families by semantic domain (next family: `phase29cc_wsm/g2_browser`)
   - `[x]` RVP-C16 first vm-hako blocker is closed: `newbox(MapBox)` is accepted in subset-check and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`
   - `[x]` RVP-C17 is closed: `MapBox.set(key,value)` now clears subset/runtime args>1 blockers and is pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`
   - `[x]` RVP-C18 is closed: `MapBox.size()` now completes in vm-hako and is pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`
@@ -167,7 +168,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: phase-29cq semantic split of the next live family out of `tools/smokes/v2/profiles/integration/apps/` (`phase29cc_wsm` first)
+- immediate: phase-29cq semantic split of the next live family out of `tools/smokes/v2/profiles/integration/apps/` (`phase29cc_wsm/g2_browser` next)
 - second: raw substrate perf reopen (`P1`) after the next semantic split lands
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: keep collection owner cutover parked unless a new exact collection blocker appears
