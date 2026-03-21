@@ -8,8 +8,8 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/perf_crosslang_contract.sh"
+source "$(dirname "$0")/../../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../lib/perf_crosslang_contract.sh"
 require_env || exit 2
 
 SMOKE_NAME="phase21_5_perf_kilo_parity_lock_contract_vm"

@@ -166,7 +166,7 @@ helper 境界の tuning 条件を 1 箇所へ隔離する。
 必須:
 
 - `tools/checks/dev_gate.sh quick`
-- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
 - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
 - `cargo test -p nyash_kernel string_concat3_hhh_contract array_runtime_data_route_hh_contract_roundtrip -- --nocapture`
 

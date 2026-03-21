@@ -53,7 +53,7 @@ This does not change global runtime defaults. It is a benchmark-lane tuning deci
 - Script default:
   - `tools/perf/bench_compare_c_py_vs_hako.sh`
 - Contract smoke:
-  - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_aot_safepoint_toggle_contract_vm.sh`
+  - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_aot_safepoint_toggle_contract_vm.sh`
 - Optional gate mapping:
   - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_optional_steps.tsv`
 
@@ -142,7 +142,7 @@ Observed LLVM IR after patch (`NYASH_LLVM_FAST=1`, main):
 
 Contract lock added:
 
-- `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+- `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
   - verifies `concat_hh` density in `main` (`>= 3`)
   - verifies `runtime_data.set_hhh` consumes `concat_hh_*`
   - rejects literal `set_hhh(..., 0)` fallback
@@ -176,7 +176,7 @@ hot boundary:
   - extracted `_mark_receiver_stringish()` and reused in
     `substring` / `indexOf` / `lastIndexOf`.
 - contract extension:
-  - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+  - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
   - now also requires hot trace main summary and enforces:
     - `resolve_fallback_call=0`
 
@@ -210,7 +210,7 @@ Re-check snapshot:
 - `cargo check --bin hakorune` PASS
 - `cargo test -p nyash_kernel -- --nocapture` PASS
 - `tools/checks/dev_gate.sh quick` PASS
-- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=78`, `py_ms=112`, `ny_vm_ms=1017`, `ny_aot_ms=85`, `ratio_c_aot=0.92`, `aot_status=ok`
@@ -245,7 +245,7 @@ Re-check snapshot:
 
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_intrinsic_registry.py src/llvm_py/tests/test_strlen_fast.py` PASS
 - `tools/checks/dev_gate.sh quick` PASS
-- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=81`, `py_ms=113`, `ny_vm_ms=1039`, `ny_aot_ms=88`, `ratio_c_aot=0.92`, `aot_status=ok`
@@ -282,7 +282,7 @@ Re-check snapshot:
 
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_intrinsic_registry.py src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py` PASS
 - `tools/checks/dev_gate.sh quick` PASS
-- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=80`, `py_ms=114`, `ny_vm_ms=1032`, `ny_aot_ms=88`, `ratio_c_aot=0.91`, `aot_status=ok`
@@ -305,7 +305,7 @@ AutoSpecialize/Intrinsic contracts.
     - fallback remains existing `concat_hh` route when fold preconditions are not met
   - `crates/nyash_kernel/src/exports/string.rs`
     - added `nyash.string.concat3_hhh` export with StringBox hot path
-  - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+  - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
     - contract now accepts combined concat helper density (`concat_hh + concat3_hhh`)
     - `runtime_data.set_hhh` must consume `concat_hh_*` or `concat3_hhh_*`
 - tests:
@@ -319,7 +319,7 @@ Re-check snapshot:
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_intrinsic_registry.py src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py` PASS
 - `cargo test -p nyash_kernel string_concat3_hhh_contract -- --nocapture` PASS
 - `tools/checks/dev_gate.sh quick` PASS
-- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=79`, `py_ms=107`, `ny_vm_ms=1007`, `ny_aot_ms=86`, `ratio_c_aot=0.92`, `aot_status=ok`
@@ -389,7 +389,7 @@ mono-route while preserving runtime_data semantics.
     - `src/llvm_py/resolver.py`
 - contracts/tests:
   - new smoke:
-    - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
+    - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
     - optional gate toggle:
       - `PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK`
       - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_optional_steps.tsv`
@@ -409,7 +409,7 @@ Re-check snapshot:
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py` PASS
 - `cargo test -p nyash_kernel array_runtime_data_route_hh_contract_roundtrip -- --nocapture` PASS
 - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` PASS
-- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh` PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
@@ -491,7 +491,7 @@ before falling back to generic `nyash.any.length_h`.
 Re-check snapshot:
 
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 
 ### 18) `substring_hii` view v0 docs-first (`cleanup-10`)
@@ -534,7 +534,7 @@ Re-check snapshot:
 
 - `cargo test -p nyash_kernel --lib -- --nocapture` PASS
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=75`, `py_ms=103`, `ny_vm_ms=966`, `ny_aot_ms=67`, `ratio_c_aot=1.12`, `aot_status=ok`
@@ -571,13 +571,13 @@ Implementation:
   - `src/llvm_py/tests/test_strlen_fast.py`
     - `test_mir_call_length_receiver_marked_stringish_by_later_substring_use`
     - `test_mir_call_length_get_result_infers_stringish_from_string_set`
-  - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+  - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
     - fail-fast check added: main IR must not contain `nyash.any.length_h`
 
 Re-check snapshot:
 
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=78`, `py_ms=105`, `ny_vm_ms=974`, `ny_aot_ms=70`, `ratio_c_aot=1.11`, `aot_status=ok`
@@ -603,7 +603,7 @@ Implementation:
   - updated chain-fold tests to lock the new contract:
     - `concat3_hhh` present
     - `concat_hh` absent for one-level fold cases
-- `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+- `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
   - adjusted concat density floor from `>=3` to `>=2` to reflect dead-call elimination
 
 Observed `main` call inventory delta (after cleanup-12):
@@ -615,7 +615,7 @@ Observed `main` call inventory delta (after cleanup-12):
 Re-check snapshot:
 
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=79`, `py_ms=111`, `ny_vm_ms=1019`, `ny_aot_ms=60`, `ratio_c_aot=1.32`, `aot_status=ok`
@@ -655,7 +655,7 @@ Observed `main` call inventory delta:
 Re-check snapshot:
 
 - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
   - `c_ms=78`, `py_ms=110`, `ny_vm_ms=987`, `ny_aot_ms=64`, `ratio_c_aot=1.22`, `aot_status=ok`
@@ -705,7 +705,7 @@ Contracts/tests/docs:
   - `array_runtime_data_route_hi_contract_roundtrip`
 - `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
   - allow `get_hi/has_hi/set_hih`
-- `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+- `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
   - allow `set_hih` as valid set route
 - docs sync:
   - `docs/development/current/main/design/auto-specialize-box-ssot.md`
@@ -724,7 +724,7 @@ Re-check snapshot:
 - `cargo test -p nyash_kernel array_runtime_data_route_hh_contract_roundtrip -- --nocapture` PASS
 - `cargo test -p nyash_kernel array_runtime_data_route_hi_contract_roundtrip -- --nocapture` PASS
 - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` PASS
-- `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
 
@@ -1533,7 +1533,7 @@ Validation:
 - gates:
   - `tools/checks/dev_gate.sh quick` PASS
   - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
-  - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
+  - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
 
 Perf snapshot:
 
@@ -1586,7 +1586,7 @@ Validation:
 - gates:
   - `tools/checks/dev_gate.sh quick` PASS
   - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
-  - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
+  - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
 
 Perf snapshot:
 
@@ -1636,7 +1636,7 @@ Validation:
 - gates:
   - `tools/checks/dev_gate.sh quick` PASS
   - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
-  - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
+  - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
 
 Perf snapshot:
 
@@ -1681,7 +1681,7 @@ Validation:
 - gates:
   - `tools/checks/dev_gate.sh quick` PASS
   - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh` PASS
-  - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
+  - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh` PASS
 
 Perf snapshot:
 
@@ -1970,7 +1970,7 @@ Implementation:
   - `docs/reference/runtime/runtime-data-dispatch.md`
   - smoke route acceptance update:
     - `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
-    - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+    - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
 
 Validation snapshot:
 
@@ -1978,7 +1978,7 @@ Validation snapshot:
 - `cargo test -p nyash_kernel array_runtime_data_route_ -- --nocapture` PASS
 - `cargo check --bin hakorune` PASS
 - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh` PASS
-- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
+- `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh` PASS
 - `tools/checks/dev_gate.sh quick` PASS
 
 Perf snapshot:
@@ -2399,7 +2399,7 @@ Goal:
 Implementation:
 
 - added new optional perf smoke:
-  - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_parity_lock_contract_vm.sh`
+  - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_parity_lock_contract_vm.sh`
   - contract:
     - runs `bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
     - requires `aot_status=ok`

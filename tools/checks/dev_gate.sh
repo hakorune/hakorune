@@ -180,7 +180,7 @@ run_quick() {
 
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
-      bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+      bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
 }
 
 run_hotpath() {

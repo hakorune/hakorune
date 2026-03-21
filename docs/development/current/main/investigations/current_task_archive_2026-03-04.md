@@ -1051,7 +1051,7 @@ contract note (fixed):
       - `phase21_5_perf_gate_optional_steps.tsv` / `run_phase21_5_perf_gate_bundle.sh` full へ optional 配線
     - 受け入れ:
       - `tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 1` 緑
-      - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh` 緑
+      - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh` 緑
     - 実測固定（2026-02-22, `NYASH_LLVM_SKIP_BUILD=1`, warmup=1/repeat=3）:
       - `kilo_kernel_small`: `c_ms=73`, `py_ms=102`, `ny_vm_ms=970`, `ny_aot_ms=218`
       - ratio: `ratio_c_vm=0.08`, `ratio_c_py=0.72`, `ratio_c_aot=0.33`, `aot_status=ok`
@@ -1380,7 +1380,7 @@ contract note (fixed):
           - `indexOf` / `substring` / `lastIndexOf` で receiver を string-tag 伝播
           - `kilo` nested append (`current + "ln"`) の `set(...,0)` ドリフトを解消
         - 追加契約スモーク:
-          - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - 検証: `concat_hh` 密度 (`>=3`) と `runtime_data.set_hhh(..., concat_hh_*)`
         - optional gate mapping:
           - `PERF_GATE_KILO_TEXT_CONCAT_CHECK`（`phase21_5_perf_gate_optional_steps.tsv`）
@@ -1409,7 +1409,7 @@ contract note (fixed):
           - `cargo check --bin hakorune`
           - `cargo test -p nyash_kernel -- --nocapture`
           - `tools/checks/dev_gate.sh quick`
-          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
         - 再計測（`bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`）:
           - `c_ms=78`, `py_ms=112`, `ny_vm_ms=1017`, `ny_aot_ms=85`, `ratio_c_aot=0.92`, `aot_status=ok`
@@ -1430,7 +1430,7 @@ contract note (fixed):
         - 検証:
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_intrinsic_registry.py src/llvm_py/tests/test_strlen_fast.py`
           - `tools/checks/dev_gate.sh quick`
-          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
         - 再計測（`bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`）:
           - `c_ms=81`, `py_ms=113`, `ny_vm_ms=1039`, `ny_aot_ms=88`, `ratio_c_aot=0.92`, `aot_status=ok`
@@ -1452,7 +1452,7 @@ contract note (fixed):
         - 検証:
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_intrinsic_registry.py src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py`
           - `tools/checks/dev_gate.sh quick`
-          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
         - 再計測（`bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`）:
           - `c_ms=80`, `py_ms=114`, `ny_vm_ms=1032`, `ny_aot_ms=88`, `ratio_c_aot=0.91`, `aot_status=ok`
@@ -1470,7 +1470,7 @@ contract note (fixed):
             - 不成立時は `concat_hh` へ即時フォールバック（意味不変）
           - `crates/nyash_kernel/src/exports/string.rs`
             - `nyash.string.concat3_hhh` export を追加
-          - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
             - concat helper 密度判定を `concat_hh + concat3_hhh` 合算へ拡張
             - `runtime_data.set_hhh` が `concat_hh_*` または `concat3_hhh_*` を消費する契約に更新
           - テスト追加:
@@ -1482,7 +1482,7 @@ contract note (fixed):
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_intrinsic_registry.py src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py`
           - `cargo test -p nyash_kernel string_concat3_hhh_contract -- --nocapture`
           - `tools/checks/dev_gate.sh quick`
-          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
         - 再計測（`bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`）:
           - `c_ms=79`, `py_ms=107`, `ny_vm_ms=1007`, `ny_aot_ms=86`, `ratio_c_aot=0.92`, `aot_status=ok`
@@ -1539,7 +1539,7 @@ contract note (fixed):
             - `src/llvm_py/resolver.py`
         - 契約/テスト:
           - 追加スモーク:
-            - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
+            - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
             - optional gate toggle: `PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK`
           - 更新スモーク:
             - `phase21_5_perf_kilo_text_concat_contract_vm.sh`（`runtime_data.set_hhh` / `array.set_hhh` 両許容）
@@ -1552,7 +1552,7 @@ contract note (fixed):
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py`
           - `cargo test -p nyash_kernel array_runtime_data_route_hh_contract_roundtrip -- --nocapture`
           - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
-          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
+          - `NYASH_LLVM_SKIP_BUILD=1 bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `PERF_GATE_KILO_TEXT_CONCAT_CHECK=1 PERF_GATE_KILO_RUNTIME_DATA_ARRAY_ROUTE_CHECK=1 PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
         - 再計測（`bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`）:
@@ -1600,7 +1600,7 @@ contract note (fixed):
             - `src/llvm_py/tests/test_strlen_fast.py`
         - 検証:
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_mir_call_auto_specialize.py src/llvm_py/tests/test_strlen_fast.py`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
       - cleanup-10（HOT-20 substring_hii view v0, docs-first, 2026-02-23）:
         - 目的:
@@ -1626,7 +1626,7 @@ contract note (fixed):
         - 検証:
           - `cargo test -p nyash_kernel --lib -- --nocapture`
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
             - `c_ms=75`, `py_ms=103`, `ny_vm_ms=966`, `ny_aot_ms=67`, `ratio_c_aot=1.12`, `aot_status=ok`
@@ -1650,11 +1650,11 @@ contract note (fixed):
           - `src/llvm_py/tests/test_strlen_fast.py`
             - `length` 先行 + `substring` 後続ケースで `any.length_h` 不在を固定
             - RuntimeData `set(string)->get->length` で `any.length_h` 不在を固定
-          - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
             - main IR に `nyash.any.length_h` が残った場合は fail-fast
         - 検証:
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
             - `c_ms=78`, `py_ms=105`, `ny_vm_ms=974`, `ny_aot_ms=70`, `ratio_c_aot=1.11`, `aot_status=ok`
@@ -1671,11 +1671,11 @@ contract note (fixed):
             - chain fold テスト（left/right）の期待を更新:
               - `concat3_hhh` は存在
               - `concat_hh` は不在（中間デッドコール禁止）
-          - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
             - concat helper 密度契約を `>=3` から `>=2` へ更新（dead-call 除去後の実体密度に合わせる）
         - 検証:
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
             - `c_ms=79`, `py_ms=111`, `ny_vm_ms=1019`, `ny_aot_ms=60`, `ratio_c_aot=1.32`, `aot_status=ok`
@@ -1697,7 +1697,7 @@ contract note (fixed):
           - `nyash.string.len_h`: `0 -> 2`
         - 検証:
           - `PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`
             - `c_ms=78`, `py_ms=110`, `ny_vm_ms=987`, `ny_aot_ms=64`, `ratio_c_aot=1.22`, `aot_status=ok`
@@ -1734,7 +1734,7 @@ contract note (fixed):
             - `src/llvm_py/tests/test_strlen_fast.py`
             - `crates/nyash_kernel/src/tests.rs` (`array_runtime_data_route_hi_contract_roundtrip`)
             - `tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
-            - `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+            - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - docs:
             - `docs/development/current/main/design/auto-specialize-box-ssot.md`（AS-03b）
             - `docs/reference/runtime/runtime-data-dispatch.md`（`get_hi/set_hih/has_hi` 契約）
@@ -1748,7 +1748,7 @@ contract note (fixed):
           - `cargo test -p nyash_kernel array_runtime_data_route_hh_contract_roundtrip -- --nocapture`
           - `cargo test -p nyash_kernel array_runtime_data_route_hi_contract_roundtrip -- --nocapture`
           - `bash tools/smokes/v2/profiles/integration/apps/archive/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
-          - `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+          - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
           - `tools/checks/dev_gate.sh quick`
           - `PERF_GATE_BENCH_COMPARE_ENV_CHECK=1 PERF_GATE_AOT_SKIP_BUILD_CHECK=1 PERF_GATE_AOT_AUTO_SAFEPOINT_ENV_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh`
           - `bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 3`

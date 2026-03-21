@@ -6,8 +6,8 @@ Scope: execution-path-zero 運用で VM+AOT の kilo 主要ルートを同時監
 Related:
   - docs/development/current/main/phases/phase-29cc/29cc-215-runtime-execution-path-observability-lock-ssot.md
   - tools/checks/phase29cc_runtime_vm_aot_route_lock_guard.sh
-  - tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh
-  - tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh
   - tools/checks/dev_gate.sh
 ---
 

@@ -1,0 +1,6 @@
+# phase21_5 perf kilo suite
+phase21_5/perf/kilo/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh
+phase21_5/perf/kilo/phase21_5_perf_kilo_micro_machine_lane_contract_vm.sh
+phase21_5/perf/kilo/phase21_5_perf_kilo_result_parity_contract_vm.sh
+phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh
+phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh

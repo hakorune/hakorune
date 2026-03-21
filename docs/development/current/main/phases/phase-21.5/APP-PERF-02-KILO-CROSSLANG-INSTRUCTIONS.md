@@ -24,7 +24,7 @@ Scope: Phase 21.5 perf lane（real-app style baseline）
 2. `benchmarks/c/bench_kilo_kernel_small.c`（新規）
 3. `benchmarks/python/bench_kilo_kernel_small.py`（新規）
 4. `tools/perf/bench_compare_c_py_vs_hako.sh`（更新、`kilo_kernel_small` 対応）
-5. `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh`（新規）
+5. `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh`（新規）
 6. `benchmarks/README.md`（更新）
 
 ## Benchmark Logic Contract（3言語同一）
@@ -118,7 +118,7 @@ PERF_VM_FORCE_NO_FALLBACK=1 \
 tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 1
 
 # 2) contract smoke
-bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh
+bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh
 
 # 3) optional gate wiring check
 PERF_GATE_KILO_CROSSLANG_CHECK=1 NYASH_LLVM_SKIP_BUILD=1 \

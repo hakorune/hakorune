@@ -7,9 +7,12 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/investigations/phase21_5-kilo-hotspot-triage-2026-02-23.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/README.md
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/README.md
   - src/llvm_py/cfg/utils.py
   - src/llvm_py/tests/test_cfg_stringish_arraybox.py
-  - tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh
+  - tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -34,15 +37,16 @@ Related:
 2. 回帰テストで `ArrayBox.push/get` の stringish propagation を固定する。
 3. `phase21_5_perf_kilo_text_concat_contract_vm.sh` を再実行して `nyash.any.length_h` 不在を確認する。
 4. `tools/checks/dev_gate.sh portability` を green に戻す。
-5. そのあとで `phase21_5/perf` か、続く semantic split に戻る。
+5. そのあとで `phase21_5/perf/apps` か、続く semantic split に戻る。
 
 ## Acceptance
 
 1. `PYTHONPATH=src/llvm_py:. python3 -m unittest src.llvm_py.tests.test_cfg_stringish_arraybox`
-2. `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_text_concat_contract_vm.sh`
+2. `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_text_concat_contract_vm.sh`
 3. `bash tools/checks/dev_gate.sh portability`
 4. `git diff --check`
 
 ## Next
 
 1. Keep the residual route slice parked unless the `any.length_h` route regresses again.
+2. `phase21_5/perf/{chip8,kilo}` は別 family として landed 済みなので、必要なら `phase21_5/perf/apps` を次に切る。

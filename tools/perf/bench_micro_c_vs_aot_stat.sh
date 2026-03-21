@@ -67,6 +67,9 @@ trap cleanup EXIT
 source "${ROOT_DIR}/tools/perf/lib/bench_compare_common.sh"
 source "${ROOT_DIR}/tools/perf/lib/aot_helpers.sh"
 
+# Micro AOT measurements are boundary-owned; smoke env defaults harness=1 for legacy LLVM probes.
+export NYASH_LLVM_USE_HARNESS=0
+
 MICRO_RUN_ENV=(
   NYASH_GC_MODE="${NYASH_GC_MODE:-off}"
   NYASH_SCHED_POLL_IN_SAFEPOINT="${NYASH_SCHED_POLL_IN_SAFEPOINT:-0}"

@@ -43,11 +43,13 @@ As of 2026-03-21, the smoke tree is heavily concentrated in a few leaves:
 - `integration/phase29cc_wsm/p6`: `2` scripts, split out of `integration/apps` as the twelfth live semantic family
 - `integration/phase29cc_wsm/p7`: `4` scripts, split out of `integration/apps` as the thirteenth live semantic family
 - `integration/phase29cc_wsm/p8`: `1` script, split out of `integration/apps` as the fourteenth live semantic family
+- `integration/phase21_5/perf/chip8`: `1` script, split out of `integration/apps` as the fifteenth live semantic family
+- `integration/phase21_5/perf/kilo`: `7` scripts, split out of `integration/apps` as the sixteenth live semantic family
 - `integration/apps/archive`: about `225` archived scripts
 - `integration/joinir`: about `170` scripts
 - `quick/core`: about `63` scripts
 
-This is still too dense for casual human navigation, especially under `integration/apps`, but the first fourteen live splits have already been carved out as `integration/rc_gc_alignment`, `integration/json`, `integration/mir_shape`, `integration/ring1_providers`, `integration/phase29ck_boundary`, `integration/vm_hako_caps`, `integration/phase29cc_wsm/g3_canvas`, `integration/phase29cc_wsm/g2_browser`, `integration/phase29cc_wsm/g4`, `integration/phase29cc_wsm/p10`, `integration/phase29cc_wsm/p5`, `integration/phase29cc_wsm/p6`, `integration/phase29cc_wsm/p7`, and `integration/phase29cc_wsm/p8`.
+This is still too dense for casual human navigation, especially under `integration/apps`, but the first sixteen live splits have already been carved out as `integration/rc_gc_alignment`, `integration/json`, `integration/mir_shape`, `integration/ring1_providers`, `integration/phase29ck_boundary`, `integration/vm_hako_caps`, `integration/phase29cc_wsm/g3_canvas`, `integration/phase29cc_wsm/g2_browser`, `integration/phase29cc_wsm/g4`, `integration/phase29cc_wsm/p10`, `integration/phase29cc_wsm/p5`, `integration/phase29cc_wsm/p6`, `integration/phase29cc_wsm/p7`, `integration/phase29cc_wsm/p8`, `integration/phase21_5/perf/chip8`, and `integration/phase21_5/perf/kilo`.
 
 ## Suite-first contract
 
@@ -155,7 +157,7 @@ These names are reserved and should not contain live profile entries that must r
 2. Introduce suite manifests without changing `--profile` compatibility.
 3. Prefer suite manifests for daily/presubmit entry before any semantic path split.
 4. Keep inventory tooling aligned with the same prune contract.
-5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, `integration/phase29ck_boundary/`, `integration/vm_hako_caps/`, `integration/phase29cc_wsm/g3_canvas/`, `integration/phase29cc_wsm/g2_browser/`, `integration/phase29cc_wsm/g4/`, `integration/phase29cc_wsm/p10/`, `integration/phase29cc_wsm/p5/`, `integration/phase29cc_wsm/p6/`, `integration/phase29cc_wsm/p7/`, and `integration/phase29cc_wsm/p8/`; after that, the next active family should be `phase21_5/perf`.
+5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, `integration/phase29ck_boundary/`, `integration/vm_hako_caps/`, `integration/phase29cc_wsm/g3_canvas/`, `integration/phase29cc_wsm/g2_browser/`, `integration/phase29cc_wsm/g4/`, `integration/phase29cc_wsm/p10/`, `integration/phase29cc_wsm/p5/`, `integration/phase29cc_wsm/p6/`, `integration/phase29cc_wsm/p7/`, `integration/phase29cc_wsm/p8/`, `integration/phase21_5/perf/chip8/`, and `integration/phase21_5/perf/kilo/`; after that, the next active family should be `phase21_5/perf/apps`.
 6. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
 
 ## First safe target
@@ -179,9 +181,13 @@ First live split already landed:
 - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/`
 - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p6/`
 - `tools/smokes/v2/profiles/integration/phase29cc_wsm/p7/`
+- `tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/`
+- `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/`
 
 Recommended next semantic groups:
 
-- `phase21_5/perf` after `phase29cc_wsm/p8` lands
+- `phase21_5/perf/chip8`
+- `phase21_5/perf/kilo`
+- `phase21_5/perf/apps`
 
 Do not mass-move all archived content in the same slice. Archive separation and active semantic split should remain separate commits.

@@ -168,8 +168,8 @@ tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small 1 1
 #   ratio_c_aot = c_ms / ny_aot_ms
 
 # Contract smoke
-bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
-bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh
+bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_kernel_crosslang_contract_vm.sh
 ```
 
 Files:

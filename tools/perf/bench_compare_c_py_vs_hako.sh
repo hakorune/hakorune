@@ -67,6 +67,11 @@ trap cleanup_tmp_aot_files EXIT
 source "${ROOT_DIR}/tools/perf/lib/bench_env.sh"
 source "${ROOT_DIR}/tools/perf/lib/bench_compare_common.sh"
 source "${ROOT_DIR}/tools/perf/lib/aot_helpers.sh"
+
+# Perf bench4 compares are boundary-owned AOT routes, not llvmlite keep-lane probes.
+# Smoke env defaults NYASH_LLVM_USE_HARNESS=1 for legacy LLVM diagnostics, so clear it here.
+export NYASH_LLVM_USE_HARNESS=0
+
 VM_TIMEOUT="$(perf_vm_timeout_resolve fast)"
 AOT_TIMEOUT_SEC="$(perf_resolve_aot_timeout_sec)" || exit $?
 SKIP_VM_PREFLIGHT="$(perf_resolve_bool_01_env PERF_SKIP_VM_PREFLIGHT 0)" || exit $?

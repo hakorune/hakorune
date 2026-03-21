@@ -19,7 +19,7 @@ Scope: Phase 21.5 perf lane（real-app style baseline）
 2. `benchmarks/c/bench_chip8_kernel_small.c`（新規）
 3. `benchmarks/python/bench_chip8_kernel_small.py`（新規）
 4. `tools/perf/bench_compare_c_py_vs_hako.sh`（新規）
-5. `tools/smokes/v2/profiles/integration/apps/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh`（新規）
+5. `tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh`（新規）
 6. `benchmarks/README.md`（更新）
 
 ## Benchmark Logic Contract（3言語同一）
@@ -108,7 +108,7 @@ tools/perf/bench_compare_c_py_vs_hako.sh chip8_kernel_small 1 1
 3. gate 実行例:
 
 ```bash
-bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
 ```
 
 ## Rules（必須）
@@ -125,7 +125,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_chip8_kernel_cross
 tools/perf/bench_compare_c_py_vs_hako.sh chip8_kernel_small 1 1
 
 # 2) contract smoke
-bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
+bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
 
 # 3) existing quick perf gate regression check
 bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_gate_vm.sh

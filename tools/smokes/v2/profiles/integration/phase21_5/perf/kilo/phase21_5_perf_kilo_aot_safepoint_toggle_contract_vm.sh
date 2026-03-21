@@ -10,7 +10,7 @@ set -euo pipefail
 SMOKE_NAME="phase21_5_perf_kilo_aot_safepoint_toggle_contract_vm"
 KEY="kilo_kernel_small_hk"
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../lib/test_runner.sh"
 require_env || exit 2
 
 SCRIPT="$NYASH_ROOT/tools/perf/bench_compare_c_py_vs_hako.sh"
