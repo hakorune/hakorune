@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - lang/src/runtime/kernel/README.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
+  - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
@@ -24,6 +25,14 @@ Related:
 - Rust/C は substrate（allocation / handle registry / GC / ABI / raw leaf）に固定し、meaning owner に戻さない。
 - `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を消すことではない。
 - “境界だけいじって進まない” 状態を防ぐため、collection owner cutover の fixed order を SSOT 化する。
+
+## Axis Lock
+
+- `stage0/stage1/stage2+` と `owner/substrate` は別軸で読む。
+- current matrix SSOT:
+  - `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
+- this phase owns only the kernel owner axis.
+- `done-enough stop line` here means phase-local owner progress, not end-state completion for stage2+ mainline.
 
 ## Non-Goals
 
@@ -104,6 +113,7 @@ Related:
 - `.hako` ring1 owns visible collection semantics, while Rust still owns the raw substrate/plugin ABI path.
 - `array -> map -> runtime_data cleanup` is parked unless a new exact collection blocker appears; `string` is parked at stop line and `numeric` is parked as a narrow pilot.
 - raw substrate perf reopen (`P1`) is parked again until the boundary is deeper.
+- do not read the green acceptance set as “kernel migration finished”; it only proves the current owner frontier is stable enough to move to `B1`.
 - the last accepted `P1` keep is the `array` read-seam slice at `ny_aot_ms=43`.
 - immediate rejected probes (reverted):
   - dedicated i64 write helper (`43 -> 47 ms`)
@@ -152,8 +162,8 @@ Move to `.hako`:
   - `bash tools/smokes/v2/profiles/quick/core/map/map_basic_get_set_vm.sh`
   - `bash tools/smokes/v2/profiles/quick/core/map/map_len_size_vm.sh`
 - integration:
-  - `bash tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh`
-  - `bash tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_provider_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
 - parked pilots:
   - string: `bash tools/smokes/v2/profiles/integration/apps/phase29ck_string_kernel_search_min.sh`

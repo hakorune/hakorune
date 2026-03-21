@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
+  - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -34,13 +35,15 @@ Related:
 - runtime 側は inventory-ready、backend 側は phase-cut queued という温度差を明文化する。
 - `0rust` は Rust meaning owner zero を意味するが、Rust ベースの build/bootstrap route を壊すことではない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline` だと読む。
+- `stage` 軸と `owner` 軸は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` の matrix で分離して読む。
 - preferred end-state is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to bootstrap / ABI / raw leaf / LLVM backend emission.
 - practical sequence for the end-state is: compiler authority removal -> kernel authority zero -> backend-zero daily owner cutover -> substrate reconsideration.
 
 ## 1. Boundary Lock
 
 - この文書は future tracking 用の薄い SSOT であり、daily の blocker 管理そのものは `CURRENT_TASK.md` を正本とする。
-- 現在の immediate blocker は引き続き compiler authority removal（pure `.hako`-only hakorune build）である。
+- この文書だけで現在の immediate blocker を決めない。daily の active slice は常に `CURRENT_TASK.md` を正本にする。
+- compiler authority removal は long-range first principle だが、daily 実装順が常にその lane にいることを意味しない。
 - `phase-29y` の runtime daily policy（`LLVM-first / vm-hako monitor-only`）はこの文書では変更しない。
 - non-plugin done の判定範囲は `de-rust-scope-decision-ssot.md` を維持し、この文書で広げない。
 - buildability は preservation-first で扱い、Rust build route を migration 中に silent delete しない。
@@ -55,6 +58,7 @@ Related:
    - accepted pointer / inventory-ready
    - source-zero と static-link boundary の入口が既に揃っている。
    - `kernel authority zero` は queued pointer として別建てで tracking し、meaning/policy owner の cutover と substrate delete を混ぜない。
+   - current daily work may still sit inside `kernel-authority-zero` when `CURRENT_TASK.md` says so; do not read this section as a blocker override.
 3. backend-zero:
    - accepted pointer / phase-cut queued
    - owner inventory と keep-vs-retire の高位境界は固定済み
@@ -94,12 +98,16 @@ Related:
   - kernel meaning/policy の final owner を `.hako` 側へ移し、Rust runtime を substrate / portability / compat keep に降格する。
 - status:
   - active pointer
+  - current collection wave is at `done-enough owner shift`, but not end-state complete
+  - next exact task is `B1: deeper collection boundary before perf`
 - primary SSOT:
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+  - `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
   - `lang/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
 - current rule:
   - current order is `array -> map -> runtime_data cleanup`.
+  - stage0 bootstrap keep does not block kernel owner shift.
   - raw substrate micro-opt と混ぜない。
   - `kernel authority zero` は `substrate zero` と同じ task にしない。
   - `runtime_data` は owner に昇格させず protocol / facade に留める。

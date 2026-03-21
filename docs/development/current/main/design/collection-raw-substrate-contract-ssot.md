@@ -45,6 +45,7 @@ Related:
 
 ## 1.5 Current State
 
+- this SSOT governs the owner/substrate boundary only; it does not define the `stage0/stage1/stage2+` axis
 - owner shift is done-enough for the current phase, but not end-state complete
 - `.hako` ring1 collection core is the visible owner frontier for collection semantics
 - Rust still owns the raw substrate and compatibility/plugin ABI path beneath that frontier
@@ -227,8 +228,8 @@ Current second slice:
   - `bash tools/smokes/v2/profiles/quick/core/map/map_basic_get_set_vm.sh`
   - `bash tools/smokes/v2/profiles/quick/core/map/map_len_size_vm.sh`
 - provider integration:
-  - `bash tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh`
-  - `bash tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_provider_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh`
 - runtime_data guard:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
 

@@ -145,6 +145,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - note: `phase-29cf` handles post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` as accepted monitor-only, without reopening `phase-29cc`
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
+  - axis lock: `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
   - collection owner shift is done-enough, but not end-state complete
   - raw substrate perf is parked again until the boundary is deeper than the remaining method-shaped Rust exports used by `.hako`
   - latest closeout evidence (2026-03-01, head=`68ea40af29`):

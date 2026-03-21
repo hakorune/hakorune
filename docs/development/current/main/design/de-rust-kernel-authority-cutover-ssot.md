@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
+  - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
@@ -27,6 +28,12 @@ Related:
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
 - operational reading は `stage0 Rust bootstrap keep / stage2+ selfhost mainline` であり、kernel authority zero は後者の owner cutover を指す。
 - raw substrate micro-optimization と kernel owner cutover を混ぜて、測定や責務境界を濁さない。
+
+## 0. Axis Lock
+
+- `stage0/stage1/stage2+` と `owner/substrate` は別軸で読む。
+- current matrix SSOT is `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`.
+- `phase-29cm done-enough` は owner axis の局所 stop-line であり、stage2+ mainline end-state completion を意味しない。
 
 ## 1. Boundary Lock
 

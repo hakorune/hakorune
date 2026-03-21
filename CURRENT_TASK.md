@@ -13,8 +13,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - VM `.hako` migration / BoxShape の Next は `docs/development/current/main/phases/phase-29y/83-VM-S0-REFACTOR-OUTSOURCE-INSTRUCTIONS.md` を parked strict-polish 読みの単一正本に固定する。
 - VM boxcall contract の Next は `docs/development/current/main/phases/phase-29y/82-VM-HAKO-BOXCALL-CONTRACT-SSOT.md` を単一正本に固定する。
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
+- `stage0/stage1/stage2+` と `owner/substrate` の軸分離は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
-- practical end-state: `.hako` owns kernel meaning/policy/control, Rust stays bootstrap/recovery/raw substrate, and LLVM remains the primary backend substrate
+- stage axis: `stage0` Rust bootstrap keep / `stage1` proof / `stage2+` daily mainline
+- owner axis practical end-state: `.hako` owns kernel meaning/policy/control, Rust stays bootstrap/recovery/raw substrate, and LLVM remains the primary backend substrate
 
 ## End-State Checklist
 
@@ -59,13 +61,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `dev_gate portability` is green again; the `phase21_5_perf_kilo_text_concat_contract_vm.sh` residual route slice is closed after `ArrayBox` string-element propagation + boxcall set-route alignment, so the last blocker is no longer the `nyash.any.length_h` route
   - the macOS portability helper move remains committed and green; `src/host_providers/llvm_codegen.rs` still centralizes FFI library candidate resolution, and `tools/checks/macos_portability_guard.sh` remains green
   - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, the first twenty-nine semantic splits have landed, `phase29ck_boundary` now lives under `integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` now lives under `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, the first eight `phase29cc_wsm` splits (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, and `p8`) now live under `integration/phase29cc_wsm/{g3_canvas,g2_browser,g4,p10,p5,p6,p7,p8}/`, `phase29cc/plg_hm1` now lives under `integration/phase29cc/plg_hm1/`, `phase29x/vm_hako` now lives under `integration/phase29x/vm_hako/`, `phase29x/derust` now lives under `integration/phase29x/derust/`, `phase29x/observability` now lives under `integration/phase29x/observability/`, `phase29y/hako/emit_mir` now lives under `integration/phase29y/hako/emit_mir/`, `phase21_5/perf/{chip8,kilo}` now live under `integration/phase21_5/perf/{chip8,kilo}/`, and `phase21_5/perf/numeric` now lives under `integration/phase21_5/perf/numeric/`
-  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, `phase29ck_boundary`, `vm_hako_caps`, the first eight `phase29cc_wsm` subfamilies (`g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, `p8`), `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` have been split into semantic subtrees, and the bundle root should no longer receive new live `phase21_5/perf/apps` scripts
+  - `phase-29cq` smoke split is parked after the landed semantic families above; it is no longer the active blocker lane
+  - axis lock: read the current state through `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
   - the adjacent lane C / `.hako VM` (`vm-hako`) map blocker sweep is now closed through `RVP-C28`; no current vm-hako map blocker remains, and phase-29y is parked until a new exact blocker appears
   - regression repair pinned: `RVP-C02 args.length()` no longer treats missing `handle_regs/file_boxes` entries as visible `[map/missing] ...` text; runtime state maps now use presence-aware storage reads
   - collection owner shift reached the done-enough stop line for this phase; `.hako` owns visible collection semantics while Rust still owns the raw substrate / plugin ABI path
+  - phase stop-line here means phase-local owner progress, not end-state completion across the stage axis or the owner axis
   - raw substrate perf is parked again until the collection boundary is deeper; the `array` read-seam keep remains the last accepted perf slice at `ny_aot_ms=43`
   - immediate write-side probes were rejected and reverted:
     - dedicated `handle_helpers` i64 write helper: `43 -> 47 ms`
@@ -104,8 +108,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` A2 first slice landed: Rust `array` helper ownership is split into raw `slot_load` / `slot_store` modules while legacy method-shaped helper names remain thin wrappers
   - `[x]` A3 first slice landed: `ArrayCoreBox.get_i64/set_i64` now target raw `slot_load/slot_store` exports while legacy `get_hi/set_hii` stay compat-only
   - `[x]` array first wave reached the current stop line: `len` stays on the existing raw-ish `nyash.array.len_h` route and `push_hh` remains transitional until a dedicated raw append boundary is justified
-  - `[ ]` move `ArrayBox` user-visible semantics into `.hako` ring1 collection core
-  - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
+  - `[ ]` complete the end-state `ArrayBox` owner migration below the remaining transitional raw boundary
+  - `[ ]` complete the end-state `MapBox` owner migration below the remaining transitional raw boundary
   - `[x]` M1 first slice landed: `MapCoreBox` is the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}` and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
   - `[x]` M1 second slice landed: Rust `map` helper ownership is split into raw `slot_load` / `slot_store` / `probe` modules while legacy `nyash.map.{get,set,has}_*` exports remain thin compatibility wrappers
   - `[x]` M1 third slice landed: `map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing and `mir_vm_s0_boxcall_builtin.hako` only delegates
