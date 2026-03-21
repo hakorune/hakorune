@@ -10,8 +10,8 @@ set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_apps_emit_mir_jsonfile_route_contract_vm"
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
-source "$(dirname "$0")/../../../lib/perf_vm_env.sh"
+source "$(dirname "$0")/../../../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../../lib/perf_vm_env.sh"
 require_env || exit 2
 
 APP="$NYASH_ROOT/apps/tools/mir_shape_guard/main.hako"

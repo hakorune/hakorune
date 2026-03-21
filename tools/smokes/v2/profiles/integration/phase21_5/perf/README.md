@@ -14,10 +14,16 @@ It currently hosts the `chip8`, `kilo`, and `apps` subfamilies.
 - `apps/`
   - app wallclock bundle
   - first semantic subfamilies: `entry_mode/` and `mir_mode/`
-  - remaining singleton slices stay in the bundle root until they are split into their own subfamilies
+  - singleton subfamilies now live under:
+    - `case_breakdown/`
+    - `compile_run_split/`
+    - `crosslang_bundle/`
+    - `emit_mir_jsonfile_route/`
+    - `startup_subtract/`
+  - the bundle root now only keeps the README / compatibility note
 
 ## Migration Note
 
-- The remaining `phase21_5_perf_*` scripts still live under `tools/smokes/v2/profiles/integration/apps/`.
-- Keep new `phase21_5_perf` work under this family tree; do not add more `phase21_5_perf_*` files to `apps/`.
-- After `chip8/`, `kilo/`, `entry_mode/`, and `mir_mode/`, the next live family to inspect is the remaining singleton `phase21_5/perf/apps` slices.
+- The remaining `phase21_5_perf_*` scripts have been split out of `tools/smokes/v2/profiles/integration/apps/`.
+- Keep new `phase21_5_perf` work under this family tree; do not add more `phase21_5_perf_*` files to the bundle root.
+- After `chip8/`, `kilo/`, `entry_mode/`, `mir_mode/`, and the singleton app subfamilies, this bundle is considered done enough for the current smoke-taxonomy pass.

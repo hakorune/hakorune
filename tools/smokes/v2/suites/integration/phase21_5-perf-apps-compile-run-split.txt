@@ -1,0 +1,2 @@
+# phase21_5 perf apps compile_run_split suite
+phase21_5/perf/apps/compile_run_split/phase21_5_perf_apps_compile_run_split_contract_vm.sh
