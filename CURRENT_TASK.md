@@ -56,8 +56,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, and the first semantic split has landed as `integration/rc_gc_alignment/`, so the next blocker is the next live family split under `integration/apps` (`json_*` first)
-  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, first semantic split `rc_gc_alignment` landed, next slice continues semantic split of `integration/apps` (`--profile` compat keep, `--suite` opt-in, no mass move)
+  - no collection/runtime blocker remains, and the smoke runner now has a first-class suite manifest contract; inventory is suite-aware, and the first two semantic splits have landed as `integration/rc_gc_alignment/` and `integration/json/`, so the next blocker is the next live family split under `integration/apps` (`mir_shape_guard` first)
+  - active phase is now `phase-29cq`: suite-manifest first + suite-aware inventory landed, first two semantic splits (`rc_gc_alignment`, `json`) landed, next slice continues semantic split of `integration/apps` (`--profile` compat keep, `--suite` opt-in, no mass move)
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
@@ -71,13 +71,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: use `tools/checks/smoke_inventory_report.sh` at milestones instead of ad-hoc manual pruning
   - smoke hygiene: `tools/smokes/v2/run.sh` now discovery-prunes `archive/lib/tmp/fixtures`; treat those names as non-live support buckets and keep new semantic growth under `profile -> domain -> intent`
   - smoke hygiene: suite manifests live under `tools/smokes/v2/suites/<profile>/<suite>.txt`; keep them small, active-only, and human-meaningful
-  - smoke hygiene: first future split family has landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, starting with `json_*`
+  - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/` and `tools/smokes/v2/profiles/integration/json/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, starting with `mir_shape_guard`
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `tools/smokes/v2/profiles/integration/rc_gc_alignment/README.md`
+  - `tools/smokes/v2/profiles/integration/json/README.md`
   - `docs/development/current/main/phases/phase-29cq/README.md`
   - `docs/development/current/main/design/smoke-taxonomy-and-discovery-ssot.md`
-  - `docs/development/current/main/10-Now.md`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -102,7 +101,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` phase-29cq first slice: keep `integration/apps` new additions frozen while suite manifests stabilize
   - `[x]` phase-29cq second slice: make `tools/checks/smoke_inventory_report.sh` suite-aware
   - `[x]` phase-29cq first semantic split: move `rc_gc_alignment_*` out of `integration/apps` into `integration/rc_gc_alignment/`
-  - `[ ]` phase-29cq ongoing split: continue splitting the remaining `integration/apps` families by semantic domain (next family: `json_*`)
+  - `[x]` phase-29cq second semantic split: move `json_*` out of `integration/apps` into `integration/json/`
+  - `[ ]` phase-29cq ongoing split: continue splitting the remaining `integration/apps` families by semantic domain (next family: `mir_shape_guard`)
   - `[x]` RVP-C16 first vm-hako blocker is closed: `newbox(MapBox)` is accepted in subset-check and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`
   - `[x]` RVP-C17 is closed: `MapBox.set(key,value)` now clears subset/runtime args>1 blockers and is pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`
   - `[x]` RVP-C18 is closed: `MapBox.size()` now completes in vm-hako and is pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`
@@ -162,7 +162,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: phase-29cq semantic split of the next live family out of `tools/smokes/v2/profiles/integration/apps/` (`json_*` first)
+- immediate: phase-29cq semantic split of the next live family out of `tools/smokes/v2/profiles/integration/apps/` (`mir_shape_guard` first)
 - second: raw substrate perf reopen (`P1`) after the first semantic split lands
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: keep collection owner cutover parked unless a new exact collection blocker appears

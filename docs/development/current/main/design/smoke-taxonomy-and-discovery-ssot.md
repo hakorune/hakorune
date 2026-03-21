@@ -28,13 +28,14 @@ The structural target is:
 As of 2026-03-21, the smoke tree is heavily concentrated in a few leaves:
 
 - `integration`: about `1200+` scripts
-- `integration/apps`: about `271` active scripts at the leaf root
+- `integration/apps`: about `268` active scripts at the leaf root
 - `integration/rc_gc_alignment`: `4` scripts, split out of `integration/apps` as the first live semantic family
+- `integration/json`: `3` scripts, split out of `integration/apps` as the second live semantic family
 - `integration/apps/archive`: about `225` archived scripts
 - `integration/joinir`: about `170` scripts
 - `quick/core`: about `63` scripts
 
-This is still too dense for casual human navigation, especially under `integration/apps`, but the first live split has already been carved out as `integration/rc_gc_alignment`.
+This is still too dense for casual human navigation, especially under `integration/apps`, but the first two live splits have already been carved out as `integration/rc_gc_alignment` and `integration/json`.
 
 ## Suite-first contract
 
@@ -141,7 +142,7 @@ These names are reserved and should not contain live profile entries that must r
 2. Introduce suite manifests without changing `--profile` compatibility.
 3. Prefer suite manifests for daily/presubmit entry before any semantic path split.
 4. Keep inventory tooling aligned with the same prune contract.
-5. Split `integration/apps` by semantic domain before any mass rename; the first live split is `integration/rc_gc_alignment/`, and the next active family should be `json`.
+5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/` and `integration/json/`, and the next active family should be `mir_shape`.
 6. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
 
 ## First safe target
@@ -153,12 +154,12 @@ The first overloaded bucket to split is:
 First live split already landed:
 
 - `tools/smokes/v2/profiles/integration/rc_gc_alignment/`
+- `tools/smokes/v2/profiles/integration/json/`
 
 Recommended next semantic groups:
 
-- `json`
-- `ring1_providers`
 - `mir_shape`
+- `ring1_providers`
 - `phase29ck_boundary`
 
 Do not mass-move all archived content in the same slice. Archive separation and active semantic split should remain separate commits.
