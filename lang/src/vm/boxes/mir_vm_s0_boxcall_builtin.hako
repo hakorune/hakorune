@@ -487,6 +487,31 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
+    if method == "setField" {
+      local set_field_arg0 = me._args_first(seg)
+      local set_field_arg1 = me._args_second(seg)
+      if set_field_arg0 == null || set_field_arg1 == null { return "[vm-hako/contract][boxcall-set-arg-missing]" }
+      local arg0_kind_set_field = kinds.get("" + set_field_arg0)
+      if arg0_kind_set_field != "handle" {
+        local dst_set_field_bad = me._find_int(seg, "dst")
+        if dst_set_field_bad != null {
+          regs.set("" + dst_set_field_bad, "0")
+          kinds.set("" + dst_set_field_bad, "handle")
+          MirVmS0StateOpsBox.handle_set(handle_regs, dst_set_field_bad, "[map/bad-key] field name must be string")
+        }
+        return "__NEXT__"
+      }
+      local box_key_set_field = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      local set_field_next = me.apply_map_set(box_key_set_field, set_field_arg0, set_field_arg1, regs, kinds, array_lens, handle_regs)
+      if set_field_next != "__NEXT__" { return set_field_next }
+      local dst_set_field = me._find_int(seg, "dst")
+      if dst_set_field != null {
+        regs.set("" + dst_set_field, "0")
+        kinds.set("" + dst_set_field, "scalar")
+      }
+      return "__NEXT__"
+    }
+
     if method == "has" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_has = me._find_int(seg, "dst")

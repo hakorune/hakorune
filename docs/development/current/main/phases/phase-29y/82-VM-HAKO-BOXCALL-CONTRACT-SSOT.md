@@ -51,8 +51,8 @@ Current exact blocker note:
 - `MapBox.get(non-string key)` is now tracked as `RVP-C25` ported.
 - `MapBox.set(non-string key, value)` is now tracked as `RVP-C26` ported.
 - `MapBox.getField(non-string key)` is now tracked as `RVP-C27` ported.
-- The current exact blocker is `RVP-C28` (`MapBox.setField(non-string key, value)` -> stale unimplemented route).
-- Do not widen the generic rule silently; close `RVP-C28` with fixture + smoke + contract update in the same commit.
+- `MapBox.setField(non-string key, value)` is now tracked as `RVP-C28` ported.
+- No current exact blocker remains in the MapBox bad-key field sweep; reopen lane C only if a new exact vm-hako blocker appears.
 
 ## Update Rule
 
