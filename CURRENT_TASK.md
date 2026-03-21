@@ -56,7 +56,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## Active Slice
 
 - Current blocker:
-  - no backend route blocker remains; the active lane is collection owner cutover, and the current exact step is still `map`
+  - no backend route blocker remains; the active lane is collection owner cutover, and the current exact step is now `runtime_data` facade cleanup after the `map` raw substrate split
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
@@ -75,13 +75,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-lane-map-ssot.md`
   - `lang/src/runtime/collections/README.md`
-  - `lang/src/runtime/collections/map_core_box.hako`
+  - `lang/src/runtime/collections/runtime_data_core_box.hako`
   - `lang/src/vm/boxes/mir_call_v1_handler.hako`
-  - `crates/nyash_kernel/src/plugin/map.rs`
-  - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
-  - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
-  - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - `crates/nyash_kernel/src/plugin/runtime_data.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data_array_route.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -96,6 +94,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[ ]` move `MapBox` user-visible semantics into `.hako` ring1 collection core after `array`
   - `[x]` M1 first slice landed: `MapCoreBox` is the single handler-side visible owner frontier for `MapBox.{set,get,has,size/len/length}` and `mir_call_v1_handler.hako` no longer carries inline MapBox set fallback logic
   - `[x]` M1 second slice landed: Rust `map` helper ownership is split into raw `slot_load` / `slot_store` / `probe` modules while legacy `nyash.map.{get,set,has}_*` exports remain thin compatibility wrappers
+  - `[x]` R1 first slice landed: `runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`, while `RuntimeDataBox` remains protocol/facade-only and keeps the same `nyash.runtime_data.*` export contract
   - `[x]` RVP-C16 first vm-hako blocker is closed: `newbox(MapBox)` is accepted in subset-check and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`
   - `[x]` RVP-C17 is closed: `MapBox.set(key,value)` now clears subset/runtime args>1 blockers and is pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`
   - `[x]` RVP-C18 is closed: `MapBox.size()` now completes in vm-hako and is pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`
@@ -157,10 +156,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
-- first: continue collection owner cutover after lane C parked; next exact code slice is `map` raw substrate shaping
-- second: pin `MapBox` user-visible contract (`get/set/has/len/length/size`, key normalization, visible fallback/error contract) to `.hako` ring1 collection core
-- third: retarget Rust `map` plugin/helpers to raw substrate verbs only (`probe/rehash/load/store/cache/downcast/layout`)
-- third: clean up `RuntimeDataBox` into protocol / facade only after `array` and `map` are cut over
+- first: continue collection owner cutover after lane C parked; the current exact code slice is `runtime_data` facade cleanup
+- second: keep `RuntimeDataBox` as protocol / facade only while pushing collection-specific routes into dedicated array/map helpers
+- third: only reopen deeper runtime-data cleanup if `runtime_data_core_box.hako` or `mir_call_v1_handler.hako` still carries collection semantics after the route split
 - note: this is a `.hako VM` capability blocker, not a Rust VM blocker
 - parked: exe optimization wave stays paused until the collection owner boundary is fixed
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears

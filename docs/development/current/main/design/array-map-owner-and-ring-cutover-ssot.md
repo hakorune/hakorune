@@ -179,6 +179,7 @@ Short rule:
    - `MapCoreBox` が user-visible semantics を持ち、Rust `map` plugin は raw substrate へ後退する
 4. `runtime_data` を protocol / facade に retarget する
    - `RuntimeDataCoreBox` は route/dynamic dispatch owner に留め、array/map semantics owner にはしない
+   - current first slice: `crates/nyash_kernel/src/plugin/runtime_data.rs` is already a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`
 5. Rust concrete births/plugins/builtin residue を raw substrate / compat/archive keep に限定する
 6. preservation-first rule を満たした後だけ delete/retire を再判定する
 

@@ -70,6 +70,8 @@ Related:
   - second slice landed: Rust `map` helper ownership is split into raw `slot_load` / `slot_store` / `probe` modules while legacy `nyash.map.{get,set,has}_*` exports remain thin wrappers
   - adjacent lane C blocker sweep is now fully ported through `RVP-C28`; no current `.hako VM` blocker remains for MapBox bad-key field routes
 - [ ] `runtime_data` cleanup keeps protocol/facade-only shape
+  - first slice landed: `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`
+  - `RuntimeDataBox` still does not own array/map semantics; it only routes to them
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot
 
 ## Latest Inventory (2026-03-20)
@@ -86,6 +88,7 @@ Related:
   - Rust `map` plugin/helpers should end at raw hash-table substrate, not method-shaped semantics.
 - `runtime_data`
   - `runtime_data_core_box.hako` is narrow dispatch today and should stay that way.
+  - first Rust-side cleanup landed: `runtime_data.rs` is now a dispatch shell over dedicated array/map route modules.
   - do not move array/map semantics into `RuntimeDataBox`; use it as protocol / facade / routing only.
 - `numeric`
   - `lang/src/runtime/kernel/numeric/matrix_i64.hako` plus `lang/src/runtime/numeric/{mat_i64_box.hako,intarray_core_box.hako}` are already thin enough.
@@ -157,6 +160,7 @@ Move to `.hako`:
    - `MapBox` follows the same owner/substrate split
 5. `R1: RuntimeData cleanup`
    - `RuntimeDataBox` remains protocol / facade only
+   - first landed slice: `runtime_data.rs` delegates array/map behavior to dedicated Rust route helpers instead of owning inline collection logic
 6. `P1: Raw substrate perf reopen`
    - only after `array` and `map` method ownership is no longer Rust-owned
 

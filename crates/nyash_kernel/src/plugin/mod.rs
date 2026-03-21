@@ -19,6 +19,8 @@ mod map_slot_load;
 mod map_slot_store;
 mod module_string_dispatch;
 pub mod runtime_data;
+mod runtime_data_array_route;
+mod runtime_data_map_route;
 pub mod semantics;
 pub mod string;
 mod value_codec;

@@ -42,6 +42,10 @@ Rule:
     -> narrow `RuntimeDataBox.{get,set,has,push}` protocol/facade dispatch for `mir_call_v1_handler`
   - `get_hh(recv_h, key_any)` / `set_hhh(recv_h, key_any, val_any)` / `has_hh(recv_h, key_any)` / `push_hh(recv_h, val_any)`
     -> `nyash.runtime_data.*` thin extern wrapper used by the same facade
+  - paired Rust route modules:
+    - `crates/nyash_kernel/src/plugin/runtime_data_array_route.rs`
+    - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
+    - `crates/nyash_kernel/src/plugin/runtime_data.rs` now stays dispatch-shell only
 - `map_core_box.hako`
   - `try_handle(seg, regs, mname)`
     -> visible owner for `MapBox.{set,get,has,size/len/length}` orchestration and current handler-side contract

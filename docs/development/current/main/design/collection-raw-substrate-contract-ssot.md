@@ -173,6 +173,13 @@ Target:
 - protocol / facade / routing only
 - do not absorb array/map semantics
 
+Current first slice:
+- `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell only
+- collection-specific mechanics live in:
+  - `crates/nyash_kernel/src/plugin/runtime_data_array_route.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
+- the exported `nyash.runtime_data.{get,set,has,push}_*` ABI contract stays unchanged while route ownership becomes explicit
+
 ## 5. Naming Rule
 
 - `.hako` names should stay user-visible and method-shaped
