@@ -29,15 +29,15 @@ Related:
 - regression note: `RVP-C02 args.length()` was re-repaired on 2026-03-21 by making vm-hako runtime state maps (`handle_regs` / `file_boxes`) use presence-aware storage reads instead of raw `MapBox.get()` fallback text.
 - 2026-03-21 reopen:
   - quick map smokes (`map_basic_get_set_vm.sh` / `map_len_size_vm.sh`) are not Rust VM failures; they route through `.hako VM` (`vm-hako`) under strict/dev prefer and stop at subset-check.
-  - `RVP-C16 newbox(MapBox)` is now ported and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`.
-  - `RVP-C17 MapBox.set(key, value)` is now ported and pinned by `vm_hako_caps_mapbox_set_ported_vm.sh`.
-  - `RVP-C18 MapBox.size()` is now ported and pinned by `vm_hako_caps_mapbox_size_ported_vm.sh`.
-  - `RVP-C19 MapBox.get(key)` is now ported and pinned by `vm_hako_caps_mapbox_get_ported_vm.sh`.
-  - `RVP-C20 MapBox.has(key)` is now ported and pinned by `vm_hako_caps_mapbox_has_ported_vm.sh` (`true/false` visible parity included).
-  - `RVP-C21 MapBox.delete(key)` is now ported and pinned by `vm_hako_caps_mapbox_delete_ported_vm.sh`.
-  - `RVP-C22 MapBox.keys()` is now ported and pinned by `vm_hako_caps_mapbox_keys_ported_vm.sh`.
-  - `RVP-C23 MapBox.clear()` is now ported and pinned by `vm_hako_caps_mapbox_clear_ported_vm.sh`.
-  - `RVP-C28 MapBox.setField(non-string key, value)` is now ported and pinned by `vm_hako_caps_mapbox_setfield_bad_key_ported_vm.sh`.
+- `RVP-C16 newbox(MapBox)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_newbox_ported_vm.sh`.
+- `RVP-C17 MapBox.set(key, value)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_set_ported_vm.sh`.
+- `RVP-C18 MapBox.size()` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_size_ported_vm.sh`.
+- `RVP-C19 MapBox.get(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_get_ported_vm.sh`.
+- `RVP-C20 MapBox.has(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_has_ported_vm.sh` (`true/false` visible parity included).
+- `RVP-C21 MapBox.delete(key)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_delete_ported_vm.sh`.
+- `RVP-C22 MapBox.keys()` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_keys_ported_vm.sh`.
+- `RVP-C23 MapBox.clear()` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_clear_ported_vm.sh`.
+- `RVP-C28 MapBox.setField(non-string key, value)` is now ported and pinned by `vm_hako_caps/mapbox/mapbox_setfield_bad_key_ported_vm.sh`.
   - no current exact blocker remains; reopen lane C only when a new exact vm-hako blocker appears.
 - 2026-03-09 monitor refresh:
   - `bash tools/checks/dev_gate.sh quick` PASS
@@ -190,8 +190,8 @@ Related:
 - exact blocker:
   - capability: `none (parked; reopen only if a new exact vm-hako blocker appears)`
   - current route: `.hako VM` / `vm-hako` runtime
-  - latest completed pin:
-    - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_setfield_bad_key_ported_vm.sh`
+- latest completed pin:
+    - `tools/smokes/v2/profiles/integration/vm_hako_caps/mapbox/mapbox_setfield_bad_key_ported_vm.sh`
 - already returned after `RVP-C19`:
   - `map_basic_get_set_vm.sh`
   - `map_len_size_vm.sh`
@@ -221,7 +221,7 @@ Related:
   - `bash tools/checks/phase29y_derust_blocker_sync_guard.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh`
 - capability matrix 固定:
-  - `bash tools/smokes/v2/profiles/integration/apps/phase29y_vm_hako_caps_gate_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - 診断固定（non-gating）:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_continue_assignment_in_continue_stale_guard_vm.sh`
   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_continue_assignment_timeout_block_vm.sh`

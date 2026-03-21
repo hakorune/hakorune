@@ -12,9 +12,11 @@ Related:
   - tools/smokes/v2/suites/integration/presubmit.txt
   - tools/smokes/v2/suites/integration/collection-core.txt
   - tools/smokes/v2/suites/integration/vm-hako-core.txt
+  - tools/smokes/v2/suites/integration/vm-hako-caps.txt
   - tools/smokes/v2/suites/integration/selfhost-core.txt
   - tools/smokes/v2/suites/integration/joinir-bq.txt
   - tools/smokes/v2/suites/integration/phase29ck-boundary.txt
+  - tools/smokes/v2/profiles/integration/vm_hako_caps/README.md
   - docs/development/testing/smoke-tests-v2.md
   - docs/tools/README.md
 ---
@@ -61,6 +63,7 @@ Related:
 - `integration/presubmit`
 - `integration/collection-core`
 - `integration/vm-hako-core`
+- `integration/vm-hako-caps`
 - `integration/selfhost-core`
 - `integration/joinir-bq`
 
@@ -76,6 +79,6 @@ Related:
 
 ## Next
 
-- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` / `phase29ck_boundary` の first live split はそれぞれ `integration/rc_gc_alignment/` / `integration/json/` / `integration/mir_shape/` / `integration/ring1_providers/` / `integration/phase29ck_boundary/{entry,string,runtime_data}/` に出したので、次は `integration/apps` の残り family を semantic split する
+- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。`rc_gc_alignment` / `json` / `mir_shape_guard` / `ring1_providers` / `phase29ck_boundary` / `vm_hako_caps` の first live split はそれぞれ `integration/rc_gc_alignment/` / `integration/json/` / `integration/mir_shape/` / `integration/ring1_providers/` / `integration/phase29ck_boundary/{entry,string,runtime_data}/` / `integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/` に出したので、次は `integration/apps` の残り family を semantic split する
 - `integration/apps` の新規追加を凍結し、新規 smoke は semantic domain 配下へ置く
-- 次の active family は `vm_hako_caps` を優先して `integration/apps` から切る
+- 次の active family は `phase29cc_wsm` を優先して `integration/apps` から切る

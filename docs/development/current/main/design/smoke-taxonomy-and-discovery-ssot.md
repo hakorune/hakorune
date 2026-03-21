@@ -28,17 +28,18 @@ The structural target is:
 As of 2026-03-21, the smoke tree is heavily concentrated in a few leaves:
 
 - `integration`: about `1200+` scripts
-- `integration/apps`: about `247` active scripts at the leaf root
+- `integration/apps`: about `214` active scripts at the leaf root
 - `integration/rc_gc_alignment`: `4` scripts, split out of `integration/apps` as the first live semantic family
 - `integration/json`: `3` scripts, split out of `integration/apps` as the second live semantic family
 - `integration/mir_shape`: `1` script, split out of `integration/apps` as the third live semantic family
 - `integration/ring1_providers`: `4` scripts, split out of `integration/apps` as the fourth live semantic family
 - `integration/phase29ck_boundary`: `16` scripts, split out of `integration/apps` as the fifth live semantic family
+- `integration/vm_hako_caps`: `32` scripts, split out of `integration/apps` as the sixth live semantic family
 - `integration/apps/archive`: about `225` archived scripts
 - `integration/joinir`: about `170` scripts
 - `quick/core`: about `63` scripts
 
-This is still too dense for casual human navigation, especially under `integration/apps`, but the first five live splits have already been carved out as `integration/rc_gc_alignment`, `integration/json`, `integration/mir_shape`, `integration/ring1_providers`, and `integration/phase29ck_boundary`.
+This is still too dense for casual human navigation, especially under `integration/apps`, but the first six live splits have already been carved out as `integration/rc_gc_alignment`, `integration/json`, `integration/mir_shape`, `integration/ring1_providers`, `integration/phase29ck_boundary`, and `integration/vm_hako_caps`.
 
 ## Suite-first contract
 
@@ -53,6 +54,7 @@ Current seeded suites:
 - `integration/presubmit`
 - `integration/collection-core`
 - `integration/vm-hako-core`
+- `integration/vm-hako-caps`
 - `integration/selfhost-core`
 - `integration/joinir-bq`
 
@@ -145,7 +147,7 @@ These names are reserved and should not contain live profile entries that must r
 2. Introduce suite manifests without changing `--profile` compatibility.
 3. Prefer suite manifests for daily/presubmit entry before any semantic path split.
 4. Keep inventory tooling aligned with the same prune contract.
-5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, and `integration/phase29ck_boundary/`, and the next active family should be `vm_hako_caps`.
+5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, `integration/phase29ck_boundary/`, and `integration/vm_hako_caps/`, and the next active family should be `phase29cc_wsm`.
 6. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
 
 ## First safe target
@@ -161,9 +163,10 @@ First live split already landed:
 - `tools/smokes/v2/profiles/integration/mir_shape/`
 - `tools/smokes/v2/profiles/integration/ring1_providers/`
 - `tools/smokes/v2/profiles/integration/phase29ck_boundary/`
+- `tools/smokes/v2/profiles/integration/vm_hako_caps/`
 
 Recommended next semantic groups:
 
-- `vm_hako_caps`
+- `phase29cc_wsm`
 
 Do not mass-move all archived content in the same slice. Archive separation and active semantic split should remain separate commits.

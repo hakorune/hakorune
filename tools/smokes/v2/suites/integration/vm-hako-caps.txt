@@ -1,0 +1,33 @@
+# Integration vm-hako-caps suite
+# Active vm-hako capability cases only.
+vm_hako_caps/app1/app1_summary_contract_ported_vm.sh
+vm_hako_caps/app1/app1_stack_overflow_after_open_ported_vm.sh
+vm_hako_caps/app1/app1_stack_overflow_after_open_block_vm.sh
+vm_hako_caps/args/args_vm.sh
+vm_hako_caps/args/boxcall_args_gt1_ported_vm.sh
+vm_hako_caps/compare/compare_ported_vm.sh
+vm_hako_caps/compare/compare_ge_ported_vm.sh
+vm_hako_caps/env/env_get_ported_vm.sh
+vm_hako_caps/file/filebox_newbox_vm.sh
+vm_hako_caps/file/file_close_ported_vm.sh
+vm_hako_caps/file/file_read_ported_vm.sh
+vm_hako_caps/file/file_error_vm.sh
+vm_hako_caps/mapbox/mapbox_newbox_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_set_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_get_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_has_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_delete_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_keys_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_clear_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_size_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_get_missing_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_get_bad_key_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_set_bad_key_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_getfield_bad_key_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_setfield_bad_key_ported_vm.sh
+vm_hako_caps/mapbox/mapbox_clear_block_vm.sh
+vm_hako_caps/mapbox/mapbox_delete_block_vm.sh
+vm_hako_caps/mapbox/mapbox_keys_block_vm.sh
+vm_hako_caps/misc/const_void_ported_vm.sh
+vm_hako_caps/open_handle_phi/open_handle_phi_ported_vm.sh
+vm_hako_caps/select_emit/select_emit_block_vm.sh

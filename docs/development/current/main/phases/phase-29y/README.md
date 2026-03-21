@@ -72,7 +72,7 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
 ## Runtime Operation Policy (LLVM-first / vm-hako monitor)
 
 - phase-29y の日常運用は `LLVM-first` を固定する（runtime 実行系の主検証は LLVM）。
-- `vm-hako` は monitor-only lane とし、`phase29y_vm_hako_caps_gate_vm.sh` fail など blocker 発生時のみ failure-driven で修正する。
+- `vm-hako` は monitor-only lane とし、`vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh` fail など blocker 発生時のみ failure-driven で修正する。
 - policy の単一正本は `docs/development/current/main/design/de-rust-lane-map-ssot.md` の `Runtime Operation Policy` とする。
 
 ## Next-Task Docs Contract (sprawl lock)

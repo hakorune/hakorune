@@ -66,4 +66,4 @@ Current exact blocker note:
 ## Validation
 
 - unit: `cargo test -q boxcall_contract`
-- gate: `bash tools/smokes/v2/profiles/integration/apps/phase29y_vm_hako_caps_gate_vm.sh`
+- gate: `bash tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`

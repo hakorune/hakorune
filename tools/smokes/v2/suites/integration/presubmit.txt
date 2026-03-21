@@ -4,5 +4,4 @@ apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh
 apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh
 apps/ring1_array_provider_vm.sh
 apps/ring1_map_provider_vm.sh
-apps/vm_hako_caps_app1_summary_contract_ported_vm.sh
-
+vm_hako_caps/app1/app1_summary_contract_ported_vm.sh

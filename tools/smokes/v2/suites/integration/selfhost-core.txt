@@ -9,4 +9,4 @@ apps/phase29y_lane_gate_quick_vm.sh
 apps/phase29y_lane_gate_vm.sh
 apps/phase29y_no_compat_mainline_vm.sh
 apps/phase29x_runtime_handoff_gate_vm.sh
-apps/phase29y_vm_hako_caps_gate_vm.sh
+vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh
