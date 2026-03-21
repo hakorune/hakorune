@@ -50,8 +50,9 @@ Current exact blocker note:
 - `MapBox.get(missing-key)` is now tracked as `RVP-C24` ported.
 - `MapBox.get(non-string key)` is now tracked as `RVP-C25` ported.
 - `MapBox.set(non-string key, value)` is now tracked as `RVP-C26` ported.
-- The current exact blocker is `RVP-C27` (`MapBox.getField(non-string key)` -> stale unimplemented route).
-- Do not widen the generic rule silently; close `RVP-C27` with fixture + smoke + contract update in the same commit.
+- `MapBox.getField(non-string key)` is now tracked as `RVP-C27` ported.
+- The current exact blocker is `RVP-C28` (`MapBox.setField(non-string key, value)` -> stale unimplemented route).
+- Do not widen the generic rule silently; close `RVP-C28` with fixture + smoke + contract update in the same commit.
 
 ## Update Rule
 

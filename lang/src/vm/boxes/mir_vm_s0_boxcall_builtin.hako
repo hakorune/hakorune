@@ -471,6 +471,22 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
+    if method == "getField" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_get_field = me._find_int(seg, "dst")
+      if dst_get_field == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local get_field_arg0 = me._args_first(seg)
+      local box_key_get_field = MirVmS0StateOpsBox.reg_i64_get(regs, box_recv)
+      local arg0_kind_get_field = kinds.get("" + get_field_arg0)
+      if arg0_kind_get_field == "handle" {
+        return me.apply_map_get(box_key_get_field, get_field_arg0, dst_get_field, regs, kinds, array_lens, handle_regs)
+      }
+      regs.set("" + dst_get_field, "0")
+      kinds.set("" + dst_get_field, "handle")
+      MirVmS0StateOpsBox.handle_set(handle_regs, dst_get_field, "[map/bad-key] field name must be string")
+      return "__NEXT__"
+    }
+
     if method == "has" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local dst_has = me._find_int(seg, "dst")

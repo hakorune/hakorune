@@ -60,7 +60,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - lane B fast-CI blocker is closed in two exact steps:
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
-  - the adjacent exact blocker is lane C / `.hako VM` (`vm-hako`), not Rust VM: `RVP-C16 newbox(MapBox)`, `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, `RVP-C19 MapBox.get(key)`, `RVP-C20 MapBox.has(key)`, `RVP-C21 MapBox.delete(key)`, `RVP-C22 MapBox.keys()`, `RVP-C23 MapBox.clear()`, `RVP-C24 MapBox.get(missing-key)`, `RVP-C25 MapBox.get(non-string key)`, and `RVP-C26 MapBox.set(non-string key, value)` are now ported, and the current exact blocker is `RVP-C27 MapBox.getField(non-string key)` stale unimplemented route
+  - the adjacent exact blocker is lane C / `.hako VM` (`vm-hako`), not Rust VM: `RVP-C16 newbox(MapBox)`, `RVP-C17 MapBox.set(key,value)`, `RVP-C18 MapBox.size()`, `RVP-C19 MapBox.get(key)`, `RVP-C20 MapBox.has(key)`, `RVP-C21 MapBox.delete(key)`, `RVP-C22 MapBox.keys()`, `RVP-C23 MapBox.clear()`, `RVP-C24 MapBox.get(missing-key)`, `RVP-C25 MapBox.get(non-string key)`, `RVP-C26 MapBox.set(non-string key, value)`, and `RVP-C27 MapBox.getField(non-string key)` are now ported, and the current exact blocker is `RVP-C28 MapBox.setField(non-string key, value)` stale unimplemented route
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
   - factor `filter_noise || true` handling into a shared smoke helper instead of per-smoke local glue
@@ -83,7 +83,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `apps/tests/vm_hako_caps/mapbox_get_missing_ported_min.hako`
   - `apps/tests/vm_hako_caps/mapbox_get_bad_key_ported_min.hako`
   - `apps/tests/vm_hako_caps/mapbox_set_bad_key_ported_min.hako`
-  - `apps/tests/vm_hako_caps/mapbox_getfield_bad_key_block_min.hako`
+  - `apps/tests/vm_hako_caps/mapbox_getfield_bad_key_ported_min.hako`
+  - `apps/tests/vm_hako_caps/mapbox_setfield_bad_key_block_min.hako`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_set_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_size_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_ported_vm.sh`
@@ -94,7 +95,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_missing_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_get_bad_key_ported_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_set_bad_key_ported_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_getfield_bad_key_block_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_getfield_bad_key_ported_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/vm_hako_caps_mapbox_setfield_bad_key_block_vm.sh`
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_harness_arraybox_birth_ternary_basic_vm.sh`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
@@ -132,7 +134,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` RVP-C24 is closed: `MapBox.get(missing-key)` now returns the stable `[map/missing] Key not found: <key>` text and is pinned by `vm_hako_caps_mapbox_get_missing_ported_vm.sh`
   - `[x]` RVP-C25 is closed: `MapBox.get(non-string key)` now returns the stable `[map/bad-key] key must be string` text and is pinned by `vm_hako_caps_mapbox_get_bad_key_ported_vm.sh`
   - `[x]` RVP-C26 is closed: `MapBox.set(non-string key, value)` now returns the stable `[map/bad-key] key must be string` text and is pinned by `vm_hako_caps_mapbox_set_bad_key_ported_vm.sh`
-  - `[ ]` RVP-C27 now owns the adjacent blocker: `MapBox.getField(non-string key)` still trips the stale `op=boxcall1 method=getField` unimplemented route
+  - `[x]` RVP-C27 is closed: `MapBox.getField(non-string key)` now returns the stable `[map/bad-key] field name must be string` text and is pinned by `vm_hako_caps_mapbox_getfield_bad_key_ported_vm.sh`
+  - `[ ]` RVP-C28 now owns the adjacent blocker: `MapBox.setField(non-string key, value)` still trips the stale `op=boxcall(setField:args>1)` unimplemented route
   - `[ ]` keep `RuntimeDataBox` as protocol / facade only; do not grow it into a collection owner
   - `[x]` backend-zero current owner cutover is closed enough for handoff
   - `[x]` `BackendRecipeBox` route-profile validation no longer relies on dead recipe-label helpers
@@ -177,7 +180,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - immediate: collection owner cutover（`array -> map -> runtime_data cleanup`）
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
-- first: clear lane C / `.hako VM` blocker `RVP-C27 MapBox.getField(non-string key)` stale unimplemented route
+- first: clear lane C / `.hako VM` blocker `RVP-C28 MapBox.setField(non-string key, value)` stale unimplemented route
 - second: pin `MapBox` user-visible contract (`get/set/has/len/length/size`, key normalization, visible fallback/error contract) to `.hako` ring1 collection core
 - third: retarget Rust `map` plugin/helpers to raw substrate verbs only (`probe/rehash/load/store/cache/downcast/layout`)
 - third: clean up `RuntimeDataBox` into protocol / facade only after `array` and `map` are cut over
@@ -954,7 +957,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - done: `JIR-PORT-06`（monitor-only boundary lock）
   - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
   - next: `none`（failure-driven reopen only）
-- runtime lane: `phase-29y / RVP-C27` current blocker: `MapBox.getField(non-string key)` stale unimplemented route
+- runtime lane: `phase-29y / RVP-C28` current blocker: `MapBox.setField(non-string key, value)` stale unimplemented route
   - fixed order SSOT:
     - `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
 - compiler pipeline lane: `hako-using-resolver-parity / monitor-only`
