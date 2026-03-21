@@ -44,8 +44,8 @@ Related:
      - object layout
      - ABI/FFI substrate
      まで Rust/C から退役させる状態
-2. current active reading is that collection owner cutover (`array -> map -> runtime_data cleanup`) has reached its current stop line.
-3. raw substrate micro-opt may reopen only after that stop line is confirmed by the phase acceptance set.
+2. current active reading is that collection owner cutover (`array -> map -> runtime_data cleanup`) has reached its current done-enough stop line, but not end-state completion.
+3. raw substrate micro-opt may reopen only after the boundary is deeper than the remaining method-shaped Rust exports still used by the daily `.hako` path, or those exports are explicitly accepted as the long-term substrate cut.
 4. `.hako` が先に持つべきなのは policy/contract であり、native substrate ではない。
 5. Rust ベースの buildability は migration 中も維持する。
 
@@ -70,7 +70,11 @@ Related:
 - current stop-line reading:
   - the collection owner cutover acceptance set is green
   - `array` / `map` / `runtime_data` are parked unless a new exact blocker appears
-  - raw substrate perf is the next allowed reopen wave
+  - next fixed order is boundary-deepen work on the remaining transitional exports:
+    - `nyash.array.len_h`
+    - `nyash.array.push_hh`
+    - `nyash.map.size_h`
+  - raw substrate perf stays parked until that deeper boundary is fixed
 - raw boundary naming / demotion contract is pinned in:
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
 - したがって、次に固定すべきは `kernel authority zero` であり、`substrate zero` ではない。

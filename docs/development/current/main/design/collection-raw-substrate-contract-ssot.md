@@ -43,6 +43,13 @@ Related:
   - route/dynamic dispatch is allowed
   - collection semantics ownership is not allowed
 
+## 1.5 Current State
+
+- owner shift is done-enough for the current phase, but not end-state complete
+- `.hako` ring1 collection core is the visible owner frontier for collection semantics
+- Rust still owns the raw substrate and compatibility/plugin ABI path beneath that frontier
+- do not describe this phase as finished while method-shaped Rust exports still remain in the daily `.hako` path
+
 ## 2. Litmus Test
 
 ### Put it in `.hako`
@@ -143,6 +150,9 @@ Current first slice:
 - `ArrayCoreBox.get_i64` -> `nyash.array.slot_load_hi`
 - `ArrayCoreBox.set_i64` -> `nyash.array.slot_store_hii`
 - legacy `nyash.array.get_hi` / `nyash.array.set_hii` stay as compatibility shell during the retarget wave
+- transitional method-shaped Rust exports still visible from `.hako`:
+  - `nyash.array.len_h`
+  - `nyash.array.push_hh`
 
 ### M1. Repeat for Map
 
@@ -167,6 +177,8 @@ Current second slice:
 Current third slice:
 - `lang/src/runtime/collections/map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing
 - `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako` only delegates those method-shaped routes instead of owning inline map state semantics
+- transitional method-shaped Rust export still visible from `.hako`:
+  - `nyash.map.size_h`
 
 ### R1. Cleanup RuntimeData
 
@@ -187,6 +199,16 @@ Current first slice:
 Current second slice:
 - `lang/src/runtime/collections/runtime_data_core_box.hako` now owns its own unary/binary arg decode helpers plus ABI dispatch helpers
 - `lang/src/vm/boxes/mir_call_v1_handler.hako` treats `RuntimeDataBox` as one delegated branch instead of carrying per-method routing
+
+## 4.5 Boundary-Deepen Before Perf
+
+- before reopening raw substrate perf, first inventory and demote the transitional method-shaped Rust exports that still sit in the daily `.hako` path
+- current exact transitional list:
+  - `nyash.array.len_h`
+  - `nyash.array.push_hh`
+  - `nyash.map.size_h`
+- `RuntimeDataBox` does not join that owner growth; it stays facade-only
+- raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
 
 ## 5. Naming Rule
 
@@ -215,4 +237,5 @@ Current second slice:
 - moving collection semantics into `ring0`
 - growing `RuntimeDataBox` into a collection-semantics owner
 - reopening raw substrate perf work before `array` / `map` method ownership leaves Rust
+- calling the phase “finished” while the daily path still crosses method-shaped Rust exports
 - forcing a dedicated `lang/src/runtime/kernel/{array,map}/` module before ring1 collection core ownership is complete

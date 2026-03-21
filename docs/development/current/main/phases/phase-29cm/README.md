@@ -100,18 +100,20 @@ Related:
 
 ## Current Reading
 
-- collection owner cutover reached the current done-enough stop line.
+- collection owner shift is done-enough for this phase, not end-state complete.
+- `.hako` ring1 owns visible collection semantics, while Rust still owns the raw substrate/plugin ABI path.
 - `array -> map -> runtime_data cleanup` is parked unless a new exact collection blocker appears; `string` is parked at stop line and `numeric` is parked as a narrow pilot.
-- raw substrate perf reopen (`P1`) is now allowed because method-shaped collection verbs are no longer the daily Rust owner path.
-- first `P1` read-seam slice is landed at `ny_aot_ms=43`.
-- current `P1` state is probe-mode on the `array` write/TLS seam:
-  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-  - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
-  - `src/boxes/array/mod.rs`
+- raw substrate perf reopen (`P1`) is parked again until the boundary is deeper.
+- the last accepted `P1` keep is the `array` read-seam slice at `ny_aot_ms=43`.
 - immediate rejected probes (reverted):
   - dedicated i64 write helper (`43 -> 47 ms`)
   - `ArrayBox::try_set_index_i64_integer()` cold-split (`43 -> 48 ms`)
-- `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary perf edit target.
+- next exact boundary-deepen task is to demote the transitional method-shaped Rust exports still used by `.hako` owners:
+  - `nyash.array.len_h`
+  - `nyash.array.push_hh`
+  - `nyash.map.size_h`
+- `RuntimeDataBox` remains facade-only while the boundary deepens.
+- `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary boundary owner.
 
 ## Buildability Lock
 
@@ -174,24 +176,26 @@ Move to `.hako`:
    - `RuntimeDataBox` remains protocol / facade only
    - first landed slice: `runtime_data.rs` delegates array/map behavior to dedicated Rust route helpers instead of owning inline collection logic
    - second landed slice: `runtime_data_core_box.hako` centralizes unary/binary arg decode + ABI dispatch helpers and `mir_call_v1_handler.hako` only delegates
-6. `P1: Raw substrate perf reopen`
-   - only after `array` and `map` method ownership is no longer Rust-owned
-   - first exact slice:
-     - collapse the duplicate `array` read path behind `array_slot_load_encoded_i64(...)`
-     - keep the cache/encode seam in `handle_helpers.rs`
-   - current probe target:
-     - measure `array_slot_store_i64(...)` + `with_array_box(...)` + `ArrayBox::try_set_index_i64_integer(...)` together
-     - do not keep another write-side helper split unless it beats the `43 ms` baseline
-   - do not start from `array_index_helpers.rs` / `array_route_helpers.rs`; they are wrapper-only now
+6. `B1: Deeper collection boundary before perf`
+   - inventory and demote the transitional method-shaped Rust exports still used by `.hako` owners:
+     - `nyash.array.len_h`
+     - `nyash.array.push_hh`
+     - `nyash.map.size_h`
+   - keep `RuntimeDataBox` facade-only while doing this
+   - do not describe this phase as finished until these transitional exports are either removed from the daily path or explicitly accepted as the long-term substrate boundary
+7. `P1: Raw substrate perf reopen`
+   - only after the deeper collection boundary is fixed
+   - the last accepted keep is the `array` read-seam slice (`ny_aot_ms=43`)
+   - write/TLS probes stay parked until `B1` is done
 
 ## Done Shape (phase closeout)
 
 - `CURRENT_TASK.md` の fixed order が破れず、次の 1 手が常に 1 commit 単位で切れる
 - `string`/`numeric` の landed pilots が smoke で固定されている
-- `array` の user-visible semantics owner が `.hako` ring1 collection core にある
-- `map` の user-visible semantics owner が `.hako` ring1 collection core にある
+- `array` の user-visible semantics owner frontier が `.hako` ring1 collection core にある
+- `map` の user-visible semantics owner frontier が `.hako` ring1 collection core にある
 - `runtime_data` は protocol / facade だけを持ち、array/map semantics owner ではない
-- Rust collection code is reduced to raw substrate verbs and no longer owns method-shaped collection semantics
+- Rust collection code is reduced to raw substrate verbs, but raw substrate ownership still remains in Rust until the deeper boundary is complete
 
 ## Stop-Line Confirmation (2026-03-21)
 
@@ -206,9 +210,9 @@ Move to `.hako`:
   - `phase29x_runtime_data_dispatch_llvm_e2e_vm`
 - current reading:
   - `array`, `map`, and `runtime_data` are done-enough for this phase
-  - reopen only on a new exact collection blocker
-  - next fixed order is `P1: Raw substrate perf reopen`
-  - first `P1` read slice is landed; current probe target is the write/TLS seam, not the wrapper files above it
+  - this is not the same as end-state completion
+  - reopen only on a new exact collection blocker or boundary-deepen slice
+  - next fixed order is `B1: deeper collection boundary before perf`
 
 ## Backend-Zero Handoff
 

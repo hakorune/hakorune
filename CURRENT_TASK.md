@@ -65,16 +65,16 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
   - the adjacent lane C / `.hako VM` (`vm-hako`) map blocker sweep is now closed through `RVP-C28`; no current vm-hako map blocker remains, and phase-29y is parked until a new exact blocker appears
   - regression repair pinned: `RVP-C02 args.length()` no longer treats missing `handle_regs/file_boxes` entries as visible `[map/missing] ...` text; runtime state maps now use presence-aware storage reads
-  - collection owner cutover is at stop line, so the active next slice is `P1: Raw substrate perf reopen`
-  - worker inventory agrees that `map` stays parked for P1; the first `array` read-seam slice is landed at `ny_aot_ms=43`
+  - collection owner shift reached the done-enough stop line for this phase; `.hako` owns visible collection semantics while Rust still owns the raw substrate / plugin ABI path
+  - raw substrate perf is parked again until the collection boundary is deeper; the `array` read-seam keep remains the last accepted perf slice at `ny_aot_ms=43`
   - immediate write-side probes were rejected and reverted:
     - dedicated `handle_helpers` i64 write helper: `43 -> 47 ms`
     - `ArrayBox::try_set_index_i64_integer()` cold-split: `43 -> 48 ms`
-  - current exact `P1` reading is probe-mode on the write/TLS seam:
-    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-    - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
-    - `src/boxes/array/mod.rs`
-    - `std::thread::local::LocalKey::with` as seen in `bench_micro_aot_asm.sh kilo_micro_array_getset`
+  - the next collection task is boundary-deepen work on transitional method-shaped Rust exports still used by `.hako` owners:
+    - `nyash.array.len_h`
+    - `nyash.array.push_hh`
+    - `nyash.map.size_h`
+  - keep `RuntimeDataBox` facade-only while the boundary deepens; do not grow it into a collection owner
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
@@ -87,12 +87,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29x/derust,phase29x/observability,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-  - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
-  - `src/boxes/array/mod.rs`
+  - `lang/src/runtime/collections/array_core_box.hako`
+  - `lang/src/runtime/collections/map_core_box.hako`
+  - `crates/nyash_kernel/src/plugin/array.rs`
+  - `crates/nyash_kernel/src/plugin/map.rs`
+  - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
+  - `lang/src/runtime/collections/README.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
-  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
-  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
   - `[x]` backend-zero reached stop line for the current owner/compat keep waves
@@ -111,7 +112,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` R1 first slice landed: `runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`, while `RuntimeDataBox` remains protocol/facade-only and keeps the same `nyash.runtime_data.*` export contract
   - `[x]` R1 second slice landed: `runtime_data_core_box.hako` now owns its own arg-decode/ABI-dispatch helpers and `mir_call_v1_handler.hako` treats `RuntimeDataBox` as a single delegated branch
   - `[x]` phase-29cm minimum acceptance is green (`phase29cc_runtime_v0_adapter_fixtures_vm`, `phase29cc_runtime_v0_abi_slice_guard`, `array_length_vm`, `map_basic_get_set_vm`, `map_len_size_vm`, `ring1_array_provider_vm`, `ring1_map_provider_vm`, `phase29x_runtime_data_dispatch_llvm_e2e_vm`)
-  - `[x]` collection owner cutover reached done-enough stop line for `array` / `map` / `runtime_data`
+  - `[x]` collection owner shift reached the done-enough stop line for `array` / `map` / `runtime_data`
+  - `[x]` `.hako` ring1 is now the visible owner frontier for `ArrayBox` / `MapBox`, and `RuntimeDataBox` is facade-only
+  - `[ ]` deepen the boundary below transitional method-shaped Rust exports (`nyash.array.len_h`, `nyash.array.push_hh`, `nyash.map.size_h`)
+  - `[ ]` reopen raw substrate perf only after the deeper boundary is fixed or the transitional exports are explicitly accepted as the long-term substrate cut
   - `[x]` phase-29cq first slice: introduce suite manifests as the smoke execution contract (`--profile` stays compatible, `--suite` is opt-in)
   - `[x]` phase-29cq first slice: seed integration suites (`presubmit`, `collection-core`, `vm-hako-core`, `selfhost-core`, `joinir-bq`)
   - `[x]` phase-29cq first slice: keep `integration/apps` new additions frozen while suite manifests stabilize
@@ -189,14 +193,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: `P1` raw substrate perf reopen in probe mode on the `array` write/TLS seam (`array_slot_store.rs` + `handle_helpers.rs` + `ArrayBox::try_set_index_i64_integer`)
-- second: keep the collection owner cutover parked unless a new exact collection blocker appears
+- immediate: deepen the collection boundary below the remaining method-shaped Rust exports before reopening perf
+- second: keep raw substrate perf parked until that deeper boundary is fixed
 - side-fix complete: backend-zero macOS portability slice is green; `src/host_providers/llvm_codegen.rs` centralizes FFI library candidate resolution
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: the smoke split backlog stays parked after `phase29x/derust` and `phase29x/observability`
 - third: keep `RuntimeDataBox` as protocol / facade only; do not reopen owner growth
 - note: this is a `.hako VM` capability blocker, not a Rust VM blocker
-- parked: exe optimization wave stays paused until the collection owner boundary is fixed
+- parked: exe optimization wave stays paused until the collection owner boundary is deeper than `array.len_h` / `array.push_hh` / `map.size_h`
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: bootstrap keep reduction stays parked unless compat keep lanes reopen
@@ -248,8 +252,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 5. `R1: RuntimeData cleanup`
    - keep `RuntimeDataBox` as protocol / facade only
    - do not absorb array/map semantics
-6. `P1: Raw substrate perf reopen`
-   - only after `array/map` method ownership leaves Rust
+6. `B1: Deeper collection boundary before perf`
+   - demote the remaining transitional method-shaped Rust exports from the daily `.hako` path:
+     - `nyash.array.len_h`
+     - `nyash.array.push_hh`
+     - `nyash.map.size_h`
+7. `P1: Raw substrate perf reopen`
+   - only after `B1` is fixed or those exports are explicitly accepted as the long-term substrate boundary
 
 ## Remaining Migration Checklist
 
@@ -484,14 +493,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - accepted structure-first slice: `crates/nyash_kernel/src/exports/string.rs::concat3_hhh` is now split into `concat3_plan_from_parts(...)` / `concat3_plan_from_fast_str(...)` / `concat3_plan_from_spans(...)` plus `freeze_concat3_plan(...)`, so route selection and birth are separated file-locally without reopening substrate semantics
   - current runtime follow-up slice for `substring_concat`: `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant panics in cold helpers, so the success path stays straight-line
   - current exact leaf slice for `array_getset`: the read seam (`crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`) is landed and kept
-  - current probe target is the write/TLS seam:
-    - `crates/nyash_kernel/src/plugin/array_slot_store.rs::array_slot_store_i64`
-    - `crates/nyash_kernel/src/plugin/handle_helpers.rs::with_array_box`
-    - `src/boxes/array/mod.rs::ArrayBox::try_set_index_i64_integer`
+  - raw substrate perf is parked again until the collection boundary deepens below the transitional method-shaped Rust exports still used by `.hako` owners
+  - next non-perf task is to inventory and demote:
+    - `nyash.array.len_h`
+    - `nyash.array.push_hh`
+    - `nyash.map.size_h`
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers, so they are no longer the primary P1 target
   - fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=43` (`ratio_cycles=0.01`)
   - rejected probes (reverted immediately): dedicated i64 write helper regressed to `47 ms`, and `try_set_index_i64_integer` cold-split regressed to `48 ms`
-  - fresh `bench_micro_aot_asm.sh kilo_micro_array_getset` now shows `array_slot_store_i64` closure plus `LocalKey::with` as the dominant pair, so the next cut must be measurement-led rather than another blind helper split
+  - fresh `bench_micro_aot_asm.sh kilo_micro_array_getset` now shows `array_slot_store_i64` closure plus `LocalKey::with` as the dominant pair, but that probe stays parked until the collection boundary is deeper
   - current contract-change slice: `crates/nyash_kernel/src/exports/string_view.rs` now allows `<= 8 bytes` short slices to eager-materialize instead of always creating `StringViewBox`; this reduces view churn and improves stable whole-program baseline, even though the isolated micro leaf regressed slightly
   - rejected experiment (not kept): splitting the policy to `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` micro to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`, so the wave stays on the flat `<= 8 bytes` policy while whole-program stable remains the primary metric
   - rejected experiment (reverted immediately): `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` tried explicit `StringBox` / `StringViewBox` downcast fast paths; isolated `substring_concat` micro landed at `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed hard to `1066 ms` median (`min=786`, `max=1841`), so observer-only fast path is not a keep candidate

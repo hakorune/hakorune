@@ -1,18 +1,18 @@
 # lang/src/runtime/collections — Ring1 Collection Runtime Core
 
-Scope: `.hako` ring1 collection core for user-visible collection semantics during the cutover from Rust owners to `.hako` owners.
+Scope: `.hako` ring1 collection core for user-visible collection semantics during the done-enough owner shift from Rust-owned semantics to Rust-owned raw substrate.
 
 ## Responsibility
 
 - Own user-visible `ArrayBox` / `MapBox` collection semantics in `.hako` ring1.
 - Provide collection-facing `.hako` routing for VM core without pushing collection semantics into ring0.
 - Keep std-layer helpers (`apps/std/*`) out of VM low-level execution path.
-- Delegate raw storage/primitive operations to ABI symbols (`nyash.array.*`, etc.) after the `.hako` layer decides method semantics.
+- Delegate raw storage/primitive operations to Rust-owned substrate symbols (`nyash.array.*`, etc.) after the `.hako` layer decides method semantics; Rust keeps the raw substrate for now.
 
 ## Current Truth
 
-- This folder is the target owner frontier for `ArrayBox` / `MapBox` semantics.
-- Current mainline still delegates primitive storage/ops to Rust-owned ABI/plugin exports, but that substrate is no longer the intended method-semantics owner.
+- This folder is the visible owner frontier for `ArrayBox` / `MapBox` semantics.
+- Current mainline still delegates primitive storage/ops to Rust-owned ABI/plugin exports; the raw substrate remains Rust-owned until the boundary deepens.
 - `RuntimeDataBox` stays protocol / facade only; do not turn it into a collection-semantics owner.
 - Runtime/provider current-truth and `0rust` cutover order are tracked in:
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
@@ -22,7 +22,7 @@ Rule:
 - keep this layer ring1
 - do not move collection semantics into ring0
 - method-shaped verbs (`get/set/push/has/len/length/size`, normalization, visible fallback/error contract) belong here
-- raw substrate verbs (`encode/decode/cache/downcast/load/store/probe/rehash/layout`) belong in Rust
+- raw substrate verbs (`encode/decode/cache/downcast/load/store/probe/rehash/layout`) remain in Rust until the phase boundary is deeper
 - future owner growth belongs to `.hako` ring1 collection/runtime, not OS-facing ring0
 
 ## Current modules
@@ -72,9 +72,9 @@ Rule:
 - source-contract smoke:
   - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
 - array provider smoke:
-  - `tools/smokes/v2/profiles/integration/apps/ring1_array_provider_vm.sh`
+  - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_array_provider_vm.sh`
 - map provider smoke:
-  - `tools/smokes/v2/profiles/integration/apps/ring1_map_provider_vm.sh`
+  - `tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh`
 - standalone RuntimeDataBox e2e smoke:
   - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
 

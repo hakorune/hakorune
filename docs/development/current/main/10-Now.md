@@ -145,19 +145,20 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - note: `phase-29cf` handles post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` as accepted monitor-only, without reopening `phase-29cc`
   - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
 - Perf lane（phase-21.5）:
-  - reopened at `P1` after collection owner cutover stop line confirmation
+  - collection owner shift is done-enough, but not end-state complete
+  - raw substrate perf is parked again until the boundary is deeper than the remaining method-shaped Rust exports used by `.hako`
   - latest closeout evidence (2026-03-01, head=`68ea40af29`):
     - `tools/checks/dev_gate.sh runtime-exec-zero` green
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
-  - current exact reopen target:
-    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-    - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
-    - `src/boxes/array/mod.rs`
-  - wrapper note:
-    - `array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and are not the primary edit target
-  - rejected probes:
-    - dedicated i64 write helper (`43 -> 47 ms`)
-    - `ArrayBox::try_set_index_i64_integer` cold-split (`43 -> 48 ms`)
+  - next exact boundary-deepen target:
+    - `lang/src/runtime/collections/array_core_box.hako`
+    - `lang/src/runtime/collections/map_core_box.hako`
+    - `crates/nyash_kernel/src/plugin/array.rs`
+    - `crates/nyash_kernel/src/plugin/map.rs`
+  - transitional exports to demote/inventory:
+    - `nyash.array.len_h`
+    - `nyash.array.push_hh`
+    - `nyash.map.size_h`
   - source keep policy とは分離して進める
   - current scope lock:
     - primary: `kernel-mainline`（`.hako` no-compat）

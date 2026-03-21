@@ -19,6 +19,7 @@ Related:
 
 - `ArrayBox` / `MapBox` は `ring0` ではなく `ring1` の責務である。
 - current active direction is to move `ArrayBox` / `MapBox` user-visible semantics into `.hako` ring1 collection core.
+- current status is done-enough owner shift, not end-state completion; raw substrate still remains Rust-owned.
 - `RuntimeDataBox` is not the target owner for collection semantics; it stays protocol / facade only.
 - `0rust` の target は `ring0` へ移すことではない。
   - `ring0` は OS API abstraction に限定する。
@@ -148,6 +149,13 @@ Short rule:
   - `MapCoreBox`
 - fourth:
   - `RuntimeDataCoreBox` cleanup as protocol / facade only
+- fifth:
+  - deepen the boundary below the remaining method-shaped Rust exports used by `.hako` owners:
+    - `nyash.array.len_h`
+    - `nyash.array.push_hh`
+    - `nyash.map.size_h`
+- sixth:
+  - only then reopen raw substrate perf
 - details for raw naming and demotion live in:
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
 
