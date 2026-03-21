@@ -29,7 +29,7 @@ run_and_check() {
   out="$(
     PERF_APPS_ENTRY_MODE_SIGNIFICANCE_MS="$threshold" \
     PERF_VM_TIMEOUT="${PERF_VM_TIMEOUT:-60s}" \
-    "$COMPARE" "${PERF_APPS_WARMUP:-1}" "${PERF_APPS_REPEAT:-1}" vm 2>&1
+    bash "$COMPARE" "${PERF_APPS_WARMUP:-1}" "${PERF_APPS_REPEAT:-1}" vm 2>&1
   )" || {
     echo "$out"
     test_fail "$SMOKE_NAME: compare command failed (threshold=$threshold)"
