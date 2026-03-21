@@ -23,10 +23,14 @@ static box MirVmS0StateOpsBox {
     return v
   }
 
-  map_get_raw_or_null(m, key) {
-    local v = m.get("" + key)
-    if v == null { return null }
-    return v
+  storage_get_or_null(m, key) {
+    if m == null { return null }
+    local skey = "" + key
+    local present = m.has(skey)
+    if present == null { return null }
+    local ptext = "" + present
+    if present == 0 || ptext == "0" || ptext == "false" || ptext == "" { return null }
+    return m.get(skey)
   }
 
   _to_i64(x) {
@@ -69,7 +73,7 @@ static box MirVmS0StateOpsBox {
   }
 
   handle_get(handle_regs, id) {
-    return me.map_get_raw_or_null(handle_regs, id)
+    return me.storage_get_or_null(handle_regs, id)
   }
 
   handle_set(handle_regs, id, text) {
@@ -84,7 +88,7 @@ static box MirVmS0StateOpsBox {
   }
 
   file_box_get(file_boxes, id) {
-    return me.map_get_raw_or_null(file_boxes, id)
+    return me.storage_get_or_null(file_boxes, id)
   }
 
   file_box_set(file_boxes, id, file_obj) {

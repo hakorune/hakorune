@@ -26,6 +26,7 @@ Related:
 - APP-2（Controlflow Probe）acceptance は PASS。
 - APP-3（MIR Shape Guard）acceptance は PASS。
 - Current blocker（脱Rust selfhost runtime lane）は none（parked）。
+- regression note: `RVP-C02 args.length()` was re-repaired on 2026-03-21 by making vm-hako runtime state maps (`handle_regs` / `file_boxes`) use presence-aware storage reads instead of raw `MapBox.get()` fallback text.
 - 2026-03-21 reopen:
   - quick map smokes (`map_basic_get_set_vm.sh` / `map_len_size_vm.sh`) are not Rust VM failures; they route through `.hako VM` (`vm-hako`) under strict/dev prefer and stop at subset-check.
   - `RVP-C16 newbox(MapBox)` is now ported and pinned by `vm_hako_caps_mapbox_newbox_ported_vm.sh`.

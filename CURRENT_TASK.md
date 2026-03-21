@@ -61,6 +61,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `29bq-116`: Rust `--emit-mir-json` now serializes `main` before helper functions
     - `29bq-117`: llvmlite harness now accepts `ArrayBox.birth()` as the initializer no-op after `newbox ArrayBox`
   - the adjacent lane C / `.hako VM` (`vm-hako`) map blocker sweep is now closed through `RVP-C28`; no current vm-hako map blocker remains, and phase-29y is parked until a new exact blocker appears
+  - regression repair pinned: `RVP-C02 args.length()` no longer treats missing `handle_regs/file_boxes` entries as visible `[map/missing] ...` text; runtime state maps now use presence-aware storage reads
 - Later cleanup (not this slice):
   - rename `apps/tests/vm_hako_caps/mapbox_set_block_min.hako` after the current RVP wave settles
   - factor `filter_noise || true` handling into a shared smoke helper instead of per-smoke local glue
