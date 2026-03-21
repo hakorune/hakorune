@@ -205,6 +205,9 @@ SMOKE_INVENTORY_DIR=tools/smokes/v2/profiles/integration/joinir \
 出力:
 - `target/smoke_inventory/integration_apps_inventory.tsv`
 - `target/smoke_inventory/integration_apps_summary.txt`
+- suite-aware summary は target subtree の scope に対して計算される
+- profile root を target にすると profile-wide suite coverage を見やすい
+- subtree を target にすると domain 別の orphan / coverage を見やすい
 
 注意:
 - `archive/lib/tmp/fixtures` は既定で live inventory から除外される

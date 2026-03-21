@@ -75,6 +75,6 @@ Related:
 
 ## Next
 
-- `tools/checks/smoke_inventory_report.sh` に suite-aware summary を足す
+- `tools/checks/smoke_inventory_report.sh` は suite-aware summary 済み。次は `integration/apps` の semantic split を進める
 - `integration/apps` の新規追加を凍結し、新規 smoke は semantic domain 配下へ置く
 - active family を小さく `integration/<domain>/` へ移し始める

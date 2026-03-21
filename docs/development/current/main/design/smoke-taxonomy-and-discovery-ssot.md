@@ -132,6 +132,7 @@ These names are reserved and should not contain live profile entries that must r
 - Single-purpose scripts are evidence pins or blocker probes.
 - `1 blocker = 1 pin` remains valid, but pins should fold back into packs after the lane reaches stop line.
 - Use `tools/checks/smoke_inventory_report.sh` for milestone inventory instead of manual ad-hoc pruning.
+- Inventory reports are suite-aware and scoped to the target subtree; use a profile root for whole-profile coverage and a semantic subtree for domain coverage.
 
 ## First reorganization order
 

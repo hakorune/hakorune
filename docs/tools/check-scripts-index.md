@@ -43,7 +43,7 @@ tools/checks/env_dead_accessors_report.sh
 
 | Script | Purpose |
 | --- | --- |
-| `tools/checks/smoke_inventory_report.sh` | 任意の smoke subtree の過密状態を可視化。既定では `integration/apps` を見て、`archive/lib/tmp/fixtures` は live inventory から除外する。 |
+| `tools/checks/smoke_inventory_report.sh` | 任意の smoke subtree の過密状態を可視化し、suite-aware coverage summary も出す。既定では `integration/apps` を見て、`archive/lib/tmp/fixtures` は live inventory から除外する。 |
 | `tools/checks/windows_wsl_cmd_smoke.sh` | Windows(WSL→CMD) 経路の保守監査。 |
 | `tools/checks/macos_portability_guard.sh` | macOS portability の継続監査。 |
 
