@@ -34,6 +34,33 @@ mod transport;
 
 const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 
+fn ffi_library_filenames() -> &'static [&'static str] {
+    if cfg!(target_os = "windows") {
+        &["hako_llvmc_ffi.dll", "libhako_llvmc_ffi.dll"]
+    } else if cfg!(target_os = "macos") {
+        &[
+            "libhako_llvmc_ffi.dylib",
+            "hako_llvmc_ffi.dylib",
+            "libhako_llvmc_ffi.so",
+        ]
+    } else {
+        &[
+            "libhako_llvmc_ffi.so",
+            "hako_llvmc_ffi.so",
+            "libhako_llvmc_ffi.dylib",
+        ]
+    }
+}
+
+fn ffi_library_default_candidates() -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    for name in ffi_library_filenames() {
+        out.push(PathBuf::from("target/release").join(name));
+        out.push(PathBuf::from("lib").join(name));
+    }
+    out
+}
+
 pub fn boundary_default_object_opts(
     out: Option<PathBuf>,
     nyrt: Option<PathBuf>,

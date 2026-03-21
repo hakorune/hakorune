@@ -16,33 +16,6 @@ pub(super) fn resolve_ny_llvmc() -> PathBuf {
     PathBuf::from("target/release/ny-llvmc")
 }
 
-fn ffi_library_filenames() -> &'static [&'static str] {
-    if cfg!(target_os = "windows") {
-        &["hako_llvmc_ffi.dll", "libhako_llvmc_ffi.dll"]
-    } else if cfg!(target_os = "macos") {
-        &[
-            "libhako_llvmc_ffi.dylib",
-            "hako_llvmc_ffi.dylib",
-            "libhako_llvmc_ffi.so",
-        ]
-    } else {
-        &[
-            "libhako_llvmc_ffi.so",
-            "hako_llvmc_ffi.so",
-            "libhako_llvmc_ffi.dylib",
-        ]
-    }
-}
-
-fn ffi_library_default_candidates() -> Vec<PathBuf> {
-    let mut out = Vec::new();
-    for name in ffi_library_filenames() {
-        out.push(PathBuf::from("target/release").join(name));
-        out.push(PathBuf::from("lib").join(name));
-    }
-    out
-}
-
 pub(super) fn build_backend_temp_input_path() -> PathBuf {
     std::env::temp_dir().join("hako_llvm_in.json")
 }
@@ -91,7 +64,7 @@ pub(super) fn compile_via_capi(
         if let Some(p) = crate::config::env::aot_ffi_lib_path() {
             candidates.push(PathBuf::from(p));
         }
-        candidates.extend(ffi_library_default_candidates());
+        candidates.extend(super::ffi_library_default_candidates());
         let lib_path = candidates
             .into_iter()
             .find(|p| p.exists())
@@ -289,7 +262,7 @@ pub(super) fn link_via_capi(
         if let Some(p) = crate::config::env::aot_ffi_lib_path() {
             candidates.push(PathBuf::from(p));
         }
-        candidates.extend(ffi_library_default_candidates());
+        candidates.extend(super::ffi_library_default_candidates());
         let lib_path = candidates
             .into_iter()
             .find(|p| p.exists())

@@ -181,6 +181,6 @@ First live split already landed:
 
 Recommended next semantic groups:
 
-- `phase29cc_wsm/p8`
+- `phase29cc_wsm/p8` after the backend-zero macOS portability slice clears
 
 Do not mass-move all archived content in the same slice. Archive separation and active semantic split should remain separate commits.

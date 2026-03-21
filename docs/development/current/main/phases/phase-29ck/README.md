@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
+  - docs/development/current/main/phases/phase-29ck/P6-MACOS-PORTABILITY-FFI-CANDIDATE-LOCK.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -47,7 +48,8 @@ Related:
 4. `P3-THIN-BACKEND-CUTOVER-LOCK.md`
 5. `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 6. `P5-COMPAT-PURE-PACK-LOCK.md`
-7. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+7. `P6-MACOS-PORTABILITY-FFI-CANDIDATE-LOCK.md`
+8. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
 ## Current Snapshot (2026-03-14)
 
