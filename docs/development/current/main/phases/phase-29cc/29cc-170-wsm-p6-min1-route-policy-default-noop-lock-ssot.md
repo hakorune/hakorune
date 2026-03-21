@@ -8,7 +8,7 @@ Related:
   - docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md
   - src/config/env/runner_flags.rs
   - tests/wasm_demo_min_fixture.rs
-  - tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
+  - tools/smokes/v2/profiles/integration/phase29cc_wsm/p6/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
   - tools/checks/dev_gate.sh
 ---
 
@@ -36,7 +36,7 @@ Related:
    - `phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh` で freeze 契約を継続監査。
 
 ## Acceptance
-- `bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh`
+- `bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p6/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh`
 - `tools/checks/dev_gate.sh wasm-boundary-lite`
 
 ## Next

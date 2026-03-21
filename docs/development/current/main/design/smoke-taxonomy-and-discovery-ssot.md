@@ -151,7 +151,7 @@ These names are reserved and should not contain live profile entries that must r
 2. Introduce suite manifests without changing `--profile` compatibility.
 3. Prefer suite manifests for daily/presubmit entry before any semantic path split.
 4. Keep inventory tooling aligned with the same prune contract.
-5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, `integration/phase29ck_boundary/`, `integration/vm_hako_caps/`, `integration/phase29cc_wsm/g3_canvas/`, `integration/phase29cc_wsm/g2_browser/`, `integration/phase29cc_wsm/g4/`, `integration/phase29cc_wsm/p10/`, and `integration/phase29cc_wsm/p5/`, and the next active family should be `phase29cc_wsm/p6`.
+5. Split `integration/apps` by semantic domain before any mass rename; the first live splits are `integration/rc_gc_alignment/`, `integration/json/`, `integration/mir_shape/`, `integration/ring1_providers/`, `integration/phase29ck_boundary/`, `integration/vm_hako_caps/`, `integration/phase29cc_wsm/g3_canvas/`, `integration/phase29cc_wsm/g2_browser/`, `integration/phase29cc_wsm/g4/`, `integration/phase29cc_wsm/p10/`, `integration/phase29cc_wsm/p5/`, and `integration/phase29cc_wsm/p6/`, and the next active family should be `phase29cc_wsm/p7`.
 6. Move historical residue to `archive/` buckets only after docs and packs stop pointing at the old path.
 
 ## First safe target
@@ -175,6 +175,6 @@ First live split already landed:
 
 Recommended next semantic groups:
 
-- `phase29cc_wsm/p6`
+- `phase29cc_wsm/p7`
 
 Do not mass-move all archived content in the same slice. Archive separation and active semantic split should remain separate commits.

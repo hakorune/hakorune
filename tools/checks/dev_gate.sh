@@ -276,7 +276,7 @@ run_wasm_boundary_lite_p5() {
   run_step "wasm p5 legacy hard-remove lock" \
     bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
   run_step "wasm p6 route policy default-only no-op lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
+    bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p6/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
 }
 
 run_wasm_boundary_lite() {
@@ -367,7 +367,7 @@ run_wasm_freeze_core() {
   run_step "wasm p5 legacy hard-remove lock" \
     bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p5/phase29cc_wsm_p5_min10_legacy_hard_remove_lock_vm.sh
   run_step "wasm p6 route policy freeze lock" \
-    bash tools/smokes/v2/profiles/integration/apps/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
+    bash tools/smokes/v2/profiles/integration/phase29cc_wsm/p6/phase29cc_wsm_p6_min1_route_policy_default_noop_lock_vm.sh
 }
 
 run_wasm_freeze_parity() {
