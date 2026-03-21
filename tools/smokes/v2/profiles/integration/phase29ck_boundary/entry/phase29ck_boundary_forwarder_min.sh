@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 if [ "${SMOKES_FORCE_LLVM:-0}" != "1" ] && ! can_run_llvm; then
