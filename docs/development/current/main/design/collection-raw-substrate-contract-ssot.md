@@ -150,9 +150,9 @@ Target:
 Current first slice:
 - `ArrayCoreBox.get_i64` -> `nyash.array.slot_load_hi`
 - `ArrayCoreBox.set_i64` -> `nyash.array.slot_store_hii`
+- `ArrayCoreBox.len_i64` -> `nyash.array.slot_len_h`
 - legacy `nyash.array.get_hi` / `nyash.array.set_hii` stay as compatibility shell during the retarget wave
 - transitional method-shaped Rust exports still visible from `.hako`:
-  - `nyash.array.len_h`
   - `nyash.array.push_hh`
 
 ### M1. Repeat for Map
@@ -205,9 +205,11 @@ Current second slice:
 
 - before reopening raw substrate perf, first inventory and demote the transitional method-shaped Rust exports that still sit in the daily `.hako` path
 - current exact transitional list:
-  - `nyash.array.len_h`
   - `nyash.array.push_hh`
   - `nyash.map.size_h`
+- landed observer demotion:
+  - daily `.hako` array observer path now uses `nyash.array.slot_len_h`
+  - `nyash.array.len_h` remains compatibility-only
 - current hidden residue after those explicit exports:
   - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
@@ -217,7 +219,8 @@ Current second slice:
 ### Current B1 taskization
 
 1. `B1a / array-observer`
-   - remove `nyash.array.len_h` from the daily `.hako` path
+   - landed: remove `nyash.array.len_h` from the daily `.hako` path
+   - daily route now targets `nyash.array.slot_len_h`
 2. `B1b / array-append`
    - remove `nyash.array.push_hh` from the daily `.hako` path
 3. `B1c / map-observer`

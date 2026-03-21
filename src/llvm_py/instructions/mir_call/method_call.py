@@ -190,15 +190,15 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 result = None
 
         # size/length/len:
-        # - prefer string.len_h / array.len_h when receiver facts exist
+        # - prefer string.len_h / array.slot_len_h when receiver facts exist
         # - otherwise keep generic Any.length_h contract.
         if result is None:
             if prefer_string_len_h_route(method, len(args), resolver, receiver):
                 callee = _declare("nyash.string.len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_string_len_h")
             elif prefer_array_len_h_route(method, len(args), resolver, receiver):
-                callee = _declare("nyash.array.len_h", i64, [i64])
-                result = builder.call(callee, [recv_h], name="unified_array_len_h")
+                callee = _declare("nyash.array.slot_len_h", i64, [i64])
+                result = builder.call(callee, [recv_h], name="unified_array_slot_len_h")
 
             if method == "size" and fast_on:
                 mode = ir.Constant(i64, 1 if os.environ.get('NYASH_STR_CP') == '1' else 0)

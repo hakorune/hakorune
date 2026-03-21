@@ -39,7 +39,7 @@ def try_lower_collection_boxcall(
             callee = declare(module, "nyash.string.len_h", i64, [i64])
             return builder.call(callee, [recv_h], name="string_size_h")
         if receiver_is_arrayish(resolver, box_vid):
-            callee = declare(module, "nyash.array.len_h", i64, [i64])
+            callee = declare(module, "nyash.array.slot_len_h", i64, [i64])
             return builder.call(callee, [recv_h], name="array_size_h")
         callee = declare(module, "nyash.any.length_h", i64, [i64])
         return builder.call(callee, [recv_h], name="any_size_h")

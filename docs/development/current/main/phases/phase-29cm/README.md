@@ -118,10 +118,10 @@ Related:
 - immediate rejected probes (reverted):
   - dedicated i64 write helper (`43 -> 47 ms`)
   - `ArrayBox::try_set_index_i64_integer()` cold-split (`43 -> 48 ms`)
-- next exact boundary-deepen task is to demote the transitional method-shaped Rust exports still used by `.hako` owners:
-  1. `nyash.array.len_h`
-  2. `nyash.array.push_hh`
-  3. `nyash.map.size_h`
+- `B1a` landed: the daily `.hako` array observer path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only.
+- next exact boundary-deepen task is to demote the remaining transitional method-shaped Rust exports still used by `.hako` owners:
+  1. `nyash.array.push_hh`
+  2. `nyash.map.size_h`
 - after those explicit exports, deepen the hidden raw-named residue:
   - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
@@ -190,7 +190,7 @@ Move to `.hako`:
    - first landed slice: `runtime_data.rs` delegates array/map behavior to dedicated Rust route helpers instead of owning inline collection logic
    - second landed slice: `runtime_data_core_box.hako` centralizes unary/binary arg decode + ABI dispatch helpers and `mir_call_v1_handler.hako` only delegates
 6. `B1: Deeper collection boundary before perf`
-   - `B1a`: demote `nyash.array.len_h`
+   - `B1a`: landed; daily `.hako` array observer path now uses `nyash.array.slot_len_h`
    - `B1b`: demote `nyash.array.push_hh`
    - `B1c`: demote `nyash.map.size_h`
    - `B1d`: deepen hidden array write residue under `nyash.array.slot_store_hii`

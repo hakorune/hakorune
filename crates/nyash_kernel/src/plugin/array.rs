@@ -98,6 +98,11 @@ pub extern "C" fn nyash_array_len_h_alias(handle: i64) -> i64 {
     nyash_array_length_h(handle)
 }
 
+#[export_name = "nyash.array.slot_len_h"]
+pub extern "C" fn nyash_array_slot_len_h_alias(handle: i64) -> i64 {
+    nyash_array_length_h(handle)
+}
+
 // RuntimeData mono-route aliases (Array-only semantics).
 // Keep contracts aligned with nyash.runtime_data.* when receiver is ArrayBox.
 #[export_name = "nyash.array.get_hh"]
@@ -242,10 +247,13 @@ mod tests {
         let handle = new_array_handle();
         assert_eq!(nyash_array_push_h(handle, 10), 1);
 
+        assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
         assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 10);
         assert_eq!(nyash_array_slot_store_hii_alias(handle, 0, 44), 1);
+        assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
         assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 44);
 
+        assert_eq!(nyash_array_slot_len_h_alias(0), 0);
         assert_eq!(nyash_array_slot_load_hi_alias(handle, 3), 0);
         assert_eq!(nyash_array_slot_store_hii_alias(handle, 3, 9), 0);
     }

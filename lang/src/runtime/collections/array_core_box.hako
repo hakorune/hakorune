@@ -70,7 +70,7 @@ static box ArrayCoreBox {
   }
 
   len_i64(handle) {
-    return externcall "nyash.array.len_h"(handle)
+    return externcall "nyash.array.slot_len_h"(handle)
   }
 
   push_hh(handle, value_any) {

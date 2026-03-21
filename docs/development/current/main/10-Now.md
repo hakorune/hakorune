@@ -164,9 +164,11 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
     - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - transitional exports to demote/inventory:
-    - `nyash.array.len_h`
     - `nyash.array.push_hh`
     - `nyash.map.size_h`
+  - landed observer demotion:
+    - daily `.hako` array observer route now uses `nyash.array.slot_len_h`
+    - `nyash.array.len_h` is compat-only
   - hidden residue after those exports:
     - `nyash.array.slot_store_hii` still carries append/rebox semantics
     - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`

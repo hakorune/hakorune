@@ -29,7 +29,7 @@ Rule:
 
 - `array_core_box.hako`
   - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `len_i64(handle)`
-    -> `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` / `nyash.array.len_h`
+    -> `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` / `nyash.array.slot_len_h`
   - `push_hh(handle, value_any)`
     -> `nyash.array.push_hh`
   - `try_handle(seg, regs, mname)`
@@ -89,6 +89,7 @@ Rule:
 4. `RuntimeDataCoreBox`
   - cleanup to protocol / facade only
 5. `B1`
-  - demote `nyash.array.len_h` / `nyash.array.push_hh` / `nyash.map.size_h`
+  - landed: daily array observer route now uses `nyash.array.slot_len_h`
+  - demote `nyash.array.push_hh` / `nyash.map.size_h`
   - then deepen hidden residue under `array slot_store` and `map slot/probe`
   - keep `RuntimeDataBox` facade-only while doing so
