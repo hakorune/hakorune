@@ -99,6 +99,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest9: `C4 GC/TLS/atomic capability widening` landed; `atomic / tls / gc` are now fixed docs-first before `Hakozuna portability layer`
 - Kernel capability latest10: `C6 final metal split detail lock` landed; `C5` stays ladder-only while `.hako owner / native metal keep` is now fixed as the detailed final boundary
 - Kernel capability latest11: first implementation slice landed; `PtrCoreBox -> RawArrayCoreBox -> ArrayCoreBox.get/set` is now the first runnable capability probe path
+- Distribution future pointer: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`（self-contained bundle + package manager + explicit system LLVM dev mode）
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`

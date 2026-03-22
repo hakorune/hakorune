@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
+  - docs/development/current/main/design/hakoruneup-release-distribution-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P1-NY-LLVMC-NATIVE-EMITTER-TASK-PACK.md
   - docs/development/current/main/phases/phase-29ck/P2-NATIVE-EMITTER-ACCEPTANCE-AND-REOPEN-RULE.md

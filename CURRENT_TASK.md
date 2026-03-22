@@ -25,6 +25,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cm` collection owner cutover is done-enough stop line
 - `phase-21_5` raw substrate perf reopen is parked until capability ladder + ABI/value manifest lock land
 - `phase-29cs` kernel / plugin naming cleanup is parked
+- future packaging/distribution pointer (docs-first, not active):
+  - `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
 - current docs exact leaf:
   - `substrate-capability-ladder-ssot.md`
   - `value-repr-and-abi-manifest-ssot.md`
