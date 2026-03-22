@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
+  - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -146,6 +147,8 @@ current root lock is:
 - `hako.mem`
 - `hako.buf`
 - `hako.ptr`
+- current docs lock:
+  - [`minimal-capability-modules-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimal-capability-modules-ssot.md)
 
 ここでは native intrinsic lowering を許可する。
 

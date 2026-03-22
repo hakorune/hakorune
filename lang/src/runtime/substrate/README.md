@@ -20,6 +20,11 @@ Current phase reading:
 - Current implementation owner remains:
   - `runtime/collections/` for collection owner boxes
   - native/Rust substrate for metal helpers and low-level host services
+- First staged capability order is fixed as:
+  - `mem`
+  - `buf`
+  - `ptr`
+  - minimum verifier
 
 Native keep stays outside this directory:
 - OS virtual memory
