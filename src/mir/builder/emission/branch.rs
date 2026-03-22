@@ -110,12 +110,12 @@ pub fn emit_conditional_edgecfg(
         pre_branch_bb,
         condition_val,
         then_frag,
-        crate::mir::basic_block::EdgeArgs {
+        crate::mir::EdgeArgs {
             layout: crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout::CarriersOnly,
             values: vec![],
         },
         else_frag,
-        crate::mir::basic_block::EdgeArgs {
+        crate::mir::EdgeArgs {
             layout: crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout::CarriersOnly,
             values: vec![],
         },

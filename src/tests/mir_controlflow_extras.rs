@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::backend::VM;
-    use crate::mir::basic_block::BasicBlockId;
+    use crate::mir::BasicBlockId;
     use crate::mir::function::MirFunction;
     use crate::mir::types::ConstValue;
     use crate::mir::{MirInstruction, ValueId};

@@ -116,7 +116,7 @@ pub fn verify_frag_invariants(frag: &Frag) -> Result<(), String> {
 /// - 新規に `verify_frag_invariants_strict()` を追加し、P266 の PoC/emit 側だけ strict を使う
 pub fn verify_frag_invariants_strict(frag: &Frag) -> Result<(), String> {
     use super::exit_kind::ExitKind;
-    use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::control_form::LoopId;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use std::collections::BTreeSet;
@@ -291,7 +291,7 @@ pub fn verify_frag_invariants_strict(frag: &Frag) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::edgecfg::api::block_params::BlockParams;
     use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
     use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;

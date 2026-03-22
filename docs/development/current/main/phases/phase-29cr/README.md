@@ -111,6 +111,7 @@ P5 substrate ID slice landed:
 
 - `crates/hakorune_mir_core/` gained `basic_block_id.rs` / `binding_id.rs`
 - `src/mir/basic_block.rs` now re-exports the substrate IDs
+- builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
 
 P6 naming cleanup:
 

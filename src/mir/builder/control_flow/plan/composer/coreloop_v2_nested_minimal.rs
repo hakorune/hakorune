@@ -1,6 +1,6 @@
 //! Phase 29ap P10: CoreLoopComposer v2 (nested minimal, strict/dev only)
 
-use crate::mir::basic_block::EdgeArgs;
+use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,

@@ -1,6 +1,6 @@
 //! EdgeCFG stub builders (BranchStub/EdgeStub + EdgeArgs layouts).
 
-use crate::mir::basic_block::EdgeArgs;
+use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::{BranchStub, EdgeStub, ExitKind};
 use crate::mir::builder::control_flow::plan::normalizer::common::empty_args;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;

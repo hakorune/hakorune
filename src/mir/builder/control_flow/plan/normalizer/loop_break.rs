@@ -4,7 +4,7 @@
 
 use super::helpers_layout::create_phi_bindings;
 use crate::ast::ASTNode;
-use crate::mir::basic_block::EdgeArgs;
+use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;

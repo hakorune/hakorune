@@ -9,7 +9,7 @@ use super::block_params::BlockParams;
 use super::branch_stub::BranchStub;
 use super::edge_stub::EdgeStub;
 use super::exit_kind::ExitKind;
-use crate::mir::basic_block::BasicBlockId;
+use crate::mir::BasicBlockId;
 use std::collections::BTreeMap;
 
 /// CFG Fragment（構造化制御の合成単位）

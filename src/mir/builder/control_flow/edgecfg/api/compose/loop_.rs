@@ -2,7 +2,7 @@
 use std::collections::BTreeMap;
 
 #[cfg(test)]
-use crate::mir::basic_block::BasicBlockId;
+use crate::mir::BasicBlockId;
 #[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
 #[cfg(test)]

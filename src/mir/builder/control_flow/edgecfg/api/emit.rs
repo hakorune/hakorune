@@ -14,7 +14,7 @@
 
 use super::edge_stub::EdgeStub;
 use super::exit_kind::ExitKind;
-use crate::mir::basic_block::BasicBlockId;
+use crate::mir::BasicBlockId;
 use crate::mir::builder::control_flow::joinir::trace;
 use crate::mir::instruction::MirInstruction;
 use std::collections::BTreeMap;
@@ -122,7 +122,7 @@ fn emit_block_params_as_phis(
     frag: &super::frag::Frag,
 ) -> Result<(), String> {
     use crate::ast::Span;
-    use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::emission::phi_lifecycle;
     use std::collections::BTreeSet;
 
@@ -301,7 +301,7 @@ pub fn emit_frag(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::basic_block::EdgeArgs;
+    use crate::mir::EdgeArgs;
     use crate::mir::function::{FunctionSignature, MirFunction};
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::types::MirType;

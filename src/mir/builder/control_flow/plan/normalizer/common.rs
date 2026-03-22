@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::basic_block::EdgeArgs;
+use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;

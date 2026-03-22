@@ -18,6 +18,7 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_core` now also owns `basic_block_id.rs` / `binding_id.rs`
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/definitions/call_unified.rs` is a thin re-export wrapper
+- builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
 - `src/mir` full split is still not done
 
 ## What We Found

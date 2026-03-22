@@ -5,7 +5,7 @@
 //! Output: Frag with branches/wires configured
 //! Fail-Fast: None (pure construction)
 
-use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+use crate::mir::{BasicBlockId, EdgeArgs};
 use crate::mir::builder::control_flow::plan::edgecfg_facade::{BranchStub, EdgeStub, Frag};
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::CoreLoopFrame;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;

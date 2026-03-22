@@ -3,7 +3,7 @@
 use super::cond_lowering_prelude::lower_cond_prelude_stmts;
 use super::cond_lowering_value_expr::lower_cond_value_expr;
 use crate::ast::{ASTNode, BinaryOperator, UnaryOperator};
-use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+use crate::mir::{BasicBlockId, EdgeArgs};
 use crate::mir::builder::control_flow::plan::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::BranchStub;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;

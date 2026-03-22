@@ -1,6 +1,6 @@
 //! Loop carrier helpers (phi info + bindings + EdgeArgs).
 
-use crate::mir::basic_block::EdgeArgs;
+use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::plan::normalizer::helpers::create_phi_bindings;
 use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePhiInfo};
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;

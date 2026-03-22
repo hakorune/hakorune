@@ -254,7 +254,7 @@ fn opt_debug(msg: &str) {
 #[allow(dead_code)]
 fn resolve_type_from_value(
     function: &MirFunction,
-    def_map: &std::collections::HashMap<ValueId, (super::basic_block::BasicBlockId, usize)>,
+    def_map: &std::collections::HashMap<ValueId, (crate::mir::BasicBlockId, usize)>,
     id: ValueId,
 ) -> Option<MirType> {
     if let Some((bb, idx)) = def_map.get(&id).copied() {
@@ -308,7 +308,7 @@ fn diagnose_unlowered_type_ops(optimizer: &MirOptimizer, module: &MirModule) -> 
         // def map for resolving constants
         let mut def_map: std::collections::HashMap<
             ValueId,
-            (super::basic_block::BasicBlockId, usize),
+            (crate::mir::BasicBlockId, usize),
         > = std::collections::HashMap::new();
         for (bb_id, block) in &function.blocks {
             for (i, inst) in block.instructions.iter().enumerate() {

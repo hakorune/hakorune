@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+use crate::mir::{BasicBlockId, EdgeArgs};
 use crate::mir::builder::control_flow::edgecfg::api::branch_stub::BranchStub;
 use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
@@ -157,7 +157,7 @@ pub(crate) fn if_(
 #[cfg(test)]
 mod tests {
     use super::if_;
-    use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
     use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
     use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;

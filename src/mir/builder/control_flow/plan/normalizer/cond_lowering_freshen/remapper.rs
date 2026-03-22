@@ -1,5 +1,5 @@
 use super::utils::{map_block_id, remap_value_id, remap_value_ids};
-use crate::mir::basic_block::BasicBlockId;
+use crate::mir::BasicBlockId;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::{

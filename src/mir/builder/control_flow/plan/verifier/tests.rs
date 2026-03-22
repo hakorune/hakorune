@@ -2,7 +2,7 @@
 mod tests {
     use super::super::core::PlanVerifier;
     use super::super::primitives::debug_assert_value_join_invariants;
-    use crate::mir::basic_block::EdgeArgs;
+    use crate::mir::EdgeArgs;
     use crate::mir::builder::control_flow::plan::branchn::CoreBranchArmPlan;
     use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
     #[cfg(debug_assertions)]

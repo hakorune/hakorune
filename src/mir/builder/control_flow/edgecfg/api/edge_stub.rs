@@ -6,7 +6,7 @@
  */
 
 use super::exit_kind::ExitKind;
-use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+use crate::mir::{BasicBlockId, EdgeArgs};
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 
 /// 未配線の脱出エッジ
@@ -22,9 +22,9 @@ use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 /// - `Some(block_id)`: 配線済み（Continue → header, Break → after 等）
 ///
 /// # 既存型の使用
-/// - `BasicBlockId`: `crate::mir::basic_block::BasicBlockId` を使用
+/// - `BasicBlockId`: `crate::mir::BasicBlockId` を使用
 ///   - 定義場所: `src/mir/basic_block.rs:16`
-/// - `EdgeArgs`: `crate::mir::basic_block::EdgeArgs` を使用（**MIR側のEdgeArgs**）
+/// - `EdgeArgs`: `crate::mir::EdgeArgs` を使用（**MIR側のEdgeArgs**）
 ///   - 定義場所: `src/mir/basic_block.rs:46-51`（Phase 260 P0）
 ///   - EdgeCFG の terminator operand で使ってる型と同じ（混線回避）
 ///   - 構成: `{ layout: JumpArgsLayout, values: Vec<ValueId> }`

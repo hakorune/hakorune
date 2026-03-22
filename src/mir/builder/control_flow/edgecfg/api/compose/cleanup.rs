@@ -2,7 +2,7 @@
 use std::collections::BTreeMap;
 
 #[cfg(test)]
-use crate::mir::basic_block::BasicBlockId;
+use crate::mir::BasicBlockId;
 #[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
 #[cfg(test)]
@@ -166,7 +166,7 @@ pub(crate) fn cleanup(
 #[cfg(test)]
 mod tests {
     use super::cleanup;
-    use crate::mir::basic_block::{BasicBlockId, EdgeArgs};
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
     use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
     use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;

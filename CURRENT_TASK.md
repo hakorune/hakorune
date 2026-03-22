@@ -26,6 +26,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_core` package: `effect.rs`
   - `hakorune_mir_core` package: `basic_block_id.rs` / `binding_id.rs`
   - `hakorune_mir_defs` package: `definitions/call_unified.rs`
+  - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
