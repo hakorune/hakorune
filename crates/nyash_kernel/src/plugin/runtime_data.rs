@@ -18,7 +18,7 @@ pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
         |arr| runtime_data_array_get_hh(arr, key_any),
-        |map| runtime_data_map_get_hh(map, key_any),
+        |_map| runtime_data_map_get_hh(recv_h, key_any),
     )
     .unwrap_or(0)
 }
@@ -29,7 +29,7 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
     with_array_or_map(
         recv_h,
         |arr| runtime_data_array_set_hhh(arr, key_any, val_any),
-        |map| runtime_data_map_set_hhh(map, key_any, val_any),
+        |_map| runtime_data_map_set_hhh(recv_h, key_any, val_any),
     )
     .unwrap_or(0)
 }
@@ -40,7 +40,7 @@ pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
         |arr| runtime_data_array_has_hh(arr, key_any),
-        |map| runtime_data_map_has_hh(map, key_any),
+        |_map| runtime_data_map_has_hh(recv_h, key_any),
     )
     .unwrap_or(0)
 }

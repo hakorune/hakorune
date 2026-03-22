@@ -125,12 +125,14 @@ Related:
 - `B1d2` landed: `nyash.array.slot_store_hii` and runtime-data array set now execute through `ArrayBox.slot_store_*_raw(...)`, while preserving the current append-at-end/rebox behavior.
 - `B1e` landed: `nyash.map.slot_* / probe_*` and `nyash.map.entry_count_h` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}(...)` instead of visible `get_opt/set/has/size`.
 - worker stop-line inventory says the new `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice.
+- `B1h` landed: `runtime_data_map_route.rs` now reuses accepted map raw seam helpers instead of visible `MapBox.get_opt/set/has`.
 - but the overall collection boundary is still not closed on the active daily path:
-  - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs` still uses visible `MapBox.get_opt/set/has`
+  - llvm-py lowering still keeps array non-i64 `get/has/set` on method-shaped exports (`nyash.array.get_hh`, `nyash.array.has_hh/has_hi`, `nyash.array.set_hhh/set_hih`)
 - next exact boundary-deepen task is:
   1. `B1f` landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams; `array set` stays on the current route until a raw non-i64-safe write seam is accepted
   2. `B1g` landed: llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); `array set`, `array non-i64 get`, and `array has` stay on the current routes
-  3. `B1h`: demote runtime-data map hidden residue
+  3. `B1h` landed: runtime-data map hidden residue now delegates to accepted `map_slot_*` / `map_probe_*` helpers
+  4. `B1i`: inventory and demote the remaining active array non-i64 lowering residues
 - acceptance pin for `B1f`:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
 - acceptance pins for `B1g`:
@@ -212,7 +214,8 @@ Move to `.hako`:
    - `B1e`: landed; map raw helpers now call `MapBox` key-string/raw observer helpers instead of visible `get_opt/set/has/size`
    - `B1f`: landed; `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
    - `B1g`: landed; llvm-py lowering now uses raw seams where they already exist in `collection_method_call.py` / `boxcall_runtime_data.py` / `runtime_data_dispatch.py`
-   - `B1h`: demote `runtime_data_map_route.rs` hidden residue
+   - `B1h`: landed; `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+   - `B1i`: inventory and demote the remaining active array non-i64 lowering residues (`nyash.array.get_hh`, `nyash.array.has_hh/has_hi`, `nyash.array.set_hhh/set_hih`)
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
    - do not describe this phase as finished until these transitional exports are either removed from the daily path or explicitly accepted as the long-term substrate boundary
 7. `P1: Raw substrate perf reopen`

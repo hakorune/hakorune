@@ -228,9 +228,10 @@ Current second slice:
   - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
 - kernel-side review result:
   - the new `MapBox` raw key-string helpers are acceptable as the raw seam for this slice
+- landed runtime-data map hidden-residue slice:
+  - `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
 - current remaining work after those explicit exports:
-  - active llvm-py lowering still targets method-shaped collection exports
-  - `runtime_data_map_route.rs` still uses visible `MapBox.get_opt/set/has`
+  - active llvm-py lowering still keeps array non-i64 `get/has/set` on method-shaped exports
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
 - raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
 
@@ -275,8 +276,23 @@ Current second slice:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
      - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
 8. `B1h / runtime-data-map-hidden-residue`
-   - move `runtime_data_map_route.rs` away from visible `MapBox.get_opt/set/has`
-6. `B1r / runtime_data lock`
+   - landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+   - contract pins:
+     - `cargo test -q -p nyash_kernel runtime_data_invalid_handle_returns_zero --lib`
+     - `cargo test -q -p nyash_kernel runtime_data_dispatch_map_set_get_has --lib`
+     - `cargo test -q -p nyash_kernel runtime_data_dispatch_map_push_missing_key_contract --lib`
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
+     - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+     - `bash tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh`
+9. `B1i / array-non-i64-lowering-residue`
+   - next: inventory and demote the remaining active array non-i64 `get/has/set` routes
+   - current exact files:
+     - `src/llvm_py/instructions/boxcall_runtime_data.py`
+     - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
+     - `src/llvm_py/tests/test_runtime_data_dispatch_policy.py`
+     - `src/llvm_py/tests/test_strlen_fast.py`
+10. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug
 
 ## 5. Naming Rule

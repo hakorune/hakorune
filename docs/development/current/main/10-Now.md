@@ -182,10 +182,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - worker boundary decision:
     - those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
   - next active boundary residues:
-    - `src/llvm_py/instructions/mir_call/collection_method_call.py`
     - `src/llvm_py/instructions/boxcall_runtime_data.py`
     - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
-    - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
+    - remaining array non-i64 `get/has/set` routes (`nyash.array.get_hh`, `nyash.array.has_hh/has_hi`, `nyash.array.set_hhh/set_hih`)
   - landed AOT-prep retarget:
     - `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
     - `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
@@ -197,6 +196,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
       - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
       - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
       - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
+  - landed runtime-data map retarget:
+    - `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+    - `RuntimeDataBox` remains facade-only; next exact residue is array non-i64 lowering
   - build-freshness note:
     - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める
@@ -230,7 +232,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 6. `build-maintenance`（cargo）は host 保守時のみ実行する。
 7. Rust source は保存固定とし、削除タスクは現時点で開始しない。
 8. `phase-29cf` の `VM fallback compat lane` / `bootstrap boundary reduction` は future-wave follow-up として monitor-only で維持する。
-9. 最適化 lane（micro/asm -> kilo）は `P1` として再開済みで、最初の exact target は `array` raw read seam に固定する。
+9. 最適化 lane（micro/asm -> kilo）は再び parked のままで、先に array non-i64 collection boundary residue を demote する。
 10. `stage0` Rust bootstrap keep と `stage2+` daily selfhost mainline は別物として扱い、同じ acceptance に混ぜない。
 
 ## Read First Order

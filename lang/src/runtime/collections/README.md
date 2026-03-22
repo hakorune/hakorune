@@ -101,5 +101,6 @@ Rule:
   - keep: `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
   - landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
   - keep: `ArrayBox` non-i64 `get` and `ArrayBox.has` stay on the current routes until matching raw seams are accepted
-  - next: retarget the active runtime-data map hidden residue away from visible `MapBox.get_opt/set/has`
+  - landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+  - next: inventory and demote the remaining active array non-i64 `get/has/set` lowering residues
   - keep `RuntimeDataBox` facade-only while doing so
