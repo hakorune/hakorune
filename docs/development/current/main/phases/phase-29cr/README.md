@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Parked
 Decision: provisional
 Date: 2026-03-22
 Scope: repo physical structure cleanup の docs-first planning lane。まず root hygiene / `CURRENT_TASK` slim / `src/` top-level / `src/mir` navigation-first cleanup の順序を固定する。
@@ -193,6 +193,15 @@ Interpretation:
 - P4 landed: `helpers_pure_value.rs` / `helpers_layout.rs` / `helpers_value.rs` extracted from `helpers.rs`; `loop_break_helpers_common.rs` / `loop_break_helpers_break_if.rs` / `loop_break_helpers_realworld.rs` / `loop_break_helpers_local.rs` / `loop_break_helpers_condition.rs` / `loop_break_helpers_loop.rs` / `loop_break_trim_whitespace_helpers.rs` extracted from `loop_break_helpers.rs`
 
 ## Next
+
+Stop-line judgment on 2026-03-22:
+
+- the high-value structural wins are landed
+- `scope_context.rs` is still blocked by the `MirFunction` / lexical-scope seam
+- `compilation_context.rs` remains mixed-ownership and parked
+- `join_ir/` and `passes/` whole-subtree packaging remain docs-first only
+- remaining naming polish is optional and low-value
+- it is technically sound to return to the `.hako` kernel migration lane next
 
 When this lane is reopened for implementation:
 

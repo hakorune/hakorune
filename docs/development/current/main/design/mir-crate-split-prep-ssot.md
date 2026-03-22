@@ -197,4 +197,4 @@ It is not a split target for the current P5 step.
 - `join_ir/ownership/bridge/*` is now the accepted glue box for plan adapters
   and validators; do not fold it back into the analysis core.
 - `join_ir/` and `passes/` are docs-first only until their bridge / runtime seams stabilize.
-- The next implementation slice is another packaging step, but not `join_ir/` or `passes/` yet.
+- `phase-29cr` is now at stop-line; remaining work is parked or optional polish.
