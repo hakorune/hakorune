@@ -32,6 +32,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
   - ValueId → 型/種別/起源（NewBox 由来など）の追跡。
 - `scope_context.rs`
   - lexical scope / loop/if/try のスタックと、`current_function` / `current_block` の実行文脈。
+  - `MirFunction` / lexical-scope seam がまだ結合しているので、packaging は保留中。
 - `crates/hakorune_mir_builder/src/binding_context.rs`
   - 変数名 ↔ BindingId の対応（shadowing の復元を含む）。
 - `crates/hakorune_mir_builder/src/variable_context.rs`
@@ -59,6 +60,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 - `crates/hakorune_mir_builder/src/core_context.rs`: ID 生成器と最小の共通コア状態。
 - `crates/hakorune_mir_builder/src/type_context.rs`: ValueId → 型/種別/起源の追跡。
 - `scope_context.rs`: lexical scope / loop / if / try の実行文脈。
+  - packaging は `MirFunction` seam がさらに分かれてから。
 - `crates/hakorune_mir_builder/src/binding_context.rs`: 変数名 ↔ BindingId の対応。
 - `crates/hakorune_mir_builder/src/variable_context.rs`: 変数解決（variable_map 等）。
 - `metadata_context.rs`: span / source_hint / region の観測。

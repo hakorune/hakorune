@@ -94,11 +94,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `crates/hakorune_mir_builder/README.md`
 - `crates/hakorune_mir_builder/src/lib.rs`
 - `crates/hakorune_mir_builder/src/core_context.rs`
-- `crates/hakorune_mir_builder/src/context.rs`
-- `crates/hakorune_mir_builder/src/binding_context.rs`
-- `crates/hakorune_mir_builder/src/type_context.rs`
-- `src/mir/builder/variable_context.rs`
-- `src/mir/builder/scope_context.rs`
+  - `crates/hakorune_mir_builder/src/context.rs`
+  - `crates/hakorune_mir_builder/src/binding_context.rs`
+  - `crates/hakorune_mir_builder/src/type_context.rs`
+  - `src/mir/builder/variable_context.rs`
+  - `src/mir/builder/scope_context.rs`
+  - `src/mir/builder/metadata_context.rs`
+  - `src/mir/builder/compilation_context.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -116,6 +118,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-21_5`: raw substrate perf = parked until boundary deepens
 - `phase-29cr`: repo physical cleanup lane = active through P5 crate split prep
 - `phase-29cr`: repo physical cleanup lane = active through P6 naming cleanup
+
+## P5 / P6 Remaining Order
+
+1. `scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
+2. `metadata_context.rs`
+3. `compilation_context.rs`
+4. `join_ir/` packaging boundary review
+5. `passes/` packaging boundary review
+6. remaining `hakorune-mir-*` naming surface polish
 
 ## Archive
 

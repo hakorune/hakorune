@@ -143,4 +143,6 @@ It is not a split target for the current P5 step.
 - `src/mir/README.md` links back to this doc.
 - `src/mir/builder/README.md`, `src/mir/passes/README.md`, and `src/mir/join_ir/README.md` name their future crate candidates.
 - The first builder packaging slice is already landed.
+- The next builder packaging order is `scope_context.rs` -> `metadata_context.rs` -> `compilation_context.rs`.
+- `scope_context.rs` remains blocked on the `MirFunction` / lexical-scope seam and is not a safe move yet.
 - The next implementation slice is another packaging step, not a docs-only tightening step.
