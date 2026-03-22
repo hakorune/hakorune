@@ -1,4 +1,5 @@
 use super::*;
+use crate::test_support::with_env_var;
 use nyash_rust::{
     box_trait::{IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -101,20 +102,24 @@ fn any_arg_to_box_generic_profile_does_not_set_borrowed_handle_metadata() {
 
 #[test]
 fn any_arg_to_index_missing_handle_falls_back_to_immediate() {
-    let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(314));
-    let h = handles::to_handle_arc(value) as i64;
-    handles::drop_handle(h as u64);
-    assert_eq!(any_arg_to_index(h), Some(h));
+    with_env_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "none", || {
+        let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(314));
+        let h = handles::to_handle_arc(value) as i64;
+        handles::drop_handle(h as u64);
+        assert_eq!(any_arg_to_index(h), Some(h));
+    });
 }
 
 #[test]
 fn any_arg_to_box_with_profile_missing_handle_keeps_immediate_contract() {
-    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("drop-me".to_string()));
-    let h = handles::to_handle_arc(value) as i64;
-    handles::drop_handle(h as u64);
+    with_env_var("NYASH_HOST_HANDLE_ALLOC_POLICY", "none", || {
+        let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("drop-me".to_string()));
+        let h = handles::to_handle_arc(value) as i64;
+        handles::drop_handle(h as u64);
 
-    let via_generic = any_arg_to_box_with_profile(h, CodecProfile::Generic);
-    let via_array_fast = any_arg_to_box_with_profile(h, CodecProfile::ArrayFastBorrowString);
-    assert_eq!(box_to_runtime_i64(via_generic), h);
-    assert_eq!(box_to_runtime_i64(via_array_fast), h);
+        let via_generic = any_arg_to_box_with_profile(h, CodecProfile::Generic);
+        let via_array_fast = any_arg_to_box_with_profile(h, CodecProfile::ArrayFastBorrowString);
+        assert_eq!(box_to_runtime_i64(via_generic), h);
+        assert_eq!(box_to_runtime_i64(via_array_fast), h);
+    });
 }
