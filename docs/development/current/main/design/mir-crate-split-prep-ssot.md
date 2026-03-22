@@ -13,7 +13,10 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 ## Landed First Packaging Slice
 
 - `nyash_mir_core` package: `types.rs` / `value_id.rs`
+- `nyash_mir_defs` package: `definitions/call_unified.rs`
+- `nyash_mir_core` now also owns `effect.rs`
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
+- `src/mir/definitions/call_unified.rs` is a thin re-export wrapper
 - `src/mir` full split is still not done
 
 ## What We Found

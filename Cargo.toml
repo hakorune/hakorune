@@ -170,6 +170,7 @@ which = "6"
 nyash-tlv = { path = "crates/nyash_tlv", optional = true, features = ["c-shim"] }
 nyash-c-core = { path = "crates/nyash_c_core", optional = true }
 nyash-mir-core = { path = "crates/nyash_mir_core" }
+nyash-mir-defs = { path = "crates/nyash_mir_defs" }
 tempfile = "3.10"
 
 # 日時処理
