@@ -102,5 +102,5 @@ Rule:
   - landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
   - landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
   - landed first slice: active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`
-  - next: inventory the remaining i64-key array set keep (`nyash.array.set_hih` / `nyash.array.set_hii`)
+  - landed accepted keep: the remaining i64-key array set route stays split as `nyash.array.set_hii` for i64/i64 and `nyash.array.set_hih` for i64-key + handle/any-value
   - keep `RuntimeDataBox` facade-only while doing so

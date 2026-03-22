@@ -181,17 +181,17 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
   - worker boundary decision:
     - those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
-  - next active boundary residues:
-    - `src/llvm_py/instructions/boxcall_runtime_data.py`
-    - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
-    - remaining i64-key array set keep (`nyash.array.set_hih` / `nyash.array.set_hii`)
+  - next active perf seam after boundary closeout:
+    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+    - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+    - `src/boxes/array/mod.rs`
   - landed AOT-prep retarget:
     - `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
     - `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
     - pin: `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
   - landed llvm-py retarget:
     - shared llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
-    - the remaining array lowering keep moved to the later `B1i/B1j` slices
+    - the remaining array lowering keep was handled in the later `B1i/B1j` slices
     - pins:
       - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
       - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
@@ -202,7 +202,11 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - landed array non-i64 lowering demotion:
     - active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`
     - proven i64-key routes still use `nyash.array.slot_load_hi`, `nyash.array.set_hih`, and `nyash.array.set_hii`
-    - next exact residue is the i64-key array set keep
+  - landed accepted keep for the last daily array set residue:
+    - `nyash.array.set_hii` stays the i64/i64 specialized path
+    - `nyash.array.set_hih` stays the i64-key + handle/any-value fallback
+    - no `slot_store_hih` alias is added in this slice
+    - `P1` perf reopen is allowed again from the write/TLS seam
   - build-freshness note:
     - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める

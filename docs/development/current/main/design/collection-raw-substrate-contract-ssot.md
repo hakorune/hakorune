@@ -292,14 +292,15 @@ Current second slice:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
      - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
 10. `B1j / array-i64-set-keep-inventory`
-   - next: inventory the remaining active i64-key array set path and decide `slot_store_hii`/raw retarget vs accepted keep
-   - current exact files:
-     - `src/llvm_py/instructions/boxcall_runtime_data.py`
-     - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
-     - `src/llvm_py/tests/test_runtime_data_dispatch_policy.py`
-     - `src/llvm_py/tests/test_strlen_fast.py`
-     - `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py`
-     - `crates/nyash_kernel/src/plugin/array.rs`
+   - landed: keep the remaining active i64-key array set path as an explicit accepted substrate cut
+   - accepted keep contract:
+     - `nyash.array.set_hii` stays the i64-key + i64-value specialized route
+     - `nyash.array.set_hih` stays the i64-key + handle/any-value fallback route
+     - do not add `slot_store_hih`; it would duplicate the accepted keep without reducing the daily-path surface
+   - contract pins:
+     - `cargo test -q -p nyash_kernel array_runtime_data_route_hi_contract_roundtrip --lib`
+     - `cargo test -q -p nyash_kernel array_runtime_data_route_hii_contract_roundtrip --lib`
+     - `python3 -m unittest src.llvm_py.tests.test_strlen_fast src.llvm_py.tests.test_boxcall_plugin_invoke_args`
      - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
 11. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug

@@ -70,7 +70,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - regression repair pinned: `RVP-C02 args.length()` no longer treats missing `handle_regs/file_boxes` entries as visible `[map/missing] ...` text; runtime state maps now use presence-aware storage reads
   - collection owner shift reached the done-enough stop line for this phase; `.hako` owns visible collection semantics while Rust still owns the raw substrate / plugin ABI path
   - phase stop-line here means phase-local owner progress, not end-state completion across the stage axis or the owner axis
-  - raw substrate perf is parked again until the collection boundary is deeper; the `array` read-seam keep remains the last accepted perf slice at `ny_aot_ms=43`
+  - raw substrate perf is parked until the remaining daily collection keep is either removed or explicitly accepted; the `array` read-seam keep remains the last accepted perf slice at `ny_aot_ms=43`
   - immediate write-side probes were rejected and reverted:
     - dedicated `handle_helpers` i64 write helper: `43 -> 47 ms`
     - `ArrayBox::try_set_index_i64_integer()` cold-split: `43 -> 48 ms`
@@ -88,7 +88,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     2. `B1g` landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); the remaining array keep was deferred to `B1i/B1j`
     3. `B1h` landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
     4. `B1i` first slice landed: active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`, while the i64 raw/near-raw routes stay `slot_load_hi` / `set_hih` / `set_hii`
-    5. `B1j`: inventory the remaining i64-key array set keep in active lowering (`nyash.array.set_hih` / `nyash.array.set_hii`) and decide raw retarget vs accepted keep
+    5. `B1j` landed: the remaining i64-key array set path is now an explicit accepted keep; `nyash.array.set_hii` stays i64/i64-specialized and `nyash.array.set_hih` stays the i64-key + handle/any-value fallback, with no new `slot_store_hih`
   - build-freshness note is now pinned: after a new kernel export lands on the AOT boundary path, refresh release-side artifacts before link/pure smokes; stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
   - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
@@ -103,17 +103,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29x/derust,phase29x/observability,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `src/llvm_py/instructions/boxcall_runtime_data.py`
-  - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
-  - `src/llvm_py/tests/test_runtime_data_dispatch_policy.py`
-  - `src/llvm_py/tests/test_strlen_fast.py`
-  - `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py`
-  - `crates/nyash_kernel/src/plugin/array.rs`
   - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-  - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
-  - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
-  - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
-  - `lang/src/runtime/collections/README.md`
+  - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+  - `src/boxes/array/mod.rs`
+  - `tools/perf/bench_micro_c_vs_aot_stat.sh`
+  - `tools/perf/bench_micro_aot_asm.sh`
+  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
+  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
 - Execution checklist:
   - `[x]` VM lane reached done-enough stop line
@@ -215,14 +211,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- immediate: deepen the collection boundary below the remaining method-shaped Rust exports before reopening perf
-- second: keep raw substrate perf parked until that deeper boundary is fixed
+- immediate: reopen `P1` now that the remaining daily array i64-key set keep is explicitly accepted as the long-term substrate cut for this slice
+- second: keep boundary-deepen work parked unless a new exact collection blocker appears
 - side-fix complete: backend-zero macOS portability slice is green; `src/host_providers/llvm_codegen.rs` centralizes FFI library candidate resolution
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: the smoke split backlog stays parked after `phase29x/derust` and `phase29x/observability`
 - third: keep `RuntimeDataBox` as protocol / facade only; do not reopen owner growth
 - note: this is a `.hako VM` capability blocker, not a Rust VM blocker
-- parked: exe optimization wave stays paused until the collection owner boundary is deeper than `array.len_h` / `array.push_hh` / `map.size_h`
+- parked: boundary-deepen work stays paused unless a new exact collection blocker appears
 - parked: backend-zero compat keep reduction is at stop line; do not reopen it unless a new exact blocker appears
 - parked: VM strict-polish is no longer active; reopen only if a new exact blocker appears
 - parked: bootstrap keep reduction stays parked unless compat keep lanes reopen
@@ -280,7 +276,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
      - `nyash.array.push_hh` -> `nyash.array.slot_append_hh` on the daily `.hako` path and arrayish runtime-data mono-route
      - `nyash.map.size_h` -> `nyash.map.entry_count_h` on the daily `.hako` path
 7. `P1: Raw substrate perf reopen`
-   - only after `B1` is fixed or those exports are explicitly accepted as the long-term substrate boundary
+   - active again once `B1` is fixed or the last daily keep is explicitly accepted as the long-term substrate boundary
 
 ## Remaining Migration Checklist
 

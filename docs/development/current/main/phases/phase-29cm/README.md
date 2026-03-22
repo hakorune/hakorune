@@ -128,13 +128,13 @@ Related:
 - `B1h` landed: `runtime_data_map_route.rs` now reuses accepted map raw seam helpers instead of visible `MapBox.get_opt/set/has`.
 - but the overall collection boundary is still not closed on the active daily path:
   - active lowering no longer uses array non-i64 `get/has` or non-i64 `set` exports on the daily path; those now go through `nyash.runtime_data.*`
-  - the remaining active array method-shaped keep is the i64-key set path (`nyash.array.set_hih` / `nyash.array.set_hii`)
+  - the last active array method-shaped keep was the i64-key set path; this slice now classifies it as an explicit accepted keep
 - next exact boundary-deepen task is:
   1. `B1f` landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams; `array set` stays on the current route until a raw non-i64-safe write seam is accepted
   2. `B1g` landed: llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); the remaining array keep was deferred to `B1i/B1j`
   3. `B1h` landed: runtime-data map hidden residue now delegates to accepted `map_slot_*` / `map_probe_*` helpers
   4. `B1i` first slice landed: demote array non-i64 lowering residue to the `RuntimeDataBox` facade while preserving the proven i64-key fast paths
-  5. `B1j`: inventory the remaining i64-key array set keep (`nyash.array.set_hih` / `nyash.array.set_hii`)
+  5. `B1j` landed: accept `nyash.array.set_hih` / `nyash.array.set_hii` as the long-term substrate cut for the proven i64-key set path in this wave
 - acceptance pin for `B1f`:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
 - acceptance pins for `B1g`:
@@ -218,13 +218,13 @@ Move to `.hako`:
    - `B1g`: landed; llvm-py lowering now uses raw seams where they already exist in `collection_method_call.py` / `boxcall_runtime_data.py` / `runtime_data_dispatch.py`
    - `B1h`: landed; `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
    - `B1i`: landed first slice; active lowering now uses `nyash.runtime_data.get_hh/has_hh/set_hhh` for array non-i64 shapes while keeping `slot_load_hi` / `set_hih` / `set_hii` for the proven i64-key routes
-   - `B1j`: inventory the remaining active i64-key array set keep (`nyash.array.set_hih` / `nyash.array.set_hii`)
+   - `B1j`: landed accepted keep; `nyash.array.set_hii` remains the i64/i64-specialized route and `nyash.array.set_hih` remains the i64-key + handle/any-value fallback
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
-   - do not describe this phase as finished until these transitional exports are either removed from the daily path or explicitly accepted as the long-term substrate boundary
+   - the active daily path now has no unclassified collection residue; future keeps must either leave the daily path or be explicitly accepted before this phase is called finished
 7. `P1: Raw substrate perf reopen`
-   - only after the deeper collection boundary is fixed
+   - may reopen now because the last daily keep is explicitly accepted for this slice
    - the last accepted keep is the `array` read-seam slice (`ny_aot_ms=43`)
-   - write/TLS probes stay parked until `B1` is done
+   - next exact seam is the write/TLS pair in `array_slot_store_i64` and `with_array_box`
 
 ## Done Shape (phase closeout)
 
