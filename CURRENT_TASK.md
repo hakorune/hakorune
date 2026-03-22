@@ -53,6 +53,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - non-goals:
       not ABI manifest truth / not value representation owner /
       not array-map policy owner
+  - `phase-29ct` V3 future substrate module root lock
+    - physical staging root is fixed at:
+      `lang/src/runtime/substrate/README.md`
+      `lang/src/runtime/substrate/hako_module.toml`
+    - `runtime/substrate/` is namespace-first / docs-first only
+    - no capability implementation has landed there yet
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -143,7 +149,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
   - `docs/development/current/main/design/abi-export-inventory.md`
   - `docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md`
-  - `lang/src/runtime/substrate/`
+  - `lang/src/runtime/substrate/README.md`
+  - `lang/src/runtime/substrate/hako_module.toml`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`

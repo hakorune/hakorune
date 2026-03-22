@@ -117,8 +117,20 @@ Related:
     - not ABI manifest truth
     - not value representation owner
     - not array/map policy owner
-  - next active slice is future substrate module root lock
-    - `lang/src/runtime/substrate/`
+
+- `V3 future substrate module root lock` landed
+  - physical staging root is now reserved at:
+    - [`lang/src/runtime/substrate/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/README.md)
+    - [`lang/src/runtime/substrate/hako_module.toml`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/hako_module.toml)
+  - current non-goals are fixed:
+    - no `hako.mem` / `hako.buf` / `hako.ptr` implementation yet
+    - no `RawArray` / `RawMap` yet
+    - no allocator/TLS/atomic/GC policy move yet
+  - next active slice is `V4 minimal capability modules`
+    - first targets:
+      - `hako.mem`
+      - `hako.buf`
+      - `hako.ptr`
 
 ## Stop-Line
 

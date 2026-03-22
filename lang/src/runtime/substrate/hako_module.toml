@@ -1,0 +1,16 @@
+[module]
+name = "selfhost.runtime.substrate"
+version = "1.0.0"
+
+[exports]
+# Namespace reservation only for phase-29ct.
+# Future staged exports will live under this module root:
+# - abi.*
+# - value_repr.*
+# - mem.*
+# - buf.*
+# - ptr.*
+# - atomic.*
+# - tls.*
+# - gc.*
+# - osvm.*

@@ -105,6 +105,11 @@ logical module family は次で固定する。
 physical staging path は、当面 `lang/src/runtime/substrate/` に置く読みで固定する。
 logical `hako.*` 名が先で、directory 名はそれに従わせる。
 
+current root lock is:
+
+- [`lang/src/runtime/substrate/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/README.md)
+- [`lang/src/runtime/substrate/hako_module.toml`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/hako_module.toml)
+
 ## Native Keep Lock
 
 次は native keep に固定する。

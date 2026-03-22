@@ -90,6 +90,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
 - Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`
 - Kernel capability latest3: `V2 metal helper contract lock` landed; `handle_cache.rs` is fixed as native metal helper, not ABI/value owner
+- Kernel capability latest4: `V3 future substrate module root lock` landed; `lang/src/runtime/substrate/` is reserved as namespace-first staging root
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
