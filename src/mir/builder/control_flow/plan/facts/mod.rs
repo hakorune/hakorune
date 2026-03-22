@@ -20,6 +20,7 @@ pub(in crate::mir::builder) mod loop_break_realworld;
 pub(in crate::mir::builder) mod loop_break_step_before_break;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_break_tests;
+pub(in crate::mir::builder) mod loop_break_trim_whitespace_helpers;
 pub(in crate::mir::builder) mod loop_break_trim_whitespace;
 pub(in crate::mir::builder) mod loop_break_types;
 
