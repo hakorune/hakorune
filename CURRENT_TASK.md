@@ -46,6 +46,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/passes/rc_insertion_helpers.rs` -> implementation split
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_common.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_break_if.rs`
+  - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_realworld.rs`
 - next exact files:
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
 - keep-root allowlist:

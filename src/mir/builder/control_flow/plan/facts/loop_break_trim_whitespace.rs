@@ -72,7 +72,9 @@ fn try_extract_trim_header_condition_subset(
     })
 }
 
-fn extract_trim_loop_var(condition: &ASTNode) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_var(
+    condition: &ASTNode,
+) -> Option<String> {
     let ASTNode::BinaryOp {
         operator,
         left,
@@ -115,7 +117,10 @@ fn extract_trim_loop_var(condition: &ASTNode) -> Option<String> {
     None
 }
 
-fn extract_trim_break_condition(stmt: &ASTNode, loop_var: &str) -> Option<ASTNode> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_break_condition(
+    stmt: &ASTNode,
+    loop_var: &str,
+) -> Option<ASTNode> {
     let ASTNode::If {
         condition,
         then_body,
@@ -180,12 +185,12 @@ fn extract_trim_break_condition(stmt: &ASTNode, loop_var: &str) -> Option<ASTNod
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum SubstringDirection {
+pub(in crate::mir::builder::control_flow::plan::facts) enum SubstringDirection {
     Forward,
     Backward,
 }
 
-fn match_trim_header_condition(
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_trim_header_condition(
     condition: &ASTNode,
 ) -> Option<(String, ASTNode, String, SubstringDirection, Vec<String>)> {
     let ASTNode::BinaryOp {
@@ -226,7 +231,9 @@ fn match_trim_header_condition(
     Some((loop_var, bound, haystack_var, direction, delimiters))
 }
 
-fn match_bound_condition(condition: &ASTNode) -> Option<String> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_bound_condition(
+    condition: &ASTNode,
+) -> Option<String> {
     let ASTNode::BinaryOp { operator, left, .. } = condition else {
         return None;
     };
@@ -242,7 +249,7 @@ fn match_bound_condition(condition: &ASTNode) -> Option<String> {
     }
 }
 
-fn collect_whitespace_terms(
+pub(in crate::mir::builder::control_flow::plan::facts) fn collect_whitespace_terms(
     expr: &ASTNode,
     loop_var: &str,
     haystack_var: &mut Option<String>,
@@ -402,7 +409,7 @@ fn matches_sub_one(expr: &ASTNode, loop_var: &str) -> bool {
         )
 }
 
-fn build_not_whitespace_condition(
+pub(in crate::mir::builder::control_flow::plan::facts) fn build_not_whitespace_condition(
     loop_var: &str,
     haystack_var: &str,
     direction: SubstringDirection,
@@ -473,7 +480,10 @@ fn literal_string(value: &LiteralValue) -> Option<String> {
     }
 }
 
-fn match_is_whitespace_call(expr: &ASTNode, loop_var: &str) -> Option<ASTNode> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn match_is_whitespace_call(
+    expr: &ASTNode,
+    loop_var: &str,
+) -> Option<ASTNode> {
     let ASTNode::MethodCall {
         object,
         method,
@@ -506,7 +516,10 @@ fn match_is_whitespace_call(expr: &ASTNode, loop_var: &str) -> Option<ASTNode> {
     })
 }
 
-fn matches_substring_at_loop_var(expr: &ASTNode, loop_var: &str) -> bool {
+pub(in crate::mir::builder::control_flow::plan::facts) fn matches_substring_at_loop_var(
+    expr: &ASTNode,
+    loop_var: &str,
+) -> bool {
     let ASTNode::MethodCall {
         object,
         method,
@@ -545,7 +558,10 @@ fn matches_substring_at_loop_var(expr: &ASTNode, loop_var: &str) -> bool {
     }
 }
 
-fn extract_trim_loop_increment(stmt: &ASTNode, loop_var: &str) -> Option<ASTNode> {
+pub(in crate::mir::builder::control_flow::plan::facts) fn extract_trim_loop_increment(
+    stmt: &ASTNode,
+    loop_var: &str,
+) -> Option<ASTNode> {
     let ASTNode::Assignment { target, value, .. } = stmt else {
         return None;
     };

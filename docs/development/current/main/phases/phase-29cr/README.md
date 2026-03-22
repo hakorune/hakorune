@@ -84,6 +84,7 @@ P4 first slice landed:
 - `src/mir/passes/rc_insertion_helpers.rs` implementation split
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_common.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_break_if.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers_realworld.rs`
 
 The next implementation slice, when this lane is explicitly reopened, is:
 
