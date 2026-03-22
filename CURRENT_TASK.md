@@ -29,6 +29,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_defs` package: `definitions/call_unified.rs`
   - `hakorune_mir_builder` package: `core_context.rs` / `context.rs`
   - `hakorune_mir_builder` package: `binding_context.rs`
+  - `hakorune_mir_builder` package: `type_context.rs`
+  - `hakorune_mir_builder` package: `variable_context.rs`
   - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
   - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
   - `src/mir/contracts/README.md`
@@ -85,6 +87,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `crates/hakorune_mir_core/src/binding_id.rs`
 - `crates/hakorune_mir_core/src/value_kind.rs`
 - `src/mir/builder/type_context.rs`
+- `crates/hakorune_mir_builder/src/variable_context.rs`
 - `src/mir/builder/builder_value_kind.rs`
 - `crates/hakorune_mir_defs/README.md`
 - `crates/hakorune_mir_defs/src/lib.rs`
@@ -93,6 +96,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `crates/hakorune_mir_builder/src/core_context.rs`
 - `crates/hakorune_mir_builder/src/context.rs`
 - `crates/hakorune_mir_builder/src/binding_context.rs`
+- `crates/hakorune_mir_builder/src/type_context.rs`
+- `src/mir/builder/variable_context.rs`
+- `src/mir/builder/scope_context.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`

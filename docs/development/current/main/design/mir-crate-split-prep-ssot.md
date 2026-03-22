@@ -20,6 +20,7 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_builder` package: `core_context.rs` / `context.rs`
 - `hakorune_mir_builder` package: `binding_context.rs`
 - `hakorune_mir_builder` package: `type_context.rs`
+- `hakorune_mir_builder` package: `variable_context.rs`
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/value_kind.rs` is a thin re-export wrapper
 - `src/mir/definitions/call_unified.rs` is a thin re-export wrapper
@@ -84,6 +85,7 @@ Already packaged:
 - `context.rs`
 - `binding_context.rs`
 - `type_context.rs`
+- `variable_context.rs`
 
 ### `hakorune-mir-joinir`
 

@@ -9,6 +9,7 @@ boundary. It currently owns the smallest safe substrate pieces:
 - `context.rs`
 - `binding_context.rs`
 - `type_context.rs`
+- `variable_context.rs`
 
 It does **not** own the full builder yet. The main `src/mir/builder/` tree still
 keeps the higher-level lowering orchestration, control-flow helpers, and state

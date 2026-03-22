@@ -117,6 +117,7 @@ P5 substrate ID slice landed:
 - `crates/hakorune_mir_builder/` gained `core_context.rs` / `context.rs`
 - `crates/hakorune_mir_builder/` gained `binding_context.rs`
 - `crates/hakorune_mir_builder/` gained `type_context.rs`
+- `crates/hakorune_mir_builder/` gained `variable_context.rs`
 
 P6 naming cleanup:
 
@@ -128,6 +129,7 @@ P6 naming cleanup:
 - `hakorune_mir_builder` now also owns the first package slice (`core_context.rs` / `context.rs`)
 - `hakorune_mir_builder` now also owns `binding_context.rs`
 - `hakorune_mir_builder` now also owns `type_context.rs`
+- `hakorune_mir_builder` now also owns `variable_context.rs`
 - remaining README cleanup landed for:
   - `src/mir/contracts/README.md`
   - `src/mir/control_tree/README.md`
