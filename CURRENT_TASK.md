@@ -40,6 +40,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/control_tree/step_tree/README.md`
   - `src/mir/control_tree/normalized_shadow/README.md`
   - `src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs`
+  - `src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs`
 - next exact files:
   - `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
   - `src/mir/passes/rc_insertion.rs`

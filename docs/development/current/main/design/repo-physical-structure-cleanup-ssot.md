@@ -182,6 +182,7 @@ P3 first slice landed:
 P4 first slice landed:
 
 - `src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs`
+- `src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs`
 
 Next safe slice:
 

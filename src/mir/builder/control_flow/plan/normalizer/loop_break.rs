@@ -2,7 +2,7 @@
 //!
 //! This module now uses the semantic `loop_break.rs` file name.
 
-use super::helpers::create_phi_bindings;
+use super::helpers_layout::create_phi_bindings;
 use crate::ast::ASTNode;
 use crate::mir::basic_block::EdgeArgs;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;

@@ -17,6 +17,7 @@
 
 pub(in crate::mir::builder) mod common;
 pub(in crate::mir::builder) mod helpers;
+pub(in crate::mir::builder) mod helpers_layout;
 pub(in crate::mir::builder) mod helpers_pure_value;
 #[cfg(test)]
 mod loop_break;

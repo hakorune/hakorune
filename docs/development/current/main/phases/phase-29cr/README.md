@@ -78,6 +78,7 @@ P3 first slice landed:
 P4 first slice landed:
 
 - `src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs`
+- `src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs`
 
 The next implementation slice, when this lane is explicitly reopened, is:
 
@@ -109,7 +110,7 @@ Interpretation:
 - P1 is landed: `CURRENT_TASK.md` slim + archive policy
 - P2 is landed: box arithmetic / box operators / runner plugin init + core-ish root relocations
 - P3 first slice is landed: MIR navigation root + builder README
-- P4 first slice is landed: `helpers_pure_value.rs` extracted from `helpers.rs`
+- P4 first slice is landed: `helpers_pure_value.rs` / `helpers_layout.rs` extracted from `helpers.rs`
 
 ## Next
 
