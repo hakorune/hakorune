@@ -25,6 +25,10 @@ This subtree contains MIR transformation passes and their local helpers.
 `src/mir/passes/` is a future `mir-passes` candidate. Keep the public seam
 small so the eventual split is a packaging step, not a redesign.
 
+SSOT:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
+
 Prep rule:
 
 - one pass should transform or verify, not both

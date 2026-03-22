@@ -39,6 +39,7 @@ Related:
 Docs-only first slice:
 
 - write the cleanup SSOT
+- write the MIR crate split prep SSOT
 - point `CURRENT_TASK.md` at this phase
 - mirror the fixed order in `10-Now.md`
 
@@ -91,6 +92,10 @@ P4 first slice landed:
 - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 
 P5 will start with crate boundary inventory and entry-map tightening before any split.
+
+P5 docs-first seed:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
 
 ## Pressure Summary
 

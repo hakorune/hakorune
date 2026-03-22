@@ -239,6 +239,10 @@ Goal:
 
 - only after P0-P4, prepare crate boundaries
 
+Prep doc:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
+
 Future targets:
 
 - `hakorune-mir-core`

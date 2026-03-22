@@ -40,6 +40,10 @@ navigation order must stay narrow and explicit.
 This repo is not splitting `src/mir` yet. The prep step is to keep the public
 navigation narrow and make the future crate seams explicit first.
 
+SSOT:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
+
 Candidate future crates:
 
 - `mir-core`: definitions, instruction kinds, shared shape data

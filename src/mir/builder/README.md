@@ -75,6 +75,10 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 
 `src/mir` の crate split を準備するとき、この subtree は `mir-builder` 候補になる。
 
+SSOT:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
+
 Prep rule:
 
 - public surface は `context.rs` / `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる

@@ -52,6 +52,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
+  - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
   - `src/mir/README.md`
   - `src/mir/builder/README.md`
   - `src/mir/passes/README.md`
