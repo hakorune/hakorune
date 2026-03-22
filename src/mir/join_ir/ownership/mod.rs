@@ -22,18 +22,15 @@
 //! # Phase Status
 //!
 //! - Phase 57: Analyzer implemented
-//! - Phase 58: plan_to_lowering helper for P2 (analyzer-based testing only)
-//! - Phase 59: plan_to_lowering helper for P3 (if-sum patterns)
-//! - Phase 71-Pre: plan_validator box (reusable validation)
+//! - Phase 58-59: ownership/bridge/plan_to_lowering helper for P2/P3
+//! - Phase 71-Pre: ownership/bridge/plan_validator box (reusable validation)
 
 mod analyzer;
 mod ast_analyzer;
-mod plan_to_lowering;
-mod plan_validator;
+mod bridge;
 mod types;
 
 pub use analyzer::*;
 pub use ast_analyzer::*;
-pub use plan_to_lowering::*;
-pub use plan_validator::*;
+pub use bridge::*;
 pub use types::*;

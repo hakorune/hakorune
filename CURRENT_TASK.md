@@ -33,6 +33,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_builder` package: `variable_context.rs`
   - `hakorune_mir_builder` package: `metadata_context.rs`
   - `hakorune_mir_joinir` package: `join_ir/ownership/types.rs`
+  - `src/mir/join_ir/ownership/bridge/` now groups `plan_to_lowering.rs` /
+    `plan_validator.rs` behind the ownership facade
   - `compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
   - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
   - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
@@ -47,9 +49,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     `json.rs` keeps JoinIR serialization in the same review lane, and the
     `join_ir_vm_bridge/` boundary is not yet stable enough for split
     sub-box order is:
-    `ownership_types -> ownership analyzer/plan adapters -> lowering substrate
-    -> condition cluster -> loop-route cluster -> target-specific lowerers ->
-    bridge fence`
+    `ownership_types -> ownership analyzer core -> ownership bridge glue
+    -> lowering substrate -> condition cluster -> loop-route cluster
+    -> target-specific lowerers -> bridge fence`
   - `src/mir/passes/` is docs-first only for now:
     AST/runtime/config/env + MIR coupling still blocks a safe package move,
     `rc_insertion/` is especially blocked, and `concat3_canonicalize/` is only
@@ -86,9 +88,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
   - `src/mir/join_ir/README.md`
+  - `src/mir/join_ir/ownership/analyzer.rs`
   - `src/mir/join_ir/ownership/ast_analyzer/core.rs`
-  - `src/mir/join_ir/ownership/plan_to_lowering.rs`
-  - `src/mir/join_ir/ownership/plan_validator.rs`
+  - `src/mir/join_ir/ownership/bridge/README.md`
   - `src/mir/passes/concat3_canonicalize/mod.rs`
   - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
   - `docs/development/current/main/phases/phase-29cr/README.md`
@@ -115,8 +117,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 1. `scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
 2. `compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
 3. `join_ir/ownership/types.rs` substrate slice (landed)
-4. `passes/concat3_canonicalize/` extraction review
-5. remaining `hakorune-mir-*` naming surface polish
+4. `join_ir/ownership/bridge/` facade split (landed)
+5. `passes/concat3_canonicalize/` extraction review
+6. remaining `hakorune-mir-*` naming surface polish
 
 ## Archive
 

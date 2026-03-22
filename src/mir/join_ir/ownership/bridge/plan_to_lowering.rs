@@ -3,7 +3,7 @@
 //! Phase 58: P2 conversion helper
 //! Phase 59: P3 conversion helper
 
-use super::OwnershipPlan;
+use super::super::OwnershipPlan;
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInit, CarrierRole, CarrierVar};
 
 /// Result of converting OwnershipPlan for P2 lowering

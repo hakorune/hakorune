@@ -113,9 +113,10 @@ Preferred cleanup order inside `join_ir/`:
    - `ownership/types.rs` (landed)
    - future low-risk helpers like `lowering/value_id_ranges.rs` if they stay pure
 2. internal box map tightening
+   - `ownership/analyzer.rs`
    - `ownership/ast_analyzer/*`
-   - `ownership/plan_to_lowering.rs`
-   - `ownership/plan_validator.rs`
+   - `ownership/bridge/*` (landed facade split for `plan_to_lowering.rs` /
+     `plan_validator.rs`)
    - `lowering` substrate / condition / loop-route / target-specific clusters
 3. bridge fence stabilization
    - `join_ir_vm_bridge/`
@@ -186,5 +187,7 @@ It is not a split target for the current P5 step.
 - `scope_context.rs` remains blocked on the `MirFunction` / lexical-scope seam and is not a safe move yet.
 - `compilation_context.rs` is parked until `ASTNode`, `FunctionSlotRegistry`, and `TypeRegistry` ownership are separated.
 - `join_ir/` is docs-first only until the bridge/lowering seam stabilizes.
+- `join_ir/ownership/bridge/*` is now the accepted glue box for plan adapters
+  and validators; do not fold it back into the analysis core.
 - `join_ir/` and `passes/` are docs-first only until their bridge / runtime seams stabilize.
 - The next implementation slice is another packaging step, but not `join_ir/` or `passes/` yet.

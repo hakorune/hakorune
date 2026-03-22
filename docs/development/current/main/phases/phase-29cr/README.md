@@ -105,9 +105,12 @@ JoinIR boundary review remains docs-first only for now:
 - `join_ir_vm_bridge/` boundary is still unstable
 - do not package `join_ir/` yet; tighten the README boundary map first
 - landed substrate slice: `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
+- landed internal box tightening: `join_ir/ownership/bridge/` now owns
+  `plan_to_lowering.rs` / `plan_validator.rs` under the ownership facade
 - prefer next cleanup inside `join_ir/` as sub-box tightening:
-  ownership analyzer / plan adapters / lowering substrate / condition cluster /
-  loop-route cluster / target-specific lowerers / bridge fence
+  ownership analyzer core / ownership bridge glue / lowering substrate /
+  condition cluster / loop-route cluster / target-specific lowerers /
+  bridge fence
 
 Passes boundary review also remains docs-first only for now:
 
@@ -190,5 +193,6 @@ Interpretation:
 When this lane is reopened for implementation:
 
 1. `src/mir/passes/concat3_canonicalize/` extraction review
-2. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
-3. `src/mir/builder/compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
+2. `src/mir/join_ir/ownership/analyzer.rs` vs `ast_analyzer/*` boundary tightening
+3. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
+4. `src/mir/builder/compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)

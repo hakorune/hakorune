@@ -18,6 +18,7 @@ Current blockers:
 Landed substrate slice:
 
 - `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
+- `join_ir/ownership/bridge/*` now groups lowering adapters and validators
 - the rest of `src/mir/join_ir/` stays in the docs-first review lane
 
 ## Read First
@@ -46,12 +47,12 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
 
 - `hakorune_mir_joinir::ownership_types`
   - pure ownership substrate already extracted
+- `ownership/analyzer.rs`
+  - ProgramJSON ownership analysis core
 - `ownership/ast_analyzer/*`
-  - AST/ProgramJSON analysis box; still tied to AST inputs
-- `ownership/plan_to_lowering.rs`
-  - analysis-to-lowering adapter; keep inside the JoinIR review lane for now
-- `ownership/plan_validator.rs`
-  - analysis validator; still tied to lowering/runtime-facing carrier checks
+  - AST ownership analysis core; still tied to AST inputs
+- `ownership/bridge/*`
+  - analysis-to-lowering and validator glue; keep inside the JoinIR review lane
 - `lowering` substrate helpers
   - `canonical_names.rs`
   - `error_tags.rs`

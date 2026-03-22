@@ -13,7 +13,7 @@
 //! 2. **Carrier consistency**: Plan carriers vs existing carriers (warn-only)
 //! 3. **Condition captures**: Plan captures vs condition bindings (warn-only)
 
-use super::{OwnershipPlan, RelayVar};
+use super::super::{OwnershipPlan, RelayVar};
 use crate::mir::join_ir::lowering::carrier_info::CarrierInfo;
 use crate::runtime::get_global_ring0;
 use std::collections::BTreeSet;
