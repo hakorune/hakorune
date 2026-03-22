@@ -98,6 +98,13 @@ Keep:
 - `join_ir_vm_bridge/`
 - `join_ir_vm_bridge_dispatch/`
 
+Current status:
+
+- docs-first only; no crate move yet
+- lowering still couples AST/ProgramJSON, runtime/env, and MIR surfaces
+- `json.rs` / JoinIR serialization is part of the same review lane
+- `join_ir_vm_bridge/` boundary is not yet stable enough for packaging
+
 ### `hakorune-mir-passes`
 
 Keep:
@@ -132,12 +139,13 @@ It is not a split target for the current P5 step.
 - moving `contracts/` or `policies/` into separate crates before the main seams are stable
 - moving `control_tree/` into a separate crate before the structure/contract seam is stable
 - splitting `join_ir_vm_bridge/` from `join_ir/` before the lowering surface is stable
+- packaging `join_ir/` right now: blocked by AST/ProgramJSON + runtime/env + MIR coupling
 - splitting `phi_core/` or `loop_canonicalizer/` before the analysis contracts are documented
 
 ## First Safe Slice
 
 1. Keep the navigation map in `src/mir/README.md` narrow and explicit.
-2. Keep each subtree README focused on the public surface and rejected boundaries.
+2. Keep each subtree README focused on the public surface, current blockers, and rejected boundaries.
 3. Use this doc as the crate-boundary inventory before any crate move.
 
 ## Acceptance
@@ -148,4 +156,5 @@ It is not a split target for the current P5 step.
 - The next builder packaging order is `scope_context.rs` (blocked) -> `compilation_context.rs` (parked).
 - `scope_context.rs` remains blocked on the `MirFunction` / lexical-scope seam and is not a safe move yet.
 - `compilation_context.rs` is parked until `ASTNode`, `FunctionSlotRegistry`, and `TypeRegistry` ownership are separated.
-- The next implementation slice is another packaging step, not a docs-only tightening step.
+- `join_ir/` is docs-first only until the bridge/lowering seam stabilizes.
+- The next implementation slice is another packaging step, but not `join_ir/` yet.

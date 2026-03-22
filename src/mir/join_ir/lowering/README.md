@@ -2,6 +2,23 @@
 
 このディレクトリは JoinIR lowering の中でも、条件式や環境まわりの箱（ExprLowerer, ScopeManager, ConditionEnv, LoopBodyLocalEnv, UpdateEnv など）を扱う層だよ。コードを触るときは、以下の最小ルールを守ってね。
 
+## Packaging Status
+
+This subtree is still part of the `src/mir/join_ir/` review lane.
+It is not safe to package as `hakorune-mir-joinir` yet.
+
+Known blockers:
+
+- AST/ProgramJSON coupling in the frontend path
+- runtime/env coupling in lowering and verification
+- MIR surface coupling through `crate::mir::*`
+- `join_ir_vm_bridge/` boundary still unstable
+
+Safe next step:
+
+- docs-first boundary review only
+- do not move files or split crates until the bridge/lowering seam is stable
+
 Read first:
 
 1. [`src/mir/README.md`](../../README.md)

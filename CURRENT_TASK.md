@@ -41,6 +41,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/join_ir_vm_bridge_dispatch/README.md`
   - `src/mir/policies/README.md`
     -> `hakorune-mir-*` future-name cleanup
+  - `src/mir/join_ir/` is docs-first only for now:
+    AST/ProgramJSON + runtime/env + MIR coupling still blocks a safe package move,
+    `json.rs` keeps JoinIR serialization in the same review lane, and the
+    `join_ir_vm_bridge/` boundary is not yet stable enough for split
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
@@ -72,36 +76,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
+  - `src/mir/join_ir/README.md`
+  - `src/mir/join_ir/lowering/README.md`
+  - `src/mir/join_ir/ownership/README.md`
   - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
-- `src/mir/README.md`
-- `src/mir/builder/README.md`
-- `src/mir/passes/README.md`
-- `src/mir/join_ir/README.md`
-- `src/mir/contracts/README.md`
-- `src/mir/policies/README.md`
-- `src/mir/loop_canonicalizer/README.md`
-- `src/mir/control_tree/README.md`
-- `src/mir/join_ir_vm_bridge/README.md`
-- `src/mir/join_ir_vm_bridge_dispatch/README.md`
-- `crates/hakorune_mir_core/README.md`
-- `crates/hakorune_mir_core/src/lib.rs`
-- `crates/hakorune_mir_core/src/basic_block_id.rs`
-- `crates/hakorune_mir_core/src/binding_id.rs`
-- `crates/hakorune_mir_core/src/value_kind.rs`
-- `src/mir/builder/type_context.rs`
-- `crates/hakorune_mir_builder/src/variable_context.rs`
-- `src/mir/builder/builder_value_kind.rs`
-- `crates/hakorune_mir_defs/README.md`
-- `crates/hakorune_mir_defs/src/lib.rs`
-- `crates/hakorune_mir_builder/README.md`
-- `crates/hakorune_mir_builder/src/lib.rs`
-- `crates/hakorune_mir_builder/src/core_context.rs`
-  - `crates/hakorune_mir_builder/src/context.rs`
-  - `crates/hakorune_mir_builder/src/binding_context.rs`
-  - `crates/hakorune_mir_builder/src/type_context.rs`
-  - `src/mir/builder/variable_context.rs`
-  - `src/mir/builder/scope_context.rs`
-  - `src/mir/builder/compilation_context.rs`
+  - `docs/development/current/main/phases/phase-29cr/README.md`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -124,7 +103,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 1. `scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
 2. `compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
-3. `join_ir/` packaging boundary review
+3. `join_ir/` packaging boundary review (docs-first only; no crate move yet)
 4. `passes/` packaging boundary review
 5. remaining `hakorune-mir-*` naming surface polish
 

@@ -97,6 +97,14 @@ P5 docs-first seed:
 
 - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
 
+JoinIR boundary review remains docs-first only for now:
+
+- `src/mir/join_ir/` still couples AST/ProgramJSON, runtime/env, and MIR
+  surfaces
+- `src/mir/join_ir/json.rs` keeps JoinIR serialization in the same review lane
+- `join_ir_vm_bridge/` boundary is still unstable
+- do not package `join_ir/` yet; tighten the README boundary map first
+
 P5 first packaging slice landed:
 
 - `crates/hakorune_mir_core/` with `types.rs` / `value_id.rs`

@@ -8,8 +8,9 @@ navigation order must stay narrow and explicit.
 1. [`builder/README.md`](./builder/README.md)
 2. [`contracts/README.md`](./contracts/README.md)
 3. [`policies/README.md`](./policies/README.md)
-4. [`join_ir_vm_bridge/README.md`](./join_ir_vm_bridge/README.md)
-5. [`join_ir_vm_bridge_dispatch/README.md`](./join_ir_vm_bridge_dispatch/README.md)
+4. [`join_ir/README.md`](./join_ir/README.md)
+5. [`join_ir_vm_bridge/README.md`](./join_ir_vm_bridge/README.md)
+6. [`join_ir_vm_bridge_dispatch/README.md`](./join_ir_vm_bridge_dispatch/README.md)
 
 ## Top-Level Map
 
@@ -19,7 +20,7 @@ navigation order must stay narrow and explicit.
 - `control_tree/`: structure-only control-flow SSOT and normalized shadow path.
 - `definitions/`: MIR definition data and shared type/shape declarations.
 - `instruction/`, `instruction_kinds/`: instruction model and kind definitions.
-- `join_ir/`: normalized JoinIR lowering and ownership helpers.
+- `join_ir/`: normalized JoinIR lowering and ownership helpers. Docs-first only for now.
 - `join_ir_runner/`: JoinIR execution entry helpers.
 - `join_ir_vm_bridge/`: JoinIR -> VM bridge implementation.
 - `join_ir_vm_bridge_dispatch/`: bridge routing policy and dispatch tables.

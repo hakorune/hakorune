@@ -6,6 +6,18 @@ Read first:
 2. [`src/mir/join_ir/README.md`](../README.md)
 3. [`src/mir/join_ir/lowering/README.md`](../lowering/README.md)
 
+## Packaging Status
+
+Docs-first only for now. This module stays inside the JoinIR review lane and is
+not a safe standalone crate split yet.
+
+Reason:
+
+- ownership analysis reads the same AST/ProgramJSON + runtime/env + MIR surface
+  as the lowering path
+- splitting it early would duplicate boundary logic before the bridge/lowering
+  seam is stable
+
 ## Responsibility Boundary
 
 This module is responsible for **analysis only**:
