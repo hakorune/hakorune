@@ -32,6 +32,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_builder` package: `type_context.rs`
   - `hakorune_mir_builder` package: `variable_context.rs`
   - `hakorune_mir_builder` package: `metadata_context.rs`
+  - `compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
   - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
   - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
   - `src/mir/contracts/README.md`
@@ -122,7 +123,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## P5 / P6 Remaining Order
 
 1. `scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
-2. `compilation_context.rs`
+2. `compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
 3. `join_ir/` packaging boundary review
 4. `passes/` packaging boundary review
 5. remaining `hakorune-mir-*` naming surface polish

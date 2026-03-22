@@ -41,6 +41,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
   - span/source_hint/region（観測）などのメタ情報。
 - `compilation_context.rs`
   - コンパイル全体のレジストリ（Box/型レジストリ、reserved ids 等）。
+  - `ASTNode` / `FunctionSlotRegistry` / `TypeRegistry` がまだ混在しているため packaging は保留中。
 - `crates/hakorune_mir_builder/src/context.rs`
   - 上記 Context を束ねる入れ物（`MirBuilder` はここを介して状態へアクセスする）。
 
@@ -64,7 +65,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 - `crates/hakorune_mir_builder/src/binding_context.rs`: 変数名 ↔ BindingId の対応。
 - `crates/hakorune_mir_builder/src/variable_context.rs`: 変数解決（variable_map 等）。
 - `crates/hakorune_mir_builder/src/metadata_context.rs`: span / source_hint / region の観測。
-- `compilation_context.rs`: Box / 型レジストリと reserved ids。
+- `compilation_context.rs`: Box / 型レジストリと reserved ids。mixed ownership のため packaging は保留中。
 - `crates/hakorune_mir_builder/src/context.rs`: 上記 Context を束ねる入れ物。
 
 ## 追加ルール（将来の変更者向け）
