@@ -2,6 +2,7 @@
 # phase29cc_runtime_v0_adapter_fixtures_vm.sh
 # Contract lock (Step-3 adapter fixtures):
 # - array_set_i64 / array_get_i64 semantics under adapter ON
+# - raw array probe path exists below ArrayCoreBox get/set
 # - strict mode freeze contract exists in handler source
 # - string_len adapter route contract exists in source (registry + handler + core box)
 # - map_size_i64 adapter route contract exists in source (registry + handler + core box)
@@ -20,6 +21,10 @@ HANDLER_FILE="$NYASH_ROOT/lang/src/vm/boxes/mir_call_v1_handler.hako"
 REGISTRY_FILE="$NYASH_ROOT/lang/src/vm/boxes/abi_adapter_registry.hako"
 ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_state_core_box.hako"
+RAW_ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
+PTR_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/ptr/ptr_core_box.hako"
+MEM_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/mem/mem_core_box.hako"
+BUF_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/buf/buf_core_box.hako"
 STRING_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/map_core_box.hako"
 RUNTIME_DATA_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/runtime_data_core_box.hako"
@@ -60,7 +65,7 @@ run_array_semantics_checks() {
 }
 
 check_collection_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
+  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
@@ -107,12 +112,44 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: array core set_i64 dispatch contract missing"
     exit 1
   fi
+  if ! rg -F -q 'return RawArrayCoreBox.slot_store_i64(handle, idx, value)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core raw-array store route contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'me.get_i64(recv_h, idx_i64)' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core get_i64 dispatch contract missing"
     exit 1
   fi
+  if ! rg -F -q 'return RawArrayCoreBox.slot_load_i64(handle, idx)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core raw-array load route contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'me.len_i64(recv_h)' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core len_i64 dispatch contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'PtrCoreBox.slot_store_i64(handle, idx, value)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ptr store hop contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'PtrCoreBox.slot_load_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ptr load hop contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_store_i64]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array store trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_load_i64]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array load trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'reserved()' "$MEM_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: mem core skeleton contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'reserved()' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core skeleton contract missing"
     exit 1
   fi
   if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_STATE_CORE_FILE"; then

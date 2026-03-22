@@ -110,6 +110,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - final boundary is now read through:
       `.hako owner` / `native metal keep` / `not yet moved`
     - `C5 Hakozuna portability layer` remains ladder-only and deferred
+  - `phase-29ct` I1 capability stubs + RawArray probe path
+    - `lang/src/runtime/substrate/mem/mem_core_box.hako`
+      and `lang/src/runtime/substrate/buf/buf_core_box.hako` now exist as compile-safe skeletons
+    - `lang/src/runtime/substrate/ptr/ptr_core_box.hako` now owns the first live
+      `slot_load_i64` / `slot_store_i64` capability hop
+    - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako` now owns the first
+      runnable algorithm-substrate probe path
+    - `ArrayCoreBox.get_i64/set_i64` now route through `RawArrayCoreBox`
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -206,6 +214,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/raw-map-substrate-ssot.md`
   - `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
   - `docs/development/current/main/design/final-metal-split-ssot.md`
+  - `lang/src/runtime/substrate/mem/mem_core_box.hako`
+  - `lang/src/runtime/substrate/buf/buf_core_box.hako`
+  - `lang/src/runtime/substrate/ptr/ptr_core_box.hako`
+  - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
+  - `lang/src/runtime/collections/array_core_box.hako`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`

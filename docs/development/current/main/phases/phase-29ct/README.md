@@ -186,6 +186,12 @@ Related:
     - [`lang/src/runtime/substrate/gc/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/gc/README.md)
   - next active slice is `C6 final metal split detail lock`
 
+- `I1 capability stubs + RawArray probe path` landed
+  - `MemCoreBox` / `BufCoreBox` now exist as compile-safe skeleton boxes
+  - `PtrCoreBox` now owns the first live `slot_load_i64` / `slot_store_i64` capability hop
+  - `RawArrayCoreBox` now owns the first runnable algorithm-substrate probe path
+  - `ArrayCoreBox.get_i64/set_i64` now delegate through `RawArrayCoreBox`
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table

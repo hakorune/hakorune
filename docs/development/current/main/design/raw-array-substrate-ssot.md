@@ -72,6 +72,15 @@ current staging root is reserved at:
 
 This phase places README/docs only.
 
+## Current First Probe Path
+
+- current first live probe path is:
+  - `ArrayCoreBox.get_i64/set_i64`
+  - `RawArrayCoreBox.slot_load_i64/slot_store_i64`
+  - `PtrCoreBox.slot_load_i64/slot_store_i64`
+  - existing native `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii`
+- `len` / `push` stay on the current route in this slice
+
 ## Non-Goals
 
 - `.hako` implementation body for `RawArray`

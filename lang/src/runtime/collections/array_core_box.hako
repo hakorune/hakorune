@@ -12,6 +12,7 @@ using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.runtime.collections.array_state_core_box as ArrayStateCoreBox
+using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
 
 static box ArrayCoreBox {
   _is_i64_text(s) {
@@ -62,11 +63,11 @@ static box ArrayCoreBox {
   }
 
   get_i64(handle, idx) {
-    return externcall "nyash.array.slot_load_hi"(handle, idx)
+    return RawArrayCoreBox.slot_load_i64(handle, idx)
   }
 
   set_i64(handle, idx, value) {
-    return externcall "nyash.array.slot_store_hii"(handle, idx, value)
+    return RawArrayCoreBox.slot_store_i64(handle, idx, value)
   }
 
   len_i64(handle) {

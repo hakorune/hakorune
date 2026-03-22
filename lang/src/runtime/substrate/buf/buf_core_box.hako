@@ -1,0 +1,13 @@
+// BufCoreBox — minimal `hako.buf` namespace skeleton for phase-29ct probe slice.
+// Responsibility:
+// - reserve the future `hako.buf` implementation root as a real box
+// - keep len/cap vocabulary separate from owner boxes
+// Non-responsibility:
+// - live reserve/grow/set_len behavior in this slice
+// - collection policy
+
+static box BufCoreBox {
+  reserved() {
+    return 0
+  }
+}

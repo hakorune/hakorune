@@ -12,6 +12,8 @@ REGISTRY_FILE="lang/src/vm/boxes/abi_adapter_registry.hako"
 HANDLER_FILE="lang/src/vm/boxes/mir_call_v1_handler.hako"
 ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="lang/src/runtime/collections/array_state_core_box.hako"
+RAW_ARRAY_CORE_FILE="lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
+PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="lang/src/runtime/collections/map_core_box.hako"
 
@@ -24,6 +26,8 @@ for file in \
   "$HANDLER_FILE" \
   "$ARRAY_CORE_FILE" \
   "$ARRAY_STATE_CORE_FILE" \
+  "$RAW_ARRAY_CORE_FILE" \
+  "$PTR_CORE_FILE" \
   "$STRING_CORE_FILE" \
   "$MAP_CORE_FILE"; do
   if [ ! -f "$file" ]; then
@@ -98,12 +102,28 @@ if ! rg -F -q 'try_handle(seg, regs, mname)' "$STRING_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] string core missing try_handle contract" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.array.slot_load_hi"' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_load_hi extern route" >&2
+if ! rg -F -q 'return RawArrayCoreBox.slot_load_i64(handle, idx)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing RawArrayCoreBox load route" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.array.slot_store_hii"' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_store_hii extern route" >&2
+if ! rg -F -q 'return RawArrayCoreBox.slot_store_i64(handle, idx, value)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing RawArrayCoreBox store route" >&2
+  exit 1
+fi
+if ! rg -F -q 'PtrCoreBox.slot_load_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing ptr load route" >&2
+  exit 1
+fi
+if ! rg -F -q 'PtrCoreBox.slot_store_i64(handle, idx, value)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing ptr store route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.array.slot_load_hi"' "$PTR_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ptr core missing nyash.array.slot_load_hi extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.array.slot_store_hii"' "$PTR_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ptr core missing nyash.array.slot_store_hii extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.array.slot_append_hh"' "$ARRAY_CORE_FILE"; then

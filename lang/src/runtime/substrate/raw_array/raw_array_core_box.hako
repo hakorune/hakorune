@@ -1,0 +1,28 @@
+// RawArrayCoreBox — first live algorithm-substrate box above `hako.ptr`.
+// Responsibility:
+// - provide the narrowest runnable RawArray load/store probe path
+// - keep the first substrate hop below ArrayCoreBox and above PtrCoreBox
+// Non-responsibility:
+// - visible ArrayBox semantics owner
+// - reserve/grow/append policy
+// - allocator/TLS/GC policy
+
+using selfhost.runtime.substrate.ptr.ptr_core_box as PtrCoreBox
+
+static box RawArrayCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  slot_load_i64(handle, idx) {
+    local out = PtrCoreBox.slot_load_i64(handle, idx)
+    me._trace("[vm/adapter/raw_array:slot_load_i64]")
+    return out
+  }
+
+  slot_store_i64(handle, idx, value) {
+    local rc = PtrCoreBox.slot_store_i64(handle, idx, value)
+    me._trace("[vm/adapter/raw_array:slot_store_i64]")
+    return rc
+  }
+}
