@@ -26,7 +26,7 @@ navigation order must stay narrow and explicit.
 - `join_ir_vm_bridge_dispatch/`: bridge routing policy and dispatch tables.
 - `loop_canonicalizer/`: loop normalization and route detection.
 - `lowerers/`: lowering helpers that are not part of the builder core.
-- `optimizer_passes/`, `passes/`: MIR pass implementations.
+- `optimizer_passes/`, `passes/`: MIR pass implementations. Docs-first only for now.
 - `phi_core/`: PHI / loopform helpers and supporting state.
 - `policies/`: shared policy SSOT used by builder/canonicalizer/router.
 - `region/`, `ssot/`, `type_propagation/`, `utils/`, `verification/`: supporting helpers.

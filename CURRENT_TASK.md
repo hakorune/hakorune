@@ -45,6 +45,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     AST/ProgramJSON + runtime/env + MIR coupling still blocks a safe package move,
     `json.rs` keeps JoinIR serialization in the same review lane, and the
     `join_ir_vm_bridge/` boundary is not yet stable enough for split
+  - `src/mir/passes/` is docs-first only for now:
+    AST/runtime/config/env + MIR coupling still blocks a safe package move,
+    `rc_insertion/` is especially blocked, and `concat3_canonicalize/` is only
+    a future extraction candidate
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
@@ -104,7 +108,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 1. `scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
 2. `compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
 3. `join_ir/` packaging boundary review (docs-first only; no crate move yet)
-4. `passes/` packaging boundary review
+4. `passes/` packaging boundary review (docs-first only; no crate move yet)
 5. remaining `hakorune-mir-*` naming surface polish
 
 ## Archive

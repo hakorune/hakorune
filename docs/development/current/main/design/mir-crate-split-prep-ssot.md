@@ -114,6 +114,16 @@ Keep:
 - `phi_core/` if the surface remains pass-oriented
 - `loop_canonicalizer/` if it stays analysis-only and pass-like
 
+Current status:
+
+- docs-first only; no crate move yet
+- `callsite_canonicalize.rs` still couples to AST/closure-body metadata
+- `cse.rs`, `dce.rs`, and `escape.rs` still assume the main MIR surface/layout
+- `rc_insertion.rs` / `rc_insertion_helpers.rs` still depend on AST, runtime,
+  and config/env seams
+- `concat3_canonicalize/` is the only plausible future extraction candidate,
+  but it still depends on the same MIR surface for now
+
 ### Shared policy surface
 
 Keep under `src/mir/` for now:
@@ -141,6 +151,7 @@ It is not a split target for the current P5 step.
 - splitting `join_ir_vm_bridge/` from `join_ir/` before the lowering surface is stable
 - packaging `join_ir/` right now: blocked by AST/ProgramJSON + runtime/env + MIR coupling
 - splitting `phi_core/` or `loop_canonicalizer/` before the analysis contracts are documented
+- packaging `passes/` right now: blocked by AST/runtime/config/env and MIR coupling
 
 ## First Safe Slice
 
@@ -157,4 +168,5 @@ It is not a split target for the current P5 step.
 - `scope_context.rs` remains blocked on the `MirFunction` / lexical-scope seam and is not a safe move yet.
 - `compilation_context.rs` is parked until `ASTNode`, `FunctionSlotRegistry`, and `TypeRegistry` ownership are separated.
 - `join_ir/` is docs-first only until the bridge/lowering seam stabilizes.
-- The next implementation slice is another packaging step, but not `join_ir/` yet.
+- `join_ir/` and `passes/` are docs-first only until their bridge / runtime seams stabilize.
+- The next implementation slice is another packaging step, but not `join_ir/` or `passes/` yet.

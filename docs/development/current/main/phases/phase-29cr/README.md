@@ -105,6 +105,12 @@ JoinIR boundary review remains docs-first only for now:
 - `join_ir_vm_bridge/` boundary is still unstable
 - do not package `join_ir/` yet; tighten the README boundary map first
 
+Passes boundary review also remains docs-first only for now:
+
+- `src/mir/passes/` still couples AST/runtime/config/env and MIR surfaces
+- `rc_insertion/` is especially blocked by those seams
+- do not package `passes/` yet; tighten the README boundary map first
+
 P5 first packaging slice landed:
 
 - `crates/hakorune_mir_core/` with `types.rs` / `value_id.rs`
