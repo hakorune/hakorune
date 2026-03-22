@@ -211,14 +211,16 @@ Current second slice:
   - daily `.hako` array observer path now uses `nyash.array.slot_len_h`
   - `nyash.array.len_h` remains compatibility-only
 - landed append demotion:
- - daily `.hako` array append path now uses `nyash.array.slot_append_hh`
+  - daily `.hako` array append path now uses `nyash.array.slot_append_hh`
   - arrayish runtime-data mono-route now uses `nyash.array.slot_append_hh`
   - `nyash.array.push_hh` remains compatibility-only
 - landed map observer demotion:
   - daily `.hako` map observer path now uses `nyash.map.entry_count_h`
   - `nyash.map.size_h` remains compatibility-only
+- landed append hidden-residue slice:
+  - `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
+  - compat append routes share the same raw append helper instead of visible `push()`
 - current hidden residue after those explicit exports:
-  - `nyash.array.slot_append_hh` still carries append/boxing semantics below the raw name
   - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
@@ -236,7 +238,8 @@ Current second slice:
    - landed: remove `nyash.map.size_h` from the daily `.hako` path
    - daily route now targets `nyash.map.entry_count_h`
 4. `B1d / array-write-hidden-residue`
-   - move append/rebox policy out from under `nyash.array.slot_store_hii`
+   - first slice landed: append now goes through `ArrayBox.slot_append_box_raw(...)`
+   - next: move append/rebox policy out from under `nyash.array.slot_store_hii`
 5. `B1e / map-hidden-residue`
    - move `get_opt/set/has`-shaped semantics out from under `nyash.map.slot_* / probe_*`
 6. `B1r / runtime_data lock`

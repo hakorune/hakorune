@@ -121,11 +121,11 @@ Related:
 - `B1a` landed: the daily `.hako` array observer path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only.
 - `B1b` landed: the daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only.
 - `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only.
+- `B1d1` landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`, and compat append routes no longer call the visible `push()` method below the raw name.
 - next exact boundary-deepen task is to demote the remaining transitional method-shaped Rust exports still used by `.hako` owners:
-  1. hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
+  1. hidden array write residue under `nyash.array.slot_store_hii`
   2. hidden map residue under `nyash.map.slot_* / probe_*`
 - after those explicit exports, deepen the hidden raw-named residue:
-  - `nyash.array.slot_append_hh` still carries append/boxing semantics below the raw name
   - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
 - build-freshness note:

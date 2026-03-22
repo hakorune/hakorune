@@ -49,9 +49,8 @@ pub(super) fn runtime_data_array_has_hh(arr: &ArrayBox, key_any: i64) -> i64 {
 
 #[inline(always)]
 pub(super) fn runtime_data_array_push_hh(arr: &ArrayBox, val_any: i64) -> i64 {
-    let _ = arr.push(any_arg_to_box_with_profile(
+    arr.slot_append_box_raw(any_arg_to_box_with_profile(
         val_any,
         CodecProfile::ArrayFastBorrowString,
-    ));
-    arr.len() as i64
+    ))
 }

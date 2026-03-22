@@ -6,7 +6,6 @@ use super::array_route_helpers::{
 use super::array_slot_append::array_slot_append_any;
 use super::array_slot_load::array_slot_load_encoded_i64;
 use super::array_slot_store::array_slot_store_i64;
-use super::value_codec::any_arg_to_box;
 use super::handle_helpers::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
 
@@ -21,6 +20,15 @@ fn cli_verbose_enabled() -> bool {
         static ENABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
         *ENABLED.get_or_init(|| std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1"))
     }
+}
+
+#[inline(always)]
+fn append_integer_raw(handle: i64, value_i64: i64) -> i64 {
+    if handle <= 0 {
+        return 0;
+    }
+    with_array_box(handle, |arr| arr.slot_append_box_raw(Box::new(IntegerBox::new(value_i64))))
+        .unwrap_or(0)
 }
 
 // Exported as: nyash_array_get_h(i64 handle, i64 idx) -> i64
@@ -57,18 +65,11 @@ pub extern "C" fn nyash_array_push_h(handle: i64, val: i64) -> i64 {
     if cli_verbose_enabled() {
         eprintln!("[ARR] push_h(handle={}, val={})", handle, val);
     }
-    if handle <= 0 {
-        return 0;
+    let len = append_integer_raw(handle, val);
+    if cli_verbose_enabled() {
+        eprintln!("[ARR] push_h -> len {}", len);
     }
-    with_array_box(handle, |arr| {
-        let _ = arr.push(any_arg_to_box(val));
-        let len = arr.len() as i64;
-        if cli_verbose_enabled() {
-            eprintln!("[ARR] push_h -> len {}", len);
-        }
-        len
-    })
-    .unwrap_or(0)
+    len
 }
 
 // Exported as: nyash_array_length_h(i64 handle) -> i64
@@ -137,14 +138,7 @@ pub extern "C" fn nyash_array_push_hh_alias(handle: i64, val_any: i64) -> i64 {
 
 #[export_name = "nyash.array.push_hi"]
 pub extern "C" fn nyash_array_push_hi_alias(handle: i64, value_i64: i64) -> i64 {
-    if handle <= 0 {
-        return 0;
-    }
-    with_array_box(handle, |arr| {
-        let _ = arr.push(Box::new(IntegerBox::new(value_i64)));
-        arr.len() as i64
-    })
-    .unwrap_or(0)
+    append_integer_raw(handle, value_i64)
 }
 
 // RuntimeData mono-route aliases with integer-key contract.

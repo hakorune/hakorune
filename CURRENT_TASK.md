@@ -77,8 +77,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `B1a` landed: the daily `.hako` path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only
   - `B1b` landed: the daily `.hako` path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only
   - `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only
+  - `B1d1` landed: `nyash.array.slot_append_hh` now appends through `ArrayBox.slot_append_box_raw(...)`; compat append routes share the same raw helper instead of calling visible `push()`
   - the next collection task is exact `B1` taskization:
-    1. deepen hidden array write residue inside `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
+    1. deepen the remaining hidden array write residue inside `nyash.array.slot_store_hii`
     2. deepen hidden map residue inside `nyash.map.slot_* / probe_*` (still implemented via `MapBox.get_opt/set/has`)
   - build-freshness note is now pinned: after a new kernel export lands on the AOT boundary path, refresh release-side artifacts before link/pure smokes; stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
   - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug

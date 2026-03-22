@@ -37,8 +37,16 @@ impl ArrayBox {
 
     /// 要素を追加
     pub fn push(&self, item: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
-        self.items.write().push(item);
+        let _ = self.slot_append_box_raw(item);
         Box::new(StringBox::new("ok"))
+    }
+
+    /// Raw append helper for substrate/plugin routes.
+    /// Visible `push()` semantics stay above this seam.
+    pub fn slot_append_box_raw(&self, item: Box<dyn NyashBox>) -> i64 {
+        let mut items = self.items.write();
+        items.push(item);
+        items.len() as i64
     }
 
     /// 最後の要素を取り出す
