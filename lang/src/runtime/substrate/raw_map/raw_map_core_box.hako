@@ -6,48 +6,95 @@
 // - visible MapBox semantics owner
 // - allocator/TLS/GC policy
 
+using selfhost.runtime.substrate.verifier.ownership.ownership_core_box as OwnershipCoreBox
+
 static box RawMapCoreBox {
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
   }
 
   entry_count_i64(handle) {
+    if OwnershipCoreBox.ensure_handle_readable_i64(handle) != 1 {
+      return 0
+    }
     local out = externcall "nyash.map.entry_count_h"(handle)
     me._trace("[vm/adapter/raw_map:entry_count_i64]")
     return out
   }
 
+  cap_i64(handle) {
+    if OwnershipCoreBox.ensure_handle_readable_i64(handle) != 1 {
+      return 0
+    }
+    local out = externcall "nyash.map.cap_h"(handle)
+    me._trace("[vm/adapter/raw_map:cap_i64]")
+    return out
+  }
+
   probe_i64(handle, key_i64) {
+    if OwnershipCoreBox.ensure_handle_readable_i64(handle) != 1 {
+      return 0
+    }
     local out = externcall "nyash.map.probe_hi"(handle, key_i64)
     me._trace("[vm/adapter/raw_map:probe_i64]")
     return out
   }
 
   probe_any(handle, key_any) {
+    if OwnershipCoreBox.ensure_handle_readable_i64(handle) != 1 {
+      return 0
+    }
+    if OwnershipCoreBox.ensure_any_readable_i64(key_any) != 1 {
+      return 0
+    }
     local out = externcall "nyash.map.probe_hh"(handle, key_any)
     me._trace("[vm/adapter/raw_map:probe_any]")
     return out
   }
 
   slot_load_i64(handle, key_i64) {
+    if OwnershipCoreBox.ensure_handle_readable_i64(handle) != 1 {
+      return 0
+    }
     local out = externcall "nyash.map.slot_load_hi"(handle, key_i64)
     me._trace("[vm/adapter/raw_map:slot_load_i64]")
     return out
   }
 
   slot_load_any(handle, key_any) {
+    if OwnershipCoreBox.ensure_handle_readable_i64(handle) != 1 {
+      return 0
+    }
+    if OwnershipCoreBox.ensure_any_readable_i64(key_any) != 1 {
+      return 0
+    }
     local out = externcall "nyash.map.slot_load_hh"(handle, key_any)
     me._trace("[vm/adapter/raw_map:slot_load_any]")
     return out
   }
 
   slot_store_i64_any(handle, key_i64, val_any) {
+    if OwnershipCoreBox.ensure_handle_writable_i64(handle) != 1 {
+      return 0
+    }
+    if OwnershipCoreBox.ensure_any_readable_i64(val_any) != 1 {
+      return 0
+    }
     local out = externcall "nyash.map.slot_store_hih"(handle, key_i64, val_any)
     me._trace("[vm/adapter/raw_map:slot_store_i64_any]")
     return out
   }
 
   slot_store_any(handle, key_any, val_any) {
+    if OwnershipCoreBox.ensure_handle_writable_i64(handle) != 1 {
+      return 0
+    }
+    if OwnershipCoreBox.ensure_any_readable_i64(key_any) != 1 {
+      return 0
+    }
+    if OwnershipCoreBox.ensure_any_readable_i64(val_any) != 1 {
+      return 0
+    }
     local out = externcall "nyash.map.slot_store_hhh"(handle, key_any, val_any)
     me._trace("[vm/adapter/raw_map:slot_store_any]")
     return out

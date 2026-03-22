@@ -1,0 +1,41 @@
+// OwnershipCoreBox — third live `minimum verifier` box for phase-29ct.
+// Responsibility:
+// - answer one question only: is the current handle carrier still live for the requested access?
+// - keep positive-handle liveness checks separate from bounds/init math
+// Non-responsibility:
+// - borrowed alias expiry policy
+// - transfer / move semantics
+// - allocator policy
+
+static box OwnershipCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  _handle_live_i64(handle) {
+    if handle <= 0 { return 0 }
+    return externcall "nyash.any.handle_live_h"(handle)
+  }
+
+  ensure_handle_readable_i64(handle) {
+    local ok = me._handle_live_i64(handle)
+    me._trace("[vm/adapter/verifier:ownership_handle_readable]")
+    return ok
+  }
+
+  ensure_handle_writable_i64(handle) {
+    local ok = me._handle_live_i64(handle)
+    me._trace("[vm/adapter/verifier:ownership_handle_writable]")
+    return ok
+  }
+
+  ensure_any_readable_i64(value_any) {
+    if value_any <= 0 {
+      me._trace("[vm/adapter/verifier:ownership_any_readable]")
+      return 1
+    }
+    local ok = me._handle_live_i64(value_any)
+    me._trace("[vm/adapter/verifier:ownership_any_readable]")
+    return ok
+  }
+}

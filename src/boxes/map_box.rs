@@ -238,6 +238,11 @@ impl MapBox {
         self.len() as i64
     }
 
+    /// Raw capacity observer helper for substrate/plugin routes.
+    pub fn capacity_i64(&self) -> i64 {
+        self.data.read().unwrap().capacity() as i64
+    }
+
     /// Raw read helper for substrate/plugin routes.
     pub fn get_opt_key_str(&self, key: &str) -> Option<Box<dyn NyashBox>> {
         self.data.read().unwrap().get(key).map(Self::clone_for_read)

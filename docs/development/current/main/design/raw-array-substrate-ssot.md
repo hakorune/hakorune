@@ -78,6 +78,7 @@ This phase has already widened into the first live `RawArrayCoreBox` path.
   - `ArrayCoreBox.get_i64/set_i64/len_i64/push_hh`
   - `RawArrayCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
   - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64`
+  - `OwnershipCoreBox.ensure_handle_readable_i64/ensure_handle_writable_i64/ensure_any_readable_i64`
   - `BoundsCoreBox.ensure_index_i64(handle, idx)`
   - `InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)`
   - `BufCoreBox.len_i64/cap_i64/reserve_i64/grow_i64`
@@ -87,7 +88,9 @@ This phase has already widened into the first live `RawArrayCoreBox` path.
     `nyash.array.slot_len_h` / `nyash.array.slot_append_hh` /
     `nyash.array.slot_reserve_hi` / `nyash.array.slot_grow_hi`
 - `reserve` / `grow` now sit on the widened RawArray substrate path; `ArrayCoreBox` does not expose them yet
-- `slot_load_i64` now uses `bounds -> initialized-range -> ptr`, while `slot_store_i64` remains `bounds -> ptr` only
+- `slot_load_i64` now uses `ownership -> bounds -> initialized-range -> ptr`
+- `slot_store_i64` now uses `ownership -> bounds -> ptr`
+- `slot_len_i64` / `slot_append_any` / `slot_reserve_i64` / `slot_grow_i64` now gate through ownership before the current substrate backend
 
 ## Non-Goals
 
@@ -103,8 +106,8 @@ This phase has already widened into the first live `RawArrayCoreBox` path.
 
 After this docs lock, the next widening remains:
 
-1. `ownership` verifier slice
-2. deeper `RawMap` planning / rehash vocabulary
+1. deeper `RawMap` planning / truthful `rehash` vocabulary
+2. `GC/TLS/atomic` widening
 
 Sibling docs/task lock now lives at:
 

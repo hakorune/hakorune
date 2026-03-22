@@ -24,6 +24,7 @@ ARRAY_STATE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_state_core
 RAW_ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
 RAW_MAP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
+OWNERSHIP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
 PTR_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 MEM_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/mem/mem_core_box.hako"
 BUF_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/buf/buf_core_box.hako"
@@ -67,7 +68,7 @@ run_array_semantics_checks() {
 }
 
 check_collection_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
+  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$OWNERSHIP_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
@@ -142,6 +143,18 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw array initialized-range gate contract missing"
     exit 1
   fi
+  if ! rg -F -q 'OwnershipCoreBox.ensure_handle_readable_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ownership readable gate contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'OwnershipCoreBox.ensure_handle_writable_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ownership writable gate contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'OwnershipCoreBox.ensure_any_readable_i64(value_any)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ownership any-read gate contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'PtrCoreBox.slot_len_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array ptr len hop contract missing"
     exit 1
@@ -192,6 +205,22 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/initialized_range:ensure_initialized_index_i64]' "$INITIALIZED_RANGE_CORE_FILE"; then
     test_fail "$SMOKE_NAME: initialized-range trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.any.handle_live_h"(handle)' "$OWNERSHIP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: ownership core handle-live route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/verifier:ownership_handle_readable]' "$OWNERSHIP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: ownership readable trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/verifier:ownership_handle_writable]' "$OWNERSHIP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: ownership writable trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/verifier:ownership_any_readable]' "$OWNERSHIP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: ownership any-read trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'alloc_i64(size)' "$MEM_CORE_FILE"; then
@@ -286,6 +315,14 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: map core raw-map size route contract missing"
     exit 1
   fi
+  if ! rg -F -q 'cap_i64(handle)' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map cap observer contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.map.cap_h"' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map cap backend contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'try_handle(seg, regs, mname)' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core orchestration helper contract missing"
     exit 1
@@ -336,6 +373,10 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/map_core:probe_hh]' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core raw probe trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_map:cap_i64]' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map cap trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'externcall "nyash.map.slot_load_hh"' "$RAW_MAP_CORE_FILE"; then

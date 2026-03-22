@@ -2,6 +2,19 @@
 
 use super::string::{string_is_empty_from_handle, string_len_from_handle};
 
+#[export_name = "nyash.any.handle_live_h"]
+pub extern "C" fn nyash_any_handle_live_h_export(handle: i64) -> i64 {
+    use nyash_rust::runtime::host_handles as handles;
+    if handle <= 0 {
+        return 0;
+    }
+    if handles::get(handle as u64).is_some() {
+        1
+    } else {
+        0
+    }
+}
+
 // Any.length_h(handle) -> i64 (Array/String/Map)
 #[export_name = "nyash.any.length_h"]
 pub extern "C" fn nyash_any_length_h_export(handle: i64) -> i64 {

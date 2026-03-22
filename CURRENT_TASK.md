@@ -169,6 +169,19 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `MapCoreBox.size_i64` still routes through `RawMapCoreBox.entry_count_i64`
     - `MapCoreBox` now routes raw receiver-handle `set/get/has` through
       `RawMapCoreBox` while keeping stateful owner fast paths local
+  - `phase-29ct` I7 ownership verifier slice
+    - third live verifier box is
+      `lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako`
+    - current live subset is
+      `ensure_handle_readable_i64` / `ensure_handle_writable_i64` /
+      `ensure_any_readable_i64`
+    - `RawArrayCoreBox` and `RawMapCoreBox` now gate current raw routes through
+      ownership before the deeper substrate backend
+  - `phase-29ct` I8 RawMap capacity observer slice
+    - `lang/src/runtime/substrate/raw_map/raw_map_core_box.hako` now also exposes
+      `cap_i64(handle)`
+    - native capacity observer seam is `nyash.map.cap_h`
+    - `rehash/tombstone` stay parked until a truthful native seam exists
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only

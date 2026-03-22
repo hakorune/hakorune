@@ -92,6 +92,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest16: `RawMapCoreBox.entry_count_i64` is live; `MapCoreBox.size_i64` now routes through `raw_map/raw_map_core_box.hako` before `nyash.map.entry_count_h`
 - Kernel capability latest17: `InitializedRangeCoreBox.ensure_initialized_index_i64` is live; `RawArrayCoreBox.slot_load_i64` now gates through `bounds -> initialized-range -> ptr`
 - Kernel capability latest18: `RawMapCoreBox` now exposes `probe/load/store` substrate verbs; `MapCoreBox` uses them on raw receiver-handle `set/get/has` paths while keeping stateful owner fast paths local
+- Kernel capability latest19: `OwnershipCoreBox` is now the third live verifier box; current live subset is carrier-liveness only, and `RawArrayCoreBox` / `RawMapCoreBox` now gate current raw routes through ownership before deeper substrate hops
+- Kernel capability latest20: `RawMapCoreBox.cap_i64(handle)` is now the first truthful map capacity observer route via `nyash.map.cap_h`; `rehash/tombstone` remain parked until a truthful native seam exists
 - Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
 - Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`

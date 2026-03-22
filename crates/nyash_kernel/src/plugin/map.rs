@@ -94,4 +94,17 @@ mod tests {
         assert_eq!(nyash_map_size_h(handle), 2);
         assert_eq!(nyash_map_entry_count_h(0), 0);
     }
+
+    #[test]
+    fn capacity_raw_alias_keeps_observer_contract() {
+        let handle = new_map_handle();
+        let key_a = string_handle("cap-a");
+        let key_b = string_handle("cap-b");
+        let value = string_handle("cap-value");
+
+        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_a, value), 1);
+        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_b, value), 1);
+        assert!(nyash_map_cap_h(handle) >= nyash_map_entry_count_h(handle));
+        assert_eq!(nyash_map_cap_h(0), 0);
+    }
 }

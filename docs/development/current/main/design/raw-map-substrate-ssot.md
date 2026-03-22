@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-23
-Scope: `phase-29ct` の C3 として、`RawMapCoreBox` を capability substrate の次の consumer として first live `observer + probe/load/store` slice まで固定する。
+Scope: `phase-29ct` の C3 として、`RawMapCoreBox` を capability substrate の次の consumer として first live `observer + probe/load/store + cap observer` slice まで固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -29,6 +29,7 @@ Related:
 - `RawMap` は capability substrate と minimum verifier を使う algorithm substrate である。
 - current phase では first live slice を landed とし、`MapCoreBox.size_i64` が `RawMapCoreBox.entry_count_i64` を通る。
 - current widening also lands `probe/load/store` façade methods under `RawMapCoreBox`.
+- current live observer subset also lands `cap_i64(handle)`.
 
 ## Fixed Dependencies
 
@@ -48,6 +49,7 @@ Related:
 
 - current live slice:
   - `entry_count_i64`
+  - `cap_i64`
   - `probe_i64` / `probe_any`
   - `slot_load_i64` / `slot_load_any`
   - `slot_store_i64_any` / `slot_store_any`
@@ -80,6 +82,7 @@ Related:
 - `RawMap` is the future algorithm substrate box that may sit between those layers later.
 - `RawMapCoreBox` is now the first live map substrate box between those layers for `size_i64`.
 - `MapCoreBox` now uses the raw map facade for raw receiver-handle `set/get/has` paths while keeping stateful owner fast paths local.
+- `RawMapCoreBox` now also owns the first truthful capacity observer route via `nyash.map.cap_h`.
 
 ## Physical Staging
 
@@ -88,7 +91,7 @@ current staging root is reserved at:
 - [`lang/src/runtime/substrate/raw_map/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/README.md)
 - [`lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako)
 
-This phase now lands the first substrate slice through `observer + probe/load/store`; rehash/tombstone/capacity shape stays future-facing.
+This phase now lands the first substrate slice through `observer + probe/load/store + cap observer`; rehash/tombstone shape stays future-facing.
 
 ## Non-Goals
 
@@ -103,9 +106,8 @@ This phase now lands the first substrate slice through `observer + probe/load/st
 
 After this live observer slice, the next widening remains:
 
-1. `rehash/tombstone/capacity` RawMap widening
-2. `ownership` verifier slice
-3. `GC/TLS/atomic` capability lock
+1. truthful `rehash/tombstone` RawMap widening after native seam exists
+2. `GC/TLS/atomic` capability lock
 
 docs/task lock now lives at:
 

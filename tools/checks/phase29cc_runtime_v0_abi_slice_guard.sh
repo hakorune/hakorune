@@ -15,6 +15,7 @@ ARRAY_STATE_CORE_FILE="lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
 RAW_MAP_CORE_FILE="lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
+OWNERSHIP_CORE_FILE="lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
 BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
 PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
@@ -32,6 +33,7 @@ for file in \
   "$RAW_ARRAY_CORE_FILE" \
   "$RAW_MAP_CORE_FILE" \
   "$INITIALIZED_RANGE_CORE_FILE" \
+  "$OWNERSHIP_CORE_FILE" \
   "$BUF_CORE_FILE" \
   "$PTR_CORE_FILE" \
   "$STRING_CORE_FILE" \
@@ -132,12 +134,40 @@ if ! rg -F -q 'InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)
   echo "[runtime-v0-abi-slice-guard] raw array missing initialized-range gate" >&2
   exit 1
 fi
+if ! rg -F -q 'OwnershipCoreBox.ensure_handle_readable_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing ownership readable gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'OwnershipCoreBox.ensure_handle_writable_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing ownership writable gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'OwnershipCoreBox.ensure_any_readable_i64(value_any)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing ownership any-read gate" >&2
+  exit 1
+fi
 if ! rg -F -q 'BufCoreBox.len_i64(handle)' "$INITIALIZED_RANGE_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] initialized-range missing buf len route" >&2
   exit 1
 fi
 if ! rg -F -q '[vm/adapter/initialized_range:ensure_initialized_index_i64]' "$INITIALIZED_RANGE_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] initialized-range missing trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.any.handle_live_h"(handle)' "$OWNERSHIP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ownership core missing nyash.any.handle_live_h route" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/verifier:ownership_handle_readable]' "$OWNERSHIP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ownership core missing readable trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/verifier:ownership_handle_writable]' "$OWNERSHIP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ownership core missing writable trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/verifier:ownership_any_readable]' "$OWNERSHIP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ownership core missing any-read trace tag" >&2
   exit 1
 fi
 if ! rg -F -q 'PtrCoreBox.slot_store_i64(handle, idx, value)' "$RAW_ARRAY_CORE_FILE"; then
@@ -232,8 +262,16 @@ if ! rg -F -q 'entry_count_i64(handle)' "$RAW_MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw map core missing entry_count contract" >&2
   exit 1
 fi
+if ! rg -F -q 'cap_i64(handle)' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing cap contract" >&2
+  exit 1
+fi
 if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$RAW_MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.entry_count_h extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.map.cap_h"' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.cap_h extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.map.slot_load_hh"' "$RAW_MAP_CORE_FILE"; then
@@ -246,6 +284,22 @@ if ! rg -F -q 'externcall "nyash.map.slot_store_hhh"' "$RAW_MAP_CORE_FILE"; then
 fi
 if ! rg -F -q 'externcall "nyash.map.probe_hh"' "$RAW_MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.probe_hh extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'OwnershipCoreBox.ensure_handle_readable_i64(handle)' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing ownership readable gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'OwnershipCoreBox.ensure_handle_writable_i64(handle)' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing ownership writable gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'OwnershipCoreBox.ensure_any_readable_i64(key_any)' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing ownership key any-read gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'OwnershipCoreBox.ensure_any_readable_i64(val_any)' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing ownership val any-read gate" >&2
   exit 1
 fi
 if ! rg -F -q 'return RawMapCoreBox.slot_load_any(handle, key_any)' "$MAP_CORE_FILE"; then

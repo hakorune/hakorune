@@ -18,10 +18,19 @@ pub(super) fn map_entry_count_raw(handle: i64) -> i64 {
     .unwrap_or(0)
 }
 
+pub(super) fn map_capacity_raw(handle: i64) -> i64 {
+    with_map_box(handle, |map| map.capacity_i64()).unwrap_or(0)
+}
+
 // entry_count: raw observer (handle) -> i64
 #[export_name = "nyash.map.entry_count_h"]
 pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
     map_entry_count_raw(handle)
+}
+
+#[export_name = "nyash.map.cap_h"]
+pub extern "C" fn nyash_map_cap_h(handle: i64) -> i64 {
+    map_capacity_raw(handle)
 }
 
 // Mainline substrate aliases used by collection-owner cutover and adapter defaults.

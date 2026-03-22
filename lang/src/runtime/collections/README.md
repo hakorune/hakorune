@@ -31,6 +31,7 @@ Rule:
 - do not move collection semantics into ring0
 - method-shaped verbs (`get/set/push/has/len/length/size`, normalization, visible fallback/error contract) belong here
 - raw substrate verbs (`encode/decode/cache/downcast/load/store/probe/rehash/layout`) remain in Rust until the phase boundary is deeper
+- `rehash/tombstone` semantics stay parked until a truthful native substrate seam exists
 - future owner growth belongs to `.hako` ring1 collection/runtime, not OS-facing ring0
 
 ## Current modules
@@ -59,6 +60,7 @@ Rule:
   - `try_handle(seg, regs, mname)`
     -> visible owner for `MapBox.{set,get,has,size/len/length}` orchestration and current handler-side contract
   - `size_i64(handle)` -> `runtime/substrate/raw_map/raw_map_core_box.hako` -> `nyash.map.entry_count_h`
+  - `RawMapCoreBox.cap_i64(handle)` now exists as the first truthful map capacity observer route, but `MapCoreBox` does not expose it as a visible collection method yet
   - `set_hhh(handle, key_any, val_any)` / `get_hh(handle, key_any)` / `has_hh(handle, key_any)`
     -> `runtime/substrate/raw_map/raw_map_core_box.hako` on the raw receiver-handle path
   - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state

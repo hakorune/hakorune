@@ -171,7 +171,8 @@ current root lock is:
 
 current implementation note:
 - `BoundsCoreBox.ensure_index_i64` is live
-- `initialized-range` / `ownership` remain docs-first
+- `InitializedRangeCoreBox.ensure_initialized_index_i64` is live
+- `OwnershipCoreBox.ensure_handle_readable_i64/ensure_handle_writable_i64/ensure_any_readable_i64` is live
 
 これは `C1` と同時導入する。
 
@@ -196,6 +197,11 @@ collection owner の次の本命はここ。
   - [`raw-map-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-map-substrate-ssot.md)
 
 `MapBox` semantics を `.hako` に deeper cut する土台。
+
+current implementation note:
+- `RawMapCoreBox.entry_count_i64/probe_*/slot_load_*/slot_store_*` are live
+- `RawMapCoreBox.cap_i64` is the first truthful capacity observer
+- `rehash/tombstone` remain parked until a truthful native seam exists
 
 ### C4. GC/TLS/atomics
 

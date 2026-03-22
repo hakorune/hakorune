@@ -56,29 +56,34 @@ minimum verifier の順番は次で固定する。
 
 ### `ownership`
 
-- catches:
+- current live subset catches:
+  - invalid positive handle carrier reuse
+  - dead receiver handle on raw substrate read/write routes
+  - dead positive `any` carrier on current raw substrate routes
+- later catches:
   - owned / borrowed の混同
   - borrowed alias の期限切れ再利用
   - move/reuse の契約違反
 - reading:
   - ownership mismatch は fail-fast
-  - conservative fallback が許されるのは、既存 docs で明示した borrowed alias expiry のような限定ケースだけ
+  - borrowed alias expiry は current `value_codec` の conservative fallback を正本とし、verifier が silent pass しない
 
 ## Current Reading
 
 - `bounds` is the first live verifier box.
 - `initialized-range` is the second live verifier box.
-- `ownership` remains a docs-first follow-up.
+- `ownership` is the third live verifier box.
 - physical staging root is reserved at [`lang/src/runtime/substrate/verifier/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/README.md)
 - live boxes now live at:
   - [`lang/src/runtime/substrate/verifier/bounds/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/bounds/README.md)
   - [`lang/src/runtime/substrate/verifier/initialized_range/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/initialized_range/README.md)
+  - [`lang/src/runtime/substrate/verifier/ownership/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/ownership/README.md)
 - RawArray slot load now routes through the bounds and initialized-range gates before raw pointer access
 - current readable initialized range is intentionally locked to `BufCoreBox.len_i64(handle)` until `set_len/shrink` widening lands
+- ownership live subset is intentionally carrier-liveness only; borrowed alias expiry remains governed by `value_codec`
 
 ## Non-Goals
 
-- `ownership`
 - `RawMap`
 - `hako.mem` / `hako.buf` / `hako.ptr` の実装本体
 - allocator state machine
@@ -91,7 +96,7 @@ minimum verifier の順番は次で固定する。
 
 ## Follow-Up
 
-`initialized-range` live slice の次は `ownership` へ進む。
+`ownership` live slice の次は `RawMap` deeper widening の truthful seam を見直す。
 
 - first consumer:
   - `RawArray`

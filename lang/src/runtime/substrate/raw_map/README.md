@@ -4,6 +4,7 @@ Responsibilities:
 - First live `RawMap` substrate facade for the phase-29ct ladder.
 - Current live surface:
   - `entry_count_i64(handle)`
+  - `cap_i64(handle)`
   - `probe_i64(handle, key_i64)` / `probe_any(handle, key_any)`
   - `slot_load_i64(handle, key_i64)` / `slot_load_any(handle, key_any)`
   - `slot_store_i64_any(handle, key_i64, val_any)` / `slot_store_any(handle, key_any, val_any)`
@@ -20,6 +21,6 @@ Rules:
 - Keep this directory focused on the RawMap observer/probe ladder; do not move collection semantics here.
 
 Non-goals:
-- No `rehash` / `tombstone` / capacity policy implementation yet.
+- No `rehash` / `tombstone` policy implementation yet.
 - No allocator / TLS / atomic / GC implementation here.
 - No OS VM / final allocator / final ABI stubs here.

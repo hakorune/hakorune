@@ -232,6 +232,19 @@ Related:
   - `MapCoreBox.size_i64` still routes through `entry_count_i64`
   - `MapCoreBox` now routes raw receiver-handle `set/get/has` through `RawMapCoreBox` while keeping stateful owner fast paths local
 
+- `I7 ownership verifier slice` landed
+  - `OwnershipCoreBox` is now the third live verifier box
+  - current live subset is carrier-liveness only:
+    - `ensure_handle_readable_i64`
+    - `ensure_handle_writable_i64`
+    - `ensure_any_readable_i64`
+  - `RawArrayCoreBox` and `RawMapCoreBox` now gate current raw routes through ownership before deeper substrate hops
+
+- `I8 RawMap capacity observer slice` landed
+  - `RawMapCoreBox.cap_i64(handle)` is now the first truthful map capacity observer route
+  - native seam is `nyash.map.cap_h`
+  - `rehash/tombstone` remain parked until a truthful native seam exists
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table
