@@ -7,6 +7,7 @@ preparation lane.
 
 - `basic_block_id.rs`
 - `binding_id.rs`
+- `value_kind.rs`
 - `types.rs`
 - `value_id.rs`
 

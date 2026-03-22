@@ -25,6 +25,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
   - `hakorune_mir_core` package: `effect.rs`
   - `hakorune_mir_core` package: `basic_block_id.rs` / `binding_id.rs`
+  - `hakorune_mir_core` package: `value_kind.rs`
   - `hakorune_mir_defs` package: `definitions/call_unified.rs`
   - `hakorune_mir_builder` package: `core_context.rs` / `context.rs`
   - `hakorune_mir_builder` package: `binding_context.rs`
@@ -82,6 +83,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `crates/hakorune_mir_core/src/lib.rs`
 - `crates/hakorune_mir_core/src/basic_block_id.rs`
 - `crates/hakorune_mir_core/src/binding_id.rs`
+- `crates/hakorune_mir_core/src/value_kind.rs`
+- `src/mir/builder/type_context.rs`
+- `src/mir/builder/builder_value_kind.rs`
 - `crates/hakorune_mir_defs/README.md`
 - `crates/hakorune_mir_defs/src/lib.rs`
 - `crates/hakorune_mir_builder/README.md`

@@ -201,11 +201,14 @@ Next safe slice:
 P5 first packaging slice landed:
 
 - `hakorune_mir_core` package with `types.rs` / `value_id.rs`
+- `hakorune_mir_core` package with `value_kind.rs`
 - `src/mir/types.rs` / `src/mir/value_id.rs` became thin re-export wrappers
+- `src/mir/value_kind.rs` became a thin re-export wrapper
 
 P5 substrate ID slice landed:
 
 - `hakorune_mir_core` package now also owns `basic_block_id.rs` / `binding_id.rs`
+- `hakorune_mir_core` package now also owns `value_kind.rs`
 - `hakorune_mir_builder` package now also owns `core_context.rs` / `context.rs`
 - `hakorune_mir_builder` package now also owns `binding_context.rs`
 - `src/mir/basic_block.rs` re-exports the substrate IDs

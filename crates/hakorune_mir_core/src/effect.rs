@@ -247,3 +247,9 @@ impl Not for EffectMask {
         Self(!self.0)
     }
 }
+
+impl Default for EffectMask {
+    fn default() -> Self {
+        Self::new()
+    }
+}

@@ -16,9 +16,11 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_defs` package: `definitions/call_unified.rs`
 - `hakorune_mir_core` now also owns `effect.rs`
 - `hakorune_mir_core` now also owns `basic_block_id.rs` / `binding_id.rs`
+- `hakorune_mir_core` now also owns `value_kind.rs`
 - `hakorune_mir_builder` package: `core_context.rs` / `context.rs`
 - `hakorune_mir_builder` package: `binding_context.rs`
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
+- `src/mir/value_kind.rs` is a thin re-export wrapper
 - `src/mir/definitions/call_unified.rs` is a thin re-export wrapper
 - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
 - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
@@ -61,6 +63,7 @@ Current substrate IDs that already live here:
 
 - `basic_block_id.rs`
 - `binding_id.rs`
+- `value_kind.rs`
 
 ### `hakorune-mir-builder`
 

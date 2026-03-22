@@ -8,7 +8,7 @@
 
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::MirType;
-use crate::mir::{MirValueKind, ValueId};
+use hakorune_mir_core::{MirValueKind, ValueId};
 
 impl MirBuilder {
     /// 🎯 箱理論: Step 3 - パラメータ設定

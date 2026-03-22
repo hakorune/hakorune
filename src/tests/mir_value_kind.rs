@@ -4,7 +4,8 @@
 /// - パラメータ型自動登録（Phase 26-A-3）
 /// - is_parameter型安全判定（Phase 26-A-4）
 /// - 実際のMIRビルド環境での動作確認
-use crate::mir::{MirBuilder, MirValueKind, ValueId};
+use crate::mir::MirBuilder;
+use hakorune_mir_core::{MirValueKind, ValueId};
 
 /// GUARD checkバグ完全再現防止テスト
 ///

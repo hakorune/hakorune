@@ -57,6 +57,21 @@ impl BindingContext {
         }
     }
 
+    /// Return true when no bindings are tracked.
+    pub fn is_empty(&self) -> bool {
+        self.binding_map.is_empty()
+    }
+
+    /// Return the number of tracked bindings.
+    pub fn len(&self) -> usize {
+        self.binding_map.len()
+    }
+
+    /// Return whether the given name is currently tracked.
+    pub fn contains(&self, name: &str) -> bool {
+        self.binding_map.contains_key(name)
+    }
+
     /// Lookup a variable's BindingId
     pub fn lookup(&self, name: &str) -> Option<BindingId> {
         self.binding_map.get(name).copied()
@@ -84,27 +99,27 @@ mod tests {
     #[test]
     fn test_binding_context_basic() {
         let mut ctx = BindingContext::new();
-        assert!(ctx.binding_map.is_empty());
-        assert_eq!(ctx.binding_map.len(), 0);
+        assert!(ctx.is_empty());
+        assert_eq!(ctx.len(), 0);
 
         let bid = BindingId::new(0);
         ctx.insert("x".to_string(), bid);
         assert_eq!(ctx.lookup("x"), Some(bid));
-        assert_eq!(ctx.binding_map.len(), 1);
-        assert!(!ctx.binding_map.is_empty());
+        assert_eq!(ctx.len(), 1);
+        assert!(!ctx.is_empty());
 
         ctx.remove("x");
         assert_eq!(ctx.lookup("x"), None);
-        assert!(ctx.binding_map.is_empty());
+        assert!(ctx.is_empty());
     }
 
     #[test]
     fn test_binding_context_contains() {
         let mut ctx = BindingContext::new();
-        assert!(!ctx.binding_map.contains_key("x"));
+        assert!(!ctx.contains("x"));
 
         ctx.insert("x".to_string(), BindingId::new(0));
-        assert!(ctx.binding_map.contains_key("x"));
+        assert!(ctx.contains("x"));
     }
 
     #[test]
@@ -113,7 +128,7 @@ mod tests {
         ctx.insert("a".to_string(), BindingId::new(1));
         ctx.insert("b".to_string(), BindingId::new(2));
 
-        assert_eq!(ctx.binding_map.len(), 2);
+        assert_eq!(ctx.len(), 2);
         assert_eq!(ctx.binding_map.get("a"), Some(&BindingId::new(1)));
         assert_eq!(ctx.binding_map.get("b"), Some(&BindingId::new(2)));
     }

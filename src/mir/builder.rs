@@ -168,7 +168,7 @@ pub struct MirBuilder {
     #[allow(dead_code)]
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
 
-    // Phase 2-5: binding_map removed - use binding_ctx.binding_map instead
+    // Phase 2-5: binding_map removed - use binding_ctx methods instead
 
     // include guards removed
     // フェーズM: no_phi_modeフィールド削除（常にPHI使用）
@@ -254,7 +254,7 @@ mod binding_id_tests {
         let builder = MirBuilder::new();
         assert_eq!(builder.core_ctx.next_binding_id, 0);
         // Phase 2-6: binding_ctx is now SSOT (legacy field removed)
-        assert!(builder.binding_ctx.binding_map.is_empty());
+        assert!(builder.binding_ctx.is_empty());
     }
 
     #[test]

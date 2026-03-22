@@ -1,5 +1,5 @@
 use super::{MirBuilder, ValueId};
-use crate::mir::{MirValueKind, TypedValueId};
+use hakorune_mir_core::{MirValueKind, TypedValueId};
 
 impl MirBuilder {
     // ============================================================================

@@ -10,7 +10,8 @@
  * - value_origin_newbox: ValueId -> Box class name origin tracking
  */
 
-use crate::mir::{MirType, MirValueKind, ValueId};
+use crate::mir::{MirType, ValueId};
+use hakorune_mir_core::MirValueKind;
 use std::collections::{BTreeMap, HashMap};
 
 /// Type information context for MIR builder
