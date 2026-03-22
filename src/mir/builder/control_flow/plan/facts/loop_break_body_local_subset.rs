@@ -2,6 +2,7 @@ use super::loop_break_body_local_facts::{
     try_extract_loop_break_body_local_facts, LoopBodyLocalShape,
 };
 use super::loop_break_helpers::*;
+use super::loop_break_helpers_local::find_local_init_expr;
 use super::loop_break_types::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{

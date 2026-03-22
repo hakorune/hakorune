@@ -1,7 +1,8 @@
 use super::loop_break_helpers::{
-    index_of_call, length_call, lit_int, lit_str, match_break_if, match_indexof_local,
-    match_local_empty_string, match_loop_increment, match_seg_if_else, substring_call, var,
+    index_of_call, length_call, lit_int, lit_str, match_break_if, match_loop_increment,
+    match_seg_if_else, substring_call, var,
 };
+use super::loop_break_helpers_local::{match_indexof_local, match_local_empty_string};
 use super::loop_break_types::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{

@@ -85,6 +85,8 @@ P4 first slice landed:
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_common.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_break_if.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_realworld.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers_local.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers_condition.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 
 The next implementation slice, when this lane is explicitly reopened, is:
