@@ -11,6 +11,7 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.runtime.substrate.raw_map.raw_map_core_box as RawMapCoreBox
 
 static box MapCoreBox {
   _is_i64_text(s) {
@@ -54,7 +55,7 @@ static box MapCoreBox {
   }
 
   size_i64(handle) {
-    return externcall "nyash.map.entry_count_h"(handle)
+    return RawMapCoreBox.entry_count_i64(handle)
   }
 
   norm_key_str(s) {

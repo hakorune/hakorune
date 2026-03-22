@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-23
-Scope: `phase-29ct` の C3 として、`RawMap` を capability substrate の次の consumer として docs-first で固定する。
+Scope: `phase-29ct` の C3 として、`RawMapCoreBox` を capability substrate の次の consumer として first live observer slice まで固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -19,15 +19,16 @@ Related:
 
 ## Goal
 
-- `RawMap` を `.hako algorithm substrate` の次の concrete box として固定する。
-- `RawArray` のあとに来る hash/probe substrate の役割を docs-first で固定する。
+- `RawMapCoreBox` を `.hako algorithm substrate` の次の concrete box として固定する。
+- `RawArray` のあとに来る hash/probe substrate の役割を、まず observer slice で live にする。
 - `MapCoreBox` の visible owner を崩さず、future low-level map policy の受け皿だけを決める。
 
 ## Reading
 
 - `RawMap` は semantic owner ではない。
 - `RawMap` は capability substrate と minimum verifier を使う algorithm substrate である。
-- current phase では docs-first only とし、まだ `.hako` 実装本体は作らない。
+- current phase では first live observer slice を landed とし、`MapCoreBox.size_i64` が `RawMapCoreBox.entry_count_i64` を通る。
+- probe/load/store は次の widening で育てる。
 
 ## Fixed Dependencies
 
@@ -45,6 +46,8 @@ Related:
 
 ## RawMap Roles
 
+- current live slice:
+  - `entry_count_i64`
 - owns:
   - bucket/capacity shape
   - probe walk
@@ -72,18 +75,20 @@ Related:
   - `crates/nyash_kernel/src/plugin/map*.rs`
   - `crates/nyash_kernel/src/plugin/handle_cache.rs`
 - `RawMap` is the future algorithm substrate box that may sit between those layers later.
+- `RawMapCoreBox` is now the first live map observer box between those layers for `size_i64`.
 
 ## Physical Staging
 
 current staging root is reserved at:
 
 - [`lang/src/runtime/substrate/raw_map/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/README.md)
+- [`lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako)
 
-This phase places README/docs only.
+This phase now lands the observer slice first; the wider probe/load/store shape stays future-facing.
 
 ## Non-Goals
 
-- `.hako` implementation body for `RawMap`
+- additional `.hako` `RawMap` expansion beyond the observer slice
 - allocator state machine
 - TLS / atomic / GC implementation
 - OS VM / final allocator / final ABI stub
@@ -92,10 +97,11 @@ This phase places README/docs only.
 
 ## Follow-Up
 
-After this docs lock, the next widening remains:
+After this live observer slice, the next widening remains:
 
-1. `GC/TLS/atomic` capability lock
-2. `Hakozuna portability layer`
+1. `probe/load/store` RawMap widening
+2. `GC/TLS/atomic` capability lock
+3. `Hakozuna portability layer`
 
 docs/task lock now lives at:
 

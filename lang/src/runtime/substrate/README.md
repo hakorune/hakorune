@@ -28,7 +28,9 @@ Current phase reading:
 - The current verifier lock is docs-first, and its physical reservation lives at `verifier/README.md`.
 - The first live verifier box now lives at `verifier/bounds/README.md`.
 - The next algorithm-substrate consumer lock is docs-first, and its physical reservation lives at `raw_array/README.md`.
-- The following algorithm-substrate consumer lock is docs-first, and its physical reservation lives at `raw_map/README.md`.
+- The following algorithm-substrate consumer now has a live observer slice at:
+  - `raw_map/README.md`
+  - `raw_map/raw_map_core_box.hako`
 - The next capability-widening lock is docs-first, and its physical reservations live at `atomic/README.md`, `tls/README.md`, and `gc/README.md`.
 
 Current live capability subset:
@@ -36,6 +38,7 @@ Current live capability subset:
 - `buf` now has a live `len/cap/reserve/grow` facade.
 - `ptr` remains the typed pointer/span facade used by the current array capacity path.
 - `verifier` now has a live `bounds` gate for the RawArray slot path.
+- `raw_map` now has a live `entry_count_i64` observer facade routed from `MapCoreBox.size_i64`.
 
 Native keep stays outside this directory:
 - OS virtual memory

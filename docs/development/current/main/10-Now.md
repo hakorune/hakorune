@@ -89,6 +89,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest13: `RawArrayCoreBox -> BufCoreBox -> PtrCoreBox` now covers `ArrayCoreBox.len/push` and reserve/grow substrate verbs; `mem`/`buf` are now live minimal facades
 - Kernel capability latest14: `BoundsCoreBox.ensure_index_i64` is live; `RawArrayCoreBox.get/set` now gate through `BoundsCoreBox -> PtrCoreBox` before raw pointer access
 - Kernel capability latest15: Rust kernel export surface is split into thin `array.rs` / `map.rs` facades over `array_compat.rs` / `array_runtime_facade.rs` / `array_substrate.rs` and `map_compat.rs` / `map_substrate.rs`
+- Kernel capability latest16: `RawMapCoreBox.entry_count_i64` is live; `MapCoreBox.size_i64` now routes through `raw_map/raw_map_core_box.hako` before `nyash.map.entry_count_h`
 - Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
 - Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`

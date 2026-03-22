@@ -58,10 +58,12 @@ Rule:
 - `map_core_box.hako`
   - `try_handle(seg, regs, mname)`
     -> visible owner for `MapBox.{set,get,has,size/len/length}` orchestration and current handler-side contract
-  - `size_i64(handle)` -> `nyash.map.entry_count_h`
+  - `size_i64(handle)` -> `runtime/substrate/raw_map/raw_map_core_box.hako` -> `nyash.map.entry_count_h`
   - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state
   - `record_set_state(...)` / `get_state_value(...)` / `has_state_value(...)`
     -> MapBox state bookkeeping support for the `.hako` owner
+  - `RawMapCoreBox`
+    -> first live RawMap observer facade for `MapBox.size`
   - paired Rust raw substrate:
     - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
     - `crates/nyash_kernel/src/plugin/map_slot_store.rs`

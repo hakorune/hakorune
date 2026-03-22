@@ -104,6 +104,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       `RawArray`
     - physical staging root now exists at:
       `lang/src/runtime/substrate/raw_map/README.md`
+    - live observer slice now exists at:
+      `lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`
+      and `MapCoreBox.size_i64` routes through `RawMapCoreBox.entry_count_i64`
   - `phase-29ct` C4 GC/TLS/atomic capability widening lock
     - docs-side truth now lives in
       `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`

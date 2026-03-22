@@ -13,6 +13,7 @@ HANDLER_FILE="lang/src/vm/boxes/mir_call_v1_handler.hako"
 ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
+RAW_MAP_CORE_FILE="lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
 BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
 PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
@@ -28,6 +29,7 @@ for file in \
   "$ARRAY_CORE_FILE" \
   "$ARRAY_STATE_CORE_FILE" \
   "$RAW_ARRAY_CORE_FILE" \
+  "$RAW_MAP_CORE_FILE" \
   "$BUF_CORE_FILE" \
   "$PTR_CORE_FILE" \
   "$STRING_CORE_FILE" \
@@ -204,8 +206,20 @@ if ! rg -F -q 'me.len_i64(recv_h)' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing len_i64 dispatch contract" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$MAP_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] map core missing nyash.map.entry_count_h extern route" >&2
+if ! rg -F -q 'using selfhost.runtime.substrate.raw_map.raw_map_core_box as RawMapCoreBox' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing raw_map substrate import" >&2
+  exit 1
+fi
+if ! rg -F -q 'return RawMapCoreBox.entry_count_i64(handle)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing RawMapCoreBox entry_count route" >&2
+  exit 1
+fi
+if ! rg -F -q 'entry_count_i64(handle)' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing entry_count contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.entry_count_h extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)' "$MAP_CORE_FILE"; then

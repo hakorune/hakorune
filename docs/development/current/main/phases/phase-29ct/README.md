@@ -174,6 +174,9 @@ Related:
     - current non-goals for this wave
   - physical staging root now exists at:
     - [`lang/src/runtime/substrate/raw_map/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/README.md)
+  - live observer slice now exists at:
+    - [`lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako)
+    - `MapCoreBox.size_i64` routes through `RawMapCoreBox.entry_count_i64`
   - next active slice is `C4 GC/TLS/atomic capability widening`
 
 - `C4 GC/TLS/atomic capability widening` landed as docs/task lock

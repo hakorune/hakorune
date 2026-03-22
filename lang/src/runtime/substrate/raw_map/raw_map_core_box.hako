@@ -1,0 +1,19 @@
+// RawMapCoreBox — first live algorithm-substrate map observer box above `hako.ptr`.
+// Responsibility:
+// - provide the narrowest runnable RawMap observer route
+// - keep the first map substrate hop below MapCoreBox and above native map substrate
+// Non-responsibility:
+// - visible MapBox semantics owner
+// - allocator/TLS/GC policy
+
+static box RawMapCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  entry_count_i64(handle) {
+    local out = externcall "nyash.map.entry_count_h"(handle)
+    me._trace("[vm/adapter/raw_map:entry_count_i64]")
+    return out
+  }
+}
