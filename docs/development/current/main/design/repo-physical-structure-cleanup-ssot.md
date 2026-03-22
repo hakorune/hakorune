@@ -198,6 +198,11 @@ Next safe slice:
 
 - P5 crate split prep: `src/mir/README.md` / `src/mir/builder/README.md` / `src/mir/passes/README.md`
 
+P5 first packaging slice landed:
+
+- `nyash_mir_core` package with `types.rs` / `value_id.rs`
+- `src/mir/types.rs` / `src/mir/value_id.rs` became thin re-export wrappers
+
 ### P3. `src/mir` navigation-first cleanup
 
 Goal:

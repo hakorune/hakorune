@@ -8,7 +8,7 @@
 use super::super::{Effect, EffectMask, ValueId};
 use crate::mir::instruction::MirInstruction;
 use crate::mir::instruction_kinds as inst_meta;
-use crate::mir::types::{BarrierOp, ConstValue, WeakRefOp};
+use crate::mir::types::{BarrierOp, WeakRefOp};
 
 impl MirInstruction {
     /// Get the effect mask for this instruction
@@ -241,33 +241,4 @@ impl MirInstruction {
             MirInstruction::Await { future, .. } => vec![*future],
         }
     }
-}
-
-impl ConstValue {
-    /*
-    /// Convert to NyashValue
-    pub fn to_nyash_value(&self) -> NyashValue {
-        match self {
-            ConstValue::Integer(n) => NyashValue::new_integer(*n),
-            ConstValue::Float(f) => NyashValue::new_float(*f),
-            ConstValue::Bool(b) => NyashValue::new_bool(*b),
-            ConstValue::String(s) => NyashValue::new_string(s.clone()),
-            ConstValue::Null => NyashValue::new_null(),
-            ConstValue::Void => NyashValue::new_void(),
-        }
-    }
-
-    /// Create from NyashValue
-    pub fn from_nyash_value(value: &NyashValue) -> Option<Self> {
-        match value {
-            NyashValue::Integer(n) => Some(ConstValue::Integer(*n)),
-            NyashValue::Float(f) => Some(ConstValue::Float(*f)),
-            NyashValue::Bool(b) => Some(ConstValue::Bool(*b)),
-            NyashValue::String(s) => Some(ConstValue::String(s.clone())),
-            NyashValue::Null => Some(ConstValue::Null),
-            NyashValue::Void => Some(ConstValue::Void),
-            _ => None, // Collections and Boxes can't be constants
-        }
-    }
-    */
 }

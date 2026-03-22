@@ -97,6 +97,10 @@ P5 docs-first seed:
 
 - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
 
+P5 first packaging slice landed:
+
+- `crates/nyash_mir_core/` with `types.rs` / `value_id.rs`
+
 ## Pressure Summary
 
 Local snapshot on 2026-03-22:

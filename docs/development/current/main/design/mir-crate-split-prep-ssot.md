@@ -10,6 +10,12 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - 先に public surface と rejected boundaries を書き、crate split を機械的な packaging step にする。
 - navigation cost を下げて、将来の split の review surface を小さくする。
 
+## Landed First Packaging Slice
+
+- `nyash_mir_core` package: `types.rs` / `value_id.rs`
+- `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
+- `src/mir` full split is still not done
+
 ## What We Found
 
 `src/mir` は現状、以下の責務を持つ:
