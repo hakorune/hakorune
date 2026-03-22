@@ -138,6 +138,7 @@ Hotspot は次の分類で読む。
 - rejected probes (reverted immediately):
   - dedicated i64 write helper: `47 ms`
   - `try_set_index_i64_integer` cold-split: `48 ms`
+  - `with_array_box` cache-hit inline probe: `46 ms`; asm top stayed on `array_slot_store_i64` closure + `LocalKey::with`
 - fresh microasm now concentrates on `array_slot_store_i64` closure + `LocalKey::with`, so the next cut must be measurement-led rather than another blind helper split
 - micro profile で見えている `std::env::_var_os` は、まず bridge 側の per-call probe を疑う
 - `substring_concat` の current exact leaf は kernel/runtime owner に固定する

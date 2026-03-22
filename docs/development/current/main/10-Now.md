@@ -207,6 +207,10 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `nyash.array.set_hih` stays the i64-key + handle/any-value fallback
     - no `slot_store_hih` alias is added in this slice
     - `P1` perf reopen is allowed again from the write/TLS seam
+  - fresh `P1` probe rejected:
+    - `with_array_box` cache-hit inline path stayed at `46 ms`
+    - asm top remained `array_slot_store_i64` closure + `LocalKey::with`
+    - next cut stays measurement-led; no write-side code slice is accepted yet
   - build-freshness note:
     - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める

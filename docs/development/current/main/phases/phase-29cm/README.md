@@ -118,6 +118,7 @@ Related:
 - immediate rejected probes (reverted):
   - dedicated i64 write helper (`43 -> 47 ms`)
   - `ArrayBox::try_set_index_i64_integer()` cold-split (`43 -> 48 ms`)
+  - `with_array_box` cache-hit inline probe (fresh recheck stayed at `46 ms`; asm top remained `array_slot_store_i64` closure + `LocalKey::with`)
 - `B1a` landed: the daily `.hako` array observer path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only.
 - `B1b` landed: the daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only.
 - `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only.
