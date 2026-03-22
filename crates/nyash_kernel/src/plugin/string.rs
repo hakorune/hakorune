@@ -194,15 +194,15 @@ mod tests {
 
     #[test]
     fn concat_ss_keeps_ascii_contract() {
-        let a = c"line-".as_ptr();
-        let b = c"seed".as_ptr();
+        let a = b"line-\0".as_ptr() as *const i8;
+        let b = b"seed\0".as_ptr() as *const i8;
         let out = nyash_string_concat_ss(a, b);
         assert_eq!(to_string(out), "line-seed");
     }
 
     #[test]
     fn substring_sii_keeps_byte_slice_contract() {
-        let src = c"line-seed-abcdef".as_ptr();
+        let src = b"line-seed-abcdef\0".as_ptr() as *const i8;
         let out = nyash_string_substring_sii(src, 5, 9);
         assert_eq!(to_string(out), "seed");
     }
