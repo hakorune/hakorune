@@ -1,11 +1,13 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-18
+Date: 2026-03-23
 Scope: `hakorune` の独り立ちを「repo から Rust を即 delete すること」ではなく、kernel meaning/policy の owner を `.hako` 側へ移すこととして固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
+  - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
@@ -60,6 +62,11 @@ Related:
 
 - The preferred final shape is not "delete every native line immediately".
 - The preferred final shape is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to the minimum required for bootstrap, ABI/transport, raw leaf memory, handle registry, GC hooks, and LLVM backend emission.
+- The next step after the current collection stop-line is a capability ladder:
+  - `.hako semantic owner`
+  - `.hako algorithm substrate`
+  - capability substrate (`hako.abi`, `hako.value_repr`, `hako.mem`, `hako.buf`, `hako.ptr`, `hako.atomic`, `hako.tls`, `hako.gc`, `hako.osvm`)
+  - native metal keep
 - If a concern can be expressed as policy, route, or control structure, prefer `.hako`.
 - Keep LLVM as the primary backend substrate unless a separate SSOT says otherwise.
 
@@ -166,6 +173,9 @@ string kernel について言い換えると、`.hako` が algorithm/control own
    - Rust は substrate / compat keep に降格する
 5. `substrate reconsideration`
    - perf / portability / ABI cost を見て、Rust substrate をさらに削るか再判定する
+6. `capability ladder widening`
+   - lock `value_repr` / ABI manifest before deeper raw substrate work
+   - widen `.hako` only through capability modules, not unrestricted native escape hatches
 
 ## 6. Active Trigger
 

@@ -1,7 +1,7 @@
 ---
 Status: Active
 Decision: provisional
-Date: 2026-03-20
+Date: 2026-03-23
 Scope: `kernel-mainline`（`.hako` kernel）authority migration の fixed order と collection owner growth rule を 1 枚で固定する（中途半端な境界いじりを止める）。
 Related:
   - CURRENT_TASK.md
@@ -9,6 +9,9 @@ Related:
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
+  - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
@@ -38,7 +41,7 @@ Related:
 
 - Rust substrate の wholesale delete はしない（authority migration と混ぜない）。
 - Rust ベースの buildability を壊す slice は、この phase の mainline に入れない。
-- raw substrate の perf/asm optimization を主線にしない（collection owner cutover 完了後の follow-up）。
+- raw substrate の perf/asm optimization を主線にしない（collection owner cutover stop-line の次は capability ladder docs/task lock）。
 - silent fallback を許可しない（`NYASH_VM_USE_FALLBACK=0` を前提）。
 - `runtime_data` を collection owner に育てない（protocol / facade に固定）。
 
@@ -112,7 +115,7 @@ Related:
 - collection owner shift is done-enough for this phase, not end-state complete.
 - `.hako` ring1 owns visible collection semantics, while Rust still owns the raw substrate/plugin ABI path.
 - `array -> map -> runtime_data cleanup` is parked unless a new exact collection blocker appears; `string` is parked at stop line and `numeric` is parked as a narrow pilot.
-- raw substrate perf reopen (`P1`) is parked again until the boundary is deeper.
+- raw substrate perf reopen (`P1`) is parked behind the capability ladder / ABI-value manifest lock.
 - do not read the green acceptance set as “kernel migration finished”; it only proves the current owner frontier is stable enough to move to `B1`.
 - the last accepted `P1` keep is the `array` read-seam slice at `ny_aot_ms=43`.
 - immediate rejected probes (reverted):
@@ -124,6 +127,10 @@ Related:
 - `B1k` landed: adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`, while `nyash.array.push_h` remains compat-only.
 - `B1m` landed: adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`, while `nyash.array.get_h` remains compat-only.
 - `B1l` landed: adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`, while `nyash.map.{get_h,set_h,has_h}` remain compat-only.
+- post-stop-line next lane is `phase-29ct`:
+  - `substrate-capability-ladder-ssot.md`
+  - `value-repr-and-abi-manifest-ssot.md`
+  - capability docs/task lock lands before deeper `RawArray` / `RawMap` or allocator policy work
 - `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only.
 - `B1d1` landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`, and compat append routes no longer call the visible `push()` method below the raw name.
 - `B1d2` landed: `nyash.array.slot_store_hii` and runtime-data array set now execute through `ArrayBox.slot_store_*_raw(...)`, while preserving the current append-at-end/rebox behavior.
@@ -258,7 +265,7 @@ Move to `.hako`:
   - `array`, `map`, and `runtime_data` are done-enough for this phase
   - this is not the same as end-state completion
   - reopen only on a new exact collection blocker or boundary-deepen slice
-  - next fixed order is `B1: deeper collection boundary before perf`
+  - next fixed order is `phase-29ct: substrate capability ladder docs/task lock`
 
 ## Backend-Zero Handoff
 

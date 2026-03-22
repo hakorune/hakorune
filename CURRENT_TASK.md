@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-22
+Date: 2026-03-23
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -9,6 +9,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - root から最短で current blocker / next fixed order に到達する。
 - 本ファイルは薄い入口に保ち、長文履歴は archive に逃がす。
 - naming cleanup lane の単一正本は `docs/development/current/main/phases/phase-29cs/README.md`。
+- substrate capability ladder lane の単一正本は `docs/development/current/main/phases/phase-29ct/README.md`。
 - current-task history archive の単一正本は `docs/development/current/main/investigations/current_task_archive_2026-03-22.md`。
 
 ## Quick Restart Pointer
@@ -20,14 +21,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
+- `phase-29ct` substrate capability ladder docs/taskization is active
 - `phase-29cm` collection owner cutover is done-enough stop line
-- `phase-21_5` raw substrate perf reopen is active
+- `phase-21_5` raw substrate perf reopen is parked until capability ladder + ABI/value manifest lock land
 - `phase-29cs` kernel / plugin naming cleanup is parked
-- current perf exact leaf:
-  - `kilo_micro_array_getset`
-  - write/TLS seam: `array_slot_store_i64` / `handle_cache::with_array_box` / `ArrayBox::try_set_index_i64_integer`
-  - latest micro recheck: `ny_aot_ms=44`
-  - latest stable recheck: `kilo_kernel_small_hk` median `740 ms` (`min=738`, `max=744`)
+- current docs exact leaf:
+  - `substrate-capability-ladder-ssot.md`
+  - `value-repr-and-abi-manifest-ssot.md`
+  - `phase-29ct/README.md`
 - landed slice:
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
@@ -114,17 +115,20 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
-  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
-  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
-  - `tools/perf/bench_micro_c_vs_aot_stat.sh`
-  - `tools/perf/bench_micro_aot_asm.sh`
-  - `tools/perf/bench_compare_c_py_vs_hako_stable.sh`
-  - `tools/perf/bench_compare_c_py_vs_hako.sh`
-  - `tools/perf/run_kilo_micro_machine_ladder.sh`
-  - `tools/perf/run_kilo_hk_bench.sh`
+  - `docs/development/current/main/phases/phase-29ct/README.md`
+  - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
+  - `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
+  - `docs/development/current/main/phases/phase-29cm/README.md`
+  - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
+  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+  - `lang/src/vm/boxes/abi_adapter_registry.hako`
+  - `crates/nyash_kernel/src/plugin/array.rs`
+  - `crates/nyash_kernel/src/plugin/map.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data.rs`
+  - `crates/nyash_kernel/src/plugin/value_codec/mod.rs`
+  - `crates/nyash_kernel/src/plugin/value_codec/decode.rs`
+  - `crates/nyash_kernel/src/plugin/value_codec/encode.rs`
   - `crates/nyash_kernel/src/plugin/handle_cache.rs`
-  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-  - `src/boxes/array/mod.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -139,11 +143,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - `phase-29cm`: collection owner cutover = done-enough stop line
 - `phase-29y`: runtime `.hako` migration / boxcall contract = parked strict-polish
-- `phase-21_5`: raw substrate perf = active reopen after boundary deepening
+- `phase-21_5`: raw substrate perf = parked behind capability ladder docs/task lock
 - `phase-29cr`: repo physical cleanup lane = stop-line reached
 - `phase-29cs`: kernel / plugin naming cleanup = parked
+- `phase-29ct`: substrate capability ladder = active docs/task lane
 
-## P5 / P6 / Perf Stop-Line
+## P5 / P6 / Perf / Capability Stop-Line
 
 1. `scope_context.rs`: parked until the `MirFunction` / lexical-scope seam is split explicitly
 2. `compilation_context.rs`: parked (mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
@@ -151,7 +156,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 4. `passes/` whole-subtree packaging: parked docs-first only
 5. remaining `hakorune-mir-*` naming polish: optional, low-value
 6. cleanup lane can park after the naming cleanup phase lands
-7. perf reopen is the next active lane once the collection owner stop line is confirmed
+7. capability ladder docs/task lock comes before deeper substrate or allocator migration
+8. perf reopen stays parked until capability ladder + ABI/value manifest lock land
 
 ## Archive
 

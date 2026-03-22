@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-14
+Date: 2026-03-23
 Scope: main ラインの「現在地」と「実行入口」だけを置く薄いインデックス。
 Related:
   - CURRENT_TASK.md
@@ -86,6 +86,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
 - Repo cleanup lane: `phase-29cs` parked（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` finished the kernel/plugin naming cleanup batch; active next is `phase-21_5` raw substrate perf reopen after the collection owner stop line）
+- Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
@@ -148,7 +149,10 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Perf lane（phase-21.5）:
   - axis lock: `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
   - collection owner shift is done-enough, but not end-state complete
-  - raw substrate perf is parked again until the boundary is deeper than the remaining method-shaped Rust exports used by `.hako`
+  - raw substrate perf is parked behind `phase-29ct` capability ladder lock
+  - first active docs:
+    - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
+    - `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
   - latest closeout evidence (2026-03-01, head=`68ea40af29`):
     - `tools/checks/dev_gate.sh runtime-exec-zero` green
     - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
@@ -190,7 +194,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
   - worker boundary decision:
     - those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
-  - next active perf seam after boundary closeout:
+  - next active perf seam after capability lock:
     - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
     - `crates/nyash_kernel/src/plugin/handle_cache.rs`
     - `src/boxes/array/mod.rs`

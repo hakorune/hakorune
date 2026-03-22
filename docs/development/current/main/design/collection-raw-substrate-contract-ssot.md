@@ -1,13 +1,16 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-21
+Date: 2026-03-23
 Scope: `ArrayBox` / `MapBox` の `.hako` ring1 owner と Rust raw substrate の境界を固定し、collection owner cutover の first implementation order を 1 枚で読む。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29cm/README.md
+  - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
+  - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - lang/src/runtime/collections/README.md
   - lang/src/runtime/collections/array_core_box.hako
   - lang/src/runtime/collections/array_state_core_box.hako
@@ -50,6 +53,8 @@ Related:
 - `.hako` ring1 collection core is the visible owner frontier for collection semantics
 - Rust still owns the raw substrate and compatibility/plugin ABI path beneath that frontier
 - do not describe this phase as finished while method-shaped Rust exports still remain in the daily `.hako` path
+- next lane after the collection stop-line is capability widening, not blind raw helper growth
+- `phase-29ct` owns that next lane
 
 ## 2. Litmus Test
 
@@ -235,6 +240,17 @@ Current second slice:
 - landed map hidden-residue slice:
   - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
   - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
+
+## 4.6 Post-Stop-Line Next Lane
+
+- after the current collection stop-line, the next fixed order is:
+  - `substrate-capability-ladder-ssot.md`
+  - `value-repr-and-abi-manifest-ssot.md`
+- the next work is:
+  - manifest-first export inventory
+  - canonical runtime value classes
+  - future `hako.mem` / `hako.ptr` / `hako.buf` module lock
+- do not treat `array_slot_*` / `map_slot_*` growth alone as sufficient for allocator/Hakozuna migration
 - kernel-side review result:
   - the new `MapBox` raw key-string helpers are acceptable as the raw seam for this slice
 - landed runtime-data map hidden-residue slice:
