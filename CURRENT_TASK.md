@@ -26,6 +26,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
+  - compat/pure map retarget: `AbiAdapterRegistryBox` default `MapBox.get/set/has`
+    and historical pure `MapBox.{get,set,has}` lowering now use
+    `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`;
+    `nyash.map.{get_h,set_h,has_h}` remain compat-only
   - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
   - `hakorune_mir_core` package: `effect.rs`
   - `hakorune_mir_core` package: `basic_block_id.rs` / `binding_id.rs`

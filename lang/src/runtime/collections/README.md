@@ -96,6 +96,7 @@ Rule:
   - landed: `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
   - landed: daily map observer route now uses `nyash.map.entry_count_h`
   - `nyash.map.size_h` is compat-only
+  - landed: adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
   - landed: `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
   - worker inventory: those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
   - landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams

@@ -122,6 +122,7 @@ Related:
 - `B1a` landed: the daily `.hako` array observer path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only.
 - `B1b` landed: the daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only.
 - `B1k` landed: adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`, while `nyash.array.push_h` remains compat-only.
+- `B1l` landed: adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`, while `nyash.map.{get_h,set_h,has_h}` remain compat-only.
 - `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only.
 - `B1d1` landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`, and compat append routes no longer call the visible `push()` method below the raw name.
 - `B1d2` landed: `nyash.array.slot_store_hii` and runtime-data array set now execute through `ArrayBox.slot_store_*_raw(...)`, while preserving the current append-at-end/rebox behavior.
@@ -214,6 +215,7 @@ Move to `.hako`:
    - `B1a`: landed; daily `.hako` array observer path now uses `nyash.array.slot_len_h`
    - `B1b`: landed; daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`
    - `B1k`: landed; adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`
+   - `B1l`: landed; adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
    - `B1c`: landed; daily `.hako` map observer path now uses `nyash.map.entry_count_h`
    - `B1d`: deepen hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
    - `B1e`: landed; map raw helpers now call `MapBox` key-string/raw observer helpers instead of visible `get_opt/set/has/size`

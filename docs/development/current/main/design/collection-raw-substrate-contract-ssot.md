@@ -220,6 +220,9 @@ Current second slice:
 - landed map observer demotion:
   - daily `.hako` map observer path now uses `nyash.map.entry_count_h`
   - `nyash.map.size_h` remains compatibility-only
+- landed compat/pure map retarget:
+  - adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
+  - `nyash.map.{get_h,set_h,has_h}` remain compatibility-only
 - landed append hidden-residue slice:
   - `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
   - compat append routes share the same raw append helper instead of visible `push()`
@@ -252,14 +255,17 @@ Current second slice:
 4. `B1k / compat-append-retarget`
    - landed: remove `nyash.array.push_h` from adapter defaults and historical pure `ArrayBox.push -> len` lowering
    - adapter/pure route now target `nyash.array.slot_append_hh`
-5. `B1d / array-write-hidden-residue`
+5. `B1l / compat-map-retarget`
+   - landed: remove `nyash.map.{get_h,set_h,has_h}` from adapter defaults and historical pure `MapBox.{get,set,has}` lowering
+   - adapter/pure route now target `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
+6. `B1d / array-write-hidden-residue`
    - first slice landed: append now goes through `ArrayBox.slot_append_box_raw(...)`
    - second slice landed: store now goes through `ArrayBox.slot_store_*_raw(...)`
    - remaining work is semantic, not method-shaped API leakage
-6. `B1e / map-hidden-residue`
+7. `B1e / map-hidden-residue`
    - landed: move visible `get_opt/set/has/size`-shaped semantics out from under `nyash.map.slot_* / probe_*`
    - inventory result: `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}` is acceptable as the kernel-side raw boundary for this slice
-7. `B1f / aot-prep-lowering-residue`
+8. `B1f / aot-prep-lowering-residue`
    - landed: retarget active `collections_hot.hako` rewrites away from method-shaped collection exports where the raw seam already exists
    - landed set:
      - `ArrayBox.get -> nyash.array.slot_load_hi`
@@ -268,7 +274,7 @@ Current second slice:
    - keep `ArrayBox.set` on the current route until a raw non-i64-safe write seam is explicitly accepted
    - contract pin:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
-8. `B1g / llvm-py-lowering-residue`
+9. `B1g / llvm-py-lowering-residue`
    - landed: retarget active llvm-py collection lowering away from method-shaped collection exports where the raw seam already exists
    - landed set:
      - shared collection fallback now uses `nyash.array.slot_append_hh` and `nyash.map.slot_load_hh / slot_store_hhh / probe_hh`
@@ -280,7 +286,7 @@ Current second slice:
      - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
      - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
-9. `B1h / runtime-data-map-hidden-residue`
+10. `B1h / runtime-data-map-hidden-residue`
    - landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
    - contract pins:
      - `cargo test -q -p nyash_kernel runtime_data_invalid_handle_returns_zero --lib`

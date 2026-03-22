@@ -179,6 +179,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - landed map observer demotion:
     - daily `.hako` map observer route now uses `nyash.map.entry_count_h`
     - `nyash.map.size_h` is compat-only
+  - landed compat/pure map retarget:
+    - adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
+    - `nyash.map.{get_h,set_h,has_h}` are compat-only
   - landed map hidden-residue slice:
     - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
     - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`

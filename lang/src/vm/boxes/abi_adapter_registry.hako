@@ -31,9 +31,9 @@ static box AbiAdapterRegistryBox {
     me._inited = true
     // MapBox
     me._put("MapBox", "birth",   "nyash.map.birth_h", "h", "none")
-    me._put("MapBox", "set",     "nyash.map.set_h",   "h", "none")
-    me._put("MapBox", "get",     "nyash.map.get_h",   "h", "integer")  // returns handle -> needs integer unbox when value required
-    me._put("MapBox", "has",     "nyash.map.has_h",   "h", "none")
+    me._put("MapBox", "set",     "nyash.map.slot_store_hhh",   "h", "none")
+    me._put("MapBox", "get",     "nyash.map.slot_load_hh",   "h", "integer")  // returns handle -> needs integer unbox when value required
+    me._put("MapBox", "has",     "nyash.map.probe_hh",   "h", "none")
     me._put("MapBox", "size",    "nyash.map.entry_count_h",  "h", "none")
     me._put("MapBox", "len",     "nyash.map.entry_count_h",  "h", "none")
     // ArrayBox

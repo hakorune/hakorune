@@ -66,6 +66,18 @@ if ! rg -F -q 'me._put("ArrayBox", "push",   "nyash.array.slot_append_hh"' "$REG
   echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.push raw append mapping" >&2
   exit 1
 fi
+if ! rg -F -q 'me._put("MapBox", "set",     "nyash.map.slot_store_hhh"' "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing MapBox.set raw store mapping" >&2
+  exit 1
+fi
+if ! rg -F -q 'me._put("MapBox", "get",     "nyash.map.slot_load_hh"' "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing MapBox.get raw load mapping" >&2
+  exit 1
+fi
+if ! rg -F -q 'me._put("MapBox", "has",     "nyash.map.probe_hh"' "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing MapBox.has raw probe mapping" >&2
+  exit 1
+fi
 if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing StringCoreBox orchestration route" >&2
   exit 1

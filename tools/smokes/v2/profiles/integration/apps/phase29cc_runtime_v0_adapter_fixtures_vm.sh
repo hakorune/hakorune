@@ -147,6 +147,18 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: MapBox.size adapter registry contract missing"
     exit 1
   fi
+  if ! rg -F -q 'me._put("MapBox", "set",     "nyash.map.slot_store_hhh"' "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: MapBox.set adapter registry raw store contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'me._put("MapBox", "get",     "nyash.map.slot_load_hh"' "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: MapBox.get adapter registry raw load contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'me._put("MapBox", "has",     "nyash.map.probe_hh"' "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: MapBox.has adapter registry raw probe contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler map orchestration contract missing"
     exit 1
