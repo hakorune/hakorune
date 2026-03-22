@@ -110,12 +110,28 @@ if ! rg -F -q 'return RawArrayCoreBox.slot_store_i64(handle, idx, value)' "$ARRA
   echo "[runtime-v0-abi-slice-guard] array core missing RawArrayCoreBox store route" >&2
   exit 1
 fi
+if ! rg -F -q 'return RawArrayCoreBox.slot_len_i64(handle)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing RawArrayCoreBox len route" >&2
+  exit 1
+fi
+if ! rg -F -q 'return RawArrayCoreBox.slot_append_any(handle, value_any)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing RawArrayCoreBox append route" >&2
+  exit 1
+fi
 if ! rg -F -q 'PtrCoreBox.slot_load_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr load route" >&2
   exit 1
 fi
 if ! rg -F -q 'PtrCoreBox.slot_store_i64(handle, idx, value)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr store route" >&2
+  exit 1
+fi
+if ! rg -F -q 'PtrCoreBox.slot_len_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing ptr len route" >&2
+  exit 1
+fi
+if ! rg -F -q 'PtrCoreBox.slot_append_any(handle, value_any)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing ptr append route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.array.slot_load_hi"' "$PTR_CORE_FILE"; then
@@ -126,12 +142,12 @@ if ! rg -F -q 'externcall "nyash.array.slot_store_hii"' "$PTR_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] ptr core missing nyash.array.slot_store_hii extern route" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.array.slot_append_hh"' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_append_hh extern route" >&2
+if ! rg -F -q 'externcall "nyash.array.slot_len_h"' "$PTR_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ptr core missing nyash.array.slot_len_h extern route" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.array.slot_len_h"' "$ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] array core missing nyash.array.slot_len_h extern route" >&2
+if ! rg -F -q 'externcall "nyash.array.slot_append_hh"' "$PTR_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] ptr core missing nyash.array.slot_append_hh extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_STATE_CORE_FILE"; then
@@ -156,6 +172,10 @@ if ! rg -F -q 'me.set_i64(recv_h, idx_i64, val_i64)' "$ARRAY_CORE_FILE"; then
 fi
 if ! rg -F -q 'me.get_i64(recv_h, idx_i64)' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing get_i64 dispatch contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'me.push_hh(recv_h, val_any)' "$ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] array core missing push_hh dispatch contract" >&2
   exit 1
 fi
 if ! rg -F -q 'me.len_i64(recv_h)' "$ARRAY_CORE_FILE"; then

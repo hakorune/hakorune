@@ -2,7 +2,7 @@
 # phase29cc_runtime_v0_adapter_fixtures_vm.sh
 # Contract lock (Step-3 adapter fixtures):
 # - array_set_i64 / array_get_i64 semantics under adapter ON
-# - raw array probe path exists below ArrayCoreBox get/set
+# - raw array probe path exists below ArrayCoreBox get/set/len/push
 # - strict mode freeze contract exists in handler source
 # - string_len adapter route contract exists in source (registry + handler + core box)
 # - map_size_i64 adapter route contract exists in source (registry + handler + core box)
@@ -96,12 +96,12 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: ArrayBox.set adapter registry fallback contract missing"
     exit 1
   fi
-  if ! rg -F -q 'externcall "nyash.array.slot_len_h"' "$ARRAY_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: array core len extern route contract missing"
+  if ! rg -F -q 'return RawArrayCoreBox.slot_len_i64(handle)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core raw-array len route contract missing"
     exit 1
   fi
-  if ! rg -F -q 'externcall "nyash.array.slot_append_hh"' "$ARRAY_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: array core push extern route contract missing"
+  if ! rg -F -q 'return RawArrayCoreBox.slot_append_any(handle, value_any)' "$ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: array core raw-array append route contract missing"
     exit 1
   fi
   if ! rg -F -q 'try_handle(seg, regs, mname)' "$ARRAY_CORE_FILE"; then
@@ -136,12 +136,28 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw array ptr load hop contract missing"
     exit 1
   fi
+  if ! rg -F -q 'PtrCoreBox.slot_len_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ptr len hop contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'PtrCoreBox.slot_append_any(handle, value_any)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ptr append hop contract missing"
+    exit 1
+  fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_store_i64]' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array store trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_load_i64]' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array load trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_len_i64]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array len trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_append_any]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array append trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'reserved()' "$MEM_CORE_FILE"; then
@@ -368,4 +384,4 @@ check_array_strict_contract
 run_string_behavior_smoke
 run_map_behavior_smoke
 
-test_pass "$SMOKE_NAME: PASS (array_get_i64/array_set_i64 + string_len/map_entry_count_i64 adapter route locked)"
+test_pass "$SMOKE_NAME: PASS (array_get/set/len/push + string_len/map_entry_count_i64 adapter route locked)"

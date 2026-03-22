@@ -192,6 +192,12 @@ Related:
   - `RawArrayCoreBox` now owns the first runnable algorithm-substrate probe path
   - `ArrayCoreBox.get_i64/set_i64` now delegate through `RawArrayCoreBox`
 
+- `I2 RawArray len/append widening` landed
+  - `PtrCoreBox` now also owns `slot_len_i64` / `slot_append_any`
+  - `RawArrayCoreBox` now widens the runnable probe path to `get/set/len/push`
+  - `ArrayCoreBox.len_i64/push_hh` now delegate through `RawArrayCoreBox`
+  - `MemCoreBox` / `BufCoreBox` remain skeleton-only in this slice
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table

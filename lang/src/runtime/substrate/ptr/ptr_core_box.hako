@@ -1,6 +1,6 @@
 // PtrCoreBox — first live `hako.ptr` capability stub for phase-29ct.
 // Responsibility:
-// - expose the narrowest typed load/store vocabulary needed by the RawArray probe path
+// - expose the narrowest typed array substrate vocabulary needed by the RawArray probe path
 // - keep direct ABI symbol knowledge out of owner boxes
 // Non-responsibility:
 // - unrestricted pointer arithmetic
@@ -14,5 +14,13 @@ static box PtrCoreBox {
 
   slot_store_i64(handle, idx, value) {
     return externcall "nyash.array.slot_store_hii"(handle, idx, value)
+  }
+
+  slot_len_i64(handle) {
+    return externcall "nyash.array.slot_len_h"(handle)
+  }
+
+  slot_append_any(handle, value_any) {
+    return externcall "nyash.array.slot_append_hh"(handle, value_any)
   }
 }

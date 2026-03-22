@@ -26,7 +26,7 @@ Related:
 
 - `RawArray` は semantic owner ではない。
 - `RawArray` は capability substrate を使う algorithm substrate である。
-- current phase では docs-first only とし、まだ `.hako` 実装本体は作らない。
+- current phase では narrow implementation slices を許可するが、owner cutover は行わない。
 
 ## Fixed Dependencies
 
@@ -75,11 +75,13 @@ This phase places README/docs only.
 ## Current First Probe Path
 
 - current first live probe path is:
-  - `ArrayCoreBox.get_i64/set_i64`
-  - `RawArrayCoreBox.slot_load_i64/slot_store_i64`
-  - `PtrCoreBox.slot_load_i64/slot_store_i64`
-  - existing native `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii`
-- `len` / `push` stay on the current route in this slice
+  - `ArrayCoreBox.get_i64/set_i64/len_i64/push_hh`
+  - `RawArrayCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
+  - `PtrCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
+  - existing native
+    `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` /
+    `nyash.array.slot_len_h` / `nyash.array.slot_append_hh`
+- `reserve` / `grow` stay out of scope in this slice
 
 ## Non-Goals
 

@@ -86,6 +86,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
 - Repo cleanup lane: `phase-29cs` parked（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` finished the kernel/plugin naming cleanup batch; active next is `phase-21_5` raw substrate perf reopen after the collection owner stop line）
+- Kernel capability latest12: `RawArrayCoreBox -> PtrCoreBox` now covers `ArrayCoreBox.get/set/len/push`; `mem/buf` remain skeleton-only
 - Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
 - Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`

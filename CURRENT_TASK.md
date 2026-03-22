@@ -118,6 +118,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako` now owns the first
       runnable algorithm-substrate probe path
     - `ArrayCoreBox.get_i64/set_i64` now route through `RawArrayCoreBox`
+  - `phase-29ct` I2 RawArray len/append widening
+    - `lang/src/runtime/substrate/ptr/ptr_core_box.hako` now also owns
+      `slot_len_i64` / `slot_append_any`
+    - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako` now widens the
+      runnable substrate path to `get/set/len/push`
+    - `ArrayCoreBox.len_i64/push_hh` now route through `RawArrayCoreBox`
+    - `MemCoreBox` / `BufCoreBox` stay skeleton-only
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only

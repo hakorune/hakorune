@@ -71,11 +71,11 @@ static box ArrayCoreBox {
   }
 
   len_i64(handle) {
-    return externcall "nyash.array.slot_len_h"(handle)
+    return RawArrayCoreBox.slot_len_i64(handle)
   }
 
   push_hh(handle, value_any) {
-    return externcall "nyash.array.slot_append_hh"(handle, value_any)
+    return RawArrayCoreBox.slot_append_any(handle, value_any)
   }
 
   _size_state_per_recv() {
