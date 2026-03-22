@@ -8,10 +8,9 @@ use super::{
     BasicBlock, BasicBlockId, CompareOp, ConstValue, Effect, EffectMask, FunctionSignature,
     MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
-use hakorune_mir_builder::CoreContext;
+use hakorune_mir_builder::{BindingContext, CoreContext};
 pub(crate) use builder_calls::CallTarget;
 use std::collections::HashMap;
-mod binding_context; // Phase 136 follow-up (Step 4/7): BindingContext extraction
 mod builder_build;
 mod builder_calls;
 mod builder_debug;
@@ -146,7 +145,7 @@ pub struct MirBuilder {
     /// Phase 136 follow-up (Step 4/7): Binding context
     /// Consolidates binding_map (String -> BindingId mapping).
     /// Direct field access for backward compatibility (migration in progress).
-    pub(super) binding_ctx: binding_context::BindingContext,
+    pub(super) binding_ctx: BindingContext,
 
     /// Phase 136 follow-up (Step 5/7): Variable context
     /// Consolidates variable_map (String -> ValueId mapping for SSA conversion).

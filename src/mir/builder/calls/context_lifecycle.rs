@@ -38,7 +38,7 @@ pub(super) struct LoweringContext {
 
     // Function lowering is re-entrant (nested method lowering while building another function).
     // Preserve the caller function's per-function state so lexical scopes and SSA caches stay balanced.
-    pub(super) saved_binding_ctx: super::super::binding_context::BindingContext,
+    pub(super) saved_binding_ctx: hakorune_mir_builder::BindingContext,
     pub(super) saved_scope_stacks: ScopeStacksSnapshot,
     pub(super) saved_pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) saved_local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,

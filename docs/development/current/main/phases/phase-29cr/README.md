@@ -114,6 +114,7 @@ P5 substrate ID slice landed:
 - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
 - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
 - `crates/hakorune_mir_builder/` gained `core_context.rs` / `context.rs`
+- `crates/hakorune_mir_builder/` gained `binding_context.rs`
 
 P6 naming cleanup:
 
@@ -122,6 +123,7 @@ P6 naming cleanup:
 - subtree READMEs for `builder/`, `join_ir/`, and `passes/` also use `hakorune-mir-*` future names
 - `hakorune_mir_core` now also owns the basic block / binding ID substrate
 - `hakorune_mir_builder` now also owns the first package slice (`core_context.rs` / `context.rs`)
+- `hakorune_mir_builder` now also owns `binding_context.rs`
 - remaining README cleanup landed for:
   - `src/mir/contracts/README.md`
   - `src/mir/control_tree/README.md`

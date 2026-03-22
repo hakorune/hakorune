@@ -18,7 +18,7 @@
 //! Phase 74: BindingId system introduction
 //! Phase 136 Step 4/7: Extraction into dedicated context
 
-use crate::mir::BindingId;
+use hakorune_mir_core::BindingId;
 use std::collections::BTreeMap;
 
 /// Phase 136 Step 4/7: Binding context for variable binding management
@@ -72,7 +72,7 @@ impl BindingContext {
         self.binding_map.remove(name)
     }
 
-    pub(super) fn clear_for_function_entry(&mut self) {
+    pub fn clear_for_function_entry(&mut self) {
         self.binding_map.clear();
     }
 }
