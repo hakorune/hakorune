@@ -145,6 +145,25 @@ Rule:
 - facade/re-export first
 - physical move second
 
+Landed first slice:
+
+- `box_arithmetic.rs` -> inline facade
+- `box_operators.rs` -> `src/boxes/operators/`
+- `runner_plugin_init.rs` -> `src/runner/plugin_init.rs`
+
+Next safe slice:
+
+- `box_trait.rs`
+- `method_box.rs`
+- `type_box.rs`
+- `value.rs`
+- `environment.rs`
+- `instance_v2.rs`
+- `channel_box.rs`
+- `exception_box.rs`
+- `finalization.rs`
+- `scope_tracker.rs`
+
 ### P3. `src/mir` navigation-first cleanup
 
 Goal:

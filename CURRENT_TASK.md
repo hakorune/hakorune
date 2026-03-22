@@ -20,12 +20,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29cr` P1: `CURRENT_TASK.md` slim + archive policy
+- `phase-29cr` P2: `src/` top-level cleanup
+- landed slice:
+  - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
+  - `box_operators.rs` -> `src/boxes/operators/`
+  - `runner_plugin_init.rs` -> `src/runner/plugin_init.rs`
 - next exact files:
-  - `CURRENT_TASK.md`
-  - `docs/development/current/main/phases/phase-29cr/README.md`
-  - `docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md`
-  - `docs/development/current/main/10-Now.md`
+  - `src/box_trait.rs`
+  - `src/method_box.rs`
+  - `src/type_box.rs`
+  - `src/value.rs`
+  - `src/environment.rs`
+  - `src/instance_v2.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -41,7 +47,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cm`: collection owner cutover = done-enough stop line
 - `phase-29y`: runtime `.hako` migration / boxcall contract = parked strict-polish
 - `phase-21_5`: raw substrate perf = parked until boundary deepens
-- `phase-29cr`: repo physical cleanup lane = active until P1 lands
+- `phase-29cr`: repo physical cleanup lane = active until P2 lands
 
 ## Archive
 

@@ -14,7 +14,7 @@
 
 use crate::box_trait::NyashBox;
 
-// Forward declaration - traits defined in this module are implemented in box_operators
+// Forward declaration - traits defined in this module are implemented in boxes/operators
 // We need to ensure trait implementations are loaded when this module is used
 
 // ===== Core Operator Traits =====
@@ -152,5 +152,5 @@ impl std::fmt::Display for OperatorError {
 
 impl std::error::Error for OperatorError {}
 
-// Note: OperatorResolver is now defined in box_operators.rs
+// Note: OperatorResolver is now defined in boxes/operators/mod.rs
 // Import it directly from there if needed

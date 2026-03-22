@@ -11,9 +11,15 @@ extern crate self as nyash_rust;
 use wasm_bindgen::prelude::*;
 
 pub mod ast; // using historical ast.rs
-pub mod box_arithmetic;
+pub mod box_arithmetic {
+    pub use crate::boxes::arithmetic::{
+        AddBox, CompareBox, DivideBox, ModuloBox, MultiplyBox, SubtractBox,
+    };
+}
 pub mod box_factory; // unified Box Factory
-pub mod box_operators; // operator implementations for basic Box types
+pub mod box_operators {
+    pub use crate::boxes::operators::*;
+}
 pub mod box_trait;
 pub mod boxes;
 pub mod channel_box;
@@ -60,7 +66,6 @@ pub mod cli;
 
 // Runtime system (plugins, registry, etc.)
 pub mod debug;
-pub mod runner_plugin_init;
 pub mod runtime;
 // Unified Grammar scaffolding
 pub mod grammar;
@@ -70,6 +75,10 @@ pub mod runner;
 pub mod runner_hv1_inline_guard {}
 pub mod stage1;
 pub mod using; // using resolver scaffolding (Phase 15)
+
+pub mod runner_plugin_init {
+    pub use crate::runner::plugin_init::*;
+}
 
 // Host providers (extern bridge for Hako boxes)
 pub mod host_providers;

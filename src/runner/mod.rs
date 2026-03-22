@@ -33,6 +33,7 @@ pub mod modes;
 mod pipe_io;
 mod pipeline;
 mod plugins;
+pub mod plugin_init;
 pub(crate) mod repl; // Phase 288.1: Made pub(crate) for ExternCall bridge access  // Phase 288: REPL module
 mod route_orchestrator;
 mod selfhost;
@@ -73,7 +74,7 @@ impl NyashRunner {
         self.run_refactored();
     }
 
-    // init_bid_plugins moved to runner_plugin_init.rs
+    // init_bid_plugins lives under runner/plugin_init.rs (re-exported for compatibility)
 
     /// Execute file-based mode with backend selection
     pub(crate) fn run_file(&self, filename: &str) {

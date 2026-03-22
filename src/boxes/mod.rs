@@ -58,6 +58,7 @@ pub mod basic;
 
 // 🎯 Phase 4リファクタリング: 算術Box実装を分離したモジュール
 pub mod arithmetic;
+pub mod operators;
 
 pub mod bool_box;
 pub mod debug_box;

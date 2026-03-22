@@ -48,11 +48,24 @@ P0 first implementation batch landed:
 - `*.err` / `*.backup*` ignore policy
 - root keepers explicitly documented (`basic_test.hako`, `test.hako`)
 
+P1 landed:
+
+- `CURRENT_TASK.md` slim + archive policy
+
+P2 first slice landed:
+
+- `box_arithmetic.rs` -> inline facade
+- `box_operators.rs` -> `src/boxes/operators/`
+- `runner_plugin_init.rs` -> `src/runner/plugin_init.rs`
+
 The next implementation slice, when this lane is explicitly reopened, is:
 
-- `CURRENT_TASK` archive destination and cutoff rule
-- `CURRENT_TASK.md` slim policy
-- `src/` top-level inventory
+- `src/box_trait.rs`
+- `src/method_box.rs`
+- `src/type_box.rs`
+- `src/value.rs`
+- `src/environment.rs`
+- `src/instance_v2.rs`
 
 ## Pressure Summary
 
@@ -67,6 +80,7 @@ Interpretation:
 
 - philosophy is already ahead of the tree
 - first wins are root hygiene and restart cost
+- `src/` top-level cleanup now has a landed first slice
 - `src/mir` needs navigation cleanup before crate split
 
 ## Acceptance
@@ -75,10 +89,12 @@ Interpretation:
 - `CURRENT_TASK.md` points at this phase
 - `10-Now.md` mirrors the fixed order
 - P0 first batch is landed: root archive relocation + `*.err` / `*.backup*` ignore policy
+- P1 is landed: `CURRENT_TASK.md` slim + archive policy
+- P2 first slice is landed: box arithmetic / box operators / runner plugin init relocation
 
 ## Next
 
 When this lane is reopened for implementation:
 
-1. `CURRENT_TASK.md` slim/archive
-2. `src/` top-level inventory
+1. `src/box_trait.rs`
+2. `src/method_box.rs`

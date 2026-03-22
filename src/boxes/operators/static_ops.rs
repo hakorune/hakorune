@@ -6,8 +6,8 @@
 
 use crate::box_trait::{BoolBox, IntegerBox, StringBox};
 use crate::boxes::FloatBox;
-use crate::impl_static_numeric_ops;
 use crate::operator_traits::{NyashAdd, NyashMul};
+use super::impl_static_numeric_ops;
 
 // ===== Macro-generated static implementations =====
 
