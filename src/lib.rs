@@ -10,6 +10,7 @@ extern crate self as nyash_rust;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+#[path = "ast/mod.rs"]
 pub mod ast; // using historical ast.rs
 pub mod box_arithmetic {
     pub use crate::boxes::arithmetic::{
@@ -20,22 +21,33 @@ pub mod box_factory; // unified Box Factory
 pub mod box_operators {
     pub use crate::boxes::operators::*;
 }
+#[path = "boxes/box_trait.rs"]
 pub mod box_trait;
 pub mod boxes;
+#[path = "core/channel_box.rs"]
 pub mod channel_box;
 pub mod core; // core models shared by backends
+#[path = "core/environment.rs"]
 pub mod environment;
+#[path = "core/exception_box.rs"]
 pub mod exception_box;
+#[path = "core/finalization.rs"]
 pub mod finalization;
+#[path = "core/instance_v2.rs"]
 pub mod instance_v2; // simplified InstanceBox implementation
+#[path = "core/method_box.rs"]
 pub mod method_box;
+#[path = "boxes/operator_traits.rs"]
 pub mod operator_traits; // trait-based operator overloading
 pub mod parser; // using historical parser.rs
+#[path = "core/scope_tracker.rs"]
 pub mod scope_tracker; // Box lifecycle tracking for VM
 pub mod stdlib;
 pub mod tokenizer;
+#[path = "core/type_box.rs"]
 pub mod type_box; // TypeBox system (arithmetic moved from box_trait.rs)
 
+#[path = "core/value.rs"]
 pub mod value;
 
 pub mod messaging;
@@ -53,6 +65,7 @@ pub mod backend;
 // JIT functionality archived to archive/jit-cranelift/
 pub mod semantics; // Unified semantics trait for MIR evaluation/lowering
 
+#[path = "benchmarks/mod.rs"]
 pub mod benchmarks;
 
 // BID-FFI / Plugin system (prototype)
@@ -95,6 +108,7 @@ pub mod abi {
 pub mod r#macro;
 
 #[cfg(target_arch = "wasm32")]
+#[path = "wasm_test/mod.rs"]
 pub mod wasm_test;
 
 #[cfg(test)]

@@ -52,20 +52,32 @@ P1 landed:
 
 - `CURRENT_TASK.md` slim + archive policy
 
-P2 first slice landed:
+P2 landed:
 
 - `box_arithmetic.rs` -> inline facade
 - `box_operators.rs` -> `src/boxes/operators/`
 - `runner_plugin_init.rs` -> `src/runner/plugin_init.rs`
+- `box_trait.rs` -> `src/boxes/box_trait.rs`
+- `operator_traits.rs` -> `src/boxes/operator_traits.rs`
+- `channel_box.rs` / `environment.rs` / `exception_box.rs` / `finalization.rs`
+  / `instance_v2.rs` / `method_box.rs` / `scope_tracker.rs` / `type_box.rs`
+  / `value.rs` / `ast.rs` / `benchmarks.rs` / `wasm_test.rs`
+  -> directory modules
+
+P3 first slice landed:
+
+- `src/mir/README.md`
+- `src/mir/builder/README.md`
+- `src/mir/join_ir/README.md`
+- `src/mir/loop_canonicalizer/README.md`
+- `src/mir/passes/README.md`
 
 The next implementation slice, when this lane is explicitly reopened, is:
 
-- `src/box_trait.rs`
-- `src/method_box.rs`
-- `src/type_box.rs`
-- `src/value.rs`
-- `src/environment.rs`
-- `src/instance_v2.rs`
+- `src/mir/builder/control_flow/normalization/README.md`
+- `src/mir/join_ir/lowering/README.md`
+- `src/mir/join_ir/ownership/README.md`
+- `src/mir/control_tree/step_tree/`
 
 ## Pressure Summary
 
@@ -90,11 +102,12 @@ Interpretation:
 - `10-Now.md` mirrors the fixed order
 - P0 first batch is landed: root archive relocation + `*.err` / `*.backup*` ignore policy
 - P1 is landed: `CURRENT_TASK.md` slim + archive policy
-- P2 first slice is landed: box arithmetic / box operators / runner plugin init relocation
+- P2 is landed: box arithmetic / box operators / runner plugin init + core-ish root relocations
+- P3 first slice is landed: MIR navigation root + builder README
 
 ## Next
 
 When this lane is reopened for implementation:
 
-1. `src/box_trait.rs`
-2. `src/method_box.rs`
+1. `src/mir/builder/control_flow/normalization/README.md`
+2. `src/mir/loop_canonicalizer/`

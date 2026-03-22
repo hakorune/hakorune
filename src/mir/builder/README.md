@@ -5,9 +5,18 @@ Pointers:
   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
 - current selfhost bootstrap authority:
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+- MIR navigation root:
+  - `src/mir/README.md`
 
 このディレクトリは Rust 側の MIR 生成（AST → MIR）を担う。  
 JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
+
+## Reading Order
+
+1. `src/mir/README.md`
+2. `src/mir/builder/README.md`
+3. `src/mir/builder/control_flow/plan/`
+4. `src/mir/contracts/README.md`
 
 ## 原則（SSOT / Box-First）
 
@@ -44,6 +53,17 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 - JoinIR merge（契約検証を含む）
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`
   - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
+
+## Top-Level Map
+
+- `core_context.rs`: ID 生成器と最小の共通コア状態。
+- `type_context.rs`: ValueId → 型/種別/起源の追跡。
+- `scope_context.rs`: lexical scope / loop / if / try の実行文脈。
+- `binding_context.rs`: 変数名 ↔ BindingId の対応。
+- `variable_context.rs`: 変数解決（variable_map 等）。
+- `metadata_context.rs`: span / source_hint / region の観測。
+- `compilation_context.rs`: Box / 型レジストリと reserved ids。
+- `context.rs`: 上記 Context を束ねる入れ物。
 
 ## 追加ルール（将来の変更者向け）
 

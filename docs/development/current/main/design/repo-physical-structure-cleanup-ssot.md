@@ -151,18 +151,37 @@ Landed first slice:
 - `box_operators.rs` -> `src/boxes/operators/`
 - `runner_plugin_init.rs` -> `src/runner/plugin_init.rs`
 
+P2 landed:
+
+- `box_trait.rs` -> `src/boxes/box_trait.rs`
+- `operator_traits.rs` -> `src/boxes/operator_traits.rs`
+- `channel_box.rs` -> `src/core/channel_box.rs`
+- `environment.rs` -> `src/core/environment.rs`
+- `exception_box.rs` -> `src/core/exception_box.rs`
+- `finalization.rs` -> `src/core/finalization.rs`
+- `instance_v2.rs` -> `src/core/instance_v2.rs`
+- `method_box.rs` -> `src/core/method_box.rs`
+- `scope_tracker.rs` -> `src/core/scope_tracker.rs`
+- `type_box.rs` -> `src/core/type_box.rs`
+- `value.rs` -> `src/core/value.rs`
+- `ast.rs` -> `src/ast/mod.rs`
+- `benchmarks.rs` -> `src/benchmarks/mod.rs`
+- `wasm_test.rs` -> `src/wasm_test/mod.rs`
+
+P3 first slice landed:
+
+- `src/mir/README.md`
+- `src/mir/builder/README.md`
+- `src/mir/join_ir/README.md`
+- `src/mir/loop_canonicalizer/README.md`
+- `src/mir/passes/README.md`
+
 Next safe slice:
 
-- `box_trait.rs`
-- `method_box.rs`
-- `type_box.rs`
-- `value.rs`
-- `environment.rs`
-- `instance_v2.rs`
-- `channel_box.rs`
-- `exception_box.rs`
-- `finalization.rs`
-- `scope_tracker.rs`
+- `src/mir/builder/control_flow/normalization/README.md`
+- `src/mir/join_ir/lowering/README.md`
+- `src/mir/join_ir/ownership/README.md`
+- `src/mir/control_tree/step_tree/`
 
 ### P3. `src/mir` navigation-first cleanup
 

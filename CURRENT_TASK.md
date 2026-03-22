@@ -20,18 +20,28 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29cr` P2: `src/` top-level cleanup
+- `phase-29cr` P3: `src/mir` navigation-first cleanup
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
   - `runner_plugin_init.rs` -> `src/runner/plugin_init.rs`
+  - `box_trait.rs` -> `src/boxes/box_trait.rs`
+  - `operator_traits.rs` -> `src/boxes/operator_traits.rs`
+  - `channel_box.rs` / `environment.rs` / `exception_box.rs` / `finalization.rs`
+    / `instance_v2.rs` / `method_box.rs` / `scope_tracker.rs` / `type_box.rs`
+    / `value.rs` / `ast.rs` / `benchmarks.rs` / `wasm_test.rs`
+    -> directory modules
+  - `src/mir/README.md`
+  - `src/mir/builder/README.md`
+  - `src/mir/join_ir/README.md`
+  - `src/mir/loop_canonicalizer/README.md`
+  - `src/mir/passes/README.md`
 - next exact files:
-  - `src/box_trait.rs`
-  - `src/method_box.rs`
-  - `src/type_box.rs`
-  - `src/value.rs`
-  - `src/environment.rs`
-  - `src/instance_v2.rs`
+  - `src/mir/builder/control_flow/normalization/README.md`
+  - `src/mir/join_ir/lowering/README.md`
+  - `src/mir/join_ir/ownership/README.md`
+  - `src/mir/control_tree/step_tree/`
+  - `src/mir/control_tree/normalized_shadow/`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -47,7 +57,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cm`: collection owner cutover = done-enough stop line
 - `phase-29y`: runtime `.hako` migration / boxcall contract = parked strict-polish
 - `phase-21_5`: raw substrate perf = parked until boundary deepens
-- `phase-29cr`: repo physical cleanup lane = active until P2 lands
+- `phase-29cr`: repo physical cleanup lane = active until P3 lands
 
 ## Archive
 
