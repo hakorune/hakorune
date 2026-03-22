@@ -140,6 +140,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `lang/src/runtime/substrate/buf/buf_core_box.hako` now exposes the live
       `len_i64` / `cap_i64` / `reserve_i64` / `grow_i64` surface
     - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64` now route through `BufCoreBox`
+  - `phase-29ct` I5 minimum verifier bounds slice
+    - docs-side truth now lives in
+      `docs/development/current/main/design/minimum-verifier-ssot.md`
+    - first live verifier box is
+      `lang/src/runtime/substrate/verifier/bounds/bounds_core_box.hako`
+    - `RawArrayCoreBox.slot_load_i64/slot_store_i64` now gate through
+      `BoundsCoreBox` before `PtrCoreBox`
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -239,6 +246,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/src/runtime/substrate/mem/mem_core_box.hako`
   - `lang/src/runtime/substrate/buf/buf_core_box.hako`
   - `lang/src/runtime/substrate/ptr/ptr_core_box.hako`
+  - `lang/src/runtime/substrate/verifier/bounds/bounds_core_box.hako`
   - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako`
   - `lang/src/runtime/collections/array_core_box.hako`
   - `docs/development/current/main/phases/phase-29cm/README.md`

@@ -169,6 +169,10 @@ current root lock is:
 - current docs lock:
   - [`minimum-verifier-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimum-verifier-ssot.md)
 
+current implementation note:
+- `BoundsCoreBox.ensure_index_i64` is live
+- `initialized-range` / `ownership` remain docs-first
+
 これは `C1` と同時導入する。
 
 ### C2. `RawArray`

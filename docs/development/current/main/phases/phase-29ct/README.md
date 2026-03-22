@@ -208,6 +208,16 @@ Related:
   - `BufCoreBox` now exposes the first live `len_i64` / `cap_i64` / `reserve_i64` / `grow_i64` surface
   - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64` now route through `BufCoreBox`
 
+- `I5 minimum verifier bounds slice` landed
+  - [`minimum-verifier-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimum-verifier-ssot.md) fixes:
+    - `bounds -> initialized-range -> ownership` order
+    - `bounds` is the first live verifier box
+    - current non-goals for this wave
+  - physical staging docs now exist at:
+    - [`lang/src/runtime/substrate/verifier/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/README.md)
+    - [`lang/src/runtime/substrate/verifier/bounds/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/bounds/README.md)
+  - `RawArrayCoreBox.slot_load_i64/slot_store_i64` now gate through `BoundsCoreBox` before `PtrCoreBox`
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table

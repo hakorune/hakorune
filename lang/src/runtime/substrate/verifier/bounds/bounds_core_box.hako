@@ -1,0 +1,25 @@
+// BoundsCoreBox — first live `minimum verifier` box for phase-29ct.
+// Responsibility:
+// - answer one question only: is idx within the current logical length?
+// - keep fail-fast index checking separate from raw pointer access
+// Non-responsibility:
+// - initialized-range reasoning
+// - ownership transfer / aliasing
+// - allocator policy
+
+using selfhost.runtime.substrate.buf.buf_core_box as BufCoreBox
+
+static box BoundsCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  ensure_index_i64(handle, idx) {
+    local len = BufCoreBox.len_i64(handle)
+    local ok = 1
+    if idx < 0 { ok = 0 }
+    if idx >= len { ok = 0 }
+    me._trace("[vm/adapter/verifier:bounds_i64]")
+    return ok
+  }
+}

@@ -66,14 +66,16 @@ minimum verifier の順番は次で固定する。
 
 ## Current Reading
 
-- この slice は docs-first only
-- まだ verifier の `.hako` 実装本体は作らない
+- `bounds` is the first live verifier box.
+- `initialized-range` / `ownership` remain docs-first follow-ups.
 - physical staging root is reserved at [`lang/src/runtime/substrate/verifier/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/README.md)
-- まずは `substrate` root の責務と `phase-29ct` の順序だけを固定する
+- first live box lives at [`lang/src/runtime/substrate/verifier/bounds/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/bounds/README.md)
+- RawArray slot load/store now route through the bounds verifier gate before raw pointer access
 
 ## Non-Goals
 
-- `RawArray` / `RawMap`
+- `initialized-range` / `ownership`
+- `RawMap`
 - `hako.mem` / `hako.buf` / `hako.ptr` の実装本体
 - allocator state machine
 - TLS / atomic / GC の実装
@@ -85,7 +87,7 @@ minimum verifier の順番は次で固定する。
 
 ## Follow-Up
 
-この lock の次でようやく `RawArray` へ進む。
+`bounds` live slice の次は `initialized-range` へ進む。
 
 - first consumer:
   - `RawArray`

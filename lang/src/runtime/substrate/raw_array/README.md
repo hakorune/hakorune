@@ -8,7 +8,7 @@ Responsibilities:
   - slot load/store
   - append-at-end policy
 - Current widened substrate path includes:
-  - `slot_load_i64` / `slot_store_i64` / `slot_len_i64` / `slot_append_any` via `PtrCoreBox`
+  - `slot_load_i64` / `slot_store_i64` / `slot_len_i64` / `slot_append_any` via `BoundsCoreBox` + `PtrCoreBox`
   - `slot_reserve_i64` / `slot_grow_i64` via `BufCoreBox`, which remains a thin shape facade over the current capacity backend
 
 Rules:

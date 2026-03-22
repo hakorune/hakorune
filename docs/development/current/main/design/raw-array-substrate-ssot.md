@@ -78,6 +78,7 @@ This phase places README/docs only.
   - `ArrayCoreBox.get_i64/set_i64/len_i64/push_hh`
   - `RawArrayCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
   - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64`
+  - `BoundsCoreBox.ensure_index_i64(handle, idx)`
   - `BufCoreBox.len_i64/cap_i64/reserve_i64/grow_i64`
   - `PtrCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
   - existing native
