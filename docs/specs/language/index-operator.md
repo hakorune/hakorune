@@ -7,7 +7,7 @@ Scope (Phase‑1)
 - Semantics (lowering):
   - Array
     - Read → nyash.array.get_h(handle, idx)
-    - Write → nyash.array.set_h(handle, idx, val)
+    - Write → nyash.array.set_hih(handle, idx, val_any)
   - Map
     - Read → nyash.map.get_hh(handle, key_any)
     - Write → nyash.map.set_hh(handle, key_any, val_any)
@@ -38,4 +38,3 @@ Tests (canaries)
 
 Notes
 - This leverages existing NyRT dotted externs already implemented for Array/Map, minimizing surface area and risk.
-

@@ -58,7 +58,7 @@ if ! rg -F -q 'me._put("ArrayBox", "get",    "nyash.array.slot_load_hi"' "$REGIS
   echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.get raw load mapping" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_h"' "$REGISTRY_FILE"; then
+if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_hih"' "$REGISTRY_FILE"; then
   echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.set adapter mapping" >&2
   exit 1
 fi

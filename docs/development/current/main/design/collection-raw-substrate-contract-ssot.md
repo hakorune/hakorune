@@ -277,7 +277,7 @@ Current second slice:
      - `ArrayBox.get -> nyash.array.slot_load_hi`
      - `ArrayBox.push -> nyash.array.slot_append_hh`
      - `MapBox.get/set/has -> nyash.map.slot_load_* / slot_store_* / probe_*`
-   - keep `ArrayBox.set` on the current route until a raw non-i64-safe write seam is explicitly accepted
+   - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
    - contract pin:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
 10. `B1g / llvm-py-lowering-residue`
@@ -320,6 +320,13 @@ Current second slice:
      - `cargo test -q -p nyash_kernel array_runtime_data_route_hii_contract_roundtrip --lib`
      - `python3 -m unittest src.llvm_py.tests.test_strlen_fast src.llvm_py.tests.test_boxcall_plugin_invoke_args`
      - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+11. `B1n / array-set-compat-retarget`
+   - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
+   - `nyash.array.set_h` remains compatibility-only
+   - contract pins:
+     - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
+     - `bash tools/smokes/v2/profiles/integration/core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh`
 11. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug
 

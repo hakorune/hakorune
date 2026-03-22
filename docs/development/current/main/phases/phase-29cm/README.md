@@ -226,6 +226,7 @@ Move to `.hako`:
    - `B1h`: landed; `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
    - `B1i`: landed first slice; active lowering now uses `nyash.runtime_data.get_hh/has_hh/set_hhh` for array non-i64 shapes while keeping `slot_load_hi` / `set_hih` / `set_hii` for the proven i64-key routes
    - `B1j`: landed accepted keep; `nyash.array.set_hii` remains the i64/i64-specialized route and `nyash.array.set_hih` remains the i64-key + handle/any-value fallback
+   - `B1n`: landed compat/pure set retarget; adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
    - the active daily path now has no unclassified collection residue; future keeps must either leave the daily path or be explicitly accepted before this phase is called finished
 7. `P1: Raw substrate perf reopen`

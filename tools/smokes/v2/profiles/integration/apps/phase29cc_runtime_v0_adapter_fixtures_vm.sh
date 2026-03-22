@@ -87,6 +87,10 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: ArrayBox.get adapter registry raw load contract missing"
     exit 1
   fi
+  if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_hih"' "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: ArrayBox.set adapter registry fallback contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'externcall "nyash.array.slot_len_h"' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core len extern route contract missing"
     exit 1

@@ -1120,7 +1120,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
       if (need_arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (need_arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
-      if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_h\"(i64, i64, i64)\n");
+      if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_hih\"(i64, i64, i64)\n");
       if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n");
       if (need_arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
       if (need_printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
@@ -1222,7 +1222,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               int runtime_map_size = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               int runtime_map_has = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               if (recv) app(recv, 1);
-              if (mname && !strcmp(mname, "set")) { if (a0) app(a0, ab[0]=='\0'); if (a1) app(a1, 0); if (bname && !strcmp(bname, "MapBox")) EMIT("  %%_ = call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab); else if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.set_h\"(%s)\n", ab); else { yyjson_doc_free(d); goto GEN_ABORT; } }
+              if (mname && !strcmp(mname, "set")) { if (a0) app(a0, ab[0]=='\0'); if (a1) app(a1, 0); if (bname && !strcmp(bname, "MapBox")) EMIT("  %%_ = call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab); else if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.set_hih\"(%s)\n", ab); else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "get")) { if (a0) app(a0, ab[0]=='\0'); if ((bname && !strcmp(bname, "MapBox")) || runtime_map_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab); set_type(dst, T_I64); set_origin(dst, ORG_MAP_GET);} else { EMIT("  %%_ = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if ((bname && !strcmp(bname, "MapBox")) || runtime_map_size) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.entry_count_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.map.entry_count_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.slot_len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "push")) {

@@ -101,7 +101,8 @@ Rule:
   - landed: `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
   - worker inventory: those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
   - landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams
-  - keep: `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
+  - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
+  - `nyash.array.set_h` remains compatibility-only
   - landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
   - landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
   - landed first slice: active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`
