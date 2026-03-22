@@ -226,8 +226,12 @@ Current second slice:
 - landed map hidden-residue slice:
   - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
   - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
+- kernel-side review result:
+  - the new `MapBox` raw key-string helpers are acceptable as the raw seam for this slice
 - current remaining work after those explicit exports:
-  - review whether the new `MapBox` raw key-string helpers are the accepted long-term substrate boundary or still need a deeper semantic split
+  - active daily AOT prep still rewrites to method-shaped collection exports
+  - active llvm-py lowering still targets method-shaped collection exports
+  - `runtime_data_map_route.rs` still uses visible `MapBox.get_opt/set/has`
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
 - raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
 
@@ -248,7 +252,13 @@ Current second slice:
    - remaining work is semantic, not method-shaped API leakage
 5. `B1e / map-hidden-residue`
    - landed: move visible `get_opt/set/has/size`-shaped semantics out from under `nyash.map.slot_* / probe_*`
-   - next: inventory whether `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}` is the accepted long-term raw boundary
+   - inventory result: `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}` is acceptable as the kernel-side raw boundary for this slice
+6. `B1f / aot-prep-lowering-residue`
+   - retarget active `collections_hot.hako` rewrites away from method-shaped collection exports where the raw seam already exists
+7. `B1g / llvm-py-lowering-residue`
+   - retarget active llvm-py collection lowering away from method-shaped collection exports where the raw seam already exists
+8. `B1h / runtime-data-map-hidden-residue`
+   - move `runtime_data_map_route.rs` away from visible `MapBox.get_opt/set/has`
 6. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug
 

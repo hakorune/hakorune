@@ -179,8 +179,14 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - landed map hidden-residue slice:
     - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
     - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
-  - next boundary decision:
-    - decide whether those `MapBox` raw key-string helpers are the accepted long-term substrate boundary
+  - worker boundary decision:
+    - those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
+  - next active boundary residues:
+    - `lang/src/llvm_ir/boxes/aot_prep/passes/collections_hot.hako`
+    - `src/llvm_py/instructions/mir_call/collection_method_call.py`
+    - `src/llvm_py/instructions/boxcall_runtime_data.py`
+    - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
+    - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
   - build-freshness note:
     - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める

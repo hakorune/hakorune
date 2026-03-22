@@ -80,8 +80,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `B1d1` landed: `nyash.array.slot_append_hh` now appends through `ArrayBox.slot_append_box_raw(...)`; compat append routes share the same raw helper instead of calling visible `push()`
   - `B1d2` landed: `nyash.array.slot_store_hii` and runtime-data array set now store through `ArrayBox.slot_store_*_raw(...)`; append-at-end/rebox behavior is preserved, but the visible `try_set_index_i64*()` methods are no longer the substrate seam
   - `B1e` landed: `nyash.map.slot_* / probe_*` and `nyash.map.entry_count_h` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}(...)` instead of visible `get_opt/set/has/size`
-  - the next collection task is exact `B1` stop-line inventory:
-    1. decide whether the new `MapBox` raw key-string helpers are the accepted long-term substrate boundary or still need a deeper semantic split
+  - worker stop-line inventory:
+    - the new `MapBox` raw key-string helpers are good enough as the kernel-side raw seam for this slice
+    - but the collection boundary is still not closed, because active daily lowering/runtime-data paths still cross method-shaped collection exports
+  - the next collection task is exact `B1` taskization:
+    1. `B1f`: demote active daily AOT prep residues in `lang/src/llvm_ir/boxes/aot_prep/passes/collections_hot.hako`
+    2. `B1g`: demote active llvm-py lowering residues in `src/llvm_py/instructions/mir_call/collection_method_call.py`, `src/llvm_py/instructions/boxcall_runtime_data.py`, and `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
+    3. `B1h`: demote the active runtime-data map hidden residue in `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
   - build-freshness note is now pinned: after a new kernel export lands on the AOT boundary path, refresh release-side artifacts before link/pure smokes; stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
   - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
@@ -96,13 +101,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29x/derust,phase29x/observability,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `lang/src/runtime/collections/map_core_box.hako`
-  - `lang/src/runtime/collections/map_state_core_box.hako`
-  - `crates/nyash_kernel/src/plugin/map.rs`
-  - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
-  - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
-  - `crates/nyash_kernel/src/plugin/map_probe.rs`
-  - `src/boxes/map_box.rs`
+  - `lang/src/llvm_ir/boxes/aot_prep/passes/collections_hot.hako`
+  - `src/llvm_py/instructions/mir_call/collection_method_call.py`
+  - `src/llvm_py/instructions/boxcall_runtime_data.py`
+  - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
+  - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `lang/src/runtime/collections/README.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
