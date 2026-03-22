@@ -96,3 +96,7 @@ After this docs lock, the next widening remains:
 
 1. `GC/TLS/atomic` capability lock
 2. `Hakozuna portability layer`
+
+docs/task lock now lives at:
+
+- [`gc-tls-atomic-capability-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/gc-tls-atomic-capability-ssot.md)

@@ -15,6 +15,7 @@ Related:
   - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/raw-map-substrate-ssot.md
+  - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -172,6 +173,17 @@ Related:
   - physical staging root now exists at:
     - [`lang/src/runtime/substrate/raw_map/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/README.md)
   - next active slice is `C4 GC/TLS/atomic capability widening`
+
+- `C4 GC/TLS/atomic capability widening` landed as docs/task lock
+  - [`gc-tls-atomic-capability-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/gc-tls-atomic-capability-ssot.md) fixes:
+    - `atomic -> tls -> gc` order
+    - per-module owned roles
+    - current non-goals for this wave
+  - physical staging roots now exist at:
+    - [`lang/src/runtime/substrate/atomic/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/atomic/README.md)
+    - [`lang/src/runtime/substrate/tls/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/tls/README.md)
+    - [`lang/src/runtime/substrate/gc/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/gc/README.md)
+  - next active slice is `C5 Hakozuna portability layer`
 
 ## Stop-Line
 

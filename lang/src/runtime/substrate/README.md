@@ -28,6 +28,7 @@ Current phase reading:
 - The current verifier lock is docs-first, and its physical reservation lives at `verifier/README.md`.
 - The next algorithm-substrate consumer lock is docs-first, and its physical reservation lives at `raw_array/README.md`.
 - The following algorithm-substrate consumer lock is docs-first, and its physical reservation lives at `raw_map/README.md`.
+- The next capability-widening lock is docs-first, and its physical reservations live at `atomic/README.md`, `tls/README.md`, and `gc/README.md`.
 
 Native keep stays outside this directory:
 - OS virtual memory
