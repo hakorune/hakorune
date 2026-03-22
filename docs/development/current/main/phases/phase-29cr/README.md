@@ -107,6 +107,11 @@ P5 second packaging slice landed:
 - `crates/hakorune_mir_core/` gained `effect.rs`
 - `src/mir/definitions/call_unified.rs` became a thin wrapper to `hakorune_mir_defs`
 
+P6 naming cleanup:
+
+- `crates/hakorune_mir_core/` and `crates/hakorune_mir_defs/` use the `hakorune_*` crate naming now
+- `src/mir/README.md` / MIR crate split prep SSOT now use `hakorune-mir-*` future names
+
 ## Pressure Summary
 
 Local snapshot on 2026-03-22:

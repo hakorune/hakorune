@@ -20,7 +20,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29cr` P5: `src/mir` crate split preparation
+- `phase-29cr` P6: naming cleanup on the MIR substrate packages / future crate names
 - landed slice:
   - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
   - `hakorune_mir_defs` package: `definitions/call_unified.rs`
@@ -86,6 +86,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29y`: runtime `.hako` migration / boxcall contract = parked strict-polish
 - `phase-21_5`: raw substrate perf = parked until boundary deepens
 - `phase-29cr`: repo physical cleanup lane = active through P5 crate split prep
+- `phase-29cr`: repo physical cleanup lane = active through P6 naming cleanup
 
 ## Archive
 

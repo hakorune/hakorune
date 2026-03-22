@@ -33,7 +33,7 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 
 ## Candidate Future Crates
 
-### `mir-core`
+### `hakorune-mir-core`
 
 Keep:
 
@@ -50,7 +50,7 @@ Maybe keep as shared modules for now:
 - `contracts/`
 - `ssot/`
 
-### `mir-builder`
+### `hakorune-mir-builder`
 
 Keep:
 
@@ -62,7 +62,7 @@ Keep:
 - `joinir_id_remapper.rs`
 - `weak_field_validator.rs`
 
-### `mir-joinir`
+### `hakorune-mir-joinir`
 
 Keep:
 
@@ -71,7 +71,7 @@ Keep:
 - `join_ir_vm_bridge/`
 - `join_ir_vm_bridge_dispatch/`
 
-### `mir-passes`
+### `hakorune-mir-passes`
 
 Keep:
 

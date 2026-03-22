@@ -47,10 +47,10 @@ SSOT:
 
 Candidate future crates:
 
-- `mir-core`: definitions, instruction kinds, shared shape data
-- `mir-builder`: AST -> MIR construction and control-flow planning
-- `mir-joinir`: JoinIR lowering and ownership helpers
-- `mir-passes`: passes, normalization, and verification helpers
+- `hakorune-mir-core`: definitions, instruction kinds, shared shape data
+- `hakorune-mir-builder`: AST -> MIR construction and control-flow planning
+- `hakorune-mir-joinir`: JoinIR lowering and ownership helpers
+- `hakorune-mir-passes`: passes, normalization, and verification helpers
 
 Prep rule:
 

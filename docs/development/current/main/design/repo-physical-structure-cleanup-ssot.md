@@ -269,6 +269,11 @@ Rule:
 
 - naming cleanup is late polish, not the first cleanup wave
 
+Current naming slice:
+
+- MIR substrate packages are now named `hakorune-mir-core` and `hakorune-mir-defs`
+- future MIR crate candidates use the `hakorune-mir-*` naming family
+
 ## Non-Goals
 
 - immediate `src/mir` crate split
