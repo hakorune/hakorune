@@ -223,8 +223,11 @@ Current second slice:
 - landed store hidden-residue slice:
   - `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
   - runtime-data array set shares the same raw store helper instead of visible `try_set_index_i64*()`
-- current hidden residue after those explicit exports:
-  - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
+- landed map hidden-residue slice:
+  - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
+  - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
+- current remaining work after those explicit exports:
+  - review whether the new `MapBox` raw key-string helpers are the accepted long-term substrate boundary or still need a deeper semantic split
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
 - raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
 
@@ -244,7 +247,8 @@ Current second slice:
    - second slice landed: store now goes through `ArrayBox.slot_store_*_raw(...)`
    - remaining work is semantic, not method-shaped API leakage
 5. `B1e / map-hidden-residue`
-  - move `get_opt/set/has`-shaped semantics out from under `nyash.map.slot_* / probe_*`
+   - landed: move visible `get_opt/set/has/size`-shaped semantics out from under `nyash.map.slot_* / probe_*`
+   - next: inventory whether `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}` is the accepted long-term raw boundary
 6. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug
 

@@ -4,7 +4,7 @@ use super::handle_helpers::with_map_box;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
-use super::value_codec::{any_arg_to_box, box_to_handle, int_arg_to_box, integer_box_to_i64};
+use super::value_codec::{any_arg_to_box, box_to_handle, int_arg_to_box};
 
 #[inline]
 fn map_debug_enabled() -> bool {
@@ -36,14 +36,11 @@ fn map_entry_count_raw(handle: i64) -> i64 {
         eprintln!("[MAP] entry_count_h(handle={})", handle);
     }
     with_map_box(handle, |map| {
-        if let Some(size) = integer_box_to_i64(map.size().as_ref()) {
-            if map_debug_enabled() {
-                eprintln!("[MAP] entry_count_h => {}", size);
-            }
-            size
-        } else {
-            0
+        let size = map.entry_count_i64();
+        if map_debug_enabled() {
+            eprintln!("[MAP] entry_count_h => {}", size);
         }
+        size
     })
     .unwrap_or(0)
 }
@@ -87,10 +84,7 @@ pub extern "C" fn nyash_map_set_h(handle: i64, key: i64, val: i64) -> i64 {
     }
     let applied = map_slot_store_i64_any(handle, key, val);
     if map_debug_enabled() {
-        let size = with_map_box(handle, |map| {
-            integer_box_to_i64(map.size().as_ref()).unwrap_or(-1)
-        })
-        .unwrap_or(-1);
+        let size = with_map_box(handle, |map| map.entry_count_i64()).unwrap_or(-1);
         eprintln!("[MAP] set_h applied={} size={}", applied, size);
     }
     0

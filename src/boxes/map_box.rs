@@ -154,18 +154,14 @@ impl MapBox {
     /// 値を設定
     pub fn set(&self, key: Box<dyn NyashBox>, value: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let key_str = key.to_string_box().value;
-        self.data.write().unwrap().insert(key_str.clone(), value);
+        self.insert_key_str(key_str.clone(), value);
         Box::new(StringBox::new(&format!("Set key: {}", key_str)))
     }
 
     /// 値を取得（未存在キーは None）
     pub fn get_opt(&self, key: Box<dyn NyashBox>) -> Option<Box<dyn NyashBox>> {
         let key_str = key.to_string_box().value;
-        self.data
-            .read()
-            .unwrap()
-            .get(&key_str)
-            .map(Self::clone_for_read)
+        self.get_opt_key_str(&key_str)
     }
 
     /// 値を取得
@@ -183,9 +179,7 @@ impl MapBox {
     /// キーが存在するかチェック
     pub fn has(&self, key: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         let key_str = key.to_string_box().value;
-        Box::new(BoolBox::new(
-            self.data.read().unwrap().contains_key(&key_str),
-        ))
+        Box::new(BoolBox::new(self.contains_key_str(&key_str)))
     }
 
     /// キーを削除
@@ -239,9 +233,29 @@ impl MapBox {
         self.data.read().unwrap().len()
     }
 
+    /// Raw observer helper for substrate/plugin routes.
+    pub fn entry_count_i64(&self) -> i64 {
+        self.len() as i64
+    }
+
+    /// Raw read helper for substrate/plugin routes.
+    pub fn get_opt_key_str(&self, key: &str) -> Option<Box<dyn NyashBox>> {
+        self.data.read().unwrap().get(key).map(Self::clone_for_read)
+    }
+
+    /// Raw presence helper for substrate/plugin routes.
+    pub fn contains_key_str(&self, key: &str) -> bool {
+        self.data.read().unwrap().contains_key(key)
+    }
+
+    /// Raw insert helper for substrate/plugin routes.
+    pub fn insert_key_str(&self, key: String, value: Box<dyn NyashBox>) {
+        self.data.write().unwrap().insert(key, value);
+    }
+
     /// サイズを取得
     pub fn size(&self) -> Box<dyn NyashBox> {
-        Box::new(IntegerBox::new(self.len() as i64))
+        Box::new(IntegerBox::new(self.entry_count_i64()))
     }
 
     /// 全てクリア

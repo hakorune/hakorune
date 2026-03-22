@@ -176,8 +176,11 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - landed map observer demotion:
     - daily `.hako` map observer route now uses `nyash.map.entry_count_h`
     - `nyash.map.size_h` is compat-only
-  - hidden residue after those exports:
-    - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
+  - landed map hidden-residue slice:
+    - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
+    - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
+  - next boundary decision:
+    - decide whether those `MapBox` raw key-string helpers are the accepted long-term substrate boundary
   - build-freshness note:
     - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める

@@ -95,5 +95,6 @@ Rule:
   - landed: `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
   - landed: daily map observer route now uses `nyash.map.entry_count_h`
   - `nyash.map.size_h` is compat-only
-  - next: deepen hidden residue under `map slot/probe`
+  - landed: `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
+  - next: inventory whether those `MapBox` raw key-string helpers are the accepted long-term substrate boundary
   - keep `RuntimeDataBox` facade-only while doing so

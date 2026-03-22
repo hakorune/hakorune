@@ -123,10 +123,9 @@ Related:
 - `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only.
 - `B1d1` landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`, and compat append routes no longer call the visible `push()` method below the raw name.
 - `B1d2` landed: `nyash.array.slot_store_hii` and runtime-data array set now execute through `ArrayBox.slot_store_*_raw(...)`, while preserving the current append-at-end/rebox behavior.
-- next exact boundary-deepen task is to demote the remaining transitional method-shaped Rust exports still used by `.hako` owners:
-  1. hidden map residue under `nyash.map.slot_* / probe_*`
-- after those explicit exports, deepen the hidden raw-named residue:
-  - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
+- `B1e` landed: `nyash.map.slot_* / probe_*` and `nyash.map.entry_count_h` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}(...)` instead of visible `get_opt/set/has/size`.
+- next exact boundary-deepen task is `B1` stop-line inventory:
+  1. decide whether the new `MapBox` raw key-string helpers are the accepted long-term substrate boundary or still need a deeper semantic split
 - build-freshness note:
   - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
@@ -199,7 +198,8 @@ Move to `.hako`:
    - `B1b`: landed; daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`
    - `B1c`: landed; daily `.hako` map observer path now uses `nyash.map.entry_count_h`
    - `B1d`: deepen hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
-   - `B1e`: deepen hidden map residue under `nyash.map.slot_* / probe_*`
+   - `B1e`: landed; map raw helpers now call `MapBox` key-string/raw observer helpers instead of visible `get_opt/set/has/size`
+   - next: inventory whether those raw helpers are the accepted long-term substrate boundary
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
    - do not describe this phase as finished until these transitional exports are either removed from the daily path or explicitly accepted as the long-term substrate boundary
 7. `P1: Raw substrate perf reopen`
