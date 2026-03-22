@@ -23,7 +23,7 @@ VM/LLVM backends.
 
 ## P5 Crate Split Prep
 
-`join_ir/` is a future `mir-joinir` candidate, but it is not being split yet.
+`join_ir/` is a future `hakorune-mir-joinir` candidate, but it is not being split yet.
 The prep step is to keep the lowering surface explicit and document the rejected
 boundaries first.
 

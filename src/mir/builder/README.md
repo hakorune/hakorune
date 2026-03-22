@@ -73,7 +73,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 
 ## P5 Crate Split Prep
 
-`src/mir` の crate split を準備するとき、この subtree は `mir-builder` 候補になる。
+`src/mir` の crate split を準備するとき、この subtree は `hakorune-mir-builder` 候補になる。
 
 SSOT:
 

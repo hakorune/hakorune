@@ -22,7 +22,7 @@ This subtree contains MIR transformation passes and their local helpers.
 
 ## P5 Crate Split Prep
 
-`src/mir/passes/` is a future `mir-passes` candidate. Keep the public seam
+`src/mir/passes/` is a future `hakorune-mir-passes` candidate. Keep the public seam
 small so the eventual split is a packaging step, not a redesign.
 
 SSOT:

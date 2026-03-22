@@ -111,6 +111,7 @@ P6 naming cleanup:
 
 - `crates/hakorune_mir_core/` and `crates/hakorune_mir_defs/` use the `hakorune_*` crate naming now
 - `src/mir/README.md` / MIR crate split prep SSOT now use `hakorune-mir-*` future names
+- subtree READMEs for `builder/`, `join_ir/`, and `passes/` also use `hakorune-mir-*` future names
 
 ## Pressure Summary
 
