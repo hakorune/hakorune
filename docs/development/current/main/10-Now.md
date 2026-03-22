@@ -182,11 +182,14 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - worker boundary decision:
     - those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
   - next active boundary residues:
-    - `lang/src/llvm_ir/boxes/aot_prep/passes/collections_hot.hako`
     - `src/llvm_py/instructions/mir_call/collection_method_call.py`
     - `src/llvm_py/instructions/boxcall_runtime_data.py`
     - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
     - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
+  - landed AOT-prep retarget:
+    - `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
+    - `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
+    - pin: `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
   - build-freshness note:
     - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める

@@ -229,7 +229,6 @@ Current second slice:
 - kernel-side review result:
   - the new `MapBox` raw key-string helpers are acceptable as the raw seam for this slice
 - current remaining work after those explicit exports:
-  - active daily AOT prep still rewrites to method-shaped collection exports
   - active llvm-py lowering still targets method-shaped collection exports
   - `runtime_data_map_route.rs` still uses visible `MapBox.get_opt/set/has`
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
@@ -254,7 +253,14 @@ Current second slice:
    - landed: move visible `get_opt/set/has/size`-shaped semantics out from under `nyash.map.slot_* / probe_*`
    - inventory result: `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}` is acceptable as the kernel-side raw boundary for this slice
 6. `B1f / aot-prep-lowering-residue`
-   - retarget active `collections_hot.hako` rewrites away from method-shaped collection exports where the raw seam already exists
+   - landed: retarget active `collections_hot.hako` rewrites away from method-shaped collection exports where the raw seam already exists
+   - landed set:
+     - `ArrayBox.get -> nyash.array.slot_load_hi`
+     - `ArrayBox.push -> nyash.array.slot_append_hh`
+     - `MapBox.get/set/has -> nyash.map.slot_load_* / slot_store_* / probe_*`
+   - keep `ArrayBox.set` on the current route until a raw non-i64-safe write seam is explicitly accepted
+   - contract pin:
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
 7. `B1g / llvm-py-lowering-residue`
    - retarget active llvm-py collection lowering away from method-shaped collection exports where the raw seam already exists
 8. `B1h / runtime-data-map-hidden-residue`

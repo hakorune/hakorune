@@ -15,6 +15,13 @@
   - 同一ブロック i64 の `const` をデデュープ
 - CollectionsHot（`NYASH_AOT_COLLECTIONS_HOT=1`）
   - Array/Map の単純 `boxcall` を `externcall`（`nyash.array.*` / `nyash.map.*`）へ張替え
+  - current landed raw retarget set:
+    - `ArrayBox.get -> nyash.array.slot_load_hi`
+    - `ArrayBox.push -> nyash.array.slot_append_hh`
+    - `MapBox.get/set/has -> nyash.map.slot_load_* / slot_store_* / probe_*`
+    - `MapBox.len/length/size -> nyash.map.entry_count_h`
+  - intentional gap in this slice:
+    - `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
   - Map キー戦略は `NYASH_AOT_MAP_KEY_MODE={h|i64|hh|auto}`（既定: `h`/`i64`）
   - **型確定強化（NEW!）**:
     - **Backpropagation Pass**（`tmap_backprop`）: コールサイトからの型シグナル逆伝播

@@ -664,23 +664,23 @@ static box AotPrepCollectionsHotBox {
         pos2 = k + 1; continue }
       local func = ""; local args = ""
       if is_arr {
-        if mname == "get" { func = "nyash.array.get_h"; args = bvid + "," + a0 }
+        if mname == "get" { func = "nyash.array.slot_load_hi"; args = bvid + "," + a0 }
         else if mname == "set" { func = "nyash.array.set_h"; args = bvid + "," + a0 + "," + a1 }
-        else if mname == "push" { func = "nyash.array.push_h"; args = bvid + "," + a0 }
+        else if mname == "push" { func = "nyash.array.slot_append_hh"; args = bvid + "," + a0 }
         else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.array.slot_len_h"; args = bvid }
       } else if is_map {
         local mode = key_mode
         local use_hh = (mode == "hh")
         if mode == "auto" { use_hh = !AotPrepHelpers.is_const_or_linear(out, a0) }
         if use_hh {
-          if mname == "get" { func = "nyash.map.get_hh"; args = bvid + "," + a0 }
-          else if mname == "set" { func = "nyash.map.set_hh"; args = bvid + "," + a0 + "," + a1 }
-          else if mname == "has" { func = "nyash.map.has_hh"; args = bvid + "," + a0 }
+          if mname == "get" { func = "nyash.map.slot_load_hh"; args = bvid + "," + a0 }
+          else if mname == "set" { func = "nyash.map.slot_store_hhh"; args = bvid + "," + a0 + "," + a1 }
+          else if mname == "has" { func = "nyash.map.probe_hh"; args = bvid + "," + a0 }
           else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.entry_count_h"; args = bvid }
         } else {
-          if mname == "get" { func = "nyash.map.get_h"; args = bvid + "," + a0 }
-          else if mname == "set" { func = "nyash.map.set_h"; args = bvid + "," + a0 + "," + a1 }
-          else if mname == "has" { func = "nyash.map.has_h"; args = bvid + "," + a0 }
+          if mname == "get" { func = "nyash.map.slot_load_hi"; args = bvid + "," + a0 }
+          else if mname == "set" { func = "nyash.map.slot_store_hih"; args = bvid + "," + a0 + "," + a1 }
+          else if mname == "has" { func = "nyash.map.probe_hi"; args = bvid + "," + a0 }
           else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.map.entry_count_h"; args = bvid }
         }
       }

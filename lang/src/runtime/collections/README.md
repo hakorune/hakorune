@@ -97,5 +97,7 @@ Rule:
   - `nyash.map.size_h` is compat-only
   - landed: `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
   - worker inventory: those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
-  - next: retarget active AOT/llvm-py/runtime-data lowering paths that still emit method-shaped collection exports
+  - landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams
+  - keep: `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
+  - next: retarget active llvm-py/runtime-data lowering paths that still emit method-shaped collection exports
   - keep `RuntimeDataBox` facade-only while doing so
