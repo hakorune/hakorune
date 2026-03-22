@@ -25,6 +25,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cm` collection owner cutover is done-enough stop line
 - `phase-21_5` raw substrate perf reopen is parked until capability ladder + ABI/value manifest lock land
 - `phase-29cs` kernel / plugin naming cleanup is parked
+- Rust kernel export surface split is landed
+  - current docs exact leaf:
+    - `rust-kernel-export-surface-strata-ssot.md`
+  - `crates/nyash_kernel/src/plugin/array.rs` / `map.rs` are thin facades
+  - actual Rust contract strata live in `array_compat.rs` / `array_runtime_facade.rs` /
+    `array_substrate.rs` and `map_compat.rs` / `map_substrate.rs`
 - future packaging/distribution pointer (docs-first, not active):
   - `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
 - current docs exact leaf:
@@ -38,6 +44,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `raw-map-substrate-ssot.md`
   - `gc-tls-atomic-capability-ssot.md`
   - `final-metal-split-ssot.md`
+  - `rust-kernel-export-surface-strata-ssot.md`
   - `phase-29ct/README.md`
 - landed slice:
   - `phase-29ct` V0 ABI export inventory

@@ -13,6 +13,14 @@ Scope: `.hako` ring1 collection core for user-visible collection semantics durin
 
 - This folder is the visible owner frontier for `ArrayBox` / `MapBox` semantics.
 - Current mainline still delegates primitive storage/ops to Rust-owned ABI/plugin exports; the raw substrate remains Rust-owned until the boundary deepens.
+- Rust-side export surface is now split by strata:
+  - `crates/nyash_kernel/src/plugin/array.rs` and `map.rs` are thin facades
+  - actual Rust implementations live in:
+    - `crates/nyash_kernel/src/plugin/array_compat.rs`
+    - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+    - `crates/nyash_kernel/src/plugin/array_substrate.rs`
+    - `crates/nyash_kernel/src/plugin/map_compat.rs`
+    - `crates/nyash_kernel/src/plugin/map_substrate.rs`
 - `RuntimeDataBox` stays protocol / facade only; do not turn it into a collection-semantics owner.
 - Runtime/provider current-truth and `0rust` cutover order are tracked in:
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`

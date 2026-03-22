@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/design/raw-map-substrate-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
+  - docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -224,6 +225,18 @@ Related:
     - fail-fast reading for the current lane
     - current non-goals for this wave
   - `C5 Hakozuna portability layer` remains ladder-only and deferred
+
+- `Rust kernel export surface strata split` landed
+  - [`rust-kernel-export-surface-strata-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md) fixes:
+    - `compat` / `runtime-facade` / `substrate` split
+    - `array.rs` / `map.rs` as thin facades
+    - `runtime_data.rs` as a separate thin facade
+  - actual Rust implementations now live in
+    - `crates/nyash_kernel/src/plugin/array_compat.rs`
+    - `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`
+    - `crates/nyash_kernel/src/plugin/array_substrate.rs`
+    - `crates/nyash_kernel/src/plugin/map_compat.rs`
+    - `crates/nyash_kernel/src/plugin/map_substrate.rs`
 
 ## Stop-Line
 

@@ -1,208 +1,9 @@
-// ---- Array helpers for LLVM lowering (handle-based) ----
-use super::array_index_dispatch::{array_get_by_index, array_has_by_index, decode_index_key};
-use super::array_slot_append::array_slot_append_any;
-use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
-use super::array_slot_load::array_slot_load_encoded_i64;
-use super::array_slot_store::array_slot_store_i64;
-use super::array_write_dispatch::{
-    array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
-};
+pub use super::array_compat::*;
+pub use super::array_runtime_facade::*;
+pub use super::array_substrate::*;
+
+#[cfg(test)]
 use super::handle_cache::with_array_box;
-use nyash_rust::box_trait::IntegerBox;
-
-#[inline(always)]
-fn cli_verbose_enabled() -> bool {
-    #[cfg(test)]
-    {
-        std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1")
-    }
-    #[cfg(not(test))]
-    {
-        static ENABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-        *ENABLED.get_or_init(|| std::env::var("NYASH_CLI_VERBOSE").ok().as_deref() == Some("1"))
-    }
-}
-
-#[inline(always)]
-fn append_integer_raw(handle: i64, value_i64: i64) -> i64 {
-    if handle <= 0 {
-        return 0;
-    }
-    with_array_box(handle, |arr| {
-        arr.slot_append_box_raw(Box::new(IntegerBox::new(value_i64)))
-    })
-    .unwrap_or(0)
-}
-
-// Compat-only exports consumed by historical pure/legacy surfaces.
-// Manifest truth groups these as compat-only, not mainline substrate.
-// Exported as: nyash_array_get_h(i64 handle, i64 idx) -> i64
-#[no_mangle]
-pub extern "C" fn nyash_array_get_h(handle: i64, idx: i64) -> i64 {
-    if cli_verbose_enabled() {
-        eprintln!("[ARR] get_h(handle={}, idx={})", handle, idx);
-    }
-    let out = array_get_by_index(handle, idx);
-    if cli_verbose_enabled() {
-        eprintln!("[ARR] get_h => {}", out);
-    }
-    out
-}
-
-// Exported as: nyash_array_set_h(i64 handle, i64 idx, i64 val) -> i64
-#[no_mangle]
-pub extern "C" fn nyash_array_set_h(handle: i64, idx: i64, val: i64) -> i64 {
-    if cli_verbose_enabled() {
-        eprintln!("[ARR] set_h(handle={}, idx={}, val={})", handle, idx, val);
-    }
-    let applied = array_set_by_index_i64_value(handle, idx, val);
-    if cli_verbose_enabled() {
-        eprintln!("[ARR] set_h applied={} (legacy return=0)", applied);
-    }
-    // Legacy ABI contract: nyash.array.set_h reports completion with `0`
-    // and does not expose applied/non-applied via return code.
-    0
-}
-
-// Exported as: nyash_array_push_h(i64 handle, i64 val) -> i64 (returns new length)
-#[no_mangle]
-pub extern "C" fn nyash_array_push_h(handle: i64, val: i64) -> i64 {
-    if cli_verbose_enabled() {
-        eprintln!("[ARR] push_h(handle={}, val={})", handle, val);
-    }
-    let len = append_integer_raw(handle, val);
-    if cli_verbose_enabled() {
-        eprintln!("[ARR] push_h -> len {}", len);
-    }
-    len
-}
-
-// Exported as: nyash_array_length_h(i64 handle) -> i64
-#[no_mangle]
-pub extern "C" fn nyash_array_length_h(handle: i64) -> i64 {
-    with_array_box(handle, |arr| arr.len() as i64).unwrap_or(0)
-}
-
-// --- AOT ObjectModule dotted-name aliases (Array) ---
-// Provide dotted symbol names expected by ObjectBuilder lowering, forwarding to existing underscored exports.
-#[export_name = "nyash.array.get_h"]
-pub extern "C" fn nyash_array_get_h_alias(handle: i64, idx: i64) -> i64 {
-    nyash_array_get_h(handle, idx)
-}
-
-#[export_name = "nyash.array.set_h"]
-pub extern "C" fn nyash_array_set_h_alias(handle: i64, idx: i64, val: i64) -> i64 {
-    nyash_array_set_h(handle, idx, val)
-}
-
-#[export_name = "nyash.array.push_h"]
-pub extern "C" fn nyash_array_push_h_alias(handle: i64, val: i64) -> i64 {
-    nyash_array_push_h(handle, val)
-}
-
-#[export_name = "nyash.array.len_h"]
-pub extern "C" fn nyash_array_len_h_alias(handle: i64) -> i64 {
-    nyash_array_length_h(handle)
-}
-
-#[export_name = "nyash.array.slot_len_h"]
-pub extern "C" fn nyash_array_slot_len_h_alias(handle: i64) -> i64 {
-    nyash_array_length_h(handle)
-}
-
-#[export_name = "nyash.array.slot_cap_h"]
-pub extern "C" fn nyash_array_slot_cap_h_alias(handle: i64) -> i64 {
-    array_slot_cap_i64(handle)
-}
-
-// Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
-// These are not the canonical `.hako` collection-owner symbols.
-#[export_name = "nyash.array.get_hh"]
-pub extern "C" fn nyash_array_get_hh_alias(handle: i64, key_any: i64) -> i64 {
-    let Some(idx) = decode_index_key(key_any) else {
-        return 0;
-    };
-    array_get_by_index(handle, idx)
-}
-
-#[export_name = "nyash.array.set_hhh"]
-pub extern "C" fn nyash_array_set_hhh_alias(handle: i64, key_any: i64, val_any: i64) -> i64 {
-    let Some(idx) = decode_index_key(key_any) else {
-        return 0;
-    };
-    array_set_by_index(handle, idx, val_any)
-}
-
-#[export_name = "nyash.array.has_hh"]
-pub extern "C" fn nyash_array_has_hh_alias(handle: i64, key_any: i64) -> i64 {
-    let Some(idx) = decode_index_key(key_any) else {
-        return 0;
-    };
-    array_has_by_index(handle, idx)
-}
-
-#[export_name = "nyash.array.push_hh"]
-pub extern "C" fn nyash_array_push_hh_alias(handle: i64, val_any: i64) -> i64 {
-    array_slot_append_any(handle, val_any)
-}
-
-#[export_name = "nyash.array.push_hi"]
-pub extern "C" fn nyash_array_push_hi_alias(handle: i64, value_i64: i64) -> i64 {
-    append_integer_raw(handle, value_i64)
-}
-
-// RuntimeData mono-route aliases with integer-key contract.
-// These routes are selected by lowering when key VID is proven i64/non-negative.
-#[export_name = "nyash.array.get_hi"]
-pub extern "C" fn nyash_array_get_hi_alias(handle: i64, idx: i64) -> i64 {
-    array_get_by_index(handle, idx)
-}
-
-#[export_name = "nyash.array.set_hih"]
-pub extern "C" fn nyash_array_set_hih_alias(handle: i64, idx: i64, val_any: i64) -> i64 {
-    array_set_by_index(handle, idx, val_any)
-}
-
-#[export_name = "nyash.array.set_hii"]
-pub extern "C" fn nyash_array_set_hii_alias(handle: i64, idx: i64, value_i64: i64) -> i64 {
-    array_set_by_index_i64_value(handle, idx, value_i64)
-}
-
-#[export_name = "nyash.array.set_his"]
-pub extern "C" fn nyash_array_set_his_alias(handle: i64, idx: i64, value_h: i64) -> i64 {
-    array_set_by_index_string_handle_value(handle, idx, value_h)
-}
-
-#[export_name = "nyash.array.has_hi"]
-pub extern "C" fn nyash_array_has_hi_alias(handle: i64, idx: i64) -> i64 {
-    array_has_by_index(handle, idx)
-}
-
-// Mainline substrate aliases used by `.hako` collection owners and adapter defaults.
-#[export_name = "nyash.array.slot_load_hi"]
-pub extern "C" fn nyash_array_slot_load_hi_alias(handle: i64, idx: i64) -> i64 {
-    array_slot_load_encoded_i64(handle, idx)
-}
-
-#[export_name = "nyash.array.slot_store_hii"]
-pub extern "C" fn nyash_array_slot_store_hii_alias(handle: i64, idx: i64, value_i64: i64) -> i64 {
-    array_slot_store_i64(handle, idx, value_i64)
-}
-
-#[export_name = "nyash.array.slot_append_hh"]
-pub extern "C" fn nyash_array_slot_append_hh_alias(handle: i64, val_any: i64) -> i64 {
-    array_slot_append_any(handle, val_any)
-}
-
-#[export_name = "nyash.array.slot_reserve_hi"]
-pub extern "C" fn nyash_array_slot_reserve_hi_alias(handle: i64, additional: i64) -> i64 {
-    array_slot_reserve_i64(handle, additional)
-}
-
-#[export_name = "nyash.array.slot_grow_hi"]
-pub extern "C" fn nyash_array_slot_grow_hi_alias(handle: i64, target_capacity: i64) -> i64 {
-    array_slot_grow_i64(handle, target_capacity)
-}
 
 #[cfg(test)]
 mod tests {
@@ -273,8 +74,8 @@ mod tests {
         let handle = new_array_handle();
         let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("slot-append".to_string()),
-        )
-            as std::sync::Arc<dyn NyashBox>) as i64;
+        ) as std::sync::Arc<dyn NyashBox>)
+            as i64;
 
         assert_eq!(nyash_array_slot_append_hh_alias(handle, string_handle), 1);
         assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
@@ -290,9 +91,12 @@ mod tests {
         let before_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
         assert_eq!(nyash_array_slot_cap_h_alias(handle), before_cap as i64);
         assert_eq!(nyash_array_slot_reserve_hi_alias(handle, 8), 1);
-        let after_reserve_cap =
-            with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
-        assert_eq!(nyash_array_slot_cap_h_alias(handle), after_reserve_cap as i64);
+        let after_reserve_cap = with_array_box(handle, |arr| arr.items.read().capacity())
+            .unwrap_or(0);
+        assert_eq!(
+            nyash_array_slot_cap_h_alias(handle),
+            after_reserve_cap as i64
+        );
         assert!(after_reserve_cap >= before_cap);
         assert_eq!(nyash_array_length_h(handle), 1);
 
@@ -309,12 +113,12 @@ mod tests {
         assert_eq!(nyash_array_push_h(handle, 1), 1);
         let string_handle_a = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("ok".to_string()),
-        )
-            as std::sync::Arc<dyn NyashBox>) as i64;
+        ) as std::sync::Arc<dyn NyashBox>)
+            as i64;
         let string_handle_b = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("ng".to_string()),
-        )
-            as std::sync::Arc<dyn NyashBox>) as i64;
+        ) as std::sync::Arc<dyn NyashBox>)
+            as i64;
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle_a), 1);
         assert_eq!(nyash_array_get_hi_alias(handle, 0), string_handle_a);
         // Re-set same slot keeps alias contract and must expose the latest handle.

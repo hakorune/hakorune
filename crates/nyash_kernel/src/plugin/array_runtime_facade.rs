@@ -1,0 +1,69 @@
+use super::array_compat::append_integer_raw;
+use super::array_index_dispatch::{array_get_by_index, array_has_by_index, decode_index_key};
+use super::array_slot_append::array_slot_append_any;
+use super::array_write_dispatch::{
+    array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
+};
+
+// Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
+// These are not the canonical `.hako` collection-owner symbols.
+#[export_name = "nyash.array.get_hh"]
+pub extern "C" fn nyash_array_get_hh_alias(handle: i64, key_any: i64) -> i64 {
+    let Some(idx) = decode_index_key(key_any) else {
+        return 0;
+    };
+    array_get_by_index(handle, idx)
+}
+
+#[export_name = "nyash.array.set_hhh"]
+pub extern "C" fn nyash_array_set_hhh_alias(handle: i64, key_any: i64, val_any: i64) -> i64 {
+    let Some(idx) = decode_index_key(key_any) else {
+        return 0;
+    };
+    array_set_by_index(handle, idx, val_any)
+}
+
+#[export_name = "nyash.array.has_hh"]
+pub extern "C" fn nyash_array_has_hh_alias(handle: i64, key_any: i64) -> i64 {
+    let Some(idx) = decode_index_key(key_any) else {
+        return 0;
+    };
+    array_has_by_index(handle, idx)
+}
+
+#[export_name = "nyash.array.push_hh"]
+pub extern "C" fn nyash_array_push_hh_alias(handle: i64, val_any: i64) -> i64 {
+    array_slot_append_any(handle, val_any)
+}
+
+#[export_name = "nyash.array.push_hi"]
+pub extern "C" fn nyash_array_push_hi_alias(handle: i64, value_i64: i64) -> i64 {
+    append_integer_raw(handle, value_i64)
+}
+
+// RuntimeData mono-route aliases with integer-key contract.
+// These routes are selected by lowering when key VID is proven i64/non-negative.
+#[export_name = "nyash.array.get_hi"]
+pub extern "C" fn nyash_array_get_hi_alias(handle: i64, idx: i64) -> i64 {
+    array_get_by_index(handle, idx)
+}
+
+#[export_name = "nyash.array.set_hih"]
+pub extern "C" fn nyash_array_set_hih_alias(handle: i64, idx: i64, val_any: i64) -> i64 {
+    array_set_by_index(handle, idx, val_any)
+}
+
+#[export_name = "nyash.array.set_hii"]
+pub extern "C" fn nyash_array_set_hii_alias(handle: i64, idx: i64, value_i64: i64) -> i64 {
+    array_set_by_index_i64_value(handle, idx, value_i64)
+}
+
+#[export_name = "nyash.array.set_his"]
+pub extern "C" fn nyash_array_set_his_alias(handle: i64, idx: i64, value_h: i64) -> i64 {
+    array_set_by_index_string_handle_value(handle, idx, value_h)
+}
+
+#[export_name = "nyash.array.has_hi"]
+pub extern "C" fn nyash_array_has_hi_alias(handle: i64, idx: i64) -> i64 {
+    array_has_by_index(handle, idx)
+}
