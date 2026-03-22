@@ -198,6 +198,11 @@ Related:
   - `ArrayCoreBox.len_i64/push_hh` now delegate through `RawArrayCoreBox`
   - `MemCoreBox` / `BufCoreBox` remain skeleton-only in this slice
 
+- `I3 RawArray reserve/grow slice` landed
+  - `PtrCoreBox` now also owns `slot_reserve_i64` / `slot_grow_i64`
+  - `RawArrayCoreBox` now widens the substrate capacity path
+  - `RawArray` is now the first consumer of `reserve/grow` as well as slot access
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table

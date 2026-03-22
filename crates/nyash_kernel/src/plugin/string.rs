@@ -187,7 +187,9 @@ mod tests {
 
     fn to_string(ptr: *mut i8) -> String {
         assert!(!ptr.is_null());
-        unsafe { CStr::from_ptr(ptr) }.to_string_lossy().into_owned()
+        unsafe { CStr::from_ptr(ptr) }
+            .to_string_lossy()
+            .into_owned()
     }
 
     #[test]

@@ -229,10 +229,8 @@ pub fn decode_entry_to_i64(
             }
             None
         }
-        1 => {
-            nyash_rust::runtime::plugin_ffi_common::decode::bool(payload)
-                .map(|b| if b { 1 } else { 0 })
-        }
+        1 => nyash_rust::runtime::plugin_ffi_common::decode::bool(payload)
+            .map(|b| if b { 1 } else { 0 }),
         5 => {
             if std::env::var("NYASH_JIT_NATIVE_F64").ok().as_deref() == Some("1") && sz == 8 {
                 let mut b = [0u8; 8];
@@ -269,13 +267,8 @@ pub fn decode_entry_to_f64(tag: u8, sz: usize, payload: &[u8]) -> Option<f64> {
             }
             None
         }
-        1 => nyash_rust::runtime::plugin_ffi_common::decode::bool(payload).map(|b| {
-            if b {
-                1.0
-            } else {
-                0.0
-            }
-        }),
+        1 => nyash_rust::runtime::plugin_ffi_common::decode::bool(payload)
+            .map(|b| if b { 1.0 } else { 0.0 }),
         _ => None,
     }
 }

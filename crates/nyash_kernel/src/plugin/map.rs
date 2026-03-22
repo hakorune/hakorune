@@ -176,14 +176,23 @@ mod tests {
         let key_handle = string_handle("slot-key");
         let value_handle = string_handle("slot-value");
 
-        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_handle, value_handle), 1);
+        assert_eq!(
+            nyash_map_slot_store_hhh_alias(handle, key_handle, value_handle),
+            1
+        );
         assert_eq!(nyash_map_probe_hh_alias(handle, key_handle), 1);
         let got_handle = nyash_map_slot_load_hh_alias(handle, key_handle);
         assert!(got_handle > 0);
         assert_eq!(decode_string_from_handle(got_handle), "slot-value");
 
-        assert_eq!(nyash_map_probe_hh_alias(handle, string_handle("missing")), 0);
-        assert_eq!(nyash_map_slot_load_hh_alias(handle, string_handle("missing")), 0);
+        assert_eq!(
+            nyash_map_probe_hh_alias(handle, string_handle("missing")),
+            0
+        );
+        assert_eq!(
+            nyash_map_slot_load_hh_alias(handle, string_handle("missing")),
+            0
+        );
     }
 
     #[test]
@@ -191,7 +200,10 @@ mod tests {
         let handle = new_map_handle();
         let value_handle = string_handle("value-hi");
 
-        assert_eq!(nyash_map_slot_store_hih_alias(handle, -70001, value_handle), 1);
+        assert_eq!(
+            nyash_map_slot_store_hih_alias(handle, -70001, value_handle),
+            1
+        );
         assert_eq!(nyash_map_probe_hi_alias(handle, -70001), 1);
         let got_handle = nyash_map_slot_load_hi_alias(handle, -70001);
         assert!(got_handle > 0);

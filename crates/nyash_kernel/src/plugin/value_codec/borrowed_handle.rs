@@ -1,5 +1,5 @@
 use nyash_rust::{
-    box_trait::{next_box_id, BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
+    box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox, next_box_id},
     runtime::host_handles as handles,
 };
 use std::{any::Any, sync::Arc};

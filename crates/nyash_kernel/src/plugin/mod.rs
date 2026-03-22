@@ -1,10 +1,11 @@
 pub mod array;
 mod array_index_dispatch;
-mod array_write_dispatch;
 mod array_slot_append;
+mod array_slot_capacity;
 mod array_slot_load;
 mod array_slot_store;
 mod array_string_slot;
+mod array_write_dispatch;
 pub mod birth;
 mod compat_invoke_core;
 pub mod console;

@@ -101,7 +101,10 @@ pub(crate) fn string_handle_or_immediate_box_from_obj(
         return int_arg_to_box(source_handle);
     };
     if obj.as_any().downcast_ref::<StringBox>().is_some()
-        || obj.as_any().downcast_ref::<crate::exports::string_view::StringViewBox>().is_some()
+        || obj
+            .as_any()
+            .downcast_ref::<crate::exports::string_view::StringViewBox>()
+            .is_some()
     {
         return maybe_borrow_string_handle_with_epoch(
             obj.clone(),

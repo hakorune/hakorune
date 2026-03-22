@@ -49,6 +49,27 @@ impl ArrayBox {
         items.len() as i64
     }
 
+    /// Raw reserve helper for substrate/plugin routes.
+    /// Keeps visible owner semantics above the capacity seam.
+    pub fn slot_reserve_capacity_raw(&self, additional: usize) -> bool {
+        let mut items = self.items.write();
+        items.reserve(additional);
+        true
+    }
+
+    /// Raw grow helper for substrate/plugin routes.
+    /// Keeps visible owner semantics above the capacity seam.
+    pub fn slot_grow_capacity_raw(&self, target_capacity: usize) -> bool {
+        let mut items = self.items.write();
+        if items.capacity() < target_capacity {
+            let needed = target_capacity.saturating_sub(items.len());
+            if needed > 0 {
+                items.reserve(needed);
+            }
+        }
+        true
+    }
+
     /// 最後の要素を取り出す
     pub fn pop(&self) -> Box<dyn NyashBox> {
         match self.items.write().pop() {

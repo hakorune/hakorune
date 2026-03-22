@@ -49,7 +49,7 @@ fn encode_build_box_program_json_result(program_json: Result<String, String>) ->
 
 #[cfg(test)]
 mod tests {
-    use super::{try_dispatch, BUILD_BOX_METHOD, BUILD_BOX_MODULE};
+    use super::{BUILD_BOX_METHOD, BUILD_BOX_MODULE, try_dispatch};
     use crate::plugin::module_string_dispatch::{decode_string_handle, encode_string_handle};
     use crate::test_support::{with_env_var, with_env_vars};
 
@@ -107,8 +107,7 @@ mod tests {
                 "../../../../../lang/src/runner/stage1_cli_env.hako"
             ));
             assert_eq!(
-                serde_json::from_str::<serde_json::Value>(&program_json).expect("valid json")
-                    ["kind"],
+                serde_json::from_str::<serde_json::Value>(&program_json).expect("valid json")["kind"],
                 "Program"
             );
         });
@@ -218,9 +217,8 @@ static box Main {
 
     #[test]
     fn dispatch_build_box_unsupported_source_returns_freeze_tag() {
-        let result_text = dispatch_build_box_emit_program_json(
-            "static box NotMain { main() { return 0 } }",
-        );
+        let result_text =
+            dispatch_build_box_emit_program_json("static box NotMain { main() { return 0 } }");
         assert!(result_text.contains("[freeze:contract][stage1_program_json_v0]"));
     }
 

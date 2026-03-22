@@ -1,11 +1,12 @@
 // ---- Array helpers for LLVM lowering (handle-based) ----
 use super::array_index_dispatch::{array_get_by_index, array_has_by_index, decode_index_key};
+use super::array_slot_append::array_slot_append_any;
+use super::array_slot_capacity::{array_slot_grow_i64, array_slot_reserve_i64};
+use super::array_slot_load::array_slot_load_encoded_i64;
+use super::array_slot_store::array_slot_store_i64;
 use super::array_write_dispatch::{
     array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
 };
-use super::array_slot_append::array_slot_append_any;
-use super::array_slot_load::array_slot_load_encoded_i64;
-use super::array_slot_store::array_slot_store_i64;
 use super::handle_cache::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
 
@@ -27,8 +28,10 @@ fn append_integer_raw(handle: i64, value_i64: i64) -> i64 {
     if handle <= 0 {
         return 0;
     }
-    with_array_box(handle, |arr| arr.slot_append_box_raw(Box::new(IntegerBox::new(value_i64))))
-        .unwrap_or(0)
+    with_array_box(handle, |arr| {
+        arr.slot_append_box_raw(Box::new(IntegerBox::new(value_i64)))
+    })
+    .unwrap_or(0)
 }
 
 // Compat-only exports consumed by historical pure/legacy surfaces.
@@ -186,6 +189,16 @@ pub extern "C" fn nyash_array_slot_append_hh_alias(handle: i64, val_any: i64) ->
     array_slot_append_any(handle, val_any)
 }
 
+#[export_name = "nyash.array.slot_reserve_hi"]
+pub extern "C" fn nyash_array_slot_reserve_hi_alias(handle: i64, additional: i64) -> i64 {
+    array_slot_reserve_i64(handle, additional)
+}
+
+#[export_name = "nyash.array.slot_grow_hi"]
+pub extern "C" fn nyash_array_slot_grow_hi_alias(handle: i64, target_capacity: i64) -> i64 {
+    array_slot_grow_i64(handle, target_capacity)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -262,6 +275,24 @@ mod tests {
         assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
         assert_eq!(nyash_array_get_hh_alias(handle, 0), string_handle);
         assert_eq!(nyash_array_slot_append_hh_alias(0, string_handle), 0);
+    }
+
+    #[test]
+    fn slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity() {
+        let handle = new_array_handle();
+        assert_eq!(nyash_array_push_h(handle, 1), 1);
+
+        let before_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        assert_eq!(nyash_array_slot_reserve_hi_alias(handle, 8), 1);
+        let after_reserve_cap =
+            with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        assert!(after_reserve_cap >= before_cap);
+        assert_eq!(nyash_array_length_h(handle), 1);
+
+        assert_eq!(nyash_array_slot_grow_hi_alias(handle, 32), 1);
+        let after_grow_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        assert!(after_grow_cap >= 32);
+        assert_eq!(nyash_array_length_h(handle), 1);
     }
 
     #[test]

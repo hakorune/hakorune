@@ -77,11 +77,14 @@ This phase places README/docs only.
 - current first live probe path is:
   - `ArrayCoreBox.get_i64/set_i64/len_i64/push_hh`
   - `RawArrayCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
+  - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64`
   - `PtrCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
+  - `PtrCoreBox.slot_reserve_i64/slot_grow_i64`
   - existing native
     `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` /
-    `nyash.array.slot_len_h` / `nyash.array.slot_append_hh`
-- `reserve` / `grow` stay out of scope in this slice
+    `nyash.array.slot_len_h` / `nyash.array.slot_append_hh` /
+    `nyash.array.slot_reserve_hi` / `nyash.array.slot_grow_hi`
+- `reserve` / `grow` now sit on the widened RawArray substrate path; `ArrayCoreBox` does not expose them yet
 
 ## Non-Goals
 

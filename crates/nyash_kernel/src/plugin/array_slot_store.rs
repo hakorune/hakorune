@@ -1,6 +1,6 @@
 use super::array_string_slot::array_set_by_index_string_handle_value;
 use super::handle_cache::with_array_box;
-use super::value_codec::{decode_array_fast_value, ArrayFastDecodedValue};
+use super::value_codec::{ArrayFastDecodedValue, decode_array_fast_value};
 
 #[inline(always)]
 pub(super) fn array_slot_store_any(handle: i64, idx: i64, val_any: i64) -> i64 {

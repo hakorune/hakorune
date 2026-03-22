@@ -2,7 +2,7 @@
 # phase29cc_runtime_v0_adapter_fixtures_vm.sh
 # Contract lock (Step-3 adapter fixtures):
 # - array_set_i64 / array_get_i64 semantics under adapter ON
-# - raw array probe path exists below ArrayCoreBox get/set/len/push
+# - raw array probe path exists below ArrayCoreBox get/set/len/push/reserve/grow
 # - strict mode freeze contract exists in handler source
 # - string_len adapter route contract exists in source (registry + handler + core box)
 # - map_size_i64 adapter route contract exists in source (registry + handler + core box)
@@ -144,6 +144,14 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw array ptr append hop contract missing"
     exit 1
   fi
+  if ! rg -F -q 'PtrCoreBox.slot_reserve_i64(handle, additional)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ptr reserve hop contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'PtrCoreBox.slot_grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array ptr grow hop contract missing"
+    exit 1
+  fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_store_i64]' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array store trace tag contract missing"
     exit 1
@@ -158,6 +166,14 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_append_any]' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array append trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_reserve_i64]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array reserve trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_array:slot_grow_i64]' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array grow trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'reserved()' "$MEM_CORE_FILE"; then
@@ -384,4 +400,4 @@ check_array_strict_contract
 run_string_behavior_smoke
 run_map_behavior_smoke
 
-test_pass "$SMOKE_NAME: PASS (array_get/set/len/push + string_len/map_entry_count_i64 adapter route locked)"
+test_pass "$SMOKE_NAME: PASS (array_get/set/len/push/reserve/grow + string_len/map_entry_count_i64 adapter route locked)"

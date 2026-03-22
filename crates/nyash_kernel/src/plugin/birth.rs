@@ -66,7 +66,7 @@ pub extern "C" fn nyash_box_birth_i64_export(type_id: i64, argc: i64, a1: i64, a
     let invoke_fn = nyash_rust::runtime::plugin_loader_v2::nyash_plugin_invoke_v2_shim;
     let method_id: u32 = 0; // birth
     let instance_id: u32 = 0; // static
-                              // Build TLV args
+    // Build TLV args
     use nyash_rust::runtime::host_handles as handles;
     let nargs = argc.max(0) as usize;
     let mut buf = nyash_rust::runtime::plugin_ffi_common::encode_tlv_header(nargs as u16);

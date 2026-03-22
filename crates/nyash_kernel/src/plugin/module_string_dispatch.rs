@@ -1,7 +1,7 @@
-use nyash_rust::box_trait::{NyashBox, StringBox};
-use nyash_rust::runtime::host_handles;
 #[cfg(test)]
 use crate::test_support::with_env_vars;
+use nyash_rust::box_trait::{NyashBox, StringBox};
+use nyash_rust::runtime::host_handles;
 #[cfg(not(test))]
 use std::sync::OnceLock;
 
@@ -250,7 +250,7 @@ fn handle_mir_builder_emit_from_source_v0(arg_count: i64, arg1: i64, arg2: i64) 
     let mir_json = match nyash_rust::host_providers::mir_builder::source_to_mir_json(&source_text) {
         Ok(json_text) => json_text,
         Err(error_text) => {
-            return Some(mir_builder_error_result("mir_builder source", &error_text))
+            return Some(mir_builder_error_result("mir_builder source", &error_text));
         }
     };
     Some(encode_string_handle(&mir_json))

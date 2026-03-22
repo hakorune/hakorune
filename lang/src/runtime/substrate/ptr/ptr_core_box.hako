@@ -23,4 +23,12 @@ static box PtrCoreBox {
   slot_append_any(handle, value_any) {
     return externcall "nyash.array.slot_append_hh"(handle, value_any)
   }
+
+  slot_reserve_i64(handle, additional) {
+    return externcall "nyash.array.slot_reserve_hi"(handle, additional)
+  }
+
+  slot_grow_i64(handle, target_capacity) {
+    return externcall "nyash.array.slot_grow_hi"(handle, target_capacity)
+  }
 }
