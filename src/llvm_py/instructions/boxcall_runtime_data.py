@@ -55,19 +55,19 @@ def try_lower_collection_boxcall(
                 resolver=resolver,
                 arg_vids=args,
             ):
-                callee = declare(module, "nyash.array.get_hi", i64, [i64, i64])
-                return builder.call(callee, [recv_h, k], name="array_get_hi")
+                callee = declare(module, "nyash.array.slot_load_hi", i64, [i64, i64])
+                return builder.call(callee, [recv_h, k], name="array_slot_load_hi")
             callee = declare(module, "nyash.array.get_hh", i64, [i64, i64])
             return builder.call(callee, [recv_h, k], name="array_get_hh")
-        callee = declare(module, "nyash.map.get_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, k], name="map_get_hh")
+        callee = declare(module, "nyash.map.slot_load_hh", i64, [i64, i64])
+        return builder.call(callee, [recv_h, k], name="map_slot_load_hh")
 
     if method_name == "push":
         v0 = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
         if v0 is None:
             v0 = ir.Constant(i64, 0)
-        callee = declare(module, "nyash.array.push_h", i64, [i64, i64])
-        return builder.call(callee, [recv_h, v0], name="arr_push_h")
+        callee = declare(module, "nyash.array.slot_append_hh", i64, [i64, i64])
+        return builder.call(callee, [recv_h, v0], name="arr_slot_append_hh")
 
     if method_name == "set":
         k = resolve_arg(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
@@ -94,15 +94,15 @@ def try_lower_collection_boxcall(
                 return builder.call(callee, [recv_h, k, v], name="array_set_hih")
             callee = declare(module, "nyash.array.set_hhh", i64, [i64, i64, i64])
             return builder.call(callee, [recv_h, k, v], name="array_set_hhh")
-        callee = declare(module, "nyash.map.set_hh", i64, [i64, i64, i64])
-        return builder.call(callee, [recv_h, k, v], name="map_set_hh")
+        callee = declare(module, "nyash.map.slot_store_hhh", i64, [i64, i64, i64])
+        return builder.call(callee, [recv_h, k, v], name="map_slot_store_hhh")
 
     if method_name == "has":
         k = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
         if k is None:
             k = ir.Constant(i64, 0)
-        callee = declare(module, "nyash.map.has_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, k], name="map_has_hh")
+        callee = declare(module, "nyash.map.probe_hh", i64, [i64, i64])
+        return builder.call(callee, [recv_h, k], name="map_probe_hh")
 
     return None
 

@@ -85,7 +85,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - but the collection boundary is still not closed, because active daily lowering/runtime-data paths still cross method-shaped collection exports
   - the next collection task is exact `B1` taskization:
     1. `B1f` landed: active daily `collections_hot.hako` rewrites now target raw seams for array `get/push` and map `get/set/has`; `array set` stays on the current route until a raw non-i64-safe write seam is accepted
-    2. `B1g`: demote active llvm-py lowering residues in `src/llvm_py/instructions/mir_call/collection_method_call.py`, `src/llvm_py/instructions/boxcall_runtime_data.py`, and `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
+    2. `B1g` landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); `array set`, `array non-i64 get`, and `array has` stay on the current routes
     3. `B1h`: demote the active runtime-data map hidden residue in `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
   - build-freshness note is now pinned: after a new kernel export lands on the AOT boundary path, refresh release-side artifacts before link/pure smokes; stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
   - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug
@@ -101,13 +101,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - smoke hygiene: first future split families have landed at `tools/smokes/v2/profiles/integration/rc_gc_alignment/`, `tools/smokes/v2/profiles/integration/json/`, `tools/smokes/v2/profiles/integration/mir_shape/`, and `tools/smokes/v2/profiles/integration/ring1_providers/`; `phase29ck_boundary` has now been split into `tools/smokes/v2/profiles/integration/phase29ck_boundary/{entry,string,runtime_data}/`, `vm_hako_caps` has now been split into `tools/smokes/v2/profiles/integration/vm_hako_caps/{app1,args,compare,env,file,gate,lib,mapbox,misc,open_handle_phi,select_emit}/`, `phase29cc/plg_hm1`, `phase29x/vm_hako`, `phase29x/derust`, `phase29x/observability`, `phase29y/hako/emit_mir`, `phase21_5/perf/{chip8,kilo}`, and `phase21_5/perf/numeric` now live under `tools/smokes/v2/profiles/integration/{phase29cc/plg_hm1,phase29x/vm_hako,phase29x/derust,phase29x/observability,phase29y/hako/emit_mir,phase21_5/perf/{chip8,kilo,numeric}}/`; continue splitting the remaining active families out of `tools/smokes/v2/profiles/integration/apps/` by domain, keeping the bundle root empty of new live `phase21_5/perf/apps` scripts
   - smoke hygiene: inventory now reports suite coverage; use the suite-aware report before semantic path splits
 - Next exact files:
-  - `src/llvm_py/instructions/mir_call/collection_method_call.py`
-  - `src/llvm_py/instructions/boxcall_runtime_data.py`
-  - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
   - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
-  - `lang/src/llvm_ir/boxes/aot_prep/passes/collections_hot.hako`
-  - `tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
+  - `crates/nyash_kernel/src/plugin/runtime_data.rs`
+  - `lang/src/runtime/collections/runtime_data_core_box.hako`
   - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
+  - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `lang/src/runtime/collections/README.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`

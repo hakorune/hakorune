@@ -99,5 +99,7 @@ Rule:
   - worker inventory: those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
   - landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams
   - keep: `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
-  - next: retarget active llvm-py/runtime-data lowering paths that still emit method-shaped collection exports
+  - landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
+  - keep: `ArrayBox` non-i64 `get` and `ArrayBox.has` stay on the current routes until matching raw seams are accepted
+  - next: retarget the active runtime-data map hidden residue away from visible `MapBox.get_opt/set/has`
   - keep `RuntimeDataBox` facade-only while doing so

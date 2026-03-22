@@ -26,7 +26,7 @@ def _declare(module, name, ret, args):
 
 
 class TestCollectionMethodCall(unittest.TestCase):
-    def test_non_runtime_data_get_falls_back_to_map_kernel(self):
+    def test_non_runtime_data_get_falls_back_to_map_raw_kernel(self):
         i64, module, builder = _new_builder()
 
         result = lower_collection_method_call(
@@ -40,7 +40,7 @@ class TestCollectionMethodCall(unittest.TestCase):
         )
         builder.ret(result)
 
-        self.assertIn("nyash.map.get_hh", str(module))
+        self.assertIn("nyash.map.slot_load_hh", str(module))
 
     def test_runtime_data_push_uses_runtime_data_dispatch(self):
         i64, module, builder = _new_builder()

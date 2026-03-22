@@ -126,14 +126,17 @@ Related:
 - `B1e` landed: `nyash.map.slot_* / probe_*` and `nyash.map.entry_count_h` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}(...)` instead of visible `get_opt/set/has/size`.
 - worker stop-line inventory says the new `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice.
 - but the overall collection boundary is still not closed on the active daily path:
-  - `src/llvm_py/instructions/mir_call/collection_method_call.py` / `src/llvm_py/instructions/boxcall_runtime_data.py` / `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py` still lower to method-shaped collection exports
   - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs` still uses visible `MapBox.get_opt/set/has`
 - next exact boundary-deepen task is:
   1. `B1f` landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams; `array set` stays on the current route until a raw non-i64-safe write seam is accepted
-  2. `B1g`: demote active llvm-py lowering residues
+  2. `B1g` landed: llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); `array set`, `array non-i64 get`, and `array has` stay on the current routes
   3. `B1h`: demote runtime-data map hidden residue
 - acceptance pin for `B1f`:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
+- acceptance pins for `B1g`:
+  - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
+  - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+  - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
 - build-freshness note:
   - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
@@ -208,7 +211,7 @@ Move to `.hako`:
    - `B1d`: deepen hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
    - `B1e`: landed; map raw helpers now call `MapBox` key-string/raw observer helpers instead of visible `get_opt/set/has/size`
    - `B1f`: landed; `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
-   - `B1g`: demote active llvm-py lowering residues in `collection_method_call.py` / `boxcall_runtime_data.py` / `runtime_data_dispatch.py`
+   - `B1g`: landed; llvm-py lowering now uses raw seams where they already exist in `collection_method_call.py` / `boxcall_runtime_data.py` / `runtime_data_dispatch.py`
    - `B1h`: demote `runtime_data_map_route.rs` hidden residue
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
    - do not describe this phase as finished until these transitional exports are either removed from the daily path or explicitly accepted as the long-term substrate boundary

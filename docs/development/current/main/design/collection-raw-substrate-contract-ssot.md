@@ -262,7 +262,18 @@ Current second slice:
    - contract pin:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
 7. `B1g / llvm-py-lowering-residue`
-   - retarget active llvm-py collection lowering away from method-shaped collection exports where the raw seam already exists
+   - landed: retarget active llvm-py collection lowering away from method-shaped collection exports where the raw seam already exists
+   - landed set:
+     - shared collection fallback now uses `nyash.array.slot_append_hh` and `nyash.map.slot_load_hh / slot_store_hhh / probe_hh`
+     - direct boxcall lowering now uses `nyash.array.slot_load_hi` where the i64 raw seam exists
+     - runtime-data array mono-route now uses `nyash.array.slot_load_hi` for i64-key `get`
+   - keep:
+     - `ArrayBox.set` stays on the current route
+     - `ArrayBox` non-i64 `get` and `has` stay on the current route until matching raw seams are accepted
+   - contract pins:
+     - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+     - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
 8. `B1h / runtime-data-map-hidden-residue`
    - move `runtime_data_map_route.rs` away from visible `MapBox.get_opt/set/has`
 6. `B1r / runtime_data lock`

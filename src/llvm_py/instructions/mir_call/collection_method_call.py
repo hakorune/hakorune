@@ -46,8 +46,8 @@ def lower_collection_method_call(
         )
         if runtime_result is not None:
             return runtime_result
-        callee = declare("nyash.map.get_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, key], name="unified_map_get")
+        callee = declare("nyash.map.slot_load_hh", i64, [i64, i64])
+        return builder.call(callee, [recv_h, key], name="unified_map_slot_load")
 
     if method_name == "push":
         if not arg_ids:
@@ -67,8 +67,8 @@ def lower_collection_method_call(
         )
         if runtime_result is not None:
             return runtime_result
-        callee = declare("nyash.array.push_h", i64, [i64, i64])
-        return builder.call(callee, [recv_h, value], name="unified_array_push")
+        callee = declare("nyash.array.slot_append_hh", i64, [i64, i64])
+        return builder.call(callee, [recv_h, value], name="unified_array_slot_append")
 
     if method_name == "set":
         if len(arg_ids) < 2:
@@ -89,8 +89,8 @@ def lower_collection_method_call(
         )
         if runtime_result is not None:
             return runtime_result
-        callee = declare("nyash.map.set_hh", i64, [i64, i64, i64])
-        return builder.call(callee, [recv_h, key, value], name="unified_map_set")
+        callee = declare("nyash.map.slot_store_hhh", i64, [i64, i64, i64])
+        return builder.call(callee, [recv_h, key, value], name="unified_map_slot_store")
 
     if method_name == "has":
         if not arg_ids:
@@ -110,7 +110,7 @@ def lower_collection_method_call(
         )
         if runtime_result is not None:
             return runtime_result
-        callee = declare("nyash.map.has_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, key], name="unified_map_has")
+        callee = declare("nyash.map.probe_hh", i64, [i64, i64])
+        return builder.call(callee, [recv_h, key], name="unified_map_probe")
 
     return None

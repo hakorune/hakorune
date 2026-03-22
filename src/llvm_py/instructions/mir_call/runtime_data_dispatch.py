@@ -34,7 +34,7 @@ _RUNTIME_DATA_ARRAY_METHODS = {
 
 
 _RUNTIME_DATA_ARRAY_I64_KEY_METHODS = {
-    "get": ("nyash.array.get_hi", "unified_array_get_hi", 1),
+    "get": ("nyash.array.slot_load_hi", "unified_array_slot_load_hi", 1),
     "set": ("nyash.array.set_hih", "unified_array_set_hih", 2),
     "has": ("nyash.array.has_hi", "unified_array_has_hi", 1),
 }

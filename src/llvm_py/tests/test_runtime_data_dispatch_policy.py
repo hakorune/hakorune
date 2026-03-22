@@ -54,6 +54,24 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         )
         self.assertEqual(spec[0], "nyash.array.set_hii")
 
+    def test_default_prefers_array_i64_get_raw_route_when_hints_match(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "ArrayBox"},
+                2: "i64",
+            },
+            integerish_ids={2},
+        )
+        spec = select_runtime_data_call_spec(
+            method="get",
+            box_name="RuntimeDataBox",
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2],
+            prefer_array_mono_route=True,
+        )
+        self.assertEqual(spec[0], "nyash.array.slot_load_hi")
+
     def test_runtime_data_only_policy_disables_array_mono_route(self):
         resolver = _DummyResolver(
             value_types={

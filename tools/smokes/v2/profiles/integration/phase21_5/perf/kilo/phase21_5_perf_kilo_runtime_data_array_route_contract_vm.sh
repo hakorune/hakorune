@@ -3,7 +3,7 @@
 #
 # Contract pin (LLVM-HOT-20 cleanup-8):
 # - RuntimeDataBox get/set in kilo main should prefer Array direct int-key route.
-# - main IR should use nyash.array.get_hi / nyash.array.set_hih.
+# - main IR should use nyash.array.slot_load_hi / nyash.array.set_hih.
 # - main IR should not keep nyash.runtime_data.get_hh / set_hhh on this path.
 
 set -euo pipefail
@@ -16,9 +16,10 @@ EMIT_ROUTE="$NYASH_ROOT/tools/smokes/v2/lib/emit_mir_route.sh"
 EMIT_TIMEOUT_SECS="${EMIT_TIMEOUT_SECS:-30}"
 MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 BENCH="$NYASH_ROOT/benchmarks/bench_kilo_kernel_small.hako"
-ROUTE_ARRAY_GET="nyash.array.get_hi"
+ROUTE_ARRAY_GET="nyash.array.slot_load_hi"
 ROUTE_ARRAY_SET="nyash.array.set_hih"
-LEGACY_ARRAY_GET="nyash.array.get_hh"
+LEGACY_ARRAY_GET="nyash.array.get_hi"
+LEGACY_ARRAY_GET_COMPAT="nyash.array.get_hh"
 LEGACY_ARRAY_SET="nyash.array.set_hhh"
 RUNTIME_GET="nyash.runtime_data.get_hh"
 RUNTIME_SET="nyash.runtime_data.set_hhh"
@@ -98,6 +99,7 @@ array_set_count="$(count_symbol "$ROUTE_ARRAY_SET")"
 runtime_get_count="$(count_symbol "$RUNTIME_GET")"
 runtime_set_count="$(count_symbol "$RUNTIME_SET")"
 legacy_array_get_count="$(count_symbol "$LEGACY_ARRAY_GET")"
+legacy_array_get_compat_count="$(count_symbol "$LEGACY_ARRAY_GET_COMPAT")"
 legacy_array_set_count="$(count_symbol "$LEGACY_ARRAY_SET")"
 
 if [ "$array_get_count" -lt 1 ]; then
@@ -118,6 +120,10 @@ if [ "$runtime_set_count" -ne 0 ]; then
 fi
 if [ "$legacy_array_get_count" -ne 0 ]; then
   test_fail "$SMOKE_NAME: legacy ${LEGACY_ARRAY_GET} remained in main (${legacy_array_get_count})"
+  exit 1
+fi
+if [ "$legacy_array_get_compat_count" -ne 0 ]; then
+  test_fail "$SMOKE_NAME: legacy ${LEGACY_ARRAY_GET_COMPAT} remained in main (${legacy_array_get_compat_count})"
   exit 1
 fi
 if [ "$legacy_array_set_count" -ne 0 ]; then
