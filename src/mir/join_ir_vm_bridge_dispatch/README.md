@@ -14,7 +14,7 @@ Layout:
 
 ## P5 Crate Split Prep
 
-`join_ir_vm_bridge_dispatch/` stays inside the future `mir-joinir` boundary for
+`join_ir_vm_bridge_dispatch/` stays inside the future `hakorune-mir-joinir` boundary for
 now. The prep step is to keep routing tables explicit and stable before any
 packaging move.
 

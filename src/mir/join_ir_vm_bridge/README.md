@@ -19,7 +19,7 @@ File layout:
 
 ## P5 Crate Split Prep
 
-`join_ir_vm_bridge/` is a future `mir-joinir` candidate, but it is not being
+`join_ir_vm_bridge/` is a future `hakorune-mir-joinir` candidate, but it is not being
 split yet. The prep step is to keep the lowering surface explicit and prevent
 bridge-local heuristics from growing.
 

@@ -120,6 +120,12 @@ P6 naming cleanup:
 - `src/mir/README.md` / MIR crate split prep SSOT now use `hakorune-mir-*` future names
 - subtree READMEs for `builder/`, `join_ir/`, and `passes/` also use `hakorune-mir-*` future names
 - `hakorune_mir_core` now also owns the basic block / binding ID substrate
+- remaining README cleanup landed for:
+  - `src/mir/contracts/README.md`
+  - `src/mir/control_tree/README.md`
+  - `src/mir/join_ir_vm_bridge/README.md`
+  - `src/mir/join_ir_vm_bridge_dispatch/README.md`
+  - `src/mir/policies/README.md`
 
 ## Pressure Summary
 

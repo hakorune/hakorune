@@ -17,8 +17,8 @@ Rules:
 ## P5 Crate Split Prep
 
 `contracts/` is a shared fence, not a split target for the current P5 step.
-Keep the acceptance surface visible here until the `mir-core` / `mir-builder`
-/ `mir-joinir` seams are stable.
+Keep the acceptance surface visible here until the `hakorune-mir-core` /
+`hakorune-mir-builder` / `hakorune-mir-joinir` seams are stable.
 
 SSOT:
 

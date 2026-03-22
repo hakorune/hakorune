@@ -25,8 +25,8 @@ StepTree → Normalized shadow path.
 ## P5 Crate Split Prep
 
 `control_tree/` is a structural fence, not a split target for the current P5
-step. Keep the structure/contract split visible here until the `mir-core` and
-`mir-builder` seams are stable.
+step. Keep the structure/contract split visible here until the
+`hakorune-mir-core` and `hakorune-mir-builder` seams are stable.
 
 SSOT:
 

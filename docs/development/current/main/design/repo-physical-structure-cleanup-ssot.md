@@ -209,6 +209,8 @@ P5 substrate ID slice landed:
 - `src/mir/basic_block.rs` re-exports the substrate IDs
 - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
 - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
+- remaining README cleanup landed for `contracts/`, `control_tree/`,
+  `join_ir_vm_bridge/`, `join_ir_vm_bridge_dispatch/`, and `policies/`
 
 ### P3. `src/mir` navigation-first cleanup
 

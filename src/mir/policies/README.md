@@ -12,7 +12,7 @@ router-style consumers.
 
 - Shared policy lives here instead of being duplicated in local helpers.
 - Policy modules should decide shape/acceptance, not generate MIR.
-- Do not move this subtree into a separate crate until the `mir-core` / `mir-builder` / `mir-joinir` seams are stable.
+- Do not move this subtree into a separate crate until the `hakorune-mir-core` / `hakorune-mir-builder` / `hakorune-mir-joinir` seams are stable.
 
 ## Main Responsibilities
 

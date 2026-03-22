@@ -28,6 +28,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_defs` package: `definitions/call_unified.rs`
   - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
   - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
+  - `src/mir/contracts/README.md`
+  - `src/mir/control_tree/README.md`
+  - `src/mir/join_ir_vm_bridge/README.md`
+  - `src/mir/join_ir_vm_bridge_dispatch/README.md`
+  - `src/mir/policies/README.md`
+    -> `hakorune-mir-*` future-name cleanup
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
