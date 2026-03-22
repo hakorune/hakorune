@@ -20,9 +20,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29cr` P6: naming cleanup on the MIR substrate packages / future crate names
+- `phase-29cr` P5: packaging slice on the MIR substrate IDs / future crate boundaries
 - landed slice:
   - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
+  - `hakorune_mir_core` package: `effect.rs`
+  - `hakorune_mir_core` package: `basic_block_id.rs` / `binding_id.rs`
   - `hakorune_mir_defs` package: `definitions/call_unified.rs`
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
@@ -56,20 +58,22 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
   - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
-  - `src/mir/README.md`
-  - `src/mir/builder/README.md`
-  - `src/mir/passes/README.md`
-  - `src/mir/join_ir/README.md`
-  - `src/mir/contracts/README.md`
-  - `src/mir/policies/README.md`
-  - `src/mir/loop_canonicalizer/README.md`
-  - `src/mir/control_tree/README.md`
-  - `src/mir/join_ir_vm_bridge/README.md`
-  - `src/mir/join_ir_vm_bridge_dispatch/README.md`
-  - `crates/hakorune_mir_core/README.md`
-  - `crates/hakorune_mir_core/src/lib.rs`
-  - `crates/hakorune_mir_defs/README.md`
-  - `crates/hakorune_mir_defs/src/lib.rs`
+- `src/mir/README.md`
+- `src/mir/builder/README.md`
+- `src/mir/passes/README.md`
+- `src/mir/join_ir/README.md`
+- `src/mir/contracts/README.md`
+- `src/mir/policies/README.md`
+- `src/mir/loop_canonicalizer/README.md`
+- `src/mir/control_tree/README.md`
+- `src/mir/join_ir_vm_bridge/README.md`
+- `src/mir/join_ir_vm_bridge_dispatch/README.md`
+- `crates/hakorune_mir_core/README.md`
+- `crates/hakorune_mir_core/src/lib.rs`
+- `crates/hakorune_mir_core/src/basic_block_id.rs`
+- `crates/hakorune_mir_core/src/binding_id.rs`
+- `crates/hakorune_mir_defs/README.md`
+- `crates/hakorune_mir_defs/src/lib.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`

@@ -9,7 +9,6 @@ pub mod analysis; // analysis-only views (no AST rewrite)
 #[cfg(feature = "aot-plan-import")]
 pub mod aot_plan_import;
 pub mod basic_block;
-pub mod binding_id; // Phase 74: BindingId infrastructure
 pub mod builder;
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
@@ -58,8 +57,8 @@ pub mod verification;
 pub mod verification_types; // extracted error types // Optimization subpasses (e.g., type_hints) // Phase 25.1f: Loop/If 共通ビュー（ControlForm）
 
 // Re-export main types for easy access
-pub use basic_block::{BasicBlock, BasicBlockId, BasicBlockIdGenerator, EdgeArgs, OutEdge};
-pub use binding_id::BindingId; // Phase 74: BindingId infrastructure
+pub use basic_block::{BasicBlock, EdgeArgs, OutEdge};
+pub use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator, BindingId};
 pub use builder::MirBuilder;
 
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer

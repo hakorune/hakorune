@@ -15,6 +15,7 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
 - `hakorune_mir_defs` package: `definitions/call_unified.rs`
 - `hakorune_mir_core` now also owns `effect.rs`
+- `hakorune_mir_core` now also owns `basic_block_id.rs` / `binding_id.rs`
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/definitions/call_unified.rs` is a thin re-export wrapper
 - `src/mir` full split is still not done
@@ -49,6 +50,11 @@ Maybe keep as shared modules for now:
 
 - `contracts/`
 - `ssot/`
+
+Current substrate IDs that already live here:
+
+- `basic_block_id.rs`
+- `binding_id.rs`
 
 ### `hakorune-mir-builder`
 

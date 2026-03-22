@@ -8,40 +8,9 @@ use super::{EffectMask, MirInstruction, SpannedInstRef, SpannedInstruction, Valu
 use crate::ast::Span;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::runtime::get_global_ring0;
+pub use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator};
 use std::collections::BTreeSet; // Phase 69-3: HashSet → BTreeSet for determinism
 use std::fmt;
-
-/// Unique identifier for basic blocks within a function
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct BasicBlockId(pub u32);
-
-impl BasicBlockId {
-    /// Create a new BasicBlockId
-    pub fn new(id: u32) -> Self {
-        BasicBlockId(id)
-    }
-
-    /// Get the raw ID value
-    pub fn as_u32(self) -> u32 {
-        self.0
-    }
-
-    /// Create BasicBlockId from usize (for array indexing)
-    pub fn from_usize(id: usize) -> Self {
-        BasicBlockId(id as u32)
-    }
-
-    /// Convert to usize (for array indexing)
-    pub fn to_usize(self) -> usize {
-        self.0 as usize
-    }
-}
-
-impl fmt::Display for BasicBlockId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "bb{}", self.0)
-    }
-}
 
 /// Edge arguments for CFG edges (Phase 260 P0)
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -561,42 +530,6 @@ impl BasicBlock {
         } else {
             false
         }
-    }
-}
-
-/// Basic block ID generator
-#[derive(Debug, Clone)]
-pub struct BasicBlockIdGenerator {
-    next_id: u32,
-}
-
-impl BasicBlockIdGenerator {
-    /// Create a new generator starting from 0
-    pub fn new() -> Self {
-        Self { next_id: 0 }
-    }
-
-    /// Generate the next unique BasicBlockId
-    pub fn next(&mut self) -> BasicBlockId {
-        let id = BasicBlockId(self.next_id);
-        self.next_id += 1;
-        id
-    }
-
-    /// Peek at the next ID without consuming it
-    pub fn peek_next(&self) -> BasicBlockId {
-        BasicBlockId(self.next_id)
-    }
-
-    /// Reset the generator (for testing)
-    pub fn reset(&mut self) {
-        self.next_id = 0;
-    }
-}
-
-impl Default for BasicBlockIdGenerator {
-    fn default() -> Self {
-        Self::new()
     }
 }
 

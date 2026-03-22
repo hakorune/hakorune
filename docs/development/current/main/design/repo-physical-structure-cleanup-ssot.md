@@ -203,6 +203,11 @@ P5 first packaging slice landed:
 - `hakorune_mir_core` package with `types.rs` / `value_id.rs`
 - `src/mir/types.rs` / `src/mir/value_id.rs` became thin re-export wrappers
 
+P5 substrate ID slice landed:
+
+- `hakorune_mir_core` package now also owns `basic_block_id.rs` / `binding_id.rs`
+- `src/mir/basic_block.rs` re-exports the substrate IDs
+
 ### P3. `src/mir` navigation-first cleanup
 
 Goal:

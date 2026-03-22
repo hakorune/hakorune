@@ -5,6 +5,8 @@ preparation lane.
 
 ## Scope
 
+- `basic_block_id.rs`
+- `binding_id.rs`
 - `types.rs`
 - `value_id.rs`
 

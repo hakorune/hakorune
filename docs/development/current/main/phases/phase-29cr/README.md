@@ -107,11 +107,17 @@ P5 second packaging slice landed:
 - `crates/hakorune_mir_core/` gained `effect.rs`
 - `src/mir/definitions/call_unified.rs` became a thin wrapper to `hakorune_mir_defs`
 
+P5 substrate ID slice landed:
+
+- `crates/hakorune_mir_core/` gained `basic_block_id.rs` / `binding_id.rs`
+- `src/mir/basic_block.rs` now re-exports the substrate IDs
+
 P6 naming cleanup:
 
 - `crates/hakorune_mir_core/` and `crates/hakorune_mir_defs/` use the `hakorune_*` crate naming now
 - `src/mir/README.md` / MIR crate split prep SSOT now use `hakorune-mir-*` future names
 - subtree READMEs for `builder/`, `join_ir/`, and `passes/` also use `hakorune-mir-*` future names
+- `hakorune_mir_core` now also owns the basic block / binding ID substrate
 
 ## Pressure Summary
 
