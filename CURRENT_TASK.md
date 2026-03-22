@@ -35,6 +35,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `raw-array-substrate-ssot.md`
   - `raw-map-substrate-ssot.md`
   - `gc-tls-atomic-capability-ssot.md`
+  - `final-metal-split-ssot.md`
   - `phase-29ct/README.md`
 - landed slice:
   - `phase-29ct` V0 ABI export inventory
@@ -103,6 +104,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       `lang/src/runtime/substrate/atomic/README.md`
       `lang/src/runtime/substrate/tls/README.md`
       `lang/src/runtime/substrate/gc/README.md`
+  - `phase-29ct` C6 final metal split detail lock
+    - docs-side truth now lives in
+      `docs/development/current/main/design/final-metal-split-ssot.md`
+    - final boundary is now read through:
+      `.hako owner` / `native metal keep` / `not yet moved`
+    - `C5 Hakozuna portability layer` remains ladder-only and deferred
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -198,9 +205,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/raw-array-substrate-ssot.md`
   - `docs/development/current/main/design/raw-map-substrate-ssot.md`
   - `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
-  - `lang/src/runtime/substrate/atomic/README.md`
-  - `lang/src/runtime/substrate/tls/README.md`
-  - `lang/src/runtime/substrate/gc/README.md`
+  - `docs/development/current/main/design/final-metal-split-ssot.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`

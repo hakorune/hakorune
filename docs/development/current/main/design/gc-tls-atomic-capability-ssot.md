@@ -101,5 +101,5 @@ current staging roots are reserved at:
 
 After this docs lock, the next widening remains:
 
-1. `Hakozuna portability layer`
-2. `final metal split`
+1. `final metal split` detail lock
+2. `Hakozuna portability layer` remains deferred later

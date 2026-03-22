@@ -15,6 +15,7 @@ Related:
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/raw-map-substrate-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
+  - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -207,6 +208,8 @@ allocator/runtime policy owner を深くする前に必要。
 - telemetry/profile policy
 
 ここでは policy を `.hako` に持ち、metal primitive は native keep する。
+current reading:
+- ladder-only and deferred for now
 
 ### C6. Hakozuna metal split
 
@@ -219,6 +222,8 @@ allocator/runtime policy owner を深くする前に必要。
   - OS VM
   - final allocator call
   - final platform stubs
+- current docs lock:
+  - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md)
 
 ## Immediate Task Pack
 

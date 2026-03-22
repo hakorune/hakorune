@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/raw-map-substrate-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
+  - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -183,7 +184,14 @@ Related:
     - [`lang/src/runtime/substrate/atomic/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/atomic/README.md)
     - [`lang/src/runtime/substrate/tls/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/tls/README.md)
     - [`lang/src/runtime/substrate/gc/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/gc/README.md)
-  - next active slice is `C5 Hakozuna portability layer`
+  - next active slice is `C6 final metal split detail lock`
+
+- `C6 final metal split detail lock` landed
+  - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
+    - `.hako owner` / `native metal keep` final split table
+    - fail-fast reading for the current lane
+    - current non-goals for this wave
+  - `C5 Hakozuna portability layer` remains ladder-only and deferred
 
 ## Stop-Line
 
