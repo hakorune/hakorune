@@ -3,7 +3,7 @@ use super::{MirInstruction, ValueId};
 use crate::ast::{
     ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
 };
-use crate::mir::builder::context::BoxCompilationContext;
+use hakorune_mir_builder::BoxCompilationContext;
 use crate::mir::builder::observe::types as type_trace;
 
 impl super::MirBuilder {

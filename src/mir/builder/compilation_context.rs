@@ -27,7 +27,7 @@ use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, ValueId};
 use std::collections::{HashMap, HashSet};
 
-use super::context::BoxCompilationContext;
+use hakorune_mir_builder::BoxCompilationContext;
 use super::type_registry::TypeRegistry;
 use super::PropertyKind;
 

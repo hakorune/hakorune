@@ -1,0 +1,7 @@
+[package]
+name = "hakorune-mir-builder"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hakorune-mir-core = { path = "../hakorune_mir_core" }

@@ -5,7 +5,7 @@
 //! - グローバル状態への依存を排除し、汚染を構造的に不可能にする
 //! - コンテキストのライフタイムでリソース管理を自動化
 
-use crate::mir::{MirType, ValueId};
+use hakorune_mir_core::{MirType, ValueId};
 use std::collections::BTreeMap; // Phase 25.1: 決定性確保
 
 /// 静的Boxコンパイル時のコンテキスト

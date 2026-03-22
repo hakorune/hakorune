@@ -48,6 +48,7 @@
 use super::{
     BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirModule, MirType, ValueId,
 };
+use hakorune_mir_builder::BoxCompilationContext;
 use crate::ast::ASTNode;
 use crate::config;
 
@@ -150,7 +151,7 @@ impl super::MirBuilder {
                                     // これにより、using文や前のboxからのメタデータ汚染を構造的に防止
                                     // スコープを抜けると自動的にコンテキストが破棄される
                                     {
-                                        let ctx = super::context::BoxCompilationContext::new();
+                                        let ctx = BoxCompilationContext::new();
                                         self.comp_ctx.compilation_context = Some(ctx);
 
                                         // Lower all static methods into standalone functions: BoxName.method/Arity

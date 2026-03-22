@@ -8,6 +8,7 @@ use super::{
     BasicBlock, BasicBlockId, CompareOp, ConstValue, Effect, EffectMask, FunctionSignature,
     MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
+use hakorune_mir_builder::CoreContext;
 pub(crate) use builder_calls::CallTarget;
 use std::collections::HashMap;
 mod binding_context; // Phase 136 follow-up (Step 4/7): BindingContext extraction
@@ -24,8 +25,6 @@ mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod calls; // Call system modules (refactored from builder_calls)
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
-mod context; // BoxCompilationContext - 箱理論による静的Boxコンパイル時のコンテキスト分離
-mod core_context; // Phase 136 follow-up (Step 2/7): CoreContext extraction
 mod decls; // declarations lowering split
 mod exprs; // expression lowering split
 mod exprs_call;
@@ -131,7 +130,7 @@ pub struct MirBuilder {
     /// Phase 136 follow-up (Step 2/7): Core ID generation context
     /// Consolidates value_gen, block_gen, next_binding_id, temp_slot_counter, debug_join_counter.
     /// Direct field access for backward compatibility (migration in progress).
-    pub(super) core_ctx: core_context::CoreContext,
+    pub(super) core_ctx: CoreContext,
 
     /// Phase 136 follow-up: Type information context
     /// Consolidates value_types, value_kinds, value_origin_newbox for better organization.

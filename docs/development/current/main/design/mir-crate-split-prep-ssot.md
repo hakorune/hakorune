@@ -16,6 +16,7 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_defs` package: `definitions/call_unified.rs`
 - `hakorune_mir_core` now also owns `effect.rs`
 - `hakorune_mir_core` now also owns `basic_block_id.rs` / `binding_id.rs`
+- `hakorune_mir_builder` package: `core_context.rs` / `context.rs`
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/definitions/call_unified.rs` is a thin re-export wrapper
 - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
@@ -72,6 +73,11 @@ Keep:
 - `joinir_id_remapper.rs`
 - `weak_field_validator.rs`
 
+Already packaged:
+
+- `core_context.rs`
+- `context.rs`
+
 ### `hakorune-mir-joinir`
 
 Keep:
@@ -127,5 +133,5 @@ It is not a split target for the current P5 step.
 
 - `src/mir/README.md` links back to this doc.
 - `src/mir/builder/README.md`, `src/mir/passes/README.md`, and `src/mir/join_ir/README.md` name their future crate candidates.
-- No crate is split yet.
-- The next implementation slice is a docs-only tightening step, not a packaging change.
+- The first builder packaging slice is already landed.
+- The next implementation slice is another packaging step, not a docs-only tightening step.

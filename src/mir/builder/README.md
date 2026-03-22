@@ -26,7 +26,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 
 ## Context 構成（責務マップ）
 
-- `core_context.rs`
+- `crates/hakorune_mir_builder/src/core_context.rs`
   - ID 生成器（ValueId/BlockId/BindingId 等）と最小の共通コア状態。
 - `type_context.rs`
   - ValueId → 型/種別/起源（NewBox 由来など）の追跡。
@@ -40,7 +40,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
   - span/source_hint/region（観測）などのメタ情報。
 - `compilation_context.rs`
   - コンパイル全体のレジストリ（Box/型レジストリ、reserved ids 等）。
-- `context.rs`
+- `crates/hakorune_mir_builder/src/context.rs`
   - 上記 Context を束ねる入れ物（`MirBuilder` はここを介して状態へアクセスする）。
 
 ## 主要エントリポイント
@@ -56,14 +56,14 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 
 ## Top-Level Map
 
-- `core_context.rs`: ID 生成器と最小の共通コア状態。
+- `crates/hakorune_mir_builder/src/core_context.rs`: ID 生成器と最小の共通コア状態。
 - `type_context.rs`: ValueId → 型/種別/起源の追跡。
 - `scope_context.rs`: lexical scope / loop / if / try の実行文脈。
 - `binding_context.rs`: 変数名 ↔ BindingId の対応。
 - `variable_context.rs`: 変数解決（variable_map 等）。
 - `metadata_context.rs`: span / source_hint / region の観測。
 - `compilation_context.rs`: Box / 型レジストリと reserved ids。
-- `context.rs`: 上記 Context を束ねる入れ物。
+- `crates/hakorune_mir_builder/src/context.rs`: 上記 Context を束ねる入れ物。
 
 ## 追加ルール（将来の変更者向け）
 
@@ -74,6 +74,9 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 ## P5 Crate Split Prep
 
 `src/mir` の crate split を準備するとき、この subtree は `hakorune-mir-builder` 候補になる。
+The first packaging slice has already landed in `crates/hakorune_mir_builder/`
+with `core_context.rs` and `context.rs`; the remaining builder orchestration
+stays here for now.
 
 SSOT:
 
@@ -81,6 +84,6 @@ SSOT:
 
 Prep rule:
 
-- public surface は `context.rs` / `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる
+- public surface は `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる
 - helper を増やす前に、Context の責務境界を README に書く
 - split は docs-first で seam が固定されてから行う

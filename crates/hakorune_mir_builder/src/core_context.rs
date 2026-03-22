@@ -12,14 +12,14 @@
  * - debug_join_counter: Debug scope join ID counter
  */
 
-use crate::mir::{BasicBlockId, BasicBlockIdGenerator, BindingId, ValueId, ValueIdGenerator};
+use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator, BindingId, ValueId, ValueIdGenerator};
 
 /// Core ID generation context for MIR builder
 ///
 /// Provides centralized allocation for all MIR entity IDs.
 /// All ID generators are collected here for better organization and SSOT compliance.
 #[derive(Debug)]
-pub(crate) struct CoreContext {
+pub struct CoreContext {
     /// Primary ValueId generator for SSA values
     pub value_gen: ValueIdGenerator,
 

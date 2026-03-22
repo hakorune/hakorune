@@ -1,8 +1,9 @@
 use super::plugin_sigs;
 use super::{
-    binding_context, compilation_context, core_context, metadata_context, scope_context,
-    type_context, variable_context, MirBuilder,
+    binding_context, compilation_context, metadata_context, scope_context, type_context,
+    variable_context, MirBuilder,
 };
+use hakorune_mir_builder::CoreContext;
 use crate::mir::BindingId;
 use std::collections::HashMap;
 
@@ -10,7 +11,7 @@ impl MirBuilder {
     /// Create a new MIR builder
     pub fn new() -> Self {
         let plugin_method_sigs = plugin_sigs::load_plugin_method_sigs();
-        let core_ctx = core_context::CoreContext::new();
+        let core_ctx = CoreContext::new();
 
         // Phase 136 Step 7/7: Compilation context (new SSOT)
         let comp_ctx =
