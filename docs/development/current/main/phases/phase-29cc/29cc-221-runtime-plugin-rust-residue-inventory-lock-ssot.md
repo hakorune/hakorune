@@ -150,6 +150,6 @@ Execution update:
 
 ## Non-target (keep for now)
 
-- `array.rs` / `string.rs` / `map.rs` / `console.rs` / `intarray.rs` / `module_string_dispatch.rs` / `handle_helpers.rs`
+- `array.rs` / `string.rs` / `map.rs` / `console.rs` / `intarray.rs` / `module_string_dispatch.rs` / `handle_cache.rs`
   - 理由: 現時点では ABI 契約の境界面を先に固定するため。
   - 扱い: source-zero final wave で再評価（独立 lock で扱う）。

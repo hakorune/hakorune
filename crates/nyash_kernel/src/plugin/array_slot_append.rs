@@ -1,4 +1,4 @@
-use super::handle_helpers::with_array_box;
+use super::handle_cache::with_array_box;
 use super::value_codec::{any_arg_to_box_with_profile, CodecProfile};
 
 #[inline(always)]

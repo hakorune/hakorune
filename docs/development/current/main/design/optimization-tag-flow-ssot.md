@@ -124,16 +124,16 @@ backend optimization coverage の議論に混ぜない。
 
 `kilo_micro_array_getset` の current exact leaf は次。
 
-- cache seam: [handle_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_helpers.rs)
+- cache seam: [handle_cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_cache.rs)
 - landed read slice:
   - [array_slot_load.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_slot_load.rs)
 - current probe target:
   - [array_slot_store.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_slot_store.rs)
-  - [handle_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_helpers.rs)
+  - [handle_cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_cache.rs)
   - [mod.rs](/home/tomoaki/git/hakorune-selfhost/src/boxes/array/mod.rs)
 - wrapper status:
-  - [array_index_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_index_helpers.rs)
-  - [array_route_helpers.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_route_helpers.rs)
+  - [array_index_dispatch.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_index_dispatch.rs)
+  - [array_write_dispatch.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_write_dispatch.rs)
   - these are now thin wrappers and are no longer the primary edit target
 
 `map` stays parked for this wave because its raw aliases still sit too close to `MapBox.get/set/has` semantics.

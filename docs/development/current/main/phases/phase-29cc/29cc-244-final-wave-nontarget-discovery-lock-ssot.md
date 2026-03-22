@@ -13,7 +13,7 @@ Related:
   - crates/nyash_kernel/src/plugin/console.rs
   - crates/nyash_kernel/src/plugin/intarray.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
-  - crates/nyash_kernel/src/plugin/handle_helpers.rs
+  - crates/nyash_kernel/src/plugin/handle_cache.rs
 ---
 
 # 29cc-244 Final-Wave Non-target Discovery Lock
@@ -25,7 +25,7 @@ Related:
 ## Decision Summary
 
 - すべての実装順は `1 boundary = 1 commit` を維持する。
-- final wave の先頭は `handle_helpers.rs` と `module_string_dispatch.rs` を優先する。
+- final wave の先頭は `handle_cache.rs` と `module_string_dispatch.rs` を優先する。
 - `array/map/string/console/intarray` は上記基盤の後に切る。
 - no-delete-first を維持し、compat default-off は変更しない。
 
@@ -33,7 +33,7 @@ Related:
 
 | Module | Role | Main callers | ABI touchpoints / contract | Compat dependency | Complexity | Recommended order |
 |---|---|---|---|---|---|---|
-| `handle_helpers.rs` | handle cache / typed box bridge | `array.rs`, `map.rs`, `instance.rs`, `runtime_data.rs` | `with_array_box/with_map_box/with_instance_box` が `None` を返す fail-safe 契約。drop epoch + TLS cache を保持。 | cache miss / stale handle は silent `None` | High | 1 |
+| `handle_cache.rs` | handle cache / typed box bridge | `array.rs`, `map.rs`, `instance.rs`, `runtime_data.rs` | `with_array_box/with_map_box/with_instance_box` が `None` を返す fail-safe 契約。drop epoch + TLS cache を保持。 | cache miss / stale handle は silent `None` | High | 1 |
 | `module_string_dispatch.rs` | Stage1 module string dispatch | `invoke/by_name.rs` | `try_dispatch` + encode/decode string handle。契約違反は `[freeze:contract]` 文字列ハンドルで返す。 | `HAKO_STAGE1_MODULE_DISPATCH_TRACE` | High | 2 |
 | `array.rs` | array handle API exports | tests, lowerers, ABI clients | `nyash.array.*` / alias exports。legacy `set_h` は常時 `0`（互換）で、hh/hi ルートは成否を返す。 | `NYASH_CLI_VERBOSE` と legacy set contract | High | 3 |
 | `map.rs` | map handle API exports | tests, JIT/LLVM lowering | `nyash.map.*` exports。`set_h` は互換 `0` 返却、`has/get` は失敗時 `0`。 | `NYASH_LLVM_MAP_DEBUG` と legacy set contract | Medium-High | 4 |
@@ -44,10 +44,10 @@ Related:
 ## Commit Slices (fixed)
 
 ### Commit 1: Handle cache foundation boundary
-- Scope: `crates/nyash_kernel/src/plugin/handle_helpers.rs` only
+- Scope: `crates/nyash_kernel/src/plugin/handle_cache.rs` only
 - Goal: cache/epoch/typed helper 契約を source-zero final wave 向けに固定
 - Acceptance:
-  - `handle_helpers.rs` の既存 test (`cache_invalidation_on_drop_epoch`, `array_or_map_route_detection`) green
+  - `handle_cache.rs` の既存 test (`cache_invalidation_on_drop_epoch`, `array_or_map_route_detection`) green
   - array/map/instance/runtime_data の呼び出し点に契約変更が波及しない
 
 ### Commit 2: Stage1 dispatch boundary
@@ -107,7 +107,7 @@ Related:
 
 ## Execution Status (2026-02-28)
 
-- [x] Commit 1 done: `handle_helpers.rs` boundary fixed
+- [x] Commit 1 done: `handle_cache.rs` boundary fixed
   - commit: `e8e9e2d79`
   - contracts pinned: invalid handle short-circuit / array index fail-safe
 - [x] Commit 2 done: `module_string_dispatch.rs` boundary fixed

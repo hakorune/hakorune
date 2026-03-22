@@ -85,7 +85,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
-- Repo cleanup lane: `phase-29cr`（P0/P1 landed; P2 landed: box arithmetic / box operators / runner plugin init + core-ish root relocations; P3 landed: MIR navigation root + builder / join_ir / loop_canonicalizer / passes / control_tree entry READMEs; P4 landed: `helpers_pure_value.rs` / `helpers_layout.rs` / `helpers_value.rs` + `rc_insertion` facade split + `loop_break_helpers_common.rs` + `loop_break_helpers_break_if.rs` + `loop_break_helpers_realworld.rs` + `loop_break_helpers_local.rs` + `loop_break_helpers_condition.rs` + `loop_break_helpers_loop.rs` + `loop_break_trim_whitespace_helpers.rs`; P5 docs seed: `docs/development/current/main/design/mir-crate-split-prep-ssot.md`; P5 next: crate split preparation; fixed order は `root hygiene -> CURRENT_TASK slim -> src top-level cleanup -> src/mir navigation-first cleanup`）
+- Repo cleanup lane: `phase-29cs`（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` now owns the kernel/plugin naming cleanup batch; fixed order は `root hygiene -> CURRENT_TASK slim -> src top-level cleanup -> src/mir navigation-first cleanup`）
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
@@ -192,7 +192,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
   - next active perf seam after boundary closeout:
     - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-    - `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+    - `crates/nyash_kernel/src/plugin/handle_cache.rs`
     - `src/boxes/array/mod.rs`
   - landed AOT-prep retarget:
     - `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
@@ -206,7 +206,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
       - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
       - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
   - landed runtime-data map retarget:
-    - `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+    - `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
     - `RuntimeDataBox` remains facade-only; next exact residue is array non-i64 lowering
   - landed array non-i64 lowering demotion:
     - active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`

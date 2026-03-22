@@ -280,7 +280,7 @@ Rule:
 
 Goal:
 
-- finish `nyash -> hako` cleanup after structure is calmer
+- keep the historical cleanup lane parked; the actual naming cleanup batch is now phase-29cs
 
 Rule:
 
@@ -288,6 +288,7 @@ Rule:
 
 Current naming slice:
 
+- `phase-29cs` owns the actual kernel/plugin naming cleanup lane
 - MIR substrate packages are now named `hakorune-mir-core` and `hakorune-mir-defs`
 - future MIR crate candidates use the `hakorune-mir-*` naming family
 

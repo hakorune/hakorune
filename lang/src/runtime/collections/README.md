@@ -43,8 +43,8 @@ Rule:
   - `get_hh(recv_h, key_any)` / `set_hhh(recv_h, key_any, val_any)` / `has_hh(recv_h, key_any)` / `push_hh(recv_h, val_any)`
     -> `nyash.runtime_data.*` thin extern wrapper used by the same facade
   - paired Rust route modules:
-    - `crates/nyash_kernel/src/plugin/runtime_data_array_route.rs`
-    - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
+    - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`
+    - `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs`
     - `crates/nyash_kernel/src/plugin/runtime_data.rs` now stays dispatch-shell only
 - `map_core_box.hako`
   - `try_handle(seg, regs, mname)`
@@ -104,7 +104,7 @@ Rule:
   - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
   - `nyash.array.set_h` remains compatibility-only
   - landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
-  - landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+  - landed: `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
   - landed first slice: active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`
   - landed accepted keep: the remaining i64-key array set route stays split as `nyash.array.set_hii` for i64/i64 and `nyash.array.set_hih` for i64-key + handle/any-value
   - keep `RuntimeDataBox` facade-only while doing so

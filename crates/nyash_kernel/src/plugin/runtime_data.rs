@@ -3,12 +3,12 @@
 // These exports bridge RuntimeDataBox method calls in AOT/LLVM to concrete
 // host boxes (ArrayBox/MapBox) without relying on static box-name guesses.
 
-use super::handle_helpers::with_array_or_map;
-use super::runtime_data_array_route::{
+use super::handle_cache::with_array_or_map;
+use super::runtime_data_array_dispatch::{
     runtime_data_array_get_hh, runtime_data_array_has_hh, runtime_data_array_push_hh,
     runtime_data_array_set_hhh,
 };
-use super::runtime_data_map_route::{
+use super::runtime_data_map_dispatch::{
     runtime_data_map_get_hh, runtime_data_map_has_hh, runtime_data_map_set_hhh,
 };
 

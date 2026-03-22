@@ -131,9 +131,9 @@ Hotspot は次の分類で読む。
 - `kilo_micro_indexof_line` が一番マシ
 - `kilo_micro_array_getset` の current exact leaf is now Rust substrate: the first read-seam slice (`crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`) is landed, and the current probe target is the write/TLS seam:
   - `crates/nyash_kernel/src/plugin/array_slot_store.rs::array_slot_store_i64`
-  - `crates/nyash_kernel/src/plugin/handle_helpers.rs::with_array_box`
+  - `crates/nyash_kernel/src/plugin/handle_cache.rs::with_array_box`
   - `src/boxes/array/mod.rs::ArrayBox::try_set_index_i64_integer`
-- `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers, so they are no longer the primary exact leaf target
+- `crates/nyash_kernel/src/plugin/array_index_dispatch.rs` / `array_write_dispatch.rs` are now thin wrappers, so they are no longer the primary exact leaf target
 - fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=43`
 - rejected probes (reverted immediately):
   - dedicated i64 write helper: `47 ms`

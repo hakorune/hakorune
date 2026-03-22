@@ -318,8 +318,8 @@ opt-level = "z"
 strip = true
 
 [[bin]]
-name = "hakorune-rust"
-path = "src/bin/hakorune_rust.rs"
+name = "hakorune-compat"
+path = "src/bin/hakorune_compat.rs"
 
 [[bin]]
 name = "hakorune"

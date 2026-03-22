@@ -33,6 +33,7 @@ Related:
 5. `P4`: `src/mir` physical clustering
 6. `P5`: crate split preparation
 7. `P6`: naming cleanup
+   - actual rename batch is now tracked in `phase-29cs`
 
 ## Immediate Slice
 

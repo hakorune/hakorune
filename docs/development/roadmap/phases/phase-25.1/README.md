@@ -222,7 +222,7 @@ Status: design+partial implementation（Stage1 ビルド導線の初期版まで
 
 - [x] Cargo.toml に Stage0/Stage1 の bin ターゲット方針を書き出す（ドキュメントコメントレベル）。
   - 現状: `[[bin]] name = "nyash"` を Stage0（Rust bootstrap）として扱い、Stage1 は `tools/selfhost/build_stage1.sh` で生成される `target/selfhost/hakorune` として外部管理。
-- [ ] CURRENT_TASK.md に「ユーザーが使うのは `hakorune` / Stage0 は `hakorune-rust`」という運用ポリシーを追記。
+- [ ] CURRENT_TASK.md に「ユーザーが使うのは `hakorune` / Stage0 は `hakorune-compat`」という運用ポリシーを追記。
 
 ### 2. Stage1 ランチャー（Hako側 Main）の骨組み
 
@@ -244,7 +244,7 @@ Status: design+partial implementation（Stage1 ビルド導線の初期版まで
 
 ### 4. Stage0 ↔ Stage1 の切り替えポリシー
 
-- [ ] docs に「普段は Stage1 の `hakorune` を使い、壊れたときだけ Stage0 の `hakorune-rust` を直接叩く」という運用例を追記。
+- [ ] docs に「普段は Stage1 の `hakorune` を使い、壊れたときだけ Stage0 の `hakorune-compat` を直接叩く」という運用例を追記。
 - [ ] `tools/selfhost/` に便利ラッパの案をメモしておく:
   - 例: `hako-vm.sh`（Stage1 + `--backend vm`）、`hako-exe.sh`（Stage1 + `--backend llvm --exe`）。
 

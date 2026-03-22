@@ -80,7 +80,7 @@ Related:
   - third slice landed: `map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing and `mir_vm_s0_boxcall_builtin.hako` only delegates
   - adjacent lane C blocker sweep is now fully ported through `RVP-C28`; no current `.hako VM` blocker remains for MapBox bad-key field routes
 - [x] `runtime_data` cleanup keeps protocol/facade-only shape
-  - first slice landed: `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell over `runtime_data_array_route.rs` / `runtime_data_map_route.rs`
+  - first slice landed: `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell over `runtime_data_array_dispatch.rs` / `runtime_data_map_dispatch.rs`
   - second slice landed: `runtime_data_core_box.hako` owns arg-decode/ABI-dispatch helpers and `mir_call_v1_handler.hako` now sees `RuntimeDataBox` as one delegated branch
   - `RuntimeDataBox` still does not own array/map semantics; it only routes to them
 - [x] `numeric` inventory was rechecked and remains parked as a narrow pilot
@@ -129,7 +129,7 @@ Related:
 - `B1d2` landed: `nyash.array.slot_store_hii` and runtime-data array set now execute through `ArrayBox.slot_store_*_raw(...)`, while preserving the current append-at-end/rebox behavior.
 - `B1e` landed: `nyash.map.slot_* / probe_*` and `nyash.map.entry_count_h` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}(...)` instead of visible `get_opt/set/has/size`.
 - worker stop-line inventory says the new `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice.
-- `B1h` landed: `runtime_data_map_route.rs` now reuses accepted map raw seam helpers instead of visible `MapBox.get_opt/set/has`.
+- `B1h` landed: `runtime_data_map_dispatch.rs` now reuses accepted map raw seam helpers instead of visible `MapBox.get_opt/set/has`.
 - but the overall collection boundary is still not closed on the active daily path:
   - active lowering no longer uses array non-i64 `get/has` or non-i64 `set` exports on the daily path; those now go through `nyash.runtime_data.*`
   - the last active array method-shaped keep was the i64-key set path; this slice now classifies it as an explicit accepted keep
@@ -149,7 +149,7 @@ Related:
   - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
 - `RuntimeDataBox` remains facade-only while the boundary deepens, and it has no active code task now.
-- `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary boundary owner.
+- `crates/nyash_kernel/src/plugin/array_index_dispatch.rs` / `array_write_dispatch.rs` are now thin wrappers and should not be treated as the primary boundary owner.
 
 ## Buildability Lock
 
@@ -223,7 +223,7 @@ Move to `.hako`:
    - `B1e`: landed; map raw helpers now call `MapBox` key-string/raw observer helpers instead of visible `get_opt/set/has/size`
    - `B1f`: landed; `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
    - `B1g`: landed; llvm-py lowering now uses raw seams where they already exist in `collection_method_call.py` / `boxcall_runtime_data.py` / `runtime_data_dispatch.py`
-   - `B1h`: landed; `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+   - `B1h`: landed; `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
    - `B1i`: landed first slice; active lowering now uses `nyash.runtime_data.get_hh/has_hh/set_hhh` for array non-i64 shapes while keeping `slot_load_hi` / `set_hih` / `set_hii` for the proven i64-key routes
    - `B1j`: landed accepted keep; `nyash.array.set_hii` remains the i64/i64-specialized route and `nyash.array.set_hih` remains the i64-key + handle/any-value fallback
    - `B1n`: landed compat/pure set retarget; adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`

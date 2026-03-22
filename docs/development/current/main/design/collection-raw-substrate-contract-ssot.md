@@ -12,9 +12,9 @@ Related:
   - lang/src/runtime/collections/array_core_box.hako
   - lang/src/runtime/collections/array_state_core_box.hako
   - crates/nyash_kernel/src/plugin/array.rs
-  - crates/nyash_kernel/src/plugin/array_index_helpers.rs
-  - crates/nyash_kernel/src/plugin/array_route_helpers.rs
-  - crates/nyash_kernel/src/plugin/handle_helpers.rs
+  - crates/nyash_kernel/src/plugin/array_index_dispatch.rs
+  - crates/nyash_kernel/src/plugin/array_write_dispatch.rs
+  - crates/nyash_kernel/src/plugin/handle_cache.rs
 ---
 
 # Collection Raw Substrate Contract (SSOT)
@@ -126,9 +126,9 @@ Target:
 
 Owners:
 - `crates/nyash_kernel/src/plugin/array.rs`
-- `crates/nyash_kernel/src/plugin/array_index_helpers.rs`
-- `crates/nyash_kernel/src/plugin/array_route_helpers.rs`
-- `crates/nyash_kernel/src/plugin/handle_helpers.rs`
+- `crates/nyash_kernel/src/plugin/array_index_dispatch.rs`
+- `crates/nyash_kernel/src/plugin/array_write_dispatch.rs`
+- `crates/nyash_kernel/src/plugin/handle_cache.rs`
 
 Target:
 - demote Rust array helpers to raw substrate responsibilities only
@@ -138,7 +138,7 @@ Target:
 Current first slice:
 - `crates/nyash_kernel/src/plugin/array_slot_load.rs`
 - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-- `array_index_helpers.rs` / `array_route_helpers.rs` remain as thin compatibility wrappers while raw slot verbs become the structural owner
+- `array_index_dispatch.rs` / `array_write_dispatch.rs` remain as thin compatibility wrappers while raw slot verbs become the structural owner
 
 ### A3. Retarget `.hako` Array owner to raw verbs
 
@@ -194,8 +194,8 @@ Target:
 Current first slice:
 - `crates/nyash_kernel/src/plugin/runtime_data.rs` is now a dispatch shell only
 - collection-specific mechanics live in:
-  - `crates/nyash_kernel/src/plugin/runtime_data_array_route.rs`
-  - `crates/nyash_kernel/src/plugin/runtime_data_map_route.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`
+  - `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs`
 - the exported `nyash.runtime_data.{get,set,has,push}_*` ABI contract stays unchanged while route ownership becomes explicit
 
 Current second slice:
@@ -238,7 +238,7 @@ Current second slice:
 - kernel-side review result:
   - the new `MapBox` raw key-string helpers are acceptable as the raw seam for this slice
 - landed runtime-data map hidden-residue slice:
-  - `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+  - `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
 - current remaining work after those explicit exports:
   - active llvm-py lowering still keeps the i64-key array set path on method-shaped exports (`nyash.array.set_hih` / `nyash.array.set_hii`)
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
@@ -293,7 +293,7 @@ Current second slice:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
      - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
 11. `B1h / runtime-data-map-hidden-residue`
-   - landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
+   - landed: `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
    - contract pins:
      - `cargo test -q -p nyash_kernel runtime_data_invalid_handle_returns_zero --lib`
      - `cargo test -q -p nyash_kernel runtime_data_dispatch_map_set_get_has --lib`

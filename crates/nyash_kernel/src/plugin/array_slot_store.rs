@@ -1,5 +1,5 @@
 use super::array_string_slot::array_set_by_index_string_handle_value;
-use super::handle_helpers::with_array_box;
+use super::handle_cache::with_array_box;
 use super::value_codec::{decode_array_fast_value, ArrayFastDecodedValue};
 
 #[inline(always)]

@@ -1,6 +1,6 @@
 // --- AOT ObjectModule dotted-name exports (Map) ---
 // Provide dotted symbol names expected by ObjectBuilder lowering for MapBox operations.
-use super::handle_helpers::with_map_box;
+use super::handle_cache::with_map_box;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};

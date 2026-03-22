@@ -1,4 +1,4 @@
-use super::handle_helpers::with_map_box;
+use super::handle_cache::with_map_box;
 use super::value_codec::{any_arg_to_box, box_to_handle, int_arg_to_box};
 
 #[inline(always)]

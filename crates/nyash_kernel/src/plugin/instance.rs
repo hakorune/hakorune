@@ -1,5 +1,5 @@
 // ---- Instance field helpers for LLVM lowering (handle-based) ----
-use super::handle_helpers::with_instance_box;
+use super::handle_cache::with_instance_box;
 
 // Exported as: nyash.instance.get_field_h(i64 handle, i8* name) -> i64
 #[export_name = "nyash.instance.get_field_h"]

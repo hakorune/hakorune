@@ -1,12 +1,12 @@
 // ---- Array helpers for LLVM lowering (handle-based) ----
-use super::array_index_helpers::{array_get_by_index, array_has_by_index, decode_index_key};
-use super::array_route_helpers::{
+use super::array_index_dispatch::{array_get_by_index, array_has_by_index, decode_index_key};
+use super::array_write_dispatch::{
     array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
 };
 use super::array_slot_append::array_slot_append_any;
 use super::array_slot_load::array_slot_load_encoded_i64;
 use super::array_slot_store::array_slot_store_i64;
-use super::handle_helpers::with_array_box;
+use super::handle_cache::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
 
 #[inline(always)]
