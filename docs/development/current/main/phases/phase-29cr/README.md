@@ -75,10 +75,13 @@ P3 first slice landed:
 - `src/mir/control_tree/step_tree/README.md`
 - `src/mir/control_tree/normalized_shadow/README.md`
 
+P4 first slice landed:
+
+- `src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs`
+
 The next implementation slice, when this lane is explicitly reopened, is:
 
 - `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
-- `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
 - `src/mir/passes/rc_insertion.rs`
 
 ## Pressure Summary
@@ -106,11 +109,11 @@ Interpretation:
 - P1 is landed: `CURRENT_TASK.md` slim + archive policy
 - P2 is landed: box arithmetic / box operators / runner plugin init + core-ish root relocations
 - P3 first slice is landed: MIR navigation root + builder README
+- P4 first slice is landed: `helpers_pure_value.rs` extracted from `helpers.rs`
 
 ## Next
 
 When this lane is reopened for implementation:
 
 1. `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
-2. `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
-3. `src/mir/passes/rc_insertion.rs`
+2. `src/mir/passes/rc_insertion.rs`

@@ -179,10 +179,13 @@ P3 first slice landed:
 - `src/mir/control_tree/step_tree/README.md`
 - `src/mir/control_tree/normalized_shadow/README.md`
 
+P4 first slice landed:
+
+- `src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs`
+
 Next safe slice:
 
 - `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
-- `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
 - `src/mir/passes/rc_insertion.rs`
 
 ### P3. `src/mir` navigation-first cleanup
