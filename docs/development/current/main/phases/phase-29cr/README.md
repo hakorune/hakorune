@@ -105,6 +105,9 @@ JoinIR boundary review remains docs-first only for now:
 - `join_ir_vm_bridge/` boundary is still unstable
 - do not package `join_ir/` yet; tighten the README boundary map first
 - landed substrate slice: `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
+- prefer next cleanup inside `join_ir/` as sub-box tightening:
+  ownership analyzer / plan adapters / lowering substrate / condition cluster /
+  loop-route cluster / target-specific lowerers / bridge fence
 
 Passes boundary review also remains docs-first only for now:
 

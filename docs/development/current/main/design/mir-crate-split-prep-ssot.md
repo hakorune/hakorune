@@ -107,6 +107,21 @@ Current status:
 - `json.rs` / JoinIR serialization is part of the same review lane
 - `join_ir_vm_bridge/` boundary is not yet stable enough for packaging
 
+Preferred cleanup order inside `join_ir/`:
+
+1. pure substrate slices
+   - `ownership/types.rs` (landed)
+   - future low-risk helpers like `lowering/value_id_ranges.rs` if they stay pure
+2. internal box map tightening
+   - `ownership/ast_analyzer/*`
+   - `ownership/plan_to_lowering.rs`
+   - `ownership/plan_validator.rs`
+   - `lowering` substrate / condition / loop-route / target-specific clusters
+3. bridge fence stabilization
+   - `join_ir_vm_bridge/`
+   - `join_ir_vm_bridge_dispatch/`
+4. only then reconsider whole-subtree packaging
+
 ### `hakorune-mir-passes`
 
 Keep:

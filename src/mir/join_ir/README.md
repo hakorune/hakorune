@@ -40,6 +40,55 @@ Landed substrate slice:
 - ownership analysis and relay/capture bookkeeping
 - lowering helpers that feed VM/LLVM bridge layers
 
+## Internal Box Map
+
+Prefer cleaning this subtree by sub-box, not by moving the whole directory at once.
+
+- `hakorune_mir_joinir::ownership_types`
+  - pure ownership substrate already extracted
+- `ownership/ast_analyzer/*`
+  - AST/ProgramJSON analysis box; still tied to AST inputs
+- `ownership/plan_to_lowering.rs`
+  - analysis-to-lowering adapter; keep inside the JoinIR review lane for now
+- `ownership/plan_validator.rs`
+  - analysis validator; still tied to lowering/runtime-facing carrier checks
+- `lowering` substrate helpers
+  - `canonical_names.rs`
+  - `error_tags.rs`
+  - `debug_output_box.rs`
+  - `value_id_ranges.rs`
+  - `join_value_space.rs`
+- `lowering` condition cluster
+  - `condition_env.rs`
+  - `condition_lowering_box.rs`
+  - `condition_pattern.rs`
+  - `condition_to_joinir.rs`
+  - `condition_var_extractor.rs`
+  - `scope_manager.rs`
+  - `update_env.rs`
+- `lowering` loop-route cluster
+  - `loop_form_intake.rs`
+  - `loop_route_router.rs`
+  - `loop_route_validator.rs`
+  - `loop_view_builder.rs`
+  - `loop_update_analyzer.rs`
+  - `loop_update_summary.rs`
+  - `loop_with_*`
+  - `simple_while*`
+  - `scan_*`
+- `lowering` target-specific lowerers
+  - `min_loop.rs`
+  - `skip_ws.rs`
+  - `funcscanner_trim.rs`
+  - `funcscanner_append_defs.rs`
+  - `stage1_using_resolver.rs`
+  - `stageb_body.rs`
+  - `stageb_funcscanner.rs`
+- bridge fence
+  - `join_ir_vm_bridge/`
+  - `join_ir_vm_bridge_dispatch/`
+  - keep these together until the lowering surface stabilizes
+
 ## P5 Crate Split Prep
 
 `join_ir/` is a future `hakorune-mir-joinir` candidate, but it is not being split yet.
@@ -57,3 +106,5 @@ Prep rule:
   surface is stable
 - this subtree is docs-first only until the AST/ProgramJSON + runtime/env + MIR
   coupling is reduced
+- prefer extracting pure sub-boxes first, then clean intra-tree boundaries, and
+  only then revisit whole-subtree packaging

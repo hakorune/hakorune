@@ -46,6 +46,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     AST/ProgramJSON + runtime/env + MIR coupling still blocks a safe package move,
     `json.rs` keeps JoinIR serialization in the same review lane, and the
     `join_ir_vm_bridge/` boundary is not yet stable enough for split
+    sub-box order is:
+    `ownership_types -> ownership analyzer/plan adapters -> lowering substrate
+    -> condition cluster -> loop-route cluster -> target-specific lowerers ->
+    bridge fence`
   - `src/mir/passes/` is docs-first only for now:
     AST/runtime/config/env + MIR coupling still blocks a safe package move,
     `rc_insertion/` is especially blocked, and `concat3_canonicalize/` is only
@@ -81,8 +85,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
-  - `src/mir/join_ir/ownership/types.rs`
-  - `crates/hakorune_mir_joinir/src/ownership_types.rs`
+  - `src/mir/join_ir/README.md`
+  - `src/mir/join_ir/ownership/ast_analyzer/core.rs`
+  - `src/mir/join_ir/ownership/plan_to_lowering.rs`
+  - `src/mir/join_ir/ownership/plan_validator.rs`
   - `src/mir/passes/concat3_canonicalize/mod.rs`
   - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
   - `docs/development/current/main/phases/phase-29cr/README.md`
