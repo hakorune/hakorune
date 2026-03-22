@@ -1,5 +1,5 @@
 use super::*;
-use crate::mir::basic_block::{BasicBlock, BasicBlockId};
+use crate::mir::{BasicBlock, BasicBlockId};
 use crate::mir::MirFunction;
 use std::fs::OpenOptions;
 use std::io::Write;

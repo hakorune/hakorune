@@ -1,5 +1,5 @@
 use super::super::{MirInterpreter, VMError, VMValue};
-use crate::mir::basic_block::BasicBlock;
+use crate::mir::BasicBlock;
 use crate::mir::{BasicBlockId, MirInstruction};
 
 impl MirInterpreter {
