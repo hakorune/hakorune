@@ -252,6 +252,18 @@ Related:
     - parked vocabulary that would be false under the current backend
   - current next widening is constrained to truthful narrow slices only
 
+- `I10 Atomic/TLS/GC truthful native seam inventory` landed
+  - [`atomic-tls-gc-truthful-native-seam-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md) now fixes:
+    - current truthful `gc` seam
+    - truthful native helpers that are not substrate rows yet
+    - parked `atomic/tls/gc` vocabulary
+  - current implementation order is seam-first, not false-row-first
+
+- `I11 GC first live slice` landed
+  - `GcCoreBox.write_barrier_i64(handle_or_ptr)` is now the first live `hako.gc` row
+  - current native seam is `nyash.gc.barrier_write`
+  - `root_scope` / `pin` / `unpin` remain parked
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table
@@ -277,6 +289,7 @@ Related:
 - do not push allocator/TLS/queue policy into `.hako` before `hako.mem` / `hako.ptr` / minimum verifier exist
 - do not treat current collection owner stop-line as end-state completion
 - do not expose `RawMap rehash/tombstone` rows until a truthful native seam exists
+- do not expose `atomic/tls` rows until a truthful native seam exists
 
 ## Non-Goals
 

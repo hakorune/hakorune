@@ -23,6 +23,7 @@ ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
 RAW_MAP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
+GC_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/gc/gc_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
 OWNERSHIP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
 PTR_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/ptr/ptr_core_box.hako"
@@ -68,7 +69,7 @@ run_array_semantics_checks() {
 }
 
 check_collection_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$OWNERSHIP_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
+  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$GC_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$OWNERSHIP_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
@@ -209,6 +210,18 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q 'externcall "nyash.any.handle_live_h"(handle)' "$OWNERSHIP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: ownership core handle-live route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'write_barrier_i64(handle_or_ptr)' "$GC_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: gc core write_barrier contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.gc.barrier_write"(handle_or_ptr)' "$GC_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: gc core barrier_write route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/gc:write_barrier_i64]' "$GC_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: gc core write_barrier trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/verifier:ownership_handle_readable]' "$OWNERSHIP_CORE_FILE"; then

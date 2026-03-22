@@ -35,6 +35,8 @@ Current phase reading:
   - `raw_map/README.md`
   - `raw_map/raw_map_core_box.hako`
 - The next capability-widening lock is docs-first, and its physical reservations live at `atomic/README.md`, `tls/README.md`, and `gc/README.md`.
+- `gc` now also has a first live box at:
+  - `gc/gc_core_box.hako`
 
 Current live capability subset:
 - `mem` now has a live `alloc/realloc/free` facade.
@@ -42,6 +44,7 @@ Current live capability subset:
 - `ptr` remains the typed pointer/span facade used by the current array capacity path.
 - `verifier` now has live `bounds`, `initialized-range`, and `ownership` gates for the current raw collection routes.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
+- `gc` now has a live `write_barrier_i64` facade.
 
 Native keep stays outside this directory:
 - OS virtual memory
@@ -59,5 +62,6 @@ Non-goals:
 - Do not grow `hako.mem` / `hako.buf` into allocator policy here.
 - Do not add `RawArray` / `RawMap` here yet.
 - Do not move allocator / TLS / atomic / GC policy here yet.
+- Do not invent false `atomic/tls` substrate rows here.
 - Do not rewrite native metal helpers here.
 - Do not disturb `runtime/collections/` ownership boundaries.

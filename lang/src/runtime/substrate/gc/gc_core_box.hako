@@ -1,0 +1,20 @@
+// GcCoreBox — first live `hako.gc` capability facade for phase-29ct.
+// Responsibility:
+// - expose the narrowest truthful GC hook vocabulary under `runtime/substrate/`
+// - keep direct GC ABI symbol knowledge out of future owner/algorithm boxes
+// Non-responsibility:
+// - collector policy
+// - allocator state machine
+// - root/pin orchestration
+
+static box GcCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  write_barrier_i64(handle_or_ptr) {
+    local out = externcall "nyash.gc.barrier_write"(handle_or_ptr)
+    me._trace("[vm/adapter/gc:write_barrier_i64]")
+    return out
+  }
+}

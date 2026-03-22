@@ -95,6 +95,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest19: `OwnershipCoreBox` is now the third live verifier box; current live subset is carrier-liveness only, and `RawArrayCoreBox` / `RawMapCoreBox` now gate current raw routes through ownership before deeper substrate hops
 - Kernel capability latest20: `RawMapCoreBox.cap_i64(handle)` is now the first truthful map capacity observer route via `nyash.map.cap_h`; `rehash/tombstone` remain parked until a truthful native seam exists
 - Kernel capability latest21: `raw-map-truthful-native-seam-inventory.md` now fixes the `HashMap` backend truth; current live `RawMap` rows stay at `entry_count/cap/probe/load/store`, and `rehash/tombstone/bucket_*` remain parked
+- Kernel capability latest22: `atomic-tls-gc-truthful-native-seam-inventory.md` now fixes seam-first widening; `nyash.gc.barrier_write` is the current truthful live seam, and `atomic/tls` remain parked
+- Kernel capability latest23: `GcCoreBox.write_barrier_i64(handle_or_ptr)` is now the first live `hako.gc` row under `runtime/substrate/gc/`
 - Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
 - Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`

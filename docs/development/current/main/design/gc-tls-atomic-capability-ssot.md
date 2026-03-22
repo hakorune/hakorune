@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/raw-map-substrate-ssot.md
   - lang/src/runtime/substrate/README.md
@@ -31,6 +32,14 @@ Related:
 1. `hako.atomic`
 2. `hako.tls`
 3. `hako.gc`
+
+## Current Implementation Order
+
+current implementation order is seam-first:
+
+1. truthful native seam inventory
+2. `hako.gc` first live row
+3. `hako.atomic` / `hako.tls` remain parked until truthful seams exist
 
 ## Module Roles
 
@@ -72,9 +81,12 @@ Related:
 
 ## Reading
 
-- この slice は docs-first only
-- capability module reservation だけを置き、まだ `.hako` 実装本体は作らない
+- current wave is not docs-first only anymore
+- current first live subset is:
+  - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
+- truthful seam guard now lives in:
+  - `atomic-tls-gc-truthful-native-seam-inventory.md`
 
 ## Physical Staging
 
@@ -95,11 +107,12 @@ current staging roots are reserved at:
 - unrestricted unsafe surface
 - minimum verifier broadening beyond the current docs lock
 - TLS/atomic/GC implementation in `.hako`
+- broad `gc` widening beyond `write_barrier`
 - perf lane reopen
 
 ## Follow-Up
 
 After this docs lock, the next widening remains:
 
-1. `final metal split` detail lock
-2. `Hakozuna portability layer` remains deferred later
+1. truthful `atomic` / `tls` seam extraction
+2. broad `gc` widening after new native seam exists
