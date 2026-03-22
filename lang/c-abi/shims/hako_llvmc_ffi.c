@@ -1116,7 +1116,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_map_set)   fprintf(f, "declare i64 @\"nyash.map.set_h\"(i64, i64, i64)\n");
       if (need_map_get)   fprintf(f, "declare i64 @\"nyash.map.get_h\"(i64, i64)\n");
       if (need_map_has)   fprintf(f, "declare i64 @\"nyash.map.has_h\"(i64, i64)\n");
-      if (need_map_size)  fprintf(f, "declare i64 @\"nyash.map.size_h\"(i64)\n");
+      if (need_map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n");
       if (need_arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
       if (need_arr_push)  fprintf(f, "declare i64 @\"nyash.array.push_h\"(i64, i64)\n");
       if (need_arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
@@ -1224,7 +1224,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               if (recv) app(recv, 1);
               if (mname && !strcmp(mname, "set")) { if (a0) app(a0, ab[0]=='\0'); if (a1) app(a1, 0); if (bname && !strcmp(bname, "MapBox")) EMIT("  %%_ = call i64 @\"nyash.map.set_h\"(%s)\n", ab); else if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.set_h\"(%s)\n", ab); else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "get")) { if (a0) app(a0, ab[0]=='\0'); if ((bname && !strcmp(bname, "MapBox")) || runtime_map_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.get_h\"(%s)\n", dst, ab); set_type(dst, T_I64); set_origin(dst, ORG_MAP_GET);} else { EMIT("  %%_ = call i64 @\"nyash.map.get_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.get_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.get_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
-              else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if ((bname && !strcmp(bname, "MapBox")) || runtime_map_size) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.size_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.map.size_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.slot_len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
+              else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if ((bname && !strcmp(bname, "MapBox")) || runtime_map_size) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.entry_count_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.map.entry_count_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  %%_ = call i64 @\"nyash.array.slot_len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "push")) {
                 if (a0) app(a0, ab[0]=='\0');
                 if (runtime_array_push) {
@@ -1581,11 +1581,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
           fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
           fprintf(f, "declare i64 @\"nyash.map.set_h\"(i64, i64, i64)\n");
-          fprintf(f, "declare i64 @\"nyash.map.size_h\"(i64)\n\n");
+          fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n\n");
           fprintf(f, "define i64 @ny_main() {\n");
           fprintf(f, "  %%h = call i64 @\"nyash.map.birth_h\"()\n");
           fprintf(f, "  %%_s = call i64 @\"nyash.map.set_h\"(i64 %%h, i64 %lld, i64 %lld)\n", key_c, val_c);
-          fprintf(f, "  %%sz = call i64 @\"nyash.map.size_h\"(i64 %%h)\n");
+          fprintf(f, "  %%sz = call i64 @\"nyash.map.entry_count_h\"(i64 %%h)\n");
           fprintf(f, "  ret i64 %%sz\n}\n");
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);

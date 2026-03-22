@@ -4,6 +4,7 @@
 # Contract pin:
 # - PERF_AOT_SKIP_BUILD resolves as documented by perf_aot_resolve_skip_build:
 #   - auto: 1 only when required release artifacts exist
+#           (`hakorune`, `ny-llvmc`, `libnyash_kernel.a`, and boundary FFI)
 #   - 0|1: explicit override
 #   - invalid: fail-fast (rc!=0)
 
@@ -53,6 +54,7 @@ mkdir -p "$TMP_ROOT/target/release"
 touch "$TMP_ROOT/target/release/hakorune"
 touch "$TMP_ROOT/target/release/ny-llvmc"
 touch "$TMP_ROOT/target/release/libnyash_kernel.a"
+touch "$TMP_ROOT/target/release/libhako_llvmc_ffi.so"
 chmod +x "$TMP_ROOT/target/release/hakorune"
 chmod +x "$TMP_ROOT/target/release/ny-llvmc"
 actual="$(resolve_skip_build "auto" "$TMP_ROOT")"

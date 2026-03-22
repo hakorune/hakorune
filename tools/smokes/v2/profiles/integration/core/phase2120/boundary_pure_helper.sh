@@ -40,6 +40,27 @@ phase2120_boundary_pure_prepare() {
   fi
 }
 
+phase2120_boundary_pure_require_kernel_symbol() {
+  local root="$1"
+  local symbol="$2"
+  local script_name="$3"
+  local archive="$root/target/release/libnyash_kernel.a"
+
+  if [[ ! -f "$archive" ]]; then
+    echo "[SKIP] ${script_name} (kernel archive missing: $archive)" >&2
+    exit 0
+  fi
+  if ! command -v grep >/dev/null 2>&1; then
+    echo "[SKIP] ${script_name} (grep missing for kernel symbol check)" >&2
+    exit 0
+  fi
+  if ! grep -aFq "$symbol" "$archive"; then
+    echo "[FAIL] ${script_name} (stale kernel archive: missing symbol $symbol in $archive)" >&2
+    echo "hint: cargo build --release -p nyash_kernel" >&2
+    exit 1
+  fi
+}
+
 phase2120_boundary_pure_get_size() {
   local path="$1"
   if stat -c %s "$path" >/dev/null 2>&1; then

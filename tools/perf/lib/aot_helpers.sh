@@ -68,6 +68,27 @@ perf_aot_assert_boundary_route_contract() {
   return 0
 }
 
+perf_aot_boundary_ffi_artifact_exists() {
+  local root_dir=$1
+  local override="${HAKO_AOT_FFI_LIB:-}"
+  if [[ -n "${override}" ]]; then
+    [[ -f "${override}" ]]
+    return $?
+  fi
+
+  local candidate
+  for candidate in \
+    "${root_dir}/target/release/libhako_llvmc_ffi.so" \
+    "${root_dir}/target/release/libhako_llvmc_ffi.dylib" \
+    "${root_dir}/target/release/hako_llvmc_ffi.dll"; do
+    if [[ -f "${candidate}" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 perf_aot_resolve_skip_build() {
   local root_dir=$1
   local requested="${PERF_AOT_SKIP_BUILD:-auto}"
@@ -87,7 +108,8 @@ perf_aot_resolve_skip_build() {
   local bin_hakorune="${root_dir}/target/release/hakorune"
   local bin_llvmc="${root_dir}/target/release/ny-llvmc"
   local lib_kernel="${root_dir}/target/release/libnyash_kernel.a"
-  if [[ -x "${bin_hakorune}" && -x "${bin_llvmc}" && -f "${lib_kernel}" ]]; then
+  if [[ -x "${bin_hakorune}" && -x "${bin_llvmc}" && -f "${lib_kernel}" ]] \
+    && perf_aot_boundary_ffi_artifact_exists "${root_dir}"; then
     printf '1\n'
   else
     printf '0\n'

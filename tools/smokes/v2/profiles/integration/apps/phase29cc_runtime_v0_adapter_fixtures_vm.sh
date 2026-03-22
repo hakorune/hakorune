@@ -139,7 +139,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: string core trace tag contract missing"
     exit 1
   fi
-  if ! rg -F -q 'me._put("MapBox", "size",    "nyash.map.size_h"' "$REGISTRY_FILE"; then
+  if ! rg -F -q 'me._put("MapBox", "size",    "nyash.map.entry_count_h"' "$REGISTRY_FILE"; then
     test_fail "$SMOKE_NAME: MapBox.size adapter registry contract missing"
     exit 1
   fi
@@ -147,7 +147,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: handler map orchestration contract missing"
     exit 1
   fi
-  if ! rg -F -q 'externcall "nyash.map.size_h"' "$MAP_CORE_FILE"; then
+  if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core extern route contract missing"
     exit 1
   fi
@@ -307,4 +307,4 @@ check_array_strict_contract
 run_string_behavior_smoke
 run_map_behavior_smoke
 
-test_pass "$SMOKE_NAME: PASS (array_get_i64/array_set_i64 + string_len/map_size_i64 adapter route locked)"
+test_pass "$SMOKE_NAME: PASS (array_get_i64/array_set_i64 + string_len/map_entry_count_i64 adapter route locked)"

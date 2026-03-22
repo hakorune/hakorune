@@ -76,10 +76,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `ArrayBox::try_set_index_i64_integer()` cold-split: `43 -> 48 ms`
   - `B1a` landed: the daily `.hako` path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only
   - `B1b` landed: the daily `.hako` path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only
+  - `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only
   - the next collection task is exact `B1` taskization:
-    1. demote `nyash.map.size_h` from the daily `.hako` path
-    2. deepen hidden array write residue inside `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
-    3. deepen hidden map residue inside `nyash.map.slot_* / probe_*` (still implemented via `MapBox.get_opt/set/has`)
+    1. deepen hidden array write residue inside `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
+    2. deepen hidden map residue inside `nyash.map.slot_* / probe_*` (still implemented via `MapBox.get_opt/set/has`)
+  - build-freshness note is now pinned: after a new kernel export lands on the AOT boundary path, refresh release-side artifacts before link/pure smokes; stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
   - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
 - Later cleanup (not this slice):
@@ -127,7 +128,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `[x]` phase-29cm minimum acceptance is green (`phase29cc_runtime_v0_adapter_fixtures_vm`, `phase29cc_runtime_v0_abi_slice_guard`, `array_length_vm`, `map_basic_get_set_vm`, `map_len_size_vm`, `ring1_array_provider_vm`, `ring1_map_provider_vm`, `phase29x_runtime_data_dispatch_llvm_e2e_vm`)
   - `[x]` collection owner shift reached the done-enough stop line for `array` / `map` / `runtime_data`
   - `[x]` `.hako` ring1 is now the visible owner frontier for `ArrayBox` / `MapBox`, and `RuntimeDataBox` is facade-only
-  - `[ ]` deepen the boundary below the remaining transitional method-shaped Rust export (`nyash.map.size_h`) and the hidden raw-named residue below it
+  - `[ ]` deepen the boundary below the remaining hidden raw-named residue (`nyash.array.slot_append_hh` / `nyash.array.slot_store_hii` / `nyash.map.slot_*` / `nyash.map.probe_*`)
   - `[ ]` reopen raw substrate perf only after the deeper boundary is fixed or the transitional exports are explicitly accepted as the long-term substrate cut
   - `[x]` phase-29cq first slice: introduce suite manifests as the smoke execution contract (`--profile` stays compatible, `--suite` is opt-in)
   - `[x]` phase-29cq first slice: seed integration suites (`presubmit`, `collection-core`, `vm-hako-core`, `selfhost-core`, `joinir-bq`)
@@ -267,11 +268,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
    - keep `RuntimeDataBox` as protocol / facade only
    - do not absorb array/map semantics
 6. `B1: Deeper collection boundary before perf`
-   - demote the remaining transitional method-shaped Rust exports from the daily `.hako` path:
-     - `nyash.map.size_h`
    - landed:
      - `nyash.array.len_h` -> `nyash.array.slot_len_h` on the daily `.hako` path
      - `nyash.array.push_hh` -> `nyash.array.slot_append_hh` on the daily `.hako` path and arrayish runtime-data mono-route
+     - `nyash.map.size_h` -> `nyash.map.entry_count_h` on the daily `.hako` path
 7. `P1: Raw substrate perf reopen`
    - only after `B1` is fixed or those exports are explicitly accepted as the long-term substrate boundary
 
@@ -509,11 +509,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - current runtime follow-up slice for `substring_concat`: `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant panics in cold helpers, so the success path stays straight-line
   - current exact leaf slice for `array_getset`: the read seam (`crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`) is landed and kept
   - raw substrate perf is parked again until the collection boundary deepens below the transitional method-shaped Rust exports still used by `.hako` owners
-  - next non-perf task is to inventory and demote:
-    - `nyash.map.size_h`
+  - next non-perf task is to deepen the hidden raw-named residue below:
+    - `nyash.array.slot_append_hh`
+    - `nyash.array.slot_store_hii`
+    - `nyash.map.slot_* / probe_*`
   - landed boundary-deepen step:
     - daily `.hako` array observer route now uses `nyash.array.slot_len_h`
     - daily `.hako` array append route now uses `nyash.array.slot_append_hh`
+    - daily `.hako` map observer route now uses `nyash.map.entry_count_h`
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers, so they are no longer the primary P1 target
   - fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=43` (`ratio_cycles=0.01`)
   - rejected probes (reverted immediately): dedicated i64 write helper regressed to `47 ms`, and `try_set_index_i64_integer` cold-split regressed to `48 ms`

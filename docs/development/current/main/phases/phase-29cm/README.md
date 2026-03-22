@@ -120,12 +120,17 @@ Related:
   - `ArrayBox::try_set_index_i64_integer()` cold-split (`43 -> 48 ms`)
 - `B1a` landed: the daily `.hako` array observer path now uses `nyash.array.slot_len_h`, while `nyash.array.len_h` remains compat-only.
 - `B1b` landed: the daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only.
+- `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only.
 - next exact boundary-deepen task is to demote the remaining transitional method-shaped Rust exports still used by `.hako` owners:
-  1. `nyash.map.size_h`
+  1. hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
+  2. hidden map residue under `nyash.map.slot_* / probe_*`
 - after those explicit exports, deepen the hidden raw-named residue:
   - `nyash.array.slot_append_hh` still carries append/boxing semantics below the raw name
   - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
+- build-freshness note:
+  - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
+  - stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
 - `RuntimeDataBox` remains facade-only while the boundary deepens, and it has no active code task now.
 - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary boundary owner.
 
@@ -193,7 +198,7 @@ Move to `.hako`:
 6. `B1: Deeper collection boundary before perf`
    - `B1a`: landed; daily `.hako` array observer path now uses `nyash.array.slot_len_h`
    - `B1b`: landed; daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`
-   - `B1c`: demote `nyash.map.size_h`
+   - `B1c`: landed; daily `.hako` map observer path now uses `nyash.map.entry_count_h`
    - `B1d`: deepen hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
    - `B1e`: deepen hidden map residue under `nyash.map.slot_* / probe_*`
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears

@@ -126,8 +126,8 @@ if ! rg -F -q 'me.len_i64(recv_h)' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing len_i64 dispatch contract" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.map.size_h"' "$MAP_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] map core missing nyash.map.size_h extern route" >&2
+if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing nyash.map.entry_count_h extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)' "$MAP_CORE_FILE"; then

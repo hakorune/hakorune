@@ -164,17 +164,22 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
     - `crates/nyash_kernel/src/plugin/map_probe.rs`
   - transitional exports to demote/inventory:
-    - `nyash.map.size_h`
+    - none on the daily `.hako` path; `nyash.map.size_h` is now compat-only
   - landed observer demotion:
     - daily `.hako` array observer route now uses `nyash.array.slot_len_h`
     - `nyash.array.len_h` is compat-only
   - landed append demotion:
     - daily `.hako` array append route now uses `nyash.array.slot_append_hh`
     - `nyash.array.push_hh` is compat-only
+  - landed map observer demotion:
+    - daily `.hako` map observer route now uses `nyash.map.entry_count_h`
+    - `nyash.map.size_h` is compat-only
   - hidden residue after those exports:
     - `nyash.array.slot_append_hh` still carries append/boxing semantics
     - `nyash.array.slot_store_hii` still carries append/rebox semantics
     - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
+  - build-freshness note:
+    - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める
   - current scope lock:
     - primary: `kernel-mainline`（`.hako` no-compat）

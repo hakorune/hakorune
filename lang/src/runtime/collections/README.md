@@ -49,7 +49,7 @@ Rule:
 - `map_core_box.hako`
   - `try_handle(seg, regs, mname)`
     -> visible owner for `MapBox.{set,get,has,size/len/length}` orchestration and current handler-side contract
-  - `size_i64(handle)` -> `nyash.map.size_h`
+  - `size_i64(handle)` -> `nyash.map.entry_count_h`
   - `norm_key_str(raw)` -> stable MapBox key normalization for adapter-on state
   - `record_set_state(...)` / `get_state_value(...)` / `has_state_value(...)`
     -> MapBox state bookkeeping support for the `.hako` owner
@@ -91,6 +91,7 @@ Rule:
 5. `B1`
   - landed: daily array observer route now uses `nyash.array.slot_len_h`
   - landed: daily array append route now uses `nyash.array.slot_append_hh`
-  - demote `nyash.map.size_h`
+  - landed: daily map observer route now uses `nyash.map.entry_count_h`
+  - `nyash.map.size_h` is compat-only
   - then deepen hidden residue under `array slot_append` / `array slot_store` and `map slot/probe`
   - keep `RuntimeDataBox` facade-only while doing so

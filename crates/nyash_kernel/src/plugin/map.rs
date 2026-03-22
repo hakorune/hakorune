@@ -30,16 +30,15 @@ fn map_get_compat_any(handle: i64, key_any: i64) -> i64 {
     .unwrap_or(0)
 }
 
-// size: (handle) -> i64
-#[export_name = "nyash.map.size_h"]
-pub extern "C" fn nyash_map_size_h(handle: i64) -> i64 {
+#[inline]
+fn map_entry_count_raw(handle: i64) -> i64 {
     if map_debug_enabled() {
-        eprintln!("[MAP] size_h(handle={})", handle);
+        eprintln!("[MAP] entry_count_h(handle={})", handle);
     }
     with_map_box(handle, |map| {
         if let Some(size) = integer_box_to_i64(map.size().as_ref()) {
             if map_debug_enabled() {
-                eprintln!("[MAP] size_h => {}", size);
+                eprintln!("[MAP] entry_count_h => {}", size);
             }
             size
         } else {
@@ -47,6 +46,18 @@ pub extern "C" fn nyash_map_size_h(handle: i64) -> i64 {
         }
     })
     .unwrap_or(0)
+}
+
+// entry_count: raw observer (handle) -> i64
+#[export_name = "nyash.map.entry_count_h"]
+pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
+    map_entry_count_raw(handle)
+}
+
+// size: compatibility observer (handle) -> i64
+#[export_name = "nyash.map.size_h"]
+pub extern "C" fn nyash_map_size_h(handle: i64) -> i64 {
+    map_entry_count_raw(handle)
 }
 
 // get_h: (map_handle, key_i64) -> value_handle
@@ -201,5 +212,19 @@ mod tests {
         assert_eq!(nyash_map_slot_store_hhh_alias(0, 1, 2), 0);
         assert_eq!(nyash_map_probe_hi_alias(0, 1), 0);
         assert_eq!(nyash_map_probe_hh_alias(0, 1), 0);
+    }
+
+    #[test]
+    fn entry_count_raw_alias_keeps_contract() {
+        let handle = new_map_handle();
+        let key_a = string_handle("entry-a");
+        let key_b = string_handle("entry-b");
+        let value = string_handle("entry-value");
+
+        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_a, value), 1);
+        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_b, value), 1);
+        assert_eq!(nyash_map_entry_count_h(handle), 2);
+        assert_eq!(nyash_map_size_h(handle), 2);
+        assert_eq!(nyash_map_entry_count_h(0), 0);
     }
 }

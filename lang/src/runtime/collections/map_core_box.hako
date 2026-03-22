@@ -54,7 +54,7 @@ static box MapCoreBox {
   }
 
   size_i64(handle) {
-    return externcall "nyash.map.size_h"(handle)
+    return externcall "nyash.map.entry_count_h"(handle)
   }
 
   norm_key_str(s) {

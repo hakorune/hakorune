@@ -9,6 +9,7 @@
    - `HAKO_CAPI_PURE=1` 必須
    - historical pure-lowering evidence
    - caller path is `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; do not depend on the retired direct `hostbridge.extern_invoke("env.codegen", ...)` lane here
+   - symbol-changing slices must fail fast on stale `target/release/libnyash_kernel.a` instead of surfacing as opaque link errors
 2. VM adapter canaries
    - `s3_vm_adapter_*.sh`
    - Hako VM adapter / state alias の観測
