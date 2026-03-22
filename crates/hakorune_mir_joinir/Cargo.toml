@@ -1,0 +1,8 @@
+[package]
+name = "hakorune-mir-joinir"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "hakorune_mir_joinir"
+path = "src/lib.rs"

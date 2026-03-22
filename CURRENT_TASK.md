@@ -32,6 +32,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_builder` package: `type_context.rs`
   - `hakorune_mir_builder` package: `variable_context.rs`
   - `hakorune_mir_builder` package: `metadata_context.rs`
+  - `hakorune_mir_joinir` package: `join_ir/ownership/types.rs`
   - `compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
   - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
   - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
@@ -80,9 +81,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
-  - `src/mir/join_ir/README.md`
-  - `src/mir/join_ir/lowering/README.md`
-  - `src/mir/join_ir/ownership/README.md`
+  - `src/mir/join_ir/ownership/types.rs`
+  - `crates/hakorune_mir_joinir/src/ownership_types.rs`
+  - `src/mir/passes/concat3_canonicalize/mod.rs`
   - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
   - `docs/development/current/main/phases/phase-29cr/README.md`
 - keep-root allowlist:
@@ -107,8 +108,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 1. `scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
 2. `compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
-3. `join_ir/` packaging boundary review (docs-first only; no crate move yet)
-4. `passes/` packaging boundary review (docs-first only; no crate move yet)
+3. `join_ir/ownership/types.rs` substrate slice (landed)
+4. `passes/concat3_canonicalize/` extraction review
 5. remaining `hakorune-mir-*` naming surface polish
 
 ## Archive

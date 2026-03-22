@@ -104,6 +104,7 @@ JoinIR boundary review remains docs-first only for now:
 - `src/mir/join_ir/json.rs` keeps JoinIR serialization in the same review lane
 - `join_ir_vm_bridge/` boundary is still unstable
 - do not package `join_ir/` yet; tighten the README boundary map first
+- landed substrate slice: `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
 
 Passes boundary review also remains docs-first only for now:
 
@@ -133,6 +134,7 @@ P5 substrate ID slice landed:
 - `crates/hakorune_mir_builder/` gained `type_context.rs`
 - `crates/hakorune_mir_builder/` gained `variable_context.rs`
 - `crates/hakorune_mir_builder/` gained `metadata_context.rs`
+- `crates/hakorune_mir_joinir/` gained `ownership_types.rs`
 - `src/mir/builder/compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
 
 P6 naming cleanup:
@@ -184,6 +186,6 @@ Interpretation:
 
 When this lane is reopened for implementation:
 
-1. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
-2. `src/mir/builder/compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
-3. `src/mir/passes/rc_insertion.rs`
+1. `src/mir/passes/concat3_canonicalize/` extraction review
+2. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
+3. `src/mir/builder/compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)

@@ -213,6 +213,7 @@ P5 substrate ID slice landed:
 - `hakorune_mir_builder` package now also owns `binding_context.rs`
 - `hakorune_mir_builder` package now also owns `type_context.rs`
 - `hakorune_mir_builder` package now also owns `variable_context.rs`
+- `hakorune_mir_joinir` package now also owns `join_ir/ownership/types.rs`
 - `src/mir/basic_block.rs` re-exports the substrate IDs
 - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
 - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`

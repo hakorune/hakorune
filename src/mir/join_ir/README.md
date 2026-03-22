@@ -15,6 +15,11 @@ Current blockers:
 - `join_ir_vm_bridge/` is not stable enough for a crate split
 - ownership analysis here is still analysis over the same lowering surface
 
+Landed substrate slice:
+
+- `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
+- the rest of `src/mir/join_ir/` stays in the docs-first review lane
+
 ## Read First
 
 1. [`lowering/README.md`](./lowering/README.md)

@@ -22,6 +22,7 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_builder` package: `type_context.rs`
 - `hakorune_mir_builder` package: `variable_context.rs`
 - `hakorune_mir_builder` package: `metadata_context.rs`
+- `hakorune_mir_joinir` package: `join_ir/ownership/types.rs`
 - `compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/value_kind.rs` is a thin re-export wrapper
@@ -100,7 +101,8 @@ Keep:
 
 Current status:
 
-- docs-first only; no crate move yet
+- first substrate slice landed: `ownership/types.rs`
+- whole-subtree split is still docs-first only; no crate move yet
 - lowering still couples AST/ProgramJSON, runtime/env, and MIR surfaces
 - `json.rs` / JoinIR serialization is part of the same review lane
 - `join_ir_vm_bridge/` boundary is not yet stable enough for packaging
@@ -163,6 +165,7 @@ It is not a split target for the current P5 step.
 
 - `src/mir/README.md` links back to this doc.
 - `src/mir/builder/README.md`, `src/mir/passes/README.md`, and `src/mir/join_ir/README.md` name their future crate candidates.
+- `src/mir/join_ir/ownership/types.rs` is now a thin re-export wrapper to `hakorune_mir_joinir`.
 - The first builder packaging slice is already landed.
 - The next builder packaging order is `scope_context.rs` (blocked) -> `compilation_context.rs` (parked).
 - `scope_context.rs` remains blocked on the `MirFunction` / lexical-scope seam and is not a safe move yet.

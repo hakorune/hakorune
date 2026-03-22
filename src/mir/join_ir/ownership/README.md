@@ -18,6 +18,11 @@ Reason:
 - splitting it early would duplicate boundary logic before the bridge/lowering
   seam is stable
 
+Landed substrate slice:
+
+- `hakorune_mir_joinir::ownership_types` now owns the pure ownership type substrate
+- analyzer / validator / lowering adapters stay here
+
 ## Responsibility Boundary
 
 This module is responsible for **analysis only**:

@@ -172,6 +172,7 @@ nyash-c-core = { path = "crates/nyash_c_core", optional = true }
 hakorune-mir-core = { path = "crates/hakorune_mir_core" }
 hakorune-mir-defs = { path = "crates/hakorune_mir_defs" }
 hakorune-mir-builder = { path = "crates/hakorune_mir_builder" }
+hakorune-mir-joinir = { path = "crates/hakorune_mir_joinir" }
 tempfile = "3.10"
 
 # 日時処理

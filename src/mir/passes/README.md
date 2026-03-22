@@ -18,6 +18,10 @@ Current blockers:
 - `concat3_canonicalize/` is the only plausible future extraction candidate,
   but it still depends on the same MIR surface for now
 
+Next review target:
+
+- `concat3_canonicalize/` as the first real substrate-style extraction candidate
+
 ## Read First
 
 1. `src/mir/README.md`
