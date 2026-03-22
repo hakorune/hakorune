@@ -340,7 +340,7 @@ class TestStrlenFast(unittest.TestCase):
         self.assertNotIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.map.slot_load_hh"', ir_txt, msg=ir_txt)
 
-    def test_boxcall_get_arrayish_non_integer_key_prefers_array_get_hh(self):
+    def test_boxcall_get_arrayish_non_integer_key_prefers_runtime_data_facade(self):
         mir = {
             "functions": [
                 {
@@ -367,7 +367,7 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.runtime_data.get_hh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.array.slot_load_hi"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.map.slot_load_hh"', ir_txt, msg=ir_txt)
 
@@ -554,7 +554,7 @@ class TestStrlenFast(unittest.TestCase):
         self.assertNotIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.runtime_data.get_hh"', ir_txt, msg=ir_txt)
 
-    def test_mir_call_runtime_data_get_arrayish_non_integer_key_uses_array_route(self):
+    def test_mir_call_runtime_data_get_arrayish_non_integer_key_uses_runtime_data_facade(self):
         mir = {
             "functions": [
                 {
@@ -589,9 +589,9 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.runtime_data.get_hh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.array.slot_load_hi"', ir_txt, msg=ir_txt)
-        self.assertNotIn('call i64 @"nyash.runtime_data.get_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.get_hh"', ir_txt, msg=ir_txt)
 
     def test_mir_call_runtime_data_get_newbox_array_receiver_without_metadata(self):
         mir = {

@@ -72,6 +72,61 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
         )
         self.assertEqual(spec[0], "nyash.array.slot_load_hi")
 
+    def test_default_keeps_non_integer_array_get_on_runtime_data_facade(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "ArrayBox"},
+                2: {"kind": "handle", "box_type": "StringBox"},
+            },
+            integerish_ids=set(),
+        )
+        spec = select_runtime_data_call_spec(
+            method="get",
+            box_name="RuntimeDataBox",
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2],
+            prefer_array_mono_route=True,
+        )
+        self.assertEqual(spec[0], "nyash.runtime_data.get_hh")
+
+    def test_default_keeps_non_integer_array_set_on_runtime_data_facade(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "ArrayBox"},
+                2: {"kind": "handle", "box_type": "StringBox"},
+                3: {"kind": "handle", "box_type": "StringBox"},
+            },
+            integerish_ids=set(),
+        )
+        spec = select_runtime_data_call_spec(
+            method="set",
+            box_name="RuntimeDataBox",
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2, 3],
+            prefer_array_mono_route=True,
+        )
+        self.assertEqual(spec[0], "nyash.runtime_data.set_hhh")
+
+    def test_default_keeps_array_has_on_runtime_data_facade(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "ArrayBox"},
+                2: "i64",
+            },
+            integerish_ids={2},
+        )
+        spec = select_runtime_data_call_spec(
+            method="has",
+            box_name="RuntimeDataBox",
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2],
+            prefer_array_mono_route=True,
+        )
+        self.assertEqual(spec[0], "nyash.runtime_data.has_hh")
+
     def test_runtime_data_only_policy_disables_array_mono_route(self):
         resolver = _DummyResolver(
             value_types={

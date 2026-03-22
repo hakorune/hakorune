@@ -85,9 +85,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - but the collection boundary is still not closed, because active daily lowering/runtime-data paths still cross method-shaped collection exports
   - the next collection task is exact `B1` taskization:
     1. `B1f` landed: active daily `collections_hot.hako` rewrites now target raw seams for array `get/push` and map `get/set/has`; `array set` stays on the current route until a raw non-i64-safe write seam is accepted
-    2. `B1g` landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); `array set`, `array non-i64 get`, and `array has` stay on the current routes
+    2. `B1g` landed: active llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); the remaining array keep was deferred to `B1i/B1j`
     3. `B1h` landed: `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
-    4. `B1i`: inventory and demote the remaining active array non-i64 lowering residues (`nyash.array.get_hh`, `nyash.array.has_hh/has_hi`, `nyash.array.set_hhh/set_hih`)
+    4. `B1i` first slice landed: active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`, while the i64 raw/near-raw routes stay `slot_load_hi` / `set_hih` / `set_hii`
+    5. `B1j`: inventory the remaining i64-key array set keep in active lowering (`nyash.array.set_hih` / `nyash.array.set_hii`) and decide raw retarget vs accepted keep
   - build-freshness note is now pinned: after a new kernel export lands on the AOT boundary path, refresh release-side artifacts before link/pure smokes; stale pure-link failures must fail fast on missing staticlib symbols instead of relying on manual rebuild memory
   - `RuntimeDataBox` has no active code task now; keep it facade-only and reopen only on an exact protocol/dispatch bug
   - `crates/nyash_kernel/src/plugin/array_index_helpers.rs` / `array_route_helpers.rs` are now thin wrappers and should not be treated as the primary P1 edit target
@@ -106,8 +107,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
   - `src/llvm_py/tests/test_runtime_data_dispatch_policy.py`
   - `src/llvm_py/tests/test_strlen_fast.py`
-  - `crates/nyash_kernel/src/plugin/runtime_data_array_route.rs`
+  - `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py`
   - `crates/nyash_kernel/src/plugin/array.rs`
+  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
   - `tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`

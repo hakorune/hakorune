@@ -57,8 +57,8 @@ def try_lower_collection_boxcall(
             ):
                 callee = declare(module, "nyash.array.slot_load_hi", i64, [i64, i64])
                 return builder.call(callee, [recv_h, k], name="array_slot_load_hi")
-            callee = declare(module, "nyash.array.get_hh", i64, [i64, i64])
-            return builder.call(callee, [recv_h, k], name="array_get_hh")
+            callee = declare(module, "nyash.runtime_data.get_hh", i64, [i64, i64])
+            return builder.call(callee, [recv_h, k], name="runtime_data_get_hh")
         callee = declare(module, "nyash.map.slot_load_hh", i64, [i64, i64])
         return builder.call(callee, [recv_h, k], name="map_slot_load_hh")
 
@@ -92,8 +92,8 @@ def try_lower_collection_boxcall(
                     return builder.call(callee, [recv_h, k, v], name="array_set_hii")
                 callee = declare(module, "nyash.array.set_hih", i64, [i64, i64, i64])
                 return builder.call(callee, [recv_h, k, v], name="array_set_hih")
-            callee = declare(module, "nyash.array.set_hhh", i64, [i64, i64, i64])
-            return builder.call(callee, [recv_h, k, v], name="array_set_hhh")
+            callee = declare(module, "nyash.runtime_data.set_hhh", i64, [i64, i64, i64])
+            return builder.call(callee, [recv_h, k, v], name="runtime_data_set_hhh")
         callee = declare(module, "nyash.map.slot_store_hhh", i64, [i64, i64, i64])
         return builder.call(callee, [recv_h, k, v], name="map_slot_store_hhh")
 
@@ -101,6 +101,10 @@ def try_lower_collection_boxcall(
         k = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
         if k is None:
             k = ir.Constant(i64, 0)
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
+            callee = declare(module, "nyash.runtime_data.has_hh", i64, [i64, i64])
+            return builder.call(callee, [recv_h, k], name="runtime_data_has_hh")
         callee = declare(module, "nyash.map.probe_hh", i64, [i64, i64])
         return builder.call(callee, [recv_h, k], name="map_probe_hh")
 

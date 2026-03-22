@@ -65,9 +65,9 @@ check_route_any() {
 }
 
 check_route_any "push" "nyash.runtime_data.push_hh" "nyash.array.slot_append_hh"
-check_route_any "get" "nyash.runtime_data.get_hh" "nyash.array.get_hh" "nyash.array.slot_load_hi"
-check_route_any "has" "nyash.runtime_data.has_hh" "nyash.array.has_hh" "nyash.array.has_hi"
-check_route_any "set" "nyash.runtime_data.set_hhh" "nyash.array.set_hhh" "nyash.array.set_hih" "nyash.array.set_hii"
+check_route_any "get" "nyash.runtime_data.get_hh" "nyash.array.slot_load_hi"
+check_route_any "has" "nyash.runtime_data.has_hh"
+check_route_any "set" "nyash.runtime_data.set_hhh" "nyash.array.set_hih" "nyash.array.set_hii"
 
 set +e
 "$TMP_EXE" >/dev/null 2>>"$TMP_LOG"

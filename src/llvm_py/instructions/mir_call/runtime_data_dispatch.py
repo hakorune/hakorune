@@ -26,17 +26,17 @@ _RUNTIME_DATA_METHODS = {
 
 
 _RUNTIME_DATA_ARRAY_METHODS = {
-    "get": ("nyash.array.get_hh", "unified_array_get_hh", 1),
+    "get": ("nyash.runtime_data.get_hh", "unified_runtime_data_get", 1),
     "push": ("nyash.array.slot_append_hh", "unified_array_slot_append_hh", 1),
-    "set": ("nyash.array.set_hhh", "unified_array_set_hhh", 2),
-    "has": ("nyash.array.has_hh", "unified_array_has_hh", 1),
+    "set": ("nyash.runtime_data.set_hhh", "unified_runtime_data_set", 2),
+    "has": ("nyash.runtime_data.has_hh", "unified_runtime_data_has", 1),
 }
 
 
 _RUNTIME_DATA_ARRAY_I64_KEY_METHODS = {
     "get": ("nyash.array.slot_load_hi", "unified_array_slot_load_hi", 1),
     "set": ("nyash.array.set_hih", "unified_array_set_hih", 2),
-    "has": ("nyash.array.has_hi", "unified_array_has_hi", 1),
+    "has": ("nyash.runtime_data.has_hh", "unified_runtime_data_has", 1),
 }
 
 

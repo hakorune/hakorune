@@ -184,14 +184,14 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - next active boundary residues:
     - `src/llvm_py/instructions/boxcall_runtime_data.py`
     - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
-    - remaining array non-i64 `get/has/set` routes (`nyash.array.get_hh`, `nyash.array.has_hh/has_hi`, `nyash.array.set_hhh/set_hih`)
+    - remaining i64-key array set keep (`nyash.array.set_hih` / `nyash.array.set_hii`)
   - landed AOT-prep retarget:
     - `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
     - `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
     - pin: `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
   - landed llvm-py retarget:
     - shared llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
-    - `ArrayBox.set`, `ArrayBox` non-i64 `get`, and `ArrayBox.has` stay on the current routes
+    - the remaining array lowering keep moved to the later `B1i/B1j` slices
     - pins:
       - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
       - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
@@ -199,6 +199,10 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - landed runtime-data map retarget:
     - `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
     - `RuntimeDataBox` remains facade-only; next exact residue is array non-i64 lowering
+  - landed array non-i64 lowering demotion:
+    - active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`
+    - proven i64-key routes still use `nyash.array.slot_load_hi`, `nyash.array.set_hih`, and `nyash.array.set_hii`
+    - next exact residue is the i64-key array set keep
   - build-freshness note:
     - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
   - source keep policy とは分離して進める
@@ -232,7 +236,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 6. `build-maintenance`（cargo）は host 保守時のみ実行する。
 7. Rust source は保存固定とし、削除タスクは現時点で開始しない。
 8. `phase-29cf` の `VM fallback compat lane` / `bootstrap boundary reduction` は future-wave follow-up として monitor-only で維持する。
-9. 最適化 lane（micro/asm -> kilo）は再び parked のままで、先に array non-i64 collection boundary residue を demote する。
+9. 最適化 lane（micro/asm -> kilo）は再び parked のままで、先に i64-key array set keep を inventory する。
 10. `stage0` Rust bootstrap keep と `stage2+` daily selfhost mainline は別物として扱い、同じ acceptance に混ぜない。
 
 ## Read First Order

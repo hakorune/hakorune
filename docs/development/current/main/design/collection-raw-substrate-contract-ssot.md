@@ -231,7 +231,7 @@ Current second slice:
 - landed runtime-data map hidden-residue slice:
   - `runtime_data_map_route.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
 - current remaining work after those explicit exports:
-  - active llvm-py lowering still keeps array non-i64 `get/has/set` on method-shaped exports
+  - active llvm-py lowering still keeps the i64-key array set path on method-shaped exports (`nyash.array.set_hih` / `nyash.array.set_hii`)
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
 - raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
 
@@ -269,8 +269,7 @@ Current second slice:
      - direct boxcall lowering now uses `nyash.array.slot_load_hi` where the i64 raw seam exists
      - runtime-data array mono-route now uses `nyash.array.slot_load_hi` for i64-key `get`
    - keep:
-     - `ArrayBox.set` stays on the current route
-     - `ArrayBox` non-i64 `get` and `has` stay on the current route until matching raw seams are accepted
+     - the remaining array lowering keep moved to `B1i/B1j`
    - contract pins:
      - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
@@ -286,13 +285,23 @@ Current second slice:
      - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
      - `bash tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh`
 9. `B1i / array-non-i64-lowering-residue`
-   - next: inventory and demote the remaining active array non-i64 `get/has/set` routes
+   - landed first slice: active lowering now uses `nyash.runtime_data.get_hh/has_hh/set_hhh` for array non-i64 shapes
+   - proven i64-key routes stay direct for now (`nyash.array.slot_load_hi`, `nyash.array.set_hih`, `nyash.array.set_hii`)
+   - contract pins:
+     - `python3 -m unittest src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_strlen_fast src.llvm_py.tests.test_boxcall_plugin_invoke_args`
+     - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
+     - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
+10. `B1j / array-i64-set-keep-inventory`
+   - next: inventory the remaining active i64-key array set path and decide `slot_store_hii`/raw retarget vs accepted keep
    - current exact files:
      - `src/llvm_py/instructions/boxcall_runtime_data.py`
      - `src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`
      - `src/llvm_py/tests/test_runtime_data_dispatch_policy.py`
      - `src/llvm_py/tests/test_strlen_fast.py`
-10. `B1r / runtime_data lock`
+     - `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py`
+     - `crates/nyash_kernel/src/plugin/array.rs`
+     - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+11. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug
 
 ## 5. Naming Rule
