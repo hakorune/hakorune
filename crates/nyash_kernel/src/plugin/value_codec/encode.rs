@@ -16,6 +16,9 @@ pub(crate) fn box_to_runtime_i64(value: Box<dyn NyashBox>) -> i64 {
 
 #[inline(always)]
 pub(crate) fn runtime_i64_from_box_ref(value: &dyn NyashBox) -> i64 {
+    // Borrowed alias aware runtime encoder:
+    // reuse source handle only while the alias epoch is still live,
+    // otherwise fall back to conservative re-materialization.
     if let Some(alias) = value.as_any().downcast_ref::<BorrowedHandleBox>() {
         if alias.source_handle > 0 {
             // Fast path: if no handle drop happened since alias creation,

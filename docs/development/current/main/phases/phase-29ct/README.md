@@ -95,10 +95,19 @@ Related:
     - `runtime-facade`
     - `compat-only`
     - `adapter-default consumer`
-- next active slice is `value representation lock`
-  - `crates/nyash_kernel/src/plugin/value_codec/mod.rs`
-  - `crates/nyash_kernel/src/plugin/value_codec/decode.rs`
-  - `crates/nyash_kernel/src/plugin/value_codec/encode.rs`
+
+- `V1 value representation lock` landed
+  - canonical classes are fixed as:
+    - `imm_i64`
+    - `imm_bool`
+    - `handle_owned`
+    - `handle_borrowed_string`
+    - `boxed_local`
+  - `value_public` stays inventory-only umbrella
+  - `BorrowedHandleBox` is fixed as the current concrete borrowed-string alias carrier
+  - `CodecProfile` is fixed as helper policy, not public ABI schema
+  - next active slice is `metal helper contract lock`
+    - `crates/nyash_kernel/src/plugin/handle_cache.rs`
 
 ## Stop-Line
 

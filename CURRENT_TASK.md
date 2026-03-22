@@ -37,6 +37,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - current collection/kernel symbols are grouped as:
       `mainline substrate` / `runtime-facade` / `compat-only`
     - `AbiAdapterRegistryBox` is fixed as adapter-default consumer, not manifest truth
+  - `phase-29ct` V1 value representation lock
+    - canonical classes are fixed as:
+      `imm_i64` / `imm_bool` / `handle_owned` /
+      `handle_borrowed_string` / `boxed_local`
+    - `value_public` stays V0 inventory umbrella only
+    - `BorrowedHandleBox` is fixed as the current borrowed-string alias carrier
+    - `CodecProfile` is fixed as helper policy, not public ABI schema
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -126,13 +133,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
   - `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
   - `docs/development/current/main/design/abi-export-inventory.md`
+  - `crates/nyash_kernel/src/plugin/handle_cache.rs`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
-  - `crates/nyash_kernel/src/plugin/value_codec/mod.rs`
-  - `crates/nyash_kernel/src/plugin/value_codec/decode.rs`
-  - `crates/nyash_kernel/src/plugin/value_codec/encode.rs`
-  - `crates/nyash_kernel/src/plugin/handle_cache.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`

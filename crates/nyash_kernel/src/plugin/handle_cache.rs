@@ -57,6 +57,7 @@ fn cache_store(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) {
 
 #[inline(always)]
 fn encode_array_item_to_i64(item: &dyn NyashBox, drop_epoch: u64) -> i64 {
+    // Keep scalar/bool before borrowed-handle reuse so immediate classes stay canonical.
     if let Some(iv) = item.as_i64_fast() {
         return iv;
     }

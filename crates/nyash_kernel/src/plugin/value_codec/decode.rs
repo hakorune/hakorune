@@ -11,6 +11,8 @@ pub(crate) enum CodecProfile {
     ArrayBorrowStringOnly,
 }
 
+// Internal-only carrier for array fast decode.
+// Public ABI rows must use canonical value classes from docs, not this enum directly.
 pub(crate) enum ArrayFastDecodedValue {
     ImmediateI64(i64),
     Boxed(Box<dyn NyashBox>),
@@ -22,6 +24,8 @@ pub(crate) fn int_arg_to_box(arg: i64) -> Box<dyn NyashBox> {
 
 #[inline(always)]
 pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
+    // String/StringView handles become borrowed string aliases.
+    // Other positive handles stay conservative and fall back to immediate-style handling.
     if arg <= 0 {
         return ArrayFastDecodedValue::ImmediateI64(arg);
     }

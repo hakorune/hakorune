@@ -117,6 +117,7 @@ pub(crate) fn maybe_borrow_string_handle_with_epoch(
     source_handle: i64,
     source_drop_epoch: u64,
 ) -> Box<dyn NyashBox> {
+    // Only string-like sources may produce a borrowed string alias.
     if obj.as_any().downcast_ref::<StringBox>().is_some() {
         return Box::new(BorrowedHandleBox::new(
             obj,
@@ -148,6 +149,8 @@ pub(crate) fn try_retarget_borrowed_string_slot_with_source(
     source_obj: &Arc<dyn NyashBox>,
     source_drop_epoch: u64,
 ) -> bool {
+    // Retarget only existing borrowed-string aliases.
+    // Non-borrowed slots and non-string sources must fail closed here.
     if source_handle <= 0 {
         return false;
     }

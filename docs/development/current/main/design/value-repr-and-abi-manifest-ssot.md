@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
+  - crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs
   - crates/nyash_kernel/src/plugin/value_codec/mod.rs
   - crates/nyash_kernel/src/plugin/value_codec/decode.rs
   - crates/nyash_kernel/src/plugin/value_codec/encode.rs
@@ -56,6 +57,69 @@ current `value_codec` から読むと、次が事実上の substrate rule だよ
   - non-scalar / non-borrowed values are returned as owned handles
 - `boxed_local`
   - only substrate helpers may use it as a temporary carrier
+
+## Value Class Lock
+
+current `value_codec` では、次の5 class を正本として固定する。
+
+1. `imm_i64`
+   - immediate integer
+   - `decode_array_fast_value(...)` の `ImmediateI64`
+   - `any_arg_to_index(...)` の integer-like fast path
+2. `imm_bool`
+   - semantic bool class
+   - runtime surface では `0/1` i64 に lower されても class は `imm_bool`
+3. `handle_owned`
+   - ordinary owned handle
+   - non-scalar / non-borrowed values の canonical public carrier
+4. `handle_borrowed_string`
+   - string/string-view だけに許可された borrowed alias handle class
+   - concrete implementation shape is `BorrowedHandleBox`
+5. `boxed_local`
+   - internal codec carrier only
+   - public ABI manifest row には出さない
+
+`value_public` は V0 inventory の便宜上の umbrella であって、manifest の第一表現にはしない。
+
+## Codec Profile Lock
+
+`CodecProfile` は value class の派生 policy として次で固定する。
+
+1. `Generic`
+   - generic bridge/default decode
+   - borrowed string alias metadata は付けない
+2. `ArrayFastBorrowString`
+   - array fast path
+   - string/string-view は `handle_borrowed_string`
+   - bool/int は scalar-prefer
+   - non-scalar / non-string positive handle は conservative fallback
+3. `ArrayBorrowStringOnly`
+   - string/string-view だけを borrowed alias 化
+   - それ以外の positive handle は immediate-style fallback
+
+`CodecProfile` は public ABI row には直接出さず、representation/decode helper の補助契約として扱う。
+
+## Borrowed String Alias Invariants
+
+`handle_borrowed_string` の invariants は次で固定する。
+
+1. concrete carrier is `BorrowedHandleBox`
+2. `source_handle > 0` でない alias は borrowed-handle fast path を使わない
+3. `source_drop_epoch == handles::drop_epoch()` の間だけ source handle を再利用してよい
+4. alias expiry 時は fail-open に source handle を信用せず、owned-handle re-materialize へ退避する
+5. `inner` を non-string / non-string-view source へ retarget してはいけない
+6. `try_retarget_borrowed_string_slot*` は `BorrowedHandleBox` でない slot を黙って変えない
+7. borrowed alias production は `StringBox` / `StringViewBox` 系だけに許可する
+
+ここでは `fail-fast` と `conservative fallback` を分けて読む。
+
+- fail-fast:
+  - ownership mismatch
+  - invalid retarget target
+- conservative fallback:
+  - expired borrowed alias
+  - missing source handle
+  - non-string positive handle
 
 ## ABI Manifest Row
 
@@ -110,6 +174,9 @@ current hand-written exports are allowed only as inventory input.
 - `handle_owned`
 - `handle_borrowed_string`
 - `boxed_local`
+- `value_public` is umbrella-only, not the first manifest vocabulary
+- `BorrowedHandleBox` is the current concrete shape for `handle_borrowed_string`
+- `CodecProfile` is fixed as helper policy, not a public ABI row field
 
 ### V2. Freeze manifest schema
 
@@ -133,12 +200,16 @@ these should shrink to thin exports over substrate helpers and generated alias d
 
 1. manifest inventory doc for current array/map/runtime_data/string symbols
    - [`abi-export-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-inventory.md)
-2. `AbiAdapterRegistryBox` default rows mapped into manifest vocabulary
-3. `array.rs` / `map.rs` / `runtime_data.rs` export groups tagged as:
+2. value class / borrowed alias lock in `value_codec/*`
+   - `decode.rs`
+   - `encode.rs`
+   - `borrowed_handle.rs`
+3. `AbiAdapterRegistryBox` default rows mapped into manifest vocabulary
+4. `array.rs` / `map.rs` / `runtime_data.rs` export groups tagged as:
    - mainline substrate
    - compat-only
    - pure/historical compat
-4. `value_codec/*` contract notes updated to use canonical value-class names
+5. `handle_cache.rs` metal helper contract lock
 
 ## Non-Goals
 

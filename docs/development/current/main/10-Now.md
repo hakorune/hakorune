@@ -88,6 +88,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Repo cleanup lane: `phase-29cs` parked（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` finished the kernel/plugin naming cleanup batch; active next is `phase-21_5` raw substrate perf reopen after the collection owner stop line）
 - Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
+- Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
