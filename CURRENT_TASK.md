@@ -114,7 +114,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `C5 Hakozuna portability layer` remains ladder-only and deferred
   - `phase-29ct` I1 capability stubs + RawArray probe path
     - `lang/src/runtime/substrate/mem/mem_core_box.hako`
-      and `lang/src/runtime/substrate/buf/buf_core_box.hako` now exist as compile-safe skeletons
+      now exposes the first live `hako.mem` bridge
+    - `lang/src/runtime/substrate/buf/buf_core_box.hako`
+      now exposes the first live `hako.buf` bridge
     - `lang/src/runtime/substrate/ptr/ptr_core_box.hako` now owns the first live
       `slot_load_i64` / `slot_store_i64` capability hop
     - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako` now owns the first
@@ -126,13 +128,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako` now widens the
       runnable substrate path to `get/set/len/push`
     - `ArrayCoreBox.len_i64/push_hh` now route through `RawArrayCoreBox`
-    - `MemCoreBox` / `BufCoreBox` stay skeleton-only
   - `phase-29ct` I3 RawArray reserve/grow slice
     - `lang/src/runtime/substrate/ptr/ptr_core_box.hako` now also owns
       `slot_reserve_i64` / `slot_grow_i64`
     - `lang/src/runtime/substrate/raw_array/raw_array_core_box.hako` now widens the
-      substrate capacity vocabulary
+      substrate capacity vocabulary through `BufCoreBox`
     - `RawArray` is now the first consumer of `reserve/grow` as well as slot access
+  - `phase-29ct` I4 live mem/buf facade slice
+    - `lang/src/runtime/substrate/mem/mem_core_box.hako` now exposes the live
+      `alloc_i64` / `realloc_i64` / `free_i64` bridge
+    - `lang/src/runtime/substrate/buf/buf_core_box.hako` now exposes the live
+      `len_i64` / `cap_i64` / `reserve_i64` / `grow_i64` surface
+    - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64` now route through `BufCoreBox`
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only

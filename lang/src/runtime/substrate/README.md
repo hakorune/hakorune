@@ -30,6 +30,11 @@ Current phase reading:
 - The following algorithm-substrate consumer lock is docs-first, and its physical reservation lives at `raw_map/README.md`.
 - The next capability-widening lock is docs-first, and its physical reservations live at `atomic/README.md`, `tls/README.md`, and `gc/README.md`.
 
+Current live capability subset:
+- `mem` now has a live `alloc/realloc/free` facade.
+- `buf` now has a live `len/cap/reserve/grow` facade.
+- `ptr` remains the typed pointer/span facade used by the current array capacity path.
+
 Native keep stays outside this directory:
 - OS virtual memory
 - final allocator calls
@@ -43,7 +48,7 @@ Relationship to existing runtime boxes:
 - Do not move collection owner logic here just because a lower-level helper exists.
 
 Non-goals:
-- Do not implement `hako.mem` / `hako.buf` / `hako.ptr` here yet.
+- Do not grow `hako.mem` / `hako.buf` into allocator policy here.
 - Do not add `RawArray` / `RawMap` here yet.
 - Do not move allocator / TLS / atomic / GC policy here yet.
 - Do not rewrite native metal helpers here.

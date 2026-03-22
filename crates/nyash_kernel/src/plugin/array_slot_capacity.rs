@@ -1,6 +1,14 @@
 use super::handle_cache::with_array_box;
 
 #[inline(always)]
+pub(super) fn array_slot_cap_i64(handle: i64) -> i64 {
+    if handle <= 0 {
+        return 0;
+    }
+    with_array_box(handle, |arr| arr.items.read().capacity() as i64).unwrap_or(0)
+}
+
+#[inline(always)]
 pub(super) fn array_slot_reserve_i64(handle: i64, additional: i64) -> i64 {
     if handle <= 0 || additional < 0 {
         return 0;

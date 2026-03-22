@@ -7,7 +7,9 @@ Responsibilities:
   - reserve/grow
   - slot load/store
   - append-at-end policy
-- Current widened substrate path also includes the reserve/grow verb pair above the concrete array owner, routed through `PtrCoreBox`.
+- Current widened substrate path includes:
+  - `slot_load_i64` / `slot_store_i64` / `slot_len_i64` / `slot_append_any` via `PtrCoreBox`
+  - `slot_reserve_i64` / `slot_grow_i64` via `BufCoreBox`, which remains a thin shape facade over the current capacity backend
 
 Rules:
 - `RawArray` is not a semantic owner box.

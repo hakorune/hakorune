@@ -8,13 +8,18 @@ Responsibilities:
   - alignment request vocabulary
 - Native intrinsic lowering is allowed when implementation begins.
 
+Current live surface:
+- `alloc_i64`
+- `realloc_i64`
+- `free_i64`
+
 Rules:
 - Do not add len/cap policy here.
 - Do not add typed pointer/span facade here.
 - Do not add allocator state machine here.
-- Keep this directory docs-first for the current phase.
+- Keep this directory focused on the native memory keep bridge.
 
 Non-goals:
-- No `.hako` implementation yet.
+- No allocator policy here yet.
 - No `RawArray`/`RawMap` logic.
 - No OS VM policy.

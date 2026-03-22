@@ -187,7 +187,8 @@ Related:
   - next active slice is `C6 final metal split detail lock`
 
 - `I1 capability stubs + RawArray probe path` landed
-  - `MemCoreBox` / `BufCoreBox` now exist as compile-safe skeleton boxes
+  - `MemCoreBox` now exists as the first live `hako.mem` bridge
+  - `BufCoreBox` now exists as the first live `hako.buf` bridge
   - `PtrCoreBox` now owns the first live `slot_load_i64` / `slot_store_i64` capability hop
   - `RawArrayCoreBox` now owns the first runnable algorithm-substrate probe path
   - `ArrayCoreBox.get_i64/set_i64` now delegate through `RawArrayCoreBox`
@@ -196,12 +197,16 @@ Related:
   - `PtrCoreBox` now also owns `slot_len_i64` / `slot_append_any`
   - `RawArrayCoreBox` now widens the runnable probe path to `get/set/len/push`
   - `ArrayCoreBox.len_i64/push_hh` now delegate through `RawArrayCoreBox`
-  - `MemCoreBox` / `BufCoreBox` remain skeleton-only in this slice
 
 - `I3 RawArray reserve/grow slice` landed
   - `PtrCoreBox` now also owns `slot_reserve_i64` / `slot_grow_i64`
-  - `RawArrayCoreBox` now widens the substrate capacity path
+  - `RawArrayCoreBox` now widens the substrate capacity path through `BufCoreBox`
   - `RawArray` is now the first consumer of `reserve/grow` as well as slot access
+
+- `I4 live mem/buf facade slice` landed
+  - `MemCoreBox` now exposes the native `alloc_i64` / `realloc_i64` / `free_i64` bridge
+  - `BufCoreBox` now exposes the first live `len_i64` / `cap_i64` / `reserve_i64` / `grow_i64` surface
+  - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64` now route through `BufCoreBox`
 
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:

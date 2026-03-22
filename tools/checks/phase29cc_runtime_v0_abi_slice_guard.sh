@@ -13,6 +13,7 @@ HANDLER_FILE="lang/src/vm/boxes/mir_call_v1_handler.hako"
 ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
+BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
 PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="lang/src/runtime/collections/map_core_box.hako"
@@ -27,6 +28,7 @@ for file in \
   "$ARRAY_CORE_FILE" \
   "$ARRAY_STATE_CORE_FILE" \
   "$RAW_ARRAY_CORE_FILE" \
+  "$BUF_CORE_FILE" \
   "$PTR_CORE_FILE" \
   "$STRING_CORE_FILE" \
   "$MAP_CORE_FILE"; do
@@ -134,12 +136,16 @@ if ! rg -F -q 'PtrCoreBox.slot_append_any(handle, value_any)' "$RAW_ARRAY_CORE_F
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr append route" >&2
   exit 1
 fi
-if ! rg -F -q 'PtrCoreBox.slot_reserve_i64(handle, additional)' "$RAW_ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] raw array missing ptr reserve route" >&2
+if ! rg -F -q 'BufCoreBox.reserve_i64(handle, additional)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing buf reserve route" >&2
   exit 1
 fi
-if ! rg -F -q 'PtrCoreBox.slot_grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] raw array missing ptr grow route" >&2
+if ! rg -F -q 'cap_i64(handle)' "$BUF_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] buf core missing cap route" >&2
+  exit 1
+fi
+if ! rg -F -q 'BufCoreBox.grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing buf grow route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.array.slot_load_hi"' "$PTR_CORE_FILE"; then

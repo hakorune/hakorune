@@ -1,13 +1,23 @@
-// MemCoreBox — minimal `hako.mem` namespace skeleton for phase-29ct probe slice.
+// MemCoreBox — live `hako.mem` capability facade for phase-29ct.
 // Responsibility:
-// - reserve the future `hako.mem` implementation root as a real box
-// - keep capability naming out of `collections/`
+// - expose the smallest memory ABI bridge as a real box
+// - keep the native keep contract visible under `runtime/substrate/`
 // Non-responsibility:
 // - allocator policy
-// - live probe path behavior in this slice
+// - collection semantics
+// - buffer shape policy
 
 static box MemCoreBox {
-  reserved() {
+  alloc_i64(size) {
+    return externcall "hako_mem_alloc"(size)
+  }
+
+  realloc_i64(ptr, new_size) {
+    return externcall "hako_mem_realloc"(ptr, new_size)
+  }
+
+  free_i64(ptr) {
+    externcall "hako_mem_free"(ptr)
     return 0
   }
 }

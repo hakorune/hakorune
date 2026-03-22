@@ -110,6 +110,10 @@ current physical staging path は次。
 - [`lang/src/runtime/substrate/ptr/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/ptr/README.md)
 
 この wave では README だけを置く。
+current implementation note:
+- the first live subset now exists as `MemCoreBox.alloc_i64/realloc_i64/free_i64`
+- `BufCoreBox.len_i64/cap_i64/reserve_i64/grow_i64` is the first live buffer-shaped facade
+- `shrink` / `set_len` remain future widening targets
 
 ## Non-Goals
 

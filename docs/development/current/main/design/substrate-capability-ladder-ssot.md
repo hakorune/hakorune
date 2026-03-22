@@ -154,6 +154,10 @@ current root lock is:
 - `hako.ptr`
 - current docs lock:
   - [`minimal-capability-modules-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimal-capability-modules-ssot.md)
+- current implementation note:
+  - `MemCoreBox.alloc_i64/realloc_i64/free_i64` is live
+  - `BufCoreBox.len_i64/cap_i64/reserve_i64/grow_i64` is live
+  - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64` now route through `BufCoreBox`
 
 ここでは native intrinsic lowering を許可する。
 

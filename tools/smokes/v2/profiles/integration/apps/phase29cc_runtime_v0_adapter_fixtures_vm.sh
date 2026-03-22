@@ -144,12 +144,16 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw array ptr append hop contract missing"
     exit 1
   fi
-  if ! rg -F -q 'PtrCoreBox.slot_reserve_i64(handle, additional)' "$RAW_ARRAY_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: raw array ptr reserve hop contract missing"
+  if ! rg -F -q 'BufCoreBox.reserve_i64(handle, additional)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array buf reserve hop contract missing"
     exit 1
   fi
-  if ! rg -F -q 'PtrCoreBox.slot_grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: raw array ptr grow hop contract missing"
+  if ! rg -F -q 'cap_i64(handle)' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core cap contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'BufCoreBox.grow_i64(handle, target_capacity)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array buf grow hop contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_store_i64]' "$RAW_ARRAY_CORE_FILE"; then
@@ -176,12 +180,36 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw array grow trace tag contract missing"
     exit 1
   fi
-  if ! rg -F -q 'reserved()' "$MEM_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: mem core skeleton contract missing"
+  if ! rg -F -q 'alloc_i64(size)' "$MEM_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: mem core alloc contract missing"
     exit 1
   fi
-  if ! rg -F -q 'reserved()' "$BUF_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: buf core skeleton contract missing"
+  if ! rg -F -q 'realloc_i64(ptr, new_size)' "$MEM_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: mem core realloc contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'free_i64(ptr)' "$MEM_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: mem core free contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'len_i64(handle)' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core len contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'cap_i64(handle)' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core cap contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.array.slot_cap_h"' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core slot_cap backend contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'reserve_i64(handle, additional)' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core reserve contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'grow_i64(handle, target_capacity)' "$BUF_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: buf core grow contract missing"
     exit 1
   fi
   if ! rg -F -q 'record_push_state(regs, per_recv, rid, cur_len, value_state, arg0_id)' "$ARRAY_STATE_CORE_FILE"; then

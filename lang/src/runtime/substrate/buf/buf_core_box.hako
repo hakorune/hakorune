@@ -1,13 +1,40 @@
-// BufCoreBox — minimal `hako.buf` namespace skeleton for phase-29ct probe slice.
+// BufCoreBox — live `hako.buf` capability facade for phase-29ct.
 // Responsibility:
-// - reserve the future `hako.buf` implementation root as a real box
+// - expose the smallest buffer-shape surface needed by the current capability ladder
 // - keep len/cap vocabulary separate from owner boxes
 // Non-responsibility:
-// - live reserve/grow/set_len behavior in this slice
-// - collection policy
+// - allocator policy
+// - collection semantics
+// - unrestricted buffer mutation API
+
+using selfhost.runtime.substrate.ptr.ptr_core_box as PtrCoreBox
 
 static box BufCoreBox {
-  reserved() {
-    return 0
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  len_i64(handle) {
+    local out = PtrCoreBox.slot_len_i64(handle)
+    me._trace("[vm/adapter/buf:len_i64]")
+    return out
+  }
+
+  cap_i64(handle) {
+    local out = externcall "nyash.array.slot_cap_h"(handle)
+    me._trace("[vm/adapter/buf:cap_i64]")
+    return out
+  }
+
+  reserve_i64(handle, additional) {
+    local out = PtrCoreBox.slot_reserve_i64(handle, additional)
+    me._trace("[vm/adapter/buf:reserve_i64]")
+    return out
+  }
+
+  grow_i64(handle, target_capacity) {
+    local out = PtrCoreBox.slot_grow_i64(handle, target_capacity)
+    me._trace("[vm/adapter/buf:grow_i64]")
+    return out
   }
 }

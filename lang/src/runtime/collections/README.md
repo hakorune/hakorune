@@ -30,6 +30,7 @@ Rule:
 - `array_core_box.hako`
   - `get_i64(handle, idx)` / `set_i64(handle, idx, value)` / `len_i64(handle)` / `push_hh(handle, value_any)`
     -> `runtime/substrate/raw_array/raw_array_core_box.hako`
+    -> `runtime/substrate/buf/buf_core_box.hako` for reserve/grow
     -> `runtime/substrate/ptr/ptr_core_box.hako`
     -> `nyash.array.slot_load_hi` / `nyash.array.slot_store_hii` / `nyash.array.slot_len_h` / `nyash.array.slot_append_hh`
   - `try_handle(seg, regs, mname)`
@@ -92,6 +93,7 @@ Rule:
   - landed: daily array observer route now uses `nyash.array.slot_len_h`
   - landed: daily array append route now uses `nyash.array.slot_append_hh`
   - landed: daily array `get/set/len/push` substrate hop now goes through `RawArrayCoreBox -> PtrCoreBox`
+  - landed: `RawArrayCoreBox.reserve/grow` now route through `BufCoreBox`
   - landed: adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`
   - landed: adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`
   - landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`

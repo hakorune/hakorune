@@ -1,7 +1,7 @@
 // ---- Array helpers for LLVM lowering (handle-based) ----
 use super::array_index_dispatch::{array_get_by_index, array_has_by_index, decode_index_key};
 use super::array_slot_append::array_slot_append_any;
-use super::array_slot_capacity::{array_slot_grow_i64, array_slot_reserve_i64};
+use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
 use super::array_slot_load::array_slot_load_encoded_i64;
 use super::array_slot_store::array_slot_store_i64;
 use super::array_write_dispatch::{
@@ -108,6 +108,11 @@ pub extern "C" fn nyash_array_len_h_alias(handle: i64) -> i64 {
 #[export_name = "nyash.array.slot_len_h"]
 pub extern "C" fn nyash_array_slot_len_h_alias(handle: i64) -> i64 {
     nyash_array_length_h(handle)
+}
+
+#[export_name = "nyash.array.slot_cap_h"]
+pub extern "C" fn nyash_array_slot_cap_h_alias(handle: i64) -> i64 {
+    array_slot_cap_i64(handle)
 }
 
 // Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
@@ -283,14 +288,17 @@ mod tests {
         assert_eq!(nyash_array_push_h(handle, 1), 1);
 
         let before_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        assert_eq!(nyash_array_slot_cap_h_alias(handle), before_cap as i64);
         assert_eq!(nyash_array_slot_reserve_hi_alias(handle, 8), 1);
         let after_reserve_cap =
             with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        assert_eq!(nyash_array_slot_cap_h_alias(handle), after_reserve_cap as i64);
         assert!(after_reserve_cap >= before_cap);
         assert_eq!(nyash_array_length_h(handle), 1);
 
         assert_eq!(nyash_array_slot_grow_hi_alias(handle, 32), 1);
         let after_grow_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        assert_eq!(nyash_array_slot_cap_h_alias(handle), after_grow_cap as i64);
         assert!(after_grow_cap >= 32);
         assert_eq!(nyash_array_length_h(handle), 1);
     }

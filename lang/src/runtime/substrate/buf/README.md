@@ -7,12 +7,18 @@ Responsibilities:
   - reserve / grow / shrink
   - set_len
 
+Current live surface:
+- `len_i64`
+- `cap_i64`
+- `reserve_i64`
+- `grow_i64`
+
 Rules:
 - Treat `hako.buf` as shape/control vocabulary, not allocator policy.
-- Depend on `hako.mem` when implementation begins.
+- Keep the current implementation as a thin bridge over the existing array capacity backend.
 - Keep this directory docs-first for the current phase.
 
 Non-goals:
-- No `.hako` implementation yet.
+- No allocator policy here.
 - No typed pointer dereference semantics here.
 - No collection policy here.

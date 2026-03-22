@@ -6,6 +6,7 @@
 // - visible ArrayBox semantics owner
 // - allocator/TLS/GC policy
 
+using selfhost.runtime.substrate.buf.buf_core_box as BufCoreBox
 using selfhost.runtime.substrate.ptr.ptr_core_box as PtrCoreBox
 
 static box RawArrayCoreBox {
@@ -38,13 +39,13 @@ static box RawArrayCoreBox {
   }
 
   slot_reserve_i64(handle, additional) {
-    local out = PtrCoreBox.slot_reserve_i64(handle, additional)
+    local out = BufCoreBox.reserve_i64(handle, additional)
     me._trace("[vm/adapter/raw_array:slot_reserve_i64]")
     return out
   }
 
   slot_grow_i64(handle, target_capacity) {
-    local out = PtrCoreBox.slot_grow_i64(handle, target_capacity)
+    local out = BufCoreBox.grow_i64(handle, target_capacity)
     me._trace("[vm/adapter/raw_array:slot_grow_i64]")
     return out
   }
