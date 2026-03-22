@@ -19,3 +19,14 @@ This subtree contains MIR transformation passes and their local helpers.
 - MIR-wide transformations
 - pass-local verification and fail-fast checks
 - small helper wiring for optimizer / normalization stages
+
+## P5 Crate Split Prep
+
+`src/mir/passes/` is a future `mir-passes` candidate. Keep the public seam
+small so the eventual split is a packaging step, not a redesign.
+
+Prep rule:
+
+- one pass should transform or verify, not both
+- helper extraction should keep the pass entry thin
+- shared policy still belongs in `src/mir/policies/`

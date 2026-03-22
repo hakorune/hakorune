@@ -87,11 +87,10 @@ P4 first slice landed:
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_realworld.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_local.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_condition.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 
-The next implementation slice, when this lane is explicitly reopened, is:
-
-- `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
+P5 will start with crate boundary inventory and entry-map tightening before any split.
 
 ## Pressure Summary
 
@@ -118,7 +117,7 @@ Interpretation:
 - P1 is landed: `CURRENT_TASK.md` slim + archive policy
 - P2 is landed: box arithmetic / box operators / runner plugin init + core-ish root relocations
 - P3 first slice is landed: MIR navigation root + builder README
-- P4 first slice is landed: `helpers_pure_value.rs` / `helpers_layout.rs` / `helpers_value.rs` extracted from `helpers.rs`
+- P4 landed: `helpers_pure_value.rs` / `helpers_layout.rs` / `helpers_value.rs` extracted from `helpers.rs`; `loop_break_helpers_common.rs` / `loop_break_helpers_break_if.rs` / `loop_break_helpers_realworld.rs` / `loop_break_helpers_local.rs` / `loop_break_helpers_condition.rs` / `loop_break_helpers_loop.rs` / `loop_break_trim_whitespace_helpers.rs` extracted from `loop_break_helpers.rs`
 
 ## Next
 

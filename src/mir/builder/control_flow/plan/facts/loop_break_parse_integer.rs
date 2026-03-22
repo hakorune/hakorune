@@ -2,6 +2,10 @@ use super::loop_break_helpers::{
     extract_break_if_parts, extract_loop_increment_at_end, extract_loop_var_for_len_condition,
     lit_int, lit_str, var,
 };
+use super::loop_break_helpers_condition::{
+    match_acc_update_mul10_plus_d, match_break_if_less_than_zero,
+};
+use super::loop_break_helpers_local::{match_local_substring_char, match_local_this_index_of};
 use super::loop_break_types::LoopBreakFacts;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::extractors::common_helpers::{
@@ -163,70 +167,6 @@ fn try_extract_loop_break_parse_integer_range_subset(
     })
 }
 
-fn match_local_substring_char(stmt: &ASTNode, loop_var: &str) -> Option<(String, String, ASTNode)> {
-    let ASTNode::Local {
-        variables,
-        initial_values,
-        ..
-    } = stmt
-    else {
-        return None;
-    };
-    if variables.len() != 1 || initial_values.len() != 1 {
-        return None;
-    }
-    let ch_var = variables[0].clone();
-    let Some(expr) = initial_values[0].as_ref() else {
-        return None;
-    };
-    let ASTNode::MethodCall {
-        object,
-        method,
-        arguments,
-        ..
-    } = expr.as_ref()
-    else {
-        return None;
-    };
-    if method != "substring" || arguments.len() != 2 {
-        return None;
-    }
-    let ASTNode::Variable {
-        name: haystack_var, ..
-    } = object.as_ref()
-    else {
-        return None;
-    };
-    if !matches!(&arguments[0], ASTNode::Variable { name, .. } if name == loop_var) {
-        return None;
-    }
-    // end = i + 1
-    match &arguments[1] {
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Add,
-            left,
-            right,
-            ..
-        } => {
-            if !matches!(left.as_ref(), ASTNode::Variable { name, .. } if name == loop_var) {
-                return None;
-            }
-            if !matches!(
-                right.as_ref(),
-                ASTNode::Literal {
-                    value: LiteralValue::Integer(1),
-                    ..
-                }
-            ) {
-                return None;
-            }
-        }
-        _ => return None,
-    }
-
-    Some((ch_var, haystack_var.clone(), expr.as_ref().clone()))
-}
-
 fn extract_loop_var_for_cached_len_condition(condition: &ASTNode) -> Option<String> {
     let ASTNode::BinaryOp {
         operator: BinaryOperator::Less | BinaryOperator::LessEqual,
@@ -382,129 +322,4 @@ fn match_local_indexof(stmt: &ASTNode, digits_var: &str, ch_var: &str) -> Option
         return None;
     }
     Some(dpos_var)
-}
-
-fn match_local_this_index_of(stmt: &ASTNode, ch_var: &str) -> Option<(String, String)> {
-    let ASTNode::Local {
-        variables,
-        initial_values,
-        ..
-    } = stmt
-    else {
-        return None;
-    };
-    if variables.len() != 1 || initial_values.len() != 1 {
-        return None;
-    }
-    let d_var = variables[0].clone();
-    let Some(expr) = initial_values[0].as_ref() else {
-        return None;
-    };
-    let ASTNode::MethodCall {
-        object,
-        method,
-        arguments,
-        ..
-    } = expr.as_ref()
-    else {
-        return None;
-    };
-    if method != "index_of" || arguments.len() != 2 {
-        return None;
-    }
-    if !matches!(object.as_ref(), ASTNode::This { .. } | ASTNode::Me { .. }) {
-        return None;
-    }
-    let ASTNode::Variable {
-        name: digits_var, ..
-    } = &arguments[0]
-    else {
-        return None;
-    };
-    if !matches!(&arguments[1], ASTNode::Variable { name, .. } if name == ch_var) {
-        return None;
-    }
-
-    Some((digits_var.clone(), d_var))
-}
-
-fn match_break_if_less_than_zero(stmt: &ASTNode) -> Option<String> {
-    let (cond, update_opt) = extract_break_if_parts(stmt)?;
-    if update_opt.is_some() {
-        return None;
-    }
-    let ASTNode::BinaryOp {
-        operator: BinaryOperator::Less,
-        left,
-        right,
-        ..
-    } = cond
-    else {
-        return None;
-    };
-    let ASTNode::Variable { name, .. } = left.as_ref() else {
-        return None;
-    };
-    if !matches!(
-        right.as_ref(),
-        ASTNode::Literal {
-            value: LiteralValue::Integer(0),
-            ..
-        }
-    ) {
-        return None;
-    }
-    Some(name.clone())
-}
-
-fn match_acc_update_mul10_plus_d(stmt: &ASTNode, d_var: &str) -> Option<String> {
-    let ASTNode::Assignment { target, value, .. } = stmt else {
-        return None;
-    };
-    let ASTNode::Variable {
-        name: carrier_var, ..
-    } = target.as_ref()
-    else {
-        return None;
-    };
-    let ASTNode::BinaryOp {
-        operator: BinaryOperator::Add,
-        left,
-        right,
-        ..
-    } = value.as_ref()
-    else {
-        return None;
-    };
-
-    // left: acc * 10
-    match left.as_ref() {
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Multiply,
-            left: mul_lhs,
-            right: mul_rhs,
-            ..
-        } => {
-            if !matches!(mul_lhs.as_ref(), ASTNode::Variable { name, .. } if name == carrier_var) {
-                return None;
-            }
-            if !matches!(
-                mul_rhs.as_ref(),
-                ASTNode::Literal {
-                    value: LiteralValue::Integer(10),
-                    ..
-                }
-            ) {
-                return None;
-            }
-        }
-        _ => return None,
-    }
-
-    // right: d
-    if !matches!(right.as_ref(), ASTNode::Variable { name, .. } if name == d_var) {
-        return None;
-    }
-
-    Some(carrier_var.clone())
 }

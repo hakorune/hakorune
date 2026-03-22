@@ -34,3 +34,19 @@ navigation order must stay narrow and explicit.
 - Add shared policy once under `policies/` and reuse it from the other subtrees.
 - Do not hide new acceptance rules inside local helpers when `contracts/` already owns the tag.
 - When a subtree grows a new reading order, update this file and the subtree README together.
+
+## P5 Crate Split Prep
+
+This repo is not splitting `src/mir` yet. The prep step is to keep the public
+navigation narrow and make the future crate seams explicit first.
+
+Candidate future crates:
+
+- `mir-core`: definitions, instruction kinds, shared shape data
+- `mir-builder`: AST -> MIR construction and control-flow planning
+- `mir-joinir`: JoinIR lowering and ownership helpers
+- `mir-passes`: passes, normalization, and verification helpers
+
+Prep rule:
+
+- do not split until each subtree README names its public surface and rejected boundaries

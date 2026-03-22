@@ -70,3 +70,13 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 - 新しい状態を追加する場合は、まず「どの Context の責務か」を決めてから追加する（`MirBuilder` 直下に増やさない）。
 - 変更後に最低限確認する:
   - `tools/smokes/v2/profiles/integration/apps/phase135_trim_mir_verify.sh`（MIR verify の回帰防止）
+
+## P5 Crate Split Prep
+
+`src/mir` の crate split を準備するとき、この subtree は `mir-builder` 候補になる。
+
+Prep rule:
+
+- public surface は `context.rs` / `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる
+- helper を増やす前に、Context の責務境界を README に書く
+- split は docs-first で seam が固定されてから行う

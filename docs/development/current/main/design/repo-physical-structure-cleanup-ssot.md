@@ -191,11 +191,12 @@ P4 first slice landed:
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_realworld.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_local.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_condition.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
 - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 
 Next safe slice:
 
-- `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
+- P5 crate split prep: `src/mir/README.md` / `src/mir/builder/README.md` / `src/mir/passes/README.md`
 
 ### P3. `src/mir` navigation-first cleanup
 

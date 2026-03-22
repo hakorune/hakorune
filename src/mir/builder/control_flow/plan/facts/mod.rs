@@ -16,6 +16,7 @@ pub(in crate::mir::builder) mod loop_break_helpers_common;
 pub(in crate::mir::builder) mod loop_break_helpers_condition;
 pub(in crate::mir::builder) mod loop_break_helpers_realworld;
 pub(in crate::mir::builder) mod loop_break_helpers_local;
+pub(in crate::mir::builder) mod loop_break_helpers_loop;
 pub(in crate::mir::builder) mod loop_break_parse_integer;
 pub(in crate::mir::builder) mod loop_break_read_digits;
 pub(in crate::mir::builder) mod loop_break_realworld;

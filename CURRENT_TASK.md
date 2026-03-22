@@ -20,7 +20,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29cr` P4: `src/mir` physical clustering
+- `phase-29cr` P5: `src/mir` crate split preparation
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
@@ -49,9 +49,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_realworld.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_local.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_condition.rs`
+  - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
-  - `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
+  - `src/mir/README.md`
+  - `src/mir/builder/README.md`
+  - `src/mir/passes/README.md`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -67,7 +70,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cm`: collection owner cutover = done-enough stop line
 - `phase-29y`: runtime `.hako` migration / boxcall contract = parked strict-polish
 - `phase-21_5`: raw substrate perf = parked until boundary deepens
-- `phase-29cr`: repo physical cleanup lane = active until P4 lands
+- `phase-29cr`: repo physical cleanup lane = active through P5 crate split prep
 
 ## Archive
 
