@@ -8,6 +8,12 @@
 
 ## Purpose
 
+Read first:
+
+1. [`src/mir/README.md`](../../../README.md)
+2. [`src/mir/builder/README.md`](../../README.md)
+3. [`src/mir/control_tree/README.md`](../../../control_tree/README.md)
+
 Consolidate the two separate entry points for Normalized shadow processing into a single, well-defined system:
 
 1. **Before**: Dual entry points with scattered responsibility
@@ -204,3 +210,4 @@ pub enum PlanKind {
 - **Boundary contract**: `src/mir/join_ir/lowering/inline_boundary.rs`
 - **StepTree**: `src/mir/control_tree/step_tree/`
 - **Merge logic**: `src/mir/builder/control_flow/joinir/merge/`
+- **Builder root**: `src/mir/builder/README.md`

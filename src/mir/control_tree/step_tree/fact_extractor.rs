@@ -1,3 +1,8 @@
+//! StepTree fact extraction
+//!
+//! This file is the structure-only collector for StepTree facts.
+//! It must stay separate from JoinIR lowering and from contract execution.
+
 use crate::ast::ASTNode;
 use crate::mir::control_tree::step_tree_facts::StepTreeFacts;
 

@@ -181,11 +181,9 @@ P3 first slice landed:
 
 Next safe slice:
 
-- `src/mir/builder/control_flow/normalization/README.md`
-- `src/mir/join_ir/lowering/README.md`
-- `src/mir/join_ir/ownership/README.md`
-- `src/mir/control_tree/step_tree/fact_extractor.rs`
-- `src/mir/control_tree/normalized_shadow/builder.rs`
+- `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
+- `src/mir/passes/rc_insertion.rs`
 
 ### P3. `src/mir` navigation-first cleanup
 

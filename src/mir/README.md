@@ -15,7 +15,6 @@ navigation order must stay narrow and explicit.
 - `analysis/`: analysis helpers and shared inspection utilities.
 - `builder/`: AST -> MIR construction, control-flow planning, joinir merge.
 - `contracts/`: backend acceptance allowlists and fail-fast instruction tags.
-- `control_tree/`: control-tree / step-tree support structures.
 - `control_tree/`: structure-only control-flow SSOT and normalized shadow path.
 - `definitions/`: MIR definition data and shared type/shape declarations.
 - `instruction/`, `instruction_kinds/`: instruction model and kind definitions.

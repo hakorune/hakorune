@@ -20,7 +20,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29cr` P3: `src/mir` navigation-first cleanup
+- `phase-29cr` P4: `src/mir` physical clustering
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
@@ -40,11 +40,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/control_tree/step_tree/README.md`
   - `src/mir/control_tree/normalized_shadow/README.md`
 - next exact files:
-  - `src/mir/builder/control_flow/normalization/README.md`
-  - `src/mir/join_ir/lowering/README.md`
-  - `src/mir/join_ir/ownership/README.md`
-  - `src/mir/control_tree/step_tree/fact_extractor.rs`
-  - `src/mir/control_tree/normalized_shadow/builder.rs`
+  - `src/mir/builder/control_flow/plan/normalizer/helpers.rs`
+  - `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
+  - `src/mir/passes/rc_insertion.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -60,7 +58,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cm`: collection owner cutover = done-enough stop line
 - `phase-29y`: runtime `.hako` migration / boxcall contract = parked strict-polish
 - `phase-21_5`: raw substrate perf = parked until boundary deepens
-- `phase-29cr`: repo physical cleanup lane = active until P3 lands
+- `phase-29cr`: repo physical cleanup lane = active until P4 lands
 
 ## Archive
 

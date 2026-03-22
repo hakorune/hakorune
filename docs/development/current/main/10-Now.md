@@ -85,7 +85,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
-- Repo cleanup lane: `phase-29cr`（P0/P1 landed; P2 landed: box arithmetic / box operators / runner plugin init + core-ish root relocations; P3 first slice landed: MIR navigation root + builder / join_ir / loop_canonicalizer / passes / control_tree entry READMEs; fixed order は `root hygiene -> CURRENT_TASK slim -> src top-level cleanup -> src/mir navigation-first cleanup`）
+- Repo cleanup lane: `phase-29cr`（P0/P1 landed; P2 landed: box arithmetic / box operators / runner plugin init + core-ish root relocations; P3 landed: MIR navigation root + builder / join_ir / loop_canonicalizer / passes / control_tree entry READMEs; next P4: physical clustering of `src/mir` giants; fixed order は `root hygiene -> CURRENT_TASK slim -> src top-level cleanup -> src/mir navigation-first cleanup`）
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`

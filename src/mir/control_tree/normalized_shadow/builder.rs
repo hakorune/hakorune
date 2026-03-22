@@ -1,5 +1,14 @@
 //! Phase 121: StepTree → JoinModule shadow lowering (if-only)
 //!
+//! Navigation:
+//! - `src/mir/control_tree/README.md`
+//! - `src/mir/control_tree/step_tree/README.md`
+//!
+//! Boundaries:
+//! - StepTree is input SSOT; do not re-run facts extraction here.
+//! - This module is dev-only lowering for selected normalized shadow shapes.
+//! - Keep fail-fast behavior explicit and avoid hidden fallback heuristics.
+//!
 //! ## Responsibility
 //!
 //! - Convert StepTree to JoinModule (Normalized dialect)

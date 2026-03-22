@@ -2,6 +2,12 @@
 
 このディレクトリは JoinIR lowering の中でも、条件式や環境まわりの箱（ExprLowerer, ScopeManager, ConditionEnv, LoopBodyLocalEnv, UpdateEnv など）を扱う層だよ。コードを触るときは、以下の最小ルールを守ってね。
 
+Read first:
+
+1. [`src/mir/README.md`](../../README.md)
+2. [`src/mir/join_ir/README.md`](../README.md)
+3. [`src/mir/builder/README.md`](../../builder/README.md)
+
 - ExprLowerer は **ScopeManager 経由のみ** で名前解決する。ConditionEnv / LoopBodyLocalEnv / CapturedEnv / CarrierInfo に直接触らない。
 - 条件式から UpdateEnv を参照しない。UpdateEnv はキャリア更新専用で、header/break/continue 条件は ScopeManager→ConditionEnv で完結させる。
 - ConditionEnv は「条件で参照する JoinIR ValueId だけ」を持つ。body-local を直接入れず、必要なら昇格＋ScopeManager に解決を任せる。

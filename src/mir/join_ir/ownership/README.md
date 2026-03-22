@@ -1,5 +1,11 @@
 # Ownership Analysis Module
 
+Read first:
+
+1. [`src/mir/README.md`](../../README.md)
+2. [`src/mir/join_ir/README.md`](../README.md)
+3. [`src/mir/join_ir/lowering/README.md`](../lowering/README.md)
+
 ## Responsibility Boundary
 
 This module is responsible for **analysis only**:
