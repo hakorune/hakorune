@@ -245,6 +245,13 @@ Related:
   - native seam is `nyash.map.cap_h`
   - `rehash/tombstone` remain parked until a truthful native seam exists
 
+- `I9 RawMap truthful native seam inventory` landed
+  - [`raw-map-truthful-native-seam-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md) now fixes:
+    - current truthful live `RawMap` rows under the `HashMap` backend
+    - truthful native helpers that are not substrate rows yet
+    - parked vocabulary that would be false under the current backend
+  - current next widening is constrained to truthful narrow slices only
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table
@@ -269,6 +276,7 @@ Related:
 - do not reopen wide perf exploration before `docs/task lock` and `ABI/value manifest lock` land
 - do not push allocator/TLS/queue policy into `.hako` before `hako.mem` / `hako.ptr` / minimum verifier exist
 - do not treat current collection owner stop-line as end-state completion
+- do not expose `RawMap rehash/tombstone` rows until a truthful native seam exists
 
 ## Non-Goals
 

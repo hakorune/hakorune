@@ -42,6 +42,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `minimum-verifier-ssot.md`
   - `raw-array-substrate-ssot.md`
   - `raw-map-substrate-ssot.md`
+  - `raw-map-truthful-native-seam-inventory.md`
   - `gc-tls-atomic-capability-ssot.md`
   - `final-metal-split-ssot.md`
   - `rust-kernel-export-surface-strata-ssot.md`
@@ -182,6 +183,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       `cap_i64(handle)`
     - native capacity observer seam is `nyash.map.cap_h`
     - `rehash/tombstone` stay parked until a truthful native seam exists
+  - `phase-29ct` I9 RawMap truthful native seam inventory
+    - docs-side truth now lives in
+      `docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md`
+    - current `RawMap` widening is constrained by the `HashMap` backend truth
+    - live rows remain:
+      `entry_count_h` / `cap_h` / `probe_*` / `slot_load_*` / `slot_store_*`
+    - `rehash/tombstone/bucket_*` remain parked by design
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only

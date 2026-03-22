@@ -14,6 +14,8 @@ Responsibilities:
   - tombstone handling
   - rehash trigger vocabulary
   - slot load/store for bucket entries
+- Truthful widening gate:
+  - `docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md`
 
 Rules:
 - `RawMap` is not a semantic owner box.

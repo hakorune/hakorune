@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
+  - docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - lang/src/runtime/substrate/README.md
   - lang/src/runtime/substrate/raw_map/README.md
@@ -30,6 +31,8 @@ Related:
 - current phase では first live slice を landed とし、`MapCoreBox.size_i64` が `RawMapCoreBox.entry_count_i64` を通る。
 - current widening also lands `probe/load/store` façade methods under `RawMapCoreBox`.
 - current live observer subset also lands `cap_i64(handle)`.
+- truthful widening guard now lives in:
+  - `raw-map-truthful-native-seam-inventory.md`
 
 ## Fixed Dependencies
 
@@ -53,7 +56,7 @@ Related:
   - `probe_i64` / `probe_any`
   - `slot_load_i64` / `slot_load_any`
   - `slot_store_i64_any` / `slot_store_any`
-- owns:
+- future target roles, only when truthful native seams exist:
   - bucket/capacity shape
   - probe walk
   - tombstone handling
@@ -106,7 +109,7 @@ This phase now lands the first substrate slice through `observer + probe/load/st
 
 After this live observer slice, the next widening remains:
 
-1. truthful `rehash/tombstone` RawMap widening after native seam exists
+1. truthful RawMap narrow widening only after inventory review
 2. `GC/TLS/atomic` capability lock
 
 docs/task lock now lives at:

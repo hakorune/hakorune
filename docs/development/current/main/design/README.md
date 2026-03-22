@@ -32,6 +32,7 @@
 - Hako fullstack host-ABI completion（意味論`.hako`集約 + host最小ABIの最終形SSOT）: `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
 - Hakoruneup release distribution（self-contained bundle + package manager + explicit system LLVM dev mode）: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
 - Rust kernel export surface strata（compat / runtime-facade / substrate split SSOT）: `docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md`
+- RawMap truthful native seam inventory（HashMap backend で live にしてよい語彙の棚卸し）: `docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md`
 - Hako host facade contract（HostFacade 単一入口/I-F/昇格ゲートSSOT）: `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
 - WASM `.hako`-only output roadmap（WASM出力の Rust->`.hako` 移行順SSOT）: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
 - PyVM retreat（historical/opt-in 契約SSOT）: `docs/development/current/main/design/pyvm-retreat-ssot.md`
