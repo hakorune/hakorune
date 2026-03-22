@@ -85,7 +85,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
-- Repo cleanup lane: `phase-29cs`（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` now owns the kernel/plugin naming cleanup batch; fixed order は `root hygiene -> CURRENT_TASK slim -> src top-level cleanup -> src/mir navigation-first cleanup`）
+- Repo cleanup lane: `phase-29cs` parked（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` finished the kernel/plugin naming cleanup batch; active next is `phase-21_5` raw substrate perf reopen after the collection owner stop line）
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
@@ -226,9 +226,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - current scope lock:
     - primary: `kernel-mainline`（`.hako` no-compat）
     - maintenance: `kernel-bootstrap`（Rust static archive）
-  - latest benchmark snapshot (2026-03-01):
-    - `kilo_kernel_small_hk`: `c_ms=79`, `py_ms=111`, `ny_vm_ms=1015`, `ny_aot_ms=747`, `ratio_c_aot=0.11`
-    - `kilo_micro_array_getset`: `ny_aot_ms=49`
+  - latest benchmark snapshot (2026-03-22):
+    - `kilo_kernel_small_hk`: `c_ms=76`, `py_ms=105`, `ny_vm_ms=974`, `ny_aot_ms=740`, `ratio_c_aot=0.10`
+    - `kilo_micro_array_getset`: `ny_aot_ms=44`
     - `kilo_micro_substring_concat`: `ny_aot_ms=64`
   - active recovery rule:
     - 先に micro で改善を確定し、確定した差分のみ `kilo_kernel_small_hk` へ反映する（kilo先行の探索は禁止）。

@@ -8,7 +8,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - root から最短で current blocker / next fixed order に到達する。
 - 本ファイルは薄い入口に保ち、長文履歴は archive に逃がす。
-- cleanup lane の単一正本は `docs/development/current/main/phases/phase-29cs/README.md`。
+- naming cleanup lane の単一正本は `docs/development/current/main/phases/phase-29cs/README.md`。
 - current-task history archive の単一正本は `docs/development/current/main/investigations/current_task_archive_2026-03-22.md`。
 
 ## Quick Restart Pointer
@@ -20,8 +20,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29cs` kernel / plugin naming cleanup is active
-- next mainline return after this lane: `.hako` kernel migration (`phase-29cm`)
+- `phase-29cm` collection owner cutover is done-enough stop line
+- `phase-21_5` raw substrate perf reopen is active
+- `phase-29cs` kernel / plugin naming cleanup is parked
+- current perf exact leaf:
+  - `kilo_micro_array_getset`
+  - write/TLS seam: `array_slot_store_i64` / `handle_cache::with_array_box` / `ArrayBox::try_set_index_i64_integer`
+  - latest micro recheck: `ny_aot_ms=44`
+  - latest stable recheck: `kilo_kernel_small_hk` median `740 ms` (`min=738`, `max=744`)
 - landed slice:
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
@@ -108,16 +114,17 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
-  - `docs/development/current/main/phases/phase-29cs/README.md`
-  - `docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md`
-  - `crates/nyash_kernel/src/plugin/mod.rs`
-  - `crates/nyash_kernel/src/plugin/array_index_dispatch.rs`
-  - `crates/nyash_kernel/src/plugin/array_write_dispatch.rs`
+  - `docs/development/current/main/design/perf-optimization-method-ssot.md`
+  - `docs/development/current/main/design/optimization-tag-flow-ssot.md`
+  - `tools/perf/bench_micro_c_vs_aot_stat.sh`
+  - `tools/perf/bench_micro_aot_asm.sh`
+  - `tools/perf/bench_compare_c_py_vs_hako_stable.sh`
+  - `tools/perf/bench_compare_c_py_vs_hako.sh`
+  - `tools/perf/run_kilo_micro_machine_ladder.sh`
+  - `tools/perf/run_kilo_hk_bench.sh`
   - `crates/nyash_kernel/src/plugin/handle_cache.rs`
-  - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`
-  - `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs`
-  - `src/bin/hakorune_compat.rs`
-  - `Cargo.toml`
+  - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
+  - `src/boxes/array/mod.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
@@ -132,11 +139,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - `phase-29cm`: collection owner cutover = done-enough stop line
 - `phase-29y`: runtime `.hako` migration / boxcall contract = parked strict-polish
-- `phase-21_5`: raw substrate perf = parked until boundary deepens
+- `phase-21_5`: raw substrate perf = active reopen after boundary deepening
 - `phase-29cr`: repo physical cleanup lane = stop-line reached
-- `phase-29cs`: kernel / plugin naming cleanup = active
+- `phase-29cs`: kernel / plugin naming cleanup = parked
 
-## P5 / P6 Stop-Line
+## P5 / P6 / Perf Stop-Line
 
 1. `scope_context.rs`: parked until the `MirFunction` / lexical-scope seam is split explicitly
 2. `compilation_context.rs`: parked (mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
@@ -144,6 +151,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 4. `passes/` whole-subtree packaging: parked docs-first only
 5. remaining `hakorune-mir-*` naming polish: optional, low-value
 6. cleanup lane can park after the naming cleanup phase lands
+7. perf reopen is the next active lane once the collection owner stop line is confirmed
 
 ## Archive
 

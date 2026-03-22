@@ -1,6 +1,6 @@
 ---
-Status: Active
-Decision: provisional
+Status: Parked
+Decision: accepted
 Date: 2026-03-22
 Scope: kernel / plugin naming cleanup lane。`helpers` / `route` / `rust` の transitional naming を責務名へ寄せる。semantic owner cutover や broad package rename は扱わない。
 Related:
@@ -20,6 +20,7 @@ Related:
 - Transitional naming を責務名へ寄せる。
 - `helpers` / `route` / `rust` を責務名で置き換え、将来の multi-language kernel 化でも読みやすい箱にする。
 - kernel/plugin の public surface は変えず、名前の層だけを整える。
+- This lane is complete and parked after the rename batch landed.
 
 ## Non-Goals
 

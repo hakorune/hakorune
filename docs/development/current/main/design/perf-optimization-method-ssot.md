@@ -122,10 +122,10 @@ Hotspot は次の分類で読む。
 
 ## Current Wave Snapshot
 
-2026-03-18 時点では、次の理解で進める。
+2026-03-22 時点では、次の理解で進める。
 
 - `kilo_kernel_small_hk` は whole-program baseline として固定済み
-- latest fresh stable baseline is `c_ms=79`, `py_ms=111`, `ny_vm_ms=989`, `ny_aot_ms=804`, `ratio_c_aot=0.10`, `aot_status=ok`
+- latest fresh stable baseline is `c_ms=76`, `py_ms=105`, `ny_vm_ms=974`, `ny_aot_ms=740`, `ratio_c_aot=0.10`, `aot_status=ok`
 - `kilo_micro_substring_concat` が最厚
 - `kilo_micro_array_getset` が次
 - `kilo_micro_indexof_line` が一番マシ
@@ -134,7 +134,7 @@ Hotspot は次の分類で読む。
   - `crates/nyash_kernel/src/plugin/handle_cache.rs::with_array_box`
   - `src/boxes/array/mod.rs::ArrayBox::try_set_index_i64_integer`
 - `crates/nyash_kernel/src/plugin/array_index_dispatch.rs` / `array_write_dispatch.rs` are now thin wrappers, so they are no longer the primary exact leaf target
-- fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=43`
+- fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=44`
 - rejected probes (reverted immediately):
   - dedicated i64 write helper: `47 ms`
   - `try_set_index_i64_integer` cold-split: `48 ms`
@@ -148,7 +148,7 @@ Hotspot は次の分類で読む。
 - `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers; this is the current bridge/allocation slice
 - current contract-change slice raises the short-slice eager materialize threshold to `<= 8 bytes`
 - fresh micro recheck after the current slices is `266244455 cycles / 72 ms` for `kilo_micro_substring_concat`
-- fresh stable recheck after the current slices is `798 ms` median for `kilo_kernel_small_hk` (`min=791`, `max=1607`)
+- fresh stable recheck after the current slices is `740 ms` median for `kilo_kernel_small_hk` (`min=738`, `max=744`)
 - rejected variant: `root StringBox <= 16 bytes` / `nested StringViewBox <= 8 bytes` improved isolated `substring_concat` to `262468757 cycles / 69 ms`, but stable `kilo_kernel_small_hk` regressed to `819 ms`; do not keep this split while stable is the primary metric
 - rejected observer-only variant: `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` explicit `StringBox` / `StringViewBox` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median (`min=786`, `max=1841`); revert immediately and do not reopen this cut before a stronger owner-level reason appears
 - rejected structure-first variant: `BorrowedSubstringPlan::{OwnedSubstring,ViewRecipe}` moved `StringViewBox` birth from `borrowed_substring_plan_from_handle(...)` into `substring_hii`, but without a real transient carrier this only shuffled the birth site; isolated `substring_concat` landed at `267397179 cycles / 72 ms`, while stable `kilo_kernel_small_hk` regressed to `901 ms` median (`min=794`, `max=1146`); do not reopen this cut until a larger `TStr`/freeze-boundary design is ready
