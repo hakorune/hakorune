@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/abi-export-inventory.md
+  - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -106,8 +107,18 @@ Related:
   - `value_public` stays inventory-only umbrella
   - `BorrowedHandleBox` is fixed as the current concrete borrowed-string alias carrier
   - `CodecProfile` is fixed as helper policy, not public ABI schema
-  - next active slice is `metal helper contract lock`
-    - `crates/nyash_kernel/src/plugin/handle_cache.rs`
+
+- `V2 metal helper contract lock` landed
+  - [`handle-cache-metal-helper-contract-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md) fixes `handle_cache.rs` as:
+    - typed handle cache
+    - typed dispatch helper
+    - array i64 re-encode helper
+  - non-goals are fixed:
+    - not ABI manifest truth
+    - not value representation owner
+    - not array/map policy owner
+  - next active slice is future substrate module root lock
+    - `lang/src/runtime/substrate/`
 
 ## Stop-Line
 

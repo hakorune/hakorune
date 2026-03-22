@@ -29,6 +29,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `substrate-capability-ladder-ssot.md`
   - `value-repr-and-abi-manifest-ssot.md`
   - `abi-export-inventory.md`
+  - `handle-cache-metal-helper-contract-ssot.md`
   - `phase-29ct/README.md`
 - landed slice:
   - `phase-29ct` V0 ABI export inventory
@@ -44,6 +45,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - `value_public` stays V0 inventory umbrella only
     - `BorrowedHandleBox` is fixed as the current borrowed-string alias carrier
     - `CodecProfile` is fixed as helper policy, not public ABI schema
+  - `phase-29ct` V2 metal helper contract lock
+    - docs-side truth now lives in
+      `docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md`
+    - `handle_cache.rs` is fixed as:
+      `typed handle cache` / `typed dispatch helper` / `array i64 re-encode helper`
+    - non-goals:
+      not ABI manifest truth / not value representation owner /
+      not array-map policy owner
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -133,7 +142,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
   - `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
   - `docs/development/current/main/design/abi-export-inventory.md`
-  - `crates/nyash_kernel/src/plugin/handle_cache.rs`
+  - `docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md`
+  - `lang/src/runtime/substrate/`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`

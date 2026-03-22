@@ -1,3 +1,14 @@
+// typed handle cache / typed dispatch helper for native metal keep
+//
+// Responsibilities:
+// - short-lived TLS cache keyed by `(handle, drop_epoch)`
+// - typed downcast helpers for ArrayBox / MapBox / InstanceBox
+// - array i64 read/re-encode helper for raw substrate paths
+//
+// Non-goals:
+// - ABI manifest truth
+// - value representation policy ownership
+// - array/map algorithm policy
 use super::value_codec::runtime_i64_from_box_ref;
 use nyash_rust::{
     box_trait::NyashBox,
@@ -37,11 +48,6 @@ fn with_cache_entry<R>(
         }
         f(entry)
     })
-}
-
-#[inline(always)]
-fn cache_load(handle: i64, drop_epoch: u64) -> Option<Arc<dyn NyashBox>> {
-    with_cache_entry(handle, drop_epoch, |entry| Some(entry.obj.clone()))
 }
 
 #[inline(always)]
@@ -146,6 +152,8 @@ fn with_typed_box<T: 'static, R>(handle: i64, f: impl FnOnce(&T) -> R) -> Option
 
 #[inline(always)]
 pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
+    // Array-specialized fast path keeps the same contract as with_typed_box:
+    // invalid handle or type mismatch returns None.
     if handle <= 0 {
         return None;
     }
@@ -182,6 +190,7 @@ pub(crate) fn with_array_or_map<R>(
     on_array: impl FnOnce(&ArrayBox) -> R,
     on_map: impl FnOnce(&MapBox) -> R,
 ) -> Option<R> {
+    // RuntimeData-style dynamic dispatch is intentionally limited to ArrayBox/MapBox only.
     let obj = object_from_handle_cached(handle)?;
     if let Some(arr) = obj.as_any().downcast_ref::<ArrayBox>() {
         return Some(on_array(arr));

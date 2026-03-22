@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29cm/README.md
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/abi-export-inventory.md
+  - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -214,6 +215,7 @@ allocator/runtime policy owner を深くする前に必要。
    - `crates/nyash_kernel/src/plugin/value_codec/`
 3. handle cache/downcast を metal helper contract として固定する
    - `crates/nyash_kernel/src/plugin/handle_cache.rs`
+   - [`handle-cache-metal-helper-contract-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md)
 4. `RawArray` 用の substrate module layout を docs で確定する
    - future physical home: `lang/src/runtime/substrate/`
 
