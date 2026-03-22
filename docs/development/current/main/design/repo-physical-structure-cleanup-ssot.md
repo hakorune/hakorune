@@ -65,23 +65,34 @@ Safe first buckets:
 
 - `.gitignore` candidates:
   - `*.err`
-  - `test_len_any`
-- `tmp/` or scratch candidates:
+  - `*.backup*`
+- keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
-  - `test_joinir_debug.rs`
-  - `test_numeric_core_phi.sh`
-  - `test_simple_windows.c`
-  - `test_using.nyash`
-- `archive/` or doc-archive candidates:
-  - `CURRENT_TASK_ARCHIVE_*.md`
-  - consult / consultation zip bundles
-  - completed one-off summary memos
+- landed archive move targets:
+  - docs archive:
+    - `CURRENT_TASK_ARCHIVE_2026-01-23.md`
+    - `HAKORUNE_RUST_CLEANUP_CAMPAIGN.md`
+    - `NUMERIC_CORE_PHI_FIX_SUMMARY.md`
+    - -> `docs/archive/cleanup/root-hygiene/`
+  - tools archive:
+    - `test_joinir_debug.rs`
+    - `test_numeric_core_phi.sh`
+    - `test_simple_windows.c`
+    - `test_using.nyash`
+    - `test_len_any`
+    - `nyash.toml.backup2`
+    - `build.err`
+    - `check.err`
+    - `llvm.err`
+    - `vm.err`
+    - `boxbase_identity_consultation_bundle.zip`
+    - -> `tools/archive/root-hygiene/`
 
 Rule:
 
 - root の非 allowlist 新規追加は禁止
-- 一時物は `tmp/` / scratch
+- 一時物は `tools/archive/root-hygiene/` or scratch
 - 履歴物は archive
 
 ### P1. `CURRENT_TASK.md` slim
@@ -216,4 +227,4 @@ This is intentionally smaller than crate split.
 - a dedicated phase plan exists
 - `CURRENT_TASK.md` points to it
 - `10-Now.md` mentions the fixed order
-- the first implementation slice is still docs/root-hygiene only
+- the P0 first batch is landed: root archive relocation + `*.err` ignore policy

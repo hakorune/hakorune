@@ -42,12 +42,17 @@ Docs-only first slice:
 - point `CURRENT_TASK.md` at this phase
 - mirror the fixed order in `10-Now.md`
 
-The first implementation slice, when this lane is explicitly reopened, is:
+P0 first implementation batch landed:
 
-- root allowlist
-- `*.err` ignore policy
-- scratch/archive relocation
+- root archive relocation
+- `*.err` / `*.backup*` ignore policy
+- root keepers explicitly documented (`basic_test.hako`, `test.hako`)
+
+The next implementation slice, when this lane is explicitly reopened, is:
+
 - `CURRENT_TASK` archive destination and cutoff rule
+- `CURRENT_TASK.md` slim policy
+- `src/` top-level inventory
 
 ## Pressure Summary
 
@@ -69,12 +74,11 @@ Interpretation:
 - `docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md` exists
 - `CURRENT_TASK.md` points at this phase
 - `10-Now.md` mirrors the fixed order
-- no code movement is required for this first docs slice
+- P0 first batch is landed: root archive relocation + `*.err` / `*.backup*` ignore policy
 
 ## Next
 
 When this lane is reopened for implementation:
 
-1. root allowlist + `.gitignore` cleanup
-2. `CURRENT_TASK.md` slim/archive
-3. `src/` top-level inventory
+1. `CURRENT_TASK.md` slim/archive
+2. `src/` top-level inventory

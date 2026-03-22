@@ -573,7 +573,7 @@ contract note (fixed):
    - 目的: emit 呼び出しを `tools/smokes/v2/lib/` の共通関数へ集約し、一括置換を可能にする。
    - status (2026-03-02): 共通 wrapper `tools/smokes/v2/lib/emit_mir_route.sh` を追加し、active smoke（concat3 / phase29y nested ternary / joinir port01 / mir_shape_guard / perf_mir_shape）と phase21.5 perf contract 群（apps/integration）に加えて、`integration/core` / `integration/joinir` / `quick/core` の helper 直呼びを route 指定へ移行完了。
 4. check 置換:
-   - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `test_numeric_core_phi.sh`
+   - 対象: `tools/hako_check.sh`, `tools/test_stageb_using.sh`, `tools/archive/root-hygiene/test_numeric_core_phi.sh`
    - 目的: helper 依存と `|| true` 握りを整理し、direct 経路で fail-fast 契約へ統一。
    - status (2026-03-02): 3ファイルを `tools/smokes/v2/lib/emit_mir_route.sh` 経由へ移行。`hako_check.sh` の `|| true` 握りを除去し、`HAKO_CHECK_REQUIRE_MIR=1` で strict fail-fast 可能にした（既定は warn 継続）。
    - status2 (2026-03-02): fallback 混入の fail-fast として `tools/checks/route_no_fallback_guard.sh` を追加し、`tools/checks/dev_gate.sh quick` に組み込んだ（`route_env_probe.sh --require-no-fallback` 契約）。

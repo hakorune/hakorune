@@ -99,6 +99,7 @@ current_task
 
 # Logs
 *.log
+*.err
 debug_output.txt
 stats_output.txt
 *.jsonl
@@ -141,6 +142,7 @@ local_tests/
 
 # Backup files
 /backups/
+*.backup*
 
 # 📚 論文関連フォルダ（作業中と公開用を分離）
 # 作業中（WIP: Work In Progress）- Git追跡除外
