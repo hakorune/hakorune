@@ -61,6 +61,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/policies/README.md`
   - `src/mir/loop_canonicalizer/README.md`
   - `src/mir/control_tree/README.md`
+  - `src/mir/join_ir_vm_bridge/README.md`
+  - `src/mir/join_ir_vm_bridge_dispatch/README.md`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`

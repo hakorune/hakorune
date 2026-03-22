@@ -16,3 +16,19 @@ File layout:
 - `runner.rs`: VM execution entry (`run_joinir_via_vm`)
 - `meta.rs`: experimental metadata-aware conversion hooks
 - `tests.rs`: bridge-specific unit tests (kept local to avoid cross-layer leakage)
+
+## P5 Crate Split Prep
+
+`join_ir_vm_bridge/` is a future `mir-joinir` candidate, but it is not being
+split yet. The prep step is to keep the lowering surface explicit and prevent
+bridge-local heuristics from growing.
+
+SSOT:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
+
+Prep rule:
+
+- do not split bridge conversion away from JoinIR lowering until the lowering
+  surface is stable
+- keep metadata-aware hooks clearly marked as experimental helpers
