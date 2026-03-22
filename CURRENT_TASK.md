@@ -15,6 +15,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `0rust` buildability contract の Next は `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md` を単一正本に固定する。
 - `stage0/stage1/stage2+` と `owner/substrate` の軸分離は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` を単一正本に固定する。
 - backend-zero fixed order / buildability gate の Next は `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md` を単一正本に固定する。
+- repo physical cleanup / BoxShape cleanup の Next は `docs/development/current/main/phases/phase-29cr/README.md` を単一正本に固定する。
 - stage axis: `stage0` Rust bootstrap keep / `stage1` proof / `stage2+` daily mainline
 - owner axis practical end-state: `.hako` owns kernel meaning/policy/control, Rust stays bootstrap/recovery/raw substrate, and LLVM remains the primary backend substrate
 
@@ -217,6 +218,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - side-fix complete: backend-zero macOS portability slice is green; `src/host_providers/llvm_codegen.rs` centralizes FFI library candidate resolution
 - side-fix complete: lane B fast-smoke blocker is fixed by `29bq-116` + `29bq-117`
 - first: the smoke split backlog stays parked after `phase29x/derust` and `phase29x/observability`
+- side-plan prepared: repo physical cleanup / BoxShape cleanup is pinned at `phase-29cr`; do not mix it into the current exact perf/runtime slice
 - third: keep `RuntimeDataBox` as protocol / facade only; do not reopen owner growth
 - note: this is a `.hako VM` capability blocker, not a Rust VM blocker
 - parked: boundary-deepen work stays paused unless a new exact collection blocker appears
