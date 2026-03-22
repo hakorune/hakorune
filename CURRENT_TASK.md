@@ -92,6 +92,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/join_ir/ownership/ast_analyzer/core.rs`
   - `src/mir/join_ir/ownership/bridge/README.md`
   - `src/mir/passes/concat3_canonicalize/mod.rs`
+  - `src/mir/passes/concat3_canonicalize/analysis.rs`
   - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
   - `docs/development/current/main/phases/phase-29cr/README.md`
 - keep-root allowlist:
@@ -118,8 +119,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. `compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
 3. `join_ir/ownership/types.rs` substrate slice (landed)
 4. `join_ir/ownership/bridge/` facade split (landed)
-5. `passes/concat3_canonicalize/` extraction review
-6. remaining `hakorune-mir-*` naming surface polish
+5. `join_ir/ownership/analyzer.rs` -> `ownership/analyzer/` subdir split
+   (`core.rs` / `node_analysis.rs` first; keep `ast_analyzer/*` as-is)
+6. `passes/concat3_canonicalize/analysis.rs` internal split
+   (`stringish.rs` / `def_use.rs`; no crate move yet)
+7. remaining `hakorune-mir-*` naming surface polish
 
 ## Archive
 

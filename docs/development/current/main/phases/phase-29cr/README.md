@@ -192,7 +192,12 @@ Interpretation:
 
 When this lane is reopened for implementation:
 
-1. `src/mir/passes/concat3_canonicalize/` extraction review
-2. `src/mir/join_ir/ownership/analyzer.rs` vs `ast_analyzer/*` boundary tightening
+1. `src/mir/join_ir/ownership/analyzer.rs` -> `ownership/analyzer/` subdir split
+   - keep `ast_analyzer/*` unchanged
+   - start with `core.rs` / `node_analysis.rs`
+2. `src/mir/passes/concat3_canonicalize/analysis.rs` internal split
+   - `stringish.rs`
+   - `def_use.rs`
+   - keep this as facade cleanup only, not crate packaging
 3. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
 4. `src/mir/builder/compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)

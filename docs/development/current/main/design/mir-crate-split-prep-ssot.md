@@ -113,7 +113,7 @@ Preferred cleanup order inside `join_ir/`:
    - `ownership/types.rs` (landed)
    - future low-risk helpers like `lowering/value_id_ranges.rs` if they stay pure
 2. internal box map tightening
-   - `ownership/analyzer.rs`
+   - `ownership/analyzer.rs` -> future `ownership/analyzer/` subdir facade
    - `ownership/ast_analyzer/*`
    - `ownership/bridge/*` (landed facade split for `plan_to_lowering.rs` /
      `plan_validator.rs`)
@@ -141,6 +141,9 @@ Current status:
   and config/env seams
 - `concat3_canonicalize/` is the only plausible future extraction candidate,
   but it still depends on the same MIR surface for now
+- next safe cleanup is not packaging:
+  split `concat3_canonicalize/analysis.rs` into `stringish.rs` and `def_use.rs`
+  behind the current facade first
 
 ### Shared policy surface
 
