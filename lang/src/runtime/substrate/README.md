@@ -26,7 +26,9 @@ Current phase reading:
   - `ptr`
   - minimum verifier
 - The current verifier lock is docs-first, and its physical reservation lives at `verifier/README.md`.
-- The first live verifier box now lives at `verifier/bounds/README.md`.
+- The current live verifier boxes now live at:
+  - `verifier/bounds/README.md`
+  - `verifier/initialized_range/README.md`
 - The next algorithm-substrate consumer lock is docs-first, and its physical reservation lives at `raw_array/README.md`.
 - The following algorithm-substrate consumer now has a live observer slice at:
   - `raw_map/README.md`
@@ -37,8 +39,8 @@ Current live capability subset:
 - `mem` now has a live `alloc/realloc/free` facade.
 - `buf` now has a live `len/cap/reserve/grow` facade.
 - `ptr` remains the typed pointer/span facade used by the current array capacity path.
-- `verifier` now has a live `bounds` gate for the RawArray slot path.
-- `raw_map` now has a live `entry_count_i64` observer facade routed from `MapCoreBox.size_i64`.
+- `verifier` now has live `bounds` and `initialized-range` gates for the RawArray read path.
+- `raw_map` now has live `entry_count_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
 
 Native keep stays outside this directory:
 - OS virtual memory

@@ -1,6 +1,6 @@
-// RawMapCoreBox — first live algorithm-substrate map observer box above `hako.ptr`.
+// RawMapCoreBox — first live algorithm-substrate map facade above `hako.ptr`.
 // Responsibility:
-// - provide the narrowest runnable RawMap observer route
+// - provide the narrowest runnable RawMap observer/storage route
 // - keep the first map substrate hop below MapCoreBox and above native map substrate
 // Non-responsibility:
 // - visible MapBox semantics owner
@@ -14,6 +14,42 @@ static box RawMapCoreBox {
   entry_count_i64(handle) {
     local out = externcall "nyash.map.entry_count_h"(handle)
     me._trace("[vm/adapter/raw_map:entry_count_i64]")
+    return out
+  }
+
+  probe_i64(handle, key_i64) {
+    local out = externcall "nyash.map.probe_hi"(handle, key_i64)
+    me._trace("[vm/adapter/raw_map:probe_i64]")
+    return out
+  }
+
+  probe_any(handle, key_any) {
+    local out = externcall "nyash.map.probe_hh"(handle, key_any)
+    me._trace("[vm/adapter/raw_map:probe_any]")
+    return out
+  }
+
+  slot_load_i64(handle, key_i64) {
+    local out = externcall "nyash.map.slot_load_hi"(handle, key_i64)
+    me._trace("[vm/adapter/raw_map:slot_load_i64]")
+    return out
+  }
+
+  slot_load_any(handle, key_any) {
+    local out = externcall "nyash.map.slot_load_hh"(handle, key_any)
+    me._trace("[vm/adapter/raw_map:slot_load_any]")
+    return out
+  }
+
+  slot_store_i64_any(handle, key_i64, val_any) {
+    local out = externcall "nyash.map.slot_store_hih"(handle, key_i64, val_any)
+    me._trace("[vm/adapter/raw_map:slot_store_i64_any]")
+    return out
+  }
+
+  slot_store_any(handle, key_any, val_any) {
+    local out = externcall "nyash.map.slot_store_hhh"(handle, key_any, val_any)
+    me._trace("[vm/adapter/raw_map:slot_store_any]")
     return out
   }
 }

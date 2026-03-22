@@ -157,6 +157,18 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       `lang/src/runtime/substrate/verifier/bounds/bounds_core_box.hako`
     - `RawArrayCoreBox.slot_load_i64/slot_store_i64` now gate through
       `BoundsCoreBox` before `PtrCoreBox`
+  - `phase-29ct` I5.1 minimum verifier initialized-range slice
+    - second live verifier box is
+      `lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako`
+    - `RawArrayCoreBox.slot_load_i64` now gates through
+      `BoundsCoreBox -> InitializedRangeCoreBox -> PtrCoreBox`
+    - current readable initialized range is locked to `BufCoreBox.len_i64(handle)`
+  - `phase-29ct` I6 RawMap probe/load/store widening
+    - `lang/src/runtime/substrate/raw_map/raw_map_core_box.hako` now exposes
+      `probe_*` / `slot_load_*` / `slot_store_*`
+    - `MapCoreBox.size_i64` still routes through `RawMapCoreBox.entry_count_i64`
+    - `MapCoreBox` now routes raw receiver-handle `set/get/has` through
+      `RawMapCoreBox` while keeping stateful owner fast paths local
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only

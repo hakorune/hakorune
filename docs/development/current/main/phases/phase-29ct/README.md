@@ -222,6 +222,16 @@ Related:
     - [`lang/src/runtime/substrate/verifier/bounds/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/bounds/README.md)
   - `RawArrayCoreBox.slot_load_i64/slot_store_i64` now gate through `BoundsCoreBox` before `PtrCoreBox`
 
+- `I5.1 minimum verifier initialized-range slice` landed
+  - `InitializedRangeCoreBox.ensure_initialized_index_i64` is now the second live verifier box
+  - `RawArrayCoreBox.slot_load_i64` now gates through `BoundsCoreBox -> InitializedRangeCoreBox -> PtrCoreBox`
+  - `slot_store_i64` remains `bounds -> PtrCoreBox` only
+
+- `I6 RawMap probe/load/store widening` landed
+  - `RawMapCoreBox` now exposes `probe_*`, `slot_load_*`, and `slot_store_*` façade methods
+  - `MapCoreBox.size_i64` still routes through `entry_count_i64`
+  - `MapCoreBox` now routes raw receiver-handle `set/get/has` through `RawMapCoreBox` while keeping stateful owner fast paths local
+
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:
     - `.hako owner` / `native metal keep` final split table

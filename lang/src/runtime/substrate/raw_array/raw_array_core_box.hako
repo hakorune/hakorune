@@ -8,6 +8,7 @@
 
 using selfhost.runtime.substrate.buf.buf_core_box as BufCoreBox
 using selfhost.runtime.substrate.verifier.bounds.bounds_core_box as BoundsCoreBox
+using selfhost.runtime.substrate.verifier.initialized_range.initialized_range_core_box as InitializedRangeCoreBox
 using selfhost.runtime.substrate.ptr.ptr_core_box as PtrCoreBox
 
 static box RawArrayCoreBox {
@@ -17,6 +18,9 @@ static box RawArrayCoreBox {
 
   slot_load_i64(handle, idx) {
     if BoundsCoreBox.ensure_index_i64(handle, idx) != 1 {
+      return 0
+    }
+    if InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx) != 1 {
       return 0
     }
     local out = PtrCoreBox.slot_load_i64(handle, idx)

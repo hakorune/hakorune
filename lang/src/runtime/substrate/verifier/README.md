@@ -2,8 +2,9 @@
 
 Responsibilities:
 - Current home for the minimum verifier layer under `runtime/substrate/`.
-- First live box:
+- Current live boxes:
   - `bounds`
+  - `initialized-range`
 - Future home for the remaining smallest fail-fast checks, in this order:
   - `bounds`
   - `initialized-range`
@@ -16,10 +17,11 @@ Rules:
 
 Current live subset:
 - `bounds` lives at `bounds/README.md`
-- `initialized-range` and `ownership` remain staged as docs-only follow-ups
+- `initialized-range` now lives at `initialized_range/README.md`
+- `ownership` remains staged as a docs-only follow-up
 
 Non-goals:
-- No `initialized-range` / `ownership` verifier implementation yet.
+- No `ownership` verifier implementation yet.
 - No `RawMap` logic here.
 - No allocator / TLS / atomic / GC policy here.
 - No AST rewrite or normalization logic here.

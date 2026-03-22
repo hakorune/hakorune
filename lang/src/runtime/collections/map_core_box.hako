@@ -58,6 +58,18 @@ static box MapCoreBox {
     return RawMapCoreBox.entry_count_i64(handle)
   }
 
+  get_hh(handle, key_any) {
+    return RawMapCoreBox.slot_load_any(handle, key_any)
+  }
+
+  set_hhh(handle, key_any, val_any) {
+    return RawMapCoreBox.slot_store_any(handle, key_any, val_any)
+  }
+
+  has_hh(handle, key_any) {
+    return RawMapCoreBox.probe_any(handle, key_any)
+  }
+
   norm_key_str(s) {
     if s == null { return null }
     local out = s
@@ -99,6 +111,16 @@ static box MapCoreBox {
     local cur_len_raw = regs.getField(key)
     if cur_len_raw == null { cur_len_raw = "0" }
     return JsonFragBox._str_to_int(cur_len_raw)
+  }
+
+  _read_first_arg_i64_or_null(seg, regs) {
+    local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
+    return me._read_reg_i64_or_null(regs, arg0_rt)
+  }
+
+  _read_nth_arg_i64_or_null(seg, regs, idx) {
+    local arg_rt = MiniMirV1Scan.nth_arg_register(seg, idx)
+    return me._read_reg_i64_or_null(regs, arg_rt)
   }
 
   record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id) {
@@ -150,6 +172,18 @@ static box MapCoreBox {
         key_str = me.norm_key_str(key_str_raw)
       }
       local arg1_id = MiniMirV1Scan.nth_arg_register(seg, 1)
+      local key_any = me._read_reg_i64_or_null(regs, arg0)
+      local val_any = me._read_reg_i64_or_null(regs, arg1_id)
+      if recv_h != null && recv_h > 0 && key_any != null && val_any != null {
+        local set_rt = me.set_hhh(recv_h, key_any, val_any)
+        if set_rt != 0 {
+          cur_len = me.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)
+          regs.setField(key, StringHelpers.int_to_str(cur_len))
+        }
+        me._write_zero_dst(regs, dst)
+        me._trace("[vm/adapter/map_core:slot_store_hhh]")
+        return 1
+      }
       cur_len = me.record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)
       regs.setField(key, StringHelpers.int_to_str(cur_len))
       me._write_zero_dst(regs, dst)
@@ -157,29 +191,49 @@ static box MapCoreBox {
       return 1
     }
 
-    if mname == "get" && value_state == "1" {
+    if mname == "get" {
       local arg0 = MiniMirV1Scan.first_arg_register(seg)
-      if arg0 >= 0 {
-        local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
-        local key_str = me.norm_key_str(key_str_raw)
-        local val_str = me.get_state_value(regs, per_recv, rid, key_str)
-        if dst != null && val_str != null {
-          regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
+      local key_any = me._read_reg_i64_or_null(regs, arg0)
+      if value_state == "1" {
+        if arg0 >= 0 {
+          local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
+          local key_str = me.norm_key_str(key_str_raw)
+          local val_str = me.get_state_value(regs, per_recv, rid, key_str)
+          if dst != null && val_str != null {
+            regs.setField(StringHelpers.int_to_str(dst), "" + val_str)
+          }
         }
+        return 1
       }
-      return 1
+      if recv_h != null && recv_h > 0 && key_any != null {
+        local got_rt = me.get_hh(recv_h, key_any)
+        me._write_i64_dst(regs, dst, got_rt)
+        me._trace("[vm/adapter/map_core:slot_load_hh]")
+        return 1
+      }
+      return 0
     }
 
-    if mname == "has" && value_state == "1" {
+    if mname == "has" {
       local arg0 = MiniMirV1Scan.first_arg_register(seg)
-      local has_result = 0
-      if arg0 >= 0 {
-        local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
-        local key_str = me.norm_key_str(key_str_raw)
-        has_result = me.has_state_value(regs, per_recv, rid, key_str)
+      local key_any = me._read_reg_i64_or_null(regs, arg0)
+      if value_state == "1" {
+        local has_result = 0
+        if arg0 >= 0 {
+          local key_str_raw = regs.getField(StringHelpers.int_to_str(arg0))
+          local key_str = me.norm_key_str(key_str_raw)
+          has_result = me.has_state_value(regs, per_recv, rid, key_str)
+        }
+        me._write_i64_dst(regs, dst, has_result)
+        return 1
       }
-      me._write_i64_dst(regs, dst, has_result)
-      return 1
+      if recv_h != null && recv_h > 0 && key_any != null {
+        local has_rt = me.has_hh(recv_h, key_any)
+        me._write_i64_dst(regs, dst, has_rt)
+        me._trace("[vm/adapter/map_core:probe_hh]")
+        return 1
+      }
+      return 0
     }
 
     if MethodAliasPolicy.is_size_alias(mname) == 1 {

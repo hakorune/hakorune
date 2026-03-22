@@ -70,7 +70,7 @@ current staging root is reserved at:
 
 - [`lang/src/runtime/substrate/raw_array/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_array/README.md)
 
-This phase places README/docs only.
+This phase has already widened into the first live `RawArrayCoreBox` path.
 
 ## Current First Probe Path
 
@@ -79,6 +79,7 @@ This phase places README/docs only.
   - `RawArrayCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
   - `RawArrayCoreBox.slot_reserve_i64/slot_grow_i64`
   - `BoundsCoreBox.ensure_index_i64(handle, idx)`
+  - `InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)`
   - `BufCoreBox.len_i64/cap_i64/reserve_i64/grow_i64`
   - `PtrCoreBox.slot_load_i64/slot_store_i64/slot_len_i64/slot_append_any`
   - existing native
@@ -86,6 +87,7 @@ This phase places README/docs only.
     `nyash.array.slot_len_h` / `nyash.array.slot_append_hh` /
     `nyash.array.slot_reserve_hi` / `nyash.array.slot_grow_hi`
 - `reserve` / `grow` now sit on the widened RawArray substrate path; `ArrayCoreBox` does not expose them yet
+- `slot_load_i64` now uses `bounds -> initialized-range -> ptr`, while `slot_store_i64` remains `bounds -> ptr` only
 
 ## Non-Goals
 
@@ -101,8 +103,8 @@ This phase places README/docs only.
 
 After this docs lock, the next widening remains:
 
-1. `RawArray` implementation planning
-2. `RawMap` implementation planning
+1. `ownership` verifier slice
+2. deeper `RawMap` planning / rehash vocabulary
 
 Sibling docs/task lock now lives at:
 

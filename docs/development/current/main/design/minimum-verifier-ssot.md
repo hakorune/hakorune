@@ -67,14 +67,18 @@ minimum verifier の順番は次で固定する。
 ## Current Reading
 
 - `bounds` is the first live verifier box.
-- `initialized-range` / `ownership` remain docs-first follow-ups.
+- `initialized-range` is the second live verifier box.
+- `ownership` remains a docs-first follow-up.
 - physical staging root is reserved at [`lang/src/runtime/substrate/verifier/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/README.md)
-- first live box lives at [`lang/src/runtime/substrate/verifier/bounds/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/bounds/README.md)
-- RawArray slot load/store now route through the bounds verifier gate before raw pointer access
+- live boxes now live at:
+  - [`lang/src/runtime/substrate/verifier/bounds/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/bounds/README.md)
+  - [`lang/src/runtime/substrate/verifier/initialized_range/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/initialized_range/README.md)
+- RawArray slot load now routes through the bounds and initialized-range gates before raw pointer access
+- current readable initialized range is intentionally locked to `BufCoreBox.len_i64(handle)` until `set_len/shrink` widening lands
 
 ## Non-Goals
 
-- `initialized-range` / `ownership`
+- `ownership`
 - `RawMap`
 - `hako.mem` / `hako.buf` / `hako.ptr` の実装本体
 - allocator state machine
@@ -87,7 +91,7 @@ minimum verifier の順番は次で固定する。
 
 ## Follow-Up
 
-`bounds` live slice の次は `initialized-range` へ進む。
+`initialized-range` live slice の次は `ownership` へ進む。
 
 - first consumer:
   - `RawArray`

@@ -14,6 +14,7 @@ ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
 RAW_MAP_CORE_FILE="lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
+INITIALIZED_RANGE_CORE_FILE="lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
 BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
 PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
@@ -30,6 +31,7 @@ for file in \
   "$ARRAY_STATE_CORE_FILE" \
   "$RAW_ARRAY_CORE_FILE" \
   "$RAW_MAP_CORE_FILE" \
+  "$INITIALIZED_RANGE_CORE_FILE" \
   "$BUF_CORE_FILE" \
   "$PTR_CORE_FILE" \
   "$STRING_CORE_FILE" \
@@ -126,6 +128,18 @@ if ! rg -F -q 'PtrCoreBox.slot_load_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; th
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr load route" >&2
   exit 1
 fi
+if ! rg -F -q 'InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw array missing initialized-range gate" >&2
+  exit 1
+fi
+if ! rg -F -q 'BufCoreBox.len_i64(handle)' "$INITIALIZED_RANGE_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] initialized-range missing buf len route" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/initialized_range:ensure_initialized_index_i64]' "$INITIALIZED_RANGE_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] initialized-range missing trace tag" >&2
+  exit 1
+fi
 if ! rg -F -q 'PtrCoreBox.slot_store_i64(handle, idx, value)' "$RAW_ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw array missing ptr store route" >&2
   exit 1
@@ -220,6 +234,30 @@ if ! rg -F -q 'entry_count_i64(handle)' "$RAW_MAP_CORE_FILE"; then
 fi
 if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$RAW_MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.entry_count_h extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.map.slot_load_hh"' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.slot_load_hh extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.map.slot_store_hhh"' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.slot_store_hhh extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.map.probe_hh"' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.probe_hh extern route" >&2
+  exit 1
+fi
+if ! rg -F -q 'return RawMapCoreBox.slot_load_any(handle, key_any)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing raw map load route" >&2
+  exit 1
+fi
+if ! rg -F -q 'return RawMapCoreBox.slot_store_any(handle, key_any, val_any)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing raw map store route" >&2
+  exit 1
+fi
+if ! rg -F -q 'return RawMapCoreBox.probe_any(handle, key_any)' "$MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] map core missing raw map probe route" >&2
   exit 1
 fi
 if ! rg -F -q 'record_set_state(regs, per_recv, rid, key_str, cur_len, value_state, arg1_id)' "$MAP_CORE_FILE"; then

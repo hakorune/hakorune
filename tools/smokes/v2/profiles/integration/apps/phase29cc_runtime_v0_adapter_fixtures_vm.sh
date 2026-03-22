@@ -22,6 +22,8 @@ REGISTRY_FILE="$NYASH_ROOT/lang/src/vm/boxes/abi_adapter_registry.hako"
 ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
+RAW_MAP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
+INITIALIZED_RANGE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
 PTR_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 MEM_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/mem/mem_core_box.hako"
 BUF_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/buf/buf_core_box.hako"
@@ -65,7 +67,7 @@ run_array_semantics_checks() {
 }
 
 check_collection_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
+  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
@@ -136,6 +138,10 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw array ptr load hop contract missing"
     exit 1
   fi
+  if ! rg -F -q 'InitializedRangeCoreBox.ensure_initialized_index_i64(handle, idx)' "$RAW_ARRAY_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw array initialized-range gate contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'PtrCoreBox.slot_len_i64(handle)' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array ptr len hop contract missing"
     exit 1
@@ -178,6 +184,14 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/raw_array:slot_grow_i64]' "$RAW_ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: raw array grow trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'BufCoreBox.len_i64(handle)' "$INITIALIZED_RANGE_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: initialized-range buf len contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/initialized_range:ensure_initialized_index_i64]' "$INITIALIZED_RANGE_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: initialized-range trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'alloc_i64(size)' "$MEM_CORE_FILE"; then
@@ -268,8 +282,8 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: handler map orchestration contract missing"
     exit 1
   fi
-  if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$MAP_CORE_FILE"; then
-    test_fail "$SMOKE_NAME: map core extern route contract missing"
+  if ! rg -F -q 'return RawMapCoreBox.entry_count_i64(handle)' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core raw-map size route contract missing"
     exit 1
   fi
   if ! rg -F -q 'try_handle(seg, regs, mname)' "$MAP_CORE_FILE"; then
@@ -292,12 +306,60 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: map core size_i64 dispatch contract missing"
     exit 1
   fi
+  if ! rg -F -q 'return RawMapCoreBox.slot_store_any(handle, key_any, val_any)' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core raw-map store route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'return RawMapCoreBox.slot_load_any(handle, key_any)' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core raw-map load route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'return RawMapCoreBox.probe_any(handle, key_any)' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core raw-map probe route contract missing"
+    exit 1
+  fi
   if ! rg -F -q '[vm/adapter/map_core:size_i64]' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core size trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q '[vm/adapter/map_core:set_state]' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core set trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/map_core:slot_store_hhh]' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core raw store trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/map_core:slot_load_hh]' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core raw load trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/map_core:probe_hh]' "$MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: map core raw probe trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.map.slot_load_hh"' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map load extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.map.slot_store_hhh"' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map store extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.map.probe_hh"' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map probe extern route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_map:slot_load_any]' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map load trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_map:slot_store_any]' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map store trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/raw_map:probe_any]' "$RAW_MAP_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: raw map probe trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'using lang.runtime.collections.runtime_data_core_box as RuntimeDataCoreBox' "$HANDLER_FILE"; then

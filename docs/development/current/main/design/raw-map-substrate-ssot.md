@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-23
-Scope: `phase-29ct` の C3 として、`RawMapCoreBox` を capability substrate の次の consumer として first live observer slice まで固定する。
+Scope: `phase-29ct` の C3 として、`RawMapCoreBox` を capability substrate の次の consumer として first live `observer + probe/load/store` slice まで固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -20,15 +20,15 @@ Related:
 ## Goal
 
 - `RawMapCoreBox` を `.hako algorithm substrate` の次の concrete box として固定する。
-- `RawArray` のあとに来る hash/probe substrate の役割を、まず observer slice で live にする。
+- `RawArray` のあとに来る hash/probe substrate の役割を、まず `observer + probe/load/store` slice で live にする。
 - `MapCoreBox` の visible owner を崩さず、future low-level map policy の受け皿だけを決める。
 
 ## Reading
 
 - `RawMap` は semantic owner ではない。
 - `RawMap` は capability substrate と minimum verifier を使う algorithm substrate である。
-- current phase では first live observer slice を landed とし、`MapCoreBox.size_i64` が `RawMapCoreBox.entry_count_i64` を通る。
-- probe/load/store は次の widening で育てる。
+- current phase では first live slice を landed とし、`MapCoreBox.size_i64` が `RawMapCoreBox.entry_count_i64` を通る。
+- current widening also lands `probe/load/store` façade methods under `RawMapCoreBox`.
 
 ## Fixed Dependencies
 
@@ -48,6 +48,9 @@ Related:
 
 - current live slice:
   - `entry_count_i64`
+  - `probe_i64` / `probe_any`
+  - `slot_load_i64` / `slot_load_any`
+  - `slot_store_i64_any` / `slot_store_any`
 - owns:
   - bucket/capacity shape
   - probe walk
@@ -75,7 +78,8 @@ Related:
   - `crates/nyash_kernel/src/plugin/map*.rs`
   - `crates/nyash_kernel/src/plugin/handle_cache.rs`
 - `RawMap` is the future algorithm substrate box that may sit between those layers later.
-- `RawMapCoreBox` is now the first live map observer box between those layers for `size_i64`.
+- `RawMapCoreBox` is now the first live map substrate box between those layers for `size_i64`.
+- `MapCoreBox` now uses the raw map facade for raw receiver-handle `set/get/has` paths while keeping stateful owner fast paths local.
 
 ## Physical Staging
 
@@ -84,11 +88,11 @@ current staging root is reserved at:
 - [`lang/src/runtime/substrate/raw_map/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/README.md)
 - [`lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako)
 
-This phase now lands the observer slice first; the wider probe/load/store shape stays future-facing.
+This phase now lands the first substrate slice through `observer + probe/load/store`; rehash/tombstone/capacity shape stays future-facing.
 
 ## Non-Goals
 
-- additional `.hako` `RawMap` expansion beyond the observer slice
+- additional `.hako` `RawMap` expansion beyond the first substrate slice
 - allocator state machine
 - TLS / atomic / GC implementation
 - OS VM / final allocator / final ABI stub
@@ -99,9 +103,9 @@ This phase now lands the observer slice first; the wider probe/load/store shape 
 
 After this live observer slice, the next widening remains:
 
-1. `probe/load/store` RawMap widening
-2. `GC/TLS/atomic` capability lock
-3. `Hakozuna portability layer`
+1. `rehash/tombstone/capacity` RawMap widening
+2. `ownership` verifier slice
+3. `GC/TLS/atomic` capability lock
 
 docs/task lock now lives at:
 

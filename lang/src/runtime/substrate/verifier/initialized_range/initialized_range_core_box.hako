@@ -1,0 +1,26 @@
+// InitializedRangeCoreBox — second live `minimum verifier` box for phase-29ct.
+// Responsibility:
+// - answer one question only: is idx inside the current readable initialized range?
+// - keep readable-range checks separate from raw pointer access
+// Non-responsibility:
+// - bounds math
+// - ownership transfer / aliasing
+// - allocator policy
+
+using selfhost.runtime.substrate.buf.buf_core_box as BufCoreBox
+
+static box InitializedRangeCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  ensure_initialized_index_i64(handle, idx) {
+    // For the current slice, readable initialized range is locked to logical len.
+    local readable_len = BufCoreBox.len_i64(handle)
+    local ok = 1
+    if idx < 0 { ok = 0 }
+    if idx >= readable_len { ok = 0 }
+    me._trace("[vm/adapter/initialized_range:ensure_initialized_index_i64]")
+    return ok
+  }
+}
