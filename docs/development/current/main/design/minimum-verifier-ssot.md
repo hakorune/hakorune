@@ -91,6 +91,8 @@ minimum verifier の順番は次で固定する。
   - `RawArray`
   - docs-side truth:
     - [`raw-array-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-array-substrate-ssot.md)
-- later:
   - `RawMap`
+  - docs-side truth:
+    - [`raw-map-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-map-substrate-ssot.md)
+- later:
   - `GC/TLS/atomic widening`

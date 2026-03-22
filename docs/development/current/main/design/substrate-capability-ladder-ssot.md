@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
+  - docs/development/current/main/design/raw-map-substrate-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -181,6 +182,8 @@ collection owner の次の本命はここ。
 - tombstone
 - rehash
 - bucket walk
+- current docs lock:
+  - [`raw-map-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-map-substrate-ssot.md)
 
 `MapBox` semantics を `.hako` に deeper cut する土台。
 

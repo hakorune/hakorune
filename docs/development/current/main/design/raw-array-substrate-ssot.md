@@ -87,4 +87,8 @@ This phase places README/docs only.
 After this docs lock, the next widening remains:
 
 1. `RawArray` implementation planning
-2. `RawMap` docs/task lock
+2. `RawMap` implementation planning
+
+Sibling docs/task lock now lives at:
+
+- [`raw-map-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-map-substrate-ssot.md)

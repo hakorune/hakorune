@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
+  - docs/development/current/main/design/raw-map-substrate-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -162,6 +163,15 @@ Related:
   - physical staging root now exists at:
     - [`lang/src/runtime/substrate/raw_array/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_array/README.md)
   - next active slice is `C3 RawMap`
+
+- `C3 RawMap` landed as docs/task lock
+  - [`raw-map-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-map-substrate-ssot.md) fixes:
+    - `RawMap` is the next algorithm-substrate consumer after `RawArray`
+    - bucket/probe/tombstone/rehash are the current owned roles
+    - current non-goals for this wave
+  - physical staging root now exists at:
+    - [`lang/src/runtime/substrate/raw_map/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/README.md)
+  - next active slice is `C4 GC/TLS/atomic capability widening`
 
 ## Stop-Line
 
