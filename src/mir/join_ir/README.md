@@ -21,3 +21,17 @@ VM/LLVM backends.
 - ownership analysis and relay/capture bookkeeping
 - lowering helpers that feed VM/LLVM bridge layers
 
+## P5 Crate Split Prep
+
+`join_ir/` is a future `mir-joinir` candidate, but it is not being split yet.
+The prep step is to keep the lowering surface explicit and document the rejected
+boundaries first.
+
+SSOT:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
+
+Prep rule:
+
+- do not split `join_ir/` away from `join_ir_vm_bridge/` until the lowering
+  surface is stable

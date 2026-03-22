@@ -7,8 +7,9 @@ navigation order must stay narrow and explicit.
 
 1. [`builder/README.md`](./builder/README.md)
 2. [`contracts/README.md`](./contracts/README.md)
-3. [`join_ir_vm_bridge/README.md`](./join_ir_vm_bridge/README.md)
-4. [`join_ir_vm_bridge_dispatch/README.md`](./join_ir_vm_bridge_dispatch/README.md)
+3. [`policies/README.md`](./policies/README.md)
+4. [`join_ir_vm_bridge/README.md`](./join_ir_vm_bridge/README.md)
+5. [`join_ir_vm_bridge_dispatch/README.md`](./join_ir_vm_bridge_dispatch/README.md)
 
 ## Top-Level Map
 
