@@ -1118,7 +1118,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_map_has)   fprintf(f, "declare i64 @\"nyash.map.has_h\"(i64, i64)\n");
       if (need_map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n");
       if (need_arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
-      if (need_arr_push)  fprintf(f, "declare i64 @\"nyash.array.push_h\"(i64, i64)\n");
+      if (need_arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (need_arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_h\"(i64, i64, i64)\n");
       if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.get_h\"(i64, i64)\n");
@@ -1228,9 +1228,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               else if (mname && !strcmp(mname, "push")) {
                 if (a0) app(a0, ab[0]=='\0');
                 if (runtime_array_push) {
-                  if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.push_h\"(%s)\n", dst, ab); set_type(dst, T_I64); }
-                  else { EMIT("  %%_ = call i64 @\"nyash.array.push_h\"(%s)\n", ab); }
-                } else if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.push_h\"(%s)\n", ab);
+                  if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab); set_type(dst, T_I64); }
+                  else { EMIT("  %%_ = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab); }
+                } else if (bname && !strcmp(bname, "ArrayBox")) EMIT("  %%_ = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
                 else { yyjson_doc_free(d); goto GEN_ABORT; }
               }
               else if (mname && !strcmp(mname, "has")) {
@@ -1645,11 +1645,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "; nyash minimal pure IR (array push->len)\n");
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
           fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
-          fprintf(f, "declare i64 @\"nyash.array.push_h\"(i64, i64)\n");
+          fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
           fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n\n");
           fprintf(f, "define i64 @ny_main() {\n");
           fprintf(f, "  %%h = call i64 @\"nyash.array.birth_h\"()\n");
-          fprintf(f, "  %%_p = call i64 @\"nyash.array.push_h\"(i64 %%h, i64 %lld)\n", val_c);
+          fprintf(f, "  %%_p = call i64 @\"nyash.array.slot_append_hh\"(i64 %%h, i64 %lld)\n", val_c);
           fprintf(f, "  %%len = call i64 @\"nyash.array.slot_len_h\"(i64 %%h)\n");
           fprintf(f, "  ret i64 %%len\n}\n");
           fclose(f);

@@ -79,6 +79,10 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: handler array orchestration contract missing"
     exit 1
   fi
+  if ! rg -F -q 'me._put("ArrayBox", "push",   "nyash.array.slot_append_hh"' "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: ArrayBox.push adapter registry raw append contract missing"
+    exit 1
+  fi
   if ! rg -F -q 'externcall "nyash.array.slot_len_h"' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core len extern route contract missing"
     exit 1

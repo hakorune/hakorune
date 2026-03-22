@@ -62,6 +62,10 @@ if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_h"' "$REGISTRY_FIL
   echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.set adapter mapping" >&2
   exit 1
 fi
+if ! rg -F -q 'me._put("ArrayBox", "push",   "nyash.array.slot_append_hh"' "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.push raw append mapping" >&2
+  exit 1
+fi
 if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing StringCoreBox orchestration route" >&2
   exit 1

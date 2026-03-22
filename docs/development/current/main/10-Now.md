@@ -172,6 +172,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
   - landed append demotion:
     - daily `.hako` array append route now uses `nyash.array.slot_append_hh`
     - `nyash.array.push_hh` is compat-only
+    - adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`
+    - `nyash.array.push_h` is compat-only
     - `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
     - `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
   - landed map observer demotion:

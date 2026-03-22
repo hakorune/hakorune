@@ -5,7 +5,7 @@
 //
 // API (MVP):
 //   resolve(box_type, method) -> MapBox {
-//     symbol:   String   // e.g., "nyash.map.get_h"
+//     symbol:   String   // e.g., "nyash.map.slot_load_hh"
 //     call:     String   // "h" or "hh" (arg/value style)
 //     unbox:    String   // "none" | "integer" | (future: "bool"/"float"/"string")
 //   } | null
@@ -38,7 +38,7 @@ static box AbiAdapterRegistryBox {
     me._put("MapBox", "len",     "nyash.map.entry_count_h",  "h", "none")
     // ArrayBox
     me._put("ArrayBox", "birth",  "nyash.array.birth_h", "h", "none")
-    me._put("ArrayBox", "push",   "nyash.array.push_h",  "h", "none")
+    me._put("ArrayBox", "push",   "nyash.array.slot_append_hh",  "h", "none")
     me._put("ArrayBox", "len",    "nyash.array.slot_len_h",   "h", "none")
     me._put("ArrayBox", "length", "nyash.array.slot_len_h",   "h", "none")
     me._put("ArrayBox", "size",   "nyash.array.slot_len_h",   "h", "none")

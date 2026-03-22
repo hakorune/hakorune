@@ -23,6 +23,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cr` cleanup lane reached stop-line
 - next mainline return: `.hako` kernel migration (`phase-29cm`)
 - landed slice:
+  - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
+    and historical pure `ArrayBox.push -> len` lowering now use
+    `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
   - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
   - `hakorune_mir_core` package: `effect.rs`
   - `hakorune_mir_core` package: `basic_block_id.rs` / `binding_id.rs`
@@ -97,10 +100,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - next exact files:
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
-  - `lang/src/runtime/collections/array_core_box.hako`
-  - `lang/src/runtime/collections/map_core_box.hako`
-  - `crates/nyash_kernel/src/plugin/array.rs`
-  - `crates/nyash_kernel/src/plugin/map.rs`
+  - `lang/src/vm/boxes/abi_adapter_registry.hako`
+  - `lang/c-abi/shims/hako_llvmc_ffi.c`
+  - `tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
+  - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
