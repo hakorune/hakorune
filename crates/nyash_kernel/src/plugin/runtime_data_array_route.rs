@@ -32,7 +32,7 @@ pub(super) fn runtime_data_array_set_hhh(arr: &ArrayBox, key_any: i64, val_any: 
         return 0;
     };
     let value = any_arg_to_box_with_profile(val_any, CodecProfile::ArrayFastBorrowString);
-    if arr.try_set_index_i64(idx, value) {
+    if arr.slot_store_box_raw(idx, value) {
         1
     } else {
         0

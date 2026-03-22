@@ -92,7 +92,8 @@ Rule:
   - landed: daily array observer route now uses `nyash.array.slot_len_h`
   - landed: daily array append route now uses `nyash.array.slot_append_hh`
   - landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
+  - landed: `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
   - landed: daily map observer route now uses `nyash.map.entry_count_h`
   - `nyash.map.size_h` is compat-only
-  - then deepen hidden residue under `array slot_store` and `map slot/probe`
+  - next: deepen hidden residue under `map slot/probe`
   - keep `RuntimeDataBox` facade-only while doing so

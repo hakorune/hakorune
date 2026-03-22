@@ -10,7 +10,7 @@ pub(super) fn array_slot_store_any(handle: i64, idx: i64, val_any: i64) -> i64 {
     match decode_array_fast_value(val_any) {
         ArrayFastDecodedValue::ImmediateI64(v) => array_slot_store_i64(handle, idx, v),
         ArrayFastDecodedValue::Boxed(value) => with_array_box(handle, |arr| {
-            if arr.try_set_index_i64(idx, value) {
+            if arr.slot_store_box_raw(idx, value) {
                 1
             } else {
                 0
@@ -26,7 +26,7 @@ pub(super) fn array_slot_store_i64(handle: i64, idx: i64, value_i64: i64) -> i64
         return 0;
     }
     with_array_box(handle, |arr| {
-        if arr.try_set_index_i64_integer(idx, value_i64) {
+        if arr.slot_store_i64_raw(idx, value_i64) {
             1
         } else {
             0

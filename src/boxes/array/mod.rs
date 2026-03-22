@@ -115,6 +115,12 @@ impl ArrayBox {
 
     /// インデックス(i64)で要素を設定し、成功可否を返す（FFI/Kernel hot path 用）
     pub fn try_set_index_i64(&self, idx: i64, value: Box<dyn NyashBox>) -> bool {
+        self.slot_store_box_raw(idx, value)
+    }
+
+    /// Raw store helper for substrate/plugin routes.
+    /// Keeps the current append-at-end and OOB policy while visible `set()` stays above this seam.
+    pub fn slot_store_box_raw(&self, idx: i64, value: Box<dyn NyashBox>) -> bool {
         if idx < 0 {
             if Self::oob_strict_enabled() {
                 crate::runtime::observe::mark_oob();
@@ -141,6 +147,13 @@ impl ArrayBox {
     /// インデックス(i64)へ整数値を設定し、成功可否を返す（AOT integer route 用）
     #[inline(always)]
     pub fn try_set_index_i64_integer(&self, idx: i64, value: i64) -> bool {
+        self.slot_store_i64_raw(idx, value)
+    }
+
+    /// Raw integer store helper for substrate/plugin routes.
+    /// Keeps the current append-at-end / rebox policy while visible `set()` stays above this seam.
+    #[inline(always)]
+    pub fn slot_store_i64_raw(&self, idx: i64, value: i64) -> bool {
         if idx < 0 {
             if Self::oob_strict_enabled() {
                 crate::runtime::observe::mark_oob();

@@ -220,8 +220,10 @@ Current second slice:
 - landed append hidden-residue slice:
   - `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
   - compat append routes share the same raw append helper instead of visible `push()`
+- landed store hidden-residue slice:
+  - `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
+  - runtime-data array set shares the same raw store helper instead of visible `try_set_index_i64*()`
 - current hidden residue after those explicit exports:
-  - `nyash.array.slot_store_hii` still carries append/rebox semantics below the raw name
   - `nyash.map.slot_* / probe_*` still execute through `MapBox.get_opt/set/has`
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
 - raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
@@ -239,9 +241,10 @@ Current second slice:
    - daily route now targets `nyash.map.entry_count_h`
 4. `B1d / array-write-hidden-residue`
    - first slice landed: append now goes through `ArrayBox.slot_append_box_raw(...)`
-   - next: move append/rebox policy out from under `nyash.array.slot_store_hii`
+   - second slice landed: store now goes through `ArrayBox.slot_store_*_raw(...)`
+   - remaining work is semantic, not method-shaped API leakage
 5. `B1e / map-hidden-residue`
-   - move `get_opt/set/has`-shaped semantics out from under `nyash.map.slot_* / probe_*`
+  - move `get_opt/set/has`-shaped semantics out from under `nyash.map.slot_* / probe_*`
 6. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug
 
