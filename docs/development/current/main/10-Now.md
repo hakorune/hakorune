@@ -93,6 +93,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest4: `V3 future substrate module root lock` landed; `lang/src/runtime/substrate/` is reserved as namespace-first staging root
 - Kernel capability latest5: `V4 minimal capability modules` landed; `hako.mem / hako.buf / hako.ptr` are docs-first staged in that order
 - Kernel capability latest6: `V5 minimum verifier lock` landed; `bounds / initialized-range / ownership` are fixed docs-first before `RawArray`
+- Kernel capability latest7: `C2 RawArray` docs/task lock landed; `RawArray` is fixed as the first consumer above `mem / buf / ptr / verifier`
 - Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
 - Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
 - 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`

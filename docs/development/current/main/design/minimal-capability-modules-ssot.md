@@ -90,6 +90,17 @@ docs-side truth is:
 
 - [`minimum-verifier-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimum-verifier-ssot.md)
 
+## First Consumer
+
+`hako.mem` / `hako.buf` / `hako.ptr` / minimum verifier の最初の consumer は `RawArray` で固定する。
+
+- docs-side truth:
+  - [`raw-array-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-array-substrate-ssot.md)
+- reading:
+  - `RawArray` is above these capability modules
+  - `RawArray` is not `RawMap`
+  - `RawArray` does not collapse `runtime/collections/` owner boxes into `runtime/substrate/`
+
 ## Physical Staging
 
 current physical staging path は次。

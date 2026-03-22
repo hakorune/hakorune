@@ -13,6 +13,7 @@ Related:
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
+  - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -152,6 +153,15 @@ Related:
   - physical staging root now exists at:
     - [`lang/src/runtime/substrate/verifier/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/README.md)
   - next active slice is `C2 RawArray`
+
+- `C2 RawArray` landed as docs/task lock
+  - [`raw-array-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-array-substrate-ssot.md) fixes:
+    - `RawArray` is the first algorithm-substrate consumer of `mem/buf/ptr/verifier`
+    - `ptr/cap/len`, reserve/grow, slot load/store, append-at-end are the current owned roles
+    - current non-goals for this wave
+  - physical staging root now exists at:
+    - [`lang/src/runtime/substrate/raw_array/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_array/README.md)
+  - next active slice is `C3 RawMap`
 
 ## Stop-Line
 

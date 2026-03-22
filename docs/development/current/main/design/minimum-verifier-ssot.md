@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
+  - docs/development/current/main/design/raw-array-substrate-ssot.md
   - lang/src/runtime/substrate/README.md
   - lang/src/runtime/substrate/verifier/README.md
 ---
@@ -88,6 +89,8 @@ minimum verifier の順番は次で固定する。
 
 - first consumer:
   - `RawArray`
+  - docs-side truth:
+    - [`raw-array-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-array-substrate-ssot.md)
 - later:
   - `RawMap`
   - `GC/TLS/atomic widening`

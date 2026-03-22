@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
+  - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -169,6 +170,8 @@ current root lock is:
 - reserve/grow
 - slot load/store
 - append-at-end policy
+- current docs lock:
+  - [`raw-array-substrate-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/raw-array-substrate-ssot.md)
 
 collection owner の次の本命はここ。
 

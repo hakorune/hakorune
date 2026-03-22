@@ -32,6 +32,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `handle-cache-metal-helper-contract-ssot.md`
   - `minimal-capability-modules-ssot.md`
   - `minimum-verifier-ssot.md`
+  - `raw-array-substrate-ssot.md`
   - `phase-29ct/README.md`
 - landed slice:
   - `phase-29ct` V0 ABI export inventory
@@ -77,6 +78,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       `bounds -> initialized-range -> ownership`
     - physical staging root now exists at:
       `lang/src/runtime/substrate/verifier/README.md`
+  - `phase-29ct` C2 RawArray docs/task lock
+    - docs-side truth now lives in
+      `docs/development/current/main/design/raw-array-substrate-ssot.md`
+    - `RawArray` is fixed as the first algorithm-substrate consumer of:
+      `hako.mem` / `hako.buf` / `hako.ptr` / minimum verifier
+    - physical staging root now exists at:
+      `lang/src/runtime/substrate/raw_array/README.md`
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -169,7 +177,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md`
   - `docs/development/current/main/design/minimal-capability-modules-ssot.md`
   - `docs/development/current/main/design/minimum-verifier-ssot.md`
-  - `lang/src/runtime/substrate/verifier/README.md`
+  - `docs/development/current/main/design/raw-array-substrate-ssot.md`
+  - `lang/src/runtime/substrate/raw_array/README.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
