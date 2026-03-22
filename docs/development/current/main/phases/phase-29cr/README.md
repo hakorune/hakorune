@@ -71,13 +71,17 @@ P3 first slice landed:
 - `src/mir/join_ir/README.md`
 - `src/mir/loop_canonicalizer/README.md`
 - `src/mir/passes/README.md`
+- `src/mir/control_tree/README.md`
+- `src/mir/control_tree/step_tree/README.md`
+- `src/mir/control_tree/normalized_shadow/README.md`
 
 The next implementation slice, when this lane is explicitly reopened, is:
 
 - `src/mir/builder/control_flow/normalization/README.md`
 - `src/mir/join_ir/lowering/README.md`
 - `src/mir/join_ir/ownership/README.md`
-- `src/mir/control_tree/step_tree/`
+- `src/mir/control_tree/step_tree/fact_extractor.rs`
+- `src/mir/control_tree/normalized_shadow/builder.rs`
 
 ## Pressure Summary
 

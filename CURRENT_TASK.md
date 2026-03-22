@@ -36,12 +36,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/join_ir/README.md`
   - `src/mir/loop_canonicalizer/README.md`
   - `src/mir/passes/README.md`
+  - `src/mir/control_tree/README.md`
+  - `src/mir/control_tree/step_tree/README.md`
+  - `src/mir/control_tree/normalized_shadow/README.md`
 - next exact files:
   - `src/mir/builder/control_flow/normalization/README.md`
   - `src/mir/join_ir/lowering/README.md`
   - `src/mir/join_ir/ownership/README.md`
-  - `src/mir/control_tree/step_tree/`
-  - `src/mir/control_tree/normalized_shadow/`
+  - `src/mir/control_tree/step_tree/fact_extractor.rs`
+  - `src/mir/control_tree/normalized_shadow/builder.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`
