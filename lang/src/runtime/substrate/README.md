@@ -25,6 +25,7 @@ Current phase reading:
   - `buf`
   - `ptr`
   - minimum verifier
+- The current verifier lock is docs-first, and its physical reservation lives at `verifier/README.md`.
 
 Native keep stays outside this directory:
 - OS virtual memory

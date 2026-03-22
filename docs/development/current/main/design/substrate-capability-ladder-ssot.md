@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
+  - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -157,6 +158,8 @@ current root lock is:
 - bounds fail-fast
 - initialized-range fail-fast
 - ownership fail-fast
+- current docs lock:
+  - [`minimum-verifier-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimum-verifier-ssot.md)
 
 これは `C1` と同時導入する。
 

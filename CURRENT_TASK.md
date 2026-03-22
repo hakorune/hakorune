@@ -31,6 +31,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `abi-export-inventory.md`
   - `handle-cache-metal-helper-contract-ssot.md`
   - `minimal-capability-modules-ssot.md`
+  - `minimum-verifier-ssot.md`
   - `phase-29ct/README.md`
 - landed slice:
   - `phase-29ct` V0 ABI export inventory
@@ -69,6 +70,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       `lang/src/runtime/substrate/mem/`
       `lang/src/runtime/substrate/buf/`
       `lang/src/runtime/substrate/ptr/`
+  - `phase-29ct` V5 minimum verifier lock
+    - docs-side truth now lives in
+      `docs/development/current/main/design/minimum-verifier-ssot.md`
+    - verifier order is fixed as:
+      `bounds -> initialized-range -> ownership`
+    - physical staging root now exists at:
+      `lang/src/runtime/substrate/verifier/README.md`
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -160,9 +168,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/design/abi-export-inventory.md`
   - `docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md`
   - `docs/development/current/main/design/minimal-capability-modules-ssot.md`
-  - `lang/src/runtime/substrate/mem/README.md`
-  - `lang/src/runtime/substrate/buf/README.md`
-  - `lang/src/runtime/substrate/ptr/README.md`
+  - `docs/development/current/main/design/minimum-verifier-ssot.md`
+  - `lang/src/runtime/substrate/verifier/README.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`

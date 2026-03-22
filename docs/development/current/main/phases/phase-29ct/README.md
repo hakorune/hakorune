@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
+  - docs/development/current/main/design/minimum-verifier-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -142,7 +143,15 @@ Related:
     - [`lang/src/runtime/substrate/mem/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/mem/README.md)
     - [`lang/src/runtime/substrate/buf/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/buf/README.md)
     - [`lang/src/runtime/substrate/ptr/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/ptr/README.md)
-  - next active slice is `C1.5 minimum verifier`
+
+- `V5 minimum verifier lock` landed
+  - [`minimum-verifier-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimum-verifier-ssot.md) fixes:
+    - `bounds -> initialized-range -> ownership` order
+    - current non-goals for this wave
+    - docs-first reading only
+  - physical staging root now exists at:
+    - [`lang/src/runtime/substrate/verifier/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/verifier/README.md)
+  - next active slice is `C2 RawArray`
 
 ## Stop-Line
 

@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/minimum-verifier-ssot.md
   - lang/src/runtime/substrate/README.md
   - lang/src/runtime/substrate/mem/README.md
   - lang/src/runtime/substrate/buf/README.md
@@ -85,6 +86,10 @@ minimum verifier はこの sliceでは未実装だが、次の lock は次で固
 
 `double free` / `use-after-free` は後続 widening に送る。
 
+docs-side truth is:
+
+- [`minimum-verifier-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/minimum-verifier-ssot.md)
+
 ## Physical Staging
 
 current physical staging path は次。
@@ -103,4 +108,3 @@ current physical staging path は次。
 - OS VM / final allocator / final ABI stubs
 - `runtime/collections/` owner migration
 - broad implementation tree under `runtime/substrate/`
-
