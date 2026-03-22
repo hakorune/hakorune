@@ -42,8 +42,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs`
   - `src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs`
   - `src/mir/builder/control_flow/plan/normalizer/helpers_value.rs`
+  - `src/mir/passes/rc_insertion.rs` -> facade
+  - `src/mir/passes/rc_insertion_helpers.rs` -> implementation split
+  - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_common.rs`
 - next exact files:
-  - `src/mir/passes/rc_insertion.rs`
+  - `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`

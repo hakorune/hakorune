@@ -80,10 +80,13 @@ P4 first slice landed:
 - `src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs`
 - `src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs`
 - `src/mir/builder/control_flow/plan/normalizer/helpers_value.rs`
+- `src/mir/passes/rc_insertion.rs` facade
+- `src/mir/passes/rc_insertion_helpers.rs` implementation split
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers_common.rs`
 
 The next implementation slice, when this lane is explicitly reopened, is:
 
-- `src/mir/passes/rc_insertion.rs`
+- `src/mir/builder/control_flow/plan/facts/loop_break_helpers.rs`
 
 ## Pressure Summary
 

@@ -11,6 +11,7 @@
 pub(in crate::mir::builder) mod loop_break_body_local_subset;
 pub(in crate::mir::builder) mod loop_break_core;
 pub(in crate::mir::builder) mod loop_break_helpers;
+pub(in crate::mir::builder) mod loop_break_helpers_common;
 pub(in crate::mir::builder) mod loop_break_parse_integer;
 pub(in crate::mir::builder) mod loop_break_read_digits;
 pub(in crate::mir::builder) mod loop_break_realworld;
