@@ -1,1 +1,1 @@
-pub use nyash_mir_core::types::*;
+pub use hakorune_mir_core::types::*;

@@ -99,13 +99,13 @@ P5 docs-first seed:
 
 P5 first packaging slice landed:
 
-- `crates/nyash_mir_core/` with `types.rs` / `value_id.rs`
-- `crates/nyash_mir_defs/` with `definitions/call_unified.rs`
+- `crates/hakorune_mir_core/` with `types.rs` / `value_id.rs`
+- `crates/hakorune_mir_defs/` with `definitions/call_unified.rs`
 
 P5 second packaging slice landed:
 
-- `crates/nyash_mir_core/` gained `effect.rs`
-- `src/mir/definitions/call_unified.rs` became a thin wrapper to `nyash_mir_defs`
+- `crates/hakorune_mir_core/` gained `effect.rs`
+- `src/mir/definitions/call_unified.rs` became a thin wrapper to `hakorune_mir_defs`
 
 ## Pressure Summary
 

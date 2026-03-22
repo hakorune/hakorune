@@ -5,7 +5,7 @@
  * compatibility wrappers for now.
  */
 
-use nyash_mir_core::{Effect, EffectMask, ValueId};
+use hakorune_mir_core::{Effect, EffectMask, ValueId};
 
 /// Certainty of callee type information for method calls
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -237,4 +237,3 @@ impl MirCall {
         self
     }
 }
-

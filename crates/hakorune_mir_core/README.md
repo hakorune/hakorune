@@ -1,4 +1,4 @@
-# nyash_mir_core
+# hakorune_mir_core
 
 Shared MIR core substrate extracted from `src/mir/` during the crate split
 preparation lane.
@@ -13,4 +13,3 @@ preparation lane.
 - This crate only holds the pure identifier/type substrate.
 - It does not own MIR lowering, contracts, policies, or control-tree logic.
 - Keep future packaging slices mechanical and small.
-

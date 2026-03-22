@@ -1,1 +1,1 @@
-pub use nyash_mir_core::value_id::*;
+pub use hakorune_mir_core::value_id::*;

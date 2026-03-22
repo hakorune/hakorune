@@ -1,13 +1,12 @@
 [package]
-name = "nyash-mir-defs"
+name = "hakorune-mir-defs"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "nyash_mir_defs"
+name = "hakorune_mir_defs"
 path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [dependencies]
-nyash-mir-core = { path = "../nyash_mir_core" }
-
+hakorune-mir-core = { path = "../hakorune_mir_core" }

@@ -22,8 +22,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 - `phase-29cr` P5: `src/mir` crate split preparation
 - landed slice:
-  - `nyash_mir_core` package: `types.rs` / `value_id.rs`
-  - `nyash_mir_defs` package: `definitions/call_unified.rs`
+  - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
+  - `hakorune_mir_defs` package: `definitions/call_unified.rs`
 - landed slice:
   - `box_arithmetic.rs` -> `pub mod box_arithmetic { ... }` inline facade
   - `box_operators.rs` -> `src/boxes/operators/`
@@ -66,10 +66,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/control_tree/README.md`
   - `src/mir/join_ir_vm_bridge/README.md`
   - `src/mir/join_ir_vm_bridge_dispatch/README.md`
-  - `crates/nyash_mir_core/README.md`
-  - `crates/nyash_mir_core/src/lib.rs`
-  - `crates/nyash_mir_defs/README.md`
-  - `crates/nyash_mir_defs/src/lib.rs`
+  - `crates/hakorune_mir_core/README.md`
+  - `crates/hakorune_mir_core/src/lib.rs`
+  - `crates/hakorune_mir_defs/README.md`
+  - `crates/hakorune_mir_defs/src/lib.rs`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`

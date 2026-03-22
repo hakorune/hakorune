@@ -1,1 +1,1 @@
-pub use nyash_mir_core::effect::*;
+pub use hakorune_mir_core::effect::*;
