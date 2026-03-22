@@ -6,7 +6,7 @@ router-style consumers.
 ## Read First
 
 1. [`src/mir/README.md`](../README.md)
-2. [`docs/development/current/main/design/mir-crate-split-prep-ssot.md`](../../../../docs/development/current/main/design/mir-crate-split-prep-ssot.md)
+2. [`docs/development/current/main/design/mir-crate-split-prep-ssot.md`](../../../docs/development/current/main/design/mir-crate-split-prep-ssot.md)
 
 ## Boundaries
 

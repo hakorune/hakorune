@@ -22,3 +22,17 @@ StepTree → Normalized shadow path.
 - StepTree contract checks
 - Normalized shadow lowering for selected control-flow shapes
 
+## P5 Crate Split Prep
+
+`control_tree/` is a structural fence, not a split target for the current P5
+step. Keep the structure/contract split visible here until the `mir-core` and
+`mir-builder` seams are stable.
+
+SSOT:
+
+- `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
+
+Prep rule:
+
+- do not move the StepTree / normalized shadow path into a separate crate yet
+- keep facts / contract / lowering responsibilities separate inside this tree

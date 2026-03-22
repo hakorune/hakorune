@@ -80,11 +80,21 @@ Keep under `src/mir/` for now:
 
 These are not split today. They are shared fences that must be visible before any crate move.
 
+### Shared structural fence
+
+Keep under `src/mir/` for now:
+
+- `control_tree/`
+
+This subtree is structural support for StepTree / normalized shadow contracts.
+It is not a split target for the current P5 step.
+
 ## Rejected Boundaries
 
 - immediate `src/mir` crate split
 - splitting by directory without documenting the public surface first
 - moving `contracts/` or `policies/` into separate crates before the main seams are stable
+- moving `control_tree/` into a separate crate before the structure/contract seam is stable
 - splitting `join_ir_vm_bridge/` from `join_ir/` before the lowering surface is stable
 - splitting `phi_core/` or `loop_canonicalizer/` before the analysis contracts are documented
 
