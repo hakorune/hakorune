@@ -35,6 +35,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_joinir` package: `join_ir/ownership/types.rs`
   - `src/mir/join_ir/ownership/bridge/` now groups `plan_to_lowering.rs` /
     `plan_validator.rs` behind the ownership facade
+  - `src/mir/join_ir/ownership/analyzer/` now groups ProgramJSON analysis into
+    `mod.rs` / `core.rs` / `node_analysis.rs`
+  - `src/mir/passes/concat3_canonicalize/analysis/` now groups
+    `stringish.rs` / `def_use.rs` behind the pass facade
   - `compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
   - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
   - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
@@ -87,12 +91,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `src/mir/builder/control_flow/plan/facts/loop_break_helpers_loop.rs`
   - `src/mir/builder/control_flow/plan/facts/loop_break_trim_whitespace_helpers.rs`
 - next exact files:
+  - `src/mir/builder/scope_context.rs`
+  - `src/mir/builder/compilation_context.rs`
+  - `src/mir/passes/README.md`
   - `src/mir/join_ir/README.md`
-  - `src/mir/join_ir/ownership/analyzer.rs`
-  - `src/mir/join_ir/ownership/ast_analyzer/core.rs`
-  - `src/mir/join_ir/ownership/bridge/README.md`
-  - `src/mir/passes/concat3_canonicalize/mod.rs`
-  - `src/mir/passes/concat3_canonicalize/analysis.rs`
   - `docs/development/current/main/design/mir-crate-split-prep-ssot.md`
   - `docs/development/current/main/phases/phase-29cr/README.md`
 - keep-root allowlist:
@@ -119,10 +121,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 2. `compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
 3. `join_ir/ownership/types.rs` substrate slice (landed)
 4. `join_ir/ownership/bridge/` facade split (landed)
-5. `join_ir/ownership/analyzer.rs` -> `ownership/analyzer/` subdir split
-   (`core.rs` / `node_analysis.rs` first; keep `ast_analyzer/*` as-is)
-6. `passes/concat3_canonicalize/analysis.rs` internal split
-   (`stringish.rs` / `def_use.rs`; no crate move yet)
+5. `join_ir/ownership/analyzer/` subdir split (landed)
+6. `passes/concat3_canonicalize/analysis/` internal split (landed)
 7. remaining `hakorune-mir-*` naming surface polish
 
 ## Archive

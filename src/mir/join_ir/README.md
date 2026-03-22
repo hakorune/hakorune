@@ -19,6 +19,7 @@ Landed substrate slice:
 
 - `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
 - `join_ir/ownership/bridge/*` now groups lowering adapters and validators
+- `join_ir/ownership/analyzer/*` now groups the ProgramJSON analysis core
 - the rest of `src/mir/join_ir/` stays in the docs-first review lane
 
 ## Read First
@@ -47,7 +48,7 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
 
 - `hakorune_mir_joinir::ownership_types`
   - pure ownership substrate already extracted
-- `ownership/analyzer.rs`
+- `ownership/analyzer/*`
   - ProgramJSON ownership analysis core
 - `ownership/ast_analyzer/*`
   - AST ownership analysis core; still tied to AST inputs

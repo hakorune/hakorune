@@ -17,6 +17,8 @@ Current blockers:
   and config/env seams
 - `concat3_canonicalize/` is the only plausible future extraction candidate,
   but it still depends on the same MIR surface for now
+- landed internal cleanup: `concat3_canonicalize/analysis/` now splits
+  `stringish.rs` and `def_use.rs` behind the current facade
 
 Next review target:
 

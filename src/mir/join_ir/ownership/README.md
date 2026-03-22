@@ -22,7 +22,7 @@ Landed substrate slice:
 
 - `hakorune_mir_joinir::ownership_types` now owns the pure ownership type substrate
 - `bridge/*` now owns validator / lowering-adapter glue under the ownership facade
-- `analyzer.rs` + `ast_analyzer/*` remain the analysis core here
+- `analyzer/*` + `ast_analyzer/*` remain the analysis core here
 
 ## Responsibility Boundary
 

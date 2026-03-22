@@ -107,6 +107,8 @@ JoinIR boundary review remains docs-first only for now:
 - landed substrate slice: `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
 - landed internal box tightening: `join_ir/ownership/bridge/` now owns
   `plan_to_lowering.rs` / `plan_validator.rs` under the ownership facade
+- landed internal box tightening: `join_ir/ownership/analyzer/` now owns the
+  ProgramJSON analyzer core (`mod.rs` / `core.rs` / `node_analysis.rs`)
 - prefer next cleanup inside `join_ir/` as sub-box tightening:
   ownership analyzer core / ownership bridge glue / lowering substrate /
   condition cluster / loop-route cluster / target-specific lowerers /
@@ -117,6 +119,8 @@ Passes boundary review also remains docs-first only for now:
 - `src/mir/passes/` still couples AST/runtime/config/env and MIR surfaces
 - `rc_insertion/` is especially blocked by those seams
 - do not package `passes/` yet; tighten the README boundary map first
+- landed internal box tightening: `concat3_canonicalize/analysis/` now owns
+  `stringish.rs` / `def_use.rs` behind the pass facade
 
 P5 first packaging slice landed:
 
@@ -192,12 +196,6 @@ Interpretation:
 
 When this lane is reopened for implementation:
 
-1. `src/mir/join_ir/ownership/analyzer.rs` -> `ownership/analyzer/` subdir split
-   - keep `ast_analyzer/*` unchanged
-   - start with `core.rs` / `node_analysis.rs`
-2. `src/mir/passes/concat3_canonicalize/analysis.rs` internal split
-   - `stringish.rs`
-   - `def_use.rs`
-   - keep this as facade cleanup only, not crate packaging
-3. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
-4. `src/mir/builder/compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
+1. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
+2. `src/mir/builder/compilation_context.rs` (parked: mixed ownership / ASTNode + FunctionSlotRegistry + TypeRegistry)
+3. remaining `hakorune-mir-*` naming surface polish

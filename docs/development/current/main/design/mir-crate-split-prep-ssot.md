@@ -23,6 +23,10 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_builder` package: `variable_context.rs`
 - `hakorune_mir_builder` package: `metadata_context.rs`
 - `hakorune_mir_joinir` package: `join_ir/ownership/types.rs`
+- `src/mir/join_ir/ownership/analyzer/` now groups the ProgramJSON analysis
+  core as `mod.rs` / `core.rs` / `node_analysis.rs`
+- `src/mir/passes/concat3_canonicalize/analysis/` now groups
+  `stringish.rs` / `def_use.rs` behind the analysis facade
 - `compilation_context.rs` is parked: mixed ownership (`ASTNode` / `FunctionSlotRegistry` / `TypeRegistry`)
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/value_kind.rs` is a thin re-export wrapper
@@ -113,7 +117,7 @@ Preferred cleanup order inside `join_ir/`:
    - `ownership/types.rs` (landed)
    - future low-risk helpers like `lowering/value_id_ranges.rs` if they stay pure
 2. internal box map tightening
-   - `ownership/analyzer.rs` -> future `ownership/analyzer/` subdir facade
+   - `ownership/analyzer/*` (landed `mod.rs` / `core.rs` / `node_analysis.rs`)
    - `ownership/ast_analyzer/*`
    - `ownership/bridge/*` (landed facade split for `plan_to_lowering.rs` /
      `plan_validator.rs`)
@@ -142,8 +146,8 @@ Current status:
 - `concat3_canonicalize/` is the only plausible future extraction candidate,
   but it still depends on the same MIR surface for now
 - next safe cleanup is not packaging:
-  split `concat3_canonicalize/analysis.rs` into `stringish.rs` and `def_use.rs`
-  behind the current facade first
+  already landed: `concat3_canonicalize/analysis/` now splits `stringish.rs`
+  and `def_use.rs` behind the current facade
 
 ### Shared policy surface
 
