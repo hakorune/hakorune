@@ -174,6 +174,9 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
     - `nyash.array.push_hh` is compat-only
     - adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`
     - `nyash.array.push_h` is compat-only
+  - landed compat/pure array get retarget:
+    - adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`
+    - `nyash.array.get_h` is compat-only
     - `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
     - `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
   - landed map observer demotion:

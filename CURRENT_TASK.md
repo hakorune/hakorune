@@ -30,6 +30,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     and historical pure `MapBox.{get,set,has}` lowering now use
     `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`;
     `nyash.map.{get_h,set_h,has_h}` remain compat-only
+  - compat/pure array get retarget: `AbiAdapterRegistryBox` default `ArrayBox.get`
+    and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`;
+    `nyash.array.get_h` remains compat-only
   - `hakorune_mir_core` package: `types.rs` / `value_id.rs`
   - `hakorune_mir_core` package: `effect.rs`
   - `hakorune_mir_core` package: `basic_block_id.rs` / `binding_id.rs`
@@ -108,6 +111,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `lang/c-abi/shims/hako_llvmc_ffi.c`
   - `tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
   - `tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
+  - `tools/smokes/v2/profiles/integration/core/phase2120/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh`
 - keep-root allowlist:
   - `basic_test.hako`
   - `test.hako`

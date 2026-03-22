@@ -54,8 +54,8 @@ if ! rg -F -q 'me._put("StringBox", "length", "nyash.string.len_h"' "$REGISTRY_F
   echo "[runtime-v0-abi-slice-guard] registry missing StringBox.length -> nyash.string.len_h" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("ArrayBox", "get",    "nyash.array.get_h"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.get adapter mapping" >&2
+if ! rg -F -q 'me._put("ArrayBox", "get",    "nyash.array.slot_load_hi"' "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.get raw load mapping" >&2
   exit 1
 fi
 if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_h"' "$REGISTRY_FILE"; then

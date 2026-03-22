@@ -92,6 +92,7 @@ Rule:
   - landed: daily array observer route now uses `nyash.array.slot_len_h`
   - landed: daily array append route now uses `nyash.array.slot_append_hh`
   - landed: adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`
+  - landed: adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`
   - landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
   - landed: `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
   - landed: daily map observer route now uses `nyash.map.entry_count_h`
