@@ -31,6 +31,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `hakorune_mir_builder` package: `binding_context.rs`
   - `hakorune_mir_builder` package: `type_context.rs`
   - `hakorune_mir_builder` package: `variable_context.rs`
+  - `hakorune_mir_builder` package: `metadata_context.rs`
   - builder / edgecfg / optimizer / tests now use public `crate::mir::{BasicBlockId, EdgeArgs}`
   - backend/mir_interpreter now uses public `crate::mir::BasicBlock` / `BasicBlockId`
   - `src/mir/contracts/README.md`
@@ -99,7 +100,6 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `crates/hakorune_mir_builder/src/type_context.rs`
   - `src/mir/builder/variable_context.rs`
   - `src/mir/builder/scope_context.rs`
-  - `src/mir/builder/metadata_context.rs`
   - `src/mir/builder/compilation_context.rs`
 - keep-root allowlist:
   - `basic_test.hako`
@@ -122,11 +122,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 ## P5 / P6 Remaining Order
 
 1. `scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
-2. `metadata_context.rs`
-3. `compilation_context.rs`
-4. `join_ir/` packaging boundary review
-5. `passes/` packaging boundary review
-6. remaining `hakorune-mir-*` naming surface polish
+2. `compilation_context.rs`
+3. `join_ir/` packaging boundary review
+4. `passes/` packaging boundary review
+5. remaining `hakorune-mir-*` naming surface polish
 
 ## Archive
 

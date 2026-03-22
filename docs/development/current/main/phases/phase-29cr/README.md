@@ -118,6 +118,7 @@ P5 substrate ID slice landed:
 - `crates/hakorune_mir_builder/` gained `binding_context.rs`
 - `crates/hakorune_mir_builder/` gained `type_context.rs`
 - `crates/hakorune_mir_builder/` gained `variable_context.rs`
+- `crates/hakorune_mir_builder/` gained `metadata_context.rs`
 
 P6 naming cleanup:
 
@@ -169,6 +170,5 @@ Interpretation:
 When this lane is reopened for implementation:
 
 1. `src/mir/builder/scope_context.rs` (blocked until the `MirFunction` / lexical-scope seam is split further)
-2. `src/mir/builder/metadata_context.rs`
-3. `src/mir/builder/compilation_context.rs`
-4. `src/mir/passes/rc_insertion.rs`
+2. `src/mir/builder/compilation_context.rs`
+3. `src/mir/passes/rc_insertion.rs`

@@ -37,7 +37,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
   - 変数名 ↔ BindingId の対応（shadowing の復元を含む）。
 - `crates/hakorune_mir_builder/src/variable_context.rs`
   - 変数解決（variable_map 等）。
-- `metadata_context.rs`
+- `crates/hakorune_mir_builder/src/metadata_context.rs`
   - span/source_hint/region（観測）などのメタ情報。
 - `compilation_context.rs`
   - コンパイル全体のレジストリ（Box/型レジストリ、reserved ids 等）。
@@ -63,7 +63,7 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
   - packaging は `MirFunction` seam がさらに分かれてから。
 - `crates/hakorune_mir_builder/src/binding_context.rs`: 変数名 ↔ BindingId の対応。
 - `crates/hakorune_mir_builder/src/variable_context.rs`: 変数解決（variable_map 等）。
-- `metadata_context.rs`: span / source_hint / region の観測。
+- `crates/hakorune_mir_builder/src/metadata_context.rs`: span / source_hint / region の観測。
 - `compilation_context.rs`: Box / 型レジストリと reserved ids。
 - `crates/hakorune_mir_builder/src/context.rs`: 上記 Context を束ねる入れ物。
 
@@ -77,8 +77,9 @@ JoinIR の merge もここ（`control_flow/joinir/merge/`）が入口。
 
 `src/mir` の crate split を準備するとき、この subtree は `hakorune-mir-builder` 候補になる。
 The first packaging slice has already landed in `crates/hakorune_mir_builder/`
-with `core_context.rs` and `context.rs`; the remaining builder orchestration
-stays here for now.
+with `core_context.rs`, `context.rs`, `binding_context.rs`, `type_context.rs`,
+`variable_context.rs`, and `metadata_context.rs`; the remaining builder
+orchestration stays here for now.
 
 SSOT:
 

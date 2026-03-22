@@ -155,7 +155,8 @@ pub struct MirBuilder {
     /// Phase 136 follow-up (Step 6/7): Metadata context
     /// Consolidates current_span, source_file, hint_sink, current_region_stack.
     /// Direct field access for backward compatibility (migration in progress).
-    pub(super) metadata_ctx: metadata_context::MetadataContext,
+    pub(super) metadata_ctx:
+        metadata_context::MetadataContext<crate::ast::Span, crate::mir::region::RegionId>,
 
     /// Phase 136 follow-up (Step 7/7): Compilation context
     /// Consolidates compilation_context, current_static_box, user_defined_boxes, reserved_value_ids,

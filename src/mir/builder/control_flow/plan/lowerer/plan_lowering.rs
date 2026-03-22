@@ -273,7 +273,10 @@ fn find_forward_def_in_seq(
 }
 
 fn collect_seq_debug(
-    metadata_ctx: &crate::mir::builder::metadata_context::MetadataContext,
+    metadata_ctx: &crate::mir::builder::metadata_context::MetadataContext<
+        crate::ast::Span,
+        crate::mir::region::RegionId,
+    >,
     plans: &[LoweredRecipe],
     use_value: ValueId,
 ) -> (String, String, bool, String) {

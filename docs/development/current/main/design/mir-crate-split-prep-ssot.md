@@ -21,6 +21,7 @@ Scope: `src/mir/` の crate split を始める前の boundary inventory と entr
 - `hakorune_mir_builder` package: `binding_context.rs`
 - `hakorune_mir_builder` package: `type_context.rs`
 - `hakorune_mir_builder` package: `variable_context.rs`
+- `hakorune_mir_builder` package: `metadata_context.rs`
 - `src/mir/types.rs` and `src/mir/value_id.rs` are thin re-export wrappers
 - `src/mir/value_kind.rs` is a thin re-export wrapper
 - `src/mir/definitions/call_unified.rs` is a thin re-export wrapper
@@ -143,6 +144,6 @@ It is not a split target for the current P5 step.
 - `src/mir/README.md` links back to this doc.
 - `src/mir/builder/README.md`, `src/mir/passes/README.md`, and `src/mir/join_ir/README.md` name their future crate candidates.
 - The first builder packaging slice is already landed.
-- The next builder packaging order is `scope_context.rs` -> `metadata_context.rs` -> `compilation_context.rs`.
+- The next builder packaging order is `scope_context.rs` (blocked) -> `compilation_context.rs`.
 - `scope_context.rs` remains blocked on the `MirFunction` / lexical-scope seam and is not a safe move yet.
 - The next implementation slice is another packaging step, not a docs-only tightening step.
