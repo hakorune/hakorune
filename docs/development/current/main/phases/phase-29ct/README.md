@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29cm/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -70,6 +71,7 @@ Related:
 ## Exact First Tasks
 
 1. manifest inventory for current collection/kernel exports
+   - `docs/development/current/main/design/abi-export-inventory.md`
    - `crates/nyash_kernel/src/plugin/array.rs`
    - `crates/nyash_kernel/src/plugin/map.rs`
    - `crates/nyash_kernel/src/plugin/runtime_data.rs`
@@ -82,6 +84,21 @@ Related:
    - `crates/nyash_kernel/src/plugin/handle_cache.rs`
 4. future substrate module root lock
    - `lang/src/runtime/substrate/` for physical staging
+
+## Landed Slice
+
+- `V0 ABI export inventory` landed
+  - docs-side truth lives in [`abi-export-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-inventory.md)
+  - `AbiAdapterRegistryBox` is fixed as runtime consumer/default-row registry, not manifest SSOT
+  - current export surface is classified as:
+    - `mainline substrate`
+    - `runtime-facade`
+    - `compat-only`
+    - `adapter-default consumer`
+- next active slice is `value representation lock`
+  - `crates/nyash_kernel/src/plugin/value_codec/mod.rs`
+  - `crates/nyash_kernel/src/plugin/value_codec/decode.rs`
+  - `crates/nyash_kernel/src/plugin/value_codec/encode.rs`
 
 ## Stop-Line
 

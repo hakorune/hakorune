@@ -28,8 +28,15 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - current docs exact leaf:
   - `substrate-capability-ladder-ssot.md`
   - `value-repr-and-abi-manifest-ssot.md`
+  - `abi-export-inventory.md`
   - `phase-29ct/README.md`
 - landed slice:
+  - `phase-29ct` V0 ABI export inventory
+    - docs-side truth now lives in
+      `docs/development/current/main/design/abi-export-inventory.md`
+    - current collection/kernel symbols are grouped as:
+      `mainline substrate` / `runtime-facade` / `compat-only`
+    - `AbiAdapterRegistryBox` is fixed as adapter-default consumer, not manifest truth
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only
@@ -118,13 +125,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `docs/development/current/main/phases/phase-29ct/README.md`
   - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
   - `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
+  - `docs/development/current/main/design/abi-export-inventory.md`
   - `docs/development/current/main/phases/phase-29cm/README.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
-  - `lang/src/vm/boxes/abi_adapter_registry.hako`
-  - `crates/nyash_kernel/src/plugin/array.rs`
-  - `crates/nyash_kernel/src/plugin/map.rs`
-  - `crates/nyash_kernel/src/plugin/runtime_data.rs`
   - `crates/nyash_kernel/src/plugin/value_codec/mod.rs`
   - `crates/nyash_kernel/src/plugin/value_codec/decode.rs`
   - `crates/nyash_kernel/src/plugin/value_codec/encode.rs`

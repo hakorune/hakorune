@@ -1,5 +1,7 @@
-// --- AOT ObjectModule dotted-name exports (Map) ---
-// Provide dotted symbol names expected by ObjectBuilder lowering for MapBox operations.
+// Map export surface grouped by manifest status:
+// - compat-only aliases
+// - mainline substrate aliases
+// Adapter defaults consume the mainline rows; manifest truth lives in docs.
 use super::handle_cache::with_map_box;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
@@ -51,6 +53,7 @@ pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
     map_entry_count_raw(handle)
 }
 
+// Compat-only exports consumed by historical pure/legacy surfaces.
 // size: compatibility observer (handle) -> i64
 #[export_name = "nyash.map.size_h"]
 pub extern "C" fn nyash_map_size_h(handle: i64) -> i64 {
@@ -109,7 +112,7 @@ pub extern "C" fn nyash_map_has_h(handle: i64, key: i64) -> i64 {
     map_probe_contains_i64(handle, key)
 }
 
-// Raw map substrate aliases used by collection-owner cutover.
+// Mainline substrate aliases used by collection-owner cutover and adapter defaults.
 #[export_name = "nyash.map.slot_load_hi"]
 pub extern "C" fn nyash_map_slot_load_hi_alias(handle: i64, key_i64: i64) -> i64 {
     map_slot_load_i64(handle, key_i64)

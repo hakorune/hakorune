@@ -31,6 +31,8 @@ fn append_integer_raw(handle: i64, value_i64: i64) -> i64 {
         .unwrap_or(0)
 }
 
+// Compat-only exports consumed by historical pure/legacy surfaces.
+// Manifest truth groups these as compat-only, not mainline substrate.
 // Exported as: nyash_array_get_h(i64 handle, i64 idx) -> i64
 #[no_mangle]
 pub extern "C" fn nyash_array_get_h(handle: i64, idx: i64) -> i64 {
@@ -105,8 +107,8 @@ pub extern "C" fn nyash_array_slot_len_h_alias(handle: i64) -> i64 {
     nyash_array_length_h(handle)
 }
 
-// RuntimeData mono-route aliases (Array-only semantics).
-// Keep contracts aligned with nyash.runtime_data.* when receiver is ArrayBox.
+// Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
+// These are not the canonical `.hako` collection-owner symbols.
 #[export_name = "nyash.array.get_hh"]
 pub extern "C" fn nyash_array_get_hh_alias(handle: i64, key_any: i64) -> i64 {
     let Some(idx) = decode_index_key(key_any) else {
@@ -168,7 +170,7 @@ pub extern "C" fn nyash_array_has_hi_alias(handle: i64, idx: i64) -> i64 {
     array_has_by_index(handle, idx)
 }
 
-// Raw slot substrate aliases used by `.hako` collection owners.
+// Mainline substrate aliases used by `.hako` collection owners and adapter defaults.
 #[export_name = "nyash.array.slot_load_hi"]
 pub extern "C" fn nyash_array_slot_load_hi_alias(handle: i64, idx: i64) -> i64 {
     array_slot_load_encoded_i64(handle, idx)

@@ -2,6 +2,7 @@
 //
 // These exports bridge RuntimeDataBox method calls in AOT/LLVM to concrete
 // host boxes (ArrayBox/MapBox) without relying on static box-name guesses.
+// Manifest reading: all `nyash.runtime_data.*` rows are runtime-facade only.
 
 use super::handle_cache::with_array_or_map;
 use super::runtime_data_array_dispatch::{

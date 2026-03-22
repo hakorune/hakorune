@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
+  - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
   - crates/nyash_kernel/src/plugin/value_codec/mod.rs
   - crates/nyash_kernel/src/plugin/value_codec/decode.rs
@@ -97,6 +98,8 @@ legacy `h` / `hh` / `hi` / `hii` 表記は compatibility artifact として残�
 - `nyash.map.*`
 - `nyash.runtime_data.*`
 - `nyash.string.*`
+- docs-side inventory truth is [`abi-export-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-inventory.md)
+- [`AbiAdapterRegistryBox`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/abi_adapter_registry.hako) is a runtime consumer of that inventory, not the manifest truth
 
 current hand-written exports are allowed only as inventory input.
 
@@ -129,6 +132,7 @@ these should shrink to thin exports over substrate helpers and generated alias d
 ## Immediate Task Pack
 
 1. manifest inventory doc for current array/map/runtime_data/string symbols
+   - [`abi-export-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-inventory.md)
 2. `AbiAdapterRegistryBox` default rows mapped into manifest vocabulary
 3. `array.rs` / `map.rs` / `runtime_data.rs` export groups tagged as:
    - mainline substrate

@@ -2,6 +2,8 @@
 // Responsibility: Data-driven mapping for Box methods to ABI symbols and call kinds.
 // - Keeps Rust/C-ABI choices out of lowering/VM logic (structure-first)
 // - Supports user Box extension via runtime registration (dev) or static defaults (prod)
+// - Consumes the docs-side ABI inventory; it is not the manifest SSOT itself
+//   (`docs/development/current/main/design/abi-export-inventory.md`)
 //
 // API (MVP):
 //   resolve(box_type, method) -> MapBox {

@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29cm/README.md
   - docs/development/current/main/phases/phase-29ct/README.md
+  - docs/development/current/main/design/abi-export-inventory.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
@@ -203,6 +204,8 @@ allocator/runtime policy owner を深くする前に必要。
 いま先に切るべき実作業は次。
 
 1. ABI export surface を manifest 化する
+   - docs-side inventory truth:
+     - [`abi-export-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-inventory.md)
    - `crates/nyash_kernel/src/plugin/array.rs`
    - `crates/nyash_kernel/src/plugin/map.rs`
    - `crates/nyash_kernel/src/plugin/runtime_data.rs`
