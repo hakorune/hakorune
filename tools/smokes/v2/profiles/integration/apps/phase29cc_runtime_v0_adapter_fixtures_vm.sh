@@ -17,6 +17,9 @@ require_env || exit 2
 
 SMOKE_NAME="phase29cc_runtime_v0_adapter_fixtures_vm"
 STRING_FIXTURE="$NYASH_ROOT/apps/tests/phase29cc_plg04_stringbox_pilot_min.hako"
+MANIFEST_FILE="$NYASH_ROOT/docs/development/current/main/design/abi-export-manifest-v0.toml"
+ABI_MANIFEST_CODEGEN="$NYASH_ROOT/tools/abi_manifest_codegen.py"
+GENERATED_DEFAULTS_FILE="$NYASH_ROOT/lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako"
 HANDLER_FILE="$NYASH_ROOT/lang/src/vm/boxes/mir_call_v1_handler.hako"
 REGISTRY_FILE="$NYASH_ROOT/lang/src/vm/boxes/abi_adapter_registry.hako"
 ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_core_box.hako"
@@ -71,15 +74,32 @@ run_array_semantics_checks() {
 }
 
 check_collection_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$ATOMIC_CORE_FILE" "$TLS_CORE_FILE" "$GC_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$OWNERSHIP_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
+  for f in "$ABI_MANIFEST_CODEGEN" "$MANIFEST_FILE" "$GENERATED_DEFAULTS_FILE" "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$ATOMIC_CORE_FILE" "$TLS_CORE_FILE" "$GC_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$OWNERSHIP_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
     fi
   done
 
-  if ! rg -F -q 'me._put("StringBox", "length", "nyash.string.len_h"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: StringBox.length adapter registry contract missing"
+  if ! python3 "$ABI_MANIFEST_CODEGEN" --check; then
+    test_fail "$SMOKE_NAME: abi manifest codegen --check failed"
+    exit 1
+  fi
+
+  if ! rg -q "abi_adapter_registry_defaults" "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: registry missing generated defaults import"
+    exit 1
+  fi
+  if ! rg -F -q "AbiAdapterRegistryDefaultsBox.populate(me)" "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: registry missing generated defaults populate hook"
+    exit 1
+  fi
+  if ! rg -F -q "static box AbiAdapterRegistryDefaultsBox" "$GENERATED_DEFAULTS_FILE"; then
+    test_fail "$SMOKE_NAME: generated defaults box name mismatch"
+    exit 1
+  fi
+  if ! rg -q "HAKO_ABI_ADAPTER_DEV" "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: registry missing HAKO_ABI_ADAPTER_DEV dev canary"
     exit 1
   fi
   if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
@@ -88,18 +108,6 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler array orchestration contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'me._put("ArrayBox", "push",   "nyash.array.slot_append_hh"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: ArrayBox.push adapter registry raw append contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'me._put("ArrayBox", "get",    "nyash.array.slot_load_hi"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: ArrayBox.get adapter registry raw load contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_hih"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: ArrayBox.set adapter registry fallback contract missing"
     exit 1
   fi
   if ! rg -F -q 'return RawArrayCoreBox.slot_len_i64(handle)' "$ARRAY_CORE_FILE"; then
@@ -332,22 +340,6 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q '[vm/adapter/string_core:len_i64]' "$STRING_CORE_FILE"; then
     test_fail "$SMOKE_NAME: string core trace tag contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'me._put("MapBox", "size",    "nyash.map.entry_count_h"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: MapBox.size adapter registry contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'me._put("MapBox", "set",     "nyash.map.slot_store_hhh"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: MapBox.set adapter registry raw store contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'me._put("MapBox", "get",     "nyash.map.slot_load_hh"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: MapBox.get adapter registry raw load contract missing"
-    exit 1
-  fi
-  if ! rg -F -q 'me._put("MapBox", "has",     "nyash.map.probe_hh"' "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: MapBox.has adapter registry raw probe contract missing"
     exit 1
   fi
   if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then

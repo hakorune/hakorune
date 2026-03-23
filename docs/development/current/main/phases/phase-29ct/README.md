@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/abi-export-inventory.md
+  - docs/development/current/main/design/abi-export-manifest-v0.toml
   - docs/development/current/main/design/handle-cache-metal-helper-contract-ssot.md
   - docs/development/current/main/design/minimal-capability-modules-ssot.md
   - docs/development/current/main/design/minimum-verifier-ssot.md
@@ -82,10 +83,12 @@ Related:
 
 1. manifest inventory for current collection/kernel exports
    - `docs/development/current/main/design/abi-export-inventory.md`
+   - `docs/development/current/main/design/abi-export-manifest-v0.toml`
    - `crates/nyash_kernel/src/plugin/array.rs`
    - `crates/nyash_kernel/src/plugin/map.rs`
    - `crates/nyash_kernel/src/plugin/runtime_data.rs`
    - `lang/src/vm/boxes/abi_adapter_registry.hako`
+   - `lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako`
 2. value representation lock
    - `crates/nyash_kernel/src/plugin/value_codec/mod.rs`
    - `crates/nyash_kernel/src/plugin/value_codec/decode.rs`
@@ -99,12 +102,17 @@ Related:
 
 - `V0 ABI export inventory` landed
   - docs-side truth lives in [`abi-export-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-inventory.md)
-  - `AbiAdapterRegistryBox` is fixed as runtime consumer/default-row registry, not manifest SSOT
+  - `AbiAdapterRegistryBox` is fixed as runtime consumer/default-row registry; defaults are manifest-backed, not hand-written
   - current export surface is classified as:
     - `mainline substrate`
     - `runtime-facade`
     - `compat-only`
     - `adapter-default consumer`
+
+- `V0.1 adapter-default manifest + generated shim` landed
+  - docs-side truth lives in [`abi-export-manifest-v0.toml`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-manifest-v0.toml)
+  - generated defaults module lives in [`lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako)
+  - `AbiAdapterRegistryBox` now consumes generated defaults from the manifest slice
 
 - `V1 value representation lock` landed
   - canonical classes are fixed as:
@@ -271,6 +279,7 @@ Related:
     - `stage0/stage1/stage2/stage3` as the bootstrap/distribution axis
     - final `hako_core / hako_alloc / hako_std` layering
     - `lang/bin/hakorune` as Stage1 snapshot, not final distribution truth
+    - physical root reservation for `hako_alloc` is `lang/src/hako_alloc/` (alloc/policy helpers live there; `runtime/memory/**` is legacy)
   - [`thread-and-tls-capability-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/thread-and-tls-capability-ssot.md) now fixes:
     - current helper-shaped TLS strategy
     - final language-level `thread_local` / `TlsCell<T>` target

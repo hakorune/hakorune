@@ -325,7 +325,7 @@ rule:
   - `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
   - `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
 - current worker-backed inventory:
-  - kernel entry owner: `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
+  - kernel entry owner: `crates/nyash_kernel/src/plugin/invoke/by_name.rs` (compat-only export)
   - upstream daily caller/dependency pack:
     - `src/llvm_py/instructions/mir_call/method_call.py`
     - `src/backend/mir_interpreter/handlers/calls/method.rs`

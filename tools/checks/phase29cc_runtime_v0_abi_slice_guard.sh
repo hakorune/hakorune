@@ -8,6 +8,9 @@ LOCK_DOC="docs/development/current/main/phases/phase-29cc/29cc-216-runtime-v0-ab
 CUTOVER_SSOT="docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md"
 ABI_MATRIX="docs/reference/abi/ABI_BOUNDARY_MATRIX.md"
 DEV_GATE="tools/checks/dev_gate.sh"
+MANIFEST_FILE="docs/development/current/main/design/abi-export-manifest-v0.toml"
+ABI_MANIFEST_CODEGEN="tools/abi_manifest_codegen.py"
+GENERATED_DEFAULTS_FILE="lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako"
 REGISTRY_FILE="lang/src/vm/boxes/abi_adapter_registry.hako"
 HANDLER_FILE="lang/src/vm/boxes/mir_call_v1_handler.hako"
 ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
@@ -23,12 +26,16 @@ BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
 PTR_CORE_FILE="lang/src/runtime/substrate/ptr/ptr_core_box.hako"
 STRING_CORE_FILE="lang/src/runtime/collections/string_core_box.hako"
 MAP_CORE_FILE="lang/src/runtime/collections/map_core_box.hako"
+COLLECTIONS_HOT_FILE="lang/src/llvm_ir/boxes/aot_prep/passes/collections_hot.hako"
 
 for file in \
   "$LOCK_DOC" \
   "$CUTOVER_SSOT" \
   "$ABI_MATRIX" \
   "$DEV_GATE" \
+  "$MANIFEST_FILE" \
+  "$ABI_MANIFEST_CODEGEN" \
+  "$GENERATED_DEFAULTS_FILE" \
   "$REGISTRY_FILE" \
   "$HANDLER_FILE" \
   "$ARRAY_CORE_FILE" \
@@ -43,12 +50,27 @@ for file in \
   "$BUF_CORE_FILE" \
   "$PTR_CORE_FILE" \
   "$STRING_CORE_FILE" \
-  "$MAP_CORE_FILE"; do
+  "$MAP_CORE_FILE" \
+  "$COLLECTIONS_HOT_FILE"; do
   if [ ! -f "$file" ]; then
     echo "[runtime-v0-abi-slice-guard] missing file: $file" >&2
     exit 1
   fi
 done
+
+if ! rg -F -q 'func = "nyash.array.set_hih"' "$COLLECTIONS_HOT_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] collections hot missing nyash.array.set_hih hot route" >&2
+  exit 1
+fi
+if rg -F -q 'func = "nyash.array.set_h"' "$COLLECTIONS_HOT_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] collections hot still references nyash.array.set_h" >&2
+  exit 1
+fi
+
+if ! python3 "$ABI_MANIFEST_CODEGEN" --check; then
+  echo "[runtime-v0-abi-slice-guard] abi manifest codegen --check failed" >&2
+  exit 1
+fi
 
 for keyword in "string_len" "array_get_i64" "array_set_i64" "map_size_i64" "args borrowed / return owned"; do
   if ! rg -F -q "$keyword" "$LOCK_DOC" "$CUTOVER_SSOT"; then
@@ -67,33 +89,53 @@ if ! rg -q "phase29cc_runtime_v0_abi_slice_guard.sh" "$DEV_GATE"; then
   exit 1
 fi
 
-# Code-side adapter route contract (Step-3 anchor)
-if ! rg -F -q 'me._put("StringBox", "length", "nyash.string.len_h"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing StringBox.length -> nyash.string.len_h" >&2
+# Manifest-driven adapter defaults (generated SSOT + registry consumer)
+if ! rg -q "abi_adapter_registry_defaults" "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing generated defaults import" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("ArrayBox", "get",    "nyash.array.slot_load_hi"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.get raw load mapping" >&2
+if ! rg -F -q "AbiAdapterRegistryDefaultsBox.populate(me)" "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing generated defaults populate hook" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("ArrayBox", "set",    "nyash.array.set_hih"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.set adapter mapping" >&2
+if ! rg -F -q "static box AbiAdapterRegistryDefaultsBox" "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults box name mismatch" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("ArrayBox", "push",   "nyash.array.slot_append_hh"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing ArrayBox.push raw append mapping" >&2
+if ! rg -q "HAKO_ABI_ADAPTER_DEV" "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing HAKO_ABI_ADAPTER_DEV dev canary" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("MapBox", "set",     "nyash.map.slot_store_hhh"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing MapBox.set raw store mapping" >&2
+if ! rg -zq 'MapBox",\s*"get".*nyash\.map\.slot_load_hh.*integer' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing MapBox.get -> slot_load_hh (unbox integer)" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("MapBox", "get",     "nyash.map.slot_load_hh"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing MapBox.get raw load mapping" >&2
+if ! rg -zq 'MapBox",\s*"set".*nyash\.map\.slot_store_hhh' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing MapBox.set -> slot_store_hhh" >&2
   exit 1
 fi
-if ! rg -F -q 'me._put("MapBox", "has",     "nyash.map.probe_hh"' "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing MapBox.has raw probe mapping" >&2
+if ! rg -zq 'MapBox",\s*"has".*nyash\.map\.probe_hh' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing MapBox.has -> probe_hh" >&2
+  exit 1
+fi
+if ! rg -zq 'MapBox",\s*"size".*nyash\.map\.entry_count_h' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing MapBox.size -> entry_count_h" >&2
+  exit 1
+fi
+if ! rg -zq 'ArrayBox",\s*"get".*nyash\.array\.slot_load_hi' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing ArrayBox.get -> slot_load_hi" >&2
+  exit 1
+fi
+if ! rg -zq 'ArrayBox",\s*"set".*nyash\.array\.set_hih' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing ArrayBox.set -> set_hih" >&2
+  exit 1
+fi
+if ! rg -zq 'ArrayBox",\s*"push".*nyash\.array\.slot_append_hh' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing ArrayBox.push -> slot_append_hh" >&2
+  exit 1
+fi
+if ! rg -zq 'StringBox",\s*"length".*nyash\.string\.len_h' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing StringBox.length -> nyash.string.len_h" >&2
   exit 1
 fi
 if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then

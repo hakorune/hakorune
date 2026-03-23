@@ -224,7 +224,7 @@ Related:
 
 1. mainline kernel/backend dispatch owner to demote
    - `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
-   - still exports `nyash.plugin.invoke_by_name_i64`
+   - still exports `nyash.plugin.invoke_by_name_i64` (compat-only)
 2. upstream daily caller / dependency pack
    - `src/llvm_py/instructions/mir_call/method_call.py`
    - `src/backend/mir_interpreter/handlers/calls/method.rs`

@@ -1,9 +1,10 @@
 // abi_adapter_registry.hako — AbiAdapterRegistryBox
 // Responsibility: Data-driven mapping for Box methods to ABI symbols and call kinds.
 // - Keeps Rust/C-ABI choices out of lowering/VM logic (structure-first)
-// - Supports user Box extension via runtime registration (dev) or static defaults (prod)
-// - Consumes the docs-side ABI inventory; it is not the manifest SSOT itself
+// - Supports user Box extension via runtime registration (dev) or generated defaults (prod)
+// - Consumes the docs-side ABI inventory and generated default slice; it is not the manifest SSOT itself
 //   (`docs/development/current/main/design/abi-export-inventory.md`)
+//   generated defaults source: `docs/development/current/main/design/abi-export-manifest-v0.toml`
 //
 // API (MVP):
 //   resolve(box_type, method) -> MapBox {
@@ -14,10 +15,11 @@
 //   register(box_type, method, symbol, call, unbox)  // dev/runtime add (toggle-guarded)
 //
 // Policy:
-//   - Defaults cover MapBox/ArrayBox minimal set to align with current kernel symbols.
+//   - Defaults are generated from the adapter-default manifest slice.
 //   - Runtime registration is allowed iff env HAKO_ABI_ADAPTER_DEV=1.
 
 using selfhost.shared.common.string_helpers as Str
+using selfhost.vm.boxes.generated.abi_adapter_registry_defaults as AbiAdapterRegistryDefaultsBox
 
 static box AbiAdapterRegistryBox {
   _k(bt, m) { return bt + "::" + m }
@@ -31,25 +33,7 @@ static box AbiAdapterRegistryBox {
     if me._tab == null { me._tab = new MapBox() }
     if me._inited == true { return }
     me._inited = true
-    // MapBox
-    me._put("MapBox", "birth",   "nyash.map.birth_h", "h", "none")
-    me._put("MapBox", "set",     "nyash.map.slot_store_hhh",   "h", "none")
-    me._put("MapBox", "get",     "nyash.map.slot_load_hh",   "h", "integer")  // returns handle -> needs integer unbox when value required
-    me._put("MapBox", "has",     "nyash.map.probe_hh",   "h", "none")
-    me._put("MapBox", "size",    "nyash.map.entry_count_h",  "h", "none")
-    me._put("MapBox", "len",     "nyash.map.entry_count_h",  "h", "none")
-    // ArrayBox
-    me._put("ArrayBox", "birth",  "nyash.array.birth_h", "h", "none")
-    me._put("ArrayBox", "push",   "nyash.array.slot_append_hh",  "h", "none")
-    me._put("ArrayBox", "len",    "nyash.array.slot_len_h",   "h", "none")
-    me._put("ArrayBox", "length", "nyash.array.slot_len_h",   "h", "none")
-    me._put("ArrayBox", "size",   "nyash.array.slot_len_h",   "h", "none")
-    me._put("ArrayBox", "get",    "nyash.array.slot_load_hi",   "h", "none")
-    me._put("ArrayBox", "set",    "nyash.array.set_hih",   "h", "none")
-    // StringBox (V0 helper slice: length aliases)
-    me._put("StringBox", "len",    "nyash.string.len_h", "h", "none")
-    me._put("StringBox", "length", "nyash.string.len_h", "h", "none")
-    me._put("StringBox", "size",   "nyash.string.len_h", "h", "none")
+    AbiAdapterRegistryDefaultsBox.populate(me)
   }
 
   _put(bt, m, sym, call, unbox) {

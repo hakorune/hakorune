@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
+  - docs/development/current/main/design/abi-export-manifest-v0.toml
   - lang/src/vm/boxes/abi_adapter_registry.hako
   - crates/nyash_kernel/src/plugin/array.rs
   - crates/nyash_kernel/src/plugin/map.rs
@@ -20,16 +21,18 @@ Related:
 ## Goal
 
 - current export surface を `AbiAdapterRegistryBox` の default rows と混同せず、docs-side inventory として固定する。
+- current export surface の human-readable projection を manifest-backed に寄せる。
 - current symbols を次の4種に分けて読む。
   - `mainline substrate`
   - `runtime-facade`
   - `compat-only`
   - `adapter-default consumer`
-- future manifest generation の入力を 1 枚に寄せる。
+- future manifest generation / review の入力を 1 枚に寄せる。
 
 ## Reading Rule
 
-- この文書は symbol inventory の正本だよ。
+- この文書は human-readable projection だよ。
+- editable source は [`abi-export-manifest-v0.toml`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-manifest-v0.toml)。
 - [`abi_adapter_registry.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/abi_adapter_registry.hako) は runtime-side consumer であって、manifest の正本ではない。
 - `args` / `ret` は V0 では最小読みで固定する。
   - `handle_owned`
@@ -105,9 +108,15 @@ Related:
 | --- | --- | --- | --- | --- | --- | --- |
 | `len` | `nyash.string.len_h` | `handle_owned` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/exports/string.rs` | canonical StringBox observer |
 
+## Plugin Dispatch Compat
+
+| symbol | status | source | notes |
+| --- | --- | --- | --- |
+| `nyash.plugin.invoke_by_name_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/invoke/by_name.rs` | module-string dispatch / bootstrap compat; outside manifest-backed adapter rows |
+
 ## Adapter Defaults (Consumer Rows)
 
-[`AbiAdapterRegistryBox`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/abi_adapter_registry.hako) の defaults は distinct export rows ではなく、current symbol inventory を消費する adapter rows として読む。
+[`AbiAdapterRegistryBox`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/abi_adapter_registry.hako) の defaults は distinct export rows ではなく、manifest-backed projection の adapter rows として読む。
 
 | box_type | method | symbol | status | notes |
 | --- | --- | --- | --- | --- |

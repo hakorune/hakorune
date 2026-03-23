@@ -8,6 +8,8 @@ Related:
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/abi-export-inventory.md
+  - docs/development/current/main/design/abi-export-manifest-v0.toml
+  - lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako
   - docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md
   - crates/nyash_kernel/src/plugin/value_codec/borrowed_handle.rs
   - crates/nyash_kernel/src/plugin/value_codec/mod.rs
@@ -181,7 +183,11 @@ current hand-written exports are allowed only as inventory input.
 ### V2. Freeze manifest schema
 
 - row shape above becomes the only truth
-- `AbiAdapterRegistryBox` defaults become generated from the manifest later
+- current adapter-default slice is materialized in
+  `docs/development/current/main/design/abi-export-manifest-v0.toml`
+- `AbiAdapterRegistryBox` defaults are generated from that manifest slice
+  - generated Hako defaults live in
+    `lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako`
 
 ### V3. Generate compatibility shims
 

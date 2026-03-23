@@ -1,0 +1,215 @@
+# ABI Export Manifest (V0)
+# Source of truth for adapter-default rows consumed by AbiAdapterRegistryBox.
+# Generated Hako defaults:
+#   lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako
+# via tools/abi_manifest_codegen.py
+
+manifest_version = "0"
+
+[[rows]]
+box_type = "MapBox"
+method = "birth"
+symbol = "nyash.map.birth_h"
+args = []
+ret = "handle_owned"
+arg_ownership = "borrowed"
+ret_ownership = "owned"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "MapBox"
+method = "set"
+symbol = "nyash.map.slot_store_hhh"
+args = ["handle_owned", "handle_owned", "handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "MapBox"
+method = "get"
+symbol = "nyash.map.slot_load_hh"
+args = ["handle_owned", "handle_owned"]
+ret = "handle_owned"
+arg_ownership = "borrowed"
+ret_ownership = "owned"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "integer"
+
+[[rows]]
+box_type = "MapBox"
+method = "has"
+symbol = "nyash.map.probe_hh"
+args = ["handle_owned", "handle_owned"]
+ret = "imm_bool"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "MapBox"
+method = "size"
+symbol = "nyash.map.entry_count_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "MapBox"
+method = "len"
+symbol = "nyash.map.entry_count_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "ArrayBox"
+method = "birth"
+symbol = "nyash.array.birth_h"
+args = []
+ret = "handle_owned"
+arg_ownership = "borrowed"
+ret_ownership = "owned"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "ArrayBox"
+method = "push"
+symbol = "nyash.array.slot_append_hh"
+args = ["handle_owned", "handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "ArrayBox"
+method = "len"
+symbol = "nyash.array.slot_len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "ArrayBox"
+method = "length"
+symbol = "nyash.array.slot_len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "ArrayBox"
+method = "size"
+symbol = "nyash.array.slot_len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "ArrayBox"
+method = "get"
+symbol = "nyash.array.slot_load_hi"
+args = ["handle_owned", "imm_i64"]
+ret = "handle_owned"
+arg_ownership = "borrowed"
+ret_ownership = "owned"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "ArrayBox"
+method = "set"
+symbol = "nyash.array.set_hih"
+args = ["handle_owned", "imm_i64", "handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "StringBox"
+method = "len"
+symbol = "nyash.string.len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "StringBox"
+method = "length"
+symbol = "nyash.string.len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "StringBox"
+method = "size"
+symbol = "nyash.string.len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
