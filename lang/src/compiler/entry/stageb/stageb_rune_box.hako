@@ -115,22 +115,34 @@ static box StageBRuneBox {
 
   method _collect_immediate_rune_lines(body, decl_start) {
     local s = "" + body
+    if decl_start <= 0 { return "" }
     local cursor = decl_start - 1
+    local allow_trailing_empty = 1
     local out = ""
     loop(cursor >= 0) {
-      local line_end = cursor + 1
-      local line_start = cursor
-      loop(line_start > 0 && s.substring(line_start - 1, line_start) != "\n") {
-        line_start = line_start - 1
+      local prefix = s.substring(0, cursor + 1)
+      local nl = StringHelpers.last_index_of(prefix, "\n")
+      local line_start = 0
+      if nl >= 0 {
+        line_start = nl + 1
       }
-      local line = s.substring(line_start, line_end)
+      local line = s.substring(line_start, cursor + 1)
       local trimmed = FuncScannerBox._trim(line)
-      if trimmed == "" { break }
+      if trimmed == "" {
+        if allow_trailing_empty == 1 {
+          allow_trailing_empty = 0
+          cursor = cursor - 1
+          continue
+        }
+        break
+      }
+      allow_trailing_empty = 0
       if StringHelpers.starts_with(trimmed, 0, "@rune") != 1 { break }
       out = trimmed + "\n" + out
-      cursor = line_start - 1
-      if cursor >= 0 && s.substring(cursor, cursor + 1) == "\n" {
-        cursor = cursor - 1
+      if line_start <= 0 {
+        cursor = -1
+      } else {
+        cursor = line_start - 2
       }
     }
     return out

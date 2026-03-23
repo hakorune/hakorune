@@ -2,6 +2,7 @@
 // Responsibility: build defs JSON and convert usings to imports.
 
 using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.entry.stageb.stageb_rune_box as StageBRuneBox
 
 static box StageBJsonBuilderBox {
@@ -34,7 +35,7 @@ static box StageBJsonBuilderBox {
       local mparams = def.get("params")
       local mbody = "" + def.get("body_json")
       local mbox = "" + def.get("box")
-      local runes_json = "" + def.get("runes_json")
+      local runes_json = me._map_s_or_empty(def, "runes_json")
       // JSON v0 bridge expects FuncDef.body to be Program(JSON v0), not Block.
       local wrapped_body = "{\"version\":0,\"kind\":\"Program\",\"body\":" + mbody + "}"
       // Build params array JSON
@@ -64,7 +65,7 @@ static box StageBJsonBuilderBox {
       loop(mi < mn) {
         local def = defs.get(mi)
         if def != null {
-          local existing = "" + def.get("runes_json")
+          local existing = me._map_s_or_empty(def, "runes_json")
           if existing == null || existing == "" || existing == "[]" {
             local runes_json = StageBRuneBox.extract_method_runes_json_from_source(
               source_text,
@@ -104,6 +105,23 @@ static box StageBJsonBuilderBox {
     }
     params_arr = params_arr + "]"
     return params_arr
+  }
+
+  method _map_s_or_empty(map, key) {
+    if map == null { return "" }
+    local value = BoxHelpers.map_get(map, key)
+    if value == null { return "" }
+    local text = "" + value
+    if me._is_map_missing_sentinel(text) == 1 { return "" }
+    return text
+  }
+
+  method _is_map_missing_sentinel(value) {
+    if value == null { return 0 }
+    local text = "" + value
+    if StringHelpers.starts_with(text, 0, "[map/missing]") == 1 { return 1 }
+    if StringHelpers.starts_with(text, 0, "Key not found: ") == 1 { return 1 }
+    return 0
   }
 
   // Convert UsingCollector array to imports object
