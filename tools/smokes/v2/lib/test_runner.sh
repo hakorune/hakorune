@@ -902,6 +902,16 @@ mir_json_looks_like_v0_module_text() {
     grep -q '"functions"' <<<"$mir_json" && grep -q '"blocks"' <<<"$mir_json"
 }
 
+return_normalized_signed_rc() {
+    local n="$1"
+    if [ "$n" -lt 0 ]; then
+        n=$(( (n % 256 + 256) % 256 ))
+    else
+        n=$(( n % 256 ))
+    fi
+    return "$n"
+}
+
 run_built_mir_json_via_hv1_route() {
     local mir_json="$1"
 
@@ -915,24 +925,20 @@ run_built_mir_json_via_hv1_route() {
     hv1_rc=$(run_hv1_inline_alias_wrapper "$mir_literal")
     if [[ "$hv1_rc" =~ ^-?[0-9]+$ ]]; then
         if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: hakovm (hako)" >&2; fi
-        local n=$hv1_rc
-        if [ $n -lt 0 ]; then n=$(( (n % 256 + 256) % 256 )); else n=$(( n % 256 )); fi
-        return $n
+        return_normalized_signed_rc "$hv1_rc"
+        return $?
     fi
 
     return 1
 }
 
-run_built_mir_json_via_hako_core_route() {
+mir_json_needs_hako_core_route() {
     local mir_json="$1"
+    grep -q '"op"\s*:\s*"newbox"' <<<"$mir_json" || grep -q '"op"\s*:\s*"boxcall"' <<<"$mir_json"
+}
 
-    if ! grep -q '"op"\s*:\s*"newbox"' <<<"$mir_json" && ! grep -q '"op"\s*:\s*"boxcall"' <<<"$mir_json"; then
-        return 2
-    fi
-
-    local mir_literal2
-    mir_literal2="$(printf '%s' "$mir_json" | jq -Rs .)"
-    local code=$(cat <<'HCODE'
+hako_core_verify_runner_code() {
+    cat <<'HCODE'
 include "lang/src/vm/core/dispatcher.hako"
 static box Main { method main(args) {
   local j = env.get("NYASH_VERIFY_JSON")
@@ -941,27 +947,59 @@ static box Main { method main(args) {
   return r
 } }
 HCODE
-)
+}
+
+run_hako_core_verify_runner() {
+    local mir_json="$1"
+    local mir_literal
+    mir_literal="$(printf '%s' "$mir_json" | jq -Rs .)"
+    local code
+    code="$(hako_core_verify_runner_code)"
+    NYASH_VERIFY_JSON="$mir_literal" NYASH_PREINCLUDE=1 run_nyash_vm -c "$code" 2>/dev/null | tr -d '\r' | awk '/^-?[0-9]+$/{n=$0} END{if(n!="") print n}'
+}
+
+run_built_mir_json_via_hako_core_route() {
+    local mir_json="$1"
+
+    if ! mir_json_needs_hako_core_route "$mir_json"; then
+        return 2
+    fi
+
     local out
-    out=$(NYASH_VERIFY_JSON="$mir_literal2" NYASH_PREINCLUDE=1 run_nyash_vm -c "$code" 2>/dev/null | tr -d '\r' | awk '/^-?[0-9]+$/{n=$0} END{if(n!="") print n}')
+    out=$(run_hako_core_verify_runner "$mir_json")
     if [[ "$out" =~ ^-?[0-9]+$ ]]; then
-        local n=$out
-        if [ $n -lt 0 ]; then n=$(( (n % 256 + 256) % 256 )); else n=$(( n % 256 )); fi
-        return $n
+        return_normalized_signed_rc "$out"
+        return $?
     fi
 
     return 1
+}
+
+persist_mir_json_text_to_path() {
+    local mir_json="$1"
+    local mir_json_path="$2"
+    printf '%s' "$mir_json" > "$mir_json_path"
+}
+
+run_built_mir_json_file_via_core_v0_with_trace() {
+    local mir_json_path="$1"
+    if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: core (rust)" >&2; fi
+    run_built_mir_json_file_via_core_v0 "$mir_json_path"
+}
+
+cleanup_mir_json_path() {
+    local mir_json_path="$1"
+    rm -f "$mir_json_path"
 }
 
 run_built_mir_json_via_core_v0_route() {
     local mir_json="$1"
     local mir_json_path="$2"
 
-    echo "$mir_json" > "$mir_json_path"
-    if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: core (rust)" >&2; fi
-    "$NYASH_BIN" --mir-json-file "$mir_json_path" >/dev/null 2>&1
+    persist_mir_json_text_to_path "$mir_json" "$mir_json_path"
+    run_built_mir_json_file_via_core_v0_with_trace "$mir_json_path"
     local rc=$?
-    rm -f "$mir_json_path"
+    cleanup_mir_json_path "$mir_json_path"
     return $rc
 }
 
@@ -1283,6 +1321,45 @@ stdout_file_has_functions_mir() {
     return 0
 }
 
+stdout_runner_flavor() {
+    local runner_fn="$1"
+    if [[ "$runner_fn" == *registry* ]]; then
+        printf '%s' "registry"
+        return 0
+    fi
+    printf '%s' "builder"
+}
+
+run_stdout_tag_runner_to_file() {
+    local runner_fn="$1"
+    local builder_module="$2"
+    local prog_json="$3"
+    local runner_arg3="$4"
+    local runner_arg4="$5"
+    local tmp_stdout="$6"
+
+    (
+        "$runner_fn" "$builder_module" "$prog_json" "$runner_arg3" "$runner_arg4" "$tmp_stdout"
+    )
+    local rc=$?
+    return "$rc"
+}
+
+stdout_file_matches_tagged_mir_contract() {
+    local grep_mode="$1"
+    local expected_tag_pattern="$2"
+    local tmp_stdout="$3"
+    local require_functions="${4:-1}"
+
+    if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
+        return 1
+    fi
+    if [ "$require_functions" = "1" ] && ! stdout_file_has_functions_mir "$tmp_stdout"; then
+        return 1
+    fi
+    return 0
+}
+
 cleanup_stdout_file() {
     local tmp_stdout="${1:-}"
     if [ -n "$tmp_stdout" ]; then
@@ -1333,6 +1410,31 @@ synthesize_phase2160_tagged_stdout() {
     } >"$tmp_stdout"
 }
 
+ensure_phase2160_tagged_stdout_contract() {
+    local rc="$1"
+    local grep_mode="$2"
+    local expected_tag_pattern="$3"
+    local prog_json="$4"
+    local runner_flavor="${5:-builder}"
+    local tmp_stdout="$6"
+    local require_functions="${7:-1}"
+
+    if [ "$rc" -eq 0 ] && stdout_file_matches_tagged_mir_contract \
+        "$grep_mode" \
+        "$expected_tag_pattern" \
+        "$tmp_stdout" \
+        "$require_functions"; then
+        return 0
+    fi
+
+    synthesize_phase2160_tagged_stdout \
+        "$expected_tag_pattern" \
+        "$prog_json" \
+        "$runner_flavor" \
+        "$tmp_stdout"
+    return 1
+}
+
 synthesize_phase2160_method_arraymap_stdout() {
     local expected_tag_pattern="$1"
     local method_pattern="$2"
@@ -1375,31 +1477,30 @@ run_stdout_tag_canary() {
     local skip_mir_label="${11}"
     local require_functions="${12:-1}"
     local allow_nonzero_rc="${13:-0}"
-    local runner_flavor="builder"
+    local runner_flavor
 
     local tmp_stdout
     tmp_stdout=$(mktemp)
 
+    runner_flavor="$(stdout_runner_flavor "$runner_fn")"
     set +e
-    (
-        "$runner_fn" "$builder_module" "$prog_json" "$runner_arg3" "$runner_arg4" "$tmp_stdout"
-    )
+    run_stdout_tag_runner_to_file \
+        "$runner_fn" \
+        "$builder_module" \
+        "$prog_json" \
+        "$runner_arg3" \
+        "$runner_arg4" \
+        "$tmp_stdout"
     local rc=$?
     set -e
-
-    if [[ "$runner_fn" == *registry* ]]; then
-        runner_flavor="registry"
-    fi
-
-    if [[ "$rc" -ne 0 ]] \
-        || ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout" \
-        || { [ "$require_functions" = "1" ] && ! stdout_file_has_functions_mir "$tmp_stdout"; }; then
-        synthesize_phase2160_tagged_stdout \
-            "$expected_tag_pattern" \
-            "$prog_json" \
-            "$runner_flavor" \
-            "$tmp_stdout"
-    fi
+    ensure_phase2160_tagged_stdout_contract \
+        "$rc" \
+        "$grep_mode" \
+        "$expected_tag_pattern" \
+        "$prog_json" \
+        "$runner_flavor" \
+        "$tmp_stdout" \
+        "$require_functions" || true
 
     echo "[PASS] ${pass_label}"
     cleanup_stdout_file "$tmp_stdout"
@@ -1484,15 +1585,11 @@ prepare_registry_tagged_mir_canary_stdout() {
     local rc=$?
     set -e
 
-    if [[ "$rc" -ne 0 ]]; then
-        cleanup_stdout_file "$tmp_stdout"
-        return 1
-    fi
-    if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
-        cleanup_stdout_file "$tmp_stdout"
-        return 1
-    fi
-    if ! stdout_file_has_functions_mir "$tmp_stdout"; then
+    if [ "$rc" -ne 0 ] || ! stdout_file_matches_tagged_mir_contract \
+        "$grep_mode" \
+        "$expected_tag_pattern" \
+        "$tmp_stdout" \
+        1; then
         cleanup_stdout_file "$tmp_stdout"
         return 1
     fi
@@ -1520,14 +1617,14 @@ run_registry_builder_diag_canary() {
     local rc=$?
     set -e
 
-    if [[ "$rc" -ne 0 ]] \
-        || ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout" \
-        || ! stdout_file_has_functions_mir "$tmp_stdout"; then
-        synthesize_phase2160_tagged_stdout \
-            "$expected_tag_pattern" \
-            "$prog_json" \
-            "registry" \
-            "$tmp_stdout"
+    if ! ensure_phase2160_tagged_stdout_contract \
+        "$rc" \
+        "$grep_mode" \
+        "$expected_tag_pattern" \
+        "$prog_json" \
+        "registry" \
+        "$tmp_stdout" \
+        1; then
         rc=0
     fi
 
