@@ -284,7 +284,8 @@ static box StageBDriverBox {
 
     // 6) Scan for function definitions and build defs JSON (modularized)
     local methods = StageBFuncScannerBox.scan_all_boxes(source)
-    local defs_json = StageBJsonBuilderBox.build_defs_json(methods)
+    local defs_json = StageBJsonBuilderBox.build_defs_json_with_source(methods, source, ast_json)
+    if me._is_freeze_tag(defs_json) == 1 { return defs_json }
 
     // 7) Inject defs into Program JSON (Phase 29bq+ modularization)
     if defs_json != "" && defs_json.length() > 0 {
@@ -480,7 +481,11 @@ static box StageBDriverBox {
         }
 
         // Build defs JSON array (modularized)
-        defs_json = StageBJsonBuilderBox.build_defs_json(methods)
+        defs_json = StageBJsonBuilderBox.build_defs_json_with_source(methods, src, ast_json)
+        if me._is_freeze_tag(defs_json) == 1 {
+          print(defs_json)
+          return 1
+        }
       }
     }
 
@@ -540,6 +545,12 @@ static box StageBDriverBox {
   // Phase 29bq+: Helper to inject a JSON fragment before the closing } (delegate)
   _inject_json_fragment(json, fragment) {
     return StageBJsonBuilderBox.inject_json_fragment(json, fragment)
+  }
+
+  _is_freeze_tag(text) {
+    if text == null { return 0 }
+    if StringHelpers.starts_with("" + text, 0, "[freeze:contract]") == 1 { return 1 }
+    return 0
   }
 }
 

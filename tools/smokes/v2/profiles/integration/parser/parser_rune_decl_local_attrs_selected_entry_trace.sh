@@ -1,0 +1,269 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source "$(dirname "$0")/../../../lib/test_runner.sh"
+
+BIN="${NYASH_BIN:-$NYASH_ROOT/target/release/hakorune}"
+if [ ! -x "$BIN" ]; then
+  BIN="$NYASH_ROOT/target/release/nyash"
+fi
+NY_LLVM_C="$NYASH_ROOT/target/release/ny-llvmc"
+FFI_LIB="$NYASH_ROOT/target/release/libhako_llvmc_ffi.so"
+
+if [ ! -x "$BIN" ]; then
+  log_error "nyash/hakorune binary not found: $BIN"
+  exit 2
+fi
+
+FEATURES="${PARSER_RUNE_FEATURES:-stage3,rune}"
+
+TMPDIR="$(mktemp -d /tmp/parser_rune_decl_local_attrs.XXXXXX)"
+cleanup() {
+  rm -rf "$TMPDIR"
+}
+trap cleanup EXIT
+
+SRC="$TMPDIR/rune_decl_local_attrs.hako"
+AST_LOG="$TMPDIR/ast_json.log"
+AST_JSON="$TMPDIR/ast.json"
+MIR_JSON="$TMPDIR/mir.json"
+MIR_JSON_MUT="$TMPDIR/mir_mut.json"
+MIR_LOG="$TMPDIR/mir_json.log"
+BUILD_LOG="$TMPDIR/hakorune_build.log"
+TRACE_LOG="$TMPDIR/ny_llvmc_trace.log"
+OUT_OBJ="$TMPDIR/out.o"
+
+cat >"$SRC" <<'HK'
+@rune Public
+static box Main {
+  helper() {
+    return 0
+  }
+
+  @rune Symbol("main_sym")
+  @rune CallConv("c")
+  main() {
+    return 0
+  }
+}
+HK
+
+if ! cargo build --release -q --bin hakorune >"$BUILD_LOG" 2>&1; then
+  log_error "hakorune release build failed"
+  tail -n 120 "$BUILD_LOG" >&2 || true
+  exit 1
+fi
+
+if ! NYASH_FEATURES="$FEATURES" \
+  "$BIN" --emit-ast-json "$AST_JSON" "$SRC" \
+  >"$AST_LOG" 2>&1; then
+  log_error "selfhost AST JSON emit failed"
+  tail -n 120 "$AST_LOG" >&2 || true
+  exit 1
+fi
+
+if [ ! -s "$AST_JSON" ]; then
+  log_error "selfhost AST JSON missing output"
+  tail -n 120 "$AST_LOG" >&2 || true
+  exit 1
+fi
+
+python3 - "$AST_JSON" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+def walk(node):
+    if isinstance(node, dict):
+        yield node
+        for value in node.values():
+            yield from walk(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from walk(item)
+
+box = None
+for node in walk(data):
+    if node.get("kind") == "BoxDeclaration" and node.get("name") == "Main":
+        box = node
+        break
+if not isinstance(box, dict):
+    print("missing BoxDeclaration(Main)", file=sys.stderr)
+    sys.exit(1)
+
+attrs = box.get("attrs") if isinstance(box, dict) else None
+runes = attrs.get("runes") if isinstance(attrs, dict) else None
+if not isinstance(runes, list):
+    print("box declaration missing attrs.runes", file=sys.stderr)
+    sys.exit(1)
+
+names = [entry.get("name") for entry in runes if isinstance(entry, dict)]
+if names != ["Public"]:
+    print(f"unexpected box rune names: {names}", file=sys.stderr)
+    sys.exit(1)
+
+methods = {}
+for entry in box.get("methods", []):
+    if isinstance(entry, dict):
+        key = entry.get("key")
+        decl = entry.get("decl")
+        if isinstance(key, str) and isinstance(decl, dict):
+            methods[key] = decl
+
+main_decl = methods.get("main")
+helper_decl = methods.get("helper")
+if not isinstance(main_decl, dict):
+    print("missing main declaration in AST JSON", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(helper_decl, dict):
+    print("missing helper declaration in AST JSON", file=sys.stderr)
+    sys.exit(1)
+
+main_attrs = main_decl.get("attrs") if isinstance(main_decl, dict) else None
+main_runes = main_attrs.get("runes") if isinstance(main_attrs, dict) else None
+if not isinstance(main_runes, list):
+    print("main declaration missing attrs.runes", file=sys.stderr)
+    sys.exit(1)
+
+main_names = [entry.get("name") for entry in main_runes if isinstance(entry, dict)]
+if main_names != ["Symbol", "CallConv"]:
+    print(f"unexpected main rune names: {main_names}", file=sys.stderr)
+    sys.exit(1)
+
+main_args0 = main_runes[0].get("args") if isinstance(main_runes[0], dict) else None
+main_args1 = main_runes[1].get("args") if isinstance(main_runes[1], dict) else None
+if main_args0 != ["main_sym"] or main_args1 != ["c"]:
+    print("unexpected main rune args on declaration-local attrs", file=sys.stderr)
+    sys.exit(1)
+
+helper_attrs = helper_decl.get("attrs") if isinstance(helper_decl, dict) else None
+helper_runes = helper_attrs.get("runes") if isinstance(helper_attrs, dict) else None
+if helper_runes != []:
+    print(f"expected helper attrs.runes to be empty, got: {helper_runes}", file=sys.stderr)
+    sys.exit(1)
+PY
+
+if ! NYASH_FEATURES="$FEATURES" \
+  "$BIN" --emit-mir-json "$MIR_JSON" "$SRC" \
+  >"$MIR_LOG" 2>&1; then
+  log_error "selfhost MIR JSON emit failed"
+  tail -n 120 "$MIR_LOG" >&2 || true
+  exit 1
+fi
+
+if [ ! -s "$MIR_JSON" ]; then
+  log_error "selfhost MIR JSON missing output"
+  tail -n 120 "$MIR_LOG" >&2 || true
+  exit 1
+fi
+
+python3 - "$MIR_JSON" "$MIR_JSON_MUT" <<'PY'
+import json
+import sys
+
+src, dst = sys.argv[1:3]
+with open(src, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+functions = data.get("functions")
+if not isinstance(functions, list) or len(functions) < 2:
+    print("missing MIR functions", file=sys.stderr)
+    sys.exit(1)
+
+helper = None
+main = None
+for fn in functions:
+    if isinstance(fn, dict) and fn.get("name") == "main":
+        main = fn
+
+if not isinstance(main, dict):
+    print("missing MIR main function", file=sys.stderr)
+    sys.exit(1)
+
+main_attrs = main.get("attrs") if isinstance(main, dict) else None
+main_runes = main_attrs.get("runes") if isinstance(main_attrs, dict) else None
+if not isinstance(main_runes, list):
+    print("main function missing attrs.runes", file=sys.stderr)
+    sys.exit(1)
+
+names = [entry.get("name") for entry in main_runes if isinstance(entry, dict)]
+if names != ["Symbol", "CallConv"]:
+    print(f"unexpected MIR rune names: {names}", file=sys.stderr)
+    sys.exit(1)
+
+main_args0 = main_runes[0].get("args") if isinstance(main_runes[0], dict) else None
+main_args1 = main_runes[1].get("args") if isinstance(main_runes[1], dict) else None
+if main_args0 != ["main_sym"] or main_args1 != ["c"]:
+    print("unexpected MIR rune args on main attrs", file=sys.stderr)
+    sys.exit(1)
+
+helper_entry = {
+    "name": "helper",
+    "params": [],
+    "attrs": {
+        "runes": [
+            {"name": "Symbol", "args": ["helper_sym"]},
+            {"name": "CallConv", "args": ["fastcc"]},
+        ]
+    },
+    "blocks": [
+        {
+            "id": 0,
+            "instructions": [
+                {"op": "const", "dst": 1, "value": {"type": "i64", "value": 0}},
+                {"op": "ret", "value": 1},
+            ],
+        }
+    ],
+}
+functions.insert(0, helper_entry)
+
+main["attrs"] = {
+    "runes": [
+        {"name": "Symbol", "args": ["main_sym"]},
+        {"name": "CallConv", "args": ["c"]},
+    ]
+}
+
+with open(dst, "w", encoding="utf-8") as f:
+    json.dump(data, f, separators=(",", ":"))
+PY
+
+bash "$NYASH_ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
+cargo build --release -q -p nyash-llvm-compiler --bin ny-llvmc >/dev/null
+
+if [ ! -x "$NY_LLVM_C" ]; then
+  log_error "ny-llvmc binary not found: $NY_LLVM_C"
+  exit 2
+fi
+if [ ! -f "$FFI_LIB" ]; then
+  log_error "hako_llvmc ffi lib not found: $FFI_LIB"
+  exit 2
+fi
+
+NYASH_RUNE_TRACE=1 \
+  "$NY_LLVM_C" --in "$MIR_JSON_MUT" --emit obj --out "$OUT_OBJ" \
+  >"$TRACE_LOG" 2>&1
+
+if [ ! -f "$OUT_OBJ" ]; then
+  log_error "ny-llvmc did not produce object"
+  tail -n 120 "$TRACE_LOG" >&2 || true
+  exit 1
+fi
+
+if ! grep -Fq '[rune/entry] selected attrs Symbol(main_sym) CallConv(c)' "$TRACE_LOG"; then
+  log_error "ny-llvmc trace did not report selected main rune attrs"
+  tail -n 120 "$TRACE_LOG" >&2 || true
+  exit 1
+fi
+
+if grep -Fq 'helper_sym' "$TRACE_LOG"; then
+  log_error "ny-llvmc trace should not read helper entry attrs"
+  tail -n 120 "$TRACE_LOG" >&2 || true
+  exit 1
+fi
+
+log_success "parser_rune_decl_local_attrs_selected_entry_trace"

@@ -6,6 +6,7 @@ using lang.compiler.entry.bundle_resolver as BundleResolver
 using lang.compiler.entry.body_extraction_box as BodyExtractionBox
 using lang.compiler.entry.func_scanner as FuncScannerBox
 using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
+using sh_core as StringHelpers
 
 static box BuildBox {
   // Return: Program(JSON v0) string or tagged error
@@ -264,6 +265,7 @@ static box BuildBox {
 
   method _emit_program_json_from_scan_src(scan_src) {
     local ast_json = me._parse_program_json_from_scan_src(scan_src)
+    if me._is_freeze_tag(ast_json) == 1 { return ast_json }
     return me._inject_stageb_fragments_json(ast_json, scan_src)
   }
 
@@ -274,13 +276,15 @@ static box BuildBox {
 
   method _inject_stageb_fragments_json(ast_json, scan_src) {
     local enriched = me._inject_defs_json(ast_json, scan_src)
+    if me._is_freeze_tag(enriched) == 1 { return enriched }
     return me._inject_imports_json(enriched, scan_src)
   }
 
   method _inject_defs_json(ast_json, scan_src) {
     if me._defs_scan_enabled() != 1 { return ast_json }
 
-    local defs_json = me._build_defs_fragment_json(scan_src)
+    local defs_json = me._build_defs_fragment_json(scan_src, ast_json)
+    if me._is_freeze_tag(defs_json) == 1 { return defs_json }
     return me._inject_defs_fragment_if_present(ast_json, defs_json)
   }
 
@@ -295,12 +299,12 @@ static box BuildBox {
     return StageBJsonBuilderBox.inject_json_fragment(ast_json, defs_json)
   }
 
-  method _build_defs_fragment_json(scan_src) {
+  method _build_defs_fragment_json(scan_src, ast_json) {
     // defs は parser に渡した merged source と同じ境界で収集する。
     // 元の src だけを見ると using/prefix helper boxes が defs に載らず、
     // bridge-first Stage2 build で helper symbol closure が崩れる。
     local methods = FuncScannerBox.scan_all_boxes(scan_src)
-    return StageBJsonBuilderBox.build_defs_json(methods)
+    return StageBJsonBuilderBox.build_defs_json_with_source(methods, scan_src, ast_json)
   }
 
   method _inject_imports_json(ast_json, scan_src) {
@@ -320,6 +324,12 @@ static box BuildBox {
   method _inject_imports_fragment_if_present(ast_json, imports_frag) {
     if imports_frag == "" || imports_frag.length() <= 0 { return ast_json }
     return StageBJsonBuilderBox.inject_json_fragment(ast_json, imports_frag)
+  }
+
+  method _is_freeze_tag(text) {
+    if text == null { return 0 }
+    if StringHelpers.starts_with("" + text, 0, "[freeze:contract]") == 1 { return 1 }
+    return 0
   }
 
   method _resolve_parse_src(scan_src) {

@@ -90,4 +90,50 @@ static box Main {
         assert!(mir_json.contains("\"functions\""));
         assert!(!mir_json.is_empty());
     }
+
+    #[test]
+    fn env_mirbuilder_emit_keeps_rune_attrs_on_selected_entry() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let src = r#"
+@rune Public
+static box Main {
+  @rune Symbol("main_sym")
+  @rune CallConv("c")
+  main() {
+    return 0
+  }
+}
+"#;
+        let prev = std::env::var("NYASH_FEATURES").ok();
+        std::env::set_var("NYASH_FEATURES", "rune");
+
+        let result = (|| {
+            let ast = NyashParser::parse_from_string(src).expect("parse");
+            let ast_json = crate::r#macro::ast_json::ast_to_json_roundtrip(&ast).to_string();
+            emit_program_json_to_mir_json_with_env_imports(&ast_json).expect("mir json from ast")
+        })();
+
+        match prev {
+            Some(value) => std::env::set_var("NYASH_FEATURES", value),
+            None => std::env::remove_var("NYASH_FEATURES"),
+        }
+
+        let value: serde_json::Value =
+            serde_json::from_str(&result).expect("mir json must parse");
+        let functions = value["functions"]
+            .as_array()
+            .expect("functions array");
+        let main_fn = functions
+            .iter()
+            .find(|function| function["name"] == "main")
+            .expect("selected entry function named main");
+        let runes = main_fn["attrs"]["runes"]
+            .as_array()
+            .expect("attrs.runes array");
+        assert_eq!(runes.len(), 2);
+        assert_eq!(runes[0]["name"], "Symbol");
+        assert_eq!(runes[0]["args"], serde_json::json!(["main_sym"]));
+        assert_eq!(runes[1]["name"], "CallConv");
+        assert_eq!(runes[1]["args"], serde_json::json!(["c"]));
+    }
 }

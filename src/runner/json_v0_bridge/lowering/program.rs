@@ -1,10 +1,28 @@
 use super::{lower_stmt_list_with_vars, BridgeEnv, FunctionDefBuilder, LoopContext};
+use crate::ast::RuneAttr;
 use crate::mir::Callee;
 use crate::mir::{
     BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
     MirModule, MirType, ValueId,
 };
 use std::collections::BTreeMap;
+
+pub(super) fn rune_attrs_from_json_v0(
+    attrs: &super::super::ast::FuncAttrsV0,
+) -> Vec<RuneAttr> {
+    attrs
+        .runes
+        .iter()
+        .map(|rune| RuneAttr {
+            name: rune.name.clone(),
+            args: rune.args.clone(),
+        })
+        .collect()
+}
+
+pub(super) fn is_stageb_entry_def(func_def: &super::super::ast::FuncDefV0) -> bool {
+    func_def.box_name == "Main" && func_def.name == "main"
+}
 
 pub(super) fn lower_defs_into_module(
     module: &mut MirModule,
@@ -16,6 +34,9 @@ pub(super) fn lower_defs_into_module(
     // Toggle: HAKO_STAGEB_FUNC_SCAN=1 + HAKO_MIR_BUILDER_FUNCS=1
     let mut func_map: BTreeMap<String, String> = BTreeMap::new();
     for func_def in defs {
+        if is_stageb_entry_def(&func_def) {
+            continue;
+        }
         // Phase 25.1p: FunctionDefBuilder で SSOT 化
         let builder = FunctionDefBuilder::new(func_def.clone());
 
@@ -33,6 +54,7 @@ pub(super) fn lower_defs_into_module(
         let sig = builder.build_signature();
         let entry = BasicBlockId::new(0);
         let mut func = MirFunction::new(sig, entry);
+        func.metadata.runes = rune_attrs_from_json_v0(&func_def.attrs);
 
         // Build variable map from the function's reserved parameter ValueIds (SSOT)
         let param_ids = func.params.clone();

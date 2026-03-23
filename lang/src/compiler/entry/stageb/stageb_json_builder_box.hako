@@ -2,6 +2,7 @@
 // Responsibility: build defs JSON and convert usings to imports.
 
 using selfhost.shared.common.string_helpers as StringHelpers
+using lang.compiler.entry.stageb.stageb_rune_box as StageBRuneBox
 
 static box StageBJsonBuilderBox {
   // Build defs JSON array from FuncScannerBox results
@@ -33,16 +34,60 @@ static box StageBJsonBuilderBox {
       local mparams = def.get("params")
       local mbody = "" + def.get("body_json")
       local mbox = "" + def.get("box")
+      local runes_json = "" + def.get("runes_json")
       // JSON v0 bridge expects FuncDef.body to be Program(JSON v0), not Block.
       local wrapped_body = "{\"version\":0,\"kind\":\"Program\",\"body\":" + mbody + "}"
       // Build params array JSON
       local params_arr = me._build_params_json(mparams)
+      local attrs_frag = ""
+      if runes_json != null && runes_json != "" && runes_json != "[]" {
+        attrs_frag = ",\"attrs\":{\"runes\":" + runes_json + "}"
+      }
       if mi > 0 { defs_json = defs_json + "," }
-      defs_json = defs_json + "{\"name\":\"" + mname + "\",\"params\":" + params_arr + ",\"body\":" + wrapped_body + ",\"box\":\"" + mbox + "\"}"
+      defs_json = defs_json + "{\"name\":\"" + mname + "\",\"params\":" + params_arr + ",\"body\":" + wrapped_body + ",\"box\":\"" + mbox + "\"" + attrs_frag + "}"
       mi = mi + 1
     }
     defs_json = defs_json + "]"
     return defs_json
+  }
+
+  // Build defs JSON with source-backed Rune augmentation.
+  // - helper defs get declaration-local attrs.runes from source rescans
+  // - entry `Main.main` gets a synthetic def only when Rune attrs are present
+  method build_defs_json_with_source(methods, source_text, entry_program_json) {
+    local defs = methods
+    if defs == null { defs = new ArrayBox() }
+
+    if source_text != null && source_text != "" {
+      local mi = 0
+      local mn = defs.length()
+      loop(mi < mn) {
+        local def = defs.get(mi)
+        if def != null {
+          local existing = "" + def.get("runes_json")
+          if existing == null || existing == "" || existing == "[]" {
+            local runes_json = StageBRuneBox.extract_method_runes_json_from_source(
+              source_text,
+              def.get("box"),
+              def.get("name")
+            )
+            if StageBRuneBox.is_freeze_tag(runes_json) == 1 { return runes_json }
+            if runes_json != null && runes_json != "" && runes_json != "[]" {
+              def.set("runes_json", runes_json)
+            }
+          }
+        }
+        mi = mi + 1
+      }
+
+      local entry_def = StageBRuneBox.build_entry_def_or_null(source_text, entry_program_json)
+      if entry_def != null {
+        if StageBRuneBox.is_freeze_tag(entry_def) == 1 { return entry_def }
+        defs.push(entry_def)
+      }
+    }
+
+    return me.build_defs_json(defs)
   }
 
   // Helper: build params JSON array

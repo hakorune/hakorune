@@ -6,6 +6,8 @@ pub(super) struct ProgramV0 {
     pub(super) kind: String,
     pub(super) body: Vec<StmtV0>,
     #[serde(default)]
+    pub(super) attrs: ProgramAttrsV0,
+    #[serde(default)]
     pub(super) defs: Vec<FuncDefV0>,
     /// Phase 29bq: using alias mappings (alias -> module path)
     /// e.g., {"FuncScannerBox": "lang.compiler.entry.func_scanner.FuncScannerBox"}
@@ -13,13 +15,34 @@ pub(super) struct ProgramV0 {
     pub(super) imports: std::collections::BTreeMap<String, String>,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub(super) struct ProgramAttrsV0 {
+    #[serde(default)]
+    pub(super) runes: Vec<RuneAttrV0>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub(super) struct RuneAttrV0 {
+    pub(super) name: String,
+    #[serde(default)]
+    pub(super) args: Vec<String>,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub(super) struct FuncDefV0 {
     pub(super) name: String,
     pub(super) params: Vec<String>,
     pub(super) body: ProgramV0,
+    #[serde(default)]
+    pub(super) attrs: FuncAttrsV0,
     #[serde(rename = "box")]
     pub(super) box_name: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
+pub(super) struct FuncAttrsV0 {
+    #[serde(default)]
+    pub(super) runes: Vec<RuneAttrV0>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

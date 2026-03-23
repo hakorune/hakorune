@@ -183,6 +183,11 @@ pub(super) fn lower_program(
     }
     let mut module = MirModule::new("ny_json_v0".into());
     program::lower_main_body(&mut module, &prog.body, &env)?;
+    if let Some(entry_def) = prog.defs.iter().find(|def| program::is_stageb_entry_def(def)) {
+        if let Some(main_fn) = module.functions.get_mut("main") {
+            main_fn.metadata.runes = program::rune_attrs_from_json_v0(&entry_def.attrs);
+        }
+    }
     let func_map = program::lower_defs_into_module(&mut module, prog.defs, &env)?;
     program::maybe_resolve_calls(&mut module, &func_map);
 

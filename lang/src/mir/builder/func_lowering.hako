@@ -60,6 +60,14 @@ static box FuncLoweringBox {
       // Extract box name using helper
       local box_name = DefsScannerBox.extract_box_name(defs_str, name_end)
 
+      // Synthetic entry carrier keep:
+      // - `Main.main` may appear in defs only to carry declaration-local attrs.
+      // - Root Program.body remains the authority for entry lowering on the selfhost lane.
+      if box_name == "Main" && func_name == "main" {
+        pos = name_end
+        continue
+      }
+
       // Register function in map for Call resolution
       func_map.set(func_name, box_name + "." + func_name)
 
