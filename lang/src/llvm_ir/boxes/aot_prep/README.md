@@ -18,10 +18,11 @@
   - current landed raw retarget set:
     - `ArrayBox.get -> nyash.array.slot_load_hi`
     - `ArrayBox.push -> nyash.array.slot_append_hh`
+    - `ArrayBox.set -> nyash.array.set_hih`
     - `MapBox.get/set/has -> nyash.map.slot_load_* / slot_store_* / probe_*`
     - `MapBox.len/length/size -> nyash.map.entry_count_h`
-  - intentional gap in this slice:
-    - `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
+  - legacy compat note:
+    - `nyash.array.set_h` remains compat-only
   - Map キー戦略は `NYASH_AOT_MAP_KEY_MODE={h|i64|hh|auto}`（既定: `h`/`i64`）
   - **型確定強化（NEW!）**:
     - **Backpropagation Pass**（`tmap_backprop`）: コールサイトからの型シグナル逆伝播
