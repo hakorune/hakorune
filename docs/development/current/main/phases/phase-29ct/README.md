@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted (stop-line reached)
 Decision: provisional
 Date: 2026-03-23
 Scope: collection owner stop-line の次として、`.hako` kernel を capability ladder 経由で deeper substrate へ進めるための final shape と implementation order を固定する。
@@ -190,7 +190,7 @@ Related:
     - [`lang/src/runtime/substrate/atomic/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/atomic/README.md)
     - [`lang/src/runtime/substrate/tls/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/tls/README.md)
     - [`lang/src/runtime/substrate/gc/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/gc/README.md)
-  - next active slice is `C6 final metal split detail lock`
+  - `C6 final metal split detail lock` landed
 
 - `I1 capability stubs + RawArray probe path` landed
   - `MemCoreBox` now exists as the first live `hako.mem` bridge
@@ -300,6 +300,12 @@ Related:
     - `crates/nyash_kernel/src/plugin/map_substrate.rs`
 
 ## Stop-Line
+
+- `phase-29ct` docs/task lane has reached its stop-line.
+- `C5 Hakozuna portability layer` remains ladder-only and deferred.
+- no new widening slice is active in this lane without an explicit reopen.
+
+## Guard Rails
 
 - do not reopen wide perf exploration before `docs/task lock` and `ABI/value manifest lock` land
 - do not push allocator/TLS/queue policy into `.hako` before `hako.mem` / `hako.ptr` / minimum verifier exist

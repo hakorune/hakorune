@@ -21,9 +21,9 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
-- `phase-29ct` substrate capability ladder docs/taskization is active
+- `phase-29ct` substrate capability ladder docs/taskization reached stop-line
 - `phase-29cm` collection owner cutover is done-enough stop line
-- `phase-21_5` raw substrate perf reopen is parked until capability ladder + ABI/value manifest lock land
+- `phase-21_5` raw substrate perf reopen remains parked; reopen it only when explicitly resuming the perf lane
 - `phase-29cs` kernel / plugin naming cleanup is parked
 - Rust kernel export surface split is landed
   - current docs exact leaf:
@@ -339,7 +339,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-21_5`: raw substrate perf = parked behind capability ladder docs/task lock
 - `phase-29cr`: repo physical cleanup lane = stop-line reached
 - `phase-29cs`: kernel / plugin naming cleanup = parked
-- `phase-29ct`: substrate capability ladder = active docs/task lane
+- `phase-29ct`: substrate capability ladder = stop-line reached (docs-only)
 
 ## P5 / P6 / Perf / Capability Stop-Line
 

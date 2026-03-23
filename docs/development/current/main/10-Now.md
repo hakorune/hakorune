@@ -85,7 +85,7 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
 - Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
 - Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
-- Repo cleanup lane: `phase-29cs` parked（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` finished the kernel/plugin naming cleanup batch; active next is `phase-21_5` raw substrate perf reopen after the collection owner stop line）
+- Repo cleanup lane: `phase-29cs` parked（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` finished the kernel/plugin naming cleanup batch; next parked follow-up is `phase-21_5` raw substrate perf reopen）
 - Kernel capability latest13: `RawArrayCoreBox -> BufCoreBox -> PtrCoreBox` now covers `ArrayCoreBox.len/push` and reserve/grow substrate verbs; `mem`/`buf` are now live minimal facades
 - Kernel capability latest14: `BoundsCoreBox.ensure_index_i64` is live; `RawArrayCoreBox.get/set` now gate through `BoundsCoreBox -> PtrCoreBox` before raw pointer access
 - Kernel capability latest15: Rust kernel export surface is split into thin `array.rs` / `map.rs` facades over `array_compat.rs` / `array_runtime_facade.rs` / `array_substrate.rs` and `map_compat.rs` / `map_substrate.rs`
@@ -99,7 +99,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest23: `GcCoreBox.write_barrier_i64(handle_or_ptr)` is now the first live `hako.gc` row under `runtime/substrate/gc/`
 - Kernel capability latest24: `stage2-selfhost-and-hako-alloc-ssot.md` now fixes `stage0/stage1/stage2/stage3` as the stage axis and `hako_core / hako_alloc / hako_std` as the final library layering
 - Kernel capability latest25: `TlsCoreBox.last_error_text_h()` and `AtomicCoreBox.fence_i64()` are now the first live helper-shaped `hako.tls` / `hako.atomic` rows
-- Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
+- Kernel capability latest26: `phase-29ct` has reached its stop-line; `C5 Hakozuna portability layer` remains deferred and no new widening slice is active in that lane
+- Kernel capability lane: `phase-29ct` stop-line reached（substrate capability ladder / ABI-value manifest / final metal split は landed、`C5` は deferred）
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
 - Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`
 - Kernel capability latest3: `V2 metal helper contract lock` landed; `handle_cache.rs` is fixed as native metal helper, not ABI/value owner
