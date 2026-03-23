@@ -1,7 +1,29 @@
 using selfhost.vm.entry_s0 as MiniVmS0EntryBox
+
+static box DriverPayloadBox {
+  resolve_from_env() {
+    local raw = env.get("NYASH_VERIFY_JSON")
+    if raw == null || raw == "" { return null }
+    local text = "" + raw
+    if text.length() >= 6 && text.substring(0, 6) == "@file:" {
+      return me._read_payload_file(text.substring(6, text.length()))
+    }
+    return text
+  }
+
+  _read_payload_file(path) {
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 { return null }
+    local content = fb.read()
+    fb.close()
+    return content
+  }
+}
+
 static box Main {
   main(args) {
-    local j = env.get("NYASH_VERIFY_JSON")
+    local j = DriverPayloadBox.resolve_from_env()
     if j == null || j == "" {
       print("[vm-hako/contract][missing-json]")
       return 1

@@ -16,9 +16,11 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
         ));
     }
 
+    let (payload_env, payload_path) = prepare_payload_transport(filename, payload_json)?;
+
     let exe = std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("hakorune"));
-    let status = Command::new(&exe)
-        .arg("--backend")
+    let mut cmd = Command::new(&exe);
+    cmd.arg("--backend")
         .arg("vm")
         .arg(&driver_path)
         // VM route cutover default is vm-hako on strict/dev.
@@ -28,7 +30,7 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
         .env("HAKO_JOINIR_STRICT", "0")
         .env("NYASH_JOINIR_STRICT", "0")
         .env("HAKO_JOINIR_PLANNER_REQUIRED", "0")
-        .env("NYASH_VERIFY_JSON", payload_json)
+        .env("NYASH_VERIFY_JSON", payload_env)
         .env("NYASH_PREINCLUDE", "1")
         .env("NYASH_USING_AST", "1")
         .env("NYASH_RESOLVE_FIX_BRACES", "1")
@@ -41,12 +43,41 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
         .env("NYASH_DISABLE_NY_COMPILER", "1")
         .env("HAKO_DISABLE_NY_COMPILER", "1")
         .env("NYASH_USE_NY_COMPILER", "0")
-        .env("HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM", "0")
-        .status();
+        .env("HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM", "0");
+    let status = cmd.status();
     let _ = std::fs::remove_file(&driver_path);
+    if let Some(path) = payload_path {
+        let _ = std::fs::remove_file(path);
+    }
 
     match status {
         Ok(st) => Ok(st.code().unwrap_or(1)),
         Err(e) => Err(("spawn-error", format!("file={} message={}", filename, e))),
     }
+}
+
+fn prepare_payload_transport(
+    filename: &str,
+    payload_json: &str,
+) -> Result<(String, Option<std::path::PathBuf>), VmHakoErr> {
+    const INLINE_PAYLOAD_LIMIT: usize = 16 * 1024;
+    if payload_json.len() <= INLINE_PAYLOAD_LIMIT {
+        return Ok((payload_json.to_string(), None));
+    }
+
+    let payload_path = std::env::temp_dir().join(format!(
+        "vm_hako_{}_payload_{}.json",
+        VM_HAKO_PHASE,
+        temp_seed()
+    ));
+    if let Err(e) = std::fs::write(&payload_path, payload_json) {
+        return Err((
+            "driver-write-error",
+            format!("file={} message={}", filename, e),
+        ));
+    }
+    Ok((
+        format!("@file:{}", payload_path.to_string_lossy()),
+        Some(payload_path),
+    ))
 }
