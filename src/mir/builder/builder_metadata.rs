@@ -59,4 +59,10 @@ impl MirBuilder {
         f.metadata.source_file = self.current_source_file();
         f
     }
+
+    pub(super) fn set_current_function_runes(&mut self, attrs: &crate::ast::DeclarationAttrs) {
+        if let Some(function) = self.scope_ctx.current_function.as_mut() {
+            function.metadata.runes = attrs.runes.clone();
+        }
+    }
 }

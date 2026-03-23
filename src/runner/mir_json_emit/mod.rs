@@ -82,12 +82,21 @@ fn build_mir_json_root(module: &crate::mir::MirModule) -> Result<serde_json::Val
                 (k.as_u32().to_string(), type_str)
             }).collect::<serde_json::Map<String, serde_json::Value>>()
         });
+        let attrs_json = json!({
+            "runes": f
+                .metadata
+                .runes
+                .iter()
+                .map(|rune| json!({"name": rune.name, "args": rune.args}))
+                .collect::<Vec<_>>()
+        });
 
         funs.push(json!({
             "name": name,
             "params": params,
             "blocks": blocks,
-            "metadata": metadata_json
+            "metadata": metadata_json,
+            "attrs": attrs_json
         }));
     }
 
@@ -194,6 +203,7 @@ fn write_mir_json_root(path: &std::path::Path, root: &serde_json::Value) -> Resu
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::RuneAttr;
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
 
     fn make_function(name: &str, is_entry_point: bool) -> MirFunction {
@@ -266,5 +276,32 @@ mod tests {
         assert_eq!(ordered[0], "main");
         assert_eq!(ordered[1], "Main.equals/1");
         assert_eq!(ordered[2], "condition_fn");
+    }
+
+    #[test]
+    fn build_mir_json_root_emits_function_runes_as_attrs() {
+        let mut module = MirModule::new("test".to_string());
+        let mut function = make_function("main", true);
+        function.metadata.runes = vec![
+            RuneAttr {
+                name: "Symbol".to_string(),
+                args: vec!["main_sym".to_string()],
+            },
+            RuneAttr {
+                name: "CallConv".to_string(),
+                args: vec!["c".to_string()],
+            },
+        ];
+        module.functions.insert("main".to_string(), function);
+
+        let root = build_mir_json_root(&module).expect("mir json root");
+        let runes = root["functions"][0]["attrs"]["runes"]
+            .as_array()
+            .expect("attrs.runes array");
+        assert_eq!(runes.len(), 2);
+        assert_eq!(runes[0]["name"], "Symbol");
+        assert_eq!(runes[0]["args"], serde_json::json!(["main_sym"]));
+        assert_eq!(runes[1]["name"], "CallConv");
+        assert_eq!(runes[1]["args"], serde_json::json!(["c"]));
     }
 }

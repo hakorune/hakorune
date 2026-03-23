@@ -156,8 +156,12 @@ impl super::MirBuilder {
 
                                         // Lower all static methods into standalone functions: BoxName.method/Arity
                                         for (mname, mast) in methods.iter() {
-                                            if let N::FunctionDeclaration { params, body, .. } =
-                                                mast
+                                            if let N::FunctionDeclaration {
+                                                params,
+                                                body,
+                                                attrs,
+                                                ..
+                                            } = mast
                                             {
                                                 let func_name = format!(
                                                     "{}.{}{}",
@@ -169,6 +173,7 @@ impl super::MirBuilder {
                                                     func_name,
                                                     params.clone(),
                                                     body.clone(),
+                                                    attrs.clone(),
                                                 )?;
                                                 self.comp_ctx
                                                     .static_method_index
@@ -196,7 +201,13 @@ impl super::MirBuilder {
                                 weak_fields.clone(),
                             )?;
                             for (ctor_key, ctor_ast) in constructors.iter() {
-                                if let N::FunctionDeclaration { params, body, .. } = ctor_ast {
+                                if let N::FunctionDeclaration {
+                                    params,
+                                    body,
+                                    attrs,
+                                    ..
+                                } = ctor_ast
+                                {
                                     // Keep constructor function name as "Box.birth/N" where ctor_key already encodes arity.
                                     // ctor_key format comes from parser as "birth/<arity>".
                                     let func_name = format!("{}.{}", name, ctor_key);
@@ -205,6 +216,7 @@ impl super::MirBuilder {
                                         name.clone(),
                                         params.clone(),
                                         body.clone(),
+                                        attrs.clone(),
                                     )?;
                                 }
                             }
@@ -213,6 +225,7 @@ impl super::MirBuilder {
                                     params,
                                     body,
                                     is_static,
+                                    attrs,
                                     ..
                                 } = mast
                                 {
@@ -228,6 +241,7 @@ impl super::MirBuilder {
                                             name.clone(),
                                             params.clone(),
                                             body.clone(),
+                                            attrs.clone(),
                                         )?;
                                     }
                                 }

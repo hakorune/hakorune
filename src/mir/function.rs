@@ -76,6 +76,9 @@ pub struct FunctionMetadata {
 
     /// Optional per-value origin caller map (diagnostic only)
     pub value_origin_callers: std::collections::BTreeMap<ValueId, String>,
+
+    /// Declaration-local Rune attrs carried from AST/direct MIR routes.
+    pub runes: Vec<crate::ast::RuneAttr>,
 }
 
 impl MirFunction {

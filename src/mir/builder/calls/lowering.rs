@@ -255,6 +255,7 @@ impl MirBuilder {
         func_name: String,
         params: Vec<String>,
         body: Vec<ASTNode>,
+        attrs: crate::ast::DeclarationAttrs,
     ) -> Result<(), String> {
         // Phase 200-C: Store fn_body for capture analysis
         if crate::config::env::joinir_dev::debug_enabled() {
@@ -290,6 +291,7 @@ impl MirBuilder {
         // Step 2: 関数スケルトン作成 (skeleton_builder へ委譲)
         // ========================================
         self.create_function_skeleton(func_name, &params, &body, &mut ctx)?;
+        self.set_current_function_runes(&attrs);
 
         // ========================================
         // Step 3: パラメータ設定 (parameter_setup へ委譲)
@@ -340,6 +342,7 @@ impl MirBuilder {
         box_name: String,
         params: Vec<String>,
         body: Vec<ASTNode>,
+        attrs: crate::ast::DeclarationAttrs,
     ) -> Result<(), String> {
         let params = normalize_instance_method_params(&func_name, params);
         if crate::config::env::joinir_dev::debug_enabled() {
@@ -377,6 +380,7 @@ impl MirBuilder {
         // Step 2b: メソッドスケルトン作成 (skeleton_builder へ委譲)
         // ========================================
         self.create_method_skeleton(func_name, &box_name, &params, &body, &mut ctx)?;
+        self.set_current_function_runes(&attrs);
 
         // ========================================
         // Step 3b: パラメータ設定 (parameter_setup へ委譲 - me + params)

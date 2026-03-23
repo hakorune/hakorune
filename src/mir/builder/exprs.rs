@@ -251,7 +251,10 @@ impl super::MirBuilder {
                         let saved_comp_ctx = self.comp_ctx.compilation_context.take();
                         self.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
                         for (method_name, method_ast) in methods.clone() {
-                            if let ASTNode::FunctionDeclaration { params, body, .. } = method_ast {
+                            if let ASTNode::FunctionDeclaration {
+                                params, body, attrs, ..
+                            } = method_ast
+                            {
                                 let func_name = format!(
                                     "{}.{}{}",
                                     name,
@@ -262,6 +265,7 @@ impl super::MirBuilder {
                                     func_name,
                                     params.clone(),
                                     body.clone(),
+                                    attrs.clone(),
                                 )?;
                                 // Index static method for fallback resolution of bare calls
                                 self.comp_ctx
@@ -290,13 +294,17 @@ impl super::MirBuilder {
                         weak_fields.clone(),
                     )?;
                     for (ctor_key, ctor_ast) in constructors.clone() {
-                        if let ASTNode::FunctionDeclaration { params, body, .. } = ctor_ast {
+                        if let ASTNode::FunctionDeclaration {
+                            params, body, attrs, ..
+                        } = ctor_ast
+                        {
                             let func_name = format!("{}.{}", name, ctor_key);
                             self.lower_method_as_function(
                                 func_name,
                                 name.clone(),
                                 params.clone(),
                                 body.clone(),
+                                attrs.clone(),
                             )?;
                         }
                     }
@@ -305,6 +313,7 @@ impl super::MirBuilder {
                             params,
                             body,
                             is_static,
+                            attrs,
                             ..
                         } = method_ast
                         {
@@ -320,6 +329,7 @@ impl super::MirBuilder {
                                     name.clone(),
                                     params.clone(),
                                     body.clone(),
+                                    attrs.clone(),
                                 )?;
                             }
                         }

@@ -18,11 +18,19 @@ impl super::MirBuilder {
             if mname == "main" {
                 continue;
             }
-            if let ASTNode::FunctionDeclaration { params, body, .. } = mast {
+            if let ASTNode::FunctionDeclaration {
+                params, body, attrs, ..
+            } = mast
+            {
                 // NamingBox 経由で static メソッド名を一元管理する
                 let func_name =
                     crate::mir::naming::encode_static_method(&box_name, mname, params.len());
-                self.lower_static_method_as_function(func_name, params.clone(), body.clone())?;
+                self.lower_static_method_as_function(
+                    func_name,
+                    params.clone(),
+                    body.clone(),
+                    attrs.clone(),
+                )?;
             }
         }
         // Within this lowering, treat `me` receiver as this static box
@@ -30,7 +38,10 @@ impl super::MirBuilder {
         self.comp_ctx.current_static_box = Some(box_name.clone());
         // Look for the main() method
         let out = if let Some(main_method) = methods.get("main") {
-            if let ASTNode::FunctionDeclaration { params, body, .. } = main_method {
+            if let ASTNode::FunctionDeclaration {
+                params, body, attrs, ..
+            } = main_method
+            {
                 // Optional: materialize a callable function entry "BoxName.main/N" for harness/PyVM.
                 // This static entryは通常の VM 実行では使用されず、過去の Hotfix 4 絡みの loop/control-flow
                 // バグの温床になっていたため、Phase 25.1m では明示トグルが立っている場合だけ生成する。
@@ -58,6 +69,7 @@ impl super::MirBuilder {
                         func_name,
                         params.clone(),
                         body.clone(),
+                        attrs.clone(),
                     );
                     trace.stderr_if(
                         "[DEBUG] build_static_main_box: After lower_static_method_as_function",
@@ -143,6 +155,7 @@ impl super::MirBuilder {
                     ));
                 }
                 self.comp_ctx.fn_body_ast = Some(body.clone());
+                self.set_current_function_runes(attrs);
 
                 // Lower statements in order to preserve def→use
                 let lowered = self.cf_block(body.clone());
