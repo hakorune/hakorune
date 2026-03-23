@@ -57,10 +57,10 @@ Related:
 - `build_stage1.sh` now has an explicit `stage1-cli bridge-first` path when `NYASH_BIN` itself is a `stage1-cli` artifact
 - exact probe result:
   - Stage1 bridge emits Program(JSON) successfully
-  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes same-file helper defs (`defs_len=38`) across `Main` + `Stage1InputContractBox` + `Stage1ProgramAuthorityBox` + `Stage1ProgramResultValidationBox` + `Stage1SourceMirAuthorityBox` + `Stage1MirResultValidationBox` + `Stage1ProgramJsonCompatBox`
+  - for `lang/src/runner/stage1_cli_env.hako`, that Program(JSON) now materializes same-file helper defs across `Main` + `Stage1InputContractBox` + `Stage1ProgramResultValidationBox` + `Stage1ProgramJsonTextGuardBox` + `Stage1ProgramJsonMirCallerBox` + `Stage1SourceMirAuthorityBox` + `Stage1MirResultValidationBox` + `Stage1ProgramJsonCompatBox`
   - `stage1_contract_exec_mode ... emit-mir ...` now succeeds and returns MIR(JSON)
   - with `HAKO_STAGE1_MODULE_DISPATCH_TRACE=1`, `lang.mir.builder.MirBuilderBox.emit_from_program_json_v0` is hit and returns `output_bytes=213003` / `output_handle=97`
-  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON) with `user_box_decls=[Main, Stage1InputContractBox, Stage1MirResultValidationBox, Stage1ProgramAuthorityBox, Stage1ProgramJsonCompatBox, Stage1ProgramResultValidationBox, Stage1SourceMirAuthorityBox]`
+  - direct kernel/plugin proof accepts the same `stage1_cli_env.hako` Program(JSON v0) and returns MIR(JSON) with `user_box_decls=[Main, Stage1InputContractBox, Stage1MirResultValidationBox, Stage1ProgramJsonCompatBox, Stage1ProgramJsonMirCallerBox, Stage1ProgramJsonTextGuardBox, Stage1ProgramResultValidationBox, Stage1SourceMirAuthorityBox]`
   - bridge/runtime extern-like names (`env.*`, `nyash.*`) are classified as `Callee::Extern` without depending on `HAKO_MIR_BUILDER_CALL_RESOLVE`
   - clean `build_stage1.sh` bridge-first probe is now green, and the stale-artifact failure mode can be recognized by missing same-file `Stage1*` box defs rather than by route drift
 - therefore the helper/source closure bucket is closed for the reduced `stage1_cli_env.hako` proof source, and the handoff target is `phase-29ch` MIR-direct authority tightening rather than more surrogate closure work

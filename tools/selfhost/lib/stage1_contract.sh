@@ -422,7 +422,7 @@ stage1_contract_exec_mode() {
 }
 
 # Build-stage bootstrap capability SSOT.
-# Keep the bootstrap payload proof and reduced-artifact liveness check in one
+# Keep the stage0 payload proof and reduced-artifact run liveness check in one
 # shell helper so callers do not drift on the exact stage0/stage1 split.
 stage1_contract_verify_stage1_cli_bootstrap_capability() {
   local bootstrap_bin="$1"
@@ -447,7 +447,11 @@ stage1_contract_verify_stage1_cli_bootstrap_capability() {
     return 2
   fi
 
-  if ! env NYASH_USE_STAGE1_CLI=1 "$reduced_bin" >/dev/null 2>&1; then
+  if ! stage1_contract_exec_mode \
+    "$reduced_bin" \
+    "run" \
+    "$probe_source" \
+    "$probe_text" >/dev/null 2>&1; then
     return 3
   fi
 

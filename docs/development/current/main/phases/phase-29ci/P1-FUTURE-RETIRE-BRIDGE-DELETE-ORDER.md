@@ -28,8 +28,10 @@ Related:
 ### Inner bridge cluster
 
 - `src/runner/stage1_bridge/program_json_entry/mod.rs`
+- `src/runner/stage1_bridge/program_json_entry/execute.rs`
 - `src/runner/stage1_bridge/program_json_entry/request.rs`
 - `src/runner/stage1_bridge/program_json/mod.rs`
+- `src/runner/stage1_bridge/program_json/orchestrator.rs`
 - `src/runner/stage1_bridge/program_json/read_input.rs`
 - `src/runner/stage1_bridge/program_json/writeback.rs`
 
@@ -69,8 +71,9 @@ Related:
 ## Retreat Finding
 
 - `future-retire bridge` はもう `entry cluster` と `program_json cluster` の 2 つに見えているので、次の Rust-only delete slice は outer caller へ広げる必要がない
+- `program_json_entry/` はさらに `request` / `execute` / `exit` に分かれたので、request-build と request-local execution を同じ slice に戻さず、typed response handoff は `execute.rs` 側に閉じるのが安全
 - `src/runner/mod.rs` と `src/runner/emit.rs` は thin caller として十分に縮退しており、ここを先に触ると delete-order ではなく runner root reshaping になる
-- inner bridge cluster に残っているのは split debt ではなく exact contract leaf が中心で、delete-order blocker は主に `program_json/mod.rs` に集約された owner-1 helper 依存と、bridge bucket の外側に残る `.hako` / shell caller 側にある
+- inner bridge cluster に残っているのは split debt ではなく exact contract leaf が中心で、delete-order blocker は主に `program_json/orchestrator.rs` に集約された owner-1 helper 依存と、bridge bucket の外側に残る `.hako` / shell caller 側にある
 - したがって、次の reduction / delete slice は inner bridge cluster に限定し、外側の caller は `must-stay thin callers` として docs に固定したまま進める
 
 ## Immediate Next

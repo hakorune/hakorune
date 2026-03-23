@@ -245,6 +245,22 @@ exit_after_direct_emit_fallback() {
   exit 1
 }
 
+exit_after_stageb_program_json_v0_fallback() {
+  local rc="$1" out_path="$2"
+  if [ "$rc" -eq 2 ]; then
+    exit_after_direct_emit_fallback \
+      "[FAIL] Stage-B output invalid under mainline-only mode (compat fallback disabled)" \
+      "direct-emit-fallback" \
+      "[FAIL] Stage‑B output invalid and direct emit failed" \
+      "$out_path"
+  fi
+  exit_after_direct_emit_fallback \
+    "[FAIL] Stage-B failed under mainline-only mode (compat fallback disabled)" \
+    "direct-emit" \
+    "[FAIL] Stage-B and direct MIR emit both failed" \
+    "$out_path"
+}
+
 extract_loop_force_limit_from_program_json() {
   local prog_json="$1"
   printf '%s' "$prog_json" | grep -o '"type":"Int","value":[0-9]*' | head -1 | grep -o '[0-9]*$' || echo "10"
@@ -394,22 +410,9 @@ PROG_JSON_OUT="$(emit_stageb_program_json_v0)"
 rc=$?
 set -e
 
-# If Stage-B fails, skip to direct MIR emit paths (provider/legacy)
-if [ $rc -eq 1 ] || [ -z "$PROG_JSON_OUT" ]; then
-  exit_after_direct_emit_fallback \
-    "[FAIL] Stage-B failed under mainline-only mode (compat fallback disabled)" \
-    "direct-emit" \
-    "[FAIL] Stage-B and direct MIR emit both failed" \
-    "$OUT"
-fi
-
-# Invalid Program JSON - fall back to direct emit
-if [ $rc -eq 2 ]; then
-  exit_after_direct_emit_fallback \
-    "[FAIL] Stage-B output invalid under mainline-only mode (compat fallback disabled)" \
-    "direct-emit-fallback" \
-    "[FAIL] Stage‑B output invalid and direct emit failed" \
-    "$OUT"
+# If Stage-B fails or emits invalid Program JSON, fall back to direct MIR emit.
+if [ $rc -ne 0 ] || [ -z "$PROG_JSON_OUT" ]; then
+  exit_after_stageb_program_json_v0_fallback "$rc" "$OUT"
 fi
 
 # 2) Convert Program(JSON v0) → MIR(JSON)
@@ -435,9 +438,8 @@ try_selfhost_builder() {
   local builder_box="${HAKO_MIR_BUILDER_BOX:-hako.mir.builder}"
 
   local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
-  write_selfhost_builder_runner_hako "$tmp_hako" "$builder_box"
+  render_selfhost_builder_runner_hako "$tmp_hako" "$builder_box"
   local tmp_stdout; tmp_stdout=$(mktemp)
-  trap 'rm -f "${tmp_hako:-}" "${tmp_stdout:-}" || true' RETURN
 
   # Trace mode: analyze Program(JSON) before passing to builder
   if [ "${HAKO_SELFHOST_TRACE:-0}" = "1" ]; then
@@ -455,27 +457,9 @@ try_selfhost_builder() {
   fi
 
   set +e
-  # Run from repo root to ensure nyash.toml is available for using resolution
-  # Capture both stdout and stderr (2>&1) instead of discarding stderr
-  (cd "$ROOT" && \
-    HAKO_MIR_BUILDER_INTERNAL=1 HAKO_MIR_BUILDER_REGISTRY=1 \
-    HAKO_MIR_BUILDER_TRACE="${HAKO_SELFHOST_TRACE:-}" \
-    HAKO_MIR_BUILDER_LOOP_JSONFRAG="${HAKO_MIR_BUILDER_LOOP_JSONFRAG:-}" \
-    HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG="${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-}" \
-    HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE="${HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE:-}" \
-    HAKO_MIR_BUILDER_JSONFRAG_PURIFY="${HAKO_MIR_BUILDER_JSONFRAG_PURIFY:-}" \
-    HAKO_MIR_BUILDER_METHODIZE="${HAKO_MIR_BUILDER_METHODIZE:-}" \
-    HAKO_MIR_BUILDER_NORMALIZE_TAG="${HAKO_MIR_BUILDER_NORMALIZE_TAG:-}" \
-    HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-}" \
-    NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-0}" NYASH_FILEBOX_MODE="core-ro" HAKO_PROVIDER_POLICY="safe-core-first" \
-    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
-    HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
-    NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
-    NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-    NYASH_USE_NY_COMPILER=0 HAKO_USE_NY_COMPILER=0 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
-    NYASH_MACRO_DISABLE=1 HAKO_MACRO_DISABLE=1 \
-    HAKO_BUILDER_PROGRAM_JSON="$prog_json" \
-    "$NYASH_BIN" --backend vm "$tmp_hako" 2>&1 | tee "$tmp_stdout" >/dev/null)
+  # Run from repo root to ensure nyash.toml is available for using resolution.
+  # Capture both stdout and stderr (2>&1) instead of discarding stderr.
+  execute_selfhost_builder_runner "$tmp_hako" "$tmp_stdout" "$prog_json"
   local rc=$?
   set -e
 
@@ -486,6 +470,7 @@ try_selfhost_builder() {
       echo "[builder/selfhost-first:fail:detail] Last 80 lines of output:" >&2
       tail -n 80 "$tmp_stdout" >&2 || true
     fi
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
     # Don't return immediately - check for fallback below
   fi
 
@@ -495,6 +480,7 @@ try_selfhost_builder() {
       echo "[builder/selfhost-first:fail:detail] Last 80 lines of output:" >&2
       tail -n 80 "$tmp_stdout" >&2 || true
     fi
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
     rc=1
   fi
 
@@ -505,23 +491,27 @@ try_selfhost_builder() {
     fi
 
     # Retry with min builder
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
     HAKO_MIR_BUILDER_BOX="hako.mir.builder.min" try_selfhost_builder "$prog_json" "$out_path"
     return $?
   fi
 
   # Return original failure if no fallback or if fallback not triggered
   if [ $rc -ne 0 ]; then
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
     return 1
   fi
 
-  if ! persist_mir_payload_from_stdout_file "$tmp_stdout" "$out_path"; then
+  if ! capture_selfhost_builder_mir_payload "$tmp_stdout" "$out_path"; then
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
     return 1
   fi
+  cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
   echo "[OK] MIR JSON written (selfhost-first): $out_path"
   return 0
 }
 
-write_selfhost_builder_runner_hako() {
+render_selfhost_builder_runner_hako() {
   local tmp_hako="$1" builder_box="$2"
   if [ "$builder_box" = "hako.mir.builder.min" ]; then
     cat >"$tmp_hako" <<'HCODE'
@@ -563,36 +553,63 @@ HCODE
   fi
 }
 
+execute_selfhost_builder_runner() {
+  local tmp_hako="$1" tmp_stdout="$2" prog_json="$3"
+  (cd "$ROOT" && \
+    HAKO_MIR_BUILDER_INTERNAL=1 HAKO_MIR_BUILDER_REGISTRY=1 \
+    HAKO_MIR_BUILDER_TRACE="${HAKO_SELFHOST_TRACE:-}" \
+    HAKO_MIR_BUILDER_LOOP_JSONFRAG="${HAKO_MIR_BUILDER_LOOP_JSONFRAG:-}" \
+    HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG="${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-}" \
+    HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE="${HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE:-}" \
+    HAKO_MIR_BUILDER_JSONFRAG_PURIFY="${HAKO_MIR_BUILDER_JSONFRAG_PURIFY:-}" \
+    HAKO_MIR_BUILDER_METHODIZE="${HAKO_MIR_BUILDER_METHODIZE:-}" \
+    HAKO_MIR_BUILDER_NORMALIZE_TAG="${HAKO_MIR_BUILDER_NORMALIZE_TAG:-}" \
+    HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-}" \
+    NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-0}" NYASH_FILEBOX_MODE="core-ro" HAKO_PROVIDER_POLICY="safe-core-first" \
+    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
+    HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
+    NYASH_ENABLE_USING=1 HAKO_ENABLE_USING=1 \
+    NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+    NYASH_USE_NY_COMPILER=0 HAKO_USE_NY_COMPILER=0 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 \
+    NYASH_MACRO_DISABLE=1 HAKO_MACRO_DISABLE=1 \
+    HAKO_BUILDER_PROGRAM_JSON="$prog_json" \
+    "$NYASH_BIN" --backend vm "$tmp_hako" 2>&1 | tee "$tmp_stdout" >/dev/null)
+}
+
+capture_selfhost_builder_mir_payload() {
+  local tmp_stdout="$1" out_path="$2"
+  persist_mir_payload_from_stdout_file "$tmp_stdout" "$out_path"
+}
+
+cleanup_selfhost_builder_runner_temp() {
+  local tmp_hako="$1" tmp_stdout="$2"
+  rm -f "${tmp_hako:-}" "${tmp_stdout:-}" 2>/dev/null || true
+}
+
 # Provider-first delegate: call env.mirbuilder.emit(prog_json) and capture v1 JSON
 try_provider_emit() {
   local prog_json="$1" out_path="$2"
   local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
-  write_provider_emit_runner_hako "$tmp_hako"
+  render_provider_emit_runner_hako "$tmp_hako"
   local tmp_stdout; tmp_stdout=$(mktemp)
   set +e
-  (cd "$ROOT" && \
-    NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-0}" NYASH_FILEBOX_MODE="core-ro" \
-    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
-    HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
-    NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-    HAKO_BUILDER_PROGRAM_JSON="$prog_json" \
-    "$NYASH_BIN" --backend vm "$tmp_hako" 2>&1 | tee "$tmp_stdout" >/dev/null)
+  execute_provider_emit_runner "$tmp_hako" "$tmp_stdout" "$prog_json"
   local rc=$?
   set -e
   if [ $rc -ne 0 ] || ! grep -q "\[provider/emit:ok\]" "$tmp_stdout"; then
-    rm -f "$tmp_hako" "$tmp_stdout" || true
+    cleanup_provider_emit_runner_temp "$tmp_hako" "$tmp_stdout"
     return 1
   fi
-  if ! persist_mir_payload_from_stdout_file "$tmp_stdout" "$out_path"; then
-    rm -f "$tmp_hako" "$tmp_stdout" || true
+  if ! capture_provider_emit_mir_payload "$tmp_stdout" "$out_path"; then
+    cleanup_provider_emit_runner_temp "$tmp_hako" "$tmp_stdout"
     return 1
   fi
-  rm -f "$tmp_hako" "$tmp_stdout" || true
+  cleanup_provider_emit_runner_temp "$tmp_hako" "$tmp_stdout"
   echo "[OK] MIR JSON written (delegate:provider): $out_path"
   return 0
 }
 
-write_provider_emit_runner_hako() {
+render_provider_emit_runner_hako() {
   local tmp_hako="$1"
   cat >"$tmp_hako" <<'HCODE'
 static box Main { method main(args) {
@@ -607,6 +624,27 @@ static box Main { method main(args) {
   return 0
 } }
 HCODE
+}
+
+execute_provider_emit_runner() {
+  local tmp_hako="$1" tmp_stdout="$2" prog_json="$3"
+  (cd "$ROOT" && \
+    NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-0}" NYASH_FILEBOX_MODE="core-ro" \
+    NYASH_VM_HAKO_PREFER_STRICT_DEV=0 NYASH_VM_USE_FALLBACK=0 \
+    HAKO_JOINIR_STRICT="$STAGEB_JOINIR_STRICT" HAKO_JOINIR_PLANNER_REQUIRED="$STAGEB_JOINIR_PLANNER_REQUIRED" \
+    NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
+    HAKO_BUILDER_PROGRAM_JSON="$prog_json" \
+    "$NYASH_BIN" --backend vm "$tmp_hako" 2>&1 | tee "$tmp_stdout" >/dev/null)
+}
+
+capture_provider_emit_mir_payload() {
+  local tmp_stdout="$1" out_path="$2"
+  persist_mir_payload_from_stdout_file "$tmp_stdout" "$out_path"
+}
+
+cleanup_provider_emit_runner_temp() {
+  local tmp_hako="$1" tmp_stdout="$2"
+  rm -f "${tmp_hako:-}" "${tmp_stdout:-}" 2>/dev/null || true
 }
 
 try_legacy_program_json_delegate() {

@@ -3,6 +3,7 @@ Hybrid Selfhost Build (80/20)
 Purpose
 - Provide a minimal, fast path to compile Hako source via Hakorune Stage‑B to Program(JSON v0), and optionally run it via Core‑Direct (in‑proc).
 - Future: add MIR emit and ny-llvmc EXE build in small increments.
+- Stage axis note: `stage0`=bootstrap keep, `stage1`=current bootstrap artifacts / proof line, `stage2`=future distribution target, `stage3`=same-result sanity check.
 
 Script
 - tools/selfhost/run.sh
@@ -25,6 +26,7 @@ Script
   - --mir <out.json>: emit MIR(JSON) from source (runner path)
   - --exe <out>: build native executable via ny-llvmc (llvmlite harness)
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
+  - `--exe` now keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` and the Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so EXE lane cleanup stays separate from the top-level route tail.
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)
@@ -101,12 +103,13 @@ Notes
 
 ---
 
-Stage1 Selfhost Binary (Phase 25.1 — initial wiring)
+Stage1 Bootstrap Artifacts (Phase 25.1 — artifact-kind split)
 
 Purpose
-- Provide concrete selfhost artifacts built from Hako sources.
-- Separate artifact contracts to avoid route drift between `launcher-exe` and `stage1-cli`.
+- Provide concrete Stage1 bootstrap artifacts built from Hako sources.
+- Separate artifact contracts to avoid route drift between the Stage1 artifact kinds `launcher-exe` and `stage1-cli`.
 - The `stage1-cli` artifact is a runnable bootstrap output; payload proof stays on the stage0 bootstrap route.
+- In this section, `launcher-exe` / `stage1-cli` are artifact kinds for the Stage1 line, not stage numbers.
 
 Script
 - tools/selfhost/build_stage1.sh
@@ -148,8 +151,9 @@ How it works
 
 Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
-- `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact liveness, not by reduced artifact payload emission.
+- `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
+- `selfhost_build.sh` keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`, and its `--exe` lane keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` plus Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so `--exe` / `--run` / path-result routes stay owner-local instead of inline in the main tail.
 - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.
@@ -157,6 +161,7 @@ Notes
 Helper — G1 Identity Check
 - `tools/selfhost_identity_check.sh`
   - Orchestrates Stage1/Stage2 build+compare flow (argument parsing and gate flow only).
+  - In this helper, Stage1/Stage2 are compare-pair labels; Stage2 distribution packaging is a separate future SSOT.
   - `--cli-mode auto|stage0` is compatibility-only and requires `--allow-compat-route` explicit opt-in.
   - Route/emit helpers are split into:
     - `tools/selfhost/lib/identity_routes.sh`
@@ -165,6 +170,14 @@ Helper — G1 Identity Check
   - MIR canonical compare helper/test:
     - `tools/selfhost/lib/mir_canonical_compare.py`
     - `python3 -m unittest tools.selfhost.lib.tests.test_mir_canonical_compare`
+
+Helper — Stage3 Same-Result Check
+- `tools/selfhost/stage3_same_result_check.sh`
+  - Stage3 is the bootstrap same-result sanity check, not the parser/bridge `Stage3` acceptance smoke.
+  - Build lane: re-emit Program(JSON v0) and MIR(JSON v0) snapshots twice from a known-good seed, then compare the snapshots plus `.artifact_kind`.
+  - `--artifact-kind stage1-cli` is the working build lane today; `--seed-bin` can override the payload seed.
+  - `--skip-build` compares an explicit prebuilt Stage2/Stage3 pair only.
+  - Use this helper when you want to confirm bootstrap reproducibility without touching G1 Program/MIR identity comparison.
 
 Helper — Legacy Main Readiness
 - `tools/selfhost/legacy_main_readiness.sh`

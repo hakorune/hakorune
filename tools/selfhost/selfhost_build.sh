@@ -216,6 +216,14 @@ apply_emit_exe_env() {
   export NYASH_EMIT_EXE_NYRT="$nyrt_dir"
 }
 
+select_emit_exe_mir_tmp_path() {
+  if [ -n "${MIR_OUT:-}" ]; then
+    printf '%s' "$MIR_OUT"
+  else
+    printf '%s' "/tmp/hako_stageb_mir_$$.json"
+  fi
+}
+
 cleanup_emit_exe_temp_outputs() {
   local json_path="$1" mir_tmp="$2"
   if [ "$KEEP_TMP" != "1" ]; then
@@ -236,6 +244,17 @@ emit_exe_from_mir_json() {
   "$nyll" --in "$mir_path" --emit exe --nyrt "$nyrt_dir" --out "$exe_out_path"
 }
 
+emit_exe_from_program_json_v0_with_mir_tmp() {
+  local json_path="$1" exe_out_path="$2" mir_tmp="$3" nyll="$4" nyrt_dir="$5"
+  local rc=0
+  emit_mir_json_from_program_json_v0 "$json_path" "$mir_tmp" || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    emit_exe_from_mir_json "$nyll" "$mir_tmp" "$nyrt_dir" "$exe_out_path" || rc=$?
+  fi
+  cleanup_emit_exe_temp_outputs "$json_path" "$mir_tmp"
+  return $rc
+}
+
 emit_exe_from_program_json_v0() {
   local json_path="$1" exe_out_path="$2"
   local nyll
@@ -243,11 +262,9 @@ emit_exe_from_program_json_v0() {
   local nyrt_dir="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}"
   apply_emit_exe_env "$nyll" "$nyrt_dir"
 
-  local mir_tmp="${MIR_OUT:-/tmp/hako_stageb_mir_$$.json}"
-  emit_mir_json_from_program_json_v0 "$json_path" "$mir_tmp"
-  emit_exe_from_mir_json "$nyll" "$mir_tmp" "$nyrt_dir" "$exe_out_path"
-
-  cleanup_emit_exe_temp_outputs "$json_path" "$mir_tmp"
+  local mir_tmp
+  mir_tmp="$(select_emit_exe_mir_tmp_path)"
+  emit_exe_from_program_json_v0_with_mir_tmp "$json_path" "$exe_out_path" "$mir_tmp" "$nyll" "$nyrt_dir"
 }
 
 cleanup_program_json_tmp_if_needed() {
@@ -298,10 +315,8 @@ print_program_json_path_result() {
   return 0
 }
 
-dispatch_stageb_downstream_outputs() {
+dispatch_stageb_primary_output() {
   local json_path="$1"
-  announce_program_json_output_if_requested "$json_path"
-  emit_requested_mir_output_if_needed
 
   if exe_output_requested; then
     emit_requested_exe_output "$json_path"
@@ -314,6 +329,13 @@ dispatch_stageb_downstream_outputs() {
   fi
 
   print_program_json_path_result "$json_path"
+}
+
+dispatch_stageb_downstream_outputs() {
+  local json_path="$1"
+  announce_program_json_output_if_requested "$json_path"
+  emit_requested_mir_output_if_needed
+  dispatch_stageb_primary_output "$json_path"
 }
 
 while [ $# -gt 0 ]; do

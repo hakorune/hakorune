@@ -116,6 +116,50 @@ static box ProgramJsonV0ScannerBox {
     return %{"value" => s.substring(p + 1, end_quote), "next" => end_quote + 1}
   }
 
+  // read_array_field_first_in_obj(s, key, obj_start) -> %{ "value" => raw_json, "next" => idx }
+  // - Returns the first raw array value for `key` within the object.
+  read_array_field_first_in_obj(s, key, obj_start) {
+    if s == null { me._fail("input is null")  return null }
+    if key == null || ("" + key) == "" { me._fail("key is empty")  return null }
+    local p = me.seek_obj_field_value_start(s, key, obj_start)
+    if p < 0 { return null }
+    p = StringHelpers.skip_ws(s, p)
+    if me._read_char(s, p) != "[" { me._fail("array field is not bracketed: " + key)  return null }
+
+    local start = p
+    local n = s.length()
+    local i = p
+    local depth = 0
+    local in_str = 0
+    local esc = 0
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if in_str == 1 {
+        if esc == 1 {
+          esc = 0
+        } else if ch == "\\" {
+          esc = 1
+        } else if ch == "\"" {
+          in_str = 0
+        }
+      } else {
+        if ch == "\"" {
+          in_str = 1
+        } else if ch == "[" {
+          depth = depth + 1
+        } else if ch == "]" {
+          depth = depth - 1
+          if depth == 0 {
+            return %{"value" => s.substring(start, i + 1), "next" => i + 1}
+          }
+        }
+      }
+      i = i + 1
+    }
+    me._fail("unterminated array for field: " + key)
+    return null
+  }
+
   // read_string_field_last_in_obj(s, key, obj_start) -> %{ "value" => str, "next" => idx }
   // - Uses the last occurrence of `"key":"..."`
   read_string_field_last_in_obj(s, key, obj_start) {

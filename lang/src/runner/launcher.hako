@@ -15,6 +15,32 @@ using lang.mir.builder.MirBuilderBox
 using lang.compiler.build.build_box as BuildBox
 using lang.runtime.host.host_facade_box as HostFacadeBox
 
+static box LauncherProgramJsonBuildBox {
+  method emit_program_json_v0(tag, source_text) {
+    return me._emit_program_json_v0_raw(tag, source_text)
+  }
+
+  method _emit_program_json_v0_raw(tag, source_text) {
+    local prog = BuildBox.emit_program_json_v0(source_text, null)
+    if prog != null { return prog }
+    print(tag + ": BuildBox returned null")
+    return null
+  }
+}
+
+static box LauncherProgramJsonMirBox {
+  method emit_from_program_json_v0(tag, program_json_text) {
+    return me._emit_from_program_json_v0_raw(tag, program_json_text)
+  }
+
+  method _emit_from_program_json_v0_raw(tag, program_json_text) {
+    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+    if mir != null { return mir }
+    print(tag + ": MirBuilderBox returned null")
+    return null
+  }
+}
+
 static box HakoCli {
   // Entry from Main.main(args)
   method run(args){
@@ -311,10 +337,7 @@ static box HakoCli {
   }
 
   method _emit_program_json_raw(tag, source_text){
-    local prog = BuildBox.emit_program_json_v0(source_text, null)
-    if prog != null { return prog }
-    print(tag + ": BuildBox returned null")
-    return null
+    return LauncherProgramJsonBuildBox.emit_program_json_v0(tag, source_text)
   }
 
   method _coerce_program_json_output_checked(tag, prog){
@@ -367,12 +390,7 @@ static box HakoCli {
   }
 
   method _emit_mir_from_program_json_text_checked(tag, program_json_text){
-    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
-    if mir == null {
-      print(tag + ": MirBuilderBox returned null")
-      return null
-    }
-    return mir
+    return LauncherProgramJsonMirBox.emit_from_program_json_v0(tag, program_json_text)
   }
 
   method _coerce_mir_output_checked(tag, mir){

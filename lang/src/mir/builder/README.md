@@ -35,8 +35,8 @@ Interface (stable)
   - `builder_config` and `delegate_finalize` now also centralize env/program-json text coercion through owner-local `_coerce_text_compat(...)`, so route/config owners no longer repeat raw `"" + x` on their remaining compat seams
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
   - Source-entry shim only; current stage1 authority no longer depends on this route.
-  - source-entry coercion / source->Program(JSON) check / Program(JSON)->MIR handoff now stay owner-local via `_coerce_source_text_checked(...)`, `_emit_program_json_from_source_checked(...)`, and `_emit_mir_from_source_program_json_checked(...)`.
-  - direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating to `emit_from_program_json_v0(...)`.
+  - source-entry compat now lives in `MirBuilderSourceCompatBox`; `MirBuilderBox` keeps the Program(JSON) route sequencing, while the compat box owns source-entry coercion / source->Program(JSON) check / Program(JSON)->MIR handoff.
+  - direct `BuildBox.emit_program_json_v0(...)` check remains owner-local before delegating through `MirBuilderProgramJsonBuildBox.emit_program_json_v0(...)`, so the source-entry shim now has an explicit raw leaf instead of keeping the BuildBox call inline.
 
 Tags (Fail‑Fast, stable)
 - `[mirbuilder/input/null]` — input is null

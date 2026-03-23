@@ -35,6 +35,8 @@ static box ProgramJsonV0StateBox {
     // Order tracking
     state.set("order_stage", "0")
     state.set("order_last", "")
+    // Rune carrier for the selected entry function.
+    state.set("entry_runes_json", "")
     // Shape classification (computed on emit)
     state.set("shape_kind", "unknown")
     return state
@@ -47,7 +49,7 @@ static box ProgramJsonV0StateBox {
     printv, print_kind, print_var_name,
     local_name, local_init,
     assign_name, assign_rhs, assign_rhs_kind,
-    return_kind, retv, ret_var_name
+    return_kind, retv, ret_var_name, entry_runes_json
   ) {
     local state = me.create()
     state.set("err", "" + err)
@@ -68,6 +70,7 @@ static box ProgramJsonV0StateBox {
     state.set("return_kind", "" + return_kind)
     state.set("retv", "" + retv)
     state.set("ret_var_name", "" + ret_var_name)
+    state.set("entry_runes_json", "" + entry_runes_json)
     return state
   }
 
@@ -89,7 +92,8 @@ static box ProgramJsonV0StateBox {
     return_kind,
     retv,
     ret_var_name,
-    ret_box_type
+    ret_box_type,
+    entry_runes_json
   ) {
     return %{
       "has_print" => has_print,
@@ -107,6 +111,7 @@ static box ProgramJsonV0StateBox {
       "return_kind" => return_kind,
       "retv" => retv,
       "ret_var_name" => ret_var_name,
+      "entry_runes_json" => entry_runes_json,
       "ret_box_type" => ret_box_type
     }
   }
@@ -149,6 +154,7 @@ static box ProgramJsonV0StateBox {
   get_ret_var_name(state) { return state.get("ret_var_name") }
   get_order_stage(state) { return state.get("order_stage") }
   get_order_last(state) { return state.get("order_last") }
+  get_entry_runes_json(state) { return state.get("entry_runes_json") }
   get_shape_kind(state) { return state.get("shape_kind") }
 
   // Typed setters
@@ -172,6 +178,7 @@ static box ProgramJsonV0StateBox {
   set_ret_var_name(state, val) { state.set("ret_var_name", "" + val) }
   set_order_stage(state, val) { state.set("order_stage", "" + val) }
   set_order_last(state, val) { state.set("order_last", "" + val) }
+  set_entry_runes_json(state, val) { state.set("entry_runes_json", "" + val) }
   set_shape_kind(state, val) { state.set("shape_kind", "" + val) }
 
   // Check if state has error

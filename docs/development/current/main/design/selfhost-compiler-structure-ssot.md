@@ -117,7 +117,8 @@ Current note:
 Primary owner:
 - `lang/src/runner/stage1_cli_env.hako`
 - `lang/src/runner/stage1_cli_env.hako::Stage1InputContractBox` (`shared input/env contract`, same-file)
-- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramAuthorityBox` (`emit-program authority`, same-file)
+- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` (`checked Program(JSON)->MIR handoff`, same-file)
+- `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonTextGuardBox` (`Program(JSON) text guard`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramResultValidationBox` (`Program JSON validation`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1SourceMirAuthorityBox` (`source authority`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1MirResultValidationBox` (`shared MIR validation`, same-file)
@@ -126,7 +127,8 @@ Primary owner:
 Responsibility:
 - reduced bootstrap の current authority entry
 - shared env/source resolution contract を `Stage1InputContractBox` に閉じて authority/compat box から切り離す
-- emit-program authority / defs materialization を `Stage1ProgramAuthorityBox` に閉じて `Main` から切り離す
+- checked Program(JSON)->MIR handoff を `Stage1ProgramJsonMirCallerBox` に閉じて `Main` から切り離す
+- non-empty Program(JSON) text guard を `Stage1ProgramJsonTextGuardBox` に閉じて、source/compat の両方から共有する
 - materialized Program(JSON) validation を `Stage1ProgramResultValidationBox` に閉じる
 - source-only `emit-mir` authority input を `Stage1SourceMirAuthorityBox` 経由で `MirBuilderBox.emit_from_source_v0(...)` へ渡す
 - shared MIR materialization / validation / debug surface を `Stage1MirResultValidationBox` に閉じる
@@ -281,6 +283,10 @@ Do not leave plugin ownership ambiguous.
 - delegate route
 - raw/subcmd direct `stage1-cli emit ...` as authority candidate
 
+Reading note:
+- ここでいう `future retire target` は queue 済みの boundary という意味で、repo-wide hard delete 済みを意味しない。
+- `Program(JSON v0)` は current authority ではないが、caller inventory が残る間は bootstrap-only / compat quarantine として keep する。
+
 Directory rule:
 - `src/stage1/**` and `src/runner/stage1_bridge/**` are already the intended physical split.
 - Stage2 remains an artifact/proof concept in `tools/selfhost/**` and docs, not a separate Rust owner tree.
@@ -324,7 +330,7 @@ Directory rule:
 
 1. keep `stage1-env-mir-source` green as current authority
 2. thin supplied `Program(JSON)` compat surface
-3. keep `Program(JSON v0)` as bootstrap-only boundary
+3. keep `Program(JSON v0)` as bootstrap-only boundary until `phase-29ci` caller inventory reaches delete-ready
 4. finish MIR-direct bootstrap unification
 5. only then cut separate `phase-29ci` for `Program(JSON v0)` retirement
 

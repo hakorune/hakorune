@@ -25,6 +25,65 @@ using "hako.mir.builder.internal.delegate_finalize" as BuilderDelegateFinalizeBo
 using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
 using lang.mir.builder.func_lowering as FuncLoweringBox
 
+static box MirBuilderProgramJsonBuildBox {
+  method emit_program_json_v0(tag, source_text, opts) {
+    return me._emit_program_json_v0_raw(tag, source_text, opts)
+  }
+
+  method _emit_program_json_v0_raw(tag, source_text, opts) {
+    local program_json = BuildBox.emit_program_json_v0(source_text, opts)
+    if program_json == null {
+      print(tag + ": BuildBox returned null")
+      return null
+    }
+    return program_json
+  }
+}
+
+static box MirBuilderSourceCompatBox {
+  method emit_from_source_v0(source_text, opts) {
+    return me._emit_mir_from_source_checked(source_text, opts)
+  }
+
+  method _emit_mir_from_source_checked(source_text, opts) {
+    local src = me._coerce_source_text_checked(source_text)
+    if src == null { return null }
+
+    local program_json = me._emit_program_json_from_source_checked(src, opts)
+    if program_json == null { return null }
+    return me._emit_mir_from_source_program_json_checked(program_json, opts)
+  }
+
+  method _coerce_source_text_checked(source_text) {
+    if source_text == null {
+      print("[mirbuilder/input/null] source_text is null")
+      return null
+    }
+    return "" + source_text
+  }
+
+  method _emit_mir_from_source_program_json_checked(program_json, opts) {
+    return MirBuilderBox.emit_from_program_json_v0(program_json, opts)
+  }
+
+  method _emit_program_json_from_source_checked(source_text, opts) {
+    local program_json = me._emit_program_json_from_source_raw(source_text, opts)
+    if program_json == null {
+      print("[mirbuilder/input/invalid] BuildBox returned null")
+      return null
+    }
+    return program_json
+  }
+
+  method _emit_program_json_from_source_raw(source_text, opts) {
+    return MirBuilderProgramJsonBuildBox.emit_program_json_v0(
+      "[mirbuilder/input/source]",
+      source_text,
+      opts
+    )
+  }
+}
+
 static box MirBuilderBox {
   method _lower_func_defs_if_enabled(program_json) {
     if me._func_defs_toggle_on() != 1 { return "" }
@@ -153,39 +212,6 @@ static box MirBuilderBox {
   }
 
   method emit_from_source_v0(source_text, opts) {
-    return me._emit_mir_from_source_checked(source_text, opts)
-  }
-
-  method _emit_mir_from_source_checked(source_text, opts) {
-    local src = me._coerce_source_text_checked(source_text)
-    if src == null { return null }
-    local program_json = me._emit_program_json_from_source_checked(src, opts)
-    if program_json == null { return null }
-    return me._emit_mir_from_source_program_json_checked(program_json, opts)
-  }
-
-  method _coerce_source_text_checked(source_text) {
-    if source_text == null {
-      print("[mirbuilder/input/null] source_text is null")
-      return null
-    }
-    return "" + source_text
-  }
-
-  method _emit_mir_from_source_program_json_checked(program_json, opts) {
-    return me.emit_from_program_json_v0(program_json, opts)
-  }
-
-  method _emit_program_json_from_source_checked(source_text, opts) {
-    local program_json = me._emit_program_json_from_source_raw(source_text, opts)
-    if program_json == null {
-      print("[mirbuilder/input/invalid] BuildBox returned null")
-      return null
-    }
-    return program_json
-  }
-
-  method _emit_program_json_from_source_raw(source_text, opts) {
-    return BuildBox.emit_program_json_v0(source_text, opts)
+    return MirBuilderSourceCompatBox.emit_from_source_v0(source_text, opts)
   }
 }

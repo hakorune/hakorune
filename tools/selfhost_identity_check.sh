@@ -4,6 +4,8 @@
 # Purpose:
 #   Verify that Stage1 and Stage2 produce identical Program JSON v0 and MIR JSON v0
 #   for the same input, proving selfhost correctness.
+#   In this helper, Stage1/Stage2 are compare-pair labels; Stage2 distribution
+#   packaging is defined in the release/distribution SSOT, not here.
 #
 # Usage:
 #   tools/selfhost_identity_check.sh [--mode full|smoke] [--skip-build] [--build-timeout-secs <secs>] [--cli-mode auto|stage1|stage0] [--allow-compat-route] [--bin-stage1 <path>] [--bin-stage2 <path>]
@@ -22,7 +24,7 @@
 #   --allow-compat-route
 #                    Required when --cli-mode is auto/stage0 (compat-only lane)
 #   --bin-stage1     Path to prebuilt Stage1 binary (default: cli-mode依存)
-#   --bin-stage2     Path to prebuilt Stage2 binary (default: cli-mode依存)
+#   --bin-stage2     Path to prebuilt Stage2 compare binary (default: cli-mode依存)
 #
 # Note: Building Stage1/Stage2 requires ~35GB+ RAM. For environments with less memory,
 #       use --skip-build with prebuilt binaries from a larger machine.
@@ -79,7 +81,7 @@ Options:
   --allow-compat-route
                      Explicitly allow compat-only route (required for cli-mode=auto|stage0)
   --bin-stage1 <p>   Path to prebuilt Stage1 binary
-  --bin-stage2 <p>   Path to prebuilt Stage2 binary
+  --bin-stage2 <p>   Path to prebuilt Stage2 compare binary
                      default(stage1/auto): target/selfhost/hakorune.stage1_cli(.stage2)
                      default(stage0):      target/selfhost/hakorune(.stage2)
   -h, --help         Show this help
@@ -159,7 +161,7 @@ if [[ "$CLI_MODE" != "stage1" && "$ALLOW_COMPAT_ROUTE" -ne 1 ]]; then
   exit 2
 fi
 
-# Set default binary paths if not specified.
+# Set default binary paths for the compare pair if not specified.
 # stage1/auto mode defaults to stage1-cli artifacts; stage0 mode keeps launcher artifacts.
 if [[ -z "$STAGE1_BIN" ]]; then
   if [[ "$CLI_MODE" == "stage0" ]]; then

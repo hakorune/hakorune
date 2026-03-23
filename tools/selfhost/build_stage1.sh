@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# build_stage1.sh — Build Hakorune selfhost stage artifact
+# build_stage1.sh — Build Hakorune Stage1 bootstrap artifact
 #
 # Purpose
-# - Produce a selfhost executable artifact from Nyash/Hako sources.
+# - Produce Stage1 bootstrap artifacts from Nyash/Hako sources.
 # - Artifact kind is explicit (`launcher-exe` or `stage1-cli`) to avoid contract drift.
-# - This script keeps existing build wiring and makes artifact intent machine-readable.
+# - Stage2 distribution packaging is a future SSOT concern and is not implemented here.
 #
 # Output
 # - launcher-exe (default): target/selfhost/hakorune
-# - stage1-cli:            target/selfhost/hakorune.stage1_cli
+# - stage1-cli:             target/selfhost/hakorune.stage1_cli
 #
 # Env / args
 # - HAKORUNE_STAGE1_ENTRY: override Stage1 entry .hako (optional).
@@ -16,6 +16,7 @@
 # - NYASH_LLVM_SKIP_BUILD: set to 1 to skip cargo build in ny_mir_builder.sh when artifacts already exist.
 # - HAKORUNE_STAGE1_REUSE_IF_FRESH: set to 1 to reuse existing artifact when up-to-date (default: 1).
 # - HAKORUNE_STAGE1_ARTIFACT_KIND: default artifact kind override (`launcher-exe`|`stage1-cli`)
+#   (Stage1 artifact kinds only; Stage2 packaging is separate.)
 # - Args:
 #     --out <path>           : override output path (same as HAKORUNE_STAGE1_OUT).
 #     --entry <file>         : override entry .hako (same as HAKORUNE_STAGE1_ENTRY).
@@ -107,7 +108,7 @@ build_hako_llvmc_ffi() {
 
 usage() {
   cat <<'USAGE'
-build_stage1.sh — Build Hakorune selfhost stage artifact
+build_stage1.sh — Build Hakorune Stage1 bootstrap artifact
 
 Usage:
   tools/selfhost/build_stage1.sh [--artifact-kind <launcher-exe|stage1-cli>] [--out <exe_path>] [--entry <entry.hako>] [--timeout-secs <secs>] [--reuse-if-fresh <0|1>] [--force-rebuild]
@@ -120,6 +121,8 @@ Defaults:
   stage1-cli entry/out:
     entry .hako : lang/src/runner/stage1_cli_env.hako
     output exe  : target/selfhost/hakorune.stage1_cli
+  Artifact semantics:
+    launcher-exe / stage1-cli are Stage1 artifact kinds; Stage2 packaging is separate.
 
 Notes:
   - This script uses selfhost_exe_stageb helper-free emit + ny_mir_builder pipeline:
@@ -139,6 +142,29 @@ ROOT="${NYASH_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
 source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
 source "$ROOT/tools/selfhost/lib/identity_routes.sh"
 
+ARTIFACT_KIND="${HAKORUNE_STAGE1_ARTIFACT_KIND:-launcher-exe}"
+
+if [ -z "${NYASH_BIN:-}" ]; then
+  if [ "$ARTIFACT_KIND" = "stage1-cli" ]; then
+    if [ -x "$ROOT/target/selfhost/hakorune.stage1_cli.stage2" ]; then
+      NYASH_BIN="$ROOT/target/selfhost/hakorune.stage1_cli.stage2"
+    elif [ -x "$ROOT/target/selfhost/hakorune.stage1_cli.next" ]; then
+      NYASH_BIN="$ROOT/target/selfhost/hakorune.stage1_cli.next"
+    elif [ -x "$ROOT/target/release/hakorune" ]; then
+      NYASH_BIN="$ROOT/target/release/hakorune"
+    elif [ -x "$ROOT/target/release/nyash" ]; then
+      NYASH_BIN="$ROOT/target/release/nyash"
+    fi
+  elif [ -x "$ROOT/target/release/hakorune" ]; then
+    NYASH_BIN="$ROOT/target/release/hakorune"
+  elif [ -x "$ROOT/target/release/nyash" ]; then
+    NYASH_BIN="$ROOT/target/release/nyash"
+  else
+    echo "[stage1] error: NYASH_BIN not set and no bootstrap binary found under target/release" >&2
+    exit 2
+  fi
+fi
+
 read_bootstrap_artifact_kind() {
   local bin="${NYASH_BIN:-}"
   local meta
@@ -155,29 +181,57 @@ read_bootstrap_artifact_kind() {
 }
 
 build_with_stage1_cli_bootstrap() {
-  local tmp_prog tmp_mir
+  local tmp_prog_raw tmp_prog tmp_mir_raw tmp_mir
+  local source_text
+  tmp_prog_raw="$(mktemp --suffix .stage1_cli_bootstrap.program.raw.json)"
   tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
+  tmp_mir_raw="$(mktemp --suffix .stage1_cli_bootstrap.mir.raw.json)"
   tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
+  source_text="$(stage1_contract_source_text "$ENTRY")"
 
-  if ! "$NYASH_BIN" --emit-program-json-v0 "$tmp_prog" "$ENTRY" >/dev/null 2>&1; then
+  if ! stage1_contract_exec_mode \
+    "$NYASH_BIN" \
+    "emit-program" \
+    "$ENTRY" \
+    "$source_text" >"$tmp_prog_raw" 2>/dev/null; then
     echo "[stage1] stage1-cli bootstrap direct program-json route failed: $ENTRY" >&2
-    cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
+    cleanup_stage_temp_files "$tmp_prog_raw" "$tmp_prog" "$tmp_mir_raw" "$tmp_mir"
     return 1
   fi
 
-  if ! "$NYASH_BIN" --emit-mir-json "$tmp_mir" "$ENTRY" >/dev/null 2>&1; then
+  if ! extract_json_object_line_to_file "$(stage_emit_marker program-json)" "$tmp_prog_raw" "$tmp_prog"; then
+    echo "[stage1] stage1-cli bootstrap program-json payload extraction failed: $ENTRY" >&2
+    cleanup_stage_temp_files "$tmp_prog_raw" "$tmp_prog" "$tmp_mir_raw" "$tmp_mir"
+    return 1
+  fi
+
+  if ! stage1_contract_exec_mode \
+    "$NYASH_BIN" \
+    "emit-mir" \
+    "$ENTRY" \
+    "$source_text" >"$tmp_mir_raw" 2>/dev/null; then
     echo "[stage1] stage1-cli bootstrap direct mir-json route failed: $ENTRY" >&2
-    cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
+    cleanup_stage_temp_files "$tmp_prog_raw" "$tmp_prog" "$tmp_mir_raw" "$tmp_mir"
+    return 1
+  fi
+
+  if ! extract_json_object_line_to_file "$(stage_emit_marker mir-json)" "$tmp_mir_raw" "$tmp_mir"; then
+    echo "[stage1] stage1-cli bootstrap mir-json payload extraction failed: $ENTRY" >&2
+    cleanup_stage_temp_files "$tmp_prog_raw" "$tmp_prog" "$tmp_mir_raw" "$tmp_mir"
     return 1
   fi
 
   build_hako_llvmc_ffi
 
-  NYASH_LLVM_BACKEND=crate \
-  NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
-  NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
-    bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
-  cleanup_stage_temp_files "$tmp_prog" "$tmp_mir"
+  if ! NYASH_LLVM_BACKEND=crate \
+    NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+    NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+      bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null; then
+    echo "[stage1] stage1-cli bootstrap ny_mir_builder failed: $ENTRY" >&2
+    cleanup_stage_temp_files "$tmp_prog_raw" "$tmp_prog" "$tmp_mir_raw" "$tmp_mir"
+    return 1
+  fi
+  cleanup_stage_temp_files "$tmp_prog_raw" "$tmp_prog" "$tmp_mir_raw" "$tmp_mir"
 }
 
 build_with_launcher_bootstrap() {
@@ -193,10 +247,13 @@ build_with_launcher_bootstrap() {
 
   build_hako_llvmc_ffi
 
-  NYASH_LLVM_BACKEND=crate \
-  NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
-  NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
-    bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+  if ! NYASH_LLVM_BACKEND=crate \
+    NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+    NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+      bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null; then
+    echo "[stage1] launcher bootstrap ny_mir_builder failed: $ENTRY" >&2
+    return 1
+  fi
 }
 
 ENTRY_DEFAULT_LAUNCHER="$ROOT/lang/src/runner/launcher.hako"
@@ -205,7 +262,6 @@ OUT_DEFAULT_LAUNCHER="$ROOT/target/selfhost/hakorune"
 OUT_DEFAULT_STAGE1_CLI="$ROOT/target/selfhost/hakorune.stage1_cli"
 TIMEOUT_SECS_DEFAULT=900
 
-ARTIFACT_KIND="${HAKORUNE_STAGE1_ARTIFACT_KIND:-launcher-exe}"
 ENTRY="${HAKORUNE_STAGE1_ENTRY:-}"
 OUT="${HAKORUNE_STAGE1_OUT:-}"
 TIMEOUT_SECS="$TIMEOUT_SECS_DEFAULT"
@@ -300,7 +356,7 @@ FRESH_DEPS=(
   "$ROOT/crates/nyash_kernel/target/release/libnyash_kernel.a"
 )
 
-echo "[stage1] building Stage1 selfhost binary" >&2
+echo "[stage1] building Stage1 bootstrap artifact" >&2
 echo "         artifact: $ARTIFACT_KIND" >&2
 echo "         entry : $ENTRY" >&2
 echo "         output: $OUT" >&2
@@ -332,7 +388,19 @@ fi
 
 if [ "$SKIPPED_BUILD" -ne 1 ]; then
   BOOTSTRAP_KIND="$(read_bootstrap_artifact_kind)"
-  if [ "$BOOTSTRAP_KIND" = "stage1-cli" ]; then
+  if [ "$ARTIFACT_KIND" = "stage1-cli" ] && [ "$BOOTSTRAP_KIND" != "stage1-cli" ]; then
+    if [ -x "$ROOT/target/selfhost/hakorune.stage1_cli.stage2" ]; then
+      NYASH_BIN="$ROOT/target/selfhost/hakorune.stage1_cli.stage2"
+      BOOTSTRAP_KIND="stage1-cli"
+    elif [ -x "$ROOT/target/selfhost/hakorune.stage1_cli.next" ]; then
+      NYASH_BIN="$ROOT/target/selfhost/hakorune.stage1_cli.next"
+      BOOTSTRAP_KIND="stage1-cli"
+    fi
+  fi
+  # stage1-cli artifacts are a contract-specific lane; they should use the
+  # dedicated bridge-first bootstrap path even when the bootstrap binary does
+  # not carry explicit artifact metadata.
+  if [ "$ARTIFACT_KIND" = "stage1-cli" ] || [ "$BOOTSTRAP_KIND" = "stage1-cli" ]; then
     echo "         bootstrap: stage1-cli bridge-first" >&2
     if [ "$TIMEOUT_SECS" -gt 0 ]; then
       set +e
@@ -344,22 +412,36 @@ if [ "$SKIPPED_BUILD" -ne 1 ]; then
         NYASH_BIN="$4"
         source "$ROOT/tools/selfhost/lib/stage1_contract.sh"
         source "$ROOT/tools/selfhost/lib/identity_routes.sh"
+        tmp_prog_raw="$(mktemp --suffix .stage1_cli_bootstrap.program.raw.json)"
         tmp_prog="$(mktemp --suffix .stage1_cli_bootstrap.program.json)"
+        tmp_mir_raw="$(mktemp --suffix .stage1_cli_bootstrap.mir.raw.json)"
         tmp_mir="$(mktemp --suffix .stage1_cli_bootstrap.mir.json)"
-        trap '\''rm -f "$tmp_prog" "$tmp_mir" 2>/dev/null || true'\'' EXIT
-        if ! "$NYASH_BIN" --emit-program-json-v0 "$tmp_prog" "$ENTRY" >/dev/null 2>&1; then
+        trap '\''rm -f "$tmp_prog_raw" "$tmp_prog" "$tmp_mir_raw" "$tmp_mir" 2>/dev/null || true'\'' EXIT
+        source_text="$(stage1_contract_source_text "$ENTRY")"
+        if ! stage1_contract_exec_mode "$NYASH_BIN" "emit-program" "$ENTRY" "$source_text" >"$tmp_prog_raw" 2>/dev/null; then
           echo "[stage1] stage1-cli bootstrap direct program-json route failed: $ENTRY" >&2
           exit 1
         fi
-        if ! "$NYASH_BIN" --emit-mir-json "$tmp_mir" "$ENTRY" >/dev/null 2>&1; then
+        if ! extract_json_object_line_to_file "$(stage_emit_marker program-json)" "$tmp_prog_raw" "$tmp_prog"; then
+          echo "[stage1] stage1-cli bootstrap program-json payload extraction failed: $ENTRY" >&2
+          exit 1
+        fi
+        if ! stage1_contract_exec_mode "$NYASH_BIN" "emit-mir" "$ENTRY" "$source_text" >"$tmp_mir_raw" 2>/dev/null; then
           echo "[stage1] stage1-cli bootstrap direct mir-json route failed: $ENTRY" >&2
           exit 1
         fi
+        if ! extract_json_object_line_to_file "$(stage_emit_marker mir-json)" "$tmp_mir_raw" "$tmp_mir"; then
+          echo "[stage1] stage1-cli bootstrap mir-json payload extraction failed: $ENTRY" >&2
+          exit 1
+        fi
         bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
-        NYASH_LLVM_BACKEND=crate \
-        NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
-        NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
-          bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+        if ! NYASH_LLVM_BACKEND=crate \
+          NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+          NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+            bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null; then
+          echo "[stage1] stage1-cli bootstrap ny_mir_builder failed: $ENTRY" >&2
+          exit 1
+        fi
       ' bash "$ROOT" "$ENTRY" "$OUT" "$NYASH_BIN"
       RC=$?
       set -e
@@ -393,10 +475,13 @@ if [ "$SKIPPED_BUILD" -ne 1 ]; then
           exit 1
         fi
         bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
-        NYASH_LLVM_BACKEND=crate \
-        NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
-        NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
-          bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null
+        if ! NYASH_LLVM_BACKEND=crate \
+          NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+          NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+            bash "$ROOT/tools/ny_mir_builder.sh" --in "$tmp_mir" --emit exe -o "$OUT" --quiet >/dev/null; then
+          echo "[stage1] launcher bootstrap ny_mir_builder failed: $ENTRY" >&2
+          exit 1
+        fi
       ' bash "$ROOT" "$ENTRY" "$OUT" "$NYASH_BIN"
       RC=$?
       set -e
@@ -445,17 +530,19 @@ fi
 
     # The bootstrap payload proof stays on the stage0 compatibility route.
     # The reduced stage1-cli artifact itself is treated as a runnable bootstrap
-    # output and is only checked for liveness here.
-    if ! stage1_contract_verify_stage1_cli_bootstrap_capability \
+    # output and is checked with the same input-bearing contract used by G1.
+    if stage1_contract_verify_stage1_cli_bootstrap_capability \
       "$ROOT/target/release/hakorune" \
       "$PROBE_SRC" \
       "$OUT"; then
+      :
+    else
       rc=$?
       echo "[stage1] stage1-cli capability check failed" >&2
       case "$rc" in
         1) echo "         stage0 bootstrap route failed Program(JSON v0) proof" >&2 ;;
         2) echo "         stage0 bootstrap route failed MIR(JSON v0) proof" >&2 ;;
-        3) echo "         reduced artifact did not launch cleanly" >&2 ;;
+        3) echo "         reduced artifact failed runnable liveness contract" >&2 ;;
         *) echo "         bootstrap capability helper failed (rc=$rc)" >&2 ;;
       esac
       exit 2

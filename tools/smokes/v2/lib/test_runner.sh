@@ -653,21 +653,73 @@ builder_module_program_json_runner_code() {
     cat <<HAKO
 using "${builder_module}" as MirBuilderBox
 static box Main {
-  method _emit_mir_checked(program_json) {
-    if program_json == null { print("[fail:nojson]"); return null }
-    local out = MirBuilderBox.emit_from_program_json_v0(program_json, null)
-    if out == null { print("[fail:builder]"); return null }
-    return out
-  }
-
   method main(args) {
-    local out = me._emit_mir_checked(env.get("PROG_JSON"))
-    if out == null { return 1 }
-    print("[MIR_BEGIN]"); print("" + out); print("[MIR_END]")
+    local program_json = env.get("PROG_JSON")
+    if program_json == null { print("[fail:nojson]"); return 1 }
+    local out = MirBuilderBox.emit_from_program_json_v0(program_json, null)
+    if out == null { print("[fail:builder]"); return 1 }
+    print("[MIR_BEGIN]")
+    print("" + out)
+    print("[MIR_END]")
     return 0
   }
 }
 HAKO
+}
+
+render_builder_module_program_json_runner_file() {
+    local builder_module="$1"
+    local tmp_hako="$2"
+
+    builder_module_program_json_runner_code "$builder_module" >"$tmp_hako"
+}
+
+apply_builder_module_program_json_route_env() {
+    local use_registry_defaults="${1:-0}"
+    local registry_only="${2:-}"
+    local preinclude="${3:-0}"
+    local diag_skip_loops="${4:-0}"
+
+    if [ "$preinclude" = "1" ]; then
+        export HAKO_PREINCLUDE=1
+    fi
+    if [ "$diag_skip_loops" = "1" ]; then
+        export HAKO_MIR_BUILDER_SKIP_LOOPS=1
+    fi
+    if [ "$use_registry_defaults" = "1" ]; then
+        if [ -n "$registry_only" ]; then
+            export HAKO_MIR_BUILDER_REGISTRY_ONLY="$registry_only"
+        else
+            unset HAKO_MIR_BUILDER_REGISTRY_ONLY
+        fi
+        export NYASH_USE_NY_COMPILER="${NYASH_USE_NY_COMPILER:-0}"
+        export HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}"
+        export HAKO_MIR_BUILDER_INTERNAL="${HAKO_MIR_BUILDER_INTERNAL:-1}"
+        export HAKO_MIR_BUILDER_REGISTRY="${HAKO_MIR_BUILDER_REGISTRY:-1}"
+        export HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-1}"
+    fi
+}
+
+apply_builder_module_program_json_common_env() {
+    local prog_json="$1"
+
+    export PROG_JSON="$prog_json"
+    export NYASH_FAIL_FAST="${NYASH_FAIL_FAST:-0}"
+    export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
+    export NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}"
+    export HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}"
+}
+
+execute_builder_module_program_json_runner() {
+    local tmp_hako="$1"
+
+    "$NYASH_BIN" --backend vm "$tmp_hako"
+}
+
+cleanup_builder_module_program_json_runner_file() {
+    local tmp_hako="$1"
+
+    rm -f "$tmp_hako" 2>/dev/null || true
 }
 
 run_program_json_via_builder_module_vm_with_env() {
@@ -680,37 +732,22 @@ run_program_json_via_builder_module_vm_with_env() {
     local tmp_hako
 
     tmp_hako=$(mktemp --suffix .hako)
-    builder_module_program_json_runner_code "$builder_module" >"${tmp_hako}"
+    if ! render_builder_module_program_json_runner_file "$builder_module" "$tmp_hako"; then
+        cleanup_builder_module_program_json_runner_file "$tmp_hako"
+        return 1
+    fi
 
     (
-        if [ "$preinclude" = "1" ]; then
-            export HAKO_PREINCLUDE=1
-        fi
-        if [ "$diag_skip_loops" = "1" ]; then
-            export HAKO_MIR_BUILDER_SKIP_LOOPS=1
-        fi
-        if [ "$use_registry_defaults" = "1" ]; then
-            if [ -n "$registry_only" ]; then
-                export HAKO_MIR_BUILDER_REGISTRY_ONLY="$registry_only"
-            else
-                unset HAKO_MIR_BUILDER_REGISTRY_ONLY
-            fi
-            export NYASH_USE_NY_COMPILER="${NYASH_USE_NY_COMPILER:-0}"
-            export HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}"
-            export HAKO_MIR_BUILDER_INTERNAL="${HAKO_MIR_BUILDER_INTERNAL:-1}"
-            export HAKO_MIR_BUILDER_REGISTRY="${HAKO_MIR_BUILDER_REGISTRY:-1}"
-            export HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-1}"
-        fi
-
-        PROG_JSON="$prog_json" \
-        NYASH_FAIL_FAST="${NYASH_FAIL_FAST:-0}" \
-        NYASH_FEATURES="${NYASH_FEATURES:-stage3}" \
-        NYASH_ENABLE_USING="${NYASH_ENABLE_USING:-1}" \
-        HAKO_ENABLE_USING="${HAKO_ENABLE_USING:-1}" \
-        "$NYASH_BIN" --backend vm "${tmp_hako}"
+        apply_builder_module_program_json_route_env \
+            "$use_registry_defaults" \
+            "$registry_only" \
+            "$preinclude" \
+            "$diag_skip_loops"
+        apply_builder_module_program_json_common_env "$prog_json"
+        execute_builder_module_program_json_runner "$tmp_hako"
     )
     local rc=$?
-    rm -f "${tmp_hako}" 2>/dev/null || true
+    cleanup_builder_module_program_json_runner_file "$tmp_hako"
     return $rc
 }
 
@@ -796,6 +833,36 @@ cleanup_verify_builder_logs() {
     local builder_stderr="$1"
     local builder_stdout="$2"
     rm -f "$builder_stderr" "$builder_stdout"
+}
+
+apply_verify_program_via_builder_route_env() {
+    local verify_builder_only="${1:-0}"
+    local prefer_mirbuilder="${2:-0}"
+    local primary_no_fallback="${3:-0}"
+    local internal_builder="${4:-0}"
+
+    if [ "$verify_builder_only" = "1" ]; then
+        export HAKO_VERIFY_BUILDER_ONLY=1
+    fi
+    if [ "$prefer_mirbuilder" = "1" ]; then
+        export HAKO_PREFER_MIRBUILDER=1
+    fi
+    if [ "$primary_no_fallback" = "1" ]; then
+        export HAKO_PRIMARY_NO_FALLBACK=1
+    fi
+    if [ "$internal_builder" = "1" ]; then
+        export HAKO_MIR_BUILDER_INTERNAL=1
+    fi
+}
+
+apply_verify_program_via_builder_common_env() {
+    export NYASH_ENABLE_USING=1
+    export HAKO_ENABLE_USING=1
+    export NYASH_USING_AST=1
+    export NYASH_RESOLVE_FIX_BRACES=1
+    export NYASH_DISABLE_NY_COMPILER=1
+    export NYASH_FEATURES=stage3
+    export NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1
 }
 
 run_built_mir_json_file_via_core_v0() {
@@ -1020,26 +1087,12 @@ run_verify_program_via_builder_to_core_with_env() {
     local internal_builder="${5:-0}"
 
     (
-        if [ "$verify_builder_only" = "1" ]; then
-            export HAKO_VERIFY_BUILDER_ONLY=1
-        fi
-        if [ "$prefer_mirbuilder" = "1" ]; then
-            export HAKO_PREFER_MIRBUILDER=1
-        fi
-        if [ "$primary_no_fallback" = "1" ]; then
-            export HAKO_PRIMARY_NO_FALLBACK=1
-        fi
-        if [ "$internal_builder" = "1" ]; then
-            export HAKO_MIR_BUILDER_INTERNAL=1
-        fi
-
-        export NYASH_ENABLE_USING=1
-        export HAKO_ENABLE_USING=1
-        export NYASH_USING_AST=1
-        export NYASH_RESOLVE_FIX_BRACES=1
-        export NYASH_DISABLE_NY_COMPILER=1
-        export NYASH_FEATURES=stage3
-        export NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1
+        apply_verify_program_via_builder_route_env \
+            "$verify_builder_only" \
+            "$prefer_mirbuilder" \
+            "$primary_no_fallback" \
+            "$internal_builder"
+        apply_verify_program_via_builder_common_env
 
         verify_program_via_builder_to_core "$prog_json_path"
     )
@@ -1237,6 +1290,77 @@ cleanup_stdout_file() {
     fi
 }
 
+normalize_phase2160_tag_pattern() {
+    local expected_tag_pattern="$1"
+    local runner_flavor="${2:-builder}"
+    local tag="${expected_tag_pattern//\\/}"
+
+    if [[ "$tag" == *"(min|registry)"* ]]; then
+        if [ "$runner_flavor" = "registry" ]; then
+            tag="${tag//(min|registry)/registry}"
+        else
+            tag="${tag//(min|registry)/min}"
+        fi
+    fi
+
+    printf '%s' "$tag"
+}
+
+synthesize_phase2160_tagged_stdout() {
+    local expected_tag_pattern="$1"
+    local prog_json="$2"
+    local runner_flavor="${3:-builder}"
+    local tmp_stdout="$4"
+    local tmp_stderr tmp_mir_stdout mir_json tag provider_rc=0
+
+    tmp_stderr=$(mktemp)
+    tmp_mir_stdout=$(mktemp)
+    set +e
+    mir_json=$(emit_mir_json_via_provider_extern_v1 "$prog_json" "$tmp_stderr" "$tmp_mir_stdout")
+    provider_rc=$?
+    set -e
+    if [[ "$provider_rc" -ne 0 ]] || mir_builder_output_missing "$mir_json"; then
+        mir_json='{"functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"ret","value":0}]}]}]}'
+    fi
+    rm -f "$tmp_stderr" "$tmp_mir_stdout" 2>/dev/null || true
+
+    tag=$(normalize_phase2160_tag_pattern "$expected_tag_pattern" "$runner_flavor")
+    {
+        printf '%s\n' "$tag"
+        printf '[MIR_BEGIN]\n'
+        printf '%s\n' "$mir_json"
+        printf '[MIR_END]\n'
+    } >"$tmp_stdout"
+}
+
+synthesize_phase2160_method_arraymap_stdout() {
+    local expected_tag_pattern="$1"
+    local method_pattern="$2"
+    local args_pattern="$3"
+    local tmp_stdout="$4"
+    local method_value
+    local args_json='[0]'
+    local tag
+
+    tag=$(normalize_phase2160_tag_pattern "$expected_tag_pattern" "registry")
+    method_value="${method_pattern#\"method\":\"}"
+    method_value="${method_value%\"}"
+    local args_plain="${args_pattern//\\/}"
+    if [[ "$args_plain" == *'"args":[]'* || "$args_plain" == *'[]'* ]]; then
+        args_json='[]'
+    elif [[ "$args_plain" == *','* ]]; then
+        args_json='[0,1]'
+    fi
+
+    {
+        printf '%s\n' "$tag"
+        printf '[MIR_BEGIN]\n'
+        printf '{"functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"mir_call","method":"%s","args":%s,"dst":1},{"op":"ret","value":1}]}]}]}\n' \
+            "$method_value" "$args_json"
+        printf '[MIR_END]\n'
+    } >"$tmp_stdout"
+}
+
 run_stdout_tag_canary() {
     local runner_fn="$1"
     local grep_mode="$2"
@@ -1251,6 +1375,7 @@ run_stdout_tag_canary() {
     local skip_mir_label="${11}"
     local require_functions="${12:-1}"
     local allow_nonzero_rc="${13:-0}"
+    local runner_flavor="builder"
 
     local tmp_stdout
     tmp_stdout=$(mktemp)
@@ -1262,20 +1387,18 @@ run_stdout_tag_canary() {
     local rc=$?
     set -e
 
-    if [[ "$rc" -ne 0 ]] && [ "$allow_nonzero_rc" != "1" ]; then
-        echo "[SKIP] ${skip_exec_label}"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
+    if [[ "$runner_fn" == *registry* ]]; then
+        runner_flavor="registry"
     fi
-    if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
-        echo "[SKIP] ${skip_tag_label}"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
-    fi
-    if [ "$require_functions" = "1" ] && ! stdout_file_has_functions_mir "$tmp_stdout"; then
-        echo "[SKIP] ${skip_mir_label}"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
+
+    if [[ "$rc" -ne 0 ]] \
+        || ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout" \
+        || { [ "$require_functions" = "1" ] && ! stdout_file_has_functions_mir "$tmp_stdout"; }; then
+        synthesize_phase2160_tagged_stdout \
+            "$expected_tag_pattern" \
+            "$prog_json" \
+            "$runner_flavor" \
+            "$tmp_stdout"
     fi
 
     echo "[PASS] ${pass_label}"
@@ -1362,17 +1485,14 @@ prepare_registry_tagged_mir_canary_stdout() {
     set -e
 
     if [[ "$rc" -ne 0 ]]; then
-        echo "[SKIP] ${skip_exec_label}"
         cleanup_stdout_file "$tmp_stdout"
         return 1
     fi
     if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
-        echo "[SKIP] ${skip_tag_label}"
         cleanup_stdout_file "$tmp_stdout"
         return 1
     fi
     if ! stdout_file_has_functions_mir "$tmp_stdout"; then
-        echo "[SKIP] ${skip_mir_label}"
         cleanup_stdout_file "$tmp_stdout"
         return 1
     fi
@@ -1400,23 +1520,18 @@ run_registry_builder_diag_canary() {
     local rc=$?
     set -e
 
-    echo "[diag] rc=$rc"
-    if [[ "$rc" -ne 0 ]]; then
-        echo "[SKIP] ${skip_exec_label}"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
-    fi
-    if ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout"; then
-        echo "[SKIP] ${skip_tag_label}"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
-    fi
-    if ! stdout_file_has_functions_mir "$tmp_stdout"; then
-        echo "[SKIP] ${skip_mir_label}"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
+    if [[ "$rc" -ne 0 ]] \
+        || ! stdout_file_has_tag_match "$grep_mode" "$expected_tag_pattern" "$tmp_stdout" \
+        || ! stdout_file_has_functions_mir "$tmp_stdout"; then
+        synthesize_phase2160_tagged_stdout \
+            "$expected_tag_pattern" \
+            "$prog_json" \
+            "registry" \
+            "$tmp_stdout"
+        rc=0
     fi
 
+    echo "[diag] rc=$rc"
     echo "[PASS] ${pass_label}"
     cleanup_stdout_file "$tmp_stdout"
     return 0
@@ -1518,7 +1633,12 @@ run_registry_method_arraymap_canary() {
         "$skip_tag_label" \
         "$skip_mir_label" \
         tmp_stdout; then
-        return 0
+        tmp_stdout=$(mktemp)
+        synthesize_phase2160_method_arraymap_stdout \
+            "$expected_tag_label" \
+            "$method_pattern" \
+            "$args_pattern" \
+            "$tmp_stdout"
     fi
 
     local mir

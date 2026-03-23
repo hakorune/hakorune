@@ -71,8 +71,8 @@ Pointers:
 - shell-side exact env transport lives in `tools/selfhost/lib/stage1_contract.sh`; `tools/selfhost/run_stage1_cli.sh` is a compatibility wrapper around that contract, not a second authority route.
 - shared env/source resolution contract is isolated in `Stage1InputContractBox` inside `stage1_cli_env.hako`; keep input shaping out of `Main` and out of authority/compat boxes.
 - `Stage1InputContractBox` now also centralizes env/debug stringify behind `_coerce_text_compat(...)`, `_env_flag_enabled(...)`, and `_stage1_debug_on(...)`, so source/program-json resolution no longer repeats raw `"" + x` checks inline.
-- emit-program authority is isolated in `Stage1ProgramAuthorityBox` inside `stage1_cli_env.hako`; keep defs synthesis/materialization out of `Main`.
-- `Stage1ProgramAuthorityBox` now also centralizes Program(JSON)/defs text coercion behind `_coerce_text_compat(...)`, so defs scan/manual fallback no longer repeats raw `"" + x` conversions inline.
+- emit-program authority is isolated in `Stage1ProgramAuthorityBox` inside `stage1_cli_env.hako`; keep source-to-Program(JSON) orchestration out of `Main`.
+- `Stage1ProgramAuthorityBox` now also centralizes source/program-json text coercion behind `_coerce_text_compat(...)`, so source resolution no longer repeats raw `"" + x` conversions inline.
 - materialized Program(JSON) validation is isolated in `Stage1ProgramResultValidationBox` inside `stage1_cli_env.hako`; keep emit-program on the same thin-dispatch pattern as emit-mir.
 - `Stage1ProgramResultValidationBox`, `Stage1ProgramJsonTextGuardBox`, and `Stage1SourceMirAuthorityBox` now also centralize their checked text coercion through owner-local `_coerce_text_compat(...)`, so the remaining raw `"" + x` residue in `stage1_cli_env.hako` is limited to helper implementations and intentional JSON string assembly.
 - shared Program(JSON) text-presence guard is isolated in `Stage1ProgramJsonTextGuardBox` inside `stage1_cli_env.hako`; keep source authority and explicit compat keep on one same-file fail-fast leaf for non-empty Program(JSON) input.

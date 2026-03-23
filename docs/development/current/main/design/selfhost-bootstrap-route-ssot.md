@@ -32,6 +32,11 @@ End-state note:
 - operationally, `stage0` Rust bootstrap is allowed to remain as the first-build / recovery lane, while `stage2+` is the first `0rust` selfhost mainline
 - `Program(JSON v0)` / stage1 wrapper / surrogate provider はその途中にある bootstrap-only boundary で、authority ではなく最終 retire target だと扱う
 
+Retirement reading:
+- `Program(JSON v0)` は current reduced authority からは退いているが、repo-wide で retire 完了したわけではない。
+- 現在は bootstrap-only / compat-only boundary として keep し、route authority には戻さない。
+- boundary 自体の retire/delete は separate phase `phase-29ci` の owner であり、この SSOT だけで「撤退済み」と読まない。
+
 ## Reading Order
 
 Restart / handoff では次の順で読む。
@@ -102,11 +107,13 @@ SSOT:
 - exact probe では `target/selfhost/hakorune.stage1_cli` の raw direct contract (`emit ...` / `--emit-mir-json`) は `97` を返すが、`NYASH_USE_STAGE1_CLI=1` の env contract は current reduced artifact でまだ payload を出し切れていない。`tools/selfhost/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
 - `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す。reduced artifact 自体は runnable bootstrap output として扱い、payload proof は stage0 bootstrap route に置く
 - `stage1_cli_env.hako::Stage1InputContractBox` isolates the shared env/source resolution contract so authority/compat boxes do not need to duplicate input shaping
-- `stage1_cli_env.hako::Stage1ProgramAuthorityBox` isolates the current emit-program authority so `Main` can stay a thin dispatcher while defs synthesis/materialization remain same-file
+- `stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` isolates the checked `MirBuilderBox.emit_from_program_json_v0(...)` handoff shared by source authority and explicit Program(JSON) compat keep; `Stage1ProgramAuthorityBox` is historical and no longer part of the current contract
 - materialized Program(JSON) validation is isolated in `stage1_cli_env.hako::Stage1ProgramResultValidationBox`, keeping emit-program on the same thin-dispatch pattern
-- source-only authority case では `stage1_cli_env.hako::Stage1SourceMirAuthorityBox` が `MirBuilderBox.emit_from_source_v0(...)` を担当し、explicit supplied Program(JSON) text-only input がある時だけ `MirBuilderBox.emit_from_program_json_v0(...)` を explicit compatibility input shape として残す
+- source-only authority case では `stage1_cli_env.hako::Stage1SourceMirAuthorityBox` が `MirBuilderBox.emit_from_source_v0(...)` を担当し、explicit supplied Program(JSON) text-only input がある時だけ `Stage1ProgramJsonCompatBox` が `Stage1ProgramJsonMirCallerBox` を再利用する
+- `stage1_cli_env.hako::Stage1ProgramJsonTextGuardBox` keeps the non-empty text guard in front of both Program(JSON) paths
 - materialized MIR(JSON) validation / debug surface is isolated in `stage1_cli_env.hako::Stage1MirResultValidationBox`, keeping `Main` as a thin dispatcher
 - that explicit compatibility gate/call is now quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
+- `nyash.plugin.invoke_by_name_i64` is kept as a compat-only plugin dispatch export for module-string bootstrap evidence; it is not the authority route
 - explicit compatibility input shape は exact-only `emit-mir-program` mode でのみ許可し、live text transport は `STAGE1_SOURCE_TEXT` を再利用する
 - current caller inventory for that explicit compat helper is probe/helper-owned only; it is outside reduced authority evidence
 - plain `emit-mir` は mixed-in `STAGE1_PROGRAM_JSON_TEXT` を fail-fast する
@@ -164,6 +171,7 @@ route contract note（fixed）:
 - helper 撤退は route/wrapper の集約を意味し、JSON v0 bridge contract の削除は含まない。
 - Program(JSON v0) を生成して MIR/VM に橋渡しする契約は本SSOTで維持する。
 - したがって `hako-helper` は縮退対象でも、`json_v0` は保持対象である。
+- ここでいう `Program(JSON v0)` retire は「current authority から外す / compat/bootstrap keep へ押し込む」を先に意味し、repo-wide caller inventory が 0 になる前の hard delete は含まない。
 
 ## Concurrency / Async Policy (SSOT)
 
@@ -225,7 +233,7 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
 - **Stage0**: Rust コンパイラ（既存の hakorune）で `.hako` compiler をビルド
 - **Stage1**: Stage0 で生成された `.hako` compiler。proof / handoff artifact として扱う
 - **Stage2**: Stage1 で同一ソースを再ビルドした `.hako` compiler。最初の `0rust` mainline artifact として扱う
-- **Stage3 (optional)**: Stage2 で再ビルドした出力の一致確認（必要なら）
+- **Stage3 (optional)**: known-good seed からの payload same-result 確認（`tools/selfhost/stage3_same_result_check.sh`）
 
 Directory note:
 - `Stage1` / `Stage2` here are artifact/proof stages, not Rust directory owners.
@@ -242,6 +250,7 @@ Directory note:
 **Gate (G1)**:
 - `tools/selfhost_identity_check.sh --mode full` — G1 done criteria（compiler_stageb.hako）
 - `tools/selfhost_identity_check.sh --mode smoke` — 動作確認用（hello_simple_llvm.hako）
+- `tools/selfhost/stage3_same_result_check.sh` — Stage3 same-result sanity check（build lane は Program/MIR payload snapshots の再エミット compare + `.artifact_kind` compare / `--skip-build` は explicit prebuilt pair compare）
 - 入力 SSOT (full): `lang/src/compiler/entry/compiler_stageb.hako`
 - 入力 SSOT (smoke): `apps/tests/hello_simple_llvm.hako`
 - PASS = 両方一致、FAIL = どちらか不一致
@@ -254,9 +263,11 @@ Directory note:
   - `--skip-build`: prebuilt binaries を使用（比較のみ、メモリ制約環境向け）
   - `--bin-stage1 <path>`, `--bin-stage2 <path>`: prebuilt binary のパス指定
 - Note: ビルドが OOM する場合は `--skip-build` + 外部マシンでビルドした binaries を使用
-- Latest evidence (2026-03-11):
-  - `tools/selfhost_identity_check.sh --mode smoke` PASS
-  - `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS (`Program JSON v0` raw match; `MIR JSON v0` raw match)
+- Latest evidence (2026-03-23):
+- `tools/selfhost_identity_check.sh --mode smoke` PASS
+- `tools/selfhost_identity_check.sh --mode full --skip-build --bin-stage1 target/selfhost/hakorune.stage1_cli --bin-stage2 target/selfhost/hakorune.stage1_cli.stage2` PASS (`Program JSON v0` raw match; `MIR JSON v0` raw match)
+- `tools/selfhost/stage3_same_result_check.sh` PASS (payload snapshot same-result sanity check)
+- `tools/selfhost/stage3_same_result_check.sh --skip-build --stage2-bin target/selfhost/hakorune.stage1_cli.stage2 --stage3-bin <explicit-prebuilt-pair>` PASS (explicit pair compare)
 
 Detailed evidence / monitor-only lane packs:
 - `docs/development/current/main/design/selfhost-bootstrap-route-evidence-and-legacy-lanes.md`

@@ -27,6 +27,27 @@ static box MirJsonV0EmitBox {
     return "" + BoxHelpers.map_get(shape_ctx, key)
   }
 
+  _entry_runes_json(state) {
+    if state == null { return "[]" }
+    local runes = "" + BoxHelpers.map_get(state, "entry_runes_json")
+    if runes == null || runes == "" { return "[]" }
+    return runes
+  }
+
+  _inject_main_attrs(mir_json, runes_json) {
+    if mir_json == null { return mir_json }
+    if runes_json == null || runes_json == "" || runes_json == "[]" { return mir_json }
+
+    local needle = "{\"name\":\"main\",\"params\":[]"
+    local pos = StringHelpers.index_of(mir_json, 0, needle)
+    if pos < 0 { return mir_json }
+
+    local blocks_pos = StringHelpers.index_of(mir_json, pos + needle.length(), ",\"blocks\":")
+    if blocks_pos < 0 { return mir_json }
+
+    return mir_json.substring(0, blocks_pos) + ",\"attrs\":{\"runes\":" + runes_json + "}" + mir_json.substring(blocks_pos, mir_json.length())
+  }
+
   _emit_shape_phase10_if_or_null(shape_kind, tag, shape_ctx) {
     if shape_kind != "phase10_local_if_vareqint_then_return_int_fallthrough_return_int" {
       return null
@@ -591,7 +612,15 @@ static box MirJsonV0EmitBox {
       BoxHelpers.map_get(shape_inputs, "recipe_loop_if_cond_rhs_int"),
       BoxHelpers.map_get(shape_inputs, "recipe_loop_if_then_retv")
     )
-    return me._build_mir_by_shape(shape_kind, tag, shape_ctx)
+    local out = me._build_mir_by_shape(shape_kind, tag, shape_ctx)
+    if out != null && BoxHelpers.is_map(out) == 1 {
+      local mir_json = "" + BoxHelpers.map_get(out, "mir_json")
+      local entry_runes_json = me._entry_runes_json(state)
+      if mir_json != "" && entry_runes_json != "" && entry_runes_json != "[]" {
+        out.set("mir_json", me._inject_main_attrs(mir_json, entry_runes_json))
+      }
+    }
+    return out
   }
 
   build_from_shape_inputs(state, tag, shape_inputs) {

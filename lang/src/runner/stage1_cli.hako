@@ -21,6 +21,32 @@ using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
 
+static box Stage1CliProgramJsonBuildBox {
+  method emit_program_json_v0(tag, source_text) {
+    return me._emit_program_json_v0_raw(tag, source_text)
+  }
+
+  method _emit_program_json_v0_raw(tag, source_text) {
+    local prog = BuildBox.emit_program_json_v0(source_text, null)
+    if prog != null { return prog }
+    print(tag + ": BuildBox returned null")
+    return null
+  }
+}
+
+static box Stage1CliProgramJsonMirBox {
+  method emit_from_program_json_v0(tag, program_json_text) {
+    return me._emit_from_program_json_v0_raw(tag, program_json_text)
+  }
+
+  method _emit_from_program_json_v0_raw(tag, program_json_text) {
+    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+    if mir != null { return mir }
+    print(tag + ": MirBuilderBox returned null")
+    return null
+  }
+}
+
 // Stage-1 CLI Config Box - Environment variable parsing and configuration management
 static box Stage1CliConfigBox {
   // Parse all env vars into a Config map (MapBox)
@@ -420,7 +446,10 @@ static box Stage1Cli {
       print("[stage1-cli/debug] emit_program_json: calling BuildBox.emit_program_json_v0")
     }
 
-    local prog = BuildBox.emit_program_json_v0(merged_source, null)
+    local prog = Stage1CliProgramJsonBuildBox.emit_program_json_v0(
+      "[stage1-cli/emit-program_json]",
+      merged_source
+    )
     if with_debug == 1 && dbg == "1" {
       local status = "null"
       if prog != null { status = "non-null" }
@@ -475,12 +504,10 @@ static box Stage1Cli {
   }
 
   method _emit_mir_from_program_json_text_checked(program_json_text) {
-    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
-    if mir == null {
-      print("[freeze:contract][stage1-cli/emit-mir] MirBuilderBox.emit_from_program_json_v0 returned null")
-      return null
-    }
-    return mir
+    return Stage1CliProgramJsonMirBox.emit_from_program_json_v0(
+      "[freeze:contract][stage1-cli/emit-mir]",
+      program_json_text
+    )
   }
 
   method _coerce_mir_output_checked(mir) {

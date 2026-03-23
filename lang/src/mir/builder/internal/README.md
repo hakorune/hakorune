@@ -14,7 +14,8 @@ MirBuilder Internals — Toggle Aggregation
 
 Notes
 - JsonFrag emission is kept default OFF and used for structural observation only. Semantics are prioritized by the normal path.
-- `MirBuilderBox.hako` should keep route sequencing, generic unsupported/no-match decision, and compat tails.
+- `MirBuilderBox.hako` should keep route sequencing and generic unsupported/no-match decision; source-entry compat now lives in `MirBuilderSourceCompatBox`.
+- `MirBuilderSourceCompatBox` should keep the source-entry compat seam instead of widening `MirBuilderBox` again.
 - If the normal registry-first mainline needs to grow, extend `registry_authority_box.hako` before widening the outer box again.
 - If the non-registry/internal fallback chain needs to grow, extend `fallback_authority_box.hako` before widening the outer box again.
 - If the delegate/provider compat lane needs to grow, extend `delegate_provider_box.hako` before widening the outer box again.
