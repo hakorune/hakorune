@@ -7,28 +7,12 @@ pub(super) struct ProgramJsonEmitRequest {
     pub(super) out_path: String,
 }
 
-#[derive(Debug)]
-pub(super) struct ProgramJsonEmitResponse {
-    pub(super) out_path: String,
-    pub(super) result: Result<(), String>,
-}
-
 impl ProgramJsonEmitRequest {
     pub(super) fn build(groups: &CliGroups) -> Result<Self, String> {
         Ok(Self {
             source_path: Self::resolve_source_path(groups)?,
             out_path: Self::resolve_out_path(groups),
         })
-    }
-
-    pub(super) fn execute(self) -> ProgramJsonEmitResponse {
-        ProgramJsonEmitResponse {
-            out_path: self.out_path.clone(),
-            result: crate::runner::stage1_bridge::program_json::emit_program_json_v0(
-                &self.source_path,
-                &self.out_path,
-            ),
-        }
     }
 
     fn resolve_source_path(groups: &CliGroups) -> Result<String, String> {
@@ -133,45 +117,5 @@ mod tests {
         groups.emit.emit_program_json_v0 = Some("/tmp/out.json".to_string());
         let error = ProgramJsonEmitRequest::build(&groups).expect_err("missing input must fail");
         assert_eq!(error, "emit-program-json-v0 requires an input file");
-    }
-
-    #[test]
-    fn execute_preserves_exact_out_path_in_response() {
-        let _guard = env_lock().lock().expect("env lock");
-        std::env::remove_var("HAKO_STAGE1_INPUT");
-        std::env::remove_var("NYASH_STAGE1_INPUT");
-        std::env::remove_var("STAGE1_SOURCE");
-        std::env::remove_var("STAGE1_INPUT");
-
-        let unique = format!(
-            "hakorune-stage1-bridge-entry-request-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .expect("unix epoch")
-                .as_nanos()
-        );
-        let source_path = std::env::temp_dir().join(format!("{unique}.hako"));
-        let out_path = std::env::temp_dir().join(format!("{unique}.json"));
-
-        std::fs::write(
-            &source_path,
-            include_str!("../../../../lang/src/runner/stage1_cli_env.hako"),
-        )
-        .expect("write temp source");
-
-        let mut groups = CliConfig::default().as_groups();
-        groups.input.file = Some(source_path.to_string_lossy().into_owned());
-        groups.emit.emit_program_json_v0 = Some(out_path.to_string_lossy().into_owned());
-
-        let response = ProgramJsonEmitRequest::build(&groups)
-            .expect("emit request")
-            .execute();
-
-        let _ = std::fs::remove_file(&source_path);
-        let _ = std::fs::remove_file(&out_path);
-
-        assert_eq!(response.out_path, out_path.to_string_lossy());
-        assert!(response.result.is_ok());
     }
 }

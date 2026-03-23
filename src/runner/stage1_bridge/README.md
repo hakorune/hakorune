@@ -26,8 +26,9 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - bridge-local emit output-path resolution lives in `emit_paths.rs`
 - bridge-local Program(JSON v0) entry cluster lives in `program_json_entry/`
 - `program_json_entry/mod.rs` is now a thin facade for the bridge-local `emit-program-json-v0` route
-- exact success/error process-exit formatting for that route now lives in `program_json_entry/exit.rs`
 - `program_json_entry/request.rs` owns the bridge-entry request predicate used by `runner/mod.rs` for `skip_stage1_stub`, source-path precedence (`stage1::input_path()` aliases first, CLI input fallback second), and exact out-path extraction from the explicit CLI flag
+- `program_json_entry/execute.rs` owns request-local execution and the typed response handoff consumed by `exit.rs`
+- exact success/error process-exit formatting for that route now lives in `program_json_entry/exit.rs`
 - outer callers should use the `program_json_entry` module helpers directly; this contract is no longer rebound as `NyashRunner` methods
 - `emit_program_json_v0(...)` must use `stage1::program_json_v0::emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`
 - Stage1 stub entry resolution + child command/env assembly + prepare-failure mapping live in `stub_child.rs`
@@ -42,8 +43,8 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - Stage-B module payload generation + child-env apply live in `modules.rs`
 - `embedded_stage1_modules_snapshot.json` is a derived artifact for binary-only default route; refresh it via `tools/selfhost/refresh_stage1_module_env_snapshot.sh`, do not hand-edit it
 - `modules.rs` test `embedded_snapshot_matches_registry_doc` is the fail-fast parity guard for that derived snapshot
-- bridge-local file read/write for this route lives in `program_json/mod.rs`
-- `program_json/mod.rs` is a thin facade plus bridge-local source-path -> payload helper, read->emit->write orchestration, and owner-1 payload emission; source-text read lives in `program_json/read_input.rs`, and bridge-local writeback policy lives in `program_json/writeback.rs`
+- bridge-local file read/write for this route lives in `program_json/orchestrator.rs`
+- `program_json/mod.rs` is a thin facade that delegates to `program_json/orchestrator.rs`; `orchestrator.rs` owns the bridge-local `ProgramJsonOutput` handoff object plus source-path -> payload handoff and read->emit->write orchestration, `read_input.rs` owns source-text read policy, `payload.rs` owns owner-1 payload emission, and `writeback.rs` owns bridge-local writeback policy
 - next Rust-only retire slices stay inside `program_json_entry/` and `program_json/`; treat `src/runner/mod.rs` and `src/runner/emit.rs` as `must-stay thin callers`
 - do not call `source_to_program_json_v0_strict(...)` from this directory
 - do not add new bridge-local Program(JSON v0) parsing policy here
@@ -64,7 +65,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - stub emit parse / writeback delegated out of `stub_emit.rs`
 - child-process / embedded-entry orchestration
 - file read/write around bridge-specific CLI surfaces
-- thin delegate modules such as `entry_guard.rs` / `route_exec.rs` / `route_exec/*` / `direct_route/*` / `emit_paths.rs` / `stub_child.rs` / `stub_delegate.rs` / `program_json_entry/` / `program_json/mod.rs` / `program_json/*` / `stub_emit.rs` / `stub_emit/*` that keep bridge-only command prep, dispatch, route-local exit handling, compile/output policy, plain delegate-status execution, parse/writeback policy, I/O, and stub emit output handling out of `mod.rs`
+- thin delegate modules such as `entry_guard.rs` / `route_exec.rs` / `route_exec/*` / `direct_route/*` / `emit_paths.rs` / `stub_child.rs` / `stub_delegate.rs` / `program_json_entry/` / `program_json/mod.rs` / `program_json/*` / `stub_emit.rs` / `stub_emit/*` that keep bridge-only command prep, dispatch, request-local execution, route-local exit handling, compile/output policy, plain delegate-status execution, parse/writeback policy, I/O, and stub emit output handling out of `mod.rs`
 
 ## Forbidden Responsibilities
 

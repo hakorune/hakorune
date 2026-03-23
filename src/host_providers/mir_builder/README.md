@@ -1,6 +1,6 @@
 # Host Provider MIR Builder
 
-Scope: Rust-side current authority owner for `source / Program(JSON) -> MIR(JSON)` under [mir_builder.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs).
+Scope: Rust-side current authority façade for `source / Program(JSON) -> MIR(JSON)` under [mir_builder.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs); owner-local handoff objects now live in `handoff.rs` and `user_box_decls` shaping lives in `decls.rs`.
 
 Related SSOT:
 - [CURRENT_TASK.md](/home/tomoaki/git/hakorune-selfhost/CURRENT_TASK.md)
@@ -19,6 +19,17 @@ Test-only evidence seams:
 - `source_to_program_and_mir_json(source_text)`
 
 Current owner split:
+- `mir_builder.rs`
+  - public façade
+  - shared `module_to_mir_json(...)` stop-line
+- `handoff.rs`
+  - source / Program(JSON) handoff objects
+  - strict source route
+  - guarded Program(JSON)->MIR emission
+- `decls.rs`
+  - explicit payload parse
+  - compat fallback from defs/body
+  - metadata projection for `MirModule`
 - `Stage1ProgramJsonModuleHandoff`
   - parse `Program(JSON)` into `MirModule`
   - parse `user_box_decls`
@@ -37,7 +48,8 @@ Current owner split:
 
 ## Guardrails
 
-- `mir_builder.rs` is the live authority owner for source/explicit Program(JSON) handoff.
+- `mir_builder.rs` is the live authority façade for source/explicit Program(JSON) handoff.
+- `handoff.rs` keeps the owner-local handoff objects; `decls.rs` keeps `user_box_decls` shaping.
 - `lowering.rs` is test-only evidence; do not reopen it as the daily source of MIR emission.
 - `module_to_mir_json(...)` is the shared Rust stop-line; push caller ownership above it, not MIR emitter ownership back outward.
 - `user_box_decls` shaping stays owner-local here; do not duplicate it in bridge or runner compat lanes.

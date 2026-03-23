@@ -306,6 +306,10 @@ using lang.compiler.entry.func_scanner
                 "BuildBox".to_string(),
                 "lang.compiler.build.build_box".to_string(),
             ),
+            (
+                "func_scanner".to_string(),
+                "lang.compiler.entry.func_scanner".to_string(),
+            ),
             ("StringHelpers".to_string(), "sh_core".to_string()),
         ]);
         assert_eq!(imports, expected);

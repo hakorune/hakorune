@@ -34,6 +34,7 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
 - the real source-authority owner is `authority.rs`; `program_json_v0.rs` is no longer the owner of the parse/lower chain itself
 - future-retire bridge error-prefix wrapping is no longer mixed into `authority.rs`; it stays as a tiny facade leaf in `program_json_v0.rs`
 - build-box surrogate callers use `emit_program_json_v0_for_current_stage1_build_box_mode(...)`
+- build-box / launcher handoff regression coverage lives in this cluster's tests, not in `module_string_dispatch/build_surrogate.rs`
 - current-mode build surrogate follows `crate::config::env::stage1::emit_program_json()` as env SSOT
 - build-route selection (`select_program_json_v0_build_route(...)`) stays routing-local inside `routing.rs`
 - build-route enum (`ProgramJsonV0BuildRoute`) stays routing-local; cross-crate callers do not read route state directly
@@ -42,6 +43,7 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
 - source-shape enum/info stay crate-local; cross-crate authority callers use `emit_program_json_v0_for_strict_authority_source(...)` instead of reading source-shape objects directly
 - cross-crate callers use owner-1 helpers for fail-fast only; route trace stays inside `program_json_v0`
 - source-shape / build-route policy lives in `routing.rs`, not in callers
+- current source-shape contract is `launcher.hako => strict-safe`; only actual dev-local alias sugar stays compat-only on the authority path
 - current-mode env interpretation lives in `crate::config::env::stage1`, not in callers
 - `.hako` compat quarantine (`stage1-env-mir-program`) is out of scope here
 

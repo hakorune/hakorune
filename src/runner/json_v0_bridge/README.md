@@ -42,3 +42,5 @@ LoopForm/PHI の意味論を変更したい場合は、`loopform_builder.rs` / `
 Current note:
 - この層は bootstrap-only compatibility boundary として扱う。
 - current authority は `stage1-env-mir-source` であり、この bridge を current authority へ戻さない。
+- `Program(JSON v0)` route authority は退いているが、この bridge 自体は repo-wide retirement 完了ではない。
+- caller inventory が 0 になるまでは bootstrap-only keep として扱い、hard delete/read-path removal は `phase-29ci` の owner に従う。

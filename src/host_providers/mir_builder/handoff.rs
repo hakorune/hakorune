@@ -1,0 +1,76 @@
+use super::{
+    failfast_error, module_to_mir_json, with_phase0_mir_json_env, Stage1UserBoxDecls,
+    FAILFAST_TAG,
+};
+
+pub(super) struct Stage1ProgramJsonModuleHandoff {
+    module: crate::mir::MirModule,
+    user_box_decls: Stage1UserBoxDecls,
+}
+
+impl Stage1ProgramJsonModuleHandoff {
+    pub(super) fn parse(program_json: &str) -> Result<Self, String> {
+        Ok(Self {
+            module: Self::parse_module(program_json)?,
+            user_box_decls: Self::parse_user_box_decls(program_json)?,
+        })
+    }
+
+    fn parse_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
+        crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
+    }
+
+    fn parse_user_box_decls(program_json: &str) -> Result<Stage1UserBoxDecls, String> {
+        Stage1UserBoxDecls::parse_program_json(program_json)
+    }
+
+    pub(super) fn emit_mir_json(self) -> Result<String, String> {
+        module_to_mir_json(&self.into_module_with_user_box_decls())
+    }
+
+    pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
+        with_phase0_mir_json_env(|| self.emit_mir_json())
+    }
+
+    fn into_module_with_user_box_decls(self) -> crate::mir::MirModule {
+        let mut module = self.module;
+        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
+        module
+    }
+}
+
+pub(super) struct SourceProgramJsonHandoff {
+    program_json: String,
+}
+
+impl SourceProgramJsonHandoff {
+    pub(super) fn for_source(source_text: &str) -> Result<Self, String> {
+        Ok(Self {
+            program_json: Self::emit_strict_program_json(source_text)?,
+        })
+    }
+
+    pub(super) fn emit_guarded_program_and_mir_json(self) -> Result<(String, String), String> {
+        let mir_json =
+            Stage1ProgramJsonModuleHandoff::parse(&self.program_json)?.emit_guarded_mir_json()?;
+        Ok((self.program_json, mir_json))
+    }
+
+    pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
+        self.emit_guarded_program_and_mir_json()
+            .map(|(_, mir_json)| mir_json)
+    }
+
+    #[cfg(test)]
+    pub(super) fn emit_plain_program_and_mir_json(self) -> Result<(String, String), String> {
+        let mir_json = super::lowering::program_json_to_mir_json(&self.program_json)?;
+        Ok((self.program_json, mir_json))
+    }
+
+    fn emit_strict_program_json(source_text: &str) -> Result<String, String> {
+        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
+            source_text,
+        )
+        .map_err(|error| format!("{FAILFAST_TAG} {}", error))
+    }
+}

@@ -1,9 +1,14 @@
 mod lowering;
+mod decls;
+mod handoff;
 
 #[cfg(test)]
 use std::collections::BTreeMap;
 use std::fmt::Display;
 // use std::io::Write; // kept for future pretty-print extensions
+
+use decls::Stage1UserBoxDecls;
+use handoff::{SourceProgramJsonHandoff, Stage1ProgramJsonModuleHandoff};
 
 pub(crate) const FAILFAST_TAG: &str = "[freeze:contract][hako_mirbuilder]";
 #[cfg(test)]
@@ -104,239 +109,6 @@ fn with_phase0_mir_json_env<T>(
 ) -> Result<T, String> {
     let _env_guard = Phase0MirJsonEnvGuard::new();
     emit_mir_json()
-}
-
-struct Stage1ProgramJsonModuleHandoff {
-    module: crate::mir::MirModule,
-    user_box_decls: Stage1UserBoxDecls,
-}
-
-impl Stage1ProgramJsonModuleHandoff {
-    fn parse(program_json: &str) -> Result<Self, String> {
-        Ok(Self {
-            module: Self::parse_module(program_json)?,
-            user_box_decls: Self::parse_user_box_decls(program_json)?,
-        })
-    }
-
-    fn parse_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
-        crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
-    }
-
-    fn parse_user_box_decls(program_json: &str) -> Result<Stage1UserBoxDecls, String> {
-        Stage1UserBoxDecls::parse_program_json(program_json)
-    }
-
-    fn emit_mir_json(self) -> Result<String, String> {
-        module_to_mir_json(&self.into_module_with_user_box_decls())
-    }
-
-    fn emit_guarded_mir_json(self) -> Result<String, String> {
-        with_phase0_mir_json_env(|| self.emit_mir_json())
-    }
-
-    fn into_module_with_user_box_decls(self) -> crate::mir::MirModule {
-        let mut module = self.module;
-        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
-        module
-    }
-}
-
-struct SourceProgramJsonHandoff {
-    program_json: String,
-}
-
-impl SourceProgramJsonHandoff {
-    fn for_source(source_text: &str) -> Result<Self, String> {
-        Ok(Self {
-            program_json: Self::emit_strict_program_json(source_text)?,
-        })
-    }
-
-    fn emit_guarded_program_and_mir_json(self) -> Result<(String, String), String> {
-        let mir_json =
-            Stage1ProgramJsonModuleHandoff::parse(&self.program_json)?.emit_guarded_mir_json()?;
-        Ok((self.program_json, mir_json))
-    }
-
-    fn emit_guarded_mir_json(self) -> Result<String, String> {
-        self.emit_guarded_program_and_mir_json()
-            .map(|(_, mir_json)| mir_json)
-    }
-
-    #[cfg(test)]
-    fn emit_plain_program_and_mir_json(self) -> Result<(String, String), String> {
-        let mir_json = lowering::program_json_to_mir_json(&self.program_json)?;
-        Ok((self.program_json, mir_json))
-    }
-
-    fn emit_strict_program_json(source_text: &str) -> Result<String, String> {
-        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
-            source_text,
-        )
-        .map_err(|error| format!("{FAILFAST_TAG} {}", error))
-    }
-}
-
-struct Stage1UserBoxDecl {
-    name: String,
-    fields: Vec<String>,
-}
-
-struct Stage1UserBoxDecls {
-    decls: Vec<Stage1UserBoxDecl>,
-}
-
-impl Stage1UserBoxDecl {
-    fn from_json_value(decl: &serde_json::Value) -> Option<Self> {
-        let name = Self::parse_name(decl)?;
-        let fields = Self::parse_fields(decl);
-        Some(Self { name, fields })
-    }
-
-    fn parse_name(decl: &serde_json::Value) -> Option<String> {
-        let name = decl.get("name")?.as_str()?.trim();
-        if name.is_empty() {
-            return None;
-        }
-        Some(name.to_string())
-    }
-
-    fn parse_fields(decl: &serde_json::Value) -> Vec<String> {
-        decl.get("fields")
-            .and_then(serde_json::Value::as_array)
-            .map(|fields| {
-                fields
-                    .iter()
-                    .filter_map(serde_json::Value::as_str)
-                    .map(str::to_string)
-                    .collect()
-            })
-            .unwrap_or_default()
-    }
-
-    fn from_name(name: String) -> Self {
-        Self {
-            name,
-            fields: Vec::new(),
-        }
-    }
-
-    fn into_metadata_entry(self) -> (String, Vec<String>) {
-        (self.name, self.fields)
-    }
-
-    #[cfg(test)]
-    fn into_json_value(self) -> serde_json::Value {
-        serde_json::json!({ "name": self.name, "fields": self.fields })
-    }
-}
-
-impl Stage1UserBoxDecls {
-    fn new(decls: Vec<Stage1UserBoxDecl>) -> Self {
-        Self { decls }
-    }
-
-    fn parse_program_json(program_json: &str) -> Result<Self, String> {
-        let program_value = Self::parse_program_value(program_json)?;
-        Ok(Self::from_program_value(&program_value))
-    }
-
-    fn parse_program_value(program_json: &str) -> Result<serde_json::Value, String> {
-        serde_json::from_str(program_json)
-            .map_err(|error| format!("program json parse error: {}", error))
-    }
-
-    fn from_program_value(program_value: &serde_json::Value) -> Self {
-        Self::new(Self::resolve_decls(program_value))
-    }
-
-    fn resolve_decls(program_value: &serde_json::Value) -> Vec<Stage1UserBoxDecl> {
-        Self::explicit_from_program_value(program_value)
-            .unwrap_or_else(|| Self::compat_from_program_value(program_value))
-    }
-
-    fn explicit_from_program_value(
-        program_value: &serde_json::Value,
-    ) -> Option<Vec<Stage1UserBoxDecl>> {
-        let decls = Self::explicit_decl_values(program_value)?;
-        Some(Self::collect_explicit_decls(decls))
-    }
-
-    fn explicit_decl_values(program_value: &serde_json::Value) -> Option<&Vec<serde_json::Value>> {
-        program_value.get("user_box_decls")?.as_array()
-    }
-
-    fn collect_explicit_decls(decls: &[serde_json::Value]) -> Vec<Stage1UserBoxDecl> {
-        decls
-            .iter()
-            .filter_map(Stage1UserBoxDecl::from_json_value)
-            .collect()
-    }
-
-    fn compat_from_program_value(program_value: &serde_json::Value) -> Vec<Stage1UserBoxDecl> {
-        Self::collect_compat_decl_names(program_value)
-            .into_iter()
-            .map(Stage1UserBoxDecl::from_name)
-            .collect()
-    }
-
-    fn collect_compat_decl_names(
-        program_value: &serde_json::Value,
-    ) -> std::collections::BTreeSet<String> {
-        let mut seen = std::collections::BTreeSet::new();
-        seen.insert("Main".to_string());
-        Self::insert_compat_def_box_names(program_value, &mut seen);
-        seen
-    }
-
-    fn insert_compat_def_box_names(
-        program_value: &serde_json::Value,
-        seen: &mut std::collections::BTreeSet<String>,
-    ) {
-        if let Some(defs) = program_value
-            .get("defs")
-            .and_then(serde_json::Value::as_array)
-        {
-            for def in defs {
-                if let Some(box_name) = Self::compat_def_box_name(def) {
-                    seen.insert(box_name);
-                }
-            }
-        }
-    }
-
-    fn compat_def_box_name(def: &serde_json::Value) -> Option<String> {
-        let box_name = def.get("box").and_then(serde_json::Value::as_str)?;
-        if box_name.is_empty() {
-            return None;
-        }
-        Some(box_name.to_string())
-    }
-
-    fn into_metadata_entries(self) -> Vec<(String, Vec<String>)> {
-        self.decls
-            .into_iter()
-            .map(Stage1UserBoxDecl::into_metadata_entry)
-            .collect()
-    }
-
-    fn into_metadata_map(self) -> std::collections::HashMap<String, Vec<String>> {
-        self.into_metadata_entries().into_iter().collect()
-    }
-
-    #[cfg(test)]
-    fn into_decl_json_values(self) -> Vec<serde_json::Value> {
-        self.decls
-            .into_iter()
-            .map(Stage1UserBoxDecl::into_json_value)
-            .collect()
-    }
-
-    #[cfg(test)]
-    fn into_decl_values(self) -> Vec<serde_json::Value> {
-        self.into_decl_json_values()
-    }
 }
 
 #[cfg(test)]
@@ -725,17 +497,15 @@ static box Main {
     }
 
     #[test]
-    fn test_source_to_program_and_mir_json_rejects_launcher_on_authority_path() {
+    fn test_source_to_program_and_mir_json_handles_launcher_source() {
         ensure_test_ring0();
         let source = include_str!("../../lang/src/runner/launcher.hako");
         let result = source_to_program_and_mir_json(source);
-        let error = result.expect_err("launcher should remain compat-only on authority path");
-        assert!(error.contains(FAILFAST_TAG), "unexpected error: {error}");
-        assert!(
-            error.contains(
-                "source route rejects compat-only relaxed-compat source shape (dev-local-alias-sugar)"
-            ),
-            "unexpected error: {error}"
-        );
+        assert!(result.is_ok(), "Failed with error: {:?}", result.err());
+
+        let (program_json, mir_json) = result.unwrap();
+        assert!(program_json.contains("\"kind\":\"Program\""));
+        assert!(program_json.contains("\"box\":\"HakoCli\""));
+        assert!(mir_json.contains("\"functions\""));
     }
 }

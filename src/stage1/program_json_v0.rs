@@ -97,6 +97,46 @@ mod tests {
         strict_authority_program_json_v0_source_rejection,
     };
     use std::collections::BTreeSet;
+    use std::sync::{Mutex, MutexGuard, OnceLock};
+
+    fn env_guard() -> &'static Mutex<()> {
+        static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
+        GUARD.get_or_init(|| Mutex::new(()))
+    }
+
+    struct FeatureOverrideGuard {
+        prev: Option<String>,
+        _lock: MutexGuard<'static, ()>,
+    }
+
+    impl FeatureOverrideGuard {
+        fn new(features: Option<&str>) -> Self {
+            let lock = match env_guard().lock() {
+                Ok(lock) => lock,
+                Err(poisoned) => poisoned.into_inner(),
+            };
+            let prev = std::env::var("NYASH_FEATURES").ok();
+            match features {
+                Some(v) => std::env::set_var("NYASH_FEATURES", v),
+                None => std::env::remove_var("NYASH_FEATURES"),
+            }
+            Self { prev, _lock: lock }
+        }
+    }
+
+    impl Drop for FeatureOverrideGuard {
+        fn drop(&mut self) {
+            match &self.prev {
+                Some(v) => std::env::set_var("NYASH_FEATURES", v),
+                None => std::env::remove_var("NYASH_FEATURES"),
+            }
+        }
+    }
+
+    fn with_features<R>(features: Option<&str>, f: impl FnOnce() -> R) -> R {
+        let _guard = FeatureOverrideGuard::new(features);
+        f()
+    }
 
     #[test]
     fn source_to_program_json_v0_minimal_main() {
@@ -174,14 +214,34 @@ static box Main {
         assert_eq!(value["kind"], "Program");
         assert_eq!(value["version"], 0);
         assert_eq!(
-            value["imports"]["BuildBox"],
-            "lang.compiler.build.build_box"
-        );
-        assert_eq!(
             value["imports"]["Stage1UsingResolverBox"],
             "lang.compiler.entry.using_resolver_box"
         );
-        assert_eq!(value["imports"]["StringHelpers"], "sh_core");
+        assert_eq!(
+            value["imports"]["MirBuilderBox"],
+            "lang.mir.builder.MirBuilderBox"
+        );
+    }
+
+    #[test]
+    fn source_to_program_json_v0_does_not_widen_with_rune_attrs() {
+        with_features(Some("rune"), || {
+            let source = r#"
+@rune Public
+static box Main {
+  @rune Ownership(owned)
+  main() {
+    return 0
+  }
+}
+"#;
+            let json = source_to_program_json_v0_strict(source).expect("program json");
+            let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+            assert!(
+                value.get("attrs").is_none(),
+                "Program(JSON v0) must not widen with Rune attrs"
+            );
+        });
     }
 
     #[test]
@@ -200,16 +260,16 @@ static box Main {
             "stage1_cli_env should carry input-contract helper defs"
         );
         assert!(
-            boxes.contains("Stage1ProgramAuthorityBox"),
-            "stage1_cli_env should carry program-authority helper defs"
+            boxes.contains("Stage1SourceMirAuthorityBox"),
+            "stage1_cli_env should carry source-authority helper defs"
         );
         assert!(
             boxes.contains("Stage1ProgramResultValidationBox"),
             "stage1_cli_env should carry program validation helper defs"
         );
         assert!(
-            boxes.contains("Stage1SourceMirAuthorityBox"),
-            "stage1_cli_env should carry source-route helper defs"
+            boxes.contains("Stage1ProgramJsonMirCallerBox"),
+            "stage1_cli_env should carry program-json caller helper defs"
         );
         assert!(
             boxes.contains("Stage1MirResultValidationBox"),
@@ -221,10 +281,10 @@ static box Main {
         );
         assert!(
             defs.iter().any(|def| {
-                def["box"] == "Stage1ProgramAuthorityBox"
-                    && def["name"] == "build_program_json_from_source"
+                def["box"] == "Stage1ProgramJsonMirCallerBox"
+                    && def["name"] == "emit_mir_from_program_json_checked"
             }),
-            "stage1 program authority entry must be materialized"
+            "stage1 program-json caller entry must be materialized"
         );
         assert!(
             defs.iter().any(|def| {
@@ -254,8 +314,8 @@ static box Main {
             "lang.compiler.build.build_box"
         );
         assert_eq!(
-            value["imports"]["CodegenBridgeBox"],
-            "selfhost.shared.host_bridge.codegen_bridge"
+            value["imports"]["HostFacadeBox"],
+            "lang.runtime.host.host_facade_box"
         );
     }
 
@@ -294,8 +354,8 @@ static box Main {
             "strict-safe"
         ));
         assert!(matches!(
-            super::routing::classify_program_json_v0_source_shape(launcher).relaxed_reason(),
-            Some("dev-local-alias-sugar")
+            super::routing::classify_program_json_v0_source_shape(launcher).label(),
+            "strict-safe"
         ));
         assert!(matches!(
             super::routing::classify_program_json_v0_source_shape(dev_local).relaxed_reason(),
@@ -306,7 +366,14 @@ static box Main {
     #[test]
     fn classify_program_json_v0_source_shape_reports_strict_vs_relaxed() {
         let strict_source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
-        let relaxed_source = include_str!("../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
 
         assert!(matches!(
             super::routing::classify_program_json_v0_source_shape(strict_source).label(),
@@ -330,9 +397,21 @@ static box Main {
             None
         );
 
-        let relaxed_shape = super::routing::classify_program_json_v0_source_shape(include_str!(
+        let launcher_shape = super::routing::classify_program_json_v0_source_shape(include_str!(
             "../../lang/src/runner/launcher.hako"
         ));
+        assert_eq!(launcher_shape.label(), "strict-safe");
+        assert_eq!(launcher_shape.relaxed_reason(), None);
+        assert_eq!(launcher_shape.strict_authority_rejection("source route"), None);
+
+        let relaxed_shape = super::routing::classify_program_json_v0_source_shape(r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#);
         assert_eq!(relaxed_shape.label(), "relaxed-compat");
         assert_eq!(
             relaxed_shape.relaxed_reason(),
@@ -350,10 +429,22 @@ static box Main {
     #[test]
     fn strict_authority_program_json_v0_source_rejection_reports_current_contract() {
         let strict_source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
-        let relaxed_source = include_str!("../../lang/src/runner/launcher.hako");
+        let launcher_source = include_str!("../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
 
         assert_eq!(
             strict_authority_program_json_v0_source_rejection(strict_source, "source route"),
+            None
+        );
+        assert_eq!(
+            strict_authority_program_json_v0_source_rejection(launcher_source, "source route"),
             None
         );
         assert_eq!(
@@ -368,11 +459,23 @@ static box Main {
     #[test]
     fn emit_program_json_v0_for_strict_authority_source_enforces_current_contract() {
         let strict_source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
-        let relaxed_source = include_str!("../../lang/src/runner/launcher.hako");
+        let launcher_source = include_str!("../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
 
         let strict = emit_program_json_v0_for_strict_authority_source(strict_source)
             .expect("strict authority source emission");
         assert!(strict.contains("\"kind\":\"Program\""));
+
+        let launcher = emit_program_json_v0_for_strict_authority_source(launcher_source)
+            .expect("launcher should now satisfy strict authority source contract");
+        assert!(launcher.contains("\"kind\":\"Program\""));
 
         let error = emit_program_json_v0_for_strict_authority_source(relaxed_source)
             .expect_err("relaxed source should fail-fast on authority path");
@@ -386,7 +489,14 @@ static box Main {
 
     #[test]
     fn emit_program_json_v0_for_stage1_build_box_wraps_freeze_contract_error() {
-        let relaxed_source = include_str!("../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
         let error = match emit_program_json_v0_for_stage1_build_box(relaxed_source, true) {
             Ok(_) => panic!("strict authority build-box path should freeze"),
             Err(error) => error,
@@ -426,7 +536,15 @@ static box Main {
     #[test]
     fn build_route_accessors_report_current_contract() {
         let strict_source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
-        let relaxed_source = include_str!("../../lang/src/runner/launcher.hako");
+        let launcher_source = include_str!("../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
 
         let strict_authority =
             super::routing::emit_stage1_build_box_program_json(strict_source, true)
@@ -444,6 +562,10 @@ static box Main {
             "route=strict-default relaxed_reason=none"
         );
 
+        let launcher = super::routing::emit_stage1_build_box_program_json(launcher_source, false)
+            .expect("launcher build emission");
+        assert_eq!(launcher.trace_summary(), "route=strict-default relaxed_reason=none");
+
         let relaxed = super::routing::emit_stage1_build_box_program_json(relaxed_source, false)
             .expect("relaxed build emission");
         assert_eq!(
@@ -455,7 +577,15 @@ static box Main {
     #[test]
     fn routing_build_box_emission_returns_route_and_payload() {
         let strict_source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
-        let relaxed_source = include_str!("../../lang/src/runner/launcher.hako");
+        let launcher_source = include_str!("../../lang/src/runner/launcher.hako");
+        let relaxed_source = r#"
+static box Main {
+  main() {
+    @x = 41
+    return x + 1
+  }
+}
+"#;
 
         let strict = super::routing::emit_stage1_build_box_program_json(strict_source, false)
             .expect("strict-safe build emission");
@@ -464,6 +594,11 @@ static box Main {
             "route=strict-default relaxed_reason=none"
         );
         assert!(strict.into_program_json().contains("\"kind\":\"Program\""));
+
+        let launcher = super::routing::emit_stage1_build_box_program_json(launcher_source, false)
+            .expect("launcher build emission");
+        assert_eq!(launcher.trace_summary(), "route=strict-default relaxed_reason=none");
+        assert!(launcher.into_program_json().contains("\"kind\":\"Program\""));
 
         let relaxed = super::routing::emit_stage1_build_box_program_json(relaxed_source, false)
             .expect("relaxed build emission");
@@ -505,6 +640,59 @@ return 0
             .expect("program json");
         assert!(program_json.contains("\"kind\":\"Program\""));
         assert!(program_json.contains("\"version\":0"));
+    }
+
+    #[test]
+    fn emit_program_json_v0_for_current_stage1_build_box_mode_emits_stage1_cli_env_program_json() {
+        let source = include_str!("../../lang/src/runner/stage1_cli_env.hako");
+        let json = super::emit_program_json_v0_for_current_stage1_build_box_mode(source)
+            .expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let defs = value["defs"].as_array().expect("defs array");
+
+        assert_eq!(value["kind"], "Program");
+        assert_eq!(value["version"], 0);
+        assert_eq!(
+            value["imports"]["Stage1UsingResolverBox"],
+            "lang.compiler.entry.using_resolver_box"
+        );
+        assert_eq!(
+            value["imports"]["MirBuilderBox"],
+            "lang.mir.builder.MirBuilderBox"
+        );
+        assert!(
+            defs.iter()
+                .any(|def| def["box"] == "Stage1InputContractBox"),
+            "build-box mode should keep input-contract helpers"
+        );
+        assert!(
+            defs.iter()
+                .any(|def| def["box"] == "Stage1ProgramJsonMirCallerBox"),
+            "build-box mode should keep program-json caller helpers"
+        );
+        assert!(
+            defs.iter()
+                .any(|def| def["box"] == "Stage1SourceMirAuthorityBox"),
+            "build-box mode should keep source-authority helpers"
+        );
+    }
+
+    #[test]
+    fn emit_program_json_v0_for_current_stage1_build_box_mode_emits_launcher_program_json() {
+        let source = include_str!("../../lang/src/runner/launcher.hako");
+        let json = super::emit_program_json_v0_for_current_stage1_build_box_mode(source)
+            .expect("program json");
+        let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+        let defs = value["defs"].as_array().expect("defs array");
+
+        assert_eq!(value["kind"], "Program");
+        assert_eq!(value["version"], 0);
+        assert_eq!(value["imports"]["BuildBox"], "lang.compiler.build.build_box");
+        assert_eq!(value["imports"]["MirBuilderBox"], "lang.mir.builder.MirBuilderBox");
+        assert!(
+            defs.iter().any(|def| def["box"] == "HakoCli" && def["name"] == "run"),
+            "build-box mode should keep launcher helper defs"
+        );
     }
 
     #[test]

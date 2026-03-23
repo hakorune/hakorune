@@ -1,5 +1,6 @@
 use crate::cli::CliGroups;
 
+mod execute;
 mod exit;
 mod request;
 

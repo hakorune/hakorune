@@ -1,4 +1,4 @@
-use super::request::ProgramJsonEmitResponse;
+use super::execute::ProgramJsonEmitResponse;
 
 pub(super) fn exit_with_emit_program_json_response(response: ProgramJsonEmitResponse) -> ! {
     match response.result {

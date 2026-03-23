@@ -185,6 +185,7 @@ pub(super) fn parse_source_v0_to_json(input: &str) -> Result<String, String> {
         version: 0,
         kind: "Program".into(),
         body: vec![StmtV0::Return { expr }],
+        attrs: Default::default(),
         defs: vec![],
         imports: std::collections::BTreeMap::new(),
     };
