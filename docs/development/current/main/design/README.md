@@ -31,6 +31,7 @@
 - Hako runtime C ABI cutover order（`.hako` 完結へ向けた移行順SSOT）: `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
 - Hako fullstack host-ABI completion（意味論`.hako`集約 + host最小ABIの最終形SSOT）: `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
 - Execution lanes and axis separation（stage/owner/artifact-lane の親SSOT）: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+- Artifact policy（`llvm-exe` mainline / current `vm-hako` reference / future interpreter reservation の child SSOT）: `docs/development/current/main/design/artifact-policy-ssot.md`
 - Execution lanes migration task pack（cross-phase 実装順SSOT）: `docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md`
 - Execution lanes legacy retirement inventory（移行中に見つかった legacy/delete 候補の全体台帳）: `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
 - Hakoruneup release distribution（self-contained bundle + package manager + explicit system LLVM dev mode）: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`

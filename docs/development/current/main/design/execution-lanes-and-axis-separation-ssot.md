@@ -6,6 +6,7 @@ Scope: `stage axis` / `owner-substrate axis` / `artifact-lane axis` を 1 枚で
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/artifact-policy-ssot.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
@@ -24,6 +25,7 @@ Related:
 - `stage1 artifact が動く` を `daily mainline` や `distribution truth` と誤読しない。
 - `vm-hako` の semantic/reference lane と `llvm-exe` の daily lane を混ぜない。
 - `rust-vm keep` を owner migration failure と誤読しない。
+- artifact-role detail は child SSOT `artifact-policy-ssot.md` に集約する。
 
 ## 1. Three Axes
 
@@ -92,6 +94,8 @@ Important:
   - own runtime operation policy and reopen rules
 - `hakoruneup-release-distribution-ssot.md`
   - owns stage2+ package/distribution shape
+- `artifact-policy-ssot.md`
+  - owns artifact-role detail and future interpreter reservation
 - `execution-lanes-migration-task-pack-ssot.md`
   - owns the cross-phase implementation order
 - `execution-lanes-legacy-retirement-inventory-ssot.md`

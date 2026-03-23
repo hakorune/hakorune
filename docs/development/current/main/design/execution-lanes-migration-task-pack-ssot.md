@@ -6,6 +6,7 @@ Scope: execution-lane policy を cross-phase で docs-first 固定し、後続�
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/artifact-policy-ssot.md
   - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md
   - docs/development/current/main/phases/phase-29ci/README.md
@@ -36,6 +37,7 @@ Related:
 ### W0. Docs lock
 
 - land `execution-lanes-and-axis-separation-ssot.md`
+- land `artifact-policy-ssot.md`
 - sync `CURRENT_TASK.md`, `10-Now.md`, `design/README.md`
 - add backlinks from child SSOTs and relevant phase READMEs
 - no code or route behavior change
@@ -71,6 +73,7 @@ Related:
 - any raw CLI backend default flip
 - any lane removal or hard delete
 - any `vm-hako` promotion discussion
+- any future interpreter artifact activation or promotion criteria
 
 ## Acceptance
 
