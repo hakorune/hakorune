@@ -55,6 +55,7 @@ Related:
 - parent execution-lane vocabulary is `execution-lanes-and-axis-separation-ssot.md`.
 - in that vocabulary, the operational default is `llvm-exe`, `vm-hako` is the reference/debug/bootstrap-proof lane, and `rust-vm` is the bootstrap/recovery/compat lane.
 - lane C（`vm-hako`）は既定で monitor-only とし、fixed backlog は置かない。
+- lane C の active acceptance は `phase29y_vm_hako_caps_gate_vm.sh` だけに固定し、archived throughput/probe smokes は monitor evidence として読む。
 - lane C で修正に入る条件は次のいずれか:
   1. `phase29y_vm_hako_caps_gate_vm.sh` が FAIL したとき。
   2. feature matrix で row が `blocked` に戻ったとき。

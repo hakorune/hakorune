@@ -26,7 +26,6 @@ run "$DIR/registry_optin_method_arraymap_push_canary_vm.sh" || true
 run "$DIR/registry_optin_method_arraymap_get_canary_vm.sh" || true
 run "$DIR/registry_optin_method_arraymap_set_canary_vm.sh" || true
 run "$DIR/registry_optin_method_arraymap_len_canary_vm.sh" || true
-run "$DIR/registry_optin_method_arraymap_direct_canary_vm.sh" || true
 run "$DIR/registry_optin_compare_varvar_canary_vm.sh" || true
 run "$DIR/registry_optin_return_binop_varvar_canary_vm.sh" || true
 run "$DIR/registry_optin_compare_fold_binints_canary_vm.sh" || true
@@ -44,5 +43,8 @@ run "$DIR/loop_scan_ne_else_break_canary_vm.sh" || true
 run "$DIR/loop_scan_ne_else_continue_canary_vm.sh" || true
 run "$DIR/selfhost_builder_first_return42_canary_vm.sh" || true
 run "$DIR/hako_mainline_loop_undefined_block_vm.sh" || true
+
+# Archived monitor-only probe:
+# tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh
 
 echo "[phase2160] done"

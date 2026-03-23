@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Direct lower canary: call LowerReturnMethodArrayMapBox.try_lower without full MirBuilder
+# Archived monitor-only probe: call LowerReturnMethodArrayMapBox.try_lower
+# without full MirBuilder. This is no longer part of active closeout/gates.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

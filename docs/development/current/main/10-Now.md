@@ -29,7 +29,7 @@ Related:
 
 - Compiler lane: `phase-29bq` は landed / monitor-only、active blocker は `none`。
 - Execution lane policy: parent SSOT is `execution-lanes-and-axis-separation-ssot.md`; `stage1` は bridge/proof only、`stage2+` が final distribution target。
-- Runtime lane: `phase-29y` が current anchor。operational reading は `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat。
+- Runtime lane: `phase-29y` が current anchor。operational reading は `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat。active acceptance は `phase29y_vm_hako_caps_gate_vm.sh` のみで、throughput probes は archived monitor evidence として扱う。
 - Kernel capability lane: `phase-29ct` は stop-line reached、`C5` は deferred。
 - Rune lane: `phase-29cu` は active current lane。grammar activation は Rust parser / `.hako` parser 両方前提で、carrier は declaration-local `attrs.runes` -> direct MIR attrs、`ny-llvmc` は selected-entry only。
 - Rune source-route note: `.hako` の source-route keep は selected-entry attrs を synthetic `Main.main` def で一時輸送してよいが、Program(JSON v0) root/body は no-widen のまま。

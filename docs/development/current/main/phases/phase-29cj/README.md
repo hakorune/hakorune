@@ -52,7 +52,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 ## Non-goals
 
 - reopening `phase-29ci` helper/smoke-tail collapse
-- pulling `registry_optin_method_arraymap_direct_canary_vm.sh` into helper retirement
+- reopening the archived `registry_optin_method_arraymap_direct_canary_vm.sh` probe as helper-retirement debt
 - widening `.hako` live/bootstrap caller contracts
 - mixing authority migration back into `phase-29ch`
 
@@ -68,7 +68,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 3. keep bridge and `.hako` helper waves closed
    - `program_json/` and `program_json_entry/` stay near thin floor
    - `.hako` owner/helper local cleanup stays `closeout-ready`
-4. keep the direct-lower probe as explicit evidence until the formal close sync lands
+4. keep the archived direct-lower probe as monitor evidence only; it does not block formal close sync
 5. do not confuse this phase close sync with the primary pure-`.hako` blocker
    - the real current blocker is still the Rust stop-line `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
    - `src/host_providers/mir_builder/lowering.rs` is test-only evidence, not the live phase front
@@ -90,7 +90,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 ## Retreat Finding
 
 - `phase-29ci` already closed the helper-side collapse, so further progress now depends on Rust-owned buckets moving, not on more shell cleanup
-- `registry_optin_method_arraymap_direct_canary_vm.sh` is no longer “cleanup debt”; it is an explicit probe keep and should stay outside the shared-helper accounting
+- `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh` is no longer cleanup debt; it is archived monitor evidence and should stay outside the shared-helper accounting
 - the first productive slice already removed the shared route-table keep by moving surrogate route matching into `build_surrogate.rs`; current review treats that bucket as near thin floor rather than the next automatic shrink target
 - the latest exact leaf on that same owner keeps route match, source-handle decode, stage1 emit, and result encode behind same-file helpers in `build_surrogate.rs`; after this, keep treating that owner as near thin floor unless another exact disappearing leaf appears
 - after that `build_surrogate.rs` slice, the phase front may switch to `future-retire bridge`; the first bridge-entry leaf is `src/runner/stage1_bridge/program_json_entry/request.rs`, while `src/stage1/program_json_v0/authority.rs` stays frozen as the strict source-authority core
@@ -240,7 +240,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - `tools/smokes/v2/lib/test_runner.sh` now also keeps stable builder/registry stdout-tag skip/pass cleanup behind `run_stdout_tag_canary()`, `cleanup_stdout_file()`, and `stdout_file_has_tag_match()`, with `basic` / `extended` / `fixed` matcher modes separated instead of reimplementing grep policy inline
 - `tools/smokes/v2/lib/test_runner.sh` now also keeps the shared registry arraymap exec/tag/functions front behind `prepare_registry_tagged_mir_canary_stdout()`, so `run_registry_method_arraymap_canary()` only owns the remaining method/args/`mir_call` token checks while the explicit diag/direct probe scripts stay outside the helper-local collapse
 - `tools/smokes/v2/lib/test_runner.sh` now also keeps the explicit registry arraymap diag probe behind `run_registry_builder_diag_canary()`, so `registry_optin_method_arraymap_get_diag_canary_vm.sh` is a thin fixture wrapper and the only remaining explicit `phase2160` keep is the direct lower probe script
-- `tools/smokes/v2/lib/test_runner.sh` now also keeps the explicit registry arraymap direct lower probe behind `run_direct_lower_box_canary()`, `run_direct_lower_box_vm_to_stdout_file()`, and `direct_lower_box_runner_code()`, so `registry_optin_method_arraymap_direct_canary_vm.sh` is a thin fixture wrapper too and the helper-local shell wave is now near thin floor
+- `tools/smokes/v2/lib/test_runner.sh` now also keeps the explicit registry arraymap direct lower probe behind `run_direct_lower_box_canary()`, `run_direct_lower_box_vm_to_stdout_file()`, and `direct_lower_box_runner_code()`, so the archived monitor script `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh` remains a thin fixture wrapper and the helper-local shell wave is now near thin floor
 - after that shell/helper collapse, return active slices to the Rust stop-line `src/host_providers/mir_builder.rs`; do not reopen `test_runner.sh` or the `phase2160` probe wrappers unless another exact disappearing leaf appears first
 - the latest shell-helper tightening now also keeps built-MIR builder-only vs preferred-VM route order behind `run_built_mir_json_via_builder_only_route()` / `run_built_mir_json_via_preferred_vm_routes()`, keeps emit-result fallback/success tail behind `run_verify_builder_emit_rust_cli_fallback()` / `cleanup_verify_builder_logs_and_run_built_mir()`, and keeps builder/registry stdout->MIR extraction behind `run_builder_module_vm_to_stdout_file()`, `run_registry_builder_module_vm_to_stdout_file()`, `extract_builder_mir_from_stdout_file()`, and `stdout_file_has_functions_mir()`
 - the `future-retire bridge` inner cluster is also thinner now: `src/runner/stage1_bridge/program_json/payload.rs` owns the bridge-local owner-1 payload emission, leaving `program_json/mod.rs` as read->emit->write orchestration only

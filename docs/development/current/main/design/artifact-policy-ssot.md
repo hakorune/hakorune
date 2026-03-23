@@ -31,6 +31,7 @@ Operational rules:
 
 - `llvm-exe` is the only production/mainline artifact.
 - current `vm-hako` is not a co-mainline candidate in the current policy.
+- current `vm-hako` acceptance is gate-backed; archived throughput/probe smokes do not change its role.
 - `rust-vm` may remain as bootstrap/recovery residue without affecting owner-migration reading.
 
 ## 2. Owner Proof Boundary
