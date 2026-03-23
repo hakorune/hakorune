@@ -298,12 +298,13 @@ fn vm_hako_runtime_compare_contract_is_in_sync() {
         .join("src")
         .join("vm")
         .join("boxes")
-        .join("mir_vm_s0.hako");
+        .join("mir_vm_s0_exec_dispatch.hako");
     let runtime_src =
-        std::fs::read_to_string(&runtime_path).expect("read lang/src/vm/boxes/mir_vm_s0.hako");
+        std::fs::read_to_string(&runtime_path)
+            .expect("read lang/src/vm/boxes/mir_vm_s0_exec_dispatch.hako");
 
     // Rust subset allowlist and Hako runtime implementation must stay aligned.
-    for sym in ["==", "!=", "<", ">", ">="] {
+    for sym in ["==", "!=", "<", "<=", ">", ">="] {
         assert!(
             runtime_src.contains(&format!("if sym == \"{}\"", sym)),
             "missing compare runtime branch for '{}' in {}",
@@ -311,7 +312,7 @@ fn vm_hako_runtime_compare_contract_is_in_sync() {
             runtime_path.display()
         );
     }
-    for alias in ["Eq", "Ne", "Lt", "Gt", "Ge"] {
+    for alias in ["Eq", "Ne", "Lt", "Le", "Gt", "Ge"] {
         assert!(
             runtime_src.contains(&format!("kind == \"{}\"", alias)),
             "missing compare op_kind alias '{}' in {}",
