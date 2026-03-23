@@ -30,6 +30,9 @@
 - De-Rust post-G1 runtime plan（runtime lane の実行順序/保守契約SSOT）: `docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md`
 - Hako runtime C ABI cutover order（`.hako` 完結へ向けた移行順SSOT）: `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
 - Hako fullstack host-ABI completion（意味論`.hako`集約 + host最小ABIの最終形SSOT）: `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
+- Execution lanes and axis separation（stage/owner/artifact-lane の親SSOT）: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+- Execution lanes migration task pack（cross-phase 実装順SSOT）: `docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md`
+- Execution lanes legacy retirement inventory（移行中に見つかった legacy/delete 候補の全体台帳）: `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
 - Hakoruneup release distribution（self-contained bundle + package manager + explicit system LLVM dev mode）: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
 - Stage2 selfhost and hako-alloc（stage軸 + `hako_core/alloc/std` layering SSOT）: `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
 - Thread and TLS capability（helper-shaped current TLS + language-level final TLS SSOT）: `docs/development/current/main/design/thread-and-tls-capability-ssot.md`

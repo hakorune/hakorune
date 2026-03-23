@@ -36,6 +36,7 @@ Non‑Goals
 - Dev build: `tools/selfhost/build_stage1.sh` → produces `target/selfhost/hakorune`
 - Role:
   - Fast iteration用の Stage1 selfhost バイナリ（Ny Executor / CLI 実験など）。
+  - bridge/proof line only; not daily distribution truth.
   - new CLI/runner 機能はまずこちらで開発・検証する。
 
 ### Stable line (lang bin – snapshot)
@@ -47,10 +48,12 @@ Non‑Goals
 - Policy（Phase 25.1 以降の想定）:
   - `target/selfhost/hakorune` で十分に安定したら、その成果物を `lang/bin/hakorune` に昇格させる（手動コピー or 専用スクリプト）。
   - `lang/bin/hakorune` は「last known good」の Stage1 コア EXE として扱い、配布や外部からの参照時は原則こちらを基準にする。
+  - ただしこれは stage1 snapshot/proof reading であり、final distribution truth ではない。
 
 Notes
 - `lang/` 以下は「最終的に 1 つの Stage1 コア EXE（hakorune）を構成するソース群」という前提で整理する。
 - `target/selfhost/hakorune` は開発中の最新版、`lang/bin/hakorune` は安定版スナップショットという役割分担にする。
+- stage/artifact/lane の親SSOTは `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`。
 - `Stage1` / `Stage2+` は artifact / proof / mainline の stage 軸であって、kernel owner/substrate 軸とは別だよ。
 - owner/substrate の current truth は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` と `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md` を正本にする。
 - final distribution target は Stage2+ line であり、`lang/bin/hakorune` そのものを final 配布物の意味で読むのはやめる。

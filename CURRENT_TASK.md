@@ -30,6 +30,10 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current Priority
 
+- execution/artifact/lane vocabulary is now docs-locked in:
+  - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+  - `docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md`
+  - `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
 - `phase-29ct` substrate capability ladder docs/taskization reached stop-line
 - `phase-29cu` Rune v0 docs/task lane is active; parser/backend work now follows the fixed order in `phase-29cu/README.md`
 - `phase-29cm` collection owner cutover is done-enough stop line
@@ -66,6 +70,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29cu` carries the active Rune v0 lane: declaration-local `attrs.runes`, `.hako` AST/direct MIR carrier, and `ny-llvmc` selected-entry semantics.
   - current `.hako` source-route keep may use a synthetic `Main.main` def transport shim for selected-entry attrs, but Program(JSON v0) root/body remain no-widen
 - `phase-29y` carries the runtime `.hako` migration / boxcall contract polish.
+- runtime lane: `phase-29y / parked`. current blocker: `none (parked; reopen only if a new exact vm-hako blocker appears)`.
 - the current docs vocabulary sweep is complete; it is a maintenance note, not the main task.
 
 ## Next Task

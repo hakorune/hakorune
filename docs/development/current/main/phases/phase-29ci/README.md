@@ -5,6 +5,7 @@ Date: 2026-03-13
 Scope: `phase-29ch` closeout 後に `Program(JSON v0)` bootstrap boundary 自体を retire するための separate phase pointer。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
   - docs/development/current/main/phases/phase-29ch/README.md
@@ -33,6 +34,7 @@ Related:
 
 この phase は `MIR-direct bootstrap unification` ではない。
 `phase-29ch` が固定した authority を前提に、bootstrap-only JSON v0 boundary の caller / owner / delete order を扱う。
+execution-lane reading では、この phase は stage1 bridge/proof boundary だけを扱い、distribution policy は持たない。
 
 ## Status Reading
 

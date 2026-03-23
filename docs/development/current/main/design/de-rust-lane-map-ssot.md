@@ -6,6 +6,7 @@ Scope: 脱Rustタスクを lane A/B/C で固定し、担当境界と導線の混
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
@@ -51,6 +52,8 @@ Related:
 ## Runtime Operation Policy (LLVM-first)
 
 - runtime 実行系の主経路は LLVM（`--backend llvm`）とする。
+- parent execution-lane vocabulary is `execution-lanes-and-axis-separation-ssot.md`.
+- in that vocabulary, the operational default is `llvm-exe`, `vm-hako` is the reference/debug/bootstrap-proof lane, and `rust-vm` is the bootstrap/recovery/compat lane.
 - lane C（`vm-hako`）は既定で monitor-only とし、fixed backlog は置かない。
 - lane C で修正に入る条件は次のいずれか:
   1. `phase29y_vm_hako_caps_gate_vm.sh` が FAIL したとき。

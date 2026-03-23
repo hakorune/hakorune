@@ -5,6 +5,7 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
 
 ## Entry
 
+- execution-lane parent SSOT: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
 - 相談パケット（SSOT）: `docs/development/current/main/investigations/phase-29y-mir-lifecycle-vocab-consult.md`
 - ~~次の指示書（P0, docs-only）~~ ✅ 完了: `docs/development/current/main/phases/phase-29y/P0-DOCS-FINALIZE-INSTRUCTIONS.md`
 - 方針統合（GC + 実装順序）: `docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md`
@@ -72,7 +73,9 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
 ## Runtime Operation Policy (LLVM-first / vm-hako monitor)
 
 - phase-29y の日常運用は `LLVM-first` を固定する（runtime 実行系の主検証は LLVM）。
+- execution-lane parent vocabulary では、operational default は `llvm-exe`、`vm-hako` は reference/debug/bootstrap-proof lane、`rust-vm` は bootstrap/recovery/compat lane と読む。
 - `vm-hako` は monitor-only lane とし、`vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh` fail など blocker 発生時のみ failure-driven で修正する。
+- `rust-vm` は recovery/compat keep として読み、runtime daily feature lane へ戻さない。
 - policy の単一正本は `docs/development/current/main/design/de-rust-lane-map-ssot.md` の `Runtime Operation Policy` とする。
 
 ## Next-Task Docs Contract (sprawl lock)

@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-23
+Date: 2026-03-24
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -28,7 +28,8 @@ Related:
 ## Current Read
 
 - Compiler lane: `phase-29bq` は landed / monitor-only、active blocker は `none`。
-- Runtime lane: `phase-29y` が current anchor、日常は `LLVM-first / vm-hako monitor-only`。
+- Execution lane policy: parent SSOT is `execution-lanes-and-axis-separation-ssot.md`; `stage1` は bridge/proof only、`stage2+` が final distribution target。
+- Runtime lane: `phase-29y` が current anchor。operational reading は `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat。
 - Kernel capability lane: `phase-29ct` は stop-line reached、`C5` は deferred。
 - Rune lane: `phase-29cu` は active current lane。grammar activation は Rust parser / `.hako` parser 両方前提で、carrier は declaration-local `attrs.runes` -> direct MIR attrs、`ny-llvmc` は selected-entry only。
 - Rune source-route note: `.hako` の source-route keep は selected-entry attrs を synthetic `Main.main` def で一時輸送してよいが、Program(JSON v0) root/body は no-widen のまま。
@@ -48,6 +49,9 @@ Related:
 
 ## Exact Links
 
+- Execution lane policy: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+- Execution lane task pack: `docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md`
+- Execution lane legacy inventory: `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
 - Bootstrap route SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - Compiler structure SSOT: `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
 - Stage axis SSOT: `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`

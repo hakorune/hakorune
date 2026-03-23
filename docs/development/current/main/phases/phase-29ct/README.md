@@ -6,6 +6,7 @@ Scope: collection owner stop-line の次として、`.hako` kernel を capabilit
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/phases/phase-29cm/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
@@ -33,6 +34,7 @@ Related:
 - final shape を「`.hako` owner + thin native metal keep」として固定する。
 - collection owner stop-line の次を、perf micro-tuning ではなく substrate capability widening の順番で読む。
 - `hakozuna` を含む future low-level kernel/allocator policy owner を `.hako` に寄せるための fixed order を決める。
+- execution-lane reading では、この phase は stage0/native substrate keep boundary の文脈で読み、runtime default lane や stage1/stage2 distribution policy は持たない。
 
 ## Final Shape
 

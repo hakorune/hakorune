@@ -6,6 +6,7 @@ Scope: Rune v0 を current docs/task pack として固定し、parser parity / A
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md
   - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
@@ -29,6 +30,7 @@ Related:
 - parser parity / AST/direct MIR shape / backend scope を実装前に固定する。
 - Rune lane を `phase-29ct` substrate work や `phase-29y` runtime migration と混ぜない。
 - `Program(JSON v0)` は Rune で widen しない。
+- stage2+ / distribution policy の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この phase は Rune lane のみを owner とする。
 
 ## Fixed Decisions
 

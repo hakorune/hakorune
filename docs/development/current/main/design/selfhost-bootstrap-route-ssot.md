@@ -5,6 +5,7 @@ Scope: selfhost を「.hako コンパイラ → JoinIR → JSON v0 → VM」ま�
 
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
 - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
 - docs/development/current/main/design/selfhost-bootstrap-route-evidence-and-legacy-lanes.md
 - docs/development/current/main/10-Now.md
@@ -31,6 +32,7 @@ End-state note:
   plugin behavior も `.hako` 側へ寄り、Rust は host/runtime/backend の最小面だけを残すこと
 - operationally, `stage0` Rust bootstrap is allowed to remain as the first-build / recovery lane, while `stage2+` is the first `0rust` selfhost mainline
 - `Program(JSON v0)` / stage1 wrapper / surrogate provider はその途中にある bootstrap-only boundary で、authority ではなく最終 retire target だと扱う
+- stage/artifact/lane の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この文書は stage1 bootstrap route authority だけを扱う
 
 Retirement reading:
 - `Program(JSON v0)` は current reduced authority からは退いているが、repo-wide で retire 完了したわけではない。

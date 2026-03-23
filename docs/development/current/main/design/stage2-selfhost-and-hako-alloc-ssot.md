@@ -6,6 +6,7 @@ Scope: `stage0/stage1/stage2/stage3` の bootstrap/distribution 軸と、`.hako 
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md
   - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
@@ -25,6 +26,7 @@ Related:
 - final end-state を `.hako` の `core/alloc/std` layering と thin native metal keep で固定する。
 - current `lang/bin/hakorune` / `target/selfhost/hakorune` を stage1 snapshot/proof line として読み、final distribution target と混同しない。
 - release / distribution shape が必要な場合は `hakoruneup-release-distribution-ssot.md` を future reference として読む。
+- shared artifact/lane vocabulary is owned by `execution-lanes-and-axis-separation-ssot.md`; this child doc owns stage/distribution layering and library layering.
 
 ## Fixed Reading
 
