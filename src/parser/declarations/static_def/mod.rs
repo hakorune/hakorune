@@ -14,6 +14,7 @@ pub mod validators;
 /// Parse static box declaration: static box Name { ... }
 pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
     p.consume(TokenType::BOX)?;
+    let attrs = p.take_pending_runes_for_box()?;
     let (name, type_parameters, extends, implements) = header::parse_static_header(p)?;
 
     p.consume(TokenType::LBRACE)?;
@@ -55,6 +56,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
 
         // 🔥 static 初期化子の処理（厳密ゲート互換）
         if let Some(body) = members::parse_static_initializer_if_any(p)? {
+            p.ensure_no_pending_runes("static initializer")?;
             static_init = Some(body);
             continue;
         } else if p.match_token(&TokenType::STATIC) {
@@ -78,6 +80,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             &mut init_fields,
             &mut weak_fields,
         )? {
+            p.ensure_no_pending_runes("init block")?;
             continue;
         }
 
@@ -201,6 +204,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         type_parameters,
         is_static: true, // 🔥 static boxフラグを設定
         static_init,     // 🔥 static初期化ブロック
+        attrs,
         span: Span::unknown(),
     })
 }

@@ -11,6 +11,7 @@ impl NyashParser {
     /// function宣言をパース: function name(params) { body }
     pub fn parse_function_declaration(&mut self) -> Result<ASTNode, ParseError> {
         self.consume(TokenType::FUNCTION)?;
+        let attrs = self.take_pending_runes_for_function()?;
 
         // 関数名を取得
         let name = if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
@@ -43,6 +44,7 @@ impl NyashParser {
             body,
             is_static: false,   // 通常の関数は静的でない
             is_override: false, // デフォルトは非オーバーライド
+            attrs,
             span: Span::unknown(),
         })
     }

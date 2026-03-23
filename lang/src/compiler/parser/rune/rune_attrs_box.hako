@@ -1,0 +1,46 @@
+// RuneAttrsBox — JSON fragment helpers for declaration-local rune carriage.
+// Responsibility:
+// - Normalize rune arrays.
+// - Attach attrs payloads to JSON object nodes without changing other fields.
+
+using sh_core as StringHelpers
+
+static box RuneAttrsBox {
+  normalize_runes_json(runes_json) {
+    if runes_json == null { return "[]" }
+    local s = "" + runes_json
+    if s == "" { return "[]" }
+    return s
+  }
+
+  has_runes(runes_json) {
+    local s = me.normalize_runes_json(runes_json)
+    if s == "" || s == "[]" { return 0 }
+    return 1
+  }
+
+  attrs_json(runes_json) {
+    return "{\"runes\":" + me.normalize_runes_json(runes_json) + "}"
+  }
+
+  attach_attrs(node_json, runes_json) {
+    if node_json == null { return node_json }
+    if me.has_runes(runes_json) == 0 { return node_json }
+
+    local json = "" + node_json
+    local close_pos = -1
+    local i = json.length() - 1
+    loop(i >= 0) {
+      if json.substring(i, i + 1) == "}" {
+        close_pos = i
+        break
+      }
+      i = i - 1
+    }
+    if close_pos < 0 { return json }
+
+    local attrs = me.attrs_json(runes_json)
+    return json.substring(0, close_pos) + ",\"attrs\":" + attrs + json.substring(close_pos, json.length())
+  }
+}
+

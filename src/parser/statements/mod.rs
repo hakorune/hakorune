@@ -154,7 +154,9 @@ impl NyashParser {
             if self.maybe_parse_opt_annotation_noop()? {
                 continue;
             }
-            statements.push(self.parse_statement()?);
+            let mut statement = self.parse_statement()?;
+            self.attach_pending_runes_to_declaration(&mut statement)?;
+            statements.push(statement);
         }
         if trace_blocks {
             crate::runtime::get_global_ring0().log.debug(&format!(
@@ -247,7 +249,9 @@ impl NyashParser {
                     break;
                 }
             }
-            statements.push(self.parse_statement()?);
+            let mut statement = self.parse_statement()?;
+            self.attach_pending_runes_to_declaration(&mut statement)?;
+            statements.push(statement);
         }
         if trace_blocks {
             crate::runtime::get_global_ring0().log.debug(&format!(

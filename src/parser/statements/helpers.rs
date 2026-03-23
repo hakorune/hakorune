@@ -7,7 +7,7 @@
 use crate::ast::ASTNode;
 use crate::parser::common::ParserUtils;
 use crate::parser::cursor::TokenCursor;
-use crate::parser::{NyashParser, ParseError};
+use crate::parser::{NyashParser, ParseError, RuneAttr};
 use crate::tokenizer::TokenType;
 
 /// Check if token cursor is enabled
@@ -43,6 +43,10 @@ impl NyashParser {
                 line: self.current_token().line,
             });
         };
+
+        if anno_name == "rune" {
+            return self.parse_rune_annotation();
+        }
 
         self.consume(TokenType::LPAREN)?;
 
@@ -125,6 +129,141 @@ impl NyashParser {
         }
 
         self.consume(TokenType::RPAREN)?;
+        if self.match_token(&TokenType::SEMICOLON) {
+            self.advance();
+        }
+        Ok(true)
+    }
+
+    fn parse_rune_annotation(&mut self) -> Result<bool, ParseError> {
+        fn parse_rune_name(this: &mut NyashParser) -> Result<RuneAttr, ParseError> {
+            let rune_name = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
+                let n = name.clone();
+                this.advance();
+                n
+            } else if let TokenType::STRING(name) = &this.current_token().token_type {
+                let n = name.clone();
+                this.advance();
+                n
+            } else {
+                return Err(ParseError::UnexpectedToken {
+                    found: this.current_token().token_type.clone(),
+                    expected: "[freeze:contract][parser/rune] rune name after @rune".to_string(),
+                    line: this.current_token().line,
+                });
+            };
+
+            let supported = matches!(
+                rune_name.as_str(),
+                "Public" | "Internal" | "FfiSafe" | "Symbol" | "CallConv" | "ReturnsOwned"
+                    | "FreeWith" | "Ownership"
+            );
+            if !supported {
+                return Err(ParseError::UnexpectedToken {
+                    found: TokenType::IDENTIFIER(rune_name),
+                    expected: "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership".to_string(),
+                    line: this.current_token().line,
+                });
+            }
+
+            let mut args = Vec::new();
+            if this.match_token(&TokenType::LPAREN) {
+                this.advance();
+                while !this.match_token(&TokenType::RPAREN) {
+                    let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
+                        let n = name.clone();
+                        this.advance();
+                        n
+                    } else if let TokenType::STRING(name) = &this.current_token().token_type {
+                        let n = name.clone();
+                        this.advance();
+                        n
+                    } else {
+                        return Err(ParseError::UnexpectedToken {
+                            found: this.current_token().token_type.clone(),
+                            expected: "[freeze:contract][parser/rune] rune argument".to_string(),
+                            line: this.current_token().line,
+                        });
+                    };
+                    args.push(arg);
+                    if this.match_token(&TokenType::COMMA) {
+                        this.advance();
+                        continue;
+                    }
+                    break;
+                }
+                this.consume(TokenType::RPAREN)?;
+            } else if matches!(rune_name.as_str(), "Public" | "Internal" | "FfiSafe" | "ReturnsOwned") {
+                // no-arg bare form
+            } else {
+                let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
+                    let n = name.clone();
+                    this.advance();
+                    n
+                } else if let TokenType::STRING(name) = &this.current_token().token_type {
+                    let n = name.clone();
+                    this.advance();
+                    n
+                } else {
+                    return Err(ParseError::UnexpectedToken {
+                        found: this.current_token().token_type.clone(),
+                        expected:
+                            "[freeze:contract][parser/rune] rune argument after bare rune name"
+                                .to_string(),
+                        line: this.current_token().line,
+                    });
+                };
+                args.push(arg);
+            }
+
+            Ok(RuneAttr {
+                name: rune_name,
+                args,
+            })
+        }
+
+        let rune = parse_rune_name(self)?;
+        let supported = matches!(
+            rune.name.as_str(),
+            "Public" | "Internal" | "FfiSafe" | "Symbol" | "CallConv" | "ReturnsOwned"
+                | "FreeWith" | "Ownership"
+        );
+        if !supported {
+            return Err(ParseError::UnexpectedToken {
+                found: TokenType::IDENTIFIER(rune.name),
+                expected: "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership".to_string(),
+                line: self.current_token().line,
+            });
+        }
+        match rune.name.as_str() {
+            "Public" | "Internal" | "FfiSafe" | "ReturnsOwned" => {
+                if !rune.args.is_empty() {
+                    return Err(ParseError::UnexpectedToken {
+                        found: self.current_token().token_type.clone(),
+                        expected: format!(
+                            "[freeze:contract][parser/rune] @rune({}) takes no args",
+                            rune.name
+                        ),
+                        line: self.current_token().line,
+                    });
+                }
+            }
+            "Symbol" | "CallConv" | "FreeWith" | "Ownership" => {
+                if rune.args.len() != 1 {
+                    return Err(ParseError::UnexpectedToken {
+                        found: self.current_token().token_type.clone(),
+                        expected: format!(
+                            "[freeze:contract][parser/rune] @rune({})(<ident|string>)",
+                            rune.name
+                        ),
+                        line: self.current_token().line,
+                    });
+                }
+            }
+            _ => {}
+        }
+        self.push_pending_rune(rune);
+
         if self.match_token(&TokenType::SEMICOLON) {
             self.advance();
         }

@@ -10,6 +10,7 @@ use std::collections::HashMap;
 pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
     p.consume(TokenType::INTERFACE)?;
     p.consume(TokenType::BOX)?;
+    let attrs = p.take_pending_runes_for_box()?;
 
     let name = if let TokenType::IDENTIFIER(name) = &p.current_token().token_type {
         let name = name.clone();
@@ -54,6 +55,9 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
     let mut methods = HashMap::new();
 
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
+        if p.maybe_parse_opt_annotation_noop()? {
+            continue;
+        }
         if let TokenType::IDENTIFIER(method_name) = &p.current_token().token_type {
             let method_name = method_name.clone();
             p.advance();
@@ -73,9 +77,12 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
                     body: vec![],       // 空の実装
                     is_static: false,   // インターフェースメソッドは通常静的でない
                     is_override: false, // デフォルトは非オーバーライド
+                    attrs: crate::ast::DeclarationAttrs::default(),
                     span: Span::unknown(),
                 };
 
+                let mut method_decl = method_decl;
+                p.attach_pending_runes_to_declaration(&mut method_decl)?;
                 methods.insert(method_name, method_decl);
             } else {
                 let line = p.current_token().line;
@@ -112,6 +119,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
         type_parameters,
         is_static: false,  // インターフェースは非static
         static_init: None, // インターフェースにstatic initなし
+        attrs,
         span: Span::unknown(),
     })
 }

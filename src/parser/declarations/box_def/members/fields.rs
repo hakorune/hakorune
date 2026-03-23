@@ -59,6 +59,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
                 body,
                 is_static: false,
                 is_override: false,
+                attrs: crate::ast::DeclarationAttrs::default(),
                 span: Span::unknown(),
             };
             methods.insert(getter_name, method);
@@ -78,6 +79,7 @@ pub(crate) fn try_parse_header_first_field_or_property(
                 body,
                 is_static: false,
                 is_override: false,
+                attrs: crate::ast::DeclarationAttrs::default(),
                 span: Span::unknown(),
             };
             methods.insert(getter_name, method);

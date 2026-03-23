@@ -21,6 +21,7 @@ pub(crate) fn try_parse_constructor(
             });
         }
         let name = "init".to_string();
+        let attrs = p.take_pending_runes_for_function()?;
         p.advance(); // consume 'init'
         p.consume(TokenType::LPAREN)?;
 
@@ -72,6 +73,7 @@ pub(crate) fn try_parse_constructor(
             body,
             is_static: false,
             is_override: false,
+            attrs,
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());
@@ -88,6 +90,7 @@ pub(crate) fn try_parse_constructor(
             });
         }
         let name = "pack".to_string();
+        let attrs = p.take_pending_runes_for_function()?;
         p.advance(); // consume 'pack'
         p.consume(TokenType::LPAREN)?;
 
@@ -102,6 +105,7 @@ pub(crate) fn try_parse_constructor(
             body,
             is_static: false,
             is_override: false,
+            attrs,
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());
@@ -118,6 +122,7 @@ pub(crate) fn try_parse_constructor(
             });
         }
         let name = "birth".to_string();
+        let attrs = p.take_pending_runes_for_function()?;
         p.advance(); // consume 'birth'
         p.consume(TokenType::LPAREN)?;
 
@@ -133,6 +138,7 @@ pub(crate) fn try_parse_constructor(
             body,
             is_static: false,
             is_override: false,
+            attrs,
             span: Span::unknown(),
         };
         let key = format!("{}/{}", name, params.len());

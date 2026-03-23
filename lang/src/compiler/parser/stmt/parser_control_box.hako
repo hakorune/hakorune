@@ -5,6 +5,7 @@
 
 using sh_core as StringHelpers  // Required: using chain resolution not implemented
 using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+using lang.compiler.parser.rune.rune_attrs_box as RuneAttrsBox
 static box ParserControlBox {
   // Parse: if (cond) { ... } else { ... }
   parse_if(src, i, stmt_start, ctx) {
@@ -385,6 +386,7 @@ static box ParserControlBox {
       j = me._consume_optional_semicolons(src, j, ctx)
 
       if s.length() > 0 {
+        s = RuneAttrsBox.attach_attrs(s, ctx.consume_runes_json())
         if first == 1 {
           body = body + s
           first = 0

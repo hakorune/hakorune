@@ -75,6 +75,7 @@ pub(crate) fn try_parse_method_or_field(
                 p.advance();
             }
         } else {
+            p.ensure_no_pending_runes("field")?;
             if trace {
                 crate::runtime::get_global_ring0()
                     .log
@@ -92,6 +93,7 @@ pub(crate) fn try_parse_method_or_field(
         ));
     }
     // Method
+    let attrs = p.take_pending_runes_for_function()?;
     p.advance(); // consume '('
     let mut params = Vec::new();
     while !p.match_token(&TokenType::RPAREN) && !p.is_at_end() {
@@ -160,8 +162,11 @@ pub(crate) fn try_parse_method_or_field(
         // Methods inside a static box are semantically static
         is_static: true,
         is_override: false,
+        attrs,
         span: crate::ast::Span::unknown(),
     };
+    let mut method = method;
+    p.attach_pending_runes_to_declaration(&mut method)?;
     *last_method_name = Some(name.clone());
     methods.insert(name, method);
     Ok(true)

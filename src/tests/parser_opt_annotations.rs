@@ -59,6 +59,52 @@ fn find_method_body<'a>(ast: &'a ASTNode, box_name: &str, method_name: &str) -> 
     panic!("method not found: {}.{}", box_name, method_name);
 }
 
+fn find_runes(metadata: &crate::parser::ParserMetadata) -> Vec<(String, Vec<String>)> {
+    metadata
+        .runes
+        .iter()
+        .map(|rune| (rune.name.clone(), rune.args.clone()))
+        .collect()
+}
+
+fn find_box_and_method_runes(
+    ast: &ASTNode,
+    box_name: &str,
+    method_name: &str,
+) -> (Vec<(String, Vec<String>)>, Vec<(String, Vec<String>)>) {
+    let ASTNode::Program { statements, .. } = ast else {
+        panic!("expected Program");
+    };
+    for stmt in statements {
+        if let ASTNode::BoxDeclaration {
+            name,
+            attrs,
+            methods,
+            ..
+        } = stmt
+        {
+            if name != box_name {
+                continue;
+            }
+            let box_runes = attrs
+                .runes
+                .iter()
+                .map(|rune| (rune.name.clone(), rune.args.clone()))
+                .collect::<Vec<_>>();
+            let Some(ASTNode::FunctionDeclaration { attrs, .. }) = methods.get(method_name) else {
+                panic!("method not found: {box_name}.{method_name}");
+            };
+            let method_runes = attrs
+                .runes
+                .iter()
+                .map(|rune| (rune.name.clone(), rune.args.clone()))
+                .collect::<Vec<_>>();
+            return (box_runes, method_runes);
+        }
+    }
+    panic!("box not found: {box_name}");
+}
+
 #[test]
 fn tokenizer_rejects_annotation_prefix_when_feature_off() {
     with_features(None, || {
@@ -127,6 +173,79 @@ static box Main {
             msg.contains(
                 "[freeze:contract][parser/annotation] supported: hint|contract|intrinsic_candidate"
             ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_accepts_rune_annotations_and_preserves_metadata() {
+    with_features(Some("rune"), || {
+        let src = r#"
+@rune Public
+static box Main {
+  @rune Ownership(owned)
+  main() {
+    return 0
+  }
+}
+"#;
+        let (ast, metadata) =
+            NyashParser::parse_from_string_with_metadata(src).expect("parse with rune");
+        let runes = find_runes(&metadata);
+        assert_eq!(
+            runes,
+            vec![
+                ("Public".to_string(), vec![]),
+                ("Ownership".to_string(), vec!["owned".to_string()])
+            ]
+        );
+        let (box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(box_runes, vec![("Public".to_string(), vec![])]);
+        assert_eq!(
+            method_runes,
+            vec![("Ownership".to_string(), vec!["owned".to_string()])]
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_unknown_rune_name_fail_fast() {
+    with_features(Some("rune"), || {
+        let src = r#"
+@rune Strange
+static box Main {
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains(
+                "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership"
+            ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_rune_on_non_declaration_statement() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  main() {
+    @rune Public
+    local x = 1
+    return x
+  }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] declaration required after @rune")
+                || msg.contains("[freeze:contract][parser/rune] invalid placement"),
             "unexpected error: {msg}"
         );
     });

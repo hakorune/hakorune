@@ -2,6 +2,10 @@
 
 Status: Draft. This document specifies a minimal JSON schema for representing Nyash AST to enable macro expansion by external processes (e.g., PyVM-based MacroBox).
 
+Decision note (current):
+- Rune v0 metadata carriage is declaration-local on AST JSON v0 and direct MIR; Program(JSON v0) is a retire target and is not widened for Rune.
+- SSOT: `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
+
 Top-level
 - Object with `kind` discriminator.
 - Nested nodes referenced inline; no IDs.
@@ -16,7 +20,7 @@ Kinds (subset for Phase 2+)
 - Continue: { kind: "Continue" }
 - Assignment: { kind: "Assignment", target: Node, value: Node }
 - If: { kind: "If", condition: Node, then: [Node], else: [Node]|null }
-- FunctionDeclaration: { kind: "FunctionDeclaration", name: string, params: [string], body: [Node], static: bool, override: bool }
+- FunctionDeclaration: { kind: "FunctionDeclaration", name: string, params: [string], body: [Node], static: bool, override: bool, attrs?: { runes: [RuneAttr] } }
 - Variable: { kind: "Variable", name: string }
 - Literal: { kind: "Literal", value: LiteralValue }
 - BinaryOp: { kind: "BinaryOp", op: string, left: Node, right: Node }
@@ -43,12 +47,36 @@ Binary operators
 
 Notes
 - The schema is intentionally minimal; it covers nodes needed for Phase 2 samples.
-- Future: add `span`, `attrs`, typed annotations as needed.
+- Future: add `span`, typed annotations as needed.
+- Current: declaration-bearing nodes may carry `attrs.runes` in AST JSON v0.
 - Type checks (is/as) mapping
   - AST JSON v0 does not introduce a dedicated TypeOp node. Instead, write MethodCall with
     method "is" or "as" and a single string literal type argument:
     {"kind":"MethodCall","object":<expr>,"method":"is","arguments":[{"kind":"Literal","value":{"type":"string","value":"Integer"}}]}
   - Lowering maps this to MIR::TypeOp(Check/ Cast) with the target type resolved by name.
+
+## Declaration `attrs.runes`
+
+Declaration-bearing nodes may carry:
+
+```json
+{
+  "attrs": {
+    "runes": [
+      { "name": "Public", "args": [] },
+      { "name": "Ownership", "args": ["owned"] }
+    ]
+  }
+}
+```
+
+Carrier rules:
+
+- both Rust parser and `.hako` parser must emit the same declaration-local `attrs.runes` shape
+- `attrs.runes` is declaration-local only in v0
+- AST JSON v0 is the canonical metadata carrier for declaration metadata
+- Program(JSON v0) is a retire target and must not be widened for Rune
+- MIR JSON may mirror only an ABI-facing subset when a backend/verifier needs it
 
 ## Example
 

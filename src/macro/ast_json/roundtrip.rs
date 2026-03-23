@@ -1,4 +1,4 @@
-use nyash_rust::ast::{ASTNode, LiteralValue, Span};
+use nyash_rust::ast::{ASTNode, DeclarationAttrs, LiteralValue, RuneAttr, Span};
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -160,6 +160,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .and_then(|b| b.as_bool())
                     .unwrap_or(false),
                 static_init,
+                attrs: json_to_attrs(v.get("attrs")),
                 span: Span::unknown(),
             }
         }
@@ -256,6 +257,7 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect(),
             is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
             is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
+            attrs: json_to_attrs(v.get("attrs")),
             span: Span::unknown(),
         },
         "Variable" => ASTNode::Variable {
@@ -400,4 +402,31 @@ pub fn json_to_ast(v: &Value) -> Option<ASTNode> {
         }
         _ => return None,
     })
+}
+
+fn json_to_attrs(value: Option<&Value>) -> DeclarationAttrs {
+    let runes = value
+        .and_then(|attrs| attrs.get("runes"))
+        .and_then(Value::as_array)
+        .map(|entries| {
+            entries
+                .iter()
+                .filter_map(|entry| {
+                    Some(RuneAttr {
+                        name: entry.get("name")?.as_str()?.to_string(),
+                        args: entry
+                            .get("args")
+                            .and_then(Value::as_array)
+                            .map(|args| {
+                                args.iter()
+                                    .filter_map(|arg| arg.as_str().map(|s| s.to_string()))
+                                    .collect::<Vec<_>>()
+                            })
+                            .unwrap_or_default(),
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    DeclarationAttrs { runes }
 }

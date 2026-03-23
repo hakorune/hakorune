@@ -29,6 +29,7 @@ members = [
   "lang/src/vm/hako_module.toml",
   "lang/src/runtime/meta/hako_module.toml",
   "lang/src/runtime/kernel/hako_module.toml",
+  "lang/src/hako_alloc/hako_module.toml",
   "lang/src/runner/hako_module.toml",
   "lang/src/llvm_ir/hako_module.toml",
   "lang/src/opt/hako_module.toml",
@@ -80,6 +81,7 @@ search_paths = ["target/release"]
 "lang.shared" = "lang/src/shared"
 "lang.vm" = "lang/src/vm"
 "lang.runtime" = "lang/src/runtime"
+"lang.hako_alloc" = "lang/src/hako_alloc"
 "lang.runner" = "lang/src/runner"
 "lang.llvm_ir" = "lang/src/llvm_ir"
 "lang.opt" = "lang/src/opt"

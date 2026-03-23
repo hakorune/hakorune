@@ -77,7 +77,9 @@ impl NyashTokenizer {
 
         match self.current_char() {
             Some('@') => {
-                if crate::config::env::parser_opt_annotations_enabled() {
+                if crate::config::env::parser_opt_annotations_enabled()
+                    || crate::config::env::parser_rune_enabled()
+                {
                     self.advance();
                     return Ok(Token::new(TokenType::AT, start_line, start_column));
                 }

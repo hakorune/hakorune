@@ -125,6 +125,19 @@ static box JsonProgramBox {
 
   default_recv_expr() { return "{\"type\":\"Var\",\"name\":\"me\"}" }
 
+  _stmt_attrs_fragment(stmt_json) {
+    if stmt_json == null { return "" }
+    local trimmed = me.trim(stmt_json)
+    local attrs_key = "\"attrs\":"
+    local attrs_pos = trimmed.lastIndexOf(attrs_key)
+    if attrs_pos < 0 { return "" }
+    local value_start = attrs_pos + attrs_key.length()
+    if value_start >= trimmed.length() { return "" }
+    local attrs_raw = me.trim(trimmed.substring(value_start, trimmed.length() - 1))
+    if attrs_raw == "" || attrs_raw == "null" { return "" }
+    return ",\"attrs\":" + attrs_raw
+  }
+
   normalize_stmt(stmt_json) {
     if stmt_json == null { return "{}" }
     local trimmed = me.trim(stmt_json)
@@ -135,7 +148,7 @@ static box JsonProgramBox {
       local expr_raw = JsonUtilsBox.extract_value(trimmed, "expr")
       local expr_norm = me.normalize_expr(expr_raw)
       if expr_norm == null { expr_norm = me.default_int_expr() }
-      return "{\"type\":\"Return\",\"expr\":" + expr_norm + "}"
+      return "{\"type\":\"Return\",\"expr\":" + expr_norm + me._stmt_attrs_fragment(trimmed) + "}"
     }
     if type_name == "If" {
       local cond_raw = JsonUtilsBox.extract_value(trimmed, "cond")
@@ -152,7 +165,7 @@ static box JsonProgramBox {
           out = out + ",\"else\":" + else_norm
         }
       }
-      return out + "}"
+      return out + me._stmt_attrs_fragment(trimmed) + "}"
     }
     if type_name == "Loop" {
       local cond_raw2 = JsonUtilsBox.extract_value(trimmed, "cond")
@@ -160,7 +173,7 @@ static box JsonProgramBox {
       if cond_norm2 == null { cond_norm2 = me.default_bool_expr() }
       local body_raw = JsonUtilsBox.extract_value(trimmed, "body")
       local body_norm = me.normalize_stmt_array(body_raw)
-      return "{\"type\":\"Loop\",\"cond\":" + cond_norm2 + ",\"body\":" + body_norm + "}"
+      return "{\"type\":\"Loop\",\"cond\":" + cond_norm2 + ",\"body\":" + body_norm + me._stmt_attrs_fragment(trimmed) + "}"
     }
     if type_name == "Local" || type_name == "Const" {
       local name = JsonUtilsBox.extract_string_value(trimmed, "name", "tmp")
@@ -170,13 +183,13 @@ static box JsonProgramBox {
       if expr_norm3 == null { expr_norm3 = me.default_int_expr() }
       local tag = "Local"
       if type_name == "Const" { tag = "Const" }
-      return "{\"type\":\"" + tag + "\",\"name\":" + me.quote(name) + ",\"expr\":" + expr_norm3 + "}"
+      return "{\"type\":\"" + tag + "\",\"name\":" + me.quote(name) + ",\"expr\":" + expr_norm3 + me._stmt_attrs_fragment(trimmed) + "}"
     }
     if type_name == "Expr" {
       local expr_raw4 = JsonUtilsBox.extract_value(trimmed, "expr")
       local expr_norm4 = me.normalize_expr(expr_raw4)
       if expr_norm4 == null { expr_norm4 = me.default_int_expr() }
-      return "{\"type\":\"Expr\",\"expr\":" + expr_norm4 + "}"
+      return "{\"type\":\"Expr\",\"expr\":" + expr_norm4 + me._stmt_attrs_fragment(trimmed) + "}"
     }
 
     return trimmed

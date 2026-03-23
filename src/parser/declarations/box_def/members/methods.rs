@@ -15,6 +15,7 @@ pub(crate) fn try_parse_method(
     if !p.match_token(&TokenType::LPAREN) {
         return Ok(None);
     }
+    let attrs = p.take_pending_runes_for_function()?;
     p.advance(); // consume '('
 
     // Phase 285A1.5: Use shared helper to prevent parser hangs on unsupported type annotations
@@ -70,6 +71,7 @@ pub(crate) fn try_parse_method(
         body,
         is_static: false,
         is_override,
+        attrs,
         span: Span::unknown(),
     };
     Ok(Some(method))

@@ -20,6 +20,7 @@ fn box_try_block_first_property(
     methods: &mut HashMap<String, ASTNode>,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
+    p.ensure_no_pending_runes("block-first property")?;
     members::properties::try_parse_block_first_property(p, methods, birth_once_props)
 }
 
@@ -28,6 +29,7 @@ fn box_try_method_postfix_after_last(
     methods: &mut HashMap<String, ASTNode>,
     last_method_name: &Option<String>,
 ) -> Result<bool, ParseError> {
+    p.ensure_no_pending_runes("method postfix")?;
     members::postfix::try_parse_method_postfix_after_last_method(p, methods, last_method_name)
 }
 
@@ -36,6 +38,7 @@ fn box_try_init_block(
     init_fields: &mut Vec<String>,
     weak_fields: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
+    p.ensure_no_pending_runes("init block")?;
     members::fields::parse_init_block_if_any(p, init_fields, weak_fields)
 }
 
@@ -45,6 +48,8 @@ fn box_try_constructor(
     constructors: &mut HashMap<String, ASTNode>,
 ) -> Result<bool, ParseError> {
     if let Some((key, node)) = members::constructors::try_parse_constructor(p, is_override)? {
+        let mut node = node;
+        p.attach_pending_runes_to_declaration(&mut node)?;
         constructors.insert(key, node);
         return Ok(true);
     }
@@ -61,6 +66,7 @@ fn box_try_visibility(
     last_method_name: &mut Option<String>,
     weak_fields: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
+    p.ensure_no_pending_runes("visibility field/property")?;
     members::fields::try_parse_visibility_block_or_single(
         p,
         visibility,
@@ -88,12 +94,24 @@ fn box_try_method_or_field(
     if let Some(method) =
         members::methods::try_parse_method(p, name.clone(), is_override, birth_once_props)?
     {
+        let mut method = method;
+        p.attach_pending_runes_to_declaration(&mut method)?;
         *last_method_name = Some(name.clone());
         methods.insert(name, method);
         return Ok(true);
     }
     // Fallback: header-first field/property (computed/once/birth_once handled inside)
-    members::fields::try_parse_header_first_field_or_property(p, name, methods, fields, weak_fields)
+    let parsed = members::fields::try_parse_header_first_field_or_property(
+        p,
+        name,
+        methods,
+        fields,
+        weak_fields,
+    )?;
+    if parsed {
+        p.ensure_no_pending_runes("field/property")?;
+    }
+    Ok(parsed)
 }
 
 /// box宣言をパース: box Name { fields... methods... }
@@ -107,6 +125,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         });
     }
     p.advance(); // consume BOX or FLOW
+    let attrs = p.take_pending_runes_for_box()?;
     let (name, type_parameters, extends, implements) = header::parse_header(p)?;
 
     p.consume(TokenType::LBRACE)?;
@@ -163,6 +182,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
 
         // constructor parsing moved to members::constructors
         if box_try_constructor(p, is_override, &mut constructors)? {
+            // constructor parsing returns an AST node and is a declaration target
             continue;
         }
 
@@ -171,6 +191,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
 
         // Phase 285A1.3: Delegate weak field parsing to unified fields.rs logic
         if p.match_token(&TokenType::WEAK) {
+            p.ensure_no_pending_runes("weak field")?;
             p.advance(); // consume WEAK
             if let TokenType::IDENTIFIER(field_name) = &p.current_token().token_type {
                 let field_name = field_name.clone();
@@ -216,6 +237,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
             if crate::config::env::unified_members()
                 && (field_or_method == "once" || field_or_method == "birth_once")
             {
+                p.ensure_no_pending_runes("unified property")?;
                 if members::properties::try_parse_unified_property(
                     p,
                     &field_or_method,
@@ -276,6 +298,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         type_parameters,
         is_static: false,  // 通常のboxはnon-static
         static_init: None, // 通常のboxはstatic初期化ブロックなし
+        attrs,
         span: Span::unknown(),
     })
 }

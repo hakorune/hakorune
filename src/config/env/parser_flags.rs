@@ -29,6 +29,10 @@ fn feature_stage3_enabled() -> bool {
     feature_enabled(["stage3", "parserstage3"])
 }
 
+fn feature_rune_enabled() -> bool {
+    feature_enabled(["rune"])
+}
+
 fn feature_enabled<const N: usize>(targets: [&str; N]) -> bool {
     if let Some(list) = nyash_features_list() {
         for item in list {
@@ -53,6 +57,16 @@ fn feature_enabled<const N: usize>(targets: [&str; N]) -> bool {
 /// Default: OFF.
 pub fn parser_opt_annotations_enabled() -> bool {
     feature_enabled(["optannotations"])
+}
+
+/// Parser gate for Rune v0 contract annotations.
+///
+/// Enabled when NYASH_FEATURES includes one of:
+/// - rune
+///
+/// Default: OFF.
+pub fn parser_rune_enabled() -> bool {
+    feature_rune_enabled()
 }
 
 fn env_flag(var: &str) -> Option<bool> {

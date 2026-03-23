@@ -27,6 +27,7 @@ mod expr;
 mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;
 mod items;
+mod runes;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/
 pub mod sugar; // Phase 12.7-B: desugar pass (basic)
@@ -35,13 +36,18 @@ pub mod sugar_gate; // thread-local gate for sugar parsing (tests/docs)
 
 use common::ParserUtils;
 
-use crate::ast::{ASTNode, Span};
+use crate::ast::{ASTNode, RuneAttr, Span};
 use crate::tokenizer::{Token, TokenType, TokenizeError};
 use thiserror::Error;
 
 #[inline]
 fn is_sugar_enabled() -> bool {
     crate::parser::sugar_gate::is_enabled()
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ParserMetadata {
+    pub runes: Vec<RuneAttr>,
 }
 
 // ===== 🔥 Debug Macros =====
@@ -147,6 +153,10 @@ pub struct NyashParser {
         std::collections::HashMap<String, std::collections::HashSet<String>>,
     /// 🔥 デバッグ燃料：無限ループ検出用制限値 (None = 無制限)
     pub(super) debug_fuel: Option<usize>,
+    /// Pending rune annotations waiting for the next declaration node.
+    pub(super) pending_runes: Vec<RuneAttr>,
+    /// Committed rune metadata in source order.
+    pub(super) rune_metadata: Vec<RuneAttr>,
 }
 
 // ParserUtils trait implementation now lives here (legacy depth tracking removed)
@@ -159,6 +169,8 @@ impl NyashParser {
             current: 0,
             static_box_dependencies: std::collections::HashMap::new(),
             debug_fuel: Some(100_000), // デフォルト値
+            pending_runes: Vec::new(),
+            rune_metadata: Vec::new(),
         }
     }
 
@@ -168,6 +180,13 @@ impl NyashParser {
         // Ensure Stage-3 features are enabled when parsing using-chain files
         // when parent requested Stage-3 parsing via NYASH_FEATURES/legacy env
         Self::parse_from_string_with_fuel(input, Some(100_000))
+    }
+
+    /// 文字列からパースし、Rune metadata sidecar も返す。
+    pub fn parse_from_string_with_metadata(
+        input: impl Into<String>,
+    ) -> Result<(ASTNode, ParserMetadata), ParseError> {
+        Self::parse_from_string_with_fuel_and_metadata(input, Some(100_000))
     }
 
     /// 文字列からパース (デバッグ燃料指定版)
@@ -280,8 +299,120 @@ impl NyashParser {
 
         let mut parser = Self::new(tokens);
         parser.debug_fuel = fuel;
-        let result = parser.parse();
-        result
+        parser.parse()
+    }
+
+    /// 文字列からパースし、デバッグ燃料と metadata sidecar を返す。
+    pub fn parse_from_string_with_fuel_and_metadata(
+        input: impl Into<String>,
+        fuel: Option<usize>,
+    ) -> Result<(ASTNode, ParserMetadata), ParseError> {
+        // Normalize logical operators '||'/'&&' to 'or'/'and' before tokenization (outside strings/comments)
+        fn normalize_logical_ops(src: &str) -> String {
+            let mut out = String::with_capacity(src.len());
+            let mut it = src.chars().peekable();
+            let mut in_str = false;
+            let mut in_line = false;
+            let mut in_block = false;
+            while let Some(c) = it.next() {
+                if in_line {
+                    out.push(c);
+                    if c == '\n' {
+                        in_line = false;
+                    }
+                    continue;
+                }
+                if in_block {
+                    out.push(c);
+                    if c == '*' && matches!(it.peek(), Some('/')) {
+                        out.push('/');
+                        it.next();
+                        in_block = false;
+                    }
+                    continue;
+                }
+                if in_str {
+                    out.push(c);
+                    if c == '\\' {
+                        if let Some(nc) = it.next() {
+                            out.push(nc);
+                        }
+                        continue;
+                    }
+                    if c == '"' {
+                        in_str = false;
+                    }
+                    continue;
+                }
+                match c {
+                    '"' => {
+                        in_str = true;
+                        out.push(c);
+                    }
+                    '/' => match it.peek() {
+                        Some('/') => {
+                            out.push('/');
+                            out.push('/');
+                            it.next();
+                            in_line = true;
+                        }
+                        Some('*') => {
+                            out.push('/');
+                            out.push('*');
+                            it.next();
+                            in_block = true;
+                        }
+                        _ => out.push('/'),
+                    },
+                    '#' => {
+                        in_line = true;
+                        out.push('#');
+                    }
+                    '|' => {
+                        if matches!(it.peek(), Some('|')) {
+                            out.push_str(" or ");
+                            it.next();
+                        } else if matches!(it.peek(), Some('>')) {
+                            out.push('|');
+                            out.push('>');
+                            it.next();
+                        } else {
+                            out.push('|');
+                        }
+                    }
+                    '&' => {
+                        if matches!(it.peek(), Some('&')) {
+                            out.push_str(" and ");
+                            it.next();
+                        } else {
+                            out.push('&');
+                        }
+                    }
+                    _ => out.push(c),
+                }
+            }
+            out
+        }
+        let input_s: String = input.into();
+        let pre = normalize_logical_ops(&input_s);
+        let mut tokenizer = crate::tokenizer::NyashTokenizer::new(pre);
+        let tokens = tokenizer.tokenize()?;
+
+        for tok in &tokens {
+            if let TokenType::IDENTIFIER(name) = &tok.token_type {
+                if name == "self" {
+                    return Err(ParseError::UnsupportedIdentifier {
+                        name: name.clone(),
+                        line: tok.line,
+                    });
+                }
+            }
+        }
+
+        let mut parser = Self::new(tokens);
+        parser.debug_fuel = fuel;
+        let ast = parser.parse()?;
+        Ok((ast, parser.take_metadata()))
     }
 
     /// パース実行 - Program ASTを返す
@@ -322,10 +453,13 @@ impl NyashParser {
                 continue;
             }
 
-            let statement = self.parse_statement()?;
+            let mut statement = self.parse_statement()?;
+            self.attach_pending_runes_to_declaration(&mut statement)?;
             statements.push(statement);
             _statement_count += 1;
         }
+
+        self.ensure_no_pending_runes("end of file")?;
 
         // 🔥 すべてのstatic box解析後に循環依存検出
         self.check_circular_dependencies()?;
@@ -417,6 +551,18 @@ impl NyashParser {
     // Item parsing methods are now in items.rs module
 
     // ===== 🔥 Static Box循環依存検出 =====
+}
+
+impl NyashParser {
+    pub(super) fn take_metadata(&mut self) -> ParserMetadata {
+        ParserMetadata {
+            runes: std::mem::take(&mut self.rune_metadata),
+        }
+    }
+
+    pub(super) fn push_pending_rune(&mut self, rune: RuneAttr) {
+        self.pending_runes.push(rune);
+    }
 }
 
 // ---- Minimal ParserUtils impl (depth-less; TokenCursor handles newline policy) ----

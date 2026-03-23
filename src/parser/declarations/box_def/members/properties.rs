@@ -72,6 +72,7 @@ pub(crate) fn try_parse_unified_property(
             body: final_body,
             is_static: false,
             is_override: false,
+            attrs: crate::ast::DeclarationAttrs::default(),
             span: Span::unknown(),
         };
         methods.insert(compute_name.clone(), compute);
@@ -214,6 +215,7 @@ pub(crate) fn try_parse_unified_property(
             body: getter_body,
             is_static: false,
             is_override: false,
+            attrs: crate::ast::DeclarationAttrs::default(),
             span: Span::unknown(),
         };
         methods.insert(getter_name, getter);
@@ -228,6 +230,7 @@ pub(crate) fn try_parse_unified_property(
         body: final_body,
         is_static: false,
         is_override: false,
+        attrs: crate::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
     methods.insert(compute_name.clone(), compute);
@@ -255,6 +258,7 @@ pub(crate) fn try_parse_unified_property(
         body: getter_body,
         is_static: false,
         is_override: false,
+        attrs: crate::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
     methods.insert(getter_name, getter);
@@ -353,6 +357,7 @@ pub(crate) fn try_parse_block_first_property(
             body: final_body,
             is_static: false,
             is_override: false,
+            attrs: crate::ast::DeclarationAttrs::default(),
             span: Span::unknown(),
         };
         methods.insert(compute_name.clone(), compute);
@@ -498,6 +503,7 @@ pub(crate) fn try_parse_block_first_property(
             body: getter_body,
             is_static: false,
             is_override: false,
+            attrs: crate::ast::DeclarationAttrs::default(),
             span: Span::unknown(),
         };
         methods.insert(getter_name, getter);
@@ -513,6 +519,7 @@ pub(crate) fn try_parse_block_first_property(
         body: final_body,
         is_static: false,
         is_override: false,
+        attrs: crate::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
     methods.insert(compute_name.clone(), compute);
@@ -539,6 +546,7 @@ pub(crate) fn try_parse_block_first_property(
         body: getter_body,
         is_static: false,
         is_override: false,
+        attrs: crate::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
     methods.insert(getter_name, getter);

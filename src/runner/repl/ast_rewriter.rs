@@ -182,6 +182,7 @@ impl ReplAstRewriter {
                 body,
                 is_static,
                 is_override,
+                attrs,
                 span,
             } => {
                 let prev_nested = self.in_nested_scope;
@@ -201,6 +202,7 @@ impl ReplAstRewriter {
                     body: rewritten_body,
                     is_static,
                     is_override,
+                    attrs,
                     span,
                 }
             }
@@ -222,6 +224,7 @@ impl ReplAstRewriter {
                 type_parameters,
                 is_static,
                 static_init,
+                attrs,
                 span,
             } => {
                 let prev_nested = self.in_nested_scope;
@@ -259,6 +262,7 @@ impl ReplAstRewriter {
                     type_parameters,
                     is_static,
                     static_init: rewritten_static_init,
+                    attrs,
                     span,
                 }
             }

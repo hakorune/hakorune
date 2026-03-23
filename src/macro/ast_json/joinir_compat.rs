@@ -1,4 +1,6 @@
-use nyash_rust::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+use nyash_rust::ast::{
+    ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, RuneAttr, Span, UnaryOperator,
+};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -34,6 +36,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             type_parameters,
             is_static,
             static_init,
+            attrs,
             ..
         } => json!({
             "kind": "BoxDeclaration",
@@ -57,6 +60,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "type_parameters": type_parameters,
             "is_static": is_static,
             "static_init": static_init.map(|stmts| stmts.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>()),
+            "attrs": attrs_to_json(&attrs),
         }),
         // Phase 54: Loop with JoinIR-compatible fields
         ASTNode::Loop {
@@ -174,6 +178,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             body,
             is_static,
             is_override,
+            attrs,
             ..
         } => json!({
             "kind": "FunctionDeclaration",
@@ -182,6 +187,7 @@ pub fn ast_to_json(ast: &ASTNode) -> Value {
             "body": body.into_iter().map(|s| ast_to_json(&s)).collect::<Vec<_>>(),
             "static": is_static,
             "override": is_override,
+            "attrs": attrs_to_json(&attrs),
         }),
         // Phase 52: Variable → Var ノード（JoinIR Frontend 互換）
         ASTNode::Variable { name, .. } => json!({
@@ -445,6 +451,7 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                     .and_then(|b| b.as_bool())
                     .unwrap_or(false),
                 static_init,
+                attrs: json_to_attrs(v.get("attrs")),
                 span: Span::unknown(),
             }
         }
@@ -541,6 +548,7 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect(),
             is_static: v.get("static").and_then(|b| b.as_bool()).unwrap_or(false),
             is_override: v.get("override").and_then(|b| b.as_bool()).unwrap_or(false),
+            attrs: json_to_attrs(v.get("attrs")),
             span: Span::unknown(),
         },
         "Variable" => ASTNode::Variable {
@@ -685,6 +693,43 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
         }
         _ => return None,
     })
+}
+
+fn attrs_to_json(attrs: &DeclarationAttrs) -> Value {
+    json!({
+        "runes": attrs
+            .runes
+            .iter()
+            .map(|rune| json!({"name": rune.name, "args": rune.args}))
+            .collect::<Vec<_>>()
+    })
+}
+
+fn json_to_attrs(value: Option<&Value>) -> DeclarationAttrs {
+    let runes = value
+        .and_then(|attrs| attrs.get("runes"))
+        .and_then(Value::as_array)
+        .map(|entries| {
+            entries
+                .iter()
+                .filter_map(|entry| {
+                    Some(RuneAttr {
+                        name: entry.get("name")?.as_str()?.to_string(),
+                        args: entry
+                            .get("args")
+                            .and_then(Value::as_array)
+                            .map(|args| {
+                                args.iter()
+                                    .filter_map(|arg| arg.as_str().map(|s| s.to_string()))
+                                    .collect::<Vec<_>>()
+                            })
+                            .unwrap_or_default(),
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    DeclarationAttrs { runes }
 }
 
 fn json_to_lit(v: &Value) -> Option<LiteralValue> {

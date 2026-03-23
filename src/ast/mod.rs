@@ -8,7 +8,9 @@
 use crate::box_trait::NyashBox;
 use std::collections::HashMap;
 use std::fmt;
+mod attrs;
 mod span;
+pub use attrs::{DeclarationAttrs, RuneAttr};
 pub use span::Span;
 mod nodes;
 mod utils;
@@ -46,6 +48,7 @@ pub enum StructureNode {
         is_static: bool,
         /// 🔥 Static初期化ブロック (static { ... })
         static_init: Option<Vec<ASTNode>>,
+        attrs: DeclarationAttrs,
         span: Span,
     },
     FunctionDeclaration {
@@ -54,6 +57,7 @@ pub enum StructureNode {
         body: Vec<ASTNode>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ
+        attrs: DeclarationAttrs,
         span: Span,
     },
     IfStructure {
@@ -492,6 +496,7 @@ pub enum ASTNode {
         is_static: bool,
         /// 🔥 Static初期化ブロック (static { ... })
         static_init: Option<Vec<ASTNode>>,
+        attrs: DeclarationAttrs,
         span: Span,
     },
 
@@ -502,6 +507,7 @@ pub enum ASTNode {
         body: Vec<ASTNode>,
         is_static: bool,   // 🔥 静的メソッドフラグ
         is_override: bool, // 🔥 オーバーライドフラグ
+        attrs: DeclarationAttrs,
         span: Span,
     },
 

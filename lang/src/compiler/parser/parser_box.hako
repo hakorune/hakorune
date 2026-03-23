@@ -16,12 +16,14 @@ box ParserBox {
   gpos
   usings_json
   externs_json
+  runes_json
   stage3
 
   birth() {
     me.gpos = 0
     me.usings_json = "[]"
     me.externs_json = "[]"
+    me.runes_json = "[]"
     me.stage3 = 0
     return 0
   }
@@ -44,6 +46,14 @@ box ParserBox {
     if s.indexOf("opt-annotations") >= 0 { return 1 }
     if s.indexOf("opt_annotations") >= 0 { return 1 }
     if s.indexOf("optannotations") >= 0 { return 1 }
+    return 0
+  }
+
+  rune_enabled() {
+    local raw = env.get("NYASH_FEATURES")
+    if raw == null { return 0 }
+    local s = "" + raw
+    if s.indexOf("rune") >= 0 { return 1 }
     return 0
   }
 
@@ -292,6 +302,33 @@ box ParserBox {
     return me.externs_json
   }
 
+  add_rune(entry) {
+    local cur = me.runes_json
+    if cur == null || cur.length() == 0 { cur = "[]" }
+    if cur == "[]" {
+      me.runes_json = "[" + entry + "]"
+      return 0
+    }
+    local pos = cur.lastIndexOf("]")
+    if pos < 0 {
+      me.runes_json = "[" + entry + "]"
+      return 0
+    }
+    me.runes_json = cur.substring(0, pos) + "," + entry + "]"
+    return 0
+  }
+
+  get_runes_json() {
+    return me.runes_json
+  }
+
+  consume_runes_json() {
+    local out = me.runes_json
+    if out == null || out.length() == 0 { out = "[]" }
+    me.runes_json = "[]"
+    return out
+  }
+
   // === Delegation to ParserExprBox ===
   parse_expr2(src, i) {
     return ParserExprBox.parse_expr2(src, i, me)
@@ -497,6 +534,11 @@ box ParserBox {
       }
 
       // ===== 7) EMIT STATEMENT =====
+      local pending_runes = me.consume_runes_json()
+      if pending_runes != "[]" {
+        env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+        return "[freeze:contract][parser/rune] Program(JSON v0) route does not carry declaration-local Rune attrs"
+      }
       if s.length() > 0 {
         if first == 1 {
           if trace == 1 {
@@ -514,6 +556,10 @@ box ParserBox {
     }
 
     body = body + "]"
+    if me.consume_runes_json() != "[]" {
+      env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
+      return "[freeze:contract][parser/rune] Program(JSON v0) route does not carry declaration-local Rune attrs"
+    }
     if trace == 1 {
       print("[parser/trace:program2] done pos=" + ("" + i) + " len=" + ("" + n))
     }
