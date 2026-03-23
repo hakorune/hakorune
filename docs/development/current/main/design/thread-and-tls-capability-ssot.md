@@ -6,6 +6,8 @@ Scope: `hako.tls` の current live strategy と final end-state を固定する�
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md
+  - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
   - docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
@@ -58,3 +60,4 @@ Lowering rule:
 - use helper-shaped TLS rows to prove truthful capability presence first
 - keep final `thread_local` / `TlsCell<T>` as docs-locked end-state until a later widening wave
 - do not widen `hako.tls` into allocator policy or generic slot orchestration in this slice
+- do not define `ThreadLocal` as public Rune v0 surface; declaration form / library abstraction remains the preferred end-state

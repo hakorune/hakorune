@@ -1,5 +1,5 @@
-// arc_box.hako — ArcBox (policy plane)
-// Responsibility: simple reference counting semantics in Hakorune space.
+// arc_box.hako — ArcBox (hako_alloc policy plane)
+// Responsibility: simple reference counting semantics in Hako Alloc space.
 // Storage: uses env.local.get/set with key prefix "arc:" to keep per-pointer counts.
 // Data plane: when available, host-side env.arc.* can replace these, but this MVP
 // remains pure to avoid native coupling. Optional free-on-zero via env.mem.free/1

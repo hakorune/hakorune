@@ -448,6 +448,9 @@ Related:
     - fixed:
       - plugin_loader_v2 residue と kernel plugin residue を責務単位で棚卸し
       - retire order を `1 boundary = 1 commit` で固定
+      - `handle_cache.rs` は thin metal helper として freeze
+      - `src/runtime/provider_lock/{array,map}.rs` は wiring-only registry として freeze
+      - `crates/nyash_kernel/src/exports/birth.rs` は substrate keep/shim として freeze
   - final-wave non-target discovery lock（29cc-244, accepted）:
     - `docs/development/current/main/phases/phase-29cc/29cc-244-final-wave-nontarget-discovery-lock-ssot.md`
     - fixed:

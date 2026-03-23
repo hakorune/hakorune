@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/design/cond-block-view-prelude-ssot.md
   - docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
+  - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
   - docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
   - docs/reference/language/block-expressions-and-map-literals.md
   - docs/development/current/main/20-Decisions.md
@@ -113,6 +114,9 @@ Minimum stable tags (grep distance short):
 - truthiness の拡張（型変換の暗黙化）
 - optimization annotations（`@hint` / `@contract` / `@intrinsic_candidate`）
   - 注釈導入方針は `optimization-hints-contracts-intrinsic-ssot.md` を正本とする。
+- Rune v0 declaration syntax / `attrs.runes`
+  - Rune 導入方針は `rune-v0-contract-rollout-ssot.md` を正本とする。
+  - v1 freeze は Rune v0 grammar activation の blocker ではないが、Rune lane も v1 本体には含めない。
 
 ## Concurrency / Async (out of v1; pinned elsewhere)
 

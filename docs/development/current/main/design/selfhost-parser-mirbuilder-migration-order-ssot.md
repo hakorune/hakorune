@@ -8,6 +8,7 @@ Related:
 - docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
 - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
+- docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
 - docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
 - docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
 - docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md
@@ -184,3 +185,31 @@ Removal order decision (accepted, docs-only):
 
 - 片側 parser のみ受理した状態で既定ONにすること。
 - parser 差分を runtime 側 workaround で吸収すること。
+
+## Parser Syntax Extension Contract（Rune v0）
+
+`@rune` を language grammar として有効化する場合の順序を固定する。
+
+結論:
+
+- final active grammar では **Rust parser / `.hako` parser の両方が必要**。
+- first slice は contract-only で、backend consumer は `ny-llvmc` に限定する。
+- `llvmlite` は compat/noop keep のまま読む。
+
+固定順序:
+
+1. docs-first（provisional）
+   - `rune-and-stage2plus-final-shape-ssot.md`
+   - `rune-v0-contract-rollout-ssot.md`
+   - `docs/reference/language/EBNF.md`
+   - `docs/reference/ir/ast-json-v0.md`
+2. Rust parser 側で `NYASH_FEATURES=rune` を受理し、declaration metadata を保持する。
+3. `.hako` parser 側で同じ Rune surface を受理し、同形 metadata を保持する。
+4. AST / Program(JSON v0) parity gate を緑化する。
+5. parity 後に only `ny-llvmc` consumer を有効化する。
+
+禁止:
+
+- `.hako` parser だけ、または Rust parser だけで Rune grammar を active にすること。
+- parser parity 前に runtime/backend workaround を足して Rune 不在を吸収すること。
+- `llvmlite` parity を v0 の unblock 条件にすること。

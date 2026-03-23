@@ -19,6 +19,7 @@ Layout (initial)
   - `shims/` — libc-backed shim(s) for canaries and local testing
 - `src/runtime/kernel/` — `.hako` runtime kernel logic (default edit lane)
 - `src/runtime/host/` — host-call routing facade only
+- `src/hako_alloc/` — `.hako` alloc-layer (policy plane) helpers (e.g. `ArcBox`, `RefCellBox`)
 
 Build & Link (dev)
 - C shim: build a shared library to satisfy symbols for the LLVM line canaries.

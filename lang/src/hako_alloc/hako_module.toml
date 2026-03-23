@@ -1,0 +1,8 @@
+[module]
+name = "selfhost.hako_alloc"
+version = "1.0.0"
+
+[exports]
+README = "README.md"
+memory.arc_box = "memory/arc_box.hako"
+memory.refcell_box = "memory/refcell_box.hako"

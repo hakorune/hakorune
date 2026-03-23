@@ -1,4 +1,4 @@
-// refcell_box.hako — RefCellBox (policy plane)
+// refcell_box.hako — RefCellBox (hako_alloc policy plane)
 // Responsibility: simple borrow/borrow_mut semantics with conflict checks.
 // Storage: uses env.local.get/set with key prefix "ref:" per-pointer state.
 // State encoding: "0" = idle, ">0" = shared borrows count, "-1" = mutable borrow active.

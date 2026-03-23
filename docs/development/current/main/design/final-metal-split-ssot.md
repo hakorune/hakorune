@@ -6,6 +6,7 @@ Scope: `phase-29ct` の C6 として、`.hako owner` と `native metal keep` の
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
@@ -64,6 +65,7 @@ Related:
 - do not describe the lane as `fully metal split` until allocator state machine and policy owner actually move.
 - do not treat `atomic/tls/gc` capability lock as equivalent to final metal split.
 - do not reopen perf based on naming/docs alone.
+- do not treat Rune metadata as a substitute for moving metal responsibilities.
 
 ## Non-Goals
 

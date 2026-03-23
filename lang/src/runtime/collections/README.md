@@ -34,7 +34,9 @@ Rule:
 - `rehash/tombstone` semantics stay parked until a truthful native substrate seam exists
 - future owner growth belongs to `.hako` ring1 collection/runtime, not OS-facing ring0
 - stage axis は別読みで、current collection owner shift は Stage1 snapshot の上でも進めてよい
-- final end-state では collection substrate/owner は future `hako_alloc` layering の一部として読む
+- final end-state では collection substrate/owner は `hako_alloc` layering の一部として読む
+- physical root reservation for `hako_alloc` is `lang/src/hako_alloc/` (policy-plane helpers such as `ArcBox` / `RefCellBox` live there)
+- `runtime/memory/**` is legacy; do not add new alloc/policy helpers there
 - stage/selfhost の正本は `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
 
 ## Current modules

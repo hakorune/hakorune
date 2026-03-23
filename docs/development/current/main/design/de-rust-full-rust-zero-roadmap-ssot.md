@@ -41,6 +41,7 @@ Related:
 - preferred end-state is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to bootstrap / ABI / raw leaf / LLVM backend emission.
 - practical sequence for the end-state is: compiler authority removal -> kernel authority zero -> backend-zero daily owner cutover -> substrate reconsideration.
 - final library layering target is `hako_core / hako_alloc / hako_std`, while Stage2+ remains the first truly-current `.hako` distribution line.
+- physical root reservation for `hako_alloc` is `lang/src/hako_alloc/` (alloc/policy helpers live there; `runtime/memory/**` is legacy).
 
 ## 1. Boundary Lock
 
