@@ -21,6 +21,7 @@ Related:
   - docs/development/current/main/design/de-rust-master-task-map-ssot.md
   - docs/development/current/main/design/de-rust-lane-map-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
+  - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
@@ -39,6 +40,7 @@ Related:
 - `stage` 軸と `owner` 軸は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` の matrix で分離して読む。
 - preferred end-state is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to bootstrap / ABI / raw leaf / LLVM backend emission.
 - practical sequence for the end-state is: compiler authority removal -> kernel authority zero -> backend-zero daily owner cutover -> substrate reconsideration.
+- final library layering target is `hako_core / hako_alloc / hako_std`, while Stage2+ remains the first truly-current `.hako` distribution line.
 
 ## 1. Boundary Lock
 

@@ -1,0 +1,12 @@
+// RVP-C19 ported fixture
+// Contract:
+// - vm-hako route prints `OK` from `TlsCoreBox.last_error_text_h()`.
+
+using selfhost.runtime.substrate.tls.tls_core_box as TlsCoreBox
+
+static box Main {
+  main() {
+    print(TlsCoreBox.last_error_text_h())
+    return 0
+  }
+}

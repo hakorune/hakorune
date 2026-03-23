@@ -457,6 +457,66 @@ fn subset_accepts_externcall_env_mirbuilder_emit() {
 }
 
 #[test]
+fn subset_accepts_externcall_hako_last_error() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 0 }
+                    },
+                    {
+                        "op": "externcall",
+                        "func": "hako_last_error/1",
+                        "args": [1],
+                        "dst": 2
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_externcall_hako_barrier_touch_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 0 }
+                    },
+                    {
+                        "op": "externcall",
+                        "func": "hako_barrier_touch_i64/1",
+                        "args": [1],
+                        "dst": null
+                    },
+                    { "op": "ret", "value": 1 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_rejects_externcall_env_get_with_missing_arg() {
     let mir_json = json!({
         "functions": [{

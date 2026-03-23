@@ -1,0 +1,21 @@
+// TlsCoreBox — first live `hako.tls` capability facade for phase-29ct.
+// Responsibility:
+// - expose the narrowest truthful TLS-backed diagnostics row under `runtime/substrate/`
+// - keep helper-shaped TLS proof separate from final language-level TLS design
+// Non-responsibility:
+// - generic thread-local slot API
+// - allocator/TLS cache policy
+// - final platform fallback routing
+
+static box TlsCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  last_error_text_h() {
+    local raw = externcall "hako_last_error"(0)
+    local out = externcall "nyash.box.from_i8_string"(raw)
+    me._trace("[vm/adapter/tls:last_error_text_h]")
+    return out
+  }
+}

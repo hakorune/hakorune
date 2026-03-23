@@ -45,6 +45,8 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `raw-map-truthful-native-seam-inventory.md`
   - `gc-tls-atomic-capability-ssot.md`
   - `atomic-tls-gc-truthful-native-seam-inventory.md`
+  - `stage2-selfhost-and-hako-alloc-ssot.md`
+  - `thread-and-tls-capability-ssot.md`
   - `final-metal-split-ssot.md`
   - `rust-kernel-export-surface-strata-ssot.md`
   - `phase-29ct/README.md`
@@ -195,13 +197,26 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     - docs-side truth now lives in
       `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
     - current widening is seam-first:
-      inventory -> `gc` first live row -> parked `atomic/tls`
+      inventory -> `gc` first live row -> helper-shaped `tls/atomic` proof rows
     - `nyash.gc.barrier_write` is the current truthful live seam
   - `phase-29ct` I11 GC first live slice
     - `lang/src/runtime/substrate/gc/gc_core_box.hako` now exposes
       `write_barrier_i64(handle_or_ptr)`
     - current native seam is `nyash.gc.barrier_write`
-    - `atomic/tls` remain inventory-only
+    - generic `atomic/tls` remain parked
+  - `phase-29ct` I12 stage/selfhost + TLS end-state lock
+    - docs-side truth now also lives in
+      `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
+      and `docs/development/current/main/design/thread-and-tls-capability-ssot.md`
+    - `stage0/stage1/stage2/stage3` and `owner/substrate` are now read as separate axes
+    - final library layering is fixed as:
+      `hako_core / hako_alloc / hako_std`
+  - `phase-29ct` I13 helper-shaped TLS/atomic proof rows
+    - `lang/src/runtime/substrate/tls/tls_core_box.hako` now exposes
+      `last_error_text_h()`
+    - `lang/src/runtime/substrate/atomic/atomic_core_box.hako` now exposes
+      `fence_i64()`
+    - current live `atomic/tls` rows are intentionally helper-shaped, not final-form generic APIs
   - compat/pure append retarget: `AbiAdapterRegistryBox` default `ArrayBox.push`
     and historical pure `ArrayBox.push -> len` lowering now use
     `nyash.array.slot_append_hh`; `nyash.array.push_h` remains compat-only

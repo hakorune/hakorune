@@ -52,3 +52,5 @@ Notes
 - `target/selfhost/hakorune` は開発中の最新版、`lang/bin/hakorune` は安定版スナップショットという役割分担にする。
 - `Stage1` / `Stage2+` は artifact / proof / mainline の stage 軸であって、kernel owner/substrate 軸とは別だよ。
 - owner/substrate の current truth は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` と `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md` を正本にする。
+- final distribution target は Stage2+ line であり、`lang/bin/hakorune` そのものを final 配布物の意味で読むのはやめる。
+- stage/selfhost と `hako_core/alloc/std` の end-state は `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md` を正本にする。

@@ -31,6 +31,8 @@
 - Hako runtime C ABI cutover order（`.hako` 完結へ向けた移行順SSOT）: `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
 - Hako fullstack host-ABI completion（意味論`.hako`集約 + host最小ABIの最終形SSOT）: `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
 - Hakoruneup release distribution（self-contained bundle + package manager + explicit system LLVM dev mode）: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
+- Stage2 selfhost and hako-alloc（stage軸 + `hako_core/alloc/std` layering SSOT）: `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
+- Thread and TLS capability（helper-shaped current TLS + language-level final TLS SSOT）: `docs/development/current/main/design/thread-and-tls-capability-ssot.md`
 - Rust kernel export surface strata（compat / runtime-facade / substrate split SSOT）: `docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md`
 - RawMap truthful native seam inventory（HashMap backend で live にしてよい語彙の棚卸し）: `docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md`
 - Atomic/TLS/GC truthful native seam inventory（seam-first widening の棚卸し）: `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`

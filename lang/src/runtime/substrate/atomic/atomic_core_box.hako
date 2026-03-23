@@ -1,0 +1,20 @@
+// AtomicCoreBox — first live `hako.atomic` capability facade for phase-29ct.
+// Responsibility:
+// - expose the narrowest truthful atomic-adjacent row under `runtime/substrate/`
+// - keep barrier/fence proof separate from future generic atomics
+// Non-responsibility:
+// - CAS/load/store/fetch_add vocabulary
+// - TLS policy
+// - allocator policy
+
+static box AtomicCoreBox {
+  _trace(tag) {
+    if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  fence_i64() {
+    externcall "hako_barrier_touch_i64"(0)
+    me._trace("[vm/adapter/atomic:fence_i64]")
+    return 0
+  }
+}

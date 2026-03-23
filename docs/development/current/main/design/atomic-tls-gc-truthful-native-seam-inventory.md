@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
+  - docs/development/current/main/design/thread-and-tls-capability-ssot.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - lang/src/runtime/substrate/gc/README.md
   - lang/src/runtime/substrate/tls/README.md
@@ -31,6 +32,12 @@ Related:
 
 These have a truthful substrate-facing seam today:
 
+- `hako_barrier_touch_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - suitable as the first helper-shaped `hako.atomic` live row
+- `hako_last_error`
+  - implemented at `lang/c-abi/shims/hako_diag_mem_shared_impl.inc`
+  - suitable as the first helper-shaped `hako.tls` live row
 - `nyash.gc.barrier_write`
   - implemented at `crates/nyash_kernel/src/exports/runtime.rs`
   - forwards to runtime GC hooks
@@ -45,10 +52,10 @@ These have a truthful substrate-facing seam today:
 - TLS-backed caches/helpers
   - `crates/nyash_kernel/src/plugin/handle_cache.rs`
   - `crates/nyash_kernel/src/exports/string_span_cache.rs`
-  - truthful host helpers, but not stable `.hako substrate` rows yet
+  - truthful host helpers, but not the public `.hako substrate` end-state
 - runtime internal atomics
   - `fetch_add` / `compare_exchange` / fence usage exists inside Rust runtime
-  - truthful as implementation detail, not yet as exported `hako.atomic` vocabulary
+  - truthful as implementation detail, not yet as generic exported `hako.atomic` vocabulary
 
 ### C. Parked vocabulary
 
@@ -57,10 +64,11 @@ These remain parked until a truthful exported/native seam exists:
 - `hako.atomic.load/store`
 - `hako.atomic.compare_exchange`
 - `hako.atomic.fetch_add`
-- `hako.atomic.fence`
 - `hako.atomic.pause/yield`
-- `hako.tls.slot_get/set`
-- `hako.tls.cache_slot`
+- language-level `thread_local` lowering
+- `TlsCell<T>`
+- raw `hako.tls.slot_get/set`
+- raw `hako.tls.cache_slot`
 - `hako.gc.root_scope`
 - `hako.gc.pin/unpin`
 - `hako.gc.collect/start/stop`
@@ -74,10 +82,14 @@ These remain parked until a truthful exported/native seam exists:
 - current implementation order is seam-first:
   1. truthful seam inventory
   2. `gc` first live row
-  3. `atomic` / `tls` remain parked until truthful seams exist
+  3. helper-shaped first truthful `tls` / `atomic` rows
+  4. generic `atomic` / `tls` remain parked until truthful seams exist
 
 ## Decision
 
-- current first live slice is `hako.gc.write_barrier_i64`.
-- `atomic` and `tls` are not implemented in `.hako` in this wave.
-- no false `atomic/tls` substrate rows are introduced just to satisfy the conceptual order.
+- current live slices are:
+  - `hako.atomic.fence_i64`
+  - `hako.tls.last_error_text_h`
+  - `hako.gc.write_barrier_i64`
+- generic atomics and final language-level TLS are not implemented in `.hako` in this wave.
+- no false generic `atomic/tls` substrate rows are introduced just to satisfy the conceptual order.

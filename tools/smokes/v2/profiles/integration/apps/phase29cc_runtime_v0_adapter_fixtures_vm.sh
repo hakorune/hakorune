@@ -23,6 +23,8 @@ ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
 RAW_MAP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
+ATOMIC_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/atomic/atomic_core_box.hako"
+TLS_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/tls/tls_core_box.hako"
 GC_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/gc/gc_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
 OWNERSHIP_CORE_FILE="$NYASH_ROOT/lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
@@ -69,7 +71,7 @@ run_array_semantics_checks() {
 }
 
 check_collection_adapter_route_contract() {
-  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$GC_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$OWNERSHIP_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
+  for f in "$HANDLER_FILE" "$REGISTRY_FILE" "$ARRAY_CORE_FILE" "$ARRAY_STATE_CORE_FILE" "$RAW_ARRAY_CORE_FILE" "$RAW_MAP_CORE_FILE" "$ATOMIC_CORE_FILE" "$TLS_CORE_FILE" "$GC_CORE_FILE" "$INITIALIZED_RANGE_CORE_FILE" "$OWNERSHIP_CORE_FILE" "$PTR_CORE_FILE" "$MEM_CORE_FILE" "$BUF_CORE_FILE" "$STRING_CORE_FILE" "$MAP_CORE_FILE" "$RUNTIME_DATA_CORE_FILE"; do
     if [ ! -f "$f" ]; then
       test_fail "$SMOKE_NAME: missing file ($f)"
       exit 1
@@ -210,6 +212,34 @@ check_collection_adapter_route_contract() {
   fi
   if ! rg -F -q 'externcall "nyash.any.handle_live_h"(handle)' "$OWNERSHIP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: ownership core handle-live route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'fence_i64()' "$ATOMIC_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: atomic core fence contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "hako_barrier_touch_i64"(0)' "$ATOMIC_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: atomic core barrier-touch route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/atomic:fence_i64]' "$ATOMIC_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: atomic core fence trace tag contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'last_error_text_h()' "$TLS_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: tls core last_error_text contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "hako_last_error"(0)' "$TLS_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: tls core hako_last_error route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q 'externcall "nyash.box.from_i8_string"(raw)' "$TLS_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: tls core from_i8_string route contract missing"
+    exit 1
+  fi
+  if ! rg -F -q '[vm/adapter/tls:last_error_text_h]' "$TLS_CORE_FILE"; then
+    test_fail "$SMOKE_NAME: tls core last_error trace tag contract missing"
     exit 1
   fi
   if ! rg -F -q 'write_barrier_i64(handle_or_ptr)' "$GC_CORE_FILE"; then

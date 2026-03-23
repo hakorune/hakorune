@@ -477,6 +477,25 @@ fn validate_mirbuilder_emit_externcall_shape(inst: &Value) -> Result<(), String>
     Ok(())
 }
 
+fn validate_single_arg_externcall_shape(inst: &Value, label: &str) -> Result<(), String> {
+    let args = inst
+        .get("args")
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| format!("externcall({}:malformed)", label))?;
+    if args.len() != 1 {
+        return Err(format!("externcall({}:args!=1)", label));
+    }
+    if args.first().and_then(|v| v.as_u64()).is_none() {
+        return Err(format!("externcall({}:arg0:non-reg)", label));
+    }
+    if let Some(dst) = inst.get("dst") {
+        if !(dst.is_u64() || dst.is_null()) {
+            return Err(format!("externcall({}:dst:non-reg)", label));
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, u32, String)> {
     let mut root: Value = serde_json::from_str(json_text)
         .map_err(|_| ("<json>".to_string(), 0, "InvalidJson".to_string()))?;
@@ -668,6 +687,8 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         && box_type != "StringBox"
                         && box_type != "FileBox"
                         && box_type != "LlvmBackendBox"
+                        && box_type != "TlsCoreBox"
+                        && box_type != "AtomicCoreBox"
                         && box_type != "Main"
                     {
                         return Err((func_name.clone(), bb, format!("newbox({})", box_type)));
@@ -728,6 +749,31 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         || func == "env.mirbuilder.emit/1"
                     {
                         if let Err(reason) = validate_mirbuilder_emit_externcall_shape(inst) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "hako_last_error" || func == "hako_last_error/1" {
+                        if let Err(reason) =
+                            validate_single_arg_externcall_shape(inst, "hako_last_error")
+                        {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "nyash.box.from_i8_string" || func == "nyash.box.from_i8_string/1" {
+                        if let Err(reason) = validate_single_arg_externcall_shape(
+                            inst,
+                            "nyash.box.from_i8_string",
+                        ) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "hako_barrier_touch_i64" || func == "hako_barrier_touch_i64/1" {
+                        if let Err(reason) =
+                            validate_single_arg_externcall_shape(inst, "hako_barrier_touch_i64")
+                        {
                             return Err((func_name.clone(), bb, reason));
                         }
                         continue;

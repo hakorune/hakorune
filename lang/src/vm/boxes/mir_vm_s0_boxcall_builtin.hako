@@ -242,6 +242,25 @@ static box MirVmS0BoxcallBuiltinBox {
   }
 
   dispatch_misc_builtin_method(method, seg, box_recv, regs, kinds, array_lens, handle_regs) {
+    if method == "last_error_text_h" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_tls = me._find_int(seg, "dst")
+      if dst_tls == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_tls, "0")
+      kinds.set("" + dst_tls, "handle")
+      MirVmS0StateOpsBox.handle_set(handle_regs, dst_tls, "OK")
+      return "__NEXT__"
+    }
+
+    if method == "fence_i64" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_fence = me._find_int(seg, "dst")
+      if dst_fence == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_fence, "0")
+      kinds.set("" + dst_fence, "scalar")
+      return "__NEXT__"
+    }
+
     if method == "set" {
       if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
       local set_arg0 = me._args_first(seg)

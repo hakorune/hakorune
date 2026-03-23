@@ -226,6 +226,51 @@ static box MirVmS0CallExecBox {
         }
         return "__NEXT__"
       }
+      if func == "hako_last_error" || func == "hako_last_error/1" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(hako_last_error) args>1]" }
+        local arg0_err = me._args_first(seg)
+        if arg0_err == null { return "[vm-hako/contract][externcall-hako_last_error-arg0-missing]" }
+        local dst_err = me._find_int(seg, "dst")
+        if dst_err != null {
+          MirVmS0RegUtilsBox._reg_set(regs, dst_err, 0)
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_err, "handle")
+          MirVmS0StateOpsBox.handle_set(handle_regs, dst_err, "OK")
+        }
+        return "__NEXT__"
+      }
+      if func == "nyash.box.from_i8_string" || func == "nyash.box.from_i8_string/1" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(nyash.box.from_i8_string) args>1]" }
+        local arg0_box = me._args_first(seg)
+        if arg0_box == null { return "[vm-hako/contract][externcall-nyash.box.from_i8_string-arg0-missing]" }
+        local dst_box = me._find_int(seg, "dst")
+        if dst_box != null {
+          local arg0_kind_box = MirVmS0RegUtilsBox._reg_kind_get(kinds, arg0_box)
+          local out_text_box = ""
+          if arg0_kind_box == "handle" {
+            out_text_box = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_box)
+            if out_text_box == null {
+              return "[vm-hako/contract][externcall-nyash.box.from_i8_string-handle-missing]"
+            }
+          } else {
+            out_text_box = "" + MirVmS0RegUtilsBox._reg_get(regs, arg0_box)
+          }
+          MirVmS0RegUtilsBox._reg_set(regs, dst_box, 0)
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_box, "handle")
+          MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, out_text_box)
+        }
+        return "__NEXT__"
+      }
+      if func == "hako_barrier_touch_i64" || func == "hako_barrier_touch_i64/1" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(hako_barrier_touch_i64) args>1]" }
+        local arg0_barrier = me._args_first(seg)
+        if arg0_barrier == null { return "[vm-hako/contract][externcall-hako_barrier_touch_i64-arg0-missing]" }
+        local dst_barrier = me._find_int(seg, "dst")
+        if dst_barrier != null {
+          MirVmS0RegUtilsBox._reg_set(regs, dst_barrier, 0)
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_barrier, "scalar")
+        }
+        return "__NEXT__"
+      }
       return "[vm-hako/unimplemented op=externcall func=" + func + "]"
     }
 

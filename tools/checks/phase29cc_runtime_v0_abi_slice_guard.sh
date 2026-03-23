@@ -14,6 +14,8 @@ ARRAY_CORE_FILE="lang/src/runtime/collections/array_core_box.hako"
 ARRAY_STATE_CORE_FILE="lang/src/runtime/collections/array_state_core_box.hako"
 RAW_ARRAY_CORE_FILE="lang/src/runtime/substrate/raw_array/raw_array_core_box.hako"
 RAW_MAP_CORE_FILE="lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
+ATOMIC_CORE_FILE="lang/src/runtime/substrate/atomic/atomic_core_box.hako"
+TLS_CORE_FILE="lang/src/runtime/substrate/tls/tls_core_box.hako"
 GC_CORE_FILE="lang/src/runtime/substrate/gc/gc_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
 OWNERSHIP_CORE_FILE="lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
@@ -33,6 +35,8 @@ for file in \
   "$ARRAY_STATE_CORE_FILE" \
   "$RAW_ARRAY_CORE_FILE" \
   "$RAW_MAP_CORE_FILE" \
+  "$ATOMIC_CORE_FILE" \
+  "$TLS_CORE_FILE" \
   "$GC_CORE_FILE" \
   "$INITIALIZED_RANGE_CORE_FILE" \
   "$OWNERSHIP_CORE_FILE" \
@@ -258,6 +262,34 @@ if ! rg -F -q 'using selfhost.runtime.substrate.raw_map.raw_map_core_box as RawM
 fi
 if ! rg -F -q 'return RawMapCoreBox.entry_count_i64(handle)' "$MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] map core missing RawMapCoreBox entry_count route" >&2
+  exit 1
+fi
+if ! rg -F -q 'fence_i64()' "$ATOMIC_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] atomic core missing fence contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_barrier_touch_i64"(0)' "$ATOMIC_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] atomic core missing hako_barrier_touch_i64 route" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/atomic:fence_i64]' "$ATOMIC_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] atomic core missing fence trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q 'last_error_text_h()' "$TLS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] tls core missing last_error_text contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_last_error"(0)' "$TLS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] tls core missing hako_last_error route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "nyash.box.from_i8_string"(raw)' "$TLS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] tls core missing nyash.box.from_i8_string route" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/tls:last_error_text_h]' "$TLS_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] tls core missing last_error trace tag" >&2
   exit 1
 fi
 if ! rg -F -q 'write_barrier_i64(handle_or_ptr)' "$GC_CORE_FILE"; then

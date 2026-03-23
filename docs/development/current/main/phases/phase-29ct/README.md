@@ -16,6 +16,8 @@ Related:
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/raw-map-substrate-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
+  - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
+  - docs/development/current/main/design/thread-and-tls-capability-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
@@ -263,6 +265,20 @@ Related:
   - `GcCoreBox.write_barrier_i64(handle_or_ptr)` is now the first live `hako.gc` row
   - current native seam is `nyash.gc.barrier_write`
   - `root_scope` / `pin` / `unpin` remain parked
+
+- `I12 stage/selfhost + TLS end-state lock` landed
+  - [`stage2-selfhost-and-hako-alloc-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md) now fixes:
+    - `stage0/stage1/stage2/stage3` as the bootstrap/distribution axis
+    - final `hako_core / hako_alloc / hako_std` layering
+    - `lang/bin/hakorune` as Stage1 snapshot, not final distribution truth
+  - [`thread-and-tls-capability-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/thread-and-tls-capability-ssot.md) now fixes:
+    - current helper-shaped TLS strategy
+    - final language-level `thread_local` / `TlsCell<T>` target
+
+- `I13 helper-shaped TLS/atomic proof rows` landed
+  - `AtomicCoreBox.fence_i64()` is now the first live `hako.atomic` row
+  - `TlsCoreBox.last_error_text_h()` is now the first live `hako.tls` row
+  - generic atomics and language-level TLS stay parked / docs-locked
 
 - `C6 final metal split detail lock` landed
   - [`final-metal-split-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/final-metal-split-ssot.md) fixes:

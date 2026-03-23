@@ -6,6 +6,7 @@ Scope: `ArrayBox` / `MapBox` の current owner truth と、`0rust` に向けた 
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
+  - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/ring1-core-provider-scope-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
@@ -24,6 +25,7 @@ Related:
 - `0rust` の target は `ring0` へ移すことではない。
   - `ring0` は OS API abstraction に限定する。
   - collection mainline owner は `.hako` ring1 collection layer へ寄せる。
+- final stage/selfhost end-state では、この ring1 collection owner growth is part of future `hako_alloc`, not a claim that current Stage1 snapshots are already Stage2 distribution truth.
 - Rust の `ArrayBox` / `MapBox` / kernel plugin / builtin residue は、daily owner から外したあとに raw substrate / compat/archive keep へ後退させる。
 
 ## 1. Ring Lock

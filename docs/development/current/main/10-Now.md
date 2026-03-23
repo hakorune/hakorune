@@ -97,6 +97,8 @@ bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
 - Kernel capability latest21: `raw-map-truthful-native-seam-inventory.md` now fixes the `HashMap` backend truth; current live `RawMap` rows stay at `entry_count/cap/probe/load/store`, and `rehash/tombstone/bucket_*` remain parked
 - Kernel capability latest22: `atomic-tls-gc-truthful-native-seam-inventory.md` now fixes seam-first widening; `nyash.gc.barrier_write` is the current truthful live seam, and `atomic/tls` remain parked
 - Kernel capability latest23: `GcCoreBox.write_barrier_i64(handle_or_ptr)` is now the first live `hako.gc` row under `runtime/substrate/gc/`
+- Kernel capability latest24: `stage2-selfhost-and-hako-alloc-ssot.md` now fixes `stage0/stage1/stage2/stage3` as the stage axis and `hako_core / hako_alloc / hako_std` as the final library layering
+- Kernel capability latest25: `TlsCoreBox.last_error_text_h()` and `AtomicCoreBox.fence_i64()` are now the first live helper-shaped `hako.tls` / `hako.atomic` rows
 - Kernel capability lane: `phase-29ct` active（collection owner stop-line の次として substrate capability ladder / ABI-value manifest を先に固定する）
 - Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
 - Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`

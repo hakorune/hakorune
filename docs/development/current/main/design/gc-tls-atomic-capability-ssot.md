@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md
+  - docs/development/current/main/design/thread-and-tls-capability-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/raw-map-substrate-ssot.md
   - lang/src/runtime/substrate/README.md
@@ -39,7 +40,8 @@ current implementation order is seam-first:
 
 1. truthful native seam inventory
 2. `hako.gc` first live row
-3. `hako.atomic` / `hako.tls` remain parked until truthful seams exist
+3. helper-shaped first truthful `hako.tls` / `hako.atomic` rows
+4. generic `atomic/tls` vocabulary remains parked until truthful seams exist
 
 ## Module Roles
 
@@ -83,10 +85,14 @@ current implementation order is seam-first:
 
 - current wave is not docs-first only anymore
 - current first live subset is:
+  - `AtomicCoreBox.fence_i64()`
+  - `TlsCoreBox.last_error_text_h()`
   - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
 - truthful seam guard now lives in:
   - `atomic-tls-gc-truthful-native-seam-inventory.md`
+- final TLS end-state guard now lives in:
+  - `thread-and-tls-capability-ssot.md`
 
 ## Physical Staging
 
@@ -106,13 +112,15 @@ current staging roots are reserved at:
 - final allocator backend rewrite
 - unrestricted unsafe surface
 - minimum verifier broadening beyond the current docs lock
-- TLS/atomic/GC implementation in `.hako`
-- broad `gc` widening beyond `write_barrier`
+- broad `atomic` widening beyond `fence_i64`
+- broad `tls` widening beyond `last_error_text_h`
+- broad `gc` widening beyond `write_barrier_i64`
 - perf lane reopen
 
 ## Follow-Up
 
 After this docs lock, the next widening remains:
 
-1. truthful `atomic` / `tls` seam extraction
-2. broad `gc` widening after new native seam exists
+1. generic TLS end-state design (`thread_local` / `TlsCell<T>`) stays docs-first until lowering exists
+2. truthful generic `atomic` / `tls` seam extraction
+3. broad `gc` widening after new native seam exists

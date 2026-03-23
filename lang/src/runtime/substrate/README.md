@@ -44,6 +44,8 @@ Current live capability subset:
 - `ptr` remains the typed pointer/span facade used by the current array capacity path.
 - `verifier` now has live `bounds`, `initialized-range`, and `ownership` gates for the current raw collection routes.
 - `raw_map` now has live `entry_count_i64`, `cap_i64`, `probe_*`, and `slot_load/store_*` facades under `MapCoreBox`.
+- `atomic` now has a live `fence_i64` helper-shaped facade.
+- `tls` now has a live `last_error_text_h` helper-shaped facade.
 - `gc` now has a live `write_barrier_i64` facade.
 
 Native keep stays outside this directory:

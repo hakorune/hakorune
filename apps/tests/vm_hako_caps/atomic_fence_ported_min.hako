@@ -1,0 +1,13 @@
+// RVP-C20 ported fixture
+// Contract:
+// - vm-hako route prints `0` from `AtomicCoreBox.fence_i64()`.
+
+using selfhost.runtime.substrate.atomic.atomic_core_box as AtomicCoreBox
+
+static box Main {
+  main() {
+    local rc = AtomicCoreBox.fence_i64()
+    print(rc)
+    return rc
+  }
+}
