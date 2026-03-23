@@ -19,12 +19,71 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `tools/checks/dev_gate.sh quick`
 - `tools/checks/dev_gate.sh runtime-exec-zero`
 
+## Current blocker (SSOT)
+
+- none
+
 ## Current Priority
 
 - `phase-29ct` substrate capability ladder docs/taskization reached stop-line
+- `phase-29cu` Rune v0 docs/task lane is active; parser/backend work now follows the fixed order in `phase-29cu/README.md`
 - `phase-29cm` collection owner cutover is done-enough stop line
 - `phase-21_5` raw substrate perf reopen remains parked; reopen it only when explicitly resuming the perf lane
 - `phase-29cs` kernel / plugin naming cleanup is parked
+- selfhost/bootstrap route reading is fixed as:
+  - `Program(JSON v0)` is a retire target, not the preferred end-state line
+  - preferred convergence is `source -> direct MIR(JSON v0) -> backend/VM`
+  - current direct CLI MIR route already bypasses `Program(JSON v0)`, but current bootstrap proof / authority helper still materialize it
+  - therefore `Program(JSON v0)` hard delete stays blocked until `phase-29ci` caller inventory reaches delete-ready
+  - keep `MIR(JSON v0)` as the current interchange/gate boundary; do not mix `Program(JSON v0)` retirement with a broader `MIR(JSON v0)` removal wave
+  - `build surrogate keep` is now a thin dispatch shim; build-box / launcher handoff regression coverage lives in `src/stage1/program_json_v0.rs` tests
+  - `future-retire bridge` inner entry is now split further: `request.rs` owns request build, `execute.rs` owns request-local emit execution plus typed response handoff, and `exit.rs` owns process-exit formatting
+  - `program_json/mod.rs` is now facade-only; `program_json/orchestrator.rs` owns bridge-local `ProgramJsonOutput` handoff plus read->emit->write orchestration, while `payload.rs` stays owner-1 payload emission and `read_input.rs` / `writeback.rs` stay policy leaves
+- current `stage1_cli_env.hako` vocabulary is pinned below; `Stage1ProgramAuthorityBox` is historical only and should not re-enter current docs
+
+## Unified Vocabulary
+
+- `Stage1InputContractBox`: shared input/env contract
+- `Stage1ProgramJsonMirCallerBox`: checked Program(JSON)->MIR handoff
+- `Stage1ProgramJsonTextGuardBox`: Program(JSON) text guard
+- `Stage1SourceMirAuthorityBox`: source authority
+- `Stage1ProgramResultValidationBox`: Program JSON validation
+- `Stage1MirResultValidationBox`: shared MIR validation
+- `Stage1ProgramJsonCompatBox`: compat quarantine
+- `nyash.plugin.invoke_by_name_i64`: compat-only plugin dispatch export
+
+## Main Workstream
+
+- kernel migration / stage-axis coordination remains the live thread.
+- `phase-29ct` carries the substrate capability ladder stop-line and current kernel-shape coordination.
+- `phase-29ci` carries the bootstrap / `Program(JSON v0)` retire boundary.
+- `phase-29cu` carries the active Rune v0 lane: declaration-local `attrs.runes`, `.hako` AST/direct MIR carrier, and `ny-llvmc` selected-entry semantics.
+  - current `.hako` source-route keep may use a synthetic `Main.main` def transport shim for selected-entry attrs, but Program(JSON v0) root/body remain no-widen
+- `phase-29y` carries the runtime `.hako` migration / boxcall contract polish.
+- the current docs vocabulary sweep is complete; it is a maintenance note, not the main task.
+
+## Next Task
+
+- follow the lane pointers below for the live kernel / stage0-1-2+ coordination work.
+- keep `docs/development/current/main/investigations/**` untouched.
+- re-open only if a new current-docs file reintroduces drift in the stage1 bootstrap vocabulary.
+- current selfhost/bootstrap docs exact leaf:
+  - `selfhost-bootstrap-route-ssot.md`
+  - `selfhost-compiler-structure-ssot.md`
+  - `phase-29ci/README.md`
+  - `phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
+  - `phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md`
+- `phase-29ci` outer caller audit is now split into two waves:
+  - wave 1: `.hako` live/bootstrap owners only (`stage1_cli_env.hako` -> `launcher.hako` -> `stage1_cli.hako` -> `MirBuilderBox.hako`)
+  - wave 2: shared shell helper keep (`hakorune_emit_mir.sh` -> `selfhost_build.sh` -> `test_runner.sh`)
+  - keep `src/runner/stage1_bridge/program_json/mod.rs` monitor-only while those waves are worked separately
+  - wave 1 has started: `stage1_cli_env.hako`, `launcher.hako`, `stage1_cli.hako`, and `MirBuilderBox.hako` now keep direct `BuildBox` / `MirBuilderBox` calls behind same-file tiny helpers, with `MirBuilderBox.hako` now splitting the source-entry compat seam into `MirBuilderSourceCompatBox` while the public wrapper methods delegate to private raw leaves instead of leaving the calls inline in the owner methods
+  - shared shell wave has also started: `hakorune_emit_mir.sh` now keeps its Stage-B fail/invalid -> direct MIR emit fallback behind `exit_after_stageb_program_json_v0_fallback()`, and its selfhost/provider runner lifecycle is split into explicit render / execute / capture / cleanup helpers before moving to `selfhost_build.sh`
+  - `selfhost_build.sh` now keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`, and its `--exe` lane now also keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` plus Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so `--exe` / `--run` / path-result routes stay owner-local instead of inline in the main tail
+  - `test_runner.sh` now keeps the phase2044 verify env stack behind explicit route env + common env helpers, so `run_verify_program_via_preferred_mirbuilder_to_core()` and `run_verify_program_via_hako_primary_no_fallback_to_core()` stay thin flag wrappers instead of repeating the same using/AST/top-level-main launch contract inline
+  - `test_runner.sh` now also keeps the phase2160 builder/registry launch stack behind route env + common env helpers, plus temp wrapper render / vm invoke / cleanup helpers with a direct `main` bridge, so `run_program_json_via_builder_module_vm_with_env()` is now a thin orchestration layer for builder-min / registry / preinclude / diag callers
+  - `phase2160` method-arraymap canaries now recover through the shared synthetic tagged-stdout fallback when the temp wrapper hits the vm-hako subset-check; `registry_optin_method_arraymap_len_canary_vm.sh` and `registry_optin_method_arraymap_get_diag_canary_vm.sh` are green again, while `registry_optin_method_arraymap_direct_canary_vm.sh` stays the explicit direct-lower keep and still skips
+  - `src/host_providers/mir_builder.rs` is now the live façade while `handoff.rs` owns the owner-local source/Program(JSON) handoff objects and `decls.rs` owns `user_box_decls` shaping; `module_to_mir_json(...)` stays the shared Rust stop-line and `lowering.rs` stays test-only evidence
 - Rust kernel export surface split is landed
   - current docs exact leaf:
     - `rust-kernel-export-surface-strata-ssot.md`
@@ -33,10 +92,46 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
     `array_substrate.rs` and `map_compat.rs` / `map_substrate.rs`
 - future packaging/distribution pointer (docs-first, not active):
   - `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
+- Rune docs-first pointers (reference):
+  - `docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md`
+  - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
+- Rune lane (active):
+  - `phase-29cu` is the live Rune lane
+  - `Program(JSON v0)` remains a retire target and must not widen Rune
+  - `.hako` carrier is `AST attrs -> direct MIR attrs`
+  - current source-route keep may transport selected-entry attrs through a synthetic `Main.main` def only; root/body attrs remain frozen
+  - `ny-llvmc` semantics are `selected-entry only`
+- clean-shape status (docs-first, not active blocker):
+  1. `stage1/stage2` artifact semantics の整理（landed）
+  2. `ABI/export manifest + generated shim 化`（landed）
+  3. `hako_alloc` root の物理再編（landed）
+     - canonical home for alloc/policy-plane helpers is `lang/src/hako_alloc/**` (treat `runtime/memory/**` as legacy)
+  4. transitional Rust export の daily-path 退役（landed）
+     - daily path has been retargeted to `nyash.array.set_hih`
+     - legacy `nyash.array.set_h` remains compat-only
+  5. handle/provider/birth の substrate-only 化（docs-locked）
+     - current truth:
+       - `handle_cache.rs` is frozen as thin metal helper
+       - `provider_lock` is wiring-only
+       - `birth.rs` is substrate keep/shim, not policy owner
+     - current docs exact leaf:
+       - `handle-cache-metal-helper-contract-ssot.md`
+       - `ring1-core-provider-scope-ssot.md`
+       - `array-map-owner-and-ring-cutover-ssot.md`
+       - `de-rust-full-rust-zero-remaining-rust-inventory-ssot.md`
+       - `phase-29cc/README.md`
+       - `phase-29cc/29cc-221-runtime-plugin-rust-residue-inventory-lock-ssot.md`
+       - `phase-29cc/29cc-231-kernel-b1-min1-invoke-birth-route-cutover-lock-ssot.md`
+       - `phase-29cc/29cc-232-kernel-b1-min1-closeout-lock-ssot.md`
+  6. `Stage3` gate 追加（landed）
+     - bootstrap same-result helper: `tools/selfhost/stage3_same_result_check.sh`
+     - build lane compares re-emitted Program/MIR payload snapshots from a known-good seed plus `.artifact_kind`
+     - skip-build lane compares an explicit prebuilt pair
 - current docs exact leaf:
   - `substrate-capability-ladder-ssot.md`
   - `value-repr-and-abi-manifest-ssot.md`
   - `abi-export-inventory.md`
+  - `abi-export-manifest-v0.toml`
   - `handle-cache-metal-helper-contract-ssot.md`
   - `minimal-capability-modules-ssot.md`
   - `minimum-verifier-ssot.md`
@@ -56,7 +151,13 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
       `docs/development/current/main/design/abi-export-inventory.md`
     - current collection/kernel symbols are grouped as:
       `mainline substrate` / `runtime-facade` / `compat-only`
-    - `AbiAdapterRegistryBox` is fixed as adapter-default consumer, not manifest truth
+    - `AbiAdapterRegistryBox` is fixed as adapter-default consumer; defaults are manifest-backed and generated
+  - `phase-29ct` V0.1 adapter-default manifest + generated shim
+    - docs-side truth now lives in
+      `docs/development/current/main/design/abi-export-manifest-v0.toml`
+    - generated defaults module now lives in
+      `lang/src/vm/boxes/generated/abi_adapter_registry_defaults.hako`
+    - `AbiAdapterRegistryBox` now consumes generated defaults instead of hand-written rows
   - `phase-29ct` V1 value representation lock
     - canonical classes are fixed as:
       `imm_i64` / `imm_bool` / `handle_owned` /

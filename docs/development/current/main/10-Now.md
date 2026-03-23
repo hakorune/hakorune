@@ -1,491 +1,66 @@
 ---
 Status: SSOT
 Date: 2026-03-23
-Scope: main ラインの「現在地」と「実行入口」だけを置く薄いインデックス。
+Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/DOCS_LAYOUT.md
-  - docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
-  - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
-  - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
-  - docs/development/current/main/phases/phase-29cf/README.md
-  - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
-  - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
-  - docs/development/current/main/design/de-rust-master-task-map-ssot.md
-  - docs/development/current/main/design/de-rust-lane-map-ssot.md
-  - docs/development/current/main/design/de-rust-scope-decision-ssot.md
-  - docs/development/current/main/design/build-lane-separation-ssot.md
-  - docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md
-  - docs/development/current/main/design/private-doc-boundary-migration-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-101-plg04-mapbox-wave1-min3-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-108-plg05-regex-wave2-min3-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-109-plg05-encoding-wave2-min4-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-110-plg05-path-wave2-min5-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-111-plg05-math-wave2-min6-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-112-plg05-net-wave2-min7-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-113-plg06-pycompiler-wave3-min1-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-117-wsm01-wasm-unsupported-inventory-sync-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-119-wsm02a-assignment-local-unblock-ssot.md
-  - docs/development/current/main/phases/phase-29cc/29cc-120-wasm-demo-goal-contract-ssot.md
-  - docs/tools/README.md
+  - docs/development/current/main/20-Decisions.md
+  - docs/development/current/main/30-Backlog.md
 ---
 
 # Self Current Task — Now (main)
 
 ## Purpose
 
-- この文書は入口専用。進捗履歴や長文ログは phase/design へ置く。
-- Next task の正本は `phase-29y/60-NEXT-TASK-PLAN.md` に固定する。
-- 研究/将来案（Python系を含む）は `Current blocker` に混ぜず、`30-Backlog.md` を正本にして管理する。
-- kernel/build lane の混線防止は `design/build-lane-separation-ssot.md` を正本にする。
+- この文書は docs 側の薄い mirror/dashboard だよ。
+- 置くのは current summary、実行入口、正本リンクだけ。
+- 進捗履歴や長文ログは `CURRENT_TASK.md`、phase README、design SSOT に逃がす。
 
-## Focus Lock (2026-03-02)
+## Root Anchors
 
-- 日常の kernel は `kernel-mainline`（`.hako`）を既定にする。
-- no-fallback 契約を固定する（`NYASH_VM_USE_FALLBACK=0`, silent fallback 禁止）。
-- cargo は `build-maintenance`（host保守）専用に分離する。
-- 日常ループは `build-mainline`（cargo-free）で進める。
+- Root anchor: `CURRENT_TASK.md`
+- Docs mirror: `docs/development/current/main/10-Now.md`
+- Quick restart: `docs/development/current/main/05-Restart-Quick-Resume.md`
+- Layout contract: `docs/development/current/main/DOCS_LAYOUT.md`
 
-## Quick Restart Pointer
+## Current Read
 
-- 再起動直後の最短導線は `docs/development/current/main/05-Restart-Quick-Resume.md` を正本とする。
-- 実行順と blocker の参照先を 1 画面で辿れる状態を保つ。
-- 最短コマンド（runtime closeout 優先 / perf凍結）:
+- Compiler lane: `phase-29bq` は landed / monitor-only、active blocker は `none`。
+- Runtime lane: `phase-29y` が current anchor、日常は `LLVM-first / vm-hako monitor-only`。
+- Kernel capability lane: `phase-29ct` は stop-line reached、`C5` は deferred。
+- Rune lane: `phase-29cu` は active current lane。grammar activation は Rust parser / `.hako` parser 両方前提で、carrier は declaration-local `attrs.runes` -> direct MIR attrs、`ny-llvmc` は selected-entry only。
+- Rune source-route note: `.hako` の source-route keep は selected-entry attrs を synthetic `Main.main` def で一時輸送してよいが、Program(JSON v0) root/body は no-widen のまま。
+- JSON v0 reading: `Program(JSON v0)` は Rune の retire/no-widen target、`MIR(JSON v0)` は current interchange / gate boundary。
+- De-rust lane: `phase-29cc` は closeout 済みで、follow-up は `phase-29ce` / `phase-29cf` に分離済み。
 
-```bash
-cd /home/tomoaki/git/hakorune-selfhost
-git status -sb
-tools/checks/dev_gate.sh quick
-tools/checks/dev_gate.sh runtime-exec-zero
-bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
-```
+## Clean-Shape Status
 
-## Current Snapshot
+1. `stage1/stage2` artifact semantics の整理（landed）
+2. `ABI/export manifest + generated shim` 化（landed）
+3. `hako_alloc` root の物理再編（landed）
+4. transitional Rust export の daily-path 退役（landed）
+5. handle/provider/birth の substrate-only 化（docs-locked）
+6. `Stage3` gate 追加（landed）
+   - build lane compares re-emitted Program/MIR payload snapshots from a known-good seed plus `.artifact_kind`
+   - skip-build lane compares an explicit prebuilt pair
 
-- Compiler lane: `phase-29bq`（JIR-PORT-00..07 done / active blocker=`none` / next=`none`）
-- Compiler lane latest fix: `29bq-117` completed the fast EXE smoke repair by pairing `29bq-116` main-first MIR JSON ordering with llvmlite-harness `ArrayBox.birth()` no-op lowering
-- Lane A status mirror SSOT: `CURRENT_TASK.md`（この文書は mirror）
-- Lane A mirror sync helper: `bash tools/selfhost/sync_lane_a_state.sh`（`CURRENT_TASK.md` を唯一入力に同期）
-- Runtime lane: `phase-29y`（Current blocker / Next fixed order は `phase-29y/60-NEXT-TASK-PLAN.md` を正本とする）
-- Runtime operation policy: `LLVM-first / vm-hako monitor-only`（日常の runtime 検証は LLVM 主経路、vm-hako は blocker 検知の monitor lane）
-- Repo cleanup lane: `phase-29cs` parked（`phase-29cr` landed P0-P6 cleanup skeleton; `phase-29cs` finished the kernel/plugin naming cleanup batch; next parked follow-up is `phase-21_5` raw substrate perf reopen）
-- Kernel capability latest13: `RawArrayCoreBox -> BufCoreBox -> PtrCoreBox` now covers `ArrayCoreBox.len/push` and reserve/grow substrate verbs; `mem`/`buf` are now live minimal facades
-- Kernel capability latest14: `BoundsCoreBox.ensure_index_i64` is live; `RawArrayCoreBox.get/set` now gate through `BoundsCoreBox -> PtrCoreBox` before raw pointer access
-- Kernel capability latest15: Rust kernel export surface is split into thin `array.rs` / `map.rs` facades over `array_compat.rs` / `array_runtime_facade.rs` / `array_substrate.rs` and `map_compat.rs` / `map_substrate.rs`
-- Kernel capability latest16: `RawMapCoreBox.entry_count_i64` is live; `MapCoreBox.size_i64` now routes through `raw_map/raw_map_core_box.hako` before `nyash.map.entry_count_h`
-- Kernel capability latest17: `InitializedRangeCoreBox.ensure_initialized_index_i64` is live; `RawArrayCoreBox.slot_load_i64` now gates through `bounds -> initialized-range -> ptr`
-- Kernel capability latest18: `RawMapCoreBox` now exposes `probe/load/store` substrate verbs; `MapCoreBox` uses them on raw receiver-handle `set/get/has` paths while keeping stateful owner fast paths local
-- Kernel capability latest19: `OwnershipCoreBox` is now the third live verifier box; current live subset is carrier-liveness only, and `RawArrayCoreBox` / `RawMapCoreBox` now gate current raw routes through ownership before deeper substrate hops
-- Kernel capability latest20: `RawMapCoreBox.cap_i64(handle)` is now the first truthful map capacity observer route via `nyash.map.cap_h`; `rehash/tombstone` remain parked until a truthful native seam exists
-- Kernel capability latest21: `raw-map-truthful-native-seam-inventory.md` now fixes the `HashMap` backend truth; current live `RawMap` rows stay at `entry_count/cap/probe/load/store`, and `rehash/tombstone/bucket_*` remain parked
-- Kernel capability latest22: `atomic-tls-gc-truthful-native-seam-inventory.md` now fixes seam-first widening; `nyash.gc.barrier_write` is the current truthful live seam, and `atomic/tls` remain parked
-- Kernel capability latest23: `GcCoreBox.write_barrier_i64(handle_or_ptr)` is now the first live `hako.gc` row under `runtime/substrate/gc/`
-- Kernel capability latest24: `stage2-selfhost-and-hako-alloc-ssot.md` now fixes `stage0/stage1/stage2/stage3` as the stage axis and `hako_core / hako_alloc / hako_std` as the final library layering
-- Kernel capability latest25: `TlsCoreBox.last_error_text_h()` and `AtomicCoreBox.fence_i64()` are now the first live helper-shaped `hako.tls` / `hako.atomic` rows
-- Kernel capability latest26: `phase-29ct` has reached its stop-line; `C5 Hakozuna portability layer` remains deferred and no new widening slice is active in that lane
-- Kernel capability lane: `phase-29ct` stop-line reached（substrate capability ladder / ABI-value manifest / final metal split は landed、`C5` は deferred）
-- Kernel capability latest: `V0 ABI export inventory` landed at `docs/development/current/main/design/abi-export-inventory.md`; `AbiAdapterRegistryBox` is read as adapter-default consumer, not manifest truth
-- Kernel capability latest2: `V1 value representation lock` landed; canonical classes and borrowed-string alias invariants are fixed in `value-repr-and-abi-manifest-ssot.md`
-- Kernel capability latest3: `V2 metal helper contract lock` landed; `handle_cache.rs` is fixed as native metal helper, not ABI/value owner
-- Kernel capability latest4: `V3 future substrate module root lock` landed; `lang/src/runtime/substrate/` is reserved as namespace-first staging root
-- Kernel capability latest5: `V4 minimal capability modules` landed; `hako.mem / hako.buf / hako.ptr` are docs-first staged in that order
-- Kernel capability latest6: `V5 minimum verifier lock` landed; `bounds / initialized-range / ownership` are fixed docs-first before `RawArray`
-- Kernel capability latest7: `C2 RawArray` docs/task lock landed; `RawArray` is fixed as the first consumer above `mem / buf / ptr / verifier`
-- Kernel capability latest8: `C3 RawMap` docs/task lock landed; `RawMap` is fixed as the next consumer after `RawArray`
-- Kernel capability latest9: `C4 GC/TLS/atomic capability widening` landed; `atomic / tls / gc` are now fixed docs-first before `Hakozuna portability layer`
-- Kernel capability latest10: `C6 final metal split detail lock` landed; `C5` stays ladder-only while `.hako owner / native metal keep` is now fixed as the detailed final boundary
-- Kernel capability latest11: first implementation slice landed; `PtrCoreBox -> RawArrayCoreBox -> ArrayCoreBox.get/set` is now the first runnable capability probe path
-- Kernel capability latest12: `MemCoreBox` / `BufCoreBox` now exist as live minimal facades; `RawArrayCoreBox.reserve/grow` routes through `BufCoreBox`
-- Distribution future pointer: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`（self-contained bundle + package manager + explicit system LLVM dev mode）
-- Full Rust 0 pointer: `docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md`
-- Full Rust 0 split: `runtime-zero = accepted pointer / inventory-ready`, `backend-zero = accepted pointer / phase-29ck queued`
-- 0rust operational reading: `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline`
-- Backend-zero boundary lock: `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
-- Backend-zero fixed order / buildability gate: `docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
-- Backend-zero phase pointer: `docs/development/current/main/phases/phase-29ck/README.md`
-- Backend-zero final shape: `.hako -> thin backend C ABI/plugin boundary -> object/exe`（`native_driver.rs` は bootstrap seam only）
-- Collection-owner policy (runtime): `array -> map -> runtime_data cleanup` を current architecture lane とし、raw substrate optimization は parked とする。
-- Optimization policy (runtime): collection owner boundary が固定されるまでは、最適化 lane（micro/asm -> kilo）を reopen しない。
-- JoinIR port mode（lane A）: monitor-only（failure-driven）
-- JoinIR extension runbook（lane A reopen）:
-  - `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
-  - active green seed: `JIR-EXT-SHAPE-01`
-    - fixture: `apps/tests/phase29bq_selfhost_blocker_phi_injector_collect_phi_vars_nested_loop_no_exit_var_step_min.hako`
-    - gate: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only ext-red`
-    - latest (2026-03-02): rust-reference / hako-mainline ともに `18 / RC:0`（lane tag=`vm` / `vm-hako`）で green lock。
-- JoinIR parity probe pin（JIR-PORT-01）:
-  - `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port01_parity_probe_vm.sh`
-- App-first: APP-1（Gate Log Summarizer）acceptance PASS 済み
-- App-first: APP-2（Controlflow Probe）acceptance PASS 済み
-- App-first: APP-3（MIR Shape Guard）acceptance PASS 済み
-- Runtime diagnostic pin（non-gating）:
-  - `phase29y_continue_assignment_in_continue_stale_guard_vm.sh`（stale-guard contract: `FINAL=7`）
-- Compiler pipeline diagnostic pin（non-gating）:
-  - `phase29y_hako_emit_mir_continue_assignment_timeout_block_vm.sh`（blocked contract: `--hako-emit-mir-json` internal timeout fail-fast marker）
-  - `phase29y_hako_emit_mir_preemit_io_monitor_vm.sh`（monitor-only: pre-emit I/O cold/hot observation; `--strict` は手動実行）
-  - `phase29y_hako_emit_mir_binary_only_ported_vm.sh`（repo外 `--hako-emit-mir-json` ported contract）
-- Compiler pipeline focus（lane B）:
-  - `binary-only --hako-emit-mir-json` 契約を優先（SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`）
-  - active next: `none`（B-TERNARY-03 decision fixed: non-gating維持）
-  - task SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md` の `Lane-B Nested Ternary Debt Pack (B-TERNARY-01..03)`
-  - direct-route debug (2026-03-02): `build_stage1.sh` direct は arity blocker（`ParserBox.esc_json/1` / `HakoCli.run/1`）を解消し、現 blocker は LLVM harness parse（`PHINode should have one entry for each predecessor`）。
-- De-rust orchestration lane（phase-29cc）:
-  - status dashboard（SSOT）: `docs/development/current/main/phases/phase-29cc/README.md`
-  - execution checklist: `docs/development/current/main/phases/phase-29cc/29cc-90-migration-execution-checklist.md`
-  - status: accepted monitor-only（top-level closeout done）
-  - live compat closeout: `docs/development/current/main/phases/phase-29ce/README.md`（accepted）
-  - post-closeout follow-up: `docs/development/current/main/phases/phase-29cf/README.md`（accepted monitor-only）
-  - scope decision（L5 accepted）: `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
-  - strict readiness（L4 done）: `tools/selfhost/check_phase29x_x23_readiness.sh --strict` -> `status=READY`（2026-02-25）
-  - plugin lane: done through `PLG-07`, active next=`none`（monitor-only）
-  - runtime lane:
-    - active lock: `docs/development/current/main/phases/phase-29cc/29cc-220-runtime-source-zero-cutover-lock-ssot.md`
-    - boundary lock: `docs/development/current/main/phases/phase-29cc/29cc-253-source-zero-static-link-boundary-lock-ssot.md`
-    - hook lock: `docs/development/current/main/phases/phase-29cc/29cc-254-hako-forward-hook-cabi-cutover-order-lock-ssot.md`
-    - status: `HFK-min1..min6 done`, active next=`none`（monitor-only, failure-driven reopen）
-    - latest: `NYASH_VM_USE_FALLBACK=0` では hook 未登録時に `invoke/by_name` / `future.spawn_instance3` / string exports の Rust fallback を禁止（mainline no-compat hardening）
-    - latest2: `invoke_core` / `plugin_loader_v2/route_resolver` の compat fallback も `NYASH_VM_USE_FALLBACK=0` で拒否（fallback policy SSOT alignment）
-    - latest3: fallback policy 判定を `vm_compat_fallback_allowed()` へ集約し、hook-miss は route-tag trace 付き fail-fast（`NYRT_E_HOOK_MISS` / freeze-handle）に固定（`hako_forward_bridge`）
-    - latest4: `plugin_loader_v2` loader/instance/ffi invoke route を `InvokeRouteContract` 再利用で統一。`invoke_core` に named route helper を追加し、`by_name` / `future` entry の重複を縮退。
-    - Rust source は保存固定（削除タスクは当面起票しない）
-    - target: `.hako` 主経路で runtime/plugin の mainline 依存を 0 行化（source keep）
-    - kernel naming lock:
-      - `kernel-mainline`: `.hako` no-compat 実行経路（`NYASH_VM_USE_FALLBACK=0`）
-      - `kernel-bootstrap`: Rust static archive（`libnyash_kernel.a`）起動経路（source keep）
-    - order lock: `runtime契約維持 -> mainline最適化（既定） -> bootstrap保守`
-  - wasm lane: done through `WSM-P10`, active next=`none`（monitor-only）
-  - note: `phase-29cf` handles post-closeout `VM fallback compat lane` / `bootstrap boundary reduction` as accepted monitor-only, without reopening `phase-29cc`
-  - de-rust done judgement matrix: `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
-- Perf lane（phase-21.5）:
-  - axis lock: `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
-  - collection owner shift is done-enough, but not end-state complete
-  - raw substrate perf is parked behind `phase-29ct` capability ladder lock
-  - first active docs:
-    - `docs/development/current/main/design/substrate-capability-ladder-ssot.md`
-    - `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
-  - latest closeout evidence (2026-03-01, head=`68ea40af29`):
-    - `tools/checks/dev_gate.sh runtime-exec-zero` green
-    - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh` green
-  - next exact boundary-deepen target:
-    - `lang/src/runtime/collections/array_core_box.hako`
-    - `lang/src/runtime/collections/array_state_core_box.hako`
-    - `lang/src/runtime/collections/map_core_box.hako`
-    - `lang/src/runtime/collections/map_state_core_box.hako`
-    - `crates/nyash_kernel/src/plugin/array.rs`
-    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-    - `src/boxes/array/mod.rs`
-    - `crates/nyash_kernel/src/plugin/map.rs`
-    - `crates/nyash_kernel/src/plugin/map_slot_load.rs`
-    - `crates/nyash_kernel/src/plugin/map_slot_store.rs`
-    - `crates/nyash_kernel/src/plugin/map_probe.rs`
-  - transitional exports to demote/inventory:
-    - none on the daily `.hako` path; `nyash.map.size_h` is now compat-only
-  - landed observer demotion:
-    - daily `.hako` array observer route now uses `nyash.array.slot_len_h`
-    - `nyash.array.len_h` is compat-only
-  - landed append demotion:
-    - daily `.hako` array append route now uses `nyash.array.slot_append_hh`
-    - `nyash.array.push_hh` is compat-only
-    - adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`
-    - `nyash.array.push_h` is compat-only
-  - landed compat/pure array get retarget:
-    - adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`
-    - `nyash.array.get_h` is compat-only
-    - `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
-    - `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
-  - landed map observer demotion:
-    - daily `.hako` map observer route now uses `nyash.map.entry_count_h`
-    - `nyash.map.size_h` is compat-only
-  - landed compat/pure map retarget:
-    - adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
-    - `nyash.map.{get_h,set_h,has_h}` are compat-only
-  - landed map hidden-residue slice:
-    - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
-    - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
-  - worker boundary decision:
-    - those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice
-  - next active perf seam after capability lock:
-    - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
-    - `crates/nyash_kernel/src/plugin/handle_cache.rs`
-    - `src/boxes/array/mod.rs`
-  - landed AOT-prep retarget:
-    - `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`
-    - `ArrayBox.set` stays on the current route until a raw non-i64-safe write seam is accepted
-    - pin: `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
-  - landed llvm-py retarget:
-    - shared llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`)
-    - the remaining array lowering keep was handled in the later `B1i/B1j` slices
-    - pins:
-      - `python3 -m unittest src.llvm_py.tests.test_collection_method_call src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_mir_call_auto_specialize src.llvm_py.tests.test_boxcall_plugin_invoke_args src.llvm_py.tests.test_strlen_fast`
-      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
-      - `bash tools/smokes/v2/profiles/integration/phase21_5/perf/kilo/phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
-  - landed runtime-data map retarget:
-    - `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
-    - `RuntimeDataBox` remains facade-only; next exact residue is array non-i64 lowering
-  - landed array non-i64 lowering demotion:
-    - active lowering now routes array non-i64 `get/has` and non-i64 `set` through `nyash.runtime_data.*`
-    - proven i64-key routes still use `nyash.array.slot_load_hi`, `nyash.array.set_hih`, and `nyash.array.set_hii`
-  - landed accepted keep for the last daily array set residue:
-    - `nyash.array.set_hii` stays the i64/i64 specialized path
-    - `nyash.array.set_hih` stays the i64-key + handle/any-value fallback
-    - no `slot_store_hih` alias is added in this slice
-    - `P1` perf reopen is allowed again from the write/TLS seam
-  - fresh `P1` probe rejected:
-    - `with_array_box` cache-hit inline path stayed at `46 ms`
-    - asm top remained `array_slot_store_i64` closure + `LocalKey::with`
-    - next cut stays measurement-led; no write-side code slice is accepted yet
-  - build-freshness note:
-    - new kernel exports on the AOT boundary path require fresh release artifacts before link/pure smokes
-  - source keep policy とは分離して進める
-  - current scope lock:
-    - primary: `kernel-mainline`（`.hako` no-compat）
-    - maintenance: `kernel-bootstrap`（Rust static archive）
-  - latest benchmark snapshot (2026-03-22):
-    - `kilo_kernel_small_hk`: `c_ms=76`, `py_ms=105`, `ny_vm_ms=974`, `ny_aot_ms=740`, `ratio_c_aot=0.10`
-    - `kilo_micro_array_getset`: `ny_aot_ms=44`
-    - `kilo_micro_substring_concat`: `ny_aot_ms=64`
-  - active recovery rule:
-    - 先に micro で改善を確定し、確定した差分のみ `kilo_kernel_small_hk` へ反映する（kilo先行の探索は禁止）。
-    - hk 計測は `PERF_VM_FORCE_NO_FALLBACK=1` で route strict を維持する（silent fallback 禁止）。
-    - hk 計測は `PERF_REQUIRE_AOT_RESULT_PARITY=1`（既定）で VM/AOT の結果一致を必須化する。不一致時はベンチ結果を採用しない。
-    - 再開時の固定入口は `tools/perf/run_kilo_hk_bench.sh` を使う（`strict` / `diagnostic`）。
-  - latest kernel asm note (2026-03-01):
-    - `nyash.array.set_his` share improved (`~7.4% -> ~5.8%`) by pair-route single lookup.
-    - `nyash.string.concat_hh` stays top user-space hotspot (`~8.5%` class); next focus is concat structure-level optimization.
-- De-Rust lane map: `A=Compiler Meaning / B=Compiler Pipeline / C=Runtime Port`
-  - SSOT: `docs/development/current/main/design/de-rust-lane-map-ssot.md`
+## Exact Links
 
-## Immediate Next
+- Bootstrap route SSOT: `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+- Compiler structure SSOT: `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- Stage axis SSOT: `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
+- Rune final shape SSOT: `docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md`
+- Rune v0 rollout SSOT: `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
+- Stage3 same-result gate: `tools/selfhost/stage3_same_result_check.sh`
+- ABI inventory: `docs/development/current/main/design/abi-export-inventory.md`
+- JSON v0 inventory: `docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
+- Route split note: `docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md`
+- Phase 29ci closeout: `docs/development/current/main/phases/phase-29ci/README.md`
 
-1. `.hako` kernel mainline（no-fallback）を日常経路として維持する。
-2. 脱Rust selfhost top-level closeout は完了済みとして扱う。
-3. current development は selfhost / de-rust mainline feature work に戻す。
-4. done contract は次の 2 コマンドを正本に固定する:
-   - `tools/checks/dev_gate.sh runtime-exec-zero`
-   - `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-5. `build-mainline`（cargo-free）を daily default に固定する。
-6. `build-maintenance`（cargo）は host 保守時のみ実行する。
-7. Rust source は保存固定とし、削除タスクは現時点で開始しない。
-8. `phase-29cf` の `VM fallback compat lane` / `bootstrap boundary reduction` は future-wave follow-up として monitor-only で維持する。
-9. 最適化 lane（micro/asm -> kilo）は再び parked のままで、先に i64-key array set keep を inventory する。
-10. `stage0` Rust bootstrap keep と `stage2+` daily selfhost mainline は別物として扱い、同じ acceptance に混ぜない。
+## Restart Reminder
 
-## Read First Order
-
-1. `CURRENT_TASK.md`
-2. `docs/development/current/main/design/de-rust-master-task-map-ssot.md`
-3. `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
-4. `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
-5. `docs/development/current/main/design/de-rust-lane-map-ssot.md`
-6. `docs/development/current/main/design/compiler-expressivity-first-policy.md`
-7. `docs/development/current/main/design/joinir-planner-required-gates-ssot.md`
-8. `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
-9. `docs/tools/README.md`
-10. `docs/development/current/main/phases/phase-29cc/README.md`
-11. `docs/development/current/main/phases/phase-29cc/29cc-133-wsm-g2-browser-demo-task-plan.md`
-12. `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
-13. `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
-14. `docs/development/current/main/phases/phase-29cc/29cc-136-wsm-g2-min3-guide-alignment-lock-ssot.md`
-15. `docs/development/current/main/phases/phase-29cc/29cc-137-wsm-g3-min1-gap-inventory-lock-ssot.md`
-16. `docs/development/current/main/phases/phase-29cc/29cc-138-wsm-g3-min2-canvas-clear-lock-ssot.md`
-17. `docs/development/current/main/phases/phase-29cc/29cc-139-wsm-g3-min3-canvas-strokerect-lock-ssot.md`
-18. `docs/development/current/main/phases/phase-29cc/29cc-140-wsm-g3-min4-canvas-beginpath-lock-ssot.md`
-19. `docs/development/current/main/phases/phase-29cc/29cc-141-wsm-g3-min5-canvas-arc-lock-ssot.md`
-20. `docs/development/current/main/phases/phase-29cc/29cc-142-wsm-g3-min6-canvas-fill-lock-ssot.md`
-21. `docs/development/current/main/phases/phase-29cc/29cc-143-wsm-g3-min7-canvas-stroke-lock-ssot.md`
-22. `docs/development/current/main/phases/phase-29cc/29cc-144-wsm-g3-min8-canvas-setfillstyle-lock-ssot.md`
-23. `docs/development/current/main/phases/phase-29cc/29cc-145-wsm-g3-min9-canvas-setstrokestyle-lock-ssot.md`
-24. `docs/development/current/main/phases/phase-29cc/29cc-146-wsm-g3-min10-canvas-setlinewidth-lock-ssot.md`
-25. `docs/development/current/main/phases/phase-29cc/29cc-147-wsm-g3-min11-fillcircle-drawline-gap-lock-ssot.md`
-26. `docs/development/current/main/phases/phase-29cc/29cc-148-wsm-g3-min12-canvas-fillcircle-lock-ssot.md`
-27. `docs/development/current/main/phases/phase-29cc/29cc-149-wsm-g3-min13-canvas-drawline-lock-ssot.md`
-28. `docs/development/current/main/phases/phase-29cc/29cc-150-wsm-p1-min1-emit-wat-cli-lock-ssot.md`
-29. `docs/development/current/main/phases/phase-29cc/29cc-151-wsm-p1-min2-wat-parity-lock-ssot.md`
-30. `docs/development/current/main/phases/phase-29cc/29cc-152-wsm-p2-min1-wat2wasm-bridge-lock-ssot.md`
-31. `docs/development/current/main/phases/phase-29cc/29cc-153-wsm-p3-min1-import-object-lock-ssot.md`
-32. `docs/development/current/main/phases/phase-29cc/29cc-154-wsm-p4-min1-binary-writer-doc-lock-ssot.md`
-33. `docs/development/current/main/phases/phase-29cc/29cc-155-wsm-p4-min2-binary-writer-skeleton-lock-ssot.md`
-34. `docs/development/current/main/phases/phase-29cc/29cc-156-wsm-p4-min3-hako-writer-entry-parity-doc-lock-ssot.md`
-35. `docs/development/current/main/phases/phase-29cc/29cc-157-wsm-p4-min4-hako-writer-const-parity-lock-ssot.md`
-36. `docs/development/current/main/phases/phase-29cc/29cc-158-wsm-p4-min5-neg-const-parity-lock-ssot.md`
-37. `docs/development/current/main/phases/phase-29cc/29cc-159-wsm-p4-min6-shape-table-lock-ssot.md`
-38. `docs/development/current/main/phases/phase-29cc/29cc-160-wsm-p5-min1-default-cutover-doc-lock-ssot.md`
-39. `docs/development/current/main/phases/phase-29cc/29cc-161-wsm-p5-min2-route-policy-lock-ssot.md`
-40. `docs/development/current/main/phases/phase-29cc/29cc-162-wsm-p5-min3-default-hako-lane-lock-ssot.md`
-41. `docs/development/current/main/phases/phase-29cc/29cc-163-wsm-p5-min4-hako-lane-bridge-shrink-lock-ssot.md`
-42. `docs/development/current/main/phases/phase-29cc/29cc-164-wsm-p5-min5-native-helper-lock-ssot.md`
-43. `docs/development/current/main/phases/phase-29cc/29cc-165-wsm-p5-min6-shape-expand-lock-ssot.md`
-44. `docs/development/current/main/phases/phase-29cc/29cc-166-wsm-p5-min7-shape-trace-lock-ssot.md`
-45. `docs/development/current/main/phases/phase-29cc/29cc-167-wsm-p5-min8-legacy-retire-readiness-lock-ssot.md`
-46. `docs/development/current/main/phases/phase-29cc/29cc-168-wsm-p5-min9-legacy-retire-execution-lock-ssot.md`
-47. `docs/development/current/main/phases/phase-29cc/29cc-169-wsm-p5-min10-legacy-hard-remove-lock-ssot.md`
-48. `docs/development/current/main/phases/phase-29cc/29cc-170-wsm-p6-min1-route-policy-default-noop-lock-ssot.md`
-49. `docs/development/current/main/phases/phase-29cc/29cc-171-wsm-g4-min1-nyash-playground-console-baseline-lock-ssot.md`
-50. `docs/development/current/main/phases/phase-29cc/29cc-172-wsm-g4-min2-nyash-playground-canvas-primer-lock-ssot.md`
-51. `docs/development/current/main/phases/phase-29cc/29cc-173-wsm-g4-min3-webcanvas-fixture-parity-lock-ssot.md`
-52. `docs/development/current/main/phases/phase-29cc/29cc-174-wsm-g4-min4-canvas-advanced-fixture-parity-lock-ssot.md`
-53. `docs/development/current/main/phases/phase-29cc/29cc-175-wsm-g4-min5-headless-two-example-parity-lock-ssot.md`
-54. `docs/development/current/main/phases/phase-29cc/29cc-176-wsm-g4-min6-gate-promotion-closeout-lock-ssot.md`
-55. `docs/development/current/main/phases/phase-29cc/29cc-177-wsm-p4-min7-buffer-file-binary-contract-lock-ssot.md`
-56. `docs/development/current/main/phases/phase-29cc/29cc-178-plg07-plugin-derust-cutover-order-ssot.md`
-57. `docs/development/current/main/phases/phase-29cc/29cc-179-plg07-min1-min2-filebox-binary-rust-parity-lock-ssot.md`
-58. `docs/development/current/main/phases/phase-29cc/29cc-180-plg07-min3-filebox-binary-hako-parity-lock-ssot.md`
-59. `docs/development/current/main/phases/phase-29cc/29cc-181-plg07-min4-filebox-binary-dualrun-gate-lock-ssot.md`
-60. `docs/development/current/main/phases/phase-29cc/29cc-182-plg07-min5-filebox-default-switch-lock-ssot.md`
-61. `docs/development/current/main/phases/phase-29cc/29cc-183-plg07-min6-filebox-retire-readiness-lock-ssot.md`
-62. `docs/development/current/main/phases/phase-29cc/29cc-184-wsm-p7-min1-hako-only-done-criteria-lock-ssot.md`
-63. `docs/development/current/main/phases/phase-29cc/29cc-185-wsm-p7-min2-default-hako-only-guard-lock-ssot.md`
-64. `docs/development/current/main/phases/phase-29cc/29cc-186-wsm-p7-min3-two-demo-lock-ssot.md`
-65. `docs/development/current/main/phases/phase-29cc/29cc-187-wsm-p7-min4-compat-retention-lock-ssot.md`
-66. `docs/development/current/main/phases/phase-29cc/29cc-188-wsm-p8-min1-bridge-retire-readiness-lock-ssot.md`
-67. `docs/development/current/main/phases/phase-29cc/29cc-189-wsm-p9-min0-non-native-inventory-lock-ssot.md`
-68. `docs/development/current/main/phases/phase-29cc/29cc-190-wsm-p9-min1-const-binop-native-shape-lock-ssot.md`
-69. `docs/development/current/main/phases/phase-29cc/29cc-191-wsm-p9-min2-loop-canvas-primer-bridge-lock-ssot.md`
-70. `docs/development/current/main/phases/phase-29cc/29cc-192-wsm-p9-min3-canvas-advanced-bridge-lock-ssot.md`
-71. `docs/development/current/main/phases/phase-29cc/29cc-193-wsm-p9-min4-bridge-retire-refresh-lock-ssot.md`
-72. `docs/development/current/main/phases/phase-29cc/29cc-194-wsm-p10-min1-loop-extern-native-emit-design-lock-ssot.md`
-
-## Daily Commands (build-mainline / cargo-free default)
-
-- `tools/checks/dev_gate.sh quick`
-- `tools/checks/dev_gate.sh runtime-exec-zero`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-- `HAKO_EMIT_MIR_MAINLINE_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1`
-- `build_stage1` が artifact 欠落で失敗した場合は `Maintenance Commands` を先に1回実行する。
-- `bash tools/perf/run_kilo_hk_bench.sh strict 1 3`
-- `bash tools/selfhost/run_lane_a_daily.sh`
-- `./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_vm.sh`
-- `bash tools/checks/phase29cc_runtime_execution_path_zero_guard.sh`
-- `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
-- `PHASE29Y_DERUST_DONE_MATRIX_CHECK=1 bash tools/smokes/v2/profiles/integration/apps/phase29y_lane_gate_quick_vm.sh`（診断補助。quick既定セットには含めない）
-
-## Maintenance Commands (build-maintenance / cargo)
-
-- `cargo check --release --bin hakorune`
-- `cargo build --release --bin hakorune`
-- `(cd crates/nyash_kernel && cargo build --release)`
-
-## Milestone Commands
-
-- `bash tools/smokes/v2/profiles/integration/rc_gc_alignment/rc_gc_alignment_g2_fast_milestone_gate.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh`
-- `tools/checks/dev_gate.sh portability`（cross-platform preflight）
-- `tools/checks/dev_gate.sh runtime-exec-zero`（execution-path-zero observability。source-zero までの中間ゲート）
-- `bash tools/checks/phase29cc_plg07_filebox_binary_retire_execution_guard.sh`（PLG-07 retire execution）
-- `bash tools/checks/phase29cc_wsm_p7_default_hako_only_guard.sh`（WSM-P7 default hako-only）
-- `bash tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh`（WSM-P8 bridge retire readiness）
-- `bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh`（WSM-P9 non-native shrink）
-- `bash tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh`（WSM-P9 bridge retire refresh）
-- `bash tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`（WSM-P10 loop/extern native emit design lock）
-- `bash tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh`（WSM-P10 loop/extern matcher inventory lock）
-- `bash tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh`（WSM-P10 loop/extern writer section lock）
-- `bash tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh`（WSM-P10 single fixture native promotion lock）
-- `bash tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh`（WSM-P10 expansion inventory lock）
-- `bash tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh`（WSM-P10 warn native promotion lock）
-- `bash tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh`（WSM-P10 info native promotion lock）
-- `bash tools/checks/phase29cc_wsm_p10_error_native_promotion_guard.sh`（WSM-P10 error native promotion lock）
-- `bash tools/checks/phase29cc_wsm_p10_debug_native_promotion_guard.sh`（WSM-P10 debug native promotion lock）
-- `bash tools/checks/phase29cc_wsm_p10_native_promotion_closeout_guard.sh`（WSM-P10 native promotion closeout lock）
-- `bash tools/checks/windows_wsl_cmd_smoke.sh --build --cmd-smoke`（WSL週次Windows smoke）
-
-## Runtime Diagnostic Pins (non-gating)
-
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_continue_assignment_in_continue_stale_guard_vm.sh`
-
-## Compiler Diagnostic Pins (non-gating)
-
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_continue_assignment_timeout_block_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_preemit_io_monitor_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_binary_only_ported_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_var_values_lock_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/apps/phase29y_hako_emit_mir_nested_ternary_unsupported_boundary_vm.sh`
-- `bash tools/smokes/v2/profiles/integration/mir_shape/mir_shape_guard_vm.sh`
-
-## Runtime Next (SSOT Pointer)
-
-- Current blocker と next fixed order は `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md` を正本とする。
-- `CURRENT_TASK.md` とこの文書には要約のみを置き、Next の重複転記を禁止する。
-
-## Key SSOT Pointers
-
-- De-rust master task map: `docs/development/current/main/design/de-rust-master-task-map-ssot.md`
-- De-rust lane map (A/B/C): `docs/development/current/main/design/de-rust-lane-map-ssot.md`
-- De-rust scope decision (L5): `docs/development/current/main/design/de-rust-scope-decision-ssot.md`
-- De-rust done declaration (non-plugin): `docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md`
-- De-rust plugin lane bootstrap: `docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md`
-- De-rust plugin ABI lock (PLG-01): `docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md`
-- De-rust plugin gate pack lock (PLG-02): `docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md`
-- De-rust plugin wave-1 pilot lock (PLG-03): `docs/development/current/main/phases/phase-29cc/29cc-98-plg03-counterbox-wave1-pilot-ssot.md`
-- De-rust plugin wave rollout lock (PLG-04-min1): `docs/development/current/main/phases/phase-29cc/29cc-99-plg04-arraybox-wave1-min1-ssot.md`
-- De-rust plugin wave rollout lock (PLG-04-min2): `docs/development/current/main/phases/phase-29cc/29cc-100-plg04-intcellbox-reserved-core-lock-ssot.md`
-- De-rust plugin wave rollout lock (PLG-04-min3): `docs/development/current/main/phases/phase-29cc/29cc-101-plg04-mapbox-wave1-min3-ssot.md`
-- De-rust plugin wave rollout lock (PLG-04-min4): `docs/development/current/main/phases/phase-29cc/29cc-102-plg04-stringbox-wave1-min4-ssot.md`
-- De-rust plugin wave rollout lock (PLG-04-min5): `docs/development/current/main/phases/phase-29cc/29cc-103-plg04-consolebox-wave1-min5-ssot.md`
-- De-rust plugin wave rollout lock (PLG-04-min6): `docs/development/current/main/phases/phase-29cc/29cc-104-plg04-filebox-wave1-min6-ssot.md`
-- De-rust post-wave1 route lock: `docs/development/current/main/phases/phase-29cc/29cc-105-post-wave1-route-lock-ssot.md`
-- De-rust plugin wave-2 entry lock (PLG-05-min1): `docs/development/current/main/phases/phase-29cc/29cc-106-plg05-json-wave2-min1-ssot.md`
-- De-rust plugin wave-2 rollout lock (PLG-05-min2): `docs/development/current/main/phases/phase-29cc/29cc-107-plg05-toml-wave2-min2-ssot.md`
-- De-rust plugin wave-2 rollout lock (PLG-05-min3): `docs/development/current/main/phases/phase-29cc/29cc-108-plg05-regex-wave2-min3-ssot.md`
-- De-rust plugin wave-2 rollout lock (PLG-05-min4): `docs/development/current/main/phases/phase-29cc/29cc-109-plg05-encoding-wave2-min4-ssot.md`
-- De-rust plugin wave-2 rollout lock (PLG-05-min5): `docs/development/current/main/phases/phase-29cc/29cc-110-plg05-path-wave2-min5-ssot.md`
-- De-rust plugin wave-2 rollout lock (PLG-05-min6): `docs/development/current/main/phases/phase-29cc/29cc-111-plg05-math-wave2-min6-ssot.md`
-- De-rust plugin wave-2 rollout lock (PLG-05-min7): `docs/development/current/main/phases/phase-29cc/29cc-112-plg05-net-wave2-min7-ssot.md`
-- De-rust plugin wave-3 entry lock (PLG-06-min1): `docs/development/current/main/phases/phase-29cc/29cc-113-plg06-pycompiler-wave3-min1-ssot.md`
-- De-rust plugin wave-3 rollout lock (PLG-06-min2): `docs/development/current/main/phases/phase-29cc/29cc-114-plg06-python-wave3-min2-ssot.md`
-- De-rust plugin wave-3 rollout lock (PLG-06-min3): `docs/development/current/main/phases/phase-29cc/29cc-115-plg06-pyparser-wave3-min3-ssot.md`
-- De-rust plugin wave-3 rollout lock (PLG-06-min4): `docs/development/current/main/phases/phase-29cc/29cc-116-plg06-egui-wave3-min4-ssot.md`
-- De-rust wasm lane lock (WSM-01): `docs/development/current/main/phases/phase-29cc/29cc-117-wsm01-wasm-unsupported-inventory-sync-ssot.md`
-- De-rust wasm grammar/map lock: `docs/development/current/main/phases/phase-29cc/29cc-118-wasm-grammar-compat-map-ssot.md`
-- De-rust wasm lane lock (WSM-02a): `docs/development/current/main/phases/phase-29cc/29cc-119-wsm02a-assignment-local-unblock-ssot.md`
-- De-rust wasm demo-goal lock: `docs/development/current/main/phases/phase-29cc/29cc-120-wasm-demo-goal-contract-ssot.md`
-- De-rust wasm lane lock (WSM-02b-min1): `docs/development/current/main/phases/phase-29cc/29cc-121-wsm02b-min1-console-warn-extern-ssot.md`
-- De-rust wasm lane lock (WSM-02b-min2): `docs/development/current/main/phases/phase-29cc/29cc-122-wsm02b-min2-console-error-extern-ssot.md`
-- De-rust wasm lane lock (WSM-02b-min3): `docs/development/current/main/phases/phase-29cc/29cc-123-wsm02b-min3-console-info-extern-ssot.md`
-- De-rust wasm lane lock (WSM-02b-min4): `docs/development/current/main/phases/phase-29cc/29cc-124-wsm02b-min4-console-debug-extern-ssot.md`
-- De-rust wasm lane lock (WSM-02c-min1): `docs/development/current/main/phases/phase-29cc/29cc-125-wsm02c-min1-boxcall-console-info-ssot.md`
-- De-rust wasm lane lock (WSM-02c-min2): `docs/development/current/main/phases/phase-29cc/29cc-126-wsm02c-min2-boxcall-console-debug-ssot.md`
-- De-rust wasm lane lock (WSM-02c-min3): `docs/development/current/main/phases/phase-29cc/29cc-127-wsm02c-min3-boxcall-console-warn-ssot.md`
-- De-rust wasm lane lock (WSM-02c-min4): `docs/development/current/main/phases/phase-29cc/29cc-128-wsm02c-min4-boxcall-console-error-ssot.md`
-- De-rust wasm lane lock (WSM-02d-min1): `docs/development/current/main/phases/phase-29cc/29cc-129-wsm02d-min1-boundary-fastfail-tests-ssot.md`
-- De-rust wasm lane lock (WSM-02d-min2): `docs/development/current/main/phases/phase-29cc/29cc-130-wsm02d-min2-demo-min-fixture-lock-ssot.md`
-- De-rust wasm lane lock (WSM-02d-min3): `docs/development/current/main/phases/phase-29cc/29cc-131-wsm02d-min3-demo-unsupported-boundary-lock-ssot.md`
-- De-rust wasm lane lock (WSM-02d-min4): `docs/development/current/main/phases/phase-29cc/29cc-132-wsm02d-min4-milestone-gate-promotion-lock-ssot.md`
-- De-rust done judgement matrix (X32-X35): `docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md`
-- Compiler task order: `docs/development/current/main/design/compiler-task-map-ssot.md`
-- Compiler pipeline: `docs/development/current/main/design/compiler-pipeline-ssot.md`
-- De-rust compiler roadmap: `docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md`
-- JoinIR port task pack (lane A): `docs/development/current/main/design/joinir-port-task-pack-ssot.md`
-- JoinIR extension dual-route contract (lane A): `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
-- Dev tools quick entry: `docs/tools/README.md`
-- Runtime GC policy/order: `docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md`
-- Selfhost migration order: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
-- Runtime lane README: `docs/development/current/main/phases/phase-29y/README.md`
-
-## Historical / Deep Logs
-
-- Phase 29x runtime history: `docs/development/current/main/phases/phase-29x/README.md`
-- Runtime milestone archive: `docs/development/current/main/phases/phase-29x/29x-84-current-task-runtime-milestone-archive.md`
-- Task board archive: `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
-
-## Maintenance Rule
-
-- この文書に「完了ログの箇条書き」を追加しない。
-- 進捗は phase 文書へ記録し、ここはリンクだけを更新する。
+- 最初に `git status -sb` を見る。
+- 次に `CURRENT_TASK.md` を読む。
+- 詳細は `10-Now.md` を増やさず、phase README / design SSOT を開く。

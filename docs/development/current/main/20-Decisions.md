@@ -13,6 +13,7 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 - Selfhost / de-rust mainline priority を維持する。
 - perf lane は monitor-only（failure-driven restart）を維持する。
 - portability CI は cost-aware（macOS は常時必須にしない）。
+- Rune v0 は provisional docs/task lock のみ先行し、`@rune` grammar activation は Rust parser / `.hako` parser parity 後、first backend consumer は `ny-llvmc` のみに固定する。
 
 ## Migration Rule
 

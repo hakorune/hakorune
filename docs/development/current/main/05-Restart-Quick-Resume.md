@@ -28,6 +28,7 @@ HAKO_EMIT_MIR_MAINLINE_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 \
 tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1
 ```
 
+- This rebuilds the Stage1 bootstrap `launcher-exe` artifact; Stage2 distribution packaging is future work.
 - `build_stage1` が artifact 欠落で失敗した場合は、下の「保守レーン」を先に 1 回実行する。
 
 ## 今日の再開点（kernel-mainline lane）

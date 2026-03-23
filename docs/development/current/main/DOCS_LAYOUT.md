@@ -16,6 +16,7 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 ここは「まず読む」入口を置く場所。SSOT を全部ここに置かない。
 
 - 入口（例）: `00-Overview.md`, `01-JoinIR-Selfhost-INDEX.md`, `10-Now.md`, `20-Decisions.md`, `30-Backlog.md`
+- `CURRENT_TASK.md` は root の machine-readable anchor、`10-Now.md` は docs 側の薄い mirror/dashboard。
 
 ### `docs/development/current/main/design/`（設計図・SSOT寄り）
 
@@ -91,4 +92,5 @@ Moved to: docs/development/current/main/phases/phase-131/131-03-llvm-lowering-in
 - 新しい Phase 文書は `main/phases/` に入れる（`main/` 直下に増やさない）。
 - 設計図（SSOT）は `main/design/` に寄せる（Phase の完了サマリと混ぜない）。
 - `10-Now.md` は「現状の要約＋正本リンク」に徹し、詳細ログの本文は抱え込まない。
+- `CURRENT_TASK.md` は root anchor なので、重要な blocker / current priority はまずそこへ置く。
 - `phase-29cc` の詳細進捗は `docs/development/current/main/phases/phase-29cc/README.md` を正本に集約し、`CURRENT_TASK.md` / `10-Now.md` は要約のみを保持する。
