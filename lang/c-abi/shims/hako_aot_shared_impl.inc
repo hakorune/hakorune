@@ -139,10 +139,12 @@ static int hako_aot_build_compile_command(
     const char* mir_json_path,
     const char* obj_path,
     const char* log_path) {
+  // Generic AOT transport stays on the explicit harness keep lane to avoid
+  // re-entering the boundary-owned default route.
   int n = snprintf(
       cmd,
       cmd_len,
-      "\"%s\" --driver boundary --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
+      "\"%s\" --driver harness --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
       llvmc,
       mir_json_path,
       obj_path,

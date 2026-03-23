@@ -121,7 +121,7 @@ Related:
     - `hako_llvmc_ffi.c` keeps export/marshal plus explicit compat transport only
   - landed transport-default cleanup: `src/host_providers/llvm_codegen.rs` now injects `pure-first` / `harness` only in the boundary-default caller path, and `src/runner/modes/llvm/object_emitter.rs` plus `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now call `boundary_default_object_opts(...)` explicitly instead of relying on implicit transport defaults
   - next exact front is therefore the `.hako` recipe seam, with broader method-loop packs used only as evidence when `BackendRecipeBox` needs new narrow accept/reject coverage; `acceptance_policy=boundary-pure-seed-matrix-v1` is now the first visible classification basis and `acceptance_case=ret-const-v1`, `acceptance_case=hello-simple-llvm-native-probe-v1`, `acceptance_case=runtime-data-array-get-missing-v1`, `acceptance_case=runtime-data-string-length-ascii-v1`, `acceptance_case=runtime-data-array-length-v1`, `acceptance_case=runtime-data-array-push-v1`, `acceptance_case=runtime-data-map-size-v1`, `acceptance_case=runtime-data-array-has-missing-v1`, `acceptance_case=runtime-data-map-has-missing-v1`, `acceptance_case=runtime-data-map-get-missing-v1`, `acceptance_case=string-indexof-ascii-v1`, plus `acceptance_case=string-length-ascii-v1` are the first visible shape-specific rows owned by `.hako`
-  - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver boundary`, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the default `hako_llvmc_compile_json` forwarder path when no backend recipe is requested
+  - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver harness` to avoid boundary re-entry, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the default `hako_llvmc_compile_json` forwarder path when no backend recipe is requested
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
    - `BE0-min4` same-seed native executable parity is green on the existing static-first link line
@@ -192,8 +192,8 @@ Related:
    - `src/llvm_py/llvm_builder.py` now consumes those seams instead of re-owning MIR ingest + env-codegen flag reads inline
    - `src/llvm_py/build_ctx.py` now exposes `build_ctx_from_owner(...)`, and `src/llvm_py/builders/instruction_lower.py` consumes it as the lowering-side context aggregator
 22. landed B3c opcode first slice:
-   - generic `nyash.plugin.invoke_by_name_i64` method fallback was later retired in `phase-29cl`; this slice predates that cutover
-   - `src/llvm_py/instructions/{boxcall.py,mir_call/method_call.py,mir_call_legacy.py}` later dropped their by-name fallback and now fail fast on unsupported unknown methods
+   - generic `nyash.plugin.invoke_by_name_i64` method fallback was later retired in `phase-29cl` and then restored as compat-only for bootstrap; this slice predates that cutover
+   - `src/llvm_py/instructions/{boxcall.py,mir_call/method_call.py,mir_call_legacy.py}` later dropped the generic by-name fallback; only direct-miss compat fallback remains
    - this slice is shrink-only; method specialization/runtime-data routing still stays in the opcode owners for later B3c rows
 23. landed B3c collection-route slice:
    - `src/llvm_py/instructions/boxcall_runtime_data.py` now owns collection/runtime-data style `size/get/push/set/has` lowering for generic BoxCall

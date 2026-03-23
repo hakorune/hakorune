@@ -17,6 +17,18 @@ type LinkFn =
 const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 
+fn boundary_compile_prefers_pure_first(recipe: Option<&str>, legacy_capi_pure: Option<&str>) -> bool {
+    recipe == Some("pure-first") || legacy_capi_pure == Some("1")
+}
+
+fn boundary_compile_symbol(recipe: Option<&str>, legacy_capi_pure: Option<&str>) -> &'static [u8] {
+    if boundary_compile_prefers_pure_first(recipe, legacy_capi_pure) {
+        COMPILE_SYMBOL_PURE_FIRST
+    } else {
+        COMPILE_SYMBOL_DEFAULT
+    }
+}
+
 pub(super) fn emit_object_from_json(input: &Path, out: &Path) -> Result<()> {
     ensure_output_parent(out);
     call_compile_symbol(input, out)
@@ -89,9 +101,18 @@ where
     F: FnOnce(CompileFn) -> Result<T>,
 {
     let lib = open_ffi_library()?;
+    let compile_symbol = boundary_compile_symbol(
+        std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
+        std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
+    );
+    let fallback_symbol = if compile_symbol == COMPILE_SYMBOL_PURE_FIRST {
+        COMPILE_SYMBOL_DEFAULT
+    } else {
+        COMPILE_SYMBOL_PURE_FIRST
+    };
     let func: CompileFn = *lib
-        .get(COMPILE_SYMBOL_PURE_FIRST)
-        .or_else(|_| lib.get(COMPILE_SYMBOL_DEFAULT))
+        .get(compile_symbol)
+        .or_else(|_| lib.get(fallback_symbol))
         .context("missing symbol hako_llvmc_compile_json{_pure_first}")?;
     action(func)
 }
@@ -217,4 +238,36 @@ where
         None => std::env::remove_var(key),
     }
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        boundary_compile_prefers_pure_first, boundary_compile_symbol, COMPILE_SYMBOL_DEFAULT,
+        COMPILE_SYMBOL_PURE_FIRST,
+    };
+
+    #[test]
+    fn boundary_route_defaults_to_generic_symbol() {
+        assert!(!boundary_compile_prefers_pure_first(None, None));
+        assert_eq!(boundary_compile_symbol(None, None), COMPILE_SYMBOL_DEFAULT);
+        assert_eq!(
+            boundary_compile_symbol(Some("harness"), None),
+            COMPILE_SYMBOL_DEFAULT
+        );
+    }
+
+    #[test]
+    fn boundary_route_prefers_pure_first_only_for_explicit_recipe_or_legacy_alias() {
+        assert!(boundary_compile_prefers_pure_first(Some("pure-first"), None));
+        assert!(boundary_compile_prefers_pure_first(None, Some("1")));
+        assert_eq!(
+            boundary_compile_symbol(Some("pure-first"), None),
+            COMPILE_SYMBOL_PURE_FIRST
+        );
+        assert_eq!(
+            boundary_compile_symbol(None, Some("1")),
+            COMPILE_SYMBOL_PURE_FIRST
+        );
+    }
 }

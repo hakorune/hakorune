@@ -4,8 +4,8 @@
 # Contract pin:
 # 1) default `hako_llvmc_compile_json` export surface still reads as a thin
 #    forwarder when `HAKO_CAPI_PURE` is unset.
-# 2) that forwarder now reaches `ny-llvmc --driver boundary`, not
-#    `ny-llvmc --driver harness`.
+# 2) that forwarder now reaches the generic keep lane without re-entering
+#    the boundary default route.
 # 3) supported `ret_const_min_v1.mir.json` still emits an object through that
 #    default forwarder path.
 
