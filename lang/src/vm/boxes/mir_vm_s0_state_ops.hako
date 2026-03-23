@@ -114,6 +114,20 @@ static box MirVmS0StateOpsBox {
     me.file_box_copy(file_boxes, dst, src)
   }
 
+  copy_reg_payload_between(src_regs, src_kinds, src_array_lens, src_handle_regs, src_file_boxes, dst_regs, dst_kinds, dst_array_lens, dst_handle_regs, dst_file_boxes, dst, src) {
+    MirVmS0RegUtilsBox._reg_set(dst_regs, dst, MirVmS0RegUtilsBox._reg_get(src_regs, src))
+    MirVmS0RegUtilsBox._reg_kind_set(dst_kinds, dst, MirVmS0RegUtilsBox._reg_kind_get(src_kinds, src))
+    me.box_len_set(dst_array_lens, dst, me.box_len_get(src_array_lens, src))
+    local handle_text = me.handle_get(src_handle_regs, src)
+    if handle_text != null {
+      me.handle_set(dst_handle_regs, dst, handle_text)
+    }
+    local file_obj = me.file_box_get(src_file_boxes, src)
+    if file_obj != null {
+      me.file_box_set(dst_file_boxes, dst, file_obj)
+    }
+  }
+
   filebox_token_for_newbox(box_type, dst) {
     if box_type == "FileBox" { return dst }
     return 0

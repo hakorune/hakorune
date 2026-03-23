@@ -2,9 +2,9 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 use super::shape_contract::{
-    canonical_barrier_kind, canonical_binop_operation, canonical_typeop_operation,
-    canonical_unop_operation, collect_function_return_models, has_id_method_arg1_model,
-    normalize_aliases_in_root, parse_print_arg_from_instruction,
+    call_callee_name, call_callee_type, canonical_barrier_kind, canonical_binop_operation,
+    canonical_typeop_operation, canonical_unop_operation, collect_function_return_models,
+    has_id_method_arg1_model, normalize_aliases_in_root, parse_print_arg_from_instruction,
     update_handle_bindings_from_const_or_copy, validate_two_arg_call_target,
     vm_hako_supported_compare_operation,
 };
@@ -704,10 +704,46 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     let Some(args) = inst.get("args").and_then(|v| v.as_array()) else {
                         return Err((func_name.clone(), bb, "call(malformed)".to_string()));
                     };
-                    let Some(func_reg) = inst.get("func").and_then(|v| v.as_u64()) else {
-                        return Err((func_name.clone(), bb, "call(missing-func)".to_string()));
-                    };
                     let has_dst = inst.get("dst").and_then(|v| v.as_u64()).is_some();
+                    let func_reg = inst.get("func").and_then(|v| v.as_u64());
+                    if let Some(func_reg) = func_reg {
+                        if !has_dst {
+                            match parse_print_arg_from_instruction(inst, &handle_by_reg) {
+                                Ok(Some(_)) => continue,
+                                Ok(None) => {}
+                                Err(reason) => {
+                                    return Err((func_name.clone(), bb, reason.to_string()));
+                                }
+                            }
+                            return Err((func_name.clone(), bb, "call(missing-dst)".to_string()));
+                        }
+                        if args.len() > 2 {
+                            return Err((func_name.clone(), bb, "call(args>2)".to_string()));
+                        }
+                        if args.len() == 1 && args.first().and_then(|v| v.as_u64()).is_none() {
+                            return Err((func_name.clone(), bb, "call(arg0:non-reg)".to_string()));
+                        }
+                        if args.len() == 2 {
+                            if let Err(reason) = validate_two_arg_call_target(
+                                func_reg,
+                                args,
+                                &handle_by_reg,
+                                allow_dynamic_method_arg1,
+                            ) {
+                                return Err((func_name.clone(), bb, reason.to_string()));
+                            }
+                        }
+                        continue;
+                    }
+
+                    let callee_type = call_callee_type(inst).unwrap_or("");
+                    if callee_type != "Global" {
+                        return Err((func_name.clone(), bb, "call(missing-func)".to_string()));
+                    }
+                    let callee_name = call_callee_name(inst).unwrap_or("");
+                    if callee_name.is_empty() {
+                        return Err((func_name.clone(), bb, "call(global:missing-name)".to_string()));
+                    }
                     if !has_dst {
                         match parse_print_arg_from_instruction(inst, &handle_by_reg) {
                             Ok(Some(_)) => continue,
@@ -716,23 +752,10 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                                 return Err((func_name.clone(), bb, reason.to_string()));
                             }
                         }
-                        return Err((func_name.clone(), bb, "call(missing-dst)".to_string()));
+                        return Err((func_name.clone(), bb, "call(global:missing-dst)".to_string()));
                     }
-                    if args.len() > 2 {
-                        return Err((func_name.clone(), bb, "call(args>2)".to_string()));
-                    }
-                    if args.len() == 1 && args.first().and_then(|v| v.as_u64()).is_none() {
-                        return Err((func_name.clone(), bb, "call(arg0:non-reg)".to_string()));
-                    }
-                    if args.len() == 2 {
-                        if let Err(reason) = validate_two_arg_call_target(
-                            func_reg,
-                            args,
-                            &handle_by_reg,
-                            allow_dynamic_method_arg1,
-                        ) {
-                            return Err((func_name.clone(), bb, reason.to_string()));
-                        }
+                    if args.iter().any(|v| v.as_u64().is_none()) {
+                        return Err((func_name.clone(), bb, "call(global:arg:non-reg)".to_string()));
                     }
                 }
                 "externcall" => {

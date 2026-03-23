@@ -93,6 +93,50 @@ static box MirVmS0ArgsPhiBox {
     return MirVmS0JsonScanBox._to_i64(ds)
   }
 
+  _args_count_rec(body, pos, rb, count) {
+    local i = MirVmS0JsonScanBox._skip_ws_rec(body, pos, rb)
+    if i >= rb { return count }
+    local ds = MirVmS0JsonScanBox._read_digits(body, i)
+    if ds == "" || ds == "-" { return count }
+    local j = i + ds.length()
+    local next = MirVmS0JsonScanBox._index_of_from(body, ",", j)
+    if next < 0 || next >= rb { return count + 1 }
+    return me._args_count_rec(body, next + 1, rb, count + 1)
+  }
+
+  _args_count(seg) {
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return 0 }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return 0 }
+    local body = seg.substring(lb + 1, rb)
+    return me._args_count_rec(body, 0, body.length(), 0)
+  }
+
+  _args_nth_rec(body, pos, rb, target, index) {
+    local i = MirVmS0JsonScanBox._skip_ws_rec(body, pos, rb)
+    if i >= rb { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(body, i)
+    if ds == "" || ds == "-" { return null }
+    if index == target { return MirVmS0JsonScanBox._to_i64(ds) }
+    local j = i + ds.length()
+    local next = MirVmS0JsonScanBox._index_of_from(body, ",", j)
+    if next < 0 || next >= rb { return null }
+    return me._args_nth_rec(body, next + 1, rb, target, index + 1)
+  }
+
+  _args_nth(seg, index) {
+    if index < 0 { return null }
+    local pair = me._find_args_bounds(seg)
+    if pair == "" { return null }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return null }
+    local body = seg.substring(lb + 1, rb)
+    return me._args_nth_rec(body, 0, body.length(), index, 0)
+  }
+
   // ==================== PHI Parsing ====================
 
   _find_phi_incoming_bounds(seg) {
