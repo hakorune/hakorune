@@ -53,7 +53,6 @@ impl MirBuilder {
             in_unified_boxcall_fallback: false,
             recursion_depth: 0,
             root_is_app_mode: None,
-            static_box_singletons: HashMap::new(), // Phase 21.7: methodization support
             repl_mode: false,                      // Phase 288 P2: REPL mode (default: file mode)
             frag_emit_session: super::FragEmitSession::new(), // Phase 29bq+: sealing 層中立化
         }

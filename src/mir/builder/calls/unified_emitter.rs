@@ -203,50 +203,31 @@ impl UnifiedCallEmitterBox {
                     if arity_matches {
                         let box_name = &id.box_name;
                         let method = &id.method;
-                        // Get or create static box singleton instance
-                        let _singleton =
-                            if let Some(&existing) = builder.static_box_singletons.get(box_name) {
-                                existing
-                            } else {
-                                // Create new singleton instance
-                                let singleton_id = builder.next_value_id();
-                                builder.emit_instruction(MirInstruction::NewBox {
-                                    dst: singleton_id,
-                                    box_type: box_name.to_string(),
-                                    args: Vec::new(), // Static box singleton, no constructor args
-                                })?;
-                                // Register type information
-                                builder.type_ctx.value_types.insert(
-                                    singleton_id,
-                                    crate::mir::MirType::Box(box_name.to_string()),
-                                );
-                                builder
-                                    .type_ctx
-                                    .value_origin_newbox
-                                    .insert(singleton_id, box_name.to_string());
-                                // Cache for future use
-                                builder
-                                    .static_box_singletons
-                                    .insert(box_name.to_string(), singleton_id);
-                                singleton_id
+                        let box_kind = resolver.classify_box_kind(box_name);
+
+                        if box_kind
+                            != crate::mir::definitions::call_unified::CalleeBoxKind::StaticCompiler
+                        {
+                            callee = Callee::Method {
+                                box_name: box_name.to_string(),
+                                method: method.to_string(),
+                                receiver: None,
+                                certainty:
+                                    crate::mir::definitions::call_unified::TypeCertainty::Known,
+                                box_kind,
                             };
 
-                        // 🎯 Phase 173-B: Use receiver=None for StaticCompiler boxes
-                        // VM's static_box_decls path will create singleton at runtime
-                        // This avoids cross-function ValueId issues with cached singletons
-                        callee = Callee::Method {
-                            box_name: box_name.to_string(),
-                            method: method.to_string(),
-                            receiver: None, // VM handles singleton creation via static_box_decls
-                            certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                            box_kind:
-                                crate::mir::definitions::call_unified::CalleeBoxKind::StaticCompiler,
-                        };
-
-                        if crate::config::env::builder_methodize_trace() {
+                            if crate::config::env::builder_methodize_trace() {
+                                let ring0 = crate::runtime::get_global_ring0();
+                                ring0.log.debug(&format!(
+                                    "[methodize] Global({}) → Method{{{}.{}, recv=None}} kind={:?}",
+                                    name_clone, box_name, method, box_kind
+                                ));
+                            }
+                        } else if crate::config::env::builder_methodize_trace() {
                             let ring0 = crate::runtime::get_global_ring0();
                             ring0.log.debug(&format!(
-                                "[methodize] Global({}) → Method{{{}.{}, recv=None (static)}}",
+                                "[methodize] keep Global({}) for StaticCompiler {}.{}",
                                 name_clone, box_name, method
                             ));
                         }

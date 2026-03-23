@@ -147,6 +147,26 @@ impl MirCompiler {
         ast: crate::ast::ASTNode,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, String> {
+        self.builder.comp_ctx.clear_using_import_boxes();
+        self.compile_with_source_internal(ast, source_file)
+    }
+
+    /// Compile AST to MIR with an explicit imported static-box alias table.
+    pub fn compile_with_source_and_imports(
+        &mut self,
+        ast: crate::ast::ASTNode,
+        source_file: Option<&str>,
+        imports: std::collections::HashMap<String, String>,
+    ) -> Result<MirCompileResult, String> {
+        self.builder.comp_ctx.set_using_import_boxes(imports);
+        self.compile_with_source_internal(ast, source_file)
+    }
+
+    fn compile_with_source_internal(
+        &mut self,
+        ast: crate::ast::ASTNode,
+        source_file: Option<&str>,
+    ) -> Result<MirCompileResult, String> {
         if let Some(src) = source_file {
             self.builder.set_source_file_hint(src.to_string());
         } else {

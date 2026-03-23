@@ -3,6 +3,11 @@ use crate::runner::NyashRunner;
 use super::prelude::resolve_prelude_paths_profiled;
 use super::using::collect_using_and_strip;
 
+struct TextMergePlan {
+    merged: String,
+    imports: std::collections::HashMap<String, String>,
+}
+
 /// Merge prelude ASTs with the main AST into a single Program node.
 /// - Collects statements from each prelude Program in order, then appends
 ///   statements from the main Program.
@@ -40,17 +45,43 @@ pub fn merge_prelude_text(
     source: &str,
     filename: &str,
 ) -> Result<String, String> {
+    Ok(plan_text_merge(runner, source, filename)?.merged)
+}
+
+/// Text-based prelude merge plus explicit imported static-box bindings.
+///
+/// The returned `imports` map is the runner-side SSOT for `using ... as Alias`
+/// static box calls after text merge has stripped the original `using` lines.
+pub fn merge_prelude_text_with_imports(
+    runner: &NyashRunner,
+    source: &str,
+    filename: &str,
+) -> Result<(String, std::collections::HashMap<String, String>), String> {
+    let plan = plan_text_merge(runner, source, filename)?;
+    Ok((plan.merged, plan.imports))
+}
+
+fn plan_text_merge(
+    runner: &NyashRunner,
+    source: &str,
+    filename: &str,
+) -> Result<TextMergePlan, String> {
     let trace = crate::config::env::resolve_trace();
 
     // First pass: collect and resolve prelude paths
-    let (cleaned_main, prelude_paths) = resolve_prelude_paths_profiled(runner, source, filename)?;
+    let (cleaned_main, _prelude_paths_direct, main_imports) =
+        collect_using_and_strip(runner, source, filename)?;
+    let (_cleaned_ignore, prelude_paths_profiled) =
+        resolve_prelude_paths_profiled(runner, source, filename)?;
+    debug_assert_eq!(cleaned_main, _cleaned_ignore);
     // Expand nested preludes for text-merge too (DFS) so that any `using`
     // inside prelude files (e.g., runner_min -> lower_* boxes) are also
     // included even when NYASH_USING_AST is OFF.
     let mut expanded: Vec<String> = Vec::new();
     let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
-    for p in prelude_paths.iter() {
-        dfs_text(runner, p, &mut expanded, &mut seen)?;
+    let mut imports = main_imports;
+    for p in prelude_paths_profiled.iter() {
+        dfs_text_with_imports(runner, p, &mut expanded, &mut seen, &mut imports)?;
     }
     let prelude_paths = &expanded;
     // Record for enriched diagnostics (parse error context)
@@ -58,7 +89,10 @@ pub fn merge_prelude_text(
 
     if prelude_paths.is_empty() {
         // No using statements, return original
-        return Ok(source.to_string());
+        return Ok(TextMergePlan {
+            merged: source.to_string(),
+            imports,
+        });
     }
 
     if trace {
@@ -171,7 +205,10 @@ pub fn merge_prelude_text(
 
     crate::runner::modes::common_util::resolve::set_last_text_merge_line_spans(spans);
 
-    Ok(normalize_text_for_inline(&merged))
+    Ok(TextMergePlan {
+        merged: normalize_text_for_inline(&merged),
+        imports,
+    })
 }
 
 fn canonize(p: &str) -> String {
@@ -181,11 +218,12 @@ fn canonize(p: &str) -> String {
         .unwrap_or_else(|| p.to_string())
 }
 
-fn dfs_text(
+fn dfs_text_with_imports(
     runner: &NyashRunner,
     path: &str,
     out: &mut Vec<String>,
     seen: &mut std::collections::HashSet<String>,
+    imports: &mut std::collections::HashMap<String, String>,
 ) -> Result<(), String> {
     let key = canonize(path);
     if !seen.insert(key.clone()) {
@@ -197,11 +235,32 @@ fn dfs_text(
         .fs
         .read_to_string(std::path::Path::new(path))
         .map_err(|e| format!("using: failed to read '{}': {}", path, e))?;
-    let (_cleaned, nested, _nested_imports) = collect_using_and_strip(runner, &src, path)?;
+    let (_cleaned, nested, nested_imports) = collect_using_and_strip(runner, &src, path)?;
+    merge_imports(imports, nested_imports, path)?;
     for n in nested.iter() {
-        dfs_text(runner, n, out, seen)?;
+        dfs_text_with_imports(runner, n, out, seen, imports)?;
     }
     out.push(key);
+    Ok(())
+}
+
+fn merge_imports(
+    dst: &mut std::collections::HashMap<String, String>,
+    src: std::collections::HashMap<String, String>,
+    origin: &str,
+) -> Result<(), String> {
+    for (alias, box_name) in src {
+        if let Some(prev) = dst.get(&alias) {
+            if prev != &box_name {
+                return Err(format!(
+                    "using: imported static box alias '{}' conflicts across merged preludes ({} vs {} from {})",
+                    alias, prev, box_name, origin
+                ));
+            }
+            continue;
+        }
+        dst.insert(alias, box_name);
+    }
     Ok(())
 }
 

@@ -80,6 +80,7 @@ fn plan_using_strip(
     use std::collections::HashMap;
     let mut seen_paths: HashMap<String, (String, usize)> = HashMap::new(); // canon_path -> (alias/label, first_line)
     let mut seen_aliases: HashMap<String, (String, usize)> = HashMap::new(); // alias -> (canon_path, first_line)
+    let mut imports: HashMap<String, String> = HashMap::new(); // alias -> exported static box name
                                                                              // Determine if this file is inside a declared package root; if so, allow
                                                                              // internal file-using within the package even when file-using is globally disallowed.
     let filename_canon = std::fs::canonicalize(filename).ok();
@@ -229,6 +230,12 @@ fn plan_using_strip(
                     }
                 }
                 prelude_paths.push(path_str);
+                remember_import_binding(
+                    &mut imports,
+                    alias_name.as_deref(),
+                    &target_unquoted,
+                    prelude_paths.last().expect("path just pushed"),
+                )?;
                 continue;
             }
             // Resolve namespaces/packages
@@ -284,6 +291,12 @@ fn plan_using_strip(
                         }
                     }
                     prelude_paths.push(resolved);
+                    remember_import_binding(
+                        &mut imports,
+                        alias_name.as_deref(),
+                        &target_unquoted,
+                        prelude_paths.last().expect("path just pushed"),
+                    )?;
                     continue;
                 }
 
@@ -324,6 +337,12 @@ fn plan_using_strip(
                         }
                     }
                     prelude_paths.push(out_path);
+                    remember_import_binding(
+                        &mut imports,
+                        alias_name.as_deref(),
+                        &target_unquoted,
+                        prelude_paths.last().expect("path just pushed"),
+                    )?;
                 }
                 // 2) named packages
                 else if let Some(pkg) = using_ctx.packages.get(&name) {
@@ -392,6 +411,12 @@ fn plan_using_strip(
                             }
                             // push resolved file path for text-prelude merge
                             prelude_paths.push(out);
+                            remember_import_binding(
+                                &mut imports,
+                                alias_name.as_deref(),
+                                &target_unquoted,
+                                prelude_paths.last().expect("path just pushed"),
+                            )?;
                         }
                     }
                 } else {
@@ -526,6 +551,12 @@ fn plan_using_strip(
                                 }
                             }
                             prelude_paths.push(path_str);
+                            remember_import_binding(
+                                &mut imports,
+                                alias_name.as_deref(),
+                                &target_unquoted,
+                                prelude_paths.last().expect("path just pushed"),
+                            )?;
                         }
                     }
                     Err(e) => return Err(format!("{}:{}: using: {}", filename, line_no, e)),
@@ -536,16 +567,57 @@ fn plan_using_strip(
         kept_len += line.len() + 1;
         kept_lines.push(line.to_string());
     }
-    // Phase 21.8: Build imports map from seen_aliases (alias -> alias for now)
-    // This provides the MirBuilder with information about which names are valid static box references
-    let mut imports = std::collections::HashMap::new();
-    for (alias, _) in seen_aliases.iter() {
-        imports.insert(alias.clone(), alias.clone());
-    }
     Ok(UsingStripPlan {
         kept_lines,
         kept_len,
         prelude_paths,
         imports,
     })
+}
+
+fn remember_import_binding(
+    imports: &mut std::collections::HashMap<String, String>,
+    alias_name: Option<&str>,
+    target_unquoted: &str,
+    resolved_path: &str,
+) -> Result<(), String> {
+    let Some(alias) = using_alias_key(alias_name, target_unquoted) else {
+        return Ok(());
+    };
+    let Some(box_name) =
+        crate::using::simple_registry::resolve_imported_static_box(resolved_path, &alias)
+    else {
+        return Ok(());
+    };
+
+    if let Some(prev) = imports.get(&alias) {
+        if prev != &box_name {
+            return Err(format!(
+                "using: imported static box alias '{}' is ambiguous ({} vs {})",
+                alias, prev, box_name
+            ));
+        }
+        return Ok(());
+    }
+
+    imports.insert(alias, box_name);
+    Ok(())
+}
+
+fn using_alias_key(alias_name: Option<&str>, target_unquoted: &str) -> Option<String> {
+    let alias = alias_name.unwrap_or_else(|| default_using_alias(target_unquoted));
+    let alias = alias.trim();
+    if alias.is_empty() {
+        None
+    } else {
+        Some(alias.to_string())
+    }
+}
+
+fn default_using_alias(target: &str) -> &str {
+    target
+        .rsplit_once('.')
+        .map(|(_, tail)| tail)
+        .or_else(|| target.rsplit_once('/').map(|(_, tail)| tail))
+        .unwrap_or(target)
 }

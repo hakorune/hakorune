@@ -224,12 +224,6 @@ pub struct MirBuilder {
     /// - Some(false): Script/Test mode (top-level Program runs sequentially)
     pub(super) root_is_app_mode: Option<bool>,
 
-    /// 🎯 Phase 21.7: Static box singleton instances for methodization
-    /// Maps BoxName → ValueId of singleton instance (created on demand)
-    /// Used when HAKO_MIR_BUILDER_METHODIZE=1 to convert Global("BoxName.method/arity")
-    /// to Method{receiver=singleton} calls
-    pub(super) static_box_singletons: HashMap<String, ValueId>,
-
     /// Phase 288 P2: REPL mode flag - enables implicit local declarations
     /// File mode: false (explicit local required)
     /// REPL mode: true (暗黙 local 許可)

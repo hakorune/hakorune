@@ -76,6 +76,12 @@ pub(crate) struct CompilationContext {
     /// Index of static methods seen during lowering: name -> [(BoxName, arity)]
     pub static_method_index: HashMap<String, Vec<(String, usize)>>,
 
+    /// Explicit imported static-box bindings: alias -> concrete static box name.
+    ///
+    /// Source routes that strip `using` lines before parsing must pass this table
+    /// into the builder so `Alias.method(...)` can still lower as a static call.
+    pub using_import_boxes: HashMap<String, String>,
+
     /// Fast lookup: method+arity tail → candidate function names (e.g., ".str/0" → ["JsonNode.str/0", ...])
     pub method_tail_index: HashMap<String, Vec<String>>,
 
@@ -114,6 +120,7 @@ impl CompilationContext {
             field_origin_class: HashMap::new(),
             field_origin_by_box: HashMap::new(),
             static_method_index: HashMap::new(),
+            using_import_boxes: HashMap::new(),
             method_tail_index: HashMap::new(),
             method_tail_index_source_len: 0,
             type_registry: TypeRegistry::new(),
@@ -268,6 +275,21 @@ impl CompilationContext {
         self.static_method_index
             .get(method_name)
             .map(|v| v.as_slice())
+    }
+
+    /// Replace imported static-box alias bindings for the next compilation.
+    pub fn set_using_import_boxes(&mut self, imports: HashMap<String, String>) {
+        self.using_import_boxes = imports;
+    }
+
+    /// Clear imported static-box alias bindings.
+    pub fn clear_using_import_boxes(&mut self) {
+        self.using_import_boxes.clear();
+    }
+
+    /// Resolve an imported static-box alias to a concrete box name.
+    pub fn resolve_imported_static_box(&self, alias: &str) -> Option<&str> {
+        self.using_import_boxes.get(alias).map(|name| name.as_str())
     }
 
     /// Get method tail index candidates

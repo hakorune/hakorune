@@ -38,6 +38,7 @@ pub use selfhost_pipeline::{CompilationResult, PipelineConfig, SelfhostPipelineB
 // 🔧 Legacy functions (preserved for compatibility)
 pub use strip::{
     collect_using_and_strip, merge_prelude_asts_with_main, merge_prelude_text,
+    merge_prelude_text_with_imports,
     parse_preludes_to_asts, preexpand_at_local, resolve_prelude_paths_profiled,
 };
 

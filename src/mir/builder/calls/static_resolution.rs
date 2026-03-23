@@ -30,6 +30,21 @@ impl MirBuilder {
             return Ok(None);
         };
 
+        if let Some(imported_box_name) = self
+            .comp_ctx
+            .resolve_imported_static_box(obj_name)
+            .map(str::to_string)
+        {
+            if crate::config::env::builder_static_call_trace() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[P287-DEBUG] try_build_static_receiver_method_call: imported alias {} -> {}",
+                    obj_name, imported_box_name
+                ));
+            }
+            return self.try_build_static_method_call(&imported_box_name, method, arguments);
+        }
+
         // Phase 287 P4: Fix toString() method resolution bug
         // Guard: If this is a local variable, don't treat as static box name
         let is_local_var = self.variable_ctx.variable_map.contains_key(obj_name);

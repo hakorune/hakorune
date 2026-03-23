@@ -36,8 +36,11 @@ pub fn classify_box_kind(box_name: &str) -> crate::mir::definitions::call_unifie
         "ParserLiteralBox" | "ParserTokenBox" |
         // Scanner/builder boxes
         "FuncScannerBox" | "MirBuilderBox" |
-        // Other compiler-internal boxes
-        "JsonFragBox"
+        // Selfhost builder helper boxes
+        "JsonFragBox" | "JsonCursorBox" | "JsonScanBox" |
+        "LowerReturnMethodArrayMapBox" | "PatternUtilBox" | "MethodAliasPolicy" |
+        "StringHelpers" | "StringOps" | "StringScanBox" | "StringifyOperator" |
+        "AddOperator" | "CompareOperator"
         => CalleeBoxKind::StaticCompiler,
 
         // Runtime data boxes (built-in types that handle actual runtime values)

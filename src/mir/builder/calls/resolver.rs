@@ -158,32 +158,11 @@ impl<'a> CalleeResolverBox<'a> {
     /// - ランタイムDataBox群を明示的に列挙
     /// - ユーザー定義Boxをデフォルト扱い
     pub fn classify_box_kind(&self, box_name: &str) -> CalleeBoxKind {
-        // Static compiler boxes (Stage-B, Stage-1, parsers, resolvers)
-        // These should ONLY appear in static method lowering, never in runtime method dispatch
+        // LoopSSA / Exit PHI analyzers are still resolver-local keep until the
+        // broader classifier table is collapsed into one SSOT.
         match box_name {
-            // Stage-B compiler boxes
-            "StageBArgsBox" | "StageBBodyExtractorBox" | "StageBDriverBox" |
-            // Stage-1 using/namespace resolver boxes
-            "Stage1UsingResolverBox" | "BundleResolver" |
-            // Parser boxes
-            "ParserBox" | "ParserStmtBox" | "ParserExprBox" | "ParserControlBox" |
-            "ParserLiteralBox" | "ParserTokenBox" |
-            // Scanner/builder boxes
-            "FuncScannerBox" | "MirBuilderBox" |
-            // LoopSSA / Exit PHI analyzers (Stage-1/Stage-B)
-            "BreakFinderBox" | "PhiInjectorBox" | "LoopSSA" |
-            // Other compiler-internal boxes
-            "JsonFragBox"
-            => CalleeBoxKind::StaticCompiler,
-
-            // Runtime data boxes (built-in types that handle actual runtime values)
-            "MapBox" | "ArrayBox" | "StringBox" | "IntegerBox" | "BoolBox" |
-            "FloatBox" | "NullBox" | "VoidBox" | "UnknownBox" |
-            "FileBox" | "ConsoleBox" | "PathBox"
-            => CalleeBoxKind::RuntimeData,
-
-            // Everything else is user-defined
-            _ => CalleeBoxKind::UserDefined,
+            "BreakFinderBox" | "PhiInjectorBox" | "LoopSSA" => CalleeBoxKind::StaticCompiler,
+            _ => super::call_unified::classify_box_kind(box_name),
         }
     }
 

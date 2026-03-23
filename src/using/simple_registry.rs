@@ -7,6 +7,8 @@ use std::sync::Mutex;
 
 static CACHE: Lazy<Mutex<HashMap<String, HashSet<String>>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
+static PATH_CACHE: Lazy<Mutex<HashMap<String, Vec<String>>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// Return candidate using names whose exported symbols contain `symbol`.
 /// Uses runtime::modules_registry snapshot (name -> path token) and scans files.
@@ -60,6 +62,47 @@ fn resolve_path(token: &str) -> Option<std::path::PathBuf> {
     } else {
         None
     }
+}
+
+/// Scan a source file and return the top-level `static box` names it publishes.
+pub fn published_static_boxes_for_path(path: &str) -> Vec<String> {
+    let canon = std::fs::canonicalize(path)
+        .ok()
+        .map(|pb| pb.to_string_lossy().to_string())
+        .unwrap_or_else(|| path.to_string());
+
+    if let Some(hit) = PATH_CACHE
+        .lock()
+        .ok()
+        .and_then(|guard| guard.get(&canon).cloned())
+    {
+        return hit;
+    }
+
+    let boxes = std::fs::read_to_string(&canon)
+        .ok()
+        .map(|content| scan_static_boxes(&content))
+        .unwrap_or_default();
+
+    if let Ok(mut guard) = PATH_CACHE.lock() {
+        guard.insert(canon, boxes.clone());
+    }
+
+    boxes
+}
+
+/// Resolve an explicit `using ... as Alias` binding to a published static box name.
+///
+/// Contract:
+/// - one exported static box => bind the alias to that box
+/// - multiple exports => only bind when the alias itself matches one of them
+/// - no unambiguous export => return None and let the caller stay explicit/fail-fast
+pub fn resolve_imported_static_box(path: &str, alias: &str) -> Option<String> {
+    let boxes = published_static_boxes_for_path(path);
+    if boxes.len() == 1 {
+        return boxes.into_iter().next();
+    }
+    boxes.into_iter().find(|name| name == alias)
 }
 
 fn scan_static_boxes(content: &str) -> Vec<String> {
