@@ -11,12 +11,11 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - shared MirBuilder gate/decode/freeze wrappers for the source and Program(JSON) routes
   - probes `build_surrogate.rs` as an owner-local route before the shared table; it does not own `BuildBox.emit_program_json_v0` module/method strings or route registration
 - `build_surrogate.rs`
-  - compiled-stage1 `BuildBox.emit_program_json_v0` surrogate only
+  - compiled-stage1 `BuildBox.emit_program_json_v0` dispatch shim only
   - frozen exact owner for the build surrogate residue bucket; docs/inventory closeout only until caller-proof says removable
-  - owner of the surrogate route match/dispatch contract and its regression coverage
-  - owner of the launcher/stage1-cli-env Program(JSON) -> MIR handoff regression coverage too
+  - owner of the surrogate route match/dispatch contract, decode, and encode
+  - build-box / launcher handoff regression coverage lives in `src/stage1/program_json_v0.rs` tests
   - the surrogate handler and route match stay owner-local; parent modules only probe via `try_dispatch(...)`
-  - regression tests are direct surrogate dispatch by default; by-name compat proof lives elsewhere and is not owned here
 - `llvm_backend_surrogate.rs`
   - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate only
   - frozen exact owner for the backend boundary residue bucket; docs/inventory closeout only until caller-proof says removable

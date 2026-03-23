@@ -1,5 +1,5 @@
 use super::*;
-use crate::test_support::with_env_var;
+use crate::test_support::{with_env_var, with_env_vars};
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     boxes::file::FileBox,
@@ -499,12 +499,64 @@ fn invoke_by_name_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
         "source authority route should expose Stage1InputContractBox user_box_decl"
     );
     assert!(
-        box_names.contains("Stage1ProgramAuthorityBox"),
-        "source authority route should expose Stage1ProgramAuthorityBox user_box_decl"
+        box_names.contains("Stage1SourceMirAuthorityBox"),
+        "source authority route should expose Stage1SourceMirAuthorityBox user_box_decl"
     );
     assert!(
         box_names.contains("Stage1ProgramJsonCompatBox"),
         "source authority route should preserve explicit compat box decls for same-file closure"
+    );
+}
+
+#[test]
+fn invoke_by_name_export_accepts_stage1_mir_builder_source_route_for_stage1_cli_env() {
+    with_env_vars(
+        &[
+            ("HAKO_MIR_BUILDER_INTERNAL", "1"),
+            ("NYASH_VM_USE_FALLBACK", "1"),
+        ],
+        || {
+            let recv_handle = handles::to_handle_arc(Arc::new(StringBox::new(
+                "lang.mir.builder.MirBuilderBox".to_string(),
+            ))) as i64;
+            let method = CString::new("emit_from_source_v0").expect("CString");
+            let source_handle = handles::to_handle_arc(Arc::new(StringBox::new(
+                include_str!("../../../lang/src/runner/stage1_cli_env.hako").to_string(),
+            ))) as i64;
+
+            let result_handle =
+                nyash_plugin_invoke_by_name_i64(recv_handle, method.as_ptr(), 1, source_handle, 0);
+            assert!(result_handle > 0, "expected MIR JSON StringBox handle");
+
+            let mir_json = decode_string_like_handle(result_handle).expect("mir json string");
+            assert!(
+                mir_json.starts_with('{'),
+                "expected MIR JSON payload, got: {}",
+                mir_json
+            );
+            assert!(mir_json.contains("\"functions\""));
+            let mir_value: serde_json::Value =
+                serde_json::from_str(&mir_json).expect("valid mir json");
+            let user_box_decls = mir_value["user_box_decls"]
+                .as_array()
+                .expect("user_box_decls array");
+            let box_names = user_box_decls
+                .iter()
+                .filter_map(|decl| decl["name"].as_str())
+                .collect::<std::collections::BTreeSet<_>>();
+            assert!(
+                box_names.contains("Stage1InputContractBox"),
+                "source authority route should expose Stage1InputContractBox user_box_decl"
+            );
+            assert!(
+                box_names.contains("Stage1SourceMirAuthorityBox"),
+                "source authority route should expose Stage1SourceMirAuthorityBox user_box_decl"
+            );
+            assert!(
+                box_names.contains("Stage1ProgramJsonCompatBox"),
+                "source authority route should preserve explicit compat box decls for same-file closure"
+            );
+        },
     );
 }
 

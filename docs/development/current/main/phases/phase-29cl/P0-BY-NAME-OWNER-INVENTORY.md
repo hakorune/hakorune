@@ -16,14 +16,15 @@ Related:
 Note:
 - This inventory was accepted while Python-side generic by-name emitters were still live.
 - `src/llvm_py/instructions/boxcall.py`, `src/llvm_py/instructions/mir_call/method_call.py`, and `src/llvm_py/instructions/mir_call_legacy.py` have since been fail-fast retired on the Python side.
-- `crates/nyash_kernel/src/plugin/invoke/by_name.rs` and the public `nyash_plugin_invoke_by_name_i64` export have since been retired.
-- The remaining live residue is hook-bridge compat glue for future spawn / string dispatch only.
+- Python-side generic by-name emitters are retired; direct-miss fallback is the only remaining by-name path.
+- `crates/nyash_kernel/src/plugin/invoke/by_name.rs` and the public `nyash_plugin_invoke_by_name_i64` export are restored as compat-only for bootstrap/module-string evidence.
+- The remaining live residue is hook-bridge + module-string compat glue; it is not a daily mainline route.
 
 ## 1. Mainline Owners To Demote
 
 1. `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
    - current exported `nyash.plugin.invoke_by_name_i64`
-   - still resolves named receiver + method strings in the live kernel surface
+   - resolves named receiver + method strings as a compat-only surface
 2. `src/llvm_py/instructions/mir_call/method_call.py`
    - current llvmlite `mir_call` lowering entry that still emits `nyash.plugin.invoke_by_name_i64` on fallback method dispatch
 3. `src/backend/mir_interpreter/handlers/calls/method.rs`
@@ -60,7 +61,7 @@ Rule:
 4. `lang/c-abi/shims/hako_kernel.c`
    - current C shim registry surface for plugin invoke by name
 5. `src/llvm_py/instructions/boxcall.py`
-   - legacy `boxcall` lowering still emits `nyash.plugin.invoke_by_name_i64`
+   - legacy `boxcall` lowering may emit `nyash.plugin.invoke_by_name_i64` only through direct-miss fallback
 6. builtin `FileBox` named-method handling inside `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
    - still a compat path while filebox call-shape migration is incomplete
 7. `crates/nyash_kernel/src/tests.rs`

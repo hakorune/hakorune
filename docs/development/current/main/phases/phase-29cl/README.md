@@ -65,9 +65,9 @@ Rule:
    - plugin dispatch final shape: TypeBox ABI v2
    - runtime/bootstrap final shape: Core C ABI
    - backend final shape: `.hako -> LlvmBackendBox -> hako_aot`
-2. current kernel entry is retired
-   - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` is gone
-   - the public `nyash_plugin_invoke_by_name_i64` export is gone
+2. current kernel entry is compat-only keep
+   - `crates/nyash_kernel/src/plugin/invoke/by_name.rs` is present as a compat-only surface
+   - the public `nyash_plugin_invoke_by_name_i64` export exists for bootstrap/module-string evidence only; no new mainline callers
 3. current upstream caller inventory is now migration-only
    - `src/llvm_py/instructions/mir_call/method_call.py`
    - `src/backend/mir_interpreter/handlers/calls/method.rs`
@@ -75,7 +75,7 @@ Rule:
    - `src/backend/wasm_v2/unified_dispatch.rs`
 4. current compiled-stage1 temporary keeps are frozen exact owners for backend cutover
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
-   - `build_surrogate.rs` (direct-dispatch default; by-name tail is retired)
+   - `build_surrogate.rs` (direct-dispatch default; by-name tail is compat-only)
    - `llvm_backend_surrogate.rs`
 5. current compat/archive residue still exists
    - `crates/nyash_kernel/src/hako_forward_bridge.rs`
@@ -124,14 +124,14 @@ Rule:
 17. FileBox kernel roundtrip tests are now direct-contract
    - `crates/nyash_kernel/src/tests.rs` no longer uses `nyash_plugin_invoke_by_name_i64` for FileBox open/read/write/close roundtrips
    - `by_name` no longer has a FileBox compat branch; the next safe step is generic/mainline caller shrink rather than more FileBox migration
-   - the stage1 module-string tests in `crates/nyash_kernel/src/tests.rs` have also been rehomed to direct dispatch, and the public `nyash.plugin.invoke_by_name_i64` export is now retired
+   - the stage1 module-string tests now include explicit compat proof, and the public `nyash.plugin.invoke_by_name_i64` export is kept as compat-only
 18. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
    - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback
    - BoxCall no longer owns `nyash.plugin.invoke_by_name_i64`
    - `src/llvm_py/instructions/by_name_method.py` and `src/llvm_py/instructions/plugin_invoke_lowering.py` have been retired
    - string-result annotation lives in `src/llvm_py/instructions/string_result_policy.py`
-   - the kernel hook-bridge by-name registration surface has also been retired; only future/string hook glue remains
+   - the kernel hook-bridge by-name registration surface remains compat-only; future/string hook glue stays
 19. stage1 helper alias cutover second wave is landed
    - the same direct-call alias resolver now also covers `lang.compiler.entry.func_scanner` -> `FuncScannerBox`, `lang.compiler.entry.stageb.stageb_json_builder_box` -> `StageBJsonBuilderBox`, `selfhost.shared.common.box_type_inspector` -> `BoxTypeInspectorBox`, and `selfhost.shared.common.string_helpers` -> `StringHelpers`
    - current compiled-stage1 helper routes such as `find_matching_brace`, `build_defs_json`, `kind`, and `int_to_str` can now prefer direct lowered functions before generic plugin fallback when receiver literals are known
@@ -148,7 +148,7 @@ Rule:
 3. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 5. keep `module_string_dispatch` / `llvm_backend_surrogate` frozen unless caller-proof shows the compiled-stage1 temporary lane is truly removable
-6. keep kernel-side `by_name` retired; reopen only if a new live caller appears
+6. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
 7. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance

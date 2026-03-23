@@ -33,11 +33,29 @@ The Nyash Kernel (`nyash_kernel`) is the minimal runtime core that replaced the 
 - **Plugin Host**: Unified plugin loading and method resolution
 - **Process Entry**: Main entry point and runtime initialization
 
-#### Removed Shim Functions (42% - Deleted)
-- `with_legacy_vm_args` - 11 locations completely removed
-- Legacy VM argument processing
-- String/Box operation shims
-- VM-specific encoding functions
+#### Birth Shim Surface (Kept)
+
+The old "birth.rs removed" note was stale. `birth.rs` is still present as the
+handle-based birth shim surface for AOT/JIT exports.
+
+- `birth.rs` - handle-based birth exports kept for AOT/JIT linkage
+- `with_legacy_vm_args` - legacy VM argument processing removed
+- String/Box operation shims - moved to current kernel/plugin surfaces
+- VM-specific encoding functions - removed from the legacy shim layer
+
+#### Plugin Dispatch Compat Surface
+
+`src/plugin/invoke/by_name.rs` restores the compat-only
+`nyash.plugin.invoke_by_name_i64` export for stage1/bootstrap module-string
+dispatch. It is a bridge surface, not the daily direct path, so callers that
+already have a resolved direct callee should stay on the direct route and
+reserve this export for the fallback lane.
+
+Note:
+- the `invoke.rs` row in the historical removal table should be read as an old
+  removal snapshot, not as the current file presence
+- the current plugin dispatch compat surface lives in `src/plugin/invoke.rs`
+  and `src/plugin/invoke/by_name.rs`
 
 ## Build Output
 
@@ -49,16 +67,16 @@ Integration: LLVM + VM unified
 
 ## Implementation Details
 
-### Deleted Legacy Functions
+### Current Birth Shim Surface
 
 | File | Locations | Status |
 |------|-----------|---------|
 | `encode.rs` | 1 | ✅ Removed |
-| `birth.rs` | 1 | ✅ Removed |
+| `birth.rs` | 1 | ✅ Kept as export shim |
 | `future.rs` | 2 | ✅ Removed |
 | `invoke.rs` | 6 | ✅ Removed |
 | `invoke_core.rs` | 1 | ✅ Removed |
-| **Total** | **11** | **✅ Complete** |
+| **Total** | **11** | **Historical removal set; birth shim kept** |
 
 ### Plugin-First Integration
 

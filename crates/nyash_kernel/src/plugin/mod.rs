@@ -84,6 +84,8 @@ mod wiring_tests {
             crate::nyash_plugin_invoke3_i64;
         let _invoke3_f64: extern "C" fn(i64, i64, i64, i64, i64, i64) -> f64 =
             crate::nyash_plugin_invoke3_f64;
+        let _invoke_by_name_i64: extern "C" fn(i64, *const i8, i64, i64, i64) -> i64 =
+            crate::nyash_plugin_invoke_by_name_i64;
         let _invoke3_tagged_i64: extern "C" fn(
             i64,
             i64,
@@ -111,6 +113,7 @@ mod wiring_tests {
             _future_delay_i64,
             _invoke3_i64,
             _invoke3_f64,
+            _invoke_by_name_i64,
             _invoke3_tagged_i64,
             _invoke_tagged_v_i64,
         );
