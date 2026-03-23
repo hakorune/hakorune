@@ -116,6 +116,14 @@ mod tests {
         }
     }
 
+    fn empty_blockexpr(tail_expr: ASTNode) -> ASTNode {
+        ASTNode::BlockExpr {
+            prelude_stmts: vec![],
+            tail_expr: Box::new(tail_expr),
+            span: Span::unknown(),
+        }
+    }
+
     #[test]
     fn value_if_allows_pure_string_substring() {
         let cond = ASTNode::BinaryOp {
@@ -250,6 +258,33 @@ mod tests {
             })
             .count();
         assert_eq!(set_calls, 2);
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_empty_blockexpr_wrapper() {
+        let wrapped_expr = empty_blockexpr(int_lit(42));
+
+        let mut wrapped_builder = MirBuilder::new();
+        let (wrapped_id, wrapped_effects) = PlanNormalizer::lower_value_ast(
+            &wrapped_expr,
+            &mut wrapped_builder,
+            &BTreeMap::new(),
+        )
+        .expect("empty BlockExpr should lower in value context");
+
+        let mut tail_builder = MirBuilder::new();
+        let (tail_id, tail_effects) =
+            PlanNormalizer::lower_value_ast(&int_lit(42), &mut tail_builder, &BTreeMap::new())
+                .expect("tail literal should lower in value context");
+
+        assert_eq!(
+            format!("{:?}", wrapped_effects),
+            format!("{:?}", tail_effects)
+        );
+        assert_eq!(
+            wrapped_builder.type_ctx.get_type(wrapped_id),
+            tail_builder.type_ctx.get_type(tail_id)
+        );
     }
 
     #[test]

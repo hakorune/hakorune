@@ -416,6 +416,16 @@ impl super::PlanNormalizer {
                 }
                 Ok((map_id, effects))
             }
+            ASTNode::BlockExpr {
+                prelude_stmts,
+                tail_expr,
+                ..
+            } => {
+                if !prelude_stmts.is_empty() {
+                    return Err("[normalizer] BlockExpr with prelude is not supported in value context".to_string());
+                }
+                Self::lower_value_ast(tail_expr.as_ref(), builder, phi_bindings)
+            }
             ASTNode::BinaryOp { .. } => {
                 let (lhs, op, rhs, mut consts) = Self::lower_binop_ast(ast, builder, phi_bindings)?;
                 let dst = builder.alloc_typed(MirType::Integer);

@@ -63,6 +63,7 @@ fn test_mir_phase7_basic_nowait_await() {
         body: main_body,
         is_static: false,
         is_override: false,
+        attrs: nyash_rust::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
 
@@ -84,6 +85,7 @@ fn test_mir_phase7_basic_nowait_await() {
         type_parameters: vec![],
         is_static: true,
         static_init: None,
+        attrs: nyash_rust::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
 
@@ -225,6 +227,7 @@ fn test_mir_phase7_multiple_nowait_await() {
         body: main_body,
         is_static: false,
         is_override: false,
+        attrs: nyash_rust::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
 
@@ -246,6 +249,7 @@ fn test_mir_phase7_multiple_nowait_await() {
         type_parameters: vec![],
         is_static: true,
         static_init: None,
+        attrs: nyash_rust::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
 
@@ -348,6 +352,7 @@ fn test_mir_phase7_nested_await() {
         body: main_body,
         is_static: false,
         is_override: false,
+        attrs: nyash_rust::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
 
@@ -369,6 +374,7 @@ fn test_mir_phase7_nested_await() {
         type_parameters: vec![],
         is_static: true,
         static_init: None,
+        attrs: nyash_rust::ast::DeclarationAttrs::default(),
         span: Span::unknown(),
     };
 
