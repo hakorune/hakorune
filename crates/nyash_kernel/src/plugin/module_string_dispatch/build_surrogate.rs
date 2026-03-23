@@ -3,6 +3,17 @@ use super::{decode_string_handle, encode_string_handle, trace_log};
 const BUILD_BOX_MODULE: &str = "lang.compiler.build.build_box";
 const BUILD_BOX_METHOD: &str = "emit_program_json_v0";
 
+struct BuildSurrogateRoute;
+
+struct BuildSurrogateCall {
+    source_text: String,
+}
+
+enum BuildSurrogateHandleResult {
+    EncodedText(String),
+    MissingSourceArg,
+}
+
 pub(super) fn try_dispatch(
     module_name: &str,
     method_name: &str,
@@ -10,46 +21,72 @@ pub(super) fn try_dispatch(
     arg1: i64,
     arg2: i64,
 ) -> Option<i64> {
-    if !is_build_box_emit_program_json_route(module_name, method_name) {
+    if !BuildSurrogateRoute::matches(module_name, method_name) {
         return None;
     }
-    Some(handle_build_box_emit_program_json_v0(arg_count, arg1, arg2).unwrap_or(0))
+
+    Some(dispatch_build_box_emit_program_json_v0(arg_count, arg1, arg2).into_handle())
 }
 
-fn is_build_box_emit_program_json_route(module_name: &str, method_name: &str) -> bool {
-    module_name == BUILD_BOX_MODULE && method_name == BUILD_BOX_METHOD
-}
-
-fn handle_build_box_emit_program_json_v0(arg_count: i64, arg1: i64, _arg2: i64) -> Option<i64> {
-    let source_text = decode_build_box_source_text(arg_count, arg1)?;
-    let program_json = emit_build_box_program_json(&source_text);
-    trace_log("[stage1/module_dispatch] build_surrogate emitted program_json");
-    Some(encode_build_box_program_json_result(program_json))
-}
-
-fn decode_build_box_source_text(arg_count: i64, arg1: i64) -> Option<String> {
-    if arg_count < 1 {
-        return None;
+impl BuildSurrogateRoute {
+    fn matches(module_name: &str, method_name: &str) -> bool {
+        module_name == BUILD_BOX_MODULE && method_name == BUILD_BOX_METHOD
     }
-    decode_string_handle(arg1)
 }
 
-fn emit_build_box_program_json(source_text: &str) -> Result<String, String> {
-    nyash_rust::stage1::program_json_v0::emit_program_json_v0_for_current_stage1_build_box_mode(
-        source_text,
-    )
+impl BuildSurrogateCall {
+    fn decode(arg_count: i64, arg1: i64, _arg2: i64) -> Option<Self> {
+        if arg_count < 1 {
+            return None;
+        }
+
+        let source_text = decode_string_handle(arg1)?;
+        Some(Self { source_text })
+    }
+
+    fn execute(self) -> BuildSurrogateHandleResult {
+        let program_json =
+            nyash_rust::stage1::program_json_v0::emit_program_json_v0_for_current_stage1_build_box_mode(
+                &self.source_text,
+            );
+        trace_log("[stage1/module_dispatch] build_surrogate emitted program_json");
+        BuildSurrogateHandleResult::from_program_json_result(program_json)
+    }
 }
 
-fn encode_build_box_program_json_result(program_json: Result<String, String>) -> i64 {
-    match program_json {
-        Ok(program_json) => encode_string_handle(&program_json),
-        Err(error_text) => encode_string_handle(&error_text),
+impl BuildSurrogateHandleResult {
+    fn from_program_json_result(program_json: Result<String, String>) -> Self {
+        match program_json {
+            Ok(program_json) => Self::EncodedText(program_json),
+            Err(error_text) => Self::EncodedText(error_text),
+        }
+    }
+
+    fn into_handle(self) -> i64 {
+        match self {
+            Self::EncodedText(text) => encode_string_handle(&text),
+            Self::MissingSourceArg => 0,
+        }
+    }
+}
+
+fn dispatch_build_box_emit_program_json_v0(
+    arg_count: i64,
+    arg1: i64,
+    arg2: i64,
+) -> BuildSurrogateHandleResult {
+    match BuildSurrogateCall::decode(arg_count, arg1, arg2) {
+        Some(call) => call.execute(),
+        None => BuildSurrogateHandleResult::MissingSourceArg,
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{BUILD_BOX_METHOD, BUILD_BOX_MODULE, try_dispatch};
+    use super::{
+        dispatch_build_box_emit_program_json_v0, BuildSurrogateHandleResult, BUILD_BOX_METHOD,
+        BUILD_BOX_MODULE, try_dispatch,
+    };
     use crate::plugin::module_string_dispatch::{decode_string_handle, encode_string_handle};
 
     fn dispatch_build_box_emit_program_json(source: &str) -> String {
@@ -69,6 +106,26 @@ mod tests {
     fn build_box_missing_arg_returns_zero_handle() {
         let out = try_dispatch(BUILD_BOX_MODULE, BUILD_BOX_METHOD, 0, 0, 0).expect("dispatch");
         assert_eq!(out, 0);
+    }
+
+    #[test]
+    fn build_box_invalid_source_handle_returns_zero_handle() {
+        let out = try_dispatch(BUILD_BOX_MODULE, BUILD_BOX_METHOD, 1, 0, 0).expect("dispatch");
+        assert_eq!(out, 0);
+    }
+
+    #[test]
+    fn build_box_unrelated_route_returns_none() {
+        assert!(try_dispatch("lang.compiler.build.other_box", BUILD_BOX_METHOD, 0, 0, 0).is_none());
+    }
+
+    #[test]
+    fn dispatch_missing_source_arg_returns_missing_source_result() {
+        let result = dispatch_build_box_emit_program_json_v0(0, 0, 0);
+        assert!(matches!(
+            result,
+            BuildSurrogateHandleResult::MissingSourceArg
+        ));
     }
 
     #[test]

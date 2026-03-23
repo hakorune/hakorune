@@ -13,7 +13,7 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
 - `build_surrogate.rs`
   - compiled-stage1 `BuildBox.emit_program_json_v0` dispatch shim only
   - frozen exact owner for the build surrogate residue bucket; docs/inventory closeout only until caller-proof says removable
-  - owner of the surrogate route match/dispatch contract, decode, and encode
+  - owner of the surrogate route match/dispatch contract, typed source decode, and encoded result handoff
   - build-box / launcher handoff regression coverage lives in `src/stage1/program_json_v0.rs` tests
   - the surrogate handler and route match stay owner-local; parent modules only probe via `try_dispatch(...)`
 - `llvm_backend_surrogate.rs`
