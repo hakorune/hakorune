@@ -104,80 +104,28 @@ impl NyashRunner {
             }
         };
 
-        // Unified using/prelude handling (SSOT):
-        // - resolve_prelude_paths_profiled: discover preludes (DFS, operator boxes, etc.)
-        // - merge_prelude_text: text-based merge for all VM paths
-        //   * .hako プレリュードは AST に突っ込まない（Parse error防止）
-        //   * .hako は text-merge + Stage-3 parser で一貫処理
         let trace = crate::config::env::cli_verbose()
             || crate::config::env::env_bool("NYASH_RESOLVE_TRACE");
 
-        // When using is enabled, resolve preludes/profile; otherwise, keep original code.
-        let mut code_final = if crate::config::env::enable_using() {
-            match crate::runner::modes::common_util::resolve::resolve_prelude_paths_profiled(
-                self, &code, filename,
-            ) {
-                Ok((_, prelude_paths)) => {
-                    if !prelude_paths.is_empty() {
-                        // SSOT: always text-merge for VM (includes .hako-safe handling inside)
-                        match crate::runner::modes::common_util::resolve::merge_prelude_text(
-                            self, &code, filename,
-                        ) {
-                            Ok(merged) => {
-                                if trace {
-                                    let ring0 = crate::runtime::ring0::get_global_ring0();
-                                    ring0.log.debug(&format!(
-                                        "[using/text-merge] preludes={} (vm)",
-                                        prelude_paths.len()
-                                    ));
-                                }
-                                merged
-                            }
-                            Err(e) => {
-                                let ring0 = crate::runtime::ring0::get_global_ring0();
-                                let msg = if e.starts_with("[freeze:contract][module_registry]") {
-                                    e
-                                } else {
-                                    format!("❌ {}", e)
-                                };
-                                ring0.log.error(&msg);
-                                process::exit(1);
-                            }
-                        }
-                    } else {
-                        code.clone()
-                    }
-                }
-                Err(e) => {
-                    let ring0 = crate::runtime::ring0::get_global_ring0();
-                    let msg = if e.starts_with("[freeze:contract][module_registry]") {
-                        e
-                    } else {
-                        format!("❌ {}", e)
-                    };
-                    ring0.log.error(&msg);
-                    process::exit(1);
-                }
-            }
-        } else {
-            // using disabled: detect and fail fast if present
-            if code.contains("\nusing ") || code.trim_start().starts_with("using ") {
+        let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+            self,
+            filename,
+            &code,
+        ) {
+            Ok(prepared) => prepared,
+            Err(e) => {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.error("❌ using: prelude merge is disabled in this profile. Enable NYASH_USING_AST=1 or remove 'using' lines.");
+                let msg = if e.starts_with("[freeze:contract][module_registry]") {
+                    e
+                } else {
+                    format!("❌ {}", e)
+                };
+                ring0.log.error(&msg);
                 process::exit(1);
             }
-            code
         };
-
-        // Dev sugar pre-expand: @name = expr → local name = expr
-        code_final = crate::runner::modes::common_util::resolve::preexpand_at_local(&code_final);
-
-        // Hako-friendly normalize: strip leading `local ` at line head for Nyash parser compatibility.
-        if crate::runner::modes::common_util::hako::looks_like_hako_code(&code_final)
-            || filename.ends_with(".hako")
-        {
-            code_final = crate::runner::modes::common_util::hako::strip_local_decl(&code_final);
-        }
+        let code_final = prepared.code;
+        let using_imports = prepared.imports;
 
         // Optional: dump merged Hako source after using/prelude merge and Hako normalization.
         // Guarded by env; defaultはOFF（Phase 25.1a selfhost builder デバッグ用）。
@@ -518,11 +466,7 @@ impl NyashRunner {
             ring0.log.info("[runner/vm:emit-trace] phase=compile.begin");
         }
         let mut compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile = match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
-            &mut compiler,
-            ast,
-            Some(filename),
-        ) {
+        let compile = match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(&mut compiler, ast, Some(filename), using_imports) {
             Ok(c) => c,
             Err(e) => {
                 let ring0 = crate::runtime::ring0::get_global_ring0();

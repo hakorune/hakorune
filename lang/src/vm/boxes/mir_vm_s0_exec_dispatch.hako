@@ -278,8 +278,9 @@ static box MirVmS0ExecDispatchBox {
         if kind == "Eq" { sym = "==" }
         else { if kind == "Ne" { sym = "!=" }
         else { if kind == "Lt" { sym = "<" }
+        else { if kind == "Le" { sym = "<=" }
         else { if kind == "Gt" { sym = ">" }
-        else { if kind == "Ge" { sym = ">=" } } } } }
+        else { if kind == "Ge" { sym = ">=" } } } } } }
       }
 
       local a = me._reg_get(regs, lhs)
@@ -311,6 +312,11 @@ static box MirVmS0ExecDispatchBox {
       }
       if sym == "<" {
         if a < b { me._reg_set(regs, dst, 1) } else { me._reg_set(regs, dst, 0) }
+        me._reg_kind_set(kinds, dst, "scalar")
+        return "__NEXT__"
+      }
+      if sym == "<=" {
+        if a <= b { me._reg_set(regs, dst, 1) } else { me._reg_set(regs, dst, 0) }
         me._reg_kind_set(kinds, dst, "scalar")
         return "__NEXT__"
       }
@@ -506,11 +512,11 @@ static box MirVmS0ExecDispatchBox {
     return MirVmS0BoxcallExecBox._exec_boxcall(seg, regs, kinds, array_lens, handle_regs, file_boxes, src)
   }
 
-  _exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src) {
-    return MirVmS0CallExecBox._exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
+  _exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src) {
+    return MirVmS0CallExecBox._exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src)
   }
 
-  _exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src) {
+  _exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src) {
     local data_next = me._exec_data_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
     if data_next != "" {
       return data_next
@@ -520,7 +526,7 @@ static box MirVmS0ExecDispatchBox {
       return me._exec_boxcall(seg, regs, kinds, array_lens, handle_regs, file_boxes, src)
     }
 
-    local call_next = me._exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
+    local call_next = me._exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src)
     if call_next != "" {
       return call_next
     }

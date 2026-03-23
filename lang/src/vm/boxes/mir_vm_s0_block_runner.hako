@@ -10,6 +10,18 @@ using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0BlockRunnerBox {
+  _block_cache_key(prefix, block_id) {
+    return prefix + ("" + block_id)
+  }
+
+  _function_bounds_cache_key(func_name) {
+    return "func:" + func_name
+  }
+
+  _function_block_cache_prefix(func_name) {
+    return "insts:" + func_name + ":"
+  }
+
   _exec_phi(seg, regs, kinds, array_lens, handle_regs, file_boxes, pred_bb) {
     local dst_phi = MirVmS0JsonScanBox._find_int(seg, "dst")
     if dst_phi == null { return "[vm-hako/contract][phi-missing-dst]" }
@@ -37,7 +49,7 @@ static box MirVmS0BlockRunnerBox {
     return "JMP:" + ("" + target)
   }
 
-  _exec_insts(json, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, src) {
+  _exec_insts(json, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src) {
     if pos >= rb { return 0 }
     local obj_start = MirVmS0JsonScanBox._index_of_from(json, "{", pos)
     if obj_start < 0 || obj_start >= rb { return 0 }
@@ -48,14 +60,14 @@ static box MirVmS0BlockRunnerBox {
 
     local seg = json.substring(obj_start, obj_end + 1)
     local op = MirVmS0JsonScanBox._find_str(seg, "op")
-    local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
+    local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src)
     if res == "__NEXT__" {
-      return me._exec_insts(json, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
+      return me._exec_insts(json, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src)
     }
     return res
   }
 
-  _exec_block_insts(inst_seg, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb) {
+  _exec_block_insts(inst_seg, rb, pos, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src, pred_bb) {
     if pos >= rb { return "__FALLTHROUGH__" }
     local obj_start = MirVmS0JsonScanBox._index_of_from(inst_seg, "{", pos)
     if obj_start < 0 || obj_start >= rb { return "__FALLTHROUGH__" }
@@ -70,7 +82,7 @@ static box MirVmS0BlockRunnerBox {
     if op == "phi" {
       local phi_res = me._exec_phi(seg, regs, kinds, array_lens, handle_regs, file_boxes, pred_bb)
       if phi_res != "__NEXT__" { return phi_res }
-      return me._exec_block_insts(inst_seg, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
+      return me._exec_block_insts(inst_seg, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src, pred_bb)
     }
 
     if op == "branch" {
@@ -81,63 +93,101 @@ static box MirVmS0BlockRunnerBox {
       return me._exec_jump(seg)
     }
 
-    local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
+    local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src)
     if ("" + res) == "__NEXT__" {
-      return me._exec_block_insts(inst_seg, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
+      return me._exec_block_insts(inst_seg, rb, obj_end + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src, pred_bb)
     }
     return res
   }
 
-  _exec_block_insts_cached(inst_objs, idx, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb) {
-    if idx >= inst_objs.length() { return "__FALLTHROUGH__" }
+  _exec_block_insts_cached(inst_objs, idx, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src, pred_bb) {
+    local i = idx
+    loop (i < inst_objs.length()) {
+      local seg = inst_objs.get(i)
+      if seg == null { return "[vm-hako/contract][invalid-inst-cache-entry]" }
 
-    local seg = inst_objs.get(idx)
-    if seg == null { return "[vm-hako/contract][invalid-inst-cache-entry]" }
+      local op = MirVmS0JsonScanBox._find_str(seg, "op")
 
-    local op = MirVmS0JsonScanBox._find_str(seg, "op")
+      if op == "phi" {
+        local phi_res = me._exec_phi(seg, regs, kinds, array_lens, handle_regs, file_boxes, pred_bb)
+        if phi_res != "__NEXT__" { return phi_res }
+        i = i + 1
+      } else {
+        if op == "branch" {
+          return me._exec_branch(seg, regs)
+        }
 
-    if op == "phi" {
-      local phi_res = me._exec_phi(seg, regs, kinds, array_lens, handle_regs, file_boxes, pred_bb)
-      if phi_res != "__NEXT__" { return phi_res }
-      return me._exec_block_insts_cached(inst_objs, idx + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
+        if op == "jump" {
+          return me._exec_jump(seg)
+        }
+
+        local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src)
+        if ("" + res) != "__NEXT__" {
+          return res
+        }
+        i = i + 1
+      }
     }
-
-    if op == "branch" {
-      return me._exec_branch(seg, regs)
-    }
-
-    if op == "jump" {
-      return me._exec_jump(seg)
-    }
-
-    local res = MirVmS0ExecDispatchBox._exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
-    if ("" + res) == "__NEXT__" {
-      return me._exec_block_insts_cached(inst_objs, idx + 1, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, pred_bb)
-    }
-    return res
+    return "__FALLTHROUGH__"
   }
 
-  _build_inst_cache_rec(inst_seg, scan_pos, scan_rb, inst_objs) {
-    if scan_pos >= scan_rb { return 0 }
-    local obj_start = MirVmS0JsonScanBox._index_of_from(inst_seg, "{", scan_pos)
-    if obj_start < 0 || obj_start >= scan_rb { return 0 }
+  _build_inst_cache(inst_seg, scan_pos, scan_rb, inst_objs) {
+    local pos = scan_pos
+    loop (pos < scan_rb) {
+      local obj_start = MirVmS0JsonScanBox._index_of_from(inst_seg, "{", pos)
+      if obj_start < 0 || obj_start >= scan_rb { return 0 }
 
-    local obj_end = MirVmS0JsonScanBox._scan_obj_end(inst_seg, obj_start)
-    if obj_end == -2 { return -2 }
-    if obj_end < obj_start || obj_end > scan_rb { return -1 }
+      local obj_end = MirVmS0JsonScanBox._scan_obj_end(inst_seg, obj_start)
+      if obj_end == -2 { return -2 }
+      if obj_end < obj_start || obj_end > scan_rb { return -1 }
 
-    inst_objs.push(inst_seg.substring(obj_start, obj_end + 1))
-    return me._build_inst_cache_rec(inst_seg, obj_end + 1, scan_rb, inst_objs)
+      inst_objs.push(inst_seg.substring(obj_start, obj_end + 1))
+      pos = obj_end + 1
+    }
+    return 0
   }
 
-  _run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, block_inst_cache, current, prev_bb, steps) {
+  _prime_block_cache(src, blocks_lb, blocks_rb, exec_cache, block_cache_prefix) {
+    local blocks_seg = src.substring(blocks_lb, blocks_rb + 1)
+    local seg_rb = blocks_seg.length() - 1
+    local pos = 1
+    loop (pos < seg_rb) {
+      local obj_start = MirVmS0JsonScanBox._index_of_from(blocks_seg, "{", pos)
+      if obj_start < 0 || obj_start >= seg_rb { return 0 }
+      local obj_end = MirVmS0JsonScanBox._scan_obj_end(blocks_seg, obj_start)
+      if obj_end == -2 { return -2 }
+      if obj_end < obj_start || obj_end > seg_rb { return -1 }
+
+      local block_seg = blocks_seg.substring(obj_start, obj_end + 1)
+      local block_id = MirVmS0JsonScanBox._find_int(block_seg, "id")
+      if block_id != null {
+        local inst_pair = MirVmS0BlockLocBox._find_block_insts_bounds(block_seg)
+        if inst_pair == "SCAN_DEPTH" { return -2 }
+        if inst_pair == "" { return -1 }
+
+        local inst_lb = MirVmS0JsonScanBox._pair_first(inst_pair)
+        local inst_rb = MirVmS0JsonScanBox._pair_second(inst_pair)
+        if inst_lb < 0 || inst_rb <= inst_lb { return -1 }
+
+        local inst_seg = block_seg.substring(inst_lb, inst_rb + 1)
+        local inst_objs = new ArrayBox()
+        local cache_rc = me._build_inst_cache(inst_seg, 1, inst_seg.length() - 1, inst_objs)
+        if cache_rc != 0 { return cache_rc }
+        exec_cache.set(me._block_cache_key(block_cache_prefix, block_id), inst_objs)
+      }
+      pos = obj_end + 1
+    }
+    return 0
+  }
+
+  _run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, block_cache_prefix, current, prev_bb, steps) {
     local current_bb = current
     local prev_bb_local = prev_bb
     local step_count = steps
 
     loop (step_count < 4096) {
-      local cache_key = "" + current_bb
-      local inst_objs = MirVmS0StateOpsBox.map_get_or_null(block_inst_cache, cache_key)
+      local cache_key = me._block_cache_key(block_cache_prefix, current_bb)
+      local inst_objs = MirVmS0StateOpsBox.map_get_or_null(exec_cache, cache_key)
       if inst_objs == null {
         local obj_pair = MirVmS0BlockLocBox._find_block_obj_bounds(src, blocks_lb, blocks_rb, current_bb)
         if obj_pair == "SCAN_DEPTH" {
@@ -176,7 +226,7 @@ static box MirVmS0BlockRunnerBox {
 
         local inst_seg = block_seg.substring(inst_lb, inst_rb + 1)
         inst_objs = new ArrayBox()
-        local cache_rc = me._build_inst_cache_rec(inst_seg, 1, inst_seg.length() - 1, inst_objs)
+        local cache_rc = me._build_inst_cache(inst_seg, 1, inst_seg.length() - 1, inst_objs)
         if cache_rc == -2 {
           print("[vm-hako/contract][scan-depth-exceeded kind=obj-cache]")
           return 1
@@ -185,9 +235,9 @@ static box MirVmS0BlockRunnerBox {
           print("[vm-hako/contract][invalid-inst-object-cache]")
           return 1
         }
-        block_inst_cache.set(cache_key, inst_objs)
+        exec_cache.set(cache_key, inst_objs)
       }
-      local out = me._exec_block_insts_cached(inst_objs, 0, regs, kinds, mem, array_lens, handle_regs, file_boxes, src, prev_bb_local)
+      local out = me._exec_block_insts_cached(inst_objs, 0, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src, prev_bb_local)
       local os = "" + out
 
       if os == "__FALLTHROUGH__" {
@@ -209,7 +259,7 @@ static box MirVmS0BlockRunnerBox {
           current_bb = MirVmS0JsonScanBox._to_i64(os.substring(4, os.length()))
           moved = 1
         } else {
-          return MirVmS0JsonScanBox._to_i64(out)
+          return out
         }
       }
       step_count = step_count + 1
@@ -217,6 +267,128 @@ static box MirVmS0BlockRunnerBox {
 
     print("[vm-hako/contract][max-steps-exceeded]")
     return 1
+  }
+
+  _run_function_bounds(src, blocks_lb, blocks_rb, entry, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, block_cache_prefix) {
+    local cache_marker = "prime:" + block_cache_prefix
+    if MirVmS0StateOpsBox.map_get_or_null(exec_cache, cache_marker) == null {
+      local prime_rc = me._prime_block_cache(src, blocks_lb, blocks_rb, exec_cache, block_cache_prefix)
+      if prime_rc == -2 { return "[vm-hako/contract][scan-depth-exceeded kind=block-cache-prime]" }
+      if prime_rc == -1 { return "[vm-hako/contract][invalid-block-cache-prime]" }
+      exec_cache.set(cache_marker, "1")
+    }
+    local probe = MirVmS0BlockLocBox._find_block_obj_bounds(src, blocks_lb, blocks_rb, entry)
+    if probe == "" {
+      return "[vm-hako/contract][missing-block-object id=" + ("" + entry) + "]"
+    }
+    return me._run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, block_cache_prefix, entry, null, 0)
+  }
+
+  _return_reg_from_marker(out) {
+    local text = "" + out
+    if text.length() < 5 { return null }
+    if text.substring(0, 4) != "RET:" { return null }
+    return MirVmS0JsonScanBox._to_i64(text.substring(4, text.length()))
+  }
+
+  _finalize_top_level_result(out, regs) {
+    local ret_reg = me._return_reg_from_marker(out)
+    if ret_reg != null {
+      return MirVmS0RegUtilsBox._reg_get(regs, ret_reg)
+    }
+    return MirVmS0JsonScanBox._to_i64(out)
+  }
+
+  run_named_function_into(src, func_name, call_seg, caller_regs, caller_kinds, caller_mem, caller_array_lens, caller_handle_regs, caller_file_boxes, exec_cache) {
+    local funcs_pair = MirVmS0BlockLocBox._find_functions_bounds(src)
+    if funcs_pair == "SCAN_DEPTH" {
+      return "[vm-hako/contract][scan-depth-exceeded kind=functions]"
+    }
+    if funcs_pair == "" {
+      return "[vm-hako/contract][missing-functions-array]"
+    }
+    local funcs_lb = MirVmS0JsonScanBox._pair_first(funcs_pair)
+    local funcs_rb = MirVmS0JsonScanBox._pair_second(funcs_pair)
+    if funcs_lb < 0 || funcs_rb <= funcs_lb {
+      return "[vm-hako/contract][invalid-functions-array]"
+    }
+    local func_pair = MirVmS0StateOpsBox.map_get_or_null(exec_cache, me._function_bounds_cache_key(func_name))
+    if func_pair == null {
+      func_pair = MirVmS0BlockLocBox._find_function_obj_bounds(src, funcs_lb, funcs_rb, func_name)
+      if func_pair == "SCAN_DEPTH" {
+        return "[vm-hako/contract][scan-depth-exceeded kind=function-obj]"
+      }
+      if func_pair == "" {
+        return "[vm-hako/contract][missing-function name=" + func_name + "]"
+      }
+      exec_cache.set(me._function_bounds_cache_key(func_name), func_pair)
+    }
+    local func_lb = MirVmS0JsonScanBox._pair_first(func_pair)
+    local func_rb = MirVmS0JsonScanBox._pair_second(func_pair)
+    if func_lb < 0 || func_rb <= func_lb {
+      return "[vm-hako/contract][invalid-function-object name=" + func_name + "]"
+    }
+    local func_seg = src.substring(func_lb, func_rb + 1)
+    local blocks_pair = MirVmS0BlockLocBox._find_function_blocks_bounds(func_seg, func_name)
+    if blocks_pair == "SCAN_DEPTH" {
+      return "[vm-hako/contract][scan-depth-exceeded kind=function-blocks]"
+    }
+    if blocks_pair == "" {
+      return "[vm-hako/contract][missing-function-blocks name=" + func_name + "]"
+    }
+    local blocks_lb = func_lb + MirVmS0JsonScanBox._pair_first(blocks_pair)
+    local blocks_rb = func_lb + MirVmS0JsonScanBox._pair_second(blocks_pair)
+    if blocks_lb < 0 || blocks_rb <= blocks_lb {
+      return "[vm-hako/contract][invalid-function-blocks name=" + func_name + "]"
+    }
+    local blocks_seg = func_seg.substring(MirVmS0JsonScanBox._pair_first(blocks_pair), MirVmS0JsonScanBox._pair_second(blocks_pair) + 1)
+
+    local param_count = MirVmS0BlockLocBox._function_param_count(func_seg)
+    local arg_count = MirVmS0ArgsPhiBox._args_count(call_seg)
+    if param_count != arg_count {
+      return "[vm-hako/contract][call-global-arity-mismatch name=" + func_name + " expected=" + ("" + param_count) + " got=" + ("" + arg_count) + "]"
+    }
+
+    local regs = new MapBox()
+    local kinds = new MapBox()
+    local mem = new MapBox()
+    local array_lens = new MapBox()
+    local handle_regs = new MapBox()
+    local file_boxes = new MapBox()
+
+    local idx = 0
+    loop (idx < param_count) {
+      local param_id = MirVmS0BlockLocBox._function_param_at(func_seg, idx)
+      local arg_id = MirVmS0ArgsPhiBox._args_nth(call_seg, idx)
+      if param_id == null || arg_id == null {
+        return "[vm-hako/contract][call-global-bad-params name=" + func_name + "]"
+      }
+      MirVmS0StateOpsBox.copy_reg_payload_between(caller_regs, caller_kinds, caller_array_lens, caller_handle_regs, caller_file_boxes, regs, kinds, array_lens, handle_regs, file_boxes, param_id, arg_id)
+      idx = idx + 1
+    }
+
+    local entry = MirVmS0JsonScanBox._find_int(func_seg, "entry_block")
+    if entry == null {
+      entry = MirVmS0BlockLocBox._find_first_block_id(blocks_seg)
+    }
+    if entry == "SCAN_DEPTH" {
+      return "[vm-hako/contract][scan-depth-exceeded kind=function-entry-block]"
+    }
+    if entry == null { entry = 0 }
+    local out = me._run_function_bounds(src, blocks_lb, blocks_rb, entry, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, me._function_block_cache_prefix(func_name))
+    local out_text = "" + out
+    if out_text.length() > 0 && out_text.substring(0, 1) == "[" {
+      return out_text
+    }
+    local ret_reg = me._return_reg_from_marker(out_text)
+    if ret_reg == null {
+      return "[vm-hako/contract][call-global-missing-ret name=" + func_name + "]"
+    }
+    local dst = MirVmS0JsonScanBox._find_int(call_seg, "dst")
+    if dst != null {
+      MirVmS0StateOpsBox.copy_reg_payload_between(regs, kinds, array_lens, handle_regs, file_boxes, caller_regs, caller_kinds, caller_array_lens, caller_handle_regs, caller_file_boxes, dst, ret_reg)
+    }
+    return "__NEXT__"
   }
 
   _run_block_payload(src) {
@@ -248,13 +420,14 @@ static box MirVmS0BlockRunnerBox {
     local array_lens = new MapBox()
     local handle_regs = new MapBox()
     local file_boxes = new MapBox()
-    local probe = MirVmS0BlockLocBox._find_block_obj_bounds(src, blocks_lb, blocks_rb, entry)
-    if probe == "" {
-      print("[vm-hako/contract][missing-block-object id=" + ("" + entry) + "]")
+    local exec_cache = new MapBox()
+    local out = me._run_function_bounds(src, blocks_lb, blocks_rb, entry, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, "main:")
+    local out_text = "" + out
+    if out_text.length() > 0 && out_text.substring(0, 1) == "[" {
+      print(out_text)
       return 1
     }
-    local block_inst_cache = new MapBox()
-    return me._run_block_payload_rec(src, blocks_lb, blocks_rb, regs, kinds, mem, array_lens, handle_regs, file_boxes, block_inst_cache, entry, null, 0)
+    return me._finalize_top_level_result(out, regs)
   }
 
   run_min(json) {

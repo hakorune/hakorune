@@ -2,17 +2,22 @@ use super::{temp_seed, VmHakoErr, VM_HAKO_PHASE};
 use crate::mir::{MirCompiler, MirModule};
 use crate::runner::NyashRunner;
 use nyash_rust::parser::NyashParser;
+use std::collections::HashMap;
 
 pub(super) fn compile_source_to_mir_json_v0(
     runner: &NyashRunner,
     filename: &str,
     code: &str,
 ) -> Result<String, VmHakoErr> {
-    let ast = match NyashParser::parse_from_string(code) {
+    let (prepared_source, using_imports) = prepare_vm_hako_source_and_imports(runner, filename, code)?;
+
+    let ast = match NyashParser::parse_from_string(&prepared_source) {
         Ok(ast) => ast,
         Err(e) => {
             crate::runner::modes::common_util::diag::print_parse_error_with_context(
-                filename, code, &e,
+                filename,
+                &prepared_source,
+                &e,
             );
             return Err(("parse-error", e.to_string()));
         }
@@ -21,10 +26,11 @@ pub(super) fn compile_source_to_mir_json_v0(
 
     let mut compiler = MirCompiler::with_options(!runner.config.no_optimize);
     let compile_result =
-        match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
+        match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
             &mut compiler,
             ast,
             Some(filename),
+            using_imports,
         ) {
             Ok(result) => result,
             Err(e) => return Err(("compile-error", e.to_string())),
@@ -38,6 +44,27 @@ pub(super) fn compile_source_to_mir_json_v0(
         "vm-hako",
     );
     emit_mir_json_v0_string(&compile_result.module).map_err(|e| ("emit-error", e))
+}
+
+fn prepare_vm_hako_source_and_imports(
+    runner: &NyashRunner,
+    filename: &str,
+    code: &str,
+) -> Result<(String, HashMap<String, String>), VmHakoErr> {
+    let prepared =
+        match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+            runner, filename, code,
+        ) {
+            Ok(prepared) => prepared,
+            Err(e) => return Err(("resolve-error", e)),
+        };
+
+    crate::runner::modes::common_util::safety_gate::enforce_vm_source_safety_or_exit(
+        &prepared.code,
+        "vm-hako",
+    );
+
+    Ok((prepared.code, prepared.imports))
 }
 
 fn emit_mir_json_v0_string(module: &MirModule) -> Result<String, String> {

@@ -12,13 +12,25 @@ impl NyashRunner {
             Err(e) => { eprintln!("❌ Error reading file {}: {}", filename, e); process::exit(1); }
         };
 
+        let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+            self,
+            filename,
+            &code,
+        ) {
+            Ok(prepared) => prepared,
+            Err(e) => {
+                eprintln!("❌ {}", e);
+                process::exit(1);
+            }
+        };
+
         // Parse to AST
-        let ast = match NyashParser::parse_from_string(&code) {
+        let ast = match NyashParser::parse_from_string(&prepared.code) {
             Ok(ast) => ast,
             Err(e) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
                     filename,
-                    &code,
+                    &prepared.code,
                     &e,
                 );
                 process::exit(1);
@@ -44,10 +56,11 @@ impl NyashRunner {
 
         // Compile to MIR (opt passes configurable)
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile_result = match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
+        let compile_result = match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
             &mut mir_compiler,
             ast,
             Some(filename),
+            prepared.imports,
         ) {
             Ok(result) => result,
             Err(e) => { eprintln!("❌ MIR compilation error: {}", e); process::exit(1); }

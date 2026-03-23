@@ -174,6 +174,28 @@ fn is_print_like_handle(name: &str) -> bool {
         || name.starts_with("__global_print")
 }
 
+fn call_callee_payload(inst: &Value) -> Option<&Value> {
+    inst.get("callee")
+        .or_else(|| inst.get("mir_call").and_then(|v| v.get("callee")))
+}
+
+pub(super) fn call_callee_type(inst: &Value) -> Option<&str> {
+    call_callee_payload(inst)
+        .and_then(|v| v.get("type"))
+        .and_then(|v| v.as_str())
+}
+
+pub(super) fn call_callee_name(inst: &Value) -> Option<&str> {
+    call_callee_payload(inst)
+        .and_then(|v| v.get("name"))
+        .and_then(|v| v.as_str())
+}
+
+fn is_print_like_global_callee(inst: &Value) -> bool {
+    matches!(call_callee_type(inst), Some("Global"))
+        && matches!(call_callee_name(inst), Some("print" | "println"))
+}
+
 pub(super) fn parse_print_arg_from_instruction(
     inst: &Value,
     handle_by_reg: &HashMap<u64, String>,
@@ -221,15 +243,17 @@ fn parse_print_arg_from_dynamic_call(
     let Some(args) = inst.get("args").and_then(|v| v.as_array()) else {
         return Err("call(malformed)");
     };
-    let Some(func_reg) = inst.get("func").and_then(|v| v.as_u64()) else {
-        return Err("call(missing-func)");
+    let func_reg = inst.get("func").and_then(|v| v.as_u64());
+    let is_print_route = if let Some(func_reg) = func_reg {
+        func_reg == DYNAMIC_METHOD_FUNC_ID
+            || func_reg == DYNAMIC_METHOD_BRIDGE_FUNC_ID
+            || handle_by_reg
+                .get(&func_reg)
+                .map(|name| is_print_like_handle(name))
+                .unwrap_or(false)
+    } else {
+        is_print_like_global_callee(inst)
     };
-    let is_print_route = func_reg == DYNAMIC_METHOD_FUNC_ID
-        || func_reg == DYNAMIC_METHOD_BRIDGE_FUNC_ID
-        || handle_by_reg
-            .get(&func_reg)
-            .map(|name| is_print_like_handle(name))
-            .unwrap_or(false);
     if !is_print_route {
         return Ok(None);
     }

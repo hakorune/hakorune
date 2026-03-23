@@ -2,14 +2,15 @@ use serde_json::{json, Map, Value};
 use std::collections::{HashMap, HashSet};
 
 use super::shape_contract::{
-    collect_function_return_models, extract_string_handle_const, has_id_method_arg1_model,
-    normalize_instruction_aliases, parse_print_arg_from_instruction,
+    call_callee_name, call_callee_type, collect_function_return_models,
+    extract_string_handle_const, has_id_method_arg1_model, parse_print_arg_from_instruction,
     update_handle_bindings_from_const_or_copy, validate_two_arg_call_target, ReturnModel,
 };
 use super::{DYNAMIC_METHOD_BRIDGE_FUNC_ID, DYNAMIC_METHOD_FUNC_ID};
 
 pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, String> {
-    let root: Value = serde_json::from_str(json_text).map_err(|e| e.to_string())?;
+    let mut root: Value = serde_json::from_str(json_text).map_err(|e| e.to_string())?;
+    normalize_instruction_aliases_in_root(&mut root);
     let functions = root
         .get("functions")
         .and_then(|v| v.as_array())
@@ -29,7 +30,6 @@ pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, Strin
         .get("blocks")
         .cloned()
         .ok_or_else(|| "MissingBlocks".to_string())?;
-    let blocks = normalize_instruction_aliases(&blocks);
     let blocks = prune_dead_string_handle_consts(&blocks);
     let (blocks, used_dynamic_bridge) = normalize_dynamic_method_calls(&blocks);
     let blocks = normalize_print_calls(&blocks);
@@ -42,8 +42,8 @@ pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, Strin
             .or_insert_with(|| json!(1));
     }
     let (boxcall0_const_map, boxcall1_arg0_map) = collect_boxcall_maps(functions, &return_models);
-
-    let payload = json!({
+    let reachable_global_functions = collect_reachable_global_functions(functions, main_func);
+    let mut payload = json!({
         "entry_block": entry_block,
         "blocks": blocks,
         "call0_const_map": call0_const_map,
@@ -52,7 +52,14 @@ pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, Strin
         "boxcall0_const_map": boxcall0_const_map,
         "boxcall1_arg0_map": boxcall1_arg0_map,
     });
+    if !reachable_global_functions.is_empty() {
+        payload["functions"] = Value::Array(reachable_global_functions);
+    }
     serde_json::to_string(&payload).map_err(|e| e.to_string())
+}
+
+fn normalize_instruction_aliases_in_root(root: &mut Value) {
+    super::shape_contract::normalize_aliases_in_root(root)
 }
 
 fn collect_call_maps(
@@ -214,6 +221,85 @@ fn collect_boxcall_maps(
     }
 
     (boxcall0_const_map, boxcall1_arg0_map)
+}
+
+fn collect_reachable_global_functions(functions: &[Value], main_func: &Value) -> Vec<Value> {
+    let mut func_by_name: HashMap<&str, &Value> = HashMap::new();
+    for func in functions {
+        let Some(name) = func.get("name").and_then(|v| v.as_str()) else {
+            continue;
+        };
+        func_by_name.insert(name, func);
+    }
+
+    let mut queue = collect_global_callees_from_function(main_func);
+    let mut seen: HashSet<String> = HashSet::new();
+    let mut out = Vec::new();
+    let mut idx = 0usize;
+    while idx < queue.len() {
+        let func_name = queue[idx].clone();
+        idx += 1;
+        if !seen.insert(func_name.clone()) {
+            continue;
+        }
+        let Some(func) = func_by_name.get(func_name.as_str()) else {
+            continue;
+        };
+        out.push(compact_payload_function(func));
+        for callee in collect_global_callees_from_function(func) {
+            if !seen.contains(callee.as_str()) {
+                queue.push(callee);
+            }
+        }
+    }
+
+    out
+}
+
+fn compact_payload_function(func: &Value) -> Value {
+    let mut out = Map::new();
+    out.insert(
+        "name".to_string(),
+        func.get("name").cloned().unwrap_or(Value::Null),
+    );
+    out.insert(
+        "params".to_string(),
+        func.get("params")
+            .cloned()
+            .unwrap_or_else(|| Value::Array(Vec::new())),
+    );
+    out.insert(
+        "blocks".to_string(),
+        func.get("blocks")
+            .cloned()
+            .unwrap_or_else(|| Value::Array(Vec::new())),
+    );
+    if let Some(entry_block) = func.get("entry_block").cloned() {
+        out.insert("entry_block".to_string(), entry_block);
+    }
+    Value::Object(out)
+}
+
+fn collect_global_callees_from_function(func: &Value) -> Vec<String> {
+    let mut out = Vec::new();
+    let Some(blocks) = func.get("blocks").and_then(|v| v.as_array()) else {
+        return out;
+    };
+    for block in blocks {
+        let Some(insts) = block.get("instructions").and_then(|v| v.as_array()) else {
+            continue;
+        };
+        for inst in insts {
+            if call_callee_type(inst) != Some("Global") {
+                continue;
+            }
+            let Some(name) = call_callee_name(inst) else {
+                continue;
+            };
+            out.push(name.to_string());
+        }
+    }
+    out
 }
 
 fn parse_method_name_and_arity(name: &str) -> Option<(String, usize)> {

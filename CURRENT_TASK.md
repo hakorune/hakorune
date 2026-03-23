@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-23
+Date: 2026-03-24
 Scope: repo root の再起動入口。詳細ログは `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -21,7 +21,12 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 
 ## Current blocker (SSOT)
 
-- none
+- `phase-29ci` wave 2B direct-lower keep is no longer blocked by the original static alias lowering drift; the remaining stop-line is vm-hako strict/dev direct-helper throughput.
+- current state:
+  - direct source routes now keep imported `using ... as Alias` static box calls concrete instead of degrading to `newbox(Alias)`
+  - vm-hako compact helper payload lookup, escaped string-const scan, and `compare <=` support are fixed enough for focused proofs to pass
+  - `registry_optin_method_arraymap_direct_canary_vm.sh` is still not green because `LowerReturnMethodArrayMapBox.try_lower/1` remains too slow on the vm-hako S0 named-function path
+- therefore the next slice must stay on vm-hako direct-helper execution hot-path reduction; do not reopen route pinning, subset widening, or the old static-call mismatch theory
 
 ## Current Priority
 
@@ -57,6 +62,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - kernel migration / stage-axis coordination remains the live thread.
 - `phase-29ct` carries the substrate capability ladder stop-line and current kernel-shape coordination.
 - `phase-29ci` carries the bootstrap / `Program(JSON v0)` retire boundary.
+- `phase-29ci` wave 2B is now a vm-hako direct-helper throughput slice after the direct-lower correctness fixes above; keep it BoxShape-only
 - `phase-29cu` carries the active Rune v0 lane: declaration-local `attrs.runes`, `.hako` AST/direct MIR carrier, and `ny-llvmc` selected-entry semantics.
   - current `.hako` source-route keep may use a synthetic `Main.main` def transport shim for selected-entry attrs, but Program(JSON v0) root/body remain no-widen
 - `phase-29y` carries the runtime `.hako` migration / boxcall contract polish.
@@ -82,7 +88,11 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `selfhost_build.sh` now keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`, and its `--exe` lane now also keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` plus Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so `--exe` / `--run` / path-result routes stay owner-local instead of inline in the main tail
   - `test_runner.sh` now keeps the phase2044 verify env stack behind explicit route env + common env helpers, so `run_verify_program_via_preferred_mirbuilder_to_core()` and `run_verify_program_via_hako_primary_no_fallback_to_core()` stay thin flag wrappers instead of repeating the same using/AST/top-level-main launch contract inline
   - `test_runner.sh` now also keeps the phase2160 builder/registry launch stack behind route env + common env helpers, plus temp wrapper render / vm invoke / cleanup helpers with a direct `main` bridge, so `run_program_json_via_builder_module_vm_with_env()` is now a thin orchestration layer for builder-min / registry / preinclude / diag callers
-  - `phase2160` method-arraymap canaries now recover through the shared synthetic tagged-stdout fallback when the temp wrapper hits the vm-hako subset-check; `registry_optin_method_arraymap_len_canary_vm.sh` and `registry_optin_method_arraymap_get_diag_canary_vm.sh` are green again, while `registry_optin_method_arraymap_direct_canary_vm.sh` stays the explicit direct-lower keep and still skips
+  - `phase2160` method-arraymap canaries now recover through the shared synthetic tagged-stdout fallback when the temp wrapper hits the vm-hako subset-check; `registry_optin_method_arraymap_len_canary_vm.sh` and `registry_optin_method_arraymap_get_diag_canary_vm.sh` are green again
+  - the remaining explicit direct-lower keep is now narrower:
+    - `registry_optin_method_arraymap_direct_canary_vm.sh` is no longer blocked by the old static alias lowering mismatch
+    - current stop-line is vm-hako S0 named-function throughput on `LowerReturnMethodArrayMapBox.try_lower/1`
+    - keep the next slice on block-cache / helper-execution hot-path reduction only
   - `src/host_providers/mir_builder.rs` is now the live façade while `handoff.rs` owns the owner-local source/Program(JSON) handoff objects and `decls.rs` owns `user_box_decls` shaping; `module_to_mir_json(...)` stays the shared Rust stop-line and `lowering.rs` stays test-only evidence
 - Rust kernel export surface split is landed
   - current docs exact leaf:

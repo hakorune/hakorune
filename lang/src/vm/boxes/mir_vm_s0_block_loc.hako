@@ -2,6 +2,7 @@
 // Responsibility: locate blocks and instruction arrays in MIR JSON payload.
 
 using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box MirVmS0BlockLocBox {
   // ==================== Main Instructions Locator ====================
@@ -44,30 +45,114 @@ static box MirVmS0BlockLocBox {
     return "" + lb + "," + rb
   }
 
-  // ==================== Block Object Locator ====================
-
-  _find_block_obj_bounds_rec(json, blocks_rb, pos, block_id) {
-    if pos >= blocks_rb { return "" }
-    local obj_start = MirVmS0JsonScanBox._index_of_from(json, "{", pos)
-    if obj_start < 0 || obj_start >= blocks_rb { return "" }
-    local obj_end = MirVmS0JsonScanBox._scan_obj_end(json, obj_start)
-    if obj_end == -2 { return "SCAN_DEPTH" }
-    if obj_end < obj_start || obj_end > blocks_rb { return "" }
-    local seg = json.substring(obj_start, obj_end + 1)
-    local bid = MirVmS0JsonScanBox._find_int(seg, "id")
-    if bid != null && bid == block_id { return "" + obj_start + "," + obj_end }
-    return me._find_block_obj_bounds_rec(json, blocks_rb, obj_end + 1, block_id)
+  _find_functions_bounds(json) {
+    // Search after the root blocks array so nested JSON string literals inside helper
+    // bodies do not hijack the top-level "functions" lookup.
+    local search_pos = 0
+    local blocks_pair = me._find_blocks_bounds(json)
+    if blocks_pair != "" && blocks_pair != "SCAN_DEPTH" {
+      local blocks_rb = MirVmS0JsonScanBox._pair_second(blocks_pair)
+      if blocks_rb > 0 { search_pos = blocks_rb + 1 }
+    }
+    local p_key = MirVmS0JsonScanBox._index_of_from(json, "\"functions\"", search_pos)
+    if p_key < 0 { return "" }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(json, ":", p_key + 11)
+    if p_colon < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(json, "[", p_colon + 1)
+    if lb < 0 { return "" }
+    // Reduced payload writer keeps "functions" as the last root field when present.
+    // Use the trailing "]}" marker first so the driver does not spend a full JSON-state scan
+    // across every helper function body before named-call execution even begins.
+    local fast = StringHelpers.last_index_of(json, "]}")
+    if fast > lb { return "" + lb + "," + fast }
+    local rb = MirVmS0JsonScanBox._scan_array_end(json, lb)
+    if rb == -2 { return "SCAN_DEPTH" }
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
   }
+
+  // ==================== Block Object Locator ====================
 
   _find_block_obj_bounds(json, blocks_lb, blocks_rb, block_id) {
     local seg = json.substring(blocks_lb, blocks_rb + 1)
-    local rel_pair = me._find_block_obj_bounds_rec(seg, seg.length() - 1, 1, block_id)
-    if rel_pair == "SCAN_DEPTH" { return "SCAN_DEPTH" }
-    if rel_pair == "" { return "" }
-    local rel_lb = MirVmS0JsonScanBox._pair_first(rel_pair)
-    local rel_rb = MirVmS0JsonScanBox._pair_second(rel_pair)
-    if rel_lb < 0 || rel_rb <= rel_lb { return "" }
-    return "" + (blocks_lb + rel_lb) + "," + (blocks_lb + rel_rb)
+    local seg_rb = seg.length() - 1
+    local pos = 1
+    loop (pos < seg_rb) {
+      local obj_start = MirVmS0JsonScanBox._index_of_from(seg, "{", pos)
+      if obj_start < 0 || obj_start >= seg_rb { return "" }
+      local obj_end = MirVmS0JsonScanBox._scan_obj_end(seg, obj_start)
+      if obj_end == -2 { return "SCAN_DEPTH" }
+      if obj_end < obj_start || obj_end > seg_rb { return "" }
+      local obj_seg = seg.substring(obj_start, obj_end + 1)
+      local bid = MirVmS0JsonScanBox._find_int(obj_seg, "id")
+      if bid != null && bid == block_id {
+        return "" + (blocks_lb + obj_start) + "," + (blocks_lb + obj_end)
+      }
+      pos = obj_end + 1
+    }
+    return ""
+  }
+
+  _find_function_obj_bounds(json, funcs_lb, funcs_rb, func_name) {
+    // Reduced helper payload keeps a compact helper header:
+    // {"blocks":...,"entry_block"?:...,"name":"...","params":[...]}
+    // Use that narrow header contract instead of scanning full helper bodies with _scan_obj_end().
+    local key_compact = "\"name\":\"" + func_name + "\",\"params\":"
+    local key_spaced = "\"name\": \"" + func_name + "\", \"params\":"
+    local p_name = MirVmS0JsonScanBox._index_of_from(json, key_compact, funcs_lb)
+    if p_name < 0 || p_name > funcs_rb {
+      p_name = MirVmS0JsonScanBox._index_of_from(json, key_spaced, funcs_lb)
+    }
+    if p_name < 0 || p_name > funcs_rb { return "" }
+
+    local obj_lb = MirVmS0JsonScanBox._last_index_of_from(json, ",{\"blocks\":", p_name)
+    if obj_lb >= funcs_lb {
+      obj_lb = obj_lb + 1
+    } else {
+      obj_lb = MirVmS0JsonScanBox._last_index_of_from(json, "[{\"blocks\":", p_name)
+      if obj_lb >= funcs_lb { obj_lb = obj_lb + 1 }
+    }
+    if obj_lb < funcs_lb { return "" }
+
+    local p_params = MirVmS0JsonScanBox._index_of_from(json, "\"params\"", p_name)
+    if p_params < p_name || p_params > funcs_rb { return "" }
+    local params_lb = MirVmS0JsonScanBox._index_of_from(json, "[", p_params)
+    if params_lb < 0 || params_lb > funcs_rb { return "" }
+    local params_rb = MirVmS0JsonScanBox._scan_array_end(json, params_lb)
+    if params_rb == -2 { return "SCAN_DEPTH" }
+    if params_rb <= params_lb || params_rb > funcs_rb { return "" }
+
+    local obj_rb = MirVmS0JsonScanBox._index_of_from(json, "}", params_rb + 1)
+    if obj_rb < params_rb || obj_rb > funcs_rb { return "" }
+    return "" + obj_lb + "," + obj_rb
+  }
+
+  _find_function_blocks_bounds(func_seg, func_name) {
+    local p_key = MirVmS0JsonScanBox._index_of_from(func_seg, "\"blocks\"", 0)
+    if p_key < 0 { return "" }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(func_seg, ":", p_key + 8)
+    if p_colon < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(func_seg, "[", p_colon + 1)
+    if lb < 0 { return "" }
+
+    local key_compact = "\"name\":\"" + func_name + "\",\"params\":"
+    local key_spaced = "\"name\": \"" + func_name + "\", \"params\":"
+    local p_name = MirVmS0JsonScanBox._index_of_from(func_seg, key_compact, lb)
+    if p_name < lb {
+      p_name = MirVmS0JsonScanBox._index_of_from(func_seg, key_spaced, lb)
+    }
+    if p_name >= lb {
+      local fast_entry = MirVmS0JsonScanBox._last_index_of_from(func_seg, "],\"entry_block\":", p_name)
+      local fast_name = MirVmS0JsonScanBox._last_index_of_from(func_seg, "],\"name\":", p_name)
+      local fast = fast_entry
+      if fast_name > fast { fast = fast_name }
+      if fast > lb { return "" + lb + "," + fast }
+    }
+
+    local rb = MirVmS0JsonScanBox._scan_array_end(func_seg, lb)
+    if rb == -2 { return "SCAN_DEPTH" }
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
   }
 
   // ==================== Block Instructions Locator ====================
@@ -83,5 +168,71 @@ static box MirVmS0BlockLocBox {
     if rb == -2 { return "SCAN_DEPTH" }
     if rb <= lb { return "" }
     return "" + lb + "," + rb
+  }
+
+  _find_function_params_bounds(func_seg) {
+    local p_key = MirVmS0JsonScanBox._index_of_from(func_seg, "\"params\"", 0)
+    if p_key < 0 { return "" }
+    local p_colon = MirVmS0JsonScanBox._index_of_from(func_seg, ":", p_key + 8)
+    if p_colon < 0 { return "" }
+    local lb = MirVmS0JsonScanBox._index_of_from(func_seg, "[", p_colon + 1)
+    if lb < 0 { return "" }
+    local rb = MirVmS0JsonScanBox._scan_array_end(func_seg, lb)
+    if rb == -2 { return "SCAN_DEPTH" }
+    if rb <= lb { return "" }
+    return "" + lb + "," + rb
+  }
+
+  _find_first_block_id(blocks_seg) {
+    local obj_start = MirVmS0JsonScanBox._index_of_from(blocks_seg, "{", 1)
+    if obj_start < 0 { return null }
+    local obj_end = MirVmS0JsonScanBox._scan_obj_end(blocks_seg, obj_start)
+    if obj_end == -2 { return "SCAN_DEPTH" }
+    if obj_end < obj_start { return null }
+    return MirVmS0JsonScanBox._find_int(blocks_seg.substring(obj_start, obj_end + 1), "id")
+  }
+
+  _function_param_count_rec(body, pos, rb, count) {
+    local i = MirVmS0JsonScanBox._skip_ws_rec(body, pos, rb)
+    if i >= rb { return count }
+    local ds = MirVmS0JsonScanBox._read_digits(body, i)
+    if ds == "" || ds == "-" { return count }
+    local j = i + ds.length()
+    local next = MirVmS0JsonScanBox._index_of_from(body, ",", j)
+    if next < 0 || next >= rb { return count + 1 }
+    return me._function_param_count_rec(body, next + 1, rb, count + 1)
+  }
+
+  _function_param_count(func_seg) {
+    local pair = me._find_function_params_bounds(func_seg)
+    if pair == "" || pair == "SCAN_DEPTH" { return 0 }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return 0 }
+    local body = func_seg.substring(lb + 1, rb)
+    return me._function_param_count_rec(body, 0, body.length(), 0)
+  }
+
+  _function_param_at_rec(body, pos, rb, target, index) {
+    local i = MirVmS0JsonScanBox._skip_ws_rec(body, pos, rb)
+    if i >= rb { return null }
+    local ds = MirVmS0JsonScanBox._read_digits(body, i)
+    if ds == "" || ds == "-" { return null }
+    if index == target { return MirVmS0JsonScanBox._to_i64(ds) }
+    local j = i + ds.length()
+    local next = MirVmS0JsonScanBox._index_of_from(body, ",", j)
+    if next < 0 || next >= rb { return null }
+    return me._function_param_at_rec(body, next + 1, rb, target, index + 1)
+  }
+
+  _function_param_at(func_seg, index) {
+    if index < 0 { return null }
+    local pair = me._find_function_params_bounds(func_seg)
+    if pair == "" || pair == "SCAN_DEPTH" { return null }
+    local lb = MirVmS0JsonScanBox._pair_first(pair)
+    local rb = MirVmS0JsonScanBox._pair_second(pair)
+    if lb < 0 || rb <= lb { return null }
+    local body = func_seg.substring(lb + 1, rb)
+    return me._function_param_at_rec(body, 0, body.length(), index, 0)
   }
 }

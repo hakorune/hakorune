@@ -99,16 +99,29 @@ impl NyashRunner {
             }
         };
 
+        let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+            self,
+            filename,
+            &code,
+        ) {
+            Ok(prepared) => prepared,
+            Err(e) => {
+                eprintln!("❌ {}", e);
+                process::exit(1);
+            }
+        };
+
         // Parse to AST
-        let ast = self.parse_ast_for_wasm_emit(filename, &code);
+        let ast = self.parse_ast_for_wasm_emit(filename, &prepared.code);
 
         // Compile to MIR
         let mut mir_compiler = MirCompiler::new();
         let compile_result =
-            match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
+            match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
                 &mut mir_compiler,
                 ast,
                 Some(filename),
+                prepared.imports,
             ) {
                 Ok(result) => result,
                 Err(e) => {
