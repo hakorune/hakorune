@@ -5,6 +5,7 @@
 // - Keep mode dispatch and emit paths compact/stable for selfhost identity checks.
 
 using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
+using lang.compiler.build.build_box as BuildBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
 static box Main {
   main() {
@@ -56,7 +57,16 @@ static box Main {
   }
 
   method _run_emit_program_mode() {
-    return 97
+    local tag = "[freeze:contract][stage1-cli/emit-program]"
+    local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
+    if source_text == null {
+      return 96
+    }
+    local program_json = Stage1SourceProgramAuthorityBox.emit_program_from_source(tag, source_text)
+    if program_json == null {
+      return 96
+    }
+    return Stage1ProgramResultValidationBox.finalize_emit_result(program_json)
   }
 
   method _run_emit_mir_mode(tag) {
@@ -156,6 +166,44 @@ static box Stage1InputContractBox {
     local flag = env.get(name)
     if flag != null && me._coerce_text_compat(flag) == "1" { return 1 }
     return 0
+  }
+}
+
+// Source-only Program(JSON) authority stays same-file so Main can keep the
+// exact emit-program contract thin without widening the current artifact
+// boundary.
+static box Stage1SourceProgramAuthorityBox {
+  method emit_program_from_source(tag, source_text) {
+    if source_text == null || source_text == "" {
+      print(tag + " input missing source/program-json contract")
+      return null
+    }
+    local source = me._coerce_text_compat(source_text)
+    local merged = me._merge_using_prefix(source)
+    return me._emit_program_json_from_source_checked(tag, merged)
+  }
+
+  method _merge_using_prefix(source_text) {
+    local prefix = Stage1UsingResolverBox.resolve_for_source(source_text)
+    if prefix == null { prefix = "" }
+    return prefix + source_text
+  }
+
+  method _emit_program_json_from_source_checked(tag, merged_source_text) {
+    local program_json = me._emit_program_json_from_source_raw(merged_source_text)
+    if program_json == null {
+      print(tag + " BuildBox.emit_program_json_v0 returned null")
+      return null
+    }
+    return program_json
+  }
+
+  method _emit_program_json_from_source_raw(source_text) {
+    return BuildBox.emit_program_json_v0(source_text, null)
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
   }
 }
 

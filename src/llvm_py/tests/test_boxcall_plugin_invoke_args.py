@@ -237,6 +237,36 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         self.assertIn('call i64 @"nyash.array.set_hih"', ir_text)
         self.assertNotIn('call i64 @"nyash.map.set_hh"', ir_text)
 
+    def test_filebox_boxcall_open_falls_back_to_plugin_invoke(self):
+        module = ir.Module(name="test_boxcall_filebox_open_plugin")
+        i64 = ir.IntType(64)
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        vmap = {
+            1: ir.Constant(i64, 11),
+            2: ir.Constant(i64, 22),
+            3: ir.Constant(i64, 33),
+        }
+        resolver = _ResolverStub()
+        resolver.value_types[1] = {"kind": "handle", "box_type": "FileBox"}
+
+        lower_boxcall(
+            builder=builder,
+            module=module,
+            box_vid=1,
+            method_name="open",
+            args=[2, 3],
+            dst_vid=4,
+            vmap=vmap,
+            resolver=resolver,
+        )
+        builder.ret(vmap[4])
+
+        ir_text = str(module)
+        self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

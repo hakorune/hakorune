@@ -73,6 +73,8 @@ Bootstrap closure note (2026-03-17):
 - success on that lane is defined by emitted payload/file materialization on the bootstrap route
   - the reduced `stage1-cli` artifact is treated as runnable bootstrap output
   - accepted proof is `HAKORUNE_BOOTSTRAP_OUT=<tmp>` (or build output path) becoming non-empty with the expected payload shape on the stage0/bootstrap route
+- current compile-safe `launcher-exe` keep routes MIR(JSON)->object/exe through the module-string backend surrogate `"selfhost.shared.backend.llvm_backend".{compile_obj,link_exe}`; it does not rely on direct `HostFacadeBox.call(...)` / `env.codegen.*` inside compiled launcher helper defs
+- compiled launcher helper defs still contain file-I/O helpers, so the native lowering keep remains a narrow llvm-py by-name fallback for `FileBox.{open,read,readBytes,write,writeBytes,close}` only
 - the current proven alternating closure is:
   - `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 
@@ -107,6 +109,7 @@ SSOT:
 - exact probe では `target/selfhost/hakorune.stage1_cli` の raw direct contract (`emit ...` / `--emit-mir-json`) は `97` を返すが、`NYASH_USE_STAGE1_CLI=1` の env contract は current reduced artifact でまだ payload を出し切れていない。`tools/selfhost/run_stage1_cli.sh` は raw `emit program-json` / `emit mir-json` surface をこの env contract に変換する compatibility wrapper であり、新しい authority route ではない
 - `build_stage1.sh` の `stage1-cli bridge-first` bootstrap path は current reduced source (`lang/src/runner/stage1_cli_env.hako`) を single-step source→MIR へ通し、`tools/ny_mir_builder.sh` には MIR(JSON) だけを渡す。reduced artifact 自体は runnable bootstrap output として扱い、payload proof は stage0 bootstrap route に置く
 - `stage1_cli_env.hako::Stage1InputContractBox` isolates the shared env/source resolution contract so authority/compat boxes do not need to duplicate input shaping
+- `stage1_cli_env.hako::Stage1SourceProgramAuthorityBox` now owns the exact source-only `emit-program` authority handoff: source text coercion, same-file using-prefix merge, and the checked `BuildBox.emit_program_json_v0(...)` call stay there, while output validation stays in `Stage1ProgramResultValidationBox`
 - `stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` isolates the checked `MirBuilderBox.emit_from_program_json_v0(...)` handoff shared by source authority and explicit Program(JSON) compat keep; `Stage1ProgramAuthorityBox` is historical and no longer part of the current contract
 - materialized Program(JSON) validation is isolated in `stage1_cli_env.hako::Stage1ProgramResultValidationBox`, keeping emit-program on the same thin-dispatch pattern
 - source-only authority case では `stage1_cli_env.hako::Stage1SourceMirAuthorityBox` が `MirBuilderBox.emit_from_source_v0(...)` を担当し、explicit supplied Program(JSON) text-only input がある時だけ `Stage1ProgramJsonCompatBox` が `Stage1ProgramJsonMirCallerBox` を再利用する
@@ -127,6 +130,8 @@ SSOT:
 - `STAGE1_PROGRAM_JSON_TEXT` is outside the live shell contract and exists only for fail-fast / diagnostics probes
 - retired path transport is not part of the live shell contract anymore; live shell compat is exact-helper only
 - `tools/selfhost/build_stage1.sh --artifact-kind stage1-cli` の post-build capability probe は stage0 bootstrap route の payload proof と reduced artifact の runnable liveness を分けて読む
+- post-build capability probe は `stage0 bootstrap proof + reduced artifact runnable liveness` のみを保証し、reduced artifact 自身の exact `stage1-env-program` / `stage1-env-mir-source` shell contract green までは保証しない
+- reduced artifact 自身の exact emit contract は `tools/selfhost/run_stage1_cli.sh --bin <stage1-cli> emit {program-json|mir-json} <entry>` と `tools/smokes/v2/profiles/integration/selfhost/phase29ci_stage1_cli_exact_emit_contract_vm.sh` で別に監視する
 - `tools/selfhost/build_stage1.sh` の stage1-cli bridge-first bootstrap 本体は direct helper route で MIR(JSON) を materialize するが、出力 artifact 自体は runnable bootstrap output として扱う
 
 ## Non-goals

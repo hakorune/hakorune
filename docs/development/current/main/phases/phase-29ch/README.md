@@ -86,12 +86,13 @@ Known non-authority routes:
   - `stage1-env-program`
   - `stage1-env-mir-source`
 - source-only authority input is accepted evidence:
+  - `lang/src/runner/stage1_cli_env.hako::Stage1SourceProgramAuthorityBox` -> exact `stage1-env-program`
   - `lang/src/runner/stage1_cli_env.hako::Stage1SourceMirAuthorityBox` -> `MirBuilderBox.emit_from_source_v0(...)`
   - shared checked Program(JSON)->MIR handoff lives in `Stage1ProgramJsonMirCallerBox`
 - explicit supplied `Program(JSON)` input remains compatibility-only:
   - monitor-only explicit compat keep: `stage1-env-mir-program`
     - minimal selfhost helper calling `MirBuilderBox.emit_from_program_json_v0(...)` is green
-    - `stage1_cli_env.hako` now keeps shared input/env contract, checked Program(JSON)->MIR caller, text guard, source-mainline, Program(JSON) validation, MIR result validation, and explicit-compat in separate same-file boxes (`Stage1InputContractBox` / `Stage1ProgramJsonMirCallerBox` / `Stage1ProgramJsonTextGuardBox` / `Stage1SourceMirAuthorityBox` / `Stage1ProgramResultValidationBox` / `Stage1MirResultValidationBox` / `Stage1ProgramJsonCompatBox`)
+    - `stage1_cli_env.hako` now keeps shared input/env contract, exact source-only emit-program authority, checked Program(JSON)->MIR caller, text guard, source-mainline emit-mir authority, Program(JSON) validation, MIR result validation, and explicit-compat in separate same-file boxes (`Stage1InputContractBox` / `Stage1SourceProgramAuthorityBox` / `Stage1ProgramJsonMirCallerBox` / `Stage1ProgramJsonTextGuardBox` / `Stage1SourceMirAuthorityBox` / `Stage1ProgramResultValidationBox` / `Stage1MirResultValidationBox` / `Stage1ProgramJsonCompatBox`)
     - explicit compat MIR call and mixed-input fail-fast gate are quarantined in `Stage1ProgramJsonCompatBox` inside `lang/src/runner/stage1_cli_env.hako`
     - live text transport reuses the existing `STAGE1_SOURCE_TEXT` contract
     - exact-only compat helper / mode / sentinel entry (`stage1_contract_exec_program_json_compat()` / `emit-mir-program` / `__stage1_program_json__`) are centralized in `tools/selfhost/lib/stage1_contract.sh`
@@ -111,6 +112,7 @@ Known non-authority routes:
   - `G1 full` PASS
   - raw-exact `Program JSON v0` and `MIR JSON v0` match on the current reduced authority route
 - `run_stage1_cli.sh` remains a compatibility wrapper, not authority evidence
+- exact reduced-artifact emit contract is a separate proof from `build_stage1.sh --artifact-kind stage1-cli`; monitor it through `run_stage1_cli.sh emit {program-json|mir-json}` and `tools/smokes/v2/profiles/integration/selfhost/phase29ci_stage1_cli_exact_emit_contract_vm.sh`
 - delegate remains explicit compat-only / future retire target
 
 Detailed evidence / solved slice log / diagnostics probes:

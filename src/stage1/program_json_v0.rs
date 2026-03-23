@@ -218,6 +218,10 @@ static box Main {
             "lang.compiler.entry.using_resolver_box"
         );
         assert_eq!(
+            value["imports"]["BuildBox"],
+            "lang.compiler.build.build_box"
+        );
+        assert_eq!(
             value["imports"]["MirBuilderBox"],
             "lang.mir.builder.MirBuilderBox"
         );
@@ -264,6 +268,10 @@ static box Main {
             "stage1_cli_env should carry source-authority helper defs"
         );
         assert!(
+            boxes.contains("Stage1SourceProgramAuthorityBox"),
+            "stage1_cli_env should carry source-program authority helper defs"
+        );
+        assert!(
             boxes.contains("Stage1ProgramResultValidationBox"),
             "stage1_cli_env should carry program validation helper defs"
         );
@@ -291,6 +299,13 @@ static box Main {
                 def["box"] == "Stage1SourceMirAuthorityBox" && def["name"] == "emit_mir_from_source"
             }),
             "stage1 source-route authority entry must be materialized"
+        );
+        assert!(
+            defs.iter().any(|def| {
+                def["box"] == "Stage1SourceProgramAuthorityBox"
+                    && def["name"] == "emit_program_from_source"
+            }),
+            "stage1 source-program authority entry must be materialized"
         );
     }
 
@@ -657,6 +672,10 @@ return 0
             "lang.compiler.entry.using_resolver_box"
         );
         assert_eq!(
+            value["imports"]["BuildBox"],
+            "lang.compiler.build.build_box"
+        );
+        assert_eq!(
             value["imports"]["MirBuilderBox"],
             "lang.mir.builder.MirBuilderBox"
         );
@@ -674,6 +693,11 @@ return 0
             defs.iter()
                 .any(|def| def["box"] == "Stage1SourceMirAuthorityBox"),
             "build-box mode should keep source-authority helpers"
+        );
+        assert!(
+            defs.iter()
+                .any(|def| def["box"] == "Stage1SourceProgramAuthorityBox"),
+            "build-box mode should keep source-program authority helpers"
         );
     }
 

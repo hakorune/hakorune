@@ -31,6 +31,11 @@ _MODULE_RECEIVER_BOX_ALIASES = {
     "selfhost.shared.common.string_helpers": "StringHelpers",
 }
 _DIRECT_BOX_NAMES = frozenset(_MODULE_RECEIVER_BOX_ALIASES.values())
+_PLUGIN_FALLBACK_METHODS = {
+    "FileBox": frozenset(
+        ("open", "read", "readBytes", "write", "writeBytes", "close")
+    ),
+}
 
 
 def _declare(module: ir.Module, name: str, ret, args):
@@ -174,7 +179,13 @@ def try_lower_known_box_method_call(
         receiver_literal,
     )
     if callee is None:
-        if resolved_box_name not in _DIRECT_BOX_NAMES:
+        allow_plugin_fallback = resolved_box_name in _DIRECT_BOX_NAMES
+        if not allow_plugin_fallback:
+            allowed_methods = _PLUGIN_FALLBACK_METHODS.get(resolved_box_name)
+            allow_plugin_fallback = (
+                allowed_methods is not None and method_name in allowed_methods
+            )
+        if not allow_plugin_fallback:
             return None
         return _lower_plugin_invoke_by_name(
             builder=builder,

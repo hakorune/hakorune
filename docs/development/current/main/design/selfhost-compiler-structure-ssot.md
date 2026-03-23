@@ -117,6 +117,7 @@ Current note:
 Primary owner:
 - `lang/src/runner/stage1_cli_env.hako`
 - `lang/src/runner/stage1_cli_env.hako::Stage1InputContractBox` (`shared input/env contract`, same-file)
+- `lang/src/runner/stage1_cli_env.hako::Stage1SourceProgramAuthorityBox` (`exact source-only emit-program authority`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` (`checked Program(JSON)->MIR handoff`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramJsonTextGuardBox` (`Program(JSON) text guard`, same-file)
 - `lang/src/runner/stage1_cli_env.hako::Stage1ProgramResultValidationBox` (`Program JSON validation`, same-file)
@@ -127,6 +128,7 @@ Primary owner:
 Responsibility:
 - reduced bootstrap の current authority entry
 - shared env/source resolution contract を `Stage1InputContractBox` に閉じて authority/compat box から切り離す
+- exact source-only `emit-program` authority input を `Stage1SourceProgramAuthorityBox` に閉じて `Main` から切り離す
 - checked Program(JSON)->MIR handoff を `Stage1ProgramJsonMirCallerBox` に閉じて `Main` から切り離す
 - non-empty Program(JSON) text guard を `Stage1ProgramJsonTextGuardBox` に閉じて、source/compat の両方から共有する
 - materialized Program(JSON) validation を `Stage1ProgramResultValidationBox` に閉じる

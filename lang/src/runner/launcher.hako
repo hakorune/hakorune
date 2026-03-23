@@ -13,7 +13,6 @@
 
 using lang.mir.builder.MirBuilderBox
 using lang.compiler.build.build_box as BuildBox
-using lang.runtime.host.host_facade_box as HostFacadeBox
 
 static box LauncherProgramJsonBuildBox {
   method emit_program_json_v0(tag, source_text) {
@@ -98,7 +97,7 @@ static box HakoCli {
   }
 
   // hakorune build exe [-o <out>] [--quiet] <source.hako>
-  // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) -> env.codegen.compile_json_path/link_object -> EXE
+  // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) -> llvm_backend surrogate -> EXE
   // - Requires backend-zero C-API route to be有効化されていること（NYASH_LLVM_USE_CAPI=1, HAKO_V1_EXTERN_PROVIDER_C_ABI=1 等）。
   method cmd_build_exe(args){
     local argc = 0
@@ -509,18 +508,22 @@ static box HakoCli {
   }
 
   method _call_codegen_compile_json_path(mir_path){
-    local args = new ArrayBox()
-    if mir_path != null { args.push(me._coerce_text_compat(mir_path)) }
-    return HostFacadeBox.call("loader", "codegen.compile_json_path", args)
+    if mir_path == null { return null }
+    return "selfhost.shared.backend.llvm_backend".compile_obj(
+      me._coerce_text_compat(mir_path)
+    )
   }
 
   method _call_codegen_link_object(obj_path, exe_path){
-    local args = new ArrayBox()
-    if obj_path != null { args.push(me._coerce_text_compat(obj_path)) }
+    if obj_path == null { return null }
+    local obj_text = me._coerce_text_compat(obj_path)
     if me._non_empty_text(exe_path) == 1 {
-      args.push(me._coerce_text_compat(exe_path))
+      return "selfhost.shared.backend.llvm_backend".link_exe(
+        obj_text,
+        me._coerce_text_compat(exe_path)
+      )
     }
-    return HostFacadeBox.call("loader", "codegen.link_object", args)
+    return null
   }
 
   // Helpers for file I/O (Phase 25.1a: consolidate Stage‑B friendly patterns)
