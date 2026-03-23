@@ -43,7 +43,8 @@ pub(in crate::mir::builder) fn try_extract_loop_true_break_continue_facts(
     //
     // This is critical for Stage-B parser loops such as `parse_block` where the body may contain
     // nested loops (e.g. whitespace skipping) and join-bearing `if` statements.
-    let allow_extended = crate::config::env::joinir_dev::planner_required_enabled();
+    let allow_extended = crate::config::env::joinir_dev::strict_enabled()
+        || crate::config::env::joinir_dev_enabled();
     let body_exit_allowed = if allow_extended {
         try_build_exit_allowed_block_recipe(body, allow_extended)
     } else {
