@@ -26,6 +26,21 @@
 #include <dlfcn.h>
 #endif
 
+typedef struct hako_llvmc_entry_rune_selection {
+  const char* symbol;
+  const char* callconv;
+} hako_llvmc_entry_rune_selection;
+
+static void hako_llvmc_select_entry_runes(
+    yyjson_val* fn0,
+    hako_llvmc_entry_rune_selection* out);
+static void hako_llvmc_emit_entry_header(
+    FILE* f,
+    const hako_llvmc_entry_rune_selection* selection);
+static void hako_llvmc_emit_entry_alias_if_needed(
+    FILE* f,
+    const hako_llvmc_entry_rune_selection* selection);
+
 static const char* hako_llvmc_backend_compile_recipe(void) {
   return getenv("HAKO_BACKEND_COMPILE_RECIPE");
 }
@@ -170,6 +185,7 @@ static void hako_llvmc_emit_llvm_byte_string(FILE* f, const char* s, long long l
 
 static int hako_llvmc_emit_substring_concat_loop_ir(
     const char* obj_out,
+    const hako_llvmc_entry_rune_selection* selection,
     const char* seed,
     long long seed_len,
     long long loop_bound,
@@ -219,7 +235,7 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
   hako_llvmc_emit_llvm_byte_string(f, middle, middle_len);
   fprintf(f, "\", align 1\n\n");
 
-  fprintf(f, "define i64 @ny_main() {\n");
+  hako_llvmc_emit_entry_header(f, selection);
   fprintf(f, "entry:\n");
   fprintf(f, "  %%text = alloca [%lld x i8], align 1\n", seed_len);
   fprintf(f, "  %%i = alloca i64, align 8\n");
@@ -273,6 +289,7 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
   fprintf(f, "  %%ret = add i64 %%acc.fin, %lld\n", seed_len);
   fprintf(f, "  ret i64 %%ret\n");
   fprintf(f, "}\n");
+  hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
   {
@@ -295,6 +312,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   yyjson_val* blocks;
   yyjson_val* interesting[40];
   int n;
+  hako_llvmc_entry_rune_selection selection;
   long long seed_len = 0;
   long long loop_bound = 0;
   long long divisor = 0;
@@ -324,6 +342,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
     yyjson_doc_free(doc);
     return -1;
   }
+  hako_llvmc_select_entry_runes(fn, &selection);
 
   blocks = yyjson_obj_get(fn, "blocks");
   if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) == 5)) {
@@ -553,10 +572,11 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
 
   {
     int rc = hako_llvmc_emit_substring_concat_loop_ir(
-      obj_out,
-      seed,
-      seed_len,
-      loop_bound,
+        obj_out,
+        &selection,
+        seed,
+        seed_len,
+        loop_bound,
       middle,
       middle_len,
       split);
@@ -573,6 +593,7 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
 
 static int hako_llvmc_emit_indexof_line_ir(
     const char* obj_out,
+    const hako_llvmc_entry_rune_selection* selection,
     long long rows,
     long long ops,
     long long flip_period,
@@ -624,7 +645,7 @@ static int hako_llvmc_emit_indexof_line_ir(
   hako_llvmc_emit_llvm_byte_string(f, needle, needle_len);
   fprintf(f, "\", align 1\n\n");
 
-  fprintf(f, "define i64 @ny_main() {\n");
+  hako_llvmc_emit_entry_header(f, selection);
   fprintf(f, "entry:\n");
   fprintf(f, "  %%lines = alloca [%lld x ptr], align 8\n", rows);
   fprintf(f, "  %%i = alloca i64, align 8\n");
@@ -687,6 +708,7 @@ static int hako_llvmc_emit_indexof_line_ir(
   fprintf(f, "  %%ret = add i64 %%hits.fin, %lld\n", rows);
   fprintf(f, "  ret i64 %%ret\n");
   fprintf(f, "}\n");
+  hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
   {
@@ -708,6 +730,7 @@ static int hako_llvmc_match_indexof_line_ascii_seed(
   yyjson_val* fn = NULL;
   yyjson_val* blocks;
   size_t bi;
+  hako_llvmc_entry_rune_selection selection;
   int saw_newbox_array = 0;
   int saw_rows_64 = 0;
   int saw_ops_400k = 0;
@@ -751,6 +774,7 @@ static int hako_llvmc_match_indexof_line_ascii_seed(
     yyjson_doc_free(doc);
     return -1;
   }
+  hako_llvmc_select_entry_runes(fn, &selection);
 
   blocks = yyjson_obj_get(fn, "blocks");
   if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) == 18)) {
@@ -849,6 +873,7 @@ static int hako_llvmc_match_indexof_line_ascii_seed(
   {
     int rc = hako_llvmc_emit_indexof_line_ir(
         obj_out,
+        &selection,
         rows,
         ops,
         flip_period,
@@ -915,6 +940,192 @@ static int compile_json_compat_harness_keep(const char* json_in, const char* obj
   return set_err_owned(err_out, "ny-llvmc harness compile failed");
 }
 
+static yyjson_val* hako_llvmc_find_entry_function(yyjson_val* fns) {
+  size_t i;
+  yyjson_val* fallback = NULL;
+  if (!(fns && yyjson_is_arr(fns))) {
+    return NULL;
+  }
+  for (i = 0; i < yyjson_arr_size(fns); i++) {
+    yyjson_val* candidate = yyjson_arr_get(fns, i);
+    const char* name = candidate ? yyjson_get_str(yyjson_obj_get(candidate, "name")) : NULL;
+    if (!name) {
+      continue;
+    }
+    if (strcmp(name, "main") == 0) {
+      return candidate;
+    }
+    if (!fallback && strcmp(name, "ny_main") == 0) {
+      fallback = candidate;
+    }
+  }
+  return fallback ? fallback : yyjson_arr_get_first(fns);
+}
+
+static int hako_llvmc_rune_trace_enabled(void) {
+  const char* v = getenv("NYASH_RUNE_TRACE");
+  return (v && v[0] == '1');
+}
+
+static const char* hako_llvmc_selected_rune_name(yyjson_val* rune) {
+  yyjson_val* name = rune ? yyjson_obj_get(rune, "name") : NULL;
+  return (name && yyjson_is_str(name)) ? yyjson_get_str(name) : NULL;
+}
+
+static const char* hako_llvmc_selected_rune_arg0(yyjson_val* rune) {
+  yyjson_val* args = rune ? yyjson_obj_get(rune, "args") : NULL;
+  if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) > 0)) {
+    return NULL;
+  }
+  yyjson_val* arg0 = yyjson_arr_get(args, 0);
+  return (arg0 && yyjson_is_str(arg0)) ? yyjson_get_str(arg0) : NULL;
+}
+
+static void hako_llvmc_select_entry_runes(
+    yyjson_val* fn0,
+    hako_llvmc_entry_rune_selection* out) {
+  yyjson_val* attrs;
+  yyjson_val* runes;
+  size_t i;
+  if (!out) {
+    return;
+  }
+  out->symbol = NULL;
+  out->callconv = NULL;
+  if (!(fn0 && yyjson_is_obj(fn0))) {
+    return;
+  }
+  attrs = yyjson_obj_get(fn0, "attrs");
+  if (!(attrs && yyjson_is_obj(attrs))) {
+    return;
+  }
+  runes = yyjson_obj_get(attrs, "runes");
+  if (!(runes && yyjson_is_arr(runes))) {
+    return;
+  }
+
+  for (i = 0; i < yyjson_arr_size(runes); i++) {
+    yyjson_val* rune = yyjson_arr_get(runes, i);
+    const char* name = hako_llvmc_selected_rune_name(rune);
+    if (!name) {
+      continue;
+    }
+    if (!out->symbol && strcmp(name, "Symbol") == 0) {
+      out->symbol = hako_llvmc_selected_rune_arg0(rune);
+    } else if (!out->callconv && strcmp(name, "CallConv") == 0) {
+      out->callconv = hako_llvmc_selected_rune_arg0(rune);
+    }
+  }
+}
+
+static const char* hako_llvmc_entry_symbol_default(void) {
+  return "ny_main";
+}
+
+static const char* hako_llvmc_effective_entry_symbol(
+    const hako_llvmc_entry_rune_selection* selection) {
+  if (selection && selection->symbol && selection->symbol[0]) {
+    return selection->symbol;
+  }
+  return hako_llvmc_entry_symbol_default();
+}
+
+static const char* hako_llvmc_entry_callconv_prefix(
+    const hako_llvmc_entry_rune_selection* selection) {
+  const char* callconv = selection ? selection->callconv : NULL;
+  if (!callconv || !callconv[0]) {
+    return "";
+  }
+  if (strcmp(callconv, "c") == 0 || strcmp(callconv, "ccc") == 0) {
+    return "";
+  }
+  return "";
+}
+
+static void hako_llvmc_emit_entry_header(
+    FILE* f,
+    const hako_llvmc_entry_rune_selection* selection) {
+  const char* symbol = hako_llvmc_effective_entry_symbol(selection);
+  const char* callconv_prefix = hako_llvmc_entry_callconv_prefix(selection);
+  fprintf(f, "define %si64 @\"%s\"() {\n", callconv_prefix, symbol);
+}
+
+static void hako_llvmc_emit_entry_alias_if_needed(
+    FILE* f,
+    const hako_llvmc_entry_rune_selection* selection) {
+  const char* symbol = hako_llvmc_effective_entry_symbol(selection);
+  if (strcmp(symbol, hako_llvmc_entry_symbol_default()) == 0) {
+    return;
+  }
+  fprintf(f, "\ndefine i64 @ny_main() {\n");
+  fprintf(f, "entry:\n");
+  fprintf(f, "  %%entry_alias = call i64 @\"%s\"()\n", symbol);
+  fprintf(f, "  ret i64 %%entry_alias\n");
+  fprintf(f, "}\n");
+}
+
+static void hako_llvmc_log_selected_entry_runes(yyjson_val* fn0) {
+  hako_llvmc_entry_rune_selection selection;
+  if (!hako_llvmc_rune_trace_enabled()) {
+    return;
+  }
+  hako_llvmc_select_entry_runes(fn0, &selection);
+  if (selection.symbol || selection.callconv) {
+    fprintf(stderr, "[rune/entry] selected attrs");
+    if (selection.symbol) {
+      fprintf(stderr, " Symbol(%s)", selection.symbol);
+    }
+    if (selection.callconv) {
+      fprintf(stderr, " CallConv(%s)", selection.callconv);
+    }
+    fprintf(stderr, "\n");
+  }
+}
+
+static void hako_llvmc_entry_rune_selection_from_json_file(
+    const char* json_in,
+    hako_llvmc_entry_rune_selection* out) {
+  yyjson_read_err rerr;
+  yyjson_doc* d;
+  yyjson_val* root;
+  yyjson_val* fns;
+  yyjson_val* fn0;
+  if (!out) {
+    return;
+  }
+  out->symbol = NULL;
+  out->callconv = NULL;
+  d = yyjson_read_file(json_in, 0, NULL, &rerr);
+  if (!d) {
+    return;
+  }
+  root = yyjson_doc_get_root(d);
+  fns = yyjson_obj_get(root, "functions");
+  fn0 = hako_llvmc_find_entry_function(fns);
+  hako_llvmc_select_entry_runes(fn0, out);
+  yyjson_doc_free(d);
+}
+
+static void hako_llvmc_log_selected_entry_runes_from_json(const char* json_in) {
+  yyjson_read_err rerr;
+  yyjson_doc* d;
+  yyjson_val* root;
+  yyjson_val* fns;
+  yyjson_val* fn0;
+  if (!hako_llvmc_rune_trace_enabled()) {
+    return;
+  }
+  d = yyjson_read_file(json_in, 0, NULL, &rerr);
+  if (!d) {
+    return;
+  }
+  root = yyjson_doc_get_root(d);
+  fns = yyjson_obj_get(root, "functions");
+  fn0 = hako_llvmc_find_entry_function(fns);
+  hako_llvmc_log_selected_entry_runes(fn0);
+  yyjson_doc_free(d);
+}
+
 static int hako_llvmc_forward_compile_to_aot_without_ffi(
     const char* json_in,
     const char* obj_out,
@@ -925,6 +1136,7 @@ static int hako_llvmc_forward_compile_to_aot_without_ffi(
   if (had_prev) {
     snprintf(prev_buf, sizeof(prev_buf), "%s", prev_raw);
   }
+  hako_llvmc_log_selected_entry_runes_from_json(json_in);
   hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", "0");
   int rc = hako_aot_compile_json(json_in, obj_out, err_out);
   hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", had_prev ? prev_buf : NULL);
@@ -991,6 +1203,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     return set_err_owned(err_out, verr ? verr : "invalid v1 json");
   }
 
+  do {
+    yyjson_read_err rerr_t; yyjson_doc* d = yyjson_read_file(json_in, 0, NULL, &rerr_t);
+    if (!d) break;
+    yyjson_val* root = yyjson_doc_get_root(d);
+    yyjson_val* fns = yyjson_obj_get(root, "functions");
+    yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
+    hako_llvmc_log_selected_entry_runes(fn0);
+    yyjson_doc_free(d);
+  } while (0);
+
   if (hako_llvmc_match_substring_concat_loop_ascii_seed(json_in, obj_out) == 0) {
     return 0;
   }
@@ -1005,10 +1227,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (!d) break;
       yyjson_val* root = yyjson_doc_get_root(d);
       yyjson_val* fns = yyjson_obj_get(root, "functions");
-      yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+      yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
+      hako_llvmc_entry_rune_selection selection;
       yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
       if (!(blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 1)) { yyjson_doc_free(d); break; }
-
+      hako_llvmc_select_entry_runes(fn0, &selection);
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
       struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
@@ -1129,7 +1352,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
       fprintf(f, "\n");
       // Unboxer (declare opportunistically; low cost)
-      fprintf(f, "define i64 @ny_main() {\n");
+      hako_llvmc_emit_entry_header(f, &selection);
       // Emit blocks
       #define EMIT(...) do { fprintf(f, __VA_ARGS__); } while(0)
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
@@ -1265,6 +1488,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         }
       }
       fprintf(f, "}\n");
+      hako_llvmc_emit_entry_alias_if_needed(f, &selection);
       fclose(f);
 
       // Optional: try LLVM TargetMachine emit (dlopen C-API) when HAKO_CAPI_TM=1
@@ -1403,11 +1627,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           }
         }
         if (have_ret) {
+          hako_llvmc_entry_rune_selection selection;
           char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_ret_%d.ll", "/tmp", (int)getpid());
           FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(d0); return set_err_owned(err_out, "failed to open .ll"); }
+          hako_llvmc_entry_rune_selection_from_json_file(json_in, &selection);
           fprintf(f, "; nyash minimal pure IR (ret const)\n");
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-          fprintf(f, "define i64 @ny_main() {\n  ret i64 %lld\n}\n", ret_const);
+          hako_llvmc_emit_entry_header(f, &selection);
+          fprintf(f, "  ret i64 %lld\n", ret_const);
+          fprintf(f, "}\n");
+          hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
           int rc = system(cmd); remove(llpath); yyjson_doc_free(d0);
@@ -1427,7 +1656,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     }
     yyjson_val* root = yyjson_doc_get_root(doc);
     yyjson_val* fns = yyjson_obj_get(root, "functions");
-    yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+    yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
     yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
     if (blocks && yyjson_is_arr(blocks) && yyjson_arr_size(blocks) >= 3) {
       // Expect block0: const a, const b, compare Lt, branch then=t else=e
@@ -1491,6 +1720,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               yyjson_val* t0 = it ? yyjson_arr_get(it, 0) : NULL;
               yyjson_val* e0 = ie ? yyjson_arr_get(ie, 0) : NULL;
               if (t0 && e0) {
+                hako_llvmc_entry_rune_selection selection;
                 yyjson_val* tv = yyjson_obj_get(yyjson_obj_get(t0, "value"), "value");
                 yyjson_val* ev = yyjson_obj_get(yyjson_obj_get(e0, "value"), "value");
                 long long then_const = tv ? (long long)yyjson_get_sint(tv) : 0;
@@ -1498,15 +1728,17 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_%d.ll", "/tmp", (int)getpid());
                 FILE* f = fopen(llpath, "wb");
                 if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+                hako_llvmc_select_entry_runes(fn0, &selection);
                 fprintf(f, "; nyash minimal pure IR\n");
                 fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-                fprintf(f, "define i64 @ny_main() {\n");
+                hako_llvmc_emit_entry_header(f, &selection);
                 fprintf(f, "bb0:\n");
                 fprintf(f, "  %%cmp = icmp %s i64 %lld, %lld\n", pred, c0, c1);
                 fprintf(f, "  br i1 %%cmp, label %%bb_then, label %%bb_else\n\n");
                 fprintf(f, "bb_then:\n  br label %%bb_merge\n\n");
                 fprintf(f, "bb_else:\n  br label %%bb_merge\n\n");
                 fprintf(f, "bb_merge:\n  %%r = phi i64 [ %lld, %%bb_then ], [ %lld, %%bb_else ]\n  ret i64 %%r\n}\n", then_const, else_const);
+                hako_llvmc_emit_entry_alias_if_needed(f, &selection);
                 fclose(f);
                 char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
                 int rc = system(cmd);
@@ -1532,7 +1764,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (doc) {
         yyjson_val* root = yyjson_doc_get_root(doc);
         yyjson_val* fns = yyjson_obj_get(root, "functions");
-        yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+        yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
         yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
         yyjson_val* b0 = blocks && yyjson_is_arr(blocks) ? yyjson_arr_get_first(blocks) : NULL;
         yyjson_val* insts = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
@@ -1575,18 +1807,21 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           }
         }
         if (have) {
+          hako_llvmc_entry_rune_selection selection;
           char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_map_%d.ll", "/tmp", (int)getpid());
           FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+          hako_llvmc_select_entry_runes(fn0, &selection);
           fprintf(f, "; nyash minimal pure IR (map set->size)\n");
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
           fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
           fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
           fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n\n");
-          fprintf(f, "define i64 @ny_main() {\n");
+          hako_llvmc_emit_entry_header(f, &selection);
           fprintf(f, "  %%h = call i64 @\"nyash.map.birth_h\"()\n");
           fprintf(f, "  %%_s = call i64 @\"nyash.map.slot_store_hhh\"(i64 %%h, i64 %lld, i64 %lld)\n", key_c, val_c);
           fprintf(f, "  %%sz = call i64 @\"nyash.map.entry_count_h\"(i64 %%h)\n");
           fprintf(f, "  ret i64 %%sz\n}\n");
+          hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
           int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
@@ -1603,7 +1838,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (doc) {
         yyjson_val* root = yyjson_doc_get_root(doc);
         yyjson_val* fns = yyjson_obj_get(root, "functions");
-        yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+        yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
         yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
         yyjson_val* b0 = blocks && yyjson_is_arr(blocks) ? yyjson_arr_get_first(blocks) : NULL;
         yyjson_val* insts = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
@@ -1640,18 +1875,21 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           }
         }
         if (have) {
+          hako_llvmc_entry_rune_selection selection;
           char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_array_%d.ll", "/tmp", (int)getpid());
           FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+          hako_llvmc_select_entry_runes(fn0, &selection);
           fprintf(f, "; nyash minimal pure IR (array push->len)\n");
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
           fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
           fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
           fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n\n");
-          fprintf(f, "define i64 @ny_main() {\n");
+          hako_llvmc_emit_entry_header(f, &selection);
           fprintf(f, "  %%h = call i64 @\"nyash.array.birth_h\"()\n");
           fprintf(f, "  %%_p = call i64 @\"nyash.array.slot_append_hh\"(i64 %%h, i64 %lld)\n", val_c);
           fprintf(f, "  %%len = call i64 @\"nyash.array.slot_len_h\"(i64 %%h)\n");
           fprintf(f, "  ret i64 %%len\n}\n");
+          hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
           int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
@@ -1669,7 +1907,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (doc) {
         yyjson_val* root = yyjson_doc_get_root(doc);
         yyjson_val* fns = yyjson_obj_get(root, "functions");
-        yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+        yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
         yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
         yyjson_val* b0 = blocks && yyjson_is_arr(blocks) ? yyjson_arr_get_first(blocks) : NULL;
         yyjson_val* insts = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
@@ -1724,11 +1962,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           }
         }
         if (have) {
+          hako_llvmc_entry_rune_selection selection;
           char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_string_len_%d.ll", "/tmp", (int)getpid());
           FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+          hako_llvmc_select_entry_runes(fn0, &selection);
           fprintf(f, "; nyash minimal pure IR (string length const)\n");
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-          fprintf(f, "define i64 @ny_main() {\n  ret i64 %lld\n}\n", lit_len);
+          hako_llvmc_emit_entry_header(f, &selection);
+          fprintf(f, "  ret i64 %lld\n", lit_len);
+          fprintf(f, "}\n");
+          hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
           int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
@@ -1746,7 +1989,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (doc) {
         yyjson_val* root = yyjson_doc_get_root(doc);
         yyjson_val* fns = yyjson_obj_get(root, "functions");
-        yyjson_val* fn0 = fns && yyjson_is_arr(fns) ? yyjson_arr_get_first(fns) : NULL;
+        yyjson_val* fn0 = hako_llvmc_find_entry_function(fns);
         yyjson_val* blocks = fn0 && yyjson_is_obj(fn0) ? yyjson_obj_get(fn0, "blocks") : NULL;
         yyjson_val* b0 = blocks && yyjson_is_arr(blocks) ? yyjson_arr_get_first(blocks) : NULL;
         yyjson_val* insts = b0 ? yyjson_obj_get(b0, "instructions") : NULL;
@@ -1822,11 +2065,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           }
         }
         if (have) {
+          hako_llvmc_entry_rune_selection selection;
           char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_string_indexof_%d.ll", "/tmp", (int)getpid());
           FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(doc); return set_err_owned(err_out, "failed to open .ll"); }
+          hako_llvmc_select_entry_runes(fn0, &selection);
           fprintf(f, "; nyash minimal pure IR (string indexOf const)\n");
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-          fprintf(f, "define i64 @ny_main() {\n  ret i64 %lld\n}\n", found_idx);
+          hako_llvmc_emit_entry_header(f, &selection);
+          fprintf(f, "  ret i64 %lld\n", found_idx);
+          fprintf(f, "}\n");
+          hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
           char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
           int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
