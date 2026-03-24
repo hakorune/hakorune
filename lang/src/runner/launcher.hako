@@ -40,6 +40,230 @@ static box LauncherProgramJsonMirBox {
   }
 }
 
+static box LauncherInputContractBox {
+  method parse_build_exe_request(args) {
+    local argc = 0
+    if args { argc = args.size() }
+    if argc < 3 {
+      print("[hakorune] build exe: usage: hakorune build exe [-o <out>] [--quiet] <source.hako>")
+      return null
+    }
+
+    local req = new MapBox()
+    local out_path = null
+    local quiet = 0
+    local source_path = null
+
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = me._coerce_text_compat(arg_raw)
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] build exe: -o/--out requires a path")
+          return null
+        }
+        local op_raw = args.get(i + 1)
+        out_path = me._coerce_text_compat(op_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+        continue
+      }
+
+      if source_path == null {
+        source_path = arg
+        i = i + 1
+        continue
+      }
+
+      print("[hakorune] build exe: unexpected extra argument: " + arg)
+      return null
+    }
+
+    if source_path == null || source_path == "" {
+      print("[hakorune] build exe: source path is required")
+      return null
+    }
+
+    req.set("source_path", source_path)
+    req.set("out_path", out_path)
+    req.set("quiet", quiet)
+    return req
+  }
+
+  method parse_emit_program_json_request(args) {
+    local argc = 0
+    if args { argc = args.size() }
+    if argc < 3 {
+      print("[hakorune] emit program-json: usage: hakorune emit program-json [-o <out>] [--quiet] <source.hako>")
+      return null
+    }
+
+    local req = new MapBox()
+    local source_path = null
+    local out_path = null
+    local quiet = 0
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = me._coerce_text_compat(arg_raw)
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] emit program-json: -o/--out requires a path")
+          return null
+        }
+        local op_raw = args.get(i + 1)
+        out_path = me._coerce_text_compat(op_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+        continue
+      }
+
+      if source_path == null {
+        source_path = arg
+        i = i + 1
+        continue
+      }
+
+      print("[hakorune] emit program-json: unexpected extra argument: " + arg)
+      return null
+    }
+
+    if source_path == null || source_path == "" {
+      print("[hakorune] emit program-json: source path is required")
+      return null
+    }
+
+    req.set("source_path", source_path)
+    req.set("out_path", out_path)
+    req.set("quiet", quiet)
+    return req
+  }
+
+  method parse_emit_mir_json_request(args) {
+    local argc = 0
+    if args { argc = args.size() }
+
+    local req = new MapBox()
+    local prog_path = null
+    local source_path = null
+    local out_path = null
+    local quiet = 0
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = me._coerce_text_compat(arg_raw)
+      if arg == "--from-program-json" {
+        if i + 1 >= argc {
+          print("[hakorune] emit mir-json: --from-program-json requires a path")
+          return null
+        }
+        local p_raw = args.get(i + 1)
+        prog_path = me._coerce_text_compat(p_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] emit mir-json: -o/--out requires a path")
+          return null
+        }
+        local op_raw = args.get(i + 1)
+        out_path = me._coerce_text_compat(op_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+        continue
+      }
+
+      if source_path == null {
+        source_path = arg
+        i = i + 1
+        continue
+      }
+
+      print("[hakorune] emit mir-json: unknown or unsupported flag: " + arg)
+      return null
+    }
+
+    if prog_path != null && prog_path != "" && source_path != null && source_path != "" {
+      print("[hakorune] emit mir-json: specify either --from-program-json or <source.hako>, not both")
+      return null
+    }
+
+    if (prog_path == null || prog_path == "") && (source_path == null || source_path == "") {
+      print("[hakorune] emit mir-json: require --from-program-json <file> or <source.hako>")
+      return null
+    }
+
+    req.set("program_json_path", prog_path)
+    req.set("source_path", source_path)
+    req.set("out_path", out_path)
+    req.set("quiet", quiet)
+    return req
+  }
+
+  method bootstrap_requested() {
+    return me._non_empty_text(env.get("HAKORUNE_BOOTSTRAP_MODE"))
+  }
+
+  method parse_bootstrap_request() {
+    local mode_raw = env.get("HAKORUNE_BOOTSTRAP_MODE")
+    if me._non_empty_text(mode_raw) != 1 {
+      print("[hakorune/bootstrap] HAKORUNE_BOOTSTRAP_MODE is required")
+      return null
+    }
+    local mode = me._coerce_text_compat(mode_raw)
+    if mode != "emit-mir" {
+      print("[hakorune/bootstrap] unsupported mode: " + mode)
+      return null
+    }
+
+    local tag = "[hakorune/bootstrap emit mir]"
+    local input_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_INPUT"))
+    if input_path == "" {
+      print(tag + ": HAKORUNE_BOOTSTRAP_INPUT is required")
+      return null
+    }
+    local out_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_OUT"))
+    if out_path == "" {
+      print(tag + ": HAKORUNE_BOOTSTRAP_OUT is required")
+      return null
+    }
+
+    local req = new MapBox()
+    req.set("mode", mode)
+    req.set("input_path", input_path)
+    req.set("out_path", out_path)
+    return req
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+
+  method _non_empty_text(value) {
+    if value == null { return 0 }
+    if me._coerce_text_compat(value) == "" { return 0 }
+    return 1
+  }
+}
+
 static box HakoCli {
   // Entry from Main.main(args)
   method run(args){
@@ -100,52 +324,11 @@ static box HakoCli {
   // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) -> llvm_backend surrogate -> EXE
   // - Requires backend-zero C-API route to be有効化されていること（NYASH_LLVM_USE_CAPI=1, HAKO_V1_EXTERN_PROVIDER_C_ABI=1 等）。
   method cmd_build_exe(args){
-    local argc = 0
-    if args { argc = args.size() }
-    if argc < 3 {
-      print("[hakorune] build exe: usage: hakorune build exe [-o <out>] [--quiet] <source.hako>")
-      return 91
-    }
-
-    local out_path = null
-    local quiet = 0
-    local source_path = null
-
-    local i = 2
-    loop(i < argc) {
-      local arg_raw = args.get(i)
-      local arg = me._coerce_text_compat(arg_raw)
-      if arg == "-o" || arg == "--out" {
-        if i + 1 >= argc {
-          print("[hakorune] build exe: -o/--out requires a path")
-          return 91
-        }
-        local op_raw = args.get(i + 1)
-        out_path = me._coerce_text_compat(op_raw)
-        i = i + 2
-        continue
-      }
-
-      if arg == "--quiet" {
-        quiet = 1
-        i = i + 1
-        continue
-      }
-
-      if source_path == null {
-        source_path = arg
-        i = i + 1
-        continue
-      }
-
-      print("[hakorune] build exe: unexpected extra argument: " + arg)
-      return 91
-    }
-
-    if source_path == null || source_path == "" {
-      print("[hakorune] build exe: source path is required")
-      return 91
-    }
+    local req = LauncherInputContractBox.parse_build_exe_request(args)
+    if req == null { return 91 }
+    local source_path = req.get("source_path")
+    local out_path = req.get("out_path")
+    local quiet = req.get("quiet")
 
     local tag = "[hakorune] build exe"
     local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
@@ -187,52 +370,11 @@ static box HakoCli {
   // - Compile Hako source to Program(JSON v0) using BuildBox.emit_program_json_v0.
   // - Output is written to stdout on success.
   method cmd_emit_program_json(args){
-    local argc = 0
-    if args { argc = args.size() }
-    if argc < 3 {
-      print("[hakorune] emit program-json: usage: hakorune emit program-json [-o <out>] [--quiet] <source.hako>")
-      return 92
-    }
-
-    local path = null
-    local out_path = null
-    local quiet = 0
-
-    local i = 2
-    loop(i < argc) {
-      local arg_raw = args.get(i)
-      local arg = me._coerce_text_compat(arg_raw)
-      if arg == "-o" || arg == "--out" {
-        if i + 1 >= argc {
-          print("[hakorune] emit program-json: -o/--out requires a path")
-          return 92
-        }
-        local op_raw = args.get(i + 1)
-        out_path = me._coerce_text_compat(op_raw)
-        i = i + 2
-        continue
-      }
-
-      if arg == "--quiet" {
-        quiet = 1
-        i = i + 1
-        continue
-      }
-
-      if path == null {
-        path = arg
-        i = i + 1
-        continue
-      }
-
-      print("[hakorune] emit program-json: unexpected extra argument: " + arg)
-      return 92
-    }
-
-    if path == null || path == "" {
-      print("[hakorune] emit program-json: source path is required")
-      return 92
-    }
+    local req = LauncherInputContractBox.parse_emit_program_json_request(args)
+    if req == null { return 92 }
+    local path = req.get("source_path")
+    local out_path = req.get("out_path")
+    local quiet = req.get("quiet")
 
     local tag = "[hakorune] emit program-json"
     local ps = me._emit_program_json_from_source_path_checked(tag, path)
@@ -249,64 +391,12 @@ static box HakoCli {
   // - Program(JSON v0) から MIR(JSON) を生成する経路に加えて、
   //   .hako ソースから直接 Program(JSON v0)→MIR(JSON) まで進める経路もサポートする。
   method cmd_emit_mir_json(args){
-    local argc = 0
-    if args { argc = args.size() }
-
-    local prog_path = null
-    local source_path = null
-    local out_path = null
-    local quiet = 0
-    local i = 2
-    loop(i < argc) {
-      local arg_raw = args.get(i)
-      local arg = me._coerce_text_compat(arg_raw)
-      if arg == "--from-program-json" {
-        if i + 1 >= argc {
-          print("[hakorune] emit mir-json: --from-program-json requires a path")
-          return 92
-        }
-        local p_raw = args.get(i + 1)
-        prog_path = me._coerce_text_compat(p_raw)
-        i = i + 2
-        continue
-      }
-
-      if arg == "-o" || arg == "--out" {
-        if i + 1 >= argc {
-          print("[hakorune] emit mir-json: -o/--out requires a path")
-          return 92
-        }
-        local op_raw = args.get(i + 1)
-        out_path = me._coerce_text_compat(op_raw)
-        i = i + 2
-        continue
-      }
-
-      if arg == "--quiet" {
-        quiet = 1
-        i = i + 1
-        continue
-      }
-
-      if source_path == null {
-        source_path = arg
-        i = i + 1
-        continue
-      }
-
-      print("[hakorune] emit mir-json: unknown or unsupported flag: " + arg)
-      return 92
-    }
-
-    if prog_path != null && prog_path != "" && source_path != null && source_path != "" {
-      print("[hakorune] emit mir-json: specify either --from-program-json or <source.hako>, not both")
-      return 92
-    }
-
-    if (prog_path == null || prog_path == "") && (source_path == null || source_path == "") {
-      print("[hakorune] emit mir-json: require --from-program-json <file> or <source.hako>")
-      return 92
-    }
+    local req = LauncherInputContractBox.parse_emit_mir_json_request(args)
+    if req == null { return 92 }
+    local prog_path = req.get("program_json_path")
+    local source_path = req.get("source_path")
+    local out_path = req.get("out_path")
+    local quiet = req.get("quiet")
 
     local tag = "[hakorune] emit mir-json"
     local prog_json = me._load_program_json_from_path_or_source(tag, prog_path, source_path)
@@ -468,38 +558,22 @@ static box HakoCli {
   }
 
   method run_bootstrap_from_env(){
-    local mode_raw = env.get("HAKORUNE_BOOTSTRAP_MODE")
-    local mode = me._coerce_text_compat(mode_raw)
-    if mode == "" {
-      print("[hakorune/bootstrap] HAKORUNE_BOOTSTRAP_MODE is required")
-      return 95
-    }
-    if mode == "emit-mir" {
-      return me._bootstrap_emit_mir_from_env()
-    }
-    print("[hakorune/bootstrap] unsupported mode: " + mode)
-    return 95
+    local req = LauncherInputContractBox.parse_bootstrap_request()
+    if req == null { return 95 }
+    return me._bootstrap_emit_mir_request(req)
   }
 
   method run_native_entry(){
-    if me._non_empty_text(env.get("HAKORUNE_BOOTSTRAP_MODE")) == 1 {
+    if LauncherInputContractBox.bootstrap_requested() == 1 {
       return me.run_bootstrap_from_env()
     }
     return me.run(null)
   }
 
-  method _bootstrap_emit_mir_from_env(){
+  method _bootstrap_emit_mir_request(req){
     local tag = "[hakorune/bootstrap emit mir]"
-    local source_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_INPUT"))
-    if source_path == "" {
-      print(tag + ": HAKORUNE_BOOTSTRAP_INPUT is required")
-      return 95
-    }
-    local out_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_OUT"))
-    if out_path == "" {
-      print(tag + ": HAKORUNE_BOOTSTRAP_OUT is required")
-      return 95
-    }
+    local source_path = req.get("input_path")
+    local out_path = req.get("out_path")
 
     local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
     if ms == null { return 95 }

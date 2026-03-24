@@ -55,6 +55,7 @@ Pointers:
   - Current status（Phase 25.1）:
     - `build exe` / `emit program-json` / `emit mir-json` は Stage-B / MirBuilder / backend boundary へ接続済み。
     - `run` / `check` はまだプレースホルダで、`"[hakorune] <cmd>: not implemented yet"` を出力して終了コード 90–93 を返す。
+    - `LauncherInputContractBox` now owns argv/bootstrap parse+validate for `build exe`, `emit program-json`, `emit mir-json`, and `HAKORUNE_BOOTSTRAP_*`, so `HakoCli` is down to request parse -> checked execute dispatch
     - checked Program(JSON) / MIR routes は owner-local helper に固定され、caller-side choreography も same-file helper に寄せている。
     - `emit mir-json` checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`) so the launcher lane no longer mixes Program(JSON) validation, MirBuilder call, and MIR output validation inline.
     - `emit program-json` checked tail is also split owner-locally (`_emit_program_json_raw(...)`, `_coerce_program_json_output_checked(...)`) so the launcher lane no longer mixes BuildBox call and Program(JSON) validation inline.
