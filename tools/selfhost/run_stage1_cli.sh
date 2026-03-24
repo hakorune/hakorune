@@ -24,10 +24,10 @@ Defaults:
       NYASH_FILEBOX_MODE=core-ro (when unset)
 
 Examples:
-  # compat-only
-  tools/selfhost/run_stage1_cli.sh emit program-json apps/tests/minimal.hako
   # preferred
   tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako
+  # explicit compat proof
+  tools/dev/phase29ch_program_json_compat_route_probe.sh --bin /tmp/hakorune-dev apps/tests/minimal.hako
 USAGE
 }
 
@@ -48,16 +48,15 @@ read_entry_source_text() {
   stage1_contract_source_text "$entry"
 }
 
+exit_emit_program_json_wrapper_retired() {
+  echo "[run-stage1] emit program-json is retired from this wrapper" >&2
+  echo "             use emit mir-json for MIR-first flow" >&2
+  echo "             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof" >&2
+  exit 2
+}
+
 run_emit_program_json() {
-  if [[ $# -ne 1 ]]; then
-    echo "[run-stage1] usage: emit program-json <source.hako>" >&2
-    exit 2
-  fi
-  echo "[deprecate] run_stage1_cli emit program-json is compat-only; prefer emit mir-json" >&2
-  local entry="$1"
-  local source_text
-  source_text="$(read_entry_source_text "$entry")"
-  stage1_contract_exec_mode "$BIN" "emit-program" "$entry" "$source_text"
+  exit_emit_program_json_wrapper_retired
 }
 
 run_emit_mir_json() {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# selfhost_build.sh — Hybrid selfhost build (Stage‑B → Program(JSON v0) → optional run via Core‑Direct)
+# selfhost_build.sh — Hybrid selfhost build (Stage‑B → Program(JSON v0) → optional MIR/run/exe)
 #
 # Goals (80/20):
 # - Take a Hako source (.hako), compile with Hakorune Stage‑B to Program(JSON v0).
@@ -7,10 +7,10 @@
 # - (Future) Optionally convert to MIR and build an executable via ny-llvmc.
 #
 # Usage:
-#   tools/selfhost/selfhost_build.sh --in source.hako [--json out.json] [--run]
+#   tools/selfhost/selfhost_build.sh --in source.hako [--mir out.json] [--run]
 #   Options:
 #     --in FILE     Input .hako source file (required)
-#     --json FILE   Output Program(JSON v0) to FILE
+#     --json FILE   Retired wrapper surface (compat-only; rejected with redirect)
 #     --run         Run via Core-Direct after compilation
 #     --mir FILE    Also emit MIR(JSON) to FILE
 #     --exe FILE    Build native EXE via ny-llvmc
@@ -49,6 +49,13 @@ MIR_OUT=""
 EXE_OUT=""
 DO_RUN=0
 KEEP_TMP=0
+
+exit_program_json_wrapper_retired() {
+  echo "[selfhost] --json is retired from selfhost_build.sh" >&2
+  echo "           use --mir for public/bootstrap output" >&2
+  echo "           use tools/dev/phase29ch_program_json_compat_route_probe.sh or raw --emit-program-json-v0 for explicit compat work" >&2
+  exit 2
+}
 
 apply_selfhost_env() {
   export NYASH_FEATURES="${NYASH_FEATURES:-stage3}"
@@ -356,7 +363,7 @@ if [ -z "$IN" ]; then echo "[selfhost] --in <file.hako> is required" >&2; exit 2
 if [ ! -f "$IN" ]; then echo "[selfhost] input not found: $IN" >&2; exit 2; fi
 
 if [ -n "$JSON_OUT" ]; then
-  echo "[deprecate] selfhost_build --json is compat-only; prefer --mir for external/bootstrap artifacts" >&2
+  exit_program_json_wrapper_retired
 fi
 
 tmp_json="${JSON_OUT:-/tmp/hako_stageb_$$.json}"

@@ -97,6 +97,10 @@ Compat-only route:
 ./target/release/hakorune --hako-emit-program-json /tmp/out.json apps/tests/minimal.hako
 ```
 
+Note:
+- shell/public helper surfaces (`run_stage1_cli.sh emit program-json`, `selfhost_build.sh --json`) are retired.
+- explicit Program(JSON) work should stay on raw compat flags or dedicated compat probes.
+
 ---
 
 ## Parser / using

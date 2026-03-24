@@ -63,9 +63,10 @@ Related:
 ## Exact Next
 
 1. keep `phase-29ci` on boundary retirement only
-2. move public/bootstrap Program(JSON) surfaces to `public/deprecate-now`
-3. keep internal Program(JSON) routes as compat/test/bootstrap-only keep until caller inventory reaches zero
-4. keep `phase-29cu` and `phase-29cj` closed unless exact gaps reappear
+2. retire public wrapper/helper Program(JSON) surfaces first
+3. keep raw compat flags and explicit compat probes alive
+4. keep internal Program(JSON) routes as compat/test/bootstrap-only keep until caller inventory reaches zero
+5. keep `phase-29cu` and `phase-29cj` closed unless exact gaps reappear
 
 ## Active Lane
 
@@ -75,9 +76,9 @@ Related:
   - `MIR(JSON v0)` line unification
   - `Program(JSON v0)` hard delete is deferred
 - current first-wave targets:
-  - public/deprecate-now CLI surfaces
-  - explicit stage1 bridge `emit-program-json-v0` route
-  - selfhost/helper docs and wrappers that still present Program(JSON) as current boundary
+  - retire `run_stage1_cli.sh emit program-json`
+  - retire `selfhost_build.sh --json`
+  - rewrite exact smoke/docs to keep compat proof on explicit probes, not wrappers
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

@@ -1,6 +1,6 @@
 # Stage1 Hakorune CLI Design（Proposal）
 
-Status: design-only + Stage0 stub 実装済み。current public/bootstrap boundary reading is MIR-first; `emit program-json` is compat-only.
+Status: design-only + Stage0 stub 実装済み。current public/bootstrap boundary reading is MIR-first; `emit program-json` survives only as a raw compat route, and helper/wrapper exposure is retired.
 Phase 25.1 A-3: `.hako` 側 Stage1Cli skeleton に env-only 実処理を実装（emit program-json / emit mir-json / run stub）。  
 ブリッジ（Stage0 → `.hako` stub）は `NYASH_USE_STAGE1_CLI=1` / `STAGE1_EMIT_PROGRAM_JSON=1` 等の ENV で制御する。
 
@@ -59,7 +59,7 @@ hakorune <command> [<subcommand>] [options] [-- script_args...]
 |-----------------------------------|-------------------------------------------|----------------------|
 | `run`                             | .hako をコンパイルして実行（既定 VM）     | プレースホルダ（`[hakorune] run: not implemented yet`） |
 | `build exe`                       | .hako からネイティブ EXE を AOT ビルド    | 実装済み（current launcher lane は `env.codegen.compile_json_path/link_object` で `.o` → EXE を生成） |
-| `emit program-json`               | Stage‑B で Program(JSON v0) を出力        | 実装済みだが compat-only |
+| `emit program-json`               | Stage‑B で Program(JSON v0) を出力        | raw compat route only |
 | `emit mir-json`                   | `.hako` / Program(JSON) から MIR(JSON) を出力 | 実装済み（preferred） |
 | `check`                           | 将来の構文/型/using チェック（予約）      | プレースホルダ（`[hakorune] check: not implemented yet`） |
 
@@ -163,10 +163,11 @@ hakorune build exe [-o <out>] [--quiet] <source.hako>
 hakorune emit program-json [options] <entry.hako>
 ```
 
-### 意味論（compat-only）
+### 意味論（raw compat-only）
 
 - このコマンドは current external/bootstrap boundary ではない。
 - daily/public/bootstrap route では `emit mir-json` を優先する。
+- shell wrapper/public helper では retire 済みで、explicit compat proof または raw compat flag でのみ使う。
 
 - `.hako` ソースファイル（`<entry.hako>`）を読み込み、`BuildBox.emit_program_json_v0(src, null)` を呼び出して Program(JSON v0) を生成する。
 - Phase 25.1 の実装では:

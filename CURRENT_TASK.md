@@ -32,12 +32,15 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W1 active`
+   - status: `reopen W2 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
+   - exact W2 target:
+     - retire public wrapper/helper Program(JSON) surfaces
+     - keep raw compat flags and explicit compat probes alive
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
    - accepted narrow-scope current truth:
@@ -101,12 +104,16 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `public/deprecate-now`
    - `internal-compat-keep`
    - `delete-ready-later`
-3. deprecate public/bootstrap Program(JSON) surfaces now:
+3. retire public wrapper/helper Program(JSON) surfaces now:
+   - `run_stage1_cli.sh emit program-json`
+   - `selfhost_build.sh --json`
+   - exact smoke/docs that still treat those wrappers as live
+4. keep raw compat routes explicit:
    - CLI flags
-   - Stage1 bridge/program-json explicit route
-   - shell/selfhost helper entrypoints
-4. keep internal Program(JSON) routes only where they terminate in MIR and are not public API
-5. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
+   - stage1 bridge/program-json explicit route
+   - compat probe helpers
+5. keep internal Program(JSON) routes only where they terminate in MIR and are not public API
+6. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
 
 ## Lane Pointers
 

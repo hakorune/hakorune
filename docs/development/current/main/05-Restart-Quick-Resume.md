@@ -41,7 +41,7 @@ bash tools/selfhost_identity_check.sh --mode smoke
   3. `docs/development/current/main/10-Now.md`
 - immediate action:
   - keep `MIR(JSON v0)` as the only external/bootstrap boundary
-  - demote public Program(JSON) surfaces to compat-only
+  - retire wrapper/helper Program(JSON) surfaces before touching raw compat keep
 
 ## 保守レーン（必要時のみ）
 

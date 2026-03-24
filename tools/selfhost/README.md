@@ -23,7 +23,7 @@ Script
     ```
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
-  - --json <out.json>: write Program(JSON v0) (compat-only; deprecated boundary); default: /tmp/hako_stageb_$$.json
+  - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)
   - --mir <out.json>: emit MIR(JSON) from source (preferred runner path)
   - --exe <out>: build native executable via ny-llvmc (llvmlite harness)
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
@@ -96,9 +96,9 @@ tools/selfhost/selfhost_build.sh --in apps/demo/main.hako --mir /tmp/demo.mir
 tools/selfhost/selfhost_build.sh --in apps/demo/return7.hako --run; echo $?
 ```
 
-Compat-only boundary probe:
+Explicit compat boundary probe:
 ```bash
-tools/selfhost/selfhost_build.sh --in apps/demo/main.hako --json /tmp/demo.program.json
+bash tools/dev/phase29ch_program_json_compat_route_probe.sh
 ```
 
 Notes
@@ -217,14 +217,15 @@ Helper — Legacy Main Removal Pre-PROMOTE Gate
     - tests-side producers first, compiler literals second (see migration-order SSOT).
 
 Helper — Stage1 CLI Runner
-- `tools/selfhost/run_stage1_cli.sh`
+  - `tools/selfhost/run_stage1_cli.sh`
   - Wraps a Stage1 binary (default `target/selfhost/hakorune`) with the required runtime env:
     - `NYASH_NYRT_SILENT_RESULT=1`（Result 行を抑止して JSON stdout を維持）
     - `NYASH_DISABLE_PLUGINS=1`, `NYASH_FILEBOX_MODE=core-ro`（FileBox などのコア実装を強制）
-  - For `emit program-json` / `emit mir-json`, translate the raw CLI surface into the compatibility env contract (`stage1_contract_exec_mode`); this is a compatibility wrapper, not the bootstrap proof route.
+  - For `emit mir-json`, translate the raw CLI surface into the compatibility env contract (`stage1_contract_exec_mode`); this is a compatibility wrapper, not the bootstrap proof route.
+  - `emit program-json` is retired from the wrapper surface. Use the explicit compat probe instead.
   - Non-`emit` arguments are passed verbatim to the Stage1 binary:
     ```bash
-    tools/selfhost/run_stage1_cli.sh emit program-json apps/tests/minimal.hako
     tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako
+    tools/dev/phase29ch_program_json_compat_route_probe.sh --bin /tmp/hakorune-dev apps/tests/minimal.hako
     ```
   - Use this helper (or set the env vars manually) whenever CLI output is consumed by compatibility scripts. The bootstrap acceptance path is `stage1_contract_verify_stage1_cli_bootstrap_capability()`.

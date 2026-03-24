@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W1 active`
+  - status: `reopen W2 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,6 +39,9 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
+  - current W2 target:
+    - wrapper/public helper retirement first
+    - raw compat flags + explicit compat probes remain alive
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`
   - narrow-scope current truth:

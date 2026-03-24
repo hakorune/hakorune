@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W1 active`。
+- current status は `reopen W2 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -125,11 +125,14 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 ## Current Retirement Targets
 
 - public/bootstrap boundary first:
+  - wrapper/helper surface `tools/selfhost/run_stage1_cli.sh emit program-json`
+  - wrapper/helper surface `tools/selfhost/selfhost_build.sh --json`
+  - exact smoke/docs that still present those wrappers as live
+- raw compat keep after wrapper retirement:
   - CLI `--emit-program-json-v0`
   - CLI `--hako-emit-program-json`
   - CLI `--program-json-to-mir`
   - Stage1 bridge explicit `emit-program-json-v0` route
-  - public/selfhost helper docs that still present Program(JSON) as the current boundary
 - compat/internal keep after that:
   - `src/stage1/program_json_v0.rs` cluster
   - `src/runner/stage1_bridge/program_json/**`
@@ -149,6 +152,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - remaining JSON v0 consumers are inventoried with exact owners and boundary class
 - public/bootstrap docs and CLI/help read `MIR(JSON)` as the only supported boundary
 - at least one compat-only Program(JSON) route remains green and explicitly marked non-public
+- wrapper/public helper retirement is pinned by exact smoke and explicit compat probe
 - hard delete is not started in the same wave
 
 ## Next Phase Pointer

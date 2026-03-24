@@ -1,8 +1,9 @@
 #!/bin/bash
 # phase29ci_stage1_cli_exact_emit_contract_vm.sh
 # Exact reduced-artifact emit contract smoke for stage1-cli:
-# - `run_stage1_cli.sh emit program-json` must succeed on the stage1-cli artifact
+# - `run_stage1_cli.sh emit program-json` must now fail with the explicit wrapper-retired redirect
 # - `run_stage1_cli.sh emit mir-json` must succeed on the same artifact and fixture
+# - explicit Program(JSON) compat proof must still succeed via the compat probe helper
 # This is narrower than the bootstrap capability smoke:
 # it proves the reduced artifact's own exact shell contract, not stage0 bootstrap proof.
 
@@ -43,16 +44,26 @@ MIR_OUT="$(mktemp --suffix .stage1_cli_mir.json)"
 MIR_ERR="$(mktemp --suffix .stage1_cli_mir.err)"
 trap 'rm -f "$PROG_OUT" "$PROG_ERR" "$MIR_OUT" "$MIR_ERR"' EXIT
 
-if ! bash "$ROOT_DIR/selfhost/run_stage1_cli.sh" --bin "$BIN" emit program-json "$ENTRY" >"$PROG_OUT" 2>"$PROG_ERR"; then
-  log_error "stage1-cli exact emit smoke: emit program-json failed"
+set +e
+bash "$ROOT_DIR/selfhost/run_stage1_cli.sh" --bin "$BIN" emit program-json "$ENTRY" >"$PROG_OUT" 2>"$PROG_ERR"
+prog_rc=$?
+set -e
+
+if [[ "$prog_rc" -ne 2 ]]; then
+  log_error "stage1-cli exact emit smoke: emit program-json wrapper rc mismatch (expected 2 got ${prog_rc})"
   sed -n '1,80p' "$PROG_ERR" >&2 || true
   exit 1
 fi
 
-if ! rg -q '"version":0' "$PROG_OUT" || ! rg -q '"kind":"Program"' "$PROG_OUT"; then
-  log_error "stage1-cli exact emit smoke: program-json output missing Program(JSON v0) markers"
+if ! rg -q '\[run-stage1\] emit program-json is retired from this wrapper' "$PROG_ERR"; then
+  log_error "stage1-cli exact emit smoke: wrapper retire message missing"
   sed -n '1,40p' "$PROG_OUT" >&2 || true
   sed -n '1,40p' "$PROG_ERR" >&2 || true
+  exit 1
+fi
+
+if ! bash "$ROOT_DIR/dev/phase29ch_program_json_compat_route_probe.sh" --bin "$BIN" "$ENTRY" >/dev/null; then
+  log_error "stage1-cli exact emit smoke: compat route probe failed"
   exit 1
 fi
 
