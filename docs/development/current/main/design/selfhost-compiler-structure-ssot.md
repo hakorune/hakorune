@@ -199,6 +199,7 @@ Responsibility:
 - `module_to_mir_json(...)` は Rust host stop-line として扱い、次の authority-replacement wave は `.hako` owner が canonical MIR(JSON) text をこの seam の手前で作る方向に進める
 - `src/host_providers/mir_builder/lowering/ast_json.rs` は Phase-0 AST JSON compat keep であり、pure `.hako` blocker の主語とは分ける
 - `src/stage1/program_json_v0.rs` façade と `authority.rs` / `routing.rs` / `extract.rs` / `lowering.rs` の owner-local split を維持する
+- repo-wide external/bootstrap boundary はここではなく `MIR(JSON v0)` に置く
 
 Important entry doc:
 - `src/runner/json_v0_bridge/README.md`

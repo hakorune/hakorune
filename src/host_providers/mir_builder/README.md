@@ -2,6 +2,10 @@
 
 Scope: Rust-side current authority façade for `source / Program(JSON) -> MIR(JSON)` under [mir_builder.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs); owner-local handoff objects now live in `handoff.rs` and `user_box_decls` shaping lives in `decls.rs`.
 
+Boundary note:
+- repo-wide external/bootstrap boundary is `MIR(JSON v0)`
+- explicit `Program(JSON v0)` entry here is compat/internal keep
+
 Related SSOT:
 - [CURRENT_TASK.md](/home/tomoaki/git/hakorune-selfhost/CURRENT_TASK.md)
 - [selfhost-bootstrap-route-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/selfhost-bootstrap-route-ssot.md)

@@ -6,6 +6,7 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 
 - future retire target
 - not current MIR-direct authority
+- explicit `emit-program-json-v0` route is compat-only / deprecated-now on the public boundary
 - keep bridge logic thin and explicit
 - `Stage1` / `Stage2` are artifact/proof names in `tools/selfhost/**`, not a reason to create parallel Rust owner directories here
 - keep physical split as `src/stage1/**` (authority/bootstrap boundary) vs `src/runner/stage1_bridge/**` (future-retire bridge shell)

@@ -29,9 +29,16 @@ Related:
 
 ## Current Read
 
-- Active lane: `none`
-  - next lane selection is pending docs-first promotion
-  - do not treat `phase-29cu` reopen as active work unless the root/docs pointers are promoted again
+- Active lane: `phase-29ci`
+  - status: `reopen W1 active`
+  - purpose:
+    - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
+    - unify public/bootstrap interchange on `MIR(JSON v0)`
+    - keep hard delete out of this wave
+  - scope lock:
+    - `Boundary + Minimal MIR Meta`
+    - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
+    - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`
   - narrow-scope current truth:
@@ -62,8 +69,11 @@ Related:
 - Substrate lane: `phase-29ct`
   - stop-line reached
 - JSON v0 reading
-  - `Program(JSON v0)` is still retire/no-widen
-  - `MIR(JSON v0)` remains the current interchange / gate boundary
+  - `Program(JSON v0)` is retire/no-widen and no longer the target external/bootstrap boundary
+  - `MIR(JSON v0)` is the current external/bootstrap interchange / gate boundary
+  - allowed keep:
+    - internal compat/test/bootstrap-only routes
+    - `.hako` mirbuilder internal input until later delete waves
 
 ## Clean-Shape Status
 

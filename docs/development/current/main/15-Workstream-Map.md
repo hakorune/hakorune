@@ -22,8 +22,9 @@ Related:
 
 ## Current Order
 
-1. `none`
-   - next active implementation lane is not promoted yet
+1. `phase-29ci`
+   - active boundary lane
+   - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -61,33 +62,26 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-29cu` closed unless a new exact Rune gap appears
-2. pin the remaining future Rune reopen:
-   - `.hako` declaration-local full carrier parity beyond root-entry transport
-3. keep `phase-29cj` closed unless a new exact disappearing leaf appears
-4. choose the next active implementation lane only through docs-first promotion
+1. keep `phase-29ci` on boundary retirement only
+2. move public/bootstrap Program(JSON) surfaces to `public/deprecate-now`
+3. keep internal Program(JSON) routes as compat/test/bootstrap-only keep until caller inventory reaches zero
+4. keep `phase-29cu` and `phase-29cj` closed unless exact gaps reappear
 
 ## Active Lane
 
-- `phase-29cu` is formally close-synced
-- landed:
-  - Rust parser gate + declaration-local attrs
-  - `.hako` parser grammar/arg-shape parity
-  - `.hako` statement/program-route invalid-placement fail-fast
-  - Rust function-target placement / ABI-facing verifier contract
-  - `.hako` root-entry carrier value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
-  - Rust direct MIR `attrs.runes` carrier
-  - `.hako` source-route real `Main.main` root-entry carrier
-  - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
-  - `.hako` compiler/mirbuilder function-name attrs injection
-  - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
-- lane state:
-  - `formal-close-synced`
-- planned future reopen after that:
-  - `.hako` full declaration-local MIR parity beyond root-entry transport
+- `phase-29ci` is active again
+- active reading:
+  - `Program(JSON v0)` public/bootstrap boundary retirement
+  - `MIR(JSON v0)` line unification
+  - `Program(JSON v0)` hard delete is deferred
+- current first-wave targets:
+  - public/deprecate-now CLI surfaces
+  - explicit stage1 bridge `emit-program-json-v0` route
+  - selfhost/helper docs and wrappers that still present Program(JSON) as current boundary
 - guard rails:
   - `Program(JSON v0)` stays no-widen
-  - `llvmlite` stays noop/compat
+  - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
+  - do not absorb high-level Program(JSON) structure into MIR
 
 ## Parked / Stop-Line
 

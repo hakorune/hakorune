@@ -18,6 +18,7 @@ impl NyashRunner {
 
         // Emit Program(JSON v0) via Stage-1 bridge entry and exit (explicit SSOT flag).
         if program_json_entry::emit_program_json_v0_requested(groups) {
+            crate::runtime::deprecations::warn_stage1_bridge_program_json_route_once();
             program_json_entry::emit_program_json_v0_and_exit(groups);
         }
 

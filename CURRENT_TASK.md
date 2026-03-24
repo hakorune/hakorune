@@ -23,15 +23,21 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 - runtime lane is parked/monitor-only again; there is no active `vm-hako` throughput blocker.
 - `phase-29cj` has completed its near-thin-floor reinventory and formal close sync.
-- there is no new bootstrap-retire blocker right now.
 - `phase-29cu` has completed its formal close sync for the narrow Rune v0 scope.
-- there is no active implementation lane right now; next lane selection is pending docs-first promotion.
+- next active implementation lane is `phase-29ci` reopen:
+  - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
+  - unify public/bootstrap boundary on `MIR(JSON v0)`
+  - keep hard delete and broad internal removal for later waves
 
 ## Current Priority
 
-1. active implementation lane: `none`
-   - lane selection is pending docs-first promotion
-   - do not resume coding on any lane until the next active front is explicitly promoted in root/docs pointers
+1. active implementation lane: `phase-29ci`
+   - status: `reopen W1 active`
+   - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
+   - working rule:
+     - public/bootstrap surfaces move to MIR-first now
+     - `Program(JSON v0)` stays compat/internal keep only
+     - hard delete is later
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
    - accepted narrow-scope current truth:
@@ -64,7 +70,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 ## Main Workstream
 
-- active implementation front: `none`
+- active implementation front: `phase-29ci`
+- active boundary rule:
+  - `MIR(JSON v0)` is the only supported external/bootstrap interchange boundary
+  - `Program(JSON v0)` is compat/internal keep and retire target
 - close-synced Rune lane: `phase-29cu`
 - close-synced bootstrap-retire lane: `phase-29cj`
 - live Rust stop-line:
@@ -87,23 +96,24 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 ## Next Task
 
-1. keep `phase-29cu` formally closed unless a new exact Rune gap appears
-2. keep the Rune lane docs in current-truth reading:
-   - declaration-local `attrs.runes`
-   - Rust direct MIR carrier
-   - `.hako` generic function-rune carrier + real root-entry `Main.main` carrier
-   - selected-entry `ny-llvmc` semantics
-3. pin the remaining future Rune reopen so `.hako` full support is not forgotten:
-   - declaration-local full carrier parity beyond root-entry-only transport
-4. keep `phase-29cj` closed unless a new exact disappearing leaf appears
-5. choose the next active implementation lane only through docs-first promotion
+1. reopen `phase-29ci` as the current boundary lane
+2. reclassify every remaining `Program(JSON v0)` consumer into:
+   - `public/deprecate-now`
+   - `internal-compat-keep`
+   - `delete-ready-later`
+3. deprecate public/bootstrap Program(JSON) surfaces now:
+   - CLI flags
+   - Stage1 bridge/program-json explicit route
+   - shell/selfhost helper entrypoints
+4. keep internal Program(JSON) routes only where they terminate in MIR and are not public API
+5. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
 
 ## Lane Pointers
 
 - Workstream map: `docs/development/current/main/15-Workstream-Map.md`
 - Docs mirror: `docs/development/current/main/10-Now.md`
 - Mainline phase: `docs/development/current/main/phases/phase-29cj/README.md`
-- Bootstrap retire closeout: `docs/development/current/main/phases/phase-29ci/README.md`
+- Active boundary retire lane: `docs/development/current/main/phases/phase-29ci/README.md`
 - Rune lane: `docs/development/current/main/phases/phase-29cu/README.md`
 - Runtime lane: `docs/development/current/main/phases/phase-29y/README.md`
 - Substrate lane: `docs/development/current/main/phases/phase-29ct/README.md`

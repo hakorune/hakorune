@@ -62,16 +62,16 @@ NYASH_LEAK_LOG=2 NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend ll
 | 変数 | デフォルト | 適用経路 | 説明 |
 | --- | --- | --- | --- |
 | `NYASH_USE_STAGE1_CLI=1` | OFF | Stage-1 | Stage-1 stub 経由に切替 |
-| `NYASH_STAGE1_MODE=emit-mir` | unset | Stage-1 | `emit-program` / `emit-mir` / `run` を明示 |
-| `STAGE1_EMIT_PROGRAM_JSON=1` | OFF | Stage-1 | Program(JSON v0) を吐いて終了（レガシー alias） |
+| `NYASH_STAGE1_MODE=emit-mir` | unset | Stage-1 | `emit-program` / `emit-mir` / `run` を明示（`emit-program` は compat-only） |
+| `STAGE1_EMIT_PROGRAM_JSON=1` | OFF | Stage-1 | Program(JSON v0) を吐いて終了（compat-only legacy alias） |
 | `STAGE1_EMIT_MIR_JSON=1` | OFF | Stage-1 | Program(JSON v0)→MIR(JSON) を Rust 側で降ろす（レガシー alias） |
 | `HAKO_STAGE1_MODE={emit-program\|emit-mir\|run}` | unset | Stage-1 | .hako / Stage-1 ルート専用のモード指定（`--hako-*` が設定） |
-| `HAKO_EMIT_PROGRAM_JSON=1` | OFF | Stage-1 | `.hako` stub に Program(JSON v0) emit を指示 |
+| `HAKO_EMIT_PROGRAM_JSON=1` | OFF | Stage-1 | `.hako` stub に Program(JSON v0) emit を指示（compat-only） |
 | `HAKO_EMIT_MIR_JSON=1` | OFF | Stage-1 | `.hako` stub に MIR(JSON) emit を指示（json_v0_bridge 経由） |
 | `NYASH_STAGE1_INPUT=path` | unset | Stage-1 | 入力ソース（alias: `STAGE1_SOURCE`, `STAGE1_INPUT`） |
 | `HAKO_STAGE1_INPUT=path` | unset | Stage-1 | `.hako` stub 用の入力ソース（`--hako-*` が設定） |
-| `NYASH_STAGE1_PROGRAM_JSON=path` | unset | Stage-1 | Program(JSON v0) のパス（alias: `STAGE1_PROGRAM_JSON`） |
-| `HAKO_STAGE1_PROGRAM_JSON=path` | unset | Stage-1 | `.hako` stub 用 Program(JSON v0) パス |
+| `NYASH_STAGE1_PROGRAM_JSON=path` | unset | Stage-1 | Program(JSON v0) のパス（compat-only; alias: `STAGE1_PROGRAM_JSON`） |
+| `HAKO_STAGE1_PROGRAM_JSON=path` | unset | Stage-1 | `.hako` stub 用 Program(JSON v0) パス（compat-only） |
 | `NYASH_STAGE1_BACKEND=vm` | `vm` | Stage-1 | Stage-1 実行の backend ヒント（alias: `STAGE1_BACKEND`） |
 | `NYASH_STAGE1_CLI_CHILD=1` | OFF | Stage-1 | 再帰呼び出しガード |
 | `STAGE1_CLI_ENTRY=...` | `lang/src/runner/stage1_cli.hako` | Stage-1 | Stage-1 stub のエントリ差し替え |
@@ -83,14 +83,18 @@ NYASH_LEAK_LOG=2 NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend ll
 
 ### Stage-1 経路の例
 ```bash
-# Stage-1 で MIR(JSON) を受け取り、Rust 側で dump
+# Stage-1 で MIR(JSON) を受け取り、Rust 側で dump（preferred）
 RUST_MIR_DUMP_PATH=/tmp/out.mir \
 NYASH_USE_STAGE1_CLI=1 STAGE1_EMIT_MIR_JSON=1 \
   ./target/release/hakorune --dump-mir apps/tests/minimal.hako
 
-# hako- 前置で Stage-1 stub 経由
-./target/release/hakorune --hako-emit-program-json /tmp/out.json apps/tests/minimal.hako
+# hako- 前置で Stage-1 stub 経由（preferred）
 ./target/release/hakorune --hako-emit-mir-json /tmp/out.mir apps/tests/minimal.hako --dump-mir
+```
+
+Compat-only route:
+```bash
+./target/release/hakorune --hako-emit-program-json /tmp/out.json apps/tests/minimal.hako
 ```
 
 ---

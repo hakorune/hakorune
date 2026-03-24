@@ -70,12 +70,12 @@ pub fn build_command() -> Command {
         .arg(Arg::new("emit-mir-json").long("emit-mir-json").value_name("FILE").help("Emit MIR JSON v0 to file and exit"))
         .arg(Arg::new("emit-ast-json").long("emit-ast-json").value_name("FILE").help("Emit AST JSON to file and exit (direct Rust parser route)"))
         .arg(Arg::new("emit-program-json").long("emit-program-json").value_name("FILE").help("[Deprecated] Alias of --emit-ast-json (was misnamed)"))
-        .arg(Arg::new("emit-program-json-v0").long("emit-program-json-v0").value_name("FILE").help("Emit Program(JSON v0) to file and exit (Stage-1 stub route)"))
+        .arg(Arg::new("emit-program-json-v0").long("emit-program-json-v0").value_name("FILE").help("[Compat-only, deprecated boundary] Emit Program(JSON v0) to file and exit (Stage-1 stub route)"))
         .arg(
             Arg::new("hako-emit-program-json")
                 .long("hako-emit-program-json")
                 .value_name("FILE")
-                .help("Emit Program(JSON v0) via Stage-1 (.hako) stub and exit")
+                .help("[Compat-only, deprecated boundary] Emit Program(JSON v0) via Stage-1 (.hako) stub and exit")
                 .conflicts_with_all([
                     "emit-program-json-v0",
                     "emit-program-json",
@@ -116,7 +116,7 @@ pub fn build_command() -> Command {
                     "program-json-to-mir",
                 ]),
         )
-        .arg(Arg::new("program-json-to-mir").long("program-json-to-mir").value_name("FILE").help("Convert Program(JSON v0) to MIR(JSON) and exit (use with --json-file)"))
+        .arg(Arg::new("program-json-to-mir").long("program-json-to-mir").value_name("FILE").help("[Compat-only, deprecated boundary] Convert Program(JSON v0) to MIR(JSON) and exit (use with --json-file)"))
         .arg(Arg::new("emit-exe").long("emit-exe").value_name("FILE").help("Emit native executable via ny-llvmc and exit"))
         .arg(Arg::new("emit-exe-nyrt").long("emit-exe-nyrt").value_name("DIR").help("Directory containing libnyash_kernel.a (used with --emit-exe). Hint: build via `cargo build -p nyash_kernel --release` (default output: target/release/libnyash_kernel.a)"))
         .arg(Arg::new("emit-exe-libs").long("emit-exe-libs").value_name("FLAGS").help("Extra linker flags for ny-llvmc when emitting executable"))
@@ -294,6 +294,7 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
     }
     // hako-prefixed Stage-1 stub routes
     if cfg.hako_emit_program_json {
+        crate::runtime::deprecations::warn_hako_emit_program_json_cli_once();
         std::env::set_var("NYASH_USE_STAGE1_CLI", "1");
         std::env::set_var("HAKO_STAGE1_MODE", "emit-program");
         std::env::set_var("HAKO_EMIT_PROGRAM_JSON", "1");
@@ -329,6 +330,12 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
     }
     if cfg.jit_exec {
         std::env::set_var("NYASH_JIT_EXEC", "1");
+    }
+    if cfg.emit_program_json_v0.is_some() {
+        crate::runtime::deprecations::warn_emit_program_json_v0_cli_once();
+    }
+    if cfg.program_json_to_mir.is_some() {
+        crate::runtime::deprecations::warn_program_json_to_mir_cli_once();
     }
     if cfg.jit_stats {
         std::env::set_var("NYASH_JIT_STATS", "1");

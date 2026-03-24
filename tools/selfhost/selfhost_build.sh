@@ -355,6 +355,10 @@ done
 if [ -z "$IN" ]; then echo "[selfhost] --in <file.hako> is required" >&2; exit 2; fi
 if [ ! -f "$IN" ]; then echo "[selfhost] input not found: $IN" >&2; exit 2; fi
 
+if [ -n "$JSON_OUT" ]; then
+  echo "[deprecate] selfhost_build --json is compat-only; prefer --mir for external/bootstrap artifacts" >&2
+fi
+
 tmp_json="${JSON_OUT:-/tmp/hako_stageb_$$.json}"
 
 # Emit Program(JSON v0; prefer BuildBox for emit-only when HAKO_USE_BUILDBOX=1)

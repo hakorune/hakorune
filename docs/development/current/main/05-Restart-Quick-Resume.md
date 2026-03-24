@@ -26,7 +26,7 @@ tools/checks/dev_gate.sh quick
 bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh
 ```
 
-- `phase-29cj` を触る日は、必要に応じて次も追加で回す:
+- `phase-29ci` を触る日は、必要に応じて次も追加で回す:
 
 ```bash
 bash tools/selfhost_identity_check.sh --mode smoke
@@ -34,14 +34,14 @@ bash tools/selfhost_identity_check.sh --mode smoke
 
 ## 今日の再開点（active lane）
 
-- Active next: `none`
+- Active next: `phase-29ci`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/15-Workstream-Map.md`
   3. `docs/development/current/main/10-Now.md`
 - immediate action:
-  - confirm that no active lane is currently promoted
-  - promote the next lane docs-first before starting implementation
+  - keep `MIR(JSON v0)` as the only external/bootstrap boundary
+  - demote public Program(JSON) surfaces to compat-only
 
 ## 保守レーン（必要時のみ）
 

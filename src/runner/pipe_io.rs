@@ -57,6 +57,7 @@ impl NyashRunner {
         };
         // Optional: convert Program(JSON v0) → MIR(JSON) and exit when requested
         if let Some(out) = &groups.emit.program_json_to_mir {
+            crate::runtime::deprecations::warn_program_json_to_mir_cli_once();
             let p = std::path::Path::new(out);
             if let Err(e) = emit_program_json_to_mir_json_file(&json, p) {
                 eprintln!("❌ Program→MIR emit error: {}", e);

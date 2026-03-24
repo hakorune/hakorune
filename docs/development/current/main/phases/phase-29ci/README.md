@@ -1,8 +1,8 @@
 ---
-Status: Accepted (closeout-ready)
+Status: Active
 Decision: accepted
-Date: 2026-03-13
-Scope: `phase-29ch` closeout 後に `Program(JSON v0)` bootstrap boundary 自体を retire するための separate phase pointer。
+Date: 2026-03-25
+Scope: `Program(JSON v0)` bootstrap boundary を retire target として固定し、repo-wide external/bootstrap boundary を `MIR(JSON v0)` に統一する separate phase owner。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
@@ -38,9 +38,12 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- `closeout-ready` は「retire task pack が分離済み」を意味し、repo-wide `Program(JSON v0)` retirement 完了を意味しない。
-- current repo では `Program(JSON v0)` boundary はまだ bootstrap-only keep であり、remaining caller inventory が残っている。
-- この phase の fixed order を完了する前に、`JSON v0 はもう撤退済み` と読まない。
+- current status は `reopen W1 active`。
+- この phase の current goal は `Program(JSON v0)` の hard delete ではない。
+- current repo では:
+  - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
+  - `MIR(JSON v0)` = sole external/bootstrap boundary
+- この phase の fixed order を完了する前に、`JSON v0 は repo-wide で撤退済み` と読まない。
 
 ## Entry Conditions
 
@@ -55,10 +58,11 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Fixed Order
 
-1. inventory the remaining bootstrap-only JSON v0 consumers
-2. choose one owner-local retirement slice at a time
-3. keep proof bundle green after each retirement slice
-4. only after caller inventory is empty, consider deleting the boundary itself
+1. reclassify the remaining JSON v0 consumers into `public/deprecate-now`, `internal-compat-keep`, and `delete-ready-later`
+2. retire public/bootstrap boundary reading first
+3. keep internal compat routes explicit and non-public
+4. keep proof bundle green after each retirement slice
+5. only after caller inventory is empty, consider deleting the boundary itself
 
 ## P0 Inventory
 
@@ -73,8 +77,8 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - Stage-B malformed Program(JSON) producer pin:
   - `docs/development/current/main/phases/phase-29ci/P5-STAGEB-MALFORMED-PROGRAM-JSON.md`
 - current preferred first bucket:
-  - Rust-owned `build surrogate keep`
-  - then `future-retire bridge`
+  - public/bootstrap surface deprecate-now
+  - then owner-local compat keep reduction
 - retreat note:
   - `build surrogate keep` is now landed and the bridge bucket is near thin floor; the live Rust front has moved to `phase-29cj` on `src/host_providers/mir_builder.rs`, while `program_json/` and `program_json_entry/` stay monitor-only inside this phase
   - compiled-stage1 build surrogate is not deletable yet, but it is now intended to shrink behind a single owner-local dispatch shim; route match, arg decode, and encode live there now, while build-box/launcher handoff regression coverage lives in `src/stage1/program_json_v0.rs` tests, so retirement no longer needs shared route-table or root-test edits
@@ -120,13 +124,18 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Current Retirement Targets
 
-- `src/stage1/program_json_v0.rs` cluster
-- `src/runner/stage1_bridge/program_json/mod.rs`
-- `src/runner/stage1_bridge/program_json/`
-- `src/runner/stage1_bridge/program_json_entry/`
-- `src/runner/mod.rs` bridge-entry caller contract
-- `src/runner/stage1_bridge/**` future-retire bridge lane
-- compiled-stage1 / shell callers that still need the bootstrap-only JSON v0 boundary
+- public/bootstrap boundary first:
+  - CLI `--emit-program-json-v0`
+  - CLI `--hako-emit-program-json`
+  - CLI `--program-json-to-mir`
+  - Stage1 bridge explicit `emit-program-json-v0` route
+  - public/selfhost helper docs that still present Program(JSON) as the current boundary
+- compat/internal keep after that:
+  - `src/stage1/program_json_v0.rs` cluster
+  - `src/runner/stage1_bridge/program_json/**`
+  - `src/runner/stage1_bridge/program_json_entry/**`
+  - `.hako` live/bootstrap callers
+  - compiled-stage1 / shell callers that still terminate in MIR
 
 ## Non-goals
 
@@ -137,9 +146,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 ## Acceptance
 
 - retirement work can be explained without mixing authority migration back into `phase-29ch`
-- remaining JSON v0 consumers are inventoried with exact owners
-- next delete/reduction slice can be chosen from this phase alone
-- shared helper / smoke-tail collapse is closeout-ready once the remaining direct-lower probe is documented as explicit keep rather than folded into helper retirement
+- remaining JSON v0 consumers are inventoried with exact owners and boundary class
+- public/bootstrap docs and CLI/help read `MIR(JSON)` as the only supported boundary
+- at least one compat-only Program(JSON) route remains green and explicitly marked non-public
+- hard delete is not started in the same wave
 
 ## Next Phase Pointer
 

@@ -24,7 +24,9 @@ Defaults:
       NYASH_FILEBOX_MODE=core-ro (when unset)
 
 Examples:
+  # compat-only
   tools/selfhost/run_stage1_cli.sh emit program-json apps/tests/minimal.hako
+  # preferred
   tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako
 USAGE
 }
@@ -51,6 +53,7 @@ run_emit_program_json() {
     echo "[run-stage1] usage: emit program-json <source.hako>" >&2
     exit 2
   fi
+  echo "[deprecate] run_stage1_cli emit program-json is compat-only; prefer emit mir-json" >&2
   local entry="$1"
   local source_text
   source_text="$(read_entry_source_text "$entry")"

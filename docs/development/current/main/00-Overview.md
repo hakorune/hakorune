@@ -15,7 +15,10 @@ Related:
 
 ## Current Shape
 
-- active implementation lane: `none`
+- active implementation lane: `phase-29ci`
+- active lane reading:
+  - `Program(JSON v0)` boundary retirement
+  - `MIR(JSON v0)` line unification
 - close-synced Rune lane: `phase-29cu`
 - close-synced bootstrap-retire lane: `phase-29cj`
 - parked runtime lane: `phase-29y`

@@ -36,7 +36,8 @@ End-state note:
 
 Retirement reading:
 - `Program(JSON v0)` は current reduced authority からは退いているが、repo-wide で retire 完了したわけではない。
-- 現在は bootstrap-only / compat-only boundary として keep し、route authority には戻さない。
+- 現在は bootstrap-only / compat-only keep であり、repo-wide external/bootstrap boundary の正本ではない。
+- repo-wide external/bootstrap boundary の正本は `MIR(JSON v0)` と読む。
 - boundary 自体の retire/delete は separate phase `phase-29ci` の owner であり、この SSOT だけで「撤退済み」と読まない。
 
 ## Reading Order

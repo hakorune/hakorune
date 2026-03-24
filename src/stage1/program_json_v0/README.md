@@ -27,6 +27,7 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
 
 ## Invariants
 
+- repo-wide external/bootstrap boundary is `MIR(JSON v0)`, not this cluster
 - strict parse stays crate-local (`source_to_program_json_v0_strict(...)`)
 - relaxed compat keep stays owner-local (`source_to_program_json_v0_relaxed(...)`)
 - future-retire `stage1_bridge` uses crate-local facade helper `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`

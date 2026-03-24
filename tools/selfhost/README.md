@@ -1,7 +1,8 @@
 Hybrid Selfhost Build (80/20)
 
 Purpose
-- Provide a minimal, fast path to compile Hako source via Hakorune Stage‑B to Program(JSON v0), and optionally run it via Core‑Direct (in‑proc).
+- Provide a minimal, fast path to compile Hako source via Hakorune Stage‑B to MIR(JSON), and optionally run it via Core‑Direct (in‑proc).
+- `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
 - Future: add MIR emit and ny-llvmc EXE build in small increments.
 - Stage axis note: `stage0`=bootstrap keep, `stage1`=current bootstrap artifacts / proof line, `stage2`=future distribution target, `stage3`=same-result sanity check.
 
@@ -22,8 +23,8 @@ Script
     ```
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
-  - --json <out.json>: write Program(JSON v0); default: /tmp/hako_stageb_$$.json
-  - --mir <out.json>: emit MIR(JSON) from source (runner path)
+  - --json <out.json>: write Program(JSON v0) (compat-only; deprecated boundary); default: /tmp/hako_stageb_$$.json
+  - --mir <out.json>: emit MIR(JSON) from source (preferred runner path)
   - --exe <out>: build native executable via ny-llvmc (llvmlite harness)
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
   - `--exe` now keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` and the Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so EXE lane cleanup stays separate from the top-level route tail.
@@ -88,11 +89,16 @@ Script
 
 Examples
 ```bash
-# Emit JSON only (Stage‑B)
-tools/selfhost/selfhost_build.sh --in apps/demo/main.hako --json /tmp/demo.json
+# Emit MIR (preferred)
+tools/selfhost/selfhost_build.sh --in apps/demo/main.hako --mir /tmp/demo.mir
 
 # Run and use exit code
 tools/selfhost/selfhost_build.sh --in apps/demo/return7.hako --run; echo $?
+```
+
+Compat-only boundary probe:
+```bash
+tools/selfhost/selfhost_build.sh --in apps/demo/main.hako --json /tmp/demo.program.json
 ```
 
 Notes
