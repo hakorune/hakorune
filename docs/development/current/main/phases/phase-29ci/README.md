@@ -72,7 +72,8 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - raw direct `stage1_cli.hako emit program-json` is diagnostics-only evidence
   - explicit env-route compat probes and raw compat flags stay alive
   - `stage1_cli.hako` / `launcher.hako` route orchestration thinning is landed
-  - next cleanup slice is shared shell helper keep audit, starting with `tools/hakorune_emit_mir.sh`
+  - first shared-helper slice in `tools/hakorune_emit_mir.sh` is landed: Stage-B Program(JSON) production is now execute/coerce/fallback-separated
+  - next cleanup slice stays in `tools/hakorune_emit_mir.sh` and targets the direct-emit fallback lane
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

@@ -42,7 +42,8 @@ Related:
   - current W6 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
-    - next caller-audit bucket is shared shell helper keep, starting with `tools/hakorune_emit_mir.sh`
+    - first `tools/hakorune_emit_mir.sh` helper-local split is landed: Stage-B Program(JSON) production is now execute/coerce/fallback-separated
+    - next exact helper-local leaf is the direct-emit fallback lane inside `tools/hakorune_emit_mir.sh`
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

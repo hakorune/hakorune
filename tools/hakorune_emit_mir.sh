@@ -378,6 +378,14 @@ sys.exit(1)
 }
 
 emit_stageb_program_json_v0() {
+  local raw_prog_json normalized_prog_json
+  raw_prog_json="$(execute_stageb_program_json_v0_raw)" || return 1
+  normalized_prog_json="$(coerce_stageb_program_json_v0_output "$raw_prog_json")" || return $?
+  printf '%s' "$normalized_prog_json"
+  return 0
+}
+
+execute_stageb_program_json_v0_raw() {
   local prog_json_out rc
   set +e
   prog_json_out=$((cd "$ROOT" && \
@@ -394,6 +402,12 @@ emit_stageb_program_json_v0() {
   if [ $rc -ne 0 ] || [ -z "$prog_json_out" ]; then
     return 1
   fi
+  printf '%s' "$prog_json_out"
+  return 0
+}
+
+coerce_stageb_program_json_v0_output() {
+  local prog_json_out="$1"
   if ! printf '%s' "$prog_json_out" | grep -q '"kind"\s*:\s*"Program"'; then
     return 2
   fi
@@ -405,15 +419,22 @@ emit_stageb_program_json_v0() {
   return 0
 }
 
-set +e
-PROG_JSON_OUT="$(emit_stageb_program_json_v0)"
-rc=$?
-set -e
+load_stageb_program_json_v0_or_exit() {
+  local out_path="$1" prog_json_out rc
+  set +e
+  prog_json_out="$(emit_stageb_program_json_v0)"
+  rc=$?
+  set -e
 
-# If Stage-B fails or emits invalid Program JSON, fall back to direct MIR emit.
-if [ $rc -ne 0 ] || [ -z "$PROG_JSON_OUT" ]; then
-  exit_after_stageb_program_json_v0_fallback "$rc" "$OUT"
-fi
+  if [ $rc -ne 0 ] || [ -z "$prog_json_out" ]; then
+    exit_after_stageb_program_json_v0_fallback "$rc" "$out_path"
+  fi
+
+  STAGEB_PROGRAM_JSON_V0_OUT="$prog_json_out"
+}
+STAGEB_PROGRAM_JSON_V0_OUT=""
+load_stageb_program_json_v0_or_exit "$OUT"
+PROG_JSON_OUT="$STAGEB_PROGRAM_JSON_V0_OUT"
 
 # 2) Convert Program(JSON v0) → MIR(JSON)
 #    Prefer selfhost builder first when explicitly requested; otherwise use delegate (Gate‑C) for stability.

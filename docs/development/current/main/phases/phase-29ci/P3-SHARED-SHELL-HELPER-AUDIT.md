@@ -88,7 +88,7 @@ shared shell helper keep として残っている 3 file について、
 - `tools/hakorune_emit_mir.sh` can keep shrinking by localizing its embedded selfhost/provider runner generation; this is helper-local structure work and does not require touching the shared build/test contracts
 - `tools/hakorune_emit_mir.sh` now also splits the selfhost/provider runner lifecycle into explicit render / execute / capture / cleanup helpers, so the helper-local tail is now route orchestration plus exact temp-file ownership instead of one large mixed block
 - `tools/hakorune_emit_mir.sh` still owns `Stage-B Program(JSON) production + imports normalize + Program→MIR fallback funnel`, so the next safe helper-local slice is the Stage-B Program(JSON) production block itself; do not mix that with direct-emit fallback or legacy delegate retirement in the same patch
-- `tools/hakorune_emit_mir.sh` now keeps Stage-B Program(JSON) production + imports normalize behind `emit_stageb_program_json_v0()`, so the remaining helper-local funnel is narrower and the next slice can focus on direct-emit fallback or delegate tail in isolation
+- `tools/hakorune_emit_mir.sh` now keeps that Stage-B Program(JSON) production block split across `execute_stageb_program_json_v0_raw()`, `coerce_stageb_program_json_v0_output()`, `emit_stageb_program_json_v0()`, and `load_stageb_program_json_v0_or_exit()`, so the remaining helper-local funnel is the direct-emit fallback lane rather than mixed produce+fallback logic
 - `tools/hakorune_emit_mir.sh` now keeps the provider-first delegate funnel behind `emit_mir_json_from_program_json_delegate_chain()`, with the legacy CLI fallback isolated in `try_legacy_program_json_delegate()`, so the remaining helper-local tail is the direct-emit fallback lane rather than mixed delegate wiring
 - `tools/hakorune_emit_mir.sh` now also keeps the duplicated Stage-B fail/invalid -> direct MIR emit fallback behind `exit_after_direct_emit_fallback()`, so the script-local fallback funnel is split into exact helper lanes instead of repeated top-level branches
 - `tools/hakorune_emit_mir.sh` now also keeps the Stage-B fail/invalid -> direct MIR emit fallback branch itself behind `exit_after_stageb_program_json_v0_fallback()`, so the top-level route selection no longer mixes the two failure cases inline
@@ -142,7 +142,7 @@ shared shell helper keep として残っている 3 file について、
 
 ## Immediate Next
 
-1. keep `tools/hakorune_emit_mir.sh` monitor-only while `selfhost_build.sh` downstream audit is active
+1. keep `tools/hakorune_emit_mir.sh` active and isolate the direct-emit fallback lane as the next exact helper-local slice
 2. keep `tools/selfhost/selfhost_build.sh` monitor-only unless a new helper-local split inside the already isolated consumer helpers becomes necessary
 3. keep `tools/smokes/v2/lib/test_runner.sh` on helper-local slices only: builder lanes, shape/result routing, and verify-tail policy are isolated now, so any next slice should target only tiny runtime/route leaves without touching the smoke tail yet
 4. keep `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` green while thinning only tiny helper leaves; do not reopen vm-hako subset debt or the 43-file smoke tail just to touch this shared helper
