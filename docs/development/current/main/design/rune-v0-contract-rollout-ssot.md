@@ -127,6 +127,22 @@ None under the current narrow v0 scope.
 - keep `.hako` source-route transport as a shim, not a second metadata truth
 - next action is docs-only close sync unless a brand-new exact Rune gap appears
 
+### 5.2 Planned follow-up after close sync
+
+The following is intentionally deferred, but it is still planned work:
+
+- `.hako` declaration-local full carrier parity
+  - move beyond the current selected-entry transport shim
+  - carry declaration-local `attrs.runes` through the `.hako` route to direct MIR with the same truth shape as Rust
+- selected-entry transport shim retirement
+  - remove the synthetic `Main.main` transport once `.hako` direct MIR parity is established
+
+This follow-up must keep the existing v0 guard rails:
+
+- `Program(JSON v0)` remains no-widen
+- no second metadata truth
+- backend semantics stay narrow unless a separate accepted consumer slice widens them
+
 Forbidden:
 
 - one-parser-only active grammar

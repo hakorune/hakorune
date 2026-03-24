@@ -91,8 +91,11 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - Rust direct MIR carrier
    - `.hako` selected-entry transport shim
    - selected-entry `ny-llvmc` semantics
-3. keep `phase-29cj` closed unless a new exact disappearing leaf appears
-4. choose the next active implementation lane only after the Rune close-sync is pinned
+3. pin the future Rune reopen so `.hako` full support is not forgotten:
+   - declaration-local full carrier parity on the `.hako` route
+   - direct MIR parity without the selected-entry transport shim
+4. keep `phase-29cj` closed unless a new exact disappearing leaf appears
+5. choose the next active implementation lane only after the Rune close-sync is pinned
 
 ## Lane Pointers
 

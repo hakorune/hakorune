@@ -62,7 +62,10 @@ Related:
 1. keep `phase-29cj` closed unless a new exact disappearing leaf appears
 2. close-sync `phase-29cu` unless a new exact Rune gap appears
 3. keep Rune lane docs in current-truth reading
-4. choose the next active implementation lane only after the Rune close sync is pinned
+4. pin the future Rune reopen:
+   - `.hako` declaration-local full carrier parity
+   - selected-entry transport shim retirement
+5. choose the next active implementation lane only after the Rune close sync is pinned
 
 ## Active Lane
 
@@ -78,6 +81,9 @@ Related:
   - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
 - lane state:
   - `close-sync-ready`
+- planned future reopen:
+  - `.hako` full declaration-local MIR parity
+  - retire the selected-entry transport shim after parity is live
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - `llvmlite` stays noop/compat

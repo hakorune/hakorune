@@ -42,6 +42,9 @@ Related:
     - `Program(JSON v0)` remains no-widen
   - lane status is now `close-sync-ready`
   - next exact step is docs-only close sync unless a new Rune gap appears
+  - planned future reopen:
+    - `.hako` declaration-local full Rune carrier parity
+    - removal of the selected-entry transport shim once direct MIR parity is ready
 - Bootstrap-retire lane: `phase-29cj`
   - status: `formal-close-synced`
   - current stop-line is still `src/host_providers/mir_builder.rs::module_to_mir_json(...)`

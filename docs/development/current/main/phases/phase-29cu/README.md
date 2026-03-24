@@ -149,6 +149,20 @@ None under the current narrow v0 scope.
 - keep current `.hako` source-route transport as a shim, not a second metadata truth
 - next action is formal close sync unless a brand-new exact Rune gap appears
 
+## Planned Future Reopen
+
+The current narrow v0 scope is intentionally smaller than full `.hako` route parity.
+That future work stays planned and must not be forgotten after close sync.
+
+- `.hako` declaration-local full Rune carrier parity
+  - carry declaration-local `attrs.runes` on the `.hako` route beyond the current selected-entry transport shim
+- selected-entry transport shim retirement
+  - retire the synthetic `Main.main` transport once `.hako` direct MIR parity is live
+- guard rails for that reopen:
+  - keep `Program(JSON v0)` no-widen
+  - do not invent a second metadata truth
+  - keep backend semantics narrow unless a separate consumer slice is accepted
+
 ## Current Proof Line
 
 1. Rust parser/unit coverage
