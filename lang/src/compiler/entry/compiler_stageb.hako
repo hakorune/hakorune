@@ -284,7 +284,7 @@ static box StageBDriverBox {
 
     // 6) Scan for function definitions and build defs JSON (modularized)
     local methods = StageBFuncScannerBox.scan_all_boxes(source)
-    local defs_json = StageBJsonBuilderBox.build_defs_json_with_source(methods, source, ast_json)
+    local defs_json = StageBJsonBuilderBox.build_defs_json_with_source(methods, source)
     if me._is_freeze_tag(defs_json) == 1 { return defs_json }
 
     // 7) Inject defs into Program JSON (Phase 29bq+ modularization)
@@ -481,7 +481,7 @@ static box StageBDriverBox {
         }
 
         // Build defs JSON array (modularized)
-        defs_json = StageBJsonBuilderBox.build_defs_json_with_source(methods, src, ast_json)
+        defs_json = StageBJsonBuilderBox.build_defs_json_with_source(methods, src)
         if me._is_freeze_tag(defs_json) == 1 {
           print(defs_json)
           return 1

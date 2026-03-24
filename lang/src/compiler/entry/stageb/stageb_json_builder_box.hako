@@ -54,8 +54,8 @@ static box StageBJsonBuilderBox {
 
   // Build defs JSON with source-backed Rune augmentation.
   // - helper defs get declaration-local attrs.runes from source rescans
-  // - entry `Main.main` gets a synthetic def only when Rune attrs are present
-  method build_defs_json_with_source(methods, source_text, entry_program_json) {
+  // - entry `Main.main` gets a real source-scanned def only when Rune attrs are present
+  method build_defs_json_with_source(methods, source_text) {
     local defs = methods
     if defs == null { defs = new ArrayBox() }
 
@@ -81,14 +81,32 @@ static box StageBJsonBuilderBox {
         mi = mi + 1
       }
 
-      local entry_def = StageBRuneBox.build_entry_def_or_null(source_text, entry_program_json)
+      local entry_def = StageBRuneBox.build_root_entry_def_or_null(source_text)
       if entry_def != null {
         if StageBRuneBox.is_freeze_tag(entry_def) == 1 { return entry_def }
-        defs.push(entry_def)
+        if me._defs_has_entry(defs, "Main", "main") != 1 {
+          defs.push(entry_def)
+        }
       }
     }
 
     return me.build_defs_json(defs)
+  }
+
+  method _defs_has_entry(defs, box_name, method_name) {
+    if defs == null { return 0 }
+    local i = 0
+    local n = defs.length()
+    loop(i < n) {
+      local def = defs.get(i)
+      if def != null {
+        local cur_box = "" + def.get("box")
+        local cur_name = "" + def.get("name")
+        if cur_box == ("" + box_name) && cur_name == ("" + method_name) { return 1 }
+      }
+      i = i + 1
+    }
+    return 0
   }
 
   // Helper: build params JSON array

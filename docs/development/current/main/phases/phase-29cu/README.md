@@ -39,16 +39,16 @@ Related:
 
 ## Current Read
 
-- lane status: `reopen W1 landed`
+- lane status: `close-sync-ready`
 - current implementation focus stays here after `phase-29cj` formal close sync
 - current truth is already narrower than the original rollout wording:
   - declaration-local `attrs.runes`
   - Rust direct MIR carrier
-  - `.hako` source-route selected-entry transport shim (transitional keep)
+  - `.hako` source-route real `Main.main` root-entry carrier
   - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
   - selected-entry-only `ny-llvmc` `Symbol` / `CallConv` semantics
   - `Program(JSON v0)` no-widen
-- next exact step is selected-entry transport shim retirement with a canonical non-shim root-entry carrier
+- next exact step is docs-only formal close sync unless a new exact Rune gap appears
 
 ## Fixed Decisions
 
@@ -104,9 +104,9 @@ Partially landed.
 
 - `.hako` parser accepts the same Rune surface and arg-shape contract
 - `.hako` statement/program routes fail fast on Rune invalid placement instead of attaching generic statement attrs
-- `.hako` selected-entry shim now fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values instead of silently carrying them
+- `.hako` root-entry carrier path now fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values instead of silently carrying them
 - current `.hako` source-route keep does not claim full declaration-local MIR parity yet
-- current `.hako` end-to-end keep uses a selected-entry transport shim instead of widening `Program(JSON v0)`
+- current `.hako` end-to-end keep uses a real root-entry `Main.main` def carrier instead of widening `Program(JSON v0)`
 
 ### P3. AST / direct MIR carrier
 
@@ -116,7 +116,7 @@ Partially landed, with route-specific reading.
   - declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR
   - direct MIR JSON mirrors declaration-local attrs on functions
 - `.hako` source-route keep:
-  - selected-entry attrs still survive via synthetic `Main.main` def transport
+  - root-entry attrs now survive via a real `Main.main` declaration def in `defs[]`
   - `.hako` compiler/mirbuilder state now carries a generic function-rune map derived from `defs[].attrs.runes`
   - `.hako` MIR attrs injection is now function-name driven instead of `main` hardcode
   - `Program(JSON v0)` root/body stay Rune-free
@@ -131,7 +131,7 @@ Landed for the current narrow v0 scope.
   - parser-level unknown/arity fail-fast
   - `.hako` parser invalid-placement fail-fast on statement/program routes
   - Rust function-target placement / ABI-facing verifier contract
-  - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
+  - `.hako` root-entry carrier value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
 - no new exact implementation leaf remains under the current narrow v0 scope
 
 ### P5. `ny-llvmc` ABI consumer
@@ -143,19 +143,19 @@ Landed narrow slice.
 - `ny_main` stays compat alias when `Symbol(...)` renames the primary entry
 - `llvmlite` remains ignore/noop keep
 
-## Remaining Exact Leaf
+## Current Narrow-Scope Status
 
-Selected-entry transport shim retirement.
+Selected-entry shim retirement is landed for the current narrow v0 scope.
 
-- keep carrier/backend scope unchanged
-- keep `Program(JSON v0)` no-widen
-- replace the synthetic `Main.main` transport with a canonical non-shim root-entry carrier on the `.hako` route
-- keep the current generic function-rune map as the only `.hako` MIR-builder carrier truth
+- carrier/backend scope stayed unchanged
+- `Program(JSON v0)` stayed no-widen
+- `.hako` route now uses a canonical real `Main.main` declaration def as the root-entry carrier
+- the current generic function-rune map remains the only `.hako` MIR-builder carrier truth
 
 ## Planned Future Reopen
 
 The current narrow v0 scope is intentionally smaller than full `.hako` route parity.
-That future work stays planned after the shim-retirement leaf.
+That future work stays planned after this close-sync-ready state.
 
 - `.hako` declaration-local full Rune carrier parity
   - carry declaration-local `attrs.runes` on the `.hako` route beyond the current root-entry-only carrier
@@ -172,9 +172,11 @@ That future work stays planned after the shim-retirement leaf.
    - `cargo test env_mirbuilder_emit_keeps_rune_attrs_on_selected_entry -- --nocapture`
 3. Program(JSON v0) no-widen guard
    - `cargo test source_to_program_json_v0_does_not_widen_with_rune_attrs -- --nocapture`
-4. `.hako` / Stage-B selected-entry transport proof
+4. downstream no-duplicate proof
    - `cargo test json_stageb_entry_def_runes_attach_to_main_without_duplicate_main_def -- --nocapture`
-5. backend proof
+5. `.hako` / Stage-B root-entry carrier proof
+   - `bash tools/smokes/v2/profiles/integration/parser/parser_rune_decl_local_attrs_selected_entry_trace.sh`
+6. backend proof
    - selected-entry `ny-llvmc` `Symbol` / `CallConv` path is already live
    - `llvmlite` remains out of scope except safe-ignore compatibility
 

@@ -1,12 +1,11 @@
 // stageb_rune_box.hako — Stage-B/source-route Rune helper
 // Responsibility:
 // - Extract declaration-local method Rune lines from source text.
-// - Build a synthetic Main.main def carrier when Rune attrs are present.
+// - Build a real Main.main def carrier when Rune attrs are present.
 // - Keep Rune parsing on the parser SSOT instead of duplicating syntax logic.
 
 using sh_core as StringHelpers
 using lang.compiler.entry.func_scanner as FuncScannerBox
-using lang.compiler.parser.parser_box as ParserBox
 using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
 
 static box StageBRuneBox {
@@ -26,21 +25,41 @@ static box StageBRuneBox {
     return me._parse_rune_lines_to_json(rune_lines)
   }
 
-  method build_entry_def_or_null(source, program_json) {
+  _fail(msg) {
+    return "[freeze:contract][stageb/rune] " + ("" + msg)
+  }
+
+  method build_root_entry_def_or_null(source) {
     local runes_json = me.extract_entry_runes_json(source)
     if me.is_freeze_tag(runes_json) == 1 { return runes_json }
     if runes_json == null || runes_json == "" || runes_json == "[]" { return null }
 
-    local body_json = me._extract_program_body_json(program_json)
-    if body_json == null || body_json == "" || body_json == "[]" { return null }
-
-    local def = new MapBox()
-    def.set("name", "main")
-    def.set("params", new ArrayBox())
-    def.set("body_json", body_json)
-    def.set("box", "Main")
+    local def = me._scan_root_entry_def_or_null(source)
+    if def == null {
+      return me._fail("missing real Main.main declaration for root-entry Rune carrier")
+    }
     def.set("runes_json", runes_json)
     return def
+  }
+
+  method _scan_root_entry_def_or_null(source) {
+    local body = me._extract_box_body(source, "Main")
+    if body == null || body == "" { return null }
+
+    local defs = FuncScannerBox._scan_methods(body, "Main", 0, 0)
+    if defs == null { return null }
+
+    local i = 0
+    local n = defs.length()
+    loop(i < n) {
+      local def = defs.get(i)
+      if def != null {
+        local name = "" + def.get("name")
+        if name == "main" { return def }
+      }
+      i = i + 1
+    }
+    return null
   }
 
   method is_freeze_tag(text) {
@@ -159,18 +178,115 @@ static box StageBRuneBox {
     if trimmed == "" { return "[]" }
     local value_contract = me._validate_rune_lines_value_contract(trimmed)
     if me.is_freeze_tag(value_contract) == 1 { return value_contract }
+    local out = "[]"
+    local s = "" + trimmed
+    local n = s.length()
+    local line_start = 0
+    local i = 0
+    loop(i <= n) {
+      if i == n || s.substring(i, i + 1) == "\n" {
+        local line = s.substring(line_start, i)
+        local entry = me._parse_rune_line_to_entry_or_error(line)
+        if me.is_freeze_tag(entry) == 1 { return entry }
+        if entry != null && entry != "" {
+          local next = RuneContractBox.append_pending_checked(out, entry)
+          if me.is_freeze_tag(next) == 1 { return next }
+          out = next
+        }
+        line_start = i + 1
+      }
+      i = i + 1
+    }
+    return out
+  }
 
-    local p = new ParserBox()
-    p.stage3_enable(1)
-    local block_src = "{\n" + trimmed + "\nlocal __stageb_rune_probe = 0\n}"
-    local block_res = p.parse_block2(block_src, 0)
-    if me.is_freeze_tag(block_res) == 1 { return block_res }
-    local at = block_res.lastIndexOf("@")
-    if at < 0 { return "[]" }
+  method _parse_rune_line_to_entry_or_error(line) {
+    local trimmed = FuncScannerBox._trim(line)
+    if trimmed == "" { return "" }
+    if StringHelpers.starts_with(trimmed, 0, "@rune") != 1 { return "" }
 
-    local body_json = block_res.substring(0, at)
-    if me.is_freeze_tag(body_json) == 1 { return body_json }
-    return me._extract_runes_json_from_body(body_json)
+    local pos = 5
+    local n = trimmed.length()
+    loop(pos < n) {
+      local ch_ws = trimmed.substring(pos, pos + 1)
+      if ch_ws == " " || ch_ws == "\t" { pos = pos + 1  continue }
+      break
+    }
+
+    local name_and_pos = me._read_ident_with_pos(trimmed, pos)
+    local at = StringHelpers.last_index_of(name_and_pos, "@")
+    if at < 0 {
+      return "[freeze:contract][parser/rune] rune name after @rune"
+    }
+    local rune_name = name_and_pos.substring(0, at)
+    pos = StringHelpers.to_i64(name_and_pos.substring(at + 1, name_and_pos.length()))
+
+    local noarg = 0
+    if rune_name == "Public" || rune_name == "Internal" || rune_name == "FfiSafe" || rune_name == "ReturnsOwned" {
+      noarg = 1
+    }
+    local needs_arg = 0
+    if rune_name == "Symbol" || rune_name == "CallConv" || rune_name == "FreeWith" || rune_name == "Ownership" {
+      needs_arg = 1
+    }
+    if noarg != 1 && needs_arg != 1 {
+      return "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership"
+    }
+
+    loop(pos < n) {
+      local ch_ws = trimmed.substring(pos, pos + 1)
+      if ch_ws == " " || ch_ws == "\t" { pos = pos + 1  continue }
+      break
+    }
+
+    local args_json = "[]"
+    if pos < n && trimmed.substring(pos, pos + 1) == "(" {
+      if noarg == 1 {
+        return "[freeze:contract][parser/rune] @rune(" + rune_name + ") takes no args"
+      }
+      pos = pos + 1
+      local arg_and_pos = me._read_arg0_with_pos(trimmed, pos)
+      local arg_at = StringHelpers.last_index_of(arg_and_pos, "@")
+      if arg_at < 0 {
+        return "[freeze:contract][parser/rune] rune argument"
+      }
+      local arg0 = arg_and_pos.substring(0, arg_at)
+      pos = StringHelpers.to_i64(arg_and_pos.substring(arg_at + 1, arg_and_pos.length()))
+      loop(pos < n) {
+        local ch_ws = trimmed.substring(pos, pos + 1)
+        if ch_ws == " " || ch_ws == "\t" { pos = pos + 1  continue }
+        break
+      }
+      if pos < n && trimmed.substring(pos, pos + 1) == "," {
+        return "[freeze:contract][parser/rune] @rune(" + rune_name + ")(<ident|string>)"
+      }
+      if pos >= n || trimmed.substring(pos, pos + 1) != ")" {
+        return "[freeze:contract][parser/rune] missing ')' after rune args"
+      }
+      pos = pos + 1
+      args_json = "[" + StringHelpers.json_quote(arg0) + "]"
+    } else if needs_arg == 1 {
+      return "[freeze:contract][parser/rune] rune args required for this rune"
+    }
+
+    loop(pos < n) {
+      local ch_ws = trimmed.substring(pos, pos + 1)
+      if ch_ws == " " || ch_ws == "\t" { pos = pos + 1  continue }
+      break
+    }
+    if pos < n && trimmed.substring(pos, pos + 1) == ";" { pos = pos + 1 }
+    loop(pos < n) {
+      local ch_ws = trimmed.substring(pos, pos + 1)
+      if ch_ws == " " || ch_ws == "\t" { pos = pos + 1  continue }
+      break
+    }
+    if pos < n {
+      return "[freeze:contract][parser/rune] invalid trailing tokens"
+    }
+
+    local value_contract = RuneContractBox.validate_value_contract(rune_name, args_json)
+    if value_contract != "" { return value_contract }
+    return "{\"name\":" + StringHelpers.json_quote(rune_name) + ",\"args\":" + args_json + "}"
   }
 
   method _extract_runes_json_from_body(body_json) {
@@ -228,23 +344,6 @@ static box StageBRuneBox {
       i = i + 1
     }
     return "[]"
-  }
-
-  method _extract_program_body_json(program_json) {
-    if program_json == null { return "" }
-    local s = "" + program_json
-    local body_key = "\"body\":"
-    local pos = StringHelpers.index_of(s, 0, body_key)
-    if pos < 0 { return "" }
-    local start = pos + body_key.length()
-    local n = s.length()
-    loop(start < n) {
-      local ch = s.substring(start, start + 1)
-      if ch == "[" { break }
-      start = start + 1
-    }
-    if start >= n || s.substring(start, start + 1) != "[" { return "" }
-    return me._extract_balanced_array(s, start)
   }
 
   method _validate_rune_lines_value_contract(rune_lines) {

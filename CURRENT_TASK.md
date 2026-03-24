@@ -24,7 +24,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - runtime lane is parked/monitor-only again; there is no active `vm-hako` throughput blocker.
 - `phase-29cj` has completed its near-thin-floor reinventory and formal close sync.
 - there is no new bootstrap-retire blocker right now.
-- `phase-29cu` has reopened for `.hako` parity prep; W1 generic carrier prep is landed.
+- `phase-29cu` has landed the `.hako` root-entry carrier replacement; the narrow Rune lane is close-sync-ready again.
 
 ## Current Priority
 
@@ -33,17 +33,20 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - current truth is already narrower than the original rollout wording:
      - declaration-local `attrs.runes`
      - Rust direct MIR carrier
-     - `.hako` source-route selected-entry transport shim (transitional keep)
+     - `.hako` source-route root-entry carrier via a real `defs[].Main.main.attrs.runes` entry
      - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
      - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
    - latest landed verifier cut:
      - Rust function-target placement / ABI-facing verifier contract
      - `.hako` parser statement/program invalid-placement fail-fast
-     - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
+     - `.hako` root-entry carrier value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
    - latest landed carrier cut:
      - `.hako` compiler/mirbuilder state now carries a generic function-rune map instead of `entry_runes_json`
      - `.hako` MIR attrs injection is function-name driven instead of `main` hardcode
-   - exact next: selected-entry transport shim retirement with a canonical non-shim root-entry carrier
+     - `.hako` Stage-B source route now carries root-entry Rune attrs through a real `Main.main` def instead of a synthetic transport shim
+   - exact next:
+     - docs-only formal close sync for the narrow Rune v0 lane
+     - future reopen only if `.hako` declaration-local full carrier parity resumes
 2. close-synced mainline lane: `phase-29cj`
    - status: `formal-close-synced`
    - reopen only if a new exact disappearing leaf appears above the Rust stop-line or if deletion-prep explicitly resumes
@@ -93,15 +96,13 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 2. keep the lane docs in current-truth reading:
    - declaration-local `attrs.runes`
    - Rust direct MIR carrier
-   - `.hako` generic function-rune carrier + transitional selected-entry shim
+   - `.hako` generic function-rune carrier + real root-entry `Main.main` carrier
    - selected-entry `ny-llvmc` semantics
-3. land the next exact Rune leaf:
-   - retire the selected-entry transport shim
-   - replace it with a canonical non-shim root-entry carrier on the `.hako` route
+3. formal-close-sync the narrow Rune v0 lane unless a new exact gap appears
 4. pin the remaining future Rune reopen so `.hako` full support is not forgotten:
    - declaration-local full carrier parity beyond root-entry-only transport
 5. keep `phase-29cj` closed unless a new exact disappearing leaf appears
-6. choose the next active implementation lane only after the Rune shim-retirement cut is pinned
+6. choose the next active implementation lane only after the Rune close sync is pinned
 
 ## Lane Pointers
 

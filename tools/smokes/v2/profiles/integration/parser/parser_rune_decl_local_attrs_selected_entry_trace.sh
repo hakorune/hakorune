@@ -24,11 +24,14 @@ cleanup() {
 trap cleanup EXIT
 
 SRC="$TMPDIR/rune_decl_local_attrs.hako"
+STAGEB_SRC="$TMPDIR/rune_decl_local_attrs_stageb.hako"
 INVALID_SRC="$TMPDIR/rune_invalid_placement.hako"
 INVALID_CALLCONV_SRC="$TMPDIR/rune_invalid_callconv.hako"
 INVALID_OWNERSHIP_SRC="$TMPDIR/rune_invalid_ownership.hako"
 AST_LOG="$TMPDIR/ast_json.log"
 AST_JSON="$TMPDIR/ast.json"
+STAGEB_RAW="$TMPDIR/stageb_program_raw.log"
+STAGEB_JSON="$TMPDIR/stageb_program.json"
 MIR_JSON="$TMPDIR/mir.json"
 MIR_JSON_MUT="$TMPDIR/mir_mut.json"
 MIR_LOG="$TMPDIR/mir_json.log"
@@ -46,6 +49,16 @@ static box Main {
   @rune Symbol("main_sym")
   @rune CallConv("c")
   main() {
+    return 0
+  }
+}
+HK
+
+cat >"$STAGEB_SRC" <<'HK'
+static box Main {
+  @rune Symbol("main_sym")
+  @rune CallConv("c")
+  main(args) {
     return 0
   }
 }
@@ -210,6 +223,69 @@ helper_attrs = helper_decl.get("attrs") if isinstance(helper_decl, dict) else No
 helper_runes = helper_attrs.get("runes") if isinstance(helper_attrs, dict) else None
 if helper_runes != []:
     print(f"expected helper attrs.runes to be empty, got: {helper_runes}", file=sys.stderr)
+    sys.exit(1)
+PY
+
+if ! NYASH_FEATURES="$FEATURES" \
+  "$NYASH_ROOT/tools/selfhost/run_stageb_compiler_vm.sh" --source-file "$STAGEB_SRC" \
+  >"$STAGEB_RAW" 2>&1; then
+  log_error "selfhost Stage-B program emit failed"
+  tail -n 120 "$STAGEB_RAW" >&2 || true
+  exit 1
+fi
+
+if ! awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(found?0:1)}' \
+  "$STAGEB_RAW" >"$STAGEB_JSON"; then
+  log_error "selfhost Stage-B program JSON missing output"
+  tail -n 120 "$STAGEB_RAW" >&2 || true
+  exit 1
+fi
+
+python3 - "$STAGEB_JSON" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+if data.get("attrs") is not None:
+    print("Program(JSON v0) root unexpectedly widened with attrs", file=sys.stderr)
+    sys.exit(1)
+
+defs = data.get("defs")
+if not isinstance(defs, list):
+    print("defs array missing from Stage-B program JSON", file=sys.stderr)
+    sys.exit(1)
+
+main_def = None
+for entry in defs:
+    if isinstance(entry, dict) and entry.get("box") == "Main" and entry.get("name") == "main":
+        main_def = entry
+        break
+
+if not isinstance(main_def, dict):
+    print("real Main.main def carrier missing from defs", file=sys.stderr)
+    sys.exit(1)
+
+if main_def.get("params") != ["args"]:
+    print(f"unexpected Main.main params: {main_def.get('params')}", file=sys.stderr)
+    sys.exit(1)
+
+runes = main_def.get("attrs", {}).get("runes")
+if not isinstance(runes, list):
+    print("Main.main attrs.runes missing from Stage-B program JSON", file=sys.stderr)
+    sys.exit(1)
+
+names = [entry.get("name") for entry in runes if isinstance(entry, dict)]
+if names != ["Symbol", "CallConv"]:
+    print(f"unexpected Stage-B carrier rune names: {names}", file=sys.stderr)
+    sys.exit(1)
+
+args0 = runes[0].get("args") if isinstance(runes[0], dict) else None
+args1 = runes[1].get("args") if isinstance(runes[1], dict) else None
+if args0 != ["main_sym"] or args1 != ["c"]:
+    print("unexpected Stage-B carrier rune args", file=sys.stderr)
     sys.exit(1)
 PY
 

@@ -34,20 +34,20 @@ Related:
   - current reading is now:
     - declaration-local `attrs.runes`
     - Rust direct MIR carrier
-    - `.hako` source-route selected-entry transport shim (transitional keep)
+    - `.hako` source-route root-entry carrier via a real `defs[].Main.main.attrs.runes` entry
     - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
     - `.hako` parser statement/program routes fail fast on Rune invalid placement
     - Rust function-target placement / ABI-facing verifier contract
-    - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
+    - `.hako` root-entry carrier value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
     - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
     - `Program(JSON v0)` remains no-widen
-  - lane status is now `reopen W1 landed`
+  - lane status is now `close-sync-ready`
   - latest landed carrier cut:
     - `.hako` compiler/mirbuilder state now carries a generic function-rune map instead of `entry_runes_json`
     - `.hako` MIR attrs injection is function-name driven instead of `main` hardcode
+    - `.hako` Stage-B source route now carries root-entry Rune attrs through a real `Main.main` def instead of a synthetic transport shim
   - next exact step:
-    - selected-entry transport shim retirement
-    - canonical non-shim root-entry carrier on the `.hako` route
+    - docs-only formal close sync for the narrow Rune v0 lane
   - planned future reopen after that:
     - `.hako` declaration-local full Rune carrier parity beyond root-entry transport
 - Bootstrap-retire lane: `phase-29cj`

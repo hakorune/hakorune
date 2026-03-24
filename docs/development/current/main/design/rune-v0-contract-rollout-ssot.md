@@ -111,21 +111,21 @@ Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate prov
 | --- | --- | --- |
 | docs/task lock | landed | syntax / carrier / backend scope are docs-locked |
 | Rust parser | landed | `@rune` behind `NYASH_FEATURES=rune`; declaration-local attrs kept; unknown/arity/declaration-required fail-fast |
-| `.hako` parser | partly landed | same Rune surface + arg-shape contract; statement/program routes fail fast on invalid placement; selected-entry shim fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values |
+| `.hako` parser | partly landed | same Rune surface + arg-shape contract; statement/program routes fail fast on invalid placement; root-entry carrier path fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values |
 | Rust AST/direct MIR carrier | landed | declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR |
-| `.hako` source-route keep | partly landed | selected-entry attrs still survive via synthetic `Main.main` transport shim; compiler/mirbuilder now carries a generic function-rune map from `defs[].attrs.runes`; still not a claim of broad declaration-local MIR parity |
+| `.hako` source-route keep | partly landed | root-entry attrs now survive via a real `Main.main` declaration def in `defs[]`; compiler/mirbuilder carries a generic function-rune map from `defs[].attrs.runes`; still not a claim of broad declaration-local MIR parity |
 | Program(JSON v0) | locked | retire target; no Rune widening |
-| verifier | landed for narrow v0 | duplicate/conflict + box-target visibility-only checks are live; Rust function-target ABI/placement verifier is live; `.hako` statement/program invalid-placement fail-fast and selected-entry shim value-contract fail-fast are live |
+| verifier | landed for narrow v0 | duplicate/conflict + box-target visibility-only checks are live; Rust function-target ABI/placement verifier is live; `.hako` statement/program invalid-placement fail-fast and root-entry carrier value-contract fail-fast are live |
 | `ny-llvmc` consumer | landed narrow | selected-entry `Symbol` / `CallConv` semantics only |
 | `llvmlite` | unchanged | safe ignore / noop keep only |
 
-### 5.1 Remaining exact leaf
+### 5.1 Current narrow-scope status
 
-Selected-entry transport shim retirement.
+Selected-entry shim retirement is landed for the current narrow v0 scope.
 
-- keep carrier/backend scope unchanged
-- keep `.hako` source-route transport as a shim, not a second metadata truth until retirement lands
-- next action is replacing the synthetic root-entry shim with a canonical non-shim root-entry carrier
+- carrier/backend scope stayed unchanged
+- `.hako` source-route transport is now a real root-entry declaration def, not a synthetic shim
+- the generic function-rune map remains the only `.hako` MIR-builder carrier truth
 
 ### 5.2 Planned follow-up after close sync
 
@@ -169,7 +169,7 @@ Carrier rules:
 - AST JSON v0 carries Rune metadata on declaration-bearing nodes
 - Program(JSON v0) is a retire target and must not be widened for Rune v0
 - Rust direct MIR JSON mirrors declaration-local attrs into functions
-- current `.hako` source-route keep may use a synthetic `Main.main` def transport shim for selected-entry attrs, but Program(JSON v0) root/body must stay Rune-free
+- current `.hako` source-route keep uses a real `Main.main` declaration def in `defs[]` for root-entry attrs, while Program(JSON v0) root/body stay Rune-free
 - existing declaration metadata owners such as `metadata.extern_c` stay the extension point; do not invent a parallel Rune-only channel
 
 ## 7. Backend Scope
@@ -180,7 +180,7 @@ Carrier rules:
 - `llvmlite` does not gain active Rune semantics in v0; it must simply ignore extra metadata safely
 - Rust VM/runtime remains metadata-carrier or verifier-adjacent only, not Rune-semantic owner
 - `hako_module.toml` remains the module/file boundary SSOT
-- `.hako` direct MIR lane carries declaration-local attrs instead of widening Program(JSON v0); current source-route keep may use a synthetic selected-entry def only as a transitional transport shim
+- `.hako` direct MIR lane carries declaration-local attrs instead of widening Program(JSON v0); current source-route keep carries root-entry attrs through a real `Main.main` declaration def in `defs[]`
 
 ## 8. Non-Goals
 
@@ -189,4 +189,4 @@ Carrier rules:
 - substrate capability implementation via Rune
 - `llvmlite` feature parity for Rune semantics
 - new public runtime APIs whose only purpose is Rune
-- broadening the current `.hako` source-route transport shim into a second metadata channel
+- inventing a second metadata channel beyond the current declaration-def carrier truth

@@ -304,7 +304,7 @@ static box BuildBox {
     // 元の src だけを見ると using/prefix helper boxes が defs に載らず、
     // bridge-first Stage2 build で helper symbol closure が崩れる。
     local methods = FuncScannerBox.scan_all_boxes(scan_src)
-    return StageBJsonBuilderBox.build_defs_json_with_source(methods, scan_src, ast_json)
+    return StageBJsonBuilderBox.build_defs_json_with_source(methods, scan_src)
   }
 
   method _inject_imports_json(ast_json, scan_src) {

@@ -61,10 +61,10 @@ Related:
 
 1. keep `phase-29cj` closed unless a new exact disappearing leaf appears
 2. keep `phase-29cu` active for the next exact Rune leaf
-3. land selected-entry transport shim retirement with a canonical non-shim root-entry carrier
+3. formal-close-sync the narrow Rune lane unless a new exact gap appears
 4. pin the remaining future Rune reopen:
    - `.hako` declaration-local full carrier parity beyond root-entry transport
-5. choose the next active implementation lane only after the Rune shim-retirement cut is pinned
+5. choose the next active implementation lane only after the Rune close sync is pinned
 
 ## Active Lane
 
@@ -74,17 +74,16 @@ Related:
   - `.hako` parser grammar/arg-shape parity
   - `.hako` statement/program-route invalid-placement fail-fast
   - Rust function-target placement / ABI-facing verifier contract
-  - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
+  - `.hako` root-entry carrier value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
   - Rust direct MIR `attrs.runes` carrier
-  - `.hako` source-route selected-entry transport shim (transitional keep)
+  - `.hako` source-route real `Main.main` root-entry carrier
   - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
   - `.hako` compiler/mirbuilder function-name attrs injection
   - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
 - lane state:
-  - `reopen W1 landed`
+  - `close-sync-ready`
 - next exact leaf:
-  - retire the selected-entry transport shim
-  - replace it with a canonical non-shim root-entry carrier
+  - docs-only formal close sync
 - planned future reopen after that:
   - `.hako` full declaration-local MIR parity beyond root-entry transport
 - guard rails:

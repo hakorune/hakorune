@@ -81,7 +81,7 @@ Program(JSON v0) → MIR JSON v0 (split boxes):
 - MIR JSON builder entry: `lang/src/compiler/mirbuilder/mir_json_v0_builder_box.hako`（thin handoff）
 - MIR JSON shape helper: `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako`
 - MIR JSON emit helper: `lang/src/compiler/mirbuilder/mir_json_v0_emit_box.hako`
-- Rune note: current `.hako` MIR builder now keeps a generic function-rune map from `defs[].attrs.runes` and injects attrs by emitted function name; the synthetic `Main.main` transport remains transitional until the Rune shim-retirement slice lands.
+- Rune note: current `.hako` MIR builder keeps a generic function-rune map from `defs[].attrs.runes` and injects attrs by emitted function name; root entry is now carried by a real `Main.main` def instead of a synthetic transport def.
 
 Recipe-first status (R0-R6):
 - Recipe item vocabulary: `lang/src/compiler/mirbuilder/recipe/recipe_item_box.hako`
