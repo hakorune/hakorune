@@ -31,7 +31,14 @@ Related:
 
 - Active lane: `phase-29cu`
   - Rune v0 returns to the front after `phase-29cj` close sync
-  - current reading stays declaration-local `attrs.runes` -> direct MIR carrier -> selected-entry `ny-llvmc`
+  - current reading is now:
+    - declaration-local `attrs.runes`
+    - Rust direct MIR carrier
+    - `.hako` source-route selected-entry transport shim
+    - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
+    - `Program(JSON v0)` remains no-widen
+  - next exact leaf is verifier-only:
+    - function-target placement / ABI-facing Rune contract
 - Bootstrap-retire lane: `phase-29cj`
   - status: `formal-close-synced`
   - current stop-line is still `src/host_providers/mir_builder.rs::module_to_mir_json(...)`

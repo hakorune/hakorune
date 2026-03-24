@@ -61,18 +61,20 @@ Related:
 
 1. keep `phase-29cj` closed unless a new exact disappearing leaf appears
 2. return implementation focus to `phase-29cu`
-3. sync Rune lane status to current implementation truth
-4. choose one exact remaining Rune leaf only
+3. keep Rune lane docs in current-truth reading
+4. choose one exact remaining verifier leaf only
 
 ## Active Lane
 
 - `phase-29cu` remains active
-- fixed order:
-  1. Rust parser gate
-  2. `.hako` parser parity
-  3. declaration-local `attrs.runes` -> direct MIR carrier
-  4. verifier / consumer activation
-  5. `ny-llvmc` selected-entry consumer
+- landed:
+  - Rust parser gate + declaration-local attrs
+  - `.hako` parser grammar/arg-shape parity
+  - Rust direct MIR `attrs.runes` carrier
+  - `.hako` source-route selected-entry transport shim
+  - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
+- exact remaining leaf:
+  - verifier-focused function-target placement / ABI-facing contract
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - `llvmlite` stays noop/compat

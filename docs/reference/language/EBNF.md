@@ -6,7 +6,7 @@ Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
 - DropScope surface (`fini {}` / `local ... fini {}`) is part of Stage‑3 parser syntax.
-- Rune v0 declaration attributes are active in the docs-locked contract sense for AST/direct MIR, but Program(JSON v0) is not widened for Rune.
+- Rune v0 declaration attributes are active on both Rust and `.hako` parsers; current direct MIR carriage is declaration-local on the Rust route, while the `.hako` source-route currently preserves selected-entry attrs via a transitional shim. Program(JSON v0) is not widened for Rune.
 - SSOT: `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
 
 program   := stmt* EOF

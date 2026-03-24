@@ -29,7 +29,12 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 1. active implementation lane: `phase-29cu`
    - Rune v0 returns to the front after `phase-29cj` close sync
-   - exact next: sync the lane status and choose the next remaining verifier/consumer leaf without widening `Program(JSON v0)`
+   - current truth is already narrower than the original rollout wording:
+     - declaration-local `attrs.runes`
+     - Rust direct MIR carrier
+     - `.hako` source-route selected-entry transport shim
+     - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
+   - exact next: one verifier-focused leaf only, without widening `Program(JSON v0)` or broadening backend semantics
 2. close-synced mainline lane: `phase-29cj`
    - status: `formal-close-synced`
    - reopen only if a new exact disappearing leaf appears above the Rust stop-line or if deletion-prep explicitly resumes
@@ -76,11 +81,13 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Next Task
 
 1. reopen `phase-29cu` as the active implementation lane
-2. sync the lane to current truth:
+2. keep the lane docs in current-truth reading:
    - declaration-local `attrs.runes`
-   - direct MIR carrier
+   - Rust direct MIR carrier
+   - `.hako` selected-entry transport shim
    - selected-entry `ny-llvmc` semantics
-3. choose one exact remaining Rune leaf only
+3. choose one exact remaining verifier leaf only:
+   - function-target placement / ABI-facing verifier contract
 4. keep `phase-29cj` closed unless a new exact disappearing leaf appears
 
 ## Lane Pointers

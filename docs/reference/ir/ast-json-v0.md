@@ -76,7 +76,8 @@ Carrier rules:
 - `attrs.runes` is declaration-local only in v0
 - AST JSON v0 is the canonical metadata carrier for declaration metadata
 - Program(JSON v0) is a retire target and must not be widened for Rune
-- MIR JSON may mirror only an ABI-facing subset when a backend/verifier needs it
+- Rust direct MIR JSON mirrors declaration-local attrs on function-bearing nodes
+- current `.hako` source-route keep preserves selected-entry attrs via a transitional transport shim; it must not widen Program(JSON v0) root/body attrs
 
 ## Example
 

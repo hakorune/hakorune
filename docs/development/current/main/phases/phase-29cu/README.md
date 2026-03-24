@@ -2,7 +2,7 @@
 Status: Accepted (active)
 Decision: provisional
 Date: 2026-03-24
-Scope: Rune v0 を current docs/task pack として固定し、parser parity / AST-direct-MIR carrier / `ny-llvmc` selected-entry consumer の実装順を切る。
+Scope: Rune v0 lane の current truth を landed implementation に合わせて同期し、remaining verifier/consumer leaf を narrow に固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -14,12 +14,17 @@ Related:
   - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
   - docs/reference/language/EBNF.md
   - docs/reference/ir/ast-json-v0.md
+  - src/parser/runes.rs
   - src/parser/statements/helpers.rs
   - src/config/env/parser_flags.rs
   - src/tests/parser_opt_annotations.rs
+  - src/runtime/mirbuilder_emit.rs
+  - src/stage1/program_json_v0.rs
+  - tests/json_program_env.rs
   - lang/src/compiler/parser/stmt/parser_stmt_box.hako
-  - lang/src/compiler/pipeline_v2/flow_entry.hako
-  - lang/src/compiler/pipeline_v2/pipeline.hako
+  - src/runner/json_v0_bridge/lowering.rs
+  - src/runner/json_v0_bridge/lowering/program.rs
+  - lang/c-abi/shims/hako_llvmc_ffi.c
 ---
 
 # Phase 29cu: Rune V0 Contract Lane
@@ -36,11 +41,13 @@ Related:
 
 - lane status: `active`
 - current implementation focus has returned here after `phase-29cj` formal close sync
-- current truth is already narrower than the original docs/task lock wording:
+- current truth is already narrower than the original rollout wording:
   - declaration-local `attrs.runes`
-  - direct MIR carrier
-  - selected-entry-only `ny-llvmc` semantics
-- next exact step is to sync this lane's current implementation status and choose one remaining verifier/consumer leaf without widening `Program(JSON v0)`
+  - Rust direct MIR carrier
+  - `.hako` source-route selected-entry transport shim
+  - selected-entry-only `ny-llvmc` `Symbol` / `CallConv` semantics
+  - `Program(JSON v0)` no-widen
+- next exact step is one verifier-only leaf without widening `Program(JSON v0)` or broadening backend semantics
 
 ## Fixed Decisions
 
@@ -71,85 +78,88 @@ The docs/task lock for this lane now lives in:
 
 This phase is docs/task locked and is the active current implementation lane.
 
-## Fixed Order
+## Current Implementation Status
 
 ### P0. Docs/task lock
 
-Done in this slice.
+Landed.
 
-- lock the current truth / clean end-state reading
-- lock Rune v0 syntax, parser scope, metadata carrier, backend scope
-- cross-link current SSOTs and historical docs
+- current truth / clean end-state reading is fixed
+- Rune v0 syntax, parser scope, carrier, and backend scope are docs-locked
+- current SSOT / historical forward links are already in place
 
 ### P1. Rust parser gate
 
-First code slice:
+Landed.
 
-- touch:
-  - [`src/config/env/parser_flags.rs`](/home/tomoaki/git/hakorune-selfhost/src/config/env/parser_flags.rs)
-  - [`src/parser/statements/helpers.rs`](/home/tomoaki/git/hakorune-selfhost/src/parser/statements/helpers.rs)
-  - [`src/tests/parser_opt_annotations.rs`](/home/tomoaki/git/hakorune-selfhost/src/tests/parser_opt_annotations.rs) or a dedicated Rune parser test file
-- deliverables:
-  - `NYASH_FEATURES=rune` gate
-  - parse `@rune` forms
-  - fail-fast on unknown name / arity / placement
-  - preserve declaration-local metadata instead of noop dropping
+- `NYASH_FEATURES=rune` gate is active
+- Rust parser accepts the fixed Rune v0 surface
+- unknown name / wrong arity / declaration-required placement fail fast
+- duplicate rune / conflicting visibility / box-target visibility-only checks are already active
 
 ### P2. `.hako` parser parity
 
-Second code slice:
+Partially landed.
 
-- touch:
-  - [`lang/src/compiler/parser/stmt/parser_stmt_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/compiler/parser/stmt/parser_stmt_box.hako)
-  - parser parity fixtures / smoke under `tools/smokes/v2/profiles/integration/parser/`
-- deliverables:
-  - accept the same Rune forms as Rust parser
-  - same fail-fast contract
-  - same declaration metadata shape
-  - declaration-local Rune attrs are preserved into direct MIR on the `.hako` route
-  - if the `.hako` source-route still passes through Program(JSON v0), it may use a synthetic `Main.main` def transport shim, but it must not widen root/body attrs
+- `.hako` parser accepts the same Rune surface and arg-shape contract
+- `.hako` parser preserves declaration attrs on parsed defs
+- current `.hako` source-route keep does not claim full declaration-local MIR parity yet
+- current `.hako` end-to-end keep uses a selected-entry transport shim instead of widening `Program(JSON v0)`
 
 ### P3. AST / direct MIR carrier
 
-Third code slice:
+Partially landed, with route-specific reading.
 
-- extend the existing declaration metadata path rather than inventing a new carrier
-- first touch owners:
-  - AST declaration owners on the Rust route
-  - direct MIR emit owners on the Rust route and `.hako` route
-- deliverables:
-  - `attrs.runes` survives parser -> AST JSON -> direct MIR
-  - no separate Rune-only metadata channel
-  - Program(JSON v0) root/body stay no-widen even when the `.hako` source-route uses a transitional selected-entry def shim
+- Rust route:
+  - declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR
+  - direct MIR JSON mirrors declaration-local attrs on functions
+- `.hako` source-route keep:
+  - selected-entry attrs survive via synthetic `Main.main` def / entry-runes transport
+  - `Program(JSON v0)` root/body stay Rune-free
 
 ### P4. Verifier / consumer activation
 
-Fourth code slice:
+Partially landed.
 
-- activate compiler-owned checks only:
+- landed today:
   - duplicate/conflicting rune rejection
-  - declaration visibility checks
-  - ABI contract shaping for `extern "c" fn` and ABI-facing functions
+  - box-target visibility-only checks
+  - parser-level unknown/arity fail-fast
+- remaining exact leaf:
+  - function-target placement / ABI-facing verifier contract
+  - sync Rust and `.hako` docs/tests so current verifier truth is explicit
 
 ### P5. `ny-llvmc` ABI consumer
 
-Fifth code slice:
+Landed narrow slice.
 
-- `ny-llvmc` becomes the first active Rune consumer
-- scope is ABI-facing declaration metadata only
-- semantics apply to the selected entry only
+- `ny-llvmc` reads selected-entry attrs
+- active semantics are `Symbol("...")` and `CallConv("c")` only
+- `ny_main` stays compat alias when `Symbol(...)` renames the primary entry
 - `llvmlite` remains ignore/noop keep
 
-## Planned Gates
+## Remaining Exact Leaf
 
-1. Rust parser unit tests
-   - planned: `cargo test parser_runes -- --nocapture`
-2. dual-route parser parity smoke
-   - planned: `bash tools/smokes/v2/profiles/integration/parser/parser_runes_dual_route_noop.sh`
-3. AST / direct MIR metadata snapshot
-   - planned: Rune metadata survives both parser routes with identical declaration-local `attrs.runes`
-4. backend proof
-   - planned: minimal `ny-llvmc` selected-entry fixture proving Rune metadata use without changing `llvmlite`
+The next Rune slice is verifier-only.
+
+- keep carrier/backend scope unchanged
+- keep `Program(JSON v0)` no-widen
+- tighten the function-target placement / ABI-facing verifier contract
+- do not widen current `.hako` source-route transport into a broader metadata channel in the same slice
+
+## Current Proof Line
+
+1. Rust parser/unit coverage
+   - `cargo test parser_opt_annotations -- --nocapture`
+2. Rust direct MIR carrier proof
+   - `cargo test env_mirbuilder_emit_keeps_rune_attrs_on_selected_entry -- --nocapture`
+3. Program(JSON v0) no-widen guard
+   - `cargo test source_to_program_json_v0_does_not_widen_with_rune_attrs -- --nocapture`
+4. `.hako` / Stage-B selected-entry transport proof
+   - `cargo test json_stageb_entry_def_runes_attach_to_main_without_duplicate_main_def -- --nocapture`
+5. backend proof
+   - selected-entry `ny-llvmc` `Symbol` / `CallConv` path is already live
+   - `llvmlite` remains out of scope except safe-ignore compatibility
 
 ## Reopen Rule
 

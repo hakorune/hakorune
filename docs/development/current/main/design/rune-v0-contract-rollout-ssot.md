@@ -1,8 +1,8 @@
 ---
 Status: Provisional SSOT
 Decision: provisional
-Date: 2026-03-23
-Scope: Rune v0 の syntax / parser parity / AST/direct MIR carrier / backend scope を docs-first で固定する。
+Date: 2026-03-24
+Scope: Rune v0 の syntax / parser parity / AST/direct MIR carrier / backend scope を current implementation truth に合わせて固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -105,28 +105,27 @@ The following remain explicitly deferred:
 
 Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate provisional lane.
 
-## 5. Parser / Metadata Rollout Order
+## 5. Current Implementation Status
 
-1. docs-first
-   - this SSOT
-   - `rune-and-stage2plus-final-shape-ssot.md`
-   - `docs/reference/language/EBNF.md`
-   - `docs/reference/ir/ast-json-v0.md`
-2. Rust parser
-   - parse `@rune` behind `NYASH_FEATURES=rune`
-   - preserve Rune metadata instead of dropping it as noop
-3. `.hako` parser
-   - accept the same Rune forms
-   - preserve the same metadata shape
-   - carry declaration-local attrs into direct MIR
-4. AST / direct MIR carrier
-   - emit declaration-local `attrs.runes` with the same structure from both parsers
-5. parity gate
-   - parser/direct-MIR parity must be green before any active consumer lands
-6. verifier/backend consumer
-   - duplicate/conflict validation
-   - declaration visibility checks
-   - ABI-facing `ny-llvmc` selected-entry use
+| Area | Status | Current truth |
+| --- | --- | --- |
+| docs/task lock | landed | syntax / carrier / backend scope are docs-locked |
+| Rust parser | landed | `@rune` behind `NYASH_FEATURES=rune`; declaration-local attrs kept; unknown/arity/declaration-required fail-fast |
+| `.hako` parser | partly landed | same Rune surface + arg-shape contract; declaration attrs preserved on parsed defs |
+| Rust AST/direct MIR carrier | landed | declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR |
+| `.hako` source-route keep | partly landed | selected-entry attrs survive via synthetic `Main.main` transport shim; not a claim of broad declaration-local MIR parity |
+| Program(JSON v0) | locked | retire target; no Rune widening |
+| verifier | partly landed | duplicate/conflict + box-target visibility-only checks are live; function-target ABI/placement verifier remains the next exact leaf |
+| `ny-llvmc` consumer | landed narrow | selected-entry `Symbol` / `CallConv` semantics only |
+| `llvmlite` | unchanged | safe ignore / noop keep only |
+
+### 5.1 Remaining exact leaf
+
+The next Rune slice is verifier-only:
+
+- tighten the function-target placement contract
+- lock ABI-facing verifier rules without widening carrier/backend scope
+- keep `.hako` source-route transport as a shim, not a second metadata truth
 
 Forbidden:
 
@@ -155,7 +154,7 @@ Carrier rules:
 - both parsers must produce the same declaration-local `attrs.runes` shape
 - AST JSON v0 carries Rune metadata on declaration-bearing nodes
 - Program(JSON v0) is a retire target and must not be widened for Rune v0
-- MIR JSON mirrors declaration-local attrs into direct MIR functions
+- Rust direct MIR JSON mirrors declaration-local attrs into functions
 - current `.hako` source-route keep may use a synthetic `Main.main` def transport shim for selected-entry attrs, but Program(JSON v0) root/body must stay Rune-free
 - existing declaration metadata owners such as `metadata.extern_c` stay the extension point; do not invent a parallel Rune-only channel
 
@@ -176,4 +175,4 @@ Carrier rules:
 - substrate capability implementation via Rune
 - `llvmlite` feature parity for Rune semantics
 - new public runtime APIs whose only purpose is Rune
-- promoting the lane to active current work without an explicit `CURRENT_TASK.md` reopen
+- broadening the current `.hako` source-route transport shim into a second metadata channel
