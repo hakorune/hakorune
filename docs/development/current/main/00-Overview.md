@@ -1,25 +1,33 @@
 # Self Current Task — Overview (main)
 
-目的
-- main ブランチで Core‑13（MIR13）前提の制御フローを整備し、LLVM/Cranelift(EXE)/VM に綺麗に降ろす土台を完成させる。
-- 箱言語の既存命令セット（Branch/Jump/Phi 他）を活かし、continue/break を新命令なしで表現する。
+Status: Active
+Date: 2026-03-24
+Scope: `main` の current lane 入口だけを短く示す overview。
+Related:
+- CURRENT_TASK.md
+- docs/development/current/main/15-Workstream-Map.md
+- docs/development/current/main/10-Now.md
 
-前提と指針
-- MIR13 前提（純化モードを含む）。
-- ループは canonical 形（preheader → header → body → latch → header、exit は単一）。
-- continue/break は分岐のみで表現（continue→ヘッダ/ラッチ、break→単一 exit）。
-- Verifier（支配関係/SSA）緑を最優先。post‑terminated 後の emit 禁止、合流点を明確化。
+## Purpose
 
-スコープ外
-- 新規 MIR 命令の追加。
-- try/finally と continue/break の相互作用（次段）。
+- `main` の current reading を最短で掴むための overview。
+- 実装 detail はここに置かず、root anchor / workstream map / phase README へ流す。
 
-## JoinIR / Selfhost 関連の入口
+## Current Shape
 
-- 「JoinIR / Selfhost まわりで、まずどのドキュメントを読むべきか」は  
-  `docs/development/current/main/01-JoinIR-Selfhost-INDEX.md` を入口として使ってね。
-- 「docs が増えて迷子になる」問題のための置き場所ルール（SSOT）は  
-  `docs/development/current/main/DOCS_LAYOUT.md` を参照してね。
-- JoinIR 全体のアーキテクチャと箱の関係は  
-  `docs/development/current/main/joinir-architecture-overview.md` を SSOT として参照するよ。
-- selfhost / .hako 側から JoinIR を使うときも、この JoinIR 設計を前提にして設計・実装する方針だよ。
+- mainline front: `phase-29cj`
+- secondary active lane: `phase-29cu`
+- parked runtime lane: `phase-29y`
+- stop-line reached substrate lane: `phase-29ct`
+
+## Read First
+
+1. `CURRENT_TASK.md`
+2. `docs/development/current/main/15-Workstream-Map.md`
+3. `docs/development/current/main/10-Now.md`
+
+## JoinIR / Selfhost Entrypoints
+
+- JoinIR / Selfhost index: `docs/development/current/main/01-JoinIR-Selfhost-INDEX.md`
+- docs layout SSOT: `docs/development/current/main/DOCS_LAYOUT.md`
+- JoinIR architecture SSOT: `docs/development/current/main/joinir-architecture-overview.md`

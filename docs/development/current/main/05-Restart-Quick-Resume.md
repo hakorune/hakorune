@@ -1,9 +1,10 @@
 ---
 Status: Active
-Date: 2026-03-02
+Date: 2026-03-24
 Scope: 再起動直後に 2〜5 分で開発再開するための最短手順。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/build-lane-separation-ssot.md
   - docs/tools/README.md
@@ -22,29 +23,24 @@ Related:
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
 tools/checks/dev_gate.sh quick
-tools/checks/dev_gate.sh runtime-exec-zero
-bash tools/smokes/v2/profiles/integration/apps/phase29y_no_compat_mainline_vm.sh
-HAKO_EMIT_MIR_MAINLINE_ONLY=1 NYASH_LLVM_SKIP_BUILD=1 \
-tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --reuse-if-fresh 1
+bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh
 ```
 
-- This rebuilds the Stage1 bootstrap `launcher-exe` artifact; Stage2 distribution packaging is future work.
-- `build_stage1` が artifact 欠落で失敗した場合は、下の「保守レーン」を先に 1 回実行する。
-
-## 今日の再開点（kernel-mainline lane）
-
-- Active next: `.hako` kernel mainline 最適化（no-fallback 固定）
-- 最初の計測（strict / route drift 検知）:
+- `phase-29cj` を触る日は、必要に応じて次も追加で回す:
 
 ```bash
-bash tools/perf/run_kilo_hk_bench.sh strict 1 3
+bash tools/selfhost_identity_check.sh --mode smoke
 ```
 
-- 診断用（速度だけ見る暫定。結果一致ガードを外す）:
+## 今日の再開点（mainline lane）
 
-```bash
-bash tools/perf/run_kilo_hk_bench.sh diagnostic 1 3
-```
+- Active next: `phase-29cj` formal close sync
+- exact next:
+  1. `CURRENT_TASK.md`
+  2. `docs/development/current/main/15-Workstream-Map.md`
+  3. `docs/development/current/main/phases/phase-29cj/README.md`
+- immediate action:
+  - near-thin-floor reinventory across `MirBuilderBox.hako`, `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako`
 
 ## 保守レーン（必要時のみ）
 
@@ -57,5 +53,6 @@ cargo build --release --bin hakorune
 ## 参照順（迷ったら）
 
 1. `CURRENT_TASK.md`
-2. `docs/development/current/main/10-Now.md`
-3. `docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md`
+2. `docs/development/current/main/15-Workstream-Map.md`
+3. `docs/development/current/main/10-Now.md`
+4. `docs/development/current/main/phases/phase-29cj/README.md`

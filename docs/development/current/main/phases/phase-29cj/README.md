@@ -56,25 +56,46 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - widening `.hako` live/bootstrap caller contracts
 - mixing authority migration back into `phase-29ch`
 
+## Current Read
+
+- phase status: `formal-close-sync-ready`
+- latest Rust stop-line wording is pinned to `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+- latest `.hako` helper-local cuts are landed:
+  - `BuilderUnsupportedTailBox`
+  - `Stage1MirPayloadContractBox`
+  - `Stage1CliProgramJsonInputBox`
+  - `LauncherArtifactIoBox`
+- next action is not another broad helper wave; it is a near-thin-floor reinventory across:
+  - `lang/src/mir/builder/MirBuilderBox.hako`
+  - `lang/src/runner/stage1_cli_env.hako`
+  - `lang/src/runner/stage1_cli.hako`
+  - `lang/src/runner/launcher.hako`
+- if no exact disappearing leaf remains there, freeze this phase and return active implementation focus to `phase-29cu`
+
 ## Immediate Next
 
 1. formal close sync
    - freeze `phase-29cj` as `formal-close-sync-ready`
    - keep the remaining live Rust stop-line wording pinned to `src/host_providers/mir_builder.rs`, with targeted proof centered on `module_to_mir_json(...)`
-2. keep the strict source-authority and surrogate buckets frozen
+2. perform a near-thin-floor reinventory across the remaining `.hako` owners
+   - `lang/src/mir/builder/MirBuilderBox.hako`
+   - `lang/src/runner/stage1_cli_env.hako`
+   - `lang/src/runner/stage1_cli.hako`
+   - `lang/src/runner/launcher.hako`
+3. keep the strict source-authority and surrogate buckets frozen
    - `src/stage1/program_json_v0/authority.rs`
    - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
    - these are exact owners, but no longer active phase fronts
-3. keep bridge and `.hako` helper waves closed
+4. keep bridge and `.hako` helper waves closed
    - `program_json/` and `program_json_entry/` stay near thin floor
    - `.hako` owner/helper local cleanup stays `closeout-ready`
-4. keep the archived direct-lower probe as monitor evidence only; it does not block formal close sync
-5. do not confuse this phase close sync with the primary pure-`.hako` blocker
+5. keep the archived direct-lower probe as monitor evidence only; it does not block formal close sync
+6. do not confuse this phase close sync with the primary pure-`.hako` blocker
    - the real current blocker is still the Rust stop-line `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
    - `src/host_providers/mir_builder/lowering.rs` is test-only evidence, not the live phase front
    - the latest Rust cut is the source-route authority / output projection split in `src/host_providers/mir_builder/handoff.rs`, with `decls.rs` limited to parsed-value shaping
    - the latest exact `.hako` cuts now cover `MirBuilderBox` unsupported tail plus runner-local payload/input/I/O helper extraction above the same shared stop-line
-6. after close sync, the next real movement is authority replacement above the stop-line
+7. after close sync, the next real movement is authority replacement above the stop-line
    - first `.hako` replacement owner remains `lang/src/mir/builder/MirBuilderBox.hako`
    - runner owners follow
    - `lang/src/compiler/build/build_box.hako` stays behind them because of blast radius

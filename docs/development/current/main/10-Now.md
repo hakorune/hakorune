@@ -4,6 +4,7 @@ Date: 2026-03-24
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/DOCS_LAYOUT.md
   - docs/development/current/main/20-Decisions.md
@@ -21,21 +22,29 @@ Related:
 ## Root Anchors
 
 - Root anchor: `CURRENT_TASK.md`
+- Workstream map: `docs/development/current/main/15-Workstream-Map.md`
 - Docs mirror: `docs/development/current/main/10-Now.md`
 - Quick restart: `docs/development/current/main/05-Restart-Quick-Resume.md`
 - Layout contract: `docs/development/current/main/DOCS_LAYOUT.md`
 
 ## Current Read
 
-- Compiler lane: `phase-29bq` は landed / monitor-only、active blocker は `none`。
-- Execution lane policy: parent SSOT is `execution-lanes-and-axis-separation-ssot.md`; `stage1` は bridge/proof only、`stage2+` が final distribution target。
-- Runtime lane: `phase-29y` が current anchor。operational reading は `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat。active acceptance は `phase29y_vm_hako_caps_gate_vm.sh` のみで、throughput probes は archived monitor evidence として扱う。
-- Kernel capability lane: `phase-29ct` は stop-line reached、`C5` は deferred。
-- Bootstrap retire lane: active mainline front is `phase-29cj`; the latest Rust source-route authority / output projection split is landed in `src/host_providers/mir_builder/handoff.rs`, and the latest `.hako` cuts above `module_to_mir_json(...)` now isolate `MirBuilderBox` unsupported tail plus runner-local payload/input/I/O contracts, while bridge/helper waves stay closeout-ready.
-- Rune lane: `phase-29cu` は active current lane。grammar activation は Rust parser / `.hako` parser 両方前提で、carrier は declaration-local `attrs.runes` -> direct MIR attrs、`ny-llvmc` は selected-entry only。
-- Rune source-route note: `.hako` の source-route keep は selected-entry attrs を synthetic `Main.main` def で一時輸送してよいが、Program(JSON v0) root/body は no-widen のまま。
-- JSON v0 reading: `Program(JSON v0)` は Rune の retire/no-widen target、`MIR(JSON v0)` は current interchange / gate boundary。
-- De-rust lane: `phase-29cc` は closeout 済みで、follow-up は `phase-29ce` / `phase-29cf` に分離済み。
+- Mainline: `phase-29cj`
+  - status: `formal-close-sync-ready`
+  - current stop-line is still `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
+  - latest landed `.hako` cuts now cover `BuilderUnsupportedTailBox`, `Stage1MirPayloadContractBox`, `Stage1CliProgramJsonInputBox`, and `LauncherArtifactIoBox`
+  - exact next step is a near-thin-floor reinventory across `MirBuilderBox.hako`, `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako`
+- Secondary lane: `phase-29cu`
+  - Rune v0 stays active with declaration-local `attrs.runes` -> direct MIR carrier and `ny-llvmc` selected-entry semantics
+- Runtime lane: `phase-29y`
+  - parked
+  - operational reading is `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat
+  - active acceptance is `phase29y_vm_hako_caps_gate_vm.sh` only
+- Substrate lane: `phase-29ct`
+  - stop-line reached
+- JSON v0 reading
+  - `Program(JSON v0)` is still retire/no-widen
+  - `MIR(JSON v0)` remains the current interchange / gate boundary
 
 ## Clean-Shape Status
 
@@ -50,6 +59,7 @@ Related:
 
 ## Exact Links
 
+- Mainline workstream map: `docs/development/current/main/15-Workstream-Map.md`
 - Execution lane policy: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
 - Execution lane task pack: `docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md`
 - Execution lane legacy inventory: `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
@@ -68,4 +78,5 @@ Related:
 
 - 最初に `git status -sb` を見る。
 - 次に `CURRENT_TASK.md` を読む。
+- その次に `15-Workstream-Map.md` で lane 順を確認する。
 - 詳細は `10-Now.md` を増やさず、phase README / design SSOT を開く。
