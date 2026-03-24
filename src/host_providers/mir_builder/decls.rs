@@ -59,17 +59,7 @@ impl Stage1UserBoxDecls {
         Self { decls }
     }
 
-    pub(super) fn parse_program_json(program_json: &str) -> Result<Self, String> {
-        let program_value = Self::parse_program_value(program_json)?;
-        Ok(Self::from_program_value(&program_value))
-    }
-
-    fn parse_program_value(program_json: &str) -> Result<serde_json::Value, String> {
-        serde_json::from_str(program_json)
-            .map_err(|error| format!("program json parse error: {}", error))
-    }
-
-    fn from_program_value(program_value: &serde_json::Value) -> Self {
+    pub(super) fn from_program_value(program_value: &serde_json::Value) -> Self {
         Self::new(Self::resolve_decls(program_value))
     }
 

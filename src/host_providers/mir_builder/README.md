@@ -24,15 +24,22 @@ Current owner split:
   - shared `module_to_mir_json(...)` stop-line
 - `handoff.rs`
   - source / Program(JSON) handoff objects
+  - typed Program(JSON) input/value seam above the shared stop-line
   - strict source route
   - guarded Program(JSON)->MIR emission
 - `decls.rs`
-  - explicit payload parse
+  - explicit payload shaping from parsed Program(JSON) values
   - compat fallback from defs/body
   - metadata projection for `MirModule`
+- `Stage1ProgramJsonInput`
+  - raw Program(JSON) text owner for the live explicit route
+  - parses typed Program(JSON) value and module handoff above `module_to_mir_json(...)`
+- `Stage1ProgramJsonValue`
+  - typed parsed Program(JSON) value
+  - resolves `user_box_decls` without reopening the live string-parse seam in `decls.rs`
 - `Stage1ProgramJsonModuleHandoff`
   - parse `Program(JSON)` into `MirModule`
-  - parse `user_box_decls`
+  - attach typed `user_box_decls` handoff
   - materialize final `MirModule.metadata.user_box_decls`
   - emit guarded MIR JSON
 - `SourceProgramJsonHandoff`
@@ -50,6 +57,7 @@ Current owner split:
 
 - `mir_builder.rs` is the live authority façade for source/explicit Program(JSON) handoff.
 - `handoff.rs` keeps the owner-local handoff objects; `decls.rs` keeps `user_box_decls` shaping.
+- the live explicit route now enters `decls.rs` through `Stage1ProgramJsonInput` / `Stage1ProgramJsonValue`; do not move the primary string-parse seam back into `decls.rs`.
 - `lowering.rs` is test-only evidence; do not reopen it as the daily source of MIR emission.
 - `module_to_mir_json(...)` is the shared Rust stop-line; push caller ownership above it, not MIR emitter ownership back outward.
 - `user_box_decls` shaping stays owner-local here; do not duplicate it in bridge or runner compat lanes.

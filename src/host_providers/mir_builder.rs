@@ -1,6 +1,6 @@
-mod lowering;
 mod decls;
 mod handoff;
+mod lowering;
 
 #[cfg(test)]
 use std::collections::BTreeMap;
@@ -8,6 +8,8 @@ use std::fmt::Display;
 // use std::io::Write; // kept for future pretty-print extensions
 
 use decls::Stage1UserBoxDecls;
+#[cfg(test)]
+use handoff::Stage1ProgramJsonInput;
 use handoff::{SourceProgramJsonHandoff, Stage1ProgramJsonModuleHandoff};
 
 pub(crate) const FAILFAST_TAG: &str = "[freeze:contract][hako_mirbuilder]";
@@ -360,8 +362,10 @@ mod tests {
             "body": []
         }"#;
 
-        let decls = Stage1UserBoxDecls::parse_program_json(program_json)
+        let decls = Stage1ProgramJsonInput::new(program_json)
+            .parse_value()
             .expect("input must parse program value")
+            .resolve_user_box_decls()
             .into_decl_values();
 
         assert_eq!(
@@ -381,8 +385,10 @@ mod tests {
             "body": []
         }"#;
 
-        let decls = Stage1UserBoxDecls::parse_program_json(program_json)
+        let decls = Stage1ProgramJsonInput::new(program_json)
+            .parse_value()
             .expect("input must parse program value")
+            .resolve_user_box_decls()
             .into_decl_values();
 
         assert_eq!(
@@ -408,8 +414,10 @@ mod tests {
             "body": []
         }"#;
 
-        let decls = Stage1UserBoxDecls::parse_program_json(program_json)
+        let decls = Stage1ProgramJsonInput::new(program_json)
+            .parse_value()
             .expect("input must parse program value")
+            .resolve_user_box_decls()
             .into_decl_values();
 
         assert_eq!(
@@ -423,7 +431,7 @@ mod tests {
 
     #[test]
     fn test_stage1_program_json_input_rejects_invalid_json_for_decl_resolution() {
-        let result = Stage1UserBoxDecls::parse_program_json("{");
+        let result = Stage1ProgramJsonInput::new("{").parse_value();
         let error = match result {
             Ok(_) => panic!("invalid json must fail fast"),
             Err(error) => error,

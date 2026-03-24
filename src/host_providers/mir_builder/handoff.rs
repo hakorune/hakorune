@@ -1,27 +1,57 @@
 use super::{
-    failfast_error, module_to_mir_json, with_phase0_mir_json_env, Stage1UserBoxDecls,
-    FAILFAST_TAG,
+    failfast_error, module_to_mir_json, with_phase0_mir_json_env, Stage1UserBoxDecls, FAILFAST_TAG,
 };
+
+pub(super) struct Stage1ProgramJsonInput<'a> {
+    program_json: &'a str,
+}
+
+pub(super) struct Stage1ProgramJsonValue {
+    program_value: serde_json::Value,
+}
 
 pub(super) struct Stage1ProgramJsonModuleHandoff {
     module: crate::mir::MirModule,
     user_box_decls: Stage1UserBoxDecls,
 }
 
-impl Stage1ProgramJsonModuleHandoff {
-    pub(super) fn parse(program_json: &str) -> Result<Self, String> {
-        Ok(Self {
-            module: Self::parse_module(program_json)?,
-            user_box_decls: Self::parse_user_box_decls(program_json)?,
+impl<'a> Stage1ProgramJsonInput<'a> {
+    pub(super) fn new(program_json: &'a str) -> Self {
+        Self { program_json }
+    }
+
+    pub(super) fn into_module_handoff(self) -> Result<Stage1ProgramJsonModuleHandoff, String> {
+        Ok(Stage1ProgramJsonModuleHandoff {
+            module: self.parse_module()?,
+            user_box_decls: self.parse_value()?.resolve_user_box_decls(),
         })
     }
 
-    fn parse_module(program_json: &str) -> Result<crate::mir::MirModule, String> {
-        crate::runner::json_v0_bridge::parse_json_v0_to_module(program_json).map_err(failfast_error)
+    pub(super) fn parse_value(&self) -> Result<Stage1ProgramJsonValue, String> {
+        Stage1ProgramJsonValue::parse(self.program_json)
     }
 
-    fn parse_user_box_decls(program_json: &str) -> Result<Stage1UserBoxDecls, String> {
-        Stage1UserBoxDecls::parse_program_json(program_json)
+    fn parse_module(&self) -> Result<crate::mir::MirModule, String> {
+        crate::runner::json_v0_bridge::parse_json_v0_to_module(self.program_json)
+            .map_err(failfast_error)
+    }
+}
+
+impl Stage1ProgramJsonValue {
+    fn parse(program_json: &str) -> Result<Self, String> {
+        serde_json::from_str(program_json)
+            .map(|program_value| Self { program_value })
+            .map_err(|error| format!("program json parse error: {}", error))
+    }
+
+    pub(super) fn resolve_user_box_decls(&self) -> Stage1UserBoxDecls {
+        Stage1UserBoxDecls::from_program_value(&self.program_value)
+    }
+}
+
+impl Stage1ProgramJsonModuleHandoff {
+    pub(super) fn parse(program_json: &str) -> Result<Self, String> {
+        Stage1ProgramJsonInput::new(program_json).into_module_handoff()
     }
 
     pub(super) fn emit_mir_json(self) -> Result<String, String> {

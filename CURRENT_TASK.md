@@ -67,6 +67,7 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
 - `phase-29ct` carries the substrate capability ladder stop-line and current kernel-shape coordination.
 - `phase-29ci` carries the bootstrap / `Program(JSON v0)` retire boundary.
 - `phase-29ci` now returns to Rust-owned caller/owner reduction; archived vm-hako throughput probes do not count as closeout work
+- the active Rust stop-line now sits in `phase-29cj` on `src/host_providers/mir_builder.rs`; current exact leaf is the typed Program(JSON) input/value seam above `module_to_mir_json(...)`
 - `phase-29cu` carries the active Rune v0 lane: declaration-local `attrs.runes`, `.hako` AST/direct MIR carrier, and `ny-llvmc` selected-entry semantics.
   - current `.hako` source-route keep may use a synthetic `Main.main` def transport shim for selected-entry attrs, but Program(JSON v0) root/body remain no-widen
 - `phase-29y` carries the runtime `.hako` migration / boxcall contract polish.
@@ -84,10 +85,14 @@ Scope: repo root の再起動入口。詳細ログは `docs/development/current/
   - `phase-29ci/README.md`
   - `phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
   - `phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md`
+- `phase-29cj` is now the next live Rust slice:
+  - keep `build_surrogate.rs`, `program_json/`, and `program_json_entry/` near thin floor
+  - spend the next owner-local slice inside `src/host_providers/mir_builder.rs`, `handoff.rs`, and `decls.rs`
+  - exact current cut is the typed Program(JSON) input/value seam above `module_to_mir_json(...)`
 - `phase-29ci` outer caller audit is now split into two waves:
   - wave 1: `.hako` live/bootstrap owners only (`stage1_cli_env.hako` -> `launcher.hako` -> `stage1_cli.hako` -> `MirBuilderBox.hako`)
   - wave 2: shared shell helper keep (`hakorune_emit_mir.sh` -> `selfhost_build.sh` -> `test_runner.sh`)
-  - keep `src/runner/stage1_bridge/program_json/mod.rs` monitor-only while those waves are worked separately
+  - keep `src/runner/stage1_bridge/program_json/mod.rs` and `program_json_entry/` monitor-only while those waves are worked separately
   - wave 1 has started: `stage1_cli_env.hako`, `launcher.hako`, `stage1_cli.hako`, and `MirBuilderBox.hako` now keep direct `BuildBox` / `MirBuilderBox` calls behind same-file tiny helpers, with `MirBuilderBox.hako` now splitting the source-entry compat seam into `MirBuilderSourceCompatBox` while the public wrapper methods delegate to private raw leaves instead of leaving the calls inline in the owner methods
   - shared shell wave has also started: `hakorune_emit_mir.sh` now keeps its Stage-B fail/invalid -> direct MIR emit fallback behind `exit_after_stageb_program_json_v0_fallback()`, and its selfhost/provider runner lifecycle is split into explicit render / execute / capture / cleanup helpers before moving to `selfhost_build.sh`
   - `selfhost_build.sh` now keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`, and its `--exe` lane now also keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` plus Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so `--exe` / `--run` / path-result routes stay owner-local instead of inline in the main tail

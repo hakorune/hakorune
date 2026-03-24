@@ -72,6 +72,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 5. do not confuse this phase close sync with the primary pure-`.hako` blocker
    - the real current blocker is still the Rust stop-line `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
    - `src/host_providers/mir_builder/lowering.rs` is test-only evidence, not the live phase front
+   - the next exact Rust cut is the same-owner typed Program(JSON) input/value seam in `src/host_providers/mir_builder/handoff.rs`, with `decls.rs` limited to parsed-value shaping
 6. after close sync, the next real movement is authority replacement above the stop-line
    - first `.hako` replacement owner remains `lang/src/mir/builder/MirBuilderBox.hako`
    - runner owners follow
@@ -100,6 +101,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the latest bridge-entry leaf also keeps bridge-local execution/result handoff behind `ProgramJsonEmitRequest::execute()` and typed `ProgramJsonEmitResponse`, so `program_json_entry/mod.rs` no longer owns response matching for the `emit-program-json-v0` route
 - after that bridge-entry tightening, `program_json_entry/request.rs` is no longer the active phase front; freeze it as near thin floor and return active slices to the Rust stop-line in `src/host_providers/mir_builder.rs`
 - current authority is now exact enough to avoid hand-wavy blocker accounting: `src/host_providers/mir_builder.rs` is the façade, `handoff.rs` owns the source-route handoff and explicit Program(JSON) route objects, `decls.rs` owns shared `user_box_decls` shaping, and live MIR(JSON) emission still stops at `module_to_mir_json(...)`; `src/host_providers/mir_builder/lowering.rs` is now the test-only Program(JSON)->MIR evidence seam, while `src/stage1/program_json_v0/authority.rs` remains the strict source-authority owner behind them
+- the active leaf on that stop-line is no longer bridge-local; it is the typed Program(JSON) input/value seam above `module_to_mir_json(...)`, where `Stage1ProgramJsonInput::parse_value()` owns raw text -> parsed value handoff and `Stage1ProgramJsonValue::resolve_user_box_decls()` keeps decl shaping off the live string seam
 - the latest exact leaf on that stop-line now makes `src/host_providers/mir_builder.rs::module_to_mir_json(...)` read as `emit_module_to_temp_mir_json(...)` -> `finalize_temp_mir_json_output(...)`, with temp-file read, cleanup, and JSON canonicalization closed behind that same-file tail; the Rust stop-line itself is unchanged
 - the latest exact leaf on the explicit Program(JSON) route also keeps MIR JSON parse/root mutation behind `parse_mir_json_value(...)` and `insert_user_box_decls(...)`; the façade owner still holds explicit-route `user_box_decls` shaping
 - the latest explicit-route leaf also keeps Program(JSON) parse / box-name collect / decl materialization behind `parse_program_json_value(...)`, `collect_stage1_user_box_decl_names(...)`, and `stage1_user_box_decl_from_name(...)`; the owner still holds explicit-route shaping, but its inner tail is thinner
