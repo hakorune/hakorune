@@ -29,6 +29,7 @@ builder.internal.lower_if_merge_local_return_var_box = "builder/internal/lower_i
 builder.internal.lower_loop_local_return_var_box = "builder/internal/lower_loop_local_return_var_box.hako"
 builder.internal.loop_opts_adapter_box = "builder/internal/loop_opts_adapter_box.hako"
 builder.internal.builder_config_box = "builder/internal/builder_config_box.hako"
+builder.internal.func_defs_gate_box = "builder/internal/func_defs_gate_box.hako"
 builder.internal.jsonfrag_normalizer_box = "builder/internal/jsonfrag_normalizer_box.hako"
 builder.internal.registry_authority_box = "builder/internal/registry_authority_box.hako"
 builder.internal.fallback_authority_box = "builder/internal/fallback_authority_box.hako"

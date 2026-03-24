@@ -1,0 +1,18 @@
+// func_defs_gate_box.hako — func-def pre-lowering gate for MirBuilder authority lanes
+// Scope: read the defs toggle through BuilderConfigBox, coerce Program(JSON) text, and
+// delegate actual defs lowering to FuncLoweringBox. Non-goals: route sequencing or finalize.
+
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using lang.mir.builder.func_lowering as FuncLoweringBox
+
+static box BuilderFuncDefsGateBox {
+  method lower_if_enabled(program_json) {
+    if BuilderConfigBox.funcs_on() != 1 { return "" }
+    local defs_json = me._coerce_program_json_text(program_json)
+    return FuncLoweringBox.lower_func_defs(program_json, defs_json)
+  }
+
+  method _coerce_program_json_text(program_json) {
+    return "" + program_json
+  }
+}

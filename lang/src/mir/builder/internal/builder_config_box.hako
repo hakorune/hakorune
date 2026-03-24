@@ -29,6 +29,7 @@ static box BuilderConfigBox {
   delegate_on() { return me._is_on("HAKO_MIR_BUILDER_DELEGATE") }
   selfhost_no_delegate_on() { return me._is_on("HAKO_SELFHOST_NO_DELEGATE") }
   registry_on() { return me._is_on_default_true("HAKO_MIR_BUILDER_REGISTRY") }
+  funcs_on() { return me._is_on("HAKO_MIR_BUILDER_FUNCS") }
   registry_only() { return env.get("HAKO_MIR_BUILDER_REGISTRY_ONLY") }
 
   // Loop/JsonFrag related
