@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-24
+Date: 2026-03-25
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -29,9 +29,12 @@ Related:
 
 ## Current Read
 
-- Active lane: `phase-29cu`
-  - Rune v0 stays at the front after `phase-29cj` close sync
-  - current reading is now:
+- Active lane: `none`
+  - next lane selection is pending docs-first promotion
+  - do not treat `phase-29cu` reopen as active work unless the root/docs pointers are promoted again
+- Rune lane: `phase-29cu`
+  - status: `formal-close-synced`
+  - narrow-scope current truth:
     - declaration-local `attrs.runes`
     - Rust direct MIR carrier
     - `.hako` source-route root-entry carrier via a real `defs[].Main.main.attrs.runes` entry
@@ -41,14 +44,11 @@ Related:
     - `.hako` root-entry carrier value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
     - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
     - `Program(JSON v0)` remains no-widen
-  - lane status is now `close-sync-ready`
   - latest landed carrier cut:
     - `.hako` compiler/mirbuilder state now carries a generic function-rune map instead of `entry_runes_json`
     - `.hako` MIR attrs injection is function-name driven instead of `main` hardcode
     - `.hako` Stage-B source route now carries root-entry Rune attrs through a real `Main.main` def instead of a synthetic transport shim
-  - next exact step:
-    - docs-only formal close sync for the narrow Rune v0 lane
-  - planned future reopen after that:
+  - planned future reopen only:
     - `.hako` declaration-local full Rune carrier parity beyond root-entry transport
 - Bootstrap-retire lane: `phase-29cj`
   - status: `formal-close-synced`

@@ -1,7 +1,7 @@
 ---
 Status: Provisional SSOT
 Decision: provisional
-Date: 2026-03-24
+Date: 2026-03-25
 Scope: Rune v0 の syntax / parser parity / AST/direct MIR carrier / backend scope を current implementation truth に合わせて固定する。
 Related:
   - CURRENT_TASK.md
@@ -121,7 +121,7 @@ Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate prov
 
 ### 5.1 Current narrow-scope status
 
-Selected-entry shim retirement is landed for the current narrow v0 scope.
+The narrow Rune v0 scope is now formally close-synced.
 
 - carrier/backend scope stayed unchanged
 - `.hako` source-route transport is now a real root-entry declaration def, not a synthetic shim

@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-03-24
+Date: 2026-03-25
 Scope: 再起動直後に 2〜5 分で開発再開するための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -34,14 +34,14 @@ bash tools/selfhost_identity_check.sh --mode smoke
 
 ## 今日の再開点（active lane）
 
-- Active next: `phase-29cu`
+- Active next: `none`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/15-Workstream-Map.md`
-  3. `docs/development/current/main/phases/phase-29cu/README.md`
+  3. `docs/development/current/main/10-Now.md`
 - immediate action:
-  - sync Rune lane status to current implementation truth
-  - choose one exact remaining Rune leaf only
+  - confirm that no active lane is currently promoted
+  - promote the next lane docs-first before starting implementation
 
 ## 保守レーン（必要時のみ）
 

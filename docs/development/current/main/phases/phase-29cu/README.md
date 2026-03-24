@@ -1,7 +1,7 @@
 ---
-Status: Accepted (active)
-Decision: provisional
-Date: 2026-03-24
+Status: Accepted (formal-close-synced)
+Decision: accepted
+Date: 2026-03-25
 Scope: Rune v0 lane の current truth を landed implementation に合わせて同期し、remaining verifier/consumer leaf を narrow に固定する。
 Related:
   - CURRENT_TASK.md
@@ -39,8 +39,8 @@ Related:
 
 ## Current Read
 
-- lane status: `close-sync-ready`
-- current implementation focus stays here after `phase-29cj` formal close sync
+- lane status: `formal-close-synced`
+- current narrow v0 scope is complete for the accepted current truth
 - current truth is already narrower than the original rollout wording:
   - declaration-local `attrs.runes`
   - Rust direct MIR carrier
@@ -48,7 +48,9 @@ Related:
   - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
   - selected-entry-only `ny-llvmc` `Symbol` / `CallConv` semantics
   - `Program(JSON v0)` no-widen
-- next exact step is docs-only formal close sync unless a new exact Rune gap appears
+- reopen only if:
+  - `.hako` declaration-local full Rune carrier parity resumes
+  - or a new exact verifier/consumer gap appears
 
 ## Fixed Decisions
 
@@ -77,7 +79,7 @@ The docs/task lock for this lane now lives in:
 - [`docs/reference/language/EBNF.md`](/home/tomoaki/git/hakorune-selfhost/docs/reference/language/EBNF.md)
 - [`docs/reference/ir/ast-json-v0.md`](/home/tomoaki/git/hakorune-selfhost/docs/reference/ir/ast-json-v0.md)
 
-This phase is docs/task locked and is the active current implementation lane.
+This phase is docs/task locked and the narrow Rune v0 lane is formally close-synced.
 
 ## Current Implementation Status
 
@@ -155,7 +157,7 @@ Selected-entry shim retirement is landed for the current narrow v0 scope.
 ## Planned Future Reopen
 
 The current narrow v0 scope is intentionally smaller than full `.hako` route parity.
-That future work stays planned after this close-sync-ready state.
+That future work stays planned after this formal close sync.
 
 - `.hako` declaration-local full Rune carrier parity
   - carry declaration-local `attrs.runes` on the `.hako` route beyond the current root-entry-only carrier
@@ -182,4 +184,4 @@ That future work stays planned after this close-sync-ready state.
 
 ## Reopen Rule
 
-`CURRENT_TASK.md` now carries the active Rune lane entry for this phase.
+`CURRENT_TASK.md` now carries the close-synced Rune lane entry for this phase.

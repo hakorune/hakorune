@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-03-24
+Date: 2026-03-25
 Scope: current mainline / secondary lanes / parked lanes の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -22,13 +22,15 @@ Related:
 
 ## Current Order
 
-1. `phase-29cu`
-   - active implementation lane
-2. `phase-29cj`
+1. `none`
+   - next active implementation lane is not promoted yet
+2. `phase-29cu`
    - formally close-synced
-3. `phase-29y`
+3. `phase-29cj`
+   - formally close-synced
+4. `phase-29y`
    - parked / monitor-only
-4. `phase-29ct`
+5. `phase-29ct`
    - stop-line reached
 
 ## Bootstrap-Retire Now
@@ -59,16 +61,15 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-29cj` closed unless a new exact disappearing leaf appears
-2. keep `phase-29cu` active for the next exact Rune leaf
-3. formal-close-sync the narrow Rune lane unless a new exact gap appears
-4. pin the remaining future Rune reopen:
+1. keep `phase-29cu` closed unless a new exact Rune gap appears
+2. pin the remaining future Rune reopen:
    - `.hako` declaration-local full carrier parity beyond root-entry transport
-5. choose the next active implementation lane only after the Rune close sync is pinned
+3. keep `phase-29cj` closed unless a new exact disappearing leaf appears
+4. choose the next active implementation lane only through docs-first promotion
 
 ## Active Lane
 
-- `phase-29cu` remains active
+- `phase-29cu` is formally close-synced
 - landed:
   - Rust parser gate + declaration-local attrs
   - `.hako` parser grammar/arg-shape parity
@@ -81,9 +82,7 @@ Related:
   - `.hako` compiler/mirbuilder function-name attrs injection
   - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
 - lane state:
-  - `close-sync-ready`
-- next exact leaf:
-  - docs-only formal close sync
+  - `formal-close-synced`
 - planned future reopen after that:
   - `.hako` full declaration-local MIR parity beyond root-entry transport
 - guard rails:

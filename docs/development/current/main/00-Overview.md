@@ -1,7 +1,7 @@
 # Self Current Task — Overview (main)
 
 Status: Active
-Date: 2026-03-24
+Date: 2026-03-25
 Scope: `main` の current lane 入口だけを短く示す overview。
 Related:
 - CURRENT_TASK.md
@@ -15,7 +15,8 @@ Related:
 
 ## Current Shape
 
-- active implementation lane: `phase-29cu`
+- active implementation lane: `none`
+- close-synced Rune lane: `phase-29cu`
 - close-synced bootstrap-retire lane: `phase-29cj`
 - parked runtime lane: `phase-29y`
 - stop-line reached substrate lane: `phase-29ct`
