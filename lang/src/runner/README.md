@@ -24,8 +24,10 @@ Pointers:
     - Role: embedded/raw Stage1 CLI lane for env/bootstrap emit/run contracts.
   - Current status:
     - authority is still `stage1_cli_env.hako`; this file is a future-retire/raw subcmd lane
+    - `Stage1CliConfigBox.from_env()` is now the live env contract owner; `stage1_main(...)` reads one canonical config map (`mode`, `backend`, `source_path`, `source_text`, `program_json_path`) instead of re-reading env inline
     - checked `BuildBox` / `MirBuilderBox` calls stay behind owner-local helpers
     - source/program-json orchestration stays behind same-file helpers (`_resolve_emit_program_source_text(...)`, `_resolve_program_json_for_emit_mir(...)`, `_resolve_program_json_for_run(...)`, `_load_program_json_from_path_or_source(...)`)
+    - raw/subcmd wrappers may still read env for compat keep, but the live `stage1_main(...)` lane now passes typed source/program-json inputs through those helpers instead of re-resolving env at each tail
     - emit-mir checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`, `_emit_validated_mir_from_program_json_text(...)`) so the raw subcmd lane no longer mixes Program(JSON) input validation, MirBuilder call, and MIR output validation inline
     - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so inline payload probing, emit-program output validation, and emit-mir input validation share one same-file contract
     - visible legacy stringify in env/debug/argv shaping is now centralized behind `_coerce_text_compat(...)`, so raw/subcmd cleanup can reduce `"" + x` residue without changing the lane contract
