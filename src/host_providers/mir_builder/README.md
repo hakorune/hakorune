@@ -26,7 +26,7 @@ Current owner split:
   - source / Program(JSON) handoff objects
   - typed Program(JSON) input/value seam above the shared stop-line
   - strict source route
-  - guarded Program(JSON)->MIR emission
+  - module-handoff and finalized-module emit split
 - `decls.rs`
   - explicit payload shaping from parsed Program(JSON) values
   - compat fallback from defs/body
@@ -38,10 +38,11 @@ Current owner split:
   - typed parsed Program(JSON) value
   - resolves `user_box_decls` without reopening the live string-parse seam in `decls.rs`
 - `Stage1ProgramJsonModuleHandoff`
-  - parse `Program(JSON)` into `MirModule`
-  - attach typed `user_box_decls` handoff
+  - combine parsed `MirModule` + typed `user_box_decls`
+  - delegate metadata finalize / guarded emit
+- `Stage1FinalizedMirModule`
   - materialize final `MirModule.metadata.user_box_decls`
-  - emit guarded MIR JSON
+  - own plain/guarded MIR JSON emission
 - `SourceProgramJsonHandoff`
   - strict source -> Program(JSON) authority
   - delegates Program(JSON) -> MIR(JSON) to `Stage1ProgramJsonModuleHandoff`

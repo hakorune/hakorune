@@ -15,16 +15,19 @@ pub(super) struct Stage1ProgramJsonModuleHandoff {
     user_box_decls: Stage1UserBoxDecls,
 }
 
+pub(super) struct Stage1FinalizedMirModule {
+    module: crate::mir::MirModule,
+}
+
 impl<'a> Stage1ProgramJsonInput<'a> {
     pub(super) fn new(program_json: &'a str) -> Self {
         Self { program_json }
     }
 
     pub(super) fn into_module_handoff(self) -> Result<Stage1ProgramJsonModuleHandoff, String> {
-        Ok(Stage1ProgramJsonModuleHandoff {
-            module: self.parse_module()?,
-            user_box_decls: self.parse_value()?.resolve_user_box_decls(),
-        })
+        let module = self.parse_module()?;
+        let program_value = self.parse_value()?;
+        Ok(program_value.into_module_handoff(module))
     }
 
     pub(super) fn parse_value(&self) -> Result<Stage1ProgramJsonValue, String> {
@@ -47,25 +50,43 @@ impl Stage1ProgramJsonValue {
     pub(super) fn resolve_user_box_decls(&self) -> Stage1UserBoxDecls {
         Stage1UserBoxDecls::from_program_value(&self.program_value)
     }
+
+    fn into_module_handoff(self, module: crate::mir::MirModule) -> Stage1ProgramJsonModuleHandoff {
+        let user_box_decls = self.resolve_user_box_decls();
+        Stage1ProgramJsonModuleHandoff::new(module, user_box_decls)
+    }
 }
 
 impl Stage1ProgramJsonModuleHandoff {
+    pub(super) fn new(module: crate::mir::MirModule, user_box_decls: Stage1UserBoxDecls) -> Self {
+        Self {
+            module,
+            user_box_decls,
+        }
+    }
+
     pub(super) fn parse(program_json: &str) -> Result<Self, String> {
         Stage1ProgramJsonInput::new(program_json).into_module_handoff()
     }
 
+    pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
+        self.into_finalized_module().emit_guarded_mir_json()
+    }
+
+    pub(super) fn into_finalized_module(self) -> Stage1FinalizedMirModule {
+        let mut module = self.module;
+        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
+        Stage1FinalizedMirModule { module }
+    }
+}
+
+impl Stage1FinalizedMirModule {
     pub(super) fn emit_mir_json(self) -> Result<String, String> {
-        module_to_mir_json(&self.into_module_with_user_box_decls())
+        module_to_mir_json(&self.module)
     }
 
     pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
         with_phase0_mir_json_env(|| self.emit_mir_json())
-    }
-
-    fn into_module_with_user_box_decls(self) -> crate::mir::MirModule {
-        let mut module = self.module;
-        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
-        module
     }
 }
 
