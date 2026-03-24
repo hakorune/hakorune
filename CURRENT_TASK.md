@@ -24,7 +24,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - runtime lane is parked/monitor-only again; there is no active `vm-hako` throughput blocker.
 - `phase-29cj` has completed its near-thin-floor reinventory and formal close sync.
 - `phase-29cu` has completed its formal close sync for the narrow Rune v0 scope.
-- next active implementation lane is `phase-29ci` reopen:
+- active implementation lane is `phase-29ci`:
   - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
   - unify public/bootstrap boundary on `MIR(JSON v0)`
   - keep hard delete and broad internal removal for later waves
@@ -32,16 +32,16 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W5 active`
+   - status: `reopen W6 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
-   - exact W5 target:
-     - thin `launcher.hako` top-level route orchestration by centralizing command/bootstrap selection in `LauncherDispatchBox`
-     - keep explicit env-route compat probes and raw compat flags alive
-     - keep the retired raw direct `stage1_cli.hako emit program-json` lane pinned as diagnostics-only evidence
+   - exact W6 target:
+     - keep `launcher.hako` W5 thinning landed and frozen near-thin-floor
+     - move next caller-audit bucket to shared shell helper keep, starting with `tools/hakorune_emit_mir.sh`
+     - keep explicit env-route compat probes, raw compat flags, and the retired raw direct `stage1_cli.hako emit program-json` diagnostics pin alive
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
    - accepted narrow-scope current truth:
@@ -100,18 +100,22 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 ## Next Task
 
-1. reopen `phase-29ci` as the current boundary lane
+1. keep `phase-29ci` as the current boundary lane
 2. reclassify every remaining `Program(JSON v0)` consumer into:
    - `public/deprecate-now`
    - `internal-compat-keep`
    - `delete-ready-later`
-3. retire the raw direct `stage1_cli.hako emit program-json` lane into diagnostics-only pinning
-4. keep explicit env-route compat probes and raw compat flags alive:
+3. keep `stage1_cli.hako` and `launcher.hako` frozen near-thin-floor after their route thinning slices
+4. move the next live caller-audit bucket to shared shell helper keep:
+   - first target: `tools/hakorune_emit_mir.sh`
+   - then `tools/selfhost/selfhost_build.sh`
+   - then `tools/smokes/v2/lib/test_runner.sh`
+5. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags
    - stage1 bridge/program-json explicit route
    - compat probe helpers
-5. keep internal Program(JSON) routes only where they terminate in MIR and are not public API
-6. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
+6. keep internal Program(JSON) routes only where they terminate in MIR and are not public API
+7. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
 
 ## Lane Pointers
 

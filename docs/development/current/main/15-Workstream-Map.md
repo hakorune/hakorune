@@ -25,7 +25,7 @@ Related:
 1. `phase-29ci`
    - active boundary lane
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
-   - W5 exact next: thin `launcher.hako` top-level route orchestration into `LauncherDispatchBox` while keeping explicit env-route compat probes alive
+   - W6 exact next: shared shell helper caller audit, starting with `tools/hakorune_emit_mir.sh`, while keeping explicit env-route compat probes alive
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -64,10 +64,14 @@ Related:
 ## Exact Next
 
 1. keep `phase-29ci` on boundary retirement only
-2. retire the raw direct `stage1_cli.hako emit program-json` lane
-3. keep explicit env-route compat probes and raw compat flags alive
-4. keep internal Program(JSON) routes as compat/test/bootstrap-only keep until caller inventory reaches zero
-5. keep `phase-29cu` and `phase-29cj` closed unless exact gaps reappear
+2. keep `stage1_cli.hako` and `launcher.hako` frozen near-thin-floor after the landed W4/W5 route-thinning slices
+3. audit shared shell helper keep in fixed order:
+   - `tools/hakorune_emit_mir.sh`
+   - `tools/selfhost/selfhost_build.sh`
+   - `tools/smokes/v2/lib/test_runner.sh`
+4. keep explicit env-route compat probes and raw compat flags alive
+5. keep internal Program(JSON) routes as compat/test/bootstrap-only keep until caller inventory reaches zero
+6. keep `phase-29cu` and `phase-29cj` closed unless exact gaps reappear
 
 ## Active Lane
 
@@ -77,10 +81,10 @@ Related:
   - `MIR(JSON v0)` line unification
   - `Program(JSON v0)` hard delete is deferred
 - current first-wave targets:
-  - `stage1_cli.hako` route orchestration is being thinned as a route-selection cleanup
+  - wrapper/helper retirements are landed
+  - `stage1_cli.hako` and `launcher.hako` route orchestration thinning is landed
   - raw direct `stage1_cli.hako emit program-json` lane is retired as diagnostics-only evidence
-  - wrapper/helper retirements are already landed
-  - rewrite exact smoke/docs to keep compat proof on explicit probes, not wrappers
+  - next caller-audit bucket is shared shell helper keep, starting with `tools/hakorune_emit_mir.sh`
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

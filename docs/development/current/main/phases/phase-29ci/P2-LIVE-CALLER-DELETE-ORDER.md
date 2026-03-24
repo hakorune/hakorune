@@ -84,7 +84,7 @@ Related:
 ## Retreat Finding
 
 - bridge 内側が closeout-ready に近づいても、boundary 外側にはまだ 4 `.hako` owner + 3 shared helper + 43 test-only smoke caller が残っている
-- `lang/src/runner/launcher.hako` は direct Program(JSON) / MIR checked path を owner-local helper へまとめ済みで、次は top-level route selection を `LauncherDispatchBox` に寄せる thin slice が自然
+- `lang/src/runner/launcher.hako` は direct Program(JSON) / MIR checked path を owner-local helper へまとめ、top-level route selection も `LauncherDispatchBox` に寄せ済みなので、`.hako` live/bootstrap owner bucket は near-thin-floor に固定してよい
 - `lang/src/runner/stage1_cli.hako` も direct `BuildBox.emit_program_json_v0(...)` / `MirBuilderBox.emit_from_program_json_v0(...)` checked path を owner-local helper に寄せられるので、`.hako` owner audit は runner file ごとに local helper 化を進めるのが安全
 - `lang/src/runner/stage1_cli_env.hako` も exact source-only `emit-program` を same-file helper `Stage1SourceProgramAuthorityBox` に寄せ、さらに direct `MirBuilderBox.emit_from_program_json_v0(...)` checked path も shared same-file helper (`Stage1ProgramJsonMirCallerBox`) に寄せられるので、env-route owner でも exact emit contract を戻しつつ direct checked path を増やさずに薄くできる
 - `lang/src/mir/builder/MirBuilderBox.hako` は `emit_from_source_v0(...)` の source-entry shim を `MirBuilderSourceCompatBox` に寄せ済みで、`emit_from_program_json_v0(...)` 本体は owner policy が濃いので同じ slice で混ぜない方が安全
@@ -93,6 +93,7 @@ Related:
 
 ## Immediate Next
 
-1. `.hako` live/bootstrap owner 4 file の direct call sites を owner-local に整理する
+1. `.hako` live/bootstrap owner 4 file は monitor-only / near-thin-floor として凍結する
 2. shared shell helper 3 file の contract を keep/remove 目線で audit する
-3. smoke tail 43 file は caller-audit ledger として別に畳む
+3. first helper-local slice は `tools/hakorune_emit_mir.sh`
+4. smoke tail 43 file は caller-audit ledger として別に畳む
