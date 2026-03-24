@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W6 active`
+  - status: `reopen W7 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,11 +39,12 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W6 target:
+  - current W7 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
-    - first `tools/hakorune_emit_mir.sh` helper-local split is landed: Stage-B Program(JSON) production is now execute/coerce/fallback-separated
-    - next exact helper-local leaf is the direct-emit fallback lane inside `tools/hakorune_emit_mir.sh`
+    - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
+    - next exact helper-local bucket is `tools/selfhost/selfhost_build.sh`
+    - current exact leaf there is the Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

@@ -221,6 +221,56 @@ try_direct_emit_mir_json() {
   return 0
 }
 
+coerce_stageb_program_json_v0_result_kind() {
+  local result_kind="${1-}"
+  case "$result_kind" in
+    stageb-fail|stageb-invalid)
+      printf '%s' "$result_kind"
+      return 0
+      ;;
+    *)
+      echo "[FAIL] unexpected Stage-B Program(JSON) fallback kind: ${result_kind:-<empty>}" >&2
+      return 1
+      ;;
+  esac
+}
+
+stageb_program_json_v0_mainline_only_fail_message() {
+  local result_kind="$1"
+  case "$result_kind" in
+    stageb-invalid)
+      printf '%s' "[FAIL] Stage-B output invalid under mainline-only mode (compat fallback disabled)"
+      ;;
+    stageb-fail)
+      printf '%s' "[FAIL] Stage-B failed under mainline-only mode (compat fallback disabled)"
+      ;;
+  esac
+}
+
+stageb_program_json_v0_direct_emit_success_label() {
+  local result_kind="$1"
+  case "$result_kind" in
+    stageb-invalid)
+      printf '%s' "direct-emit-fallback"
+      ;;
+    stageb-fail)
+      printf '%s' "direct-emit"
+      ;;
+  esac
+}
+
+stageb_program_json_v0_direct_emit_fail_message() {
+  local result_kind="$1"
+  case "$result_kind" in
+    stageb-invalid)
+      printf '%s' "[FAIL] Stage‑B output invalid and direct emit failed"
+      ;;
+    stageb-fail)
+      printf '%s' "[FAIL] Stage-B and direct MIR emit both failed"
+      ;;
+  esac
+}
+
 exit_after_forced_direct_emit() {
   local out_path="$1"
   if try_direct_emit_mir_json "$out_path"; then
@@ -231,8 +281,14 @@ exit_after_forced_direct_emit() {
   exit 1
 }
 
-exit_after_direct_emit_fallback() {
-  local mainline_only_fail="$1" success_label="$2" direct_emit_fail="$3" out_path="$4"
+exit_after_stageb_program_json_v0_fallback_policy() {
+  local result_kind out_path mainline_only_fail success_label direct_emit_fail
+  result_kind="$(coerce_stageb_program_json_v0_result_kind "${1-}")" || exit 1
+  out_path="$2"
+  mainline_only_fail="$(stageb_program_json_v0_mainline_only_fail_message "$result_kind")"
+  success_label="$(stageb_program_json_v0_direct_emit_success_label "$result_kind")"
+  direct_emit_fail="$(stageb_program_json_v0_direct_emit_fail_message "$result_kind")"
+
   if [ "${HAKO_EMIT_MIR_MAINLINE_ONLY:-0}" = "1" ]; then
     echo "$mainline_only_fail" >&2
     exit 1
@@ -243,22 +299,6 @@ exit_after_direct_emit_fallback() {
   fi
   echo "$direct_emit_fail" >&2
   exit 1
-}
-
-exit_after_stageb_program_json_v0_fallback() {
-  local rc="$1" out_path="$2"
-  if [ "$rc" -eq 2 ]; then
-    exit_after_direct_emit_fallback \
-      "[FAIL] Stage-B output invalid under mainline-only mode (compat fallback disabled)" \
-      "direct-emit-fallback" \
-      "[FAIL] Stage‑B output invalid and direct emit failed" \
-      "$out_path"
-  fi
-  exit_after_direct_emit_fallback \
-    "[FAIL] Stage-B failed under mainline-only mode (compat fallback disabled)" \
-    "direct-emit" \
-    "[FAIL] Stage-B and direct MIR emit both failed" \
-    "$out_path"
 }
 
 extract_loop_force_limit_from_program_json() {
@@ -419,21 +459,29 @@ coerce_stageb_program_json_v0_output() {
   return 0
 }
 
-load_stageb_program_json_v0_or_exit() {
-  local out_path="$1" prog_json_out rc
-  set +e
-  prog_json_out="$(emit_stageb_program_json_v0)"
-  rc=$?
-  set -e
+load_stageb_program_json_v0() {
+  local prog_json_out
+  STAGEB_PROGRAM_JSON_V0_OUT=""
+  STAGEB_PROGRAM_JSON_V0_RESULT_KIND=""
 
-  if [ $rc -ne 0 ] || [ -z "$prog_json_out" ]; then
-    exit_after_stageb_program_json_v0_fallback "$rc" "$out_path"
+  if ! prog_json_out="$(execute_stageb_program_json_v0_raw)"; then
+    STAGEB_PROGRAM_JSON_V0_RESULT_KIND="stageb-fail"
+    return 1
+  fi
+
+  if ! prog_json_out="$(coerce_stageb_program_json_v0_output "$prog_json_out")"; then
+    STAGEB_PROGRAM_JSON_V0_RESULT_KIND="stageb-invalid"
+    return 1
   fi
 
   STAGEB_PROGRAM_JSON_V0_OUT="$prog_json_out"
+  return 0
 }
 STAGEB_PROGRAM_JSON_V0_OUT=""
-load_stageb_program_json_v0_or_exit "$OUT"
+STAGEB_PROGRAM_JSON_V0_RESULT_KIND=""
+if ! load_stageb_program_json_v0; then
+  exit_after_stageb_program_json_v0_fallback_policy "$STAGEB_PROGRAM_JSON_V0_RESULT_KIND" "$OUT"
+fi
 PROG_JSON_OUT="$STAGEB_PROGRAM_JSON_V0_OUT"
 
 # 2) Convert Program(JSON v0) → MIR(JSON)

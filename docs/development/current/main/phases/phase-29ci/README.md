@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W6 active`。
+- current status は `reopen W7 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -72,8 +72,8 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - raw direct `stage1_cli.hako emit program-json` is diagnostics-only evidence
   - explicit env-route compat probes and raw compat flags stay alive
   - `stage1_cli.hako` / `launcher.hako` route orchestration thinning is landed
-  - first shared-helper slice in `tools/hakorune_emit_mir.sh` is landed: Stage-B Program(JSON) production is now execute/coerce/fallback-separated
-  - next cleanup slice stays in `tools/hakorune_emit_mir.sh` and targets the direct-emit fallback lane
+  - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
+  - next cleanup slice moves to `tools/selfhost/selfhost_build.sh` and starts with the Program(JSON)->MIR->EXE consumer path
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

@@ -32,16 +32,17 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W6 active`
+   - status: `reopen W7 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
-   - exact W6 target:
+   - exact W7 target:
      - keep `launcher.hako` W5 thinning landed and frozen near-thin-floor
-     - keep the first `tools/hakorune_emit_mir.sh` helper-local split landed: Stage-B Program(JSON) production is now execute/coerce/fallback-separated
-     - next exact helper-local leaf is the direct-emit fallback lane inside `tools/hakorune_emit_mir.sh`
+     - keep the first two `tools/hakorune_emit_mir.sh` helper-local splits landed: Stage-B Program(JSON) production and direct-emit fallback policy
+     - move the next exact helper-local bucket to `tools/selfhost/selfhost_build.sh`
+     - start that bucket with the Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
      - keep explicit env-route compat probes, raw compat flags, and the retired raw direct `stage1_cli.hako emit program-json` diagnostics pin alive
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
@@ -108,9 +109,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `delete-ready-later`
 3. keep `stage1_cli.hako` and `launcher.hako` frozen near-thin-floor after their route thinning slices
 4. move the next live caller-audit bucket to shared shell helper keep:
-   - first target: `tools/hakorune_emit_mir.sh`
-   - current exact leaf: direct-emit fallback lane after the landed Stage-B Program(JSON) production split
-   - then `tools/selfhost/selfhost_build.sh`
+   - first landed target: `tools/hakorune_emit_mir.sh`
+   - current exact bucket: `tools/selfhost/selfhost_build.sh`
+   - current exact leaf: Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
    - then `tools/smokes/v2/lib/test_runner.sh`
 5. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags
