@@ -27,7 +27,7 @@ Script
   - --mir <out.json>: emit MIR(JSON) from source (preferred runner path)
   - --exe <out>: build native executable via ny-llvmc (llvmlite harness)
   - --run: run via Gate‑C/Core Direct (in‑proc). Exit code mirrors program return.
-  - `--exe` now keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` and the Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so EXE lane cleanup stays separate from the top-level route tail.
+  - `--exe` now keeps context resolution behind `resolve_emit_exe_context()` and Program(JSON)->MIR->EXE execution behind `emit_exe_from_program_json_v0_with_context()`, so EXE lane cleanup stays separate from the top-level route tail.
   - Env:
     - NYASH_BIN: path to hakorune/nyash binary (auto-detected)
     - NYASH_ROOT: repo root (auto-detected)
@@ -89,11 +89,11 @@ Script
 
 Examples
 ```bash
-# Emit MIR (preferred)
-tools/selfhost/selfhost_build.sh --in apps/demo/main.hako --mir /tmp/demo.mir
+# Exact helper-local Program(JSON)->MIR->EXE consumer proof
+bash tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh
 
-# Run and use exit code
-tools/selfhost/selfhost_build.sh --in apps/demo/return7.hako --run; echo $?
+# Day-to-day selfhost entrypoint
+tools/selfhost/run.sh --runtime --input apps/examples/string_p0.hako
 ```
 
 Explicit compat boundary probe:
@@ -103,6 +103,7 @@ bash tools/dev/phase29ch_program_json_compat_route_probe.sh
 
 Notes
 - Stage‑B emit uses either the Stage‑B entry or BuildBox（HAKO_USE_BUILDBOX=1 for emit-only）
+- raw `selfhost_build.sh --in ...` whole-script routes are not the current helper-local acceptance line; use the focused probe above for the EXE consumer seam while upstream Stage-B source-route freezes remain
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は Rust VM）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。
 - For heavier cases (bundles/alias/require), keep Stage‑B canaries opt‑in in quick profile.
@@ -159,7 +160,7 @@ Notes
 - `launcher-exe` is still a run artifact and does not satisfy G1 identity emit contract by itself.
 - `stage1-cli` is a runnable bootstrap output; success is defined by stage0 bootstrap payload proof plus reduced artifact `run` liveness, not by reduced artifact payload emission.
 - `stage0` bootstrap proof stays on the payload/file materialization route.
-- `selfhost_build.sh` keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`, and its `--exe` lane keeps temp MIR path selection behind `select_emit_exe_mir_tmp_path()` plus Program(JSON)->MIR->EXE orchestration behind `emit_exe_from_program_json_v0_with_mir_tmp()`, so `--exe` / `--run` / path-result routes stay owner-local instead of inline in the main tail.
+- `selfhost_build.sh` keeps its post-emit final output selection behind `dispatch_stageb_primary_output()`, and its `--exe` lane keeps context resolution behind `resolve_emit_exe_context()` plus Program(JSON)->MIR->EXE execution behind `emit_exe_from_program_json_v0_with_context()`, so `--exe` / `--run` / path-result routes stay owner-local instead of inline in the main tail.
 - current proven closure is `stage3 launcher -> stage4 stage1-cli -> stage5 launcher -> stage6 stage1-cli -> stage7 launcher`
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.

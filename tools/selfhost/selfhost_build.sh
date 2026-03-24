@@ -223,6 +223,18 @@ apply_emit_exe_env() {
   export NYASH_EMIT_EXE_NYRT="$nyrt_dir"
 }
 
+resolve_emit_exe_context() {
+  local nyll
+  nyll="$(resolve_emit_exe_nyllvm)" || return $?
+  local nyrt_dir="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}"
+  apply_emit_exe_env "$nyll" "$nyrt_dir"
+
+  local mir_tmp
+  mir_tmp="$(select_emit_exe_mir_tmp_path)"
+
+  printf '%s\n%s\n%s\n' "$nyll" "$nyrt_dir" "$mir_tmp"
+}
+
 select_emit_exe_mir_tmp_path() {
   if [ -n "${MIR_OUT:-}" ]; then
     printf '%s' "$MIR_OUT"
@@ -251,8 +263,8 @@ emit_exe_from_mir_json() {
   "$nyll" --in "$mir_path" --emit exe --nyrt "$nyrt_dir" --out "$exe_out_path"
 }
 
-emit_exe_from_program_json_v0_with_mir_tmp() {
-  local json_path="$1" exe_out_path="$2" mir_tmp="$3" nyll="$4" nyrt_dir="$5"
+emit_exe_from_program_json_v0_with_context() {
+  local json_path="$1" exe_out_path="$2" nyll="$3" nyrt_dir="$4" mir_tmp="$5"
   local rc=0
   emit_mir_json_from_program_json_v0 "$json_path" "$mir_tmp" || rc=$?
   if [ "$rc" -eq 0 ]; then
@@ -264,14 +276,19 @@ emit_exe_from_program_json_v0_with_mir_tmp() {
 
 emit_exe_from_program_json_v0() {
   local json_path="$1" exe_out_path="$2"
-  local nyll
-  nyll="$(resolve_emit_exe_nyllvm)" || return $?
-  local nyrt_dir="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}"
-  apply_emit_exe_env "$nyll" "$nyrt_dir"
+  local exe_ctx nyll nyrt_dir mir_tmp
+  exe_ctx="$(resolve_emit_exe_context)" || return $?
+  nyll="$(printf '%s\n' "$exe_ctx" | sed -n '1p')"
+  nyrt_dir="$(printf '%s\n' "$exe_ctx" | sed -n '2p')"
+  mir_tmp="$(printf '%s\n' "$exe_ctx" | sed -n '3p')"
 
-  local mir_tmp
-  mir_tmp="$(select_emit_exe_mir_tmp_path)"
-  emit_exe_from_program_json_v0_with_mir_tmp "$json_path" "$exe_out_path" "$mir_tmp" "$nyll" "$nyrt_dir"
+  emit_exe_from_program_json_v0_with_context "$json_path" "$exe_out_path" "$nyll" "$nyrt_dir" "$mir_tmp"
+}
+
+# Compat keep for older helper-local probes; W7.1 promotes the context form above.
+emit_exe_from_program_json_v0_with_mir_tmp() {
+  local json_path="$1" exe_out_path="$2" mir_tmp="$3" nyll="$4" nyrt_dir="$5"
+  emit_exe_from_program_json_v0_with_context "$json_path" "$exe_out_path" "$nyll" "$nyrt_dir" "$mir_tmp"
 }
 
 cleanup_program_json_tmp_if_needed() {

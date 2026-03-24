@@ -25,7 +25,8 @@ Related:
 1. `phase-29ci`
    - active boundary lane
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
-   - W7 exact next: shared shell helper caller audit inside `tools/selfhost/selfhost_build.sh`, starting with the Program(JSON)->MIR->EXE consumer path
+   - W7 landed: shared shell helper caller audit inside `tools/selfhost/selfhost_build.sh` now covers the Program(JSON)->MIR->EXE consumer path
+   - W7 exact next: `tools/smokes/v2/lib/test_runner.sh`
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -85,7 +86,8 @@ Related:
   - `stage1_cli.hako` and `launcher.hako` route orchestration thinning is landed
   - raw direct `stage1_cli.hako emit program-json` lane is retired as diagnostics-only evidence
   - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
-  - next caller-audit bucket moves to `tools/selfhost/selfhost_build.sh`
+  - `tools/selfhost/selfhost_build.sh` EXE consumer path split is landed; helper-local proof lives in `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+  - next caller-audit bucket moves to `tools/smokes/v2/lib/test_runner.sh`
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

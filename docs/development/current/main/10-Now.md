@@ -43,8 +43,10 @@ Related:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
     - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
-    - next exact helper-local bucket is `tools/selfhost/selfhost_build.sh`
-    - current exact leaf there is the Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
+    - `tools/selfhost/selfhost_build.sh` EXE consumer path is landed behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
+    - exact proof for that leaf is `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+    - raw `selfhost_build.sh --in ...` whole-script routes are upstream Stage-B diagnostics, not the W7.1 acceptance line
+    - next exact helper-local bucket is `tools/smokes/v2/lib/test_runner.sh`
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

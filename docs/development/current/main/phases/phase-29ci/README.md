@@ -73,7 +73,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - explicit env-route compat probes and raw compat flags stay alive
   - `stage1_cli.hako` / `launcher.hako` route orchestration thinning is landed
   - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
-  - next cleanup slice moves to `tools/selfhost/selfhost_build.sh` and starts with the Program(JSON)->MIR->EXE consumer path
+  - `tools/selfhost/selfhost_build.sh` now keeps the EXE consumer path behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
+  - the exact W7.1 proof is `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+  - raw `selfhost_build.sh --in ...` whole-script routes stay upstream Stage-B source-route diagnostics, not the exact helper-local acceptance line
+  - next cleanup slice moves to `tools/smokes/v2/lib/test_runner.sh`
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

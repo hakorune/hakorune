@@ -101,13 +101,12 @@ shared shell helper keep として残っている 3 file について、
 - `tools/selfhost/selfhost_build.sh` now also keeps its post-emit raw/extract funnel behind `extract_program_json_v0_from_raw()`, `persist_stageb_raw_snapshot()`, and `exit_after_stageb_emit_failure()`, so build-helper cleanup can talk about exact lanes instead of one long post-emit block
 - `tools/selfhost/selfhost_build.sh` now keeps the source-direct `--mir` consumer behind `emit_mir_json_from_source()`, so downstream consumer audit can proceed one lane at a time without mixing `--exe` or `--run`
 - `tools/selfhost/selfhost_build.sh` now also keeps the Core-Direct `--run` consumer behind `run_program_json_v0_via_core_direct()`, so the remaining downstream helper-local work is the Program(JSON)->MIR->EXE lane rather than mixed run/EXE cleanup
-- `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR->EXE consumer behind `emit_exe_from_program_json_v0()`, and the EXE temp MIR path is isolated behind `select_emit_exe_mir_tmp_path()` plus `emit_exe_from_program_json_v0_with_mir_tmp()`, so the downstream consumer lanes are all owner-local helpers instead of inline top-level branches
+- `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR->EXE consumer behind `emit_exe_from_program_json_v0()`, with context resolution isolated behind `resolve_emit_exe_context()` and pipeline execution isolated behind `emit_exe_from_program_json_v0_with_context()`, so the downstream consumer lane now reads as resolve context -> execute pipeline instead of one mixed EXE wrapper
 - `tools/selfhost/selfhost_build.sh` now also keeps the Program(JSON)->MIR step behind `emit_mir_json_from_program_json_v0()`, so `emit_exe_from_program_json_v0()` no longer mixes MIR generation with ny-llvmc EXE emission inline
 - `tools/selfhost/selfhost_build.sh` now also keeps the MIR(JSON)->EXE step behind `emit_exe_from_mir_json()`, so `emit_exe_from_program_json_v0()` reads as resolve env -> Program(JSON)->MIR -> MIR->EXE -> cleanup
 - `tools/selfhost/selfhost_build.sh` now also keeps top-level post-emit route order behind `dispatch_stageb_downstream_outputs()`, with `cleanup_program_json_tmp_if_needed()` owning the emit-only/run temp-json cleanup contract, so the script tail no longer mixes `--json / --mir / --exe / --run` branching inline
-- `tools/selfhost/selfhost_build.sh --mir` is still green on `apps/tests/hello_simple_llvm.hako` because it uses the source-direct route
-- `tools/selfhost/selfhost_build.sh --run` is green on the repaired payload
-- `tools/selfhost/selfhost_build.sh --exe` is green on that same repaired payload
+- `tools/selfhost/selfhost_build.sh` now also has an exact helper-local proof for that EXE consumer lane via `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`, which seeds a minimal Program(JSON v0) directly into the landed helper seam
+- raw `tools/selfhost/selfhost_build.sh --in ...` whole-script routes remain upstream Stage-B source-route diagnostics for now, so they are not the acceptance line for this helper-local slice
 - for this fixture, `HAKO_USE_BUILDBOX=1` is still an explicit keep contract in code, but it no longer distinguishes success from failure; delete/retire arguments need caller-inventory proof rather than malformed-producer proof from `hello_simple_llvm`
 - `tools/smokes/v2/lib/test_runner.sh` is now safe to thin one lane at a time inside `verify_program_via_builder_to_core()`: the provider emit lane now lives behind `emit_mir_json_via_provider_extern_v1()`, so the helper keeps the provider route exact without compiling a temporary `.hako` wrapper through vm-hako subset-check
 - `tools/smokes/v2/lib/test_runner.sh` now keeps that Rust CLI Program(JSON v0) fallback behind `run_program_json_v0_via_rust_cli_builder()`, so both builder lanes are owner-local helpers and the remaining top-level tail is shape/result routing rather than builder-lane duplication
@@ -141,6 +140,6 @@ shared shell helper keep として残っている 3 file について、
 ## Immediate Next
 
 1. keep `tools/hakorune_emit_mir.sh` monitor-only after the landed direct-emit fallback split
-2. move the next helper-local bucket to `tools/selfhost/selfhost_build.sh`, starting with the Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
-3. keep `tools/smokes/v2/lib/test_runner.sh` on helper-local slices only: builder lanes, shape/result routing, and verify-tail policy are isolated now, so any next slice should target only tiny runtime/route leaves without touching the smoke tail yet
+2. keep `tools/selfhost/selfhost_build.sh` monitor-only after the landed EXE consumer-path split and its helper-local probe
+3. move the next helper-local bucket to `tools/smokes/v2/lib/test_runner.sh`: builder lanes, shape/result routing, and verify-tail policy are isolated now, so any next slice should target only tiny runtime/route leaves without touching the smoke tail yet
 4. keep `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` green while thinning only tiny helper leaves; do not reopen vm-hako subset debt or the 43-file smoke tail just to touch this shared helper

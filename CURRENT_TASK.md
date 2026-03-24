@@ -41,8 +41,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - exact W7 target:
      - keep `launcher.hako` W5 thinning landed and frozen near-thin-floor
      - keep the first two `tools/hakorune_emit_mir.sh` helper-local splits landed: Stage-B Program(JSON) production and direct-emit fallback policy
-     - move the next exact helper-local bucket to `tools/selfhost/selfhost_build.sh`
-     - start that bucket with the Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
+     - keep `tools/selfhost/selfhost_build.sh` EXE consumer path landed behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
+     - pin that exact leaf via `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
+     - raw `selfhost_build.sh --in ...` whole-script routes remain upstream Stage-B source-route diagnostics and are not the W7.1 acceptance line
+     - move the next exact helper-local bucket to `tools/smokes/v2/lib/test_runner.sh`
      - keep explicit env-route compat probes, raw compat flags, and the retired raw direct `stage1_cli.hako emit program-json` diagnostics pin alive
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
@@ -110,9 +112,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 3. keep `stage1_cli.hako` and `launcher.hako` frozen near-thin-floor after their route thinning slices
 4. move the next live caller-audit bucket to shared shell helper keep:
    - first landed target: `tools/hakorune_emit_mir.sh`
-   - current exact bucket: `tools/selfhost/selfhost_build.sh`
-   - current exact leaf: Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
-   - then `tools/smokes/v2/lib/test_runner.sh`
+   - second landed target: `tools/selfhost/selfhost_build.sh`
+   - current exact bucket: `tools/smokes/v2/lib/test_runner.sh`
+   - previous exact leaf: Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
 5. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags
    - stage1 bridge/program-json explicit route
