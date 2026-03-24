@@ -111,11 +111,11 @@ Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate prov
 | --- | --- | --- |
 | docs/task lock | landed | syntax / carrier / backend scope are docs-locked |
 | Rust parser | landed | `@rune` behind `NYASH_FEATURES=rune`; declaration-local attrs kept; unknown/arity/declaration-required fail-fast |
-| `.hako` parser | partly landed | same Rune surface + arg-shape contract; declaration attrs preserved on parsed defs |
+| `.hako` parser | partly landed | same Rune surface + arg-shape contract; statement/program routes fail fast on invalid placement |
 | Rust AST/direct MIR carrier | landed | declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR |
 | `.hako` source-route keep | partly landed | selected-entry attrs survive via synthetic `Main.main` transport shim; not a claim of broad declaration-local MIR parity |
 | Program(JSON v0) | locked | retire target; no Rune widening |
-| verifier | partly landed | duplicate/conflict + box-target visibility-only checks are live; function-target ABI/placement verifier remains the next exact leaf |
+| verifier | partly landed | duplicate/conflict + box-target visibility-only checks are live; `.hako` statement/program invalid-placement fail-fast is live; function-target ABI/placement verifier remains the next exact leaf |
 | `ny-llvmc` consumer | landed narrow | selected-entry `Symbol` / `CallConv` semantics only |
 | `llvmlite` | unchanged | safe ignore / noop keep only |
 

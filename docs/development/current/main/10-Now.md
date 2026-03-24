@@ -35,6 +35,7 @@ Related:
     - declaration-local `attrs.runes`
     - Rust direct MIR carrier
     - `.hako` source-route selected-entry transport shim
+    - `.hako` parser statement/program routes fail fast on Rune invalid placement
     - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
     - `Program(JSON v0)` remains no-widen
   - next exact leaf is verifier-only:

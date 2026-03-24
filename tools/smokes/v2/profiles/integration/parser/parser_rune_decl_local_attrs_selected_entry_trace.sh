@@ -24,6 +24,7 @@ cleanup() {
 trap cleanup EXIT
 
 SRC="$TMPDIR/rune_decl_local_attrs.hako"
+INVALID_SRC="$TMPDIR/rune_invalid_placement.hako"
 AST_LOG="$TMPDIR/ast_json.log"
 AST_JSON="$TMPDIR/ast.json"
 MIR_JSON="$TMPDIR/mir.json"
@@ -48,9 +49,34 @@ static box Main {
 }
 HK
 
+cat >"$INVALID_SRC" <<'HK'
+static box Main {
+  main() {
+    @rune Public
+    local x = 1
+    return x
+  }
+}
+HK
+
 if ! cargo build --release -q --bin hakorune >"$BUILD_LOG" 2>&1; then
   log_error "hakorune release build failed"
   tail -n 120 "$BUILD_LOG" >&2 || true
+  exit 1
+fi
+
+INVALID_LOG="$TMPDIR/invalid_placement.log"
+if NYASH_FEATURES="$FEATURES" \
+  "$NYASH_ROOT/tools/selfhost/run.sh" --direct --source-file "$INVALID_SRC" \
+  >"$INVALID_LOG" 2>&1; then
+  log_error ".hako direct parser route unexpectedly accepted rune invalid placement"
+  tail -n 120 "$INVALID_LOG" >&2 || true
+  exit 1
+fi
+
+if ! grep -Fq '[freeze:contract][parser/rune] invalid placement on statement' "$INVALID_LOG"; then
+  log_error ".hako direct parser route did not emit rune invalid-placement freeze tag"
+  tail -n 120 "$INVALID_LOG" >&2 || true
   exit 1
 fi
 

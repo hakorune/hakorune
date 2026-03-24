@@ -11,6 +11,7 @@ using "lang.compiler.parser.using.using_collector_box"
 using lang.compiler.parser.expr.parser_expr_box
 using lang.compiler.parser.stmt.parser_stmt_box
 using lang.compiler.parser.stmt.parser_control_box
+using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
 
 box ParserBox {
   gpos
@@ -322,6 +323,11 @@ box ParserBox {
     return me.runes_json
   }
 
+  set_runes_json(runes_json) {
+    me.runes_json = RuneContractBox.normalize_pending_json(runes_json)
+    return 0
+  }
+
   consume_runes_json() {
     local out = me.runes_json
     if out == null || out.length() == 0 { out = "[]" }
@@ -537,7 +543,7 @@ box ParserBox {
       local pending_runes = me.consume_runes_json()
       if pending_runes != "[]" {
         env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-        return "[freeze:contract][parser/rune] Program(JSON v0) route does not carry declaration-local Rune attrs"
+        return RuneContractBox.invalid_placement_tag("statement")
       }
       if s.length() > 0 {
         if first == 1 {
@@ -558,7 +564,7 @@ box ParserBox {
     body = body + "]"
     if me.consume_runes_json() != "[]" {
       env.set("HAKO_STAGEB_PARSER_DEPTH", "0")
-      return "[freeze:contract][parser/rune] Program(JSON v0) route does not carry declaration-local Rune attrs"
+      return RuneContractBox.invalid_placement_tag("statement")
     }
     if trace == 1 {
       print("[parser/trace:program2] done pos=" + ("" + i) + " len=" + ("" + n))

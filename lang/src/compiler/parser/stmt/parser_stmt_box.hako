@@ -7,6 +7,7 @@ using sh_core as StringHelpers  // Required: using chain resolution not implemen
 using lang.compiler.parser.stmt.parser_control_box
 using lang.compiler.parser.stmt.parser_exception_box
 using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
 
 static box ParserStmtBox {
   parse(src, i, ctx) {
@@ -686,7 +687,11 @@ static box ParserStmtBox {
       }
 
       local entry = "{\"name\":\"" + ctx.esc_json(rune_name) + "\",\"args\":" + args_json + "}"
-      ctx.add_rune(entry)
+      local next_runes = RuneContractBox.append_pending_checked(ctx.get_runes_json(), entry)
+      if ParserStringUtilsBox.starts_with("" + next_runes, 0, "[freeze:contract]") == 1 {
+        return me.fail_annotation_contract(next_runes, src)
+      }
+      ctx.set_runes_json(next_runes)
       if k < src.length() && src.substring(k, k+1) == ";" { k = k + 1 }
       return k
     }

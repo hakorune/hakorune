@@ -250,3 +250,59 @@ static box Main {
         );
     });
 }
+
+#[test]
+fn parser_rejects_duplicate_runes_on_same_declaration() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Symbol("main_a")
+  @rune Symbol("main_b")
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] duplicate rune Symbol"),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_conflicting_visibility_runes() {
+    with_features(Some("rune"), || {
+        let src = r#"
+@rune Public
+@rune Internal
+static box Main {
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] conflicting visibility runes"),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_non_visibility_rune_on_box_target() {
+    with_features(Some("rune"), || {
+        let src = r#"
+@rune Symbol("main_sym")
+static box Main {
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] box target supports only Public|Internal"),
+            "unexpected error: {msg}"
+        );
+    });
+}

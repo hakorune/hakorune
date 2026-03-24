@@ -34,7 +34,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - Rust direct MIR carrier
      - `.hako` source-route selected-entry transport shim
      - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
-   - exact next: one verifier-focused leaf only, without widening `Program(JSON v0)` or broadening backend semantics
+   - latest landed verifier cut:
+     - `.hako` parser statement/program routes now fail fast on Rune invalid placement instead of attaching generic statement attrs
+   - exact next: one verifier-focused ABI/function-target leaf only, without widening `Program(JSON v0)` or broadening backend semantics
 2. close-synced mainline lane: `phase-29cj`
    - status: `formal-close-synced`
    - reopen only if a new exact disappearing leaf appears above the Rust stop-line or if deletion-prep explicitly resumes

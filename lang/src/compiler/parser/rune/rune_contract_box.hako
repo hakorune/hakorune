@@ -1,0 +1,74 @@
+// RuneContractBox — pending Rune contract helpers for Stage-B parser routes.
+// Responsibility:
+// - Keep pending rune JSON normalized.
+// - Detect duplicate rune names and conflicting visibility in pending sets.
+// - Emit stable invalid-placement fail-fast tags for statement/program routes.
+
+using sh_core as StringHelpers
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box RuneContractBox {
+  normalize_pending_json(runes_json) {
+    if runes_json == null { return "[]" }
+    local s = "" + runes_json
+    if s == "" { return "[]" }
+    return s
+  }
+
+  has_pending_runes(runes_json) {
+    local s = me.normalize_pending_json(runes_json)
+    if s == "[]" { return 0 }
+    return 1
+  }
+
+  invalid_placement_tag(context) {
+    local suffix = "" + context
+    if suffix == "" { suffix = "statement" }
+    return "[freeze:contract][parser/rune] invalid placement on " + suffix
+  }
+
+  append_pending_checked(runes_json, entry_json) {
+    local cur = me.normalize_pending_json(runes_json)
+    local entry = "" + entry_json
+    local rune_name = me._extract_name(entry)
+    if rune_name == "" {
+      return "[freeze:contract][parser/rune] rune name after @rune"
+    }
+
+    if me._contains_rune_name(cur, rune_name) == 1 {
+      return "[freeze:contract][parser/rune] duplicate rune " + rune_name
+    }
+
+    if (rune_name == "Public" && me._contains_rune_name(cur, "Internal") == 1)
+      || (rune_name == "Internal" && me._contains_rune_name(cur, "Public") == 1) {
+      return "[freeze:contract][parser/rune] conflicting visibility runes"
+    }
+
+    if cur == "[]" {
+      return "[" + entry + "]"
+    }
+
+    local pos = cur.lastIndexOf("]")
+    if pos < 0 {
+      return "[" + entry + "]"
+    }
+    return cur.substring(0, pos) + "," + entry + "]"
+  }
+
+  _contains_rune_name(runes_json, rune_name) {
+    local needle = "\"name\":\"" + rune_name + "\""
+    if ParserStringUtilsBox.index_of("" + runes_json, 0, needle) >= 0 { return 1 }
+    return 0
+  }
+
+  _extract_name(entry_json) {
+    local json = "" + entry_json
+    local key = "\"name\":\""
+    local start = ParserStringUtilsBox.index_of(json, 0, key)
+    if start < 0 { return "" }
+    start = start + key.length()
+    local end = ParserStringUtilsBox.index_of(json, start, "\"")
+    if end < 0 { return "" }
+    return json.substring(start, end)
+  }
+}

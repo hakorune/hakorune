@@ -102,7 +102,7 @@ Landed.
 Partially landed.
 
 - `.hako` parser accepts the same Rune surface and arg-shape contract
-- `.hako` parser preserves declaration attrs on parsed defs
+- `.hako` statement/program routes fail fast on Rune invalid placement instead of attaching generic statement attrs
 - current `.hako` source-route keep does not claim full declaration-local MIR parity yet
 - current `.hako` end-to-end keep uses a selected-entry transport shim instead of widening `Program(JSON v0)`
 
@@ -125,6 +125,7 @@ Partially landed.
   - duplicate/conflicting rune rejection
   - box-target visibility-only checks
   - parser-level unknown/arity fail-fast
+  - `.hako` parser invalid-placement fail-fast on statement/program routes
 - remaining exact leaf:
   - function-target placement / ABI-facing verifier contract
   - sync Rust and `.hako` docs/tests so current verifier truth is explicit

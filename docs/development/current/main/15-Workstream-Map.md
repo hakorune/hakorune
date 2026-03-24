@@ -70,6 +70,7 @@ Related:
 - landed:
   - Rust parser gate + declaration-local attrs
   - `.hako` parser grammar/arg-shape parity
+  - `.hako` statement/program-route invalid-placement fail-fast
   - Rust direct MIR `attrs.runes` carrier
   - `.hako` source-route selected-entry transport shim
   - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
