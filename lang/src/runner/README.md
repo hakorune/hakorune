@@ -25,6 +25,7 @@ Pointers:
   - Current status:
     - authority is still `stage1_cli_env.hako`; this file is a future-retire/raw subcmd lane
     - `Stage1CliConfigBox.from_env()` is now the live env contract owner; `stage1_main(...)` reads one canonical config map (`mode`, `backend`, `source_path`, `source_text`, `program_json_path`) instead of re-reading env inline
+    - route selection now lives in same-file `Stage1CliDispatchBox`, so `stage1_main(...)` and the raw `emit` selection no longer carry policy inline; the raw `run` body remains the same-file action path after `Stage1CliRawSubcommandInputBox` materializes its request
     - checked `BuildBox` / `MirBuilderBox` calls stay behind owner-local helpers
     - source/program-json orchestration now lives behind same-file `Stage1CliProgramJsonInputBox`, so `Stage1Cli` no longer keeps placeholder resolve, source-text readback, or path/source Program(JSON) shaping inline
     - raw/subcmd `emit mir-json` / `run` argv parsing now lives behind same-file `Stage1CliRawSubcommandInputBox`, so the future-retire raw lane no longer keeps option parsing or `NYASH_SCRIPT_ARGS_JSON` assembly inline

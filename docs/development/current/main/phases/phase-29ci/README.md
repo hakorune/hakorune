@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W3 active`。
+- current status は `reopen W4 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -71,6 +71,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - wrapper/helper retirement is landed
   - raw direct `stage1_cli.hako emit program-json` is diagnostics-only evidence
   - explicit env-route compat probes and raw compat flags stay alive
+  - next cleanup slice is `stage1_cli.hako` route orchestration thinning via `Stage1CliDispatchBox`
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

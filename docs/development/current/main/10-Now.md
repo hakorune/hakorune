@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W3 active`
+  - status: `reopen W4 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,8 +39,9 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W3 target:
-    - raw direct `stage1_cli.hako emit program-json` lane is retire-only / diagnostics-only
+  - current W4 target:
+    - `stage1_cli.hako` route orchestration is thinned into `Stage1CliDispatchBox`
+    - raw direct `stage1_cli.hako emit program-json` lane remains retire-only / diagnostics-only
     - explicit env-route compat probes and raw compat flags remain alive
     - wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`

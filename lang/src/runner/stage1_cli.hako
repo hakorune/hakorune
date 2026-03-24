@@ -5,6 +5,7 @@
 // Note:
 // - This embedded raw/subcmd lane is a non-authority future retire target.
 // - Current green selfhost authority is `stage1_cli_env.hako`, not this file.
+// - Route selection is centralized in `Stage1CliDispatchBox`; this file keeps the action bodies.
 // トグル（既定OFF）:
 //   - NYASH_USE_STAGE1_CLI=1             : Rust 側がこの CLI を呼ぶときに使用
 //   - STAGE1_EMIT_PROGRAM_JSON=1         : source → Program(JSON v0) を emit
@@ -509,6 +510,70 @@ static box Stage1CliRawSubcommandInputBox {
   }
 }
 
+static box Stage1CliDispatchBox {
+  method dispatch_env_mode(cfg) {
+    local mode = cfg.get("mode")
+    local source = cfg.get("source_path")
+    local source_text = cfg.get("source_text")
+    local prog_path = cfg.get("program_json_path")
+    local backend = cfg.get("backend")
+    local debug = cfg.get("debug")
+
+    if debug == "1" {
+      print("[stage1-cli/debug] stage1_main ENTRY")
+      print("[stage1-cli/debug] stage1_main ENV")
+    }
+
+    if mode == "disabled" {
+      if debug == "1" {
+        print("[stage1-cli/debug] stage1_main: mode=disabled, returning 97")
+      }
+      return 97
+    }
+
+    if mode == "emit-program" {
+      return Stage1Cli._mode_emit_program(source, source_text)
+    }
+
+    if mode == "emit-mir" {
+      return Stage1Cli._mode_emit_mir_from_env_min(source_text)
+    }
+
+    return Stage1Cli._mode_run(backend, source, source_text, prog_path)
+  }
+
+  method dispatch_emit(args) {
+    local argc = 0
+    if args != null { argc = args.size() }
+    if argc < 2 {
+      print("[stage1-cli] emit: usage: emit program-json [retired] | emit mir-json [--from-program-json <file>] <source.hako>")
+      return 96
+    }
+
+    local sub = me._coerce_text_compat(args.get(1))
+    if sub == "program-json" { return me._retire_emit_program_json() }
+    if sub == "mir-json" { return Stage1Cli._cmd_emit_mir_json(args) }
+
+    print("[stage1-cli] emit: unknown subcommand: " + sub)
+    return 96
+  }
+
+  method dispatch_run(args) {
+    return Stage1Cli._run_raw_request(args)
+  }
+
+  method _retire_emit_program_json() {
+    print("[stage1-cli] emit program-json is retired from this raw subcommand")
+    print("             use emit mir-json for MIR-first flow")
+    print("             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof")
+    return 96
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}
+
 static box Stage1Cli {
   // Source(.hako) → Program(JSON v0)
   method emit_program_json(source) {
@@ -562,38 +627,7 @@ static box Stage1Cli {
   // CLI dispatcher (Config box refactored)
   method stage1_main(cli_args_raw) {
     local cfg = Stage1CliConfigBox.from_env()
-    local mode = cfg.get("mode")
-    local source = cfg.get("source_path")
-    local source_text = cfg.get("source_text")
-    local prog_path = cfg.get("program_json_path")
-    local backend = cfg.get("backend")
-
-    // デバッグは当面 STAGE1_CLI_DEBUG を優先し、将来 NYASH_DEBUG に統合する。
-    local debug = cfg.get("debug")
-
-    // Log entry point for debugging
-    if debug == "1" {
-      print("[stage1-cli/debug] stage1_main ENTRY")
-      print("[stage1-cli/debug] stage1_main ENV")
-    }
-
-    // Early exit if CLI is disabled
-    if mode == "disabled" {
-      if debug == "1" {
-        print("[stage1-cli/debug] stage1_main: mode=disabled, returning 97")
-      }
-      return 97
-    }
-
-    if mode == "emit-program" {
-      return me._mode_emit_program(source, source_text)
-    }
-
-    if mode == "emit-mir" {
-      return me._mode_emit_mir_from_env_min(source_text)
-    }
-
-    return me._mode_run(backend, source, source_text, prog_path)
+    return Stage1CliDispatchBox.dispatch_env_mode(cfg)
   }
 
   method _materialized_program_json_payload(input_text) {
@@ -694,31 +728,7 @@ static box Stage1Cli {
 
   // hakorune emit {program-json|mir-json} ...
   method _cmd_emit(args){
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-    }
-    local argc = 0; if args != null { argc = args.size() }
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit: argc=" + me._coerce_text_compat(argc))
-    }
-    if argc < 2 {
-      print("[stage1-cli] emit: usage: emit program-json [retired] | emit mir-json [--from-program-json <file>] <source.hako>")
-      return 96
-    }
-    local sub = me._coerce_text_compat(args.get(1))
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit: sub=" + sub)
-    }
-    if sub == "program-json" { return me._cmd_emit_program_json(args) }
-    if sub == "mir-json" { return me._cmd_emit_mir_json(args) }
-    print("[stage1-cli] emit: unknown subcommand: " + sub)
-    return 96
-  }
-
-  method _cmd_emit_program_json(args){
-    print("[stage1-cli] emit program-json is retired from this raw subcommand")
-    print("             use emit mir-json for MIR-first flow")
-    print("             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof")
-    return 96
+    return Stage1CliDispatchBox.dispatch_emit(args)
   }
 
   method _emit_program_json_from_source_text_checked(tag, merged_source, with_debug){
@@ -803,6 +813,10 @@ static box Stage1Cli {
 
   // hakorune run --backend <b> <source.hako> [-- args...]
   method _cmd_run(args){
+    return Stage1CliDispatchBox.dispatch_run(args)
+  }
+
+  method _run_raw_request(args) {
     if env.get("STAGE1_CLI_DEBUG") == "1" {
     }
     local req = Stage1CliRawSubcommandInputBox.parse_run_request(args)

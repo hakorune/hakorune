@@ -25,7 +25,7 @@ Related:
 1. `phase-29ci`
    - active boundary lane
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
-   - W3 exact next: retire raw direct `stage1_cli.hako emit program-json` lane and keep explicit env-route compat probes alive
+   - W4 exact next: thin `stage1_cli.hako` route orchestration into `Stage1CliDispatchBox` while keeping explicit env-route compat probes alive
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -77,6 +77,7 @@ Related:
   - `MIR(JSON v0)` line unification
   - `Program(JSON v0)` hard delete is deferred
 - current first-wave targets:
+  - `stage1_cli.hako` route orchestration is being thinned as a route-selection cleanup
   - raw direct `stage1_cli.hako emit program-json` lane is retired as diagnostics-only evidence
   - wrapper/helper retirements are already landed
   - rewrite exact smoke/docs to keep compat proof on explicit probes, not wrappers

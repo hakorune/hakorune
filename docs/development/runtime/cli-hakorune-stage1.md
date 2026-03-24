@@ -274,7 +274,7 @@ hakorune emit mir-json [-o <out>] [--quiet] <source.hako>
 | Program(JSON) パス | `NYASH_STAGE1_PROGRAM_JSON` | `STAGE1_PROGRAM_JSON`        |
 
 env-only 仕様の原則:
-- 入口 `Stage1Cli.stage1_main(args)` は `cli_args_raw` を一切参照せず、上記 ENV だけを見てモード/入力ソース/backend を決定する。
+- 入口 `Stage1Cli.stage1_main(args)` は `cli_args_raw` を一切参照せず、上記 ENV だけを見て canonical config を作ったうえで `Stage1CliDispatchBox` に渡す。
 - `.hako` 側で Program(JSON v0) / MIR(JSON) を emit したうえで、実行や AOT は常に Stage0/Rust に委譲する（Stage1 は CLI オーケストレーション専任）。
 
 ## `check` コマンド（予約）
