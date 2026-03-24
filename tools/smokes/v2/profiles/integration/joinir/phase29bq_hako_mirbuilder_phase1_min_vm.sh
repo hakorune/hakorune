@@ -8,9 +8,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)" # tools/
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
+source "$ROOT_DIR/smokes/v2/lib/vm_route_pin.sh"
 require_env || exit 2
 
 # Phase-29bq selfhost pins run in planner-required mode to exercise JoinIR plan boxes (no legacy fallback).
+# Contract: this is a mainline vm-lane pin, not a vm-hako capability probe.
+# Keep vm-hako preference disabled so subset-check interference does not leak into the pin.
+export_vm_route_pin
 export HAKO_JOINIR_PLANNER_REQUIRED=1
 
 FIXTURE="$NYASH_ROOT/apps/tests/phase29bq_hako_mirbuilder_phase1_literal_return_min.hako"
