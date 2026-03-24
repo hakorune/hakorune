@@ -30,21 +30,26 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29cu`
-  - Rune v0 returns to the front after `phase-29cj` close sync
+  - Rune v0 stays at the front after `phase-29cj` close sync
   - current reading is now:
     - declaration-local `attrs.runes`
     - Rust direct MIR carrier
-    - `.hako` source-route selected-entry transport shim
+    - `.hako` source-route selected-entry transport shim (transitional keep)
+    - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
     - `.hako` parser statement/program routes fail fast on Rune invalid placement
     - Rust function-target placement / ABI-facing verifier contract
     - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
     - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
     - `Program(JSON v0)` remains no-widen
-  - lane status is now `close-sync-ready`
-  - next exact step is docs-only close sync unless a new Rune gap appears
-  - planned future reopen:
-    - `.hako` declaration-local full Rune carrier parity
-    - removal of the selected-entry transport shim once direct MIR parity is ready
+  - lane status is now `reopen W1 landed`
+  - latest landed carrier cut:
+    - `.hako` compiler/mirbuilder state now carries a generic function-rune map instead of `entry_runes_json`
+    - `.hako` MIR attrs injection is function-name driven instead of `main` hardcode
+  - next exact step:
+    - selected-entry transport shim retirement
+    - canonical non-shim root-entry carrier on the `.hako` route
+  - planned future reopen after that:
+    - `.hako` declaration-local full Rune carrier parity beyond root-entry transport
 - Bootstrap-retire lane: `phase-29cj`
   - status: `formal-close-synced`
   - current stop-line is still `src/host_providers/mir_builder.rs::module_to_mir_json(...)`

@@ -27,25 +27,48 @@ static box MirJsonV0EmitBox {
     return "" + BoxHelpers.map_get(shape_ctx, key)
   }
 
-  _entry_runes_json(state) {
-    if state == null { return "[]" }
-    local runes = "" + BoxHelpers.map_get(state, "entry_runes_json")
-    if runes == null || runes == "" { return "[]" }
-    return runes
+  _function_runes_map(state) {
+    if state == null { return new MapBox() }
+    local runes_map = BoxHelpers.map_get(state, "function_runes_map")
+    if runes_map == null || BoxHelpers.is_map(runes_map) != 1 { return new MapBox() }
+    return runes_map
   }
 
-  _inject_main_attrs(mir_json, runes_json) {
+  _inject_one_function_attrs(mir_json, function_name, runes_json) {
     if mir_json == null { return mir_json }
+    if function_name == null || function_name == "" { return mir_json }
     if runes_json == null || runes_json == "" || runes_json == "[]" { return mir_json }
 
-    local needle = "{\"name\":\"main\",\"params\":[]"
+    local needle = "{\"name\":\"" + ("" + function_name) + "\",\"params\":"
     local pos = StringHelpers.index_of(mir_json, 0, needle)
     if pos < 0 { return mir_json }
 
     local blocks_pos = StringHelpers.index_of(mir_json, pos + needle.length(), ",\"blocks\":")
     if blocks_pos < 0 { return mir_json }
 
+    local header = mir_json.substring(pos, blocks_pos)
+    if StringHelpers.index_of(header, 0, ",\"attrs\":") >= 0 { return mir_json }
+
     return mir_json.substring(0, blocks_pos) + ",\"attrs\":{\"runes\":" + runes_json + "}" + mir_json.substring(blocks_pos, mir_json.length())
+  }
+
+  _inject_function_attrs(mir_json, function_runes_map) {
+    if mir_json == null { return mir_json }
+    if function_runes_map == null || BoxHelpers.is_map(function_runes_map) != 1 { return mir_json }
+
+    local keys = function_runes_map.keys()
+    if keys == null { return mir_json }
+
+    local out = "" + mir_json
+    local i = 0
+    local n = BoxHelpers.array_len(keys)
+    loop(i < n) {
+      local key = "" + BoxHelpers.array_get(keys, i)
+      local runes_json = "" + BoxHelpers.map_get(function_runes_map, key)
+      out = me._inject_one_function_attrs(out, key, runes_json)
+      i = i + 1
+    }
+    return out
   }
 
   _emit_shape_phase10_if_or_null(shape_kind, tag, shape_ctx) {
@@ -615,9 +638,9 @@ static box MirJsonV0EmitBox {
     local out = me._build_mir_by_shape(shape_kind, tag, shape_ctx)
     if out != null && BoxHelpers.is_map(out) == 1 {
       local mir_json = "" + BoxHelpers.map_get(out, "mir_json")
-      local entry_runes_json = me._entry_runes_json(state)
-      if mir_json != "" && entry_runes_json != "" && entry_runes_json != "[]" {
-        out.set("mir_json", me._inject_main_attrs(mir_json, entry_runes_json))
+      local function_runes_map = me._function_runes_map(state)
+      if mir_json != "" {
+        out.set("mir_json", me._inject_function_attrs(mir_json, function_runes_map))
       }
     }
     return out

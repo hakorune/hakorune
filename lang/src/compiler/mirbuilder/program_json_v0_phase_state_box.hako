@@ -9,11 +9,11 @@
 
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
-using selfhost.shared.json.utils.json_utils as JsonUtilsBox
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
 using lang.compiler.mirbuilder.program_json_v0_state_box as ProgramJsonV0StateBox
 using lang.compiler.mirbuilder.program_json_v0_phase_state_consumer_box as ProgramJsonV0PhaseStateConsumerBox
 using lang.compiler.mirbuilder.program_json_v0_legacy_order_stage_box as ProgramJsonV0LegacyOrderStageBox
+using lang.compiler.mirbuilder.program_json_v0_rune_attrs_box as ProgramJsonV0RuneAttrsBox
 using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
 
 static box ProgramJsonV0PhaseStateBox {
@@ -28,7 +28,7 @@ static box ProgramJsonV0PhaseStateBox {
         "", 0,
         "", 0, "",
         "", 0, "", "",
-        ""
+        new MapBox()
       )
     )
   }
@@ -51,6 +51,22 @@ static box ProgramJsonV0PhaseStateBox {
     // Allowed order (with optional skips): Local → Assignment → Print → Return
     local order_stage = 0
     local order_last = ""
+    local function_runes_map = ProgramJsonV0RuneAttrsBox.read_function_runes_map(program_json, tag)
+    if BoxHelpers.is_map(function_runes_map) != 1 {
+      return me._emit_out_with_state(
+        1,
+        "" + function_runes_map,
+        -1,
+        me._state_map(
+          0, 0, 0, 0,
+          0, "", "",
+          "", 0,
+          "", 0, "",
+          "", 0, "", "",
+          new MapBox()
+        )
+      )
+    }
 
     local initial_state = me._state_map(
       0, 0, 0, 0,
@@ -58,7 +74,7 @@ static box ProgramJsonV0PhaseStateBox {
       "", 0,
       "", 0, "",
       "", 0, "", "",
-      me._read_entry_runes_json(program_json, idx)
+      function_runes_map
     )
     local recipe_items = []
 
@@ -216,7 +232,7 @@ static box ProgramJsonV0PhaseStateBox {
       me._out_box(out, "retv"),
       me._out_s(out, "ret_var_name"),
       me._out_s(out, "ret_box_type"),
-      me._out_s(out, "entry_runes_json")
+      me._out_box(out, "function_runes_map")
     )
 
     return me._scan_body_rec(
@@ -255,55 +271,6 @@ static box ProgramJsonV0PhaseStateBox {
 
     recipe_items.push(child)
     return me._append_recipe_children_rec(recipe_items, children, i + 1, tag, next_idx, state)
-  }
-
-  _read_entry_runes_json(program_json, body_idx) {
-    if program_json == null { return "[]" }
-    local from_defs = me._read_entry_runes_json_from_defs(program_json)
-    if from_defs != "[]" { return from_defs }
-    return "[]"
-  }
-
-  _read_entry_runes_json_from_defs(program_json) {
-    if program_json == null { return "[]" }
-    local defs_json = JsonUtilsBox.extract_value(program_json, "defs")
-    if defs_json == null || defs_json == "" || defs_json == "[]" { return "[]" }
-
-    local pos = 0
-    loop(pos < defs_json.length()) {
-      local name_pos = StringHelpers.index_of(defs_json, pos, "\"name\":\"main\"")
-      if name_pos < 0 { return "[]" }
-
-      local obj_start = me._seek_def_object_start(defs_json, name_pos)
-      if obj_start < 0 { return "[]" }
-      local obj_end = ProgramJsonV0ScannerBox.seek_obj_end_unescaped(defs_json, obj_start)
-      if obj_end < 0 { return "[]" }
-
-      local def_obj = defs_json.substring(obj_start, obj_end)
-      if StringHelpers.index_of(def_obj, 0, "\"box\":\"Main\"") >= 0 {
-        local attrs_start = ProgramJsonV0ScannerBox.seek_obj_field_obj_start(def_obj, "attrs", 0)
-        if attrs_start >= 0 {
-          local runes_arr = ProgramJsonV0ScannerBox.read_array_field_first_in_obj(def_obj, "runes", attrs_start)
-          if runes_arr != null {
-            local raw = "" + BoxHelpers.map_get(runes_arr, "value")
-            if raw != "" && raw != "[]" { return raw }
-          }
-        }
-      }
-
-      pos = obj_end
-    }
-    return "[]"
-  }
-
-  _seek_def_object_start(defs_json, from_idx) {
-    if defs_json == null { return -1 }
-    local i = from_idx
-    loop(i >= 0) {
-      if defs_json.substring(i, i + 1) == "{" { return i }
-      i = i - 1
-    }
-    return -1
   }
 
   _append_recipe_item_or_error(recipe_items, recipe_item, tag, next_idx, state) {
@@ -352,7 +319,7 @@ static box ProgramJsonV0PhaseStateBox {
     retv,
     ret_var_name,
     ret_box_type,
-    entry_runes_json
+    function_runes_map
   ) {
     return ProgramJsonV0StateBox.state_map(
       has_print,
@@ -371,7 +338,7 @@ static box ProgramJsonV0PhaseStateBox {
       retv,
       ret_var_name,
       ret_box_type,
-      entry_runes_json
+      function_runes_map
     )
   }
 

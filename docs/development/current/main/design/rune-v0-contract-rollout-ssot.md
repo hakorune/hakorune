@@ -113,7 +113,7 @@ Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate prov
 | Rust parser | landed | `@rune` behind `NYASH_FEATURES=rune`; declaration-local attrs kept; unknown/arity/declaration-required fail-fast |
 | `.hako` parser | partly landed | same Rune surface + arg-shape contract; statement/program routes fail fast on invalid placement; selected-entry shim fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values |
 | Rust AST/direct MIR carrier | landed | declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR |
-| `.hako` source-route keep | partly landed | selected-entry attrs survive via synthetic `Main.main` transport shim; not a claim of broad declaration-local MIR parity |
+| `.hako` source-route keep | partly landed | selected-entry attrs still survive via synthetic `Main.main` transport shim; compiler/mirbuilder now carries a generic function-rune map from `defs[].attrs.runes`; still not a claim of broad declaration-local MIR parity |
 | Program(JSON v0) | locked | retire target; no Rune widening |
 | verifier | landed for narrow v0 | duplicate/conflict + box-target visibility-only checks are live; Rust function-target ABI/placement verifier is live; `.hako` statement/program invalid-placement fail-fast and selected-entry shim value-contract fail-fast are live |
 | `ny-llvmc` consumer | landed narrow | selected-entry `Symbol` / `CallConv` semantics only |
@@ -121,11 +121,11 @@ Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate prov
 
 ### 5.1 Remaining exact leaf
 
-None under the current narrow v0 scope.
+Selected-entry transport shim retirement.
 
 - keep carrier/backend scope unchanged
-- keep `.hako` source-route transport as a shim, not a second metadata truth
-- next action is docs-only close sync unless a brand-new exact Rune gap appears
+- keep `.hako` source-route transport as a shim, not a second metadata truth until retirement lands
+- next action is replacing the synthetic root-entry shim with a canonical non-shim root-entry carrier
 
 ### 5.2 Planned follow-up after close sync
 
@@ -134,8 +134,6 @@ The following is intentionally deferred, but it is still planned work:
 - `.hako` declaration-local full carrier parity
   - move beyond the current selected-entry transport shim
   - carry declaration-local `attrs.runes` through the `.hako` route to direct MIR with the same truth shape as Rust
-- selected-entry transport shim retirement
-  - remove the synthetic `Main.main` transport once `.hako` direct MIR parity is established
 
 This follow-up must keep the existing v0 guard rails:
 

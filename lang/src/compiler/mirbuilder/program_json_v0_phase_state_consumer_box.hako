@@ -39,7 +39,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
     retv,
     ret_var_name,
     ret_box_type,
-    entry_runes_json
+    function_runes_map
   ) {
     return ProgramJsonV0StateBox.state_map(
       has_print,
@@ -58,7 +58,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       retv,
       ret_var_name,
       ret_box_type,
-      entry_runes_json
+      function_runes_map
     )
   }
 
@@ -115,7 +115,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       "retv" => BoxHelpers.map_get(state, "retv"),
       "ret_var_name" => BoxHelpers.map_get(state, "ret_var_name"),
       "ret_box_type" => BoxHelpers.map_get(state, "ret_box_type"),
-      "entry_runes_json" => BoxHelpers.map_get(state, "entry_runes_json")
+      "function_runes_map" => BoxHelpers.map_get(state, "function_runes_map")
     }
   }
 
@@ -205,7 +205,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
       BoxHelpers.map_get(current_state, "retv"),
       me._map_s(current_state, "ret_var_name"),
       me._map_s(current_state, "ret_box_type"),
-      me._map_s_or_empty(current_state, "entry_runes_json")
+      BoxHelpers.map_get(current_state, "function_runes_map")
     )
   }
 
@@ -590,7 +590,7 @@ static box ProgramJsonV0PhaseStateConsumerBox {
           "", 0,
           "", 0, "",
           "", 0, "", "",
-          ""
+          new MapBox()
         )
       )
     }

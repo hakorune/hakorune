@@ -62,6 +62,7 @@ Program(JSON v0) scanner (Phase-3 SSOT):
 Program(JSON v0) → MIR JSON v0 (split boxes):
 - Entry wrapper: `lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako`
 - Parser/state: `lang/src/compiler/mirbuilder/program_json_v0_phase_state_box.hako`
+- Rune carrier scan: `lang/src/compiler/mirbuilder/program_json_v0_rune_attrs_box.hako`
 - State consumer SSOT: `lang/src/compiler/mirbuilder/program_json_v0_phase_state_consumer_box.hako`
 - Consumer entry boundary: `ProgramJsonV0PhaseStateConsumerBox.consume_stmt(program_json, idx, tag, state_map)`
 - Consumer stmt dispatch helper: `_dispatch_or_unsupported` に non-control (`_handle_non_control_stmt_or_null`) と control (`_handle_control_stmt_or_null`) を直列化し、unknown は fail-fast に収束
@@ -80,6 +81,7 @@ Program(JSON v0) → MIR JSON v0 (split boxes):
 - MIR JSON builder entry: `lang/src/compiler/mirbuilder/mir_json_v0_builder_box.hako`（thin handoff）
 - MIR JSON shape helper: `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako`
 - MIR JSON emit helper: `lang/src/compiler/mirbuilder/mir_json_v0_emit_box.hako`
+- Rune note: current `.hako` MIR builder now keeps a generic function-rune map from `defs[].attrs.runes` and injects attrs by emitted function name; the synthetic `Main.main` transport remains transitional until the Rune shim-retirement slice lands.
 
 Recipe-first status (R0-R6):
 - Recipe item vocabulary: `lang/src/compiler/mirbuilder/recipe/recipe_item_box.hako`

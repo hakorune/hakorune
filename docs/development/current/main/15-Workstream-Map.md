@@ -60,12 +60,11 @@ Related:
 ## Exact Next
 
 1. keep `phase-29cj` closed unless a new exact disappearing leaf appears
-2. close-sync `phase-29cu` unless a new exact Rune gap appears
-3. keep Rune lane docs in current-truth reading
-4. pin the future Rune reopen:
-   - `.hako` declaration-local full carrier parity
-   - selected-entry transport shim retirement
-5. choose the next active implementation lane only after the Rune close sync is pinned
+2. keep `phase-29cu` active for the next exact Rune leaf
+3. land selected-entry transport shim retirement with a canonical non-shim root-entry carrier
+4. pin the remaining future Rune reopen:
+   - `.hako` declaration-local full carrier parity beyond root-entry transport
+5. choose the next active implementation lane only after the Rune shim-retirement cut is pinned
 
 ## Active Lane
 
@@ -77,13 +76,17 @@ Related:
   - Rust function-target placement / ABI-facing verifier contract
   - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
   - Rust direct MIR `attrs.runes` carrier
-  - `.hako` source-route selected-entry transport shim
+  - `.hako` source-route selected-entry transport shim (transitional keep)
+  - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
+  - `.hako` compiler/mirbuilder function-name attrs injection
   - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
 - lane state:
-  - `close-sync-ready`
-- planned future reopen:
-  - `.hako` full declaration-local MIR parity
-  - retire the selected-entry transport shim after parity is live
+  - `reopen W1 landed`
+- next exact leaf:
+  - retire the selected-entry transport shim
+  - replace it with a canonical non-shim root-entry carrier
+- planned future reopen after that:
+  - `.hako` full declaration-local MIR parity beyond root-entry transport
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - `llvmlite` stays noop/compat

@@ -39,15 +39,16 @@ Related:
 
 ## Current Read
 
-- lane status: `close-sync-ready`
-- current implementation focus has returned here after `phase-29cj` formal close sync
+- lane status: `reopen W1 landed`
+- current implementation focus stays here after `phase-29cj` formal close sync
 - current truth is already narrower than the original rollout wording:
   - declaration-local `attrs.runes`
   - Rust direct MIR carrier
-  - `.hako` source-route selected-entry transport shim
+  - `.hako` source-route selected-entry transport shim (transitional keep)
+  - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
   - selected-entry-only `ny-llvmc` `Symbol` / `CallConv` semantics
   - `Program(JSON v0)` no-widen
-- next exact step is docs-only close sync unless a new exact Rune gap appears
+- next exact step is selected-entry transport shim retirement with a canonical non-shim root-entry carrier
 
 ## Fixed Decisions
 
@@ -115,7 +116,9 @@ Partially landed, with route-specific reading.
   - declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR
   - direct MIR JSON mirrors declaration-local attrs on functions
 - `.hako` source-route keep:
-  - selected-entry attrs survive via synthetic `Main.main` def / entry-runes transport
+  - selected-entry attrs still survive via synthetic `Main.main` def transport
+  - `.hako` compiler/mirbuilder state now carries a generic function-rune map derived from `defs[].attrs.runes`
+  - `.hako` MIR attrs injection is now function-name driven instead of `main` hardcode
   - `Program(JSON v0)` root/body stay Rune-free
 
 ### P4. Verifier / consumer activation
@@ -142,22 +145,20 @@ Landed narrow slice.
 
 ## Remaining Exact Leaf
 
-None under the current narrow v0 scope.
+Selected-entry transport shim retirement.
 
 - keep carrier/backend scope unchanged
 - keep `Program(JSON v0)` no-widen
-- keep current `.hako` source-route transport as a shim, not a second metadata truth
-- next action is formal close sync unless a brand-new exact Rune gap appears
+- replace the synthetic `Main.main` transport with a canonical non-shim root-entry carrier on the `.hako` route
+- keep the current generic function-rune map as the only `.hako` MIR-builder carrier truth
 
 ## Planned Future Reopen
 
 The current narrow v0 scope is intentionally smaller than full `.hako` route parity.
-That future work stays planned and must not be forgotten after close sync.
+That future work stays planned after the shim-retirement leaf.
 
 - `.hako` declaration-local full Rune carrier parity
-  - carry declaration-local `attrs.runes` on the `.hako` route beyond the current selected-entry transport shim
-- selected-entry transport shim retirement
-  - retire the synthetic `Main.main` transport once `.hako` direct MIR parity is live
+  - carry declaration-local `attrs.runes` on the `.hako` route beyond the current root-entry-only carrier
 - guard rails for that reopen:
   - keep `Program(JSON v0)` no-widen
   - do not invent a second metadata truth
