@@ -27,6 +27,25 @@ static box RuneContractBox {
     return "[freeze:contract][parser/rune] invalid placement on " + suffix
   }
 
+  validate_value_contract(rune_name, args_json) {
+    local name = "" + rune_name
+    local arg0 = me._extract_arg0(args_json)
+
+    if name == "CallConv" {
+      if arg0 != "c" {
+        return "[freeze:contract][parser/rune] CallConv(\"c\")"
+      }
+    }
+
+    if name == "Ownership" {
+      if arg0 != "owned" && arg0 != "borrowed" && arg0 != "shared" {
+        return "[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)"
+      }
+    }
+
+    return ""
+  }
+
   append_pending_checked(runes_json, entry_json) {
     local cur = me.normalize_pending_json(runes_json)
     local entry = "" + entry_json
@@ -67,6 +86,16 @@ static box RuneContractBox {
     local start = ParserStringUtilsBox.index_of(json, 0, key)
     if start < 0 { return "" }
     start = start + key.length()
+    local end = ParserStringUtilsBox.index_of(json, start, "\"")
+    if end < 0 { return "" }
+    return json.substring(start, end)
+  }
+
+  _extract_arg0(args_json) {
+    local json = me.normalize_pending_json(args_json)
+    local start = ParserStringUtilsBox.index_of(json, 0, "\"")
+    if start < 0 { return "" }
+    start = start + 1
     local end = ParserStringUtilsBox.index_of(json, start, "\"")
     if end < 0 { return "" }
     return json.substring(start, end)

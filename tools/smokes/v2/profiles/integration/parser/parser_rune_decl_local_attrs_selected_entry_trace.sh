@@ -25,6 +25,8 @@ trap cleanup EXIT
 
 SRC="$TMPDIR/rune_decl_local_attrs.hako"
 INVALID_SRC="$TMPDIR/rune_invalid_placement.hako"
+INVALID_CALLCONV_SRC="$TMPDIR/rune_invalid_callconv.hako"
+INVALID_OWNERSHIP_SRC="$TMPDIR/rune_invalid_ownership.hako"
 AST_LOG="$TMPDIR/ast_json.log"
 AST_JSON="$TMPDIR/ast.json"
 MIR_JSON="$TMPDIR/mir.json"
@@ -59,26 +61,65 @@ static box Main {
 }
 HK
 
+cat >"$INVALID_CALLCONV_SRC" <<'HK'
+static box Main {
+  @rune CallConv("sysv")
+  main() {
+    return 0
+  }
+}
+HK
+
+cat >"$INVALID_OWNERSHIP_SRC" <<'HK'
+static box Main {
+  @rune Ownership(unique)
+  main() {
+    return 0
+  }
+}
+HK
+
 if ! cargo build --release -q --bin hakorune >"$BUILD_LOG" 2>&1; then
   log_error "hakorune release build failed"
   tail -n 120 "$BUILD_LOG" >&2 || true
   exit 1
 fi
 
-INVALID_LOG="$TMPDIR/invalid_placement.log"
-if NYASH_FEATURES="$FEATURES" \
-  "$NYASH_ROOT/tools/selfhost/run.sh" --direct --source-file "$INVALID_SRC" \
-  >"$INVALID_LOG" 2>&1; then
-  log_error ".hako direct parser route unexpectedly accepted rune invalid placement"
-  tail -n 120 "$INVALID_LOG" >&2 || true
-  exit 1
-fi
+check_direct_failfast() {
+  local src_path="$1"
+  local expect="$2"
+  local label="$3"
+  local log_path="$TMPDIR/${label}.log"
 
-if ! grep -Fq '[freeze:contract][parser/rune] invalid placement on statement' "$INVALID_LOG"; then
-  log_error ".hako direct parser route did not emit rune invalid-placement freeze tag"
-  tail -n 120 "$INVALID_LOG" >&2 || true
-  exit 1
-fi
+  if NYASH_FEATURES="$FEATURES" \
+    "$NYASH_ROOT/tools/selfhost/run.sh" --direct --source-file "$src_path" \
+    >"$log_path" 2>&1; then
+    log_error ".hako direct parser route unexpectedly accepted $label"
+    tail -n 120 "$log_path" >&2 || true
+    exit 1
+  fi
+
+  if ! grep -Fq "$expect" "$log_path"; then
+    log_error ".hako direct parser route did not emit expected rune fail-fast tag for $label"
+    tail -n 120 "$log_path" >&2 || true
+    exit 1
+  fi
+}
+
+check_direct_failfast \
+  "$INVALID_SRC" \
+  '[freeze:contract][parser/rune] invalid placement on statement' \
+  "invalid_placement"
+
+check_direct_failfast \
+  "$INVALID_CALLCONV_SRC" \
+  '[freeze:contract][parser/rune] CallConv("c")' \
+  "invalid_callconv"
+
+check_direct_failfast \
+  "$INVALID_OWNERSHIP_SRC" \
+  '[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)' \
+  "invalid_ownership"
 
 if ! NYASH_FEATURES="$FEATURES" \
   "$BIN" --emit-ast-json "$AST_JSON" "$SRC" \

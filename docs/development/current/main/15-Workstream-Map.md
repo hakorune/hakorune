@@ -60,9 +60,9 @@ Related:
 ## Exact Next
 
 1. keep `phase-29cj` closed unless a new exact disappearing leaf appears
-2. return implementation focus to `phase-29cu`
+2. close-sync `phase-29cu` unless a new exact Rune gap appears
 3. keep Rune lane docs in current-truth reading
-4. choose one exact remaining verifier leaf only
+4. choose the next active implementation lane only after the Rune close sync is pinned
 
 ## Active Lane
 
@@ -71,11 +71,13 @@ Related:
   - Rust parser gate + declaration-local attrs
   - `.hako` parser grammar/arg-shape parity
   - `.hako` statement/program-route invalid-placement fail-fast
+  - Rust function-target placement / ABI-facing verifier contract
+  - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
   - Rust direct MIR `attrs.runes` carrier
   - `.hako` source-route selected-entry transport shim
   - `ny-llvmc` selected-entry `Symbol` / `CallConv` consumer
-- exact remaining leaf:
-  - verifier-focused function-target placement / ABI-facing contract
+- lane state:
+  - `close-sync-ready`
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - `llvmlite` stays noop/compat

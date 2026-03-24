@@ -39,7 +39,7 @@ Related:
 
 ## Current Read
 
-- lane status: `active`
+- lane status: `close-sync-ready`
 - current implementation focus has returned here after `phase-29cj` formal close sync
 - current truth is already narrower than the original rollout wording:
   - declaration-local `attrs.runes`
@@ -47,7 +47,7 @@ Related:
   - `.hako` source-route selected-entry transport shim
   - selected-entry-only `ny-llvmc` `Symbol` / `CallConv` semantics
   - `Program(JSON v0)` no-widen
-- next exact step is one verifier-only leaf without widening `Program(JSON v0)` or broadening backend semantics
+- next exact step is docs-only close sync unless a new exact Rune gap appears
 
 ## Fixed Decisions
 
@@ -103,6 +103,7 @@ Partially landed.
 
 - `.hako` parser accepts the same Rune surface and arg-shape contract
 - `.hako` statement/program routes fail fast on Rune invalid placement instead of attaching generic statement attrs
+- `.hako` selected-entry shim now fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values instead of silently carrying them
 - current `.hako` source-route keep does not claim full declaration-local MIR parity yet
 - current `.hako` end-to-end keep uses a selected-entry transport shim instead of widening `Program(JSON v0)`
 
@@ -119,16 +120,16 @@ Partially landed, with route-specific reading.
 
 ### P4. Verifier / consumer activation
 
-Partially landed.
+Landed for the current narrow v0 scope.
 
 - landed today:
   - duplicate/conflicting rune rejection
   - box-target visibility-only checks
   - parser-level unknown/arity fail-fast
   - `.hako` parser invalid-placement fail-fast on statement/program routes
-- remaining exact leaf:
-  - function-target placement / ABI-facing verifier contract
-  - sync Rust and `.hako` docs/tests so current verifier truth is explicit
+  - Rust function-target placement / ABI-facing verifier contract
+  - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
+- no new exact implementation leaf remains under the current narrow v0 scope
 
 ### P5. `ny-llvmc` ABI consumer
 
@@ -141,12 +142,12 @@ Landed narrow slice.
 
 ## Remaining Exact Leaf
 
-The next Rune slice is verifier-only.
+None under the current narrow v0 scope.
 
 - keep carrier/backend scope unchanged
 - keep `Program(JSON v0)` no-widen
-- tighten the function-target placement / ABI-facing verifier contract
-- do not widen current `.hako` source-route transport into a broader metadata channel in the same slice
+- keep current `.hako` source-route transport as a shim, not a second metadata truth
+- next action is formal close sync unless a brand-new exact Rune gap appears
 
 ## Current Proof Line
 

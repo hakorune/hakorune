@@ -306,3 +306,121 @@ static box Main {
         );
     });
 }
+
+#[test]
+fn parser_accepts_abi_runes_on_static_box_method() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Symbol("main_sym")
+  @rune CallConv("c")
+  main() { return 0 }
+}
+"#;
+        let ast = NyashParser::parse_from_string(src).expect("parse should succeed");
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(
+            method_runes,
+            vec![
+                ("Symbol".to_string(), vec!["main_sym".to_string()]),
+                ("CallConv".to_string(), vec!["c".to_string()])
+            ]
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_abi_rune_on_instance_method() {
+    with_features(Some("rune"), || {
+        let src = r#"
+box Main {
+  @rune Symbol("main_sym")
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains(
+                "[freeze:contract][parser/rune] instance method target supports only Public|Internal|Ownership"
+            ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_abi_rune_on_constructor() {
+    with_features(Some("rune"), || {
+        let src = r#"
+box Main {
+  @rune Symbol("ctor_sym")
+  birth() {}
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains(
+                "[freeze:contract][parser/rune] constructor target supports only Public|Internal|Ownership"
+            ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_abi_rune_on_interface_method() {
+    with_features(Some("rune"), || {
+        let src = r#"
+interface box Main {
+  @rune Symbol("iface_sym")
+  run()
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains(
+                "[freeze:contract][parser/rune] interface method target supports only Public|Internal|Ownership"
+            ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_invalid_callconv_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune CallConv("sysv")
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] CallConv(\"c\")"),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_invalid_ownership_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+box Main {
+  @rune Ownership(unique)
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)"),
+            "unexpected error: {msg}"
+        );
+    });
+}

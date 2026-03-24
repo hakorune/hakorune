@@ -686,6 +686,11 @@ static box ParserStmtBox {
         return me.fail_annotation_contract("[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership", src)
       }
 
+      local value_contract = RuneContractBox.validate_value_contract(rune_name, args_json)
+      if value_contract != "" {
+        return me.fail_annotation_contract(value_contract, src)
+      }
+
       local entry = "{\"name\":\"" + ctx.esc_json(rune_name) + "\",\"args\":" + args_json + "}"
       local next_runes = RuneContractBox.append_pending_checked(ctx.get_runes_json(), entry)
       if ParserStringUtilsBox.starts_with("" + next_runes, 0, "[freeze:contract]") == 1 {

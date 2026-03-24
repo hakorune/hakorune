@@ -20,6 +20,9 @@ fn box_try_block_first_property(
     methods: &mut HashMap<String, ASTNode>,
     birth_once_props: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
+    if !p.match_token(&TokenType::LBRACE) {
+        return Ok(false);
+    }
     p.ensure_no_pending_runes("block-first property")?;
     members::properties::try_parse_block_first_property(p, methods, birth_once_props)
 }
@@ -29,6 +32,11 @@ fn box_try_method_postfix_after_last(
     methods: &mut HashMap<String, ASTNode>,
     last_method_name: &Option<String>,
 ) -> Result<bool, ParseError> {
+    if last_method_name.is_none()
+        || !(p.match_token(&TokenType::CATCH) || p.match_token(&TokenType::CLEANUP))
+    {
+        return Ok(false);
+    }
     p.ensure_no_pending_runes("method postfix")?;
     members::postfix::try_parse_method_postfix_after_last_method(p, methods, last_method_name)
 }
@@ -38,6 +46,9 @@ fn box_try_init_block(
     init_fields: &mut Vec<String>,
     weak_fields: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
+    if !(p.match_token(&TokenType::INIT) && p.peek_token() != &TokenType::LPAREN) {
+        return Ok(false);
+    }
     p.ensure_no_pending_runes("init block")?;
     members::fields::parse_init_block_if_any(p, init_fields, weak_fields)
 }
@@ -66,6 +77,9 @@ fn box_try_visibility(
     last_method_name: &mut Option<String>,
     weak_fields: &mut Vec<String>,
 ) -> Result<bool, ParseError> {
+    if visibility != "public" && visibility != "private" {
+        return Ok(false);
+    }
     p.ensure_no_pending_runes("visibility field/property")?;
     members::fields::try_parse_visibility_block_or_single(
         p,

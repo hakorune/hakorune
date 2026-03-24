@@ -64,6 +64,7 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
 
             // インターフェースメソッドはシグネチャのみ
             if p.match_token(&TokenType::LPAREN) {
+                let attrs = p.take_pending_runes_for_interface_method()?;
                 p.advance(); // consume '('
 
                 let params =
@@ -77,12 +78,9 @@ pub(crate) fn parse_interface_box(p: &mut NyashParser) -> Result<ASTNode, ParseE
                     body: vec![],       // 空の実装
                     is_static: false,   // インターフェースメソッドは通常静的でない
                     is_override: false, // デフォルトは非オーバーライド
-                    attrs: crate::ast::DeclarationAttrs::default(),
+                    attrs,
                     span: Span::unknown(),
                 };
-
-                let mut method_decl = method_decl;
-                p.attach_pending_runes_to_declaration(&mut method_decl)?;
                 methods.insert(method_name, method_decl);
             } else {
                 let line = p.current_token().line;

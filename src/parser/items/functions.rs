@@ -11,7 +11,7 @@ impl NyashParser {
     /// function宣言をパース: function name(params) { body }
     pub fn parse_function_declaration(&mut self) -> Result<ASTNode, ParseError> {
         self.consume(TokenType::FUNCTION)?;
-        let attrs = self.take_pending_runes_for_function()?;
+        let attrs = self.take_pending_runes_for_free_function()?;
 
         // 関数名を取得
         let name = if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {

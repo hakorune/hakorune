@@ -31,7 +31,7 @@ impl NyashParser {
     /// 静的関数宣言をパース - static function Name() { ... }
     fn parse_static_function(&mut self) -> Result<ASTNode, ParseError> {
         self.consume(TokenType::FUNCTION)?;
-        let attrs = self.take_pending_runes_for_function()?;
+        let attrs = self.take_pending_runes_for_static_function()?;
 
         // 関数名を取得（Box名.関数名の形式をサポート）
         let name = if let TokenType::IDENTIFIER(first_part) = &self.current_token().token_type {

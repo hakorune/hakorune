@@ -21,7 +21,7 @@ pub(crate) fn try_parse_constructor(
             });
         }
         let name = "init".to_string();
-        let attrs = p.take_pending_runes_for_function()?;
+        let attrs = p.take_pending_runes_for_constructor()?;
         p.advance(); // consume 'init'
         p.consume(TokenType::LPAREN)?;
 
@@ -90,7 +90,7 @@ pub(crate) fn try_parse_constructor(
             });
         }
         let name = "pack".to_string();
-        let attrs = p.take_pending_runes_for_function()?;
+        let attrs = p.take_pending_runes_for_constructor()?;
         p.advance(); // consume 'pack'
         p.consume(TokenType::LPAREN)?;
 
@@ -122,7 +122,7 @@ pub(crate) fn try_parse_constructor(
             });
         }
         let name = "birth".to_string();
-        let attrs = p.take_pending_runes_for_function()?;
+        let attrs = p.take_pending_runes_for_constructor()?;
         p.advance(); // consume 'birth'
         p.consume(TokenType::LPAREN)?;
 

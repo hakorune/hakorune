@@ -93,7 +93,7 @@ pub(crate) fn try_parse_method_or_field(
         ));
     }
     // Method
-    let attrs = p.take_pending_runes_for_function()?;
+    let attrs = p.take_pending_runes_for_static_box_method()?;
     p.advance(); // consume '('
     let mut params = Vec::new();
     while !p.match_token(&TokenType::RPAREN) && !p.is_at_end() {

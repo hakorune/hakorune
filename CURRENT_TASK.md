@@ -23,7 +23,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 - runtime lane is parked/monitor-only again; there is no active `vm-hako` throughput blocker.
 - `phase-29cj` has completed its near-thin-floor reinventory and formal close sync.
-- there is no new bootstrap-retire blocker right now; active implementation focus returns to `phase-29cu`.
+- there is no new bootstrap-retire blocker right now.
+- `phase-29cu` has landed its narrow verifier leaf and is now `close-sync-ready`.
 
 ## Current Priority
 
@@ -35,8 +36,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - `.hako` source-route selected-entry transport shim
      - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
    - latest landed verifier cut:
-     - `.hako` parser statement/program routes now fail fast on Rune invalid placement instead of attaching generic statement attrs
-   - exact next: one verifier-focused ABI/function-target leaf only, without widening `Program(JSON v0)` or broadening backend semantics
+     - Rust function-target placement / ABI-facing verifier contract
+     - `.hako` parser statement/program invalid-placement fail-fast
+     - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
+   - exact next: docs-only close sync unless a new exact Rune gap appears
 2. close-synced mainline lane: `phase-29cj`
    - status: `formal-close-synced`
    - reopen only if a new exact disappearing leaf appears above the Rust stop-line or if deletion-prep explicitly resumes
@@ -82,15 +85,14 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 ## Next Task
 
-1. reopen `phase-29cu` as the active implementation lane
+1. close-sync `phase-29cu` in docs unless a new exact Rune gap appears
 2. keep the lane docs in current-truth reading:
    - declaration-local `attrs.runes`
    - Rust direct MIR carrier
    - `.hako` selected-entry transport shim
    - selected-entry `ny-llvmc` semantics
-3. choose one exact remaining verifier leaf only:
-   - function-target placement / ABI-facing verifier contract
-4. keep `phase-29cj` closed unless a new exact disappearing leaf appears
+3. keep `phase-29cj` closed unless a new exact disappearing leaf appears
+4. choose the next active implementation lane only after the Rune close-sync is pinned
 
 ## Lane Pointers
 

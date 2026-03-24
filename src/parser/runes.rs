@@ -6,7 +6,12 @@ use std::collections::BTreeSet;
 
 enum RuneTarget {
     Box,
-    Function,
+    FreeFunction,
+    StaticFunction,
+    StaticBoxMethod,
+    InstanceMethod,
+    Constructor,
+    InterfaceMethod,
 }
 
 impl NyashParser {
@@ -14,10 +19,40 @@ impl NyashParser {
         self.take_pending_runes_for_target(RuneTarget::Box)
     }
 
-    pub(super) fn take_pending_runes_for_function(
+    pub(super) fn take_pending_runes_for_free_function(
         &mut self,
     ) -> Result<DeclarationAttrs, ParseError> {
-        self.take_pending_runes_for_target(RuneTarget::Function)
+        self.take_pending_runes_for_target(RuneTarget::FreeFunction)
+    }
+
+    pub(super) fn take_pending_runes_for_static_function(
+        &mut self,
+    ) -> Result<DeclarationAttrs, ParseError> {
+        self.take_pending_runes_for_target(RuneTarget::StaticFunction)
+    }
+
+    pub(super) fn take_pending_runes_for_static_box_method(
+        &mut self,
+    ) -> Result<DeclarationAttrs, ParseError> {
+        self.take_pending_runes_for_target(RuneTarget::StaticBoxMethod)
+    }
+
+    pub(super) fn take_pending_runes_for_instance_method(
+        &mut self,
+    ) -> Result<DeclarationAttrs, ParseError> {
+        self.take_pending_runes_for_target(RuneTarget::InstanceMethod)
+    }
+
+    pub(super) fn take_pending_runes_for_constructor(
+        &mut self,
+    ) -> Result<DeclarationAttrs, ParseError> {
+        self.take_pending_runes_for_target(RuneTarget::Constructor)
+    }
+
+    pub(super) fn take_pending_runes_for_interface_method(
+        &mut self,
+    ) -> Result<DeclarationAttrs, ParseError> {
+        self.take_pending_runes_for_target(RuneTarget::InterfaceMethod)
     }
 
     pub(super) fn attach_pending_runes_to_declaration(
@@ -39,7 +74,7 @@ impl NyashParser {
                 Ok(())
             }
             ASTNode::FunctionDeclaration { attrs, .. } => {
-                validate_runes_for_target(&runes, RuneTarget::Function, line)?;
+                validate_runes_for_target(&runes, RuneTarget::StaticFunction, line)?;
                 self.rune_metadata.extend(runes.iter().cloned());
                 attrs.runes = runes;
                 Ok(())
@@ -120,17 +155,73 @@ fn validate_runes_for_target(
             visibility = Some(&rune.name);
         }
 
-        if matches!(target, RuneTarget::Box)
-            && !matches!(rune.name.as_str(), "Public" | "Internal")
-        {
-            return Err(ParseError::UnexpectedToken {
-                found: TokenType::IDENTIFIER(rune.name.clone()),
-                expected: "[freeze:contract][parser/rune] box target supports only Public|Internal"
-                    .to_string(),
-                line,
-            });
+        match target {
+            RuneTarget::Box => {
+                if !matches!(rune.name.as_str(), "Public" | "Internal") {
+                    return Err(ParseError::UnexpectedToken {
+                        found: TokenType::IDENTIFIER(rune.name.clone()),
+                        expected:
+                            "[freeze:contract][parser/rune] box target supports only Public|Internal"
+                                .to_string(),
+                        line,
+                    });
+                }
+            }
+            RuneTarget::InstanceMethod | RuneTarget::Constructor | RuneTarget::InterfaceMethod => {
+                if !matches!(rune.name.as_str(), "Public" | "Internal" | "Ownership") {
+                    return Err(ParseError::UnexpectedToken {
+                        found: TokenType::IDENTIFIER(rune.name.clone()),
+                        expected: format!(
+                            "[freeze:contract][parser/rune] {} target supports only Public|Internal|Ownership",
+                            target_label(&target)
+                        ),
+                        line,
+                    });
+                }
+            }
+            RuneTarget::FreeFunction | RuneTarget::StaticFunction | RuneTarget::StaticBoxMethod => {}
+        }
+
+        match rune.name.as_str() {
+            "CallConv" => {
+                if rune.args.first().map(String::as_str) != Some("c") {
+                    return Err(ParseError::UnexpectedToken {
+                        found: TokenType::IDENTIFIER(rune.name.clone()),
+                        expected: "[freeze:contract][parser/rune] CallConv(\"c\")".to_string(),
+                        line,
+                    });
+                }
+            }
+            "Ownership" => {
+                let valid = matches!(
+                    rune.args.first().map(String::as_str),
+                    Some("owned") | Some("borrowed") | Some("shared")
+                );
+                if !valid {
+                    return Err(ParseError::UnexpectedToken {
+                        found: TokenType::IDENTIFIER(rune.name.clone()),
+                        expected:
+                            "[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)"
+                                .to_string(),
+                        line,
+                    });
+                }
+            }
+            _ => {}
         }
     }
 
     Ok(())
+}
+
+fn target_label(target: &RuneTarget) -> &'static str {
+    match target {
+        RuneTarget::Box => "box",
+        RuneTarget::FreeFunction => "function",
+        RuneTarget::StaticFunction => "static function",
+        RuneTarget::StaticBoxMethod => "static-box method",
+        RuneTarget::InstanceMethod => "instance method",
+        RuneTarget::Constructor => "constructor",
+        RuneTarget::InterfaceMethod => "interface method",
+    }
 }

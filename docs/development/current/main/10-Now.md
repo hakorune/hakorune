@@ -36,10 +36,12 @@ Related:
     - Rust direct MIR carrier
     - `.hako` source-route selected-entry transport shim
     - `.hako` parser statement/program routes fail fast on Rune invalid placement
+    - Rust function-target placement / ABI-facing verifier contract
+    - `.hako` selected-entry shim value-contract parity for `CallConv("c")` / `Ownership(owned|borrowed|shared)`
     - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
     - `Program(JSON v0)` remains no-widen
-  - next exact leaf is verifier-only:
-    - function-target placement / ABI-facing Rune contract
+  - lane status is now `close-sync-ready`
+  - next exact step is docs-only close sync unless a new Rune gap appears
 - Bootstrap-retire lane: `phase-29cj`
   - status: `formal-close-synced`
   - current stop-line is still `src/host_providers/mir_builder.rs::module_to_mir_json(...)`

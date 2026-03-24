@@ -7,6 +7,7 @@
 using sh_core as StringHelpers
 using lang.compiler.entry.func_scanner as FuncScannerBox
 using lang.compiler.parser.parser_box as ParserBox
+using lang.compiler.parser.rune.rune_contract_box as RuneContractBox
 
 static box StageBRuneBox {
   method extract_entry_runes_json(source) {
@@ -117,6 +118,11 @@ static box StageBRuneBox {
     local s = "" + body
     if decl_start <= 0 { return "" }
     local cursor = decl_start - 1
+    loop(cursor >= 0) {
+      if s.substring(cursor, cursor + 1) == "\n" { break }
+      cursor = cursor - 1
+    }
+    cursor = cursor - 1
     local allow_trailing_empty = 1
     local out = ""
     loop(cursor >= 0) {
@@ -151,11 +157,14 @@ static box StageBRuneBox {
   method _parse_rune_lines_to_json(rune_lines) {
     local trimmed = FuncScannerBox._trim(rune_lines)
     if trimmed == "" { return "[]" }
+    local value_contract = me._validate_rune_lines_value_contract(trimmed)
+    if me.is_freeze_tag(value_contract) == 1 { return value_contract }
 
     local p = new ParserBox()
     p.stage3_enable(1)
     local block_src = "{\n" + trimmed + "\nlocal __stageb_rune_probe = 0\n}"
     local block_res = p.parse_block2(block_src, 0)
+    if me.is_freeze_tag(block_res) == 1 { return block_res }
     local at = block_res.lastIndexOf("@")
     if at < 0 { return "[]" }
 
@@ -236,5 +245,117 @@ static box StageBRuneBox {
     }
     if start >= n || s.substring(start, start + 1) != "[" { return "" }
     return me._extract_balanced_array(s, start)
+  }
+
+  method _validate_rune_lines_value_contract(rune_lines) {
+    local s = "" + rune_lines
+    local n = s.length()
+    local line_start = 0
+    local i = 0
+    loop(i <= n) {
+      if i == n || s.substring(i, i + 1) == "\n" {
+        local line = s.substring(line_start, i)
+        local res = me._validate_rune_line_value_contract(line)
+        if res != null && res != "" { return res }
+        line_start = i + 1
+      }
+      i = i + 1
+    }
+    return ""
+  }
+
+  method _validate_rune_line_value_contract(line) {
+    local trimmed = FuncScannerBox._trim(line)
+    if trimmed == "" { return "" }
+    if StringHelpers.starts_with(trimmed, 0, "@rune") != 1 { return "" }
+
+    local pos = 5
+    local n = trimmed.length()
+    loop(pos < n) {
+      local ch_ws = trimmed.substring(pos, pos + 1)
+      if ch_ws == " " || ch_ws == "\t" { pos = pos + 1  continue }
+      break
+    }
+
+    local name_and_pos = me._read_ident_with_pos(trimmed, pos)
+    local at = StringHelpers.last_index_of(name_and_pos, "@")
+    if at < 0 { return "" }
+    local rune_name = name_and_pos.substring(0, at)
+    if rune_name != "CallConv" && rune_name != "Ownership" { return "" }
+
+    pos = StringHelpers.to_i64(name_and_pos.substring(at + 1, name_and_pos.length()))
+    loop(pos < n) {
+      local ch_ws = trimmed.substring(pos, pos + 1)
+      if ch_ws == " " || ch_ws == "\t" { pos = pos + 1  continue }
+      break
+    }
+    if pos >= n || trimmed.substring(pos, pos + 1) != "(" { return "" }
+    pos = pos + 1
+
+    local arg_and_pos = me._read_arg0_with_pos(trimmed, pos)
+    local arg_at = StringHelpers.last_index_of(arg_and_pos, "@")
+    if arg_at < 0 { return "" }
+    local arg0 = arg_and_pos.substring(0, arg_at)
+    return RuneContractBox.validate_value_contract(rune_name, "[\"" + arg0 + "\"]")
+  }
+
+  method _read_ident_with_pos(text, start) {
+    local s = "" + text
+    local i = start
+    local n = s.length()
+    loop(i < n) {
+      local ch_ws = s.substring(i, i + 1)
+      if ch_ws == " " || ch_ws == "\t" { i = i + 1  continue }
+      break
+    }
+    local begin = i
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      local keep = 0
+      if ch >= "a" {
+        if ch <= "z" { keep = 1 }
+      }
+      if keep == 0 {
+        if ch >= "A" {
+          if ch <= "Z" { keep = 1 }
+        }
+      }
+      if keep == 0 {
+        if ch >= "0" {
+          if ch <= "9" { keep = 1 }
+        }
+      }
+      if keep == 0 && ch == "_" { keep = 1 }
+      if keep == 1 {
+        i = i + 1
+        continue
+      }
+      break
+    }
+    return s.substring(begin, i) + "@" + ("" + i)
+  }
+
+  method _read_arg0_with_pos(text, start) {
+    local s = "" + text
+    local i = start
+    local n = s.length()
+    loop(i < n) {
+      local ch_ws = s.substring(i, i + 1)
+      if ch_ws == " " || ch_ws == "\t" { i = i + 1  continue }
+      break
+    }
+    if i >= n { return "@" + ("" + i) }
+
+    if s.substring(i, i + 1) == "\"" {
+      local j = i + 1
+      loop(j < n) {
+        local ch = s.substring(j, j + 1)
+        if ch == "\"" { return s.substring(i + 1, j) + "@" + ("" + (j + 1)) }
+        j = j + 1
+      }
+      return "@" + ("" + n)
+    }
+
+    return me._read_ident_with_pos(s, i)
   }
 }

@@ -111,21 +111,21 @@ Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate prov
 | --- | --- | --- |
 | docs/task lock | landed | syntax / carrier / backend scope are docs-locked |
 | Rust parser | landed | `@rune` behind `NYASH_FEATURES=rune`; declaration-local attrs kept; unknown/arity/declaration-required fail-fast |
-| `.hako` parser | partly landed | same Rune surface + arg-shape contract; statement/program routes fail fast on invalid placement |
+| `.hako` parser | partly landed | same Rune surface + arg-shape contract; statement/program routes fail fast on invalid placement; selected-entry shim fails fast on invalid `CallConv("c")` / `Ownership(owned|borrowed|shared)` values |
 | Rust AST/direct MIR carrier | landed | declaration-local `attrs.runes` survives parser -> AST JSON -> direct MIR |
 | `.hako` source-route keep | partly landed | selected-entry attrs survive via synthetic `Main.main` transport shim; not a claim of broad declaration-local MIR parity |
 | Program(JSON v0) | locked | retire target; no Rune widening |
-| verifier | partly landed | duplicate/conflict + box-target visibility-only checks are live; `.hako` statement/program invalid-placement fail-fast is live; function-target ABI/placement verifier remains the next exact leaf |
+| verifier | landed for narrow v0 | duplicate/conflict + box-target visibility-only checks are live; Rust function-target ABI/placement verifier is live; `.hako` statement/program invalid-placement fail-fast and selected-entry shim value-contract fail-fast are live |
 | `ny-llvmc` consumer | landed narrow | selected-entry `Symbol` / `CallConv` semantics only |
 | `llvmlite` | unchanged | safe ignore / noop keep only |
 
 ### 5.1 Remaining exact leaf
 
-The next Rune slice is verifier-only:
+None under the current narrow v0 scope.
 
-- tighten the function-target placement contract
-- lock ABI-facing verifier rules without widening carrier/backend scope
+- keep carrier/backend scope unchanged
 - keep `.hako` source-route transport as a shim, not a second metadata truth
+- next action is docs-only close sync unless a brand-new exact Rune gap appears
 
 Forbidden:
 
