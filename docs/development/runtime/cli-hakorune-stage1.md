@@ -157,35 +157,12 @@ hakorune build exe [-o <out>] [--quiet] <source.hako>
 
 ※ `--target` / `--nyrt` / `--skip-build` などは、現時点では未実装の設計（将来の AOT プロファイル用）。***
 
-## `emit program-json` コマンド
+## `emit program-json` (legacy compat note)
 
-```text
-hakorune emit program-json [options] <entry.hako>
-```
-
-### 意味論（raw compat-only）
-
-- このコマンドは current external/bootstrap boundary ではない。
-- daily/public/bootstrap route では `emit mir-json` を優先する。
-- shell wrapper/public helper は retire 済みで、raw direct `stage1_cli.hako emit program-json` lane も diagnostics-only pin になっている。
-- explicit compat proof は compat probe helper / raw compat flag でのみ使う。
-
-- `.hako` ソースファイル（`<entry.hako>`）を読み込み、`BuildBox.emit_program_json_v0(src, null)` を呼び出して Program(JSON v0) を生成する。
-- Phase 25.1 の実装では:
-  - 入力: `<entry.hako>` パスのみ（標準入力や複数ファイルは未対応）。
-  - 出力:
-    - 既定: Program(JSON v0) を stdout にそのまま出力。
-    - `-o/--out` 指定時: JSON はファイルに書き込み、stdout には短いステータス行のみを出力。
-  - バリデーション: `"version":0` と `"kind":"Program"` を含まない場合はエラー終了（exit code 92）。
-
-### オプション（Phase 25.1 実装済み）
-
-- `-o, --out <file>`:
-  - Program(JSON v0) を `<file>` に書き出す。
-  - スクリプト互換性のため、stdout には短いメッセージ（タグ）だけを出す（JSON 本文は出さない）。
-- `--quiet`:
-  - `-o/--out` と組み合わせた場合に、ステータス行も抑制し「完全に無音」のファイル出力にする。
-  - `--quiet` 単独では意味を持たず、現状は無視される（将来のログ制御用に予約）。
+- this command is no longer a public/bootstrap surface
+- the raw direct `stage1_cli.hako emit program-json` lane is diagnostics-only / retired
+- explicit compatibility checks should use compat probe helpers or raw compat flags instead
+- current public guidance is `emit mir-json` first
 
 ## `emit mir-json` コマンド
 
