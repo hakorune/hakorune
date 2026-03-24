@@ -9,7 +9,7 @@ using lang.compiler.build.build_box as BuildBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
 static box Main {
   main() {
-    local mode = me._resolve_mode()
+    local mode = Stage1ModeContractBox.resolve_mode()
     if mode == "emit-program" {
       return me._run_emit_program_mode()
     }
@@ -23,37 +23,6 @@ static box Main {
       return me._run_emit_mir_mode("[freeze:contract][stage1-cli/run]")
     }
     return 97
-  }
-
-  method _resolve_mode() {
-    local explicit = Stage1InputContractBox.clean_env_value(env.get("NYASH_STAGE1_MODE"))
-    if explicit == "" {
-      explicit = Stage1InputContractBox.clean_env_value(env.get("HAKO_STAGE1_MODE"))
-    }
-    if explicit != "" {
-      return me._normalize_mode_alias_inline(explicit)
-    }
-
-    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_PROGRAM_JSON")) == "1" {
-      return "emit-program"
-    }
-    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_MIR_JSON")) == "1" {
-      return "emit-mir"
-    }
-    if Stage1InputContractBox.clean_env_value(env.get("NYASH_USE_STAGE1_CLI")) == "1" {
-      return "run"
-    }
-    return ""
-  }
-
-  method _normalize_mode_alias_inline(mode) {
-    if mode == "emit_program_json" || mode == "emit-program-json" {
-      return "emit-program"
-    }
-    if mode == "emit_mir_json" || mode == "emit-mir-json" {
-      return "emit-mir"
-    }
-    return mode
   }
 
   method _run_emit_program_mode() {
@@ -91,6 +60,41 @@ static box Main {
     return Stage1MirResultValidationBox.finalize_emit_result(tag, program_json_text, mir)
   }
 
+}
+
+// Mode contract stays same-file so Main can stay a pure dispatcher while the
+// reduced stage1 artifact keeps one exact env/mode authority.
+static box Stage1ModeContractBox {
+  method resolve_mode() {
+    local explicit = Stage1InputContractBox.clean_env_value(env.get("NYASH_STAGE1_MODE"))
+    if explicit == "" {
+      explicit = Stage1InputContractBox.clean_env_value(env.get("HAKO_STAGE1_MODE"))
+    }
+    if explicit != "" {
+      return me._normalize_mode_alias(explicit)
+    }
+
+    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_PROGRAM_JSON")) == "1" {
+      return "emit-program"
+    }
+    if Stage1InputContractBox.clean_env_value(env.get("STAGE1_EMIT_MIR_JSON")) == "1" {
+      return "emit-mir"
+    }
+    if Stage1InputContractBox.clean_env_value(env.get("NYASH_USE_STAGE1_CLI")) == "1" {
+      return "run"
+    }
+    return ""
+  }
+
+  method _normalize_mode_alias(mode) {
+    if mode == "emit_program_json" || mode == "emit-program-json" {
+      return "emit-program"
+    }
+    if mode == "emit_mir_json" || mode == "emit-mir-json" {
+      return "emit-mir"
+    }
+    return mode
+  }
 }
 
 // Shared env/source contract keep stays same-file so authority/compat boxes can

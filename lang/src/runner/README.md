@@ -70,6 +70,7 @@ Pointers:
 - current selfhost authority entry is `stage1_cli_env.hako`; `launcher.hako` / raw subcmd lane は authority ではなく compat/future retire target として扱う。
 - shell-side exact env transport lives in `tools/selfhost/lib/stage1_contract.sh`; `tools/selfhost/run_stage1_cli.sh` is a compatibility wrapper around that contract, not a second authority route.
 - shared env/source resolution contract is isolated in `Stage1InputContractBox` inside `stage1_cli_env.hako`; keep input shaping out of `Main` and out of authority/compat boxes.
+- reduced-artifact mode/env resolution is isolated in `Stage1ModeContractBox` inside `stage1_cli_env.hako`; keep `Main.main()` as a pure dispatcher over the exact `stage1-env-program` / `stage1-env-mir-source` contract.
 - `Stage1InputContractBox` now also centralizes env/debug stringify behind `_coerce_text_compat(...)`, `_env_flag_enabled(...)`, and `_stage1_debug_on(...)`, so source/program-json resolution no longer repeats raw `"" + x` checks inline.
 - emit-program authority is isolated in `Stage1SourceProgramAuthorityBox` inside `stage1_cli_env.hako`; keep source-to-Program(JSON) orchestration out of `Main`.
 - `Stage1SourceProgramAuthorityBox` now centralizes source text coercion, same-file using-prefix merge, and the checked `BuildBox.emit_program_json_v0(...)` handoff behind owner-local helpers, so source-to-Program(JSON) orchestration no longer repeats raw `"" + x` conversions inline.
