@@ -15,12 +15,13 @@ Related:
 
 1. `BYN-min1` no-new-mainline lock
    - no new daily caller may be introduced on `nyash.plugin.invoke_by_name_i64`
+   - current compat-only keep owner set is allowlisted exactly; expanding that set is a regression
    - new backend/runtime work must stop at TypeBox ABI v2 / Core C ABI / thin backend boundary
    - landed guard: `tools/checks/phase29cl_by_name_mainline_guard.sh`
    - landed allowlist: `tools/checks/phase29cl_by_name_mainline_allowlist.txt`
 2. `BYN-min2` backend caller cutover
    - move visible backend daily callers off module-string `by_name`
-   - launcher `build exe` source lane is now cut over to direct `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`
+   - launcher `build exe` source lane is now cut over off explicit `invoke_by_name_i64`; module-string backend literals are still acceptable while direct-known-box lowering keeps them off the generic by-name tail
    - next owner is compiled-stage1 surrogate shrink, not another visible launcher caller rewrite
 3. `BYN-min3` compiled-stage1 surrogate shrink
    - keep `build_surrogate.rs` / `llvm_backend_surrogate.rs` only while proofs still need them
@@ -34,13 +35,13 @@ Related:
 1. backend
    - current daily route target is `LlvmBackendBox -> hako_aot`
    - any remaining module-string `by_name` there is temporary
-   - visible launcher source lane is now direct `env.codegen.*`; `selfhost.shared.backend.llvm_backend` no longer appears in `lang/src/runner/launcher.hako`
+   - visible launcher source lane no longer reaches backend through explicit `invoke_by_name_i64`; a `selfhost.shared.backend.llvm_backend` receiver literal may still appear while direct-known-box lowering keeps the route off the generic by-name tail
 2. compiler selfhost
    - compiled-stage1 `build_surrogate` is temporary bridge keep, not final architecture
 3. runtime/plugin
    - final dispatch target is TypeBox ABI v2, not generic named receiver dispatch
 4. upstream by-name callers that must shrink before kernel delete
-   - `src/llvm_py/instructions/mir_call/method_call.py`
+   - `src/llvm_py/instructions/direct_box_method.py`
    - `src/backend/mir_interpreter/handlers/calls/method.rs`
    - `src/runtime/type_registry.rs`
    - `src/backend/wasm_v2/unified_dispatch.rs`

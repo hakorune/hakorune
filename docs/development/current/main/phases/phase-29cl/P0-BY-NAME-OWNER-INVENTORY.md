@@ -25,8 +25,8 @@ Note:
 1. `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
    - current exported `nyash.plugin.invoke_by_name_i64`
    - resolves named receiver + method strings as a compat-only surface
-2. `src/llvm_py/instructions/mir_call/method_call.py`
-   - current llvmlite `mir_call` lowering entry that still emits `nyash.plugin.invoke_by_name_i64` on fallback method dispatch
+2. `src/llvm_py/instructions/direct_box_method.py`
+   - current llvmlite direct-miss fallback leaf that still emits `nyash.plugin.invoke_by_name_i64`
 3. `src/backend/mir_interpreter/handlers/calls/method.rs`
    - regular VM still resolves method slots by name before execution
 4. `src/runtime/type_registry.rs`
@@ -60,12 +60,14 @@ Rule:
    - current C-side registration / bridge surface for by-name forwarding
 4. `lang/c-abi/shims/hako_kernel.c`
    - current C shim registry surface for plugin invoke by name
-5. `src/llvm_py/instructions/boxcall.py`
-   - legacy `boxcall` lowering may emit `nyash.plugin.invoke_by_name_i64` only through direct-miss fallback
+5. `src/llvm_py/instructions/direct_box_method.py`
+   - current Python-side direct-miss fallback leaf; direct known-box lowering is preferred first and `invoke_by_name_i64` remains compat-only
 6. builtin `FileBox` named-method handling inside `crates/nyash_kernel/src/plugin/invoke/by_name.rs`
    - still a compat path while filebox call-shape migration is incomplete
 7. `crates/nyash_kernel/src/tests.rs`
-8. `crates/nyash_kernel/src/plugin/invoke/tests.rs`
+8. `crates/nyash_kernel/src/plugin/mod.rs`
+   - `#[cfg(test)]` public wiring proof keeps the exported compat symbol visible at crate root
+9. `crates/nyash_kernel/src/plugin/invoke/tests.rs`
    - regression coverage for current keep surface
 
 ## 4. Archive Candidate / Compat-Only Residue

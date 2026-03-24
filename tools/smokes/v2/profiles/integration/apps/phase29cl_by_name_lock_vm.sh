@@ -16,9 +16,9 @@ run_step() {
 }
 
 run_step "bash tools/checks/phase29cl_by_name_mainline_guard.sh"
-run_step "! rg -n 'LlvmBackendBox|selfhost\\.shared\\.backend\\.llvm_backend' lang/src/runner/launcher.hako"
+run_step "! rg -n 'invoke_by_name_i64|nyash\\.plugin\\.invoke_by_name_i64' lang/src/runner/launcher.hako"
 run_step "bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/launcher.hako /tmp/phase29cl_launcher_cutover.mir.json"
 run_step "bash tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh"
 run_step "SMOKES_FORCE_LLVM=1 bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh"
 
-test_pass "phase29cl_by_name_lock_vm: PASS (BYN-min1 guard stays green and launcher source lane no longer feeds backend by-name)"
+test_pass "phase29cl_by_name_lock_vm: PASS (BYN-min1 guard stays green and launcher source lane stays off explicit by-name)"

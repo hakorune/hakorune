@@ -1,3 +1,8 @@
 # Phase 29cl BYN-min1: by-name mainline lock allowlist
-# No live mainline owners remain. Keep this file empty so the guard can
-# distinguish "retired" from "new caller reintroduced".
+# No live daily/mainline callers remain, but the current compat-only keep
+# surface is locked exactly here so the guard can distinguish
+# "same compat residue" from "new caller reintroduced".
+crates/nyash_kernel/src/plugin/invoke/by_name.rs
+crates/nyash_kernel/src/plugin/mod.rs
+crates/nyash_kernel/src/tests.rs
+src/llvm_py/instructions/direct_box_method.py

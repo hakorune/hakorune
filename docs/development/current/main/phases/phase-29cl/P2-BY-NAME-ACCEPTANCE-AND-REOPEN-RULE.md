@@ -18,7 +18,7 @@ Related:
 2. backend proof acceptance
    - launcher/stage1/backend proof is green without introducing a new daily caller on `by_name`
    - lock smoke: `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
-   - launcher source lane no longer imports `LlvmBackendBox` / `selfhost.shared.backend.llvm_backend` for `build exe`
+   - launcher source lane no longer uses explicit `invoke_by_name_i64` for `build exe`; backend receiver literals are acceptable only while direct-known-box lowering keeps them off the generic by-name tail
 3. caller acceptance
    - visible daily callers point to TypeBox ABI v2 / Core C ABI / thin backend boundary
    - upstream daily caller pack (`method_call.py`, VM/WASM name-resolution users) is either demoted or explicitly marked compat-only

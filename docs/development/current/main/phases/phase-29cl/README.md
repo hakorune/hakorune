@@ -87,11 +87,12 @@ Rule:
 6. latest landed proof:
    - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green again because compiled-stage1 `llvm_backend_surrogate.rs` now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` routing
 7. `BYN-min2` source cutover is landed
-   - `lang/src/runner/launcher.hako` `build exe` now calls `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)` directly
-   - visible launcher source route no longer imports `selfhost.shared.backend.llvm_backend`
-   - `llvm_backend_surrogate.rs` is no longer the visible launcher daily caller path; it is temporary compiled-stage1 residue only
+   - visible launcher source route no longer uses explicit `invoke_by_name_i64` for backend compile/link
+   - current compile-safe launcher keep may still mention `selfhost.shared.backend.llvm_backend`, but direct-known-box lowering prefers `LlvmBackendBox.{compile_obj,link_exe}` before generic plugin fallback
+   - `llvm_backend_surrogate.rs` remains temporary compiled-stage1 residue only; it is not a new daily by-name owner
 8. this phase does not mean “re-open by_name now”
    - current mainline caller set is already zero
+   - `BYN-min1` therefore locks an exact compat-only owner set, not an empty repo-wide hit set
    - remaining work is compat/archive maintenance, not a new daily caller cutover
 9. `BYN-min1` lock is landed
    - `tools/checks/phase29cl_by_name_mainline_guard.sh`
@@ -128,6 +129,7 @@ Rule:
 18. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
    - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback
+   - `src/llvm_py/instructions/direct_box_method.py` is the remaining direct-miss fallback leaf and is treated as compat-only residue under `BYN-min1`
    - BoxCall no longer owns `nyash.plugin.invoke_by_name_i64`
    - `src/llvm_py/instructions/by_name_method.py` and `src/llvm_py/instructions/plugin_invoke_lowering.py` have been retired
    - string-result annotation lives in `src/llvm_py/instructions/string_result_policy.py`
@@ -143,7 +145,7 @@ Rule:
 
 ## Immediate Next
 
-1. keep the `BYN-min1` owner guard green as a zero-caller regression check
+1. keep the `BYN-min1` owner guard green as an exact compat-only owner-set regression check; no new daily caller may appear and the allowlisted residue may not widen silently
 2. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 3. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
