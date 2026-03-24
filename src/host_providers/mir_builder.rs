@@ -10,7 +10,7 @@ use std::fmt::Display;
 use decls::Stage1UserBoxDecls;
 #[cfg(test)]
 use handoff::Stage1ProgramJsonInput;
-use handoff::{SourceProgramJsonHandoff, Stage1ProgramJsonModuleHandoff};
+use handoff::{SourceProgramJsonAuthority, Stage1ProgramJsonModuleHandoff};
 
 pub(crate) const FAILFAST_TAG: &str = "[freeze:contract][hako_mirbuilder]";
 #[cfg(test)]
@@ -85,11 +85,11 @@ pub fn program_json_to_mir_json_with_user_box_decls(program_json: &str) -> Resul
 /// while the current authority remains Rust-owned.
 #[cfg(test)]
 pub fn source_to_program_and_mir_json(source_text: &str) -> Result<(String, String), String> {
-    SourceProgramJsonHandoff::for_source(source_text)?.emit_plain_program_and_mir_json()
+    SourceProgramJsonAuthority::for_source(source_text)?.emit_plain_program_and_mir_json()
 }
 
 pub fn source_to_mir_json(source_text: &str) -> Result<String, String> {
-    SourceProgramJsonHandoff::for_source(source_text)?.emit_guarded_mir_json()
+    SourceProgramJsonAuthority::for_source(source_text)?.emit_guarded_mir_json()
 }
 
 /// Convert Program(JSON v0) to MIR(JSON v0) with using imports support.

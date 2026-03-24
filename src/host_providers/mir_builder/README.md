@@ -24,8 +24,8 @@ Current owner split:
   - shared `module_to_mir_json(...)` stop-line
 - `handoff.rs`
   - source / Program(JSON) handoff objects
-  - typed Program(JSON) input/value seam above the shared stop-line
-  - strict source route
+  - typed Program(JSON) input/value seam and source-route authority/output split above the shared stop-line
+  - strict source authority and output projection split
   - module-handoff and finalized-module emit split
 - `decls.rs`
   - explicit payload shaping from parsed Program(JSON) values
@@ -43,8 +43,11 @@ Current owner split:
 - `Stage1FinalizedMirModule`
   - materialize final `MirModule.metadata.user_box_decls`
   - own plain/guarded MIR JSON emission
-- `SourceProgramJsonHandoff`
+- `SourceProgramJsonAuthority`
   - strict source -> Program(JSON) authority
+  - yields the output-projection owner instead of mixing emit projection inline
+- `SourceProgramJsonOutputHandoff`
+  - owns the strict source route's `program_json` payload
   - delegates Program(JSON) -> MIR(JSON) to `Stage1ProgramJsonModuleHandoff`
 - `Stage1UserBoxDecls`
   - explicit payload parse

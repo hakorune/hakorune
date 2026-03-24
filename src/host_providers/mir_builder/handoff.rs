@@ -19,6 +19,35 @@ pub(super) struct Stage1FinalizedMirModule {
     module: crate::mir::MirModule,
 }
 
+impl Stage1ProgramJsonModuleHandoff {
+    pub(super) fn new(module: crate::mir::MirModule, user_box_decls: Stage1UserBoxDecls) -> Self {
+        Self {
+            module,
+            user_box_decls,
+        }
+    }
+
+    pub(super) fn parse(program_json: &str) -> Result<Self, String> {
+        Stage1ProgramJsonInput::new(program_json).into_module_handoff()
+    }
+
+    pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
+        self.into_finalized_module().emit_guarded_mir_json()
+    }
+
+    pub(super) fn into_finalized_module(self) -> Stage1FinalizedMirModule {
+        let mut module = self.module;
+        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
+        Stage1FinalizedMirModule { module }
+    }
+}
+
+pub(super) struct SourceProgramJsonOutputHandoff {
+    program_json: String,
+}
+
+pub(super) struct SourceProgramJsonAuthority;
+
 impl<'a> Stage1ProgramJsonInput<'a> {
     pub(super) fn new(program_json: &'a str) -> Self {
         Self { program_json }
@@ -57,29 +86,6 @@ impl Stage1ProgramJsonValue {
     }
 }
 
-impl Stage1ProgramJsonModuleHandoff {
-    pub(super) fn new(module: crate::mir::MirModule, user_box_decls: Stage1UserBoxDecls) -> Self {
-        Self {
-            module,
-            user_box_decls,
-        }
-    }
-
-    pub(super) fn parse(program_json: &str) -> Result<Self, String> {
-        Stage1ProgramJsonInput::new(program_json).into_module_handoff()
-    }
-
-    pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
-        self.into_finalized_module().emit_guarded_mir_json()
-    }
-
-    pub(super) fn into_finalized_module(self) -> Stage1FinalizedMirModule {
-        let mut module = self.module;
-        module.metadata.user_box_decls = self.user_box_decls.into_metadata_map();
-        Stage1FinalizedMirModule { module }
-    }
-}
-
 impl Stage1FinalizedMirModule {
     pub(super) fn emit_mir_json(self) -> Result<String, String> {
         module_to_mir_json(&self.module)
@@ -90,17 +96,22 @@ impl Stage1FinalizedMirModule {
     }
 }
 
-pub(super) struct SourceProgramJsonHandoff {
-    program_json: String,
-}
-
-impl SourceProgramJsonHandoff {
-    pub(super) fn for_source(source_text: &str) -> Result<Self, String> {
-        Ok(Self {
+impl SourceProgramJsonAuthority {
+    pub(super) fn for_source(source_text: &str) -> Result<SourceProgramJsonOutputHandoff, String> {
+        Ok(SourceProgramJsonOutputHandoff {
             program_json: Self::emit_strict_program_json(source_text)?,
         })
     }
 
+    fn emit_strict_program_json(source_text: &str) -> Result<String, String> {
+        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
+            source_text,
+        )
+        .map_err(|error| format!("{FAILFAST_TAG} {}", error))
+    }
+}
+
+impl SourceProgramJsonOutputHandoff {
     pub(super) fn emit_guarded_program_and_mir_json(self) -> Result<(String, String), String> {
         let mir_json =
             Stage1ProgramJsonModuleHandoff::parse(&self.program_json)?.emit_guarded_mir_json()?;
@@ -116,12 +127,5 @@ impl SourceProgramJsonHandoff {
     pub(super) fn emit_plain_program_and_mir_json(self) -> Result<(String, String), String> {
         let mir_json = super::lowering::program_json_to_mir_json(&self.program_json)?;
         Ok((self.program_json, mir_json))
-    }
-
-    fn emit_strict_program_json(source_text: &str) -> Result<String, String> {
-        crate::stage1::program_json_v0::emit_program_json_v0_for_strict_authority_source(
-            source_text,
-        )
-        .map_err(|error| format!("{FAILFAST_TAG} {}", error))
     }
 }
