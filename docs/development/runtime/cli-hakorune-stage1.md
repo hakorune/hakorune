@@ -3,6 +3,7 @@
 Status: design-only + Stage0 stub 実装済み。current public/bootstrap boundary reading is MIR-first; helper/wrapper exposure is retired, and the raw direct `emit program-json` lane is diagnostics-only / retired.
 Phase 25.1 A-3: `.hako` 側 Stage1Cli skeleton に env-only 実処理を実装（emit program-json / emit mir-json / run stub）。  
 ブリッジ（Stage0 → `.hako` stub）は `NYASH_USE_STAGE1_CLI=1` / `STAGE1_EMIT_PROGRAM_JSON=1` 等の ENV で制御する。
+current launcher implementation keeps top-level command selection and bootstrap routing behind same-file `LauncherDispatchBox`, so `HakoCli` stays orchestration-only.
 
 ## ゴール
 

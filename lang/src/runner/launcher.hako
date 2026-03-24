@@ -409,32 +409,44 @@ static box LauncherPayloadContractBox {
   }
 }
 
-static box HakoCli {
-  // Entry from Main.main(args)
-  method run(args){
+static box LauncherDispatchBox {
+  method dispatch_cli(args){
     local argc = 0
     if args { argc = args.size() }
     if argc == 0 {
-      // No command: print minimal usage and fail-fast
       print("[hakorune] usage: hakorune <command> [options]")
       return 1
     }
 
     local cmd_raw = args.get(0)
-    local cmd = me._coerce_text_compat(cmd_raw)
+    local cmd = HakoCli._coerce_text_compat(cmd_raw)
 
     if cmd == "run" {
-      return me.cmd_run(args)
+      return HakoCli.cmd_run(args)
     } else if cmd == "build" {
-      return me.cmd_build(args)
+      return HakoCli.cmd_build(args)
     } else if cmd == "emit" {
-      return me.cmd_emit(args)
+      return HakoCli.cmd_emit(args)
     } else if cmd == "check" {
-      return me.cmd_check(args)
+      return HakoCli.cmd_check(args)
     }
 
     print("[hakorune] unknown command: " + cmd)
     return 2
+  }
+
+  method dispatch_native_entry(){
+    if LauncherInputContractBox.bootstrap_requested() == 1 {
+      return HakoCli.run_bootstrap_from_env()
+    }
+    return HakoCli.run(null)
+  }
+}
+
+static box HakoCli {
+  // Entry from Main.main(args)
+  method run(args){
+    return LauncherDispatchBox.dispatch_cli(args)
   }
 
   // hakorune run [options] <entry.hako> [-- script_args...]
@@ -688,10 +700,7 @@ static box HakoCli {
   }
 
   method run_native_entry(){
-    if LauncherInputContractBox.bootstrap_requested() == 1 {
-      return me.run_bootstrap_from_env()
-    }
-    return me.run(null)
+    return LauncherDispatchBox.dispatch_native_entry()
   }
 
   method _bootstrap_emit_mir_request(req){

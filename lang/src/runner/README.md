@@ -65,6 +65,7 @@ Pointers:
     - artifact file I/O and stdout-vs-file output selection now live in same-file `LauncherArtifactIoBox`, so `cmd_emit_program_json(...)` / `cmd_emit_mir_json(...)` / bootstrap paths no longer branch directly on readback/output side effects inline.
     - checked Program(JSON) / MIR payload validation and checked source->Program / Program->MIR handoff now also live in same-file `LauncherPayloadContractBox`, so `HakoCli` no longer mixes payload validation with top-level dispatch/build orchestration inline.
     - `build exe` now owns only temp MIR handoff / default output-path helper shape and lowers compile/link through `_compile_object_from_mir_path_checked(...)` / `_link_exe_object_checked(...)`, so the launcher lane no longer mixes compile/link fail-fast tails inline.
+    - top-level route selection and bootstrap-vs-normal entry routing now live in same-file `LauncherDispatchBox`, so `HakoCli.run(...)` / `HakoCli.run_native_entry()` are thin delegates instead of carrying command policy inline.
     - visible legacy stringify/path coercion is now centralized behind `_coerce_text_compat(...)` and `_non_empty_text(...)`, so future string-coercion cleanup can tighten the contract owner-by-owner without touching every launcher call site at once.
   - Design reference:
     - `docs/development/runtime/cli-hakorune-stage1.md` を Stage1 CLI の仕様 SSOT として参照すること。

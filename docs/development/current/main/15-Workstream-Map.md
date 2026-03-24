@@ -25,7 +25,7 @@ Related:
 1. `phase-29ci`
    - active boundary lane
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
-   - W4 exact next: thin `stage1_cli.hako` route orchestration into `Stage1CliDispatchBox` while keeping explicit env-route compat probes alive
+   - W5 exact next: thin `launcher.hako` top-level route orchestration into `LauncherDispatchBox` while keeping explicit env-route compat probes alive
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -105,6 +105,7 @@ Related:
 - `src/host_providers/mir_builder.rs` is now a façade above the Rust stop-line
 - `MirBuilderBox.hako` is now treated as a near-thin-floor route-sequencing owner
 - `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako` now keep payload/input/I/O side effects behind same-file helpers, and the last raw subcmd / checked payload leaves are landed
+- `launcher.hako` now keeps top-level route selection behind `LauncherDispatchBox`, so `HakoCli` is down to orchestration only
 - `vm-hako` is frozen as monitor-only; throughput probes are archived evidence, not current blockers
 
 ## Read Order

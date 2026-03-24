@@ -32,14 +32,14 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W4 active`
+   - status: `reopen W5 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
-   - exact W4 target:
-     - thin `stage1_cli.hako` route orchestration by centralizing env/raw route selection in `Stage1CliDispatchBox`
+   - exact W5 target:
+     - thin `launcher.hako` top-level route orchestration by centralizing command/bootstrap selection in `LauncherDispatchBox`
      - keep explicit env-route compat probes and raw compat flags alive
      - keep the retired raw direct `stage1_cli.hako emit program-json` lane pinned as diagnostics-only evidence
 2. close-synced Rune lane: `phase-29cu`
