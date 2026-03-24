@@ -21,6 +21,7 @@ using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
 using "hako.mir.builder.internal.program_json_input_contract" as BuilderProgramJsonInputContractBox
 using "hako.mir.builder.internal.func_defs_gate" as BuilderFuncDefsGateBox
 using "hako.mir.builder.internal.loop_force_route" as BuilderLoopForceRouteBox
+using "hako.mir.builder.internal.unsupported_tail" as BuilderUnsupportedTailBox
 using "hako.mir.builder.internal.registry_authority" as BuilderRegistryAuthorityBox
 using "hako.mir.builder.internal.fallback_authority" as BuilderFallbackAuthorityBox
 using "hako.mir.builder.internal.delegate_provider" as BuilderDelegateProviderBox
@@ -101,7 +102,7 @@ static box MirBuilderBox {
     local out_fallback = me._try_emit_fallback_program_json(program_json, func_defs_mir)
     if out_fallback != null { return out_fallback }
 
-    return me._fail_internal_unsupported(program_json, func_defs_mir)
+    return BuilderUnsupportedTailBox.fail(program_json, func_defs_mir)
   }
 
   method _try_emit_registry_program_json(program_json, func_defs_mir) {
@@ -114,25 +115,6 @@ static box MirBuilderBox {
     local out_fallback = BuilderFallbackAuthorityBox.try_lower("" + program_json)
     if out_fallback == null { return null }
     return BuilderFinalizeChainBox.apply(out_fallback, func_defs_mir)
-  }
-
-  method _fail_internal_unsupported(program_json, func_defs_mir) {
-    local has_ternary = me._program_json_has_ternary(program_json)
-    print("[mirbuilder/internal/unsupported] supported: Return(Int|Binary(Int,Int)|Call), Expr(Call env.console.log Int)+Return(Int), If-nested, and probe nested-ternary")
-    if func_defs_mir != null && func_defs_mir != "" {
-      BuilderFinalizeChainBox.log_fail("defs_only")
-    } else if has_ternary == 1 {
-      BuilderFinalizeChainBox.log_fail("ternary_no_lower")
-    } else {
-      BuilderFinalizeChainBox.log_fail("no_match")
-    }
-    return null
-  }
-
-  method _program_json_has_ternary(program_json) {
-    local s = "" + program_json
-    if s.indexOf("\"type\":\"Ternary\"") >= 0 { return 1 }
-    return 0
   }
 
   method _emit_delegate_program_json(program_json, func_defs_mir) {

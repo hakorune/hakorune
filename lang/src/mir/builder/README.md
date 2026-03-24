@@ -24,15 +24,15 @@ Interface (stable)
   - the delegate/provider compat gate now lives in `hako.mir.builder.internal.delegate_provider`
   - the delegate-side `user_box_decls` finalize plus handoff into shared normalize now also live in `hako.mir.builder.internal.delegate_finalize`
   - the shared outer finalize chain now also lives in `hako.mir.builder.internal.finalize_chain`
-  - this file keeps route sequencing, generic unsupported/no-match decision, and only the remaining outer compat tails around those internal owners
+  - this file keeps route sequencing and only the remaining outer compat tails around those internal owners
   - outer Program(JSON) entry validation now stays on the internal owner `BuilderProgramJsonInputContractBox`, while `_emit_mir_from_program_json_text_checked(...)` keeps route dispatch only
   - Program(JSON) fail-fast tiny leaves now stay on that internal input-contract owner instead of widening `MirBuilderBox.hako`
   - route sequencing is owner-local via `BuilderFuncDefsGateBox.lower_if_enabled(...)`, `_emit_internal_program_json(...)`, and `_emit_delegate_program_json(...)`; raw env/hostbridge branching does not stay duplicated inline
   - delegate compat gate/provider call is now internal via `BuilderDelegateProviderBox.try_emit(...)`, and delegate-side finalize is now internal via `BuilderDelegateFinalizeBox.finalize_mir(...)`, so the delegate lane reads as internal gate/provider -> internal finalize -> shared normalize
   - shared finalize chain is now internal via `BuilderFinalizeChainBox.apply(...)` and `BuilderFinalizeChainBox.log_fail(...)`, so route leaves no longer carry inject/methodize/normalize/fail-tag logic inline
   - the remaining source-entry compat tail stays owner-local via `_emit_program_json_from_source_raw(...)`, while the func-def pre-lowering gate now lives in `hako.mir.builder.internal.func_defs_gate`; those tiny leaves no longer mix inline with checked handoff
-  - internal route leaves are owner-local via `BuilderLoopForceRouteBox.try_emit(...)`, `_try_emit_registry_program_json(...)`, and `_try_emit_fallback_program_json(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
-  - internal unsupported tail is now isolated in `_fail_internal_unsupported(...)` and `_program_json_has_ternary(...)`, so `_emit_internal_program_json(...)` stays a readable route table
+  - internal route leaves are owner-local via `BuilderLoopForceRouteBox.try_emit(...)`, `_try_emit_registry_program_json(...)`, `_try_emit_fallback_program_json(...)`, and `BuilderUnsupportedTailBox.fail(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
+  - generic unsupported/no-match decision now lives in `hako.mir.builder.internal.unsupported_tail`, so this file no longer keeps ternary detect or fail-reason selection inline
   - mini internal lowers are allowed to keep tiny owner-local stringify helpers such as `_coerce_text_compat(...)` when their only legacy `"" + x` usage is the Program(JSON) entry coercion
   - `builder_config` and `delegate_finalize` now also centralize env/program-json text coercion through owner-local `_coerce_text_compat(...)`, so route/config owners no longer repeat raw `"" + x` on their remaining compat seams
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
