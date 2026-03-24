@@ -25,6 +25,7 @@ Related:
 1. `phase-29ci`
    - active boundary lane
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
+   - W3 exact next: retire raw direct `stage1_cli.hako emit program-json` lane and keep explicit env-route compat probes alive
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -63,8 +64,8 @@ Related:
 ## Exact Next
 
 1. keep `phase-29ci` on boundary retirement only
-2. retire public wrapper/helper Program(JSON) surfaces first
-3. keep raw compat flags and explicit compat probes alive
+2. retire the raw direct `stage1_cli.hako emit program-json` lane
+3. keep explicit env-route compat probes and raw compat flags alive
 4. keep internal Program(JSON) routes as compat/test/bootstrap-only keep until caller inventory reaches zero
 5. keep `phase-29cu` and `phase-29cj` closed unless exact gaps reappear
 
@@ -76,8 +77,8 @@ Related:
   - `MIR(JSON v0)` line unification
   - `Program(JSON v0)` hard delete is deferred
 - current first-wave targets:
-  - retire `run_stage1_cli.sh emit program-json`
-  - retire `selfhost_build.sh --json`
+  - raw direct `stage1_cli.hako emit program-json` lane is retired as diagnostics-only evidence
+  - wrapper/helper retirements are already landed
   - rewrite exact smoke/docs to keep compat proof on explicit probes, not wrappers
 - guard rails:
   - `Program(JSON v0)` stays no-widen

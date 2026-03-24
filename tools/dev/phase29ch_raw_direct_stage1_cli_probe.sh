@@ -40,8 +40,8 @@ probe_rc97() {
 for bin in "$STAGE1_BIN" "$STAGE2_BIN"; do
   label="$(basename "$bin")"
   probe_rc97 "${label}.raw_source" "$bin" "$ENTRY"
-  probe_rc97 "${label}.raw_emit_program" "$bin" emit program-json "$ENTRY"
+  probe_rc97 "${label}.raw_emit_program_retired" "$bin" emit program-json "$ENTRY"
   probe_rc97 "${label}.raw_emit_mir" "$bin" emit mir-json "$ENTRY"
 done
 
-echo "[raw-direct-probe] result=PASS"
+echo "[raw-direct-probe] result=PASS (retired raw direct lane pinned)"

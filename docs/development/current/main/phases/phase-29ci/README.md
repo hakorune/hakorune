@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W2 active`。
+- current status は `reopen W3 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -125,9 +125,12 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 ## Current Retirement Targets
 
 - public/bootstrap boundary first:
-  - wrapper/helper surface `tools/selfhost/run_stage1_cli.sh emit program-json`
-  - wrapper/helper surface `tools/selfhost/selfhost_build.sh --json`
+  - wrapper/helper surface `tools/selfhost/run_stage1_cli.sh emit program-json` (landed)
+  - wrapper/helper surface `tools/selfhost/selfhost_build.sh --json` (landed)
   - exact smoke/docs that still present those wrappers as live
+- raw direct diagnostics pin:
+  - `lang/src/runner/stage1_cli.hako` raw `emit program-json` lane is retire-only / diagnostics-only
+  - `tools/dev/phase29ch_raw_direct_stage1_cli_probe.sh` pins that retired lane as an absence proof
 - raw compat keep after wrapper retirement:
   - CLI `--emit-program-json-v0`
   - CLI `--hako-emit-program-json`
@@ -153,9 +156,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - public/bootstrap docs and CLI/help read `MIR(JSON)` as the only supported boundary
 - at least one compat-only Program(JSON) route remains green and explicitly marked non-public
 - wrapper/public helper retirement is pinned by exact smoke and explicit compat probe
+- raw direct `stage1_cli.hako` `emit program-json` lane is pinned as retired diagnostics-only evidence
 - hard delete is not started in the same wave
 
 ## Next Phase Pointer
 
 - next Rust-owned retirement wave:
-  - `docs/development/current/main/phases/phase-29cj/README.md`
+  - `docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md`

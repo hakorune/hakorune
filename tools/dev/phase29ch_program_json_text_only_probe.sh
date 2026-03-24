@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
 source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 
 BIN="${ROOT}/target/selfhost/hakorune.stage1_cli"
@@ -11,10 +12,11 @@ usage() {
   cat <<'USAGE' >&2
 Usage: tools/dev/phase29ch_program_json_text_only_probe.sh [--bin <path>] [entry.hako]
 
-Builds Program(JSON) once, then tries the compat emit-mir contract with only
-`*_PROGRAM_JSON_TEXT` populated and no `*_PROGRAM_JSON` path. The current
-expected result is zero on fresh green artifacts because the remaining compat
-resolver should no longer require the explicit path lane.
+Builds Program(JSON) once through the explicit env-route compat helper, then
+tries the compat emit-mir contract with only `*_PROGRAM_JSON_TEXT` populated
+and no `*_PROGRAM_JSON` path. The current expected result is zero on fresh
+green artifacts because the remaining compat resolver should no longer require
+the explicit path lane.
 USAGE
 }
 
@@ -51,7 +53,10 @@ fi
 tmp_prog="$(mktemp)"
 trap 'rm -f "$tmp_prog"' EXIT
 
-bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$BIN" emit program-json "$ENTRY" >"$tmp_prog"
+if ! run_stage1_env_route "$BIN" "program-json" "$ENTRY" "$tmp_prog"; then
+  echo "[phase29ch/text-only-probe] failed to materialize Program(JSON) via env route" >&2
+  exit 1
+fi
 program_json_text="$(cat "$tmp_prog")"
 
 set +e

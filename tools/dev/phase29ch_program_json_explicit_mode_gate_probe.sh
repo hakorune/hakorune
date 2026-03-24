@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
 source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 
 STAGE1_BIN="${STAGE1_BIN:-${ROOT}/target/selfhost/hakorune.stage1_cli}"
@@ -27,7 +28,10 @@ cleanup() {
 trap cleanup EXIT
 
 program_json="$tmp_dir/program.json"
-bash "${ROOT}/tools/selfhost/run_stage1_cli.sh" --bin "$STAGE1_BIN" emit program-json "$ENTRY" >"$program_json"
+if ! run_stage1_env_route "$STAGE1_BIN" "program-json" "$ENTRY" "$program_json"; then
+  echo "[FAIL] failed to materialize Program(JSON) via env route" >&2
+  exit 1
+fi
 program_json_text="$(cat "$program_json")"
 
 probe_bin() {

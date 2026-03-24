@@ -32,15 +32,16 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W2 active`
+   - status: `reopen W3 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
-   - exact W2 target:
-     - retire public wrapper/helper Program(JSON) surfaces
-     - keep raw compat flags and explicit compat probes alive
+   - exact W3 target:
+     - retire the raw direct `stage1_cli.hako emit program-json` lane into diagnostics-only pinning
+     - keep explicit env-route compat probes and raw compat flags alive
+     - keep wrapper/helper retirements already landed and out of the current active surface
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
    - accepted narrow-scope current truth:
@@ -104,11 +105,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `public/deprecate-now`
    - `internal-compat-keep`
    - `delete-ready-later`
-3. retire public wrapper/helper Program(JSON) surfaces now:
-   - `run_stage1_cli.sh emit program-json`
-   - `selfhost_build.sh --json`
-   - exact smoke/docs that still treat those wrappers as live
-4. keep raw compat routes explicit:
+3. retire the raw direct `stage1_cli.hako emit program-json` lane into diagnostics-only pinning
+4. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags
    - stage1 bridge/program-json explicit route
    - compat probe helpers

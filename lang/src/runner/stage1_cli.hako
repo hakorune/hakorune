@@ -701,7 +701,7 @@ static box Stage1Cli {
       print("[stage1-cli/debug] _cmd_emit: argc=" + me._coerce_text_compat(argc))
     }
     if argc < 2 {
-      print("[stage1-cli] emit: usage: emit program-json <source.hako> | emit mir-json [--from-program-json <file>] <source.hako>")
+      print("[stage1-cli] emit: usage: emit program-json [retired] | emit mir-json [--from-program-json <file>] <source.hako>")
       return 96
     }
     local sub = me._coerce_text_compat(args.get(1))
@@ -715,29 +715,10 @@ static box Stage1Cli {
   }
 
   method _cmd_emit_program_json(args){
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-    }
-    local argc = 0; if args != null { argc = args.size() }
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit_program_json: argc=" + me._coerce_text_compat(argc))
-    }
-    if argc < 3 {
-      print("[stage1-cli] emit program-json: usage: emit program-json <source.hako>")
-      return 96
-    }
-    local path = me._coerce_text_compat(args.get(2))
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit_program_json: calling emit_program_json with path=" + path)
-    }
-    local ps = me.emit_program_json(path)
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      local status = "null"
-      if ps != null { status = "non-null" }
-      print("[stage1-cli/debug] _cmd_emit_program_json: emit_program_json returned, ps=" + status)
-    }
-    if ps == null { return 96 }
-    print(ps)
-    return 0
+    print("[stage1-cli] emit program-json is retired from this raw subcommand")
+    print("             use emit mir-json for MIR-first flow")
+    print("             use tools/dev/phase29ch_program_json_compat_route_probe.sh for explicit Program(JSON) compat proof")
+    return 96
   }
 
   method _emit_program_json_from_source_text_checked(tag, merged_source, with_debug){

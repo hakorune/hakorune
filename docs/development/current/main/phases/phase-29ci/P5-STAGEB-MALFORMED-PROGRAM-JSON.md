@@ -28,7 +28,7 @@ Related:
 
 この文書は「hello fixture では malformed producer debt が消えた」証拠を残す closeout note として保持する。
 ただし、これだけで `HAKO_USE_BUILDBOX=1` keep を global delete してよい、という意味ではない。
-W2 以降、`tools/selfhost/selfhost_build.sh --json` は wrapper/public surface としては retired なので、下の `--json` command lines は historical evidence として読むこと。
+W2/W3 以降、`tools/selfhost/selfhost_build.sh --json` は wrapper/public surface としては retired なので、下の `--json` command lines は historical evidence として読むこと。
 
 ## Goal
 

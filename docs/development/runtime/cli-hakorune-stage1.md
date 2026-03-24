@@ -1,6 +1,6 @@
 # Stage1 Hakorune CLI Design（Proposal）
 
-Status: design-only + Stage0 stub 実装済み。current public/bootstrap boundary reading is MIR-first; `emit program-json` survives only as a raw compat route, and helper/wrapper exposure is retired.
+Status: design-only + Stage0 stub 実装済み。current public/bootstrap boundary reading is MIR-first; helper/wrapper exposure is retired, and the raw direct `emit program-json` lane is diagnostics-only / retired.
 Phase 25.1 A-3: `.hako` 側 Stage1Cli skeleton に env-only 実処理を実装（emit program-json / emit mir-json / run stub）。  
 ブリッジ（Stage0 → `.hako` stub）は `NYASH_USE_STAGE1_CLI=1` / `STAGE1_EMIT_PROGRAM_JSON=1` 等の ENV で制御する。
 
@@ -59,11 +59,11 @@ hakorune <command> [<subcommand>] [options] [-- script_args...]
 |-----------------------------------|-------------------------------------------|----------------------|
 | `run`                             | .hako をコンパイルして実行（既定 VM）     | プレースホルダ（`[hakorune] run: not implemented yet`） |
 | `build exe`                       | .hako からネイティブ EXE を AOT ビルド    | 実装済み（current launcher lane は `env.codegen.compile_json_path/link_object` で `.o` → EXE を生成） |
-| `emit program-json`               | Stage‑B で Program(JSON v0) を出力        | raw compat route only |
+| `emit program-json`               | Stage‑B で Program(JSON v0) を出力        | retired wrapper + diagnostics-only raw direct pin |
 | `emit mir-json`                   | `.hako` / Program(JSON) から MIR(JSON) を出力 | 実装済み（preferred） |
 | `check`                           | 将来の構文/型/using チェック（予約）      | プレースホルダ（`[hakorune] check: not implemented yet`） |
 
-Phase 25.1a では、**`emit program-json` / `emit mir-json` / `build exe` の 3 系列のみが実働コード** であり、`run` / `check` はメッセージを返して終了するプレースホルダのまま運用する。CLI の出口コード（90〜93）やログ形式は docs と実装を同期済み。  
+Phase 25.1a では、`emit mir-json` / `build exe` が日常導線で、`emit program-json` は compat-only / diagnostics-only の位置づけだった。`run` / `check` はメッセージを返して終了するプレースホルダのまま運用する。CLI の出口コード（90〜93）やログ形式は docs と実装を同期済み。
 Phase 25.1 A-3 時点の stub 実装（`.hako` 側 Stage1Cli）は env-only 仕様で、成功時 0 / 入力不足 96 / 無効モード 97 / 実行失敗 98 を返す。
 
 ### 実装ステータス（Phase 25.1a+）
@@ -167,7 +167,8 @@ hakorune emit program-json [options] <entry.hako>
 
 - このコマンドは current external/bootstrap boundary ではない。
 - daily/public/bootstrap route では `emit mir-json` を優先する。
-- shell wrapper/public helper では retire 済みで、explicit compat proof または raw compat flag でのみ使う。
+- shell wrapper/public helper は retire 済みで、raw direct `stage1_cli.hako emit program-json` lane も diagnostics-only pin になっている。
+- explicit compat proof は compat probe helper / raw compat flag でのみ使う。
 
 - `.hako` ソースファイル（`<entry.hako>`）を読み込み、`BuildBox.emit_program_json_v0(src, null)` を呼び出して Program(JSON v0) を生成する。
 - Phase 25.1 の実装では:
@@ -238,13 +239,13 @@ hakorune emit mir-json [-o <out>] [--quiet] <source.hako>
     ```bash
     tools/selfhost/run_stage1_cli.sh --bin /tmp/hakorune-dev emit mir-json apps/tests/minimal.hako
     ```
-  - `emit program-json` wrapper は compat-only で、mainline proof には使わない。
+  - `emit program-json` wrapper は retired で、mainline proof には使わない。raw direct `stage1_cli.hako emit program-json` lane は diagnostics-only pin として扱う。
   - 直接 EXE を叩く場合も同じ環境変数を手動で設定すること（`NYASH_NYRT_SILENT_RESULT=1 ./target/selfhost/hakorune ...`）。  
     これにより、stdout は JSON のみを返し、終了コードで成否を判別できる（llvmlite ハーネスと同一の契約）。
 - 現状の制約（2025-11-15 時点）:
   - `launcher.hako` の Stage‑B Program(JSON) と `--program-json-to-mir` route は、現在は `HakoCli.*` defs と root `user_box_decls` を保持する。`Unknown Box type: HakoCli` は current blocker ではない。
   - `launcher.hako` の `build exe` source lane は `env.codegen.compile_json_path/link_object` へ直接 lower されるので、`selfhost.shared.backend.llvm_backend` module-string receiver は current blocker ではない。
-  - selfhost `launcher-exe` の残 blocker は defs 欠落ではなく entry argv handoff 側で、artifact 実行時に CLI args が `HakoCli.run(args)` まで届かない。したがって `emit program-json` / `emit mir-json` の daily proof は引き続き `tools/selfhost/run_stage1_cli.sh` と mainline emit helper で確認する。
+  - selfhost `launcher-exe` の残 blocker は defs 欠落ではなく entry argv handoff 側で、artifact 実行時に CLI args が `HakoCli.run(args)` まで届かない。したがって `emit mir-json` の daily proof は引き続き `tools/selfhost/run_stage1_cli.sh` と mainline emit helper で確認し、`emit program-json` は explicit compat probe / raw direct retirement pin 側で確認する。
   - using 解決は Stage0（Rust Runner）と Stage1（Hakorune）の二系統に分離する方針。Stage1 側は `lang.compiler.entry.using_resolver_box` で `nyash.toml` の `[modules]` を参照し、`HAKO_STAGEB_MODULES_LIST`（shell 側で生成した `name=path` リスト）をキーに依存 Box を text merge する。Rust 側は既存の Runner using 実装を維持し、Stage1 経路はこの Box で独立した自己ホスト導線を持つ。
 
 ### Stage‑1 CLI デバッグメモ（Stage1Cli + BuildBox + ParserBox）
