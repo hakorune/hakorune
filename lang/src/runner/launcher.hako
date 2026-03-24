@@ -333,6 +333,82 @@ static box LauncherArtifactIoBox {
   }
 }
 
+static box LauncherPayloadContractBox {
+  method emit_program_json_from_source_path_checked(tag, source_path){
+    local src = LauncherArtifactIoBox.read_file(tag, source_path)
+    if src == null { return null }
+    return me.emit_program_json_checked(tag, src)
+  }
+
+  method emit_program_json_checked(tag, source_text){
+    local prog = LauncherProgramJsonBuildBox.emit_program_json_v0(tag, source_text)
+    if prog == null { return null }
+    return me._coerce_program_json_output_checked(tag, prog)
+  }
+
+  method emit_mir_json_checked(tag, program_json){
+    local prog = me._coerce_program_json_for_emit_mir_checked(tag, program_json)
+    if prog == null { return null }
+    local mir = LauncherProgramJsonMirBox.emit_from_program_json_v0(tag, prog)
+    if mir == null { return null }
+    return me._coerce_mir_output_checked(tag, mir)
+  }
+
+  method emit_mir_json_from_source_path_checked(tag, source_path){
+    local prog_json = me.emit_program_json_from_source_path_checked(tag, source_path)
+    if prog_json == null { return null }
+    return me.emit_mir_json_checked(tag, prog_json)
+  }
+
+  method _coerce_program_json_output_checked(tag, prog){
+    local ps = me._coerce_text_compat(prog)
+    if me._program_json_has_markers(ps) != 1 {
+      print(tag + ": unexpected Program(JSON) output (missing version/kind)")
+      return null
+    }
+    return ps
+  }
+
+  method _coerce_program_json_for_emit_mir_checked(tag, program_json){
+    if program_json == null {
+      print(tag + ": program_json is null")
+      return null
+    }
+    local prog = me._coerce_text_compat(program_json)
+    if me._program_json_has_markers(prog) != 1 {
+      print(tag + ": input missing Program(JSON v0) markers")
+      return null
+    }
+    return prog
+  }
+
+  method _program_json_text_present(input_text){
+    if input_text != null && input_text != "" { return 1 }
+    return 0
+  }
+
+  method _program_json_has_markers(program_json_text){
+    if me._program_json_text_present(program_json_text) != 1 { return 0 }
+    if program_json_text.indexOf("\"version\":0") < 0 || program_json_text.indexOf("\"kind\":\"Program\"") < 0 {
+      return 0
+    }
+    return 1
+  }
+
+  method _coerce_mir_output_checked(tag, mir){
+    local ms = me._coerce_text_compat(mir)
+    if ms.indexOf("\"functions\"") < 0 {
+      print(tag + ": output missing MIR functions marker")
+      return null
+    }
+    return ms
+  }
+
+  method _coerce_text_compat(value){
+    return "" + value
+  }
+}
+
 static box HakoCli {
   // Entry from Main.main(args)
   method run(args){
@@ -489,9 +565,7 @@ static box HakoCli {
   }
 
   method _emit_program_json_checked(tag, source_text){
-    local prog = me._emit_program_json_raw(tag, source_text)
-    if prog == null { return null }
-    return me._coerce_program_json_output_checked(tag, prog)
+    return LauncherPayloadContractBox.emit_program_json_checked(tag, source_text)
   }
 
   method _emit_program_json_raw(tag, source_text){
@@ -508,17 +582,11 @@ static box HakoCli {
   }
 
   method _emit_program_json_from_source_path_checked(tag, source_path){
-    local src = LauncherArtifactIoBox.read_file(tag, source_path)
-    if src == null { return null }
-    return me._emit_program_json_checked(tag, src)
+    return LauncherPayloadContractBox.emit_program_json_from_source_path_checked(tag, source_path)
   }
 
   method _emit_mir_json_checked(tag, program_json){
-    local prog = me._coerce_program_json_for_emit_mir_checked(tag, program_json)
-    if prog == null { return null }
-    local mir = me._emit_mir_from_program_json_text_checked(tag, prog)
-    if mir == null { return null }
-    return me._coerce_mir_output_checked(tag, mir)
+    return LauncherPayloadContractBox.emit_mir_json_checked(tag, program_json)
   }
 
   method _coerce_program_json_for_emit_mir_checked(tag, program_json){
@@ -561,9 +629,7 @@ static box HakoCli {
   }
 
   method _emit_mir_json_from_source_path_checked(tag, source_path){
-    local prog_json = me._emit_program_json_from_source_path_checked(tag, source_path)
-    if prog_json == null { return null }
-    return me._emit_mir_json_checked(tag, prog_json)
+    return LauncherPayloadContractBox.emit_mir_json_from_source_path_checked(tag, source_path)
   }
 
   method _emit_exe_from_mir_json_checked(tag, source_path, mir_json, requested_out_path){

@@ -27,6 +27,7 @@ Pointers:
     - `Stage1CliConfigBox.from_env()` is now the live env contract owner; `stage1_main(...)` reads one canonical config map (`mode`, `backend`, `source_path`, `source_text`, `program_json_path`) instead of re-reading env inline
     - checked `BuildBox` / `MirBuilderBox` calls stay behind owner-local helpers
     - source/program-json orchestration now lives behind same-file `Stage1CliProgramJsonInputBox`, so `Stage1Cli` no longer keeps placeholder resolve, source-text readback, or path/source Program(JSON) shaping inline
+    - raw/subcmd `emit mir-json` / `run` argv parsing now lives behind same-file `Stage1CliRawSubcommandInputBox`, so the future-retire raw lane no longer keeps option parsing or `NYASH_SCRIPT_ARGS_JSON` assembly inline
     - raw/subcmd wrappers may still read env for compat keep, but the live `stage1_main(...)` lane now passes typed source/program-json inputs through those helpers instead of re-resolving env at each tail
     - emit-mir checked contract is also split owner-locally (`_coerce_program_json_for_emit_mir_checked(...)`, `_emit_mir_from_program_json_text_checked(...)`, `_coerce_mir_output_checked(...)`, `_emit_validated_mir_from_program_json_text(...)`) so the raw subcmd lane no longer mixes Program(JSON) input validation, MirBuilder call, and MIR output validation inline
     - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so inline payload probing, emit-program output validation, and emit-mir input validation share one same-file contract
@@ -61,6 +62,7 @@ Pointers:
     - `emit program-json` checked tail is also split owner-locally (`_emit_program_json_raw(...)`, `_coerce_program_json_output_checked(...)`) so the launcher lane no longer mixes BuildBox call and Program(JSON) validation inline.
     - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so launcher emit-program output validation and emit-mir input validation share one same-file contract.
     - artifact file I/O and stdout-vs-file output selection now live in same-file `LauncherArtifactIoBox`, so `cmd_emit_program_json(...)` / `cmd_emit_mir_json(...)` / bootstrap paths no longer branch directly on readback/output side effects inline.
+    - checked Program(JSON) / MIR payload validation and checked source->Program / Program->MIR handoff now also live in same-file `LauncherPayloadContractBox`, so `HakoCli` no longer mixes payload validation with top-level dispatch/build orchestration inline.
     - `build exe` now owns only temp MIR handoff / default output-path helper shape and lowers compile/link through `_compile_object_from_mir_path_checked(...)` / `_link_exe_object_checked(...)`, so the launcher lane no longer mixes compile/link fail-fast tails inline.
     - visible legacy stringify/path coercion is now centralized behind `_coerce_text_compat(...)` and `_non_empty_text(...)`, so future string-coercion cleanup can tighten the contract owner-by-owner without touching every launcher call site at once.
   - Design reference:
