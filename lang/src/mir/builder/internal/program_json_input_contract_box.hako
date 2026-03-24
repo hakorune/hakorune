@@ -1,0 +1,33 @@
+// program_json_input_contract_box.hako — checked Program(JSON) entry contract for MirBuilder
+// Scope: own null/header validation and text coercion for the outer Program(JSON) entry.
+// Non-goals: route sequencing, defs lowering, or source-entry compat.
+
+static box BuilderProgramJsonInputContractBox {
+  method coerce_program_json_checked(program_json) {
+    if me._program_json_input_present(program_json) != 1 {
+      print("[mirbuilder/input/null] program_json is null")
+      return null
+    }
+    local s = me._coerce_program_json_text(program_json)
+    if me._program_json_header_present(s) != 1 {
+      print("[mirbuilder/input/invalid] missing version/kind keys")
+      return null
+    }
+    return s
+  }
+
+  method _coerce_program_json_text(program_json) {
+    return "" + program_json
+  }
+
+  method _program_json_input_present(program_json) {
+    if program_json == null { return 0 }
+    return 1
+  }
+
+  method _program_json_header_present(program_json_text) {
+    if !(program_json_text.contains("\"version\"")) { return 0 }
+    if !(program_json_text.contains("\"kind\"")) { return 0 }
+    return 1
+  }
+}

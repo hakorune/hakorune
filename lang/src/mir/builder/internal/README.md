@@ -1,6 +1,7 @@
 MirBuilder Internals — Toggle Aggregation
 
 - Use `builder_config_box.hako` (`hako.mir.builder.internal.builder_config`) to read all `HAKO_MIR_BUILDER_*` toggles.
+- Use `program_json_input_contract_box.hako` (`hako.mir.builder.internal.program_json_input_contract`) as the dedicated owner for Program(JSON) null/header validation and text coercion on the outer entry contract.
 - Use `func_defs_gate_box.hako` (`hako.mir.builder.internal.func_defs_gate`) as the dedicated owner for the func-def pre-lowering gate (`toggle -> coerce -> FuncLoweringBox.lower_func_defs(...)`).
 - Use `registry_authority_box.hako` (`hako.mir.builder.internal.registry_authority`) as the dedicated owner for the normal registry-first `Program(JSON v0) -> MIR(JSON)` authority block.
 - Use `fallback_authority_box.hako` (`hako.mir.builder.internal.fallback_authority`) as the dedicated owner for the non-registry/internal fallback chain that still belongs to `.hako` authority.
@@ -16,7 +17,9 @@ MirBuilder Internals — Toggle Aggregation
 Notes
 - JsonFrag emission is kept default OFF and used for structural observation only. Semantics are prioritized by the normal path.
 - `MirBuilderBox.hako` should keep route sequencing and generic unsupported/no-match decision; source-entry compat now lives in `MirBuilderSourceCompatBox`.
+- `MirBuilderBox.hako` should keep checked handoff + route sequencing and generic unsupported/no-match decision; Program(JSON) entry validation now lives in `BuilderProgramJsonInputContractBox`, and source-entry compat now lives in `MirBuilderSourceCompatBox`.
 - `MirBuilderSourceCompatBox` should keep the source-entry compat seam instead of widening `MirBuilderBox` again.
+- If the outer Program(JSON) input contract needs to grow, extend `program_json_input_contract_box.hako` before widening the outer box again.
 - If the normal registry-first mainline needs to grow, extend `registry_authority_box.hako` before widening the outer box again.
 - If the non-registry/internal fallback chain needs to grow, extend `fallback_authority_box.hako` before widening the outer box again.
 - If the delegate/provider compat lane needs to grow, extend `delegate_provider_box.hako` before widening the outer box again.

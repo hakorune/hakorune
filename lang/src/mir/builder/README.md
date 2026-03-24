@@ -17,14 +17,15 @@ Interface (stable)
   - Returns canonical MIR(JSON v0) on success; returns null and prints a tagged diagnostic on failure.
   - delegate branch now finalizes returned MIR locally by injecting `user_box_decls` before normalization; this is the first `.hako`-side ownership move inside the Program(JSON)->MIR path.
   - gate decisions (`internal_on`, `delegate_on`, `selfhost_no_delegate_on`, `methodize_on`, `jsonfrag_normalize_on`) are centralized in `hako.mir.builder.internal.builder_config`, so this file is the owner of route sequencing, not raw env reads.
+  - outer Program(JSON) input validation/coercion now lives in `hako.mir.builder.internal.program_json_input_contract`, so this file no longer keeps null/header checks inline.
   - the normal registry-first Program(JSON)->MIR authority block now lives in `hako.mir.builder.internal.registry_authority`
   - the non-registry/internal fallback chain now lives in `hako.mir.builder.internal.fallback_authority`
   - the delegate/provider compat gate now lives in `hako.mir.builder.internal.delegate_provider`
   - the delegate-side `user_box_decls` finalize plus handoff into shared normalize now also live in `hako.mir.builder.internal.delegate_finalize`
   - the shared outer finalize chain now also lives in `hako.mir.builder.internal.finalize_chain`
   - this file keeps route sequencing, generic unsupported/no-match decision, and only the remaining outer compat tails around those internal owners
-  - outer Program(JSON) entry validation now stays owner-local via `_coerce_program_json_checked(...)` and `_emit_mir_from_program_json_text_checked(...)`, so the public entrypoint only shows checked handoff plus route dispatch
-  - Program(JSON) fail-fast tiny leaves are now owner-local via `_program_json_input_present(...)` and `_program_json_header_present(...)`, so `_coerce_program_json_checked(...)` reads as input-present -> header-present -> handoff only
+  - outer Program(JSON) entry validation now stays on the internal owner `BuilderProgramJsonInputContractBox`, while `_emit_mir_from_program_json_text_checked(...)` keeps route dispatch only
+  - Program(JSON) fail-fast tiny leaves now stay on that internal input-contract owner instead of widening `MirBuilderBox.hako`
   - route sequencing is owner-local via `BuilderFuncDefsGateBox.lower_if_enabled(...)`, `_emit_internal_program_json(...)`, and `_emit_delegate_program_json(...)`; raw env/hostbridge branching does not stay duplicated inline
   - delegate compat gate/provider call is now internal via `BuilderDelegateProviderBox.try_emit(...)`, and delegate-side finalize is now internal via `BuilderDelegateFinalizeBox.finalize_mir(...)`, so the delegate lane reads as internal gate/provider -> internal finalize -> shared normalize
   - shared finalize chain is now internal via `BuilderFinalizeChainBox.apply(...)` and `BuilderFinalizeChainBox.log_fail(...)`, so route leaves no longer carry inject/methodize/normalize/fail-tag logic inline
