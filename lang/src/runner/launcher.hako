@@ -264,6 +264,75 @@ static box LauncherInputContractBox {
   }
 }
 
+static box LauncherArtifactIoBox {
+  method read_file(tag, path){
+    if path == null || path == "" {
+      print(tag + ": source path is required")
+      return null
+    }
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 {
+      print(tag + ": failed to open " + path)
+      return null
+    }
+    local content = fb.read()
+    fb.close()
+    if content == null || content == "" {
+      print(tag + ": source is empty")
+      return null
+    }
+    return me._coerce_text_compat(content)
+  }
+
+  method load_program_json_from_path_or_source(tag, prog_path, source_path){
+    if prog_path != null && prog_path != "" {
+      return me._load_program_json_from_path_checked(tag, prog_path)
+    }
+    return HakoCli._emit_program_json_from_source_path_checked(tag, source_path)
+  }
+
+  method print_or_write_output(tag, path, content, quiet){
+    if path != null && path != "" {
+      return me._write_output_checked(tag, path, content, quiet)
+    }
+    return me._print_output_checked(content)
+  }
+
+  method write_file(tag, path, content, quiet){
+    if path == null || path == "" { return 1 }
+    local fb = new FileBox()
+    local ok = fb.open(path, "w")
+    if ok != 1 {
+      print(tag + ": failed to open output " + path)
+      return 0
+    }
+    fb.write(content)
+    fb.close()
+    if quiet != 1 {
+      print(tag + ": written " + path)
+    }
+    return 1
+  }
+
+  method _load_program_json_from_path_checked(tag, prog_path){
+    return me.read_file(tag, prog_path)
+  }
+
+  method _print_output_checked(content){
+    print(content)
+    return 1
+  }
+
+  method _write_output_checked(tag, path, content, quiet){
+    return me.write_file(tag, path, content, quiet)
+  }
+
+  method _coerce_text_compat(value){
+    return "" + value
+  }
+}
+
 static box HakoCli {
   // Entry from Main.main(args)
   method run(args){
@@ -380,7 +449,7 @@ static box HakoCli {
     local ps = me._emit_program_json_from_source_path_checked(tag, path)
     if ps == null { return 92 }
 
-    if me._print_or_write_output(tag, out_path, ps, quiet) != 1 {
+    if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ps, quiet) != 1 {
       return 92
     }
 
@@ -399,12 +468,12 @@ static box HakoCli {
     local quiet = req.get("quiet")
 
     local tag = "[hakorune] emit mir-json"
-    local prog_json = me._load_program_json_from_path_or_source(tag, prog_path, source_path)
+    local prog_json = LauncherArtifactIoBox.load_program_json_from_path_or_source(tag, prog_path, source_path)
     if prog_json == null { return 92 }
 
     local ms = me._emit_mir_json_checked(tag, prog_json)
     if ms == null { return 92 }
-    if me._print_or_write_output(tag, out_path, ms, quiet) != 1 {
+    if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ms, quiet) != 1 {
       return 92
     }
 
@@ -439,7 +508,7 @@ static box HakoCli {
   }
 
   method _emit_program_json_from_source_path_checked(tag, source_path){
-    local src = me._read_file(tag, source_path)
+    local src = LauncherArtifactIoBox.read_file(tag, source_path)
     if src == null { return null }
     return me._emit_program_json_checked(tag, src)
   }
@@ -502,7 +571,7 @@ static box HakoCli {
     if exe_path == null { return null }
     local mir_path = me._resolve_build_exe_mir_path(exe_path)
     if mir_path == null { return null }
-    if me._write_file(tag, mir_path, mir_json, 1) != 1 { return null }
+    if LauncherArtifactIoBox.write_file(tag, mir_path, mir_json, 1) != 1 { return null }
 
     local obj = me._compile_object_from_mir_path_checked(tag, mir_path)
     if obj == null { return null }
@@ -546,17 +615,6 @@ static box HakoCli {
     return me._coerce_text_compat(exe_path) + ".mir.json"
   }
 
-  method _load_program_json_from_path_or_source(tag, prog_path, source_path){
-    if prog_path != null && prog_path != "" {
-      return me._load_program_json_from_path_checked(tag, prog_path)
-    }
-    return me._emit_program_json_from_source_path_checked(tag, source_path)
-  }
-
-  method _load_program_json_from_path_checked(tag, prog_path){
-    return me._read_file(tag, prog_path)
-  }
-
   method run_bootstrap_from_env(){
     local req = LauncherInputContractBox.parse_bootstrap_request()
     if req == null { return 95 }
@@ -577,7 +635,7 @@ static box HakoCli {
 
     local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
     if ms == null { return 95 }
-    if me._write_file(tag, out_path, ms, 1) != 1 { return 95 }
+    if LauncherArtifactIoBox.write_file(tag, out_path, ms, 1) != 1 { return 95 }
     return 0
   }
 
@@ -600,27 +658,6 @@ static box HakoCli {
     return null
   }
 
-  // Helpers for file I/O (Phase 25.1a: consolidate Stage‑B friendly patterns)
-  method _read_file(tag, path){
-    if path == null || path == "" {
-      print(tag + ": source path is required")
-      return null
-    }
-    local fb = new FileBox()
-    local ok = fb.open(path, "r")
-    if ok != 1 {
-      print(tag + ": failed to open " + path)
-      return null
-    }
-    local content = fb.read()
-    fb.close()
-    if content == null || content == "" {
-      print(tag + ": source is empty")
-      return null
-    }
-    return me._coerce_text_compat(content)
-  }
-
   method _coerce_text_compat(value){
     return "" + value
   }
@@ -631,37 +668,6 @@ static box HakoCli {
     return 1
   }
 
-  method _print_or_write_output(tag, path, content, quiet){
-    if path != null && path != "" {
-      return me._write_output_checked(tag, path, content, quiet)
-    }
-    return me._print_output_checked(content)
-  }
-
-  method _print_output_checked(content){
-    print(content)
-    return 1
-  }
-
-  method _write_output_checked(tag, path, content, quiet){
-    return me._write_file(tag, path, content, quiet)
-  }
-
-  method _write_file(tag, path, content, quiet){
-    if path == null || path == "" { return 1 }
-    local fb = new FileBox()
-    local ok = fb.open(path, "w")
-    if ok != 1 {
-      print(tag + ": failed to open output " + path)
-      return 0
-    }
-    fb.write(content)
-    fb.close()
-    if quiet != 1 {
-      print(tag + ": written " + path)
-    }
-    return 1
-  }
 }
 
 static box Main {
