@@ -13,7 +13,7 @@ Responsibility
 - Keep the boundary/contract stable and Fail‑Fast; no silent fallback to stub MIR.
 
 Interface (stable)
-- `emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null`
+  - `emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null`
   - Returns canonical MIR(JSON v0) on success; returns null and prints a tagged diagnostic on failure.
   - delegate branch now finalizes returned MIR locally by injecting `user_box_decls` before normalization; this is the first `.hako`-side ownership move inside the Program(JSON)->MIR path.
   - gate decisions (`internal_on`, `delegate_on`, `selfhost_no_delegate_on`, `methodize_on`, `jsonfrag_normalize_on`) are centralized in `hako.mir.builder.internal.builder_config`, so this file is the owner of route sequencing, not raw env reads.
@@ -35,6 +35,7 @@ Interface (stable)
   - generic unsupported/no-match decision now lives in `hako.mir.builder.internal.unsupported_tail`, so this file no longer keeps ternary detect or fail-reason selection inline
   - mini internal lowers are allowed to keep tiny owner-local stringify helpers such as `_coerce_text_compat(...)` when their only legacy `"" + x` usage is the Program(JSON) entry coercion
   - `builder_config` and `delegate_finalize` now also centralize env/program-json text coercion through owner-local `_coerce_text_compat(...)`, so route/config owners no longer repeat raw `"" + x` on their remaining compat seams
+  - current phase reading treats this file as a near-thin-floor route-sequencing owner; further local extraction is no longer the default next move unless a brand-new exact disappearing leaf appears
 - `emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null`
   - Source-entry shim only; current stage1 authority no longer depends on this route.
   - source-entry compat now lives in `MirBuilderSourceCompatBox`; `MirBuilderBox` keeps the Program(JSON) route sequencing, while the compat box owns source-entry coercion / source->Program(JSON) check / Program(JSON)->MIR handoff.

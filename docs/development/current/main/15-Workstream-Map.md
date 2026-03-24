@@ -22,17 +22,16 @@ Related:
 
 ## Current Order
 
-1. `phase-29cj`
-   - mainline
-   - status: `formal-close-sync-ready`
-2. `phase-29cu`
-   - secondary active lane
+1. `phase-29cu`
+   - active implementation lane
+2. `phase-29cj`
+   - formally close-synced
 3. `phase-29y`
    - parked / monitor-only
 4. `phase-29ct`
    - stop-line reached
 
-## Mainline Now
+## Bootstrap-Retire Now
 
 - live stop-line: `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
 - latest landed Rust cuts:
@@ -49,20 +48,23 @@ Related:
   - `BuilderUnsupportedTailBox`
   - `Stage1MirPayloadContractBox`
   - `Stage1CliProgramJsonInputBox`
+  - `Stage1CliRawSubcommandInputBox`
   - `LauncherArtifactIoBox`
+  - `LauncherPayloadContractBox`
+- frozen near-thin-floor owners:
+  - `MirBuilderBox.hako`
+  - `stage1_cli_env.hako`
+  - `stage1_cli.hako`
+  - `launcher.hako`
 
 ## Exact Next
 
-1. re-inventory near-thin-floor owners:
-   - `lang/src/mir/builder/MirBuilderBox.hako`
-   - `lang/src/runner/stage1_cli_env.hako`
-   - `lang/src/runner/stage1_cli.hako`
-   - `lang/src/runner/launcher.hako`
-2. choose one exact disappearing leaf only if it is visible
-3. otherwise freeze `phase-29cj` as formally close-synced
-4. after that, return implementation focus to `phase-29cu`
+1. keep `phase-29cj` closed unless a new exact disappearing leaf appears
+2. return implementation focus to `phase-29cu`
+3. sync Rune lane status to current implementation truth
+4. choose one exact remaining Rune leaf only
 
-## Secondary Active Lane
+## Active Lane
 
 - `phase-29cu` remains active
 - fixed order:
@@ -92,8 +94,8 @@ Related:
 
 - `build_surrogate.rs` is down to a typed dispatch shim
 - `src/host_providers/mir_builder.rs` is now a façade above the Rust stop-line
-- `MirBuilderBox.hako` is close to a pure route-sequencing owner
-- `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako` now keep payload/input/I/O side effects behind same-file helpers
+- `MirBuilderBox.hako` is now treated as a near-thin-floor route-sequencing owner
+- `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako` now keep payload/input/I/O side effects behind same-file helpers, and the last raw subcmd / checked payload leaves are landed
 - `vm-hako` is frozen as monitor-only; throughput probes are archived evidence, not current blockers
 
 ## Read Order

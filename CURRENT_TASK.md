@@ -22,16 +22,17 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current blocker (SSOT)
 
 - runtime lane is parked/monitor-only again; there is no active `vm-hako` throughput blocker.
-- mainline current blocker is the remaining Rust stop-line above `src/host_providers/mir_builder.rs::module_to_mir_json(...)`.
-- latest Rust and `.hako` helper cuts are landed; the next action is not another wide refactor but a near-thin-floor reinventory across the remaining `.hako` runner owners.
+- `phase-29cj` has completed its near-thin-floor reinventory and formal close sync.
+- there is no new bootstrap-retire blocker right now; active implementation focus returns to `phase-29cu`.
 
 ## Current Priority
 
-1. mainline: `phase-29cj`
-   - status: `formal-close-sync-ready`
-   - exact next: re-inventory `MirBuilderBox.hako`, `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako`, then choose one exact disappearing leaf or freeze the phase
-2. secondary active lane: `phase-29cu`
-   - Rune v0 stays active, but it does not displace the `phase-29cj` mainline close-sync work
+1. active implementation lane: `phase-29cu`
+   - Rune v0 returns to the front after `phase-29cj` close sync
+   - exact next: sync the lane status and choose the next remaining verifier/consumer leaf without widening `Program(JSON v0)`
+2. close-synced mainline lane: `phase-29cj`
+   - status: `formal-close-synced`
+   - reopen only if a new exact disappearing leaf appears above the Rust stop-line or if deletion-prep explicitly resumes
 3. parked / stop-line
    - `phase-29y`: parked monitor-only
    - `phase-29ct`: stop-line reached
@@ -52,7 +53,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 
 ## Main Workstream
 
-- active mainline front: `phase-29cj`
+- active implementation front: `phase-29cu`
+- close-synced bootstrap-retire lane: `phase-29cj`
 - live Rust stop-line:
   - `src/host_providers/mir_builder.rs`
   - `src/host_providers/mir_builder/handoff.rs`
@@ -60,23 +62,26 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - latest landed cuts above the same stop-line:
   - Rust: source-route authority / output projection split
   - `.hako`: `BuilderProgramJsonInputContractBox`, `BuilderFuncDefsGateBox`, `BuilderLoopForceRouteBox`, `BuilderUnsupportedTailBox`
-  - runner locals: `Stage1MirPayloadContractBox`, `Stage1CliProgramJsonInputBox`, `LauncherArtifactIoBox`
-- keep these frozen as near thin floor unless an exact disappearing leaf is identified:
+  - runner locals: `Stage1MirPayloadContractBox`, `Stage1CliProgramJsonInputBox`, `Stage1CliRawSubcommandInputBox`, `LauncherArtifactIoBox`, `LauncherPayloadContractBox`
+- frozen near-thin-floor owners:
   - `src/stage1/program_json_v0/authority.rs`
   - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
   - `src/runner/stage1_bridge/program_json/**`
   - `src/runner/stage1_bridge/program_json_entry/**`
+  - `lang/src/mir/builder/MirBuilderBox.hako`
+  - `lang/src/runner/stage1_cli_env.hako`
+  - `lang/src/runner/stage1_cli.hako`
+  - `lang/src/runner/launcher.hako`
 
 ## Next Task
 
-1. sync `phase-29cj` docs as `formal-close-sync-ready`
-2. perform a near-thin-floor reinventory across:
-   - `lang/src/mir/builder/MirBuilderBox.hako`
-   - `lang/src/runner/stage1_cli_env.hako`
-   - `lang/src/runner/stage1_cli.hako`
-   - `lang/src/runner/launcher.hako`
-3. if one exact disappearing leaf appears, land one owner-local slice only
-4. if no exact leaf remains, freeze `phase-29cj` and return active implementation focus to `phase-29cu`
+1. reopen `phase-29cu` as the active implementation lane
+2. sync the lane to current truth:
+   - declaration-local `attrs.runes`
+   - direct MIR carrier
+   - selected-entry `ny-llvmc` semantics
+3. choose one exact remaining Rune leaf only
+4. keep `phase-29cj` closed unless a new exact disappearing leaf appears
 
 ## Lane Pointers
 

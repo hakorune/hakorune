@@ -29,13 +29,14 @@ Related:
 
 ## Current Read
 
-- Mainline: `phase-29cj`
-  - status: `formal-close-sync-ready`
+- Active lane: `phase-29cu`
+  - Rune v0 returns to the front after `phase-29cj` close sync
+  - current reading stays declaration-local `attrs.runes` -> direct MIR carrier -> selected-entry `ny-llvmc`
+- Bootstrap-retire lane: `phase-29cj`
+  - status: `formal-close-synced`
   - current stop-line is still `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
-  - latest landed `.hako` cuts now cover `BuilderUnsupportedTailBox`, `Stage1MirPayloadContractBox`, `Stage1CliProgramJsonInputBox`, and `LauncherArtifactIoBox`
-  - exact next step is a near-thin-floor reinventory across `MirBuilderBox.hako`, `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako`
-- Secondary lane: `phase-29cu`
-  - Rune v0 stays active with declaration-local `attrs.runes` -> direct MIR carrier and `ny-llvmc` selected-entry semantics
+  - latest landed `.hako` cuts now cover `BuilderUnsupportedTailBox`, `Stage1MirPayloadContractBox`, `Stage1CliProgramJsonInputBox`, `Stage1CliRawSubcommandInputBox`, `LauncherArtifactIoBox`, and `LauncherPayloadContractBox`
+  - `MirBuilderBox.hako`, `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako` are now treated as near-thin-floor / close-synced owners
 - Runtime lane: `phase-29y`
   - parked
   - operational reading is `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat

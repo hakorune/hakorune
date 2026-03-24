@@ -1,7 +1,7 @@
 ---
-Status: Accepted (docs/task lock, active)
+Status: Accepted (active)
 Decision: provisional
-Date: 2026-03-23
+Date: 2026-03-24
 Scope: Rune v0 を current docs/task pack として固定し、parser parity / AST-direct-MIR carrier / `ny-llvmc` selected-entry consumer の実装順を切る。
 Related:
   - CURRENT_TASK.md
@@ -31,6 +31,16 @@ Related:
 - Rune lane を `phase-29ct` substrate work や `phase-29y` runtime migration と混ぜない。
 - `Program(JSON v0)` は Rune で widen しない。
 - stage2+ / distribution policy の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この phase は Rune lane のみを owner とする。
+
+## Current Read
+
+- lane status: `active`
+- current implementation focus has returned here after `phase-29cj` formal close sync
+- current truth is already narrower than the original docs/task lock wording:
+  - declaration-local `attrs.runes`
+  - direct MIR carrier
+  - selected-entry-only `ny-llvmc` semantics
+- next exact step is to sync this lane's current implementation status and choose one remaining verifier/consumer leaf without widening `Program(JSON v0)`
 
 ## Fixed Decisions
 

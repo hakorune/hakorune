@@ -32,15 +32,16 @@ bash tools/dev/phase29cg_stage2_bootstrap_phi_verify.sh
 bash tools/selfhost_identity_check.sh --mode smoke
 ```
 
-## 今日の再開点（mainline lane）
+## 今日の再開点（active lane）
 
-- Active next: `phase-29cj` formal close sync
+- Active next: `phase-29cu`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/15-Workstream-Map.md`
-  3. `docs/development/current/main/phases/phase-29cj/README.md`
+  3. `docs/development/current/main/phases/phase-29cu/README.md`
 - immediate action:
-  - near-thin-floor reinventory across `MirBuilderBox.hako`, `stage1_cli_env.hako`, `stage1_cli.hako`, and `launcher.hako`
+  - sync Rune lane status to current implementation truth
+  - choose one exact remaining Rune leaf only
 
 ## 保守レーン（必要時のみ）
 
@@ -55,4 +56,4 @@ cargo build --release --bin hakorune
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/10-Now.md`
-4. `docs/development/current/main/phases/phase-29cj/README.md`
+4. `docs/development/current/main/phases/phase-29cu/README.md`

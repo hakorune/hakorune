@@ -15,8 +15,8 @@ Related:
 
 ## Current Shape
 
-- mainline front: `phase-29cj`
-- secondary active lane: `phase-29cu`
+- active implementation lane: `phase-29cu`
+- close-synced bootstrap-retire lane: `phase-29cj`
 - parked runtime lane: `phase-29y`
 - stop-line reached substrate lane: `phase-29ct`
 
