@@ -45,12 +45,21 @@ IR_DUMP="${ROOT}/target/stageb_loop_debug_$$.ll"
 EXE_LOG=$(mktemp)
 trap 'rm -f "$TMP_HAKO" "$TMP_JSON" "$EXE_OUT" "$IR_DUMP" "$EXE_LOG" 2>/dev/null || true' EXIT
 
-if ! NYASH_LLVM_BACKEND=crate NYASH_LLVM_VERIFY=1 NYASH_LLVM_VERIFY_IR=1 \
-      NYASH_LLVM_DUMP_IR="$IR_DUMP" \
-      NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
-      NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
-      timeout "${HAKO_BUILD_TIMEOUT:-10}" bash "$ROOT/tools/ny_mir_builder.sh" --in "$TMP_JSON" --emit exe -o "$EXE_OUT" --quiet >"$EXE_LOG" 2>&1; then
-  echo "[SKIP] stageb_loop_jsonfrag: failed to build EXE (crate)"
+set +e
+NYASH_LLVM_BACKEND=crate NYASH_LLVM_VERIFY=1 NYASH_LLVM_VERIFY_IR=1 \
+  NYASH_LLVM_DUMP_IR="$IR_DUMP" \
+  NYASH_NY_LLVM_COMPILER="${NYASH_NY_LLVM_COMPILER:-$ROOT/target/release/ny-llvmc}" \
+  NYASH_EMIT_EXE_NYRT="${NYASH_EMIT_EXE_NYRT:-$ROOT/target/release}" \
+  timeout "${HAKO_BUILD_TIMEOUT:-10}" bash "$ROOT/tools/ny_mir_builder.sh" --in "$TMP_JSON" --emit exe -o "$EXE_OUT" --quiet >"$EXE_LOG" 2>&1
+build_rc=$?
+set -e
+
+if [ "$build_rc" -ne 0 ]; then
+  if [ "$build_rc" -eq 124 ]; then
+    echo "[SKIP] stageb_loop_jsonfrag: timed out building EXE (crate, timeout=${HAKO_BUILD_TIMEOUT:-10}s)"
+  else
+    echo "[SKIP] stageb_loop_jsonfrag: failed to build EXE (crate, rc=$build_rc)"
+  fi
   if [ -f "$IR_DUMP" ] && [ -s "$IR_DUMP" ]; then
     echo "[DEBUG] First 120 lines of LLVM IR:" >&2
     head -n 120 "$IR_DUMP" >&2 || true
