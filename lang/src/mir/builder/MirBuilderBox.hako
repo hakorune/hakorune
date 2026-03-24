@@ -20,6 +20,7 @@ using lang.compiler.build.build_box as BuildBox
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
 using "hako.mir.builder.internal.program_json_input_contract" as BuilderProgramJsonInputContractBox
 using "hako.mir.builder.internal.func_defs_gate" as BuilderFuncDefsGateBox
+using "hako.mir.builder.internal.loop_force_route" as BuilderLoopForceRouteBox
 using "hako.mir.builder.internal.registry_authority" as BuilderRegistryAuthorityBox
 using "hako.mir.builder.internal.fallback_authority" as BuilderFallbackAuthorityBox
 using "hako.mir.builder.internal.delegate_provider" as BuilderDelegateProviderBox
@@ -91,7 +92,7 @@ static box MirBuilderBox {
   }
 
   method _emit_internal_program_json(program_json, func_defs_mir) {
-    local out_loop_force = me._try_emit_loop_force_jsonfrag(func_defs_mir)
+    local out_loop_force = BuilderLoopForceRouteBox.try_emit(func_defs_mir)
     if out_loop_force != null { return out_loop_force }
 
     local out_reg = me._try_emit_registry_program_json(program_json, func_defs_mir)
@@ -101,16 +102,6 @@ static box MirBuilderBox {
     if out_fallback != null { return out_fallback }
 
     return me._fail_internal_unsupported(program_json, func_defs_mir)
-  }
-
-  method _try_emit_loop_force_jsonfrag(func_defs_mir) {
-    local f = env.get("HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG")
-    if f == null || ("" + f) != "1" { return null }
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-      "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
-      "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
-    return BuilderFinalizeChainBox.apply(mir, func_defs_mir)
   }
 
   method _try_emit_registry_program_json(program_json, func_defs_mir) {

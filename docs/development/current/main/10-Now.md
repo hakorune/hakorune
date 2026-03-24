@@ -31,7 +31,7 @@ Related:
 - Execution lane policy: parent SSOT is `execution-lanes-and-axis-separation-ssot.md`; `stage1` は bridge/proof only、`stage2+` が final distribution target。
 - Runtime lane: `phase-29y` が current anchor。operational reading は `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat。active acceptance は `phase29y_vm_hako_caps_gate_vm.sh` のみで、throughput probes は archived monitor evidence として扱う。
 - Kernel capability lane: `phase-29ct` は stop-line reached、`C5` は deferred。
-- Bootstrap retire lane: active Rust front is `phase-29cj` on `src/host_providers/mir_builder.rs`; current exact cut is the source-route authority / output projection split in `handoff.rs` above `module_to_mir_json(...)`, while bridge/helper waves stay closeout-ready.
+- Bootstrap retire lane: active mainline front is `phase-29cj`; the latest Rust source-route authority / output projection split is landed in `src/host_providers/mir_builder/handoff.rs`, and the current exact `.hako` cut is `MirBuilderBox` loop-force route isolation above `module_to_mir_json(...)`, while bridge/helper waves stay closeout-ready.
 - Rune lane: `phase-29cu` は active current lane。grammar activation は Rust parser / `.hako` parser 両方前提で、carrier は declaration-local `attrs.runes` -> direct MIR attrs、`ny-llvmc` は selected-entry only。
 - Rune source-route note: `.hako` の source-route keep は selected-entry attrs を synthetic `Main.main` def で一時輸送してよいが、Program(JSON v0) root/body は no-widen のまま。
 - JSON v0 reading: `Program(JSON v0)` は Rune の retire/no-widen target、`MIR(JSON v0)` は current interchange / gate boundary。

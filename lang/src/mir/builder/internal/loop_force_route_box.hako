@@ -1,0 +1,21 @@
+// loop_force_route_box.hako — dev-only loop-force route for MirBuilder internal authority
+// Scope: own the loop-force gate, minimal loop MIR assembly, and finalize-chain handoff.
+// Non-goals: registry/fallback sequencing, source-entry compat, or unsupported routing.
+
+using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
+
+static box BuilderLoopForceRouteBox {
+  method try_emit(func_defs_mir) {
+    if BuilderConfigBox.loop_force_jsonfrag_on() != 1 { return null }
+    local mir = me._minimal_loop_mir_json()
+    return BuilderFinalizeChainBox.apply(mir, func_defs_mir)
+  }
+
+  method _minimal_loop_mir_json() {
+    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
+      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":0}},{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3},{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
+      "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
+      "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
+  }
+}

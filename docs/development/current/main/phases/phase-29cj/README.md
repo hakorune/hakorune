@@ -72,7 +72,8 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 5. do not confuse this phase close sync with the primary pure-`.hako` blocker
    - the real current blocker is still the Rust stop-line `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
    - `src/host_providers/mir_builder/lowering.rs` is test-only evidence, not the live phase front
-   - the next exact Rust cut is the source-route authority / output projection split in `src/host_providers/mir_builder/handoff.rs`, with `decls.rs` limited to parsed-value shaping
+   - the latest Rust cut is the source-route authority / output projection split in `src/host_providers/mir_builder/handoff.rs`, with `decls.rs` limited to parsed-value shaping
+   - the next exact `.hako` cut is `MirBuilderBox` loop-force route isolation above the same shared stop-line
 6. after close sync, the next real movement is authority replacement above the stop-line
    - first `.hako` replacement owner remains `lang/src/mir/builder/MirBuilderBox.hako`
    - runner owners follow
@@ -108,6 +109,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the latest source-authority leaf also keeps duplicate strict-source Program(JSON) emission behind same-file helper `emit_strict_program_json_for_source(...)`; the façade owner still holds the strict source route above the Rust stop-line
 - the latest stop-line leaf also keeps guarded Program(JSON)->MIR emission on `Stage1ProgramJsonModuleHandoff::emit_guarded_mir_json()`, while strict source Program(JSON) emission now lives on `SourceProgramJsonAuthority`; the source route no longer needs free wrapper helpers
 - the latest stop-line leaf also keeps source-route `(Program(JSON), MIR(JSON))` / `MIR(JSON)` projection on `SourceProgramJsonOutputHandoff`, so `source_to_mir_json(...)` no longer destructures the broader handoff tuple at top level
+- the next active `.hako` leaf on that same stop-line is no longer the Program(JSON) entry contract; that cut is landed via `BuilderProgramJsonInputContractBox`, and the current exact route-table leaf is the dev-only loop-force route still carried inline by `MirBuilderBox`
 - the latest explicit-entry leaf also keeps explicit Program(JSON) module parse and decl parse on `Stage1ProgramJsonModuleHandoff::{parse_module,parse_user_box_decls}(...)`, so the owner entrypoint `parse(...)` now reads as a typed handoff builder instead of mixing both inner parse leaves inline
 - the latest explicit-route policy leaf also keeps Program(JSON) decl policy on `Stage1UserBoxDecls::{parse_program_value,resolve_decls,collect_compat_decl_names}(...)`, and the new unit proof fixes the compat fallback contract when explicit `user_box_decls` is absent
 - the latest explicit-route materialize leaf also keeps decl name/field materialize on `Stage1UserBoxDecl::{parse_name,parse_fields}(...)`, and the new unit proof fixes the contract that non-string explicit field entries are filtered out instead of leaking into metadata
@@ -209,6 +211,7 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 - the next landed tightening on the same owner also moves the func-def pre-lowering tail into `lang/src/mir/builder/internal/func_defs_gate_box.hako::BuilderFuncDefsGateBox.lower_if_enabled(...)`, with `BuilderConfigBox.funcs_on()` centralizing the toggle; source-entry compat keeps only `_emit_program_json_from_source_raw(...)`, so those tiny leaves no longer mix inline with checked handoff
 - the next landed tightening on the same owner also keeps Program(JSON) fail-fast tiny leaves behind `_program_json_input_present(...)` and `_program_json_header_present(...)`, so `_coerce_program_json_checked(...)` now reads as input-present -> header-present -> handoff only
 - the next landed tightening on that same owner now moves Program(JSON) null/header validation and text coercion into `BuilderProgramJsonInputContractBox`, so `MirBuilderBox.emit_from_program_json_v0(...)` is down to trace -> checked handoff -> defs gate -> route dispatch
+- the next landed tightening on that same owner now moves the dev-only loop-force gate, minimal loop MIR assembly, and finalize-chain handoff into `BuilderLoopForceRouteBox`, so `_emit_internal_program_json(...)` is down to loop-force -> registry -> fallback -> unsupported route order
 - consequence: `MirBuilderBox.hako` now keeps route sequencing, generic unsupported/no-match decision, and the remaining shared finalize/compat tails around those internal authority owners
 - consequence after that cut: `MirBuilderBox.hako` is close to a pure route-sequencing owner; the func-def shim now lives in `BuilderFuncDefsGateBox`, while source-entry checked handoff lives in `MirBuilderSourceCompatBox`
 - the delegate-only probe now resolves `BuilderDelegateProviderBox` successfully and reaches the separate pre-existing `Unknown Box type: hostbridge` residue; treat that as adjacent subset-check debt, not as a regression from the delegate-provider split
