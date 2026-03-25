@@ -2,10 +2,10 @@
 # Phase 29ck boundary compat-keep compile canary
 #
 # Contract pin:
-# 1) default `ny-llvmc` boundary object route stays boundary-first for an
-#    unsupported seed.
-# 2) unsupported `method_call_only_small.prebuilt.mir.json` may still replay the explicit
-#    `--driver harness` keep lane, but that replay is still green.
+# 1) explicit `pure-first + compat_replay=harness` stays the supported keep lane
+#    for the current unsupported seed.
+# 2) unsupported `method_call_only_small.prebuilt.mir.json` may still replay the
+#    explicit `--driver harness` keep lane, but that replay is no longer implicit.
 
 set -euo pipefail
 
@@ -42,6 +42,8 @@ bash "$NYASH_ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
 set +e
 BUILD_OUT=$(
+  HAKO_BACKEND_COMPILE_RECIPE="pure-first" \
+  HAKO_BACKEND_COMPAT_REPLAY="harness" \
   NYASH_NY_LLVM_COMPILER="$NY_LLVM_C" \
   timeout "$RUN_TIMEOUT_SECS" \
   "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ" 2>&1
@@ -59,7 +61,7 @@ fi
 if [ "$BUILD_RC" -ne 0 ]; then
     echo "[INFO] compile output:"
     tail -n 120 "$BUILD_LOG" || true
-    test_fail "phase29ck_boundary_compat_keep_min: boundary default failed to replay compat keep (rc=$BUILD_RC)"
+    test_fail "phase29ck_boundary_compat_keep_min: explicit compat replay failed (rc=$BUILD_RC)"
     exit 1
 fi
 
@@ -68,4 +70,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_compat_keep_min: PASS (boundary default still replays compat keep for method_call_only_small)"
+test_pass "phase29ck_boundary_compat_keep_min: PASS (explicit compat replay keeps method_call_only_small green)"

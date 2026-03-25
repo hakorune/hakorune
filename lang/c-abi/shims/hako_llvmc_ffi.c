@@ -63,7 +63,7 @@ static int compat_harness_replay_enabled(void) {
   if (replay && replay[0]) {
     return strcmp(replay, "harness") == 0;
   }
-  return 1;
+  return 0;
 }
 
 static int set_err_owned(char** err_out, const char* msg) {

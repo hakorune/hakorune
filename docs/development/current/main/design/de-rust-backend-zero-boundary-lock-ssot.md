@@ -86,13 +86,13 @@ backend-zero の final target は次の形に固定する。
    - caller-side recipe seam now lives in `lang/src/shared/backend/backend_recipe_box.hako`; `.hako` daily compile now carries explicit `compile_json_path(..., "", "pure-first", "harness")` payload at that boundary via `compile_route_profile(...)`, and Rust transport mirrors those names to env only at the C handoff, so pure-first policy is owned by caller-side recipe payload rather than by ambient env mutation inside the C shim
    - `compile_route_profile(...)` also owns the visible `acceptance_policy` label (`boundary-pure-seed-matrix-v1`), so the current pure/compat acceptance basis is named in `.hako`, not inferred from transport glue
    - `compile_route_profile(...)` also owns the visible `acceptance_case` label for the current narrow evidence rows (`ret-const-v1`, `hello-simple-llvm-native-probe-v1`, `runtime-data-array-get-missing-v1`, `runtime-data-string-length-ascii-v1`, `runtime-data-array-length-v1`, `runtime-data-array-push-v1`, `runtime-data-map-size-v1`, `runtime-data-array-has-missing-v1`, `runtime-data-map-has-missing-v1`, `runtime-data-map-get-missing-v1`, `string-indexof-ascii-v1`, `string-length-ascii-v1`, `method-call-only-small-compat-v1`), so the shape-specific reason stays in `.hako` instead of drifting into the C shim
-   - recipe seam close-sync is now landed for those rows; the next exact backend-zero front is boundary fallback reliance reduction, not further recipe widening
+   - recipe seam close-sync is now landed for those rows; the current exact backend-zero front is `W2c` generic export / historical alias keep-only sync inside boundary fallback reliance reduction, not further recipe widening
    - recipe-aware daily callers now prefer `hako_llvmc_compile_json_pure_first`; the generic `hako_llvmc_compile_json` export remains the default forwarder / historical compat surface
    - fallback inventory lock is now landed in the C shim: default forwarder, pure-first lane, and explicit compat harness replay are separated behind owner-local helpers, and raw compat replay callsites stay behind that explicit replay helper only
    - `HAKO_CAPI_PURE=1` remains only as a historical compat alias for phase2120-style pure packs
    - `lang/c-abi/shims/hako_aot_shared_impl.inc` compile command now also uses explicit `--driver boundary`, so the default `hako_aot` command route no longer advertises harness as the daily owner
    - explicit `HAKO_LLVM_EMIT_PROVIDER={llvmlite|ny-llvmc}` keeps remain replayable, but the wrapper path is no longer part of the default route
-   - unsupported shapes now replay directly from `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`, so `llvmlite` remains an indirect compat keep inside the boundary fallback lane
+   - unsupported pure-first shapes now replay `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` only when explicit `HAKO_BACKEND_COMPAT_REPLAY=harness` is present; otherwise the pure-first lane fails fast, so `llvmlite` remains an indirect compat keep only behind that explicit replay lane
 2. bootstrap seam:
    - `crates/nyash-llvm-compiler/src/native_driver.rs`
    - role:

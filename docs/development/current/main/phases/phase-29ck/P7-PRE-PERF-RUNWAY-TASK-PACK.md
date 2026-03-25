@@ -26,8 +26,9 @@ Related:
 
 - `W1` `.hako` recipe seam close-sync is landed.
 - `W2a` forwarder / explicit compat replay inventory lock is landed.
-- current active pre-perf front is `W2b` boundary fallback reliance reduction.
-- `perf/kilo` remains parked until `W2b..W4` are also closed.
+- `W2b` pure-first lane now fail-fasts without explicit compat replay; unsupported keep seeds require explicit `compat_replay=harness`.
+- current active pre-perf front is `W2c` generic export / historical alias keep-only sync.
+- `perf/kilo` remains parked until `W2c..W4` are also closed.
 
 ## Fixed Order
 
@@ -64,6 +65,8 @@ Related:
   - `W2a` is landed
   - default forwarder / explicit compat replay / pure-first lane now have distinct helper owners in the C shim
   - raw compat replay callsites are reduced to the explicit compat replay helper
+  - `W2b` is landed
+  - unsupported pure-first shapes now fail fast unless explicit `HAKO_BACKEND_COMPAT_REPLAY=harness` is present
 - exact target:
   - shrink unsupported-shape reliance on `hako_llvmc_ffi.c -> ny-llvmc --driver harness`
   - keep `harness` / `native` as explicit replay lanes only
@@ -77,6 +80,7 @@ Related:
   - no Python builder work
 - acceptance:
   - `tools/dev/phase29ck_boundary_fallback_inventory_probe.sh`
+  - `tools/dev/phase29ck_boundary_explicit_compat_probe.sh`
   - `phase29ck_boundary_*` default/compat keep smokes
   - broken `NYASH_NY_LLVM_COMPILER` exact proofs for supported seeds
 
