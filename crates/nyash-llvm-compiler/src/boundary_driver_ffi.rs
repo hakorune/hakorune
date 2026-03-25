@@ -40,14 +40,12 @@ where
     F: FnOnce(CompileFn) -> Result<T>,
 {
     let lib = open_ffi_library()?;
-    let (compile_symbol, fallback_symbol) =
-        super::boundary_driver_defaults::boundary_compile_symbols(
-            std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
-            std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
-        );
+    let compile_symbol = super::boundary_driver_defaults::boundary_compile_symbol(
+        std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
+        std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
+    );
     let func: CompileFn = *lib
         .get(compile_symbol)
-        .or_else(|_| lib.get(fallback_symbol))
         .context("missing symbol hako_llvmc_compile_json{_pure_first}")?;
     action(func)
 }

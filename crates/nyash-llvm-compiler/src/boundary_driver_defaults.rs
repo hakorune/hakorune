@@ -71,23 +71,10 @@ pub(super) fn boundary_compile_symbol(
     }
 }
 
-pub(super) fn boundary_compile_symbols(
-    recipe: Option<&str>,
-    legacy_capi_pure: Option<&str>,
-) -> (&'static [u8], &'static [u8]) {
-    let preferred = boundary_compile_symbol(recipe, legacy_capi_pure);
-    let fallback = if preferred == COMPILE_SYMBOL_PURE_FIRST {
-        COMPILE_SYMBOL_DEFAULT
-    } else {
-        COMPILE_SYMBOL_PURE_FIRST
-    };
-    (preferred, fallback)
-}
-
 #[cfg(test)]
 mod tests {
     use super::{
-        boundary_compile_prefers_pure_first, boundary_compile_symbol, boundary_compile_symbols,
+        boundary_compile_prefers_pure_first, boundary_compile_symbol,
         ffi_library_default_candidates, ffi_library_filenames, COMPILE_SYMBOL_DEFAULT,
         COMPILE_SYMBOL_PURE_FIRST,
     };
@@ -141,14 +128,22 @@ mod tests {
     }
 
     #[test]
-    fn boundary_compile_symbols_pair_preferred_and_fallback() {
+    fn generic_compile_symbol_stays_keep_only() {
         assert_eq!(
-            boundary_compile_symbols(Some("pure-first"), None),
-            (COMPILE_SYMBOL_PURE_FIRST, COMPILE_SYMBOL_DEFAULT)
+            boundary_compile_symbol(None, None),
+            COMPILE_SYMBOL_PURE_FIRST
         );
         assert_eq!(
-            boundary_compile_symbols(Some("harness"), None),
-            (COMPILE_SYMBOL_DEFAULT, COMPILE_SYMBOL_PURE_FIRST)
+            boundary_compile_symbol(Some("pure-first"), None),
+            COMPILE_SYMBOL_PURE_FIRST
+        );
+        assert_eq!(
+            boundary_compile_symbol(None, Some("1")),
+            COMPILE_SYMBOL_PURE_FIRST
+        );
+        assert_eq!(
+            boundary_compile_symbol(Some("harness"), None),
+            COMPILE_SYMBOL_DEFAULT
         );
     }
 

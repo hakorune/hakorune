@@ -30,7 +30,8 @@ Related:
 - `W2c` generic export / historical alias keep-only sync is landed.
 - `W3a` `llvm_codegen.rs` normalization/default helper concentration is landed.
 - `W3b` `boundary_driver*.rs` thin-floor is landed.
-- current active pre-perf front is `W3c` generic compile symbol branch keep-only lock.
+- `W3c` generic compile symbol branch keep-only lock is landed.
+- current active pre-perf front is `W4` `llvmlite` demotion completion.
 - `perf/kilo` remains parked until `W3..W4` are also closed.
 
 ## Fixed Order
@@ -102,6 +103,9 @@ Related:
   - `W3b` is landed
   - `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs` now delegates compile symbol selection and FFI library candidate resolution into `crates/nyash-llvm-compiler/src/boundary_driver_defaults.rs`
   - the FFI file now reads more as call/link transport glue, while route-symbol and library-candidate truth is isolated for the final keep-only lock
+  - `W3c` is landed
+  - boundary driver now fails fast on the selected compile symbol instead of silently falling back from `hako_llvmc_compile_json_pure_first` to the generic export
+  - the generic `hako_llvmc_compile_json` branch is now explicit keep-only inside the Rust boundary driver, matching the already-landed C-side historical keep lock
 - split order:
   - `W3a` `llvm_codegen.rs` normalization/default helper concentration
   - `W3b` `boundary_driver*.rs` thin-floor
