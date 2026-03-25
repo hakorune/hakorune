@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
   - docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md
+  - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/stage2-string-route-split-plan.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
@@ -212,6 +213,9 @@ Related:
 - `hako_alloc` を policy/state owner に育てる。
 - actual allocator backend は metal keep に閉じる。
 - handle/GC/barrier の責務境界を allocator policy から切り離す。
+- current first landed owner shifts are:
+  - handle reuse policy vs slot-table body
+  - GC trigger threshold policy vs root-trace/metrics body
 
 ### Lane C: lowering/dispatch
 
@@ -238,13 +242,17 @@ Related:
 - boundary-default pure-first repair is landed, so `phase29ck_boundary` mainline acceptance no longer depends on a broken generic-symbol default.
 - `String concat route split` is landed.
 - `cold dynamic lane split` is landed, and the loader/provider bridge is now fenced behind an explicit cold lane reading.
-- next exact implementation slice is now `hako_alloc policy/state contract`.
+- `hako_alloc policy/state contract` is now landed as the allocator stop-line for:
+  - handle reuse policy
+  - GC trigger threshold policy
+  - reserved-only `RawBuf / Layout / MaybeInit`
+- next exact implementation slice is now `plugin route-manifest hardening`.
 
 ## Stop Line For The Next Wave
 
-- the next code wave is `hako_alloc policy/state contract` only
-- do not mix `FastLeafManifest` widening or plugin route-manifest hardening into that wave
-- do not reopen `RuntimeDataBox` cold facade or `HostFacade/provider/plugin loader` in the same series
+- the next code wave is `plugin route-manifest hardening` only
+- do not mix `FastLeafManifest` widening or allocator migration into that wave
+- do not reopen `RuntimeDataBox` cold facade or `hako_alloc` policy/state splits in the same series
 - `llvmlite` keep lane follows shared contract only and must not force a wider mainline route shape
 - perf re-baseline happens after each accepted code wave; route-table edits and perf retuning do not land in the same commit
 

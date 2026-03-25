@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use super::gc::{BarrierKind, GcHooks};
 use super::gc_mode::GcMode;
-use crate::config::env;
+use super::gc_trigger_policy::GcTriggerPolicy;
 use crate::runtime::gc_trace;
 use crate::runtime::get_global_ring0;
 use std::collections::{HashSet, VecDeque};
@@ -27,8 +27,7 @@ pub struct GcController {
     alloc_count: AtomicU64,
     sp_since_last: AtomicU64,
     bytes_since_last: AtomicU64,
-    collect_sp_interval: Option<u64>,
-    collect_alloc_bytes: Option<u64>,
+    trigger_policy: GcTriggerPolicy,
     // Diagnostics: last trial reachability counters
     trial_nodes_last: AtomicU64,
     trial_edges_last: AtomicU64,
@@ -42,8 +41,6 @@ pub struct GcController {
 
 impl GcController {
     pub fn new(mode: GcMode) -> Self {
-        let collect_sp_interval = env::gc_collect_sp_interval();
-        let collect_alloc_bytes = env::gc_collect_alloc_bytes();
         let controller = Self {
             mode,
             safepoints: AtomicU64::new(0),
@@ -53,8 +50,7 @@ impl GcController {
             alloc_count: AtomicU64::new(0),
             sp_since_last: AtomicU64::new(0),
             bytes_since_last: AtomicU64::new(0),
-            collect_sp_interval,
-            collect_alloc_bytes,
+            trigger_policy: GcTriggerPolicy::from_env(),
             trial_nodes_last: AtomicU64::new(0),
             trial_edges_last: AtomicU64::new(0),
             collect_count_total: AtomicU64::new(0),
@@ -87,28 +83,18 @@ impl GcHooks for GcController {
         if self.mode != GcMode::Off {
             self.safepoints.fetch_add(1, Ordering::Relaxed);
             let sp = self.sp_since_last.fetch_add(1, Ordering::Relaxed) + 1;
-            // Opportunistic collection trigger
             let sp_hit = self
-                .collect_sp_interval
-                .map(|n| n > 0 && sp >= n)
-                .unwrap_or(false);
-            let bytes = self.bytes_since_last.load(Ordering::Relaxed);
-            let bytes_hit = self
-                .collect_alloc_bytes
-                .map(|n| n > 0 && bytes >= n)
-                .unwrap_or(false);
-            if sp_hit || bytes_hit {
-                // Record reason flags for diagnostics
-                let mut flags: u64 = 0;
-                if sp_hit {
-                    flags |= 1;
+                .trigger_policy
+                .decide(sp, self.bytes_since_last.load(Ordering::Relaxed));
+            if let Some(decision) = sp_hit {
+                if decision.triggered_by_safepoint() {
                     self.collect_by_sp.fetch_add(1, Ordering::Relaxed);
                 }
-                if bytes_hit {
-                    flags |= 2;
+                if decision.triggered_by_alloc() {
                     self.collect_by_alloc.fetch_add(1, Ordering::Relaxed);
                 }
-                self.trial_reason_last.store(flags, Ordering::Relaxed);
+                self.trial_reason_last
+                    .store(decision.reason_bits(), Ordering::Relaxed);
                 self.run_trial_collection();
             }
         }

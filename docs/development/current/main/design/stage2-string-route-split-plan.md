@@ -108,7 +108,8 @@ Status: landed.
 
 - `S1 search/slice` と `S2 concat` を同じ patch series に混ぜない。
 - `phase29ck boundary default pure-first` repair is already landed; do not reopen recipe/symbol transport in `S2` unless a fresh exact blocker proves it.
-- `S2 concat` と `cold dynamic lane split` は landed 済みで、next exact bucket is `hako_alloc policy/state contract`.
+- `S2 concat` と `cold dynamic lane split` は landed 済みで、`hako_alloc policy/state contract` も landed stop-line に達した。
+- next exact bucket is `plugin route-manifest hardening`.
 - `String` wave を reopen するときは fresh blocker/evidence がある場合だけにする。
 - `llvmlite` keep lane の都合で `ny-llvm` hot-path route を重くしない。
 - `FastLeafManifest` V0 はこの 2 wave では widen しない。widen 判断は allocator/state stop-line が固まった後に別 wave で行う。

@@ -13,87 +13,9 @@ use std::sync::{
     Arc,
 };
 
+use super::host_handles_policy;
 use crate::box_trait::NyashBox;
 use crate::config::env::HostHandleAllocPolicyMode;
-
-trait HostHandleAllocPolicy {
-    fn take_reusable_handle(free: &mut Vec<u64>) -> Option<u64>;
-    fn issue_fresh_handle(next: &mut u64) -> u64;
-    fn recycle_handle(free: &mut Vec<u64>, handle: u64);
-}
-
-struct DefaultHostHandleAllocPolicy;
-
-impl HostHandleAllocPolicy for DefaultHostHandleAllocPolicy {
-    #[inline(always)]
-    fn take_reusable_handle(free: &mut Vec<u64>) -> Option<u64> {
-        free.pop()
-    }
-
-    #[inline(always)]
-    fn issue_fresh_handle(next: &mut u64) -> u64 {
-        let handle = *next;
-        *next = next
-            .checked_add(1)
-            .expect("[host_handles] fresh handle counter overflow");
-        handle
-    }
-
-    #[inline(always)]
-    fn recycle_handle(free: &mut Vec<u64>, handle: u64) {
-        free.push(handle);
-    }
-}
-
-struct NoReuseHostHandleAllocPolicy;
-
-impl HostHandleAllocPolicy for NoReuseHostHandleAllocPolicy {
-    #[inline(always)]
-    fn take_reusable_handle(_free: &mut Vec<u64>) -> Option<u64> {
-        None
-    }
-
-    #[inline(always)]
-    fn issue_fresh_handle(next: &mut u64) -> u64 {
-        DefaultHostHandleAllocPolicy::issue_fresh_handle(next)
-    }
-
-    #[inline(always)]
-    fn recycle_handle(_free: &mut Vec<u64>, _handle: u64) {}
-}
-
-#[inline(always)]
-fn active_host_handle_alloc_policy_mode() -> HostHandleAllocPolicyMode {
-    crate::config::env::host_handle_alloc_policy_mode()
-}
-
-#[inline(always)]
-fn take_reusable_handle(mode: HostHandleAllocPolicyMode, free: &mut Vec<u64>) -> Option<u64> {
-    match mode {
-        HostHandleAllocPolicyMode::Lifo => DefaultHostHandleAllocPolicy::take_reusable_handle(free),
-        HostHandleAllocPolicyMode::None => NoReuseHostHandleAllocPolicy::take_reusable_handle(free),
-    }
-}
-
-#[inline(always)]
-fn issue_fresh_handle(mode: HostHandleAllocPolicyMode, next: &mut u64) -> u64 {
-    match mode {
-        HostHandleAllocPolicyMode::Lifo => DefaultHostHandleAllocPolicy::issue_fresh_handle(next),
-        HostHandleAllocPolicyMode::None => NoReuseHostHandleAllocPolicy::issue_fresh_handle(next),
-    }
-}
-
-#[inline(always)]
-fn recycle_handle(mode: HostHandleAllocPolicyMode, free: &mut Vec<u64>, handle: u64) {
-    match mode {
-        HostHandleAllocPolicyMode::Lifo => {
-            DefaultHostHandleAllocPolicy::recycle_handle(free, handle)
-        }
-        HostHandleAllocPolicyMode::None => {
-            NoReuseHostHandleAllocPolicy::recycle_handle(free, handle)
-        }
-    }
-}
 
 struct SlotTable {
     // Fresh handle counter. Updated only under table write lock.
@@ -162,7 +84,7 @@ fn ensure_slot_vacant_or_panic(
 impl Registry {
     fn new() -> Self {
         #[cfg(not(test))]
-        let alloc_policy_mode = active_host_handle_alloc_policy_mode();
+        let alloc_policy_mode = host_handles_policy::active_host_handle_alloc_policy_mode();
         // Perf lane notes:
         // string-heavy kernels allocate/drop many transient handles.
         // Start denser to reduce growth realloc spikes on hot paths.
@@ -184,7 +106,7 @@ impl Registry {
     fn alloc_policy_mode(&self) -> HostHandleAllocPolicyMode {
         #[cfg(test)]
         {
-            active_host_handle_alloc_policy_mode()
+            host_handles_policy::active_host_handle_alloc_policy_mode()
         }
         #[cfg(not(test))]
         {
@@ -195,7 +117,7 @@ impl Registry {
     fn alloc(&self, obj: Arc<dyn NyashBox>) -> u64 {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
-        if let Some(h) = take_reusable_handle(policy_mode, &mut table.free) {
+        if let Some(h) = host_handles_policy::take_reusable_handle(policy_mode, &mut table.free) {
             let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
             ensure_slot_vacant_or_panic(
                 &table,
@@ -207,7 +129,7 @@ impl Registry {
             return h;
         }
 
-        let h = issue_fresh_handle(policy_mode, &mut table.next);
+        let h = host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next);
         let idx = handle_index_or_panic(h, "[host_handles] fresh handle overflow");
         if idx == table.slots.len() {
             table.slots.push(Some(obj));
@@ -323,7 +245,7 @@ impl Registry {
             false
         };
         if removed {
-            recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
+            host_handles_policy::recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
             self.drop_epoch.fetch_add(1, Ordering::Relaxed);
         }
     }

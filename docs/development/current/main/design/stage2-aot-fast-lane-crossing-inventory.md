@@ -93,9 +93,9 @@ Related:
    - `llvmlite` keep acceptance:
      - explicit compat/probe route still replays the cold lane when selected
 4. `hako_alloc` policy/state contract
-   - keep allocator metal in native keep and narrow the `.hako` policy rows
-   - `ny-llvm` mainline acceptance:
-     - policy/state rows are fixed without widening the metal boundary
+  - keep allocator metal in native keep and narrow the `.hako` policy rows
+  - `ny-llvm` mainline acceptance:
+    - policy/state rows are fixed without widening the metal boundary
    - `llvmlite` keep acceptance:
      - allocator/handle shared contract remains stable
 
@@ -114,18 +114,17 @@ Related:
 - [`lang/src/hako_alloc/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/hako_alloc/README.md) fixes `hako_alloc` as alloc/policy anchor, not allocator metal.
 - [`src/runtime/host_handles.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/host_handles.rs) is the current handle registry body.
 - [`src/runtime/gc.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/gc.rs) and [`src/runtime/gc_controller.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/gc_controller.rs) are current GC metal owners.
+- [`hako-alloc-policy-state-contract-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md) now fixes the first concrete allocator policy/state rows.
 - [`lang/c-abi/shims/hako_diag_mem_shared_impl.inc`](/home/tomoaki/git/hakorune-selfhost/lang/c-abi/shims/hako_diag_mem_shared_impl.inc) and [`lang/c-abi/shims/hako_kernel.c`](/home/tomoaki/git/hakorune-selfhost/lang/c-abi/shims/hako_kernel.c) hold actual mem/TLS/barrier C ABI rows.
 
 ### Remaining missing contracts
 
-- There is no single allocator-state manifest/SSOT that ties:
+- Reserved-only future rows are still not live:
   - `RawBuf`
   - `Layout`
   - `MaybeInit`
   - size/bin/reclaim/locality policy
-  into one planning surface.
-- `atomic/tls/gc` truthful first rows exist, but not as a unified fast-lane contract.
-- current value/ABI manifest does not yet carry fast-lane metadata such as `may_alloc` / `may_barrier`.
+- `atomic/tls/gc` truthful first rows exist, but allocator/state migration stops before moving their metal body.
 
 ### Next exact implementation buckets
 
@@ -133,7 +132,9 @@ Related:
    - docs + contract first is landed
    - internal metadata rows are fixed there
 2. `hako_alloc policy/state contract`
-   - fix first-class policy/state rows
+   - landed stop-line:
+     - handle reuse policy vs slot-table body
+     - GC trigger threshold policy vs root-trace/metrics body
    - keep metal body native
 
 ## Bucket C: Dynamic Fallback Op
@@ -171,8 +172,8 @@ Related:
    - unify metadata / resolver / host_bridge contract
    - keep compat fallback off the hot lane
 3. `hako_alloc policy/state contract`
-   - stays next in the stage2 execution order
-   - do not mix plugin manifest hardening into the allocator wave
+   - landed stop-line for allocator series
+   - do not reopen it in the plugin wave unless a fresh blocker appears
 
 ## Fixed Execution Order
 
@@ -183,7 +184,8 @@ Related:
 5. `String search/slice route split` (landed)
 6. `String concat route split` (landed)
 7. `cold dynamic lane split` (landed)
-8. `hako_alloc` policy/state contract
+8. `hako_alloc` policy/state contract (landed stop-line)
+9. `plugin route-manifest hardening`
 
 ## Lane Rule
 
@@ -196,9 +198,9 @@ Related:
 
 ## Current Stop Line
 
-- next code wave is `hako_alloc policy/state contract` only
-- do not mix `plugin route-manifest hardening` into that wave
-- do not widen `FastLeafManifest` V0 in the same series as the allocator policy/state wave
+- next code wave is `plugin route-manifest hardening` only
+- do not mix allocator migration or `FastLeafManifest` widening into that wave
+- `RawBuf / Layout / MaybeInit` stay reserved-only after the allocator stop-line
 
 ## Non-Goals
 

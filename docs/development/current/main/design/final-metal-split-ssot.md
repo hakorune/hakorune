@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/gc-tls-atomic-capability-ssot.md
+  - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - lang/src/runtime/substrate/README.md
 ---
@@ -83,3 +84,7 @@ After this detail lock:
 
 1. `C5 Hakozuna portability layer` stays ladder-only and deferred
 2. implementation planning can choose one narrow owner-shift slice without re-deciding the final boundary
+3. current first landed policy/body splits are:
+   - handle reuse policy vs host handle slot-table body
+   - GC trigger threshold policy vs root-trace/metrics body
+4. next exact bucket is `plugin route-manifest hardening`

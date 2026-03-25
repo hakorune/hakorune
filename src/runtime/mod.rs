@@ -11,6 +11,7 @@ pub mod gc;
 pub mod gc_controller;
 pub mod gc_mode;
 pub mod gc_trace;
+mod gc_trigger_policy;
 pub mod global_hooks;
 pub mod leak_tracker;
 pub mod mirbuilder_emit;
@@ -33,6 +34,7 @@ pub mod unified_registry; // Deprecation warnings with warn-once guards
 pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub mod host_api; // C ABI: plugins -> host 逆呼び出しAPI（TLSでVMに橋渡し）
 pub mod host_handles; // C ABI(TLV) 向け HostHandle レジストリ（ユーザー/内蔵Box受け渡し）
+mod host_handles_policy;
 pub mod modules_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
 pub mod type_meta;

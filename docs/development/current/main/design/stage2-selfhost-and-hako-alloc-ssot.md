@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
+  - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - lang/README.md
   - lang/src/runtime/collections/README.md
@@ -98,6 +99,10 @@ Native keep remains below those layers:
   - daily/mainline AOT lane is `ny-llvm` / `ny-llvmc`
   - `llvmlite` remains stage0/compat/probe keep
   - this parent doc does not re-decide that route policy
+- `hako-alloc-policy-state-contract-ssot.md` owns the first concrete allocator policy/state rows:
+  - handle reuse policy
+  - GC trigger threshold policy
+  - stop-line for reserved-only `RawBuf / Layout / MaybeInit`
 - current `.hako` kernel migration work lives on the owner/substrate axis and is allowed to proceed before Stage2 distribution packaging is active.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.
 - `runtime/memory/**` is not the canonical home for alloc/policy helpers in the end-state layering.
