@@ -5,6 +5,8 @@ Date: 2026-03-25
 Scope: `stage2` hakorune の AOT/native fast-lane について、source layering を保ったまま execution layering だけを collapse する設計方向を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
+  - docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
@@ -188,10 +190,8 @@ Related:
 
 ### Lane A: collection/runtime hot path
 
-- exact crossing inventory を作る。
-  - `collection op`
-  - `allocator/handle op`
-  - `dynamic fallback op`
+- exact crossing inventory is now locked in
+  [`stage2-aot-fast-lane-crossing-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md).
 - `collections -> substrate -> native leaf` を 1 crossing に圧縮する。
 - `HostFacade/extern_provider/plugin loader` を collection hot path から退かせる。
 
@@ -214,6 +214,12 @@ Related:
   3. semantic-owner cost
   4. dynamic fallback cost
 - benchmark ladder 自体の運用は `perf-optimization-method-ssot.md` を正本にする。
+
+## Immediate Next Task
+
+- backend-private fast leaf contract is now locked in
+  [`stage2-fast-leaf-manifest-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md).
+- first implementation slice is now `Array hot path collapse`.
 
 ## Non-Goals
 
