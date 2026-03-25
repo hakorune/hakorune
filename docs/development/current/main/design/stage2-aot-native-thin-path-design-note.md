@@ -220,7 +220,8 @@ Related:
 - backend-private fast leaf contract is now locked in
   [`stage2-fast-leaf-manifest-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md).
 - `Array hot path collapse` is landed for the first AOT route-table slice.
-- next exact implementation slice is now `Map hot path collapse`.
+- `Map hot path collapse` is landed for the observer/raw route-table slice.
+- next exact implementation slice is now `String route split`.
 
 ## Non-Goals
 

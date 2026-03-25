@@ -62,6 +62,9 @@ Related:
 - landed Array slice:
   - explicit `ArrayBox.{len,get,set,push}` AOT route selection now lowers to `nyash.array.slot_len_h` / `slot_load_hi` / `set_hih|set_hii` / `slot_append_hh`
   - non-i64 array `get/set/has` stays on `nyash.runtime_data.*` facade as the current cold/compat contract
+- landed Map slice:
+  - explicit `MapBox.{size,len,length}` observer route now lowers to `nyash.map.entry_count_h`
+  - direct `MapBox.{get,set,has}` raw routes stay on `slot_load_hh` / `slot_store_hhh` / `probe_hh`
 - [`lang/src/vm/boxes/mir_call_v1_handler.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/mir_call_v1_handler.hako) still owns the generic VM adapter/router shape and state flags.
 - [`src/llvm_py/instructions/mir_call/method_call.py`](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/mir_call/method_call.py) still does layered route choice before reaching collection-specialized lowers.
 - [`src/llvm_py/instructions/mir_call/collection_method_call.py`](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/mir_call/collection_method_call.py) and [`src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/mir_call/runtime_data_dispatch.py) still mix specialization and fallback policy.
@@ -70,13 +73,13 @@ Related:
 
 ### Next exact implementation buckets
 
-1. `Map hot path collapse`
-   - same pattern as Array
-2. `String route split`
+1. `String route split`
    - keep `StringCoreBox` observer role
    - thin only the AOT string route tables and fallback bridge
-3. `cold dynamic lane split`
+2. `cold dynamic lane split`
    - keep collection hot path away from `HostFacade/provider/plugin loader`
+3. `hako_alloc` policy/state contract
+   - keep allocator metal in native keep and narrow the `.hako` policy rows
 
 ## Bucket B: Allocator / Handle Op
 
@@ -155,7 +158,7 @@ Related:
 1. this crossing inventory
 2. backend-private fast leaf manifest contract
 3. `Array hot path collapse` (landed)
-4. `Map hot path collapse`
+4. `Map hot path collapse` (landed)
 5. `String route split`
 6. `cold dynamic lane split`
 7. `hako_alloc` policy/state contract

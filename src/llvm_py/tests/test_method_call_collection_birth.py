@@ -91,6 +91,34 @@ class TestMethodCallCollectionBirth(unittest.TestCase):
         self.assertIn('@"nyash.array.slot_len_h"', ir_text, msg=ir_text)
         self.assertNotIn('@"nyash.any.length_h"', ir_text, msg=ir_text)
 
+    def test_mapbox_size_uses_entry_count_h_without_resolver_map_facts(self):
+        module = ir.Module(name="test_method_call_mapbox_size")
+        i64 = ir.IntType(64)
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        resolver = _ResolverStub(value_types={})
+        vmap = {1: ir.Constant(i64, 77)}
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name="MapBox",
+            method="size",
+            receiver=1,
+            args=[],
+            dst_vid=2,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[2])
+
+        ir_text = str(module)
+        self.assertIn('@"nyash.map.entry_count_h"', ir_text, msg=ir_text)
+        self.assertNotIn('@"nyash.any.length_h"', ir_text, msg=ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

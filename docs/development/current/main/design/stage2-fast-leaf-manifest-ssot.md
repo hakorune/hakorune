@@ -179,7 +179,9 @@ V0 defaults are fixed like this.
 1. `Array hot path collapse` (landed)
    - first code slice
    - V0 route-table use is fixed for `slot_len/load/append` and `set_hih|set_hii`
-2. `Map hot path collapse`
+2. `Map hot path collapse` (landed)
+   - observer route is fixed on `nyash.map.entry_count_h`
+   - raw `slot_load_hh` / `slot_store_hhh` / `probe_hh` stay the direct seam
 3. `String route split`
 4. widen fast-leaf eligibility only after those route tables are thin
 
@@ -189,7 +191,7 @@ V0 defaults are fixed like this.
 - inherited row truth still comes from [`abi-export-manifest-v0.toml`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-manifest-v0.toml)
 - V0 eligible rows are only Array/Map/String observer hot rows
 - cold dynamic lanes stay excluded
-- docs point to `Map hot path collapse` as the next exact code slice
+- docs point to `String route split` as the next exact code slice
 
 ## Non-Goals
 

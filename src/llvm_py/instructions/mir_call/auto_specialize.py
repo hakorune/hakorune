@@ -27,6 +27,12 @@ def _is_arraybox_value_type(value_type: Any) -> bool:
     return value_type.get("kind") == "handle" and value_type.get("box_type") == "ArrayBox"
 
 
+def _is_mapbox_value_type(value_type: Any) -> bool:
+    if not isinstance(value_type, dict):
+        return False
+    return value_type.get("kind") == "handle" and value_type.get("box_type") == "MapBox"
+
+
 def receiver_is_stringish(resolver: Any, receiver_vid: Optional[int]) -> bool:
     if resolver is None or receiver_vid is None:
         return False
@@ -77,6 +83,30 @@ def receiver_is_arrayish(resolver: Any, receiver_vid: Optional[int]) -> bool:
     return False
 
 
+def receiver_is_mapish(resolver: Any, receiver_vid: Optional[int]) -> bool:
+    if resolver is None or receiver_vid is None:
+        return False
+    try:
+        vid = int(receiver_vid)
+    except (TypeError, ValueError):
+        return False
+
+    try:
+        if hasattr(resolver, "is_mapish") and resolver.is_mapish(vid):
+            return True
+    except Exception:
+        pass
+
+    try:
+        value_types = getattr(resolver, "value_types", None)
+        if isinstance(value_types, dict) and _is_mapbox_value_type(value_types.get(vid)):
+            return True
+    except Exception:
+        pass
+
+    return False
+
+
 def prefer_string_len_h_route(
     method: Optional[str], args_count: int, resolver: Any, receiver_vid: Optional[int]
 ) -> bool:
@@ -95,6 +125,16 @@ def prefer_array_len_h_route(
     if args_count != 0:
         return False
     return receiver_is_arrayish(resolver, receiver_vid)
+
+
+def prefer_map_len_h_route(
+    method: Optional[str], args_count: int, resolver: Any, receiver_vid: Optional[int]
+) -> bool:
+    if not is_length_like_method(method):
+        return False
+    if args_count != 0:
+        return False
+    return receiver_is_mapish(resolver, receiver_vid)
 
 
 def prefer_runtime_data_array_route(

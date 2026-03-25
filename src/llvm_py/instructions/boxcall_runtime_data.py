@@ -13,6 +13,7 @@ from instructions.mir_call.auto_specialize import (
     prefer_runtime_data_array_i64_key_i64_value_route,
     prefer_runtime_data_array_i64_key_route,
     receiver_is_arrayish,
+    receiver_is_mapish,
     receiver_is_stringish,
 )
 from utils.resolver_helpers import get_box_type
@@ -35,12 +36,16 @@ def try_lower_collection_boxcall(
     recv_h = ensure_handle(recv_val)
 
     if method_name == "size":
+        known_box_name = get_box_type(resolver, box_vid)
         if receiver_is_stringish(resolver, box_vid):
             callee = declare(module, "nyash.string.len_h", i64, [i64])
             return builder.call(callee, [recv_h], name="string_size_h")
         if receiver_is_arrayish(resolver, box_vid):
             callee = declare(module, "nyash.array.slot_len_h", i64, [i64])
             return builder.call(callee, [recv_h], name="array_size_h")
+        if known_box_name == "MapBox" or receiver_is_mapish(resolver, box_vid):
+            callee = declare(module, "nyash.map.entry_count_h", i64, [i64])
+            return builder.call(callee, [recv_h], name="map_entry_count_h")
         callee = declare(module, "nyash.any.length_h", i64, [i64])
         return builder.call(callee, [recv_h], name="any_size_h")
 
