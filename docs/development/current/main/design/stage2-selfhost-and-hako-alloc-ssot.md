@@ -36,6 +36,7 @@ Related:
 1. `stage0`
    - Rust bootstrap keep
    - first-build / recovery / preservation lane
+   - includes the maintained `llvmlite` compat/probe keep for stage0/bootstrap preservation
 2. `stage1`
    - selfhost bridge line
    - current dev/stable snapshot artifacts live here
@@ -94,6 +95,8 @@ Native keep remains below those layers:
 - `stage2-aot-native-thin-path-design-note.md` owns the AOT fast-lane rule:
   - source layering stays
   - execution layering may collapse only inside `AOT/native`
+  - daily/mainline AOT lane is `ny-llvm` / `ny-llvmc`
+  - `llvmlite` remains stage0/compat/probe keep
   - this parent doc does not re-decide that route policy
 - current `.hako` kernel migration work lives on the owner/substrate axis and is allowed to proceed before Stage2 distribution packaging is active.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.

@@ -32,6 +32,10 @@ Related:
   - `.hako algorithm/capability substrate`
   - `native metal keep`
 - したがって、この inventory は「どこを `.hako` に移すか」ではなく、「どこを AOT hot path から外すか」を数える。
+- backend lane は dual-lane で読む。
+  - `ny-llvm` / `ny-llvmc` = daily/mainline AOT lane
+  - `llvmlite` = stage0/compat/probe keep
+- implementation bucket は `ny-llvm first` で切り、`llvmlite` は shared contract keep としてだけ追従確認する。
 - bucket は次の 3 本に固定する。
   1. `collection op`
   2. `allocator/handle op`
@@ -76,10 +80,24 @@ Related:
 1. `String route split`
    - keep `StringCoreBox` observer role
    - thin only the AOT string route tables and fallback bridge
+   - `ny-llvm` mainline acceptance:
+     - string observer/bulk route table is thinner
+     - `HostFacade/provider` stays off the hot path
+   - `llvmlite` keep acceptance:
+     - shared string observer/fallback contract stays intact
+     - no new performance obligation is added
 2. `cold dynamic lane split`
    - keep collection hot path away from `HostFacade/provider/plugin loader`
+   - `ny-llvm` mainline acceptance:
+     - hot collection/runtime paths do not enter loader/provider dispatch
+   - `llvmlite` keep acceptance:
+     - explicit compat/probe route still replays the cold lane when selected
 3. `hako_alloc` policy/state contract
    - keep allocator metal in native keep and narrow the `.hako` policy rows
+   - `ny-llvm` mainline acceptance:
+     - policy/state rows are fixed without widening the metal boundary
+   - `llvmlite` keep acceptance:
+     - allocator/handle shared contract remains stable
 
 ## Bucket B: Allocator / Handle Op
 
@@ -162,6 +180,15 @@ Related:
 5. `String route split`
 6. `cold dynamic lane split`
 7. `hako_alloc` policy/state contract
+
+## Lane Rule
+
+- `ny-llvm` is the only hot-path judge for stage2 implementation slices.
+- `llvmlite` stays maintained, but only as:
+  - stage0/bootstrap preservation lane
+  - explicit compat lane
+  - probe/canary lane
+- do not widen a code slice just to preserve `llvmlite` execution layering; if shared MIR / ABI / observer contract survives, the keep lane is considered intact.
 
 ## Non-Goals
 

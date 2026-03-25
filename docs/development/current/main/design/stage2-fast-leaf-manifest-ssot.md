@@ -37,6 +37,8 @@ Related:
 
 - `FastLeafManifest` は build artifact / backend-private table として扱う。
 - consumer は `AOT/native` lowering と backend route selection だけに限定する。
+- current daily/mainline consumer は `ny-llvm` / `ny-llvmc` だけに固定する。
+- `llvmlite` keep lane は consumer ではない。`FastLeafManifest` を理解する必要はなく、shared MIR / ABI / observer contract だけを維持すればよい。
 - `rust-vm` / generic host/provider dispatch / plugin reverse-call は consumer ではない。
 
 ## Row Shape
@@ -169,6 +171,7 @@ V0 defaults are fixed like this.
 
 ### Forbidden consumers
 
+- `llvmlite` harness / `src/llvm_py/**`
 - `HostFacade.call(...)`
 - plugin loader metadata/config truth
 - runtime generic extern/provider dispatch
@@ -191,6 +194,8 @@ V0 defaults are fixed like this.
 - inherited row truth still comes from [`abi-export-manifest-v0.toml`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-manifest-v0.toml)
 - V0 eligible rows are only Array/Map/String observer hot rows
 - cold dynamic lanes stay excluded
+- `ny-llvm` / `ny-llvmc` is the only fast-leaf consumer
+- `llvmlite` remains a keep lane outside the fast-leaf contract
 - docs point to `String route split` as the next exact code slice
 
 ## Non-Goals

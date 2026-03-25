@@ -52,13 +52,15 @@ Related:
    - 入口: `tools/perf/bench_compare_c_py_vs_hako_stable.sh`
    - 役割: C / Python / Hako / AOT の whole-program 差を見る
    - 使い方: `PERF_AOT_SKIP_BUILD=0` の fresh build を baseline にする
-   - route contract: AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`; `llvmlite` / `native` / harness は fail-fast
+  - route contract: AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`
+  - `llvmlite` / harness is a correctness/compat keep, not a perf baseline
+  - `native` direct keep lane is also outside the perf judge
 
 2. Micro ladder
    - 入口: `tools/perf/run_kilo_micro_machine_ladder.sh`
    - 役割: `indexof_line` / `substring_concat` / `array_getset` の leaf 密度を比較する
    - 使い方: `ratio_cycles` と `ratio_instr` を優先して順位を決める
-   - route contract: same as stable baseline; explicit keep lanes are not valid perf comparisons here
+  - route contract: same as stable baseline; explicit keep lanes are not valid perf comparisons here
 
 3. ASM probe
    - 入口: `tools/perf/bench_micro_aot_asm.sh`
@@ -108,6 +110,10 @@ Hotspot は次の分類で読む。
   - source owner/substrate layering そのもの
 - route collapse は perf lane の対象にしてよいが、source relayering は別 SSOT の責務だよ。
 - hot path が `HostFacade / extern_provider / plugin loader` に入るなら、それは perf miss として扱う。
+- dual-lane reading:
+  - `ny-llvm` / `ny-llvmc` = perf/mainline judge
+  - `llvmlite` = keep lane only
+  - keep lane breaks are correctness/compat issues, not performance evidence
 
 ## Stop Line
 
@@ -205,7 +211,8 @@ Hotspot は次の分類で読む。
 - hint を workaround として使うこと
 - Route contract for this wave:
   - perf AOT lane is `.hako -> ny-llvmc(boundary) -> C ABI`
-  - `llvmlite/native/harness` are invalid and must fail-fast
+  - `llvmlite/harness` are invalid as perf comparators but valid as explicit keep lanes
+  - `native` direct keep lane is also outside the perf judge
 - `kilo_micro_substring_concat`:
   - asm-guided slice first changed `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `8` to `0`, then contract-change follow-up restored eager materialize for `<= 8 bytes`
   - short `substring_hii` results now materialize under FAST lane, while mid slice still stays `StringViewBox`

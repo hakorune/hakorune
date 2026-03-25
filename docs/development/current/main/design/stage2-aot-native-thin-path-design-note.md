@@ -45,6 +45,14 @@ Related:
 - `rust-vm` は correctness / parity / blocker capture の reference lane として維持する。
 - したがって、設計判断は `AOT/native で per-call overhead を最小化できるか` を主基準にする。
 
+### Dual-lane policy
+
+- current backend reading is dual-lane で固定する。
+  - `ny-llvm` / `ny-llvmc` = daily/mainline AOT lane
+  - `llvmlite` = maintained stage0/compat/probe keep
+- `llvmlite` は retire 済みではないが、hot-path design owner でもない。
+- したがって、`llvmlite` が守るのは shared MIR / ABI / observer / fallback contract だけで、hot-path route collapse や perf decision は `ny-llvm first` で決める。
+
 ### Adopted direction
 
 - source layering は current repo の reading をそのまま採る。
@@ -112,6 +120,8 @@ Related:
   - `.hako substrate seam`
   - backend-private fast leaf
   - native metal keep
+- daily/mainline consumer は `ny-llvm(boundary/native)` だけだよ。
+- `llvmlite` は explicit keep lane として同じ source layering を読むが、execution collapse の主導権は持たない。
 - `rust-vm` / debug/reference lane は current layered route を維持してよい。
 - `HostFacade / extern_provider / plugin loader` は hot path owner ではなく、cold dynamic lane として扱う。
 
@@ -194,6 +204,7 @@ Related:
   [`stage2-aot-fast-lane-crossing-inventory.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md).
 - `collections -> substrate -> native leaf` を 1 crossing に圧縮する。
 - `HostFacade/extern_provider/plugin loader` を collection hot path から退かせる。
+- mainline acceptance is `ny-llvm` route collapse; `llvmlite` only confirms shared contract parity.
 
 ### Lane B: allocator/hakozuna
 
@@ -214,6 +225,7 @@ Related:
   3. semantic-owner cost
   4. dynamic fallback cost
 - benchmark ladder 自体の運用は `perf-optimization-method-ssot.md` を正本にする。
+- perf baseline/acceptance は `ny-llvm(boundary) -> C ABI` を主線に固定し、`llvmlite` は perf lane の judge に使わない。
 
 ## Immediate Next Task
 
