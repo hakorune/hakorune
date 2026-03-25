@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md
   - docs/development/current/main/phases/phase-29ck/P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md
+  - docs/development/current/main/phases/phase-29ck/P10-SMALL-PERF-REENTRY-TASK-PACK.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
@@ -29,33 +30,34 @@ Related:
 
 これらは boundary mainline / explicit compat keep の contract が pre-perf runway 後も崩れていないことを示す。
 
-### Reopen-blocking evidence
+### Reopen-closing evidence
 
 1. `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_compare_c_vs_hako.sh method_call_only_small 1 1`
-   - current result: `status=skip`
-   - current reason: `build_failed_after_helper_retry`
+   - current result: `aot_status=ok`
+   - current reason: `ok`
 2. `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_loop_integer_hotspot_contract_vm.sh`
-   - current first fail: `method_call_only`
-   - current fail text: `unsupported pure shape for current backend recipe`
+   - green
+3. `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_strlen_ir_contract_vm.sh`
+   - green
+4. `bash tools/checks/dev_gate.sh quick`
+   - green
 
-両方とも `method_call_only` family で止まっている。これは `kilo` retune の blocker ではなく、perf-entry boundary acceptance の blocker と読む。
+`method_call_only` family の boundary acceptance blocker は retired と読む。
 
 ## Judgment
 
-- `perf/kilo` reopen は **まだ行わない**。
-- current decision is `no reopen now`.
+- `perf/kilo` lane は **reopen 可能**。
+- current decision is `reopen allowed`.
 - `llvmlite` / harness は引き続き perf judge の外側に置く。
 - `phase21_5` chip8 quick smoke は monitor-only AOT keep のままとする。
 
 ## Next Exact Adjacent Front
 
-- next exact front is `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md`.
-- この front の owner は `phase-29ck` backend-zero boundary side に置く。
-- まずやることは narrow inventory だけ:
-  1. `method_call_only_small.prebuilt.mir.json`
-  2. `bench_method_call_only.hako` から emit される MIR
-  3. `bench_box_create_destroy.hako` control
-- ここで pure-first acceptance の missing shape を 1 family に絞る。
+- next exact front is `P10-SMALL-PERF-REENTRY-TASK-PACK.md`.
+- this front starts from `small` entry baselines only:
+  1. `method_call_only_small`
+  2. `box_create_destroy_small`
+- medium/full `kilo` widening はこの small front の後に判断する。
 
 ## Non-Goals
 
@@ -66,10 +68,12 @@ Related:
 
 ## Reopen Condition
 
-`perf/kilo` を reopen してよいのは次を満たした時だけだよ。
+`perf/kilo` reopen condition は次で満たされたよ。
 
 1. `bench_compare_c_vs_hako.sh method_call_only_small 1 1` が `aot_status=ok`
 2. `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` が green
-3. 上の 2 件が boundary mainline (`.hako -> ny-llvmc(boundary) -> C ABI`) で通る
+3. `phase21_5_perf_strlen_ir_contract_vm.sh` が green
+4. 上の 3 件が boundary mainline (`.hako -> ny-llvmc(boundary) -> C ABI`) で通る
 
-この 3 件が揃うまでは、perf lane は parked のまま据え置く。
+current stop line:
+- reopen は allowed だが、first lane は `P10` small re-entry に固定する。

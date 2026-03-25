@@ -28,16 +28,17 @@ Related:
 
 ## Current Scheduling Status
 
-- `phase-21_5` perf reopen judgment is now landed with `no reopen now`.
+- `phase-21_5` perf reopen judgment is now landed with `reopen allowed`.
 - reopen order is fixed like this:
   1. confirm the pre-perf runway in `phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md` is closed
   2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary) -> C ABI`
   3. land the explicit `perf/kilo` reopen judgment
   4. if that judgment is green, reopen `kilo` / `micro kilo`
-- current `P8` evidence blocks reopen:
-  - `bench_compare_c_vs_hako.sh method_call_only_small 1 1` returns `aot_status=skip`, `reason=build_failed_after_helper_retry`
-  - `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` first fails on `method_call_only` with `unsupported pure shape for current backend recipe`
-- therefore the perf lane stays parked, and the next exact adjacent front is `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md` on the boundary side.
+- current `P8/P9` evidence now allows reopen:
+  - `bench_compare_c_vs_hako.sh method_call_only_small 1 1` returns `aot_status=ok`
+  - `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` is green
+  - `phase21_5_perf_strlen_ir_contract_vm.sh` is green
+- therefore the perf lane may reopen, and the next exact adjacent front is `P10-SMALL-PERF-REENTRY-TASK-PACK.md`.
 - `llvmlite` / harness stays outside the perf judge even when the lane reopens.
 - until that reopen happens, the quick chip8 crosslang smoke is monitor-only for AOT:
   - keep `[bench4]` / `[bench4-route]` shape and timing keys pinned
@@ -152,7 +153,7 @@ Hotspot は次の分類で読む。
 - `llvmlite` remains outside the perf judge even when stage2 String waves are active.
 - current scheduling consequence:
   - if `phase-29ck` reopens a new exact `ny-llvm` front, do not reopen this perf lane yet
-  - current preferred next owner is the `method_call_only` perf-entry inventory from `P9`, not an immediate `kilo` retune
+  - current preferred next owner is the small-entry re-entry pack from `P10`, not an immediate medium/full `kilo` retune
 
 ## Stop Line
 

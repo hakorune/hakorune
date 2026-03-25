@@ -341,12 +341,12 @@ Related:
 ## Immediate Next
 
 1. `method_call_only` perf-entry inventory
-   - `P8-PERF-REOPEN-JUDGMENT.md` is landed with `no reopen now`
-   - `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md` now fixes the narrow next front
-   - current reopen blockers are:
-     - `bench_compare_c_vs_hako.sh method_call_only_small 1 1` -> `aot_status=skip`, `reason=build_failed_after_helper_retry`
-     - `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` -> `method_call_only` fails with `unsupported pure shape for current backend recipe`
-   - next exact front is not `kilo` retune; it is a narrow boundary acceptance inventory for the `method_call_only` family
+   - `P8-PERF-REOPEN-JUDGMENT.md` is now green with `reopen allowed`
+   - `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md` is closed
+   - `method_call_only_small` bench compare is `aot_status=ok`
+   - `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` is green
+   - `phase21_5_perf_strlen_ir_contract_vm.sh` is green
+   - next exact front is `P10-SMALL-PERF-REENTRY-TASK-PACK.md`, not immediate medium/full `kilo`
    - `llvmlite` / harness stays outside the perf baseline
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`
@@ -381,10 +381,10 @@ Related:
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
 9. `phase-21_5` perf/kilo reopen
-   - pre-perf runway is closed, but `P8` landed `no reopen now`
+   - pre-perf runway is closed, and `P8` now allows reopen
    - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
    - `llvmlite` / harness stays outside the perf baseline
-   - reopen only after the `method_call_only` perf-entry blockers are retired
+   - first reopened lane is `P10` small-entry only
 10. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance

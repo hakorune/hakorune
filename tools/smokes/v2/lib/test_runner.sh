@@ -1570,6 +1570,24 @@ extract_builder_mir_from_stdout_file() {
     awk '/\[MIR_BEGIN\]/{flag=1;next}/\[MIR_END\]/{flag=0}flag' "$tmp_stdout"
 }
 
+extract_ir_entry_function() {
+    local ir_path="$1"
+    local out_path="$2"
+
+    if [ -z "$ir_path" ] || [ -z "$out_path" ] || [ ! -f "$ir_path" ]; then
+        return 1
+    fi
+
+    awk '
+      /^define .*@"main"\(/ { in_entry=1 }
+      /^define .*@"ny_main"\(/ { in_entry=1 }
+      in_entry { print }
+      in_entry && /^}$/ { exit }
+    ' "$ir_path" >"$out_path"
+
+    grep -Eq '^define .*@"(main|ny_main)"' "$out_path"
+}
+
 stdout_file_has_tag_match() {
     local grep_mode="$1"
     local expected_tag_pattern="$2"

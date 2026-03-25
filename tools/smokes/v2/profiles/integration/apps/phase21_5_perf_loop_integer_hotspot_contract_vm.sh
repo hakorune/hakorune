@@ -72,14 +72,8 @@ run_case() {
     return 1
   fi
 
-  awk '
-    /^define .*@"main"\(/ { in_main=1 }
-    in_main { print }
-    in_main && /^}$/ { exit }
-  ' "$tmp_ir" >"$tmp_main"
-
-  if ! grep -q '^define .*@"main"' "$tmp_main"; then
-    test_fail "$SMOKE_NAME($case_name): main function not found in dumped IR"
+  if ! extract_ir_entry_function "$tmp_ir" "$tmp_main"; then
+    test_fail "$SMOKE_NAME($case_name): entry function not found in dumped IR"
     return 1
   fi
 

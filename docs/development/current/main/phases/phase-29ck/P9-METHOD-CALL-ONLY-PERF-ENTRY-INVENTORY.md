@@ -1,11 +1,12 @@
 ---
-Status: Task Pack
+Status: Closed Inventory
 Decision: accepted
 Date: 2026-03-26
 Scope: `phase-21_5` / `kilo` reopen blocker のうち `method_call_only` family だけを narrow inventory として固定し、next exact code bucket を 1 family に絞る。
 Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P8-PERF-REOPEN-JUDGMENT.md
+  - docs/development/current/main/phases/phase-29ck/P10-SMALL-PERF-REENTRY-TASK-PACK.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/backend-recipe-route-profile-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -36,22 +37,22 @@ Related:
 1. emitted control bench
    - `benchmarks/bench_box_create_destroy.hako`
 
-## Current Evidence
+## Closed Evidence
 
 1. `PERF_AOT=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/perf/bench_compare_c_vs_hako.sh method_call_only_small 1 1`
-   - current result: `status=skip`
-   - current reason: `build_failed_after_helper_retry`
+   - current result: `aot_status=ok`
 2. `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_loop_integer_hotspot_contract_vm.sh`
-   - current first fail: `method_call_only`
-   - current fail text: `unsupported pure shape for current backend recipe`
-3. boundary controls remain green
+   - green
+3. `bash tools/smokes/v2/profiles/integration/apps/phase21_5_perf_strlen_ir_contract_vm.sh`
+   - green
+4. boundary controls remain green
    - `phase29ck_boundary_pure_first_min.sh`
    - `phase29ck_boundary_compat_keep_min.sh`
    - `phase29ck_llvm_backend_box_capi_link_min.sh`
 
 読み:
-- blocker は perf tuning ではなく boundary-side acceptance coverage にある。
-- next exact question is not “which asm leaf is hot?” but “which `method_call_only` shape is still outside pure-first acceptance?”
+- blocker は perf tuning ではなく boundary-side acceptance coverage にあった。
+- prebuilt / emitted full / emitted small / control の current `method_call_only` family は pure-first acceptance に収まった。
 
 ## Inventory Questions
 
@@ -82,16 +83,14 @@ Related:
 ## Acceptance For This Inventory
 
 - the repo docs can name the exact `method_call_only` inputs and the control
-- the next exact code bucket is narrowed to one family
-- the next code bucket does not reopen perf retune automatically
+- prebuilt / emitted full / emitted small / control are all reproducible
+- next exact code bucket moves to `P10` small perf re-entry
 
 ## Exit Condition
 
-この inventory が閉じたら、次の code bucket は 1 本に固定する。
+この inventory は close したよ。
 
-- either:
-  - new narrow `.hako`/boundary evidence row
-- or:
-  - narrow pure-first support widening for the `method_call_only` family
-
-どちらにしても `box_create_destroy` や unrelated perf leaves は混ぜない。
+- next exact code bucket:
+  - `P10-SMALL-PERF-REENTRY-TASK-PACK.md`
+- `box_create_destroy` は control のまま据え置く
+- unrelated perf leaves は引き続き混ぜない

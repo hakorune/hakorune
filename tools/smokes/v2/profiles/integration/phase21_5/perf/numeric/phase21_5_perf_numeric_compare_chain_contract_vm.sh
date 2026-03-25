@@ -68,14 +68,8 @@ if [ ! -s "$TMP_IR" ]; then
   exit 1
 fi
 
-awk '
-  /^define .*@"main"\(/ { in_main=1 }
-  in_main { print }
-  in_main && /^}$/ { exit }
-' "$TMP_IR" >"$TMP_MAIN"
-
-if ! grep -q '^define .*@"main"' "$TMP_MAIN"; then
-  test_fail "$SMOKE_NAME: main function not found in dumped IR"
+if ! extract_ir_entry_function "$TMP_IR" "$TMP_MAIN"; then
+  test_fail "$SMOKE_NAME: entry function not found in dumped IR"
   exit 1
 fi
 
