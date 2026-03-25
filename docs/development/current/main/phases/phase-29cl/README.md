@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-29ce/README.md
   - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
   - docs/development/current/main/phases/phase-29cl/P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md
+  - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -163,10 +164,10 @@ Rule:
    - `hako_forward_bridge.rs` / `hako_forward.rs` / `hako_forward_registry.c` / `hako_forward_registry_shared_impl.inc` / `hako_kernel.c` stay explicit compat-only
    - reopen only on fresh live caller proof or duplicate-owner regression
    - closeout owner: `P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md`
-4. current exact front is `BYN-min5` hard-retire readiness judgment only when its entry conditions are met
+4. current exact front is `BYN-min5` readiness inventory
    - no daily caller may remain
    - no compiled-stage1 proof owner may still be required
-   - do not start `BYN-min5` early just because `BYN-min3/4` are closed
+   - current inventory still has both kinds of keeps, so hard-retire judgment is not yet open
 5. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 6. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 7. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears

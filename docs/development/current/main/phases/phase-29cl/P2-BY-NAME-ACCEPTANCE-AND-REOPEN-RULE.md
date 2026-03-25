@@ -5,6 +5,7 @@ Date: 2026-03-15
 Scope: by-name retirement で delete/cutover を進める前の acceptance と reopen rule を固定する。
 Related:
   - docs/development/current/main/phases/phase-29cl/P1-BY-NAME-CUTOVER-ORDER.md
+  - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
 ---

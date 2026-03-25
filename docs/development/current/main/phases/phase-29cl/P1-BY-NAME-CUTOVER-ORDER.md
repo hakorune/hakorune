@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P0-BY-NAME-OWNER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
   - docs/development/current/main/phases/phase-29cl/P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md
+  - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
 ---
