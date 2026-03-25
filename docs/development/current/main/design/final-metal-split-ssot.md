@@ -87,4 +87,4 @@ After this detail lock:
 3. current first landed policy/body splits are:
    - handle reuse policy vs host handle slot-table body
    - GC trigger threshold policy vs root-trace/metrics body
-4. `plugin route-manifest hardening` is landed; next exact bucket is `FastLeafManifest widen judgment`
+4. `plugin route-manifest hardening` is landed; `FastLeafManifest widen judgment` is also landed with `no widen now`

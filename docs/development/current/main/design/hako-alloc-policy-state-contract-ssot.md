@@ -95,5 +95,6 @@ These remain docs/root-reserved only in this wave.
 ## Follow-Up
 
 - `plugin route-manifest hardening` is landed
-- next exact bucket is `FastLeafManifest widen judgment`
+- `FastLeafManifest widen judgment` is landed with `no widen now`
+- there is no active stage2 code bucket until a concrete backend-private consumer patch appears
 - `RawBuf / Layout / MaybeInit` live migration is a later allocator wave

@@ -174,9 +174,9 @@ Related:
 3. `hako_alloc policy/state contract`
    - landed stop-line for allocator series
    - do not reopen it in the plugin wave unless a fresh blocker appears
-4. `FastLeafManifest widen judgment`
-   - only after plugin route hardening is landed
-   - widen remains a separate wave
+4. `FastLeafManifest widen judgment` (landed)
+   - result: keep V0 narrow
+   - there is no active widen code wave until a concrete consumer patch appears
 
 ## Fixed Execution Order
 
@@ -189,7 +189,7 @@ Related:
 7. `cold dynamic lane split` (landed)
 8. `hako_alloc` policy/state contract (landed stop-line)
 9. `plugin route-manifest hardening` (landed)
-10. `FastLeafManifest widen judgment`
+10. `FastLeafManifest widen judgment` (landed / no widen now)
 
 ## Lane Rule
 
@@ -202,8 +202,8 @@ Related:
 
 ## Current Stop Line
 
-- next code wave is `FastLeafManifest widen judgment` only
-- do not mix allocator migration or plugin route hardening reopen into that wave
+- there is no active stage2 code wave after the widen judgment
+- reopen only when a concrete `ny-llvm` / `ny-llvmc` consumer patch needs new rows
 - `RawBuf / Layout / MaybeInit` stay reserved-only after the allocator stop-line
 
 ## Non-Goals

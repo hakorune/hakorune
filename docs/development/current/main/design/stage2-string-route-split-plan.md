@@ -110,7 +110,8 @@ Status: landed.
 - `phase29ck boundary default pure-first` repair is already landed; do not reopen recipe/symbol transport in `S2` unless a fresh exact blocker proves it.
 - `S2 concat` と `cold dynamic lane split` は landed 済みで、`hako_alloc policy/state contract` も landed stop-line に達した。
 - `plugin route-manifest hardening` is landed.
-- next exact bucket is `FastLeafManifest widen judgment`.
+- `FastLeafManifest widen judgment` is landed with `no widen now`.
+- there is no active String-adjacent widen code wave until a concrete `ny-llvm` / `ny-llvmc` consumer patch exists.
 - `String` wave を reopen するときは fresh blocker/evidence がある場合だけにする。
 - `llvmlite` keep lane の都合で `ny-llvm` hot-path route を重くしない。
-- `FastLeafManifest` V0 はこの 2 wave では widen しない。widen 判断は allocator/state stop-line が固まった後に別 wave で行う。
+- `FastLeafManifest` V0 is kept narrow. `search/slice` と `concat` は既存 route-specific owner のまま維持する。

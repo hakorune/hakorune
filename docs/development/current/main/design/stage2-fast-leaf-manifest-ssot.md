@@ -160,7 +160,26 @@ V0 defaults are fixed like this.
 | `MapBox.has` | `handle_any` | `0` | `0` | `generic_box_call` |
 | `StringBox.len/length/size` | `handle_any` | `0` | `0` | `none` |
 
-`String concat/substring/search` は V0 対象外。`String` 2-wave と `cold dynamic lane split`、`hako_alloc policy/state contract`、`plugin route-manifest hardening` は landed 済みで、widen 判断は次の dedicated wave に保留する。
+`String concat/substring/search` は V0 対象外。`String` 2-wave と `cold dynamic lane split`、`hako_alloc policy/state contract`、`plugin route-manifest hardening` は landed 済みで、widen judgment の結論は `no widen now` に固定する。
+
+## Widen Judgment
+
+Current decision is fixed like this.
+
+- `safe-now`
+  - none
+- `hold`
+  - `String search/slice`
+  - `String concat`
+- `reject`
+  - cold dynamic / plugin lane
+  - generic `RuntimeDataBox` facade rows
+
+Reasoning is fixed like this.
+
+- there is still no live `FastLeafManifest` consumer patch under `ny-llvm` / `ny-llvmc`
+- `String search/slice` and `String concat` already have route-specific owners and tests, so widening here would duplicate ownership before a consumer exists
+- cold/plugin/runtime-data rows would widen beyond the narrow V0 contract and would violate the explicit cold-lane boundary
 
 ## Consumer Rule
 
@@ -191,7 +210,9 @@ V0 defaults are fixed like this.
 5. `cold dynamic lane split` (landed)
 6. `hako_alloc policy/state contract` (landed)
 7. `plugin route-manifest hardening` (landed)
-8. widen fast-leaf eligibility only after plugin metadata/route hardening is fixed
+8. `FastLeafManifest widen judgment` (landed)
+   - result: `no widen now`
+   - reopen only when a concrete `ny-llvm` / `ny-llvmc` consumer patch exists
 
 ## Acceptance
 
@@ -201,7 +222,7 @@ V0 defaults are fixed like this.
 - cold dynamic lanes stay excluded
 - `ny-llvm` / `ny-llvmc` is the only fast-leaf consumer
 - `llvmlite` remains a keep lane outside the fast-leaf contract
-- docs point to `FastLeafManifest widen judgment` as the next exact code slice
+- docs point to `no widen now` as the current judgment and `no exact stage2 code slice` until a real consumer patch exists
 
 ## Non-Goals
 
