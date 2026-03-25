@@ -23,8 +23,9 @@ Related:
    - move visible backend daily callers off module-string `by_name`
    - launcher `build exe` source lane is now cut over off explicit `invoke_by_name_i64`; module-string backend literals are still acceptable while direct-known-box lowering keeps them off the generic by-name tail
    - next owner is compiled-stage1 surrogate shrink, not another visible launcher caller rewrite
-3. `BYN-min3` compiled-stage1 surrogate shrink
+3. `BYN-min3` compiled-stage1 surrogate closeout
    - keep `build_surrogate.rs` / `llvm_backend_surrogate.rs` only while proofs still need them
+   - current move is docs/inventory closeout until caller-proof says removable
 4. `BYN-min4` hook/registry demotion
    - reduce `hako_forward_bridge.rs` / `hako_forward_registry.c` / `hako_kernel.c` to explicit compat-only
 5. `BYN-min5` kernel hard retire readiness

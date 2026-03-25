@@ -1,8 +1,8 @@
 ---
-Status: Active
+Status: Closed Inventory
 Decision: accepted
 Date: 2026-03-15
-Scope: thin backend boundary (`LlvmBackendBox` / `hako_aot`) の final runtime-proof owner を `.hako VM` に固定したうえで、blocker を lane 分離して最小 slice 順に inventory する。
+Scope: thin backend boundary (`LlvmBackendBox` / `hako_aot`) の final runtime-proof owner を `.hako VM` に固定したうえで、runtime-proof blocker inventory を close-sync する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29ck/README.md
@@ -30,7 +30,7 @@ Related:
    - role: blocker closeout までの補助 proof
    - non-goal: final runtime-proof owner に昇格しない
 
-## Current Blockers
+## Closed Blockers
 
 ### B1. vm-hako subset-check rejects `newbox(LlvmBackendBox)`
 
@@ -93,6 +93,13 @@ Related:
 2. implement the narrow `LlvmBackendBox.compile_obj/1` / `link_exe/3` runtime seam
 3. retire the regular Rust VM hostbridge seam from `.hako VM` proof path
 4. pin acceptance with `phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+
+## Current Truth
+
+1. `phase29ck_vmhako_llvm_backend_runtime_proof.sh` is green on the final owner lane.
+2. `.hako VM` is now the locked runtime-proof owner for the phase-29ck backend boundary path.
+3. regular Rust VM hostbridge widening is not part of the current mainline proof path.
+4. next exact front returns to `phase-29cl` compiled-stage1 surrogate shrink, not a new runtime-proof widening slice.
 
 ## Non-goals
 

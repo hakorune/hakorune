@@ -363,7 +363,7 @@ Related:
    - current small-entry perf lane is `none (monitor-only)`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
    - `llvmlite` / harness stays outside the perf baseline
 2. runtime proof blocker inventory
-   - current phase-level next exact front returns here after `P12/P13`
+   - `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` is now closed
    - final proof owner は `.hako VM`
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
@@ -381,11 +381,14 @@ Related:
       - `HAKO_BACKEND_COMPAT_REPLAY=harness`
       - `HAKO_CAPI_PURE=1`
         - kept only for historical pure-lowering routes; not required by the phase-29ck `.hako VM` runtime proof and no longer the daily recipe SSOT
-   - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
+   - current reading:
+     - runtime-proof widening has no active exact slice
+     - next phase-level exact front is `phase-29cl` compiled-stage1 surrogate shrink
 5. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
 6. next backend demotion front
-   - `phase-29cl` compiled-stage1 surrogate shrink remains the first exact next slice
+   - `phase-29cl` compiled-stage1 surrogate closeout remains the first exact next slice
+   - current reading is docs/inventory closeout only until caller-proof says the frozen surrogate code can actually be removed
    - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py` / `phi_wiring/analysis.py` / `phi_wiring/tagging.py`; move to the next `phi_wiring/**` owner seam, with `wiring.py::wire_incomings(...)` resolution/selection path the most natural exact leaf
 7. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock

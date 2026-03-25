@@ -146,10 +146,13 @@ Rule:
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green as an exact compat-only owner-set regression check; no new daily caller may appear and the allowlisted residue may not widen silently
-2. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-3. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
-4. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
-5. keep `module_string_dispatch` / `llvm_backend_surrogate` frozen unless caller-proof shows the compiled-stage1 temporary lane is truly removable
+2. current exact front is `BYN-min3` compiled-stage1 surrogate closeout
+   - `module_string_dispatch.rs`, `build_surrogate.rs`, and `llvm_backend_surrogate.rs` stay frozen exact owners
+   - current move is docs/inventory closeout only until caller-proof says removable
+   - do not reopen surrogate code without a fresh live caller proof
+3. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+4. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
+5. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
 6. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
 7. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
