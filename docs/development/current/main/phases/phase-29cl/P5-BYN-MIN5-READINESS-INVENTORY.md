@@ -78,7 +78,8 @@ Related:
 9. `P9` is re-checked and remains negative
 10. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
 11. `P9` is re-checked and remains negative after `P12`
-12. next exact front is `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
+12. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
+13. next exact front is `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
 
 ## Acceptance
 

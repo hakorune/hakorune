@@ -51,7 +51,8 @@ Related:
 6. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is now landed, so the next exact step is a readiness re-check rather than another pre-opened shrink bucket
 7. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is now landed
 8. readiness still has compiled-stage1 proof and compat-keep caveats, so the judgment remains negative
-9. the next exact blocker bucket should inspect compiled-stage1 proof readiness before hook/registry keep readiness
+9. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
+10. the next exact blocker bucket is compat keep readiness, not another caller-shrink slice
 
 ## Judgment Criteria
 
@@ -63,7 +64,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. after the `P12` shrink, the next exact front is `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
+2. after `P13` confirmed the surrogate cluster is still live, the next exact front is `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
 
 ## Acceptance
 
@@ -91,4 +92,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
+1. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`

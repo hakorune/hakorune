@@ -54,6 +54,9 @@ Related:
    - close-sync is landed; return to `P9` readiness re-check before opening another shrink bucket
 13. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
    - inspect whether the surrogate proof cluster is still live owner or archive-ready
+   - current result: still live proof owner; move next to compat keep readiness
+14. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
+   - inspect whether the compat keep cluster is still live keep surface or archive-ready
 
 ## 2. Current Daily Caller Reading
 

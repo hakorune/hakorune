@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P9` negative re-check の次 bucket として、compiled-stage1 proof owner cluster (`module_string_dispatch.rs`, `build_surrogate.rs`, `llvm_backend_surrogate.rs`) がまだ live proof owner か、archive-ready かを棚卸しする。
@@ -41,6 +41,7 @@ Related:
 4. `phase29cl_by_name_lock_vm.sh` and `phase29ck_vmhako_llvm_backend_runtime_proof.sh` are still the active acceptance anchors for this cluster
 5. `P3` and `P7` already froze the cluster, but they did not answer whether it is archive-ready
 6. this bucket exists because `P9` is still negative and compiled-stage1 proof ownership remains one of the last blockers
+7. current evidence says the cluster is still live proof owner, not archive-ready
 
 ## Acceptance
 
@@ -64,3 +65,7 @@ Reopen this bucket only when one of these is true.
 2. deleting `llvm_backend_surrogate.rs`
 3. touching `hako_forward_bridge.rs`
 4. touching `hako_forward_registry_shared_impl.inc`
+
+## Next Exact Front
+
+1. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
