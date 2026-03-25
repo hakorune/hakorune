@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
   - docs/development/current/main/phases/phase-29ck/P6-MACOS-PORTABILITY-FFI-CANDIDATE-LOCK.md
+  - docs/development/current/main/phases/phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -49,7 +50,8 @@ Related:
 5. `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
 6. `P5-COMPAT-PURE-PACK-LOCK.md`
 7. `P6-MACOS-PORTABILITY-FFI-CANDIDATE-LOCK.md`
-8. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+8. `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
+9. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
 ## Current Snapshot (2026-03-14)
 
@@ -332,25 +334,23 @@ Related:
 
 ## Immediate Next
 
-1. `.hako` recipe seam
-   - this is the current exact front for backend-zero mainline work
-   - owner is `lang/src/shared/backend/backend_recipe_box.hako`
-   - work stays on pure-first accept/reject coverage and visible `acceptance_policy=boundary-pure-seed-matrix-v1` rows
-   - first slice is visible compat classification for `apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json`; this adds `.hako` evidence ownership only and does not widen pure-first support
+1. `W1` `.hako` recipe seam close-sync
+   - task-pack owner is `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
+   - current recipe evidence rows are landed, including `method-call-only-small-compat-v1`
+   - next work is to close the recipe seam as an active widening front and lock reopen conditions
    - broader method-loop packs are evidence only; do not promote them to the owner of route truth
-   - keep `lang/c-abi/shims/hako_llvmc_ffi.c` transport-only: export/marshal plus explicit compat replay only
-2. boundary fallback reliance reduction
+2. `W2` boundary fallback reliance reduction
    - reduce unsupported-shape dependence on `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`
    - keep `harness` and `native` as explicit replay lanes; do not let them re-enter the daily default route
-   - post-`BE0-min6` C owner cleanup and forwarder cleanup belong here, not ahead of the recipe seam
-3. Rust glue thinning
+   - post-`BE0-min6` C owner cleanup and forwarder cleanup belong here, not ahead of the recipe seam close-sync
+3. `W3` Rust glue thinning
    - `src/host_providers/llvm_codegen.rs` and `crates/nyash-llvm-compiler/src/boundary_driver*.rs` stay facade/boundary glue only
-   - do not reopen them for owner logic while the recipe seam is still the active front
+   - do not reopen them for owner logic while `W1/W2` are still active
    - keep the generic compile symbol branch parked as keep-only until compat replay no longer needs it
-4. `llvmlite` demotion completion
+4. `W4` `llvmlite` demotion completion
    - `tools/llvmlite_harness.py` and `src/llvm_py/**` remain explicit compat/canary keep only
    - do not give `llvmlite` new hot-path obligations
-   - demotion completes only after the recipe seam and fallback-reliance fronts are stable
+   - demotion completes only after `W1..W3` are stable
 5. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
@@ -384,7 +384,7 @@ Related:
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
 10. `phase-21_5` perf/kilo reopen
-   - perf lane stays parked until the `phase-29ck` mainline fronts above are stable
+   - perf lane stays parked until `P7` `W1..W4` are stable
    - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
    - `llvmlite` / harness stays outside the perf baseline
 11. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない

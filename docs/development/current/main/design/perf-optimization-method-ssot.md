@@ -29,7 +29,7 @@ Related:
 
 - `phase-21_5` perf reopen is currently parked.
 - reopen order is fixed like this:
-  1. close the active `ny-llvm` backend-zero front in `phase-29ck`
+  1. close the active `ny-llvm` backend-zero runway in `phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md`
   2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary) -> C ABI`
   3. only then reopen `kilo` / `micro kilo`
 - `llvmlite` / harness stays outside the perf judge even when the lane reopens.
@@ -142,7 +142,7 @@ Hotspot は次の分類で読む。
 - `llvmlite` remains outside the perf judge even when stage2 String waves are active.
 - current scheduling consequence:
   - if `phase-29ck` still has an active exact `ny-llvm` front, do not reopen this perf lane yet
-  - current preferred next owner is the backend-zero `.hako` recipe seam, not a `kilo` retune
+  - current preferred next owner is `phase-29ck` `P7` `W1..W4`, not a `kilo` retune
 
 ## Stop Line
 
