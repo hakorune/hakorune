@@ -53,6 +53,11 @@ Related:
 8. readiness still has compiled-stage1 proof and compat-keep caveats, so the judgment remains negative
 9. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
 10. the next exact blocker bucket is compat keep readiness, not another caller-shrink slice
+11. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md` confirms the compat keep cluster is still live keep owner
+12. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` confirms the built-in `FileBox` keep surface is the next narrowest compat bucket
+13. the next exact blocker bucket is `FileBox.writeBytes` only
+14. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is now landed
+15. readiness still remains negative because compiled-stage1 proof owners and the remaining compat keep cluster are still live
 
 ## Judgment Criteria
 
@@ -64,7 +69,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. after `P13` confirmed the surrogate cluster is still live, the next exact front is `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
+2. after `P16` landed, the next exact front returns to `P9` readiness re-check
 
 ## Acceptance
 
@@ -92,4 +97,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
+1. `P9-BYN-MIN5-READINESS-JUDGMENT.md`

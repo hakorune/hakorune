@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P13` の次 bucket として、compat keep owner cluster (`hako_forward_bridge.rs`, `hako_forward.rs`, `hako_forward_registry.c`, `hako_forward_registry_shared_impl.inc`, `hako_kernel.c`) が still-live keep か、archive-ready かを棚卸しする。
@@ -40,6 +40,8 @@ Related:
 3. `hako_forward_registry.c` and `hako_kernel.c` remain include owners only
 4. forward-hook acceptance still depends on the explicit keep contract tests
 5. this bucket exists because `P9` remains negative even after `P13` confirmed the surrogate proof cluster is still live
+6. current evidence says the compat keep cluster is still a live keep owner, not archive-ready
+7. `plugin/invoke/by_name.rs` still carries a built-in `FileBox` compat surface that keeps this cluster live
 
 ## Acceptance
 
@@ -63,3 +65,7 @@ Reopen this bucket only when one of these is true.
 2. deleting `hako_forward_registry_shared_impl.inc`
 3. touching `module_string_dispatch.rs`
 4. touching `build_surrogate.rs`
+
+## Next Exact Front
+
+1. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md`

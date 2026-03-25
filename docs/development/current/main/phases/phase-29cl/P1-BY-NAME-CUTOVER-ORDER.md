@@ -57,6 +57,13 @@ Related:
    - current result: still live proof owner; move next to compat keep readiness
 14. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
    - inspect whether the compat keep cluster is still live keep surface or archive-ready
+   - current result: still live keep owner; move next to the built-in `FileBox` keep residue
+15. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md`
+   - inspect whether the built-in `FileBox` branch in `plugin/invoke/by_name.rs` can shrink further before any broader compat-keep retirement judgment
+   - current result: `writeBytes` is the narrowest next shrink bucket
+16. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md`
+   - shrink only `FileBox.writeBytes` before reopening any broader `FileBox` family question
+   - close-sync is landed; return to `P9` readiness re-check before opening another shrink bucket
 
 ## 2. Current Daily Caller Reading
 

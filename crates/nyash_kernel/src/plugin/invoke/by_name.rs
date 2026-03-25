@@ -176,13 +176,6 @@ fn try_handle_builtin_file_box_by_name(
             let result = file_box.write(decode_handle_to_box_or_integer(a1));
             Some(encode_box_handle(result))
         }
-        "writeBytes" => {
-            if argc != 1 {
-                return Some(0);
-            }
-            let result = file_box.writeBytes(decode_handle_to_box_or_integer(a1));
-            Some(encode_box_handle(result))
-        }
         "close" => {
             if argc != 0 {
                 return Some(0);

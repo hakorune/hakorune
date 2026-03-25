@@ -196,6 +196,40 @@ fn filebox_direct_open_write_roundtrip() {
 }
 
 #[test]
+fn filebox_by_name_write_bytes_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let tmp_path = "/tmp/nyash_kernel_filebox_write_bytes_retired.bin";
+        let _ = std::fs::remove_file(tmp_path);
+
+        let type_name = CString::new("FileBox").expect("CString");
+        let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+        assert!(filebox_handle > 0, "expected FileBox handle");
+
+        with_filebox_from_handle(filebox_handle, |filebox| {
+            filebox
+                .ny_open(tmp_path, "w")
+                .expect("direct open should succeed");
+        });
+
+        let bytes = nyash_rust::boxes::array::ArrayBox::new();
+        bytes.push(Box::new(StringBox::new("A".to_string())));
+        let bytes_handle = handles::to_handle_arc(Arc::new(bytes)) as i64;
+
+        let method = CString::new("writeBytes").expect("CString");
+        let result =
+            nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 1, bytes_handle, 0);
+        assert_eq!(result, 0, "writeBytes should no longer use builtin by_name keep");
+
+        with_filebox_from_handle(filebox_handle, |filebox| {
+            let _ = filebox.ny_close();
+        });
+        let _ = std::fs::remove_file(tmp_path);
+    });
+}
+
+#[test]
 fn box_from_i8_string_const_reuses_handle() {
     let s = CString::new("phase21_5_fast").expect("CString");
     let h1 = nyash_box_from_i8_string_const(s.as_ptr());

@@ -79,7 +79,10 @@ Related:
 10. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
 11. `P9` is re-checked and remains negative after `P12`
 12. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
-13. next exact front is `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
+13. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md` confirms the compat keep cluster is still live keep owner
+14. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` identifies the built-in `FileBox` keep surface as the next narrowest compat bucket
+15. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is landed
+16. next exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md`
 
 ## Acceptance
 

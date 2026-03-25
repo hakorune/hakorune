@@ -185,12 +185,16 @@ Rule:
    - `FileBox.write` no longer uses the explicit Python-side compat leaf
 10. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is re-checked and stays negative after `P12`
 11. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
-12. current exact front is `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md`
-   - inspect the compat keep cluster before opening any new caller-shrink bucket
-13. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-14. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
-15. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-16. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+12. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md` confirms the compat keep cluster is still live keep owner
+13. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` confirms `writeBytes` is the narrowest next shrink bucket
+14. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is closed
+   - `writeBytes` is retired from both the Python-side compat leaf and the kernel built-in `FileBox` keep branch
+15. current exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+   - re-check whether the remaining compiled-stage1 proof and compat keep residues still block readiness
+16. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+17. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
+18. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+19. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 
