@@ -4,6 +4,7 @@ import unittest
 import llvmlite.ir as ir
 
 from src.llvm_py.instructions.mir_call.string_console_method_call import (
+    lower_string_search_or_slice_method_call,
     lower_string_or_console_method_call,
 )
 
@@ -26,11 +27,11 @@ def _declare(module, name, ret, args):
 
 
 class TestStringConsoleMethodCall(unittest.TestCase):
-    def test_substring_route_uses_string_kernel_and_marks_receiver(self):
+    def test_substring_search_slice_route_uses_string_kernel_and_marks_receiver(self):
         i64, module, builder = _new_builder()
         marked = {"count": 0}
 
-        result = lower_string_or_console_method_call(
+        result = lower_string_search_or_slice_method_call(
             builder=builder,
             declare=lambda name, ret, args: _declare(module, name, ret, args),
             method_name="substring",
@@ -44,6 +45,63 @@ class TestStringConsoleMethodCall(unittest.TestCase):
 
         ir_text = str(module)
         self.assertEqual(marked["count"], 1)
+        self.assertIn("nyash.string.substring_hii", ir_text)
+        self.assertIn("unified_substring", ir_text)
+
+    def test_indexof_search_slice_route_uses_string_kernel(self):
+        i64, module, builder = _new_builder()
+        marked = {"count": 0}
+
+        result = lower_string_search_or_slice_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            method_name="indexOf",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+            mark_receiver_stringish=lambda: marked.__setitem__("count", marked["count"] + 1),
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertEqual(marked["count"], 1)
+        self.assertIn("nyash.string.indexOf_hh", ir_text)
+        self.assertIn("unified_indexOf", ir_text)
+
+    def test_lastindexof_search_slice_route_uses_string_kernel(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_string_search_or_slice_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            method_name="lastIndexOf",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.string.lastIndexOf_hh", ir_text)
+        self.assertIn("unified_lastIndexOf", ir_text)
+
+    def test_compat_wrapper_still_delegates_substring(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_string_or_console_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            method_name="substring",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2, 3],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
         self.assertIn("nyash.string.substring_hii", ir_text)
         self.assertIn("unified_substring", ir_text)
 

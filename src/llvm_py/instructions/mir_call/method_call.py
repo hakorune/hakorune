@@ -23,7 +23,10 @@ from .intrinsic_registry import (
 from .collection_method_call import lower_collection_method_call
 from .method_fallback_tail import lower_direct_or_plugin_method_call
 from .runtime_data_dispatch import lower_runtime_data_field_call
-from .string_console_method_call import lower_string_or_console_method_call
+from .string_console_method_call import (
+    lower_string_or_console_method_call,
+    lower_string_search_or_slice_method_call,
+)
 from instructions.string_result_policy import mark_string_result_if_needed
 
 
@@ -263,12 +266,13 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         )
 
     else:
-        result = lower_string_or_console_method_call(
+        string_recv_ptr = _resolve_string_ptr_for_receiver(receiver)
+        result = lower_string_search_or_slice_method_call(
             builder=builder,
             declare=_declare,
             method_name=method,
             recv_h=recv_h,
-            recv_ptr=_resolve_string_ptr_for_receiver(receiver),
+            recv_ptr=string_recv_ptr,
             arg_ids=args,
             resolve_arg=_resolve_arg,
             ensure_handle=_ensure_handle,
@@ -278,6 +282,22 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             box_string_ptr=_box_string_ptr,
             store_result_string_ptr=_store_result_string_ptr,
         )
+        if result is None:
+            result = lower_string_or_console_method_call(
+                builder=builder,
+                declare=_declare,
+                method_name=method,
+                recv_h=recv_h,
+                recv_ptr=string_recv_ptr,
+                arg_ids=args,
+                resolve_arg=_resolve_arg,
+                ensure_handle=_ensure_handle,
+                mark_receiver_stringish=(
+                    _mark_receiver_stringish if requires_string_receiver_tag(method) else None
+                ),
+                box_string_ptr=_box_string_ptr,
+                store_result_string_ptr=_store_result_string_ptr,
+            )
         if result is None:
             result = lower_direct_or_plugin_method_call(
                 builder=builder,
