@@ -22,6 +22,12 @@ Related:
 - runtime proof / native subset widening / `phase-29cl` を evidence/adjacent lane として残し、pre-perf mainline と混ぜない。
 - 各 wave を `1 series = 1 front` の運用で切れるように、owner / non-goals / acceptance / exit condition を先に lock する。
 
+## Current Runway State
+
+- `W1` `.hako` recipe seam close-sync is landed.
+- current active pre-perf front is `W2` boundary fallback reliance reduction.
+- `perf/kilo` remains parked until `W2..W4` are also closed.
+
 ## Fixed Order
 
 | wave | goal | owner | acceptance focus | do not mix |
@@ -38,10 +44,10 @@ Related:
 - current landed evidence:
   - supported pure rows
   - `method-call-only-small-compat-v1`
-- exact next work:
-  - close the recipe seam as an active widening front
-  - move the current state from `active widening` to `stable evidence owner`
-  - pin reopen rule: only reopen when a new narrow evidence row is required by `phase-29ck`
+- current landed state:
+  - recipe seam is now the stable visible evidence owner
+  - widening is no longer the active backend-zero front
+  - reopen only when a new narrow evidence row is required by `phase-29ck`
 - non-goals:
   - no new pure-first support
   - no C export/default change

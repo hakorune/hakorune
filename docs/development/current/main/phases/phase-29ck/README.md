@@ -122,7 +122,8 @@ Related:
     - Rust boundary code (`llvm_codegen.rs`, `boundary_driver.rs`, `boundary_driver_ffi.rs`) keeps payload decode / symbol selection / boundary glue only, with `boundary_driver.rs` now facade-only
     - `hako_llvmc_ffi.c` keeps export/marshal plus explicit compat transport only
   - landed transport-default cleanup: `src/host_providers/llvm_codegen.rs` now injects `pure-first` / `harness` only in the boundary-default caller path, and `src/runner/modes/llvm/object_emitter.rs` plus `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` now call `boundary_default_object_opts(...)` explicitly instead of relying on implicit transport defaults
-  - next exact front is therefore the `.hako` recipe seam, with broader method-loop packs used only as evidence when `BackendRecipeBox` needs new narrow accept/reject coverage; `acceptance_policy=boundary-pure-seed-matrix-v1` is now the first visible classification basis and `acceptance_case=ret-const-v1`, `acceptance_case=hello-simple-llvm-native-probe-v1`, `acceptance_case=runtime-data-array-get-missing-v1`, `acceptance_case=runtime-data-string-length-ascii-v1`, `acceptance_case=runtime-data-array-length-v1`, `acceptance_case=runtime-data-array-push-v1`, `acceptance_case=runtime-data-map-size-v1`, `acceptance_case=runtime-data-array-has-missing-v1`, `acceptance_case=runtime-data-map-has-missing-v1`, `acceptance_case=runtime-data-map-get-missing-v1`, `acceptance_case=string-indexof-ascii-v1`, `acceptance_case=string-length-ascii-v1`, plus the first explicit compat evidence row `acceptance_case=method-call-only-small-compat-v1` are the visible shape-specific rows owned by `.hako`
+  - `.hako` recipe seam is now the stable visible owner for `acceptance_policy=boundary-pure-seed-matrix-v1` and the current narrow `acceptance_case` rows (`ret-const-v1`, `hello-simple-llvm-native-probe-v1`, `runtime-data-array-get-missing-v1`, `runtime-data-string-length-ascii-v1`, `runtime-data-array-length-v1`, `runtime-data-array-push-v1`, `runtime-data-map-size-v1`, `runtime-data-array-has-missing-v1`, `runtime-data-map-has-missing-v1`, `runtime-data-map-get-missing-v1`, `string-indexof-ascii-v1`, `string-length-ascii-v1`, `method-call-only-small-compat-v1`)
+  - broader method-loop packs remain evidence only; the next exact front moves to boundary fallback reliance reduction
   - follow-up boundary-command slice: `lang/c-abi/shims/hako_aot_shared_impl.inc` now builds compile commands with `--driver harness` to avoid boundary re-entry, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_forwarder_min.sh` pins the default `hako_llvmc_compile_json` forwarder path when no backend recipe is requested
 6. landed canary slice:
    - `BE0-min3` native object canary is green for `apps/tests/mir_shape_guard/collapsed_min.mir.json`
@@ -334,24 +335,20 @@ Related:
 
 ## Immediate Next
 
-1. `W1` `.hako` recipe seam close-sync
-   - task-pack owner is `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
-   - current recipe evidence rows are landed, including `method-call-only-small-compat-v1`
-   - next work is to close the recipe seam as an active widening front and lock reopen conditions
-   - broader method-loop packs are evidence only; do not promote them to the owner of route truth
-2. `W2` boundary fallback reliance reduction
+1. `W2` boundary fallback reliance reduction
+   - current exact front is fixed by `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
    - reduce unsupported-shape dependence on `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`
    - keep `harness` and `native` as explicit replay lanes; do not let them re-enter the daily default route
-   - post-`BE0-min6` C owner cleanup and forwarder cleanup belong here, not ahead of the recipe seam close-sync
-3. `W3` Rust glue thinning
+   - post-`BE0-min6` C owner cleanup and forwarder cleanup belong here, now that `W1` recipe seam close-sync is landed
+2. `W3` Rust glue thinning
    - `src/host_providers/llvm_codegen.rs` and `crates/nyash-llvm-compiler/src/boundary_driver*.rs` stay facade/boundary glue only
-   - do not reopen them for owner logic while `W1/W2` are still active
+   - do not reopen them for owner logic while `W2` is still active
    - keep the generic compile symbol branch parked as keep-only until compat replay no longer needs it
-4. `W4` `llvmlite` demotion completion
+3. `W4` `llvmlite` demotion completion
    - `tools/llvmlite_harness.py` and `src/llvm_py/**` remain explicit compat/canary keep only
    - do not give `llvmlite` new hot-path obligations
-   - demotion completes only after `W1..W3` are stable
-5. runtime proof blocker inventory
+   - demotion completes only after `W2..W3` are stable
+4. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
@@ -383,11 +380,11 @@ Related:
    - explicit historical entry is `tools/selfhost/run_compat_pure_pack.sh`
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
-10. `phase-21_5` perf/kilo reopen
-   - perf lane stays parked until `P7` `W1..W4` are stable
+9. `phase-21_5` perf/kilo reopen
+   - perf lane stays parked until `P7` `W2..W4` are stable
    - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
    - `llvmlite` / harness stays outside the perf baseline
-11. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
+10. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance
 

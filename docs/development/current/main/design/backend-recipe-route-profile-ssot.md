@@ -112,7 +112,8 @@ Related:
 ## Next Expansion Rule
 
 - Broader seed classification belongs here, not in the C shim, when a new exact fixture proves that the route profile needs another evidence bucket.
-- Until then, profile growth should stay grouped at the `.hako` owner level and remain visible in `CURRENT_TASK.md` plus phase-29ck docs.
+- current state is close-synced: the route profile is no longer an active widening front.
+- until a fresh exact blocker appears, profile growth stays frozen at the current grouped evidence rows and the next backend-zero front moves to boundary fallback reliance reduction.
 
 ## Final Shape
 
@@ -132,6 +133,9 @@ Related:
 - Stop after `BackendRecipeBox` is the only visible owner for route profile and recipe naming.
 - Stop after `BackendRecipeBox` is also the only visible owner for acceptance-policy naming and acceptance-case naming.
 - Stop after `LlvmBackendBox` reads the profile and transport layers only mirror it.
+- Current result:
+  - this stop line is landed for the current evidence rows, including `method-call-only-small-compat-v1`
+  - reopen only for a new narrow evidence row proven by a real `phase-29ck` blocker
 - Do not keep thinning `hako_aot_shared_impl.inc` without a fresh exact blocker.
 - Do not move broad CFG/pattern acceptance logic out of `hako_llvmc_ffi.c` in the same wave as policy handoff.
 - Do not mix one more pure-seed widening with transport refactor unless the route profile needs that evidence.
