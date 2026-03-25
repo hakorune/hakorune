@@ -33,7 +33,8 @@ Related:
    - interrupt landed: phase2160 MirBuilder module-load dehang via `IfMirEmitBox`, `CompatMirEmitBox`, and bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
    - W12 landed: `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer split
    - W13 landed: `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer split
-   - W13 exact next: stay inside `tools/smokes/v2/lib/test_runner.sh` and move to the method-arraymap fallback synth + token-check layer centered on `run_registry_method_arraymap_canary()`
+   - W14 landed: `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split
+   - W14 exact next: reinventory `tools/smokes/v2/lib/test_runner.sh` for near-thin-floor vs smoke-tail boundary before promoting another helper-local leaf
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -102,7 +103,8 @@ Related:
   - phase2160 module-load dehang is landed; exact proof lives in `tools/dev/phase2160_mirbuilder_module_load_probe.sh`, and the representative `builder_min_if_compare_intint` / `registry_optin_compare_varint` / `registry_optin` canaries are bounded again as monitor-only checks
   - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
   - `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
-  - next caller-audit bucket stays in `tools/smokes/v2/lib/test_runner.sh` for the method-arraymap fallback synth + token-check layer
+  - `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
+  - next caller-audit bucket is a `test_runner.sh` reinventory for near-thin-floor vs smoke-tail boundary
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

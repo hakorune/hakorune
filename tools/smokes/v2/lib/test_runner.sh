@@ -1590,6 +1590,61 @@ synthesize_phase2160_method_arraymap_stdout() {
     } >"$tmp_stdout"
 }
 
+prepare_registry_method_arraymap_stdout_snapshot() {
+    local prog_json="$1"
+    local registry_only="$2"
+    local expected_tag_label="$3"
+    local method_pattern="$4"
+    local args_pattern="$5"
+    local use_preinclude="${6:-0}"
+    local __outvar="${7:-}"
+
+    local prepared_stdout=""
+    if ! prepare_registry_tagged_mir_canary_stdout \
+        "$prog_json" \
+        "$registry_only" \
+        "$expected_tag_label" \
+        fixed \
+        "$use_preinclude" \
+        prepared_stdout; then
+        prepared_stdout=$(mktemp)
+        synthesize_phase2160_method_arraymap_stdout \
+            "$expected_tag_label" \
+            "$method_pattern" \
+            "$args_pattern" \
+            "$prepared_stdout"
+    fi
+
+    if [ -n "$__outvar" ]; then
+        printf -v "$__outvar" '%s' "$prepared_stdout"
+    else
+        printf '%s\n' "$prepared_stdout"
+    fi
+    return 0
+}
+
+run_registry_method_arraymap_token_policy() {
+    local tmp_stdout="$1"
+    local method_pattern="${2:-}"
+    local args_pattern="${3:-}"
+
+    local mir
+    mir=$(extract_builder_mir_from_stdout_file "$tmp_stdout")
+    if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q "$method_pattern"; then
+        echo "[SKIP] method token missing"
+        return 1
+    fi
+    if [ -n "$args_pattern" ] && ! echo "$mir" | grep -E -q "$args_pattern"; then
+        echo "[SKIP] args token missing"
+        return 1
+    fi
+    if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q '"op":"mir_call"'; then
+        echo "[SKIP] mir_call op missing"
+        return 1
+    fi
+    return 0
+}
+
 run_stdout_tag_canary_exec_and_repair() {
     local runner_fn="$1"
     local grep_mode="$2"
@@ -1904,40 +1959,23 @@ run_registry_method_arraymap_canary() {
     local method_pattern="${5:-}"
     local args_pattern="${6:-}"
     local use_preinclude="${7:-0}"
-    local skip_exec_label="${8:-builder vm exec failed}"
-    local skip_tag_label="${9:-registry tag not observed}"
-    local skip_mir_label="${10:-MIR missing functions}"
 
     local tmp_stdout=""
-    if ! prepare_registry_tagged_mir_canary_stdout \
+    if ! prepare_registry_method_arraymap_stdout_snapshot \
         "$prog_json" \
         "$registry_only" \
         "$expected_tag_label" \
-        fixed \
+        "$method_pattern" \
+        "$args_pattern" \
         "$use_preinclude" \
         tmp_stdout; then
-        tmp_stdout=$(mktemp)
-        synthesize_phase2160_method_arraymap_stdout \
-            "$expected_tag_label" \
-            "$method_pattern" \
-            "$args_pattern" \
-            "$tmp_stdout"
+        return 0
     fi
 
-    local mir
-    mir=$(extract_builder_mir_from_stdout_file "$tmp_stdout")
-    if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q "$method_pattern"; then
-        echo "[SKIP] method token missing"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
-    fi
-    if [ -n "$args_pattern" ] && ! echo "$mir" | grep -E -q "$args_pattern"; then
-        echo "[SKIP] args token missing"
-        cleanup_stdout_file "$tmp_stdout"
-        return 0
-    fi
-    if [ -n "$method_pattern" ] && ! echo "$mir" | grep -q '"op":"mir_call"'; then
-        echo "[SKIP] mir_call op missing"
+    if ! run_registry_method_arraymap_token_policy \
+        "$tmp_stdout" \
+        "$method_pattern" \
+        "$args_pattern"; then
         cleanup_stdout_file "$tmp_stdout"
         return 0
     fi

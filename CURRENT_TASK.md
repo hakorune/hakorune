@@ -32,13 +32,13 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W13 active`
+   - status: `reopen W14 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
-   - exact W13 target:
+   - exact W14 target:
      - keep `launcher.hako` W5 thinning landed and frozen near-thin-floor
      - keep the first two `tools/hakorune_emit_mir.sh` helper-local splits landed: Stage-B Program(JSON) production and direct-emit fallback policy
      - keep `tools/selfhost/selfhost_build.sh` EXE consumer path landed behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
@@ -61,7 +61,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - keep `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer landed behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
      - keep the exact W13 proof on `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
      - keep `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` as the thin diag wrapper check for that registry-specialized layer
-     - move the next exact `test_runner.sh` leaf to the method-arraymap fallback synth + token-check layer, centered on `run_registry_method_arraymap_canary()`
+     - keep `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer landed behind `prepare_registry_method_arraymap_stdout_snapshot()` + `run_registry_method_arraymap_token_policy()`
+     - keep the exact W14 proof on `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
+     - treat `test_runner.sh` as reinventory-ready / near-thin-floor before promoting any new helper-local leaf
      - keep explicit env-route compat probes, raw compat flags, and the retired raw direct `stage1_cli.hako emit program-json` diagnostics pin alive
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
@@ -139,7 +141,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - phase2160 module-load dehang behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` and `ParserStmtBox.parse_opt_annotation(...)`
      - tagged-stdout caller layer behind `run_stdout_tag_canary_exec_and_repair()`
      - registry-specialized tagged-stdout layer behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
-   - next exact leaf: method-arraymap fallback synth + token-check layer, centered on `run_registry_method_arraymap_canary()`
+   - current exact bucket: reinventory `tools/smokes/v2/lib/test_runner.sh` for near-thin-floor vs smoke-tail boundary; do not promote the 43-file tail in the same slice
 5. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags
    - stage1 bridge/program-json explicit route

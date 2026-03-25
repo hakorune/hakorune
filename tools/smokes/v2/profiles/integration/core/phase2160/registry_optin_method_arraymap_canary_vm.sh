@@ -24,7 +24,4 @@ run_registry_method_arraymap_canary \
   "registry_optin_method_arraymap" \
   "" \
   "" \
-  1 \
-  "builder vm exec failed" \
-  "registry/min tag not observed (return.method.arraymap)" \
-  "MIR missing functions"
+  1

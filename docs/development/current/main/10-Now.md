@@ -63,7 +63,9 @@ Related:
     - `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer is landed behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
     - exact proof for that leaf is `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
     - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
-    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the method-arraymap fallback synth + token-check layer centered on `run_registry_method_arraymap_canary()`
+    - `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer is landed behind `prepare_registry_method_arraymap_stdout_snapshot()` + `run_registry_method_arraymap_token_policy()`
+    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
+    - next move is a reinventory of `tools/smokes/v2/lib/test_runner.sh` for near-thin-floor vs smoke-tail boundary; do not promote the 43-file tail in the same slice
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

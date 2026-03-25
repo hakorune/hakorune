@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W13 active`。
+- current status は `reopen W14 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -93,7 +93,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the registry-specialized tagged-stdout layer behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
   - the exact W13 proof is `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
   - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
-  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the method-arraymap fallback synth + token-check layer centered on `run_registry_method_arraymap_canary()`
+  - `tools/smokes/v2/lib/test_runner.sh` now also keeps the method-arraymap fallback synth + token-check layer behind `prepare_registry_method_arraymap_stdout_snapshot()` + `run_registry_method_arraymap_token_policy()`
+  - the exact W14 proof is `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
+  - next cleanup slice is a reinventory of `tools/smokes/v2/lib/test_runner.sh` for near-thin-floor vs smoke-tail boundary; do not promote the 43-file tail in the same patch
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

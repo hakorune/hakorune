@@ -24,7 +24,4 @@ run_registry_method_arraymap_canary \
   "registry_optin_method_arraymap_push" \
   '"method":"push"' \
   '"args":\[[0-9]' \
-  0 \
-  "builder vm exec failed" \
-  "registry tag not observed (return.method.arraymap push)" \
-  "MIR missing functions"
+  0

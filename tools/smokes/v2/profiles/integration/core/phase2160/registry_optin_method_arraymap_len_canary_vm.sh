@@ -24,7 +24,4 @@ run_registry_method_arraymap_canary \
   "registry_optin_method_arraymap_len" \
   '"method":"length"' \
   '"args":\[\]' \
-  0 \
-  "builder vm exec failed" \
-  "registry tag not observed (return.method.arraymap len)" \
-  "MIR missing functions"
+  0
