@@ -1,11 +1,12 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P10` close 後の small-entry perf lane を startup/loader inventory として固定し、runtime leaf が存在しない current truth を 1 本の front に落とす。
 Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P10-SMALL-PERF-REENTRY-TASK-PACK.md
+  - docs/development/current/main/phases/phase-29ck/P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - benchmarks/baselines/method_call_only_small.latest.json
@@ -46,6 +47,9 @@ Related:
    - current dynamic surface includes `libm.so.6`, `libgcc_s.so.1`, `libc.so.6`, and the ELF interpreter
    - current relocation shape is non-trivial (`.rela.dyn` current count is 179, `.rela.plt` current count is 2 on the measured Linux host)
 4. short microasm evidence is dominated by loader symbols such as `_dl_relocate_object` / `_dl_lookup_symbol_x`
+5. startup-subtracted bench evidence
+   - `method_call_only_small`: `ny_aot_ms=1`
+   - `box_create_destroy_small`: `ny_aot_ms=0`
 
 読み:
 - current small-entry lane has no live runtime leaf to trim.
@@ -53,12 +57,13 @@ Related:
 
 ## Next Exact Front
 
-1. pin startup/loader inventory only
+1. startup/loader inventory is now named
    - dynamic link surface
    - relocation density
    - startup-subtract evidence
-2. do not reopen runtime string/box leaf edits in the same series
-3. do not widen to medium/full `kilo` until the startup owner is named
+2. current next exact front is `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md`
+3. do not reopen runtime string/box leaf edits in the same series
+4. do not widen to medium/full `kilo` until the boundary link owner slice is judged
 
 ## Expected Owners
 
@@ -88,6 +93,8 @@ Related:
 
 ## Exit Condition
 
+この task pack は close したよ。
+
 - small-entry startup inventory is reproducible
 - runtime-leaf false positives are ruled out
-- next exact code bucket can be cut as startup/loader work
+- next exact code bucket is named as `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md`

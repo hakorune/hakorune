@@ -43,7 +43,9 @@ Related:
   - `method_call_only_small` mainline AOT IR is a pure `+5` loop
   - `box_create_destroy_small` mainline AOT IR is a pure `+1` loop
   - short microasm is startup/loader dominated
-- therefore the perf lane may stay reopened, but the next exact adjacent front is `P11-SMALL-ENTRY-STARTUP-INVENTORY.md`.
+- startup-subtracted small-entry evidence is now `method_call_only_small=1 ms`, `box_create_destroy_small=0 ms`
+- `P11-SMALL-ENTRY-STARTUP-INVENTORY.md` is now closed.
+- therefore the perf lane may stay reopened, and the next exact adjacent front is `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md`.
 - `llvmlite` / harness stays outside the perf judge even when the lane reopens.
 - until that reopen happens, the quick chip8 crosslang smoke is monitor-only for AOT:
   - keep `[bench4]` / `[bench4-route]` shape and timing keys pinned
@@ -158,7 +160,7 @@ Hotspot は次の分類で読む。
 - `llvmlite` remains outside the perf judge even when stage2 String waves are active.
 - current scheduling consequence:
   - if `phase-29ck` reopens a new exact `ny-llvm` front, do not reopen this perf lane yet
-- current preferred next owner is the small-entry startup inventory from `P11`, not a runtime string/box leaf and not an immediate medium/full `kilo` retune
+- current preferred next owner is the boundary link owner from `P12`, not a runtime string/box leaf and not an immediate medium/full `kilo` retune
 
 ## Small-Entry Stop Line
 
