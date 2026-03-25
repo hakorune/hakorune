@@ -59,6 +59,9 @@ Related:
 
 ### Remaining layered crossings
 
+- landed Array slice:
+  - explicit `ArrayBox.{len,get,set,push}` AOT route selection now lowers to `nyash.array.slot_len_h` / `slot_load_hi` / `set_hih|set_hii` / `slot_append_hh`
+  - non-i64 array `get/set/has` stays on `nyash.runtime_data.*` facade as the current cold/compat contract
 - [`lang/src/vm/boxes/mir_call_v1_handler.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/mir_call_v1_handler.hako) still owns the generic VM adapter/router shape and state flags.
 - [`src/llvm_py/instructions/mir_call/method_call.py`](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/mir_call/method_call.py) still does layered route choice before reaching collection-specialized lowers.
 - [`src/llvm_py/instructions/mir_call/collection_method_call.py`](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/mir_call/collection_method_call.py) and [`src/llvm_py/instructions/mir_call/runtime_data_dispatch.py`](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/mir_call/runtime_data_dispatch.py) still mix specialization and fallback policy.
@@ -67,14 +70,13 @@ Related:
 
 ### Next exact implementation buckets
 
-1. `Array hot path collapse`
-   - own only the AOT route-table / boundary dispatch cleanup
-   - keep `ArrayCoreBox` / `RawArrayCoreBox` ownership unchanged
-2. `Map hot path collapse`
+1. `Map hot path collapse`
    - same pattern as Array
-3. `String route split`
+2. `String route split`
    - keep `StringCoreBox` observer role
    - thin only the AOT string route tables and fallback bridge
+3. `cold dynamic lane split`
+   - keep collection hot path away from `HostFacade/provider/plugin loader`
 
 ## Bucket B: Allocator / Handle Op
 
@@ -152,7 +154,7 @@ Related:
 
 1. this crossing inventory
 2. backend-private fast leaf manifest contract
-3. `Array hot path collapse`
+3. `Array hot path collapse` (landed)
 4. `Map hot path collapse`
 5. `String route split`
 6. `cold dynamic lane split`

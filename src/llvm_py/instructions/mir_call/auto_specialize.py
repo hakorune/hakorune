@@ -158,7 +158,7 @@ def _value_is_i64_hint(resolver: Any, value_vid: Optional[int]) -> bool:
     return False
 
 
-def prefer_runtime_data_array_i64_key_route(
+def prefer_array_i64_key_route(
     method: Optional[str],
     resolver: Any,
     arg_vids: Optional[Sequence[Optional[int]]],
@@ -177,7 +177,7 @@ def prefer_runtime_data_array_i64_key_route(
     return _value_is_i64_hint(resolver, key_vid)
 
 
-def prefer_runtime_data_array_i64_key_i64_value_route(
+def prefer_array_i64_key_i64_value_route(
     method: Optional[str],
     resolver: Any,
     arg_vids: Optional[Sequence[Optional[int]]],
@@ -191,3 +191,19 @@ def prefer_runtime_data_array_i64_key_i64_value_route(
     return _value_is_i64_hint(resolver, key_vid) and _value_is_i64_hint(
         resolver, value_vid
     )
+
+
+def prefer_runtime_data_array_i64_key_route(
+    method: Optional[str],
+    resolver: Any,
+    arg_vids: Optional[Sequence[Optional[int]]],
+) -> bool:
+    return prefer_array_i64_key_route(method, resolver, arg_vids)
+
+
+def prefer_runtime_data_array_i64_key_i64_value_route(
+    method: Optional[str],
+    resolver: Any,
+    arg_vids: Optional[Sequence[Optional[int]]],
+) -> bool:
+    return prefer_array_i64_key_i64_value_route(method, resolver, arg_vids)

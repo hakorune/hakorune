@@ -193,7 +193,10 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         # - prefer string.len_h / array.slot_len_h when receiver facts exist
         # - otherwise keep generic Any.length_h contract.
         if result is None:
-            if prefer_string_len_h_route(method, len(args), resolver, receiver):
+            if str(box_name or "") == "ArrayBox" and len(args) == 0:
+                callee = _declare("nyash.array.slot_len_h", i64, [i64])
+                result = builder.call(callee, [recv_h], name="unified_array_slot_len_h")
+            elif prefer_string_len_h_route(method, len(args), resolver, receiver):
                 callee = _declare("nyash.string.len_h", i64, [i64])
                 result = builder.call(callee, [recv_h], name="unified_string_len_h")
             elif prefer_array_len_h_route(method, len(args), resolver, receiver):

@@ -8,10 +8,10 @@ from src.llvm_py.instructions.mir_call.method_call import lower_method_call
 
 
 class _ResolverStub:
-    def __init__(self):
+    def __init__(self, *, value_types=None):
         self.string_literals = {}
         self.string_ptrs = {}
-        self.value_types = {1: {"kind": "handle", "box_type": "ArrayBox"}}
+        self.value_types = value_types or {1: {"kind": "handle", "box_type": "ArrayBox"}}
         self.marked_strings = set()
 
     def mark_string(self, vid):
@@ -62,6 +62,34 @@ class TestMethodCallCollectionBirth(unittest.TestCase):
         ir_text = str(module)
         self.assertIn("ret i64 0", ir_text, msg=ir_text)
         self.assertNotIn('@"nyash.plugin.invoke_by_name_i64"', ir_text, msg=ir_text)
+
+    def test_arraybox_size_uses_slot_len_h_without_resolver_array_facts(self):
+        module = ir.Module(name="test_method_call_arraybox_size")
+        i64 = ir.IntType(64)
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        resolver = _ResolverStub(value_types={})
+        vmap = {1: ir.Constant(i64, 77)}
+
+        lower_method_call(
+            builder=builder,
+            module=module,
+            box_name="ArrayBox",
+            method="size",
+            receiver=1,
+            args=[],
+            dst_vid=2,
+            vmap=vmap,
+            resolver=resolver,
+            owner=_OwnerStub(),
+        )
+        builder.ret(vmap[2])
+
+        ir_text = str(module)
+        self.assertIn('@"nyash.array.slot_len_h"', ir_text, msg=ir_text)
+        self.assertNotIn('@"nyash.any.length_h"', ir_text, msg=ir_text)
 
 
 if __name__ == "__main__":
