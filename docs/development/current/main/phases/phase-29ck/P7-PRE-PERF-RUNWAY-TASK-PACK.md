@@ -27,8 +27,9 @@ Related:
 - `W1` `.hako` recipe seam close-sync is landed.
 - `W2a` forwarder / explicit compat replay inventory lock is landed.
 - `W2b` pure-first lane now fail-fasts without explicit compat replay; unsupported keep seeds require explicit `compat_replay=harness`.
-- current active pre-perf front is `W2c` generic export / historical alias keep-only sync.
-- `perf/kilo` remains parked until `W2c..W4` are also closed.
+- `W2c` generic export / historical alias keep-only sync is landed.
+- current active pre-perf front is `W3` Rust glue thinning.
+- `perf/kilo` remains parked until `W3..W4` are also closed.
 
 ## Fixed Order
 
@@ -67,6 +68,8 @@ Related:
   - raw compat replay callsites are reduced to the explicit compat replay helper
   - `W2b` is landed
   - unsupported pure-first shapes now fail fast unless explicit `HAKO_BACKEND_COMPAT_REPLAY=harness` is present
+  - `W2c` is landed
+  - generic `hako_llvmc_compile_json` and `HAKO_CAPI_PURE=1` are now locked as historical keep surfaces only; explicit recipe names win when both are present
 - exact target:
   - shrink unsupported-shape reliance on `hako_llvmc_ffi.c -> ny-llvmc --driver harness`
   - keep `harness` / `native` as explicit replay lanes only
@@ -81,6 +84,7 @@ Related:
 - acceptance:
   - `tools/dev/phase29ck_boundary_fallback_inventory_probe.sh`
   - `tools/dev/phase29ck_boundary_explicit_compat_probe.sh`
+  - `tools/dev/phase29ck_boundary_historical_alias_probe.sh`
   - `phase29ck_boundary_*` default/compat keep smokes
   - broken `NYASH_NY_LLVM_COMPILER` exact proofs for supported seeds
 

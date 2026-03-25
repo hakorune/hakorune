@@ -40,9 +40,10 @@ Related:
      - `NYASH_LLVM_USE_CAPI=1`
      - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
      - `HAKO_CAPI_PURE=1`
-   - meaning:
+  - meaning:
      - historical pure-lowering and old selfhost helper routes
-   - non-goal:
+     - `HAKO_CAPI_PURE=1` is a historical alias only when no explicit backend recipe is present; explicit `HAKO_BACKEND_COMPILE_RECIPE=*` keeps precedence
+  - non-goal:
      - current backend-zero acceptance / promotion owner ではない
 
 ## Entry Rule

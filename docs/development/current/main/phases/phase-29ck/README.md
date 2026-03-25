@@ -115,6 +115,7 @@ Related:
   - caller-side recipe seam now lives in `lang/src/shared/backend/backend_recipe_box.hako`; it owns the pure-first compile preflight, route profile, and link recipe normalization, and `.hako` daily compile now passes explicit recipe payload into `env.codegen.compile_json_path(...)` while `lang/c-abi/shims/hako_llvmc_ffi.c` keeps the remaining transport-only compat replay logic
   - Rust VM direct `env.codegen.compile_json_path` / `emit_object` globals now delegate back to `src/backend/mir_interpreter/handlers/extern_provider.rs`, so compile payload decode truth stays in one owner instead of drifting in `handlers/calls/global.rs`
   - recipe-aware daily transport now prefers the explicit `hako_llvmc_compile_json_pure_first` export, so further backend-zero value is in widening `.hako` recipe classification rather than teaching the generic C export more route meaning
+  - follow-up historical-alias lock slice: explicit recipe names now override `HAKO_CAPI_PURE=1`; the generic `hako_llvmc_compile_json` export and the legacy alias stay historical keep surfaces only and do not re-acquire daily route meaning when both are present
   - stop-line: `lang/c-abi/shims/hako_aot_shared_impl.inc` is near thin floor as transport helper, and `lang/c-abi/shims/hako_llvmc_ffi.c` should only keep export/marshal plus explicit compat replay; further value is in moving pure-seed / route classification into `BackendRecipeBox` and the new route-profile SSOT, not in more C micro-splitting
   - clean stop-line for the current wave:
     - `BackendRecipeBox` is the only visible policy/recipe owner
@@ -335,20 +336,18 @@ Related:
 
 ## Immediate Next
 
-1. `W2c` generic export / historical alias keep-only sync
-   - `W2a` inventory lock and `W2b` explicit compat replay gate are landed
+1. `W3` Rust glue thinning
+   - `W2a..W2c` are landed
    - current exact front is fixed by `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
-   - pure-first lane now fail-fasts on unsupported shapes unless explicit `HAKO_BACKEND_COMPAT_REPLAY=harness` is present
-   - keep the generic `hako_llvmc_compile_json` export and `HAKO_CAPI_PURE=1` as historical keep surfaces only
-   - do not let generic export / historical alias re-acquire daily route meaning
-2. `W3` Rust glue thinning
-   - `src/host_providers/llvm_codegen.rs` and `crates/nyash-llvm-compiler/src/boundary_driver*.rs` stay facade/boundary glue only
-   - do not reopen them for owner logic while `W2c` is still active
-   - keep the generic compile symbol branch parked as keep-only until compat replay no longer needs it
-3. `W4` `llvmlite` demotion completion
+   - Rust boundary code must stay facade/boundary glue only after the C-side keep surfaces were locked
+   - do not let owner logic drift back out of `.hako`
+2. `W4` `llvmlite` demotion completion
    - `tools/llvmlite_harness.py` and `src/llvm_py/**` remain explicit compat/canary keep only
    - do not give `llvmlite` new hot-path obligations
-   - demotion completes only after `W2..W3` are stable
+   - demotion completes only after `W3` is stable
+3. `perf/kilo` reopen judgment
+   - reopen only after `W3` and `W4` are both closed
+   - `llvmlite` / harness stays outside the perf baseline
 4. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:

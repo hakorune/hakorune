@@ -51,8 +51,8 @@ static const char* hako_llvmc_backend_compat_replay(void) {
 
 static int capi_pure_enabled(void) {
   const char* recipe = hako_llvmc_backend_compile_recipe();
-  if (recipe && strcmp(recipe, "pure-first") == 0) {
-    return 1;
+  if (recipe && recipe[0]) {
+    return strcmp(recipe, "pure-first") == 0;
   }
   const char* v = getenv("HAKO_CAPI_PURE");
   return (v && v[0] == '1');
