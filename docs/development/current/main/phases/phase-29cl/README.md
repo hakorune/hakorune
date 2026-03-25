@@ -169,14 +169,13 @@ Rule:
    - closeout owner: `P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md`
 4. `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md` is closed
    - daily caller residue is narrower and isolated in the explicit FileBox compat helper
-5. current exact front is `P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md`
+5. current exact front is `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md`
    - P5 remains the blocker inventory
-6. `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md` follows as the final blocker bucket before readiness judgment
-7. after P7/P8 are closed, `BYN-min5` readiness judgment can start
-8. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-9. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
-10. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-11. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+6. after P8 is closed, `BYN-min5` readiness judgment can start
+7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+8. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
+9. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+10. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 

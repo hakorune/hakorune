@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `BYN-min5` readiness runway の second blocker bucket を compiled-stage1 proof owners に固定し、`module_string_dispatch` 群を frozen exact owners として閉じる前提を文書化する。
