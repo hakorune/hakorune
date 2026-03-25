@@ -64,6 +64,8 @@ Related:
 16. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md`
    - shrink only `FileBox.writeBytes` before reopening any broader `FileBox` family question
    - close-sync is landed; return to `P9` readiness re-check before opening another shrink bucket
+17. `P17-BYN-MIN5-BUILD-SURROGATE-READINESS-INVENTORY.md`
+   - inspect whether `build_surrogate.rs` is still a live proof owner or archive-ready
 
 ## 2. Current Daily Caller Reading
 

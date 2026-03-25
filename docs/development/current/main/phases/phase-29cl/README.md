@@ -189,8 +189,8 @@ Rule:
 13. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` confirms `writeBytes` is the narrowest next shrink bucket
 14. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is closed
    - `writeBytes` is retired from both the Python-side compat leaf and the kernel built-in `FileBox` keep branch
-15. current exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md`
-   - re-check whether the remaining compiled-stage1 proof and compat keep residues still block readiness
+15. current exact front is `P17-BYN-MIN5-BUILD-SURROGATE-READINESS-INVENTORY.md`
+   - inspect whether `build_surrogate.rs` is still a live proof owner or archive-ready
 16. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 17. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
 18. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
