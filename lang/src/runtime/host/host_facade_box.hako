@@ -12,7 +12,7 @@ static box HostFacadeBox {
       return me._call_runtime(selector, payload)
     }
     if kind == "loader" {
-      return me._call_loader(selector, payload)
+      return me._call_loader_cold_lane(selector, payload)
     }
 
     // Reserved categories (`process|fs|net|time`) are added in later steps.
@@ -28,12 +28,10 @@ static box HostFacadeBox {
     return null
   }
 
-  _call_loader(selector, payload) {
-    local out = me._dispatch_loader_extern(selector, payload)
+  _call_loader_cold_lane(selector, payload) {
+    local out = me._dispatch_loader_provider_bridge(selector, payload)
     if out != null { return out }
-    out = me._dispatch_loader_codegen(selector, payload)
-    if out != null { return out }
-    out = me._dispatch_loader_box(selector, payload)
+    out = me._dispatch_loader_box_bridge(selector, payload)
     if out != null { return out }
 
     return null
@@ -70,7 +68,7 @@ static box HostFacadeBox {
     return null
   }
 
-  _dispatch_loader_extern(selector, payload) {
+  _dispatch_loader_provider_bridge(selector, payload) {
     if selector == "extern_invoke" {
       local name = me._payload_name(payload)
       if name == null || name == "" { return null }
@@ -88,7 +86,24 @@ static box HostFacadeBox {
     return null
   }
 
-  _dispatch_loader_codegen(selector, payload) {
+  _dispatch_loader_box_bridge(selector, payload) {
+    local out = me._dispatch_loader_codegen_bridge(selector, payload)
+    if out != null { return out }
+    if selector == "box.new" {
+      local name = me._payload_name(payload)
+      if name == null || name == "" { return null }
+      local args = me._payload_args(payload)
+      return hostbridge.box_new(name, args)
+    }
+    if selector == "box.call" {
+      local map = me._payload_box_call(payload)
+      if map == null { return null }
+      return hostbridge.box_call(map.get("inst"), map.get("method"), map.get("args"))
+    }
+    return null
+  }
+
+  _dispatch_loader_codegen_bridge(selector, payload) {
     if selector == "codegen.compile_json_path" {
       local args = me._payload_as_array(payload)
       return CodegenBridgeBox.compile_json_path_args(args)
@@ -100,21 +115,6 @@ static box HostFacadeBox {
     if selector == "codegen.link_object" {
       local args = me._payload_as_array(payload)
       return CodegenBridgeBox.link_object_args(args)
-    }
-    return null
-  }
-
-  _dispatch_loader_box(selector, payload) {
-    if selector == "box.new" {
-      local name = me._payload_name(payload)
-      if name == null || name == "" { return null }
-      local args = me._payload_args(payload)
-      return hostbridge.box_new(name, args)
-    }
-    if selector == "box.call" {
-      local map = me._payload_box_call(payload)
-      if map == null { return null }
-      return hostbridge.box_call(map.get("inst"), map.get("method"), map.get("args"))
     }
     return null
   }

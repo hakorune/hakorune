@@ -164,12 +164,15 @@ Related:
 
 ### Next exact implementation buckets
 
-1. `cold dynamic lane split`
-   - keep runtime lane direct
-   - fence loader/provider/plugin resolution into an explicit cold lane
+1. `cold dynamic lane split` (landed)
+   - runtime direct env/console routes are now classified separately from loader/provider cold routes
+   - `HostFacade(loader)` is fixed as an explicit cold dynamic lane, not a generic host hot path
 2. `plugin route-manifest hardening`
    - unify metadata / resolver / host_bridge contract
    - keep compat fallback off the hot lane
+3. `hako_alloc policy/state contract`
+   - stays next in the stage2 execution order
+   - do not mix plugin manifest hardening into the allocator wave
 
 ## Fixed Execution Order
 
@@ -179,7 +182,7 @@ Related:
 4. `Map hot path collapse` (landed)
 5. `String search/slice route split` (landed)
 6. `String concat route split` (landed)
-7. `cold dynamic lane split`
+7. `cold dynamic lane split` (landed)
 8. `hako_alloc` policy/state contract
 
 ## Lane Rule
@@ -193,9 +196,9 @@ Related:
 
 ## Current Stop Line
 
-- next code wave is `cold dynamic lane split` only
-- do not mix `hako_alloc policy/state contract` into that wave
-- do not widen `FastLeafManifest` V0 in the same series as `cold dynamic lane split`
+- next code wave is `hako_alloc policy/state contract` only
+- do not mix `plugin route-manifest hardening` into that wave
+- do not widen `FastLeafManifest` V0 in the same series as the allocator policy/state wave
 
 ## Non-Goals
 

@@ -12,4 +12,4 @@ Non-goals:
 Contract:
 - Callers must use `HostFacadeBox.call(kind, selector, payload)`.
 - `runtime` category handles env/console style calls.
-- `loader` category is a thin bridge for `extern_invoke`.
+- `loader` category is an explicit cold dynamic lane for provider/codegen/box bridge calls.

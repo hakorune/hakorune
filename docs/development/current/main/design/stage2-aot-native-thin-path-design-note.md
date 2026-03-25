@@ -237,14 +237,14 @@ Related:
 - `String search/slice route split` is landed.
 - boundary-default pure-first repair is landed, so `phase29ck_boundary` mainline acceptance no longer depends on a broken generic-symbol default.
 - `String concat route split` is landed.
-- next exact implementation slice is now `cold dynamic lane split`.
-- `hako_alloc policy/state contract` stays behind `cold dynamic lane split`.
+- `cold dynamic lane split` is landed, and the loader/provider bridge is now fenced behind an explicit cold lane reading.
+- next exact implementation slice is now `hako_alloc policy/state contract`.
 
 ## Stop Line For The Next Wave
 
-- the next code wave is `cold dynamic lane split` only
-- do not mix allocator policy/state into that wave
-- do not reopen `RuntimeDataBox` cold facade, `HostFacade/provider/plugin loader`, or allocator policy/state in the same series
+- the next code wave is `hako_alloc policy/state contract` only
+- do not mix `FastLeafManifest` widening or plugin route-manifest hardening into that wave
+- do not reopen `RuntimeDataBox` cold facade or `HostFacade/provider/plugin loader` in the same series
 - `llvmlite` keep lane follows shared contract only and must not force a wider mainline route shape
 - perf re-baseline happens after each accepted code wave; route-table edits and perf retuning do not land in the same commit
 
