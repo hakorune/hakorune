@@ -67,6 +67,7 @@ Related:
 3. `BYN-min5` is not open yet because the current inventory still contains proof/compat residues.
 4. no new daily caller is allowed to appear while this inventory stays pending.
 5. readiness judgment can only happen after these blocker buckets stop owning live proof.
+6. next exact front is `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md`
 
 ## Acceptance
 
