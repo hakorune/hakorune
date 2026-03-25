@@ -255,7 +255,8 @@ Related:
   - `W2` boundary fallback reliance reduction
   - `W3` Rust glue thinning
   - `W4` `llvmlite` demotion completion
-- that runway is now closed, so the next adjacent front is `phase-21_5` / `kilo` reopen judgment rather than another stage2 implementation slice.
+- that runway is now closed, and `P8-PERF-REOPEN-JUDGMENT.md` has landed `no reopen now`.
+- the next adjacent front is `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md` rather than another stage2 implementation slice or immediate `kilo` retune.
 
 ## Stop Line For The Next Wave
 

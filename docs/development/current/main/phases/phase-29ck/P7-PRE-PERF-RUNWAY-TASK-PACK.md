@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P3-THIN-BACKEND-CUTOVER-LOCK.md
   - docs/development/current/main/phases/phase-29ck/P5-COMPAT-PURE-PACK-LOCK.md
+  - docs/development/current/main/phases/phase-29ck/P8-PERF-REOPEN-JUDGMENT.md
   - docs/development/current/main/design/backend-recipe-route-profile-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
@@ -35,7 +36,8 @@ Related:
 - `W4b` acceptance/readme/test split is landed.
 - `W4c` pre-perf exit check and close-sync is landed.
 - there is no active pre-perf runway front.
-- next exact adjacent front is `perf/kilo` reopen judgment.
+- adjacent reopen judgment is now tracked by `P8-PERF-REOPEN-JUDGMENT.md`.
+- current result is `no reopen now`.
 
 ## Fixed Order
 
@@ -136,7 +138,8 @@ Related:
   - keep-lane identity is pinned by `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh`
   - `W4c` is landed
   - all pre-perf exit conditions are now satisfied under the current backend-zero reading
-  - `phase-21_5` / `kilo` may now advance to reopen judgment, but not to automatic perf implementation
+  - `P8-PERF-REOPEN-JUDGMENT.md` is now landed with `no reopen now`
+  - `phase-21_5` / `kilo` still does not advance to automatic perf implementation
 - split order:
   - `W4a` keep-lane owner inventory sync
   - `W4b` acceptance/readme/test split between mainline and keep

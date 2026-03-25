@@ -204,7 +204,8 @@ Related:
 
 - there is no active stage2 code wave after the widen judgment
 - `phase-29ck` `P7` runway is now closed through `W4`
-- the next `ny-llvm` code-facing front is `phase-21_5` / `kilo` reopen judgment, not a new stage2 fast-lane slice
+- `phase-29ck` `P8` reopen judgment is landed with `no reopen now`
+- the next `ny-llvm` code-facing front is `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md`, not a new stage2 fast-lane slice and not immediate `kilo` retune
 - reopen only when a concrete `ny-llvm` / `ny-llvmc` consumer patch needs new rows
 - `RawBuf / Layout / MaybeInit` stay reserved-only after the allocator stop-line
 

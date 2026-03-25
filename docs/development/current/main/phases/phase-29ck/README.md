@@ -12,6 +12,8 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
   - docs/development/current/main/phases/phase-29ck/P6-MACOS-PORTABILITY-FFI-CANDIDATE-LOCK.md
   - docs/development/current/main/phases/phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md
+  - docs/development/current/main/phases/phase-29ck/P8-PERF-REOPEN-JUDGMENT.md
+  - docs/development/current/main/phases/phase-29ck/P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -51,7 +53,9 @@ Related:
 6. `P5-COMPAT-PURE-PACK-LOCK.md`
 7. `P6-MACOS-PORTABILITY-FFI-CANDIDATE-LOCK.md`
 8. `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
-9. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+9. `P8-PERF-REOPEN-JUDGMENT.md`
+10. `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md`
+11. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
 ## Current Snapshot (2026-03-14)
 
@@ -336,10 +340,13 @@ Related:
 
 ## Immediate Next
 
-1. `perf/kilo` reopen judgment
-   - `W2a..W2c`, `W3a..W3c`, and `W4a..W4c` are landed
-   - current exact front is fixed by `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
-   - pre-perf runway is closed; next is judgment, not automatic perf implementation
+1. `method_call_only` perf-entry inventory
+   - `P8-PERF-REOPEN-JUDGMENT.md` is landed with `no reopen now`
+   - `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md` now fixes the narrow next front
+   - current reopen blockers are:
+     - `bench_compare_c_vs_hako.sh method_call_only_small 1 1` -> `aot_status=skip`, `reason=build_failed_after_helper_retry`
+     - `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` -> `method_call_only` fails with `unsupported pure shape for current backend recipe`
+   - next exact front is not `kilo` retune; it is a narrow boundary acceptance inventory for the `method_call_only` family
    - `llvmlite` / harness stays outside the perf baseline
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`
@@ -374,9 +381,10 @@ Related:
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
 9. `phase-21_5` perf/kilo reopen
-   - pre-perf runway is closed; perf lane now waits on reopen judgment instead of runway completion
+   - pre-perf runway is closed, but `P8` landed `no reopen now`
    - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
    - `llvmlite` / harness stays outside the perf baseline
+   - reopen only after the `method_call_only` perf-entry blockers are retired
 10. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance
