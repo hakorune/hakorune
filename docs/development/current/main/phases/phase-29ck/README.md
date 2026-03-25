@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P10-SMALL-PERF-REENTRY-TASK-PACK.md
   - docs/development/current/main/phases/phase-29ck/P11-SMALL-ENTRY-STARTUP-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md
+  - docs/development/current/main/phases/phase-29ck/P13-SMALL-ENTRY-RAW-NET-REFRESH.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -353,7 +354,10 @@ Related:
      - `box_create_destroy_small`: `c_ms=3`, `py_ms=12`, `ny_vm_ms=10`, `ny_aot_ms=8`
    - dumped mainline AOT IR for both small-entry benches is a pure loop (`+5` / `+1`) with no live runtime string/box leaf
    - startup-subtracted AOT evidence is now `method_call_only_small=1 ms`, `box_create_destroy_small=0 ms`
-   - next exact front is `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
+   - `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` is now landed on the boundary mainline owner
+   - current mainline `method_call_only_small` exe is trimmed to `5,375,880` bytes / `61` relocations
+   - `tools/dev/phase29ck_small_entry_startup_probe.sh` now rebuilds stale `libhako_llvmc_ffi` before checking the trimmed boundary shape
+   - next exact front is `P13-SMALL-ENTRY-RAW-NET-REFRESH.md`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
    - `llvmlite` / harness stays outside the perf baseline
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`

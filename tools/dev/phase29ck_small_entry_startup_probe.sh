@@ -12,6 +12,56 @@ if [ ! -x "$HAKO_BIN" ]; then
   exit 1
 fi
 
+resolve_boundary_ffi_lib() {
+  local uname_s
+  uname_s="$(uname -s)"
+  case "$uname_s" in
+    Darwin)
+      printf '%s\n' "$ROOT/target/release/libhako_llvmc_ffi.dylib"
+      ;;
+    MINGW*|MSYS*|CYGWIN*)
+      printf '%s\n' "$ROOT/target/release/hako_llvmc_ffi.dll"
+      ;;
+    *)
+      printf '%s\n' "$ROOT/target/release/libhako_llvmc_ffi.so"
+      ;;
+  esac
+}
+
+ensure_boundary_ffi_fresh() {
+  local ffi_lib="$1"
+  local build_script="$ROOT/tools/build_hako_llvmc_ffi.sh"
+  local need_rebuild=0
+  local dep=""
+  local deps=(
+    "$ROOT/lang/c-abi/shims/hako_llvmc_ffi.c"
+    "$ROOT/lang/c-abi/shims/hako_aot.c"
+    "$ROOT/lang/c-abi/shims/hako_aot_shared_impl.inc"
+    "$ROOT/lang/c-abi/shims/hako_json_v1.c"
+    "$ROOT/plugins/nyash-json-plugin/c/yyjson/yyjson.c"
+  )
+
+  if [ ! -f "$build_script" ]; then
+    echo "[FAIL] phase29ck_small_entry_startup_probe: missing build script: $build_script" >&2
+    exit 1
+  fi
+
+  if [ ! -f "$ffi_lib" ]; then
+    need_rebuild=1
+  else
+    for dep in "${deps[@]}"; do
+      if [ "$dep" -nt "$ffi_lib" ]; then
+        need_rebuild=1
+        break
+      fi
+    done
+  fi
+
+  if [ "$need_rebuild" -eq 1 ]; then
+    bash "$build_script" >/dev/null 2>&1
+  fi
+}
+
 TMPDIR_PROBE="${TMPDIR:-/tmp}/phase29ck_small_entry_startup_probe_$$"
 mkdir -p "$TMPDIR_PROBE"
 
@@ -19,6 +69,9 @@ cleanup() {
   rm -rf "$TMPDIR_PROBE" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
+
+FFI_LIB="$(resolve_boundary_ffi_lib)"
+ensure_boundary_ffi_fresh "$FFI_LIB"
 
 assert_contains() {
   local file="$1"
@@ -117,8 +170,8 @@ assert_contains "$READELF_R_OUT" ".rela.dyn"
 assert_contains "$READELF_R_OUT" ".rela.plt"
 
 rela_dyn_count="$(grep -c 'R_X86_64_' "$READELF_R_OUT" | tr -d ' ')"
-if [ "${rela_dyn_count}" -lt 100 ]; then
-  echo "[FAIL] phase29ck_small_entry_startup_probe: relocation count unexpectedly small: ${rela_dyn_count}" >&2
+if [ "${rela_dyn_count}" -gt 70 ]; then
+  echo "[FAIL] phase29ck_small_entry_startup_probe: relocation count unexpectedly high after gc-sections boundary link trim: ${rela_dyn_count}" >&2
   exit 1
 fi
 

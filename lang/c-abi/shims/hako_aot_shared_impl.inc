@@ -166,6 +166,7 @@ static int hako_aot_build_link_command(
     size_t cmd_len,
     const char* linker,
     const char* pie_avoid,
+    const char* gc_sections_flag,
     const char* exe_path,
     const char* obj_path,
     const char* runtime_lib_path,
@@ -175,9 +176,10 @@ static int hako_aot_build_link_command(
   int n = snprintf(
       cmd,
       cmd_len,
-      "\"%s\"%s -o \"%s\" \"%s\" -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive%s %s 2> \"%s\"",
+      "\"%s\"%s%s -o \"%s\" \"%s\" -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive%s %s 2> \"%s\"",
       linker,
       pie_avoid,
+      gc_sections_flag,
       exe_path,
       obj_path,
       runtime_lib_path,
@@ -306,6 +308,14 @@ static const char* hako_aot_link_os_libs(void) {
 static const char* hako_aot_link_pie_avoid_flag(void) {
 #if defined(__linux__)
   return " -no-pie";
+#else
+  return "";
+#endif
+}
+
+static const char* hako_aot_link_gc_sections_flag(void) {
+#if defined(__linux__)
+  return " -Wl,--gc-sections";
 #else
   return "";
 #endif
@@ -489,6 +499,7 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
           sizeof(cmd),
           linker,
           hako_aot_link_pie_avoid_flag(),
+          hako_aot_link_gc_sections_flag(),
           exe_path,
           obj_path,
           lib,
