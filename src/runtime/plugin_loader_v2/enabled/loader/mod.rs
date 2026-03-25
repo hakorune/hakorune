@@ -11,7 +11,7 @@ use super::types::{LoadedPluginV2, PluginBoxMetadata, PluginHandleInner};
 use crate::bid::BidResult;
 use crate::box_trait::NyashBox;
 use crate::config::nyash_toml_v2::{LibraryDefinition, NyashConfigV2};
-use specs::LoadedBoxSpec;
+pub(super) use specs::LoadedBoxSpec;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 

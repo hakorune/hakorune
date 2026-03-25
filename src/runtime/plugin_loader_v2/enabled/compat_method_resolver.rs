@@ -1,5 +1,9 @@
 use crate::bid::{BidError, BidResult};
 
+fn compat_method_fallback_enabled() -> bool {
+    !crate::config::env::fail_fast() && crate::config::env::vm_compat_fallback_allowed()
+}
+
 pub(super) fn resolve_method_id_from_file(box_type: &str, method_name: &str) -> BidResult<u32> {
     match (box_type, method_name) {
         ("StringBox", "concat") => Ok(102),
@@ -14,12 +18,17 @@ pub(super) fn resolve_method_id_with_compat_policy(
     box_type: &str,
     method_name: &str,
 ) -> BidResult<u32> {
-    if crate::config::env::fail_fast() {
+    if !compat_method_fallback_enabled() {
         if crate::config::env::dev_provider_trace() {
             let ring0 = crate::runtime::get_global_ring0();
+            let reason = if crate::config::env::fail_fast() {
+                "fail_fast"
+            } else {
+                "compat_disabled"
+            };
             ring0.log.debug(&format!(
-                "[provider/trace] reject legacy file fallback box_type={} method={} reason=fail_fast",
-                box_type, method_name
+                "[provider/trace] reject legacy file fallback box_type={} method={} reason={}",
+                box_type, method_name, reason
             ));
         }
         return Err(BidError::InvalidMethod);
@@ -38,6 +47,27 @@ pub(super) fn resolve_method_id_with_compat_policy(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    fn with_env_vars<F: FnOnce()>(pairs: &[(&str, &str)], f: F) {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        let prev: Vec<(String, Option<String>)> = pairs
+            .iter()
+            .map(|(k, _)| ((*k).to_string(), std::env::var(k).ok()))
+            .collect();
+        for (k, v) in pairs {
+            std::env::set_var(k, v);
+        }
+        f();
+        for (k, prev_v) in prev {
+            if let Some(v) = prev_v {
+                std::env::set_var(&k, v);
+            } else {
+                std::env::remove_var(&k);
+            }
+        }
+    }
 
     #[test]
     fn compat_method_table_maps_known_entries() {
@@ -69,5 +99,24 @@ mod tests {
             resolve_method_id_from_file("UnknownBox", "concat"),
             Err(BidError::InvalidMethod)
         ));
+    }
+
+    #[test]
+    fn compat_method_policy_respects_vm_fallback_flag() {
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "1")],
+            || {
+                let got =
+                    resolve_method_id_with_compat_policy("StringBox", "concat").expect("compat");
+                assert_eq!(got, 102);
+            },
+        );
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "0")],
+            || {
+                let got = resolve_method_id_with_compat_policy("StringBox", "concat");
+                assert!(matches!(got, Err(BidError::InvalidMethod)));
+            },
+        );
     }
 }

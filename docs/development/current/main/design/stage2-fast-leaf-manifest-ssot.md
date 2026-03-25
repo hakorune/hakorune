@@ -160,7 +160,7 @@ V0 defaults are fixed like this.
 | `MapBox.has` | `handle_any` | `0` | `0` | `generic_box_call` |
 | `StringBox.len/length/size` | `handle_any` | `0` | `0` | `none` |
 
-`String concat/substring/search` は V0 対象外。`String` 2-wave と `cold dynamic lane split` は landed 済みで、`hako_alloc policy/state contract` も landed stop-line に達したが、widen 判断は `plugin route-manifest hardening` 後の別 wave に保留する。
+`String concat/substring/search` は V0 対象外。`String` 2-wave と `cold dynamic lane split`、`hako_alloc policy/state contract`、`plugin route-manifest hardening` は landed 済みで、widen 判断は次の dedicated wave に保留する。
 
 ## Consumer Rule
 
@@ -190,7 +190,7 @@ V0 defaults are fixed like this.
 4. `String concat route split` (landed)
 5. `cold dynamic lane split` (landed)
 6. `hako_alloc policy/state contract` (landed)
-7. `plugin route-manifest hardening`
+7. `plugin route-manifest hardening` (landed)
 8. widen fast-leaf eligibility only after plugin metadata/route hardening is fixed
 
 ## Acceptance
@@ -201,7 +201,7 @@ V0 defaults are fixed like this.
 - cold dynamic lanes stay excluded
 - `ny-llvm` / `ny-llvmc` is the only fast-leaf consumer
 - `llvmlite` remains a keep lane outside the fast-leaf contract
-- docs point to `plugin route-manifest hardening` as the next exact code slice
+- docs point to `FastLeafManifest widen judgment` as the next exact code slice
 
 ## Non-Goals
 

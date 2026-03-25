@@ -12,6 +12,10 @@ use crate::config::nyash_toml_v2::NyashConfigV2;
 use crate::runtime::get_global_ring0;
 use crate::runtime::plugin_loader_v2::PluginLoaderV2;
 
+fn compat_loader_fallback_enabled() -> bool {
+    !crate::config::env::fail_fast() && crate::config::env::vm_compat_fallback_allowed()
+}
+
 /// Opaque library handle (by name for now)
 #[derive(Clone, Debug)]
 pub struct PluginLibraryHandle {
@@ -177,7 +181,7 @@ impl PluginHost {
                 } else {
                     // No implicit resolver fallback in fail-fast mode.
                     // Keep legacy fallback only when explicitly relaxed.
-                    if crate::config::env::fail_fast() {
+                    if !compat_loader_fallback_enabled() {
                         return Err(BidError::InvalidMethod);
                     }
                     let l = self.loader.read().unwrap();
@@ -232,7 +236,7 @@ impl PluginHost {
         }
 
         // Fallback: delegate to loader (TypeBox, file-based, etc.)
-        if crate::config::env::fail_fast() {
+        if !compat_loader_fallback_enabled() {
             return Err(BidError::InvalidMethod);
         }
         let l = self.loader.read().unwrap();

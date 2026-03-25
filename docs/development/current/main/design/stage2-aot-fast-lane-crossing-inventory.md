@@ -145,13 +145,13 @@ Related:
 | --- | --- | --- |
 | hot runtime lane | direct runtime/env/console routes | keep as direct as possible |
 | cold loader/provider lane | `HostFacadeBox.call(\"loader\", ...) -> extern_provider/plugin loader/hostbridge` | explicit cold dynamic lane |
-| plugin route resolution | `plugin_loader_unified` + `plugin_loader_v2` route resolver / metadata / host_bridge | still contains compat fallbacks |
+| plugin route resolution | `plugin_loader_unified` + `plugin_loader_v2` route resolver / metadata / host_bridge | manifest-first route, compat shim kept explicit and cold |
 
 ### Current exact truths
 
 - [`lang/src/runtime/host/host_facade_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/host/host_facade_box.hako) is the `.hako` single entry for host calls.
 - [`src/backend/mir_interpreter/handlers/extern_provider.rs`](/home/tomoaki/git/hakorune-selfhost/src/backend/mir_interpreter/handlers/extern_provider.rs) is the Rust generic extern dispatcher.
-- [`src/runtime/plugin_loader_unified.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/plugin_loader_unified.rs) and [`src/runtime/plugin_loader_v2/enabled/route_resolver.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/plugin_loader_v2/enabled/route_resolver.rs) still own compat-heavy route resolution.
+- [`src/runtime/plugin_loader_unified.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/plugin_loader_unified.rs) and [`src/runtime/plugin_loader_v2/enabled/route_resolver.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/plugin_loader_v2/enabled/route_resolver.rs) now treat compat fallback as an explicit cold-lane policy, not as the default manifest route.
 - [`src/runtime/extern_registry.rs`](/home/tomoaki/git/hakorune-selfhost/src/runtime/extern_registry.rs) already behaves like a manifest-backed registry for extern rows.
 - [`src/runner/modes/llvm/method_id_injector.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/modes/llvm/method_id_injector.rs) shows that AOT/backend lowering already has a method-id injection seam.
 
@@ -160,7 +160,7 @@ Related:
 - any `HostFacadeBox.call("loader", ...)`
 - `hostbridge.extern_invoke`
 - generic `box.call`
-- plugin loader compat fallback in `route_resolver` / `host_bridge`
+- plugin loader compat fallback behind the explicit `vm_compat_fallback_allowed` cold lane
 - generic extern/provider dispatch from interpreter/runtime globals
 
 ### Next exact implementation buckets
@@ -168,12 +168,15 @@ Related:
 1. `cold dynamic lane split` (landed)
    - runtime direct env/console routes are now classified separately from loader/provider cold routes
    - `HostFacade(loader)` is fixed as an explicit cold dynamic lane, not a generic host hot path
-2. `plugin route-manifest hardening`
-   - unify metadata / resolver / host_bridge contract
-   - keep compat fallback off the hot lane
+2. `plugin route-manifest hardening` (landed)
+   - metadata / resolver / host_bridge contract is manifest-first
+   - compat fallback is explicit and off the mainline route
 3. `hako_alloc policy/state contract`
    - landed stop-line for allocator series
    - do not reopen it in the plugin wave unless a fresh blocker appears
+4. `FastLeafManifest widen judgment`
+   - only after plugin route hardening is landed
+   - widen remains a separate wave
 
 ## Fixed Execution Order
 
@@ -185,7 +188,8 @@ Related:
 6. `String concat route split` (landed)
 7. `cold dynamic lane split` (landed)
 8. `hako_alloc` policy/state contract (landed stop-line)
-9. `plugin route-manifest hardening`
+9. `plugin route-manifest hardening` (landed)
+10. `FastLeafManifest widen judgment`
 
 ## Lane Rule
 
@@ -198,8 +202,8 @@ Related:
 
 ## Current Stop Line
 
-- next code wave is `plugin route-manifest hardening` only
-- do not mix allocator migration or `FastLeafManifest` widening into that wave
+- next code wave is `FastLeafManifest widen judgment` only
+- do not mix allocator migration or plugin route hardening reopen into that wave
 - `RawBuf / Layout / MaybeInit` stay reserved-only after the allocator stop-line
 
 ## Non-Goals

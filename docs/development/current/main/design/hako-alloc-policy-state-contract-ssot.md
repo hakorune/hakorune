@@ -94,5 +94,6 @@ These remain docs/root-reserved only in this wave.
 
 ## Follow-Up
 
-- next exact bucket is `plugin route-manifest hardening`
+- `plugin route-manifest hardening` is landed
+- next exact bucket is `FastLeafManifest widen judgment`
 - `RawBuf / Layout / MaybeInit` live migration is a later allocator wave

@@ -57,6 +57,7 @@ impl PluginLoaderV2 {
         let (code, out_len, out) = super::host_bridge::invoke_alloc_with_route(
             route.invoke_box_fn,
             route.invoke_shim_fn,
+            route.allow_compat_shim,
             type_id,
             method_id,
             instance_id,
@@ -126,6 +127,7 @@ fn decode_tlv_result(
                         type_id: ret_type,
                         invoke_fn: route.invoke_shim_fn,
                         invoke_box_fn: route.invoke_box_fn,
+                        allow_compat_shim: route.allow_compat_shim,
                         instance_id: inst,
                         fini_method_id,
                         finalized: std::sync::atomic::AtomicBool::new(false),

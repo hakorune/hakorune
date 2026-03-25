@@ -26,12 +26,18 @@ pub(super) struct BirthRouteContract {
 pub(super) struct InvokeRouteContract {
     pub invoke_box_fn: Option<BoxInvokeFn>,
     pub invoke_shim_fn: InvokeFn,
+    pub allow_compat_shim: bool,
 }
 
 #[inline]
 fn compat_fallback_allowed() -> bool {
     // Runtime/plugin compat fallback must follow the same route policy gate.
     crate::config::env::vm_compat_fallback_allowed()
+}
+
+#[inline]
+fn compat_route_fallback_enabled() -> bool {
+    !crate::config::env::fail_fast() && compat_fallback_allowed()
 }
 
 pub(super) fn resolve_lib_box_for_type_id(
@@ -51,7 +57,7 @@ pub(super) fn resolve_lib_box_for_type_id(
         }
     }
 
-    if crate::config::env::fail_fast() || !compat_fallback_allowed() {
+    if !compat_route_fallback_enabled() {
         return None;
     }
 
@@ -107,7 +113,7 @@ pub(super) fn resolve_type_info(
         return Ok((lib_name, type_id));
     }
 
-    if crate::config::env::fail_fast() || !compat_fallback_allowed() {
+    if !compat_route_fallback_enabled() {
         return Err(BidError::InvalidType);
     }
 
@@ -146,11 +152,13 @@ pub(super) fn resolve_method_id_for_lib(
         if let Some(ms) = spec.methods.get(method_name) {
             return Ok(ms.method_id);
         }
-        if let Some(res_fn) = spec.resolve_fn {
-            if let Ok(cstr) = std::ffi::CString::new(method_name) {
-                let mid = res_fn(cstr.as_ptr());
-                if mid != 0 {
-                    return Ok(mid);
+        if compat_route_fallback_enabled() {
+            if let Some(res_fn) = spec.resolve_fn {
+                if let Ok(cstr) = std::ffi::CString::new(method_name) {
+                    let mid = res_fn(cstr.as_ptr());
+                    if mid != 0 {
+                        return Ok(mid);
+                    }
                 }
             }
         }
@@ -206,11 +214,13 @@ pub(super) fn resolve_birth_and_fini_for_lib(
             if birth_id.is_none() {
                 if let Some(ms) = spec.methods.get("birth") {
                     birth_id = Some(ms.method_id);
-                } else if let Some(res_fn) = spec.resolve_fn {
-                    if let Ok(cstr) = std::ffi::CString::new("birth") {
-                        let mid = res_fn(cstr.as_ptr());
-                        if mid != 0 {
-                            birth_id = Some(mid);
+                } else if compat_route_fallback_enabled() {
+                    if let Some(res_fn) = spec.resolve_fn {
+                        if let Ok(cstr) = std::ffi::CString::new("birth") {
+                            let mid = res_fn(cstr.as_ptr());
+                            if mid != 0 {
+                                birth_id = Some(mid);
+                            }
                         }
                     }
                 }
@@ -313,6 +323,7 @@ pub(super) fn resolve_invoke_route_contract(
     InvokeRouteContract {
         invoke_box_fn: loader.box_invoke_fn_for_type_id(type_id),
         invoke_shim_fn: super::super::nyash_plugin_invoke_v2_shim,
+        allow_compat_shim: compat_route_fallback_enabled(),
     }
 }
 
@@ -320,7 +331,9 @@ pub(super) fn resolve_invoke_route_contract(
 mod tests {
     use super::*;
     use crate::config::nyash_toml_v2::NyashConfigV2;
+    use crate::runtime::plugin_loader_v2::enabled::loader::LoadedBoxSpec;
     use crate::runtime::plugin_loader_v2::enabled::PluginLoaderV2;
+    use std::collections::HashMap;
 
     static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
@@ -396,23 +409,29 @@ run = { method_id = 7, returns_result = true }
     #[test]
     fn resolve_invoke_route_contract_returns_shim_when_invoke_box_missing() {
         let loader = seed_loader_with_spec();
-        let got = resolve_invoke_route_contract(&loader, 42);
-        assert!(got.invoke_box_fn.is_none());
-        // With no per-box invoke function, shim returns E_PLUGIN (-5).
-        let mut out = [0u8; 8];
-        let mut out_len: usize = out.len();
-        let code = unsafe {
-            (got.invoke_shim_fn)(
-                42,
-                7,
-                1,
-                std::ptr::null(),
-                0,
-                out.as_mut_ptr(),
-                &mut out_len,
-            )
-        };
-        assert_eq!(code, -5);
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "1")],
+            || {
+                let got = resolve_invoke_route_contract(&loader, 42);
+                assert!(got.invoke_box_fn.is_none());
+                assert!(got.allow_compat_shim);
+                // With no per-box invoke function, shim returns E_PLUGIN (-5).
+                let mut out = [0u8; 8];
+                let mut out_len: usize = out.len();
+                let code = unsafe {
+                    (got.invoke_shim_fn)(
+                        42,
+                        7,
+                        1,
+                        std::ptr::null(),
+                        0,
+                        out.as_mut_ptr(),
+                        &mut out_len,
+                    )
+                };
+                assert_eq!(code, -5);
+            },
+        );
     }
 
     #[test]
@@ -445,6 +464,73 @@ run = { method_id = 7, returns_result = true }
             || {
                 let got = resolve_type_info(&loader, "DemoBox");
                 assert!(matches!(got, Err(BidError::InvalidType)));
+            },
+        );
+    }
+
+    extern "C" fn resolve_name(method_name: *const std::os::raw::c_char) -> u32 {
+        let name = unsafe { std::ffi::CStr::from_ptr(method_name) };
+        match name.to_str().ok() {
+            Some("dynamic") => 77,
+            Some("birth") => 11,
+            _ => 0,
+        }
+    }
+
+    fn seed_loader_with_resolve_fn_spec() -> PluginLoaderV2 {
+        let loader = PluginLoaderV2::new();
+        let mut map = loader.box_specs.write().expect("box_specs write");
+        map.insert(
+            ("demo".to_string(), "CompatBox".to_string()),
+            LoadedBoxSpec {
+                type_id: Some(123),
+                methods: HashMap::new(),
+                fini_method_id: Some(999),
+                invoke_id: None,
+                resolve_fn: Some(resolve_name),
+            },
+        );
+        drop(map);
+        loader
+    }
+
+    #[test]
+    fn resolve_method_id_for_lib_resolve_fn_respects_vm_fallback_policy() {
+        let loader = seed_loader_with_resolve_fn_spec();
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "1")],
+            || {
+                let got = resolve_method_id_for_lib(&loader, "demo", "CompatBox", "dynamic")
+                    .expect("compat resolve_fn route");
+                assert_eq!(got, 77);
+            },
+        );
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "0")],
+            || {
+                let got = resolve_method_id_for_lib(&loader, "demo", "CompatBox", "dynamic");
+                assert!(matches!(got, Err(BidError::InvalidMethod)));
+            },
+        );
+    }
+
+    #[test]
+    fn resolve_birth_contract_resolve_fn_respects_vm_fallback_policy() {
+        let loader = seed_loader_with_resolve_fn_spec();
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "1")],
+            || {
+                let got =
+                    resolve_birth_and_fini_for_lib(&loader, "demo", "CompatBox").expect("birth");
+                assert_eq!(got.0, 11);
+                assert_eq!(got.1, Some(999));
+            },
+        );
+        with_env_vars(
+            &[("NYASH_FAIL_FAST", "0"), ("NYASH_VM_USE_FALLBACK", "0")],
+            || {
+                let got = resolve_birth_and_fini_for_lib(&loader, "demo", "CompatBox");
+                assert!(matches!(got, Err(BidError::InvalidMethod)));
             },
         );
     }

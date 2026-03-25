@@ -73,6 +73,7 @@ fn invoke_birth_and_decode_instance_id(
     let (code, out_len, out_buf) = super::host_bridge::invoke_alloc_with_route(
         route.invoke_box_fn,
         route.invoke_shim_fn,
+        route.allow_compat_shim,
         contract.type_id,
         contract.birth_id,
         0,
@@ -115,6 +116,7 @@ fn build_plugin_box_handle(
             type_id: contract.type_id,
             invoke_fn: route.invoke_shim_fn,
             invoke_box_fn: route.invoke_box_fn,
+            allow_compat_shim: route.allow_compat_shim,
             instance_id,
             fini_method_id: contract.fini_id,
             finalized: std::sync::atomic::AtomicBool::new(false),

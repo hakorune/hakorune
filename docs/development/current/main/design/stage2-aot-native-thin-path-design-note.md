@@ -246,12 +246,13 @@ Related:
   - handle reuse policy
   - GC trigger threshold policy
   - reserved-only `RawBuf / Layout / MaybeInit`
-- next exact implementation slice is now `plugin route-manifest hardening`.
+- `plugin route-manifest hardening` is landed; plugin metadata/resolver/host_bridge now treat compat fallback as an explicit cold lane instead of a mainline default.
+- next exact implementation slice is now `FastLeafManifest widen judgment`.
 
 ## Stop Line For The Next Wave
 
-- the next code wave is `plugin route-manifest hardening` only
-- do not mix `FastLeafManifest` widening or allocator migration into that wave
+- the next code wave is `FastLeafManifest widen judgment` only
+- do not mix allocator migration or plugin route hardening reopen into that wave
 - do not reopen `RuntimeDataBox` cold facade or `hako_alloc` policy/state splits in the same series
 - `llvmlite` keep lane follows shared contract only and must not force a wider mainline route shape
 - perf re-baseline happens after each accepted code wave; route-table edits and perf retuning do not land in the same commit

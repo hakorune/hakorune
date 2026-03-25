@@ -16,6 +16,15 @@ fn resolve_global_invoke_box_fn(type_id: u32) -> Option<BoxInvokeFn> {
     route.invoke_box_fn
 }
 
+fn resolve_global_allow_compat_shim(type_id: u32) -> bool {
+    let loader = super::globals::get_global_loader_v2();
+    let Some(guard) = loader.read().ok() else {
+        return false;
+    };
+    let route = super::route_resolver::resolve_invoke_route_contract(&guard, type_id);
+    route.allow_compat_shim
+}
+
 /// Loaded plugin information (library handle + exported addresses)
 pub struct LoadedPluginV2 {
     pub(super) _lib: Arc<libloading::Library>,
@@ -39,6 +48,7 @@ pub struct PluginHandleInner {
     pub type_id: u32,
     pub invoke_fn: InvokeFn,
     pub invoke_box_fn: Option<BoxInvokeFn>,
+    pub allow_compat_shim: bool,
     pub instance_id: u32,
     pub fini_method_id: Option<u32>,
     pub(super) finalized: std::sync::atomic::AtomicBool,
@@ -75,6 +85,7 @@ impl PluginHandleInner {
         super::host_bridge::invoke_alloc_with_route(
             self.invoke_box_fn,
             self.invoke_fn,
+            self.allow_compat_shim,
             self.type_id,
             method_id,
             instance_id,
@@ -171,6 +182,7 @@ impl NyashBox for PluginBoxV2 {
                     type_id: self.inner.type_id,
                     invoke_fn: self.inner.invoke_fn,
                     invoke_box_fn: self.inner.invoke_box_fn,
+                    allow_compat_shim: self.inner.allow_compat_shim,
                     instance_id: new_instance_id,
                     fini_method_id: self.inner.fini_method_id,
                     finalized: std::sync::atomic::AtomicBool::new(false),
@@ -224,6 +236,7 @@ pub fn make_plugin_box_v2(
             type_id,
             invoke_fn,
             invoke_box_fn: resolve_global_invoke_box_fn(type_id),
+            allow_compat_shim: resolve_global_allow_compat_shim(type_id),
             instance_id,
             fini_method_id: None,
             finalized: std::sync::atomic::AtomicBool::new(false),
@@ -245,6 +258,7 @@ pub fn construct_plugin_box(
             type_id,
             invoke_fn,
             invoke_box_fn: resolve_global_invoke_box_fn(type_id),
+            allow_compat_shim: resolve_global_allow_compat_shim(type_id),
             instance_id,
             fini_method_id,
             finalized: std::sync::atomic::AtomicBool::new(false),
