@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W10 active`。
+- current status は `reopen W11 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -83,7 +83,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - heavy `phase2160/builder_min_*` wrappers stay monitor-only for that seam
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the builder-module env/render seam behind `prepare_builder_module_program_json_runner_context()` + `run_rendered_builder_module_program_json_runner()`
   - the exact W10 proof is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
-  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the stdout-file wrapper seam
+  - `tools/smokes/v2/lib/test_runner.sh` now also keeps the stdout-file wrapper seam behind `capture_runner_stdout_to_file()` + `select_registry_builder_module_runner()`
+  - the exact W11 proof is `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the tagged-stdout caller layer above stdout capture
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

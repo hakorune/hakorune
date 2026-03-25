@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W10 active`
+  - status: `reopen W11 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,7 +39,7 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W10 target:
+  - current W11 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
     - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
@@ -53,7 +53,9 @@ Related:
     - heavy `phase2160/builder_min_*` wrappers remain monitor-only while tagged-stdout is pinned helper-locally
     - `tools/smokes/v2/lib/test_runner.sh` builder-module env/render seam is landed behind `prepare_builder_module_program_json_runner_context()` + `run_rendered_builder_module_program_json_runner()`
     - exact proof for that leaf is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
-    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the stdout-file wrapper seam
+    - `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam is landed behind `capture_runner_stdout_to_file()` + `select_registry_builder_module_runner()`
+    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the tagged-stdout caller layer above stdout capture
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

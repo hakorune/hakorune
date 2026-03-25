@@ -29,7 +29,8 @@ Related:
    - W8 landed: `tools/smokes/v2/lib/test_runner.sh` verify-tail policy split
    - W9 landed: `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract split
    - W10 landed: `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split
-   - W10 exact next: stay inside `tools/smokes/v2/lib/test_runner.sh` and move to the stdout-file wrapper seam
+   - W11 landed: `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam split
+   - W11 exact next: stay inside `tools/smokes/v2/lib/test_runner.sh` and move to the tagged-stdout caller layer above stdout capture
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -94,7 +95,8 @@ Related:
   - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
   - heavy `phase2160/builder_min_*` wrappers stay monitor-only for this seam
   - `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
-  - next caller-audit bucket stays in `tools/smokes/v2/lib/test_runner.sh` for the stdout-file wrapper seam
+  - `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+  - next caller-audit bucket stays in `tools/smokes/v2/lib/test_runner.sh` for the tagged-stdout caller layer
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

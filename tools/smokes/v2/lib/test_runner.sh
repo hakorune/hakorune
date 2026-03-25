@@ -1292,16 +1292,46 @@ run_preferred_mirbuilder_canary_and_expect_rc() {
         "$builder_only"
 }
 
+capture_runner_stdout_to_file() {
+    local runner_fn="$1"
+    local builder_module="$2"
+    local prog_json="$3"
+    local runner_arg3="$4"
+    local runner_arg4="$5"
+    local tmp_stdout="$6"
+    local rc=0
+
+    set +e
+    "$runner_fn" "$builder_module" "$prog_json" "$runner_arg3" "$runner_arg4" 2>/dev/null | tee "$tmp_stdout" >/dev/null
+    rc=${PIPESTATUS[0]}
+    set -e
+    return "$rc"
+}
+
+select_registry_builder_module_runner() {
+    local use_preinclude="${1:-0}"
+
+    if [ "$use_preinclude" = "1" ]; then
+        printf '%s' "run_program_json_via_registry_builder_module_vm_with_preinclude"
+        return 0
+    fi
+
+    printf '%s' "run_program_json_via_registry_builder_module_vm"
+}
+
 run_builder_module_vm_to_stdout_file() {
     local builder_module="$1"
     local prog_json="$2"
     local tmp_stdout="$3"
 
-    set +e
-    run_program_json_via_builder_module_vm "$builder_module" "$prog_json" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    local rc=${PIPESTATUS[0]}
-    set -e
-    return "$rc"
+    capture_runner_stdout_to_file \
+        run_program_json_via_builder_module_vm \
+        "$builder_module" \
+        "$prog_json" \
+        "" \
+        "" \
+        "$tmp_stdout"
+    return $?
 }
 
 run_builder_module_tag_to_stdout_file() {
@@ -1320,16 +1350,17 @@ run_registry_builder_module_vm_to_stdout_file() {
     local registry_only="$3"
     local use_preinclude="${4:-0}"
     local tmp_stdout="$5"
+    local runner_fn=""
 
-    set +e
-    if [ "$use_preinclude" = "1" ]; then
-        run_program_json_via_registry_builder_module_vm_with_preinclude "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    else
-        run_program_json_via_registry_builder_module_vm "$builder_module" "$prog_json" "$registry_only" 2>/dev/null | tee "$tmp_stdout" >/dev/null
-    fi
-    local rc=$?
-    set -e
-    return "$rc"
+    runner_fn="$(select_registry_builder_module_runner "$use_preinclude")"
+    capture_runner_stdout_to_file \
+        "$runner_fn" \
+        "$builder_module" \
+        "$prog_json" \
+        "$registry_only" \
+        "" \
+        "$tmp_stdout"
+    return $?
 }
 
 run_registry_builder_tag_to_stdout_file() {
