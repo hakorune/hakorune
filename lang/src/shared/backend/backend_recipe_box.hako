@@ -83,6 +83,8 @@ static box BackendRecipeBox {
     if grouped != null { return grouped }
     grouped = me._acceptance_case_loop_bucket_for(path)
     if grouped != null { return grouped }
+    grouped = me._acceptance_case_compat_bucket_for(path)
+    if grouped != null { return grouped }
     grouped = me._acceptance_case_seed_bucket_for(path)
     if grouped != null { return grouped }
     // Keep the catch-all stable; new evidence should be added to a bucket first.
@@ -159,6 +161,13 @@ static box BackendRecipeBox {
     return null
   }
 
+  _acceptance_case_compat_bucket_for(path) {
+    if path.contains("method_call_only_small.prebuilt.mir.json") {
+      return me.acceptance_case_method_call_only_small_compat_v1()
+    }
+    return null
+  }
+
   _acceptance_case_seed_bucket_for(path) {
     if path.contains("ret_const_min_v1") {
       return me.acceptance_case_ret_const_v1()
@@ -215,6 +224,10 @@ static box BackendRecipeBox {
 
   acceptance_case_indexof_line_loop_v1() {
     return "indexof-line-loop-v1"
+  }
+
+  acceptance_case_method_call_only_small_compat_v1() {
+    return "method-call-only-small-compat-v1"
   }
 
   acceptance_case_ret_const_v1() {

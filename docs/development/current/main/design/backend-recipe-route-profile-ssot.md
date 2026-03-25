@@ -72,7 +72,10 @@ Related:
     - `runtime-data-array-has-missing-v1`
     - `runtime-data-map-has-missing-v1`
     - `runtime-data-map-get-missing-v1`
+  - compat keep evidence
+    - `method-call-only-small-compat-v1`
 - 新しい bucket は、新しい exact fixture が classification family の不足を証明したときだけ追加する。
+- `method-call-only-small-compat-v1` is evidence ownership only; it does not promote the seed into the supported pure-first lane.
 
 ## Ownership Split
 
