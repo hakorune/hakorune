@@ -32,7 +32,8 @@ Related:
 - `W3b` `boundary_driver*.rs` thin-floor is landed.
 - `W3c` generic compile symbol branch keep-only lock is landed.
 - `W4a` keep-lane owner inventory sync is landed.
-- current active pre-perf front is `W4b` acceptance/readme/test split.
+- `W4b` acceptance/readme/test split is landed.
+- current active pre-perf front is `W4c` pre-perf exit check and close-sync.
 - `perf/kilo` remains parked until `W3..W4` are also closed.
 
 ## Fixed Order
@@ -129,6 +130,9 @@ Related:
   - `W4a` is landed
   - `tools/llvmlite_harness.py` now self-identifies with `[llvmlite-keep]`
   - `src/llvm_py/README.md` now pins the Python lane as explicit compat/probe keep in the code-side entry doc
+  - `W4b` is landed
+  - mainline acceptance and keep-lane acceptance are now read separately
+  - keep-lane identity is pinned by `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh`
 - split order:
   - `W4a` keep-lane owner inventory sync
   - `W4b` acceptance/readme/test split between mainline and keep
@@ -137,8 +141,12 @@ Related:
   - no new hot-path optimization in `llvm_py`
   - no perf reopen in the same patch
 - acceptance:
-  - keep-lane docs/tests stay green
-  - `phase-29ck` mainline route proofs do not require `llvmlite`
+  - mainline:
+    - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
+    - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
+  - keep:
+    - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh`
+    - `PYTHONPATH=src/llvm_py:. python3 -m unittest src.llvm_py.tests.test_strlen_fast`
 
 ## Pre-Perf Exit Condition
 

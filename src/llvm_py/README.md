@@ -1,8 +1,8 @@
-# LLVM Python Backend (Experimental)
+# LLVM Python Backend (Compat/Probe Keep)
 
 ## 📝 概要
-Rust/inkwellの複雑性を回避し、llvmliteを使ってシンプルに実装する実験的バックエンド。
-ChatGPTが設計した`docs/development/design/legacy/LLVM_LAYER_OVERVIEW.md`の設計原則に従う。
+`src/llvm_py/**` は current daily owner ではなく、llvmlite を使う compat/probe keep lane だよ。
+mainline backend route は `ny-llvm / ny-llvmc` に固定されていて、この Python lane は explicit opt-in 比較・検証用として保守する。
 
 ## 🎯 目的
 1. **検証ハーネス** - PHI/SSA構造の高速検証
@@ -106,6 +106,9 @@ NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune program.hako
 - [ ] 追加命令/Stage-3 の持続的整備
 
 ## ✅ テスト・検証
+- mainline acceptance ではない keep checks
+  - `bash tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh`
+  - `PYTHONPATH=src/llvm_py:. python3 -m unittest src.llvm_py.tests.test_strlen_fast`
 - パリティ（llvmlite vs PyVM。既定は終了コードのみ比較）
   - `./tools/historical/pyvm/pyvm_vs_llvmlite.sh apps/tests/ternary_nested.hako`
   - 代表例（プリパス有効）:
