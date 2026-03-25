@@ -14,6 +14,7 @@ Related:
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
+  - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - lang/README.md
   - lang/src/runtime/collections/README.md
 ---
@@ -90,6 +91,10 @@ Native keep remains below those layers:
 - `lang/bin/hakorune` is a Stage1 stable snapshot, not the final distribution truth.
 - `target/selfhost/hakorune` is the current Stage1 dev line, not the final distribution truth.
 - `launcher-exe` / `stage1-cli` are Stage1 artifact kinds; they do not define Stage2 distribution packaging.
+- `stage2-aot-native-thin-path-design-note.md` owns the AOT fast-lane rule:
+  - source layering stays
+  - execution layering may collapse only inside `AOT/native`
+  - this parent doc does not re-decide that route policy
 - current `.hako` kernel migration work lives on the owner/substrate axis and is allowed to proceed before Stage2 distribution packaging is active.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.
 - `runtime/memory/**` is not the canonical home for alloc/policy helpers in the end-state layering.

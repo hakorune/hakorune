@@ -6,6 +6,7 @@ Related:
 - docs/development/current/main/design/optimization-tag-flow-ssot.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
+- docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
 - CURRENT_TASK.md
@@ -93,6 +94,20 @@ Hotspot は次の分類で読む。
   - OnceLock / handle cache / span cache
 
 判断に迷ったら、まず bridge と allocation を疑う。
+
+## Stage2 Thin-Path Reading
+
+`stage2` / `hako_alloc` / `hakozuna` 側の AOT fast-lane 検討では、最初に source layering を疑わない。
+
+- 先に疑うもの:
+  - bridge cost
+  - allocation cost
+  - semantic-owner cost
+  - dynamic fallback cost
+- 先に疑わないもの:
+  - source owner/substrate layering そのもの
+- route collapse は perf lane の対象にしてよいが、source relayering は別 SSOT の責務だよ。
+- hot path が `HostFacade / extern_provider / plugin loader` に入るなら、それは perf miss として扱う。
 
 ## Stop Line
 
