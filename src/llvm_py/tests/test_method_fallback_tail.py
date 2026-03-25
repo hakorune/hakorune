@@ -294,6 +294,24 @@ class TestMethodFallbackTail(unittest.TestCase):
                 plugin_call_name="unified_plugin_invoke",
             )
 
+    def test_alias_box_missing_direct_target_fails_fast_without_by_name_tail(self):
+        i64, module, builder = _new_builder()
+
+        with self.assertRaisesRegex(NotImplementedError, "Unsupported MIR method call"):
+            lower_direct_or_plugin_method_call(
+                builder=builder,
+                module=module,
+                box_name="LlvmBackendBox",
+                method_name="compile_obj",
+                recv_h=ir.Constant(i64, 1),
+                args=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                direct_call_name="known_box_compile_obj",
+                plugin_call_name="unified_plugin_invoke",
+                receiver_literal="selfhost.shared.backend.llvm_backend",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

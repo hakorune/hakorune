@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `BYN-min5` readiness runway の first blocker bucket を daily caller / caller-shrink residue に固定し、`invoke_by_name_i64` を残す最後の evidence leaf を縮める。
@@ -16,6 +16,7 @@ Related:
   - src/llvm_py/tests/test_method_fallback_tail.py
   - src/llvm_py/tests/test_method_call_stage1_module_alias.py
   - src/llvm_py/tests/test_mir_call_hot_fallback.py
+  - src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py
 ---
 
 # P6: BYN-min5 Daily Caller Shrink
@@ -41,10 +42,11 @@ Related:
 
 ## Current Truth
 
-1. `direct_box_method.py` still contains the remaining direct-miss fallback leaf that emits `nyash.plugin.invoke_by_name_i64`.
-2. `method.rs`, `type_registry.rs`, and `unified_dispatch.rs` remain name-resolution dependent migration targets.
-3. `BYN-min5` is still not open because this caller bucket is not fully shrunk yet.
-4. the compat-only by-name residue is narrower than before, but the daily caller inventory is not empty.
+1. `direct_box_method.py` now delegates the last FileBox compat leaf into `src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py`.
+2. the FileBox compat leaf is still present, but the direct-route helper itself is now direct-route focused.
+3. `method.rs`, `type_registry.rs`, and `unified_dispatch.rs` remain name-resolution dependent migration targets.
+4. `BYN-min5` is still not open because this caller bucket is not fully shrunk yet.
+5. the compat-only by-name residue is narrower than before, but the daily caller inventory is not empty.
 
 ## Acceptance
 

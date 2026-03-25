@@ -11,6 +11,8 @@ from typing import Callable, List, Optional
 from llvmlite import ir
 
 from instructions.direct_box_method import try_lower_known_box_method_call
+
+
 def lower_direct_or_plugin_method_call(
     *,
     builder: ir.IRBuilder,
@@ -24,7 +26,7 @@ def lower_direct_or_plugin_method_call(
     direct_call_name: str,
     plugin_call_name: str,
     receiver_literal: Optional[str] = None,
-    ):
+):
     direct_result = try_lower_known_box_method_call(
         builder=builder,
         module=module,
@@ -36,6 +38,7 @@ def lower_direct_or_plugin_method_call(
         ensure_handle=ensure_handle,
         call_name=direct_call_name,
         receiver_literal=receiver_literal,
+        allow_plugin_fallback=(box_name == "FileBox"),
     )
     if direct_result is not None:
         return direct_result

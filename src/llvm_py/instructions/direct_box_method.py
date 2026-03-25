@@ -17,6 +17,10 @@ from typing import Callable, List, Optional, Tuple
 from llvmlite import ir
 
 from naming_helper import encode_static_method
+from instructions.mir_call.filebox_plugin_fallback import (
+    FILEBOX_PLUGIN_FALLBACK_METHODS,
+    lower_filebox_plugin_invoke_by_name,
+)
 
 
 _MODULE_RECEIVER_BOX_ALIASES = {
@@ -31,11 +35,6 @@ _MODULE_RECEIVER_BOX_ALIASES = {
     "selfhost.shared.common.string_helpers": "StringHelpers",
 }
 _DIRECT_BOX_NAMES = frozenset(_MODULE_RECEIVER_BOX_ALIASES.values())
-_PLUGIN_FALLBACK_METHODS = {
-    "FileBox": frozenset(
-        ("open", "read", "readBytes", "write", "writeBytes", "close")
-    ),
-}
 
 
 def _declare(module: ir.Module, name: str, ret, args):
@@ -98,61 +97,6 @@ def resolve_known_box_method(
     return None
 
 
-def _unique_global_name(module: ir.Module, base: str) -> str:
-    existing = {g.name for g in module.global_values}
-    name = base
-    suffix = 1
-    while name in existing:
-        name = f"{base}.{suffix}"
-        suffix += 1
-    return name
-
-
-def _declare_method_string(builder: ir.IRBuilder, module: ir.Module, method_name: str):
-    i8 = ir.IntType(8)
-    i8p = i8.as_pointer()
-    arr_bytes = method_name.encode("utf-8") + b"\0"
-    arr_ty = ir.ArrayType(i8, len(arr_bytes))
-    gname = _unique_global_name(module, f".plugin.meth.{method_name}")
-    g = ir.GlobalVariable(module, arr_ty, name=gname)
-    g.initializer = ir.Constant(arr_ty, bytearray(arr_bytes))
-    g.linkage = "private"
-    g.global_constant = True
-    c0 = ir.Constant(ir.IntType(32), 0)
-    return builder.gep(g, [c0, c0], inbounds=True)
-
-
-def _lower_plugin_invoke_by_name(
-    *,
-    builder: ir.IRBuilder,
-    module: ir.Module,
-    recv_h: ir.Value,
-    method_name: str,
-    args: List[int],
-    resolve_arg: Callable[[int], Optional[ir.Value]],
-    ensure_handle: Callable[[ir.Value], ir.Value],
-    call_name: str,
-):
-    i64 = ir.IntType(64)
-    i8p = ir.IntType(8).as_pointer()
-    method_cstr = _declare_method_string(builder, module, method_name)
-    argc = ir.Constant(i64, len(args))
-    a1 = ir.Constant(i64, 0)
-    a2 = ir.Constant(i64, 0)
-    if len(args) > 0:
-        arg_val = resolve_arg(args[0])
-        if arg_val is None:
-            arg_val = ir.Constant(i64, 0)
-        a1 = ensure_handle(arg_val)
-    if len(args) > 1:
-        arg_val = resolve_arg(args[1])
-        if arg_val is None:
-            arg_val = ir.Constant(i64, 0)
-        a2 = ensure_handle(arg_val)
-    callee = _declare(module, "nyash.plugin.invoke_by_name_i64", i64, [i64, i8p, i64, i64, i64])
-    return builder.call(callee, [recv_h, method_cstr, argc, a1, a2], name=call_name)
-
-
 def try_lower_known_box_method_call(
     *,
     builder: ir.IRBuilder,
@@ -165,6 +109,7 @@ def try_lower_known_box_method_call(
     ensure_handle: Callable[[ir.Value], ir.Value],
     call_name: str,
     receiver_literal: Optional[str] = None,
+    allow_plugin_fallback: bool = True,
 ):
     """Lower to a direct `Box.method/arity` call when the target exists."""
     i64 = ir.IntType(64)
@@ -179,15 +124,17 @@ def try_lower_known_box_method_call(
         receiver_literal,
     )
     if callee is None:
+        if not allow_plugin_fallback:
+            return None
         allow_plugin_fallback = resolved_box_name in _DIRECT_BOX_NAMES
         if not allow_plugin_fallback:
-            allowed_methods = _PLUGIN_FALLBACK_METHODS.get(resolved_box_name)
             allow_plugin_fallback = (
-                allowed_methods is not None and method_name in allowed_methods
+                resolved_box_name == "FileBox"
+                and method_name in FILEBOX_PLUGIN_FALLBACK_METHODS
             )
         if not allow_plugin_fallback:
             return None
-        return _lower_plugin_invoke_by_name(
+        return lower_filebox_plugin_invoke_by_name(
             builder=builder,
             module=module,
             recv_h=recv_h,

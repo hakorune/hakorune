@@ -134,8 +134,8 @@ Rule:
    - the stage1 module-string tests now include explicit compat proof, and the public `nyash.plugin.invoke_by_name_i64` export is kept as compat-only
 18. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
-   - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback
-   - `src/llvm_py/instructions/direct_box_method.py` is the remaining direct-miss fallback leaf and is treated as compat-only residue under `BYN-min1`
+   - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback on the daily caller path
+   - `src/llvm_py/instructions/direct_box_method.py` now delegates the remaining FileBox compat leaf into `src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py`
    - BoxCall no longer owns `nyash.plugin.invoke_by_name_i64`
    - `src/llvm_py/instructions/by_name_method.py` and `src/llvm_py/instructions/plugin_invoke_lowering.py` have been retired
    - string-result annotation lives in `src/llvm_py/instructions/string_result_policy.py`
@@ -167,12 +167,12 @@ Rule:
    - `hako_forward_bridge.rs` / `hako_forward.rs` / `hako_forward_registry.c` / `hako_forward_registry_shared_impl.inc` / `hako_kernel.c` stay explicit compat-only
    - reopen only on fresh live caller proof or duplicate-owner regression
    - closeout owner: `P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md`
-4. current exact front is `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md`
+4. `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md` is closed
+   - daily caller residue is narrower and isolated in the explicit FileBox compat helper
+5. current exact front is `P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md`
    - P5 remains the blocker inventory
-   - daily caller residue is the first blocker bucket
-5. `P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md` follows once the daily caller residue is narrower
 6. `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md` follows as the final blocker bucket before readiness judgment
-7. after P6/P7/P8 are closed, `BYN-min5` readiness judgment can start
+7. after P7/P8 are closed, `BYN-min5` readiness judgment can start
 8. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 9. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 10. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears

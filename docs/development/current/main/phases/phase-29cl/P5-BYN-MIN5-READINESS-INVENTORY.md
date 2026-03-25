@@ -37,8 +37,10 @@ Related:
 ### 1. Daily caller / caller-shrink residue is still present
 
 - `src/llvm_py/instructions/direct_box_method.py`
-  - current direct-miss fallback leaf still emits `nyash.plugin.invoke_by_name_i64`
-  - compat-only residue ではあるが、caller shrink wave の最後に残る evidence leaf だよ
+  - now delegates the last FileBox compat leaf into `src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py`
+  - direct-route helper itself is thinner, but the compat-only residue still exists in the explicit helper
+- `src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py`
+  - owns the remaining `nyash.plugin.invoke_by_name_i64` emission for FileBox
 - `src/backend/mir_interpreter/handlers/calls/method.rs`
 - `src/runtime/type_registry.rs`
 - `src/backend/wasm_v2/unified_dispatch.rs`
@@ -67,7 +69,7 @@ Related:
 3. `BYN-min5` is not open yet because the current inventory still contains proof/compat residues.
 4. no new daily caller is allowed to appear while this inventory stays pending.
 5. readiness judgment can only happen after these blocker buckets stop owning live proof.
-6. next exact front is `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md`
+6. next exact front is `P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md`
 
 ## Acceptance
 
