@@ -249,6 +249,8 @@ Related:
 - `plugin route-manifest hardening` is landed; plugin metadata/resolver/host_bridge now treat compat fallback as an explicit cold lane instead of a mainline default.
 - `FastLeafManifest widen judgment` is landed with `no widen now`.
 - there is no active stage2 implementation slice until a real backend-private consumer patch exists.
+- therefore the next `ny-llvm` code-facing front is not a stage2 fast-leaf reopen but the backend-zero `.hako` recipe seam in `phase-29ck`.
+- `phase-21_5` / `kilo` perf remains a later evidence lane after that backend-zero front is stable.
 
 ## Stop Line For The Next Wave
 
@@ -257,6 +259,7 @@ Related:
 - do not reopen `RuntimeDataBox` cold facade or `hako_alloc` policy/state splits in the same series
 - `llvmlite` keep lane follows shared contract only and must not force a wider mainline route shape
 - perf re-baseline happens after each accepted code wave; route-table edits and perf retuning do not land in the same commit
+- do not reopen `kilo` perf while `phase-29ck` still has an active exact `ny-llvm` front; first close the `.hako` recipe seam and the related boundary fallback reliance cuts
 
 ## Non-Goals
 

@@ -332,24 +332,25 @@ Related:
 
 ## Immediate Next
 
-1. post-`BE0-min6` C owner cleanup follow-up
-   - target owner is now `lang/c-abi/include/hako_aot.h` / `lang/c-abi/shims/hako_aot.c`
-   - shared TLS diagnostics + libc memory now live at `lang/c-abi/shims/hako_diag_mem_shared_impl.inc`
-   - path-owner naming is now explicit at `lang/c-abi/include/hako_aot.h` (`mir_json_path` / `obj_path` / `exe_path`)
-   - FFI library selection and runtime archive path resolution now live behind owner-local helpers inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
-   - compile/link execute-fail projection now lives behind shared helpers inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
-   - shim-flag / linker option finalize now also lives behind owner-local helpers inside `lang/c-abi/shims/hako_aot_shared_impl.inc`
-   - launcher proof note: do not reopen the temporary compiled-stage1 surrogate unless the daily caller route changes again; current B1 front is compile-contract cleanup and env-truth lock
-2. runner / host-provider demotion follow-up
-   - `src/host_providers/llvm_codegen.rs` now keeps `C-API keep`, explicit `llvmlite` keep, and default `ny-llvmc` route behind owner-local helpers
-   - `src/runner/modes/llvm/mod.rs` no longer carries stale harness-only object emit warnings
-   - first compat keep reduction slice is limited to `src/host_providers/llvm_codegen.rs` / `src/host_providers/llvm_codegen/route.rs`
-   - `route.rs` now factors the shared keep compile setup behind `compile_via_capi_keep_internal(...)`
-   - `src/host_providers/llvm_codegen.rs` is already thin enough for this lane; do not thin it further here
-   - `crates/nyash-llvm-compiler/src/boundary_driver.rs` is now facade-only; its FFI plumbing moved to `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs`
-   - keep the generic compile symbol branch parked as keep-only; do not mix `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs` or `lang/c-abi/shims/hako_llvmc_ffi.c` into the same slice
-   - C helper cleanup is near thin floor; next large-grain front after that remains Python owner demotion (`tools/llvmlite_harness.py` / `src/llvm_py/**`)
-3. runtime proof blocker inventory
+1. `.hako` recipe seam
+   - this is the current exact front for backend-zero mainline work
+   - owner is `lang/src/shared/backend/backend_recipe_box.hako`
+   - work stays on pure-first accept/reject coverage and visible `acceptance_policy=boundary-pure-seed-matrix-v1` rows
+   - broader method-loop packs are evidence only; do not promote them to the owner of route truth
+   - keep `lang/c-abi/shims/hako_llvmc_ffi.c` transport-only: export/marshal plus explicit compat replay only
+2. boundary fallback reliance reduction
+   - reduce unsupported-shape dependence on `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`
+   - keep `harness` and `native` as explicit replay lanes; do not let them re-enter the daily default route
+   - post-`BE0-min6` C owner cleanup and forwarder cleanup belong here, not ahead of the recipe seam
+3. Rust glue thinning
+   - `src/host_providers/llvm_codegen.rs` and `crates/nyash-llvm-compiler/src/boundary_driver*.rs` stay facade/boundary glue only
+   - do not reopen them for owner logic while the recipe seam is still the active front
+   - keep the generic compile symbol branch parked as keep-only until compat replay no longer needs it
+4. `llvmlite` demotion completion
+   - `tools/llvmlite_harness.py` and `src/llvm_py/**` remain explicit compat/canary keep only
+   - do not give `llvmlite` new hot-path obligations
+   - demotion completes only after the recipe seam and fallback-reliance fronts are stable
+5. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
@@ -368,20 +369,24 @@ Related:
       - `HAKO_CAPI_PURE=1`
         - kept only for historical pure-lowering routes; not required by the phase-29ck `.hako VM` runtime proof and no longer the daily recipe SSOT
    - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
-3. native subset widening
+6. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
-4. next backend demotion front
+7. next backend demotion front
    - `phase-29cl` compiled-stage1 surrogate shrink remains the first exact next slice
    - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py` / `phi_wiring/analysis.py` / `phi_wiring/tagging.py`; move to the next `phi_wiring/**` owner seam, with `wiring.py::wire_incomings(...)` resolution/selection path the most natural exact leaf
-5. post-cutover follow-up
+8. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
    - temporary seam/env retirement check
    - `by_name` retirement cutover is a separate follow-up owned by `phase-29cl`
-6. compat-only pure pack lock
+9. compat-only pure pack lock
    - explicit historical entry is `tools/selfhost/run_compat_pure_pack.sh`
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
-7. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
+10. `phase-21_5` perf/kilo reopen
+   - perf lane stays parked until the `phase-29ck` mainline fronts above are stable
+   - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
+   - `llvmlite` / harness stays outside the perf baseline
+11. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance
 

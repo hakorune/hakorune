@@ -25,9 +25,20 @@ Related:
 1. whole-program の差をまず安定 baseline で固定する。
 2. そこから micro leaf を 1 本ずつ exact に削る。
 
+## Current Scheduling Status
+
+- `phase-21_5` perf reopen is currently parked.
+- reopen order is fixed like this:
+  1. close the active `ny-llvm` backend-zero front in `phase-29ck`
+  2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary) -> C ABI`
+  3. only then reopen `kilo` / `micro kilo`
+- `llvmlite` / harness stays outside the perf judge even when the lane reopens.
+
 ## Owner Scope Lock
 
 この wave で触る owner と、keep lane として読むだけに留める owner を最初に固定する。
+
+- this owner list applies when the perf lane is explicitly reopened; it is not the current mainline implementation front today.
 
 - active edit owners:
   - `crates/nyash_kernel/src/exports/string.rs`
@@ -129,6 +140,9 @@ Hotspot は次の分類で読む。
   - first `String search/slice route split`
   - then `String concat route split`
 - `llvmlite` remains outside the perf judge even when stage2 String waves are active.
+- current scheduling consequence:
+  - if `phase-29ck` still has an active exact `ny-llvm` front, do not reopen this perf lane yet
+  - current preferred next owner is the backend-zero `.hako` recipe seam, not a `kilo` retune
 
 ## Stop Line
 
