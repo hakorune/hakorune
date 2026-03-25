@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P6-BYN-MIN5-DAILY-CALLER-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/development/current/main/phases/phase-29cl/P0-BY-NAME-OWNER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P1-BY-NAME-CUTOVER-ORDER.md
   - docs/development/current/main/phases/phase-29cl/P2-BY-NAME-ACCEPTANCE-AND-REOPEN-RULE.md
@@ -67,4 +68,4 @@ Reopen this wave only when one of these is true.
 
 ## Next Exact Front
 
-1. `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md`
+1. `P9-BYN-MIN5-READINESS-JUDGMENT.md`

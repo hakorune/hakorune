@@ -42,6 +42,8 @@ Related:
    - frozen proof owners bucket; keep surrogate cluster explicit until caller-proof says removable
 8. `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md`
    - compat keep bucket; decide whether the keep cluster can be archived-only
+9. `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+   - hard-retire readiness judgment bucket; only after P6/P7/P8 are closed
 
 ## 2. Current Daily Caller Reading
 

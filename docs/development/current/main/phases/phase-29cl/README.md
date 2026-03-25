@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P6-BYN-MIN5-DAILY-CALLER-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
+  - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -169,7 +170,7 @@ Rule:
    - closeout owner: `P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md`
 4. `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md` is closed
    - daily caller residue is narrower and isolated in the explicit FileBox compat helper
-5. current exact front is `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md`
+5. current exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
    - P5 remains the blocker inventory
 6. after P8 is closed, `BYN-min5` readiness judgment can start
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain

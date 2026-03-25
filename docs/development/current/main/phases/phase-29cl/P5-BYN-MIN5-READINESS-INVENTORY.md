@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P2-BY-NAME-ACCEPTANCE-AND-REOPEN-RULE.md
   - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
   - docs/development/current/main/phases/phase-29cl/P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md
+  - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -69,7 +70,7 @@ Related:
 3. `BYN-min5` is not open yet because the current inventory still contains proof/compat residues.
 4. no new daily caller is allowed to appear while this inventory stays pending.
 5. readiness judgment can only happen after these blocker buckets stop owning live proof.
-6. next exact front is `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md`
+6. next exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
 
 ## Acceptance
 

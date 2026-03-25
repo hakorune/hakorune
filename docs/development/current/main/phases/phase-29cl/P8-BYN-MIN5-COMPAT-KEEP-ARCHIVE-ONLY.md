@@ -1,13 +1,14 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `BYN-min5` readiness runway の third blocker bucket を compat keep owners に固定し、hook / registry / fallback policy を explicit archive-only へ落とせるかを判断する。
+Scope: `BYN-min5` readiness runway の third blocker bucket を compat keep owners に固定し、hook / registry / fallback policy を explicit archive-only closeout として閉じる。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P6-BYN-MIN5-DAILY-CALLER-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md
+  - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/development/current/main/phases/phase-29cl/P0-BY-NAME-OWNER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P1-BY-NAME-CUTOVER-ORDER.md
   - docs/development/current/main/phases/phase-29cl/P2-BY-NAME-ACCEPTANCE-AND-REOPEN-RULE.md
@@ -45,7 +46,7 @@ Related:
 1. `hako_forward_registry_shared_impl.inc` is the single shared C owner for hook registry storage and try-call behavior.
 2. `hako_forward_registry.c` and `hako_kernel.c` are include owners only; they do not each keep duplicate registry logic inline.
 3. `hako_forward_bridge.rs` is already at thin floor and remains explicit compat-only residue.
-4. `BYN-min5` is still not open because this compat bucket still owns live evidence.
+4. `BYN-min5` readiness judgment can start now that this compat bucket is closed.
 
 ## Acceptance
 
@@ -73,4 +74,4 @@ Reopen this wave only when one of these is true.
 
 ## Next Exact Front
 
-1. `BYN-min5` readiness judgment, only after P6/P7/P8 are closed
+1. `P9-BYN-MIN5-READINESS-JUDGMENT.md`
