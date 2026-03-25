@@ -23,8 +23,5 @@ run_registry_builder_diag_canary \
   "return.method.arraymap" \
   "[mirbuilder/registry:return.method.arraymap]" \
   "registry_optin_method_arraymap_get (diag)" \
-  fixed \
-  "builder vm exec failed (diag)" \
-  "registry tag not observed (diag)" \
-  "MIR missing functions (diag)"
+  fixed
 exit 0

@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W12 active`
+  - status: `reopen W13 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,7 +39,7 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W12 target:
+  - current W13 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
     - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
@@ -60,7 +60,10 @@ Related:
     - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but stay monitor-only
     - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer is landed behind `run_stdout_tag_canary_exec_and_repair()`
     - exact proof for that leaf is `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
-    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the registry-specialized tagged-stdout layer centered on `prepare_registry_tagged_mir_canary_stdout()` + `run_registry_builder_diag_canary()`
+    - `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer is landed behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
+    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
+    - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
+    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the method-arraymap fallback synth + token-check layer centered on `run_registry_method_arraymap_canary()`
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

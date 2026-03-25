@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W12 active`。
+- current status は `reopen W13 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -90,7 +90,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but they remain monitor-only and are not the helper-local acceptance line
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the tagged-stdout caller layer behind `run_stdout_tag_canary_exec_and_repair()`
   - the exact W12 proof is `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
-  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the registry-specialized tagged-stdout layer centered on `prepare_registry_tagged_mir_canary_stdout()` + `run_registry_builder_diag_canary()`
+  - `tools/smokes/v2/lib/test_runner.sh` now also keeps the registry-specialized tagged-stdout layer behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
+  - the exact W13 proof is `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
+  - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
+  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the method-arraymap fallback synth + token-check layer centered on `run_registry_method_arraymap_canary()`
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

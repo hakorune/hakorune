@@ -1713,16 +1713,13 @@ run_registry_builder_tag_canary() {
         "$skip_mir_label"
 }
 
-prepare_registry_tagged_mir_canary_stdout() {
+capture_registry_tagged_stdout_snapshot() {
     local prog_json="$1"
     local registry_only="$2"
     local expected_tag_pattern="$3"
     local grep_mode="$4"
     local use_preinclude="$5"
-    local skip_exec_label="$6"
-    local skip_tag_label="$7"
-    local skip_mir_label="$8"
-    local out_tmp_stdout_var="$9"
+    local out_tmp_stdout_var="$6"
 
     local tmp_stdout
     tmp_stdout=$(mktemp)
@@ -1752,23 +1749,36 @@ prepare_registry_tagged_mir_canary_stdout() {
     return 0
 }
 
-run_registry_builder_diag_canary() {
+prepare_registry_tagged_mir_canary_stdout() {
+    local prog_json="$1"
+    local registry_only="$2"
+    local expected_tag_pattern="$3"
+    local grep_mode="$4"
+    local use_preinclude="$5"
+    local out_tmp_stdout_var="$6"
+
+    capture_registry_tagged_stdout_snapshot \
+        "$prog_json" \
+        "$registry_only" \
+        "$expected_tag_pattern" \
+        "$grep_mode" \
+        "$use_preinclude" \
+        "$out_tmp_stdout_var"
+}
+
+run_registry_builder_diag_exec_and_contract() {
     local builder_module="$1"
     local prog_json="$2"
     local registry_only="$3"
     local expected_tag_pattern="$4"
-    local pass_label="$5"
-    local grep_mode="${6:-basic}"
-    local skip_exec_label="${7:-builder vm exec failed (diag)}"
-    local skip_tag_label="${8:-registry tag not observed (diag)}"
-    local skip_mir_label="${9:-MIR missing functions (diag)}"
-
-    local tmp_stdout
-    tmp_stdout=$(mktemp)
+    local grep_mode="${5:-basic}"
+    local tmp_stdout="$6"
+    local out_rc_var="$7"
+    local rc=0
 
     set +e
     run_program_json_via_registry_builder_module_vm_diag "$builder_module" "$prog_json" "$registry_only" | tee "$tmp_stdout"
-    local rc=$?
+    rc=$?
     set -e
 
     if ! ensure_phase2160_tagged_stdout_contract \
@@ -1781,6 +1791,31 @@ run_registry_builder_diag_canary() {
         1; then
         rc=0
     fi
+
+    printf -v "$out_rc_var" '%s' "$rc"
+    return 0
+}
+
+run_registry_builder_diag_canary() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local registry_only="$3"
+    local expected_tag_pattern="$4"
+    local pass_label="$5"
+    local grep_mode="${6:-basic}"
+
+    local tmp_stdout
+    local rc=0
+    tmp_stdout=$(mktemp)
+
+    run_registry_builder_diag_exec_and_contract \
+        "$builder_module" \
+        "$prog_json" \
+        "$registry_only" \
+        "$expected_tag_pattern" \
+        "$grep_mode" \
+        "$tmp_stdout" \
+        rc
 
     echo "[diag] rc=$rc"
     echo "[PASS] ${pass_label}"
@@ -1880,9 +1915,6 @@ run_registry_method_arraymap_canary() {
         "$expected_tag_label" \
         fixed \
         "$use_preinclude" \
-        "$skip_exec_label" \
-        "$skip_tag_label" \
-        "$skip_mir_label" \
         tmp_stdout; then
         tmp_stdout=$(mktemp)
         synthesize_phase2160_method_arraymap_stdout \
