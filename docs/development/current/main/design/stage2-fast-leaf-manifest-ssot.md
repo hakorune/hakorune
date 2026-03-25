@@ -160,7 +160,7 @@ V0 defaults are fixed like this.
 | `MapBox.has` | `handle_any` | `0` | `0` | `generic_box_call` |
 | `StringBox.len/length/size` | `handle_any` | `0` | `0` | `none` |
 
-`String concat/substring/search` は V0 対象外。`String search/slice` と `String concat` の両 wave が landed するまで widen しない。
+`String concat/substring/search` は V0 対象外。`String` 2-wave は landed 済みだが、widen 判断は `cold dynamic lane split` の stop-line が固まるまで別 wave に保留する。
 
 ## Consumer Rule
 
@@ -186,9 +186,10 @@ V0 defaults are fixed like this.
 2. `Map hot path collapse` (landed)
    - observer route is fixed on `nyash.map.entry_count_h`
    - raw `slot_load_hh` / `slot_store_hhh` / `probe_hh` stay the direct seam
-3. `String search/slice route split`
-4. `String concat route split`
-5. widen fast-leaf eligibility only after both String waves are thin
+3. `String search/slice route split` (landed)
+4. `String concat route split` (landed)
+5. `cold dynamic lane split`
+6. widen fast-leaf eligibility only after the cold-lane boundary is fixed
 
 ## Acceptance
 
@@ -198,8 +199,7 @@ V0 defaults are fixed like this.
 - cold dynamic lanes stay excluded
 - `ny-llvm` / `ny-llvmc` is the only fast-leaf consumer
 - `llvmlite` remains a keep lane outside the fast-leaf contract
-- docs point to `String search/slice route split` as the next exact code slice
-- docs keep `String concat route split` as the following wave
+- docs point to `cold dynamic lane split` as the next exact code slice
 
 ## Non-Goals
 

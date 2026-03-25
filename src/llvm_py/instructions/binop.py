@@ -321,6 +321,57 @@ def _dispatch_string_concat(builder: ir.IRBuilder, dst: int, lhs_raw, rhs_raw, h
     return builder.call(callee, [hl, hr], name=f"concat_hh_{dst}")
 
 
+def _finalize_string_concat_result(resolver, vmap: Dict[int, ir.Value], dst: int, result, reason: str):
+    safe_vmap_write(vmap, dst, result, reason, resolver=resolver)
+    try:
+        if resolver is not None and hasattr(resolver, "mark_string"):
+            resolver.mark_string(dst)
+    except Exception:
+        pass
+
+
+def _lower_string_concat(
+    builder: ir.IRBuilder,
+    resolver,
+    lhs: int,
+    rhs: int,
+    dst: int,
+    lhs_raw,
+    rhs_raw,
+    lhs_val,
+    rhs_val,
+    vmap: Dict[int, ir.Value],
+):
+    fast_res = _try_lower_string_concat_fast(
+        builder,
+        resolver,
+        lhs,
+        rhs,
+        dst,
+        lhs_raw,
+        rhs_raw,
+        lhs_val,
+        rhs_val,
+    )
+    if fast_res is not None:
+        _finalize_string_concat_result(resolver, vmap, dst, fast_res, "binop_concat_fast")
+        return
+
+    hl, hr = _materialize_string_concat_handles(
+        builder,
+        resolver,
+        lhs,
+        rhs,
+        dst,
+        lhs_raw,
+        rhs_raw,
+        lhs_val,
+        rhs_val,
+    )
+    result = _dispatch_string_concat(builder, dst, lhs_raw, rhs_raw, hl, hr)
+    _finalize_string_concat_result(resolver, vmap, dst, result, "binop_concat")
+
+
 def _value_sig(val, fallback_vid: int):
     # Prefer literal identity for constants so repeated const ValueIds share cache key.
     try:
@@ -875,7 +926,7 @@ def lower_binop(
                 rhs_vt = resolver.value_types.get(rhs)
                 print(f"  value_types: lhs={lhs_vt} rhs={rhs_vt}")
         if is_str:
-            fast_res = _try_lower_string_concat_fast(
+            _lower_string_concat(
                 builder,
                 resolver,
                 lhs,
@@ -885,35 +936,8 @@ def lower_binop(
                 rhs_raw,
                 lhs_val,
                 rhs_val,
+                vmap,
             )
-            if fast_res is not None:
-                safe_vmap_write(vmap, dst, fast_res, "binop_concat_fast", resolver=resolver)
-                try:
-                    if resolver is not None and hasattr(resolver, "mark_string"):
-                        resolver.mark_string(dst)
-                except Exception:
-                    pass
-                return
-            hl, hr = _materialize_string_concat_handles(
-                builder,
-                resolver,
-                lhs,
-                rhs,
-                dst,
-                lhs_raw,
-                rhs_raw,
-                lhs_val,
-                rhs_val,
-            )
-            res = _dispatch_string_concat(builder, dst, lhs_raw, rhs_raw, hl, hr)
-            safe_vmap_write(vmap, dst, res, "binop_concat", resolver=resolver)
-            # Phase 275 C2: String+String only - mixed concat removed
-            # Tag result as string handle so subsequent '+' stays in string domain
-            try:
-                if resolver is not None and hasattr(resolver, 'mark_string'):
-                    resolver.mark_string(dst)
-            except Exception:
-                pass
             return
 
     if op == "+" and _lower_int_float_addition(

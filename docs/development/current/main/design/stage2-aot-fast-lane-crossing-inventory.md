@@ -82,14 +82,10 @@ Related:
    - `substring/indexOf/lastIndexOf` AOT route tables are now split out of the generic method-call owner
    - boundary-default pure-first repair is landed, so `phase29ck_boundary/string` search/slice seeds no longer depend on a broken generic-symbol default
    - `llvmlite` keep lane remains shared-contract-only
-2. `String concat route split`
-   - keep concat hot path separate from search/slice route cleanup
-   - `ny-llvm` mainline acceptance:
-     - concat route table is thinner on the boundary lane
-     - helper density/perf contract remains measurable
-   - `llvmlite` keep acceptance:
-     - shared concat contract stays intact
-     - no new performance obligation is added
+2. `String concat route split` (landed)
+   - `binop.py` string `+` concat path is now owned by a dedicated lowering helper instead of inline orchestration in `lower_binop(...)`
+   - `nyash.string.concat_hh` / `concat3_hhh` exports now delegate route/fallback ownership into concat-specific helpers
+   - `llvmlite` keep acceptance remains shared-contract-only
 3. `cold dynamic lane split`
    - keep collection hot path away from `HostFacade/provider/plugin loader`
    - `ny-llvm` mainline acceptance:
@@ -182,7 +178,7 @@ Related:
 3. `Array hot path collapse` (landed)
 4. `Map hot path collapse` (landed)
 5. `String search/slice route split` (landed)
-6. `String concat route split`
+6. `String concat route split` (landed)
 7. `cold dynamic lane split`
 8. `hako_alloc` policy/state contract
 
@@ -197,9 +193,9 @@ Related:
 
 ## Current Stop Line
 
-- next code wave is `String concat route split` only
-- do not mix `cold dynamic lane split` or `hako_alloc policy/state contract` into either String wave
-- do not widen `FastLeafManifest` V0 while String is still split across two waves
+- next code wave is `cold dynamic lane split` only
+- do not mix `hako_alloc policy/state contract` into that wave
+- do not widen `FastLeafManifest` V0 in the same series as `cold dynamic lane split`
 
 ## Non-Goals
 

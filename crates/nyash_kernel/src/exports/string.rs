@@ -424,6 +424,40 @@ fn concat_pair_with_materialize(a_h: i64, b_h: i64) -> i64 {
 }
 
 #[inline(always)]
+fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
+    if let Some(out) = concat_pair_from_spans(a_h, b_h) {
+        return out;
+    }
+    if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
+        return out;
+    }
+    concat_pair_with_materialize(a_h, b_h)
+}
+
+#[inline(always)]
+fn concat3_fallback(a_h: i64, b_h: i64, c_h: i64) -> i64 {
+    if let Some(plan) = concat3_plan_from_fast_str(a_h, b_h, c_h) {
+        return freeze_concat3_plan(plan);
+    }
+    if let Some(plan) = concat3_plan_from_spans(a_h, b_h, c_h) {
+        return freeze_concat3_plan(plan);
+    }
+
+    let a = to_owned_string_handle_arg(a_h);
+    let b = to_owned_string_handle_arg(b_h);
+    let c = to_owned_string_handle_arg(c_h);
+    freeze_concat3_plan(concat3_plan_from_parts(
+        a_h,
+        b_h,
+        c_h,
+        a.as_str(),
+        b.as_str(),
+        c.as_str(),
+        false,
+    ))
+}
+
+#[inline(always)]
 fn find_substr_byte_index(hay: &str, needle: &str) -> Option<usize> {
     let hay_b = hay.as_bytes();
     let nee_b = needle.as_bytes();
@@ -461,6 +495,31 @@ fn hook_miss_scalar_error(route: &str) -> i64 {
 #[inline(always)]
 fn hook_miss_freeze_handle(route: &str) -> i64 {
     hako_forward_bridge::hook_miss_freeze_handle(route)
+}
+
+#[inline(always)]
+fn dispatch_or_fallback_concat_hh(a_h: i64, b_h: i64) -> i64 {
+    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT_HH, a_h, b_h, 0)
+    {
+        return v;
+    }
+    if !allow_rust_string_fallback() {
+        return hook_miss_freeze_handle("string.concat_hh");
+    }
+    concat_pair_fallback(a_h, b_h)
+}
+
+#[inline(always)]
+fn dispatch_or_fallback_concat3_hhh(a_h: i64, b_h: i64, c_h: i64) -> i64 {
+    if let Some(v) =
+        hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT3_HHH, a_h, b_h, c_h)
+    {
+        return v;
+    }
+    if !allow_rust_string_fallback() {
+        return hook_miss_freeze_handle("string.concat3_hhh");
+    }
+    concat3_fallback(a_h, b_h, c_h)
 }
 
 #[inline(always)]
@@ -574,53 +633,13 @@ pub extern "C" fn nyash_string_charcode_at_h_export(handle: i64, idx: i64) -> i6
 // String.concat_hh(lhs_h, rhs_h) -> handle
 #[export_name = "nyash.string.concat_hh"]
 pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT_HH, a_h, b_h, 0) {
-        return v;
-    }
-    if !allow_rust_string_fallback() {
-        return hook_miss_freeze_handle("string.concat_hh");
-    }
-    if let Some(out) = concat_pair_from_spans(a_h, b_h) {
-        return out;
-    }
-    if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
-        return out;
-    }
-
-    concat_pair_with_materialize(a_h, b_h)
+    dispatch_or_fallback_concat_hh(a_h, b_h)
 }
 
 // String.concat3_hhh(a_h, b_h, c_h) -> handle
 #[export_name = "nyash.string.concat3_hhh"]
 pub extern "C" fn nyash_string_concat3_hhh_export(a_h: i64, b_h: i64, c_h: i64) -> i64 {
-    if let Some(v) =
-        hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT3_HHH, a_h, b_h, c_h)
-    {
-        return v;
-    }
-    if !allow_rust_string_fallback() {
-        return hook_miss_freeze_handle("string.concat3_hhh");
-    }
-    if let Some(plan) = concat3_plan_from_fast_str(a_h, b_h, c_h) {
-        return freeze_concat3_plan(plan);
-    }
-
-    if let Some(plan) = concat3_plan_from_spans(a_h, b_h, c_h) {
-        return freeze_concat3_plan(plan);
-    }
-
-    let a = to_owned_string_handle_arg(a_h);
-    let b = to_owned_string_handle_arg(b_h);
-    let c = to_owned_string_handle_arg(c_h);
-    freeze_concat3_plan(concat3_plan_from_parts(
-        a_h,
-        b_h,
-        c_h,
-        a.as_str(),
-        b.as_str(),
-        c.as_str(),
-        false,
-    ))
+    dispatch_or_fallback_concat3_hhh(a_h, b_h, c_h)
 }
 
 // String.eq_hh(lhs_h, rhs_h) -> i64 (0/1)
