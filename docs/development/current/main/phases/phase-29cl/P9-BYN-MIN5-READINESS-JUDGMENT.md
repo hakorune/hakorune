@@ -49,6 +49,8 @@ Related:
 4. compat keep owners are explicit residue, but hard-retire readiness still has caveats
 5. this judgment is therefore negative today
 6. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is now landed, so the next exact step is a readiness re-check rather than another pre-opened shrink bucket
+7. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is now landed
+8. readiness still has compiled-stage1 proof and compat-keep caveats, so the judgment remains negative
 
 ## Judgment Criteria
 
@@ -60,7 +62,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. after `P11` landed, the next exact front returns here for a readiness re-check
+2. after the `P12` shrink, the next exact front returns here for another readiness re-check
 
 ## Acceptance
 
@@ -88,4 +90,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. rerun `P9-BYN-MIN5-READINESS-JUDGMENT.md` with the landed `P11` evidence before opening any new shrink bucket
+1. rerun `P9-BYN-MIN5-READINESS-JUDGMENT.md` with the landed `P12` evidence before opening any new shrink bucket

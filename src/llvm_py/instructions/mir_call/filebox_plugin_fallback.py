@@ -12,7 +12,7 @@ from llvmlite import ir
 
 
 FILEBOX_PLUGIN_FALLBACK_METHODS = frozenset(
-    ("open", "read", "readBytes", "write", "writeBytes", "close")
+    ("open", "read", "readBytes", "writeBytes", "close")
 )
 
 

@@ -264,6 +264,25 @@ class TestMethodFallbackTail(unittest.TestCase):
 
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", str(module))
 
+    def test_filebox_write_fails_fast_without_by_name_tail(self):
+        i64, module, builder = _new_builder()
+
+        with self.assertRaisesRegex(NotImplementedError, "Unsupported MIR method call"):
+            lower_direct_or_plugin_method_call(
+                builder=builder,
+                module=module,
+                box_name="FileBox",
+                method_name="write",
+                recv_h=ir.Constant(i64, 7),
+                args=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                direct_call_name="known_box_file_write",
+                plugin_call_name="unified_plugin_invoke",
+            )
+
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", str(module))
+
     def test_unsupported_direct_target_fails_fast_when_plugin_tail_is_retired(self):
         i64, module, builder = _new_builder()
 

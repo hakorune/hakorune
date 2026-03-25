@@ -179,12 +179,16 @@ Rule:
 7. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is closed
    - `method.rs` no longer owns local `StringBox.is_space` / `StringBox.is_alpha` truth
    - shared string-method helper now owns that exact predicate contract
-8. current exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md`
-   - P5 remains the blocker inventory for the re-check
-9. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-10. keep shrinking the remaining generic/mainline LLVM caller set only after the `P9` re-check says another blocker bucket is still needed
-11. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-12. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+8. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is re-checked and stays negative
+   - compiled-stage1 proof owners and compat keep owners still block readiness
+9. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
+   - `FileBox.write` no longer uses the explicit Python-side compat leaf
+10. current exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+   - no new blocker bucket is pre-opened yet
+11. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+12. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
+13. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+14. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 

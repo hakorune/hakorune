@@ -75,7 +75,9 @@ Related:
 6. `P9` is closed as a negative judgment
 7. `P10` is closed as the FileBox compat leaf shrink
 8. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is closed
-9. next exact front is a `P9-BYN-MIN5-READINESS-JUDGMENT.md` re-check
+9. `P9` is re-checked and remains negative
+10. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
+11. next exact front is a `P9-BYN-MIN5-READINESS-JUDGMENT.md` re-check
 
 ## Acceptance
 
