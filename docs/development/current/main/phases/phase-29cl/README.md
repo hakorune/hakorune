@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/phases/phase-29ce/README.md
   - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
+  - docs/development/current/main/phases/phase-29cl/P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -143,21 +144,33 @@ Rule:
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is a thin parent router plus shared decode/gate helpers
    - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain frozen compiled-stage1 exact owners; docs/inventory closeout only until caller-proof says removable
    - visible launcher source lane is no longer part of that residue bucket
-   - next move is docs/inventory closeout until caller-proof says the surrogate code can actually be removed
+   - `BYN-min3` close-sync is landed; reopen only if caller-proof says the surrogate code must move again
+21. current hook/registry residue is the active exact compat-only front
+   - `hako_forward_bridge.rs` is the Rust keep bridge for hook register/try-call/fallback contract only
+   - `hako_forward.rs` is the exported registration shim only
+   - `lang/c-abi/shims/hako_forward_registry_shared_impl.inc` is the single shared C owner for registry storage and try-call behavior
+   - `crates/nyash_kernel/src/hako_forward_registry.c` and `lang/c-abi/shims/hako_kernel.c` are include owners only
+   - `BYN-min4` close-sync is landed; reopen only if fresh live caller proof says the keep cluster must move again
 
 ## Immediate Next
 
 1. keep the `BYN-min1` owner guard green as an exact compat-only owner-set regression check; no new daily caller may appear and the allowlisted residue may not widen silently
-2. current exact front is `BYN-min3` compiled-stage1 surrogate closeout
+2. `BYN-min3` compiled-stage1 surrogate closeout is landed
    - `module_string_dispatch.rs`, `build_surrogate.rs`, and `llvm_backend_surrogate.rs` stay frozen exact owners
-   - current move is docs/inventory closeout only until caller-proof says removable
-   - do not reopen surrogate code without a fresh live caller proof
-   - task-pack owner: `P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md`
-3. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-4. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
-5. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
-6. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-7. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+   - reopen only on fresh live caller proof
+   - closeout owner: `P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md`
+3. `BYN-min4` hook/registry closeout is landed
+   - `hako_forward_bridge.rs` / `hako_forward.rs` / `hako_forward_registry.c` / `hako_forward_registry_shared_impl.inc` / `hako_kernel.c` stay explicit compat-only
+   - reopen only on fresh live caller proof or duplicate-owner regression
+   - closeout owner: `P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md`
+4. current exact front is `BYN-min5` hard-retire readiness judgment only when its entry conditions are met
+   - no daily caller may remain
+   - no compiled-stage1 proof owner may still be required
+   - do not start `BYN-min5` early just because `BYN-min3/4` are closed
+5. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+6. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
+7. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+8. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 

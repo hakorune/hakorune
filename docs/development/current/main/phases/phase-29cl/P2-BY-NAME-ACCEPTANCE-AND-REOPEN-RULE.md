@@ -24,6 +24,9 @@ Related:
    - upstream daily caller pack (`method_call.py`, VM/WASM name-resolution users) is either demoted or explicitly marked compat-only
 4. surrogate acceptance
    - compiled-stage1 surrogates remain explicit temporary keeps only
+5. hook/registry acceptance
+   - `hako_forward_bridge.rs` / `hako_forward.rs` / `hako_forward_registry_shared_impl.inc` remain explicit compat-only keep owners only
+   - hook registration / try-call / fallback policy do not become a new daily caller owner
 
 ## Reopen Rule
 

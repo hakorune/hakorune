@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `BYN-min3` compiled-stage1 surrogate cluster (`module_string_dispatch.rs`, `build_surrogate.rs`, `llvm_backend_surrogate.rs`) を docs/inventory closeout で固定し、caller-proof が出るまで code removal/reopen を止める。
@@ -39,7 +39,8 @@ Related:
 2. visible launcher build-exe source lane now also uses direct `LlvmBackendBox.{compile_obj,link_exe}` instead of a quoted module-string backend literal.
 3. direct-known-box lowering prefers `BuildBox` / `MirBuilderBox` / `LlvmBackendBox` before compat fallback.
 4. `module_string_dispatch` cluster is at thin floor and remains temporary proof owner only.
-5. current move is docs/inventory closeout only.
+5. acceptance proof is green, so current move is closed docs/inventory closeout only.
+6. next exact front is `BYN-min4` hook/registry closeout; do not mix surrogate reopen with hook/registry demotion.
 
 ## Acceptance
 

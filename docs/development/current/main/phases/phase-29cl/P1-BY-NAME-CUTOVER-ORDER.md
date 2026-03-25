@@ -6,6 +6,7 @@ Scope: by-name retirement の fixed order を caller cutover first で固定す�
 Related:
   - docs/development/current/main/phases/phase-29cl/P0-BY-NAME-OWNER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
+  - docs/development/current/main/phases/phase-29cl/P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
 ---
@@ -26,9 +27,9 @@ Related:
    - next owner is compiled-stage1 surrogate shrink, not another visible launcher caller rewrite
 3. `BYN-min3` compiled-stage1 surrogate closeout
    - keep `build_surrogate.rs` / `llvm_backend_surrogate.rs` only while proofs still need them
-   - current move is docs/inventory closeout until caller-proof says removable
+   - close-sync is landed; reopen only on fresh caller-proof
 4. `BYN-min4` hook/registry demotion
-   - reduce `hako_forward_bridge.rs` / `hako_forward_registry.c` / `hako_kernel.c` to explicit compat-only
+   - close-sync is landed; `hako_forward_bridge.rs` / `hako_forward.rs` / `hako_forward_registry.c` / `hako_forward_registry_shared_impl.inc` / `hako_kernel.c` stay explicit compat-only keep owners until fresh live caller proof says otherwise
 5. `BYN-min5` kernel hard retire readiness
    - only when no daily caller and no compiled-stage1 proof still require `by_name`
 
