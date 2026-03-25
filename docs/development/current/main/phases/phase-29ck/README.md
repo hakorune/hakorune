@@ -389,6 +389,7 @@ Related:
 6. next backend demotion front
    - `phase-29cl` compiled-stage1 surrogate closeout remains the first exact next slice
    - current reading is docs/inventory closeout only until caller-proof says the frozen surrogate code can actually be removed
+   - task-pack owner: `phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md`
    - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py` / `phi_wiring/analysis.py` / `phi_wiring/tagging.py`; move to the next `phi_wiring/**` owner seam, with `wiring.py::wire_incomings(...)` resolution/selection path the most natural exact leaf
 7. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock

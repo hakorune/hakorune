@@ -5,6 +5,7 @@ Date: 2026-03-15
 Scope: by-name retirement の fixed order を caller cutover first で固定する。
 Related:
   - docs/development/current/main/phases/phase-29cl/P0-BY-NAME-OWNER-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
 ---

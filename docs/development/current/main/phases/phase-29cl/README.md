@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/phases/phase-29ce/README.md
+  - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -150,6 +151,7 @@ Rule:
    - `module_string_dispatch.rs`, `build_surrogate.rs`, and `llvm_backend_surrogate.rs` stay frozen exact owners
    - current move is docs/inventory closeout only until caller-proof says removable
    - do not reopen surrogate code without a fresh live caller proof
+   - task-pack owner: `P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md`
 3. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 4. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
 5. keep hook/registry keeps explicit compat-only and avoid reintroducing duplicate C registry owners
