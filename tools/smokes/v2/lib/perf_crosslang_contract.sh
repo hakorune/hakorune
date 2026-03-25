@@ -41,6 +41,7 @@ perf_crosslang_assert_output() {
   local smoke_name="$1"
   local key="$2"
   local output="$3"
+  local aot_expect="${4:-ok}"
 
   if ! printf '%s\n' "${output}" | grep -q "\[bench4\] name=${key}"; then
     printf '%s\n' "${output}" | tail -n 40 || true
@@ -48,11 +49,26 @@ perf_crosslang_assert_output() {
     return 1
   fi
 
-  if ! printf '%s\n' "${output}" | grep -q "aot_status=ok"; then
-    printf '%s\n' "${output}" | tail -n 40 || true
-    test_fail "${smoke_name}: aot_status is not 'ok'"
-    return 1
-  fi
+  case "${aot_expect}" in
+    ok)
+      if ! printf '%s\n' "${output}" | grep -q "aot_status=ok"; then
+        printf '%s\n' "${output}" | tail -n 40 || true
+        test_fail "${smoke_name}: aot_status is not 'ok'"
+        return 1
+      fi
+      ;;
+    ok-or-skip)
+      if ! printf '%s\n' "${output}" | grep -qE "aot_status=(ok|skip)"; then
+        printf '%s\n' "${output}" | tail -n 40 || true
+        test_fail "${smoke_name}: aot_status is neither 'ok' nor 'skip'"
+        return 1
+      fi
+      ;;
+    *)
+      test_fail "${smoke_name}: invalid aot expectation: ${aot_expect}"
+      return 1
+      ;;
+  esac
 
   local metric_key
   for metric_key in c_ms py_ms ny_vm_ms ny_aot_ms; do

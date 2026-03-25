@@ -33,6 +33,10 @@ Related:
   2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary) -> C ABI`
   3. only then reopen `kilo` / `micro kilo`
 - `llvmlite` / harness stays outside the perf judge even when the lane reopens.
+- until that reopen happens, the quick chip8 crosslang smoke is monitor-only for AOT:
+  - keep `[bench4]` / `[bench4-route]` shape and timing keys pinned
+  - allow `aot_status=skip`
+  - do not treat that smoke as proof that perf lane is open
 
 ## Owner Scope Lock
 

@@ -4,7 +4,7 @@
 # Contract:
 # 1) bench_compare_c_py_vs_hako.sh exits with code 0
 # 2) Output contains [bench4] name=chip8_kernel_small
-# 3) aot_status=ok is present
+# 3) while perf lane is parked, aot_status may be ok or skip
 # 4) All timing keys are present: c_ms= py_ms= ny_vm_ms= ny_aot_ms=
 #
 # Note: Parsing uses key-based extraction (not fixed-width)
@@ -35,7 +35,7 @@ if [[ "${RC}" -ne 0 ]]; then
 fi
 
 # Verify output format (key-based parsing)
-perf_crosslang_assert_output "${SMOKE_NAME}" "${KEY}" "${OUTPUT}" || exit 1
+perf_crosslang_assert_output "${SMOKE_NAME}" "${KEY}" "${OUTPUT}" "ok-or-skip" || exit 1
 
 echo "${OUTPUT}"
 test_pass "${SMOKE_NAME}: PASS (chip8_kernel_small 4-way cross-language contract pinned)"
