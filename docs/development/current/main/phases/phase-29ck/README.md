@@ -335,14 +335,15 @@ Related:
 
 ## Immediate Next
 
-1. `W2` boundary fallback reliance reduction
+1. `W2b` boundary fallback reliance reduction
+   - `W2a` forwarder / explicit compat replay inventory lock is landed
    - current exact front is fixed by `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
    - reduce unsupported-shape dependence on `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness`
    - keep `harness` and `native` as explicit replay lanes; do not let them re-enter the daily default route
-   - post-`BE0-min6` C owner cleanup and forwarder cleanup belong here, now that `W1` recipe seam close-sync is landed
+   - post-`BE0-min6` C owner cleanup and forwarder cleanup belong here, now that `W1` and `W2a` are landed
 2. `W3` Rust glue thinning
    - `src/host_providers/llvm_codegen.rs` and `crates/nyash-llvm-compiler/src/boundary_driver*.rs` stay facade/boundary glue only
-   - do not reopen them for owner logic while `W2` is still active
+   - do not reopen them for owner logic while `W2b` is still active
    - keep the generic compile symbol branch parked as keep-only until compat replay no longer needs it
 3. `W4` `llvmlite` demotion completion
    - `tools/llvmlite_harness.py` and `src/llvm_py/**` remain explicit compat/canary keep only
@@ -381,7 +382,7 @@ Related:
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
 9. `phase-21_5` perf/kilo reopen
-   - perf lane stays parked until `P7` `W2..W4` are stable
+   - perf lane stays parked until `P7` `W2b..W4` are stable
    - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
    - `llvmlite` / harness stays outside the perf baseline
 10. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない

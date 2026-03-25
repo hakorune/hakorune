@@ -1170,15 +1170,36 @@ static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, cons
 
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
 
+static int compile_json_via_default_forwarder(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out) {
+  return forward_compile_json_to_aot(json_in, obj_out, err_out);
+}
+
+static int compile_json_via_explicit_compat_harness_replay(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out) {
+  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+}
+
+static int compile_json_via_pure_first_lane(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out) {
+  return compile_json_compat_pure(json_in, obj_out, err_out);
+}
+
 static int compile_json_with_selected_route(
     const char* json_in,
     const char* obj_out,
     char** err_out,
     int pure_first_selected) {
   if (!pure_first_selected) {
-    return forward_compile_json_to_aot(json_in, obj_out, err_out);
+    return compile_json_via_default_forwarder(json_in, obj_out, err_out);
   }
-  return compile_json_compat_pure(json_in, obj_out, err_out);
+  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
 }
 
 // Exported symbols expected by hako_aot.c when loading libhako_llvmc_ffi.so
@@ -1746,7 +1767,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 yyjson_doc_free(doc);
                 if (rc != 0) {
                   if (compat_harness_replay_enabled()) {
-                    return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+                    return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
                   }
                   return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
                 }
@@ -2083,9 +2104,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           yyjson_doc_free(doc);
         }
       }
-    }
+  }
   if (compat_harness_replay_enabled()) {
-    return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+    return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }
   return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
 }
