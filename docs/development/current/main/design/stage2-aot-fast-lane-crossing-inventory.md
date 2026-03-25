@@ -78,15 +78,10 @@ Related:
 
 ### Next exact implementation buckets
 
-1. `String search/slice route split`
-   - keep `StringCoreBox` observer role
-   - thin only `substring/indexOf/lastIndexOf` AOT route tables
-   - `ny-llvm` mainline acceptance:
-     - `phase29ck_boundary/string` search/slice seeds pass without harness fallback
-     - `HostFacade/provider` stays off the hot path
-   - `llvmlite` keep acceptance:
-     - shared string observer/search/slice fallback contract stays intact
-     - no new performance obligation is added
+1. `String search/slice route split` (landed)
+   - `substring/indexOf/lastIndexOf` AOT route tables are now split out of the generic method-call owner
+   - boundary-default pure-first repair is landed, so `phase29ck_boundary/string` search/slice seeds no longer depend on a broken generic-symbol default
+   - `llvmlite` keep lane remains shared-contract-only
 2. `String concat route split`
    - keep concat hot path separate from search/slice route cleanup
    - `ny-llvm` mainline acceptance:
@@ -186,7 +181,7 @@ Related:
 2. backend-private fast leaf manifest contract
 3. `Array hot path collapse` (landed)
 4. `Map hot path collapse` (landed)
-5. `String search/slice route split`
+5. `String search/slice route split` (landed)
 6. `String concat route split`
 7. `cold dynamic lane split`
 8. `hako_alloc` policy/state contract
@@ -202,8 +197,7 @@ Related:
 
 ## Current Stop Line
 
-- next code wave is `String search/slice route split` only
-- `String concat route split` is the immediate next wave after that
+- next code wave is `String concat route split` only
 - do not mix `cold dynamic lane split` or `hako_alloc policy/state contract` into either String wave
 - do not widen `FastLeafManifest` V0 while String is still split across two waves
 

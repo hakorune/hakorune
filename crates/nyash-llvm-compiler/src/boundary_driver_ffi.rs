@@ -18,7 +18,8 @@ const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 
 fn boundary_compile_prefers_pure_first(recipe: Option<&str>, legacy_capi_pure: Option<&str>) -> bool {
-    recipe == Some("pure-first") || legacy_capi_pure == Some("1")
+    (recipe != Some("harness") && (recipe.is_none() || recipe == Some("pure-first")))
+        || legacy_capi_pure == Some("1")
 }
 
 fn boundary_compile_symbol(recipe: Option<&str>, legacy_capi_pure: Option<&str>) -> &'static [u8] {
@@ -248,9 +249,14 @@ mod tests {
     };
 
     #[test]
-    fn boundary_route_defaults_to_generic_symbol() {
-        assert!(!boundary_compile_prefers_pure_first(None, None));
-        assert_eq!(boundary_compile_symbol(None, None), COMPILE_SYMBOL_DEFAULT);
+    fn boundary_route_defaults_to_pure_first_symbol() {
+        assert!(boundary_compile_prefers_pure_first(None, None));
+        assert_eq!(boundary_compile_symbol(None, None), COMPILE_SYMBOL_PURE_FIRST);
+    }
+
+    #[test]
+    fn boundary_route_keeps_generic_symbol_for_harness_recipe() {
+        assert!(!boundary_compile_prefers_pure_first(Some("harness"), None));
         assert_eq!(
             boundary_compile_symbol(Some("harness"), None),
             COMPILE_SYMBOL_DEFAULT

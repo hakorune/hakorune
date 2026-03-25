@@ -34,6 +34,8 @@ Related:
 
 ## Wave S1: Search/Slice Route Split
 
+Status: landed, with a follow-up boundary-default pure-first repair landed on the `phase29ck_boundary` mainline acceptance lane.
+
 ### Exact target
 
 - target owners:
@@ -69,6 +71,8 @@ Related:
 
 ## Wave S2: Concat Route Split
 
+Status: next exact implementation wave.
+
 ### Exact target
 
 - target owners:
@@ -103,6 +107,7 @@ Related:
 ## Stop Line
 
 - `S1 search/slice` と `S2 concat` を同じ patch series に混ぜない。
+- `phase29ck boundary default pure-first` repair is already landed; do not reopen recipe/symbol transport in `S2` unless a fresh exact blocker proves it.
 - `String` wave の patch で `cold dynamic lane split` と `hako_alloc policy/state contract` を reopen しない。
 - `llvmlite` keep lane の都合で `ny-llvm` hot-path route を重くしない。
 - `FastLeafManifest` V0 はこの 2 wave のどちらでも widen しない。widen 判断は `S2` landed 後に別 wave で行う。
