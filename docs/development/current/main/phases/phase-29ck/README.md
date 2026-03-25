@@ -14,6 +14,8 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md
   - docs/development/current/main/phases/phase-29ck/P8-PERF-REOPEN-JUDGMENT.md
   - docs/development/current/main/phases/phase-29ck/P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md
+  - docs/development/current/main/phases/phase-29ck/P10-SMALL-PERF-REENTRY-TASK-PACK.md
+  - docs/development/current/main/phases/phase-29ck/P11-SMALL-ENTRY-STARTUP-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -340,13 +342,15 @@ Related:
 
 ## Immediate Next
 
-1. `method_call_only` perf-entry inventory
-   - `P8-PERF-REOPEN-JUDGMENT.md` is now green with `reopen allowed`
+1. `small-entry` perf re-entry
+   - `P8-PERF-REOPEN-JUDGMENT.md` is green with `reopen allowed`
    - `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md` is closed
-   - `method_call_only_small` bench compare is `aot_status=ok`
-   - `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` is green
-   - `phase21_5_perf_strlen_ir_contract_vm.sh` is green
-   - next exact front is `P10-SMALL-PERF-REENTRY-TASK-PACK.md`, not immediate medium/full `kilo`
+   - `P10-SMALL-PERF-REENTRY-TASK-PACK.md` is now closed
+   - refreshed baselines are
+     - `method_call_only_small`: `c_ms=3`, `py_ms=12`, `ny_vm_ms=9`, `ny_aot_ms=8`
+     - `box_create_destroy_small`: `c_ms=3`, `py_ms=12`, `ny_vm_ms=10`, `ny_aot_ms=8`
+   - dumped mainline AOT IR for both small-entry benches is a pure loop (`+5` / `+1`) with no live runtime string/box leaf
+   - next exact front is `P11-SMALL-ENTRY-STARTUP-INVENTORY.md`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
    - `llvmlite` / harness stays outside the perf baseline
 2. runtime proof blocker inventory
    - final proof owner は `.hako VM`
@@ -384,7 +388,8 @@ Related:
    - pre-perf runway is closed, and `P8` now allows reopen
    - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
    - `llvmlite` / harness stays outside the perf baseline
-   - first reopened lane is `P10` small-entry only
+   - `P10` small-entry re-entry is closed as pure-loop evidence
+   - current reopened lane is `P11` small-entry startup inventory
 10. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance

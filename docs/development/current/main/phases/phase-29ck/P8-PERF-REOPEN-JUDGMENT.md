@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md
   - docs/development/current/main/phases/phase-29ck/P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/P10-SMALL-PERF-REENTRY-TASK-PACK.md
+  - docs/development/current/main/phases/phase-29ck/P11-SMALL-ENTRY-STARTUP-INVENTORY.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
@@ -53,11 +54,9 @@ Related:
 
 ## Next Exact Adjacent Front
 
-- next exact front is `P10-SMALL-PERF-REENTRY-TASK-PACK.md`.
-- this front starts from `small` entry baselines only:
-  1. `method_call_only_small`
-  2. `box_create_destroy_small`
-- medium/full `kilo` widening はこの small front の後に判断する。
+- `P10-SMALL-PERF-REENTRY-TASK-PACK.md` is now closed.
+- current next exact front is `P11-SMALL-ENTRY-STARTUP-INVENTORY.md`.
+- medium/full `kilo` widening はこの startup front の後に判断する。
 
 ## Non-Goals
 
@@ -76,4 +75,4 @@ Related:
 4. 上の 3 件が boundary mainline (`.hako -> ny-llvmc(boundary) -> C ABI`) で通る
 
 current stop line:
-- reopen は allowed だが、first lane は `P10` small re-entry に固定する。
+- reopen は allowed だが、current first lane は `P11` startup inventory に固定する。

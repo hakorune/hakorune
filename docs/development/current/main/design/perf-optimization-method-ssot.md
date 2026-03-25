@@ -38,7 +38,12 @@ Related:
   - `bench_compare_c_vs_hako.sh method_call_only_small 1 1` returns `aot_status=ok`
   - `phase21_5_perf_loop_integer_hotspot_contract_vm.sh` is green
   - `phase21_5_perf_strlen_ir_contract_vm.sh` is green
-- therefore the perf lane may reopen, and the next exact adjacent front is `P10-SMALL-PERF-REENTRY-TASK-PACK.md`.
+- `P10-SMALL-PERF-REENTRY-TASK-PACK.md` is now closed.
+- current small-entry truth is:
+  - `method_call_only_small` mainline AOT IR is a pure `+5` loop
+  - `box_create_destroy_small` mainline AOT IR is a pure `+1` loop
+  - short microasm is startup/loader dominated
+- therefore the perf lane may stay reopened, but the next exact adjacent front is `P11-SMALL-ENTRY-STARTUP-INVENTORY.md`.
 - `llvmlite` / harness stays outside the perf judge even when the lane reopens.
 - until that reopen happens, the quick chip8 crosslang smoke is monitor-only for AOT:
   - keep `[bench4]` / `[bench4-route]` shape and timing keys pinned
@@ -153,7 +158,12 @@ Hotspot は次の分類で読む。
 - `llvmlite` remains outside the perf judge even when stage2 String waves are active.
 - current scheduling consequence:
   - if `phase-29ck` reopens a new exact `ny-llvm` front, do not reopen this perf lane yet
-  - current preferred next owner is the small-entry re-entry pack from `P10`, not an immediate medium/full `kilo` retune
+- current preferred next owner is the small-entry startup inventory from `P11`, not a runtime string/box leaf and not an immediate medium/full `kilo` retune
+
+## Small-Entry Stop Line
+
+- if the reopened small-entry lane dumps to pure-loop IR, do not edit runtime string/box leaves in that same series
+- if the short asm probe is dominated by loader/startup symbols, move to startup/loader inventory before reopening medium/full `kilo`
 
 ## Stop Line
 
