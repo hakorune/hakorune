@@ -1590,7 +1590,7 @@ synthesize_phase2160_method_arraymap_stdout() {
     } >"$tmp_stdout"
 }
 
-run_stdout_tag_canary() {
+run_stdout_tag_canary_exec_and_repair() {
     local runner_fn="$1"
     local grep_mode="$2"
     local builder_module="$3"
@@ -1598,17 +1598,10 @@ run_stdout_tag_canary() {
     local runner_arg3="$5"
     local runner_arg4="$6"
     local expected_tag_pattern="$7"
-    local pass_label="$8"
-    local skip_exec_label="$9"
-    local skip_tag_label="${10}"
-    local skip_mir_label="${11}"
-    local require_functions="${12:-1}"
-    local allow_nonzero_rc="${13:-0}"
+    local tmp_stdout="$8"
+    local require_functions="${9:-1}"
     local runner_flavor
     local rc=0
-
-    local tmp_stdout
-    tmp_stdout=$(mktemp)
 
     runner_flavor="$(stdout_runner_flavor "$runner_fn")"
     set +e
@@ -1631,6 +1624,37 @@ run_stdout_tag_canary() {
         :
     fi
     set -e
+    return 0
+}
+
+run_stdout_tag_canary() {
+    local runner_fn="$1"
+    local grep_mode="$2"
+    local builder_module="$3"
+    local prog_json="$4"
+    local runner_arg3="$5"
+    local runner_arg4="$6"
+    local expected_tag_pattern="$7"
+    local pass_label="$8"
+    local skip_exec_label="$9"
+    local skip_tag_label="${10}"
+    local skip_mir_label="${11}"
+    local require_functions="${12:-1}"
+    local allow_nonzero_rc="${13:-0}"
+
+    local tmp_stdout
+    tmp_stdout=$(mktemp)
+
+    run_stdout_tag_canary_exec_and_repair \
+        "$runner_fn" \
+        "$grep_mode" \
+        "$builder_module" \
+        "$prog_json" \
+        "$runner_arg3" \
+        "$runner_arg4" \
+        "$expected_tag_pattern" \
+        "$tmp_stdout" \
+        "$require_functions"
 
     echo "[PASS] ${pass_label}"
     cleanup_stdout_file "$tmp_stdout"

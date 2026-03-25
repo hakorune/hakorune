@@ -148,5 +148,5 @@ shared shell helper keep として残っている 3 file について、
 
 1. keep `tools/hakorune_emit_mir.sh` monitor-only after the landed direct-emit fallback split
 2. keep `tools/selfhost/selfhost_build.sh` monitor-only after the landed EXE consumer-path split and its helper-local probe
-3. keep `tools/smokes/v2/lib/test_runner.sh` on helper-local slices only: builder lanes, shape/result routing, verify-tail policy, tagged-stdout policy, builder-module env/render, stdout-file wrappers, and the phase2160 module-load dehang are all isolated now, so the next slice returns to the tagged-stdout caller layer above stdout capture without touching the smoke tail yet
+3. keep `tools/smokes/v2/lib/test_runner.sh` on helper-local slices only: builder lanes, shape/result routing, verify-tail policy, tagged-stdout policy, builder-module env/render, stdout-file wrappers, the phase2160 module-load dehang, and the tagged-stdout caller layer are isolated now, so the next slice moves to the registry-specialized tagged-stdout layer centered on `prepare_registry_tagged_mir_canary_stdout()` + `run_registry_builder_diag_canary()` without touching the smoke tail yet
 4. keep `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` green while thinning only tiny helper leaves; do not reopen vm-hako subset debt or the 43-file smoke tail just to touch this shared helper

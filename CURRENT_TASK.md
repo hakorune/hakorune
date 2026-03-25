@@ -32,13 +32,13 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W11 active`
+   - status: `reopen W12 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
-   - exact W11 target:
+   - exact W12 target:
      - keep `launcher.hako` W5 thinning landed and frozen near-thin-floor
      - keep the first two `tools/hakorune_emit_mir.sh` helper-local splits landed: Stage-B Program(JSON) production and direct-emit fallback policy
      - keep `tools/selfhost/selfhost_build.sh` EXE consumer path landed behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
@@ -56,7 +56,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - keep the phase2160 module-load dehang interrupt landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` and `ParserStmtBox.parse_opt_annotation(...)`
      - keep the exact dehang proof on `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
      - keep `phase2160/builder_min_if_compare_intint`, `phase2160/registry_optin_compare_varint`, and `phase2160/registry_optin` bounded again as monitor-only canaries
-     - move the next exact `test_runner.sh` leaf to the tagged-stdout caller layer above stdout capture, centered on `run_stdout_tag_runner_to_file()` + `run_stdout_tag_canary()`
+     - keep `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer landed behind `run_stdout_tag_canary_exec_and_repair()`
+     - keep the exact W12 proof on `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
+     - keep heavy `phase2160/builder_min_*` wrappers and the registry diag canary monitor-only while the caller layer stays helper-local
+     - move the next exact `test_runner.sh` leaf to the registry-specialized tagged-stdout layer, centered on `prepare_registry_tagged_mir_canary_stdout()` + `run_registry_builder_diag_canary()`
      - keep explicit env-route compat probes, raw compat flags, and the retired raw direct `stage1_cli.hako emit program-json` diagnostics pin alive
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
@@ -132,7 +135,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - builder-module env/render seam behind `run_program_json_via_builder_module_vm_with_env()`
      - stdout-file wrapper seam behind `run_builder_module_vm_to_stdout_file()` + `run_registry_builder_module_vm_to_stdout_file()`
      - phase2160 module-load dehang behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` and `ParserStmtBox.parse_opt_annotation(...)`
-   - next exact leaf: tagged-stdout caller layer above stdout capture, centered on `run_stdout_tag_runner_to_file()` + `run_stdout_tag_canary()`
+     - tagged-stdout caller layer behind `run_stdout_tag_canary_exec_and_repair()`
+   - next exact leaf: registry-specialized tagged-stdout layer, centered on `prepare_registry_tagged_mir_canary_stdout()` + `run_registry_builder_diag_canary()`
 5. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags
    - stage1 bridge/program-json explicit route

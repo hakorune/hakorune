@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W11 active`。
+- current status は `reopen W12 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -88,7 +88,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - the phase2160 module-load dehang interrupt is landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
   - the exact dehang proof is `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
   - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but they remain monitor-only and are not the helper-local acceptance line
-  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the tagged-stdout caller layer above stdout capture
+  - `tools/smokes/v2/lib/test_runner.sh` now also keeps the tagged-stdout caller layer behind `run_stdout_tag_canary_exec_and_repair()`
+  - the exact W12 proof is `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
+  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the registry-specialized tagged-stdout layer centered on `prepare_registry_tagged_mir_canary_stdout()` + `run_registry_builder_diag_canary()`
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

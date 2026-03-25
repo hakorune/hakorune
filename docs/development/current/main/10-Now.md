@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W11 active`
+  - status: `reopen W12 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,7 +39,7 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W11 target:
+  - current W12 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
     - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
@@ -58,7 +58,9 @@ Related:
     - the phase2160 module-load dehang interrupt is landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
     - exact proof for that interrupt is `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
     - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but stay monitor-only
-    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the tagged-stdout caller layer above stdout capture
+    - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer is landed behind `run_stdout_tag_canary_exec_and_repair()`
+    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
+    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the registry-specialized tagged-stdout layer centered on `prepare_registry_tagged_mir_canary_stdout()` + `run_registry_builder_diag_canary()`
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`
