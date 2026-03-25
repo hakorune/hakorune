@@ -34,7 +34,9 @@ Related:
    - W12 landed: `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer split
    - W13 landed: `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer split
    - W14 landed: `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split
-   - W14 exact next: reinventory `tools/smokes/v2/lib/test_runner.sh` for near-thin-floor vs smoke-tail boundary before promoting another helper-local leaf
+   - W15 landed: `tools/smokes/v2/lib/test_runner.sh` reinventory stop-line; helper-local work is now treated as near-thin-floor by default
+   - W16 landed: first smoke-tail bucket; uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers
+   - W16 exact next: special raw verify keeps with extra env or nonstandard success shape, centered on `phase2039/parser_embedded_json_canary.sh` and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -104,7 +106,9 @@ Related:
   - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
   - `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
   - `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
-  - next caller-audit bucket is a `test_runner.sh` reinventory for near-thin-floor vs smoke-tail boundary
+  - the `test_runner.sh` reinventory stop-line is landed; helper-local work is now near-thin-floor by default
+  - the first smoke-tail caller bucket is also landed: uniform raw `verify_program_via_builder_to_core` callers now route through named helpers instead of open-coded env stacks
+  - next caller-audit bucket is the special raw verify keeps with extra env or nonstandard success shape
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

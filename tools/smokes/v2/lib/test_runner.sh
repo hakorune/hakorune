@@ -867,6 +867,7 @@ apply_verify_program_via_builder_route_env() {
     local prefer_mirbuilder="${2:-0}"
     local primary_no_fallback="${3:-0}"
     local internal_builder="${4:-0}"
+    local registry_builder="${5:-0}"
 
     if [ "$verify_builder_only" = "1" ]; then
         export HAKO_VERIFY_BUILDER_ONLY=1
@@ -879,6 +880,9 @@ apply_verify_program_via_builder_route_env() {
     fi
     if [ "$internal_builder" = "1" ]; then
         export HAKO_MIR_BUILDER_INTERNAL=1
+    fi
+    if [ "$registry_builder" = "1" ]; then
+        export HAKO_MIR_BUILDER_REGISTRY=1
     fi
 }
 
@@ -1181,16 +1185,72 @@ run_verify_program_via_builder_to_core_with_env() {
     local prefer_mirbuilder="${3:-0}"
     local primary_no_fallback="${4:-0}"
     local internal_builder="${5:-0}"
+    local registry_builder="${6:-0}"
 
     (
         apply_verify_program_via_builder_route_env \
             "$verify_builder_only" \
             "$prefer_mirbuilder" \
             "$primary_no_fallback" \
-            "$internal_builder"
+            "$internal_builder" \
+            "$registry_builder"
         apply_verify_program_via_builder_common_env
 
         verify_program_via_builder_to_core "$prog_json_path"
+    )
+}
+
+run_verify_program_via_core_default_to_core() {
+    local prog_json_path="$1"
+    local _unused="${2:-0}"
+
+    (
+        export HAKO_VERIFY_PRIMARY=core
+        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 0 0 0 0
+    )
+}
+
+run_verify_program_via_preferred_mirbuilder_core_to_core() {
+    local prog_json_path="$1"
+    local builder_only="${2:-0}"
+
+    (
+        export HAKO_VERIFY_PRIMARY=core
+        if [ "$builder_only" = "1" ]; then
+            run_verify_program_via_builder_to_core_with_env "$prog_json_path" 1 1 0 0 0
+            return $?
+        fi
+
+        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 1 0 0 0
+    )
+}
+
+run_verify_program_via_builder_only_to_core() {
+    local prog_json_path="$1"
+    local _unused="${2:-0}"
+
+    run_verify_program_via_builder_to_core_with_env "$prog_json_path" 1 0 0 0 0
+}
+
+run_verify_program_via_internal_builder_to_core() {
+    local prog_json_path="$1"
+    local verify_primary_core="${2:-0}"
+
+    (
+        if [ "$verify_primary_core" = "1" ]; then
+            export HAKO_VERIFY_PRIMARY=core
+        fi
+        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 0 0 1 0
+    )
+}
+
+run_verify_program_via_registry_internal_to_core() {
+    local prog_json_path="$1"
+    local _unused="${2:-0}"
+
+    (
+        export HAKO_VERIFY_PRIMARY=core
+        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 0 0 1 1
     )
 }
 
@@ -1199,11 +1259,11 @@ run_verify_program_via_preferred_mirbuilder_to_core() {
     local builder_only="${2:-0}"
 
     if [ "$builder_only" = "1" ]; then
-        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 1 1 0 0
+        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 1 1 0 0 0
         return $?
     fi
 
-    run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 1 0 0
+    run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 1 0 0 0
 }
 
 run_verify_program_via_hako_primary_no_fallback_to_core() {
@@ -1211,11 +1271,11 @@ run_verify_program_via_hako_primary_no_fallback_to_core() {
     local prefer_mirbuilder="${2:-0}"
 
     if [ "$prefer_mirbuilder" = "1" ]; then
-        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 1 1 1
+        run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 1 1 1 0
         return $?
     fi
 
-    run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 0 1 1
+    run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 0 1 1 0
 }
 
 run_verify_canary_and_expect_rc() {

@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W14 active`。
+- current status は `reopen W16 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -95,7 +95,10 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the method-arraymap fallback synth + token-check layer behind `prepare_registry_method_arraymap_stdout_snapshot()` + `run_registry_method_arraymap_token_policy()`
   - the exact W14 proof is `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
-  - next cleanup slice is a reinventory of `tools/smokes/v2/lib/test_runner.sh` for near-thin-floor vs smoke-tail boundary; do not promote the 43-file tail in the same patch
+  - the W15 reinventory stop-line is landed: `tools/smokes/v2/lib/test_runner.sh` is now treated as near-thin-floor by default, and helper-local work should only reopen on a newly discovered exact seam
+  - the W16 first smoke-tail bucket is landed too: uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers instead of repeating env stacks and rc handling inline
+  - next cleanup slice is the special raw verify keeps with extra env or nonstandard success shape, centered on `phase2039/parser_embedded_json_canary.sh` and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
+  - keep the already-thin `phase2044` / `phase2160` wrapper families and the `phase2170` MIR-file verify wrappers out of this next bucket
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

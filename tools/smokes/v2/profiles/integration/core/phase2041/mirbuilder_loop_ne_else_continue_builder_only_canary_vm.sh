@@ -23,16 +23,11 @@ cat > "$tmp_json" <<'JSON'
 ]}
 JSON
 
-set +e
-HAKO_VERIFY_PRIMARY=core HAKO_VERIFY_BUILDER_ONLY=1 verify_program_via_builder_to_core "$tmp_json" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_json" || true
+trap 'rm -f "$tmp_json" || true' EXIT
 
-if [ $rc -ne 0 ]; then
-  echo "[FAIL] mirbuilder_loop_ne_else_continue_builder_only_canary_vm (builder-only structure)" >&2
-  exit 1
-fi
-echo "[PASS] mirbuilder_loop_ne_else_continue_builder_only_canary_vm"
-exit 0
-
+run_verify_canary_and_expect_rc \
+  run_verify_program_via_builder_only_to_core \
+  "$tmp_json" \
+  0 \
+  "mirbuilder_loop_ne_else_continue_builder_only_canary_vm" \
+  "mirbuilder_loop_ne_else_continue_builder_only_canary_vm"

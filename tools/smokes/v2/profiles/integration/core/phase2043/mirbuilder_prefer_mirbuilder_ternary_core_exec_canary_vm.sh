@@ -11,15 +11,11 @@ cat >"$tmp_prog" <<'JSON'
 ]}
 JSON
 
-set +e
-HAKO_PREFER_MIRBUILDER=1 HAKO_VERIFY_PRIMARY=core verify_program_via_builder_to_core "$tmp_prog" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_prog" || true
+trap 'rm -f "$tmp_prog" || true' EXIT
 
-if [ "$rc" -eq 42 ]; then
-  echo "[PASS] mirbuilder_prefer_mirbuilder_ternary_core_exec_canary_vm"
-  exit 0
-fi
-echo "[FAIL] mirbuilder_prefer_mirbuilder_ternary_core_exec_canary_vm (rc=$rc, expect 42)" >&2; exit 1
-
+run_verify_canary_and_expect_rc \
+  run_verify_program_via_preferred_mirbuilder_core_to_core \
+  "$tmp_prog" \
+  42 \
+  "mirbuilder_prefer_mirbuilder_ternary_core_exec_canary_vm" \
+  "mirbuilder_prefer_mirbuilder_ternary_core_exec_canary_vm"

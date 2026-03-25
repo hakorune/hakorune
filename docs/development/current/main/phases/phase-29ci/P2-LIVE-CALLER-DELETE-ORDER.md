@@ -57,12 +57,27 @@ Related:
 
 `tools/smokes/v2/profiles/integration/core/**` 配下に、JSON v0 boundary を直接叩く test-only shell/apps caller が残っている。
 
-主な群:
+現在の caller-audit ledger:
 
-- `phase2034/mirbuilder_*`
-- `phase2043/program_new_array_delegate_struct_canary_vm.sh`
-- `phase2160/builder_min_*`
-- `phase2160/registry_optin_*`（shared launch collapse は進み、explicit keep は direct-lower probe 1本）
+- Bucket A: uniform raw `verify_program_via_builder_to_core` callers
+  - `phase2041/*`
+  - `phase2042/*`
+  - `phase2043/mirbuilder_prefer_mirbuilder_*`
+  - `phase2043/mirbuilder_*builder_only*`
+  - `phase2111/mirbuilder_registry_*`
+  - status: landed behind named runner helpers in `tools/smokes/v2/lib/test_runner.sh`
+- Bucket B: special raw verify keeps
+  - `phase2039/parser_embedded_json_canary.sh`
+  - `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
+  - status: next exact bucket
+- Bucket C: already-thin wrapper families
+  - `phase2044/*`
+  - `phase2160/builder_min_*`
+  - `phase2160/registry_optin_*`
+  - status: thin keep / monitor-only by default
+- Bucket D: MIR-file verify wrappers
+  - `phase2170/*`
+  - status: later separate bucket
 
 この tail は shared helper でも live/bootstrap owner でもないので、caller-audit 用の後段 bucket として扱う。
 
@@ -72,6 +87,9 @@ Related:
 2. `.hako` live/bootstrap owner 4 file の caller contract を audit する
 3. shared shell helper keep 3 file を audit する
 4. test-only smoke tail 43 file を caller-audit bucket として整理する
+   - first bucket: uniform raw verify callers (landed)
+   - second bucket: special raw verify keeps
+   - later buckets: already-thin wrapper families and MIR-file verify wrappers
 5. diagnostics/probe keep は live caller の後ろで retire 判断する
 
 ## Guardrails
@@ -97,3 +115,4 @@ Related:
 2. shared shell helper 3 file の contract を keep/remove 目線で audit する
 3. first helper-local slice は `tools/hakorune_emit_mir.sh`
 4. smoke tail 43 file は caller-audit ledger として別に畳む
+5. first smoke-tail bucket は landed; next exact bucket は special raw verify keeps に固定する

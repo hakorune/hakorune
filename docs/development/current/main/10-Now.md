@@ -39,7 +39,7 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W13 target:
+  - current W16 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
     - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
@@ -65,7 +65,11 @@ Related:
     - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
     - `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer is landed behind `prepare_registry_method_arraymap_stdout_snapshot()` + `run_registry_method_arraymap_token_policy()`
     - exact proof for that leaf is `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
-    - next move is a reinventory of `tools/smokes/v2/lib/test_runner.sh` for near-thin-floor vs smoke-tail boundary; do not promote the 43-file tail in the same slice
+    - the W15 reinventory is landed: `tools/smokes/v2/lib/test_runner.sh` is now treated as near-thin-floor, and the next move is caller-audit promotion rather than another default helper-local split
+    - the W16 first smoke-tail bucket is landed: uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers in `tools/smokes/v2/lib/test_runner.sh`
+    - next exact bucket is the special raw verify keeps with extra env or nonstandard success shape, centered on `phase2039/parser_embedded_json_canary.sh` and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
+    - `phase2044` / `phase2160` thin wrapper families stay as thin keeps, not the next promotion target
+    - `phase2170` MIR-file verify wrappers remain a later separate bucket
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

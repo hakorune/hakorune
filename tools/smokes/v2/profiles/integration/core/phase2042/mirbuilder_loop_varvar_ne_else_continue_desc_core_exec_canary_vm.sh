@@ -30,14 +30,11 @@ cat > "$tmp_json" <<'JSON'
 }
 JSON
 
-set +e
-HAKO_VERIFY_PRIMARY=core verify_program_via_builder_to_core "$tmp_json" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_json" || true
+trap 'rm -f "$tmp_json" || true' EXIT
 
-if [ "$rc" -eq 8 ]; then
-  echo "[PASS] mirbuilder_loop_varvar_ne_else_continue_core_exec_canary_vm"
-  exit 0
-fi
-echo "[FAIL] mirbuilder_loop_varvar_ne_else_continue_core_exec_canary_vm (rc=$rc, expect 8)" >&2; exit 1
+run_verify_canary_and_expect_rc \
+  run_verify_program_via_core_default_to_core \
+  "$tmp_json" \
+  8 \
+  "mirbuilder_loop_varvar_ne_else_continue_desc_core_exec_canary_vm" \
+  "mirbuilder_loop_varvar_ne_else_continue_desc_core_exec_canary_vm"

@@ -28,15 +28,11 @@ cat > "$tmp_json" <<'JSON'
 }
 JSON
 
-set +e
-# Use new direct driver: Program(JSON v0) → MirBuilder(Hako) → MIR(JSON v0) → Core
-HAKO_MIR_BUILDER_INTERNAL=1 verify_program_via_builder_to_core "$tmp_json" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_json" || true
+trap 'rm -f "$tmp_json" || true' EXIT
 
-if [ "$rc" -eq 8 ]; then
-  echo "[PASS] mirbuilder_loop_sum_bc_ne_else_continue_core_exec_canary_vm"
-  exit 0
-fi
-echo "[FAIL] mirbuilder_loop_sum_bc_ne_else_continue_core_exec_canary_vm (rc=$rc, expect 8)" >&2; exit 1
+run_verify_canary_and_expect_rc \
+  run_verify_program_via_internal_builder_to_core \
+  "$tmp_json" \
+  8 \
+  "mirbuilder_loop_sum_bc_ne_else_continue_core_exec_canary_vm" \
+  "mirbuilder_loop_sum_bc_ne_else_continue_core_exec_canary_vm"
