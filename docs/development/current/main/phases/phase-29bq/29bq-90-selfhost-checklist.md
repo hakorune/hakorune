@@ -19,7 +19,17 @@ Related:
 
 目的: “やることが多い” 状態でも、**順序・記録・ゲート緑維持**をチェックリストで守り、迷走を避ける。
 
-## 0.5) Milestone Quick Check（Current blocker: none の日）
+## 0.25) Current blocker (2026-03-25)
+
+- active blocker fixture:
+  - `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+- first freeze/reject:
+  - `[normalizer] BlockExpr with prelude is not supported in value context`
+- current lane mode:
+  - failure-driven
+  - fix or reclassify this exact blocker before promoting broader lane work
+
+## 0.5) Milestone Quick Check（blocker capture後の節目）
 
 次の3コマンドは節目チェック（push前/週次終端/回帰疑い時）として実行する。
 

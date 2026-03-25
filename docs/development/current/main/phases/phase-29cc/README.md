@@ -71,6 +71,8 @@ Related:
 
 ## Current focus
 
+- mainline active implementation lane has returned to `phase-29bq`
+- this orchestration lane stays accepted monitor-only; do not read `active next: none` below as the repo-wide mainline pointer
 - de-rust selfhost checklist snapshot (2026-03-09):
   - top-level orchestration closeout: accepted monitor-only
   - `DRC-01` source-zero inventory: done

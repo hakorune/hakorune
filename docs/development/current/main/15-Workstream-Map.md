@@ -22,33 +22,39 @@ Related:
 
 ## Current Order
 
-1. `phase-29ci`
-   - active boundary lane
-   - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
-   - W7 landed: shared shell helper caller audit inside `tools/selfhost/selfhost_build.sh` now covers the Program(JSON)->MIR->EXE consumer path
-   - W8 landed: `tools/smokes/v2/lib/test_runner.sh` verify-tail policy split
-   - W9 landed: `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract split
-   - W10 landed: `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split
-   - W11 landed: `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam split
-   - interrupt landed: phase2160 MirBuilder module-load dehang via `IfMirEmitBox`, `CompatMirEmitBox`, and bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
-   - W12 landed: `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer split
-   - W13 landed: `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer split
-   - W14 landed: `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split
-   - W15 landed: `tools/smokes/v2/lib/test_runner.sh` reinventory stop-line; helper-local work is now treated as near-thin-floor by default
-   - W16 landed: first smoke-tail bucket; uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers
-   - W17 landed: special raw verify keep bucket; core-primary built-MIR verify now honors `HAKO_VERIFY_PRIMARY=core`, `parser_embedded_json_canary.sh` uses the generic rc wrapper directly, and `mirbuilder_internal_new_array_core_exec_canary_vm.sh` now routes through `run_verify_program_via_internal_builder_no_methods_to_core()`
-   - W18 landed: `phase2170` default MIR-file verify wrappers; repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and named `run_verify_mir_via_hakovm_*` helpers, while legacy `hv1_mircall_*` wrappers remain explicit keeps
-   - W18 exact next: `phase-29ci` close-sync / final caller-audit judgment
-2. `phase-29cu`
+1. `phase-29bq`
+   - active selfhost lane
+   - `mirbuilder first / parser later`
+   - current blocker: `phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+   - first freeze/reject: `[normalizer] BlockExpr with prelude is not supported in value context`
+   - operation mode: failure-driven / exact-blocker-first
+   - current exact implementation leaf: nested-loop BlockExpr normalizer gap
+   - active read order:
+     - `29bq-90-selfhost-checklist.md`
+     - `29bq-91-mirbuilder-migration-progress-checklist.md`
+     - `29bq-92-parser-handoff-checklist.md`
+     - `29bq-113-hako-recipe-first-migration-lane.md`
+     - `29bq-114-hako-cleanup-integration-prep-lane.md`
+     - `29bq-115-selfhost-to-go-checklist.md`
+2. `phase-29ci`
    - formally close-synced
-3. `phase-29cj`
+   - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification is complete for the accepted keep set
+   - helper-local slices through W14 are landed
+   - smoke-tail caller buckets through W18 are landed
+   - `phase2044` / `phase2160` thin wrapper families are monitor-only keeps
+   - `phase2170` default MIR-file verify wrappers are landed
+   - legacy `hv1_mircall_*` wrappers remain explicit keeps
+   - reopen only on a new exact gap or explicit hard-delete resumption
+3. `phase-29cu`
    - formally close-synced
-4. `phase-29y`
+4. `phase-29cj`
+   - formally close-synced
+5. `phase-29y`
    - parked / monitor-only
-5. `phase-29ct`
+6. `phase-29ct`
    - stop-line reached
 
-## Bootstrap-Retire Now
+## Boundary-Retire Snapshot
 
 - live stop-line: `src/host_providers/mir_builder.rs::module_to_mir_json(...)`
 - latest landed Rust cuts:
@@ -76,45 +82,26 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-29ci` on boundary retirement only
-2. keep `stage1_cli.hako` and `launcher.hako` frozen near-thin-floor after the landed W4/W5 route-thinning slices
-3. audit shared shell helper keep in fixed order:
-   - `tools/hakorune_emit_mir.sh`
-   - `tools/selfhost/selfhost_build.sh`
-   - `tools/smokes/v2/lib/test_runner.sh`
-4. keep explicit env-route compat probes and raw compat flags alive
-5. keep internal Program(JSON) routes as compat/test/bootstrap-only keep until caller inventory reaches zero
-6. keep `phase-29cu` and `phase-29cj` closed unless exact gaps reappear
+1. keep `phase-29bq` active as failure-driven / blocker-none lane
+2. keep the next exact work on the captured nested-loop BlockExpr blocker
+3. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
+4. treat `phase2044` / `phase2160` thin wrapper families and `phase2170/hv1_mircall_*` as explicit keeps, not active caller-debt buckets
 
 ## Active Lane
 
-- `phase-29ci` is active again
+- `phase-29bq` is active again
 - active reading:
-  - `Program(JSON v0)` public/bootstrap boundary retirement
-  - `MIR(JSON v0)` line unification
-  - `Program(JSON v0)` hard delete is deferred
-- current first-wave targets:
-  - wrapper/helper retirements are landed
-  - `stage1_cli.hako` and `launcher.hako` route orchestration thinning is landed
-  - raw direct `stage1_cli.hako emit program-json` lane is retired as diagnostics-only evidence
-  - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
-  - `tools/selfhost/selfhost_build.sh` EXE consumer path split is landed; helper-local proof lives in `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
-  - `tools/smokes/v2/lib/test_runner.sh` verify-tail policy split is landed; proof stays on the phase2044 canaries
-  - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
-  - heavy `phase2160/builder_min_*` wrappers stay monitor-only for this seam
-  - `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
-  - `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
-  - phase2160 module-load dehang is landed; exact proof lives in `tools/dev/phase2160_mirbuilder_module_load_probe.sh`, and the representative `builder_min_if_compare_intint` / `registry_optin_compare_varint` / `registry_optin` canaries are bounded again as monitor-only checks
-  - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
-  - `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
-  - `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
-  - the `test_runner.sh` reinventory stop-line is landed; helper-local work is now near-thin-floor by default
-  - the first smoke-tail caller bucket is also landed: uniform raw `verify_program_via_builder_to_core` callers now route through named helpers instead of open-coded env stacks
-  - next move is `phase-29ci` close-sync / final caller-audit judgment
+  - selfhost `.hako` migration remains `mirbuilder first / parser later`
+  - current blocker is the nested-loop BlockExpr normalizer gap
+  - promotion is failure-driven only
+- current lane rule:
+  - use `29bq-90/91/92/113/114/115` as the operational SSOT set
+  - keep the current blocker pinned until the exact leaf is resolved or reclassified
+  - do not promote a broader leaf while this blocker is active
 - guard rails:
-  - `Program(JSON v0)` stays no-widen
-  - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - do not absorb high-level Program(JSON) structure into MIR
+  - keep compiler-expressivity-first policy
+  - keep selfhost migration docs-first / failure-driven
+  - do not reopen `phase-29ci` helper-local work without a new exact gap
 
 ## Parked / Stop-Line
 

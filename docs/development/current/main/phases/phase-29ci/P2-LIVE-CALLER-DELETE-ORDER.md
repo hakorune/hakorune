@@ -1,5 +1,5 @@
 ---
-Status: Accepted
+Status: Accepted (formal-close-synced)
 Decision: accepted
 Date: 2026-03-13
 Scope: `phase-29ci` の `.hako` live/bootstrap callers と `shell helper keep` の delete-order を exact caller bucket で固定する。
@@ -115,4 +115,13 @@ Related:
 2. shared shell helper 3 file の contract を keep/remove 目線で audit する
 3. first helper-local slice は `tools/hakorune_emit_mir.sh`
 4. smoke tail 43 file は caller-audit ledger として別に畳む
-5. first smoke-tail bucket, special raw verify keep bucket, and the default `phase2170` MIR-file verify wrapper pack are landed; next move is `phase-29ci` close-sync / final caller-audit judgment
+5. first smoke-tail bucket, special raw verify keep bucket, and the default `phase2170` MIR-file verify wrapper pack are landed; there is no remaining exact caller bucket under the current `phase-29ci` scope
+
+## Current Read
+
+- this delete-order ledger is now `formal-close-synced` with the phase closeout
+- explicit keeps under this ledger are:
+  - `phase2044/*` thin wrapper family
+  - `phase2160/*` thin wrapper families
+  - `phase2170/hv1_mircall_*`
+- reopen only if a new exact caller bucket appears or boundary hard delete resumes

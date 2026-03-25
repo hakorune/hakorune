@@ -31,7 +31,7 @@ Related:
   - 現在値は `CURRENT_TASK.md` の compiler lane block（`phase-29bq / <task|none>`）を唯一入力にする。
   - mirror 同期は `bash tools/selfhost/sync_lane_a_state.sh` -> `bash tools/checks/phase29bq_joinir_port_sync_guard.sh` を固定経路とする。
 
-## Fixed Order (JIR-PORT-00..07)
+## Fixed Order (JIR-PORT-00..08)
 
 ### JIR-PORT-00: Boundary Lock (docs-first)
 
@@ -144,6 +144,21 @@ Related:
   - seed fixture が `.hako` route で green、非対応は stable tag で freeze/reject になること。
   - sync guard と daily gate が green を維持すること。
 
+### JIR-PORT-08: Nested Loop Else-Return BlockExpr Normalizer Gap
+
+- 目的:
+  - current `phase29bq_fast_gate_vm.sh --only bq` blocker を exact fixture 1件で固定する。
+- active blocker fixture:
+  - `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+- first freeze/reject:
+  - `[normalizer] BlockExpr with prelude is not supported in value context`
+- 実施:
+  - blocker capture を `CURRENT_TASK.md` / `10-Now.md` / lane map / task pack に同期する。
+  - fix wave では normalizer value-context contract だけを主語にする。
+- 受け入れ:
+  - target fixture が `phase29bq_fast_gate_vm.sh --only bq` で green に戻ること。
+  - sync guard が green で、lane A active blocker が `JIR-PORT-08` に一致すること。
+
 ## Operation Rules (must keep)
 
 - `1 blocker = 1 fixture = 1 smoke = 1 commit`
@@ -170,5 +185,6 @@ Related:
 - JIR-PORT-05: done（promotion boundary lock）
 - JIR-PORT-06: done（monitor-only boundary lock）
 - JIR-PORT-07: done（expression parity seed lock: unary+compare+logic）
-- lane A blocker: `none`（monitor-only）
+- JIR-PORT-08: active（nested-loop BlockExpr with prelude in value context）
+- lane A blocker: `JIR-PORT-08`（active, normalizer BlockExpr with prelude is not supported in value context）
 - next: `none`（tail active）

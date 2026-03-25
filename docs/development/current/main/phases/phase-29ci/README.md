@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted (formal-close-synced)
 Decision: accepted
 Date: 2026-03-25
 Scope: `Program(JSON v0)` bootstrap boundary を retire target として固定し、repo-wide external/bootstrap boundary を `MIR(JSON v0)` に統一する separate phase owner。
@@ -36,14 +36,22 @@ Related:
 `phase-29ch` が固定した authority を前提に、bootstrap-only JSON v0 boundary の caller / owner / delete order を扱う。
 execution-lane reading では、この phase は stage1 bridge/proof boundary だけを扱い、distribution policy は持たない。
 
-## Status Reading
+## Current Read
 
-- current status は `reopen W18 active`。
-- この phase の current goal は `Program(JSON v0)` の hard delete ではない。
-- current repo では:
+- phase status は `formal-close-synced`
+- current accepted scope is complete for boundary retirement + caller-audit under the accepted keep set
+- current repo reading is fixed to:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
   - `MIR(JSON v0)` = sole external/bootstrap boundary
-- この phase の fixed order を完了する前に、`JSON v0 は repo-wide で撤退済み` と読まない。
+- landed scope under this phase:
+  - wrapper/helper retirements are landed
+  - helper-local shell/test-harness slices are landed through W14
+  - smoke-tail caller buckets are landed through W18
+  - `phase2044` / `phase2160` thin wrapper families are monitor-only keeps
+  - `phase2170` default pack is landed, while legacy `hv1_mircall_*` wrappers remain explicit keeps
+- reopen only if:
+  - a new exact caller/helper gap appears under boundary-retirement scope
+  - or hard delete / broad internal removal explicitly resumes
 
 ## Entry Conditions
 
@@ -102,8 +110,8 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - exact W17 proof is `tools/dev/phase29ci_verify_primary_core_route_probe.sh`
   - the `phase2170` default MIR-file verify wrapper pack is landed too: repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and the named `run_verify_mir_via_hakovm_*` helpers in `tools/smokes/v2/lib/test_runner.sh`
   - the default `phase2170` wrappers now collapse onto `run_verify_mir_canary_and_expect_rc()`, while legacy `hv1_mircall_*` wrappers remain explicit keeps
-  - next cleanup slice is `phase-29ci` close-sync / final caller-audit judgment
-  - keep the already-thin `phase2044` / `phase2160` wrapper families out of that next bucket
+  - there is no remaining exact implementation leaf under the current boundary-retirement scope
+  - keep the already-thin `phase2044` / `phase2160` wrapper families as monitor-only keeps, not reopen triggers
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets
@@ -143,7 +151,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 - raw direct `stage1_cli.hako` `emit program-json` lane is pinned as retired diagnostics-only evidence
 - hard delete is not started in the same wave
 
-## Next Phase Pointer
+## Reopen Pointer
 
-- next Rust-owned retirement wave:
+- reopen this phase only when:
   - `docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md`
+    shows a new exact caller bucket
+  - or hard delete / broad internal removal resumes as a separate wave

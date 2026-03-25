@@ -11,6 +11,8 @@ Related:
 - docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md
 - docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md
 - docs/development/current/main/phases/phase-29bq/29bq-113-hako-recipe-first-migration-lane.md
+- docs/development/current/main/phases/phase-29bq/29bq-114-hako-cleanup-integration-prep-lane.md
+- docs/development/current/main/phases/phase-29bq/29bq-115-selfhost-to-go-checklist.md
 - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
 ---
 
@@ -59,6 +61,24 @@ Phase 29bq の実装順序は `compiler-task-map-ssot.md` に従う（selfhost �
 - `.hako` Recipe-first migration lane: `29bq-113-hako-recipe-first-migration-lane.md`
 - `.hako` Cleanup integration prep lane: `29bq-114-hako-cleanup-integration-prep-lane.md`
 - Selfhost closeout checklist: `29bq-115-selfhost-to-go-checklist.md`
+
+## Current Read
+
+- phase status: `active`
+- this lane is the current active implementation front again
+- current blocker: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+- first freeze/reject: `[normalizer] BlockExpr with prelude is not supported in value context`
+- current operation mode: `failure-driven`
+- current exact implementation leaf: nested-loop BlockExpr-with-prelude-in-value-context normalizer gap
+- read in this order:
+  - `29bq-90-selfhost-checklist.md`
+  - `29bq-91-mirbuilder-migration-progress-checklist.md`
+  - `29bq-92-parser-handoff-checklist.md`
+  - `29bq-113-hako-recipe-first-migration-lane.md`
+  - `29bq-114-hako-cleanup-integration-prep-lane.md`
+  - `29bq-115-selfhost-to-go-checklist.md`
+
+This lane is no longer in blocker=`none` steady-state. Resolve or reclassify the captured exact blocker before promoting broader lane work.
 
 ## Planned next (after 29bq)
 

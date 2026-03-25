@@ -29,52 +29,33 @@ Related:
 
 ## Current Read
 
-- Active lane: `phase-29ci`
-  - status: `reopen W18 active`
+- Active lane: `phase-29bq`
+  - status: `active (failure-driven; blocker=JIR-PORT-08)`
   - purpose:
-    - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
-    - unify public/bootstrap interchange on `MIR(JSON v0)`
-    - keep hard delete out of this wave
-  - scope lock:
-    - `Boundary + Minimal MIR Meta`
-    - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
-    - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W18 target:
-    - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
-    - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
-    - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
-    - `tools/selfhost/selfhost_build.sh` EXE consumer path is landed behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
-    - exact proof for that leaf is `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
-    - raw `selfhost_build.sh --in ...` whole-script routes are upstream Stage-B diagnostics, not the W7.1 acceptance line
-    - `tools/smokes/v2/lib/test_runner.sh` verify-tail policy is landed behind `coerce_verify_builder_emit_result_kind()` + `run_verify_builder_emit_{failure,success}_policy()`
-    - exact proof for that leaf is `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` plus `phase2044/hako_primary_no_fallback_return_binop_core_exec_canary_vm.sh`
-    - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract is landed behind `coerce_phase2160_tagged_stdout_result_kind()` + `run_phase2160_tagged_stdout_repair_policy()`
-    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
-    - heavy `phase2160/builder_min_*` wrappers remain monitor-only while tagged-stdout is pinned helper-locally
-    - `tools/smokes/v2/lib/test_runner.sh` builder-module env/render seam is landed behind `prepare_builder_module_program_json_runner_context()` + `run_rendered_builder_module_program_json_runner()`
-    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
-    - `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam is landed behind `capture_runner_stdout_to_file()` + `select_registry_builder_module_runner()`
-    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
-    - the phase2160 module-load dehang interrupt is landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
-    - exact proof for that interrupt is `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
-    - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but stay monitor-only
-    - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout caller layer is landed behind `run_stdout_tag_canary_exec_and_repair()`
-    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_tagged_stdout_caller_probe.sh`
-    - `tools/smokes/v2/lib/test_runner.sh` registry-specialized tagged-stdout layer is landed behind `capture_registry_tagged_stdout_snapshot()` + `run_registry_builder_diag_exec_and_contract()`
-    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_registry_tagged_stdout_probe.sh`
-    - `phase2160/registry_optin_method_arraymap_get_diag_canary_vm.sh` stays as the thin diag wrapper check for that layer
-    - `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer is landed behind `prepare_registry_method_arraymap_stdout_snapshot()` + `run_registry_method_arraymap_token_policy()`
-    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
-    - the W15 reinventory is landed: `tools/smokes/v2/lib/test_runner.sh` is now treated as near-thin-floor, and the next move is caller-audit promotion rather than another default helper-local split
-    - the W16 first smoke-tail bucket is landed: uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers in `tools/smokes/v2/lib/test_runner.sh`
-    - the special raw verify keep bucket is landed: `phase2039/parser_embedded_json_canary.sh` now uses the generic rc wrapper directly, and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh` now routes through `run_verify_program_via_internal_builder_no_methods_to_core()`
-    - the core-primary verify-route fix is landed behind `verify_primary_requests_core_v0()`
-    - exact proof for that slice is `tools/dev/phase29ci_verify_primary_core_route_probe.sh`
-    - the `phase2170` default MIR-file verify wrapper pack is landed: repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and the named `run_verify_mir_via_hakovm_*` helpers in `tools/smokes/v2/lib/test_runner.sh`
-    - the default `phase2170` wrappers now collapse onto `run_verify_mir_canary_and_expect_rc()`, while the legacy `hv1_mircall_*` wrappers remain explicit keeps
-    - `phase2044` / `phase2160` thin wrapper families stay as thin keeps, not the next promotion target
-    - next exact bucket is `phase-29ci` close-sync / final caller-audit judgment
-    - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
+    - keep selfhost `.hako` migration on `mirbuilder first / parser later`
+    - drive the lane from the captured exact blocker first
+    - keep daily lane checks and blocker evidence current
+  - current read:
+    - current exact implementation leaf is the nested-loop BlockExpr normalizer gap
+    - current blocker fixture is `phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+    - first freeze/reject is `[normalizer] BlockExpr with prelude is not supported in value context`
+    - operational SSOT is `phase-29bq/29bq-90-selfhost-checklist.md`
+    - progress ledger is `phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
+    - parser handoff ledger is `phase-29bq/29bq-92-parser-handoff-checklist.md`
+    - current inner migration reading is `29bq-113` / `29bq-114` / `29bq-115`
+- Compiler lane: `phase-29bq`（JIR-PORT-00..07 done / active blocker=`JIR-PORT-08` / next=`none`）
+- JoinIR port mode（lane A）: proactive（manual override: JIR-PORT-08）
+- Boundary-retire lane: `phase-29ci`
+  - status: `formal-close-synced`
+  - current boundary-retirement scope is complete for the accepted keep set:
+    - helper-local slices through W14 are landed
+    - smoke-tail caller buckets through W18 are landed
+    - `phase2044` / `phase2160` thin wrapper families are monitor-only keeps
+    - `phase2170` default pack is landed
+    - `phase2170/hv1_mircall_*` stays as explicit keep
+  - reopen only if:
+    - a new exact caller/helper gap appears
+    - or hard delete / broad internal removal explicitly resumes
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`
   - narrow-scope current truth:
@@ -137,7 +118,8 @@ Related:
 - ABI inventory: `docs/development/current/main/design/abi-export-inventory.md`
 - JSON v0 inventory: `docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
 - Route split note: `docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md`
-- Phase 29ci closeout: `docs/development/current/main/phases/phase-29ci/README.md`
+- Phase 29ci close-sync: `docs/development/current/main/phases/phase-29ci/README.md`
+- Active selfhost lane: `docs/development/current/main/phases/phase-29bq/README.md`
 
 ## Restart Reminder
 

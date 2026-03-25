@@ -15,10 +15,12 @@ Related:
 
 ## Current Shape
 
-- active implementation lane: `phase-29ci`
+- active implementation lane: `phase-29bq`
 - active lane reading:
-  - `Program(JSON v0)` boundary retirement
-  - `MIR(JSON v0)` line unification
+  - selfhost `.hako` migration
+  - `mirbuilder first / parser later`
+  - failure-driven on the captured nested-loop BlockExpr blocker
+- close-synced boundary-retire lane: `phase-29ci`
 - close-synced Rune lane: `phase-29cu`
 - close-synced bootstrap-retire lane: `phase-29cj`
 - parked runtime lane: `phase-29y`

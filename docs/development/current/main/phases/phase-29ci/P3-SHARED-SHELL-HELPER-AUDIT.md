@@ -1,5 +1,5 @@
 ---
-Status: Accepted
+Status: Accepted (formal-close-synced)
 Decision: accepted
 Date: 2026-03-13
 Scope: `phase-29ci` の shared shell helper keep 3本を exact role 付きで audit し、smoke tail / probe keep と分離した delete-order を固定する。
@@ -157,5 +157,15 @@ shared shell helper keep として残っている 3 file について、
 
 1. keep `tools/hakorune_emit_mir.sh` monitor-only after the landed direct-emit fallback split
 2. keep `tools/selfhost/selfhost_build.sh` monitor-only after the landed EXE consumer-path split and its helper-local probe
-3. keep `tools/smokes/v2/lib/test_runner.sh` near-thin-floor after the landed helper-local slices and the landed `phase2170` default wrapper pack; the next move is `phase-29ci` close-sync / final caller-audit judgment rather than reopening helper-local route policy again
-4. keep `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` green while judging close-sync; do not reopen vm-hako subset debt or widen directly into the 43-file smoke tail
+3. keep `tools/smokes/v2/lib/test_runner.sh` near-thin-floor after the landed helper-local slices and the landed `phase2170` default wrapper pack; there is no remaining exact helper-local bucket under the current `phase-29ci` scope
+4. keep `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` green as monitor evidence; do not reopen vm-hako subset debt or widen directly into the 43-file smoke tail
+
+## Current Read
+
+- this helper-audit ledger is now `formal-close-synced` with the phase closeout
+- helper-local slices are landed through W14, and caller-tail promotion is landed through W18
+- explicit keep / monitor-only set remains:
+  - `phase2044/*`
+  - `phase2160/*`
+  - `phase2170/hv1_mircall_*`
+- reopen only if a new exact helper-local seam appears
