@@ -13,6 +13,7 @@
 
 using lang.mir.builder.MirBuilderBox
 using lang.compiler.build.build_box as BuildBox
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 
 static box LauncherProgramJsonBuildBox {
   method emit_program_json_v0(tag, source_text) {
@@ -716,7 +717,7 @@ static box HakoCli {
 
   method _call_codegen_compile_json_path(mir_path){
     if mir_path == null { return null }
-    return "selfhost.shared.backend.llvm_backend".compile_obj(
+    return LlvmBackendBox.compile_obj(
       me._coerce_text_compat(mir_path)
     )
   }
@@ -725,9 +726,10 @@ static box HakoCli {
     if obj_path == null { return null }
     local obj_text = me._coerce_text_compat(obj_path)
     if me._non_empty_text(exe_path) == 1 {
-      return "selfhost.shared.backend.llvm_backend".link_exe(
+      return LlvmBackendBox.link_exe(
         obj_text,
-        me._coerce_text_compat(exe_path)
+        me._coerce_text_compat(exe_path),
+        null
       )
     }
     return null

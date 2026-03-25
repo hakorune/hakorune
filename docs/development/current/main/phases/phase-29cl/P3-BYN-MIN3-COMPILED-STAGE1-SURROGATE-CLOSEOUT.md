@@ -36,9 +36,10 @@ Related:
 ## Current Truth
 
 1. visible launcher and compiled-stage1 callers are already off explicit `nyash.plugin.invoke_by_name_i64`.
-2. direct-known-box lowering prefers `BuildBox` / `MirBuilderBox` / `LlvmBackendBox` before compat fallback.
-3. `module_string_dispatch` cluster is at thin floor and remains temporary proof owner only.
-4. current move is docs/inventory closeout only.
+2. visible launcher build-exe source lane now also uses direct `LlvmBackendBox.{compile_obj,link_exe}` instead of a quoted module-string backend literal.
+3. direct-known-box lowering prefers `BuildBox` / `MirBuilderBox` / `LlvmBackendBox` before compat fallback.
+4. `module_string_dispatch` cluster is at thin floor and remains temporary proof owner only.
+5. current move is docs/inventory closeout only.
 
 ## Acceptance
 

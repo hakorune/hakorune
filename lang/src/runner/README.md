@@ -99,7 +99,7 @@ Pointers:
 - `Stage1ProgramJsonCompatBox` now also keeps the final explicit Program(JSON) checked emit behind `_emit_mir_from_text_checked(...)`, so the public compat entry is down to input coercion -> checked emit handoff only.
 - `launcher.hako` now also keeps shared Program(JSON) marker predicates behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so emit-program output validation and emit-mir input validation reuse the same same-file check there too.
 - `launcher.hako` now also keeps build-exe compile/link fail-fast tails behind `_compile_object_from_mir_path_checked(...)` and `_link_exe_object_checked(...)`, so `_emit_exe_from_mir_json_checked(...)` is down to path resolve/write -> compile -> link orchestration only.
-- current compile-safe `launcher.hako` build-exe route stops at the module-string backend surrogate `"selfhost.shared.backend.llvm_backend".{compile_obj,link_exe}` rather than direct `HostFacadeBox.call(...)` / `env.codegen.*`, because compiled launcher MIR still lowers helper defs even when the CLI path does not execute them.
+- current compile-safe `launcher.hako` build-exe route now stops at direct `LlvmBackendBox.{compile_obj,link_exe}` calls instead of a quoted module-string backend literal; compiled-stage1 surrogate residue remains a temporary proof keep behind kernel module-string dispatch, not a visible launcher caller owner.
 - compiled launcher helper defs still carry file-I/O methods, so the native keep is a narrow llvm-py by-name fallback for `FileBox.{open,read,readBytes,write,writeBytes,close}` only; this is a compile-safe keep for helper defs, not a generic fallback policy.
 - Fail-Fast 原則:
   - 未実装コマンドや不正な引数は明示的なメッセージ＋非0終了コードで返す。

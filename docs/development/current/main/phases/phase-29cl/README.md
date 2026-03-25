@@ -89,7 +89,7 @@ Rule:
    - launcher-exe `build exe -o ... apps/tests/hello_simple_llvm.hako` is green again because compiled-stage1 `llvm_backend_surrogate.rs` now owns temporary `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` routing
 7. `BYN-min2` source cutover is landed
    - visible launcher source route no longer uses explicit `invoke_by_name_i64` for backend compile/link
-   - current compile-safe launcher keep may still mention `selfhost.shared.backend.llvm_backend`, but direct-known-box lowering prefers `LlvmBackendBox.{compile_obj,link_exe}` before generic plugin fallback
+   - visible launcher compile-safe route now also calls `LlvmBackendBox.{compile_obj,link_exe}` directly instead of a quoted `selfhost.shared.backend.llvm_backend` literal
    - `llvm_backend_surrogate.rs` remains temporary compiled-stage1 residue only; it is not a new daily by-name owner
 8. this phase does not mean “re-open by_name now”
    - current mainline caller set is already zero
@@ -142,6 +142,7 @@ Rule:
 20. current module-string dispatch residue is at thin floor and frozen
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is a thin parent router plus shared decode/gate helpers
    - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain frozen compiled-stage1 exact owners; docs/inventory closeout only until caller-proof says removable
+   - visible launcher source lane is no longer part of that residue bucket
    - next move is docs/inventory closeout until caller-proof says the surrogate code can actually be removed
 
 ## Immediate Next
