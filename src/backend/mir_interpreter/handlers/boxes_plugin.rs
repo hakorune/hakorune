@@ -1,4 +1,6 @@
-use super::string_method_helpers::{parse_index_of_args, parse_last_index_of_args, ArgParsePolicy};
+use super::string_method_helpers::{
+    parse_index_of_args, parse_last_index_of_args, try_eval_string_char_predicate, ArgParsePolicy,
+};
 use super::*;
 use crate::box_trait::NyashBox;
 
@@ -86,29 +88,13 @@ pub(super) fn invoke_plugin_box(
                 this.write_result(dst, VMValue::Integer(idx));
                 Ok(())
             }
-            // Phase 25.1m: minimal builtin support for StringBox.is_space(ch)
-            "is_space" => {
-                if let Some(arg_id) = args.get(0) {
-                    let ch = this.reg_load(*arg_id)?.to_string();
-                    let is_ws = ch == " " || ch == "\t" || ch == "\n" || ch == "\r";
-                    this.write_result(dst, VMValue::Bool(is_ws));
+            "is_space" | "is_alpha" => match try_eval_string_char_predicate(this, method, args)? {
+                Some(value) => {
+                    this.write_result(dst, value);
                     Ok(())
-                } else {
-                    Err(this.err_invalid("is_space requires 1 argument"))
                 }
-            }
-            // Phase 25.1m: minimal builtin support for StringBox.is_alpha(ch)
-            "is_alpha" => {
-                if let Some(arg_id) = args.get(0) {
-                    let ch = this.reg_load(*arg_id)?.to_string();
-                    let c = ch.chars().next().unwrap_or('\0');
-                    let is_alpha = ('A'..='Z').contains(&c) || ('a'..='z').contains(&c) || c == '_';
-                    this.write_result(dst, VMValue::Bool(is_alpha));
-                    Ok(())
-                } else {
-                    Err(this.err_invalid("is_alpha requires 1 argument"))
-                }
-            }
+                None => unreachable!("String char predicate must resolve for handled method"),
+            },
             _ => Err(this.err_method_not_found("StringBox", method)),
         }
     } else {

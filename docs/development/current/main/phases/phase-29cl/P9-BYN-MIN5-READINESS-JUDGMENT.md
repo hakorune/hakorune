@@ -48,6 +48,7 @@ Related:
 3. compiled-stage1 surrogate owners are still required as frozen proof owners
 4. compat keep owners are explicit residue, but hard-retire readiness still has caveats
 5. this judgment is therefore negative today
+6. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is now landed, so the next exact step is a readiness re-check rather than another pre-opened shrink bucket
 
 ## Judgment Criteria
 
@@ -59,7 +60,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. the next exact blocker bucket is `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`
+2. after `P11` landed, the next exact front returns here for a readiness re-check
 
 ## Acceptance
 
@@ -87,4 +88,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`
+1. rerun `P9-BYN-MIN5-READINESS-JUDGMENT.md` with the landed `P11` evidence before opening any new shrink bucket

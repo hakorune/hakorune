@@ -1,6 +1,7 @@
 use super::*;
 use crate::backend::mir_interpreter::handlers::string_method_helpers::{
-    parse_index_of_args, parse_last_index_of_args, parse_substring_args, ArgParsePolicy,
+    parse_index_of_args, parse_last_index_of_args, parse_substring_args,
+    try_eval_string_char_predicate, ArgParsePolicy,
 };
 use crate::backend::mir_interpreter::handlers::temp_dispatch::{
     with_temp_receiver_dispatch, TMP_OUT_INSTANCE_FIELD_OP, TMP_OUT_INSTANCE_METHOD_BRIDGE,
@@ -765,32 +766,9 @@ impl MirInterpreter {
 
         // Fallback: Special methods not in TypeRegistry yet
         if let VMValue::BoxRef(box_ref) = receiver {
-            // StringBox special methods (is_space, is_alpha)
             if box_ref.type_name() == "StringBox" {
-                let s_box = box_ref.to_string_box();
-                let _s = s_box.value;
-                match method {
-                    "is_space" => {
-                        if let Some(arg_id) = args.get(0) {
-                            let ch = self.reg_load(*arg_id)?.to_string();
-                            let is_ws = ch == " " || ch == "\t" || ch == "\n" || ch == "\r";
-                            return Ok(VMValue::Bool(is_ws));
-                        } else {
-                            return Err(self.err_invalid("is_space requires 1 argument"));
-                        }
-                    }
-                    "is_alpha" => {
-                        if let Some(arg_id) = args.get(0) {
-                            let ch = self.reg_load(*arg_id)?.to_string();
-                            let c = ch.chars().next().unwrap_or('\0');
-                            let is_alpha =
-                                ('A'..='Z').contains(&c) || ('a'..='z').contains(&c) || c == '_';
-                            return Ok(VMValue::Bool(is_alpha));
-                        } else {
-                            return Err(self.err_invalid("is_alpha requires 1 argument"));
-                        }
-                    }
-                    _ => {}
+                if let Some(out) = try_eval_string_char_predicate(self, method, args)? {
+                    return Ok(out);
                 }
             }
 
@@ -884,5 +862,59 @@ impl MirInterpreter {
 
         // No slot found and no fallback matched
         Err(self.err_method_not_found(type_name, method))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::backend::vm_types::VMError;
+    use crate::box_trait::StringBox;
+    use std::sync::Arc;
+
+    fn stringbox_receiver(text: &str) -> VMValue {
+        VMValue::BoxRef(Arc::new(StringBox::new(text)))
+    }
+
+    #[test]
+    fn method_dispatch_stringbox_is_space_after_slot_miss() {
+        let mut interp = MirInterpreter::new();
+        let arg = ValueId(1);
+        interp.regs.insert(arg, VMValue::String(" ".to_string()));
+
+        let got = interp
+            .execute_method_call(&stringbox_receiver("seed"), "is_space", &[arg])
+            .expect("is_space should stay handled");
+
+        assert_eq!(got, VMValue::Bool(true));
+    }
+
+    #[test]
+    fn method_dispatch_stringbox_is_alpha_after_slot_miss() {
+        let mut interp = MirInterpreter::new();
+        let arg = ValueId(1);
+        interp.regs.insert(arg, VMValue::String("A".to_string()));
+
+        let got = interp
+            .execute_method_call(&stringbox_receiver("seed"), "is_alpha", &[arg])
+            .expect("is_alpha should stay handled");
+
+        assert_eq!(got, VMValue::Bool(true));
+    }
+
+    #[test]
+    fn method_dispatch_stringbox_unknown_method_still_fails_fast() {
+        let mut interp = MirInterpreter::new();
+
+        let err = interp
+            .execute_method_call(&stringbox_receiver("seed"), "missing_method", &[])
+            .expect_err("unknown StringBox method must fail fast");
+
+        match err {
+            VMError::InvalidInstruction(msg) => {
+                assert_eq!(msg, "Unknown method 'missing_method' on StringBox");
+            }
+            other => panic!("unexpected error: {:?}", other),
+        }
     }
 }

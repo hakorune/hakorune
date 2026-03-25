@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `BYN-min5` readiness の次 blocker bucket として、runtime method dispatch の name-resolution dependent residue を `method.rs` 先頭で縮める。
@@ -39,12 +39,16 @@ Related:
 3. `type_registry.rs` remains the shared slot owner and should not gain consumer-specific fallback policy.
 4. `unified_dispatch.rs` is a mirror consumer and is not the first next edit target.
 5. this is the next exact blocker bucket under the still-negative `P9` readiness judgment.
+6. the landed slice removes the local `StringBox.is_space` / `StringBox.is_alpha` truth from `method.rs` and centralizes it in the shared string-method helper.
+7. this wave does not change slot ownership and does not open `type_registry.rs` or `unified_dispatch.rs`.
 
 ## Acceptance
 
 1. `bash tools/checks/phase29cl_by_name_mainline_guard.sh`
 2. `bash tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
-3. targeted Rust tests covering `method.rs` dispatch and `resolve_slot_by_name(...)` users stay green
+3. `cargo test method_dispatch_stringbox_ -- --nocapture`
+4. `cargo test string_char_predicate_ -- --nocapture`
+5. targeted Rust tests covering `resolve_slot_by_name(...)` users stay green
 
 ## Reopen Rule
 
@@ -60,3 +64,7 @@ Reopen this wave only when one of these is true.
 2. modifying `hako_forward_bridge.rs`
 3. deleting `by_name.rs`
 4. mixing this wave with hard-retire execution
+
+## Next Exact Front
+
+1. return to `P9-BYN-MIN5-READINESS-JUDGMENT.md` and re-check readiness with the P11 method-dispatch shrink landed
