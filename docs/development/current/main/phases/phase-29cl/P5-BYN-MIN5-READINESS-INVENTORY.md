@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md
   - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/development/current/main/phases/phase-29cl/P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -72,7 +73,8 @@ Related:
 4. no new daily caller is allowed to appear while this inventory stays pending.
 5. readiness judgment can only happen after these blocker buckets stop owning live proof.
 6. `P9` is closed as a negative judgment
-7. next exact front is `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`
+7. `P10` is closed as the FileBox compat leaf shrink
+8. next exact front is `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`
 
 ## Acceptance
 

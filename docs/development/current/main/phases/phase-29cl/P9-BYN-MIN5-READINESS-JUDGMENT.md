@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
   - docs/development/current/main/phases/phase-29cl/P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
   - crates/nyash_kernel/src/hako_forward_bridge.rs
   - crates/nyash_kernel/src/hako_forward.rs
   - crates/nyash_kernel/src/hako_forward_registry.c
@@ -58,7 +59,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. the next exact blocker bucket is `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`
+2. the next exact blocker bucket is `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`
 
 ## Acceptance
 
@@ -86,4 +87,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`
+1. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`

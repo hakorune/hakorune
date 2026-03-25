@@ -46,6 +46,8 @@ Related:
    - hard-retire readiness judgment bucket; negative today because caller/proof residue still remains
 10. `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`
    - narrowest next blocker bucket under the negative `P9` judgment
+11. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`
+   - runtime method-dispatch bucket for the next name-resolution dependent migration slice
 
 ## 2. Current Daily Caller Reading
 

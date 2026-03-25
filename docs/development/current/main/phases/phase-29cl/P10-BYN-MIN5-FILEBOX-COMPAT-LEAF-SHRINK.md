@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `BYN-min5` readiness judgment negative の直後に進める最小 blocker bucket として、FileBox compat leaf とその direct-miss caller residue をさらに縮める。
@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/development/current/main/phases/phase-29cl/P6-BYN-MIN5-DAILY-CALLER-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
   - src/llvm_py/instructions/direct_box_method.py
   - src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py
   - src/llvm_py/tests/test_method_fallback_tail.py
@@ -36,10 +37,11 @@ Related:
 
 ## Current Truth
 
-1. `direct_box_method.py` is thinner than before, but miss handling still allows the explicit FileBox compat leaf.
-2. `filebox_plugin_fallback.py` is the remaining Python-side emitter of `nyash.plugin.invoke_by_name_i64`.
-3. this is the smallest live blocker bucket under the negative `P9` judgment.
-4. `method.rs`, `type_registry.rs`, and `unified_dispatch.rs` remain larger migration targets and are not the first next slice.
+1. `direct_box_method.py` now uses an explicit plugin fallback policy instead of a bool gate.
+2. `method_call.py` and `mir_call_legacy.py` now restrict the by-name compat leaf to `FileBox` allowlist methods only.
+3. `filebox_plugin_fallback.py` remains the only Python-side emitter of `nyash.plugin.invoke_by_name_i64`.
+4. `boxcall.py` keeps its legacy fallback policy unchanged, so this wave stays method-call-local.
+5. `method.rs`, `type_registry.rs`, and `unified_dispatch.rs` remain larger migration targets and are now the next blocker family.
 
 ## Acceptance
 
@@ -61,3 +63,7 @@ Reopen this wave only when one of these is true.
 2. modifying `hako_forward_bridge.rs`
 3. deleting `by_name.rs`
 4. mixing this wave with hard-retire execution
+
+## Next Exact Front
+
+1. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`

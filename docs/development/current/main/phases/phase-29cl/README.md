@@ -18,6 +18,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
   - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/development/current/main/phases/phase-29cl/P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -173,12 +174,14 @@ Rule:
    - daily caller residue is narrower and isolated in the explicit FileBox compat helper
 5. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is closed as a negative judgment
    - acceptance is green, but readiness still has caller/proof caveats
-6. current exact front is `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`
+6. `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md` is closed
+   - method-call direct-miss fallback is now FileBox-only
+7. current exact front is `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md`
    - P5 remains the blocker inventory
-7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-8. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
-9. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-10. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+8. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+9. keep shrinking the remaining generic/mainline LLVM caller set after the expanded stage1+shared-helper families and shared generic tail tightening
+10. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+11. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 
