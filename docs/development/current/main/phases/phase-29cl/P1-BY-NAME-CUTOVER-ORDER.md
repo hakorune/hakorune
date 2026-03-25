@@ -52,6 +52,8 @@ Related:
 12. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md`
    - remove only `FileBox.write` from the explicit Python-side compat leaf
    - close-sync is landed; return to `P9` readiness re-check before opening another shrink bucket
+13. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
+   - inspect whether the surrogate proof cluster is still live owner or archive-ready
 
 ## 2. Current Daily Caller Reading
 

@@ -51,6 +51,7 @@ Related:
 6. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is now landed, so the next exact step is a readiness re-check rather than another pre-opened shrink bucket
 7. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is now landed
 8. readiness still has compiled-stage1 proof and compat-keep caveats, so the judgment remains negative
+9. the next exact blocker bucket should inspect compiled-stage1 proof readiness before hook/registry keep readiness
 
 ## Judgment Criteria
 
@@ -62,7 +63,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. after the `P12` shrink, the next exact front returns here for another readiness re-check
+2. after the `P12` shrink, the next exact front is `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
 
 ## Acceptance
 
@@ -90,4 +91,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. rerun `P9-BYN-MIN5-READINESS-JUDGMENT.md` with the landed `P12` evidence before opening any new shrink bucket
+1. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`

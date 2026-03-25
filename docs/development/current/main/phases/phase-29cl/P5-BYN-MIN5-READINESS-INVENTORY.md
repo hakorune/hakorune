@@ -77,7 +77,8 @@ Related:
 8. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is closed
 9. `P9` is re-checked and remains negative
 10. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
-11. next exact front is a `P9-BYN-MIN5-READINESS-JUDGMENT.md` re-check
+11. `P9` is re-checked and remains negative after `P12`
+12. next exact front is `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
 
 ## Acceptance
 

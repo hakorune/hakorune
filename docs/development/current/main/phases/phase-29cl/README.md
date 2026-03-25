@@ -183,12 +183,13 @@ Rule:
    - compiled-stage1 proof owners and compat keep owners still block readiness
 9. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
    - `FileBox.write` no longer uses the explicit Python-side compat leaf
-10. current exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md`
-   - no new blocker bucket is pre-opened yet
-11. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-12. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
-13. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-14. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+10. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is re-checked and stays negative after `P12`
+11. current exact front is `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md`
+   - inspect the surrogate proof cluster before opening any hook/registry bucket
+12. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+13. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
+14. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+15. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 
