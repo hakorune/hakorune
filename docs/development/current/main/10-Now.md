@@ -55,6 +55,9 @@ Related:
     - exact proof for that leaf is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
     - `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam is landed behind `capture_runner_stdout_to_file()` + `select_registry_builder_module_runner()`
     - exact proof for that leaf is `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+    - the phase2160 module-load dehang interrupt is landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
+    - exact proof for that interrupt is `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
+    - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but stay monitor-only
     - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the tagged-stdout caller layer above stdout capture
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`

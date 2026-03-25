@@ -10,6 +10,7 @@
 //   bb3: phi(then_v, else_v), ret phi
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 
 static box LowerIfMergeLocalReturnVarBox {
@@ -121,15 +122,7 @@ static box LowerIfMergeLocalReturnVarBox {
     local ret_name = JsonFragBox.read_string_after(s, k_ret_name + 5)
     if ret_name == null || ret_name != local_name { return null }
 
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + init_v + "}}," +
-      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + cond_rhs + "}}," +
-      "{\"op\":\"compare\",\"operation\":\"==\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-      "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-      "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_v + "}},{\"op\":\"jump\",\"target\":3}]}," +
-      "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_v + "}},{\"op\":\"jump\",\"target\":3}]}," +
-      "{\"id\":3,\"instructions\":[{\"op\":\"phi\",\"dst\":6,\"incoming\":[[4,1],[5,2]]},{\"op\":\"ret\",\"value\":6}]}]}]}"
-    return mir
+    return CompatMirEmitBox.emit_if_merge_local_return_var(init_v, cond_rhs, then_v, else_v)
   }
   _coerce_text_compat(value) {
     return "" + value

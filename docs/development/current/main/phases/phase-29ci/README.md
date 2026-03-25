@@ -85,6 +85,9 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - the exact W10 proof is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
   - `tools/smokes/v2/lib/test_runner.sh` now also keeps the stdout-file wrapper seam behind `capture_runner_stdout_to_file()` + `select_registry_builder_module_runner()`
   - the exact W11 proof is `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+  - the phase2160 module-load dehang interrupt is landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
+  - the exact dehang proof is `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
+  - `phase2160/builder_min_if_compare_intint_canary_vm.sh`, `phase2160/registry_optin_compare_varint_canary_vm.sh`, and `phase2160/registry_optin_canary_vm.sh` are bounded again, but they remain monitor-only and are not the helper-local acceptance line
   - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the tagged-stdout caller layer above stdout capture
 - keep this README as the phase entry point, not the evidence log
 

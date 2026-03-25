@@ -208,6 +208,8 @@ search_paths = ["target/release"]
 "hako.llvm.emit" = "lang/src/llvm_ir/emit/LLVMEmitBox.hako"
 "hako.mir.builder.internal.prog_scan" = "lang/src/mir/builder/internal/prog_scan_box.hako"
 "hako.mir.builder.internal.pattern_util" = "lang/src/mir/builder/internal/pattern_util_box.hako"
+"hako.mir.builder.internal.if_mir_emit" = "lang/src/mir/builder/internal/if_mir_emit_box.hako"
+"hako.mir.builder.internal.compat_mir_emit" = "lang/src/mir/builder/internal/compat_mir_emit_box.hako"
 "hako.mir.builder.internal.loop_scan" = "lang/src/mir/builder/internal/loop_scan_box.hako"
 "hako.mir.builder.internal.lower.logical" = "lang/src/mir/builder/internal/lower_return_logical_box.hako"
 

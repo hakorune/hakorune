@@ -4,11 +4,14 @@
 //         rebind the resulting MIR JSON to the target box/method name + params.
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using selfhost.shared.mir.schema as MirSchemaBox
+using selfhost.shared.mir.json_emit as JsonEmitBox
 using "hako.mir.builder.internal.lower_return_int" as LowerReturnIntBox
 using "hako.mir.builder.internal.lower_return_binop" as LowerReturnBinOpBox
 using "hako.mir.builder.internal.lower_return_binop_varint" as LowerReturnBinOpVarIntBox
 using "hako.mir.builder.internal.lower_return_binop_varvar" as LowerReturnBinOpVarVarBox
 using "hako.mir.builder.internal.lower_return_method_array_map" as LowerReturnMethodArrayMapBox
+using "hako.mir.builder.internal.if_mir_emit" as IfMirEmitBox
 using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
 using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
 using "hako.mir.builder.internal.lower_if_compare_fold_varint" as LowerIfCompareFoldVarIntBox
@@ -133,6 +136,40 @@ static box FuncBodyBasicLowerBox {
     }
     params_json = params_json + "]"
     return params_json
+  }
+
+  method _emit_single_block_module_json(insts) {
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, insts))
+    return JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+  }
+
+  method _inst_mir_call_method_box(box_name, method_name, recv_reg, arg_ids, dst) {
+    local callee = new MapBox()
+    callee.set("type", "Method")
+    callee.set("box_name", box_name)
+    callee.set("method", method_name)
+    callee.set("receiver", recv_reg)
+
+    local payload = new MapBox()
+    payload.set("callee", callee)
+    payload.set("args", arg_ids)
+    payload.set("effects", new ArrayBox())
+
+    local inst = new MapBox()
+    inst.set("op", "mir_call")
+    inst.set("dst", dst)
+    inst.set("mir_call", payload)
+    return inst
+  }
+
+  method _coerce_return_value_or_local(ret_info, local_info) {
+    if ret_info == null || local_info == null { return null }
+    if ret_info.get("kind") == "int" { return ret_info.get("value") }
+    if ret_info.get("kind") == "var" && ret_info.get("name") == local_info.get("name") {
+      return local_info.get("value")
+    }
+    return null
   }
 
   method _find_matching_bracket(text, start_idx) {
@@ -343,43 +380,16 @@ static box FuncBodyBasicLowerBox {
   }
 
   method _emit_local_if(func_name, box_name, params_arr, local_info, cond, then_ret, tail_ret) {
-    local target = me._build_func_name(box_name, func_name, params_arr)
-    local params_json = me._build_params_json(params_arr)
     local local_val = local_info.get("value")
     local rhs_val = cond.get("rhs_value")
     local op = "" + cond.get("op")
+    local then_value = me._coerce_return_value_or_local(then_ret, local_info)
+    if then_value == null { return null }
+    local else_value = me._coerce_return_value_or_local(tail_ret, local_info)
+    if else_value == null { return null }
 
-    local then_instr = ""
-    if then_ret.get("kind") == "var" && then_ret.get("name") == local_info.get("name") {
-      then_instr = "{\"op\":\"ret\",\"value\":1}"
-    } else if then_ret.get("kind") == "int" {
-      then_instr = "{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_ret.get("value") + "}},{\"op\":\"ret\",\"value\":4}"
-    } else {
-      return null
-    }
-
-    local else_instr = ""
-    if tail_ret.get("kind") == "var" && tail_ret.get("name") == local_info.get("name") {
-      else_instr = "{\"op\":\"ret\",\"value\":1}"
-    } else if tail_ret.get("kind") == "int" {
-      local else_reg = 4
-      if then_ret.get("kind") == "int" { else_reg = 5 }
-      else_instr = "{\"op\":\"const\",\"dst\":" + else_reg + ",\"value\":{\"type\":\"i64\",\"value\":" + tail_ret.get("value") + "}},{\"op\":\"ret\",\"value\":" + else_reg + "}"
-    } else {
-      return null
-    }
-
-    local blocks = "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + local_val + "}}," +
-      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
-      "{\"op\":\"compare\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-      "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-      "{\"id\":1,\"instructions\":[" + then_instr + "]}," +
-      "{\"id\":2,\"instructions\":[" + else_instr + "]}"
-
-    if env.get("HAKO_SELFHOST_TRACE") == "1" {
-      print("[funcs/basic:local_if] -> " + target)
-    }
-    return "{\"functions\":[{\"name\":\"" + target + "\",\"params\":" + params_json + ",\"locals\":[],\"blocks\":[" + blocks + "]}]}"
+    local mir = IfMirEmitBox.emit_compare_ret2(local_val, rhs_val, op, then_value, else_value)
+    return me._rebind(mir, func_name, box_name, params_arr, "[funcs/basic:local_if]")
   }
 
   // Simple Return(Method recv.method(args)) lowering for param-based receivers
@@ -499,7 +509,7 @@ static box FuncBodyBasicLowerBox {
     }
 
     // Build instructions: const for Int args, then mir_call + ret
-    local insts = ""
+    local insts = new ArrayBox()
     {
       local i = 0
       local n = arg_regs.length()
@@ -509,21 +519,8 @@ static box FuncBodyBasicLowerBox {
         if kind == "Int" {
           local reg = info.get("reg")
           local v = info.get("value")
-          if insts != "" { insts = insts + "," }
-          insts = insts + "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + reg + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v + "}}"
+          insts.push(MirSchemaBox.inst_const(reg, v))
         }
-        i = i + 1
-      }
-    }
-
-    // Build args JSON list（引数のみ。receiver は callee.receiver に載せる）
-    local args_json = ""
-    {
-      local i = 0
-      local n = arg_ids.length()
-      loop(i < n) {
-        if args_json != "" { args_json = args_json + "," }
-        args_json = args_json + ("" + arg_ids.get(i))
         i = i + 1
       }
     }
@@ -546,20 +543,17 @@ static box FuncBodyBasicLowerBox {
       return null
     }
 
-    if insts != "" { insts = insts + "," }
-    insts = insts + "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":" + result_reg + ",\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"box_name\\\":\\\"" + box_type + "\\\",\\\"method\\\":\\\"" + mname + "\\\",\\\"receiver\\\":" + recv_reg_i + "},\\\"args\\\":[\" + args_json + \"],\\\"effects\\\":[]}}"
-    insts = insts + ",{\\\"op\\\":\\\"ret\\\",\\\"value\\\":" + result_reg + "}"
-
-    local params_json = me._build_params_json(params_arr)
-    local target = me._build_func_name(box_name, func_name, params_arr)
-    if target == null { return null }
+    insts.push(me._inst_mir_call_method_box(box_type, mname, recv_reg_i, arg_ids, result_reg))
+    insts.push(MirSchemaBox.inst_ret(result_reg))
 
     if env.get("HAKO_SELFHOST_TRACE") == "1" {
       local tag = "[funcs/basic:method." + kind + "] "
+      local target = me._build_func_name(box_name, func_name, params_arr)
       print(tag + target + " method=" + mname)
     }
 
-    return "{\"functions\":[{\"name\":\"" + target + "\",\"params\":" + params_json + ",\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" + insts + "]}]}]}"
+    local mir = me._emit_single_block_module_json(insts)
+    return me._rebind(mir, func_name, box_name, params_arr, "[funcs/basic:method." + kind + "]")
   }
 
   method _try_lower_loop(func_name, box_name, params_arr, body_json) {

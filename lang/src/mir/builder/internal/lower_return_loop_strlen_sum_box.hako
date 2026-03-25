@@ -21,7 +21,7 @@ static box LowerReturnLoopStrlenSumBox {
     local s_val = null
     {
       local pos = 0
-      loop(true){
+      loop(pos < s.length()){
         local k = JsonFragBox.index_of_from(s, "\"type\":\"Local\"", pos)
         if k < 0 { break }
         local kn = JsonFragBox.index_of_from(s, "\"name\":\"", k)
@@ -70,7 +70,7 @@ static box LowerReturnLoopStrlenSumBox {
       // Fallback: pick the largest Int literal in JSON (heuristic)
       local pos2 = 0
       local best = 0
-      loop(true){
+      loop(pos2 < s.length()){
         local kti = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", pos2)
         if kti < 0 { break }
         local kv2 = JsonFragBox.index_of_from(s, "\"value\":", kti)

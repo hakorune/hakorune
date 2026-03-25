@@ -14,6 +14,7 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using "hako.mir.builder.internal.if_mir_emit" as IfMirEmitBox
 
 static box LowerIfNestedBox {
   _read_cmp_side_int(s, k_cmp, side, before_pos) {
@@ -55,51 +56,7 @@ static box LowerIfNestedBox {
   }
 
   _emit_nested_ternary_probe_mir(lhs1, rhs1, op1, lhs2, rhs2, op2, outer_else, inner_then, inner_else) {
-    return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[" +
-        "{\"op\":\"newbox\",\"dst\":1,\"type\":\"ArrayBox\",\"args\":[]}," +
-        "{\"op\":\"copy\",\"dst\":2,\"src\":1}," +
-        "{\"op\":\"mir_call\",\"dst\":null,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"certainty\":\"Known\",\"receiver\":2,\"box_name\":\"ArrayBox\",\"name\":\"birth\"},\"args\":[],\"flags\":{},\"effects\":[]}}," +
-        "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + lhs2 + "}}," +
-        "{\"op\":\"copy\",\"dst\":6,\"src\":5}," +
-        "{\"op\":\"const\",\"dst\":19,\"value\":{\"type\":\"i64\",\"value\":" + lhs1 + "}}," +
-        "{\"op\":\"copy\",\"dst\":18,\"src\":19}," +
-        "{\"op\":\"const\",\"dst\":21,\"value\":{\"type\":\"i64\",\"value\":" + rhs1 + "}}," +
-        "{\"op\":\"copy\",\"dst\":20,\"src\":21}," +
-        "{\"op\":\"compare\",\"operation\":\"" + op1 + "\",\"lhs\":18,\"rhs\":20,\"dst\":17}," +
-        "{\"op\":\"branch\",\"cond\":17,\"then\":18,\"else\":19}" +
-      "]}," +
-      "{\"id\":18,\"instructions\":[" +
-        "{\"op\":\"phi\",\"dst\":24,\"dst_type\":\"i64\",\"incoming\":[[6,0]]}," +
-        "{\"op\":\"copy\",\"dst\":27,\"src\":24}," +
-        "{\"op\":\"copy\",\"dst\":30,\"src\":27}," +
-        "{\"op\":\"copy\",\"dst\":33,\"src\":30}," +
-        "{\"op\":\"const\",\"dst\":34,\"value\":{\"type\":\"i64\",\"value\":" + rhs2 + "}}," +
-        "{\"op\":\"compare\",\"operation\":\"" + op2 + "\",\"lhs\":33,\"rhs\":34,\"dst\":32}," +
-        "{\"op\":\"branch\",\"cond\":32,\"then\":21,\"else\":22}" +
-      "]}," +
-      "{\"id\":19,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":50,\"value\":{\"type\":\"i64\",\"value\":" + outer_else + "}}," +
-        "{\"op\":\"jump\",\"target\":20}" +
-      "]}," +
-      "{\"id\":20,\"instructions\":[" +
-        "{\"op\":\"phi\",\"dst\":51,\"dst_type\":\"i64\",\"incoming\":[[50,19],[43,23]]}," +
-        "{\"op\":\"copy\",\"dst\":55,\"src\":51}," +
-        "{\"op\":\"ret\",\"value\":55}" +
-      "]}," +
-      "{\"id\":21,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":38,\"value\":{\"type\":\"i64\",\"value\":" + inner_then + "}}," +
-        "{\"op\":\"jump\",\"target\":23}" +
-      "]}," +
-      "{\"id\":22,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":42,\"value\":{\"type\":\"i64\",\"value\":" + inner_else + "}}," +
-        "{\"op\":\"jump\",\"target\":23}" +
-      "]}," +
-      "{\"id\":23,\"instructions\":[" +
-        "{\"op\":\"phi\",\"dst\":43,\"dst_type\":\"i64\",\"incoming\":[[38,21],[42,22]]}," +
-        "{\"op\":\"jump\",\"target\":20}" +
-      "]}" +
-    "]}]}"
+    return IfMirEmitBox.emit_nested_ternary_ret3(lhs1, rhs1, op1, lhs2, rhs2, op2, outer_else, inner_then, inner_else)
   }
 
   _try_lower_nested_ternary(program_json) {
@@ -235,27 +192,7 @@ static box LowerIfNestedBox {
     local kv24 = JsonFragBox.index_of_from(s, "\"value\":", ti24); if kv24 < 0 { return null }
     local cval = JsonFragBox.read_int_after(s, kv24 + 8); if cval == null { return null }
 
-    // Emit MIR(JSON v0) as string to avoid MapBox printing issues
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      // bb0
-      "{\"id\":0,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs1 + "}}," +
-        "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs1 + "}}," +
-        "{\"op\":\"compare\",\"operation\":\"" + op1s + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-        "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-      // bb1
-      "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + aval + "}},{\"op\":\"ret\",\"value\":4}]}," +
-      // bb2
-      "{\"id\":2,\"instructions\":[" +
-        "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + lhs2 + "}}," +
-        "{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":" + rhs2 + "}}," +
-        "{\"op\":\"compare\",\"operation\":\"" + op2s + "\",\"lhs\":5,\"rhs\":6,\"dst\":7}," +
-        "{\"op\":\"branch\",\"cond\":7,\"then\":3,\"else\":4}]}," +
-      // bb3
-      "{\"id\":3,\"instructions\":[{\"op\":\"const\",\"dst\":8,\"value\":{\"type\":\"i64\",\"value\":" + bval + "}},{\"op\":\"ret\",\"value\":8}]}," +
-      // bb4
-      "{\"id\":4,\"instructions\":[{\"op\":\"const\",\"dst\":9,\"value\":{\"type\":\"i64\",\"value\":" + cval + "}},{\"op\":\"ret\",\"value\":9}]}]}]}"
-    return mir
+    return IfMirEmitBox.emit_nested_if_ret3(lhs1, rhs1, op1s, aval, lhs2, rhs2, op2s, bval, cval)
   }
   _coerce_text_compat(value) {
     return "" + value

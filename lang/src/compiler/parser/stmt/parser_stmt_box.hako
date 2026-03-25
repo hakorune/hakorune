@@ -218,7 +218,7 @@ static box ParserStmtBox {
       local local_stmt_json = ""
       local local_stmt_first = 1
 
-      loop(true) {
+      loop(j < src.length()) {
         local idp = ctx.read_ident2(src, j)
         local at = idp.lastIndexOf("@")
         local name = idp.substring(0, at)
@@ -498,7 +498,7 @@ static box ParserStmtBox {
         local name = idp.substring(0, at)
         j = ctx.to_int(idp.substring(at+1, idp.length()))
         // MirBuilder-friendly: explicit break instead of flag
-        loop(true) {
+        loop(j < src.length()) {
           j = ParserStringUtilsBox.skip_ws(src, j)
           if src.substring(j, j+1) != "." { break }
           j = j + 1
@@ -622,7 +622,7 @@ static box ParserStmtBox {
         k = ParserStringUtilsBox.skip_ws(src, k)
         local args = "["
         local first = 1
-        loop(true) {
+        loop(k < src.length()) {
           if k < src.length() && src.substring(k, k+1) == ")" { break }
 
           local arg = ""

@@ -1,0 +1,77 @@
+// if_mir_emit_box.hako
+// Shared MIR(JSON) emit helpers for if-family lowers.
+
+using selfhost.shared.mir.schema as MirSchemaBox
+using selfhost.shared.mir.json_emit as JsonEmitBox
+
+static box IfMirEmitBox {
+  _module_json(blocks) {
+    local module = MirSchemaBox.module(MirSchemaBox.fn_main(blocks))
+    return JsonEmitBox.to_json(module)
+  }
+
+  _ret_block(id, dst, value) {
+    local insts = new ArrayBox()
+    insts.push(MirSchemaBox.inst_const(dst, value))
+    insts.push(MirSchemaBox.inst_ret(dst))
+    return MirSchemaBox.block(id, insts)
+  }
+
+  emit_compare_ret2(lhs, rhs, operation, then_value, else_value) {
+    local b0 = new ArrayBox()
+    b0.push(MirSchemaBox.inst_const(1, lhs))
+    b0.push(MirSchemaBox.inst_const(2, rhs))
+    b0.push(MirSchemaBox.inst_compare(operation, 1, 2, 3))
+    b0.push(MirSchemaBox.inst_branch(3, 1, 2))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, b0))
+    blocks.push(me._ret_block(1, 4, then_value))
+    blocks.push(me._ret_block(2, 5, else_value))
+    return me._module_json(blocks)
+  }
+
+  emit_nested_if_ret3(lhs1, rhs1, op1, then_value, lhs2, rhs2, op2, inner_then_value, inner_else_value) {
+    local b0 = new ArrayBox()
+    b0.push(MirSchemaBox.inst_const(1, lhs1))
+    b0.push(MirSchemaBox.inst_const(2, rhs1))
+    b0.push(MirSchemaBox.inst_compare(op1, 1, 2, 3))
+    b0.push(MirSchemaBox.inst_branch(3, 1, 2))
+
+    local b2 = new ArrayBox()
+    b2.push(MirSchemaBox.inst_const(5, lhs2))
+    b2.push(MirSchemaBox.inst_const(6, rhs2))
+    b2.push(MirSchemaBox.inst_compare(op2, 5, 6, 7))
+    b2.push(MirSchemaBox.inst_branch(7, 3, 4))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, b0))
+    blocks.push(me._ret_block(1, 4, then_value))
+    blocks.push(MirSchemaBox.block(2, b2))
+    blocks.push(me._ret_block(3, 8, inner_then_value))
+    blocks.push(me._ret_block(4, 9, inner_else_value))
+    return me._module_json(blocks)
+  }
+
+  emit_nested_ternary_ret3(lhs1, rhs1, op1, lhs2, rhs2, op2, outer_else_value, inner_then_value, inner_else_value) {
+    local b0 = new ArrayBox()
+    b0.push(MirSchemaBox.inst_const(1, lhs1))
+    b0.push(MirSchemaBox.inst_const(2, rhs1))
+    b0.push(MirSchemaBox.inst_compare(op1, 1, 2, 3))
+    b0.push(MirSchemaBox.inst_branch(3, 1, 2))
+
+    local b1 = new ArrayBox()
+    b1.push(MirSchemaBox.inst_const(4, lhs2))
+    b1.push(MirSchemaBox.inst_const(5, rhs2))
+    b1.push(MirSchemaBox.inst_compare(op2, 4, 5, 6))
+    b1.push(MirSchemaBox.inst_branch(6, 3, 4))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, b0))
+    blocks.push(MirSchemaBox.block(1, b1))
+    blocks.push(me._ret_block(2, 7, outer_else_value))
+    blocks.push(me._ret_block(3, 8, inner_then_value))
+    blocks.push(me._ret_block(4, 9, inner_else_value))
+    return me._module_json(blocks)
+  }
+}

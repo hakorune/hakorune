@@ -1,6 +1,7 @@
 // lower_method_array_push_box.hako — Minimal structural MIR for ArrayBox.push
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
 
 static box LowerMethodArrayPushBox {
   try_lower(program_json) {
@@ -12,24 +13,7 @@ static box LowerMethodArrayPushBox {
     local n = s.length()
     local p1 = PatternUtilBox.find_any_local_int_before(s, n); if p1 == null { p1 = "1" }
     local p2 = p1 // use same when only one found; harmless for structural canary
-    // Emit MIR v1 JSON: new Array -> r1, push(r1,p1), const 2 -> r2, push(r1,p2), size/get/set presence, const 0 -> r5, ret r5
-    local json = "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
-               "{\"op\":\"mir_call\",\"dst\":1,\"mir_call\":{\"callee\":{\"type\":\"Constructor\",\"box_type\":\"ArrayBox\"},\"args\":[],\"effects\":[]}}," +
-               // push p1
-               "{\"op\":\"mir_call\",\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"ArrayBox\",\"method\":\"push\",\"receiver\":1},\"args\":[" + p1 + "],\"effects\":[]}}," +
-               // const 2 -> r2, push p2 (use r2 as arg when different)
-               "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":2}}," +
-               "{\"op\":\"mir_call\",\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"ArrayBox\",\"method\":\"push\",\"receiver\":1},\"args\":[" + p2 + "],\"effects\":[]}}," +
-               // size for presence (canary checks only for existence)
-               "{\"op\":\"mir_call\",\"dst\":4,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"ArrayBox\",\"method\":\"size\",\"receiver\":1},\"args\":[],\"effects\":[]}}," +
-               // set/get presence (index=2, value=10)
-               "{\"op\":\"const\",\"dst\":6,\"value\":{\"type\":\"i64\",\"value\":10}}," +
-               "{\"op\":\"mir_call\",\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"ArrayBox\",\"method\":\"set\",\"receiver\":1},\"args\":[2,6],\"effects\":[]}}," +
-               "{\"op\":\"mir_call\",\"dst\":7,\"mir_call\":{\"callee\":{\"type\":\"Method\",\"box_name\":\"ArrayBox\",\"method\":\"get\",\"receiver\":1},\"args\":[2],\"effects\":[]}}," +
-               // const 0 -> r5, ret r5
-               "{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":0}}," +
-               "{\"op\":\"ret\",\"value\":5}]}]}]}"
-    return json
+    return CompatMirEmitBox.emit_array_push_sequence(p1, p2)
   }
 
   _coerce_text_compat(value) {

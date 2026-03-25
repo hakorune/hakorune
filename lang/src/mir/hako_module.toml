@@ -18,6 +18,8 @@ builder.func_body.cli_run_lower_box = "builder/func_body/cli_run_lower_box.hako"
 
 # MIR builder internal modules
 builder.internal.prog_scan_box = "builder/internal/prog_scan_box.hako"
+builder.internal.if_mir_emit_box = "builder/internal/if_mir_emit_box.hako"
+builder.internal.compat_mir_emit_box = "builder/internal/compat_mir_emit_box.hako"
 builder.internal.lower_load_store_local_box = "builder/internal/lower_load_store_local_box.hako"
 builder.internal.lower_typeop_cast_box = "builder/internal/lower_typeop_cast_box.hako"
 builder.internal.lower_typeop_check_box = "builder/internal/lower_typeop_check_box.hako"

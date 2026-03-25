@@ -6,6 +6,7 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
 using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
@@ -177,13 +178,7 @@ static box BuilderFallbackAuthorityBox {
               }
             }
             if lhs_val2 != null && rhs_val2 != null && then_val != null && else_val != null {
-              return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-                "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val2 + "}}," +
-                "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val2 + "}}," +
-                "{\"op\":\"compare\",\"operation\":\"" + op2 + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-                "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-                "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_val + "}},{\"op\":\"ret\",\"value\":4}]}," +
-                "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_val + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
+              return CompatMirEmitBox.emit_compare_ret2(lhs_val2, rhs_val2, op2, then_val, else_val)
             }
           }
         }
@@ -221,11 +216,7 @@ static box BuilderFallbackAuthorityBox {
             }
           }
           if lhs_val != null && rhs_val != null {
-            return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
-              "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val + "}}," +
-              "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
-              "{\"op\":\"binop\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-              "{\"op\":\"ret\",\"value\":3}]}]}]}"
+            return CompatMirEmitBox.emit_return_binop(lhs_val, rhs_val, op)
           }
         }
       }
@@ -241,7 +232,7 @@ static box BuilderFallbackAuthorityBox {
               if BuilderConfigBox.debug_enabled() == 1 {
                 print("[mirbuilder/fallback:Return(Int) val=" + num + "]")
               }
-              return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + num + "}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+              return CompatMirEmitBox.emit_return_int(num)
             }
           }
         } else {
@@ -284,11 +275,7 @@ static box BuilderFallbackAuthorityBox {
               }
 
               if call_int != null && ret_int != null {
-                return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
-                  "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + call_int + "}}," +
-                  "{\"op\":\"call\",\"callee\":{\"type\":\"Extern\",\"name\":\"env.console.log\"},\"args\":[1]}," +
-                  "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + ret_int + "}}," +
-                  "{\"op\":\"ret\",\"value\":2}]}]}]}"
+                return CompatMirEmitBox.emit_console_log_then_return(call_int, ret_int)
               }
             }
           }
@@ -306,41 +293,31 @@ static box BuilderFallbackAuthorityBox {
           if k_name_call >= 0 {
             local call_name = JsonFragBox.read_string_after(s, k_name_call + 8)
             if call_name != null && call_name != "" {
-              local insts = "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"string\",\"value\":\"" + call_name + "\"}}"
-              local call_args = "[]"
-              local call_dst = 2
-
               local k_args = JsonFragBox.index_of_from(s, "\"args\":[", k_call_expr)
-              if k_args >= 0 {
-                local k_int_arg = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
-                local k_var_arg = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_args)
-                if k_int_arg >= 0 && (k_var_arg < 0 || k_int_arg < k_var_arg) {
-                  local k_int_val = JsonFragBox.index_of_from(s, "\"value\":", k_int_arg)
-                  if k_int_val >= 0 {
-                    local int_arg = JsonFragBox.read_int_after(s, k_int_val + 8)
-                    if int_arg != null {
-                      insts = insts + ",{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + int_arg + "}}"
-                      call_args = "[2]"
-                      call_dst = 3
-                    }
+              if k_args < 0 {
+                return CompatMirEmitBox.emit_return_call0(call_name)
+              }
+              local k_int_arg = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
+              local k_var_arg = JsonFragBox.index_of_from(s, "\"type\":\"Var\"", k_args)
+              if k_int_arg >= 0 && (k_var_arg < 0 || k_int_arg < k_var_arg) {
+                local k_int_val = JsonFragBox.index_of_from(s, "\"value\":", k_int_arg)
+                if k_int_val >= 0 {
+                  local int_arg = JsonFragBox.read_int_after(s, k_int_val + 8)
+                  if int_arg != null {
+                    return CompatMirEmitBox.emit_return_call_int_arg(call_name, int_arg)
                   }
-                } else if k_var_arg >= 0 {
-                  local k_var_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_var_arg)
-                  if k_var_name >= 0 {
-                    local var_arg = JsonFragBox.read_string_after(s, k_var_name + 8)
-                    if var_arg != null && var_arg != "" {
-                      insts = insts + ",{\"op\":\"load\",\"dst\":2,\"name\":\"" + var_arg + "\"}"
-                      call_args = "[2]"
-                      call_dst = 3
-                    }
+                }
+              } else if k_var_arg >= 0 {
+                local k_var_name = JsonFragBox.index_of_from(s, "\"name\":\"", k_var_arg)
+                if k_var_name >= 0 {
+                  local var_arg = JsonFragBox.read_string_after(s, k_var_name + 8)
+                  if var_arg != null && var_arg != "" {
+                    return CompatMirEmitBox.emit_return_call_var_arg(call_name, var_arg)
                   }
                 }
               }
 
-              return "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[{\"id\":0,\"instructions\":[" +
-                insts + "," +
-                "{\"op\":\"call\",\"dst\":" + call_dst + ",\"func\":1,\"args\":" + call_args + "}," +
-                "{\"op\":\"ret\",\"value\":" + call_dst + "}]}]}]}"
+              return CompatMirEmitBox.emit_return_call0(call_name)
             }
           }
         }

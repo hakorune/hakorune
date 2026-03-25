@@ -30,6 +30,7 @@ Related:
    - W9 landed: `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract split
    - W10 landed: `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split
    - W11 landed: `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam split
+   - interrupt landed: phase2160 MirBuilder module-load dehang via `IfMirEmitBox`, `CompatMirEmitBox`, and bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` plus `ParserStmtBox.parse_opt_annotation(...)`
    - W11 exact next: stay inside `tools/smokes/v2/lib/test_runner.sh` and move to the tagged-stdout caller layer above stdout capture
 2. `phase-29cu`
    - formally close-synced
@@ -96,6 +97,7 @@ Related:
   - heavy `phase2160/builder_min_*` wrappers stay monitor-only for this seam
   - `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
   - `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+  - phase2160 module-load dehang is landed; exact proof lives in `tools/dev/phase2160_mirbuilder_module_load_probe.sh`, and the representative `builder_min_if_compare_intint` / `registry_optin_compare_varint` / `registry_optin` canaries are bounded again as monitor-only checks
   - next caller-audit bucket stays in `tools/smokes/v2/lib/test_runner.sh` for the tagged-stdout caller layer
 - guard rails:
   - `Program(JSON v0)` stays no-widen

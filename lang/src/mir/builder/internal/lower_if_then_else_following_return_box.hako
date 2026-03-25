@@ -4,6 +4,7 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
+using "hako.mir.builder.internal.if_mir_emit" as IfMirEmitBox
 
 static box LowerIfThenElseFollowingReturnBox {
   try_lower(program_json) {
@@ -37,15 +38,7 @@ static box LowerIfThenElseFollowingReturnBox {
     local ti4 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_after); if ti4 < 0 { return null }
     { local kv4 = JsonFragBox.index_of_from(s, "\"value\":", ti4); if kv4 < 0 { return null }; else_val = JsonFragBox.read_int_after(s, kv4 + 8); if else_val == null { return null } }
 
-    // Emit MIR(JSON v0) as string for VM friendliness
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs_val + "}}," +
-      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs_val + "}}," +
-      "{\"op\":\"compare\",\"operation\":\"" + op + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-      "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-      "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + then_val + "}},{\"op\":\"ret\",\"value\":4}]}," +
-      "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + else_val + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
-    return mir
+    return IfMirEmitBox.emit_compare_ret2(lhs_val, rhs_val, op, then_val, else_val)
   }
 
   _coerce_text_compat(value) {

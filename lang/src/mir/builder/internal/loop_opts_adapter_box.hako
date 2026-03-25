@@ -5,6 +5,7 @@
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.mir.schema as MirSchemaBox
 using selfhost.shared.mir.json_emit as JsonEmitBox
 
 static box LoopOptsBox {
@@ -15,6 +16,54 @@ static box LoopOptsBox {
     m.set(key, value)
     return m
   }
+  _emit_force_jsonfrag_semantics(limit) {
+    local b0 = new ArrayBox()
+    b0.push(MirSchemaBox.inst_const(1, 0))
+    b0.push(MirSchemaBox.inst_const(2, limit))
+    b0.push(MirSchemaBox.inst_jump(1))
+
+    local incoming = new ArrayBox()
+    incoming.push(MirSchemaBox.phi_incoming(0, 1))
+    incoming.push(MirSchemaBox.phi_incoming(2, 5))
+    local b1 = new ArrayBox()
+    b1.push(MirSchemaBox.inst_phi(3, incoming))
+    b1.push(MirSchemaBox.inst_compare("<", 3, 2, 4))
+    b1.push(MirSchemaBox.inst_branch(4, 2, 3))
+
+    local b2 = new ArrayBox()
+    b2.push(MirSchemaBox.inst_const(10, 1))
+    b2.push(MirSchemaBox.inst_binop("Add", 3, 10, 5))
+    b2.push(MirSchemaBox.inst_jump(1))
+
+    local b3 = new ArrayBox()
+    b3.push(MirSchemaBox.inst_ret(3))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, b0))
+    blocks.push(MirSchemaBox.block(1, b1))
+    blocks.push(MirSchemaBox.block(2, b2))
+    blocks.push(MirSchemaBox.block(3, b3))
+    return JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+  }
+  _emit_minimal_loop_compare_json(limit) {
+    local b0 = new ArrayBox()
+    b0.push(MirSchemaBox.inst_const(1, 0))
+    b0.push(MirSchemaBox.inst_const(2, limit))
+    b0.push(MirSchemaBox.inst_compare("<", 1, 2, 3))
+    b0.push(MirSchemaBox.inst_branch(3, 1, 2))
+
+    local b1 = new ArrayBox()
+    b1.push(MirSchemaBox.inst_ret(1))
+
+    local b2 = new ArrayBox()
+    b2.push(MirSchemaBox.inst_ret(1))
+
+    local blocks = new ArrayBox()
+    blocks.push(MirSchemaBox.block(0, b0))
+    blocks.push(MirSchemaBox.block(1, b1))
+    blocks.push(MirSchemaBox.block(2, b2))
+    return JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+  }
   // build2: envでJsonFrag直組立を選択（既定は LoopFormBox.build2 に委譲）
   build2(opts) {
     using selfhost.shared.mir.loopform as LoopFormBox
@@ -23,28 +72,7 @@ static box LoopOptsBox {
     if BuilderConfigBox.loop_force_jsonfrag_on() == 1 {
       local limit = opts.get("limit"); if limit == null { limit = 0 }
       local limit_s = me._coerce_text_compat(limit)
-      // Minimal while-loop semantics (executable, not just structure):
-      // Block 0 (entry): i0=0, limit=N, jump to loop
-      // Block 1 (loop header): phi i={i0,0}|{i_next,2}, cmp i<limit, branch
-      // Block 2 (body): i_next = i+1, jump back to loop
-      // Block 3 (exit): ret i (final loop variable value)
-      // Value IDs: r1=i0(0), r2=limit(N), r3=phi(i), r4=cmp, r5=i_next, r10=const(1)
-      // PHI semantics: r3 receives r1 from block 0 (entry), r5 from block 2 (backedge)
-      local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-        "{\"id\":0,\"instructions\":[" +
-          "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
-          "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit_s + "}}," +
-          "{\"op\":\"jump\",\"target\":1}]}," +
-        "{\"id\":1,\"instructions\":[" +
-          "{\"op\":\"phi\",\"dst\":3,\"incoming\":[[1,0],[5,2]]}," +
-          "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":3,\"rhs\":2,\"dst\":4}," +
-          "{\"op\":\"branch\",\"cond\":4,\"then\":2,\"else\":3}]}," +
-        "{\"id\":2,\"instructions\":[" +
-          "{\"op\":\"const\",\"dst\":10,\"value\":{\"type\":\"i64\",\"value\":1}}," +
-          "{\"op\":\"binop\",\"operation\":\"+\",\"lhs\":3,\"rhs\":10,\"dst\":5}," +
-          "{\"op\":\"jump\",\"target\":1}]}," +
-        "{\"id\":3,\"instructions\":[" +
-          "{\"op\":\"ret\",\"value\":3}]}]}]}"
+      local mir = me._emit_force_jsonfrag_semantics(limit_s)
       if BuilderConfigBox.trace_enabled() == 1 { print("[mirbuilder/loop_opts:force_jsonfrag:semantics:limit=" + limit_s + "]") }
       if BuilderConfigBox.jsonfrag_normalize_on() == 1 { mir = JsonFragNormalizerBox.normalize_all(mir) }
       local mode = BuilderConfigBox.loop_adapter_return_mode()
@@ -61,15 +89,7 @@ static box LoopOptsBox {
       local limit = opts.get("limit"); if limit == null { limit = 0 }
       // Normalize to string
       local limit_s = me._coerce_text_compat(limit)
-      // Minimal MIR: const 0, const limit, compare <, branch then/else, both paths ret
-      local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-        "{\"id\":0,\"instructions\":[" +
-          "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":0}}," +
-          "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + limit_s + "}}," +
-          "{\"op\":\"compare\",\"operation\":\"<\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-          "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-        "{\"id\":1,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}," +
-        "{\"id\":2,\"instructions\":[{\"op\":\"ret\",\"value\":1}]}]}]}"
+      local mir = me._emit_minimal_loop_compare_json(limit_s)
       if BuilderConfigBox.trace_enabled() == 1 { print("[mirbuilder/internal/loop:jsonfrag]") }
       // Optional: normalization (dev toggle)
       if BuilderConfigBox.jsonfrag_normalize_on() == 1 { mir = JsonFragNormalizerBox.normalize_all(mir) }

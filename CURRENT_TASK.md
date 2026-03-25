@@ -53,6 +53,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - keep the exact W10 proof on `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
      - keep `tools/smokes/v2/lib/test_runner.sh` stdout-file wrapper seam landed behind `capture_runner_stdout_to_file()` + `select_registry_builder_module_runner()`
      - keep the exact W11 proof on `tools/dev/phase29ci_test_runner_stdout_file_probe.sh`
+     - keep the phase2160 module-load dehang interrupt landed behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` and `ParserStmtBox.parse_opt_annotation(...)`
+     - keep the exact dehang proof on `tools/dev/phase2160_mirbuilder_module_load_probe.sh`
+     - keep `phase2160/builder_min_if_compare_intint`, `phase2160/registry_optin_compare_varint`, and `phase2160/registry_optin` bounded again as monitor-only canaries
      - move the next exact `test_runner.sh` leaf to the tagged-stdout caller layer above stdout capture, centered on `run_stdout_tag_runner_to_file()` + `run_stdout_tag_canary()`
      - keep explicit env-route compat probes, raw compat flags, and the retired raw direct `stage1_cli.hako emit program-json` diagnostics pin alive
 2. close-synced Rune lane: `phase-29cu`
@@ -128,6 +131,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - tagged-stdout contract behind `ensure_phase2160_tagged_stdout_contract(...)`
      - builder-module env/render seam behind `run_program_json_via_builder_module_vm_with_env()`
      - stdout-file wrapper seam behind `run_builder_module_vm_to_stdout_file()` + `run_registry_builder_module_vm_to_stdout_file()`
+     - phase2160 module-load dehang behind `IfMirEmitBox`, `CompatMirEmitBox`, and the bounded-loop fixes in `lower_return_loop_strlen_sum_box.hako` and `ParserStmtBox.parse_opt_annotation(...)`
    - next exact leaf: tagged-stdout caller layer above stdout capture, centered on `run_stdout_tag_runner_to_file()` + `run_stdout_tag_canary()`
 5. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags

@@ -4,6 +4,7 @@
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using "hako.mir.builder.internal.builder_config" as BuilderConfigBox
+using "hako.mir.builder.internal.compat_mir_emit" as CompatMirEmitBox
 using "hako.mir.builder.pattern_registry" as PatternRegistryBox
 using "hako.mir.builder.internal.lower_if_compare" as LowerIfCompareBox
 using "hako.mir.builder.internal.lower_if_compare_fold_binints" as LowerIfCompareFoldBinIntsBox
@@ -92,22 +93,14 @@ static box BuilderRegistryAuthorityBox {
     local method = JsonFragBox.read_string_after(s, k_mm + 9); if method == null { return null }
     if method == "len" { method = "length" }
 
-    local insts = "{\\\"op\\\":\\\"const\\\",\\\"dst\\\":1,\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":0}}"
-    local args_text = ""
-    local next_id = 2
-    local first = 1
+    local arg_values = new ArrayBox()
     local k_args = JsonFragBox.index_of_from(s, "\"args\":", k_m)
     if k_args >= 0 {
       local k_i1 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args)
       if k_i1 >= 0 {
         local kv1 = JsonFragBox.index_of_from(s, "\"value\":", k_i1); if kv1 >= 0 {
           local v1 = JsonFragBox.read_int_after(s, kv1 + 8)
-          if v1 != null {
-            insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v1 + "}}"
-            args_text = args_text + me._coerce_text_compat(next_id)
-            next_id = next_id + 1
-            first = 0
-          }
+          if v1 != null { arg_values.push(v1) }
         }
       }
       local k_i2b = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", k_args + 1)
@@ -115,20 +108,12 @@ static box BuilderRegistryAuthorityBox {
         local kv2b = JsonFragBox.index_of_from(s, "\"value\":", k_i2b)
         if kv2b >= 0 {
           local v2 = JsonFragBox.read_int_after(s, kv2b + 8)
-          if v2 != null {
-            insts = insts + ",{\\\"op\\\":\\\"const\\\",\\\"dst\\\":" + next_id + ",\\\"value\\\":{\\\"type\\\":\\\"i64\\\",\\\"value\\\":" + v2 + "}}"
-            if first == 0 { args_text = args_text + "," }
-            args_text = args_text + me._coerce_text_compat(next_id)
-            next_id = next_id + 1
-          }
+          if v2 != null { arg_values.push(v2) }
         }
       }
     }
 
-    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[" +
-           insts + "," +
-           "{\\\"op\\\":\\\"mir_call\\\",\\\"dst\\\":4,\\\"mir_call\\\":{\\\"callee\\\":{\\\"type\\\":\\\"Method\\\",\\\"method\\\":\\\"" + method + "\\\",\\\"receiver\\\":1},\\\"args\\\":[" + args_text + "],\\\"effects\\\":[]}}," +
-           "{\\\"op\\\":\\\"ret\\\",\\\"value\\\":4}]}]}]}"
+    return CompatMirEmitBox.emit_registry_only_arraymap(method, arg_values)
   }
   method _coerce_text_compat(value) {
     return "" + value

@@ -1,0 +1,191 @@
+// compat_mir_emit_box.hako — small-step legacy/compat MIR(JSON v0) emit helpers
+// Scope: keep fallback/registry owners free of giant string-concat bodies.
+
+using lang.compiler.emit.common.json_emit as JsonEmitBox
+using lang.compiler.emit.common.mir_emit as MirEmitBox
+using lang.compiler.emit.common.call_emit as CallEmitBox
+
+static box CompatMirEmitBox {
+  method _block(id, insts) {
+    return %{"id"=> id, "instructions"=> insts}
+  }
+
+  method _module_with_blocks(blocks) {
+    local main = %{"name"=> "main", "params"=> [], "locals"=> [], "blocks"=> blocks}
+    return JsonEmitBox.to_json(%{"functions"=> [main]})
+  }
+
+  method _module_with_block(insts) {
+    return me._module_with_blocks([me._block(0, insts)])
+  }
+
+  method _inst_compare(operation, lhs, rhs, dst) {
+    return %{"op"=> "compare", "operation"=> operation, "lhs"=> lhs, "rhs"=> rhs, "dst"=> dst}
+  }
+
+  method _inst_binop(operation, lhs, rhs, dst) {
+    return %{"op"=> "binop", "operation"=> operation, "lhs"=> lhs, "rhs"=> rhs, "dst"=> dst}
+  }
+
+  method _inst_externcall(func, arg_ids, dst) {
+    local inst = %{"op"=> "externcall", "func"=> func, "args"=> arg_ids}
+    if dst != null { inst.set("dst", dst) }
+    return inst
+  }
+
+  method _inst_load_name(dst, name) {
+    return %{"op"=> "load", "dst"=> dst, "name"=> name}
+  }
+
+  method _inst_call_func_reg(func_reg, arg_ids, dst) {
+    return %{"op"=> "call", "func"=> func_reg, "args"=> arg_ids, "dst"=> dst}
+  }
+
+  method _inst_mir_call_method(method, recv_id, arg_ids, dst) {
+    local callee = %{"type"=> "Method", "method"=> method, "receiver"=> recv_id}
+    local payload = %{"callee"=> callee, "args"=> arg_ids, "effects"=> []}
+    return %{"op"=> "mir_call", "dst"=> dst, "mir_call"=> payload}
+  }
+
+  method emit_return_int(num) {
+    local insts = [
+      MirEmitBox.make_const(1, num),
+      MirEmitBox.make_ret(1)
+    ]
+    return me._module_with_block(insts)
+  }
+
+  method emit_return_binop(lhs, rhs, operation) {
+    local insts = [
+      MirEmitBox.make_const(1, lhs),
+      MirEmitBox.make_const(2, rhs),
+      me._inst_binop(operation, 1, 2, 3),
+      MirEmitBox.make_ret(3)
+    ]
+    return me._module_with_block(insts)
+  }
+
+  method emit_compare_ret2(lhs, rhs, operation, then_value, else_value) {
+    local blocks = [
+      me._block(0, [
+        MirEmitBox.make_const(1, lhs),
+        MirEmitBox.make_const(2, rhs),
+        me._inst_compare(operation, 1, 2, 3),
+        %{"op"=> "branch", "cond"=> 3, "then"=> 1, "else"=> 2}
+      ]),
+      me._block(1, [
+        MirEmitBox.make_const(4, then_value),
+        MirEmitBox.make_ret(4)
+      ]),
+      me._block(2, [
+        MirEmitBox.make_const(5, else_value),
+        MirEmitBox.make_ret(5)
+      ])
+    ]
+    return me._module_with_blocks(blocks)
+  }
+
+  method emit_if_merge_local_return_var(init_value, cond_rhs, then_value, else_value) {
+    local blocks = [
+      me._block(0, [
+        MirEmitBox.make_const(1, init_value),
+        MirEmitBox.make_const(2, cond_rhs),
+        me._inst_compare("==", 1, 2, 3),
+        %{"op"=> "branch", "cond"=> 3, "then"=> 1, "else"=> 2}
+      ]),
+      me._block(1, [
+        MirEmitBox.make_const(4, then_value),
+        %{"op"=> "jump", "target"=> 3}
+      ]),
+      me._block(2, [
+        MirEmitBox.make_const(5, else_value),
+        %{"op"=> "jump", "target"=> 3}
+      ]),
+      me._block(3, [
+        %{"op"=> "phi", "dst"=> 6, "incoming"=> [[4, 1], [5, 2]]},
+        MirEmitBox.make_ret(6)
+      ])
+    ]
+    return me._module_with_blocks(blocks)
+  }
+
+  method emit_console_log_then_return(call_int, ret_int) {
+    local insts = [
+      MirEmitBox.make_const(1, call_int),
+      me._inst_externcall("env.console.log", [1], null),
+      MirEmitBox.make_const(2, ret_int),
+      MirEmitBox.make_ret(2)
+    ]
+    return me._module_with_block(insts)
+  }
+
+  method emit_return_call0(name) {
+    local insts = [
+      %{"op"=> "const", "dst"=> 1, "value"=> %{"type"=> "string", "value"=> name}},
+      me._inst_call_func_reg(1, [], 2),
+      MirEmitBox.make_ret(2)
+    ]
+    return me._module_with_block(insts)
+  }
+
+  method emit_return_call_int_arg(name, int_arg) {
+    local insts = [
+      %{"op"=> "const", "dst"=> 1, "value"=> %{"type"=> "string", "value"=> name}},
+      MirEmitBox.make_const(2, int_arg),
+      me._inst_call_func_reg(1, [2], 3),
+      MirEmitBox.make_ret(3)
+    ]
+    return me._module_with_block(insts)
+  }
+
+  method emit_return_call_var_arg(name, var_name) {
+    local insts = [
+      %{"op"=> "const", "dst"=> 1, "value"=> %{"type"=> "string", "value"=> name}},
+      me._inst_load_name(2, var_name),
+      me._inst_call_func_reg(1, [2], 3),
+      MirEmitBox.make_ret(3)
+    ]
+    return me._module_with_block(insts)
+  }
+
+  method emit_registry_only_arraymap(method, arg_values) {
+    local insts = new ArrayBox()
+    insts.push(MirEmitBox.make_const(1, 0))
+    local arg_ids = new ArrayBox()
+    local next_reg = 2
+    if arg_values != null {
+      local i = 0
+      local n = arg_values.length()
+      loop(i < n) {
+        local arg_value = arg_values.get(i)
+        if arg_value != null {
+          insts.push(MirEmitBox.make_const(next_reg, arg_value))
+          arg_ids.push(next_reg)
+          next_reg = next_reg + 1
+        }
+        i = i + 1
+      }
+    }
+    insts.push(me._inst_mir_call_method(method, 1, arg_ids, 4))
+    insts.push(MirEmitBox.make_ret(4))
+    return me._module_with_block(insts)
+  }
+
+  method emit_array_push_sequence(first_value, second_value) {
+    local blocks = [
+      me._block(0, [
+        %{"op"=> "mir_call", "dst"=> 1, "mir_call"=> %{"callee"=> %{"type"=> "Constructor", "box_type"=> "ArrayBox"}, "args"=> [], "effects"=> []}},
+        %{"op"=> "mir_call", "mir_call"=> %{"callee"=> %{"type"=> "Method", "box_name"=> "ArrayBox", "method"=> "push", "receiver"=> 1}, "args"=> [first_value], "effects"=> []}},
+        MirEmitBox.make_const(2, 2),
+        %{"op"=> "mir_call", "mir_call"=> %{"callee"=> %{"type"=> "Method", "box_name"=> "ArrayBox", "method"=> "push", "receiver"=> 1}, "args"=> [second_value], "effects"=> []}},
+        %{"op"=> "mir_call", "dst"=> 4, "mir_call"=> %{"callee"=> %{"type"=> "Method", "box_name"=> "ArrayBox", "method"=> "size", "receiver"=> 1}, "args"=> [], "effects"=> []}},
+        MirEmitBox.make_const(6, 10),
+        %{"op"=> "mir_call", "mir_call"=> %{"callee"=> %{"type"=> "Method", "box_name"=> "ArrayBox", "method"=> "set", "receiver"=> 1}, "args"=> [2, 6], "effects"=> []}},
+        %{"op"=> "mir_call", "dst"=> 7, "mir_call"=> %{"callee"=> %{"type"=> "Method", "box_name"=> "ArrayBox", "method"=> "get", "receiver"=> 1}, "args"=> [2], "effects"=> []}},
+        MirEmitBox.make_const(5, 0),
+        MirEmitBox.make_ret(5)
+      ])
+    ]
+    return me._module_with_blocks(blocks)
+  }
+}

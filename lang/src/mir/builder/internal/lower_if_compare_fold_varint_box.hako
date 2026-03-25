@@ -1,8 +1,8 @@
 // lower_if_compare_fold_varint_box.hako — If(Compare with Binary(Var,Int) or Binary(Int,Var)) → fold using Local Int
 
-using selfhost.shared.mir.schema as MirSchemaBox
 using "hako.mir.builder.internal.pattern_util" as PatternUtilBox
 using selfhost.shared.json.utils.json_frag as JsonFragBox
+using "hako.mir.builder.internal.if_mir_emit" as IfMirEmitBox
 
 static box LowerIfCompareFoldVarIntBox {
   _fold_bin_varint(s, k_bin, if_pos) {
@@ -81,15 +81,7 @@ static box LowerIfCompareFoldVarIntBox {
     local ti2 = JsonFragBox.index_of_from(s, "\"type\":\"Int\"", rt2); if ti2 < 0 || ti2 >= rb_else { return null }
     local kv2b = JsonFragBox.index_of_from(s, "\"value\":", ti2); if kv2b < 0 || kv2b >= rb_else { return null }
     local ev = JsonFragBox.read_int_after(s, kv2b + 8); if ev == null { return null }
-    // Emit MIR(JSON v0) as string for VM-friendly print
-    local mir = "{\"functions\":[{\"name\":\"main\",\"params\":[],\"locals\":[],\"blocks\":[" +
-      "{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":" + lhs + "}}," +
-      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":" + rhs + "}}," +
-      "{\"op\":\"compare\",\"operation\":\"" + op_sym + "\",\"lhs\":1,\"rhs\":2,\"dst\":3}," +
-      "{\"op\":\"branch\",\"cond\":3,\"then\":1,\"else\":2}]}," +
-      "{\"id\":1,\"instructions\":[{\"op\":\"const\",\"dst\":4,\"value\":{\"type\":\"i64\",\"value\":" + tv + "}},{\"op\":\"ret\",\"value\":4}]}," +
-      "{\"id\":2,\"instructions\":[{\"op\":\"const\",\"dst\":5,\"value\":{\"type\":\"i64\",\"value\":" + ev + "}},{\"op\":\"ret\",\"value\":5}]}]}]}"
-    return mir
+    return IfMirEmitBox.emit_compare_ret2(lhs, rhs, op_sym, tv, ev)
   }
   _coerce_text_compat(value) {
     return "" + value
