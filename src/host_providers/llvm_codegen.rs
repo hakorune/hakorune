@@ -28,54 +28,11 @@ pub struct Opts {
     pub compat_replay: Option<String>,
 }
 
+mod defaults;
 mod normalize;
 mod route;
 mod transport;
-
-const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
-
-fn ffi_library_filenames() -> &'static [&'static str] {
-    if cfg!(target_os = "windows") {
-        &["hako_llvmc_ffi.dll", "libhako_llvmc_ffi.dll"]
-    } else if cfg!(target_os = "macos") {
-        &[
-            "libhako_llvmc_ffi.dylib",
-            "hako_llvmc_ffi.dylib",
-            "libhako_llvmc_ffi.so",
-        ]
-    } else {
-        &[
-            "libhako_llvmc_ffi.so",
-            "hako_llvmc_ffi.so",
-            "libhako_llvmc_ffi.dylib",
-        ]
-    }
-}
-
-fn ffi_library_default_candidates() -> Vec<PathBuf> {
-    let mut out = Vec::new();
-    for name in ffi_library_filenames() {
-        out.push(PathBuf::from("target/release").join(name));
-        out.push(PathBuf::from("lib").join(name));
-    }
-    out
-}
-
-pub fn boundary_default_object_opts(
-    out: Option<PathBuf>,
-    nyrt: Option<PathBuf>,
-    opt_level: Option<String>,
-    timeout_ms: Option<u64>,
-) -> Opts {
-    Opts {
-        out,
-        nyrt,
-        opt_level,
-        timeout_ms,
-        compile_recipe: Some("pure-first".to_string()),
-        compat_replay: Some("harness".to_string()),
-    }
-}
+pub use defaults::boundary_default_object_opts;
 
 pub fn mir_json_file_to_object(input_json_path: &Path, opts: Opts) -> Result<PathBuf, String> {
     let mir_json = fs::read_to_string(input_json_path)
@@ -115,16 +72,4 @@ pub fn link_object_capi(
 
 pub fn normalize_mir_json_for_backend(mir_json: &str) -> Result<String, String> {
     normalize::normalize_mir_json_for_backend(mir_json)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::boundary_default_object_opts;
-
-    #[test]
-    fn boundary_default_object_opts_carries_pure_first_harness_defaults() {
-        let opts = boundary_default_object_opts(None, None, None, None);
-        assert_eq!(opts.compile_recipe.as_deref(), Some("pure-first"));
-        assert_eq!(opts.compat_replay.as_deref(), Some("harness"));
-    }
 }

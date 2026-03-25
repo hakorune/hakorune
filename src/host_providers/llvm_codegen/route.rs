@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use super::defaults::COMPILE_SYMBOL_DEFAULT;
 use super::normalize::validate_backend_mir_shape;
 use super::transport::{
     compile_via_capi, ensure_backend_output_parent, prepare_backend_input_json_file,
@@ -80,7 +81,7 @@ fn compile_symbol_for_keep_recipe(recipe: Option<&str>) -> &'static [u8] {
     // Daily pure-first callers should already be explicit before reaching here.
     match recipe {
         Some("pure-first") => COMPILE_SYMBOL_PURE_FIRST,
-        _ => super::COMPILE_SYMBOL_DEFAULT,
+        _ => COMPILE_SYMBOL_DEFAULT,
     }
 }
 
@@ -93,7 +94,9 @@ fn capi_boundary_unavailable(error: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{compile_symbol_for_keep_recipe, COMPILE_SYMBOL_PURE_FIRST};
+    use super::{
+        compile_symbol_for_keep_recipe, COMPILE_SYMBOL_DEFAULT, COMPILE_SYMBOL_PURE_FIRST,
+    };
 
     #[test]
     fn keep_recipe_prefers_pure_first_symbol_when_explicit() {
@@ -105,13 +108,10 @@ mod tests {
 
     #[test]
     fn keep_recipe_uses_generic_symbol_for_missing_or_compat_values() {
-        assert_eq!(
-            compile_symbol_for_keep_recipe(None),
-            super::super::COMPILE_SYMBOL_DEFAULT
-        );
+        assert_eq!(compile_symbol_for_keep_recipe(None), COMPILE_SYMBOL_DEFAULT);
         assert_eq!(
             compile_symbol_for_keep_recipe(Some("harness")),
-            super::super::COMPILE_SYMBOL_DEFAULT
+            COMPILE_SYMBOL_DEFAULT
         );
     }
 }

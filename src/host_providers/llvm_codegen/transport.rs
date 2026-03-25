@@ -4,7 +4,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use super::{normalize, Opts, COMPILE_SYMBOL_DEFAULT};
+use super::{defaults, normalize, Opts};
 
 pub(super) fn resolve_ny_llvmc() -> PathBuf {
     if let Some(s) = crate::config::env::ny_llvm_compiler_path() {
@@ -64,7 +64,7 @@ pub(super) fn compile_via_capi(
         if let Some(p) = crate::config::env::aot_ffi_lib_path() {
             candidates.push(PathBuf::from(p));
         }
-        candidates.extend(super::ffi_library_default_candidates());
+        candidates.extend(defaults::ffi_library_default_candidates());
         let lib_path = candidates
             .into_iter()
             .find(|p| p.exists())
@@ -74,7 +74,7 @@ pub(super) fn compile_via_capi(
             unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
         let func: libloading::Symbol<CompileFn> = lib
             .get(compile_symbol)
-            .or_else(|_| lib.get(COMPILE_SYMBOL_DEFAULT))
+            .or_else(|_| lib.get(defaults::COMPILE_SYMBOL_DEFAULT))
             .map_err(|e| format!("dlsym failed: {}", e))?;
         let cin = CString::new(json_in.to_string_lossy().as_bytes())
             .map_err(|_| "invalid json path".to_string())?;
@@ -262,7 +262,7 @@ pub(super) fn link_via_capi(
         if let Some(p) = crate::config::env::aot_ffi_lib_path() {
             candidates.push(PathBuf::from(p));
         }
-        candidates.extend(super::ffi_library_default_candidates());
+        candidates.extend(defaults::ffi_library_default_candidates());
         let lib_path = candidates
             .into_iter()
             .find(|p| p.exists())

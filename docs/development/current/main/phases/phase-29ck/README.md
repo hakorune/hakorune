@@ -96,7 +96,7 @@ Related:
   - follow-up caller-default slice: compat bridges now share backend recipe env defaults via `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)`, so daily callers stay explicit while legacy bridges keep a single shared fallback point
   - follow-up keep-lane isolation slice: `crates/nyash-llvm-compiler/src/boundary_driver.rs` now hides the facade side of the boundary route while the FFI library open / symbol lookup plumbing lives in `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs`; `lang/c-abi/shims/hako_llvmc_ffi.c` still parks the pure compile owner behind `compile_json_compat_pure(...)`, so default boundary exports read as forwarders and the compat pure lane stays visibly isolated
   - follow-up pure-first slice: default boundary compile now carries caller-side recipe ownership from `.hako` and Rust boundary callers; `BackendRecipeBox.compile_route_profile(...)` is the current `.hako` recipe owner, `.hako` daily compile passes its explicit `compile_json_path(..., "", "pure-first", "harness")` payload while Rust transport mirrors those names to env only at the C handoff, and `lang/c-abi/shims/hako_llvmc_ffi.c` owns recursion-safe transport/fallback execution; supported `ret_const_min_v1` / `hello_simple_llvm_native_probe_v1` are now pinned by `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_first_min.sh` and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_print_min.sh`, and the visible `.hako` evidence rows are now `acceptance_case=ret-const-v1` / `acceptance_case=hello-simple-llvm-native-probe-v1`
-  - follow-up rust-glue split slice: `src/host_providers/llvm_codegen.rs` has already moved route-selection helpers into `src/host_providers/llvm_codegen/route.rs` and now also delegates MIR normalization / transport helpers into `src/host_providers/llvm_codegen/normalize.rs` plus `src/host_providers/llvm_codegen/transport.rs`, while `crates/nyash-llvm-compiler/src/main.rs` now delegates input shaping into `crates/nyash-llvm-compiler/src/compile_input.rs` plus emit/link driver dispatch into `crates/nyash-llvm-compiler/src/driver_dispatch.rs`, and `crates/nyash-llvm-compiler/src/driver_dispatch.rs` now further splits harness duties into `crates/nyash-llvm-compiler/src/harness_driver.rs` plus link/finalize duties into `crates/nyash-llvm-compiler/src/link_driver.rs`, so the Rust thin-up wave is now at its stop line and the next active wave can move into `.hako` authoring while backend-zero compat-polish stays parked; `src/host_providers/llvm_codegen.rs` should not be thinned further in this slice
+  - follow-up rust-glue split slice: `src/host_providers/llvm_codegen.rs` has already moved route-selection helpers into `src/host_providers/llvm_codegen/route.rs`, MIR normalization / transport helpers into `src/host_providers/llvm_codegen/{normalize,transport}.rs`, and boundary-default recipe/compat defaults plus FFI library candidate ownership into `src/host_providers/llvm_codegen/defaults.rs`; the parent file now reads as `Opts + public facade entrypoints`, so `W3a` is landed and the next exact Rust-glue front is `W3b` `boundary_driver*.rs` thin-floor
   - follow-up route-profile SSOT slice: `docs/development/current/main/design/backend-recipe-route-profile-ssot.md` now fixes the canonical `BackendRecipeBox` route profile shape (`route_profile`, `policy_owner`, `transport_owner`, `acceptance_policy`, `acceptance_case`, `json_path`, `compile_recipe`, `compat_replay`) so seed expansion can stay at the `.hako` policy owner and not drift back into the C shim
   - follow-up direct compat-keep slice: unsupported compile shapes in that pure-first lane now replay `ny-llvmc --driver harness` directly from `lang/c-abi/shims/hako_llvmc_ffi.c` instead of re-entering `hako_aot_compile_json(...)`, and `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_compat_keep_min.sh` pins `apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json` as the current unsupported compat-keep seed behind explicit `HAKO_BACKEND_COMPAT_REPLAY=harness`
   - follow-up pure-string-length slice: the same boundary-owned pure-first lane now accepts a narrow ASCII-literal `StringBox.length/size` v1 seed, and `tools/smokes/v2/profiles/integration/apps/phase29ck_boundary_pure_string_length_min.sh` pins `apps/tests/mir_shape_guard/string_length_ascii_min_v1.mir.json` so that supported method-shaped coverage grows without reopening the harness lane
@@ -336,19 +336,22 @@ Related:
 
 ## Immediate Next
 
-1. `W3` Rust glue thinning
-   - `W2a..W2c` are landed
+1. `W3b` `boundary_driver*.rs` thin-floor
+   - `W2a..W2c` and `W3a` are landed
    - current exact front is fixed by `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
    - Rust boundary code must stay facade/boundary glue only after the C-side keep surfaces were locked
    - do not let owner logic drift back out of `.hako`
-2. `W4` `llvmlite` demotion completion
+2. `W3c` generic compile symbol branch keep-only lock
+   - after `boundary_driver*.rs` reaches thin-floor, the remaining generic compile symbol branch must be locked as keep-only
+   - do not mix this with `llvmlite` demotion or perf reopen
+3. `W4` `llvmlite` demotion completion
    - `tools/llvmlite_harness.py` and `src/llvm_py/**` remain explicit compat/canary keep only
    - do not give `llvmlite` new hot-path obligations
-   - demotion completes only after `W3` is stable
-3. `perf/kilo` reopen judgment
+   - demotion completes only after `W3b..W3c` are stable
+4. `perf/kilo` reopen judgment
    - reopen only after `W3` and `W4` are both closed
    - `llvmlite` / harness stays outside the perf baseline
-4. runtime proof blocker inventory
+5. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
