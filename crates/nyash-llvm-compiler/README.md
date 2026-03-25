@@ -52,7 +52,7 @@
 - this is still implementation detail であり、backend-zero の final target は `.hako -> thin backend C ABI/plugin boundary` を daily route にすること
 - `--driver native` は bootstrap seam 用の opt-in selector で、final owner ではない
 - current internal default driver は `boundary` で、`native` defaulting はしない
-- next migration step is boundary fallback reliance の縮小であり、`harness` と `native` は explicit replay lanes のまま keep する
+- next migration step is the final Rust glue keep-only lock around the generic compile symbol branch; `harness` と `native` are still explicit replay lanes only and do not regain mainline ownership
 - Rust backend lane をこの repo から retire するのはまだ先で、もし retire する場合も source + artifact を external archive repo に保存してからだけ行う
 - current native subset (`BE0-min3` / `BE0-min4`):
   - entry function `main` or `ny_main`

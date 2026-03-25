@@ -5,6 +5,7 @@ use anyhow::{Context, Result};
 use clap::{ArgAction, Parser, ValueEnum};
 
 mod boundary_driver;
+mod boundary_driver_defaults;
 mod boundary_driver_ffi;
 mod compile_input;
 mod driver_dispatch;

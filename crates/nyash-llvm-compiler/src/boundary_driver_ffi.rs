@@ -1,6 +1,6 @@
 use std::ffi::{CStr, CString};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use anyhow::{bail, Context, Result};
 use libloading::Library;
@@ -13,28 +13,6 @@ extern "C" {
 type CompileFn = unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
 type LinkFn =
     unsafe extern "C" fn(*const c_char, *const c_char, *const c_char, *mut *mut c_char) -> c_int;
-
-const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
-const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
-
-fn boundary_compile_prefers_pure_first(
-    recipe: Option<&str>,
-    _legacy_capi_pure: Option<&str>,
-) -> bool {
-    match recipe {
-        Some("pure-first") => true,
-        Some(_) => false,
-        None => true,
-    }
-}
-
-fn boundary_compile_symbol(recipe: Option<&str>, legacy_capi_pure: Option<&str>) -> &'static [u8] {
-    if boundary_compile_prefers_pure_first(recipe, legacy_capi_pure) {
-        COMPILE_SYMBOL_PURE_FIRST
-    } else {
-        COMPILE_SYMBOL_DEFAULT
-    }
-}
 
 pub(super) fn emit_object_from_json(input: &Path, out: &Path) -> Result<()> {
     ensure_output_parent(out);
@@ -57,66 +35,16 @@ fn ensure_output_parent(path: &Path) {
     }
 }
 
-fn ffi_library_filenames() -> &'static [&'static str] {
-    if cfg!(target_os = "windows") {
-        &["hako_llvmc_ffi.dll", "libhako_llvmc_ffi.dll"]
-    } else if cfg!(target_os = "macos") {
-        &[
-            "libhako_llvmc_ffi.dylib",
-            "hako_llvmc_ffi.dylib",
-            "libhako_llvmc_ffi.so",
-        ]
-    } else {
-        &[
-            "libhako_llvmc_ffi.so",
-            "hako_llvmc_ffi.so",
-            "libhako_llvmc_ffi.dylib",
-        ]
-    }
-}
-
-fn ffi_library_default_candidates() -> Vec<PathBuf> {
-    let mut out = Vec::new();
-    for name in ffi_library_filenames() {
-        out.push(PathBuf::from("target/release").join(name));
-        out.push(PathBuf::from("lib").join(name));
-    }
-    out
-}
-
-fn resolve_ffi_library() -> Result<PathBuf> {
-    let mut candidates = Vec::new();
-    if let Ok(path) = std::env::var("HAKO_AOT_FFI_LIB") {
-        let path = path.trim();
-        if !path.is_empty() {
-            candidates.push(PathBuf::from(path));
-        }
-    }
-    candidates.extend(ffi_library_default_candidates());
-    candidates
-        .into_iter()
-        .find(|path| path.exists())
-        .ok_or_else(|| {
-            anyhow::anyhow!(
-                "FFI library not found (set HAKO_AOT_FFI_LIB or build libhako_llvmc_ffi)"
-            )
-        })
-}
-
 unsafe fn with_compile_symbol<T, F>(action: F) -> Result<T>
 where
     F: FnOnce(CompileFn) -> Result<T>,
 {
     let lib = open_ffi_library()?;
-    let compile_symbol = boundary_compile_symbol(
-        std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
-        std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
-    );
-    let fallback_symbol = if compile_symbol == COMPILE_SYMBOL_PURE_FIRST {
-        COMPILE_SYMBOL_DEFAULT
-    } else {
-        COMPILE_SYMBOL_PURE_FIRST
-    };
+    let (compile_symbol, fallback_symbol) =
+        super::boundary_driver_defaults::boundary_compile_symbols(
+            std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
+            std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
+        );
     let func: CompileFn = *lib
         .get(compile_symbol)
         .or_else(|_| lib.get(fallback_symbol))
@@ -192,7 +120,7 @@ fn call_link_symbol(
 }
 
 unsafe fn open_ffi_library() -> Result<Library> {
-    let lib_path = resolve_ffi_library()?;
+    let lib_path = super::boundary_driver_defaults::resolve_ffi_library()?;
     Library::new(lib_path).context("dlopen failed")
 }
 
@@ -249,55 +177,21 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        boundary_compile_prefers_pure_first, boundary_compile_symbol, COMPILE_SYMBOL_DEFAULT,
-        COMPILE_SYMBOL_PURE_FIRST,
-    };
+    use super::with_env_override;
 
     #[test]
-    fn boundary_route_defaults_to_pure_first_symbol() {
-        assert!(boundary_compile_prefers_pure_first(None, None));
+    fn with_env_override_restores_previous_value_after_action() {
+        std::env::set_var("NYASH_BOUNDARY_DRIVER_TEST_ENV", "before");
+        let observed = with_env_override("NYASH_BOUNDARY_DRIVER_TEST_ENV", Some("inside"), || {
+            std::env::var("NYASH_BOUNDARY_DRIVER_TEST_ENV").ok()
+        });
+        assert_eq!(observed.as_deref(), Some("inside"));
         assert_eq!(
-            boundary_compile_symbol(None, None),
-            COMPILE_SYMBOL_PURE_FIRST
+            std::env::var("NYASH_BOUNDARY_DRIVER_TEST_ENV")
+                .ok()
+                .as_deref(),
+            Some("before")
         );
-    }
-
-    #[test]
-    fn boundary_route_keeps_generic_symbol_for_harness_recipe() {
-        assert!(!boundary_compile_prefers_pure_first(Some("harness"), None));
-        assert_eq!(
-            boundary_compile_symbol(Some("harness"), None),
-            COMPILE_SYMBOL_DEFAULT
-        );
-    }
-
-    #[test]
-    fn boundary_route_prefers_pure_first_only_for_explicit_recipe_or_legacy_alias() {
-        assert!(boundary_compile_prefers_pure_first(
-            Some("pure-first"),
-            None
-        ));
-        assert!(boundary_compile_prefers_pure_first(None, Some("1")));
-        assert_eq!(
-            boundary_compile_symbol(Some("pure-first"), None),
-            COMPILE_SYMBOL_PURE_FIRST
-        );
-        assert_eq!(
-            boundary_compile_symbol(None, Some("1")),
-            COMPILE_SYMBOL_PURE_FIRST
-        );
-    }
-
-    #[test]
-    fn boundary_route_harness_recipe_overrides_legacy_capi_pure_alias() {
-        assert!(!boundary_compile_prefers_pure_first(
-            Some("harness"),
-            Some("1")
-        ));
-        assert_eq!(
-            boundary_compile_symbol(Some("harness"), Some("1")),
-            COMPILE_SYMBOL_DEFAULT
-        );
+        std::env::remove_var("NYASH_BOUNDARY_DRIVER_TEST_ENV");
     }
 }

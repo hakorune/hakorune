@@ -29,7 +29,8 @@ Related:
 - `W2b` pure-first lane now fail-fasts without explicit compat replay; unsupported keep seeds require explicit `compat_replay=harness`.
 - `W2c` generic export / historical alias keep-only sync is landed.
 - `W3a` `llvm_codegen.rs` normalization/default helper concentration is landed.
-- current active pre-perf front is `W3b` `boundary_driver*.rs` thin-floor.
+- `W3b` `boundary_driver*.rs` thin-floor is landed.
+- current active pre-perf front is `W3c` generic compile symbol branch keep-only lock.
 - `perf/kilo` remains parked until `W3..W4` are also closed.
 
 ## Fixed Order
@@ -98,6 +99,9 @@ Related:
   - `W3a` is landed
   - `src/host_providers/llvm_codegen.rs` now delegates boundary-default recipe/compat defaults and FFI library candidate ownership into `src/host_providers/llvm_codegen/defaults.rs`
   - the parent file now reads as `Opts + public facade entrypoints`, while `normalize.rs` / `route.rs` / `transport.rs` / `defaults.rs` own helper-local truth
+  - `W3b` is landed
+  - `crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs` now delegates compile symbol selection and FFI library candidate resolution into `crates/nyash-llvm-compiler/src/boundary_driver_defaults.rs`
+  - the FFI file now reads more as call/link transport glue, while route-symbol and library-candidate truth is isolated for the final keep-only lock
 - split order:
   - `W3a` `llvm_codegen.rs` normalization/default helper concentration
   - `W3b` `boundary_driver*.rs` thin-floor
