@@ -1,5 +1,5 @@
-use crate::mir::{BasicBlockId, EdgeArgs};
 use crate::mir::ValueId;
+use crate::mir::{BasicBlockId, EdgeArgs};
 
 /// 条件分岐の未配線エッジペア（Phase 267 P0）
 ///

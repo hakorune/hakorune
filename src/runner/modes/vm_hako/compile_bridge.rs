@@ -9,7 +9,8 @@ pub(super) fn compile_source_to_mir_json_v0(
     filename: &str,
     code: &str,
 ) -> Result<String, VmHakoErr> {
-    let (prepared_source, using_imports) = prepare_vm_hako_source_and_imports(runner, filename, code)?;
+    let (prepared_source, using_imports) =
+        prepare_vm_hako_source_and_imports(runner, filename, code)?;
 
     let ast = match NyashParser::parse_from_string(&prepared_source) {
         Ok(ast) => ast,
@@ -51,13 +52,12 @@ fn prepare_vm_hako_source_and_imports(
     filename: &str,
     code: &str,
 ) -> Result<(String, HashMap<String, String>), VmHakoErr> {
-    let prepared =
-        match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
-            runner, filename, code,
-        ) {
-            Ok(prepared) => prepared,
-            Err(e) => return Err(("resolve-error", e)),
-        };
+    let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+        runner, filename, code,
+    ) {
+        Ok(prepared) => prepared,
+        Err(e) => return Err(("resolve-error", e)),
+    };
 
     crate::runner::modes::common_util::safety_gate::enforce_vm_source_safety_or_exit(
         &prepared.code,

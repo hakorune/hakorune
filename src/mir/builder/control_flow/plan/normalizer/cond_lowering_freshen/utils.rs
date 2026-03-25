@@ -1,5 +1,5 @@
-use crate::mir::BasicBlockId;
 use crate::mir::builder::MirBuilder;
+use crate::mir::BasicBlockId;
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
 

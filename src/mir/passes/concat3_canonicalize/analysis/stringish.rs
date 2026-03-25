@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 
-use crate::mir::{
-    BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId,
-};
+use crate::mir::{BinaryOp, Callee, ConstValue, MirFunction, MirInstruction, MirType, ValueId};
 
 use super::super::{CONCAT3_EXTERN, CONCAT_HH_EXTERN};
 

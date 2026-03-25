@@ -10,21 +10,21 @@
 // Flattened from the legacy break-on-condition facts cluster.
 pub(in crate::mir::builder) mod loop_break_body_local_subset;
 pub(in crate::mir::builder) mod loop_break_core;
-pub(in crate::mir::builder) mod loop_break_helpers_break_if;
 pub(in crate::mir::builder) mod loop_break_helpers;
+pub(in crate::mir::builder) mod loop_break_helpers_break_if;
 pub(in crate::mir::builder) mod loop_break_helpers_common;
 pub(in crate::mir::builder) mod loop_break_helpers_condition;
-pub(in crate::mir::builder) mod loop_break_helpers_realworld;
 pub(in crate::mir::builder) mod loop_break_helpers_local;
 pub(in crate::mir::builder) mod loop_break_helpers_loop;
+pub(in crate::mir::builder) mod loop_break_helpers_realworld;
 pub(in crate::mir::builder) mod loop_break_parse_integer;
 pub(in crate::mir::builder) mod loop_break_read_digits;
 pub(in crate::mir::builder) mod loop_break_realworld;
 pub(in crate::mir::builder) mod loop_break_step_before_break;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_break_tests;
-pub(in crate::mir::builder) mod loop_break_trim_whitespace_helpers;
 pub(in crate::mir::builder) mod loop_break_trim_whitespace;
+pub(in crate::mir::builder) mod loop_break_trim_whitespace_helpers;
 pub(in crate::mir::builder) mod loop_break_types;
 
 // Flattened from loop_facts/

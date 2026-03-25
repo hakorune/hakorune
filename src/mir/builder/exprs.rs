@@ -3,8 +3,8 @@ use super::{MirInstruction, ValueId};
 use crate::ast::{
     ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
 };
-use hakorune_mir_builder::BoxCompilationContext;
 use crate::mir::builder::observe::types as type_trace;
+use hakorune_mir_builder::BoxCompilationContext;
 
 impl super::MirBuilder {
     // Main expression dispatcher
@@ -252,7 +252,10 @@ impl super::MirBuilder {
                         self.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
                         for (method_name, method_ast) in methods.clone() {
                             if let ASTNode::FunctionDeclaration {
-                                params, body, attrs, ..
+                                params,
+                                body,
+                                attrs,
+                                ..
                             } = method_ast
                             {
                                 let func_name = format!(
@@ -295,7 +298,10 @@ impl super::MirBuilder {
                     )?;
                     for (ctor_key, ctor_ast) in constructors.clone() {
                         if let ASTNode::FunctionDeclaration {
-                            params, body, attrs, ..
+                            params,
+                            body,
+                            attrs,
+                            ..
                         } = ctor_ast
                         {
                             let func_name = format!("{}.{}", name, ctor_key);

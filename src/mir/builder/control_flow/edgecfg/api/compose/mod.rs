@@ -67,8 +67,8 @@
 use std::collections::BTreeMap;
 
 use crate::config::env;
-use crate::mir::BasicBlockId;
 use crate::mir::builder::control_flow::edgecfg::api::block_params::BlockParams;
+use crate::mir::BasicBlockId;
 
 mod cleanup;
 mod if_;
@@ -107,13 +107,13 @@ pub(super) fn merge_block_params(
 #[cfg(test)]
 mod tests {
     use super::{cleanup, if_, loop_, seq};
-    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
     use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
     use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
     use crate::mir::control_form::LoopId;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::value_id::ValueId;
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use std::collections::BTreeMap;
 
     #[test]

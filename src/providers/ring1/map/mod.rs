@@ -22,8 +22,7 @@ impl Ring1MapService {
     }
 
     fn require_map_box<'a>(&self, map: &'a dyn NyashBox) -> Result<&'a MapBox, String> {
-        self.map_box(map)
-            .ok_or_else(|| INVALID_MAP_BOX.to_string())
+        self.map_box(map).ok_or_else(|| INVALID_MAP_BOX.to_string())
     }
 
     fn box_key(&self, key: &str) -> Box<dyn NyashBox> {

@@ -1,6 +1,5 @@
 //! Phase 29ap P10: CoreLoopComposer v2 (nested minimal, strict/dev only)
 
-use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::composer::coreloop_gates::{
     coreloop_base_gate, exit_kinds_empty,
@@ -16,6 +15,7 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::EdgeArgs;
 use crate::mir::{ConstValue, MirType};
 use std::collections::BTreeMap;
 

@@ -2,8 +2,6 @@
 use std::collections::BTreeMap;
 
 #[cfg(test)]
-use crate::mir::BasicBlockId;
-#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
 #[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
@@ -11,6 +9,8 @@ use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
 use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
 #[cfg(test)]
 use crate::mir::control_form::LoopId;
+#[cfg(test)]
+use crate::mir::BasicBlockId;
 
 /// ループ合成: `loop (cond) { body }`
 ///

@@ -107,23 +107,22 @@ impl NyashRunner {
         let trace = crate::config::env::cli_verbose()
             || crate::config::env::env_bool("NYASH_RESOLVE_TRACE");
 
-        let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
-            self,
-            filename,
-            &code,
-        ) {
-            Ok(prepared) => prepared,
-            Err(e) => {
-                let ring0 = crate::runtime::ring0::get_global_ring0();
-                let msg = if e.starts_with("[freeze:contract][module_registry]") {
-                    e
-                } else {
-                    format!("❌ {}", e)
-                };
-                ring0.log.error(&msg);
-                process::exit(1);
-            }
-        };
+        let prepared =
+            match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+                self, filename, &code,
+            ) {
+                Ok(prepared) => prepared,
+                Err(e) => {
+                    let ring0 = crate::runtime::ring0::get_global_ring0();
+                    let msg = if e.starts_with("[freeze:contract][module_registry]") {
+                        e
+                    } else {
+                        format!("❌ {}", e)
+                    };
+                    ring0.log.error(&msg);
+                    process::exit(1);
+                }
+            };
         let code_final = prepared.code;
         let using_imports = prepared.imports;
 

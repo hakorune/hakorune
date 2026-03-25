@@ -1,7 +1,7 @@
 pub mod array;
 mod array_compat;
-mod array_runtime_facade;
 mod array_index_dispatch;
+mod array_runtime_facade;
 mod array_slot_append;
 mod array_slot_capacity;
 mod array_slot_load;

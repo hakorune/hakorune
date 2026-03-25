@@ -1,6 +1,4 @@
-pub(in crate::mir::builder) use super::helpers_layout::{
-    create_phi_bindings, LoopBlocksStandard5,
-};
+pub(in crate::mir::builder) use super::helpers_layout::{create_phi_bindings, LoopBlocksStandard5};
 use super::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};

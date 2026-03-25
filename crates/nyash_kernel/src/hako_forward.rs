@@ -1,6 +1,4 @@
-use crate::hako_forward_bridge::{
-    self, HakoFutureSpawnInstanceFn, HakoStringDispatchFn,
-};
+use crate::hako_forward_bridge::{self, HakoFutureSpawnInstanceFn, HakoStringDispatchFn};
 
 #[export_name = "nyrt.hako.register_future_spawn_instance"]
 pub(crate) extern "C" fn nyrt_hako_register_future_spawn_instance(

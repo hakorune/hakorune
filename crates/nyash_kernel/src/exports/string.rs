@@ -499,8 +499,7 @@ fn hook_miss_freeze_handle(route: &str) -> i64 {
 
 #[inline(always)]
 fn dispatch_or_fallback_concat_hh(a_h: i64, b_h: i64) -> i64 {
-    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT_HH, a_h, b_h, 0)
-    {
+    if let Some(v) = hako_string_dispatch(hako_forward_bridge::string_ops::CONCAT_HH, a_h, b_h, 0) {
         return v;
     }
     if !allow_rust_string_fallback() {

@@ -304,7 +304,9 @@ impl super::PlanNormalizer {
 
                 Ok((result_id, arg_effects))
             }
-            ASTNode::FunctionCall { name, arguments, .. } => {
+            ASTNode::FunctionCall {
+                name, arguments, ..
+            } => {
                 let mut arg_ids = Vec::new();
                 let mut arg_effects = Vec::new();
                 for arg in arguments {
@@ -321,7 +323,9 @@ impl super::PlanNormalizer {
                 });
                 Ok((result_id, arg_effects))
             }
-            ASTNode::Call { callee, arguments, .. } => {
+            ASTNode::Call {
+                callee, arguments, ..
+            } => {
                 let (callee_id, mut callee_effects) =
                     Self::lower_value_ast(callee, builder, phi_bindings)?;
                 let mut arg_ids = Vec::new();
@@ -346,11 +350,12 @@ impl super::PlanNormalizer {
             } => {
                 let mut effects = Vec::new();
                 let result_id = builder.next_value_id();
-                builder.type_ctx.set_type(result_id, MirType::Box(class.clone()));
+                builder
+                    .type_ctx
+                    .set_type(result_id, MirType::Box(class.clone()));
                 let mut arg_ids = Vec::new();
                 for arg in arguments {
-                    let (arg_id, mut more) =
-                        Self::lower_value_ast(arg, builder, phi_bindings)?;
+                    let (arg_id, mut more) = Self::lower_value_ast(arg, builder, phi_bindings)?;
                     effects.append(&mut more);
                     arg_ids.push(arg_id);
                 }
@@ -365,7 +370,9 @@ impl super::PlanNormalizer {
             ASTNode::ArrayLiteral { elements, .. } => {
                 let mut effects = Vec::new();
                 let array_id = builder.next_value_id();
-                builder.type_ctx.set_type(array_id, MirType::Box("ArrayBox".to_string()));
+                builder
+                    .type_ctx
+                    .set_type(array_id, MirType::Box("ArrayBox".to_string()));
                 Self::record_newbox_metadata(builder, array_id, "ArrayBox");
                 effects.push(CoreEffectPlan::NewBox {
                     dst: array_id,
@@ -389,7 +396,9 @@ impl super::PlanNormalizer {
             ASTNode::MapLiteral { entries, .. } => {
                 let mut effects = Vec::new();
                 let map_id = builder.next_value_id();
-                builder.type_ctx.set_type(map_id, MirType::Box("MapBox".to_string()));
+                builder
+                    .type_ctx
+                    .set_type(map_id, MirType::Box("MapBox".to_string()));
                 Self::record_newbox_metadata(builder, map_id, "MapBox");
                 effects.push(CoreEffectPlan::NewBox {
                     dst: map_id,
@@ -452,13 +461,13 @@ impl super::PlanNormalizer {
                     return Err("[normalizer] value-if without else is unsupported".to_string());
                 };
                 if then_body.len() != 1 || else_body.len() != 1 {
-                    return Err("[normalizer] value-if requires single-expression branches".to_string());
+                    return Err(
+                        "[normalizer] value-if requires single-expression branches".to_string()
+                    );
                 }
                 let then_expr = &then_body[0];
                 let else_expr = &else_body[0];
-                if !is_pure_value_expr(then_expr)
-                    || !is_pure_value_expr(else_expr)
-                {
+                if !is_pure_value_expr(then_expr) || !is_pure_value_expr(else_expr) {
                     return Err("[normalizer] value-if requires pure expressions".to_string());
                 }
                 let cond_view = CondBlockView::from_expr(condition);

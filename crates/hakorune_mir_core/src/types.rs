@@ -113,4 +113,3 @@ pub enum BarrierOp {
     Read,
     Write,
 }
-

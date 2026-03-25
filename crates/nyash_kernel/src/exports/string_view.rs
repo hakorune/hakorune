@@ -202,7 +202,8 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
                 return None;
             };
-            let (parent_st, parent_en) = clamp_usize_range(base_sb.value.len(), view.start, view.end);
+            let (parent_st, parent_en) =
+                clamp_usize_range(base_sb.value.len(), view.start, view.end);
             let parent_len = parent_en.saturating_sub(parent_st);
             let (st_rel, en_rel) = clamp_i64_range(parent_len, start, end);
             if st_rel == 0 && en_rel == parent_len {

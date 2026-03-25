@@ -2,11 +2,11 @@
 use std::collections::BTreeMap;
 
 #[cfg(test)]
-use crate::mir::BasicBlockId;
-#[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
 #[cfg(test)]
 use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
+#[cfg(test)]
+use crate::mir::BasicBlockId;
 
 /// Phase 281 P3: cleanup() Normal + Return exit wiring implementation
 ///
@@ -166,12 +166,12 @@ pub(crate) fn cleanup(
 #[cfg(test)]
 mod tests {
     use super::cleanup;
-    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
     use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
     use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::ValueId;
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use std::collections::BTreeMap;
 
     #[test]

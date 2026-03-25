@@ -948,9 +948,7 @@ static box Main {
 
     let (_merged, imports) =
         crate::runner::modes::common_util::resolve::merge_prelude_text_with_imports(
-            &runner,
-            source,
-            "<inline>",
+            &runner, source, "<inline>",
         )
         .expect("merge with imports");
 
@@ -958,7 +956,10 @@ static box Main {
         imports.get("LowerBox").map(String::as_str),
         Some("LowerReturnMethodArrayMapBox")
     );
-    assert_eq!(imports.get("JsonFragBox").map(String::as_str), Some("JsonFragBox"));
+    assert_eq!(
+        imports.get("JsonFragBox").map(String::as_str),
+        Some("JsonFragBox")
+    );
     assert_eq!(
         imports.get("PatternUtilBox").map(String::as_str),
         Some("PatternUtilBox")
@@ -1000,29 +1001,32 @@ static box Main { method main(args){
                 })
         }
 
-        fn find_direct_try_lower_call<'a>(root: &'a serde_json::Value) -> Option<&'a serde_json::Value> {
-            root["functions"]
-                .as_array()
-                .and_then(|funcs| {
-                    funcs.iter().find_map(|func| {
-                        func["blocks"].as_array().and_then(|blocks| {
-                            blocks.iter().find_map(|block| {
-                                block["instructions"].as_array().and_then(|insts| {
-                                    insts.iter().find(|inst| {
-                                        inst["op"].as_str() == Some("call")
-                                            && inst["callee"]["name"].as_str()
-                                                == Some(
-                                                    "LowerReturnMethodArrayMapBox.try_lower/1",
-                                                )
-                                    })
+        fn find_direct_try_lower_call<'a>(
+            root: &'a serde_json::Value,
+        ) -> Option<&'a serde_json::Value> {
+            root["functions"].as_array().and_then(|funcs| {
+                funcs.iter().find_map(|func| {
+                    func["blocks"].as_array().and_then(|blocks| {
+                        blocks.iter().find_map(|block| {
+                            block["instructions"].as_array().and_then(|insts| {
+                                insts.iter().find(|inst| {
+                                    inst["op"].as_str() == Some("call")
+                                        && inst["callee"]["name"].as_str()
+                                            == Some("LowerReturnMethodArrayMapBox.try_lower/1")
                                 })
                             })
                         })
                     })
                 })
+            })
         }
 
-        for alias in ["LowerBox", "JsonFragBox", "PatternUtilBox", "MethodAliasPolicy"] {
+        for alias in [
+            "LowerBox",
+            "JsonFragBox",
+            "PatternUtilBox",
+            "MethodAliasPolicy",
+        ] {
             assert!(
                 !has_newbox_alias(&root, alias),
                 "import alias {} should not be materialized as newbox: {}",
@@ -1080,22 +1084,26 @@ static box Main { method main(args){
             .expect("prepared direct source should parse");
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
         let mut compiler = crate::mir::MirCompiler::with_options(true);
-        let compile = crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
-            &mut compiler,
-            ast,
-            Some("<inline>.hako"),
-            prepared.imports,
-        )
-        .expect("direct source compile should succeed");
-        let mir_json = crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(
-            &compile.module,
-        )
-        .expect("emit mir json");
+        let compile =
+            crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
+                &mut compiler,
+                ast,
+                Some("<inline>.hako"),
+                prepared.imports,
+            )
+            .expect("direct source compile should succeed");
+        let mir_json =
+            crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(&compile.module)
+                .expect("emit mir json");
         let root: serde_json::Value = serde_json::from_str(&mir_json).expect("valid mir json");
 
         let direct_try_lower_call = root["functions"]
             .as_array()
-            .and_then(|funcs| funcs.iter().find(|func| func["name"].as_str() == Some("main")))
+            .and_then(|funcs| {
+                funcs
+                    .iter()
+                    .find(|func| func["name"].as_str() == Some("main"))
+            })
             .and_then(|func| func["blocks"].as_array())
             .and_then(|blocks| {
                 blocks.iter().find_map(|block| {

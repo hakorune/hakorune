@@ -48,9 +48,9 @@
 use super::{
     BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirModule, MirType, ValueId,
 };
-use hakorune_mir_builder::BoxCompilationContext;
 use crate::ast::ASTNode;
 use crate::config;
+use hakorune_mir_builder::BoxCompilationContext;
 
 // Phase 29bq+: Declaration indexing extracted to dedicated module
 use super::declaration_indexer;

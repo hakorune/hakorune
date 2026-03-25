@@ -16,10 +16,7 @@ impl ProgramJsonEmitRequest {
             &source_path,
             &out_path,
         );
-        ProgramJsonEmitResponse {
-            out_path,
-            result,
-        }
+        ProgramJsonEmitResponse { out_path, result }
     }
 }
 

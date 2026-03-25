@@ -19,7 +19,10 @@ impl super::MirBuilder {
                 continue;
             }
             if let ASTNode::FunctionDeclaration {
-                params, body, attrs, ..
+                params,
+                body,
+                attrs,
+                ..
             } = mast
             {
                 // NamingBox 経由で static メソッド名を一元管理する
@@ -39,7 +42,10 @@ impl super::MirBuilder {
         // Look for the main() method
         let out = if let Some(main_method) = methods.get("main") {
             if let ASTNode::FunctionDeclaration {
-                params, body, attrs, ..
+                params,
+                body,
+                attrs,
+                ..
             } = main_method
             {
                 // Optional: materialize a callable function entry "BoxName.main/N" for harness/PyVM.

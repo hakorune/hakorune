@@ -74,8 +74,8 @@ mod tests {
         let handle = new_array_handle();
         let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("slot-append".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>)
-            as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
 
         assert_eq!(nyash_array_slot_append_hh_alias(handle, string_handle), 1);
         assert_eq!(nyash_array_slot_len_h_alias(handle), 1);
@@ -91,8 +91,8 @@ mod tests {
         let before_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
         assert_eq!(nyash_array_slot_cap_h_alias(handle), before_cap as i64);
         assert_eq!(nyash_array_slot_reserve_hi_alias(handle, 8), 1);
-        let after_reserve_cap = with_array_box(handle, |arr| arr.items.read().capacity())
-            .unwrap_or(0);
+        let after_reserve_cap =
+            with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
         assert_eq!(
             nyash_array_slot_cap_h_alias(handle),
             after_reserve_cap as i64
@@ -113,12 +113,12 @@ mod tests {
         assert_eq!(nyash_array_push_h(handle, 1), 1);
         let string_handle_a = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("ok".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>)
-            as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
         let string_handle_b = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("ng".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>)
-            as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle_a), 1);
         assert_eq!(nyash_array_get_hi_alias(handle, 0), string_handle_a);
         // Re-set same slot keeps alias contract and must expose the latest handle.

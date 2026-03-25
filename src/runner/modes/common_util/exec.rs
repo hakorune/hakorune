@@ -239,8 +239,14 @@ mod tests {
     fn ignores_empty_or_non_native_backend_values() {
         assert_eq!(ny_llvmc_driver_arg_from_backend(None).unwrap(), None);
         assert_eq!(ny_llvmc_driver_arg_from_backend(Some("")).unwrap(), None);
-        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("crate")).unwrap(), None);
-        assert_eq!(ny_llvmc_driver_arg_from_backend(Some("llvmlite")).unwrap(), None);
+        assert_eq!(
+            ny_llvmc_driver_arg_from_backend(Some("crate")).unwrap(),
+            None
+        );
+        assert_eq!(
+            ny_llvmc_driver_arg_from_backend(Some("llvmlite")).unwrap(),
+            None
+        );
     }
 
     #[test]

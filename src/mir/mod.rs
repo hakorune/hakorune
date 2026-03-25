@@ -58,8 +58,8 @@ pub mod verification_types; // extracted error types // Optimization subpasses (
 
 // Re-export main types for easy access
 pub use basic_block::{BasicBlock, EdgeArgs, OutEdge};
-pub use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator, BindingId};
 pub use builder::MirBuilder;
+pub use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator, BindingId};
 
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer
 pub(crate) use builder::detect_skip_whitespace_shape;

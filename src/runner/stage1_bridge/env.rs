@@ -216,10 +216,7 @@ mod tests {
             envs.get("HAKO_STAGEB_MODULE_ROOTS_LIST"),
             Some(&"core=lang".to_string())
         );
-        assert_eq!(
-            envs.get("NYASH_ENTRY"),
-            Some(&"Main.main/0".to_string())
-        );
+        assert_eq!(envs.get("NYASH_ENTRY"), Some(&"Main.main/0".to_string()));
         assert_eq!(
             envs.get("STAGE1_CLI_ENTRY"),
             Some(&"lang/src/runner/stage1_cli_env.hako".to_string())

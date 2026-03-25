@@ -1,7 +1,7 @@
 //! Real-world pattern helpers for loop_break facts.
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use super::loop_break_helpers_condition::{matches_eq_empty_string, matches_ge_zero};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
 pub(in crate::mir::builder::control_flow::plan::facts) fn match_seg_if_else(
     stmt: &ASTNode,

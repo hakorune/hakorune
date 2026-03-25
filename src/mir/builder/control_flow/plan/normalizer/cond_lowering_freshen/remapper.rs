@@ -1,11 +1,11 @@
 use super::utils::{map_block_id, remap_value_id, remap_value_ids};
-use crate::mir::BasicBlockId;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::{
     CoreEffectPlan, CoreExitPlan, CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::MirBuilder;
+use crate::mir::BasicBlockId;
 use crate::mir::{EdgeArgs, ValueId};
 use std::collections::BTreeMap;
 

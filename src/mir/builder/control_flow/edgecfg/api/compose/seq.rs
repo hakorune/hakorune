@@ -104,13 +104,13 @@ pub(crate) fn seq(a: Frag, b: Frag) -> Frag {
 #[cfg(test)]
 mod tests {
     use super::seq;
-    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::edgecfg::api::block_params::BlockParams;
     use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
     use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
     use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::ValueId;
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use std::collections::BTreeMap;
 
     #[test]

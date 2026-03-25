@@ -93,8 +93,7 @@ mod tests {
         emit_program_json_v0_for_stage1_bridge_emit_program_json,
         emit_program_json_v0_for_stage1_build_box,
         emit_program_json_v0_for_strict_authority_source, source_to_program_json_v0_relaxed,
-        source_to_program_json_v0_strict,
-        strict_authority_program_json_v0_source_rejection,
+        source_to_program_json_v0_strict, strict_authority_program_json_v0_source_rejection,
     };
     use std::collections::BTreeSet;
     use std::sync::{Mutex, MutexGuard, OnceLock};
@@ -417,16 +416,21 @@ static box Main {
         ));
         assert_eq!(launcher_shape.label(), "strict-safe");
         assert_eq!(launcher_shape.relaxed_reason(), None);
-        assert_eq!(launcher_shape.strict_authority_rejection("source route"), None);
+        assert_eq!(
+            launcher_shape.strict_authority_rejection("source route"),
+            None
+        );
 
-        let relaxed_shape = super::routing::classify_program_json_v0_source_shape(r#"
+        let relaxed_shape = super::routing::classify_program_json_v0_source_shape(
+            r#"
 static box Main {
   main() {
     @x = 41
     return x + 1
   }
 }
-"#);
+"#,
+        );
         assert_eq!(relaxed_shape.label(), "relaxed-compat");
         assert_eq!(
             relaxed_shape.relaxed_reason(),
@@ -579,7 +583,10 @@ static box Main {
 
         let launcher = super::routing::emit_stage1_build_box_program_json(launcher_source, false)
             .expect("launcher build emission");
-        assert_eq!(launcher.trace_summary(), "route=strict-default relaxed_reason=none");
+        assert_eq!(
+            launcher.trace_summary(),
+            "route=strict-default relaxed_reason=none"
+        );
 
         let relaxed = super::routing::emit_stage1_build_box_program_json(relaxed_source, false)
             .expect("relaxed build emission");
@@ -612,8 +619,13 @@ static box Main {
 
         let launcher = super::routing::emit_stage1_build_box_program_json(launcher_source, false)
             .expect("launcher build emission");
-        assert_eq!(launcher.trace_summary(), "route=strict-default relaxed_reason=none");
-        assert!(launcher.into_program_json().contains("\"kind\":\"Program\""));
+        assert_eq!(
+            launcher.trace_summary(),
+            "route=strict-default relaxed_reason=none"
+        );
+        assert!(launcher
+            .into_program_json()
+            .contains("\"kind\":\"Program\""));
 
         let relaxed = super::routing::emit_stage1_build_box_program_json(relaxed_source, false)
             .expect("relaxed build emission");
@@ -630,8 +642,8 @@ static box Main {
 print(42)
 return 0
 "#;
-        let error = source_to_program_json_v0_strict(source)
-            .expect_err("script body should fail-fast");
+        let error =
+            source_to_program_json_v0_strict(source).expect_err("script body should fail-fast");
         assert!(
             error.contains("expected `static box Main { main() { ... } }`")
                 || error.contains("parse error (Rust parser, v0 subset):"),
@@ -711,10 +723,17 @@ return 0
 
         assert_eq!(value["kind"], "Program");
         assert_eq!(value["version"], 0);
-        assert_eq!(value["imports"]["BuildBox"], "lang.compiler.build.build_box");
-        assert_eq!(value["imports"]["MirBuilderBox"], "lang.mir.builder.MirBuilderBox");
+        assert_eq!(
+            value["imports"]["BuildBox"],
+            "lang.compiler.build.build_box"
+        );
+        assert_eq!(
+            value["imports"]["MirBuilderBox"],
+            "lang.mir.builder.MirBuilderBox"
+        );
         assert!(
-            defs.iter().any(|def| def["box"] == "HakoCli" && def["name"] == "run"),
+            defs.iter()
+                .any(|def| def["box"] == "HakoCli" && def["name"] == "run"),
             "build-box mode should keep launcher helper defs"
         );
     }
@@ -736,5 +755,4 @@ static box Main {
             "unexpected error: {error}"
         );
     }
-
 }

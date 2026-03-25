@@ -1,5 +1,5 @@
 use super::handle_cache::with_array_box;
-use super::value_codec::{CodecProfile, any_arg_to_box_with_profile};
+use super::value_codec::{any_arg_to_box_with_profile, CodecProfile};
 
 #[inline(always)]
 pub(super) fn array_slot_append_any(handle: i64, val_any: i64) -> i64 {

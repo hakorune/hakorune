@@ -81,8 +81,8 @@ fn plan_using_strip(
     let mut seen_paths: HashMap<String, (String, usize)> = HashMap::new(); // canon_path -> (alias/label, first_line)
     let mut seen_aliases: HashMap<String, (String, usize)> = HashMap::new(); // alias -> (canon_path, first_line)
     let mut imports: HashMap<String, String> = HashMap::new(); // alias -> exported static box name
-                                                                             // Determine if this file is inside a declared package root; if so, allow
-                                                                             // internal file-using within the package even when file-using is globally disallowed.
+                                                               // Determine if this file is inside a declared package root; if so, allow
+                                                               // internal file-using within the package even when file-using is globally disallowed.
     let filename_canon = std::fs::canonicalize(filename).ok();
     let mut inside_pkg = false;
     if let Some(ref fc) = filename_canon {

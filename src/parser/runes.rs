@@ -91,7 +91,10 @@ impl NyashParser {
             return Ok(());
         }
         Err(self.rune_error(
-            format!("[freeze:contract][parser/rune] invalid placement on {}", context),
+            format!(
+                "[freeze:contract][parser/rune] invalid placement on {}",
+                context
+            ),
             self.current_token().line,
         ))
     }
@@ -145,9 +148,8 @@ fn validate_runes_for_target(
                 if prev != rune.name {
                     return Err(ParseError::UnexpectedToken {
                         found: TokenType::IDENTIFIER(rune.name.clone()),
-                        expected:
-                            "[freeze:contract][parser/rune] conflicting visibility runes"
-                                .to_string(),
+                        expected: "[freeze:contract][parser/rune] conflicting visibility runes"
+                            .to_string(),
                         line,
                     });
                 }
@@ -179,7 +181,8 @@ fn validate_runes_for_target(
                     });
                 }
             }
-            RuneTarget::FreeFunction | RuneTarget::StaticFunction | RuneTarget::StaticBoxMethod => {}
+            RuneTarget::FreeFunction | RuneTarget::StaticFunction | RuneTarget::StaticBoxMethod => {
+            }
         }
 
         match rune.name.as_str() {
@@ -200,9 +203,8 @@ fn validate_runes_for_target(
                 if !valid {
                     return Err(ParseError::UnexpectedToken {
                         found: TokenType::IDENTIFIER(rune.name.clone()),
-                        expected:
-                            "[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)"
-                                .to_string(),
+                        expected: "[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)"
+                            .to_string(),
                         line,
                     });
                 }

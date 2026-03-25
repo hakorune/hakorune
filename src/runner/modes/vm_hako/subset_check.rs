@@ -742,7 +742,11 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     }
                     let callee_name = call_callee_name(inst).unwrap_or("");
                     if callee_name.is_empty() {
-                        return Err((func_name.clone(), bb, "call(global:missing-name)".to_string()));
+                        return Err((
+                            func_name.clone(),
+                            bb,
+                            "call(global:missing-name)".to_string(),
+                        ));
                     }
                     if !has_dst {
                         match parse_print_arg_from_instruction(inst, &handle_by_reg) {
@@ -752,10 +756,18 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                                 return Err((func_name.clone(), bb, reason.to_string()));
                             }
                         }
-                        return Err((func_name.clone(), bb, "call(global:missing-dst)".to_string()));
+                        return Err((
+                            func_name.clone(),
+                            bb,
+                            "call(global:missing-dst)".to_string(),
+                        ));
                     }
                     if args.iter().any(|v| v.as_u64().is_none()) {
-                        return Err((func_name.clone(), bb, "call(global:arg:non-reg)".to_string()));
+                        return Err((
+                            func_name.clone(),
+                            bb,
+                            "call(global:arg:non-reg)".to_string(),
+                        ));
                     }
                 }
                 "externcall" => {
@@ -785,10 +797,9 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         continue;
                     }
                     if func == "nyash.box.from_i8_string" || func == "nyash.box.from_i8_string/1" {
-                        if let Err(reason) = validate_single_arg_externcall_shape(
-                            inst,
-                            "nyash.box.from_i8_string",
-                        ) {
+                        if let Err(reason) =
+                            validate_single_arg_externcall_shape(inst, "nyash.box.from_i8_string")
+                        {
                             return Err((func_name.clone(), bb, reason));
                         }
                         continue;

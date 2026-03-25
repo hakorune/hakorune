@@ -85,10 +85,7 @@ impl EffectMask {
     }
 
     pub fn is_pure(self) -> bool {
-        !self.contains(Effect::ReadHeap)
-            && !self.is_mut()
-            && !self.is_io()
-            && !self.is_control()
+        !self.contains(Effect::ReadHeap) && !self.is_mut() && !self.is_io() && !self.is_control()
     }
 
     pub fn is_mut(self) -> bool {

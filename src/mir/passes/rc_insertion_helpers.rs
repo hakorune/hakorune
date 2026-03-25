@@ -1,8 +1,8 @@
 #[cfg(feature = "rc-insertion-minimal")]
 use crate::ast::Span;
-use crate::mir::MirModule;
 #[cfg(feature = "rc-insertion-minimal")]
 use crate::mir::types::ConstValue;
+use crate::mir::MirModule;
 #[cfg(feature = "rc-insertion-minimal")]
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 #[cfg(feature = "rc-insertion-minimal")]

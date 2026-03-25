@@ -4,10 +4,10 @@
 //! for basic Box types. It uses both macro-generated implementations for numeric
 //! types and manual implementations for special cases.
 
+use super::impl_static_numeric_ops;
 use crate::box_trait::{BoolBox, IntegerBox, StringBox};
 use crate::boxes::FloatBox;
 use crate::operator_traits::{NyashAdd, NyashMul};
-use super::impl_static_numeric_ops;
 
 // ===== Macro-generated static implementations =====
 

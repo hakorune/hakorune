@@ -7,9 +7,7 @@ use crate::mir::{
 };
 use std::collections::BTreeMap;
 
-pub(super) fn rune_attrs_from_json_v0(
-    attrs: &super::super::ast::FuncAttrsV0,
-) -> Vec<RuneAttr> {
+pub(super) fn rune_attrs_from_json_v0(attrs: &super::super::ast::FuncAttrsV0) -> Vec<RuneAttr> {
     attrs
         .runes
         .iter()

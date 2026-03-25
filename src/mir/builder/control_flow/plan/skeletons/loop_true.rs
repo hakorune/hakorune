@@ -1,12 +1,12 @@
 //! LoopTrueSkeleton: allocates loop(true) blocks/frag only.
 
-use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
 use crate::mir::builder::control_flow::plan::normalizer::helpers::LoopBlocksStandard5;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::EdgeArgs;
 use crate::mir::{ConstValue, MirType};
 use std::collections::BTreeMap;
 

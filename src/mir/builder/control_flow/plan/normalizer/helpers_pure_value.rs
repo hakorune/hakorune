@@ -289,12 +289,9 @@ mod tests {
         let wrapped_expr = empty_blockexpr(int_lit(42));
 
         let mut wrapped_builder = MirBuilder::new();
-        let (wrapped_id, wrapped_effects) = PlanNormalizer::lower_value_ast(
-            &wrapped_expr,
-            &mut wrapped_builder,
-            &BTreeMap::new(),
-        )
-        .expect("empty BlockExpr should lower in value context");
+        let (wrapped_id, wrapped_effects) =
+            PlanNormalizer::lower_value_ast(&wrapped_expr, &mut wrapped_builder, &BTreeMap::new())
+                .expect("empty BlockExpr should lower in value context");
 
         let mut tail_builder = MirBuilder::new();
         let (tail_id, tail_effects) =
@@ -335,7 +332,10 @@ mod tests {
             PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
                 .expect("BlockExpr prelude should lower in value context");
 
-        assert_eq!(builder.variable_ctx.variable_map.get("tmp"), Some(&value_id));
+        assert_eq!(
+            builder.variable_ctx.variable_map.get("tmp"),
+            Some(&value_id)
+        );
         assert!(matches!(
             effects.first(),
             Some(CoreEffectPlan::Const {
@@ -352,10 +352,7 @@ mod tests {
                 local_stmt("a", int_lit(0)),
                 ASTNode::If {
                     condition: Box::new(bool_lit(true)),
-                    then_body: vec![
-                        assign_stmt("a", int_lit(10)),
-                        local_stmt("tmp", int_lit(1)),
-                    ],
+                    then_body: vec![assign_stmt("a", int_lit(10)), local_stmt("tmp", int_lit(1))],
                     else_body: Some(vec![
                         assign_stmt("a", int_lit(20)),
                         local_stmt("tmp", int_lit(2)),

@@ -157,7 +157,9 @@ fn filebox_direct_open_read_roundtrip() {
             .ny_open(tmp_path, "r")
             .expect("direct open should succeed");
         assert_eq!(
-            filebox.read_to_string().expect("direct read should succeed"),
+            filebox
+                .read_to_string()
+                .expect("direct read should succeed"),
             "kernel-filebox-read"
         );
         filebox.ny_close().expect("direct close should succeed");
@@ -181,9 +183,8 @@ fn filebox_direct_open_write_roundtrip() {
         filebox
             .ny_open(tmp_path, "w")
             .expect("direct open should succeed");
-        let write_result = filebox.write(Box::new(StringBox::new(
-            "kernel-filebox-write".to_string(),
-        )));
+        let write_result =
+            filebox.write(Box::new(StringBox::new("kernel-filebox-write".to_string())));
         let write_result = write_result.to_string_box().value;
         assert_eq!(write_result, "OK");
         filebox.ny_close().expect("direct close should succeed");
@@ -585,7 +586,9 @@ fn invoke_by_name_stage1_mir_builder_source_route_accepts_decode_escapes_nested_
     let result_handle = dispatch_stage1_module(
         "lang.mir.builder.MirBuilderBox",
         "emit_from_source_v0",
-        include_str!("../../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako"),
+        include_str!(
+            "../../../apps/tests/phase29bq_selfhost_blocker_decode_escapes_if_idx12_min.hako"
+        ),
     );
     assert!(result_handle > 0, "expected MIR JSON StringBox handle");
 

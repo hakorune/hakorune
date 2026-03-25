@@ -114,14 +114,13 @@ fn lower_stmt_only_prelude_stmts(
                 effects.append(&mut cond_effects);
 
                 let branch_base_var_map = builder.variable_ctx.variable_map.clone();
-                let (then_bindings, then_effects) =
-                    lower_stmt_only_prelude_stmts(
-                        builder,
-                        &bindings,
-                        then_body,
-                        error_prefix,
-                        contract,
-                    )?;
+                let (then_bindings, then_effects) = lower_stmt_only_prelude_stmts(
+                    builder,
+                    &bindings,
+                    then_body,
+                    error_prefix,
+                    contract,
+                )?;
                 builder.variable_ctx.variable_map = branch_base_var_map.clone();
                 let has_else = else_body.is_some();
                 let (else_bindings, else_effects) = if let Some(else_body) = else_body.as_ref() {

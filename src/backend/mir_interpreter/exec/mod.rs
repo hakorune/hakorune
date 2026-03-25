@@ -1,6 +1,6 @@
 use super::*;
-use crate::mir::{BasicBlock, BasicBlockId};
 use crate::mir::MirFunction;
+use crate::mir::{BasicBlock, BasicBlockId};
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::mem;

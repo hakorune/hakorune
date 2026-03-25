@@ -99,17 +99,16 @@ impl NyashRunner {
             }
         };
 
-        let prepared = match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
-            self,
-            filename,
-            &code,
-        ) {
-            Ok(prepared) => prepared,
-            Err(e) => {
-                eprintln!("❌ {}", e);
-                process::exit(1);
-            }
-        };
+        let prepared =
+            match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+                self, filename, &code,
+            ) {
+                Ok(prepared) => prepared,
+                Err(e) => {
+                    eprintln!("❌ {}", e);
+                    process::exit(1);
+                }
+            };
 
         // Parse to AST
         let ast = self.parse_ast_for_wasm_emit(filename, &prepared.code);

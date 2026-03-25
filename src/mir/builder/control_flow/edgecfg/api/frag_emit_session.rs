@@ -173,8 +173,8 @@ mod tests {
         use super::super::branch_stub::BranchStub;
         use super::super::edge_stub::EdgeStub;
         use super::super::exit_kind::ExitKind;
-        use crate::mir::EdgeArgs;
         use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+        use crate::mir::EdgeArgs;
         use crate::mir::ValueId;
         use std::collections::BTreeMap;
 

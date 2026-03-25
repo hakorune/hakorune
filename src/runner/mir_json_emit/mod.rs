@@ -173,9 +173,7 @@ fn serialize_mir_json_root(root: &serde_json::Value) -> Result<String, String> {
     serde_json::to_string(root).map_err(|e| format!("write mir json: {}", e))
 }
 
-fn collect_sorted_user_box_decl_values(
-    module: &crate::mir::MirModule,
-) -> Vec<serde_json::Value> {
+fn collect_sorted_user_box_decl_values(module: &crate::mir::MirModule) -> Vec<serde_json::Value> {
     let mut decls: Vec<_> = module.metadata.user_box_decls.iter().collect();
     decls.sort_by(|(lhs_name, _), (rhs_name, _)| lhs_name.cmp(rhs_name));
     decls
@@ -204,7 +202,9 @@ fn write_mir_json_root(path: &std::path::Path, root: &serde_json::Value) -> Resu
 mod tests {
     use super::*;
     use crate::ast::RuneAttr;
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+    };
 
     fn make_function(name: &str, is_entry_point: bool) -> MirFunction {
         let signature = FunctionSignature {
@@ -258,12 +258,14 @@ mod tests {
     #[test]
     fn ordered_harness_functions_puts_entry_main_first() {
         let mut module = MirModule::new("test".to_string());
-        module
-            .functions
-            .insert("Main.equals/1".to_string(), make_function("Main.equals/1", false));
-        module
-            .functions
-            .insert("condition_fn".to_string(), make_function("condition_fn", false));
+        module.functions.insert(
+            "Main.equals/1".to_string(),
+            make_function("Main.equals/1", false),
+        );
+        module.functions.insert(
+            "condition_fn".to_string(),
+            make_function("condition_fn", false),
+        );
         module
             .functions
             .insert("main".to_string(), make_function("main", true));

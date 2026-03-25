@@ -12,7 +12,9 @@
  * - debug_join_counter: Debug scope join ID counter
  */
 
-use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator, BindingId, ValueId, ValueIdGenerator};
+use hakorune_mir_core::{
+    BasicBlockId, BasicBlockIdGenerator, BindingId, ValueId, ValueIdGenerator,
+};
 
 /// Core ID generation context for MIR builder
 ///

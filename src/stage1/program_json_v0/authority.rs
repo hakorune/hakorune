@@ -35,8 +35,9 @@ fn source_to_program_json_v0_impl(
     } else {
         source_text.to_string()
     };
-    let ast = NyashParser::parse_from_string(&normalized_source)
-        .map_err(|primary_error| format!("parse error (Rust parser, v0 subset): {}", primary_error))?;
+    let ast = NyashParser::parse_from_string(&normalized_source).map_err(|primary_error| {
+        format!("parse error (Rust parser, v0 subset): {}", primary_error)
+    })?;
     ast_to_program_json_v0_with_imports(&ast, imports)
 }
 

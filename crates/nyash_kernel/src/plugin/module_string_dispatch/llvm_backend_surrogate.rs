@@ -141,9 +141,9 @@ fn link_exe_from_object_paths(obj_path: &Path, exe_path: &Path) -> Result<(), St
 #[cfg(test)]
 mod tests {
     use super::{
-        COMPILE_OBJ_METHOD, CompileObjRequest, LINK_EXE_METHOD, LLVM_BACKEND_MODULE,
-        LinkExeRequest, LlvmBackendRoute, decode_compile_obj_request, decode_link_exe_request,
-        match_route, try_dispatch,
+        decode_compile_obj_request, decode_link_exe_request, match_route, try_dispatch,
+        CompileObjRequest, LinkExeRequest, LlvmBackendRoute, COMPILE_OBJ_METHOD, LINK_EXE_METHOD,
+        LLVM_BACKEND_MODULE,
     };
     use crate::plugin::module_string_dispatch::{decode_string_handle, encode_string_handle};
 

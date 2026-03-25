@@ -32,8 +32,8 @@ mod mir_json_v0;
 pub mod modes;
 mod pipe_io;
 mod pipeline;
-mod plugins;
 pub mod plugin_init;
+mod plugins;
 pub(crate) mod repl; // Phase 288.1: Made pub(crate) for ExternCall bridge access  // Phase 288: REPL module
 mod route_orchestrator;
 mod selfhost;

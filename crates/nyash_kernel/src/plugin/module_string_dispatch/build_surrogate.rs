@@ -84,8 +84,8 @@ fn dispatch_build_box_emit_program_json_v0(
 #[cfg(test)]
 mod tests {
     use super::{
-        dispatch_build_box_emit_program_json_v0, BuildSurrogateHandleResult, BUILD_BOX_METHOD,
-        BUILD_BOX_MODULE, try_dispatch,
+        dispatch_build_box_emit_program_json_v0, try_dispatch, BuildSurrogateHandleResult,
+        BUILD_BOX_METHOD, BUILD_BOX_MODULE,
     };
     use crate::plugin::module_string_dispatch::{decode_string_handle, encode_string_handle};
 

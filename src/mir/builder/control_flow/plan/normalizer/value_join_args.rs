@@ -1,5 +1,5 @@
-use crate::mir::EdgeArgs;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::EdgeArgs;
 use crate::mir::ValueId;
 
 pub(super) fn expr_result_plus_carriers_args(

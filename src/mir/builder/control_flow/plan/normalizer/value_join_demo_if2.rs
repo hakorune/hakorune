@@ -3,7 +3,6 @@ mod tests {
     use std::collections::BTreeMap;
     use std::env;
 
-    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::control_flow::plan::edgecfg_facade::{
         BlockParams, ExitKind, Frag, FragEmitSession,
     };
@@ -12,6 +11,7 @@ mod tests {
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::types::MirType;
     use crate::mir::{BasicBlock, EffectMask, MirInstruction, ValueId};
+    use crate::mir::{BasicBlockId, EdgeArgs};
 
     struct DemoIf2 {
         frag: Frag,

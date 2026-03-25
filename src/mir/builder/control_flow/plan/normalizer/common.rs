@@ -1,8 +1,8 @@
 use crate::ast::ASTNode;
-use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::EdgeArgs;
 use crate::mir::{CompareOp, ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
 

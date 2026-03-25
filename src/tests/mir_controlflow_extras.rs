@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
     use crate::backend::VM;
-    use crate::mir::BasicBlockId;
     use crate::mir::function::MirFunction;
     use crate::mir::types::ConstValue;
+    use crate::mir::BasicBlockId;
     use crate::mir::{MirInstruction, ValueId};
     use crate::parser::NyashParser;
 

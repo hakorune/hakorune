@@ -118,11 +118,8 @@ static box Main {
             None => std::env::remove_var("NYASH_FEATURES"),
         }
 
-        let value: serde_json::Value =
-            serde_json::from_str(&result).expect("mir json must parse");
-        let functions = value["functions"]
-            .as_array()
-            .expect("functions array");
+        let value: serde_json::Value = serde_json::from_str(&result).expect("mir json must parse");
+        let functions = value["functions"].as_array().expect("functions array");
         let main_fn = functions
             .iter()
             .find(|function| function["name"] == "main")

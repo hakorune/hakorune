@@ -8,8 +8,8 @@ use super::{
     BasicBlock, BasicBlockId, CompareOp, ConstValue, Effect, EffectMask, FunctionSignature,
     MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
-use hakorune_mir_builder::{BindingContext, CoreContext};
 pub(crate) use builder_calls::CallTarget;
+use hakorune_mir_builder::{BindingContext, CoreContext};
 use std::collections::HashMap;
 mod builder_build;
 mod builder_calls;

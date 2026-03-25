@@ -306,10 +306,8 @@ fn diagnose_unlowered_type_ops(optimizer: &MirOptimizer, module: &MirModule) -> 
     let diag_on = optimizer.debug || crate::config::env::opt_diag();
     for (fname, function) in &module.functions {
         // def map for resolving constants
-        let mut def_map: std::collections::HashMap<
-            ValueId,
-            (crate::mir::BasicBlockId, usize),
-        > = std::collections::HashMap::new();
+        let mut def_map: std::collections::HashMap<ValueId, (crate::mir::BasicBlockId, usize)> =
+            std::collections::HashMap::new();
         for (bb_id, block) in &function.blocks {
             for (i, inst) in block.instructions.iter().enumerate() {
                 if let Some(dst) = inst.dst_value() {

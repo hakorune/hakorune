@@ -4,7 +4,6 @@
 
 use super::helpers_layout::create_phi_bindings;
 use crate::ast::ASTNode;
-use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::{BlockParams, Frag};
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
@@ -15,6 +14,7 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::EdgeArgs;
 use crate::mir::{BinaryOp, ConstValue, MirType, ValueId};
 use std::collections::BTreeMap;
 

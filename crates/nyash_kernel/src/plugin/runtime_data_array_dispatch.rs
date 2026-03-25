@@ -1,5 +1,5 @@
 use super::value_codec::{
-    CodecProfile, any_arg_to_box_with_profile, any_arg_to_index, runtime_i64_from_box_ref,
+    any_arg_to_box_with_profile, any_arg_to_index, runtime_i64_from_box_ref, CodecProfile,
 };
 use nyash_rust::boxes::array::ArrayBox;
 
@@ -44,7 +44,11 @@ pub(super) fn runtime_data_array_has_hh(arr: &ArrayBox, key_any: i64) -> i64 {
     let Some(idx) = resolve_array_index_key(arr, key_any) else {
         return 0;
     };
-    if arr.has_index_i64(idx) { 1 } else { 0 }
+    if arr.has_index_i64(idx) {
+        1
+    } else {
+        0
+    }
 }
 
 #[inline(always)]

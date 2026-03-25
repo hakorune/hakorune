@@ -1,7 +1,6 @@
 use super::helpers_layout::{create_phi_bindings, LoopBlocksStandard5};
 use super::{CoreEffectPlan, CoreLoopPlan};
 use crate::ast::ASTNode;
-use crate::mir::EdgeArgs;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::edgecfg_facade::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
@@ -9,6 +8,7 @@ use crate::mir::builder::control_flow::plan::features::loop_carriers::build_loop
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::EdgeArgs;
 use crate::mir::MirType;
 use std::collections::BTreeMap;
 

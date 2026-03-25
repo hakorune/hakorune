@@ -128,9 +128,16 @@ mod tests {
 
     #[test]
     fn harness_and_native_exe_linking_requires_explicit_nyrt_dir() {
-        let err = link_executable(Path::new("/tmp/in.o"), Path::new("/tmp/out.exe"), None, None)
-            .unwrap_err();
+        let err = link_executable(
+            Path::new("/tmp/in.o"),
+            Path::new("/tmp/out.exe"),
+            None,
+            None,
+        )
+        .unwrap_err();
         let message = err.to_string();
-        assert!(message.contains("explicit --nyrt <DIR> is required for Harness/Native exe linking"));
+        assert!(
+            message.contains("explicit --nyrt <DIR> is required for Harness/Native exe linking")
+        );
     }
 }

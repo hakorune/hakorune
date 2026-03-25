@@ -129,7 +129,8 @@ fn program_env_get_with_entry_and_helper_runes() -> serde_json::Value {
 
 #[test]
 fn json_def_attrs_runes_survive_into_emitted_mir_json() {
-    let src = serde_json::to_string(&program_env_get_with_helper_runes()).expect("serialize program");
+    let src =
+        serde_json::to_string(&program_env_get_with_helper_runes()).expect("serialize program");
     let module = nyash_rust::runner::json_v0_bridge::parse_json_v0_to_module_with_imports(
         &src,
         BTreeMap::new(),
@@ -186,8 +187,8 @@ fn json_def_attrs_runes_survive_into_emitted_mir_json() {
 
 #[test]
 fn json_stageb_entry_def_runes_attach_to_main_without_duplicate_main_def() {
-    let src =
-        serde_json::to_string(&program_env_get_with_entry_and_helper_runes()).expect("serialize program");
+    let src = serde_json::to_string(&program_env_get_with_entry_and_helper_runes())
+        .expect("serialize program");
     let module = nyash_rust::runner::json_v0_bridge::parse_json_v0_to_module_with_imports(
         &src,
         BTreeMap::new(),

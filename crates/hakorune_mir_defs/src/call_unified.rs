@@ -50,9 +50,7 @@ pub enum Callee {
 
     /// Constructor call (NewBox equivalent)
     /// Creates new Box instances with birth() method
-    Constructor {
-        box_type: String,
-    },
+    Constructor { box_type: String },
 
     /// Closure creation (NewClosure equivalent)
     /// Creates function values with captured variables

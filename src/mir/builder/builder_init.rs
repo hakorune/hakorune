@@ -3,8 +3,8 @@ use super::{
     compilation_context, metadata_context, scope_context, type_context, variable_context,
     MirBuilder,
 };
-use hakorune_mir_builder::{BindingContext, CoreContext};
 use crate::mir::BindingId;
+use hakorune_mir_builder::{BindingContext, CoreContext};
 use std::collections::HashMap;
 
 impl MirBuilder {
@@ -28,7 +28,7 @@ impl MirBuilder {
 
             type_ctx: type_context::TypeContext::new(), // Phase 136: Type context
             scope_ctx: scope_context::ScopeContext::new(), // Phase 136 Step 3/7: Scope context
-            binding_ctx: BindingContext::new(), // Phase 136 Step 4/7: Binding context
+            binding_ctx: BindingContext::new(),         // Phase 136 Step 4/7: Binding context
             variable_ctx: variable_context::VariableContext::new(), // Phase 136 Step 5/7: Variable context
             metadata_ctx: metadata_context::MetadataContext::new(crate::ast::Span::unknown()), // Phase 136 Step 6/7: Metadata context
             comp_ctx, // Phase 136 Step 7/7: Compilation context
@@ -53,7 +53,7 @@ impl MirBuilder {
             in_unified_boxcall_fallback: false,
             recursion_depth: 0,
             root_is_app_mode: None,
-            repl_mode: false,                      // Phase 288 P2: REPL mode (default: file mode)
+            repl_mode: false, // Phase 288 P2: REPL mode (default: file mode)
             frag_emit_session: super::FragEmitSession::new(), // Phase 29bq+: sealing 層中立化
         }
     }

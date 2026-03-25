@@ -155,8 +155,14 @@ impl NyashParser {
 
             let supported = matches!(
                 rune_name.as_str(),
-                "Public" | "Internal" | "FfiSafe" | "Symbol" | "CallConv" | "ReturnsOwned"
-                    | "FreeWith" | "Ownership"
+                "Public"
+                    | "Internal"
+                    | "FfiSafe"
+                    | "Symbol"
+                    | "CallConv"
+                    | "ReturnsOwned"
+                    | "FreeWith"
+                    | "Ownership"
             );
             if !supported {
                 return Err(ParseError::UnexpectedToken {
@@ -170,7 +176,8 @@ impl NyashParser {
             if this.match_token(&TokenType::LPAREN) {
                 this.advance();
                 while !this.match_token(&TokenType::RPAREN) {
-                    let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
+                    let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type
+                    {
                         let n = name.clone();
                         this.advance();
                         n
@@ -193,7 +200,10 @@ impl NyashParser {
                     break;
                 }
                 this.consume(TokenType::RPAREN)?;
-            } else if matches!(rune_name.as_str(), "Public" | "Internal" | "FfiSafe" | "ReturnsOwned") {
+            } else if matches!(
+                rune_name.as_str(),
+                "Public" | "Internal" | "FfiSafe" | "ReturnsOwned"
+            ) {
                 // no-arg bare form
             } else {
                 let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
@@ -225,8 +235,14 @@ impl NyashParser {
         let rune = parse_rune_name(self)?;
         let supported = matches!(
             rune.name.as_str(),
-            "Public" | "Internal" | "FfiSafe" | "Symbol" | "CallConv" | "ReturnsOwned"
-                | "FreeWith" | "Ownership"
+            "Public"
+                | "Internal"
+                | "FfiSafe"
+                | "Symbol"
+                | "CallConv"
+                | "ReturnsOwned"
+                | "FreeWith"
+                | "Ownership"
         );
         if !supported {
             return Err(ParseError::UnexpectedToken {

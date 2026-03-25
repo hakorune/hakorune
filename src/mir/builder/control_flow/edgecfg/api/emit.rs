@@ -14,9 +14,9 @@
 
 use super::edge_stub::EdgeStub;
 use super::exit_kind::ExitKind;
-use crate::mir::BasicBlockId;
 use crate::mir::builder::control_flow::joinir::trace;
 use crate::mir::instruction::MirInstruction;
+use crate::mir::BasicBlockId;
 use std::collections::BTreeMap;
 
 /// wires → MIR terminator 変換（Phase 266 P1: SSOT）
@@ -122,8 +122,8 @@ fn emit_block_params_as_phis(
     frag: &super::frag::Frag,
 ) -> Result<(), String> {
     use crate::ast::Span;
-    use crate::mir::{BasicBlockId, EdgeArgs};
     use crate::mir::builder::emission::phi_lifecycle;
+    use crate::mir::{BasicBlockId, EdgeArgs};
     use std::collections::BTreeSet;
 
     if frag.block_params.is_empty() {
@@ -301,10 +301,10 @@ pub fn emit_frag(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::EdgeArgs;
     use crate::mir::function::{FunctionSignature, MirFunction};
     use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::types::MirType;
+    use crate::mir::EdgeArgs;
     use crate::mir::{BasicBlock, EffectMask, ValueId};
 
     /// テスト用の MirFunction を作成（最小構成）
