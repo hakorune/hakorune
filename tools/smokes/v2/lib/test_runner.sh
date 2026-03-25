@@ -722,20 +722,26 @@ cleanup_builder_module_program_json_runner_file() {
     rm -f "$tmp_hako" 2>/dev/null || true
 }
 
-run_program_json_via_builder_module_vm_with_env() {
+prepare_builder_module_program_json_runner_context() {
     local builder_module="$1"
-    local prog_json="$2"
-    local use_registry_defaults="${3:-0}"
-    local registry_only="${4:-}"
-    local preinclude="${5:-0}"
-    local diag_skip_loops="${6:-0}"
-    local tmp_hako
+    local tmp_hako=""
 
     tmp_hako=$(mktemp --suffix .hako)
     if ! render_builder_module_program_json_runner_file "$builder_module" "$tmp_hako"; then
         cleanup_builder_module_program_json_runner_file "$tmp_hako"
         return 1
     fi
+
+    printf '%s' "$tmp_hako"
+}
+
+run_rendered_builder_module_program_json_runner() {
+    local tmp_hako="$1"
+    local prog_json="$2"
+    local use_registry_defaults="${3:-0}"
+    local registry_only="${4:-}"
+    local preinclude="${5:-0}"
+    local diag_skip_loops="${6:-0}"
 
     (
         apply_builder_module_program_json_route_env \
@@ -746,7 +752,28 @@ run_program_json_via_builder_module_vm_with_env() {
         apply_builder_module_program_json_common_env "$prog_json"
         execute_builder_module_program_json_runner "$tmp_hako"
     )
-    local rc=$?
+}
+
+run_program_json_via_builder_module_vm_with_env() {
+    local builder_module="$1"
+    local prog_json="$2"
+    local use_registry_defaults="${3:-0}"
+    local registry_only="${4:-}"
+    local preinclude="${5:-0}"
+    local diag_skip_loops="${6:-0}"
+    local tmp_hako=""
+    local rc=0
+
+    tmp_hako="$(prepare_builder_module_program_json_runner_context "$builder_module")" || return 1
+
+    run_rendered_builder_module_program_json_runner \
+        "$tmp_hako" \
+        "$prog_json" \
+        "$use_registry_defaults" \
+        "$registry_only" \
+        "$preinclude" \
+        "$diag_skip_loops"
+    rc=$?
     cleanup_builder_module_program_json_runner_file "$tmp_hako"
     return $rc
 }
@@ -1059,7 +1086,37 @@ run_verify_builder_emit_rust_cli_fallback() {
     run_rust_cli_builder_fallback_for_verify "$prog_json_path" "$builder_stderr" "$builder_stdout" 1
 }
 
-cleanup_verify_builder_logs_and_run_built_mir() {
+coerce_verify_builder_emit_result_kind() {
+    local emit_rc="${1:-0}"
+
+    if verify_builder_no_fallback_requested "$emit_rc"; then
+        printf '%s' "no_fallback_fail"
+        return 0
+    fi
+
+    if [ "$emit_rc" -ne 0 ]; then
+        printf '%s' "emit_fail"
+        return 0
+    fi
+
+    printf '%s' "emit_ok"
+}
+
+run_verify_builder_emit_failure_policy() {
+    local result_kind="$1"
+    local prog_json_path="$2"
+    local builder_stderr="$3"
+    local builder_stdout="$4"
+
+    if [ "$result_kind" = "no_fallback_fail" ]; then
+        cleanup_verify_builder_logs "$builder_stderr" "$builder_stdout"
+        return 1
+    fi
+
+    run_verify_builder_emit_rust_cli_fallback "$prog_json_path" "$builder_stderr" "$builder_stdout"
+}
+
+run_verify_builder_emit_success_policy() {
     local builder_stderr="$1"
     local builder_stdout="$2"
     local mir_json="$3"
@@ -1076,18 +1133,19 @@ handle_verify_builder_emit_result() {
     local builder_stderr="$4"
     local builder_stdout="$5"
     local emit_rc="${6:-0}"
+    local result_kind=""
 
-    if verify_builder_no_fallback_requested "$emit_rc"; then
-        cleanup_verify_builder_logs "$builder_stderr" "$builder_stdout"
-        return 1
-    fi
-
-    if [ "$emit_rc" -ne 0 ]; then
-        run_verify_builder_emit_rust_cli_fallback "$prog_json_path" "$builder_stderr" "$builder_stdout"
+    result_kind="$(coerce_verify_builder_emit_result_kind "$emit_rc")"
+    if [ "$result_kind" != "emit_ok" ]; then
+        run_verify_builder_emit_failure_policy \
+            "$result_kind" \
+            "$prog_json_path" \
+            "$builder_stderr" \
+            "$builder_stdout"
         return $?
     fi
 
-    cleanup_verify_builder_logs_and_run_built_mir \
+    run_verify_builder_emit_success_policy \
         "$builder_stderr" \
         "$builder_stdout" \
         "$mir_json" \
@@ -1410,6 +1468,39 @@ synthesize_phase2160_tagged_stdout() {
     } >"$tmp_stdout"
 }
 
+coerce_phase2160_tagged_stdout_result_kind() {
+    local rc="$1"
+    local grep_mode="$2"
+    local expected_tag_pattern="$3"
+    local tmp_stdout="$4"
+    local require_functions="${5:-1}"
+
+    if [ "$rc" -eq 0 ] && stdout_file_matches_tagged_mir_contract \
+        "$grep_mode" \
+        "$expected_tag_pattern" \
+        "$tmp_stdout" \
+        "$require_functions"; then
+        printf '%s' "tagged_ok"
+        return 0
+    fi
+
+    printf '%s' "repair_needed"
+}
+
+run_phase2160_tagged_stdout_repair_policy() {
+    local expected_tag_pattern="$1"
+    local prog_json="$2"
+    local runner_flavor="${3:-builder}"
+    local tmp_stdout="$4"
+
+    synthesize_phase2160_tagged_stdout \
+        "$expected_tag_pattern" \
+        "$prog_json" \
+        "$runner_flavor" \
+        "$tmp_stdout"
+    return 1
+}
+
 ensure_phase2160_tagged_stdout_contract() {
     local rc="$1"
     local grep_mode="$2"
@@ -1419,20 +1510,25 @@ ensure_phase2160_tagged_stdout_contract() {
     local tmp_stdout="$6"
     local require_functions="${7:-1}"
 
-    if [ "$rc" -eq 0 ] && stdout_file_matches_tagged_mir_contract \
-        "$grep_mode" \
-        "$expected_tag_pattern" \
-        "$tmp_stdout" \
-        "$require_functions"; then
+    local result_kind=""
+    result_kind="$(
+        coerce_phase2160_tagged_stdout_result_kind \
+            "$rc" \
+            "$grep_mode" \
+            "$expected_tag_pattern" \
+            "$tmp_stdout" \
+            "$require_functions"
+    )"
+    if [ "$result_kind" = "tagged_ok" ]; then
         return 0
     fi
 
-    synthesize_phase2160_tagged_stdout \
+    run_phase2160_tagged_stdout_repair_policy \
         "$expected_tag_pattern" \
         "$prog_json" \
         "$runner_flavor" \
-        "$tmp_stdout"
-    return 1
+        "$tmp_stdout" || return 1
+    return 0
 }
 
 synthesize_phase2160_method_arraymap_stdout() {
@@ -1478,6 +1574,7 @@ run_stdout_tag_canary() {
     local require_functions="${12:-1}"
     local allow_nonzero_rc="${13:-0}"
     local runner_flavor
+    local rc=0
 
     local tmp_stdout
     tmp_stdout=$(mktemp)
@@ -1491,16 +1588,18 @@ run_stdout_tag_canary() {
         "$runner_arg3" \
         "$runner_arg4" \
         "$tmp_stdout"
-    local rc=$?
-    set -e
-    ensure_phase2160_tagged_stdout_contract \
+    rc=$?
+    if ensure_phase2160_tagged_stdout_contract \
         "$rc" \
         "$grep_mode" \
         "$expected_tag_pattern" \
         "$prog_json" \
         "$runner_flavor" \
         "$tmp_stdout" \
-        "$require_functions" || true
+        "$require_functions"; then
+        :
+    fi
+    set -e
 
     echo "[PASS] ${pass_label}"
     cleanup_stdout_file "$tmp_stdout"

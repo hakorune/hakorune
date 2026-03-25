@@ -38,7 +38,7 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
 
 ## Status Reading
 
-- current status は `reopen W7 active`。
+- current status は `reopen W10 active`。
 - この phase の current goal は `Program(JSON v0)` の hard delete ではない。
 - current repo では:
   - `Program(JSON v0)` = compat/internal/bootstrap-only keep + retire target
@@ -76,7 +76,14 @@ execution-lane reading では、この phase は stage1 bridge/proof boundary �
   - `tools/selfhost/selfhost_build.sh` now keeps the EXE consumer path behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
   - the exact W7.1 proof is `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
   - raw `selfhost_build.sh --in ...` whole-script routes stay upstream Stage-B source-route diagnostics, not the exact helper-local acceptance line
-  - next cleanup slice moves to `tools/smokes/v2/lib/test_runner.sh`
+  - `tools/smokes/v2/lib/test_runner.sh` now keeps the verify-tail policy behind `coerce_verify_builder_emit_result_kind()` + `run_verify_builder_emit_{failure,success}_policy()`
+  - the exact W8 proof stays on the phase2044 verify canaries
+  - `tools/smokes/v2/lib/test_runner.sh` now also keeps the tagged-stdout contract behind `coerce_phase2160_tagged_stdout_result_kind()` + `run_phase2160_tagged_stdout_repair_policy()`
+  - the exact W9 proof is `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
+  - heavy `phase2160/builder_min_*` wrappers stay monitor-only for that seam
+  - `tools/smokes/v2/lib/test_runner.sh` now also keeps the builder-module env/render seam behind `prepare_builder_module_program_json_runner_context()` + `run_rendered_builder_module_program_json_runner()`
+  - the exact W10 proof is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
+  - next cleanup slice stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the stdout-file wrapper seam
 - keep this README as the phase entry point, not the evidence log
 
 ## Current Retirement Targets

@@ -26,7 +26,10 @@ Related:
    - active boundary lane
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification
    - W7 landed: shared shell helper caller audit inside `tools/selfhost/selfhost_build.sh` now covers the Program(JSON)->MIR->EXE consumer path
-   - W7 exact next: `tools/smokes/v2/lib/test_runner.sh`
+   - W8 landed: `tools/smokes/v2/lib/test_runner.sh` verify-tail policy split
+   - W9 landed: `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract split
+   - W10 landed: `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split
+   - W10 exact next: stay inside `tools/smokes/v2/lib/test_runner.sh` and move to the stdout-file wrapper seam
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -87,7 +90,11 @@ Related:
   - raw direct `stage1_cli.hako emit program-json` lane is retired as diagnostics-only evidence
   - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
   - `tools/selfhost/selfhost_build.sh` EXE consumer path split is landed; helper-local proof lives in `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
-  - next caller-audit bucket moves to `tools/smokes/v2/lib/test_runner.sh`
+  - `tools/smokes/v2/lib/test_runner.sh` verify-tail policy split is landed; proof stays on the phase2044 canaries
+  - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
+  - heavy `phase2160/builder_min_*` wrappers stay monitor-only for this seam
+  - `tools/smokes/v2/lib/test_runner.sh` builder-module env/render split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
+  - next caller-audit bucket stays in `tools/smokes/v2/lib/test_runner.sh` for the stdout-file wrapper seam
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

@@ -32,19 +32,26 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current Priority
 
 1. active implementation lane: `phase-29ci`
-   - status: `reopen W7 active`
+   - status: `reopen W10 active`
    - scope: `Program(JSON v0)` boundary retirement + `MIR(JSON v0)` line unification
    - working rule:
      - public/bootstrap surfaces move to MIR-first now
      - `Program(JSON v0)` stays compat/internal keep only
      - hard delete is later
-   - exact W7 target:
+   - exact W10 target:
      - keep `launcher.hako` W5 thinning landed and frozen near-thin-floor
      - keep the first two `tools/hakorune_emit_mir.sh` helper-local splits landed: Stage-B Program(JSON) production and direct-emit fallback policy
      - keep `tools/selfhost/selfhost_build.sh` EXE consumer path landed behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
      - pin that exact leaf via `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
      - raw `selfhost_build.sh --in ...` whole-script routes remain upstream Stage-B source-route diagnostics and are not the W7.1 acceptance line
-     - move the next exact helper-local bucket to `tools/smokes/v2/lib/test_runner.sh`
+     - keep `tools/smokes/v2/lib/test_runner.sh` verify-tail policy landed behind `coerce_verify_builder_emit_result_kind()` + `run_verify_builder_emit_{failure,success}_policy()`
+     - keep `phase2044` canaries as the exact proof line for that helper-local slice
+     - keep `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract landed behind `coerce_phase2160_tagged_stdout_result_kind()` + `run_phase2160_tagged_stdout_repair_policy()`
+     - keep the exact W9 proof on `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
+     - keep heavy `phase2160/builder_min_*` wrapper canaries as monitor-only while the tagged-stdout helper-local seam is pinned directly
+     - keep `tools/smokes/v2/lib/test_runner.sh` builder-module env/render seam landed behind `prepare_builder_module_program_json_runner_context()` + `run_rendered_builder_module_program_json_runner()`
+     - keep the exact W10 proof on `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
+     - move the next exact `test_runner.sh` leaf to the stdout-file wrapper seam behind `run_builder_module_vm_to_stdout_file()` + `run_registry_builder_module_vm_to_stdout_file()`
      - keep explicit env-route compat probes, raw compat flags, and the retired raw direct `stage1_cli.hako emit program-json` diagnostics pin alive
 2. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
@@ -114,7 +121,11 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - first landed target: `tools/hakorune_emit_mir.sh`
    - second landed target: `tools/selfhost/selfhost_build.sh`
    - current exact bucket: `tools/smokes/v2/lib/test_runner.sh`
-   - previous exact leaf: Program(JSON)->MIR->EXE consumer path behind `emit_exe_from_program_json_v0(...)`
+   - landed exact leaves:
+     - verify-tail policy behind `handle_verify_builder_emit_result(...)`
+     - tagged-stdout contract behind `ensure_phase2160_tagged_stdout_contract(...)`
+     - builder-module env/render seam behind `run_program_json_via_builder_module_vm_with_env()`
+   - next exact leaf: stdout-file wrapper seam behind `run_builder_module_vm_to_stdout_file()` + `run_registry_builder_module_vm_to_stdout_file()`
 5. keep explicit env-route compat probes and raw compat flags alive:
    - CLI flags
    - stage1 bridge/program-json explicit route

@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W7 active`
+  - status: `reopen W10 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,14 +39,21 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W7 target:
+  - current W10 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
     - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
     - `tools/selfhost/selfhost_build.sh` EXE consumer path is landed behind `resolve_emit_exe_context()` + `emit_exe_from_program_json_v0_with_context()`
     - exact proof for that leaf is `tools/dev/phase29ci_selfhost_build_exe_consumer_probe.sh`
     - raw `selfhost_build.sh --in ...` whole-script routes are upstream Stage-B diagnostics, not the W7.1 acceptance line
-    - next exact helper-local bucket is `tools/smokes/v2/lib/test_runner.sh`
+    - `tools/smokes/v2/lib/test_runner.sh` verify-tail policy is landed behind `coerce_verify_builder_emit_result_kind()` + `run_verify_builder_emit_{failure,success}_policy()`
+    - exact proof for that leaf is `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` plus `phase2044/hako_primary_no_fallback_return_binop_core_exec_canary_vm.sh`
+    - `tools/smokes/v2/lib/test_runner.sh` tagged-stdout contract is landed behind `coerce_phase2160_tagged_stdout_result_kind()` + `run_phase2160_tagged_stdout_repair_policy()`
+    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_tagged_stdout_probe.sh`
+    - heavy `phase2160/builder_min_*` wrappers remain monitor-only while tagged-stdout is pinned helper-locally
+    - `tools/smokes/v2/lib/test_runner.sh` builder-module env/render seam is landed behind `prepare_builder_module_program_json_runner_context()` + `run_rendered_builder_module_program_json_runner()`
+    - exact proof for that leaf is `tools/dev/phase29ci_test_runner_builder_envrender_probe.sh`
+    - next exact helper-local bucket stays inside `tools/smokes/v2/lib/test_runner.sh` and moves to the stdout-file wrapper seam
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`
