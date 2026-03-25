@@ -20,6 +20,9 @@ import sys
 from pathlib import Path
 
 
+KEEP_LANE_TAG = "[llvmlite-keep]"
+
+
 def resolve_repo_root() -> Path:
     default_root = Path(__file__).resolve().parents[1]
     try:
@@ -113,7 +116,12 @@ def run_builder_keep(in_path: str, out_path: str) -> None:
 
 
 def parse_cli_args(argv=None):
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(
+        description=(
+            "Nyash llvmlite compat/probe keep harness. "
+            "This is not the daily mainline backend route."
+        )
+    )
     ap.add_argument(
         "--in",
         dest="infile",
@@ -127,10 +135,10 @@ def parse_cli_args(argv=None):
 def run_selected_mode(infile: str | None, outfile: str) -> int:
     if infile is None:
         emit_dummy_object(outfile)
-        print(f"[harness] dummy object written: {outfile}")
+        print(f"{KEEP_LANE_TAG} dummy object written: {outfile}")
         return 0
     run_builder_keep(infile, outfile)
-    print(f"[harness] object written: {outfile}")
+    print(f"{KEEP_LANE_TAG} object written: {outfile}")
     return 0
 
 
@@ -145,7 +153,7 @@ if __name__ == "__main__":
     except Exception as e:
         import traceback
 
-        print(f"[harness] error: {e}", file=sys.stderr)
+        print(f"{KEEP_LANE_TAG} error: {e}", file=sys.stderr)
         if os.environ.get("NYASH_CLI_VERBOSE") == "1":
             traceback.print_exc()
         sys.exit(1)

@@ -336,12 +336,12 @@ Related:
 
 ## Immediate Next
 
-1. `W4` `llvmlite` demotion completion
-   - `W2a..W2c` and `W3a..W3c` are landed
+1. `W4b` acceptance/readme/test split
+   - `W2a..W2c`, `W3a..W3c`, and `W4a` are landed
    - current exact front is fixed by `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
-   - `tools/llvmlite_harness.py` and `src/llvm_py/**` remain explicit compat/canary keep only
+   - `tools/llvmlite_harness.py` and `src/llvm_py/**` already self-identify as explicit compat/canary keep
+   - next is to finish the acceptance/readme/test split so mainline proofs no longer read `llvmlite` as a backend-zero owner
    - do not give `llvmlite` new hot-path obligations
-   - demotion completes only after the mainline docs/tests stop reading `llvmlite` as a backend-zero owner
 2. `perf/kilo` reopen judgment
    - reopen only after `W3` and `W4` are both closed
    - `llvmlite` / harness stays outside the perf baseline

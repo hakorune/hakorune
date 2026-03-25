@@ -31,7 +31,8 @@ Related:
 - `W3a` `llvm_codegen.rs` normalization/default helper concentration is landed.
 - `W3b` `boundary_driver*.rs` thin-floor is landed.
 - `W3c` generic compile symbol branch keep-only lock is landed.
-- current active pre-perf front is `W4` `llvmlite` demotion completion.
+- `W4a` keep-lane owner inventory sync is landed.
+- current active pre-perf front is `W4b` acceptance/readme/test split.
 - `perf/kilo` remains parked until `W3..W4` are also closed.
 
 ## Fixed Order
@@ -124,6 +125,10 @@ Related:
 - exact target:
   - lock `src/llvm_py/**` and `tools/llvmlite_harness.py` as explicit compat/probe keep only
   - remove remaining ambiguity that `llvmlite` might still be a mainline owner
+- current landed state:
+  - `W4a` is landed
+  - `tools/llvmlite_harness.py` now self-identifies with `[llvmlite-keep]`
+  - `src/llvm_py/README.md` now pins the Python lane as explicit compat/probe keep in the code-side entry doc
 - split order:
   - `W4a` keep-lane owner inventory sync
   - `W4b` acceptance/readme/test split between mainline and keep
