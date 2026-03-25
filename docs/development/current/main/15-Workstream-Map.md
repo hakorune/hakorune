@@ -36,7 +36,9 @@ Related:
    - W14 landed: `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split
    - W15 landed: `tools/smokes/v2/lib/test_runner.sh` reinventory stop-line; helper-local work is now treated as near-thin-floor by default
    - W16 landed: first smoke-tail bucket; uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers
-   - W16 exact next: special raw verify keeps with extra env or nonstandard success shape, centered on `phase2039/parser_embedded_json_canary.sh` and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
+   - W17 landed: special raw verify keep bucket; core-primary built-MIR verify now honors `HAKO_VERIFY_PRIMARY=core`, `parser_embedded_json_canary.sh` uses the generic rc wrapper directly, and `mirbuilder_internal_new_array_core_exec_canary_vm.sh` now routes through `run_verify_program_via_internal_builder_no_methods_to_core()`
+   - W18 landed: `phase2170` default MIR-file verify wrappers; repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and named `run_verify_mir_via_hakovm_*` helpers, while legacy `hv1_mircall_*` wrappers remain explicit keeps
+   - W18 exact next: `phase-29ci` close-sync / final caller-audit judgment
 2. `phase-29cu`
    - formally close-synced
 3. `phase-29cj`
@@ -108,7 +110,7 @@ Related:
   - `tools/smokes/v2/lib/test_runner.sh` method-arraymap fallback synth + token-check layer split is landed; helper-local proof lives in `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
   - the `test_runner.sh` reinventory stop-line is landed; helper-local work is now near-thin-floor by default
   - the first smoke-tail caller bucket is also landed: uniform raw `verify_program_via_builder_to_core` callers now route through named helpers instead of open-coded env stacks
-  - next caller-audit bucket is the special raw verify keeps with extra env or nonstandard success shape
+  - next move is `phase-29ci` close-sync / final caller-audit judgment
 - guard rails:
   - `Program(JSON v0)` stays no-widen
   - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR

@@ -23,12 +23,11 @@ cat > "$tmp_json" <<'JSON'
 }
 JSON
 
-set +e
-HAKO_VERIFY_PRIMARY=hakovm HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 verify_mir_rc "$tmp_json" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_json" || true
+trap 'rm -f "$tmp_json" || true' EXIT
 
-if [ "$rc" -eq 0 ]; then echo "[PASS] per_recv_per_canary_vm"; exit 0; fi
-echo "[FAIL] per_recv_per_canary_vm (rc=$rc, want=0)" >&2; exit 1
-
+run_verify_mir_canary_and_expect_rc \
+  run_verify_mir_via_hakovm_size_state_per_recv \
+  "$tmp_json" \
+  0 \
+  "per_recv_per_canary_vm" \
+  "per_recv_per_canary_vm"

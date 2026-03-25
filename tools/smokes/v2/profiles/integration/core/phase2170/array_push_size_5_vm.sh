@@ -27,5 +27,9 @@ JSON
 
 trap 'rm -f "$tmp_json" || true' EXIT
 
-HAKO_VERIFY_PRIMARY=hakovm HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 \
-  run_verify_mir_rc_and_expect "$tmp_json" 5 "array_push_size_5_vm" "array_push_size_5_vm"
+run_verify_mir_canary_and_expect_rc \
+  run_verify_mir_via_hakovm_size_state_per_recv \
+  "$tmp_json" \
+  5 \
+  "array_push_size_5_vm" \
+  "array_push_size_5_vm"

@@ -34,5 +34,9 @@ JSON
 
 trap 'rm -f "$tmp_json" || true' EXIT
 
-HAKO_VERIFY_PRIMARY=hakovm HAKO_V1_DISPATCHER_FLOW=1 HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 \
-  run_verify_mir_rc_and_expect "$tmp_json" 3 "flow_across_blocks_array_size_canary_vm" "flow_across_blocks_array_size_canary_vm"
+run_verify_mir_canary_and_expect_rc \
+  run_verify_mir_via_hakovm_size_state_flow \
+  "$tmp_json" \
+  3 \
+  "flow_across_blocks_array_size_canary_vm" \
+  "flow_across_blocks_array_size_canary_vm"

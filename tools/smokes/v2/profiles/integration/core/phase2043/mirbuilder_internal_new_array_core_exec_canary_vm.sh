@@ -13,16 +13,11 @@ cat >"$tmp_prog" <<'JSON'
 ]}
 JSON
 
-set +e
-# Core exec friendly: avoid method lowers in runner_min to keep providers optional
-HAKO_VERIFY_PRIMARY=core HAKO_MIR_BUILDER_INTERNAL=1 HAKO_MIR_RUNNER_MIN_NO_METHODS=1 \
-  verify_program_via_builder_to_core "$tmp_prog" >/dev/null 2>&1
-rc=$?
-set -e
-rm -f "$tmp_prog" || true
+trap 'rm -f "$tmp_prog" || true' EXIT
 
-if [ "$rc" -eq 0 ]; then
-  echo "[PASS] mirbuilder_internal_new_array_core_exec_canary_vm"
-  exit 0
-fi
-echo "[FAIL] mirbuilder_internal_new_array_core_exec_canary_vm (rc=$rc, expect 0)" >&2; exit 1
+run_verify_canary_and_expect_rc \
+  run_verify_program_via_internal_builder_no_methods_to_core \
+  "$tmp_prog" \
+  0 \
+  "mirbuilder_internal_new_array_core_exec_canary_vm" \
+  "mirbuilder_internal_new_array_core_exec_canary_vm"

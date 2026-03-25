@@ -69,7 +69,7 @@ Related:
 - Bucket B: special raw verify keeps
   - `phase2039/parser_embedded_json_canary.sh`
   - `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
-  - status: next exact bucket
+  - status: landed
 - Bucket C: already-thin wrapper families
   - `phase2044/*`
   - `phase2160/builder_min_*`
@@ -77,7 +77,7 @@ Related:
   - status: thin keep / monitor-only by default
 - Bucket D: MIR-file verify wrappers
   - `phase2170/*`
-  - status: later separate bucket
+  - status: default pack landed; legacy `hv1_mircall_*` wrappers remain explicit keeps
 
 この tail は shared helper でも live/bootstrap owner でもないので、caller-audit 用の後段 bucket として扱う。
 
@@ -88,8 +88,8 @@ Related:
 3. shared shell helper keep 3 file を audit する
 4. test-only smoke tail 43 file を caller-audit bucket として整理する
    - first bucket: uniform raw verify callers (landed)
-   - second bucket: special raw verify keeps
-   - later buckets: already-thin wrapper families and MIR-file verify wrappers
+   - second bucket: special raw verify keeps (landed)
+   - later buckets: already-thin wrapper families
 5. diagnostics/probe keep は live caller の後ろで retire 判断する
 
 ## Guardrails
@@ -115,4 +115,4 @@ Related:
 2. shared shell helper 3 file の contract を keep/remove 目線で audit する
 3. first helper-local slice は `tools/hakorune_emit_mir.sh`
 4. smoke tail 43 file は caller-audit ledger として別に畳む
-5. first smoke-tail bucket は landed; next exact bucket は special raw verify keeps に固定する
+5. first smoke-tail bucket, special raw verify keep bucket, and the default `phase2170` MIR-file verify wrapper pack are landed; next move is `phase-29ci` close-sync / final caller-audit judgment

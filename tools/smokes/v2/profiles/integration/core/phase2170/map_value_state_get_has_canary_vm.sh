@@ -25,5 +25,9 @@ JSON
 
 trap 'rm -f "$tmp_json" || true' EXIT
 
-HAKO_VERIFY_PRIMARY=hakovm HAKO_ABI_ADAPTER=${HAKO_ABI_ADAPTER:-1} HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_VALUESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 \
-  run_verify_mir_rc_and_expect "$tmp_json" 200 "map_value_state_get_has_canary_vm" "map_value_state_get_has_canary_vm"
+run_verify_mir_canary_and_expect_rc \
+  run_verify_mir_via_hakovm_map_value_state \
+  "$tmp_json" \
+  200 \
+  "map_value_state_get_has_canary_vm" \
+  "map_value_state_get_has_canary_vm"

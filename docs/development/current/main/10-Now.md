@@ -30,7 +30,7 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29ci`
-  - status: `reopen W13 active`
+  - status: `reopen W18 active`
   - purpose:
     - retire `Program(JSON v0)` from repo-wide external/bootstrap boundary
     - unify public/bootstrap interchange on `MIR(JSON v0)`
@@ -39,7 +39,7 @@ Related:
     - `Boundary + Minimal MIR Meta`
     - `Program(JSON v0)` public/bootstrap surfaces are deprecate-now
     - internal `.hako` / host-provider Program(JSON) keep is allowed only as compat that terminates in MIR
-  - current W16 target:
+  - current W18 target:
     - `launcher.hako` route orchestration thinning via `LauncherDispatchBox` is landed
     - `stage1_cli.hako` raw direct `emit program-json` lane remains retire-only / diagnostics-only
     - `tools/hakorune_emit_mir.sh` helper-local splits are landed: Stage-B Program(JSON) production and direct-emit fallback policy
@@ -67,9 +67,13 @@ Related:
     - exact proof for that leaf is `tools/dev/phase29ci_test_runner_method_arraymap_probe.sh`
     - the W15 reinventory is landed: `tools/smokes/v2/lib/test_runner.sh` is now treated as near-thin-floor, and the next move is caller-audit promotion rather than another default helper-local split
     - the W16 first smoke-tail bucket is landed: uniform raw `verify_program_via_builder_to_core` callers now collapse onto named runner helpers in `tools/smokes/v2/lib/test_runner.sh`
-    - next exact bucket is the special raw verify keeps with extra env or nonstandard success shape, centered on `phase2039/parser_embedded_json_canary.sh` and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
+    - the special raw verify keep bucket is landed: `phase2039/parser_embedded_json_canary.sh` now uses the generic rc wrapper directly, and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh` now routes through `run_verify_program_via_internal_builder_no_methods_to_core()`
+    - the core-primary verify-route fix is landed behind `verify_primary_requests_core_v0()`
+    - exact proof for that slice is `tools/dev/phase29ci_verify_primary_core_route_probe.sh`
+    - the `phase2170` default MIR-file verify wrapper pack is landed: repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and the named `run_verify_mir_via_hakovm_*` helpers in `tools/smokes/v2/lib/test_runner.sh`
+    - the default `phase2170` wrappers now collapse onto `run_verify_mir_canary_and_expect_rc()`, while the legacy `hv1_mircall_*` wrappers remain explicit keeps
     - `phase2044` / `phase2160` thin wrapper families stay as thin keeps, not the next promotion target
-    - `phase2170` MIR-file verify wrappers remain a later separate bucket
+    - next exact bucket is `phase-29ci` close-sync / final caller-audit judgment
     - explicit env-route compat probes, raw compat flags, and wrapper/public helper retirements remain landed
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`

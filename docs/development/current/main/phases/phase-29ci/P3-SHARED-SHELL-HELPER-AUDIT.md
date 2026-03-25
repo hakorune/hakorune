@@ -147,7 +147,9 @@ shared shell helper keep として残っている 3 file について、
 - retreat note: the old direct-lower probe now lives at `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh`; keep it as archived monitor evidence and do not hide it behind the shared registry helpers
 - the W15 reinventory stop-line is landed: `tools/smokes/v2/lib/test_runner.sh` is now treated as near-thin-floor by default, and helper-local work should reopen only on a newly discovered exact seam
 - the W16 first smoke-tail bucket is landed too: uniform raw `verify_program_via_builder_to_core` callers now collapse onto `run_verify_program_via_core_default_to_core()`, `run_verify_program_via_preferred_mirbuilder_core_to_core()`, `run_verify_program_via_builder_only_to_core()`, `run_verify_program_via_internal_builder_to_core()`, and `run_verify_program_via_registry_internal_to_core()` instead of repeating env stacks inline
-- keep the special raw verify keeps explicit as the next bucket, centered on `phase2039/parser_embedded_json_canary.sh` and `phase2043/mirbuilder_internal_new_array_core_exec_canary_vm.sh`
+- the W17 special raw verify keep bucket is landed too: `parser_embedded_json_canary.sh` now uses the generic rc wrapper directly, `mirbuilder_internal_new_array_core_exec_canary_vm.sh` now routes through `run_verify_program_via_internal_builder_no_methods_to_core()`, and built `newbox` MIR now honors `HAKO_VERIFY_PRIMARY=core` before the hv1 / hako-core lanes
+- exact W17 proof now lives in `tools/dev/phase29ci_verify_primary_core_route_probe.sh`
+- the W18 `phase2170` default MIR-file verify wrapper pack is landed too: repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and the named `run_verify_mir_via_hakovm_*` helpers in `tools/smokes/v2/lib/test_runner.sh`, and the default `phase2170` wrappers now collapse onto `run_verify_mir_canary_and_expect_rc()` while legacy `hv1_mircall_*` wrappers remain explicit keeps
 - do not mix that `test_runner.sh` lane work with the 43-file smoke tail; the shared harness still stays the owner and the tail remains caller-audit-only
 - the old `phase2044` blocker is closed: early alias warnings no longer panic before Ring0 init, the Rust Program(JSON)->MIR route no longer emits `main.params=[1]`, and `tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` is green again
 
@@ -155,5 +157,5 @@ shared shell helper keep として残っている 3 file について、
 
 1. keep `tools/hakorune_emit_mir.sh` monitor-only after the landed direct-emit fallback split
 2. keep `tools/selfhost/selfhost_build.sh` monitor-only after the landed EXE consumer-path split and its helper-local probe
-3. keep `tools/smokes/v2/lib/test_runner.sh` near-thin-floor after the landed helper-local slices; the first smoke-tail bucket is already promoted, so the next move is the special raw verify keep bucket rather than another default helper-local split
-4. keep `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` green while moving only the special raw verify keeps next; do not reopen vm-hako subset debt or widen directly into the 43-file smoke tail
+3. keep `tools/smokes/v2/lib/test_runner.sh` near-thin-floor after the landed helper-local slices and the landed `phase2170` default wrapper pack; the next move is `phase-29ci` close-sync / final caller-audit judgment rather than reopening helper-local route policy again
+4. keep `phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` green while judging close-sync; do not reopen vm-hako subset debt or widen directly into the 43-file smoke tail

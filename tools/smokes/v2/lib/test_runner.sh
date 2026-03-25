@@ -1046,6 +1046,10 @@ run_built_mir_json_via_builder_only_route() {
     return 1
 }
 
+verify_primary_requests_core_v0() {
+    [ "${HAKO_VERIFY_PRIMARY:-}" = "core" ]
+}
+
 run_built_mir_json_via_preferred_vm_routes() {
     local mir_json="$1"
 
@@ -1070,6 +1074,11 @@ run_built_mir_json_via_verify_routes() {
     local builder_only_rc=$?
     if [ "$builder_only_rc" != "2" ]; then
         return "$builder_only_rc"
+    fi
+
+    if verify_primary_requests_core_v0; then
+        run_built_mir_json_via_core_v0_route "$mir_json" "$mir_json_path"
+        return $?
     fi
 
     run_built_mir_json_via_preferred_vm_routes "$mir_json"
@@ -1244,6 +1253,16 @@ run_verify_program_via_internal_builder_to_core() {
     )
 }
 
+run_verify_program_via_internal_builder_no_methods_to_core() {
+    local prog_json_path="$1"
+    local _unused="${2:-0}"
+
+    (
+        export HAKO_MIR_RUNNER_MIN_NO_METHODS=1
+        run_verify_program_via_internal_builder_to_core "$prog_json_path" 1
+    )
+}
+
 run_verify_program_via_registry_internal_to_core() {
     local prog_json_path="$1"
     local _unused="${2:-0}"
@@ -1293,6 +1312,114 @@ run_verify_canary_and_expect_rc() {
 
     if [ "$rc" -ne "$expected_rc" ]; then
         echo "[FAIL] ${fail_label} rc=$rc (expected $expected_rc)" >&2
+        return 1
+    fi
+
+    echo "[PASS] ${pass_label}"
+    return 0
+}
+
+apply_verify_mir_route_env() {
+    local primary_hakovm="${1:-0}"
+    local size_state="${2:-0}"
+    local size_state_per_recv="${3:-0}"
+    local dispatcher_flow="${4:-0}"
+    local abi_adapter="${5:-0}"
+    local value_state="${6:-0}"
+
+    if [ "$primary_hakovm" = "1" ]; then
+        export HAKO_VERIFY_PRIMARY=hakovm
+    fi
+    if [ "$size_state" = "1" ]; then
+        export HAKO_VM_MIRCALL_SIZESTATE=1
+    fi
+    if [ "$size_state_per_recv" = "1" ]; then
+        export HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1
+    else
+        export HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=0
+    fi
+    if [ "$dispatcher_flow" = "1" ]; then
+        export HAKO_V1_DISPATCHER_FLOW=1
+    fi
+    if [ "$abi_adapter" = "1" ]; then
+        export HAKO_ABI_ADAPTER="${HAKO_ABI_ADAPTER:-1}"
+    fi
+    if [ "$value_state" = "1" ]; then
+        export HAKO_VM_MIRCALL_VALUESTATE=1
+    fi
+}
+
+run_verify_mir_rc_with_env() {
+    local json_path="$1"
+    local primary_hakovm="${2:-0}"
+    local size_state="${3:-0}"
+    local size_state_per_recv="${4:-0}"
+    local dispatcher_flow="${5:-0}"
+    local abi_adapter="${6:-0}"
+    local value_state="${7:-0}"
+
+    (
+        apply_verify_mir_route_env \
+            "$primary_hakovm" \
+            "$size_state" \
+            "$size_state_per_recv" \
+            "$dispatcher_flow" \
+            "$abi_adapter" \
+            "$value_state"
+        verify_mir_rc "$json_path" >/dev/null 2>&1
+    )
+}
+
+run_verify_mir_via_hakovm_size_state_per_recv() {
+    local json_path="$1"
+    local _unused="${2:-0}"
+
+    run_verify_mir_rc_with_env "$json_path" 1 1 1 0 0 0
+}
+
+run_verify_mir_via_hakovm_size_state_global() {
+    local json_path="$1"
+    local _unused="${2:-0}"
+
+    run_verify_mir_rc_with_env "$json_path" 1 1 0 0 0 0
+}
+
+run_verify_mir_via_hakovm_size_state_flow() {
+    local json_path="$1"
+    local _unused="${2:-0}"
+
+    run_verify_mir_rc_with_env "$json_path" 1 1 1 1 0 0
+}
+
+run_verify_mir_via_hakovm_map_size_state() {
+    local json_path="$1"
+    local _unused="${2:-0}"
+
+    run_verify_mir_rc_with_env "$json_path" 1 1 1 0 1 0
+}
+
+run_verify_mir_via_hakovm_map_value_state() {
+    local json_path="$1"
+    local _unused="${2:-0}"
+
+    run_verify_mir_rc_with_env "$json_path" 1 1 1 0 1 1
+}
+
+run_verify_mir_canary_and_expect_rc() {
+    local runner_fn="$1"
+    local json_path="$2"
+    local expected_rc="$3"
+    local fail_label="$4"
+    local pass_label="$5"
+    local runner_arg="${6:-0}"
+
+    set +e
+    "$runner_fn" "$json_path" "$runner_arg"
+    local rc=$?
+    set -e
+
+    if [ "$rc" -ne "$expected_rc" ]; then
+        echo "[FAIL] ${fail_label} (rc=$rc, want=$expected_rc)" >&2
         return 1
     fi
 

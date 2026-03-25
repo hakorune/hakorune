@@ -30,5 +30,9 @@ JSON
 trap 'rm -f "$tmp_json" || true' EXIT
 
 # k1 (new) -> size=1, k1 (dup) -> size stays 1, k2 (new) -> size=2
-HAKO_VERIFY_PRIMARY=hakovm HAKO_ABI_ADAPTER=${HAKO_ABI_ADAPTER:-1} HAKO_VM_MIRCALL_SIZESTATE=1 HAKO_VM_MIRCALL_SIZESTATE_PER_RECV=1 \
-  run_verify_mir_rc_and_expect "$tmp_json" 2 "map_set_dup_key_size_canary_vm" "map_set_dup_key_size_canary_vm"
+run_verify_mir_canary_and_expect_rc \
+  run_verify_mir_via_hakovm_map_size_state \
+  "$tmp_json" \
+  2 \
+  "map_set_dup_key_size_canary_vm" \
+  "map_set_dup_key_size_canary_vm"
