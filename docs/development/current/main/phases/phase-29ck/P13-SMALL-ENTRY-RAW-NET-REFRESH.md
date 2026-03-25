@@ -1,8 +1,8 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `P12` close 後の small-entry lane を raw/net numbers でもう一度固定し、medium/full `kilo` widening 前の close-sync 判断を 1 本に絞る。
+Scope: `P12` close 後の small-entry lane を raw/net numbers でもう一度固定し、small-entry perf lane を monitor-only close できるかを判断する。
 Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md
@@ -40,12 +40,25 @@ Related:
    - `box_create_destroy_small`: `c_ms=2`, `ny_aot_ms=0`
 3. raw short-run lane is still startup-dominated enough that boundary runtime leaf tuning is not justified yet.
 
-## Next Exact Work
+## Landed Evidence
 
-1. refresh raw 1x1 evidence for both inputs
-2. refresh startup-subtracted evidence for both inputs
-3. update baseline/ledger only if the deltas are real and reproducible
-4. close the small-entry lane monitor-only unless a new exact startup owner appears
+1. raw 1x1 evidence is refreshed.
+   - `method_call_only_small`: `c_ms=3`, `ny_aot_ms=9`
+   - `box_create_destroy_small`: `c_ms=3`, `ny_aot_ms=8`
+2. startup-subtracted evidence is refreshed.
+   - `method_call_only_small`: `c_ms=2`, `ny_aot_ms=1`
+   - `box_create_destroy_small`: `c_ms=2`, `ny_aot_ms=0`
+3. judgment:
+   - small-entry lane still reads as startup-dominated
+   - there is no fresh exact runtime leaf to cut in this lane
+   - current baseline files do not need a new rewrite for this slice
+
+## Follow-up
+
+1. small-entry perf lane is now `none (monitor-only)`
+2. phase-level next exact front returns to runtime proof blocker inventory
+   - acceptance anchor:
+     - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
 
 ## Acceptance
 
@@ -66,5 +79,5 @@ Related:
 ## Exit Condition
 
 - post-trim raw/net figures are refreshed
-- the lane either names one fresh exact startup owner or closes monitor-only
-- next perf widening judgment is based on refreshed small-entry evidence, not stale pre-trim numbers
+- small-entry perf lane is closed monitor-only
+- next phase front is no longer a small-entry perf edit

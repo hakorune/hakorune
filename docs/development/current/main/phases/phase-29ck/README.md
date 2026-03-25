@@ -357,9 +357,13 @@ Related:
    - `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` is now landed on the boundary mainline owner
    - current mainline `method_call_only_small` exe is trimmed to `5,375,880` bytes / `61` relocations
    - `tools/dev/phase29ck_small_entry_startup_probe.sh` now rebuilds stale `libhako_llvmc_ffi` before checking the trimmed boundary shape
-   - next exact front is `P13-SMALL-ENTRY-RAW-NET-REFRESH.md`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
+   - `P13-SMALL-ENTRY-RAW-NET-REFRESH.md` is now closed with refreshed raw 1x1 evidence:
+     - `method_call_only_small`: `c_ms=3`, `ny_aot_ms=9`
+     - `box_create_destroy_small`: `c_ms=3`, `ny_aot_ms=8`
+   - current small-entry perf lane is `none (monitor-only)`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
    - `llvmlite` / harness stays outside the perf baseline
 2. runtime proof blocker inventory
+   - current phase-level next exact front returns here after `P12/P13`
    - final proof owner は `.hako VM`
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
@@ -397,7 +401,7 @@ Related:
    - `llvmlite` / harness stays outside the perf baseline
    - `P10` small-entry re-entry is closed as pure-loop evidence
    - `P11` small-entry startup inventory is closed
-   - current reopened lane is `P12` boundary-link `gc-sections` candidate
+   - current small-entry reopened lane is `none (monitor-only)` after `P12/P13`
 10. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない
 
 ## Acceptance

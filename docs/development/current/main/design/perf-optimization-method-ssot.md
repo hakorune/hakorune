@@ -45,8 +45,9 @@ Related:
   - short microasm is startup/loader dominated
 - startup-subtracted small-entry evidence is now `method_call_only_small=1 ms`, `box_create_destroy_small=0 ms`
 - `P11-SMALL-ENTRY-STARTUP-INVENTORY.md` is now closed.
-- therefore the perf lane may stay reopened, `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` is landed, and the next exact adjacent front is `P13-SMALL-ENTRY-RAW-NET-REFRESH.md`.
+- therefore the perf lane may stay reopened, `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` and `P13-SMALL-ENTRY-RAW-NET-REFRESH.md` are now closed, and the current small-entry lane is `none (monitor-only)`.
 - current boundary-mainline `method_call_only_small` exe shape is `5,375,880` bytes / `61` relocations.
+- refreshed raw 1x1 evidence is `method_call_only_small=9 ms`, `box_create_destroy_small=8 ms`.
 - `llvmlite` / harness stays outside the perf judge even when the lane reopens.
 - until that reopen happens, the quick chip8 crosslang smoke is monitor-only for AOT:
   - keep `[bench4]` / `[bench4-route]` shape and timing keys pinned
