@@ -7,6 +7,8 @@ Related:
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
 - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
+- docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
+- docs/development/current/main/design/stage2-string-route-split-plan.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
 - CURRENT_TASK.md
@@ -114,6 +116,19 @@ Hotspot は次の分類で読む。
   - `ny-llvm` / `ny-llvmc` = perf/mainline judge
   - `llvmlite` = keep lane only
   - keep lane breaks are correctness/compat issues, not performance evidence
+
+## Stage2 Per-Slice Rule
+
+- stage2 AOT thin-path work is measured one accepted slice at a time.
+- route-table change commits and perf-retune commits do not mix.
+- after each accepted slice, re-run the ladder in order:
+  1. stable baseline
+  2. micro ladder
+  3. ASM probe
+- String waves are measured separately:
+  - first `String search/slice route split`
+  - then `String concat route split`
+- `llvmlite` remains outside the perf judge even when stage2 String waves are active.
 
 ## Stop Line
 

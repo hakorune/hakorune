@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md
+  - docs/development/current/main/design/stage2-string-route-split-plan.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
@@ -77,22 +78,30 @@ Related:
 
 ### Next exact implementation buckets
 
-1. `String route split`
+1. `String search/slice route split`
    - keep `StringCoreBox` observer role
-   - thin only the AOT string route tables and fallback bridge
+   - thin only `substring/indexOf/lastIndexOf` AOT route tables
    - `ny-llvm` mainline acceptance:
-     - string observer/bulk route table is thinner
+     - `phase29ck_boundary/string` search/slice seeds pass without harness fallback
      - `HostFacade/provider` stays off the hot path
    - `llvmlite` keep acceptance:
-     - shared string observer/fallback contract stays intact
+     - shared string observer/search/slice fallback contract stays intact
      - no new performance obligation is added
-2. `cold dynamic lane split`
+2. `String concat route split`
+   - keep concat hot path separate from search/slice route cleanup
+   - `ny-llvm` mainline acceptance:
+     - concat route table is thinner on the boundary lane
+     - helper density/perf contract remains measurable
+   - `llvmlite` keep acceptance:
+     - shared concat contract stays intact
+     - no new performance obligation is added
+3. `cold dynamic lane split`
    - keep collection hot path away from `HostFacade/provider/plugin loader`
    - `ny-llvm` mainline acceptance:
      - hot collection/runtime paths do not enter loader/provider dispatch
    - `llvmlite` keep acceptance:
      - explicit compat/probe route still replays the cold lane when selected
-3. `hako_alloc` policy/state contract
+4. `hako_alloc` policy/state contract
    - keep allocator metal in native keep and narrow the `.hako` policy rows
    - `ny-llvm` mainline acceptance:
      - policy/state rows are fixed without widening the metal boundary
@@ -177,9 +186,10 @@ Related:
 2. backend-private fast leaf manifest contract
 3. `Array hot path collapse` (landed)
 4. `Map hot path collapse` (landed)
-5. `String route split`
-6. `cold dynamic lane split`
-7. `hako_alloc` policy/state contract
+5. `String search/slice route split`
+6. `String concat route split`
+7. `cold dynamic lane split`
+8. `hako_alloc` policy/state contract
 
 ## Lane Rule
 
@@ -189,6 +199,13 @@ Related:
   - explicit compat lane
   - probe/canary lane
 - do not widen a code slice just to preserve `llvmlite` execution layering; if shared MIR / ABI / observer contract survives, the keep lane is considered intact.
+
+## Current Stop Line
+
+- next code wave is `String search/slice route split` only
+- `String concat route split` is the immediate next wave after that
+- do not mix `cold dynamic lane split` or `hako_alloc policy/state contract` into either String wave
+- do not widen `FastLeafManifest` V0 while String is still split across two waves
 
 ## Non-Goals
 

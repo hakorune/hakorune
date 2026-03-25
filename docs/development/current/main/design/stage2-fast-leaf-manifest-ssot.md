@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
+  - docs/development/current/main/design/stage2-string-route-split-plan.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/abi-export-manifest-v0.toml
   - docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md
@@ -159,7 +160,7 @@ V0 defaults are fixed like this.
 | `MapBox.has` | `handle_any` | `0` | `0` | `generic_box_call` |
 | `StringBox.len/length/size` | `handle_any` | `0` | `0` | `none` |
 
-`String concat/substring/search` は V0 対象外。先に route split を終えてから widen する。
+`String concat/substring/search` は V0 対象外。`String search/slice` と `String concat` の両 wave が landed するまで widen しない。
 
 ## Consumer Rule
 
@@ -185,8 +186,9 @@ V0 defaults are fixed like this.
 2. `Map hot path collapse` (landed)
    - observer route is fixed on `nyash.map.entry_count_h`
    - raw `slot_load_hh` / `slot_store_hhh` / `probe_hh` stay the direct seam
-3. `String route split`
-4. widen fast-leaf eligibility only after those route tables are thin
+3. `String search/slice route split`
+4. `String concat route split`
+5. widen fast-leaf eligibility only after both String waves are thin
 
 ## Acceptance
 
@@ -196,7 +198,8 @@ V0 defaults are fixed like this.
 - cold dynamic lanes stay excluded
 - `ny-llvm` / `ny-llvmc` is the only fast-leaf consumer
 - `llvmlite` remains a keep lane outside the fast-leaf contract
-- docs point to `String route split` as the next exact code slice
+- docs point to `String search/slice route split` as the next exact code slice
+- docs keep `String concat route split` as the following wave
 
 ## Non-Goals
 

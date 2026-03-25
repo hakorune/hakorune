@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
   - docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md
+  - docs/development/current/main/design/stage2-string-route-split-plan.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
@@ -233,7 +234,17 @@ Related:
   [`stage2-fast-leaf-manifest-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md).
 - `Array hot path collapse` is landed for the first AOT route-table slice.
 - `Map hot path collapse` is landed for the observer/raw route-table slice.
-- next exact implementation slice is now `String route split`.
+- next exact implementation slice is now `String search/slice route split`.
+- `String concat route split` is the following wave, not part of the same patch series.
+- `cold dynamic lane split` and `hako_alloc policy/state contract` stay behind the full two-wave String split.
+
+## Stop Line For The Next Wave
+
+- the next code wave is `String search/slice` only
+- do not mix `concat` into that wave
+- do not reopen `RuntimeDataBox` cold facade, `HostFacade/provider/plugin loader`, or allocator policy/state in the same series
+- `llvmlite` keep lane follows shared contract only and must not force a wider mainline route shape
+- perf re-baseline happens after each accepted String wave; route-table edits and perf retuning do not land in the same commit
 
 ## Non-Goals
 
