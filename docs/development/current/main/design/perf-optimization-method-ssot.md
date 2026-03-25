@@ -27,11 +27,12 @@ Related:
 
 ## Current Scheduling Status
 
-- `phase-21_5` perf reopen is currently parked.
+- `phase-21_5` perf reopen is currently waiting on reopen judgment.
 - reopen order is fixed like this:
-  1. close the active `ny-llvm` backend-zero runway in `phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md`
+  1. confirm the pre-perf runway in `phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md` is closed
   2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary) -> C ABI`
-  3. only then reopen `kilo` / `micro kilo`
+  3. land the explicit `perf/kilo` reopen judgment
+  4. only then reopen `kilo` / `micro kilo`
 - `llvmlite` / harness stays outside the perf judge even when the lane reopens.
 - until that reopen happens, the quick chip8 crosslang smoke is monitor-only for AOT:
   - keep `[bench4]` / `[bench4-route]` shape and timing keys pinned
@@ -145,8 +146,8 @@ Hotspot は次の分類で読む。
   - then `String concat route split`
 - `llvmlite` remains outside the perf judge even when stage2 String waves are active.
 - current scheduling consequence:
-  - if `phase-29ck` still has an active exact `ny-llvm` front, do not reopen this perf lane yet
-  - current preferred next owner is `phase-29ck` `P7` `W1..W4`, not a `kilo` retune
+  - if `phase-29ck` reopens a new exact `ny-llvm` front, do not reopen this perf lane yet
+  - current preferred next owner is the explicit `perf/kilo` reopen judgment, not an immediate `kilo` retune
 
 ## Stop Line
 

@@ -203,8 +203,8 @@ Related:
 ## Current Stop Line
 
 - there is no active stage2 code wave after the widen judgment
-- the next `ny-llvm` code-facing front lives in `phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md` as `W2` boundary fallback reliance reduction, not as a new stage2 fast-lane slice
-- `phase-21_5` / `kilo` perf stays parked until that `phase-29ck` runway is stable
+- `phase-29ck` `P7` runway is now closed through `W4`
+- the next `ny-llvm` code-facing front is `phase-21_5` / `kilo` reopen judgment, not a new stage2 fast-lane slice
 - reopen only when a concrete `ny-llvm` / `ny-llvmc` consumer patch needs new rows
 - `RawBuf / Layout / MaybeInit` stay reserved-only after the allocator stop-line
 

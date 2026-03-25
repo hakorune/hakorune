@@ -255,7 +255,7 @@ Related:
   - `W2` boundary fallback reliance reduction
   - `W3` Rust glue thinning
   - `W4` `llvmlite` demotion completion
-- `phase-21_5` / `kilo` perf remains a later evidence lane after those runway waves are stable.
+- that runway is now closed, so the next adjacent front is `phase-21_5` / `kilo` reopen judgment rather than another stage2 implementation slice.
 
 ## Stop Line For The Next Wave
 
@@ -264,7 +264,7 @@ Related:
 - do not reopen `RuntimeDataBox` cold facade or `hako_alloc` policy/state splits in the same series
 - `llvmlite` keep lane follows shared contract only and must not force a wider mainline route shape
 - perf re-baseline happens after each accepted code wave; route-table edits and perf retuning do not land in the same commit
-- do not reopen `kilo` perf while `phase-29ck` still has an active exact `ny-llvm` front; first close the `P7` runway (`W1..W4`)
+- do not reopen `kilo` perf while `phase-29ck` has an active exact `ny-llvm` front; with `P7` closed, advance by explicit reopen judgment instead of automatic perf work
 
 ## Non-Goals
 

@@ -336,16 +336,12 @@ Related:
 
 ## Immediate Next
 
-1. `W4c` pre-perf exit check and close-sync
-   - `W2a..W2c`, `W3a..W3c`, and `W4a..W4b` are landed
+1. `perf/kilo` reopen judgment
+   - `W2a..W2c`, `W3a..W3c`, and `W4a..W4c` are landed
    - current exact front is fixed by `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
-   - mainline acceptance and keep acceptance are now split
-   - next is to verify the pre-perf exit condition and close-sync `W4`
-   - do not reopen `llvmlite` as a backend-zero owner
-2. `perf/kilo` reopen judgment
-   - reopen only after `W3` and `W4` are both closed
+   - pre-perf runway is closed; next is judgment, not automatic perf implementation
    - `llvmlite` / harness stays outside the perf baseline
-3. runtime proof blocker inventory
+2. runtime proof blocker inventory
    - final proof owner は `.hako VM`
    - landed:
      - `vm-hako` subset-check now accepts `newbox(LlvmBackendBox)`
@@ -364,21 +360,21 @@ Related:
       - `HAKO_CAPI_PURE=1`
         - kept only for historical pure-lowering routes; not required by the phase-29ck `.hako VM` runtime proof and no longer the daily recipe SSOT
    - blocker SSOT: `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md`
-6. native subset widening
+5. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence
-7. next backend demotion front
+6. next backend demotion front
    - `phase-29cl` compiled-stage1 surrogate shrink remains the first exact next slice
    - after that, the next B3d analysis/support row is no longer `resolver.py` / `type_facts.py` / `phi_manager.py` / `mir_analysis.py` / `phi_wiring/analysis.py` / `phi_wiring/tagging.py`; move to the next `phi_wiring/**` owner seam, with `wiring.py::wire_incomings(...)` resolution/selection path the most natural exact leaf
-8. post-cutover follow-up
+7. post-cutover follow-up
    - optimization handoff と llvmlite demotion lock
    - temporary seam/env retirement check
    - `by_name` retirement cutover is a separate follow-up owned by `phase-29cl`
-9. compat-only pure pack lock
+8. compat-only pure pack lock
    - explicit historical entry is `tools/selfhost/run_compat_pure_pack.sh`
    - old `tools/selfhost/run_all.sh` / `tools/selfhost/run_hako_llvm_selfhost.sh` are compatibility wrappers only
    - contract is `P5-COMPAT-PURE-PACK-LOCK.md`
 9. `phase-21_5` perf/kilo reopen
-   - perf lane stays parked until `P7` `W2b..W4` are stable
+   - pre-perf runway is closed; perf lane now waits on reopen judgment instead of runway completion
    - perf judge remains `.hako -> ny-llvmc(boundary) -> C ABI`
    - `llvmlite` / harness stays outside the perf baseline
 10. `P2` の promotion gate はまだ未達なので、current compiler authority wave は上書きしない

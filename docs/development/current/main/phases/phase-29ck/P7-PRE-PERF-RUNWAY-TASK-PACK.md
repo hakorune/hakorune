@@ -33,8 +33,9 @@ Related:
 - `W3c` generic compile symbol branch keep-only lock is landed.
 - `W4a` keep-lane owner inventory sync is landed.
 - `W4b` acceptance/readme/test split is landed.
-- current active pre-perf front is `W4c` pre-perf exit check and close-sync.
-- `perf/kilo` remains parked until `W3..W4` are also closed.
+- `W4c` pre-perf exit check and close-sync is landed.
+- there is no active pre-perf runway front.
+- next exact adjacent front is `perf/kilo` reopen judgment.
 
 ## Fixed Order
 
@@ -133,6 +134,9 @@ Related:
   - `W4b` is landed
   - mainline acceptance and keep-lane acceptance are now read separately
   - keep-lane identity is pinned by `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh`
+  - `W4c` is landed
+  - all pre-perf exit conditions are now satisfied under the current backend-zero reading
+  - `phase-21_5` / `kilo` may now advance to reopen judgment, but not to automatic perf implementation
 - split order:
   - `W4a` keep-lane owner inventory sync
   - `W4b` acceptance/readme/test split between mainline and keep
