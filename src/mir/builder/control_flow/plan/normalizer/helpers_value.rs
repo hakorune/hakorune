@@ -1,4 +1,5 @@
 use super::common::lower_me_this_method_effect;
+use super::cond_lowering_prelude::lower_blockexpr_value_prelude_stmts;
 use super::helpers_pure_value::is_pure_value_expr;
 use super::CoreEffectPlan;
 use crate::mir::builder::calls::extern_calls;
@@ -421,10 +422,19 @@ impl super::PlanNormalizer {
                 tail_expr,
                 ..
             } => {
-                if !prelude_stmts.is_empty() {
-                    return Err("[normalizer] BlockExpr with prelude is not supported in value context".to_string());
+                if prelude_stmts.is_empty() {
+                    return Self::lower_value_ast(tail_expr.as_ref(), builder, phi_bindings);
                 }
-                Self::lower_value_ast(tail_expr.as_ref(), builder, phi_bindings)
+                let (bindings, mut effects) = lower_blockexpr_value_prelude_stmts(
+                    builder,
+                    phi_bindings,
+                    prelude_stmts,
+                    "[normalizer] blockexpr value",
+                )?;
+                let (tail_id, mut tail_effects) =
+                    Self::lower_value_ast(tail_expr.as_ref(), builder, &bindings)?;
+                effects.append(&mut tail_effects);
+                Ok((tail_id, effects))
             }
             ASTNode::BinaryOp { .. } => {
                 let (lhs, op, rhs, mut consts) = Self::lower_binop_ast(ast, builder, phi_bindings)?;

@@ -38,7 +38,7 @@ Related:
 
 | lane | name | scope | primary SSOT | current status |
 | --- | --- | --- | --- | --- |
-| A | Compiler Meaning | JoinIR / Planner / CorePlan の受理・意味決定 | `de-rust-compiler-thin-rust-roadmap-ssot.md` + JoinIR gate SSOT | active（proactive, blocker=`JIR-PORT-08`） |
+| A | Compiler Meaning | JoinIR / Planner / CorePlan の受理・意味決定 | `de-rust-compiler-thin-rust-roadmap-ssot.md` + JoinIR gate SSOT | active（monitor-only, blocker=`none`） |
 | B | Compiler Pipeline | `.hako` parser / mirbuilder / Stage1 compiler 導線 | `selfhost-parser-mirbuilder-migration-order-ssot.md` | active（monitor-only, blocker=`none`; latest reopen/fix=`29bq-116 emit-mir-json entry order`） |
 | C | Runtime Port | Rust VM 依存機能の `.hako VM` 置換（RVP） | `phase-29y/60-NEXT-TASK-PLAN.md` + `phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md` | parked（no current blocker; reopen only if a new exact vm-hako blocker appears） |
 
@@ -135,8 +135,8 @@ Related:
 ## Remaining Tasks Snapshot (2026-03-09)
 
 - lane A:
-  - done range は `JIR-PORT-00..07`（詳細は `joinir-port-task-pack-ssot.md` の Current State）。
-  - current blocker は `JIR-PORT-08`（normalizer BlockExpr with prelude is not supported in value context）。
+  - done range は `JIR-PORT-00..08`（詳細は `joinir-port-task-pack-ssot.md` の Current State）。
+  - current blocker は `none`（monitor-only）。
   - next は `none`（tail active）。
   - status mirror SSOT は `CURRENT_TASK.md`（この文書は mirror）。
   - JoinIR 移植の fixed order は `joinir-port-task-pack-ssot.md`（JIR-PORT-00..07）を正本とする。

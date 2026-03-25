@@ -124,6 +124,30 @@ mod tests {
         }
     }
 
+    fn blockexpr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode {
+        ASTNode::BlockExpr {
+            prelude_stmts,
+            tail_expr: Box::new(tail_expr),
+            span: Span::unknown(),
+        }
+    }
+
+    fn local_stmt(name: &str, init: ASTNode) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![Some(Box::new(init))],
+            span: Span::unknown(),
+        }
+    }
+
+    fn assign_stmt(name: &str, value: ASTNode) -> ASTNode {
+        ASTNode::Assignment {
+            target: Box::new(var(name)),
+            value: Box::new(value),
+            span: Span::unknown(),
+        }
+    }
+
     #[test]
     fn value_if_allows_pure_string_substring() {
         let cond = ASTNode::BinaryOp {
@@ -300,5 +324,86 @@ mod tests {
             span: Span::unknown(),
         };
         assert!(is_pure_value_expr(&expr));
+    }
+
+    #[test]
+    fn lower_value_ast_accepts_blockexpr_with_local_prelude() {
+        let expr = blockexpr(vec![local_stmt("tmp", int_lit(10))], var("tmp"));
+
+        let mut builder = MirBuilder::new();
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("BlockExpr prelude should lower in value context");
+
+        assert_eq!(builder.variable_ctx.variable_map.get("tmp"), Some(&value_id));
+        assert!(matches!(
+            effects.first(),
+            Some(CoreEffectPlan::Const {
+                value: crate::mir::ConstValue::Integer(10),
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn lower_value_ast_blockexpr_if_merges_only_preexisting_bindings() {
+        let expr = blockexpr(
+            vec![
+                local_stmt("a", int_lit(0)),
+                ASTNode::If {
+                    condition: Box::new(bool_lit(true)),
+                    then_body: vec![
+                        assign_stmt("a", int_lit(10)),
+                        local_stmt("tmp", int_lit(1)),
+                    ],
+                    else_body: Some(vec![
+                        assign_stmt("a", int_lit(20)),
+                        local_stmt("tmp", int_lit(2)),
+                    ]),
+                    span: Span::unknown(),
+                },
+            ],
+            var("a"),
+        );
+
+        let mut builder = MirBuilder::new();
+        let (value_id, effects) =
+            PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+                .expect("BlockExpr if-prelude should lower in value context");
+
+        let select_dst = effects
+            .iter()
+            .find_map(|effect| {
+                if let CoreEffectPlan::Select { dst, .. } = effect {
+                    Some(*dst)
+                } else {
+                    None
+                }
+            })
+            .expect("merged pre-existing binding should produce Select");
+        assert_eq!(value_id, select_dst);
+        assert_eq!(builder.variable_ctx.variable_map.get("a"), Some(&value_id));
+        assert!(!builder.variable_ctx.variable_map.contains_key("tmp"));
+    }
+
+    #[test]
+    fn lower_value_ast_blockexpr_exit_in_prelude_is_forbidden() {
+        let expr = blockexpr(
+            vec![ASTNode::If {
+                condition: Box::new(bool_lit(true)),
+                then_body: vec![ASTNode::Return {
+                    value: Some(Box::new(int_lit(1))),
+                    span: Span::unknown(),
+                }],
+                else_body: None,
+                span: Span::unknown(),
+            }],
+            int_lit(0),
+        );
+
+        let mut builder = MirBuilder::new();
+        let err = PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
+            .expect_err("BlockExpr prelude exit must stay fail-fast");
+        assert!(err.contains("[freeze:contract][blockexpr]"));
     }
 }

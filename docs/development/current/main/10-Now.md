@@ -30,21 +30,21 @@ Related:
 ## Current Read
 
 - Active lane: `phase-29bq`
-  - status: `active (failure-driven; blocker=JIR-PORT-08)`
+  - status: `active (failure-driven; blocker=none)`
   - purpose:
     - keep selfhost `.hako` migration on `mirbuilder first / parser later`
-    - drive the lane from the captured exact blocker first
+    - keep the lane blocker-none until the next exact blocker is captured
     - keep daily lane checks and blocker evidence current
   - current read:
-    - current exact implementation leaf is the nested-loop BlockExpr normalizer gap
-    - current blocker fixture is `phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
-    - first freeze/reject is `[normalizer] BlockExpr with prelude is not supported in value context`
+    - current exact implementation leaf is `none while blocker=none`
+    - latest landed blocker fixture is `phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+    - landed fix is planner-required BlockExpr value-prelude parity in normalizer
     - operational SSOT is `phase-29bq/29bq-90-selfhost-checklist.md`
     - progress ledger is `phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
     - parser handoff ledger is `phase-29bq/29bq-92-parser-handoff-checklist.md`
     - current inner migration reading is `29bq-113` / `29bq-114` / `29bq-115`
-- Compiler lane: `phase-29bq`（JIR-PORT-00..07 done / active blocker=`JIR-PORT-08` / next=`none`）
-- JoinIR port mode（lane A）: proactive（manual override: JIR-PORT-08）
+- Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
+- JoinIR port mode（lane A）: monitor-only（failure-driven）
 - Boundary-retire lane: `phase-29ci`
   - status: `formal-close-synced`
   - current boundary-retirement scope is complete for the accepted keep set:

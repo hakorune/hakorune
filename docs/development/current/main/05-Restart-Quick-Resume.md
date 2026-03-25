@@ -42,8 +42,8 @@ bash tools/selfhost/run_lane_a_daily.sh
   3. `docs/development/current/main/10-Now.md`
 - immediate action:
   - treat selfhost `.hako` migration as `mirbuilder first / parser later`
-  - inspect the captured nested-loop BlockExpr blocker in `CURRENT_TASK.md` first
-  - use `29bq-90/91/92` before widening into any broader exact leaf
+  - verify `blocker=none` / latest landed blocker in `CURRENT_TASK.md` first
+  - use `29bq-90/91/92` before promoting the next exact leaf
 
 ## 保守レーン（必要時のみ）
 

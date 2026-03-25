@@ -21,13 +21,14 @@ Related:
 
 ## 0.25) Current blocker (2026-03-25)
 
-- active blocker fixture:
+- active blocker:
+  - `none`
+- latest landed blocker:
   - `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
-- first freeze/reject:
-  - `[normalizer] BlockExpr with prelude is not supported in value context`
+  - fixed by planner-required BlockExpr value-prelude parity in normalizer
 - current lane mode:
   - failure-driven
-  - fix or reclassify this exact blocker before promoting broader lane work
+  - capture the next exact blocker before promoting broader lane work
 
 ## 0.5) Milestone Quick Check（blocker capture後の節目）
 

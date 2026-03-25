@@ -148,16 +148,17 @@ Related:
 
 - 目的:
   - current `phase29bq_fast_gate_vm.sh --only bq` blocker を exact fixture 1件で固定する。
-- active blocker fixture:
+- blocker fixture:
   - `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
 - first freeze/reject:
   - `[normalizer] BlockExpr with prelude is not supported in value context`
 - 実施:
   - blocker capture を `CURRENT_TASK.md` / `10-Now.md` / lane map / task pack に同期する。
   - fix wave では normalizer value-context contract だけを主語にする。
+  - planner-required BlockExpr value-prelude parity を normalizer に着地させる。
 - 受け入れ:
   - target fixture が `phase29bq_fast_gate_vm.sh --only bq` で green に戻ること。
-  - sync guard が green で、lane A active blocker が `JIR-PORT-08` に一致すること。
+  - sync guard が green で、lane A blocker が `none` に戻ること。
 
 ## Operation Rules (must keep)
 
@@ -185,6 +186,6 @@ Related:
 - JIR-PORT-05: done（promotion boundary lock）
 - JIR-PORT-06: done（monitor-only boundary lock）
 - JIR-PORT-07: done（expression parity seed lock: unary+compare+logic）
-- JIR-PORT-08: active（nested-loop BlockExpr with prelude in value context）
-- lane A blocker: `JIR-PORT-08`（active, normalizer BlockExpr with prelude is not supported in value context）
+- JIR-PORT-08: done（nested-loop BlockExpr value-prelude parity）
+- lane A blocker: `none`（monitor-only）
 - next: `none`（tail active）

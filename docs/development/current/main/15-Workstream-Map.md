@@ -25,10 +25,10 @@ Related:
 1. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
-   - current blocker: `phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
-   - first freeze/reject: `[normalizer] BlockExpr with prelude is not supported in value context`
-   - operation mode: failure-driven / exact-blocker-first
-   - current exact implementation leaf: nested-loop BlockExpr normalizer gap
+   - current blocker: `none`
+   - latest landed blocker: `phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+   - operation mode: failure-driven / blocker-none steady-state
+   - current exact implementation leaf: `none while blocker=none`
    - active read order:
      - `29bq-90-selfhost-checklist.md`
      - `29bq-91-mirbuilder-migration-progress-checklist.md`
@@ -83,7 +83,7 @@ Related:
 ## Exact Next
 
 1. keep `phase-29bq` active as failure-driven / blocker-none lane
-2. keep the next exact work on the captured nested-loop BlockExpr blocker
+2. capture the next exact blocker before promoting broader lane work
 3. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
 4. treat `phase2044` / `phase2160` thin wrapper families and `phase2170/hv1_mircall_*` as explicit keeps, not active caller-debt buckets
 
@@ -92,12 +92,12 @@ Related:
 - `phase-29bq` is active again
 - active reading:
   - selfhost `.hako` migration remains `mirbuilder first / parser later`
-  - current blocker is the nested-loop BlockExpr normalizer gap
+  - current blocker is `none`
   - promotion is failure-driven only
 - current lane rule:
   - use `29bq-90/91/92/113/114/115` as the operational SSOT set
-  - keep the current blocker pinned until the exact leaf is resolved or reclassified
-  - do not promote a broader leaf while this blocker is active
+  - keep the lane blocker-none until the next exact blocker is captured
+  - do not promote a broader leaf without first pinning the next blocker
 - guard rails:
   - keep compiler-expressivity-first policy
   - keep selfhost migration docs-first / failure-driven

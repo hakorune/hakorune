@@ -12,31 +12,71 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
 
-pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelude_stmts(
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum StmtOnlyPreludeContract {
+    CondPrelude,
+    BlockExprValue,
+}
+
+impl StmtOnlyPreludeContract {
+    fn exit_error(self, error_prefix: &str) -> String {
+        match self {
+            Self::CondPrelude => {
+                "[freeze:contract][cond_prelude] exit stmt is forbidden in condition prelude"
+                    .to_string()
+            }
+            Self::BlockExprValue => format!(
+                "[freeze:contract][blockexpr] {error_prefix}: exit stmt is forbidden in BlockExpr prelude"
+            ),
+        }
+    }
+
+    fn unsupported_stmt_error(self, error_prefix: &str, stmt: &ASTNode) -> String {
+        match self {
+            Self::CondPrelude => format!(
+                "[freeze:contract][cond_prelude] {error_prefix}: unsupported stmt: {}",
+                stmt.node_type()
+            ),
+            Self::BlockExprValue => format!(
+                "[freeze:contract][blockexpr] {error_prefix}: unsupported stmt in BlockExpr prelude: {}",
+                stmt.node_type()
+            ),
+        }
+    }
+
+    fn loop_like_stmt_error(self, error_prefix: &str) -> String {
+        match self {
+            Self::CondPrelude => format!(
+                "[freeze:contract][cond_prelude] {error_prefix}: loop-like stmt in condition prelude requires plan-level branch route"
+            ),
+            Self::BlockExprValue => format!(
+                "[freeze:contract][blockexpr] {error_prefix}: loop-like stmt in BlockExpr prelude requires route-specific lowering"
+            ),
+        }
+    }
+}
+
+fn lower_stmt_only_prelude_stmts(
     builder: &mut MirBuilder,
     phi_bindings: &BTreeMap<String, ValueId>,
     prelude_stmts: &[ASTNode],
     error_prefix: &str,
+    contract: StmtOnlyPreludeContract,
 ) -> Result<(BTreeMap<String, ValueId>, Vec<CoreEffectPlan>), String> {
     if prelude_stmts.is_empty() {
         return Ok((phi_bindings.clone(), Vec::new()));
     }
 
+    let base_var_map = builder.variable_ctx.variable_map.clone();
     let mut bindings = phi_bindings.clone();
     let mut effects = Vec::new();
     for stmt in prelude_stmts {
         if stmt.contains_non_local_exit_outside_loops() {
-            return Err(
-                "[freeze:contract][cond_prelude] exit stmt is forbidden in condition prelude"
-                    .to_string(),
-            );
+            return Err(contract.exit_error(error_prefix));
         }
 
         let Some(kind) = classify_cond_prelude_stmt(stmt) else {
-            return Err(format!(
-                "[freeze:contract][cond_prelude] {error_prefix}: unsupported stmt: {}",
-                stmt.node_type()
-            ));
+            return Err(contract.unsupported_stmt_error(error_prefix, stmt));
         };
 
         match kind {
@@ -54,6 +94,7 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
                     )?;
                 bindings.insert(name.clone(), value_id);
                 builder.variable_ctx.variable_map.insert(name, value_id);
+                sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
             }
             CondPreludeStmtKind::If => {
@@ -72,11 +113,27 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
                     lower_cond_value(builder, &bindings, &cond_view, error_prefix)?;
                 effects.append(&mut cond_effects);
 
+                let branch_base_var_map = builder.variable_ctx.variable_map.clone();
                 let (then_bindings, then_effects) =
-                    lower_cond_prelude_stmts(builder, &bindings, then_body, error_prefix)?;
+                    lower_stmt_only_prelude_stmts(
+                        builder,
+                        &bindings,
+                        then_body,
+                        error_prefix,
+                        contract,
+                    )?;
+                builder.variable_ctx.variable_map = branch_base_var_map.clone();
                 let has_else = else_body.is_some();
                 let (else_bindings, else_effects) = if let Some(else_body) = else_body.as_ref() {
-                    lower_cond_prelude_stmts(builder, &bindings, else_body, error_prefix)?
+                    let lowered = lower_stmt_only_prelude_stmts(
+                        builder,
+                        &bindings,
+                        else_body,
+                        error_prefix,
+                        contract,
+                    )?;
+                    builder.variable_ctx.variable_map = branch_base_var_map;
+                    lowered
                 } else {
                     (bindings.clone(), Vec::new())
                 };
@@ -146,11 +203,10 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
                     bindings.insert(name.clone(), merged_id);
                     builder.variable_ctx.variable_map.insert(name, merged_id);
                 }
+                sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
             }
             CondPreludeStmtKind::Loop => {
-                return Err(format!(
-                    "[freeze:contract][cond_prelude] {error_prefix}: loop-like stmt in condition prelude requires plan-level branch route"
-                ));
+                return Err(contract.loop_like_stmt_error(error_prefix));
             }
             CondPreludeStmtKind::Local => {
                 let ASTNode::Local {
@@ -172,6 +228,7 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
                     bindings.insert(name.clone(), value_id);
                     builder.variable_ctx.variable_map.insert(name, value_id);
                 }
+                sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
             }
             CondPreludeStmtKind::MethodCall => {
@@ -211,6 +268,50 @@ pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelud
     }
 
     Ok((bindings, effects))
+}
+
+pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_cond_prelude_stmts(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    prelude_stmts: &[ASTNode],
+    error_prefix: &str,
+) -> Result<(BTreeMap<String, ValueId>, Vec<CoreEffectPlan>), String> {
+    lower_stmt_only_prelude_stmts(
+        builder,
+        phi_bindings,
+        prelude_stmts,
+        error_prefix,
+        StmtOnlyPreludeContract::CondPrelude,
+    )
+}
+
+pub(in crate::mir::builder::control_flow::plan::normalizer) fn lower_blockexpr_value_prelude_stmts(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    prelude_stmts: &[ASTNode],
+    error_prefix: &str,
+) -> Result<(BTreeMap<String, ValueId>, Vec<CoreEffectPlan>), String> {
+    lower_stmt_only_prelude_stmts(
+        builder,
+        phi_bindings,
+        prelude_stmts,
+        error_prefix,
+        StmtOnlyPreludeContract::BlockExprValue,
+    )
+}
+
+fn sync_stmt_only_prelude_variable_map(
+    builder: &mut MirBuilder,
+    base_var_map: &BTreeMap<String, ValueId>,
+    bindings: &BTreeMap<String, ValueId>,
+) {
+    builder.variable_ctx.variable_map = base_var_map.clone();
+    for (name, value_id) in bindings {
+        builder
+            .variable_ctx
+            .variable_map
+            .insert(name.clone(), *value_id);
+    }
 }
 
 fn build_negated_bool_value(

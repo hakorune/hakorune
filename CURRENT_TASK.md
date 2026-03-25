@@ -27,18 +27,18 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - `phase-29ci` has completed its formal close sync for the current boundary-retirement scope.
 - active implementation lane is `phase-29bq`:
   - selfhost `.hako` migration stays `mirbuilder first / parser later`
-  - current blocker is `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
-  - first freeze/reject is `[normalizer] BlockExpr with prelude is not supported in value context`
-  - current operation mode is failure-driven / exact-blocker-first
+  - current blocker is `none`
+  - `JIR-PORT-08` is landed; keep the lane failure-driven and promote a new exact leaf only when the next blocker is captured
 
 ## Current Priority
 
 1. active implementation lane: `phase-29bq`
-   - status: `active (failure-driven; blocker=JIR-PORT-08)`
+   - status: `active (failure-driven; blocker=none)`
    - scope: selfhost `.hako` migration under `mirbuilder first / parser later`
    - working rule:
-     - current exact implementation leaf is the nested-loop BlockExpr normalizer gap
-     - use the captured blocker before promoting any broader lane work
+     - `JIR-PORT-08` is done and the fast gate is back to green
+     - current exact implementation leaf is `none` while blocker=`none`
+     - capture the next exact blocker before promoting any broader lane work
      - keep daily gate / probe / checklist operation active
    - read in this order:
      - `docs/development/current/main/phases/phase-29bq/README.md`
@@ -48,9 +48,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - `docs/development/current/main/phases/phase-29bq/29bq-113-hako-recipe-first-migration-lane.md`
      - `docs/development/current/main/phases/phase-29bq/29bq-114-hako-cleanup-integration-prep-lane.md`
      - `docs/development/current/main/phases/phase-29bq/29bq-115-selfhost-to-go-checklist.md`
-   - exact blocker:
+   - latest landed blocker:
      - fixture: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
-     - first freeze/reject: `[normalizer] BlockExpr with prelude is not supported in value context`
+     - result: green after planner-required BlockExpr value-prelude parity
 2. close-synced boundary-retire lane: `phase-29ci`
    - status: `formal-close-synced`
    - current scope is complete for boundary retirement + caller-audit under the accepted keep set
@@ -80,8 +80,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `phase-29cs`: parked
 - runtime lane: `phase-29y / parked`. current blocker: `none`.
 
-- compiler lane: `phase-29bq / JIR-PORT-08`（active: normalizer BlockExpr with prelude is not supported in value context）
-  - current blocker: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
+- compiler lane: `phase-29bq / none`（active: blocker none after JIR-PORT-08）
+  - current blocker: `none`
   - lane A mirror sync helper:
     - `bash tools/selfhost/sync_lane_a_state.sh`
   - task SSOT:
@@ -95,7 +95,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - done: `JIR-PORT-05`（promotion boundary lock）
   - done: `JIR-PORT-06`（monitor-only boundary lock）
   - done: `JIR-PORT-07`（expression parity seed lock: unary+compare+logic）
-  - next: `none`（failure-driven after blocker capture）
+  - done: `JIR-PORT-08`（nested-loop BlockExpr value-prelude parity）
+  - next: `none`（failure-driven steady-state）
 
 ## Unified Vocabulary
 
@@ -113,8 +114,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - active implementation front: `phase-29bq`
 - active selfhost rule:
   - `.hako` migration stays `mirbuilder first / parser later`
-  - current blocker is the nested-loop BlockExpr normalizer gap
-  - current operation mode is failure-driven / exact-blocker-first
+  - current blocker is `none`
+  - current operation mode is failure-driven / blocker-none steady-state
   - do not auto-create a broader leaf until that blocker is judged
 - close-synced boundary-retire lane: `phase-29ci`
 - close-synced Rune lane: `phase-29cu`
@@ -127,7 +128,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md`
    - `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
    - `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
-3. keep the active `29bq` reading failure-driven around the captured nested-loop BlockExpr blocker
+3. keep the active `29bq` reading failure-driven with `blocker=none` until the next exact blocker is captured
 4. reopen `phase-29ci` only if a new exact boundary-retirement gap appears or hard delete resumes
 5. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
 
