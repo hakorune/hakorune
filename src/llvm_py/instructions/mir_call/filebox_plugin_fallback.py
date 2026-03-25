@@ -2,7 +2,8 @@
 Explicit FileBox compat fallback for by-name plugin invoke.
 
 This isolates the `nyash.plugin.invoke_by_name_i64` emission away from
-direct_box_method.py so the direct route helper stays direct-route focused.
+the method-call direct route so the remaining compat leaf stays visible
+and cannot silently widen back into a generic fallback path.
 """
 
 from typing import Callable, List, Optional

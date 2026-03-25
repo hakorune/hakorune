@@ -35,6 +35,9 @@ _MODULE_RECEIVER_BOX_ALIASES = {
     "selfhost.shared.common.string_helpers": "StringHelpers",
 }
 _DIRECT_BOX_NAMES = frozenset(_MODULE_RECEIVER_BOX_ALIASES.values())
+PLUGIN_FALLBACK_LEGACY_ANY_KNOWN_BOX = "legacy_any_known_box"
+PLUGIN_FALLBACK_FILEBOX_ONLY = "filebox_only"
+PLUGIN_FALLBACK_NONE = "none"
 
 
 def _declare(module: ir.Module, name: str, ret, args):
@@ -97,6 +100,28 @@ def resolve_known_box_method(
     return None
 
 
+def _plugin_fallback_allowed(
+    policy: str,
+    resolved_box_name: str,
+    method_name: str,
+) -> bool:
+    if policy == PLUGIN_FALLBACK_NONE:
+        return False
+    if policy == PLUGIN_FALLBACK_FILEBOX_ONLY:
+        return (
+            resolved_box_name == "FileBox"
+            and method_name in FILEBOX_PLUGIN_FALLBACK_METHODS
+        )
+    if policy == PLUGIN_FALLBACK_LEGACY_ANY_KNOWN_BOX:
+        if resolved_box_name in _DIRECT_BOX_NAMES:
+            return True
+        return (
+            resolved_box_name == "FileBox"
+            and method_name in FILEBOX_PLUGIN_FALLBACK_METHODS
+        )
+    raise ValueError(f"Unsupported plugin fallback policy: {policy}")
+
+
 def try_lower_known_box_method_call(
     *,
     builder: ir.IRBuilder,
@@ -109,7 +134,7 @@ def try_lower_known_box_method_call(
     ensure_handle: Callable[[ir.Value], ir.Value],
     call_name: str,
     receiver_literal: Optional[str] = None,
-    allow_plugin_fallback: bool = True,
+    plugin_fallback_policy: str = PLUGIN_FALLBACK_LEGACY_ANY_KNOWN_BOX,
 ):
     """Lower to a direct `Box.method/arity` call when the target exists."""
     i64 = ir.IntType(64)
@@ -124,15 +149,11 @@ def try_lower_known_box_method_call(
         receiver_literal,
     )
     if callee is None:
-        if not allow_plugin_fallback:
-            return None
-        allow_plugin_fallback = resolved_box_name in _DIRECT_BOX_NAMES
-        if not allow_plugin_fallback:
-            allow_plugin_fallback = (
-                resolved_box_name == "FileBox"
-                and method_name in FILEBOX_PLUGIN_FALLBACK_METHODS
-            )
-        if not allow_plugin_fallback:
+        if not _plugin_fallback_allowed(
+            plugin_fallback_policy,
+            resolved_box_name,
+            method_name,
+        ):
             return None
         return lower_filebox_plugin_invoke_by_name(
             builder=builder,
