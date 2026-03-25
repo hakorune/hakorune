@@ -1,8 +1,8 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `BYN-min5` hard-retire readiness judgment を、P6/P7/P8 closeout 後の next exact front として固定し、開始可否の判断条件を明示する。
+Scope: `BYN-min5` hard-retire readiness judgment を、P6/P7/P8 closeout 後の next exact front として固定し、現時点では negative であることを明示する。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P1-BY-NAME-CUTOVER-ORDER.md
@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P6-BYN-MIN5-DAILY-CALLER-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
+  - docs/development/current/main/phases/phase-29cl/P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md
   - crates/nyash_kernel/src/hako_forward_bridge.rs
   - crates/nyash_kernel/src/hako_forward.rs
   - crates/nyash_kernel/src/hako_forward_registry.c
@@ -39,6 +40,14 @@ Related:
 3. `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md` is closed
    - hook / registry / fallback keep cluster is archive-only residue
 
+## Current Truth
+
+1. the acceptance set is green, so the existing compat/proof surfaces are stable
+2. daily caller residue still remains in the explicit FileBox compat helper and larger name-resolution migration targets
+3. compiled-stage1 surrogate owners are still required as frozen proof owners
+4. compat keep owners are explicit residue, but hard-retire readiness still has caveats
+5. this judgment is therefore negative today
+
 ## Judgment Criteria
 
 1. no new daily caller remains on `by_name`
@@ -48,8 +57,8 @@ Related:
 
 ## Output
 
-1. if all criteria are satisfied, `BYN-min5` readiness is considered open and the next wave can move to hard-retire execution
-2. if any criterion fails, `BYN-min5` stays closed and the exact blocker bucket is recorded
+1. this judgment is negative today; `BYN-min5` readiness stays closed
+2. the next exact blocker bucket is `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`
 
 ## Acceptance
 
@@ -77,4 +86,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. `BYN-min5` hard-retire execution, only if this judgment is positive
+1. `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`

@@ -43,7 +43,9 @@ Related:
 8. `P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md`
    - compat keep bucket; decide whether the keep cluster can be archived-only
 9. `P9-BYN-MIN5-READINESS-JUDGMENT.md`
-   - hard-retire readiness judgment bucket; only after P6/P7/P8 are closed
+   - hard-retire readiness judgment bucket; negative today because caller/proof residue still remains
+10. `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md`
+   - narrowest next blocker bucket under the negative `P9` judgment
 
 ## 2. Current Daily Caller Reading
 
