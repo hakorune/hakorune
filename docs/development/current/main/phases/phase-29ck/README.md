@@ -80,12 +80,12 @@ Related:
    - `Stage0 = llvmlite` explicit compat/probe keep lane
    - `Stage1 = ny-llvmc(boundary pure-first)` daily/mainline/perf owner
    - perf lane now pins `HAKO_BACKEND_COMPAT_REPLAY=none` and fails if route trace shows replay
-7. no-replay stop-line is now Stage1-dialect specific.
-   - active kilo mainline MIR still contains `newbox/copy/boxcall`
-   - `.hako` Stage1 producer route is the preferred first cutover owner because Stage1→Stage2 dialect policy should not stay in Rust
-   - `src/runner/mir_json_emit/emitters/calls.rs` is still a live dialect materializer seam today and must be demoted after the `.hako` cutover
-   - `lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako` remains pass-through only and is not the first canonicalization owner
-   - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` remains `mir_call`-centric; do not widen it to broad `boxcall` support as the first move
+7. Stage1 dialect stop-line is retired for the current kilo entry.
+   - active kilo mainline MIR is now probeable as canonical `mir_call` on the Stage1 route
+   - `.hako` Stage1 producer route is fixed as the preferred canonical owner because Stage1→Stage2 dialect policy does not stay in Rust
+   - `src/runner/mir_json_emit/emitters/calls.rs` is now a thinner residual materializer seam and no longer the first dialect authority
+   - `lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako` remains pass-through only and is not the canonicalization owner
+   - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` now accepts the current kilo entry under `pure-first + compat_replay=none`; the next front is perf leaf optimization, not broad `boxcall` widening
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
@@ -382,8 +382,8 @@ Related:
    - `llvmlite` / harness stays outside the perf baseline
    - `P14-PURE-FIRST-NO-REPLAY-CUTOVER.md` is closed
    - `P15-STAGE1-MIR-DIALECT-INVENTORY.md` is closed
-   - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` is now the current exact front
-   - current `kilo` stop-line is no longer `micro leaf selection` and no longer broad generic coverage wording
+  - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` is the landed route-correction front
+  - current `kilo` stop-line is no longer Stage1 dialect mismatch and no longer pure-first route unlock
    - current first question is whether the `.hako` Stage1 producer can become the canonical `mir_call` owner before Rust materializer demotion
 2. runtime proof blocker inventory
    - `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` is now closed

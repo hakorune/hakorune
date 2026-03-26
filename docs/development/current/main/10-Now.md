@@ -44,17 +44,17 @@ Related:
     - parser handoff ledger is `phase-29bq/29bq-92-parser-handoff-checklist.md`
     - current inner migration reading is `29bq-113` / `29bq-114` / `29bq-115`
 - Secondary exact blocker lane: `phase-29ck`
-  - status: `active exact blocker capture`
-  - current exact blocker:
-    - `Stage1 MIR dialect split`
-    - active kilo mainline MIR still contains `newbox/copy/boxcall`
-    - pure-first generic owner remains `mir_call`-centric
+  - status: `active follow-up / route-ready`
+  - current exact result:
+    - `Stage1 MIR dialect split` is retired for the current kilo entry
+    - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
+    - next work is benchmark-guided leaf optimization on the real Stage1 owner
   - current exact front:
     - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
     - `stage1-mir-authority-boundary-ssot.md`
   - working rule:
-    - cut over the `.hako` Stage1 canonical producer first
-    - demote Rust from live dialect materializer to thin materializer seam
+    - keep `pure-first + compat_replay=none` pinned
+    - optimize `ny-llvmc(boundary)` rather than `llvmlite`
     - do not broaden pure-first to permanent dual-dialect support
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）

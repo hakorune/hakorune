@@ -54,7 +54,7 @@ Related:
 3. constructor/global/value callsite handling stays scoped to the same producer matrix; do not widen consumer and producer in the same commit
 4. Rust should end this wave as thin materializer/transport path, not the long-term dialect-policy owner
 
-## Current Slice
+## Landed Slice
 
 - `src/runner/mir_json_emit/emitters/calls.rs`
   - `Callee::Method` は `HAKO_MIR_BUILDER_METHODIZE=1` を authority signal として `mir_call` に固定する
@@ -64,8 +64,17 @@ Related:
 - `tools/hakorune_emit_mir.sh`
   - Stage-B / selfhost-first route は `NYASH_MIR_UNIFIED_CALL=1` を internal pin して caller env の legacy toggle を吸わない
 - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
-  - direct `kilo` entry の first unsupported op は `copy` だった
-  - current slice は generic pure path に `copy` を追加して、次の exact blocker を `newbox(ArrayBox)` まで前に出す
+  - generic pure path は `copy`, `newbox(ArrayBox)`, `release_strong` を pure-first owner として受理する
+  - current kilo mainline string family (`String const`, `RuntimeDataBox.length/substring/indexOf`, string `binop +`) を current canonical `mir_call` shape に合わせて受理する
+  - phi array form `[value, pred]` を正しく読む
+  - discard-only call emit は `%_ = call ...` をやめて plain `call ...` に揃え、 invalid LLVM IR を止める
+
+## Current Result
+
+1. direct/helper/mainline probe で Stage1 method dialect は `mir_call` に揃った
+2. `kilo_kernel_small_hk` は `pure-first + compat_replay=none` で `aot_status=ok` に戻った
+3. current stop-line は `Stage1 MIR dialect split` ではなくなった
+4. 次の exact front は route correction ではなく perf leaf optimization に戻る
 
 ## Acceptance
 
@@ -73,6 +82,7 @@ Related:
 - `cargo check --bin hakorune`
 - `bash tools/checks/dev_gate.sh quick`
 - `HAKO_BACKEND_COMPILE_RECIPE=pure-first HAKO_BACKEND_COMPAT_REPLAY=none NYASH_LLVM_ROUTE_TRACE=1 NYASH_LLVM_SKIP_BUILD=1 bash tools/ny_mir_builder.sh --in /tmp/kilo_kernel_small.mir.json --emit exe -o /tmp/kilo_kernel_small.exe --quiet`
+- `PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 1`
 
 ## Non-Goals
 

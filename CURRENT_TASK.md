@@ -31,9 +31,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - `JIR-PORT-08` is landed; keep the lane failure-driven and promote a new exact leaf only when the next blocker is captured
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
-  - current exact blocker is `Stage1 MIR dialect split`
+  - current exact blocker is `none` for the current kilo entry
   - current exact front is `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
-  - preferred cutover owner is `.hako` Stage1 producer route; Rust is still a live materializer seam that must be demoted
+  - preferred cutover owner was `.hako` Stage1 producer route; current route correction is landed and `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
 
 ## Current Priority
 
@@ -57,16 +57,15 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - fixture: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
      - result: green after planner-required BlockExpr value-prelude parity
 2. reopened exact blocker lane: `phase-29ck`
-   - status: `active exact blocker capture`
-   - scope: `Stage1 MIR dialect split` under `pure-first + compat_replay=none`
+   - status: `active follow-up / route-ready`
+   - scope: `pure-first no-replay entry is restored for current kilo route; next work is benchmark-guided leaf optimization`
    - exact front:
      - `docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
      - `docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md`
    - working rule:
-     - do not widen pure-first to broad `boxcall` support
-     - cut over the `.hako` Stage1 canonical producer first
-     - demote Rust from dialect materializer to thin materializer/transport seam
      - keep `llvmlite` in Stage0 keep lane only
+     - keep `pure-first + compat_replay=none` as the only acceptable Stage1 mainline/perf route
+     - optimize the real Stage1 owner; do not drift back into keep-lane fixes
 3. close-synced boundary-retire lane: `phase-29ci`
    - status: `formal-close-synced`
    - current scope is complete for boundary retirement + caller-audit under the accepted keep set
