@@ -18,6 +18,7 @@ Related:
 - inventory only the generated selfhost builder runner seam inside `tools/hakorune_emit_mir.sh`
 - keep provider/delegate fallback and legacy `--program-json-to-mir` routes out of this slice
 - decide whether the helper-local `_emit_mir_checked(...)` path can be isolated as the next narrow execution bucket
+- make this the last inventory step for the helper-local seam before code or monitor-only judgment
 
 ## Current Truth
 
@@ -26,7 +27,16 @@ Related:
 3. `emit_mir_json_via_delegate_routes(...)` and `emit_mir_json_via_non_direct_routes(...)` belong to the broader helper route ladder and must stay outside this slice
 4. this seam is narrower than `tools/selfhost/selfhost_build.sh` and `tools/smokes/v2/lib/test_runner.sh`, which remain later helper buckets
 5. current judgment: the generated selfhost builder runner seam is the first exact helper-local seam worth opening after `P34`
+6. this pack must not fan out into `P36` / `P37` style sub-inventories before an execution judgment is recorded
+
+## Execution Judgment Contract
+
+1. next result must be one of these two outcomes:
+   - land a code slice that thins the generated selfhost builder runner seam without reopening the broader route ladder
+   - or close this seam as `monitor-only / near-thin-floor` and advance to the next helper bucket
+2. do not open another inventory pack for provider/delegate, legacy `--program-json-to-mir`, or shell-helper broadening until one of the two outcomes above is recorded
+3. if the seam is judged `monitor-only`, the next helper bucket is `tools/selfhost/selfhost_build.sh`
 
 ## Next Exact Front
 
-1. inventory the generated selfhost builder runner seam and decide whether `_emit_mir_checked(...)` plus its render/execute/capture wrapper can be thinned without reopening the broader route ladder
+1. execution judgment on `_emit_mir_checked(...)` plus its render/execute/capture wrapper
