@@ -334,18 +334,18 @@ fn with_string_pair_lossy_span<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str)
 #[inline(always)]
 fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R) -> R {
     let mut f_opt = Some(f);
-    if let Some(out) = with_string_pair_span(a_h, b_h, |a, b| {
-        let f = f_opt
-            .take()
-            .expect("[string/export] with_lossy_string_pair closure missing (span)");
-        f(a, b)
-    }) {
-        return out;
-    }
     if let Some(out) = with_string_pair_fast_str(a_h, b_h, |a, b| {
         let f = f_opt
             .take()
             .expect("[string/export] with_lossy_string_pair closure missing (fast)");
+        f(a, b)
+    }) {
+        return out;
+    }
+    if let Some(out) = with_string_pair_span(a_h, b_h, |a, b| {
+        let f = f_opt
+            .take()
+            .expect("[string/export] with_lossy_string_pair closure missing (span)");
         f(a, b)
     }) {
         return out;
