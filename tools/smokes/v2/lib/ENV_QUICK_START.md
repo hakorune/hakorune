@@ -39,7 +39,7 @@ require_joinir_dev
 ```bash
 NYASH_JOINIR_DEV=1          # JoinIR dev features
 HAKO_JOINIR_STRICT=1        # Strict validation
-NYASH_LLVM_USE_HARNESS=1    # Python llvmlite backend
+NYASH_LLVM_USE_HARNESS=1    # Python llvmlite keep lane (explicit compat/probe)
 NYASH_FEATURES=stage3       # Stage 3 parser
 NYASH_ENABLE_USING=1        # Using system enabled
 ```

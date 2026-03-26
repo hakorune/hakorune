@@ -30,9 +30,14 @@ tools/smokes/v2/run.sh --profile quick --filter "<glob>"
 $NYASH_BIN --backend vm apps/APP/main.hako
 ```
 
-### ⚡ llvmlite ライン（LLVMハーネス）
+### ⚡ llvmlite ライン（LLVMハーネス / keep lane）
 
-**用途**: 本番・最適化・配布用（実証済み安定性）
+**用途**: explicit compat・probe・canary 用
+
+**主線との関係**:
+- mainline の AOT / obj / exe owner は `ny-llvmc`
+- `NYASH_LLVM_USE_HARNESS=1` は Python `llvmlite` へ明示 opt-in する keep lane
+- `.hako` 側の official boundary は `LlvmBackendBox / hako_aot`
 
 **前提**: Python3 + llvmlite
 ```bash
@@ -41,7 +46,7 @@ pip install llvmlite  # 未導入の場合
 
 **実行手順**:
 ```bash
-# ビルド（LLVM_SYS_180_PREFIX不要！）
+# ビルド（LLVM harness を明示使用）
 cargo build --release --features llvm
 
 # 一括スモークテスト
@@ -50,14 +55,17 @@ tools/smokes/v2/run.sh --profile integration
 # 個別スモークテスト
 tools/smokes/v2/run.sh --profile integration --filter "<glob>"
 
-# 単発実行
+# 単発実行（explicit keep lane）
 NYASH_LLVM_USE_HARNESS=1 $NYASH_BIN --backend llvm apps/tests/peek_expr_block.hako
 
 # 有効化確認
 $NYASH_BIN --version | rg -i 'features.*llvm'
 ```
 
-**💡 重要**: 両方のラインのテストが通ることで、MIR14統一アーキテクチャの品質を保証！
+**💡 重要**:
+- VM ラインは日常開発の既定 baseline
+- LLVM harness は compat/probe baseline
+- native object / executable の主線は `ny-llvmc` 側で検証する
 
 ### 🔁 QuickでAST/LLVM系も実行したいとき
 
