@@ -69,7 +69,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. after `P16` landed, the next exact front is `P17-BYN-MIN5-BUILD-SURROGATE-READINESS-INVENTORY.md`
+2. after `P17` closed, the next exact front is `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md`
 
 ## Acceptance
 
@@ -97,4 +97,4 @@ Reopen this judgment only if one of these becomes true.
 
 ## Next Exact Front
 
-1. `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+1. `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md`

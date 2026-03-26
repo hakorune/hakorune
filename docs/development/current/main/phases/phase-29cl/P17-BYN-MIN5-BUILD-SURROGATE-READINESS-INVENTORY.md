@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P16` の次 bucket として、`build_surrogate.rs` が still-live proof owner か、archive-ready かを単独で棚卸しする。

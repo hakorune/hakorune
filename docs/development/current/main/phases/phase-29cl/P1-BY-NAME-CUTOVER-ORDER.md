@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P6-BYN-MIN5-DAILY-CALLER-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
+  - docs/development/current/main/phases/phase-29cl/P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
 ---
@@ -66,6 +67,9 @@ Related:
    - close-sync is landed; return to `P9` readiness re-check before opening another shrink bucket
 17. `P17-BYN-MIN5-BUILD-SURROGATE-READINESS-INVENTORY.md`
    - inspect whether `build_surrogate.rs` is still a live proof owner or archive-ready
+18. `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md`
+   - inspect whether the combined backend surrogate route is still a live proof owner or archive-ready
+   - current result: still live proof owner; keep `compile_obj` and `link_exe` paired until this inventory closes
 
 ## 2. Current Daily Caller Reading
 
@@ -75,6 +79,7 @@ Related:
    - visible launcher source lane no longer reaches backend through explicit `invoke_by_name_i64`; a `selfhost.shared.backend.llvm_backend` receiver literal may still appear while direct-known-box lowering keeps the route off the generic by-name tail
 2. compiler selfhost
    - compiled-stage1 `build_surrogate` is temporary bridge keep, not final architecture
+   - next file-level inventory bucket is `llvm_backend_surrogate.rs`, which still keeps `compile_obj` and `link_exe` paired
 3. runtime/plugin
    - final dispatch target is TypeBox ABI v2, not generic named receiver dispatch
 4. upstream by-name callers that must shrink before kernel delete
