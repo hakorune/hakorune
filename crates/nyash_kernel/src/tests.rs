@@ -3,7 +3,9 @@ use crate::test_support::{with_env_var, with_env_vars};
 use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     boxes::file::FileBox,
+    instance_v2::InstanceBox,
     runtime::{host_handles as handles, plugin_loader_v2::make_plugin_box_v2},
+    value::NyashValue,
 };
 use std::ffi::CString;
 use std::sync::Arc;
@@ -34,6 +36,18 @@ fn with_filebox_from_handle<R>(handle: i64, f: impl FnOnce(&FileBox) -> R) -> R 
 
 fn string_handle(value: &str) -> i64 {
     handles::to_handle_arc(Arc::new(StringBox::new(value.to_string()))) as i64
+}
+
+fn instancebox_handle_with_field(field_name: &str, value: NyashValue) -> i64 {
+    let instance = InstanceBox::from_declaration(
+        "Point".to_string(),
+        vec![field_name.to_string()],
+        Default::default(),
+    );
+    instance
+        .set_field_ng(field_name.to_string(), value)
+        .expect("seed instance field");
+    handles::to_handle_arc(Arc::new(instance)) as i64
 }
 
 fn dispatch_stage1_module(receiver_name: &str, method: &str, source_text: &str) -> i64 {
@@ -569,6 +583,40 @@ fn filebox_by_name_write_bytes_is_retired() {
             let _ = filebox.ny_close();
         });
         let _ = std::fs::remove_file(tmp_path);
+    });
+}
+
+#[test]
+fn instancebox_by_name_get_field_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let inst_handle = instancebox_handle_with_field("x", NyashValue::Integer(42));
+        let method = CString::new("getField").expect("CString");
+        let field_handle = string_handle("x");
+        let result = nyash_plugin_invoke_by_name_i64(inst_handle, method.as_ptr(), 1, field_handle, 0);
+        assert_eq!(
+            result, 0,
+            "InstanceBox.getField should no longer use builtin by_name keep"
+        );
+    });
+}
+
+#[test]
+fn instancebox_by_name_set_field_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let inst_handle = instancebox_handle_with_field("x", NyashValue::Integer(1));
+        let method = CString::new("setField").expect("CString");
+        let field_handle = string_handle("x");
+        let value_handle = handles::to_handle_arc(Arc::new(nyash_rust::box_trait::IntegerBox::new(99))) as i64;
+        let result =
+            nyash_plugin_invoke_by_name_i64(inst_handle, method.as_ptr(), 2, field_handle, value_handle);
+        assert_eq!(
+            result, 0,
+            "InstanceBox.setField should no longer use builtin by_name keep"
+        );
     });
 }
 

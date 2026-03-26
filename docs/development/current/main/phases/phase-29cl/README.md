@@ -21,6 +21,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - docs/development/current/main/phases/phase-29cl/P22-BYN-MIN5-FILEBOX-WRITE-BUILTIN-KEEP-RETIRE.md
+  - docs/development/current/main/phases/phase-29cl/P23-BYN-MIN5-INSTANCEBOX-BUILTIN-KEEP-RETIRE.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -181,8 +182,9 @@ Rule:
 6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current exact front
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` execution slices are landed
    - `FileBox.write` built-in keep retire is landed
-   - next exact front is broader compat keep/archive cleanup beyond the FileBox family
-   - keep execution narrow: one FileBox method family leaf at a time
+   - `InstanceBox.getField/setField` built-in keep retire is landed
+   - next exact front is broader compat keep/archive cleanup beyond the FileBox family and built-in `InstanceBox` keep
+   - keep execution narrow: one residue family at a time
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
 9. keep `llvmlite -> .hako` pivot and broader LLVM caller shrink as separate lanes; do not mix them into `P21`

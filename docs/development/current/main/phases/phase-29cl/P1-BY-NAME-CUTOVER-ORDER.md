@@ -86,7 +86,8 @@ Related:
    - hard-retire execution is active
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` slices are landed
    - `FileBox.write` built-in keep retire is landed
-   - next exact front is broader compat keep/archive cleanup beyond the FileBox family
+   - `InstanceBox.getField/setField` built-in keep retire is landed
+   - next exact front is broader compat keep/archive cleanup beyond the FileBox family and built-in `InstanceBox` keep
 
 ## 2. Current Daily Caller Reading
 

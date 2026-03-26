@@ -1,7 +1,4 @@
 use crate::encode::nyrt_encode_arg;
-use crate::plugin::invoke::instance_fields::{
-    handle_instance_get_field, handle_instance_set_field,
-};
 use crate::plugin::invoke_core;
 
 #[no_mangle]
@@ -114,18 +111,6 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
         return result;
     }
 
-    use nyash_rust::instance_v2::InstanceBox;
-    if recv_handle > 0 {
-        if let Some(obj) = nyash_rust::runtime::host_handles::get(recv_handle as u64) {
-            if let Some(inst) = obj.as_any().downcast_ref::<InstanceBox>() {
-                return match method_str {
-                    "getField" => handle_instance_get_field(inst, a1),
-                    "setField" => handle_instance_set_field(inst, a1, a2),
-                    _ => 0,
-                };
-            }
-        }
-    }
     let Some((receiver, method_id)) =
         invoke_core::resolve_named_method_for_handle(recv_handle, method_str)
     else {

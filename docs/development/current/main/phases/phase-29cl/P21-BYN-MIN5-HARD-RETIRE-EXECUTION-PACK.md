@@ -51,9 +51,10 @@ Related:
 5. `FileBox.readBytes` is direct-route through `nyash.file.read_bytes_h`
 6. the explicit Python-side `FileBox` compat helper now has an empty allowlist
 7. the `FileBox` family has no remaining built-in kernel `by_name` keep
-8. compiled-stage1 surrogate residue is archive-only proof residue and must not be reopened by this pack
-9. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
-10. the next exact front is broader compat keep/archive cleanup
+8. `InstanceBox.getField/setField` built-in kernel `by_name` keep is retired
+9. compiled-stage1 surrogate residue is archive-only proof residue and must not be reopened by this pack
+10. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
+11. the next exact front is broader compat keep/archive cleanup
 
 ## Acceptance
 
@@ -82,4 +83,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. broader compat keep/archive cleanup beyond the FileBox family
+1. broader compat keep/archive cleanup beyond the FileBox family and built-in `InstanceBox` keep
