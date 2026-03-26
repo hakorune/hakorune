@@ -40,8 +40,7 @@ static box StringHelpers {
     loop (i < n) {
       local ch = s.substring(i, i+1)
       if ch < "0" || ch > "9" { break }
-      local ds = "0123456789"
-      local dpos = ds.indexOf(ch)
+      local dpos = me._digit_value(ch)
       if dpos < 0 { break }
       acc = acc * 10 + dpos
       i = i + 1
@@ -102,6 +101,22 @@ static box StringHelpers {
   is_alpha(ch) { return (ch >= "A" && ch <= "Z") || (ch >= "a" && ch <= "z") || ch == "_" }
   is_space(ch) { return ch == " " || ch == "\t" || ch == "\n" || ch == "\r" }
 
+  // Direct digit lookup for parse helpers.
+  // Keep this loop-free so numeric coercion stays inside the single outer scan.
+  _digit_value(ch) {
+    if ch == "0" { return 0 }
+    if ch == "1" { return 1 }
+    if ch == "2" { return 2 }
+    if ch == "3" { return 3 }
+    if ch == "4" { return 4 }
+    if ch == "5" { return 5 }
+    if ch == "6" { return 6 }
+    if ch == "7" { return 7 }
+    if ch == "8" { return 8 }
+    if ch == "9" { return 9 }
+    return -1
+  }
+
   // Pattern matching
   starts_with(src, i, pat) {
     local n = src.length()
@@ -147,10 +162,18 @@ static box StringHelpers {
     local n = src.length()
     local m = pat.length()
     if m == 0 { return i }
-    local j = i
-    loop(j + m <= n) {
-      if me.starts_with(src, j, pat) { return j }
-      j = j + 1
+    // Single-pass scan: keep the common helper strict-friendly by avoiding an
+    // outer candidate loop that re-enters the inner prefix matcher.
+    local pos = i
+    local matched = 0
+    loop(pos + m <= n) {
+      if src.substring(pos + matched, pos + matched + 1) == pat.substring(matched, matched + 1) {
+        matched = matched + 1
+        if matched == m { return pos }
+      } else {
+        pos = pos + 1
+        matched = 0
+      }
     }
     return -1
   }
@@ -176,9 +199,9 @@ static box StringHelpers {
     loop(j < n) {
       if me.is_space(s.substring(j, j+1)) {
         j = j + 1
-        continue
+      } else {
+        break
       }
-      break
     }
     return j
   }
@@ -191,10 +214,17 @@ static box StringHelpers {
     local m = pat.length()
     if m == 0 { return n }
     if m > n { return -1 }
+    // Single-pass backward scan to keep the helper free of nested loop shapes.
     local i = n - m
+    local j = 0
     loop(i >= 0) {
-      if me.starts_with(src, i, pat) { return i }
-      i = i - 1
+      if src.substring(i + j, i + j + 1) == pat.substring(j, j + 1) {
+        j = j + 1
+        if j == m { return i }
+      } else {
+        i = i - 1
+        j = 0
+      }
     }
     return -1
   }
