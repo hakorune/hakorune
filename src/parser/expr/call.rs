@@ -52,7 +52,9 @@ impl NyashParser {
                 // Postfix catch/cleanup binds at the end of a call/chain. Stop further chaining.
                 break;
             }
-            if self.match_token(&TokenType::DOT) {
+            if self.try_parse_externcall_source_syntax(&mut expr)? {
+                continue;
+            } else if self.match_token(&TokenType::DOT) {
                 self.advance(); // consume '.'
 
                 if let TokenType::IDENTIFIER(method_name) = &self.current_token().token_type {
@@ -226,5 +228,43 @@ impl NyashParser {
         }
 
         Ok(expr)
+    }
+
+    fn try_parse_externcall_source_syntax(
+        &mut self,
+        expr: &mut ASTNode,
+    ) -> Result<bool, ParseError> {
+        let ASTNode::Variable { name, .. } = expr.clone() else {
+            return Ok(false);
+        };
+        if name != "externcall" {
+            return Ok(false);
+        }
+        if !matches!(self.current_token().token_type, TokenType::STRING(_)) {
+            return Ok(false);
+        }
+        if !matches!(self.peek_token(), TokenType::LPAREN) {
+            return Ok(false);
+        }
+
+        let target = self.expr_parse_primary()?;
+        self.consume(TokenType::LPAREN)?;
+
+        let mut arguments = vec![target];
+        while !self.match_token(&TokenType::RPAREN) && !self.is_at_end() {
+            must_advance!(self, _unused, "externcall argument parsing");
+            arguments.push(self.parse_expression()?);
+            if self.match_token(&TokenType::COMMA) {
+                self.advance();
+            }
+        }
+        self.consume(TokenType::RPAREN)?;
+
+        *expr = ASTNode::FunctionCall {
+            name,
+            arguments,
+            span: Span::unknown(),
+        };
+        Ok(true)
     }
 }

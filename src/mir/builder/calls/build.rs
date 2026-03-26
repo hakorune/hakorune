@@ -17,7 +17,7 @@
 //! - After: 311 lines orchestrator + 4 extracted modules (537 lines total)
 //! - Net reduction: -444 lines of complexity in build.rs
 
-use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
+use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, MirType, ValueId};
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
 use super::special_handlers;
@@ -61,6 +61,10 @@ impl MirBuilder {
                  Help: Change 'weak(obj)' to 'weak obj' (unary operator, no parentheses)\n\
                  SSOT: docs/reference/language/lifecycle.md"
             ));
+        }
+
+        if name == "externcall" {
+            return self.build_explicit_extern_call(args);
         }
 
         // 1. TypeOp wiring: isType(value, "Type"), asType(value, "Type")
@@ -401,6 +405,42 @@ impl MirBuilder {
     ) -> Result<ValueId, String> {
         let dst = self.next_value_id();
         self.emit_unified_call(Some(dst), CallTarget::Global(name), arg_values)?;
+        Ok(dst)
+    }
+
+    fn build_explicit_extern_call(&mut self, args: Vec<ASTNode>) -> Result<ValueId, String> {
+        if args.is_empty() {
+            return Err(
+                "externcall requires a target string literal: externcall \"name\"(...)"
+                    .to_string(),
+            );
+        }
+
+        let extern_name = Self::extract_string_literal(&args[0]).ok_or_else(|| {
+            "externcall target must be a string literal: externcall \"name\"(...)".to_string()
+        })?;
+        let arg_values = self.build_call_args(&args[1..])?;
+        let return_type = match extern_name.as_str() {
+            "hako_mem_alloc" | "hako_mem_realloc" | "hako_mem_free" => MirType::Integer,
+            "nyash.box.from_i8_string" => MirType::Box("StringBox".to_string()),
+            _ => MirType::Unknown,
+        };
+        let (iface_name, method_name) = match extern_name.rsplit_once('.') {
+            Some((iface, method)) if !iface.is_empty() && !method.is_empty() => {
+                (iface.to_string(), method.to_string())
+            }
+            _ => ("".to_string(), extern_name),
+        };
+
+        let dst = self.next_value_id();
+        self.emit_extern_call_with_effects(
+            &iface_name,
+            &method_name,
+            arg_values,
+            Some(dst),
+            EffectMask::IO,
+        )?;
+        self.type_ctx.value_types.insert(dst, return_type);
         Ok(dst)
     }
 }

@@ -548,6 +548,40 @@ fn subset_rejects_externcall_env_get_with_missing_arg() {
 }
 
 #[test]
+fn subset_accepts_mir_call_extern_hako_mem_alloc() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 8 }
+                    },
+                    {
+                        "op": "mir_call",
+                        "dst": 2,
+                        "mir_call": {
+                            "callee": { "type": "Extern", "name": "hako_mem_alloc" },
+                            "args": [1],
+                            "effects": ["IO"],
+                            "flags": {}
+                        }
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_call_args2_dynamic_when_id1_model_exists() {
     let mir_json = json!({
         "functions": [

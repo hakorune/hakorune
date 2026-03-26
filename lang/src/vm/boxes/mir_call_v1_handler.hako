@@ -41,6 +41,50 @@ static box MirCallV1HandlerBox {
     return JsonFragBox._str_to_int("" + raw)
   }
 
+  _mem_alloc_next_key() {
+    return "__vm_hako_mem_next_ptr"
+  }
+
+  _mem_alloc_span(size_hint) {
+    if size_hint == null || size_hint <= 0 { return 1 }
+    return size_hint
+  }
+
+  _mem_alloc_next_ptr(regs) {
+    local raw = regs.getField(me._mem_alloc_next_key())
+    if me._is_i64_text(raw) != 1 { return 1024 }
+    local ptr = JsonFragBox._str_to_int("" + raw)
+    if ptr <= 0 { return 1024 }
+    return ptr
+  }
+
+  _mem_alloc_issue_ptr(regs, size_hint) {
+    local base = me._mem_alloc_next_ptr(regs)
+    local span = me._mem_alloc_span(size_hint)
+    regs.setField(me._mem_alloc_next_key(), StringHelpers.int_to_str(base + span + 8))
+    return base
+  }
+
+  _second_arg_register(seg) {
+    if seg == null { return null }
+    local key = "\"args\":"
+    local p = seg.indexOf(key)
+    if p < 0 { return null }
+    local tail = seg.substring(p + key.length(), seg.length())
+    local lb = tail.indexOf("[")
+    if lb < 0 { return null }
+    local arr = tail.substring(lb, tail.length())
+    local rb = JsonFragBox._seek_array_end(arr, 0)
+    if rb < 0 { return null }
+    local inner = arr.substring(1, rb)
+    local comma = inner.indexOf(",")
+    if comma < 0 { return null }
+    local rhs = inner.substring(comma + 1, inner.length())
+    local parsed = JsonFragBox.read_int_from(rhs, 0)
+    if parsed == null { return null }
+    return JsonFragBox._str_to_int(parsed)
+  }
+
   _try_handle_runtime_data_box(seg, regs, btype, mname) {
     if btype != "RuntimeDataBox" { return 0 }
     return RuntimeDataCoreBox.try_handle(seg, regs, mname)
@@ -200,6 +244,39 @@ static box MirCallV1HandlerBox {
     if name == "hako_console_log_i64" {
       local v = 0; if arg0id >= 0 { local s = regs.getField(StringHelpers.int_to_str(arg0id)); if s != null { v = JsonFragBox._str_to_int(""+s) } }
       print(StringHelpers.int_to_str(v))
+      return
+    }
+    if name == "hako_mem_alloc" || name == "hako_mem_alloc/1" {
+      local dst_alloc = JsonFragBox.get_int(seg, "dst")
+      local size_alloc = me._read_reg_i64_or_null(regs, arg0id)
+      local out_alloc = me._mem_alloc_issue_ptr(regs, size_alloc)
+      if dst_alloc != null {
+        regs.setField(StringHelpers.int_to_str(dst_alloc), StringHelpers.int_to_str(out_alloc))
+      }
+      return
+    }
+    if name == "hako_mem_realloc" || name == "hako_mem_realloc/2" {
+      local dst_realloc = JsonFragBox.get_int(seg, "dst")
+      local ptr_id = MiniMirV1Scan.first_arg_register(seg)
+      local size_id = me._second_arg_register(seg)
+      local ptr_val = me._read_reg_i64_or_null(regs, ptr_id)
+      local size_val = me._read_reg_i64_or_null(regs, size_id)
+      local out_realloc = 0
+      if ptr_val == null || ptr_val <= 0 {
+        out_realloc = me._mem_alloc_issue_ptr(regs, size_val)
+      } else {
+        out_realloc = ptr_val
+      }
+      if dst_realloc != null {
+        regs.setField(StringHelpers.int_to_str(dst_realloc), StringHelpers.int_to_str(out_realloc))
+      }
+      return
+    }
+    if name == "hako_mem_free" || name == "hako_mem_free/1" {
+      local dst_free = JsonFragBox.get_int(seg, "dst")
+      if dst_free != null {
+        regs.setField(StringHelpers.int_to_str(dst_free), "0")
+      }
       return
     }
     if name == "hako_bench_noop_i64" || name == "hako_bench_use_value_i64" { return }
