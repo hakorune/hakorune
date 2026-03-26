@@ -74,7 +74,9 @@ Related:
 1. direct/helper/mainline probe で Stage1 method dialect は `mir_call` に揃った
 2. `kilo_kernel_small_hk` は `pure-first + compat_replay=none` で `aot_status=ok` に戻った
 3. current stop-line は `Stage1 MIR dialect split` ではなくなった
-4. 次の exact front は route correction ではなく perf leaf optimization に戻る
+4. 次の exact front は `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md` だよ
+   - route correction は landed
+   - perf は blind substrate try へ戻さず、proof vocabulary lock のあとで integer array fast lane へ戻る
 
 ## Acceptance
 

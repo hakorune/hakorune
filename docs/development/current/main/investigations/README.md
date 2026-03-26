@@ -4,6 +4,19 @@ This folder contains investigation notes and analysis for debugging sessions.
 
 ## Active Investigations
 
+### Phase29ck: Array Substrate Rejected Optimizations (2026-03-27)
+
+**Status**: 🟢 active ledger
+**Problem**: `phase-29ck` array substrate perf wave の rejected attempts を散逸させず、next exact front を proof-vocabulary first に固定する
+
+**Key Document**:
+1. [phase29ck-array-substrate-rejected-optimizations-2026-03-27.md](phase29ck-array-substrate-rejected-optimizations-2026-03-27.md)
+
+**Current Read**:
+- current exact front is docs-first `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+- first code consumer after docs is integer-heavy `ArrayBox.get/set/len` fast lane
+- `RwLock -> Mutex` and raw borrowed-cache variants were both rejected and reverted under `WSL warmup=1 repeat=3`
+
 ### Phase29x: Direct Route Probe (2026-03-02)
 
 **Status**: 🟢 monitor active  

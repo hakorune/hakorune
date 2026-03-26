@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-26
+Date: 2026-03-27
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -44,17 +44,19 @@ Related:
     - parser handoff ledger is `phase-29bq/29bq-92-parser-handoff-checklist.md`
     - current inner migration reading is `29bq-113` / `29bq-114` / `29bq-115`
 - Secondary exact blocker lane: `phase-29ck`
-  - status: `active follow-up / route-ready`
+  - status: `active follow-up / docs-first exact front`
   - current exact result:
     - `Stage1 MIR dialect split` is retired for the current kilo entry
     - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
-    - next work is benchmark-guided leaf optimization on the real Stage1 owner
+    - next work is docs-first proof-vocabulary lock before integer-heavy array fast-lane optimization resumes
   - current exact front:
-    - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
-    - `stage1-mir-authority-boundary-ssot.md`
+    - `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+    - `stage2-aot-core-proof-vocabulary-ssot.md`
+    - `phase29ck-array-substrate-rejected-optimizations-2026-03-27.md`
   - working rule:
     - keep `pure-first + compat_replay=none` pinned
     - optimize `ny-llvmc(boundary)` rather than `llvmlite`
+    - do not introduce a distinct new IR layer in this wave
     - do not broaden pure-first to permanent dual-dialect support
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）

@@ -36,6 +36,10 @@
 - Execution lanes legacy retirement inventory（移行中に見つかった legacy/delete 候補の全体台帳）: `docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md`
 - Hakoruneup release distribution（self-contained bundle + package manager + explicit system LLVM dev mode）: `docs/development/current/main/design/hakoruneup-release-distribution-ssot.md`
 - Stage2 selfhost and hako-alloc（stage軸 + `hako_core/alloc/std` layering SSOT）: `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
+- Stage2 AOT/native thin path（current native perf/mainline の thin-owner design note）: `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
+- Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
+- Stage2 Fast Leaf Manifest（backend-private fast lane row contract）: `docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md`
+- Stage2 AOT-Core proof vocabulary（future AOT-Core MIR staged lock / current proof vocabulary SSOT）: `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`
 - Thread and TLS capability（helper-shaped current TLS + language-level final TLS SSOT）: `docs/development/current/main/design/thread-and-tls-capability-ssot.md`
 - Rust kernel export surface strata（compat / runtime-facade / substrate split SSOT）: `docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md`
 - RawMap truthful native seam inventory（HashMap backend で live にしてよい語彙の棚卸し）: `docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md`

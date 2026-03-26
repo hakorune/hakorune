@@ -6,11 +6,13 @@ Related:
 - docs/development/current/main/design/optimization-tag-flow-ssot.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
+- docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md
 - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
 - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
 - docs/development/current/main/design/stage2-string-route-split-plan.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
+- docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md
 - CURRENT_TASK.md
 - docs/development/current/main/phases/phase-29ck/P8-PERF-REOPEN-JUDGMENT.md
 - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
@@ -204,17 +206,21 @@ Hotspot は次の分類で読む。
 
 ## Current Wave Snapshot
 
-2026-03-26 current stop-line は次だよ。
+2026-03-27 current stop-line は次だよ。
 
 - `Stage0 = llvmlite` explicit compat/probe keep lane only
 - `Stage1 = ny-llvmc(boundary pure-first)` daily/mainline/perf owner
-- `kilo_kernel_small_hk` は boundary route のままでも内部 compat replay がまだ混入しうる
-- `HAKO_BACKEND_COMPAT_REPLAY=none` で `kilo` を build すると current exact blocker はまず `Stage1 MIR dialect split` として観測される
-- current producer/consumer split is:
-  - active kilo mainline MIR still emits `newbox/copy/boxcall`
-  - pure-first generic owner is `mir_call`-centric
-  - strict/dev Stage1 parse already rejects legacy `boxcall`
-- therefore the first exact front is `.hako` producer-side canonical call cutover, with Rust demoted from current dialect materializer to thin materialization after the producer cutover, not broad pure-first dual-dialect support
+- current `kilo` route is back to `pure-first + compat_replay=none + aot_status=ok`
+- `Stage1 MIR dialect split` is retired for the current kilo entry
+- current exact front is docs-first `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+- future `AOT-Core MIR` is treated as `future-needed but not a new layer now`
+- current action is to add proof vocabulary to the existing MIR/lowering/manifest path
+  - `value_class`
+  - `escape_kind`
+  - `effect`
+  - `cold_fallback`
+- first concrete consumer after docs is integer-heavy `ArrayBox.get/set/len` fast lane
+- rejected array-substrate tries are now recorded in a rolling investigation ledger instead of staying as ephemeral shell history
 - no-replay `kilo` が green になるまで、`src/llvm_py/**` は perf owner work に使わない
 - 下の micro snapshot は historical evidence として保持するが、current exact front ではない
 

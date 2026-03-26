@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-26
+Date: 2026-03-27
 Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -33,9 +33,12 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - `JIR-PORT-08` is landed; keep the lane failure-driven and promote a new exact leaf only when the next blocker is captured
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
-  - current exact blocker is `none` for the current kilo entry
-  - current exact front is `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
-  - preferred cutover owner was `.hako` Stage1 producer route; current route correction is landed and `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
+  - current route-correction blocker is retired for the current kilo entry
+  - current exact front is `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+  - current reading is docs-first:
+    - lock staged `AOT-Core` proof vocabulary before more array substrate tries
+    - keep a rolling reject ledger for array substrate experiments
+    - then reopen integer-heavy `ArrayBox.get/set/len` fast-lane work
 
 ## Current Priority
 
@@ -59,15 +62,18 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - fixture: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
      - result: green after planner-required BlockExpr value-prelude parity
 2. reopened exact blocker lane: `phase-29ck`
-   - status: `active follow-up / route-ready`
-   - scope: `pure-first no-replay entry is restored for current kilo route; next work is benchmark-guided leaf optimization`
+   - status: `active follow-up / docs-first exact front`
+   - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; first code consumer after docs is integer-heavy array fast lane`
    - exact front:
-     - `docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
-     - `docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md`
+     - `docs/development/current/main/phases/phase-29ck/P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+     - `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`
+     - `docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md`
    - working rule:
      - keep `llvmlite` in Stage0 keep lane only
      - keep `pure-first + compat_replay=none` as the only acceptable Stage1 mainline/perf route
+     - do not introduce a distinct new IR layer in this wave
      - optimize the real Stage1 owner; do not drift back into keep-lane fixes
+     - keep rejected array-substrate attempts in the rolling ledger instead of shell history
 3. close-synced boundary-retire lane: `phase-29ci`
    - status: `formal-close-synced`
    - current scope is complete for boundary retirement + caller-audit under the accepted keep set
@@ -105,7 +111,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - daily/mainline remains `llvm-exe` + `rust-vm` recovery/compat
      - `vm-hako` stays blocker-driven only; future interpreter discussion is a separate reopen
    - `phase-29ct`: stop-line reached
-   - `phase-21_5` perf reopen: exact blocker captured under `phase-29ck/P16`
+  - `phase-21_5` perf reopen: exact docs-first front now runs under `phase-29ck/P17` after `P16` landed
    - `phase-29cs`: parked
 - runtime lane: `phase-29y / parked`. current blocker: `none`.
 
@@ -159,7 +165,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
    - `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
 3. keep the active `29bq` reading failure-driven with `blocker=none` until the next exact blocker is captured
-4. keep `phase-29ck` focused on `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+4. keep `phase-29ck` focused on `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
 5. reopen `phase-29ci` only if a new exact boundary-retirement gap appears or hard delete resumes
 6. keep `phase-29cl` formally closed unless a fresh exact `by_name` caller/helper gap reappears
 7. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears

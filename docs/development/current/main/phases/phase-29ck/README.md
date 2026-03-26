@@ -1,7 +1,7 @@
 ---
 Status: Active
 Decision: accepted
-Date: 2026-03-26
+Date: 2026-03-27
 Scope: backend-zero を独立 phase に切り、bootstrap seam と thin backend boundary cutover の fixed order を docs-ready な形で固定する。
 Related:
   - CURRENT_TASK.md
@@ -21,8 +21,11 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P14-PURE-FIRST-NO-REPLAY-CUTOVER.md
   - docs/development/current/main/phases/phase-29ck/P15-STAGE1-MIR-DIALECT-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md
+  - docs/development/current/main/phases/phase-29ck/P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md
   - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
   - docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md
+  - docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md
+  - docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -67,7 +70,8 @@ Related:
 11. `P14-PURE-FIRST-NO-REPLAY-CUTOVER.md`
 12. `P15-STAGE1-MIR-DIALECT-INVENTORY.md`
 13. `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
-14. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+14. `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+15. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
 ## Current Snapshot (2026-03-26)
 
@@ -85,7 +89,8 @@ Related:
    - `.hako` Stage1 producer route is fixed as the preferred canonical owner because Stage1→Stage2 dialect policy does not stay in Rust
    - `src/runner/mir_json_emit/emitters/calls.rs` is now a thinner residual materializer seam and no longer the first dialect authority
    - `lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako` remains pass-through only and is not the canonicalization owner
-   - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` now accepts the current kilo entry under `pure-first + compat_replay=none`; the next front is perf leaf optimization, not broad `boxcall` widening
+   - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` now accepts the current kilo entry under `pure-first + compat_replay=none`
+   - the next front is `P17` docs-first proof vocabulary lock, then integer-heavy `ArrayBox.get/set/len` perf work; do not reopen broad `boxcall` widening
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
@@ -384,7 +389,10 @@ Related:
    - `P15-STAGE1-MIR-DIALECT-INVENTORY.md` is closed
   - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` is the landed route-correction front
   - current `kilo` stop-line is no longer Stage1 dialect mismatch and no longer pure-first route unlock
-   - current first question is whether the `.hako` Stage1 producer can become the canonical `mir_call` owner before Rust materializer demotion
+  - current exact front is `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+  - future `AOT-Core MIR` is fixed as `future-needed but not a new layer now`
+  - first code consumer after docs is integer-heavy `ArrayBox.get/set/len`
+  - rejected array-substrate tries are tracked in `docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md`
 2. runtime proof blocker inventory
    - `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` is now closed
    - final proof owner は `.hako VM`
