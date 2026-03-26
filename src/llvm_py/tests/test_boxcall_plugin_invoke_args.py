@@ -98,6 +98,47 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         self.assertIn('call i64 @"MirBuilderBox.emit_from_program_json_v0/2"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_stage1_mir_builder_source_box_type_prefers_direct_call(self):
+        module = ir.Module(name="test_boxcall_stage1_mir_builder_source_direct")
+        i64 = ir.IntType(64)
+        i8p = ir.IntType(8).as_pointer()
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        recv_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_recv_ptr")
+        arg_seed = ir.Function(module, ir.FunctionType(i8p, []), name="seed_arg_ptr")
+        recv_ptr = builder.call(recv_seed, [], name="recv_ptr")
+        arg_ptr = builder.call(arg_seed, [], name="arg_ptr")
+        ir.Function(
+            module,
+            ir.FunctionType(i64, [i64, i64]),
+            name="MirBuilderBox.emit_from_source_v0/2",
+        )
+
+        vmap = {1: recv_ptr, 2: arg_ptr, 3: ir.Constant(i64, 0)}
+        resolver = _ResolverStub()
+        resolver.value_types[1] = {
+            "kind": "handle",
+            "box_type": "lang.mir.builder.MirBuilderBox",
+        }
+
+        lower_boxcall(
+            builder=builder,
+            module=module,
+            box_vid=1,
+            method_name="emit_from_source_v0",
+            args=[2, 3],
+            dst_vid=4,
+            vmap=vmap,
+            resolver=resolver,
+        )
+        builder.ret(vmap[4])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"MirBuilderBox.emit_from_source_v0/2"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
     def test_stage1_mir_builder_module_box_type_missing_direct_target_fails_fast(self):
         module = ir.Module(name="test_boxcall_stage1_mir_builder_plugin")
         i64 = ir.IntType(64)

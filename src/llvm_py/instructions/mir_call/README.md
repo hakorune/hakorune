@@ -30,6 +30,7 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
 
 - `direct_box_method.py`
   - owns known-box direct lowering only.
+  - MirBuilder direct routes are delegated to `instructions/mir_builder_direct.py`.
   - direct miss now fail-fasts; this directory no longer keeps a Python-side
     `by_name` compat emitter.
 

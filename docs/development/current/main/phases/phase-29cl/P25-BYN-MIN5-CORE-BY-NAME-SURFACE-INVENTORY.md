@@ -32,8 +32,8 @@ Related:
    - `crates/nyash_kernel/src/plugin/mod.rs`
    - `crates/nyash_kernel/src/tests.rs`
 4. `plugin/mod.rs` no longer owns a test-only `try_module_string_dispatch(...)` wrapper
-5. the next exact front is `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`
+5. the next exact front is `P27-BYN-MIN5-MIRBUILDER-DIRECT-MISS-RETIRE.md`
 
 ## Next Exact Front
 
-1. `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`
+1. `P27-BYN-MIN5-MIRBUILDER-DIRECT-MISS-RETIRE.md`

@@ -89,7 +89,8 @@ Related:
    - `InstanceBox.getField/setField` built-in keep retire is landed
    - `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md` is landed
    - `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md` is landed
-   - next exact front is `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`
+   - `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md` is landed
+   - next exact front is `P27-BYN-MIN5-MIRBUILDER-DIRECT-MISS-RETIRE.md`
 
 ## 2. Current Daily Caller Reading
 

@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P25` after the test-only wrapper removal; inventory the remaining kernel `module_string_dispatch` surface and decide whether it is still a live proof owner or just archive-only routing residue.
@@ -29,4 +29,4 @@ Related:
 
 ## Next Exact Front
 
-1. inventory the module-string dispatch parent router before any delete or widen move
+1. `P27-BYN-MIN5-MIRBUILDER-DIRECT-MISS-RETIRE.md`

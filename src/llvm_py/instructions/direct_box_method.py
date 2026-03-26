@@ -22,6 +22,10 @@ from instructions.filebox_direct import (
     lower_filebox_read_bytes_direct,
     lower_filebox_read_direct,
 )
+from instructions.mir_builder_direct import (
+    lower_mir_builder_emit_from_program_json_direct,
+    lower_mir_builder_emit_from_source_direct,
+)
 from naming_helper import encode_static_method
 
 
@@ -149,6 +153,26 @@ def try_lower_known_box_method_call(
             module=module,
             recv_h=recv_h,
             args=args,
+            call_name=call_name,
+        )
+    if resolved_box_name == "MirBuilderBox" and method_name == "emit_from_program_json_v0":
+        return lower_mir_builder_emit_from_program_json_direct(
+            builder=builder,
+            module=module,
+            recv_h=recv_h,
+            args=args,
+            resolve_arg=resolve_arg,
+            ensure_handle=ensure_handle,
+            call_name=call_name,
+        )
+    if resolved_box_name == "MirBuilderBox" and method_name == "emit_from_source_v0":
+        return lower_mir_builder_emit_from_source_direct(
+            builder=builder,
+            module=module,
+            recv_h=recv_h,
+            args=args,
+            resolve_arg=resolve_arg,
+            ensure_handle=ensure_handle,
             call_name=call_name,
         )
     callee = resolve_known_box_method(
