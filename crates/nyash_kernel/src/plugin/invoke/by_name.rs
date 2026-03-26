@@ -77,47 +77,6 @@ fn nyash_plugin_invoke_name_common_i64(
     invoke_core::decode_entry_to_i64(tag, sz, payload.as_slice(), invoke).unwrap_or(0)
 }
 
-fn encode_box_handle(boxed: Box<dyn nyash_rust::box_trait::NyashBox>) -> i64 {
-    let arc: std::sync::Arc<dyn nyash_rust::box_trait::NyashBox> = boxed.into();
-    nyash_rust::runtime::host_handles::to_handle_arc(arc) as i64
-}
-
-fn decode_handle_to_box_or_integer(handle: i64) -> Box<dyn nyash_rust::box_trait::NyashBox> {
-    if handle > 0 {
-        if let Some(object) = nyash_rust::runtime::host_handles::get(handle as u64) {
-            return object.share_box();
-        }
-    }
-    Box::new(nyash_rust::box_trait::IntegerBox::new(handle))
-}
-
-fn try_handle_builtin_file_box_by_name(
-    recv_handle: i64,
-    method: &str,
-    argc: i64,
-    a1: i64,
-    a2: i64,
-) -> Option<i64> {
-    use nyash_rust::boxes::file::FileBox;
-
-    if recv_handle <= 0 {
-        return None;
-    }
-    let object = nyash_rust::runtime::host_handles::get(recv_handle as u64)?;
-    let file_box = object.as_any().downcast_ref::<FileBox>()?;
-
-    match method {
-        "write" => {
-            if argc != 1 {
-                return Some(0);
-            }
-            let result = file_box.write(decode_handle_to_box_or_integer(a1));
-            Some(encode_box_handle(result))
-        }
-        _ => None,
-    }
-}
-
 #[export_name = "nyash.plugin.invoke_by_name_i64"]
 pub extern "C" fn nyash_plugin_invoke_by_name_i64(
     recv_handle: i64,
@@ -166,10 +125,6 @@ pub extern "C" fn nyash_plugin_invoke_by_name_i64(
                 };
             }
         }
-    }
-    if let Some(result) = try_handle_builtin_file_box_by_name(recv_handle, method_str, argc, a1, a2)
-    {
-        return result;
     }
     let Some((receiver, method_id)) =
         invoke_core::resolve_named_method_for_handle(recv_handle, method_str)

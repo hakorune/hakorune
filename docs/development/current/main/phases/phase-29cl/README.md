@@ -20,6 +20,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
+  - docs/development/current/main/phases/phase-29cl/P22-BYN-MIN5-FILEBOX-WRITE-BUILTIN-KEEP-RETIRE.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -134,7 +135,7 @@ Rule:
    - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` before generic plugin fallback when receiver literals are known
 17. FileBox kernel roundtrip tests are now direct-contract
    - `crates/nyash_kernel/src/tests.rs` no longer uses `nyash_plugin_invoke_by_name_i64` for FileBox open/read/write/close roundtrips
-   - `plugin/invoke/by_name.rs` now keeps an explicit built-in FileBox compat branch for `write` only; `open`, `read`, `readBytes`, and `close` are retired from that keep branch
+   - `plugin/invoke/by_name.rs` no longer keeps any built-in `FileBox` branch; `open`, `read`, `readBytes`, `write`, and `close` are retired from that keep surface
    - the Python-side explicit compat helper now has an empty allowlist; `open`, `read`, `readBytes`, and `close` are direct-route through `nyash.file.open_hhh`, `nyash.file.read_h`, `nyash.file.read_bytes_h`, and `nyash.file.close_h`
 18. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
@@ -172,14 +173,15 @@ Rule:
    - reopen only on fresh live caller proof or duplicate-owner regression
    - closeout owner: `P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md`
 4. `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md` is closed
-   - daily caller residue is narrower and isolated in the explicit FileBox compat helper
+   - daily caller residue was narrowed enough to retire the FileBox family one method at a time
 5. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is now positive
    - no new mainline caller remains
    - compiled-stage1 surrogate residue is archive-only proof residue
    - compat keep residue is a frozen exact keep set
 6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current exact front
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` execution slices are landed
-   - next exact front is broader compat keep/archive cleanup
+   - `FileBox.write` built-in keep retire is landed
+   - next exact front is broader compat keep/archive cleanup beyond the FileBox family
    - keep execution narrow: one FileBox method family leaf at a time
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears

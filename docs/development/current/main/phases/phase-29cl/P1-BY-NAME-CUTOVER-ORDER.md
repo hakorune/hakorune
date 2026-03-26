@@ -85,7 +85,8 @@ Related:
    - readiness is now positive
    - hard-retire execution is active
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` slices are landed
-   - next exact front is broader compat keep/archive cleanup
+   - `FileBox.write` built-in keep retire is landed
+   - next exact front is broader compat keep/archive cleanup beyond the FileBox family
 
 ## 2. Current Daily Caller Reading
 

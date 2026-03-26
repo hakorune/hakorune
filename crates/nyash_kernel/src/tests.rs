@@ -450,6 +450,38 @@ fn filebox_by_name_read_bytes_is_retired() {
 }
 
 #[test]
+fn filebox_by_name_write_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let tmp_path = "/tmp/nyash_kernel_filebox_by_name_write_retired.txt";
+        let _ = std::fs::remove_file(tmp_path);
+
+        let type_name = CString::new("FileBox").expect("CString");
+        let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+        assert!(filebox_handle > 0, "expected FileBox handle");
+
+        let path_handle = string_handle(tmp_path);
+        let mode_handle = string_handle("w");
+        assert_eq!(
+            nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+            1
+        );
+
+        let method = CString::new("write").expect("CString");
+        let data_handle = string_handle("kernel-filebox-by-name-write");
+        let result =
+            nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 1, data_handle, 0);
+        assert_eq!(result, 0, "write should no longer use builtin by_name keep");
+
+        with_filebox_from_handle(filebox_handle, |filebox| {
+            let _ = filebox.ny_close();
+        });
+        let _ = std::fs::remove_file(tmp_path);
+    });
+}
+
+#[test]
 fn filebox_by_name_close_is_retired() {
     ensure_test_ring0();
 
