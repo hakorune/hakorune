@@ -22,6 +22,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - docs/development/current/main/phases/phase-29cl/P22-BYN-MIN5-FILEBOX-WRITE-BUILTIN-KEEP-RETIRE.md
   - docs/development/current/main/phases/phase-29cl/P23-BYN-MIN5-INSTANCEBOX-BUILTIN-KEEP-RETIRE.md
+  - docs/development/current/main/phases/phase-29cl/P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -183,7 +184,7 @@ Rule:
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` execution slices are landed
    - `FileBox.write` built-in keep retire is landed
    - `InstanceBox.getField/setField` built-in keep retire is landed
-   - next exact front is broader compat keep/archive cleanup beyond the FileBox family and built-in `InstanceBox` keep
+   - next exact front is `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md`
    - keep execution narrow: one residue family at a time
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears

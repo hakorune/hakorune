@@ -54,7 +54,7 @@ Related:
 8. `InstanceBox.getField/setField` built-in kernel `by_name` keep is retired
 9. compiled-stage1 surrogate residue is archive-only proof residue and must not be reopened by this pack
 10. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
-11. the next exact front is broader compat keep/archive cleanup
+11. the next exact front is `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md`
 
 ## Acceptance
 
@@ -83,4 +83,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. broader compat keep/archive cleanup beyond the FileBox family and built-in `InstanceBox` keep
+1. `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md`

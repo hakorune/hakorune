@@ -87,7 +87,7 @@ Related:
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` slices are landed
    - `FileBox.write` built-in keep retire is landed
    - `InstanceBox.getField/setField` built-in keep retire is landed
-   - next exact front is broader compat keep/archive cleanup beyond the FileBox family and built-in `InstanceBox` keep
+   - next exact front is `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md`
 
 ## 2. Current Daily Caller Reading
 
