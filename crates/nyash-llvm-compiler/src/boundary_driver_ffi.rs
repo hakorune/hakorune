@@ -52,6 +52,11 @@ where
         compile_recipe.as_deref(),
         legacy_capi_pure.as_deref(),
     );
+    emit_compile_route_trace(
+        compile_recipe.as_deref(),
+        compat_replay.as_deref(),
+        compile_symbol,
+    );
     let func: CompileFn = *lib
         .get(compile_symbol)
         .context("missing symbol hako_llvmc_compile_json{_pure_first}")?;
@@ -185,9 +190,36 @@ where
     result
 }
 
+fn llvm_route_trace_enabled() -> bool {
+    matches!(
+        std::env::var("NYASH_LLVM_ROUTE_TRACE").ok().as_deref(),
+        Some("1" | "on" | "true" | "yes")
+    )
+}
+
+fn emit_compile_route_trace(
+    compile_recipe: Option<&str>,
+    compat_replay: Option<&str>,
+    compile_symbol: &[u8],
+) {
+    if !llvm_route_trace_enabled() {
+        return;
+    }
+    let symbol = CStr::from_bytes_with_nul(compile_symbol)
+        .ok()
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or("unknown");
+    eprintln!(
+        "[llvm-route/select] owner=boundary recipe={} compat_replay={} symbol={}",
+        compile_recipe.unwrap_or("unset"),
+        compat_replay.unwrap_or("unset"),
+        symbol
+    );
+}
+
 #[cfg(test)]
 mod tests {
-    use super::with_env_override;
+    use super::{llvm_route_trace_enabled, with_env_override};
 
     #[test]
     fn with_env_override_restores_previous_value_after_action() {
@@ -203,5 +235,18 @@ mod tests {
             Some("before")
         );
         std::env::remove_var("NYASH_BOUNDARY_DRIVER_TEST_ENV");
+    }
+
+    #[test]
+    fn llvm_route_trace_enabled_accepts_explicit_truthy_values_only() {
+        std::env::remove_var("NYASH_LLVM_ROUTE_TRACE");
+        assert!(!llvm_route_trace_enabled());
+        std::env::set_var("NYASH_LLVM_ROUTE_TRACE", "1");
+        assert!(llvm_route_trace_enabled());
+        std::env::set_var("NYASH_LLVM_ROUTE_TRACE", "yes");
+        assert!(llvm_route_trace_enabled());
+        std::env::set_var("NYASH_LLVM_ROUTE_TRACE", "0");
+        assert!(!llvm_route_trace_enabled());
+        std::env::remove_var("NYASH_LLVM_ROUTE_TRACE");
     }
 }

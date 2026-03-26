@@ -20,6 +20,21 @@ Notes:
 USAGE
 }
 
+llvm_route_trace_enabled() {
+  case "${NYASH_LLVM_ROUTE_TRACE:-0}" in
+    1|on|true|yes) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+run_backend_quietly() {
+  if llvm_route_trace_enabled; then
+    "$@"
+  else
+    "$@" >/dev/null 2>&1
+  fi
+}
+
 IN_MODE="stdin"   # stdin | file
 IN_FILE=""
 EMIT="obj"        # obj | exe | ll | json
@@ -155,7 +170,7 @@ case "$EMIT" in
           exit 2
         fi
         rm -f "$OUT"
-        "$BIN_NYLLVMC" --in "$INPUT_FOR_CRATE" --emit obj --out "$OUT" >/dev/null 2>&1 || { echo "error: ny-llvmc failed" >&2; exit 4; }
+        run_backend_quietly "$BIN_NYLLVMC" --in "$INPUT_FOR_CRATE" --emit obj --out "$OUT" || { echo "error: ny-llvmc failed" >&2; exit 4; }
         ;;
       native)
         if ! command -v llc >/dev/null 2>&1; then
@@ -165,7 +180,7 @@ case "$EMIT" in
         # Optional verify: dump IR first and reject if PHI appears (simple guard)
         if [[ "${NYASH_LLVM_VERIFY_IR:-0}" == "1" ]]; then
           _TMP_LL=$(mktemp)
-          if ! python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL" >/dev/null 2>&1; then
+          if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL"; then
             echo "error: native builder failed (ll)" >&2; rm -f "$_TMP_LL"; exit 4
           fi
           if grep -qE "[^a-zA-Z]phi[^a-zA-Z]" "$_TMP_LL"; then
@@ -173,14 +188,14 @@ case "$EMIT" in
           fi
           rm -f "$_TMP_LL"
         fi
-        if ! python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OUT" >/dev/null 2>&1; then
+        if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OUT"; then
           echo "error: native builder failed" >&2; exit 4
         fi
         ;;
       llvmlite|*)
         # Directly use llvmlite harness with MIR v1 JSON input
         rm -f "$OUT"
-        if ! python3 "$PWD/tools/llvmlite_harness.py" --in "$IN_FILE" --out "$OUT" >/dev/null 2>&1; then
+        if ! run_backend_quietly python3 "$PWD/tools/llvmlite_harness.py" --in "$IN_FILE" --out "$OUT"; then
           echo "error: harness failed to produce $OUT" >&2; exit 4
         fi
         ;;
@@ -216,7 +231,7 @@ case "$EMIT" in
         fi
         if [[ "${NYASH_LLVM_VERIFY_IR:-0}" == "1" ]]; then
           _TMP_LL=$(mktemp)
-          if ! python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL" >/dev/null 2>&1; then
+          if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit ll --out "$_TMP_LL"; then
             echo "error: native builder failed (ll)" >&2; rm -f "$_TMP_LL"; exit 4
           fi
           if grep -qE "[^a-zA-Z]phi[^a-zA-Z]" "$_TMP_LL"; then
@@ -224,7 +239,7 @@ case "$EMIT" in
           fi
           rm -f "$_TMP_LL"
         fi
-        if ! python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OBJ" >/dev/null 2>&1; then
+        if ! run_backend_quietly python3 "$PWD/tools/native_llvm_builder.py" --in "$IN_FILE" --emit obj --out "$OBJ"; then
           echo "error: native builder failed to produce object $OBJ" >&2; exit 4
         fi
         if [[ ! -f "$OBJ" ]]; then echo "error: failed to produce object $OBJ" >&2; exit 4; fi
@@ -237,7 +252,7 @@ case "$EMIT" in
           -lpthread -ldl -lm -o "$OUT"
         ;;
       llvmlite|*)
-        if ! python3 "$PWD/tools/llvmlite_harness.py" --in "$IN_FILE" --out "$OBJ" >/dev/null 2>&1; then
+        if ! run_backend_quietly python3 "$PWD/tools/llvmlite_harness.py" --in "$IN_FILE" --out "$OBJ"; then
           echo "error: harness failed to produce object $OBJ" >&2; exit 4
         fi
         if [[ ! -f "$OBJ" ]]; then echo "error: failed to produce object $OBJ" >&2; exit 4; fi

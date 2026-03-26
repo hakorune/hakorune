@@ -241,6 +241,10 @@ AOT_STATUS="skip"
 AOT_REASON="not_attempted"
 AOT_STAGE="none"
 AOT_EMIT_ROUTE="none"
+AOT_COMPILE_RECIPE="unknown"
+AOT_COMPAT_REPLAY="unknown"
+AOT_REPLAY_LANE="none"
+AOT_REPLAY_REASON="not_attempted"
 RESULT_PARITY_STATUS="skip"
 VM_RESULT_MARKER="na"
 AOT_RESULT_MARKER="na"
@@ -255,11 +259,19 @@ if NYASH_LLVM_AUTO_SAFEPOINT="${AOT_AUTO_SAFEPOINT}" \
   AOT_REASON="${PERF_AOT_LAST_REASON}"
   AOT_STAGE="${PERF_AOT_LAST_STAGE}"
   AOT_EMIT_ROUTE="${PERF_AOT_LAST_EMIT_ROUTE:-none}"
+  AOT_COMPILE_RECIPE="${PERF_AOT_LAST_COMPILE_RECIPE:-unknown}"
+  AOT_COMPAT_REPLAY="${PERF_AOT_LAST_COMPAT_REPLAY:-unknown}"
+  AOT_REPLAY_LANE="${PERF_AOT_LAST_REPLAY_LANE:-none}"
+  AOT_REPLAY_REASON="${PERF_AOT_LAST_REPLAY_REASON:-not_attempted}"
 else
   AOT_STATUS="${PERF_AOT_LAST_STATUS}"
   AOT_REASON="${PERF_AOT_LAST_REASON}"
   AOT_STAGE="${PERF_AOT_LAST_STAGE}"
   AOT_EMIT_ROUTE="${PERF_AOT_LAST_EMIT_ROUTE:-none}"
+  AOT_COMPILE_RECIPE="${PERF_AOT_LAST_COMPILE_RECIPE:-unknown}"
+  AOT_COMPAT_REPLAY="${PERF_AOT_LAST_COMPAT_REPLAY:-unknown}"
+  AOT_REPLAY_LANE="${PERF_AOT_LAST_REPLAY_LANE:-none}"
+  AOT_REPLAY_REASON="${PERF_AOT_LAST_REPLAY_REASON:-not_attempted}"
 fi
 
 if [[ "${REQUIRE_AOT_RESULT_PARITY}" == "1" ]]; then
@@ -325,8 +337,9 @@ fi
 # Output single line (parse by key, not fixed-width)
 printf "[bench4] name=%s c_ms=%s py_ms=%s ny_vm_ms=%s ny_aot_ms=%s ratio_c_vm=%s ratio_c_py=%s ratio_c_aot=%s aot_status=%s\n" \
   "${KEY}" "${C_MED}" "${PY_MED}" "${NY_VM_MED}" "${NY_AOT_MED}" "${RATIO_C_VM}" "${RATIO_C_PY}" "${RATIO_C_AOT}" "${AOT_STATUS_OUT}"
-printf "[bench4-route] name=%s dataset=%s kernel_lane=%s kernel_name=%s fallback_guard=%s vm_engine=%s vm_lane=%s vm_reason=%s derust_lane=%s derust_source=%s derust_reason=%s aot_direct_only=%s aot_emit_route=%s route_probe=%s result_parity=%s vm_result=%s aot_result=%s\n" \
+printf "[bench4-route] name=%s dataset=%s kernel_lane=%s kernel_name=%s fallback_guard=%s vm_engine=%s vm_lane=%s vm_reason=%s derust_lane=%s derust_source=%s derust_reason=%s aot_direct_only=%s aot_emit_route=%s aot_recipe=%s aot_compat_replay=%s aot_replay_lane=%s aot_replay_reason=%s route_probe=%s result_parity=%s vm_result=%s aot_result=%s\n" \
   "${KEY}" "${BENCH_DATASET_KEY}" "${KERNEL_LANE}" "${KERNEL_NAME}" \
   "$([[ "${VM_FORCE_NO_FALLBACK}" == "1" ]] && printf '%s' "strict-no-fallback" || printf '%s' "runtime-default")" \
   "${VM_ENGINE}" "${VM_ROUTE_LANE}" "${VM_ROUTE_REASON}" "${DERUST_ROUTE_LANE}" "${DERUST_SOURCE}" "${DERUST_REASON}" "${AOT_DIRECT_ONLY}" "${AOT_EMIT_ROUTE}" \
+  "${AOT_COMPILE_RECIPE}" "${AOT_COMPAT_REPLAY}" "${AOT_REPLAY_LANE}" "${AOT_REPLAY_REASON}" \
   "${ROUTE_PROBE_ENABLED}" "${RESULT_PARITY_STATUS}" "${VM_RESULT_MARKER}" "${AOT_RESULT_MARKER}"

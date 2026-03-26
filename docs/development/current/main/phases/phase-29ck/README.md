@@ -18,6 +18,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P11-SMALL-ENTRY-STARTUP-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md
   - docs/development/current/main/phases/phase-29ck/P13-SMALL-ENTRY-RAW-NET-REFRESH.md
+  - docs/development/current/main/phases/phase-29ck/P14-PURE-FIRST-NO-REPLAY-CUTOVER.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -59,7 +60,8 @@ Related:
 8. `P7-PRE-PERF-RUNWAY-TASK-PACK.md`
 9. `P8-PERF-REOPEN-JUDGMENT.md`
 10. `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md`
-11. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+11. `P14-PURE-FIRST-NO-REPLAY-CUTOVER.md`
+12. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
 ## Current Snapshot (2026-03-14)
 
@@ -68,12 +70,16 @@ Related:
 3. `src/host_providers/llvm_codegen.rs` default object path も direct C ABI boundary を先に試すようになり、`ny-llvmc` wrapper path は explicit `HAKO_LLVM_EMIT_PROVIDER=ny-llvmc` keep へ後退した
 4. supported v1 seeds は boundary compile が pure C subset を先に試すようになり、`apps/tests/mir_shape_guard/ret_const_min_v1.mir.json` と `apps/tests/hello_simple_llvm_native_probe_v1.mir.json` は `NYASH_NY_LLVM_COMPILER` を壊しても object emit でき、`.hako` では `acceptance_case=ret-const-v1` / `acceptance_case=hello-simple-llvm-native-probe-v1` として visible に row 化された。これらは `BackendRecipeBox.compile_route_profile(...)` が owned する grouped evidence bucket として読む
 5. ただし unsupported shapes are still replayed through `lang/c-abi/shims/hako_llvmc_ffi.c -> ny-llvmc --driver harness` inside the boundary compat lane, so `llvmlite` は indirect compat in-path としてまだ残っている
-6. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
-7. missing legs は 3 本である
+6. perf/mainline owner split is now explicit.
+   - `Stage0 = llvmlite` explicit compat/probe keep lane
+   - `Stage1 = ny-llvmc(boundary pure-first)` daily/mainline/perf owner
+   - perf lane now pins `HAKO_BACKEND_COMPAT_REPLAY=none` and fails if route trace shows replay
+7. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
+8. missing legs は 3 本である
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
    - `main.rs` / `llvm_codegen.rs` の Rust glue を further thin にすること
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
-8. `.hako` kernel migration order is now the current main thread: `string` is already landed, then `array` -> `numeric` -> `map`, and perf/asm follow-up is secondary until that order is fixed (SSOT: `docs/development/current/main/phases/phase-29cm/README.md`)
+9. `.hako` kernel migration order is now the current main thread: `string` is already landed, then `array` -> `numeric` -> `map`, and perf/asm follow-up is secondary until that order is fixed (SSOT: `docs/development/current/main/phases/phase-29cm/README.md`)
    - `.hako` string kernel op set v0 の current pilot は `string.search` で、いまは `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index` まで landed している
    - further widening is paused until a new exact blocker appears
    - `array` stays in `runtime/collections` ring1 first; a new `lang/src/runtime/kernel/array/` module is still deferred until a concrete policy difference appears
@@ -362,6 +368,9 @@ Related:
      - `box_create_destroy_small`: `c_ms=3`, `ny_aot_ms=8`
    - current small-entry perf lane is `none (monitor-only)`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
    - `llvmlite` / harness stays outside the perf baseline
+   - `P14-PURE-FIRST-NO-REPLAY-CUTOVER.md` is now the current exact front
+   - current `kilo` stop-line is no longer `micro leaf selection`
+   - current first question is whether `kilo` can run under `pure-first + compat_replay=none`
 2. runtime proof blocker inventory
    - `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` is now closed
    - final proof owner は `.hako VM`

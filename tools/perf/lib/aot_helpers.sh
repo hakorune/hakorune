@@ -8,12 +8,17 @@ PERF_AOT_LAST_REASON="not_attempted"
 PERF_AOT_LAST_STAGE="none"
 PERF_AOT_LAST_EMIT_ROUTE="none"
 PERF_AOT_LAST_MED_MS=0
+PERF_AOT_LAST_COMPILE_RECIPE="unknown"
+PERF_AOT_LAST_COMPAT_REPLAY="unknown"
+PERF_AOT_LAST_REPLAY_LANE="none"
+PERF_AOT_LAST_REPLAY_REASON="not_attempted"
 
 # Perf lane policy for AOT series/probe:
 # run with deterministic runtime knobs (GC off + poll off) by default.
 # Callers can override via env exports.
 # Route contract:
-# - perf AOT always measures `.hako -> ny-llvmc(boundary) -> C ABI`
+# - perf AOT always measures `.hako -> ny-llvmc(boundary pure-first) -> C ABI`
+# - compat replay must stay `none`
 # - explicit keep lanes (`llvmlite` / `native` / harness) are fail-fast here
 perf_aot_runtime_env_cmd() {
   env \
@@ -35,12 +40,52 @@ perf_aot_reset_status() {
   perf_aot_set_status "skip" "not_attempted" "none"
   PERF_AOT_LAST_EMIT_ROUTE="none"
   PERF_AOT_LAST_MED_MS=0
+  PERF_AOT_LAST_COMPILE_RECIPE="unknown"
+  PERF_AOT_LAST_COMPAT_REPLAY="unknown"
+  PERF_AOT_LAST_REPLAY_LANE="none"
+  PERF_AOT_LAST_REPLAY_REASON="not_attempted"
+}
+
+perf_aot_extract_route_field() {
+  local line="$1"
+  local key="$2"
+  printf '%s\n' "${line}" | sed -n "s/.*${key}=\\([^ ]*\\).*/\\1/p" | tail -n 1
+}
+
+perf_aot_record_route_trace() {
+  local log_path=$1
+  local select_line replay_line
+  select_line="$(grep '^\[llvm-route/select\]' "${log_path}" | tail -n 1 || true)"
+  replay_line="$(grep '^\[llvm-route/replay\]' "${log_path}" | tail -n 1 || true)"
+
+  if [[ -n "${select_line}" ]]; then
+    PERF_AOT_LAST_COMPILE_RECIPE="$(perf_aot_extract_route_field "${select_line}" "recipe")"
+    PERF_AOT_LAST_COMPAT_REPLAY="$(perf_aot_extract_route_field "${select_line}" "compat_replay")"
+    [[ -n "${PERF_AOT_LAST_COMPILE_RECIPE}" ]] || PERF_AOT_LAST_COMPILE_RECIPE="unknown"
+    [[ -n "${PERF_AOT_LAST_COMPAT_REPLAY}" ]] || PERF_AOT_LAST_COMPAT_REPLAY="unknown"
+  fi
+
+  if [[ -n "${replay_line}" ]]; then
+    PERF_AOT_LAST_REPLAY_LANE="$(perf_aot_extract_route_field "${replay_line}" "lane")"
+    PERF_AOT_LAST_REPLAY_REASON="$(perf_aot_extract_route_field "${replay_line}" "reason")"
+    [[ -n "${PERF_AOT_LAST_REPLAY_LANE}" ]] || PERF_AOT_LAST_REPLAY_LANE="unknown"
+    [[ -n "${PERF_AOT_LAST_REPLAY_REASON}" ]] || PERF_AOT_LAST_REPLAY_REASON="unknown"
+  fi
+
+  if grep -Fq '[llvmlite-keep]' "${log_path}"; then
+    PERF_AOT_LAST_REPLAY_LANE="harness"
+    if [[ "${PERF_AOT_LAST_REPLAY_REASON}" == "not_attempted" ]]; then
+      PERF_AOT_LAST_REPLAY_REASON="llvmlite_keep_observed"
+    fi
+  fi
 }
 
 perf_aot_assert_boundary_route_contract() {
   local backend="${NYASH_LLVM_BACKEND:-crate}"
   local use_harness="${NYASH_LLVM_USE_HARNESS:-0}"
   local emit_provider="${HAKO_LLVM_EMIT_PROVIDER:-}"
+  local compile_recipe="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}"
+  local compat_replay="${HAKO_BACKEND_COMPAT_REPLAY:-none}"
 
   case "${backend}" in
     ""|crate)
@@ -64,6 +109,24 @@ perf_aot_assert_boundary_route_contract() {
     echo "[error] perf AOT route must not use HAKO_LLVM_EMIT_PROVIDER=llvmlite; expected boundary-owned default route" >&2
     return 1
   fi
+
+  case "${compile_recipe}" in
+    ""|pure-first)
+      ;;
+    *)
+      echo "[error] perf AOT route only accepts HAKO_BACKEND_COMPILE_RECIPE=pure-first; got '${compile_recipe}'" >&2
+      return 1
+      ;;
+  esac
+
+  case "${compat_replay}" in
+    ""|none)
+      ;;
+    *)
+      echo "[error] perf AOT route only accepts HAKO_BACKEND_COMPAT_REPLAY=none; got '${compat_replay}'" >&2
+      return 1
+      ;;
+  esac
 
   return 0
 }
@@ -222,6 +285,7 @@ perf_build_aot_exe() {
   local in_json=$2
   local out_exe=$3
   local skip_build
+  local build_log
 
   if ! perf_aot_assert_boundary_route_contract; then
     perf_aot_set_status "skip" "invalid_perf_route_contract" "contract"
@@ -233,10 +297,15 @@ perf_build_aot_exe() {
     return 1
   fi
 
+  build_log=$(mktemp --suffix .perf_aot_build.log)
+
   if ! NYASH_LLVM_BACKEND=crate \
       NYASH_LLVM_USE_HARNESS=0 \
+      NYASH_LLVM_ROUTE_TRACE="${NYASH_LLVM_ROUTE_TRACE:-1}" \
       NYASH_LLVM_USE_CAPI="${NYASH_LLVM_USE_CAPI:-1}" \
       HAKO_V1_EXTERN_PROVIDER_C_ABI="${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}" \
+      HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}" \
+      HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}" \
       NYASH_LLVM_SKIP_BUILD="${skip_build}" \
       NYASH_LLVM_FAST=1 \
       NYASH_LLVM_FAST_INT="${NYASH_LLVM_FAST_INT:-1}" \
@@ -246,8 +315,28 @@ perf_build_aot_exe() {
       --in "${in_json}" \
       --emit exe \
       -o "${out_exe}" \
-      --quiet >/dev/null 2>&1; then
-    perf_aot_set_status "skip" "build_failed" "build"
+      --quiet >"${build_log}" 2>&1; then
+    perf_aot_record_route_trace "${build_log}"
+    if grep -Fq 'unsupported pure shape for current backend recipe' "${build_log}"; then
+      perf_aot_set_status "skip" "pure_first_unsupported_shape" "build"
+    else
+      perf_aot_set_status "skip" "build_failed" "build"
+    fi
+    rm -f "${build_log}" || true
+    return 1
+  fi
+  perf_aot_record_route_trace "${build_log}"
+  rm -f "${build_log}" || true
+  if [[ "${PERF_AOT_LAST_COMPILE_RECIPE}" != "pure-first" ]]; then
+    perf_aot_set_status "skip" "unexpected_compile_recipe" "build_contract"
+    return 1
+  fi
+  if [[ "${PERF_AOT_LAST_COMPAT_REPLAY}" != "none" ]]; then
+    perf_aot_set_status "skip" "unexpected_compat_replay_policy" "build_contract"
+    return 1
+  fi
+  if [[ "${PERF_AOT_LAST_REPLAY_LANE}" != "none" ]]; then
+    perf_aot_set_status "skip" "compat_replay_observed" "build_contract"
     return 1
   fi
   return 0
@@ -269,6 +358,7 @@ perf_emit_and_build_aot_exe() {
   if ! perf_build_aot_exe "${root_dir}" "${tmp_json}" "${out_exe}"; then
     # Some fixtures still produce invalid MIR in direct emit route; retry once via helper route.
     if [[ "${PERF_AOT_LAST_EMIT_ROUTE}" == "direct" ]] \
+      && [[ "${PERF_AOT_DIRECT_ONLY:-0}" != "1" ]] \
       && perf_aot_should_retry_helper_after_build_fail "${root_dir}"; then
       if ! perf_emit_mir_json_helper "${root_dir}" "${hako_prog}" "${tmp_json}"; then
         perf_aot_set_status "skip" "emit_helper_retry_failed" "emit_retry"

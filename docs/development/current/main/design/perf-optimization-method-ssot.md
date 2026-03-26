@@ -197,7 +197,21 @@ Hotspot は次の分類で読む。
 
 ## Current Wave Snapshot
 
-2026-03-22 時点では、次の理解で進める。
+2026-03-26 current stop-line は次だよ。
+
+- `Stage0 = llvmlite` explicit compat/probe keep lane only
+- `Stage1 = ny-llvmc(boundary pure-first)` daily/mainline/perf owner
+- `kilo_kernel_small_hk` は boundary route のままでも内部 compat replay がまだ混入しうる
+- `HAKO_BACKEND_COMPAT_REPLAY=none` で `kilo` を build すると current exact blocker は `unsupported pure shape for current backend recipe`
+- current exact blocker family は `lang/c-abi/shims/hako_llvmc_ffi.c` pure-first generic coverage
+  - `copy`
+  - `newbox ArrayBox`
+  - `RuntimeDataBox.length/get/set/substring/indexOf` string-loop seam
+  - string `binop +`
+- no-replay `kilo` が green になるまで、`src/llvm_py/**` は perf owner work に使わない
+- 下の micro snapshot は historical evidence として保持するが、current exact front ではない
+
+2026-03-22 時点の micro snapshot は次の理解だった。
 
 - `kilo_kernel_small_hk` は whole-program baseline として固定済み
 - latest fresh stable baseline is `c_ms=76`, `py_ms=105`, `ny_vm_ms=974`, `ny_aot_ms=740`, `ratio_c_aot=0.10`, `aot_status=ok`

@@ -66,6 +66,22 @@ static int compat_harness_replay_enabled(void) {
   return 0;
 }
 
+static int hako_llvmc_route_trace_enabled(void) {
+  const char* value = getenv("NYASH_LLVM_ROUTE_TRACE");
+  if (!value || !value[0]) return 0;
+  return strcmp(value, "1") == 0 ||
+         strcmp(value, "on") == 0 ||
+         strcmp(value, "true") == 0 ||
+         strcmp(value, "yes") == 0;
+}
+
+static void hako_llvmc_emit_route_replay(const char* lane, const char* reason) {
+  if (!hako_llvmc_route_trace_enabled()) return;
+  fprintf(stderr, "[llvm-route/replay] lane=%s reason=%s\n",
+          (lane && lane[0]) ? lane : "unknown",
+          (reason && reason[0]) ? reason : "unknown");
+}
+
 static int set_err_owned(char** err_out, const char* msg) {
   if (!err_out) return -1;
   if (!msg) { *err_out = NULL; return -1; }
@@ -1727,6 +1743,7 @@ static int compile_json_via_explicit_compat_harness_replay(
     const char* json_in,
     const char* obj_out,
     char** err_out) {
+  hako_llvmc_emit_route_replay("harness", "unsupported_pure_shape");
   return compile_json_compat_harness_keep(json_in, obj_out, err_out);
 }
 
@@ -2322,6 +2339,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   if (compat_harness_replay_enabled()) {
                     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
                   }
+                  hako_llvmc_emit_route_replay("none", "unsupported_pure_shape");
                   return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
                 }
                 return 0;
@@ -2661,6 +2679,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (compat_harness_replay_enabled()) {
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }
+  hako_llvmc_emit_route_replay("none", "unsupported_pure_shape");
   return set_err_owned(err_out, "unsupported pure shape for current backend recipe");
 }
 
