@@ -92,7 +92,8 @@ Related:
    - `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md` is landed
    - `P27-BYN-MIN5-MIRBUILDER-DIRECT-MISS-RETIRE.md` is landed
    - `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md` is landed
-   - next exact front is `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md`
+   - `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md` is landed with current result `still-live keep`
+   - next exact front is `P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md`
 
 ## 2. Current Daily Caller Reading
 

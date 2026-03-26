@@ -55,8 +55,9 @@ Related:
 10. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
 11. `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md` is landed
 12. `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md` is landed
-13. the next exact front is `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md`
-14. `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md` is landed and confirms the parent router is still live while surrogates stay archive-only
+13. `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md` is landed and confirms the parent router is still live while surrogates stay archive-only
+14. `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md` is landed with current result `still-live keep`
+15. the next exact front is `P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md`
 
 ## Acceptance
 
@@ -85,4 +86,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md`
+1. `P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md`
