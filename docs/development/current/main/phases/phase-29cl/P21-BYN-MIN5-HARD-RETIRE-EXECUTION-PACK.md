@@ -62,9 +62,8 @@ Related:
 17. `P32-BYN-MIN5-PROGRAM-JSON-LIVE-CALLER-INVENTORY.md` is landed with current result `.hako live/bootstrap callers = monitor-only / near-thin-floor`
 18. `P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md` is landed with current result `helper trio is heterogeneous; first helper-local bucket = tools/hakorune_emit_mir.sh`
 19. `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md` is landed with current result `tools/hakorune_emit_mir.sh` stays live; first exact seam = generated selfhost builder runner path`
-20. the next exact front is `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md`
-21. `P35` is the stop-line for this helper-local seam
-22. after `P35`, the next result must be `code landed` or `monitor-only judgment`; do not open another inventory fan-out first
+20. `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md` is landed with current result `execution code landed; generated selfhost builder runner seam = near-thin-floor / monitor-only`
+21. the next exact front is `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md`
 
 ## Acceptance
 
@@ -84,14 +83,6 @@ Reopen this pack only when one of these becomes true.
 3. `FileBox` execution requires widening the compat helper set
 4. docs stop making it clear that this is the first hard-retire execution pack after positive readiness
 
-## Stop-Line
-
-1. `P35` is the last inventory pack under the `tools/hakorune_emit_mir.sh` helper-local seam
-2. the next patch after `P35` must record one of:
-   - execution code change
-   - monitor-only close-sync
-3. do not create another nested helper inventory before that result is written
-
 ## Non-Goals
 
 1. deleting `module_string_dispatch.rs`
@@ -101,4 +92,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md`
+1. `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md`

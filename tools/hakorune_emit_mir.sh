@@ -505,79 +505,20 @@ try_selfhost_builder() {
 
   # Builder box selection (default: hako.mir.builder)
   local builder_box="${HAKO_MIR_BUILDER_BOX:-hako.mir.builder}"
-
-  local tmp_hako; tmp_hako=$(mktemp --suffix .hako)
-  render_selfhost_builder_runner_hako "$tmp_hako" "$builder_box"
-  local tmp_stdout; tmp_stdout=$(mktemp)
-
-  # Trace mode: analyze Program(JSON) before passing to builder
-  if [ "${HAKO_SELFHOST_TRACE:-0}" = "1" ]; then
-    local prog_len=${#prog_json}
-    local loop_count=$(printf '%s' "$prog_json" | grep -o '"type":"Loop"' 2>/dev/null | wc -l | tr -d ' \n')
-    local cmp_count=$(printf '%s' "$prog_json" | grep -o '"type":"Compare"' 2>/dev/null | wc -l | tr -d ' \n')
-    loop_count=${loop_count:-0}
-    cmp_count=${cmp_count:-0}
-    local cwd="$(pwd)"
-    local toml_status="absent"
-    if [ -f "$ROOT/nyash.toml" ]; then
-      toml_status="present"
-    fi
-    echo "[builder/selfhost-first:trace] builder_box=$builder_box prog_json_len=$prog_len tokens=Loop:$loop_count,Compare:$cmp_count cwd=$cwd nyash.toml=$toml_status" >&2
+  if try_selfhost_builder_once "$prog_json" "$out_path" "$builder_box"; then
+    return 0
   fi
 
-  set +e
-  # Run from repo root to ensure nyash.toml is available for using resolution.
-  # Capture both stdout and stderr (2>&1) instead of discarding stderr.
-  execute_selfhost_builder_runner "$tmp_hako" "$tmp_stdout" "$prog_json"
-  local rc=$?
-  set -e
-
-  # Enhanced failure diagnostics
-  if [ $rc -ne 0 ]; then
-    if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" = "1" ]; then
-      echo "[builder/selfhost-first:fail:child:rc=$rc]" >&2
-      echo "[builder/selfhost-first:fail:detail] Last 80 lines of output:" >&2
-      tail -n 80 "$tmp_stdout" >&2 || true
-    fi
-    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
-    # Don't return immediately - check for fallback below
-  fi
-
-  if [ $rc -eq 0 ] && ! grep -q "\[builder/selfhost-first:ok\]" "$tmp_stdout"; then
-    if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" = "1" ]; then
-      echo "[builder/selfhost-first:fail:no-ok-marker]" >&2
-      echo "[builder/selfhost-first:fail:detail] Last 80 lines of output:" >&2
-      tail -n 80 "$tmp_stdout" >&2 || true
-    fi
-    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
-    rc=1
-  fi
-
-  # Try min builder fallback if enabled and initial builder failed
-  if [ "${HAKO_SELFHOST_TRY_MIN:-0}" = "1" ] && [ $rc -ne 0 ] && [ "$builder_box" != "hako.mir.builder.min" ]; then
+  # Try min builder fallback if enabled and initial builder failed.
+  if [ "${HAKO_SELFHOST_TRY_MIN:-0}" = "1" ] && [ "$builder_box" != "hako.mir.builder.min" ]; then
     if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" = "1" ]; then
       echo "[builder/selfhost-first:trying-min-fallback]" >&2
     fi
-
-    # Retry with min builder
-    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
-    HAKO_MIR_BUILDER_BOX="hako.mir.builder.min" try_selfhost_builder "$prog_json" "$out_path"
+    try_selfhost_builder_once "$prog_json" "$out_path" "hako.mir.builder.min"
     return $?
   fi
 
-  # Return original failure if no fallback or if fallback not triggered
-  if [ $rc -ne 0 ]; then
-    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
-    return 1
-  fi
-
-  if ! capture_selfhost_builder_mir_payload "$tmp_stdout" "$out_path"; then
-    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
-    return 1
-  fi
-  cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
-  echo "[OK] MIR JSON written (selfhost-first): $out_path"
-  return 0
+  return 1
 }
 
 render_selfhost_builder_runner_hako() {
@@ -620,6 +561,118 @@ method main(args) {
 HCODE
     sed -i "s|__BUILDER_BOX__|$builder_box|g" "$tmp_hako"
   fi
+}
+
+prepare_selfhost_builder_runner_context() {
+  local builder_box="$1"
+  local tmp_hako="" tmp_stdout=""
+
+  tmp_hako=$(mktemp --suffix .hako)
+  tmp_stdout=$(mktemp)
+  if ! render_selfhost_builder_runner_hako "$tmp_hako" "$builder_box"; then
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
+    return 1
+  fi
+
+  printf '%s\n%s\n' "$tmp_hako" "$tmp_stdout"
+}
+
+trace_selfhost_builder_request() {
+  local builder_box="$1" prog_json="$2"
+  if [ "${HAKO_SELFHOST_TRACE:-0}" != "1" ]; then
+    return 0
+  fi
+
+  local prog_len=${#prog_json}
+  local loop_count
+  local cmp_count
+  loop_count=$(printf '%s' "$prog_json" | grep -o '"type":"Loop"' 2>/dev/null | wc -l | tr -d ' \n')
+  cmp_count=$(printf '%s' "$prog_json" | grep -o '"type":"Compare"' 2>/dev/null | wc -l | tr -d ' \n')
+  loop_count=${loop_count:-0}
+  cmp_count=${cmp_count:-0}
+  local cwd="$(pwd)"
+  local toml_status="absent"
+  if [ -f "$ROOT/nyash.toml" ]; then
+    toml_status="present"
+  fi
+  echo "[builder/selfhost-first:trace] builder_box=$builder_box prog_json_len=$prog_len tokens=Loop:$loop_count,Compare:$cmp_count cwd=$cwd nyash.toml=$toml_status" >&2
+}
+
+report_selfhost_builder_child_failure() {
+  local rc="$1" tmp_stdout="$2"
+  if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" != "1" ]; then
+    return 0
+  fi
+
+  echo "[builder/selfhost-first:fail:child:rc=$rc]" >&2
+  echo "[builder/selfhost-first:fail:detail] Last 80 lines of output:" >&2
+  tail -n 80 "$tmp_stdout" >&2 || true
+}
+
+report_selfhost_builder_missing_ok_marker() {
+  local tmp_stdout="$1"
+  if [ "${HAKO_SELFHOST_NO_DELEGATE:-0}" != "1" ]; then
+    return 0
+  fi
+
+  echo "[builder/selfhost-first:fail:no-ok-marker]" >&2
+  echo "[builder/selfhost-first:fail:detail] Last 80 lines of output:" >&2
+  tail -n 80 "$tmp_stdout" >&2 || true
+}
+
+selfhost_builder_ok_marker_missing() {
+  local tmp_stdout="$1"
+  ! grep -F -q "[builder/selfhost-first:ok]" "$tmp_stdout"
+}
+
+run_rendered_selfhost_builder_runner() {
+  local tmp_hako="$1" tmp_stdout="$2" prog_json="$3"
+  local rc=0
+
+  set +e
+  # Run from repo root to ensure nyash.toml is available for using resolution.
+  # Capture both stdout and stderr (2>&1) instead of discarding stderr.
+  execute_selfhost_builder_runner "$tmp_hako" "$tmp_stdout" "$prog_json"
+  rc=$?
+  set -e
+
+  if [ "$rc" -ne 0 ]; then
+    report_selfhost_builder_child_failure "$rc" "$tmp_stdout"
+    return 1
+  fi
+
+  if selfhost_builder_ok_marker_missing "$tmp_stdout"; then
+    report_selfhost_builder_missing_ok_marker "$tmp_stdout"
+    return 1
+  fi
+
+  return 0
+}
+
+try_selfhost_builder_once() {
+  local prog_json="$1" out_path="$2" builder_box="$3"
+  local runner_ctx=""
+  local tmp_hako=""
+  local tmp_stdout=""
+
+  runner_ctx="$(prepare_selfhost_builder_runner_context "$builder_box")" || return 1
+  tmp_hako="$(printf '%s\n' "$runner_ctx" | sed -n '1p')"
+  tmp_stdout="$(printf '%s\n' "$runner_ctx" | sed -n '2p')"
+
+  trace_selfhost_builder_request "$builder_box" "$prog_json"
+  if ! run_rendered_selfhost_builder_runner "$tmp_hako" "$tmp_stdout" "$prog_json"; then
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
+    return 1
+  fi
+
+  if ! capture_selfhost_builder_mir_payload "$tmp_stdout" "$out_path"; then
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
+    return 1
+  fi
+
+  cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
+  echo "[OK] MIR JSON written (selfhost-first): $out_path"
+  return 0
 }
 
 execute_selfhost_builder_runner() {
