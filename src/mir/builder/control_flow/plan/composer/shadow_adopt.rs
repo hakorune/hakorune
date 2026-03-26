@@ -48,6 +48,16 @@ pub(in crate::mir::builder) fn strict_nested_loop_guard(
 
     if joinir_dev::debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
+        let _ = ring0.io.stderr_write(
+            format!(
+                "[plan/trace:nested_loop_guard_func] func={} span={} route_kind={} depth={:?}\n",
+                ctx.func_name,
+                ctx.condition.span(),
+                ctx.route_kind.semantic_label(),
+                ctx.step_tree_max_loop_depth
+            )
+            .as_bytes(),
+        );
         ring0.log.debug(&format!(
             "[plan/freeze:nested_loop_guard] func={} span={} recipe_contract={} route_kind={} depth={:?}",
             ctx.func_name,
