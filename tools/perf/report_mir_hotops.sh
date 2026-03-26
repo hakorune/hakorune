@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # report_mir_hotops.sh — emit MIR(JSON) then print operation histogram for one function
+# plus a structured `mir_call` callee histogram for current Stage1 canonical shape.
 #
 # Usage:
 #   tools/perf/report_mir_hotops.sh <bench-key|path/to/program.hako> [--function <name>] [--top <N>]
@@ -147,13 +148,46 @@ for bb in blocks:
         ops[op] += 1
         inst_total += 1
 
+mir_calls = Counter()
+
+def callee_key(inst):
+    mc = inst.get("mir_call") or {}
+    callee = mc.get("callee") or {}
+    ctype = callee.get("type") or "<unknown>"
+    if ctype == "Method":
+        bname = callee.get("box_name") or callee.get("box_type") or "<box>"
+        mname = callee.get("method") or callee.get("name") or "<method>"
+        return f"Method:{bname}.{mname}"
+    if ctype == "Constructor":
+        bname = callee.get("box_name") or callee.get("box_type") or "<box>"
+        return f"Constructor:{bname}"
+    if ctype == "Global":
+        gname = callee.get("name") or "<global>"
+        return f"Global:{gname}"
+    if ctype == "Extern":
+        ename = callee.get("name") or "<extern>"
+        return f"Extern:{ename}"
+    return ctype
+
+for bb in blocks:
+    for inst in bb.get("instructions") or []:
+        if inst.get("op") == "mir_call":
+            mir_calls[callee_key(inst)] += 1
+
 print(
     f"[mir-shape] input={input_label} function={target.get('name')} "
-    f"blocks={len(blocks)} inst_total={inst_total} unique_ops={len(ops)}"
+    f"blocks={len(blocks)} inst_total={inst_total} unique_ops={len(ops)} "
+    f"mir_calls={sum(mir_calls.values())} unique_mir_callees={len(mir_calls)}"
 )
 
 ranked = sorted(ops.items(), key=lambda x: (-x[1], x[0]))
 for idx, (op, cnt) in enumerate(ranked[:top_n], start=1):
     pct = (cnt * 100.0 / inst_total) if inst_total else 0.0
     print(f"[mir-shape/op] rank={idx} op={op} count={cnt} pct={pct:.1f}")
+
+if mir_calls:
+    ranked_calls = sorted(mir_calls.items(), key=lambda x: (-x[1], x[0]))
+    for idx, (callee, cnt) in enumerate(ranked_calls[:top_n], start=1):
+        pct = (cnt * 100.0 / sum(mir_calls.values())) if mir_calls else 0.0
+        print(f"[mir-shape/call] rank={idx} callee={callee} count={cnt} pct={pct:.1f}")
 PY

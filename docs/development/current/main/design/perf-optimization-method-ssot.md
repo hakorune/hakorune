@@ -43,7 +43,7 @@ Related:
 - current small-entry truth is:
   - `method_call_only_small` mainline AOT IR is a pure `+5` loop
   - `box_create_destroy_small` mainline AOT IR is a pure `+1` loop
-  - short microasm is startup/loader dominated
+  - short microasm may still be startup/loader sensitive, but `bench_micro_aot_asm.sh` now uses a direct C runner instead of a bash loop
 - startup-subtracted small-entry evidence is now `method_call_only_small=1 ms`, `box_create_destroy_small=0 ms`
 - `P11-SMALL-ENTRY-STARTUP-INVENTORY.md` is now closed.
 - therefore the perf lane may stay reopened, `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` and `P13-SMALL-ENTRY-RAW-NET-REFRESH.md` are now closed, and the current small-entry lane is `none (monitor-only)`.
@@ -100,6 +100,12 @@ Related:
    - 入口: `tools/perf/bench_micro_aot_asm.sh`
    - 役割: micro ladder で一番厚い leaf の原因関数を確認する
    - 使い方: `perf report --stdio --no-children` の top symbol を読む
+   - runner contract: bash loop は使わず、direct C runner で exe を繰り返し起動する
+
+4. MIR call family probe
+   - 入口: `tools/perf/report_mir_hotops.sh`
+   - 役割: `mir_call` がどの callee family に寄っているかを構造化表示する
+   - 使い方: `[mir-shape/call]` を見て `RuntimeDataBox.substring` / `indexOf` / `get/set/length` などの次 leaf を決める
 
 ## Tag Coverage
 
