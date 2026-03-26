@@ -1,11 +1,12 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P30` after confirming `emit_from_source_v0` stays live compat; inventory the remaining `MirBuilderBox.emit_from_program_json_v0` module-string seam without reopening source or surrogate buckets.
 Related:
   - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - docs/development/current/main/phases/phase-29cl/P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P32-BYN-MIN5-PROGRAM-JSON-LIVE-CALLER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
   - lang/src/runner/stage1_cli.hako
@@ -28,8 +29,9 @@ Related:
 2. kernel tests still pin direct route proof and contract/freeze handling for `emit_from_program_json_v0`
 3. language-side live/bootstrap callers still use `MirBuilderBox.emit_from_program_json_v0(...)` in runner owners
 4. LLVM Python direct lowering for `MirBuilderBox.emit_from_program_json_v0` is already isolated from generic by-name fallback
-5. this slice must not reopen `emit_from_source_v0`, `resolve_for_source`, `build_surrogate.rs`, or `llvm_backend_surrogate.rs`
+5. current judgment: `emit_from_program_json_v0` remains a live compat owner, not frozen residue yet
+6. this slice must not reopen `emit_from_source_v0`, `resolve_for_source`, `build_surrogate.rs`, or `llvm_backend_surrogate.rs`
 
 ## Next Exact Front
 
-1. inventory `emit_from_program_json_v0` caller-proof and decide whether the seam stays live compat or can move to frozen residue
+1. `P32-BYN-MIN5-PROGRAM-JSON-LIVE-CALLER-INVENTORY.md`

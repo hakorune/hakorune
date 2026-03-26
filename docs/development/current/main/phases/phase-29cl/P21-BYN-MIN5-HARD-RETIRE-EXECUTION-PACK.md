@@ -58,7 +58,10 @@ Related:
 13. `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md` is landed and confirms the parent router is still live while surrogates stay archive-only
 14. `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md` is landed with current result `still-live keep`
 15. `P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md` is landed with current result `still-live compat owner`
-16. the next exact front is `P31-BYN-MIN5-MIRBUILDER-PROGRAM-JSON-SEAM-INVENTORY.md`
+16. `P31-BYN-MIN5-MIRBUILDER-PROGRAM-JSON-SEAM-INVENTORY.md` is landed with current result `still-live compat owner`
+17. `P32-BYN-MIN5-PROGRAM-JSON-LIVE-CALLER-INVENTORY.md` is landed with current result `.hako live/bootstrap callers = monitor-only / near-thin-floor`
+18. `P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md` is landed with current result `helper trio is heterogeneous; first helper-local bucket = tools/hakorune_emit_mir.sh`
+19. the next exact front is `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md`
 
 ## Acceptance
 
@@ -87,4 +90,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `P31-BYN-MIN5-MIRBUILDER-PROGRAM-JSON-SEAM-INVENTORY.md`
+1. `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md`
