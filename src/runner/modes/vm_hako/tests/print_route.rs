@@ -2,7 +2,7 @@ use super::super::*;
 use serde_json::json;
 
 #[test]
-fn mir_call_print_rejected_in_all_modes() {
+fn mir_call_print_rejected_by_legacy_print_parser() {
     let inst = json!({
         "op": "mir_call",
         "mir_call": {
@@ -26,7 +26,7 @@ fn externcall_print_still_accepted() {
 }
 
 #[test]
-fn mir_call_print_rejected_by_subset_check() {
+fn mir_call_print_is_accepted_by_subset_check() {
     let mir_json = json!({
         "functions": [{
             "name": "main",
@@ -36,7 +36,7 @@ fn mir_call_print_rejected_by_subset_check() {
                 "instructions": [{
                     "op": "mir_call",
                     "mir_call": {
-                        "callee": { "name": "print" },
+                        "callee": { "type": "Global", "name": "print" },
                         "args": [3]
                     }
                 }]
@@ -45,12 +45,5 @@ fn mir_call_print_rejected_by_subset_check() {
     })
     .to_string();
     let out = check_vm_hako_subset_json(&mir_json);
-    assert_eq!(
-        out,
-        Err((
-            "main".to_string(),
-            0,
-            "mir_call(legacy-removed)".to_string()
-        ))
-    );
+    assert_eq!(out, Ok(()));
 }

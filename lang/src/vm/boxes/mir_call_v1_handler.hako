@@ -5,7 +5,9 @@
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
 using lang.runtime.collections.array_core_box as ArrayCoreBox
@@ -39,6 +41,15 @@ static box MirCallV1HandlerBox {
     local raw = regs.getField(StringHelpers.int_to_str(vid))
     if me._is_i64_text(raw) != 1 { return null }
     return JsonFragBox._str_to_int("" + raw)
+  }
+
+  _read_reg_text_or_null(regs, handle_regs, vid) {
+    if vid == null || vid < 0 { return null }
+    if handle_regs != null {
+      local handle_text = MirVmS0StateOpsBox.handle_get(handle_regs, vid)
+      if handle_text != null { return handle_text }
+    }
+    return regs.getField(StringHelpers.int_to_str(vid))
   }
 
   _mem_alloc_next_key() {
@@ -85,13 +96,39 @@ static box MirCallV1HandlerBox {
     return JsonFragBox._str_to_int(parsed)
   }
 
+  _third_arg_register(seg) {
+    if seg == null { return null }
+    local key = "\"args\":"
+    local p = seg.indexOf(key)
+    if p < 0 { return null }
+    local tail = seg.substring(p + key.length(), seg.length())
+    local lb = tail.indexOf("[")
+    if lb < 0 { return null }
+    local arr = tail.substring(lb, tail.length())
+    local rb = JsonFragBox._seek_array_end(arr, 0)
+    if rb < 0 { return null }
+    local inner = arr.substring(1, rb)
+    local c1 = inner.indexOf(",")
+    if c1 < 0 { return null }
+    local tail1 = inner.substring(c1 + 1, inner.length())
+    local c2 = tail1.indexOf(",")
+    if c2 < 0 { return null }
+    local rhs = tail1.substring(c2 + 1, tail1.length())
+    local parsed = JsonFragBox.read_int_from(rhs, 0)
+    if parsed == null { return null }
+    return JsonFragBox._str_to_int(parsed)
+  }
+
   _try_handle_runtime_data_box(seg, regs, btype, mname) {
     if btype != "RuntimeDataBox" { return 0 }
     return RuntimeDataCoreBox.try_handle(seg, regs, mname)
   }
 
   handle(seg, regs) {
-    print("[DEBUG_HANDLER_ENTRY] seg=" + seg.substring(0, 80))
+    return me.handle_with_state(seg, regs, null)
+  }
+
+  handle_with_state(seg, regs, handle_regs) {
     // Constructor: write dst=0 (SSA continuity)
     if seg.indexOf("\"type\":\"Constructor\"") >= 0 {
       local d0 = JsonFragBox.get_int(seg, "dst"); if d0 != null { regs.setField(StringHelpers.int_to_str(d0), "0") }
@@ -105,6 +142,62 @@ static box MirCallV1HandlerBox {
       if mname != "" {
         // Try to resolve box type/name for logging/fallbacks
         local btype = JsonFragBox.get_str(seg, "box_name"); if btype == null { btype = JsonFragBox.get_str(seg, "box_type") }
+        if btype == "ArrayBox" && mname == "birth" {
+          return
+        }
+        if btype == "LlvmBackendBox" && mname == "compile_obj" {
+          local dst_codegen = JsonFragBox.get_int(seg, "dst")
+          if dst_codegen == null { return }
+          local arg0_codegen = MiniMirV1Scan.first_arg_register(seg)
+          local path_text = me._read_reg_text_or_null(regs, handle_regs, arg0_codegen)
+          if path_text == null {
+            regs.setField(StringHelpers.int_to_str(dst_codegen), "0")
+            return
+          }
+          local args = new ArrayBox()
+          args.push("" + path_text)
+          local out = CodegenBridgeBox.compile_json_path_args(args)
+          if out == null || ("" + out) == "" {
+            print("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
+            regs.setField(StringHelpers.int_to_str(dst_codegen), "0")
+            return
+          }
+          regs.setField(StringHelpers.int_to_str(dst_codegen), "" + out)
+          return
+        }
+        if btype == "LlvmBackendBox" && mname == "link_exe" {
+          local dst_codegen_link = JsonFragBox.get_int(seg, "dst")
+          if dst_codegen_link == null { return }
+          local arg0_link = MiniMirV1Scan.first_arg_register(seg)
+          local arg1_link = me._second_arg_register(seg)
+          local arg2_link = me._third_arg_register(seg)
+          local obj_text = me._read_reg_text_or_null(regs, handle_regs, arg0_link)
+          local out_text = me._read_reg_text_or_null(regs, handle_regs, arg1_link)
+          local libs_text = me._read_reg_text_or_null(regs, handle_regs, arg2_link)
+          if obj_text == null || out_text == null {
+            regs.setField(StringHelpers.int_to_str(dst_codegen_link), "0")
+            return
+          }
+          local args_link = new ArrayBox()
+          args_link.push("" + obj_text)
+          args_link.push("" + out_text)
+          if libs_text != null && ("" + libs_text) != "" {
+            args_link.push("" + libs_text)
+          }
+          local exe = CodegenBridgeBox.link_object_args(args_link)
+          if exe == null || ("" + exe) == "" {
+            print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
+            regs.setField(StringHelpers.int_to_str(dst_codegen_link), "0")
+            return
+          }
+          if ("" + exe) != ("" + out_text) {
+            print("[llvmbackend/link/path-mismatch] expected=" + out_text + " got=" + ("" + exe))
+            regs.setField(StringHelpers.int_to_str(dst_codegen_link), "0")
+            return
+          }
+          regs.setField(StringHelpers.int_to_str(dst_codegen_link), "1")
+          return
+        }
         if me._try_handle_runtime_data_box(seg, regs, btype, mname) == 1 { return }
         // Optional AdapterRegistry 経路（箱化）
         local use_adapter = env.get("HAKO_ABI_ADAPTER"); if use_adapter == null { use_adapter = "0" }

@@ -11,6 +11,7 @@ using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.mir_s0_lifecycle_ops as MirVmS0LifecycleOpsBox
 using selfhost.vm.helpers.mir_s0_reg_utils as MirVmS0RegUtilsBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+using selfhost.vm.helpers.mir_call_v1_handler as MirCallV1HandlerBox
 
 static box MirVmS0ExecDispatchBox {
   _to_i64(x) {
@@ -512,11 +513,19 @@ static box MirVmS0ExecDispatchBox {
     return MirVmS0BoxcallExecBox._exec_boxcall(seg, regs, kinds, array_lens, handle_regs, file_boxes, src)
   }
 
+  _exec_mir_call(seg, regs, handle_regs) {
+    MirCallV1HandlerBox.handle_with_state(seg, regs, handle_regs)
+    return "__NEXT__"
+  }
+
   _exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src) {
     return MirVmS0CallExecBox._exec_call_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src)
   }
 
   _exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src) {
+    if op == "mir_call" {
+      return me._exec_mir_call(seg, regs, handle_regs)
+    }
     local data_next = me._exec_data_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
     if data_next != "" {
       return data_next

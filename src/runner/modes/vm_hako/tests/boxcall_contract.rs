@@ -7,51 +7,6 @@ fn env_guard() -> &'static Mutex<()> {
     GUARD.get_or_init(|| Mutex::new(()))
 }
 
-#[test]
-fn compile_v0_emits_mir_call_extern_hako_mem_alloc() {
-    let runner = NyashRunner::new(crate::cli::CliConfig::default());
-    let source = r#"
-static box Main {
-  main() {
-    local p = externcall "hako_mem_alloc"(8)
-    return p
-  }
-}
-"#;
-    let mir_json = compile_source_to_mir_json_v0(&runner, "<inline>", source)
-        .expect("compile_source_to_mir_json_v0 should succeed");
-    let root: serde_json::Value = serde_json::from_str(&mir_json).expect("valid mir json");
-    let inst = root["functions"]
-        .as_array()
-        .and_then(|funcs| funcs.iter().find(|f| f["name"].as_str() == Some("main")))
-        .and_then(|main| main["blocks"].as_array())
-        .and_then(|blocks| {
-            blocks.iter().find_map(|b| {
-                b["instructions"].as_array().and_then(|insts| {
-                    insts.iter().find(|inst| {
-                        inst["op"].as_str() == Some("mir_call")
-                            && inst["mir_call"]["callee"]["type"].as_str() == Some("Extern")
-                            && inst["mir_call"]["callee"]["name"].as_str()
-                                == Some("hako_mem_alloc")
-                    })
-                })
-            })
-        })
-        .cloned()
-        .expect("main mir_call(Extern:hako_mem_alloc) must exist");
-    assert_eq!(
-        inst["mir_call"]["args"].as_array().map(|a| a.len()),
-        Some(1),
-        "extern hako_mem_alloc must receive one runtime arg: {}",
-        inst
-    );
-    assert!(
-        inst["dst"].is_number(),
-        "extern hako_mem_alloc mir_call must carry dst: {}",
-        inst
-    );
-}
-
 fn with_joinir_strict_without_planner_required<F: FnOnce()>(f: F) {
     let _lock = env_guard().lock().unwrap_or_else(|e| e.into_inner());
     let prev_strict = std::env::var("HAKO_JOINIR_STRICT").ok();
@@ -879,6 +834,70 @@ fn subset_accepts_boxcall_link_exe_with_three_args() {
 }
 
 #[test]
+fn subset_accepts_mir_call_link_exe_with_three_args() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "LlvmBackendBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": {
+                            "type": { "box_type": "StringBox", "kind": "handle" },
+                            "value": "/tmp/in.o"
+                        }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 3,
+                        "value": {
+                            "type": { "box_type": "StringBox", "kind": "handle" },
+                            "value": "/tmp/out.exe"
+                        }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 4,
+                        "value": { "type": "void", "value": 0 }
+                    },
+                    {
+                        "op": "mir_call",
+                        "dst": 5,
+                        "mir_call": {
+                            "callee": {
+                                "type": "Method",
+                                "box_name": "LlvmBackendBox",
+                                "name": "link_exe",
+                                "receiver": 1,
+                                "certainty": "Known"
+                            },
+                            "args": [2, 3, 4],
+                            "effects": [],
+                            "flags": {}
+                        }
+                    },
+                    {
+                        "op": "ret",
+                        "value": 5
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_boxcall_read_with_receiver_mirror_arg() {
     let mir_json = json!({
         "functions": [{
@@ -985,6 +1004,94 @@ static box Main {
     assert!(
         inst["mir_call"]["callee"]["receiver"].is_number(),
         "open mir_call must carry receiver: {}",
+        inst
+    );
+}
+
+#[test]
+fn compile_v0_emits_mir_call_compile_obj_with_one_arg() {
+    let runner = NyashRunner::new(crate::cli::CliConfig::default());
+    let source = r#"
+static box Main {
+  main() {
+    return LlvmBackendBox.compile_obj("/tmp/phase29y_probe_input.mir.json")
+  }
+}
+"#;
+    let mir_json = compile_source_to_mir_json_v0(&runner, "<inline>", source)
+        .expect("compile_source_to_mir_json_v0 should succeed");
+    let root: serde_json::Value = serde_json::from_str(&mir_json).expect("valid mir json");
+    let inst = root["functions"]
+        .as_array()
+        .and_then(|funcs| funcs.iter().find(|f| f["name"].as_str() == Some("main")))
+        .and_then(|main| main["blocks"].as_array())
+        .and_then(|blocks| {
+            blocks.iter().find_map(|b| {
+                b["instructions"].as_array().and_then(|insts| {
+                    insts.iter().find(|inst| {
+                        inst["op"].as_str() == Some("mir_call")
+                            && inst["mir_call"]["callee"]["type"].as_str() == Some("Method")
+                            && inst["mir_call"]["callee"]["name"].as_str() == Some("compile_obj")
+                    })
+                })
+            })
+        })
+        .cloned()
+        .expect("main mir_call(compile_obj) must exist");
+    let args_len = inst["mir_call"]["args"].as_array().map(|a| a.len()).unwrap_or(0);
+    assert!(
+        args_len >= 1,
+        "unexpected compile_obj args shape: {}",
+        inst
+    );
+    assert!(
+        inst["mir_call"]["callee"]["box_name"].as_str() == Some("LlvmBackendBox"),
+        "compile_obj mir_call must target LlvmBackendBox: {}",
+        inst
+    );
+}
+
+#[test]
+fn compile_v0_emits_mir_call_extern_hako_mem_alloc() {
+    let runner = NyashRunner::new(crate::cli::CliConfig::default());
+    let source = r#"
+static box Main {
+  main() {
+    local p = externcall "hako_mem_alloc"(8)
+    return p
+  }
+}
+"#;
+    let mir_json = compile_source_to_mir_json_v0(&runner, "<inline>", source)
+        .expect("compile_source_to_mir_json_v0 should succeed");
+    let root: serde_json::Value = serde_json::from_str(&mir_json).expect("valid mir json");
+    let inst = root["functions"]
+        .as_array()
+        .and_then(|funcs| funcs.iter().find(|f| f["name"].as_str() == Some("main")))
+        .and_then(|main| main["blocks"].as_array())
+        .and_then(|blocks| {
+            blocks.iter().find_map(|b| {
+                b["instructions"].as_array().and_then(|insts| {
+                    insts.iter().find(|inst| {
+                        inst["op"].as_str() == Some("mir_call")
+                            && inst["mir_call"]["callee"]["type"].as_str() == Some("Extern")
+                            && inst["mir_call"]["callee"]["name"].as_str()
+                                == Some("hako_mem_alloc")
+                    })
+                })
+            })
+        })
+        .cloned()
+        .expect("main mir_call(Extern:hako_mem_alloc) must exist");
+    assert_eq!(
+        inst["mir_call"]["args"].as_array().map(|a| a.len()),
+        Some(1),
+        "extern hako_mem_alloc must receive one runtime arg: {}",
+        inst
+    );
+    assert!(
+        inst["dst"].is_number(),
+        "extern hako_mem_alloc mir_call must carry dst: {}",
         inst
     );
 }

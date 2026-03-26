@@ -341,6 +341,29 @@ fn validate_boxcall_link_exe_shape(inst: &Value, args: &[Value]) -> Result<(), S
     Ok(())
 }
 
+fn validate_mir_call_shape(inst: &Value) -> Result<(), String> {
+    let callee_type = call_callee_type(inst).unwrap_or("");
+    let callee_name = call_callee_name(inst).unwrap_or("");
+    if callee_type.is_empty() {
+        return Err("mir_call(missing-callee-type)".to_string());
+    }
+    if callee_name.is_empty() {
+        return Err("mir_call(missing-callee-name)".to_string());
+    }
+
+    let args = inst
+        .get("mir_call")
+        .and_then(|v| v.get("args"))
+        .or_else(|| inst.get("args"))
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| "mir_call(missing-args)".to_string())?;
+    if args.iter().any(|v| v.as_u64().is_none()) {
+        return Err("mir_call(args:non-reg)".to_string());
+    }
+
+    Ok(())
+}
+
 fn validate_boxcall_noarg_shape(inst: &Value, args: &[Value], method: &str) -> Result<(), String> {
     if !args.is_empty() {
         return Err(format!("boxcall({}:args!=0)", method));
@@ -826,25 +849,12 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         }
                     }
                 }
-                "mir_call" => match parse_print_arg_from_instruction(inst, &handle_by_reg) {
-                    Ok(Some(_)) => {}
-                    Ok(None) => {
-                        let callee_name = inst
-                            .get("mir_call")
-                            .and_then(|v| v.get("callee"))
-                            .and_then(|v| v.get("name"))
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("");
-                        return Err((
-                            func_name.clone(),
-                            bb,
-                            format!("mir_call(callee:{})", callee_name),
-                        ));
+                "mir_call" => {
+                    if let Err(reason) = validate_mir_call_shape(inst) {
+                        return Err((func_name.clone(), bb, reason));
                     }
-                    Err(reason) => {
-                        return Err((func_name.clone(), bb, reason.to_string()));
-                    }
-                },
+                    continue;
+                }
                 other => return Err((func_name.clone(), bb, other.to_string())),
             }
         }
