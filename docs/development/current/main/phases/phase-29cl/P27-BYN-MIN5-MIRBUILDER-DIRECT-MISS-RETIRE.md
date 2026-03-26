@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P26` after module-string inventory; retire the remaining MirBuilder direct-miss compat proof into a dedicated helper so the direct route is explicit and isolated.
@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - docs/development/current/main/phases/phase-29cl/P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - src/llvm_py/instructions/direct_box_method.py
   - src/llvm_py/instructions/mir_builder_direct.py
@@ -32,4 +33,4 @@ Related:
 
 ## Next Exact Front
 
-1. validate the dedicated MirBuilder direct helper on both `boxcall.py` and `method_call.py`
+1. `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md`
