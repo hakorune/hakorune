@@ -32,6 +32,7 @@ Operational rules:
 - `llvm-exe` is the only production/mainline artifact.
 - current `vm-hako` is not a co-mainline candidate in the current policy.
 - current `vm-hako` acceptance is gate-backed; archived throughput/probe smokes do not change its role.
+- current `vm-hako` LLVM/exe bridge proofs are manual monitor evidence only, not mainline acceptance.
 - `rust-vm` may remain as bootstrap/recovery residue without affecting owner-migration reading.
 
 ## 2. Owner Proof Boundary
@@ -53,6 +54,7 @@ Current non-goals:
 
 - promoting current `vm-hako` to co-mainline
 - treating current `vm-hako` as a user-facing production artifact
+- treating current `vm-hako` as the owner of LLVM backend / exe-build responsibilities
 - defining future interpreter promotion criteria now
 - changing raw CLI backend tokens or defaults in this doc
 

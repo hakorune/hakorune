@@ -37,13 +37,13 @@ Related:
      - `29bq-114-hako-cleanup-integration-prep-lane.md`
      - `29bq-115-selfhost-to-go-checklist.md`
 2. `phase-29ck`
-   - active exact blocker capture
+   - active follow-up / route-ready
    - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline split is fixed
-   - current exact blocker: `Stage1 MIR dialect split`
+   - current exact blocker: `none` for the current kilo entry
    - current exact front: `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
-   - first cutover owner: `.hako` Stage1 canonical producer route
-   - current live materializer seam to demote after cutover: `src/runner/mir_json_emit/emitters/calls.rs`
-   - do not widen pure-first to broad `boxcall` support as the first move
+   - current reading: route correction is landed, and next work is benchmark-guided leaf optimization on `ny-llvmc(boundary)`
+   - `.hako` remains the preferred Stage1 canonical MIR authority and Rust stays a thin seam target
+   - current `vm-hako` LLVM/exe proof is manual monitor only, not active acceptance
 3. `phase-29ci`
    - formally close-synced
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification is complete for the accepted keep set
@@ -116,6 +116,7 @@ Related:
 - `phase-29y`
   - parked
   - reopen only on exact runtime gate / bootstrap-proof failure
+  - `vm-hako` stays monitor/debug/bootstrap-proof only; any future interpreter lane must reopen separately
 - `phase-29ct`
   - stop-line reached
   - docs/task lane only until explicit reopen

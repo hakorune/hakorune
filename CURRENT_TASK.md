@@ -22,6 +22,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 ## Current blocker (SSOT)
 
 - runtime lane is parked/monitor-only again; there is no active `vm-hako` throughput blocker.
+- current `vm-hako` remains a parked monitor/debug/bootstrap-proof lane only.
+- `phase29ck_vmhako_llvm_backend_runtime_proof.sh` is manual/non-blocking monitor evidence, not mainline acceptance.
 - `phase-29cj` has completed its near-thin-floor reinventory and formal close sync.
 - `phase-29cu` has completed its formal close sync for the narrow Rune v0 scope.
 - `phase-29ci` has completed its formal close sync for the current boundary-retirement scope.
@@ -100,6 +102,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - or hard delete / broad internal removal explicitly resumes
 7. parked / stop-line
    - `phase-29y`: parked monitor-only
+     - daily/mainline remains `llvm-exe` + `rust-vm` recovery/compat
+     - `vm-hako` stays blocker-driven only; future interpreter discussion is a separate reopen
    - `phase-29ct`: stop-line reached
    - `phase-21_5` perf reopen: exact blocker captured under `phase-29ck/P16`
    - `phase-29cs`: parked

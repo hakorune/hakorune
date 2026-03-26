@@ -106,6 +106,7 @@ Related:
   - parked
   - operational reading is `llvm-exe` daily / `vm-hako` reference-debug-bootstrap-proof / `rust-vm` bootstrap-recovery-compat
   - active acceptance is `phase29y_vm_hako_caps_gate_vm.sh` only
+  - `phase29ck_vmhako_llvm_backend_runtime_proof.sh` is manual monitor evidence only, not a blocking acceptance smoke
 - Substrate lane: `phase-29ct`
   - stop-line reached
 - JSON v0 reading

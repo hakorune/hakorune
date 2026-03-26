@@ -393,8 +393,9 @@ Related:
      - `.hako VM` runtime can execute `LlvmBackendBox.compile_obj/1` / `link_exe/3`
      - backend boxcall helpers in `mir_vm_s0_boxcall_exec.hako` now route through owner-local helper methods that lower to canonical `Callee::Extern(env.codegen.*)`
      - phase-29ck proof no longer depends on regular Rust VM special-casing `hostbridge.extern_invoke` or `newbox(hostbridge)`
-   - acceptance smoke:
+   - manual monitor smoke:
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+     - keep as blocker-driven evidence only; it is not active mainline acceptance
      - proof now pins non-empty `libs` through `LlvmBackendBox.link_exe(..., "-lm")`
    - temporary env pin:
       - `NYASH_LLVM_USE_CAPI=1`
@@ -406,6 +407,7 @@ Related:
         - kept only for historical pure-lowering routes; not required by the phase-29ck `.hako VM` runtime proof and no longer the daily recipe SSOT
    - current reading:
      - runtime-proof widening has no active exact slice
+     - current vm-hako LLVM/exe bridge is not a promotion target; future interpreter discussion is separate
      - next phase-level exact front is `phase-29cl` compiled-stage1 surrogate shrink
 5. native subset widening
    - next widening target is phase2120 old native canary set (`const/binop(Add)/compare(Eq/Lt)/ret/branch`) only when boundary cutover needs more seam evidence

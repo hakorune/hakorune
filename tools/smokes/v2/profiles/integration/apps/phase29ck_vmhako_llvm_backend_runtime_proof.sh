@@ -1,6 +1,8 @@
 #!/bin/bash
-# Phase 29ck runtime proof:
+# Phase 29ck runtime proof (manual monitor only):
 # `.hako VM` -> LlvmBackendBox -> env.codegen C-API -> object -> exe
+# This is blocker-driven evidence for the parked vm-hako lane.
+# It is not a mainline/daily acceptance smoke.
 
 set -euo pipefail
 
