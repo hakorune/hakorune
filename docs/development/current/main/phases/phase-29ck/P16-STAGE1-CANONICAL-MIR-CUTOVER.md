@@ -63,6 +63,9 @@ Related:
   - Phase0 keep/export lane は `HAKO_MIR_BUILDER_METHODIZE=0` を明示して legacy route を固定する
 - `tools/hakorune_emit_mir.sh`
   - Stage-B / selfhost-first route は `NYASH_MIR_UNIFIED_CALL=1` を internal pin して caller env の legacy toggle を吸わない
+- `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
+  - direct `kilo` entry の first unsupported op は `copy` だった
+  - current slice は generic pure path に `copy` を追加して、次の exact blocker を `newbox(ArrayBox)` まで前に出す
 
 ## Acceptance
 

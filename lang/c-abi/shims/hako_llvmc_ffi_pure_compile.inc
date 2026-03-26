@@ -186,6 +186,28 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           const char* op = read_str(ins, "op"); if (!op) { yyjson_doc_free(d); goto GEN_ABORT; }
           if (strcmp(op, "phi")==0) continue; // already emitted
           if (strcmp(op, "const")==0) continue; // inlined via const map
+          if (strcmp(op, "copy")==0) {
+            long long dst = read_int(ins, "dst");
+            long long src = read_int(ins, "src");
+            long long cv = 0;
+            int src_ty = get_type(src);
+            int src_origin = get_origin(src);
+            int src_scan_origin = get_scan_origin(src);
+            if (has_const(src, &cv)) {
+              EMIT("  %%r%lld = add i64 0, %lld\n", dst, cv);
+              put_const(dst, cv);
+              set_type(dst, T_I64);
+            } else if (src_ty == T_I1) {
+              EMIT("  %%r%lld = or i1 %%r%lld, false\n", dst, src);
+              set_type(dst, T_I1);
+            } else {
+              EMIT("  %%r%lld = add i64 0, %%r%lld\n", dst, src);
+              set_type(dst, src_ty == T_NONE ? T_I64 : src_ty);
+            }
+            if (src_origin != ORG_NONE) set_origin(dst, src_origin);
+            if (src_scan_origin != ORG_NONE) set_scan_origin(dst, src_scan_origin);
+            continue;
+          }
           if (strcmp(op, "compare")==0) {
             const char* pred = read_str(ins, "cmp"); if (!pred) pred = read_str(ins, "operation");
             const char* p2 = NULL; if (pred){ if (!strcmp(pred,"Lt")||!strcmp(pred,"lt")||!strcmp(pred,"<")) p2="slt"; else if (!strcmp(pred,"Le")||!strcmp(pred,"le")||!strcmp(pred,"<=")) p2="sle"; else if (!strcmp(pred,"Eq")||!strcmp(pred,"eq")||!strcmp(pred,"==")) p2="eq"; else if (!strcmp(pred,"Ne")||!strcmp(pred,"ne")||!strcmp(pred,"!=")) p2="ne"; else if (!strcmp(pred,"Ge")||!strcmp(pred,"ge")||!strcmp(pred,">=")) p2="sge"; else if (!strcmp(pred,"Gt")||!strcmp(pred,"gt")||!strcmp(pred,">")) p2="sgt"; }
