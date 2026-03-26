@@ -8,12 +8,16 @@ class DummyResolver:
     def __init__(self):
         self.marked = set()
         self.array_ids = set()
+        self.string_ptrs = {}
         self.value_types = {}
         self.phi_trivial_aliases = {}
         self.block_phi_incomings = {}
 
     def mark_string(self, vid: int):
         self.marked.add(int(vid))
+
+    def is_stringish(self, vid: int) -> bool:
+        return int(vid) in self.marked
 
     def is_arrayish(self, vid: int) -> bool:
         return int(vid) in self.array_ids
@@ -83,6 +87,33 @@ class TestPhiTagging(unittest.TestCase):
         ]
         setup_phi_placeholders(builder, blocks)
         self.assertIn(43, builder.resolver.marked)
+
+    def test_non_trivial_string_phi_creates_pointer_placeholder(self):
+        _mod, bb_map = self._mk_blocks_and_bbs()
+        builder = DummyBuilder(bb_map)
+        blocks = [
+            {
+                "id": 0,
+                "instructions": [
+                    {"op": "const", "dst": 7, "value": {"type": "string", "value": "hi"}},
+                    {"op": "const", "dst": 8, "value": {"type": "string", "value": "lo"}},
+                ],
+            },
+            {
+                "id": 1,
+                "instructions": [
+                    {
+                        "op": "phi",
+                        "dst": 48,
+                        "dst_type": {"kind": "handle", "box_type": "StringBox"},
+                        "incoming": [[7, 0], [8, 2]],
+                    }
+                ],
+            },
+        ]
+        setup_phi_placeholders(builder, blocks)
+        self.assertIn(48, builder.resolver.string_ptrs)
+        self.assertEqual(str(builder.resolver.string_ptrs[48].type), "i8*")
 
     def test_mark_arrayish_by_dst_type(self):
         _mod, bb_map = self._mk_blocks_and_bbs()

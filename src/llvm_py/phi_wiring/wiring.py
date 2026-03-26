@@ -466,6 +466,106 @@ def _propagate_phi_origin_maps(builder, dst_vid: int, incoming: List[Tuple[int, 
         pass
 
 
+def _string_ptr_phi_candidate(builder, block_id: int, dst_vid: int):
+    resolver = getattr(builder, "resolver", None)
+    ptr_map = getattr(resolver, "string_ptrs", None)
+    if not isinstance(ptr_map, dict):
+        return None
+    phi = ptr_map.get(int(dst_vid))
+    if phi is None or not hasattr(phi, "add_incoming"):
+        return None
+    try:
+        if not isinstance(phi.type, ir.PointerType):
+            return None
+        phi_bb_name = getattr(getattr(phi, "basic_block", None), "name", None)
+        bb = builder.bb_map.get(block_id)
+        bb_name = getattr(bb, "name", None) if bb is not None else None
+        return phi if phi_bb_name == bb_name else None
+    except Exception:
+        return None
+
+
+def _declare_to_i8p_bridge(builder) -> ir.Function:
+    for func in builder.module.functions:
+        if func.name == "nyash.string.to_i8p_h":
+            return func
+    return ir.Function(
+        builder.module,
+        ir.FunctionType(ir.IntType(8).as_pointer(), [builder.i64]),
+        name="nyash.string.to_i8p_h",
+    )
+
+
+def _resolve_incoming_string_ptr(builder, pred_match: int, src_vid: int, context=None):
+    ctx = context if context is not None else getattr(builder.resolver, "context", None)
+    ptr_snapshot = ctx.get_block_string_ptr_snapshot(pred_match) if ctx is not None else {}
+    ptr_val = ptr_snapshot.get(int(src_vid)) if isinstance(ptr_snapshot, dict) else None
+    if ptr_val is not None and hasattr(ptr_val, "type") and isinstance(ptr_val.type, ir.PointerType):
+        return ptr_val, True
+
+    value_snapshot = ctx.get_block_snapshot(pred_match) if ctx is not None else {}
+    handle_val = value_snapshot.get(int(src_vid)) if isinstance(value_snapshot, dict) else None
+    if handle_val is None:
+        return None, False
+    try:
+        if not (hasattr(handle_val, "type") and isinstance(handle_val.type, ir.IntType) and handle_val.type.width == 64):
+            return None, False
+    except Exception:
+        return None, False
+
+    pred_bb = builder.bb_map.get(pred_match)
+    if pred_bb is None:
+        return None, False
+    pred_builder = ir.IRBuilder(pred_bb)
+    try:
+        term = pred_bb.terminator
+        if term is not None:
+            pred_builder.position_before(term)
+        else:
+            pred_builder.position_at_end(pred_bb)
+    except Exception:
+        pass
+    bridge = _declare_to_i8p_bridge(builder)
+    ptr_val = pred_builder.call(bridge, [handle_val], name=f"phi_strptr_h2p_{src_vid}_{pred_match}")
+    if isinstance(ptr_snapshot, dict):
+        ptr_snapshot[int(src_vid)] = ptr_val
+    return ptr_val, True
+
+
+def _wire_string_ptr_incomings(builder, block_id: int, dst_vid: int, incoming: List[Tuple[int, int]], context=None):
+    phi = _string_ptr_phi_candidate(builder, block_id, dst_vid)
+    if phi is None:
+        return 0
+    preds_list = _dedup_predecessors(builder, block_id)
+    succs = build_succs(builder.preds)
+    init_src_vid = _initial_non_self_source(dst_vid, incoming)
+    chosen: Dict[int, ir.Value] = {}
+
+    for (b_decl, v_src) in incoming:
+        try:
+            bd = int(b_decl)
+            vs = int(v_src)
+        except Exception:
+            continue
+        pred_match = nearest_pred_on_path(succs, preds_list, bd, block_id)
+        if pred_match is None:
+            continue
+        vs = _normalize_incoming_source(dst_vid, vs, init_src_vid)
+        val, resolved_ok = _resolve_incoming_string_ptr(builder, pred_match, vs, context=context)
+        if val is None:
+            continue
+        _record_chosen_incoming(chosen, pred_match, val, resolved_ok)
+
+    wired = 0
+    for pred_bid, val in chosen.items():
+        pred_bb = builder.bb_map.get(pred_bid)
+        if pred_bb is None:
+            continue
+        phi.add_incoming(val, pred_bb)
+        wired += 1
+    return wired
+
+
 def _propagate_finalized_phi_facts(builder, dst_vid: int, incoming: List[Tuple[int, int]]) -> None:
     _mark_phi_stringish(builder, dst_vid, incoming)
     _mark_phi_arrayish(builder, dst_vid, incoming)
@@ -498,6 +598,7 @@ def finalize_phis(builder, context):
                 })
                 continue
             wired = wire_incomings(builder, int(block_id), int(dst_vid), incoming, context=context)
+            _wire_string_ptr_incomings(builder, int(block_id), int(dst_vid), incoming, context=context)
             total_wired += int(wired or 0)
             _propagate_finalized_phi_facts(builder, int(dst_vid), incoming)
             trace({"phi": "finalize", "block": int(block_id), "dst": int(dst_vid), "wired": int(wired or 0)})

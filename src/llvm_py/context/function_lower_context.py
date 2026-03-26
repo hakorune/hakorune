@@ -39,6 +39,8 @@ class FunctionLowerContext:
         # Maps: block_id -> {value_id -> ir.Value}
         # SSOT: End-of-block value snapshots for PHI wiring
         self.block_end_values: Dict[int, Dict[int, ir.Value]] = {}
+        # String pointer mirror snapshots for FAST string PHI wiring.
+        self.block_end_string_ptrs: Dict[int, Dict[int, ir.Value]] = {}
 
         # Definition tracking (was: builder.def_blocks)
         # Maps: value_id -> set of block_ids where it's defined
@@ -122,6 +124,14 @@ class FunctionLowerContext:
             snapshot: Dictionary mapping value_id -> ir.Value
         """
         self.block_end_values[block_id] = snapshot
+
+    def get_block_string_ptr_snapshot(self, block_id: int) -> Dict[int, ir.Value]:
+        """Get end-of-block string pointer mirror snapshot for a block."""
+        return self.block_end_string_ptrs.get(block_id, {})
+
+    def set_block_string_ptr_snapshot(self, block_id: int, snapshot: Dict[int, ir.Value]) -> None:
+        """Set end-of-block string pointer mirror snapshot for a block."""
+        self.block_end_string_ptrs[block_id] = snapshot
 
     def register_jump_only_block(self, block_id: int, pred_id: int) -> None:
         """Register a block as jump-only (trampoline block).

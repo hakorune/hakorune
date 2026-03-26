@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Dict, List, Any
 
+import llvmlite.ir as ir
+
 from .common import trace
 from .analysis import analyze_incomings, collect_produced_stringish
 from .fact_propagation import mark_arrayish_handle, should_mark_phi_arrayish
@@ -180,6 +182,54 @@ def _register_predeclared_phi(builder, block_id: int, dst_vid: int, ph, debug_mo
         pass
 
 
+def _phi_string_ptr_placeholder_needed(builder, dst_vid: int) -> bool:
+    resolver = getattr(builder, "resolver", None)
+    if resolver is None:
+        return False
+    try:
+        if hasattr(resolver, "is_stringish") and resolver.is_stringish(int(dst_vid)):
+            return True
+    except Exception:
+        pass
+    try:
+        marked = getattr(resolver, "marked", None)
+        if isinstance(marked, set) and int(dst_vid) in marked:
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def _create_string_ptr_phi_placeholder(builder, block_id: int, dst_vid: int, bb0, debug_mode: bool) -> None:
+    resolver = getattr(builder, "resolver", None)
+    ptr_map = getattr(resolver, "string_ptrs", None)
+    if not isinstance(ptr_map, dict):
+        return
+    try:
+        existing = ptr_map.get(int(dst_vid))
+        existing_bb = getattr(getattr(existing, "basic_block", None), "name", None)
+        current_bb = getattr(bb0, "name", None)
+        if existing is not None and hasattr(existing, "add_incoming") and isinstance(getattr(existing, "type", None), ir.PointerType):
+            if existing_bb == current_bb:
+                return
+    except Exception:
+        pass
+
+    b0 = ir.IRBuilder(bb0)
+    try:
+        instrs = list(bb0.instructions)
+        if instrs:
+            b0.position_before(instrs[0])
+        else:
+            b0.position_at_start(bb0)
+    except Exception:
+        pass
+    ptr_map[int(dst_vid)] = b0.phi(ir.IntType(8).as_pointer(), name=f"phi_strptr_{dst_vid}")
+    if debug_mode:
+        import sys
+        print(f"[phi_wiring/setup] Created string-ptr PHI placeholder for v{dst_vid} in bb{block_id}", file=sys.stderr)
+
+
 def _create_phi_placeholder(builder, block_id: int, dst_vid: int, bb0, inst: Dict[str, Any], debug_mode: bool) -> None:
     _warn_phi_terminator(debug_mode, block_id, dst_vid, bb0)
     try:
@@ -218,6 +268,8 @@ def _setup_phi_instruction(
 
     _create_phi_placeholder(builder, block_id, dst0, bb0, inst, debug_mode)
     _propagate_phi_tags(builder, int(dst0), inst.get("dst_type"), incoming0, produced_str)
+    if _phi_string_ptr_placeholder_needed(builder, int(dst0)):
+        _create_string_ptr_phi_placeholder(builder, block_id, dst0, bb0, debug_mode)
     _register_phi_definition(builder, block_id, dst0)
 
 

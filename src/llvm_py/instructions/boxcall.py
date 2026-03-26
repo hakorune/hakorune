@@ -55,6 +55,31 @@ def _ensure_handle(builder: ir.IRBuilder, module: ir.Module, v: ir.Value) -> ir.
             return builder.zext(v, i64) if v.type.width < 64 else builder.trunc(v, i64)
     return ir.Constant(i64, 0)
 
+
+def _maybe_seed_string_ptr_from_handle(
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    resolver,
+    dst_vid: Optional[int],
+    handle_val: ir.Value,
+) -> None:
+    if resolver is None or dst_vid is None:
+        return
+    try:
+        if not (hasattr(handle_val, "type") and isinstance(handle_val.type, ir.IntType) and handle_val.type.width == 64):
+            return
+        if not hasattr(resolver, "is_stringish") or not resolver.is_stringish(int(dst_vid)):
+            return
+        ptr_map = getattr(resolver, "string_ptrs", None)
+        if not isinstance(ptr_map, dict) or int(dst_vid) in ptr_map:
+            return
+        bridge = _declare(module, "nyash.string.to_i8p_h", ir.IntType(8).as_pointer(), [ir.IntType(64)])
+        ptr_map[int(dst_vid)] = builder.call(bridge, [handle_val], name=f"boxcall_str_h2p_{dst_vid}")
+        if hasattr(resolver, "mark_string"):
+            resolver.mark_string(int(dst_vid))
+    except Exception:
+        pass
+
 def lower_boxcall(
     builder: ir.IRBuilder,
     module: ir.Module,
@@ -205,6 +230,8 @@ def lower_boxcall(
     if collection_result is not None:
         if dst_vid is not None:
             vmap[dst_vid] = collection_result
+            if method_name == "get":
+                _maybe_seed_string_ptr_from_handle(builder, module, resolver, dst_vid, collection_result)
         return
 
     # Phase 133: Console 箱化 - ConsoleBox メソッドを console_bridge に委譲

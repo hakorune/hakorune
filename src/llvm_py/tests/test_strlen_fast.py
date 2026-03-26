@@ -841,6 +841,43 @@ class TestStrlenFast(unittest.TestCase):
         ir_txt = b.build_from_mir(mir) or ""
         self.assertNotIn('call i64 @"nyash.any.length_h"', ir_txt, msg=ir_txt)
 
+    def test_boxcall_get_result_seeds_string_ptr_for_substring_concat(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "newbox", "dst": 1, "type": "ArrayBox", "args": []},
+                                {"op": "const", "dst": 2, "value": {"type": "string", "value": "abcdef"}},
+                                {"op": "const", "dst": 3, "value": {"type": "i64", "value": 0}},
+                                {"op": "boxcall", "dst": 4, "box": 1, "method": "set", "args": [3, 2]},
+                                {"op": "boxcall", "dst": 5, "box": 1, "method": "get", "args": [3]},
+                                {"op": "const", "dst": 6, "value": {"type": "i64", "value": 2}},
+                                {"op": "boxcall", "dst": 7, "box": 5, "method": "substring", "dst_type": {"kind": "handle", "box_type": "StringBox"}, "args": [3, 6]},
+                                {"op": "const", "dst": 8, "value": {"type": "string", "value": "xx"}},
+                                {"op": "newbox", "dst": 9, "type": "StringBox", "args": [8]},
+                                {"op": "binop", "dst": 10, "lhs": 7, "rhs": 9, "operation": "+"},
+                                {"op": "ret", "value": 10},
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ""
+        self.assertIn('call i64 @"nyash.array.slot_load_hi"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.to_i8p_h"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.substring_sii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.substring_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+
     def test_binop_string_concat_chain_prefers_pointer_concat_ss(self):
         mir = {
             "functions": [
@@ -1133,6 +1170,75 @@ class TestStrlenFast(unittest.TestCase):
             or ('call i64 @"nyrt_string_length"' in ir_txt),
             msg=ir_txt,
         )
+
+    def test_substring_concat_phi_self_carry_keeps_pointer_route(self):
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "params": [],
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {"op": "const", "dst": 1, "value": {"type": {"kind": "handle", "box_type": "StringBox"}, "value": "line-seed-abcdef"}},
+                                {"op": "newbox", "dst": 2, "type": "StringBox", "args": [1]},
+                                {"op": "const", "dst": 3, "value": {"type": "i64", "value": 0}},
+                                {"op": "const", "dst": 4, "value": {"type": "i64", "value": 16}},
+                                {"op": "copy", "dst": 5, "src": 3},
+                                {"op": "copy", "dst": 6, "src": 3},
+                                {"op": "copy", "dst": 7, "src": 2},
+                                {"op": "jump", "target": 1},
+                            ],
+                        },
+                        {
+                            "id": 1,
+                            "instructions": [
+                                {"op": "phi", "dst": 8, "incoming": [[5, 0], [27, 3]]},
+                                {"op": "phi", "dst": 9, "incoming": [[6, 0], [25, 3]]},
+                                {"op": "phi", "dst": 10, "incoming": [[4, 0], [10, 3]]},
+                                {"op": "phi", "dst": 11, "incoming": [[7, 0], [29, 3]]},
+                                {"op": "const", "dst": 12, "value": {"type": "i64", "value": 4}},
+                                {"op": "compare", "dst": 13, "lhs": 8, "rhs": 12, "operation": "<"},
+                                {"op": "branch", "cond": 13, "then": 2, "else": 4},
+                            ],
+                        },
+                        {
+                            "id": 2,
+                            "instructions": [
+                                {"op": "const", "dst": 14, "value": {"type": "i64", "value": 0}},
+                                {"op": "const", "dst": 15, "value": {"type": "i64", "value": 2}},
+                                {"op": "const", "dst": 16, "value": {"type": {"kind": "handle", "box_type": "StringBox"}, "value": "xx"}},
+                                {"op": "newbox", "dst": 17, "type": "StringBox", "args": [16]},
+                                {"op": "binop", "dst": 18, "lhs": 10, "rhs": 15, "operation": "/"},
+                                {"op": "boxcall", "dst": 19, "box": 11, "method": "substring", "dst_type": {"kind": "handle", "box_type": "StringBox"}, "args": [14, 18]},
+                                {"op": "boxcall", "dst": 20, "box": 11, "method": "substring", "dst_type": {"kind": "handle", "box_type": "StringBox"}, "args": [18, 10]},
+                                {"op": "binop", "dst": 21, "lhs": 19, "rhs": 17, "operation": "+"},
+                                {"op": "binop", "dst": 22, "lhs": 21, "rhs": 20, "operation": "+"},
+                                {"op": "boxcall", "dst": 23, "box": 22, "method": "length", "args": []},
+                                {"op": "binop", "dst": 24, "lhs": 9, "rhs": 23, "operation": "+"},
+                                {"op": "const", "dst": 26, "value": {"type": "i64", "value": 1}},
+                                {"op": "binop", "dst": 27, "lhs": 8, "rhs": 26, "operation": "+"},
+                                {"op": "binop", "dst": 28, "lhs": 10, "rhs": 26, "operation": "+"},
+                                {"op": "boxcall", "dst": 29, "box": 22, "method": "substring", "dst_type": {"kind": "handle", "box_type": "StringBox"}, "args": [26, 28]},
+                                {"op": "copy", "dst": 25, "src": 24},
+                                {"op": "jump", "target": 3},
+                            ],
+                        },
+                        {"id": 3, "instructions": [{"op": "jump", "target": 1}]},
+                        {"id": 4, "instructions": [{"op": "ret", "value": 9}]},
+                    ],
+                }
+            ]
+        }
+
+        b = NyashLLVMBuilder()
+        ir_txt = b.build_from_mir(mir) or ""
+        self.assertIn('call i8* @"nyash.string.substring_sii"', ir_txt, msg=ir_txt)
+        self.assertIn('call i8* @"nyash.string.concat_ss"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.substring_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat_hh"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.string.concat3_hhh"', ir_txt, msg=ir_txt)
 
 
 if __name__ == '__main__':

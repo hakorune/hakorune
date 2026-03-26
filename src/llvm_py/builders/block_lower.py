@@ -87,9 +87,9 @@ def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]],
     if trace_vmap:
         print(f"[vmap/resolve/passB] Resolving {len(jump_only)} jump-only blocks: {sorted(jump_only.keys())}", file=sys.stderr)
 
-    resolved = {}  # bid -> snapshot dict
+    resolved = {}  # bid -> (value snapshot, string_ptr snapshot)
 
-    def resolve(bid: int, visited: set | None = None) -> Dict[int, Any]:
+    def resolve(bid: int, visited: set | None = None) -> tuple[Dict[int, Any], Dict[int, Any]]:
         """Recursively resolve snapshot for a block, with cycle detection."""
         if visited is None:
             visited = set()
@@ -103,7 +103,7 @@ def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]],
                 )
             if trace_vmap:
                 print(f"[vmap/resolve/passB] WARNING: Cycle at bb{bid}, returning empty", file=sys.stderr)
-            return {}
+            return {}, {}
 
         visited.add(bid)
 
@@ -116,14 +116,15 @@ def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]],
         # Normal block - already has snapshot from Pass A
         # Phase 132-P1: Use context.block_end_values (simple block_id key)
         snapshot = context.get_block_snapshot(bid)
-        if snapshot:
+        ptr_snapshot = context.get_block_string_ptr_snapshot(bid)
+        if snapshot or ptr_snapshot:
             if trace_vmap:
                 print(
                     f"[vmap/resolve/passB] bb{bid} is normal block with snapshot "
                     f"({len(snapshot)} values)",
                     file=sys.stderr
                 )
-            return snapshot
+            return snapshot, ptr_snapshot
 
         # Jump-only block - resolve from predecessor
         if bid in jump_only:
@@ -132,9 +133,9 @@ def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]],
                 print(f"[vmap/resolve/passB] bb{bid} is jump-only, resolving from pred bb{pred_bid}", file=sys.stderr)
 
             # Recursively resolve predecessor
-            pred_snapshot = resolve(pred_bid, visited)
+            pred_snapshot, pred_ptr_snapshot = resolve(pred_bid, visited)
 
-            if not pred_snapshot:
+            if not pred_snapshot and not pred_ptr_snapshot:
                 if strict_mode:
                     raise RuntimeError(
                         f"[LLVM_PY/STRICT] Phase 131-14-B: jump-only block bb{bid} "
@@ -148,13 +149,14 @@ def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]],
                         file=sys.stderr
                     )
                 pred_snapshot = {}
+                pred_ptr_snapshot = {}
 
             # Cache the result (path compression)
-            resolved[bid] = dict(pred_snapshot)
+            resolved[bid] = (dict(pred_snapshot), dict(pred_ptr_snapshot))
             if trace_vmap:
                 print(
                     f"[vmap/resolve/passB] bb{bid} resolved from bb{pred_bid}: "
-                    f"{len(resolved[bid])} values",
+                    f"{len(resolved[bid][0])} values / {len(resolved[bid][1])} ptr mirrors",
                     file=sys.stderr
                 )
             return resolved[bid]
@@ -168,13 +170,14 @@ def resolve_jump_only_snapshots(builder, block_by_id: Dict[int, Dict[str, Any]],
 
         if trace_vmap:
             print(f"[vmap/resolve/passB] WARNING: bb{bid} unknown state, returning empty", file=sys.stderr)
-        return {}
+        return {}, {}
 
     # Resolve all jump-only blocks
     # Phase 132-P1: Use context.set_block_snapshot (simple block_id key)
     for bid in sorted(jump_only.keys()):
-        snapshot = resolve(bid)
+        snapshot, ptr_snapshot = resolve(bid)
         context.set_block_snapshot(bid, snapshot)
+        context.set_block_string_ptr_snapshot(bid, ptr_snapshot)
 
         if trace_vmap:
             print(
@@ -497,6 +500,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                     )
                 # Non-STRICT: use current vmap_cur (defensive fallback)
                 snap = dict(vmap_cur)
+                ptr_snap = dict(getattr(builder.resolver, "string_ptrs", {}) or {})
                 if trace_vmap:
                     print(
                         f"[vmap/snapshot] bb{bid} jump-only with 0 preds: "
@@ -511,6 +515,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                 # DO NOT create snapshot here - will be resolved in Pass B
                 # Set snap to None to indicate "skip storing in block_end_values"
                 snap = None
+                ptr_snap = None
 
                 if trace_vmap:
                     print(
@@ -528,6 +533,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                     )
                 # Non-STRICT: use current vmap_cur (defensive fallback)
                 snap = dict(vmap_cur)
+                ptr_snap = dict(getattr(builder.resolver, "string_ptrs", {}) or {})
                 if trace_vmap:
                     print(
                         f"[vmap/snapshot] bb{bid} jump-only with multiple preds {preds_list}: "
@@ -537,6 +543,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
         else:
             # Normal block: use its own vmap_cur
             snap = dict(vmap_cur)
+            ptr_snap = dict(getattr(builder.resolver, "string_ptrs", {}) or {})
 
         # Phase 131-14-B: Only store snapshot if not deferred (snap is not None)
         # Phase 132-P1: Use context.set_block_snapshot (simple block_id key)
@@ -550,6 +557,7 @@ def lower_blocks(builder, func: ir.Function, block_by_id: Dict[int, Dict[str, An
                 if vid in vmap_cur:
                     context.add_def_block(vid, block_data.get("id", 0))
             context.set_block_snapshot(bid, snap)
+            context.set_block_string_ptr_snapshot(bid, ptr_snap or {})
         else:
             # Jump-only block with deferred snapshot - don't store yet
             if trace_vmap:
