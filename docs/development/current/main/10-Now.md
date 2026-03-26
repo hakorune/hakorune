@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-25
+Date: 2026-03-26
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -43,6 +43,17 @@ Related:
     - progress ledger is `phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
     - parser handoff ledger is `phase-29bq/29bq-92-parser-handoff-checklist.md`
     - current inner migration reading is `29bq-113` / `29bq-114` / `29bq-115`
+- Secondary exact blocker lane: `phase-29ck`
+  - status: `active exact blocker capture`
+  - current exact blocker:
+    - `Stage1 MIR dialect split`
+    - active kilo mainline MIR still contains `newbox/copy/boxcall`
+    - pure-first generic owner remains `mir_call`-centric
+  - current exact front:
+    - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+  - working rule:
+    - cut over the active Stage1 producer first
+    - do not broaden pure-first to permanent dual-dialect support
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - Boundary-retire lane: `phase-29ci`

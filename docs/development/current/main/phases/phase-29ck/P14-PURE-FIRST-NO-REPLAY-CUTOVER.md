@@ -1,13 +1,15 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: perf/mainline owner を `Stage1 = ny-llvmc(boundary pure-first)` に固定し、`llvmlite` compat replay 混入を fail-fast にする。
 Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P13-SMALL-ENTRY-RAW-NET-REFRESH.md
+  - docs/development/current/main/phases/phase-29ck/P15-STAGE1-MIR-DIALECT-INVENTORY.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/ai-handoff-and-debug-contract.md
+  - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
   - docs/reference/environment-variables.md
   - crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs
   - lang/c-abi/shims/hako_llvmc_ffi.c
@@ -38,18 +40,21 @@ Related:
    - missing route trace, replay hit, or non-`none` compat policy are fail-fast.
 3. wrapper trace passthrough is now preserved.
    - `tools/ny_mir_builder.sh` no longer suppresses backend diagnostics when `NYASH_LLVM_ROUTE_TRACE=1`.
-4. current `kilo` blocker is now explicit.
+4. current `kilo` route stop-line is now explicit.
    - replay-disabled `kilo_kernel_small_hk` still fails with `unsupported pure shape for current backend recipe`
    - the active owner is `lang/c-abi/shims/hako_llvmc_ffi.c`, not `src/llvm_py/**`
+5. next exact reading is now narrower than generic coverage wording.
+   - the first blocker is `Stage1 MIR dialect split`
+   - active kilo mainline MIR still includes `newbox/copy/boxcall`
+   - the pure-first generic consumer remains `mir_call`-centric
 
 ## Exact Blocker Family
 
-1. generic pure-first coverage still lacks the first `kilo` family
-   - `copy`
-   - `newbox ArrayBox`
-   - string-loop `RuntimeDataBox.length/get/set/substring/indexOf`
-   - string `binop +`
-2. until that family is accepted in pure-first, asm-guided perf edits stay blocked
+1. current exact blocker is a dialect split, not a request to support both call dialects forever
+   - active Stage1 producer still emits method `boxcall`
+   - current normalizer passes `boxcall` through
+   - pure-first generic consumer is `mir_call`-centric
+2. until that split is removed, asm-guided perf edits stay blocked
 
 ## Acceptance
 
@@ -68,4 +73,4 @@ Related:
 ## Exit Condition
 
 - perf/mainline owner is visible and replay cannot hide inside a green run
-- next exact front is pure-first generic coverage in `hako_llvmc_ffi.c`
+- next exact front is `P15-STAGE1-MIR-DIALECT-INVENTORY.md`

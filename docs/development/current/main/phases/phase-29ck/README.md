@@ -1,7 +1,7 @@
 ---
 Status: Active
 Decision: accepted
-Date: 2026-03-14
+Date: 2026-03-26
 Scope: backend-zero を独立 phase に切り、bootstrap seam と thin backend boundary cutover の fixed order を docs-ready な形で固定する。
 Related:
   - CURRENT_TASK.md
@@ -19,6 +19,9 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md
   - docs/development/current/main/phases/phase-29ck/P13-SMALL-ENTRY-RAW-NET-REFRESH.md
   - docs/development/current/main/phases/phase-29ck/P14-PURE-FIRST-NO-REPLAY-CUTOVER.md
+  - docs/development/current/main/phases/phase-29ck/P15-STAGE1-MIR-DIALECT-INVENTORY.md
+  - docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md
+  - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - docs/reference/plugin-abi/nyash_abi_v2.md
@@ -61,9 +64,11 @@ Related:
 9. `P8-PERF-REOPEN-JUDGMENT.md`
 10. `P9-METHOD-CALL-ONLY-PERF-ENTRY-INVENTORY.md`
 11. `P14-PURE-FIRST-NO-REPLAY-CUTOVER.md`
-12. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+12. `P15-STAGE1-MIR-DIALECT-INVENTORY.md`
+13. `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+14. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
-## Current Snapshot (2026-03-14)
+## Current Snapshot (2026-03-26)
 
 1. caller-facing daily LLVM route は `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe` まで寄っている
 2. `ny-llvmc` internal default driver は `Boundary` に切り替わり、default object/exe route は `Harness` / `Native` selector を daily owner にしなくなった
@@ -74,12 +79,17 @@ Related:
    - `Stage0 = llvmlite` explicit compat/probe keep lane
    - `Stage1 = ny-llvmc(boundary pure-first)` daily/mainline/perf owner
    - perf lane now pins `HAKO_BACKEND_COMPAT_REPLAY=none` and fails if route trace shows replay
-7. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
-8. missing legs は 3 本である
+7. no-replay stop-line is now Stage1-dialect specific.
+   - active kilo mainline MIR still contains `newbox/copy/boxcall`
+   - `src/runner/mir_json_emit/emitters/calls.rs` is the first cutover owner because it still emits method `boxcall` on the legacy path
+   - `lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako` is pass-through only and not the first canonicalization owner
+   - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` remains `mir_call`-centric; do not widen it to broad `boxcall` support as the first move
+8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
+9. missing legs は 3 本である
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
    - `main.rs` / `llvm_codegen.rs` の Rust glue を further thin にすること
    - Python `llvmlite` keep owner を explicit compat/canary only まで demote すること
-9. `.hako` kernel migration order is now the current main thread: `string` is already landed, then `array` -> `numeric` -> `map`, and perf/asm follow-up is secondary until that order is fixed (SSOT: `docs/development/current/main/phases/phase-29cm/README.md`)
+10. `.hako` kernel migration order is now the current main thread: `string` is already landed, then `array` -> `numeric` -> `map`, and perf/asm follow-up is secondary until that order is fixed (SSOT: `docs/development/current/main/phases/phase-29cm/README.md`)
    - `.hako` string kernel op set v0 の current pilot は `string.search` で、いまは `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index` まで landed している
    - further widening is paused until a new exact blocker appears
    - `array` stays in `runtime/collections` ring1 first; a new `lang/src/runtime/kernel/array/` module is still deferred until a concrete policy difference appears
@@ -368,9 +378,11 @@ Related:
      - `box_create_destroy_small`: `c_ms=3`, `ny_aot_ms=8`
    - current small-entry perf lane is `none (monitor-only)`, not runtime `string.len` / `newbox` tuning and not immediate medium/full `kilo`
    - `llvmlite` / harness stays outside the perf baseline
-   - `P14-PURE-FIRST-NO-REPLAY-CUTOVER.md` is now the current exact front
-   - current `kilo` stop-line is no longer `micro leaf selection`
-   - current first question is whether `kilo` can run under `pure-first + compat_replay=none`
+   - `P14-PURE-FIRST-NO-REPLAY-CUTOVER.md` is closed
+   - `P15-STAGE1-MIR-DIALECT-INVENTORY.md` is closed
+   - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` is now the current exact front
+   - current `kilo` stop-line is no longer `micro leaf selection` and no longer broad generic coverage wording
+   - current first question is whether the active Stage1 producer can stop emitting legacy method `boxcall`
 2. runtime proof blocker inventory
    - `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` is now closed
    - final proof owner は `.hako VM`

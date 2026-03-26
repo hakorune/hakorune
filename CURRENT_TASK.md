@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-25
+Date: 2026-03-26
 Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -29,6 +29,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - selfhost `.hako` migration stays `mirbuilder first / parser later`
   - current blocker is `none`
   - `JIR-PORT-08` is landed; keep the lane failure-driven and promote a new exact leaf only when the next blocker is captured
+- secondary exact blocker lane is `phase-29ck`:
+  - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
+  - current exact blocker is `Stage1 MIR dialect split`
+  - current exact front is `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
 
 ## Current Priority
 
@@ -51,7 +55,16 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - latest landed blocker:
      - fixture: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
      - result: green after planner-required BlockExpr value-prelude parity
-2. close-synced boundary-retire lane: `phase-29ci`
+2. reopened exact blocker lane: `phase-29ck`
+   - status: `active exact blocker capture`
+   - scope: `Stage1 MIR dialect split` under `pure-first + compat_replay=none`
+   - exact front:
+     - `docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+   - working rule:
+     - do not widen pure-first to broad `boxcall` support
+     - cut over the active Stage1 producer first
+     - keep `llvmlite` in Stage0 keep lane only
+3. close-synced boundary-retire lane: `phase-29ci`
    - status: `formal-close-synced`
    - current scope is complete for boundary retirement + caller-audit under the accepted keep set
    - explicit keep / monitor-only set:
@@ -61,7 +74,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - reopen only if:
      - a new exact caller/helper gap appears
      - or hard delete / broad internal removal explicitly resumes
-3. close-synced Rune lane: `phase-29cu`
+4. close-synced Rune lane: `phase-29cu`
    - status: `formal-close-synced`
    - accepted narrow-scope current truth:
      - declaration-local `attrs.runes`
@@ -70,10 +83,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - `.hako` compiler/mirbuilder generic function-rune carrier from `defs[].attrs.runes`
      - selected-entry `ny-llvmc` `Symbol` / `CallConv` semantics
    - future reopen only if `.hako` declaration-local full carrier parity resumes
-4. close-synced mainline lane: `phase-29cj`
+5. close-synced mainline lane: `phase-29cj`
    - status: `formal-close-synced`
    - reopen only if a new exact disappearing leaf appears above the Rust stop-line or if deletion-prep explicitly resumes
-5. close-synced by-name retire lane: `phase-29cl`
+6. close-synced by-name retire lane: `phase-29cl`
    - status: `formal-close-synced`
    - current accepted keep set is complete for the present by-name retirement scope
    - helper-side current truth:
@@ -83,10 +96,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - reopen only if:
      - a new exact `by_name` caller/helper gap appears
      - or hard delete / broad internal removal explicitly resumes
-6. parked / stop-line
+7. parked / stop-line
    - `phase-29y`: parked monitor-only
    - `phase-29ct`: stop-line reached
-   - `phase-21_5` perf reopen: parked
+   - `phase-21_5` perf reopen: exact blocker captured under `phase-29ck/P16`
    - `phase-29cs`: parked
 - runtime lane: `phase-29y / parked`. current blocker: `none`.
 
@@ -128,6 +141,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - current operation mode is failure-driven / blocker-none steady-state
   - do not auto-create a broader leaf until that blocker is judged
 - close-synced boundary-retire lane: `phase-29ci`
+- reopened perf/mainline blocker lane: `phase-29ck`
 - close-synced Rune lane: `phase-29cu`
 - close-synced bootstrap-retire lane: `phase-29cj`
 
@@ -139,15 +153,17 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
    - `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
 3. keep the active `29bq` reading failure-driven with `blocker=none` until the next exact blocker is captured
-4. reopen `phase-29ci` only if a new exact boundary-retirement gap appears or hard delete resumes
-5. keep `phase-29cl` formally closed unless a fresh exact `by_name` caller/helper gap reappears
-6. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
+4. keep `phase-29ck` focused on `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+5. reopen `phase-29ci` only if a new exact boundary-retirement gap appears or hard delete resumes
+6. keep `phase-29cl` formally closed unless a fresh exact `by_name` caller/helper gap reappears
+7. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
 
 ## Lane Pointers
 
 - Workstream map: `docs/development/current/main/15-Workstream-Map.md`
 - Docs mirror: `docs/development/current/main/10-Now.md`
 - Active selfhost lane: `docs/development/current/main/phases/phase-29bq/README.md`
+- Perf/backend blocker lane: `docs/development/current/main/phases/phase-29ck/README.md`
 - Boundary retire lane: `docs/development/current/main/phases/phase-29ci/README.md`
 - By-name retire lane: `docs/development/current/main/phases/phase-29cl/README.md`
 - Mainline phase: `docs/development/current/main/phases/phase-29cj/README.md`

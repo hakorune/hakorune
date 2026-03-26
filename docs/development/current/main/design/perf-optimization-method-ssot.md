@@ -13,6 +13,7 @@ Related:
 - docs/development/current/main/phases/phase-29ck/README.md
 - CURRENT_TASK.md
 - docs/development/current/main/phases/phase-29ck/P8-PERF-REOPEN-JUDGMENT.md
+- docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
 ---
 
 # Perf Optimization Method SSOT
@@ -202,12 +203,12 @@ Hotspot は次の分類で読む。
 - `Stage0 = llvmlite` explicit compat/probe keep lane only
 - `Stage1 = ny-llvmc(boundary pure-first)` daily/mainline/perf owner
 - `kilo_kernel_small_hk` は boundary route のままでも内部 compat replay がまだ混入しうる
-- `HAKO_BACKEND_COMPAT_REPLAY=none` で `kilo` を build すると current exact blocker は `unsupported pure shape for current backend recipe`
-- current exact blocker family は `lang/c-abi/shims/hako_llvmc_ffi.c` pure-first generic coverage
-  - `copy`
-  - `newbox ArrayBox`
-  - `RuntimeDataBox.length/get/set/substring/indexOf` string-loop seam
-  - string `binop +`
+- `HAKO_BACKEND_COMPAT_REPLAY=none` で `kilo` を build すると current exact blocker はまず `Stage1 MIR dialect split` として観測される
+- current producer/consumer split is:
+  - active kilo mainline MIR still emits `newbox/copy/boxcall`
+  - pure-first generic owner is `mir_call`-centric
+  - strict/dev Stage1 parse already rejects legacy `boxcall`
+- therefore the first exact front is producer-side canonical call cutover, not broad pure-first dual-dialect support
 - no-replay `kilo` が green になるまで、`src/llvm_py/**` は perf owner work に使わない
 - 下の micro snapshot は historical evidence として保持するが、current exact front ではない
 

@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-03-25
+Date: 2026-03-26
 Scope: current mainline / secondary lanes / parked lanes の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -36,7 +36,14 @@ Related:
      - `29bq-113-hako-recipe-first-migration-lane.md`
      - `29bq-114-hako-cleanup-integration-prep-lane.md`
      - `29bq-115-selfhost-to-go-checklist.md`
-2. `phase-29ci`
+2. `phase-29ck`
+   - active exact blocker capture
+   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline split is fixed
+   - current exact blocker: `Stage1 MIR dialect split`
+   - current exact front: `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+   - first cutover owner: `src/runner/mir_json_emit/emitters/calls.rs`
+   - do not widen pure-first to broad `boxcall` support as the first move
+3. `phase-29ci`
    - formally close-synced
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification is complete for the accepted keep set
    - helper-local slices through W14 are landed
@@ -45,13 +52,13 @@ Related:
    - `phase2170` default MIR-file verify wrappers are landed
    - legacy `hv1_mircall_*` wrappers remain explicit keeps
    - reopen only on a new exact gap or explicit hard-delete resumption
-3. `phase-29cu`
+4. `phase-29cu`
    - formally close-synced
-4. `phase-29cj`
+5. `phase-29cj`
    - formally close-synced
-5. `phase-29y`
+6. `phase-29y`
    - parked / monitor-only
-6. `phase-29ct`
+7. `phase-29ct`
    - stop-line reached
 
 ## Boundary-Retire Snapshot
@@ -83,7 +90,7 @@ Related:
 ## Exact Next
 
 1. keep `phase-29bq` active as failure-driven / blocker-none lane
-2. capture the next exact blocker before promoting broader lane work
+2. keep `phase-29ck` focused on the Stage1 MIR dialect cutover until the producer stop-line is cleared
 3. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
 4. treat `phase2044` / `phase2160` thin wrapper families and `phase2170/hv1_mircall_*` as explicit keeps, not active caller-debt buckets
 
