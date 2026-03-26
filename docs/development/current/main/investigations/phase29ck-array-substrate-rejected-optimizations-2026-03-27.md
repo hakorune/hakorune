@@ -83,6 +83,89 @@ PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUI
 - keep `handle_cache` tweaks subordinate to a clearer proof/representation cut
 - next exact front is integer-heavy array fast lane with staged proof vocabulary
 
+### 2026-03-27: array-local integer `value_class` profile
+
+**Hypothesis**
+
+- array-local `value_class=ScalarI64` proof を持てば、integer-heavy `ArrayBox.get/set/len` fast lane が trait/codec overhead を減らせる
+
+**Touched owner area**
+
+- [mod.rs](/home/tomoaki/git/hakorune-selfhost/src/boxes/array/mod.rs)
+- [handle_cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_cache.rs)
+
+**Commands**
+
+```bash
+cargo test -q integer_value_class_ --lib
+cargo test -q -p nyash_kernel array_ -- --nocapture
+NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3
+```
+
+**Observed result**
+
+- tests:
+  - targeted root/unit and `nyash_kernel array_` tests were green
+- micro:
+  - `kilo_micro_array_getset = 47 ms`
+- main:
+  - `kilo_kernel_small_hk = 840 ms`
+- note:
+  - an earlier naive variant briefly showed `44 ms` micro, but mainline regressed much harder (`1114 ms`); the mixed-array short-circuit recheck removed the worst regression, but still failed to beat the accepted baseline
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Next candidate**
+
+- do not add per-store array-local proof bookkeeping unless it produces a clear whole-program win
+- the next useful cut likely needs lower fixed cost in `array_slot_store_i64` / TLS path or a more explicit integer representation split
+
+### 2026-03-27: integer shadow vector on `ArrayBox`
+
+**Hypothesis**
+
+- integer-only `ArrayBox` に `Vec<i64>` shadow を常時維持すれば、`get/set/len` の hot path を direct scalar 読み書きに寄せられる
+
+**Touched owner area**
+
+- [mod.rs](/home/tomoaki/git/hakorune-selfhost/src/boxes/array/mod.rs)
+- [handle_cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_cache.rs)
+
+**Commands**
+
+```bash
+cargo test -q scalar_i64_shadow_ --lib
+cargo test -q -p nyash_kernel array_ -- --nocapture
+NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3
+```
+
+**Observed result**
+
+- tests:
+  - targeted shadow tests and `nyash_kernel array_` tests were green
+- micro:
+  - `kilo_micro_array_getset = 45 ms`
+- main:
+  - `kilo_kernel_small_hk = 837 ms`
+- note:
+  - accepted line before this attempt was `kilo_micro_array_getset = 47 ms`, `kilo_kernel_small_hk = 809 ms`
+  - micro improved slightly, but shadow maintenance overhead still lost on whole-program cost
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Next candidate**
+
+- do not keep a second integer shadow structure unless the carrying seam can prove lower write maintenance cost
+- next useful cut is still fixed-cost reduction in `array_slot_store_i64` / TLS path, not per-array proof bookkeeping
+
 ## Historical Pre-Ledger Rejects
 
 - array `len/push` borrowed follow-up
