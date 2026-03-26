@@ -27,6 +27,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P27-BYN-MIN5-MIRBUILDER-DIRECT-MISS-RETIRE.md
   - docs/development/current/main/phases/phase-29cl/P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -184,7 +185,7 @@ Rule:
    - no new mainline caller remains
    - compiled-stage1 surrogate residue is archive-only proof residue
    - compat keep residue is a frozen exact keep set
-6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current execution pack; the current exact front is `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md`
+6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current execution pack; the current exact front is `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md`
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` execution slices are landed
    - `FileBox.write` built-in keep retire is landed
    - `InstanceBox.getField/setField` built-in keep retire is landed
@@ -192,7 +193,8 @@ Rule:
    - `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md` is landed
    - `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md` is landed
    - `P27-BYN-MIN5-MIRBUILDER-DIRECT-MISS-RETIRE.md` is landed
-   - next exact front is `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md`
+   - `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md` is landed
+   - next exact front is `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md`
    - keep execution narrow: one residue family at a time
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
