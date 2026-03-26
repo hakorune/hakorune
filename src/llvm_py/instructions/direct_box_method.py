@@ -17,6 +17,7 @@ from typing import Callable, List, Optional, Tuple
 from llvmlite import ir
 
 from instructions.filebox_direct import (
+    lower_filebox_close_direct,
     lower_filebox_open_direct,
     lower_filebox_read_direct,
 )
@@ -157,6 +158,14 @@ def try_lower_known_box_method_call(
         )
     if resolved_box_name == "FileBox" and method_name == "read":
         return lower_filebox_read_direct(
+            builder=builder,
+            module=module,
+            recv_h=recv_h,
+            args=args,
+            call_name=call_name,
+        )
+    if resolved_box_name == "FileBox" and method_name == "close":
+        return lower_filebox_close_direct(
             builder=builder,
             module=module,
             recv_h=recv_h,

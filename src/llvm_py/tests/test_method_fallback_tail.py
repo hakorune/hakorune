@@ -292,6 +292,27 @@ class TestMethodFallbackTail(unittest.TestCase):
         self.assertIn('call i64 @"nyash.file.read_h"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_filebox_close_prefers_direct_kernel_route(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_direct_or_plugin_method_call(
+            builder=builder,
+            module=module,
+            box_name="FileBox",
+            method_name="close",
+            recv_h=ir.Constant(i64, 7),
+            args=[],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+            direct_call_name="known_box_file_close",
+            plugin_call_name="unified_plugin_invoke",
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"nyash.file.close_h"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
     def test_filebox_unknown_method_fails_fast_without_by_name_tail(self):
         i64, module, builder = _new_builder()
 

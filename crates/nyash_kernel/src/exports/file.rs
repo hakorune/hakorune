@@ -77,3 +77,20 @@ pub extern "C" fn nyash_file_read_h_export(recv_handle: i64) -> i64 {
         Err(_) => 0,
     }
 }
+
+#[export_name = "nyash.file.close_h"]
+pub extern "C" fn nyash_file_close_h_export(recv_handle: i64) -> i64 {
+    if recv_handle <= 0 {
+        return 0;
+    }
+    let object = match handles::get(recv_handle as u64) {
+        Some(object) => object,
+        None => return 0,
+    };
+    let file_box = match object.as_any().downcast_ref::<FileBox>() {
+        Some(file_box) => file_box,
+        None => return 0,
+    };
+    let _ = file_box.ny_close();
+    0
+}

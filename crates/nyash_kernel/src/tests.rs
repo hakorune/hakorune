@@ -331,6 +331,35 @@ fn filebox_read_h_returns_zero_when_not_opened() {
 }
 
 #[test]
+fn filebox_close_h_closes_open_file() {
+    ensure_test_ring0();
+
+    let tmp_path = "/tmp/nyash_kernel_filebox_close_h_roundtrip.txt";
+    std::fs::write(tmp_path, "kernel-filebox-close-h").expect("seed file");
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = string_handle(tmp_path);
+    let mode_handle = string_handle("r");
+    assert_eq!(
+        nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+        1
+    );
+    assert_eq!(nyash_file_close_h_export(filebox_handle), 0);
+    assert_eq!(nyash_file_read_h_export(filebox_handle), 0);
+
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
+fn filebox_close_h_returns_zero_for_invalid_receiver() {
+    ensure_test_ring0();
+    assert_eq!(nyash_file_close_h_export(0), 0);
+}
+
+#[test]
 fn filebox_by_name_open_is_retired() {
     ensure_test_ring0();
 
@@ -345,6 +374,33 @@ fn filebox_by_name_open_is_retired() {
         let result =
             nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 2, path_handle, mode_handle);
         assert_eq!(result, 0, "open should no longer use builtin by_name keep");
+    });
+}
+
+#[test]
+fn filebox_by_name_close_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let tmp_path = "/tmp/nyash_kernel_filebox_by_name_close_retired.txt";
+        std::fs::write(tmp_path, "kernel-filebox-by-name-close").expect("seed file");
+
+        let type_name = CString::new("FileBox").expect("CString");
+        let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+        assert!(filebox_handle > 0, "expected FileBox handle");
+
+        let path_handle = string_handle(tmp_path);
+        let mode_handle = string_handle("r");
+        assert_eq!(
+            nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+            1
+        );
+
+        let method = CString::new("close").expect("CString");
+        let result = nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 0, 0, 0);
+        assert_eq!(result, 0, "close should no longer use builtin by_name keep");
+
+        let _ = std::fs::remove_file(tmp_path);
     });
 }
 
