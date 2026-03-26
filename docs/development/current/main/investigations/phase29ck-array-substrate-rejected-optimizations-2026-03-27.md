@@ -166,6 +166,51 @@ PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUI
 - do not keep a second integer shadow structure unless the carrying seam can prove lower write maintenance cost
 - next useful cut is still fixed-cost reduction in `array_slot_store_i64` / TLS path, not per-array proof bookkeeping
 
+### 2026-03-27: authoritative `ArrayStorage::{Generic,I64}` split on `ArrayBox`
+
+**Hypothesis**
+
+- a single authoritative integer lane inside `ArrayBox` should beat shadow bookkeeping because `get/set/len` can stay scalar without maintaining a second sidecar structure
+
+**Touched owner area**
+
+- [mod.rs](/home/tomoaki/git/hakorune-selfhost/src/boxes/array/mod.rs)
+- [handle_cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_cache.rs)
+
+**Commands**
+
+```bash
+cargo check -q
+cargo test -q -p nyash_kernel array_ -- --nocapture
+cargo test -q core13_array_boxcall_set_get -- --nocapture
+NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3
+```
+
+**Observed result**
+
+- tests:
+  - `cargo check -q` green
+  - targeted `nyash_kernel array_` tests green
+  - `core13_array_boxcall_set_get` green
+- micro:
+  - `kilo_micro_array_getset = 46 ms`
+- main:
+  - `kilo_kernel_small_hk = 858 ms`
+- note:
+  - accepted line before this attempt was `kilo_micro_array_getset = 46-47 ms`, `kilo_kernel_small_hk = 809 ms`
+  - the authoritative split did not buy measurable micro improvement, while main paid extra read-path cost on non-integer arrays
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Next candidate**
+
+- do not reopen `ArrayStorage::{Generic,I64}` as a broad internal split until the carry seam can avoid extra read crossings on generic/string arrays
+- next exact front stays fixed-cost reduction in `array_slot_store_i64` / TLS path, or an AOT-side reduction of redundant array crossings
+
 ## Historical Pre-Ledger Rejects
 
 - array `len/push` borrowed follow-up

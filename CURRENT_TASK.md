@@ -38,7 +38,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - current reading is docs-first:
     - lock staged `AOT-Core` proof vocabulary before more array substrate tries
     - keep a rolling reject ledger for array substrate experiments
-    - then reopen integer-heavy `ArrayBox.get/set/len` fast-lane work
+    - integer-heavy `ArrayBox` representation splits that add extra read crossings are currently rejected
+    - next exact code cut is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings
 
 ## Current Priority
 
@@ -62,8 +63,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - fixture: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
      - result: green after planner-required BlockExpr value-prelude parity
 2. reopened exact blocker lane: `phase-29ck`
-   - status: `active follow-up / docs-first exact front`
-   - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; first code consumer after docs is integer-heavy array fast lane`
+  - status: `active follow-up / docs-first exact front`
+  - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; current exact perf cut is narrowed to array fixed-cost reduction after representation-split rejects`
    - exact front:
      - `docs/development/current/main/phases/phase-29ck/P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
      - `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`

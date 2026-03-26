@@ -90,7 +90,9 @@ Related:
    - `src/runner/mir_json_emit/emitters/calls.rs` is now a thinner residual materializer seam and no longer the first dialect authority
    - `lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako` remains pass-through only and is not the canonicalization owner
    - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` now accepts the current kilo entry under `pure-first + compat_replay=none`
-   - the next front is `P17` docs-first proof vocabulary lock, then integer-heavy `ArrayBox.get/set/len` perf work; do not reopen broad `boxcall` widening
+   - `P17` docs-first proof vocabulary lock is landed
+   - rejected follow-up: authoritative `ArrayBox` integer-storage split (`ArrayStorage::{Generic,I64}`) kept micro near `46 ms` but regressed main `kilo` to `858 ms`
+   - the next exact front is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings; do not reopen broad `boxcall` widening
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
@@ -391,7 +393,8 @@ Related:
   - current `kilo` stop-line is no longer Stage1 dialect mismatch and no longer pure-first route unlock
   - current exact front is `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
   - future `AOT-Core MIR` is fixed as `future-needed but not a new layer now`
-  - first code consumer after docs is integer-heavy `ArrayBox.get/set/len`
+  - first code consumer after docs remains integer-heavy `ArrayBox.get/set/len`
+  - rejected follow-up: broad internal representation splits that add extra read crossings on generic/string arrays are not progress for this wave
   - rejected array-substrate tries are tracked in `docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md`
 2. runtime proof blocker inventory
    - `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` is now closed

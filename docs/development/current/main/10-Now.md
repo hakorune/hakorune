@@ -48,7 +48,9 @@ Related:
   - current exact result:
     - `Stage1 MIR dialect split` is retired for the current kilo entry
     - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
-    - next work is docs-first proof-vocabulary lock before integer-heavy array fast-lane optimization resumes
+    - docs-first proof-vocabulary lock is landed
+    - rejected follow-up: authoritative `ArrayBox` integer-storage split did not improve `kilo_micro_array_getset` and regressed main `kilo`
+    - next exact work is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings
   - current exact front:
     - `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
     - `stage2-aot-core-proof-vocabulary-ssot.md`
