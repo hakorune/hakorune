@@ -36,16 +36,19 @@ static box StringSearchKernelBox {
     local m = needle_text.length()
     if m == 0 { return 0 }
     if n < m { return -1 }
-    return me._find_index_loop(hay, needle_text, n, m)
-  }
-
-  _find_index_loop(hay, needle, n, m) {
+    // Single-pass scan: keep the search owner strict-friendly by avoiding a
+    // nested outer/inner loop pair. This remains the canonical control shape
+    // for the string-search pilot.
     local i = 0
+    local j = 0
     loop(i <= (n - m)) {
-      if me._starts_with_at_norm(hay, i, needle) == 1 {
-        return i
+      if hay.substring(i + j, i + j + 1) == needle_text.substring(j, j + 1) {
+        j = j + 1
+        if j == m { return i }
+      } else {
+        i = i + 1
+        j = 0
       }
-      i = i + 1
     }
     return -1
   }
