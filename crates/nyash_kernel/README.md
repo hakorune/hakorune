@@ -130,7 +130,7 @@ cargo build --release -p nyash_kernel
 
 Notes:
 - `libnyash_kernel.a` is required for **native executable linking** (AOT/`--emit-exe`/`ny-llvmc --emit exe`).
-- The Python llvmlite **harness** path (`NYASH_LLVM_USE_HARNESS=1`) does not require the static library.
+- The Python llvmlite **explicit compat/probe keep lane** (`NYASH_LLVM_USE_HARNESS=1`) does not require the static library.
 
 ### For VM Backend
 ```bash
