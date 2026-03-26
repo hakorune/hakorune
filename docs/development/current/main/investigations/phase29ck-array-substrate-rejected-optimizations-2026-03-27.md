@@ -293,6 +293,50 @@ PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUI
 - do not reopen lock-implementation swaps on `ArrayBox.items` in the current wave
 - next exact front remains fixed-cost reduction in `array_slot_store_i64` / TLS path, with owner confirmation below the lock implementation level
 
+### 2026-03-27: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock`
+
+**Hypothesis**
+
+- if the remaining `LocalKey::with` hot symbol is mainly registry lock machinery under `with_array_box_borrowed(...)`, replacing the global host-handle table lock with `std::sync::RwLock` should reduce fixed-cost overhead on pure array substrate calls
+
+**Touched owner area**
+
+- [host_handles.rs](/home/tomoaki/git/hakorune-selfhost/src/runtime/host_handles.rs)
+
+**Commands**
+
+```bash
+cargo check -q
+cargo test -q -p nyash_kernel array_ -- --nocapture
+cargo test -q core13_array_boxcall_set_get -- --nocapture
+NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3
+```
+
+**Observed result**
+
+- tests:
+  - `cargo check -q` green
+  - targeted `nyash_kernel array_` tests green
+  - `core13_array_boxcall_set_get` green
+- micro:
+  - `kilo_micro_array_getset = 68 ms`
+- main:
+  - `kilo_kernel_small_hk = 909 ms`
+- note:
+  - accepted line before this attempt was `kilo_micro_array_getset = 46-47 ms`, `kilo_kernel_small_hk = 809 ms`
+  - the registry lock swap regressed even harder than the `ArrayBox.items` lock swap, so the current fixed cost is not explained by `parking_lot` on the host-handle table alone
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Next candidate**
+
+- do not reopen lock-implementation swaps on `host_handles.table` in the current wave
+- next exact front remains direct fixed-cost reduction inside `array_slot_store_i64` / `array_slot_load_hi`, or crossing-count reduction above the runtime substrate
+
 ## Historical Pre-Ledger Rejects
 
 - array `len/push` borrowed follow-up
