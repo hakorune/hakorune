@@ -40,14 +40,26 @@ where
     F: FnOnce(CompileFn) -> Result<T>,
 {
     let lib = open_ffi_library()?;
+    let recipe_env = std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok();
+    let replay_env = std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok();
+    let legacy_capi_pure = std::env::var("HAKO_CAPI_PURE").ok();
+    let (compile_recipe, compat_replay) =
+        super::boundary_driver_defaults::boundary_codegen_request_defaults(
+            recipe_env.as_deref(),
+            replay_env.as_deref(),
+        );
     let compile_symbol = super::boundary_driver_defaults::boundary_compile_symbol(
-        std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
-        std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
+        compile_recipe.as_deref(),
+        legacy_capi_pure.as_deref(),
     );
     let func: CompileFn = *lib
         .get(compile_symbol)
         .context("missing symbol hako_llvmc_compile_json{_pure_first}")?;
-    action(func)
+    with_env_override("HAKO_BACKEND_COMPILE_RECIPE", compile_recipe.as_deref(), || {
+        with_env_override("HAKO_BACKEND_COMPAT_REPLAY", compat_replay.as_deref(), || {
+            action(func)
+        })
+    })
 }
 
 unsafe fn with_link_symbol<T, F>(action: F) -> Result<T>

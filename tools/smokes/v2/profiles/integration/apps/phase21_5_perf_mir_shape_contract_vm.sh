@@ -67,7 +67,7 @@ run_case() {
     return 1
   fi
 
-  local blocks branch compare jump phi ret mir_call newbox collapsed
+  local blocks branch compare jump phi ret mir_call boxcall call_like newbox collapsed
   blocks="$(jq '[.functions[]?.blocks[]?] | length' "$tmp_mir")"
   branch="$(count_op "$tmp_mir" "branch")"
   compare="$(count_op "$tmp_mir" "compare")"
@@ -75,6 +75,8 @@ run_case() {
   phi="$(count_op "$tmp_mir" "phi")"
   ret="$(count_op "$tmp_mir" "ret")"
   mir_call="$(count_op "$tmp_mir" "mir_call")"
+  boxcall="$(count_op "$tmp_mir" "boxcall")"
+  call_like=$((mir_call + boxcall))
   newbox="$(count_op "$tmp_mir" "newbox")"
 
   collapsed=0
@@ -110,8 +112,8 @@ run_case() {
     test_fail "$SMOKE_NAME($case_name): expected ret>=1, got $ret"
     return 1
   fi
-  if [ "$mir_call" -lt 1 ]; then
-    test_fail "$SMOKE_NAME($case_name): expected mir_call>=1, got $mir_call"
+  if [ "$call_like" -lt 1 ]; then
+    test_fail "$SMOKE_NAME($case_name): expected call-like op>=1, got mir_call=$mir_call boxcall=$boxcall"
     return 1
   fi
   if [ "$newbox" -lt 1 ]; then
@@ -119,7 +121,7 @@ run_case() {
     return 1
   fi
 
-  log_info "$SMOKE_NAME($case_name): blocks=$blocks branch=$branch compare=$compare jump=$jump phi=$phi mir_call=$mir_call newbox=$newbox ret=$ret"
+  log_info "$SMOKE_NAME($case_name): blocks=$blocks branch=$branch compare=$compare jump=$jump phi=$phi mir_call=$mir_call boxcall=$boxcall newbox=$newbox ret=$ret"
   return 0
 }
 

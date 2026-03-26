@@ -41,7 +41,7 @@ run_gate_step_once() {
 run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_mir_shape_contract_vm.sh"
 run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_direct_emit_dominance_block_vm.sh"
 run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_fast_regfile_contract_vm.sh"
-run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/apps/phase21_5_perf_numeric_mixed_medium_aot_contract_vm.sh"
+run_gate_step_once "phase21_5_perf_gate_vm" "tools/smokes/v2/profiles/integration/phase21_5/perf/numeric/phase21_5_perf_numeric_mixed_medium_aot_contract_vm.sh"
 
 while IFS=$'\t' read -r env_name step_path _rest; do
   env_name="${env_name%$'\r'}"
