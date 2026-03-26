@@ -7,8 +7,12 @@ Related:
 - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 - docs/development/current/main/design/mir-callsite-retire-lane-ssot.md
 - docs/development/current/main/design/perf-optimization-method-ssot.md
+- docs/development/current/main/design/selfhost-compiler-structure-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
 - docs/development/current/main/phases/phase-29ck/P14-PURE-FIRST-NO-REPLAY-CUTOVER.md
+- lang/src/runner/stage1_cli_env.hako
+- lang/src/mir/builder/MirBuilderBox.hako
+- lang/src/mir/builder/func_lowering/call_methodize_box.hako
 - src/runner/mir_json_emit/emitters/calls.rs
 - lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako
 - lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc
@@ -22,6 +26,7 @@ Related:
 - `llvmlite` keep lane と `ny-llvmc(boundary pure-first)` mainline lane の責務を MIR dialect でも分離する。
 - `pure-first + compat_replay=none` の current blocker を「generic coverage 不足」ではなく、まず `Stage1 dialect split` として固定する。
 - pure-first owner に legacy `boxcall` を広く足す前に、mainline producer / normalizer / consumer の責務を 1 本化する。
+- `Stage1 -> Stage2` の MIR dialect policy は `.hako` mainline 側へ寄せ、Rust は residual serializer / transport seam へ薄くする。
 
 ## Contract
 
@@ -51,13 +56,24 @@ Related:
 
 ## Current Split Matrix
 
-### Producer
+### Producer authority
+
+- preferred Stage1 canonical owner:
+  - `lang/src/runner/stage1_cli_env.hako`
+  - `lang/src/mir/builder/MirBuilderBox.hako`
+  - `lang/src/mir/builder/func_lowering/call_methodize_box.hako`
+- current truth:
+  - `.hako` mirbuilder 側には `call -> mir_call(Method)` へ寄せる canonicalization parts がある
+  - Stage1/Stage2 migration policy としては、call dialect meaning should live here
+
+### Producer residual seam
 
 - active Rust MIR JSON producer:
   - `src/runner/mir_json_emit/emitters/calls.rs`
 - current truth:
   - `NYASH_MIR_UNIFIED_CALL` が OFF のとき、`Callee::Method` は `boxcall` を emit する
   - `Callee::Constructor` / `Callee::Global` は v0 `call` + `callee` を keep している
+  - this seam is still live today, but it is not the preferred long-term dialect authority
 
 ### Normalizer
 
@@ -88,6 +104,7 @@ Related:
    - observed shape is `newbox/copy/boxcall`
 2. current pure-first generic owner is `mir_call`-centric
 3. strict/dev selfhost route already treats `boxcall` as retired
+4. `.hako` side already has methodize/canonical pieces, so keeping dialect policy in Rust is not the target end state
 
 したがって、first cut は `boxcall` を pure-first owner に広く足すことではない。
 
@@ -95,6 +112,12 @@ Related:
 
 - canonicalization point は 1 owner に寄せる
 - preferred first owner:
+  - `.hako` Stage1 mainline producer route
+  - concretely:
+    - `lang/src/runner/stage1_cli_env.hako`
+    - `lang/src/mir/builder/MirBuilderBox.hako`
+    - `lang/src/mir/builder/func_lowering/call_methodize_box.hako`
+- residual seam owner:
   - `src/runner/mir_json_emit/emitters/calls.rs`
 - do not:
   - widen `hako_llvmc_ffi_pure_compile.inc` to broad `boxcall` support as a parallel Stage1 dialect
@@ -103,9 +126,10 @@ Related:
 ## Fixed Order
 
 1. expose the dialect split in docs + probe
-2. make the active Stage1 producer stop emitting method `boxcall`
-3. keep the normalizer pass-through in that wave
-4. only after the producer is canonical, continue pure-first semantic coverage widening
+2. make the `.hako` Stage1 producer the canonical owner for method call dialect
+3. demote `src/runner/mir_json_emit/emitters/calls.rs` to a residual serializer seam that follows the canonical owner
+4. keep the normalizer pass-through in that wave
+5. only after the producer/residual seam are canonical, continue pure-first semantic coverage widening
 
 ## Acceptance
 
@@ -116,7 +140,8 @@ Related:
 ## Exit Condition
 
 - the repo can name exactly:
-  - who emits legacy `boxcall`
+  - which `.hako` owner should own Stage1 canonical call dialect
+  - which Rust seam still serializes legacy `boxcall`
   - who merely passes it through
   - who refuses to consume it as Stage1 mainline
-- the next exact code front is Stage1 producer cutover, not broad pure-first dual-dialect support
+- the next exact code front is `.hako` canonical producer cutover plus residual Rust seam sync, not broad pure-first dual-dialect support

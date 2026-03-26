@@ -81,8 +81,9 @@ Related:
    - perf lane now pins `HAKO_BACKEND_COMPAT_REPLAY=none` and fails if route trace shows replay
 7. no-replay stop-line is now Stage1-dialect specific.
    - active kilo mainline MIR still contains `newbox/copy/boxcall`
-   - `src/runner/mir_json_emit/emitters/calls.rs` is the first cutover owner because it still emits method `boxcall` on the legacy path
-   - `lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako` is pass-through only and not the first canonicalization owner
+   - `.hako` Stage1 producer route is the preferred first cutover owner because Stage1→Stage2 dialect policy should not stay in Rust
+   - `src/runner/mir_json_emit/emitters/calls.rs` is the residual serializer seam that must follow after the `.hako` cutover
+   - `lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako` remains pass-through only and is not the first canonicalization owner
    - `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` remains `mir_call`-centric; do not widen it to broad `boxcall` support as the first move
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である
@@ -382,7 +383,7 @@ Related:
    - `P15-STAGE1-MIR-DIALECT-INVENTORY.md` is closed
    - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` is now the current exact front
    - current `kilo` stop-line is no longer `micro leaf selection` and no longer broad generic coverage wording
-   - current first question is whether the active Stage1 producer can stop emitting legacy method `boxcall`
+   - current first question is whether the `.hako` Stage1 producer can become the canonical `mir_call` owner before Rust residual serialization
 2. runtime proof blocker inventory
    - `P4-RUNTIME-PROOF-OWNER-BLOCKER-INVENTORY.md` is now closed
    - final proof owner は `.hako VM`

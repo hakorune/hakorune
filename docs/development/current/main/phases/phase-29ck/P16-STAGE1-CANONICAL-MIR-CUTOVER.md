@@ -2,13 +2,16 @@
 Status: Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `Stage1 = ny-llvmc(boundary pure-first)` mainline lane の call dialect を `mir_call` へ寄せ、legacy `boxcall` emit を current producer owner から外す。
+Scope: `Stage1 = ny-llvmc(boundary pure-first)` mainline lane の call dialect を `mir_call` へ寄せ、`.hako` producer を canonical owner に固定した上で Rust residual seam の legacy `boxcall` emit を外す。
 Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P15-STAGE1-MIR-DIALECT-INVENTORY.md
   - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
   - docs/development/current/main/design/mir-callsite-retire-lane-ssot.md
+  - lang/src/runner/stage1_cli_env.hako
+  - lang/src/mir/builder/MirBuilderBox.hako
+  - lang/src/mir/builder/func_lowering/call_methodize_box.hako
   - src/runner/mir_json_emit/emitters/calls.rs
   - src/runner/modes/common_util/selfhost/json.rs
   - lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc
@@ -20,25 +23,34 @@ Related:
 ## Purpose
 
 - `Stage1` mainline/perf lane の callsite family を `mir_call` へ寄せる。
-- no-replay kilo を broad dual-dialect support で通さず、producer owner を canonical にする。
+- no-replay kilo を broad dual-dialect support で通さず、`.hako` producer owner を canonical にする。
 - `llvmlite` keep lane と `ny-llvmc` mainline lane の責務を code でも揃える。
 
 ## First Exact Owner
+
+- `.hako` Stage1 canonical producer route
+  - `lang/src/runner/stage1_cli_env.hako`
+  - `lang/src/mir/builder/MirBuilderBox.hako`
+  - `lang/src/mir/builder/func_lowering/call_methodize_box.hako`
+
+## Residual Sync Seam
 
 - `src/runner/mir_json_emit/emitters/calls.rs`
 
 ## Fixed Order
 
-1. stop emitting method `boxcall` from the active Stage1 producer path
-2. keep `jsonfrag_normalizer_box.hako` as pass-through in this wave
-3. keep strict/dev reject contract in `src/runner/modes/common_util/selfhost/json.rs`
-4. only after canonical producer output is confirmed, resume pure-first semantic widening in `hako_llvmc_ffi_pure_compile.inc`
+1. make the `.hako` Stage1 producer the canonical owner for method call dialect
+2. stop emitting method `boxcall` from the Rust residual seam so it follows the canonical owner
+3. keep `jsonfrag_normalizer_box.hako` as pass-through in this wave
+4. keep strict/dev reject contract in `src/runner/modes/common_util/selfhost/json.rs`
+5. only after canonical producer output is confirmed, resume pure-first semantic widening in `hako_llvmc_ffi_pure_compile.inc`
 
 ## Current Target
 
-1. Stage1 mainline route should no longer rely on `NYASH_MIR_UNIFIED_CALL=0` compatibility for method calls
+1. Stage1 mainline route should no longer rely on Rust-side `NYASH_MIR_UNIFIED_CALL=0` compatibility for method calls
 2. current kilo mainline MIR should be probeable without `boxcall`
-3. constructor/global/value callsite handling stays scoped to the same producer owner; do not widen consumer and producer in the same commit
+3. constructor/global/value callsite handling stays scoped to the same producer matrix; do not widen consumer and producer in the same commit
+4. Rust should remain serializer/transport thin path, not the long-term dialect-policy owner
 
 ## Acceptance
 
@@ -51,10 +63,10 @@ Related:
 
 - broad `boxcall` acceptance inside `hako_llvmc_ffi_pure_compile.inc`
 - `copy` / `newbox` retirement
-- `.hako` mirbuilder route rework in the same wave
 - keep-lane `llvmlite` removal
 
 ## Exit Condition
 
-- current Stage1 producer no longer emits method `boxcall`
+- `.hako` Stage1 producer is the documented canonical callsite owner
+- current Rust residual seam no longer emits method `boxcall`
 - next exact blocker is a real pure-first semantic unsupported family, not a dialect mismatch

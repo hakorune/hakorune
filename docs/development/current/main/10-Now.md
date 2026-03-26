@@ -52,7 +52,8 @@ Related:
   - current exact front:
     - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
   - working rule:
-    - cut over the active Stage1 producer first
+    - cut over the `.hako` Stage1 canonical producer first
+    - keep Rust as residual serializer seam only
     - do not broaden pure-first to permanent dual-dialect support
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）

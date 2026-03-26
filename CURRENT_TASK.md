@@ -33,6 +33,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
   - current exact blocker is `Stage1 MIR dialect split`
   - current exact front is `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+  - preferred cutover owner is `.hako` Stage1 producer route; Rust stays the residual serializer seam
 
 ## Current Priority
 
@@ -62,7 +63,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - `docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
    - working rule:
      - do not widen pure-first to broad `boxcall` support
-     - cut over the active Stage1 producer first
+     - cut over the `.hako` Stage1 canonical producer first
+     - keep Rust as residual serializer/transport seam only
      - keep `llvmlite` in Stage0 keep lane only
 3. close-synced boundary-retire lane: `phase-29ci`
    - status: `formal-close-synced`
