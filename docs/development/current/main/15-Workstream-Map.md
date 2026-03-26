@@ -42,7 +42,7 @@ Related:
    - current exact blocker: `Stage1 MIR dialect split`
    - current exact front: `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
    - first cutover owner: `.hako` Stage1 canonical producer route
-   - residual seam after cutover: `src/runner/mir_json_emit/emitters/calls.rs`
+   - current live materializer seam to demote after cutover: `src/runner/mir_json_emit/emitters/calls.rs`
    - do not widen pure-first to broad `boxcall` support as the first move
 3. `phase-29ci`
    - formally close-synced
@@ -91,7 +91,7 @@ Related:
 ## Exact Next
 
 1. keep `phase-29bq` active as failure-driven / blocker-none lane
-2. keep `phase-29ck` focused on the Stage1 MIR dialect cutover until the `.hako` producer stop-line is cleared and Rust is reduced to a residual seam
+2. keep `phase-29ck` focused on the Stage1 MIR dialect cutover until the `.hako` producer stop-line is cleared and Rust is reduced to a thin materializer seam
 3. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
 4. treat `phase2044` / `phase2160` thin wrapper families and `phase2170/hv1_mircall_*` as explicit keeps, not active caller-debt buckets
 

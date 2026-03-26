@@ -68,6 +68,7 @@
 - MIR instruction diet ledger SSOT（kept/lowered-away/removed 台帳）: `docs/development/current/main/design/mir-instruction-diet-ledger-ssot.md`
 - MIR canonical callsite lane SSOT（call-site 統一の実行指示）: `docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md`
 - Stage1 MIR dialect contract SSOT（Stage0 keep / Stage1 mainline の call dialect 分離）: `docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md`
+- Stage1 MIR authority boundary SSOT（`.hako authority / Rust materializer / native consumer` の境界固定）: `docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md`
 - String helper density optimization SSOT（substring/concat/indexOf/length 最適化責務）: `docs/development/current/main/design/optimization-ssot-string-helper-density.md`
 - Helper boundary policy SSOT（host handle / string span cache tuning 集約）: `docs/development/current/main/design/helper-boundary-policy-ssot.md`
 - Optimization portability classification SSOT（最適化の移植可能性分類）: `docs/development/current/main/design/optimization-portability-classification-ssot.md`

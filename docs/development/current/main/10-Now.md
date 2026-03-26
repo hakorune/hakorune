@@ -51,9 +51,10 @@ Related:
     - pure-first generic owner remains `mir_call`-centric
   - current exact front:
     - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
+    - `stage1-mir-authority-boundary-ssot.md`
   - working rule:
     - cut over the `.hako` Stage1 canonical producer first
-    - keep Rust as residual serializer seam only
+    - demote Rust from live dialect materializer to thin materializer seam
     - do not broaden pure-first to permanent dual-dialect support
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）

@@ -6,6 +6,7 @@ Updated: 2026-03-26
 Related:
 - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 - docs/development/current/main/design/mir-callsite-retire-lane-ssot.md
+- docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md
 - docs/development/current/main/design/perf-optimization-method-ssot.md
 - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
@@ -26,7 +27,7 @@ Related:
 - `llvmlite` keep lane と `ny-llvmc(boundary pure-first)` mainline lane の責務を MIR dialect でも分離する。
 - `pure-first + compat_replay=none` の current blocker を「generic coverage 不足」ではなく、まず `Stage1 dialect split` として固定する。
 - pure-first owner に legacy `boxcall` を広く足す前に、mainline producer / normalizer / consumer の責務を 1 本化する。
-- `Stage1 -> Stage2` の MIR dialect policy は `.hako` mainline 側へ寄せ、Rust は residual serializer / transport seam へ薄くする。
+- `Stage1 -> Stage2` の MIR dialect policy は `.hako` mainline 側へ寄せ、Rust は current materializer residue を持つ thin seam へ降格する。
 
 ## Contract
 
@@ -66,14 +67,15 @@ Related:
   - `.hako` mirbuilder 側には `call -> mir_call(Method)` へ寄せる canonicalization parts がある
   - Stage1/Stage2 migration policy としては、call dialect meaning should live here
 
-### Producer residual seam
+### Producer materializer seam
 
 - active Rust MIR JSON producer:
   - `src/runner/mir_json_emit/emitters/calls.rs`
 - current truth:
   - `NYASH_MIR_UNIFIED_CALL` が OFF のとき、`Callee::Method` は `boxcall` を emit する
   - `Callee::Constructor` / `Callee::Global` は v0 `call` + `callee` を keep している
-  - this seam is still live today, but it is not the preferred long-term dialect authority
+  - this seam is still live today and still materializes visible call dialect choice
+  - therefore it is not yet a pure serializer; it is a materializer seam that must be demoted
 
 ### Normalizer
 
@@ -117,7 +119,7 @@ Related:
     - `lang/src/runner/stage1_cli_env.hako`
     - `lang/src/mir/builder/MirBuilderBox.hako`
     - `lang/src/mir/builder/func_lowering/call_methodize_box.hako`
-- residual seam owner:
+- current materializer seam owner:
   - `src/runner/mir_json_emit/emitters/calls.rs`
 - do not:
   - widen `hako_llvmc_ffi_pure_compile.inc` to broad `boxcall` support as a parallel Stage1 dialect
@@ -127,7 +129,7 @@ Related:
 
 1. expose the dialect split in docs + probe
 2. make the `.hako` Stage1 producer the canonical owner for method call dialect
-3. demote `src/runner/mir_json_emit/emitters/calls.rs` to a residual serializer seam that follows the canonical owner
+3. demote `src/runner/mir_json_emit/emitters/calls.rs` from dialect materializer to a thin materializer/transport seam that follows the canonical owner
 4. keep the normalizer pass-through in that wave
 5. only after the producer/residual seam are canonical, continue pure-first semantic coverage widening
 
@@ -141,7 +143,7 @@ Related:
 
 - the repo can name exactly:
   - which `.hako` owner should own Stage1 canonical call dialect
-  - which Rust seam still serializes legacy `boxcall`
+  - which Rust seam still materializes legacy `boxcall`
   - who merely passes it through
   - who refuses to consume it as Stage1 mainline
-- the next exact code front is `.hako` canonical producer cutover plus residual Rust seam sync, not broad pure-first dual-dialect support
+- the next exact code front is `.hako` canonical producer cutover plus Rust materializer demotion, not broad pure-first dual-dialect support

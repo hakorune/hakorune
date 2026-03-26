@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P14-PURE-FIRST-NO-REPLAY-CUTOVER.md
   - docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md
   - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
+  - docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
   - lang/src/runner/stage1_cli_env.hako
   - lang/src/mir/builder/MirBuilderBox.hako
@@ -25,7 +26,7 @@ Related:
 
 - `kilo` no-replay stop-line を broad pure-first widening と読まない。
 - current mainline MIR producer / normalizer / consumer の dialect split を 1 画面で固定する。
-- next exact code bucket を `.hako canonical owner first / Rust residual seam second` に絞る。
+- next exact code bucket を `.hako canonical owner first / Rust materializer demotion second` に絞る。
 
 ## Closed Evidence
 
@@ -36,7 +37,7 @@ Related:
      - `mir_call=0`
      - `newbox=1`
      - `copy=33`
-2. current Rust residual seam still owns legacy method emit.
+2. current Rust materializer seam still owns legacy method emit.
    - `src/runner/mir_json_emit/emitters/calls.rs`
    - `NYASH_MIR_UNIFIED_CALL` OFF path emits `Callee::Method` as `boxcall`
 3. `.hako` side already has canonical pieces.
@@ -59,7 +60,7 @@ Related:
   - `lang/src/runner/stage1_cli_env.hako`
   - `lang/src/mir/builder/MirBuilderBox.hako`
   - `lang/src/mir/builder/func_lowering/call_methodize_box.hako`
-- the residual sync seam is:
+- the current materializer seam to demote is:
   - `src/runner/mir_json_emit/emitters/calls.rs`
 - the first cutover is not:
   - broad `boxcall` support in `hako_llvmc_ffi_pure_compile.inc`
@@ -81,4 +82,4 @@ Related:
 ## Exit Condition
 
 - the repo can name the exact producer/normalizer/consumer split
-- `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` becomes the next exact front with `.hako owner first / Rust seam sync` reading
+- `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` becomes the next exact front with `.hako owner first / Rust materializer demotion` reading

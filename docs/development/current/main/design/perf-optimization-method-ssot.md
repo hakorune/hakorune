@@ -208,7 +208,7 @@ Hotspot は次の分類で読む。
   - active kilo mainline MIR still emits `newbox/copy/boxcall`
   - pure-first generic owner is `mir_call`-centric
   - strict/dev Stage1 parse already rejects legacy `boxcall`
-- therefore the first exact front is `.hako` producer-side canonical call cutover, with Rust limited to residual serialization after the producer cutover, not broad pure-first dual-dialect support
+- therefore the first exact front is `.hako` producer-side canonical call cutover, with Rust demoted from current dialect materializer to thin materialization after the producer cutover, not broad pure-first dual-dialect support
 - no-replay `kilo` が green になるまで、`src/llvm_py/**` は perf owner work に使わない
 - 下の micro snapshot は historical evidence として保持するが、current exact front ではない
 

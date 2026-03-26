@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P15-STAGE1-MIR-DIALECT-INVENTORY.md
   - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
+  - docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
   - docs/development/current/main/design/mir-callsite-retire-lane-ssot.md
   - lang/src/runner/stage1_cli_env.hako
@@ -24,6 +25,7 @@ Related:
 
 - `Stage1` mainline/perf lane の callsite family を `mir_call` へ寄せる。
 - no-replay kilo を broad dual-dialect support で通さず、`.hako` producer owner を canonical にする。
+- Rust line は immediate delete ではなく、`dialect materializer` から `thin materializer/transport seam` へ降格する。
 - `llvmlite` keep lane と `ny-llvmc` mainline lane の責務を code でも揃える。
 
 ## First Exact Owner
@@ -33,14 +35,14 @@ Related:
   - `lang/src/mir/builder/MirBuilderBox.hako`
   - `lang/src/mir/builder/func_lowering/call_methodize_box.hako`
 
-## Residual Sync Seam
+## Current Materializer Seam
 
 - `src/runner/mir_json_emit/emitters/calls.rs`
 
 ## Fixed Order
 
 1. make the `.hako` Stage1 producer the canonical owner for method call dialect
-2. stop emitting method `boxcall` from the Rust residual seam so it follows the canonical owner
+2. stop letting the Rust materializer seam decide method call dialect so it follows the canonical owner
 3. keep `jsonfrag_normalizer_box.hako` as pass-through in this wave
 4. keep strict/dev reject contract in `src/runner/modes/common_util/selfhost/json.rs`
 5. only after canonical producer output is confirmed, resume pure-first semantic widening in `hako_llvmc_ffi_pure_compile.inc`
@@ -50,7 +52,7 @@ Related:
 1. Stage1 mainline route should no longer rely on Rust-side `NYASH_MIR_UNIFIED_CALL=0` compatibility for method calls
 2. current kilo mainline MIR should be probeable without `boxcall`
 3. constructor/global/value callsite handling stays scoped to the same producer matrix; do not widen consumer and producer in the same commit
-4. Rust should remain serializer/transport thin path, not the long-term dialect-policy owner
+4. Rust should end this wave as thin materializer/transport path, not the long-term dialect-policy owner
 
 ## Acceptance
 
@@ -68,5 +70,5 @@ Related:
 ## Exit Condition
 
 - `.hako` Stage1 producer is the documented canonical callsite owner
-- current Rust residual seam no longer emits method `boxcall`
+- current Rust materializer seam no longer chooses method call dialect
 - next exact blocker is a real pure-first semantic unsupported family, not a dialect mismatch
