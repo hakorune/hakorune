@@ -193,12 +193,16 @@ Rule:
    - build surrogate is still a live proof owner, but that bucket is complete
 16. `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md` is closed
    - backend surrogate is still a live proof owner, but that bucket is complete
-17. current exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
-   - re-check whether `BYN-min5` is still negative after the route-level inventory closeout
-18. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-19. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
-20. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-21. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+17. `P19-BYN-MIN5-HAKO-FORWARD-BRIDGE-READINESS-INVENTORY.md` is closed
+   - Rust-side keep bridge is still a live keep owner, but that bucket is complete
+18. `P20-BYN-MIN5-HAKO-FORWARD-REGISTRY-SHARED-IMPL-READINESS-INVENTORY.md` is closed
+   - shared C registry body is still a live keep owner, but that bucket is complete
+19. current exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+   - re-check whether `BYN-min5` is still negative after the file-level compat keep closeout
+20. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+21. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
+22. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+23. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 

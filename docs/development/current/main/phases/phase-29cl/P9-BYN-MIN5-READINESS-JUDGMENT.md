@@ -69,7 +69,7 @@ Related:
 ## Output
 
 1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. after `P18` closed, the next exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md` for the re-check loop
+2. after `P20` closed, the next exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md` for the re-check loop
 
 ## Acceptance
 

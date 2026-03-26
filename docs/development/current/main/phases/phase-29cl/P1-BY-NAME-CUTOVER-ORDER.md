@@ -12,6 +12,8 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
   - docs/development/current/main/phases/phase-29cl/P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P19-BYN-MIN5-HAKO-FORWARD-BRIDGE-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P20-BYN-MIN5-HAKO-FORWARD-REGISTRY-SHARED-IMPL-READINESS-INVENTORY.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-task-pack-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
 ---
@@ -70,6 +72,15 @@ Related:
 18. `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md`
    - inspect whether the combined backend surrogate route is still a live proof owner or archive-ready
    - current result: still live proof owner; keep `compile_obj` and `link_exe` paired until this inventory closes
+19. `P19-BYN-MIN5-HAKO-FORWARD-BRIDGE-READINESS-INVENTORY.md`
+   - inspect whether the Rust-side keep bridge is still a live keep owner or archive-ready
+   - current result: still live keep owner; keep register/try-call/fallback bridge paired until this inventory closes
+20. `P20-BYN-MIN5-HAKO-FORWARD-REGISTRY-SHARED-IMPL-READINESS-INVENTORY.md`
+   - inspect whether the shared C registry body is still a live keep owner or archive-ready
+   - current result: still live keep owner; keep hook storage/register/try-call body paired until this inventory closes
+21. `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+   - re-check whether `BYN-min5` is still negative after the file-level compat keep closeout
+   - current result: still negative; no new caller or proof caveat has been removed
 
 ## 2. Current Daily Caller Reading
 
