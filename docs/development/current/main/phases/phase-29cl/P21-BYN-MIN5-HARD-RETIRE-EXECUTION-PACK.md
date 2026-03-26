@@ -63,7 +63,8 @@ Related:
 18. `P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md` is landed with current result `helper trio is heterogeneous; first helper-local bucket = tools/hakorune_emit_mir.sh`
 19. `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md` is landed with current result `tools/hakorune_emit_mir.sh` stays live; first exact seam = generated selfhost builder runner path`
 20. `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md` is landed with current result `execution code landed; generated selfhost builder runner seam = near-thin-floor / monitor-only`
-21. the next exact front is `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md`
+21. `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md` is landed with current result `selfhost_build helper = monitor-only under accepted phase-29ci proof`
+22. no new helper-local exact front remains under the current accepted keep set; reopen only on a fresh exact seam
 
 ## Acceptance
 
@@ -92,4 +93,5 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md`
+1. none under the current accepted `phase-29cl` keep set
+2. reopen only on a fresh exact `by_name` caller/helper seam or explicit hard-delete resumption

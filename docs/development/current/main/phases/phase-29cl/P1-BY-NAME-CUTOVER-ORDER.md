@@ -99,7 +99,8 @@ Related:
    - `P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md` is landed with current result `helper trio is heterogeneous; first helper-local bucket = tools/hakorune_emit_mir.sh`
    - `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md` is landed with current result `tools/hakorune_emit_mir.sh` stays live; first exact seam = generated selfhost builder runner path`
    - `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md` is landed with current result `execution code landed; generated selfhost builder runner seam = near-thin-floor / monitor-only`
-   - next exact front is `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md`
+   - `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md` is landed with current result `selfhost_build helper = monitor-only under accepted phase-29ci proof`
+   - helper-local fan-out stops here under the current accepted keep set; reopen only on a fresh exact seam
 
 ## 2. Current Daily Caller Reading
 

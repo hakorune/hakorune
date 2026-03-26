@@ -56,6 +56,16 @@ Related:
   - reopen only if:
     - a new exact caller/helper gap appears
     - or hard delete / broad internal removal explicitly resumes
+- By-name retire lane: `phase-29cl`
+  - status: `formal-close-synced`
+  - current accepted keep set is complete for the present `by_name` retirement scope
+  - helper-side current truth:
+    - `tools/hakorune_emit_mir.sh`: monitor-only
+    - `tools/selfhost/selfhost_build.sh`: monitor-only
+    - `tools/smokes/v2/lib/test_runner.sh`: near-thin-floor / monitor-only
+  - reopen only if:
+    - a new exact `by_name` caller/helper gap appears
+    - or hard delete / broad internal removal explicitly resumes
 - Rune lane: `phase-29cu`
   - status: `formal-close-synced`
   - narrow-scope current truth:
@@ -120,6 +130,7 @@ Related:
 - Route split note: `docs/development/current/main/phases/phase-29ci/P4-MIRBUILDER-ROUTE-SPLIT.md`
 - Phase 29ci close-sync: `docs/development/current/main/phases/phase-29ci/README.md`
 - Active selfhost lane: `docs/development/current/main/phases/phase-29bq/README.md`
+- By-name retire lane: `docs/development/current/main/phases/phase-29cl/README.md`
 
 ## Restart Reminder
 

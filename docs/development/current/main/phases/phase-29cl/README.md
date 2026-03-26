@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Accepted (formal-close-synced)
 Decision: accepted
 Date: 2026-03-15
 Scope: kernel/plugin/backend boundary に残る `by_name` 経路を独立 phase として固定し、mainline owner から compat/temporary keep へ後退させる順序を lock する。
@@ -192,7 +192,7 @@ Rule:
    - no new mainline caller remains
    - compiled-stage1 surrogate residue is archive-only proof residue
    - compat keep residue is a frozen exact keep set
-6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current execution pack; the current exact front is `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md`
+6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is close-synced for the current accepted keep set
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` execution slices are landed
    - `FileBox.write` built-in keep retire is landed
    - `InstanceBox.getField/setField` built-in keep retire is landed
@@ -208,11 +208,16 @@ Rule:
    - `P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md` is landed with current result `helper trio is heterogeneous; first helper-local bucket = tools/hakorune_emit_mir.sh`
    - `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md` is landed with current result `tools/hakorune_emit_mir.sh` stays live; first exact seam = generated selfhost builder runner path`
    - `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md` is landed with current result `execution code landed; generated selfhost builder runner seam = near-thin-floor / monitor-only`
-   - next exact front is `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md`
-   - keep execution narrow: one residue family at a time
+   - `P36-BYN-MIN5-SELFHOST-BUILD-HELPER-INVENTORY.md` is landed with current result `selfhost_build helper = monitor-only under accepted phase-29ci proof`
+   - helper-local fan-out stops here; do not open a new helper bucket unless a fresh exact seam appears
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
 9. keep `llvmlite -> .hako` pivot and broader LLVM caller shrink as separate lanes; do not mix them into `P21`
+10. this phase is now `formal-close-synced` for the current accepted keep set
+   - `tools/hakorune_emit_mir.sh` is monitor-only after the landed selfhost-runner seam split
+   - `tools/selfhost/selfhost_build.sh` is monitor-only under the accepted `phase-29ci` helper-local proof
+   - `tools/smokes/v2/lib/test_runner.sh` stays near-thin-floor / monitor-only
+   - reopen only on a fresh exact `by_name` caller/helper gap or explicit hard-delete resumption
 
 ## Acceptance
 

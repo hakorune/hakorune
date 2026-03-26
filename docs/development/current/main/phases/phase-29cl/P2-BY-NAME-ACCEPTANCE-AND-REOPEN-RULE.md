@@ -36,6 +36,10 @@ Related:
    - `hako_forward_bridge.rs` / `hako_forward.rs` / `hako_forward_registry_shared_impl.inc` remain explicit compat-only keep owners only
    - the keep cluster may stay as a frozen exact set without blocking readiness
    - hook registration / try-call / fallback policy do not become a new daily caller owner
+6. helper-lane acceptance
+   - `tools/hakorune_emit_mir.sh` and `tools/selfhost/selfhost_build.sh` remain monitor-only under the accepted `phase-29ci` helper-local proofs
+   - `tools/smokes/v2/lib/test_runner.sh` remains near-thin-floor / monitor-only under the accepted helper audit scope
+   - helper-local fan-out does not reopen without a fresh exact seam
 
 ## Reopen Rule
 
@@ -44,6 +48,8 @@ Reopen this phase when any of these become true:
 2. a compiled-stage1 surrogate becomes the only green path again
 3. docs begin to describe `by_name` as the intended final dispatch model
 4. backend-zero caller cutover stalls because `by_name` ownership is ambiguous
+5. a fresh exact helper-local seam appears under the accepted shell-helper keep set
+6. hard delete / broad internal removal explicitly resumes
 
 ## Not An Acceptance Owner
 

@@ -73,7 +73,17 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 4. close-synced mainline lane: `phase-29cj`
    - status: `formal-close-synced`
    - reopen only if a new exact disappearing leaf appears above the Rust stop-line or if deletion-prep explicitly resumes
-5. parked / stop-line
+5. close-synced by-name retire lane: `phase-29cl`
+   - status: `formal-close-synced`
+   - current accepted keep set is complete for the present by-name retirement scope
+   - helper-side current truth:
+     - `tools/hakorune_emit_mir.sh`: monitor-only
+     - `tools/selfhost/selfhost_build.sh`: monitor-only
+     - `tools/smokes/v2/lib/test_runner.sh`: near-thin-floor / monitor-only
+   - reopen only if:
+     - a new exact `by_name` caller/helper gap appears
+     - or hard delete / broad internal removal explicitly resumes
+6. parked / stop-line
    - `phase-29y`: parked monitor-only
    - `phase-29ct`: stop-line reached
    - `phase-21_5` perf reopen: parked
@@ -130,7 +140,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
 3. keep the active `29bq` reading failure-driven with `blocker=none` until the next exact blocker is captured
 4. reopen `phase-29ci` only if a new exact boundary-retirement gap appears or hard delete resumes
-5. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
+5. keep `phase-29cl` formally closed unless a fresh exact `by_name` caller/helper gap reappears
+6. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
 
 ## Lane Pointers
 
@@ -138,6 +149,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - Docs mirror: `docs/development/current/main/10-Now.md`
 - Active selfhost lane: `docs/development/current/main/phases/phase-29bq/README.md`
 - Boundary retire lane: `docs/development/current/main/phases/phase-29ci/README.md`
+- By-name retire lane: `docs/development/current/main/phases/phase-29cl/README.md`
 - Mainline phase: `docs/development/current/main/phases/phase-29cj/README.md`
 - Rune lane: `docs/development/current/main/phases/phase-29cu/README.md`
 - Runtime lane: `docs/development/current/main/phases/phase-29y/README.md`
