@@ -32,6 +32,10 @@ fn with_filebox_from_handle<R>(handle: i64, f: impl FnOnce(&FileBox) -> R) -> R 
     f(filebox)
 }
 
+fn string_handle(value: &str) -> i64 {
+    handles::to_handle_arc(Arc::new(StringBox::new(value.to_string()))) as i64
+}
+
 fn dispatch_stage1_module(receiver_name: &str, method: &str, source_text: &str) -> i64 {
     let receiver_handle =
         handles::to_handle_arc(Arc::new(StringBox::new(receiver_name.to_string()))) as i64;
@@ -193,6 +197,108 @@ fn filebox_direct_open_write_roundtrip() {
     let written = std::fs::read_to_string(tmp_path).expect("written file");
     assert_eq!(written, "kernel-filebox-write");
     let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
+fn filebox_open_hhh_succeeds_with_explicit_read_mode() {
+    ensure_test_ring0();
+
+    let tmp_path = "/tmp/nyash_kernel_filebox_open_hhh_read.txt";
+    std::fs::write(tmp_path, "kernel-filebox-open-hhh-read").expect("seed file");
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = string_handle(tmp_path);
+    let mode_handle = string_handle("r");
+    assert_eq!(
+        nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+        1
+    );
+
+    with_filebox_from_handle(filebox_handle, |filebox| {
+        assert_eq!(
+            filebox
+                .read_to_string()
+                .expect("direct read should succeed"),
+            "kernel-filebox-open-hhh-read"
+        );
+        filebox.ny_close().expect("direct close should succeed");
+    });
+
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
+fn filebox_open_hhh_succeeds_with_explicit_write_mode() {
+    ensure_test_ring0();
+
+    let tmp_path = "/tmp/nyash_kernel_filebox_open_hhh_write.txt";
+    let _ = std::fs::remove_file(tmp_path);
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = string_handle(tmp_path);
+    let mode_handle = string_handle("w");
+    assert_eq!(
+        nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+        1
+    );
+
+    with_filebox_from_handle(filebox_handle, |filebox| {
+        let write_result = filebox.write(Box::new(StringBox::new(
+            "kernel-filebox-open-hhh-write".to_string(),
+        )));
+        assert_eq!(write_result.to_string_box().value, "OK");
+        filebox.ny_close().expect("direct close should succeed");
+    });
+
+    let written = std::fs::read_to_string(tmp_path).expect("written file");
+    assert_eq!(written, "kernel-filebox-open-hhh-write");
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
+fn filebox_open_hhh_returns_zero_for_invalid_receiver() {
+    ensure_test_ring0();
+    let path_handle = string_handle("/tmp/nyash_kernel_filebox_open_hhh_invalid_receiver.txt");
+    let mode_handle = string_handle("r");
+    assert_eq!(nyash_file_open_hhh_export(0, path_handle, mode_handle), 0);
+}
+
+#[test]
+fn filebox_open_hhh_returns_zero_for_invalid_string_handles() {
+    ensure_test_ring0();
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = string_handle("/tmp/nyash_kernel_filebox_open_hhh_invalid_mode.txt");
+    let mode_handle = string_handle("r");
+    assert_eq!(nyash_file_open_hhh_export(filebox_handle, 0, mode_handle), 0);
+    assert_eq!(nyash_file_open_hhh_export(filebox_handle, path_handle, 0), 0);
+}
+
+#[test]
+fn filebox_by_name_open_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let type_name = CString::new("FileBox").expect("CString");
+        let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+        assert!(filebox_handle > 0, "expected FileBox handle");
+
+        let method = CString::new("open").expect("CString");
+        let path_handle = string_handle("/tmp/nyash_kernel_filebox_by_name_open_retired.txt");
+        let mode_handle = string_handle("r");
+        let result =
+            nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 2, path_handle, mode_handle);
+        assert_eq!(result, 0, "open should no longer use builtin by_name keep");
+    });
 }
 
 #[test]

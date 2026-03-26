@@ -224,7 +224,7 @@ class TestMethodFallbackTail(unittest.TestCase):
         self.assertIn('call i64 @"StringHelpers.int_to_str/1"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
-    def test_filebox_known_methods_fall_back_to_plugin_invoke(self):
+    def test_filebox_open_prefers_direct_kernel_route(self):
         i64, module, builder = _new_builder()
 
         result = lower_direct_or_plugin_method_call(
@@ -242,8 +242,34 @@ class TestMethodFallbackTail(unittest.TestCase):
         builder.ret(result)
 
         ir_text = str(module)
-        self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
+        self.assertIn('call i64 @"nyash.file.open_hhh"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
         self.assertNotIn('call i64 @"FileBox.open/2"', ir_text)
+
+    def test_filebox_open_with_default_mode_prefers_direct_kernel_route(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_direct_or_plugin_method_call(
+            builder=builder,
+            module=module,
+            box_name="FileBox",
+            method_name="open",
+            recv_h=ir.Constant(i64, 7),
+            args=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+            direct_call_name="known_box_file_open_default_mode",
+            plugin_call_name="unified_plugin_invoke",
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"nyash.file.open_hhh"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+        self.assertTrue(
+            "nyash.box.from_i8_string_const" in ir_text
+            or "nyash.box.from_i8_string" in ir_text
+        )
 
     def test_filebox_unknown_method_fails_fast_without_by_name_tail(self):
         i64, module, builder = _new_builder()

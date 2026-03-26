@@ -83,7 +83,8 @@ Related:
    - current result: frozen exact keep body; keep hook storage/register/try-call body paired until execution says removable
 21. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md`
    - readiness is now positive
-   - next exact front is hard-retire execution, starting with `FileBox.open`
+   - hard-retire execution is active
+   - `FileBox.open` slice is landed; next exact front is `FileBox.read`
 
 ## 2. Current Daily Caller Reading
 

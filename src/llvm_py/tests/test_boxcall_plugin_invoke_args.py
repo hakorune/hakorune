@@ -237,7 +237,7 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         self.assertIn('call i64 @"nyash.array.set_hih"', ir_text)
         self.assertNotIn('call i64 @"nyash.map.set_hh"', ir_text)
 
-    def test_filebox_boxcall_open_falls_back_to_plugin_invoke(self):
+    def test_filebox_boxcall_open_prefers_direct_export(self):
         module = ir.Module(name="test_boxcall_filebox_open_plugin")
         i64 = ir.IntType(64)
         fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
@@ -265,7 +265,8 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         builder.ret(vmap[4])
 
         ir_text = str(module)
-        self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
+        self.assertIn('call i64 @"nyash.file.open_hhh"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
 
 if __name__ == "__main__":

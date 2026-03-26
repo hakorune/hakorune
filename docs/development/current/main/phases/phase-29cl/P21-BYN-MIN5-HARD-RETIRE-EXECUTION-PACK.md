@@ -45,10 +45,11 @@ Related:
 ## Current Truth
 
 1. `P9` is positive today, so hard-retire readiness is open
-2. remaining visible execution residue is the explicit `FileBox` compat helper plus the built-in `FileBox` keep branch
-3. compiled-stage1 surrogate residue is archive-only proof residue and must not be reopened by this pack
-4. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
-5. the first exact slice is `FileBox.open`
+2. `FileBox.open` is now direct-route through `nyash.file.open_hhh`
+3. remaining visible execution residue is the explicit `FileBox` compat helper (`read/readBytes/close`) plus the built-in `FileBox` keep branch (`read/readBytes/write/close`)
+4. compiled-stage1 surrogate residue is archive-only proof residue and must not be reopened by this pack
+5. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
+6. the next exact slice is `FileBox.read`
 
 ## Acceptance
 
@@ -77,4 +78,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `FileBox.open` direct-route execution slice
+1. `FileBox.read` direct-route execution slice

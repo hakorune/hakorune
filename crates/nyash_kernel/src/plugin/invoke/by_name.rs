@@ -82,20 +82,6 @@ fn encode_box_handle(boxed: Box<dyn nyash_rust::box_trait::NyashBox>) -> i64 {
     nyash_rust::runtime::host_handles::to_handle_arc(arc) as i64
 }
 
-fn decode_handle_to_string_like(handle: i64) -> Option<String> {
-    if handle <= 0 {
-        return None;
-    }
-    let object = nyash_rust::runtime::host_handles::get(handle as u64)?;
-    if let Some(string_box) = object
-        .as_any()
-        .downcast_ref::<nyash_rust::box_trait::StringBox>()
-    {
-        return Some(string_box.value.clone());
-    }
-    Some(object.to_string_box().value)
-}
-
 fn decode_handle_to_box_or_integer(handle: i64) -> Box<dyn nyash_rust::box_trait::NyashBox> {
     if handle > 0 {
         if let Some(object) = nyash_rust::runtime::host_handles::get(handle as u64) {
@@ -123,27 +109,6 @@ fn try_handle_builtin_file_box_by_name(
     let file_box = object.as_any().downcast_ref::<FileBox>()?;
 
     match method {
-        "open" => {
-            if argc < 1 || argc > 2 {
-                return Some(0);
-            }
-            let Some(path) = decode_handle_to_string_like(a1) else {
-                return Some(0);
-            };
-            let mode = if argc >= 2 {
-                match decode_handle_to_string_like(a2) {
-                    Some(mode) => mode,
-                    None => return Some(0),
-                }
-            } else {
-                "r".to_string()
-            };
-            Some(if file_box.ny_open(&path, &mode).is_ok() {
-                1
-            } else {
-                0
-            })
-        }
         "read" => {
             if argc != 0 {
                 return Some(0);

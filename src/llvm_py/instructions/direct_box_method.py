@@ -16,6 +16,7 @@ from typing import Callable, List, Optional, Tuple
 
 from llvmlite import ir
 
+from instructions.filebox_direct import lower_filebox_open_direct
 from naming_helper import encode_static_method
 from instructions.mir_call.filebox_plugin_fallback import (
     FILEBOX_PLUGIN_FALLBACK_METHODS,
@@ -141,6 +142,16 @@ def try_lower_known_box_method_call(
     resolved_box_name = resolve_known_box_name(box_name, receiver_literal)
     if not resolved_box_name or not method_name:
         return None
+    if resolved_box_name == "FileBox" and method_name == "open":
+        return lower_filebox_open_direct(
+            builder=builder,
+            module=module,
+            recv_h=recv_h,
+            args=args,
+            resolve_arg=resolve_arg,
+            ensure_handle=ensure_handle,
+            call_name=call_name,
+        )
     callee = resolve_known_box_method(
         module,
         box_name,
