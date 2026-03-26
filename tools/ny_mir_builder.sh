@@ -9,11 +9,12 @@ set -euo pipefail
 [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]] && set -x
 
 usage() {
-  cat << USAGE
+  cat <<'USAGE'
 Usage: tools/ny_mir_builder.sh [--in <file>|--stdin] [--emit {obj|exe|ll|json}] -o <out> [--target <triple>] [--nyrt <path>] [--quiet] [--verify-llvm]
 
 Notes:
-  - This is a Phase-15 shell wrapper that leverages the nyash LLVM harness.
+  - This wrapper defaults to the ny-llvmc crate backend.
+  - llvmlite remains an explicit compat/debug keep selected with NYASH_LLVM_BACKEND=llvmlite.
   - Input must be Nyash JSON IR (v0/v1). When --stdin is used, reads from stdin.
   - For --emit exe, kernel runtime must be built (crates/nyash_kernel). Use default paths if --nyrt omitted.
 USAGE

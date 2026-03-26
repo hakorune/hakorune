@@ -1,11 +1,13 @@
-# llvmlite Harness（正式導入・Rust LLVM 対置運用）
+# llvmlite Harness（compat/probe keep lane）
 
 Purpose
-- Python + llvmlite による高速・柔軟な LLVM 生成経路を提供（検証・プロトタイプと将来の主役）。
-- Rust/inkwell 経路と並走し、代表ケースで機能同値（戻り値・検証）を維持。
+- Python + llvmlite による compat/probe/canary 経路を提供する。
+- shared MIR / ABI / parity contract の確認を支える keep lane として維持する。
+- daily mainline backend owner は `ny-llvmc` であり、この文書は keep lane だけを扱う。
 
 Switch
-- `NYASH_LLVM_USE_HARNESS=1` でハーネス優先（LLVM バックエンド入口から起動）。
+- `NYASH_LLVM_USE_HARNESS=1` で explicit keep lane として起動する。
+- daily route から自動選択される mainline backend ではない。
 
 Tracing
 - `NYASH_LLVM_TRACE_FINAL=1` を設定すると、代表コール（`Main.node_json/3`, `Main.esc_json/1`, `main` 等）を標準出力へ簡易トレースします。
@@ -16,33 +18,45 @@ Protocol
 - Output: `.o` オブジェクト（既定: `NYASH_AOT_OBJECT_OUT` または `NYASH_LLVM_OBJ_OUT`）。
 - 入口: `ny_main() -> i64`（戻り値は exit code 相当。必要時 handle 正規化を行う）。
 
+Current ownership
+- `.hako` caller の official facade は `LlvmBackendBox`
+- C ABI transport は `hako_aot` / `hako_llvmc_ffi.c`
+- concrete `MIR(JSON) -> {object, executable}` owner は `ny-llvmc`
+- `llvmlite` harness は `ny-llvmc --driver harness` から使われる explicit keep lane
+
 CLI（crate）
-- `crates/nyash-llvm-compiler` 提供の `ny-llvmc` は llvmlite ハーネスの薄ラッパーだよ。
+- `crates/nyash-llvm-compiler` 提供の `ny-llvmc` は `MIR(JSON) -> {object, executable}` の stable CLI contract だよ。
+- `llvmlite` はその implementation detail の keep lane で、必要なときだけ `--driver harness` から通る。
   - ダミー: `./target/release/ny-llvmc --dummy --out /tmp/dummy.o`
   - JSON→.o: `./target/release/ny-llvmc --in mir.json --out out.o`
   - JSON→EXE（新規）: `./target/release/ny-llvmc --in mir.json --emit exe --nyrt target/release --out app`
-    - `--nyrt <dir>` で `libnyrt.a` の位置を指定（省略時は `target/release`→`crates/nyrt/target/release` の順に探索）
+    - `--nyrt <dir>` で `libnyash_kernel.a` の位置を指定
     - 追加フラグは `--libs "<flags>"` で渡せる（例: `--libs "-static"`）
-  - 既定のハーネススクリプトは `tools/llvmlite_harness.py`（`--harness` で上書き可）。
+  - keep lane のスクリプトは `tools/llvmlite_harness.py`（`--harness` で上書き可）。
 
 Quick Start
 - 依存: `python3 -m pip install llvmlite`
-- ダミー生成（配線検証）:
+- ダミー生成（keep lane 配線検証）:
   - `python3 tools/llvmlite_harness.py --out /tmp/dummy.o`
-  - NyRT（libnyrt.a）とリンクして EXE 化（例: `cc /tmp/dummy.o -L target/release -Wl,--whole-archive -lnyrt -Wl,--no-whole-archive -lpthread -ldl -lm -o app_dummy`）。
+  - `nyash_kernel` とリンクして EXE 化（例: `cc /tmp/dummy.o -L target/release -Wl,--whole-archive -lnyash_kernel -Wl,--no-whole-archive -lpthread -ldl -lm -o app_dummy`）。
 
 Wiring（Rust 側）
 - `NYASH_LLVM_USE_HARNESS=1` のとき:
   1) `--emit-mir-json <path>` 等で MIR(JSON) を出力
   2) `python3 tools/llvmlite_harness.py --in <mir.json> --out <obj.o>` を起動
-  3) 成功後は通常のリンク手順（NyRT とリンク）
+  3) 成功後は通常のリンク手順（`libnyash_kernel.a` とリンク）
+
+Mainline note
+- current daily/mainline route は `ny-llvmc` の default boundary route だよ。
+- `llvmlite` は retire 済みではないが、hot-path design owner でもない。
+- perf / route collapse / EXE daily acceptance は `ny-llvmc` 側で読む。
 
 Tools / CLI（統合フロー）
-- crate 直結の EXE 出力: `NYASH_LLVM_COMPILER=crate NYASH_LLVM_EMIT=exe tools/build_llvm.sh apps/tests/ternary_basic.hako -o app`
+- crate 直結の EXE 出力: `tools/build_llvm.sh apps/tests/ternary_basic.hako -o app`
   - 環境変数 `NYASH_LLVM_NYRT` で NyRT の場所を、`NYASH_LLVM_LIBS` で追加フラグを指定できる。
- - CLI から直接 EXE 出力（新規）:
-   - `./target/release/nyash --emit-exe tmp/app --backend mir apps/tests/ternary_basic.hako`
-   - 追加オプション: `--emit-exe-nyrt <dir>` / `--emit-exe-libs "<flags>"`
+- keep lane 明示実行:
+  - `NYASH_LLVM_COMPILER=harness tools/build_llvm.sh apps/tests/ternary_basic.hako -o app`
+  - `./target/release/ny-llvmc --driver harness --in mir.json --out out.o`
 
 Scope（Phase 15）
 - 最小命令: Const/BinOp/Compare/Branch/Jump/Return（PHI は LLVM 側で合成）
@@ -56,6 +70,7 @@ Acceptance
 Notes
 - 初版は固定 `ny_main` から開始してもよい（配線確認）。以降、MIR 命令を順次対応。
 - ハーネスは自律（外部状態に依存しない）。エラーは即 stderr に詳細を出す。
+- mainline caller は `--driver harness` や `NYASH_LLVM_USE_HARNESS=1` に依存しない。
 
 PHI Policy（要点）
 - Phase‑15 の既定は PHI‑on。MIR 側で SSA `Phi` を生成し、ハーネスは incoming の検証と最終 IR への反映だけを行う。

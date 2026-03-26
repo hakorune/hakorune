@@ -6,7 +6,7 @@ if [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]]; then
 fi
 
 usage() {
-  cat << USAGE
+  cat <<'USAGE'
 Usage: tools/build_llvm.sh <input.hako> [-o <output>]
 
 Compiles a Nyash program with the LLVM backend to an object (.o),
@@ -20,7 +20,8 @@ Requirements:
   - Nyash Kernel static runtime (crates/nyash_kernel)
 
 Implementation detail:
-  - `NYASH_LLVM_COMPILER=crate` keeps the ny-llvmc route.
+  - default route is `NYASH_LLVM_COMPILER=crate` when `target/release/ny-llvmc` exists.
+  - `NYASH_LLVM_COMPILER=harness` is explicit llvmlite compat/probe keep.
   - `NYASH_LLVM_BACKEND=native` is no longer accepted here; native canary replay must call `ny-llvmc --driver native` directly.
 USAGE
 }
@@ -92,7 +93,7 @@ BIN_DEFAULT="$CARGO_TARGET_DIR_EFFECTIVE/release/hakorune"
 BIN="${NYASH_BIN:-$BIN_DEFAULT}"
 
 echo "[1/4] Building hakorune (feature selectable) ..."
-# Select LLVM feature: default harness (llvm), or legacy inkwell when NYASH_LLVM_FEATURE=llvm-inkwell-legacy
+# Select LLVM feature set. This is independent from the backend route choice below.
 LLVM_FEATURE=${NYASH_LLVM_FEATURE:-llvm}
 
 # Use 24 threads for parallel build
@@ -102,7 +103,7 @@ if [[ "$LLVM_FEATURE" == "llvm-inkwell-legacy" ]]; then
   LLVM_SYS_181_PREFIX="${_LLVMPREFIX}" LLVM_SYS_180_PREFIX="${_LLVMPREFIX}" \
     CARGO_INCREMENTAL=0 cargo build --release -j 24 -p nyash-rust --features "$LLVM_FEATURE" >/dev/null
 else
-  # llvm-harness（デフォルト）はLLVM_SYS_180_PREFIX不要
+  # default llvm feature set does not need LLVM_SYS_180_PREFIX
   CARGO_INCREMENTAL=0 cargo build --release -j 24 -p nyash-rust --features "$LLVM_FEATURE" >/dev/null
 fi
 
@@ -125,7 +126,13 @@ stem=${stem%.hako}
 OBJ="${NYASH_LLVM_OBJ_OUT:-$CARGO_TARGET_DIR_EFFECTIVE/aot_objects/${stem}.o}"
 if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
   rm -f "$OBJ"
-  COMPILER_MODE=${NYASH_LLVM_COMPILER:-harness}
+  if [[ -n "${NYASH_LLVM_COMPILER:-}" ]]; then
+    COMPILER_MODE="${NYASH_LLVM_COMPILER}"
+  elif [[ -x "./target/release/ny-llvmc" ]]; then
+    COMPILER_MODE="crate"
+  else
+    COMPILER_MODE="harness"
+  fi
   case "$COMPILER_MODE" in
     crate)
       # Use crates/nyash-llvm-compiler (ny-llvmc): requires pre-generated MIR JSON path in NYASH_LLVM_MIR_JSON
@@ -163,15 +170,22 @@ if [[ "${NYASH_LLVM_SKIP_EMIT:-0}" != "1" ]]; then
         ./target/release/ny-llvmc --in "$NYASH_LLVM_MIR_JSON" --out "$OBJ"
       fi
       ;;
+    harness)
+      ;;
+    *)
+      echo "error: unsupported NYASH_LLVM_COMPILER=$COMPILER_MODE" >&2
+      echo "hint: use 'crate' (mainline) or 'harness' (llvmlite compat/probe keep)" >&2
+      exit 4
+      ;;
   esac
   if [[ "$COMPILER_MODE" == "harness" ]]; then
     if [[ "${NYASH_LLVM_FEATURE:-llvm}" == "llvm-inkwell-legacy" ]]; then
-      # Legacy path: do not use harness (LLVM_SYS_180_PREFIX needed)
+      # Legacy path: harness keep still uses the LLVM feature gate through hakorune.
       _LLVMPREFIX=$(llvm-config-18 --prefix)
       NYASH_LLVM_OBJ_OUT="$OBJ" LLVM_SYS_181_PREFIX="${_LLVMPREFIX}" LLVM_SYS_180_PREFIX="${_LLVMPREFIX}" \
         "$BIN" --backend llvm "$INPUT" >/dev/null || true
     else
-      # Harness path (Python llvmlite - LLVM_SYS_180_PREFIX不要)
+      # Explicit llvmlite compat/probe keep path.
       NYASH_LLVM_OBJ_OUT="$OBJ" NYASH_LLVM_USE_HARNESS=1 \
         "$BIN" --backend llvm "$INPUT" >/dev/null || true
     fi
