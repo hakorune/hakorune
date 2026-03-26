@@ -40,6 +40,7 @@
 - Value repr and ABI manifest（current value classes / ownership / manifest row truth）: `docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md`
 - Stage2 Fast Leaf Manifest（backend-private fast lane row contract）: `docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md`
 - Stage2 AOT-Core proof vocabulary（future AOT-Core MIR staged lock / current proof vocabulary SSOT）: `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`
+- Stage2 optimization debug bundle（route/window/IR/symbol/perf を same artifact で束ねる SSOT）: `docs/development/current/main/design/stage2-optimization-debug-bundle-ssot.md`
 - Thread and TLS capability（helper-shaped current TLS + language-level final TLS SSOT）: `docs/development/current/main/design/thread-and-tls-capability-ssot.md`
 - Rust kernel export surface strata（compat / runtime-facade / substrate split SSOT）: `docs/development/current/main/design/rust-kernel-export-surface-strata-ssot.md`
 - RawMap truthful native seam inventory（HashMap backend で live にしてよい語彙の棚卸し）: `docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md`

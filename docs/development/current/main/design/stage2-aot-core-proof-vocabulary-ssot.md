@@ -7,7 +7,9 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md
+  - docs/development/current/main/phases/phase-29ck/P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
+  - docs/development/current/main/design/stage2-optimization-debug-bundle-ssot.md
   - docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md

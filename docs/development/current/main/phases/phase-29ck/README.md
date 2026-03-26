@@ -22,9 +22,11 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P15-STAGE1-MIR-DIALECT-INVENTORY.md
   - docs/development/current/main/phases/phase-29ck/P16-STAGE1-CANONICAL-MIR-CUTOVER.md
   - docs/development/current/main/phases/phase-29ck/P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md
+  - docs/development/current/main/phases/phase-29ck/P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md
   - docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md
   - docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md
   - docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md
+  - docs/development/current/main/design/stage2-optimization-debug-bundle-ssot.md
   - docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
@@ -71,9 +73,10 @@ Related:
 12. `P15-STAGE1-MIR-DIALECT-INVENTORY.md`
 13. `P16-STAGE1-CANONICAL-MIR-CUTOVER.md`
 14. `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
-15. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
+15. `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
+16. 上記 contract を満たしてからだけ、backend-zero の blocker 昇格可否を再判定する
 
-## Current Snapshot (2026-03-26)
+## Current Snapshot (2026-03-27)
 
 1. caller-facing daily LLVM route は `hakorune -> llvm_codegen boundary-first -> C ABI boundary -> backend helper/native boundary -> object/exe` まで寄っている
 2. `ny-llvmc` internal default driver は `Boundary` に切り替わり、default object/exe route は `Harness` / `Native` selector を daily owner にしなくなった
@@ -94,8 +97,11 @@ Related:
    - rejected follow-up: authoritative `ArrayBox` integer-storage split (`ArrayStorage::{Generic,I64}`) kept micro near `46 ms` but regressed main `kilo` to `858 ms`
    - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed `kilo_micro_array_getset` to `69 ms` and main `kilo` to `872 ms`
    - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed `kilo_micro_array_getset` to `68 ms` and main `kilo` to `909 ms`
-   - rejected follow-up: backend-private fused `get -> +const -> set -> get` leaf did not trigger on the live emitted route and left `kilo_micro_array_getset` at `70 ms`
-   - the next exact front is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings; do not reopen broad `boxcall` widening
+   - rejected follow-up: backend-private adjacent fused `get -> +const -> set -> get` leaf is now explained by live no-replay route evidence rather than a mysterious symbol miss
+   - current live array RMW window is semantic `get -> copy* -> const 1 -> add -> set`
+   - earlier trigger miss was partly obscured by PHI-origin loss; current dev route trace follows `scan_origin` for this family
+   - `P18` is now the exact front: land reusable live-route debug bundle + semantic `array_rmw_window` proof before any new leaf attempt
+   - do not reopen broad `boxcall` widening and do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である
    - boundary fallback reliance を減らして `hako_aot` / C ABI 側の owner coverage を広げること
@@ -394,7 +400,7 @@ Related:
    - `P15-STAGE1-MIR-DIALECT-INVENTORY.md` is closed
   - `P16-STAGE1-CANONICAL-MIR-CUTOVER.md` is the landed route-correction front
   - current `kilo` stop-line is no longer Stage1 dialect mismatch and no longer pure-first route unlock
-  - current exact front is `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+  - current exact front is `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
   - future `AOT-Core MIR` is fixed as `future-needed but not a new layer now`
   - first code consumer after docs remains integer-heavy `ArrayBox.get/set/len`
   - rejected follow-up: broad internal representation splits that add extra read crossings on generic/string arrays are not progress for this wave

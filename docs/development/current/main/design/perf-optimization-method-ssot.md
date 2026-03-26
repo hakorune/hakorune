@@ -7,6 +7,7 @@ Related:
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
 - docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md
+- docs/development/current/main/design/stage2-optimization-debug-bundle-ssot.md
 - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
 - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
 - docs/development/current/main/design/stage2-string-route-split-plan.md
@@ -108,6 +109,13 @@ Related:
    - 入口: `tools/perf/report_mir_hotops.sh`
    - 役割: `mir_call` がどの callee family に寄っているかを構造化表示する
    - 使い方: `[mir-shape/call]` を見て `RuntimeDataBox.substring` / `indexOf` / `get/set/length` などの次 leaf を決める
+
+5. Optimization debug bundle
+   - 入口: `tools/perf/trace_optimization_bundle.sh`
+   - 役割: route trace / MIR window / IR / symbol / optional micro perf を same artifact で束ねる
+   - 使い方:
+     - `symbol miss` を unexplained のままにしない
+     - new leaf は bundle で `route -> MIR window -> IR -> symbol` が揃ってからだけ再試行する
 
 ## Tag Coverage
 
@@ -212,14 +220,18 @@ Hotspot は次の分類で読む。
 - `Stage1 = ny-llvmc(boundary pure-first)` daily/mainline/perf owner
 - current `kilo` route is back to `pure-first + compat_replay=none + aot_status=ok`
 - `Stage1 MIR dialect split` is retired for the current kilo entry
-- current exact front is docs-first `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+- current exact front is now `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
 - future `AOT-Core MIR` is treated as `future-needed but not a new layer now`
 - current action is to add proof vocabulary to the existing MIR/lowering/manifest path
   - `value_class`
   - `escape_kind`
   - `effect`
   - `cold_fallback`
-- first concrete consumer after docs is integer-heavy `ArrayBox.get/set/len` fast lane
+- current array reject reading is now sharper:
+  - adjacent fused-leaf guess was rejected
+  - live no-replay route shows current semantic window is `get -> copy* -> const 1 -> add -> set`
+  - next exact front is reusable route/window/IR/symbol bundle before another leaf attempt
+- first concrete consumer after docs remains integer-heavy `ArrayBox.get/set/len` fast lane
 - rejected array-substrate tries are now recorded in a rolling investigation ledger instead of staying as ephemeral shell history
 - no-replay `kilo` が green になるまで、`src/llvm_py/**` は perf owner work に使わない
 - 下の micro snapshot は historical evidence として保持するが、current exact front ではない

@@ -11,7 +11,7 @@
 - `kilo_kernel_small_hk` は `pure-first + compat_replay=none` で green
 - string family はかなり前進した
 - current main residual is array substrate hot path
-- ただし blind lock/cache tweaks は mainline regressions を出したので、次は proof-vocabulary first に戻る
+- ただし blind lock/cache tweaks は mainline regressions を出したので、次は proof-vocabulary first + live-route debug bundle に戻る
 
 ## Rejected Attempts
 
@@ -386,6 +386,55 @@ nm -C target/kilo_micro_array_getset.cg.keep.exe | rg 'slot_load_add_store|slot_
 - do not reopen fused leaf work until the live Stage1 route is proven to hit the candidate pattern in emitted IR
 - next exact front stays direct fixed-cost reduction inside `array_slot_store_i64` / `array_slot_load_hi`, with route proof before more backend-private leaf widening
 
+### 2026-03-27: live no-replay route clarified the fused-leaf miss
+
+**Hypothesis**
+
+- the previous fused-leaf reject might still be salvageable if the real problem was route confusion rather than a true shape mismatch
+
+**Touched owner area**
+
+- [hako_llvmc_ffi_pure_compile.inc](/home/tomoaki/git/hakorune-selfhost/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc)
+
+**Commands**
+
+```bash
+NYASH_LLVM_ROUTE_TRACE=1 \
+HAKO_BACKEND_COMPILE_RECIPE=pure-first \
+HAKO_BACKEND_COMPAT_REPLAY=none \
+NYASH_LLVM_DUMP_IR=/tmp/km_array_getset_pure.ll \
+NYASH_LLVM_BACKEND=crate \
+NYASH_LLVM_SKIP_BUILD=1 \
+bash tools/ny_mir_builder.sh \
+  --in target/kilo_micro_array_getset.mir.json \
+  --emit exe \
+  -o /tmp/km_array_getset_pure.exe \
+  --quiet
+```
+
+**Observed result**
+
+- route:
+  - live no-replay route is now visible on the same artifact
+  - `push` route recovered after the debug probe started falling back from `origin` to `scan_origin`
+  - current `recv_org` for the loop-carried array receiver is `3`
+- window miss:
+  - current probe does not hit the old adjacent fused shape
+  - miss reasons are now visible as `next1_not_binop` and `next1_not_const1`
+- live MIR shape:
+  - current relevant window is semantic `get -> copy* -> const 1 -> add -> set`
+  - the old adjacency assumption (`get -> add(+1) -> set -> get`) was too narrow because transparent carriers can sit between `get` and `add`
+
+**Verdict**
+
+- rejected as an adjacency-based fused leaf for the current wave
+- explanation is now fixed: this was a live-shape mismatch, not an unexplained symbol disappearance
+
+**Next candidate**
+
+- redesign the candidate as semantic `array_rmw_window`, not adjacent-op peephole
+- land reusable live-route debug bundle before reopening backend-private leaf work
+
 ## Historical Pre-Ledger Rejects
 
 - array `len/push` borrowed follow-up
@@ -395,6 +444,6 @@ nm -C target/kilo_micro_array_getset.cg.keep.exe | rg 'slot_load_add_store|slot_
 
 ## Current Next Step
 
-1. lock staged `AOT-Core` proof vocabulary in docs
+1. lock reusable live-route debug bundle in docs/tooling
 2. keep this ledger as the single reject log for the current array substrate wave
-3. resume code only on the integer-heavy `ArrayBox.get/set/len` fast lane
+3. resume code only after semantic `array_rmw_window` is proven on the live artifact

@@ -77,6 +77,133 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
+      int array_rmw_trace_budget = 8;
+      int generic_walk_trace_budget = 24;
+      int generic_call_trace_budget = 24;
+      int generic_method_trace_budget = 24;
+      auto void trace_array_rmw_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_get,
+          int runtime_array_string) {
+        if (!hako_llvmc_route_trace_enabled() || array_rmw_trace_budget <= 0) return;
+        if (!mname || strcmp(mname, "get") != 0) return;
+        if (!((bname && !strcmp(bname, "ArrayBox")) ||
+              runtime_array_get ||
+              runtime_array_string ||
+              (bname && !strcmp(bname, "RuntimeDataBox") &&
+               (recv_org == ORG_ARRAY_BIRTH || recv_org == ORG_ARRAY_STRING_BIRTH)))) {
+          return;
+        }
+        array_rmw_trace_budget--;
+        char extra[384];
+        const char* reason = "shape_match";
+        extra[0] = '\0';
+
+        if (ii + 3 >= ilen) {
+          snprintf(extra, sizeof(extra),
+                   "ii=%zu dst=%lld recv=%lld idx=%lld next=short",
+                   ii, cur_dst, recv, idx);
+          hako_llvmc_emit_route_trace("array_rmw_window", "miss", "lookahead_short", extra);
+          return;
+        }
+
+        yyjson_val* n1 = yyjson_arr_get(insts, ii + 1);
+        yyjson_val* n2 = yyjson_arr_get(insts, ii + 2);
+        yyjson_val* n3 = yyjson_arr_get(insts, ii + 3);
+        const char* op1 = n1 ? read_str(n1, "op") : NULL;
+        const char* op2 = n2 ? read_str(n2, "op") : NULL;
+        const char* op3 = n3 ? read_str(n3, "op") : NULL;
+        long long n1_lhs = 0, n1_rhs = 0, n2_recv = 0, n2_idx = 0, n3_recv = 0, n3_idx = 0;
+        long long add_cv = 0;
+        const char* add_kind = NULL;
+        const char* n2_mname = NULL;
+        const char* n3_mname = NULL;
+
+        if (!op1 || strcmp(op1, "binop") != 0) {
+          reason = "next1_not_binop";
+        } else {
+          add_kind = read_str(n1, "op_kind");
+          if (!add_kind) add_kind = read_str(n1, "operation");
+          if (!(add_kind && (!strcmp(add_kind, "Add") || !strcmp(add_kind, "+")))) {
+            reason = "next1_not_add";
+          } else {
+            n1_lhs = read_int(n1, "lhs");
+            n1_rhs = read_int(n1, "rhs");
+            if (!(n1_lhs == cur_dst || n1_rhs == cur_dst)) {
+              reason = "next1_not_dataflow_from_get";
+            } else {
+              long long other = (n1_lhs == cur_dst) ? n1_rhs : n1_lhs;
+              if (!has_const(other, &add_cv) || add_cv != 1) {
+                reason = "next1_not_const1";
+              } else if (!op2 || strcmp(op2, "mir_call") != 0) {
+                reason = "next2_not_mir_call";
+              } else {
+                yyjson_val* mc2 = yyjson_obj_get(n2, "mir_call");
+                yyjson_val* cal2 = mc2 ? yyjson_obj_get(mc2, "callee") : NULL;
+                const char* ctype2 = cal2 ? read_str(cal2, "type") : NULL;
+                const char* bname2 = cal2 ? (read_str(cal2, "box_name") ? read_str(cal2, "box_name") : read_str(cal2, "box_type")) : NULL;
+                n2_mname = cal2 ? (read_str(cal2, "method") ? read_str(cal2, "method") : read_str(cal2, "name")) : NULL;
+                n2_recv = cal2 ? read_int(cal2, "receiver") : 0;
+                yyjson_val* args2 = mc2 ? yyjson_obj_get(mc2, "args") : NULL;
+                if (args2 && yyjson_is_arr(args2)) {
+                  if (yyjson_arr_size(args2) >= 1) n2_idx = (long long)yyjson_get_sint(yyjson_arr_get(args2, 0));
+                }
+                if (!(ctype2 && !strcmp(ctype2, "Method") && n2_mname && !strcmp(n2_mname, "set") &&
+                      ((bname2 && !strcmp(bname2, "ArrayBox")) ||
+                       (bname2 && !strcmp(bname2, "RuntimeDataBox") &&
+                        (recv_org == ORG_ARRAY_BIRTH || recv_org == ORG_ARRAY_STRING_BIRTH))))) {
+                  reason = "next2_not_array_set";
+                } else if (n2_recv && recv && n2_recv != recv) {
+                  reason = "next2_recv_mismatch";
+                } else if (n2_idx && idx && n2_idx != idx) {
+                  reason = "next2_idx_mismatch";
+                } else if (!op3 || strcmp(op3, "mir_call") != 0) {
+                  reason = "next3_not_mir_call";
+                } else {
+                  yyjson_val* mc3 = yyjson_obj_get(n3, "mir_call");
+                  yyjson_val* cal3 = mc3 ? yyjson_obj_get(mc3, "callee") : NULL;
+                  const char* ctype3 = cal3 ? read_str(cal3, "type") : NULL;
+                  const char* bname3 = cal3 ? (read_str(cal3, "box_name") ? read_str(cal3, "box_name") : read_str(cal3, "box_type")) : NULL;
+                  n3_mname = cal3 ? (read_str(cal3, "method") ? read_str(cal3, "method") : read_str(cal3, "name")) : NULL;
+                  n3_recv = cal3 ? read_int(cal3, "receiver") : 0;
+                  yyjson_val* args3 = mc3 ? yyjson_obj_get(mc3, "args") : NULL;
+                  if (args3 && yyjson_is_arr(args3)) {
+                    if (yyjson_arr_size(args3) >= 1) n3_idx = (long long)yyjson_get_sint(yyjson_arr_get(args3, 0));
+                  }
+                  if (!(ctype3 && !strcmp(ctype3, "Method") && n3_mname && !strcmp(n3_mname, "get") &&
+                        ((bname3 && !strcmp(bname3, "ArrayBox")) ||
+                         (bname3 && !strcmp(bname3, "RuntimeDataBox"))))) {
+                    reason = "next3_not_array_get";
+                  } else if (n3_recv && recv && n3_recv != recv) {
+                    reason = "next3_recv_mismatch";
+                  } else if (n3_idx && idx && n3_idx != idx) {
+                    reason = "next3_idx_mismatch";
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        snprintf(extra, sizeof(extra),
+                 "ii=%zu dst=%lld recv=%lld idx=%lld next=[%s,%s,%s] add_lhs=%lld add_rhs=%lld add_cv=%lld set_recv=%lld set_idx=%lld get_recv=%lld get_idx=%lld",
+                 ii, cur_dst, recv, idx,
+                 op1 ? op1 : "-",
+                 op2 ? op2 : "-",
+                 op3 ? op3 : "-",
+                 n1_lhs, n1_rhs, add_cv,
+                 n2_recv, n2_idx,
+                 n3_recv, n3_idx);
+        hako_llvmc_emit_route_trace("array_rmw_window", reason ? (strcmp(reason, "shape_match") == 0 ? "hit" : "miss") : "miss", reason ? reason : "unknown", extra);
+      }
 
       // Pre-scan: consts + phis + needed method decls
       int need_map_birth=0, need_map_set=0, need_map_size=0, need_map_get=0, need_map_has=0;
@@ -158,7 +285,32 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               long long pred = read_int(ins, "pred"); long long vin = read_int(ins, "value");
               if (vin) { pr.in[pr.in_n].pred=pred; pr.in[pr.in_n].val_reg=vin; pr.in_n++; }
             }
-            if (pb->rec_n < 16) { pb->recs[pb->rec_n++] = pr; set_type(pr.dst, T_I64); }
+            if (pb->rec_n < 16) {
+              int scan_first = ORG_NONE;
+              int scan_same = 1;
+              int origin_first = ORG_NONE;
+              int origin_same = 1;
+              for (int i = 0; i < pr.in_n; i++) {
+                int s = pr.in[i].val_reg ? get_scan_origin(pr.in[i].val_reg) : ORG_NONE;
+                int o = pr.in[i].val_reg ? get_origin(pr.in[i].val_reg) : ORG_NONE;
+                if (s != ORG_NONE) {
+                  if (scan_first == ORG_NONE) scan_first = s;
+                  else if (scan_first != s) scan_same = 0;
+                }
+                if (o != ORG_NONE) {
+                  if (origin_first == ORG_NONE) origin_first = o;
+                  else if (origin_first != o) origin_same = 0;
+                }
+              }
+              pb->recs[pb->rec_n++] = pr;
+              set_type(pr.dst, T_I64);
+              if (scan_same && scan_first != ORG_NONE) {
+                set_scan_origin(pr.dst, scan_first);
+              }
+              if (origin_same && origin_first != ORG_NONE) {
+                set_origin(pr.dst, origin_first);
+              }
+            }
           } else if (strcmp(op, "mir_call")==0) {
             yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
             yyjson_val* cal = mc? yyjson_obj_get(mc, "callee") : NULL;
@@ -289,6 +441,13 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         for (size_t ii=0; ii<ilen; ii++) {
           yyjson_val* ins = yyjson_arr_get(insts, ii);
           const char* op = read_str(ins, "op"); if (!op) { yyjson_doc_free(d); goto GEN_ABORT; }
+          if (hako_llvmc_route_trace_enabled() && generic_walk_trace_budget > 0) {
+            char extra[256];
+            long long dst_dbg = read_int(ins, "dst");
+            snprintf(extra, sizeof(extra), "ii=%zu dst=%lld op=%s", ii, dst_dbg, op);
+            hako_llvmc_emit_route_trace("generic_walk", "seen", op, extra);
+            generic_walk_trace_budget--;
+          }
           if (strcmp(op, "phi")==0) continue; // already emitted
           if (strcmp(op, "const")==0) {
             long long dst = read_int(ins, "dst");
@@ -426,12 +585,27 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             yyjson_val* mc = yyjson_obj_get(ins, "mir_call"); yyjson_val* cal = mc? yyjson_obj_get(mc, "callee") : NULL; const char* ctype = cal? read_str(cal, "type") : NULL; const char* bname = cal? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL; const char* mname = cal? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL; long long dst = read_int(ins, "dst"); long long recv = read_int(cal, "receiver"); yyjson_val* args = mc? yyjson_obj_get(mc, "args") : NULL; long long a0=0,a1=0; if (args && yyjson_is_arr(args)) { if (yyjson_arr_size(args)>=1) a0=(long long)yyjson_get_sint(yyjson_arr_get(args,0)); if (yyjson_arr_size(args)>=2) a1=(long long)yyjson_get_sint(yyjson_arr_get(args,1)); }
             char ab[256]; ab[0]='\0';
             auto void app(long long reg, int first){ long long cv; char tmp[64]; if (has_const(reg,&cv)) snprintf(tmp,sizeof(tmp),"i64 %lld", cv); else snprintf(tmp,sizeof(tmp),"i64 %%r%lld", reg); snprintf(ab + strlen(ab), sizeof(ab)-strlen(ab), "%s%s", first?"":", ", tmp); };
+            if (hako_llvmc_route_trace_enabled() && generic_call_trace_budget > 0) {
+              char extra[384];
+              snprintf(extra, sizeof(extra),
+                       "ii=%zu dst=%lld recv=%lld ctype=%s bname=%s mname=%s a0=%lld a1=%lld",
+                       ii, dst, recv,
+                       ctype ? ctype : "-",
+                       bname ? bname : "-",
+                       mname ? mname : "-",
+                       a0, a1);
+              hako_llvmc_emit_route_trace("mir_call", "seen", "enter", extra);
+              generic_call_trace_budget--;
+            }
             if (ctype && !strcmp(ctype, "Constructor")) {
               if (bname && !strcmp(bname, "MapBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.birth_h\"()\n", dst); set_type(dst, T_I64); set_origin(dst, ORG_MAP_BIRTH);} else { EMIT("  call i64 @\"nyash.map.birth_h\"()\n"); } }
               else if (bname && !strcmp(bname, "ArrayBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst); set_type(dst, T_I64); set_origin(dst, ORG_ARRAY_BIRTH);} else { EMIT("  call i64 @\"nyash.array.birth_h\"()\n"); } }
               else { yyjson_doc_free(d); goto GEN_ABORT; }
             } else if (ctype && !strcmp(ctype, "Method")) {
               int recv_org = recv ? get_origin(recv) : ORG_NONE;
+              if (recv_org == ORG_NONE && recv) {
+                recv_org = get_scan_origin(recv);
+              }
               int runtime_array_len = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
               int runtime_array_get = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
               int runtime_array_push = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
@@ -441,6 +615,27 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               int runtime_map_get = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               int runtime_map_size = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               int runtime_map_has = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
+              if (hako_llvmc_route_trace_enabled() && generic_method_trace_budget > 0) {
+                char extra[384];
+                snprintf(extra, sizeof(extra),
+                         "ii=%zu dst=%lld recv=%lld recv_org=%d ctype=%s bname=%s mname=%s a0=%lld a1=%lld flags=len:%d get:%d push:%d has:%d string:%d array_string:%d map_get:%d map_size:%d map_has:%d",
+                         ii, dst, recv, recv_org,
+                         ctype ? ctype : "-",
+                         bname ? bname : "-",
+                         mname ? mname : "-",
+                         a0, a1,
+                         runtime_array_len,
+                         runtime_array_get,
+                         runtime_array_push,
+                         runtime_array_has,
+                         runtime_string,
+                         runtime_array_string,
+                         runtime_map_get,
+                         runtime_map_size,
+                         runtime_map_has);
+                hako_llvmc_emit_route_trace("mir_call_method", "seen", mname ? mname : "unknown", extra);
+                generic_method_trace_budget--;
+              }
               if (recv) app(recv, 1);
               if (mname && !strcmp(mname, "set")) {
                 int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
@@ -458,7 +653,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   if (recv) { set_origin(recv, ORG_ARRAY_STRING_BIRTH); set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH); }
                 } else { yyjson_doc_free(d); goto GEN_ABORT; }
               }
-              else if (mname && !strcmp(mname, "get")) { if (a0) app(a0, ab[0]=='\0'); if ((bname && !strcmp(bname, "MapBox")) || runtime_map_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab); set_type(dst, T_I64); set_origin(dst, ORG_MAP_GET);} else { EMIT("  call i64 @\"nyash.map.slot_load_hh\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_get || runtime_array_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab); set_type(dst, T_I64); if (runtime_array_string) { set_origin(dst, ORG_STRING); set_scan_origin(dst, ORG_STRING); } } else { EMIT("  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
+              else if (mname && !strcmp(mname, "get")) {
+                trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
+                if (a0) app(a0, ab[0]=='\0');
+                if ((bname && !strcmp(bname, "MapBox")) || runtime_map_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab); set_type(dst, T_I64); set_origin(dst, ORG_MAP_GET);} else { EMIT("  call i64 @\"nyash.map.slot_load_hh\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_get || runtime_array_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab); set_type(dst, T_I64); if (runtime_array_string) { set_origin(dst, ORG_STRING); set_scan_origin(dst, ORG_STRING); } } else { EMIT("  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if ((bname && !strcmp(bname, "MapBox")) || runtime_map_size) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.entry_count_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.map.entry_count_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len || runtime_array_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.array.slot_len_h\"(%s)\n", ab);} } else if (runtime_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.string.len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "push")) {
                 if (a0) app(a0, ab[0]=='\0');

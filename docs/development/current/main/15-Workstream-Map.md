@@ -40,8 +40,8 @@ Related:
    - active follow-up / docs-first exact front
    - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline split is fixed
    - current route-correction blocker: retired for the current kilo entry
-   - current exact front: `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
-   - current reading: route correction is landed, and next work is docs-first proof-vocabulary lock before integer-heavy array fast-lane optimization on `ny-llvmc(boundary)`
+   - current exact front: `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
+   - current reading: route correction is landed, and next work is docs-first live-route debug bundle + semantic window proof before another array leaf attempt on `ny-llvmc(boundary)`
    - `.hako` remains the preferred Stage1 canonical MIR authority and Rust stays a thin seam target
    - current `vm-hako` LLVM/exe proof is manual monitor only, not active acceptance
 3. `phase-29ci`
@@ -91,7 +91,7 @@ Related:
 ## Exact Next
 
 1. keep `phase-29bq` active as failure-driven / blocker-none lane
-2. keep `phase-29ck` focused on `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md` until the proof vocabulary, carrying seam, and first array fast-lane consumer are fixed
+2. keep `phase-29ck` focused on `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md` until the live-route debug bundle and semantic `array_rmw_window` proof are fixed
 3. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
 4. treat `phase2044` / `phase2160` thin wrapper families and `phase2170/hv1_mircall_*` as explicit keeps, not active caller-debt buckets
 

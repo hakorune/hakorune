@@ -54,6 +54,20 @@ static void hako_llvmc_emit_route_replay(const char* lane, const char* reason) {
           (reason && reason[0]) ? reason : "unknown");
 }
 
+static void hako_llvmc_emit_route_trace(
+    const char* stage,
+    const char* result,
+    const char* reason,
+    const char* extra) {
+  if (!hako_llvmc_route_trace_enabled()) return;
+  fprintf(stderr,
+          "[llvm-route/trace] stage=%s result=%s reason=%s extra=%s\n",
+          (stage && stage[0]) ? stage : "unknown",
+          (result && result[0]) ? result : "unknown",
+          (reason && reason[0]) ? reason : "unknown",
+          (extra && extra[0]) ? extra : "");
+}
+
 static int set_err_owned(char** err_out, const char* msg) {
   if (!err_out) return -1;
   if (!msg) { *err_out = NULL; return -1; }
@@ -197,4 +211,3 @@ static void hako_llvmc_emit_llvm_byte_string(FILE* f, const char* s, long long l
     fprintf(f, "\\%02X", (unsigned char)s[i]);
   }
 }
-

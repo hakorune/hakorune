@@ -52,17 +52,20 @@ Related:
     - rejected follow-up: authoritative `ArrayBox` integer-storage split did not improve `kilo_micro_array_getset` and regressed main `kilo`
     - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
     - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
-    - rejected follow-up: backend-private fused `get -> +const -> set -> get` leaf did not trigger on the live route and gave no micro win
-    - next exact work is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings
+    - rejected follow-up: backend-private adjacent fused `get -> +const -> set -> get` leaf is now explained as a route-shape miss, not a mysterious symbol miss
+    - current live no-replay array window is semantic `get -> copy* -> const 1 -> add -> set`
+    - next exact work is reusable live-route debug bundle + semantic `array_rmw_window` proof before any new leaf attempt
   - current exact front:
-    - `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+    - `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
     - `stage2-aot-core-proof-vocabulary-ssot.md`
+    - `stage2-optimization-debug-bundle-ssot.md`
     - `phase29ck-array-substrate-rejected-optimizations-2026-03-27.md`
   - working rule:
     - keep `pure-first + compat_replay=none` pinned
     - optimize `ny-llvmc(boundary)` rather than `llvmlite`
     - do not introduce a distinct new IR layer in this wave
     - do not broaden pure-first to permanent dual-dialect support
+    - do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - Boundary-retire lane: `phase-29ci`

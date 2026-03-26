@@ -34,15 +34,17 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
   - current route-correction blocker is retired for the current kilo entry
-  - current exact front is `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+  - current exact front is `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
   - current reading is docs-first:
-    - lock staged `AOT-Core` proof vocabulary before more array substrate tries
+    - `P17` staged `AOT-Core` proof vocabulary lock is landed
     - keep a rolling reject ledger for array substrate experiments
     - integer-heavy `ArrayBox` representation splits that add extra read crossings are currently rejected
     - `ArrayBox.items` lock-implementation swap (`parking_lot` -> `std::sync`) is also rejected in the current wave
     - `host_handles.table` lock-implementation swap (`parking_lot` -> `std::sync`) is also rejected in the current wave
-    - backend-private fused `get -> +const -> set -> get` leaf is also rejected until emitted-IR trigger proof exists
-    - next exact code cut is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings
+    - rejected adjacent fused-leaf read is now explained by live no-replay route evidence:
+      - current `kilo_micro_array_getset` live MIR window is semantic `get -> copy* -> const 1 -> add -> set`
+      - earlier trigger miss was partly obscured by PHI-origin loss; current route trace now follows `scan_origin`
+    - next exact code cut is reusable live-route debug bundle + semantic `array_rmw_window` proof before any new leaf attempt
 
 ## Current Priority
 
@@ -67,16 +69,18 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - result: green after planner-required BlockExpr value-prelude parity
 2. reopened exact blocker lane: `phase-29ck`
   - status: `active follow-up / docs-first exact front`
-  - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; current exact perf cut is narrowed to array fixed-cost reduction after representation-split rejects`
+  - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; current exact perf cut is narrowed to live-route debug bundle + semantic window proof before more array fixed-cost work`
    - exact front:
-     - `docs/development/current/main/phases/phase-29ck/P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+     - `docs/development/current/main/phases/phase-29ck/P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
      - `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`
+     - `docs/development/current/main/design/stage2-optimization-debug-bundle-ssot.md`
      - `docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md`
    - working rule:
      - keep `llvmlite` in Stage0 keep lane only
      - keep `pure-first + compat_replay=none` as the only acceptable Stage1 mainline/perf route
      - do not introduce a distinct new IR layer in this wave
      - optimize the real Stage1 owner; do not drift back into keep-lane fixes
+     - do not keep a new leaf unless the live route bundle proves MIR window -> IR -> symbol on the same artifact
      - keep rejected array-substrate attempts in the rolling ledger instead of shell history
 3. close-synced boundary-retire lane: `phase-29ci`
    - status: `formal-close-synced`
@@ -169,7 +173,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
    - `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
 3. keep the active `29bq` reading failure-driven with `blocker=none` until the next exact blocker is captured
-4. keep `phase-29ck` focused on `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`
+4. keep `phase-29ck` focused on `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
 5. reopen `phase-29ci` only if a new exact boundary-retirement gap appears or hard delete resumes
 6. keep `phase-29cl` formally closed unless a fresh exact `by_name` caller/helper gap reappears
 7. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears
