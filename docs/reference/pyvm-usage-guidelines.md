@@ -12,7 +12,7 @@ Status: Historical / direct-only
 
 - Use Rust VM for normal runs:
   - `./target/release/hakorune --backend vm program.hako`
-- Use LLVM harness for AOT parity:
+- Use the LLVM harness keep lane for AOT parity:
   - `NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm program.hako`
 - Use PyVM only through historical direct tools:
   - `bash tools/historical/pyvm/pyvm_stage2_smoke.sh`

@@ -275,7 +275,7 @@ NYASH_LLVM_DEBUG_PHI=1 NYASH_LLVM_DEBUG_PHI_TRACE=1 \
 | `NYASH_LLVM_EMIT` | `obj` | 出力タイプ: `obj` または `exe` (crate only) |
 | `NYASH_LLVM_NYRT` | `crates/nyash_kernel/target/release` | Nyash Kernel runtime パス |
 | `NYASH_LLVM_LIBS` | (empty) | 追加リンクライブラリ |
-| `NYASH_LLVM_USE_HARNESS` | (auto) | Python harness 使用を強制 |
+| `NYASH_LLVM_USE_HARNESS` | (auto) | Python llvmlite の explicit compat/probe keep lane を強制 |
 
 ### LLVM harness debug（Python llvmlite）
 

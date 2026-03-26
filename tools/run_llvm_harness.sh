@@ -5,7 +5,8 @@ usage() {
   cat << USAGE
 Usage: tools/run_llvm_harness.sh [--no-build] <input.hako> [-- <args...>]
 
-Builds LLVM-harness prerequisites and runs the program via:
+Builds LLVM-harness prerequisites and runs the program via the explicit
+compat/probe keep lane:
   NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend llvm <input.hako>
 
 Options:
