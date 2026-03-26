@@ -2,23 +2,25 @@
 // Source: /home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-manifest-v0.toml
 // Generator: tools/abi_manifest_codegen.py
 
+using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
+
 static box AbiAdapterRegistryDefaultsBox {
   populate(reg) {
-    reg._put("MapBox", "birth", "nyash.map.birth_h", "h", "none")
-    reg._put("MapBox", "set", "nyash.map.slot_store_hhh", "h", "none")
-    reg._put("MapBox", "get", "nyash.map.slot_load_hh", "h", "integer")
-    reg._put("MapBox", "has", "nyash.map.probe_hh", "h", "none")
-    reg._put("MapBox", "size", "nyash.map.entry_count_h", "h", "none")
-    reg._put("MapBox", "len", "nyash.map.entry_count_h", "h", "none")
-    reg._put("ArrayBox", "birth", "nyash.array.birth_h", "h", "none")
-    reg._put("ArrayBox", "push", "nyash.array.slot_append_hh", "h", "none")
-    reg._put("ArrayBox", "len", "nyash.array.slot_len_h", "h", "none")
-    reg._put("ArrayBox", "length", "nyash.array.slot_len_h", "h", "none")
-    reg._put("ArrayBox", "size", "nyash.array.slot_len_h", "h", "none")
-    reg._put("ArrayBox", "get", "nyash.array.slot_load_hi", "h", "none")
-    reg._put("ArrayBox", "set", "nyash.array.set_hih", "h", "none")
-    reg._put("StringBox", "len", "nyash.string.len_h", "h", "none")
-    reg._put("StringBox", "length", "nyash.string.len_h", "h", "none")
-    reg._put("StringBox", "size", "nyash.string.len_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "MapBox", "birth", "nyash.map.birth_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "MapBox", "set", "nyash.map.slot_store_hhh", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "MapBox", "get", "nyash.map.slot_load_hh", "h", "integer")
+    AbiAdapterRegistryBox._put(reg, "MapBox", "has", "nyash.map.probe_hh", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "MapBox", "size", "nyash.map.entry_count_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "MapBox", "len", "nyash.map.entry_count_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "ArrayBox", "birth", "nyash.array.birth_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "ArrayBox", "push", "nyash.array.slot_append_hh", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "ArrayBox", "len", "nyash.array.slot_len_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "ArrayBox", "length", "nyash.array.slot_len_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "ArrayBox", "size", "nyash.array.slot_len_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "ArrayBox", "get", "nyash.array.slot_load_hi", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "ArrayBox", "set", "nyash.array.set_hih", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "StringBox", "len", "nyash.string.len_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "StringBox", "length", "nyash.string.len_h", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "StringBox", "size", "nyash.string.len_h", "h", "none")
   }
 }

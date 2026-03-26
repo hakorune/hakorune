@@ -1,7 +1,8 @@
 // abi_adapter_registry.hako — AbiAdapterRegistryBox
 // Responsibility: Data-driven mapping for Box methods to ABI symbols and call kinds.
 // - Keeps Rust/C-ABI choices out of lowering/VM logic (structure-first)
-// - Supports user Box extension via runtime registration (dev) or generated defaults (prod)
+// - Mainline path is stateless lookup from generated defaults
+// - Runtime registration is intentionally not persisted in the current static-box lowering path
 // - Consumes the docs-side ABI inventory and generated default slice; it is not the manifest SSOT itself
 //   (`docs/development/current/main/design/abi-export-inventory.md`)
 //   generated defaults source: `docs/development/current/main/design/abi-export-manifest-v0.toml`
@@ -12,55 +13,49 @@
 //     call:     String   // "h" or "hh" (arg/value style)
 //     unbox:    String   // "none" | "integer" | (future: "bool"/"float"/"string")
 //   } | null
-//   register(box_type, method, symbol, call, unbox)  // dev/runtime add (toggle-guarded)
+//   register(box_type, method, symbol, call, unbox)  // dev-only probe; stateless mainline returns 0
 //
 // Policy:
 //   - Defaults are generated from the adapter-default manifest slice.
-//   - Runtime registration is allowed iff env HAKO_ABI_ADAPTER_DEV=1.
+//   - Runtime registration is probe-only and does not persist in the current mainline seam.
 
 using selfhost.shared.common.string_helpers as Str
 using selfhost.vm.boxes.generated.abi_adapter_registry_defaults as AbiAdapterRegistryDefaultsBox
 
 static box AbiAdapterRegistryBox {
-  _k(bt, m) { return bt + "::" + m }
-
-  // In-memory table (string -> MapBox)
-  // Nyash-friendly: avoid top-level assignments; lazily init in _init_defaults.
-  // _tab: MapBox (created on first use)
-  // _inited: bool (set true after defaults loaded)
-
-  _init_defaults() {
-    if me._tab == null { me._tab = new MapBox() }
-    if me._inited == true { return }
-    me._inited = true
-    AbiAdapterRegistryDefaultsBox.populate(me)
-  }
-
-  _put(bt, m, sym, call, unbox) {
-    local k = me._k(bt, m)
+  _put(tab, bt, m, sym, call, unbox) {
+    local k = "" + bt + "::" + m
     local v = new MapBox()
     v.set("symbol", sym)
     v.set("call", call)
     v.set("unbox", unbox)
-    me._tab.set(k, v)
+    tab.set(k, v)
   }
 
   resolve(box_type, method) {
-    me._init_defaults()
     if box_type == null || method == null { return null }
-    local k = me._k(box_type, method)
-    if me._tab.has(k) == 1 { return me._tab.get(k) }
+    // Stateless lookup: build the generated defaults table on demand.
+    // This keeps the registry compile-safe in static-box contexts that do not
+    // provide a synthetic `me` binding.
+    local tab = new MapBox()
+    AbiAdapterRegistryDefaultsBox.populate(tab)
+    local k = "" + box_type + "::" + method
+    if tab.has(k) == 1 { return tab.get(k) }
     return null
   }
 
   register(box_type, method, symbol, call, unbox) {
-    // allow only in dev mode (explicit opt-in)
+    // Allow only in dev mode (explicit opt-in).
+    // The current stateless mainline path does not persist runtime registrations,
+    // so this returns 0 unless a future owner adds a dedicated mutable registry seam.
     local dev = env.get("HAKO_ABI_ADAPTER_DEV"); if dev != "1" { return 0 }
     if box_type == null || method == null || symbol == null { return 0 }
     if call == null { call = "h" }
     if unbox == null { unbox = "none" }
-    me._put(""+box_type, ""+method, ""+symbol, ""+call, ""+unbox)
-    return 1
+    if env.get("HAKO_ABI_ADAPTER_DEV_TRACE") == "1" {
+      print("[vm/abi-adapter/register:stateless]" + "" + box_type + "::" + method)
+    }
+    return 0
   }
 }
 

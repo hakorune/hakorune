@@ -96,12 +96,14 @@ def _render(rows: list[AbiRow], manifest_path: Path) -> str:
 // Source: {source}
 // Generator: tools/abi_manifest_codegen.py
 
+using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
+
 """.format(source=manifest_path)
 
     body_lines = ["static box AbiAdapterRegistryDefaultsBox {", "  populate(reg) {"]
     for row in rows:
         body_lines.append(
-            f'    reg._put("{row.box_type}", "{row.method}", "{row.symbol}", "{row.call_shape}", "{row.unbox}")'
+            f'    AbiAdapterRegistryBox._put(reg, "{row.box_type}", "{row.method}", "{row.symbol}", "{row.call_shape}", "{row.unbox}")'
         )
     body_lines.append("  }")
     body_lines.append("}")
