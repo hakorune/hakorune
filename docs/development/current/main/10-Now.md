@@ -54,7 +54,14 @@ Related:
     - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
     - rejected follow-up: backend-private adjacent fused `get -> +const -> set -> get` leaf is now explained as a route-shape miss, not a mysterious symbol miss
     - current live no-replay array window is semantic `get -> copy* -> const 1 -> add -> set`
-    - next exact work is reusable live-route debug bundle + semantic `array_rmw_window` proof before any new leaf attempt
+    - current micro route now proves the semantic window on the same artifact:
+      - `array_rmw_window result=hit`
+      - lowered IR contains `nyash.array.rmw_add1_hi`
+      - built binary exports `nyash.array.rmw_add1_hi`
+      - `kilo_micro_array_getset` is down to `37 ms` under `1x3`
+    - current main `kilo_kernel_small` source route still misses this leaf
+      - observed reasons: `next_noncopy_not_const`, `const_not_1`
+    - next exact work is semantic `array_rmw_window` widening for the current main shapes
   - current exact front:
     - `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
     - `stage2-aot-core-proof-vocabulary-ssot.md`
@@ -66,6 +73,7 @@ Related:
     - do not introduce a distinct new IR layer in this wave
     - do not broaden pure-first to permanent dual-dialect support
     - do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
+    - on WSL, do not treat a single main bench delta as proof when bundled main IR/symbol is unchanged
 - Compiler lane: `phase-29bq`（JIR-PORT-00..08 done / active blocker=`none` / next=`none`）
 - JoinIR port mode（lane A）: monitor-only（failure-driven）
 - Boundary-retire lane: `phase-29ci`

@@ -70,6 +70,16 @@ mod tests {
     }
 
     #[test]
+    fn slot_rmw_add1_raw_alias_updates_integer_slot_and_returns_new_value() {
+        let handle = new_array_handle();
+        assert_eq!(nyash_array_push_h(handle, 10), 1);
+
+        assert_eq!(nyash_array_rmw_add1_hi_alias(handle, 0), 11);
+        assert_eq!(nyash_array_slot_load_hi_alias(handle, 0), 11);
+        assert_eq!(nyash_array_rmw_add1_hi_alias(handle, 3), 0);
+    }
+
+    #[test]
     fn slot_append_raw_alias_keeps_contract() {
         let handle = new_array_handle();
         let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

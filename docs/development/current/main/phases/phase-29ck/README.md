@@ -100,7 +100,14 @@ Related:
    - rejected follow-up: backend-private adjacent fused `get -> +const -> set -> get` leaf is now explained by live no-replay route evidence rather than a mysterious symbol miss
    - current live array RMW window is semantic `get -> copy* -> const 1 -> add -> set`
    - earlier trigger miss was partly obscured by PHI-origin loss; current dev route trace follows `scan_origin` for this family
-   - `P18` is now the exact front: land reusable live-route debug bundle + semantic `array_rmw_window` proof before any new leaf attempt
+   - `P18` now has the first landed micro leaf proof:
+     - `kilo_micro_array_getset` source route hits `array_rmw_window`
+     - lowered IR contains `nyash.array.rmw_add1_hi`
+     - built binary exports `nyash.array.rmw_add1_hi`
+     - `kilo_micro_array_getset` is down to `37 ms` under `warmup=1 repeat=3`
+   - current main `kilo_kernel_small` source route still misses this leaf
+     - observed miss reasons: `next_noncopy_not_const`, `const_not_1`
+   - exact next cut is semantic `array_rmw_window` widening for the current main shapes, not another blind fused leaf guess
    - do not reopen broad `boxcall` widening and do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である

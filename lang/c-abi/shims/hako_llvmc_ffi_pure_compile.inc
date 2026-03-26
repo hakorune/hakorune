@@ -81,6 +81,212 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       int generic_walk_trace_budget = 24;
       int generic_call_trace_budget = 24;
       int generic_method_trace_budget = 24;
+      struct ArrayRmwWindowMatch {
+        int matched;
+        size_t copy_iis[8];
+        int copy_n;
+        size_t const_ii;
+        size_t binop_ii;
+        size_t set_ii;
+        long long input_reg;
+        long long const_reg;
+        long long result_reg;
+      };
+      auto int inst_uses_reg(yyjson_val* ins, long long reg) {
+        if (!ins || !reg) return 0;
+        const char* op = read_str(ins, "op");
+        if (!op) return 0;
+        if (strcmp(op, "copy") == 0) return read_int(ins, "src") == reg;
+        if (strcmp(op, "binop") == 0) {
+          return read_int(ins, "lhs") == reg || read_int(ins, "rhs") == reg;
+        }
+        if (strcmp(op, "compare") == 0) {
+          return read_int(ins, "lhs") == reg || read_int(ins, "left") == reg ||
+                 read_int(ins, "rhs") == reg || read_int(ins, "right") == reg;
+        }
+        if (strcmp(op, "branch") == 0) return read_int(ins, "cond") == reg;
+        if (strcmp(op, "ret") == 0) return read_int(ins, "value") == reg;
+        if (strcmp(op, "mir_call") == 0) {
+          yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+          if (cal && read_int(cal, "receiver") == reg) return 1;
+          yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+          if (args && yyjson_is_arr(args)) {
+            size_t n = yyjson_arr_size(args);
+            for (size_t i = 0; i < n; i++) {
+              yyjson_val* a = yyjson_arr_get(args, i);
+              if (a && (long long)yyjson_get_sint(a) == reg) return 1;
+            }
+          }
+        }
+        return 0;
+      }
+      auto int analyze_array_rmw_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_get,
+          int runtime_array_string,
+          struct ArrayRmwWindowMatch* out,
+          const char** reason_out,
+          char* extra,
+          size_t extra_cap) {
+        const char* reason = "shape_match";
+        if (out) memset(out, 0, sizeof(*out));
+        if (extra && extra_cap) extra[0] = '\0';
+        if (!mname || strcmp(mname, "get") != 0) {
+          reason = "not_get";
+          goto done;
+        }
+        if (!((bname && !strcmp(bname, "ArrayBox")) ||
+              runtime_array_get ||
+              runtime_array_string ||
+              (bname && !strcmp(bname, "RuntimeDataBox") &&
+               (recv_org == ORG_ARRAY_BIRTH || recv_org == ORG_ARRAY_STRING_BIRTH)))) {
+          reason = "not_array_get";
+          goto done;
+        }
+        if (ii + 3 >= ilen) {
+          reason = "lookahead_short";
+          goto done;
+        }
+
+        size_t jj = ii + 1;
+        long long carried = cur_dst;
+        if (!carried) {
+          reason = "missing_get_dst";
+          goto done;
+        }
+        if (out) out->input_reg = cur_dst;
+        while (jj < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, jj);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried)) break;
+          if (out && out->copy_n < (int)(sizeof(out->copy_iis) / sizeof(out->copy_iis[0]))) {
+            out->copy_iis[out->copy_n++] = jj;
+          }
+          carried = read_int(c, "dst");
+          jj++;
+        }
+
+        if (jj + 2 >= ilen) {
+          reason = "copy_chain_short";
+          goto done;
+        }
+
+        yyjson_val* n_const = yyjson_arr_get(insts, jj);
+        yyjson_val* n_bin = yyjson_arr_get(insts, jj + 1);
+        yyjson_val* n_set = yyjson_arr_get(insts, jj + 2);
+        const char* op_const = n_const ? read_str(n_const, "op") : NULL;
+        const char* op_bin = n_bin ? read_str(n_bin, "op") : NULL;
+        const char* op_set = n_set ? read_str(n_set, "op") : NULL;
+        long long const_reg = 0, const_val = 0;
+        long long bin_lhs = 0, bin_rhs = 0;
+        const char* add_kind = NULL;
+
+        if (!(op_const && strcmp(op_const, "const") == 0)) {
+          reason = "next_noncopy_not_const";
+          goto done;
+        }
+        const_reg = read_int(n_const, "dst");
+        if (!has_const(const_reg, &const_val) || const_val != 1) {
+          reason = "const_not_1";
+          goto done;
+        }
+        if (!(op_bin && strcmp(op_bin, "binop") == 0)) {
+          reason = "next_after_const_not_binop";
+          goto done;
+        }
+        add_kind = read_str(n_bin, "op_kind");
+        if (!add_kind) add_kind = read_str(n_bin, "operation");
+        if (!(add_kind && (!strcmp(add_kind, "Add") || !strcmp(add_kind, "+")))) {
+          reason = "binop_not_add";
+          goto done;
+        }
+        bin_lhs = read_int(n_bin, "lhs");
+        bin_rhs = read_int(n_bin, "rhs");
+        if (!((bin_lhs == carried && bin_rhs == const_reg) ||
+              (bin_rhs == carried && bin_lhs == const_reg))) {
+          reason = "binop_not_copy_transparent_get_plus_1";
+          goto done;
+        }
+        if (!(op_set && strcmp(op_set, "mir_call") == 0)) {
+          reason = "next_after_binop_not_set";
+          goto done;
+        }
+        {
+          yyjson_val* mc = yyjson_obj_get(n_set, "mir_call");
+          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+          yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+          const char* ctype = cal ? read_str(cal, "type") : NULL;
+          const char* bname2 = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
+          const char* mname2 = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
+          long long recv2 = cal ? read_int(cal, "receiver") : 0;
+          long long idx2 = 0;
+          long long value2 = 0;
+          if (args && yyjson_is_arr(args)) {
+            if (yyjson_arr_size(args) >= 1) idx2 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+            if (yyjson_arr_size(args) >= 2) value2 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
+          }
+          if (!(ctype && !strcmp(ctype, "Method") && mname2 && !strcmp(mname2, "set") &&
+                ((bname2 && !strcmp(bname2, "ArrayBox")) ||
+                 (bname2 && !strcmp(bname2, "RuntimeDataBox") &&
+                  (recv_org == ORG_ARRAY_BIRTH || recv_org == ORG_ARRAY_STRING_BIRTH))))) {
+            reason = "set_not_array_method";
+            goto done;
+          }
+          if (recv && recv2 && recv != recv2) {
+            reason = "set_recv_mismatch";
+            goto done;
+          }
+          if (idx && idx2 && idx != idx2) {
+            reason = "set_idx_mismatch";
+            goto done;
+          }
+          if (value2 != read_int(n_bin, "dst")) {
+            reason = "set_value_not_binop_dst";
+            goto done;
+          }
+        }
+
+        if (out) {
+          for (size_t kk = jj + 3; kk < ilen; kk++) {
+            yyjson_val* later = yyjson_arr_get(insts, kk);
+            if (inst_uses_reg(later, cur_dst) || inst_uses_reg(later, carried)) {
+              reason = "post_set_uses_consumed_get_value";
+              goto done;
+            }
+          }
+          out->matched = 1;
+          out->const_ii = jj;
+          out->const_reg = const_reg;
+          out->binop_ii = jj + 1;
+          out->result_reg = read_int(n_bin, "dst");
+          out->set_ii = jj + 2;
+        }
+
+      done:
+        if (extra && extra_cap) {
+          long long result_reg = out && out->matched ? out->result_reg : 0;
+          snprintf(extra, extra_cap,
+                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d carried=%lld const_ii=%zu binop_ii=%zu set_ii=%zu result=%lld",
+                   ii, cur_dst, recv, idx,
+                   out ? out->copy_n : 0,
+                   carried,
+                   out ? out->const_ii : 0,
+                   out ? out->binop_ii : 0,
+                   out ? out->set_ii : 0,
+                   result_reg);
+        }
+        if (reason_out) *reason_out = reason;
+        return out && out->matched;
+      }
       auto void trace_array_rmw_window_candidate(
           size_t ii,
           size_t ilen,
@@ -94,115 +300,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           int runtime_array_get,
           int runtime_array_string) {
         if (!hako_llvmc_route_trace_enabled() || array_rmw_trace_budget <= 0) return;
-        if (!mname || strcmp(mname, "get") != 0) return;
-        if (!((bname && !strcmp(bname, "ArrayBox")) ||
-              runtime_array_get ||
-              runtime_array_string ||
-              (bname && !strcmp(bname, "RuntimeDataBox") &&
-               (recv_org == ORG_ARRAY_BIRTH || recv_org == ORG_ARRAY_STRING_BIRTH)))) {
-          return;
-        }
         array_rmw_trace_budget--;
+        struct ArrayRmwWindowMatch match;
+        const char* reason = NULL;
         char extra[384];
-        const char* reason = "shape_match";
-        extra[0] = '\0';
-
-        if (ii + 3 >= ilen) {
-          snprintf(extra, sizeof(extra),
-                   "ii=%zu dst=%lld recv=%lld idx=%lld next=short",
-                   ii, cur_dst, recv, idx);
-          hako_llvmc_emit_route_trace("array_rmw_window", "miss", "lookahead_short", extra);
-          return;
-        }
-
-        yyjson_val* n1 = yyjson_arr_get(insts, ii + 1);
-        yyjson_val* n2 = yyjson_arr_get(insts, ii + 2);
-        yyjson_val* n3 = yyjson_arr_get(insts, ii + 3);
-        const char* op1 = n1 ? read_str(n1, "op") : NULL;
-        const char* op2 = n2 ? read_str(n2, "op") : NULL;
-        const char* op3 = n3 ? read_str(n3, "op") : NULL;
-        long long n1_lhs = 0, n1_rhs = 0, n2_recv = 0, n2_idx = 0, n3_recv = 0, n3_idx = 0;
-        long long add_cv = 0;
-        const char* add_kind = NULL;
-        const char* n2_mname = NULL;
-        const char* n3_mname = NULL;
-
-        if (!op1 || strcmp(op1, "binop") != 0) {
-          reason = "next1_not_binop";
-        } else {
-          add_kind = read_str(n1, "op_kind");
-          if (!add_kind) add_kind = read_str(n1, "operation");
-          if (!(add_kind && (!strcmp(add_kind, "Add") || !strcmp(add_kind, "+")))) {
-            reason = "next1_not_add";
-          } else {
-            n1_lhs = read_int(n1, "lhs");
-            n1_rhs = read_int(n1, "rhs");
-            if (!(n1_lhs == cur_dst || n1_rhs == cur_dst)) {
-              reason = "next1_not_dataflow_from_get";
-            } else {
-              long long other = (n1_lhs == cur_dst) ? n1_rhs : n1_lhs;
-              if (!has_const(other, &add_cv) || add_cv != 1) {
-                reason = "next1_not_const1";
-              } else if (!op2 || strcmp(op2, "mir_call") != 0) {
-                reason = "next2_not_mir_call";
-              } else {
-                yyjson_val* mc2 = yyjson_obj_get(n2, "mir_call");
-                yyjson_val* cal2 = mc2 ? yyjson_obj_get(mc2, "callee") : NULL;
-                const char* ctype2 = cal2 ? read_str(cal2, "type") : NULL;
-                const char* bname2 = cal2 ? (read_str(cal2, "box_name") ? read_str(cal2, "box_name") : read_str(cal2, "box_type")) : NULL;
-                n2_mname = cal2 ? (read_str(cal2, "method") ? read_str(cal2, "method") : read_str(cal2, "name")) : NULL;
-                n2_recv = cal2 ? read_int(cal2, "receiver") : 0;
-                yyjson_val* args2 = mc2 ? yyjson_obj_get(mc2, "args") : NULL;
-                if (args2 && yyjson_is_arr(args2)) {
-                  if (yyjson_arr_size(args2) >= 1) n2_idx = (long long)yyjson_get_sint(yyjson_arr_get(args2, 0));
-                }
-                if (!(ctype2 && !strcmp(ctype2, "Method") && n2_mname && !strcmp(n2_mname, "set") &&
-                      ((bname2 && !strcmp(bname2, "ArrayBox")) ||
-                       (bname2 && !strcmp(bname2, "RuntimeDataBox") &&
-                        (recv_org == ORG_ARRAY_BIRTH || recv_org == ORG_ARRAY_STRING_BIRTH))))) {
-                  reason = "next2_not_array_set";
-                } else if (n2_recv && recv && n2_recv != recv) {
-                  reason = "next2_recv_mismatch";
-                } else if (n2_idx && idx && n2_idx != idx) {
-                  reason = "next2_idx_mismatch";
-                } else if (!op3 || strcmp(op3, "mir_call") != 0) {
-                  reason = "next3_not_mir_call";
-                } else {
-                  yyjson_val* mc3 = yyjson_obj_get(n3, "mir_call");
-                  yyjson_val* cal3 = mc3 ? yyjson_obj_get(mc3, "callee") : NULL;
-                  const char* ctype3 = cal3 ? read_str(cal3, "type") : NULL;
-                  const char* bname3 = cal3 ? (read_str(cal3, "box_name") ? read_str(cal3, "box_name") : read_str(cal3, "box_type")) : NULL;
-                  n3_mname = cal3 ? (read_str(cal3, "method") ? read_str(cal3, "method") : read_str(cal3, "name")) : NULL;
-                  n3_recv = cal3 ? read_int(cal3, "receiver") : 0;
-                  yyjson_val* args3 = mc3 ? yyjson_obj_get(mc3, "args") : NULL;
-                  if (args3 && yyjson_is_arr(args3)) {
-                    if (yyjson_arr_size(args3) >= 1) n3_idx = (long long)yyjson_get_sint(yyjson_arr_get(args3, 0));
-                  }
-                  if (!(ctype3 && !strcmp(ctype3, "Method") && n3_mname && !strcmp(n3_mname, "get") &&
-                        ((bname3 && !strcmp(bname3, "ArrayBox")) ||
-                         (bname3 && !strcmp(bname3, "RuntimeDataBox"))))) {
-                    reason = "next3_not_array_get";
-                  } else if (n3_recv && recv && n3_recv != recv) {
-                    reason = "next3_recv_mismatch";
-                  } else if (n3_idx && idx && n3_idx != idx) {
-                    reason = "next3_idx_mismatch";
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        snprintf(extra, sizeof(extra),
-                 "ii=%zu dst=%lld recv=%lld idx=%lld next=[%s,%s,%s] add_lhs=%lld add_rhs=%lld add_cv=%lld set_recv=%lld set_idx=%lld get_recv=%lld get_idx=%lld",
-                 ii, cur_dst, recv, idx,
-                 op1 ? op1 : "-",
-                 op2 ? op2 : "-",
-                 op3 ? op3 : "-",
-                 n1_lhs, n1_rhs, add_cv,
-                 n2_recv, n2_idx,
-                 n3_recv, n3_idx);
-        hako_llvmc_emit_route_trace("array_rmw_window", reason ? (strcmp(reason, "shape_match") == 0 ? "hit" : "miss") : "miss", reason ? reason : "unknown", extra);
+        int matched = analyze_array_rmw_window_candidate(
+            ii, ilen, insts, bname, mname, recv, idx, cur_dst, recv_org,
+            runtime_array_get, runtime_array_string, &match, &reason, extra, sizeof(extra));
+        hako_llvmc_emit_route_trace("array_rmw_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
       }
 
       // Pre-scan: consts + phis + needed method decls
@@ -399,6 +504,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_hih\"(i64, i64, i64)\n");
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
+      if (need_arr_get && need_arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n");
       if (need_arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
       if (need_string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
@@ -438,7 +544,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
         yyjson_val* insts = yyjson_obj_get(b, "instructions"); if (!insts || !yyjson_is_arr(insts)) continue;
         size_t ilen = yyjson_arr_size(insts);
+        unsigned char skip_inst[ilen ? ilen : 1];
+        memset(skip_inst, 0, sizeof(skip_inst));
         for (size_t ii=0; ii<ilen; ii++) {
+          if (skip_inst[ii]) continue;
           yyjson_val* ins = yyjson_arr_get(insts, ii);
           const char* op = read_str(ins, "op"); if (!op) { yyjson_doc_free(d); goto GEN_ABORT; }
           if (hako_llvmc_route_trace_enabled() && generic_walk_trace_budget > 0) {
@@ -654,7 +763,23 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 } else { yyjson_doc_free(d); goto GEN_ABORT; }
               }
               else if (mname && !strcmp(mname, "get")) {
+                struct ArrayRmwWindowMatch rmw_match;
+                const char* rmw_reason = NULL;
+                char rmw_extra[384];
                 trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
+                if (analyze_array_rmw_window_candidate(
+                        ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
+                        runtime_array_get, runtime_array_string, &rmw_match, &rmw_reason,
+                        rmw_extra, sizeof(rmw_extra))) {
+                  if (a0) app(a0, ab[0]=='\0');
+                  EMIT("  %%r%lld = call i64 @\"nyash.array.rmw_add1_hi\"(%s)\n", rmw_match.result_reg, ab);
+                  set_type(rmw_match.result_reg, T_I64);
+                  for (int si = 0; si < rmw_match.copy_n; si++) skip_inst[rmw_match.copy_iis[si]] = 1;
+                  skip_inst[rmw_match.const_ii] = 1;
+                  skip_inst[rmw_match.binop_ii] = 1;
+                  skip_inst[rmw_match.set_ii] = 1;
+                  continue;
+                }
                 if (a0) app(a0, ab[0]=='\0');
                 if ((bname && !strcmp(bname, "MapBox")) || runtime_map_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab); set_type(dst, T_I64); set_origin(dst, ORG_MAP_GET);} else { EMIT("  call i64 @\"nyash.map.slot_load_hh\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_get || runtime_array_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab); set_type(dst, T_I64); if (runtime_array_string) { set_origin(dst, ORG_STRING); set_scan_origin(dst, ORG_STRING); } } else { EMIT("  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if ((bname && !strcmp(bname, "MapBox")) || runtime_map_size) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.entry_count_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.map.entry_count_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len || runtime_array_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.array.slot_len_h\"(%s)\n", ab);} } else if (runtime_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.string.len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }

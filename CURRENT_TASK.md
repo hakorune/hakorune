@@ -35,7 +35,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
   - current route-correction blocker is retired for the current kilo entry
   - current exact front is `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
-  - current reading is docs-first:
+  - current facts are:
     - `P17` staged `AOT-Core` proof vocabulary lock is landed
     - keep a rolling reject ledger for array substrate experiments
     - integer-heavy `ArrayBox` representation splits that add extra read crossings are currently rejected
@@ -44,7 +44,13 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - rejected adjacent fused-leaf read is now explained by live no-replay route evidence:
       - current `kilo_micro_array_getset` live MIR window is semantic `get -> copy* -> const 1 -> add -> set`
       - earlier trigger miss was partly obscured by PHI-origin loss; current route trace now follows `scan_origin`
-    - next exact code cut is reusable live-route debug bundle + semantic `array_rmw_window` proof before any new leaf attempt
+    - current micro route is now proven end-to-end on the same artifact:
+      - `array_rmw_window result=hit`
+      - lowered IR contains `nyash.array.rmw_add1_hi`
+      - built binary exports `nyash.array.rmw_add1_hi`
+    - current `kilo_kernel_small` source route still misses the same leaf
+      - observed reasons: `next_noncopy_not_const`, `const_not_1`
+    - next exact code cut is semantic `array_rmw_window` widening for the current main shapes, not a blind new leaf guess
 
 ## Current Priority
 
@@ -75,13 +81,14 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`
      - `docs/development/current/main/design/stage2-optimization-debug-bundle-ssot.md`
      - `docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md`
-   - working rule:
-     - keep `llvmlite` in Stage0 keep lane only
-     - keep `pure-first + compat_replay=none` as the only acceptable Stage1 mainline/perf route
-     - do not introduce a distinct new IR layer in this wave
-     - optimize the real Stage1 owner; do not drift back into keep-lane fixes
-     - do not keep a new leaf unless the live route bundle proves MIR window -> IR -> symbol on the same artifact
-     - keep rejected array-substrate attempts in the rolling ledger instead of shell history
+  - working rule:
+    - keep `llvmlite` in Stage0 keep lane only
+    - keep `pure-first + compat_replay=none` as the only acceptable Stage1 mainline/perf route
+    - do not introduce a distinct new IR layer in this wave
+    - optimize the real Stage1 owner; do not drift back into keep-lane fixes
+    - do not keep a new leaf unless the live route bundle proves MIR window -> IR -> symbol on the same artifact
+    - on WSL, do not treat a single main bench delta as proof when the bundled main IR/symbol path is unchanged
+    - keep rejected array-substrate attempts in the rolling ledger instead of shell history
 3. close-synced boundary-retire lane: `phase-29ci`
    - status: `formal-close-synced`
    - current scope is complete for boundary retirement + caller-audit under the accepted keep set

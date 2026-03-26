@@ -218,6 +218,28 @@ impl ArrayBox {
         }
     }
 
+    /// Raw integer read-modify-write helper for substrate/plugin routes.
+    /// Returns the updated value when the slot exists and can be treated as `i64`.
+    #[inline(always)]
+    pub fn slot_rmw_add1_i64_raw(&self, idx: i64) -> Option<i64> {
+        if idx < 0 {
+            if Self::oob_strict_enabled() {
+                crate::runtime::observe::mark_oob();
+            }
+            return None;
+        }
+        let idx = idx as usize;
+        let mut items = self.items.write();
+        let item = items.get_mut(idx)?;
+        if let Some(slot) = item.i64_slot_mut() {
+            *slot += 1;
+            return Some(*slot);
+        }
+        let next = item.as_i64_fast()?.checked_add(1)?;
+        *item = Box::new(IntegerBox::new(next));
+        Some(next)
+    }
+
     /// インデックス(i64)が配列範囲内かを返す（副作用なし）
     pub fn has_index_i64(&self, idx: i64) -> bool {
         if idx < 0 {

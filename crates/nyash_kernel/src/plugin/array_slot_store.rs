@@ -39,3 +39,13 @@ pub(super) fn array_slot_store_i64(handle: i64, idx: i64, value_i64: i64) -> i64
 pub(super) fn array_slot_store_string_handle(handle: i64, idx: i64, value_h: i64) -> i64 {
     array_set_by_index_string_handle_value(handle, idx, value_h)
 }
+
+#[inline(always)]
+pub(super) fn array_slot_rmw_add1_i64(handle: i64, idx: i64) -> i64 {
+    if handle <= 0 || idx < 0 {
+        return 0;
+    }
+    with_array_box_borrowed(handle, |arr| arr.slot_rmw_add1_i64_raw(idx))
+        .flatten()
+        .unwrap_or(0)
+}
