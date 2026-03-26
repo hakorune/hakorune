@@ -87,3 +87,19 @@ def lower_filebox_open_direct(
 
     callee = _declare(module, "nyash.file.open_hhh", i64, [i64, i64, i64])
     return builder.call(callee, [recv_h, path_h, mode_h], name=call_name)
+
+
+def lower_filebox_read_direct(
+    *,
+    builder: ir.IRBuilder,
+    module: ir.Module,
+    recv_h: ir.Value,
+    args: List[int],
+    call_name: str,
+):
+    if len(args) != 0:
+        return None
+
+    i64 = ir.IntType(64)
+    callee = _declare(module, "nyash.file.read_h", i64, [i64])
+    return builder.call(callee, [recv_h], name=call_name)

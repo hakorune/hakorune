@@ -30,7 +30,7 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
 
 - `filebox_plugin_fallback.py`
   - owns the explicit compat-only `FileBox` by-name leaf.
-  - current allowlist is `read/readBytes/close`; `open`, `write`, and `writeBytes` are retired from this leaf.
+  - current allowlist is `readBytes/close`; `open`, `read`, `write`, and `writeBytes` are retired from this leaf.
   - `direct_box_method.py` keeps the direct-route decision and delegates the last
     compat emission here.
 

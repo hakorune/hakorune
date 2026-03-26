@@ -284,6 +284,53 @@ fn filebox_open_hhh_returns_zero_for_invalid_string_handles() {
 }
 
 #[test]
+fn filebox_read_h_returns_string_handle_after_open() {
+    ensure_test_ring0();
+
+    let tmp_path = "/tmp/nyash_kernel_filebox_read_h_roundtrip.txt";
+    std::fs::write(tmp_path, "kernel-filebox-read-h").expect("seed file");
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = string_handle(tmp_path);
+    let mode_handle = string_handle("r");
+    assert_eq!(
+        nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+        1
+    );
+
+    let read_handle = nyash_file_read_h_export(filebox_handle);
+    assert!(read_handle > 0, "read_h should return StringBox handle");
+    assert_eq!(
+        decode_string_like_handle(read_handle).as_deref(),
+        Some("kernel-filebox-read-h")
+    );
+
+    with_filebox_from_handle(filebox_handle, |filebox| {
+        filebox.ny_close().expect("direct close should succeed");
+    });
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
+fn filebox_read_h_returns_zero_for_invalid_receiver() {
+    ensure_test_ring0();
+    assert_eq!(nyash_file_read_h_export(0), 0);
+}
+
+#[test]
+fn filebox_read_h_returns_zero_when_not_opened() {
+    ensure_test_ring0();
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+    assert_eq!(nyash_file_read_h_export(filebox_handle), 0);
+}
+
+#[test]
 fn filebox_by_name_open_is_retired() {
     ensure_test_ring0();
 
@@ -298,6 +345,36 @@ fn filebox_by_name_open_is_retired() {
         let result =
             nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 2, path_handle, mode_handle);
         assert_eq!(result, 0, "open should no longer use builtin by_name keep");
+    });
+}
+
+#[test]
+fn filebox_by_name_read_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let tmp_path = "/tmp/nyash_kernel_filebox_by_name_read_retired.txt";
+        std::fs::write(tmp_path, "kernel-filebox-by-name-read").expect("seed file");
+
+        let type_name = CString::new("FileBox").expect("CString");
+        let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+        assert!(filebox_handle > 0, "expected FileBox handle");
+
+        let path_handle = string_handle(tmp_path);
+        let mode_handle = string_handle("r");
+        assert_eq!(
+            nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+            1
+        );
+
+        let method = CString::new("read").expect("CString");
+        let result = nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 0, 0, 0);
+        assert_eq!(result, 0, "read should no longer use builtin by_name keep");
+
+        with_filebox_from_handle(filebox_handle, |filebox| {
+            let _ = filebox.ny_close();
+        });
+        let _ = std::fs::remove_file(tmp_path);
     });
 }
 

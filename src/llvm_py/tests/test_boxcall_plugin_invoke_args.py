@@ -268,6 +268,35 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         self.assertIn('call i64 @"nyash.file.open_hhh"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
+    def test_filebox_boxcall_read_prefers_direct_export(self):
+        module = ir.Module(name="test_boxcall_filebox_read_direct")
+        i64 = ir.IntType(64)
+        fn = ir.Function(module, ir.FunctionType(i64, []), name="main")
+        bb = fn.append_basic_block("entry")
+        builder = ir.IRBuilder(bb)
+
+        vmap = {
+            1: ir.Constant(i64, 11),
+        }
+        resolver = _ResolverStub()
+        resolver.value_types[1] = {"kind": "handle", "box_type": "FileBox"}
+
+        lower_boxcall(
+            builder=builder,
+            module=module,
+            box_vid=1,
+            method_name="read",
+            args=[],
+            dst_vid=4,
+            vmap=vmap,
+            resolver=resolver,
+        )
+        builder.ret(vmap[4])
+
+        ir_text = str(module)
+        self.assertIn('call i64 @"nyash.file.read_h"', ir_text)
+        self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

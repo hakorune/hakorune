@@ -134,8 +134,8 @@ Rule:
    - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` before generic plugin fallback when receiver literals are known
 17. FileBox kernel roundtrip tests are now direct-contract
    - `crates/nyash_kernel/src/tests.rs` no longer uses `nyash_plugin_invoke_by_name_i64` for FileBox open/read/write/close roundtrips
-   - `plugin/invoke/by_name.rs` now keeps an explicit built-in FileBox compat branch for `read`, `readBytes`, `write`, and `close`; `open` is retired from that keep branch
-   - the Python-side explicit compat helper now isolates `read`, `readBytes`, and `close`; `open` is direct-route through `nyash.file.open_hhh`
+   - `plugin/invoke/by_name.rs` now keeps an explicit built-in FileBox compat branch for `readBytes`, `write`, and `close`; `open` and `read` are retired from that keep branch
+   - the Python-side explicit compat helper now isolates `readBytes` and `close`; `open` and `read` are direct-route through `nyash.file.open_hhh` and `nyash.file.read_h`
 18. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
    - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback on the daily caller path
@@ -178,8 +178,8 @@ Rule:
    - compiled-stage1 surrogate residue is archive-only proof residue
    - compat keep residue is a frozen exact keep set
 6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current exact front
-   - `FileBox.open` execution slice is landed
-   - next exact slice is `FileBox.read`
+   - `FileBox.open` and `FileBox.read` execution slices are landed
+   - next exact slice is `FileBox.close`
    - keep execution narrow: one FileBox method family leaf at a time
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
