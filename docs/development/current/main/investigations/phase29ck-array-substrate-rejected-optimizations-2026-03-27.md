@@ -337,6 +337,55 @@ PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUI
 - do not reopen lock-implementation swaps on `host_handles.table` in the current wave
 - next exact front remains direct fixed-cost reduction inside `array_slot_store_i64` / `array_slot_load_hi`, or crossing-count reduction above the runtime substrate
 
+### 2026-03-27: backend-private fused `get -> +const -> set -> get` leaf
+
+**Hypothesis**
+
+- a backend-private fused array leaf plus pure-first peephole should collapse the hot `RuntimeDataBox.get(idx) -> +1 -> set(idx, v) -> get(idx)` pattern into one substrate crossing and materially reduce `kilo_micro_array_getset`
+
+**Touched owner area**
+
+- [handle_cache.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/handle_cache.rs)
+- [array_slot_store.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_slot_store.rs)
+- [array_substrate.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_substrate.rs)
+- [array.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array.rs)
+- [hako_llvmc_ffi_pure_compile.inc](/home/tomoaki/git/hakorune-selfhost/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc)
+
+**Commands**
+
+```bash
+cargo check -q
+cargo test -q -p nyash_kernel array_ -- --nocapture
+bash tools/build_hako_llvmc_ffi.sh
+NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+nm -C target/kilo_micro_array_getset.cg.keep.exe | rg 'slot_load_add_store|slot_store_hii|slot_load_hi'
+```
+
+**Observed result**
+
+- tests/build:
+  - `cargo check -q` green
+  - `nyash_kernel array_` tests green
+  - `build_hako_llvmc_ffi.sh` green
+- micro:
+  - `kilo_micro_array_getset = 70 ms`
+- symbol probe:
+  - `target/kilo_micro_array_getset.cg.keep.exe` still exposed only `nyash.array.slot_load_hi` and `nyash.array.slot_store_hii`
+  - new fused symbol did not appear in the generated binary
+- note:
+  - this was not an accepted perf regression test failure alone; it was a trigger miss
+  - the current peephole conditions did not engage on the live route, so there is no justified code keep for this wave
+
+**Verdict**
+
+- rejected for the current wave
+- reverted immediately
+
+**Next candidate**
+
+- do not reopen fused leaf work until the live Stage1 route is proven to hit the candidate pattern in emitted IR
+- next exact front stays direct fixed-cost reduction inside `array_slot_store_i64` / `array_slot_load_hi`, with route proof before more backend-private leaf widening
+
 ## Historical Pre-Ledger Rejects
 
 - array `len/push` borrowed follow-up

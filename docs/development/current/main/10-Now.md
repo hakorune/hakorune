@@ -52,6 +52,7 @@ Related:
     - rejected follow-up: authoritative `ArrayBox` integer-storage split did not improve `kilo_micro_array_getset` and regressed main `kilo`
     - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
     - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
+    - rejected follow-up: backend-private fused `get -> +const -> set -> get` leaf did not trigger on the live route and gave no micro win
     - next exact work is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings
   - current exact front:
     - `P17-AOT-CORE-PROOF-VOCABULARY-LOCK.md`

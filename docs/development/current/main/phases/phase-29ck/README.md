@@ -94,6 +94,7 @@ Related:
    - rejected follow-up: authoritative `ArrayBox` integer-storage split (`ArrayStorage::{Generic,I64}`) kept micro near `46 ms` but regressed main `kilo` to `858 ms`
    - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed `kilo_micro_array_getset` to `69 ms` and main `kilo` to `872 ms`
    - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed `kilo_micro_array_getset` to `68 ms` and main `kilo` to `909 ms`
+   - rejected follow-up: backend-private fused `get -> +const -> set -> get` leaf did not trigger on the live emitted route and left `kilo_micro_array_getset` at `70 ms`
    - the next exact front is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings; do not reopen broad `boxcall` widening
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である

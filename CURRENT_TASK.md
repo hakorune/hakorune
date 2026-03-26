@@ -41,6 +41,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - integer-heavy `ArrayBox` representation splits that add extra read crossings are currently rejected
     - `ArrayBox.items` lock-implementation swap (`parking_lot` -> `std::sync`) is also rejected in the current wave
     - `host_handles.table` lock-implementation swap (`parking_lot` -> `std::sync`) is also rejected in the current wave
+    - backend-private fused `get -> +const -> set -> get` leaf is also rejected until emitted-IR trigger proof exists
     - next exact code cut is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings
 
 ## Current Priority
