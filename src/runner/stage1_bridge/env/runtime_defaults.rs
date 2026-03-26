@@ -21,7 +21,7 @@ pub(super) fn apply(cmd: &mut Command) {
         cmd.env("NYASH_BOX_FACTORY_POLICY", "builtin_first");
     }
     if std::env::var("HAKO_MIR_BUILDER_METHODIZE").is_err() {
-        cmd.env("HAKO_MIR_BUILDER_METHODIZE", "0");
+        cmd.env("HAKO_MIR_BUILDER_METHODIZE", "1");
     }
 
     // Mainline lock: keep MirBuilder on internal-only route.

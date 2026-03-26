@@ -73,8 +73,8 @@ fn emit_mir_json_v0_string(module: &MirModule) -> Result<String, String> {
         VM_HAKO_PHASE,
         temp_seed()
     ));
-    let _unified_guard = ScopedEnvVar::set("NYASH_MIR_UNIFIED_CALL", "0");
-    let _schema_guard = ScopedEnvVar::set("NYASH_JSON_SCHEMA_V1", "0");
+    let _unified_guard = ScopedEnvVar::set("NYASH_MIR_UNIFIED_CALL", "1");
+    let _schema_guard = ScopedEnvVar::set("NYASH_JSON_SCHEMA_V1", "1");
     let emit_result = crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &path);
 
     if let Err(e) = emit_result {

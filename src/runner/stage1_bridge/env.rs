@@ -194,7 +194,7 @@ mod tests {
         );
         assert_eq!(
             envs.get("HAKO_MIR_BUILDER_METHODIZE"),
-            Some(&"0".to_string())
+            Some(&"1".to_string())
         );
         assert_eq!(
             envs.get("HAKO_SELFHOST_NO_DELEGATE"),

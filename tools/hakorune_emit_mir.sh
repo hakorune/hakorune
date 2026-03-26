@@ -804,7 +804,9 @@ emit_mir_json_via_delegate_routes() {
 
 try_selfhost_builder_first_route() {
   local prog_json="$1" out_path="$2"
-  if [ "${HAKO_SELFHOST_BUILDER_FIRST:-0}" != "1" ]; then
+  # Stage1 canonical MIR authority now lives in .hako, so the helper's
+  # default route should prefer selfhost-first and only fall back when asked.
+  if [ "${HAKO_SELFHOST_BUILDER_FIRST:-1}" != "1" ]; then
     return 1
   fi
   if try_selfhost_builder "$prog_json" "$out_path"; then

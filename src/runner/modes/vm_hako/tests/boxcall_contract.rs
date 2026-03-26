@@ -901,7 +901,7 @@ fn subset_rejects_boxcall_read_with_non_reg_receiver_mirror_arg() {
 }
 
 #[test]
-fn compile_v0_emits_boxcall_open_with_two_args() {
+fn compile_v0_emits_mir_call_open_with_two_args() {
     let runner = NyashRunner::new(crate::cli::CliConfig::default());
     let source = r#"
 static box Main {
@@ -922,16 +922,26 @@ static box Main {
             blocks.iter().find_map(|b| {
                 b["instructions"].as_array().and_then(|insts| {
                     insts.iter().find(|inst| {
-                        inst["op"].as_str() == Some("boxcall")
-                            && inst["method"].as_str() == Some("open")
+                        inst["op"].as_str() == Some("mir_call")
+                            && inst["mir_call"]["callee"]["type"].as_str() == Some("Method")
+                            && inst["mir_call"]["callee"]["name"].as_str() == Some("open")
                     })
                 })
             })
         })
         .cloned()
-        .expect("main boxcall(open) must exist");
-    let args_len = inst["args"].as_array().map(|a| a.len()).unwrap_or(0);
-    assert_eq!(args_len, 3, "unexpected open shape: {}", inst);
+        .expect("main mir_call(open) must exist");
+    let args_len = inst["mir_call"]["args"].as_array().map(|a| a.len()).unwrap_or(0);
+    assert!(
+        args_len >= 2,
+        "unexpected open args shape: {}",
+        inst
+    );
+    assert!(
+        inst["mir_call"]["callee"]["receiver"].is_number(),
+        "open mir_call must carry receiver: {}",
+        inst
+    );
 }
 
 #[test]
