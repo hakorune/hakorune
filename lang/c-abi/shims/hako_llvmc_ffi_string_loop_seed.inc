@@ -445,14 +445,14 @@ static int hako_llvmc_match_string_length_hot_loop_seed(
       yyjson_doc_free(doc);
       return -1;
     }
-    if (strcmp(READ_STR(interesting[n - 3], "op"), "const") != 0 ||
-        strcmp(READ_STR(interesting[n - 2], "op"), "compare") != 0 ||
-        strcmp(READ_STR(interesting[n - 1], "op"), "branch") != 0) {
+    if (!hako_llvmc_str_eq(READ_STR(interesting[n - 3], "op"), "const") ||
+        !hako_llvmc_str_eq(READ_STR(interesting[n - 2], "op"), "compare") ||
+        !hako_llvmc_str_eq(READ_STR(interesting[n - 1], "op"), "branch")) {
       yyjson_doc_free(doc);
       return -1;
     }
     for (i = 0; i + 3 < (size_t)n; i++) {
-      if (strcmp(READ_STR(interesting[i], "op"), "phi") != 0) {
+      if (!hako_llvmc_str_eq(READ_STR(interesting[i], "op"), "phi")) {
         yyjson_doc_free(doc);
         return -1;
       }
@@ -468,21 +468,21 @@ static int hako_llvmc_match_string_length_hot_loop_seed(
       return -1;
     }
 
-    if (strcmp(READ_STR(interesting[0], "op"), "boxcall") == 0) {
+    if (hako_llvmc_str_eq(READ_STR(interesting[0], "op"), "boxcall")) {
       receiver_reg = READ_INT(interesting[0], "box");
       call_dst = READ_INT(interesting[0], "dst");
       if (!(READ_STR(interesting[0], "method") &&
-            strcmp(READ_STR(interesting[0], "method"), "length") == 0 &&
+            hako_llvmc_str_eq(READ_STR(interesting[0], "method"), "length") &&
             yyjson_is_arr(yyjson_obj_get(interesting[0], "args")) &&
             yyjson_arr_size(yyjson_obj_get(interesting[0], "args")) == 0 &&
             READ_STR(interesting[0], "dst_type") &&
-            strcmp(READ_STR(interesting[0], "dst_type"), "i64") == 0)) {
-        yyjson_doc_free(doc);
+            hako_llvmc_str_eq(READ_STR(interesting[0], "dst_type"), "i64"))) {
+      yyjson_doc_free(doc);
         return -1;
       }
-    } else if (strcmp(READ_STR(interesting[0], "op"), "const") == 0 &&
-               strcmp(READ_STR(interesting[1], "op"), "newbox") == 0 &&
-               strcmp(READ_STR(interesting[2], "op"), "boxcall") == 0) {
+    } else if (hako_llvmc_str_eq(READ_STR(interesting[0], "op"), "const") &&
+               hako_llvmc_str_eq(READ_STR(interesting[1], "op"), "newbox") &&
+               hako_llvmc_str_eq(READ_STR(interesting[2], "op"), "boxcall")) {
       yyjson_val* vobj = yyjson_obj_get(interesting[0], "value");
       yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
       const char* box_type = ty ? READ_STR(ty, "box_type") : NULL;
@@ -491,16 +491,16 @@ static int hako_llvmc_match_string_length_hot_loop_seed(
       newbox_dst = READ_INT(interesting[1], "dst");
       receiver_reg = READ_INT(interesting[2], "box");
       call_dst = READ_INT(interesting[2], "dst");
-      if (!(box_type && strcmp(box_type, "StringBox") == 0 &&
+      if (!(hako_llvmc_str_eq(box_type, "StringBox") &&
             lit && hako_llvmc_ascii_strlen(lit, &lit_len) &&
             READ_STR(interesting[1], "type") &&
-            strcmp(READ_STR(interesting[1], "type"), "StringBox") == 0 &&
+            hako_llvmc_str_eq(READ_STR(interesting[1], "type"), "StringBox") &&
             yyjson_is_arr(yyjson_obj_get(interesting[1], "args")) &&
             yyjson_arr_size(yyjson_obj_get(interesting[1], "args")) == 1 &&
             (long long)yyjson_get_sint(yyjson_arr_get(yyjson_obj_get(interesting[1], "args"), 0)) == lit_reg &&
             receiver_reg == newbox_dst &&
             READ_STR(interesting[2], "method") &&
-            strcmp(READ_STR(interesting[2], "method"), "length") == 0 &&
+            hako_llvmc_str_eq(READ_STR(interesting[2], "method"), "length") &&
             yyjson_is_arr(yyjson_obj_get(interesting[2], "args")) &&
             yyjson_arr_size(yyjson_obj_get(interesting[2], "args")) == 0)) {
         yyjson_doc_free(doc);
@@ -512,9 +512,9 @@ static int hako_llvmc_match_string_length_hot_loop_seed(
       return -1;
     }
 
-    if (strcmp(READ_STR(interesting[n - 3], "op"), "const") != 0 ||
-        strcmp(READ_STR(interesting[n - 2], "op"), "binop") != 0 ||
-        strcmp(READ_STR(interesting[n - 1], "op"), "jump") != 0) {
+    if (!hako_llvmc_str_eq(READ_STR(interesting[n - 3], "op"), "const") ||
+        !hako_llvmc_str_eq(READ_STR(interesting[n - 2], "op"), "binop") ||
+        !hako_llvmc_str_eq(READ_STR(interesting[n - 1], "op"), "jump")) {
       yyjson_doc_free(doc);
       return -1;
     }
@@ -522,8 +522,8 @@ static int hako_llvmc_match_string_length_hot_loop_seed(
       yyjson_doc_free(doc);
       return -1;
     }
-    if (!(strcmp(READ_STR(interesting[n - 2], "operation"), "+") == 0 ||
-          strcmp(READ_STR(interesting[n - 2], "op_kind"), "Add") == 0)) {
+    if (!(hako_llvmc_str_eq(READ_STR(interesting[n - 2], "operation"), "+") ||
+          hako_llvmc_str_eq(READ_STR(interesting[n - 2], "op_kind"), "Add"))) {
       yyjson_doc_free(doc);
       return -1;
     }
@@ -554,14 +554,13 @@ static int hako_llvmc_match_string_length_hot_loop_seed(
           yyjson_val* ty = vobj ? yyjson_obj_get(vobj, "type") : NULL;
           const char* box_type = ty ? READ_STR(ty, "box_type") : NULL;
           const char* value = vobj ? READ_STR(vobj, "value") : NULL;
-          if (box_type && strcmp(box_type, "StringBox") == 0 && value && hako_llvmc_ascii_strlen(value, &lit_len)) {
+          if (hako_llvmc_str_eq(box_type, "StringBox") && value && hako_llvmc_ascii_strlen(value, &lit_len)) {
             lit_reg = READ_INT(ins, "dst");
             lit = value;
           }
-        } else if (op && strcmp(op, "newbox") == 0) {
+        } else if (hako_llvmc_str_eq(op, "newbox")) {
           yyjson_val* args = yyjson_obj_get(ins, "args");
-          if (READ_STR(ins, "type") &&
-              strcmp(READ_STR(ins, "type"), "StringBox") == 0 &&
+          if (hako_llvmc_str_eq(READ_STR(ins, "type"), "StringBox") &&
               lit &&
               args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1 &&
               (long long)yyjson_get_sint(yyjson_arr_get(args, 0)) == lit_reg) {
@@ -579,7 +578,7 @@ static int hako_llvmc_match_string_length_hot_loop_seed(
         }
         for (j = 0; j < yyjson_arr_size(pre_insts); j++) {
           yyjson_val* ins = yyjson_arr_get(pre_insts, j);
-          if (READ_STR(ins, "op") && strcmp(READ_STR(ins, "op"), "copy") == 0 &&
+          if (hako_llvmc_str_eq(READ_STR(ins, "op"), "copy") &&
               READ_INT(ins, "src") == newbox_dst) {
             receiver_seed_reg = READ_INT(ins, "dst");
             break;
@@ -923,4 +922,3 @@ static int hako_llvmc_match_substring_concat_loop_ascii_seed(
   #undef EXPECT_OP
   #undef REQUIRE_STRINGISH_BOX
 }
-
