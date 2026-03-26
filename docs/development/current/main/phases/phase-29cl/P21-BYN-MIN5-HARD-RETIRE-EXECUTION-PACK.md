@@ -57,7 +57,8 @@ Related:
 12. `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md` is landed
 13. `P28-BYN-MIN5-MODULE-STRING-DISPATCH-LIVE-ROUTER-INVENTORY.md` is landed and confirms the parent router is still live while surrogates stay archive-only
 14. `P29-BYN-MIN5-USING-RESOLVER-STUB-INVENTORY.md` is landed with current result `still-live keep`
-15. the next exact front is `P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md`
+15. `P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md` is landed with current result `still-live compat owner`
+16. the next exact front is `P31-BYN-MIN5-MIRBUILDER-PROGRAM-JSON-SEAM-INVENTORY.md`
 
 ## Acceptance
 
@@ -86,4 +87,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `P30-BYN-MIN5-MIRBUILDER-SOURCE-SEAM-INVENTORY.md`
+1. `P31-BYN-MIN5-MIRBUILDER-PROGRAM-JSON-SEAM-INVENTORY.md`
