@@ -83,7 +83,29 @@ fn emit_mir_json_v0_string(module: &MirModule) -> Result<String, String> {
     }
     let out = std::fs::read_to_string(&path).map_err(|e| e.to_string());
     let _ = std::fs::remove_file(&path);
-    out
+    let out = out?;
+
+    if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
+        let dump_path = std::env::temp_dir().join(format!(
+            "vm_hako_{}_mir_dump_{}.json",
+            VM_HAKO_PHASE,
+            temp_seed()
+        ));
+        if let Err(e) = std::fs::write(&dump_path, &out) {
+            eprintln!(
+                "[vm-hako/emit-trace] failed to dump MIR JSON to {}: {}",
+                dump_path.display(),
+                e
+            );
+        } else {
+            eprintln!(
+                "[vm-hako/emit-trace] dumped MIR JSON to {}",
+                dump_path.display()
+            );
+        }
+    }
+
+    Ok(out)
 }
 
 struct ScopedEnvVar {
