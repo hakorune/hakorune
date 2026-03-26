@@ -211,6 +211,44 @@ PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUI
 - do not reopen `ArrayStorage::{Generic,I64}` as a broad internal split until the carry seam can avoid extra read crossings on generic/string arrays
 - next exact front stays fixed-cost reduction in `array_slot_store_i64` / TLS path, or an AOT-side reduction of redundant array crossings
 
+### 2026-03-27: intra-block array store-load forwarding in pure-first lowering
+
+**Hypothesis**
+
+- if pure-first lowering forwards a plain `ArrayBox/RuntimeDataBox.set(idx, i64)` result to the immediately following `get(idx)` in the same block, `kilo_micro_array_getset` should lose one substrate crossing without broad runtime changes
+
+**Touched owner area**
+
+- [hako_llvmc_ffi_pure_compile.inc](/home/tomoaki/git/hakorune-selfhost/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc)
+
+**Commands**
+
+```bash
+bash tools/build_hako_llvmc_ffi.sh
+NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3
+```
+
+**Observed result**
+
+- micro:
+  - `kilo_micro_array_getset = 46 ms`
+- main:
+  - `kilo_kernel_small_hk = 887 ms`
+- note:
+  - redundant crossing forwarding did not move the integer micro at all
+  - whole-program `kilo` regressed harder than the accepted `809 ms` line, so the compile-time forwarding rule is not a valid current-wave win
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Next candidate**
+
+- do not reopen local store-load forwarding without a clearer proof/effect contract
+- current next front stays native fixed-cost reduction in `array_slot_store_i64` / TLS path
+
 ## Historical Pre-Ledger Rejects
 
 - array `len/push` borrowed follow-up
