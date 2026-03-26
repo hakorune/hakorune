@@ -2,7 +2,7 @@
 Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `P18` の次 bucket として、`hako_forward_bridge.rs` が still-live keep bridge か、archive-ready かを file-level で棚卸しする。
+Scope: `P18` の次 bucket として、`hako_forward_bridge.rs` が still-live keep bridge か、frozen exact keep bridge かを file-level で棚卸しする。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
@@ -42,8 +42,8 @@ Related:
 3. `crates/nyash_kernel/src/tests.rs` still pins the bridge contract through `hako_forward_registration_and_call_contract`
 4. `lang/c-abi/shims/hako_forward_registry_shared_impl.inc` still owns the shared C registry body
 5. `hako_forward_registry.c` remains an include owner only
-6. current evidence says `hako_forward_bridge.rs` is still a live keep owner, not archive-ready
-7. this is narrower than the cluster inventory already closed in `P14`, but it is still not removable yet
+6. current evidence says `hako_forward_bridge.rs` is a frozen exact keep bridge, not a live readiness blocker
+7. this is narrower than the cluster inventory already closed in `P14`, and it remains explicit rather than ambiguous
 
 ## Acceptance
 

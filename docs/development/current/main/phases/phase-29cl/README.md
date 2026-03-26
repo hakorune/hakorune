@@ -19,6 +19,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
   - docs/development/current/main/phases/phase-29cl/P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -133,8 +134,8 @@ Rule:
    - current compiled-stage1 backend helper routes can prefer direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` before generic plugin fallback when receiver literals are known
 17. FileBox kernel roundtrip tests are now direct-contract
    - `crates/nyash_kernel/src/tests.rs` no longer uses `nyash_plugin_invoke_by_name_i64` for FileBox open/read/write/close roundtrips
-   - `by_name` no longer has a FileBox compat branch; the next safe step is generic/mainline caller shrink rather than more FileBox migration
-   - the stage1 module-string tests now include explicit compat proof, and the public `nyash.plugin.invoke_by_name_i64` export is kept as compat-only
+   - `plugin/invoke/by_name.rs` still keeps an explicit built-in FileBox compat branch for `open`, `read`, `readBytes`, `write`, and `close`; this is execution residue, not a mainline owner
+   - the Python-side explicit compat helper isolates `open`, `read`, `readBytes`, and `close`, so the next safe step is a narrow FileBox execution slice rather than a generic caller rewrite
 18. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
    - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback on the daily caller path
@@ -149,15 +150,15 @@ Rule:
    - C ABI `.hako` execution stays on direct boundary routes; `lang/c-abi/shims/hako_llvmc_ffi.c` no longer emits `by_name` and now behaves as a transport-only shim
 20. current module-string dispatch residue is at thin floor and frozen
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` is a thin parent router plus shared decode/gate helpers
-   - `build_surrogate.rs` and `llvm_backend_surrogate.rs` remain frozen compiled-stage1 exact owners; docs/inventory closeout only until caller-proof says removable
+   - `build_surrogate.rs` and `llvm_backend_surrogate.rs` are frozen archive-only proof residue; direct caller proof now lives in launcher/stage1/backend routes
    - visible launcher source lane is no longer part of that residue bucket
-   - `BYN-min3` close-sync is landed; reopen only if caller-proof says the surrogate code must move again
-21. current hook/registry residue is the active exact compat-only front
+   - `tools/checks/phase29cl_by_name_surrogate_archive_guard.sh` keeps that reading exact
+21. current hook/registry residue is a frozen exact compat-only keep set
    - `hako_forward_bridge.rs` is the Rust keep bridge for hook register/try-call/fallback contract only
    - `hako_forward.rs` is the exported registration shim only
    - `lang/c-abi/shims/hako_forward_registry_shared_impl.inc` is the single shared C owner for registry storage and try-call behavior
    - `crates/nyash_kernel/src/hako_forward_registry.c` and `lang/c-abi/shims/hako_kernel.c` are include owners only
-   - `BYN-min4` close-sync is landed; reopen only if fresh live caller proof says the keep cluster must move again
+   - this keep set stays explicit, but it is no longer the active readiness blocker by itself
 
 ## Immediate Next
 
@@ -172,37 +173,16 @@ Rule:
    - closeout owner: `P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md`
 4. `P6-BYN-MIN5-DAILY-CALLER-SHRINK.md` is closed
    - daily caller residue is narrower and isolated in the explicit FileBox compat helper
-5. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is closed as a negative judgment
-   - acceptance is green, but readiness still has caller/proof caveats
-6. `P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md` is closed
-   - method-call direct-miss fallback is now FileBox-only
-7. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is closed
-   - `method.rs` no longer owns local `StringBox.is_space` / `StringBox.is_alpha` truth
-   - shared string-method helper now owns that exact predicate contract
-8. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is re-checked and stays negative
-   - compiled-stage1 proof owners and compat keep owners still block readiness
-9. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
-   - `FileBox.write` no longer uses the explicit Python-side compat leaf
-10. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is re-checked and stays negative after `P12`
-11. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
-12. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md` confirms the compat keep cluster is still live keep owner
-13. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` confirms `writeBytes` is the narrowest next shrink bucket
-14. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is closed
-   - `writeBytes` is retired from both the Python-side compat leaf and the kernel built-in `FileBox` keep branch
-15. `P17-BYN-MIN5-BUILD-SURROGATE-READINESS-INVENTORY.md` is closed
-   - build surrogate is still a live proof owner, but that bucket is complete
-16. `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md` is closed
-   - backend surrogate is still a live proof owner, but that bucket is complete
-17. `P19-BYN-MIN5-HAKO-FORWARD-BRIDGE-READINESS-INVENTORY.md` is closed
-   - Rust-side keep bridge is still a live keep owner, but that bucket is complete
-18. `P20-BYN-MIN5-HAKO-FORWARD-REGISTRY-SHARED-IMPL-READINESS-INVENTORY.md` is closed
-   - shared C registry body is still a live keep owner, but that bucket is complete
-19. current exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
-   - re-check whether `BYN-min5` is still negative after the file-level compat keep closeout
-20. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-21. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
-22. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-23. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+5. `P9-BYN-MIN5-READINESS-JUDGMENT.md` is now positive
+   - no new mainline caller remains
+   - compiled-stage1 surrogate residue is archive-only proof residue
+   - compat keep residue is a frozen exact keep set
+6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current exact front
+   - first execution slice is `FileBox.open`
+   - keep execution narrow: one FileBox method family leaf at a time
+7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+9. keep `llvmlite -> .hako` pivot and broader LLVM caller shrink as separate lanes; do not mix them into `P21`
 
 ## Acceptance
 

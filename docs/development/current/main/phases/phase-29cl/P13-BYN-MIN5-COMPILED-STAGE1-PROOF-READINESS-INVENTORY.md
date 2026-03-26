@@ -2,7 +2,7 @@
 Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `P9` negative re-check の次 bucket として、compiled-stage1 proof owner cluster (`module_string_dispatch.rs`, `build_surrogate.rs`, `llvm_backend_surrogate.rs`) がまだ live proof owner か、archive-ready かを棚卸しする。
+Scope: `P9` re-check の次 bucket として、compiled-stage1 proof owner cluster (`module_string_dispatch.rs`, `build_surrogate.rs`, `llvm_backend_surrogate.rs`) がまだ live proof owner か、archive-only residue かを棚卸しする。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P3-BYN-MIN3-COMPILED-STAGE1-SURROGATE-CLOSEOUT.md
@@ -36,12 +36,11 @@ Related:
 ## Current Truth
 
 1. `module_string_dispatch.rs` still probes both surrogates through `try_dispatch(...)`
-2. `build_surrogate.rs` still owns the compiled-stage1 `BuildBox.emit_program_json_v0` proof route
-3. `llvm_backend_surrogate.rs` still owns the compiled-stage1 backend boundary proof route for `compile_obj` / `link_exe`
-4. `phase29cl_by_name_lock_vm.sh` and `phase29ck_vmhako_llvm_backend_runtime_proof.sh` are still the active acceptance anchors for this cluster
-5. `P3` and `P7` already froze the cluster, but they did not answer whether it is archive-ready
-6. this bucket exists because `P9` is still negative and compiled-stage1 proof ownership remains one of the last blockers
-7. current evidence says the cluster is still live proof owner, not archive-ready
+2. `build_surrogate.rs` and `llvm_backend_surrogate.rs` still keep the compiled-stage1 route bodies local to the surrogate cluster
+3. current direct caller proof lives in launcher/stage1/backend routes, not in a generic module-string `by_name` path
+4. `phase29cl_by_name_lock_vm.sh` and `phase29ck_vmhako_llvm_backend_runtime_proof.sh` stay green while direct BuildBox / LlvmBackendBox callers remain visible
+5. `P3` and `P7` already froze the cluster, and this bucket exists to decide whether that frozen cluster still blocks readiness
+6. current evidence says the cluster is archive-only proof residue, not a live proof owner
 
 ## Acceptance
 

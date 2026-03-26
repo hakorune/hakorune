@@ -2,7 +2,7 @@
 Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `P19` の次 bucket として、`hako_forward_registry_shared_impl.inc` が still-live keep body か、archive-ready かを file-level で棚卸しする。
+Scope: `P19` の次 bucket として、`hako_forward_registry_shared_impl.inc` が still-live keep body か、frozen exact keep body かを file-level で棚卸しする。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
@@ -44,8 +44,8 @@ Related:
 3. `hako_forward.rs` is only the exported registration shim
 4. `hako_forward_registry.c` and `hako_kernel.c` remain include owners only
 5. `crates/nyash_kernel/src/tests.rs` still pins the bridge contract through `hako_forward_registration_and_call_contract`
-6. current evidence says the shared registry body is still a live keep owner, not archive-ready
-7. this bucket is narrower than P19, but still live until caller-proof says otherwise
+6. current evidence says the shared registry body is a frozen exact keep body, not a live readiness blocker
+7. this bucket is narrower than P19, but it remains explicit rather than ambiguous
 
 ## Acceptance
 

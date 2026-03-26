@@ -2,7 +2,7 @@
 Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `BYN-min5` hard-retire readiness judgment を、P6/P7/P8 closeout 後の next exact front として固定し、現時点では negative であることを明示する。
+Scope: `BYN-min5` hard-retire readiness judgment を、P6/P7/P8 closeout と P10/P12/P17/P18/P19/P20 の evidence 後に positive judgment として固定し、next exact front を execution pack へ進める。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P1-BY-NAME-CUTOVER-ORDER.md
@@ -13,6 +13,14 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
   - docs/development/current/main/phases/phase-29cl/P10-BYN-MIN5-FILEBOX-COMPAT-LEAF-SHRINK.md
   - docs/development/current/main/phases/phase-29cl/P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md
+  - docs/development/current/main/phases/phase-29cl/P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P17-BYN-MIN5-BUILD-SURROGATE-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P19-BYN-MIN5-HAKO-FORWARD-BRIDGE-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P20-BYN-MIN5-HAKO-FORWARD-REGISTRY-SHARED-IMPL-READINESS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - crates/nyash_kernel/src/hako_forward_bridge.rs
   - crates/nyash_kernel/src/hako_forward.rs
   - crates/nyash_kernel/src/hako_forward_registry.c
@@ -43,21 +51,14 @@ Related:
 
 ## Current Truth
 
-1. the acceptance set is green, so the existing compat/proof surfaces are stable
-2. daily caller residue still remains in the explicit FileBox compat helper and larger name-resolution migration targets
-3. compiled-stage1 surrogate owners are still required as frozen proof owners
-4. compat keep owners are explicit residue, but hard-retire readiness still has caveats
-5. this judgment is therefore negative today
-6. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is now landed, so the next exact step is a readiness re-check rather than another pre-opened shrink bucket
-7. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is now landed
-8. readiness still has compiled-stage1 proof and compat-keep caveats, so the judgment remains negative
-9. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
-10. the next exact blocker bucket is compat keep readiness, not another caller-shrink slice
-11. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md` confirms the compat keep cluster is still live keep owner
-12. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` confirms the built-in `FileBox` keep surface is the next narrowest compat bucket
-13. the next exact blocker bucket is `FileBox.writeBytes` only
-14. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is now landed
-15. readiness still remains negative because compiled-stage1 proof owners and the remaining compat keep cluster are still live
+1. the acceptance set is green, and no new mainline `by_name` owner has appeared
+2. daily caller residue is confined to explicit FileBox compat execution residue and larger name-resolution migration targets; it no longer makes readiness ambiguous
+3. compiled-stage1 surrogate residue is frozen archive-only proof residue, not a live proof owner
+4. direct BuildBox and LlvmBackendBox caller proof stays green without reopening generic module-string `by_name`
+5. compat keep owners are an explicit frozen exact keep set with a single shared C body owner
+6. phase-29cl docs can now describe hard-retire readiness without live-owner caveats
+7. this judgment is therefore positive today
+8. the next exact front is `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md`
 
 ## Judgment Criteria
 
@@ -68,16 +69,20 @@ Related:
 
 ## Output
 
-1. this judgment is negative today; `BYN-min5` readiness stays closed
-2. after `P20` closed, the next exact front returns to `P9-BYN-MIN5-READINESS-JUDGMENT.md` for the re-check loop
+1. this judgment is positive today; `BYN-min5` readiness opens
+2. the next exact front is `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md`
 
 ## Acceptance
 
 1. `bash tools/checks/phase29cl_by_name_mainline_guard.sh`
-2. `bash tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
-3. `cargo test -p nyash_kernel hako_forward_registration_and_call_contract -- --nocapture`
-4. `cargo test -p nyash_kernel string_exports_disable_rust_fallback_when_policy_is_off -- --nocapture`
-5. `cargo test -p nyash_kernel future_spawn_instance_disable_rust_fallback_when_policy_is_off -- --nocapture`
+2. `bash tools/checks/phase29cl_by_name_surrogate_archive_guard.sh`
+3. `bash tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
+4. `bash tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`
+5. `cargo test -p nyash_kernel build_surrogate_route_contract_is_stable -- --nocapture`
+6. `cargo test -p nyash_kernel llvm_backend_surrogate_ -- --nocapture`
+7. `cargo test -p nyash_kernel hako_forward_registration_and_call_contract -- --nocapture`
+8. `cargo test -p nyash_kernel string_exports_disable_rust_fallback_when_policy_is_off -- --nocapture`
+9. `cargo test -p nyash_kernel future_spawn_instance_disable_rust_fallback_when_policy_is_off -- --nocapture`
 
 ## Reopen Rule
 
@@ -85,16 +90,16 @@ Reopen this judgment only if one of these becomes true.
 
 1. a new daily caller appears on `by_name`
 2. a compiled-stage1 surrogate becomes the only green proof path again
-3. compat keep owners stop being clearly archive-only
+3. compat keep owners stop being a clearly frozen exact set
 4. the docs can no longer explain why hard-retire readiness is or is not open
 
 ## Non-Goals
 
 1. widening hook/registry behavior
-2. deleting compat keep owners
+2. pretending hard-retire execution is already complete
 3. changing `by_name` into a final architecture
-4. mixing this judgment with new caller-shrink work
+4. mixing this judgment with multiple execution slices at once
 
 ## Next Exact Front
 
-1. `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+1. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md`

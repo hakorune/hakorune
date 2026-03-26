@@ -2,7 +2,7 @@
 Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `P16` の次 bucket として、`build_surrogate.rs` が still-live proof owner か、archive-ready かを単独で棚卸しする。
+Scope: `P16` の次 bucket として、`build_surrogate.rs` が still-live proof owner か、archive-only proof residue かを単独で棚卸しする。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
@@ -36,11 +36,11 @@ Related:
 ## Current Truth
 
 1. `module_string_dispatch.rs` still probes `build_surrogate.rs` through `try_dispatch(...)`
-2. `build_surrogate.rs` still owns the compiled-stage1 `BuildBox.emit_program_json_v0` proof route
-3. `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py` still pins the direct build-box lowering path
+2. `build_surrogate.rs` still keeps the compiled-stage1 `BuildBox.emit_program_json_v0` route local to the surrogate cluster
+3. `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py` pins the direct BuildBox lowering path rather than a generic `by_name` path
 4. the build-surrogate route is still exercised by `build_surrogate_route_contract_is_stable`
-5. `P13` already confirmed the broader compiled-stage1 cluster is live proof owner, and this bucket narrows that to the build surrogate only
-6. current evidence says `build_surrogate.rs` is still a live proof owner, not archive-ready
+5. `P13` narrowed the broader compiled-stage1 question, and this bucket confirms the build surrogate is not the only green proof path
+6. current evidence says `build_surrogate.rs` is archive-only proof residue, not a live proof owner
 
 ## Acceptance
 

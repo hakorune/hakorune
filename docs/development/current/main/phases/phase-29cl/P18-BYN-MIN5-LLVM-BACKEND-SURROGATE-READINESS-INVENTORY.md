@@ -2,7 +2,7 @@
 Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `P17` の次 bucket として、`llvm_backend_surrogate.rs` が still-live proof owner か、archive-ready かを route-level で棚卸しする。
+Scope: `P17` の次 bucket として、`llvm_backend_surrogate.rs` が still-live proof owner か、archive-only proof residue かを route-level で棚卸しする。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P5-BYN-MIN5-READINESS-INVENTORY.md
@@ -38,11 +38,11 @@ Related:
 ## Current Truth
 
 1. `module_string_dispatch.rs` still probes `llvm_backend_surrogate.rs` through `try_dispatch(...)`
-2. `llvm_backend_surrogate.rs` still owns the compiled-stage1 `compile_obj` and `link_exe` proof routes
-3. `src/llvm_py/tests/test_method_call_stage1_module_alias.py` still pins the direct backend-surrogate lowering path
+2. `llvm_backend_surrogate.rs` still keeps the compiled-stage1 `compile_obj` and `link_exe` route bodies local to the surrogate cluster
+3. `src/llvm_py/tests/test_method_call_stage1_module_alias.py` pins direct backend lowering rather than a generic module-string `by_name` path
 4. the backend-surrogate route is still exercised by `llvm_backend_route_contract_is_stable`
-5. `phase29ck_vmhako_llvm_backend_runtime_proof.sh` still keeps `compile_obj` and `link_exe` paired in one proof path
-6. current evidence says `llvm_backend_surrogate.rs` is still a live proof owner, not archive-ready
+5. `phase29ck_vmhako_llvm_backend_runtime_proof.sh` proves direct `LlvmBackendBox.compile_obj(...)` / `LlvmBackendBox.link_exe(...)` remain green without reopening `by_name`
+6. current evidence says `llvm_backend_surrogate.rs` is archive-only proof residue, not a live proof owner
 7. `P17` already narrowed away from `build_surrogate.rs`, and this bucket narrows the backend surrogate only
 
 ## Acceptance

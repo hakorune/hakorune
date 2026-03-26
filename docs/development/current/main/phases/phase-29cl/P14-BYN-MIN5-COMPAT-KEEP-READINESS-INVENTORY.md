@@ -2,7 +2,7 @@
 Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `P13` の次 bucket として、compat keep owner cluster (`hako_forward_bridge.rs`, `hako_forward.rs`, `hako_forward_registry.c`, `hako_forward_registry_shared_impl.inc`, `hako_kernel.c`) が still-live keep か、archive-ready かを棚卸しする。
+Scope: `P13` の次 bucket として、compat keep owner cluster (`hako_forward_bridge.rs`, `hako_forward.rs`, `hako_forward_registry.c`, `hako_forward_registry_shared_impl.inc`, `hako_kernel.c`) が still-live keep か、frozen exact keep set かを棚卸しする。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P4-BYN-MIN4-HOOK-REGISTRY-CLOSEOUT.md
@@ -39,9 +39,9 @@ Related:
 2. `hako_forward_registry_shared_impl.inc` still owns the single shared C registry body
 3. `hako_forward_registry.c` and `hako_kernel.c` remain include owners only
 4. forward-hook acceptance still depends on the explicit keep contract tests
-5. this bucket exists because `P9` remains negative even after `P13` confirmed the surrogate proof cluster is still live
-6. current evidence says the compat keep cluster is still a live keep owner, not archive-ready
-7. `plugin/invoke/by_name.rs` still carries a built-in `FileBox` compat surface that keeps this cluster live
+5. this bucket exists because `P9` needed to decide whether the compat keep cluster still blocks readiness or is already an exact frozen keep set
+6. current evidence says the compat keep cluster is an explicit frozen keep set, not a live readiness blocker
+7. narrower `FileBox` compat residue may still exist elsewhere, but that does not make the keep cluster ambiguous
 
 ## Acceptance
 

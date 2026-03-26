@@ -2,7 +2,7 @@
 Status: Task Pack
 Decision: accepted
 Date: 2026-03-26
-Scope: `BYN-min5` hard-retire readiness を判定する前の blocker inventory を固定し、いまは開始条件未充足であることを docs で明示する。
+Scope: `BYN-min5` hard-retire readiness を判定する前後の blocker inventory を固定し、positive judgment へ進むために何を exact frozen residue と見なしたかを docs で明示する。
 Related:
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29cl/P0-BY-NAME-OWNER-INVENTORY.md
@@ -31,13 +31,13 @@ Related:
 
 ## Purpose
 
-- `BYN-min5` は hard-retire readiness judgment の段階だが、現時点では開始条件が揃っていない。
-- ここでは "なぜまだ開始できないか" を owner bucket で固定し、早開きや曖昧な reopen を防ぐ。
-- これは delete でも code widening でもない。readiness blocker inventory only だよ。
+- `BYN-min5` の readiness judgment に入るために何を blocker と見なしたかを owner bucket で固定する。
+- current reading では、この inventory は hard-retire execution 前の frozen residue map として残る。
+- これは delete でも code widening でもない。readiness / reopen boundary inventory だよ。
 
 ## Blockers
 
-### 1. Daily caller / caller-shrink residue is still present
+### 1. Daily caller / caller-shrink residue remains as explicit execution residue
 
 - `src/llvm_py/instructions/direct_box_method.py`
   - now delegates the last FileBox compat leaf into `src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py`
@@ -49,40 +49,34 @@ Related:
 - `src/backend/wasm_v2/unified_dispatch.rs`
   - these remain name-resolution dependent migration targets
 
-### 2. Compiled-stage1 proof owners are still required
+### 2. Compiled-stage1 proof residue is frozen exact archive-only
 
 - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
 - `crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`
 - `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
-  - these are still frozen exact proof owners and are not yet removable
+  - these are frozen exact proof residues and are no longer treated as live readiness blockers
 
-### 3. Compat keep owners still carry bootstrap/module-string evidence
+### 3. Compat keep owners are explicit frozen exact keeps
 
 - `crates/nyash_kernel/src/hako_forward_bridge.rs`
 - `crates/nyash_kernel/src/hako_forward.rs`
 - `crates/nyash_kernel/src/hako_forward_registry.c`
 - `lang/c-abi/shims/hako_forward_registry_shared_impl.inc`
 - `lang/c-abi/shims/hako_kernel.c`
-  - hook registry and fallback policy are still explicit compat-only keeps
+  - hook registry and fallback policy remain explicit compat-only keeps, but no longer block readiness by themselves
 
 ## Current Truth
 
 1. `BYN-min3` is closed.
 2. `BYN-min4` is closed.
-3. `BYN-min5` is not open yet because the current inventory still contains proof/compat residues.
-4. no new daily caller is allowed to appear while this inventory stays pending.
-5. readiness judgment can only happen after these blocker buckets stop owning live proof.
-6. `P9` is closed as a negative judgment
-7. `P10` is closed as the FileBox compat leaf shrink
-8. `P11-BYN-MIN5-METHOD-DISPATCH-SHRINK.md` is closed
-9. `P9` is re-checked and remains negative
-10. `P12-BYN-MIN5-FILEBOX-WRITE-COMPAT-SHRINK.md` is closed
-11. `P9` is re-checked and remains negative after `P12`
-12. `P13-BYN-MIN5-COMPILED-STAGE1-PROOF-READINESS-INVENTORY.md` confirms the surrogate cluster is still live proof owner
-13. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md` confirms the compat keep cluster is still live keep owner
-14. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` identifies the built-in `FileBox` keep surface as the next narrowest compat bucket
-15. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is landed
-16. next exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+3. `P9` is now a positive readiness judgment.
+4. no new daily caller is allowed to appear while this inventory remains the frozen residue map.
+5. compiled-stage1 surrogate residue is no longer treated as a live readiness blocker.
+6. compat keep residue is no longer treated as an ambiguous live readiness blocker.
+7. `P10`, `P11`, `P12`, and `P16` narrowed the visible FileBox / method residue before the positive re-check.
+8. `P13`, `P17`, and `P18` classify the surrogate cluster as archive-only proof residue.
+9. `P14`, `P19`, and `P20` classify the compat keep cluster as a frozen exact keep set.
+10. next exact front is `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md`.
 
 ## Acceptance
 
@@ -94,12 +88,12 @@ Related:
 
 ## Reopen Rule
 
-`BYN-min5` can move from readiness inventory into actual readiness judgment only when all of these are true.
+Reopen this inventory only when one of these becomes true.
 
-1. no daily caller remains
-2. no compiled-stage1 proof owner is still required
-3. compat keep owners are explicit archive-only or demoted to a smaller frozen set
-4. the phase-29cl docs can say hard-retire readiness without caveats
+1. a new daily caller appears on `by_name`
+2. a compiled-stage1 surrogate becomes the only green proof path again
+3. compat keep owners stop being a clearly frozen exact set
+4. the phase-29cl docs can no longer explain hard-retire readiness without caveats
 
 ## Non-Goals
 

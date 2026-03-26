@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P7-BYN-MIN5-COMPILED-STAGE1-PROOF-FREEZE.md
   - docs/development/current/main/phases/phase-29cl/P8-BYN-MIN5-COMPAT-KEEP-ARCHIVE-ONLY.md
   - docs/development/current/main/phases/phase-29cl/P9-BYN-MIN5-READINESS-JUDGMENT.md
+  - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
 ---
@@ -28,9 +29,12 @@ Related:
    - visible daily callers point to TypeBox ABI v2 / Core C ABI / thin backend boundary
    - upstream daily caller pack (`method_call.py`, VM/WASM name-resolution users) is either demoted or explicitly marked compat-only
 4. surrogate acceptance
-   - compiled-stage1 surrogates remain explicit temporary keeps only
+   - compiled-stage1 surrogates remain explicit archive-only proof residue only
+   - direct caller proof stays green through launcher/stage1/backend routes
+   - guard: `tools/checks/phase29cl_by_name_surrogate_archive_guard.sh`
 5. hook/registry acceptance
    - `hako_forward_bridge.rs` / `hako_forward.rs` / `hako_forward_registry_shared_impl.inc` remain explicit compat-only keep owners only
+   - the keep cluster may stay as a frozen exact set without blocking readiness
    - hook registration / try-call / fallback policy do not become a new daily caller owner
 
 ## Reopen Rule
