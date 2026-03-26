@@ -83,6 +83,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long dst = read_int(ins, "dst");
             yyjson_val* vobj = yyjson_obj_get(ins, "value"); long long v = vobj? (long long)yyjson_get_sint(yyjson_obj_get(vobj, "value")) : 0;
             put_const(dst, v); set_type(dst, T_I64);
+          } else if (strcmp(op, "newbox")==0) {
+            long long dst = read_int(ins, "dst");
+            const char* tname = read_str(ins, "type");
+            if (tname && strcmp(tname, "ArrayBox") == 0) {
+              need_arr_birth = 1;
+              if (dst) {
+                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+                set_origin(dst, ORG_ARRAY_BIRTH);
+              }
+            }
           } else if (strcmp(op, "phi")==0) {
             struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
             struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0;
@@ -186,6 +196,22 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           const char* op = read_str(ins, "op"); if (!op) { yyjson_doc_free(d); goto GEN_ABORT; }
           if (strcmp(op, "phi")==0) continue; // already emitted
           if (strcmp(op, "const")==0) continue; // inlined via const map
+          if (strcmp(op, "newbox")==0) {
+            long long dst = read_int(ins, "dst");
+            const char* tname = read_str(ins, "type");
+            if (tname && strcmp(tname, "ArrayBox") == 0) {
+              if (dst) {
+                EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst);
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_ARRAY_BIRTH);
+                set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              } else {
+                EMIT("  %%_ = call i64 @\"nyash.array.birth_h\"()\n");
+              }
+              continue;
+            }
+            yyjson_doc_free(d); goto GEN_ABORT;
+          }
           if (strcmp(op, "copy")==0) {
             long long dst = read_int(ins, "dst");
             long long src = read_int(ins, "src");
