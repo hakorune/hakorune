@@ -15,7 +15,6 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - src/llvm_py/instructions/direct_box_method.py
-  - src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py
   - src/backend/mir_interpreter/handlers/boxes_file.rs
   - src/llvm_py/tests/test_method_fallback_tail.py
   - src/llvm_py/tests/test_boxcall_plugin_invoke_args.py
@@ -54,7 +53,8 @@ Related:
 8. `InstanceBox.getField/setField` built-in kernel `by_name` keep is retired
 9. compiled-stage1 surrogate residue is archive-only proof residue and must not be reopened by this pack
 10. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
-11. the next exact front is `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md`
+11. `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md` is landed
+12. the next exact front is `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md`
 
 ## Acceptance
 
@@ -83,4 +83,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md`
+1. `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md`

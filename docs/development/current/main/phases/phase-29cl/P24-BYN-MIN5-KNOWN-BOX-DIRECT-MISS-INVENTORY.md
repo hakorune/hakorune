@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `FileBox` family と built-in `InstanceBox` keep の退役後に残る visible `by_name` residue として、known-box direct-miss fallback を inventory し、次の narrow execution slice を 1 本に固定する。
@@ -27,8 +27,9 @@ Related:
 1. `FileBox` family no longer uses Python-side or kernel built-in `by_name` keep
 2. built-in `InstanceBox.getField/setField` keep is retired from kernel `by_name`
 3. `src/llvm_py/instructions/direct_box_method.py` still allows known-box direct-miss fallback under the legacy known-box policy
-4. `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py` still pins `MirBuilderBox.emit_from_program_json_v0` direct-miss fallback to `nyash.plugin.invoke_by_name_i64`
-5. this residue is narrower than reopening compiled-stage1 surrogate or hook/registry packs
+4. `src/llvm_py/tests/test_boxcall_plugin_invoke_args.py` now pins direct-miss fail-fast for `MirBuilderBox.emit_from_program_json_v0`
+5. Python-side known-box direct-miss fallback no longer emits `nyash.plugin.invoke_by_name_i64`
+6. this residue is narrower than reopening compiled-stage1 surrogate or hook/registry packs
 
 ## Inventory Focus
 
@@ -43,4 +44,4 @@ Related:
 
 ## Next Exact Front
 
-1. narrow the known-box direct-miss fallback inventory to one receiver family before any execution change
+1. `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md`

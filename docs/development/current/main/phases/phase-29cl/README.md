@@ -23,6 +23,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P22-BYN-MIN5-FILEBOX-WRITE-BUILTIN-KEEP-RETIRE.md
   - docs/development/current/main/phases/phase-29cl/P23-BYN-MIN5-INSTANCEBOX-BUILTIN-KEEP-RETIRE.md
   - docs/development/current/main/phases/phase-29cl/P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -142,7 +143,7 @@ Rule:
 18. generic boxcall fallback tail is tighter
    - `src/llvm_py/instructions/boxcall.py` now fail-fasts on unsupported unknown box methods instead of carrying its own generic plugin invoke tail
    - the MIR call shared tail now also fail-fasts on unsupported unknown methods, so there is no remaining Python-side generic by-name fallback on the daily caller path
-   - `src/llvm_py/instructions/direct_box_method.py` now delegates the remaining FileBox compat leaf into `src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py`
+   - `src/llvm_py/instructions/direct_box_method.py` now keeps direct lowering only; known-box direct miss fail-fasts and no Python-side `by_name` emitter remains
    - BoxCall no longer owns `nyash.plugin.invoke_by_name_i64`
    - `src/llvm_py/instructions/by_name_method.py` and `src/llvm_py/instructions/plugin_invoke_lowering.py` have been retired
    - string-result annotation lives in `src/llvm_py/instructions/string_result_policy.py`
@@ -184,7 +185,8 @@ Rule:
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` execution slices are landed
    - `FileBox.write` built-in keep retire is landed
    - `InstanceBox.getField/setField` built-in keep retire is landed
-   - next exact front is `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md`
+   - `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md` is landed
+   - next exact front is `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md`
    - keep execution narrow: one residue family at a time
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears

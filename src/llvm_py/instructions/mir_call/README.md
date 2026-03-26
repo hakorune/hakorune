@@ -28,11 +28,10 @@ This directory is the modular lowering route for `mir_call` in LLVM Python backe
   - `method_call.py` and `mir_call_legacy.py` consume it so string/console lowering
     does not drift while length/size specialization remains owner-local to the modern route.
 
-- `filebox_plugin_fallback.py`
-  - owns the explicit compat-only `FileBox` by-name leaf.
-  - current allowlist is empty; `open`, `read`, `readBytes`, `close`, `write`, and `writeBytes` are retired from this leaf.
-  - `direct_box_method.py` keeps the direct-route decision and delegates the last
-    compat emission here.
+- `direct_box_method.py`
+  - owns known-box direct lowering only.
+  - direct miss now fail-fasts; this directory no longer keeps a Python-side
+    `by_name` compat emitter.
 
 This keeps call hot-trace counters (`resolve_*_call`) consistent across routes.
 

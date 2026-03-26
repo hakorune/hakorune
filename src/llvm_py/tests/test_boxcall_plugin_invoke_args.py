@@ -98,7 +98,7 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         self.assertIn('call i64 @"MirBuilderBox.emit_from_program_json_v0/2"', ir_text)
         self.assertNotIn("nyash.plugin.invoke_by_name_i64", ir_text)
 
-    def test_stage1_mir_builder_module_box_type_falls_back_to_by_name_when_direct_missing(self):
+    def test_stage1_mir_builder_module_box_type_missing_direct_target_fails_fast(self):
         module = ir.Module(name="test_boxcall_stage1_mir_builder_plugin")
         i64 = ir.IntType(64)
         i8p = ir.IntType(8).as_pointer()
@@ -119,22 +119,17 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         }
         resolver.string_literals[1] = "lang.mir.builder.MirBuilderBox"
 
-        lower_boxcall(
-            builder=builder,
-            module=module,
-            box_vid=1,
-            method_name="emit_from_program_json_v0",
-            args=[2, 3],
-            dst_vid=4,
-            vmap=vmap,
-            resolver=resolver,
-        )
-        builder.ret(vmap[4])
-
-        ir_text = str(module)
-        self.assertIn("nyash.plugin.invoke_by_name_i64", ir_text)
-        self.assertIn("nyash.box.from_i8_string", ir_text)
-        self.assertNotIn('call i64 @"MirBuilderBox.emit_from_program_json_v0/2"', ir_text)
+        with self.assertRaisesRegex(NotImplementedError, "Unsupported BoxCall method"):
+            lower_boxcall(
+                builder=builder,
+                module=module,
+                box_vid=1,
+                method_name="emit_from_program_json_v0",
+                args=[2, 3],
+                dst_vid=4,
+                vmap=vmap,
+                resolver=resolver,
+            )
 
     def test_unsupported_boxcall_method_fails_fast_before_plugin_invoke(self):
         module = ir.Module(name="test_boxcall_plugin_invoke_args")

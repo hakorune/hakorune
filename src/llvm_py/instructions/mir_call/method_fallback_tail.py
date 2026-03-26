@@ -10,10 +10,7 @@ from typing import Callable, List, Optional
 
 from llvmlite import ir
 
-from instructions.direct_box_method import (
-    PLUGIN_FALLBACK_FILEBOX_ONLY,
-    try_lower_known_box_method_call,
-)
+from instructions.direct_box_method import try_lower_known_box_method_call
 
 
 def lower_direct_or_plugin_method_call(
@@ -41,7 +38,6 @@ def lower_direct_or_plugin_method_call(
         ensure_handle=ensure_handle,
         call_name=direct_call_name,
         receiver_literal=receiver_literal,
-        plugin_fallback_policy=PLUGIN_FALLBACK_FILEBOX_ONLY,
     )
     if direct_result is not None:
         return direct_result

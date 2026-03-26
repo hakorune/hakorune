@@ -5,4 +5,3 @@
 crates/nyash_kernel/src/plugin/invoke/by_name.rs
 crates/nyash_kernel/src/plugin/mod.rs
 crates/nyash_kernel/src/tests.rs
-src/llvm_py/instructions/mir_call/filebox_plugin_fallback.py
