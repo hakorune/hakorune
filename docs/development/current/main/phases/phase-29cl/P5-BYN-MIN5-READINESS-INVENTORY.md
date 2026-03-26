@@ -82,7 +82,7 @@ Related:
 13. `P14-BYN-MIN5-COMPAT-KEEP-READINESS-INVENTORY.md` confirms the compat keep cluster is still live keep owner
 14. `P15-BYN-MIN5-FILEBOX-BUILTIN-KEEP-INVENTORY.md` identifies the built-in `FileBox` keep surface as the next narrowest compat bucket
 15. `P16-BYN-MIN5-FILEBOX-WRITEBYTES-COMPAT-SHRINK.md` is landed
-16. next exact front is `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md`
+16. next exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
 
 ## Acceptance
 

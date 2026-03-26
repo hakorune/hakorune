@@ -191,12 +191,14 @@ Rule:
    - `writeBytes` is retired from both the Python-side compat leaf and the kernel built-in `FileBox` keep branch
 15. `P17-BYN-MIN5-BUILD-SURROGATE-READINESS-INVENTORY.md` is closed
    - build surrogate is still a live proof owner, but that bucket is complete
-16. current exact front is `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md`
-   - inspect whether `llvm_backend_surrogate.rs` is still a live proof owner or archive-ready
-17. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
-18. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
-19. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
-20. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
+16. `P18-BYN-MIN5-LLVM-BACKEND-SURROGATE-READINESS-INVENTORY.md` is closed
+   - backend surrogate is still a live proof owner, but that bucket is complete
+17. current exact front is `P9-BYN-MIN5-READINESS-JUDGMENT.md`
+   - re-check whether `BYN-min5` is still negative after the route-level inventory closeout
+18. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
+19. keep shrinking the remaining generic/mainline LLVM caller set one blocker at a time
+20. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears
+21. open the `llvmlite -> .hako` daily-route pivot once the caller shrink wave is settled
 
 ## Acceptance
 

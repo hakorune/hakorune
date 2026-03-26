@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P17` の次 bucket として、`llvm_backend_surrogate.rs` が still-live proof owner か、archive-ready かを route-level で棚卸しする。
