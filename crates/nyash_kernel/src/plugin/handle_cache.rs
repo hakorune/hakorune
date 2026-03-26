@@ -16,12 +16,59 @@ use nyash_rust::{
     instance_v2::InstanceBox,
     runtime::host_handles as handles,
 };
-use std::{cell::RefCell, sync::Arc};
+use std::{cell::RefCell, ptr::NonNull, sync::Arc};
 
 struct HandleCacheEntry {
     handle: i64,
     drop_epoch: u64,
     obj: Arc<dyn NyashBox>,
+    array_ptr: Option<NonNull<ArrayBox>>,
+    map_ptr: Option<NonNull<MapBox>>,
+    instance_ptr: Option<NonNull<InstanceBox>>,
+}
+
+impl HandleCacheEntry {
+    #[inline(always)]
+    fn array_ref(&self) -> Option<&ArrayBox> {
+        let ptr = self.array_ptr?;
+        // SAFETY: pointers are created from `self.obj` and remain valid
+        // while this cache entry keeps the Arc alive.
+        Some(unsafe { ptr.as_ref() })
+    }
+
+    #[inline(always)]
+    fn map_ref(&self) -> Option<&MapBox> {
+        let ptr = self.map_ptr?;
+        // SAFETY: pointers are created from `self.obj` and remain valid
+        // while this cache entry keeps the Arc alive.
+        Some(unsafe { ptr.as_ref() })
+    }
+
+    #[inline(always)]
+    fn instance_ref(&self) -> Option<&InstanceBox> {
+        let ptr = self.instance_ptr?;
+        // SAFETY: pointers are created from `self.obj` and remain valid
+        // while this cache entry keeps the Arc alive.
+        Some(unsafe { ptr.as_ref() })
+    }
+}
+
+#[inline(always)]
+fn build_cache_entry(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) -> HandleCacheEntry {
+    let array_ptr = obj.as_any().downcast_ref::<ArrayBox>().map(NonNull::from);
+    let map_ptr = obj.as_any().downcast_ref::<MapBox>().map(NonNull::from);
+    let instance_ptr = obj
+        .as_any()
+        .downcast_ref::<InstanceBox>()
+        .map(NonNull::from);
+    HandleCacheEntry {
+        handle,
+        drop_epoch,
+        obj,
+        array_ptr,
+        map_ptr,
+        instance_ptr,
+    }
 }
 
 thread_local! {
@@ -53,11 +100,7 @@ fn with_cache_entry<R>(
 #[inline(always)]
 fn cache_store(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) {
     HANDLE_CACHE.with(|slot| {
-        *slot.borrow_mut() = Some(HandleCacheEntry {
-            handle,
-            drop_epoch,
-            obj,
-        });
+        *slot.borrow_mut() = Some(build_cache_entry(handle, drop_epoch, obj));
     });
 }
 
@@ -86,7 +129,7 @@ pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> 
     let idx_usize = idx as usize;
     let drop_epoch = handles::drop_epoch();
     if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
-        let arr = entry.obj.as_any().downcast_ref::<ArrayBox>()?;
+        let arr = entry.array_ref()?;
         let items = arr.items.read();
         let item = items.get(idx_usize)?;
         Some(encode_array_item_to_i64(item.as_ref(), drop_epoch))
@@ -137,20 +180,6 @@ fn object_from_handle_cached_with_epoch(handle: i64, drop_epoch: u64) -> Option<
 }
 
 #[inline(always)]
-fn with_typed_box<T: 'static, R>(handle: i64, f: impl FnOnce(&T) -> R) -> Option<R> {
-    if handle <= 0 {
-        return None;
-    }
-    let drop_epoch = handles::drop_epoch();
-    let mut f = Some(f);
-    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| {
-        let typed = obj.as_any().downcast_ref::<T>()?;
-        let f = f.take().expect("typed callback");
-        Some(f(typed))
-    })
-}
-
-#[inline(always)]
 pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
     // Array-specialized fast path keeps the same contract as with_typed_box:
     // invalid handle or type mismatch returns None.
@@ -160,7 +189,7 @@ pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> 
     let drop_epoch = handles::drop_epoch();
     let mut f = Some(f);
     if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
-        let arr = entry.obj.as_any().downcast_ref::<ArrayBox>()?;
+        let arr = entry.array_ref()?;
         let f = f.take().expect("array callback");
         Some(f(arr))
     }) {
@@ -176,12 +205,46 @@ pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> 
 
 #[inline(always)]
 pub(crate) fn with_map_box<R>(handle: i64, f: impl FnOnce(&MapBox) -> R) -> Option<R> {
-    with_typed_box::<MapBox, _>(handle, f)
+    if handle <= 0 {
+        return None;
+    }
+    let drop_epoch = handles::drop_epoch();
+    let mut f = Some(f);
+    if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
+        let map = entry.map_ref()?;
+        let f = f.take().expect("map callback");
+        Some(f(map))
+    }) {
+        return Some(out);
+    }
+
+    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| {
+        let map = obj.as_any().downcast_ref::<MapBox>()?;
+        let f = f.take().expect("map callback");
+        Some(f(map))
+    })
 }
 
 #[inline(always)]
 pub(crate) fn with_instance_box<R>(handle: i64, f: impl FnOnce(&InstanceBox) -> R) -> Option<R> {
-    with_typed_box::<InstanceBox, _>(handle, f)
+    if handle <= 0 {
+        return None;
+    }
+    let drop_epoch = handles::drop_epoch();
+    let mut f = Some(f);
+    if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
+        let instance = entry.instance_ref()?;
+        let f = f.take().expect("instance callback");
+        Some(f(instance))
+    }) {
+        return Some(out);
+    }
+
+    with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| {
+        let instance = obj.as_any().downcast_ref::<InstanceBox>()?;
+        let f = f.take().expect("instance callback");
+        Some(f(instance))
+    })
 }
 
 #[inline(always)]
