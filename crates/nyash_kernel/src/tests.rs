@@ -55,8 +55,14 @@ fn dispatch_stage1_module(receiver_name: &str, method: &str, source_text: &str) 
         handles::to_handle_arc(Arc::new(StringBox::new(receiver_name.to_string()))) as i64;
     let source_handle =
         handles::to_handle_arc(Arc::new(StringBox::new(source_text.to_string()))) as i64;
-    crate::plugin::try_module_string_dispatch(receiver_handle, method, 1, source_handle, 0)
-        .expect("stage1 direct dispatch")
+    crate::plugin::module_string_dispatch::try_dispatch(
+        receiver_handle,
+        method,
+        1,
+        source_handle,
+        0,
+    )
+    .expect("stage1 direct dispatch")
 }
 
 unsafe extern "C" fn fake_i32(

@@ -1,5 +1,5 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: Python-side known-box direct-miss fallback の退役後に残る kernel core `by_name` surface を inventory し、次の execution/delete judgment を 1 本に固定する。
@@ -31,7 +31,9 @@ Related:
    - `crates/nyash_kernel/src/plugin/module_string_dispatch.rs`
    - `crates/nyash_kernel/src/plugin/mod.rs`
    - `crates/nyash_kernel/src/tests.rs`
+4. `plugin/mod.rs` no longer owns a test-only `try_module_string_dispatch(...)` wrapper
+5. the next exact front is `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`
 
 ## Next Exact Front
 
-1. choose one kernel-side residue bucket from the core owner set before any further execution or delete wave
+1. `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`

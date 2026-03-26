@@ -54,7 +54,8 @@ Related:
 9. compiled-stage1 surrogate residue is archive-only proof residue and must not be reopened by this pack
 10. hook/registry keep residue is a frozen exact keep set and must not be widened by this pack
 11. `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md` is landed
-12. the next exact front is `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md`
+12. `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md` is landed
+13. the next exact front is `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`
 
 ## Acceptance
 
@@ -83,4 +84,4 @@ Reopen this pack only when one of these becomes true.
 
 ## Next Exact Front
 
-1. `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md`
+1. `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`

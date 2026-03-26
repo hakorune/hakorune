@@ -24,7 +24,7 @@ mod map_probe;
 mod map_slot_load;
 mod map_slot_store;
 mod map_substrate;
-mod module_string_dispatch;
+pub(crate) mod module_string_dispatch;
 pub mod runtime_data;
 mod runtime_data_array_dispatch;
 mod runtime_data_map_dispatch;
@@ -46,17 +46,6 @@ pub use semantics::*;
 pub use string::*;
 
 #[cfg(test)]
-#[inline]
-pub(crate) fn try_module_string_dispatch(
-    recv_handle: i64,
-    method_name: &str,
-    arg_count: i64,
-    arg1: i64,
-    arg2: i64,
-) -> Option<i64> {
-    module_string_dispatch::try_dispatch(recv_handle, method_name, arg_count, arg1, arg2)
-}
-
 #[cfg(test)]
 mod wiring_tests {
     #[test]

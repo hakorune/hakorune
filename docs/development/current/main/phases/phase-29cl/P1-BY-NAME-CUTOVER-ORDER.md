@@ -88,7 +88,8 @@ Related:
    - `FileBox.write` built-in keep retire is landed
    - `InstanceBox.getField/setField` built-in keep retire is landed
    - `P24-BYN-MIN5-KNOWN-BOX-DIRECT-MISS-INVENTORY.md` is landed
-   - next exact front is `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md`
+   - `P25-BYN-MIN5-CORE-BY-NAME-SURFACE-INVENTORY.md` is landed
+   - next exact front is `P26-BYN-MIN5-MODULE-STRING-DISPATCH-SURFACE-INVENTORY.md`
 
 ## 2. Current Daily Caller Reading
 
