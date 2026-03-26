@@ -196,6 +196,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           const char* op = read_str(ins, "op"); if (!op) { yyjson_doc_free(d); goto GEN_ABORT; }
           if (strcmp(op, "phi")==0) continue; // already emitted
           if (strcmp(op, "const")==0) continue; // inlined via const map
+          if (strcmp(op, "release_strong")==0) {
+            continue;
+          }
           if (strcmp(op, "newbox")==0) {
             long long dst = read_int(ins, "dst");
             const char* tname = read_str(ins, "type");
