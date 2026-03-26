@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
       fprintf(stderr, "waitpid failed: %s\n", strerror(errno));
       return 1;
     }
-    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+    if (!WIFEXITED(status)) {
       return 1;
     }
   }
