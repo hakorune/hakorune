@@ -12,12 +12,12 @@ use crate::box_trait::NyashBox;
 pub fn trace_children(obj: &dyn NyashBox, visit: &mut dyn FnMut(Arc<dyn NyashBox>)) {
     // ArrayBox
     if let Some(arr) = obj.as_any().downcast_ref::<crate::boxes::array::ArrayBox>() {
-        let items = arr.items.read();
-        for it in items.iter() {
-            // Convert Box<dyn NyashBox> to Arc<dyn NyashBox>
-            let arc: Arc<dyn NyashBox> = Arc::from(it.clone_box());
-            visit(arc);
-        }
+        arr.with_items_read(|items| {
+            for it in items.iter() {
+                let arc: Arc<dyn NyashBox> = Arc::from(it.clone_box());
+                visit(arc);
+            }
+        });
         return;
     }
     // MapBox

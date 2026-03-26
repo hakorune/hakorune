@@ -72,14 +72,15 @@ impl BufferBox {
             .downcast_ref::<crate::boxes::array::ArrayBox>()
         {
             let mut buffer = self.data.write().unwrap();
-            let items = array_box.items.read();
-            for item in items.iter() {
-                if let Some(int_box) = item.as_any().downcast_ref::<IntegerBox>() {
-                    if int_box.value >= 0 && int_box.value <= 255 {
-                        buffer.push(int_box.value as u8);
+            array_box.with_items_read(|items| {
+                for item in items.iter() {
+                    if let Some(int_box) = item.as_any().downcast_ref::<IntegerBox>() {
+                        if int_box.value >= 0 && int_box.value <= 255 {
+                            buffer.push(int_box.value as u8);
+                        }
                     }
                 }
-            }
+            });
             Box::new(IntegerBox::new(buffer.len() as i64))
         } else {
             let type_name = data.type_name();

@@ -18,29 +18,30 @@ pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, valu
             return 0;
         };
         let idx = idx as usize;
-        let mut items = arr.items.write();
-        if idx < items.len() {
-            if let Some(value_obj) = value_obj {
-                if try_retarget_borrowed_string_slot_with_source(
-                    &mut items[idx],
-                    value_h,
-                    value_obj,
-                    drop_epoch,
-                ) {
+        arr.with_items_write(|items| {
+            if idx < items.len() {
+                if let Some(value_obj) = value_obj {
+                    if try_retarget_borrowed_string_slot_with_source(
+                        &mut items[idx],
+                        value_h,
+                        value_obj,
+                        drop_epoch,
+                    ) {
+                        return 1;
+                    }
+                } else if try_retarget_borrowed_string_slot(&mut items[idx], value_h) {
                     return 1;
                 }
-            } else if try_retarget_borrowed_string_slot(&mut items[idx], value_h) {
+                let value = string_handle_or_immediate_box_from_obj(value_obj, value_h, drop_epoch);
+                items[idx] = value;
                 return 1;
             }
-            let value = string_handle_or_immediate_box_from_obj(value_obj, value_h, drop_epoch);
-            items[idx] = value;
-            return 1;
-        }
-        if idx == items.len() {
-            let value = string_handle_or_immediate_box_from_obj(value_obj, value_h, drop_epoch);
-            items.push(value);
-            return 1;
-        }
-        0
+            if idx == items.len() {
+                let value = string_handle_or_immediate_box_from_obj(value_obj, value_h, drop_epoch);
+                items.push(value);
+                return 1;
+            }
+            0
+        })
     })
 }

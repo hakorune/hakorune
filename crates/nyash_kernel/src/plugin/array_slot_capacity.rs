@@ -5,7 +5,7 @@ pub(super) fn array_slot_cap_i64(handle: i64) -> i64 {
     if handle <= 0 {
         return 0;
     }
-    with_array_box(handle, |arr| arr.items.read().capacity() as i64).unwrap_or(0)
+    with_array_box(handle, |arr| arr.capacity() as i64).unwrap_or(0)
 }
 
 #[inline(always)]

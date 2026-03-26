@@ -88,11 +88,10 @@ mod tests {
         let handle = new_array_handle();
         assert_eq!(nyash_array_push_h(handle, 1), 1);
 
-        let before_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        let before_cap = with_array_box(handle, |arr| arr.capacity()).unwrap_or(0);
         assert_eq!(nyash_array_slot_cap_h_alias(handle), before_cap as i64);
         assert_eq!(nyash_array_slot_reserve_hi_alias(handle, 8), 1);
-        let after_reserve_cap =
-            with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        let after_reserve_cap = with_array_box(handle, |arr| arr.capacity()).unwrap_or(0);
         assert_eq!(
             nyash_array_slot_cap_h_alias(handle),
             after_reserve_cap as i64
@@ -101,7 +100,7 @@ mod tests {
         assert_eq!(nyash_array_length_h(handle), 1);
 
         assert_eq!(nyash_array_slot_grow_hi_alias(handle, 32), 1);
-        let after_grow_cap = with_array_box(handle, |arr| arr.items.read().capacity()).unwrap_or(0);
+        let after_grow_cap = with_array_box(handle, |arr| arr.capacity()).unwrap_or(0);
         assert_eq!(nyash_array_slot_cap_h_alias(handle), after_grow_cap as i64);
         assert!(after_grow_cap >= 32);
         assert_eq!(nyash_array_length_h(handle), 1);

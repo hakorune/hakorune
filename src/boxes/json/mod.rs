@@ -257,11 +257,12 @@ fn nyash_box_to_json_value(value: Box<dyn NyashBox>) -> Value {
     } else if let Some(string_box) = value.as_any().downcast_ref::<StringBox>() {
         Value::String(string_box.value.clone())
     } else if let Some(array_box) = value.as_any().downcast_ref::<ArrayBox>() {
-        let items = array_box.items.read();
-        let arr: Vec<Value> = items
-            .iter()
-            .map(|item| nyash_box_to_json_value(item.clone_box()))
-            .collect();
+        let arr: Vec<Value> = array_box.with_items_read(|items| {
+            items
+                .iter()
+                .map(|item| nyash_box_to_json_value(item.clone_box()))
+                .collect()
+        });
         Value::Array(arr)
     } else if let Some(map_box) = value.as_any().downcast_ref::<MapBox>() {
         let data = map_box.get_data();

@@ -10,7 +10,7 @@ use std::fmt::Display;
 use std::sync::Arc;
 
 pub struct ArrayBox {
-    pub items: Arc<RwLock<Vec<Box<dyn NyashBox>>>>, // Arc追加
+    items: Arc<RwLock<Vec<Box<dyn NyashBox>>>>,
     base: BoxBase,
 }
 
@@ -33,6 +33,23 @@ impl ArrayBox {
             items: Arc::new(RwLock::new(elements)), // Arc::new追加
             base: BoxBase::new(),
         }
+    }
+
+    #[inline(always)]
+    pub fn with_items_read<R>(&self, f: impl FnOnce(&Vec<Box<dyn NyashBox>>) -> R) -> R {
+        let items = self.items.read();
+        f(&items)
+    }
+
+    #[inline(always)]
+    pub fn with_items_write<R>(&self, f: impl FnOnce(&mut Vec<Box<dyn NyashBox>>) -> R) -> R {
+        let mut items = self.items.write();
+        f(&mut items)
+    }
+
+    #[inline(always)]
+    pub fn capacity(&self) -> usize {
+        self.items.read().capacity()
     }
 
     /// 要素を追加

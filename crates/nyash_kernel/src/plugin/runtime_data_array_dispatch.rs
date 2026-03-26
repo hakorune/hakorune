@@ -19,11 +19,12 @@ pub(super) fn runtime_data_array_get_hh(arr: &ArrayBox, key_any: i64) -> i64 {
     if idx < 0 {
         return 0;
     }
-    let items = arr.items.read();
-    items
-        .get(idx as usize)
-        .map(|item| runtime_i64_from_box_ref(item.as_ref()))
-        .unwrap_or(0)
+    arr.with_items_read(|items| {
+        items
+            .get(idx as usize)
+            .map(|item| runtime_i64_from_box_ref(item.as_ref()))
+            .unwrap_or(0)
+    })
 }
 
 #[inline(always)]

@@ -87,12 +87,12 @@ impl StringBox {
     /// Join array elements using this string as delimiter
     pub fn join(&self, array_box: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
         if let Some(array) = array_box.as_any().downcast_ref::<ArrayBox>() {
-            let strings: Vec<String> = array
-                .items
-                .read()
-                .iter()
-                .map(|element| element.to_string_box().value)
-                .collect();
+            let strings: Vec<String> = array.with_items_read(|items| {
+                items
+                    .iter()
+                    .map(|element| element.to_string_box().value)
+                    .collect()
+            });
             Box::new(StringBox::new(strings.join(&self.value)))
         } else {
             // If not an ArrayBox, treat as single element

@@ -74,15 +74,16 @@ impl NyashStreamBox {
             let array_data = buffer_box.readAll();
             // ArrayBoxをバイト配列に変換
             if let Some(array_box) = array_data.as_any().downcast_ref::<ArrayBox>() {
-                let items = array_box.items.read();
                 let mut bytes = Vec::new();
-                for item in items.iter() {
-                    if let Some(int_box) = item.as_any().downcast_ref::<IntegerBox>() {
-                        if int_box.value >= 0 && int_box.value <= 255 {
-                            bytes.push(int_box.value as u8);
+                array_box.with_items_read(|items| {
+                    for item in items.iter() {
+                        if let Some(int_box) = item.as_any().downcast_ref::<IntegerBox>() {
+                            if int_box.value >= 0 && int_box.value <= 255 {
+                                bytes.push(int_box.value as u8);
+                            }
                         }
                     }
-                }
+                });
                 match self.write(&bytes) {
                     Ok(()) => Box::new(StringBox::new("ok")),
                     Err(e) => Box::new(StringBox::new(&format!("Error writing to stream: {}", e))),

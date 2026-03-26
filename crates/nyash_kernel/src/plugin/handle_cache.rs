@@ -140,9 +140,10 @@ pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> 
     let idx_usize = idx as usize;
     let drop_epoch = handles::drop_epoch();
     if let Some(out) = with_array_box_borrowed(handle, |arr| {
-        let items = arr.items.read();
-        let item = items.get(idx_usize)?;
-        Some(encode_array_item_to_i64(item.as_ref(), drop_epoch))
+        arr.with_items_read(|items| {
+            let item = items.get(idx_usize)?;
+            Some(encode_array_item_to_i64(item.as_ref(), drop_epoch))
+        })
     })
     .flatten()
     {

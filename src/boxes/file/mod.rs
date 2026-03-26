@@ -330,21 +330,22 @@ impl std::fmt::Display for FileBox {
 }
 
 fn arraybox_to_bytes(array_box: &ArrayBox) -> Result<Vec<u8>, String> {
-    let items = array_box.items.read();
-    let mut out = Vec::with_capacity(items.len());
-    for item in items.iter() {
-        let Some(int_box) = item.as_any().downcast_ref::<IntegerBox>() else {
-            return Err("ArrayBox must contain only IntegerBox values".to_string());
-        };
-        if !(0..=255).contains(&int_box.value) {
-            return Err(format!(
-                "ArrayBox byte value out of range (0..255): {}",
-                int_box.value
-            ));
+    array_box.with_items_read(|items| {
+        let mut out = Vec::with_capacity(items.len());
+        for item in items.iter() {
+            let Some(int_box) = item.as_any().downcast_ref::<IntegerBox>() else {
+                return Err("ArrayBox must contain only IntegerBox values".to_string());
+            };
+            if !(0..=255).contains(&int_box.value) {
+                return Err(format!(
+                    "ArrayBox byte value out of range (0..255): {}",
+                    int_box.value
+                ));
+            }
+            out.push(int_box.value as u8);
         }
-        out.push(int_box.value as u8);
-    }
-    Ok(out)
+        Ok(out)
+    })
 }
 
 #[cfg(test)]
