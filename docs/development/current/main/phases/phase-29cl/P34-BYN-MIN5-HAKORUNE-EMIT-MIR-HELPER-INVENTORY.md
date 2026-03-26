@@ -1,11 +1,12 @@
 ---
-Status: Task Pack
+Status: Closed Task Pack
 Decision: accepted
 Date: 2026-03-26
 Scope: `P33` after confirming the shell-helper trio is not homogeneous; inventory `tools/hakorune_emit_mir.sh` as the narrowest remaining helper-local keep for `MirBuilderBox.emit_from_program_json_v0(...)`.
 Related:
   - docs/development/current/main/phases/phase-29cl/P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md
   - docs/development/current/main/phases/phase-29cl/P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
   - tools/hakorune_emit_mir.sh
@@ -28,7 +29,9 @@ Related:
 3. `tools/hakorune_emit_mir.sh` also keeps provider/delegate and direct `--program-json-to-mir` fallback routes in the same helper-local pipeline
 4. `tools/selfhost/selfhost_build.sh` remains a broader build-contract helper with `--mir`, `--run`, and `--exe` consumers; do not mix it into this bucket
 5. `tools/smokes/v2/lib/test_runner.sh` remains a shared smoke/runtime harness and must stay paired with the smoke-tail audit rather than this helper-local slice
+6. current judgment: `tools/hakorune_emit_mir.sh` is still worth a dedicated next bucket; it is not monitor-only / near-thin-floor yet
+7. the narrowest next seam inside the helper is the generated selfhost builder runner path around `_emit_mir_checked(...)`, not the full provider/delegate route ladder
 
 ## Next Exact Front
 
-1. inventory `tools/hakorune_emit_mir.sh` itself and decide whether one exact direct-emit route can be isolated as the next narrow execution bucket
+1. `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md`

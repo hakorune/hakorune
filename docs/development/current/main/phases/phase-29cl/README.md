@@ -33,6 +33,7 @@ Related:
   - docs/development/current/main/phases/phase-29cl/P32-BYN-MIN5-PROGRAM-JSON-LIVE-CALLER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md
   - docs/development/current/main/phases/phase-29cl/P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md
+  - docs/development/current/main/phases/phase-29cl/P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md
   - docs/reference/abi/ABI_BOUNDARY_MATRIX.md
   - crates/nyash_kernel/src/plugin/invoke/by_name.rs
   - crates/nyash_kernel/src/plugin/module_string_dispatch.rs
@@ -190,7 +191,7 @@ Rule:
    - no new mainline caller remains
    - compiled-stage1 surrogate residue is archive-only proof residue
    - compat keep residue is a frozen exact keep set
-6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current execution pack; the current exact front is `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md`
+6. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md` is the current execution pack; the current exact front is `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md`
    - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` execution slices are landed
    - `FileBox.write` built-in keep retire is landed
    - `InstanceBox.getField/setField` built-in keep retire is landed
@@ -204,7 +205,8 @@ Rule:
    - `P31-BYN-MIN5-MIRBUILDER-PROGRAM-JSON-SEAM-INVENTORY.md` is landed with current result `still-live compat owner`
    - `P32-BYN-MIN5-PROGRAM-JSON-LIVE-CALLER-INVENTORY.md` is landed with current result `.hako live/bootstrap callers = monitor-only / near-thin-floor`
    - `P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md` is landed with current result `helper trio is heterogeneous; first helper-local bucket = tools/hakorune_emit_mir.sh`
-   - next exact front is `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md`
+   - `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md` is landed with current result `tools/hakorune_emit_mir.sh` stays live; first exact seam = generated selfhost builder runner path`
+   - next exact front is `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md`
    - keep execution narrow: one residue family at a time
 7. keep visible launcher and compiled-stage1 callers off `by_name`; only compat/archive residues remain
 8. keep kernel-side `by_name` compat-only; do not treat it as mainline, and reopen only if a new live caller appears

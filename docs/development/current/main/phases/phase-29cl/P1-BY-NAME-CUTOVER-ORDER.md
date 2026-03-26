@@ -97,7 +97,8 @@ Related:
    - `P31-BYN-MIN5-MIRBUILDER-PROGRAM-JSON-SEAM-INVENTORY.md` is landed with current result `still-live compat owner`
    - `P32-BYN-MIN5-PROGRAM-JSON-LIVE-CALLER-INVENTORY.md` is landed with current result `.hako live/bootstrap callers = monitor-only / near-thin-floor`
    - `P33-BYN-MIN5-PROGRAM-JSON-SHELL-HELPER-INVENTORY.md` is landed with current result `helper trio is heterogeneous; first helper-local bucket = tools/hakorune_emit_mir.sh`
-   - next exact front is `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md`
+   - `P34-BYN-MIN5-HAKORUNE-EMIT-MIR-HELPER-INVENTORY.md` is landed with current result `tools/hakorune_emit_mir.sh` stays live; first exact seam = generated selfhost builder runner path`
+   - next exact front is `P35-BYN-MIN5-EMIT-MIR-SELFHOST-RUNNER-SEAM-INVENTORY.md`
 
 ## 2. Current Daily Caller Reading
 
