@@ -98,8 +98,6 @@ fn try_handle_builtin_file_box_by_name(
     a1: i64,
     a2: i64,
 ) -> Option<i64> {
-    use nyash_rust::box_trait::IntegerBox;
-    use nyash_rust::boxes::array::ArrayBox;
     use nyash_rust::boxes::file::FileBox;
 
     if recv_handle <= 0 {
@@ -109,21 +107,6 @@ fn try_handle_builtin_file_box_by_name(
     let file_box = object.as_any().downcast_ref::<FileBox>()?;
 
     match method {
-        "readBytes" => {
-            if argc != 0 {
-                return Some(0);
-            }
-            match file_box.ny_read_bytes() {
-                Ok(bytes) => {
-                    let arr = ArrayBox::new();
-                    for byte in bytes {
-                        arr.push(Box::new(IntegerBox::new(byte as i64)));
-                    }
-                    Some(encode_box_handle(Box::new(arr)))
-                }
-                Err(_) => Some(0),
-            }
-        }
         "write" => {
             if argc != 1 {
                 return Some(0);

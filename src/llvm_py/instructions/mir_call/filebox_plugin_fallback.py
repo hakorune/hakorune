@@ -11,9 +11,7 @@ from typing import Callable, List, Optional
 from llvmlite import ir
 
 
-FILEBOX_PLUGIN_FALLBACK_METHODS = frozenset(
-    ("readBytes",)
-)
+FILEBOX_PLUGIN_FALLBACK_METHODS = frozenset(())
 
 
 def _declare(module: ir.Module, name: str, ret, args):

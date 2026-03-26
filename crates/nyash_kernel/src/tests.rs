@@ -360,6 +360,48 @@ fn filebox_close_h_returns_zero_for_invalid_receiver() {
 }
 
 #[test]
+fn filebox_read_bytes_h_returns_array_handle_after_open() {
+    ensure_test_ring0();
+
+    let tmp_path = "/tmp/nyash_kernel_filebox_read_bytes_h_roundtrip.bin";
+    std::fs::write(tmp_path, [65u8, 66u8, 67u8]).expect("seed bytes");
+
+    let type_name = CString::new("FileBox").expect("CString");
+    let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+    assert!(filebox_handle > 0, "expected FileBox handle");
+
+    let path_handle = string_handle(tmp_path);
+    let mode_handle = string_handle("r");
+    assert_eq!(
+        nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+        1
+    );
+
+    let out_handle = nyash_file_read_bytes_h_export(filebox_handle);
+    assert!(out_handle > 0, "read_bytes_h should return ArrayBox handle");
+    let object = handles::get(out_handle as u64).expect("array handle");
+    let array = object
+        .as_any()
+        .downcast_ref::<nyash_rust::boxes::array::ArrayBox>()
+        .expect("read_bytes_h result must be ArrayBox");
+    assert_eq!(array.len(), 3);
+    assert_eq!(array.get_index_i64(0).to_string_box().value, "65");
+    assert_eq!(array.get_index_i64(1).to_string_box().value, "66");
+    assert_eq!(array.get_index_i64(2).to_string_box().value, "67");
+
+    with_filebox_from_handle(filebox_handle, |filebox| {
+        let _ = filebox.ny_close();
+    });
+    let _ = std::fs::remove_file(tmp_path);
+}
+
+#[test]
+fn filebox_read_bytes_h_returns_zero_for_invalid_receiver() {
+    ensure_test_ring0();
+    assert_eq!(nyash_file_read_bytes_h_export(0), 0);
+}
+
+#[test]
 fn filebox_by_name_open_is_retired() {
     ensure_test_ring0();
 
@@ -374,6 +416,36 @@ fn filebox_by_name_open_is_retired() {
         let result =
             nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 2, path_handle, mode_handle);
         assert_eq!(result, 0, "open should no longer use builtin by_name keep");
+    });
+}
+
+#[test]
+fn filebox_by_name_read_bytes_is_retired() {
+    ensure_test_ring0();
+
+    with_env_var("NYASH_VM_USE_FALLBACK", "1", || {
+        let tmp_path = "/tmp/nyash_kernel_filebox_by_name_read_bytes_retired.bin";
+        std::fs::write(tmp_path, [65u8, 66u8]).expect("seed bytes");
+
+        let type_name = CString::new("FileBox").expect("CString");
+        let filebox_handle = nyash_env_box_new_i64x(type_name.as_ptr(), 0, 0, 0, 0, 0);
+        assert!(filebox_handle > 0, "expected FileBox handle");
+
+        let path_handle = string_handle(tmp_path);
+        let mode_handle = string_handle("r");
+        assert_eq!(
+            nyash_file_open_hhh_export(filebox_handle, path_handle, mode_handle),
+            1
+        );
+
+        let method = CString::new("readBytes").expect("CString");
+        let result = nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 0, 0, 0);
+        assert_eq!(result, 0, "readBytes should no longer use builtin by_name keep");
+
+        with_filebox_from_handle(filebox_handle, |filebox| {
+            let _ = filebox.ny_close();
+        });
+        let _ = std::fs::remove_file(tmp_path);
     });
 }
 

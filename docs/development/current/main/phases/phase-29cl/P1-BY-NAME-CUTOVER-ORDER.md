@@ -84,7 +84,8 @@ Related:
 21. `P21-BYN-MIN5-HARD-RETIRE-EXECUTION-PACK.md`
    - readiness is now positive
    - hard-retire execution is active
-   - `FileBox.open`, `FileBox.read`, and `FileBox.close` slices are landed; next exact front is `FileBox.readBytes`
+   - `FileBox.open`, `FileBox.read`, `FileBox.close`, and `FileBox.readBytes` slices are landed
+   - next exact front is broader compat keep/archive cleanup
 
 ## 2. Current Daily Caller Reading
 
