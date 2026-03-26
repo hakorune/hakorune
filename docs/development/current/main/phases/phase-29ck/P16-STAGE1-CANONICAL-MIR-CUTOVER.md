@@ -54,6 +54,16 @@ Related:
 3. constructor/global/value callsite handling stays scoped to the same producer matrix; do not widen consumer and producer in the same commit
 4. Rust should end this wave as thin materializer/transport path, not the long-term dialect-policy owner
 
+## Current Slice
+
+- `src/runner/mir_json_emit/emitters/calls.rs`
+  - `Callee::Method` は `HAKO_MIR_BUILDER_METHODIZE=1` を authority signal として `mir_call` に固定する
+  - `NYASH_MIR_UNIFIED_CALL=0` は Stage1 method dialect を戻さない
+- `src/host_providers/mir_builder.rs`
+  - Phase0 keep/export lane は `HAKO_MIR_BUILDER_METHODIZE=0` を明示して legacy route を固定する
+- `tools/hakorune_emit_mir.sh`
+  - Stage-B / selfhost-first route は `NYASH_MIR_UNIFIED_CALL=1` を internal pin して caller env の legacy toggle を吸わない
+
 ## Acceptance
 
 - `tools/dev/phase29ck_stage1_mir_dialect_probe.sh --route hako-helper --input benchmarks/bench_kilo_kernel_small.hako --strict-stage1`

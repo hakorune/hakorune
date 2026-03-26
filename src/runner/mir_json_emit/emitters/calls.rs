@@ -5,6 +5,25 @@ use crate::mir::{EffectMask, ValueId};
 
 use super::super::helpers::emit_unified_mir_call;
 
+fn env_mode_enabled_default_true(name: &str) -> bool {
+    match std::env::var(name)
+        .ok()
+        .as_deref()
+        .map(|s| s.to_ascii_lowercase())
+    {
+        Some(s) if s == "0" || s == "false" || s == "off" => false,
+        _ => true,
+    }
+}
+
+fn unified_call_enabled() -> bool {
+    env_mode_enabled_default_true("NYASH_MIR_UNIFIED_CALL")
+}
+
+fn methodize_enabled() -> bool {
+    env_mode_enabled_default_true("HAKO_MIR_BUILDER_METHODIZE")
+}
+
 pub(crate) fn emit_call(
     dst: &Option<ValueId>,
     func: &ValueId,
@@ -12,15 +31,18 @@ pub(crate) fn emit_call(
     args: &[ValueId],
     effects: &EffectMask,
 ) -> Option<serde_json::Value> {
-    // Phase 15.5: Unified Call support with environment variable control
-    let use_unified = match std::env::var("NYASH_MIR_UNIFIED_CALL")
-        .ok()
-        .as_deref()
-        .map(|s| s.to_ascii_lowercase())
-    {
-        Some(s) if s == "0" || s == "false" || s == "off" => false,
-        _ => true,
-    };
+    let use_unified = unified_call_enabled();
+    let methodize_on = methodize_enabled();
+
+    if let Some(Callee::Method { .. }) = callee {
+        if methodize_on || use_unified {
+            let effects_str: Vec<&str> = if effects.is_io() { vec!["IO"] } else { vec![] };
+            let args_u32: Vec<u32> = args.iter().map(|v| v.as_u32()).collect();
+            let unified_call =
+                emit_unified_mir_call(dst.map(|v| v.as_u32()), callee.unwrap(), &args_u32, &effects_str);
+            return Some(unified_call);
+        }
+    }
 
     if use_unified && callee.is_some() {
         // v1: Unified mir_call format
@@ -259,28 +281,38 @@ pub(crate) fn emit_new_closure(
 #[cfg(test)]
 mod tests {
     use super::emit_call;
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::definitions::Callee;
     use crate::mir::{EffectMask, ValueId};
     use std::sync::{Mutex, OnceLock};
 
     struct EnvGuard {
-        old: Option<String>,
+        saved: Vec<(&'static str, Option<String>)>,
     }
 
     impl EnvGuard {
+        fn set(vars: &[(&'static str, &'static str)]) -> Self {
+            let mut saved = Vec::with_capacity(vars.len());
+            for (k, v) in vars {
+                saved.push((*k, std::env::var(k).ok()));
+                std::env::set_var(k, v);
+            }
+            Self { saved }
+        }
+
         fn set_unified_off() -> Self {
-            let old = std::env::var("NYASH_MIR_UNIFIED_CALL").ok();
-            std::env::set_var("NYASH_MIR_UNIFIED_CALL", "0");
-            Self { old }
+            Self::set(&[("NYASH_MIR_UNIFIED_CALL", "0")])
         }
     }
 
     impl Drop for EnvGuard {
         fn drop(&mut self) {
-            if let Some(v) = self.old.take() {
-                std::env::set_var("NYASH_MIR_UNIFIED_CALL", v);
-            } else {
-                std::env::remove_var("NYASH_MIR_UNIFIED_CALL");
+            for (k, old) in self.saved.drain(..) {
+                if let Some(v) = old {
+                    std::env::set_var(k, v);
+                } else {
+                    std::env::remove_var(k);
+                }
             }
         }
     }
@@ -331,5 +363,60 @@ mod tests {
             v.get("func").and_then(|x| x.as_str()),
             Some("nyash.console.log")
         );
+    }
+
+    #[test]
+    fn method_call_prefers_mir_call_when_methodize_is_on_even_if_unified_is_off() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = EnvGuard::set(&[
+            ("NYASH_MIR_UNIFIED_CALL", "0"),
+            ("HAKO_MIR_BUILDER_METHODIZE", "1"),
+        ]);
+        let v = emit_call(
+            &Some(ValueId::new(9)),
+            &ValueId::INVALID,
+            Some(&Callee::Method {
+                box_name: "FileBox".to_string(),
+                method: "open".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            &[ValueId::new(2), ValueId::new(3)],
+            &EffectMask::IO,
+        )
+        .expect("must emit call");
+
+        assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("mir_call"));
+        assert_eq!(
+            v["mir_call"]["callee"]["type"].as_str(),
+            Some("Method"),
+            "methodized Stage1 route must stay on mir_call"
+        );
+    }
+
+    #[test]
+    fn method_call_keeps_boxcall_when_both_unified_and_methodize_are_off() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = EnvGuard::set(&[
+            ("NYASH_MIR_UNIFIED_CALL", "0"),
+            ("HAKO_MIR_BUILDER_METHODIZE", "0"),
+        ]);
+        let v = emit_call(
+            &Some(ValueId::new(9)),
+            &ValueId::INVALID,
+            Some(&Callee::Method {
+                box_name: "FileBox".to_string(),
+                method: "open".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            &[ValueId::new(2), ValueId::new(3)],
+            &EffectMask::IO,
+        )
+        .expect("must emit call");
+
+        assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("boxcall"));
     }
 }

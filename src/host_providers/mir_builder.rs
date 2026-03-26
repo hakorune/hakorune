@@ -59,6 +59,7 @@ impl Drop for ScopedEnvVar {
 pub(crate) struct Phase0MirJsonEnvGuard {
     _schema_v1: ScopedEnvVar,
     _unified_call: ScopedEnvVar,
+    _methodize: ScopedEnvVar,
 }
 
 impl Phase0MirJsonEnvGuard {
@@ -66,6 +67,7 @@ impl Phase0MirJsonEnvGuard {
         Self {
             _schema_v1: ScopedEnvVar::set("NYASH_JSON_SCHEMA_V1", "0"),
             _unified_call: ScopedEnvVar::set("NYASH_MIR_UNIFIED_CALL", "0"),
+            _methodize: ScopedEnvVar::set("HAKO_MIR_BUILDER_METHODIZE", "0"),
         }
     }
 }

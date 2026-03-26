@@ -57,6 +57,9 @@ Related:
 - current truth:
   - `calls.rs` はまだ `mir_call` と `boxcall` の choice を materialize している
   - したがって today の Rust seam は単なる serializer ではなく `dialect materializer with policy residue` だよ
+  - current cutover slice:
+    - `Callee::Method` は `HAKO_MIR_BUILDER_METHODIZE=1` を authority signal として `mir_call` に固定する
+    - Phase0 keep/export lane は `HAKO_MIR_BUILDER_METHODIZE=0` を明示して legacy route を隔離する
 
 ### 3. Native consumer boundary
 

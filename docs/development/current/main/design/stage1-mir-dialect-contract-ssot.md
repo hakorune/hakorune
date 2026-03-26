@@ -72,7 +72,10 @@ Related:
 - active Rust MIR JSON producer:
   - `src/runner/mir_json_emit/emitters/calls.rs`
 - current truth:
-  - `NYASH_MIR_UNIFIED_CALL` が OFF のとき、`Callee::Method` は `boxcall` を emit する
+  - current cutover keeps `Callee::Method` on `mir_call` when `HAKO_MIR_BUILDER_METHODIZE=1`
+  - Phase0 keep/export lane explicitly pins `HAKO_MIR_BUILDER_METHODIZE=0` together with `NYASH_MIR_UNIFIED_CALL=0`
+  - therefore `NYASH_MIR_UNIFIED_CALL=0` alone is no longer allowed to flip Stage1 method dialect back to `boxcall`
+  - helper mainline route also pins `NYASH_MIR_UNIFIED_CALL=1` inside Stage-B / selfhost-first execution so caller env cannot force a direct-emit legacy downgrade
   - `Callee::Constructor` / `Callee::Global` は v0 `call` + `callee` を keep している
   - this seam is still live today and still materializes visible call dialect choice
   - therefore it is not yet a pure serializer; it is a materializer seam that must be demoted
