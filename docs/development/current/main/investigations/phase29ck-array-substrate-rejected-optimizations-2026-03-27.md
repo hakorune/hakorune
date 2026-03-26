@@ -249,6 +249,50 @@ PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUI
 - do not reopen local store-load forwarding without a clearer proof/effect contract
 - current next front stays native fixed-cost reduction in `array_slot_store_i64` / TLS path
 
+### 2026-03-27: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock`
+
+**Hypothesis**
+
+- if the current `LocalKey::with` hot symbol is largely `parking_lot` lock machinery, replacing `ArrayBox.items` with `std::sync::RwLock` should cut fixed-cost overhead on integer-heavy `get/set`
+
+**Touched owner area**
+
+- [mod.rs](/home/tomoaki/git/hakorune-selfhost/src/boxes/array/mod.rs)
+
+**Commands**
+
+```bash
+cargo check -q
+cargo test -q -p nyash_kernel array_ -- --nocapture
+cargo test -q core13_array_boxcall_set_get -- --nocapture
+NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako.sh kilo_kernel_small_hk 1 3
+```
+
+**Observed result**
+
+- tests:
+  - `cargo check -q` green
+  - targeted `nyash_kernel array_` tests green
+  - `core13_array_boxcall_set_get` green
+- micro:
+  - `kilo_micro_array_getset = 69 ms`
+- main:
+  - `kilo_kernel_small_hk = 872 ms`
+- note:
+  - accepted line before this attempt was `kilo_micro_array_getset = 46-47 ms`, `kilo_kernel_small_hk = 809 ms`
+  - the lock implementation swap regressed both the integer micro and whole-program `kilo`, so the current hot `LocalKey::with` cost is not solved by replacing `parking_lot` with `std::sync`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Next candidate**
+
+- do not reopen lock-implementation swaps on `ArrayBox.items` in the current wave
+- next exact front remains fixed-cost reduction in `array_slot_store_i64` / TLS path, with owner confirmation below the lock implementation level
+
 ## Historical Pre-Ledger Rejects
 
 - array `len/push` borrowed follow-up

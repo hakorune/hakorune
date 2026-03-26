@@ -39,6 +39,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - lock staged `AOT-Core` proof vocabulary before more array substrate tries
     - keep a rolling reject ledger for array substrate experiments
     - integer-heavy `ArrayBox` representation splits that add extra read crossings are currently rejected
+    - `ArrayBox.items` lock-implementation swap (`parking_lot` -> `std::sync`) is also rejected in the current wave
     - next exact code cut is fixed-cost reduction in `array_slot_store_i64` / TLS path, or AOT-side reduction of redundant array crossings
 
 ## Current Priority
