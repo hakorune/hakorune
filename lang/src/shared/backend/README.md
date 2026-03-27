@@ -13,6 +13,7 @@ Current owner
   - narrow allowlist helper for `.hako ll emitter` daily-owner selection; no route/profile assembly, no transport
   - `backend_route_env_box.hako`
   - narrow route-env mirror helper for codegen calls; keep HAKO_BACKEND_* juggling out of `LlvmBackendBox`
+  - compare/debug residue for `.hako ll emitter` bridge now lives in Rust helper `src/host_providers/llvm_codegen/hako_ll_driver.rs`
   - `ll_emit/**`
   - explicit compare/debug bridge plus narrow daily owner for flipped boundary shapes
   - `ll_emit/call_policy_box.hako`
@@ -29,6 +30,7 @@ Current owner
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary, while `.hako` daily callers now also bridge `HAKO_BACKEND_ACCEPTANCE_CASE` / `HAKO_BACKEND_TRANSPORT_OWNER` / `HAKO_BACKEND_LEGACY_DAILY_ALLOWED` through `backend_route_env_box.hako` so route evidence does not disappear before the Rust bridge
   - final target は `LlvmBackendBox -> BackendRecipeBox -> .hako ll emitter -> opt/llc` で、legacy C shim は compare/compat keep へ後退する
+  - `.hako ll emitter` compare/debug templating residue is now split into Rust helper `hako_ll_driver.rs`; remaining cleanup is compare bridge retirement / archive decision, not env or template plumbing
   - daily compile/link owner now stops directly at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`
   - shared compile/link helper lowering now reaches canonical `env.codegen.*` externs directly; daily compile/link does not depend on `hostbridge.extern_invoke(...)`
   - caller-side codegen request defaults are centralized in `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)`; compat bridges may mirror the same names, but daily owners stay explicit

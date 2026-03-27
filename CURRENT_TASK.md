@@ -47,7 +47,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
     - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
   - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
-  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, `LlvmBackendBox` env mirror is split out into `backend_route_env_box.hako`, and the remaining cleanup target is `ll_emit_bridge.rs` compare/debug templating residue
+  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, `LlvmBackendBox` env mirror is split out into `backend_route_env_box.hako`, `ll_emit_bridge.rs` compare/debug templating residue is split out into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and the remaining cleanup target is compare bridge retirement / archive decision
   - `BackendRecipeBox` fixture-path owner allowlist plus `backend.ll_emit.call_policy` and `backend.ll_emit.call_selector` are already split out
   - next structural cleanup after the owner-flip wave is to thin the remaining Rust/bridge policy leaks without reopening leaf-only perf retune
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked

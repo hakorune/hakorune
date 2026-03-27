@@ -8,8 +8,10 @@ Thin Rust bridge for backend object emission.
   - owner selection only
   - does not re-decide MIR acceptance
 - `ll_emit_bridge.rs`
-  - `.hako ll emitter` bridge only
-  - embeds MIR for the internal driver, extracts `.ll`, runs verifier, then `llc`
+  - `.hako ll emitter` bridge orchestration only
+  - delegates MIR embed / template render / driver VM execution / `.ll` extraction to `hako_ll_driver.rs`
+- `hako_ll_driver.rs`
+  - bridge helper for compare/debug templating, VM execution, verifier, and `llc`
 - `transport.rs`
   - legacy C ABI transport
   - explicit provider keep lanes (`ny-llvmc`, `llvmlite`)

@@ -76,7 +76,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
     - flipped `phase29ck` locks now live in `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt`
     - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, or the three `RuntimeData.length/size` observer locks
     - compare bridge assets remain explicit bridge-only and are not delete-ready yet
-    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; next cleanup is `ll_emit_bridge.rs` compare/debug templating residue
+    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`; next cleanup is compare bridge retirement / archive decision
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed
   - the lookup family is landed; the `RuntimeData` mutator family is now landed for `runtime_data_array_push_min_v1`

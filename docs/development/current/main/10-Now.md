@@ -52,7 +52,7 @@ Related:
     - explicit compare smoke remains `phase29x_backend_owner_hako_ll_compare_min.sh`; compare lane is bridge-only
     - new legacy/demotion queue is fixed in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
     - legacy C `.inc` stays daily owner only for unflipped shapes and silent fallback remains forbidden
-    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; next cleanup is `ll_emit_bridge.rs` compare/debug templating residue
+    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`; next cleanup is compare bridge retirement / archive decision
     - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
       - compare bridge assets remain explicit bridge-only until compare retirement
