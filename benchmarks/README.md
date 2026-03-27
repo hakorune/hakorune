@@ -27,6 +27,12 @@ Each case has a matching C reference, so the script reports both absolute time a
 
 For unstable environments (for example WSL wall-clock jitter), use fixed micro cases + `perf stat` counters first, then validate on `kilo_kernel_small`.
 
+Leaf-proof cases (run these first when adding/changing one observer/mutator leaf):
+
+- `kilo_leaf_array_rmw_add1`: integer `get -> +1 -> set` without trailing reread
+- `kilo_leaf_array_string_len`: array string `get -> length` observer only
+- `kilo_leaf_array_string_indexof_const`: array string `get -> indexOf("line")` observer only
+
 Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 
 - `kilo_micro_indexof_line`: indexOf-heavy loop with stable array routing
@@ -36,6 +42,9 @@ Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 Commands:
 
 ```bash
+# Leaf-proof ladder first
+tools/perf/run_kilo_leaf_proof_ladder.sh 1 15
+
 # Single case: C vs Nyash AOT counters (median)
 tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_indexof_line 1 15
 

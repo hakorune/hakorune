@@ -118,7 +118,18 @@ Related:
    - current main route still has accepted observer misses:
      - `array_string_len_window reason=post_len_uses_consumed_get_value`
      - `array_string_len_window reason=next_noncopy_not_len`
-   - exact next cut is observer/window work that removes the `get` crossing too, not another direct `indexOf` observer that still leaves `slot_load_hi`
+   - exact next cut order is fixed:
+     - `leaf-proof micro`
+     - `micro kilo`
+     - `main kilo`
+   - `tools/perf/run_kilo_leaf_proof_ladder.sh` is the first acceptance lane for new observer/mutator leaves
+   - current `leaf-proof micro` facts:
+     - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
+     - `kilo_leaf_array_string_len = 15 ms` (`aot_status=ok`)
+     - `kilo_leaf_array_string_indexof_const` currently fails AOT build
+     - fresh bundle shows one `get` and one `indexOf`, but no direct hit yet
+     - current exact blocker is `pure-first` acceptance for the leaf-proof `get -> indexOf("line")` shape
+   - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi`
    - do not reopen broad `boxcall` widening and do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である

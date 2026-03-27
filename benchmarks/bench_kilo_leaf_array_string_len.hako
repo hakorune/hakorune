@@ -1,0 +1,30 @@
+// kilo/text leaf-proof microbench:
+// array string get -> length observer only.
+static box Main {
+  main() {
+    local rows = 64
+    local ops = 600000
+    local lines = new ArrayBox()
+    local i = 0
+
+    loop (i < rows) {
+      if (i % 2 == 0) {
+        lines.push("line-seed")
+      } else {
+        lines.push("none-seed")
+      }
+      i = i + 1
+    }
+
+    local acc = 0
+    i = 0
+    loop (i < ops) {
+      local row = i % rows
+      local cur = lines.get(row)
+      acc = acc + cur.length()
+      i = i + 1
+    }
+
+    return acc + lines.length()
+  }
+}

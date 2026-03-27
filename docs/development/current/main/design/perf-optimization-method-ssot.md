@@ -93,24 +93,32 @@ Related:
   - `llvmlite` / harness is a correctness/compat keep, not a perf baseline
   - `native` direct keep lane is also outside the perf judge
 
-2. Micro ladder
+2. Leaf-proof micro ladder
+   - 入口: `tools/perf/run_kilo_leaf_proof_ladder.sh`
+   - 役割: 1 leaf の shape が same route で本当に薄くなったかを見る
+   - 使い方:
+     - old crossing が hot block から消えているかを優先して確認する
+     - `leaf-proof -> micro kilo -> main kilo` の順を崩さない
+   - route contract: same as stable baseline; explicit keep lanes are not valid perf comparisons here
+
+3. Micro ladder
    - 入口: `tools/perf/run_kilo_micro_machine_ladder.sh`
    - 役割: `indexof_line` / `substring_concat` / `array_getset` の leaf 密度を比較する
    - 使い方: `ratio_cycles` と `ratio_instr` を優先して順位を決める
   - route contract: same as stable baseline; explicit keep lanes are not valid perf comparisons here
 
-3. ASM probe
+4. ASM probe
    - 入口: `tools/perf/bench_micro_aot_asm.sh`
    - 役割: micro ladder で一番厚い leaf の原因関数を確認する
    - 使い方: `perf report --stdio --no-children` の top symbol を読む
    - runner contract: bash loop は使わず、direct C runner で exe を繰り返し起動する
 
-4. MIR call family probe
+5. MIR call family probe
    - 入口: `tools/perf/report_mir_hotops.sh`
    - 役割: `mir_call` がどの callee family に寄っているかを構造化表示する
    - 使い方: `[mir-shape/call]` を見て `RuntimeDataBox.substring` / `indexOf` / `get/set/length` などの次 leaf を決める
 
-5. Optimization debug bundle
+6. Optimization debug bundle
    - 入口: `tools/perf/trace_optimization_bundle.sh`
    - 役割: route trace / MIR window / IR / symbol / optional micro perf を same artifact で束ねる
    - 使い方:

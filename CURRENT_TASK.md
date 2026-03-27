@@ -60,7 +60,18 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - current main route still has two accepted observer misses:
       - `array_string_len_window reason=post_len_uses_consumed_get_value`
       - `array_string_len_window reason=next_noncopy_not_len`
-    - next exact code cut is observer/window work that removes the `get` crossing too; do not reopen a direct `indexOf` observer that still leaves `slot_load_hi` behind
+    - next exact code cut order is fixed:
+      - `leaf-proof micro`
+      - `micro kilo`
+      - `main kilo`
+    - `tools/perf/run_kilo_leaf_proof_ladder.sh` is the first acceptance lane for new observer/mutator leaves
+    - current `leaf-proof micro` facts are:
+      - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
+      - `kilo_leaf_array_string_len = 15 ms` (`aot_status=ok`)
+      - `kilo_leaf_array_string_indexof_const` currently fails AOT build
+      - fresh bundle shows one `get` and one `indexOf`, but no direct hit yet
+      - current exact blocker is `pure-first` acceptance for the leaf-proof `get -> indexOf("line")` shape
+    - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi` behind
 
 ## Current Priority
 

@@ -45,6 +45,10 @@ Related:
    - `kilo_micro_indexof_line = 9 ms`
 6. current main route still has observed misses `post_len_uses_consumed_get_value` and `next_noncopy_not_len`
 7. current array leaf は adjacency recipe ではなく semantic window recipe として読む
+8. `leaf-proof micro` lane is now landed:
+   - `kilo_leaf_array_rmw_add1 = 36 ms`
+   - `kilo_leaf_array_string_len = 15 ms`
+   - `kilo_leaf_array_string_indexof_const` currently fails AOT build with a pure-first coverage gap
 
 ## Fixed Order
 
@@ -62,6 +66,7 @@ Related:
 6. main route の hit/miss reason を bundle で固定する
 7. その evidence を見てからだけ next observer leaf を widen する
 8. do not reopen an observer cut that still leaves `slot_load_hi` in the same hot block
+9. current next exact blocker is the leaf-proof `get -> indexOf("line")` shape before returning to `micro kilo`
 
 ## Acceptance
 

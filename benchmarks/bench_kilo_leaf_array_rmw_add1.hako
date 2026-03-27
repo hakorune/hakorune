@@ -1,0 +1,25 @@
+// kilo/text leaf-proof microbench:
+// semantic get -> +1 -> set on integer array, without trailing reread.
+static box Main {
+  main() {
+    local size = 128
+    local ops = 2000000
+    local arr = new ArrayBox()
+    local i = 0
+
+    loop (i < size) {
+      arr.push(i)
+      i = i + 1
+    }
+
+    i = 0
+    loop (i < ops) {
+      local idx = i % size
+      local v = arr.get(idx)
+      arr.set(idx, v + 1)
+      i = i + 1
+    }
+
+    return arr.get(0) + arr.get(size - 1)
+  }
+}
