@@ -6,8 +6,6 @@ phase29ck_boundary/entry/phase29ck_boundary_forwarder_min.sh
 phase29ck_boundary/entry/phase29ck_boundary_compat_keep_min.sh
 
 # string active shape anchors
-phase29ck_boundary/string/phase29ck_boundary_pure_string_length_min.sh
-phase29ck_boundary/string/phase29ck_boundary_pure_string_indexof_min.sh
 phase29ck_boundary/string/phase29ck_boundary_pure_indexof_line_min.sh
 phase29ck_boundary/string/phase29ck_boundary_pure_substring_concat_loop_min.sh
 

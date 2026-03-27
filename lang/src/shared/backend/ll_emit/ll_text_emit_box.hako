@@ -170,13 +170,28 @@ static box LlTextEmitBox {
     return me._reg(resolved)
   }
 
-  _emit_direct_call(func, facts, inst) {
+  _direct_call_row(facts, dst) {
+    if facts == null || dst == null { return null }
+    local rows = facts.get("direct_call_ok")
+    if rows == null { return null }
+    local key = "" + me._resolve_alias(facts, dst)
+    if me._map_has(rows, key) != 1 { return null }
+    return rows.get(key)
+  }
+
+  _emit_direct_call(func, facts, inst, symbol) {
     local call = inst.get("mir_call")
-    local callee = call.get("callee")
-    local symbol = "" + callee.get("name")
     local decl = RuntimeDeclRegistryBox.find(symbol)
+    if decl == null { return null }
     local args = call.get("args")
-    local out = "  " + me._reg(inst.get("dst")) + " = call i64 @\"" + symbol + "\"("
+    local ret_ty = RuntimeDeclRegistryBox.llvm_type_name(decl.get("ret"))
+    local dst = inst.get("dst")
+    local out = ""
+    if dst != null {
+      out = "  " + me._reg(dst) + " = call " + ret_ty + " @\"" + symbol + "\"("
+    } else {
+      out = "  call " + ret_ty + " @\"" + symbol + "\"("
+    }
     local i = 0
     loop(i < args.size()) {
       if i > 0 { out = out + ", " }
@@ -214,6 +229,7 @@ static box LlTextEmitBox {
       return ""
     }
     if op == "copy" { return "" }
+    if op == "newbox" { return "" }
     if op == "binop" {
       local dst = inst.get("dst")
       local lhs = me._operand_i64(func, facts, inst.get("lhs"))
@@ -318,7 +334,9 @@ static box LlTextEmitBox {
       if ("" + callee.get("type")) == "Global" && ("" + callee.get("name")) == "print" {
         return me._emit_global_print_call(func, facts, inst)
       }
-      return me._emit_direct_call(func, facts, inst)
+      local direct = me._direct_call_row(facts, inst.get("dst"))
+      if direct == null { return null }
+      return me._emit_direct_call(func, facts, inst, "" + direct.get("symbol"))
     }
     return null
   }

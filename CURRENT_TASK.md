@@ -35,14 +35,14 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - current structural blocker is backend owner thickness on `MIR -> Rust glue -> C .inc / compare transport -> LLVM text/object`
   - fixed order is now `backend-owner-cutover SSOT -> runtime-decl manifest v0 -> recipe-facts v0 -> .hako ll emitter min v0 -> explicit compare bridge -> boundary-only narrow owner flip -> archive/delete sweep`
   - subtraction queue is now explicit in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
-  - `.hako ll emitter` is now the daily owner for `ret const`, `bool phi/branch`, `Global print`, and `concat3 extern` boundary fixtures, while explicit compare stays opt-in only
+  - `.hako ll emitter` is now the daily owner for `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, and `concat3 extern` boundary fixtures, while explicit compare stays opt-in only
   - legacy C `.inc` remains the daily owner for unflipped shapes only; flipped-shape demotion is now tracked as part of the same wave and silent fallback is still forbidden
   - dead compare residue `lang/src/shared/backend/ll_emit/mir_json_loader_box.hako` is retired; bridge split now lives under `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
   - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
     - flipped `phase29ck` locks moved out of `phase29ck-boundary` into `phase29ck-boundary-legacy`
     - compare bridge assets stay explicit bridge-only until compare retirement
     - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
-    - next subtraction front is the next shape-by-shape legacy C daily demotion after the current four flipped fixtures
+    - next subtraction front is the `RuntimeData` observer family, starting with `runtime_data_string_length_ascii_min_v1`
   - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked

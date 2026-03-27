@@ -13,7 +13,6 @@ Suite:
 
 Notes:
 - keep `phase29ck-boundary.txt` focused on active boundary owner coverage and unflipped pure-first acceptance
-- `ret const`, `bool phi/branch`, and `concat3 extern` are now legacy boundary locks; their daily owner proof moved to `phase29x/derust`
-- `Global print` is now also a legacy boundary lock; its daily owner proof moved to `phase29x/derust`
+- `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, and `concat3 extern` are now legacy boundary locks; their daily owner proof moved to `phase29x/derust`
 - `phase29ck-boundary-legacy.txt` is a temporary suite for those retired locks until compare/archive decisions are complete
 - direct-emit app contracts stay outside this suite unless they become boundary-owner canaries

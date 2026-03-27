@@ -1,5 +1,5 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first string-length canary
+# Phase 29ck boundary legacy pure-first string-length lock
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow ASCII
@@ -74,4 +74,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_string_length_min: PASS (boundary default emits ASCII StringBox.length seed without ny-llvmc harness fallback)"
+test_pass "phase29ck_boundary_pure_string_length_min: PASS (legacy boundary lock still emits ASCII StringBox.length seed without ny-llvmc harness fallback)"

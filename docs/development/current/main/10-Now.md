@@ -48,7 +48,7 @@ Related:
   - current exact read:
     - `backend-owner-cutover-ssot.md` is now the structure-first parent SSOT
     - backend-private `runtime-decl-manifest-v0.toml` is the single compare-lane declare inventory
-    - `.hako ll emitter` min v0 is now the daily owner for `ret const`, `bool phi/branch`, `Global print`, and `concat3 extern`
+    - `.hako ll emitter` min v0 is now the daily owner for `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, and `concat3 extern`
     - explicit compare smoke remains `phase29x_backend_owner_hako_ll_compare_min.sh`; compare lane is bridge-only
     - new legacy/demotion queue is fixed in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
     - legacy C `.inc` stays daily owner only for unflipped shapes and silent fallback remains forbidden
@@ -56,7 +56,7 @@ Related:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
       - compare bridge assets remain explicit bridge-only until compare retirement
       - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
-      - the next subtraction step is the next shape-by-shape legacy C daily demotion after the current four flipped fixtures
+      - the next subtraction step is the `RuntimeData` observer family, starting with `runtime_data_string_length_ascii_min_v1`
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`

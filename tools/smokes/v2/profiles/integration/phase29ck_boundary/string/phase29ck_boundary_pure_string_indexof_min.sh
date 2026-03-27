@@ -1,5 +1,5 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first StringBox.indexOf canary
+# Phase 29ck boundary legacy pure-first StringBox.indexOf lock
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow
@@ -74,4 +74,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_string_indexof_min: PASS (boundary default emits StringBox.indexOf seed without ny-llvmc harness fallback)"
+test_pass "phase29ck_boundary_pure_string_indexof_min: PASS (legacy boundary lock still emits StringBox.indexOf seed without ny-llvmc harness fallback)"

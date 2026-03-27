@@ -1,5 +1,5 @@
 # Runtime Decl Manifest (V0)
-# Backend-private declare truth for `.hako ll emitter` compare lane.
+# Backend-private declare truth for `.hako ll emitter` compare/daily lanes.
 # Public ABI semantics remain owned by `abi-export-manifest-v0.toml`.
 
 manifest_version = "0"
@@ -9,6 +9,22 @@ symbol = "nyash.box.from_i8_string_const"
 args = ["ptr_const_i8"]
 ret = "handle_owned"
 attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.string.len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.string.indexOf_hh"
+args = ["handle_owned", "handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind"]
 memory = "readwrite"
 lanes = ["hako-ll-min-v0", "compare"]
 

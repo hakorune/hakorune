@@ -179,6 +179,8 @@ static box BackendRecipeBox {
     if path.contains("bool_phi_branch_min_v1") { return 1 }
     if path.contains("string_concat3_extern_min_v1") { return 1 }
     if path.contains("hello_simple_llvm_native_probe_v1") { return 1 }
+    if path.contains("string_length_ascii_min_v1") { return 1 }
+    if path.contains("string_indexof_ascii_min_v1") { return 1 }
     return 0
   }
 

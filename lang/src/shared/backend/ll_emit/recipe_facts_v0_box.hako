@@ -91,6 +91,65 @@ static box RecipeFactsV0Box {
     out.get("direct_call_ok").set(me._reg_key(dst), row)
   }
 
+  _set_effect(out, dst, memory) {
+    if dst == null { return }
+    out.get("effect").set(me._reg_key(dst), "" + memory)
+  }
+
+  _accept_manifest_call(out, dst, symbol) {
+    local decl = RuntimeDeclRegistryBox.find(symbol)
+    if decl == null || RuntimeDeclRegistryBox.has_lane(decl, "hako-ll-min-v0") != 1 {
+      return "extern_decl_missing"
+    }
+    me._set_value_class(out, dst, "" + decl.get("ret"))
+    me._set_direct_call(out, dst, symbol, decl.get("memory"))
+    me._set_effect(out, dst, decl.get("memory"))
+    return null
+  }
+
+  _accept_global_print_call(out, call) {
+    local print_args = call.get("args")
+    if print_args == null || print_args.size() != 1 {
+      return "global_print_arity"
+    }
+    local print_arg0 = print_args.get(0)
+    if me._is_bool_i1(out, print_arg0) == 1 {
+      return "global_print_bool_arg"
+    }
+    if me._value_class_or_default(out, print_arg0) != "imm_i64" {
+      return "global_print_arg_unsupported"
+    }
+    return null
+  }
+
+  _accept_string_method_call(out, inst, call, callee) {
+    local box_name = "" + callee.get("box_name")
+    local method_name = "" + callee.get("name")
+    local receiver = callee.get("receiver")
+    local dst = inst.get("dst")
+    if box_name != "StringBox" {
+      return "mir_call_method_unsupported"
+    }
+    if me._value_class_or_default(out, receiver) != "handle_owned" {
+      return "string_method_receiver_unsupported"
+    }
+    if method_name == "len" || method_name == "length" || method_name == "size" {
+      return me._accept_manifest_call(out, dst, "nyash.string.len_h")
+    }
+    if method_name == "indexOf" {
+      local args = call.get("args")
+      if args == null || args.size() != 1 {
+        return "string_indexof_arity"
+      }
+      local needle = args.get(0)
+      if me._value_class_or_default(out, needle) != "handle_owned" {
+        return "string_indexof_arg_unsupported"
+      }
+      return me._accept_manifest_call(out, dst, "nyash.string.indexOf_hh")
+    }
+    return "mir_call_method_unsupported"
+  }
+
   analyze_root(root) {
     local out = me._new_ok()
     if root == null { return me._reject(out, "root_missing") }
@@ -108,10 +167,10 @@ static box RecipeFactsV0Box {
       loop(ii < ins.size()) {
         local inst = ins.get(ii)
         local op = "" + inst.get("op")
-        if op == "const" {
-          local dst = inst.get("dst")
-          local value = inst.get("value")
-          local ty = value.get("type")
+          if op == "const" {
+            local dst = inst.get("dst")
+            local value = inst.get("value")
+            local ty = value.get("type")
           if ty != null {
             if ty == "i64" {
               me._set_value_class(out, dst, "imm_i64")
@@ -128,62 +187,87 @@ static box RecipeFactsV0Box {
           } else {
             return me._reject(out, "const_type_missing")
           }
-        } else {
-          if op == "copy" {
-            me._set_copy_alias(out, inst.get("dst"), inst.get("src"))
-          } else { if op == "binop" {
-            me._set_value_class(out, inst.get("dst"), "imm_i64")
-          } else { if op == "compare" {
-            me._set_bool_i1(out, inst.get("dst"))
-          } else { if op == "phi" {
-            local incoming = inst.get("incoming")
-            if incoming != null && incoming.size() > 0 {
-              local first_pair = incoming.get(0)
-              if first_pair != null && first_pair.size() > 0 && me._is_bool_i1(out, first_pair.get(0)) == 1 {
-                me._set_bool_i1(out, inst.get("dst"))
-              }
-            }
-          } else { if op == "select" {
-            if me._is_bool_i1(out, inst.get("then_value")) == 1 && me._is_bool_i1(out, inst.get("else_value")) == 1 {
-              me._set_bool_i1(out, inst.get("dst"))
-            }
-          } else { if op == "mir_call" {
-            local call = inst.get("mir_call")
-            local callee = call.get("callee")
-            local callee_type = "" + callee.get("type")
-            if callee_type == "Global" {
-              local global_name = "" + callee.get("name")
-              if global_name != "print" {
-                return me._reject(out, "mir_call_global_unsupported")
-              }
-              local print_args = call.get("args")
-              if print_args == null || print_args.size() != 1 {
-                return me._reject(out, "global_print_arity")
-              }
-              local print_arg0 = print_args.get(0)
-              if me._is_bool_i1(out, print_arg0) == 1 {
-                return me._reject(out, "global_print_bool_arg")
-              }
-              if me._value_class_or_default(out, print_arg0) != "imm_i64" {
-                return me._reject(out, "global_print_arg_unsupported")
-              }
-            } else { if callee_type != "Extern" {
-              return me._reject(out, "mir_call_not_direct_extern_or_print")
-            }
-            local symbol = "" + callee.get("name")
-            local decl = RuntimeDeclRegistryBox.find(symbol)
-            if decl == null || RuntimeDeclRegistryBox.has_lane(decl, "hako-ll-min-v0") != 1 {
-              return me._reject(out, "extern_decl_missing")
-            }
-            local dst = inst.get("dst")
-            me._set_value_class(out, dst, "" + decl.get("ret"))
-            me._set_direct_call(out, dst, symbol, decl.get("memory"))
-            out.get("effect").set(me._reg_key(dst), "" + decl.get("memory"))
-            }} else { if op == "ret" || op == "branch" || op == "jump" {
           } else {
-            return me._reject(out, "unsupported_op:" + op)
-          }}}}}}}
-        }
+            if op == "copy" {
+              me._set_copy_alias(out, inst.get("dst"), inst.get("src"))
+            } else {
+              if op == "newbox" {
+                if ("" + inst.get("type")) != "StringBox" {
+                  return me._reject(out, "newbox_unsupported")
+                }
+                local args = inst.get("args")
+                if args == null || args.size() != 1 {
+                  return me._reject(out, "newbox_stringbox_arity")
+                }
+                local src = args.get(0)
+                if me._value_class_or_default(out, src) != "handle_owned" {
+                  return me._reject(out, "newbox_stringbox_arg_unsupported")
+                }
+                me._set_copy_alias(out, inst.get("dst"), src)
+              } else {
+                if op == "binop" {
+                  me._set_value_class(out, inst.get("dst"), "imm_i64")
+                } else {
+                  if op == "compare" {
+                    me._set_bool_i1(out, inst.get("dst"))
+                  } else {
+                    if op == "phi" {
+                      local incoming = inst.get("incoming")
+                      if incoming != null && incoming.size() > 0 {
+                        local first_pair = incoming.get(0)
+                        if first_pair != null && first_pair.size() > 0 && me._is_bool_i1(out, first_pair.get(0)) == 1 {
+                          me._set_bool_i1(out, inst.get("dst"))
+                        }
+                      }
+                    } else {
+                      if op == "select" {
+                        if me._is_bool_i1(out, inst.get("then_value")) == 1 && me._is_bool_i1(out, inst.get("else_value")) == 1 {
+                          me._set_bool_i1(out, inst.get("dst"))
+                        }
+                      } else {
+                        if op == "mir_call" {
+                          local call = inst.get("mir_call")
+                          local callee = call.get("callee")
+                          local callee_type = "" + callee.get("type")
+                          if callee_type == "Global" {
+                            local global_name = "" + callee.get("name")
+                            if global_name != "print" {
+                              return me._reject(out, "mir_call_global_unsupported")
+                            }
+                            local print_reason = me._accept_global_print_call(out, call)
+                            if print_reason != null {
+                              return me._reject(out, print_reason)
+                            }
+                          } else {
+                            if callee_type == "Method" {
+                              local method_reason = me._accept_string_method_call(out, inst, call, callee)
+                              if method_reason != null {
+                                return me._reject(out, method_reason)
+                              }
+                            } else {
+                              if callee_type != "Extern" {
+                                return me._reject(out, "mir_call_not_direct_extern_or_print")
+                              }
+                              local symbol = "" + callee.get("name")
+                              local extern_reason = me._accept_manifest_call(out, inst.get("dst"), symbol)
+                              if extern_reason != null {
+                                return me._reject(out, extern_reason)
+                              }
+                            }
+                          }
+                        } else {
+                          if op == "ret" || op == "branch" || op == "jump" {
+                          } else {
+                            return me._reject(out, "unsupported_op:" + op)
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         ii = ii + 1
       }
       bi = bi + 1

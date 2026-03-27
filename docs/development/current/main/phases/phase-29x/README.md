@@ -67,18 +67,18 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
   6. boundary-only narrow owner flip
   7. archive/delete sweep
 - current landed slice is subtraction-first:
-  - `.hako ll emitter` min v0 is the daily owner for `ret const`, `bool phi/branch`, `Global print`, and `concat3 extern`
+  - `.hako ll emitter` min v0 is the daily owner for `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, and `concat3 extern`
   - compare bridge smoke stays `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
-  - daily owner smokes are `phase29x_backend_owner_daily_{ret_const,bool_phi_branch,print,concat3_extern}_min.sh`
+  - daily owner smokes are `phase29x_backend_owner_daily_{ret_const,bool_phi_branch,print,string_length,string_indexof,concat3_extern}_min.sh`
   - compare wrapper app is `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
   - daily wrapper app is `apps/tests/phase29x_backend_owner_daily_min.hako`
   - archive/delete sweep wave 1 is landed:
     - flipped `phase29ck` locks now live in `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt`
-    - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, or `concat3 extern`
+    - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, or `concat3 extern`
     - compare bridge assets remain explicit bridge-only and are not delete-ready yet
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed
-- current next subtraction step is the next shape-by-shape legacy C daily demotion after the current four flipped fixtures
+- current next subtraction step is the `RuntimeData` observer family, starting with `runtime_data_string_length_ascii_min_v1`
 - structural perf only:
   - attrs centralization
   - facts visibility
