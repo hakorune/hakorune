@@ -61,8 +61,10 @@ Related:
    - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, the cross-block `get -> indexOf(const) -> jump -> compare -> select` shape, and the producer-guarded branch/select shapes, not a new public IR layer and not an AST rewrite
    - current pinned lowerings emit `nyash.array.string_indexof_hih`, and bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`
    - accepted direct observer recipes must reject if standalone `slot_load_hi`, `generic_box_call`, or `hostbridge` remains in the hot block; current pinned fixtures are zero on all five residues
-   - refreshed `kilo_micro_indexof_line` bundle still shows `recipe_acceptance=empty`, route trace `select` only, and lowered IR remains the dedicated `indexOf line loop ascii` seed with `strstr`
-   - the full block-26 interleaved branch/select family is now pinned through `bb26 -> bb30 -> bb31`; next `micro kilo` blocker therefore reads as dedicated seed shadow / route ownership on the same artifact rather than another missing observer shape
+   - default `kilo_micro_indexof_line` bundle still shows `recipe_acceptance=empty`, route trace `select` only, and lowered IR remains the dedicated `indexOf line loop ascii` seed with `strstr`
+   - bundle probe can now bypass that seed with `tools/perf/trace_optimization_bundle.sh --skip-indexof-line-seed`; on that lane the same artifact hits `array_string_indexof_interleaved_branch_window`, emits `nyash.array.string_indexof_hih`, and keeps hot-block residue at zero
+   - forced generic probe currently regresses `kilo_micro_indexof_line` to `27-29 ms`, so the dedicated `indexOf line` seed stays the daily/perf owner for now
+   - the full block-26 interleaved branch/select family is therefore observable on the same artifact, and the next `micro kilo` blocker is the cost gap between the forced generic observer route and the dedicated seed owner
    - `RuntimeDataBox` stays protocol/facade only in this exact slice; broad peel/widen stays deferred until the same blocker family recurs after the direct-path cut
 
 ## Fixed Order
@@ -83,7 +85,7 @@ Related:
 8. do not reopen an observer cut that still leaves `slot_load_hi` in the same hot block
 9. current resume point after the retired leaf-proof/compat cleanup is `micro kilo`
 10. keep the fixed order `leaf-proof micro -> micro kilo -> main kilo`
-11. current exact `micro kilo` slice is no longer another observer-shape pin inside `bb26 -> bb30 -> bb31`; the next cut is the dedicated seed shadow / route ownership proof on the same artifact once that family is fully pinned
+11. current exact `micro kilo` slice is no longer another observer-shape pin inside `bb26 -> bb30 -> bb31`; route-shadow visibility is now covered by the bundle probe lane, and the next cut is the cost gap between forced generic observer route and dedicated seed owner on the same artifact
 12. RuntimeData peel is not the current front; only revisit it if the same blocker family survives after the direct-path proof and the route-shadow reading is already fixed
 
 ## Acceptance

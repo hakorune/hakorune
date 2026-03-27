@@ -85,9 +85,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
       - battle order is `typed/recipe canonical subset -> generic pure lowering -> RuntimeData peel only on recurrence`
       - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, the cross-block `get -> indexOf(const) -> jump -> compare -> select` shape, and the interleaved producer-guard branch/select shapes, all lowered as `nyash.array.string_indexof_hih`
       - bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`, and the accepted observer recipes leave `slot_load_hi`, `generic_box_call`, and `hostbridge` at zero on all five pinned fixtures
-      - refreshed same-artifact bundle for `kilo_micro_indexof_line` still shows `recipe_acceptance=empty`, route trace `select` only, and lowered IR remains `indexOf line loop ascii` with `strstr`
-      - current `micro kilo` is therefore still route-shadowed by the dedicated seed route, not the new generic observer recipe proof
-      - the block-26 interleaved branch/select family is now pinned through `bb26 -> bb30 -> bb31`; next `micro kilo` blocker reads as dedicated seed shadow / route ownership on the same artifact rather than another missing observer shape
+      - default same-artifact bundle for `kilo_micro_indexof_line` still shows `recipe_acceptance=empty`, route trace `select` only, and lowered IR remains `indexOf line loop ascii` with `strstr`
+      - diagnostic same-artifact bundle can now force the generic route with `tools/perf/trace_optimization_bundle.sh --skip-indexof-line-seed`; on that probe lane the same artifact shows `array_string_indexof_interleaved_branch_window result=hit`, lowered IR contains `nyash.array.string_indexof_hih`, and hot-block residue stays zero
+      - forced generic probe currently regresses `kilo_micro_indexof_line` to `27-29 ms`, so the dedicated `indexOf line` seed stays the daily/perf owner for now
+      - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the next exact perf blocker is no longer route shadow visibility but the cost gap between the forced generic observer route and the dedicated seed owner
       - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
     - explicit compat-keep cleanup residue is retired:
       - `phase29ck_boundary_compat_keep_min.sh` is green again

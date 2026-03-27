@@ -17,6 +17,7 @@ Options:
   --lookahead <N>                 MIR window lookahead size (default: 8)
   --microasm-runs <N>             Optional perf-record runs on the same built exe (default: 0)
   --symbol <name>                 Optional symbol filter for symbol/perf annotate notes
+  --skip-indexof-line-seed        Diagnostic only: bypass the dedicated indexOf("line") seed
   --timeout-secs <N>              Source emit timeout when --input is used (default: 60)
   --out-dir <dir>                 Bundle output directory
 
@@ -45,6 +46,7 @@ CALLEE_SUBSTR=""
 LOOKAHEAD=8
 MICROASM_RUNS=0
 SYMBOL=""
+SKIP_INDEXOF_LINE_SEED=0
 OUT_DIR=""
 TIMEOUT_SECS=60
 
@@ -83,6 +85,10 @@ while [[ $# -gt 0 ]]; do
     --symbol)
       SYMBOL="${2:-}"
       shift 2
+      ;;
+    --skip-indexof-line-seed)
+      SKIP_INDEXOF_LINE_SEED=1
+      shift
       ;;
     --timeout-secs)
       TIMEOUT_SECS="${2:-}"
@@ -186,6 +192,7 @@ printf 'input_mode=%s\ninput_path=%s\ninput_label=%s\nroute=%s\nfunction=%s\ncal
   "${LOOKAHEAD}" \
   "${MICROASM_RUNS}" \
   "${SYMBOL:-<none>}" > "${MANIFEST_OUT}"
+printf 'skip_indexof_line_seed=%s\n' "${SKIP_INDEXOF_LINE_SEED}" >> "${MANIFEST_OUT}"
 
 if [[ "${INPUT_MODE}" == "source" ]]; then
   cp "${INPUT_PATH}" "${OUT_DIR}/input.hako"
@@ -326,6 +333,7 @@ env \
   HAKO_V1_EXTERN_PROVIDER_C_ABI="${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}" \
   HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}" \
   HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}" \
+  NYASH_LLVM_SKIP_INDEXOF_LINE_SEED="${SKIP_INDEXOF_LINE_SEED}" \
   NYASH_LLVM_DUMP_IR="${LL_DUMP}" \
   bash "${NY_MIR_BUILDER}" \
     --in "${MIR_JSON}" \
