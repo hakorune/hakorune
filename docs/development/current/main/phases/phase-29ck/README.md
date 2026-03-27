@@ -145,13 +145,14 @@ Related:
      - current probe IR hoists string-const boxer calls into `bb0` under `NYASH_LLVM_FAST=1`, so loop-local boxer churn is retired while `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1` stays unchanged
      - rejected exact cut: direct `nyash.array.string_indexof_hih` slot-string leaf rewrite regressed the probe back to `19 ms`, so keep the cached string-pair route for now and do not reopen that leaf without new evidence
      - current asm/perf reading is now fixed:
-       - `C = 4 ms / 7.2M cycles`, daily `Nyash AOT seed owner = 7 ms / 22.3M cycles`, forced generic probe `= 17 ms / 74.7M cycles` (`warmup=1 repeat=5`)
+       - `C = 4 ms / 7.2M cycles`, daily `Nyash AOT seed owner = 7 ms / 22.3M cycles`, forced generic probe `= 9 ms / 33.0M cycles` (`warmup=1 repeat=5`)
        - daily seed-owner asm is already near the C loop shape (`and $0x3f`, `test $0xf`, direct `strstr@plt`, raw flip store)
-       - forced generic probe is dominated by `Registry::with_handle` / `Registry::with_str_pair`, while `nyash.array.string_indexof_hih` itself is only a small fraction of the sampled cycles
-     - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the next exact perf blocker is no longer route shadow visibility or arithmetic residue but the registry-boundary cost gap between the forced generic observer route and the dedicated seed owner
-     - next exact cut is fixed:
-       - keep the daily seed owner unchanged
-       - cut a narrow accepted-recipe fast path for `array-string indexOf` / update that avoids `Registry::with_handle` / `Registry::with_str_pair` on the hot generic probe route
+       - forced generic probe no longer spends the bulk of its cycles in `Registry::with_handle` / `Registry::with_str_pair`; the narrow fast path now reads array slots directly, caches the const needle string per thread, and leaves the hot route dominated by local `array_string_indexof_by_index` work plus a small `set_hih` tail
+     - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the earlier registry-boundary perf blocker is retired for the current micro route
+     - current post-cut reading is fixed:
+       - same-artifact probe bundle still reports `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1`
+       - lowered IR still contains only `nyash.array.string_indexof_hih` for the accepted observer path, and hot-block residue stays `slot_load_hi=0`, `generic_box_call=0`, `hostbridge=0`
+       - current probe perf top is now local `array_string_indexof_by_index` work, with `array_set_by_index` / `slot_store_box_raw` as the visible remaining tail
        - do not reopen the rejected direct slot-string leaf rewrite without fresh same-artifact evidence
      - temporary priority override is `clean-clean / BoxShape` before the next perf cut:
        - first cleanup target is `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
@@ -179,7 +180,8 @@ Related:
      - `phase29ck_boundary_compat_keep_min.sh` is green again
      - direct `target/release/ny-llvmc --driver harness --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json ...` writes object again on the explicit keep lane
      - optimization return resumes at `micro kilo` while keeping the fixed order `leaf-proof micro -> micro kilo -> main kilo`
-     - exact next blocker remains the forced generic observer registry-boundary cost gap on `kilo_micro_indexof_line`
+     - the forced generic observer micro gap is now materially reduced; fixed-order return may advance to `main kilo`
+     - if the micro lane reopens, the next exact blocker is the local `nyash.array.string_indexof_hih` closure/update tail rather than registry-boundary lookup glue
    - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi`
    - do not reopen broad `boxcall` widening and do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない

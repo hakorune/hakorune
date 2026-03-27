@@ -111,6 +111,18 @@ mod tests {
     }
 
     #[test]
+    fn string_indexof_raw_alias_keeps_empty_needle_fail_safe_contract() {
+        let handle = new_array_handle();
+        let empty_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new(String::new()),
+        ) as std::sync::Arc<dyn NyashBox>) as i64;
+
+        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 0, empty_handle), 0);
+        assert_eq!(nyash_array_string_indexof_hih_alias(0, 0, empty_handle), 0);
+        assert_eq!(nyash_array_string_indexof_hih_alias(handle, -1, empty_handle), 0);
+    }
+
+    #[test]
     fn slot_append_raw_alias_keeps_contract() {
         let handle = new_array_handle();
         let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
