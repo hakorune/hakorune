@@ -208,12 +208,18 @@ fn prepare_hako_driver_source(
         )
     })?;
     let root_builder = render_hako_root_builder(mir_json)?;
+    let acceptance_case = crate::config::env::backend_acceptance_case()
+        .unwrap_or_else(|| "unset".to_string());
+    let legacy_daily_allowed = crate::config::env::backend_legacy_daily_allowed()
+        .unwrap_or_else(|| "unknown".to_string());
     let rendered = source
         .replace(
             "    // __HAKO_LL_COMPARE_ROOT_BUILDER__\n    return null\n",
             &root_builder,
         )
-        .replace("__HAKO_LL_LANE__", lane.tag());
+        .replace("__HAKO_LL_LANE__", lane.tag())
+        .replace("__HAKO_LL_ACCEPTANCE_CASE__", &acceptance_case)
+        .replace("__HAKO_LL_LEGACY_DAILY_ALLOWED__", &legacy_daily_allowed);
     let out = temporary_hako_driver_source_path(out_path, lane);
     fs::write(&out, rendered).map_err(|e| {
         format!(

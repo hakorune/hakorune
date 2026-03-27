@@ -13,6 +13,15 @@ memory = "readwrite"
 lanes = ["hako-ll-min-v0", "compare"]
 
 [[rows]]
+symbol = "printf"
+args = ["ptr_const_i8"]
+ret = "imm_i32"
+attrs = ["nounwind"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+varargs = true
+
+[[rows]]
 symbol = "nyash.string.concat3_hhh"
 args = ["handle_owned", "handle_owned", "handle_owned"]
 ret = "handle_owned"

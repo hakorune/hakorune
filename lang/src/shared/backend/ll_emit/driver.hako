@@ -10,7 +10,7 @@ static box Main {
   main(args) {
     local root = me._build_root()
     if root == null {
-      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=none first_blocker=root_missing")
+      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=none first_blocker=root_missing acceptance_case=__HAKO_LL_ACCEPTANCE_CASE__ legacy_daily_allowed=__HAKO_LL_LEGACY_DAILY_ALLOWED__")
       return 2
     }
 
@@ -18,19 +18,19 @@ static box Main {
     local accepted = "" + facts.get("accepted")
     local first_blocker = "" + facts.get("first_blocker")
     if accepted != "min-v0" {
-      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=" + accepted + " first_blocker=" + first_blocker)
+      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=" + accepted + " first_blocker=" + first_blocker + " acceptance_case=__HAKO_LL_ACCEPTANCE_CASE__ legacy_daily_allowed=__HAKO_LL_LEGACY_DAILY_ALLOWED__")
       return 2
     }
 
     local ll = LlTextEmitBox.emit_module(root, facts)
     if ll == null {
-      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=emit_failed")
+      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=emit_failed acceptance_case=__HAKO_LL_ACCEPTANCE_CASE__ legacy_daily_allowed=__HAKO_LL_LEGACY_DAILY_ALLOWED__")
       return 2
     }
     print("[hako-ll/ll-begin]")
     print(ll)
     print("[hako-ll/ll-end]")
-    print("[hako-ll/__HAKO_LL_LANE__] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none")
+    print("[hako-ll/__HAKO_LL_LANE__] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none acceptance_case=__HAKO_LL_ACCEPTANCE_CASE__ legacy_daily_allowed=__HAKO_LL_LEGACY_DAILY_ALLOWED__")
     return 0
   }
 }

@@ -54,10 +54,15 @@ Related:
   - compat replay lane name
   - daily example: `none`
   - explicit keep example: `harness`
+- `legacy_daily_allowed`
+  - stable daily-demotion guard mirrored through the Rust bridge
+  - daily `.hako ll emitter` examples: `no`
+  - legacy C / compat keep examples: `yes`
 
 ## Grouped Evidence Buckets
 
 - `acceptance_case` の個々の名前は transport trivia ではなく、`BackendRecipeBox.compile_route_profile(...)` が owned する grouped evidence bucket だと読む。
+- `legacy_daily_allowed` is route-policy truth, not transport-local trivia; Rust/C may mirror it but must not invent or widen it.
 - 現在の evidence bucket は次の粒度で維持する。
   - seed / pure-first baseline
     - `ret-const-v1`
@@ -114,6 +119,7 @@ Related:
 - Daily `.hako` callers should first ask `BackendRecipeBox.compile_route_profile(...)` for the mainline route profile.
 - Explicit compat keep callers should ask `BackendRecipeBox.compile_keep_profile(..., "harness")`.
 - `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then stop at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`.
+- `LlvmBackendBox` should mirror `acceptance_case`, `transport_owner`, and `legacy_daily_allowed` through env only at the backend handoff; bridge/provider layers must treat them as read-only payload.
 - Rust and C layers may mirror the same policy names, but they must not invent new policy names.
 - `acceptance_case` growth must stay grouped at the `.hako` policy owner; do not add per-case transport ownership in Rust/C.
 

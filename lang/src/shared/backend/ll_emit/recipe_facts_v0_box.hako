@@ -76,6 +76,14 @@ static box RecipeFactsV0Box {
     return me._map_has(bools, key)
   }
 
+  _value_class_or_default(out, reg_id) {
+    local classes = out.get("value_class")
+    if classes == null { return "imm_i64" }
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    if me._map_has(classes, key) != 1 { return "imm_i64" }
+    return "" + classes.get(key)
+  }
+
   _set_direct_call(out, dst, symbol, memory) {
     local row = new MapBox()
     row.set("symbol", "" + symbol)
@@ -143,8 +151,24 @@ static box RecipeFactsV0Box {
             local call = inst.get("mir_call")
             local callee = call.get("callee")
             local callee_type = "" + callee.get("type")
-            if callee_type != "Extern" {
-              return me._reject(out, "mir_call_not_direct_extern")
+            if callee_type == "Global" {
+              local global_name = "" + callee.get("name")
+              if global_name != "print" {
+                return me._reject(out, "mir_call_global_unsupported")
+              }
+              local print_args = call.get("args")
+              if print_args == null || print_args.size() != 1 {
+                return me._reject(out, "global_print_arity")
+              }
+              local print_arg0 = print_args.get(0)
+              if me._is_bool_i1(out, print_arg0) == 1 {
+                return me._reject(out, "global_print_bool_arg")
+              }
+              if me._value_class_or_default(out, print_arg0) != "imm_i64" {
+                return me._reject(out, "global_print_arg_unsupported")
+              }
+            } else { if callee_type != "Extern" {
+              return me._reject(out, "mir_call_not_direct_extern_or_print")
             }
             local symbol = "" + callee.get("name")
             local decl = RuntimeDeclRegistryBox.find(symbol)
@@ -155,7 +179,7 @@ static box RecipeFactsV0Box {
             me._set_value_class(out, dst, "" + decl.get("ret"))
             me._set_direct_call(out, dst, symbol, decl.get("memory"))
             out.get("effect").set(me._reg_key(dst), "" + decl.get("memory"))
-          } else { if op == "ret" || op == "branch" || op == "jump" {
+            }} else { if op == "ret" || op == "branch" || op == "jump" {
           } else {
             return me._reject(out, "unsupported_op:" + op)
           }}}}}}}

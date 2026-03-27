@@ -56,7 +56,7 @@ if [ "$rc" -ne 0 ]; then
     exit 1
 fi
 
-if ! echo "$out" | grep -Fq "[hako-ll/daily] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none"; then
+if ! echo "$out" | grep -Fq "[hako-ll/daily] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none acceptance_case=bool-phi-branch-v1 legacy_daily_allowed=no"; then
     echo "[INFO] daily output:"
     echo "$out" | head -n 120 || true
     test_fail "$SMOKE_NAME: missing daily ownership evidence"

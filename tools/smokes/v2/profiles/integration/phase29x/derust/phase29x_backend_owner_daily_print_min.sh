@@ -1,5 +1,5 @@
 #!/bin/bash
-# Phase 29x: backend-owner daily concat3 extern owner flip smoke
+# Phase 29x: backend-owner daily Global print owner flip smoke
 
 set -euo pipefail
 
@@ -7,14 +7,14 @@ source "$(dirname "$0")/../../../../lib/test_runner.sh"
 require_env || exit 2
 
 if ! command -v llc >/dev/null 2>&1 && ! command -v llc-18 >/dev/null 2>&1; then
-    test_skip "phase29x_backend_owner_daily_concat3_extern_min: llc not found"
+    test_skip "phase29x_backend_owner_daily_print_min: llc not found"
     exit 0
 fi
 
-SMOKE_NAME="phase29x_backend_owner_daily_concat3_extern_min"
+SMOKE_NAME="phase29x_backend_owner_daily_print_min"
 HAKORUNE_BIN="$NYASH_ROOT/target/release/hakorune"
 APP="$NYASH_ROOT/apps/tests/phase29x_backend_owner_daily_min.hako"
-FIXTURE="$NYASH_ROOT/apps/tests/mir_shape_guard/string_concat3_extern_min_v1.mir.json"
+FIXTURE="$NYASH_ROOT/apps/tests/hello_simple_llvm_native_probe_v1.mir.json"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-90}"
 RAW_LOG="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.log")"
 
@@ -56,10 +56,10 @@ if [ "$rc" -ne 0 ]; then
     exit 1
 fi
 
-if ! echo "$out" | grep -Fq "[hako-ll/daily] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none acceptance_case=string-concat3-extern-v1 legacy_daily_allowed=no"; then
+if ! echo "$out" | grep -Fq "[hako-ll/daily] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none acceptance_case=hello-simple-llvm-native-probe-v1 legacy_daily_allowed=no"; then
     echo "[INFO] daily output:"
     echo "$out" | head -n 120 || true
-    test_fail "$SMOKE_NAME: missing daily ownership evidence"
+    test_fail "$SMOKE_NAME: missing daily print ownership evidence"
     exit 1
 fi
 
@@ -79,4 +79,4 @@ if [ -z "$OUT_OBJ" ]; then
 fi
 
 require_smoke_path "$SMOKE_NAME" "object" "$OUT_OBJ" || exit 1
-test_pass "$SMOKE_NAME: PASS (concat3 extern uses .hako ll emitter as daily owner)"
+test_pass "$SMOKE_NAME: PASS (Global print uses .hako ll emitter as daily owner)"

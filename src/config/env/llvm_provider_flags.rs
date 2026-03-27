@@ -57,6 +57,30 @@ pub fn backend_compat_replay() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
+/// Backend acceptance-case bridge selector (HAKO_BACKEND_ACCEPTANCE_CASE).
+pub fn backend_acceptance_case() -> Option<String> {
+    std::env::var("HAKO_BACKEND_ACCEPTANCE_CASE")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+/// Backend transport-owner bridge selector (HAKO_BACKEND_TRANSPORT_OWNER).
+pub fn backend_transport_owner() -> Option<String> {
+    std::env::var("HAKO_BACKEND_TRANSPORT_OWNER")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+/// Backend legacy-daily allowance bridge selector (HAKO_BACKEND_LEGACY_DAILY_ALLOWED).
+pub fn backend_legacy_daily_allowed() -> Option<String> {
+    std::env::var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
 /// Canonical caller-side backend codegen defaults.
 ///
 /// Daily callers may pass explicit values. Compat callers may leave either
@@ -106,6 +130,9 @@ mod tests {
     struct EnvRestore {
         compile_recipe: Option<OsString>,
         compat_replay: Option<OsString>,
+        acceptance_case: Option<OsString>,
+        transport_owner: Option<OsString>,
+        legacy_daily_allowed: Option<OsString>,
     }
 
     impl Drop for EnvRestore {
@@ -117,6 +144,18 @@ mod tests {
             match self.compat_replay.take() {
                 Some(v) => std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", v),
                 None => std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY"),
+            }
+            match self.acceptance_case.take() {
+                Some(v) => std::env::set_var("HAKO_BACKEND_ACCEPTANCE_CASE", v),
+                None => std::env::remove_var("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            }
+            match self.transport_owner.take() {
+                Some(v) => std::env::set_var("HAKO_BACKEND_TRANSPORT_OWNER", v),
+                None => std::env::remove_var("HAKO_BACKEND_TRANSPORT_OWNER"),
+            }
+            match self.legacy_daily_allowed.take() {
+                Some(v) => std::env::set_var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED", v),
+                None => std::env::remove_var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
             }
         }
     }
@@ -138,6 +177,9 @@ mod tests {
         let _restore = EnvRestore {
             compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
             compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
         };
         std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", "pure-first");
         std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", "harness");
@@ -145,5 +187,40 @@ mod tests {
         let (compile_recipe, compat_replay) = backend_codegen_request_defaults(None, None);
         assert_eq!(compile_recipe.as_deref(), Some("pure-first"));
         assert_eq!(compat_replay.as_deref(), Some("harness"));
+    }
+
+    #[test]
+    fn backend_owner_bridge_fields_ignore_empty_values() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+        };
+
+        std::env::set_var("HAKO_BACKEND_ACCEPTANCE_CASE", "hello-simple-llvm-native-probe-v1");
+        std::env::set_var("HAKO_BACKEND_TRANSPORT_OWNER", "hako_ll_emitter");
+        std::env::set_var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED", "no");
+        assert_eq!(
+            super::backend_acceptance_case().as_deref(),
+            Some("hello-simple-llvm-native-probe-v1")
+        );
+        assert_eq!(
+            super::backend_transport_owner().as_deref(),
+            Some("hako_ll_emitter")
+        );
+        assert_eq!(
+            super::backend_legacy_daily_allowed().as_deref(),
+            Some("no")
+        );
+
+        std::env::set_var("HAKO_BACKEND_ACCEPTANCE_CASE", "");
+        std::env::set_var("HAKO_BACKEND_TRANSPORT_OWNER", " ");
+        std::env::set_var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED", "");
+        assert_eq!(super::backend_acceptance_case(), None);
+        assert_eq!(super::backend_transport_owner(), None);
+        assert_eq!(super::backend_legacy_daily_allowed(), None);
     }
 }

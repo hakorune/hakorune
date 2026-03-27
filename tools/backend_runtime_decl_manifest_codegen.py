@@ -42,6 +42,9 @@ def render_output() -> str:
         lines.append(f'    {row_var}.set("symbol", "{q(row["symbol"])}")')
         lines.append(f'    {row_var}.set("ret", "{q(row["ret"])}")')
         lines.append(f'    {row_var}.set("memory", "{q(row["memory"])}")')
+        lines.append(
+            f'    {row_var}.set("varargs", "{1 if row.get("varargs", False) else 0}")'
+        )
         lines.extend(emit_array_lines(f"args_{idx}", row.get("args", []), "    "))
         lines.append(f'    {row_var}.set("args", args_{idx})')
         lines.extend(emit_array_lines(f"attrs_{idx}", row.get("attrs", []), "    "))

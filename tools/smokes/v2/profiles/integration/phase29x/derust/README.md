@@ -12,6 +12,7 @@ De-rust route and lane contract gates for phase29x.
 - `phase29x_backend_owner_hako_ll_compare_min.sh`: explicit `.hako ll emitter` compare-owner canary
 - `phase29x_backend_owner_daily_ret_const_min.sh`: daily owner flip pin for `ret_const_min_v1`
 - `phase29x_backend_owner_daily_bool_phi_branch_min.sh`: daily owner flip pin for `bool_phi_branch_min_v1`
+- `phase29x_backend_owner_daily_print_min.sh`: daily owner flip pin for `hello_simple_llvm_native_probe_v1`
 - `phase29x_backend_owner_daily_concat3_extern_min.sh`: daily owner flip pin for `string_concat3_extern_min_v1`
 
 ## Contract

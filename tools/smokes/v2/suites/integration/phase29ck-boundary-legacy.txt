@@ -2,4 +2,5 @@
 # Legacy boundary locks for shapes whose daily owner already moved to phase29x.
 phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh
 phase29ck_boundary/entry/phase29ck_boundary_pure_bool_phi_branch_min.sh
+phase29ck_boundary/entry/phase29ck_boundary_pure_print_min.sh
 phase29ck_boundary/string/phase29ck_boundary_pure_string_concat3_extern_min.sh

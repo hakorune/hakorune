@@ -48,6 +48,7 @@ static box BackendRecipeBox {
     profile.set("json_path", "" + path)
     profile.set("compile_recipe", "" + compile_recipe)
     profile.set("compat_replay", "none")
+    profile.set("legacy_daily_allowed", "no")
     return me._validate_hako_ll_profile(profile, path, route_profile, compile_recipe)
   }
 
@@ -67,6 +68,7 @@ static box BackendRecipeBox {
     profile.set("json_path", "" + path)
     profile.set("compile_recipe", "pure-first")
     profile.set("compat_replay", compat)
+    profile.set("legacy_daily_allowed", "yes")
     if me._validate_compile_route_profile(profile, path, route_profile, compat) == null { return null }
     return profile
   }
@@ -120,6 +122,12 @@ static box BackendRecipeBox {
       compat_replay,
       expected_compat_replay,
     ) == null { return null }
+    local legacy_daily_allowed = profile.get("legacy_daily_allowed")
+    if me._require_profile_equals(
+      "legacy_daily_allowed",
+      legacy_daily_allowed,
+      "yes",
+    ) == null { return null }
     return profile
   }
 
@@ -144,6 +152,8 @@ static box BackendRecipeBox {
     if me._require_profile_equals("compile_recipe", compile_recipe, expected_compile_recipe) == null { return null }
     local compat_replay = profile.get("compat_replay")
     if me._require_profile_equals("compat_replay", compat_replay, "none") == null { return null }
+    local legacy_daily_allowed = profile.get("legacy_daily_allowed")
+    if me._require_profile_equals("legacy_daily_allowed", legacy_daily_allowed, "no") == null { return null }
     return profile
   }
 
@@ -168,6 +178,7 @@ static box BackendRecipeBox {
     if path.contains("ret_const_min_v1") { return 1 }
     if path.contains("bool_phi_branch_min_v1") { return 1 }
     if path.contains("string_concat3_extern_min_v1") { return 1 }
+    if path.contains("hello_simple_llvm_native_probe_v1") { return 1 }
     return 0
   }
 

@@ -25,6 +25,7 @@ Current subset
 - `phi`
 - `ret`
 - direct `Extern` call
+- narrow `Global print`
 
 Non-goals
 - `AST -> LLVM` direct route
@@ -33,5 +34,5 @@ Non-goals
 
 Current migration rule
 - compare lane は temporary bridge だよ。
-- flipped boundary shapes (`ret const`, `bool phi/branch`, `concat3 extern`) のみ narrow daily owner として許可する。
+- flipped boundary shapes (`ret const`, `bool phi/branch`, `Global print`, `concat3 extern`) のみ narrow daily owner として許可する。
 - dead residue は ledger に残してから削除する。

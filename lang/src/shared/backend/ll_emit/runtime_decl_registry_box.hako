@@ -50,6 +50,7 @@ static box RuntimeDeclRegistryBox {
   llvm_type_name(value_class) {
     local vc = "" + value_class
     if vc == "ptr_const_i8" { return "ptr" }
+    if vc == "imm_i32" { return "i32" }
     return "i64"
   }
 
@@ -64,6 +65,10 @@ static box RuntimeDeclRegistryBox {
       if i > 0 { out = out + ", " }
       out = out + me.llvm_type_name(BoxHelpers.array_get(args, i))
       i = i + 1
+    }
+    if ("" + row.get("varargs")) == "1" {
+      if n > 0 { out = out + ", ..." }
+      else { out = out + "..." }
     }
     out = out + ")"
     local attrs = row.get("attrs")

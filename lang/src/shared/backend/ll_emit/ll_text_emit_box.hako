@@ -67,8 +67,34 @@ static box LlTextEmitBox {
     return "@.str_reg_" + ("" + reg_id)
   }
 
+  _needs_printf_format(func) {
+    local blocks = func.get("blocks")
+    local bi = 0
+    loop(bi < blocks.size()) {
+      local block = blocks.get(bi)
+      local ins = block.get("instructions")
+      local ii = 0
+      loop(ii < ins.size()) {
+        local inst = ins.get(ii)
+        if ("" + inst.get("op")) == "mir_call" {
+          local call = inst.get("mir_call")
+          local callee = call.get("callee")
+          if ("" + callee.get("type")) == "Global" && ("" + callee.get("name")) == "print" {
+            return 1
+          }
+        }
+        ii = ii + 1
+      }
+      bi = bi + 1
+    }
+    return 0
+  }
+
   _emit_string_globals(func, facts) {
     local out = ""
+    if me._needs_printf_format(func) == 1 {
+      out = out + "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\", align 1\n"
+    }
     local blocks = func.get("blocks")
     local bi = 0
     loop(bi < blocks.size()) {
@@ -165,6 +191,15 @@ static box LlTextEmitBox {
     }
     out = out + ")\n"
     return out
+  }
+
+  _emit_global_print_call(func, facts, inst) {
+    local call = inst.get("mir_call")
+    local args = call.get("args")
+    if args == null || args.size() != 1 { return null }
+    local arg0 = args.get(0)
+    local operand = me._operand_i64(func, facts, arg0)
+    return "  call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 " + operand + ")\n"
   }
 
   _emit_instruction(func, facts, inst) {
@@ -278,6 +313,11 @@ static box LlTextEmitBox {
       return "  ret i64 " + operand + "\n"
     }
     if op == "mir_call" {
+      local call = inst.get("mir_call")
+      local callee = call.get("callee")
+      if ("" + callee.get("type")) == "Global" && ("" + callee.get("name")) == "print" {
+        return me._emit_global_print_call(func, facts, inst)
+      }
       return me._emit_direct_call(func, facts, inst)
     }
     return null

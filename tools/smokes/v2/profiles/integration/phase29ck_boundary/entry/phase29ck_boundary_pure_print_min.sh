@@ -1,11 +1,12 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first print canary
+# Phase 29ck boundary legacy pure-first print lock
 #
 # Contract pin:
-# 1) default `ny-llvmc` boundary object route accepts a v1 `Global print` seed.
-# 2) the supported seed emits an object without falling through to
+# 1) legacy `ny-llvmc` boundary route keeps the old `Global print` seed green
+#    while daily owner proof lives in `phase29x`.
+# 2) the supported seed still emits an object without falling through to
 #    `ny-llvmc --driver harness`.
-# 3) breaking `NYASH_NY_LLVM_COMPILER` must not break that supported seed.
+# 3) breaking `NYASH_NY_LLVM_COMPILER` must not break that preserved legacy lock.
 
 set -euo pipefail
 
@@ -73,4 +74,4 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_print_min: PASS (boundary default emits v1 print seed without ny-llvmc harness fallback)"
+test_pass "phase29ck_boundary_pure_print_min: PASS (legacy boundary lock still emits v1 print seed without ny-llvmc harness fallback)"

@@ -102,6 +102,7 @@ current C `.inc` lane は次の扱いに固定する。
 - owner cutover の primary goal は live owner surface を減らすことだよ。
 - shape が daily owner flip したら、その shape の legacy C `.inc` daily route は同 commit で retired として扱う。
 - boundary-only wave では、daily owner flip 済み shape を `phase29ck` default suite から外し、必要なら temporary legacy suite へ退避する。
+- bridge route payload keeps `acceptance_case`, `transport_owner`, and `legacy_daily_allowed` visible until compare retirement; daily `.hako ll emitter` shapes must report `legacy_daily_allowed=no`.
 - delete/archive 候補の追跡は `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md` を正本にする。
 - preservation-first SSOT を満たさない surface は、demote はしても即 delete しない。
 
