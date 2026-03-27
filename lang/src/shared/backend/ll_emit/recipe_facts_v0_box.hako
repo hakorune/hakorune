@@ -1,0 +1,171 @@
+using selfhost.shared.backend.ll_emit.runtime_decl_registry as RuntimeDeclRegistryBox
+
+static box RecipeFactsV0Box {
+  _new_ok() {
+    local out = new MapBox()
+    out.set("accepted", "min-v0")
+    out.set("first_blocker", "none")
+    out.set("reject_reason", "")
+    out.set("cold_fallback", "none")
+    out.set("value_class", new MapBox())
+    out.set("bool_i1", new MapBox())
+    out.set("copy_alias", new MapBox())
+    out.set("const_string", new MapBox())
+    out.set("direct_call_ok", new MapBox())
+    out.set("effect", new MapBox())
+    return out
+  }
+
+  _reject(out, reason) {
+    out.set("accepted", "none")
+    out.set("first_blocker", "" + reason)
+    out.set("reject_reason", "" + reason)
+    out.set("cold_fallback", "generic_box_call")
+    return out
+  }
+
+  _reg_key(reg_id) {
+    return "" + reg_id
+  }
+
+  _set_value_class(out, reg_id, value_class) {
+    out.get("value_class").set(me._reg_key(reg_id), "" + value_class)
+  }
+
+  _set_bool_i1(out, reg_id) {
+    out.get("bool_i1").set(me._reg_key(reg_id), 1)
+    me._set_value_class(out, reg_id, "imm_bool")
+  }
+
+  _set_copy_alias(out, dst, src) {
+    out.get("copy_alias").set(me._reg_key(dst), me._reg_key(src))
+  }
+
+  _set_const_string(out, dst, text) {
+    out.get("const_string").set(me._reg_key(dst), "" + text)
+  }
+
+  _map_has(map, key) {
+    if map == null { return 0 }
+    local present = map.has("" + key)
+    if present == true || present == 1 { return 1 }
+    return 0
+  }
+
+  _resolve_copy_alias(out, reg_id) {
+    local aliases = out.get("copy_alias")
+    if aliases == null { return reg_id }
+    local current = reg_id
+    local depth = 0
+    loop(depth < 64) {
+      local key = me._reg_key(current)
+      if me._map_has(aliases, key) != 1 { return current }
+      local next = aliases.get(key)
+      local next_key = me._reg_key(next)
+      if next == null || next_key == "" || next_key == key { return current }
+      current = next
+      depth = depth + 1
+    }
+    return reg_id
+  }
+
+  _is_bool_i1(out, reg_id) {
+    local bools = out.get("bool_i1")
+    if bools == null { return 0 }
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    return me._map_has(bools, key)
+  }
+
+  _set_direct_call(out, dst, symbol, memory) {
+    local row = new MapBox()
+    row.set("symbol", "" + symbol)
+    row.set("memory", "" + memory)
+    out.get("direct_call_ok").set(me._reg_key(dst), row)
+  }
+
+  analyze_root(root) {
+    local out = me._new_ok()
+    if root == null { return me._reject(out, "root_missing") }
+    local funcs = root.get("functions")
+    if funcs == null || funcs.size() == 0 { return me._reject(out, "functions_missing") }
+    local blocks = funcs.get(0).get("blocks")
+    if blocks == null { return me._reject(out, "blocks_missing") }
+
+    local bi = 0
+    loop(bi < blocks.size()) {
+      local block = blocks.get(bi)
+      local ins = block.get("instructions")
+      if ins == null { return me._reject(out, "instructions_missing") }
+      local ii = 0
+      loop(ii < ins.size()) {
+        local inst = ins.get(ii)
+        local op = "" + inst.get("op")
+        if op == "const" {
+          local dst = inst.get("dst")
+          local value = inst.get("value")
+          local ty = value.get("type")
+          if ty != null {
+            if ty == "i64" {
+              me._set_value_class(out, dst, "imm_i64")
+            } else {
+              local kind = "" + ty.get("kind")
+              local box_type = "" + ty.get("box_type")
+              if kind == "handle" && box_type == "StringBox" {
+                me._set_value_class(out, dst, "handle_owned")
+                me._set_const_string(out, dst, "" + value.get("value"))
+              } else {
+                return me._reject(out, "const_type_unsupported")
+              }
+            }
+          } else {
+            return me._reject(out, "const_type_missing")
+          }
+        } else {
+          if op == "copy" {
+            me._set_copy_alias(out, inst.get("dst"), inst.get("src"))
+          } else { if op == "binop" {
+            me._set_value_class(out, inst.get("dst"), "imm_i64")
+          } else { if op == "compare" {
+            me._set_bool_i1(out, inst.get("dst"))
+          } else { if op == "phi" {
+            local incoming = inst.get("incoming")
+            if incoming != null && incoming.size() > 0 {
+              local first_pair = incoming.get(0)
+              if first_pair != null && first_pair.size() > 0 && me._is_bool_i1(out, first_pair.get(0)) == 1 {
+                me._set_bool_i1(out, inst.get("dst"))
+              }
+            }
+          } else { if op == "select" {
+            if me._is_bool_i1(out, inst.get("then_value")) == 1 && me._is_bool_i1(out, inst.get("else_value")) == 1 {
+              me._set_bool_i1(out, inst.get("dst"))
+            }
+          } else { if op == "mir_call" {
+            local call = inst.get("mir_call")
+            local callee = call.get("callee")
+            local callee_type = "" + callee.get("type")
+            if callee_type != "Extern" {
+              return me._reject(out, "mir_call_not_direct_extern")
+            }
+            local symbol = "" + callee.get("name")
+            local decl = RuntimeDeclRegistryBox.find(symbol)
+            if decl == null || RuntimeDeclRegistryBox.has_lane(decl, "hako-ll-min-v0") != 1 {
+              return me._reject(out, "extern_decl_missing")
+            }
+            local dst = inst.get("dst")
+            me._set_value_class(out, dst, "" + decl.get("ret"))
+            me._set_direct_call(out, dst, symbol, decl.get("memory"))
+            out.get("effect").set(me._reg_key(dst), "" + decl.get("memory"))
+          } else { if op == "ret" || op == "branch" || op == "jump" {
+          } else {
+            return me._reject(out, "unsupported_op:" + op)
+          }}}}}}}
+        }
+        ii = ii + 1
+      }
+      bi = bi + 1
+    }
+    return out
+  }
+}
+
+static box RecipeFactsV0Main { main(args) { return 0 } }

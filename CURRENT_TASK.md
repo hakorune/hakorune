@@ -31,6 +31,12 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - selfhost `.hako` migration stays `mirbuilder first / parser later`
   - current blocker is `none`
   - `JIR-PORT-08` is landed; keep the lane failure-driven and promote a new exact leaf only when the next blocker is captured
+- structure-first override is now explicit in `phase-29x`:
+  - current structural blocker is backend owner thickness on `MIR -> Rust glue -> C .inc / compare transport -> LLVM text/object`
+  - fixed order is now `backend-owner-cutover SSOT -> runtime-decl manifest v0 -> recipe-facts v0 -> .hako ll emitter min v0 -> explicit compare lane -> narrow owner flip`
+  - `.hako ll emitter` compare lane is now landed as compare-only for `ret const`, `bool phi/branch`, and `concat3 extern` narrow fixtures
+  - legacy C `.inc` remains the daily owner while compare/debug proof is being widened; silent fallback is still forbidden
+  - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
   - current route-correction blocker is retired for the current kilo entry
@@ -213,9 +219,23 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - latest landed blocker:
      - fixture: `apps/tests/phase29bq_selfhost_blocker_parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min.hako`
      - result: green after planner-required BlockExpr value-prelude parity
-2. reopened exact blocker lane: `phase-29ck`
-  - status: `active follow-up / docs-first exact front`
-  - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; current exact perf cut is narrowed to live-route debug bundle + semantic window proof before more array fixed-cost work, and any near-term AOT-Core follow-up stays analysis-only facts/recipe view rather than a full new IR layer`
+2. structure-first implementation lane: `phase-29x`
+  - status: `active owner-cutover prep`
+  - scope: `keep MIR as the canonical seam, move backend owner prep toward `.hako ll emitter`, and demote legacy C `.inc` to explicit compare/debug proof where possible`
+  - exact front:
+    - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
+    - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
+    - `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
+    - `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
+  - working rule:
+    - keep canonical seam at MIR; do not open `AST -> LLVM` direct lowering
+    - `.hako ll emitter` is compare-only until narrow owner flip is explicitly promoted
+    - keep public ABI and public MIR JSON schema unchanged in this wave
+    - any optimization work must reduce owner thickness or improve compare/facts visibility; leaf-only retune is paused
+    - explicit compare evidence must stay visible as `chosen_owner / accepted / first_blocker`
+3. reopened exact blocker lane: `phase-29ck`
+  - status: `monitor/evidence while phase-29x owner-cutover prep is active`
+  - scope: `future AOT-Core MIR stays proof vocabulary only for now; keep the landed main-kilo evidence readable, but do not reopen leaf-only retune until the structural compare lane is explicit`
    - exact front:
      - `docs/development/current/main/phases/phase-29ck/P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
      - `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`

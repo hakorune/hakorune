@@ -5,6 +5,7 @@ Date: 2026-03-27
 Scope: backend-zero を独立 phase に切り、bootstrap seam と thin backend boundary cutover の fixed order を docs-ready な形で固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/backend-owner-cutover-ssot.md
   - docs/development/current/main/design/backend-legacy-preservation-and-archive-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -47,6 +48,20 @@ Related:
 - current bootstrap seam と final cutover target を混線させない。
 - current compiler authority blocker と混線させず、`inventory -> task pack -> acceptance/reopen rule` を phase 内に閉じる。
 - Rust / llvmlite lane の delete はこの phase の goal に含めない。retire する場合も preservation-first で external archive repo を先に用意する。
+
+## Current Override (2026-03-27)
+
+- current phase role is `monitor/evidence lane` while `phase-29x` runs the structure-first backend-owner cutover prep
+- keep MIR/route/perf evidence readable, but do not reopen leaf-only `main kilo` retune before the compare lane is explicit
+- current structure-first parent order lives in:
+  - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
+  - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
+- allowed carry-over work from this phase is limited to structural perf that makes owner cutover cleaner:
+  - attrs SSOT
+  - copy transparency
+  - bool-i1 / facts visibility
+  - compare ledger / verifier evidence
+- leaf-only perf wins remain parked here as monitor evidence until `phase-29x` reaches narrow owner flip
 
 ## Entry Conditions
 

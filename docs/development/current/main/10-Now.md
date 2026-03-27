@@ -43,8 +43,17 @@ Related:
     - progress ledger is `phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md`
     - parser handoff ledger is `phase-29bq/29bq-92-parser-handoff-checklist.md`
     - current inner migration reading is `29bq-113` / `29bq-114` / `29bq-115`
+- Structure-first implementation lane: `phase-29x`
+  - status: `active owner-cutover prep`
+  - current exact read:
+    - `backend-owner-cutover-ssot.md` is now the structure-first parent SSOT
+    - backend-private `runtime-decl-manifest-v0.toml` is the single compare-lane declare inventory
+    - `.hako ll emitter` min v0 is landed as compare-only for `ret const`, `bool phi/branch`, and `concat3 extern`
+    - explicit compare smoke is now `phase29x_backend_owner_hako_ll_compare_min.sh`
+    - legacy C `.inc` stays daily owner for now; compare/debug proof is explicit only and silent fallback remains forbidden
+    - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - Secondary exact blocker lane: `phase-29ck`
-  - status: `active follow-up / docs-first exact front`
+  - status: `monitor/evidence while phase-29x owner-cutover prep is active`
   - current exact result:
     - `Stage1 MIR dialect split` is retired for the current kilo entry
     - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`

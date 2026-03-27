@@ -1,0 +1,69 @@
+# Runtime Decl Manifest (V0)
+# Backend-private declare truth for `.hako ll emitter` compare lane.
+# Public ABI semantics remain owned by `abi-export-manifest-v0.toml`.
+
+manifest_version = "0"
+
+[[rows]]
+symbol = "nyash.box.from_i8_string_const"
+args = ["ptr_const_i8"]
+ret = "handle_owned"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.string.concat3_hhh"
+args = ["handle_owned", "handle_owned", "handle_owned"]
+ret = "handle_owned"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.array.slot_load_hi"
+args = ["handle_owned", "imm_i64"]
+ret = "handle_owned"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "nyash.array.slot_len_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "nyash.array.string_len_hi"
+args = ["handle_owned", "imm_i64"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "nyash.array.string_indexof_hih"
+args = ["handle_owned", "imm_i64", "handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "nyash.string.concat_hs"
+args = ["handle_owned", "ptr_const_i8"]
+ret = "handle_owned"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "nyash.string.insert_hsi"
+args = ["handle_owned", "ptr_const_i8", "imm_i64"]
+ret = "handle_owned"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["pure-first", "compare"]

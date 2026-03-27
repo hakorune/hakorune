@@ -1,0 +1,36 @@
+using selfhost.shared.backend.ll_emit.recipe_facts_v0 as RecipeFactsV0Box
+using selfhost.shared.backend.ll_emit.ll_text_emit as LlTextEmitBox
+
+static box Main {
+  _build_root() {
+    // __HAKO_LL_COMPARE_ROOT_BUILDER__
+    return null
+  }
+
+  main(args) {
+    local root = me._build_root()
+    if root == null {
+      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=none first_blocker=root_missing")
+      return 2
+    }
+
+    local facts = RecipeFactsV0Box.analyze_root(root)
+    local accepted = "" + facts.get("accepted")
+    local first_blocker = "" + facts.get("first_blocker")
+    if accepted != "min-v0" {
+      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=" + accepted + " first_blocker=" + first_blocker)
+      return 2
+    }
+
+    local ll = LlTextEmitBox.emit_module(root, facts)
+    if ll == null {
+      print("[hako-ll/reject] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=emit_failed")
+      return 2
+    }
+    print("[hako-ll/ll-begin]")
+    print(ll)
+    print("[hako-ll/ll-end]")
+    print("[hako-ll/compare] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none")
+    return 0
+  }
+}

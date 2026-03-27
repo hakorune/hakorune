@@ -12,14 +12,29 @@ static box LlvmBackendBox {
   compile_obj(json_path) {
     local profile = BackendRecipeBox.compile_route_profile(json_path)
     if profile == null { return null }
-    local recipe = profile.get("compile_recipe")
-    local compat = profile.get("compat_replay")
-
-    local obj = env.codegen.compile_json_path(json_path, "", recipe, compat)
+    local obj = me._compile_obj_with_profile(json_path, "", profile)
     if obj == null || ("" + obj) == "" {
       return me._fail("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
     }
     return "" + obj
+  }
+
+  compile_obj_compare_hako_ll(json_path, out_path) {
+    local profile = BackendRecipeBox.compile_compare_profile(json_path)
+    if profile == null { return null }
+    local obj = me._compile_obj_with_profile(json_path, out_path, profile)
+    if obj == null || ("" + obj) == "" {
+      return me._fail("[llvmbackend/compare/failed] env.codegen.compile_json_path returned empty")
+    }
+    return "" + obj
+  }
+
+  _compile_obj_with_profile(json_path, out_path, profile) {
+    local recipe = profile.get("compile_recipe")
+    local compat = profile.get("compat_replay")
+    local out = ""
+    if out_path != null { out = "" + out_path }
+    return env.codegen.compile_json_path(json_path, out, recipe, compat)
   }
 
   // Links an exe. Returns 1 on success, or null on fail-fast error.

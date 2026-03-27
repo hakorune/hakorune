@@ -1,0 +1,19 @@
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+
+static box Main {
+  main(args) {
+    if args == null || args.length() < 2 {
+      print("[backend-owner-compare] expected <mir-json-path> <obj-out>")
+      return 2
+    }
+    local mir_path = "" + args.get(0)
+    local obj_out = "" + args.get(1)
+    local obj = LlvmBackendBox.compile_obj_compare_hako_ll(mir_path, obj_out)
+    if obj == null || ("" + obj) == "" {
+      print("[backend-owner-compare] compare route failed")
+      return 2
+    }
+    print("[backend-owner-compare] object=" + ("" + obj))
+    return 0
+  }
+}

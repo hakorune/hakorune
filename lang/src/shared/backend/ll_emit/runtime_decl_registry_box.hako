@@ -1,0 +1,82 @@
+using selfhost.shared.common.box_helpers as BoxHelpers
+using selfhost.shared.backend.ll_emit.generated.runtime_decl_defaults as RuntimeDeclDefaultsBox
+
+static box RuntimeDeclRegistryBox {
+  rows() {
+    return RuntimeDeclDefaultsBox.rows()
+  }
+
+  find(symbol) {
+    if symbol == null || ("" + symbol) == "" { return null }
+    local rows = me.rows()
+    local i = 0
+    local n = BoxHelpers.array_len(rows)
+    loop(i < n) {
+      local row = BoxHelpers.array_get(rows, i)
+      if row != null && ("" + row.get("symbol")) == ("" + symbol) {
+        return row
+      }
+      i = i + 1
+    }
+    return null
+  }
+
+  has_lane(row, lane) {
+    if row == null || lane == null { return 0 }
+    local lanes = row.get("lanes")
+    if lanes == null || BoxHelpers.is_array(lanes) != 1 { return 0 }
+    local i = 0
+    local n = BoxHelpers.array_len(lanes)
+    loop(i < n) {
+      if ("" + BoxHelpers.array_get(lanes, i)) == ("" + lane) { return 1 }
+      i = i + 1
+    }
+    return 0
+  }
+
+  has_attr(row, attr_name) {
+    if row == null || attr_name == null { return 0 }
+    local attrs = row.get("attrs")
+    if attrs == null || BoxHelpers.is_array(attrs) != 1 { return 0 }
+    local i = 0
+    local n = BoxHelpers.array_len(attrs)
+    loop(i < n) {
+      if ("" + BoxHelpers.array_get(attrs, i)) == ("" + attr_name) { return 1 }
+      i = i + 1
+    }
+    return 0
+  }
+
+  llvm_type_name(value_class) {
+    local vc = "" + value_class
+    if vc == "ptr_const_i8" { return "ptr" }
+    return "i64"
+  }
+
+  build_declare_line(row) {
+    if row == null { return null }
+    local args = row.get("args")
+    if args == null || BoxHelpers.is_array(args) != 1 { return null }
+    local out = "declare " + me.llvm_type_name(row.get("ret")) + " @\"" + ("" + row.get("symbol")) + "\"("
+    local i = 0
+    local n = BoxHelpers.array_len(args)
+    loop(i < n) {
+      if i > 0 { out = out + ", " }
+      out = out + me.llvm_type_name(BoxHelpers.array_get(args, i))
+      i = i + 1
+    }
+    out = out + ")"
+    local attrs = row.get("attrs")
+    if attrs != null && BoxHelpers.is_array(attrs) == 1 {
+      i = 0
+      n = BoxHelpers.array_len(attrs)
+      loop(i < n) {
+        out = out + " " + ("" + BoxHelpers.array_get(attrs, i))
+        i = i + 1
+      }
+    }
+    return out
+  }
+}
+
+static box RuntimeDeclRegistryMain { main(args) { return 0 } }

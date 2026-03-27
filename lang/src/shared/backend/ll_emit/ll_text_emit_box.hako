@@ -1,0 +1,322 @@
+using selfhost.shared.backend.ll_emit.runtime_decl_registry as RuntimeDeclRegistryBox
+
+static box LlTextEmitBox {
+  _reg(reg_id) { return "%r" + ("" + reg_id) }
+
+  _map_has(map, key) {
+    if map == null { return 0 }
+    local present = map.has("" + key)
+    if present == true || present == 1 { return 1 }
+    return 0
+  }
+
+  _resolve_alias(facts, reg_id) {
+    if facts == null { return reg_id }
+    local aliases = facts.get("copy_alias")
+    if aliases == null { return reg_id }
+    local current = reg_id
+    local depth = 0
+    loop(depth < 64) {
+      local key = "" + current
+      if me._map_has(aliases, key) != 1 { return current }
+      local next = aliases.get(key)
+      local next_text = "" + next
+      if next_text == "" || next_text == key { return current }
+      current = next
+      depth = depth + 1
+    }
+    return reg_id
+  }
+
+  _is_bool_i1(facts, reg_id) {
+    local bools = facts.get("bool_i1")
+    if bools == null { return 0 }
+    local key = "" + me._resolve_alias(facts, reg_id)
+    return me._map_has(bools, key)
+  }
+
+  _value_class(facts, reg_id) {
+    local key = "" + me._resolve_alias(facts, reg_id)
+    local classes = facts.get("value_class")
+    if me._map_has(classes, key) != 1 { return "imm_i64" }
+    return "" + classes.get(key)
+  }
+
+  _const_string_text(facts, reg_id) {
+    local key = "" + me._resolve_alias(facts, reg_id)
+    local consts = facts.get("const_string")
+    if me._map_has(consts, key) != 1 { return null }
+    return consts.get(key)
+  }
+
+  _escape_ascii(text) {
+    if text == null { return "" }
+    local s = "" + text
+    local out = ""
+    local i = 0
+    loop(i < s.length()) {
+      local ch = s.substring(i, i + 1)
+      if ch == "\\" { out = out + "\\5C" }
+      else { if ch == "\"" { out = out + "\\22" } else { if ch == "\n" { out = out + "\\0A" } else { out = out + ch } } }
+      i = i + 1
+    }
+    return out
+  }
+
+  _string_global_name(reg_id) {
+    return "@.str_reg_" + ("" + reg_id)
+  }
+
+  _emit_string_globals(func, facts) {
+    local out = ""
+    local blocks = func.get("blocks")
+    local bi = 0
+    loop(bi < blocks.size()) {
+      local block = blocks.get(bi)
+      local ins = block.get("instructions")
+      local ii = 0
+      loop(ii < ins.size()) {
+        local inst = ins.get(ii)
+        if ("" + inst.get("op")) == "const" {
+          local dst = inst.get("dst")
+          local text = me._const_string_text(facts, dst)
+          if text != null {
+            local escaped = me._escape_ascii(text)
+            local len = ("" + text).length() + 1
+            out = out + me._string_global_name(dst) + " = private unnamed_addr constant [" + len + " x i8] c\"" + escaped + "\\00\"\n"
+          }
+        }
+        ii = ii + 1
+      }
+      bi = bi + 1
+    }
+    return out
+  }
+
+  _const_i64_value(inst) {
+    local value = inst.get("value")
+    return "" + value.get("value")
+  }
+
+  _find_const_i64(func, reg_id) {
+    local blocks = func.get("blocks")
+    local bi = 0
+    loop(bi < blocks.size()) {
+      local block = blocks.get(bi)
+      local ins = block.get("instructions")
+      local ii = 0
+      loop(ii < ins.size()) {
+        local inst = ins.get(ii)
+        if ("" + inst.get("op")) == "const" {
+          if inst.get("dst") == reg_id {
+            local text = me._const_string_text_from_inst(inst)
+            if text == null {
+              return me._const_i64_value(inst)
+            }
+          }
+        }
+        ii = ii + 1
+      }
+      bi = bi + 1
+    }
+    return null
+  }
+
+  _const_string_text_from_inst(inst) {
+    local value = inst.get("value")
+    local ty = value.get("type")
+    if ty == null { return null }
+    if ty == "i64" { return null }
+    local kind = "" + ty.get("kind")
+    local box_type = "" + ty.get("box_type")
+    if kind == "handle" && box_type == "StringBox" {
+      return "" + value.get("value")
+    }
+    return null
+  }
+
+  _operand_i64(func, facts, reg_id) {
+    local resolved = me._resolve_alias(facts, reg_id)
+    local text = me._const_string_text(facts, resolved)
+    if text != null { return me._reg(resolved) }
+    local const_val = me._find_const_i64(func, resolved)
+    if const_val != null { return const_val }
+    return me._reg(resolved)
+  }
+
+  _emit_direct_call(func, facts, inst) {
+    local call = inst.get("mir_call")
+    local callee = call.get("callee")
+    local symbol = "" + callee.get("name")
+    local decl = RuntimeDeclRegistryBox.find(symbol)
+    local args = call.get("args")
+    local out = "  " + me._reg(inst.get("dst")) + " = call i64 @\"" + symbol + "\"("
+    local i = 0
+    loop(i < args.size()) {
+      if i > 0 { out = out + ", " }
+      local arg_kind = "" + decl.get("args").get(i)
+      if arg_kind == "ptr_const_i8" {
+        local reg_id = args.get(i)
+        out = out + "ptr getelementptr inbounds ([" + (((("" + me._const_string_text(facts, reg_id)).length()) + 1)) + " x i8], ptr " + me._string_global_name(reg_id) + ", i64 0, i64 0)"
+      } else {
+        out = out + "i64 " + me._operand_i64(func, facts, args.get(i))
+      }
+      i = i + 1
+    }
+    out = out + ")\n"
+    return out
+  }
+
+  _emit_instruction(func, facts, inst) {
+    local op = "" + inst.get("op")
+    if op == "const" {
+      local dst = inst.get("dst")
+      local text = me._const_string_text(facts, dst)
+      if text != null {
+        local len = ("" + text).length() + 1
+        return "  " + me._reg(dst) + " = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([" + len + " x i8], ptr " + me._string_global_name(dst) + ", i64 0, i64 0))\n"
+      }
+      return ""
+    }
+    if op == "copy" { return "" }
+    if op == "binop" {
+      local dst = inst.get("dst")
+      local lhs = me._operand_i64(func, facts, inst.get("lhs"))
+      local rhs = me._operand_i64(func, facts, inst.get("rhs"))
+      local kind = "" + inst.get("operation")
+      local ir = "add"
+      if kind == "-" || kind == "sub" { ir = "sub" }
+      if kind == "*" || kind == "mul" { ir = "mul" }
+      if kind == "/" || kind == "div" { ir = "sdiv" }
+      if kind == "%" || kind == "mod" { ir = "srem" }
+      if kind == "&" { ir = "and" }
+      if kind == "|" { ir = "or" }
+      if kind == "^" { ir = "xor" }
+      if kind == "<<" { ir = "shl" }
+      if kind == ">>" { ir = "ashr" }
+      return "  " + me._reg(dst) + " = " + ir + " i64 " + lhs + ", " + rhs + "\n"
+    }
+    if op == "compare" {
+      local dst = inst.get("dst")
+      local lhs = me._operand_i64(func, facts, inst.get("lhs"))
+      local rhs = me._operand_i64(func, facts, inst.get("rhs"))
+      local cmp = "" + inst.get("operation")
+      local pred = "eq"
+      if cmp == "!=" { pred = "ne" }
+      if cmp == "<" { pred = "slt" }
+      if cmp == ">" { pred = "sgt" }
+      if cmp == "<=" { pred = "sle" }
+      if cmp == ">=" { pred = "sge" }
+      return "  " + me._reg(dst) + " = icmp " + pred + " i64 " + lhs + ", " + rhs + "\n"
+    }
+    if op == "phi" {
+      local dst = inst.get("dst")
+      local incoming = inst.get("incoming")
+      local phi_ty = "i64"
+      if incoming != null && incoming.size() > 0 {
+        if me._is_bool_i1(facts, incoming.get(0).get(0)) == 1 { phi_ty = "i1" }
+      }
+      local out = "  " + me._reg(dst) + " = phi " + phi_ty + " "
+      local i = 0
+      loop(i < incoming.size()) {
+        if i > 0 { out = out + ", " }
+        local pair = incoming.get(i)
+        local value_reg = pair.get(0)
+        local pred = pair.get(1)
+        local operand = me._operand_i64(func, facts, value_reg)
+        if phi_ty == "i1" {
+          if operand == "0" || operand == "1" {
+            out = out + "[" + operand + ", %bb" + pred + "]"
+          } else {
+            out = out + "[" + operand + ", %bb" + pred + "]"
+          }
+        } else {
+          out = out + "[" + operand + ", %bb" + pred + "]"
+        }
+        i = i + 1
+      }
+      out = out + "\n"
+      return out
+    }
+    if op == "select" {
+      local dst = inst.get("dst")
+      local cond = inst.get("cond")
+      local when_true = inst.get("then_value")
+      local when_false = inst.get("else_value")
+      local ty = "i64"
+      if me._is_bool_i1(facts, when_true) == 1 && me._is_bool_i1(facts, when_false) == 1 { ty = "i1" }
+      local cv = me._operand_i64(func, facts, cond)
+      local tv = me._operand_i64(func, facts, when_true)
+      local fv = me._operand_i64(func, facts, when_false)
+      local cond_expr = cv
+      local prefix = ""
+      if me._is_bool_i1(facts, cond) != 1 {
+        prefix = "  %selc" + ("" + dst) + " = icmp ne i64 " + cv + ", 0\n"
+        cond_expr = "%selc" + ("" + dst)
+      }
+      return prefix + "  " + me._reg(dst) + " = select i1 " + cond_expr + ", " + ty + " " + tv + ", " + ty + " " + fv + "\n"
+    }
+    if op == "branch" {
+      local cond = inst.get("cond")
+      local then_bb = inst.get("then")
+      local else_bb = inst.get("else")
+      local cond_expr = me._operand_i64(func, facts, cond)
+      if me._is_bool_i1(facts, cond) == 1 {
+        return "  br i1 " + cond_expr + ", label %bb" + then_bb + ", label %bb" + else_bb + "\n"
+      }
+      return "  %brc" + ("" + cond) + " = icmp ne i64 " + cond_expr + ", 0\n  br i1 %brc" + ("" + cond) + ", label %bb" + then_bb + ", label %bb" + else_bb + "\n"
+    }
+    if op == "jump" {
+      return "  br label %bb" + inst.get("target") + "\n"
+    }
+    if op == "ret" {
+      local value_reg = inst.get("value")
+      local operand = me._operand_i64(func, facts, value_reg)
+      if me._is_bool_i1(facts, value_reg) == 1 {
+        return "  %retz" + ("" + value_reg) + " = zext i1 " + operand + " to i64\n  ret i64 %retz" + ("" + value_reg) + "\n"
+      }
+      return "  ret i64 " + operand + "\n"
+    }
+    if op == "mir_call" {
+      return me._emit_direct_call(func, facts, inst)
+    }
+    return null
+  }
+
+  emit_module(root, facts) {
+    if root == null || facts == null { return null }
+    local func = root.get("functions").get(0)
+    local out = "; ModuleID = \"hako_ll_min_v0\"\n\n"
+    local rows = RuntimeDeclRegistryBox.rows()
+    local i = 0
+    loop(i < rows.size()) {
+      local row = rows.get(i)
+      out = out + RuntimeDeclRegistryBox.build_declare_line(row) + "\n"
+      i = i + 1
+    }
+    out = out + "\n"
+    local blocks = func.get("blocks")
+    local bi = 0
+    out = out + me._emit_string_globals(func, facts)
+    if out.substring(out.length() - 1, out.length()) != "\n" { out = out + "\n" }
+    out = out + "define i64 @\"ny_main\"() {\n"
+    bi = 0
+    loop(bi < blocks.size()) {
+      local block = blocks.get(bi)
+      out = out + "bb" + block.get("id") + ":\n"
+      local ins = block.get("instructions")
+      local ii = 0
+      loop(ii < ins.size()) {
+        local line = me._emit_instruction(func, facts, ins.get(ii))
+        if line == null { return null }
+        out = out + line
+        ii = ii + 1
+      }
+      bi = bi + 1
+    }
+    out = out + "}\n"
+    return out
+  }
+}
+
+static box LlTextEmitMain { main(args) { return 0 } }

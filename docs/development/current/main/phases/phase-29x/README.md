@@ -4,6 +4,8 @@ Decision: provisional
 Date: 2026-02-13
 Scope: de-Rust runtime lane の実装タスクを、selfhost failure-driven と分離しつつ統合運用するための Phase 29x 実行計画。
 Related:
+  - docs/development/current/main/design/backend-owner-cutover-ssot.md
+  - docs/development/current/main/design/runtime-decl-manifest-v0.toml
   - docs/development/current/main/design/hako-module-cache-build-ssot.md
   - docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
@@ -50,6 +52,28 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
 
 1. failure-driven 運用を維持しつつ、計画タスクを前進させる。
 2. 既存 SSOT（ABI/RC/observability/GC policy）を崩さず、Rust VM 依存を段階縮退する。
+
+## 0.5 Current Override (2026-03-27)
+
+- current structure-first front is `backend owner cutover prep`
+- canonical seam stays MIR; do not open `AST -> LLVM` direct lowering in this wave
+- fixed order is:
+  1. `backend-owner-cutover-ssot.md`
+  2. `runtime-decl-manifest-v0.toml`
+  3. `recipe-facts-v0`
+  4. `.hako ll emitter` min v0
+  5. explicit compare lane
+  6. narrow owner flip
+- current landed slice is compare-only:
+  - `.hako ll emitter` min v0 handles `ret const`, `bool phi/branch`, and `concat3 extern`
+  - smoke pin is `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
+  - wrapper app is `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
+- legacy C `.inc` remains daily owner until narrow owner flip is explicitly promoted
+- structural perf only:
+  - attrs centralization
+  - facts visibility
+  - copy-transparency / bool-i1 cleanliness
+  - compare ledger / verifier lane
 
 ## 1. Non-goals
 

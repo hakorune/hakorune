@@ -10,6 +10,19 @@ use super::Opts;
 
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 
+pub(super) fn try_compile_via_hako_ll_compare(
+    mir_json: &str,
+    opts: &Opts,
+) -> Result<Option<PathBuf>, String> {
+    match opts.compile_recipe.as_deref() {
+        Some("hako-ll-min-v0") => {
+            validate_backend_mir_shape(mir_json)?;
+            super::transport::mir_json_to_object_hako_ll_compare(mir_json, opts).map(Some)
+        }
+        _ => Ok(None),
+    }
+}
+
 pub(super) fn try_compile_via_capi_keep(
     mir_json: &str,
     opts: &Opts,

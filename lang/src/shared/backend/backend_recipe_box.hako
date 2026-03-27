@@ -17,6 +17,21 @@ static box BackendRecipeBox {
     return me._build_compile_profile_for_replay("compile_keep_profile", json_path, compat)
   }
 
+  compile_compare_profile(json_path) {
+    local path = me.require_non_empty_field("compile_compare_profile", "json_path", json_path)
+    if path == null { return null }
+    local profile = new MapBox()
+    profile.set("route_profile", "backend-zero/hako-ll-compare-v0")
+    profile.set("policy_owner", "BackendRecipeBox")
+    profile.set("transport_owner", "hako_ll_emitter")
+    profile.set("acceptance_policy", "hako-ll-min-v0")
+    profile.set("acceptance_case", "" + me.acceptance_case_for(path))
+    profile.set("json_path", "" + path)
+    profile.set("compile_recipe", "hako-ll-min-v0")
+    profile.set("compat_replay", "none")
+    return profile
+  }
+
   _build_compile_profile_for_replay(method_name, json_path, compat_replay) {
     local path = me.require_non_empty_field(method_name, "json_path", json_path)
     if path == null { return null }

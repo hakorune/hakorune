@@ -9,8 +9,11 @@ Current owner
   - thin backend boundary の caller facade
   - `backend_recipe_box.hako`
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
+  - `ll_emit/**`
+  - explicit compare/debug lane for future `.hako ll emitter` owner work; not a daily route yet
   - shared non-empty validation helper also lives here so `LlvmBackendBox` can stay transport-focused without duplicating input guards
   - current `.hako` daily caller passes recipe payload explicitly via `BackendRecipeBox.compile_route_profile(...)` and then forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)`
+  - explicit compare callers may use `BackendRecipeBox.compile_compare_profile(...)` and `LlvmBackendBox.compile_obj_compare_hako_ll(...)` to exercise the `.hako ll emitter` lane without changing the daily owner
   - daily `compile_route_profile(...)` now names the mainline contract as `pure-first + compat_replay=none`, while explicit keep callers may request `compile_keep_profile(..., "harness")`
   - `BackendRecipeBox.compile_route_profile(...)` validates the exact owner names and evidence labels before returning the daily profile, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
   - `BackendRecipeBox` also names the current acceptance basis (`acceptance_policy`) so pure/compat classification does not drift back into C
@@ -32,6 +35,7 @@ Current owner
 Non-goals
 - legacy `llvm_ir/AotFacade` route をここへ混ぜない。
 - libLLVM の広い surface を `.hako` へ見せない。
+- `ll_emit/**` compare lane を daily owner に暗黙昇格しない。
 
 Pointers
 - C helper:
