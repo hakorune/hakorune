@@ -17,7 +17,90 @@
         return 0;
       }
 
-      auto int is_string_concat_chain_consumer_inst(yyjson_val* ins, long long reg) {
+      auto int is_known_string_concat_operand(long long reg) {
+        if (!reg) return 0;
+        if (get_origin(reg) == ORG_STRING) return 1;
+        if (get_scan_origin(reg) == ORG_STRING) return 1;
+        return get_str_const(reg) != NULL;
+      }
+
+      auto int inst_defines_string_concat_operand(
+          yyjson_val* ins,
+          yyjson_val* insts,
+          size_t start_ii,
+          size_t end_ii,
+          int depth,
+          long long reg);
+
+      auto int future_reg_becomes_string_operand(
+          yyjson_val* insts,
+          size_t start_ii,
+          size_t end_ii,
+          int depth,
+          long long reg) {
+        if (!reg) return 0;
+        if (is_known_string_concat_operand(reg)) return 1;
+        if (depth > 8) return 0;
+        for (size_t jj = end_ii; jj-- > start_ii;) {
+          yyjson_val* later = yyjson_arr_get(insts, jj);
+          if (read_int(later, "dst") != reg) continue;
+          return inst_defines_string_concat_operand(
+              later, insts, start_ii, jj, depth + 1, reg);
+        }
+        return 0;
+      }
+
+      auto int inst_defines_string_concat_operand(
+          yyjson_val* ins,
+          yyjson_val* insts,
+          size_t start_ii,
+          size_t end_ii,
+          int depth,
+          long long reg) {
+        const char* op = read_str(ins, "op");
+        if (!op) return 0;
+        if (!strcmp(op, "copy")) {
+          return future_reg_becomes_string_operand(
+              insts, start_ii, end_ii, depth, read_int(ins, "src"));
+        }
+        if (!strcmp(op, "const")) {
+          return get_str_const(reg) != NULL;
+        }
+        if (!strcmp(op, "newbox")) {
+          const char* tname = read_str(ins, "type");
+          return tname && !strcmp(tname, "StringBox");
+        }
+        if (!strcmp(op, "mir_call")) {
+          yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+          const char* ctype = cal ? read_str(cal, "type") : NULL;
+          const char* mname =
+              cal ? (read_str(cal, "method") ? read_str(cal, "method")
+                                             : read_str(cal, "name"))
+                  : NULL;
+          return ctype && !strcmp(ctype, "Method") &&
+                 mname && !strcmp(mname, "substring");
+        }
+        if (!strcmp(op, "binop")) {
+          const char* k = read_str(ins, "op_kind");
+          long long lhs = 0;
+          long long rhs = 0;
+          if (!k) k = read_str(ins, "operation");
+          if (!(k && (!strcmp(k, "Add") || !strcmp(k, "+")))) return 0;
+          lhs = read_int(ins, "lhs");
+          rhs = read_int(ins, "rhs");
+          return future_reg_becomes_string_operand(insts, start_ii, end_ii, depth, lhs) &&
+                 future_reg_becomes_string_operand(insts, start_ii, end_ii, depth, rhs);
+        }
+        return 0;
+      }
+
+      auto int is_string_concat_chain_consumer_inst(
+          yyjson_val* ins,
+          yyjson_val* insts,
+          size_t start_ii,
+          size_t use_ii,
+          long long reg) {
         const char* op = read_str(ins, "op");
         const char* k = NULL;
         long long lhs = 0;
@@ -31,7 +114,41 @@
         rhs = read_int(ins, "rhs");
         if (lhs != reg && rhs != reg) return 0;
         other = lhs == reg ? rhs : lhs;
-        return get_origin(other) == ORG_STRING;
+        if (is_known_string_concat_operand(other)) return 1;
+        return future_reg_becomes_string_operand(insts, start_ii, use_ii, 0, other);
+      }
+
+      auto int is_string_concat_array_set_consumer_inst(yyjson_val* ins, long long reg) {
+        yyjson_val* mc = NULL;
+        yyjson_val* cal = NULL;
+        yyjson_val* args = NULL;
+        const char* op = read_str(ins, "op");
+        const char* ctype = NULL;
+        const char* bname = NULL;
+        const char* mname = NULL;
+        long long recv = 0;
+        if (!(op && !strcmp(op, "mir_call"))) return 0;
+        mc = yyjson_obj_get(ins, "mir_call");
+        cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+        ctype = cal ? read_str(cal, "type") : NULL;
+        bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name")
+                                                 : read_str(cal, "box_type"))
+                    : NULL;
+        mname = cal ? (read_str(cal, "method") ? read_str(cal, "method")
+                                               : read_str(cal, "name"))
+                    : NULL;
+        if (!(ctype && !strcmp(ctype, "Method"))) return 0;
+        if (!(mname && !strcmp(mname, "set"))) return 0;
+        args = mc ? yyjson_obj_get(mc, "args") : NULL;
+        if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) >= 2)) return 0;
+        if ((long long)yyjson_get_sint(yyjson_arr_get(args, 1)) != reg) return 0;
+        if (bname && !strcmp(bname, "ArrayBox")) return 1;
+        if (!(bname && !strcmp(bname, "RuntimeDataBox"))) return 0;
+        recv = read_int(cal, "receiver");
+        return get_origin(recv) == ORG_ARRAY_BIRTH ||
+               get_origin(recv) == ORG_ARRAY_STRING_BIRTH ||
+               get_scan_origin(recv) == ORG_ARRAY_BIRTH ||
+               get_scan_origin(recv) == ORG_ARRAY_STRING_BIRTH;
       }
 
       auto int should_defer_string_concat_pair(
@@ -50,7 +167,11 @@
           if (use_count > 1) return 0;
         }
         if (use_count != 1) return 0;
-        return is_string_concat_chain_consumer_inst(yyjson_arr_get(insts, use_ii), dst);
+        if (is_string_concat_chain_consumer_inst(
+                yyjson_arr_get(insts, use_ii), insts, ii + 1, use_ii, dst)) {
+          return 1;
+        }
+        return is_string_concat_array_set_consumer_inst(yyjson_arr_get(insts, use_ii), dst);
       }
 
       auto void remember_string_concat_pair(long long dst, long long lhs, long long rhs) {
