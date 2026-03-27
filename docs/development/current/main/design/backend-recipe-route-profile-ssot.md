@@ -64,6 +64,7 @@ Related:
     - `hello-simple-llvm-native-probe-v1`
   - string evidence
     - `array-string-indexof-branch-v1`
+    - `array-string-indexof-cross-block-select-v1`
     - `array-string-indexof-select-v1`
     - `string-length-ascii-v1`
     - `string-indexof-ascii-v1`

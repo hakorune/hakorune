@@ -81,18 +81,19 @@ Related:
       - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
       - `kilo_leaf_array_string_len = 12 ms` (`aot_status=ok`)
       - `kilo_leaf_array_string_indexof_const = 25 ms` (`aot_status=ok`)
-      - narrow pure-first pins are now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json` and `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`
+      - narrow pure-first pins are now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`, and `apps/tests/mir_shape_guard/array_string_indexof_cross_block_select_min_v1.mir.json`
       - boundary smoke `phase29ck_boundary_pure_array_string_indexof_select_min.sh` proves `get -> indexOf("line") -> compare -> select` without harness fallback, and the visible `.hako` evidence row is `acceptance_case=array-string-indexof-select-v1`
       - boundary smoke `phase29ck_boundary_pure_array_string_indexof_branch_min.sh` proves `get -> indexOf("line") -> compare -> branch` without harness fallback, and the visible `.hako` evidence row is `acceptance_case=array-string-indexof-branch-v1`
+      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_cross_block_select_min.sh` proves `get -> indexOf("line") -> jump -> compare -> select` without harness fallback, and the visible `.hako` evidence row is `acceptance_case=array-string-indexof-cross-block-select-v1`
       - the exact leaf-proof pure-first acceptance gap is retired
       - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, `kilo_kernel_small_hk = 824 ms` (`warmup=1 repeat=3`)
     - current direct-path optimization reading is fixed:
       - battle order is `typed/recipe canonical subset -> generic pure lowering -> RuntimeData peel only on recurrence`
-      - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, both lowered as `nyash.array.string_indexof_hih`
-      - bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`, and the accepted observer recipes leave `slot_load_hi`, `generic_box_call`, and `hostbridge` at zero on both pinned fixtures
-      - refreshed same-artifact bundle for `kilo_micro_indexof_line` still shows route trace `select` only, while lowered IR remains `indexOf line loop ascii` with `strstr`
+      - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch` plus the cross-block `get -> indexOf(const) -> jump -> compare -> select` shape, all lowered as `nyash.array.string_indexof_hih`
+      - bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`, and the accepted observer recipes leave `slot_load_hi`, `generic_box_call`, and `hostbridge` at zero on all three pinned fixtures
+      - refreshed same-artifact bundle for `kilo_micro_indexof_line` still shows `recipe_acceptance=empty`, route trace `select` only, and lowered IR remains `indexOf line loop ascii` with `strstr`
       - current `micro kilo` is therefore still a dedicated seed route, not the new generic observer recipe proof
-      - next `micro kilo` blocker is to identify the next cross-block/non-seed exact shape on the same artifact before touching `main kilo`
+      - next `micro kilo` blocker is now the interleaved branch family visible in block 26 of the same artifact: `get -> indexOf(const)` followed by the periodic `% 16 == 0` guard in the producer block, then later `>= 0` branch/select consumers on the carried `indexOf` result
       - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
     - explicit compat-keep cleanup residue is retired:
       - `phase29ck_boundary_compat_keep_min.sh` is green again
