@@ -446,6 +446,41 @@ with open(out_path, "w", encoding="utf-8") as out:
             out.write(f"[hot-block-residue/item] label={label} count={text.count(needle)} needle={needle}\n")
 PY
 
+OWNER_ROUTE="seed"
+if [[ "${SKIP_INDEXOF_LINE_SEED}" -eq 1 ]]; then
+  OWNER_ROUTE="generic_probe"
+fi
+FIRST_BLOCKER="$(python3 - "${RECIPE_ACCEPTANCE_OUT}" <<'PY'
+import re
+import sys
+
+path = sys.argv[1]
+first_blocker = "none"
+
+with open(path, "r", encoding="utf-8", errors="replace") as f:
+    lines = [line.strip() for line in f if line.strip()]
+
+if any(line == "[recipe-acceptance] empty=yes" for line in lines):
+    print("empty")
+    raise SystemExit(0)
+
+for line in lines:
+    if not line.startswith("[recipe-acceptance/trace]"):
+        continue
+    stage = re.search(r"stage=([^ ]+)", line)
+    result = re.search(r"result=([^ ]+)", line)
+    reason = re.search(r"reason=([^ ]+)", line)
+    if result and result.group(1) in {"miss", "reject", "fail", "blocked"}:
+        stage_name = stage.group(1) if stage else "?"
+        reason_name = reason.group(1) if reason else "unknown"
+        print(f"{stage_name}:{reason_name}")
+        raise SystemExit(0)
+
+print(first_blocker)
+PY
+)"
+printf 'owner_route=%s\nfirst_blocker=%s\n' "${OWNER_ROUTE}" "${FIRST_BLOCKER}" >> "${MANIFEST_OUT}"
+
 if [[ -f "${EXE_OUT}" ]]; then
   if command -v nm >/dev/null 2>&1; then
     nm -C "${EXE_OUT}" > "${SYMBOLS_OUT}" || true
@@ -527,6 +562,7 @@ echo "[bundle] mir_json=${MIR_JSON}"
 echo "[bundle] route_trace=${ROUTE_TRACE_LOG}"
 echo "[bundle] route_summary=${ROUTE_TRACE_SUMMARY}"
 echo "[bundle] recipe_acceptance=${RECIPE_ACCEPTANCE_OUT}"
+echo "[bundle] owner_route=${OWNER_ROUTE} first_blocker=${FIRST_BLOCKER}"
 echo "[bundle] mir_hotops=${MIR_HOTOPS}"
 echo "[bundle] mir_windows=${MIR_WINDOWS}"
 echo "[bundle] build_log=${BUILD_LOG} build_rc=${build_rc}"

@@ -137,6 +137,7 @@ bundle owner は次だよ。
 4. build with `pure-first + compat_replay=none + route trace`
    - when a dedicated seed shadows the generic route, the bundle may use a diagnostic-only skip knob to observe the generic owner without changing the daily perf owner
    - `--skip-indexof-line-seed` is the current narrow probe for `kilo_micro_indexof_line`; it is diagnostic-only and does not change the daily/perf owner
+   - the bundle summary now also records `owner_route` and `first_blocker` so the first cut can be read before opening the IR dump
 5. save `.ll`
 6. save hot-block residue inventory
 7. save symbol inventory

@@ -4,8 +4,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT_DIR="$ROOT/target/release"
 SRC_DIR="$ROOT/lang/c-abi/shims"
+LOCK_DIR="$ROOT/target/perf_state/locks"
+LOCK_FILE="$LOCK_DIR/hako_llvmc_ffi.build.lock"
 
 mkdir -p "$OUT_DIR"
+mkdir -p "$LOCK_DIR"
+
+if command -v flock >/dev/null 2>&1; then
+  exec 9>"$LOCK_FILE"
+  flock 9
+fi
 
 cc_cmd=${CC:-cc}
 uname_s="$(uname -s)"

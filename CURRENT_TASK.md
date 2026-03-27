@@ -89,6 +89,13 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
       - diagnostic same-artifact bundle can now force the generic route with `tools/perf/trace_optimization_bundle.sh --skip-indexof-line-seed`; on that probe lane the same artifact shows `array_string_indexof_interleaved_branch_window result=hit`, lowered IR contains `nyash.array.string_indexof_hih`, and hot-block residue stays zero
       - forced generic probe currently regresses `kilo_micro_indexof_line` to `27-29 ms`, so the dedicated `indexOf line` seed stays the daily/perf owner for now
       - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the next exact perf blocker is no longer route shadow visibility but the cost gap between the forced generic observer route and the dedicated seed owner
+      - temporary priority override is `clean-clean / BoxShape` before the next perf cut:
+        - first cleanup target is `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
+        - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
+        - keep `indexOf` detector / lowering bodies in `pure_compile.inc` for the next cleanup pass
+        - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
+        - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
+        - keep daily seed owner, probe lane, and current acceptance rows unchanged during that cleanup
       - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
     - explicit compat-keep cleanup residue is retired:
       - `phase29ck_boundary_compat_keep_min.sh` is green again

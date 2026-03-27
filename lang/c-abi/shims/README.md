@@ -18,6 +18,10 @@ Current partitions:
   - pure-first seed emit/match helpers for loop/string hot paths
 - `hako_llvmc_ffi_string_search_seed.inc`
   - pure-first seed emit/match helpers for search/index-of paths
+- `hako_llvmc_ffi_indexof_observer_state.inc`
+  - shared `indexOf` observer match/state helpers used by pure-first and probe lanes
+- `hako_llvmc_ffi_indexof_observer_trace.inc`
+  - route-trace wrappers for `indexOf` observer families
 - `hako_llvmc_ffi_route.inc`
   - harness keep replay, selected-route entry points, forwarders
 - `hako_llvmc_ffi_pure_compile.inc`
