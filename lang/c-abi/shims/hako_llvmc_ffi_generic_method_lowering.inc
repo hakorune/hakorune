@@ -25,6 +25,15 @@
         int runtime_map_get = route ? route->runtime_map_get : 0;
         int runtime_map_size = route ? route->runtime_map_size : 0;
         int runtime_map_has = route ? route->runtime_map_has : 0;
+        if (mname && !strcmp(mname, "birth") && !a0 && !a1) {
+          if ((bname && !strcmp(bname, "ArrayBox")) || (bname && !strcmp(bname, "MapBox"))) {
+            if (dst) {
+              fprintf(f, "  %%r%lld = add i64 0, 0\n", dst);
+              set_type(dst, T_I64);
+            }
+            return 1;
+          }
+        }
         if (mname && !strcmp(mname, "set")) {
           int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
           int array_set_string_handle = a1 && get_origin(a1) == ORG_STRING;

@@ -2117,34 +2117,58 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (d0) {
         yyjson_val* root0 = yyjson_doc_get_root(d0);
         yyjson_val* fns0 = yyjson_obj_get(root0, "functions");
-        yyjson_val* fn00 = fns0 && yyjson_is_arr(fns0) ? yyjson_arr_get_first(fns0) : NULL;
+        yyjson_val* fn00 = hako_llvmc_find_entry_function(fns0);
         yyjson_val* blocks0 = fn00 && yyjson_is_obj(fn00) ? yyjson_obj_get(fn00, "blocks") : NULL;
         long long ret_const = 0; int have_ret = 0;
-        if (blocks0 && yyjson_is_arr(blocks0)) {
-          // Build dst->const map across blocks
-          // Note: i64 only for the minimal path
+        if (blocks0 && yyjson_is_arr(blocks0) && yyjson_arr_size(blocks0) == 1) {
+          // Accept only the honest single-block const/ret shape here.
           long long const_map_id[64]; long long const_map_val[64]; size_t const_n=0;
-          size_t blen0 = yyjson_arr_size(blocks0);
-          for (size_t bi=0; bi<blen0; bi++) {
-            yyjson_val* b = yyjson_arr_get(blocks0, bi);
-            yyjson_val* insts = yyjson_obj_get(b, "instructions"); if (!insts || !yyjson_is_arr(insts)) continue;
+          int shape_ok = 1;
+          yyjson_val* b = yyjson_arr_get_first(blocks0);
+          yyjson_val* insts = b ? yyjson_obj_get(b, "instructions") : NULL;
+          if (insts && yyjson_is_arr(insts)) {
             size_t ilen = yyjson_arr_size(insts);
             for (size_t ii=0; ii<ilen; ii++) {
               yyjson_val* ins = yyjson_arr_get(insts, ii);
               const char* op = yyjson_get_str(yyjson_obj_get(ins, "op")); if (!op) continue;
+              if (ii + 1 == ilen) {
+                if (strcmp(op, "ret") != 0) {
+                  shape_ok = 0;
+                  break;
+                }
+                yyjson_val* v = yyjson_obj_get(ins, "value");
+                long long vid = v ? (long long)yyjson_get_sint(v) : 0;
+                for (size_t k=0;k<const_n;k++){
+                  if (const_map_id[k]==vid){
+                    ret_const = const_map_val[k];
+                    have_ret = 1;
+                    break;
+                  }
+                }
+                if (!have_ret) {
+                  shape_ok = 0;
+                }
+                continue;
+              }
               if (strcmp(op, "const")==0) {
                 yyjson_val* dst = yyjson_obj_get(ins, "dst");
                 yyjson_val* vv = yyjson_obj_get(yyjson_obj_get(ins, "value"), "value");
-                if (dst && vv && const_n < 64) { const_map_id[const_n] = (long long)yyjson_get_sint(dst); const_map_val[const_n] = (long long)yyjson_get_sint(vv); const_n++; }
-              } else if (strcmp(op, "ret")==0) {
-                yyjson_val* v = yyjson_obj_get(ins, "value");
-                if (v) {
-                  long long vid = (long long)yyjson_get_sint(v);
-                  for (size_t k=0;k<const_n;k++){ if (const_map_id[k]==vid){ ret_const = const_map_val[k]; have_ret=1; break; } }
+                if (!(dst && vv && yyjson_is_num(vv) && const_n < 64)) {
+                  shape_ok = 0;
+                  break;
                 }
+                const_map_id[const_n] = (long long)yyjson_get_sint(dst);
+                const_map_val[const_n] = (long long)yyjson_get_sint(vv);
+                const_n++;
+              } else {
+                shape_ok = 0;
+                break;
               }
             }
+          } else {
+            shape_ok = 0;
           }
+          if (!shape_ok) have_ret = 0;
         }
         if (have_ret) {
           hako_llvmc_entry_rune_selection selection;

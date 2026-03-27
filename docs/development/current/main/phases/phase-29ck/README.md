@@ -165,7 +165,8 @@ Related:
        - first post-green concat cut is landed: `nyash.string.concat_hh` now prefers `host_handles::with_str_pair(...)` before the slower span/materialize fallbacks
        - concat3 parity cut is landed: boundary smoke `phase29ck_boundary_pure_string_concat3_extern_min.sh` now proves `Extern nyash.string.concat3_hhh` is pure-first accepted, and the daily main edit loop folds `prefix + "xx" + suffix` down to `concat3_hhh` on the lowered IR
        - recent main rechecks after the concat3 cut moved down to `751 ms` on the daily route, while the explicit `NYASH_MIR_CONCAT3_CANON=1` probe reaches `719 ms` (`warmup=1 repeat=3`)
-       - the next exact perf cut is now the branch-loop consumer side (`current + "ln"`), not more observer acceptance; do not promote MIR concat3 canon to daily yet while `phase21_5_concat3_assoc_contract_vm.sh` still reads `concat3_hhh=0` on its separate direct-emit owner path
+       - the separate direct-emit owner red is retired: `phase21_5_concat3_assoc_contract_vm.sh` is green again after pure-first accepted `ArrayBox.birth()` as an initializer marker and the minimal `ret const` fallback was narrowed back to honest single-block const/ret only
+       - the next exact perf cut is now the branch-loop consumer side (`current + "ln"`), not more observer acceptance; keep MIR concat3 canon as a probe lane for now and do not promote it to daily until that branch-loop consumer cost is cut on the main route
      - temporary priority override is `clean-clean / BoxShape` before the next perf cut:
        - first cleanup target is `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
        - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
