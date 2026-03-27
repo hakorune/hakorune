@@ -24,6 +24,8 @@ Current partitions:
   - direct `indexOf` observer match helpers for `select` / `branch`
 - `hako_llvmc_ffi_indexof_observer_block_match.inc`
   - cross-block and interleaved `indexOf` observer match helpers
+- `hako_llvmc_ffi_indexof_observer_lowering.inc`
+  - `indexOf` observer defer/argument/emit helpers used by pure-first lowering
 - `hako_llvmc_ffi_indexof_observer_trace.inc`
   - route-trace wrappers for `indexOf` observer families
 - `hako_llvmc_ffi_route.inc`

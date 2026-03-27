@@ -102,9 +102,15 @@ Related:
         - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
         - extracted direct `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_direct_match.inc`
         - extracted cross-block / interleaved `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_block_match.inc`
-        - keep lowering dispatch in `pure_compile.inc` for the next cleanup pass
+        - extracted `indexOf` observer lowering helpers into `hako_llvmc_ffi_indexof_observer_lowering.inc`
+        - keep non-`indexOf` generic method dispatch in `pure_compile.inc` for the next cleanup pass
         - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
         - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
+        - external evaluation positives to preserve:
+          - keep Rust `ny-llvmc` topology thin; `main.rs` / `driver_dispatch.rs` / `native_ir.rs` stay transport/driver seams
+          - keep MIR(JSON) as the explicit debug/proof seam for route and lowering evidence
+          - keep docs/SSOT/AI-handoff discipline as a maintained strength
+        - broad `native_ir.rs` migration, unboxed value representation, and `llc` shell-out replacement stay future design topics rather than the current exact cleanup lane
         - keep daily seed owner, probe lane, and current acceptance rows unchanged during that cleanup
       - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
     - explicit compat-keep cleanup residue is retired:

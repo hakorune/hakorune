@@ -94,9 +94,22 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
         - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
         - extracted direct `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_direct_match.inc`
         - extracted cross-block / interleaved `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_block_match.inc`
-        - keep lowering dispatch in `pure_compile.inc` for the next cleanup pass
+        - extracted `indexOf` observer lowering helpers into `hako_llvmc_ffi_indexof_observer_lowering.inc`
+        - keep non-`indexOf` generic method dispatch in `pure_compile.inc` for the next cleanup pass
         - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
         - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
+        - external evaluation positives to preserve:
+          - keep Rust `ny-llvmc` topology thin; `main.rs` / `driver_dispatch.rs` / `native_ir.rs` stay transport/driver seams, not new policy owners
+          - keep MIR(JSON) as the explicit debug/proof seam between `.hako`/boundary and native lowering
+          - keep docs/SSOT/AI-handoff discipline as a first-class asset; structure changes stay docs-first
+        - external evaluation items intentionally not promoted into the current exact lane:
+          - broad `native_ir.rs` generic-lowering migration is a future design lane, not this cleanup series
+          - unboxed value representation is a future performance design topic, not a `phase-29ck` exact blocker
+          - replacing `llc` shell-out is worthwhile but separate from the current route/cleanup owner proof
+        - future design backlog order after the current exact lane:
+          - first: replace `llc` shell-out with a thinner in-process/object-emitter seam once the current route/cleanup owner proof is stable
+          - second: stage a gradual generic-lowering migration from `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` into `crates/nyash-llvm-compiler/src/native_ir.rs` without collapsing the MIR(JSON) proof seam or promoting Rust into a new policy owner
+          - third: open unboxed value-representation design only after route ownership and generic lowering contracts are stable; this stays design-doc-first because it is the widest performance/semantic change
         - keep daily seed owner, probe lane, and current acceptance rows unchanged during that cleanup
       - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
     - explicit compat-keep cleanup residue is retired:

@@ -1481,6 +1481,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         hako_llvmc_emit_route_trace("array_string_len_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
       }
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"
+      #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
 
       // Pre-scan: consts + phis + needed method decls
       int need_map_birth=0, need_map_set=0, need_map_size=0, need_map_get=0, need_map_has=0;
@@ -1980,7 +1981,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           if (strcmp(op, "mir_call")==0) {
             yyjson_val* mc = yyjson_obj_get(ins, "mir_call"); yyjson_val* cal = mc? yyjson_obj_get(mc, "callee") : NULL; const char* ctype = cal? read_str(cal, "type") : NULL; const char* bname = cal? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL; const char* mname = cal? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL; long long dst = read_int(ins, "dst"); long long recv = read_int(cal, "receiver"); yyjson_val* args = mc? yyjson_obj_get(mc, "args") : NULL; long long a0=0,a1=0; if (args && yyjson_is_arr(args)) { if (yyjson_arr_size(args)>=1) a0=(long long)yyjson_get_sint(yyjson_arr_get(args,0)); if (yyjson_arr_size(args)>=2) a1=(long long)yyjson_get_sint(yyjson_arr_get(args,1)); }
             char ab[256]; ab[0]='\0';
-            auto void app(long long reg, int first){ long long cv; char tmp[64]; if (has_const(reg,&cv)) snprintf(tmp,sizeof(tmp),"i64 %lld", cv); else snprintf(tmp,sizeof(tmp),"i64 %%r%lld", reg); snprintf(ab + strlen(ab), sizeof(ab)-strlen(ab), "%s%s", first?"":", ", tmp); };
             if (hako_llvmc_route_trace_enabled() && generic_call_trace_budget > 0) {
               char extra[384];
               snprintf(extra, sizeof(extra),
@@ -2036,15 +2036,15 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 hako_llvmc_emit_route_trace("mir_call_method", "seen", mname ? mname : "unknown", extra);
                 generic_method_trace_budget--;
               }
-              if (deferred_array_string_indexof) {
-                app(deferred_array_string_indexof->recv, 1);
-                app(deferred_array_string_indexof->idx, 0);
-                app(deferred_array_string_indexof->needle_reg, 0);
-              } else if (recv) app(recv, 1);
+              append_array_string_indexof_method_receiver_args(
+                  deferred_array_string_indexof,
+                  recv,
+                  ab,
+                  sizeof(ab));
               if (mname && !strcmp(mname, "set")) {
                 int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
-                if (a0) app(a0, ab[0]=='\0');
-                if (a1) app(a1, 0);
+                if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
+                if (a1) append_i64_arg_ref(ab, sizeof(ab), a1, 0);
                 if (bname && !strcmp(bname, "MapBox")) EMIT("  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
                 else if (bname && !strcmp(bname, "ArrayBox")) {
                   if (array_set_plain_i64) EMIT("  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
@@ -2064,23 +2064,13 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 struct ArrayStringLenWindowMatch string_len_match;
                 const char* string_len_reason = NULL;
                 char string_len_extra[256];
-                struct ArrayStringIndexofSelectWindowMatch string_indexof_select_match;
-                struct ArrayStringIndexofBranchWindowMatch string_indexof_branch_match;
-                struct ArrayStringIndexofCrossBlockSelectWindowMatch string_indexof_cross_block_select_match;
-                struct ArrayStringIndexofInterleavedBranchWindowMatch string_indexof_interleaved_branch_match;
-                struct ArrayStringIndexofInterleavedSelectWindowMatch string_indexof_interleaved_select_match;
                 trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
                 trace_array_string_len_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
-                trace_array_string_indexof_select_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
-                trace_array_string_indexof_branch_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
-                trace_array_string_indexof_cross_block_select_window_candidate(blocks, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
-                trace_array_string_indexof_interleaved_branch_window_candidate(blocks, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
-                trace_array_string_indexof_interleaved_select_window_candidate(blocks, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
                 if (analyze_array_rmw_window_candidate(
                         ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                         runtime_array_get, runtime_array_string, &rmw_match, &rmw_reason,
                         rmw_extra, sizeof(rmw_extra))) {
-                  if (a0) app(a0, ab[0]=='\0');
+                  if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
                   EMIT("  %%r%lld = call i64 @\"nyash.array.rmw_add1_hi\"(%s)\n", rmw_match.result_reg, ab);
                   set_type(rmw_match.result_reg, T_I64);
                   for (int si = 0; si < rmw_match.copy_n; si++) skip_inst[rmw_match.copy_iis[si]] = 1;
@@ -2093,83 +2083,23 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                         ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                         runtime_array_string, &string_len_match, &string_len_reason,
                         string_len_extra, sizeof(string_len_extra))) {
-                  if (a0) app(a0, ab[0]=='\0');
+                  if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
                   EMIT("  %%r%lld = call i64 @\"nyash.array.string_len_hi\"(%s)\n", string_len_match.len_dst, ab);
                   set_type(string_len_match.len_dst, T_I64);
                   for (int si = 0; si < string_len_match.copy_n; si++) skip_inst[string_len_match.copy_iis[si]] = 1;
                   skip_inst[string_len_match.len_ii] = 1;
                   continue;
                 }
-                if (analyze_array_string_indexof_select_window_candidate(
-                        ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
-                        runtime_array_string, &string_indexof_select_match, NULL, NULL, 0)) {
-                  remember_deferred_array_string_indexof_select(
-                      bid,
-                      string_indexof_select_match.indexof_ii,
-                      recv,
-                      a0,
-                      string_indexof_select_match.needle_reg);
-                  for (int si = 0; si < string_indexof_select_match.get_copy_n; si++) skip_inst[string_indexof_select_match.get_copy_iis[si]] = 1;
-                  for (int si = 0; si < string_indexof_select_match.recv_copy_n; si++) skip_inst[string_indexof_select_match.recv_copy_iis[si]] = 1;
+                if (try_defer_array_string_indexof_get_window(
+                        blocks, bid, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
+                        runtime_array_string, skip_inst)) {
                   continue;
                 }
-                if (analyze_array_string_indexof_branch_window_candidate(
-                        ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
-                        runtime_array_string, &string_indexof_branch_match, NULL, NULL, 0)) {
-                  remember_deferred_array_string_indexof_select(
-                      bid,
-                      string_indexof_branch_match.indexof_ii,
-                      recv,
-                      a0,
-                      string_indexof_branch_match.needle_reg);
-                  for (int si = 0; si < string_indexof_branch_match.get_copy_n; si++) skip_inst[string_indexof_branch_match.get_copy_iis[si]] = 1;
-                  for (int si = 0; si < string_indexof_branch_match.recv_copy_n; si++) skip_inst[string_indexof_branch_match.recv_copy_iis[si]] = 1;
-                  continue;
-                }
-                if (analyze_array_string_indexof_cross_block_select_window_candidate(
-                        blocks, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
-                        runtime_array_string, &string_indexof_cross_block_select_match, NULL, NULL, 0)) {
-                  remember_deferred_array_string_indexof_select(
-                      bid,
-                      string_indexof_cross_block_select_match.indexof_ii,
-                      recv,
-                      a0,
-                      string_indexof_cross_block_select_match.needle_reg);
-                  for (int si = 0; si < string_indexof_cross_block_select_match.get_copy_n; si++) skip_inst[string_indexof_cross_block_select_match.get_copy_iis[si]] = 1;
-                  for (int si = 0; si < string_indexof_cross_block_select_match.recv_copy_n; si++) skip_inst[string_indexof_cross_block_select_match.recv_copy_iis[si]] = 1;
-                  continue;
-                }
-                if (analyze_array_string_indexof_interleaved_branch_window_candidate(
-                        blocks, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
-                        runtime_array_string, &string_indexof_interleaved_branch_match, NULL, NULL, 0)) {
-                  remember_deferred_array_string_indexof_select(
-                      bid,
-                      string_indexof_interleaved_branch_match.indexof_ii,
-                      recv,
-                      a0,
-                      string_indexof_interleaved_branch_match.needle_reg);
-                  for (int si = 0; si < string_indexof_interleaved_branch_match.get_copy_n; si++) skip_inst[string_indexof_interleaved_branch_match.get_copy_iis[si]] = 1;
-                  for (int si = 0; si < string_indexof_interleaved_branch_match.recv_copy_n; si++) skip_inst[string_indexof_interleaved_branch_match.recv_copy_iis[si]] = 1;
-                  continue;
-                }
-                if (analyze_array_string_indexof_interleaved_select_window_candidate(
-                        blocks, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
-                        runtime_array_string, &string_indexof_interleaved_select_match, NULL, NULL, 0)) {
-                  remember_deferred_array_string_indexof_select(
-                      bid,
-                      string_indexof_interleaved_select_match.indexof_ii,
-                      recv,
-                      a0,
-                      string_indexof_interleaved_select_match.needle_reg);
-                  for (int si = 0; si < string_indexof_interleaved_select_match.get_copy_n; si++) skip_inst[string_indexof_interleaved_select_match.get_copy_iis[si]] = 1;
-                  for (int si = 0; si < string_indexof_interleaved_select_match.recv_copy_n; si++) skip_inst[string_indexof_interleaved_select_match.recv_copy_iis[si]] = 1;
-                  continue;
-                }
-                if (a0) app(a0, ab[0]=='\0');
+                if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
                 if ((bname && !strcmp(bname, "MapBox")) || runtime_map_get) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab); set_type(dst, T_I64); set_origin(dst, ORG_MAP_GET);} else { EMIT("  call i64 @\"nyash.map.slot_load_hh\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_get || runtime_array_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab); set_type(dst, T_I64); if (runtime_array_string) { set_origin(dst, ORG_STRING); set_scan_origin(dst, ORG_STRING); } } else { EMIT("  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && (!strcmp(mname, "len")||!strcmp(mname, "length")||!strcmp(mname, "size"))) { if ((bname && !strcmp(bname, "MapBox")) || runtime_map_size) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.entry_count_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.map.entry_count_h\"(%s)\n", ab);} } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len || runtime_array_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.array.slot_len_h\"(%s)\n", ab);} } else if (runtime_string) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab); set_type(dst, T_I64);} else { EMIT("  call i64 @\"nyash.string.len_h\"(%s)\n", ab);} } else { yyjson_doc_free(d); goto GEN_ABORT; } }
               else if (mname && !strcmp(mname, "push")) {
-                if (a0) app(a0, ab[0]=='\0');
+                if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
                 if (runtime_array_push) {
                   if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab); set_type(dst, T_I64); }
                   else { EMIT("  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab); }
@@ -2186,8 +2116,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 else { yyjson_doc_free(d); goto GEN_ABORT; }
               }
               else if (mname && !strcmp(mname, "substring") && runtime_string) {
-                if (a0) app(a0, ab[0]=='\0');
-                if (a1) app(a1, 0);
+                if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
+                if (a1) append_i64_arg_ref(ab, sizeof(ab), a1, 0);
                 if (dst) {
                   EMIT("  %%r%lld = call i64 @\"nyash.string.substring_hii\"(%s)\n", dst, ab);
                   set_type(dst, T_I64);
@@ -2198,15 +2128,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 }
               }
               else if (mname && !strcmp(mname, "indexOf") && runtime_string) {
-                if (deferred_array_string_indexof) {
-                  if (dst) {
-                    EMIT("  %%r%lld = call i64 @\"nyash.array.string_indexof_hih\"(%s)\n", dst, ab);
-                    set_type(dst, T_I64);
-                  } else {
-                    EMIT("  call i64 @\"nyash.array.string_indexof_hih\"(%s)\n", ab);
-                  }
-                } else {
-                  if (a0) app(a0, ab[0]=='\0');
+                if (!emit_deferred_array_string_indexof_call(f, deferred_array_string_indexof, dst, ab)) {
+                  if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
                   if (dst) {
                     EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
                     set_type(dst, T_I64);
@@ -2216,7 +2139,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 }
               }
               else if (mname && !strcmp(mname, "has")) {
-                if (a0) app(a0, ab[0]=='\0');
+                if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
                 if (runtime_array_has) {
                   if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.has_hi\"(%s)\n", dst, ab); set_type(dst, T_I64); }
                   else { EMIT("  call i64 @\"nyash.array.has_hi\"(%s)\n", ab); }
