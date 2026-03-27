@@ -90,8 +90,15 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
       - forced generic probe originally regressed `kilo_micro_indexof_line` to `27-29 ms`; after landing FAST const-string hoist in generic pure lowering it now measures `16 ms` (`warmup=1 repeat=5`), so the dedicated `indexOf line` seed still stays the daily/perf owner but the cost gap is materially smaller
       - current probe IR hoists string-const boxer calls into `bb0` under `NYASH_LLVM_FAST=1`, so loop-local boxer churn is retired while `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1` stays unchanged
       - rejected exact cut: direct `nyash.array.string_indexof_hih` slot-string leaf rewrite regressed the probe back to `19 ms`, so keep the cached string-pair route for now and do not reopen that leaf without new evidence
-      - current exact perf blocker has therefore shifted from const-string boxing to the remaining generic arithmetic/control residue (`srem` on `%2/%16/%64`, generic `set/length` path) inside the same probe IR
-      - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the next exact perf blocker is no longer route shadow visibility but the cost gap between the forced generic observer route and the dedicated seed owner
+      - current asm/perf comparison is now fixed:
+        - `C = 4 ms / 7.2M cycles`, daily `Nyash AOT seed owner = 7 ms / 22.3M cycles`, forced generic probe `= 17 ms / 74.7M cycles` (`warmup=1 repeat=5`)
+        - daily seed-owner asm is already near the C shape (`and $0x3f`, `test $0xf`, direct `strstr@plt`, raw flip store), so the remaining daily gap is small glue around a mostly-native loop
+        - forced generic probe is not mainly blocked by `%2/%16/%64` arithmetic anymore; perf top is dominated by `Registry::with_handle` and `Registry::with_str_pair`, while `nyash.array.string_indexof_hih` itself is only a small fraction
+      - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the next exact perf blocker is no longer route shadow visibility or arithmetic residue but the registry-boundary cost gap between the forced generic observer route and the dedicated seed owner
+      - next exact cut is fixed:
+        - keep the daily seed owner unchanged
+        - cut a narrow accepted-recipe fast path for `array-string indexOf` / update that avoids `Registry::with_handle` / `Registry::with_str_pair` on the hot generic probe route
+        - do not reopen the rejected direct slot-string leaf rewrite without fresh same-artifact evidence
       - temporary priority override is `clean-clean / BoxShape` before the next perf cut:
         - first cleanup target is `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
         - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
@@ -114,6 +121,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
           - broad `native_ir.rs` generic-lowering migration is a future design lane, not this cleanup series
           - unboxed value representation is a future performance design topic, not a `phase-29ck` exact blocker
           - replacing `llc` shell-out is worthwhile but separate from the current route/cleanup owner proof
+        - `AOT-Core MIR` implementation policy is fixed for this wave:
+          - do not open a full new `AOT-Core MIR` layer before the current registry-boundary blocker is cut
+          - if the same blocker family repeats after the narrow fast-path cut, promote only an analysis-only `AOT-Core facts/recipe view` (`value_class` / `borrowed-or-raw` / `observer_op` / `effect_mask` / `reject_reason`), not a serializer-carrying new IR layer
         - future design backlog order after the current exact lane:
           - first: replace `llc` shell-out with a thinner in-process/object-emitter seam once the current route/cleanup owner proof is stable
           - second: stage a gradual generic-lowering migration from `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc` into `crates/nyash-llvm-compiler/src/native_ir.rs` without collapsing the MIR(JSON) proof seam or promoting Rust into a new policy owner
@@ -127,7 +137,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - optimization return point after that cleanup stays unchanged:
       - return directly to `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
       - keep the current fixed order `leaf-proof micro -> micro kilo -> main kilo`; current resume point is `micro kilo`
-      - exact next blocker remains the forced generic observer cost gap on `kilo_micro_indexof_line`
+      - exact next blocker remains the forced generic observer registry-boundary cost gap on `kilo_micro_indexof_line`
       - do not reopen broader keep-lane work once the explicit compat keep pin is green again
     - current non-blocking residue to ignore for this lane:
       - `build_stage1.sh --artifact-kind stage1-cli` capability check remains red
@@ -158,7 +168,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
      - result: green after planner-required BlockExpr value-prelude parity
 2. reopened exact blocker lane: `phase-29ck`
   - status: `active follow-up / docs-first exact front`
-  - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; current exact perf cut is narrowed to live-route debug bundle + semantic window proof before more array fixed-cost work`
+  - scope: `future AOT-Core MIR is locked as staged proof vocabulary now; current exact perf cut is narrowed to live-route debug bundle + semantic window proof before more array fixed-cost work, and any near-term AOT-Core follow-up stays analysis-only facts/recipe view rather than a full new IR layer`
    - exact front:
      - `docs/development/current/main/phases/phase-29ck/P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
      - `docs/development/current/main/design/stage2-aot-core-proof-vocabulary-ssot.md`
@@ -168,6 +178,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - keep `llvmlite` in Stage0 keep lane only
     - keep `pure-first + compat_replay=none` as the only acceptable Stage1 mainline/perf route
     - do not introduce a distinct new IR layer in this wave
+    - if the same blocker family repeats after the next narrow fast-path cut, consider only an analysis-only `AOT-Core facts/recipe view`, not a serializer-carrying full MIR layer
     - optimize the real Stage1 owner; do not drift back into keep-lane fixes
     - explicit compat-keep residue is retired; keep lane stays compat/canary evidence only
     - do not pull `vm-hako` or reduced-artifact Stage1 red paths into the current `micro kilo` / `main kilo` return

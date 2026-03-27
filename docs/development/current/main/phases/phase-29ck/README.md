@@ -144,8 +144,15 @@ Related:
      - forced generic probe originally regressed `kilo_micro_indexof_line` to `27-29 ms`; after landing FAST const-string hoist in generic pure lowering it now measures `16 ms` (`warmup=1 repeat=5`), so the dedicated `indexOf line` seed still stays the daily/perf owner but the cost gap is materially smaller
      - current probe IR hoists string-const boxer calls into `bb0` under `NYASH_LLVM_FAST=1`, so loop-local boxer churn is retired while `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1` stays unchanged
      - rejected exact cut: direct `nyash.array.string_indexof_hih` slot-string leaf rewrite regressed the probe back to `19 ms`, so keep the cached string-pair route for now and do not reopen that leaf without new evidence
-     - current exact perf blocker has therefore shifted from const-string boxing to the remaining generic arithmetic/control residue (`srem` on `%2/%16/%64`, generic `set/length` path) inside the same probe IR
-     - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the next exact perf blocker is no longer route shadow visibility but the cost gap between the forced generic observer route and the dedicated seed owner
+     - current asm/perf reading is now fixed:
+       - `C = 4 ms / 7.2M cycles`, daily `Nyash AOT seed owner = 7 ms / 22.3M cycles`, forced generic probe `= 17 ms / 74.7M cycles` (`warmup=1 repeat=5`)
+       - daily seed-owner asm is already near the C loop shape (`and $0x3f`, `test $0xf`, direct `strstr@plt`, raw flip store)
+       - forced generic probe is dominated by `Registry::with_handle` / `Registry::with_str_pair`, while `nyash.array.string_indexof_hih` itself is only a small fraction of the sampled cycles
+     - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the next exact perf blocker is no longer route shadow visibility or arithmetic residue but the registry-boundary cost gap between the forced generic observer route and the dedicated seed owner
+     - next exact cut is fixed:
+       - keep the daily seed owner unchanged
+       - cut a narrow accepted-recipe fast path for `array-string indexOf` / update that avoids `Registry::with_handle` / `Registry::with_str_pair` on the hot generic probe route
+       - do not reopen the rejected direct slot-string leaf rewrite without fresh same-artifact evidence
      - temporary priority override is `clean-clean / BoxShape` before the next perf cut:
        - first cleanup target is `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
        - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
@@ -165,13 +172,14 @@ Related:
          - keep MIR(JSON) as the explicit debug/proof seam instead of collapsing the inspection boundary
          - keep docs/SSOT/AI-handoff discipline as a maintained project strength
        - broad `native_ir.rs` migration, unboxed value representation, and `llc` shell-out replacement stay future design topics rather than the current exact cleanup lane
+       - any near-term `AOT-Core` follow-up stays analysis-only facts/recipe view only; do not open a full new MIR layer before the current registry-boundary blocker is cut
        - keep daily seed owner, probe lane, and current acceptance rows unchanged during that cleanup
      - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
    - explicit compat-keep cleanup residue is retired:
      - `phase29ck_boundary_compat_keep_min.sh` is green again
      - direct `target/release/ny-llvmc --driver harness --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json ...` writes object again on the explicit keep lane
      - optimization return resumes at `micro kilo` while keeping the fixed order `leaf-proof micro -> micro kilo -> main kilo`
-     - exact next blocker remains the forced generic observer cost gap on `kilo_micro_indexof_line`
+     - exact next blocker remains the forced generic observer registry-boundary cost gap on `kilo_micro_indexof_line`
    - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi`
    - do not reopen broad `boxcall` widening and do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
