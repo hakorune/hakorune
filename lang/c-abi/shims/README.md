@@ -20,6 +20,10 @@ Current partitions:
   - pure-first seed emit/match helpers for search/index-of paths
 - `hako_llvmc_ffi_indexof_observer_state.inc`
   - shared `indexOf` observer match/state helpers used by pure-first and probe lanes
+- `hako_llvmc_ffi_indexof_observer_direct_match.inc`
+  - direct `indexOf` observer match helpers for `select` / `branch`
+- `hako_llvmc_ffi_indexof_observer_block_match.inc`
+  - cross-block and interleaved `indexOf` observer match helpers
 - `hako_llvmc_ffi_indexof_observer_trace.inc`
   - route-trace wrappers for `indexOf` observer families
 - `hako_llvmc_ffi_route.inc`

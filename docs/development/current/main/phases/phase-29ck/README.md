@@ -146,7 +146,9 @@ Related:
      - temporary priority override is `clean-clean / BoxShape` before the next perf cut:
        - first cleanup target is `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
        - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
-       - keep `indexOf` detector / lowering bodies in `pure_compile.inc` for the next cleanup pass
+       - extracted direct `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_direct_match.inc`
+       - extracted cross-block / interleaved `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_block_match.inc`
+       - keep lowering dispatch in `pure_compile.inc` for the next cleanup pass
        - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
        - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
        - keep daily seed owner, probe lane, and current acceptance rows unchanged during that cleanup
