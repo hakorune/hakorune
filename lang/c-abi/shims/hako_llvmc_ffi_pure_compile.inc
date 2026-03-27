@@ -112,6 +112,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           return read_int(ins, "lhs") == reg || read_int(ins, "left") == reg ||
                  read_int(ins, "rhs") == reg || read_int(ins, "right") == reg;
         }
+        if (strcmp(op, "select") == 0) {
+          return read_int(ins, "cond") == reg ||
+                 read_int(ins, "then_val") == reg ||
+                 read_int(ins, "else_val") == reg;
+        }
         if (strcmp(op, "branch") == 0) return read_int(ins, "cond") == reg;
         if (strcmp(op, "ret") == 0) return read_int(ins, "value") == reg;
         if (strcmp(op, "mir_call") == 0) {
@@ -493,6 +498,24 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long src = read_int(ins, "src");
             int scan_org = get_scan_origin(src);
             if (scan_org != ORG_NONE && dst) set_scan_origin(dst, scan_org);
+          } else if (strcmp(op, "select")==0) {
+            long long dst = read_int(ins, "dst");
+            long long then_val = read_int(ins, "then_val");
+            long long else_val = read_int(ins, "else_val");
+            int then_ty = then_val ? get_type(then_val) : T_NONE;
+            int else_ty = else_val ? get_type(else_val) : T_NONE;
+            int then_scan = then_val ? get_scan_origin(then_val) : ORG_NONE;
+            int else_scan = else_val ? get_scan_origin(else_val) : ORG_NONE;
+            int then_org = then_val ? get_origin(then_val) : ORG_NONE;
+            int else_org = else_val ? get_origin(else_val) : ORG_NONE;
+            if (dst) {
+              if (then_ty != T_NONE && then_ty == else_ty) set_type(dst, then_ty);
+              else if (then_ty != T_NONE && else_ty == T_NONE) set_type(dst, then_ty);
+              else if (else_ty != T_NONE && then_ty == T_NONE) set_type(dst, else_ty);
+              else set_type(dst, T_I64);
+              if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
+              if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
+            }
           } else if (strcmp(op, "phi")==0) {
             struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
             struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0;
@@ -764,6 +787,70 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             // emit icmp
             long long vL,vR; int lc=has_const(lhs,&vL), rc2=has_const(rhs,&vR);
             EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, p2, lc?"":"%r", lc?vL:lhs, lc?"":"", rc2?"":"%r", rc2?vR:rhs, rc2?"":""); set_type(dst, T_I1);
+            continue;
+          }
+          if (strcmp(op, "select")==0) {
+            long long dst = read_int(ins, "dst");
+            long long cond = read_int(ins, "cond");
+            long long then_val = read_int(ins, "then_val");
+            long long else_val = read_int(ins, "else_val");
+            long long cond_cv = 0, then_cv = 0, else_cv = 0;
+            int cond_ty = get_type(cond);
+            int then_ty = get_type(then_val);
+            int else_ty = get_type(else_val);
+            int val_ty = T_I64;
+            int cond_const = has_const(cond, &cond_cv);
+            int then_const = has_const(then_val, &then_cv);
+            int else_const = has_const(else_val, &else_cv);
+            int then_org = get_origin(then_val);
+            int else_org = get_origin(else_val);
+            int then_scan = get_scan_origin(then_val);
+            int else_scan = get_scan_origin(else_val);
+            char cond_ref[64];
+            char then_ref[64];
+            char else_ref[64];
+
+            if (then_ty == T_I1 && else_ty == T_I1) val_ty = T_I1;
+            else if (then_ty != T_NONE && then_ty == else_ty) val_ty = then_ty;
+            else if (then_ty != T_NONE && else_ty == T_NONE) val_ty = then_ty;
+            else if (else_ty != T_NONE && then_ty == T_NONE) val_ty = else_ty;
+
+            if (cond_ty == T_I1) {
+              if (cond_const) snprintf(cond_ref, sizeof(cond_ref), "%s", cond_cv ? "true" : "false");
+              else snprintf(cond_ref, sizeof(cond_ref), "%%r%lld", cond);
+            } else if (cond_const) {
+              EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", dst, cond_cv);
+              snprintf(cond_ref, sizeof(cond_ref), "%%t%lld", dst);
+            } else {
+              EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", dst, cond);
+              snprintf(cond_ref, sizeof(cond_ref), "%%t%lld", dst);
+            }
+
+            if (val_ty == T_I1) {
+              if (then_const) snprintf(then_ref, sizeof(then_ref), "%s", then_cv ? "true" : "false");
+              else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_val);
+              if (else_const) snprintf(else_ref, sizeof(else_ref), "%s", else_cv ? "true" : "false");
+              else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_val);
+              EMIT("  %%r%lld = select i1 %s, i1 %s, i1 %s\n",
+                   dst,
+                   cond_ref,
+                   then_ref,
+                   else_ref);
+              set_type(dst, T_I1);
+            } else {
+              if (then_const) snprintf(then_ref, sizeof(then_ref), "%lld", then_cv);
+              else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_val);
+              if (else_const) snprintf(else_ref, sizeof(else_ref), "%lld", else_cv);
+              else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_val);
+              EMIT("  %%r%lld = select i1 %s, i64 %s, i64 %s\n",
+                   dst,
+                   cond_ref,
+                   then_ref,
+                   else_ref);
+              set_type(dst, T_I64);
+            }
+            if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
+            if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
             continue;
           }
           if (strcmp(op, "branch")==0) { long long cond=read_int(ins, "cond"); long long th=read_int(ins,"then"); long long el=read_int(ins,"else"); if(!el) el=read_int(ins,"else_id"); int ty=get_type(cond); if (ty==T_I1) EMIT("  br i1 %%r%lld, label %%bb%lld, label %%bb%lld\n", cond, th, el); else { long long cv; if (has_const(cond,&cv)) { EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", cond, cv); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond, th, el);} else { EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", cond, cond); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond, th, el);} } continue; }

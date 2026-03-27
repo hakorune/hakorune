@@ -79,10 +79,12 @@ Related:
     - `tools/perf/run_kilo_leaf_proof_ladder.sh` is the first acceptance lane for new observer/mutator leaves
     - current `leaf-proof micro` facts:
       - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
-      - `kilo_leaf_array_string_len = 15 ms` (`aot_status=ok`)
-      - `kilo_leaf_array_string_indexof_const` currently fails AOT build
-      - fresh bundle shows one `get` and one `indexOf`, but no direct hit yet
-      - current exact blocker is `pure-first` acceptance for the leaf-proof `get -> indexOf("line")` shape
+      - `kilo_leaf_array_string_len = 12 ms` (`aot_status=ok`)
+      - `kilo_leaf_array_string_indexof_const = 25 ms` (`aot_status=ok`)
+      - narrow pure-first pin is now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`
+      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_select_min.sh` proves `get -> indexOf("line") -> compare -> select` without harness fallback
+      - the exact leaf-proof pure-first acceptance gap is retired
+      - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, `kilo_kernel_small_hk = 824 ms` (`warmup=1 repeat=3`)
     - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi`
   - current exact front:
     - `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
