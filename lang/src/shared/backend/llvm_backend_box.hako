@@ -1,4 +1,5 @@
 using selfhost.shared.backend.recipe as BackendRecipeBox
+using selfhost.shared.backend.route_env as BackendRouteEnvBox
 
 // LlvmBackendBox — official thin backend boundary
 // File-handoff only: compile MIR(JSON v0) to object, then link to EXE.
@@ -37,7 +38,7 @@ static box LlvmBackendBox {
     local legacy_daily_allowed = profile.get("legacy_daily_allowed")
     local out = ""
     if out_path != null { out = "" + out_path }
-    return me._with_backend_route_env(
+    return BackendRouteEnvBox.with_backend_route_env(
       acceptance_case,
       transport_owner,
       legacy_daily_allowed,
@@ -46,25 +47,6 @@ static box LlvmBackendBox {
       recipe,
       compat
     )
-  }
-
-  _with_backend_route_env(acceptance_case, transport_owner, legacy_daily_allowed, json_path, out_path, recipe, compat) {
-    local prev_acceptance_case = env.get("HAKO_BACKEND_ACCEPTANCE_CASE")
-    local prev_transport_owner = env.get("HAKO_BACKEND_TRANSPORT_OWNER")
-    local prev_legacy_daily_allowed = env.get("HAKO_BACKEND_LEGACY_DAILY_ALLOWED")
-    env.set("HAKO_BACKEND_ACCEPTANCE_CASE", me._env_text_or_empty(acceptance_case))
-    env.set("HAKO_BACKEND_TRANSPORT_OWNER", me._env_text_or_empty(transport_owner))
-    env.set("HAKO_BACKEND_LEGACY_DAILY_ALLOWED", me._env_text_or_empty(legacy_daily_allowed))
-    local result = env.codegen.compile_json_path(json_path, out_path, recipe, compat)
-    env.set("HAKO_BACKEND_ACCEPTANCE_CASE", me._env_text_or_empty(prev_acceptance_case))
-    env.set("HAKO_BACKEND_TRANSPORT_OWNER", me._env_text_or_empty(prev_transport_owner))
-    env.set("HAKO_BACKEND_LEGACY_DAILY_ALLOWED", me._env_text_or_empty(prev_legacy_daily_allowed))
-    return result
-  }
-
-  _env_text_or_empty(value) {
-    if value == null { return "" }
-    return "" + value
   }
 
   // Links an exe. Returns 1 on success, or null on fail-fast error.
