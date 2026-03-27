@@ -1,13 +1,19 @@
 # Integration phase29ck-boundary suite
 # Boundary compile canaries and pure-first follow-ups.
+# entry owner anchors
 phase29ck_boundary/entry/phase29ck_boundary_forwarder_min.sh
 phase29ck_boundary/entry/phase29ck_boundary_compat_keep_min.sh
 phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh
 phase29ck_boundary/entry/phase29ck_boundary_pure_print_min.sh
+
+# string owner / shape anchors
 phase29ck_boundary/string/phase29ck_boundary_pure_string_length_min.sh
 phase29ck_boundary/string/phase29ck_boundary_pure_string_indexof_min.sh
 phase29ck_boundary/string/phase29ck_boundary_pure_indexof_line_min.sh
 phase29ck_boundary/string/phase29ck_boundary_pure_substring_concat_loop_min.sh
+phase29ck_boundary/string/phase29ck_boundary_pure_string_concat3_extern_min.sh
+
+# runtime_data shape anchors
 phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_length_min.sh
 phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_array_length_min.sh
 phase29ck_boundary/runtime_data/phase29ck_boundary_pure_runtime_data_array_has_min.sh

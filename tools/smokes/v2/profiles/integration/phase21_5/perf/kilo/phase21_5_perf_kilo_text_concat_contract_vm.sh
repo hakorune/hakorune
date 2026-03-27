@@ -22,14 +22,8 @@ if [ ! -x "$EMIT_ROUTE" ]; then
   test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
-if [ ! -f "$MIR_BUILDER" ]; then
-  test_fail "$SMOKE_NAME: MIR builder missing: $MIR_BUILDER"
-  exit 2
-fi
-if [ ! -f "$BENCH" ]; then
-  test_fail "$SMOKE_NAME: benchmark missing: $BENCH"
-  exit 2
-fi
+require_smoke_path "$SMOKE_NAME" "MIR builder" "$MIR_BUILDER" || exit 2
+require_smoke_path "$SMOKE_NAME" "benchmark" "$BENCH" || exit 2
 
 tmp_mir="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.mir.json")"
 tmp_ir="$(mktemp "/tmp/${SMOKE_NAME}.XXXXXX.ll")"
@@ -73,13 +67,10 @@ if [ ! -s "$tmp_ir" ]; then
   exit 1
 fi
 
-if ! extract_ir_entry_function "$tmp_ir" "$tmp_main"; then
-  test_fail "$SMOKE_NAME: entry function not found in dumped IR"
-  exit 1
-fi
+require_ir_entry_function "$SMOKE_NAME" "$tmp_ir" "$tmp_main" || exit 1
 
-concat_hh_count="$(grep -c 'nyash.string.concat_hh' "$tmp_main" || true)"
-concat3_count="$(grep -c 'nyash.string.concat3_hhh' "$tmp_main" || true)"
+concat_hh_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.string.concat_hh')"
+concat3_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.string.concat3_hhh')"
 concat_total_count=$((concat_hh_count + concat3_count))
 if [ "${concat_total_count}" -lt 2 ]; then
   test_fail "$SMOKE_NAME: concat helper density too low in main (expected >=2, got total=${concat_total_count}, concat_hh=${concat_hh_count}, concat3_hhh=${concat3_count})"

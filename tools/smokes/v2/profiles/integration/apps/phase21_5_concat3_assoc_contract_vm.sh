@@ -4,6 +4,8 @@
 # Contract pin (concat3-normalization phase):
 # - `.hako` source input with both chain shapes must lower to concat3_hhh on AOT main IR.
 # - direct emit route only (hakorune --emit-mir-json), no helper/delegate fallback.
+# - standalone direct-emit owner canary; suite promotion is handled separately from
+#   the phase29ck boundary owner lane.
 
 set -euo pipefail
 
@@ -21,18 +23,9 @@ if [ ! -x "$EMIT_ROUTE" ]; then
   test_fail "$SMOKE_NAME: emit route helper missing/executable: $EMIT_ROUTE"
   exit 2
 fi
-if [ ! -f "$MIR_BUILDER" ]; then
-  test_fail "$SMOKE_NAME: MIR builder missing: $MIR_BUILDER"
-  exit 2
-fi
-if [ ! -f "$FIXTURE" ]; then
-  test_fail "$SMOKE_NAME: fixture missing: $FIXTURE"
-  exit 2
-fi
-if [ ! -f "$PARITY_FIXTURE" ]; then
-  test_fail "$SMOKE_NAME: parity fixture missing: $PARITY_FIXTURE"
-  exit 2
-fi
+require_smoke_path "$SMOKE_NAME" "MIR builder" "$MIR_BUILDER" || exit 2
+require_smoke_path "$SMOKE_NAME" "fixture" "$FIXTURE" || exit 2
+require_smoke_path "$SMOKE_NAME" "parity fixture" "$PARITY_FIXTURE" || exit 2
 if ! [[ "$RUN_TIMEOUT_SECS" =~ ^[0-9]+$ ]]; then
   test_fail "$SMOKE_NAME: RUN_TIMEOUT_SECS must be integer: $RUN_TIMEOUT_SECS"
   exit 2
@@ -65,41 +58,13 @@ if [ "$emit_rc" -ne 0 ]; then
   exit 1
 fi
 
-mir_counts="$(python3 - "$tmp_mir" <<'PY'
-import json, sys
-path = sys.argv[1]
-obj = json.load(open(path))
-main = None
-for f in obj.get("functions", []):
-    if f.get("name") == "main":
-        main = f
-        break
-if main is None:
-    print("ERR")
-    raise SystemExit(0)
-concat3 = 0
-concat_hh = 0
-for block in main.get("blocks", []):
-    for inst in block.get("instructions", []):
-        if inst.get("op") != "mir_call":
-            continue
-        callee = inst.get("mir_call", {}).get("callee", {})
-        name = callee.get("name")
-        if name == "nyash.string.concat3_hhh":
-            concat3 += 1
-        elif name == "nyash.string.concat_hh":
-            concat_hh += 1
-print(f"{concat3} {concat_hh}")
-PY
-)"
+mir_concat3_count="$(count_mir_call_callee_in_function_json "$tmp_mir" "main" "nyash.string.concat3_hhh")"
+mir_concat_hh_count="$(count_mir_call_callee_in_function_json "$tmp_mir" "main" "nyash.string.concat_hh")"
 
-if [ "$mir_counts" = "ERR" ]; then
+if [ "$mir_concat3_count" = "ERR" ] || [ "$mir_concat_hh_count" = "ERR" ]; then
   test_fail "$SMOKE_NAME: main function not found in MIR JSON"
   exit 1
 fi
-
-mir_concat3_count="$(echo "$mir_counts" | awk '{print $1}')"
-mir_concat_hh_count="$(echo "$mir_counts" | awk '{print $2}')"
 
 if [ "$mir_concat3_count" -lt 2 ]; then
   test_fail "$SMOKE_NAME: expected >=2 concat3_hhh in MIR main (got $mir_concat3_count)"
@@ -130,13 +95,10 @@ if [ ! -s "$tmp_ir" ]; then
   exit 1
 fi
 
-if ! extract_ir_entry_function "$tmp_ir" "$tmp_main"; then
-  test_fail "$SMOKE_NAME: entry function not found in dumped IR"
-  exit 1
-fi
+require_ir_entry_function "$SMOKE_NAME" "$tmp_ir" "$tmp_main" || exit 1
 
-concat3_count="$(grep -c 'nyash.string.concat3_hhh' "$tmp_main" || true)"
-concat_hh_count="$(grep -c 'nyash.string.concat_hh' "$tmp_main" || true)"
+concat3_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.string.concat3_hhh')"
+concat_hh_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.string.concat_hh')"
 
 if [ "$concat3_count" -lt 2 ]; then
   test_fail "$SMOKE_NAME: expected >=2 concat3_hhh in main (got $concat3_count)"

@@ -28,31 +28,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if [ ! -f "$FIXTURE" ]; then
-    test_fail "phase29ck_boundary_compat_keep_min: fixture missing: $FIXTURE"
-    exit 1
+require_smoke_path "phase29ck_boundary_compat_keep_min" "fixture" "$FIXTURE" || exit 1
+require_smoke_path "phase29ck_boundary_compat_keep_min" "ny-llvmc" "$NY_LLVM_C" executable || exit 1
+ensure_hako_llvmc_ffi_built "phase29ck_boundary_compat_keep_min" || exit 1
+
+if capture_boundary_compile_to_log \
+    "$BUILD_LOG" \
+    "$RUN_TIMEOUT_SECS" \
+    env \
+      HAKO_BACKEND_COMPILE_RECIPE="pure-first" \
+      HAKO_BACKEND_COMPAT_REPLAY="harness" \
+      NYASH_LLVM_ROUTE_TRACE=1 \
+      NYASH_NY_LLVM_COMPILER="$NY_LLVM_C" \
+      "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ"; then
+    BUILD_RC=0
+else
+    BUILD_RC=$?
 fi
-
-if [ ! -x "$NY_LLVM_C" ]; then
-    test_fail "phase29ck_boundary_compat_keep_min: ny-llvmc missing: $NY_LLVM_C"
-    exit 1
-fi
-
-bash "$NYASH_ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
-
-set +e
-BUILD_OUT=$(
-  HAKO_BACKEND_COMPILE_RECIPE="pure-first" \
-  HAKO_BACKEND_COMPAT_REPLAY="harness" \
-  NYASH_LLVM_ROUTE_TRACE=1 \
-  NYASH_NY_LLVM_COMPILER="$NY_LLVM_C" \
-  timeout "$RUN_TIMEOUT_SECS" \
-  "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ" 2>&1
-)
-BUILD_RC=$?
-set -e
-
-echo "$BUILD_OUT" >"$BUILD_LOG"
 
 if [ "$BUILD_RC" -eq 124 ]; then
     test_fail "phase29ck_boundary_compat_keep_min: compile timed out (>${RUN_TIMEOUT_SECS}s)"
@@ -66,10 +58,7 @@ if [ "$BUILD_RC" -ne 0 ]; then
     exit 1
 fi
 
-if [ ! -f "$OUT_OBJ" ]; then
-    test_fail "phase29ck_boundary_compat_keep_min: object missing: $OUT_OBJ"
-    exit 1
-fi
+require_smoke_path "phase29ck_boundary_compat_keep_min" "object" "$OUT_OBJ" || exit 1
 
 if ! grep -Fq "[llvm-route/select] owner=boundary recipe=pure-first compat_replay=harness" "$BUILD_LOG"; then
     echo "[INFO] compile output:"

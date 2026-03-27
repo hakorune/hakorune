@@ -128,6 +128,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
         - this BoxShape pass is now sufficient for returning to perf work; only reopen `pure_compile.inc` cleanup if a new exact readability/ownership blocker appears
         - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
         - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
+        - smoke ownership cleanup is landed: `test_runner.sh` now owns the shared boundary compile / AOT entry-IR count helpers, and `phase29ck-boundary` suite now includes the concat3 extern canary explicitly
         - external evaluation positives to preserve:
           - keep Rust `ny-llvmc` topology thin; `main.rs` / `driver_dispatch.rs` / `native_ir.rs` stay transport/driver seams, not new policy owners
           - keep MIR(JSON) as the explicit debug/proof seam between `.hako`/boundary and native lowering

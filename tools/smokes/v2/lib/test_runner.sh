@@ -1588,6 +1588,138 @@ extract_ir_entry_function() {
     grep -Eq '^define .*@"(main|ny_main)"' "$out_path"
 }
 
+require_smoke_path() {
+    local smoke_name="$1"
+    local label="$2"
+    local path="$3"
+    local mode="${4:-file}"
+
+    if [ -z "$path" ]; then
+        test_fail "$smoke_name: $label missing path"
+        return 1
+    fi
+
+    case "$mode" in
+        executable)
+            if [ ! -x "$path" ]; then
+                test_fail "$smoke_name: $label missing: $path"
+                return 1
+            fi
+            ;;
+        nonempty)
+            if [ ! -s "$path" ]; then
+                test_fail "$smoke_name: $label missing: $path"
+                return 1
+            fi
+            ;;
+        *)
+            if [ ! -f "$path" ]; then
+                test_fail "$smoke_name: $label missing: $path"
+                return 1
+            fi
+            ;;
+    esac
+
+    return 0
+}
+
+ensure_hako_llvmc_ffi_built() {
+    local smoke_name="$1"
+
+    if ! bash "$NYASH_ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null; then
+        test_fail "$smoke_name: failed to build libhako_llvmc_ffi.so"
+        return 1
+    fi
+
+    return 0
+}
+
+capture_boundary_compile_to_log() {
+    local build_log="$1"
+    local timeout_secs="$2"
+    shift 2
+
+    local build_out=""
+    local build_rc=0
+
+    set +e
+    build_out=$(
+        timeout "$timeout_secs" "$@" 2>&1
+    )
+    build_rc=$?
+    set -e
+
+    printf '%s\n' "$build_out" >"$build_log"
+    return "$build_rc"
+}
+
+require_ir_entry_function() {
+    local smoke_name="$1"
+    local ir_path="$2"
+    local out_path="$3"
+    local message="${4:-entry function not found in dumped IR}"
+
+    if ! extract_ir_entry_function "$ir_path" "$out_path"; then
+        test_fail "$smoke_name: $message"
+        return 1
+    fi
+
+    return 0
+}
+
+count_fixed_pattern_in_file() {
+    local path="$1"
+    local pattern="$2"
+    local count=""
+
+    if [ -z "$path" ] || [ ! -f "$path" ]; then
+        return 1
+    fi
+
+    count="$(grep -F -c -- "$pattern" "$path" 2>/dev/null || true)"
+    printf '%s\n' "${count:-0}"
+}
+
+count_mir_call_callee_in_function_json() {
+    local json_path="$1"
+    local function_name="$2"
+    local callee_name="$3"
+
+    python3 - "$json_path" "$function_name" "$callee_name" <<'PY'
+import json
+import sys
+
+path, function_name, callee_name = sys.argv[1:4]
+
+try:
+    obj = json.load(open(path))
+except Exception:
+    print("ERR")
+    raise SystemExit(0)
+
+target = None
+for func in obj.get("functions", []):
+    if func.get("name") == function_name:
+        target = func
+        break
+
+if target is None:
+    print("ERR")
+    raise SystemExit(0)
+
+count = 0
+for block in target.get("blocks", []):
+    for inst in block.get("instructions", []):
+        if inst.get("op") != "mir_call":
+            continue
+        callee = inst.get("mir_call", {}).get("callee", {})
+        if callee.get("name") == callee_name:
+            count += 1
+
+print(count)
+PY
+}
+
 stdout_file_has_tag_match() {
     local grep_mode="$1"
     local expected_tag_pattern="$2"
