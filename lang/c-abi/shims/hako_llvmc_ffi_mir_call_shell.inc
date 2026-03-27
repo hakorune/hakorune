@@ -93,15 +93,16 @@
         return -1;
       }
       auto int emit_global_mir_call(FILE* f, const char* mname, long long a0) {
+        long long a0_base = resolve_copy_source_reg(a0);
         long long cv = 0;
         if (!(mname && !strcmp(mname, "print"))) return -1;
         if (!a0) return -1;
-        if (has_const(a0, &cv)) {
+        if (has_const(a0_base, &cv)) {
           fprintf(f, "  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %lld)\n",
                   a0, cv);
         } else {
           fprintf(f, "  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %%r%lld)\n",
-                  a0, a0);
+                  a0, a0_base ? a0_base : a0);
         }
         return 1;
       }

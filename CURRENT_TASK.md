@@ -130,6 +130,11 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 	          - prepass now marks `compare` results as `T_I1`, carries that type through `copy`, and emits `phi i1` when all incoming values are bools / bool consts
 	          - new boundary canary `phase29ck_boundary_pure_bool_phi_branch_min.sh` proves `compare -> phi(bool) -> branch` lowers as `phi i1` plus direct `br i1`, and the `phase29ck-boundary` suite now carries that pin
 	          - latest spot-check is `771 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`; treat this as correctness/IR cleanup only, not as a claimed wall-clock win
+	        - hoisted string-const cleanup is now landed for the main leaf route:
+	          - FAST hoist pre-scan now skips `StringBox` handle materialization when the const is proven raw-ptr-only for `nyash.string.insert_hsi` / `nyash.string.concat_hs`
+	          - `phase21_5_perf_kilo_text_concat_contract_vm.sh` now rejects dead `nyash.box.from_i8_string_const` calls in `ny_main`, so the edit/branch loop raw-ptr route stays visible in IR
+	          - the direct-emit concat3 owner canary is green again after global `print` lowering was made copy-transparent, resolving the `%r29/%r36` undefined-SSA regression
+	          - latest spot-check is `760 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`; treat this as IR cleanup only, not as a claimed wall-clock win
 	        - main-kilo exact next cut is now back on leaf quality:
 	          - keep focusing on `nyash.string.insert_hsi` plus the surviving `nyash.string.concat_hs` / `nyash.array.set_his` tail
 	          - do not open broader value-repr work until the current leaf-quality gap has a same-artifact reason

@@ -45,6 +45,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       enum { T_NONE=0, T_I64=1, T_I1=2 };
       struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
       struct { long long reg; const char* val; } str_consts[512]; size_t str_consts_n = 0;
+      struct { long long reg; } str_const_box_skip[512]; size_t str_const_box_skip_n = 0;
       struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
       struct { long long reg; long long src; } copy_alias[2048]; size_t copy_alias_n = 0;
       struct { long long reg; int kind; } scan_origin[2048]; size_t scan_origin_n = 0;
@@ -118,6 +119,17 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         return NULL;
       }
       auto void put_str_const(long long r, const char* v){ if (str_consts_n<512){ str_consts[str_consts_n].reg=r; str_consts[str_consts_n].val=v; str_consts_n++; } }
+      auto int should_skip_hoisted_string_const_box(long long r){
+        for (size_t i=0;i<str_const_box_skip_n;i++){ if (str_const_box_skip[i].reg==r) return 1; }
+        return 0;
+      }
+      auto void mark_hoisted_string_const_box_skip(long long r){
+        if (!r || should_skip_hoisted_string_const_box(r)) return;
+        if (str_const_box_skip_n < 512) {
+          str_const_box_skip[str_const_box_skip_n].reg = r;
+          str_const_box_skip_n++;
+        }
+      }
       auto int is_plain_i64_value(long long r){
         if (!r) return 0;
         if (get_type(r) != T_I64) return 0;
@@ -1585,7 +1597,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               set_type(dst, T_I64);
               set_scan_origin(dst, ORG_STRING);
               set_origin(dst, ORG_STRING);
-              needs.string_const_box = 1;
+              if (should_skip_string_const_box_for_concat_suffix(ii, ilen, insts, dst)) {
+                mark_hoisted_string_const_box_skip(dst);
+              } else {
+                needs.string_const_box = 1;
+              }
             } else {
               long long v = vobj? (long long)yyjson_get_sint(yyjson_obj_get(vobj, "value")) : 0;
               put_const(dst, v); set_type(dst, T_I64);

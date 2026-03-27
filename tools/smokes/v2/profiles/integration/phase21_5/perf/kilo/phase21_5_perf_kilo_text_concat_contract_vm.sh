@@ -5,6 +5,7 @@
 # - kilo text loop must preserve string concat route in nested append path.
 # - main IR should keep text helper density (`concat_hs` / `concat_hh` / `concat3_hhh` / `insert_hsi`).
 # - data set route must consume concat result without falling back to literal 0.
+# - insert-mid collapse must not leave dead `from_i8_string_const` boxer calls behind.
 # - this contract uses the direct emit route as the canonical source owner for
 #   `bench_kilo_kernel_small`; helper/mainline Stage1 emit is out of scope here.
 
@@ -82,6 +83,43 @@ if [ "${concat_total_count}" -lt 2 ]; then
 fi
 if [ "$substring_count" -ne 0 ]; then
   test_fail "$SMOKE_NAME: main still contains substring_hii after insert-mid collapse (count=${substring_count})"
+  exit 1
+fi
+
+unused_const_box_regs="$(python3 - "$tmp_main" <<'PY'
+import re
+import sys
+
+lines = open(sys.argv[1], encoding="utf-8").read().splitlines()
+inside = False
+main = []
+defs = []
+
+for line in lines:
+    if re.match(r'define i64 @"?(main|ny_main)"?\(\)', line):
+        inside = True
+    if inside:
+        main.append(line)
+        if line.strip() == "}":
+            break
+
+for idx, line in enumerate(main):
+    m = re.search(r'(%r\d+)\s*=\s*call i64 @"nyash\.box\.from_i8_string_const"', line)
+    if m:
+        defs.append((idx, m.group(1)))
+
+unused = []
+for idx, reg in defs:
+    pat = re.compile(r'(?<![0-9A-Za-z_])%s(?![0-9A-Za-z_])' % re.escape(reg))
+    used = any(pat.search(line) for line in main[idx + 1:])
+    if not used:
+        unused.append(reg)
+
+print(" ".join(unused))
+PY
+)"
+if [ -n "$unused_const_box_regs" ]; then
+  test_fail "$SMOKE_NAME: dead boxed string const remains in main (${unused_const_box_regs})"
   exit 1
 fi
 
