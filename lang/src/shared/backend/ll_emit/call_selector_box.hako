@@ -1,0 +1,98 @@
+// LlEmitCallSelectorBox — narrow emit-side direct-call fallback selector.
+// Responsibility:
+//   - Choose a concrete direct-call symbol from selected facts.
+//   - Keep push/set rescue logic out of LlTextEmitBox.
+
+static box LlEmitCallSelectorBox {
+  _map_has(map, key) {
+    if map == null { return 0 }
+    local present = map.has("" + key)
+    if present == true || present == 1 { return 1 }
+    return 0
+  }
+
+  _resolve_alias(facts, reg_id) {
+    if facts == null { return reg_id }
+    local aliases = facts.get("copy_alias")
+    if aliases == null { return reg_id }
+    local current = reg_id
+    local depth = 0
+    loop(depth < 64) {
+      local key = "" + current
+      if me._map_has(aliases, key) != 1 { return current }
+      local next = aliases.get(key)
+      local next_text = "" + next
+      if next_text == "" || next_text == key { return current }
+      current = next
+      depth = depth + 1
+    }
+    return reg_id
+  }
+
+  _value_class(facts, reg_id) {
+    local key = "" + me._resolve_alias(facts, reg_id)
+    local classes = facts.get("value_class")
+    if me._map_has(classes, key) != 1 { return "imm_i64" }
+    return "" + classes.get(key)
+  }
+
+  _box_type(facts, reg_id) {
+    local key = "" + me._resolve_alias(facts, reg_id)
+    local types = facts.get("box_type")
+    if types == null { return "" }
+    if me._map_has(types, key) != 1 { return "" }
+    return "" + types.get(key)
+  }
+
+  _direct_call_row(facts, dst) {
+    if facts == null || dst == null { return null }
+    local rows = facts.get("direct_call_ok")
+    if rows == null { return null }
+    local key = "" + me._resolve_alias(facts, dst)
+    if me._map_has(rows, key) != 1 { return null }
+    return rows.get(key)
+  }
+
+  _direct_call_row_by_symbol(facts, symbol) {
+    if facts == null { return null }
+    local rows = facts.get("direct_call_by_symbol")
+    if rows == null { return null }
+    if me._map_has(rows, symbol) != 1 { return null }
+    return rows.get(symbol)
+  }
+
+  select_direct_call_symbol(facts, inst) {
+    if facts == null || inst == null { return null }
+    local call = inst.get("mir_call")
+    if call == null { return null }
+    local callee = call.get("callee")
+    if callee == null { return null }
+    local direct = me._direct_call_row(facts, inst.get("dst"))
+    if direct != null {
+      return "" + direct.get("symbol")
+    }
+    local callee_type = "" + callee.get("type")
+    local callee_name = "" + callee.get("name")
+    if callee_type == "Method" && me._box_type(facts, callee.get("receiver")) == "ArrayBox" {
+      if callee_name == "push" {
+        local args = call.get("args")
+        if args != null && args.size() == 1 {
+          local value = args.get(0)
+          if me._value_class(facts, value) == "imm_i64" {
+            direct = me._direct_call_row_by_symbol(facts, "nyash.array.push_hi")
+          } else {
+            direct = me._direct_call_row_by_symbol(facts, "nyash.runtime_data.push_hh")
+          }
+        }
+      } else {
+        if callee_name == "set" {
+          direct = me._direct_call_row_by_symbol(facts, "nyash.array.set_hih")
+        }
+      }
+    } else {
+      direct = me._direct_call_row_by_symbol(facts, callee_name)
+    }
+    if direct == null { return null }
+    return "" + direct.get("symbol")
+  }
+}

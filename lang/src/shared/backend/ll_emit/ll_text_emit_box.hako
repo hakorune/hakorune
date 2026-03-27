@@ -1,3 +1,4 @@
+using selfhost.shared.backend.ll_emit.call_selector as LlEmitCallSelectorBox
 using selfhost.shared.backend.ll_emit.runtime_decl_registry as RuntimeDeclRegistryBox
 
 static box LlTextEmitBox {
@@ -206,20 +207,11 @@ static box LlTextEmitBox {
   }
 
   _direct_call_row(facts, dst) {
-    if facts == null || dst == null { return null }
-    local rows = facts.get("direct_call_ok")
-    if rows == null { return null }
-    local key = "" + me._resolve_alias(facts, dst)
-    if me._map_has(rows, key) != 1 { return null }
-    return rows.get(key)
+    return LlEmitCallSelectorBox._direct_call_row(facts, dst)
   }
 
   _direct_call_row_by_symbol(facts, symbol) {
-    if facts == null { return null }
-    local rows = facts.get("direct_call_by_symbol")
-    if rows == null { return null }
-    if me._map_has(rows, symbol) != 1 { return null }
-    return rows.get(symbol)
+    return LlEmitCallSelectorBox._direct_call_row_by_symbol(facts, symbol)
   }
 
   _emit_direct_call(func, facts, inst, symbol) {
@@ -420,32 +412,9 @@ static box LlTextEmitBox {
       if ("" + callee.get("type")) == "Global" && ("" + callee.get("name")) == "print" {
         return me._emit_global_print_call(func, facts, inst)
       }
-      local direct = me._direct_call_row(facts, inst.get("dst"))
-      if direct == null {
-        local callee_type = "" + callee.get("type")
-        local callee_name = "" + callee.get("name")
-        if callee_type == "Method" && me._box_type(facts, callee.get("receiver")) == "ArrayBox" {
-          if callee_name == "push" {
-            local args = call.get("args")
-            if args != null && args.size() == 1 {
-              local value = args.get(0)
-              if me._value_class(facts, value) == "imm_i64" {
-                direct = me._direct_call_row_by_symbol(facts, "nyash.array.push_hi")
-              } else {
-                direct = me._direct_call_row_by_symbol(facts, "nyash.runtime_data.push_hh")
-              }
-            }
-          } else {
-            if callee_name == "set" {
-              direct = me._direct_call_row_by_symbol(facts, "nyash.array.set_hih")
-            }
-          }
-        } else {
-          direct = me._direct_call_row_by_symbol(facts, callee_name)
-        }
-      }
-      if direct == null { return null }
-      return me._emit_direct_call(func, facts, inst, "" + direct.get("symbol"))
+      local symbol = LlEmitCallSelectorBox.select_direct_call_symbol(facts, inst)
+      if symbol == null { return null }
+      return me._emit_direct_call(func, facts, inst, symbol)
     }
     return null
   }
