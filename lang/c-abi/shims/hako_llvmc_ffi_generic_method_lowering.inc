@@ -11,19 +11,20 @@
           long long recv,
           long long a0,
           long long a1,
-          int recv_org,
-          int runtime_array_len,
-          int runtime_array_get,
-          int runtime_array_push,
-          int runtime_array_has,
-          int runtime_string,
-          int runtime_array_string,
-          int runtime_map_get,
-          int runtime_map_size,
-          int runtime_map_has,
+          const struct GenericMethodRouteState* route,
           char* ab,
           size_t ab_cap,
           unsigned char* skip_inst) {
+        int recv_org = route ? route->recv_org : ORG_NONE;
+        int runtime_array_len = route ? route->runtime_array_len : 0;
+        int runtime_array_get = route ? route->runtime_array_get : 0;
+        int runtime_array_push = route ? route->runtime_array_push : 0;
+        int runtime_array_has = route ? route->runtime_array_has : 0;
+        int runtime_string = route ? route->runtime_string : 0;
+        int runtime_array_string = route ? route->runtime_array_string : 0;
+        int runtime_map_get = route ? route->runtime_map_get : 0;
+        int runtime_map_size = route ? route->runtime_map_size : 0;
+        int runtime_map_has = route ? route->runtime_map_has : 0;
         if (mname && !strcmp(mname, "set")) {
           int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
           if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');

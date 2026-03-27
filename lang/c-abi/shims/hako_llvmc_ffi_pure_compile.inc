@@ -1482,13 +1482,13 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
+      #include "hako_llvmc_ffi_mir_call_prepass.inc"
+      #include "hako_llvmc_ffi_mir_call_shell.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
 
       // Pre-scan: consts + phis + needed method decls
-      int need_map_birth=0, need_map_set=0, need_map_size=0, need_map_get=0, need_map_has=0;
-      int need_arr_birth=0, need_arr_push=0, need_arr_len=0, need_arr_set=0, need_arr_get=0, need_arr_has=0, need_arr_string_indexof=0;
-      int need_string_const_box=0, need_string_len=0, need_string_substring=0, need_string_indexof=0, need_string_concat=0;
-      int need_printf=0;
+      struct GenericPureNeedFlags needs;
+      memset(&needs, 0, sizeof(needs));
       size_t blen = yyjson_arr_size(blocks);
       for (size_t bi=0; bi<blen; bi++) {
         yyjson_val* b = yyjson_arr_get(blocks, bi);
@@ -1509,7 +1509,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               set_type(dst, T_I64);
               set_scan_origin(dst, ORG_STRING);
               set_origin(dst, ORG_STRING);
-              need_string_const_box = 1;
+              needs.string_const_box = 1;
             } else {
               long long v = vobj? (long long)yyjson_get_sint(yyjson_obj_get(vobj, "value")) : 0;
               put_const(dst, v); set_type(dst, T_I64);
@@ -1518,7 +1518,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long dst = read_int(ins, "dst");
             const char* tname = read_str(ins, "type");
             if (tname && strcmp(tname, "ArrayBox") == 0) {
-              need_arr_birth = 1;
+              needs.arr_birth = 1;
               if (dst) {
                 set_scan_origin(dst, ORG_ARRAY_BIRTH);
                 set_origin(dst, ORG_ARRAY_BIRTH);
@@ -1609,94 +1609,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               }
             }
           } else if (strcmp(op, "mir_call")==0) {
-            yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
-            yyjson_val* cal = mc? yyjson_obj_get(mc, "callee") : NULL;
-            const char* ctype = cal? read_str(cal, "type") : NULL;
-            const char* bname = cal? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-            const char* mname = cal? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-            if (ctype && strcmp(ctype, "Constructor")==0) {
-              long long dst = read_int(ins, "dst");
-              if (bname && strcmp(bname, "MapBox")==0) { need_map_birth=1; if (dst) set_scan_origin(dst, ORG_MAP_BIRTH); }
-              if (bname && strcmp(bname, "ArrayBox")==0) { need_arr_birth=1; if (dst) set_scan_origin(dst, ORG_ARRAY_BIRTH); }
-            } else if (ctype && strcmp(ctype, "Method")==0) {
-              long long recv = cal ? read_int(cal, "receiver") : 0;
-              yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-              long long a0 = 0, a1 = 0;
-              if (args && yyjson_is_arr(args)) {
-                if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-                if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
-              }
-              int scan_org = recv ? get_scan_origin(recv) : ORG_NONE;
-              if (bname && strcmp(bname, "MapBox")==0) {
-                if (mname) {
-                  if (strcmp(mname, "set")==0) need_map_set=1; else if (strcmp(mname, "size")==0||strcmp(mname, "len")==0) need_map_size=1;
-                  else if (strcmp(mname, "get")==0) need_map_get=1; else if (strcmp(mname, "has")==0) need_map_has=1;
-                }
-              } else if (bname && strcmp(bname, "ArrayBox")==0) {
-                if (mname) {
-                  if (strcmp(mname, "push")==0) need_arr_push=1; else if (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0) need_arr_len=1;
-                  else if (strcmp(mname, "set")==0) need_arr_set=1; else if (strcmp(mname, "get")==0) need_arr_get=1;
-                }
-              } else if (bname && strcmp(bname, "RuntimeDataBox")==0) {
-                if (scan_org == ORG_ARRAY_BIRTH && mname && strcmp(mname, "get")==0) need_arr_get=1;
-                if (scan_org == ORG_ARRAY_BIRTH && mname && strcmp(mname, "push")==0) {
-                  need_arr_push=1;
-                  if (a0 && get_scan_origin(a0) == ORG_STRING) promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                }
-                if (scan_org == ORG_ARRAY_BIRTH && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_arr_len=1;
-                if (scan_org == ORG_ARRAY_BIRTH && mname && strcmp(mname, "has")==0) need_arr_has=1;
-                if (scan_org == ORG_ARRAY_BIRTH && mname && strcmp(mname, "set")==0) {
-                  need_arr_set=1;
-                  if (a1 && get_scan_origin(a1) == ORG_STRING) promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                }
-                if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && strcmp(mname, "get")==0) {
-                  struct ArrayStringIndexofSelectWindowMatch indexof_select_match;
-                  struct ArrayStringIndexofBranchWindowMatch indexof_branch_match;
-                  struct ArrayStringIndexofCrossBlockSelectWindowMatch indexof_cross_block_select_match;
-                  struct ArrayStringIndexofInterleavedBranchWindowMatch indexof_interleaved_branch_match;
-                  struct ArrayStringIndexofInterleavedSelectWindowMatch indexof_interleaved_select_match;
-                  long long dst = read_int(ins, "dst");
-                  if (analyze_array_string_indexof_select_window_candidate(
-                          ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                          &indexof_select_match, NULL, NULL, 0)) {
-                    need_arr_string_indexof=1;
-                  } else if (analyze_array_string_indexof_branch_window_candidate(
-                          ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                          &indexof_branch_match, NULL, NULL, 0)) {
-                    need_arr_string_indexof=1;
-                  } else if (analyze_array_string_indexof_cross_block_select_window_candidate(
-                          blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                          &indexof_cross_block_select_match, NULL, NULL, 0)) {
-                    need_arr_string_indexof=1;
-                  } else if (analyze_array_string_indexof_interleaved_branch_window_candidate(
-                          blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                          &indexof_interleaved_branch_match, NULL, NULL, 0)) {
-                    need_arr_string_indexof=1;
-                  } else if (analyze_array_string_indexof_interleaved_select_window_candidate(
-                          blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
-                          &indexof_interleaved_select_match, NULL, NULL, 0)) {
-                    need_arr_string_indexof=1;
-                  } else {
-                    need_arr_get=1;
-                  }
-                  if (dst) set_scan_origin(dst, ORG_STRING);
-                }
-                if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && strcmp(mname, "push")==0) need_arr_push=1;
-                if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && strcmp(mname, "set")==0) need_arr_set=1;
-                if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_arr_len=1;
-                if (scan_org == ORG_MAP_BIRTH && mname && strcmp(mname, "get")==0) need_map_get=1;
-                if (scan_org == ORG_MAP_BIRTH && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_map_size=1;
-                if (scan_org == ORG_MAP_BIRTH && mname && strcmp(mname, "has")==0) need_map_has=1;
-                if (scan_org == ORG_STRING && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_string_len=1;
-                if (scan_org == ORG_STRING && mname && strcmp(mname, "substring")==0) {
-                  need_string_substring=1;
-                  if (read_int(ins, "dst")) set_scan_origin(read_int(ins, "dst"), ORG_STRING);
-                }
-                if (scan_org == ORG_STRING && mname && strcmp(mname, "indexOf")==0) need_string_indexof=1;
-              }
-            } else if (ctype && strcmp(ctype, "Global")==0) {
-              if (mname && strcmp(mname, "print")==0) need_printf=1;
-            }
+            scan_mir_call_need_flags(
+                blocks,
+                bid,
+                ii,
+                ilen,
+                insts,
+                ins,
+                &needs);
           } else if (strcmp(op, "binop")==0) {
             const char* bop = read_str(ins, "operation");
             if (!bop) bop = read_str(ins, "op_kind");
@@ -1705,7 +1625,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long rhs = read_int(ins, "rhs");
             if ((bop && (strcmp(bop, "+") == 0 || strcmp(bop, "Add") == 0)) &&
                 get_scan_origin(lhs) == ORG_STRING && get_scan_origin(rhs) == ORG_STRING) {
-              need_string_concat = 1;
+              needs.string_concat = 1;
               if (dst) set_scan_origin(dst, ORG_STRING);
             }
           }
@@ -1717,27 +1637,27 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       FILE* f = fopen(llpath, "wb"); if (!f) { yyjson_doc_free(d); break; }
       fprintf(f, "; nyash pure IR (generic)\n");
       fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
-      if (need_map_birth) fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
-      if (need_map_set)   fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
-      if (need_map_get)   fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)\n");
-      if (need_map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)\n");
-      if (need_map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n");
-      if (need_arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
-      if (need_arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
-      if (need_arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
-      if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_hih\"(i64, i64, i64)\n");
-      if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
-      if (need_arr_get && need_arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
-      if (need_arr_get && need_string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)\n");
-      if (need_arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)\n");
-      if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n");
-      if (need_arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
-      if (need_string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
-      if (need_string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
-      if (need_string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
-      if (need_string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
-      if (need_string_concat) fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
-      if (need_printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
+      if (needs.map_birth) fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
+      if (needs.map_set)   fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
+      if (needs.map_get)   fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)\n");
+      if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)\n");
+      if (needs.map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n");
+      if (needs.arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
+      if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
+      if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
+      if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_hih\"(i64, i64, i64)\n");
+      if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
+      if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
+      if (needs.arr_get && needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)\n");
+      if (needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)\n");
+      if (needs.arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n");
+      if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
+      if (needs.string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
+      if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
+      if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
+      if (needs.string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
+      if (needs.string_concat) fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
+      if (needs.printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
       for (size_t sci=0; sci<str_consts_n; sci++) {
         size_t slen = strlen(str_consts[sci].val);
         fprintf(f, "@.str_reg_%lld = private unnamed_addr constant [%zu x i8] c\"", str_consts[sci].reg, slen + 1);
@@ -1746,7 +1666,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       // Unboxer (declare opportunistically; low cost)
       fprintf(f, "declare i64 @\"nyash.integer.get_h\"(i64)\n");
-      if (need_printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
+      if (needs.printf)    fprintf(f, "declare i32 @printf(ptr, ...)\n");
       fprintf(f, "\n");
       // Unboxer (declare opportunistically; low cost)
       hako_llvmc_emit_entry_header(f, &selection);
@@ -1995,50 +1915,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               generic_call_trace_budget--;
             }
             if (ctype && !strcmp(ctype, "Constructor")) {
-              if (bname && !strcmp(bname, "MapBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.map.birth_h\"()\n", dst); set_type(dst, T_I64); set_origin(dst, ORG_MAP_BIRTH);} else { EMIT("  call i64 @\"nyash.map.birth_h\"()\n"); } }
-              else if (bname && !strcmp(bname, "ArrayBox")) { if (dst) { EMIT("  %%r%lld = call i64 @\"nyash.array.birth_h\"()\n", dst); set_type(dst, T_I64); set_origin(dst, ORG_ARRAY_BIRTH);} else { EMIT("  call i64 @\"nyash.array.birth_h\"()\n"); } }
-              else { yyjson_doc_free(d); goto GEN_ABORT; }
+              if (emit_constructor_mir_call(f, bname, dst) < 0) { yyjson_doc_free(d); goto GEN_ABORT; }
             } else if (ctype && !strcmp(ctype, "Method")) {
-              int recv_org = recv ? get_origin(recv) : ORG_NONE;
-              if (recv_org == ORG_NONE && recv) {
-                recv_org = get_scan_origin(recv);
-              }
-              int runtime_array_len = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
-              int runtime_array_get = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
-              int runtime_array_push = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
-              int runtime_array_has = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_BIRTH;
-              int runtime_string = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_STRING;
-              int runtime_array_string = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_STRING_BIRTH;
-              int runtime_map_get = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
-              int runtime_map_size = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
-              int runtime_map_has = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
-              struct DeferredArrayStringIndexofSelect* deferred_array_string_indexof = NULL;
-              if (mname && !strcmp(mname, "indexOf") && runtime_string) {
-                deferred_array_string_indexof = find_deferred_array_string_indexof_select(bid, ii);
-              }
-              if (hako_llvmc_route_trace_enabled() && generic_method_trace_budget > 0) {
-                char extra[384];
-                snprintf(extra, sizeof(extra),
-                         "ii=%zu dst=%lld recv=%lld recv_org=%d ctype=%s bname=%s mname=%s a0=%lld a1=%lld flags=len:%d get:%d push:%d has:%d string:%d array_string:%d map_get:%d map_size:%d map_has:%d",
-                         ii, dst, recv, recv_org,
-                         ctype ? ctype : "-",
-                         bname ? bname : "-",
-                         mname ? mname : "-",
-                         a0, a1,
-                         runtime_array_len,
-                         runtime_array_get,
-                         runtime_array_push,
-                         runtime_array_has,
-                         runtime_string,
-                         runtime_array_string,
-                         runtime_map_get,
-                         runtime_map_size,
-                         runtime_map_has);
-                hako_llvmc_emit_route_trace("mir_call_method", "seen", mname ? mname : "unknown", extra);
-                generic_method_trace_budget--;
-              }
+              struct GenericMethodRouteState route =
+                  classify_generic_method_route(bid, ii, bname, mname, recv);
+              trace_generic_method_route_state(
+                  ii, dst, recv, ctype, bname, mname, a0, a1, &route);
               append_array_string_indexof_method_receiver_args(
-                  deferred_array_string_indexof,
+                  route.deferred_array_string_indexof,
                   recv,
                   ab,
                   sizeof(ab));
@@ -2056,24 +1940,15 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                     recv,
                     a0,
                     a1,
-                    recv_org,
-                    runtime_array_len,
-                    runtime_array_get,
-                    runtime_array_push,
-                    runtime_array_has,
-                    runtime_string,
-                    runtime_array_string,
-                    runtime_map_get,
-                    runtime_map_size,
-                    runtime_map_has,
+                    &route,
                     ab,
                     sizeof(ab),
                     skip_inst);
                 if (non_indexof_method_rc < 0) { yyjson_doc_free(d); goto GEN_ABORT; }
                 if (non_indexof_method_rc > 0) continue;
               }
-              if (mname && !strcmp(mname, "indexOf") && runtime_string) {
-                if (!emit_deferred_array_string_indexof_call(f, deferred_array_string_indexof, dst, ab)) {
+              if (mname && !strcmp(mname, "indexOf") && route.runtime_string) {
+                if (!emit_deferred_array_string_indexof_call(f, route.deferred_array_string_indexof, dst, ab)) {
                   if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
                   if (dst) {
                     EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
@@ -2085,18 +1960,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               }
               else { yyjson_doc_free(d); goto GEN_ABORT; }
             } else if (ctype && !strcmp(ctype, "Global")) {
-              if (mname && !strcmp(mname, "print")) {
-                long long print_arg = a0;
-                long long cv = 0;
-                if (!print_arg) { yyjson_doc_free(d); goto GEN_ABORT; }
-                if (has_const(print_arg, &cv)) {
-                  EMIT("  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %lld)\n",
-                       print_arg, cv);
-                } else {
-                  EMIT("  %%print_call_%lld = call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 %%r%lld)\n",
-                       print_arg, print_arg);
-                }
-              } else { yyjson_doc_free(d); goto GEN_ABORT; }
+              if (emit_global_mir_call(f, mname, a0) < 0) { yyjson_doc_free(d); goto GEN_ABORT; }
             } else { yyjson_doc_free(d); goto GEN_ABORT; }
             continue;
           }

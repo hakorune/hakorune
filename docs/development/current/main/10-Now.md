@@ -103,8 +103,11 @@ Related:
         - extracted direct `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_direct_match.inc`
         - extracted cross-block / interleaved `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_block_match.inc`
         - extracted `indexOf` observer lowering helpers into `hako_llvmc_ffi_indexof_observer_lowering.inc`
+        - extracted `mir_call` prepass need-flag helpers into `hako_llvmc_ffi_mir_call_prepass.inc`
         - extracted non-`indexOf` generic method lowering helpers into `hako_llvmc_ffi_generic_method_lowering.inc`
-        - keep the remaining `mir_call` route shell, runtime-flag classification, and constructor/global lowering in `pure_compile.inc` for the next cleanup pass
+        - extracted `mir_call` emit-shell helpers into `hako_llvmc_ffi_mir_call_shell.inc` so constructor/global emit and runtime route classification no longer stay inline in the lowering walk
+        - route summary remains unchanged after the split: probe bundle still reports `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1`
+        - this BoxShape pass is now sufficient for returning to perf work; only reopen `pure_compile.inc` cleanup if a new exact readability/ownership blocker appears
         - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
         - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
         - external evaluation positives to preserve:
@@ -118,6 +121,7 @@ Related:
       - `phase29ck_boundary_compat_keep_min.sh` is green again
       - direct `target/release/ny-llvmc --driver harness --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json ...` writes object again on the explicit keep lane
       - optimization return resumes at `micro kilo` while keeping the fixed order `leaf-proof micro -> micro kilo -> main kilo`
+      - exact next blocker remains the forced generic observer cost gap on `kilo_micro_indexof_line`
     - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi`
   - current exact front:
     - `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`

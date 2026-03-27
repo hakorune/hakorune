@@ -95,8 +95,11 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
         - extracted direct `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_direct_match.inc`
         - extracted cross-block / interleaved `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_block_match.inc`
         - extracted `indexOf` observer lowering helpers into `hako_llvmc_ffi_indexof_observer_lowering.inc`
+        - extracted `mir_call` prepass need-flag helpers into `hako_llvmc_ffi_mir_call_prepass.inc`
         - extracted non-`indexOf` generic method lowering helpers into `hako_llvmc_ffi_generic_method_lowering.inc`
-        - keep the remaining `mir_call` route shell, runtime-flag classification, and constructor/global lowering in `pure_compile.inc` for the next cleanup pass
+        - extracted `mir_call` emit-shell helpers into `hako_llvmc_ffi_mir_call_shell.inc` so constructor/global emit and runtime route classification no longer stay inline in the lowering walk
+        - route summary remains unchanged after the split: probe bundle still reports `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1`
+        - this BoxShape pass is now sufficient for returning to perf work; only reopen `pure_compile.inc` cleanup if a new exact readability/ownership blocker appears
         - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
         - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
         - external evaluation positives to preserve:
@@ -120,6 +123,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - optimization return point after that cleanup stays unchanged:
       - return directly to `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
       - keep the current fixed order `leaf-proof micro -> micro kilo -> main kilo`; current resume point is `micro kilo`
+      - exact next blocker remains the forced generic observer cost gap on `kilo_micro_indexof_line`
       - do not reopen broader keep-lane work once the explicit compat keep pin is green again
     - current non-blocking residue to ignore for this lane:
       - `build_stage1.sh --artifact-kind stage1-cli` capability check remains red

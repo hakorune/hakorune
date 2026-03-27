@@ -26,14 +26,18 @@ Current partitions:
   - cross-block and interleaved `indexOf` observer match helpers
 - `hako_llvmc_ffi_indexof_observer_lowering.inc`
   - `indexOf` observer defer/argument/emit helpers used by pure-first lowering
+- `hako_llvmc_ffi_mir_call_prepass.inc`
+  - `mir_call` prepass need-flag scan helpers used before generic pure lowering emits LLVM IR
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
+- `hako_llvmc_ffi_mir_call_shell.inc`
+  - shared `mir_call` emit-shell helpers for constructor/global lowering and runtime route classification
 - `hako_llvmc_ffi_indexof_observer_trace.inc`
   - route-trace wrappers for `indexOf` observer families
 - `hako_llvmc_ffi_route.inc`
   - harness keep replay, selected-route entry points, forwarders
 - `hako_llvmc_ffi_pure_compile.inc`
-  - `compile_json_compat_pure(...)` and the remaining exported link surface
+  - `compile_json_compat_pure(...)`, generic walk orchestration, and the remaining exported link surface
 
 Rules:
 
