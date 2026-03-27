@@ -9,6 +9,8 @@ Current owner
   - thin backend boundary の caller facade
   - `backend_recipe_box.hako`
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
+  - `backend_daily_owner_policy_box.hako`
+  - narrow allowlist helper for `.hako ll emitter` daily-owner selection; no route/profile assembly, no transport
   - `ll_emit/**`
   - explicit compare/debug bridge plus narrow daily owner for flipped boundary shapes
   - shared non-empty validation helper also lives here so `LlvmBackendBox` can stay transport-focused without duplicating input guards
