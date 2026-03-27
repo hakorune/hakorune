@@ -23,5 +23,5 @@ Thin Rust bridge for backend object emission.
 ## Current policy
 
 - mainline owner is being cut over shape-by-shape from legacy C `.inc` to `.hako ll emitter`
-- compare lane is explicit bridge evidence, not a permanent default route
+- compare lane is explicit bridge evidence, not a permanent default route; the proof smoke now runs from `phase29x-derust-archive.txt`
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here

@@ -3,9 +3,11 @@
 #
 # Contract pin:
 # 1) explicit `.hako ll emitter` compare lane stays opt-in only.
-# 2) narrow min-v0 fixtures (`ret const`, `bool phi/branch`, `concat3 extern`)
+# 2) this smoke is archived from the active suite and now runs from
+#    `phase29x-derust-archive.txt`.
+# 3) narrow min-v0 fixtures (`ret const`, `bool phi/branch`, `concat3 extern`)
 #    emit objects through the compare owner candidate.
-# 3) compare lane emits stable ownership evidence before object handoff.
+# 4) compare lane emits stable ownership evidence before object handoff.
 
 set -euo pipefail
 

@@ -33,21 +33,21 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - `JIR-PORT-08` is landed; keep the lane failure-driven and promote a new exact leaf only when the next blocker is captured
 - structure-first override is now explicit in `phase-29x`:
   - current structural blocker is backend owner thickness on `MIR -> Rust glue -> C .inc / compare transport -> LLVM text/object`
-  - fixed order is now `backend-owner-cutover SSOT -> runtime-decl manifest v0 -> recipe-facts v0 -> .hako ll emitter min v0 -> explicit compare bridge -> boundary-only narrow owner flip -> archive/delete sweep`
+  - fixed order is now `backend-owner-cutover SSOT -> runtime-decl manifest v0 -> recipe-facts v0 -> .hako ll emitter min v0 -> explicit compare bridge (archive-suite only) -> boundary-only narrow owner flip -> archive/delete sweep`
   - subtraction queue is now explicit in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
   - `.hako ll emitter` is now the daily owner for `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, and `concat3 extern` boundary fixtures, while explicit compare stays opt-in only
   - legacy C `.inc` remains the daily owner for unflipped shapes only; flipped-shape demotion is now tracked as part of the same wave and silent fallback is still forbidden
   - dead compare residue `lang/src/shared/backend/ll_emit/mir_json_loader_box.hako` is retired; bridge split now lives under `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
   - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
     - flipped `phase29ck` locks moved out of `phase29ck-boundary` into `phase29ck-boundary-legacy`
-    - compare bridge assets stay explicit bridge-only until compare retirement
+    - compare bridge assets stay explicit bridge-only and compare proof now lives in `phase29x-derust-archive.txt`
     - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
     - `.hako ll emitter` is now also the daily owner for `runtime_data_string_length_ascii_min_v1`, `runtime_data_array_length_min_v1`, and `runtime_data_map_size_min_v1`
     - those three `RuntimeData` observer locks now live in `phase29ck-boundary-legacy`
     - lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
     - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
   - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
-  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, `LlvmBackendBox` env mirror is split out into `backend_route_env_box.hako`, `ll_emit_bridge.rs` compare/debug templating residue is split out into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and the remaining cleanup target is compare bridge retirement / archive decision
+  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, `LlvmBackendBox` env mirror is split out into `backend_route_env_box.hako`, `ll_emit_bridge.rs` compare/debug templating residue is split out into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and the remaining cleanup target is compare bridge retirement / archive decision with compare proof archived out of the active suite
   - `BackendRecipeBox` fixture-path owner allowlist plus `backend.ll_emit.call_policy` and `backend.ll_emit.call_selector` are already split out
   - next structural cleanup after the owner-flip wave is to thin the remaining Rust/bridge policy leaks without reopening leaf-only perf retune
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
@@ -238,8 +238,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
     - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
     - `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
-    - `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
-    - `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
+    - `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh` (archive-suite only)
+    - `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako` (archive-suite only)
     - `apps/tests/phase29x_backend_owner_daily_min.hako`
   - working rule:
     - keep canonical seam at MIR; do not open `AST -> LLVM` direct lowering

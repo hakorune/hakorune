@@ -24,8 +24,9 @@ Related:
 | surface | current_state | target_state | retire_trigger | archive_or_delete | notes |
 | --- | --- | --- | --- | --- | --- |
 | `lang/src/shared/backend/ll_emit/**` | compare bridge + narrow daily owner candidate | future mainline backend owner | boundary-only wave が stable | preserve | mainline owner 候補なので legacy 扱いしない |
-| `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako` | compare-proof asset | archive/delete candidate | compare bridge retirement | archive then delete | explicit compare lane only; 3 shape daily flip is already landed |
-| `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh` | compare-proof asset | archive/delete candidate | compare bridge retirement | archive then delete | keep until bridge-only compare lane is retired |
+| `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako` | archive-suite compare-proof asset | archive/delete candidate | compare bridge retirement | archive then delete | explicit compare lane only; compare proof now lives in `phase29x-derust-archive.txt` |
+| `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh` | archive-suite compare-proof asset | archive/delete candidate | compare bridge retirement | archive then delete | active suite no longer carries it |
+| `tools/smokes/v2/suites/integration/phase29x-derust-archive.txt` | archive-suite carrier | archive/delete candidate | compare bridge retirement | archive then delete | default suite stays clean; compare proof runs here |
 | `apps/tests/phase29x_backend_owner_daily_min.hako` | boundary-only owner-flip asset | keep until broader owner cutover settles | owner flip wave complete | decide later | daily narrow evidence app |
 | `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_daily_print_min.sh` | active daily owner proof | keep until broader owner cutover settles | owner flip wave complete | decide later | `hello_simple_llvm_native_probe_v1` now proves `.hako ll emitter` daily owner |
 | `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_daily_string_length_min.sh` | active daily owner proof | keep until broader owner cutover settles | owner flip wave complete | decide later | `string_length_ascii_min_v1` now proves `.hako ll emitter` daily owner |

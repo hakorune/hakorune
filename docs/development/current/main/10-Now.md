@@ -49,13 +49,13 @@ Related:
     - `backend-owner-cutover-ssot.md` is now the structure-first parent SSOT
     - backend-private `runtime-decl-manifest-v0.toml` is the single compare-lane declare inventory
     - `.hako ll emitter` min v0 is now the daily owner for `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, and `concat3 extern`
-    - explicit compare smoke remains `phase29x_backend_owner_hako_ll_compare_min.sh`; compare lane is bridge-only
+    - explicit compare smoke now lives in archive suite only as `phase29x_backend_owner_hako_ll_compare_min.sh`; compare lane is bridge-only
     - new legacy/demotion queue is fixed in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
     - legacy C `.inc` stays daily owner only for unflipped shapes and silent fallback remains forbidden
-    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`; next cleanup is compare bridge retirement / archive decision
+    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`; next cleanup is compare bridge retirement / archive decision with compare proof archived out of the active suite
     - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
-      - compare bridge assets remain explicit bridge-only until compare retirement
+      - compare bridge assets remain explicit bridge-only and now live in `phase29x-derust-archive.txt`
       - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
       - `.hako ll emitter` is now also the daily owner for `runtime_data_string_length_ascii_min_v1`, `runtime_data_array_length_min_v1`, and `runtime_data_map_size_min_v1`
       - those three `RuntimeData` observer locks now live in `phase29ck-boundary-legacy`

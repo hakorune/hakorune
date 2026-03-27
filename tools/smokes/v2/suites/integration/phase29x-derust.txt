@@ -1,10 +1,10 @@
 # Integration phase29x-derust suite
 # Active phase29x de-rust contract cases.
+# compare proof lives in phase29x-derust-archive.txt
 phase29x/derust/phase29x_derust_route_dualrun_vm.sh
 phase29x/derust/phase29x_derust_verifier_vm.sh
 phase29x/derust/phase29x_derust_safety_vm.sh
 phase29x/derust/phase29x_derust_strict_default_route_vm.sh
-phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh
 phase29x/derust/phase29x_backend_owner_daily_ret_const_min.sh
 phase29x/derust/phase29x_backend_owner_daily_bool_phi_branch_min.sh
 phase29x/derust/phase29x_backend_owner_daily_print_min.sh
