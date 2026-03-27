@@ -2,6 +2,7 @@ use super::value_codec::{
     string_handle_or_immediate_box_from_obj, try_retarget_borrowed_string_slot,
     try_retarget_borrowed_string_slot_with_source,
 };
+use crate::nyash_string_indexof_hh_export;
 use nyash_rust::boxes::array::ArrayBox;
 use nyash_rust::runtime::host_handles as handles;
 
@@ -24,6 +25,12 @@ pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
             item.as_str_fast().map(|s| s.len() as i64).unwrap_or(0)
         })
     })
+}
+
+#[inline(always)]
+pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64) -> i64 {
+    let item_h = super::array_slot_load::array_slot_load_encoded_i64(handle, idx);
+    nyash_string_indexof_hh_export(item_h, needle_h)
 }
 
 pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, value_h: i64) -> i64 {

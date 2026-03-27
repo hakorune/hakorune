@@ -5,7 +5,7 @@ use anyhow::{anyhow, Result};
 pub(super) const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 pub(super) const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 const BOUNDARY_DEFAULT_COMPILE_RECIPE: &str = "pure-first";
-const BOUNDARY_DEFAULT_COMPAT_REPLAY: &str = "harness";
+const BOUNDARY_DEFAULT_COMPAT_REPLAY: &str = "none";
 
 fn ffi_library_filenames() -> &'static [&'static str] {
     if cfg!(target_os = "windows") {
@@ -122,7 +122,7 @@ mod tests {
     fn boundary_codegen_defaults_fill_missing_recipe_and_replay() {
         let (recipe, compat_replay) = boundary_codegen_request_defaults(None, None);
         assert_eq!(recipe.as_deref(), Some("pure-first"));
-        assert_eq!(compat_replay.as_deref(), Some("harness"));
+        assert_eq!(compat_replay.as_deref(), Some("none"));
     }
 
     #[test]

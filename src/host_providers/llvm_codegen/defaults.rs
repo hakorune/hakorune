@@ -4,9 +4,6 @@ use super::Opts;
 
 pub(super) const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 
-const BOUNDARY_DEFAULT_COMPILE_RECIPE: &str = "pure-first";
-const BOUNDARY_DEFAULT_COMPAT_REPLAY: &str = "harness";
-
 fn ffi_library_filenames() -> &'static [&'static str] {
     if cfg!(target_os = "windows") {
         &["hako_llvmc_ffi.dll", "libhako_llvmc_ffi.dll"]
@@ -45,8 +42,8 @@ pub fn boundary_default_object_opts(
         nyrt,
         opt_level,
         timeout_ms,
-        compile_recipe: Some(BOUNDARY_DEFAULT_COMPILE_RECIPE.to_string()),
-        compat_replay: Some(BOUNDARY_DEFAULT_COMPAT_REPLAY.to_string()),
+        compile_recipe: None,
+        compat_replay: None,
     }
 }
 
@@ -58,10 +55,10 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
-    fn boundary_default_object_opts_carries_pure_first_harness_defaults() {
+    fn boundary_default_object_opts_stays_transport_only() {
         let opts = boundary_default_object_opts(None, None, None, None);
-        assert_eq!(opts.compile_recipe.as_deref(), Some("pure-first"));
-        assert_eq!(opts.compat_replay.as_deref(), Some("harness"));
+        assert_eq!(opts.compile_recipe, None);
+        assert_eq!(opts.compat_replay, None);
     }
 
     #[test]

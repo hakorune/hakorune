@@ -58,7 +58,7 @@ Prefer stable, structured tags over ad-hoc `eprintln!`:
 - Reject logs: `reject: <reason> idx=<n> kind=<ASTKind> handoff=<target>`
 - LLVM route trace (dev/diagnostic only, `NYASH_LLVM_ROUTE_TRACE=1`): `[llvm-route/select] owner=boundary recipe=<pure-first|...> compat_replay=<none|harness|...> symbol=<...>`
 - LLVM replay trace (dev/diagnostic only, `NYASH_LLVM_ROUTE_TRACE=1`): `[llvm-route/replay] lane=<none|harness> reason=<unsupported_pure_shape|...>`
-- LLVM optimization trace (dev/diagnostic only, `NYASH_LLVM_ROUTE_TRACE=1`): `[llvm-route/trace] stage=<generic_walk|mir_call|mir_call_method|array_rmw_window> result=<seen|hit|miss> reason=<...> extra=<...>`
+- LLVM optimization trace (dev/diagnostic only, `NYASH_LLVM_ROUTE_TRACE=1`): `[llvm-route/trace] stage=<generic_walk|mir_call|mir_call_method|array_rmw_window|array_string_len_window|array_string_indexof_select_window|array_string_indexof_branch_window> result=<seen|hit|miss> reason=<...> extra=<...>`
 - Stage1 MIR dialect probe (dev/diagnostic only): `[stage1-mir/probe] source=<...> functions=<n> blocks=<n> instructions=<n> boxcall=<n> mir_call=<n> call=<n> call_with_callee=<n> call_without_callee=<n> externcall=<n> newbox=<n> copy=<n>`
 - Stage1 MIR dialect probe strict freeze (dev/diagnostic only): `[freeze:contract][stage1_mir_dialect/legacy_callsite_detected] source=<...> boxcall=<n> externcall=<n>`
 - WASM route trace (dev/diagnostic only, `NYASH_WASM_ROUTE_TRACE=1`): `[wasm/route-trace] policy=<default|legacy-wasm-rust> plan=<native-shape-table|bridge-rust-backend|legacy-rust> shape_id=<id|->`

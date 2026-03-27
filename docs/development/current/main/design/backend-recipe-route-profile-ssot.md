@@ -31,7 +31,8 @@ Related:
 
 - `route_profile`
   - stable label for the current route policy
-  - example: `backend-zero/pure-first+harness`
+  - daily example: `backend-zero/pure-first+none`
+  - explicit keep example: `backend-zero/pure-first+harness-keep`
 - `policy_owner`
   - canonical `.hako` policy owner name
   - example: `BackendRecipeBox`
@@ -51,7 +52,8 @@ Related:
   - example: `pure-first`
 - `compat_replay`
   - compat replay lane name
-  - example: `harness`
+  - daily example: `none`
+  - explicit keep example: `harness`
 
 ## Grouped Evidence Buckets
 
@@ -61,6 +63,8 @@ Related:
     - `ret-const-v1`
     - `hello-simple-llvm-native-probe-v1`
   - string evidence
+    - `array-string-indexof-branch-v1`
+    - `array-string-indexof-select-v1`
     - `string-length-ascii-v1`
     - `string-indexof-ascii-v1`
   - runtime-data evidence
@@ -81,7 +85,7 @@ Related:
 
 1. `.hako` policy owner
    - `lang/src/shared/backend/backend_recipe_box.hako`
-   - decides route profile name, caller-facing recipe policy, and visible acceptance evidence rows
+   - decides route profile name, caller-facing recipe policy, explicit keep profile naming, and visible acceptance evidence rows
    - prepares link recipe normalization
 2. `.hako` caller facade
    - `lang/src/shared/backend/llvm_backend_box.hako`
@@ -104,7 +108,8 @@ Related:
 
 ## Current Rule
 
-- Daily `.hako` callers should first ask `BackendRecipeBox` for a route profile.
+- Daily `.hako` callers should first ask `BackendRecipeBox.compile_route_profile(...)` for the mainline route profile.
+- Explicit compat keep callers should ask `BackendRecipeBox.compile_keep_profile(..., "harness")`.
 - `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then stop at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`.
 - Rust and C layers may mirror the same policy names, but they must not invent new policy names.
 - `acceptance_case` growth must stay grouped at the `.hako` policy owner; do not add per-case transport ownership in Rust/C.
@@ -131,6 +136,7 @@ Related:
 ## Clean Stop Line For This Wave
 
 - Stop after `BackendRecipeBox` is the only visible owner for route profile and recipe naming.
+- Stop after daily mainline is visibly `pure-first + compat_replay=none`, while `harness` remains an explicit keep-only profile.
 - Stop after `BackendRecipeBox` is also the only visible owner for acceptance-policy naming and acceptance-case naming.
 - Stop after `LlvmBackendBox` reads the profile and transport layers only mirror it.
 - Current result:

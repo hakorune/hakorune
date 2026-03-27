@@ -100,6 +100,10 @@ def emit_dummy_object(out_path: str) -> None:
 def configure_builder_keep_env() -> None:
     # Enable safe defaults for prepasses unless explicitly disabled by env
     os.environ.setdefault(
+        "NYASH_LLVM_USE_HARNESS",
+        os.environ.get("NYASH_LLVM_USE_HARNESS", "1"),
+    )
+    os.environ.setdefault(
         "NYASH_LLVM_PREPASS_LOOP",
         os.environ.get("NYASH_LLVM_PREPASS_LOOP", "0"),
     )

@@ -47,8 +47,23 @@ Related:
 7. current array leaf は adjacency recipe ではなく semantic window recipe として読む
 8. `leaf-proof micro` lane is now landed:
    - `kilo_leaf_array_rmw_add1 = 36 ms`
-   - `kilo_leaf_array_string_len = 15 ms`
-   - `kilo_leaf_array_string_indexof_const` currently fails AOT build with a pure-first coverage gap
+   - `kilo_leaf_array_string_len = 12 ms`
+   - `kilo_leaf_array_string_indexof_const = 25 ms`
+   - narrow pure-first pins are `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json` and `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`
+   - `get -> indexOf("line") -> compare -> select|branch` pure-first acceptance gaps are retired
+   - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, `kilo_kernel_small_hk = 824 ms` (`warmup=1 repeat=3`)
+9. explicit compat-keep cleanup residue is retired:
+   - `phase29ck_boundary_compat_keep_min.sh` is green again
+   - direct `target/release/ny-llvmc --driver harness --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json ...` writes object again on the explicit keep lane
+   - keep lane remains compat/canary only and is not the Stage1 daily owner
+10. current next reading is fixed:
+   - battle order is `typed/recipe canonical subset -> generic pure lowering -> RuntimeData peel only on recurrence`
+   - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, not a new public IR layer and not an AST rewrite
+   - current pinned lowerings emit `nyash.array.string_indexof_hih`, and bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`
+   - accepted direct observer recipes must reject if standalone `slot_load_hi`, `generic_box_call`, or `hostbridge` remains in the hot block; current pinned fixtures are zero on all three residues
+   - refreshed `kilo_micro_indexof_line` bundle still shows route trace `select` only, and lowered IR remains the dedicated `indexOf line loop ascii` seed with `strstr`
+   - next `micro kilo` blocker is therefore to find the next cross-block/non-seed exact shape on the same artifact before escalating to `main kilo`
+   - `RuntimeDataBox` stays protocol/facade only in this exact slice; broad peel/widen stays deferred until the same blocker family recurs after the direct-path cut
 
 ## Fixed Order
 
@@ -66,7 +81,10 @@ Related:
 6. main route の hit/miss reason を bundle で固定する
 7. その evidence を見てからだけ next observer leaf を widen する
 8. do not reopen an observer cut that still leaves `slot_load_hi` in the same hot block
-9. current next exact blocker is the leaf-proof `get -> indexOf("line")` shape before returning to `micro kilo`
+9. current resume point after the retired leaf-proof/compat cleanup is `micro kilo`
+10. keep the fixed order `leaf-proof micro -> micro kilo -> main kilo`
+11. current exact `micro kilo` slice is direct `get -> indexOf(const) -> compare -> select` as an analysis-only recipe-sidecar cut
+12. RuntimeData peel is not the current front; only revisit it if the same blocker family survives after the direct-path proof
 
 ## Acceptance
 
@@ -76,6 +94,7 @@ Related:
 - current micro fused leaf が same artifact で証明されている
 - current main direct string-observer leaf が same artifact で証明されている
 - next leaf design が current main miss reason widening として読める
+- accepted direct observer recipe rows can explain hot-block residue with an explicit reject reason instead of a perf-only guess
 
 ## Non-Goals
 

@@ -43,10 +43,12 @@ optimization bundle は最低でも次を 1 ディレクトリに残す。
 2. route-aware emitted MIR JSON
 3. MIR op/callee histogram
 4. MIR window probe
-5. no-replay build log
-6. LLVM IR dump
-7. symbol proof
-8. optional micro perf top report
+5. analysis-only recipe acceptance ledger
+6. no-replay build log
+7. LLVM IR dump
+8. hot-block residue inventory
+9. symbol proof
+10. optional micro perf top report
 
 保存先の既定は次。
 
@@ -72,6 +74,14 @@ window probe は「隣接 3 命令列」を前提にしない。
 
 current `phase-29ck` の array family では、
 adjacent-op 仮説よりも semantic `array RMW window` を先に見る。
+
+current string-observer family では、exact next cut を次で読む。
+
+1. existing MIR の上に analysis-only recipe sidecar を作る
+2. typed/canonical subset を先に固定する
+3. lowering は accepted recipe facts だけを見る
+4. accepted hot block に standalone `slot_load_hi` / `generic_box_call` / `hostbridge` が残ったら reject する
+5. `RuntimeDataBox` peel は direct-path exact cut のあと、同じ blocker family が再発したときだけ考える
 
 ## Stable Trace Tags
 
@@ -123,10 +133,12 @@ bundle owner は次だよ。
 
 1. emit MIR or ingest existing MIR
 2. summarize MIR shape + windows
-3. build with `pure-first + compat_replay=none + route trace`
-4. save `.ll`
-5. save symbol inventory
-6. optionally run micro perf on the same built exe
+3. summarize analysis-only recipe acceptance / reject reason
+4. build with `pure-first + compat_replay=none + route trace`
+5. save `.ll`
+6. save hot-block residue inventory
+7. save symbol inventory
+8. optionally run micro perf on the same built exe
 
 ## Non-Goals
 

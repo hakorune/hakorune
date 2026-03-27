@@ -31,6 +31,22 @@ _PHI_DEF_RE = re.compile(r"^([%A-Za-z$._][\w$.\-]*)\s*=\s*phi\b")
 _PHI_INCOMING_PRED_RE = re.compile(r",\s*%([A-Za-z$._][\w$.-]*)\s*\]")
 
 
+def _sanitize_empty_phi_rows(ir_text: str) -> str:
+    """Drop malformed PHI rows that were emitted without incoming pairs.
+
+    Keep-lane llvmlite compatibility may still predeclare helper PHIs such as
+    string-pointer carriers. When those helpers fail to wire any incoming edges,
+    llvmlite renders lines like `%"phi_strptr_11" = phi  i8*`, which LLVM
+    rejects before we can reach verifier-level diagnostics.
+    """
+    fixed_lines = []
+    for line in ir_text.splitlines():
+        if " = phi " in line and "[" not in line:
+            continue
+        fixed_lines.append(line)
+    return "\n".join(fixed_lines)
+
+
 def _first_phi_verify_mismatch(ir_text: str) -> Optional[Dict[str, Any]]:
     """Best-effort detector for PHI predecessor/incoming mismatch from textual IR."""
     current_func: Optional[str] = None
@@ -330,13 +346,7 @@ class NyashLLVMBuilder:
         # Gate with NYASH_LLVM_SANITIZE_EMPTY_PHI=1. Additionally, auto-enable when harness is requested.
         if build_opts.sanitize_empty_phi:
             try:
-                fixed_lines = []
-                for line in ir_text.splitlines():
-                    if (" = phi  i64" in line or " = phi i64" in line) and ("[" not in line):
-                        # Skip malformed PHI without incoming pairs
-                        continue
-                    fixed_lines.append(line)
-                ir_text = "\n".join(fixed_lines)
+                ir_text = _sanitize_empty_phi_rows(ir_text)
             except Exception:
                 pass
         mod = llvm.parse_assembly(ir_text)

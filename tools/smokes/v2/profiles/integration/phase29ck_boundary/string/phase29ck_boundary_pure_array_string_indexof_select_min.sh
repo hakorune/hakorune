@@ -27,10 +27,11 @@ FIXTURE="$NYASH_ROOT/apps/tests/mir_shape_guard/array_string_indexof_select_min_
 NY_LLVM_C="$NYASH_ROOT/target/release/ny-llvmc"
 OUT_OBJ="${TMPDIR:-/tmp}/phase29ck_boundary_pure_array_string_indexof_select_min_$$.o"
 BUILD_LOG="${TMPDIR:-/tmp}/phase29ck_boundary_pure_array_string_indexof_select_min_$$.log"
+LL_DUMP="${TMPDIR:-/tmp}/phase29ck_boundary_pure_array_string_indexof_select_min_$$.ll"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-90}"
 
 cleanup() {
-    rm -f "$OUT_OBJ" "$BUILD_LOG"
+    rm -f "$OUT_OBJ" "$BUILD_LOG" "$LL_DUMP"
 }
 trap cleanup EXIT
 
@@ -49,6 +50,8 @@ bash "$NYASH_ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 set +e
 BUILD_OUT=$(
   NYASH_NY_LLVM_COMPILER=/__missing__/ny-llvmc \
+  NYASH_LLVM_ROUTE_TRACE=1 \
+  NYASH_LLVM_DUMP_IR="$LL_DUMP" \
   timeout "$RUN_TIMEOUT_SECS" \
   "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ" 2>&1
 )
@@ -71,6 +74,32 @@ fi
 
 if [ ! -f "$OUT_OBJ" ]; then
     test_fail "phase29ck_boundary_pure_array_string_indexof_select_min: object missing: $OUT_OBJ"
+    exit 1
+fi
+
+if ! grep -F 'stage=array_string_indexof_select_window result=hit' "$BUILD_LOG" >/dev/null 2>&1; then
+    echo "[INFO] route trace output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_pure_array_string_indexof_select_min: exact array-string indexOf+select recipe was not accepted"
+    exit 1
+fi
+
+if [ ! -f "$LL_DUMP" ]; then
+    test_fail "phase29ck_boundary_pure_array_string_indexof_select_min: LLVM IR dump missing: $LL_DUMP"
+    exit 1
+fi
+
+if ! grep -F 'nyash.array.string_indexof_hih' "$LL_DUMP" >/dev/null 2>&1; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "phase29ck_boundary_pure_array_string_indexof_select_min: lowered IR did not call nyash.array.string_indexof_hih"
+    exit 1
+fi
+
+if grep -F 'nyash.array.slot_load_hi' "$LL_DUMP" >/dev/null 2>&1; then
+    echo "[INFO] lowered IR:"
+    tail -n 120 "$LL_DUMP" || true
+    test_fail "phase29ck_boundary_pure_array_string_indexof_select_min: lowered IR still contains nyash.array.slot_load_hi residue"
     exit 1
 fi
 

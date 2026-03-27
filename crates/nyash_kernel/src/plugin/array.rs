@@ -92,6 +92,25 @@ mod tests {
     }
 
     #[test]
+    fn string_indexof_raw_alias_reads_string_slot_directly() {
+        let handle = new_array_handle();
+        let hay_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
+        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        let needle_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("line".to_string()),
+        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        let miss_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("none".to_string()),
+        ) as std::sync::Arc<dyn NyashBox>) as i64;
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, hay_handle), 1);
+        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 0, needle_handle), 0);
+        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 0, miss_handle), -1);
+        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 3, needle_handle), -1);
+    }
+
+    #[test]
     fn slot_append_raw_alias_keeps_contract() {
         let handle = new_array_handle();
         let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

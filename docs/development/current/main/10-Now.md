@@ -81,10 +81,23 @@ Related:
       - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
       - `kilo_leaf_array_string_len = 12 ms` (`aot_status=ok`)
       - `kilo_leaf_array_string_indexof_const = 25 ms` (`aot_status=ok`)
-      - narrow pure-first pin is now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`
-      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_select_min.sh` proves `get -> indexOf("line") -> compare -> select` without harness fallback
+      - narrow pure-first pins are now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json` and `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`
+      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_select_min.sh` proves `get -> indexOf("line") -> compare -> select` without harness fallback, and the visible `.hako` evidence row is `acceptance_case=array-string-indexof-select-v1`
+      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_branch_min.sh` proves `get -> indexOf("line") -> compare -> branch` without harness fallback, and the visible `.hako` evidence row is `acceptance_case=array-string-indexof-branch-v1`
       - the exact leaf-proof pure-first acceptance gap is retired
       - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, `kilo_kernel_small_hk = 824 ms` (`warmup=1 repeat=3`)
+    - current direct-path optimization reading is fixed:
+      - battle order is `typed/recipe canonical subset -> generic pure lowering -> RuntimeData peel only on recurrence`
+      - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, both lowered as `nyash.array.string_indexof_hih`
+      - bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`, and the accepted observer recipes leave `slot_load_hi`, `generic_box_call`, and `hostbridge` at zero on both pinned fixtures
+      - refreshed same-artifact bundle for `kilo_micro_indexof_line` still shows route trace `select` only, while lowered IR remains `indexOf line loop ascii` with `strstr`
+      - current `micro kilo` is therefore still a dedicated seed route, not the new generic observer recipe proof
+      - next `micro kilo` blocker is to identify the next cross-block/non-seed exact shape on the same artifact before touching `main kilo`
+      - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
+    - explicit compat-keep cleanup residue is retired:
+      - `phase29ck_boundary_compat_keep_min.sh` is green again
+      - direct `target/release/ny-llvmc --driver harness --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json ...` writes object again on the explicit keep lane
+      - optimization return resumes at `micro kilo` while keeping the fixed order `leaf-proof micro -> micro kilo -> main kilo`
     - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi`
   - current exact front:
     - `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
@@ -95,6 +108,8 @@ Related:
     - keep `pure-first + compat_replay=none` pinned
     - optimize `ny-llvmc(boundary)` rather than `llvmlite`
     - do not introduce a distinct new IR layer in this wave
+    - prefer analysis-only recipe/canonical-subset work on existing MIR over runtime smartening or backend-only tweaks
+    - keep `RuntimeDataBox` facade-only; a new peel/widen is allowed only if the same blocker family repeats after the direct-path exact cut
     - do not broaden pure-first to permanent dual-dialect support
     - do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
     - on WSL, do not treat a single main bench delta as proof when bundled main IR/symbol is unchanged

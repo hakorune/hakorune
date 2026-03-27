@@ -47,9 +47,11 @@ bash "$NYASH_ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
 set +e
 BUILD_OUT=$(
-  NYASH_NY_LLVM_COMPILER=/__missing__/ny-llvmc \
-  timeout "$RUN_TIMEOUT_SECS" \
-  "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ" 2>&1
+  env -u HAKO_BACKEND_COMPILE_RECIPE -u HAKO_BACKEND_COMPAT_REPLAY \
+    NYASH_LLVM_ROUTE_TRACE=1 \
+    NYASH_NY_LLVM_COMPILER=/__missing__/ny-llvmc \
+    timeout "$RUN_TIMEOUT_SECS" \
+    "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ" 2>&1
 )
 BUILD_RC=$?
 set -e
@@ -73,4 +75,18 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_pure_first_min: PASS (boundary default emits v1 ret-const seed without ny-llvmc harness fallback)"
+if ! grep -Fq "[llvm-route/select] owner=boundary recipe=pure-first compat_replay=none" "$BUILD_LOG"; then
+    echo "[INFO] compile output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_pure_first_min: boundary daily route did not advertise compat_replay=none"
+    exit 1
+fi
+
+if grep -Fq "[llvm-route/replay] lane=harness" "$BUILD_LOG"; then
+    echo "[INFO] compile output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_pure_first_min: boundary daily route still replayed harness"
+    exit 1
+fi
+
+test_pass "phase29ck_boundary_pure_first_min: PASS (boundary default emits v1 ret-const seed with compat_replay=none and without ny-llvmc harness fallback)"

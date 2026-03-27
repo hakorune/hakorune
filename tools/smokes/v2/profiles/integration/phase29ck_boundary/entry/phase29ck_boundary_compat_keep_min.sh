@@ -44,6 +44,7 @@ set +e
 BUILD_OUT=$(
   HAKO_BACKEND_COMPILE_RECIPE="pure-first" \
   HAKO_BACKEND_COMPAT_REPLAY="harness" \
+  NYASH_LLVM_ROUTE_TRACE=1 \
   NYASH_NY_LLVM_COMPILER="$NY_LLVM_C" \
   timeout "$RUN_TIMEOUT_SECS" \
   "$NY_LLVM_C" --in "$FIXTURE" --out "$OUT_OBJ" 2>&1
@@ -70,4 +71,18 @@ if [ ! -f "$OUT_OBJ" ]; then
     exit 1
 fi
 
-test_pass "phase29ck_boundary_compat_keep_min: PASS (explicit compat replay keeps method_call_only_small green)"
+if ! grep -Fq "[llvm-route/select] owner=boundary recipe=pure-first compat_replay=harness" "$BUILD_LOG"; then
+    echo "[INFO] compile output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_compat_keep_min: explicit keep route did not advertise compat_replay=harness"
+    exit 1
+fi
+
+if ! grep -Fq "[llvm-route/replay] lane=harness reason=unsupported_pure_shape" "$BUILD_LOG"; then
+    echo "[INFO] compile output:"
+    tail -n 120 "$BUILD_LOG" || true
+    test_fail "phase29ck_boundary_compat_keep_min: explicit keep route did not replay harness as expected"
+    exit 1
+fi
+
+test_pass "phase29ck_boundary_compat_keep_min: PASS (explicit compat replay keeps method_call_only_small green via harness keep lane)"

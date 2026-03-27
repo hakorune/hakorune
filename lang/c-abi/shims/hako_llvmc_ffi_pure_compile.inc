@@ -79,6 +79,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
       int array_rmw_trace_budget = 8;
       int array_string_len_trace_budget = 8;
+      int array_string_indexof_select_trace_budget = 8;
+      int array_string_indexof_branch_trace_budget = 8;
       int generic_walk_trace_budget = 24;
       int generic_call_trace_budget = 24;
       int generic_method_trace_budget = 24;
@@ -100,6 +102,48 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         size_t len_ii;
         long long len_dst;
       };
+      struct ArrayStringIndexofSelectWindowMatch {
+        int matched;
+        size_t get_copy_iis[8];
+        int get_copy_n;
+        size_t recv_copy_iis[8];
+        int recv_copy_n;
+        size_t indexof_copy_iis[8];
+        int indexof_copy_n;
+        size_t needle_const_ii;
+        size_t indexof_ii;
+        size_t zero_const_ii;
+        size_t compare_ii;
+        size_t then_const_ii;
+        size_t else_const_ii;
+        size_t select_ii;
+        long long needle_reg;
+        long long indexof_dst;
+      };
+      struct ArrayStringIndexofBranchWindowMatch {
+        int matched;
+        size_t get_copy_iis[8];
+        int get_copy_n;
+        size_t recv_copy_iis[8];
+        int recv_copy_n;
+        size_t indexof_copy_iis[8];
+        int indexof_copy_n;
+        size_t needle_const_ii;
+        size_t indexof_ii;
+        size_t zero_const_ii;
+        size_t compare_ii;
+        size_t branch_ii;
+        long long needle_reg;
+        long long indexof_dst;
+      };
+      struct DeferredArrayStringIndexofSelect {
+        long long bid;
+        size_t indexof_ii;
+        long long recv;
+        long long idx;
+        long long needle_reg;
+      } deferred_array_string_indexof_select[128];
+      int deferred_array_string_indexof_select_n = 0;
       auto int inst_uses_reg(yyjson_val* ins, long long reg) {
         if (!ins || !reg) return 0;
         const char* op = read_str(ins, "op");
@@ -133,6 +177,62 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           }
         }
         return 0;
+      }
+      auto struct DeferredArrayStringIndexofSelect* find_deferred_array_string_indexof_select(long long bid, size_t indexof_ii) {
+        for (int i = 0; i < deferred_array_string_indexof_select_n; i++) {
+          if (deferred_array_string_indexof_select[i].bid == bid &&
+              deferred_array_string_indexof_select[i].indexof_ii == indexof_ii) {
+            return &deferred_array_string_indexof_select[i];
+          }
+        }
+        return NULL;
+      }
+      auto void remember_deferred_array_string_indexof_select(
+          long long bid,
+          size_t indexof_ii,
+          long long recv,
+          long long idx,
+          long long needle_reg) {
+        struct DeferredArrayStringIndexofSelect* existing =
+            find_deferred_array_string_indexof_select(bid, indexof_ii);
+        if (existing) {
+          existing->recv = recv;
+          existing->idx = idx;
+          existing->needle_reg = needle_reg;
+          return;
+        }
+        if (deferred_array_string_indexof_select_n >= (int)(sizeof(deferred_array_string_indexof_select) / sizeof(deferred_array_string_indexof_select[0]))) return;
+        struct DeferredArrayStringIndexofSelect* slot =
+            &deferred_array_string_indexof_select[deferred_array_string_indexof_select_n++];
+        slot->bid = bid;
+        slot->indexof_ii = indexof_ii;
+        slot->recv = recv;
+        slot->idx = idx;
+        slot->needle_reg = needle_reg;
+      }
+      auto const char* read_string_const_from_inst(yyjson_val* ins) {
+        if (!ins) return NULL;
+        const char* op = read_str(ins, "op");
+        if (!(op && strcmp(op, "const") == 0)) return NULL;
+        yyjson_val* vobj = yyjson_obj_get(ins, "value");
+        yyjson_val* tyobj = vobj ? yyjson_obj_get(vobj, "type") : NULL;
+        const char* box_type = tyobj ? read_str(tyobj, "box_type") : NULL;
+        if (!(box_type && strcmp(box_type, "StringBox") == 0)) return NULL;
+        return vobj ? read_str(vobj, "value") : NULL;
+      }
+      auto int read_i64_const_from_inst(yyjson_val* ins, long long* out) {
+        if (out) *out = 0;
+        if (!ins) return 0;
+        const char* op = read_str(ins, "op");
+        if (!(op && strcmp(op, "const") == 0)) return 0;
+        yyjson_val* vobj = yyjson_obj_get(ins, "value");
+        yyjson_val* tyobj = vobj ? yyjson_obj_get(vobj, "type") : NULL;
+        const char* box_type = tyobj ? read_str(tyobj, "box_type") : NULL;
+        if (box_type && strcmp(box_type, "StringBox") == 0) return 0;
+        yyjson_val* value = vobj ? yyjson_obj_get(vobj, "value") : NULL;
+        if (!value) return 0;
+        if (out) *out = (long long)yyjson_get_sint(value);
+        return 1;
       }
       auto int analyze_array_rmw_window_candidate(
           size_t ii,
@@ -399,6 +499,477 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         if (reason_out) *reason_out = reason;
         return out && out->matched;
       }
+      auto int analyze_array_string_indexof_select_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_string,
+          struct ArrayStringIndexofSelectWindowMatch* out,
+          const char** reason_out,
+          char* extra,
+          size_t extra_cap) {
+        const char* reason = "shape_match";
+        if (out) memset(out, 0, sizeof(*out));
+        if (extra && extra_cap) extra[0] = '\0';
+        if (!mname || strcmp(mname, "get") != 0) {
+          reason = "not_get";
+          goto done;
+        }
+        if (!(runtime_array_string ||
+              (bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_STRING_BIRTH))) {
+          reason = "not_array_string_get";
+          goto done;
+        }
+        if (ii + 6 >= ilen) {
+          reason = "lookahead_short";
+          goto done;
+        }
+
+        size_t jj = ii + 1;
+        long long carried_get = cur_dst;
+        if (!carried_get) {
+          reason = "missing_get_dst";
+          goto done;
+        }
+        while (jj < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, jj);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried_get)) break;
+          if (out && out->get_copy_n < (int)(sizeof(out->get_copy_iis) / sizeof(out->get_copy_iis[0]))) {
+            out->get_copy_iis[out->get_copy_n++] = jj;
+          }
+          carried_get = read_int(c, "dst");
+          jj++;
+        }
+        if (jj + 5 >= ilen) {
+          reason = "copy_chain_short";
+          goto done;
+        }
+
+        yyjson_val* n_needle = yyjson_arr_get(insts, jj);
+        const char* op_needle = n_needle ? read_str(n_needle, "op") : NULL;
+        long long needle_reg = 0;
+        const char* needle_const = NULL;
+        if (!(op_needle && strcmp(op_needle, "const") == 0)) {
+          reason = "next_noncopy_not_const_string";
+          goto done;
+        }
+        needle_reg = read_int(n_needle, "dst");
+        needle_const = get_str_const(needle_reg);
+        if (!needle_const) needle_const = read_string_const_from_inst(n_needle);
+        if (!needle_const) {
+          reason = "needle_not_string_const";
+          goto done;
+        }
+
+        size_t kk = jj + 1;
+        long long carried_recv = carried_get;
+        while (kk < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, kk);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried_recv)) break;
+          if (out && out->recv_copy_n < (int)(sizeof(out->recv_copy_iis) / sizeof(out->recv_copy_iis[0]))) {
+            out->recv_copy_iis[out->recv_copy_n++] = kk;
+          }
+          carried_recv = read_int(c, "dst");
+          kk++;
+        }
+        if (kk + 4 >= ilen) {
+          reason = "receiver_copy_chain_short";
+          goto done;
+        }
+
+        yyjson_val* n_indexof = yyjson_arr_get(insts, kk);
+        const char* op_indexof = n_indexof ? read_str(n_indexof, "op") : NULL;
+        if (!(op_indexof && strcmp(op_indexof, "mir_call") == 0)) {
+          reason = "next_after_const_not_indexof";
+          goto done;
+        }
+        yyjson_val* mc_indexof = yyjson_obj_get(n_indexof, "mir_call");
+        yyjson_val* cal_indexof = mc_indexof ? yyjson_obj_get(mc_indexof, "callee") : NULL;
+        yyjson_val* args_indexof = mc_indexof ? yyjson_obj_get(mc_indexof, "args") : NULL;
+        const char* ctype_indexof = cal_indexof ? read_str(cal_indexof, "type") : NULL;
+        const char* bname_indexof = cal_indexof ? (read_str(cal_indexof, "box_name") ? read_str(cal_indexof, "box_name") : read_str(cal_indexof, "box_type")) : NULL;
+        const char* mname_indexof = cal_indexof ? (read_str(cal_indexof, "method") ? read_str(cal_indexof, "method") : read_str(cal_indexof, "name")) : NULL;
+        long long recv_indexof = cal_indexof ? read_int(cal_indexof, "receiver") : 0;
+        long long arg_indexof = 0;
+        if (args_indexof && yyjson_is_arr(args_indexof) && yyjson_arr_size(args_indexof) >= 1) {
+          arg_indexof = (long long)yyjson_get_sint(yyjson_arr_get(args_indexof, 0));
+        }
+        if (!(ctype_indexof && !strcmp(ctype_indexof, "Method") &&
+              mname_indexof && !strcmp(mname_indexof, "indexOf"))) {
+          reason = "next_after_const_not_indexof";
+          goto done;
+        }
+        if (recv_indexof != carried_recv) {
+          reason = "indexof_recv_mismatch";
+          goto done;
+        }
+        if (arg_indexof != needle_reg) {
+          reason = "indexof_needle_mismatch";
+          goto done;
+        }
+        if (!((bname_indexof && !strcmp(bname_indexof, "RuntimeDataBox")) ||
+              (bname_indexof && !strcmp(bname_indexof, "StringBox")))) {
+          reason = "indexof_not_string_method";
+          goto done;
+        }
+
+        size_t ll = kk + 1;
+        long long carried_indexof = read_int(n_indexof, "dst");
+        if (!carried_indexof) {
+          reason = "indexof_missing_dst";
+          goto done;
+        }
+        while (ll < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, ll);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried_indexof)) break;
+          if (out && out->indexof_copy_n < (int)(sizeof(out->indexof_copy_iis) / sizeof(out->indexof_copy_iis[0]))) {
+            out->indexof_copy_iis[out->indexof_copy_n++] = ll;
+          }
+          carried_indexof = read_int(c, "dst");
+          ll++;
+        }
+        if (ll + 4 >= ilen) {
+          reason = "indexof_copy_chain_short";
+          goto done;
+        }
+
+        yyjson_val* n_zero = yyjson_arr_get(insts, ll);
+        yyjson_val* n_compare = yyjson_arr_get(insts, ll + 1);
+        yyjson_val* n_then = yyjson_arr_get(insts, ll + 2);
+        yyjson_val* n_else = yyjson_arr_get(insts, ll + 3);
+        yyjson_val* n_select = yyjson_arr_get(insts, ll + 4);
+        const char* op_zero = n_zero ? read_str(n_zero, "op") : NULL;
+        const char* op_compare = n_compare ? read_str(n_compare, "op") : NULL;
+        const char* op_then = n_then ? read_str(n_then, "op") : NULL;
+        const char* op_else = n_else ? read_str(n_else, "op") : NULL;
+        const char* op_select = n_select ? read_str(n_select, "op") : NULL;
+        long long zero_reg = 0;
+        long long zero_val = 0;
+        long long then_reg = 0;
+        long long else_reg = 0;
+        long long then_val = 0;
+        long long else_val = 0;
+        long long compare_dst = 0;
+        const char* compare_op = NULL;
+        if (!(op_zero && strcmp(op_zero, "const") == 0)) {
+          reason = "next_after_indexof_not_zero_const";
+          goto done;
+        }
+        zero_reg = read_int(n_zero, "dst");
+        if (!(has_const(zero_reg, &zero_val) || read_i64_const_from_inst(n_zero, &zero_val)) || zero_val != 0) {
+          reason = "compare_const_not_zero";
+          goto done;
+        }
+        if (!(op_compare && strcmp(op_compare, "compare") == 0)) {
+          reason = "next_after_zero_not_compare";
+          goto done;
+        }
+        compare_op = read_str(n_compare, "operation");
+        if (!compare_op) compare_op = read_str(n_compare, "cmp");
+        if (!(compare_op && (!strcmp(compare_op, ">=") || !strcmp(compare_op, "Ge") || !strcmp(compare_op, "ge")))) {
+          reason = "compare_not_ge_zero";
+          goto done;
+        }
+        {
+          long long lhs = read_int(n_compare, "lhs");
+          if (!lhs) lhs = read_int(n_compare, "left");
+          long long rhs = read_int(n_compare, "rhs");
+          if (!rhs) rhs = read_int(n_compare, "right");
+          if (!(lhs == carried_indexof && rhs == zero_reg)) {
+            reason = "compare_not_indexof_ge_zero";
+            goto done;
+          }
+        }
+        compare_dst = read_int(n_compare, "dst");
+        if (!(op_then && strcmp(op_then, "const") == 0)) {
+          reason = "then_not_const";
+          goto done;
+        }
+        then_reg = read_int(n_then, "dst");
+        if (!(has_const(then_reg, &then_val) || read_i64_const_from_inst(n_then, &then_val))) {
+          reason = "then_not_i64_const";
+          goto done;
+        }
+        if (!(op_else && strcmp(op_else, "const") == 0)) {
+          reason = "else_not_const";
+          goto done;
+        }
+        else_reg = read_int(n_else, "dst");
+        if (!(has_const(else_reg, &else_val) || read_i64_const_from_inst(n_else, &else_val))) {
+          reason = "else_not_i64_const";
+          goto done;
+        }
+        if (!(op_select && strcmp(op_select, "select") == 0)) {
+          reason = "next_after_else_not_select";
+          goto done;
+        }
+        if (!(read_int(n_select, "cond") == compare_dst &&
+              read_int(n_select, "then_val") == then_reg &&
+              read_int(n_select, "else_val") == else_reg)) {
+          reason = "select_not_compare_terminal";
+          goto done;
+        }
+
+        if (out) {
+          for (size_t mm = ll + 5; mm < ilen; mm++) {
+            yyjson_val* later = yyjson_arr_get(insts, mm);
+            if (inst_uses_reg(later, cur_dst) || inst_uses_reg(later, carried_get) || inst_uses_reg(later, carried_recv)) {
+              reason = "post_select_uses_consumed_get_value";
+              goto done;
+            }
+          }
+          out->matched = 1;
+          out->needle_const_ii = jj;
+          out->needle_reg = needle_reg;
+          out->indexof_ii = kk;
+          out->indexof_dst = read_int(n_indexof, "dst");
+          out->zero_const_ii = ll;
+          out->compare_ii = ll + 1;
+          out->then_const_ii = ll + 2;
+          out->else_const_ii = ll + 3;
+          out->select_ii = ll + 4;
+        }
+      done:
+        if (extra && extra_cap) {
+          snprintf(extra, extra_cap,
+                   "ii=%zu dst=%lld recv=%lld idx=%lld get_copy_n=%d recv_copy_n=%d indexof_copy_n=%d indexof_ii=%zu compare_ii=%zu select_ii=%zu",
+                   ii, cur_dst, recv, idx,
+                   out ? out->get_copy_n : 0,
+                   out ? out->recv_copy_n : 0,
+                   out ? out->indexof_copy_n : 0,
+                   out ? out->indexof_ii : 0,
+                   out ? out->compare_ii : 0,
+                   out ? out->select_ii : 0);
+        }
+        if (reason_out) *reason_out = reason;
+        return out && out->matched;
+      }
+      auto int analyze_array_string_indexof_branch_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_string,
+          struct ArrayStringIndexofBranchWindowMatch* out,
+          const char** reason_out,
+          char* extra,
+          size_t extra_cap) {
+        const char* reason = "shape_match";
+        if (out) memset(out, 0, sizeof(*out));
+        if (extra && extra_cap) extra[0] = '\0';
+        if (!mname || strcmp(mname, "get") != 0) {
+          reason = "not_get";
+          goto done;
+        }
+        if (!(runtime_array_string ||
+              (bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_STRING_BIRTH))) {
+          reason = "not_array_string_get";
+          goto done;
+        }
+        if (ii + 5 >= ilen) {
+          reason = "lookahead_short";
+          goto done;
+        }
+
+        size_t jj = ii + 1;
+        long long carried_get = cur_dst;
+        if (!carried_get) {
+          reason = "missing_get_dst";
+          goto done;
+        }
+        while (jj < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, jj);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried_get)) break;
+          if (out && out->get_copy_n < (int)(sizeof(out->get_copy_iis) / sizeof(out->get_copy_iis[0]))) {
+            out->get_copy_iis[out->get_copy_n++] = jj;
+          }
+          carried_get = read_int(c, "dst");
+          jj++;
+        }
+        if (jj + 4 >= ilen) {
+          reason = "copy_chain_short";
+          goto done;
+        }
+
+        yyjson_val* n_needle = yyjson_arr_get(insts, jj);
+        const char* op_needle = n_needle ? read_str(n_needle, "op") : NULL;
+        long long needle_reg = 0;
+        const char* needle_const = NULL;
+        if (!(op_needle && strcmp(op_needle, "const") == 0)) {
+          reason = "next_noncopy_not_const_string";
+          goto done;
+        }
+        needle_reg = read_int(n_needle, "dst");
+        needle_const = get_str_const(needle_reg);
+        if (!needle_const) needle_const = read_string_const_from_inst(n_needle);
+        if (!needle_const) {
+          reason = "needle_not_string_const";
+          goto done;
+        }
+
+        size_t kk = jj + 1;
+        long long carried_recv = carried_get;
+        while (kk < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, kk);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried_recv)) break;
+          if (out && out->recv_copy_n < (int)(sizeof(out->recv_copy_iis) / sizeof(out->recv_copy_iis[0]))) {
+            out->recv_copy_iis[out->recv_copy_n++] = kk;
+          }
+          carried_recv = read_int(c, "dst");
+          kk++;
+        }
+        if (kk + 3 >= ilen) {
+          reason = "receiver_copy_chain_short";
+          goto done;
+        }
+
+        yyjson_val* n_indexof = yyjson_arr_get(insts, kk);
+        const char* op_indexof = n_indexof ? read_str(n_indexof, "op") : NULL;
+        if (!(op_indexof && strcmp(op_indexof, "mir_call") == 0)) {
+          reason = "next_after_const_not_indexof";
+          goto done;
+        }
+        yyjson_val* mc_indexof = yyjson_obj_get(n_indexof, "mir_call");
+        yyjson_val* cal_indexof = mc_indexof ? yyjson_obj_get(mc_indexof, "callee") : NULL;
+        yyjson_val* args_indexof = mc_indexof ? yyjson_obj_get(mc_indexof, "args") : NULL;
+        const char* ctype_indexof = cal_indexof ? read_str(cal_indexof, "type") : NULL;
+        const char* bname_indexof = cal_indexof ? (read_str(cal_indexof, "box_name") ? read_str(cal_indexof, "box_name") : read_str(cal_indexof, "box_type")) : NULL;
+        const char* mname_indexof = cal_indexof ? (read_str(cal_indexof, "method") ? read_str(cal_indexof, "method") : read_str(cal_indexof, "name")) : NULL;
+        long long recv_indexof = cal_indexof ? read_int(cal_indexof, "receiver") : 0;
+        long long arg_indexof = 0;
+        if (args_indexof && yyjson_is_arr(args_indexof) && yyjson_arr_size(args_indexof) >= 1) {
+          arg_indexof = (long long)yyjson_get_sint(yyjson_arr_get(args_indexof, 0));
+        }
+        if (!(ctype_indexof && !strcmp(ctype_indexof, "Method") &&
+              mname_indexof && !strcmp(mname_indexof, "indexOf"))) {
+          reason = "next_after_const_not_indexof";
+          goto done;
+        }
+        if (recv_indexof != carried_recv) {
+          reason = "indexof_recv_mismatch";
+          goto done;
+        }
+        if (arg_indexof != needle_reg) {
+          reason = "indexof_needle_mismatch";
+          goto done;
+        }
+        if (!((bname_indexof && !strcmp(bname_indexof, "RuntimeDataBox")) ||
+              (bname_indexof && !strcmp(bname_indexof, "StringBox")))) {
+          reason = "indexof_not_string_method";
+          goto done;
+        }
+
+        size_t ll = kk + 1;
+        long long carried_indexof = read_int(n_indexof, "dst");
+        if (!carried_indexof) {
+          reason = "indexof_missing_dst";
+          goto done;
+        }
+        while (ll < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, ll);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried_indexof)) break;
+          if (out && out->indexof_copy_n < (int)(sizeof(out->indexof_copy_iis) / sizeof(out->indexof_copy_iis[0]))) {
+            out->indexof_copy_iis[out->indexof_copy_n++] = ll;
+          }
+          carried_indexof = read_int(c, "dst");
+          ll++;
+        }
+        if (ll + 2 >= ilen) {
+          reason = "indexof_copy_chain_short";
+          goto done;
+        }
+
+        yyjson_val* n_zero = yyjson_arr_get(insts, ll);
+        yyjson_val* n_compare = yyjson_arr_get(insts, ll + 1);
+        yyjson_val* n_branch = yyjson_arr_get(insts, ll + 2);
+        const char* op_zero = n_zero ? read_str(n_zero, "op") : NULL;
+        const char* op_compare = n_compare ? read_str(n_compare, "op") : NULL;
+        const char* op_branch = n_branch ? read_str(n_branch, "op") : NULL;
+        long long zero_reg = 0;
+        long long zero_val = 0;
+        long long compare_dst = 0;
+        const char* compare_op = NULL;
+        if (!(op_zero && strcmp(op_zero, "const") == 0)) {
+          reason = "next_after_indexof_not_zero_const";
+          goto done;
+        }
+        zero_reg = read_int(n_zero, "dst");
+        if (!(has_const(zero_reg, &zero_val) || read_i64_const_from_inst(n_zero, &zero_val)) || zero_val != 0) {
+          reason = "compare_const_not_zero";
+          goto done;
+        }
+        if (!(op_compare && strcmp(op_compare, "compare") == 0)) {
+          reason = "next_after_zero_not_compare";
+          goto done;
+        }
+        compare_op = read_str(n_compare, "operation");
+        if (!compare_op) compare_op = read_str(n_compare, "cmp");
+        if (!(compare_op && (!strcmp(compare_op, ">=") || !strcmp(compare_op, "Ge") || !strcmp(compare_op, "ge")))) {
+          reason = "compare_not_ge_zero";
+          goto done;
+        }
+        {
+          long long lhs = read_int(n_compare, "lhs");
+          if (!lhs) lhs = read_int(n_compare, "left");
+          long long rhs = read_int(n_compare, "rhs");
+          if (!rhs) rhs = read_int(n_compare, "right");
+          if (!(lhs == carried_indexof && rhs == zero_reg)) {
+            reason = "compare_not_indexof_ge_zero";
+            goto done;
+          }
+        }
+        compare_dst = read_int(n_compare, "dst");
+        if (!(op_branch && strcmp(op_branch, "branch") == 0)) {
+          reason = "next_after_compare_not_branch";
+          goto done;
+        }
+        if (read_int(n_branch, "cond") != compare_dst) {
+          reason = "branch_not_compare_terminal";
+          goto done;
+        }
+
+        if (out) {
+          out->matched = 1;
+          out->needle_const_ii = jj;
+          out->needle_reg = needle_reg;
+          out->indexof_ii = kk;
+          out->indexof_dst = read_int(n_indexof, "dst");
+          out->zero_const_ii = ll;
+          out->compare_ii = ll + 1;
+          out->branch_ii = ll + 2;
+        }
+      done:
+        if (extra && extra_cap) {
+          snprintf(extra, extra_cap,
+                   "ii=%zu dst=%lld recv=%lld idx=%lld get_copy_n=%d recv_copy_n=%d indexof_copy_n=%d indexof_ii=%zu compare_ii=%zu branch_ii=%zu",
+                   ii, cur_dst, recv, idx,
+                   out ? out->get_copy_n : 0,
+                   out ? out->recv_copy_n : 0,
+                   out ? out->indexof_copy_n : 0,
+                   out ? out->indexof_ii : 0,
+                   out ? out->compare_ii : 0,
+                   out ? out->branch_ii : 0);
+        }
+        if (reason_out) *reason_out = reason;
+        return out && out->matched;
+      }
       auto void trace_array_rmw_window_candidate(
           size_t ii,
           size_t ilen,
@@ -442,10 +1013,52 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             runtime_array_string, &match, &reason, extra, sizeof(extra));
         hako_llvmc_emit_route_trace("array_string_len_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
       }
+      auto void trace_array_string_indexof_select_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_string) {
+        if (!hako_llvmc_route_trace_enabled() || array_string_indexof_select_trace_budget <= 0) return;
+        array_string_indexof_select_trace_budget--;
+        struct ArrayStringIndexofSelectWindowMatch match;
+        const char* reason = NULL;
+        char extra[320];
+        int matched = analyze_array_string_indexof_select_window_candidate(
+            ii, ilen, insts, bname, mname, recv, idx, cur_dst, recv_org,
+            runtime_array_string, &match, &reason, extra, sizeof(extra));
+        hako_llvmc_emit_route_trace("array_string_indexof_select_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
+      }
+      auto void trace_array_string_indexof_branch_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_string) {
+        if (!hako_llvmc_route_trace_enabled() || array_string_indexof_branch_trace_budget <= 0) return;
+        array_string_indexof_branch_trace_budget--;
+        struct ArrayStringIndexofBranchWindowMatch match;
+        const char* reason = NULL;
+        char extra[320];
+        int matched = analyze_array_string_indexof_branch_window_candidate(
+            ii, ilen, insts, bname, mname, recv, idx, cur_dst, recv_org,
+            runtime_array_string, &match, &reason, extra, sizeof(extra));
+        hako_llvmc_emit_route_trace("array_string_indexof_branch_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
+      }
 
       // Pre-scan: consts + phis + needed method decls
       int need_map_birth=0, need_map_set=0, need_map_size=0, need_map_get=0, need_map_has=0;
-      int need_arr_birth=0, need_arr_push=0, need_arr_len=0, need_arr_set=0, need_arr_get=0, need_arr_has=0;
+      int need_arr_birth=0, need_arr_push=0, need_arr_len=0, need_arr_set=0, need_arr_get=0, need_arr_has=0, need_arr_string_indexof=0;
       int need_string_const_box=0, need_string_len=0, need_string_substring=0, need_string_indexof=0, need_string_concat=0;
       int need_printf=0;
       size_t blen = yyjson_arr_size(blocks);
@@ -608,7 +1221,23 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   need_arr_set=1;
                   if (a1 && get_scan_origin(a1) == ORG_STRING) promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
                 }
-                if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && strcmp(mname, "get")==0) { need_arr_get=1; if (read_int(ins, "dst")) set_scan_origin(read_int(ins, "dst"), ORG_STRING); }
+                if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && strcmp(mname, "get")==0) {
+                  struct ArrayStringIndexofSelectWindowMatch indexof_select_match;
+                  struct ArrayStringIndexofBranchWindowMatch indexof_branch_match;
+                  long long dst = read_int(ins, "dst");
+                  if (analyze_array_string_indexof_select_window_candidate(
+                          ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
+                          &indexof_select_match, NULL, NULL, 0)) {
+                    need_arr_string_indexof=1;
+                  } else if (analyze_array_string_indexof_branch_window_candidate(
+                          ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
+                          &indexof_branch_match, NULL, NULL, 0)) {
+                    need_arr_string_indexof=1;
+                  } else {
+                    need_arr_get=1;
+                  }
+                  if (dst) set_scan_origin(dst, ORG_STRING);
+                }
                 if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && strcmp(mname, "push")==0) need_arr_push=1;
                 if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && strcmp(mname, "set")==0) need_arr_set=1;
                 if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && (strcmp(mname, "len")==0||strcmp(mname, "length")==0||strcmp(mname, "size")==0)) need_arr_len=1;
@@ -657,6 +1286,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
       if (need_arr_get && need_arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (need_arr_get && need_string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)\n");
+      if (need_arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)\n");
       if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n");
       if (need_arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
       if (need_string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
@@ -940,6 +1570,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               int runtime_map_get = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               int runtime_map_size = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
               int runtime_map_has = bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_MAP_BIRTH;
+              struct DeferredArrayStringIndexofSelect* deferred_array_string_indexof = NULL;
+              if (mname && !strcmp(mname, "indexOf") && runtime_string) {
+                deferred_array_string_indexof = find_deferred_array_string_indexof_select(bid, ii);
+              }
               if (hako_llvmc_route_trace_enabled() && generic_method_trace_budget > 0) {
                 char extra[384];
                 snprintf(extra, sizeof(extra),
@@ -961,7 +1595,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 hako_llvmc_emit_route_trace("mir_call_method", "seen", mname ? mname : "unknown", extra);
                 generic_method_trace_budget--;
               }
-              if (recv) app(recv, 1);
+              if (deferred_array_string_indexof) {
+                app(deferred_array_string_indexof->recv, 1);
+                app(deferred_array_string_indexof->idx, 0);
+                app(deferred_array_string_indexof->needle_reg, 0);
+              } else if (recv) app(recv, 1);
               if (mname && !strcmp(mname, "set")) {
                 int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
                 if (a0) app(a0, ab[0]=='\0');
@@ -985,8 +1623,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 struct ArrayStringLenWindowMatch string_len_match;
                 const char* string_len_reason = NULL;
                 char string_len_extra[256];
+                struct ArrayStringIndexofSelectWindowMatch string_indexof_select_match;
+                struct ArrayStringIndexofBranchWindowMatch string_indexof_branch_match;
                 trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
                 trace_array_string_len_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
+                trace_array_string_indexof_select_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
+                trace_array_string_indexof_branch_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
                 if (analyze_array_rmw_window_candidate(
                         ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                         runtime_array_get, runtime_array_string, &rmw_match, &rmw_reason,
@@ -1009,6 +1651,32 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   set_type(string_len_match.len_dst, T_I64);
                   for (int si = 0; si < string_len_match.copy_n; si++) skip_inst[string_len_match.copy_iis[si]] = 1;
                   skip_inst[string_len_match.len_ii] = 1;
+                  continue;
+                }
+                if (analyze_array_string_indexof_select_window_candidate(
+                        ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
+                        runtime_array_string, &string_indexof_select_match, NULL, NULL, 0)) {
+                  remember_deferred_array_string_indexof_select(
+                      bid,
+                      string_indexof_select_match.indexof_ii,
+                      recv,
+                      a0,
+                      string_indexof_select_match.needle_reg);
+                  for (int si = 0; si < string_indexof_select_match.get_copy_n; si++) skip_inst[string_indexof_select_match.get_copy_iis[si]] = 1;
+                  for (int si = 0; si < string_indexof_select_match.recv_copy_n; si++) skip_inst[string_indexof_select_match.recv_copy_iis[si]] = 1;
+                  continue;
+                }
+                if (analyze_array_string_indexof_branch_window_candidate(
+                        ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
+                        runtime_array_string, &string_indexof_branch_match, NULL, NULL, 0)) {
+                  remember_deferred_array_string_indexof_select(
+                      bid,
+                      string_indexof_branch_match.indexof_ii,
+                      recv,
+                      a0,
+                      string_indexof_branch_match.needle_reg);
+                  for (int si = 0; si < string_indexof_branch_match.get_copy_n; si++) skip_inst[string_indexof_branch_match.get_copy_iis[si]] = 1;
+                  for (int si = 0; si < string_indexof_branch_match.recv_copy_n; si++) skip_inst[string_indexof_branch_match.recv_copy_iis[si]] = 1;
                   continue;
                 }
                 if (a0) app(a0, ab[0]=='\0');
@@ -1044,12 +1712,21 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 }
               }
               else if (mname && !strcmp(mname, "indexOf") && runtime_string) {
-                if (a0) app(a0, ab[0]=='\0');
-                if (dst) {
-                  EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
-                  set_type(dst, T_I64);
+                if (deferred_array_string_indexof) {
+                  if (dst) {
+                    EMIT("  %%r%lld = call i64 @\"nyash.array.string_indexof_hih\"(%s)\n", dst, ab);
+                    set_type(dst, T_I64);
+                  } else {
+                    EMIT("  call i64 @\"nyash.array.string_indexof_hih\"(%s)\n", ab);
+                  }
                 } else {
-                  EMIT("  call i64 @\"nyash.string.indexOf_hh\"(%s)\n", ab);
+                  if (a0) app(a0, ab[0]=='\0');
+                  if (dst) {
+                    EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
+                    set_type(dst, T_I64);
+                  } else {
+                    EMIT("  call i64 @\"nyash.string.indexOf_hh\"(%s)\n", ab);
+                  }
                 }
               }
               else if (mname && !strcmp(mname, "has")) {

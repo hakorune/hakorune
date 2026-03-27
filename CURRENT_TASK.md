@@ -34,6 +34,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
   - current route-correction blocker is retired for the current kilo entry
+  - backend-zero thin-up is landed for the daily owner split:
+    - `.hako` daily route is now visible as `pure-first + compat_replay=none`
+    - explicit keep route remains `pure-first + compat_replay=harness`
+    - `phase29ck_boundary_pure_first_min.sh` now pins the `compat_replay=none` route trace directly
   - current exact front is `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
   - current facts are:
     - `P17` staged `AOT-Core` proof vocabulary lock is landed
@@ -69,10 +73,31 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
       - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
       - `kilo_leaf_array_string_len = 12 ms` (`aot_status=ok`)
       - `kilo_leaf_array_string_indexof_const = 25 ms` (`aot_status=ok`)
-      - narrow pure-first pin is now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`
-      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_select_min.sh` proves `get -> indexOf("line") -> compare -> select` without harness fallback
+      - narrow pure-first pins are now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json` and `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`
+      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_select_min.sh` proves `get -> indexOf("line") -> compare -> select` without harness fallback, and the visible `.hako` evidence row is `acceptance_case=array-string-indexof-select-v1`
+      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_branch_min.sh` proves `get -> indexOf("line") -> compare -> branch` without harness fallback, and the visible `.hako` evidence row is `acceptance_case=array-string-indexof-branch-v1`
       - the exact leaf-proof pure-first acceptance gap is retired
       - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, `kilo_kernel_small_hk = 824 ms` (`warmup=1 repeat=3`)
+    - current direct-path optimization reading is fixed:
+      - battle order is `typed/recipe canonical subset -> generic pure lowering -> RuntimeData peel only on recurrence`
+      - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, both lowered as `nyash.array.string_indexof_hih`
+      - bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`, and the accepted observer recipes leave `slot_load_hi`, `generic_box_call`, and `hostbridge` at zero on both pinned fixtures
+      - refreshed same-artifact bundle for `kilo_micro_indexof_line` still shows route trace `select` only, while lowered IR remains `indexOf line loop ascii` with `strstr`
+      - current `micro kilo` is therefore still a dedicated seed route, not the new generic observer recipe proof
+      - next `micro kilo` blocker is to identify the next cross-block/non-seed exact shape on the same artifact before touching `main kilo`
+      - `RuntimeDataBox` stays protocol/facade only in this wave; do not reopen broad generic peel/widen before the same blocker family recurs
+    - explicit compat-keep cleanup residue is retired:
+      - `phase29ck_boundary_compat_keep_min.sh` is green again
+      - direct `target/release/ny-llvmc --driver harness --in apps/tests/mir_shape_guard/method_call_only_small.prebuilt.mir.json ...` writes object again on the explicit keep lane
+      - `llvmlite` keep-lane parse residue is retired without changing the Stage1 daily route policy
+    - optimization return point after that cleanup stays unchanged:
+      - return directly to `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
+      - keep the current fixed order `leaf-proof micro -> micro kilo -> main kilo`; current resume point is `micro kilo`
+      - do not reopen broader keep-lane work once the explicit compat keep pin is green again
+    - current non-blocking residue to ignore for this lane:
+      - `build_stage1.sh --artifact-kind stage1-cli` capability check remains red
+      - `phase29ci_stage1_cli_exact_emit_contract_vm.sh` remains red at compat route probe
+      - treat both as separate Stage1/selfhost residue, not as `phase-29ck` owner proof blockers
     - do not reopen a direct `indexOf` observer that still leaves `slot_load_hi` behind
 
 ## Current Priority
@@ -109,6 +134,11 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - keep `pure-first + compat_replay=none` as the only acceptable Stage1 mainline/perf route
     - do not introduce a distinct new IR layer in this wave
     - optimize the real Stage1 owner; do not drift back into keep-lane fixes
+    - explicit compat-keep residue is retired; keep lane stays compat/canary evidence only
+    - do not pull `vm-hako` or reduced-artifact Stage1 red paths into the current `micro kilo` / `main kilo` return
+    - prefer analysis-only recipe/canonical-subset work on existing MIR over runtime smartening or backend-only tweaks
+    - keep `RuntimeDataBox` facade-only; a new peel/widen is allowed only if the same blocker family repeats after the direct-path exact cut
+    - accepted direct observer recipe rows must fail if standalone `slot_load_hi`, `generic_box_call`, or `hostbridge` still survives in the hot block
     - do not keep a new leaf unless the live route bundle proves MIR window -> IR -> symbol on the same artifact
     - on WSL, do not treat a single main bench delta as proof when the bundled main IR/symbol path is unchanged
     - keep rejected array-substrate attempts in the rolling ledger instead of shell history
@@ -204,6 +234,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
    - `docs/development/current/main/phases/phase-29bq/29bq-92-parser-handoff-checklist.md`
 3. keep the active `29bq` reading failure-driven with `blocker=none` until the next exact blocker is captured
 4. keep `phase-29ck` focused on `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
+   - immediate resume point for observer/perf work:
+     - keep the fixed order `leaf-proof micro -> micro kilo -> main kilo`; resume at `micro kilo`
+     - next exact shape is direct `get -> indexOf(const) -> compare -> select` as an analysis-only recipe sidecar cut
+     - treat `vm-hako` as parked/frozen monitor-only while doing so
 5. reopen `phase-29ci` only if a new exact boundary-retirement gap appears or hard delete resumes
 6. keep `phase-29cl` formally closed unless a fresh exact `by_name` caller/helper gap reappears
 7. keep `phase-29cu` / `phase-29cj` formally closed unless an exact gap reappears

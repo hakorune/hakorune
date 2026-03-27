@@ -7,22 +7,37 @@
 
 static box BackendRecipeBox {
   compile_route_profile(json_path) {
-    local path = me.require_non_empty_field("compile_route_profile", "json_path", json_path)
+    return me._build_compile_profile_for_replay("compile_route_profile", json_path, "none")
+  }
+
+  compile_keep_profile(json_path, compat_replay) {
+    local compat = me.require_non_empty_field("compile_keep_profile", "compat_replay", compat_replay)
+    if compat == null { return null }
+    if me._require_keep_compat_replay(compat) == null { return null }
+    return me._build_compile_profile_for_replay("compile_keep_profile", json_path, compat)
+  }
+
+  _build_compile_profile_for_replay(method_name, json_path, compat_replay) {
+    local path = me.require_non_empty_field(method_name, "json_path", json_path)
     if path == null { return null }
+    local compat = me.require_non_empty_field(method_name, "compat_replay", compat_replay)
+    if compat == null { return null }
+    local route_profile = me._route_profile_for_replay(compat)
+    if route_profile == null { return null }
     local profile = new MapBox()
-    profile.set("route_profile", "backend-zero/pure-first+harness")
+    profile.set("route_profile", route_profile)
     profile.set("policy_owner", "BackendRecipeBox")
     profile.set("transport_owner", "hako_llvmc_ffi")
     profile.set("acceptance_policy", "boundary-pure-seed-matrix-v1")
     profile.set("acceptance_case", "" + me.acceptance_case_for(path))
     profile.set("json_path", "" + path)
     profile.set("compile_recipe", "pure-first")
-    profile.set("compat_replay", "harness")
-    if me._validate_compile_route_profile(profile, path) == null { return null }
+    profile.set("compat_replay", compat)
+    if me._validate_compile_route_profile(profile, path, route_profile, compat) == null { return null }
     return profile
   }
 
-  _validate_compile_route_profile(profile, path) {
+  _validate_compile_route_profile(profile, path, expected_route_profile, expected_compat_replay) {
     if profile == null {
       return me._fail("[backendrecipe/profile-missing] profile is empty")
     }
@@ -31,7 +46,7 @@ static box BackendRecipeBox {
     if me._require_profile_equals(
       "route_profile",
       route_profile,
-      "backend-zero/pure-first+harness",
+      expected_route_profile,
     ) == null { return null }
     local policy_owner = profile.get("policy_owner")
     if me._require_profile_equals(
@@ -69,9 +84,26 @@ static box BackendRecipeBox {
     if me._require_profile_equals(
       "compat_replay",
       compat_replay,
-      "harness",
+      expected_compat_replay,
     ) == null { return null }
     return profile
+  }
+
+  _route_profile_for_replay(compat_replay) {
+    if compat_replay == "none" {
+      return "backend-zero/pure-first+none"
+    }
+    if compat_replay == "harness" {
+      return "backend-zero/pure-first+harness-keep"
+    }
+    return me._fail("[backendrecipe/profile-unsupported] compat_replay expected=none|harness got=" + ("" + compat_replay))
+  }
+
+  _require_keep_compat_replay(compat_replay) {
+    if compat_replay != "harness" {
+      return me._fail("[backendrecipe/keep-unsupported] compat_replay expected=harness got=" + ("" + compat_replay))
+    }
+    return compat_replay
   }
 
   acceptance_case_for(json_path) {
@@ -114,6 +146,12 @@ static box BackendRecipeBox {
   }
 
   _acceptance_case_string_bucket_for(path) {
+    if path.contains("array_string_indexof_branch_min_v1") {
+      return me.acceptance_case_array_string_indexof_branch_v1()
+    }
+    if path.contains("array_string_indexof_select_min_v1") {
+      return me.acceptance_case_array_string_indexof_select_v1()
+    }
     if path.contains("string_indexof_ascii_min_v1") {
       return me.acceptance_case_string_indexof_ascii_v1()
     }
@@ -208,6 +246,14 @@ static box BackendRecipeBox {
 
   acceptance_case_runtime_data_map_get_v1() {
     return "runtime-data-map-get-missing-v1"
+  }
+
+  acceptance_case_array_string_indexof_branch_v1() {
+    return "array-string-indexof-branch-v1"
+  }
+
+  acceptance_case_array_string_indexof_select_v1() {
+    return "array-string-indexof-select-v1"
   }
 
   acceptance_case_string_indexof_ascii_v1() {

@@ -160,9 +160,11 @@ BUILD_LOG="${OUT_DIR}/build.log"
 BUILD_RC_FILE="${OUT_DIR}/build.rc"
 ROUTE_TRACE_LOG="${OUT_DIR}/route_trace.log"
 ROUTE_TRACE_SUMMARY="${OUT_DIR}/route_trace_summary.txt"
+RECIPE_ACCEPTANCE_OUT="${OUT_DIR}/recipe_acceptance.txt"
 MIR_HOTOPS="${OUT_DIR}/mir_hotops.txt"
 MIR_WINDOWS="${OUT_DIR}/mir_windows.txt"
 LL_DUMP="${OUT_DIR}/lowered.ll"
+HOT_BLOCK_RESIDUE_OUT="${OUT_DIR}/hot_block_residue.txt"
 EXE_OUT="${OUT_DIR}/bundle.exe"
 SYMBOLS_OUT="${OUT_DIR}/symbols.txt"
 SYMBOL_MATCH_OUT="${OUT_DIR}/symbol_match.txt"
@@ -374,6 +376,68 @@ with open(out_path, "w", encoding="utf-8") as out:
         out.write(f"[route-trace/reason] stage={stage_name} reason={reason_name} count={count}\n")
 PY
 
+python3 - "${ROUTE_TRACE_LOG}" "${RECIPE_ACCEPTANCE_OUT}" <<'PY'
+import re
+import sys
+
+trace_path, out_path = sys.argv[1:3]
+rows = []
+
+with open(trace_path, "r", encoding="utf-8", errors="replace") as f:
+    for line in f:
+        line = line.strip()
+        if not line.startswith("[llvm-route/trace]"):
+            continue
+        stage = re.search(r"stage=([^ ]+)", line)
+        result = re.search(r"result=([^ ]+)", line)
+        reason = re.search(r"reason=([^ ]+)", line)
+        extra = re.search(r"extra=(.*)$", line)
+        rows.append(
+            (
+                stage.group(1) if stage else "?",
+                result.group(1) if result else "?",
+                reason.group(1) if reason else "?",
+                extra.group(1) if extra else "-",
+            )
+        )
+
+with open(out_path, "w", encoding="utf-8") as out:
+    if not rows:
+        out.write("[recipe-acceptance] empty=yes\n")
+    for stage_name, result_name, reason_name, extra_text in rows:
+        out.write(
+            f"[recipe-acceptance/trace] stage={stage_name} result={result_name} "
+            f"reason={reason_name} extra={extra_text}\n"
+        )
+PY
+
+python3 - "${LL_DUMP}" "${HOT_BLOCK_RESIDUE_OUT}" <<'PY'
+import sys
+
+ll_path, out_path = sys.argv[1:3]
+markers = [
+    ("slot_load_hi", "nyash.array.slot_load_hi"),
+    ("generic_box_call", "generic_box_call"),
+    ("hostbridge", "hostbridge"),
+    ("runtime_data", "runtime_data."),
+]
+
+text = ""
+try:
+    with open(ll_path, "r", encoding="utf-8", errors="replace") as f:
+        text = f.read()
+except FileNotFoundError:
+    pass
+
+with open(out_path, "w", encoding="utf-8") as out:
+    if not text:
+        out.write("[hot-block-residue] llvm_ir_present=no\n")
+    else:
+        out.write("[hot-block-residue] llvm_ir_present=yes scan_scope=whole_ir\n")
+        for label, needle in markers:
+            out.write(f"[hot-block-residue/item] label={label} count={text.count(needle)} needle={needle}\n")
+PY
+
 if [[ -f "${EXE_OUT}" ]]; then
   if command -v nm >/dev/null 2>&1; then
     nm -C "${EXE_OUT}" > "${SYMBOLS_OUT}" || true
@@ -454,11 +518,13 @@ echo "[bundle] out_dir=${OUT_DIR}"
 echo "[bundle] mir_json=${MIR_JSON}"
 echo "[bundle] route_trace=${ROUTE_TRACE_LOG}"
 echo "[bundle] route_summary=${ROUTE_TRACE_SUMMARY}"
+echo "[bundle] recipe_acceptance=${RECIPE_ACCEPTANCE_OUT}"
 echo "[bundle] mir_hotops=${MIR_HOTOPS}"
 echo "[bundle] mir_windows=${MIR_WINDOWS}"
 echo "[bundle] build_log=${BUILD_LOG} build_rc=${build_rc}"
 if [[ -f "${LL_DUMP}" ]]; then
   echo "[bundle] llvm_ir=${LL_DUMP}"
+  echo "[bundle] hot_block_residue=${HOT_BLOCK_RESIDUE_OUT}"
 fi
 if [[ -f "${SYMBOLS_OUT}" ]]; then
   echo "[bundle] symbols=${SYMBOLS_OUT}"
