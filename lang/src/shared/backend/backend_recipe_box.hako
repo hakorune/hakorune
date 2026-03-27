@@ -146,6 +146,9 @@ static box BackendRecipeBox {
   }
 
   _acceptance_case_string_bucket_for(path) {
+    if path.contains("array_string_indexof_interleaved_select_min_v1") {
+      return me.acceptance_case_array_string_indexof_interleaved_select_v1()
+    }
     if path.contains("array_string_indexof_interleaved_branch_min_v1") {
       return me.acceptance_case_array_string_indexof_interleaved_branch_v1()
     }
@@ -260,6 +263,10 @@ static box BackendRecipeBox {
 
   acceptance_case_array_string_indexof_interleaved_branch_v1() {
     return "array-string-indexof-interleaved-branch-v1"
+  }
+
+  acceptance_case_array_string_indexof_interleaved_select_v1() {
+    return "array-string-indexof-interleaved-select-v1"
   }
 
   acceptance_case_array_string_indexof_cross_block_select_v1() {

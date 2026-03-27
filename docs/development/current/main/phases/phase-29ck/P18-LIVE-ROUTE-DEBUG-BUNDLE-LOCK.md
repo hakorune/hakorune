@@ -49,8 +49,8 @@ Related:
    - `kilo_leaf_array_rmw_add1 = 36 ms`
    - `kilo_leaf_array_string_len = 12 ms`
    - `kilo_leaf_array_string_indexof_const = 25 ms`
-   - narrow pure-first pins are `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_cross_block_select_min_v1.mir.json`, and `apps/tests/mir_shape_guard/array_string_indexof_interleaved_branch_min_v1.mir.json`
-   - `get -> indexOf("line") -> compare -> select|branch`, the cross-block `get -> indexOf("line") -> jump -> compare -> select`, and the interleaved producer-guard branch acceptance gaps are retired
+   - narrow pure-first pins are `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_cross_block_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_interleaved_branch_min_v1.mir.json`, and `apps/tests/mir_shape_guard/array_string_indexof_interleaved_select_min_v1.mir.json`
+   - `get -> indexOf("line") -> compare -> select|branch`, the cross-block `get -> indexOf("line") -> jump -> compare -> select`, and the interleaved producer-guard branch/select acceptance gaps are retired
    - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, `kilo_kernel_small_hk = 824 ms` (`warmup=1 repeat=3`)
 9. explicit compat-keep cleanup residue is retired:
    - `phase29ck_boundary_compat_keep_min.sh` is green again
@@ -58,11 +58,11 @@ Related:
    - keep lane remains compat/canary only and is not the Stage1 daily owner
 10. current next reading is fixed:
    - battle order is `typed/recipe canonical subset -> generic pure lowering -> RuntimeData peel only on recurrence`
-   - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, the cross-block `get -> indexOf(const) -> jump -> compare -> select` shape, and the producer-guarded branch shape, not a new public IR layer and not an AST rewrite
+   - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, the cross-block `get -> indexOf(const) -> jump -> compare -> select` shape, and the producer-guarded branch/select shapes, not a new public IR layer and not an AST rewrite
    - current pinned lowerings emit `nyash.array.string_indexof_hih`, and bundle evidence now includes `recipe_acceptance.txt` plus `hot_block_residue.txt`
-   - accepted direct observer recipes must reject if standalone `slot_load_hi`, `generic_box_call`, or `hostbridge` remains in the hot block; current pinned fixtures are zero on all four residues
+   - accepted direct observer recipes must reject if standalone `slot_load_hi`, `generic_box_call`, or `hostbridge` remains in the hot block; current pinned fixtures are zero on all five residues
    - refreshed `kilo_micro_indexof_line` bundle still shows `recipe_acceptance=empty`, route trace `select` only, and lowered IR remains the dedicated `indexOf line loop ascii` seed with `strstr`
-   - the block-26 producer-side interleaved branch half is now pinned; next `micro kilo` blocker is therefore the later select half on the same artifact (`bb26 -> bb30 -> bb31`): `get -> indexOf(const)` then the periodic `% 16 == 0` guard before the carried `indexOf` result feeds a later `>= 0` compare + select
+   - the full block-26 interleaved branch/select family is now pinned through `bb26 -> bb30 -> bb31`; next `micro kilo` blocker therefore reads as dedicated seed shadow / route ownership on the same artifact rather than another missing observer shape
    - `RuntimeDataBox` stays protocol/facade only in this exact slice; broad peel/widen stays deferred until the same blocker family recurs after the direct-path cut
 
 ## Fixed Order
@@ -83,8 +83,8 @@ Related:
 8. do not reopen an observer cut that still leaves `slot_load_hi` in the same hot block
 9. current resume point after the retired leaf-proof/compat cleanup is `micro kilo`
 10. keep the fixed order `leaf-proof micro -> micro kilo -> main kilo`
-11. current exact `micro kilo` slice is the later select half on the same artifact: `bb26 -> bb30 -> bb31` where producer block `get -> indexOf(const)` then `% 16 == 0` guard feeds a later `>= 0` compare + select on the carried `indexOf` result
-12. RuntimeData peel is not the current front; only revisit it if the same blocker family survives after the direct-path proof
+11. current exact `micro kilo` slice is no longer another observer-shape pin inside `bb26 -> bb30 -> bb31`; the next cut is the dedicated seed shadow / route ownership proof on the same artifact once that family is fully pinned
+12. RuntimeData peel is not the current front; only revisit it if the same blocker family survives after the direct-path proof and the route-shadow reading is already fixed
 
 ## Acceptance
 
