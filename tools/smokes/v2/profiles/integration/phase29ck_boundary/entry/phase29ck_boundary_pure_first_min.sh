@@ -1,11 +1,12 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first compile canary
+# Phase 29ck boundary pure-first compile legacy lock
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route tries the C-side pure subset first.
 # 2) supported seed `ret_const_min_v1.mir.json` emits an object without falling through
 #    to `ny-llvmc --driver harness`.
 # 3) breaking `NYASH_NY_LLVM_COMPILER` must not break that supported seed.
+# 4) this smoke is a legacy boundary lock after the daily owner moved to phase29x.
 
 set -euo pipefail
 

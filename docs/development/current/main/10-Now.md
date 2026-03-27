@@ -52,6 +52,10 @@ Related:
     - explicit compare smoke remains `phase29x_backend_owner_hako_ll_compare_min.sh`; compare lane is bridge-only
     - new legacy/demotion queue is fixed in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
     - legacy C `.inc` stays daily owner only for unflipped shapes and silent fallback remains forbidden
+    - archive/delete sweep wave 1 is landed:
+      - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
+      - compare bridge assets remain explicit bridge-only until compare retirement
+      - next subtraction step is legacy C daily demotion for additional shapes
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
@@ -126,7 +130,7 @@ Related:
         - remaining main residue is no longer route acceptance; it is consumer cost around the two surviving `slot_load_hi` sites plus `nyash.string.concat_hh` / `memmove` / alloc pressure on the edit loop and branch loop
         - first post-green store cut is landed: generic pure lowering now emits `nyash.array.set_his` for proven `ORG_STRING` array writes instead of generic `nyash.array.set_hih`
         - first post-green concat cut is landed: `nyash.string.concat_hh` now prefers `host_handles::with_str_pair(...)` before the slower span/materialize fallbacks
-        - concat3 parity cut is landed: boundary smoke `phase29ck_boundary_pure_string_concat3_extern_min.sh` now proves `Extern nyash.string.concat3_hhh` is pure-first accepted, and the daily main edit loop folds `prefix + "xx" + suffix` down to `concat3_hhh` on the lowered IR
+        - concat3 parity cut is landed: legacy boundary lock `phase29ck_boundary_pure_string_concat3_extern_min.sh` still proves `Extern nyash.string.concat3_hhh` is pure-first accepted, and the daily main edit loop folds `prefix + "xx" + suffix` down to `concat3_hhh` on the lowered IR
         - the next exact concat cut is landed: string-concat defer now recognizes a `concat3` consumer even when the third operand arrives through an intervening string-preserving `copy`, so the edit loop no longer emits a dead intermediate `nyash.string.concat_hh` before `concat3_hhh`
         - recent main rechecks now sit in the `715-724 ms` band on the daily route (`tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), down from the earlier `736 ms` read after pure concat3 parity; keep the explicit `NYASH_MIR_CONCAT3_CANON=1` lane as a probe only
         - the separate direct-emit owner red is retired: `phase21_5_concat3_assoc_contract_vm.sh` is green again after pure-first accepted `ArrayBox.birth()` as an initializer marker and the minimal `ret const` fallback was narrowed back to honest single-block const/ret only
@@ -145,7 +149,7 @@ Related:
 	          - latest spot-check is `750 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`; treat this as IR cleanup with a small recovery, not the final leaf win
 	        - `P1-bool-i1` is now landed conservatively on compare/copy/phi/branch merges:
 	          - prepass now marks `compare` results as `T_I1`, carries that type through `copy`, and emits `phi i1` when all incoming values are bools / bool consts
-	          - new boundary canary `phase29ck_boundary_pure_bool_phi_branch_min.sh` proves `compare -> phi(bool) -> branch` lowers as `phi i1` plus direct `br i1`, and the `phase29ck-boundary` suite now carries that pin
+	          - legacy boundary lock `phase29ck_boundary_pure_bool_phi_branch_min.sh` proves `compare -> phi(bool) -> branch` lowers as `phi i1` plus direct `br i1`, and `phase29ck-boundary-legacy` now carries that pin
 	          - latest spot-check is `771 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`; treat this as correctness/IR cleanup only, not as a claimed wall-clock win
 	        - hoisted string-const cleanup is now landed for the main leaf route:
 	          - FAST hoist pre-scan now skips `StringBox` handle materialization when the const is proven raw-ptr-only for `nyash.string.insert_hsi` / `nyash.string.concat_hs`

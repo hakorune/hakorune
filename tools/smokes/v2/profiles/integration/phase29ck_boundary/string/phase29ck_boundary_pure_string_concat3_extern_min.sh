@@ -1,5 +1,5 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first concat3 extern canary
+# Phase 29ck boundary pure-first concat3 extern legacy lock
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow
@@ -8,6 +8,7 @@
 #    `ny-llvmc --driver harness`.
 # 3) lowered IR must keep `nyash.string.concat3_hhh` instead of degrading to
 #    chained `nyash.string.concat_hh`.
+# 4) this smoke is a legacy boundary lock after the daily owner moved to phase29x.
 
 set -euo pipefail
 

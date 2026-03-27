@@ -19,5 +19,6 @@ De-rust route and lane contract gates for phase29x.
 - The family keeps the de-rust route skeleton and its fail-fast evidence pins together.
 - The explicit backend-owner compare lane also lives here because it is a temporary owner-cutover bridge, not an app benchmark.
 - Narrow daily owner flips for boundary-only shapes also live here so compare and daily evidence stay side-by-side.
+- The legacy boundary locks for those three flipped shapes now live in `phase29ck-boundary-legacy.txt`, not in the default `phase29ck-boundary` suite.
 - The scripts are evidence pins, not daily discovery entries.
 - Keep the family separate from `vm_hako/` and from the remaining `phase29x` residual buckets.

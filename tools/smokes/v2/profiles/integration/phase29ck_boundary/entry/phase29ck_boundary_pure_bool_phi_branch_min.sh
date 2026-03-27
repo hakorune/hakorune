@@ -1,11 +1,12 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first bool-phi branch canary
+# Phase 29ck boundary pure-first bool-phi branch legacy lock
 #
 # Contract pin:
 # 1) default boundary compile accepts a narrow `compare -> phi(bool) -> branch` shape.
 # 2) lowered IR must emit `phi i1` for the merged boolean.
 # 3) the branch must consume that `phi i1` directly, without degrading through
 #    `icmp ne i64 %r7, 0`.
+# 4) this smoke is a legacy boundary lock after the daily owner moved to phase29x.
 
 set -euo pipefail
 

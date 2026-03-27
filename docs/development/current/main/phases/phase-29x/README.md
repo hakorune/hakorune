@@ -72,6 +72,10 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
   - daily owner smokes are `phase29x_backend_owner_daily_{ret_const,bool_phi_branch,concat3_extern}_min.sh`
   - compare wrapper app is `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
   - daily wrapper app is `apps/tests/phase29x_backend_owner_daily_min.hako`
+  - archive/delete sweep wave 1 is landed:
+    - flipped `phase29ck` locks now live in `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt`
+    - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, or `concat3 extern`
+    - compare bridge assets remain explicit bridge-only and are not delete-ready yet
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - structural perf only:
   - attrs centralization
