@@ -175,9 +175,18 @@ Related:
 	       - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	       - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`
 	       - latest attrs spot-check was noisy (`831 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), so treat `P0-attrs` as IR-quality groundwork only; no wall-clock win is claimed yet
-	       - main-kilo implementation order is now fixed:
-	         - `P0-copy-fold`: add copy-transparent operand folding / copy-chain elimination before emit so identity `copy -> use` and `add i64 0, %rX` noise shrink without changing route acceptance
-	         - `P1-bool-i1`: narrow compare/branch/select result types from `i64` to `i1` only after the copy fold lands; do not open full handle=`ptr` typing in this wave
+	       - `P0-copy-fold` is now landed in emit-side generic pure lowering:
+	         - `copy` and `StringBox(arg0)` passthrough now use alias resolution instead of emitting identity `add i64 0, %rX` / `or i1 %rX, false`
+	         - emit helpers now resolve alias chains before printing SSA operands, so `phi` / `icmp` / `branch` / `ret` / call args / `select` / `binop` all stay copy-transparent
+	         - `phase21_5_perf_kilo_text_concat_contract_vm.sh` now rejects any surviving copy-style noise in `ny_main`
+	         - latest spot-check is `750 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`; treat this as IR cleanup with a small recovery, not the final leaf win
+	       - `P1-bool-i1` is now landed conservatively on compare/copy/phi/branch merges:
+	         - prepass now marks `compare` results as `T_I1`, carries that type through `copy`, and emits `phi i1` when all incoming values are bools / bool consts
+	         - new boundary canary `phase29ck_boundary_pure_bool_phi_branch_min.sh` proves `compare -> phi(bool) -> branch` lowers as `phi i1` plus direct `br i1`, and the `phase29ck-boundary` suite now carries that pin
+	         - latest spot-check is `771 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`; treat this as correctness/IR cleanup only, not as a claimed wall-clock win
+	       - main-kilo exact next cut is now back on leaf quality:
+	         - keep focusing on `nyash.string.insert_hsi` plus the surviving `nyash.string.concat_hs` / `nyash.array.set_his` tail
+	         - do not open broader value-repr work until the current leaf-quality gap has a same-artifact reason
 	       - keep the following out of the current exact lane for now:
 	         - full `ptr`-typed handle lowering and broad value-repr changes
 	         - broad LLVM pass-pipeline work / generic optimizer migration

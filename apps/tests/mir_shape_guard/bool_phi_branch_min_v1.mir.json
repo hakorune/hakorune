@@ -1,0 +1,198 @@
+{
+  "capabilities": [
+    "phi",
+    "effects"
+  ],
+  "cfg": {
+    "functions": [
+      {
+        "blocks": [
+          {
+            "id": 0,
+            "reachable": false,
+            "successors": [
+              1,
+              2
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 1,
+            "reachable": false,
+            "successors": [
+              3
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 2,
+            "reachable": false,
+            "successors": [
+              3
+            ],
+            "terminator": "Jump"
+          },
+          {
+            "id": 3,
+            "reachable": false,
+            "successors": [
+              4,
+              5
+            ],
+            "terminator": "Branch"
+          },
+          {
+            "id": 4,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          },
+          {
+            "id": 5,
+            "reachable": false,
+            "successors": [],
+            "terminator": "Return"
+          }
+        ],
+        "entry_block": 0,
+        "name": "main"
+      }
+    ]
+  },
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": "i64",
+                "value": 1
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "op": "compare",
+              "dst": 3,
+              "operation": "<",
+              "lhs": 1,
+              "rhs": 2
+            },
+            {
+              "op": "branch",
+              "cond": 3,
+              "then": 1,
+              "else": 2
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "instructions": [
+            {
+              "op": "copy",
+              "dst": 4,
+              "src": 3
+            },
+            {
+              "op": "jump",
+              "target": 3
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "instructions": [
+            {
+              "op": "compare",
+              "dst": 6,
+              "operation": ">",
+              "lhs": 1,
+              "rhs": 2
+            },
+            {
+              "op": "jump",
+              "target": 3
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "instructions": [
+            {
+              "op": "phi",
+              "dst": 7,
+              "incoming": [
+                [
+                  4,
+                  1
+                ],
+                [
+                  6,
+                  2
+                ]
+              ]
+            },
+            {
+              "op": "branch",
+              "cond": 7,
+              "then": 4,
+              "else": 5
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 8,
+              "value": {
+                "type": "i64",
+                "value": 11
+              }
+            },
+            {
+              "op": "ret",
+              "value": 8
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 9,
+              "value": {
+                "type": "i64",
+                "value": 22
+              }
+            },
+            {
+              "op": "ret",
+              "value": 9
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

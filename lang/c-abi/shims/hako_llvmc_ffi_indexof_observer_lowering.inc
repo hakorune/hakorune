@@ -1,10 +1,11 @@
       auto void append_i64_arg_ref(char* out, size_t out_cap, long long reg, int first) {
         long long cv = 0;
+        long long base = resolve_copy_source_reg(reg);
         char tmp[64];
         size_t used = strlen(out);
         if (used >= out_cap) return;
-        if (has_const(reg, &cv)) snprintf(tmp, sizeof(tmp), "i64 %lld", cv);
-        else snprintf(tmp, sizeof(tmp), "i64 %%r%lld", reg);
+        if (has_const(base, &cv)) snprintf(tmp, sizeof(tmp), "i64 %lld", cv);
+        else snprintf(tmp, sizeof(tmp), "i64 %%r%lld", base);
         snprintf(out + used, out_cap - used, "%s%s", first ? "" : ", ", tmp);
       }
       auto void append_array_string_indexof_method_receiver_args(

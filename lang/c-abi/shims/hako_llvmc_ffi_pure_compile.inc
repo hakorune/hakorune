@@ -46,14 +46,36 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       struct { long long reg; long long val; } consts[1024]; size_t consts_n = 0;
       struct { long long reg; const char* val; } str_consts[512]; size_t str_consts_n = 0;
       struct { long long reg; int ty; } types[2048]; size_t types_n = 0;
+      struct { long long reg; long long src; } copy_alias[2048]; size_t copy_alias_n = 0;
       struct { long long reg; int kind; } scan_origin[2048]; size_t scan_origin_n = 0;
       // Track simple origin kinds for selective unbox at ret
       enum { ORG_NONE=0, ORG_MAP_GET=1, ORG_MAP_BIRTH=2, ORG_ARRAY_BIRTH=3, ORG_STRING=4, ORG_ARRAY_STRING_BIRTH=5 };
       struct { long long reg; int kind; } origin[2048]; size_t origin_n = 0;
-      auto int get_scan_origin(long long r){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r) return scan_origin[i].kind; } return ORG_NONE; }
+      auto long long get_copy_alias_src(long long r){ for(size_t i=0;i<copy_alias_n;i++){ if(copy_alias[i].reg==r) return copy_alias[i].src; } return 0; }
+      auto void set_copy_alias(long long r,long long src){ if(!r || !src) return; for(size_t i=0;i<copy_alias_n;i++){ if(copy_alias[i].reg==r){ copy_alias[i].src=src; return; } } if(copy_alias_n<2048){ copy_alias[copy_alias_n].reg=r; copy_alias[copy_alias_n].src=src; copy_alias_n++; } }
+      auto long long resolve_copy_source_reg(long long r){
+        long long cur = r;
+        for(int depth=0; depth<64 && cur; depth++){
+          long long next = get_copy_alias_src(cur);
+          if(!next || next==cur) break;
+          cur = next;
+        }
+        return cur ? cur : r;
+      }
+      auto int get_scan_origin(long long r){
+        for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r) return scan_origin[i].kind; }
+        long long base = resolve_copy_source_reg(r);
+        if(base!=r){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==base) return scan_origin[i].kind; } }
+        return ORG_NONE;
+      }
       auto void set_scan_origin(long long r,int k){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].reg==r){ scan_origin[i].kind=k; return;} } if(scan_origin_n<2048){ scan_origin[scan_origin_n].reg=r; scan_origin[scan_origin_n].kind=k; scan_origin_n++; } }
       auto void promote_scan_origin_kind(int from, int to){ for(size_t i=0;i<scan_origin_n;i++){ if(scan_origin[i].kind==from) scan_origin[i].kind=to; } }
-      auto int get_origin(long long r){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r) return origin[i].kind; } return ORG_NONE; }
+      auto int get_origin(long long r){
+        for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r) return origin[i].kind; }
+        long long base = resolve_copy_source_reg(r);
+        if(base!=r){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==base) return origin[i].kind; } }
+        return ORG_NONE;
+      }
       auto void set_origin(long long r,int k){ for(size_t i=0;i<origin_n;i++){ if(origin[i].reg==r){ origin[i].kind=k; return;} } if(origin_n<2048){ origin[origin_n].reg=r; origin[origin_n].kind=k; origin_n++; } }
       auto void promote_origin_kind(int from, int to){ for(size_t i=0;i<origin_n;i++){ if(origin[i].kind==from) origin[i].kind=to; } }
       struct Incoming { long long pred; long long val_reg; };
@@ -62,11 +84,39 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
 
       // small helpers
       #define ARR_LEN(a) ((int)(sizeof(a)/sizeof((a)[0])))
-      auto int get_type(long long r) { for (size_t i=0;i<types_n;i++){ if (types[i].reg==r) return types[i].ty; } return T_NONE; }
+      auto int get_type(long long r) {
+        for (size_t i=0;i<types_n;i++){ if (types[i].reg==r) return types[i].ty; }
+        long long base = resolve_copy_source_reg(r);
+        if (base != r) {
+          for (size_t i=0;i<types_n;i++){ if (types[i].reg==base) return types[i].ty; }
+        }
+        return T_NONE;
+      }
       auto void set_type(long long r, int t) { for (size_t i=0;i<types_n;i++){ if (types[i].reg==r){ types[i].ty=t; return; } } if (types_n<2048){ types[types_n].reg=r; types[types_n].ty=t; types_n++; } }
-      auto int has_const(long long r, long long* out){ for (size_t i=0;i<consts_n;i++){ if (consts[i].reg==r){ if(out) *out=consts[i].val; return 1; } } return 0; }
+      auto int has_const(long long r, long long* out){
+        for (size_t i=0;i<consts_n;i++){ if (consts[i].reg==r){ if(out) *out=consts[i].val; return 1; } }
+        long long base = resolve_copy_source_reg(r);
+        if (base != r) {
+          for (size_t i=0;i<consts_n;i++){ if (consts[i].reg==base){ if(out) *out=consts[i].val; return 1; } }
+        }
+        return 0;
+      }
+      auto int has_bool_const(long long r, int* out){
+        long long cv = 0;
+        if (!has_const(r, &cv)) return 0;
+        if (!(cv == 0 || cv == 1)) return 0;
+        if (out) *out = cv ? 1 : 0;
+        return 1;
+      }
       auto void put_const(long long r, long long v){ if (consts_n<1024){ consts[consts_n].reg=r; consts[consts_n].val=v; consts_n++; } }
-      auto const char* get_str_const(long long r){ for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==r) return str_consts[i].val; } return NULL; }
+      auto const char* get_str_const(long long r){
+        for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==r) return str_consts[i].val; }
+        long long base = resolve_copy_source_reg(r);
+        if (base != r) {
+          for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==base) return str_consts[i].val; }
+        }
+        return NULL;
+      }
       auto void put_str_const(long long r, const char* v){ if (str_consts_n<512){ str_consts[str_consts_n].reg=r; str_consts[str_consts_n].val=v; str_consts_n++; } }
       auto int is_plain_i64_value(long long r){
         if (!r) return 0;
@@ -1563,8 +1613,16 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           } else if (strcmp(op, "copy")==0) {
             long long dst = read_int(ins, "dst");
             long long src = read_int(ins, "src");
+            int src_ty = get_type(src);
+            int src_org = get_origin(src);
             int scan_org = get_scan_origin(src);
+            if (dst && src) set_copy_alias(dst, resolve_copy_source_reg(src));
+            if (dst && src_ty != T_NONE) set_type(dst, src_ty);
+            if (dst && src_org != ORG_NONE) set_origin(dst, src_org);
             if (scan_org != ORG_NONE && dst) set_scan_origin(dst, scan_org);
+          } else if (strcmp(op, "compare")==0) {
+            long long dst = read_int(ins, "dst");
+            if (dst) set_type(dst, T_I1);
           } else if (strcmp(op, "select")==0) {
             long long dst = read_int(ins, "dst");
             long long then_val = read_int(ins, "then_val");
@@ -1609,13 +1667,24 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               if (vin) { pr.in[pr.in_n].pred=pred; pr.in[pr.in_n].val_reg=vin; pr.in_n++; }
             }
             if (pb->rec_n < 16) {
+              int phi_bool_ok = 1;
+              int phi_bool_seen = 0;
               int scan_first = ORG_NONE;
               int scan_same = 1;
               int origin_first = ORG_NONE;
               int origin_same = 1;
               for (int i = 0; i < pr.in_n; i++) {
+                int bool_const = 0;
+                int t = pr.in[i].val_reg ? get_type(pr.in[i].val_reg) : T_NONE;
                 int s = pr.in[i].val_reg ? get_scan_origin(pr.in[i].val_reg) : ORG_NONE;
                 int o = pr.in[i].val_reg ? get_origin(pr.in[i].val_reg) : ORG_NONE;
+                if (t == T_I1) {
+                  phi_bool_seen = 1;
+                } else if (pr.in[i].val_reg && has_bool_const(pr.in[i].val_reg, &bool_const)) {
+                  phi_bool_seen = 1;
+                } else {
+                  phi_bool_ok = 0;
+                }
                 if (s != ORG_NONE) {
                   if (scan_first == ORG_NONE) scan_first = s;
                   else if (scan_first != s) scan_same = 0;
@@ -1626,7 +1695,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 }
               }
               pb->recs[pb->rec_n++] = pr;
-              set_type(pr.dst, T_I64);
+              set_type(pr.dst, (phi_bool_ok && phi_bool_seen) ? T_I1 : T_I64);
               if (scan_same && scan_first != ORG_NONE) {
                 set_scan_origin(pr.dst, scan_first);
               }
@@ -1705,11 +1774,26 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       // Emit blocks
       #define EMIT(...) do { fprintf(f, __VA_ARGS__); } while(0)
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
-      auto void emit_phi(long long dst, struct Incoming* in, int in_n){ EMIT("  %%r%lld = phi i64 ", dst); for (int i=0;i<in_n;i++){ long long cv; int hc=has_const(in[i].val_reg,&cv); EMIT("[ %s%lld%s, %%bb%lld ]%s", hc?"":"%r", hc?cv:in[i].val_reg, hc?"":"", in[i].pred, (i+1<in_n)?", ":""); } EMIT("\n"); }
-      auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; int lc=has_const(lhs_reg,&vL), rc=has_const(rhs_reg,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_reg, lc?"":"", rc?"":"%r", rc?vR:rhs_reg, rc?"":""); set_type(dst,T_I1); }
-      auto void emit_branch(long long cond_reg, long long then_id, long long else_id){ int ty=get_type(cond_reg); if (ty==T_I1) EMIT("  br i1 %%r%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id); else { long long cv; if (has_const(cond_reg,&cv)) { EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", cond_reg, cv); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} else { EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", cond_reg, cond_reg); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} } }
+      auto void emit_phi(long long dst, struct Incoming* in, int in_n){
+        int phi_ty = get_type(dst);
+        EMIT("  %%r%lld = phi %s ", dst, phi_ty == T_I1 ? "i1" : "i64");
+        for (int i=0;i<in_n;i++){
+          long long cv;
+          long long val_reg = resolve_copy_source_reg(in[i].val_reg);
+          int hc=has_const(val_reg,&cv);
+          if (phi_ty == T_I1) {
+            if (hc) EMIT("[ %s, %%bb%lld ]%s", cv ? "true" : "false", in[i].pred, (i+1<in_n)?", ":"");
+            else EMIT("[ %%r%lld, %%bb%lld ]%s", val_reg, in[i].pred, (i+1<in_n)?", ":"");
+          } else {
+            EMIT("[ %s%lld%s, %%bb%lld ]%s", hc?"":"%r", hc?cv:val_reg, hc?"":"", in[i].pred, (i+1<in_n)?", ":"");
+          }
+        }
+        EMIT("\n");
+      }
+      auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; long long lhs_base=resolve_copy_source_reg(lhs_reg), rhs_base=resolve_copy_source_reg(rhs_reg); int lc=has_const(lhs_base,&vL), rc=has_const(rhs_base,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_base, lc?"":"", rc?"":"%r", rc?vR:rhs_base, rc?"":""); set_type(dst,T_I1); }
+      auto void emit_branch(long long cond_reg, long long then_id, long long else_id){ long long cond_base=resolve_copy_source_reg(cond_reg); int ty=get_type(cond_reg); if (ty==T_I1) EMIT("  br i1 %%r%lld, label %%bb%lld, label %%bb%lld\n", cond_base, then_id, else_id); else { long long cv; if (has_const(cond_base,&cv)) { EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", cond_reg, cv); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} else { EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", cond_reg, cond_base); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} } }
       auto void emit_jump(long long target){ EMIT("  br label %%bb%lld\n", target); }
-      auto void emit_ret(long long reg){ long long cv; if (has_const(reg,&cv)) EMIT("  ret i64 %lld\n", cv); else EMIT("  ret i64 %%r%lld\n", reg); }
+      auto void emit_ret(long long reg){ long long cv; long long base=resolve_copy_source_reg(reg); if (has_const(base,&cv)) EMIT("  ret i64 %lld\n", cv); else EMIT("  ret i64 %%r%lld\n", base); }
       auto void emit_call_assign(long long dst, const char* sym, const char* args){ EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, sym, args); set_type(dst, T_I64); }
       auto void emit_call_noret(const char* sym, const char* args){ EMIT("  call i64 @\"%s\"(%s)\n", sym, args); }
 
@@ -1773,12 +1857,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               yyjson_val* nb0 = nb_args && yyjson_is_arr(nb_args) ? yyjson_arr_get_first(nb_args) : NULL;
               long long arg0 = nb0 ? (long long)yyjson_get_sint(nb0) : 0;
               if (dst && arg0) {
-                long long cv = 0;
-                if (has_const(arg0, &cv)) {
-                  EMIT("  %%r%lld = add i64 0, %lld\n", dst, cv);
-                } else {
-                  EMIT("  %%r%lld = add i64 0, %%r%lld\n", dst, arg0);
-                }
+                set_copy_alias(dst, resolve_copy_source_reg(arg0));
                 set_type(dst, T_I64);
                 set_origin(dst, ORG_STRING);
                 set_scan_origin(dst, ORG_STRING);
@@ -1794,15 +1873,13 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             int src_ty = get_type(src);
             int src_origin = get_origin(src);
             int src_scan_origin = get_scan_origin(src);
+            set_copy_alias(dst, resolve_copy_source_reg(src));
             if (has_const(src, &cv)) {
-              EMIT("  %%r%lld = add i64 0, %lld\n", dst, cv);
               put_const(dst, cv);
               set_type(dst, T_I64);
             } else if (src_ty == T_I1) {
-              EMIT("  %%r%lld = or i1 %%r%lld, false\n", dst, src);
               set_type(dst, T_I1);
             } else {
-              EMIT("  %%r%lld = add i64 0, %%r%lld\n", dst, src);
               set_type(dst, src_ty == T_NONE ? T_I64 : src_ty);
             }
             if (src_origin != ORG_NONE) set_origin(dst, src_origin);
@@ -1815,8 +1892,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             if (!p2) { yyjson_doc_free(d); goto GEN_ABORT; }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); if (!lhs) lhs=read_int(ins, "left"); long long rhs = read_int(ins, "rhs"); if (!rhs) rhs=read_int(ins, "right"); if (!lhs && !rhs){ yyjson_doc_free(d); goto GEN_ABORT; }
             // emit icmp
-            long long vL,vR; int lc=has_const(lhs,&vL), rc2=has_const(rhs,&vR);
-            EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, p2, lc?"":"%r", lc?vL:lhs, lc?"":"", rc2?"":"%r", rc2?vR:rhs, rc2?"":""); set_type(dst, T_I1);
+            emit_icmp(dst, p2, lhs, rhs);
             continue;
           }
           if (strcmp(op, "select")==0) {
@@ -1829,9 +1905,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             int then_ty = get_type(then_val);
             int else_ty = get_type(else_val);
             int val_ty = T_I64;
-            int cond_const = has_const(cond, &cond_cv);
-            int then_const = has_const(then_val, &then_cv);
-            int else_const = has_const(else_val, &else_cv);
+            long long cond_base = resolve_copy_source_reg(cond);
+            long long then_base = resolve_copy_source_reg(then_val);
+            long long else_base = resolve_copy_source_reg(else_val);
+            int cond_const = has_const(cond_base, &cond_cv);
+            int then_const = has_const(then_base, &then_cv);
+            int else_const = has_const(else_base, &else_cv);
             int then_org = get_origin(then_val);
             int else_org = get_origin(else_val);
             int then_scan = get_scan_origin(then_val);
@@ -1847,20 +1926,20 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
 
             if (cond_ty == T_I1) {
               if (cond_const) snprintf(cond_ref, sizeof(cond_ref), "%s", cond_cv ? "true" : "false");
-              else snprintf(cond_ref, sizeof(cond_ref), "%%r%lld", cond);
+              else snprintf(cond_ref, sizeof(cond_ref), "%%r%lld", cond_base);
             } else if (cond_const) {
               EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", dst, cond_cv);
               snprintf(cond_ref, sizeof(cond_ref), "%%t%lld", dst);
             } else {
-              EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", dst, cond);
+              EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", dst, cond_base);
               snprintf(cond_ref, sizeof(cond_ref), "%%t%lld", dst);
             }
 
             if (val_ty == T_I1) {
               if (then_const) snprintf(then_ref, sizeof(then_ref), "%s", then_cv ? "true" : "false");
-              else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_val);
+              else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_base);
               if (else_const) snprintf(else_ref, sizeof(else_ref), "%s", else_cv ? "true" : "false");
-              else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_val);
+              else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_base);
               EMIT("  %%r%lld = select i1 %s, i1 %s, i1 %s\n",
                    dst,
                    cond_ref,
@@ -1869,9 +1948,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               set_type(dst, T_I1);
             } else {
               if (then_const) snprintf(then_ref, sizeof(then_ref), "%lld", then_cv);
-              else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_val);
+              else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_base);
               if (else_const) snprintf(else_ref, sizeof(else_ref), "%lld", else_cv);
-              else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_val);
+              else snprintf(else_ref, sizeof(else_ref), "%%r%lld", else_base);
               EMIT("  %%r%lld = select i1 %s, i64 %s, i64 %s\n",
                    dst,
                    cond_ref,
@@ -1883,19 +1962,20 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
             continue;
           }
-          if (strcmp(op, "branch")==0) { long long cond=read_int(ins, "cond"); long long th=read_int(ins,"then"); long long el=read_int(ins,"else"); if(!el) el=read_int(ins,"else_id"); int ty=get_type(cond); if (ty==T_I1) EMIT("  br i1 %%r%lld, label %%bb%lld, label %%bb%lld\n", cond, th, el); else { long long cv; if (has_const(cond,&cv)) { EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", cond, cv); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond, th, el);} else { EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", cond, cond); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond, th, el);} } continue; }
+          if (strcmp(op, "branch")==0) { long long cond=read_int(ins, "cond"); long long th=read_int(ins,"then"); long long el=read_int(ins,"else"); if(!el) el=read_int(ins,"else_id"); emit_branch(cond, th, el); continue; }
           if (strcmp(op, "jump")==0) { long long tgt=read_int(ins, "target"); EMIT("  br label %%bb%lld\n", tgt); continue; }
           if (strcmp(op, "ret")==0) {
             long long v=read_int(ins, "value"); long long cv;
             if (has_const(v,&cv)) { EMIT("  ret i64 %lld\n", cv); }
             else {
               int org = get_origin(v);
+              long long base = resolve_copy_source_reg(v);
               if (org == ORG_MAP_GET) {
                 // Auto-unbox map.get result as Integer (minimal MVP)
-                EMIT("  %%map_get_unbox_%lld = call i64 @\"nyash.integer.get_h\"(i64 %%r%lld)\n", v, v);
+                EMIT("  %%map_get_unbox_%lld = call i64 @\"nyash.integer.get_h\"(i64 %%r%lld)\n", v, base);
                 EMIT("  ret i64 %%map_get_unbox_%lld\n", v);
               } else {
-                EMIT("  ret i64 %%r%lld\n", v);
+                EMIT("  ret i64 %%r%lld\n", base);
               }
             }
             continue;
@@ -1931,13 +2011,15 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               }
               continue;
             }
-            long long vL, vR; int lc = has_const(lhs, &vL), rc2 = has_const(rhs, &vR);
+            long long lhs_base = resolve_copy_source_reg(lhs);
+            long long rhs_base = resolve_copy_source_reg(rhs);
+            long long vL, vR; int lc = has_const(lhs_base, &vL), rc2 = has_const(rhs_base, &vR);
             if (lc && rc2) {
               EMIT("  %%r%lld = %s i64 %lld, %lld\n", dst, irop, vL, vR);
             } else {
               EMIT("  %%r%lld = %s i64 %s%lld%s, %s%lld%s\n", dst, irop,
-                   lc?"":"%r", lc?vL:lhs, lc?"":"",
-                   rc2?"":"%r", rc2?vR:rhs, rc2?"":"");
+                   lc?"":"%r", lc?vL:lhs_base, lc?"":"",
+                   rc2?"":"%r", rc2?vR:rhs_base, rc2?"":"");
             }
             set_type(dst, T_I64);
             continue;

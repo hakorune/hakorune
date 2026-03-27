@@ -85,6 +85,15 @@ if [ "$substring_count" -ne 0 ]; then
   exit 1
 fi
 
+if grep -Eq ' = add i64 0, %r[0-9]+' "$tmp_main"; then
+  test_fail "$SMOKE_NAME: main still contains copy-style add i64 0, %rN noise"
+  exit 1
+fi
+if grep -Eq ' = or i1 %r[0-9]+, false' "$tmp_main"; then
+  test_fail "$SMOKE_NAME: main still contains copy-style i1 passthrough noise"
+  exit 1
+fi
+
 array_indexof_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.array.string_indexof_hih')"
 if [ "$array_indexof_count" -lt 1 ]; then
   test_fail "$SMOKE_NAME: main missing array.string_indexof_hih call"
