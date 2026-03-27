@@ -110,10 +110,15 @@ Related:
      - lowered IR contains `nyash.array.string_len_hi`
      - built binary exports `nyash.array.string_len_hi`
      - stable main median moved `843 -> 822`
-   - current main route still has observed misses:
+   - rejected follow-up:
+     - same-artifact `array_string_indexof_window result=hit` was proven
+     - lowered IR still contained both `nyash.array.slot_load_hi` and `nyash.array.string_indexof_hih`
+     - stable main moved to `853 ms`
+     - `kilo_micro_indexof_line = 9 ms`
+   - current main route still has accepted observer misses:
      - `array_string_len_window reason=post_len_uses_consumed_get_value`
      - `array_string_len_window reason=next_noncopy_not_len`
-   - exact next cut is `array_string` observer-window widening for the current main shapes, not another blind fused leaf guess
+   - exact next cut is observer/window work that removes the `get` crossing too, not another direct `indexOf` observer that still leaves `slot_load_hi`
    - do not reopen broad `boxcall` widening and do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である

@@ -38,8 +38,13 @@ Related:
    - lowered IR contains `nyash.array.rmw_add1_hi`
    - built binary exports `nyash.array.rmw_add1_hi`
 4. current main route has one same-artifact direct hit on `array_string_len_window`
-5. current main route still has observed misses `post_len_uses_consumed_get_value` and `next_noncopy_not_len`
-6. current array leaf は adjacency recipe ではなく semantic window recipe として読む
+5. rejected follow-up:
+   - same-artifact `array_string_indexof_window result=hit` was proven
+   - lowered IR still contained both `nyash.array.slot_load_hi` and `nyash.array.string_indexof_hih`
+   - stable main regressed to `853 ms`
+   - `kilo_micro_indexof_line = 9 ms`
+6. current main route still has observed misses `post_len_uses_consumed_get_value` and `next_noncopy_not_len`
+7. current array leaf は adjacency recipe ではなく semantic window recipe として読む
 
 ## Fixed Order
 
@@ -56,6 +61,7 @@ Related:
 5. micro route で same-artifact hit を取る
 6. main route の hit/miss reason を bundle で固定する
 7. その evidence を見てからだけ next observer leaf を widen する
+8. do not reopen an observer cut that still leaves `slot_load_hi` in the same hot block
 
 ## Acceptance
 

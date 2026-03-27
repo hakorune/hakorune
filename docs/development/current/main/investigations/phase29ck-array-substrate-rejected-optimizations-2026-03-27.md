@@ -15,6 +15,57 @@
 
 ## Rejected Attempts
 
+### 2026-03-27: direct `array_string_indexof_hih` observer with surviving `slot_load_hi`
+
+**Hypothesis**
+
+- same-artifact direct observer `nyash.array.string_indexof_hih` を main route へ入れれば、`RuntimeDataBox.get(...).indexOf("line")` が 1 crossing 減って main `kilo` に効く
+
+**Touched owner area**
+
+- [array_string_slot.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_string_slot.rs)
+- [array_substrate.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array_substrate.rs)
+- [array.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/array.rs)
+- [hako_llvmc_ffi_pure_compile.inc](/home/tomoaki/git/hakorune-selfhost/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc)
+
+**Commands**
+
+```bash
+bash tools/build_hako_llvmc_ffi.sh
+tools/perf/trace_optimization_bundle.sh --input kilo_kernel_small --route direct --callee-substr RuntimeDataBox.get --symbol nyash.array.string_indexof_hih --out-dir /tmp/phase29ck_bundle_main_indexof6
+PERF_VM_FORCE_NO_FALLBACK=1 PERF_REQUIRE_AOT_RESULT_PARITY=0 NYASH_LLVM_SKIP_BUILD=0 bash tools/perf/bench_compare_c_py_vs_hako_stable.sh kilo_kernel_small_hk none 3 1 3
+bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3 | rg 'kilo_micro_indexof_line|kilo_micro_substring_concat|kilo_micro_array_getset'
+```
+
+**Observed result**
+
+- bundle:
+  - `array_string_indexof_window result=hit count=1`
+  - `reason=witness_match`
+  - lowered IR still contained both:
+    - `nyash.array.slot_load_hi`
+    - `nyash.array.string_indexof_hih`
+  - built binary exported `nyash.array.string_indexof_hih`
+- main stable:
+  - rounds: `851 / 853 / 878 ms`
+  - stable line: `kilo_kernel_small_hk = 853 ms`
+- micro:
+  - `kilo_micro_indexof_line = 9 ms`
+  - `kilo_micro_substring_concat = 6 ms`
+  - `kilo_micro_array_getset = 37 ms`
+
+**Verdict**
+
+- rejected
+- reverted immediately
+
+**Next candidate**
+
+- do not reopen a direct `indexOf` observer that still leaves `nyash.array.slot_load_hi` in the same hot block
+- next exact cut must either:
+  - remove the `get` crossing too, or
+  - preserve the reused string value and derived scalar in one leaf without leaving the old load behind
+
 ### 2026-03-27: `ArrayBox.items` `RwLock -> Mutex`
 
 **Hypothesis**
