@@ -1,0 +1,74 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "pre"
+              }
+            },
+            {
+              "op": "const",
+              "dst": 2,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "xx"
+              }
+            },
+            {
+              "op": "const",
+              "dst": 3,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "suf"
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 4,
+              "mir_call": {
+                "callee": {
+                  "name": "nyash.string.concat3_hhh",
+                  "type": "Extern"
+                },
+                "args": [
+                  1,
+                  2,
+                  3
+                ],
+                "effects": [],
+                "flags": {}
+              }
+            },
+            {
+              "op": "ret",
+              "value": 4
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

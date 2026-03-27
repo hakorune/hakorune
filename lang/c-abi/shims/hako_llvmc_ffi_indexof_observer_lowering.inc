@@ -21,6 +21,7 @@
         }
       }
       auto int try_defer_array_string_indexof_get_window(
+          FILE* f,
           yyjson_val* blocks,
           long long bid,
           size_t ii,
@@ -60,14 +61,32 @@
         if (analyze_array_string_indexof_branch_window_candidate(
                 ii, ilen, insts, bname, mname, recv, idx, dst, recv_org,
                 runtime_array_string, &string_indexof_branch_match, NULL, NULL, 0)) {
+          string_indexof_branch_match.keep_get_live =
+              branch_targets_use_reg(blocks, insts, string_indexof_branch_match.branch_ii, dst);
+          if (string_indexof_branch_match.keep_get_live) {
+            char keep_ab[128];
+            keep_ab[0] = '\0';
+            append_i64_arg_ref(keep_ab, sizeof(keep_ab), recv, 1);
+            append_i64_arg_ref(keep_ab, sizeof(keep_ab), idx, 0);
+            if (dst) {
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, keep_ab);
+              set_type(dst, T_I64);
+              set_origin(dst, ORG_STRING);
+              set_scan_origin(dst, ORG_STRING);
+            } else {
+              fprintf(f, "  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", keep_ab);
+            }
+          }
           remember_deferred_array_string_indexof_select(
               bid,
               string_indexof_branch_match.indexof_ii,
               recv,
               idx,
               string_indexof_branch_match.needle_reg);
-          for (int si = 0; si < string_indexof_branch_match.get_copy_n; si++) skip_inst[string_indexof_branch_match.get_copy_iis[si]] = 1;
-          for (int si = 0; si < string_indexof_branch_match.recv_copy_n; si++) skip_inst[string_indexof_branch_match.recv_copy_iis[si]] = 1;
+          if (!string_indexof_branch_match.keep_get_live) {
+            for (int si = 0; si < string_indexof_branch_match.get_copy_n; si++) skip_inst[string_indexof_branch_match.get_copy_iis[si]] = 1;
+            for (int si = 0; si < string_indexof_branch_match.recv_copy_n; si++) skip_inst[string_indexof_branch_match.recv_copy_iis[si]] = 1;
+          }
           return 1;
         }
         if (analyze_array_string_indexof_cross_block_select_window_candidate(

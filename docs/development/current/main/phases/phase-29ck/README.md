@@ -127,14 +127,16 @@ Related:
      - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
      - `kilo_leaf_array_string_len = 12 ms` (`aot_status=ok`)
      - `kilo_leaf_array_string_indexof_const = 25 ms` (`aot_status=ok`)
-     - narrow pure-first pins are now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_cross_block_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_interleaved_branch_min_v1.mir.json`, and `apps/tests/mir_shape_guard/array_string_indexof_interleaved_select_min_v1.mir.json`
+     - narrow pure-first pins are now `apps/tests/mir_shape_guard/array_string_indexof_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_branch_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_cross_block_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_interleaved_branch_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_indexof_interleaved_select_min_v1.mir.json`, `apps/tests/mir_shape_guard/array_string_len_live_after_get_min_v1.mir.json`, and `apps/tests/mir_shape_guard/array_string_indexof_branch_live_after_get_min_v1.mir.json`
      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_select_min.sh` proves `get -> indexOf("line") -> compare -> select` without harness fallback, and the visible `.hako` evidence row is now `acceptance_case=array-string-indexof-select-v1`
      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_branch_min.sh` proves `get -> indexOf("line") -> compare -> branch` without harness fallback, and the visible `.hako` evidence row is now `acceptance_case=array-string-indexof-branch-v1`
      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_cross_block_select_min.sh` proves `get -> indexOf("line") -> jump -> compare -> select` without harness fallback, and the visible `.hako` evidence row is now `acceptance_case=array-string-indexof-cross-block-select-v1`
      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_interleaved_branch_min.sh` proves `get -> indexOf("line") -> (%16==0) guard -> compare -> branch` without harness fallback, and the visible `.hako` evidence row is now `acceptance_case=array-string-indexof-interleaved-branch-v1`
      - boundary smoke `phase29ck_boundary_pure_array_string_indexof_interleaved_select_min.sh` proves `get -> indexOf("line") -> (%16==0) guard -> jump -> compare -> select` without harness fallback, and the visible `.hako` evidence row is now `acceptance_case=array-string-indexof-interleaved-select-v1`
+     - boundary smoke `phase29ck_boundary_pure_array_string_len_live_after_get_min.sh` proves `get -> len` can stay accepted when the fetched string is still consumed by later `substring(...)`, and the visible `.hako` evidence row is now `acceptance_case=array-string-len-live-after-get-v1`
+     - boundary smoke `phase29ck_boundary_pure_array_string_indexof_branch_live_after_get_min.sh` proves `get -> indexOf("line") -> compare -> branch` can keep the original fetched string live into the then-block, and the visible `.hako` evidence row is now `acceptance_case=array-string-indexof-branch-live-after-get-v1`
      - the exact leaf-proof pure-first acceptance gap is retired
-     - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, `kilo_kernel_small_hk = 824 ms` (`warmup=1 repeat=3`)
+     - fixed-order recheck after the landing is `kilo_micro_indexof_line = 7 ms`, and recent `kilo_kernel_small_hk` rechecks are back to `aot_status=ok` at `787-814 ms` (`warmup=1 repeat=3`)
    - current direct-path optimization reading is fixed:
      - battle order is `typed/recipe canonical subset -> generic pure lowering -> RuntimeData peel only on recurrence`
      - landed exact cuts are analysis-only recipe sidecars on existing MIR for `get -> indexOf(const) -> compare -> select|branch`, the cross-block `get -> indexOf(const) -> jump -> compare -> select` shape, and the interleaved producer-guard branch/select shapes, all lowered as `nyash.array.string_indexof_hih`
@@ -154,6 +156,16 @@ Related:
        - lowered IR still contains only `nyash.array.string_indexof_hih` for the accepted observer path, and hot-block residue stays `slot_load_hi=0`, `generic_box_call=0`, `hostbridge=0`
        - current probe perf top is now local `array_string_indexof_by_index` work, with `array_set_by_index` / `slot_store_box_raw` as the visible remaining tail
        - do not reopen the rejected direct slot-string leaf rewrite without fresh same-artifact evidence
+     - current `main kilo` reading is now fixed:
+       - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
+       - whole-program main bundle now builds green with both live-after-get routes accepted, and the lowered IR carries `nyash.array.string_len_hi`, `nyash.array.string_indexof_hih`, and `nyash.array.set_his`
+       - the former compile stoppers `array_string_len_window reason=post_len_uses_consumed_get_value` and the accepted-branch undefined `%r55` are retired by the new live-after-get pins
+       - remaining main residue is no longer route acceptance; it is consumer cost around the two surviving `slot_load_hi` sites plus `nyash.string.concat_hh` / `memmove` / alloc pressure on the edit loop and branch loop
+       - first post-green store cut is landed: generic pure lowering now emits `nyash.array.set_his` for proven `ORG_STRING` array writes instead of generic `nyash.array.set_hih`
+       - first post-green concat cut is landed: `nyash.string.concat_hh` now prefers `host_handles::with_str_pair(...)` before the slower span/materialize fallbacks
+       - concat3 parity cut is landed: boundary smoke `phase29ck_boundary_pure_string_concat3_extern_min.sh` now proves `Extern nyash.string.concat3_hhh` is pure-first accepted, and the daily main edit loop folds `prefix + "xx" + suffix` down to `concat3_hhh` on the lowered IR
+       - recent main rechecks after the concat3 cut moved down to `751 ms` on the daily route, while the explicit `NYASH_MIR_CONCAT3_CANON=1` probe reaches `719 ms` (`warmup=1 repeat=3`)
+       - the next exact perf cut is now the branch-loop consumer side (`current + "ln"`), not more observer acceptance; do not promote MIR concat3 canon to daily yet while `phase21_5_concat3_assoc_contract_vm.sh` still reads `concat3_hhh=0` on its separate direct-emit owner path
      - temporary priority override is `clean-clean / BoxShape` before the next perf cut:
        - first cleanup target is `lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc`
        - extracted `indexOf` observer state/trace helpers into `hako_llvmc_ffi_indexof_observer_state.inc` and `hako_llvmc_ffi_indexof_observer_trace.inc`
@@ -164,6 +176,7 @@ Related:
        - extracted `mir_call` prepass need-flag helpers into `hako_llvmc_ffi_mir_call_prepass.inc`
        - extracted non-`indexOf` generic method lowering helpers into `hako_llvmc_ffi_generic_method_lowering.inc`
        - extracted `mir_call` emit-shell helpers into `hako_llvmc_ffi_mir_call_shell.inc` so constructor/global emit and runtime route classification no longer stay inline in the lowering walk
+       - extracted string concat chain / concat3 extern helpers into `hako_llvmc_ffi_string_concat_lowering.inc`
        - route summary remains unchanged after the split: probe bundle still reports `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1`
        - this BoxShape pass is now sufficient for returning to perf work; only reopen `pure_compile.inc` cleanup if a new exact readability/ownership blocker appears
        - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary

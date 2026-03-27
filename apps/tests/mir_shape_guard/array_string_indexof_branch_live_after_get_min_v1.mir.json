@@ -1,0 +1,234 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "line-seed"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "ArrayBox",
+              "args": []
+            },
+            {
+              "op": "copy",
+              "dst": 3,
+              "src": 2
+            },
+            {
+              "op": "mir_call",
+              "dst": null,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "push",
+                  "receiver": 3,
+                  "certainty": "Union"
+                },
+                "args": [1],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 4,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 5,
+              "src": 2
+            },
+            {
+              "op": "mir_call",
+              "dst": 6,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "get",
+                  "receiver": 5,
+                  "certainty": "Union"
+                },
+                "args": [4],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 7,
+              "src": 6
+            },
+            {
+              "op": "const",
+              "dst": 8,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "line"
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 9,
+              "src": 7
+            },
+            {
+              "op": "mir_call",
+              "dst": 10,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "indexOf",
+                  "receiver": 9,
+                  "certainty": "Union"
+                },
+                "args": [8],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 11,
+              "src": 10
+            },
+            {
+              "op": "const",
+              "dst": 12,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "compare",
+              "dst": 13,
+              "lhs": 11,
+              "rhs": 12,
+              "operation": ">="
+            },
+            {
+              "op": "branch",
+              "cond": 13,
+              "then": 1,
+              "else": 2
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "instructions": [
+            {
+              "op": "copy",
+              "dst": 14,
+              "src": 6
+            },
+            {
+              "op": "const",
+              "dst": 15,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "ln"
+              }
+            },
+            {
+              "op": "binop",
+              "dst": 16,
+              "lhs": 14,
+              "rhs": 15,
+              "operation": "+",
+              "dst_type": "i64"
+            },
+            {
+              "op": "copy",
+              "dst": 17,
+              "src": 2
+            },
+            {
+              "op": "copy",
+              "dst": 18,
+              "src": 17
+            },
+            {
+              "op": "mir_call",
+              "dst": null,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "set",
+                  "receiver": 18,
+                  "certainty": "Union"
+                },
+                "args": [4, 16],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 19,
+              "value": {
+                "type": "i64",
+                "value": 40
+              }
+            },
+            {
+              "op": "ret",
+              "value": 19
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 20,
+              "value": {
+                "type": "i64",
+                "value": 41
+              }
+            },
+            {
+              "op": "ret",
+              "value": 20
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

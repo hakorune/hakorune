@@ -27,15 +27,18 @@
         int runtime_map_has = route ? route->runtime_map_has : 0;
         if (mname && !strcmp(mname, "set")) {
           int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
+          int array_set_string_handle = a1 && get_origin(a1) == ORG_STRING;
           if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
           if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
           if (bname && !strcmp(bname, "MapBox")) {
             fprintf(f, "  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
           } else if (bname && !strcmp(bname, "ArrayBox")) {
             if (array_set_plain_i64) fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
+            else if (array_set_string_handle) fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
             else fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
           } else if (runtime_array_string || runtime_array_push || runtime_array_get || runtime_array_len || runtime_array_has) {
-            if (runtime_array_string) fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
+            if (runtime_array_string && array_set_string_handle) fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
+            else if (runtime_array_string) fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
             else if (array_set_plain_i64) fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
             else fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
             if (a1 && get_origin(a1) == ORG_STRING) {
@@ -77,6 +80,21 @@
                   ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                   runtime_array_string, &string_len_match, &string_len_reason,
                   string_len_extra, sizeof(string_len_extra))) {
+            if (string_len_match.keep_get_live) {
+              if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
+              if (dst) {
+                fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab);
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_STRING);
+                set_scan_origin(dst, ORG_STRING);
+              } else {
+                fprintf(f, "  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);
+              }
+              fprintf(f, "  %%r%lld = call i64 @\"nyash.array.string_len_hi\"(%s)\n", string_len_match.len_dst, ab);
+              set_type(string_len_match.len_dst, T_I64);
+              skip_inst[string_len_match.len_ii] = 1;
+              return 1;
+            }
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
             fprintf(f, "  %%r%lld = call i64 @\"nyash.array.string_len_hi\"(%s)\n", string_len_match.len_dst, ab);
             set_type(string_len_match.len_dst, T_I64);
@@ -85,7 +103,7 @@
             return 1;
           }
           if (try_defer_array_string_indexof_get_window(
-                  blocks, bid, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
+                  f, blocks, bid, ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                   runtime_array_string, skip_inst)) {
             return 1;
           }

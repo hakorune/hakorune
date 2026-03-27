@@ -96,11 +96,27 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       };
       struct ArrayStringLenWindowMatch {
         int matched;
+        int keep_get_live;
         size_t copy_iis[8];
         int copy_n;
         size_t len_ii;
         long long len_dst;
       };
+      auto int inst_is_array_string_len_safe_reuse(yyjson_val* ins, long long reg) {
+        if (!ins || !reg) return 0;
+        const char* op = read_str(ins, "op");
+        if (!(op && strcmp(op, "mir_call") == 0)) return 0;
+        yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+        yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+        const char* ctype = cal ? read_str(cal, "type") : NULL;
+        const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
+        const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
+        long long recv = cal ? read_int(cal, "receiver") : 0;
+        if (!(ctype && !strcmp(ctype, "Method"))) return 0;
+        if (recv != reg) return 0;
+        if (!(bname && !strcmp(bname, "RuntimeDataBox"))) return 0;
+        return mname && !strcmp(mname, "substring");
+      }
       auto int inst_uses_reg(yyjson_val* ins, long long reg) {
         if (!ins || !reg) return 0;
         const char* op = read_str(ins, "op");
@@ -378,6 +394,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           }
           for (size_t kk = jj + 1; kk < ilen; kk++) {
             yyjson_val* later = yyjson_arr_get(insts, kk);
+            if (!(inst_uses_reg(later, cur_dst) || inst_uses_reg(later, carried))) continue;
+            if (inst_is_array_string_len_safe_reuse(later, cur_dst) ||
+                inst_is_array_string_len_safe_reuse(later, carried)) {
+              if (out) out->keep_get_live = 1;
+              continue;
+            }
             if (inst_uses_reg(later, cur_dst) || inst_uses_reg(later, carried)) {
               reason = "post_len_uses_consumed_get_value";
               goto done;
@@ -392,11 +414,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       done:
         if (extra && extra_cap) {
           snprintf(extra, extra_cap,
-                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d len_ii=%zu len_dst=%lld",
+                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d len_ii=%zu len_dst=%lld keep_get_live=%d",
                    ii, cur_dst, recv, idx,
                    out ? out->copy_n : 0,
                    out ? out->len_ii : 0,
-                   out ? out->len_dst : 0);
+                   out ? out->len_dst : 0,
+                   out ? out->keep_get_live : 0);
         }
         if (reason_out) *reason_out = reason;
         return out && out->matched;
@@ -1482,6 +1505,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
+      #include "hako_llvmc_ffi_string_concat_lowering.inc"
       #include "hako_llvmc_ffi_const_string_hoist.inc"
       #include "hako_llvmc_ffi_mir_call_prepass.inc"
       #include "hako_llvmc_ffi_mir_call_shell.inc"
@@ -1647,6 +1671,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_hih\"(i64, i64, i64)\n");
+      if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
       if (needs.arr_get && needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)\n");
@@ -1657,7 +1682,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
       if (needs.string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
-      if (needs.string_concat) fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
+      if (needs.string_concat) {
+        fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.string.concat3_hhh\"(i64, i64, i64)\n");
+      }
       if (needs.printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
       for (size_t sci=0; sci<str_consts_n; sci++) {
         size_t slen = strlen(str_consts[sci].val);
@@ -1883,14 +1911,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             if (!irop) { yyjson_doc_free(d); goto GEN_ABORT; }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); long long rhs = read_int(ins, "rhs");
             if (!strcmp(irop, "add") && lhs_org == ORG_STRING && rhs_org == ORG_STRING) {
-              long long vL = 0, vR = 0; int lc = has_const(lhs, &vL), rc2 = has_const(rhs, &vR);
-              EMIT("  %%r%lld = call i64 @\"nyash.string.concat_hh\"(i64 %s%lld%s, i64 %s%lld%s)\n",
-                   dst,
-                   lc?"":"%r", lc?vL:lhs, lc?"":"",
-                   rc2?"":"%r", rc2?vR:rhs, rc2?"":"");
-              set_type(dst, T_I64);
-              set_origin(dst, ORG_STRING);
-              set_scan_origin(dst, ORG_STRING);
+              if (should_defer_string_concat_pair(ii, ilen, insts, dst)) {
+                remember_string_concat_pair(dst, lhs, rhs);
+                finalize_string_concat_result(dst);
+                continue;
+              }
+              if (!try_emit_string_concat3_chain_call(f, dst, lhs, rhs)) {
+                emit_string_concat_hh_call(f, dst, lhs, rhs);
+              }
               continue;
             }
             long long vL, vR; int lc = has_const(lhs, &vL), rc2 = has_const(rhs, &vR);
@@ -1964,6 +1992,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 }
               }
               else { yyjson_doc_free(d); goto GEN_ABORT; }
+            } else if (ctype && !strcmp(ctype, "Extern")) {
+              if (emit_supported_string_extern_mir_call(f, mname, dst, args) < 0) {
+                yyjson_doc_free(d);
+                goto GEN_ABORT;
+              }
             } else if (ctype && !strcmp(ctype, "Global")) {
               if (emit_global_mir_call(f, mname, a0) < 0) { yyjson_doc_free(d); goto GEN_ABORT; }
             } else { yyjson_doc_free(d); goto GEN_ABORT; }

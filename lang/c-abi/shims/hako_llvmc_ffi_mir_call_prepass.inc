@@ -46,6 +46,9 @@
                 ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
                 &indexof_branch_match, NULL, NULL, 0)) {
           needs->arr_string_indexof = 1;
+          if (branch_targets_use_reg(blocks, insts, indexof_branch_match.branch_ii, dst)) {
+            needs->arr_get = 1;
+          }
         } else if (analyze_array_string_indexof_cross_block_select_window_candidate(
                 blocks, ii, ilen, insts, bname, mname, recv, a0, dst, scan_org, 1,
                 &indexof_cross_block_select_match, NULL, NULL, 0)) {
@@ -172,5 +175,14 @@
 
         if (ctype && !strcmp(ctype, "Global") && mname && !strcmp(mname, "print")) {
           needs->printf = 1;
+          return;
+        }
+
+        if (ctype && !strcmp(ctype, "Extern") && mname) {
+          if (!strcmp(mname, "nyash.string.concat_hh") ||
+              !strcmp(mname, "nyash.string.concat3_hhh")) {
+            needs->string_concat = 1;
+            if (read_int(ins, "dst")) set_scan_origin(read_int(ins, "dst"), ORG_STRING);
+          }
         }
       }

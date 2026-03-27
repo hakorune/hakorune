@@ -18,6 +18,7 @@
       };
       struct ArrayStringIndexofBranchWindowMatch {
         int matched;
+        int keep_get_live;
         size_t get_copy_iis[8];
         int get_copy_n;
         size_t recv_copy_iis[8];
@@ -152,4 +153,32 @@
           if (block && read_int(block, "id") == bid) return block;
         }
         return NULL;
+      }
+      auto int block_uses_reg(yyjson_val* block, long long reg) {
+        if (!(block && reg)) return 0;
+        yyjson_val* insts = yyjson_obj_get(block, "instructions");
+        if (!(insts && yyjson_is_arr(insts))) return 0;
+        size_t n = yyjson_arr_size(insts);
+        for (size_t i = 0; i < n; i++) {
+          yyjson_val* ins = yyjson_arr_get(insts, i);
+          if (inst_uses_reg(ins, reg)) return 1;
+        }
+        return 0;
+      }
+      auto int branch_targets_use_reg(
+          yyjson_val* blocks,
+          yyjson_val* insts,
+          size_t branch_ii,
+          long long reg) {
+        yyjson_val* branch = NULL;
+        long long then_bid = 0;
+        long long else_bid = 0;
+        if (!(blocks && insts && reg)) return 0;
+        branch = yyjson_arr_get(insts, branch_ii);
+        if (!(branch && read_str(branch, "op") && strcmp(read_str(branch, "op"), "branch") == 0)) return 0;
+        then_bid = read_int(branch, "then");
+        else_bid = read_int(branch, "else");
+        if (then_bid && block_uses_reg(find_block_by_id(blocks, then_bid), reg)) return 1;
+        if (else_bid && block_uses_reg(find_block_by_id(blocks, else_bid), reg)) return 1;
+        return 0;
       }

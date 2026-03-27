@@ -1,0 +1,195 @@
+{
+  "kind": "MIR",
+  "schema_version": "1.0",
+  "metadata": {
+    "extern_c": []
+  },
+  "functions": [
+    {
+      "name": "main",
+      "params": [],
+      "blocks": [
+        {
+          "id": 0,
+          "instructions": [
+            {
+              "op": "const",
+              "dst": 1,
+              "value": {
+                "type": {
+                  "kind": "handle",
+                  "box_type": "StringBox"
+                },
+                "value": "line-seed"
+              }
+            },
+            {
+              "op": "newbox",
+              "dst": 2,
+              "type": "ArrayBox",
+              "args": []
+            },
+            {
+              "op": "copy",
+              "dst": 3,
+              "src": 2
+            },
+            {
+              "op": "mir_call",
+              "dst": null,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "push",
+                  "receiver": 3,
+                  "certainty": "Union"
+                },
+                "args": [1],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "const",
+              "dst": 4,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 5,
+              "src": 2
+            },
+            {
+              "op": "mir_call",
+              "dst": 6,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "get",
+                  "receiver": 5,
+                  "certainty": "Union"
+                },
+                "args": [4],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 7,
+              "src": 6
+            },
+            {
+              "op": "copy",
+              "dst": 8,
+              "src": 7
+            },
+            {
+              "op": "mir_call",
+              "dst": 9,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "length",
+                  "receiver": 8,
+                  "certainty": "Union"
+                },
+                "args": [],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 10,
+              "src": 9
+            },
+            {
+              "op": "const",
+              "dst": 11,
+              "value": {
+                "type": "i64",
+                "value": 0
+              }
+            },
+            {
+              "op": "const",
+              "dst": 12,
+              "value": {
+                "type": "i64",
+                "value": 2
+              }
+            },
+            {
+              "op": "binop",
+              "dst": 13,
+              "lhs": 10,
+              "rhs": 12,
+              "operation": "/"
+            },
+            {
+              "op": "mir_call",
+              "dst": 14,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "substring",
+                  "receiver": 8,
+                  "certainty": "Union"
+                },
+                "args": [11, 13],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "mir_call",
+              "dst": 15,
+              "mir_call": {
+                "callee": {
+                  "type": "Method",
+                  "box_name": "RuntimeDataBox",
+                  "name": "substring",
+                  "receiver": 8,
+                  "certainty": "Union"
+                },
+                "args": [13, 10],
+                "effects": ["IO"],
+                "flags": {}
+              }
+            },
+            {
+              "op": "copy",
+              "dst": 16,
+              "src": 14
+            },
+            {
+              "op": "copy",
+              "dst": 17,
+              "src": 15
+            },
+            {
+              "op": "binop",
+              "dst": 18,
+              "lhs": 16,
+              "rhs": 17,
+              "operation": "+",
+              "dst_type": "i64"
+            },
+            {
+              "op": "ret",
+              "value": 18
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

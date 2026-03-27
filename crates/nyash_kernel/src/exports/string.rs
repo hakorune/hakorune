@@ -380,33 +380,14 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 {
         return None;
     }
-    let out = handles::with_pair(a_h as u64, b_h as u64, |a_obj, b_obj| {
-        let a_obj = a_obj?;
-        let b_obj = b_obj?;
-        if let (Some(a_sb), Some(b_sb)) = (
-            a_obj.as_any().downcast_ref::<StringBox>(),
-            b_obj.as_any().downcast_ref::<StringBox>(),
-        ) {
-            if a_sb.value.is_empty() {
-                return Some(Ok(b_h));
-            }
-            if b_sb.value.is_empty() {
-                return Some(Ok(a_h));
-            }
-            return Some(Err(concat_two_str(
-                a_sb.value.as_str(),
-                b_sb.value.as_str(),
-            )));
-        }
-        let a = a_obj.as_ref().as_str_fast()?;
-        let b = b_obj.as_ref().as_str_fast()?;
+    let out = handles::with_str_pair(a_h as u64, b_h as u64, |a, b| {
         if a.is_empty() {
-            return Some(Ok(b_h));
+            return Ok(b_h);
         }
         if b.is_empty() {
-            return Some(Ok(a_h));
+            return Ok(a_h);
         }
-        Some(Err(concat_two_str(a, b)))
+        Err(concat_two_str(a, b))
     })?;
     match out {
         Ok(h) => Some(h),
@@ -425,10 +406,10 @@ fn concat_pair_with_materialize(a_h: i64, b_h: i64) -> i64 {
 
 #[inline(always)]
 fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
-    if let Some(out) = concat_pair_from_spans(a_h, b_h) {
+    if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
         return out;
     }
-    if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
+    if let Some(out) = concat_pair_from_spans(a_h, b_h) {
         return out;
     }
     concat_pair_with_materialize(a_h, b_h)

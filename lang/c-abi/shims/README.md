@@ -28,6 +28,8 @@ Current partitions:
   - `indexOf` observer defer/argument/emit helpers used by pure-first lowering
 - `hako_llvmc_ffi_const_string_hoist.inc`
   - FAST-lane entry hoist for generic pure string constants so loop-local boxer churn stays out of hot blocks
+- `hako_llvmc_ffi_string_concat_lowering.inc`
+  - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers for generic pure lowering
 - `hako_llvmc_ffi_mir_call_prepass.inc`
   - `mir_call` prepass need-flag scan helpers used before generic pure lowering emits LLVM IR
 - `hako_llvmc_ffi_generic_method_lowering.inc`
