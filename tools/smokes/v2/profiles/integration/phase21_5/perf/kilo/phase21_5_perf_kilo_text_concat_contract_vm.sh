@@ -96,6 +96,19 @@ if grep -q 'nyash.any.length_h' "$tmp_main"; then
   exit 1
 fi
 
+if ! grep -q 'declare i64 @"nyash.array.string_indexof_hih"(i64, i64, i64) nounwind readonly willreturn' "$tmp_ir"; then
+  test_fail "$SMOKE_NAME: array.string_indexof_hih declaration is missing readonly attrs"
+  exit 1
+fi
+if ! grep -q 'declare i64 @"nyash.array.slot_load_hi"(i64, i64) nounwind readonly willreturn' "$tmp_ir"; then
+  test_fail "$SMOKE_NAME: array.slot_load_hi declaration is missing readonly attrs"
+  exit 1
+fi
+if grep -q 'declare i64 @"nyash.array.set_his"(i64, i64, i64) nounwind readonly willreturn' "$tmp_ir"; then
+  test_fail "$SMOKE_NAME: mutating array.set_his must not be stamped readonly"
+  exit 1
+fi
+
 set_consumer_stats="$(python3 - "$tmp_main" <<'PY'
 import re
 import sys

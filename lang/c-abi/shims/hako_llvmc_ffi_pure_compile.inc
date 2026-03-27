@@ -1510,6 +1510,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_mir_call_prepass.inc"
       #include "hako_llvmc_ffi_mir_call_shell.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
+      #define HAKO_LLVM_READONLY_ATTRS " nounwind readonly willreturn"
 
       // Pre-scan: consts + phis + needed method decls
       struct GenericPureNeedFlags needs;
@@ -1664,20 +1665,20 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
       if (needs.map_birth) fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
       if (needs.map_set)   fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
-      if (needs.map_get)   fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)\n");
-      if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)\n");
-      if (needs.map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n");
+      if (needs.map_get)   fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
       if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
-      if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n");
+      if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_hih\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
       if (needs.arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
       if (needs.arr_get && needs.arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
-      if (needs.arr_get && needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)\n");
-      if (needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)\n");
-      if (needs.arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n");
-      if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
+      if (needs.arr_get && needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
       if (needs.string_len) fprintf(f, "declare i64 @\"nyash.string.len_h\"(i64)\n");
       if (needs.string_substring) fprintf(f, "declare i64 @\"nyash.string.substring_hii\"(i64, i64, i64)\n");
@@ -2369,7 +2370,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
           fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
           fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
-          fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)\n\n");
+          fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)%s\n\n", HAKO_LLVM_READONLY_ATTRS);
           hako_llvmc_emit_entry_header(f, &selection);
           fprintf(f, "  %%h = call i64 @\"nyash.map.birth_h\"()\n");
           fprintf(f, "  %%_s = call i64 @\"nyash.map.slot_store_hhh\"(i64 %%h, i64 %lld, i64 %lld)\n", key_c, val_c);
@@ -2437,7 +2438,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
           fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
           fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
-          fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)\n\n");
+          fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n\n", HAKO_LLVM_READONLY_ATTRS);
           hako_llvmc_emit_entry_header(f, &selection);
           fprintf(f, "  %%h = call i64 @\"nyash.array.birth_h\"()\n");
           fprintf(f, "  %%_p = call i64 @\"nyash.array.slot_append_hh\"(i64 %%h, i64 %lld)\n", val_c);
