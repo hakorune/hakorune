@@ -3,6 +3,7 @@
 目的
 - backend owner cutover の compare/debug lane に使う `.hako ll emitter` をここに置く。
 - canonical seam は MIR のまま維持し、compat `lang/src/llvm_ir/**` を daily owner に戻さない。
+- boundary-only first wave では narrow shape の daily owner もここへ寄せる。
 
 Current scope
 - `runtime_decl_registry_box.hako`
@@ -12,7 +13,7 @@ Current scope
 - `ll_text_emit_box.hako`
   - narrow textual LLVM IR emitter
 - `driver.hako`
-  - explicit compare lane entry
+  - compare/daily bridge entry template
 
 Current subset
 - `const`
@@ -26,7 +27,11 @@ Current subset
 - direct `Extern` call
 
 Non-goals
-- daily owner flip
 - `AST -> LLVM` direct route
 - compat `lang/src/llvm_ir/**` revive
 - broad fast-leaf widening
+
+Current migration rule
+- compare lane は temporary bridge だよ。
+- flipped boundary shapes (`ret const`, `bool phi/branch`, `concat3 extern`) のみ narrow daily owner として許可する。
+- dead residue は ledger に残してから削除する。

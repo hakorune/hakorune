@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import argparse
 import pathlib
+import sys
 import tomllib
 
 
@@ -23,7 +25,7 @@ def emit_array_lines(var_name: str, values: list[str], indent: str) -> list[str]
     return out
 
 
-def main() -> None:
+def render_output() -> str:
     data = tomllib.loads(MANIFEST.read_text())
     rows = data.get("rows", [])
     lines: list[str] = [
@@ -56,8 +58,37 @@ def main() -> None:
             "static box RuntimeDeclDefaultsMain { main(args) { return 0 } }",
         ]
     )
+    return "\n".join(lines) + "\n"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail if the generated output differs from the checked-in file",
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    rendered = render_output()
+    if args.check:
+        if not OUT.exists():
+            raise SystemExit(
+                f"[runtime-decl-manifest/check-missing] generated file missing: {OUT}"
+            )
+        current = OUT.read_text()
+        if current != rendered:
+            sys.stderr.write(
+                "[runtime-decl-manifest/check-drift] "
+                f"run {pathlib.Path(__file__).name} to refresh {OUT}\n"
+            )
+            raise SystemExit(1)
+        return
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text("\n".join(lines) + "\n")
+    OUT.write_text(rendered)
 
 
 if __name__ == "__main__":

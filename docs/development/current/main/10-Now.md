@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-27
+Date: 2026-03-28
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -48,9 +48,10 @@ Related:
   - current exact read:
     - `backend-owner-cutover-ssot.md` is now the structure-first parent SSOT
     - backend-private `runtime-decl-manifest-v0.toml` is the single compare-lane declare inventory
-    - `.hako ll emitter` min v0 is landed as compare-only for `ret const`, `bool phi/branch`, and `concat3 extern`
-    - explicit compare smoke is now `phase29x_backend_owner_hako_ll_compare_min.sh`
-    - legacy C `.inc` stays daily owner for now; compare/debug proof is explicit only and silent fallback remains forbidden
+    - `.hako ll emitter` min v0 is now the daily owner for `ret const`, `bool phi/branch`, and `concat3 extern`
+    - explicit compare smoke remains `phase29x_backend_owner_hako_ll_compare_min.sh`; compare lane is bridge-only
+    - new legacy/demotion queue is fixed in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
+    - legacy C `.inc` stays daily owner only for unflipped shapes and silent fallback remains forbidden
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`

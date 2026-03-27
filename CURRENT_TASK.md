@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-27
+Date: 2026-03-28
 Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -33,9 +33,11 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - `JIR-PORT-08` is landed; keep the lane failure-driven and promote a new exact leaf only when the next blocker is captured
 - structure-first override is now explicit in `phase-29x`:
   - current structural blocker is backend owner thickness on `MIR -> Rust glue -> C .inc / compare transport -> LLVM text/object`
-  - fixed order is now `backend-owner-cutover SSOT -> runtime-decl manifest v0 -> recipe-facts v0 -> .hako ll emitter min v0 -> explicit compare lane -> narrow owner flip`
-  - `.hako ll emitter` compare lane is now landed as compare-only for `ret const`, `bool phi/branch`, and `concat3 extern` narrow fixtures
-  - legacy C `.inc` remains the daily owner while compare/debug proof is being widened; silent fallback is still forbidden
+  - fixed order is now `backend-owner-cutover SSOT -> runtime-decl manifest v0 -> recipe-facts v0 -> .hako ll emitter min v0 -> explicit compare bridge -> boundary-only narrow owner flip -> archive/delete sweep`
+  - subtraction queue is now explicit in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
+  - `.hako ll emitter` is now the daily owner for `ret const`, `bool phi/branch`, and `concat3 extern` boundary fixtures, while explicit compare stays opt-in only
+  - legacy C `.inc` remains the daily owner for unflipped shapes only; flipped-shape demotion is now tracked as part of the same wave and silent fallback is still forbidden
+  - dead compare residue `lang/src/shared/backend/ll_emit/mir_json_loader_box.hako` is retired; bridge split now lives under `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
   - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
@@ -225,13 +227,15 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - exact front:
     - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
     - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
+    - `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
     - `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
     - `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
+    - `apps/tests/phase29x_backend_owner_daily_min.hako`
   - working rule:
     - keep canonical seam at MIR; do not open `AST -> LLVM` direct lowering
-    - `.hako ll emitter` is compare-only until narrow owner flip is explicitly promoted
+    - `.hako ll emitter` is now daily owner only for the three boundary-first shapes, and compare stays explicit bridge-only
     - keep public ABI and public MIR JSON schema unchanged in this wave
-    - any optimization work must reduce owner thickness or improve compare/facts visibility; leaf-only retune is paused
+    - any optimization work must reduce owner thickness, remove live legacy surface, or improve compare/facts visibility; leaf-only retune is paused
     - explicit compare evidence must stay visible as `chosen_owner / accepted / first_blocker`
 3. reopened exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`

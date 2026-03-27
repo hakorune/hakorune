@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
 use super::defaults::COMPILE_SYMBOL_DEFAULT;
+use super::ll_emit_bridge::{
+    mir_json_to_object_hako_ll_compare, mir_json_to_object_hako_ll_daily,
+};
 use super::normalize::validate_backend_mir_shape;
 use super::transport::{
     compile_via_capi, ensure_backend_output_parent, prepare_backend_input_json_file,
@@ -10,14 +13,32 @@ use super::Opts;
 
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 
-pub(super) fn try_compile_via_hako_ll_compare(
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum HakoLlBridgeLane {
+    Daily,
+    Compare,
+}
+
+fn hako_ll_bridge_lane(recipe: Option<&str>) -> Option<HakoLlBridgeLane> {
+    match recipe {
+        Some("hako-ll-min-v0") => Some(HakoLlBridgeLane::Daily),
+        Some("hako-ll-compare-v0") => Some(HakoLlBridgeLane::Compare),
+        _ => None,
+    }
+}
+
+pub(super) fn try_compile_via_hako_ll_bridge(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
-    match opts.compile_recipe.as_deref() {
-        Some("hako-ll-min-v0") => {
+    match hako_ll_bridge_lane(opts.compile_recipe.as_deref()) {
+        Some(HakoLlBridgeLane::Daily) => {
             validate_backend_mir_shape(mir_json)?;
-            super::transport::mir_json_to_object_hako_ll_compare(mir_json, opts).map(Some)
+            mir_json_to_object_hako_ll_daily(mir_json, opts).map(Some)
+        }
+        Some(HakoLlBridgeLane::Compare) => {
+            validate_backend_mir_shape(mir_json)?;
+            mir_json_to_object_hako_ll_compare(mir_json, opts).map(Some)
         }
         _ => Ok(None),
     }
@@ -108,7 +129,8 @@ fn capi_boundary_unavailable(error: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        compile_symbol_for_keep_recipe, COMPILE_SYMBOL_DEFAULT, COMPILE_SYMBOL_PURE_FIRST,
+        compile_symbol_for_keep_recipe, hako_ll_bridge_lane, HakoLlBridgeLane,
+        COMPILE_SYMBOL_DEFAULT, COMPILE_SYMBOL_PURE_FIRST,
     };
 
     #[test]
@@ -126,5 +148,19 @@ mod tests {
             compile_symbol_for_keep_recipe(Some("harness")),
             COMPILE_SYMBOL_DEFAULT
         );
+    }
+
+    #[test]
+    fn hako_ll_bridge_lane_stays_explicit() {
+        assert_eq!(
+            hako_ll_bridge_lane(Some("hako-ll-min-v0")),
+            Some(HakoLlBridgeLane::Daily)
+        );
+        assert_eq!(
+            hako_ll_bridge_lane(Some("hako-ll-compare-v0")),
+            Some(HakoLlBridgeLane::Compare)
+        );
+        assert_eq!(hako_ll_bridge_lane(Some("pure-first")), None);
+        assert_eq!(hako_ll_bridge_lane(None), None);
     }
 }

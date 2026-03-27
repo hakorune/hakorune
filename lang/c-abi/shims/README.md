@@ -50,3 +50,4 @@ Rules:
   deliberate ABI/linkage split.
 - Prefer adding new pure-first matcher families to a dedicated partition before
   widening the top-level owner shell.
+- During backend-owner cutover, flipped boundary shapes move out of daily ownership first; delete/archive timing is tracked in the phase-29x legacy ledger.

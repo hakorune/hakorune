@@ -30,7 +30,7 @@ static box Main {
     print("[hako-ll/ll-begin]")
     print(ll)
     print("[hako-ll/ll-end]")
-    print("[hako-ll/compare] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none")
+    print("[hako-ll/__HAKO_LL_LANE__] chosen_owner=hako-ll-min-v0 accepted=min-v0 first_blocker=none")
     return 0
   }
 }

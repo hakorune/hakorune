@@ -7,7 +7,17 @@
 
 static box BackendRecipeBox {
   compile_route_profile(json_path) {
-    return me._build_compile_profile_for_replay("compile_route_profile", json_path, "none")
+    local path = me.require_non_empty_field("compile_route_profile", "json_path", json_path)
+    if path == null { return null }
+    if me._use_hako_ll_daily_owner(path) == 1 {
+      return me._build_hako_ll_profile(
+        "compile_route_profile",
+        path,
+        "backend-zero/hako-ll-min-v0",
+        "hako-ll-min-v0",
+      )
+    }
+    return me._build_compile_profile_for_replay("compile_route_profile", path, "none")
   }
 
   compile_keep_profile(json_path, compat_replay) {
@@ -18,18 +28,27 @@ static box BackendRecipeBox {
   }
 
   compile_compare_profile(json_path) {
-    local path = me.require_non_empty_field("compile_compare_profile", "json_path", json_path)
+    return me._build_hako_ll_profile(
+      "compile_compare_profile",
+      json_path,
+      "backend-zero/hako-ll-compare-v0",
+      "hako-ll-compare-v0",
+    )
+  }
+
+  _build_hako_ll_profile(method_name, json_path, route_profile, compile_recipe) {
+    local path = me.require_non_empty_field(method_name, "json_path", json_path)
     if path == null { return null }
     local profile = new MapBox()
-    profile.set("route_profile", "backend-zero/hako-ll-compare-v0")
+    profile.set("route_profile", "" + route_profile)
     profile.set("policy_owner", "BackendRecipeBox")
     profile.set("transport_owner", "hako_ll_emitter")
     profile.set("acceptance_policy", "hako-ll-min-v0")
     profile.set("acceptance_case", "" + me.acceptance_case_for(path))
     profile.set("json_path", "" + path)
-    profile.set("compile_recipe", "hako-ll-min-v0")
+    profile.set("compile_recipe", "" + compile_recipe)
     profile.set("compat_replay", "none")
-    return profile
+    return me._validate_hako_ll_profile(profile, path, route_profile, compile_recipe)
   }
 
   _build_compile_profile_for_replay(method_name, json_path, compat_replay) {
@@ -104,6 +123,30 @@ static box BackendRecipeBox {
     return profile
   }
 
+  _validate_hako_ll_profile(profile, path, expected_route_profile, expected_compile_recipe) {
+    if profile == null {
+      return me._fail("[backendrecipe/profile-missing] profile is empty")
+    }
+
+    local route_profile = profile.get("route_profile")
+    if me._require_profile_equals("route_profile", route_profile, expected_route_profile) == null { return null }
+    local policy_owner = profile.get("policy_owner")
+    if me._require_profile_equals("policy_owner", policy_owner, "BackendRecipeBox") == null { return null }
+    local transport_owner = profile.get("transport_owner")
+    if me._require_profile_equals("transport_owner", transport_owner, "hako_ll_emitter") == null { return null }
+    local acceptance_policy = profile.get("acceptance_policy")
+    if me._require_profile_equals("acceptance_policy", acceptance_policy, "hako-ll-min-v0") == null { return null }
+    local acceptance_case = profile.get("acceptance_case")
+    if me._require_profile_equals("acceptance_case", acceptance_case, me.acceptance_case_for(path)) == null { return null }
+    local json_path = profile.get("json_path")
+    if me._require_profile_equals("json_path", json_path, path) == null { return null }
+    local compile_recipe = profile.get("compile_recipe")
+    if me._require_profile_equals("compile_recipe", compile_recipe, expected_compile_recipe) == null { return null }
+    local compat_replay = profile.get("compat_replay")
+    if me._require_profile_equals("compat_replay", compat_replay, "none") == null { return null }
+    return profile
+  }
+
   _route_profile_for_replay(compat_replay) {
     if compat_replay == "none" {
       return "backend-zero/pure-first+none"
@@ -119,6 +162,13 @@ static box BackendRecipeBox {
       return me._fail("[backendrecipe/keep-unsupported] compat_replay expected=harness got=" + ("" + compat_replay))
     }
     return compat_replay
+  }
+
+  _use_hako_ll_daily_owner(path) {
+    if path.contains("ret_const_min_v1") { return 1 }
+    if path.contains("bool_phi_branch_min_v1") { return 1 }
+    if path.contains("string_concat3_extern_min_v1") { return 1 }
+    return 0
   }
 
   acceptance_case_for(json_path) {
@@ -240,6 +290,9 @@ static box BackendRecipeBox {
   }
 
   _acceptance_case_seed_bucket_for(path) {
+    if path.contains("bool_phi_branch_min_v1") {
+      return me.acceptance_case_bool_phi_branch_v1()
+    }
     if path.contains("ret_const_min_v1") {
       return me.acceptance_case_ret_const_v1()
     }
@@ -331,6 +384,10 @@ static box BackendRecipeBox {
 
   acceptance_case_method_call_only_small_compat_v1() {
     return "method-call-only-small-compat-v1"
+  }
+
+  acceptance_case_bool_phi_branch_v1() {
+    return "bool-phi-branch-v1"
   }
 
   acceptance_case_ret_const_v1() {

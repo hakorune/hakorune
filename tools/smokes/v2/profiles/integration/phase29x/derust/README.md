@@ -10,10 +10,14 @@ De-rust route and lane contract gates for phase29x.
 - `phase29x_derust_strict_default_route_vm.sh`: strict/dev default route cutover
 - `phase29x_derust_done_matrix_vm.sh`: replay / done-sync matrix
 - `phase29x_backend_owner_hako_ll_compare_min.sh`: explicit `.hako ll emitter` compare-owner canary
+- `phase29x_backend_owner_daily_ret_const_min.sh`: daily owner flip pin for `ret_const_min_v1`
+- `phase29x_backend_owner_daily_bool_phi_branch_min.sh`: daily owner flip pin for `bool_phi_branch_min_v1`
+- `phase29x_backend_owner_daily_concat3_extern_min.sh`: daily owner flip pin for `string_concat3_extern_min_v1`
 
 ## Contract
 
 - The family keeps the de-rust route skeleton and its fail-fast evidence pins together.
-- The explicit backend-owner compare lane also lives here because it is an owner-cutover evidence pin, not an app benchmark.
+- The explicit backend-owner compare lane also lives here because it is a temporary owner-cutover bridge, not an app benchmark.
+- Narrow daily owner flips for boundary-only shapes also live here so compare and daily evidence stay side-by-side.
 - The scripts are evidence pins, not daily discovery entries.
 - Keep the family separate from `vm_hako/` and from the remaining `phase29x` residual buckets.

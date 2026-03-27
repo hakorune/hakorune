@@ -1,12 +1,13 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-27
+Date: 2026-03-28
 Scope: `MIR -> backend owner` の切り直しを structure-first で進めるための正本。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29x/README.md
+  - docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -55,9 +56,10 @@ current C `.inc` lane は次の扱いに固定する。
 1. `runtime_decl_manifest_v0`
 2. `recipe_facts_v0`
 3. `.hako ll emitter min v0`
-4. explicit compare lane
-5. narrow owner flip
-6. その後に structural perf だけ reopen
+4. explicit compare bridge
+5. boundary-only narrow owner flip
+6. archive/delete sweep
+7. その後に structural perf だけ reopen
 
 ## Runtime Decl Manifest Rule
 
@@ -89,10 +91,18 @@ current C `.inc` lane は次の扱いに固定する。
 - compare lane は explicit opt-in だけで呼ぶ。
 - silent fallback は禁止。
 - current explicit lane は `.hako ll emitter min v0` と C `.inc` owner の比較用に使う。
+- compare lane は temporary bridge であって常設 mainline route ではない。
 - compare lane の minimum evidence は次で固定する。
   - `chosen_owner`
   - `accepted`
   - `first_blocker`
+
+## Subtraction Queue
+
+- owner cutover の primary goal は live owner surface を減らすことだよ。
+- shape が daily owner flip したら、その shape の legacy C `.inc` daily route は同 commit で retired として扱う。
+- delete/archive 候補の追跡は `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md` を正本にする。
+- preservation-first SSOT を満たさない surface は、demote はしても即 delete しない。
 
 ## Non-Goals
 
@@ -105,6 +115,6 @@ current C `.inc` lane は次の扱いに固定する。
 ## Acceptance
 
 - `CURRENT_TASK.md` / `10-Now.md` / `phase-29x/README.md` が同じ fixed order を持つ
-- new `.hako ll emitter` is compare-lane only
-- legacy C `.inc` is no longer described as the only future owner
+- compare lane stays explicit bridge-only
+- boundary-only wave では daily owner flip した shape が `.hako ll emitter` を使い、同 shape の legacy daily route は retired として ledger に残る
 - structural perf work only reopens after compare lane is explicit and facts/manifest are visible

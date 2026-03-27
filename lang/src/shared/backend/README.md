@@ -10,17 +10,17 @@ Current owner
   - `backend_recipe_box.hako`
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
   - `ll_emit/**`
-  - explicit compare/debug lane for future `.hako ll emitter` owner work; not a daily route yet
+  - explicit compare/debug bridge plus narrow daily owner for flipped boundary shapes
   - shared non-empty validation helper also lives here so `LlvmBackendBox` can stay transport-focused without duplicating input guards
   - current `.hako` daily caller passes recipe payload explicitly via `BackendRecipeBox.compile_route_profile(...)` and then forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)`
-  - explicit compare callers may use `BackendRecipeBox.compile_compare_profile(...)` and `LlvmBackendBox.compile_obj_compare_hako_ll(...)` to exercise the `.hako ll emitter` lane without changing the daily owner
-  - daily `compile_route_profile(...)` now names the mainline contract as `pure-first + compat_replay=none`, while explicit keep callers may request `compile_keep_profile(..., "harness")`
+  - explicit compare callers may use `BackendRecipeBox.compile_compare_profile(...)` and `LlvmBackendBox.compile_obj_compare_hako_ll(...)` to exercise the `.hako ll emitter` bridge without changing the default owner
+  - daily `compile_route_profile(...)` now keeps legacy `pure-first + compat_replay=none` for unflipped shapes, while `ret_const_min_v1`, `bool_phi_branch_min_v1`, and `string_concat3_extern_min_v1` use `hako-ll-min-v0` as narrow daily owner
   - `BackendRecipeBox.compile_route_profile(...)` validates the exact owner names and evidence labels before returning the daily profile, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
   - `BackendRecipeBox` also names the current acceptance basis (`acceptance_policy`) so pure/compat classification does not drift back into C
   - `BackendRecipeBox` also names the current acceptance case (`acceptance_case`) so shape-specific evidence such as `ret-const-v1`, `hello-simple-llvm-native-probe-v1`, `runtime-data-array-get-missing-v1`, `runtime-data-string-length-ascii-v1`, `runtime-data-array-length-v1`, `runtime-data-array-push-v1`, `runtime-data-map-size-v1`, `runtime-data-array-has-missing-v1`, `runtime-data-map-has-missing-v1`, `runtime-data-map-get-missing-v1`, `array-string-indexof-branch-v1`, `array-string-indexof-cross-block-select-v1`, `array-string-indexof-interleaved-branch-v1`, `array-string-indexof-interleaved-select-v1`, `array-string-indexof-select-v1`, `string-indexof-ascii-v1`, `string-length-ascii-v1`, and `method-call-only-small-compat-v1` stays visible in `.hako`
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary, but they do not invent a hidden harness default for daily callers
-  - final target は `LlvmBackendBox -> BackendRecipeBox -> hako_aot -> backend helper`
+  - final target は `LlvmBackendBox -> BackendRecipeBox -> .hako ll emitter -> opt/llc` で、legacy C shim は compare/compat keep へ後退する
   - daily compile/link owner now stops directly at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`
   - shared compile/link helper lowering now reaches canonical `env.codegen.*` externs directly; daily compile/link does not depend on `hostbridge.extern_invoke(...)`
   - caller-side codegen request defaults are centralized in `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)`; compat bridges may mirror the same names, but daily owners stay explicit
@@ -36,9 +36,12 @@ Non-goals
 - legacy `llvm_ir/AotFacade` route をここへ混ぜない。
 - libLLVM の広い surface を `.hako` へ見せない。
 - `ll_emit/**` compare lane を daily owner に暗黙昇格しない。
+- legacy delete/archive 候補を ledger なしで消さない。
 
 Pointers
 - C helper:
   - `lang/c-abi/shims/hako_aot.c`
 - boundary SSOT:
   - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
+ - legacy ledger:
+   - `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`

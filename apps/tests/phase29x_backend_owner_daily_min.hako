@@ -1,0 +1,18 @@
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+
+static box Main {
+  main(args) {
+    if args == null || args.length() < 1 {
+      print("[backend-owner-daily] expected <mir-json-path>")
+      return 2
+    }
+    local mir_path = "" + args.get(0)
+    local obj = LlvmBackendBox.compile_obj(mir_path)
+    if obj == null || ("" + obj) == "" {
+      print("[backend-owner-daily] daily route failed")
+      return 2
+    }
+    print("[backend-owner-daily] object=" + ("" + obj))
+    return 0
+  }
+}

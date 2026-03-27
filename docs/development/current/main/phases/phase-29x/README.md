@@ -5,6 +5,7 @@ Date: 2026-02-13
 Scope: de-Rust runtime lane の実装タスクを、selfhost failure-driven と分離しつつ統合運用するための Phase 29x 実行計画。
 Related:
   - docs/development/current/main/design/backend-owner-cutover-ssot.md
+  - docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md
   - docs/development/current/main/design/runtime-decl-manifest-v0.toml
   - docs/development/current/main/design/hako-module-cache-build-ssot.md
   - docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
@@ -62,13 +63,16 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
   2. `runtime-decl-manifest-v0.toml`
   3. `recipe-facts-v0`
   4. `.hako ll emitter` min v0
-  5. explicit compare lane
-  6. narrow owner flip
-- current landed slice is compare-only:
-  - `.hako ll emitter` min v0 handles `ret const`, `bool phi/branch`, and `concat3 extern`
-  - smoke pin is `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
-  - wrapper app is `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
-- legacy C `.inc` remains daily owner until narrow owner flip is explicitly promoted
+  5. explicit compare bridge
+  6. boundary-only narrow owner flip
+  7. archive/delete sweep
+- current landed slice is subtraction-first:
+  - `.hako ll emitter` min v0 is the daily owner for `ret const`, `bool phi/branch`, and `concat3 extern`
+  - compare bridge smoke stays `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
+  - daily owner smokes are `phase29x_backend_owner_daily_{ret_const,bool_phi_branch,concat3_extern}_min.sh`
+  - compare wrapper app is `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
+  - daily wrapper app is `apps/tests/phase29x_backend_owner_daily_min.hako`
+- legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - structural perf only:
   - attrs centralization
   - facts visibility

@@ -29,6 +29,7 @@ pub struct Opts {
 }
 
 mod defaults;
+mod ll_emit_bridge;
 mod normalize;
 mod route;
 mod transport;
@@ -44,7 +45,7 @@ pub fn mir_json_file_to_object(input_json_path: &Path, opts: Opts) -> Result<Pat
 /// Fail‑Fast: prints stable tags and returns Err with the same message.
 pub fn mir_json_to_object(mir_json: &str, opts: Opts) -> Result<PathBuf, String> {
     let mir_json = normalize::normalize_mir_json_for_backend(mir_json)?;
-    if let Some(out_path) = route::try_compile_via_hako_ll_compare(&mir_json, &opts)? {
+    if let Some(out_path) = route::try_compile_via_hako_ll_bridge(&mir_json, &opts)? {
         return Ok(out_path);
     }
     if let Some(out_path) = route::try_compile_via_capi_keep(&mir_json, &opts)? {
