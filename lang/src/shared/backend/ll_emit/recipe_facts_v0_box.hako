@@ -1,5 +1,5 @@
 using selfhost.shared.common.box_helpers as BoxHelpers
-using selfhost.shared.backend.ll_emit.runtime_decl_registry as RuntimeDeclRegistryBox
+using selfhost.shared.backend.ll_emit.call_policy as LlEmitCallPolicyBox
 
 static box RecipeFactsV0Box {
   _new_ok() {
@@ -187,301 +187,31 @@ static box RecipeFactsV0Box {
   }
 
   _accept_manifest_call(out, dst, symbol) {
-    local decl = RuntimeDeclRegistryBox.find(symbol)
-    if decl == null || RuntimeDeclRegistryBox.has_lane(decl, "hako-ll-min-v0") != 1 {
-      return "extern_decl_missing"
-    }
-    if dst != null {
-      me._set_value_class(out, dst, "" + decl.get("ret"))
-    }
-    me._set_direct_call(out, dst, symbol, decl.get("memory"))
-    if dst != null {
-      me._set_effect(out, dst, decl.get("memory"))
-      if symbol == "nyash.array.birth_h" {
-        me._set_box_type(out, dst, "ArrayBox")
-      } else {
-        if symbol == "nyash.map.birth_h" {
-          me._set_box_type(out, dst, "MapBox")
-        } else {
-          if symbol == "nyash.box.from_i8_string_const" || symbol == "nyash.any.toString_h" || symbol == "nyash.string.substring_hii" || symbol == "nyash.string.concat3_hhh" || symbol == "nyash.string.concat_hs" || symbol == "nyash.string.insert_hsi" || symbol == "nyash.array.get_hi" {
-            me._set_box_type(out, dst, "StringBox")
-          }
-        }
-      }
-    }
-    return null
+    return LlEmitCallPolicyBox._accept_manifest_call(out, dst, symbol)
   }
 
   _accept_global_print_call(out, call) {
-    local print_args = call.get("args")
-    if print_args == null || print_args.size() != 1 {
-      return "global_print_arity"
-    }
-    local print_arg0 = print_args.get(0)
-    if me._is_bool_i1(out, print_arg0) == 1 {
-      return "global_print_bool_arg"
-    }
-    if me._value_class_or_default(out, print_arg0) != "imm_i64" {
-      return "global_print_arg_unsupported"
-    }
-    return null
+    return LlEmitCallPolicyBox._accept_global_print_call(out, call)
   }
 
   _accept_string_method_call(out, inst, call, callee) {
-    local box_name = "" + callee.get("box_name")
-    local method_name = "" + callee.get("name")
-    local receiver = callee.get("receiver")
-    local dst = inst.get("dst")
-    if box_name != "StringBox" {
-      return "mir_call_method_unsupported"
-    }
-    if me._value_class_or_default(out, receiver) != "handle_owned" {
-      return "string_method_receiver_unsupported"
-    }
-    if method_name == "len" || method_name == "length" || method_name == "size" {
-      return me._accept_manifest_call(out, dst, "nyash.string.len_h")
-    }
-    if method_name == "indexOf" {
-      local args = call.get("args")
-      if args == null || args.size() != 1 {
-        return "string_indexof_arity"
-      }
-      local needle = args.get(0)
-      if me._value_class_or_default(out, needle) != "handle_owned" {
-        return "string_indexof_arg_unsupported"
-      }
-      return me._accept_manifest_call(out, dst, "nyash.string.indexOf_hh")
-    }
-    return "mir_call_method_unsupported"
+    return LlEmitCallPolicyBox._accept_string_method_call(out, inst, call, callee)
   }
 
   _runtime_data_receiver_family(out, receiver) {
-    local box_type = me._box_type_or_default(out, receiver)
-    if box_type == "ArrayBox" {
-      return "array"
-    }
-    if box_type == "MapBox" {
-      return "map"
-    }
-    if box_type == "StringBox" {
-      return "string"
-    }
-    if me._const_string_or_null(out, receiver) != null {
-      return "string"
-    }
-    local direct = me._direct_call_row_or_null(out, receiver)
-    if direct == null { return null }
-    local symbol = "" + direct.get("symbol")
-    if symbol == "nyash.array.birth_h" {
-      return "array"
-    }
-    if symbol == "nyash.map.birth_h" {
-      return "map"
-    }
-    if symbol == "nyash.box.from_i8_string_const" || symbol == "nyash.any.toString_h" || symbol == "nyash.string.substring_hii" || symbol == "nyash.string.concat3_hhh" || symbol == "nyash.string.concat_hs" || symbol == "nyash.string.insert_hsi" {
-      return "string"
-    }
-    return null
+    return LlEmitCallPolicyBox._runtime_data_receiver_family(out, receiver)
   }
 
   _accept_runtime_data_method_call(out, inst, call, callee) {
-    local certainty = "" + callee.get("certainty")
-    if certainty != "Union" {
-      return "runtime_data_certainty_unsupported"
-    }
-    local receiver = callee.get("receiver")
-    if me._value_class_or_default(out, receiver) != "handle_owned" {
-      return "runtime_data_receiver_unsupported"
-    }
-    local method_name = "" + callee.get("name")
-    local args = call.get("args")
-    local arg_count = 0
-    if args != null { arg_count = args.size() }
-    local family = me._runtime_data_receiver_family(out, receiver)
-    if family == null {
-      return "runtime_data_receiver_family_unknown"
-    }
-    if family == "string" {
-      if method_name == "length" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.len_h")
-      }
-      if method_name == "indexOf" && arg_count == 1 {
-        local needle = args.get(0)
-        if me._value_class_or_default(out, needle) != "handle_owned" {
-          return "runtime_data_string_indexof_arg_unsupported"
-        }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.indexOf_hh")
-      }
-      if method_name == "substring" && arg_count == 2 {
-        local start = args.get(0)
-        local end = args.get(1)
-        if me._value_class_or_default(out, start) != "imm_i64" || me._value_class_or_default(out, end) != "imm_i64" {
-          return "runtime_data_string_substring_args_unsupported"
-        }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.substring_hii")
-      }
-      if method_name == "stringify" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.any.toString_h")
-      }
-      return "runtime_data_string_method_unsupported"
-    }
-    if family == "array" {
-      if method_name == "length" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.slot_len_h")
-      }
-      if method_name == "push" && arg_count == 1 {
-        local value = args.get(0)
-        local value_class = me._value_class_or_default(out, value)
-        if value_class == "imm_i64" {
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.push_hi")
-        }
-        if value_class == "handle_owned" {
-          if me._is_string_like_value(out, value) == 1 {
-            me._set_array_element_box_type(out, receiver, "StringBox")
-          }
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.push_hh")
-        }
-        return "runtime_data_array_push_value_unsupported"
-      }
-      if method_name == "set" && arg_count == 2 {
-        local key = args.get(0)
-        local value = args.get(1)
-        if me._value_class_or_default(out, key) != "imm_i64" {
-          return "runtime_data_array_set_key_unsupported"
-        }
-        if me._value_class_or_default(out, value) != "handle_owned" && me._value_class_or_default(out, value) != "imm_i64" {
-          return "runtime_data_array_set_value_unsupported"
-        }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.set_hih")
-      }
-      if (method_name == "has" || method_name == "get") && arg_count == 1 {
-        local key = args.get(0)
-        if me._value_class_or_default(out, key) != "imm_i64" {
-          return "runtime_data_array_lookup_key_unsupported"
-        }
-        if method_name == "has" {
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.has_hi")
-        }
-        local reason = me._accept_manifest_call(out, inst.get("dst"), "nyash.array.get_hi")
-        if reason != null { return reason }
-        if me._array_element_box_type_or_default(out, receiver) == "StringBox" {
-          me._set_box_type(out, inst.get("dst"), "StringBox")
-        }
-        return null
-      }
-      if method_name == "getField" && arg_count == 1 {
-        local field_name = args.get(0)
-        local field_text = me._const_string_or_null(out, field_name)
-        if field_text != "stringify" {
-          return "runtime_data_array_field_unsupported"
-        }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.instance.get_field_h")
-      }
-      if method_name == "stringify" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.any.toString_h")
-      }
-      return "runtime_data_array_method_unsupported"
-    }
-    if family == "map" {
-      if method_name == "size" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.entry_count_h")
-      }
-      if (method_name == "has" || method_name == "get") && arg_count == 1 {
-        local key = args.get(0)
-        if me._value_class_or_default(out, key) != "imm_i64" {
-          return "runtime_data_map_lookup_key_unsupported"
-        }
-        if method_name == "has" {
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.has_h")
-        }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.get_h")
-      }
-      if method_name == "stringify" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.any.toString_h")
-      }
-      return "runtime_data_map_method_unsupported"
-    }
-    return "runtime_data_receiver_family_unknown"
+    return LlEmitCallPolicyBox._accept_runtime_data_method_call(out, inst, call, callee)
   }
 
   _accept_method_call(out, inst, call, callee) {
-    local box_name = "" + callee.get("box_name")
-    if box_name == "ArrayBox" {
-      local method_name = "" + callee.get("name")
-      local args = call.get("args")
-      local arg_count = 0
-      if args != null { arg_count = args.size() }
-      if method_name == "length" && arg_count == 0 {
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.slot_len_h")
-      }
-      if method_name == "has" && arg_count == 1 {
-        local key = args.get(0)
-        if me._value_class_or_default(out, key) != "imm_i64" {
-          return "array_method_lookup_key_unsupported"
-        }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.has_hi")
-      }
-      if method_name == "get" && arg_count == 1 {
-        local key = args.get(0)
-        if me._value_class_or_default(out, key) != "imm_i64" {
-          return "array_method_lookup_key_unsupported"
-        }
-        local reason = me._accept_manifest_call(out, inst.get("dst"), "nyash.array.get_hi")
-        if reason != null { return reason }
-        if me._array_element_box_type_or_default(out, callee.get("receiver")) == "StringBox" {
-          me._set_box_type(out, inst.get("dst"), "StringBox")
-        }
-        return null
-      }
-      if method_name == "push" && arg_count == 1 {
-        local value = args.get(0)
-        local value_class = me._value_class_or_default(out, value)
-        if value_class == "imm_i64" {
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.push_hi")
-        }
-        if value_class == "handle_owned" {
-          if me._is_string_like_value(out, value) == 1 {
-            me._set_array_element_box_type(out, callee.get("receiver"), "StringBox")
-          }
-          return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.push_hh")
-        }
-        return "array_method_push_value_unsupported"
-      }
-      if method_name == "set" && arg_count == 2 {
-        local key = args.get(0)
-        local value = args.get(1)
-        if me._value_class_or_default(out, key) != "imm_i64" {
-          return "array_method_set_key_unsupported"
-        }
-        if me._value_class_or_default(out, value) != "handle_owned" && me._value_class_or_default(out, value) != "imm_i64" {
-          return "array_method_set_value_unsupported"
-        }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.set_hih")
-      }
-      return "mir_call_method_unsupported"
-    }
-    if box_name == "StringBox" {
-      return me._accept_string_method_call(out, inst, call, callee)
-    }
-    if box_name == "RuntimeDataBox" {
-      return me._accept_runtime_data_method_call(out, inst, call, callee)
-    }
-    return "mir_call_method_unsupported"
+    return LlEmitCallPolicyBox._accept_method_call(out, inst, call, callee)
   }
 
   _accept_constructor_call(out, inst, call, callee) {
-    local args = call.get("args")
-    if args != null && args.size() != 0 {
-      return "constructor_arity_unsupported"
-    }
-    local box_name = "" + callee.get("box_name")
-    if box_name == "ArrayBox" {
-      return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.birth_h")
-    }
-    if box_name == "MapBox" {
-      return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.birth_h")
-    }
-    return "mir_call_constructor_unsupported"
+    return LlEmitCallPolicyBox._accept_constructor_call(out, inst, call, callee)
   }
 
   _select_entry_function(root) {

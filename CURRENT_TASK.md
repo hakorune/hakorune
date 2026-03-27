@@ -47,9 +47,9 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
     - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
   - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
-  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, but the remaining cleanup targets are `BackendRecipeBox` fixture-path owner allowlist, `RecipeFactsV0Box` symbol-selection mini-policy, `LlTextEmitBox` emit-side fallback (`push/set` rescue), `LlvmBackendBox` env mirror, and `ll_emit_bridge.rs` compare/debug templating residue
-  - next structural cleanup after the owner-flip wave is to thin these policy leaks without reopening leaf-only perf retune
-- secondary exact blocker lane is `phase-29ck`:
+  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, but the remaining cleanup targets are `LlTextEmitBox` emit-side fallback (`push/set` rescue), `LlvmBackendBox` env mirror, and `ll_emit_bridge.rs` compare/debug templating residue
+  - `BackendRecipeBox` fixture-path owner allowlist and `backend.ll_emit.call_policy` symbol-selection policy are already split out
+  - next structural cleanup after the owner-flip wave is to thin the remaining emit/bridge policy leaks without reopening leaf-only perf retune
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked
   - current route-correction blocker is retired for the current kilo entry
   - backend-zero thin-up is landed for the daily owner split:

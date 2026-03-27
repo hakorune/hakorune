@@ -13,6 +13,8 @@ Current owner
   - narrow allowlist helper for `.hako ll emitter` daily-owner selection; no route/profile assembly, no transport
   - `ll_emit/**`
   - explicit compare/debug bridge plus narrow daily owner for flipped boundary shapes
+  - `ll_emit/call_policy_box.hako`
+  - narrow method-selection policy for `RecipeFactsV0Box`; keep symbol choice out of the facts walker
   - shared non-empty validation helper also lives here so `LlvmBackendBox` can stay transport-focused without duplicating input guards
   - current `.hako` daily caller passes recipe payload explicitly via `BackendRecipeBox.compile_route_profile(...)` and then forwards the caller `json_path` directly into `env.codegen.compile_json_path(json_path, "", recipe, compat)`
   - explicit compare callers may use `BackendRecipeBox.compile_compare_profile(...)` and `LlvmBackendBox.compile_obj_compare_hako_ll(...)` to exercise the `.hako ll emitter` bridge without changing the default owner
