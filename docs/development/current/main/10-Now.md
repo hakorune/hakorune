@@ -103,7 +103,8 @@ Related:
         - extracted direct `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_direct_match.inc`
         - extracted cross-block / interleaved `indexOf` observer detector helpers into `hako_llvmc_ffi_indexof_observer_block_match.inc`
         - extracted `indexOf` observer lowering helpers into `hako_llvmc_ffi_indexof_observer_lowering.inc`
-        - keep non-`indexOf` generic method dispatch in `pure_compile.inc` for the next cleanup pass
+        - extracted non-`indexOf` generic method lowering helpers into `hako_llvmc_ffi_generic_method_lowering.inc`
+        - keep the remaining `mir_call` route shell, runtime-flag classification, and constructor/global lowering in `pure_compile.inc` for the next cleanup pass
         - `tools/perf/trace_optimization_bundle.sh` now emits `owner_route` / `first_blocker` in its bundle summary
         - `tools/build_hako_llvmc_ffi.sh` now serializes shared `libhako_llvmc_ffi.so` rebuilds with a small lock
         - external evaluation positives to preserve:
