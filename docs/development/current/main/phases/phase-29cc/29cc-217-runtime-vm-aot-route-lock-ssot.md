@@ -23,7 +23,8 @@ Related:
 2. guard は次の2本を実行し、両方 green を要求する。
    - `phase21_5_perf_kilo_text_concat_contract_vm.sh`
    - `phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh`
-3. 日常実行は `tools/checks/dev_gate.sh runtime-exec-zero` に統合する。
+3. `bench_kilo_kernel_small.hako` の source owner は direct emit route とし、この lock は reduced `hako-helper` / `hako-mainline` emit を監査対象に含めない。
+4. 日常実行は `tools/checks/dev_gate.sh runtime-exec-zero` に統合する。
 
 ## Acceptance
 

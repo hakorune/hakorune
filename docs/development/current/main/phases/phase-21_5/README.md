@@ -3,6 +3,7 @@ Status: Parked
 Decision: accepted
 Date: 2026-03-21
 Scope: `phase21_5_perf_kilo_text_concat_contract_vm.sh` が残していた `nyash.any.length_h` residual route は、`ArrayBox` string-element propagation と boxcall set-route alignment で解消済み。daily portability gate は green に戻したので、この phase は regression pin として parked 扱いにする。
+Route note: `bench_kilo_kernel_small.hako` の route pin は direct emit を canonical source owner とする。`hako-helper` / `hako-mainline` Stage1 emit は bootstrap/reduced route のまま監査対象から外す。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md

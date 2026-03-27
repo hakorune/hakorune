@@ -3,8 +3,11 @@
 #
 # Contract pin (LLVM-HOT-20 cleanup-8):
 # - RuntimeDataBox get/set in kilo main should prefer Array direct int-key route.
-# - main IR should use nyash.array.slot_load_hi / nyash.array.set_hih.
+# - main IR should use nyash.array.slot_load_hi plus Array set fast paths
+#   (`nyash.array.set_his` or `nyash.array.set_hih`).
 # - main IR should not keep nyash.array.set_h or nyash.runtime_data.get_hh / set_hhh on this path.
+# - this contract uses the direct emit route as the canonical source owner for
+#   `bench_kilo_kernel_small`; helper/mainline Stage1 emit is out of scope here.
 
 set -euo pipefail
 
@@ -17,7 +20,8 @@ EMIT_TIMEOUT_SECS="${EMIT_TIMEOUT_SECS:-30}"
 MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 BENCH="$NYASH_ROOT/benchmarks/bench_kilo_kernel_small.hako"
 ROUTE_ARRAY_GET="nyash.array.slot_load_hi"
-ROUTE_ARRAY_SET="nyash.array.set_hih"
+ROUTE_ARRAY_SET_STRING="nyash.array.set_his"
+ROUTE_ARRAY_SET_GENERIC="nyash.array.set_hih"
 LEGACY_ARRAY_GET="nyash.array.get_hi"
 LEGACY_ARRAY_GET_COMPAT="nyash.array.get_hh"
 LEGACY_ARRAY_SET="nyash.array.set_hhh"
@@ -50,7 +54,7 @@ cleanup() {
 trap cleanup EXIT
 
 set +e
-"$EMIT_ROUTE" --route hako-helper --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$tmp_mir" --input "$BENCH" >"$tmp_log" 2>&1
+"$EMIT_ROUTE" --route direct --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$tmp_mir" --input "$BENCH" >"$tmp_log" 2>&1
 emit_rc=$?
 set -e
 if [ "$emit_rc" -ne 0 ]; then
@@ -90,7 +94,9 @@ count_symbol() {
 }
 
 array_get_count="$(count_symbol "$ROUTE_ARRAY_GET")"
-array_set_count="$(count_symbol "$ROUTE_ARRAY_SET")"
+array_set_string_count="$(count_symbol "$ROUTE_ARRAY_SET_STRING")"
+array_set_generic_count="$(count_symbol "$ROUTE_ARRAY_SET_GENERIC")"
+array_set_count=$((array_set_string_count + array_set_generic_count))
 runtime_get_count="$(count_symbol "$RUNTIME_GET")"
 runtime_set_count="$(count_symbol "$RUNTIME_SET")"
 legacy_array_get_count="$(count_symbol "$LEGACY_ARRAY_GET")"
@@ -103,7 +109,7 @@ if [ "$array_get_count" -lt 1 ]; then
   exit 1
 fi
 if [ "$array_set_count" -lt 1 ]; then
-  test_fail "$SMOKE_NAME: ${ROUTE_ARRAY_SET} not observed in main"
+  test_fail "$SMOKE_NAME: array set fast path not observed in main (${ROUTE_ARRAY_SET_STRING}/${ROUTE_ARRAY_SET_GENERIC})"
   exit 1
 fi
 if [ "$runtime_get_count" -ne 0 ]; then

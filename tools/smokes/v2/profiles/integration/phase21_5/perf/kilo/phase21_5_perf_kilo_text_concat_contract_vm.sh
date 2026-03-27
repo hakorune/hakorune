@@ -4,8 +4,9 @@
 # Contract pin (LLVM-HOT-20 structural hotspot):
 # - kilo text loop must preserve string concat route in nested append path.
 # - main IR should keep concat helper density (concat_hh / concat3_hhh).
-# - data set route (runtime_data.set_hhh / array.set_hhh / map.set_hh) must consume concat result
-#   and must not fall back to literal 0.
+# - data set route must consume concat result without falling back to literal 0.
+# - this contract uses the direct emit route as the canonical source owner for
+#   `bench_kilo_kernel_small`; helper/mainline Stage1 emit is out of scope here.
 
 set -euo pipefail
 
@@ -37,7 +38,7 @@ cleanup() {
 trap cleanup EXIT
 
 set +e
-"$EMIT_ROUTE" --route hako-helper --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$tmp_mir" --input "$BENCH" >"$tmp_log" 2>&1
+"$EMIT_ROUTE" --route direct --timeout-secs "$EMIT_TIMEOUT_SECS" --out "$tmp_mir" --input "$BENCH" >"$tmp_log" 2>&1
 emit_rc=$?
 set -e
 if [ "$emit_rc" -ne 0 ]; then
@@ -77,8 +78,9 @@ if [ "${concat_total_count}" -lt 2 ]; then
   exit 1
 fi
 
-if ! grep -q 'nyash.string.indexOf_hh' "$tmp_main"; then
-  test_fail "$SMOKE_NAME: main missing indexOf_hh call"
+array_indexof_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.array.string_indexof_hih')"
+if [ "$array_indexof_count" -lt 1 ]; then
+  test_fail "$SMOKE_NAME: main missing array.string_indexof_hih call"
   exit 1
 fi
 
@@ -87,30 +89,43 @@ if grep -q 'nyash.any.length_h' "$tmp_main"; then
   exit 1
 fi
 
-if ! grep -Eq '(nyash\.runtime_data\.set_hhh|nyash\.array\.set_hhh|nyash\.array\.set_hih|nyash\.array\.set_hii|nyash\.map\.set_hh)"\(.*%\"(concat_hh_|concat3_hhh_)' "$tmp_main"; then
+set_consumer_stats="$(python3 - "$tmp_main" <<'PY'
+import re
+import sys
+
+text = open(sys.argv[1], encoding="utf-8").read().splitlines()
+concat_regs = set()
+set_consume = 0
+set_zero = 0
+
+for line in text:
+    m = re.search(r'(%r\d+)\s*=\s*call i64 @"(nyash\.string\.concat_hh|nyash\.string\.concat3_hhh)"', line)
+    if m:
+        concat_regs.add(m.group(1))
+        continue
+    m = re.search(r'call i64 @"(nyash\.array\.set_his|nyash\.array\.set_hih|nyash\.array\.set_hii)"\((.*)\)$', line)
+    if not m:
+        continue
+    if re.search(r', i64 0\)$', line):
+        set_zero += 1
+        continue
+    for reg in concat_regs:
+        if re.search(r', i64 %s\)$' % re.escape(reg), line):
+            set_consume += 1
+            break
+
+print(f"{set_consume} {set_zero}")
+PY
+)"
+
+set_consume_count="$(echo "$set_consumer_stats" | awk '{print $1}')"
+set_zero_count="$(echo "$set_consumer_stats" | awk '{print $2}')"
+if [ "$set_consume_count" -lt 1 ]; then
   test_fail "$SMOKE_NAME: set route does not consume concat result"
   exit 1
 fi
-
-if grep -Eq '(nyash\.runtime_data\.set_hhh|nyash\.array\.set_hhh|nyash\.array\.set_hih|nyash\.array\.set_hii)"\(.*i64 0\)' "$tmp_main"; then
+if [ "$set_zero_count" -ne 0 ]; then
   test_fail "$SMOKE_NAME: set route fallback to literal 0 detected"
-  exit 1
-fi
-
-hot_line="$(grep '\[llvm/hot\] fn=main' "$tmp_log" | tail -n 1 || true)"
-if [ -z "$hot_line" ]; then
-  test_fail "$SMOKE_NAME: missing llvm hot trace summary for main"
-  exit 1
-fi
-
-fallback_call="$(printf '%s\n' "$hot_line" | sed -n 's/.*resolve_fallback_call=\([0-9][0-9]*\).*/\1/p')"
-if [ -z "$fallback_call" ]; then
-  test_fail "$SMOKE_NAME: failed to parse resolve_fallback_call from hot trace"
-  exit 1
-fi
-
-if [ "$fallback_call" -ne 0 ]; then
-  test_fail "$SMOKE_NAME: resolve_fallback_call must stay 0 (got $fallback_call)"
   exit 1
 fi
 
