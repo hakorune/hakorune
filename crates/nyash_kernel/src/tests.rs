@@ -680,6 +680,25 @@ fn string_concat_hs_contract() {
 }
 
 #[test]
+fn string_insert_hsi_contract() {
+    let source_h = string_handle("line-seed");
+    let middle = CString::new("xx").expect("CString");
+    let out_h = nyash_string_insert_hsi_export(source_h, middle.as_ptr(), 4);
+    assert!(out_h > 0);
+    let out = decode_string_like_handle(out_h).expect("insert_hsi result");
+    assert_eq!(out, "linexx-seed");
+
+    let utf8_source_h = string_handle("あい");
+    let invalid_mid = nyash_string_insert_hsi_export(utf8_source_h, middle.as_ptr(), 1);
+    let invalid_out = decode_string_like_handle(invalid_mid).expect("insert_hsi invalid boundary");
+    assert_eq!(invalid_out, "xx");
+
+    let empty = CString::new("").expect("CString");
+    let same_h = nyash_string_insert_hsi_export(source_h, empty.as_ptr(), 4);
+    assert_eq!(same_h, source_h, "empty middle should reuse source handle");
+}
+
+#[test]
 fn string_compare_hh_contract_roundtrip() {
     let a: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));
     let b: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));

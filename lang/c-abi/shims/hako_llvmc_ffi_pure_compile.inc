@@ -1685,6 +1685,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.string_concat) {
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat_hs\"(i64, ptr)\n");
+        fprintf(f, "declare i64 @\"nyash.string.insert_hsi\"(i64, ptr, i64)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat3_hhh\"(i64, i64, i64)\n");
       }
       if (needs.printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
@@ -1919,6 +1920,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 continue;
               }
               if (try_emit_string_concat_const_suffix_call(f, ii, ilen, insts, dst, lhs, rhs)) {
+                continue;
+              }
+              if (try_emit_string_insert_mid_const_call(f, ii, ilen, insts, dst, lhs, rhs)) {
                 continue;
               }
               if (!try_emit_string_concat3_chain_call(f, dst, lhs, rhs)) {

@@ -101,6 +101,7 @@
               }
               fprintf(f, "  %%r%lld = call i64 @\"nyash.array.string_len_hi\"(%s)\n", string_len_match.len_dst, ab);
               set_type(string_len_match.len_dst, T_I64);
+              if (dst) remember_string_length_call(string_len_match.len_dst, dst);
               skip_inst[string_len_match.len_ii] = 1;
               return 1;
             }
@@ -160,6 +161,7 @@
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab);
               set_type(dst, T_I64);
+              remember_string_length_call(dst, recv);
             } else {
               fprintf(f, "  call i64 @\"nyash.string.len_h\"(%s)\n", ab);
             }
@@ -204,6 +206,10 @@
           return 1;
         }
         if (mname && !strcmp(mname, "substring") && runtime_string) {
+          if (try_emit_string_insert_mid_window_call(
+                  f, ii, ilen, insts, recv, dst, a0, a1, skip_inst)) {
+            return 1;
+          }
           if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
           if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
           if (dst) {
@@ -211,6 +217,7 @@
             set_type(dst, T_I64);
             set_origin(dst, ORG_STRING);
             set_scan_origin(dst, ORG_STRING);
+            remember_string_substring_call(dst, recv, a0, a1);
           } else {
             fprintf(f, "  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
           }

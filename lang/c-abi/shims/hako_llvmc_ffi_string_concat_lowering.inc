@@ -3,8 +3,37 @@
         long long lhs;
         long long rhs;
       };
+      struct StringConcatTripleRec {
+        long long dst;
+        long long first;
+        long long second;
+        long long third;
+      };
+      struct StringLenCallRec {
+        long long dst;
+        long long src;
+      };
+      struct StringSubstringCallRec {
+        long long dst;
+        long long src;
+        long long start;
+        long long end;
+      };
       struct StringConcatPairRec string_concat_pairs[512];
       size_t string_concat_pairs_n = 0;
+      struct StringConcatTripleRec string_concat_triples[256];
+      size_t string_concat_triples_n = 0;
+      struct StringLenCallRec string_len_calls[256];
+      size_t string_len_calls_n = 0;
+      struct StringSubstringCallRec string_substring_calls[256];
+      size_t string_substring_calls_n = 0;
+
+      auto void remember_string_concat_triple(
+          long long dst,
+          long long first,
+          long long second,
+          long long third);
+      auto void finalize_string_concat_result(long long dst);
 
       auto int find_string_concat_pair(long long reg, long long* lhs, long long* rhs) {
         if (!reg) return 0;
@@ -12,6 +41,48 @@
           if (string_concat_pairs[i].dst != reg) continue;
           if (lhs) *lhs = string_concat_pairs[i].lhs;
           if (rhs) *rhs = string_concat_pairs[i].rhs;
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int find_string_concat_triple(
+          long long reg,
+          long long* first,
+          long long* second,
+          long long* third) {
+        if (!reg) return 0;
+        for (size_t i = 0; i < string_concat_triples_n; i++) {
+          if (string_concat_triples[i].dst != reg) continue;
+          if (first) *first = string_concat_triples[i].first;
+          if (second) *second = string_concat_triples[i].second;
+          if (third) *third = string_concat_triples[i].third;
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int find_string_length_call(long long reg, long long* src) {
+        if (!reg) return 0;
+        for (size_t i = 0; i < string_len_calls_n; i++) {
+          if (string_len_calls[i].dst != reg) continue;
+          if (src) *src = string_len_calls[i].src;
+          return 1;
+        }
+        return 0;
+      }
+
+      auto int find_string_substring_call(
+          long long reg,
+          long long* src,
+          long long* start,
+          long long* end) {
+        if (!reg) return 0;
+        for (size_t i = 0; i < string_substring_calls_n; i++) {
+          if (string_substring_calls[i].dst != reg) continue;
+          if (src) *src = string_substring_calls[i].src;
+          if (start) *start = string_substring_calls[i].start;
+          if (end) *end = string_substring_calls[i].end;
           return 1;
         }
         return 0;
@@ -124,16 +195,11 @@
         yyjson_val* args = NULL;
         const char* op = read_str(ins, "op");
         const char* ctype = NULL;
-        const char* bname = NULL;
         const char* mname = NULL;
-        long long recv = 0;
         if (!(op && !strcmp(op, "mir_call"))) return 0;
         mc = yyjson_obj_get(ins, "mir_call");
         cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
         ctype = cal ? read_str(cal, "type") : NULL;
-        bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name")
-                                                 : read_str(cal, "box_type"))
-                    : NULL;
         mname = cal ? (read_str(cal, "method") ? read_str(cal, "method")
                                                : read_str(cal, "name"))
                     : NULL;
@@ -142,13 +208,7 @@
         args = mc ? yyjson_obj_get(mc, "args") : NULL;
         if (!(args && yyjson_is_arr(args) && yyjson_arr_size(args) >= 2)) return 0;
         if ((long long)yyjson_get_sint(yyjson_arr_get(args, 1)) != reg) return 0;
-        if (bname && !strcmp(bname, "ArrayBox")) return 1;
-        if (!(bname && !strcmp(bname, "RuntimeDataBox"))) return 0;
-        recv = read_int(cal, "receiver");
-        return get_origin(recv) == ORG_ARRAY_BIRTH ||
-               get_origin(recv) == ORG_ARRAY_STRING_BIRTH ||
-               get_scan_origin(recv) == ORG_ARRAY_BIRTH ||
-               get_scan_origin(recv) == ORG_ARRAY_STRING_BIRTH;
+        return 1;
       }
 
       auto int find_single_use_inst(
@@ -172,6 +232,30 @@
         return 1;
       }
 
+      auto long long resolve_copy_chain_source_reg(
+          yyjson_val* insts,
+          size_t search_end_ii,
+          long long reg) {
+        long long cursor = reg;
+        int depth = 0;
+        if (!cursor) return 0;
+        while (depth < 8) {
+          int advanced = 0;
+          for (size_t jj = search_end_ii; jj-- > 0;) {
+            yyjson_val* ins = yyjson_arr_get(insts, jj);
+            const char* op = ins ? read_str(ins, "op") : NULL;
+            if (read_int(ins, "dst") != cursor) continue;
+            if (!(op && !strcmp(op, "copy"))) return cursor;
+            cursor = read_int(ins, "src");
+            advanced = 1;
+            break;
+          }
+          if (!advanced) break;
+          depth++;
+        }
+        return cursor;
+      }
+
       auto int has_direct_array_set_consumer(
           size_t ii,
           size_t ilen,
@@ -180,6 +264,244 @@
         size_t use_ii = 0;
         if (!find_single_use_inst(ii + 1, ilen, insts, reg, &use_ii)) return 0;
         return is_string_concat_array_set_consumer_inst(yyjson_arr_get(insts, use_ii), reg);
+      }
+
+      auto int follow_single_use_copy_chain_to_use(
+          size_t start_ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long seed_reg,
+          size_t* use_ii_out,
+          long long* final_reg_out,
+          size_t* copy_iis_out,
+          int* copy_n_out) {
+        long long cursor = seed_reg;
+        int copy_n = 0;
+        if (!cursor) return 0;
+        while (1) {
+          size_t use_ii = 0;
+          yyjson_val* use_ins = NULL;
+          const char* op = NULL;
+          if (!find_single_use_inst(start_ii, ilen, insts, cursor, &use_ii)) return 0;
+          use_ins = yyjson_arr_get(insts, use_ii);
+          op = use_ins ? read_str(use_ins, "op") : NULL;
+          if (op && !strcmp(op, "copy") && read_int(use_ins, "src") == cursor) {
+            if (copy_iis_out && copy_n < 8) copy_iis_out[copy_n] = use_ii;
+            copy_n++;
+            cursor = read_int(use_ins, "dst");
+            start_ii = use_ii + 1;
+            continue;
+          }
+          if (use_ii_out) *use_ii_out = use_ii;
+          if (final_reg_out) *final_reg_out = cursor;
+          if (copy_n_out) *copy_n_out = copy_n;
+          return 1;
+        }
+      }
+
+      auto int try_emit_string_insert_mid_window_call(
+          FILE* f,
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long recv,
+          long long dst,
+          long long start,
+          long long end,
+          unsigned char* skip_inst) {
+        yyjson_val* second_ins = NULL;
+        yyjson_val* second_mc = NULL;
+        yyjson_val* second_cal = NULL;
+        yyjson_val* second_args = NULL;
+        const char* second_name = NULL;
+        long long second_dst = 0;
+        long long second_recv = 0;
+        long long second_start = 0;
+        long long second_end = 0;
+        size_t prefix_use_ii = 0;
+        size_t suffix_use_ii = 0;
+        size_t final_use_ii = 0;
+        size_t prefix_copy_iis[8];
+        size_t suffix_copy_iis[8];
+        int prefix_copy_n = 0;
+        int suffix_copy_n = 0;
+        long long prefix_final = 0;
+        long long suffix_final = 0;
+        yyjson_val* pair_ins = NULL;
+        yyjson_val* final_ins = NULL;
+        const char* pair_op = NULL;
+        const char* pair_kind = NULL;
+        const char* final_op = NULL;
+        const char* final_kind = NULL;
+        long long pair_lhs = 0;
+        long long pair_rhs = 0;
+        long long pair_dst = 0;
+        long long final_lhs = 0;
+        long long final_rhs = 0;
+        long long result_reg = 0;
+        long long middle_reg = 0;
+        long long zero = 0;
+        const char* middle_const = NULL;
+        const char* reason = "shape_match";
+        char ab[224];
+        char extra[256];
+        int matched = 0;
+        if (!(recv && dst && ii + 1 < ilen)) {
+          reason = "short_or_missing_recv";
+          goto done;
+        }
+        if (!(has_const(start, &zero) && zero == 0)) {
+          reason = "start_not_zero";
+          goto done;
+        }
+        second_ins = yyjson_arr_get(insts, ii + 1);
+        if (!(second_ins && read_str(second_ins, "op") && !strcmp(read_str(second_ins, "op"), "mir_call"))) {
+          reason = "next_not_substring";
+          goto done;
+        }
+        second_mc = yyjson_obj_get(second_ins, "mir_call");
+        second_cal = second_mc ? yyjson_obj_get(second_mc, "callee") : NULL;
+        second_args = second_mc ? yyjson_obj_get(second_mc, "args") : NULL;
+        if (!(second_cal && second_args && yyjson_is_arr(second_args) && yyjson_arr_size(second_args) == 2)) {
+          reason = "next_args_shape";
+          goto done;
+        }
+        if (!(read_str(second_cal, "type") && !strcmp(read_str(second_cal, "type"), "Method"))) {
+          reason = "next_not_method";
+          goto done;
+        }
+        second_name = read_str(second_cal, "method");
+        if (!second_name) second_name = read_str(second_cal, "name");
+        if (!(second_name && !strcmp(second_name, "substring"))) {
+          reason = "next_not_substring";
+          goto done;
+        }
+        second_recv = read_int(second_cal, "receiver");
+        second_start = (long long)yyjson_get_sint(yyjson_arr_get(second_args, 0));
+        second_end = (long long)yyjson_get_sint(yyjson_arr_get(second_args, 1));
+        second_dst = read_int(second_ins, "dst");
+        if (!(second_recv == recv && second_start == end && second_end)) {
+          reason = "second_substring_shape";
+          goto done;
+        }
+
+        if (!follow_single_use_copy_chain_to_use(
+                ii + 2, ilen, insts, dst, &prefix_use_ii, &prefix_final,
+                prefix_copy_iis, &prefix_copy_n)) {
+          reason = "prefix_chain";
+          goto done;
+        }
+        if (!follow_single_use_copy_chain_to_use(
+                ii + 2, ilen, insts, second_dst, &suffix_use_ii, &suffix_final,
+                suffix_copy_iis, &suffix_copy_n)) {
+          reason = "suffix_chain";
+          goto done;
+        }
+
+        pair_ins = yyjson_arr_get(insts, prefix_use_ii);
+        pair_op = pair_ins ? read_str(pair_ins, "op") : NULL;
+        pair_kind = pair_ins ? (read_str(pair_ins, "op_kind") ? read_str(pair_ins, "op_kind")
+                                                             : read_str(pair_ins, "operation"))
+                             : NULL;
+        if (!(pair_op && !strcmp(pair_op, "binop") && pair_kind &&
+              (!strcmp(pair_kind, "Add") || !strcmp(pair_kind, "+")))) {
+          reason = "pair_not_add";
+          goto done;
+        }
+        pair_lhs = read_int(pair_ins, "lhs");
+        pair_rhs = read_int(pair_ins, "rhs");
+        pair_dst = read_int(pair_ins, "dst");
+        if (pair_lhs == prefix_final) middle_reg = resolve_copy_chain_source_reg(insts, prefix_use_ii + 1, pair_rhs);
+        else if (pair_rhs == prefix_final) middle_reg = resolve_copy_chain_source_reg(insts, prefix_use_ii + 1, pair_lhs);
+        else {
+          reason = "pair_prefix_mismatch";
+          goto done;
+        }
+        middle_const = get_str_const(middle_reg);
+        if (!middle_const) {
+          reason = "middle_not_const";
+          goto done;
+        }
+
+        if (!find_single_use_inst(prefix_use_ii + 1, ilen, insts, pair_dst, &final_use_ii)) {
+          reason = "pair_use_not_single";
+          goto done;
+        }
+        if (final_use_ii != suffix_use_ii) {
+          reason = "final_use_mismatch";
+          goto done;
+        }
+        final_ins = yyjson_arr_get(insts, final_use_ii);
+        final_op = final_ins ? read_str(final_ins, "op") : NULL;
+        final_kind = final_ins ? (read_str(final_ins, "op_kind") ? read_str(final_ins, "op_kind")
+                                                                 : read_str(final_ins, "operation"))
+                               : NULL;
+        if (!(final_op && !strcmp(final_op, "binop") && final_kind &&
+              (!strcmp(final_kind, "Add") || !strcmp(final_kind, "+")))) {
+          reason = "final_not_add";
+          goto done;
+        }
+        final_lhs = read_int(final_ins, "lhs");
+        final_rhs = read_int(final_ins, "rhs");
+        result_reg = read_int(final_ins, "dst");
+        if (!((final_lhs == pair_dst && final_rhs == suffix_final) ||
+              (final_rhs == pair_dst && final_lhs == suffix_final))) {
+          reason = "final_suffix_mismatch";
+          goto done;
+        }
+        if (!has_direct_array_set_consumer(final_use_ii, ilen, insts, result_reg)) {
+          reason = "set_consumer_missing";
+          goto done;
+        }
+
+        fprintf(f, "  %%r%lld = call i64 @\"nyash.string.insert_hsi\"(", result_reg);
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), recv, 1);
+        strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+              strlen(middle_const) + 1,
+              middle_reg);
+          strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+        }
+        append_i64_arg_ref(ab, sizeof(ab), end, 0);
+        fprintf(f, "%s)\n", ab);
+        finalize_string_concat_result(result_reg);
+        remember_string_concat_triple(result_reg, dst, middle_reg, second_dst);
+        skip_inst[ii + 1] = 1;
+        for (int ci = 0; ci < prefix_copy_n && ci < 8; ci++) skip_inst[prefix_copy_iis[ci]] = 1;
+        for (int ci = 0; ci < suffix_copy_n && ci < 8; ci++) skip_inst[suffix_copy_iis[ci]] = 1;
+        skip_inst[prefix_use_ii] = 1;
+        skip_inst[final_use_ii] = 1;
+        matched = 1;
+      done:
+        if (hako_llvmc_route_trace_enabled()) {
+          snprintf(
+              extra,
+              sizeof(extra),
+              "ii=%zu recv=%lld dst=%lld start=%lld end=%lld second_dst=%lld result=%lld pair_use=%zu final_use=%zu prefix_final=%lld suffix_final=%lld",
+              ii,
+              recv,
+              dst,
+              start,
+              end,
+              second_dst,
+              result_reg,
+              prefix_use_ii,
+              final_use_ii,
+              prefix_final,
+              suffix_final);
+          hako_llvmc_emit_route_trace(
+              "string_insert_mid_window",
+              matched ? "hit" : "miss",
+              reason,
+              extra);
+        }
+        return matched;
       }
 
       auto int should_skip_string_const_box_for_concat_suffix(
@@ -235,6 +557,64 @@
           string_concat_pairs[string_concat_pairs_n].lhs = lhs;
           string_concat_pairs[string_concat_pairs_n].rhs = rhs;
           string_concat_pairs_n++;
+        }
+      }
+
+      auto void remember_string_concat_triple(
+          long long dst,
+          long long first,
+          long long second,
+          long long third) {
+        if (!dst || !first || !second || !third) return;
+        for (size_t i = 0; i < string_concat_triples_n; i++) {
+          if (string_concat_triples[i].dst != dst) continue;
+          string_concat_triples[i].first = first;
+          string_concat_triples[i].second = second;
+          string_concat_triples[i].third = third;
+          return;
+        }
+        if (string_concat_triples_n < ARR_LEN(string_concat_triples)) {
+          string_concat_triples[string_concat_triples_n].dst = dst;
+          string_concat_triples[string_concat_triples_n].first = first;
+          string_concat_triples[string_concat_triples_n].second = second;
+          string_concat_triples[string_concat_triples_n].third = third;
+          string_concat_triples_n++;
+        }
+      }
+
+      auto void remember_string_length_call(long long dst, long long src) {
+        if (!dst || !src) return;
+        for (size_t i = 0; i < string_len_calls_n; i++) {
+          if (string_len_calls[i].dst != dst) continue;
+          string_len_calls[i].src = src;
+          return;
+        }
+        if (string_len_calls_n < ARR_LEN(string_len_calls)) {
+          string_len_calls[string_len_calls_n].dst = dst;
+          string_len_calls[string_len_calls_n].src = src;
+          string_len_calls_n++;
+        }
+      }
+
+      auto void remember_string_substring_call(
+          long long dst,
+          long long src,
+          long long start,
+          long long end) {
+        if (!dst || !src) return;
+        for (size_t i = 0; i < string_substring_calls_n; i++) {
+          if (string_substring_calls[i].dst != dst) continue;
+          string_substring_calls[i].src = src;
+          string_substring_calls[i].start = start;
+          string_substring_calls[i].end = end;
+          return;
+        }
+        if (string_substring_calls_n < ARR_LEN(string_substring_calls)) {
+          string_substring_calls[string_substring_calls_n].dst = dst;
+          string_substring_calls[string_substring_calls_n].src = src;
+          string_substring_calls[string_substring_calls_n].start = start;
+          string_substring_calls[string_substring_calls_n].end = end;
+          string_substring_calls_n++;
         }
       }
 
@@ -315,6 +695,71 @@
         return 1;
       }
 
+      auto int try_emit_string_insert_mid_const_call(
+          FILE* f,
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long dst,
+          long long lhs,
+          long long rhs) {
+        long long prefix = 0;
+        long long middle = 0;
+        long long src_prefix = 0;
+        long long src_suffix = 0;
+        long long prefix_start = 0;
+        long long prefix_end = 0;
+        long long suffix_start = 0;
+        long long suffix_end = 0;
+        long long len_src = 0;
+        long long zero = 0;
+        const char* middle_const = NULL;
+        char ab[224];
+        if (!(dst && lhs && rhs)) return 0;
+        if (!has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
+        lhs = resolve_copy_chain_source_reg(insts, ii + 1, lhs);
+        rhs = resolve_copy_chain_source_reg(insts, ii + 1, rhs);
+        if (!find_string_concat_pair(lhs, &prefix, &middle)) return 0;
+        prefix = resolve_copy_chain_source_reg(insts, ii + 1, prefix);
+        middle = resolve_copy_chain_source_reg(insts, ii + 1, middle);
+        middle_const = get_str_const(middle);
+        if (!middle_const) return 0;
+        if (!find_string_substring_call(prefix, &src_prefix, &prefix_start, &prefix_end)) return 0;
+        if (!find_string_substring_call(rhs, &src_suffix, &suffix_start, &suffix_end)) return 0;
+        src_prefix = resolve_copy_chain_source_reg(insts, ii + 1, src_prefix);
+        src_suffix = resolve_copy_chain_source_reg(insts, ii + 1, src_suffix);
+        prefix_start = resolve_copy_chain_source_reg(insts, ii + 1, prefix_start);
+        prefix_end = resolve_copy_chain_source_reg(insts, ii + 1, prefix_end);
+        suffix_start = resolve_copy_chain_source_reg(insts, ii + 1, suffix_start);
+        suffix_end = resolve_copy_chain_source_reg(insts, ii + 1, suffix_end);
+        if (!(src_prefix && src_prefix == src_suffix)) return 0;
+        if (!(has_const(prefix_start, &zero) && zero == 0)) return 0;
+        if (!(prefix_end && prefix_end == suffix_start)) return 0;
+        if (!find_string_length_call(suffix_end, &len_src)) return 0;
+        len_src = resolve_copy_chain_source_reg(insts, ii + 1, len_src);
+        if (len_src != src_prefix) return 0;
+
+        fprintf(f, "  %%r%lld = call i64 @\"nyash.string.insert_hsi\"(", dst);
+        ab[0] = '\0';
+        append_i64_arg_ref(ab, sizeof(ab), src_prefix, 1);
+        strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
+        {
+          char tail[128];
+          snprintf(
+              tail,
+              sizeof(tail),
+              "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+              strlen(middle_const) + 1,
+              middle);
+          strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+        }
+        append_i64_arg_ref(ab, sizeof(ab), prefix_end, 0);
+        fprintf(f, "%s)\n", ab);
+        finalize_string_concat_result(dst);
+        remember_string_concat_triple(dst, prefix, middle, rhs);
+        return 1;
+      }
+
       auto int try_emit_string_concat3_chain_call(
           FILE* f,
           long long dst,
@@ -330,6 +775,7 @@
           append_string_concat_arg_ref(ab, sizeof(ab), rhs, 0);
           fprintf(f, "  %%r%lld = call i64 @\"nyash.string.concat3_hhh\"(%s)\n", dst, ab);
           finalize_string_concat_result(dst);
+          remember_string_concat_triple(dst, a, b, rhs);
           return 1;
         }
         if (find_string_concat_pair(rhs, &a, &b)) {
@@ -338,6 +784,7 @@
           append_string_concat_arg_ref(ab, sizeof(ab), b, 0);
           fprintf(f, "  %%r%lld = call i64 @\"nyash.string.concat3_hhh\"(%s)\n", dst, ab);
           finalize_string_concat_result(dst);
+          remember_string_concat_triple(dst, lhs, a, b);
           return 1;
         }
         return 0;
@@ -384,6 +831,11 @@
           if (dst) {
             fprintf(f, "  %%r%lld = call i64 @\"nyash.string.concat3_hhh\"(%s)\n", dst, ab);
             finalize_string_concat_result(dst);
+            remember_string_concat_triple(
+                dst,
+                (long long)yyjson_get_sint(yyjson_arr_get(args, 0)),
+                (long long)yyjson_get_sint(yyjson_arr_get(args, 1)),
+                (long long)yyjson_get_sint(yyjson_arr_get(args, 2)));
           } else {
             fprintf(f, "  call i64 @\"nyash.string.concat3_hhh\"(%s)\n", ab);
           }

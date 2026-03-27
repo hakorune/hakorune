@@ -12,7 +12,12 @@ use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
 };
-use std::{cell::Cell, ffi::CStr, ptr};
+use std::{
+    cell::{Cell, RefCell},
+    ffi::CStr,
+    ptr,
+    thread::LocalKey,
+};
 use std::sync::{Arc, OnceLock};
 
 fn env_flag_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
@@ -404,6 +409,33 @@ fn concat_pair_with_materialize(a_h: i64, b_h: i64) -> i64 {
     out
 }
 
+#[derive(Default)]
+struct ConstCStringCache {
+    ptr: Cell<usize>,
+    text: RefCell<Option<String>>,
+}
+
+fn with_cached_const_text<R>(
+    cache: &'static LocalKey<ConstCStringCache>,
+    ptr: *const i8,
+    f: impl FnOnce(&str) -> R,
+) -> R {
+    if ptr.is_null() {
+        return f("");
+    }
+    let addr = ptr as usize;
+    cache.with(|cache| {
+        if cache.ptr.get() != addr || cache.text.borrow().is_none() {
+            let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
+            let text = String::from_utf8_lossy(bytes).into_owned();
+            cache.ptr.set(addr);
+            *cache.text.borrow_mut() = Some(text);
+        }
+        let text_ref = cache.text.borrow();
+        f(text_ref.as_deref().unwrap_or(""))
+    })
+}
+
 #[inline(always)]
 fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
     if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
@@ -463,6 +495,38 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
     }
     let lhs = to_owned_string_handle_arg(a_h);
     string_handle_from_owned(concat_two_str(lhs.as_str(), suffix))
+}
+
+#[inline(always)]
+fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -> i64 {
+    thread_local! {
+        static CONST_INSERT_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
+            ptr: Cell::new(0),
+            text: RefCell::new(None),
+        } };
+    }
+
+    with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
+        if middle.is_empty() {
+            return source_h;
+        }
+        if string_is_empty_from_handle(source_h) == Some(true) {
+            return super::nyash_box_from_i8_string_const(middle_ptr);
+        }
+        if let Some(source_span) = resolve_string_span_from_handle(source_h) {
+            let source = source_span.as_str();
+            let split = split.clamp(0, source.len() as i64) as usize;
+            let prefix = source.get(0..split).unwrap_or("");
+            let suffix = source.get(split..).unwrap_or("");
+            return string_handle_from_owned(concat_three_str(prefix, middle, suffix));
+        }
+
+        let source = to_owned_string_handle_arg(source_h);
+        let split = split.clamp(0, source.len() as i64) as usize;
+        let prefix = source.get(0..split).unwrap_or("");
+        let suffix = source.get(split..).unwrap_or("");
+        string_handle_from_owned(concat_three_str(prefix, middle, suffix))
+    })
 }
 
 #[inline(always)]
@@ -670,6 +734,16 @@ pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
 #[export_name = "nyash.string.concat_hs"]
 pub extern "C" fn nyash_string_concat_hs_export(a_h: i64, suffix_ptr: *const i8) -> i64 {
     concat_const_suffix_fallback(a_h, suffix_ptr)
+}
+
+// String.insert_hsi(source_h, const_middle_ptr, split_i64) -> handle
+#[export_name = "nyash.string.insert_hsi"]
+pub extern "C" fn nyash_string_insert_hsi_export(
+    source_h: i64,
+    middle_ptr: *const i8,
+    split: i64,
+) -> i64 {
+    insert_const_mid_fallback(source_h, middle_ptr, split)
 }
 
 // String.concat3_hhh(a_h, b_h, c_h) -> handle
