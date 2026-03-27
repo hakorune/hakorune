@@ -48,9 +48,14 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
       - `array_rmw_window result=hit`
       - lowered IR contains `nyash.array.rmw_add1_hi`
       - built binary exports `nyash.array.rmw_add1_hi`
-    - current `kilo_kernel_small` source route still misses the same leaf
-      - observed reasons: `next_noncopy_not_const`, `const_not_1`
-    - next exact code cut is semantic `array_rmw_window` widening for the current main shapes, not a blind new leaf guess
+    - current `kilo_kernel_small` source route now proves one direct main hit on the same artifact:
+      - `array_string_len_window result=hit count=1`
+      - lowered IR contains `nyash.array.string_len_hi`
+      - built binary exports `nyash.array.string_len_hi`
+    - current main route still has two observed misses:
+      - `array_string_len_window reason=post_len_uses_consumed_get_value`
+      - `array_string_len_window reason=next_noncopy_not_len`
+    - next exact code cut is `array_string` observer-window widening for those current main shapes
 
 ## Current Priority
 

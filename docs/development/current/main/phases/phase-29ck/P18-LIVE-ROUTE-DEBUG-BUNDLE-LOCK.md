@@ -37,8 +37,9 @@ Related:
    - `array_rmw_window result=hit`
    - lowered IR contains `nyash.array.rmw_add1_hi`
    - built binary exports `nyash.array.rmw_add1_hi`
-4. current `kilo_kernel_small` source route はまだ同じ leaf に hit していないよ
-5. current array leaf は adjacency recipe ではなく semantic `array_rmw_window` として読む
+4. current main route has one same-artifact direct hit on `array_string_len_window`
+5. current main route still has observed misses `post_len_uses_consumed_get_value` and `next_noncopy_not_len`
+6. current array leaf は adjacency recipe ではなく semantic window recipe として読む
 
 ## Fixed Order
 
@@ -53,8 +54,8 @@ Related:
    を 1 directory に束ねる
 4. `kilo_micro_array_getset` current live route をその bundle で取り直す
 5. micro route で same-artifact hit を取る
-6. main route の miss reason を bundle で固定する
-7. その evidence を見てからだけ next leaf/peephole を widen する
+6. main route の hit/miss reason を bundle で固定する
+7. その evidence を見てからだけ next observer leaf を widen する
 
 ## Acceptance
 
@@ -62,7 +63,8 @@ Related:
 - `[llvm-route/trace]` の stage names が docs と code で一致している
 - bundle script で current live route の MIR/IR/symbol proof を 1 ディレクトリに残せる
 - current micro fused leaf が same artifact で証明されている
-- next leaf design が `array_rmw_window` widening として読める
+- current main direct string-observer leaf が same artifact で証明されている
+- next leaf design が current main miss reason widening として読める
 
 ## Non-Goals
 
@@ -74,4 +76,5 @@ Related:
 
 - micro route の `symbol miss` が `reason unknown` で残らない
 - `array_rmw_window` を current live route で証明できる
+- current main route の direct observer leaf が same artifact で証明されている
 - current main route の next widening target が miss reason 付きで固定されている

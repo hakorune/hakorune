@@ -59,9 +59,15 @@ Related:
       - lowered IR contains `nyash.array.rmw_add1_hi`
       - built binary exports `nyash.array.rmw_add1_hi`
       - `kilo_micro_array_getset` is down to `37 ms` under `1x3`
-    - current main `kilo_kernel_small` source route still misses this leaf
-      - observed reasons: `next_noncopy_not_const`, `const_not_1`
-    - next exact work is semantic `array_rmw_window` widening for the current main shapes
+    - current main route now has one same-artifact direct hit:
+      - `array_string_len_window result=hit count=1`
+      - lowered IR contains `nyash.array.string_len_hi`
+      - built binary exports `nyash.array.string_len_hi`
+      - stable main median moved `843 -> 822`
+    - current main route still has two observed misses:
+      - `array_string_len_window reason=post_len_uses_consumed_get_value`
+      - `array_string_len_window reason=next_noncopy_not_len`
+    - next exact work is `array_string` observer-window widening for those current main shapes
   - current exact front:
     - `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md`
     - `stage2-aot-core-proof-vocabulary-ssot.md`

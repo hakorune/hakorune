@@ -80,6 +80,18 @@ mod tests {
     }
 
     #[test]
+    fn string_len_raw_alias_reads_string_slot_directly() {
+        let handle = new_array_handle();
+        let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
+            nyash_rust::box_trait::StringBox::new("length".to_string()),
+        ) as std::sync::Arc<dyn NyashBox>) as i64;
+
+        assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle), 1);
+        assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 6);
+        assert_eq!(nyash_array_string_len_hi_alias(handle, 3), 0);
+    }
+
+    #[test]
     fn slot_append_raw_alias_keeps_contract() {
         let handle = new_array_handle();
         let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(

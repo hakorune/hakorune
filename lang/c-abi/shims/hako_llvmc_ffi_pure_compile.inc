@@ -78,6 +78,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
       int array_rmw_trace_budget = 8;
+      int array_string_len_trace_budget = 8;
       int generic_walk_trace_budget = 24;
       int generic_call_trace_budget = 24;
       int generic_method_trace_budget = 24;
@@ -91,6 +92,13 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         long long input_reg;
         long long const_reg;
         long long result_reg;
+      };
+      struct ArrayStringLenWindowMatch {
+        int matched;
+        size_t copy_iis[8];
+        int copy_n;
+        size_t len_ii;
+        long long len_dst;
       };
       auto int inst_uses_reg(yyjson_val* ins, long long reg) {
         if (!ins || !reg) return 0;
@@ -287,6 +295,105 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         if (reason_out) *reason_out = reason;
         return out && out->matched;
       }
+      auto int analyze_array_string_len_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_string,
+          struct ArrayStringLenWindowMatch* out,
+          const char** reason_out,
+          char* extra,
+          size_t extra_cap) {
+        const char* reason = "shape_match";
+        if (out) memset(out, 0, sizeof(*out));
+        if (extra && extra_cap) extra[0] = '\0';
+        if (!mname || strcmp(mname, "get") != 0) {
+          reason = "not_get";
+          goto done;
+        }
+        if (!(runtime_array_string ||
+              (bname && !strcmp(bname, "RuntimeDataBox") && recv_org == ORG_ARRAY_STRING_BIRTH))) {
+          reason = "not_array_string_get";
+          goto done;
+        }
+        if (ii + 2 >= ilen) {
+          reason = "lookahead_short";
+          goto done;
+        }
+        size_t jj = ii + 1;
+        long long carried = cur_dst;
+        if (!carried) {
+          reason = "missing_get_dst";
+          goto done;
+        }
+        while (jj < ilen) {
+          yyjson_val* c = yyjson_arr_get(insts, jj);
+          const char* cop = c ? read_str(c, "op") : NULL;
+          if (!(cop && strcmp(cop, "copy") == 0 && read_int(c, "src") == carried)) break;
+          if (out && out->copy_n < (int)(sizeof(out->copy_iis) / sizeof(out->copy_iis[0]))) {
+            out->copy_iis[out->copy_n++] = jj;
+          }
+          carried = read_int(c, "dst");
+          jj++;
+        }
+        if (jj >= ilen) {
+          reason = "copy_chain_short";
+          goto done;
+        }
+        yyjson_val* n_len = yyjson_arr_get(insts, jj);
+        const char* op_len = n_len ? read_str(n_len, "op") : NULL;
+        if (!(op_len && strcmp(op_len, "mir_call") == 0)) {
+          reason = "next_noncopy_not_len";
+          goto done;
+        }
+        {
+          yyjson_val* mc = yyjson_obj_get(n_len, "mir_call");
+          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+          const char* ctype = cal ? read_str(cal, "type") : NULL;
+          const char* bname2 = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
+          const char* mname2 = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
+          long long recv2 = cal ? read_int(cal, "receiver") : 0;
+          if (!(ctype && !strcmp(ctype, "Method") &&
+                mname2 && (!strcmp(mname2, "len") || !strcmp(mname2, "length") || !strcmp(mname2, "size")) &&
+                bname2 && !strcmp(bname2, "RuntimeDataBox"))) {
+            reason = "next_noncopy_not_len";
+            goto done;
+          }
+          if (recv2 && carried && recv2 != carried) {
+            reason = "len_recv_mismatch";
+            goto done;
+          }
+          for (size_t kk = jj + 1; kk < ilen; kk++) {
+            yyjson_val* later = yyjson_arr_get(insts, kk);
+            if (inst_uses_reg(later, cur_dst) || inst_uses_reg(later, carried)) {
+              reason = "post_len_uses_consumed_get_value";
+              goto done;
+            }
+          }
+          if (out) {
+            out->matched = 1;
+            out->len_ii = jj;
+            out->len_dst = read_int(n_len, "dst");
+          }
+        }
+      done:
+        if (extra && extra_cap) {
+          snprintf(extra, extra_cap,
+                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d len_ii=%zu len_dst=%lld",
+                   ii, cur_dst, recv, idx,
+                   out ? out->copy_n : 0,
+                   out ? out->len_ii : 0,
+                   out ? out->len_dst : 0);
+        }
+        if (reason_out) *reason_out = reason;
+        return out && out->matched;
+      }
       auto void trace_array_rmw_window_candidate(
           size_t ii,
           size_t ilen,
@@ -308,6 +415,27 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             ii, ilen, insts, bname, mname, recv, idx, cur_dst, recv_org,
             runtime_array_get, runtime_array_string, &match, &reason, extra, sizeof(extra));
         hako_llvmc_emit_route_trace("array_rmw_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
+      }
+      auto void trace_array_string_len_window_candidate(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          const char* bname,
+          const char* mname,
+          long long recv,
+          long long idx,
+          long long cur_dst,
+          int recv_org,
+          int runtime_array_string) {
+        if (!hako_llvmc_route_trace_enabled() || array_string_len_trace_budget <= 0) return;
+        array_string_len_trace_budget--;
+        struct ArrayStringLenWindowMatch match;
+        const char* reason = NULL;
+        char extra[256];
+        int matched = analyze_array_string_len_window_candidate(
+            ii, ilen, insts, bname, mname, recv, idx, cur_dst, recv_org,
+            runtime_array_string, &match, &reason, extra, sizeof(extra));
+        hako_llvmc_emit_route_trace("array_string_len_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
       }
 
       // Pre-scan: consts + phis + needed method decls
@@ -505,6 +633,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.set_hih\"(i64, i64, i64)\n");
       if (need_arr_set)   fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
       if (need_arr_get && need_arr_set) fprintf(f, "declare i64 @\"nyash.array.rmw_add1_hi\"(i64, i64)\n");
+      if (need_arr_get && need_string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)\n");
       if (need_arr_get)   fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n");
       if (need_arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hi\"(i64, i64)\n");
       if (need_string_const_box) fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const\"(ptr)\n");
@@ -766,7 +895,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 struct ArrayRmwWindowMatch rmw_match;
                 const char* rmw_reason = NULL;
                 char rmw_extra[384];
+                struct ArrayStringLenWindowMatch string_len_match;
+                const char* string_len_reason = NULL;
+                char string_len_extra[256];
                 trace_array_rmw_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_get, runtime_array_string);
+                trace_array_string_len_window_candidate(ii, ilen, insts, bname, mname, recv, a0, dst, recv_org, runtime_array_string);
                 if (analyze_array_rmw_window_candidate(
                         ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
                         runtime_array_get, runtime_array_string, &rmw_match, &rmw_reason,
@@ -778,6 +911,17 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   skip_inst[rmw_match.const_ii] = 1;
                   skip_inst[rmw_match.binop_ii] = 1;
                   skip_inst[rmw_match.set_ii] = 1;
+                  continue;
+                }
+                if (analyze_array_string_len_window_candidate(
+                        ii, ilen, insts, bname, mname, recv, a0, dst, recv_org,
+                        runtime_array_string, &string_len_match, &string_len_reason,
+                        string_len_extra, sizeof(string_len_extra))) {
+                  if (a0) app(a0, ab[0]=='\0');
+                  EMIT("  %%r%lld = call i64 @\"nyash.array.string_len_hi\"(%s)\n", string_len_match.len_dst, ab);
+                  set_type(string_len_match.len_dst, T_I64);
+                  for (int si = 0; si < string_len_match.copy_n; si++) skip_inst[string_len_match.copy_iis[si]] = 1;
+                  skip_inst[string_len_match.len_ii] = 1;
                   continue;
                 }
                 if (a0) app(a0, ab[0]=='\0');

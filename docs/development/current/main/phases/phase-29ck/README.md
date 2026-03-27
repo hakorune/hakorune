@@ -105,9 +105,15 @@ Related:
      - lowered IR contains `nyash.array.rmw_add1_hi`
      - built binary exports `nyash.array.rmw_add1_hi`
      - `kilo_micro_array_getset` is down to `37 ms` under `warmup=1 repeat=3`
-   - current main `kilo_kernel_small` source route still misses this leaf
-     - observed miss reasons: `next_noncopy_not_const`, `const_not_1`
-   - exact next cut is semantic `array_rmw_window` widening for the current main shapes, not another blind fused leaf guess
+   - `P18` now also has the first landed direct main observer leaf proof:
+     - current main route hits `array_string_len_window` once on the same artifact
+     - lowered IR contains `nyash.array.string_len_hi`
+     - built binary exports `nyash.array.string_len_hi`
+     - stable main median moved `843 -> 822`
+   - current main route still has observed misses:
+     - `array_string_len_window reason=post_len_uses_consumed_get_value`
+     - `array_string_len_window reason=next_noncopy_not_len`
+   - exact next cut is `array_string` observer-window widening for the current main shapes, not another blind fused leaf guess
    - do not reopen broad `boxcall` widening and do not keep a new fused leaf without same-artifact route/window/IR/symbol proof
 8. `native_driver.rs` は bootstrap seam のまま keep すべきで、`Boundary` の代替 default owner に昇格させてはいけない
 9. missing legs は 3 本である
