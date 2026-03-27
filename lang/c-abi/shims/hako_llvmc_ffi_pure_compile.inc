@@ -1684,6 +1684,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.string_indexof) fprintf(f, "declare i64 @\"nyash.string.indexOf_hh\"(i64, i64)\n");
       if (needs.string_concat) {
         fprintf(f, "declare i64 @\"nyash.string.concat_hh\"(i64, i64)\n");
+        fprintf(f, "declare i64 @\"nyash.string.concat_hs\"(i64, ptr)\n");
         fprintf(f, "declare i64 @\"nyash.string.concat3_hhh\"(i64, i64, i64)\n");
       }
       if (needs.printf)    fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
@@ -1739,6 +1740,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long dst = read_int(ins, "dst");
             const char* sval = get_str_const(dst);
             if (!sval) continue; // numeric const stays inlined
+            if (should_skip_string_const_box_for_concat_suffix(ii, ilen, insts, dst)) continue;
             if (hako_llvmc_fast_enabled()) continue;
             size_t slen = strlen(sval);
             EMIT("  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0))\n", dst, slen + 1, dst);
@@ -1914,6 +1916,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               if (should_defer_string_concat_pair(ii, ilen, insts, dst)) {
                 remember_string_concat_pair(dst, lhs, rhs);
                 finalize_string_concat_result(dst);
+                continue;
+              }
+              if (try_emit_string_concat_const_suffix_call(f, ii, ilen, insts, dst, lhs, rhs)) {
                 continue;
               }
               if (!try_emit_string_concat3_chain_call(f, dst, lhs, rhs)) {

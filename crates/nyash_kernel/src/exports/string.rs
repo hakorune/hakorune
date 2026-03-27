@@ -12,7 +12,7 @@ use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
 };
-use std::ptr;
+use std::{cell::Cell, ffi::CStr, ptr};
 use std::sync::{Arc, OnceLock};
 
 fn env_flag_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
@@ -416,6 +416,56 @@ fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
 }
 
 #[inline(always)]
+fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
+    thread_local! {
+        static CONST_SUFFIX_PTR_CACHE: Cell<usize> = const { Cell::new(0) };
+        static CONST_SUFFIX_HANDLE_CACHE: Cell<i64> = const { Cell::new(0) };
+    }
+
+    if suffix_ptr.is_null() {
+        return a_h;
+    }
+    let suffix_addr = suffix_ptr as usize;
+    if suffix_addr != 0 {
+        let cached_h = CONST_SUFFIX_PTR_CACHE.with(|ptr_cache| {
+            if ptr_cache.get() != suffix_addr {
+                return 0;
+            }
+            CONST_SUFFIX_HANDLE_CACHE.with(|handle_cache| handle_cache.get())
+        });
+        if cached_h > 0 {
+            return dispatch_or_fallback_concat_hh(a_h, cached_h);
+        }
+    }
+    let suffix_h = super::nyash_box_from_i8_string_const(suffix_ptr);
+    if suffix_h > 0 {
+        CONST_SUFFIX_PTR_CACHE.with(|ptr_cache| ptr_cache.set(suffix_addr));
+        CONST_SUFFIX_HANDLE_CACHE.with(|handle_cache| handle_cache.set(suffix_h));
+        return dispatch_or_fallback_concat_hh(a_h, suffix_h);
+    }
+    let suffix_bytes = unsafe { CStr::from_ptr(suffix_ptr) }.to_bytes();
+    if suffix_bytes.is_empty() {
+        return a_h;
+    }
+    let suffix = unsafe { std::str::from_utf8_unchecked(suffix_bytes) };
+    if let Some(out) = handles::with_handle(a_h as u64, |obj| {
+        obj.and_then(|boxed| {
+            boxed
+                .as_ref()
+                .as_str_fast()
+                .map(|lhs| concat_two_str(lhs, suffix))
+        })
+    }) {
+        return string_handle_from_owned(out);
+    }
+    if let Some(span) = resolve_string_span_from_handle(a_h) {
+        return string_handle_from_owned(concat_two_str(span.as_str(), suffix));
+    }
+    let lhs = to_owned_string_handle_arg(a_h);
+    string_handle_from_owned(concat_two_str(lhs.as_str(), suffix))
+}
+
+#[inline(always)]
 fn concat3_fallback(a_h: i64, b_h: i64, c_h: i64) -> i64 {
     if let Some(plan) = concat3_plan_from_fast_str(a_h, b_h, c_h) {
         return freeze_concat3_plan(plan);
@@ -614,6 +664,12 @@ pub extern "C" fn nyash_string_charcode_at_h_export(handle: i64, idx: i64) -> i6
 #[export_name = "nyash.string.concat_hh"]
 pub extern "C" fn nyash_string_concat_hh_export(a_h: i64, b_h: i64) -> i64 {
     dispatch_or_fallback_concat_hh(a_h, b_h)
+}
+
+// String.concat_hs(lhs_h, const_suffix_ptr) -> handle
+#[export_name = "nyash.string.concat_hs"]
+pub extern "C" fn nyash_string_concat_hs_export(a_h: i64, suffix_ptr: *const i8) -> i64 {
+    concat_const_suffix_fallback(a_h, suffix_ptr)
 }
 
 // String.concat3_hhh(a_h, b_h, c_h) -> handle

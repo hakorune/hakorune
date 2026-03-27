@@ -151,27 +151,75 @@
                get_scan_origin(recv) == ORG_ARRAY_STRING_BIRTH;
       }
 
+      auto int find_single_use_inst(
+          size_t start_ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long reg,
+          size_t* use_ii_out) {
+        int use_count = 0;
+        size_t use_ii = 0;
+        if (!reg) return 0;
+        for (size_t jj = start_ii; jj < ilen; jj++) {
+          yyjson_val* later = yyjson_arr_get(insts, jj);
+          if (!inst_uses_reg(later, reg)) continue;
+          use_count++;
+          use_ii = jj;
+          if (use_count > 1) return 0;
+        }
+        if (use_count != 1) return 0;
+        if (use_ii_out) *use_ii_out = use_ii;
+        return 1;
+      }
+
+      auto int has_direct_array_set_consumer(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long reg) {
+        size_t use_ii = 0;
+        if (!find_single_use_inst(ii + 1, ilen, insts, reg, &use_ii)) return 0;
+        return is_string_concat_array_set_consumer_inst(yyjson_arr_get(insts, use_ii), reg);
+      }
+
+      auto int should_skip_string_const_box_for_concat_suffix(
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long reg) {
+        size_t use_ii = 0;
+        yyjson_val* use_ins = NULL;
+        const char* op = NULL;
+        const char* kind = NULL;
+        long long lhs = 0;
+        long long rhs = 0;
+        long long concat_dst = 0;
+        if (!get_str_const(reg)) return 0;
+        if (!find_single_use_inst(ii + 1, ilen, insts, reg, &use_ii)) return 0;
+        use_ins = yyjson_arr_get(insts, use_ii);
+        op = use_ins ? read_str(use_ins, "op") : NULL;
+        if (!(op && !strcmp(op, "binop"))) return 0;
+        kind = read_str(use_ins, "op_kind");
+        if (!kind) kind = read_str(use_ins, "operation");
+        if (!(kind && (!strcmp(kind, "Add") || !strcmp(kind, "+")))) return 0;
+        lhs = read_int(use_ins, "lhs");
+        rhs = read_int(use_ins, "rhs");
+        if (rhs != reg) return 0;
+        if (!future_reg_becomes_string_operand(insts, ii + 1, use_ii, 0, lhs)) return 0;
+        concat_dst = read_int(use_ins, "dst");
+        return has_direct_array_set_consumer(use_ii, ilen, insts, concat_dst);
+      }
+
       auto int should_defer_string_concat_pair(
           size_t ii,
           size_t ilen,
           yyjson_val* insts,
           long long dst) {
         size_t use_ii = 0;
-        int use_count = 0;
         if (!dst) return 0;
-        for (size_t jj = ii + 1; jj < ilen; jj++) {
-          yyjson_val* later = yyjson_arr_get(insts, jj);
-          if (!inst_uses_reg(later, dst)) continue;
-          use_count++;
-          use_ii = jj;
-          if (use_count > 1) return 0;
-        }
-        if (use_count != 1) return 0;
-        if (is_string_concat_chain_consumer_inst(
-                yyjson_arr_get(insts, use_ii), insts, ii + 1, use_ii, dst)) {
-          return 1;
-        }
-        return is_string_concat_array_set_consumer_inst(yyjson_arr_get(insts, use_ii), dst);
+        if (!find_single_use_inst(ii + 1, ilen, insts, dst, &use_ii)) return 0;
+        return is_string_concat_chain_consumer_inst(
+            yyjson_arr_get(insts, use_ii), insts, ii + 1, use_ii, dst);
       }
 
       auto void remember_string_concat_pair(long long dst, long long lhs, long long rhs) {
@@ -228,6 +276,43 @@
         } else {
           fprintf(f, "  call i64 @\"nyash.string.concat_hh\"(%s)\n", ab);
         }
+      }
+
+      auto int try_emit_string_concat_const_suffix_call(
+          FILE* f,
+          size_t ii,
+          size_t ilen,
+          yyjson_val* insts,
+          long long dst,
+          long long lhs,
+          long long rhs) {
+        const char* rhs_const = get_str_const(rhs);
+        if (!(dst && lhs && rhs_const)) return 0;
+        if (!has_direct_array_set_consumer(ii, ilen, insts, dst)) return 0;
+        fprintf(
+            f,
+            "  %%r%lld = call i64 @\"nyash.string.concat_hs\"(",
+            dst);
+        {
+          char ab[192];
+          size_t slen = strlen(rhs_const);
+          ab[0] = '\0';
+          append_i64_arg_ref(ab, sizeof(ab), lhs, 1);
+          strncat(ab, ", ptr getelementptr inbounds (", sizeof(ab) - strlen(ab) - 1);
+          {
+            char tail[128];
+            snprintf(
+                tail,
+                sizeof(tail),
+                "[%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0)",
+                slen + 1,
+                rhs);
+            strncat(ab, tail, sizeof(ab) - strlen(ab) - 1);
+          }
+          fprintf(f, "%s)\n", ab);
+        }
+        finalize_string_concat_result(dst);
+        return 1;
       }
 
       auto int try_emit_string_concat3_chain_call(

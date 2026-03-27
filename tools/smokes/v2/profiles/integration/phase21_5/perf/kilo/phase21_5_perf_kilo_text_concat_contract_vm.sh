@@ -3,7 +3,7 @@
 #
 # Contract pin (LLVM-HOT-20 structural hotspot):
 # - kilo text loop must preserve string concat route in nested append path.
-# - main IR should keep concat helper density (concat_hh / concat3_hhh).
+# - main IR should keep concat helper density (`concat_hs` / `concat_hh` / `concat3_hhh`).
 # - data set route must consume concat result without falling back to literal 0.
 # - this contract uses the direct emit route as the canonical source owner for
 #   `bench_kilo_kernel_small`; helper/mainline Stage1 emit is out of scope here.
@@ -70,11 +70,12 @@ fi
 
 require_ir_entry_function "$SMOKE_NAME" "$tmp_ir" "$tmp_main" || exit 1
 
+concat_hs_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.string.concat_hs')"
 concat_hh_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.string.concat_hh')"
 concat3_count="$(count_fixed_pattern_in_file "$tmp_main" 'nyash.string.concat3_hhh')"
-concat_total_count=$((concat_hh_count + concat3_count))
+concat_total_count=$((concat_hs_count + concat_hh_count + concat3_count))
 if [ "${concat_total_count}" -lt 2 ]; then
-  test_fail "$SMOKE_NAME: concat helper density too low in main (expected >=2, got total=${concat_total_count}, concat_hh=${concat_hh_count}, concat3_hhh=${concat3_count})"
+  test_fail "$SMOKE_NAME: concat helper density too low in main (expected >=2, got total=${concat_total_count}, concat_hs=${concat_hs_count}, concat_hh=${concat_hh_count}, concat3_hhh=${concat3_count})"
   exit 1
 fi
 
@@ -99,7 +100,7 @@ set_consume = 0
 set_zero = 0
 
 for line in text:
-    m = re.search(r'(%r\d+)\s*=\s*call i64 @"(nyash\.string\.concat_hh|nyash\.string\.concat3_hhh)"', line)
+    m = re.search(r'(%r\d+)\s*=\s*call i64 @"(nyash\.string\.concat_hs|nyash\.string\.concat_hh|nyash\.string\.concat3_hhh)"', line)
     if m:
         concat_regs.add(m.group(1))
         continue

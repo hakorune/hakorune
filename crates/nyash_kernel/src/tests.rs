@@ -666,6 +666,20 @@ fn string_concat3_hhh_contract() {
 }
 
 #[test]
+fn string_concat_hs_contract() {
+    let lhs_h = string_handle("line-seed");
+    let suffix = CString::new("ln").expect("CString");
+    let out_h = nyash_string_concat_hs_export(lhs_h, suffix.as_ptr());
+    assert!(out_h > 0);
+    let out = decode_string_like_handle(out_h).expect("concat_hs result");
+    assert_eq!(out, "line-seedln");
+
+    let empty = CString::new("").expect("CString");
+    let same_h = nyash_string_concat_hs_export(lhs_h, empty.as_ptr());
+    assert_eq!(same_h, lhs_h, "empty suffix should reuse lhs handle");
+}
+
+#[test]
 fn string_compare_hh_contract_roundtrip() {
     let a: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));
     let b: Arc<dyn NyashBox> = Arc::new(StringBox::new("abc".to_string()));
