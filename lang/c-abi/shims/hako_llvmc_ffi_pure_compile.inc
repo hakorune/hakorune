@@ -1482,6 +1482,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
+      #include "hako_llvmc_ffi_const_string_hoist.inc"
       #include "hako_llvmc_ffi_mir_call_prepass.inc"
       #include "hako_llvmc_ffi_mir_call_shell.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
@@ -1687,6 +1688,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         emit_block_label(bid);
         // phi first
         for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
+        if (bi == 0) {
+          emit_hoisted_string_const_defs(f);
+        }
         yyjson_val* insts = yyjson_obj_get(b, "instructions"); if (!insts || !yyjson_is_arr(insts)) continue;
         size_t ilen = yyjson_arr_size(insts);
         unsigned char skip_inst[ilen ? ilen : 1];
@@ -1707,6 +1711,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             long long dst = read_int(ins, "dst");
             const char* sval = get_str_const(dst);
             if (!sval) continue; // numeric const stays inlined
+            if (hako_llvmc_fast_enabled()) continue;
             size_t slen = strlen(sval);
             EMIT("  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0))\n", dst, slen + 1, dst);
             set_type(dst, T_I64);

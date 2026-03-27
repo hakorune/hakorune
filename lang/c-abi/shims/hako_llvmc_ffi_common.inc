@@ -56,6 +56,15 @@ static int hako_llvmc_skip_indexof_line_seed_enabled(void) {
          strcmp(value, "yes") == 0;
 }
 
+static int hako_llvmc_fast_enabled(void) {
+  const char* value = getenv("NYASH_LLVM_FAST");
+  if (!value || !value[0]) return 0;
+  return strcmp(value, "1") == 0 ||
+         strcmp(value, "on") == 0 ||
+         strcmp(value, "true") == 0 ||
+         strcmp(value, "yes") == 0;
+}
+
 static void hako_llvmc_emit_route_replay(const char* lane, const char* reason) {
   if (!hako_llvmc_route_trace_enabled()) return;
   fprintf(stderr, "[llvm-route/replay] lane=%s reason=%s\n",
