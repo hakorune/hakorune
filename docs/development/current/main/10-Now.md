@@ -56,7 +56,10 @@ Related:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
       - compare bridge assets remain explicit bridge-only until compare retirement
       - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
-      - the next subtraction step is the `RuntimeData` observer family, starting with `runtime_data_string_length_ascii_min_v1`
+      - `.hako ll emitter` is now also the daily owner for `runtime_data_string_length_ascii_min_v1`, `runtime_data_array_length_min_v1`, and `runtime_data_map_size_min_v1`
+      - those three `RuntimeData` observer locks now live in `phase29ck-boundary-legacy`
+      - the lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
+      - remaining active owner-flip targets are 2 shapes: `indexof_line_pure_min_v1`, `substring_concat_loop_pure_min_v1`
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`

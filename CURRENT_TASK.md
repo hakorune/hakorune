@@ -42,7 +42,10 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - flipped `phase29ck` locks moved out of `phase29ck-boundary` into `phase29ck-boundary-legacy`
     - compare bridge assets stay explicit bridge-only until compare retirement
     - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
-    - next subtraction front is the `RuntimeData` observer family, starting with `runtime_data_string_length_ascii_min_v1`
+    - `.hako ll emitter` is now also the daily owner for `runtime_data_string_length_ascii_min_v1`, `runtime_data_array_length_min_v1`, and `runtime_data_map_size_min_v1`
+    - those three `RuntimeData` observer locks now live in `phase29ck-boundary-legacy`
+    - lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
+    - remaining active owner-flip targets are 2 shapes: `indexof_line_pure_min_v1`, `substring_concat_loop_pure_min_v1`
   - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - secondary exact blocker lane is `phase-29ck`:
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Phase 29ck boundary pure-first RuntimeDataBox.length canary
+# Phase 29ck legacy boundary pure-first RuntimeDataBox.length canary
 #
 # Contract pin:
 # 1) default `ny-llvmc` boundary object route accepts a narrow

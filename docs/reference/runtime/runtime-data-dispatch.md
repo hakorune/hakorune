@@ -29,6 +29,7 @@ array mono-route を整数キー版へ縮退できる（AS-03b）:
 - `nyash.array.set_hih(recv_h, idx_i64, val_any) -> i64`
 - `nyash.array.set_hii(recv_h, idx_i64, val_i64) -> i64`（AS-03c）
 - `nyash.array.has_hi(recv_h, idx_i64) -> i64`
+- `nyash.array.push_hi(recv_h, value_i64) -> i64`
 
 これらは `crates/nyash_kernel/src/plugin/array.rs` で実装され、
 `runtime_data` の ArrayBox 契約と同一の戻り値意味を持つ。
@@ -40,8 +41,9 @@ array mono-route を整数キー版へ縮退できる（AS-03b）:
 - `ArrayBox`
   - `get_hh`: index read
   - `set_hhh`: set/append (`idx == len` append)
-  - `has_hh`: bounds check (`0/1`)
-  - `push_hh`: append
+- `has_hh`: bounds check (`0/1`)
+- `push_hh`: append
+- `push_hi`: append integer value
 - `MapBox`
   - `get_hh`: key lookup (missing key returns `0`)
   - `set_hhh`: key set

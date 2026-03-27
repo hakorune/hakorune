@@ -96,7 +96,26 @@ static box RecipeFactsV0Box {
     out.get("effect").set(me._reg_key(dst), "" + memory)
   }
 
+  _direct_call_row_or_null(out, reg_id) {
+    local rows = out.get("direct_call_ok")
+    if rows == null { return null }
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    if me._map_has(rows, key) != 1 { return null }
+    return rows.get(key)
+  }
+
+  _const_string_or_null(out, reg_id) {
+    local consts = out.get("const_string")
+    if consts == null { return null }
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    if me._map_has(consts, key) != 1 { return null }
+    return consts.get(key)
+  }
+
   _accept_manifest_call(out, dst, symbol) {
+    if dst == null {
+      return "extern_dst_missing"
+    }
     local decl = RuntimeDeclRegistryBox.find(symbol)
     if decl == null || RuntimeDeclRegistryBox.has_lane(decl, "hako-ll-min-v0") != 1 {
       return "extern_decl_missing"
@@ -148,6 +167,113 @@ static box RecipeFactsV0Box {
       return me._accept_manifest_call(out, dst, "nyash.string.indexOf_hh")
     }
     return "mir_call_method_unsupported"
+  }
+
+  _runtime_data_receiver_family(out, receiver) {
+    if me._const_string_or_null(out, receiver) != null {
+      return "string"
+    }
+    local direct = me._direct_call_row_or_null(out, receiver)
+    if direct == null { return null }
+    local symbol = "" + direct.get("symbol")
+    if symbol == "nyash.array.birth_h" {
+      return "array"
+    }
+    if symbol == "nyash.map.birth_h" {
+      return "map"
+    }
+    return null
+  }
+
+  _accept_runtime_data_method_call(out, inst, call, callee) {
+    local certainty = "" + callee.get("certainty")
+    if certainty != "Union" {
+      return "runtime_data_certainty_unsupported"
+    }
+    local receiver = callee.get("receiver")
+    if me._value_class_or_default(out, receiver) != "handle_owned" {
+      return "runtime_data_receiver_unsupported"
+    }
+    local method_name = "" + callee.get("name")
+    local args = call.get("args")
+    local arg_count = 0
+    if args != null { arg_count = args.size() }
+    local family = me._runtime_data_receiver_family(out, receiver)
+    if family == null {
+      return "runtime_data_receiver_family_unknown"
+    }
+    if family == "string" {
+      if method_name != "length" || arg_count != 0 {
+        return "runtime_data_string_method_unsupported"
+      }
+      return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.len_h")
+    }
+    if family == "array" {
+      if method_name == "length" && arg_count == 0 {
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.slot_len_h")
+      }
+      if method_name == "push" && arg_count == 1 {
+        local value = args.get(0)
+        if me._value_class_or_default(out, value) != "imm_i64" {
+          return "runtime_data_array_push_value_unsupported"
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.push_hi")
+      }
+      if (method_name == "has" || method_name == "get") && arg_count == 1 {
+        local key = args.get(0)
+        if me._value_class_or_default(out, key) != "imm_i64" {
+          return "runtime_data_array_lookup_key_unsupported"
+        }
+        if method_name == "has" {
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.has_hi")
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.get_hi")
+      }
+      return "runtime_data_array_method_unsupported"
+    }
+    if family == "map" {
+      if method_name == "size" && arg_count == 0 {
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.entry_count_h")
+      }
+      if (method_name == "has" || method_name == "get") && arg_count == 1 {
+        local key = args.get(0)
+        if me._value_class_or_default(out, key) != "imm_i64" {
+          return "runtime_data_map_lookup_key_unsupported"
+        }
+        if method_name == "has" {
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.has_h")
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.get_h")
+      }
+      return "runtime_data_map_method_unsupported"
+    }
+    return "runtime_data_receiver_family_unknown"
+  }
+
+  _accept_method_call(out, inst, call, callee) {
+    local box_name = "" + callee.get("box_name")
+    if box_name == "StringBox" {
+      return me._accept_string_method_call(out, inst, call, callee)
+    }
+    if box_name == "RuntimeDataBox" {
+      return me._accept_runtime_data_method_call(out, inst, call, callee)
+    }
+    return "mir_call_method_unsupported"
+  }
+
+  _accept_constructor_call(out, inst, call, callee) {
+    local args = call.get("args")
+    if args != null && args.size() != 0 {
+      return "constructor_arity_unsupported"
+    }
+    local box_name = "" + callee.get("box_name")
+    if box_name == "ArrayBox" {
+      return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.birth_h")
+    }
+    if box_name == "MapBox" {
+      return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.birth_h")
+    }
+    return "mir_call_constructor_unsupported"
   }
 
   analyze_root(root) {
@@ -240,18 +366,25 @@ static box RecipeFactsV0Box {
                             }
                           } else {
                             if callee_type == "Method" {
-                              local method_reason = me._accept_string_method_call(out, inst, call, callee)
+                              local method_reason = me._accept_method_call(out, inst, call, callee)
                               if method_reason != null {
                                 return me._reject(out, method_reason)
                               }
                             } else {
-                              if callee_type != "Extern" {
-                                return me._reject(out, "mir_call_not_direct_extern_or_print")
-                              }
-                              local symbol = "" + callee.get("name")
-                              local extern_reason = me._accept_manifest_call(out, inst.get("dst"), symbol)
-                              if extern_reason != null {
-                                return me._reject(out, extern_reason)
+                              if callee_type == "Constructor" {
+                                local constructor_reason = me._accept_constructor_call(out, inst, call, callee)
+                                if constructor_reason != null {
+                                  return me._reject(out, constructor_reason)
+                                }
+                              } else {
+                                if callee_type != "Extern" {
+                                  return me._reject(out, "mir_call_not_direct_extern_or_print")
+                                }
+                                local symbol = "" + callee.get("name")
+                                local extern_reason = me._accept_manifest_call(out, inst.get("dst"), symbol)
+                                if extern_reason != null {
+                                  return me._reject(out, extern_reason)
+                                }
                               }
                             }
                           }
