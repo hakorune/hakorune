@@ -62,6 +62,14 @@ memory = "readwrite"
 lanes = ["hako-ll-min-v0", "compare"]
 
 [[rows]]
+symbol = "nyash.instance.get_field_h"
+args = ["handle_owned", "ptr_const_i8"]
+ret = "handle_owned"
+attrs = ["nounwind", "readonly", "willreturn"]
+memory = "read"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
 symbol = "nyash.array.slot_load_hi"
 args = ["handle_owned", "imm_i64"]
 ret = "handle_owned"
@@ -80,6 +88,14 @@ lanes = ["pure-first", "hako-ll-min-v0", "compare"]
 [[rows]]
 symbol = "nyash.array.push_hi"
 args = ["handle_owned", "imm_i64"]
+ret = "imm_i64"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.runtime_data.push_hh"
+args = ["handle_owned", "handle_owned"]
 ret = "imm_i64"
 attrs = ["nounwind", "willreturn"]
 memory = "readwrite"
@@ -107,6 +123,14 @@ args = ["handle_owned", "imm_i64"]
 ret = "handle_owned"
 attrs = ["nounwind", "readonly", "willreturn"]
 memory = "read"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.array.set_hih"
+args = ["handle_owned", "imm_i64", "handle_owned"]
+ret = "imm_i64"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
 lanes = ["hako-ll-min-v0", "compare"]
 
 [[rows]]
@@ -148,6 +172,22 @@ ret = "handle_owned"
 attrs = ["nounwind", "willreturn"]
 memory = "readwrite"
 lanes = ["pure-first", "compare"]
+
+[[rows]]
+symbol = "nyash.any.toString_h"
+args = ["handle_owned"]
+ret = "handle_owned"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
+
+[[rows]]
+symbol = "nyash.string.substring_hii"
+args = ["handle_owned", "imm_i64", "imm_i64"]
+ret = "handle_owned"
+attrs = ["nounwind", "willreturn"]
+memory = "readwrite"
+lanes = ["hako-ll-min-v0", "compare"]
 
 [[rows]]
 symbol = "nyash.string.insert_hsi"

@@ -69,7 +69,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
 - current landed slice is subtraction-first:
   - `.hako ll emitter` min v0 is the daily owner for `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, `RuntimeDataBox.length(StringBox)`, `RuntimeDataBox.length(ArrayBox)`, and `RuntimeDataBox.size(MapBox)`
   - compare bridge smoke stays `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`
-  - daily owner smokes are `phase29x_backend_owner_daily_{ret_const,bool_phi_branch,print,string_length,string_indexof,concat3_extern,runtime_data_length,runtime_data_array_length,runtime_data_map_size,runtime_data_array_has,runtime_data_array_get,runtime_data_array_push,runtime_data_map_has,runtime_data_map_get}_min.sh`
+  - daily owner smokes are `phase29x_backend_owner_daily_{ret_const,bool_phi_branch,print,string_length,string_indexof,indexof_line,substring_concat_loop,concat3_extern,runtime_data_length,runtime_data_array_length,runtime_data_map_size,runtime_data_array_has,runtime_data_array_get,runtime_data_array_push,runtime_data_map_has,runtime_data_map_get}_min.sh`
   - compare wrapper app is `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako`
   - daily wrapper app is `apps/tests/phase29x_backend_owner_daily_min.hako`
   - archive/delete sweep wave 1 is landed:
@@ -79,7 +79,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed
   - the lookup family is landed; the `RuntimeData` mutator family is now landed for `runtime_data_array_push_min_v1`
-  - remaining active owner-flip targets are 2 shapes: `indexof_line_pure_min_v1`, `substring_concat_loop_pure_min_v1`
+  - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
 - structural perf only:
   - attrs centralization
   - facts visibility

@@ -181,6 +181,8 @@ static box BackendRecipeBox {
     if path.contains("hello_simple_llvm_native_probe_v1") { return 1 }
     if path.contains("string_length_ascii_min_v1") { return 1 }
     if path.contains("string_indexof_ascii_min_v1") { return 1 }
+    if path.contains("indexof_line_pure_min_v1") { return 1 }
+    if path.contains("substring_concat_loop_pure_min_v1") { return 1 }
     if path.contains("runtime_data_string_length_ascii_min_v1") { return 1 }
     if path.contains("runtime_data_array_length_min_v1") { return 1 }
     if path.contains("runtime_data_array_push_min_v1") { return 1 }

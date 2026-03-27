@@ -4,7 +4,7 @@ Boundary compile canaries for the phase29ck lane.
 
 Layout:
 - `entry/`: active boundary anchors for compat-keep / forwarder routing plus unflipped pure-first control-flow canaries
-- `string/`: active pure `StringBox` shapes that still belong to the phase29ck boundary lane
+- `string/`: active pure-first string canaries that still belong to the phase29ck boundary lane
 - `runtime_data/`: pure `RuntimeDataBox` shapes, grouped by array / map method family
 
 Suite:
@@ -13,7 +13,7 @@ Suite:
 
 Notes:
 - keep `phase29ck-boundary.txt` focused on active boundary owner coverage and unflipped pure-first acceptance
-- `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, and the three `RuntimeData.length/size` observer pins are now legacy boundary locks; their daily owner proof moved to `phase29x/derust`
+- `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `indexof-line loop`, `substring-concat-loop`, `concat3 extern`, and the three `RuntimeData.length/size` observer pins are now legacy boundary locks; their daily owner proof moved to `phase29x/derust`
 - `phase29ck-boundary-legacy.txt` is a temporary suite for those retired locks until compare/archive decisions are complete
 - active `runtime_data/` coverage is now the lookup family; `push` mutator moved to legacy
 - direct-emit app contracts stay outside this suite unless they become boundary-owner canaries

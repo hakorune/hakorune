@@ -42,6 +42,14 @@ static box LlTextEmitBox {
     return "" + classes.get(key)
   }
 
+  _box_type(facts, reg_id) {
+    local key = "" + me._resolve_alias(facts, reg_id)
+    local types = facts.get("box_type")
+    if types == null { return "" }
+    if me._map_has(types, key) != 1 { return "" }
+    return "" + types.get(key)
+  }
+
   _const_string_text(facts, reg_id) {
     local key = "" + me._resolve_alias(facts, reg_id)
     local consts = facts.get("const_string")
@@ -65,6 +73,33 @@ static box LlTextEmitBox {
 
   _string_global_name(reg_id) {
     return "@.str_reg_" + ("" + reg_id)
+  }
+
+  _select_entry_function(root) {
+    if root == null { return null }
+    local funcs = root.get("functions")
+    if funcs == null || funcs.size() == 0 { return null }
+
+    local i = 0
+    loop(i < funcs.size()) {
+      local func = funcs.get(i)
+      if ("" + func.get("name")) == "main" {
+        return func
+      }
+      i = i + 1
+    }
+
+    i = 0
+    loop(i < funcs.size()) {
+      local func = funcs.get(i)
+      local name = "" + func.get("name")
+      if name == "Main.main/0" || name == "Main.main" {
+        return func
+      }
+      i = i + 1
+    }
+
+    return funcs.get(0)
   }
 
   _needs_printf_format(func) {
@@ -179,8 +214,18 @@ static box LlTextEmitBox {
     return rows.get(key)
   }
 
+  _direct_call_row_by_symbol(facts, symbol) {
+    if facts == null { return null }
+    local rows = facts.get("direct_call_by_symbol")
+    if rows == null { return null }
+    if me._map_has(rows, symbol) != 1 { return null }
+    return rows.get(symbol)
+  }
+
   _emit_direct_call(func, facts, inst, symbol) {
     local call = inst.get("mir_call")
+    local callee = call.get("callee")
+    local callee_type = "" + callee.get("type")
     local decl = RuntimeDeclRegistryBox.find(symbol)
     if decl == null { return null }
     local args = call.get("args")
@@ -192,15 +237,26 @@ static box LlTextEmitBox {
     } else {
       out = "  call " + ret_ty + " @\"" + symbol + "\"("
     }
+    local arg_count = args.size()
+    if callee_type == "Method" { arg_count = arg_count + 1 }
     local i = 0
-    loop(i < args.size()) {
+    loop(i < arg_count) {
       if i > 0 { out = out + ", " }
       local arg_kind = "" + decl.get("args").get(i)
-      if arg_kind == "ptr_const_i8" {
-        local reg_id = args.get(i)
-        out = out + "ptr getelementptr inbounds ([" + (((("" + me._const_string_text(facts, reg_id)).length()) + 1)) + " x i8], ptr " + me._string_global_name(reg_id) + ", i64 0, i64 0)"
+      local src_reg = null
+      if callee_type == "Method" && i == 0 {
+        src_reg = callee.get("receiver")
       } else {
-        out = out + "i64 " + me._operand_i64(func, facts, args.get(i))
+        if callee_type == "Method" {
+          src_reg = args.get(i - 1)
+        } else {
+          src_reg = args.get(i)
+        }
+      }
+      if arg_kind == "ptr_const_i8" {
+        out = out + "ptr getelementptr inbounds ([" + (((("" + me._const_string_text(facts, src_reg)).length()) + 1)) + " x i8], ptr " + me._string_global_name(src_reg) + ", i64 0, i64 0)"
+      } else {
+        out = out + "i64 " + me._operand_i64(func, facts, src_reg)
       }
       i = i + 1
     }
@@ -217,6 +273,21 @@ static box LlTextEmitBox {
     return "  call i32 (ptr, ...) @printf(ptr getelementptr inbounds ([5 x i8], ptr @.fmt_i64, i64 0, i64 0), i64 " + operand + ")\n"
   }
 
+  _emit_newbox(inst) {
+    local dst = inst.get("dst")
+    local box_type = "" + inst.get("type")
+    if box_type == "ArrayBox" {
+      return "  " + me._reg(dst) + " = call i64 @\"nyash.array.birth_h\"()\n"
+    }
+    if box_type == "MapBox" {
+      return "  " + me._reg(dst) + " = call i64 @\"nyash.map.birth_h\"()\n"
+    }
+    if box_type == "StringBox" {
+      return ""
+    }
+    return null
+  }
+
   _emit_instruction(func, facts, inst) {
     local op = "" + inst.get("op")
     if op == "const" {
@@ -226,10 +297,11 @@ static box LlTextEmitBox {
         local len = ("" + text).length() + 1
         return "  " + me._reg(dst) + " = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([" + len + " x i8], ptr " + me._string_global_name(dst) + ", i64 0, i64 0))\n"
       }
-      return ""
+      return "  " + me._reg(dst) + " = add i64 0, " + me._const_i64_value(inst) + "\n"
     }
     if op == "copy" { return "" }
-    if op == "newbox" { return "" }
+    if op == "newbox" { return me._emit_newbox(inst) }
+    if op == "release_strong" { return "" }
     if op == "binop" {
       local dst = inst.get("dst")
       local lhs = me._operand_i64(func, facts, inst.get("lhs"))
@@ -292,8 +364,22 @@ static box LlTextEmitBox {
     if op == "select" {
       local dst = inst.get("dst")
       local cond = inst.get("cond")
-      local when_true = inst.get("then_value")
-      local when_false = inst.get("else_value")
+      local when_true = null
+      if me._map_has(inst, "then_value") == 1 {
+        when_true = inst.get("then_value")
+      } else {
+        if me._map_has(inst, "then_val") == 1 {
+          when_true = inst.get("then_val")
+        }
+      }
+      local when_false = null
+      if me._map_has(inst, "else_value") == 1 {
+        when_false = inst.get("else_value")
+      } else {
+        if me._map_has(inst, "else_val") == 1 {
+          when_false = inst.get("else_val")
+        }
+      }
       local ty = "i64"
       if me._is_bool_i1(facts, when_true) == 1 && me._is_bool_i1(facts, when_false) == 1 { ty = "i1" }
       local cv = me._operand_i64(func, facts, cond)
@@ -335,6 +421,29 @@ static box LlTextEmitBox {
         return me._emit_global_print_call(func, facts, inst)
       }
       local direct = me._direct_call_row(facts, inst.get("dst"))
+      if direct == null {
+        local callee_type = "" + callee.get("type")
+        local callee_name = "" + callee.get("name")
+        if callee_type == "Method" && me._box_type(facts, callee.get("receiver")) == "ArrayBox" {
+          if callee_name == "push" {
+            local args = call.get("args")
+            if args != null && args.size() == 1 {
+              local value = args.get(0)
+              if me._value_class(facts, value) == "imm_i64" {
+                direct = me._direct_call_row_by_symbol(facts, "nyash.array.push_hi")
+              } else {
+                direct = me._direct_call_row_by_symbol(facts, "nyash.runtime_data.push_hh")
+              }
+            }
+          } else {
+            if callee_name == "set" {
+              direct = me._direct_call_row_by_symbol(facts, "nyash.array.set_hih")
+            }
+          }
+        } else {
+          direct = me._direct_call_row_by_symbol(facts, callee_name)
+        }
+      }
       if direct == null { return null }
       return me._emit_direct_call(func, facts, inst, "" + direct.get("symbol"))
     }
@@ -343,7 +452,8 @@ static box LlTextEmitBox {
 
   emit_module(root, facts) {
     if root == null || facts == null { return null }
-    local func = root.get("functions").get(0)
+    local func = me._select_entry_function(root)
+    if func == null { return null }
     local out = "; ModuleID = \"hako_ll_min_v0\"\n\n"
     local rows = RuntimeDeclRegistryBox.rows()
     local i = 0

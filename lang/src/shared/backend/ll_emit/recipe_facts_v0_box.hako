@@ -1,3 +1,4 @@
+using selfhost.shared.common.box_helpers as BoxHelpers
 using selfhost.shared.backend.ll_emit.runtime_decl_registry as RuntimeDeclRegistryBox
 
 static box RecipeFactsV0Box {
@@ -11,7 +12,10 @@ static box RecipeFactsV0Box {
     out.set("bool_i1", new MapBox())
     out.set("copy_alias", new MapBox())
     out.set("const_string", new MapBox())
+    out.set("box_type", new MapBox())
+    out.set("array_element_box_type", new MapBox())
     out.set("direct_call_ok", new MapBox())
+    out.set("direct_call_by_symbol", new MapBox())
     out.set("effect", new MapBox())
     return out
   }
@@ -43,6 +47,44 @@ static box RecipeFactsV0Box {
 
   _set_const_string(out, dst, text) {
     out.get("const_string").set(me._reg_key(dst), "" + text)
+  }
+
+  _set_box_type(out, reg_id, box_type) {
+    out.get("box_type").set(me._reg_key(reg_id), "" + box_type)
+  }
+
+  _set_array_element_box_type(out, reg_id, box_type) {
+    out.get("array_element_box_type").set(me._reg_key(reg_id), "" + box_type)
+  }
+
+  _seed_from_dst_type(out, inst) {
+    local dst = inst.get("dst")
+    if dst == null { return }
+    local dst_type = inst.get("dst_type")
+    if dst_type == null { return }
+    if BoxHelpers.is_map(dst_type) != 1 { return }
+    local kind = "" + dst_type.get("kind")
+    local box_type = "" + dst_type.get("box_type")
+    if kind == "handle" {
+      me._set_value_class(out, dst, "handle_owned")
+      if box_type != "" {
+        me._set_box_type(out, dst, box_type)
+      }
+      return
+    }
+    if kind == "string" {
+      me._set_value_class(out, dst, "handle_owned")
+      me._set_box_type(out, dst, "StringBox")
+      return
+    }
+    if kind == "i64" {
+      me._set_value_class(out, dst, "imm_i64")
+      return
+    }
+    if kind == "i1" {
+      me._set_bool_i1(out, dst)
+      return
+    }
   }
 
   _map_has(map, key) {
@@ -84,11 +126,36 @@ static box RecipeFactsV0Box {
     return "" + classes.get(key)
   }
 
+  _box_type_or_default(out, reg_id) {
+    local types = out.get("box_type")
+    if types == null { return "" }
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    if me._map_has(types, key) != 1 { return "" }
+    return "" + types.get(key)
+  }
+
+  _array_element_box_type_or_default(out, reg_id) {
+    local types = out.get("array_element_box_type")
+    if types == null { return "" }
+    local key = me._reg_key(me._resolve_copy_alias(out, reg_id))
+    if me._map_has(types, key) != 1 { return "" }
+    return "" + types.get(key)
+  }
+
+  _is_string_like_value(out, reg_id) {
+    if me._const_string_or_null(out, reg_id) != null { return 1 }
+    if me._box_type_or_default(out, reg_id) == "StringBox" { return 1 }
+    return 0
+  }
+
   _set_direct_call(out, dst, symbol, memory) {
     local row = new MapBox()
     row.set("symbol", "" + symbol)
     row.set("memory", "" + memory)
-    out.get("direct_call_ok").set(me._reg_key(dst), row)
+    if dst != null {
+      out.get("direct_call_ok").set(me._reg_key(dst), row)
+    }
+    out.get("direct_call_by_symbol").set("" + symbol, row)
   }
 
   _set_effect(out, dst, memory) {
@@ -104,6 +171,13 @@ static box RecipeFactsV0Box {
     return rows.get(key)
   }
 
+  _direct_call_row_by_symbol_or_null(out, symbol) {
+    local rows = out.get("direct_call_by_symbol")
+    if rows == null { return null }
+    if me._map_has(rows, symbol) != 1 { return null }
+    return rows.get("" + symbol)
+  }
+
   _const_string_or_null(out, reg_id) {
     local consts = out.get("const_string")
     if consts == null { return null }
@@ -113,16 +187,28 @@ static box RecipeFactsV0Box {
   }
 
   _accept_manifest_call(out, dst, symbol) {
-    if dst == null {
-      return "extern_dst_missing"
-    }
     local decl = RuntimeDeclRegistryBox.find(symbol)
     if decl == null || RuntimeDeclRegistryBox.has_lane(decl, "hako-ll-min-v0") != 1 {
       return "extern_decl_missing"
     }
-    me._set_value_class(out, dst, "" + decl.get("ret"))
+    if dst != null {
+      me._set_value_class(out, dst, "" + decl.get("ret"))
+    }
     me._set_direct_call(out, dst, symbol, decl.get("memory"))
-    me._set_effect(out, dst, decl.get("memory"))
+    if dst != null {
+      me._set_effect(out, dst, decl.get("memory"))
+      if symbol == "nyash.array.birth_h" {
+        me._set_box_type(out, dst, "ArrayBox")
+      } else {
+        if symbol == "nyash.map.birth_h" {
+          me._set_box_type(out, dst, "MapBox")
+        } else {
+          if symbol == "nyash.box.from_i8_string_const" || symbol == "nyash.any.toString_h" || symbol == "nyash.string.substring_hii" || symbol == "nyash.string.concat3_hhh" || symbol == "nyash.string.concat_hs" || symbol == "nyash.string.insert_hsi" || symbol == "nyash.array.get_hi" {
+            me._set_box_type(out, dst, "StringBox")
+          }
+        }
+      }
+    }
     return null
   }
 
@@ -170,6 +256,16 @@ static box RecipeFactsV0Box {
   }
 
   _runtime_data_receiver_family(out, receiver) {
+    local box_type = me._box_type_or_default(out, receiver)
+    if box_type == "ArrayBox" {
+      return "array"
+    }
+    if box_type == "MapBox" {
+      return "map"
+    }
+    if box_type == "StringBox" {
+      return "string"
+    }
     if me._const_string_or_null(out, receiver) != null {
       return "string"
     }
@@ -181,6 +277,9 @@ static box RecipeFactsV0Box {
     }
     if symbol == "nyash.map.birth_h" {
       return "map"
+    }
+    if symbol == "nyash.box.from_i8_string_const" || symbol == "nyash.any.toString_h" || symbol == "nyash.string.substring_hii" || symbol == "nyash.string.concat3_hhh" || symbol == "nyash.string.concat_hs" || symbol == "nyash.string.insert_hsi" {
+      return "string"
     }
     return null
   }
@@ -203,10 +302,28 @@ static box RecipeFactsV0Box {
       return "runtime_data_receiver_family_unknown"
     }
     if family == "string" {
-      if method_name != "length" || arg_count != 0 {
-        return "runtime_data_string_method_unsupported"
+      if method_name == "length" && arg_count == 0 {
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.len_h")
       }
-      return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.len_h")
+      if method_name == "indexOf" && arg_count == 1 {
+        local needle = args.get(0)
+        if me._value_class_or_default(out, needle) != "handle_owned" {
+          return "runtime_data_string_indexof_arg_unsupported"
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.indexOf_hh")
+      }
+      if method_name == "substring" && arg_count == 2 {
+        local start = args.get(0)
+        local end = args.get(1)
+        if me._value_class_or_default(out, start) != "imm_i64" || me._value_class_or_default(out, end) != "imm_i64" {
+          return "runtime_data_string_substring_args_unsupported"
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.string.substring_hii")
+      }
+      if method_name == "stringify" && arg_count == 0 {
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.any.toString_h")
+      }
+      return "runtime_data_string_method_unsupported"
     }
     if family == "array" {
       if method_name == "length" && arg_count == 0 {
@@ -214,10 +331,28 @@ static box RecipeFactsV0Box {
       }
       if method_name == "push" && arg_count == 1 {
         local value = args.get(0)
-        if me._value_class_or_default(out, value) != "imm_i64" {
-          return "runtime_data_array_push_value_unsupported"
+        local value_class = me._value_class_or_default(out, value)
+        if value_class == "imm_i64" {
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.push_hi")
         }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.push_hi")
+        if value_class == "handle_owned" {
+          if me._is_string_like_value(out, value) == 1 {
+            me._set_array_element_box_type(out, receiver, "StringBox")
+          }
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.push_hh")
+        }
+        return "runtime_data_array_push_value_unsupported"
+      }
+      if method_name == "set" && arg_count == 2 {
+        local key = args.get(0)
+        local value = args.get(1)
+        if me._value_class_or_default(out, key) != "imm_i64" {
+          return "runtime_data_array_set_key_unsupported"
+        }
+        if me._value_class_or_default(out, value) != "handle_owned" && me._value_class_or_default(out, value) != "imm_i64" {
+          return "runtime_data_array_set_value_unsupported"
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.set_hih")
       }
       if (method_name == "has" || method_name == "get") && arg_count == 1 {
         local key = args.get(0)
@@ -227,7 +362,23 @@ static box RecipeFactsV0Box {
         if method_name == "has" {
           return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.has_hi")
         }
-        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.get_hi")
+        local reason = me._accept_manifest_call(out, inst.get("dst"), "nyash.array.get_hi")
+        if reason != null { return reason }
+        if me._array_element_box_type_or_default(out, receiver) == "StringBox" {
+          me._set_box_type(out, inst.get("dst"), "StringBox")
+        }
+        return null
+      }
+      if method_name == "getField" && arg_count == 1 {
+        local field_name = args.get(0)
+        local field_text = me._const_string_or_null(out, field_name)
+        if field_text != "stringify" {
+          return "runtime_data_array_field_unsupported"
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.instance.get_field_h")
+      }
+      if method_name == "stringify" && arg_count == 0 {
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.any.toString_h")
       }
       return "runtime_data_array_method_unsupported"
     }
@@ -245,6 +396,9 @@ static box RecipeFactsV0Box {
         }
         return me._accept_manifest_call(out, inst.get("dst"), "nyash.map.get_h")
       }
+      if method_name == "stringify" && arg_count == 0 {
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.any.toString_h")
+      }
       return "runtime_data_map_method_unsupported"
     }
     return "runtime_data_receiver_family_unknown"
@@ -252,6 +406,60 @@ static box RecipeFactsV0Box {
 
   _accept_method_call(out, inst, call, callee) {
     local box_name = "" + callee.get("box_name")
+    if box_name == "ArrayBox" {
+      local method_name = "" + callee.get("name")
+      local args = call.get("args")
+      local arg_count = 0
+      if args != null { arg_count = args.size() }
+      if method_name == "length" && arg_count == 0 {
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.slot_len_h")
+      }
+      if method_name == "has" && arg_count == 1 {
+        local key = args.get(0)
+        if me._value_class_or_default(out, key) != "imm_i64" {
+          return "array_method_lookup_key_unsupported"
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.has_hi")
+      }
+      if method_name == "get" && arg_count == 1 {
+        local key = args.get(0)
+        if me._value_class_or_default(out, key) != "imm_i64" {
+          return "array_method_lookup_key_unsupported"
+        }
+        local reason = me._accept_manifest_call(out, inst.get("dst"), "nyash.array.get_hi")
+        if reason != null { return reason }
+        if me._array_element_box_type_or_default(out, callee.get("receiver")) == "StringBox" {
+          me._set_box_type(out, inst.get("dst"), "StringBox")
+        }
+        return null
+      }
+      if method_name == "push" && arg_count == 1 {
+        local value = args.get(0)
+        local value_class = me._value_class_or_default(out, value)
+        if value_class == "imm_i64" {
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.push_hi")
+        }
+        if value_class == "handle_owned" {
+          if me._is_string_like_value(out, value) == 1 {
+            me._set_array_element_box_type(out, callee.get("receiver"), "StringBox")
+          }
+          return me._accept_manifest_call(out, inst.get("dst"), "nyash.runtime_data.push_hh")
+        }
+        return "array_method_push_value_unsupported"
+      }
+      if method_name == "set" && arg_count == 2 {
+        local key = args.get(0)
+        local value = args.get(1)
+        if me._value_class_or_default(out, key) != "imm_i64" {
+          return "array_method_set_key_unsupported"
+        }
+        if me._value_class_or_default(out, value) != "handle_owned" && me._value_class_or_default(out, value) != "imm_i64" {
+          return "array_method_set_value_unsupported"
+        }
+        return me._accept_manifest_call(out, inst.get("dst"), "nyash.array.set_hih")
+      }
+      return "mir_call_method_unsupported"
+    }
     if box_name == "StringBox" {
       return me._accept_string_method_call(out, inst, call, callee)
     }
@@ -276,12 +484,41 @@ static box RecipeFactsV0Box {
     return "mir_call_constructor_unsupported"
   }
 
+  _select_entry_function(root) {
+    if root == null { return null }
+    local funcs = root.get("functions")
+    if funcs == null || funcs.size() == 0 { return null }
+
+    local i = 0
+    loop(i < funcs.size()) {
+      local func = funcs.get(i)
+      if ("" + func.get("name")) == "main" {
+        return func
+      }
+      i = i + 1
+    }
+
+    i = 0
+    loop(i < funcs.size()) {
+      local func = funcs.get(i)
+      local name = "" + func.get("name")
+      if name == "Main.main/0" || name == "Main.main" {
+        return func
+      }
+      i = i + 1
+    }
+
+    return funcs.get(0)
+  }
+
   analyze_root(root) {
     local out = me._new_ok()
     if root == null { return me._reject(out, "root_missing") }
+    local func = me._select_entry_function(root)
+    if func == null { return me._reject(out, "functions_missing") }
     local funcs = root.get("functions")
     if funcs == null || funcs.size() == 0 { return me._reject(out, "functions_missing") }
-    local blocks = funcs.get(0).get("blocks")
+    local blocks = func.get("blocks")
     if blocks == null { return me._reject(out, "blocks_missing") }
 
     local bi = 0
@@ -293,6 +530,7 @@ static box RecipeFactsV0Box {
       loop(ii < ins.size()) {
         local inst = ins.get(ii)
         local op = "" + inst.get("op")
+        me._seed_from_dst_type(out, inst)
           if op == "const" {
             local dst = inst.get("dst")
             local value = inst.get("value")
@@ -318,22 +556,40 @@ static box RecipeFactsV0Box {
               me._set_copy_alias(out, inst.get("dst"), inst.get("src"))
             } else {
               if op == "newbox" {
-                if ("" + inst.get("type")) != "StringBox" {
-                  return me._reject(out, "newbox_unsupported")
-                }
-                local args = inst.get("args")
-                if args == null || args.size() != 1 {
-                  return me._reject(out, "newbox_stringbox_arity")
-                }
-                local src = args.get(0)
-                if me._value_class_or_default(out, src) != "handle_owned" {
-                  return me._reject(out, "newbox_stringbox_arg_unsupported")
-                }
-                me._set_copy_alias(out, inst.get("dst"), src)
-              } else {
-                if op == "binop" {
-                  me._set_value_class(out, inst.get("dst"), "imm_i64")
+                local box_type = "" + inst.get("type")
+                if box_type == "ArrayBox" {
+                  me._set_value_class(out, inst.get("dst"), "handle_owned")
+                  me._set_box_type(out, inst.get("dst"), "ArrayBox")
                 } else {
+                  if box_type == "MapBox" {
+                    me._set_value_class(out, inst.get("dst"), "handle_owned")
+                    me._set_box_type(out, inst.get("dst"), "MapBox")
+                  } else {
+                    if box_type == "StringBox" {
+                      local args = inst.get("args")
+                      if args == null || args.size() != 1 {
+                        return me._reject(out, "newbox_stringbox_arity")
+                      }
+                      local src = args.get(0)
+                      if me._value_class_or_default(out, src) != "handle_owned" {
+                        return me._reject(out, "newbox_stringbox_arg_unsupported")
+                      }
+                      me._set_copy_alias(out, inst.get("dst"), src)
+                      me._set_box_type(out, inst.get("dst"), "StringBox")
+                    } else {
+                      return me._reject(out, "newbox_unsupported")
+                    }
+                  }
+                }
+              } else {
+    if op == "binop" {
+      me._set_value_class(out, inst.get("dst"), "imm_i64")
+      local kind = "" + inst.get("operation")
+      if kind == "+" && (me._is_string_like_value(out, inst.get("lhs")) == 1 || me._is_string_like_value(out, inst.get("rhs")) == 1) {
+        me._set_value_class(out, inst.get("dst"), "handle_owned")
+        me._set_box_type(out, inst.get("dst"), "StringBox")
+      }
+    } else {
                   if op == "compare" {
                     me._set_bool_i1(out, inst.get("dst"))
                   } else {
@@ -347,10 +603,26 @@ static box RecipeFactsV0Box {
                       }
                     } else {
                       if op == "select" {
-                        if me._is_bool_i1(out, inst.get("then_value")) == 1 && me._is_bool_i1(out, inst.get("else_value")) == 1 {
+                        local when_true = null
+                        if me._map_has(inst, "then_value") == 1 {
+                          when_true = inst.get("then_value")
+                        } else {
+                          if me._map_has(inst, "then_val") == 1 {
+                            when_true = inst.get("then_val")
+                          }
+                        }
+                        local when_false = null
+                        if me._map_has(inst, "else_value") == 1 {
+                          when_false = inst.get("else_value")
+                        } else {
+                          if me._map_has(inst, "else_val") == 1 {
+                            when_false = inst.get("else_val")
+                          }
+                        }
+                        if me._is_bool_i1(out, when_true) == 1 && me._is_bool_i1(out, when_false) == 1 {
                           me._set_bool_i1(out, inst.get("dst"))
                         }
-                      } else {
+                  } else {
                         if op == "mir_call" {
                           local call = inst.get("mir_call")
                           local callee = call.get("callee")
@@ -389,9 +661,12 @@ static box RecipeFactsV0Box {
                             }
                           }
                         } else {
-                          if op == "ret" || op == "branch" || op == "jump" {
+                          if op == "release_strong" {
                           } else {
-                            return me._reject(out, "unsupported_op:" + op)
+                            if op == "ret" || op == "branch" || op == "jump" {
+                            } else {
+                              return me._reject(out, "unsupported_op:" + op)
+                            }
                           }
                         }
                       }
