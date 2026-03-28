@@ -165,17 +165,20 @@ perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりも
 2. landed
    - `concat_hs` と `insert_hsi` は `freeze_text_plan(...)` を共有し、`plan -> freeze` の形へ入った
 3. next
-   - `freeze.str` の canonical sink 実装を `string_store.rs` 側へ寄せる
-4. next
    - planner を recipe-only / boundary-only へ縮める
-5. next
+4. next
    - `array_set` を consumer boundary として維持する
-6. meso proof
+5. meso proof
    - `kilo_meso_substring_concat_array_set`
-7. main proof
+6. main proof
    - `kilo_kernel_small_hk`
-8. only then
+7. only then
    - sink-local narrow tuning (`StringBox::new`, `Registry::alloc/get`)
+
+### Rejected follow-up
+
+- `freeze.str` の canonical sink を `string_store.rs` に移す試行は、stable main を `834 ms` と `909 ms` に悪化させたので rejected。
+- そのため、現時点の active lane は `string.rs` 側の shared `freeze_text_plan(...)` helper を維持すること。
 
 ## Non-Goals
 

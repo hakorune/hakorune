@@ -84,12 +84,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`
   - follow-up design front: `freeze.str` as the single birth sink for `concat_hs` / `insert_hsi` / `concat3_hhh`
+  - attempted canonical sink re-home: moving `freeze.str` into `string_store.rs` regressed stable main (`kilo_kernel_small_hk = 834 -> 909 ms` on back-to-back checks), so keep the explicit `freeze_text_plan(...)` sink helper in `string.rs` for now
   - next fixed order is now:
-    1. canonicalize `freeze.str` in `string_store.rs`
-    2. shrink planner into recipe-only / boundary-only placement
-    3. keep `array_set` as the consumer boundary and avoid new `set_his` splits
-    4. re-run meso/main proof before any sink-local `Registry::alloc/get` tuning
-  - landed in code: `concat_hs` and `insert_hsi` now share the explicit `freeze_text_plan(...)` sink helper; current proof remains `kilo_meso_substring_concat_array_set = 67 ms` and `kilo_kernel_small_hk = 717 ms` (`warmup=1 repeat=3`)
+    1. shrink planner into recipe-only / boundary-only placement
+    2. keep `array_set` as the consumer boundary and avoid new `set_his` splits
+    3. re-run meso/main proof before any sink-local `Registry::alloc/get` tuning
   - rejected follow-up:
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason
@@ -108,11 +107,12 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
 - keep the landed meso benchmark ladder as the gate for the next string cut
 - next exact code sequence is fixed:
-  1. canonicalize `freeze.str` in `string_store.rs`
-  2. shrink planner into recipe-only / boundary-only placement
-  3. keep `array_set` as the consumer boundary
-  4. same-artifact meso/main proof
-  5. only then narrow sink-local tuning around `Registry::alloc/get` / `BoxBase::new`
+  1. shrink planner into recipe-only / boundary-only placement
+  2. keep `array_set` as the consumer boundary
+  3. same-artifact meso/main proof
+  4. only then narrow sink-local tuning around `Registry::alloc/get` / `BoxBase::new`
+- rejected follow-up:
+  - canonicalizing `freeze.str` in `string_store.rs` regressed `kilo_kernel_small_hk` to `834 ms` and `909 ms` on back-to-back checks; keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears
 - do not reopen `set_his` helper splitting before the `freeze.str` canonicalization wave lands
 - do not reopen loop-carry shaping before the `array_set` boundary gap shrinks
 - keep genericization work on `recipe / scope / effect / policy`, not on benchmark-named branches

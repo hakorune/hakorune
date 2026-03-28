@@ -52,9 +52,10 @@ Related:
 - startup-subtracted small-entry evidence is now `method_call_only_small=1 ms`, `box_create_destroy_small=0 ms`
 - `P11-SMALL-ENTRY-STARTUP-INVENTORY.md` is now closed.
 - current perf-kilo design front has moved to `transient-text-pieces-ssot.md`; the measurement snapshots below remain historical evidence until the next proof lands.
-- current docs-first perf-kilo design front is `string-birth-sink-ssot.md`: `freeze.str` is now the canonical sink target, and the next work is sink canonicalization plus planner cleanup rather than more route/helper splitting.
+- current docs-first perf-kilo design front is `string-birth-sink-ssot.md`: `freeze.str` remains the canonical sink target, but the attempt to move the canonical sink into `string_store.rs` was rejected; the active lane stays on planner cleanup rather than more route/helper splitting.
 - when the lane is on `freeze.str`, do not mix sink canonicalization with route/helper splitting in the same commit series.
-- current narrow implementation order is fixed: canonicalize `freeze.str` in `string_store.rs`, shrink planner into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, then re-run the same-artifact meso/main proof, and only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning.
+- current narrow implementation order is fixed: shrink planner into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, re-run the same-artifact meso/main proof, and only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning.
+- rejected follow-up: moving `freeze.str` into `string_store.rs` regressed stable main (`834 ms` / `909 ms` back-to-back), so keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears.
 - code has now landed the shared `freeze_text_plan(...)` sink helper for `concat_hs` and `insert_hsi`; keep the current proof reading as historical evidence until the next sink-local tuning lands.
 - therefore the perf lane may stay reopened, `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` and `P13-SMALL-ENTRY-RAW-NET-REFRESH.md` are now closed, and the current small-entry lane is `none (monitor-only)`.
 - current boundary-mainline `method_call_only_small` exe shape is `5,375,880` bytes / `61` relocations.
