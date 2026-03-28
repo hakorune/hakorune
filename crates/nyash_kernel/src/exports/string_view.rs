@@ -161,12 +161,12 @@ impl std::fmt::Debug for StringSpan {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum TextPiece {
+pub(crate) enum TextPiece<'a> {
     Span(StringSpan),
-    Inline(String),
+    Inline(&'a str),
 }
 
-impl TextPiece {
+impl<'a> TextPiece<'a> {
     fn len(&self) -> usize {
         match self {
             Self::Span(span) => span.len(),
@@ -187,16 +187,16 @@ impl TextPiece {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) enum TextPlan {
+pub(crate) enum TextPlan<'a> {
     View1(StringSpan),
     PiecesN {
-        pieces: ArrayVec<TextPiece, 4>,
+        pieces: ArrayVec<TextPiece<'a>, 4>,
         total_len: usize,
     },
     OwnedTmp(String),
 }
 
-impl TextPlan {
+impl<'a> TextPlan<'a> {
     pub(crate) fn from_span(span: StringSpan) -> Self {
         Self::View1(span)
     }
@@ -209,7 +209,7 @@ impl TextPlan {
         resolve_string_span_from_handle(handle).map(Self::View1)
     }
 
-    fn from_array_pieces(pieces: ArrayVec<TextPiece, 4>) -> Self {
+    fn from_array_pieces(pieces: ArrayVec<TextPiece<'a>, 4>) -> Self {
         match pieces.len() {
             0 => Self::OwnedTmp(String::new()),
             1 => {
@@ -219,7 +219,7 @@ impl TextPlan {
                     .expect("normalized piece list should have one element")
                 {
                     TextPiece::Span(span) => Self::View1(span),
-                    TextPiece::Inline(text) => Self::OwnedTmp(text),
+                    TextPiece::Inline(text) => Self::OwnedTmp(text.to_owned()),
                 }
             }
             _ => {
@@ -229,7 +229,7 @@ impl TextPlan {
         }
     }
 
-    pub(crate) fn from_two(a: TextPiece, b: TextPiece) -> Self {
+    pub(crate) fn from_two(a: TextPiece<'a>, b: TextPiece<'a>) -> Self {
         let mut pieces = ArrayVec::new();
         if !a.is_empty() {
             pieces.push(a);
@@ -240,7 +240,7 @@ impl TextPlan {
         Self::from_array_pieces(pieces)
     }
 
-    pub(crate) fn from_three(a: TextPiece, b: TextPiece, c: TextPiece) -> Self {
+    pub(crate) fn from_three(a: TextPiece<'a>, b: TextPiece<'a>, c: TextPiece<'a>) -> Self {
         let mut pieces = ArrayVec::new();
         if !a.is_empty() {
             pieces.push(a);
@@ -255,7 +255,7 @@ impl TextPlan {
     }
 
     #[cfg(test)]
-    pub(crate) fn from_pieces(pieces: Vec<TextPiece>) -> Self {
+    pub(crate) fn from_pieces(pieces: Vec<TextPiece<'a>>) -> Self {
         let pieces = pieces
             .into_iter()
             .filter(|piece| !piece.is_empty())
@@ -268,7 +268,7 @@ impl TextPlan {
                 .expect("normalized piece list should have one element")
             {
                 TextPiece::Span(span) => Self::View1(span),
-                TextPiece::Inline(text) => Self::OwnedTmp(text),
+                TextPiece::Inline(text) => Self::OwnedTmp(text.to_owned()),
             },
             2 => {
                 let mut iter = pieces.into_iter();
@@ -300,7 +300,7 @@ impl TextPlan {
         }
     }
 
-    pub(crate) fn concat_inline(self, inline: String) -> Self {
+    pub(crate) fn concat_inline(self, inline: &'a str) -> Self {
         if inline.is_empty() {
             return self;
         }
@@ -315,7 +315,7 @@ impl TextPlan {
                     for piece in pieces {
                         piece.append_to(&mut out);
                     }
-                    out.push_str(&inline);
+                    out.push_str(inline);
                     Self::OwnedTmp(out)
                 } else {
                     pieces.push(TextPiece::Inline(inline));
@@ -323,13 +323,13 @@ impl TextPlan {
                 }
             }
             Self::OwnedTmp(mut text) => {
-                text.push_str(&inline);
+                text.push_str(inline);
                 Self::OwnedTmp(text)
             }
         }
     }
 
-    pub(crate) fn insert_inline(self, middle: String, split: usize) -> Self {
+    pub(crate) fn insert_inline(self, middle: &'a str, split: usize) -> Self {
         if middle.is_empty() {
             return self;
         }
@@ -348,13 +348,14 @@ impl TextPlan {
             Self::PiecesN { .. } | Self::OwnedTmp(_) => {
                 let source = self.into_owned();
                 let split = split.min(source.len());
-                let prefix = source.get(0..split).unwrap_or("").to_owned();
-                let suffix = source.get(split..).unwrap_or("").to_owned();
-                Self::from_three(
-                    TextPiece::Inline(prefix),
-                    TextPiece::Inline(middle),
-                    TextPiece::Inline(suffix),
-                )
+                let prefix = source.get(0..split).unwrap_or("");
+                let suffix = source.get(split..).unwrap_or("");
+                let total = prefix.len() + middle.len() + suffix.len();
+                let mut out = String::with_capacity(total);
+                out.push_str(prefix);
+                out.push_str(middle);
+                out.push_str(suffix);
+                Self::OwnedTmp(out)
             }
         }
     }
@@ -616,18 +617,15 @@ mod tests {
 
     #[test]
     fn normalized_piece_list_flattens_into_owned_text() {
-        let plan = TextPlan::from_pieces(vec![
-            TextPiece::Inline("ab".to_owned()),
-            TextPiece::Inline("cd".to_owned()),
-        ]);
+        let plan = TextPlan::from_pieces(vec![TextPiece::Inline("ab"), TextPiece::Inline("cd")]);
         assert_eq!(plan.into_owned(), "abcd");
     }
 
     #[test]
     fn owned_plan_can_be_extended_and_inserted() {
         let plan = TextPlan::from_owned("abc".to_owned())
-            .concat_inline("de".to_owned())
-            .insert_inline("X".to_owned(), 2);
+            .concat_inline("de")
+            .insert_inline("X", 2);
         assert_eq!(plan.into_owned(), "abXcde");
     }
 }
