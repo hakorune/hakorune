@@ -83,6 +83,12 @@ pub fn get_env_method_spec(
             EffectMask::IO,
             true,
         )),
+        ("codegen", "compile_ll_text") => Some((
+            "env.codegen".to_string(),
+            "compile_ll_text".to_string(),
+            EffectMask::IO,
+            true,
+        )),
         ("codegen", "link_object") => Some((
             "env.codegen".to_string(),
             "link_object".to_string(),

@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 
 use super::hako_ll_driver::{
-    compile_ll_to_object, extract_contract_line, extract_ll, prepare_hako_driver_source,
-    resolve_hakorune_bin, run_driver_via_vm, temporary_ll_output_path, verify_ll_file,
+    extract_contract_line, extract_ll, prepare_hako_driver_source, resolve_hakorune_bin,
+    run_driver_via_vm,
 };
+use super::ll_tool_driver;
 use super::normalize;
 use super::Opts;
 
@@ -37,11 +38,10 @@ fn mir_json_to_object_hako_ll(
 
     let out_path = super::transport::resolve_backend_object_output(opts);
     super::transport::ensure_backend_output_parent(&out_path);
-    let ll_path = temporary_ll_output_path(&out_path, lane.tag());
-    let acceptance_case = crate::config::env::backend_acceptance_case()
-        .unwrap_or_else(|| "unset".to_string());
-    let legacy_daily_allowed = crate::config::env::backend_legacy_daily_allowed()
-        .unwrap_or_else(|| "unknown".to_string());
+    let acceptance_case =
+        crate::config::env::backend_acceptance_case().unwrap_or_else(|| "unset".to_string());
+    let legacy_daily_allowed =
+        crate::config::env::backend_legacy_daily_allowed().unwrap_or_else(|| "unknown".to_string());
     let source_path = prepare_hako_driver_source(
         mir_json,
         &out_path,
@@ -52,18 +52,10 @@ fn mir_json_to_object_hako_ll(
     let stdout = run_driver_via_vm(&hakorune, &source_path)?;
     let contract_line = extract_contract_line(&stdout, lane.tag())?;
     let ll_text = extract_ll(&stdout)?;
-    std::fs::write(&ll_path, ll_text).map_err(|e| {
-        format!(
-            "[llvmemit/hako-ll/output-write-failed] path={} error={}",
-            ll_path.display(),
-            e
-        )
-    })?;
     println!("{}", contract_line);
-    verify_ll_file(&ll_path)?;
-    compile_ll_to_object(&ll_path, &out_path)?;
+    let compile_result = ll_tool_driver::ll_text_to_object(&ll_text, &out_path, lane.tag());
     let _ = std::fs::remove_file(&source_path);
-    let _ = std::fs::remove_file(&ll_path);
+    compile_result?;
     Ok(out_path)
 }
 

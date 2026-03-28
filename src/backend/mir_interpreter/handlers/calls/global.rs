@@ -167,6 +167,9 @@ impl MirInterpreter {
             "env.codegen.compile_json_path" | "env.codegen.compile_json_path/1" => {
                 return self.execute_extern_function("env.codegen.compile_json_path", args);
             }
+            "env.codegen.compile_ll_text" | "env.codegen.compile_ll_text/1" => {
+                return self.execute_extern_function("env.codegen.compile_ll_text", args);
+            }
             "env.codegen.emit_object" | "env.codegen.emit_object/1" => {
                 return self.execute_extern_function("env.codegen.emit_object", args);
             }

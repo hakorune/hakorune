@@ -21,80 +21,6 @@ pub(crate) fn resolve_hakorune_bin() -> PathBuf {
     PathBuf::from("target/release/nyash")
 }
 
-fn resolve_llc_tool() -> Option<&'static str> {
-    ["llc", "llc-18"].into_iter().find(|candidate| {
-        Command::new(candidate)
-            .arg("--version")
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false)
-    })
-}
-
-fn resolve_opt_tool() -> Option<&'static str> {
-    ["opt", "opt-18"].into_iter().find(|candidate| {
-        Command::new(candidate)
-            .arg("--version")
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false)
-    })
-}
-
-pub(crate) fn compile_ll_to_object(ll_path: &Path, out_path: &Path) -> Result<(), String> {
-    let llc =
-        resolve_llc_tool().ok_or_else(|| "[llvmemit/hako-ll/llc-missing] llc not found".to_string())?;
-    let output = Command::new(llc)
-        .arg("-filetype=obj")
-        .arg("-relocation-model=pic")
-        .arg("-o")
-        .arg(out_path)
-        .arg(ll_path)
-        .output()
-        .map_err(|e| format!("[llvmemit/hako-ll/llc-spawn-failed] {}", e))?;
-    if !output.status.success() {
-        return Err(format!(
-            "[llvmemit/hako-ll/llc-failed] stdout=`{}` stderr=`{}`",
-            String::from_utf8_lossy(&output.stdout).trim(),
-            String::from_utf8_lossy(&output.stderr).trim()
-        ));
-    }
-    Ok(())
-}
-
-pub(crate) fn verify_ll_file(ll_path: &Path) -> Result<(), String> {
-    let Some(opt) = resolve_opt_tool() else {
-        return Ok(());
-    };
-    let output = Command::new(opt)
-        .arg("-passes=verify")
-        .arg("-disable-output")
-        .arg(ll_path)
-        .output()
-        .map_err(|e| format!("[llvmemit/hako-ll/verify-spawn-failed] {}", e))?;
-    if !output.status.success() {
-        return Err(format!(
-            "[llvmemit/hako-ll/verify-failed] stdout=`{}` stderr=`{}`",
-            String::from_utf8_lossy(&output.stdout).trim(),
-            String::from_utf8_lossy(&output.stderr).trim()
-        ));
-    }
-    Ok(())
-}
-
-pub(crate) fn temporary_ll_output_path(out_path: &Path, lane_tag: &str) -> PathBuf {
-    let filename = out_path
-        .file_name()
-        .and_then(|name| name.to_str())
-        .unwrap_or("hako_ll_bridge");
-    std::env::temp_dir().join(format!(
-        "{}.{}.{}.ll",
-        filename,
-        std::process::id(),
-        lane_tag
-    ))
-}
-
 pub(crate) fn temporary_hako_driver_source_path(out_path: &Path, lane_tag: &str) -> PathBuf {
     let filename = out_path
         .file_name()
@@ -232,14 +158,20 @@ pub(crate) fn run_driver_via_vm(hakorune: &Path, source_path: &Path) -> Result<S
 pub(crate) fn extract_ll(stdout: &str) -> Result<String, String> {
     let begin = "[hako-ll/ll-begin]\n";
     let end = "\n[hako-ll/ll-end]";
-    let start = stdout
-        .find(begin)
-        .ok_or_else(|| format!("[llvmemit/hako-ll/ll-begin-missing] stdout=`{}`", stdout.trim()))?;
+    let start = stdout.find(begin).ok_or_else(|| {
+        format!(
+            "[llvmemit/hako-ll/ll-begin-missing] stdout=`{}`",
+            stdout.trim()
+        )
+    })?;
     let content_start = start + begin.len();
     let tail = &stdout[content_start..];
-    let end_offset = tail
-        .find(end)
-        .ok_or_else(|| format!("[llvmemit/hako-ll/ll-end-missing] stdout=`{}`", stdout.trim()))?;
+    let end_offset = tail.find(end).ok_or_else(|| {
+        format!(
+            "[llvmemit/hako-ll/ll-end-missing] stdout=`{}`",
+            stdout.trim()
+        )
+    })?;
     Ok(tail[..end_offset].to_string())
 }
 

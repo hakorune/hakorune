@@ -47,7 +47,16 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
     - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
   - only structural perf is in-scope during this cutover (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
-  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, `LlvmBackendBox` env mirror is split out into `backend_route_env_box.hako`, `ll_emit_bridge.rs` compare/debug templating residue is split out into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and the remaining cleanup target is compare bridge retirement / archive decision with compare proof archived out of the active suite
+  - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, `LlvmBackendBox` env mirror is split out into `backend_route_env_box.hako`, `ll_emit_bridge.rs` compare/debug templating residue is split out into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
+  - remaining structural blocker is now the daily compile transport itself:
+    - mainline launcher still hands backend work to `env.codegen.compile_json_path(...)`
+    - `.hako` mirbuilder currently emits MIR JSON evidence, not an in-memory MIR root/facts payload
+    - therefore full transport cut needs a root-returning MIR entry or a MIR-root hydrator before `compile_json_path` can retire from daily
+  - fixed order after the owner-flip wave is now:
+    - keep `.ll` as the Rust/LLVM tool seam
+    - add a `.hako` MIR root entry (or equivalent root hydrator)
+    - cut daily compile from `compile_json_path` to `compile_ll_text`
+    - only then shrink `route.rs` / compare bridge further
   - `BackendRecipeBox` fixture-path owner allowlist plus `backend.ll_emit.call_policy` and `backend.ll_emit.call_selector` are already split out
   - next structural cleanup after the owner-flip wave is to thin the remaining Rust/bridge policy leaks without reopening leaf-only perf retune
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked

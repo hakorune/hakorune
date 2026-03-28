@@ -435,6 +435,27 @@ fn handle_codegen(
                 Err(_e) => Ok(None),
             }
         }
+        "compile_ll_text" => {
+            let ll_text = args
+                .first()
+                .map(|b| b.to_string_box().value)
+                .unwrap_or_default();
+            let out = args
+                .get(1)
+                .map(|b| b.to_string_box().value)
+                .filter(|s| !s.is_empty() && s != "null")
+                .map(std::path::PathBuf::from);
+            match crate::host_providers::llvm_codegen::ll_text_to_object(
+                &ll_text,
+                codegen_opts(out, None, None),
+            ) {
+                Ok(p) => {
+                    let s = p.to_string_lossy().into_owned();
+                    Ok(Some(Box::new(StringBox::new(s)) as Box<dyn NyashBox>))
+                }
+                Err(_e) => Ok(None),
+            }
+        }
         "emit_object" => {
             let mir_json = args
                 .get(0)

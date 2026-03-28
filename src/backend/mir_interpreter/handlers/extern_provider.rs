@@ -29,6 +29,7 @@ fn classify_extern_provider_lane(extern_name: &str) -> Option<ExternProviderLane
         | "env.mirbuilder_emit"
         | "env.codegen.emit_object"
         | "env.codegen.compile_json_path"
+        | "env.codegen.compile_ll_text"
         | "env.codegen.link_object"
         | "env.box_introspect.kind"
         | "hostbridge.extern_invoke" => Some(ExternProviderLane::LoaderCold),
@@ -347,6 +348,30 @@ impl MirInterpreter {
                     )),
                 }
             }
+            "env.codegen.compile_ll_text" => {
+                if std::env::var("HAKO_V1_EXTERN_PROVIDER").ok().as_deref() == Some("1") {
+                    return Ok(VMValue::String(String::new()));
+                }
+                let ll_text = match args.get(0) {
+                    Some(v) => self.reg_load(*v)?.to_string(),
+                    None => {
+                        return Err(self.err_invalid("env.codegen.compile_ll_text expects 1+ args"))
+                    }
+                };
+                let out = match args.get(1) {
+                    Some(v) => Self::optional_codegen_text(self.reg_load(*v)?.to_string())
+                        .map(std::path::PathBuf::from),
+                    None => None,
+                };
+                let opts = Self::codegen_object_opts(out, None, None);
+                match crate::host_providers::llvm_codegen::ll_text_to_object(&ll_text, opts) {
+                    Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
+                    Err(e) => Err(ErrorBuilder::with_context(
+                        "env.codegen.compile_ll_text",
+                        &e.to_string(),
+                    )),
+                }
+            }
             "env.codegen.link_object" => {
                 let obj_path = match args.get(0) {
                     Some(v) => self.reg_load(*v)?.to_string(),
@@ -647,6 +672,47 @@ impl MirInterpreter {
                     }
                 }
             }
+            ("env.codegen", "compile_ll_text") => {
+                let ll_text = match first_arg_str {
+                    Some(s) => s,
+                    None => {
+                        return Err(self.err_invalid(
+                            "extern_invoke env.codegen.compile_ll_text expects 1+ args",
+                        ))
+                    }
+                };
+                let out = if let Some(a2) = args.get(2) {
+                    let v = self.reg_load(*a2)?;
+                    match v {
+                        VMValue::BoxRef(b) => {
+                            if let Some(ab) =
+                                b.as_any().downcast_ref::<crate::boxes::array::ArrayBox>()
+                            {
+                                let idx1: Box<dyn crate::box_trait::NyashBox> =
+                                    Box::new(crate::box_trait::IntegerBox::new(1));
+                                let s1 = ab.get(idx1).to_string_box().value;
+                                Self::optional_codegen_text(s1).map(std::path::PathBuf::from)
+                            } else {
+                                let text = b.to_string_box().value;
+                                Self::optional_codegen_text(text).map(std::path::PathBuf::from)
+                            }
+                        }
+                        other => {
+                            let text = other.to_string();
+                            Self::optional_codegen_text(text).map(std::path::PathBuf::from)
+                        }
+                    }
+                } else {
+                    None
+                };
+                let opts = Self::codegen_object_opts(out, None, None);
+                match crate::host_providers::llvm_codegen::ll_text_to_object(&ll_text, opts) {
+                    Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
+                    Err(e) => {
+                        Err(self.err_with_context("env.codegen.compile_ll_text", &e.to_string()))
+                    }
+                }
+            }
             ("env.codegen", "link_object") => {
                 let mut obj_s: Option<String> = None;
                 let mut exe_s: Option<String> = None;
@@ -867,6 +933,7 @@ mod tests {
             "env.mirbuilder_emit",
             "env.codegen.emit_object",
             "env.codegen.compile_json_path",
+            "env.codegen.compile_ll_text",
             "env.codegen.link_object",
             "env.box_introspect.kind",
             "hostbridge.extern_invoke",

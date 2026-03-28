@@ -9,9 +9,13 @@ Thin Rust bridge for backend object emission.
   - does not re-decide MIR acceptance
 - `ll_emit_bridge.rs`
   - `.hako ll emitter` bridge orchestration only
-  - delegates MIR embed / template render / driver VM execution / `.ll` extraction to `hako_ll_driver.rs`
+  - delegates compare-driver render / VM execution / `.ll` extraction to `hako_ll_driver.rs`
+  - delegates `.ll -> verify -> llc -> .o` to `ll_tool_driver.rs`
 - `hako_ll_driver.rs`
-  - bridge helper for compare/debug templating, VM execution, verifier, and `llc`
+  - compare/debug bridge helper for MIR(JSON) embed, driver VM execution, and stdout extraction only
+- `ll_tool_driver.rs`
+  - thin LLVM tool seam
+  - `.ll` text or file -> verifier -> `llc` -> `.o`
 - `transport.rs`
   - legacy C ABI transport
   - explicit provider keep lanes (`ny-llvmc`, `llvmlite`)
@@ -25,3 +29,4 @@ Thin Rust bridge for backend object emission.
 - mainline owner is being cut over shape-by-shape from legacy C `.inc` to `.hako ll emitter`
 - compare lane is explicit bridge evidence, not a permanent default route; the proof smoke now runs from `phase29x-derust-archive.txt`
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here
+- current tool seam is now `.ll` text; full daily transport cut still needs a `.hako` MIR root entry before `compile_json_path` can leave mainline

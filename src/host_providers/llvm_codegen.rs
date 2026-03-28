@@ -31,6 +31,7 @@ pub struct Opts {
 mod defaults;
 mod hako_ll_driver;
 mod ll_emit_bridge;
+mod ll_tool_driver;
 mod normalize;
 mod route;
 mod transport;
@@ -61,6 +62,14 @@ pub fn mir_json_to_object(mir_json: &str, opts: Opts) -> Result<PathBuf, String>
     let tag = route::boundary_default_unavailable_tag();
     llvm_emit_error!("{}", tag);
     Err(tag)
+}
+
+/// Compile textual LLVM IR to an object file through the thin Rust tool boundary.
+pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {
+    let out_path = transport::resolve_backend_object_output(&opts);
+    transport::ensure_backend_output_parent(&out_path);
+    ll_tool_driver::ll_text_to_object(ll_text, &out_path, "ll-text")?;
+    Ok(out_path)
 }
 
 /// Link an object to an executable via C-API FFI bundle.
