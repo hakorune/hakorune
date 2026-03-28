@@ -70,7 +70,6 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 | `src/backend/mir_interpreter/handlers/calls/global.rs` | archive-later | global call handler still maps the legacy selector |
 | `lang/src/vm/boxes/mir_call_v1_handler.hako` | archive-later | VM bridge handler still decodes `compile_json_path` args |
 | `lang/src/vm/boxes/mir_vm_s0_codegen.hako` | archive-later | VM codegen shim still routes through the legacy helper |
-| `src/runtime/extern_registry.rs` | archive-later | extern registry still registers the legacy compile method |
 | `src/runner/modes/llvm/object_emitter.rs` | archive-later | direct LLVM object emission still goes through `mir_json_to_object` |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
 

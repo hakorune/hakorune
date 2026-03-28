@@ -179,13 +179,6 @@ static EXTERNS: Lazy<Vec<ExternSpec>> = Lazy::new(|| {
         },
         ExternSpec {
             iface: "env.codegen",
-            method: "compile_json_path",
-            min_arity: 1,
-            max_arity: 2,
-            slot: Some(72),
-        },
-        ExternSpec {
-            iface: "env.codegen",
             method: "compile_ll_text",
             min_arity: 1,
             max_arity: 2,
