@@ -114,22 +114,29 @@ impl Registry {
         }
     }
 
+    #[inline(always)]
     fn alloc(&self, obj: Arc<dyn NyashBox>) -> u64 {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
-        if let Some(h) = host_handles_policy::take_reusable_handle(policy_mode, &mut table.free) {
-            let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
-            ensure_slot_vacant_or_panic(
-                &table,
-                idx,
-                "[host_handles] reusable handle out of slots range",
-                "[host_handles] reusable handle points to occupied slot",
-            );
-            table.slots[idx] = Some(obj);
-            return h;
+
+        if matches!(policy_mode, HostHandleAllocPolicyMode::Lifo) {
+            if let Some(h) = table.free.pop() {
+                let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
+                ensure_slot_vacant_or_panic(
+                    &table,
+                    idx,
+                    "[host_handles] reusable handle out of slots range",
+                    "[host_handles] reusable handle points to occupied slot",
+                );
+                table.slots[idx] = Some(obj);
+                return h;
+            }
         }
 
-        let h = host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next);
+        let h = table.next;
+        table.next = h
+            .checked_add(1)
+            .expect("[host_handles] fresh handle counter overflow");
         let idx = handle_index_or_panic(h, "[host_handles] fresh handle overflow");
         if idx == table.slots.len() {
             table.slots.push(Some(obj));
@@ -144,16 +151,19 @@ impl Registry {
         }
         h
     }
+    #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
         let table = self.table.read();
         slot_clone(&table, h)
     }
 
+    #[inline(always)]
     fn with_handle<R>(&self, h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
         let table = self.table.read();
         let obj = slot_ref(&table, h);
         f(obj)
     }
+    #[inline(always)]
     fn get_pair(&self, a: u64, b: u64) -> (Option<Arc<dyn NyashBox>>, Option<Arc<dyn NyashBox>>) {
         let table = self.table.read();
         let a_obj = slot_clone(&table, a);
@@ -161,6 +171,7 @@ impl Registry {
         (a_obj, b_obj)
     }
 
+    #[inline(always)]
     fn with_pair<R>(
         &self,
         a: u64,
@@ -173,6 +184,7 @@ impl Registry {
         f(a_obj, b_obj)
     }
 
+    #[inline(always)]
     fn with3<R>(
         &self,
         a: u64,
@@ -192,6 +204,7 @@ impl Registry {
         )
     }
 
+    #[inline(always)]
     fn with_str_pair<R>(&self, a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
         let table = self.table.read();
         let a = slot_str_ref(&table, a)?;
@@ -199,6 +212,7 @@ impl Registry {
         Some(f(a, b))
     }
 
+    #[inline(always)]
     fn with_str3<R>(
         &self,
         a: u64,
@@ -213,6 +227,7 @@ impl Registry {
         Some(f(a, b, c))
     }
 
+    #[inline(always)]
     fn get3(
         &self,
         a: u64,
@@ -229,10 +244,12 @@ impl Registry {
         let c_obj = slot_clone(&table, c);
         (a_obj, b_obj, c_obj)
     }
+    #[inline(always)]
     fn snapshot(&self) -> Vec<Arc<dyn NyashBox>> {
         let table = self.table.read();
         table.slots.iter().filter_map(|slot| slot.clone()).collect()
     }
+    #[inline(always)]
     fn drop_handle(&self, h: u64) {
         let mut table = self.table.write();
         let removed = if let Ok(idx) = usize::try_from(h) {
@@ -250,43 +267,51 @@ impl Registry {
         }
     }
 
+    #[inline(always)]
     fn drop_epoch(&self) -> u64 {
         self.drop_epoch.load(Ordering::Relaxed)
     }
 }
 
 static REG: OnceCell<Registry> = OnceCell::new();
+#[inline(always)]
 fn reg() -> &'static Registry {
     REG.get_or_init(Registry::new)
 }
 
 /// Box<dyn NyashBox> → HostHandle (u64)
+#[inline(always)]
 pub fn to_handle_box(bx: Box<dyn NyashBox>) -> u64 {
     reg().alloc(Arc::from(bx))
 }
 /// Arc<dyn NyashBox> → HostHandle (u64)
+#[inline(always)]
 pub fn to_handle_arc(arc: Arc<dyn NyashBox>) -> u64 {
     reg().alloc(arc)
 }
 /// HostHandle(u64) → Arc<dyn NyashBox>
+#[inline(always)]
 pub fn get(h: u64) -> Option<Arc<dyn NyashBox>> {
     reg().get(h)
 }
 
 /// Borrow handle under one registry read lock and run `f`.
 /// Use this on read-only decode paths to avoid Arc clone cost.
+#[inline(always)]
 pub fn with_handle<R>(h: u64, f: impl FnOnce(Option<&Arc<dyn NyashBox>>) -> R) -> R {
     reg().with_handle(h, f)
 }
 
 /// HostHandle(u64)x2 -> Arc<dyn NyashBox>x2.
 /// Uses a single registry read-lock acquisition for paired lookups.
+#[inline(always)]
 pub fn get_pair(a: u64, b: u64) -> (Option<Arc<dyn NyashBox>>, Option<Arc<dyn NyashBox>>) {
     reg().get_pair(a, b)
 }
 
 /// Borrow pair handles under one registry read lock and run `f`.
 /// Use this to avoid Arc clone cost on hot read-only routes.
+#[inline(always)]
 pub fn with_pair<R>(
     a: u64,
     b: u64,
@@ -297,6 +322,7 @@ pub fn with_pair<R>(
 
 /// Borrow triple handles under one registry read lock and run `f`.
 /// Use this to avoid Arc clone cost on hot read-only routes.
+#[inline(always)]
 pub fn with3<R>(
     a: u64,
     b: u64,
@@ -312,18 +338,21 @@ pub fn with3<R>(
 
 /// Borrow pair handles and run string-only closure when both sides are string-like.
 /// Returns None when either handle is missing or not string-like.
+#[inline(always)]
 pub fn with_str_pair<R>(a: u64, b: u64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
     reg().with_str_pair(a, b, f)
 }
 
 /// Borrow triple handles and run string-only closure when all sides are string-like.
 /// Returns None when any handle is missing or not string-like.
+#[inline(always)]
 pub fn with_str3<R>(a: u64, b: u64, c: u64, f: impl FnOnce(&str, &str, &str) -> R) -> Option<R> {
     reg().with_str3(a, b, c, f)
 }
 
 /// HostHandle(u64)x3 -> Arc<dyn NyashBox>x3.
 /// Uses a single registry read-lock acquisition for triple lookups.
+#[inline(always)]
 pub fn get3(
     a: u64,
     b: u64,
@@ -337,17 +366,20 @@ pub fn get3(
 }
 
 /// Snapshot all current handles as Arc<dyn NyashBox> roots for diagnostics/GC traversal.
+#[inline(always)]
 pub fn snapshot() -> Vec<Arc<dyn NyashBox>> {
     reg().snapshot()
 }
 
 /// Drop a handle from the registry, decrementing its reference count
+#[inline(always)]
 pub fn drop_handle(h: u64) {
     reg().drop_handle(h)
 }
 
 /// Monotonic epoch incremented when any handle is dropped.
 /// Consumers can use this to invalidate per-thread fast caches safely.
+#[inline(always)]
 pub fn drop_epoch() -> u64 {
     reg().drop_epoch()
 }

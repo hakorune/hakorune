@@ -173,7 +173,7 @@ perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりも
 6. main proof
    - `kilo_kernel_small_hk`
 7. only then
-   - sink-local narrow tuning (`StringBox::new`, `Registry::alloc/get`)
+   - sink-local narrow tuning (`Registry::get` first; `StringBox::new` only if new asm evidence appears)
 
 ### Rejected follow-up
 

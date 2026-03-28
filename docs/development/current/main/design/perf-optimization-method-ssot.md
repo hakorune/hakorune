@@ -54,7 +54,7 @@ Related:
 - current perf-kilo design front has moved to `transient-text-pieces-ssot.md`; the measurement snapshots below remain historical evidence until the next proof lands.
 - current docs-first perf-kilo design front is `string-birth-sink-ssot.md`: `freeze.str` remains the canonical sink target, but the attempt to move the canonical sink into `string_store.rs` was rejected; the active lane stays on substring boundary cleanup rather than more route/helper splitting.
 - when the lane is on `freeze.str`, do not mix sink canonicalization with route/helper splitting in the same commit series.
-- current narrow implementation order is fixed: shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, re-run the same-artifact meso/main proof, and only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning.
+- current narrow implementation order is fixed: shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, re-run the same-artifact meso/main proof, and only then sink-local `Registry::get` tuning (keep `BoxBase::new` out unless new asm evidence appears).
 - landed planner cleanup: const-suffix / insert recipe helpers are isolated in `crates/nyash_kernel/src/exports/string_plan.rs`.
 - rejected follow-up: moving `freeze.str` into `string_store.rs` regressed stable main (`834 ms` / `909 ms` back-to-back), so keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears.
 - code has now landed the shared `freeze_text_plan(...)` sink helper for `concat_hs` and `insert_hsi`; keep the current proof reading as historical evidence until the next sink-local tuning lands.
@@ -286,7 +286,7 @@ Hotspot は次の分類で読む。
 - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is reduced to dispatch + match
 - `crates/nyash_kernel/src/exports/string.rs::concat3_hhh` is now split file-locally into transient planning (`concat3_plan_from_parts`, `concat3_plan_from_fast_str`, `concat3_plan_from_spans`) plus birth sink (`freeze_concat3_plan`)
 - `substring_hii` の hot path must stay on direct `with_handle(...)`; cache-backed span lookup is diagnostic-only here because it regressed `string_span_cache_get/put` back into the top symbols
-- `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock and keeps invariant failures in cold helpers; this is the current bridge/allocation slice
+- `src/runtime/host_handles.rs::Registry::alloc` now reads `policy_mode` before the write lock, keeps invariant failures in cold helpers, and folds the hot birth branch directly in the registry; this is the current bridge/allocation slice
 - current contract-change slice raises the short-slice eager materialize threshold to `<= 8 bytes`
 - fresh micro recheck after the current slices is `266244455 cycles / 72 ms` for `kilo_micro_substring_concat`
 - fresh stable recheck after the current slices is `740 ms` median for `kilo_kernel_small_hk` (`min=738`, `max=744`)
@@ -294,12 +294,12 @@ Hotspot は次の分類で読む。
 - rejected observer-only variant: `crates/nyash_kernel/src/exports/string.rs::string_len_from_handle(...)` explicit `StringBox` / `StringViewBox` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median (`min=786`, `max=1841`); revert immediately and do not reopen this cut before a stronger owner-level reason appears
 - rejected structure-first variant: `BorrowedSubstringPlan::{OwnedSubstring,ViewRecipe}` moved `StringViewBox` birth from `borrowed_substring_plan_from_handle(...)` into `substring_hii`, but without a real transient carrier this only shuffled the birth site; isolated `substring_concat` landed at `267397179 cycles / 72 ms`, while stable `kilo_kernel_small_hk` regressed to `901 ms` median (`min=794`, `max=1146`); do not reopen this cut until a larger `TStr`/freeze-boundary design is ready
 - current asm top is:
-  - `BoxBase::new`
   - `Registry::alloc`
+  - `BoxBase::new`
   - `nyash.string.substring_hii`
   - `nyash.string.concat3_hhh`
   - `string_len_from_handle` / `string_handle_from_owned`
-- `BoxBase::new` is the current stop-line: it is tied to box identity via `next_box_id()`, so the next safe cut must reduce `StringViewBox::new` call count or another upstream owner instead of reusing IDs
+- `BoxBase::new` remains a stop-line: it is tied to box identity via `next_box_id()`, so the next safe cut must reduce `StringViewBox::new` call count or another upstream owner instead of reusing IDs
 - adopted design reading after external consultation:
   - this is a birth-density problem, not a `BoxBase::new` micro-cost problem
   - the next wave should separate `authority / transient / birth boundary / substrate`

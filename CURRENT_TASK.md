@@ -89,7 +89,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - next fixed order is now:
     1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
     2. keep `array_set` as the consumer boundary and avoid new `set_his` splits
-    3. re-run meso/main proof before any sink-local `Registry::alloc/get` tuning
+    3. re-run meso/main proof before any further sink-local `Registry::get` tuning
+    4. keep `BoxBase::new` out unless fresh asm evidence shows the object layout itself is the limiter
   - rejected follow-up:
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason
@@ -111,7 +112,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
   2. keep `array_set` as the consumer boundary
   3. same-artifact meso/main proof
-  4. only then narrow sink-local tuning around `Registry::alloc/get` / `BoxBase::new`
+  4. only then narrow sink-local tuning around `Registry::get`, keeping `BoxBase::new` out unless new asm evidence appears
 - rejected follow-up:
   - canonicalizing `freeze.str` in `string_store.rs` regressed `kilo_kernel_small_hk` to `834 ms` and `909 ms` on back-to-back checks; keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears
 - do not reopen `set_his` helper splitting before the `freeze.str` canonicalization wave lands

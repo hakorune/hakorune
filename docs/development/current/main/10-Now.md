@@ -171,7 +171,7 @@ Related:
 	        - landed narrow store-boundary cut:
 	          - `nyash.array.set_his` no longer clones a temporary source `Arc` before entering the array write closure; the hot branch now resolves the source handle in place
 	          - latest spot-check is `kilo_meso_substring_concat_array_set = 66 ms` and `kilo_kernel_small_hk = 708 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
-	          - next exact cut stays on store-boundary birth/lookup cost (`Registry::alloc/get`, `BoxBase::new`), not loop-carry shaping
+	          - next exact cut stays on store-boundary birth/lookup cost (`Registry::get` first, `BoxBase::new` only if new asm evidence appears), not loop-carry shaping
 	        - docs-first next design front is now `string-birth-sink-ssot.md`:
 	          - `freeze.str` is the single birth sink
 	          - `concat_hs` / `insert_hsi` / `concat3_hhh` should converge on the same `plan -> freeze` model
@@ -181,7 +181,7 @@ Related:
 	            1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
 	            2. keep `array_set` as the consumer boundary
 	            3. meso/main proof on the same artifact pair
-	            4. only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning
+	            4. only then sink-local `Registry::get` tuning, keeping `BoxBase::new` out unless new asm evidence appears
 	          - canonical sink re-home was attempted but rejected: moving `freeze.str` into `string_store.rs` regressed stable main (`kilo_kernel_small_hk = 834 -> 909 ms` on back-to-back checks), so keep the explicit `freeze_text_plan(...)` helper in `string.rs` for now
 	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	        - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`
