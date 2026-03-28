@@ -24,7 +24,6 @@ Related:
 
 - `src/host_providers/llvm_codegen/route.rs`
 - `src/host_providers/llvm_codegen/ll_tool_driver.rs`
-- `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
 - `src/host_providers/llvm_codegen/llvm_backend_box.hako`
 - `lang/src/shared/backend/llvm_backend_box.hako`
 - `launcher.hako`
@@ -36,11 +35,14 @@ Related:
 ## Archive-Later Bridge Surfaces
 
 - `src/host_providers/llvm_codegen/ll_emit_compare_driver.rs`
+- `src/host_providers/llvm_codegen/ll_emit_compare_vm.rs`
+- `src/host_providers/llvm_codegen/ll_emit_compare_stdout.rs`
 - `src/host_providers/llvm_codegen/ll_emit_compare_source.rs`
 - `src/host_providers/llvm_codegen/provider_keep.rs`
 - `src/host_providers/llvm_codegen/capi_transport.rs`
+- `src/host_providers/llvm_codegen/transport_paths.rs`
+- `src/host_providers/llvm_codegen/transport_io.rs`
 - `src/host_providers/llvm_codegen/legacy_json.rs`
-- `src/host_providers/llvm_codegen/transport.rs`
 - `src/host_providers/llvm_codegen.rs`
 - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
 - `lang/src/vm/hakorune-vm/extern_provider.hako`
@@ -61,7 +63,7 @@ Related:
 
 - `src/backend/mir_interpreter/handlers/extern_provider.rs`, `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`, and `src/mir/builder/calls/extern_calls.rs` have retired `compile_json_path` from code.
 - daily Rust runtime dispatcher traffic no longer follows `compile_json_path`.
-- `src/host_providers/llvm_codegen/hako_ll_driver.rs` has been retired by folding the compare helper surface into `ll_emit_bridge.rs` and `ll_emit_compare_driver.rs`.
+- `src/host_providers/llvm_codegen/hako_ll_driver.rs` has been retired by folding the compare helper surface into `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, and `ll_emit_compare_stdout.rs`.
 - `src/backend/mir_interpreter/handlers/extern_provider.rs` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` have retired direct `mir_json_to_object(...)` ownership by delegating through the legacy JSON helper alias instead.
 
 ## Live Caller Inventory
@@ -72,13 +74,15 @@ The code-side `compile_json_path` inventory is now empty. The remaining archive-
 | --- | --- | --- |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for emit/link args only; `compile_json_path_args` retired in this slice |
 | `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade no longer forwards `codegen.compile_json_path` |
-| `src/host_providers/llvm_codegen/ll_emit_bridge.rs` | keep | compare bridge orchestration only |
-| `src/host_providers/llvm_codegen/ll_emit_compare_driver.rs` | archive-later | compare/debug orchestration + VM/extraction only |
+| `src/host_providers/llvm_codegen/ll_emit_compare_driver.rs` | archive-later | compare/debug orchestration only |
+| `src/host_providers/llvm_codegen/ll_emit_compare_vm.rs` | archive-later | compare VM helper only |
+| `src/host_providers/llvm_codegen/ll_emit_compare_stdout.rs` | archive-later | compare stdout helper only |
 | `src/host_providers/llvm_codegen/ll_emit_compare_source.rs` | archive-later | compare source materialization only |
 | `src/host_providers/llvm_codegen/provider_keep.rs` | archive-later | explicit provider keep lanes only |
 | `src/host_providers/llvm_codegen/capi_transport.rs` | archive-later | explicit CAPI compile/link helpers only |
+| `src/host_providers/llvm_codegen/transport_paths.rs` | archive-later | temp-path path resolution helpers only |
+| `src/host_providers/llvm_codegen/transport_io.rs` | archive-later | temp-path file I/O helpers only |
 | `src/host_providers/llvm_codegen/legacy_json.rs` | archive-later | legacy MIR(JSON) front door only |
-| `src/host_providers/llvm_codegen/transport.rs` | archive-later | legacy temp-path helpers only |
 | `src/host_providers/llvm_codegen.rs` | archive-later | legacy object emission helpers only |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
 
@@ -94,7 +98,7 @@ Recently retired from the code-side compare/compile front-door:
 
 Next compare-source retirement slice:
 
-- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs` and `ll_emit_compare_source.rs`, while explicit provider keep lanes are split into `provider_keep.rs`, so the next cleanup focus returns to remaining temp-path helper thinning from `transport.rs`
+- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, `ll_emit_compare_stdout.rs`, and `ll_emit_compare_source.rs`, while explicit provider keep lanes are split into `provider_keep.rs`, so the next cleanup focus is the Rust-side stage0 object-emit JSON round-trip after the temp-path helper split in `transport_paths.rs` / `transport_io.rs`
 
 ## Retirement Order
 
@@ -120,7 +124,7 @@ Slice 2 status:
 - the pass-through `compile_json_path` arms in `src/backend/mir_interpreter/handlers/calls/global.rs` and `src/backend/mir_interpreter/handlers/externals.rs` are retired
 - explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
 - builder / wrapper surfaces remain live, so delete is still not ready
-- the dedicated compare/debug helper module is retired; `ll_emit_compare_driver.rs` now carries the archive-later compare orchestration surface while `ll_emit_compare_source.rs` carries source materialization, `provider_keep.rs` carries explicit provider keep lanes, `capi_transport.rs` owns explicit CAPI helpers, and `ll_emit_bridge.rs` stays orchestration-only
+- the dedicated compare/debug helper module is retired; `ll_emit_compare_driver.rs` now carries the archive-later compare orchestration surface while `ll_emit_compare_vm.rs` carries VM spawn and `ll_emit_compare_stdout.rs` carries stdout extraction, `ll_emit_compare_source.rs` carries source materialization, `provider_keep.rs` carries explicit provider keep lanes, `capi_transport.rs` owns explicit CAPI helpers, and `transport_paths.rs` / `transport_io.rs` own the temp-path helpers
 - the legacy MIR(JSON) wrapper surface is now isolated in `legacy_json.rs`
 
 ## Why Delete Is Not Ready

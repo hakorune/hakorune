@@ -52,6 +52,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
   - `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
   - `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
+- next exact leaf:
+  - retire the Rust-side object emit MIR JSON round-trip while keeping the llvmlite stage0 lane
+  - stage1 root-first `compile_obj_root(...)` remains the mainline path
 
 ### phase-29ck
 
@@ -60,12 +63,17 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Next Task
 
-- thin the remaining temp-path helper residue first:
-  - `src/host_providers/llvm_codegen/transport.rs`
-- `src/host_providers/llvm_codegen/ll_emit_bridge.rs` stays orchestration-only
-- keep `src/host_providers/llvm_codegen/legacy_json.rs` archive-later as the isolated legacy front door
-- keep `src/host_providers/llvm_codegen/route.rs` and `src/host_providers/llvm_codegen/ll_tool_driver.rs` as keep surfaces
-- runtime caller retirement for direct `mir_json_to_object(...)` is landed; `extern_provider.rs` and `extern_functions.rs` now go through the legacy JSON helper alias instead of owning the legacy front door directly
+- retire the Rust-side object emit JSON round-trip first:
+  - `src/runner/modes/common_util/exec.rs`
+  - `src/runner/modes/llvm/mod.rs`
+- keep the llvmlite stage0 lane intact:
+  - `tools/llvmlite_harness.py`
+  - `src/llvm_py/**`
+- keep stage1 root-first mainline intact:
+  - `lang/src/runner/launcher.hako`
+  - `lang/src/shared/backend/llvm_backend_box.hako`
+- leave `legacy_json.rs`, `route.rs`, and `ll_tool_driver.rs` untouched in this slice
+- compare bridge wrapper thinning remains archive-later, but it is not the next immediate leaf
 
 ## Notes
 

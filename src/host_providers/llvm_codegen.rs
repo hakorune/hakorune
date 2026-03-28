@@ -29,23 +29,25 @@ pub struct Opts {
 
 mod defaults;
 mod ll_emit_compare_source;
+mod ll_emit_compare_stdout;
+mod ll_emit_compare_vm;
 mod legacy_json;
 mod ll_emit_compare_driver;
-mod ll_emit_bridge;
 mod capi_transport;
 mod provider_keep;
 mod ll_tool_driver;
 mod normalize;
 mod route;
-mod transport;
+mod transport_io;
+mod transport_paths;
 pub use defaults::boundary_default_object_opts;
 pub use legacy_json::emit_object_from_mir_json;
 pub use legacy_json::{mir_json_file_to_object, mir_json_to_object};
 
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.
 pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {
-    let out_path = transport::resolve_backend_object_output(&opts);
-    transport::ensure_backend_output_parent(&out_path);
+    let out_path = transport_paths::resolve_backend_object_output(&opts);
+    transport_io::ensure_backend_output_parent(&out_path);
     ll_tool_driver::ll_text_to_object(ll_text, &out_path, "ll-text")?;
     Ok(out_path)
 }

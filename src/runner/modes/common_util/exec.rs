@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Resolve ny-llvmc executable path with env/PATH fallbacks
 fn resolve_ny_llvmc() -> std::path::PathBuf {
@@ -94,6 +94,63 @@ fn append_ny_llvmc_extra_libs_arg(cmd: &mut std::process::Command, extra_libs: O
     }
 }
 
+fn resolve_python3() -> Option<PathBuf> {
+    if let Ok(p) = which::which("python3") {
+        return Some(p);
+    }
+    if let Ok(p) = which::which("python") {
+        return Some(p);
+    }
+    None
+}
+
+fn resolve_llvmlite_harness() -> Option<PathBuf> {
+    if let Some(root) = std::env::var("NYASH_ROOT").ok() {
+        let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
+        if p.exists() {
+            return Some(p);
+        }
+    }
+    let p = PathBuf::from("tools/llvmlite_harness.py");
+    if p.exists() {
+        return Some(p);
+    }
+    let p2 = PathBuf::from("../tools/llvmlite_harness.py");
+    if p2.exists() {
+        return Some(p2);
+    }
+    None
+}
+
+fn prepare_llvmlite_emit_json_path() -> PathBuf {
+    let tmp_dir = Path::new("tmp");
+    let _ = std::fs::create_dir_all(tmp_dir);
+    tmp_dir.join("nyash_cli_emit_harness.json")
+}
+
+fn spawn_llvmlite_emit_obj_command(
+    python: &Path,
+    harness: &Path,
+    json_path: &Path,
+    obj_out: &str,
+) -> Result<(), String> {
+    let status = std::process::Command::new(python)
+        .arg(harness)
+        .arg("--in")
+        .arg(json_path)
+        .arg("--out")
+        .arg(obj_out)
+        .status()
+        .map_err(|e| format!("[llvmemit/llvmlite/spawn/error] {}", e))?;
+    if !status.success() {
+        return Err(format!(
+            "[llvmemit/llvmlite/failed status={}]",
+            status.code().unwrap_or(1)
+        ));
+    }
+    Ok(())
+}
+
 fn prepare_ny_llvmc_emit_json_path() -> std::path::PathBuf {
     let tmp_dir = std::path::Path::new("tmp");
     let _ = std::fs::create_dir_all(tmp_dir);
@@ -185,45 +242,45 @@ pub fn ny_llvmc_emit_exe_lib(
     )
 }
 
-/// Emit a native object via the shared harness helper (lib-side MIR)
+/// Emit a native object via the llvmlite keep lane (lib-side MIR).
+pub fn llvmlite_emit_obj_lib(
+    module: &nyash_rust::mir::MirModule,
+    obj_out: &str,
+) -> Result<(), String> {
+    let json_path = prepare_llvmlite_emit_json_path();
+    crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &json_path)
+        .map_err(|e| format!("MIR JSON emit error: {}", e))?;
+
+    let result = (|| {
+        let python = resolve_python3().ok_or_else(|| {
+            "[llvmemit/llvmlite/python-not-found] python3 not found".to_string()
+        })?;
+        let harness = resolve_llvmlite_harness().ok_or_else(|| {
+            "[llvmemit/llvmlite/harness-not-found] tools/llvmlite_harness.py".to_string()
+        })?;
+        if let Some(parent) = Path::new(obj_out).parent() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| format!("[llvmemit/llvmlite/out-parent-failed] {}", e))?;
+        }
+        spawn_llvmlite_emit_obj_command(&python, &harness, &json_path, obj_out)?;
+        let metadata = std::fs::metadata(obj_out)
+            .map_err(|e| format!("harness object not found after emit: {} ({})", obj_out, e))?;
+        if metadata.len() == 0 {
+            return Err(format!("harness object is empty: {}", obj_out));
+        }
+        Ok(())
+    })();
+    let _ = std::fs::remove_file(&json_path);
+    result
+}
+
+/// Deprecated compatibility alias for older internal call sites.
 #[allow(dead_code)]
 pub fn ny_llvmc_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
 ) -> Result<(), String> {
-    let mir_json = {
-        let tmp_path = std::env::temp_dir().join(format!(
-            "llvm_object_emitter-{}-{}.json",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .map(|duration| duration.as_nanos())
-                .unwrap_or_default()
-        ));
-        crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &tmp_path)
-            .map_err(|e| format!("MIR JSON emit error: {}", e))?;
-        let contents = std::fs::read_to_string(&tmp_path)
-            .map_err(|e| format!("read harness MIR JSON: {}", e))?;
-        let _ = std::fs::remove_file(&tmp_path);
-        contents
-    };
-    let mut opts = crate::host_providers::llvm_codegen::boundary_default_object_opts(
-        Some(std::path::PathBuf::from(obj_out)),
-        None,
-        crate::config::env::llvm_opt_level_env(),
-        Some(20_000),
-    );
-    opts.compile_recipe = Some("pure-first".to_string());
-    opts.compat_replay = Some("harness".to_string());
-    let out_path = crate::host_providers::llvm_codegen::mir_json_to_object(&mir_json, opts)?;
-    if std::fs::metadata(&out_path)
-        .map_err(|e| format!("harness object not found after emit: {} ({})", out_path.display(), e))?
-        .len()
-        == 0
-    {
-        return Err(format!("harness object is empty: {}", out_path.display()));
-    }
-    Ok(())
+    llvmlite_emit_obj_lib(module, obj_out)
 }
 
 /// Emit native executable via ny-llvmc (bin-side MIR)

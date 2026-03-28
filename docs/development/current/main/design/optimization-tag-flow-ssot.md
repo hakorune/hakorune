@@ -82,7 +82,8 @@ perf AOT lane の正本ルートは次だけ。
 
 正本:
 - [src/config/env/llvm_provider_flags.rs](/home/tomoaki/git/hakorune-selfhost/src/config/env/llvm_provider_flags.rs)
-- [src/host_providers/llvm_codegen/transport.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/llvm_codegen/transport.rs)
+- [src/host_providers/llvm_codegen/transport_paths.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/llvm_codegen/transport_paths.rs)
+- [src/host_providers/llvm_codegen/transport_io.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/llvm_codegen/transport_io.rs)
 - [src/host_providers/llvm_codegen/route.rs](/home/tomoaki/git/hakorune-selfhost/src/host_providers/llvm_codegen/route.rs)
 - [crates/nyash-llvm-compiler/src/link_driver.rs](/home/tomoaki/git/hakorune-selfhost/crates/nyash-llvm-compiler/src/link_driver.rs)
 

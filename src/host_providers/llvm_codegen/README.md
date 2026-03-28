@@ -7,32 +7,38 @@ Thin Rust bridge for backend object emission.
 - `route.rs`
   - legacy compare/archive selection only
   - does not re-decide MIR acceptance
-- `ll_emit_bridge.rs`
-  - compare-only bridge orchestration
-  - keeps the orchestration thin while `ll_emit_compare_driver.rs` owns compare/debug orchestration and `ll_emit_compare_source.rs` owns compare source materialization residue
-  - delegates `.ll -> verify -> llc -> .o` to `ll_tool_driver.rs`
 - `ll_emit_compare_source.rs`
   - archive-later compare source materialization
   - MIR(JSON) to compare-driver `.hako` source rendering only
 - `ll_emit_compare_driver.rs`
-  - archive-later compare/debug orchestration
-  - VM execution / stdout contract parse / `.ll` extraction
+  - archive-later compare/debug orchestration only
+  - delegates VM execution to `ll_emit_compare_vm.rs` and stdout extraction to `ll_emit_compare_stdout.rs`
+- `ll_emit_compare_vm.rs`
+  - archive-later compare VM helper
+  - `NYASH_BIN` / current exe resolution and VM spawn only
+- `ll_emit_compare_stdout.rs`
+  - archive-later compare stdout helper
+  - contract-line / `.ll` extraction only
 - `provider_keep.rs`
   - archive-later explicit provider keep lanes
   - `ny-llvmc` / `llvmlite` object emission helpers only
 - `capi_transport.rs`
-  - explicit CAPI helper split from `transport.rs`
+  - explicit CAPI helper split from the legacy transport helper surface
   - compile/link CAPI helpers only
+- `transport_paths.rs`
+  - temp-path path resolution helpers only
+- `transport_io.rs`
+  - temp-path file I/O helpers only
 - `ll_tool_driver.rs`
   - thin LLVM tool seam
   - `.ll` text or file -> verifier -> `llc` -> `.o`
-- `transport.rs`
-  - legacy C ABI transport
-  - temp-path helpers only
 - `legacy_json.rs`
   - legacy MIR(JSON) front door for compare/archive callers
   - routes through `route.rs` and stays out of the daily root-first tool seam
   - direct runtime callers have been moved onto a helper alias; keep this module archive-later until the compare bridge itself is thinned further
+- stage0 harness object emit is direct llvmlite keep lane
+  - Rust helper writes a temp MIR JSON file and spawns `tools/llvmlite_harness.py --in <mir.json> --out <obj.o>`
+  - no Rust-side MIR JSON reparse or legacy front-door round-trip
 - `normalize.rs`
   - backend input validation / JSON normalization
 - `defaults.rs`
@@ -45,7 +51,8 @@ Thin Rust bridge for backend object emission.
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here
 - current tool seam is now `.ll` text
 - `compile_json_path` has been retired from code; flipped `.hako ll emitter` daily profiles stop at `ll_text_to_object(...)`
-- launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only; `transport.rs` keeps only legacy temp-path helpers; `provider_keep.rs` owns explicit provider keep lanes; `capi_transport.rs` owns explicit CAPI helpers
-- compare/debug residue is now split: `ll_emit_compare_source.rs` owns source materialization, `ll_emit_compare_driver.rs` owns orchestration / VM / stdout parse, `provider_keep.rs` owns explicit provider keep lanes, `ll_emit_bridge.rs` stays orchestration-only and the separate `hako_ll_driver.rs` helper has been retired
+- launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only; `transport_paths.rs` and `transport_io.rs` own the remaining temp-path helpers; `provider_keep.rs` owns explicit provider keep lanes; `capi_transport.rs` owns explicit CAPI helpers
+- compare/debug residue is now split: `ll_emit_compare_source.rs` owns source materialization, `ll_emit_compare_driver.rs` owns orchestration, `ll_emit_compare_vm.rs` owns VM spawn, `ll_emit_compare_stdout.rs` owns stdout extraction, `provider_keep.rs` owns explicit provider keep lanes, and the separate `hako_ll_driver.rs` / `ll_emit_bridge.rs` helpers have been retired
 - legacy JSON wrapper residue now lives in `legacy_json.rs`; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
-- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is transport temp-path helper thinning
+- stage0 object emit now goes straight from the Rust helper to `tools/llvmlite_harness.py`; the old Rust-side object-emit JSON round-trip is retired
+- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the next thin task is the Rust-side stage0 object-emit JSON round-trip after the temp-path helper split

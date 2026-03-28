@@ -42,9 +42,10 @@ Quick Start
 
 Wiring（Rust 側）
 - `NYASH_LLVM_USE_HARNESS=1` のとき:
-  1) `--emit-mir-json <path>` 等で MIR(JSON) を出力
-  2) `python3 tools/llvmlite_harness.py --in <mir.json> --out <obj.o>` を起動
+  1) Rust helper が temp MIR(JSON) ファイルを書き出す
+  2) `python3 tools/llvmlite_harness.py --in <mir.json> --out <obj.o>` を直接起動
   3) 成功後は通常のリンク手順（`libnyash_kernel.a` とリンク）
+  - Rust 側の object emit は MIR JSON を文字列に戻して legacy front door に渡さない
 
 Mainline note
 - current daily/mainline route は `ny-llvmc` の default boundary route だよ。

@@ -2,7 +2,8 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use super::normalize;
-use super::transport;
+use super::transport_io;
+use super::transport_paths;
 use super::Opts;
 
 pub(super) fn resolve_ny_llvmc() -> PathBuf {
@@ -52,9 +53,9 @@ pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result
         return Err(tag);
     }
 
-    let in_path = transport::prepare_backend_input_json_file(mir_json)?;
-    let out_path = transport::resolve_backend_object_output(opts);
-    transport::ensure_backend_output_parent(&out_path);
+    let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
+    let out_path = transport_paths::resolve_backend_object_output(opts);
+    transport_io::ensure_backend_output_parent(&out_path);
 
     let mut cmd = Command::new(&ny_llvmc);
     cmd.arg("--in")
@@ -104,9 +105,9 @@ pub(super) fn mir_json_to_object_llvmlite(
         tag
     })?;
 
-    let in_path = transport::prepare_backend_input_json_file(mir_json)?;
-    let out_path = transport::resolve_backend_object_output(opts);
-    transport::ensure_backend_output_parent(&out_path);
+    let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
+    let out_path = transport_paths::resolve_backend_object_output(opts);
+    transport_io::ensure_backend_output_parent(&out_path);
 
     let status = Command::new(&py)
         .arg(&harness)
