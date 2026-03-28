@@ -5,6 +5,7 @@ Date: 2026-03-19
 Scope: `substring -> concat3 -> length` hot chain のために、string runtime を `authority / transient / birth boundary / substrate` の 4 層で読む設計を固定する
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/design/string-birth-sink-ssot.md
 - docs/development/current/main/design/transient-text-pieces-ssot.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/design/perf-optimization-method-ssot.md
@@ -105,6 +106,8 @@ SSOT 上の canonical 名は `str.*` / `freeze.str` だよ。
 
 ここは transient を substrate-visible value に freeze する唯一の層だよ。
 
+current docs-first cut では [`string-birth-sink-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/string-birth-sink-ssot.md) を、この層の narrow parent SSOT として使う。
+
 期待する形:
 
 ```rust
@@ -121,6 +124,14 @@ fn freeze_string(/* transient repr */, boundary: BoundaryKind) -> i64
 - materialize/copy
 
 つまり「plan は plan」「birth は freeze」に分けるのが基本だよ。
+
+この境界は 3 分割で読む。
+
+- policy owner: `.hako` / docs
+- placement owner: AOT compile-time (`BirthPlacement`)
+- sink owner: runtime `freeze.str`
+
+runtime に第三の observable layer は増やさない。
 
 ## 4. Substrate
 

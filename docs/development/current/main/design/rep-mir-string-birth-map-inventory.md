@@ -5,6 +5,7 @@ Date: 2026-03-19
 Scope: Shadow RepMIR pilot のために、`substring_concat` 周辺の current birth map を 1 枚で固定する
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/design/string-birth-sink-ssot.md
 - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
 - docs/development/current/main/design/string-transient-lifecycle-ssot.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
@@ -126,6 +127,8 @@ Current birth density is split across three places:
 3. owned-string handle sink
 
 The shadow pilot should not add a fourth place.
+
+Current docs-first direction is to collapse these readings under `freeze.str` as the single birth sink, while keeping planner/placement in compile-time and keeping runtime free of new observable token layers.
 
 The narrowest useful mapping is:
 

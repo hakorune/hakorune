@@ -59,7 +59,7 @@ Related:
       - mainline launcher now hydrates a root from source and enters `LlvmBackendBox.compile_obj_root(...)`
       - temp MIR JSON remains evidence/output only; it is not the daily compile transport
       - `compile_json_path(...)` has been retired from code
-    - `route.rs` compare/archive shrink is landed; next fixed order is `keep .ll tool seam -> retire Rust-side stage0 object-emit JSON round-trip -> archive/delete retirement`
+    - `route.rs` compare/archive shrink is landed; the Rust-side stage0 object-emit JSON round-trip is also retired, so the next fixed order is `keep .ll tool seam -> keep archive-later wrapper inventory closed -> review archive/delete only after wrapper inventory reaches zero`
     - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
       - compare bridge assets remain explicit bridge-only and now live in `phase29x-derust-archive.txt`
@@ -172,6 +172,15 @@ Related:
 	          - `nyash.array.set_his` no longer clones a temporary source `Arc` before entering the array write closure; the hot branch now resolves the source handle in place
 	          - latest spot-check is `kilo_meso_substring_concat_array_set = 66 ms` and `kilo_kernel_small_hk = 708 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
 	          - next exact cut stays on store-boundary birth/lookup cost (`Registry::alloc/get`, `BoxBase::new`), not loop-carry shaping
+	        - docs-first next design front is now `string-birth-sink-ssot.md`:
+	          - `freeze.str` is the single birth sink
+	          - `concat_hs` / `insert_hsi` / `concat3_hhh` should converge on the same `plan -> freeze` model
+	          - `set_his` helper splits are no longer the primary design front
+	          - current implementation order is fixed:
+	            1. `concat_hs -> plan -> freeze`
+	            2. `insert_hsi -> plan -> freeze`
+	            3. meso/main proof on the same artifact pair
+	            4. only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning
 	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	        - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`
 	        - latest attrs spot-check was noisy (`831 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), so treat `P0-attrs` as IR-quality groundwork only; no wall-clock win is claimed yet

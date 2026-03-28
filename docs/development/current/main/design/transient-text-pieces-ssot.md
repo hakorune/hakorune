@@ -6,6 +6,7 @@ Scope: string hot path の transient carrier を、operation tree ではなく n
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/string-birth-sink-ssot.md
   - docs/development/current/main/design/string-transient-lifecycle-ssot.md
   - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
   - docs/development/current/main/design/substring-view-materialize-boundary-ssot.md
@@ -102,6 +103,8 @@ v1 の first pilot は次の形で十分だよ。
 - `string_handle_from_owned(...)`
 - materialize / copy / flatten
 
+具体的な birth-time responsibilities は [`string-birth-sink-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/string-birth-sink-ssot.md) を正本にする。
+
 ## Owner Split
 
 ### `.hako` / docs owner
@@ -166,4 +169,3 @@ Rust は carrier の実体を持ってよいけれど、**meaning owner** には
 - `PiecesN` が operation tree ではなく normalized carrier として読める
 - `freeze.str` の外で birth が増えない
 - new transient token が runtime / plugin / FFI visible にならない
-

@@ -53,8 +53,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
   - `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
 - next exact leaf:
-  - retire the Rust-side object emit MIR JSON round-trip while keeping the llvmlite stage0 lane
-  - stage1 root-first `compile_obj_root(...)` remains the mainline path
+  - keep archive-later compare wrapper inventory closed and do not reopen daily ownership
+  - treat delete/archive review as blocked until the remaining wrapper inventory actually reaches zero
 
 ### phase-29ck
 
@@ -69,6 +69,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `docs/development/current/main/10-Now.md`
   - `docs/development/current/main/design/kilo-meso-benchmark-ladder-ssot.md`
   - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
+  - `docs/development/current/main/design/string-birth-sink-ssot.md`
   - `docs/development/current/main/design/transient-text-pieces-ssot.md`
   - `docs/tools/README.md`
 - current leaf status:
@@ -82,7 +83,12 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - shared store-ready string materialization boundary
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`
-  - follow-up design front: widen `PiecesN` coverage to `concat3_hhh` and the remaining array-store motion leafs
+  - follow-up design front: `freeze.str` as the single birth sink for `concat_hs` / `insert_hsi` / `concat3_hhh`
+  - next fixed order is now:
+    1. docs-first `freeze.str` sink contract
+    2. move `concat_hs` onto the shared `plan -> freeze` route
+    3. move `insert_hsi` onto the same `plan -> freeze` route
+    4. re-run meso/main proof before any sink-local `Registry::alloc/get` tuning
   - rejected follow-up:
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason
@@ -99,10 +105,14 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 ## Immediate Next Task
 
 - keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
-- use the landed meso benchmark ladder to keep the next exact leaf on store boundary cost
-- continue the `kilo` perf lane on the string materialization / array store motion slice
-- stay on `array_set_by_index_string_handle_value` / string store motion before reopening loop-carry shaping
-- next exact perf leaf is still the store boundary around `Registry::alloc/get` / `BoxBase::new`, not loop-carry shaping
+- keep the landed meso benchmark ladder as the gate for the next string cut
+- next exact code sequence is fixed:
+  1. `concat_hs -> plan -> freeze`
+  2. `insert_hsi -> plan -> freeze`
+  3. same-artifact meso/main proof
+  4. only then narrow sink-local tuning around `Registry::alloc/get` / `BoxBase::new`
+- do not reopen `set_his` helper splitting before the `freeze.str` unification wave lands
+- do not reopen loop-carry shaping before the `array_set` boundary gap shrinks
 - keep genericization work on `recipe / scope / effect / policy`, not on benchmark-named branches
 - keep the generalized cache/scope machinery intact while tightening the hot leaf path
 - do not reopen `route.rs` / compare-bridge policy unless new evidence shows route cost dominates again
