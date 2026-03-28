@@ -429,19 +429,18 @@ fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R
 
 #[inline(always)]
 fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
-    let out = with_string_pair_span(a_h, b_h, |a, b| {
-        if a.is_empty() {
-            return Ok(b_h);
-        }
-        if b.is_empty() {
-            return Ok(a_h);
-        }
-        Err(concat_two_str(a, b))
-    })?;
-    match out {
-        Ok(h) => Some(h),
-        Err(merged) => Some(string_handle_from_owned(merged)),
+    let (a_span, b_span) = resolve_string_span_pair_from_handles(a_h, b_h)?;
+    let a = a_span.as_str();
+    let b = b_span.as_str();
+    if a.is_empty() {
+        return Some(b_h);
     }
+    if b.is_empty() {
+        return Some(a_h);
+    }
+    Some(string_handle_from_owned(
+        TextPlan::from_two(TextPiece::Span(a_span), TextPiece::Span(b_span)).into_owned(),
+    ))
 }
 
 #[inline(always)]
@@ -449,19 +448,17 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 {
         return None;
     }
-    let out = handles::with_str_pair(a_h as u64, b_h as u64, |a, b| {
+    handles::with_str_pair(a_h as u64, b_h as u64, |a, b| {
         if a.is_empty() {
-            return Ok(b_h);
+            return b_h;
         }
         if b.is_empty() {
-            return Ok(a_h);
+            return a_h;
         }
-        Err(concat_two_str(a, b))
-    })?;
-    match out {
-        Ok(h) => Some(h),
-        Err(merged) => Some(string_handle_from_owned(merged)),
-    }
+        string_handle_from_owned(
+            TextPlan::from_two(TextPiece::Inline(a), TextPiece::Inline(b)).into_owned(),
+        )
+    })
 }
 
 #[inline(always)]
