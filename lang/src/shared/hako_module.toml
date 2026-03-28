@@ -46,6 +46,7 @@ mir.schema = "mir/mir_schema_box.hako"
 mir.builder = "mir/block_builder_box.hako"
 mir.io = "mir/mir_io_box.hako"
 mir.json_emit = "mir/json_emit_box.hako"
+mir.root_hydrator = "mir/mir_root_hydrator_box.hako"
 
 [private]
 # Internal builders kept private for now

@@ -77,10 +77,11 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
     - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, or the three `RuntimeData.length/size` observer locks
     - compare bridge assets remain explicit bridge-only, now archive-suite only, and are not delete-ready yet
     - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
-    - next cleanup is now the daily transport cut, not another owner flip:
+    - next cleanup is now the launcher/root-first daily transport cut, not another owner flip:
       - keep `.ll` as the Rust/LLVM tool seam
-      - add a `.hako` MIR root entry or equivalent root hydrator
-      - move daily compile from `compile_json_path` to `compile_ll_text`
+      - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are landed
+      - daily `.hako ll emitter` profiles already move from `compile_json_path` to `compile_ll_text`
+      - next cut is launcher/mainline root-first compile so temp MIR paths stop selecting the legacy route
       - only then continue compare bridge retirement / archive decisions
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed

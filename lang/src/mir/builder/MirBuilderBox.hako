@@ -6,7 +6,11 @@
 // API
 // - emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null
 // - emit_from_source_v0(source_text: String, opts: Map|Null) -> String|Null
-//   Returns MIR(JSON v0) on success, or prints a tag and returns null on failure/skip.
+//   Returns MIR(JSON v0) evidence on success, or prints a tag and returns null on failure/skip.
+// - emit_root_from_program_json_v0(program_json: String, opts: Map|Null) -> Map|Null
+// - emit_root_from_source_v0(source_text: String, opts: Map|Null) -> Map|Null
+//   Current implementation is compat-hydrator first: emit evidence JSON, then hydrate
+//   the MIR root shape for daily backend callers.
 //
 // Toggles
 // - HAKO_MIR_BUILDER_DELEGATE=1 — delegate to Runner (--program-json-to-mir)
@@ -27,6 +31,7 @@ using "hako.mir.builder.internal.fallback_authority" as BuilderFallbackAuthority
 using "hako.mir.builder.internal.delegate_provider" as BuilderDelegateProviderBox
 using "hako.mir.builder.internal.delegate_finalize" as BuilderDelegateFinalizeBox
 using "hako.mir.builder.internal.finalize_chain" as BuilderFinalizeChainBox
+using selfhost.shared.mir.root_hydrator as MirRootHydratorBox
 
 static box MirBuilderProgramJsonBuildBox {
   method emit_program_json_v0(tag, source_text, opts) {
@@ -46,6 +51,12 @@ static box MirBuilderProgramJsonBuildBox {
 static box MirBuilderSourceCompatBox {
   method emit_from_source_v0(source_text, opts) {
     return me._emit_mir_from_source_checked(source_text, opts)
+  }
+
+  method emit_root_from_source_v0(source_text, opts) {
+    local mir_json = me._emit_mir_from_source_checked(source_text, opts)
+    if mir_json == null { return null }
+    return MirRootHydratorBox.hydrate(mir_json)
   }
 
   method _emit_mir_from_source_checked(source_text, opts) {
@@ -131,6 +142,12 @@ static box MirBuilderBox {
     return me._emit_mir_from_program_json_checked(program_json, opts)
   }
 
+  method emit_root_from_program_json_v0(program_json, opts) {
+    local mir_json = me._emit_mir_from_program_json_checked(program_json, opts)
+    if mir_json == null { return null }
+    return MirRootHydratorBox.hydrate(mir_json)
+  }
+
   method _emit_mir_from_program_json_checked(program_json, opts) {
     if BuilderConfigBox.trace_enabled() == 1 {
       print("[mirbuilder/entry:build]")
@@ -151,5 +168,9 @@ static box MirBuilderBox {
 
   method emit_from_source_v0(source_text, opts) {
     return MirBuilderSourceCompatBox.emit_from_source_v0(source_text, opts)
+  }
+
+  method emit_root_from_source_v0(source_text, opts) {
+    return MirBuilderSourceCompatBox.emit_root_from_source_v0(source_text, opts)
   }
 }

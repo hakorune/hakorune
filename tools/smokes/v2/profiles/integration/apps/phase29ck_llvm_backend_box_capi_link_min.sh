@@ -1,10 +1,10 @@
 #!/bin/bash
-# Phase 29ck BE0-min6a: LlvmBackendBox first-cut route
+# Phase 29ck BE0-min6a: LlvmBackendBox thin owner route
 #
 # Contract pin:
 # 1) `.hako` caller uses `selfhost.shared.backend.llvm_backend`.
 # 2) direct MIR emit accepts the official caller route (`selfhost.shared.backend.llvm_backend`).
-# 3) official owner routes directly through canonical `env.codegen.*`.
+# 3) official owner hydrates MIR(JSON) into a root and compiles through `env.codegen.compile_ll_text(...)`.
 # 4) non-empty `libs` reaches the thin backend boundary as arg 3.
 # 5) downstream native route stays green on the existing app-seed parity smoke.
 
@@ -74,8 +74,13 @@ if ! grep -q '"name": "link_exe"' "$OUT_MIR"; then
   exit 1
 fi
 
-if ! grep -Fq 'env.codegen.compile_json_path(json_path, "", recipe, compat)' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
-  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via env.codegen.compile_json_path(json_path, \"\", recipe, compat))" >&2
+if ! grep -Fq 'MirRootHydratorBox.hydrate_file(json_path)' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
+  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer hydrates MIR JSON through MirRootHydratorBox.hydrate_file(json_path))" >&2
+  exit 1
+fi
+
+if ! grep -Fq 'env.codegen.compile_ll_text(ll_text)' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
+  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer routes via env.codegen.compile_ll_text(ll_text))" >&2
   exit 1
 fi
 
@@ -86,4 +91,4 @@ fi
 
 SMOKES_FORCE_LLVM=1 bash "$ROOT_DIR/tools/smokes/v2/profiles/integration/apps/phase29ck_native_llvm_cabi_link_min.sh" >/dev/null
 
-echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller compiles via env.codegen.compile_json_path(json_path, \"\", recipe, compat) / env.codegen.link_object(obj, out, extra), libs 3rd arg reaches the thin boundary, native downstream parity stays green)"
+echo "[PASS] phase29ck_llvm_backend_box_capi_link_min: PASS (official caller hydrates MIR JSON and compiles via env.codegen.compile_ll_text(ll_text) / env.codegen.link_object(obj, out, extra), libs 3rd arg reaches the thin boundary, native downstream parity stays green)"

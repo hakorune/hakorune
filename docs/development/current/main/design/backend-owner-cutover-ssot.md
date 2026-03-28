@@ -74,8 +74,9 @@ current C `.inc` lane は次の扱いに固定する。
 6. archive/delete sweep
 7. thin `.ll` tool boundary
 8. `.hako` MIR root entry or equivalent root hydrator
-9. daily transport cut (`compile_json_path` -> `compile_ll_text`)
-10. その後に structural perf だけ reopen
+9. daily `.hako ll emitter` profiles cut from `compile_json_path` to `compile_ll_text`
+10. launcher/mainline daily path switches from temp MIR path handoff to root-first compile
+11. その後に structural perf だけ reopen
 
 ## Runtime Decl Manifest Rule
 
@@ -119,7 +120,8 @@ current C `.inc` lane は次の扱いに固定する。
 - shape が daily owner flip したら、その shape の legacy C `.inc` daily route は同 commit で retired として扱う。
 - boundary-only wave では、daily owner flip 済み shape を `phase29ck` default suite から外し、必要なら temporary legacy suite へ退避する。
 - bridge route payload keeps `acceptance_case`, `transport_owner`, and `legacy_daily_allowed` visible until compare retirement; daily `.hako ll emitter` shapes must report `legacy_daily_allowed=no`.
-- full transport cut is allowed only after `.hako` can hand backend work to facts/emitter without re-reading MIR JSON as the daily compile transport.
+- root-hydrator compat is allowed as an intermediate step, but it stays parse/coercion only and does not become a second MIR semantics owner.
+- full transport cut is allowed only after launcher/mainline can hand backend work to facts/emitter without relying on a temp MIR JSON path as the daily compile transport.
 - delete/archive 候補の追跡は `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md` を正本にする。
 - preservation-first SSOT を満たさない surface は、demote はしても即 delete しない。
 

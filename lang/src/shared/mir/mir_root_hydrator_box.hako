@@ -1,0 +1,173 @@
+// mir_root_hydrator_box.hako
+// Responsibility:
+// - Hydrate MIR(JSON v0) evidence into the Map/Array root shape consumed by
+//   RecipeFactsV0Box and LlTextEmitBox.
+// - Stay dumb: parse/coerce only, no acceptance or lowering policy.
+
+using selfhost.shared.json.utils.json_utils as JsonUtilsBox
+using selfhost.shared.common.string_helpers as StringHelpers
+
+static box MirRootHydratorBox {
+  hydrate(json_text) {
+    local text = me._trim_ws(json_text)
+    if text == null || text == "" {
+      print("[mirroot/input-empty]")
+      return null
+    }
+    local root = me._parse_value(text)
+    if root == null && text != "null" {
+      print("[mirroot/parse-failed]")
+      return null
+    }
+    return root
+  }
+
+  hydrate_file(path) {
+    local content = me._read_file(path)
+    if content == null {
+      print("[mirroot/read-failed]")
+      return null
+    }
+    return me.hydrate(content)
+  }
+
+  _read_file(path) {
+    if path == null { return null }
+    local fb = new FileBox()
+    local ok = fb.open("" + path, "r")
+    if ok != 1 { return null }
+    local content = fb.read()
+    fb.close()
+    return content
+  }
+
+  _trim_ws(value) {
+    if value == null { return null }
+    local s = "" + value
+    local start = StringHelpers.skip_ws(s, 0)
+    local stop = s.length()
+    loop(stop > start) {
+      local ch = s.substring(stop - 1, stop)
+      if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
+        stop = stop - 1
+      } else {
+        break
+      }
+    }
+    return s.substring(start, stop)
+  }
+
+  _parse_value(value_text) {
+    local text = me._trim_ws(value_text)
+    if text == null || text == "" { return null }
+    local head = text.substring(0, 1)
+    if head == "{" { return me._parse_object(text) }
+    if head == "[" { return me._parse_array(text) }
+    if head == "\"" { return me._parse_string(text) }
+    if text == "null" { return null }
+    if text == "true" { return 1 }
+    if text == "false" { return 0 }
+    return StringHelpers.to_i64(text)
+  }
+
+  _parse_string(text) {
+    local trimmed = me._trim_ws(text)
+    if trimmed == null || trimmed.length() < 2 { return "" }
+    return JsonUtilsBox.unescape_string(trimmed.substring(1, trimmed.length() - 1))
+  }
+
+  _parse_array(text) {
+    local arr = new ArrayBox()
+    if text == null || text.length() < 2 { return arr }
+    local inner = me._trim_ws(text.substring(1, text.length() - 1))
+    if inner == null || inner == "" { return arr }
+    local parts = JsonUtilsBox.split_top_level("[" + inner + "]")
+    local i = 0
+    loop(i < parts.size()) {
+      local part = me._trim_ws(parts.get(i))
+      if part != null && part != "" {
+        arr.push(me._parse_value(part))
+      }
+      i = i + 1
+    }
+    return arr
+  }
+
+  _parse_object(text) {
+    local obj = new MapBox()
+    if text == null || text.length() < 2 { return obj }
+    local inner = me._trim_ws(text.substring(1, text.length() - 1))
+    if inner == null || inner == "" { return obj }
+    local parts = JsonUtilsBox.split_top_level("[" + inner + "]")
+    local i = 0
+    loop(i < parts.size()) {
+      local part = me._trim_ws(parts.get(i))
+      if part != null && part != "" {
+        local key = me._parse_object_key(part)
+        if key == null {
+          print("[mirroot/object-key-missing]")
+          return null
+        }
+        obj.set(key, me._parse_value(me._parse_object_value(part)))
+      }
+      i = i + 1
+    }
+    return obj
+  }
+
+  _parse_object_key(item) {
+    local colon = me._find_top_level_colon(item)
+    if colon < 0 { return null }
+    local key_text = me._trim_ws(item.substring(0, colon))
+    if key_text == null || key_text == "" { return null }
+    if key_text.substring(0, 1) != "\"" { return null }
+    return me._parse_string(key_text)
+  }
+
+  _parse_object_value(item) {
+    local colon = me._find_top_level_colon(item)
+    if colon < 0 { return "" }
+    return item.substring(colon + 1, item.length())
+  }
+
+  _find_top_level_colon(text) {
+    local depth = 0
+    local in_string = 0
+    local i = 0
+    local n = ("" + text).length()
+    loop(i < n) {
+      local ch = text.substring(i, i + 1)
+      if in_string == 1 {
+        if ch == "\\" {
+          i = i + 2
+          continue
+        }
+        if ch == "\"" {
+          in_string = 0
+        }
+        i = i + 1
+        continue
+      }
+      if ch == "\"" {
+        in_string = 1
+        i = i + 1
+        continue
+      }
+      if ch == "{" || ch == "[" {
+        depth = depth + 1
+      } else {
+        if ch == "}" || ch == "]" {
+          depth = depth - 1
+        } else {
+          if ch == ":" && depth == 0 {
+            return i
+          }
+        }
+      }
+      i = i + 1
+    }
+    return -1
+  }
+}
+
+static box MirRootHydratorMain { main(args) { return 0 } }

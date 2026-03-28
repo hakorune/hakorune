@@ -53,10 +53,12 @@ Related:
     - new legacy/demotion queue is fixed in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
     - legacy C `.inc` stays daily owner only for unflipped shapes and silent fallback remains forbidden
     - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`; LLVM tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
-    - current structural blocker is no longer owner flip count; it is daily transport:
-      - mainline launcher still enters `env.codegen.compile_json_path(...)`
-      - `.hako` mirbuilder still produces MIR JSON evidence rather than an in-memory MIR root/facts payload
-      - next fixed order is `keep .ll tool seam -> add MIR root entry/hydrator -> cut daily transport to compile_ll_text -> shrink legacy route.rs/compare bridge`
+    - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are now landed as the compat root entry
+    - daily `.hako ll emitter` profiles already compile via `root -> facts -> ll text -> env.codegen.compile_ll_text(...)`
+    - current structural blocker is now launcher/path gating:
+      - mainline launcher still enters `LlvmBackendBox.compile_obj(mir_path)` with a temp MIR JSON path
+      - `BackendRecipeBox.compile_route_profile(json_path)` is still fixture/path-gated, so launcher temp paths stay on `compile_json_path(...)`
+      - next fixed order is `keep .ll tool seam -> switch launcher to root-first daily compile -> demote compile_json_path to legacy tool path -> shrink legacy route.rs/compare bridge`
     - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
       - compare bridge assets remain explicit bridge-only and now live in `phase29x-derust-archive.txt`

@@ -117,8 +117,12 @@ Related:
 ## Current Rule
 
 - Daily `.hako` callers should first ask `BackendRecipeBox.compile_route_profile(...)` for the mainline route profile.
+- Root-first daily callers may ask `BackendRecipeBox.compile_root_profile(...)` when they already hold a hydrated MIR root.
 - Explicit compat keep callers should ask `BackendRecipeBox.compile_keep_profile(..., "harness")`.
-- `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then stop at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`.
+- `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then:
+  - compile `hako_ll_emitter` daily profiles through `root -> facts -> ll text -> env.codegen.compile_ll_text(...)`
+  - keep explicit legacy/compat callers on `env.codegen.compile_json_path(...)`
+  - keep link handoff on `env.codegen.link_object(...)`
 - `LlvmBackendBox` should mirror `acceptance_case`, `transport_owner`, and `legacy_daily_allowed` through env only at the backend handoff; bridge/provider layers must treat them as read-only payload.
 - Rust and C layers may mirror the same policy names, but they must not invent new policy names.
 - `acceptance_case` growth must stay grouped at the `.hako` policy owner; do not add per-case transport ownership in Rust/C.

@@ -38,6 +38,16 @@ static box BackendRecipeBox {
     )
   }
 
+  compile_root_profile(evidence_json_path) {
+    local route_hint = me._coerce_root_route_hint(evidence_json_path)
+    return me._build_hako_ll_profile(
+      "compile_root_profile",
+      route_hint,
+      "backend-zero/hako-ll-root-v0",
+      "hako-ll-min-v0",
+    )
+  }
+
   _build_hako_ll_profile(method_name, json_path, route_profile, compile_recipe) {
     local path = me.require_non_empty_field(method_name, "json_path", json_path)
     if path == null { return null }
@@ -178,6 +188,13 @@ static box BackendRecipeBox {
 
   _use_hako_ll_daily_owner(path) {
     return BackendDailyOwnerPolicyBox.allows_hako_ll_daily_owner(path)
+  }
+
+  _coerce_root_route_hint(evidence_json_path) {
+    if evidence_json_path == null || ("" + evidence_json_path) == "" {
+      return "__mir_root__"
+    }
+    return "" + evidence_json_path
   }
 
   acceptance_case_for(json_path) {

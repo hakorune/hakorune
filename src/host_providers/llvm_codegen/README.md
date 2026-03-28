@@ -29,4 +29,6 @@ Thin Rust bridge for backend object emission.
 - mainline owner is being cut over shape-by-shape from legacy C `.inc` to `.hako ll emitter`
 - compare lane is explicit bridge evidence, not a permanent default route; the proof smoke now runs from `phase29x-derust-archive.txt`
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here
-- current tool seam is now `.ll` text; full daily transport cut still needs a `.hako` MIR root entry before `compile_json_path` can leave mainline
+- current tool seam is now `.ll` text
+- flipped `.hako ll emitter` daily profiles already bypass `compile_json_path` and stop at `ll_text_to_object(...)`
+- remaining transport-cut blocker is launcher/path-gated daily compile; `route.rs` and `transport.rs` are still needed while temp MIR paths remain on the legacy route
