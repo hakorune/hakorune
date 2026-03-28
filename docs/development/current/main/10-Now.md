@@ -181,6 +181,7 @@ Related:
 	            2. `insert_hsi -> plan -> freeze`
 	            3. meso/main proof on the same artifact pair
 	            4. only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning
+	          - code has now landed the shared `freeze_text_plan(...)` sink helper for `concat_hs` and `insert_hsi`; current proof reading remains `kilo_meso_substring_concat_array_set = 67 ms` and `kilo_kernel_small_hk = 717 ms` (`warmup=1 repeat=3`)
 	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	        - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`
 	        - latest attrs spot-check was noisy (`831 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), so treat `P0-attrs` as IR-quality groundwork only; no wall-clock win is claimed yet

@@ -55,6 +55,7 @@ Related:
 - current docs-first perf-kilo design front is `string-birth-sink-ssot.md`: before more store-helper splitting, unify birth under `freeze.str` and then re-measure the same meso/main pair.
 - when the lane is on `freeze.str`, do not mix sink unification with route/helper splitting in the same commit series.
 - current narrow implementation order is fixed: `concat_hs -> plan -> freeze`, then `insert_hsi -> plan -> freeze`, then same-artifact meso/main proof, and only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning.
+- code has now landed the shared `freeze_text_plan(...)` sink helper for `concat_hs` and `insert_hsi`; keep the current proof reading as historical evidence until the next sink-local tuning lands.
 - therefore the perf lane may stay reopened, `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` and `P13-SMALL-ENTRY-RAW-NET-REFRESH.md` are now closed, and the current small-entry lane is `none (monitor-only)`.
 - current boundary-mainline `method_call_only_small` exe shape is `5,375,880` bytes / `61` relocations.
 - refreshed raw 1x1 evidence is `method_call_only_small=9 ms`, `box_create_destroy_small=8 ms`.

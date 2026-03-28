@@ -89,6 +89,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     2. move `concat_hs` onto the shared `plan -> freeze` route
     3. move `insert_hsi` onto the same `plan -> freeze` route
     4. re-run meso/main proof before any sink-local `Registry::alloc/get` tuning
+  - landed in code: `concat_hs` and `insert_hsi` now share the explicit `freeze_text_plan(...)` sink helper; current proof remains `kilo_meso_substring_concat_array_set = 67 ms` and `kilo_kernel_small_hk = 717 ms` (`warmup=1 repeat=3`)
   - rejected follow-up:
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason

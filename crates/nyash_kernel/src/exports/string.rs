@@ -147,6 +147,11 @@ fn string_handle_from_owned(value: String) -> i64 {
 }
 
 #[inline(always)]
+fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
+    string_handle_from_owned(plan.into_owned())
+}
+
+#[inline(always)]
 fn concat_two_str(a: &str, b: &str) -> String {
     let a_len = a.len();
     let total = a_len + b.len();
@@ -220,7 +225,7 @@ enum Concat3Plan<'a> {
 fn freeze_concat3_plan<'a>(plan: Concat3Plan<'a>) -> i64 {
     match plan {
         Concat3Plan::ReuseHandle(handle) => handle,
-        Concat3Plan::Materialize(value) => string_handle_from_owned(value.into_owned()),
+        Concat3Plan::Materialize(value) => freeze_text_plan(value),
     }
 }
 
@@ -438,9 +443,10 @@ fn concat_pair_from_spans(a_h: i64, b_h: i64) -> Option<i64> {
     if b.is_empty() {
         return Some(a_h);
     }
-    Some(string_handle_from_owned(
-        TextPlan::from_two(TextPiece::Span(a_span), TextPiece::Span(b_span)).into_owned(),
-    ))
+    Some(freeze_text_plan(TextPlan::from_two(
+        TextPiece::Span(a_span),
+        TextPiece::Span(b_span),
+    )))
 }
 
 #[inline(always)]
@@ -455,9 +461,10 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
         if b.is_empty() {
             return a_h;
         }
-        string_handle_from_owned(
-            TextPlan::from_two(TextPiece::Inline(a), TextPiece::Inline(b)).into_owned(),
-        )
+        freeze_text_plan(TextPlan::from_two(
+            TextPiece::Inline(a),
+            TextPiece::Inline(b),
+        ))
     })
 }
 
@@ -513,16 +520,19 @@ fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
     if suffix.is_empty() {
         return a_h;
     }
+    freeze_text_plan(concat_const_suffix_plan_from_handle(a_h, suffix))
+}
+
+#[inline(always)]
+fn concat_const_suffix_plan_from_handle<'a>(a_h: i64, suffix: &'a str) -> TextPlan<'a> {
     if let Some(plan) = TextPlan::from_handle(a_h) {
-        return string_handle_from_owned(plan.concat_inline(suffix).into_owned());
+        return plan.concat_inline(suffix);
     }
     if let Some(span) = resolve_string_span_from_handle(a_h) {
-        return string_handle_from_owned(
-            TextPlan::from_span(span).concat_inline(suffix).into_owned(),
-        );
+        return TextPlan::from_span(span).concat_inline(suffix);
     }
     let lhs = to_owned_string_handle_arg(a_h);
-    string_handle_from_owned(TextPlan::from_owned(lhs).concat_inline(suffix).into_owned())
+    TextPlan::from_owned(lhs).concat_inline(suffix)
 }
 
 #[inline(always)]
@@ -561,23 +571,24 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
         if string_is_empty_from_handle(source_h) == Some(true) {
             return super::nyash_box_from_i8_string_const(middle_ptr);
         }
-        if let Some(source_span) = resolve_string_span_from_handle(source_h) {
-            let split = split.clamp(0, source_span.span_bytes_len() as i64) as usize;
-            return string_handle_from_owned(
-                TextPlan::from_span(source_span)
-                    .insert_inline(middle, split)
-                    .into_owned(),
-            );
-        }
-
-        let source = to_owned_string_handle_arg(source_h);
-        let split = split.clamp(0, source.len() as i64) as usize;
-        string_handle_from_owned(
-            TextPlan::from_owned(source)
-                .insert_inline(middle, split)
-                .into_owned(),
-        )
+        freeze_text_plan(insert_const_mid_plan_from_handle(source_h, middle, split))
     })
+}
+
+#[inline(always)]
+fn insert_const_mid_plan_from_handle<'a>(
+    source_h: i64,
+    middle: &'a str,
+    split: i64,
+) -> TextPlan<'a> {
+    if let Some(source_span) = resolve_string_span_from_handle(source_h) {
+        let split = split.clamp(0, source_span.span_bytes_len() as i64) as usize;
+        return TextPlan::from_span(source_span).insert_inline(middle, split);
+    }
+
+    let source = to_owned_string_handle_arg(source_h);
+    let split = split.clamp(0, source.len() as i64) as usize;
+    TextPlan::from_owned(source).insert_inline(middle, split)
 }
 
 #[inline(always)]
