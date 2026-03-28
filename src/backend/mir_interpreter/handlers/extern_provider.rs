@@ -102,13 +102,6 @@ impl MirInterpreter {
         }
     }
 
-    fn compile_json_path_is_daily_owner(recipe: Option<String>) -> bool {
-        matches!(
-            (crate::config::env::backend_transport_owner().as_deref(), recipe.as_deref()),
-            (Some("hako_ll_emitter"), Some("hako-ll-min-v0"))
-        )
-    }
-
     fn emit_mirbuilder_program_json(&mut self, program_json: &str) -> Result<VMValue, VMError> {
         match crate::runtime::mirbuilder_emit::emit_program_json_to_mir_json_with_env_imports(
             program_json,
@@ -323,7 +316,9 @@ impl MirInterpreter {
                     Some(v) => Some(self.reg_load(*v)?.to_string()),
                     None => None,
                 };
-                if Self::compile_json_path_is_daily_owner(compile_recipe.clone()) {
+                if crate::config::env::backend_compile_json_path_is_daily_owner(
+                    compile_recipe.as_deref(),
+                ) {
                     if crate::config::env::cabi_trace() {
                         crate::runtime::get_global_ring0().log.debug(
                             "[extern/c-abi:codegen.compile_json_path-retired]",
@@ -634,7 +629,9 @@ impl MirInterpreter {
                 let compile_recipe = compile_recipe
                     .map(|value| value.to_string())
                     .filter(|s| !s.is_empty());
-                if Self::compile_json_path_is_daily_owner(compile_recipe) {
+                if crate::config::env::backend_compile_json_path_is_daily_owner(
+                    compile_recipe.as_deref(),
+                ) {
                     if crate::config::env::cabi_trace() {
                         crate::runtime::get_global_ring0().log.debug(
                             "[extern/c-abi:codegen.compile_json_path-retired]",

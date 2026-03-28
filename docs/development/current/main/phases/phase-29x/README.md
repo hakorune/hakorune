@@ -77,7 +77,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
     - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, or the three `RuntimeData.length/size` observer locks
     - compare bridge assets remain explicit bridge-only, now archive-suite only; archive-home is sufficient and `delete-ready` remains none
     - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
-    - harness-side `src/runner/modes/llvm/object_emitter.rs` is now archive-later only; runner active path uses the shared harness helper that preserves the old pure-first/harness replay semantics instead of the legacy wrapper
+    - harness-side `src/runner/modes/llvm/object_emitter.rs` is retired; runner active path uses the shared harness helper that preserves the old pure-first/harness replay semantics instead of the legacy wrapper
     - launcher/root-first daily transport cut is landed:
       - keep `.ll` as the Rust/LLVM tool seam
       - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are landed

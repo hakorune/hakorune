@@ -73,6 +73,17 @@ pub fn backend_transport_owner() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
+/// `compile_json_path` daily-owner gate for the current backend recipe.
+///
+/// This stays narrow on purpose: only the `hako_ll_emitter` transport owner
+/// with the `hako-ll-min-v0` recipe is considered daily owner.
+pub fn backend_compile_json_path_is_daily_owner(recipe: Option<&str>) -> bool {
+    matches!(
+        (backend_transport_owner().as_deref(), recipe),
+        (Some("hako_ll_emitter"), Some("hako-ll-min-v0"))
+    )
+}
+
 /// Backend legacy-daily allowance bridge selector (HAKO_BACKEND_LEGACY_DAILY_ALLOWED).
 pub fn backend_legacy_daily_allowed() -> Option<String> {
     std::env::var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED")
@@ -222,5 +233,25 @@ mod tests {
         assert_eq!(super::backend_acceptance_case(), None);
         assert_eq!(super::backend_transport_owner(), None);
         assert_eq!(super::backend_legacy_daily_allowed(), None);
+    }
+
+    #[test]
+    fn backend_compile_json_path_is_daily_owner_matches_only_explicit_min_v0() {
+        let _guard = env_lock();
+        let _restore = EnvRestore {
+            compile_recipe: std::env::var_os("HAKO_BACKEND_COMPILE_RECIPE"),
+            compat_replay: std::env::var_os("HAKO_BACKEND_COMPAT_REPLAY"),
+            acceptance_case: std::env::var_os("HAKO_BACKEND_ACCEPTANCE_CASE"),
+            transport_owner: std::env::var_os("HAKO_BACKEND_TRANSPORT_OWNER"),
+            legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
+        };
+
+        std::env::set_var("HAKO_BACKEND_TRANSPORT_OWNER", "hako_ll_emitter");
+        assert!(super::backend_compile_json_path_is_daily_owner(Some("hako-ll-min-v0")));
+        assert!(!super::backend_compile_json_path_is_daily_owner(Some("hako-ll-compare-v0")));
+        assert!(!super::backend_compile_json_path_is_daily_owner(None));
+
+        std::env::set_var("HAKO_BACKEND_TRANSPORT_OWNER", "legacy");
+        assert!(!super::backend_compile_json_path_is_daily_owner(Some("hako-ll-min-v0")));
     }
 }

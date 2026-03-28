@@ -407,7 +407,13 @@ fn handle_codegen(
 
     match method_name {
         "compile_json_path" => {
-            if compile_json_path_is_daily_owner(args) {
+            let compile_recipe = args
+                .get(2)
+                .map(|b| b.to_string_box().value)
+                .filter(|s| !s.is_empty() && s != "null");
+            if crate::config::env::backend_compile_json_path_is_daily_owner(
+                compile_recipe.as_deref(),
+            ) {
                 if std::env::var("HAKO_CALL_TRACE").ok().as_deref() == Some("1") {
                     get_global_ring0()
                         .log
@@ -483,19 +489,6 @@ fn handle_codegen(
         }
         _ => Err(BidError::PluginError),
     }
-}
-
-fn compile_json_path_is_daily_owner(args: &[Box<dyn NyashBox>]) -> bool {
-    if !matches!(
-        crate::config::env::backend_transport_owner().as_deref(),
-        Some("hako_ll_emitter")
-    ) {
-        return false;
-    }
-    let Some(recipe) = args.get(2).map(|b| b.to_string_box().value) else {
-        return false;
-    };
-    recipe == "hako-ll-min-v0"
 }
 
 /// Handle env.future.await method

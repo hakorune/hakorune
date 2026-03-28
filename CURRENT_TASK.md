@@ -61,7 +61,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - live `compile_json_path` caller inventory and retirement order are now tracked in `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
     - next big surgery is to thin the remaining `compile_json_path` live caller surfaces; the Hako front-door bridge is already retired, so the remaining work is builder/runtime dispatchers and legacy wrappers
     - Hako front-door `compile_json_path` selectors are already gated out for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`; explicit legacy compare/archive callers using `hako-ll-compare-v0` still use the archive-later helper path
-    - harness-side `src/runner/modes/llvm/object_emitter.rs` has been retired from the active runner path; object emission now goes through the shared harness helper that preserves the old pure-first/harness replay semantics, and the wrapper is archive-later only
+    - harness-side `src/runner/modes/llvm/object_emitter.rs` has been retired from the active runner path; object emission now goes through the shared harness helper that preserves the old pure-first/harness replay semantics, and the wrapper is deleted
   - fixed order after the owner-flip wave is now:
     - keep `.ll` as the Rust/LLVM tool seam
     - keep `MIR JSON` as evidence only and feed daily `.hako ll emitter` with a root

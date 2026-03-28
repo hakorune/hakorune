@@ -74,7 +74,7 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 | `src/backend/mir_interpreter/handlers/calls/global.rs` | archive-later | global call handler still maps the legacy selector |
 | `lang/src/vm/boxes/mir_call_v1_handler.hako` | archive-later | VM bridge handler still decodes `compile_json_path` args |
 | `lang/src/vm/boxes/mir_vm_s0_codegen.hako` | archive-later | VM codegen shim still routes through the legacy helper |
-| `src/runner/modes/llvm/object_emitter.rs` | archive-later | runner no longer links this wrapper; keep as dormant compat carrier only |
+| `src/runner/modes/llvm/object_emitter.rs` | deleted | retired harness wrapper; active runner no longer links this wrapper |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
 
 ## Retirement Order
