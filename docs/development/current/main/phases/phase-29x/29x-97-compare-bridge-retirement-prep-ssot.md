@@ -58,6 +58,7 @@ Related:
 - `src/backend/mir_interpreter/handlers/extern_provider.rs`, `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`, and `src/mir/builder/calls/extern_calls.rs` have retired `compile_json_path` from code.
 - daily Rust runtime dispatcher traffic no longer follows `compile_json_path`.
 - `src/host_providers/llvm_codegen/hako_ll_driver.rs` has been retired by folding the compare helper surface into `ll_emit_bridge.rs`.
+- `src/backend/mir_interpreter/handlers/extern_provider.rs` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` have retired direct `mir_json_to_object(...)` ownership by delegating through the legacy JSON helper alias instead.
 
 ## Live Caller Inventory
 
@@ -82,6 +83,10 @@ Recently retired from the code-side compare/compile front-door:
 - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
 - `src/mir/builder/calls/extern_calls.rs`
 - `lang/src/shared/host_bridge/codegen_bridge_box.hako::compile_json_path_args`
+
+Next runtime-caller retirement slice:
+
+- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining live surface is the archive-later legacy JSON helper itself, so the next cleanup focus returns to compare bridge wrapper thinning
 
 ## Retirement Order
 

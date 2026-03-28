@@ -30,7 +30,7 @@ Current owner
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary; route evidence is now carried by root-first compile profiles instead of the retired route-env helper
   - final target は `LlvmBackendBox -> BackendRecipeBox -> .hako ll emitter -> env.codegen.compile_ll_text(...) -> opt/llc` で、legacy C shim は compare/compat keep へ後退する
-  - `.hako ll emitter` compare/debug templating residue is now folded into `ll_emit_bridge.rs`, the legacy MIR(JSON) wrapper is isolated in `legacy_json.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; remaining cleanup is compare bridge retirement / archive decisions, not env or template plumbing
+  - `.hako ll emitter` compare/debug templating residue is now folded into `ll_emit_bridge.rs`, the legacy MIR(JSON) wrapper is isolated in `legacy_json.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; runtime caller retirement for the direct `mir_json_to_object(...)` front door is landed, so the next cleanup slice returns to compare bridge wrapper thinning
   - current daily compile/link owner is now split:
     - flipped `.hako ll emitter` profiles stop at `env.codegen.compile_ll_text(...)` / `env.codegen.link_object(...)`
     - launcher root-first daily path no longer stops at `env.codegen.compile_json_path(...)`

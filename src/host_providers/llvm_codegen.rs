@@ -35,6 +35,7 @@ mod normalize;
 mod route;
 mod transport;
 pub use defaults::boundary_default_object_opts;
+pub use legacy_json::emit_object_from_mir_json;
 pub use legacy_json::{mir_json_file_to_object, mir_json_to_object};
 
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.

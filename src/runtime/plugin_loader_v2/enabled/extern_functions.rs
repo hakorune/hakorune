@@ -432,7 +432,7 @@ fn handle_codegen(
                 .get(0)
                 .map(|b| b.to_string_box().value)
                 .unwrap_or_default();
-            match crate::host_providers::llvm_codegen::mir_json_to_object(
+            match crate::host_providers::llvm_codegen::emit_object_from_mir_json(
                 &mir_json,
                 codegen_opts(None, None, None),
             ) {

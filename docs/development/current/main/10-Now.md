@@ -59,7 +59,7 @@ Related:
       - mainline launcher now hydrates a root from source and enters `LlvmBackendBox.compile_obj_root(...)`
       - temp MIR JSON remains evidence/output only; it is not the daily compile transport
       - `compile_json_path(...)` has been retired from code
-      - `route.rs` compare/archive shrink is landed; next fixed order is `keep .ll tool seam -> thin compare bridge wrapper surfaces -> archive/delete retirement`
+    - `route.rs` compare/archive shrink is landed; next fixed order is `keep .ll tool seam -> thin compare bridge wrapper surfaces -> archive/delete retirement`
     - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
       - compare bridge assets remain explicit bridge-only and now live in `phase29x-derust-archive.txt`

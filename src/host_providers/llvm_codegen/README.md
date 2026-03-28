@@ -20,6 +20,7 @@ Thin Rust bridge for backend object emission.
 - `legacy_json.rs`
   - legacy MIR(JSON) front door for compare/archive callers
   - routes through `route.rs` and stays out of the daily root-first tool seam
+  - direct runtime callers have been moved onto a helper alias; keep this module archive-later until the compare bridge itself is thinned further
 - `normalize.rs`
   - backend input validation / JSON normalization
 - `defaults.rs`
@@ -35,3 +36,4 @@ Thin Rust bridge for backend object emission.
 - launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only and `transport.rs` keeps only legacy C ABI / explicit provider keep lanes
 - compare/debug residue is thin enough that it now lives only in `ll_emit_bridge.rs`; the separate `hako_ll_driver.rs` helper has been retired
 - legacy JSON wrapper residue now lives in `legacy_json.rs`; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
+- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is compare bridge wrapper retirement
