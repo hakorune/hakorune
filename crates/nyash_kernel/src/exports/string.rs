@@ -7,12 +7,10 @@ use super::string_view::{
     string_len_from_handle as string_len_impl, BorrowedSubstringPlan,
 };
 use crate::hako_forward_bridge;
+use crate::plugin::materialize_owned_string;
 use memchr::{memchr, memmem, memrchr};
-use nyash_rust::{
-    box_trait::{NyashBox, StringBox},
-    runtime::host_handles as handles,
-};
-use std::sync::{Arc, OnceLock};
+use nyash_rust::runtime::host_handles as handles;
+use std::sync::OnceLock;
 use std::{
     cell::{Cell, RefCell},
     ffi::CStr,
@@ -145,10 +143,7 @@ fn jit_trace_len_enabled() -> bool {
 }
 
 fn string_handle_from_owned(value: String) -> i64 {
-    nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
-    let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(value));
-    let handle = handles::to_handle_arc(arc.clone()) as i64;
-    handle
+    materialize_owned_string(value)
 }
 
 #[inline(always)]
@@ -190,8 +185,9 @@ fn shared_empty_string_handle() -> i64 {
     {
         static HANDLE: OnceLock<i64> = OnceLock::new();
         *HANDLE.get_or_init(|| {
-            let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(String::new()));
-            handles::to_handle_arc(arc) as i64
+            handles::to_handle_arc(std::sync::Arc::new(
+                nyash_rust::box_trait::StringBox::new(String::new()),
+            )) as i64
         })
     }
 }

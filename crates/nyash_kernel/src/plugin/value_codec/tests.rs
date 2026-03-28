@@ -123,3 +123,33 @@ fn any_arg_to_box_with_profile_missing_handle_keeps_immediate_contract() {
         assert_eq!(box_to_runtime_i64(via_array_fast), h);
     });
 }
+
+#[test]
+fn materialize_owned_string_round_trips_as_live_string_handle() {
+    let h = materialize_owned_string("owned-materialize".to_string());
+    assert!(h > 0);
+    let obj = handles::get(h as u64).expect("owned string handle");
+    let sb = obj
+        .as_any()
+        .downcast_ref::<StringBox>()
+        .expect("owned string should remain StringBox");
+    assert_eq!(sb.value, "owned-materialize");
+}
+
+#[test]
+fn store_string_box_from_source_prefers_borrowed_alias_for_string_handles() {
+    let value: Arc<dyn NyashBox> = Arc::new(StringBox::new("store-alias".to_string()));
+    let value_h = handles::to_handle_arc(value) as i64;
+    let source_obj = handles::get(value_h as u64).expect("source string handle");
+    let boxed = store_string_box_from_source(value_h, Some(&source_obj), handles::drop_epoch());
+    assert_eq!(box_to_runtime_i64(boxed), value_h);
+}
+
+#[test]
+fn store_string_box_from_source_keeps_immediate_contract_for_non_string_sources() {
+    let value: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(91));
+    let value_h = handles::to_handle_arc(value) as i64;
+    let source_obj = handles::get(value_h as u64).expect("source integer handle");
+    let boxed = store_string_box_from_source(value_h, Some(&source_obj), handles::drop_epoch());
+    assert_eq!(box_to_runtime_i64(boxed), value_h);
+}

@@ -1,4 +1,4 @@
-use super::borrowed_handle::{maybe_borrow_string_handle, maybe_borrow_string_handle_with_epoch};
+use super::borrowed_handle::maybe_borrow_string_handle;
 use nyash_rust::{
     box_trait::{BoolBox, IntegerBox, NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -86,33 +86,6 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
         });
     }
     int_arg_to_box(arg)
-}
-
-#[inline(always)]
-pub(crate) fn string_handle_or_immediate_box_from_obj(
-    obj: Option<&std::sync::Arc<dyn NyashBox>>,
-    source_handle: i64,
-    source_drop_epoch: u64,
-) -> Box<dyn NyashBox> {
-    if source_handle <= 0 {
-        return int_arg_to_box(source_handle);
-    }
-    let Some(obj) = obj else {
-        return int_arg_to_box(source_handle);
-    };
-    if obj.as_any().downcast_ref::<StringBox>().is_some()
-        || obj
-            .as_any()
-            .downcast_ref::<crate::exports::string_view::StringViewBox>()
-            .is_some()
-    {
-        return maybe_borrow_string_handle_with_epoch(
-            obj.clone(),
-            source_handle,
-            source_drop_epoch,
-        );
-    }
-    int_arg_to_box(source_handle)
 }
 
 #[inline(always)]

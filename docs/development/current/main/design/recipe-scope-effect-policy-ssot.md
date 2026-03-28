@@ -163,6 +163,7 @@ Do not mix these.
 - exact `indexOf` leaf rewrites
 - array/string hot observers tied to current lowered shape
 - current `kilo` leaf proof routes
+- shared store-ready string materialization is a concrete `recipe family` helper boundary, not benchmark-specific hardcode
 
 ### Do not promote as generic owner
 

@@ -70,13 +70,14 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
   - `docs/tools/README.md`
 - next exact leaf:
-  - `concat_const_suffix_fallback`
   - `array_set_by_index_string_handle_value`
-  - `string_handle_from_owned`
+  - `concat_const_suffix_fallback`
+  - shared `value_codec::string_store`
 - notes:
   - generic optimization unit is `recipe family`, not benchmark name
   - keep the generalized scope/method machinery
   - avoid reopening route / fallback policy until the memory-motion slice is exhausted
+  - shared store-ready string materialization is the next thin helper boundary
 
 ## Immediate Next Task
 

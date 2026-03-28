@@ -1,5 +1,5 @@
 use super::value_codec::{
-    string_handle_or_immediate_box_from_obj, try_retarget_borrowed_string_slot,
+    store_string_box_from_source, try_retarget_borrowed_string_slot,
     try_retarget_borrowed_string_slot_with_source,
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
@@ -132,6 +132,7 @@ pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, valu
     }
     let drop_epoch = handles::drop_epoch();
     let value_obj = super::handle_cache::object_from_handle_cached(value_h);
+    let make_store_box = || store_string_box_from_source(value_h, value_obj.as_ref(), drop_epoch);
     super::handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {
@@ -148,20 +149,12 @@ pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, valu
                 } else if try_retarget_borrowed_string_slot(&mut items[idx], value_h) {
                     return 1;
                 }
-                let value = string_handle_or_immediate_box_from_obj(
-                    value_obj.as_ref(),
-                    value_h,
-                    drop_epoch,
-                );
+                let value = make_store_box();
                 items[idx] = value;
                 return 1;
             }
             if idx == items.len() {
-                let value = string_handle_or_immediate_box_from_obj(
-                    value_obj.as_ref(),
-                    value_h,
-                    drop_epoch,
-                );
+                let value = make_store_box();
                 items.push(value);
                 return 1;
             }
