@@ -32,19 +32,21 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 ### phase-29x
 
 - status: `active compare bridge retirement / archive decisions`
-- scope: shrink the remaining legacy `compile_json_path` / `mir_json_to_object*` live callers
+- scope: shrink the remaining compare bridge / archive wrapper surfaces
 - current truth:
   - `archive-home is sufficient`
   - `delete-ready is none`
   - Hako front-door `env.codegen.compile_json_path` retirement is landed
   - launcher root-first transport cut is landed
   - builder-side `compile_json_path` recognition is retired
-  - remaining live set is legacy runtime dispatchers and builder/runtime wrappers
+  - Rust runtime dispatcher `compile_json_path` branches are retired
+  - route-env helper `lang/src/shared/backend/backend_route_env_box.hako` is retired from code
+  - remaining live set is compare bridge / archive wrapper surfaces
   - dead wrapper `lang/src/shared/host_bridge/codegen_bridge_box.hako::compile_json_path_args` is retired in this slice
 - fixed order:
   1. keep `.ll` as the Rust/LLVM tool seam
-  2. retire remaining legacy callers caller-by-caller
-  3. review archive/delete only after the live inventory reaches zero
+  2. thin compare bridge wrapper surfaces caller-by-caller
+  3. review archive/delete only after the wrapper inventory reaches zero
 - current prep SSOT:
   - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
   - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
@@ -58,12 +60,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Next Task
 
-- retire the remaining Rust runtime dispatcher callers first:
-  - `src/backend/mir_interpreter/handlers/extern_provider.rs`
-  - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
-- retired from the pass-through layer in this slice:
-  - `src/backend/mir_interpreter/handlers/calls/global.rs`
-  - `src/backend/mir_interpreter/handlers/externals.rs`
+- thin the remaining compare bridge wrapper surfaces first:
+  - `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
+  - `src/host_providers/llvm_codegen/hako_ll_driver.rs`
 - keep `src/host_providers/llvm_codegen/route.rs` and `src/host_providers/llvm_codegen/ll_tool_driver.rs` as keep surfaces
 - keep `src/host_providers/llvm_codegen/ll_emit_bridge.rs` and `src/host_providers/llvm_codegen/hako_ll_driver.rs` archive-later only
 

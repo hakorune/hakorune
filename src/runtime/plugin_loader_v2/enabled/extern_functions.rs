@@ -406,49 +406,6 @@ fn handle_codegen(
     }
 
     match method_name {
-        "compile_json_path" => {
-            let compile_recipe = args
-                .get(2)
-                .map(|b| b.to_string_box().value)
-                .filter(|s| !s.is_empty() && s != "null");
-            if crate::config::env::backend_compile_json_path_is_daily_owner(
-                compile_recipe.as_deref(),
-            ) {
-                if std::env::var("HAKO_CALL_TRACE").ok().as_deref() == Some("1") {
-                    get_global_ring0()
-                        .log
-                        .debug("[call:env.codegen.compile_json_path-retired]");
-                }
-                return Ok(None);
-            }
-            let json_path = args
-                .first()
-                .map(|b| b.to_string_box().value)
-                .unwrap_or_default();
-            let out = args
-                .get(1)
-                .map(|b| b.to_string_box().value)
-                .filter(|s| !s.is_empty() && s != "null")
-                .map(std::path::PathBuf::from);
-            let compile_recipe = args
-                .get(2)
-                .map(|b| b.to_string_box().value)
-                .filter(|s| !s.is_empty() && s != "null");
-            let compat_replay = args
-                .get(3)
-                .map(|b| b.to_string_box().value)
-                .filter(|s| !s.is_empty() && s != "null");
-            match crate::host_providers::llvm_codegen::mir_json_file_to_object(
-                std::path::Path::new(&json_path),
-                codegen_opts(out, compile_recipe, compat_replay),
-            ) {
-                Ok(p) => {
-                    let s = p.to_string_lossy().into_owned();
-                    Ok(Some(Box::new(StringBox::new(s)) as Box<dyn NyashBox>))
-                }
-                Err(_e) => Ok(None),
-            }
-        }
         "compile_ll_text" => {
             let ll_text = args
                 .first()

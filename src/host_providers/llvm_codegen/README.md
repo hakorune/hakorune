@@ -30,5 +30,5 @@ Thin Rust bridge for backend object emission.
 - compare lane is explicit bridge evidence, not a permanent default route; the proof smoke now runs from `phase29x-derust-archive.txt`
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here
 - current tool seam is now `.ll` text
-- flipped `.hako ll emitter` daily profiles already bypass `compile_json_path` and stop at `ll_text_to_object(...)`
+- `compile_json_path` has been retired from code; flipped `.hako ll emitter` daily profiles stop at `ll_text_to_object(...)`
 - launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only and `transport.rs` keeps only legacy C ABI / explicit provider keep lanes

@@ -11,8 +11,6 @@ Current owner
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
   - `backend_daily_owner_policy_box.hako`
   - narrow allowlist helper for `.hako ll emitter` daily-owner selection; no route/profile assembly, no transport
-  - `backend_route_env_box.hako`
-  - narrow route-env mirror helper for codegen calls; keep HAKO_BACKEND_* juggling out of `LlvmBackendBox`
   - compare/debug residue for `.hako ll emitter` bridge now lives in Rust helper `src/host_providers/llvm_codegen/hako_ll_driver.rs`; LLVM tool execution is split further into `src/host_providers/llvm_codegen/ll_tool_driver.rs`; compare proof itself is archive-suite only
   - `ll_emit/**`
   - explicit compare/debug bridge plus narrow daily owner for flipped boundary shapes
@@ -30,7 +28,7 @@ Current owner
   - `BackendRecipeBox` also names the current acceptance basis (`acceptance_policy`) so pure/compat classification does not drift back into C
   - `BackendRecipeBox` also names the current acceptance case (`acceptance_case`) so shape-specific evidence such as `ret-const-v1`, `hello-simple-llvm-native-probe-v1`, `runtime-data-array-get-missing-v1`, `runtime-data-string-length-ascii-v1`, `runtime-data-array-length-v1`, `runtime-data-array-push-v1`, `runtime-data-map-size-v1`, `runtime-data-array-has-missing-v1`, `runtime-data-map-has-missing-v1`, `runtime-data-map-get-missing-v1`, `array-string-indexof-branch-v1`, `array-string-indexof-cross-block-select-v1`, `array-string-indexof-interleaved-branch-v1`, `array-string-indexof-interleaved-select-v1`, `array-string-indexof-select-v1`, `string-indexof-ascii-v1`, `string-length-ascii-v1`, and `method-call-only-small-compat-v1` stays visible in `.hako`
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
-  - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary, while `.hako` daily callers now also bridge `HAKO_BACKEND_ACCEPTANCE_CASE` / `HAKO_BACKEND_TRANSPORT_OWNER` / `HAKO_BACKEND_LEGACY_DAILY_ALLOWED` through `backend_route_env_box.hako` so route evidence does not disappear before the Rust bridge
+  - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary; route evidence is now carried by root-first compile profiles instead of the retired route-env helper
   - final target は `LlvmBackendBox -> BackendRecipeBox -> .hako ll emitter -> env.codegen.compile_ll_text(...) -> opt/llc` で、legacy C shim は compare/compat keep へ後退する
   - `.hako ll emitter` compare/debug templating residue is now split into Rust helper `hako_ll_driver.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; remaining cleanup is compare bridge retirement / archive decisions, not env or template plumbing
   - current daily compile/link owner is now split:

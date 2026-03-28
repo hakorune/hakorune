@@ -1,5 +1,4 @@
 using selfhost.shared.backend.recipe as BackendRecipeBox
-using selfhost.shared.backend.route_env as BackendRouteEnvBox
 using selfhost.shared.backend.ll_emit.recipe_facts_v0 as RecipeFactsV0Box
 using selfhost.shared.backend.ll_emit.ll_text_emit as LlTextEmitBox
 using selfhost.shared.mir.root_hydrator as MirRootHydratorBox
@@ -111,22 +110,11 @@ static box LlvmBackendBox {
   }
 
   _compile_obj_legacy_with_profile(json_path, out_path, profile) {
-    local recipe = profile.get("compile_recipe")
-    local compat = profile.get("compat_replay")
-    local acceptance_case = profile.get("acceptance_case")
-    local transport_owner = profile.get("transport_owner")
-    local legacy_daily_allowed = profile.get("legacy_daily_allowed")
-    local out = ""
-    if out_path != null { out = "" + out_path }
-    return BackendRouteEnvBox.with_backend_route_env(
-      acceptance_case,
-      transport_owner,
-      legacy_daily_allowed,
-      json_path,
-      out,
-      recipe,
-      compat
-    )
+    local root = MirRootHydratorBox.hydrate_file(json_path)
+    if root == null {
+      return me._fail("[llvmbackend/root-hydrate-failed] json_path=" + ("" + json_path))
+    }
+    return me._compile_obj_root_with_profile(root, null, out_path, profile, "legacy")
   }
 
   _compile_ll_text(ll_text, out_path) {

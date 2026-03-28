@@ -76,7 +76,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
     - flipped `phase29ck` locks now live in `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt`
     - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, or the three `RuntimeData.length/size` observer locks
     - compare bridge assets remain explicit bridge-only, now archive-suite only; archive-home is sufficient and `delete-ready` remains none
-    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
+    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, and `backend.ll_emit.call_selector` are already split out; `backend_route_env_box.hako` has been retired from code, `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
     - harness-side `src/runner/modes/llvm/object_emitter.rs` is retired; runner active path uses the shared harness helper that preserves the old pure-first/harness replay semantics instead of the legacy wrapper
     - launcher/root-first daily transport cut is landed:
       - keep `.ll` as the Rust/LLVM tool seam
@@ -85,9 +85,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
     - launcher/mainline now compiles root-first, so temp MIR paths no longer select the legacy route
     - `HostFacadeBox` no longer forwards `codegen.compile_json_path`; the Hako front-door bridge has been retired from the live caller set, and the remaining compile_json_path reachability lives in downstream legacy/runtime wrappers
     - `route.rs` compare/archive shrink is landed; next cleanup is compare bridge retirement / archive decisions, and live `compile_json_path` caller retirement prep is tracked in `29x-97-compare-bridge-retirement-prep-ssot.md`
-    - Rust runtime dispatcher `compile_json_path` branches are also gated away for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`; explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
-    - Hako VM front-door `env.codegen.compile_json_path` is now retired; remaining reachability lives only in downstream legacy/runtime wrappers
-    - builder-side `compile_json_path` recognition has also been retired; remaining reachability now lives in legacy bridge/runtime wrappers only
+    - Rust runtime dispatcher `compile_json_path` branches are retired, and `backend_route_env_box.hako` has been retired from code; the remaining compare bridge work now lives only in archive-later wrapper surfaces
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed
   - the lookup family is landed; the `RuntimeData` mutator family is now landed for `runtime_data_array_push_min_v1`

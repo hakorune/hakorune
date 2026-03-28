@@ -28,7 +28,6 @@ fn classify_extern_provider_lane(extern_name: &str) -> Option<ExternProviderLane
         "env.mirbuilder.emit"
         | "env.mirbuilder_emit"
         | "env.codegen.emit_object"
-        | "env.codegen.compile_json_path"
         | "env.codegen.compile_ll_text"
         | "env.codegen.link_object"
         | "env.box_introspect.kind"
@@ -311,57 +310,6 @@ impl MirInterpreter {
                     )),
                 }
             }
-            "env.codegen.compile_json_path" => {
-                let compile_recipe = match args.get(2) {
-                    Some(v) => Some(self.reg_load(*v)?.to_string()),
-                    None => None,
-                };
-                if crate::config::env::backend_compile_json_path_is_daily_owner(
-                    compile_recipe.as_deref(),
-                ) {
-                    if crate::config::env::cabi_trace() {
-                        crate::runtime::get_global_ring0().log.debug(
-                            "[extern/c-abi:codegen.compile_json_path-retired]",
-                        );
-                    }
-                    return Ok(VMValue::Void);
-                }
-                if std::env::var("HAKO_V1_EXTERN_PROVIDER").ok().as_deref() == Some("1") {
-                    return Ok(VMValue::String(String::new()));
-                }
-                let json_path = match args.get(0) {
-                    Some(v) => self.reg_load(*v)?.to_string(),
-                    None => {
-                        return Err(
-                            self.err_invalid("env.codegen.compile_json_path expects 1+ args")
-                        )
-                    }
-                };
-                let out = match args.get(1) {
-                    Some(v) => Self::optional_codegen_text(self.reg_load(*v)?.to_string())
-                        .map(std::path::PathBuf::from),
-                    None => None,
-                };
-                let compile_recipe = match args.get(2) {
-                    Some(v) => Self::optional_codegen_text(self.reg_load(*v)?.to_string()),
-                    None => None,
-                };
-                let compat_replay = match args.get(3) {
-                    Some(v) => Self::optional_codegen_text(self.reg_load(*v)?.to_string()),
-                    None => None,
-                };
-                let opts = Self::codegen_object_opts(out, compile_recipe, compat_replay);
-                match crate::host_providers::llvm_codegen::mir_json_file_to_object(
-                    std::path::Path::new(&json_path),
-                    opts,
-                ) {
-                    Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
-                    Err(e) => Err(ErrorBuilder::with_context(
-                        "env.codegen.compile_json_path",
-                        &e.to_string(),
-                    )),
-                }
-            }
             "env.codegen.compile_ll_text" => {
                 if std::env::var("HAKO_V1_EXTERN_PROVIDER").ok().as_deref() == Some("1") {
                     return Ok(VMValue::String(String::new()));
@@ -624,82 +572,6 @@ impl MirInterpreter {
                     Err(self.err_invalid("extern_invoke env.codegen.emit_object expects 1 arg"))
                 }
             }
-            ("env.codegen", "compile_json_path") => {
-                let compile_recipe = args.get(2).map(|v| self.reg_load(*v)).transpose()?;
-                let compile_recipe = compile_recipe
-                    .map(|value| value.to_string())
-                    .filter(|s| !s.is_empty());
-                if crate::config::env::backend_compile_json_path_is_daily_owner(
-                    compile_recipe.as_deref(),
-                ) {
-                    if crate::config::env::cabi_trace() {
-                        crate::runtime::get_global_ring0().log.debug(
-                            "[extern/c-abi:codegen.compile_json_path-retired]",
-                        );
-                    }
-                    return Ok(VMValue::Void);
-                }
-                let json_path = match first_arg_str {
-                    Some(s) => s,
-                    None => {
-                        return Err(self.err_invalid(
-                            "extern_invoke env.codegen.compile_json_path expects 1+ args",
-                        ))
-                    }
-                };
-                let (out, compile_recipe, compat_replay) = if let Some(a2) = args.get(2) {
-                    let v = self.reg_load(*a2)?;
-                    match v {
-                        VMValue::BoxRef(b) => {
-                            if let Some(ab) =
-                                b.as_any().downcast_ref::<crate::boxes::array::ArrayBox>()
-                            {
-                                let idx1: Box<dyn crate::box_trait::NyashBox> =
-                                    Box::new(crate::box_trait::IntegerBox::new(1));
-                                let s1 = ab.get(idx1).to_string_box().value;
-                                let idx2: Box<dyn crate::box_trait::NyashBox> =
-                                    Box::new(crate::box_trait::IntegerBox::new(2));
-                                let s2 = ab.get(idx2).to_string_box().value;
-                                let idx3: Box<dyn crate::box_trait::NyashBox> =
-                                    Box::new(crate::box_trait::IntegerBox::new(3));
-                                let s3 = ab.get(idx3).to_string_box().value;
-                                (
-                                    Self::optional_codegen_text(s1).map(std::path::PathBuf::from),
-                                    Self::optional_codegen_text(s2),
-                                    Self::optional_codegen_text(s3),
-                                )
-                            } else {
-                                let text = b.to_string_box().value;
-                                (
-                                    Self::optional_codegen_text(text).map(std::path::PathBuf::from),
-                                    None,
-                                    None,
-                                )
-                            }
-                        }
-                        other => {
-                            let text = other.to_string();
-                            (
-                                Self::optional_codegen_text(text).map(std::path::PathBuf::from),
-                                None,
-                                None,
-                            )
-                        }
-                    }
-                } else {
-                    (None, None, None)
-                };
-                let opts = Self::codegen_object_opts(out, compile_recipe, compat_replay);
-                match crate::host_providers::llvm_codegen::mir_json_file_to_object(
-                    std::path::Path::new(&json_path),
-                    opts,
-                ) {
-                    Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
-                    Err(e) => {
-                        Err(self.err_with_context("env.codegen.compile_json_path", &e.to_string()))
-                    }
-                }
-            }
             ("env.codegen", "compile_ll_text") => {
                 let ll_text = match first_arg_str {
                     Some(s) => s,
@@ -960,7 +832,6 @@ mod tests {
             "env.mirbuilder.emit",
             "env.mirbuilder_emit",
             "env.codegen.emit_object",
-            "env.codegen.compile_json_path",
             "env.codegen.compile_ll_text",
             "env.codegen.link_object",
             "env.box_introspect.kind",
