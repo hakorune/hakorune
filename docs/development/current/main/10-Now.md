@@ -78,9 +78,9 @@ Related:
       - `Stage1 MIR dialect split` is retired for the current kilo entry
       - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
       - docs-first proof-vocabulary lock is landed
-      - the current perf-kilo design front is now the normalized transient text pieces carrier
+      - the current perf-kilo design front is now the normalized transient text pieces carrier, and the concat/insert pilot is landed
       - the current proof lane remains the shared store-ready string materialization boundary
-      - next exact proof is `substring_hii / concat_hs / insert_hsi / len_h` on `PiecesN`
+      - next exact proof is `concat3_hhh` / array-store motion on `PiecesN`, with `substring_hii` still kept as the read-only carrier check
       - rejected follow-up: authoritative `ArrayBox` integer-storage split did not improve `kilo_micro_array_getset` and regressed main `kilo`
       - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
       - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main

@@ -70,23 +70,24 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
   - `docs/development/current/main/design/transient-text-pieces-ssot.md`
   - `docs/tools/README.md`
-- next exact leaf:
-  - normalized transient text pieces (`TextPlan` / `PiecesN`)
+- current leaf status:
+  - normalized transient text pieces (`TextPlan` / `PiecesN`) pilot landed
 - current sub-slice:
   - shared store-ready string materialization boundary
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`
-  - follow-up design front: normalized transient text pieces for `concat_hs` / `insert_hsi`
+  - follow-up design front: widen `PiecesN` coverage to `concat3_hhh` and the remaining array-store motion leafs
 - notes:
   - generic optimization unit is `recipe family`, not benchmark name
   - keep the generalized scope/method machinery
   - keep docs-first alignment between the transient carrier and the existing string docs
+  - the current pilot uses normalized `PiecesN` only for the targeted concat/insert path; keep the carrier backend-local and non-observable
   - avoid reopening route / fallback policy until the memory-motion slice is exhausted
 
 ## Immediate Next Task
 
-- document the normalized transient text pieces SSOT and align the existing string/transient docs to it
-- then continue the `kilo` perf lane on the string materialization / array store motion slice
+- expand the landed transient text pieces pilot to the remaining `concat3_hhh` / array-store motion leafs
+- continue the `kilo` perf lane on the string materialization / array store motion slice
 - keep genericization work on `recipe / scope / effect / policy`, not on benchmark-named branches
 - keep the generalized cache/scope machinery intact while tightening the hot leaf path
 - do not reopen `route.rs` / compare-bridge policy unless new evidence shows route cost dominates again

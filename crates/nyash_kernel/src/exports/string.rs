@@ -4,7 +4,7 @@ use super::string_view::{
     borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
     resolve_string_span_from_handle_nocache, resolve_string_span_from_obj,
     resolve_string_span_pair_from_handles, string_is_empty_from_handle as string_is_empty_impl,
-    string_len_from_handle as string_len_impl, BorrowedSubstringPlan,
+    string_len_from_handle as string_len_impl, BorrowedSubstringPlan, TextPiece, TextPlan,
 };
 use crate::hako_forward_bridge;
 use crate::plugin::materialize_owned_string;
@@ -213,14 +213,14 @@ fn concat_to_string_handle(parts: &[&str]) -> i64 {
 
 enum Concat3Plan {
     ReuseHandle(i64),
-    Materialize(String),
+    Materialize(TextPlan),
 }
 
 #[inline(always)]
 fn freeze_concat3_plan(plan: Concat3Plan) -> i64 {
     match plan {
         Concat3Plan::ReuseHandle(handle) => handle,
-        Concat3Plan::Materialize(value) => string_handle_from_owned(value),
+        Concat3Plan::Materialize(value) => string_handle_from_owned(value.into_owned()),
     }
 }
 
@@ -239,32 +239,45 @@ fn concat3_plan_from_parts(
             return if allow_handle_reuse {
                 Concat3Plan::ReuseHandle(c_h)
             } else {
-                Concat3Plan::Materialize(c.to_string())
+                Concat3Plan::Materialize(TextPlan::from_owned(c.to_owned()))
             };
         }
         if c.is_empty() {
             return if allow_handle_reuse {
                 Concat3Plan::ReuseHandle(b_h)
             } else {
-                Concat3Plan::Materialize(b.to_string())
+                Concat3Plan::Materialize(TextPlan::from_owned(b.to_owned()))
             };
         }
-        return Concat3Plan::Materialize(concat_two_str(b, c));
+        return Concat3Plan::Materialize(TextPlan::from_two(
+            TextPiece::Inline(b.to_owned()),
+            TextPiece::Inline(c.to_owned()),
+        ));
     }
     if b.is_empty() {
         if c.is_empty() {
             return if allow_handle_reuse {
                 Concat3Plan::ReuseHandle(a_h)
             } else {
-                Concat3Plan::Materialize(a.to_string())
+                Concat3Plan::Materialize(TextPlan::from_owned(a.to_owned()))
             };
         }
-        return Concat3Plan::Materialize(concat_two_str(a, c));
+        return Concat3Plan::Materialize(TextPlan::from_two(
+            TextPiece::Inline(a.to_owned()),
+            TextPiece::Inline(c.to_owned()),
+        ));
     }
     if c.is_empty() {
-        return Concat3Plan::Materialize(concat_two_str(a, b));
+        return Concat3Plan::Materialize(TextPlan::from_two(
+            TextPiece::Inline(a.to_owned()),
+            TextPiece::Inline(b.to_owned()),
+        ));
     }
-    Concat3Plan::Materialize(concat_three_str(a, b, c))
+    Concat3Plan::Materialize(TextPlan::from_three(
+        TextPiece::Inline(a.to_owned()),
+        TextPiece::Inline(b.to_owned()),
+        TextPiece::Inline(c.to_owned()),
+    ))
 }
 
 #[inline(always)]
@@ -278,7 +291,12 @@ fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<Concat3Pla
 }
 
 #[inline(always)]
-fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64) -> Option<Concat3Plan> {
+fn concat3_plan_from_spans(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    allow_handle_reuse: bool,
+) -> Option<Concat3Plan> {
     if a_h <= 0 || b_h <= 0 || c_h <= 0 {
         return None;
     }
@@ -293,15 +311,53 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64) -> Option<Concat3Plan> 
     ) else {
         return None;
     };
-    Some(concat3_plan_from_parts(
-        a_h,
-        b_h,
-        c_h,
-        a_span.as_str(),
-        b_span.as_str(),
-        c_span.as_str(),
-        true,
-    ))
+    let a = a_span.as_str();
+    let b = b_span.as_str();
+    let c = c_span.as_str();
+    if a.is_empty() {
+        if b.is_empty() {
+            return if allow_handle_reuse {
+                Some(Concat3Plan::ReuseHandle(c_h))
+            } else {
+                Some(Concat3Plan::Materialize(TextPlan::from_owned(c.to_owned())))
+            };
+        }
+        if c.is_empty() {
+            return Some(if allow_handle_reuse {
+                Concat3Plan::ReuseHandle(b_h)
+            } else {
+                Concat3Plan::Materialize(TextPlan::from_owned(b.to_owned()))
+            });
+        }
+        return Some(Concat3Plan::Materialize(TextPlan::from_two(
+            TextPiece::Span(b_span),
+            TextPiece::Span(c_span),
+        )));
+    }
+    if b.is_empty() {
+        if c.is_empty() {
+            return Some(if allow_handle_reuse {
+                Concat3Plan::ReuseHandle(a_h)
+            } else {
+                Concat3Plan::Materialize(TextPlan::from_owned(a.to_owned()))
+            });
+        }
+        return Some(Concat3Plan::Materialize(TextPlan::from_two(
+            TextPiece::Span(a_span),
+            TextPiece::Span(c_span),
+        )));
+    }
+    if c.is_empty() {
+        return Some(Concat3Plan::Materialize(TextPlan::from_two(
+            TextPiece::Span(a_span),
+            TextPiece::Span(b_span),
+        )));
+    }
+    Some(Concat3Plan::Materialize(TextPlan::from_three(
+        TextPiece::Span(a_span),
+        TextPiece::Span(b_span),
+        TextPiece::Span(c_span),
+    )))
 }
 
 fn to_owned_string_handle_arg(h: i64) -> String {
@@ -446,21 +502,25 @@ fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
 
 #[inline(always)]
 fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
-    if let Some(out) = handles::with_handle(a_h as u64, |obj| {
-        obj.and_then(|boxed| {
-            boxed
-                .as_ref()
-                .as_str_fast()
-                .map(|lhs| concat_two_str(lhs, suffix))
-        })
-    }) {
-        return string_handle_from_owned(out);
+    if suffix.is_empty() {
+        return a_h;
+    }
+    if let Some(plan) = TextPlan::from_handle(a_h) {
+        return string_handle_from_owned(plan.concat_inline(suffix.to_owned()).into_owned());
     }
     if let Some(span) = resolve_string_span_from_handle(a_h) {
-        return string_handle_from_owned(concat_two_str(span.as_str(), suffix));
+        return string_handle_from_owned(
+            TextPlan::from_span(span)
+                .concat_inline(suffix.to_owned())
+                .into_owned(),
+        );
     }
     let lhs = to_owned_string_handle_arg(a_h);
-    string_handle_from_owned(concat_two_str(lhs.as_str(), suffix))
+    string_handle_from_owned(
+        TextPlan::from_owned(lhs)
+            .concat_inline(suffix.to_owned())
+            .into_owned(),
+    )
 }
 
 #[inline(always)]
@@ -499,31 +559,22 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
         if string_is_empty_from_handle(source_h) == Some(true) {
             return super::nyash_box_from_i8_string_const(middle_ptr);
         }
-        if let Some(result) = handles::with_handle(source_h as u64, |obj| {
-            obj.and_then(|boxed| {
-                boxed.as_ref().as_str_fast().map(|source| {
-                    let split = split.clamp(0, source.len() as i64) as usize;
-                    let prefix = source.get(0..split).unwrap_or("");
-                    let suffix = source.get(split..).unwrap_or("");
-                    concat_three_str(prefix, middle, suffix)
-                })
-            })
-        }) {
-            return string_handle_from_owned(result);
-        }
         if let Some(source_span) = resolve_string_span_from_handle(source_h) {
-            let source = source_span.as_str();
-            let split = split.clamp(0, source.len() as i64) as usize;
-            let prefix = source.get(0..split).unwrap_or("");
-            let suffix = source.get(split..).unwrap_or("");
-            return string_handle_from_owned(concat_three_str(prefix, middle, suffix));
+            let split = split.clamp(0, source_span.span_bytes_len() as i64) as usize;
+            return string_handle_from_owned(
+                TextPlan::from_span(source_span)
+                    .insert_inline(middle.to_owned(), split)
+                    .into_owned(),
+            );
         }
 
         let source = to_owned_string_handle_arg(source_h);
         let split = split.clamp(0, source.len() as i64) as usize;
-        let prefix = source.get(0..split).unwrap_or("");
-        let suffix = source.get(split..).unwrap_or("");
-        string_handle_from_owned(concat_three_str(prefix, middle, suffix))
+        string_handle_from_owned(
+            TextPlan::from_owned(source)
+                .insert_inline(middle.to_owned(), split)
+                .into_owned(),
+        )
     })
 }
 
@@ -532,7 +583,7 @@ fn concat3_fallback(a_h: i64, b_h: i64, c_h: i64) -> i64 {
     if let Some(plan) = concat3_plan_from_fast_str(a_h, b_h, c_h) {
         return freeze_concat3_plan(plan);
     }
-    if let Some(plan) = concat3_plan_from_spans(a_h, b_h, c_h) {
+    if let Some(plan) = concat3_plan_from_spans(a_h, b_h, c_h, true) {
         return freeze_concat3_plan(plan);
     }
 
