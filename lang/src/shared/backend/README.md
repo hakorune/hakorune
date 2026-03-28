@@ -11,7 +11,7 @@ Current owner
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
   - `backend_daily_owner_policy_box.hako`
   - narrow allowlist helper for `.hako ll emitter` daily-owner selection; no route/profile assembly, no transport
-  - compare/debug residue for `.hako ll emitter` bridge now lives in Rust helper `src/host_providers/llvm_codegen/hako_ll_driver.rs`; LLVM tool execution is split further into `src/host_providers/llvm_codegen/ll_tool_driver.rs`; compare proof itself is archive-suite only
+  - compare/debug residue for `.hako ll emitter` bridge now lives in `src/host_providers/llvm_codegen/ll_emit_bridge.rs`; LLVM tool execution is split further into `src/host_providers/llvm_codegen/ll_tool_driver.rs`; compare proof itself is archive-suite only
   - `ll_emit/**`
   - explicit compare/debug bridge plus narrow daily owner for flipped boundary shapes
   - `ll_emit/call_policy_box.hako`
@@ -30,7 +30,7 @@ Current owner
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary; route evidence is now carried by root-first compile profiles instead of the retired route-env helper
   - final target は `LlvmBackendBox -> BackendRecipeBox -> .hako ll emitter -> env.codegen.compile_ll_text(...) -> opt/llc` で、legacy C shim は compare/compat keep へ後退する
-  - `.hako ll emitter` compare/debug templating residue is now split into Rust helper `hako_ll_driver.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; remaining cleanup is compare bridge retirement / archive decisions, not env or template plumbing
+  - `.hako ll emitter` compare/debug templating residue is now folded into `ll_emit_bridge.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; remaining cleanup is compare bridge retirement / archive decisions, not env or template plumbing
   - current daily compile/link owner is now split:
     - flipped `.hako ll emitter` profiles stop at `env.codegen.compile_ll_text(...)` / `env.codegen.link_object(...)`
     - launcher root-first daily path no longer stops at `env.codegen.compile_json_path(...)`

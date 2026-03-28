@@ -35,7 +35,6 @@ Related:
 ## Archive-Later Bridge Surfaces
 
 - `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
-- `src/host_providers/llvm_codegen/hako_ll_driver.rs`
 - `src/host_providers/llvm_codegen/transport.rs`
 - `src/host_providers/llvm_codegen.rs`
 - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
@@ -57,6 +56,7 @@ Related:
 
 - `src/backend/mir_interpreter/handlers/extern_provider.rs`, `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`, and `src/mir/builder/calls/extern_calls.rs` have retired `compile_json_path` from code.
 - daily Rust runtime dispatcher traffic no longer follows `compile_json_path`.
+- `src/host_providers/llvm_codegen/hako_ll_driver.rs` has been retired by folding the compare helper surface into `ll_emit_bridge.rs`.
 
 ## Live Caller Inventory
 
@@ -66,8 +66,7 @@ The code-side `compile_json_path` inventory is now empty. The remaining archive-
 | --- | --- | --- |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for emit/link args only; `compile_json_path_args` retired in this slice |
 | `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade no longer forwards `codegen.compile_json_path` |
-| `src/host_providers/llvm_codegen/ll_emit_bridge.rs` | archive-later | compare bridge orchestration only |
-| `src/host_providers/llvm_codegen/hako_ll_driver.rs` | archive-later | compare/debug driver helper only |
+| `src/host_providers/llvm_codegen/ll_emit_bridge.rs` | archive-later | compare bridge orchestration and compare/debug helper surface only |
 | `src/host_providers/llvm_codegen/transport.rs` | archive-later | legacy provider / CAPI compare path only |
 | `src/host_providers/llvm_codegen.rs` | archive-later | legacy object emission helpers only |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
@@ -106,6 +105,7 @@ Slice 2 status:
 - the pass-through `compile_json_path` arms in `src/backend/mir_interpreter/handlers/calls/global.rs` and `src/backend/mir_interpreter/handlers/externals.rs` are retired
 - explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
 - builder / wrapper surfaces remain live, so delete is still not ready
+- the dedicated compare/debug helper module is retired; `ll_emit_bridge.rs` now carries the thin archive-later compare surface directly
 
 ## Why Delete Is Not Ready
 

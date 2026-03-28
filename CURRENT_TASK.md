@@ -60,11 +60,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Next Task
 
-- thin the remaining compare bridge wrapper surfaces first:
+- thin the remaining compare bridge wrapper surface first:
   - `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
-  - `src/host_providers/llvm_codegen/hako_ll_driver.rs`
 - keep `src/host_providers/llvm_codegen/route.rs` and `src/host_providers/llvm_codegen/ll_tool_driver.rs` as keep surfaces
-- keep `src/host_providers/llvm_codegen/ll_emit_bridge.rs` and `src/host_providers/llvm_codegen/hako_ll_driver.rs` archive-later only
+- `src/host_providers/llvm_codegen/hako_ll_driver.rs` is retired by folding its compare helper surface into `ll_emit_bridge.rs`
 
 ## Notes
 

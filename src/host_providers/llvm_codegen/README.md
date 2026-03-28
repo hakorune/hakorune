@@ -9,10 +9,8 @@ Thin Rust bridge for backend object emission.
   - does not re-decide MIR acceptance
 - `ll_emit_bridge.rs`
   - compare-only bridge orchestration
-  - delegates compare-driver render / VM execution / `.ll` extraction to `hako_ll_driver.rs`
+  - folds compare-driver render / VM execution / `.ll` extraction into one archive-later wrapper surface
   - delegates `.ll -> verify -> llc -> .o` to `ll_tool_driver.rs`
-- `hako_ll_driver.rs`
-  - compare/debug bridge helper for MIR(JSON) embed, driver VM execution, and stdout extraction only
 - `ll_tool_driver.rs`
   - thin LLVM tool seam
   - `.ll` text or file -> verifier -> `llc` -> `.o`
@@ -32,3 +30,4 @@ Thin Rust bridge for backend object emission.
 - current tool seam is now `.ll` text
 - `compile_json_path` has been retired from code; flipped `.hako ll emitter` daily profiles stop at `ll_text_to_object(...)`
 - launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only and `transport.rs` keeps only legacy C ABI / explicit provider keep lanes
+- compare/debug residue is thin enough that it now lives only in `ll_emit_bridge.rs`; the separate `hako_ll_driver.rs` helper has been retired
