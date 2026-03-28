@@ -46,11 +46,6 @@ fn slot_ref(table: &SlotTable, h: u64) -> Option<&Arc<dyn NyashBox>> {
 }
 
 #[inline(always)]
-fn slot_clone(table: &SlotTable, h: u64) -> Option<Arc<dyn NyashBox>> {
-    slot_ref(table, h).cloned()
-}
-
-#[inline(always)]
 fn slot_str_ref<'a>(table: &'a SlotTable, h: u64) -> Option<&'a str> {
     slot_ref(table, h).and_then(|obj| obj.as_ref().as_str_fast())
 }
@@ -154,7 +149,7 @@ impl Registry {
     #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
         let table = self.table.read();
-        slot_clone(&table, h)
+        slot_ref(&table, h).cloned()
     }
 
     #[inline(always)]
@@ -166,8 +161,8 @@ impl Registry {
     #[inline(always)]
     fn get_pair(&self, a: u64, b: u64) -> (Option<Arc<dyn NyashBox>>, Option<Arc<dyn NyashBox>>) {
         let table = self.table.read();
-        let a_obj = slot_clone(&table, a);
-        let b_obj = slot_clone(&table, b);
+        let a_obj = slot_ref(&table, a).cloned();
+        let b_obj = slot_ref(&table, b).cloned();
         (a_obj, b_obj)
     }
 
@@ -239,9 +234,9 @@ impl Registry {
         Option<Arc<dyn NyashBox>>,
     ) {
         let table = self.table.read();
-        let a_obj = slot_clone(&table, a);
-        let b_obj = slot_clone(&table, b);
-        let c_obj = slot_clone(&table, c);
+        let a_obj = slot_ref(&table, a).cloned();
+        let b_obj = slot_ref(&table, b).cloned();
+        let c_obj = slot_ref(&table, c).cloned();
         (a_obj, b_obj, c_obj)
     }
     #[inline(always)]
