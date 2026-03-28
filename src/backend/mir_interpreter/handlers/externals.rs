@@ -201,13 +201,6 @@ impl MirInterpreter {
                 self.write_result(dst, ret);
                 Ok(())
             }
-            ("env.codegen", "compile_json_path") => {
-                let ret = self
-                    .extern_provider_dispatch("env.codegen.compile_json_path", args)
-                    .unwrap_or(Ok(VMValue::Void))?;
-                self.write_result(dst, ret);
-                Ok(())
-            }
             ("env.codegen", "compile_ll_text") => {
                 let ret = self
                     .extern_provider_dispatch("env.codegen.compile_ll_text", args)

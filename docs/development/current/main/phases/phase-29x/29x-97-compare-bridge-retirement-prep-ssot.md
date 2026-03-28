@@ -52,6 +52,7 @@ Related:
 
 - `lang/src/runtime/host/host_facade_box.hako` no longer forwards `codegen.compile_json_path`; the Hako front-door bridge has been removed from the live caller set.
 - the remaining compile_json_path reachability now lives in downstream legacy/runtime wrappers and Rust dispatchers only.
+- archive compare smoke now hydrates MIR roots directly and no longer depends on `compile_json_path` for the compare bridge proof path.
 
 ## Landed Rust Demotion Slice
 
@@ -64,17 +65,21 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 
 | Surface | Bucket | Note |
 | --- | --- | --- |
-| `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for `compile_json_path_args` |
+| `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for emit/link args only; `compile_json_path_args` retired in this slice |
 | `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade no longer forwards `codegen.compile_json_path`; remaining compile_json_path reachability lives in downstream legacy/runtime wrappers |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later | VM extern provider no longer exposes the front-door selector; downstream legacy/runtime wrappers still hold the path |
 | `src/backend/mir_interpreter/handlers/extern_provider.rs` | archive-later | interpreter backend still handles the legacy extern, but the daily owner now gates `compile_json_path` out |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | archive-later | plugin loader still resolves legacy compile entrypoints, but the daily `hako-ll-min-v0` recipe now gates `compile_json_path` out |
-| `src/backend/mir_interpreter/handlers/externals.rs` | archive-later | direct extern dispatch still reaches the legacy path |
-| `src/backend/mir_interpreter/handlers/calls/global.rs` | archive-later | global call handler still maps the legacy selector |
 | `lang/src/vm/boxes/mir_call_v1_handler.hako` | archive-later | VM bridge handler still decodes `compile_json_path` args |
 | `lang/src/vm/boxes/mir_vm_s0_codegen.hako` | archive-later | VM codegen shim still routes through the legacy helper |
 | `src/runner/modes/llvm/object_emitter.rs` | deleted | retired harness wrapper; active runner no longer links this wrapper |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
+
+Recently retired from the pass-through layer:
+
+- `src/backend/mir_interpreter/handlers/calls/global.rs`
+- `src/backend/mir_interpreter/handlers/externals.rs`
+- `lang/src/shared/host_bridge/codegen_bridge_box.hako::compile_json_path_args`
 
 ## Retirement Order
 
@@ -97,6 +102,7 @@ Slice 2 status:
 Slice 2 status:
 
 - Rust runtime dispatcher `compile_json_path` branches are also gated away from the daily `hako-ll-min-v0` recipe
+- the pass-through `compile_json_path` arms in `src/backend/mir_interpreter/handlers/calls/global.rs` and `src/backend/mir_interpreter/handlers/externals.rs` are retired
 - explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
 - builder / wrapper surfaces remain live, so delete is still not ready
 

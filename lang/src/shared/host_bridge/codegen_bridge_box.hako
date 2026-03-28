@@ -8,16 +8,6 @@
 using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 
 static box CodegenBridgeBox {
-  method compile_json_path_args(args) {
-    local arr = me._ensure_array(args)
-    local json_path = me.array_arg_or_null(arr, 0)
-    if json_path == null { return null }
-    local out_path = me.array_arg_or_null(arr, 1)
-    local recipe = me.array_arg_or_null(arr, 2)
-    local compat = me.array_arg_or_null(arr, 3)
-    return me._compile_json_path_legacy(json_path, out_path, recipe, compat)
-  }
-
   method emit_object_args(args) {
     local arr = me._ensure_array(args)
     local mir_json = me.array_arg_or_null(arr, 0)
@@ -49,17 +39,6 @@ static box CodegenBridgeBox {
     local arr = new ArrayBox()
     if value != null { arr.push(value) }
     return arr
-  }
-
-  _compile_json_path_legacy(json_path, out_path, recipe, compat) {
-    if out_path == null {
-      if recipe == null { return env.codegen.compile_json_path(json_path) }
-      if compat == null { return env.codegen.compile_json_path(json_path, "", recipe) }
-      return env.codegen.compile_json_path(json_path, "", recipe, compat)
-    }
-    if recipe == null { return env.codegen.compile_json_path(json_path, out_path) }
-    if compat == null { return env.codegen.compile_json_path(json_path, out_path, recipe) }
-    return env.codegen.compile_json_path(json_path, out_path, recipe, compat)
   }
 
   _emit_object_legacy(mir_json) {

@@ -40,9 +40,13 @@ static box LlvmBackendBox {
   compile_obj_compare_hako_ll(json_path, out_path) {
     local profile = BackendRecipeBox.compile_compare_profile(json_path)
     if profile == null { return null }
-    local obj = me._compile_obj_legacy_with_profile(json_path, out_path, profile)
+    local root = MirRootHydratorBox.hydrate_file(json_path)
+    if root == null {
+      return me._fail("[llvmbackend/root-hydrate-failed] json_path=" + ("" + json_path))
+    }
+    local obj = me._compile_obj_root_with_profile(root, null, out_path, profile, "compare")
     if obj == null || ("" + obj) == "" {
-      return me._fail("[llvmbackend/compare/failed] env.codegen.compile_json_path returned empty")
+      return me._fail("[llvmbackend/compare/failed] compare root compile returned empty")
     }
     return "" + obj
   }
