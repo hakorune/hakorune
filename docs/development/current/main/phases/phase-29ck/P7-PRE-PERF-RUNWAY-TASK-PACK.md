@@ -66,7 +66,7 @@ Related:
 - acceptance:
   - `tools/dev/phase29ck_backend_recipe_profile_probe.sh`
   - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_compat_keep_min.sh`
-  - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
+  - `tools/smokes/v2/profiles/integration/archive/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
 
 ### `W2` boundary fallback reliance reduction
 
@@ -150,7 +150,7 @@ Related:
 - acceptance:
   - mainline:
     - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
-    - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
+    - `tools/smokes/v2/profiles/integration/archive/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
   - keep:
     - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_llvmlite_keep_identity_min.sh`
     - `PYTHONPATH=src/llvm_py:. python3 -m unittest src.llvm_py.tests.test_strlen_fast`

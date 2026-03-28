@@ -250,8 +250,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
     - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
     - `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
-    - `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh` (archive-suite only)
-    - `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako` (archive-suite only)
+    - `tools/smokes/v2/profiles/integration/archive/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh` (archive-suite only)
+    - `apps/tests/archive/phase29x_backend_owner_hako_ll_compare_min.hako` (archive-suite only)
     - `apps/tests/phase29x_backend_owner_daily_min.hako`
   - working rule:
     - keep canonical seam at MIR; do not open `AST -> LLVM` direct lowering

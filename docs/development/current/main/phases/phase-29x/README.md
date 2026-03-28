@@ -68,9 +68,9 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
   7. archive/delete sweep
 - current landed slice is subtraction-first:
   - `.hako ll emitter` min v0 is the daily owner for `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, `RuntimeDataBox.length(StringBox)`, `RuntimeDataBox.length(ArrayBox)`, and `RuntimeDataBox.size(MapBox)`
-  - compare bridge smoke is now archive-suite only: `tools/smokes/v2/profiles/integration/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh` runs from `phase29x-derust-archive.txt`
+  - compare bridge smoke is now archive-suite only: `tools/smokes/v2/profiles/integration/archive/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh` runs from `phase29x-derust-archive.txt`
   - daily owner smokes are `phase29x_backend_owner_daily_{ret_const,bool_phi_branch,print,string_length,string_indexof,indexof_line,substring_concat_loop,concat3_extern,runtime_data_length,runtime_data_array_length,runtime_data_map_size,runtime_data_array_has,runtime_data_array_get,runtime_data_array_push,runtime_data_map_has,runtime_data_map_get}_min.sh`
-  - compare wrapper app is `apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako` and it is archive-suite only
+  - compare wrapper app is `apps/tests/archive/phase29x_backend_owner_hako_ll_compare_min.hako` and it is archive-suite only
   - daily wrapper app is `apps/tests/phase29x_backend_owner_daily_min.hako`
   - archive/delete sweep wave 1 is landed:
     - flipped `phase29ck` locks now live in `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt`

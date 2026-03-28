@@ -4,14 +4,14 @@
 # Contract pin:
 # 1) explicit `.hako ll emitter` compare lane stays opt-in only.
 # 2) this smoke is archived from the active suite and now runs from
-#    `phase29x-derust-archive.txt`.
+#    `archive/phase29x/derust/phase29x_backend_owner_hako_ll_compare_min.sh`.
 # 3) narrow min-v0 fixtures (`ret const`, `bool phi/branch`, `concat3 extern`)
 #    emit objects through the compare owner candidate.
 # 4) compare lane emits stable ownership evidence before object handoff.
 
 set -euo pipefail
 
-source "$(dirname "$0")/../../../../lib/test_runner.sh"
+source "$(dirname "$0")/../../../../../lib/test_runner.sh"
 require_env || exit 2
 
 if ! command -v llc >/dev/null 2>&1 && ! command -v llc-18 >/dev/null 2>&1; then
@@ -21,7 +21,7 @@ fi
 
 SMOKE_NAME="phase29x_backend_owner_hako_ll_compare_min"
 HAKORUNE_BIN="$NYASH_ROOT/target/release/hakorune"
-APP="$NYASH_ROOT/apps/tests/phase29x_backend_owner_hako_ll_compare_min.hako"
+APP="$NYASH_ROOT/apps/tests/archive/phase29x_backend_owner_hako_ll_compare_min.hako"
 FIXTURE_RET_CONST="$NYASH_ROOT/apps/tests/mir_shape_guard/ret_const_min_v1.mir.json"
 FIXTURE_BOOL_PHI="$NYASH_ROOT/apps/tests/mir_shape_guard/bool_phi_branch_min_v1.mir.json"
 FIXTURE_CONCAT3="$NYASH_ROOT/apps/tests/mir_shape_guard/string_concat3_extern_min_v1.mir.json"

@@ -6,7 +6,8 @@ Format:
 - One relative path per line.
 - `#` starts a comment.
 - Paths are relative to `tools/smokes/v2/profiles/<profile>/`.
-- Keep manifests small, stable, and active-only.
+- Archive carriers may live under `archive/` inside the profile tree when a suite is meant to replay retired evidence explicitly.
+- Keep manifests small, stable, and active-only unless they are the dedicated archive carrier for a retired lane.
 
 Layout:
 - `tools/smokes/v2/suites/<profile>/<suite>.txt`

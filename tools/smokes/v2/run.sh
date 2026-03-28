@@ -340,6 +340,9 @@ find_test_files() {
     local profile_dir="$SCRIPT_DIR/profiles/$PROFILE"
     local test_files=()
     local prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS:-archive:lib:tmp:fixtures}"
+    if [ -n "$SUITE" ]; then
+        prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS_WITH_SUITE:-lib:tmp:fixtures}"
+    fi
     local -a prune_names=()
     local -a find_expr=()
     local prune_added=0

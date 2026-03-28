@@ -14,6 +14,6 @@ Suite:
 Notes:
 - keep `phase29ck-boundary.txt` focused on active boundary owner coverage and unflipped pure-first acceptance
 - `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `indexof-line loop`, `substring-concat-loop`, `concat3 extern`, and the three `RuntimeData.length/size` observer pins are now legacy boundary locks; their daily owner proof moved to `phase29x/derust`
-- `phase29ck-boundary-legacy.txt` is a temporary suite for those retired locks until compare/archive decisions are complete
+- `phase29ck-boundary-legacy.txt` is a temporary suite for those retired locks until compare/archive decisions are complete; the archived smoke scripts live under `archive/phase29ck_boundary/...`
 - active `runtime_data/` coverage is now the lookup family; `push` mutator moved to legacy
 - direct-emit app contracts stay outside this suite unless they become boundary-owner canaries

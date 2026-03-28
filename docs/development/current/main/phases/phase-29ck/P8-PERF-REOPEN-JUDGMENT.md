@@ -25,7 +25,7 @@ Related:
 
 ### Green evidence
 
-- `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
+- `tools/smokes/v2/profiles/integration/archive/phase29ck_boundary/entry/phase29ck_boundary_pure_first_min.sh`
 - `tools/smokes/v2/profiles/integration/phase29ck_boundary/entry/phase29ck_boundary_compat_keep_min.sh`
 - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_box_capi_link_min.sh`
 

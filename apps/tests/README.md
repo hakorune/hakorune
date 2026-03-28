@@ -14,6 +14,10 @@
 - **ny-vinvoke-llvm-ret/** - 可変長引数戻り値テスト
 - **ny-vinvoke-llvm-ret-size/** - 固定長引数（size()）テスト
 
+### archive/
+- 退役した compare/proof wrapper は `archive/` に置く
+- active gate 用のテストはここに追加しない
+
 ## 実行方法
 
 これらのテストは主に `tools/llvm_smoke.sh` から実行されます：
