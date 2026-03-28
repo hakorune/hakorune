@@ -72,6 +72,9 @@ Related:
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
   - current exact result:
+    - generic optimization unit is now fixed as `recipe family`, not benchmark name
+    - `recipe / scope / effect / policy / leaf` split is now the preferred reading for future user-box and allocator optimization work
+    - current perf slices may keep narrow leaf proofs, but they must not become permanent benchmark-keyed owners
     - `Stage1 MIR dialect split` is retired for the current kilo entry
     - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
     - docs-first proof-vocabulary lock is landed

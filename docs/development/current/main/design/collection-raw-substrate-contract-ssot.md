@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29ct/README.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
+  - docs/development/current/main/design/recipe-scope-effect-policy-ssot.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - lang/src/runtime/collections/README.md
@@ -57,6 +58,10 @@ Related:
 - `phase-29ct` owns that next lane
 
 ## 2. Litmus Test
+
+- the common optimization unit for collection work is `recipe family`, not benchmark name
+- method semantics may widen by `receiver_family / method_family / scope_class / effect_profile`
+- benchmark-specific proof lanes may exist, but they must not become permanent owner boundaries
 
 ### Put it in `.hako`
 

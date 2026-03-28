@@ -67,18 +67,21 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - scope: string materialization / array store memory motion
 - current SSOT:
   - `docs/development/current/main/10-Now.md`
+  - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
   - `docs/tools/README.md`
 - next exact leaf:
   - `concat_const_suffix_fallback`
   - `array_set_by_index_string_handle_value`
   - `string_handle_from_owned`
 - notes:
+  - generic optimization unit is `recipe family`, not benchmark name
   - keep the generalized scope/method machinery
   - avoid reopening route / fallback policy until the memory-motion slice is exhausted
 
 ## Immediate Next Task
 
 - continue the `kilo` perf lane on the string materialization / array store motion slice
+- keep genericization work on `recipe / scope / effect / policy`, not on benchmark-named branches
 - keep the generalized cache/scope machinery intact while tightening the hot leaf path
 - do not reopen `route.rs` / compare-bridge policy unless new evidence shows route cost dominates again
 - keep the stage0 llvmlite lane and stage1 root-first mainline intact

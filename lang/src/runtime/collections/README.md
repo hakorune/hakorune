@@ -25,12 +25,14 @@ Scope: `.hako` ring1 collection core for user-visible collection semantics durin
 - Runtime/provider current-truth and `0rust` cutover order are tracked in:
   - `docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md`
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`
+  - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
 
 Rule:
 - keep this layer ring1
 - do not move collection semantics into ring0
 - method-shaped verbs (`get/set/push/has/len/length/size`, normalization, visible fallback/error contract) belong here
 - raw substrate verbs (`encode/decode/cache/downcast/load/store/probe/rehash/layout`) remain in Rust until the phase boundary is deeper
+- generic optimization units should follow `recipe family`, not benchmark names
 - `rehash/tombstone` semantics stay parked until a truthful native substrate seam exists
 - future owner growth belongs to `.hako` ring1 collection/runtime, not OS-facing ring0
 - stage axis は別読みで、current collection owner shift は Stage1 snapshot の上でも進めてよい

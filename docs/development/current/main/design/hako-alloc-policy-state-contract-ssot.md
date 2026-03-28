@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/helper-boundary-policy-ssot.md
+  - docs/development/current/main/design/recipe-scope-effect-policy-ssot.md
   - lang/src/hako_alloc/README.md
   - src/runtime/host_handles.rs
   - src/runtime/host_handles_policy.rs
@@ -23,6 +24,7 @@ Related:
 - `hako_alloc` wave で何が policy/state owner で、何が capability substrate / native metal keep に残るかを 1 枚で固定する。
 - allocator series の first concrete rows を narrow に止め、`RawBuf / Layout / MaybeInit` や actual allocator backend migration と混ぜない。
 - `host_handles` / `gc_controller` の mixed seam を、挙動不変の policy/body split として読む。
+- allocator-like user boxes also follow the shared `recipe / scope / effect / policy / leaf` split; this doc owns only the allocator-specific policy/state rows.
 
 ## Current Split
 

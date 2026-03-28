@@ -5,6 +5,7 @@ Related:
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
 - docs/development/current/main/design/optimization-portability-classification-ssot.md
 - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
+- docs/development/current/main/design/recipe-scope-effect-policy-ssot.md
 - docs/development/current/main/investigations/phase21_5-kilo-hotspot-triage-2026-02-23.md
 - src/runtime/host_handles.rs
 - crates/nyash_kernel/src/exports/string_span_cache.rs
@@ -15,6 +16,8 @@ Related:
 ## Goal
 
 `kilo/text` 系の最適化で増えやすい「閾値・順序・再利用方針」を、helper 本体に散らさず 1 箱に隔離する。
+
+この文書の位置づけは `recipe / scope / effect / policy / leaf` split のうち `policy` だけを扱う narrow SSOT だよ。
 
 対象:
 

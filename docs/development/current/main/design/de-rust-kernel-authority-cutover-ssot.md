@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
+  - docs/development/current/main/design/recipe-scope-effect-policy-ssot.md
   - lang/README.md
   - lang/src/runtime/kernel/
 ---
@@ -62,6 +63,7 @@ Related:
 
 - The preferred final shape is not "delete every native line immediately".
 - The preferred final shape is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to the minimum required for bootstrap, ABI/transport, raw leaf memory, handle registry, GC hooks, and LLVM backend emission.
+- The preferred design reading is also `meaning / scope / effect / policy` in `.hako`, with native code reduced to hidden leaf.
 - The next step after the current collection stop-line is a capability ladder:
   - `.hako semantic owner`
   - `.hako algorithm substrate`
