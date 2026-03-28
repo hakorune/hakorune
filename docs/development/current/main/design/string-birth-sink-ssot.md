@@ -156,21 +156,25 @@ TextPlan / PiecesN
 
 perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりもこの直列が先に支配している。
 
-なので、次の exact cut は `nyash.array.set_his` の monomorphic split ではなく、**birth density を下げるための `freeze.str` 共通化** だよ。
+なので、次の exact cut は `nyash.array.set_his` の monomorphic split ではなく、**`string_store.rs` への sink canonicalization と planner cleanup** だよ。
 
 ## Immediate Rollout
 
 1. docs-first
    - `freeze.str` を唯一の birth sink として current docs に固定する
-2. narrow pilot
-   - `concat_hs` を `concat3_hhh` と同じ `plan -> freeze` 系へ寄せる
-3. narrow pilot
-   - `insert_hsi` を同じ `plan -> freeze` 系へ寄せる
-4. meso proof
+2. landed
+   - `concat_hs` と `insert_hsi` は `freeze_text_plan(...)` を共有し、`plan -> freeze` の形へ入った
+3. next
+   - `freeze.str` の canonical sink 実装を `string_store.rs` 側へ寄せる
+4. next
+   - planner を recipe-only / boundary-only へ縮める
+5. next
+   - `array_set` を consumer boundary として維持する
+6. meso proof
    - `kilo_meso_substring_concat_array_set`
-5. main proof
+7. main proof
    - `kilo_kernel_small_hk`
-6. only then
+8. only then
    - sink-local narrow tuning (`StringBox::new`, `Registry::alloc/get`)
 
 ## Non-Goals

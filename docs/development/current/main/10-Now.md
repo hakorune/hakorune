@@ -177,10 +177,11 @@ Related:
 	          - `concat_hs` / `insert_hsi` / `concat3_hhh` should converge on the same `plan -> freeze` model
 	          - `set_his` helper splits are no longer the primary design front
 	          - current implementation order is fixed:
-	            1. `concat_hs -> plan -> freeze`
-	            2. `insert_hsi -> plan -> freeze`
-	            3. meso/main proof on the same artifact pair
-	            4. only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning
+	            1. canonicalize `freeze.str` in `string_store.rs`
+	            2. shrink planner into recipe-only / boundary-only placement
+	            3. keep `array_set` as the consumer boundary
+	            4. meso/main proof on the same artifact pair
+	            5. only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning
 	          - code has now landed the shared `freeze_text_plan(...)` sink helper for `concat_hs` and `insert_hsi`; current proof reading remains `kilo_meso_substring_concat_array_set = 67 ms` and `kilo_kernel_small_hk = 717 ms` (`warmup=1 repeat=3`)
 	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	        - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`

@@ -129,6 +129,7 @@ Current birth density is split across three places:
 The shadow pilot should not add a fourth place.
 
 Current docs-first direction is to collapse these readings under `freeze.str` as the single birth sink, while keeping planner/placement in compile-time and keeping runtime free of new observable token layers.
+`concat_hs` and `insert_hsi` already share the `freeze_text_plan(...)` sink helper; the next step is to canonicalize that sink in `string_store.rs` and keep the planner recipe-only.
 
 The narrowest useful mapping is:
 
@@ -154,6 +155,7 @@ Allowed:
 - AOT consumer-local shadow lowering
 - pass-local `RepKind` / `TStr`
 - `freeze.str` as a narrow sink
+- `freeze_text_plan(...)` as the current shared helper on the concat/insert pilot path
 
 ## Stop Lines
 
