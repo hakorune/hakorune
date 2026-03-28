@@ -11,6 +11,7 @@ Related:
 - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
 - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
 - docs/development/current/main/design/stage2-string-route-split-plan.md
+- docs/development/current/main/design/transient-text-pieces-ssot.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
 - docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md
@@ -49,6 +50,7 @@ Related:
   - short microasm may still be startup/loader sensitive, but `bench_micro_aot_asm.sh` now uses a direct C runner instead of a bash loop
 - startup-subtracted small-entry evidence is now `method_call_only_small=1 ms`, `box_create_destroy_small=0 ms`
 - `P11-SMALL-ENTRY-STARTUP-INVENTORY.md` is now closed.
+- current perf-kilo design front has moved to `transient-text-pieces-ssot.md`; the measurement snapshots below remain historical evidence until the next proof lands.
 - therefore the perf lane may stay reopened, `P12-SMALL-ENTRY-GC-SECTIONS-CANDIDATE.md` and `P13-SMALL-ENTRY-RAW-NET-REFRESH.md` are now closed, and the current small-entry lane is `none (monitor-only)`.
 - current boundary-mainline `method_call_only_small` exe shape is `5,375,880` bytes / `61` relocations.
 - refreshed raw 1x1 evidence is `method_call_only_small=9 ms`, `box_create_destroy_small=8 ms`.

@@ -71,19 +71,20 @@ Related:
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
-  - current exact result:
-    - generic optimization unit is now fixed as `recipe family`, not benchmark name
-    - `recipe / scope / effect / policy / leaf` split is now the preferred reading for future user-box and allocator optimization work
-    - current perf slices may keep narrow leaf proofs, but they must not become permanent benchmark-keyed owners
-    - `Stage1 MIR dialect split` is retired for the current kilo entry
-    - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
-    - docs-first proof-vocabulary lock is landed
-    - the current perf-kilo slice is now the shared store-ready string materialization boundary
-    - next exact leaf is the `array_set_by_index_string_handle_value` store decision, with a string-specific store helper and `concat_const_suffix_fallback` sharing the handle/span resolution boundary
-    - rejected follow-up: authoritative `ArrayBox` integer-storage split did not improve `kilo_micro_array_getset` and regressed main `kilo`
-    - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
-    - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
-    - rejected follow-up: backend-private adjacent fused `get -> +const -> set -> get` leaf is now explained as a route-shape miss, not a mysterious symbol miss
+    - current exact result:
+      - generic optimization unit is now fixed as `recipe family`, not benchmark name
+      - `recipe / scope / effect / policy / leaf` split is now the preferred reading for future user-box and allocator optimization work
+      - current perf slices may keep narrow leaf proofs, but they must not become permanent benchmark-keyed owners
+      - `Stage1 MIR dialect split` is retired for the current kilo entry
+      - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
+      - docs-first proof-vocabulary lock is landed
+      - the current perf-kilo design front is now the normalized transient text pieces carrier
+      - the current proof lane remains the shared store-ready string materialization boundary
+      - next exact proof is `substring_hii / concat_hs / insert_hsi / len_h` on `PiecesN`
+      - rejected follow-up: authoritative `ArrayBox` integer-storage split did not improve `kilo_micro_array_getset` and regressed main `kilo`
+      - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
+      - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
+      - rejected follow-up: backend-private adjacent fused `get -> +const -> set -> get` leaf is now explained as a route-shape miss, not a mysterious symbol miss
     - current live no-replay array window is semantic `get -> copy* -> const 1 -> add -> set`
     - current micro route now proves the semantic window on the same artifact:
       - `array_rmw_window result=hit`

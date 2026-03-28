@@ -5,6 +5,7 @@ Date: 2026-03-18
 Scope: `kilo_micro_substring_concat` を起点に、`substring -> concat3 -> length` の inner chain を transient/span-first にほどく次 wave の設計を固定する。
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/design/transient-text-pieces-ssot.md
 - docs/development/current/main/design/string-transient-lifecycle-ssot.md
 - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
 - docs/development/current/main/design/perf-optimization-method-ssot.md
@@ -24,6 +25,7 @@ Related:
 
 `substring_concat` 系の hot loop で、観測されない中間文字列まで box/handle を作っている密度を下げる。
 ただし `BoxBase::new` / `box_id` / handle registry の substrate 契約は壊さない。
+transient carrier は operation tree ではなく、normalized `PiecesN` として読む。
 
 この wave の目的は 2 つだけだよ。
 
@@ -49,6 +51,7 @@ Related:
 4. `acc = acc + out.length()`
 
 ここでは `left` / `right` / `out` は loop 内で read-only に消費されるだけなので、最初に transient/non-box 候補へ寄せる。
+`left + "xx" + right` は tree ではなく piece list へ normalize して読む。
 
 一方で、
 
@@ -64,6 +67,7 @@ Related:
 - read-only `substring` result
 - `concat3` の入力としてだけ使われる一時 span
 - `length`/`size` で即消費される一時 span
+- `TextPlan` / `TText` の normalized `PiecesN`
 
 ### Escape とみなすもの
 
@@ -133,7 +137,8 @@ current code では `plan` と `birth` がまだ混ざっている。
 次に目指す形はこれだよ。
 
 1. transient planning
-   - substring / concat / observer chain を substrate-independent に表す
+   - substring / concat / insert / observer chain を substrate-independent に表す
+   - chain は normalized `PiecesN` に潰し、operation tree を owner にしない
 2. freeze boundary
    - escaped/retained point だけが `StringBox` / `StringViewBox` / handle を作る
 
@@ -151,6 +156,9 @@ current code では `plan` と `birth` がまだ混ざっている。
 - `str.eq_at`
 - `freeze.str`
 
+この wave の carrier wording は `thaw -> piece normalize -> len -> freeze` に寄せる。
+`str.concat3` / `str.insert` は carrier の owner ではなく、normalize step の contract として読む。
+
 `.hako` 側の internal kernel spellings は `__str.*` にしてよい。
 ただし current `substring_concat` pilot は narrow に保ち、search/control kernel wave は follow-up として分離する。
 
@@ -158,6 +166,7 @@ current code では `plan` と `birth` がまだ混ざっている。
 
 1. docs-first
    - inner transient chain と escape boundary をこの文書と `string-transient-lifecycle-ssot.md` で固定する
+   - carrier 語彙は `transient-text-pieces-ssot.md` に寄せる
 2. inventory
    - `substring_hii`, `concat3_hhh`, `string_len_from_handle`, `string_handle_from_owned` のどこで box/handle birth が起きるかを 1 枚で棚卸しする
    - the inventory must be a birth map, not just a function list

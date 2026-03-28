@@ -6,6 +6,7 @@ Scope: user box 最適化を benchmark 名ではなく `recipe family` 単位で
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/transient-text-pieces-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/helper-boundary-policy-ssot.md
@@ -165,6 +166,7 @@ Do not mix these.
 - current `kilo` leaf proof routes
 - shared store-ready string materialization is a concrete `recipe family` helper boundary, not benchmark-specific hardcode
 - string-specific store helpers and concat suffix handle/span resolution are valid leaf refinements when they keep the same `recipe family` boundary
+- normalized transient text pieces / `TextPlan` are also concrete `recipe family` helper boundaries, not benchmark-specific hardcode
 
 ### Do not promote as generic owner
 

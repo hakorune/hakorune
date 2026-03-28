@@ -4,6 +4,7 @@ Scope: `substring_hii` view 化 v0 の導入前契約（docs-first）
 Related:
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
 - docs/development/current/main/design/auto-specialize-box-ssot.md
+- docs/development/current/main/design/transient-text-pieces-ssot.md
 - docs/development/current/main/investigations/phase21_5-kilo-hotspot-triage-2026-02-23.md
 ---
 
@@ -13,6 +14,7 @@ Related:
 
 `nyash.string.substring_hii` の alloc/copy 密度を下げるため、`StringView(base, start, end)` を v0 で導入する。
 ただしメモリ保持事故を防ぐため、materialize 境界を先に固定する。
+この文書は substring-only の view/materialize boundary を扱い、concat / insert を含む normalized carrier は [`transient-text-pieces-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/transient-text-pieces-ssot.md) に逃がす。
 
 ## Non-goals (v0)
 

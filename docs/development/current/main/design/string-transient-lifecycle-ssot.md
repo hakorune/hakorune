@@ -5,6 +5,7 @@ Date: 2026-03-19
 Scope: `substring -> concat3 -> length` hot chain のために、string runtime を `authority / transient / birth boundary / substrate` の 4 層で読む設計を固定する
 Related:
 - CURRENT_TASK.md
+- docs/development/current/main/design/transient-text-pieces-ssot.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/design/perf-optimization-method-ssot.md
 - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
@@ -90,7 +91,10 @@ SSOT 上の canonical 名は `str.*` / `freeze.str` だよ。
 
 この wave で採る設計方向は:
 
-- transient は「root span 群 + small inline piece」のような正規化表現として考える
+- transient は `TextPlan` / `TText` として読む
+- carrier は `Piece = RootSlice | InlineLit` の normalized small piece list にする
+- `Concat2` / `Concat3` / `Insert` は owner ではなく normalize step として扱う
+- `TText = View1 | PiecesN | OwnedTmp` に寄せ、`PiecesN` を backend-local carrier にする
 - transport token を導入する場合でも、それは意味の owner ではなく transient 表現の容器に留める
 - narrow pilot としては `RepMIR` / `RepKind` の AOT backend-local representation を許可する
 - ただしその場合でも owner は docs / `.hako authority` に置き、Rust private enum を truth にしない
@@ -177,6 +181,8 @@ fn freeze_string(/* transient repr */, boundary: BoundaryKind) -> i64
 ### Transient
 
 - `crates/nyash_kernel/src/exports/string_view.rs::StringSpan`
+- `docs/development/current/main/design/transient-text-pieces-ssot.md`
+- `TextPlan` / `TText`
 - 将来の transient piece / recipe 表現
 
 ### Birth Boundary
