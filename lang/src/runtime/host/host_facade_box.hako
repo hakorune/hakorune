@@ -105,6 +105,9 @@ static box HostFacadeBox {
 
   _dispatch_loader_codegen_bridge(selector, payload) {
     if selector == "codegen.compile_json_path" {
+      if me._codegen_compile_json_path_front_door_retired() {
+        return null
+      }
       local args = me._payload_as_array(payload)
       return CodegenBridgeBox.compile_json_path_args(args)
     }
@@ -117,6 +120,12 @@ static box HostFacadeBox {
       return CodegenBridgeBox.link_object_args(args)
     }
     return null
+  }
+
+  _codegen_compile_json_path_front_door_retired() {
+    local transport_owner = env.get("HAKO_BACKEND_TRANSPORT_OWNER")
+    if transport_owner == "hako_ll_emitter" { return 1 }
+    return 0
   }
 
   _payload_box_call(payload) {

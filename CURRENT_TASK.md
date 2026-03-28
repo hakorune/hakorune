@@ -58,6 +58,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - `route.rs` compare/archive shrink is landed; next fixed cleanup is compare bridge retirement / archive decisions, not another launcher transport cut
     - compare bridge retirement is archive-later only until live callers reach zero; archive-home is sufficient and `delete-ready` remains none
     - live `compile_json_path` caller inventory and retirement order are now tracked in `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
+    - Hako front-door `compile_json_path` selectors are now gated out when the backend transport owner is `hako_ll_emitter`; explicit legacy compare/archive callers still use the archive-later helper path
   - fixed order after the owner-flip wave is now:
     - keep `.ll` as the Rust/LLVM tool seam
     - keep `MIR JSON` as evidence only and feed daily `.hako ll emitter` with a root

@@ -41,6 +41,13 @@ Related:
 - `lang/src/shared/backend/backend_route_env_box.hako`
 - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
 - `lang/src/runtime/host/host_facade_box.hako`
+- `lang/src/vm/hakorune-vm/extern_provider.hako`
+
+## Landed Demotion Slice
+
+- `HostFacadeBox` and `HakoruneExternProviderBox` now gate `codegen.compile_json_path` when the backend transport owner is `hako_ll_emitter`.
+- daily root-first callers no longer enter the Hako front-door bridge through `compile_json_path`.
+- explicit legacy compare/archive callers still pass through the archive-later helper path.
 
 ## Live Caller Inventory
 
@@ -51,9 +58,9 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 | `lang/src/mir/builder/calls/extern_calls.rs` | archive-later | builder-side extern recognition still names `compile_json_path` |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for `compile_json_path_args` |
 | `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade dispatch still forwards `codegen.compile_json_path` |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later | VM extern provider still exposes the legacy selector, but the daily owner now gates it out |
 | `lang/src/vm/boxes/mir_call_v1_handler.hako` | archive-later | VM bridge handler still decodes `compile_json_path` args |
 | `lang/src/vm/boxes/mir_vm_s0_codegen.hako` | archive-later | VM codegen shim still routes through the legacy helper |
-| `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later | VM extern provider still exposes the legacy selector |
 | `src/backend/mir_interpreter/handlers/extern_provider.rs` | archive-later | interpreter backend still handles the legacy extern |
 | `src/backend/mir_interpreter/handlers/externals.rs` | archive-later | direct extern dispatch still reaches the legacy path |
 | `src/backend/mir_interpreter/handlers/calls/global.rs` | archive-later | global call handler still maps the legacy selector |
@@ -69,9 +76,14 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 3. Builder and legacy LLVM object-emitter wrappers.
 4. Only after the live caller set reaches zero: review `compile_json_path` for delete readiness.
 
+Slice 1 status:
+
+- daily front-door Hako bridge selectors are gated away from `hako_ll_emitter`
+- compare/archive callers still use the explicit legacy helper path
+- the remaining live caller inventory is still non-zero, so delete is still not ready
+
 ## Why Delete Is Not Ready
 
 - live callers still exist in both the Hako host bridge and Rust runtime dispatch layers.
 - compare bridge is already archive-later only, but the legacy tool path is still needed by explicit callers.
 - removing the API now would reopen the compare bridge and violate the archive-home sufficient rule.
-

@@ -55,6 +55,12 @@ static box HakoruneExternProviderBox {
       return ""
     }
     if name == "env.codegen.compile_json_path" {
+      if env.get("HAKO_BACKEND_TRANSPORT_OWNER") == "hako_ll_emitter" {
+        if env.get("HAKO_CABI_TRACE") == "1" {
+          print("[extern/c-abi:codegen.compile_json_path-retired]")
+        }
+        return ""
+      }
       if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
         if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:codegen.compile_json_path]") }
         local out = CodegenBridgeBox.compile_json_path_args(args)
