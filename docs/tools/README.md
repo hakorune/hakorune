@@ -145,6 +145,21 @@ tools/perf/run_phase21_5_perf_gate_bundle.sh full
 - `apps`: app entry/mode 契約
 - `full`: hotpath + apps + regression helper 契約
 
+## 8.5. Kilo Perf Ladders
+
+leaf proof / micro / meso の入口:
+
+```bash
+bash tools/perf/run_kilo_leaf_proof_ladder.sh 1 3
+bash tools/perf/run_kilo_micro_machine_ladder.sh 1 3
+bash tools/perf/run_kilo_meso_machine_ladder.sh 1 3
+```
+
+補足:
+- `micro` は leaf 密度を見る
+- `meso` は `len -> array_set -> loopcarry` で `micro` と `kilo_kernel_small_hk` の gap を分離して読む
+- C/AOT 比較は `tools/perf/bench_micro_c_vs_aot_stat.sh <bench_key> 1 3` を使う
+
 ## 9. Dev Gate Bundle (3-tier)
 
 日常の「多すぎるコマンド」を 1 本にまとめた導線:

@@ -12,6 +12,7 @@ Related:
 - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
 - docs/development/current/main/design/stage2-string-route-split-plan.md
 - docs/development/current/main/design/transient-text-pieces-ssot.md
+- docs/development/current/main/design/kilo-meso-benchmark-ladder-ssot.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
 - docs/development/current/main/investigations/phase29ck-array-substrate-rejected-optimizations-2026-03-27.md
@@ -109,18 +110,28 @@ Related:
    - 使い方: `ratio_cycles` と `ratio_instr` を優先して順位を決める
   - route contract: same as stable baseline; explicit keep lanes are not valid perf comparisons here
 
-4. ASM probe
+4. Meso ladder
+   - 入口: `tools/perf/run_kilo_meso_machine_ladder.sh`
+   - 役割: `micro` と `kilo_kernel_small_hk` の間にある `len -> array_set -> loopcarry` 境界で gap がどこで開くかを見る
+   - 使い方:
+     - `substring+concat+len`
+     - `substring+concat+array_set`
+     - `substring+concat+array_set+loopcarry`
+     の順で差が開く地点を読む
+   - route contract: same as stable baseline; explicit keep lanes are not valid perf comparisons here
+
+5. ASM probe
    - 入口: `tools/perf/bench_micro_aot_asm.sh`
    - 役割: micro ladder で一番厚い leaf の原因関数を確認する
    - 使い方: `perf report --stdio --no-children` の top symbol を読む
    - runner contract: bash loop は使わず、direct C runner で exe を繰り返し起動する
 
-5. MIR call family probe
+6. MIR call family probe
    - 入口: `tools/perf/report_mir_hotops.sh`
    - 役割: `mir_call` がどの callee family に寄っているかを構造化表示する
    - 使い方: `[mir-shape/call]` を見て `RuntimeDataBox.substring` / `indexOf` / `get/set/length` などの次 leaf を決める
 
-6. Optimization debug bundle
+7. Optimization debug bundle
    - 入口: `tools/perf/trace_optimization_bundle.sh`
    - 役割: route trace / MIR window / IR / symbol / optional micro perf を same artifact で束ねる
    - 使い方:
@@ -323,6 +334,10 @@ Hotspot は次の分類で読む。
   - accepted structure-first follow-up: `concat3_hhh` now reads `plan -> freeze -> handle` inside `string.rs`; current recheck is `266244455 cycles / 72 ms` and stable `kilo_kernel_small_hk` median `798 ms`
   - rejected observer-only follow-up: explicit `string_len_from_handle` downcast fast paths reached `265893951 cycles / 68 ms`, but stable `kilo_kernel_small_hk` regressed to `1066 ms` median, so this wave keeps the previous observer path unchanged
   - rejected structure-first follow-up: planner-side `OwnedSubstring/ViewRecipe` plus `substring_hii`-side view freeze reached `267397179 cycles / 72 ms`, but stable `kilo_kernel_small_hk` regressed to `901 ms` median, so plan/birth separation needs a real transient carrier instead of a pure birth-site shuffle
+  - rejected 2026-03-28 follow-up: direct `concat_hs` / `concat3` copy materialization moved stable `kilo_kernel_small_hk` from the current `736 ms` line to `757 ms` and did not improve micro; keep `TextPlan`-backed concat routes until a new asm reason appears
+  - rejected 2026-03-28 follow-up: piece-preserving `insert_inline` plus store/freeze reshaping regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut until `concat_hs` / `array_set_by_index_string_handle_value` stop being the active hot leafs
+  - rejected 2026-03-28 follow-up: blanket `#[inline(always)]` on host registry / hako-forward string wrappers held stable main near `740 ms` and did not beat the current `736 ms` line, so the slice stays reverted
+  - rejected 2026-03-28 follow-up: `concat_hs` duplicate span-resolution removal plus span-resolver inlining regressed stable `kilo_kernel_small_hk` to `796 ms`, so the existing `TextPlan::from_handle(...)` route stays active
   - current top symbols are:
     - `BoxBase::new`
     - `Registry::alloc`

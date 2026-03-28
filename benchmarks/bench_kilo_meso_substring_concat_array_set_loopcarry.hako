@@ -1,0 +1,33 @@
+// kilo/text meso benchmark:
+// substring + concat + array.set + loop-carried substring backedge.
+static box Main {
+  main() {
+    local rows = 64
+    local ops = 180000
+    local lines = new ArrayBox()
+    local i = 0
+
+    loop (i < rows) {
+      lines.push("line-seed-abcdef")
+      i = i + 1
+    }
+
+    local total = 0
+    i = 0
+    loop (i < ops) {
+      local row = i % rows
+      local line = lines.get(row)
+      local len = line.length()
+      local split = len / 2
+      local left = line.substring(0, split)
+      local right = line.substring(split, len)
+      local out = left + "xx" + right
+      local carry = out.substring(1, len + 1)
+      lines.set(row, carry)
+      total = total + carry.length()
+      i = i + 1
+    }
+
+    return total + lines.length()
+  }
+}

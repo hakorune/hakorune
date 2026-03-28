@@ -67,16 +67,25 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - scope: string materialization / array store memory motion
 - current SSOT:
   - `docs/development/current/main/10-Now.md`
+  - `docs/development/current/main/design/kilo-meso-benchmark-ladder-ssot.md`
   - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
   - `docs/development/current/main/design/transient-text-pieces-ssot.md`
   - `docs/tools/README.md`
 - current leaf status:
   - normalized transient text pieces (`TextPlan` / `PiecesN`) pilot landed
+  - `micro -> meso -> kilo` observation ladder landed
 - current sub-slice:
+  - meso first reading is fixed: `len = 37 ms`, `array_set = 69 ms`, `loopcarry = 69 ms` (`warmup=1 repeat=3`)
+  - the first large jump is `len -> array_set`, not `array_set -> loopcarry`
   - shared store-ready string materialization boundary
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`
   - follow-up design front: widen `PiecesN` coverage to `concat3_hhh` and the remaining array-store motion leafs
+  - rejected follow-up:
+    - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
+    - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason
+    - blanket `#[inline(always)]` on host registry / hako forward string wrappers held stable main around `740 ms` and did not beat the current `736 ms` line; keep that slice reverted
+    - `concat_hs` duplicate span-resolution removal plus span-resolver inlining regressed stable `kilo_kernel_small_hk` to `796 ms`; keep the existing `TextPlan::from_handle(...)` route until a new asm reason appears
 - notes:
   - generic optimization unit is `recipe family`, not benchmark name
   - keep the generalized scope/method machinery
@@ -86,8 +95,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Next Task
 
-- expand the landed transient text pieces pilot to the remaining `concat3_hhh` / array-store motion leafs
+- keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
+- use the landed meso benchmark ladder to keep the next exact leaf on store boundary cost
 - continue the `kilo` perf lane on the string materialization / array store motion slice
+- stay on `array_set_by_index_string_handle_value` / string store motion before reopening loop-carry shaping
 - keep genericization work on `recipe / scope / effect / policy`, not on benchmark-named branches
 - keep the generalized cache/scope machinery intact while tightening the hot leaf path
 - do not reopen `route.rs` / compare-bridge policy unless new evidence shows route cost dominates again

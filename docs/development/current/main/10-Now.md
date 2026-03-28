@@ -156,7 +156,17 @@ Related:
         - rejected first leaf shape: direct `concat_hs` materialization regressed stable main to `1162 ms`, so the kept route caches the const suffix as a handle and forwards to the existing `concat_hh` fast path inside the leaf
 	        - the edit-loop producer cut is now landed: the adjacent `substring(0, split)` / `substring(split, len)` window plus concat chain now collapses to `nyash.string.insert_hsi`, `string_insert_mid_window result=hit` is fixed in route trace, and `phase21_5_perf_kilo_text_concat_contract_vm.sh` now rejects any surviving `nyash.string.substring_hii` in `ny_main`
 	        - daily main perf stays `aot_status=ok`, but the reading is still noisy (`715 ms` best recent recheck, `757 ms` latest spot check via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), so treat this landing as structure-first until leaf cost moves
-	        - the next exact perf cut is now leaf quality inside `nyash.string.insert_hsi` plus the existing `nyash.string.concat_hs` / `nyash.array.set_his` tail, not more MIR route acceptance; keep MIR concat3 canon as a probe lane for now and do not promote it beyond the current owner proof
+	    - the next exact perf cut is now leaf quality inside `nyash.string.insert_hsi` plus the existing `nyash.string.concat_hs` / `nyash.array.set_his` tail, not more MIR route acceptance; keep MIR concat3 canon as a probe lane for now and do not promote it beyond the current owner proof
+	        - rejected 2026-03-28 follow-up: direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` from the `736 ms` line to `757 ms` and did not improve micro; keep the `TextPlan`-backed concat route
+	        - rejected 2026-03-28 follow-up: piece-preserving `insert_inline` plus store/freeze reshaping regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh asm-backed reason
+	        - rejected 2026-03-28 follow-up: blanket `#[inline(always)]` on host registry / hako-forward string wrappers held stable main around `740 ms` and did not beat the current `736 ms` line; keep that slice reverted
+	        - rejected 2026-03-28 follow-up: `concat_hs` duplicate span-resolution removal plus span-resolver inlining regressed stable `kilo_kernel_small_hk` to `796 ms`; keep the existing `TextPlan::from_handle(...)` route
+	        - `micro -> meso -> kilo` observation ladder is now landed (`substring+concat+len`, `+array_set`, `+loopcarry`)
+	        - first meso reading (`warmup=1 repeat=3`) is fixed:
+	          - `kilo_meso_substring_concat_len = 37 ms`
+	          - `kilo_meso_substring_concat_array_set = 69 ms`
+	          - `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
+	        - the first large gap opens at `len -> array_set`, so the next exact leaf stays on string store / `array_set_by_index_string_handle_value` before any loop-carry reopen
 	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	        - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`
 	        - latest attrs spot-check was noisy (`831 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), so treat `P0-attrs` as IR-quality groundwork only; no wall-clock win is claimed yet

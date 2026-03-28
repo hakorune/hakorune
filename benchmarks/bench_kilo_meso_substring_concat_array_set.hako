@@ -1,0 +1,34 @@
+// kilo/text meso benchmark:
+// substring + concat + array.set, but no loop-carried text.
+static box Main {
+  main() {
+    local rows = 64
+    local ops = 180000
+    local src = new ArrayBox()
+    local dst = new ArrayBox()
+    local i = 0
+
+    loop (i < rows) {
+      src.push("line-seed-abcdef")
+      dst.push("")
+      i = i + 1
+    }
+
+    local total = 0
+    i = 0
+    loop (i < ops) {
+      local row = i % rows
+      local line = src.get(row)
+      local len = line.length()
+      local split = len / 2
+      local left = line.substring(0, split)
+      local right = line.substring(split, len)
+      local out = left + "xx" + right
+      dst.set(row, out)
+      total = total + out.length()
+      i = i + 1
+    }
+
+    return total + dst.length()
+  }
+}
