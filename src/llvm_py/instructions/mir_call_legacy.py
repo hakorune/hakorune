@@ -14,7 +14,7 @@ from instructions.mir_call.runtime_data_dispatch import lower_runtime_data_field
 from instructions.mir_call.string_console_method_call import (
     lower_string_or_console_method_call,
 )
-from instructions.string_fast import literal_string_for_receiver
+from instructions.string_fast import literal_string_for_receiver, string_ptr_for_value
 from instructions.string_result_policy import mark_string_result_if_needed
 
 
@@ -287,6 +287,30 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             resolver=resolver,
             receiver_vid=receiver,
         )
+        if method == "get" and dst_vid is not None:
+            try:
+                if (
+                    resolver is not None
+                    and hasattr(resolver, "is_stringish")
+                    and resolver.is_stringish(int(dst_vid))
+                    and hasattr(resolver, "string_ptrs")
+                ):
+                    ptr_map = resolver.string_ptrs
+                    if (
+                        isinstance(ptr_map, dict)
+                        and int(dst_vid) not in ptr_map
+                        and hasattr(result, "type")
+                        and isinstance(result.type, ir.IntType)
+                        and result.type.width == 64
+                    ):
+                        bridge = _declare("nyash.string.to_i8p_h", i8p, [i64])
+                        ptr_map[int(dst_vid)] = builder.call(
+                            bridge, [result], name=f"legacy_get_str_h2p_{dst_vid}"
+                        )
+                        if hasattr(resolver, "mark_string"):
+                            resolver.mark_string(int(dst_vid))
+            except Exception:
+                pass
 
     elif box_name == "RuntimeDataBox" and method in {"getField", "setField"}:
         result = lower_runtime_data_field_call(
@@ -310,6 +334,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             arg_ids=args,
             resolve_arg=_resolve_arg,
             ensure_handle=_ensure_handle,
+            needle_ptr_for_value=lambda vid: string_ptr_for_value(resolver, vid),
             box_string_ptr=_box_string_ptr,
             store_result_string_ptr=_store_result_string_ptr,
         )

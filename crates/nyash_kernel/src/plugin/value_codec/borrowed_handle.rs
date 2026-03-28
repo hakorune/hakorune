@@ -136,7 +136,7 @@ pub(crate) fn try_retarget_borrowed_string_slot(
     if source_handle <= 0 {
         return false;
     }
-    let Some(obj) = handles::get(source_handle as u64) else {
+    let Some(obj) = crate::plugin::object_from_handle_cached(source_handle) else {
         return false;
     };
     try_retarget_borrowed_string_slot_with_source(slot, source_handle, &obj, handles::drop_epoch())

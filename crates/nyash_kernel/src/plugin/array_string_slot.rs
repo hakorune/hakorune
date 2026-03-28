@@ -48,10 +48,34 @@ fn string_indexof_fast_str(hay: &str, needle: &str) -> i64 {
     let nee_b = needle.as_bytes();
     match nee_b.len() {
         1 => memchr(nee_b[0], hay_b).map(|pos| pos as i64).unwrap_or(-1),
+        2 | 3 | 4 => string_indexof_fast_str_small(hay_b, nee_b),
         _ => memmem::find(hay_b, nee_b)
             .map(|pos| pos as i64)
             .unwrap_or(-1),
     }
+}
+
+#[inline(always)]
+fn string_indexof_fast_str_small(hay_b: &[u8], nee_b: &[u8]) -> i64 {
+    let first = nee_b[0];
+    let needle_len = nee_b.len();
+    let mut offset = 0usize;
+    let mut search = hay_b;
+
+    while let Some(pos) = memchr(first, search) {
+        let idx = offset + pos;
+        let end = idx + needle_len;
+        if end <= hay_b.len() && &hay_b[idx..end] == nee_b {
+            return idx as i64;
+        }
+        offset = idx + 1;
+        if offset >= hay_b.len() {
+            return -1;
+        }
+        search = &hay_b[offset..];
+    }
+
+    -1
 }
 
 #[inline(always)]
@@ -107,7 +131,7 @@ pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, valu
         return 0;
     }
     let drop_epoch = handles::drop_epoch();
-    let value_obj = handles::get(value_h as u64);
+    let value_obj = super::handle_cache::object_from_handle_cached(value_h);
     super::handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {

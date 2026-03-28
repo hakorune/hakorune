@@ -18,6 +18,8 @@ Current partitions:
   - pure-first seed emit/match helpers for loop/string hot paths
 - `hako_llvmc_ffi_string_search_seed.inc`
   - pure-first seed emit/match helpers for search/index-of paths
+- `hako_llvmc_ffi_array_micro_seed.inc`
+  - pure-first seed emit/match helpers for array get/set micro paths
 - `hako_llvmc_ffi_indexof_observer_state.inc`
   - shared `indexOf` observer match/state helpers used by pure-first and probe lanes
 - `hako_llvmc_ffi_indexof_observer_direct_match.inc`

@@ -61,19 +61,27 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - status: `monitor/evidence only`
 - current details stay in phase29ck docs
 
+### perf-kilo
+
+- status: `active micro/kilo optimization`
+- scope: string materialization / array store memory motion
+- current SSOT:
+  - `docs/development/current/main/10-Now.md`
+  - `docs/tools/README.md`
+- next exact leaf:
+  - `concat_const_suffix_fallback`
+  - `array_set_by_index_string_handle_value`
+  - `string_handle_from_owned`
+- notes:
+  - keep the generalized scope/method machinery
+  - avoid reopening route / fallback policy until the memory-motion slice is exhausted
+
 ## Immediate Next Task
 
-- retire the Rust-side object emit JSON round-trip first:
-  - `src/runner/modes/common_util/exec.rs`
-  - `src/runner/modes/llvm/mod.rs`
-- keep the llvmlite stage0 lane intact:
-  - `tools/llvmlite_harness.py`
-  - `src/llvm_py/**`
-- keep stage1 root-first mainline intact:
-  - `lang/src/runner/launcher.hako`
-  - `lang/src/shared/backend/llvm_backend_box.hako`
-- leave `legacy_json.rs`, `route.rs`, and `ll_tool_driver.rs` untouched in this slice
-- compare bridge wrapper thinning remains archive-later, but it is not the next immediate leaf
+- continue the `kilo` perf lane on the string materialization / array store motion slice
+- keep the generalized cache/scope machinery intact while tightening the hot leaf path
+- do not reopen `route.rs` / compare-bridge policy unless new evidence shows route cost dominates again
+- keep the stage0 llvmlite lane and stage1 root-first mainline intact
 
 ## Notes
 

@@ -105,17 +105,6 @@ fn cache_store(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) {
 }
 
 #[inline(always)]
-pub(crate) fn with_array_box_borrowed<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
-    if handle <= 0 {
-        return None;
-    }
-    handles::with_handle(handle as u64, |obj| {
-        let arr = obj?.as_any().downcast_ref::<ArrayBox>()?;
-        Some(f(arr))
-    })
-}
-
-#[inline(always)]
 fn encode_array_item_to_i64(item: &dyn NyashBox, drop_epoch: u64) -> i64 {
     // Keep scalar/bool before borrowed-handle reuse so immediate classes stay canonical.
     if let Some(iv) = item.as_i64_fast() {
@@ -139,7 +128,7 @@ pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> 
     }
     let idx_usize = idx as usize;
     let drop_epoch = handles::drop_epoch();
-    if let Some(out) = with_array_box_borrowed(handle, |arr| {
+    if let Some(out) = with_array_box(handle, |arr| {
         arr.with_items_read(|items| {
             let item = items.get(idx_usize)?;
             Some(encode_array_item_to_i64(item.as_ref(), drop_epoch))
@@ -153,12 +142,17 @@ pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> 
 }
 
 #[inline(always)]
-fn object_from_handle_cached(handle: i64) -> Option<Arc<dyn NyashBox>> {
+fn object_from_handle_cached_impl(handle: i64) -> Option<Arc<dyn NyashBox>> {
     if handle <= 0 {
         return None;
     }
     let drop_epoch = handles::drop_epoch();
     object_from_handle_cached_with_epoch(handle, drop_epoch)
+}
+
+#[inline(always)]
+pub(crate) fn object_from_handle_cached(handle: i64) -> Option<Arc<dyn NyashBox>> {
+    object_from_handle_cached_impl(handle)
 }
 
 #[inline(always)]

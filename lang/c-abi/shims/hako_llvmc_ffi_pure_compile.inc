@@ -19,8 +19,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_llvmc_match_substring_concat_loop_ascii_seed(json_in, obj_out) == 0) {
     return 0;
   }
+  if (hako_llvmc_match_indexof_leaf_ascii_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
   if (!hako_llvmc_skip_indexof_line_seed_enabled() &&
       hako_llvmc_match_indexof_line_ascii_seed(json_in, obj_out) == 0) {
+    return 0;
+  }
+  if (hako_llvmc_match_array_getset_micro_seed(json_in, obj_out) == 0) {
     return 0;
   }
   if (hako_llvmc_match_runtime_data_length_hot_loop_seed(json_in, obj_out) == 0) {

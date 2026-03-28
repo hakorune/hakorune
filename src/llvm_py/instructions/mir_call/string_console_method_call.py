@@ -22,6 +22,7 @@ def lower_string_search_or_slice_method_call(
     arg_ids: List[int],
     resolve_arg: Callable[[int], Optional[ir.Value]],
     ensure_handle: Callable[[ir.Value], ir.Value],
+    needle_ptr_for_value: Optional[Callable[[int], Optional[ir.Value]]] = None,
     mark_receiver_stringish: Optional[Callable[[], None]] = None,
     box_string_ptr: Optional[Callable[[ir.Value], ir.Value]] = None,
     store_result_string_ptr: Optional[Callable[[ir.Value], None]] = None,
@@ -55,6 +56,17 @@ def lower_string_search_or_slice_method_call(
         return builder.call(callee, [recv_h, start, stop], name="unified_substring")
 
     needle = resolve_arg(arg_ids[0]) or zero
+
+    if recv_ptr is not None and needle_ptr_for_value is not None:
+        needle_ptr = needle_ptr_for_value(arg_ids[0])
+        if needle_ptr is not None:
+            if spec.symbol == "nyash.string.indexOf_hh":
+                callee = declare("nyash.string.indexOf_ss", i64, [i8p, i8p])
+                return builder.call(callee, [recv_ptr, needle_ptr], name="unified_indexOf_ss")
+            if spec.symbol == "nyash.string.lastIndexOf_hh":
+                callee = declare("nyash.string.lastIndexOf_ss", i64, [i8p, i8p])
+                return builder.call(callee, [recv_ptr, needle_ptr], name="unified_lastIndexOf_ss")
+
     needle_h = ensure_handle(needle)
     callee = declare(spec.symbol, i64, [i64, i64])
     call_name = "unified_indexOf" if spec.symbol == "nyash.string.indexOf_hh" else "unified_lastIndexOf"
@@ -71,6 +83,7 @@ def lower_string_or_console_method_call(
     arg_ids: List[int],
     resolve_arg: Callable[[int], Optional[ir.Value]],
     ensure_handle: Callable[[ir.Value], ir.Value],
+    needle_ptr_for_value: Optional[Callable[[int], Optional[ir.Value]]] = None,
     mark_receiver_stringish: Optional[Callable[[], None]] = None,
     box_string_ptr: Optional[Callable[[ir.Value], ir.Value]] = None,
     store_result_string_ptr: Optional[Callable[[ir.Value], None]] = None,
@@ -89,6 +102,7 @@ def lower_string_or_console_method_call(
         arg_ids=arg_ids,
         resolve_arg=resolve_arg,
         ensure_handle=ensure_handle,
+        needle_ptr_for_value=needle_ptr_for_value,
         mark_receiver_stringish=mark_receiver_stringish,
         box_string_ptr=box_string_ptr,
         store_result_string_ptr=store_result_string_ptr,

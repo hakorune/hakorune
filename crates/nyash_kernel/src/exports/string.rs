@@ -147,7 +147,8 @@ fn jit_trace_len_enabled() -> bool {
 fn string_handle_from_owned(value: String) -> i64 {
     nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
     let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(value));
-    handles::to_handle_arc(arc) as i64
+    let handle = handles::to_handle_arc(arc.clone()) as i64;
+    handle
 }
 
 #[inline(always)]
@@ -559,8 +560,32 @@ fn find_substr_byte_index(hay: &str, needle: &str) -> Option<usize> {
     match nee_b.len() {
         0 => Some(0),
         1 => memchr(nee_b[0], hay_b),
+        2 | 3 | 4 => find_substr_byte_index_small(hay_b, nee_b),
         _ => memmem::find(hay_b, nee_b),
     }
+}
+
+#[inline(always)]
+fn find_substr_byte_index_small(hay_b: &[u8], nee_b: &[u8]) -> Option<usize> {
+    let first = nee_b[0];
+    let needle_len = nee_b.len();
+    let mut offset = 0usize;
+    let mut search = hay_b;
+
+    while let Some(pos) = memchr(first, search) {
+        let idx = offset + pos;
+        let end = idx + needle_len;
+        if end <= hay_b.len() && &hay_b[idx..end] == nee_b {
+            return Some(idx);
+        }
+        offset = idx + 1;
+        if offset >= hay_b.len() {
+            return None;
+        }
+        search = &hay_b[offset..];
+    }
+
+    None
 }
 
 #[inline(always)]
@@ -655,8 +680,29 @@ fn rfind_substr_byte_index(hay: &str, needle: &str) -> Option<usize> {
     match nee_b.len() {
         0 => Some(hay_b.len()),
         1 => memrchr(nee_b[0], hay_b),
+        2 | 3 | 4 => rfind_substr_byte_index_small(hay_b, nee_b),
         _ => memmem::rfind(hay_b, nee_b),
     }
+}
+
+#[inline(always)]
+fn rfind_substr_byte_index_small(hay_b: &[u8], nee_b: &[u8]) -> Option<usize> {
+    let first = nee_b[0];
+    let needle_len = nee_b.len();
+    let mut search = hay_b;
+
+    while let Some(pos) = memrchr(first, search) {
+        let end = pos + needle_len;
+        if end <= search.len() && &search[pos..end] == nee_b {
+            return Some(pos + (hay_b.len() - search.len()));
+        }
+        if pos == 0 {
+            break;
+        }
+        search = &search[..pos];
+    }
+
+    None
 }
 
 // String.len_h(handle) -> i64

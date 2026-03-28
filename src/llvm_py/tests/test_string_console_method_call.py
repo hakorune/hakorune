@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import os
 import unittest
+from unittest.mock import patch
 
 import llvmlite.ir as ir
 
@@ -16,6 +18,16 @@ def _new_builder():
     bb = fn.append_basic_block("entry")
     builder = ir.IRBuilder(bb)
     return i64, module, builder
+
+
+def _new_ptr_builder():
+    i64 = ir.IntType(64)
+    i8p = ir.IntType(8).as_pointer()
+    module = ir.Module(name="test_string_console_method_call_ptr")
+    fn = ir.Function(module, ir.FunctionType(i64, [i8p, i8p]), name="main")
+    bb = fn.append_basic_block("entry")
+    builder = ir.IRBuilder(bb)
+    return i64, module, builder, fn.args[0], fn.args[1]
 
 
 def _declare(module, name, ret, args):
@@ -68,6 +80,32 @@ class TestStringConsoleMethodCall(unittest.TestCase):
         self.assertEqual(marked["count"], 1)
         self.assertIn("nyash.string.indexOf_hh", ir_text)
         self.assertIn("unified_indexOf", ir_text)
+
+    def test_indexof_search_slice_route_uses_pointer_kernel_when_available(self):
+        i64, module, builder, recv_ptr, needle_ptr = _new_ptr_builder()
+        marked = {"count": 0}
+
+        with patch.dict(os.environ, {"NYASH_LLVM_FAST": "1"}, clear=False):
+            result = lower_string_search_or_slice_method_call(
+                builder=builder,
+                declare=lambda name, ret, args: _declare(module, name, ret, args),
+                method_name="indexOf",
+                recv_h=ir.Constant(i64, 1),
+                recv_ptr=recv_ptr,
+                arg_ids=[2],
+                resolve_arg=lambda vid: ir.Constant(i64, vid),
+                ensure_handle=lambda value: value,
+                needle_ptr_for_value=lambda vid: needle_ptr if vid == 2 else None,
+                mark_receiver_stringish=lambda: marked.__setitem__(
+                    "count", marked["count"] + 1
+                ),
+            )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertEqual(marked["count"], 1)
+        self.assertIn("nyash.string.indexOf_ss", ir_text)
+        self.assertIn("unified_indexOf_ss", ir_text)
 
     def test_lastindexof_search_slice_route_uses_string_kernel(self):
         i64, module, builder = _new_builder()

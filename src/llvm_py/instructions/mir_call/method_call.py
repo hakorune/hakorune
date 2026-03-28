@@ -9,7 +9,11 @@ from typing import Dict, Any, Optional
 from llvmlite import ir
 import os
 from instructions.stringbox import emit_stringbox_call
-from instructions.string_fast import literal_string_for_receiver, llvm_fast_enabled
+from instructions.string_fast import (
+    literal_string_for_receiver,
+    llvm_fast_enabled,
+    string_ptr_for_value,
+)
 from .arg_resolver import make_call_arg_resolver
 from .auto_specialize import (
     prefer_array_len_h_route,
@@ -252,6 +256,30 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             resolver=resolver,
             receiver_vid=receiver,
         )
+        if method == "get" and dst_vid is not None:
+            try:
+                if (
+                    resolver is not None
+                    and hasattr(resolver, "is_stringish")
+                    and resolver.is_stringish(int(dst_vid))
+                    and hasattr(resolver, "string_ptrs")
+                ):
+                    ptr_map = resolver.string_ptrs
+                    if (
+                        isinstance(ptr_map, dict)
+                        and int(dst_vid) not in ptr_map
+                        and hasattr(result, "type")
+                        and isinstance(result.type, ir.IntType)
+                        and result.type.width == 64
+                    ):
+                        bridge = _declare("nyash.string.to_i8p_h", i8p, [i64])
+                        ptr_map[int(dst_vid)] = builder.call(
+                            bridge, [result], name=f"method_get_str_h2p_{dst_vid}"
+                        )
+                        if hasattr(resolver, "mark_string"):
+                            resolver.mark_string(int(dst_vid))
+            except Exception:
+                pass
 
     elif box_name == "RuntimeDataBox" and method in {"getField", "setField"}:
         result = lower_runtime_data_field_call(
@@ -265,6 +293,23 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             ensure_handle=_ensure_handle,
         )
 
+    elif box_name == "StringBox" and method in {"substring", "indexOf", "lastIndexOf"}:
+        handled = emit_stringbox_call(
+            builder=builder,
+            module=module,
+            method_name=method,
+            recv_val=recv_val,
+            args=args,
+            dst_vid=dst_vid,
+            vmap=vmap,
+            box_vid=receiver,
+            resolver=resolver,
+            preds=getattr(owner, "preds", None),
+            block_end_values=getattr(owner, "block_end_values", None),
+            bb_map=getattr(owner, "bb_map", None),
+        )
+        result = vmap.get(dst_vid) if handled and dst_vid is not None else None
+
     else:
         string_recv_ptr = _resolve_string_ptr_for_receiver(receiver)
         result = lower_string_search_or_slice_method_call(
@@ -276,6 +321,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
             arg_ids=args,
             resolve_arg=_resolve_arg,
             ensure_handle=_ensure_handle,
+            needle_ptr_for_value=lambda vid: string_ptr_for_value(resolver, vid),
             mark_receiver_stringish=(
                 _mark_receiver_stringish if requires_string_receiver_tag(method) else None
             ),
@@ -292,6 +338,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
                 arg_ids=args,
                 resolve_arg=_resolve_arg,
                 ensure_handle=_ensure_handle,
+                needle_ptr_for_value=lambda vid: string_ptr_for_value(resolver, vid),
                 mark_receiver_stringish=(
                     _mark_receiver_stringish if requires_string_receiver_tag(method) else None
                 ),

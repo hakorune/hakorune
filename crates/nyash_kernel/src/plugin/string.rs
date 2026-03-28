@@ -132,6 +132,33 @@ pub extern "C" fn nyash_string_lastindexof_ss(s: *const i8, needle: *const i8) -
     }
 }
 
+// Exported as: nyash.string.indexOf_ss(i8* s, i8* needle) -> i64
+#[export_name = "nyash.string.indexOf_ss"]
+pub extern "C" fn nyash_string_indexof_ss(s: *const i8, needle: *const i8) -> i64 {
+    use std::ffi::CStr;
+    if s.is_null() || needle.is_null() {
+        return -1;
+    }
+    let hs = unsafe { CStr::from_ptr(s) };
+    let ns = unsafe { CStr::from_ptr(needle) };
+    let h = match hs.to_str() {
+        Ok(v) => v,
+        Err(_) => return -1,
+    };
+    let n = match ns.to_str() {
+        Ok(v) => v,
+        Err(_) => return -1,
+    };
+    if n.is_empty() {
+        return 0;
+    }
+    if let Some(pos) = h.find(n) {
+        pos as i64
+    } else {
+        -1
+    }
+}
+
 // Exported as: nyash.string.length_si(i8* s, i64 mode) -> i64
 // mode: 0 = byte length (UTF-8 bytes), 1 = char length (Unicode scalar count)
 #[export_name = "nyash.string.length_si"]
@@ -205,5 +232,12 @@ mod tests {
         let src = b"line-seed-abcdef\0".as_ptr() as *const i8;
         let out = nyash_string_substring_sii(src, 5, 9);
         assert_eq!(to_string(out), "seed");
+    }
+
+    #[test]
+    fn indexof_ss_keeps_ascii_find_contract() {
+        let src = b"line-seed-abcdef\0".as_ptr() as *const i8;
+        let needle = b"seed\0".as_ptr() as *const i8;
+        assert_eq!(nyash_string_indexof_ss(src, needle), 5);
     }
 }

@@ -2,6 +2,10 @@ pub(crate) type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) ->
 pub(crate) type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 #[cfg(not(test))]
 use std::sync::OnceLock;
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+static FUTURE_SPAWN_INSTANCE_FN: AtomicUsize = AtomicUsize::new(0);
+static STRING_DISPATCH_FN: AtomicUsize = AtomicUsize::new(0);
 
 mod ffi {
     use super::{HakoFutureSpawnInstanceFn, HakoStringDispatchFn};
@@ -11,21 +15,6 @@ mod ffi {
             f: Option<HakoFutureSpawnInstanceFn>,
         ) -> i64;
         pub fn nyrt_hako_register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64;
-
-        pub fn nyrt_hako_try_future_spawn_instance(
-            a0: i64,
-            a1: i64,
-            a2: i64,
-            argc: i64,
-            out_value: *mut i64,
-        ) -> i32;
-        pub fn nyrt_hako_try_string_dispatch(
-            op: i64,
-            a0: i64,
-            a1: i64,
-            a2: i64,
-            out_value: *mut i64,
-        ) -> i32;
     }
 }
 
@@ -81,44 +70,45 @@ fn string_op_name(op: i64) -> &'static str {
 }
 
 pub(crate) fn call_future_spawn_instance(a0: i64, a1: i64, a2: i64, argc: i64) -> Option<i64> {
-    let mut out = 0i64;
-    // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
-    let ok = unsafe { ffi::nyrt_hako_try_future_spawn_instance(a0, a1, a2, argc, &mut out) };
-    if ok == 0 {
-        None
-    } else {
-        Some(out)
+    let raw = FUTURE_SPAWN_INSTANCE_FN.load(Ordering::Acquire);
+    if raw == 0 {
+        return None;
     }
+    let spawn: HakoFutureSpawnInstanceFn = unsafe { std::mem::transmute(raw) };
+    Some(spawn(a0, a1, a2, argc))
 }
 
 pub(crate) fn call_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
-    let mut out = 0i64;
-    // SAFETY: nyrt_hako_try_* C-ABI symbols are linked from nyash_kernel C registry.
-    let ok = unsafe { ffi::nyrt_hako_try_string_dispatch(op, a0, a1, a2, &mut out) };
-    if ok == 0 {
-        None
-    } else {
-        if stage1_string_dispatch_trace_enabled() {
-            eprintln!(
-                "[stage1/string_dispatch] op={}({}) a0={} a1={} a2={} out={}",
-                string_op_name(op),
-                op,
-                a0,
-                a1,
-                a2,
-                out
-            );
-        }
-        Some(out)
+    let raw = STRING_DISPATCH_FN.load(Ordering::Acquire);
+    if raw == 0 {
+        return None;
     }
+    let dispatch: HakoStringDispatchFn = unsafe { std::mem::transmute(raw) };
+    let out = dispatch(op, a0, a1, a2);
+    if stage1_string_dispatch_trace_enabled() {
+        eprintln!(
+            "[stage1/string_dispatch] op={}({}) a0={} a1={} a2={} out={}",
+            string_op_name(op),
+            op,
+            a0,
+            a1,
+            a2,
+            out
+        );
+    }
+    Some(out)
 }
 
 pub(crate) fn register_future_spawn_instance(f: Option<HakoFutureSpawnInstanceFn>) -> i64 {
+    let raw = f.map(|fp| fp as usize).unwrap_or(0);
+    FUTURE_SPAWN_INSTANCE_FN.store(raw, Ordering::Release);
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
     unsafe { ffi::nyrt_hako_register_future_spawn_instance(f) }
 }
 
 pub(crate) fn register_string_dispatch(f: Option<HakoStringDispatchFn>) -> i64 {
+    let raw = f.map(|fp| fp as usize).unwrap_or(0);
+    STRING_DISPATCH_FN.store(raw, Ordering::Release);
     // SAFETY: function pointer is passed through to C registry as an opaque callback.
     unsafe { ffi::nyrt_hako_register_string_dispatch(f) }
 }
@@ -168,6 +158,8 @@ pub(crate) fn hook_miss_freeze_handle(route: &str) -> i64 {
 pub(crate) fn reset_for_tests() {
     let _ = register_future_spawn_instance(None);
     let _ = register_string_dispatch(None);
+    FUTURE_SPAWN_INSTANCE_FN.store(0, Ordering::Release);
+    STRING_DISPATCH_FN.store(0, Ordering::Release);
 }
 
 #[cfg(test)]

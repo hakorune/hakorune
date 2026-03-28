@@ -483,11 +483,33 @@ def _emit_indexof(
     Emit StringBox.indexOf(needle) to LLVM IR.
     """
     i64 = ir.IntType(64)
+    i8p = ir.IntType(8).as_pointer()
 
     # Get needle argument
     needle_val = _res_i64(args[0]) if args else ir.Constant(i64, 0)
     if needle_val is None:
         needle_val = vmap.get(args[0], ir.Constant(i64, 0)) if args else ir.Constant(i64, 0)
+
+    fast_on = os.environ.get("NYASH_LLVM_FAST") == "1"
+    if fast_on and resolver is not None:
+        recv_ptr = None
+        if hasattr(recv_val, 'type') and isinstance(recv_val.type, ir.PointerType):
+            recv_ptr = _as_i8_pointer(builder, recv_val)
+        if recv_ptr is None:
+            recv_ptr = string_ptr_for_value(resolver, box_vid)
+
+        needle_ptr = None
+        if hasattr(needle_val, 'type') and isinstance(needle_val.type, ir.PointerType):
+            needle_ptr = _as_i8_pointer(builder, needle_val)
+        if needle_ptr is None and args:
+            needle_ptr = string_ptr_for_value(resolver, args[0])
+
+        if recv_ptr is not None and needle_ptr is not None:
+            callee = _declare(module, "nyash.string.indexOf_ss", i64, [i8p, i8p])
+            res = builder.call(callee, [recv_ptr, needle_ptr], name="indexOf_ss")
+            if dst_vid is not None:
+                vmap[dst_vid] = res
+            return True
 
     recv_h = _ensure_handle(builder, module, recv_val)
     needle_h = _ensure_handle(builder, module, needle_val)
