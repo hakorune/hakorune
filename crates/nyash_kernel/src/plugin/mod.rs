@@ -41,10 +41,10 @@ pub use intarray::*;
 pub use invoke::*;
 pub use invoke_core::*;
 pub use map::*;
-pub(crate) use value_codec::materialize_owned_string;
 pub use runtime_data::*;
 pub use semantics::*;
 pub use string::*;
+pub(crate) use value_codec::materialize_owned_string;
 
 #[cfg(test)]
 #[cfg(test)]

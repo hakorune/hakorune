@@ -173,10 +173,9 @@ fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path
     #[cfg(feature = "llvm-harness")]
     {
         if crate::config::env::llvm_use_harness() {
-            if let Err(e) = crate::runner::modes::common_util::exec::llvmlite_emit_obj_lib(
-                _module,
-                _out_path,
-            ) {
+            if let Err(e) =
+                crate::runner::modes::common_util::exec::llvmlite_emit_obj_lib(_module, _out_path)
+            {
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
             }
             return;

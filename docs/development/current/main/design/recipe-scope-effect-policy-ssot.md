@@ -164,6 +164,7 @@ Do not mix these.
 - array/string hot observers tied to current lowered shape
 - current `kilo` leaf proof routes
 - shared store-ready string materialization is a concrete `recipe family` helper boundary, not benchmark-specific hardcode
+- string-specific store helpers and concat suffix handle/span resolution are valid leaf refinements when they keep the same `recipe family` boundary
 
 ### Do not promote as generic owner
 

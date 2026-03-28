@@ -1,9 +1,8 @@
 // FileBox-related C ABI exports.
 
+use crate::plugin::materialize_owned_string;
 use nyash_rust::{
-    box_trait::{NyashBox, StringBox},
-    boxes::array::ArrayBox,
-    boxes::file::FileBox,
+    box_trait::NyashBox, boxes::array::ArrayBox, boxes::file::FileBox,
     runtime::host_handles as handles,
 };
 use std::sync::Arc;
@@ -20,12 +19,6 @@ fn decode_handle_to_string_like(handle: i64) -> Option<String> {
         return Some(string_box.value.clone());
     }
     Some(object.to_string_box().value)
-}
-
-fn string_handle_from_owned(value: String) -> i64 {
-    nyash_rust::runtime::global_hooks::gc_alloc(value.len() as u64);
-    let arc: Arc<dyn NyashBox> = Arc::new(StringBox::new(value));
-    handles::to_handle_arc(arc) as i64
 }
 
 fn array_handle_from_bytes(bytes: Vec<u8>) -> i64 {
@@ -85,7 +78,7 @@ pub extern "C" fn nyash_file_read_h_export(recv_handle: i64) -> i64 {
         None => return 0,
     };
     match file_box.ny_read_to_string() {
-        Ok(text) => string_handle_from_owned(text),
+        Ok(text) => materialize_owned_string(text),
         Err(_) => 0,
     }
 }

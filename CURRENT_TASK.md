@@ -73,6 +73,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `array_set_by_index_string_handle_value`
   - `concat_const_suffix_fallback`
   - shared `value_codec::string_store`
+- current sub-slice:
+  - string-specific store helper for array/string hot paths
+  - single handle/span resolution in `concat_const_suffix_fallback`
 - notes:
   - generic optimization unit is `recipe family`, not benchmark name
   - keep the generalized scope/method machinery

@@ -79,7 +79,7 @@ Related:
     - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
     - docs-first proof-vocabulary lock is landed
     - the current perf-kilo slice is now the shared store-ready string materialization boundary
-    - next exact leaf is the `array_set_by_index_string_handle_value` store decision, with `concat_const_suffix_fallback` riding the same leaf helper
+    - next exact leaf is the `array_set_by_index_string_handle_value` store decision, with a string-specific store helper and `concat_const_suffix_fallback` sharing the handle/span resolution boundary
     - rejected follow-up: authoritative `ArrayBox` integer-storage split did not improve `kilo_micro_array_getset` and regressed main `kilo`
     - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
     - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main

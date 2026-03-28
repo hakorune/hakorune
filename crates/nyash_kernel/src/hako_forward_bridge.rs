@@ -1,8 +1,8 @@
 pub(crate) type HakoFutureSpawnInstanceFn = extern "C" fn(i64, i64, i64, i64) -> i64;
 pub(crate) type HakoStringDispatchFn = extern "C" fn(i64, i64, i64, i64) -> i64;
+use std::sync::atomic::{AtomicUsize, Ordering};
 #[cfg(not(test))]
 use std::sync::OnceLock;
-use std::sync::atomic::{AtomicUsize, Ordering};
 
 static FUTURE_SPAWN_INSTANCE_FN: AtomicUsize = AtomicUsize::new(0);
 static STRING_DISPATCH_FN: AtomicUsize = AtomicUsize::new(0);

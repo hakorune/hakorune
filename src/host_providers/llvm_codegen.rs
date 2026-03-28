@@ -27,16 +27,16 @@ pub struct Opts {
     pub compat_replay: Option<String>,
 }
 
+mod capi_transport;
 mod defaults;
+mod legacy_json;
+mod ll_emit_compare_driver;
 mod ll_emit_compare_source;
 mod ll_emit_compare_stdout;
 mod ll_emit_compare_vm;
-mod legacy_json;
-mod ll_emit_compare_driver;
-mod capi_transport;
-mod provider_keep;
 mod ll_tool_driver;
 mod normalize;
+mod provider_keep;
 mod route;
 mod transport_io;
 mod transport_paths;

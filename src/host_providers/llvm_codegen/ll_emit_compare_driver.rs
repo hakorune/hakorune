@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 
 use super::ll_emit_compare_source;
-use super::ll_tool_driver;
-use super::normalize;
 use super::ll_emit_compare_stdout;
 use super::ll_emit_compare_vm;
+use super::ll_tool_driver;
+use super::normalize;
 use super::Opts;
 
 const COMPARE_TAG: &str = "compare";

@@ -89,10 +89,7 @@ pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result
     Ok(out_path)
 }
 
-pub(super) fn mir_json_to_object_llvmlite(
-    mir_json: &str,
-    opts: &Opts,
-) -> Result<PathBuf, String> {
+pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
     normalize::validate_backend_mir_shape(mir_json)?;
     let py = resolve_python3().ok_or_else(|| {
         let tag = String::from("[llvmemit/llvmlite/python-not-found]");

@@ -31,7 +31,31 @@ pub(crate) fn store_string_box_from_source(
             .downcast_ref::<crate::exports::string_view::StringViewBox>()
             .is_some()
     {
-        return maybe_borrow_string_handle_with_epoch(obj.clone(), source_handle, source_drop_epoch);
+        return maybe_borrow_string_handle_with_epoch(
+            obj.clone(),
+            source_handle,
+            source_drop_epoch,
+        );
     }
     int_arg_to_box(source_handle)
+}
+
+#[inline(always)]
+pub(crate) fn is_string_handle_source(source_obj: &Arc<dyn NyashBox>) -> bool {
+    source_obj.as_any().downcast_ref::<StringBox>().is_some()
+        || source_obj
+            .as_any()
+            .downcast_ref::<crate::exports::string_view::StringViewBox>()
+            .is_some()
+}
+
+#[inline(always)]
+pub(crate) fn store_string_box_from_string_source(
+    source_handle: i64,
+    source_obj: &Arc<dyn NyashBox>,
+    source_drop_epoch: u64,
+) -> Box<dyn NyashBox> {
+    debug_assert!(source_handle > 0);
+    debug_assert!(is_string_handle_source(source_obj));
+    maybe_borrow_string_handle_with_epoch(source_obj.clone(), source_handle, source_drop_epoch)
 }

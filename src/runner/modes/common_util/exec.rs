@@ -252,9 +252,8 @@ pub fn llvmlite_emit_obj_lib(
         .map_err(|e| format!("MIR JSON emit error: {}", e))?;
 
     let result = (|| {
-        let python = resolve_python3().ok_or_else(|| {
-            "[llvmemit/llvmlite/python-not-found] python3 not found".to_string()
-        })?;
+        let python = resolve_python3()
+            .ok_or_else(|| "[llvmemit/llvmlite/python-not-found] python3 not found".to_string())?;
         let harness = resolve_llvmlite_harness().ok_or_else(|| {
             "[llvmemit/llvmlite/harness-not-found] tools/llvmlite_harness.py".to_string()
         })?;

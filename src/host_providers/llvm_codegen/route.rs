@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
+use super::capi_transport::compile_via_capi;
 use super::defaults::COMPILE_SYMBOL_DEFAULT;
 use super::ll_emit_compare_driver::mir_json_to_object_hako_ll_compare;
-use super::capi_transport::compile_via_capi;
 use super::normalize::validate_backend_mir_shape;
 use super::provider_keep::{mir_json_to_object_llvmlite, mir_json_to_object_ny_llvmc};
 use super::transport_io::{ensure_backend_output_parent, prepare_backend_input_json_file};
@@ -254,8 +254,9 @@ mod tests {
 
     #[test]
     fn required_hako_ll_context_field_is_fail_fast() {
-        let err = required_hako_ll_context_field("acceptance_case", None, HakoLlBridgeLane::Compare)
-            .expect_err("missing acceptance_case should fail");
+        let err =
+            required_hako_ll_context_field("acceptance_case", None, HakoLlBridgeLane::Compare)
+                .expect_err("missing acceptance_case should fail");
         assert!(err.contains("field=acceptance_case"));
         assert!(err.contains("lane=compare"));
     }

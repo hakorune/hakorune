@@ -303,8 +303,7 @@ impl MirInterpreter {
                 let mir_json = Self::patch_mir_json_version(&mir_json_raw);
                 let opts = Self::codegen_object_opts(None, None, None);
                 match crate::host_providers::llvm_codegen::emit_object_from_mir_json(
-                    &mir_json,
-                    opts,
+                    &mir_json, opts,
                 ) {
                     Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
                     Err(e) => Err(ErrorBuilder::with_context(
@@ -565,10 +564,7 @@ impl MirInterpreter {
             ("env.codegen", "emit_object") => {
                 if let Some(s) = first_arg_str {
                     let opts = Self::codegen_object_opts(None, None, None);
-                    match crate::host_providers::llvm_codegen::emit_object_from_mir_json(
-                        &s,
-                        opts,
-                    ) {
+                    match crate::host_providers::llvm_codegen::emit_object_from_mir_json(&s, opts) {
                         Ok(p) => Ok(VMValue::String(p.to_string_lossy().into_owned())),
                         Err(e) => {
                             Err(self.err_with_context("env.codegen.emit_object", &e.to_string()))

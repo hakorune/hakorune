@@ -185,9 +185,9 @@ fn shared_empty_string_handle() -> i64 {
     {
         static HANDLE: OnceLock<i64> = OnceLock::new();
         *HANDLE.get_or_init(|| {
-            handles::to_handle_arc(std::sync::Arc::new(
-                nyash_rust::box_trait::StringBox::new(String::new()),
-            )) as i64
+            handles::to_handle_arc(std::sync::Arc::new(nyash_rust::box_trait::StringBox::new(
+                String::new(),
+            ))) as i64
         })
     }
 }
@@ -445,38 +445,7 @@ fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
 }
 
 #[inline(always)]
-fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
-    thread_local! {
-        static CONST_SUFFIX_PTR_CACHE: Cell<usize> = const { Cell::new(0) };
-        static CONST_SUFFIX_HANDLE_CACHE: Cell<i64> = const { Cell::new(0) };
-    }
-
-    if suffix_ptr.is_null() {
-        return a_h;
-    }
-    let suffix_addr = suffix_ptr as usize;
-    if suffix_addr != 0 {
-        let cached_h = CONST_SUFFIX_PTR_CACHE.with(|ptr_cache| {
-            if ptr_cache.get() != suffix_addr {
-                return 0;
-            }
-            CONST_SUFFIX_HANDLE_CACHE.with(|handle_cache| handle_cache.get())
-        });
-        if cached_h > 0 {
-            return dispatch_or_fallback_concat_hh(a_h, cached_h);
-        }
-    }
-    let suffix_h = super::nyash_box_from_i8_string_const(suffix_ptr);
-    if suffix_h > 0 {
-        CONST_SUFFIX_PTR_CACHE.with(|ptr_cache| ptr_cache.set(suffix_addr));
-        CONST_SUFFIX_HANDLE_CACHE.with(|handle_cache| handle_cache.set(suffix_h));
-        return dispatch_or_fallback_concat_hh(a_h, suffix_h);
-    }
-    let suffix_bytes = unsafe { CStr::from_ptr(suffix_ptr) }.to_bytes();
-    if suffix_bytes.is_empty() {
-        return a_h;
-    }
-    let suffix = unsafe { std::str::from_utf8_unchecked(suffix_bytes) };
+fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
     if let Some(out) = handles::with_handle(a_h as u64, |obj| {
         obj.and_then(|boxed| {
             boxed
@@ -495,6 +464,26 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
 }
 
 #[inline(always)]
+fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
+    thread_local! {
+        static CONST_SUFFIX_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
+            ptr: Cell::new(0),
+            text: RefCell::new(None),
+        } };
+    }
+
+    if suffix_ptr.is_null() {
+        return a_h;
+    }
+    with_cached_const_text(&CONST_SUFFIX_TEXT_CACHE, suffix_ptr, |suffix| {
+        if suffix.is_empty() {
+            return a_h;
+        }
+        concat_const_suffix_from_handle(a_h, suffix)
+    })
+}
+
+#[inline(always)]
 fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -> i64 {
     thread_local! {
         static CONST_INSERT_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
@@ -509,6 +498,18 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
         }
         if string_is_empty_from_handle(source_h) == Some(true) {
             return super::nyash_box_from_i8_string_const(middle_ptr);
+        }
+        if let Some(result) = handles::with_handle(source_h as u64, |obj| {
+            obj.and_then(|boxed| {
+                boxed.as_ref().as_str_fast().map(|source| {
+                    let split = split.clamp(0, source.len() as i64) as usize;
+                    let prefix = source.get(0..split).unwrap_or("");
+                    let suffix = source.get(split..).unwrap_or("");
+                    concat_three_str(prefix, middle, suffix)
+                })
+            })
+        }) {
+            return string_handle_from_owned(result);
         }
         if let Some(source_span) = resolve_string_span_from_handle(source_h) {
             let source = source_span.as_str();

@@ -223,5 +223,4 @@ mod tests {
         assert_eq!(super::backend_transport_owner(), None);
         assert_eq!(super::backend_legacy_daily_allowed(), None);
     }
-
 }
