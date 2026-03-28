@@ -11,7 +11,7 @@ Current owner
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
   - `backend_daily_owner_policy_box.hako`
   - narrow allowlist helper for `.hako ll emitter` daily-owner selection; no route/profile assembly, no transport
-  - compare/debug residue for `.hako ll emitter` bridge now lives in `src/host_providers/llvm_codegen/ll_emit_bridge.rs`; the legacy MIR(JSON) front door is isolated in `src/host_providers/llvm_codegen/legacy_json.rs`; LLVM tool execution is split further into `src/host_providers/llvm_codegen/ll_tool_driver.rs`; compare proof itself is archive-suite only
+  - compare/debug residue for `.hako ll emitter` bridge is split between `src/host_providers/llvm_codegen/ll_emit_compare_source.rs` and `src/host_providers/llvm_codegen/ll_emit_compare_driver.rs`; `ll_emit_bridge.rs` is orchestration-only; the legacy MIR(JSON) front door is isolated in `src/host_providers/llvm_codegen/legacy_json.rs`; LLVM tool execution is split further into `src/host_providers/llvm_codegen/ll_tool_driver.rs`; compare proof itself is archive-suite only
   - `ll_emit/**`
   - explicit compare/debug bridge plus narrow daily owner for flipped boundary shapes
   - `ll_emit/call_policy_box.hako`
@@ -21,7 +21,7 @@ Current owner
   - shared non-empty validation helper also lives here so `LlvmBackendBox` can stay transport-focused without duplicating input guards
   - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are now the compat root entry for daily backend callers
   - flipped daily profiles now hydrate MIR(JSON) into a root, run `RecipeFactsV0Box -> LlTextEmitBox`, and cross the Rust tool seam via `env.codegen.compile_ll_text(...)`
-  - launcher/mainline compile is now root-first; `compile_json_path(...)` is legacy/compare/archive only and no longer the daily transport
+  - launcher/mainline compile is now root-first; the legacy compare/archive transport is isolated in `src/host_providers/llvm_codegen/legacy_json.rs` and no longer the daily transport
   - explicit compare callers may use `BackendRecipeBox.compile_compare_profile(...)` and `LlvmBackendBox.compile_obj_compare_hako_ll(...)` to exercise the `.hako ll emitter` bridge without changing the default owner; the proof smoke is archived out of the active suite
   - daily `compile_route_profile(...)` now keeps legacy `pure-first + compat_replay=none` for unflipped shapes, while `ret_const_min_v1`, `bool_phi_branch_min_v1`, `hello_simple_llvm_native_probe_v1`, `string_length_ascii_min_v1`, `string_indexof_ascii_min_v1`, and `string_concat3_extern_min_v1` use `hako-ll-min-v0` as narrow daily owner
   - `BackendRecipeBox.compile_route_profile(...)` validates the exact owner names and evidence labels before returning the daily profile, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
@@ -30,7 +30,7 @@ Current owner
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary; route evidence is now carried by root-first compile profiles instead of the retired route-env helper
   - final target は `LlvmBackendBox -> BackendRecipeBox -> .hako ll emitter -> env.codegen.compile_ll_text(...) -> opt/llc` で、legacy C shim は compare/compat keep へ後退する
-  - `.hako ll emitter` compare/debug templating residue is now folded into `ll_emit_bridge.rs`, the legacy MIR(JSON) wrapper is isolated in `legacy_json.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; runtime caller retirement for the direct `mir_json_to_object(...)` front door is landed, so the next cleanup slice returns to compare bridge wrapper thinning
+  - `.hako ll emitter` compare/debug templating residue is now split across `ll_emit_compare_source.rs` and `ll_emit_compare_driver.rs`, `ll_emit_bridge.rs` is orchestration-only, the legacy MIR(JSON) wrapper is isolated in `legacy_json.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; runtime caller retirement for the direct `mir_json_to_object(...)` front door is landed, so the next cleanup slice returns to compare source materialization thinning
   - current daily compile/link owner is now split:
     - flipped `.hako ll emitter` profiles stop at `env.codegen.compile_ll_text(...)` / `env.codegen.link_object(...)`
     - launcher root-first daily path no longer stops at `env.codegen.compile_json_path(...)`

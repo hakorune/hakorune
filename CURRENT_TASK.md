@@ -60,8 +60,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Next Task
 
-- thin the remaining compare bridge wrapper surface first:
-  - `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
+- thin the compare source materialization residue first:
+  - `src/host_providers/llvm_codegen/ll_emit_compare_source.rs`
+- `src/host_providers/llvm_codegen/ll_emit_bridge.rs` stays orchestration-only
 - keep `src/host_providers/llvm_codegen/legacy_json.rs` archive-later as the isolated legacy front door
 - keep `src/host_providers/llvm_codegen/route.rs` and `src/host_providers/llvm_codegen/ll_tool_driver.rs` as keep surfaces
 - runtime caller retirement for direct `mir_json_to_object(...)` is landed; `extern_provider.rs` and `extern_functions.rs` now go through the legacy JSON helper alias instead of owning the legacy front door directly

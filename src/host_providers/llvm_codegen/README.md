@@ -9,8 +9,14 @@ Thin Rust bridge for backend object emission.
   - does not re-decide MIR acceptance
 - `ll_emit_bridge.rs`
   - compare-only bridge orchestration
-  - folds compare-driver render / VM execution / `.ll` extraction into one archive-later wrapper surface
+  - keeps the orchestration thin while `ll_emit_compare_driver.rs` owns compare/debug orchestration and `ll_emit_compare_source.rs` owns compare source materialization residue
   - delegates `.ll -> verify -> llc -> .o` to `ll_tool_driver.rs`
+- `ll_emit_compare_source.rs`
+  - archive-later compare source materialization
+  - MIR(JSON) to compare-driver `.hako` source rendering only
+- `ll_emit_compare_driver.rs`
+  - archive-later compare/debug orchestration
+  - VM execution / stdout contract parse / `.ll` extraction
 - `ll_tool_driver.rs`
   - thin LLVM tool seam
   - `.ll` text or file -> verifier -> `llc` -> `.o`
@@ -34,6 +40,6 @@ Thin Rust bridge for backend object emission.
 - current tool seam is now `.ll` text
 - `compile_json_path` has been retired from code; flipped `.hako ll emitter` daily profiles stop at `ll_text_to_object(...)`
 - launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only and `transport.rs` keeps only legacy C ABI / explicit provider keep lanes
-- compare/debug residue is thin enough that it now lives only in `ll_emit_bridge.rs`; the separate `hako_ll_driver.rs` helper has been retired
+- compare/debug residue is now split: `ll_emit_compare_source.rs` owns source materialization, `ll_emit_compare_driver.rs` owns orchestration / VM / stdout parse, `ll_emit_bridge.rs` stays orchestration-only and the separate `hako_ll_driver.rs` helper has been retired
 - legacy JSON wrapper residue now lives in `legacy_json.rs`; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
-- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is compare bridge wrapper retirement
+- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is compare source materialization / compare driver residue retirement
