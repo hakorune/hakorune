@@ -24,6 +24,7 @@ Related:
 - canonical seam は MIR のまま固定する。
 - current C `.inc` mainline owner を細く compare/debug lane へ後退させる。
 - future mainline owner 候補を `.hako ll emitter` に移す。
+- archive-home is already sufficient for compare/retired smoke routes; `delete-ready` remains none until live callers are gone.
 
 ## Fixed Reading
 
@@ -113,6 +114,7 @@ current C `.inc` lane は次の扱いに固定する。
 - silent fallback は禁止。
 - current explicit lane は `.hako ll emitter min v0` と C `.inc` owner の比較用に使う。
 - compare lane は temporary bridge であって常設 mainline route ではない。
+- compare bridge retirement is archive-later only; it is no longer a physical move problem. The live caller retirement inventory is tracked in `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`.
 - compare lane の minimum evidence は次で固定する。
   - `chosen_owner`
   - `accepted`

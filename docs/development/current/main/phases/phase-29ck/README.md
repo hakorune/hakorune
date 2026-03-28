@@ -56,6 +56,7 @@ Related:
 - current structure-first parent order lives in:
   - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
   - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
+- archive-home is sufficient for the retired compare/lock assets; no additional archive-home moves are planned, and `delete-ready` remains none
 - `ret const`, `bool phi/branch`, `Global print`, `concat3 extern`, the three `RuntimeData.length/size` observer locks, and `RuntimeData.push(ArrayBox)` are no longer active `phase29ck-boundary` defaults; they now stay only as `phase29ck-boundary-legacy` locks because the daily owner proof moved to `phase29x/derust`
 - allowed carry-over work from this phase is limited to structural perf that makes owner cutover cleaner:
   - attrs SSOT

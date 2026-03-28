@@ -75,18 +75,19 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
   - archive/delete sweep wave 1 is landed:
     - flipped `phase29ck` locks now live in `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt`
     - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, or the three `RuntimeData.length/size` observer locks
-    - compare bridge assets remain explicit bridge-only, now archive-suite only, and are not delete-ready yet
+    - compare bridge assets remain explicit bridge-only, now archive-suite only; archive-home is sufficient and `delete-ready` remains none
     - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
     - launcher/root-first daily transport cut is landed:
       - keep `.ll` as the Rust/LLVM tool seam
       - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are landed
       - daily `.hako ll emitter` profiles already move from `compile_json_path` to `compile_ll_text`
       - launcher/mainline now compiles root-first, so temp MIR paths no longer select the legacy route
-      - `route.rs` compare/archive shrink is landed; next cleanup is compare bridge retirement / archive decisions
+      - `route.rs` compare/archive shrink is landed; next cleanup is compare bridge retirement / archive decisions, and live `compile_json_path` caller retirement prep is tracked in `29x-97-compare-bridge-retirement-prep-ssot.md`
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed
   - the lookup family is landed; the `RuntimeData` mutator family is now landed for `runtime_data_array_push_min_v1`
   - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
+  - archive-home is sufficient for the retired compare/lock assets; no additional archive-home moves are planned, and `delete-ready` remains none
 - structural perf only:
   - attrs centralization
   - facts visibility

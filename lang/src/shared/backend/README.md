@@ -23,7 +23,7 @@ Current owner
   - shared non-empty validation helper also lives here so `LlvmBackendBox` can stay transport-focused without duplicating input guards
   - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are now the compat root entry for daily backend callers
   - flipped daily profiles now hydrate MIR(JSON) into a root, run `RecipeFactsV0Box -> LlTextEmitBox`, and cross the Rust tool seam via `env.codegen.compile_ll_text(...)`
-  - path-gated launcher/mainline compile still enters `compile_json_path(...)` when `BackendRecipeBox.compile_route_profile(...)` selects the legacy keep route for temp MIR paths
+  - launcher/mainline compile is now root-first; `compile_json_path(...)` is legacy/compare/archive only and no longer the daily transport
   - explicit compare callers may use `BackendRecipeBox.compile_compare_profile(...)` and `LlvmBackendBox.compile_obj_compare_hako_ll(...)` to exercise the `.hako ll emitter` bridge without changing the default owner; the proof smoke is archived out of the active suite
   - daily `compile_route_profile(...)` now keeps legacy `pure-first + compat_replay=none` for unflipped shapes, while `ret_const_min_v1`, `bool_phi_branch_min_v1`, `hello_simple_llvm_native_probe_v1`, `string_length_ascii_min_v1`, `string_indexof_ascii_min_v1`, and `string_concat3_extern_min_v1` use `hako-ll-min-v0` as narrow daily owner
   - `BackendRecipeBox.compile_route_profile(...)` validates the exact owner names and evidence labels before returning the daily profile, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`
@@ -32,10 +32,10 @@ Current owner
   - the canonical route profile shape is documented in `docs/development/current/main/design/backend-recipe-route-profile-ssot.md`
   - transport layers may still mirror those names to `HAKO_BACKEND_COMPILE_RECIPE` / `HAKO_BACKEND_COMPAT_REPLAY` when crossing the C boundary, while `.hako` daily callers now also bridge `HAKO_BACKEND_ACCEPTANCE_CASE` / `HAKO_BACKEND_TRANSPORT_OWNER` / `HAKO_BACKEND_LEGACY_DAILY_ALLOWED` through `backend_route_env_box.hako` so route evidence does not disappear before the Rust bridge
   - final target は `LlvmBackendBox -> BackendRecipeBox -> .hako ll emitter -> env.codegen.compile_ll_text(...) -> opt/llc` で、legacy C shim は compare/compat keep へ後退する
-  - `.hako ll emitter` compare/debug templating residue is now split into Rust helper `hako_ll_driver.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; remaining cleanup is launcher root-first transport plus compare bridge retirement, not env or template plumbing
+  - `.hako ll emitter` compare/debug templating residue is now split into Rust helper `hako_ll_driver.rs`, and `.ll` tool execution is isolated in `ll_tool_driver.rs`; remaining cleanup is compare bridge retirement / archive decisions, not env or template plumbing
   - current daily compile/link owner is now split:
     - flipped `.hako ll emitter` profiles stop at `env.codegen.compile_ll_text(...)` / `env.codegen.link_object(...)`
-    - launcher temp MIR paths still stop at `env.codegen.compile_json_path(...)` / `env.codegen.link_object(...)`
+    - launcher root-first daily path no longer stops at `env.codegen.compile_json_path(...)`
   - shared compile/link helper lowering now reaches canonical `env.codegen.*` externs directly; daily compile/link does not depend on `hostbridge.extern_invoke(...)`
   - caller-side codegen request defaults are centralized in `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)`; compat bridges may mirror the same names, but daily owners stay explicit
   - MIR normalization (`schema_version: "1.0"` / `metadata.extern_c`) is owned by Rust backend boundary `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`

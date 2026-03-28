@@ -41,6 +41,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
     - flipped `phase29ck` locks moved out of `phase29ck-boundary` into `phase29ck-boundary-legacy`
     - compare bridge assets stay explicit bridge-only and compare proof now lives in `phase29x-derust-archive.txt`
+    - archive-home is sufficient for the retired compare/lock assets; no additional archive-home moves are planned, and `delete-ready` remains none
     - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
     - `.hako ll emitter` is now also the daily owner for `runtime_data_string_length_ascii_min_v1`, `runtime_data_array_length_min_v1`, and `runtime_data_map_size_min_v1`
     - those three `RuntimeData` observer locks now live in `phase29ck-boundary-legacy`
@@ -55,6 +56,8 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - temp MIR JSON still exists as evidence/output only; it is no longer the daily compile transport
     - `compile_json_path(...)` is now legacy/compare/archive only
     - `route.rs` compare/archive shrink is landed; next fixed cleanup is compare bridge retirement / archive decisions, not another launcher transport cut
+    - compare bridge retirement is archive-later only until live callers reach zero; archive-home is sufficient and `delete-ready` remains none
+    - live `compile_json_path` caller inventory and retirement order are now tracked in `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
   - fixed order after the owner-flip wave is now:
     - keep `.ll` as the Rust/LLVM tool seam
     - keep `MIR JSON` as evidence only and feed daily `.hako ll emitter` with a root
