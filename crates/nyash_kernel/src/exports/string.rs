@@ -551,9 +551,6 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
         return a_h;
     }
     with_cached_const_text(&CONST_SUFFIX_TEXT_CACHE, suffix_ptr, |suffix| {
-        if suffix.is_empty() {
-            return a_h;
-        }
         concat_const_suffix_from_handle(a_h, suffix)
     })
 }
@@ -595,10 +592,11 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
     }
 
     with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
-        match insert_middle_retention_class(string_is_empty_from_handle(source_h) == Some(true), middle.is_empty()) {
+        let source_is_empty = string_is_empty_from_handle(source_h) == Some(true);
+        match insert_middle_retention_class(source_is_empty, middle.is_empty()) {
             TextRetentionClass::ReturnHandle => source_h,
             TextRetentionClass::KeepTransient | TextRetentionClass::MustFreeze(_) => {
-                if string_is_empty_from_handle(source_h) == Some(true) {
+                if source_is_empty {
                     super::nyash_box_from_i8_string_const(middle_ptr)
                 } else {
                     freeze_text_plan(insert_const_mid_plan_from_handle(source_h, middle, split))
