@@ -173,7 +173,8 @@ perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりも
 6. main proof
    - `kilo_kernel_small_hk`
 7. only then
-   - sink-local narrow tuning is currently paused after the direct `Registry::get` clone-path cut; keep `StringBox::new` out unless new asm evidence appears
+   - sink-local narrow tuning is currently paused after the direct `Registry::get` clone-path cut; the current summary is in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
+   - keep `StringBox::new` out unless new asm evidence appears
 
 ### Rejected follow-up
 

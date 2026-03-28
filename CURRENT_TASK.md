@@ -92,6 +92,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     3. re-run meso/main proof before any further sink-local tuning
     4. keep `BoxBase::new` out unless fresh asm evidence shows the object layout itself is the limiter
   - landed sink-local read-side cut: `Registry::get` now uses a direct clone path without the extra clone helper
+  - current optimization summary lives in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
+  - sink-local lane is now exhausted; no further safe code cut is known without fresh upstream birth-density evidence
   - rejected follow-up:
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason

@@ -4,6 +4,20 @@ This folder contains investigation notes and analysis for debugging sessions.
 
 ## Active Investigations
 
+### Perf Kilo String Birth Hot Path (2026-03-28)
+
+**Status**: 🟢 active summary
+**Problem**: `perf-kilo` current wave の string birth hot path について、accepted / rejected / stop-line を 1 枚で読めるようにする
+
+**Key Document**:
+1. [perf-kilo-string-birth-hotpath-summary-2026-03-28.md](perf-kilo-string-birth-hotpath-summary-2026-03-28.md)
+2. [perf-kilo-string-leaf-rejected-followups-2026-03-28.md](perf-kilo-string-leaf-rejected-followups-2026-03-28.md)
+
+**Current Read**:
+- accepted slices are already landed for `freeze.str`, `BorrowedSubstringPlan`, `array_set`, `Registry::alloc`, and `Registry::get`
+- rejected slices are stable and must stay out of the active lane
+- current stop-line is `BoxBase::new`; the next move, if any, must come from upstream birth-density / placement rather than more sink-local tuning
+
 ### Phase29ck: Array Substrate Rejected Optimizations (2026-03-27)
 
 **Status**: 🟢 active ledger
