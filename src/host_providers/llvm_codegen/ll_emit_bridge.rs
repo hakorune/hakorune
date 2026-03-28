@@ -8,25 +8,9 @@ use super::ll_tool_driver;
 use super::normalize;
 use super::Opts;
 
-enum BridgeLane {
-    Daily,
-    Compare,
-}
+const COMPARE_TAG: &str = "compare";
 
-impl BridgeLane {
-    fn tag(&self) -> &'static str {
-        match self {
-            Self::Daily => "daily",
-            Self::Compare => "compare",
-        }
-    }
-}
-
-fn mir_json_to_object_hako_ll(
-    mir_json: &str,
-    opts: &Opts,
-    lane: BridgeLane,
-) -> Result<PathBuf, String> {
+fn mir_json_to_object_hako_ll(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
     normalize::validate_backend_mir_shape(mir_json)?;
     let hakorune = resolve_hakorune_bin();
     if !hakorune.exists() {
@@ -45,30 +29,23 @@ fn mir_json_to_object_hako_ll(
     let source_path = prepare_hako_driver_source(
         mir_json,
         &out_path,
-        lane.tag(),
+        COMPARE_TAG,
         &acceptance_case,
         &legacy_daily_allowed,
     )?;
     let stdout = run_driver_via_vm(&hakorune, &source_path)?;
-    let contract_line = extract_contract_line(&stdout, lane.tag())?;
+    let contract_line = extract_contract_line(&stdout, COMPARE_TAG)?;
     let ll_text = extract_ll(&stdout)?;
     println!("{}", contract_line);
-    let compile_result = ll_tool_driver::ll_text_to_object(&ll_text, &out_path, lane.tag());
+    let compile_result = ll_tool_driver::ll_text_to_object(&ll_text, &out_path, COMPARE_TAG);
     let _ = std::fs::remove_file(&source_path);
     compile_result?;
     Ok(out_path)
-}
-
-pub(super) fn mir_json_to_object_hako_ll_daily(
-    mir_json: &str,
-    opts: &Opts,
-) -> Result<PathBuf, String> {
-    mir_json_to_object_hako_ll(mir_json, opts, BridgeLane::Daily)
 }
 
 pub(super) fn mir_json_to_object_hako_ll_compare(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<PathBuf, String> {
-    mir_json_to_object_hako_ll(mir_json, opts, BridgeLane::Compare)
+    mir_json_to_object_hako_ll(mir_json, opts)
 }

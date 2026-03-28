@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use super::defaults::COMPILE_SYMBOL_DEFAULT;
-use super::ll_emit_bridge::{mir_json_to_object_hako_ll_compare, mir_json_to_object_hako_ll_daily};
+use super::ll_emit_bridge::mir_json_to_object_hako_ll_compare;
 use super::normalize::validate_backend_mir_shape;
 use super::transport::{
     compile_via_capi, ensure_backend_output_parent, prepare_backend_input_json_file,
@@ -13,22 +13,17 @@ const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0"
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum HakoLlBridgeLane {
-    Daily,
     Compare,
 }
 
 impl HakoLlBridgeLane {
     fn tag(self) -> &'static str {
-        match self {
-            Self::Daily => "daily",
-            Self::Compare => "compare",
-        }
+        "compare"
     }
 }
 
 fn hako_ll_bridge_lane(recipe: Option<&str>) -> Option<HakoLlBridgeLane> {
     match recipe {
-        Some("hako-ll-min-v0") => Some(HakoLlBridgeLane::Daily),
         Some("hako-ll-compare-v0") => Some(HakoLlBridgeLane::Compare),
         _ => None,
     }
@@ -99,7 +94,6 @@ fn validate_hako_ll_route_context(lane: HakoLlBridgeLane) -> Result<HakoLlRouteC
 }
 
 fn emit_hako_ll_route_trace(
-    lane: HakoLlBridgeLane,
     recipe: Option<&str>,
     compat_replay: Option<&str>,
     ctx: &HakoLlRouteContext,
@@ -115,12 +109,10 @@ fn emit_hako_ll_route_trace(
         ctx.acceptance_case,
         ctx.legacy_daily_allowed
     );
-    if lane == HakoLlBridgeLane::Compare {
-        eprintln!(
-            "[llvm-route/replay] lane=compare reason=explicit_bridge acceptance_case={}",
-            ctx.acceptance_case
-        );
-    }
+    eprintln!(
+        "[llvm-route/replay] lane=compare reason=explicit_bridge acceptance_case={}",
+        ctx.acceptance_case
+    );
 }
 
 pub(super) fn try_compile_via_hako_ll_bridge(
@@ -128,21 +120,9 @@ pub(super) fn try_compile_via_hako_ll_bridge(
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
     match hako_ll_bridge_lane(opts.compile_recipe.as_deref()) {
-        Some(HakoLlBridgeLane::Daily) => {
-            let ctx = validate_hako_ll_route_context(HakoLlBridgeLane::Daily)?;
-            emit_hako_ll_route_trace(
-                HakoLlBridgeLane::Daily,
-                opts.compile_recipe.as_deref(),
-                opts.compat_replay.as_deref(),
-                &ctx,
-            );
-            validate_backend_mir_shape(mir_json)?;
-            mir_json_to_object_hako_ll_daily(mir_json, opts).map(Some)
-        }
         Some(HakoLlBridgeLane::Compare) => {
             let ctx = validate_hako_ll_route_context(HakoLlBridgeLane::Compare)?;
             emit_hako_ll_route_trace(
-                HakoLlBridgeLane::Compare,
                 opts.compile_recipe.as_deref(),
                 opts.compat_replay.as_deref(),
                 &ctx,
@@ -264,23 +244,20 @@ mod tests {
     #[test]
     fn hako_ll_bridge_lane_stays_explicit() {
         assert_eq!(
-            hako_ll_bridge_lane(Some("hako-ll-min-v0")),
-            Some(HakoLlBridgeLane::Daily)
-        );
-        assert_eq!(
             hako_ll_bridge_lane(Some("hako-ll-compare-v0")),
             Some(HakoLlBridgeLane::Compare)
         );
+        assert_eq!(hako_ll_bridge_lane(Some("hako-ll-min-v0")), None);
         assert_eq!(hako_ll_bridge_lane(Some("pure-first")), None);
         assert_eq!(hako_ll_bridge_lane(None), None);
     }
 
     #[test]
     fn required_hako_ll_context_field_is_fail_fast() {
-        let err = required_hako_ll_context_field("acceptance_case", None, HakoLlBridgeLane::Daily)
+        let err = required_hako_ll_context_field("acceptance_case", None, HakoLlBridgeLane::Compare)
             .expect_err("missing acceptance_case should fail");
         assert!(err.contains("field=acceptance_case"));
-        assert!(err.contains("lane=daily"));
+        assert!(err.contains("lane=compare"));
     }
 
     #[test]

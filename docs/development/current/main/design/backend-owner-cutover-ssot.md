@@ -64,6 +64,7 @@ current C `.inc` lane は次の扱いに固定する。
 - daily owner: no
 - explicit compare/debug lane: yes
 - compat keep lane: yes
+- `route.rs` is now compare/archive-only; it no longer owns the daily hako-ll bridge lane.
 
 ## Fixed Order
 
@@ -77,7 +78,9 @@ current C `.inc` lane は次の扱いに固定する。
 8. `.hako` MIR root entry or equivalent root hydrator
 9. daily `.hako ll emitter` profiles cut from `compile_json_path` to `compile_ll_text` (landed)
 10. launcher/mainline daily path switches from temp MIR path handoff to root-first compile (landed)
-11. その後に structural perf だけ reopen
+11. `route.rs` compare/archive shrink (landed)
+12. compare bridge retirement / archive decisions
+13. その後に structural perf だけ reopen
 
 ## Runtime Decl Manifest Rule
 
@@ -114,6 +117,7 @@ current C `.inc` lane は次の扱いに固定する。
   - `chosen_owner`
   - `accepted`
   - `first_blocker`
+- route.rs now only selects explicit legacy compare/archive paths.
 
 ## Subtraction Queue
 

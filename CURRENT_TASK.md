@@ -54,12 +54,12 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - mainline launcher now reads source, hydrates a root via `MirBuilderBox.emit_root_from_source_v0(...)`, and compiles via `LlvmBackendBox.compile_obj_root(...)`
     - temp MIR JSON still exists as evidence/output only; it is no longer the daily compile transport
     - `compile_json_path(...)` is now legacy/compare/archive only
-    - next fixed cleanup is compare bridge retirement / legacy route.rs shrink, not another launcher transport cut
+    - `route.rs` compare/archive shrink is landed; next fixed cleanup is compare bridge retirement / archive decisions, not another launcher transport cut
   - fixed order after the owner-flip wave is now:
     - keep `.ll` as the Rust/LLVM tool seam
     - keep `MIR JSON` as evidence only and feed daily `.hako ll emitter` with a root
     - keep launcher/mainline daily compile on root-first `compile_obj_root` / `compile_ll_text`
-    - then shrink `route.rs` / compare bridge further
+    - then retire the compare bridge / archive queue further
   - `BackendRecipeBox` fixture-path owner allowlist plus `backend.ll_emit.call_policy` and `backend.ll_emit.call_selector` are already split out
   - next structural cleanup after the owner-flip wave is to thin the remaining Rust/bridge policy leaks without reopening leaf-only perf retune
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked

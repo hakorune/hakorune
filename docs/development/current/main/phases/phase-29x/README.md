@@ -82,7 +82,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
       - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are landed
       - daily `.hako ll emitter` profiles already move from `compile_json_path` to `compile_ll_text`
       - launcher/mainline now compiles root-first, so temp MIR paths no longer select the legacy route
-      - next cleanup is compare bridge retirement / route.rs shrink, then archive decisions
+      - `route.rs` compare/archive shrink is landed; next cleanup is compare bridge retirement / archive decisions
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed
   - the lookup family is landed; the `RuntimeData` mutator family is now landed for `runtime_data_array_push_min_v1`

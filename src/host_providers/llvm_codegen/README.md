@@ -5,10 +5,10 @@ Thin Rust bridge for backend object emission.
 ## Responsibility split
 
 - `route.rs`
-  - owner selection only
+  - legacy compare/archive selection only
   - does not re-decide MIR acceptance
 - `ll_emit_bridge.rs`
-  - `.hako ll emitter` bridge orchestration only
+  - compare-only bridge orchestration
   - delegates compare-driver render / VM execution / `.ll` extraction to `hako_ll_driver.rs`
   - delegates `.ll -> verify -> llc -> .o` to `ll_tool_driver.rs`
 - `hako_ll_driver.rs`
@@ -31,4 +31,4 @@ Thin Rust bridge for backend object emission.
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here
 - current tool seam is now `.ll` text
 - flipped `.hako ll emitter` daily profiles already bypass `compile_json_path` and stop at `ll_text_to_object(...)`
-- remaining transport-cut blocker is launcher/path-gated daily compile; `route.rs` and `transport.rs` are still needed while temp MIR paths remain on the legacy route
+- launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only and `transport.rs` keeps only legacy C ABI / explicit provider keep lanes
