@@ -6,6 +6,10 @@ use super::string_view::{
     resolve_string_span_pair_from_handles, string_is_empty_from_handle as string_is_empty_impl,
     string_len_from_handle as string_len_impl, BorrowedSubstringPlan, TextPiece, TextPlan,
 };
+use super::string_birth_placement::{
+    concat3_retention_class, concat_suffix_retention_class, insert_middle_retention_class,
+    TextRetentionClass,
+};
 use super::string_plan::{
     concat_const_suffix_plan_from_handle, insert_const_mid_plan_from_handle,
 };
@@ -242,6 +246,8 @@ fn concat3_plan_from_parts<'a>(
     c: &'a str,
     allow_handle_reuse: bool,
 ) -> Concat3Plan<'a> {
+    let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), allow_handle_reuse);
+    debug_assert!(!matches!(placement, TextRetentionClass::RetainView));
     if a.is_empty() {
         if b.is_empty() {
             return if allow_handle_reuse {
@@ -326,6 +332,8 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64, allow_handle_reuse: boo
     let a = a_span.as_str();
     let b = b_span.as_str();
     let c = c_span.as_str();
+    let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), allow_handle_reuse);
+    debug_assert!(!matches!(placement, TextRetentionClass::RetainView));
     if a.is_empty() {
         if b.is_empty() {
             return if allow_handle_reuse {
@@ -494,10 +502,13 @@ fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
 
 #[inline(always)]
 fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
-    if suffix.is_empty() {
-        return a_h;
+    match concat_suffix_retention_class(suffix.is_empty()) {
+        TextRetentionClass::ReturnHandle => a_h,
+        TextRetentionClass::KeepTransient | TextRetentionClass::MustFreeze(_) => {
+            freeze_text_plan(concat_const_suffix_plan_from_handle(a_h, suffix))
+        }
+        TextRetentionClass::RetainView => unreachable!("concat_hs cannot retain a view"),
     }
-    freeze_text_plan(concat_const_suffix_plan_from_handle(a_h, suffix))
 }
 
 #[inline(always)]
@@ -584,13 +595,19 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
     }
 
     with_cached_const_text(&CONST_INSERT_TEXT_CACHE, middle_ptr, |middle| {
-        if middle.is_empty() {
-            return source_h;
+        match insert_middle_retention_class(string_is_empty_from_handle(source_h) == Some(true), middle.is_empty()) {
+            TextRetentionClass::ReturnHandle => source_h,
+            TextRetentionClass::KeepTransient | TextRetentionClass::MustFreeze(_) => {
+                if string_is_empty_from_handle(source_h) == Some(true) {
+                    super::nyash_box_from_i8_string_const(middle_ptr)
+                } else {
+                    freeze_text_plan(insert_const_mid_plan_from_handle(source_h, middle, split))
+                }
+            }
+            TextRetentionClass::RetainView => {
+                unreachable!("insert_hsi cannot retain a view")
+            }
         }
-        if string_is_empty_from_handle(source_h) == Some(true) {
-            return super::nyash_box_from_i8_string_const(middle_ptr);
-        }
-        freeze_text_plan(insert_const_mid_plan_from_handle(source_h, middle, split))
     })
 }
 

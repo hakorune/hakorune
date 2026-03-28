@@ -69,6 +69,18 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 - `TextPlan` / `PiecesN` が `ObserverOnly` なら carrier のまま残す
 - `RetainView` は `StringViewBox` birth ではなく、transient view で留める
 
+## Current Landing
+
+現コードでは、この placement 語彙が `crates/nyash_kernel/src/exports/string_birth_placement.rs` に landed しているよ。
+
+- `substring_hii`
+  - `substring_retention_class(...)` を通して `RetainView` / `MustFreeze(Store)` を読む
+- `concat_hs` / `insert_hsi`
+  - `concat_suffix_retention_class(...)` / `insert_middle_retention_class(...)` を通して `ReturnHandle` / `KeepTransient` / `MustFreeze(Store)` を読む
+- `concat3_hhh`
+  - `concat3_retention_class(...)` を通して `ReturnHandle` / `KeepTransient` を読む
+  - まだ file-local plan/freeze split のままだけど、decision 語彙は placement helper に寄せた
+
 ## What this doc owns
 
 - `substring_hii` の `ViewSpan` / `FreezePlan` 分岐の placement 語彙
@@ -101,9 +113,9 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 
 ## Current Next Move
 
-1. `BorrowedSubstringPlan` の placement 語彙を current truth に固定する
-2. `ViewSpan` がいつ `RetainView` で、いつ `MustFreeze` になるかを docs で決める
-3. `concat_hs` / `insert_hsi` / `concat3_hhh` の placement を同じ語彙で読む
+1. placement helper の語彙を current truth として維持する
+2. `ViewSpan` がいつ `RetainView` で、いつ `MustFreeze` になるかを docs と code で同じ語彙に保つ
+3. `concat_hs` / `insert_hsi` / `concat3_hhh` の placement を同じ helper で読む
 4. それでも足りなければ、その時だけ `freeze.str` 側を見直す
 
 ## Non-Goals
@@ -117,4 +129,5 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 
 - `TextPlan` / `PiecesN` と `freeze.str` の間に placement 語彙がある
 - `substring_hii` の `ViewSpan` / `FreezePlan` が helper-local ではなく decision で読める
+- placement helper が `string_birth_placement.rs` として landed している
 - C 並みを狙う時に、birth density を upstream から減らす導線がある

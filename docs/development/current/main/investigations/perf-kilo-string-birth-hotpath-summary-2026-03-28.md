@@ -25,6 +25,9 @@ Related:
 
 ## Current Accepted Slices
 
+- placement helper landed
+  - `crates/nyash_kernel/src/exports/string_birth_placement.rs` now owns the compile-time placement vocabulary
+  - `substring_hii` / `concat_hs` / `insert_hsi` / `concat3_hhh` now read the same retention classes
 - `freeze.str` は canonical sink として残す
   - `concat_hs` と `insert_hsi` は `freeze_text_plan(...)` を共有
   - `concat3_hhh` は file-local plan/freeze split のまま
@@ -58,6 +61,22 @@ Related:
   - thin wrapper に近く、ここだけを切っても whole-program の win 根拠が弱い
 - `Registry::alloc` / `Registry::get` は landed
   - sink-local lane としての追加安全 cut は現時点で無い
+- current placement lane has now landed, but perf has not yet moved
+  - the next step is upstream birth-density proof, not another sink-local cut
+
+## Latest ASM Read
+
+2026-03-29 の microasm 読みでは、次が top tier だったよ。
+
+- `__memmove_avx512_unaligned_erms`
+- `nyash.string.concat_hs`
+- `nyash_rust::runtime::host_handles::get`
+- `nyash_rust::box_trait::BoxBase::new`
+- `nyash_rust::runtime::host_handles::Registry::alloc`
+- `nyash_rust::runtime::host_handles::Registry::with_str_pair`
+
+読みとしては、sink-local leaf ではなく、`concat_hs` / birth-boundary / handle registry の組み合わせがまだ支配的だよ。
+なのでこの lane で次に触るなら、`string_birth_placement.rs` を使って upstream birth-density を下げる側になる。
 
 ## Next Move
 

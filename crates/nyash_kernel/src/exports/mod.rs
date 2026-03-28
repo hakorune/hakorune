@@ -12,6 +12,7 @@ pub(crate) mod instance;
 pub(crate) mod primitive;
 pub(crate) mod runtime;
 pub(crate) mod string_plan;
+pub(crate) mod string_birth_placement;
 pub(crate) mod string;
 pub(crate) mod string_span_cache;
 pub(crate) mod string_view;

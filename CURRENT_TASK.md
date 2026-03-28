@@ -75,6 +75,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - current leaf status:
   - normalized transient text pieces (`TextPlan` / `PiecesN`) pilot landed
   - `micro -> meso -> kilo` observation ladder landed
+  - compile-time placement helper `string_birth_placement.rs` landed
 - current sub-slice:
   - meso first reading is fixed: `len = 37 ms`, `array_set = 69 ms`, `loopcarry = 69 ms` (`warmup=1 repeat=3`)
   - the first large jump is `len -> array_set`, not `array_set -> loopcarry`
@@ -94,6 +95,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - landed sink-local read-side cut: `Registry::get` now uses a direct clone path without the extra clone helper
   - current optimization summary lives in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
   - sink-local lane is now exhausted; no further safe code cut is known without fresh upstream birth-density evidence
+  - compile-time placement helper landed, so the next exact lane is upstream birth-density proof rather than more sink-local cuts
+  - latest asm read puts `__memmove_avx512_unaligned_erms`, `nyash.string.concat_hs`, `Registry::get`, and `Registry::alloc` above `BoxBase::new`; that confirms the next cut is upstream placement proof, not more sink-local tuning
   - rejected follow-up:
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason

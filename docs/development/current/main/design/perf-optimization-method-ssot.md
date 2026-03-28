@@ -55,6 +55,7 @@ Related:
 - current docs-first perf-kilo design front is `string-birth-sink-ssot.md`: `freeze.str` remains the canonical sink target, but the attempt to move the canonical sink into `string_store.rs` was rejected; the active lane stays on substring boundary cleanup rather than more route/helper splitting.
 - when the lane is on `freeze.str`, do not mix sink canonicalization with route/helper splitting in the same commit series.
 - current narrow implementation order is fixed: shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, re-run the same-artifact meso/main proof, and then stop the sink-local lane unless new asm evidence appears (keep `BoxBase::new` out unless evidence changes).
+- compile-time placement helper `crates/nyash_kernel/src/exports/string_birth_placement.rs` is now landed; the next exact lane is upstream birth-density proof rather than any further sink-local cut.
 - landed planner cleanup: const-suffix / insert recipe helpers are isolated in `crates/nyash_kernel/src/exports/string_plan.rs`.
 - rejected follow-up: moving `freeze.str` into `string_store.rs` regressed stable main (`834 ms` / `909 ms` back-to-back), so keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears.
 - code has now landed the shared `freeze_text_plan(...)` sink helper for `concat_hs` and `insert_hsi`; keep the current proof reading as historical evidence until the next sink-local tuning lands.

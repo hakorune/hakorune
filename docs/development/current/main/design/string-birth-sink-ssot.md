@@ -156,7 +156,7 @@ TextPlan / PiecesN
 
 perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりもこの直列が先に支配している。
 
-なので、次の exact cut は `nyash.array.set_his` の monomorphic split ではなく、**`string_store.rs` への sink canonicalization と planner cleanup** だよ。
+なので、次の exact cut は `nyash.array.set_his` の monomorphic split ではなく、**`string_birth_placement.rs` による upstream placement proof** だよ。
 
 ## Immediate Rollout
 
@@ -173,7 +173,8 @@ perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりも
 6. main proof
    - `kilo_kernel_small_hk`
 7. only then
-   - sink-local narrow tuning is currently paused after the direct `Registry::get` clone-path cut; the current summary is in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
+   - sink-local narrow tuning is paused after the direct `Registry::get` clone-path cut; the current summary is in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
+   - compile-time placement helper landed in `crates/nyash_kernel/src/exports/string_birth_placement.rs`
    - keep `StringBox::new` out unless new asm evidence appears
 
 ### Rejected follow-up

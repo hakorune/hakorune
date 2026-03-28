@@ -1,6 +1,7 @@
 use super::string_span_cache::{
     string_span_cache_get, string_span_cache_get_pair, string_span_cache_put,
 };
+use super::string_birth_placement::{substring_retention_class, TextRetentionClass};
 use nyash_rust::{
     box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -459,8 +460,6 @@ pub(crate) enum BorrowedSubstringPlan {
     ViewSpan(StringSpan),
 }
 
-const SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: usize = 8;
-
 pub(crate) fn borrowed_substring_plan_from_handle(
     handle: i64,
     start: i64,
@@ -485,22 +484,24 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             let Some(sub_slice) = sb.value.get(st_rel..en_rel) else {
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             };
-            if !view_enabled || sub_slice.len() <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
-                return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(
-                    StringSpan {
-                        base_handle: handle,
-                        base_obj: obj.clone(),
-                        start: st_rel,
-                        end: en_rel,
-                    },
-                )));
-            }
-            return Some(BorrowedSubstringPlan::ViewSpan(StringSpan {
+            let placement = substring_retention_class(view_enabled, sub_slice.len());
+            let span = StringSpan {
                 base_handle: handle,
                 base_obj: obj.clone(),
                 start: st_rel,
                 end: en_rel,
-            }));
+            };
+            match placement {
+                TextRetentionClass::RetainView => {
+                    return Some(BorrowedSubstringPlan::ViewSpan(span));
+                }
+                TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
+                    return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(span)));
+                }
+                TextRetentionClass::ReturnHandle => {
+                    return Some(BorrowedSubstringPlan::ReturnHandle);
+                }
+            }
         }
         if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
             let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
@@ -521,22 +522,24 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             let Some(sub_slice) = base_sb.value.get(abs_st..abs_en) else {
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             };
-            if !view_enabled || sub_slice.len() <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
-                return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(
-                    StringSpan {
-                        base_handle: view.base_handle,
-                        base_obj: view.base_obj.clone(),
-                        start: abs_st,
-                        end: abs_en,
-                    },
-                )));
-            }
-            return Some(BorrowedSubstringPlan::ViewSpan(StringSpan {
+            let placement = substring_retention_class(view_enabled, sub_slice.len());
+            let span = StringSpan {
                 base_handle: view.base_handle,
                 base_obj: view.base_obj.clone(),
                 start: abs_st,
                 end: abs_en,
-            }));
+            };
+            match placement {
+                TextRetentionClass::RetainView => {
+                    return Some(BorrowedSubstringPlan::ViewSpan(span));
+                }
+                TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
+                    return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(span)));
+                }
+                TextRetentionClass::ReturnHandle => {
+                    return Some(BorrowedSubstringPlan::ReturnHandle);
+                }
+            }
         }
         None
     })
