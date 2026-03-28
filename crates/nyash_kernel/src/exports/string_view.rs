@@ -1,7 +1,6 @@
 use super::string_span_cache::{
     string_span_cache_get, string_span_cache_get_pair, string_span_cache_put,
 };
-use arrayvec::ArrayVec;
 use nyash_rust::{
     box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -189,8 +188,22 @@ impl<'a> TextPiece<'a> {
 #[derive(Clone, Debug)]
 pub(crate) enum TextPlan<'a> {
     View1(StringSpan),
-    PiecesN {
-        pieces: ArrayVec<TextPiece<'a>, 4>,
+    Pieces2 {
+        a: TextPiece<'a>,
+        b: TextPiece<'a>,
+        total_len: usize,
+    },
+    Pieces3 {
+        a: TextPiece<'a>,
+        b: TextPiece<'a>,
+        c: TextPiece<'a>,
+        total_len: usize,
+    },
+    Pieces4 {
+        a: TextPiece<'a>,
+        b: TextPiece<'a>,
+        c: TextPiece<'a>,
+        d: TextPiece<'a>,
         total_len: usize,
     },
     OwnedTmp(String),
@@ -209,64 +222,70 @@ impl<'a> TextPlan<'a> {
         resolve_string_span_from_handle(handle).map(Self::View1)
     }
 
-    fn from_array_pieces(pieces: ArrayVec<TextPiece<'a>, 4>) -> Self {
-        match pieces.len() {
-            0 => Self::OwnedTmp(String::new()),
-            1 => {
-                let mut pieces = pieces;
-                match pieces
-                    .pop()
-                    .expect("normalized piece list should have one element")
-                {
-                    TextPiece::Span(span) => Self::View1(span),
-                    TextPiece::Inline(text) => Self::OwnedTmp(text.to_owned()),
-                }
-            }
-            _ => {
-                let total_len = pieces.iter().map(TextPiece::len).sum();
-                Self::PiecesN { pieces, total_len }
+    fn from_pair(a: TextPiece<'a>, b: TextPiece<'a>) -> Self {
+        match (a.is_empty(), b.is_empty()) {
+            (true, true) => Self::OwnedTmp(String::new()),
+            (true, false) => match b {
+                TextPiece::Span(span) => Self::View1(span),
+                TextPiece::Inline(text) => Self::OwnedTmp(text.to_owned()),
+            },
+            (false, true) => match a {
+                TextPiece::Span(span) => Self::View1(span),
+                TextPiece::Inline(text) => Self::OwnedTmp(text.to_owned()),
+            },
+            (false, false) => {
+                let total_len = a.len() + b.len();
+                Self::Pieces2 { a, b, total_len }
             }
         }
     }
 
     pub(crate) fn from_two(a: TextPiece<'a>, b: TextPiece<'a>) -> Self {
-        let mut pieces = ArrayVec::new();
-        if !a.is_empty() {
-            pieces.push(a);
-        }
-        if !b.is_empty() {
-            pieces.push(b);
-        }
-        Self::from_array_pieces(pieces)
+        Self::from_pair(a, b)
     }
 
     pub(crate) fn from_three(a: TextPiece<'a>, b: TextPiece<'a>, c: TextPiece<'a>) -> Self {
-        let mut pieces = ArrayVec::new();
-        if !a.is_empty() {
-            pieces.push(a);
+        match (a.is_empty(), b.is_empty(), c.is_empty()) {
+            (true, true, true) => Self::OwnedTmp(String::new()),
+            (true, true, false) => Self::from_pair(b, c),
+            (true, false, true) => Self::from_pair(b, c),
+            (false, true, true) => Self::from_pair(a, c),
+            (true, false, false) => {
+                let total_len = b.len() + c.len();
+                Self::Pieces2 {
+                    a: b,
+                    b: c,
+                    total_len,
+                }
+            }
+            (false, true, false) => {
+                let total_len = a.len() + c.len();
+                Self::Pieces2 {
+                    a,
+                    b: c,
+                    total_len,
+                }
+            }
+            (false, false, true) => {
+                let total_len = a.len() + b.len();
+                Self::Pieces2 { a, b, total_len }
+            }
+            (false, false, false) => {
+                let total_len = a.len() + b.len() + c.len();
+                Self::Pieces3 { a, b, c, total_len }
+            }
         }
-        if !b.is_empty() {
-            pieces.push(b);
-        }
-        if !c.is_empty() {
-            pieces.push(c);
-        }
-        Self::from_array_pieces(pieces)
     }
 
     #[cfg(test)]
     pub(crate) fn from_pieces(pieces: Vec<TextPiece<'a>>) -> Self {
-        let pieces = pieces
+        let mut pieces = pieces
             .into_iter()
             .filter(|piece| !piece.is_empty())
             .collect::<Vec<_>>();
         match pieces.len() {
             0 => Self::OwnedTmp(String::new()),
-            1 => match pieces
-                .into_iter()
-                .next()
-                .expect("normalized piece list should have one element")
-            {
+            1 => match pieces.pop().expect("normalized piece list should have one element") {
                 TextPiece::Span(span) => Self::View1(span),
                 TextPiece::Inline(text) => Self::OwnedTmp(text.to_owned()),
             },
@@ -306,21 +325,39 @@ impl<'a> TextPlan<'a> {
         }
         match self {
             Self::View1(span) => Self::from_two(TextPiece::Span(span), TextPiece::Inline(inline)),
-            Self::PiecesN {
-                mut pieces,
+            Self::Pieces2 { a, b, total_len } => {
+                let total_len = total_len.saturating_add(inline.len());
+                Self::Pieces3 {
+                    a,
+                    b,
+                    c: TextPiece::Inline(inline),
+                    total_len,
+                }
+            }
+            Self::Pieces3 { a, b, c, total_len } => {
+                let total_len = total_len.saturating_add(inline.len());
+                Self::Pieces4 {
+                    a,
+                    b,
+                    c,
+                    d: TextPiece::Inline(inline),
+                    total_len,
+                }
+            }
+            Self::Pieces4 {
+                a,
+                b,
+                c,
+                d,
                 total_len,
             } => {
-                if pieces.is_full() {
-                    let mut out = String::with_capacity(total_len.saturating_add(inline.len()));
-                    for piece in pieces {
-                        piece.append_to(&mut out);
-                    }
-                    out.push_str(inline);
-                    Self::OwnedTmp(out)
-                } else {
-                    pieces.push(TextPiece::Inline(inline));
-                    Self::from_array_pieces(pieces)
-                }
+                let mut out = String::with_capacity(total_len.saturating_add(inline.len()));
+                a.append_to(&mut out);
+                b.append_to(&mut out);
+                c.append_to(&mut out);
+                d.append_to(&mut out);
+                out.push_str(inline);
+                Self::OwnedTmp(out)
             }
             Self::OwnedTmp(mut text) => {
                 text.push_str(inline);
@@ -345,7 +382,7 @@ impl<'a> TextPlan<'a> {
                     TextPiece::Span(suffix),
                 )
             }
-            Self::PiecesN { .. } | Self::OwnedTmp(_) => {
+            Self::Pieces2 { .. } | Self::Pieces3 { .. } | Self::Pieces4 { .. } | Self::OwnedTmp(_) => {
                 let source = self.into_owned();
                 let split = split.min(source.len());
                 let prefix = source.get(0..split).unwrap_or("");
@@ -363,11 +400,31 @@ impl<'a> TextPlan<'a> {
     pub(crate) fn into_owned(self) -> String {
         match self {
             Self::View1(span) => span.as_str().to_string(),
-            Self::PiecesN { pieces, total_len } => {
+            Self::Pieces2 { a, b, total_len } => {
                 let mut out = String::with_capacity(total_len);
-                for piece in pieces {
-                    piece.append_to(&mut out);
-                }
+                a.append_to(&mut out);
+                b.append_to(&mut out);
+                out
+            }
+            Self::Pieces3 { a, b, c, total_len } => {
+                let mut out = String::with_capacity(total_len);
+                a.append_to(&mut out);
+                b.append_to(&mut out);
+                c.append_to(&mut out);
+                out
+            }
+            Self::Pieces4 {
+                a,
+                b,
+                c,
+                d,
+                total_len,
+            } => {
+                let mut out = String::with_capacity(total_len);
+                a.append_to(&mut out);
+                b.append_to(&mut out);
+                c.append_to(&mut out);
+                d.append_to(&mut out);
                 out
             }
             Self::OwnedTmp(text) => text,
