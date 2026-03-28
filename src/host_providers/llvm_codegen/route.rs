@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use super::defaults::COMPILE_SYMBOL_DEFAULT;
 use super::ll_emit_bridge::mir_json_to_object_hako_ll_compare;
 use super::normalize::validate_backend_mir_shape;
+use super::provider_keep::{mir_json_to_object_llvmlite, mir_json_to_object_ny_llvmc};
 use super::transport::{
     compile_via_capi, ensure_backend_output_parent, prepare_backend_input_json_file,
     resolve_backend_object_output,
@@ -176,8 +177,8 @@ pub(super) fn try_compile_via_explicit_provider_keep(
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
     match crate::config::env::llvm_emit_provider().as_deref() {
-        Some("llvmlite") => super::transport::mir_json_to_object_llvmlite(mir_json, opts).map(Some),
-        Some("ny-llvmc") => super::transport::mir_json_to_object_ny_llvmc(mir_json, opts).map(Some),
+        Some("llvmlite") => mir_json_to_object_llvmlite(mir_json, opts).map(Some),
+        Some("ny-llvmc") => mir_json_to_object_ny_llvmc(mir_json, opts).map(Some),
         _ => Ok(None),
     }
 }

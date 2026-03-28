@@ -17,12 +17,15 @@ Thin Rust bridge for backend object emission.
 - `ll_emit_compare_driver.rs`
   - archive-later compare/debug orchestration
   - VM execution / stdout contract parse / `.ll` extraction
+- `provider_keep.rs`
+  - archive-later explicit provider keep lanes
+  - `ny-llvmc` / `llvmlite` object emission helpers only
 - `ll_tool_driver.rs`
   - thin LLVM tool seam
   - `.ll` text or file -> verifier -> `llc` -> `.o`
 - `transport.rs`
   - legacy C ABI transport
-  - explicit provider keep lanes (`ny-llvmc`, `llvmlite`)
+  - temp-path / CAPI helpers only
 - `legacy_json.rs`
   - legacy MIR(JSON) front door for compare/archive callers
   - routes through `route.rs` and stays out of the daily root-first tool seam
@@ -39,7 +42,7 @@ Thin Rust bridge for backend object emission.
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here
 - current tool seam is now `.ll` text
 - `compile_json_path` has been retired from code; flipped `.hako ll emitter` daily profiles stop at `ll_text_to_object(...)`
-- launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only and `transport.rs` keeps only legacy C ABI / explicit provider keep lanes
-- compare/debug residue is now split: `ll_emit_compare_source.rs` owns source materialization, `ll_emit_compare_driver.rs` owns orchestration / VM / stdout parse, `ll_emit_bridge.rs` stays orchestration-only and the separate `hako_ll_driver.rs` helper has been retired
+- launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only; `transport.rs` keeps only legacy temp-path / CAPI lanes; `provider_keep.rs` owns explicit provider keep lanes
+- compare/debug residue is now split: `ll_emit_compare_source.rs` owns source materialization, `ll_emit_compare_driver.rs` owns orchestration / VM / stdout parse, `provider_keep.rs` owns explicit provider keep lanes, `ll_emit_bridge.rs` stays orchestration-only and the separate `hako_ll_driver.rs` helper has been retired
 - legacy JSON wrapper residue now lives in `legacy_json.rs`; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
-- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is compare source materialization / compare driver residue retirement
+- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is explicit provider keep thinning from `transport.rs`

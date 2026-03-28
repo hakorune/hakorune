@@ -32,6 +32,7 @@ mod ll_emit_compare_source;
 mod legacy_json;
 mod ll_emit_compare_driver;
 mod ll_emit_bridge;
+mod provider_keep;
 mod ll_tool_driver;
 mod normalize;
 mod route;
