@@ -167,6 +167,10 @@ Related:
 	          - `kilo_meso_substring_concat_array_set = 69 ms`
 	          - `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
 	        - the first large gap opens at `len -> array_set`, so the next exact leaf stays on string store / `array_set_by_index_string_handle_value` before any loop-carry reopen
+	        - landed narrow store-boundary cut:
+	          - `nyash.array.set_his` no longer clones a temporary source `Arc` before entering the array write closure; the hot branch now resolves the source handle in place
+	          - latest spot-check is `kilo_meso_substring_concat_array_set = 66 ms` and `kilo_kernel_small_hk = 708 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+	          - next exact cut stays on store-boundary birth/lookup cost (`Registry::alloc/get`, `BoxBase::new`), not loop-carry shaping
 	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	        - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`
 	        - latest attrs spot-check was noisy (`831 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), so treat `P0-attrs` as IR-quality groundwork only; no wall-clock win is claimed yet

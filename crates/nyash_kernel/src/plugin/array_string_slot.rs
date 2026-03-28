@@ -131,37 +131,38 @@ pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, valu
         return 0;
     }
     let drop_epoch = handles::drop_epoch();
-    let source_obj = handles::with_handle(value_h as u64, |value_obj| value_obj.cloned());
     super::handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {
             if idx > items.len() {
                 return 0;
             }
-            if idx < items.len() {
-                if let Some(value_obj) = source_obj.as_ref() {
-                    if try_retarget_borrowed_string_slot_with_source(
-                        &mut items[idx],
-                        value_h,
-                        value_obj,
-                        drop_epoch,
-                    ) {
-                        return 1;
+            handles::with_handle(value_h as u64, |source_obj| {
+                if idx < items.len() {
+                    if let Some(value_obj) = source_obj {
+                        if try_retarget_borrowed_string_slot_with_source(
+                            &mut items[idx],
+                            value_h,
+                            value_obj,
+                            drop_epoch,
+                        ) {
+                            return 1;
+                        }
                     }
                 }
-            }
-            let value = match source_obj.as_ref() {
-                Some(value_obj) if is_string_handle_source(value_obj) => {
-                    store_string_box_from_string_source(value_h, value_obj, drop_epoch)
+                let value = match source_obj {
+                    Some(value_obj) if is_string_handle_source(value_obj) => {
+                        store_string_box_from_string_source(value_h, value_obj, drop_epoch)
+                    }
+                    _ => store_string_box_from_source(value_h, source_obj, drop_epoch),
+                };
+                if idx < items.len() {
+                    items[idx] = value;
+                } else {
+                    items.push(value);
                 }
-                _ => store_string_box_from_source(value_h, source_obj.as_ref(), drop_epoch),
-            };
-            if idx < items.len() {
-                items[idx] = value;
-            } else {
-                items.push(value);
-            }
-            1
+                1
+            })
         })
     })
     .unwrap_or(0)
