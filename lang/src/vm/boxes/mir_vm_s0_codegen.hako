@@ -3,7 +3,7 @@
 // Non-goal: route/profile policy or boxcall routing. Keep this box small and
 // focused on codegen bridge writes only.
 
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0CodegenBox {
@@ -13,11 +13,9 @@ static box MirVmS0CodegenBox {
     if path_text == null {
       return "[vm-hako/contract][llvmbackend-compile-path-handle-missing]"
     }
-    local args = new ArrayBox()
-    args.push("" + path_text)
-    local obj = CodegenBridgeBox.compile_json_path_args(args)
+    local obj = LlvmBackendBox.compile_obj("" + path_text)
     if obj == null || ("" + obj) == "" {
-      print("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
+      print("[llvmbackend/emit/failed] LlvmBackendBox.compile_obj returned empty")
       return me._write_null_result(dst_box, regs, kinds)
     }
 

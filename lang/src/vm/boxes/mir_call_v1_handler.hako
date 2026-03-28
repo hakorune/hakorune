@@ -8,6 +8,7 @@ using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
 using lang.runtime.collections.array_core_box as ArrayCoreBox
@@ -154,11 +155,9 @@ static box MirCallV1HandlerBox {
             regs.setField(StringHelpers.int_to_str(dst_codegen), "0")
             return
           }
-          local args = new ArrayBox()
-          args.push("" + path_text)
-          local out = CodegenBridgeBox.compile_json_path_args(args)
+          local out = LlvmBackendBox.compile_obj("" + path_text)
           if out == null || ("" + out) == "" {
-            print("[llvmbackend/emit/failed] env.codegen.compile_json_path returned empty")
+            print("[llvmbackend/emit/failed] LlvmBackendBox.compile_obj returned empty")
             regs.setField(StringHelpers.int_to_str(dst_codegen), "0")
             return
           }
@@ -307,16 +306,6 @@ static box MirCallV1HandlerBox {
         local aval = null; if arg0id >= 0 { aval = regs.getField(StringHelpers.int_to_str(arg0id)) }
         HakoruneExternProviderBox.get(name, aval)
         if dstp != null { regs.setField(StringHelpers.int_to_str(dstp), "") }
-        return
-      }
-      if name == "env.codegen.compile_json_path" {
-        local dstp = JsonFragBox.get_int(seg, "dst")
-        local aval = null; if arg0id >= 0 { aval = regs.getField(StringHelpers.int_to_str(arg0id)) }
-        local out = HakoruneExternProviderBox.get(name, aval)
-        if dstp != null {
-          if out == null { regs.setField(StringHelpers.int_to_str(dstp), "") }
-          else { regs.setField(StringHelpers.int_to_str(dstp), "" + out) }
-        }
         return
       }
       if name == "env.box_introspect.kind" {

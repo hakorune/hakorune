@@ -170,6 +170,31 @@ pub(super) fn lower_method_expr<S: VarScope>(
     } = recv
     {
         if matches!(&**inner_recv, ExprV0::Var { name } if name == "env")
+            && inner_method == "codegen"
+            && inner_args.is_empty()
+        {
+            let (arg_ids, cur2) = super::lower_args_with_scope(env, f, cur_bb, args, vars)?;
+            let dst = f.next_value_id();
+            if let Some(bb) = f.get_block_mut(cur2) {
+                bb.add_instruction(crate::mir::ssot::extern_call::extern_call(
+                    Some(dst),
+                    "env.codegen",
+                    method.to_string(),
+                    arg_ids,
+                    EffectMask::IO,
+                ));
+            }
+            return Ok((dst, cur2));
+        }
+    }
+
+    if let ExprV0::Method {
+        recv: inner_recv,
+        method: inner_method,
+        args: inner_args,
+    } = recv
+    {
+        if matches!(&**inner_recv, ExprV0::Var { name } if name == "env")
             && inner_method == "box_introspect"
             && inner_args.is_empty()
         {

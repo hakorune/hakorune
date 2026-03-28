@@ -64,10 +64,9 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 
 | Surface | Bucket | Note |
 | --- | --- | --- |
-| `lang/src/mir/builder/calls/extern_calls.rs` | archive-later | builder-side extern recognition still names `compile_json_path` |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for `compile_json_path_args` |
 | `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade no longer forwards `codegen.compile_json_path`; remaining compile_json_path reachability lives in downstream legacy/runtime wrappers |
-| `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later | VM extern provider still exposes the legacy selector, but the daily owner now gates it out |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later | VM extern provider no longer exposes the front-door selector; downstream legacy/runtime wrappers still hold the path |
 | `src/backend/mir_interpreter/handlers/extern_provider.rs` | archive-later | interpreter backend still handles the legacy extern, but the daily owner now gates `compile_json_path` out |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | archive-later | plugin loader still resolves legacy compile entrypoints, but the daily `hako-ll-min-v0` recipe now gates `compile_json_path` out |
 | `src/backend/mir_interpreter/handlers/externals.rs` | archive-later | direct extern dispatch still reaches the legacy path |
@@ -86,8 +85,13 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 
 Slice 1 status:
 
-- daily front-door Hako bridge selectors are gated away from the daily `hako-ll-min-v0` recipe when the transport owner is `hako_ll_emitter`
-- compare/archive callers using `hako-ll-compare-v0` still use the explicit legacy helper path
+- daily front-door Hako bridge selectors no longer expose `env.codegen.compile_json_path`
+- compare/archive callers using `hako-ll-compare-v0` still use the explicit legacy helper path through downstream wrappers
+
+Slice 2 status:
+
+- builder-side extern recognition no longer names `compile_json_path`
+- remaining `compile_json_path` reachability lives in legacy bridge/runtime wrappers only
 - the remaining live caller inventory is still non-zero, so delete is still not ready
 
 Slice 2 status:
