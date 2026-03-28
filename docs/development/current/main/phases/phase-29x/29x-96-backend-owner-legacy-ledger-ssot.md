@@ -63,6 +63,7 @@ Related:
 | `src/host_providers/llvm_codegen/hako_ll_driver.rs` | retired compare/debug driver adapter | compare bridge retirement | helper surface folded into `ll_emit_bridge.rs` | retired | keep template/VM residue out of mainline tool boundary |
 | `src/host_providers/llvm_codegen/transport.rs` 内 ll-emit branch | mixed bridge residue | split out then delete old branch | dedicated `ll_emit_bridge.rs` landed | archive-later | route/policy を持たせない |
 | `src/host_providers/llvm_codegen/ll_emit_bridge.rs` | explicit bridge | keep while compare bridge is needed | compare bridge retirement | archive-later | temporary bridge, not permanent route |
+| `src/host_providers/llvm_codegen/legacy_json.rs` | legacy MIR(JSON) front door | archive-later | compare/archive callers only | archive-later | daily root-first compile bypasses this surface |
 | `lang/src/shared/backend/ll_emit/mir_json_loader_box.hako` | dead compare residue | removed | no live import remained | delete early | removed in this wave; keep ledger row as history |
 | `lang/src/llvm_ir/**` | compat keep | compat keep / archive candidate | separate preserve-first decision | preserve | do not reopen as daily owner |
 | `lang/src/llvm_ir/archive/**` | archive-preserved | archive-preserved | none | preserve | no revive without separate SSOT |

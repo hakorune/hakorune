@@ -62,6 +62,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - thin the remaining compare bridge wrapper surface first:
   - `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
+- keep the legacy JSON wrapper surface thin and archive-later:
+  - `src/host_providers/llvm_codegen/legacy_json.rs`
 - keep `src/host_providers/llvm_codegen/route.rs` and `src/host_providers/llvm_codegen/ll_tool_driver.rs` as keep surfaces
 - `src/host_providers/llvm_codegen/hako_ll_driver.rs` is retired by folding its compare helper surface into `ll_emit_bridge.rs`
 

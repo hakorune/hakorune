@@ -52,7 +52,7 @@ Related:
     - explicit compare smoke now lives in archive suite only as `phase29x_backend_owner_hako_ll_compare_min.sh`; compare lane is bridge-only
     - new legacy/demotion queue is fixed in `phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
     - legacy C `.inc` stays daily owner only for unflipped shapes and silent fallback remains forbidden
-    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, and `backend.ll_emit.call_selector` are already split out; `backend_route_env_box.hako` has been retired from code; `ll_emit_bridge.rs` now carries the thin compare/debug helper surface directly; LLVM tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
+    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, and `backend.ll_emit.call_selector` are already split out; `backend_route_env_box.hako` has been retired from code; `ll_emit_bridge.rs` now carries the thin compare/debug helper surface directly; `legacy_json.rs` carries the archive-later MIR(JSON) front door; LLVM tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
     - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are now landed as the compat root entry
     - daily `.hako ll emitter` profiles already compile via `root -> facts -> ll text -> env.codegen.compile_ll_text(...)`
     - launcher/root-first daily transport cut is landed:

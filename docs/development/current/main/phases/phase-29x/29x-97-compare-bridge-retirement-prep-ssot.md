@@ -35,6 +35,7 @@ Related:
 ## Archive-Later Bridge Surfaces
 
 - `src/host_providers/llvm_codegen/ll_emit_bridge.rs`
+- `src/host_providers/llvm_codegen/legacy_json.rs`
 - `src/host_providers/llvm_codegen/transport.rs`
 - `src/host_providers/llvm_codegen.rs`
 - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
@@ -67,6 +68,7 @@ The code-side `compile_json_path` inventory is now empty. The remaining archive-
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for emit/link args only; `compile_json_path_args` retired in this slice |
 | `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade no longer forwards `codegen.compile_json_path` |
 | `src/host_providers/llvm_codegen/ll_emit_bridge.rs` | archive-later | compare bridge orchestration and compare/debug helper surface only |
+| `src/host_providers/llvm_codegen/legacy_json.rs` | archive-later | legacy MIR(JSON) front door only |
 | `src/host_providers/llvm_codegen/transport.rs` | archive-later | legacy provider / CAPI compare path only |
 | `src/host_providers/llvm_codegen.rs` | archive-later | legacy object emission helpers only |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
@@ -106,6 +108,7 @@ Slice 2 status:
 - explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
 - builder / wrapper surfaces remain live, so delete is still not ready
 - the dedicated compare/debug helper module is retired; `ll_emit_bridge.rs` now carries the thin archive-later compare surface directly
+- the legacy MIR(JSON) wrapper surface is now isolated in `legacy_json.rs`
 
 ## Why Delete Is Not Ready
 

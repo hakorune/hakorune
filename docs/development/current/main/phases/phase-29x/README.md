@@ -76,7 +76,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
     - flipped `phase29ck` locks now live in `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt`
     - default `phase29ck-boundary` no longer carries `ret const`, `bool phi/branch`, `Global print`, `StringBox.length`, `StringBox.indexOf`, `concat3 extern`, or the three `RuntimeData.length/size` observer locks
     - compare bridge assets remain explicit bridge-only, now archive-suite only; archive-home is sufficient and `delete-ready` remains none
-    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, and `backend.ll_emit.call_selector` are already split out; `backend_route_env_box.hako` has been retired from code, `ll_emit_bridge.rs` compare/debug templating residue is now folded into the bridge itself, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
+    - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, and `backend.ll_emit.call_selector` are already split out; `backend_route_env_box.hako` has been retired from code, `ll_emit_bridge.rs` compare/debug templating residue is now folded into the bridge itself, `legacy_json.rs` carries the archive-later MIR(JSON) front door, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
     - harness-side `src/runner/modes/llvm/object_emitter.rs` is retired; runner active path uses the shared harness helper that preserves the old pure-first/harness replay semantics instead of the legacy wrapper
     - launcher/root-first daily transport cut is landed:
       - keep `.ll` as the Rust/LLVM tool seam
