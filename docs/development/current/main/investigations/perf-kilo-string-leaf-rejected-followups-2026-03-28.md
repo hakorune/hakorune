@@ -158,6 +158,36 @@ reject
 
 - only if future asm shows duplicated span lookup itself dominating after `with_str_pair` / pair-span resolution are exhausted
 
+## Rejected Cut E
+
+### Name
+
+specialized `StringBox` store leaf for `nyash.array.set_his`
+
+### Intent
+
+- add a monomorphic `StringBox`-only branch under `array_set_by_index_string_handle_value(...)`
+- bypass the generic string-source helper for the hot store path
+- specialize retarget/store into `StringBox`-only helper leaves
+
+### Result
+
+- `kilo_meso_substring_concat_array_set`: `66 ms -> 69 ms`
+- stable `kilo_kernel_small_hk`: `708 ms -> 791 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- the `StringBox`-only split increased branch/helper density without paying back on this machine
+- the kept in-place source borrow cut already captured the useful part; the extra monomorphic helper split did not improve store-boundary cost
+
+### Reopen Condition
+
+- only if a future asm read shows the generic `store_string_box_from_string_source(...)` / `try_retarget_borrowed_string_slot_with_source(...)` path itself dominating after the current in-place source borrow cut
+
 ## Operational Rule
 
 - 1 cut = 1 hot leaf に戻す

@@ -161,6 +161,7 @@ Related:
 	        - rejected 2026-03-28 follow-up: piece-preserving `insert_inline` plus store/freeze reshaping regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh asm-backed reason
 	        - rejected 2026-03-28 follow-up: blanket `#[inline(always)]` on host registry / hako-forward string wrappers held stable main around `740 ms` and did not beat the current `736 ms` line; keep that slice reverted
 	        - rejected 2026-03-28 follow-up: `concat_hs` duplicate span-resolution removal plus span-resolver inlining regressed stable `kilo_kernel_small_hk` to `796 ms`; keep the existing `TextPlan::from_handle(...)` route
+	        - rejected 2026-03-28 follow-up: specialized `StringBox`-only store leaf under `nyash.array.set_his` regressed the kept store-boundary line (`kilo_meso_substring_concat_array_set = 66 -> 69 ms`, `kilo_kernel_small_hk = 708 -> 791 ms`); keep the generic string-source helpers and the in-place source borrow cut only
 	        - `micro -> meso -> kilo` observation ladder is now landed (`substring+concat+len`, `+array_set`, `+loopcarry`)
 	        - first meso reading (`warmup=1 repeat=3`) is fixed:
 	          - `kilo_meso_substring_concat_len = 37 ms`
