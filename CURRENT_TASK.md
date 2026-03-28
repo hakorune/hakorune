@@ -43,6 +43,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - compare bridge assets stay explicit bridge-only and compare proof now lives in `phase29x-derust-archive.txt`
     - archive-home is sufficient for the retired compare/lock assets; no additional archive-home moves are planned, and `delete-ready` remains none
     - route payload now keeps `acceptance_case` / `legacy_daily_allowed` visible through the Rust bridge
+    - Rust runtime `compile_json_path` dispatchers now also gate out for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`; explicit legacy compare/archive callers using `hako-ll-compare-v0` still use the archive-later helper path
     - `.hako ll emitter` is now also the daily owner for `runtime_data_string_length_ascii_min_v1`, `runtime_data_array_length_min_v1`, and `runtime_data_map_size_min_v1`
     - those three `RuntimeData` observer locks now live in `phase29ck-boundary-legacy`
     - lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
@@ -58,7 +59,7 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
     - `route.rs` compare/archive shrink is landed; next fixed cleanup is compare bridge retirement / archive decisions, not another launcher transport cut
     - compare bridge retirement is archive-later only until live callers reach zero; archive-home is sufficient and `delete-ready` remains none
     - live `compile_json_path` caller inventory and retirement order are now tracked in `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
-    - Hako front-door `compile_json_path` selectors are now gated out when the backend transport owner is `hako_ll_emitter`; explicit legacy compare/archive callers still use the archive-later helper path
+    - Hako front-door `compile_json_path` selectors are now gated out for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`; explicit legacy compare/archive callers using `hako-ll-compare-v0` still use the archive-later helper path
   - fixed order after the owner-flip wave is now:
     - keep `.ll` as the Rust/LLVM tool seam
     - keep `MIR JSON` as evidence only and feed daily `.hako ll emitter` with a root

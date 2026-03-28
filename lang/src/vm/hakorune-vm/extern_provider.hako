@@ -3,6 +3,7 @@
 // Scope (20.38準備): env.get / console.log のみ（C‑ABI導線は後段で接続）。
 
 using selfhost.vm.hakorune-vm.str_cast as StrCast
+using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
 using lang.runtime.host.host_facade_box as HostFacadeBox
 
@@ -55,7 +56,7 @@ static box HakoruneExternProviderBox {
       return ""
     }
     if name == "env.codegen.compile_json_path" {
-      if env.get("HAKO_BACKEND_TRANSPORT_OWNER") == "hako_ll_emitter" {
+      if me._codegen_compile_json_path_front_door_retired(args) == 1 {
         if env.get("HAKO_CABI_TRACE") == "1" {
           print("[extern/c-abi:codegen.compile_json_path-retired]")
         }
@@ -79,6 +80,16 @@ static box HakoruneExternProviderBox {
     }
     // Unknown: return null for now (caller decides Fail‑Fast)
     return null
+  }
+
+  _codegen_compile_json_path_front_door_retired(args) {
+    if env.get("HAKO_BACKEND_TRANSPORT_OWNER") != "hako_ll_emitter" { return 0 }
+    if args == null || !BoxTypeInspectorBox.is_array(args) { return 0 }
+    if args.length() <= 2 { return 0 }
+    local recipe = args.get(2)
+    if recipe == null { return 0 }
+    if "" + recipe == "hako-ll-min-v0" { return 1 }
+    return 0
   }
 }
 

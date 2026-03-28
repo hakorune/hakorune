@@ -102,6 +102,13 @@ impl MirInterpreter {
         }
     }
 
+    fn compile_json_path_is_daily_owner(recipe: Option<String>) -> bool {
+        matches!(
+            (crate::config::env::backend_transport_owner().as_deref(), recipe.as_deref()),
+            (Some("hako_ll_emitter"), Some("hako-ll-min-v0"))
+        )
+    }
+
     fn emit_mirbuilder_program_json(&mut self, program_json: &str) -> Result<VMValue, VMError> {
         match crate::runtime::mirbuilder_emit::emit_program_json_to_mir_json_with_env_imports(
             program_json,
@@ -312,6 +319,18 @@ impl MirInterpreter {
                 }
             }
             "env.codegen.compile_json_path" => {
+                let compile_recipe = match args.get(2) {
+                    Some(v) => Some(self.reg_load(*v)?.to_string()),
+                    None => None,
+                };
+                if Self::compile_json_path_is_daily_owner(compile_recipe.clone()) {
+                    if crate::config::env::cabi_trace() {
+                        crate::runtime::get_global_ring0().log.debug(
+                            "[extern/c-abi:codegen.compile_json_path-retired]",
+                        );
+                    }
+                    return Ok(VMValue::Void);
+                }
                 if std::env::var("HAKO_V1_EXTERN_PROVIDER").ok().as_deref() == Some("1") {
                     return Ok(VMValue::String(String::new()));
                 }
@@ -611,6 +630,18 @@ impl MirInterpreter {
                 }
             }
             ("env.codegen", "compile_json_path") => {
+                let compile_recipe = args.get(2).map(|v| self.reg_load(*v)).transpose()?;
+                let compile_recipe = compile_recipe
+                    .map(|value| value.to_string())
+                    .filter(|s| !s.is_empty());
+                if Self::compile_json_path_is_daily_owner(compile_recipe) {
+                    if crate::config::env::cabi_trace() {
+                        crate::runtime::get_global_ring0().log.debug(
+                            "[extern/c-abi:codegen.compile_json_path-retired]",
+                        );
+                    }
+                    return Ok(VMValue::Void);
+                }
                 let json_path = match first_arg_str {
                     Some(s) => s,
                     None => {

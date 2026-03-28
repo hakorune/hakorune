@@ -45,9 +45,14 @@ Related:
 
 ## Landed Demotion Slice
 
-- `HostFacadeBox` and `HakoruneExternProviderBox` now gate `codegen.compile_json_path` when the backend transport owner is `hako_ll_emitter`.
+- `HostFacadeBox` and `HakoruneExternProviderBox` now gate `codegen.compile_json_path` for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`.
 - daily root-first callers no longer enter the Hako front-door bridge through `compile_json_path`.
-- explicit legacy compare/archive callers still pass through the archive-later helper path.
+- explicit legacy compare/archive callers using `hako-ll-compare-v0` still pass through the archive-later helper path.
+
+## Landed Rust Demotion Slice
+
+- `src/backend/mir_interpreter/handlers/extern_provider.rs` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` now gate `compile_json_path` for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`.
+- daily Rust runtime dispatcher traffic no longer follows `compile_json_path`; explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path.
 
 ## Live Caller Inventory
 
@@ -59,12 +64,12 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for `compile_json_path_args` |
 | `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade dispatch still forwards `codegen.compile_json_path` |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later | VM extern provider still exposes the legacy selector, but the daily owner now gates it out |
-| `lang/src/vm/boxes/mir_call_v1_handler.hako` | archive-later | VM bridge handler still decodes `compile_json_path` args |
-| `lang/src/vm/boxes/mir_vm_s0_codegen.hako` | archive-later | VM codegen shim still routes through the legacy helper |
-| `src/backend/mir_interpreter/handlers/extern_provider.rs` | archive-later | interpreter backend still handles the legacy extern |
+| `src/backend/mir_interpreter/handlers/extern_provider.rs` | archive-later | interpreter backend still handles the legacy extern, but the daily owner now gates `compile_json_path` out |
+| `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | archive-later | plugin loader still resolves legacy compile entrypoints, but the daily `hako-ll-min-v0` recipe now gates `compile_json_path` out |
 | `src/backend/mir_interpreter/handlers/externals.rs` | archive-later | direct extern dispatch still reaches the legacy path |
 | `src/backend/mir_interpreter/handlers/calls/global.rs` | archive-later | global call handler still maps the legacy selector |
-| `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | archive-later | plugin loader still resolves legacy compile entrypoints |
+| `lang/src/vm/boxes/mir_call_v1_handler.hako` | archive-later | VM bridge handler still decodes `compile_json_path` args |
+| `lang/src/vm/boxes/mir_vm_s0_codegen.hako` | archive-later | VM codegen shim still routes through the legacy helper |
 | `src/runtime/extern_registry.rs` | archive-later | extern registry still registers the legacy compile method |
 | `src/runner/modes/llvm/object_emitter.rs` | archive-later | direct LLVM object emission still goes through `mir_json_to_object` |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
@@ -78,9 +83,15 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 
 Slice 1 status:
 
-- daily front-door Hako bridge selectors are gated away from `hako_ll_emitter`
-- compare/archive callers still use the explicit legacy helper path
+- daily front-door Hako bridge selectors are gated away from the daily `hako-ll-min-v0` recipe when the transport owner is `hako_ll_emitter`
+- compare/archive callers using `hako-ll-compare-v0` still use the explicit legacy helper path
 - the remaining live caller inventory is still non-zero, so delete is still not ready
+
+Slice 2 status:
+
+- Rust runtime dispatcher `compile_json_path` branches are also gated away from the daily `hako-ll-min-v0` recipe
+- explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
+- builder / wrapper surfaces remain live, so delete is still not ready
 
 ## Why Delete Is Not Ready
 
