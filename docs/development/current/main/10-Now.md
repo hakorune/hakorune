@@ -55,10 +55,11 @@ Related:
     - `backend_daily_owner_policy_box.hako`, `backend.ll_emit.call_policy`, `backend.ll_emit.call_selector`, and `backend_route_env_box.hako` are already split out; `ll_emit_bridge.rs` compare/debug templating residue is now split into `src/host_providers/llvm_codegen/hako_ll_driver.rs`; LLVM tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
     - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are now landed as the compat root entry
     - daily `.hako ll emitter` profiles already compile via `root -> facts -> ll text -> env.codegen.compile_ll_text(...)`
-    - current structural blocker is now launcher/path gating:
-      - mainline launcher still enters `LlvmBackendBox.compile_obj(mir_path)` with a temp MIR JSON path
-      - `BackendRecipeBox.compile_route_profile(json_path)` is still fixture/path-gated, so launcher temp paths stay on `compile_json_path(...)`
-      - next fixed order is `keep .ll tool seam -> switch launcher to root-first daily compile -> demote compile_json_path to legacy tool path -> shrink legacy route.rs/compare bridge`
+    - launcher/root-first daily transport cut is landed:
+      - mainline launcher now hydrates a root from source and enters `LlvmBackendBox.compile_obj_root(...)`
+      - temp MIR JSON remains evidence/output only; it is not the daily compile transport
+      - `compile_json_path(...)` is now legacy/compare/archive only
+      - next fixed order is `keep .ll tool seam -> shrink legacy route.rs/compare bridge -> archive/delete retirement`
     - archive/delete sweep wave 1, code-side legacy C daily demotion v1, and the `hello_simple_llvm_native_probe_v1` narrow owner flip are landed:
       - flipped `phase29ck` locks moved from the default `phase29ck-boundary` suite into `phase29ck-boundary-legacy`
       - compare bridge assets remain explicit bridge-only and now live in `phase29x-derust-archive.txt`

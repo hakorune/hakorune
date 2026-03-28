@@ -57,6 +57,7 @@ Current wave keeps all 3, but their roles are different.
 - `MIR` remains the semantic SSOT.
 - `MIR JSON` remains debug/fixture/export evidence.
 - `.ll` is now the thin Rust/LLVM tool boundary.
+- launcher/mainline daily transport is now root-first; temp MIR JSON handoff is evidence-only, not compile transport.
 
 current C `.inc` lane は次の扱いに固定する。
 
@@ -74,8 +75,8 @@ current C `.inc` lane は次の扱いに固定する。
 6. archive/delete sweep
 7. thin `.ll` tool boundary
 8. `.hako` MIR root entry or equivalent root hydrator
-9. daily `.hako ll emitter` profiles cut from `compile_json_path` to `compile_ll_text`
-10. launcher/mainline daily path switches from temp MIR path handoff to root-first compile
+9. daily `.hako ll emitter` profiles cut from `compile_json_path` to `compile_ll_text` (landed)
+10. launcher/mainline daily path switches from temp MIR path handoff to root-first compile (landed)
 11. その後に structural perf だけ reopen
 
 ## Runtime Decl Manifest Rule

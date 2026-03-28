@@ -50,15 +50,16 @@ Scope: repo root の再起動入口。詳細の status/phase 進捗は `docs/dev
   - current layering read is: `.hako -> Rust -> LLVM` is mostly clean, `LlvmBackendBox` env mirror is split out into `backend_route_env_box.hako`, `ll_emit_bridge.rs` compare/debug templating residue is split out into `src/host_providers/llvm_codegen/hako_ll_driver.rs`, and `.ll` tool execution is isolated in `src/host_providers/llvm_codegen/ll_tool_driver.rs`
   - `MirRootHydratorBox` plus `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are now landed as the compat root entry
   - daily `.hako ll emitter` profiles no longer need `compile_json_path`; `LlvmBackendBox.compile_obj(...)` now hydrates MIR(JSON) into a root and calls `env.codegen.compile_ll_text(...)` directly when the daily profile owner is `hako_ll_emitter`
-  - remaining structural blocker is now the launcher/path-gated daily transport:
-    - mainline launcher still emits a temp MIR JSON path and then calls `LlvmBackendBox.compile_obj(...)`
-    - `BackendRecipeBox.compile_route_profile(json_path)` is still fixture/path-gated, so launcher temp paths continue to enter the legacy `compile_json_path(...)` route
-    - therefore the next fixed cut is launcher/root-first daily compile, not another bridge split
+  - launcher/root-first daily transport cut is landed:
+    - mainline launcher now reads source, hydrates a root via `MirBuilderBox.emit_root_from_source_v0(...)`, and compiles via `LlvmBackendBox.compile_obj_root(...)`
+    - temp MIR JSON still exists as evidence/output only; it is no longer the daily compile transport
+    - `compile_json_path(...)` is now legacy/compare/archive only
+    - next fixed cleanup is compare bridge retirement / legacy route.rs shrink, not another launcher transport cut
   - fixed order after the owner-flip wave is now:
     - keep `.ll` as the Rust/LLVM tool seam
     - keep `MIR JSON` as evidence only and feed daily `.hako ll emitter` with a root
-    - move launcher/mainline daily compile from path-gated `compile_json_path` to root-first `compile_ll_text`
-    - only then shrink `route.rs` / compare bridge further
+    - keep launcher/mainline daily compile on root-first `compile_obj_root` / `compile_ll_text`
+    - then shrink `route.rs` / compare bridge further
   - `BackendRecipeBox` fixture-path owner allowlist plus `backend.ll_emit.call_policy` and `backend.ll_emit.call_selector` are already split out
   - next structural cleanup after the owner-flip wave is to thin the remaining Rust/bridge policy leaks without reopening leaf-only perf retune
   - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline lane split is now locked

@@ -64,7 +64,7 @@ Pointers:
     - Program(JSON) marker predicates are now also centralized behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so launcher emit-program output validation and emit-mir input validation share one same-file contract.
     - artifact file I/O and stdout-vs-file output selection now live in same-file `LauncherArtifactIoBox`, so `cmd_emit_program_json(...)` / `cmd_emit_mir_json(...)` / bootstrap paths no longer branch directly on readback/output side effects inline.
     - checked Program(JSON) / MIR payload validation and checked source->Program / Program->MIR handoff now also live in same-file `LauncherPayloadContractBox`, so `HakoCli` no longer mixes payload validation with top-level dispatch/build orchestration inline.
-    - `build exe` now owns only temp MIR handoff / default output-path helper shape and lowers compile/link through `_compile_object_from_mir_path_checked(...)` / `_link_exe_object_checked(...)`, so the launcher lane no longer mixes compile/link fail-fast tails inline.
+    - `build exe` now owns only root-first source hydration / default output-path helper shape and lowers compile/link through `_emit_exe_from_source_root_checked(...)` / `_link_exe_object_checked(...)`, so the launcher lane no longer uses temp MIR JSON as compile transport inline.
     - top-level route selection and bootstrap-vs-normal entry routing now live in same-file `LauncherDispatchBox`, so `HakoCli.run(...)` / `HakoCli.run_native_entry()` are thin delegates instead of carrying command policy inline.
     - visible legacy stringify/path coercion is now centralized behind `_coerce_text_compat(...)` and `_non_empty_text(...)`, so future string-coercion cleanup can tighten the contract owner-by-owner without touching every launcher call site at once.
   - Design reference:
@@ -98,8 +98,8 @@ Pointers:
 - `Stage1ProgramJsonCompatBox` now also keeps mixed-source fail-fast behind `_has_explicit_program_json_text(...)` and `_fail_mixed_source_mode(...)`, so the compat lane no longer mixes the predicate with the fail tag.
 - `Stage1ProgramJsonCompatBox` now also keeps the final explicit Program(JSON) checked emit behind `_emit_mir_from_text_checked(...)`, so the public compat entry is down to input coercion -> checked emit handoff only.
 - `launcher.hako` now also keeps shared Program(JSON) marker predicates behind `_program_json_text_present(...)` and `_program_json_has_markers(...)`, so emit-program output validation and emit-mir input validation reuse the same same-file check there too.
-- `launcher.hako` now also keeps build-exe compile/link fail-fast tails behind `_compile_object_from_mir_path_checked(...)` and `_link_exe_object_checked(...)`, so `_emit_exe_from_mir_json_checked(...)` is down to path resolve/write -> compile -> link orchestration only.
-- current compile-safe `launcher.hako` build-exe route now stops at direct `LlvmBackendBox.{compile_obj,link_exe}` calls instead of a quoted module-string backend literal; compiled-stage1 surrogate residue remains a temporary proof keep behind kernel module-string dispatch, not a visible launcher caller owner.
+- `launcher.hako` now also keeps build-exe compile/link fail-fast tails behind `_emit_exe_from_source_root_checked(...)` and `_link_exe_object_checked(...)`, so the launcher build-exe lane no longer uses temp MIR JSON as compile transport.
+- current compile-safe `launcher.hako` build-exe route now stops at root-first `MirBuilderBox.emit_root_from_source_v0(...)` -> `LlvmBackendBox.compile_obj_root(...)` -> `LlvmBackendBox.link_exe(...)` instead of a temp MIR JSON path handoff.
 - compiled launcher helper defs still carry file-I/O methods, so the native keep is a narrow llvm-py by-name fallback for `FileBox.{open,read,readBytes,write,writeBytes,close}` only; this is a compile-safe keep for helper defs, not a generic fallback policy.
 - Fail-Fast 原則:
   - 未実装コマンドや不正な引数は明示的なメッセージ＋非0終了コードで返す。

@@ -479,8 +479,8 @@ static box HakoCli {
   }
 
   // hakorune build exe [-o <out>] [--quiet] <source.hako>
-  // - Pipeline: .hako → Program(JSON v0) → MIR(JSON) -> llvm_backend surrogate -> EXE
-  // - Requires backend-zero C-API route to be有効化されていること（NYASH_LLVM_USE_CAPI=1, HAKO_V1_EXTERN_PROVIDER_C_ABI=1 等）。
+  // - Pipeline: .hako → Program(JSON v0) → MIR root -> facts -> ll text -> EXE
+  // - Daily launcher no longer uses temp MIR JSON as compile transport.
   method cmd_build_exe(args){
     local req = LauncherInputContractBox.parse_build_exe_request(args)
     if req == null { return 91 }
@@ -489,10 +489,7 @@ static box HakoCli {
     local quiet = req.get("quiet")
 
     local tag = "[hakorune] build exe"
-    local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
-    if ms == null { return 91 }
-
-    local exe_path = me._emit_exe_from_mir_json_checked(tag, source_path, ms, out_path)
+    local exe_path = me._emit_exe_from_source_root_checked(tag, source_path, out_path)
     if exe_path == null { return 91 }
 
     if quiet != 1 {
@@ -645,25 +642,26 @@ static box HakoCli {
     return LauncherPayloadContractBox.emit_mir_json_from_source_path_checked(tag, source_path)
   }
 
-  method _emit_exe_from_mir_json_checked(tag, source_path, mir_json, requested_out_path){
+  method _emit_exe_from_source_root_checked(tag, source_path, requested_out_path){
     local exe_path = me._resolve_build_exe_out_path(source_path, requested_out_path)
     if exe_path == null { return null }
     local mir_path = me._resolve_build_exe_mir_path(exe_path)
     if mir_path == null { return null }
-    if LauncherArtifactIoBox.write_file(tag, mir_path, mir_json, 1) != 1 { return null }
 
-    local obj = me._compile_object_from_mir_path_checked(tag, mir_path)
-    if obj == null { return null }
-    return me._link_exe_object_checked(tag, obj, exe_path)
-  }
-
-  method _compile_object_from_mir_path_checked(tag, mir_path){
-    local obj = me._call_codegen_compile_json_path(mir_path)
-    if me._non_empty_text(obj) != 1 {
-      print(tag + ": env.codegen.compile_json_path failed")
+    local source_text = LauncherArtifactIoBox.read_file(tag, source_path)
+    if source_text == null { return null }
+    local root = MirBuilderBox.emit_root_from_source_v0(source_text, null)
+    if root == null {
+      print(tag + ": MirBuilderBox.emit_root_from_source_v0 failed")
       return null
     }
-    return me._coerce_text_compat(obj)
+
+    local obj = LlvmBackendBox.compile_obj_root(root, mir_path)
+    if me._non_empty_text(obj) != 1 {
+      print(tag + ": env.codegen.compile_obj_root failed")
+      return null
+    }
+    return me._link_exe_object_checked(tag, obj, exe_path)
   }
 
   method _link_exe_object_checked(tag, obj_path, exe_path){
@@ -713,13 +711,6 @@ static box HakoCli {
     if ms == null { return 95 }
     if LauncherArtifactIoBox.write_file(tag, out_path, ms, 1) != 1 { return 95 }
     return 0
-  }
-
-  method _call_codegen_compile_json_path(mir_path){
-    if mir_path == null { return null }
-    return LlvmBackendBox.compile_obj(
-      me._coerce_text_compat(mir_path)
-    )
   }
 
   method _call_codegen_link_object(obj_path, exe_path){
