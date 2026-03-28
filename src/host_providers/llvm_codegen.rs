@@ -32,6 +32,7 @@ mod ll_emit_compare_source;
 mod legacy_json;
 mod ll_emit_compare_driver;
 mod ll_emit_bridge;
+mod capi_transport;
 mod provider_keep;
 mod ll_tool_driver;
 mod normalize;
@@ -58,7 +59,7 @@ pub fn link_object_capi(
     if crate::config::env::cabi_trace() {
         llvm_emit_debug!("[hb:link:ldflags] {}", extra_ldflags.unwrap_or("<none>"));
     }
-    transport::link_via_capi(obj_in, exe_out, extra_ldflags)
+    capi_transport::link_via_capi(obj_in, exe_out, extra_ldflags)
 }
 
 pub fn normalize_mir_json_for_backend(mir_json: &str) -> Result<String, String> {

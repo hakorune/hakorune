@@ -2,11 +2,11 @@ use std::path::PathBuf;
 
 use super::defaults::COMPILE_SYMBOL_DEFAULT;
 use super::ll_emit_bridge::mir_json_to_object_hako_ll_compare;
+use super::capi_transport::compile_via_capi;
 use super::normalize::validate_backend_mir_shape;
 use super::provider_keep::{mir_json_to_object_llvmlite, mir_json_to_object_ny_llvmc};
 use super::transport::{
-    compile_via_capi, ensure_backend_output_parent, prepare_backend_input_json_file,
-    resolve_backend_object_output,
+    ensure_backend_output_parent, prepare_backend_input_json_file, resolve_backend_object_output,
 };
 use super::Opts;
 

@@ -84,8 +84,8 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
       - daily `.hako ll emitter` profiles already move from `compile_json_path` to `compile_ll_text`
     - launcher/mainline now compiles root-first, so temp MIR paths no longer select the legacy route
     - `HostFacadeBox` no longer forwards `codegen.compile_json_path`; the Hako front-door bridge has been retired from the live caller set, and the remaining legacy wrapper surfaces are now split between `ll_emit_compare_driver.rs`, `ll_emit_compare_source.rs`, and `provider_keep.rs`
-    - `route.rs` compare/archive shrink is landed; runtime caller retirement for direct `mir_json_to_object(...)` ownership is now landed via the legacy JSON helper alias, and the next cleanup is explicit provider keep thinning from `transport.rs` tracked in `29x-97-compare-bridge-retirement-prep-ssot.md`
-    - Rust runtime dispatcher `compile_json_path` branches are retired, and `backend_route_env_box.hako` has been retired from code; the remaining compare bridge work now lives in the archive-later driver/source pair plus the explicit provider keep split
+    - `route.rs` compare/archive shrink is landed; runtime caller retirement for direct `mir_json_to_object(...)` ownership is now landed via the legacy JSON helper alias, and the next cleanup is remaining transport temp-path helper thinning tracked in `29x-97-compare-bridge-retirement-prep-ssot.md`
+    - Rust runtime dispatcher `compile_json_path` branches are retired, and `backend_route_env_box.hako` has been retired from code; the remaining compare bridge work now lives in the archive-later driver/source pair plus the explicit provider keep split, `capi_transport.rs`, and the still-inline temp-path helpers in `transport.rs`
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
 - archive/delete sweep wave 1, code-side `legacy C daily demotion v1`, and the `hello_simple_llvm_native_probe_v1` owner flip are landed
   - the lookup family is landed; the `RuntimeData` mutator family is now landed for `runtime_data_array_push_min_v1`

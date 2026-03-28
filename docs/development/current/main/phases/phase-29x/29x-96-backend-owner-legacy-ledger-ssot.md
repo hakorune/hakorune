@@ -66,6 +66,7 @@ Related:
 | `src/host_providers/llvm_codegen/ll_emit_compare_driver.rs` | compare/debug orchestration | archive-later compare residue | compare bridge retirement | archive-later | VM execution + stdout contract parse only |
 | `src/host_providers/llvm_codegen/ll_emit_compare_source.rs` | compare source materialization | archive-later compare residue | compare bridge retirement | archive-later | MIR(JSON) to compare driver source only |
 | `src/host_providers/llvm_codegen/provider_keep.rs` | explicit provider keep lanes | archive-later compare residue | transport split | archive-later | ny-llvmc / llvmlite helper lanes only |
+| `src/host_providers/llvm_codegen/capi_transport.rs` | explicit CAPI helpers | next transport split | transport.rs CAPI split | archive-later | compile/link CAPI helpers only |
 | `src/host_providers/llvm_codegen/legacy_json.rs` | legacy MIR(JSON) front door | archive-later | compare/archive callers only | archive-later | daily root-first compile bypasses this surface |
 | `lang/src/shared/backend/ll_emit/mir_json_loader_box.hako` | dead compare residue | removed | no live import remained | delete early | removed in this wave; keep ledger row as history |
 | `lang/src/llvm_ir/**` | compat keep | compat keep / archive candidate | separate preserve-first decision | preserve | do not reopen as daily owner |

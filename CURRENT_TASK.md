@@ -60,8 +60,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Next Task
 
-- thin the explicit provider keep split first:
-  - `src/host_providers/llvm_codegen/provider_keep.rs`
+- thin the remaining temp-path helper residue first:
+  - `src/host_providers/llvm_codegen/transport.rs`
 - `src/host_providers/llvm_codegen/ll_emit_bridge.rs` stays orchestration-only
 - keep `src/host_providers/llvm_codegen/legacy_json.rs` archive-later as the isolated legacy front door
 - keep `src/host_providers/llvm_codegen/route.rs` and `src/host_providers/llvm_codegen/ll_tool_driver.rs` as keep surfaces

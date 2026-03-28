@@ -20,12 +20,15 @@ Thin Rust bridge for backend object emission.
 - `provider_keep.rs`
   - archive-later explicit provider keep lanes
   - `ny-llvmc` / `llvmlite` object emission helpers only
+- `capi_transport.rs`
+  - explicit CAPI helper split from `transport.rs`
+  - compile/link CAPI helpers only
 - `ll_tool_driver.rs`
   - thin LLVM tool seam
   - `.ll` text or file -> verifier -> `llc` -> `.o`
 - `transport.rs`
   - legacy C ABI transport
-  - temp-path / CAPI helpers only
+  - temp-path helpers only
 - `legacy_json.rs`
   - legacy MIR(JSON) front door for compare/archive callers
   - routes through `route.rs` and stays out of the daily root-first tool seam
@@ -42,7 +45,7 @@ Thin Rust bridge for backend object emission.
 - canonical seam stays MIR; do not reopen `AST -> LLVM` direct lowering here
 - current tool seam is now `.ll` text
 - `compile_json_path` has been retired from code; flipped `.hako ll emitter` daily profiles stop at `ll_text_to_object(...)`
-- launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only; `transport.rs` keeps only legacy temp-path / CAPI lanes; `provider_keep.rs` owns explicit provider keep lanes
+- launcher/mainline transport cut is landed; `route.rs` is now compare/archive-only; `transport.rs` keeps only legacy temp-path helpers; `provider_keep.rs` owns explicit provider keep lanes; `capi_transport.rs` owns explicit CAPI helpers
 - compare/debug residue is now split: `ll_emit_compare_source.rs` owns source materialization, `ll_emit_compare_driver.rs` owns orchestration / VM / stdout parse, `provider_keep.rs` owns explicit provider keep lanes, `ll_emit_bridge.rs` stays orchestration-only and the separate `hako_ll_driver.rs` helper has been retired
 - legacy JSON wrapper residue now lives in `legacy_json.rs`; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
-- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is explicit provider keep thinning from `transport.rs`
+- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the remaining thin task is transport temp-path helper thinning
