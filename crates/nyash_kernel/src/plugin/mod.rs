@@ -41,7 +41,6 @@ pub use intarray::*;
 pub use invoke::*;
 pub use invoke_core::*;
 pub use map::*;
-pub(crate) use handle_cache::object_from_handle_cached;
 pub(crate) use value_codec::materialize_owned_string;
 pub use runtime_data::*;
 pub use semantics::*;

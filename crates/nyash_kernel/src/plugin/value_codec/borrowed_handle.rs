@@ -129,20 +129,6 @@ pub(crate) fn maybe_borrow_string_handle_with_epoch(
 }
 
 #[inline(always)]
-pub(crate) fn try_retarget_borrowed_string_slot(
-    slot: &mut Box<dyn NyashBox>,
-    source_handle: i64,
-) -> bool {
-    if source_handle <= 0 {
-        return false;
-    }
-    let Some(obj) = crate::plugin::object_from_handle_cached(source_handle) else {
-        return false;
-    };
-    try_retarget_borrowed_string_slot_with_source(slot, source_handle, &obj, handles::drop_epoch())
-}
-
-#[inline(always)]
 pub(crate) fn try_retarget_borrowed_string_slot_with_source(
     slot: &mut Box<dyn NyashBox>,
     source_handle: i64,
