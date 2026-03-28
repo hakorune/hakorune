@@ -176,8 +176,9 @@ Related:
 	          - `freeze.str` is the single birth sink
 	          - `concat_hs` / `insert_hsi` / `concat3_hhh` should converge on the same `plan -> freeze` model
 	          - `set_his` helper splits are no longer the primary design front
+	          - landed planner cleanup: const-suffix / insert recipe helpers are now isolated in `crates/nyash_kernel/src/exports/string_plan.rs`
 	          - current implementation order is fixed:
-	            1. shrink planner into recipe-only / boundary-only placement
+	            1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
 	            2. keep `array_set` as the consumer boundary
 	            3. meso/main proof on the same artifact pair
 	            4. only then sink-local `Registry::alloc/get` / `BoxBase::new` tuning

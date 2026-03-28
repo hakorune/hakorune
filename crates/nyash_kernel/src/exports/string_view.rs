@@ -147,6 +147,10 @@ impl StringSpan {
             end: self.start.saturating_add(en),
         }
     }
+
+    pub(crate) fn into_view_box(self) -> StringViewBox {
+        StringViewBox::new(self.base_handle, self.base_obj, self.start, self.end)
+    }
 }
 
 impl std::fmt::Debug for StringSpan {
@@ -451,8 +455,8 @@ pub(crate) fn clamp_i64_range(len: usize, start: i64, end: i64) -> (usize, usize
 pub(crate) enum BorrowedSubstringPlan {
     ReturnHandle,
     ReturnEmpty,
-    Materialize(String),
-    CreateView(StringViewBox),
+    FreezePlan(TextPlan<'static>),
+    ViewSpan(StringSpan),
 }
 
 const SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: usize = 8;
@@ -482,14 +486,21 @@ pub(crate) fn borrowed_substring_plan_from_handle(
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             };
             if !view_enabled || sub_slice.len() <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
-                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
+                return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(
+                    StringSpan {
+                        base_handle: handle,
+                        base_obj: obj.clone(),
+                        start: st_rel,
+                        end: en_rel,
+                    },
+                )));
             }
-            return Some(BorrowedSubstringPlan::CreateView(StringViewBox::new(
-                handle,
-                obj.clone(),
-                st_rel,
-                en_rel,
-            )));
+            return Some(BorrowedSubstringPlan::ViewSpan(StringSpan {
+                base_handle: handle,
+                base_obj: obj.clone(),
+                start: st_rel,
+                end: en_rel,
+            }));
         }
         if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
             let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
@@ -511,14 +522,21 @@ pub(crate) fn borrowed_substring_plan_from_handle(
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             };
             if !view_enabled || sub_slice.len() <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
-                return Some(BorrowedSubstringPlan::Materialize(sub_slice.to_string()));
+                return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(
+                    StringSpan {
+                        base_handle: view.base_handle,
+                        base_obj: view.base_obj.clone(),
+                        start: abs_st,
+                        end: abs_en,
+                    },
+                )));
             }
-            return Some(BorrowedSubstringPlan::CreateView(StringViewBox::new(
-                view.base_handle,
-                view.base_obj.clone(),
-                abs_st,
-                abs_en,
-            )));
+            return Some(BorrowedSubstringPlan::ViewSpan(StringSpan {
+                base_handle: view.base_handle,
+                base_obj: view.base_obj.clone(),
+                start: abs_st,
+                end: abs_en,
+            }));
         }
         None
     })

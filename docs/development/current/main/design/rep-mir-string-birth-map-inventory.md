@@ -129,7 +129,7 @@ Current birth density is split across three places:
 The shadow pilot should not add a fourth place.
 
 Current docs-first direction is to collapse these readings under `freeze.str` as the single birth sink, while keeping planner/placement in compile-time and keeping runtime free of new observable token layers.
-`concat_hs` and `insert_hsi` already share the `freeze_text_plan(...)` sink helper, but moving the canonical sink into `string_store.rs` was rejected on perf grounds; the next step is still to shrink the planner to recipe-only / boundary-only placement.
+`concat_hs` and `insert_hsi` already share the `freeze_text_plan(...)` sink helper, but moving the canonical sink into `string_store.rs` was rejected on perf grounds; `concat_const_suffix` / `insert` recipe helpers are now isolated in `string_plan.rs`, and the next step is to shrink `BorrowedSubstringPlan` to recipe-only / boundary-only placement.
 
 The narrowest useful mapping is:
 

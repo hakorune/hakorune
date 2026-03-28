@@ -85,8 +85,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - single handle/span resolution in `concat_const_suffix_fallback`
   - follow-up design front: `freeze.str` as the single birth sink for `concat_hs` / `insert_hsi` / `concat3_hhh`
   - attempted canonical sink re-home: moving `freeze.str` into `string_store.rs` regressed stable main (`kilo_kernel_small_hk = 834 -> 909 ms` on back-to-back checks), so keep the explicit `freeze_text_plan(...)` sink helper in `string.rs` for now
+  - landed planner cleanup: const-suffix / insert recipe helpers now live in `crates/nyash_kernel/src/exports/string_plan.rs`, leaving `string.rs` as the boundary/sink site
   - next fixed order is now:
-    1. shrink planner into recipe-only / boundary-only placement
+    1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
     2. keep `array_set` as the consumer boundary and avoid new `set_his` splits
     3. re-run meso/main proof before any sink-local `Registry::alloc/get` tuning
   - rejected follow-up:
@@ -107,7 +108,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
 - keep the landed meso benchmark ladder as the gate for the next string cut
 - next exact code sequence is fixed:
-  1. shrink planner into recipe-only / boundary-only placement
+  1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
   2. keep `array_set` as the consumer boundary
   3. same-artifact meso/main proof
   4. only then narrow sink-local tuning around `Registry::alloc/get` / `BoxBase::new`

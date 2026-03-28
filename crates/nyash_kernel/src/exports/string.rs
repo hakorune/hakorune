@@ -6,6 +6,9 @@ use super::string_view::{
     resolve_string_span_pair_from_handles, string_is_empty_from_handle as string_is_empty_impl,
     string_len_from_handle as string_len_impl, BorrowedSubstringPlan, TextPiece, TextPlan,
 };
+use super::string_plan::{
+    concat_const_suffix_plan_from_handle, insert_const_mid_plan_from_handle,
+};
 use crate::hako_forward_bridge;
 use crate::plugin::materialize_owned_string;
 use memchr::{memchr, memmem, memrchr};
@@ -376,7 +379,8 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64, allow_handle_reuse: boo
     )))
 }
 
-fn to_owned_string_handle_arg(h: i64) -> String {
+#[inline(always)]
+pub(crate) fn to_owned_string_handle_arg(h: i64) -> String {
     resolve_string_span_from_handle(h)
         .map(|span| span.as_str().to_string())
         .unwrap_or_default()
@@ -477,33 +481,6 @@ fn concat_pair_with_materialize(a_h: i64, b_h: i64) -> i64 {
     out
 }
 
-#[derive(Default)]
-struct ConstCStringCache {
-    ptr: Cell<usize>,
-    text: RefCell<Option<String>>,
-}
-
-fn with_cached_const_text<R>(
-    cache: &'static LocalKey<ConstCStringCache>,
-    ptr: *const i8,
-    f: impl FnOnce(&str) -> R,
-) -> R {
-    if ptr.is_null() {
-        return f("");
-    }
-    let addr = ptr as usize;
-    cache.with(|cache| {
-        if cache.ptr.get() != addr || cache.text.borrow().is_none() {
-            let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
-            let text = String::from_utf8_lossy(bytes).into_owned();
-            cache.ptr.set(addr);
-            *cache.text.borrow_mut() = Some(text);
-        }
-        let text_ref = cache.text.borrow();
-        f(text_ref.as_deref().unwrap_or(""))
-    })
-}
-
 #[inline(always)]
 fn concat_pair_fallback(a_h: i64, b_h: i64) -> i64 {
     if let Some(out) = concat_pair_from_fast_str(a_h, b_h) {
@@ -524,19 +501,34 @@ fn concat_const_suffix_from_handle(a_h: i64, suffix: &str) -> i64 {
 }
 
 #[inline(always)]
-fn concat_const_suffix_plan_from_handle<'a>(a_h: i64, suffix: &'a str) -> TextPlan<'a> {
-    if let Some(plan) = TextPlan::from_handle(a_h) {
-        return plan.concat_inline(suffix);
-    }
-    if let Some(span) = resolve_string_span_from_handle(a_h) {
-        return TextPlan::from_span(span).concat_inline(suffix);
-    }
-    let lhs = to_owned_string_handle_arg(a_h);
-    TextPlan::from_owned(lhs).concat_inline(suffix)
-}
-
-#[inline(always)]
 fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
+    #[derive(Default)]
+    struct ConstCStringCache {
+        ptr: Cell<usize>,
+        text: RefCell<Option<String>>,
+    }
+
+    fn with_cached_const_text<R>(
+        cache: &'static LocalKey<ConstCStringCache>,
+        ptr: *const i8,
+        f: impl FnOnce(&str) -> R,
+    ) -> R {
+        if ptr.is_null() {
+            return f("");
+        }
+        let addr = ptr as usize;
+        cache.with(|cache| {
+            if cache.ptr.get() != addr || cache.text.borrow().is_none() {
+                let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
+                let text = String::from_utf8_lossy(bytes).into_owned();
+                cache.ptr.set(addr);
+                *cache.text.borrow_mut() = Some(text);
+            }
+            let text_ref = cache.text.borrow();
+            f(text_ref.as_deref().unwrap_or(""))
+        })
+    }
+
     thread_local! {
         static CONST_SUFFIX_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
             ptr: Cell::new(0),
@@ -557,6 +549,33 @@ fn concat_const_suffix_fallback(a_h: i64, suffix_ptr: *const i8) -> i64 {
 
 #[inline(always)]
 fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -> i64 {
+    #[derive(Default)]
+    struct ConstCStringCache {
+        ptr: Cell<usize>,
+        text: RefCell<Option<String>>,
+    }
+
+    fn with_cached_const_text<R>(
+        cache: &'static LocalKey<ConstCStringCache>,
+        ptr: *const i8,
+        f: impl FnOnce(&str) -> R,
+    ) -> R {
+        if ptr.is_null() {
+            return f("");
+        }
+        let addr = ptr as usize;
+        cache.with(|cache| {
+            if cache.ptr.get() != addr || cache.text.borrow().is_none() {
+                let bytes = unsafe { CStr::from_ptr(ptr) }.to_bytes();
+                let text = String::from_utf8_lossy(bytes).into_owned();
+                cache.ptr.set(addr);
+                *cache.text.borrow_mut() = Some(text);
+            }
+            let text_ref = cache.text.borrow();
+            f(text_ref.as_deref().unwrap_or(""))
+        })
+    }
+
     thread_local! {
         static CONST_INSERT_TEXT_CACHE: ConstCStringCache = const { ConstCStringCache {
             ptr: Cell::new(0),
@@ -573,22 +592,6 @@ fn insert_const_mid_fallback(source_h: i64, middle_ptr: *const i8, split: i64) -
         }
         freeze_text_plan(insert_const_mid_plan_from_handle(source_h, middle, split))
     })
-}
-
-#[inline(always)]
-fn insert_const_mid_plan_from_handle<'a>(
-    source_h: i64,
-    middle: &'a str,
-    split: i64,
-) -> TextPlan<'a> {
-    if let Some(source_span) = resolve_string_span_from_handle(source_h) {
-        let split = split.clamp(0, source_span.span_bytes_len() as i64) as usize;
-        return TextPlan::from_span(source_span).insert_inline(middle, split);
-    }
-
-    let source = to_owned_string_handle_arg(source_h);
-    let split = split.clamp(0, source.len() as i64) as usize;
-    TextPlan::from_owned(source).insert_inline(middle, split)
 }
 
 #[inline(always)]
@@ -897,9 +900,9 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
     match plan {
         BorrowedSubstringPlan::ReturnHandle => h,
         BorrowedSubstringPlan::ReturnEmpty => shared_empty_string_handle(),
-        BorrowedSubstringPlan::Materialize(value) => string_handle_from_owned(value),
-        BorrowedSubstringPlan::CreateView(view) => {
-            handles::to_handle_arc(std::sync::Arc::new(view)) as i64
+        BorrowedSubstringPlan::FreezePlan(plan) => freeze_text_plan(plan),
+        BorrowedSubstringPlan::ViewSpan(span) => {
+            handles::to_handle_arc(std::sync::Arc::new(span.into_view_box())) as i64
         }
     }
 }
