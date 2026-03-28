@@ -185,6 +185,47 @@ pub fn ny_llvmc_emit_exe_lib(
     )
 }
 
+/// Emit a native object via the shared harness helper (lib-side MIR)
+#[allow(dead_code)]
+pub fn ny_llvmc_emit_obj_lib(
+    module: &nyash_rust::mir::MirModule,
+    obj_out: &str,
+) -> Result<(), String> {
+    let mir_json = {
+        let tmp_path = std::env::temp_dir().join(format!(
+            "llvm_object_emitter-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|duration| duration.as_nanos())
+                .unwrap_or_default()
+        ));
+        crate::runner::mir_json_emit::emit_mir_json_for_harness(module, &tmp_path)
+            .map_err(|e| format!("MIR JSON emit error: {}", e))?;
+        let contents = std::fs::read_to_string(&tmp_path)
+            .map_err(|e| format!("read harness MIR JSON: {}", e))?;
+        let _ = std::fs::remove_file(&tmp_path);
+        contents
+    };
+    let mut opts = crate::host_providers::llvm_codegen::boundary_default_object_opts(
+        Some(std::path::PathBuf::from(obj_out)),
+        None,
+        crate::config::env::llvm_opt_level_env(),
+        Some(20_000),
+    );
+    opts.compile_recipe = Some("pure-first".to_string());
+    opts.compat_replay = Some("harness".to_string());
+    let out_path = crate::host_providers::llvm_codegen::mir_json_to_object(&mir_json, opts)?;
+    if std::fs::metadata(&out_path)
+        .map_err(|e| format!("harness object not found after emit: {} ({})", out_path.display(), e))?
+        .len()
+        == 0
+    {
+        return Err(format!("harness object is empty: {}", out_path.display()));
+    }
+    Ok(())
+}
+
 /// Emit native executable via ny-llvmc (bin-side MIR)
 #[allow(dead_code)]
 pub fn ny_llvmc_emit_exe_bin(

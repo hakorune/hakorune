@@ -10,7 +10,6 @@ mod harness_executor;
 mod joinir_experiment;
 mod method_id_injector;
 mod mir_compiler;
-mod object_emitter;
 mod plugin_init;
 mod pyvm_executor;
 mod report;
@@ -174,7 +173,10 @@ fn emit_requested_object_or_exit(_module: &nyash_rust::mir::MirModule, _out_path
     #[cfg(feature = "llvm-harness")]
     {
         if crate::config::env::llvm_use_harness() {
-            if let Err(e) = object_emitter::ObjectEmitterBox::try_emit(_module) {
+            if let Err(e) = crate::runner::modes::common_util::exec::ny_llvmc_emit_obj_lib(
+                _module,
+                _out_path,
+            ) {
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
             }
             return;
