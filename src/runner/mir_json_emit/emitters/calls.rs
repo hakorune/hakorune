@@ -38,8 +38,12 @@ pub(crate) fn emit_call(
         if methodize_on || use_unified {
             let effects_str: Vec<&str> = if effects.is_io() { vec!["IO"] } else { vec![] };
             let args_u32: Vec<u32> = args.iter().map(|v| v.as_u32()).collect();
-            let unified_call =
-                emit_unified_mir_call(dst.map(|v| v.as_u32()), callee.unwrap(), &args_u32, &effects_str);
+            let unified_call = emit_unified_mir_call(
+                dst.map(|v| v.as_u32()),
+                callee.unwrap(),
+                &args_u32,
+                &effects_str,
+            );
             return Some(unified_call);
         }
     }

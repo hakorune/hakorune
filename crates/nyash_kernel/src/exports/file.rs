@@ -31,7 +31,9 @@ fn string_handle_from_owned(value: String) -> i64 {
 fn array_handle_from_bytes(bytes: Vec<u8>) -> i64 {
     let arr = ArrayBox::new();
     for byte in bytes {
-        arr.push(Box::new(nyash_rust::box_trait::IntegerBox::new(byte as i64)));
+        arr.push(Box::new(nyash_rust::box_trait::IntegerBox::new(
+            byte as i64,
+        )));
     }
     let arc: Arc<dyn NyashBox> = Arc::new(arr);
     handles::to_handle_arc(arc) as i64

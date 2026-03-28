@@ -84,7 +84,8 @@ mod tests {
         let handle = new_array_handle();
         let string_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("length".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, string_handle), 1);
         assert_eq!(nyash_array_string_len_hi_alias(handle, 0), 6);
@@ -96,18 +97,30 @@ mod tests {
         let handle = new_array_handle();
         let hay_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("line-seed".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
         let needle_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("line".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
         let miss_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new("none".to_string()),
-        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
 
         assert_eq!(nyash_array_set_his_alias(handle, 0, hay_handle), 1);
-        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 0, needle_handle), 0);
-        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 0, miss_handle), -1);
-        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 3, needle_handle), -1);
+        assert_eq!(
+            nyash_array_string_indexof_hih_alias(handle, 0, needle_handle),
+            0
+        );
+        assert_eq!(
+            nyash_array_string_indexof_hih_alias(handle, 0, miss_handle),
+            -1
+        );
+        assert_eq!(
+            nyash_array_string_indexof_hih_alias(handle, 3, needle_handle),
+            -1
+        );
     }
 
     #[test]
@@ -115,11 +128,18 @@ mod tests {
         let handle = new_array_handle();
         let empty_handle = nyash_rust::runtime::host_handles::to_handle_arc(std::sync::Arc::new(
             nyash_rust::box_trait::StringBox::new(String::new()),
-        ) as std::sync::Arc<dyn NyashBox>) as i64;
+        )
+            as std::sync::Arc<dyn NyashBox>) as i64;
 
-        assert_eq!(nyash_array_string_indexof_hih_alias(handle, 0, empty_handle), 0);
+        assert_eq!(
+            nyash_array_string_indexof_hih_alias(handle, 0, empty_handle),
+            0
+        );
         assert_eq!(nyash_array_string_indexof_hih_alias(0, 0, empty_handle), 0);
-        assert_eq!(nyash_array_string_indexof_hih_alias(handle, -1, empty_handle), 0);
+        assert_eq!(
+            nyash_array_string_indexof_hih_alias(handle, -1, empty_handle),
+            0
+        );
     }
 
     #[test]

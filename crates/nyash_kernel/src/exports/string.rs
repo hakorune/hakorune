@@ -12,13 +12,13 @@ use nyash_rust::{
     box_trait::{NyashBox, StringBox},
     runtime::host_handles as handles,
 };
+use std::sync::{Arc, OnceLock};
 use std::{
     cell::{Cell, RefCell},
     ffi::CStr,
     ptr,
     thread::LocalKey,
 };
-use std::sync::{Arc, OnceLock};
 
 fn env_flag_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
     #[cfg(test)]

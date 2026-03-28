@@ -60,11 +60,17 @@ where
     let func: CompileFn = *lib
         .get(compile_symbol)
         .context("missing symbol hako_llvmc_compile_json{_pure_first}")?;
-    with_env_override("HAKO_BACKEND_COMPILE_RECIPE", compile_recipe.as_deref(), || {
-        with_env_override("HAKO_BACKEND_COMPAT_REPLAY", compat_replay.as_deref(), || {
-            action(func)
-        })
-    })
+    with_env_override(
+        "HAKO_BACKEND_COMPILE_RECIPE",
+        compile_recipe.as_deref(),
+        || {
+            with_env_override(
+                "HAKO_BACKEND_COMPAT_REPLAY",
+                compat_replay.as_deref(),
+                || action(func),
+            )
+        },
+    )
 }
 
 unsafe fn with_link_symbol<T, F>(action: F) -> Result<T>

@@ -299,8 +299,14 @@ fn filebox_open_hhh_returns_zero_for_invalid_string_handles() {
 
     let path_handle = string_handle("/tmp/nyash_kernel_filebox_open_hhh_invalid_mode.txt");
     let mode_handle = string_handle("r");
-    assert_eq!(nyash_file_open_hhh_export(filebox_handle, 0, mode_handle), 0);
-    assert_eq!(nyash_file_open_hhh_export(filebox_handle, path_handle, 0), 0);
+    assert_eq!(
+        nyash_file_open_hhh_export(filebox_handle, 0, mode_handle),
+        0
+    );
+    assert_eq!(
+        nyash_file_open_hhh_export(filebox_handle, path_handle, 0),
+        0
+    );
 }
 
 #[test]
@@ -433,8 +439,13 @@ fn filebox_by_name_open_is_retired() {
         let method = CString::new("open").expect("CString");
         let path_handle = string_handle("/tmp/nyash_kernel_filebox_by_name_open_retired.txt");
         let mode_handle = string_handle("r");
-        let result =
-            nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 2, path_handle, mode_handle);
+        let result = nyash_plugin_invoke_by_name_i64(
+            filebox_handle,
+            method.as_ptr(),
+            2,
+            path_handle,
+            mode_handle,
+        );
         assert_eq!(result, 0, "open should no longer use builtin by_name keep");
     });
 }
@@ -460,7 +471,10 @@ fn filebox_by_name_read_bytes_is_retired() {
 
         let method = CString::new("readBytes").expect("CString");
         let result = nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 0, 0, 0);
-        assert_eq!(result, 0, "readBytes should no longer use builtin by_name keep");
+        assert_eq!(
+            result, 0,
+            "readBytes should no longer use builtin by_name keep"
+        );
 
         with_filebox_from_handle(filebox_handle, |filebox| {
             let _ = filebox.ny_close();
@@ -583,7 +597,10 @@ fn filebox_by_name_write_bytes_is_retired() {
         let method = CString::new("writeBytes").expect("CString");
         let result =
             nyash_plugin_invoke_by_name_i64(filebox_handle, method.as_ptr(), 1, bytes_handle, 0);
-        assert_eq!(result, 0, "writeBytes should no longer use builtin by_name keep");
+        assert_eq!(
+            result, 0,
+            "writeBytes should no longer use builtin by_name keep"
+        );
 
         with_filebox_from_handle(filebox_handle, |filebox| {
             let _ = filebox.ny_close();
@@ -600,7 +617,8 @@ fn instancebox_by_name_get_field_is_retired() {
         let inst_handle = instancebox_handle_with_field("x", NyashValue::Integer(42));
         let method = CString::new("getField").expect("CString");
         let field_handle = string_handle("x");
-        let result = nyash_plugin_invoke_by_name_i64(inst_handle, method.as_ptr(), 1, field_handle, 0);
+        let result =
+            nyash_plugin_invoke_by_name_i64(inst_handle, method.as_ptr(), 1, field_handle, 0);
         assert_eq!(
             result, 0,
             "InstanceBox.getField should no longer use builtin by_name keep"
@@ -616,9 +634,15 @@ fn instancebox_by_name_set_field_is_retired() {
         let inst_handle = instancebox_handle_with_field("x", NyashValue::Integer(1));
         let method = CString::new("setField").expect("CString");
         let field_handle = string_handle("x");
-        let value_handle = handles::to_handle_arc(Arc::new(nyash_rust::box_trait::IntegerBox::new(99))) as i64;
-        let result =
-            nyash_plugin_invoke_by_name_i64(inst_handle, method.as_ptr(), 2, field_handle, value_handle);
+        let value_handle =
+            handles::to_handle_arc(Arc::new(nyash_rust::box_trait::IntegerBox::new(99))) as i64;
+        let result = nyash_plugin_invoke_by_name_i64(
+            inst_handle,
+            method.as_ptr(),
+            2,
+            field_handle,
+            value_handle,
+        );
         assert_eq!(
             result, 0,
             "InstanceBox.setField should no longer use builtin by_name keep"

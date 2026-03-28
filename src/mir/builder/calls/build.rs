@@ -411,8 +411,7 @@ impl MirBuilder {
     fn build_explicit_extern_call(&mut self, args: Vec<ASTNode>) -> Result<ValueId, String> {
         if args.is_empty() {
             return Err(
-                "externcall requires a target string literal: externcall \"name\"(...)"
-                    .to_string(),
+                "externcall requires a target string literal: externcall \"name\"(...)".to_string(),
             );
         }
 

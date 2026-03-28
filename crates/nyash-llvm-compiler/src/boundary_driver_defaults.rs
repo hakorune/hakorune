@@ -94,9 +94,9 @@ pub(super) fn boundary_codegen_request_defaults(
 #[cfg(test)]
 mod tests {
     use super::{
-        boundary_codegen_request_defaults, boundary_compile_prefers_pure_first, boundary_compile_symbol,
-        ffi_library_default_candidates, ffi_library_filenames, COMPILE_SYMBOL_DEFAULT,
-        COMPILE_SYMBOL_PURE_FIRST,
+        boundary_codegen_request_defaults, boundary_compile_prefers_pure_first,
+        boundary_compile_symbol, ffi_library_default_candidates, ffi_library_filenames,
+        COMPILE_SYMBOL_DEFAULT, COMPILE_SYMBOL_PURE_FIRST,
     };
     use std::path::PathBuf;
 

@@ -995,12 +995,11 @@ static box Main {
         })
         .cloned()
         .expect("main mir_call(open) must exist");
-    let args_len = inst["mir_call"]["args"].as_array().map(|a| a.len()).unwrap_or(0);
-    assert!(
-        args_len >= 2,
-        "unexpected open args shape: {}",
-        inst
-    );
+    let args_len = inst["mir_call"]["args"]
+        .as_array()
+        .map(|a| a.len())
+        .unwrap_or(0);
+    assert!(args_len >= 2, "unexpected open args shape: {}", inst);
     assert!(
         inst["mir_call"]["callee"]["receiver"].is_number(),
         "open mir_call must carry receiver: {}",
@@ -1038,12 +1037,11 @@ static box Main {
         })
         .cloned()
         .expect("main mir_call(compile_obj) must exist");
-    let args_len = inst["mir_call"]["args"].as_array().map(|a| a.len()).unwrap_or(0);
-    assert!(
-        args_len >= 1,
-        "unexpected compile_obj args shape: {}",
-        inst
-    );
+    let args_len = inst["mir_call"]["args"]
+        .as_array()
+        .map(|a| a.len())
+        .unwrap_or(0);
+    assert!(args_len >= 1, "unexpected compile_obj args shape: {}", inst);
     assert!(
         inst["mir_call"]["callee"]["box_name"].as_str() == Some("LlvmBackendBox"),
         "compile_obj mir_call must target LlvmBackendBox: {}",
@@ -1075,8 +1073,7 @@ static box Main {
                     insts.iter().find(|inst| {
                         inst["op"].as_str() == Some("mir_call")
                             && inst["mir_call"]["callee"]["type"].as_str() == Some("Extern")
-                            && inst["mir_call"]["callee"]["name"].as_str()
-                                == Some("hako_mem_alloc")
+                            && inst["mir_call"]["callee"]["name"].as_str() == Some("hako_mem_alloc")
                     })
                 })
             })

@@ -200,7 +200,10 @@ mod tests {
             legacy_daily_allowed: std::env::var_os("HAKO_BACKEND_LEGACY_DAILY_ALLOWED"),
         };
 
-        std::env::set_var("HAKO_BACKEND_ACCEPTANCE_CASE", "hello-simple-llvm-native-probe-v1");
+        std::env::set_var(
+            "HAKO_BACKEND_ACCEPTANCE_CASE",
+            "hello-simple-llvm-native-probe-v1",
+        );
         std::env::set_var("HAKO_BACKEND_TRANSPORT_OWNER", "hako_ll_emitter");
         std::env::set_var("HAKO_BACKEND_LEGACY_DAILY_ALLOWED", "no");
         assert_eq!(
@@ -211,10 +214,7 @@ mod tests {
             super::backend_transport_owner().as_deref(),
             Some("hako_ll_emitter")
         );
-        assert_eq!(
-            super::backend_legacy_daily_allowed().as_deref(),
-            Some("no")
-        );
+        assert_eq!(super::backend_legacy_daily_allowed().as_deref(), Some("no"));
 
         std::env::set_var("HAKO_BACKEND_ACCEPTANCE_CASE", "");
         std::env::set_var("HAKO_BACKEND_TRANSPORT_OWNER", " ");

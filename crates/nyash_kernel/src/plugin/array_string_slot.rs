@@ -124,14 +124,20 @@ pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, valu
                 } else if try_retarget_borrowed_string_slot(&mut items[idx], value_h) {
                     return 1;
                 }
-                let value =
-                    string_handle_or_immediate_box_from_obj(value_obj.as_ref(), value_h, drop_epoch);
+                let value = string_handle_or_immediate_box_from_obj(
+                    value_obj.as_ref(),
+                    value_h,
+                    drop_epoch,
+                );
                 items[idx] = value;
                 return 1;
             }
             if idx == items.len() {
-                let value =
-                    string_handle_or_immediate_box_from_obj(value_obj.as_ref(), value_h, drop_epoch);
+                let value = string_handle_or_immediate_box_from_obj(
+                    value_obj.as_ref(),
+                    value_h,
+                    drop_epoch,
+                );
                 items.push(value);
                 return 1;
             }

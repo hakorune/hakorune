@@ -1,9 +1,7 @@
 use std::path::PathBuf;
 
 use super::defaults::COMPILE_SYMBOL_DEFAULT;
-use super::ll_emit_bridge::{
-    mir_json_to_object_hako_ll_compare, mir_json_to_object_hako_ll_daily,
-};
+use super::ll_emit_bridge::{mir_json_to_object_hako_ll_compare, mir_json_to_object_hako_ll_daily};
 use super::normalize::validate_backend_mir_shape;
 use super::transport::{
     compile_via_capi, ensure_backend_output_parent, prepare_backend_input_json_file,

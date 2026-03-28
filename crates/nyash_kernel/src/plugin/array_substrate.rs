@@ -37,7 +37,11 @@ pub extern "C" fn nyash_array_string_len_hi_alias(handle: i64, idx: i64) -> i64 
 }
 
 #[export_name = "nyash.array.string_indexof_hih"]
-pub extern "C" fn nyash_array_string_indexof_hih_alias(handle: i64, idx: i64, needle_h: i64) -> i64 {
+pub extern "C" fn nyash_array_string_indexof_hih_alias(
+    handle: i64,
+    idx: i64,
+    needle_h: i64,
+) -> i64 {
     array_string_indexof_by_index(handle, idx, needle_h)
 }
 
