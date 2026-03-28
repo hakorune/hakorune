@@ -40,7 +40,6 @@ Related:
 - `src/host_providers/llvm_codegen.rs`
 - `lang/src/shared/backend/backend_route_env_box.hako`
 - `lang/src/shared/host_bridge/codegen_bridge_box.hako`
-- `lang/src/runtime/host/host_facade_box.hako`
 - `lang/src/vm/hakorune-vm/extern_provider.hako`
 
 ## Landed Demotion Slice
@@ -48,6 +47,11 @@ Related:
 - `HostFacadeBox` and `HakoruneExternProviderBox` now gate `codegen.compile_json_path` for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`.
 - daily root-first callers no longer enter the Hako front-door bridge through `compile_json_path`.
 - explicit legacy compare/archive callers using `hako-ll-compare-v0` still pass through the archive-later helper path.
+
+## Landed Front-Door Demotion Slice
+
+- `lang/src/runtime/host/host_facade_box.hako` no longer forwards `codegen.compile_json_path`; the Hako front-door bridge has been removed from the live caller set.
+- the remaining compile_json_path reachability now lives in downstream legacy/runtime wrappers and Rust dispatchers only.
 
 ## Landed Rust Demotion Slice
 
@@ -62,7 +66,7 @@ The following surfaces still keep `compile_json_path` reachable, so delete is no
 | --- | --- | --- |
 | `lang/src/mir/builder/calls/extern_calls.rs` | archive-later | builder-side extern recognition still names `compile_json_path` |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | archive-later | legacy bridge helper for `compile_json_path_args` |
-| `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade dispatch still forwards `codegen.compile_json_path` |
+| `lang/src/runtime/host/host_facade_box.hako` | archive-later | host facade no longer forwards `codegen.compile_json_path`; remaining compile_json_path reachability lives in downstream legacy/runtime wrappers |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later | VM extern provider still exposes the legacy selector, but the daily owner now gates it out |
 | `src/backend/mir_interpreter/handlers/extern_provider.rs` | archive-later | interpreter backend still handles the legacy extern, but the daily owner now gates `compile_json_path` out |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | archive-later | plugin loader still resolves legacy compile entrypoints, but the daily `hako-ll-min-v0` recipe now gates `compile_json_path` out |

@@ -83,6 +83,7 @@ Phase 29x の目的は次の 2 点を同時に満たすこと。
       - `MirRootHydratorBox` and `MirBuilderBox.emit_root_from_{program_json,source}_v0(...)` are landed
       - daily `.hako ll emitter` profiles already move from `compile_json_path` to `compile_ll_text`
     - launcher/mainline now compiles root-first, so temp MIR paths no longer select the legacy route
+    - `HostFacadeBox` no longer forwards `codegen.compile_json_path`; the Hako front-door bridge has been retired from the live caller set, and the remaining compile_json_path reachability lives in downstream legacy/runtime wrappers
     - `route.rs` compare/archive shrink is landed; next cleanup is compare bridge retirement / archive decisions, and live `compile_json_path` caller retirement prep is tracked in `29x-97-compare-bridge-retirement-prep-ssot.md`
     - Rust runtime dispatcher `compile_json_path` branches are also gated away for the daily `hako-ll-min-v0` recipe when the backend transport owner is `hako_ll_emitter`; explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
 - legacy C `.inc` remains daily owner only for unflipped shapes, and demotion/archive tracking is now fixed in `29x-96-backend-owner-legacy-ledger-ssot.md`
