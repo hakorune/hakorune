@@ -1,11 +1,12 @@
 ---
 Status: provisional SSOT
 Decision: provisional
-Date: 2026-03-28
+Date: 2026-03-29
 Scope: string hot path の birth/freeze を helper ごとに散らさず、`freeze.str` を唯一の birth sink として読むための正本
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
   - docs/development/current/main/design/string-transient-lifecycle-ssot.md
   - docs/development/current/main/design/transient-text-pieces-ssot.md
   - docs/development/current/main/design/rep-mir-string-birth-map-inventory.md
@@ -100,6 +101,13 @@ VM / plugin / FFI / host handle へ見せない。
 
 `freeze.str` は **birth-time concerns だけ** を持つ。
 
+親 SSOT に従って、
+
+- `BoundaryKind` = retained reason
+- `RetainedForm` = retained result
+
+を sink の外で決める。この文書は sink 実行だけを持つ。
+
 持つべき責務:
 
 - `shared empty` / `ReuseHandle` / `full-slice reuse`
@@ -162,12 +170,12 @@ perf-kilo の current asm/perf 読みでは、`set_his` の局所分岐よりも
 
 1. docs-first
    - `freeze.str` を唯一の birth sink として current docs に固定する
-2. landed
+2. docs-first parent
+   - `BoundaryKind` と `RetainedForm` の split を retained-boundary parent SSOT に固定する
+3. landed
    - `concat_hs` と `insert_hsi` は `freeze_text_plan(...)` を共有し、`plan -> freeze` の形へ入った
-3. next
-   - `BorrowedSubstringPlan` を recipe-only / boundary-only へ縮める
 4. next
-   - `array_set` を consumer boundary として維持する
+   - `array_set` を first `Store` proof boundary として維持する
 5. meso proof
    - `kilo_meso_substring_concat_array_set`
 6. main proof

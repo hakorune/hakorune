@@ -1,11 +1,12 @@
 ---
 Status: provisional SSOT
 Decision: provisional
-Date: 2026-03-28
+Date: 2026-03-29
 Scope: `freeze.str` より upstream の compile-time placement を、`TextPlan` / `PiecesN` と birth sink の間で固定する
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
   - docs/development/current/main/design/string-transient-lifecycle-ssot.md
   - docs/development/current/main/design/transient-text-pieces-ssot.md
   - docs/development/current/main/design/string-birth-sink-ssot.md
@@ -41,6 +42,14 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 
 ### Retention Class
 
+この文書の `TextRetentionClass` は current code vocabulary だよ。
+親 SSOT では、これを
+
+- retained reason = `BoundaryKind`
+- retained result = `RetainedForm`
+
+へ分けて読む。
+
 この wave では string chain を次の 4 クラスで読む。
 
 - `ReturnHandle`
@@ -68,6 +77,8 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 - `BoundaryKind` が `MustFreeze` を要求した地点だけ `freeze.str` を置く
 - `TextPlan` / `PiecesN` が `ObserverOnly` なら carrier のまま残す
 - `RetainView` は `StringViewBox` birth ではなく、transient view で留める
+
+次 wave の docs-first target は、これを `RetainedForm` まで分けて読むことだよ。
 
 ## Current Landing
 
@@ -114,9 +125,9 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 ## Current Next Move
 
 1. placement helper の語彙を current truth として維持する
-2. `ViewSpan` がいつ `RetainView` で、いつ `MustFreeze` になるかを docs と code で同じ語彙に保つ
-3. `concat_hs` / `insert_hsi` / `concat3_hhh` の placement を同じ helper で読む
-4. それでも足りなければ、その時だけ `freeze.str` 側を見直す
+2. `TextRetentionClass` を parent SSOT の `BoundaryKind` / `RetainedForm` split で読む
+3. `array_set` を first `Store` proof boundary として維持する
+4. meso/main proof の後にだけ code-side enum split を検討する
 
 ## Non-Goals
 

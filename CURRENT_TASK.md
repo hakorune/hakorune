@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-28
+Date: 2026-03-29
 Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -69,6 +69,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `docs/development/current/main/10-Now.md`
   - `docs/development/current/main/design/kilo-meso-benchmark-ladder-ssot.md`
   - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
+  - `docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md`
+  - `docs/development/current/main/design/string-birth-placement-ssot.md`
   - `docs/development/current/main/design/string-birth-sink-ssot.md`
   - `docs/development/current/main/design/transient-text-pieces-ssot.md`
   - `docs/tools/README.md`
@@ -85,13 +87,15 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`
   - follow-up design front: `freeze.str` as the single birth sink for `concat_hs` / `insert_hsi` / `concat3_hhh`
+  - retained-boundary parent split is now docs-first: `BoundaryKind` owns retained reason and `RetainedForm` owns retained result
   - attempted canonical sink re-home: moving `freeze.str` into `string_store.rs` regressed stable main (`kilo_kernel_small_hk = 834 -> 909 ms` on back-to-back checks), so keep the explicit `freeze_text_plan(...)` sink helper in `string.rs` for now
   - landed planner cleanup: const-suffix / insert recipe helpers now live in `crates/nyash_kernel/src/exports/string_plan.rs`, leaving `string.rs` as the boundary/sink site
+  - latest kept recheck after branch-check trim: `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_kernel_small_hk = 707 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
   - next fixed order is now:
-    1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
-    2. keep `array_set` as the consumer boundary and avoid new `set_his` splits
-    3. re-run meso/main proof before any further sink-local tuning
-    4. keep `BoxBase::new` out unless fresh asm evidence shows the object layout itself is the limiter
+    1. keep `BoundaryKind` and `RetainedForm` split as the parent retained-boundary contract
+    2. keep `array_set` as the first `Store` proof boundary and avoid new `set_his` splits
+    3. re-run meso/main proof before any deeper code-side retained-form split
+    4. keep `BoxBase::new` and further sink-local tuning out unless fresh asm evidence changes
   - landed sink-local read-side cut: `Registry::get` now uses a direct clone path without the extra clone helper
   - current optimization summary lives in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
   - sink-local lane is now exhausted; no further safe code cut is known without fresh upstream birth-density evidence
@@ -115,13 +119,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
 - keep the landed meso benchmark ladder as the gate for the next string cut
 - next exact code sequence is fixed:
-  1. shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement
-  2. keep `array_set` as the consumer boundary
+  1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
+  2. keep `array_set` as the consumer boundary / first `Store` proof
   3. same-artifact meso/main proof
-  4. only then narrow sink-local tuning further if new asm evidence appears; keep `BoxBase::new` out unless the object layout itself shows up as the limiter
+  4. only then revisit code-side `RetainedForm` wiring if fresh asm evidence justifies it
 - rejected follow-up:
   - canonicalizing `freeze.str` in `string_store.rs` regressed `kilo_kernel_small_hk` to `834 ms` and `909 ms` on back-to-back checks; keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears
-- do not reopen `set_his` helper splitting before the `freeze.str` canonicalization wave lands
+- do not reopen `set_his` helper splitting before the retained-boundary proof lands
 - do not reopen loop-carry shaping before the `array_set` boundary gap shrinks
 - keep genericization work on `recipe / scope / effect / policy`, not on benchmark-named branches
 - keep the generalized cache/scope machinery intact while tightening the hot leaf path
