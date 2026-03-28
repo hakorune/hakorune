@@ -177,8 +177,10 @@ Related:
 	          - sink-local lane is exhausted; no further safe code cut is known without fresh upstream birth-density evidence
 	          - compile-time placement helper is landed, so the next exact lane is upstream birth-density proof rather than more sink-local cuts
 	          - docs-first parent split is now `retained-boundary-and-birth-placement-ssot.md`: `BoundaryKind` owns retained reason and `RetainedForm` owns retained result
-	          - current fixed order is `retained-boundary parent -> array_set Store proof -> same-artifact meso/main proof -> only then code-side retained-form split`
+	          - current fixed order is `retained-boundary parent -> array_set Store proof -> same-artifact meso/main proof -> only then code-side retained-form split`; the latest proof stayed flat, so code-side `RetainedForm` split remains deferred unless fresh asm evidence appears
 	          - latest kept recheck after branch-check trim is `kilo_kernel_small_hk = 707 ms`, `kilo_meso_substring_concat_array_set = 68 ms` (`warmup=1 repeat=3`)
+	          - latest same-artifact proof after the retained-boundary parent split stayed flat: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 760 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+	          - code-side `RetainedForm` split remains deferred unless fresh asm evidence appears
 	          - latest asm read puts `__memmove_avx512_unaligned_erms`, `nyash.string.concat_hs`, `Registry::get`, and `Registry::alloc` above `BoxBase::new`, so the next cut is upstream placement proof
 	          - next exact cut stays on store-boundary birth/lookup cost only if new asm evidence appears; keep `BoxBase::new` out unless the object layout itself shows up as the limiter, not loop-carry shaping
 	        - docs-first next design front is now `string-birth-sink-ssot.md`:

@@ -47,6 +47,21 @@ Related:
   - `concat_hs` const-suffix empty-path and `insert_hsi` source-empty lookup are no longer checked twice
   - kept recheck is `kilo_kernel_small_hk = 707 ms`, `kilo_meso_substring_concat_array_set = 68 ms`
 
+## Latest Same-Artifact Proof
+
+The retained-boundary parent split was docs-only, so we re-ran the same-artifact proof before opening any code-side `RetainedForm` split. The result stayed flat.
+
+- `kilo_meso_substring_concat_len = 35 ms`
+- `kilo_meso_substring_concat_array_set = 68 ms`
+- `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
+- `kilo_kernel_small_hk = 760 ms`
+
+Interpretation:
+
+- `array_set` is still the first Store proof boundary
+- sink-local tuning is still exhausted
+- the code-side `RetainedForm` split remains deferred
+
 ## Current Rejected Slices
 
 詳細は [perf-kilo-string-leaf-rejected-followups-2026-03-28.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/investigations/perf-kilo-string-leaf-rejected-followups-2026-03-28.md) に置く。
@@ -70,22 +85,34 @@ Related:
   - sink-local lane としての追加安全 cut は現時点で無い
 - current placement lane has now landed, but perf has not yet moved
   - the next step is upstream birth-density proof, not another sink-local cut
+- the latest same-artifact proof stayed flat, so do not reopen code-side `RetainedForm` split yet
 
 ## Latest ASM Read
 
 2026-03-29 の latest `kilo_meso_substring_concat_array_set` microasm 読みでは、次が top tier だったよ。
 
-- `nyash_rust::runtime::host_handles::get` (`16.62%`)
-- `nyash_rust::runtime::host_handles::Registry::alloc` (`14.85%`)
-- `nyash_rust::box_trait::BoxBase::new` (`10.93%`)
-- `nyash.string.substring_hii` (`7.88%`)
-- `nyash.array.string_len_hi` (`5.54%`)
-- `nyash.array.set_his` (`5.34%`)
-- `nyash.string.insert_hsi` (`4.47%`)
-- `nyash_kernel::exports::string::string_is_empty_from_handle` (`4.21%`)
+- `nyash_rust::runtime::host_handles::Registry::alloc` (`15.39%`)
+- `nyash_rust::runtime::host_handles::get` (`11.67%`)
+- `nyash_rust::box_trait::BoxBase::new` (`11.39%`)
+- `nyash.string.substring_hii` (`6.34%`)
+- `nyash_kernel::plugin::handle_cache::array_get_index_encoded_i64::_$u7b$$u7b$closure$u7d$$u7d$::h9cb324abceb701a7` (`6.19%`)
+- `nyash_kernel::plugin::array_string_slot::array_set_by_index_string_handle_value::_$u7b$$u7b$closure$u7d$$u7d$::h56da430ce90ccabb` (`6.00%`)
+- `nyash.array.string_len_hi` (`5.18%`)
+- `nyash.string.insert_hsi` (`4.17%`)
+- `nyash_kernel::exports::string_span_cache::string_span_cache_get` (`3.81%`)
+- `nyash.array.set_his` (`3.72%`)
+- `nyash.string.concat3_hhh` (`3.35%`)
+- `nyash.array.slot_load_hi` (`3.24%`)
+- `nyash_kernel::exports::string::string_is_empty_from_handle` (`3.15%`)
+- `nyash_kernel::exports::string::string_len_from_handle` (`2.47%`)
+- `libc.so.6::_int_malloc` (`2.46%`)
+- `nyash_kernel::exports::string::string_handle_from_owned` (`2.30%`)
+- `nyash_rust::runtime::global_hooks::gc_alloc` (`1.30%`)
+- `__memmove_avx512_unaligned_erms` (`0.89%`)
 
-読みとしては、sink-local leaf ではなく、`concat_hs` / birth-boundary / handle registry の組み合わせがまだ支配的だよ。
-なのでこの lane で次に触るなら、`string_birth_placement.rs` を retained-boundary parent SSOT に従って再整理し、upstream birth-density を下げる側になる。
+読みとしては、sink-local leaf ではなく、`Registry::alloc/get` と birth-boundary / handle registry の組み合わせがまだ支配的だよ。
+ただし latest same-artifact proof が flat だったので、この lane では code-side `RetainedForm` split を再開しない。
+次に触るなら、`string_birth_placement.rs` を retained-boundary parent SSOT に従って再整理し、upstream birth-density を下げる側になる。
 
 ## Next Move
 

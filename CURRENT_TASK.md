@@ -83,6 +83,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - the first large jump is `len -> array_set`, not `array_set -> loopcarry`
   - landed narrow store-boundary cut: `array_set_by_index_string_handle_value` now resolves the source handle in-place inside the write closure instead of cloning a temporary `Arc` before the hot path
   - latest store-boundary recheck: `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_kernel_small_hk = 708 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - latest same-artifact proof after the retained-boundary parent split stayed flat: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 760 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
   - shared store-ready string materialization boundary
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`
@@ -91,16 +92,17 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - attempted canonical sink re-home: moving `freeze.str` into `string_store.rs` regressed stable main (`kilo_kernel_small_hk = 834 -> 909 ms` on back-to-back checks), so keep the explicit `freeze_text_plan(...)` sink helper in `string.rs` for now
   - landed planner cleanup: const-suffix / insert recipe helpers now live in `crates/nyash_kernel/src/exports/string_plan.rs`, leaving `string.rs` as the boundary/sink site
   - latest kept recheck after branch-check trim: `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_kernel_small_hk = 707 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - same-artifact proof after the retained-boundary parent split stayed flat, so code-side `RetainedForm` split remains deferred unless fresh asm evidence appears
   - next fixed order is now:
     1. keep `BoundaryKind` and `RetainedForm` split as the parent retained-boundary contract
     2. keep `array_set` as the first `Store` proof boundary and avoid new `set_his` splits
-    3. re-run meso/main proof before any deeper code-side retained-form split
+    3. same-artifact meso/main proof stayed flat, so keep code-side retained-form split deferred unless fresh asm evidence appears
     4. keep `BoxBase::new` and further sink-local tuning out unless fresh asm evidence changes
   - landed sink-local read-side cut: `Registry::get` now uses a direct clone path without the extra clone helper
   - current optimization summary lives in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
   - sink-local lane is now exhausted; no further safe code cut is known without fresh upstream birth-density evidence
   - compile-time placement helper landed, so the next exact lane is upstream birth-density proof rather than more sink-local cuts
-  - latest asm read puts `__memmove_avx512_unaligned_erms`, `nyash.string.concat_hs`, `Registry::get`, and `Registry::alloc` above `BoxBase::new`; that confirms the next cut is upstream placement proof, not more sink-local tuning
+  - latest asm read keeps `Registry::alloc`, `Registry::get`, `BoxBase::new`, `substring_hii`, and `array_set_his` in the hot tier; that still confirms the next cut is upstream placement proof, not more sink-local tuning
   - rejected follow-up:
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason
@@ -121,7 +123,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - next exact code sequence is fixed:
   1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
   2. keep `array_set` as the consumer boundary / first `Store` proof
-  3. same-artifact meso/main proof
+  3. same-artifact meso/main proof stayed flat, so keep code-side `RetainedForm` wiring deferred unless fresh asm evidence justifies it
   4. only then revisit code-side `RetainedForm` wiring if fresh asm evidence justifies it
 - rejected follow-up:
   - canonicalizing `freeze.str` in `string_store.rs` regressed `kilo_kernel_small_hk` to `834 ms` and `909 ms` on back-to-back checks; keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears
