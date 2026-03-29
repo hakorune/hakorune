@@ -94,8 +94,8 @@ if ! rg -q "abi_adapter_registry_defaults" "$REGISTRY_FILE"; then
   echo "[runtime-v0-abi-slice-guard] registry missing generated defaults import" >&2
   exit 1
 fi
-if ! rg -F -q "AbiAdapterRegistryDefaultsBox.populate(me)" "$REGISTRY_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] registry missing generated defaults populate hook" >&2
+if ! rg -F -q "AbiAdapterRegistryDefaultsBox.populate(tab)" "$REGISTRY_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] registry missing generated defaults populate call" >&2
   exit 1
 fi
 if ! rg -F -q "static box AbiAdapterRegistryDefaultsBox" "$GENERATED_DEFAULTS_FILE"; then

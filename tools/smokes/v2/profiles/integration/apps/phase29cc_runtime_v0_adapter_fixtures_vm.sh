@@ -90,8 +90,8 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: registry missing generated defaults import"
     exit 1
   fi
-  if ! rg -F -q "AbiAdapterRegistryDefaultsBox.populate(me)" "$REGISTRY_FILE"; then
-    test_fail "$SMOKE_NAME: registry missing generated defaults populate hook"
+  if ! rg -F -q "AbiAdapterRegistryDefaultsBox.populate(tab)" "$REGISTRY_FILE"; then
+    test_fail "$SMOKE_NAME: registry missing generated defaults populate call"
     exit 1
   fi
   if ! rg -F -q "static box AbiAdapterRegistryDefaultsBox" "$GENERATED_DEFAULTS_FILE"; then
@@ -520,7 +520,11 @@ run_string_behavior_smoke() {
   export HAKO_ABI_ADAPTER=1
   set +e
   local out_string
-  out_string=$("$NYASH_BIN" --backend vm "$STRING_FIXTURE" 2>&1)
+  out_string=$(env \
+    HAKO_ABI_ADAPTER=1 \
+    NYASH_JOINIR_DEV=0 \
+    HAKO_JOINIR_STRICT=0 \
+    "$NYASH_BIN" --backend vm "$STRING_FIXTURE" 2>&1)
   local rc_string=$?
   set -e
   unset HAKO_ABI_ADAPTER

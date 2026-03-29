@@ -125,14 +125,25 @@ static box MirCallV1HandlerBox {
     return RuntimeDataCoreBox.try_handle(seg, regs, mname)
   }
 
+  _try_handle_string_size_alias(seg, regs, mname) {
+    return StringCoreBox.try_handle(seg, regs, mname)
+  }
+
   handle(seg, regs) {
     return me.handle_with_state(seg, regs, null)
   }
 
-  handle_with_state(seg, regs, handle_regs) {
-    // Constructor: write dst=0 (SSA continuity)
+    handle_with_state(seg, regs, handle_regs) {
+    // Constructor: keep simple constructor payloads observable in-registry.
     if seg.indexOf("\"type\":\"Constructor\"") >= 0 {
       local d0 = JsonFragBox.get_int(seg, "dst"); if d0 != null { regs.setField(StringHelpers.int_to_str(d0), "0") }
+      local box_type = JsonFragBox.get_str(seg, "box_type")
+      if box_type == "StringBox" {
+        local arg0_ctor = MiniMirV1Scan.first_arg_register(seg)
+        local ctor_text = me._read_reg_text_or_null(regs, handle_regs, arg0_ctor)
+        if ctor_text == null { ctor_text = "" }
+        if d0 != null { regs.setField(StringHelpers.int_to_str(d0), "" + ctor_text) }
+      }
       return
     }
     local name = MiniMirV1Scan.callee_name(seg)
@@ -224,6 +235,7 @@ static box MirCallV1HandlerBox {
               if MapCoreBox.try_handle(seg, regs, mname) == 1 { return }
             }
             if MethodAliasPolicy.is_size_alias(mname) == 1 {
+              if me._try_handle_string_size_alias(seg, regs, mname) == 1 { return }
               local d_sz = JsonFragBox.get_int(seg, "dst"); if d_sz != null { regs.setField(StringHelpers.int_to_str(d_sz), StringHelpers.int_to_str(cur_len)) }
               return
             }
@@ -236,6 +248,9 @@ static box MirCallV1HandlerBox {
         // Stateful bridge (size/len/length/push) guarded by flag
         local size_state = env.get("HAKO_VM_MIRCALL_SIZESTATE"); if size_state == null { size_state = "0" }
         if size_state != "1" {
+          if MethodAliasPolicy.is_size_alias(mname) == 1 {
+            if me._try_handle_string_size_alias(seg, regs, mname) == 1 { return }
+          }
           local stub = env.get("HAKO_VM_MIRCALL_STUB"); if stub == null { stub = "1" }
           if stub == "1" { print("[vm/method/stub:" + mname + "]") }
           local dst0 = JsonFragBox.get_int(seg, "dst"); if dst0 != null { regs.setField(StringHelpers.int_to_str(dst0), "0") }
@@ -264,6 +279,7 @@ static box MirCallV1HandlerBox {
           return
         }
         if MethodAliasPolicy.is_size_alias(mname) == 1 {
+          if me._try_handle_string_size_alias(seg, regs, mname) == 1 { return }
           local d2 = JsonFragBox.get_int(seg, "dst"); if d2 != null { regs.setField(StringHelpers.int_to_str(d2), StringHelpers.int_to_str(cur_len)) }
           return
         }
@@ -316,7 +332,7 @@ static box MirCallV1HandlerBox {
         return
       }
     }
-    if name == "env.console.log" || name == "nyash.console.log" ||
+    if name == "env.console.log" || name == "nyash.console.log" || name == "print" ||
        name == "env.console.warn" || name == "nyash.console.warn" ||
        name == "env.console.error" || name == "nyash.console.error" {
       local v = ""; if arg0id >= 0 { local raw = regs.getField(StringHelpers.int_to_str(arg0id)); v = "" + raw }
