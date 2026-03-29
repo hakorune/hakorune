@@ -99,8 +99,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `hako_llvmc_ffi_generic_method_has_policy.inc`
   - `hako_llvmc_ffi_generic_method_substring_policy.inc`
   - `hako_llvmc_ffi_generic_method_get_policy.inc`
+  - `hako_llvmc_ffi_generic_method_get_window.inc`
 - next exact slice:
-  - `GET` fallback seam is landed; keep `GET` window / RMW / indexOf defer in `.inc`
+  - `GET` fallback seam is landed; `GET` window helpers are now isolated in `hako_llvmc_ffi_generic_method_get_window.inc`
+  - keep `GET` RMW / indexOf defer in `.inc`
   - next semantic-owner candidates are the remaining compiler-owner decisions after those producer-side probes
   - treat producer/use/future-use analysis as compiler-state-heavy until a later seam exists
 - next exact leaf:

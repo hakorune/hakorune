@@ -73,6 +73,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       int generic_walk_trace_budget = 24;
       int generic_call_trace_budget = 24;
       int generic_method_trace_budget = 24;
+      #if 0
       struct ArrayRmwWindowMatch {
         int matched;
         size_t copy_iis[8];
@@ -1496,6 +1497,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             runtime_array_string, &match, &reason, extra, sizeof(extra));
         hako_llvmc_emit_route_trace("array_string_len_window", matched ? "hit" : "miss", reason ? reason : "unknown", extra);
       }
+      #endif
+      #include "hako_llvmc_ffi_generic_method_get_window.inc"
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
       #include "hako_llvmc_ffi_string_concat_lowering.inc"

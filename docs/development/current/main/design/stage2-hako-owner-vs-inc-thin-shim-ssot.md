@@ -108,8 +108,9 @@ Related:
 15. Ninth code slice: mirror the generic method `has` action route in `hako_llvmc_ffi_generic_method_has_policy.inc`.
 16. Tenth code slice: mirror the generic method `substring` action route in `hako_llvmc_ffi_generic_method_substring_policy.inc`.
 17. Eleventh code slice: mirror the generic method `get` fallback route in `hako_llvmc_ffi_generic_method_get_policy.inc`.
-18. Move remaining semantic owner and compiler-owner decisions into `.hako`.
-19. Shrink `.inc` to thin shim responsibilities only.
+18. Twelfth code slice: extract generic method GET window helpers into `hako_llvmc_ffi_generic_method_get_window.inc` so producer-side probe logic is not welded to the orchestrator body.
+19. Move remaining semantic owner and compiler-owner decisions into `.hako`.
+20. Shrink `.inc` to thin shim responsibilities only.
 
 ## Landed Slices
 
@@ -126,6 +127,7 @@ Related:
 - `hako_llvmc_ffi_generic_method_has_policy.inc`
 - `hako_llvmc_ffi_generic_method_substring_policy.inc`
 - `hako_llvmc_ffi_generic_method_get_policy.inc`
+- `hako_llvmc_ffi_generic_method_get_window.inc`
 
 ## Non-Goals
 
