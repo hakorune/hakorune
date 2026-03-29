@@ -85,12 +85,14 @@ Related:
     4. first code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc`
     5. second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc`
     6. third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc`
-    7. move semantic owner decisions to `.hako`
-    8. thin shim cleanup and README sync
+    7. fourth code slice: split string concat emit helpers into `hako_llvmc_ffi_string_concat_emit.inc`
+    8. move semantic owner decisions to `.hako`
+    9. thin shim cleanup and README sync
   - landed so far:
     - `hako_llvmc_ffi_emit_seam.inc`
     - `hako_llvmc_ffi_generic_method_match.inc`
     - `hako_llvmc_ffi_compiler_state.inc`
+    - `hako_llvmc_ffi_string_concat_emit.inc`
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:

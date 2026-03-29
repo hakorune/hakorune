@@ -73,12 +73,14 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   4. first code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc`
   5. second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc`
   6. third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc`
-  7. move semantic owner decisions to `.hako`
-  8. thin shim cleanup and README sync
+  7. fourth code slice: split string concat emit helpers into `hako_llvmc_ffi_string_concat_emit.inc`
+  8. move semantic owner decisions to `.hako`
+  9. thin shim cleanup and README sync
 - landed so far:
   - `hako_llvmc_ffi_emit_seam.inc`
   - `hako_llvmc_ffi_generic_method_match.inc`
   - `hako_llvmc_ffi_compiler_state.inc`
+  - `hako_llvmc_ffi_string_concat_emit.inc`
 - next exact leaf:
   - do not touch runtime code until the owner/shim split is pinned in docs
   - keep native metal leafs resident; this lane is about authority migration, not full source-zero

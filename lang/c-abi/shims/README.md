@@ -35,7 +35,9 @@ Current partitions:
 - `hako_llvmc_ffi_compiler_state.inc`
   - shared origin / type / const / alias helper tables used by pure compile and generic method lowering
 - `hako_llvmc_ffi_string_concat_lowering.inc`
-  - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers for generic pure lowering
+  - thin wrapper for string concat lowering that now delegates emit details
+- `hako_llvmc_ffi_string_concat_emit.inc`
+  - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers and route-adjacent trace hooks
 - `hako_llvmc_ffi_mir_call_prepass.inc`
   - `mir_call` prepass need-flag scan helpers used before generic pure lowering emits LLVM IR
 - `hako_llvmc_ffi_generic_method_match.inc`
@@ -62,3 +64,4 @@ Rules:
 - Current stage2 direction is moving owner decisions into `.hako`; treat these partitions as transitional thin shim surfaces, not permanent semantic owners.
 - First code slices now extracted emit primitives into `hako_llvmc_ffi_emit_seam.inc`, and generic-method routing/classification is being split toward `hako_llvmc_ffi_generic_method_match.inc`.
 - The shared compiler-state helper table is now landing in `hako_llvmc_ffi_compiler_state.inc`; keep route/placement decisions separate from raw state access.
+- String concat emit helpers now live in `hako_llvmc_ffi_string_concat_emit.inc`; keep concat routing thin and avoid re-growing the wrapper body.

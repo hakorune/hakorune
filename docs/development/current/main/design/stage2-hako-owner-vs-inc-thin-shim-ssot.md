@@ -72,7 +72,8 @@ Related:
 - Current `lang/c-abi/shims/*.inc` are not yet pure thin shims.
 - `hako_llvmc_ffi_common.inc` is closest to a thin shim + native support bundle.
 - `hako_llvmc_ffi_string_concat_match.inc` is mostly compiler-state / semantic placement owner.
-- `hako_llvmc_ffi_string_concat_lowering.inc` mixes semantic lowering owner with final emit glue.
+- `hako_llvmc_ffi_string_concat_lowering.inc` now wraps the concat emit seam and is no longer the main owner surface.
+- `hako_llvmc_ffi_string_concat_emit.inc` now holds the string concat emit helpers and route-adjacent trace hooks.
 - `hako_llvmc_ffi_generic_method_lowering.inc` is mostly semantic owner plus final call emission.
 - `hako_llvmc_ffi_compiler_state.inc` now holds the shared copy/origin/type/const helper tables and is the first compiler-state seam landed.
 - `hako_llvmc_ffi_pure_compile.inc` is compiler orchestrator owner and still carries route decisions.
@@ -87,14 +88,16 @@ Related:
 5. First code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc` before any semantic owner migration.
 6. Second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc` so method routing is no longer mixed with emit logic.
 7. Third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc` so shared origin/type/const state is no longer in the orchestrator body.
-8. Move semantic owner and compiler-owner decisions into `.hako`.
-9. Shrink `.inc` to thin shim responsibilities only.
+8. Fourth code slice: split string concat emit helpers into `hako_llvmc_ffi_string_concat_emit.inc` so concat lowering no longer owns the emit body.
+9. Move semantic owner and compiler-owner decisions into `.hako`.
+10. Shrink `.inc` to thin shim responsibilities only.
 
 ## Landed Slices
 
 - `hako_llvmc_ffi_emit_seam.inc`
 - `hako_llvmc_ffi_generic_method_match.inc`
 - `hako_llvmc_ffi_compiler_state.inc`
+- `hako_llvmc_ffi_string_concat_emit.inc`
 
 ## Non-Goals
 
