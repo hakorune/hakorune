@@ -5,6 +5,7 @@ Date: 2026-03-23
 Scope: `hakorune` の独り立ちを「repo から Rust を即 delete すること」ではなく、kernel meaning/policy の owner を `.hako` 側へ移すこととして固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
@@ -32,6 +33,7 @@ Related:
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 bridge/proof line / stage2+ selfhost mainline` であり、kernel authority zero は後者の owner cutover を指す。
 - raw substrate micro-optimization と kernel owner cutover を混ぜて、測定や責務境界を濁さない。
+- phase plan SSOT is `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
 
 ## 0. Axis Lock
 

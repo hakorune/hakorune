@@ -67,6 +67,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `.inc` is a transitional partition format, not the long-term architectural noun
 - current SSOT:
   - `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
+  - `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   - `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
   - `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`

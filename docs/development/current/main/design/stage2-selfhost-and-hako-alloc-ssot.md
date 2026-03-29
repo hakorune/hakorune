@@ -6,6 +6,7 @@ Scope: `stage0/stage1/stage2+/stage3` の bootstrap/distribution 軸と、`.hako
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md
   - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md
   - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md

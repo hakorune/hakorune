@@ -5,6 +5,7 @@ Date: 2026-03-17
 Scope: `ArrayBox` / `MapBox` の current owner truth と、`0rust` に向けた ring/owner cutover 順序を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/ring1-core-provider-scope-ssot.md
@@ -19,7 +20,7 @@ Related:
 ## 0. Conclusion
 
 - `ArrayBox` / `MapBox` は `ring0` ではなく `ring1` の責務である。
-- stage0 は Rust bootstrap keep、stage1 は bridge / proof line、stage2+ は final mainline という stage 読みは別軸で固定する。
+- stage0 は Rust bootstrap keep、stage1 は bridge/proof line、stage2+ は final mainline という stage 読みは別軸で固定する。
 - stage1 は `Array phase` / `Map phase` / `RuntimeData cleanup phase` を domain-by-domain に完了してよいが、stage2+ の final mainline そのものにはならない。
 - current active direction is to move `ArrayBox` / `MapBox` user-visible semantics into `.hako` ring1 collection core.
 - current status is done-enough owner shift, not end-state completion; raw substrate still remains Rust-owned.

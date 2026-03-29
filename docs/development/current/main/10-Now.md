@@ -76,6 +76,7 @@ Related:
     - stage2+ is now read as mostly `.hako` authority / thin `.inc` shim / native metal keep
     - stage1 may complete `Array phase` / `Map phase` / `RuntimeData cleanup phase` while remaining bridge/proof line
     - the new SSOT is `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
+    - phase plan SSOT is `kernel-implementation-phase-plan-ssot.md`
     - `.hako` complete in this lane means authority/mainline completion, not native zero
     - standard distribution reading is `hakoruneup + self-contained release bundle`, not a single stage artifact
     - boundary truth is not owned by `.inc`; `.inc` remains thin artifact/shim space
