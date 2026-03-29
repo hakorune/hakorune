@@ -54,3 +54,4 @@ Rules:
   widening the top-level owner shell.
 - During backend-owner cutover, flipped boundary shapes move out of daily ownership first; delete/archive timing is tracked in the phase-29x legacy ledger.
 - Current stage2 direction is moving owner decisions into `.hako`; treat these partitions as transitional thin shim surfaces, not permanent semantic owners.
+- First code slices now extracted emit primitives into `hako_llvmc_ffi_emit_seam.inc`, and generic-method routing/classification is being split toward `hako_llvmc_ffi_generic_method_match.inc`.

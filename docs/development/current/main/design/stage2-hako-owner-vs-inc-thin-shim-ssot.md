@@ -84,8 +84,9 @@ Related:
 3. Introduce a compiler-state capability boundary for origin/type/source-reg/future-use facts.
 4. Introduce a lowering builder seam so direct LLVM IR text emission is no longer the owner surface.
 5. First code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc` before any semantic owner migration.
-6. Move semantic owner and compiler-owner decisions into `.hako`.
-7. Shrink `.inc` to thin shim responsibilities only.
+6. Second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc` so method routing is no longer mixed with emit logic.
+7. Move semantic owner and compiler-owner decisions into `.hako`.
+8. Shrink `.inc` to thin shim responsibilities only.
 
 ## Non-Goals
 

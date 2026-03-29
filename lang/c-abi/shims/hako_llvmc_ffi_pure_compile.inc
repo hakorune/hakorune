@@ -2148,6 +2148,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                   classify_generic_method_route(bid, ii, bname, mname, recv);
               trace_generic_method_route_state(
                   ii, dst, recv, ctype, bname, mname, a0, a1, &route);
+              enum GenericMethodEmitKind emit_kind =
+                  classify_generic_method_emit_kind(bname, mname, &route, a0, a1);
               append_array_string_indexof_method_receiver_args(
                   route.deferred_array_string_indexof,
                   recv,
@@ -2167,6 +2169,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                     recv,
                     a0,
                     a1,
+                    emit_kind,
                     &route,
                     ab,
                     sizeof(ab),
