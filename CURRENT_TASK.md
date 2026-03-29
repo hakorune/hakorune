@@ -70,8 +70,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   1. docs-first owner/shim SSOT
   2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
   3. define compiler-state capability and lowering builder seam
-  4. move semantic owner decisions to `.hako`
-  5. thin shim cleanup and README sync
+  4. first code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc`
+  5. move semantic owner decisions to `.hako`
+  6. thin shim cleanup and README sync
 - next exact leaf:
   - do not touch runtime code until the owner/shim split is pinned in docs
   - keep native metal leafs resident; this lane is about authority migration, not full source-zero

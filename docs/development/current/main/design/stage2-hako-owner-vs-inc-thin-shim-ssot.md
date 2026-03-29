@@ -83,8 +83,9 @@ Related:
 2. Classify `.inc` bodies into semantic owner, compiler owner, thin shim, and native leaf.
 3. Introduce a compiler-state capability boundary for origin/type/source-reg/future-use facts.
 4. Introduce a lowering builder seam so direct LLVM IR text emission is no longer the owner surface.
-5. Move semantic owner and compiler-owner decisions into `.hako`.
-6. Shrink `.inc` to thin shim responsibilities only.
+5. First code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc` before any semantic owner migration.
+6. Move semantic owner and compiler-owner decisions into `.hako`.
+7. Shrink `.inc` to thin shim responsibilities only.
 
 ## Non-Goals
 
@@ -92,4 +93,3 @@ Related:
 - Do not add a third public ABI.
 - Do not force every `.inc` byte into `.hako` before the capability vocabulary is ready.
 - Do not mix this owner/shim cut with the perf-kilo hot-path lane.
-

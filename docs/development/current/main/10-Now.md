@@ -82,8 +82,9 @@ Related:
     1. docs-first owner/shim SSOT
     2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
     3. define compiler-state capability and lowering builder seam
-    4. move semantic owner decisions to `.hako`
-    5. thin shim cleanup and README sync
+    4. first code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc`
+    5. move semantic owner decisions to `.hako`
+    6. thin shim cleanup and README sync
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:

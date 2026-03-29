@@ -1795,6 +1795,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       hako_llvmc_emit_entry_header(f, &selection);
       // Emit blocks
       #define EMIT(...) do { fprintf(f, __VA_ARGS__); } while(0)
+      #include "hako_llvmc_ffi_emit_seam.inc"
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void emit_phi(long long dst, struct Incoming* in, int in_n){
         int phi_ty = get_type(dst);
@@ -1813,11 +1814,6 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         EMIT("\n");
       }
       auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; long long lhs_base=resolve_copy_source_reg(lhs_reg), rhs_base=resolve_copy_source_reg(rhs_reg); int lc=has_const(lhs_base,&vL), rc=has_const(rhs_base,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_base, lc?"":"", rc?"":"%r", rc?vR:rhs_base, rc?"":""); set_type(dst,T_I1); }
-      auto void emit_branch(long long cond_reg, long long then_id, long long else_id){ long long cond_base=resolve_copy_source_reg(cond_reg); int ty=get_type(cond_reg); if (ty==T_I1) EMIT("  br i1 %%r%lld, label %%bb%lld, label %%bb%lld\n", cond_base, then_id, else_id); else { long long cv; if (has_const(cond_base,&cv)) { EMIT("  %%t%lld = icmp ne i64 %lld, 0\n", cond_reg, cv); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} else { EMIT("  %%t%lld = icmp ne i64 %%r%lld, 0\n", cond_reg, cond_base); EMIT("  br i1 %%t%lld, label %%bb%lld, label %%bb%lld\n", cond_reg, then_id, else_id);} } }
-      auto void emit_jump(long long target){ EMIT("  br label %%bb%lld\n", target); }
-      auto void emit_ret(long long reg){ long long cv; long long base=resolve_copy_source_reg(reg); if (has_const(base,&cv)) EMIT("  ret i64 %lld\n", cv); else EMIT("  ret i64 %%r%lld\n", base); }
-      auto void emit_call_assign(long long dst, const char* sym, const char* args){ EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, sym, args); set_type(dst, T_I64); }
-      auto void emit_call_noret(const char* sym, const char* args){ EMIT("  call i64 @\"%s\"(%s)\n", sym, args); }
 
       for (size_t bi=0; bi<blen; bi++) {
         yyjson_val* b = yyjson_arr_get(blocks, bi);
