@@ -109,8 +109,10 @@ Related:
 16. Tenth code slice: mirror the generic method `substring` action route in `hako_llvmc_ffi_generic_method_substring_policy.inc`.
 17. Eleventh code slice: mirror the generic method `get` fallback route in `hako_llvmc_ffi_generic_method_get_policy.inc`.
 18. Twelfth code slice: extract generic method GET window helpers into `hako_llvmc_ffi_generic_method_get_window.inc` so producer-side probe logic is not welded to the orchestrator body.
-19. Move remaining semantic owner and compiler-owner decisions into `.hako`.
-20. Shrink `.inc` to thin shim responsibilities only.
+19. Thirteenth code slice: extract generic method GET lowering orchestration into `hako_llvmc_ffi_generic_method_get_lowering.inc` so the dispatcher stops owning the window/fallback bundle directly.
+20. Fourteenth code slice: extract string concat producer-window helpers into `hako_llvmc_ffi_string_concat_window.inc` so producer/use/future-use logic is not welded to `string_concat_match.inc`.
+21. Move remaining semantic owner and compiler-owner decisions into `.hako`.
+22. Shrink `.inc` to thin shim responsibilities only.
 
 ## Landed Slices
 
@@ -128,6 +130,8 @@ Related:
 - `hako_llvmc_ffi_generic_method_substring_policy.inc`
 - `hako_llvmc_ffi_generic_method_get_policy.inc`
 - `hako_llvmc_ffi_generic_method_get_window.inc`
+- `hako_llvmc_ffi_generic_method_get_lowering.inc`
+- `hako_llvmc_ffi_string_concat_window.inc`
 
 ## Non-Goals
 

@@ -58,6 +58,10 @@ Current partitions:
   - compiler-side mirror of `.hako` generic method `get` fallback route
 - `hako_llvmc_ffi_generic_method_get_window.inc`
   - compiler-state-heavy `GET` window helper bundle for producer-side probe logic
+- `hako_llvmc_ffi_generic_method_get_lowering.inc`
+  - thin `GET` dispatcher seam that consumes `get_policy` and `get_window`
+- `hako_llvmc_ffi_string_concat_window.inc`
+  - producer-window helper seam for `string_concat_match.inc`
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
@@ -89,3 +93,5 @@ Rules:
 - `hako_llvmc_ffi_generic_method_substring_policy.inc` is the fourth generic-method action seam; keep `substring` route ownership out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_get_policy.inc` is the eleventh-stage fallback seam; keep only final `get` route ownership there and leave window/RMW/indexOf defer logic in compiler-state-heavy lowering for now.
 - `hako_llvmc_ffi_generic_method_get_window.inc` is the `GET` producer-window helper bundle; keep its producer-side probe logic thin and avoid growing it back into `pure_compile.inc`.
+- `hako_llvmc_ffi_generic_method_get_lowering.inc` is the dispatcher seam for `GET`; keep the case body out of `generic_method_lowering.inc`.
+- `hako_llvmc_ffi_string_concat_window.inc` is the producer-window helper seam for string concat; keep helper logic out of `string_concat_match.inc` once the migration settles.

@@ -234,6 +234,9 @@
         return 1;
       }
 
+      #include "hako_llvmc_ffi_string_concat_window.inc"
+
+      #if 0
       auto int find_single_use_inst(
           size_t start_ii,
           size_t ilen,
@@ -447,6 +450,7 @@
           return 1;
         }
       }
+      #endif
 
       auto int try_emit_string_insert_mid_window_call(
           FILE* f,
