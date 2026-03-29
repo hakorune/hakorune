@@ -78,8 +78,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   9. fifth code slice: mirror string-chain route policy in `hako_llvmc_ffi_string_chain_policy.inc`
   10. second semantic-owner slice: land generic collection method vocabulary in `.hako`
   11. sixth code slice: mirror generic method policy in `hako_llvmc_ffi_generic_method_policy.inc`
-  12. move remaining semantic owner decisions to `.hako`
-  13. thin shim cleanup and README sync
+  12. seventh code slice: mirror generic method len route in `hako_llvmc_ffi_generic_method_len_policy.inc`
+  13. move remaining semantic owner decisions to `.hako`
+  14. thin shim cleanup and README sync
 - landed so far:
   - `hako_llvmc_ffi_emit_seam.inc`
   - `hako_llvmc_ffi_generic_method_match.inc`
@@ -89,6 +90,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `hako_llvmc_ffi_string_chain_policy.inc`
   - `lang/src/runtime/collections/method_policy_box.hako`
   - `hako_llvmc_ffi_generic_method_policy.inc`
+  - `hako_llvmc_ffi_generic_method_len_policy.inc`
 - next exact leaf:
   - do not touch runtime code until the owner/shim split is pinned in docs
   - keep native metal leafs resident; this lane is about authority migration, not full source-zero

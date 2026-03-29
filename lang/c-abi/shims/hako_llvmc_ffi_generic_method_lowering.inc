@@ -1,4 +1,5 @@
 #include "hako_llvmc_ffi_generic_method_match.inc"
+#include "hako_llvmc_ffi_generic_method_len_policy.inc"
 
       auto int try_emit_non_indexof_generic_method_call(
           FILE* f,
@@ -25,10 +26,8 @@
         int runtime_array_get = plan.runtime_array_get;
         int runtime_array_push = plan.runtime_array_push;
         int runtime_array_has = plan.runtime_array_has;
-        int runtime_string = plan.runtime_string;
         int runtime_array_string = plan.runtime_array_string;
         int runtime_map_get = plan.runtime_map_get;
-        int runtime_map_size = plan.runtime_map_size;
         int runtime_map_has = plan.runtime_map_has;
 
         switch (emit_kind) {
@@ -42,29 +41,35 @@
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_SET: {
             int array_set_plain_i64 = a1 && is_plain_i64_value(a1);
             int array_set_string_handle = a1 && get_origin(a1) == ORG_STRING;
+            enum GenericMethodSetRouteKind set_route =
+                classify_generic_method_set_route(
+                    bname, &plan, array_set_plain_i64, array_set_string_handle);
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
             if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
-            if (bname && !strcmp(bname, "MapBox")) {
-              fprintf(f, "  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
-            } else if (bname && !strcmp(bname, "ArrayBox")) {
-              if (array_set_plain_i64) fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
-              else if (array_set_string_handle) fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
-              else fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
-            } else if (runtime_array_string || runtime_array_push || runtime_array_get || runtime_array_len || runtime_array_has) {
-              if (runtime_array_string && array_set_string_handle) fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
-              else if (runtime_array_string) fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
-              else if (array_set_plain_i64) fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
-              else fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
-              if (a1 && get_origin(a1) == ORG_STRING) {
-                promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-              }
+            switch (set_route) {
+              case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY:
+                fprintf(f, "  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
+                break;
+              case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64:
+                fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
+                break;
+              case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING:
+                fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
+                break;
+              case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY:
+                fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
+                break;
+              case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE:
+              default:
+                return -1;
+            }
+            if (should_promote_array_string_birth_after_set(&plan, array_set_string_handle)) {
+              promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
+              promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
               if (recv) {
                 set_origin(recv, ORG_ARRAY_STRING_BIRTH);
                 set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
               }
-            } else {
-              return -1;
             }
             return 1;
           }
@@ -150,29 +155,7 @@
           }
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_LEN:
-            if ((bname && !strcmp(bname, "MapBox")) || runtime_map_size) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.map.entry_count_h\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.map.entry_count_h\"(%s)\n", ab);
-              }
-            } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_len || runtime_array_string) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_len_h\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.array.slot_len_h\"(%s)\n", ab);
-              }
-            } else if (runtime_string) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.string.len_h\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-                remember_string_length_call(dst, recv);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.string.len_h\"(%s)\n", ab);
-              }
-            } else {
+            if (!emit_generic_method_len_by_policy(f, bname, dst, recv, &plan, ab)) {
               return -1;
             }
             return 1;

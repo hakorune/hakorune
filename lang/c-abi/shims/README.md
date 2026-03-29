@@ -46,6 +46,8 @@ Current partitions:
   - generic method match/plan helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_generic_method_policy.inc`
   - compiler-side mirror of `.hako` generic collection/runtime method vocabulary
+- `hako_llvmc_ffi_generic_method_len_policy.inc`
+  - compiler-side mirror of `.hako` generic method `len` action route
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
@@ -71,3 +73,4 @@ Rules:
 - String concat emit helpers now live in `hako_llvmc_ffi_string_concat_emit.inc`; keep concat routing thin and avoid re-growing the wrapper body.
 - `hako_llvmc_ffi_string_chain_policy.inc` is the compiler-side bridge to `lang/src/runtime/kernel/string/chain_policy.hako`; keep route names aligned and avoid reopening the `pure_compile` ladder.
 - `hako_llvmc_ffi_generic_method_policy.inc` is the compiler-side bridge to `lang/src/runtime/collections/method_policy_box.hako`; keep emit-kind names aligned and avoid re-growing `generic_method_match.inc`.
+- `hako_llvmc_ffi_generic_method_len_policy.inc` is the first generic-method action seam; keep `len` route ownership out of `generic_method_lowering.inc`.

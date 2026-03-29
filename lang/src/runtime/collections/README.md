@@ -92,7 +92,9 @@ Rule:
   - `generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string)`
     -> stage2 semantic-owner vocabulary for generic collection/runtime method lowering
   - compiler-side mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc`
-  - current scope stays narrow: emit-kind naming only, not full route lowering
+  - `len_route(box_name, runtime_map_size, runtime_array_len, runtime_array_string, runtime_string)`
+    -> first generic-method action route vocabulary
+  - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_len_policy.inc`
 
 ## Current proof lock
 
