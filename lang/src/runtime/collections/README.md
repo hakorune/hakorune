@@ -88,6 +88,11 @@ Rule:
   - `len_i64(handle)` -> `nyash.string.len_h`
   - `try_handle(seg, regs, mname)`
     -> owns adapter-on `StringBox.length/len/size` orchestration for `mir_call_v1_handler`
+- `method_policy_box.hako`
+  - `generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string)`
+    -> stage2 semantic-owner vocabulary for generic collection/runtime method lowering
+  - compiler-side mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_policy.inc`
+  - current scope stays narrow: emit-kind naming only, not full route lowering
 
 ## Current proof lock
 

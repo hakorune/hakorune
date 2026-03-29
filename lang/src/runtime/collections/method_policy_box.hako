@@ -1,0 +1,62 @@
+// CollectionMethodPolicyBox — stage2 collection/runtime method vocabulary owner
+// Responsibility:
+// - own generic method emit-kind names on the .hako side
+// - keep visible collection/runtime method categories out of C-side owner drift
+// Non-responsibility:
+// - raw ABI dispatch
+// - handle allocation / registry
+// - final emit lowering
+
+static box CollectionMethodPolicyBox {
+  emit_none() {
+    return "None"
+  }
+
+  emit_birth_zero() {
+    return "BirthZero"
+  }
+
+  emit_set() {
+    return "Set"
+  }
+
+  emit_get() {
+    return "Get"
+  }
+
+  emit_len() {
+    return "Len"
+  }
+
+  emit_push() {
+    return "Push"
+  }
+
+  emit_substring() {
+    return "Substring"
+  }
+
+  emit_has() {
+    return "Has"
+  }
+
+  generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string) {
+    if method_name == null { return me.emit_none() }
+    if method_name == "birth" && arg0 == 0 && arg1 == 0 {
+      if box_name == "ArrayBox" || box_name == "MapBox" {
+        return me.emit_birth_zero()
+      }
+    }
+    if method_name == "set" { return me.emit_set() }
+    if method_name == "get" { return me.emit_get() }
+    if method_name == "len" || method_name == "length" || method_name == "size" {
+      return me.emit_len()
+    }
+    if method_name == "push" { return me.emit_push() }
+    if method_name == "substring" && runtime_string == 1 {
+      return me.emit_substring()
+    }
+    if method_name == "has" { return me.emit_has() }
+    return me.emit_none()
+  }
+}

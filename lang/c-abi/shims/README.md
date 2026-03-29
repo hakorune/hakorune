@@ -44,6 +44,8 @@ Current partitions:
   - `mir_call` prepass need-flag scan helpers used before generic pure lowering emits LLVM IR
 - `hako_llvmc_ffi_generic_method_match.inc`
   - generic method match/plan helpers used by pure-first `mir_call`
+- `hako_llvmc_ffi_generic_method_policy.inc`
+  - compiler-side mirror of `.hako` generic collection/runtime method vocabulary
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
@@ -68,3 +70,4 @@ Rules:
 - The shared compiler-state helper table is now landing in `hako_llvmc_ffi_compiler_state.inc`; keep route/placement decisions separate from raw state access.
 - String concat emit helpers now live in `hako_llvmc_ffi_string_concat_emit.inc`; keep concat routing thin and avoid re-growing the wrapper body.
 - `hako_llvmc_ffi_string_chain_policy.inc` is the compiler-side bridge to `lang/src/runtime/kernel/string/chain_policy.hako`; keep route names aligned and avoid reopening the `pure_compile` ladder.
+- `hako_llvmc_ffi_generic_method_policy.inc` is the compiler-side bridge to `lang/src/runtime/collections/method_policy_box.hako`; keep emit-kind names aligned and avoid re-growing `generic_method_match.inc`.

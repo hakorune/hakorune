@@ -75,6 +75,8 @@ Related:
 - `hako_llvmc_ffi_string_concat_lowering.inc` now wraps the concat emit seam and is no longer the main owner surface.
 - `hako_llvmc_ffi_string_concat_emit.inc` now holds the string concat emit helpers and route-adjacent trace hooks.
 - `hako_llvmc_ffi_string_chain_policy.inc` now mirrors the first `.hako` string-chain policy vocabulary so `pure_compile` no longer owns the concat route ladder directly.
+- `lang/src/runtime/collections/method_policy_box.hako` is the second `.hako` semantic-owner landing for generic collection/runtime method emit vocabulary.
+- `hako_llvmc_ffi_generic_method_policy.inc` now mirrors that generic method vocabulary so emit-kind naming is no longer owned inside `generic_method_match.inc`.
 - `hako_llvmc_ffi_generic_method_lowering.inc` is mostly semantic owner plus final call emission.
 - `hako_llvmc_ffi_compiler_state.inc` now holds the shared copy/origin/type/const helper tables and is the first compiler-state seam landed.
 - `hako_llvmc_ffi_pure_compile.inc` is compiler orchestrator owner and still carries route decisions.
@@ -93,8 +95,10 @@ Related:
 8. Fourth code slice: split string concat emit helpers into `hako_llvmc_ffi_string_concat_emit.inc` so concat lowering no longer owns the emit body.
 9. First semantic-owner slice: land string-chain route / retained-form vocabulary under `lang/src/runtime/kernel/string/`.
 10. Fifth code slice: mirror that route vocabulary in `hako_llvmc_ffi_string_chain_policy.inc` so orchestrator ladders shrink before full `.hako` cutover.
-11. Move remaining semantic owner and compiler-owner decisions into `.hako`.
-12. Shrink `.inc` to thin shim responsibilities only.
+11. Second semantic-owner slice: land generic collection/runtime method vocabulary under `lang/src/runtime/collections/`.
+12. Sixth code slice: mirror that method vocabulary in `hako_llvmc_ffi_generic_method_policy.inc`.
+13. Move remaining semantic owner and compiler-owner decisions into `.hako`.
+14. Shrink `.inc` to thin shim responsibilities only.
 
 ## Landed Slices
 
@@ -104,6 +108,8 @@ Related:
 - `hako_llvmc_ffi_string_concat_emit.inc`
 - `lang/src/runtime/kernel/string/chain_policy.hako`
 - `hako_llvmc_ffi_string_chain_policy.inc`
+- `lang/src/runtime/collections/method_policy_box.hako`
+- `hako_llvmc_ffi_generic_method_policy.inc`
 
 ## Non-Goals
 
