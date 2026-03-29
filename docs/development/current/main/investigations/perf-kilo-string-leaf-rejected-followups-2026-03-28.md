@@ -529,6 +529,36 @@ reject
 
 - only if a future upstream placement wave proves the `out.length()` observer is still the dominant residue after retained/store boundary restructuring
 
+## Rejected Cut Q
+
+### Name
+
+combined direct-store consumer widening plus insert-recipe `string.length()` arithmetic
+
+### Intent
+
+- reopen the `array.set(..., out)` plus trailing `out.length()` consumer window only for the insert-shaped concat recipe
+- pair that widening with the compiler-side `suffix_len + const_middle_len` arithmetic rewrite so the extra observer disappears with the wider store recipe
+
+### Result
+
+- same-artifact proof: `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
+- stable main: `kilo_kernel_small_hk = 732 ms` (`repeat=3`)
+- kept comparison line remains `kilo_kernel_small_hk = 668 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- the combined compiler-side rewrite still loses to the kept concat3 reuse-only line on main
+- reopening the widened consumer window does not buy enough retained-store birth-density reduction on this machine
+
+### Reopen Condition
+
+- only if a future placement wave materially changes the retained/store boundary and a fresh ASM read still shows the trailing `length()` observer as a dominant residue
+
 ### Reopen Condition
 
 - only if a future asm read shows immediate post-birth observer traffic dominating and a stronger retained/store-boundary placement proof says the first observer should stay on cache

@@ -109,6 +109,10 @@ Interpretation:
   - lowering `string.length()` on the insert-shaped concat recipe into `suffix_len + const_middle_len` improved meso (`kilo_meso_substring_concat_len = 33 ms`, `kilo_meso_substring_concat_array_set = 63 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`)
   - the same artifact pair still regressed main to `kilo_kernel_small_hk = 695 ms` versus the kept `668 ms` concat3 reuse-only line, so the arithmetic observer rewrite is not keepable on this machine
   - keep the runtime `nyash.string.len_h` observer until a future upstream placement wave changes the retained/store boundary
+- rejected combined direct-store widening plus insert-recipe length arithmetic
+  - reopening the direct-store consumer window only for insert-shaped concat and pairing it with the arithmetic `length()` rewrite kept meso acceptable (`kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`)
+  - the same artifact pair still regressed main to `kilo_kernel_small_hk = 732 ms`, so the combined compiler-side rewrite is still worse than the kept `668 ms` line
+  - keep both slices rejected until a future placement wave changes the retained/store boundary enough to justify reopening them together
 - rejected `insert_hsi` one-resolve helper
   - the helper-backed single-decision route improved the first `repeat=3` probe (`kilo_kernel_small_hk = 694 ms`) but drifted back to `727 ms` under `repeat=20`
   - keep the current helper-backed `insert_hsi` lane and use the documented `repeat=20` recheck rule on WSL before closing similar slices
