@@ -188,6 +188,41 @@ reject
 
 - only if a future asm read shows the generic `store_string_box_from_string_source(...)` / `try_retarget_borrowed_string_slot_with_source(...)` path itself dominating after the current in-place source borrow cut
 
+## Rejected Cut F
+
+### Name
+
+short-slice threshold 8→7 plus `StringViewBox` borrow expansion
+
+### Intent
+
+- lower `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` from `8` to `7`
+- let `maybe_borrow_string_handle_with_epoch(...)` / `try_retarget_borrowed_string_slot_with_source(...)` borrow `StringViewBox` sources too
+- reduce birth density by retaining the 8-byte substring halves as views
+
+### Result
+
+- stable `kilo_kernel_small_hk`: `825 ms`
+- meso:
+  - `kilo_meso_substring_concat_len = 37 ms`
+  - `kilo_meso_substring_concat_array_set = 67 ms`
+  - `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- the current bench shapes still make `<= 8 bytes` the better tradeoff for this wave
+- the view-retain experiment did not unlock the hot path enough to offset extra view / borrow machinery
+- the borrowed alias expansion is structurally reasonable, but it does not touch the current hot birth path enough to keep
+
+### Reopen Condition
+
+- only if a fresh same-artifact proof shows `<= 7` materially improves stable main without increasing `Registry::alloc/get` or `BoxBase::new` pressure
+- and only if the relevant path actually exercises `StringViewBox` borrowing in the hot lane
+
 ## Operational Rule
 
 - 1 cut = 1 hot leaf に戻す

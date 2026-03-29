@@ -74,6 +74,8 @@ Interpretation:
 - blanket `#[inline(always)]` on host registry / hako-forward string wrappers
 - `concat_hs` duplicate span-resolution removal plus span-resolver inlining
 - specialized `StringBox`-only store leaf under `nyash.array.set_his`
+- short-slice threshold `<= 7 bytes` plus `StringViewBox` borrow expansion
+  - lowering `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` to `7` and widening string-source borrowing to `StringViewBox` did not improve the current same-artifact lane; keep the flat `<= 8 bytes` policy for this wave
 
 ## Current Stop-Line
 
