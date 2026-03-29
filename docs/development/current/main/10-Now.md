@@ -87,6 +87,7 @@ Related:
       - rejected follow-up: `ArrayBox.items` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
       - rejected follow-up: `host_handles.table` `parking_lot::RwLock -> std::sync::RwLock` regressed both micro and main
       - rejected follow-up: backend-private adjacent fused `get -> +const -> set -> get` leaf is now explained as a route-shape miss, not a mysterious symbol miss
+      - rejected follow-up: `StringViewBox::new(...)` stable-id derivation (to avoid `BoxBase::new()`) regressed stable main to `814 ms` under `repeat=3`, so keep the current atomic view birth until fresh evidence appears
     - current live no-replay array window is semantic `get -> copy* -> const 1 -> add -> set`
     - current micro route now proves the semantic window on the same artifact:
       - `array_rmw_window result=hit`

@@ -323,3 +323,31 @@ reject
 
 - only if a fresh same-artifact proof shows `concat_pair_from_spans(...)` itself becoming a dominant hot tier symbol
 - and only if the span-length emptiness check improves both meso and main on the same artifact pair
+
+## Rejected Cut J
+
+### Name
+
+`StringViewBox::new(...)` stable-id derivation to avoid `BoxBase::new()`
+
+### Intent
+
+- replace the atomic `BoxBase::new()` inside `StringViewBox::new(...)` with a derived stable id from the source handle / span
+- keep the view contract otherwise unchanged
+
+### Result
+
+- stable `kilo_kernel_small_hk`: `668 ms -> 814 ms` under `repeat=3`
+
+### Judgment
+
+reject
+
+### Why
+
+- the derived id did not buy back enough whole-program cost to justify the identity change
+- `BoxBase::new()` is still hot in the `StringViewBox` birth path, but this rewrite was not the right fix on this machine
+
+### Reopen Condition
+
+- only after fresh asm evidence shows the atomic id allocation itself is the main cost and view identity can be changed without regressing main
