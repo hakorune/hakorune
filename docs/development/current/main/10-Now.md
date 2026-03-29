@@ -144,6 +144,9 @@ Related:
       - compiler-local placement trace is available under `NYASH_LLVM_ROUTE_TRACE=1`; use the narrow stages `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route` when you need to decide the next placement cut
       - Rust-side string trace is split into `placement`, `carrier`, `sink`, and `observer` lines under the same route-trace gate; it now shows `BoundaryKind` / `RetainedForm`, borrowed substring lineage, freeze/birth sinks, and post-store observer resolution without reopening leaf hacks
       - gate split note: test probes read `NYASH_LLVM_ROUTE_TRACE`, runtime reads `NYASH_VM_ROUTE_TRACE`; the bench compare harness suppresses both stdout and stderr, so the visible probe evidence comes from the unit contracts below
+      - canonical probe entrypoint: `tools/perf/run_kilo_string_trace_probe.sh`
+        - it collects the unit trace contracts into one summary without touching timing lanes
+        - bench compare stays timing-only; do not make it carry trace output
       - trace probe snapshot is frozen via unit contracts (`NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel -- --nocapture`); `bench_compare_c_py_vs_hako.sh` still suppresses those lines, so use the unit traces for placement/carrier/sink/observer inspection:
         - `string_concat_hs_contract` prints `placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> placement=return_handle`
         - `string_insert_hsi_contract` prints `observer=fast_hit -> placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> observer=fast_hit -> placement=return_handle`

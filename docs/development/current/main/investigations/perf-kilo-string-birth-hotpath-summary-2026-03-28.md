@@ -92,6 +92,9 @@ Interpretation:
 - the narrow placement tags are `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route`
 - Rust string trace is split into `placement`, `carrier`, `sink`, and `observer` lines under the same gate; use it to inspect `BoundaryKind` / `RetainedForm`, carrier lineage, freeze sinks, and post-store observer resolution
 - trace gate split: `#[cfg(test)]` probes read `NYASH_LLVM_ROUTE_TRACE`, while non-test runtime code reads `NYASH_VM_ROUTE_TRACE`; bench compare suppresses both stdout and stderr, so use the unit probes for visible trace capture
+- canonical probe entrypoint: `tools/perf/run_kilo_string_trace_probe.sh`
+  - bundles the unit trace contracts into one probe-only summary and keeps timing lanes clean
+  - do not move trace capture back into `bench_compare_c_py_vs_hako.sh`
 - use the trace only as a probe; do not treat it as a new acceptance lane
 - probe result snapshot:
   - `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel string_concat_hs_contract -- --nocapture`

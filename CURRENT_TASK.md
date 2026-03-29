@@ -167,6 +167,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - compiler-local placement trace is available under `NYASH_LLVM_ROUTE_TRACE=1`; use the narrow stages `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route` when deciding the next placement cut
     - Rust-side string trace is now split into `placement`, `carrier`, `sink`, and `observer` lines under the same route-trace gate; use it to see `BoundaryKind` / `RetainedForm`, borrowed substring lineage, freeze/birth sinks, and post-store observer resolution without reopening leaf hacks
     - trace gate split: tests consume `NYASH_LLVM_ROUTE_TRACE`, runtime consumes `NYASH_VM_ROUTE_TRACE`; the bench compare harness still suppresses both stdout and stderr, so the visible probe evidence comes from the unit contracts below
+    - canonical probe entrypoint: `tools/perf/run_kilo_string_trace_probe.sh`
+      - it collects the unit trace contracts into one summary without touching timing lanes
+      - bench compare stays timing-only; do not make it carry trace output
     - trace probe results were frozen via `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel -- --nocapture` (bench compare still suppresses trace output):
       - `string_concat_hs_contract`: `placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> placement=return_handle`
       - `string_insert_hsi_contract`: `observer=fast_hit -> placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> observer=fast_hit -> placement=return_handle`
