@@ -232,6 +232,17 @@
           fprintf(f, "  %%r%lld = call i64 @\"nyash.string.concat3_hhh\"(%s)\n", dst, ab);
           finalize_string_concat_result(dst);
           remember_string_concat_triple(dst, a, b, rhs);
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[256];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "dst=%lld lhs=%lld rhs=%lld producer_kind=Concat3 boundary_kind=Store post_store_use=None known_len=-1 direct_set_only=0",
+                dst,
+                lhs,
+                rhs);
+            hako_llvmc_emit_route_trace("string_concat3_window", "hit", "pair_lhs_match", extra);
+          }
           return 1;
         }
         if (find_string_concat_pair(rhs, &a, &b)) {
@@ -241,6 +252,17 @@
           fprintf(f, "  %%r%lld = call i64 @\"nyash.string.concat3_hhh\"(%s)\n", dst, ab);
           finalize_string_concat_result(dst);
           remember_string_concat_triple(dst, lhs, a, b);
+          if (hako_llvmc_route_trace_enabled()) {
+            char extra[256];
+            snprintf(
+                extra,
+                sizeof(extra),
+                "dst=%lld lhs=%lld rhs=%lld producer_kind=Concat3 boundary_kind=Store post_store_use=None known_len=-1 direct_set_only=0",
+                dst,
+                lhs,
+                rhs);
+            hako_llvmc_emit_route_trace("string_concat3_window", "hit", "pair_rhs_match", extra);
+          }
           return 1;
         }
         return 0;

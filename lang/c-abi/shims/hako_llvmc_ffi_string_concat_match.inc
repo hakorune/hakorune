@@ -93,6 +93,24 @@
         return 0;
       }
 
+      auto const char* string_concat_producer_kind_for_reg(long long reg) {
+        long long lhs = 0;
+        long long rhs = 0;
+        long long first = 0;
+        long long second = 0;
+        long long third = 0;
+        long long src = 0;
+        long long start = 0;
+        long long end = 0;
+        long long base = resolve_copy_source_reg(reg);
+        if (!base) return "Unknown";
+        if (find_string_concat_triple(base, &first, &second, &third)) return "Concat3";
+        if (find_string_concat_pair(base, &lhs, &rhs)) return "ConcatPair";
+        if (find_string_substring_call(base, &src, &start, &end)) return "Substring";
+        if (get_str_const(base) != NULL) return "ConstString";
+        return "Unknown";
+      }
+
       auto int is_known_string_concat_operand(long long reg) {
         if (!reg) return 0;
         if (get_origin(reg) == ORG_STRING) return 1;
@@ -287,13 +305,18 @@
           long long consumer_reg,
           long long first_reg,
           long long second_reg,
-          long long third_reg) {
+          long long third_reg,
+          const char* producer_kind,
+          const char* boundary_kind,
+          const char* post_store_use,
+          long long known_len,
+          int direct_set_only) {
         char extra[320];
         if (!hako_llvmc_route_trace_enabled()) return;
         snprintf(
             extra,
             sizeof(extra),
-            "ii=%zu ilen=%zu reg=%lld use_ii=%zu consumer=%lld first=%lld second=%lld third=%lld",
+            "ii=%zu ilen=%zu reg=%lld use_ii=%zu consumer=%lld first=%lld second=%lld third=%lld producer_kind=%s boundary_kind=%s post_store_use=%s known_len=%lld direct_set_only=%d",
             ii,
             ilen,
             reg,
@@ -301,7 +324,12 @@
             consumer_reg,
             first_reg,
             second_reg,
-            third_reg);
+            third_reg,
+            producer_kind ? producer_kind : "unknown",
+            boundary_kind ? boundary_kind : "unknown",
+            post_store_use ? post_store_use : "unknown",
+            known_len,
+            direct_set_only);
         hako_llvmc_emit_route_trace(stage, result, reason, extra);
       }
 
@@ -320,6 +348,7 @@
         const char* mname = NULL;
         long long consumer_reg = 0;
         int matched = 0;
+        const char* producer_kind = string_concat_producer_kind_for_reg(reg);
         const char* reason = "no_single_use";
         if (!find_single_use_inst(ii + 1, ilen, insts, reg, &use_ii)) {
           trace_string_concat_lowering_gate(
@@ -333,7 +362,12 @@
               0,
               0,
               0,
-              0);
+              0,
+              producer_kind,
+              "Store",
+              "None",
+              -1,
+              1);
           return 0;
         }
         use_ins = yyjson_arr_get(insts, use_ii);
@@ -372,7 +406,12 @@
             consumer_reg,
             0,
             0,
-            0);
+            0,
+            producer_kind,
+            "Store",
+            "None",
+            -1,
+            1);
         return matched;
       }
 

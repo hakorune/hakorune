@@ -71,6 +71,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
     - `docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md`
     - `docs/development/current/main/design/post-store-observer-facts-ssot.md`
+    - `docs/development/current/main/design/concat3-array-store-placement-window-ssot.md`
     - `docs/development/current/main/design/string-birth-placement-ssot.md`
     - `docs/development/current/main/design/string-birth-sink-ssot.md`
     - `docs/development/current/main/design/transient-text-pieces-ssot.md`
@@ -111,6 +112,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` no longer freeze while holding the host-handle read lock; they now return a reuse-or-owned decision first and freeze outside the lock
     - `resolve_string_span_triplet_from_handles(...)` plus `string_span_cache_get_triplet(...)` now land the triple-span route
     - latest recheck after this concat3 fix is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`, `kilo_kernel_small_hk = 704 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - compiler-local placement trace is now visible in the direct compiler bundle after rebuilding `libhako_llvmc_ffi.so`
+    - `string_direct_array_set_consumer` now carries `producer_kind=Concat3` / `boundary_kind=Store` / `post_store_use=None` / `known_len=-1` when the concat3 chain reaches the direct array-set consumer
+    - `array_string_len_window` now carries `producer_kind=ArrayGet` / `boundary_kind=Store` / `post_store_use=LenObserver` / `known_len=-1`
+    - timing-only recheck stayed in the same kept lane on this machine: `kilo_kernel_small_hk = 725 ms` (`warmup=1 repeat=3`) and `741 ms` (`warmup=1 repeat=20`), with `aot_status=ok`
   - rejected follow-up: concat3 reuse-only alias to earlier insert birth regressed stable main to `754-755 ms` under `repeat=3/20`; keep the current canonical birth split as-is until a fresh placement reason appears
   - rejected follow-up: canonical `concat3_hhh` birth with later reuse alias regressed stable main to `723 ms` on `repeat=3` and `777 ms` on `repeat=20`; keep the current upstream placement lane open instead of forcing another birth-site alias
   - rejected follow-up: rewriting the insert-mid route to emit `concat3_hhh` directly still regressed main to `775 ms` and tripped `build_failed_after_helper_retry` on the ladder lane; keep the current helper-backed insert route for now and do not treat the concat3 rewrite as the canonical birth
@@ -186,8 +191,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - active lane is now the upstream placement proof, not another leaf tweak:
   1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
   2. keep `array_set` as the consumer boundary / first `Store` proof while `post-store-observer-facts-ssot.md` owns the trailing `length()` observer
-  3. attack `concat3_hhh` / `array_set` placement as one upstream problem, but do not collapse the observer into the store boundary
-  4. only after a same-artifact improvement is visible, revisit code-side `RetainedForm` wiring
+  3. use `concat3-array-store-placement-window-ssot.md` as the next exact rollout contract for `concat3_hhh -> array.set -> trailing length()`
+  4. gather compiler-local facts from `remember_string_concat_*`, `remember_string_substring_call(...)`, `remember_string_length_call(...)`, `has_direct_array_set_consumer(...)`, and `analyze_array_string_len_window_candidate(...)`
+  5. only after a same-artifact improvement is visible, revisit code-side `RetainedForm` wiring
 - keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
 - keep the landed meso benchmark ladder as the gate for the next string cut
 - rejected follow-up:
@@ -196,6 +202,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - do not reopen loop-carry shaping before the `array_set` boundary gap shrinks
 - keep genericization work on `recipe / scope / effect / policy`, not on benchmark-named branches
 - keep the generalized cache/scope machinery intact while tightening the hot leaf path
+- next implementation cut must be compiler-local and large:
+  - do not reopen helper-local widening
+  - do not merge `array.set` and trailing `length()` into one semantic boundary
+  - prefer the trace+asm bundle over new leaf retries when deciding the next slice
 - do not reopen `route.rs` / compare-bridge policy unless new evidence shows route cost dominates again
 - keep the stage0 llvmlite lane and stage1 root-first mainline intact
 

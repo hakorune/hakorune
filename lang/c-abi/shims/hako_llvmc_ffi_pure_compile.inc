@@ -482,7 +482,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       done:
         if (extra && extra_cap) {
           snprintf(extra, extra_cap,
-                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d len_ii=%zu len_dst=%lld keep_get_live=%d",
+                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d len_ii=%zu len_dst=%lld keep_get_live=%d producer_kind=ArrayGet boundary_kind=Store post_store_use=LenObserver known_len=-1 direct_set_only=0",
                    ii, cur_dst, recv, idx,
                    out ? out->copy_n : 0,
                    out ? out->len_ii : 0,

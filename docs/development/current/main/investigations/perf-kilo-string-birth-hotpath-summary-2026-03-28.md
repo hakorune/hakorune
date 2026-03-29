@@ -5,6 +5,7 @@ Scope: `perf-kilo` current wave の string birth hot path について、accepte
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/concat3-array-store-placement-window-ssot.md
   - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
   - docs/development/current/main/design/post-store-observer-facts-ssot.md
   - docs/development/current/main/design/string-birth-sink-ssot.md
@@ -63,6 +64,9 @@ Related:
 - post-store observer facts landed
   - `array.set` remains the first `Store` proof boundary, and trailing `length()` is now read as a post-store observer fact in `post-store-observer-facts-ssot.md`
   - keep the stricter store-only consumer guard; do not merge the observer into the store boundary
+- compiler-local placement window is the next large-cut design front
+  - `concat3-array-store-placement-window-ssot.md` now fixes the next rollout contract as `concat3_hhh -> array.set -> trailing length()`
+  - the next cut must be driven by compiler-local facts (`remember_string_concat_*`, `remember_string_substring_call(...)`, `remember_string_length_call(...)`, `has_direct_array_set_consumer(...)`, `analyze_array_string_len_window_candidate(...)`), not by another helper-local leaf retry
 - concat3 reuse-only specialization landed
   - `concat3_plan_from_spans(...)` is fixed to the reuse-allowed lane, so the dead `allow_handle_reuse = false` branch is gone and span emptiness checks use byte-range length directly
   - latest same-artifact recheck after this specialization is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`, `kilo_kernel_small_hk = 668 ms`
@@ -99,6 +103,10 @@ Interpretation:
   - keeps trace and asm in the same out-dir while leaving `bench_compare` timing-only
   - resolves annotate symbols from the perf report before emitting asm notes, so the note files stop relying on stale Rust-path guesses
   - the latest bundle hot symbols are `nyash.string.concat_hh`, `nyash.string.concat3_hhh`, `nyash.string.substring_hii`, `nyash.array.set_his`, `nyash.array.string_len_hi`, `nyash_kernel::exports::string::string_handle_from_owned`, and `nyash_rust::box_trait::BoxBase::new`
+- compiler route bundle note:
+  - after rebuilding `libhako_llvmc_ffi.so`, `trace_optimization_bundle.sh` now exposes the placement fields in the route trace itself
+  - `string_direct_array_set_consumer` now shows `producer_kind=Concat3` / `boundary_kind=Store` / `post_store_use=None` / `known_len=-1` on the direct-set hit path
+  - `array_string_len_window` now shows `producer_kind=ArrayGet` / `boundary_kind=Store` / `post_store_use=LenObserver` / `known_len=-1`
 - use the trace only as a probe; do not treat it as a new acceptance lane
 - probe result snapshot:
   - `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel string_concat_hs_contract -- --nocapture`
@@ -109,8 +117,8 @@ Interpretation:
     - `placement=must_freeze -> carrier=freeze_span -> sink=fresh_handle -> sink=span_materialize -> observer=fast_hit`
   - `tools/perf/bench_compare_c_py_vs_hako.sh` suppresses trace output via `perf_collect_series`; use the unit probes above when you need the placement / carrier / sink / observer lines
   - bench repeat snapshot for the current kept lane:
-    - `repeat=3`: `c_ms=75`, `py_ms=105`, `ny_vm_ms=985`, `ny_aot_ms=725`, `aot_status=ok`
-    - `repeat=20`: `c_ms=77`, `py_ms=105`, `ny_vm_ms=1007`, `ny_aot_ms=705`, `aot_status=ok`
+    - `repeat=3`: `c_ms=75`, `py_ms=105`, `ny_vm_ms=978`, `ny_aot_ms=725`, `aot_status=ok`
+    - `repeat=20`: `c_ms=76`, `py_ms=107`, `ny_vm_ms=990`, `ny_aot_ms=741`, `aot_status=ok`
 
 ## Current Rejected Slices
 
@@ -187,6 +195,7 @@ Interpretation:
 - current placement lane has now landed, but perf has not yet moved
   - the next step is upstream birth-density proof, not another sink-local cut
 - the latest same-artifact proof stayed flat, so do not reopen code-side `RetainedForm` split yet
+- do not reopen helper-local widening before the compiler-local placement window yields a same-artifact win
 
 ## Latest ASM Read
 

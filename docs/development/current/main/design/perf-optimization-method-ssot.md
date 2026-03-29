@@ -14,6 +14,7 @@ Related:
 - docs/development/current/main/design/transient-text-pieces-ssot.md
 - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
 - docs/development/current/main/design/post-store-observer-facts-ssot.md
+- docs/development/current/main/design/concat3-array-store-placement-window-ssot.md
 - docs/development/current/main/design/kilo-meso-benchmark-ladder-ssot.md
 - docs/development/current/main/design/transient-string-chain-boxless-wave-ssot.md
 - docs/development/current/main/phases/phase-29ck/README.md
@@ -56,6 +57,7 @@ Related:
 - current perf-kilo design front has moved to `transient-text-pieces-ssot.md`; the measurement snapshots below remain historical evidence until the next proof lands.
 - current docs-first perf-kilo design front is the pair:
   - `post-store-observer-facts-ssot.md`
+  - `concat3-array-store-placement-window-ssot.md`
   - `retained-boundary-and-birth-placement-ssot.md`
   - `string-birth-sink-ssot.md`
   `freeze.str` remains the canonical sink target, but the current parent question is now `BoundaryKind` vs `RetainedForm`, plus the separate post-store observer contract, not sink re-home.
@@ -63,6 +65,11 @@ Related:
 - current narrow implementation order is fixed: shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, re-run the same-artifact meso/main proof, and then stop the sink-local lane unless new asm evidence appears (keep `BoxBase::new` out unless evidence changes).
 - current narrow implementation order is fixed: shrink `BorrowedSubstringPlan` into recipe-only / boundary-only placement, keep `array_set` as the consumer boundary, keep trailing `length()` as a post-store observer, re-run the same-artifact meso/main proof, and then stop the sink-local lane unless new asm evidence appears (keep `BoxBase::new` out unless evidence changes).
 - compile-time placement helper `crates/nyash_kernel/src/exports/string_birth_placement.rs` is now landed; the next exact lane is upstream birth-density proof with `array_set` as the first `Store` boundary, rather than any further sink-local cut.
+- the next large-cut owner is now compiler-local placement, not helper-local widening:
+  - use `concat3-array-store-placement-window-ssot.md` as the next exact rollout contract
+  - keep `array.set` as first `Store`
+  - keep trailing `length()` as `PostStoreUse::LenObserver`
+  - only reopen code after trace+asm bundle evidence lines up on the same artifact
 - current docs-first refinement is to separate retained reason (`BoundaryKind`) from retained result (`RetainedForm`) before reopening code-side placement work.
 - latest same-artifact proof after the retained-boundary parent split stayed flat (`kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 760 ms`), so code-side `RetainedForm` split remains deferred unless fresh asm evidence appears.
 - landed planner cleanup: const-suffix / insert recipe helpers are isolated in `crates/nyash_kernel/src/exports/string_plan.rs`.

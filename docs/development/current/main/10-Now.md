@@ -111,8 +111,9 @@ Related:
     - next exact work order is now placement-first:
       1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
       2. keep `array_set` as the first `Store` proof boundary while `post-store-observer-facts-ssot.md` owns the trailing `length()` observer
-      3. attack `concat3_hhh` / `array_set` placement as one upstream problem, but do not collapse the observer into the store boundary
-      4. only after a same-artifact improvement is visible, revisit code-side `RetainedForm` wiring
+      3. use `concat3-array-store-placement-window-ssot.md` as the next exact rollout contract for `concat3_hhh -> array.set -> trailing length()`
+      4. read compiler-local facts from `remember_string_concat_*`, `remember_string_substring_call(...)`, `remember_string_length_call(...)`, `has_direct_array_set_consumer(...)`, and `analyze_array_string_len_window_candidate(...)`
+      5. only after a same-artifact improvement is visible, revisit code-side `RetainedForm` wiring
     - `tools/perf/run_kilo_leaf_proof_ladder.sh` remains the acceptance lane for new observer/mutator leaves, but it is no longer the active perf lane for the current string-birth wave
     - current `leaf-proof micro` facts are still documented, but they are stop-line evidence for this wave:
       - `kilo_leaf_array_rmw_add1 = 36 ms` (`aot_status=ok`)
@@ -219,6 +220,8 @@ Related:
           - rejected length-aware store-boundary classifier retry: changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `746 ms` on `repeat=3` and `757 ms` on `repeat=20`; keep the direct-set-only guard for this wave
           - rejected known-len propagation retry: threading `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 38 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 705 ms` on `repeat=3`; `692 ms` on `repeat=20`); keep `array_set` as the first Store boundary and keep trailing `length()` as a separate post-store observer fact
           - post-store observer reading is now separated into `post-store-observer-facts-ssot.md`: `length()` after `array.set` is observer-after-store, not the store boundary itself
+          - next design front is now `concat3-array-store-placement-window-ssot.md`: treat `concat3_hhh -> array.set -> trailing length()` as one compiler-local placement window, while still keeping `array.set` and `length()` as separate semantic boundaries
+          - direct compiler bundle now shows the placement fields after rebuilding `libhako_llvmc_ffi.so`: `string_direct_array_set_consumer` carries `producer_kind=Concat3` / `boundary_kind=Store` / `post_store_use=None` / `known_len=-1` on the concat3 store boundary, while `array_string_len_window` carries `producer_kind=ArrayGet` / `boundary_kind=Store` / `post_store_use=LenObserver` / `known_len=-1`
           - rejected short-slice owned materialize retry: changing the short freeze lane to `FreezeOwned(String)` and materializing inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `866 ms`; keep the span-backed short freeze contract for now
           - rejected follow-up: borrowed triple-span miss resolution via `handles::with3(...)` plus local `StringViewBox` flattening kept meso flat (`67 -> 68 ms`) and regressed stable main (`704 -> 745 -> 819 ms` on back-to-back checks); keep the explicit uncached miss wave in `resolve_string_span_triplet_from_handles(...)`
           - rejected follow-up: widening the C-side direct-store consumer test to tolerate one trailing `length()` observer after `array.set` kept the lane flat-to-worse (`36 / 70 / 70`, `kilo_kernel_small_hk = 706 ms` under `repeat=3`); keep the stricter store-only consumer guard

@@ -6,6 +6,7 @@ Scope: `freeze.str` より upstream の compile-time placement を、`TextPlan` 
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/concat3-array-store-placement-window-ssot.md
   - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
   - docs/development/current/main/design/post-store-observer-facts-ssot.md
   - docs/development/current/main/design/string-transient-lifecycle-ssot.md
@@ -129,7 +130,8 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 1. placement helper の語彙を current truth として維持する
 2. `TextRetentionClass` を parent SSOT の `BoundaryKind` / `RetainedForm` split で読む
 3. `array_set` を first `Store` proof boundary として維持する
-4. meso/main proof の後にだけ code-side enum split を検討する
+4. `concat3-array-store-placement-window-ssot.md` で compiler-local placement window を固定する
+5. meso/main proof の後にだけ code-side enum split を検討する
 
 ## Non-Goals
 
