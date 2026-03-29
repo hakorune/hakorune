@@ -146,6 +146,9 @@ Interpretation:
 - rejected direct-store consumer widening
   - allowing the C-side concat lowering to treat `array.set(...)` followed by one trailing `length()` observer as the same direct-store consumer window kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 70 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 706 ms` under `repeat=3`)
   - keep the stricter store-only consumer guard for this wave
+- rejected direct-set-preferring concat3 route ordering
+  - changing `string_concat_add_route` so a direct-set window prefers `concat3_hhh` before the const-suffix route looked promising in trace, but the timing-only 3-run regressed to `kilo_kernel_small_hk = 745 ms` (`c_ms = 74`, `aot_status=ok`)
+  - keep the existing fallback order; the trace hit was not a wall-clock win
 - rejected length-aware store-boundary classifier retry
   - changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `kilo_kernel_small_hk = 746 ms` on `repeat=3` and `757 ms` on `repeat=20`
   - keep the direct-set-only guard for this wave; the longer classifier did not recover the upstream placement cost on this machine
