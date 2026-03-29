@@ -122,6 +122,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - latest microasm still keeps `nyash.array.string_len_hi` in the hot tier (`6.34%`), so the observer route remains a real target but this typed-cache cut is generic and keepable
   - rejected length-aware store-boundary classifier retry:
     - changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `746 ms` on `repeat=3` and `757 ms` on `repeat=20`; keep the direct-set-only guard for this wave
+  - rejected known-len propagation retry:
+    - threading `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 38 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 705 ms` on `repeat=3`; `692 ms` on `repeat=20`)
+    - keep `array_set` as the first Store boundary and keep trailing `length()` as a separate post-store observer fact
   - rejected short-slice owned materialize retry:
     - changing the short freeze lane to `FreezeOwned(String)` and materializing inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `866 ms`; keep the span-backed short freeze contract for now
   - same-artifact proof after the retained-boundary parent split stayed flat, so code-side `RetainedForm` split remains deferred unless fresh asm evidence appears

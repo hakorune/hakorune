@@ -850,3 +850,37 @@ reject
 ### Reopen Condition
 
 - only if a fresh upstream placement proof shows the `array.set` consumer and the trailing observer can truly share a later concat3 birth without extending the `TextPlan::into_owned()` / `StringBox::new()` pressure
+
+## Rejected Cut Y
+
+### Name
+
+known-len propagation into `length()` lowering
+
+### Intent
+
+- thread `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering
+- avoid the extra `nyash.string.len_h` / array string-length observer call when the answer is already known from the carrier / placement facts
+- keep `array.set` as the first `Store` boundary while shrinking the observer cost around it
+
+### Result
+
+- `kilo_meso_substring_concat_len = 38 ms`
+- `kilo_meso_substring_concat_array_set = 66 ms`
+- `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`
+- stable `kilo_kernel_small_hk = 705 ms` on `repeat=3`
+- stable `kilo_kernel_small_hk = 692 ms` on `repeat=20`
+
+### Judgment
+
+reject
+
+### Why
+
+- the fact propagation did not recover the whole-program birth-density cost on this machine
+- the hot ASM still keeps `__memmove_avx512_unaligned_erms`, `nyash.string.concat_hs`, `nyash.rust::runtime::host_handles::Registry::alloc`, `nyash.rust::runtime::host_handles::get`, `nyash_rust::box_trait::BoxBase::new`, `substring_hii`, and `array_set_his` in the hot tier
+- the post-store observer should stay separate from the store boundary; this retry did not change that enough to keep
+
+### Reopen Condition
+
+- only if a future placement wave proves that `array.set` and its trailing observer can share a later carrier fact without increasing `Registry::alloc/get` or `BoxBase::new` pressure
