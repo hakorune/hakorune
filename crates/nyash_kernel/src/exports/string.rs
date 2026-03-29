@@ -1,117 +1,35 @@
 // String-related C ABI exports.
 
-use super::string_view::{
-    borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
-    resolve_string_span_from_handle_nocache, resolve_string_span_from_obj,
-    resolve_string_span_pair_from_handles, string_is_empty_from_handle as string_is_empty_impl,
-    string_len_from_handle as string_len_impl, BorrowedSubstringPlan, TextPiece, TextPlan,
-};
 use super::string_birth_placement::{
     concat3_retention_class, concat_suffix_retention_class, insert_middle_retention_class,
     TextRetentionClass,
 };
+use super::string_debug::{
+    jit_trace_len_enabled, stage1_string_debug_log_concat_materialize, stage1_string_debug_log_eq,
+    substring_view_enabled,
+};
 use super::string_plan::{
-    concat_const_suffix_plan_from_handle, insert_const_mid_plan_from_handle,
+    concat_const_suffix_plan_from_handle, insert_const_mid_plan_from_handle, TextPiece, TextPlan,
+};
+use super::string_search::{
+    compare_string_pair_hh, empty_needle_indexof, empty_needle_lastindexof, find_substr_byte_index,
+    rfind_substr_byte_index, search_string_pair_hh,
+};
+use super::string_view::{
+    borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
+    resolve_string_span_from_obj, resolve_string_span_pair_from_handles,
+    string_is_empty_from_handle as string_is_empty_impl, string_len_from_handle as string_len_impl,
+    BorrowedSubstringPlan,
 };
 use crate::hako_forward_bridge;
 use crate::plugin::materialize_owned_string;
-use memchr::{memchr, memmem, memrchr};
 use nyash_rust::runtime::host_handles as handles;
-use std::sync::OnceLock;
 use std::{
     cell::{Cell, RefCell},
     ffi::CStr,
     ptr,
     thread::LocalKey,
 };
-
-fn env_flag_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
-    #[cfg(test)]
-    {
-        std::env::var(key).ok().as_deref() == Some("1")
-    }
-    #[cfg(not(test))]
-    {
-        *_cell.get_or_init(|| std::env::var(key).ok().as_deref() == Some("1"))
-    }
-}
-
-fn env_flag_default_on_cached(_cell: &'static OnceLock<bool>, key: &str) -> bool {
-    #[cfg(test)]
-    {
-        match std::env::var(key).ok().as_deref() {
-            Some("0") => false,
-            Some("off") => false,
-            Some("false") => false,
-            Some(_) => true,
-            None => true,
-        }
-    }
-    #[cfg(not(test))]
-    {
-        *_cell.get_or_init(|| match std::env::var(key).ok().as_deref() {
-            Some("0") => false,
-            Some("off") => false,
-            Some("false") => false,
-            Some(_) => true,
-            None => true,
-        })
-    }
-}
-
-fn stage1_string_debug_enabled() -> bool {
-    static STAGE1_STRING_DEBUG: OnceLock<bool> = OnceLock::new();
-    env_flag_cached(&STAGE1_STRING_DEBUG, "STAGE1_CLI_DEBUG")
-}
-
-fn stage1_string_handle_debug(handle: i64) -> (bool, usize, String) {
-    if let Some(span) = resolve_string_span_from_handle_nocache(handle) {
-        let s = span.as_str();
-        let preview = if s.len() <= 48 {
-            s.to_string()
-        } else {
-            s[..48].to_string()
-        };
-        return (true, s.len(), preview);
-    }
-    (false, 0, String::new())
-}
-
-fn stage1_string_debug_log_eq(a_h: i64, b_h: i64, result: i64) {
-    if !stage1_string_debug_enabled() {
-        return;
-    }
-    let (a_ok, a_len, a_preview) = stage1_string_handle_debug(a_h);
-    let (b_ok, b_len, b_preview) = stage1_string_handle_debug(b_h);
-    eprintln!(
-        "[stage1/string_export] op=eq lhs={} lhs_ok={} lhs_len={} lhs_preview={:?} rhs={} rhs_ok={} rhs_len={} rhs_preview={:?} result={}",
-        a_h, a_ok, a_len, a_preview, b_h, b_ok, b_len, b_preview, result
-    );
-}
-
-fn stage1_string_debug_log_concat_materialize(a_h: i64, b_h: i64, out_h: i64) {
-    if !stage1_string_debug_enabled() {
-        return;
-    }
-    let (a_ok, a_len, a_preview) = stage1_string_handle_debug(a_h);
-    let (b_ok, b_len, b_preview) = stage1_string_handle_debug(b_h);
-    let (out_ok, out_len, out_preview) = stage1_string_handle_debug(out_h);
-    eprintln!(
-        "[stage1/string_export] op=concat_materialize lhs={} lhs_ok={} lhs_len={} lhs_preview={:?} rhs={} rhs_ok={} rhs_len={} rhs_preview={:?} out={} out_ok={} out_len={} out_preview={:?}",
-        a_h,
-        a_ok,
-        a_len,
-        a_preview,
-        b_h,
-        b_ok,
-        b_len,
-        b_preview,
-        out_h,
-        out_ok,
-        out_len,
-        out_preview
-    );
-}
 
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
@@ -137,16 +55,6 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
         return fast_empty;
     }
     string_is_empty_impl(handle)
-}
-
-fn substring_view_enabled() -> bool {
-    static SUBSTRING_VIEW_ENABLED: OnceLock<bool> = OnceLock::new();
-    env_flag_default_on_cached(&SUBSTRING_VIEW_ENABLED, "NYASH_LLVM_FAST")
-}
-
-fn jit_trace_len_enabled() -> bool {
-    static JIT_TRACE_LEN_ENABLED: OnceLock<bool> = OnceLock::new();
-    env_flag_cached(&JIT_TRACE_LEN_ENABLED, "NYASH_JIT_TRACE_LEN")
 }
 
 fn string_handle_from_owned(value: String) -> i64 {
@@ -195,7 +103,7 @@ fn shared_empty_string_handle() -> i64 {
     }
     #[cfg(not(test))]
     {
-        static HANDLE: OnceLock<i64> = OnceLock::new();
+        static HANDLE: std::sync::OnceLock<i64> = std::sync::OnceLock::new();
         *HANDLE.get_or_init(|| {
             handles::to_handle_arc(std::sync::Arc::new(nyash_rust::box_trait::StringBox::new(
                 String::new(),
@@ -246,7 +154,8 @@ fn concat3_plan_from_parts<'a>(
     c: &'a str,
     allow_handle_reuse: bool,
 ) -> Concat3Plan<'a> {
-    let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), allow_handle_reuse);
+    let placement =
+        concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), allow_handle_reuse);
     debug_assert!(!matches!(placement, TextRetentionClass::RetainView));
     if a.is_empty() {
         if b.is_empty() {
@@ -332,7 +241,8 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64, allow_handle_reuse: boo
     let a = a_span.as_str();
     let b = b_span.as_str();
     let c = c_span.as_str();
-    let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), allow_handle_reuse);
+    let placement =
+        concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), allow_handle_reuse);
     debug_assert!(!matches!(placement, TextRetentionClass::RetainView));
     if a.is_empty() {
         if b.is_empty() {
@@ -392,56 +302,6 @@ pub(crate) fn to_owned_string_handle_arg(h: i64) -> String {
     resolve_string_span_from_handle(h)
         .map(|span| span.as_str().to_string())
         .unwrap_or_default()
-}
-
-#[inline(always)]
-fn with_string_pair_fast_str<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
-    if a_h <= 0 || b_h <= 0 {
-        return None;
-    }
-    handles::with_str_pair(a_h as u64, b_h as u64, f)
-}
-
-#[inline(always)]
-fn with_string_pair_span<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R) -> Option<R> {
-    let (a_span, b_span) = resolve_string_span_pair_from_handles(a_h, b_h)?;
-    Some(f(a_span.as_str(), b_span.as_str()))
-}
-
-#[inline(always)]
-fn with_string_pair_lossy_span<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R) -> R {
-    let a_span = resolve_string_span_from_handle(a_h);
-    let b_span = resolve_string_span_from_handle(b_h);
-    let a = a_span.as_ref().map(|span| span.as_str()).unwrap_or("");
-    let b = b_span.as_ref().map(|span| span.as_str()).unwrap_or("");
-    f(a, b)
-}
-
-#[inline(always)]
-fn with_lossy_string_pair<R>(a_h: i64, b_h: i64, f: impl FnOnce(&str, &str) -> R) -> R {
-    let mut f_opt = Some(f);
-    if let Some(out) = with_string_pair_fast_str(a_h, b_h, |a, b| {
-        let f = f_opt
-            .take()
-            .expect("[string/export] with_lossy_string_pair closure missing (fast)");
-        f(a, b)
-    }) {
-        return out;
-    }
-    if let Some(out) = with_string_pair_span(a_h, b_h, |a, b| {
-        let f = f_opt
-            .take()
-            .expect("[string/export] with_lossy_string_pair closure missing (span)");
-        f(a, b)
-    }) {
-        return out;
-    }
-    with_string_pair_lossy_span(a_h, b_h, |a, b| {
-        let f = f_opt
-            .take()
-            .expect("[string/export] with_lossy_string_pair closure missing (lossy)");
-        f(a, b)
-    })
 }
 
 #[inline(always)]
@@ -633,50 +493,6 @@ fn concat3_fallback(a_h: i64, b_h: i64, c_h: i64) -> i64 {
 }
 
 #[inline(always)]
-fn find_substr_byte_index(hay: &str, needle: &str) -> Option<usize> {
-    let hay_b = hay.as_bytes();
-    let nee_b = needle.as_bytes();
-    match nee_b.len() {
-        0 => Some(0),
-        1 => memchr(nee_b[0], hay_b),
-        2 | 3 | 4 => find_substr_byte_index_small(hay_b, nee_b),
-        _ => memmem::find(hay_b, nee_b),
-    }
-}
-
-#[inline(always)]
-fn find_substr_byte_index_small(hay_b: &[u8], nee_b: &[u8]) -> Option<usize> {
-    let first = nee_b[0];
-    let needle_len = nee_b.len();
-    let mut offset = 0usize;
-    let mut search = hay_b;
-
-    while let Some(pos) = memchr(first, search) {
-        let idx = offset + pos;
-        let end = idx + needle_len;
-        if end <= hay_b.len() && &hay_b[idx..end] == nee_b {
-            return Some(idx);
-        }
-        offset = idx + 1;
-        if offset >= hay_b.len() {
-            return None;
-        }
-        search = &hay_b[offset..];
-    }
-
-    None
-}
-
-#[inline(always)]
-fn bool_to_i64(value: bool) -> i64 {
-    if value {
-        1
-    } else {
-        0
-    }
-}
-
-#[inline(always)]
 fn hako_string_dispatch(op: i64, a0: i64, a1: i64, a2: i64) -> Option<i64> {
     hako_forward_bridge::call_string_dispatch(op, a0, a1, a2)
 }
@@ -718,70 +534,6 @@ fn dispatch_or_fallback_concat3_hhh(a_h: i64, b_h: i64, c_h: i64) -> i64 {
         return hook_miss_freeze_handle("string.concat3_hhh");
     }
     concat3_fallback(a_h, b_h, c_h)
-}
-
-#[inline(always)]
-fn empty_needle_indexof(_hay: &str) -> i64 {
-    0
-}
-
-#[inline(always)]
-fn empty_needle_lastindexof(hay: &str) -> i64 {
-    hay.len() as i64
-}
-
-#[inline(always)]
-fn search_string_pair_hh(
-    hay_h: i64,
-    needle_h: i64,
-    empty_result: fn(&str) -> i64,
-    search: fn(&str, &str) -> Option<usize>,
-) -> i64 {
-    let eval = |hay: &str, nee: &str| -> i64 {
-        if nee.is_empty() {
-            return empty_result(hay);
-        }
-        search(hay, nee).map(|pos| pos as i64).unwrap_or(-1)
-    };
-
-    with_lossy_string_pair(hay_h, needle_h, |hay, nee| eval(hay, nee))
-}
-
-#[inline(always)]
-fn compare_string_pair_hh(lhs_h: i64, rhs_h: i64, cmp: fn(&str, &str) -> bool) -> i64 {
-    with_lossy_string_pair(lhs_h, rhs_h, |lhs, rhs| bool_to_i64(cmp(lhs, rhs)))
-}
-
-#[inline(always)]
-fn rfind_substr_byte_index(hay: &str, needle: &str) -> Option<usize> {
-    let hay_b = hay.as_bytes();
-    let nee_b = needle.as_bytes();
-    match nee_b.len() {
-        0 => Some(hay_b.len()),
-        1 => memrchr(nee_b[0], hay_b),
-        2 | 3 | 4 => rfind_substr_byte_index_small(hay_b, nee_b),
-        _ => memmem::rfind(hay_b, nee_b),
-    }
-}
-
-#[inline(always)]
-fn rfind_substr_byte_index_small(hay_b: &[u8], nee_b: &[u8]) -> Option<usize> {
-    let first = nee_b[0];
-    let needle_len = nee_b.len();
-    let mut search = hay_b;
-
-    while let Some(pos) = memrchr(first, search) {
-        let end = pos + needle_len;
-        if end <= search.len() && &search[pos..end] == nee_b {
-            return Some(pos + (hay_b.len() - search.len()));
-        }
-        if pos == 0 {
-            break;
-        }
-        search = &search[..pos];
-    }
-
-    None
 }
 
 // String.len_h(handle) -> i64

@@ -71,7 +71,9 @@ pub(crate) fn concat3_retention_class(
 
 #[cfg(test)]
 mod tests {
-    use super::{concat3_retention_class, concat_suffix_retention_class, insert_middle_retention_class};
+    use super::{
+        concat3_retention_class, concat_suffix_retention_class, insert_middle_retention_class,
+    };
     use super::{substring_retention_class, BoundaryKind, TextRetentionClass};
 
     #[test]

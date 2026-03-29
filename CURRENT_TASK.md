@@ -78,6 +78,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - normalized transient text pieces (`TextPlan` / `PiecesN`) pilot landed
   - `micro -> meso -> kilo` observation ladder landed
   - compile-time placement helper `string_birth_placement.rs` landed
+  - string export surface is now split by responsibility: `string.rs` (entrypoints/sink), `string_debug.rs`, `string_search.rs`, `string_plan.rs`, and `string_view.rs`
 - current sub-slice:
   - meso first reading is fixed: `len = 37 ms`, `array_set = 69 ms`, `loopcarry = 69 ms` (`warmup=1 repeat=3`)
   - the first large jump is `len -> array_set`, not `array_set -> loopcarry`
