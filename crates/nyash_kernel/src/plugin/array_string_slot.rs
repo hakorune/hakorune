@@ -4,7 +4,6 @@ use super::value_codec::{
 };
 use crate::exports::string_view::resolve_string_span_from_handle;
 use memchr::{memchr, memmem};
-use nyash_rust::boxes::array::ArrayBox;
 use nyash_rust::runtime::host_handles as handles;
 use std::cell::RefCell;
 
@@ -22,13 +21,7 @@ pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
     if handle <= 0 || idx < 0 {
         return 0;
     }
-    handles::with_handle(handle as u64, |arr_obj| {
-        let Some(obj) = arr_obj else {
-            return 0;
-        };
-        let Some(arr) = obj.as_any().downcast_ref::<ArrayBox>() else {
-            return 0;
-        };
+    super::handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
             let Some(item) = items.get(idx) else {
@@ -37,6 +30,7 @@ pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
             item.as_str_fast().map(|s| s.len() as i64).unwrap_or(0)
         })
     })
+    .unwrap_or(0)
 }
 
 #[inline(always)]

@@ -412,3 +412,63 @@ reject
 
 - only if a fresh ASM probe shows the `set_his_p` alias on the hot path
 - and only if the same-artifact meso/main pair shows a measurable gain over the kept line
+
+## Rejected Cut M
+
+### Name
+
+C-side direct-store consumer widening with trailing `length()` observer
+
+### Intent
+
+- widen the C shim's direct-store consumer test so `array.set(row, out)` followed by one trailing `out.length()` observer still counts as the same direct store window
+- keep the concat lowering in the store-oriented recipe even when a read-only observer remains
+
+### Result
+
+- `kilo_meso_substring_concat_len = 36 ms`
+- `kilo_meso_substring_concat_array_set = 70 ms`
+- `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`
+- stable `kilo_kernel_small_hk = 706 ms` (`repeat=3`)
+
+### Judgment
+
+reject
+
+### Why
+
+- the widened guard did not beat the kept concat3 reuse-only line
+- the direct-store observer window is structurally attractive, but it did not move the same-artifact lane enough on this machine
+
+### Reopen Condition
+
+- only if a future placement wave proves the trailing `length()` observer is the last reason the direct store recipe cannot stay live
+
+## Rejected Cut N
+
+### Name
+
+`insert_hsi` one-resolve helper
+
+### Intent
+
+- collapse the `insert_hsi` fast-path decision into one helper so source-empty / const-middle / freeze outcomes are chosen with a single resolve path
+- remove duplicate small lookups before `freeze_text_plan(...)`
+
+### Result
+
+- promising first probe: `kilo_kernel_small_hk = 694 ms` (`repeat=3`)
+- WSL recheck: `kilo_kernel_small_hk = 727 ms` (`repeat=20`)
+
+### Judgment
+
+reject
+
+### Why
+
+- the first 3-run read looked good, but the required 20-run WSL proof did not hold
+- keep/reject policy for noisy lanes now requires the stable `repeat=20` recheck, and this slice did not survive it
+
+### Reopen Condition
+
+- only if a future asm read shows `insert_hsi` helper decision density dominating after the current substring / concat3 observer cuts

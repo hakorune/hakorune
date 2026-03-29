@@ -54,6 +54,11 @@ Related:
   - `BorrowedSubstringPlan` now returns `FreezeSpan(StringSpan)` for short freeze-only slices instead of wrapping them in `TextPlan::from_span(...)`
   - `substring_hii` materializes those short spans directly via `string_handle_from_span(...)`
   - latest same-artifact recheck after this cut is `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 704 ms`
+- array string-length observer cut landed
+  - `array_string_len_by_index(...)` now uses `handle_cache::with_array_box(...)` instead of `host_handles::with_handle(...)` plus `ArrayBox` downcast, so the read-only `nyash.array.string_len_hi` observer stays on the typed handle-cache path
+  - latest `repeat=3` proof after this cut is `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 721 ms`
+  - latest `repeat=20` WSL recheck is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`, `kilo_kernel_small_hk = 688 ms`
+  - latest microasm still keeps `nyash.array.string_len_hi` in the hot tier (`6.34%`), so this generic observer cut is worth keeping even though the lane is still noisy
 - concat3 reuse-only specialization landed
   - `concat3_plan_from_spans(...)` is fixed to the reuse-allowed lane, so the dead `allow_handle_reuse = false` branch is gone and span emptiness checks use byte-range length directly
   - latest same-artifact recheck after this specialization is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`, `kilo_kernel_small_hk = 668 ms`
@@ -97,6 +102,12 @@ Interpretation:
   - sending owned fast paths directly through `string_handle_from_owned(...)`, removing the `resolve_string_span_from_handle(...)` fallback after `TextPlan::from_handle(...)`, and using the relative range length directly inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `777 ms`; keep the span-backed / helper-backed current lane for now
 - rejected pair span-length retry
   - changing `concat_pair_from_spans(...)` to use span byte lengths instead of `as_str().is_empty()` regressed stable main to `904 ms`; keep the existing span-read check there for now
+- rejected direct-store consumer widening
+  - allowing the C-side concat lowering to treat `array.set(...)` followed by one trailing `length()` observer as the same direct-store consumer window kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 70 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 706 ms` under `repeat=3`)
+  - keep the stricter store-only consumer guard for this wave
+- rejected `insert_hsi` one-resolve helper
+  - the helper-backed single-decision route improved the first `repeat=3` probe (`kilo_kernel_small_hk = 694 ms`) but drifted back to `727 ms` under `repeat=20`
+  - keep the current helper-backed `insert_hsi` lane and use the documented `repeat=20` recheck rule on WSL before closing similar slices
 
 ## Current Stop-Line
 
@@ -120,7 +131,7 @@ Interpretation:
 - `nyash.string.substring_hii` (`6.34%`)
 - `nyash_kernel::plugin::handle_cache::array_get_index_encoded_i64::_$u7b$$u7b$closure$u7d$$u7d$::h9cb324abceb701a7` (`6.19%`)
 - `nyash_kernel::plugin::array_string_slot::array_set_by_index_string_handle_value::_$u7b$$u7b$closure$u7d$$u7d$::h56da430ce90ccabb` (`6.00%`)
-- `nyash.array.string_len_hi` (`5.18%`)
+- `nyash.array.string_len_hi` (`6.34%`)
 - `nyash.string.insert_hsi` (`4.17%`)
 - `nyash_kernel::exports::string_span_cache::string_span_cache_get` (`3.81%`)
 - `nyash.array.set_his` (`3.72%`)
