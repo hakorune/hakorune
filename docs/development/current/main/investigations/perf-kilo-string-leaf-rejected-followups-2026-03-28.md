@@ -884,3 +884,43 @@ reject
 ### Reopen Condition
 
 - only if a future placement wave proves that `array.set` and its trailing observer can share a later carrier fact without increasing `Registry::alloc/get` or `BoxBase::new` pressure
+
+## Rejected Cut Z
+
+### Name
+
+direct array-slot insert helper from `string_insert_mid_window`
+
+### Intent
+
+- emit `nyash.array.string_insert_hisi` when both substrings trace back to the same `array.get` source
+- keep the hot `substring -> concat -> store` chain inside the array/string carrier family instead of routing through the generic `nyash.string.insert_hsi`
+- use the compiler-local placement trace to prove that the helper path can replace the current helper-backed insert route
+
+### Result
+
+- `repeat=3`
+  - `c_ms=76`
+  - `py_ms=106`
+  - `ny_vm_ms=992`
+  - `ny_aot_ms=1020`
+- `repeat=20`
+  - `c_ms=77`
+  - `py_ms=105`
+  - `ny_vm_ms=1001`
+  - `ny_aot_ms=716`
+
+### Judgment
+
+reject
+
+### Why
+
+- the helper did not move the same-artifact main lane below the kept `668 ms` line; `repeat=20` still stayed at `716 ms`
+- the quick ASM probe still centered on `string_handle_from_owned`, `concat3_hhh`, `substring_hii`, `array.set_his`, `string_len_from_handle`, and `BoxBase::new`
+- this means the helper did not displace the real birth-density residue; it only changed the local route shape
+
+### Reopen Condition
+
+- only if a future upstream placement proof shows that the array-string carrier can stay transient past the current helper-backed insert route without increasing the handle/birth tier
+- or if a fresh ASM read shows the helper-backed insert path itself has become the dominant residue

@@ -108,6 +108,9 @@ Interpretation:
   - lowering `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` to `7` and widening string-source borrowing to `StringViewBox` did not improve the current same-artifact lane; keep the flat `<= 8 bytes` policy for this wave
 - borrowed triple-span miss resolution via `handles::with3(...)` plus local `StringViewBox` flattening
   - the narrow `resolve_string_span_triplet_from_handles(...)` borrow wave kept meso flat (`67 -> 68 ms`) and regressed stable main (`704 -> 745 -> 819 ms` on back-to-back checks); keep the explicit uncached miss path for triplet cache misses
+- direct array-slot insert helper from `string_insert_mid_window`
+  - wiring `nyash.array.string_insert_hisi` when both substrings traced back to the same `array.get` source regressed stable main to `1020 ms` on `repeat=3`; the `repeat=20` recheck still stayed above the kept `668 ms` line at `716 ms`
+  - the quick ASM probe still centered on `string_handle_from_owned`, `concat3_hhh`, `substring_hii`, `array.set_his`, `string_len_from_handle`, and `BoxBase::new`, so this helper did not displace the real birth-density residue
 - rejected small carrier cleanup retry
   - sending owned fast paths directly through `string_handle_from_owned(...)`, removing the `resolve_string_span_from_handle(...)` fallback after `TextPlan::from_handle(...)`, and using the relative range length directly inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `777 ms`; keep the span-backed / helper-backed current lane for now
 - rejected pair span-length retry

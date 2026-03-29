@@ -168,6 +168,7 @@ Related:
 	        - rejected 2026-03-28 follow-up: blanket `#[inline(always)]` on host registry / hako-forward string wrappers held stable main around `740 ms` and did not beat the current `736 ms` line; keep that slice reverted
 	        - rejected 2026-03-28 follow-up: `concat_hs` duplicate span-resolution removal plus span-resolver inlining regressed stable `kilo_kernel_small_hk` to `796 ms`; keep the existing `TextPlan::from_handle(...)` route
 	        - rejected 2026-03-28 follow-up: specialized `StringBox`-only store leaf under `nyash.array.set_his` regressed the kept store-boundary line (`kilo_meso_substring_concat_array_set = 66 -> 69 ms`, `kilo_kernel_small_hk = 708 -> 791 ms`); keep the generic string-source helpers and the in-place source borrow cut only
+	        - rejected 2026-03-29 follow-up: direct array-slot insert helper (`nyash.array.string_insert_hisi` from `string_insert_mid_window`) regressed stable main to `1020 ms` on `repeat=3`, and the `repeat=20` recheck still stayed above the kept `668 ms` line at `716 ms`; keep the current helper-backed insert route and do not reopen the direct array-slot helper without fresh birth-density evidence
 	        - `micro -> meso -> kilo` observation ladder is now landed (`substring+concat+len`, `+array_set`, `+loopcarry`)
 	        - compile-time placement helper `crates/nyash_kernel/src/exports/string_birth_placement.rs` is now landed
 	        - first meso reading (`warmup=1 repeat=3`) is fixed:
