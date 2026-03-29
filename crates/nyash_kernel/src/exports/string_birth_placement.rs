@@ -1,3 +1,5 @@
+use super::string_trace;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[allow(dead_code)]
 pub(crate) enum BoundaryKind {
@@ -19,24 +21,64 @@ pub(crate) enum RetainedForm {
 const SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: usize = 8;
 
 #[inline(always)]
-pub(crate) fn substring_retention_class(
-    view_enabled: bool,
-    slice_len: usize,
-) -> RetainedForm {
-    if !view_enabled || slice_len <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
-        RetainedForm::MustFreeze(BoundaryKind::Store)
-    } else {
-        RetainedForm::RetainView
+fn retained_form_label(form: RetainedForm) -> &'static str {
+    match form {
+        RetainedForm::ReturnHandle => "return_handle",
+        RetainedForm::KeepTransient => "keep_transient",
+        RetainedForm::RetainView => "retain_view",
+        RetainedForm::MustFreeze(_) => "must_freeze",
     }
 }
 
 #[inline(always)]
+fn trace_retained_form(stage: &str, form: RetainedForm, reason: &str, extra: &str) {
+    if !string_trace::enabled() {
+        return;
+    }
+    string_trace::emit(stage, retained_form_label(form), reason, extra);
+}
+
+#[inline(always)]
+pub(crate) fn substring_retention_class(view_enabled: bool, slice_len: usize) -> RetainedForm {
+    let placement = if !view_enabled || slice_len <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
+        RetainedForm::MustFreeze(BoundaryKind::Store)
+    } else {
+        RetainedForm::RetainView
+    };
+    if string_trace::enabled() {
+        let reason = if !view_enabled {
+            "view_disabled"
+        } else if slice_len <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
+            "slice_len_le_threshold"
+        } else {
+            "retain_view"
+        };
+        let extra = format!(
+            "view_enabled={} slice_len={} threshold={}",
+            view_enabled, slice_len, SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES
+        );
+        trace_retained_form("placement", placement, reason, &extra);
+    }
+    placement
+}
+
+#[inline(always)]
 pub(crate) fn concat_suffix_retention_class(suffix_is_empty: bool) -> RetainedForm {
-    if suffix_is_empty {
+    let placement = if suffix_is_empty {
         RetainedForm::ReturnHandle
     } else {
         RetainedForm::KeepTransient
+    };
+    if string_trace::enabled() {
+        let reason = if suffix_is_empty {
+            "suffix_empty"
+        } else {
+            "suffix_non_empty"
+        };
+        let extra = format!("suffix_is_empty={}", suffix_is_empty);
+        trace_retained_form("placement", placement, reason, &extra);
     }
+    placement
 }
 
 #[inline(always)]
@@ -44,13 +86,28 @@ pub(crate) fn insert_middle_retention_class(
     source_is_empty: bool,
     middle_is_empty: bool,
 ) -> RetainedForm {
-    if middle_is_empty {
+    let placement = if middle_is_empty {
         RetainedForm::ReturnHandle
     } else if source_is_empty {
         RetainedForm::MustFreeze(BoundaryKind::Store)
     } else {
         RetainedForm::KeepTransient
+    };
+    if string_trace::enabled() {
+        let reason = if middle_is_empty {
+            "middle_empty"
+        } else if source_is_empty {
+            "source_empty"
+        } else {
+            "keep_transient"
+        };
+        let extra = format!(
+            "source_is_empty={} middle_is_empty={}",
+            source_is_empty, middle_is_empty
+        );
+        trace_retained_form("placement", placement, reason, &extra);
     }
+    placement
 }
 
 #[inline(always)]
@@ -60,13 +117,30 @@ pub(crate) fn concat3_retention_class(
     c_is_empty: bool,
     allow_handle_reuse: bool,
 ) -> RetainedForm {
-    if allow_handle_reuse
+    let placement = if allow_handle_reuse
         && ((a_is_empty && b_is_empty) || (a_is_empty && c_is_empty) || (b_is_empty && c_is_empty))
     {
         RetainedForm::ReturnHandle
     } else {
         RetainedForm::KeepTransient
+    };
+    if string_trace::enabled() {
+        let reason = if allow_handle_reuse
+            && ((a_is_empty && b_is_empty)
+                || (a_is_empty && c_is_empty)
+                || (b_is_empty && c_is_empty))
+        {
+            "reuse_handle"
+        } else {
+            "keep_transient"
+        };
+        let extra = format!(
+            "allow_handle_reuse={} a_is_empty={} b_is_empty={} c_is_empty={}",
+            allow_handle_reuse, a_is_empty, b_is_empty, c_is_empty
+        );
+        trace_retained_form("placement", placement, reason, &extra);
     }
+    placement
 }
 
 #[cfg(test)]
@@ -78,10 +152,7 @@ mod tests {
 
     #[test]
     fn substring_placement_distinguishes_view_and_freeze() {
-        assert_eq!(
-            substring_retention_class(true, 9),
-            RetainedForm::RetainView
-        );
+        assert_eq!(substring_retention_class(true, 9), RetainedForm::RetainView);
         assert_eq!(
             substring_retention_class(false, 9),
             RetainedForm::MustFreeze(BoundaryKind::Store)

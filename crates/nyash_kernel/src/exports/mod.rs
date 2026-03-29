@@ -17,6 +17,7 @@ pub(crate) mod string_debug;
 pub(crate) mod string_plan;
 pub(crate) mod string_search;
 pub(crate) mod string_span_cache;
+pub(crate) mod string_trace;
 pub(crate) mod string_view;
 pub(crate) mod user_box;
 

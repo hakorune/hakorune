@@ -90,7 +90,20 @@ Interpretation:
 
 - lowering trace is available under `NYASH_LLVM_ROUTE_TRACE=1`
 - the narrow placement tags are `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route`
+- Rust string trace is split into `placement`, `carrier`, `sink`, and `observer` lines under the same gate; use it to inspect `BoundaryKind` / `RetainedForm`, carrier lineage, freeze sinks, and post-store observer resolution
+- trace gate split: `#[cfg(test)]` probes read `NYASH_LLVM_ROUTE_TRACE`, while non-test runtime code reads `NYASH_VM_ROUTE_TRACE`; bench compare suppresses both stdout and stderr, so use the unit probes for visible trace capture
 - use the trace only as a probe; do not treat it as a new acceptance lane
+- probe result snapshot:
+  - `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel string_concat_hs_contract -- --nocapture`
+    - `placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> placement=return_handle`
+  - `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel string_insert_hsi_contract -- --nocapture`
+    - `observer=fast_hit -> placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> observer=fast_hit -> placement=return_handle`
+  - `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel substring_hii_short_slice_materializes_under_fast_contract -- --nocapture`
+    - `placement=must_freeze -> carrier=freeze_span -> sink=fresh_handle -> sink=span_materialize -> observer=fast_hit`
+  - `tools/perf/bench_compare_c_py_vs_hako.sh` suppresses trace output via `perf_collect_series`; use the unit probes above when you need the placement / carrier / sink / observer lines
+  - bench repeat snapshot for the current kept lane:
+    - `repeat=3`: `c_ms=75`, `py_ms=105`, `ny_vm_ms=985`, `ny_aot_ms=725`, `aot_status=ok`
+    - `repeat=20`: `c_ms=77`, `py_ms=105`, `ny_vm_ms=1007`, `ny_aot_ms=705`, `aot_status=ok`
 
 ## Current Rejected Slices
 

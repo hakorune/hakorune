@@ -3,6 +3,7 @@ use super::string_span_cache::{
     string_span_cache_get, string_span_cache_get_pair, string_span_cache_get_triplet,
     string_span_cache_put,
 };
+use super::string_trace;
 use nyash_rust::{
     box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
     runtime::host_handles as handles,
@@ -125,6 +126,18 @@ pub(crate) struct StringSpan {
 }
 
 impl StringSpan {
+    pub(crate) fn base_handle(&self) -> i64 {
+        self.base_handle
+    }
+
+    pub(crate) fn start(&self) -> usize {
+        self.start
+    }
+
+    pub(crate) fn end(&self) -> usize {
+        self.end
+    }
+
     pub(crate) fn len(&self) -> usize {
         self.as_str().len()
     }
@@ -204,12 +217,42 @@ pub(crate) fn borrowed_substring_plan_from_handle(
         if let Some(sb) = obj.as_any().downcast_ref::<StringBox>() {
             let (st_rel, en_rel) = clamp_i64_range(sb.value.len(), start, end);
             if st_rel == 0 && en_rel == sb.value.len() {
+                trace_borrowed_substring_plan(
+                    handle,
+                    start,
+                    end,
+                    view_enabled,
+                    "return_handle",
+                    "root_full_span",
+                    "StringBox",
+                    en_rel.saturating_sub(st_rel),
+                );
                 return Some(BorrowedSubstringPlan::ReturnHandle);
             }
             if st_rel == en_rel {
+                trace_borrowed_substring_plan(
+                    handle,
+                    start,
+                    end,
+                    view_enabled,
+                    "return_empty",
+                    "root_empty_span",
+                    "StringBox",
+                    0,
+                );
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             }
             if sb.value.get(st_rel..en_rel).is_none() {
+                trace_borrowed_substring_plan(
+                    handle,
+                    start,
+                    end,
+                    view_enabled,
+                    "return_empty",
+                    "root_out_of_range",
+                    "StringBox",
+                    en_rel.saturating_sub(st_rel),
+                );
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             }
             let placement = substring_retention_class(view_enabled, en_rel - st_rel);
@@ -221,12 +264,42 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             };
             match placement {
                 RetainedForm::RetainView => {
+                    trace_borrowed_substring_plan(
+                        handle,
+                        start,
+                        end,
+                        view_enabled,
+                        "view_span",
+                        "retain_view",
+                        "StringBox",
+                        en_rel.saturating_sub(st_rel),
+                    );
                     return Some(BorrowedSubstringPlan::ViewSpan(span));
                 }
                 RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
+                    trace_borrowed_substring_plan(
+                        handle,
+                        start,
+                        end,
+                        view_enabled,
+                        "freeze_span",
+                        "must_freeze_or_keep",
+                        "StringBox",
+                        en_rel.saturating_sub(st_rel),
+                    );
                     return Some(BorrowedSubstringPlan::FreezeSpan(span));
                 }
                 RetainedForm::ReturnHandle => {
+                    trace_borrowed_substring_plan(
+                        handle,
+                        start,
+                        end,
+                        view_enabled,
+                        "return_handle",
+                        "placement_return_handle",
+                        "StringBox",
+                        en_rel.saturating_sub(st_rel),
+                    );
                     return Some(BorrowedSubstringPlan::ReturnHandle);
                 }
             }
@@ -240,14 +313,44 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             let parent_len = parent_en.saturating_sub(parent_st);
             let (st_rel, en_rel) = clamp_i64_range(parent_len, start, end);
             if st_rel == 0 && en_rel == parent_len {
+                trace_borrowed_substring_plan(
+                    handle,
+                    start,
+                    end,
+                    view_enabled,
+                    "return_handle",
+                    "view_full_span",
+                    "StringViewBox",
+                    en_rel.saturating_sub(st_rel),
+                );
                 return Some(BorrowedSubstringPlan::ReturnHandle);
             }
             if st_rel == en_rel {
+                trace_borrowed_substring_plan(
+                    handle,
+                    start,
+                    end,
+                    view_enabled,
+                    "return_empty",
+                    "view_empty_span",
+                    "StringViewBox",
+                    0,
+                );
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             }
             let abs_st = parent_st.saturating_add(st_rel);
             let abs_en = parent_st.saturating_add(en_rel);
             if base_sb.value.get(abs_st..abs_en).is_none() {
+                trace_borrowed_substring_plan(
+                    handle,
+                    start,
+                    end,
+                    view_enabled,
+                    "return_empty",
+                    "view_out_of_range",
+                    "StringViewBox",
+                    abs_en.saturating_sub(abs_st),
+                );
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             }
             let placement = substring_retention_class(view_enabled, abs_en - abs_st);
@@ -259,12 +362,42 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             };
             match placement {
                 RetainedForm::RetainView => {
+                    trace_borrowed_substring_plan(
+                        handle,
+                        start,
+                        end,
+                        view_enabled,
+                        "view_span",
+                        "retain_view",
+                        "StringViewBox",
+                        abs_en.saturating_sub(abs_st),
+                    );
                     return Some(BorrowedSubstringPlan::ViewSpan(span));
                 }
                 RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
+                    trace_borrowed_substring_plan(
+                        handle,
+                        start,
+                        end,
+                        view_enabled,
+                        "freeze_span",
+                        "must_freeze_or_keep",
+                        "StringViewBox",
+                        abs_en.saturating_sub(abs_st),
+                    );
                     return Some(BorrowedSubstringPlan::FreezeSpan(span));
                 }
                 RetainedForm::ReturnHandle => {
+                    trace_borrowed_substring_plan(
+                        handle,
+                        start,
+                        end,
+                        view_enabled,
+                        "return_handle",
+                        "placement_return_handle",
+                        "StringViewBox",
+                        abs_en.saturating_sub(abs_st),
+                    );
                     return Some(BorrowedSubstringPlan::ReturnHandle);
                 }
             }
@@ -280,6 +413,27 @@ fn clamp_usize_range(len: usize, start: usize, end: usize) -> (usize, usize) {
         std::mem::swap(&mut st, &mut en);
     }
     (st, en)
+}
+
+#[inline(always)]
+fn trace_borrowed_substring_plan(
+    handle: i64,
+    start: i64,
+    end: i64,
+    view_enabled: bool,
+    result: &str,
+    reason: &str,
+    source_kind: &str,
+    span_len: usize,
+) {
+    if !string_trace::enabled() {
+        return;
+    }
+    let extra = format!(
+        "handle={} start={} end={} view_enabled={} source_kind={} span_len={}",
+        handle, start, end, view_enabled, source_kind, span_len
+    );
+    string_trace::emit("carrier", result, reason, &extra);
 }
 
 pub(crate) fn resolve_string_span_from_obj(

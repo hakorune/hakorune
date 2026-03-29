@@ -142,6 +142,12 @@ Related:
         - daily seed-owner asm is already near the C loop shape (`and $0x3f`, `test $0xf`, direct `strstr@plt`, raw flip store)
         - forced generic probe no longer spends the bulk of its cycles in `Registry::with_handle` / `Registry::with_str_pair`; the narrow fast path now reads array slots directly, caches the const needle string per thread, and leaves the hot route dominated by local `array_string_indexof_by_index` work plus a small `set_hih` tail
       - compiler-local placement trace is available under `NYASH_LLVM_ROUTE_TRACE=1`; use the narrow stages `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route` when you need to decide the next placement cut
+      - Rust-side string trace is split into `placement`, `carrier`, `sink`, and `observer` lines under the same route-trace gate; it now shows `BoundaryKind` / `RetainedForm`, borrowed substring lineage, freeze/birth sinks, and post-store observer resolution without reopening leaf hacks
+      - gate split note: test probes read `NYASH_LLVM_ROUTE_TRACE`, runtime reads `NYASH_VM_ROUTE_TRACE`; the bench compare harness suppresses both stdout and stderr, so the visible probe evidence comes from the unit contracts below
+      - trace probe snapshot is frozen via unit contracts (`NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel -- --nocapture`); `bench_compare_c_py_vs_hako.sh` still suppresses those lines, so use the unit traces for placement/carrier/sink/observer inspection:
+        - `string_concat_hs_contract` prints `placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> placement=return_handle`
+        - `string_insert_hsi_contract` prints `observer=fast_hit -> placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> observer=fast_hit -> placement=return_handle`
+        - `substring_hii_short_slice_materializes_under_fast_contract` prints `placement=must_freeze -> carrier=freeze_span -> sink=fresh_handle -> sink=span_materialize -> observer=fast_hit`
       - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the earlier registry-boundary perf blocker is retired for the current micro route
       - current post-cut reading is fixed:
         - same-artifact probe bundle still reports `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1`

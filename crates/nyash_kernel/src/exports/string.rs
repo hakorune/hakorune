@@ -15,6 +15,7 @@ use super::string_search::{
     compare_string_pair_hh, empty_needle_indexof, empty_needle_lastindexof, find_substr_byte_index,
     rfind_substr_byte_index, search_string_pair_hh,
 };
+use super::string_trace;
 use super::string_view::{
     borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
     resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
@@ -33,38 +34,93 @@ use std::{
 
 pub(crate) fn string_len_from_handle(handle: i64) -> Option<i64> {
     if handle <= 0 {
+        trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
         return None;
     }
     let fast_len = handles::with_handle(handle as u64, |obj| {
         obj.and_then(|boxed| boxed.as_ref().as_str_fast().map(|s| s.len() as i64))
     });
     if fast_len.is_some() {
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "fast_hit",
+            "as_str_fast",
+            &format!("len={}", fast_len.unwrap_or_default()),
+        );
         return fast_len;
     }
-    string_len_impl(handle)
+    let fallback = string_len_impl(handle);
+    trace_observer_resolution(
+        "observer",
+        handle,
+        if fallback.is_some() {
+            "fallback_hit"
+        } else {
+            "fallback_miss"
+        },
+        "string_len_impl",
+        &format!("len={}", fallback.unwrap_or_default()),
+    );
+    fallback
 }
 
 pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
     if handle <= 0 {
+        trace_observer_resolution("observer", handle, "none", "invalid_handle", "");
         return None;
     }
     let fast_empty = handles::with_handle(handle as u64, |obj| {
         obj.and_then(|boxed| boxed.as_ref().as_str_fast().map(str::is_empty))
     });
     if fast_empty.is_some() {
+        trace_observer_resolution(
+            "observer",
+            handle,
+            "fast_hit",
+            "as_str_fast",
+            &format!("empty={}", fast_empty.unwrap_or(false)),
+        );
         return fast_empty;
     }
-    string_is_empty_impl(handle)
+    let fallback = string_is_empty_impl(handle);
+    trace_observer_resolution(
+        "observer",
+        handle,
+        if fallback.is_some() {
+            "fallback_hit"
+        } else {
+            "fallback_miss"
+        },
+        "string_is_empty_impl",
+        &format!("empty={}", fallback.unwrap_or(false)),
+    );
+    fallback
 }
 
 fn string_handle_from_owned(value: String) -> i64 {
-    materialize_owned_string(value)
+    let len = value.len();
+    let handle = materialize_owned_string(value);
+    if string_trace::enabled() {
+        let extra = format!("source=owned len={} handle={}", len, handle);
+        string_trace::emit("sink", "fresh_handle", "materialize_owned_string", &extra);
+    }
+    handle
 }
 
 #[inline(always)]
 fn string_handle_from_span(span: StringSpan) -> i64 {
     let source = span.as_str();
     if source.is_empty() {
+        if string_trace::enabled() {
+            let extra = format!(
+                "source=span len=0 base_handle={} range={}..{}",
+                span.base_handle(),
+                span.start(),
+                span.end()
+            );
+            string_trace::emit("sink", "shared_empty", "span_empty", &extra);
+        }
         return shared_empty_string_handle();
     }
     let len = source.len();
@@ -74,11 +130,34 @@ fn string_handle_from_span(span: StringSpan) -> i64 {
         buf.set_len(len);
         ptr::copy_nonoverlapping(source.as_ptr(), buf.as_mut_ptr(), len);
     }
-    string_handle_from_owned(out)
+    let handle = string_handle_from_owned(out);
+    if string_trace::enabled() {
+        let extra = format!(
+            "source=span len={} base_handle={} range={}..{} handle={}",
+            len,
+            span.base_handle(),
+            span.start(),
+            span.end(),
+            handle
+        );
+        string_trace::emit("sink", "fresh_handle", "span_materialize", &extra);
+    }
+    handle
 }
 
 #[inline(always)]
 fn freeze_text_plan<'a>(plan: TextPlan<'a>) -> i64 {
+    if string_trace::enabled() {
+        let piece_count = text_plan_piece_count(&plan);
+        let total_len = text_plan_total_len(&plan);
+        let extra = format!(
+            "plan_shape={} piece_count={} total_len={}",
+            text_plan_shape(&plan),
+            piece_count,
+            total_len
+        );
+        string_trace::emit("sink", "freeze_plan", "freeze_text_plan", &extra);
+    }
     string_handle_from_owned(plan.into_owned())
 }
 
@@ -128,6 +207,52 @@ fn shared_empty_string_handle() -> i64 {
     }
 }
 
+#[inline(always)]
+fn text_plan_shape(plan: &TextPlan<'_>) -> &'static str {
+    match plan {
+        TextPlan::View1(_) => "view1",
+        TextPlan::Pieces2 { .. } => "pieces2",
+        TextPlan::Pieces3 { .. } => "pieces3",
+        TextPlan::Pieces4 { .. } => "pieces4",
+        TextPlan::OwnedTmp(_) => "owned_tmp",
+    }
+}
+
+#[inline(always)]
+fn text_plan_piece_count(plan: &TextPlan<'_>) -> usize {
+    match plan {
+        TextPlan::View1(_) => 1,
+        TextPlan::Pieces2 { .. } => 2,
+        TextPlan::Pieces3 { .. } => 3,
+        TextPlan::Pieces4 { .. } => 4,
+        TextPlan::OwnedTmp(_) => 1,
+    }
+}
+
+#[inline(always)]
+fn text_plan_total_len(plan: &TextPlan<'_>) -> usize {
+    match plan {
+        TextPlan::View1(span) => span.len(),
+        TextPlan::Pieces2 { total_len, .. }
+        | TextPlan::Pieces3 { total_len, .. }
+        | TextPlan::Pieces4 { total_len, .. } => *total_len,
+        TextPlan::OwnedTmp(text) => text.len(),
+    }
+}
+
+#[inline(always)]
+fn trace_observer_resolution(stage: &str, handle: i64, result: &str, reason: &str, extra: &str) {
+    if !string_trace::enabled() {
+        return;
+    }
+    let extra = if extra.is_empty() {
+        format!("handle={}", handle)
+    } else {
+        format!("handle={} {}", handle, extra)
+    };
+    string_trace::emit(stage, result, reason, &extra);
+}
+
 fn concat_to_string_handle(parts: &[&str]) -> i64 {
     match parts.len() {
         0 => return string_handle_from_owned(String::new()),
@@ -155,8 +280,25 @@ enum Concat3Plan<'a> {
 #[inline(always)]
 fn freeze_concat3_plan<'a>(plan: Concat3Plan<'a>) -> i64 {
     match plan {
-        Concat3Plan::ReuseHandle(handle) => handle,
-        Concat3Plan::Materialize(value) => freeze_text_plan(value),
+        Concat3Plan::ReuseHandle(handle) => {
+            if string_trace::enabled() {
+                let extra = format!("handle={}", handle);
+                string_trace::emit("sink", "reuse_handle", "concat3_reuse", &extra);
+            }
+            handle
+        }
+        Concat3Plan::Materialize(value) => {
+            if string_trace::enabled() {
+                let extra = format!(
+                    "plan_shape={} piece_count={} total_len={}",
+                    text_plan_shape(&value),
+                    text_plan_piece_count(&value),
+                    text_plan_total_len(&value)
+                );
+                string_trace::emit("sink", "freeze_plan", "concat3_materialize", &extra);
+            }
+            freeze_text_plan(value)
+        }
     }
 }
 
@@ -239,8 +381,7 @@ fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
         return None;
     }
     let plan = handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
-        let placement =
-            concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), true);
+        let placement = concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), true);
         debug_assert!(!matches!(placement, RetainedForm::RetainView));
         if a.is_empty() {
             if b.is_empty() {
@@ -273,8 +414,7 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 || c_h <= 0 {
         return None;
     }
-    let Some((a_span, b_span, c_span)) =
-        resolve_string_span_triplet_from_handles(a_h, b_h, c_h)
+    let Some((a_span, b_span, c_span)) = resolve_string_span_triplet_from_handles(a_h, b_h, c_h)
     else {
         return None;
     };
