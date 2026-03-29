@@ -1,5 +1,4 @@
 use super::string_birth_placement::{substring_retention_class, TextRetentionClass};
-use super::string_plan::TextPlan;
 use super::string_span_cache::{
     string_span_cache_get, string_span_cache_get_pair, string_span_cache_get_triplet,
     string_span_cache_put,
@@ -185,7 +184,7 @@ pub(crate) fn clamp_i64_range(len: usize, start: i64, end: i64) -> (usize, usize
 pub(crate) enum BorrowedSubstringPlan {
     ReturnHandle,
     ReturnEmpty,
-    FreezePlan(TextPlan<'static>),
+    FreezeSpan(StringSpan),
     ViewSpan(StringSpan),
 }
 
@@ -220,17 +219,17 @@ pub(crate) fn borrowed_substring_plan_from_handle(
                 start: st_rel,
                 end: en_rel,
             };
-            match placement {
-                TextRetentionClass::RetainView => {
-                    return Some(BorrowedSubstringPlan::ViewSpan(span));
+                match placement {
+                    TextRetentionClass::RetainView => {
+                        return Some(BorrowedSubstringPlan::ViewSpan(span));
+                    }
+                    TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
+                        return Some(BorrowedSubstringPlan::FreezeSpan(span));
+                    }
+                    TextRetentionClass::ReturnHandle => {
+                        return Some(BorrowedSubstringPlan::ReturnHandle);
+                    }
                 }
-                TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
-                    return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(span)));
-                }
-                TextRetentionClass::ReturnHandle => {
-                    return Some(BorrowedSubstringPlan::ReturnHandle);
-                }
-            }
         }
         if let Some(view) = obj.as_any().downcast_ref::<StringViewBox>() {
             let Some(base_sb) = view.base_obj.as_any().downcast_ref::<StringBox>() else {
@@ -258,17 +257,17 @@ pub(crate) fn borrowed_substring_plan_from_handle(
                 start: abs_st,
                 end: abs_en,
             };
-            match placement {
-                TextRetentionClass::RetainView => {
-                    return Some(BorrowedSubstringPlan::ViewSpan(span));
+                match placement {
+                    TextRetentionClass::RetainView => {
+                        return Some(BorrowedSubstringPlan::ViewSpan(span));
+                    }
+                    TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
+                        return Some(BorrowedSubstringPlan::FreezeSpan(span));
+                    }
+                    TextRetentionClass::ReturnHandle => {
+                        return Some(BorrowedSubstringPlan::ReturnHandle);
+                    }
                 }
-                TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
-                    return Some(BorrowedSubstringPlan::FreezePlan(TextPlan::from_span(span)));
-                }
-                TextRetentionClass::ReturnHandle => {
-                    return Some(BorrowedSubstringPlan::ReturnHandle);
-                }
-            }
         }
         None
     })

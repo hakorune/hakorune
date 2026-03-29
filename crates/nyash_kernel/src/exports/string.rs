@@ -19,7 +19,7 @@ use super::string_view::{
     borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
     resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
     string_is_empty_from_handle as string_is_empty_impl, string_len_from_handle as string_len_impl,
-    BorrowedSubstringPlan,
+    BorrowedSubstringPlan, StringSpan,
 };
 use crate::hako_forward_bridge;
 use crate::plugin::materialize_owned_string;
@@ -59,6 +59,22 @@ pub(crate) fn string_is_empty_from_handle(handle: i64) -> Option<bool> {
 
 fn string_handle_from_owned(value: String) -> i64 {
     materialize_owned_string(value)
+}
+
+#[inline(always)]
+fn string_handle_from_span(span: StringSpan) -> i64 {
+    let source = span.as_str();
+    if source.is_empty() {
+        return shared_empty_string_handle();
+    }
+    let len = source.len();
+    let mut out = String::with_capacity(len);
+    unsafe {
+        let buf = out.as_mut_vec();
+        buf.set_len(len);
+        ptr::copy_nonoverlapping(source.as_ptr(), buf.as_mut_ptr(), len);
+    }
+    string_handle_from_owned(out)
 }
 
 #[inline(always)]
@@ -692,7 +708,7 @@ pub extern "C" fn nyash_string_substring_hii_export(h: i64, start: i64, end: i64
     match plan {
         BorrowedSubstringPlan::ReturnHandle => h,
         BorrowedSubstringPlan::ReturnEmpty => shared_empty_string_handle(),
-        BorrowedSubstringPlan::FreezePlan(plan) => freeze_text_plan(plan),
+        BorrowedSubstringPlan::FreezeSpan(span) => string_handle_from_span(span),
         BorrowedSubstringPlan::ViewSpan(span) => {
             handles::to_handle_arc(std::sync::Arc::new(span.into_view_box())) as i64
         }

@@ -50,14 +50,18 @@ Related:
   - `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` now return a reuse-or-owned decision before freeze, so the registry read lock is no longer held across `freeze_text_plan(...)`
   - `resolve_string_span_triplet_from_handles(...)` plus `string_span_cache_get_triplet(...)` land the triple-span route
   - latest same-artifact recheck after this concat3 fix is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`, `kilo_kernel_small_hk = 704 ms`
+- short-slice substring freeze cut landed
+  - `BorrowedSubstringPlan` now returns `FreezeSpan(StringSpan)` for short freeze-only slices instead of wrapping them in `TextPlan::from_span(...)`
+  - `substring_hii` materializes those short spans directly via `string_handle_from_span(...)`
+  - latest same-artifact recheck after this cut is `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 704 ms`
 
 ## Latest Same-Artifact Proof
 
 The retained-boundary parent split was docs-only, so we re-ran the same-artifact proof before opening any code-side `RetainedForm` split. The result stayed flat.
 
-- `kilo_meso_substring_concat_len = 36 ms`
+- `kilo_meso_substring_concat_len = 35 ms`
 - `kilo_meso_substring_concat_array_set = 67 ms`
-- `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`
+- `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
 - `kilo_kernel_small_hk = 704 ms`
 
 Interpretation:
