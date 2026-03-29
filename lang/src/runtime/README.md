@@ -17,3 +17,4 @@ Rules:
 - Do not move collection owner boxes into `runtime/substrate/**` before the capability modules are explicitly staged.
 - `runtime/memory/**` is legacy and not the canonical home for alloc/policy helpers.
 - stage1 is bridge/proof for owner slices; stage2+ is the final mainline.
+- Phase plan SSOT: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.

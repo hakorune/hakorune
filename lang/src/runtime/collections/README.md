@@ -14,6 +14,7 @@ Scope: `.hako` ring1 collection core for user-visible collection semantics on th
 - This folder is the visible owner frontier for `ArrayBox` / `MapBox` semantics.
 - Current mainline still delegates primitive storage/ops to Rust-owned ABI/plugin exports; the raw substrate remains Rust-owned until the boundary deepens.
 - Stage1 is bridge/proof for owner slices here; that does not relabel this folder as the final mainline.
+- Phase plan SSOT: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
 - Rust-side export surface is now split by strata:
   - `crates/nyash_kernel/src/plugin/array.rs` and `map.rs` are thin facades
   - actual Rust implementations live in:
