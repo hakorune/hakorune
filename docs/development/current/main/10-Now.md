@@ -101,7 +101,7 @@ Related:
     - `hako_llvmc_ffi_compiler_state.inc`
     - `hako_llvmc_ffi_string_concat_emit.inc`
     - `lang/src/runtime/kernel/string/chain_policy.hako`
-    - `hako_llvmc_ffi_string_chain_policy.inc`
+    - `hako_llvmc_ffi_string_chain_policy.inc` (now mirrors route / retained-form / post-store observer names)
     - `lang/src/runtime/collections/method_policy_box.hako`
     - `hako_llvmc_ffi_generic_method_policy.inc`
     - `hako_llvmc_ffi_generic_method_len_policy.inc`

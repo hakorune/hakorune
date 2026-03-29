@@ -65,6 +65,7 @@ freeze.str
   - `concat3_route(...) -> route tag`
   - first stage2 semantic-owner landing for concat / substring / post-store observer vocabulary
   - current compiler-side mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_string_chain_policy.inc`
+  - that mirror now owns route / retained-form / post-store observer names on the compiler side, so string placement traces no longer hardcode those `.hako` owner terms directly
 
 ## Current Narrow Frontier
 

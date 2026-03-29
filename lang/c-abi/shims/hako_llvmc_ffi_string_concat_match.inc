@@ -364,8 +364,8 @@
               0,
               0,
               producer_kind,
-              "Store",
-              "None",
+              string_boundary_kind_store_name(),
+              string_post_store_use_name(HAKO_LLVMC_STRING_POST_STORE_USE_NONE),
               -1,
               1);
           return 0;
@@ -408,8 +408,8 @@
             0,
             0,
             producer_kind,
-            "Store",
-            "None",
+            string_boundary_kind_store_name(),
+            string_post_store_use_name(HAKO_LLVMC_STRING_POST_STORE_USE_NONE),
             -1,
             1);
         return matched;

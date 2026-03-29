@@ -74,7 +74,7 @@ Related:
 - `hako_llvmc_ffi_string_concat_match.inc` is mostly compiler-state / semantic placement owner.
 - `hako_llvmc_ffi_string_concat_lowering.inc` now wraps the concat emit seam and is no longer the main owner surface.
 - `hako_llvmc_ffi_string_concat_emit.inc` now holds the string concat emit helpers and route-adjacent trace hooks.
-- `hako_llvmc_ffi_string_chain_policy.inc` now mirrors the first `.hako` string-chain policy vocabulary so `pure_compile` no longer owns the concat route ladder directly.
+- `hako_llvmc_ffi_string_chain_policy.inc` now mirrors the first `.hako` string-chain policy vocabulary, including concat route names plus retained-form / post-store observer names, so compiler-local string placement traces no longer hardcode those owner terms directly.
 - `lang/src/runtime/collections/method_policy_box.hako` is the second `.hako` semantic-owner landing for generic collection/runtime method emit vocabulary.
 - `hako_llvmc_ffi_generic_method_policy.inc` now mirrors that generic method vocabulary so emit-kind naming is no longer owned inside `generic_method_match.inc`.
 - `hako_llvmc_ffi_generic_method_len_policy.inc` now mirrors the first generic method action route (`len`) so `generic_method_lowering.inc` no longer owns that route ladder directly.

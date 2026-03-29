@@ -404,12 +404,15 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       done:
         if (extra && extra_cap) {
           snprintf(extra, extra_cap,
-                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d len_ii=%zu len_dst=%lld keep_get_live=%d producer_kind=ArrayGet boundary_kind=Store post_store_use=LenObserver known_len=-1 direct_set_only=0",
+                   "ii=%zu dst=%lld recv=%lld idx=%lld copy_n=%d len_ii=%zu len_dst=%lld keep_get_live=%d producer_kind=ArrayGet boundary_kind=%s post_store_use=%s known_len=-1 direct_set_only=0",
                    ii, cur_dst, recv, idx,
                    out ? out->copy_n : 0,
                    out ? out->len_ii : 0,
                    out ? out->len_dst : 0,
-                   out ? out->keep_get_live : 0);
+                   out ? out->keep_get_live : 0,
+                   string_boundary_kind_store_name(),
+                   string_post_store_use_name(
+                       HAKO_LLVMC_STRING_POST_STORE_USE_LEN_OBSERVER));
         }
         if (reason_out) *reason_out = reason;
         return out && out->matched;
