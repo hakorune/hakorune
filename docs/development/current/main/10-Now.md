@@ -111,13 +111,16 @@ Related:
     - `hako_llvmc_ffi_generic_method_has_policy.inc`
     - `hako_llvmc_ffi_generic_method_substring_policy.inc`
     - `hako_llvmc_ffi_generic_method_get_policy.inc`
-    - `hako_llvmc_ffi_generic_method_get_window.inc`
-    - `hako_llvmc_ffi_generic_method_get_lowering.inc`
-    - `hako_llvmc_ffi_string_concat_window.inc`
+  - `hako_llvmc_ffi_generic_method_get_window.inc`
+  - `hako_llvmc_ffi_generic_method_get_lowering.inc`
+  - `hako_llvmc_ffi_string_concat_window.inc`
+  - `pure_compile.inc` dead GET-window remnants retired
+  - `string_concat_match.inc` dead helper copy block retired
   - next exact slice:
     - `GET` fallback seam is landed; `GET` window helpers are isolated in `hako_llvmc_ffi_generic_method_get_window.inc` and dispatch now routes through `hako_llvmc_ffi_generic_method_get_lowering.inc`
     - `string_concat_match.inc` now shares producer-window helpers from `hako_llvmc_ffi_string_concat_window.inc`
-    - keep remaining `GET` RMW / indexOf defer logic in the mixed helper lane for now
+    - dead GET-window remnants are retired from `pure_compile.inc`; dead helper copies are retired from `string_concat_match.inc`
+    - keep remaining live `GET` RMW / indexOf defer logic in the mixed helper lane for now
     - next semantic-owner candidates are the remaining compiler-owner decisions after those producer-side probes
     - treat producer/use/future-use analysis as compiler-state-heavy until a later seam exists
 - Secondary exact blocker lane: `phase-29ck`
