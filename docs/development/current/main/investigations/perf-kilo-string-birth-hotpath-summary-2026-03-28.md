@@ -46,21 +46,26 @@ Related:
 - narrow branch-check trim landed
   - `concat_hs` const-suffix empty-path and `insert_hsi` source-empty lookup are no longer checked twice
   - kept recheck is `kilo_kernel_small_hk = 707 ms`, `kilo_meso_substring_concat_array_set = 68 ms`
+- concat3 lock-safe fast path landed
+  - `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` now return a reuse-or-owned decision before freeze, so the registry read lock is no longer held across `freeze_text_plan(...)`
+  - `resolve_string_span_triplet_from_handles(...)` plus `string_span_cache_get_triplet(...)` land the triple-span route
+  - latest same-artifact recheck after this concat3 fix is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`, `kilo_kernel_small_hk = 704 ms`
 
 ## Latest Same-Artifact Proof
 
 The retained-boundary parent split was docs-only, so we re-ran the same-artifact proof before opening any code-side `RetainedForm` split. The result stayed flat.
 
-- `kilo_meso_substring_concat_len = 35 ms`
-- `kilo_meso_substring_concat_array_set = 68 ms`
-- `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
-- `kilo_kernel_small_hk = 760 ms`
+- `kilo_meso_substring_concat_len = 36 ms`
+- `kilo_meso_substring_concat_array_set = 67 ms`
+- `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`
+- `kilo_kernel_small_hk = 704 ms`
 
 Interpretation:
 
 - `array_set` is still the first Store proof boundary
 - sink-local tuning is still exhausted
 - the code-side `RetainedForm` split remains deferred
+- concat3 lock-freezing is no longer on the critical path; the next step is still upstream birth-density proof
 
 ## Current Rejected Slices
 

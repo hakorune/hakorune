@@ -1,7 +1,8 @@
 use super::string_birth_placement::{substring_retention_class, TextRetentionClass};
 use super::string_plan::TextPlan;
 use super::string_span_cache::{
-    string_span_cache_get, string_span_cache_get_pair, string_span_cache_put,
+    string_span_cache_get, string_span_cache_get_pair, string_span_cache_get_triplet,
+    string_span_cache_put,
 };
 use nyash_rust::{
     box_trait::{BoolBox, BoxBase, BoxCore, NyashBox, StringBox},
@@ -365,6 +366,54 @@ pub(crate) fn resolve_string_span_pair_from_handles(
     string_span_cache_put(a_h, drop_epoch, &a_span);
     string_span_cache_put(b_h, drop_epoch, &b_span);
     Some((a_span, b_span))
+}
+
+pub(crate) fn resolve_string_span_triplet_from_handles(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+) -> Option<(StringSpan, StringSpan, StringSpan)> {
+    if a_h <= 0 || b_h <= 0 || c_h <= 0 {
+        return None;
+    }
+    let drop_epoch = handles::drop_epoch();
+    let (a_cached, b_cached, c_cached) = string_span_cache_get_triplet(a_h, b_h, c_h, drop_epoch);
+
+    let a_span = match a_cached {
+        Some(span) => span,
+        None => {
+            let span = resolve_string_span_from_handle_uncached(a_h)?;
+            string_span_cache_put(a_h, drop_epoch, &span);
+            span
+        }
+    };
+    let b_span = if b_h == a_h {
+        a_span.clone()
+    } else {
+        match b_cached {
+            Some(span) => span,
+            None => {
+                let span = resolve_string_span_from_handle_uncached(b_h)?;
+                string_span_cache_put(b_h, drop_epoch, &span);
+                span
+            }
+        }
+    };
+    let c_span = if c_h == a_h {
+        a_span.clone()
+    } else if c_h == b_h {
+        b_span.clone()
+    } else {
+        match c_cached {
+            Some(span) => span,
+            None => {
+                let span = resolve_string_span_from_handle_uncached(c_h)?;
+                string_span_cache_put(c_h, drop_epoch, &span);
+                span
+            }
+        }
+    };
+    Some((a_span, b_span, c_span))
 }
 
 fn resolve_string_span_from_view(view: &StringViewBox) -> Option<StringSpan> {

@@ -17,7 +17,7 @@ use super::string_search::{
 };
 use super::string_view::{
     borrowed_substring_plan_from_handle, resolve_string_span_from_handle,
-    resolve_string_span_from_obj, resolve_string_span_pair_from_handles,
+    resolve_string_span_pair_from_handles, resolve_string_span_triplet_from_handles,
     string_is_empty_from_handle as string_is_empty_impl, string_len_from_handle as string_len_impl,
     BorrowedSubstringPlan,
 };
@@ -212,13 +212,43 @@ fn concat3_plan_from_parts<'a>(
     ))
 }
 
+enum ConcatFastPath {
+    ReuseHandle(i64),
+    Owned(String),
+}
+
 #[inline(always)]
 fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 || c_h <= 0 {
         return None;
     }
-    handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
-        freeze_concat3_plan(concat3_plan_from_parts(a_h, b_h, c_h, a, b, c, true))
+    let plan = handles::with_str3(a_h as u64, b_h as u64, c_h as u64, |a, b, c| {
+        let placement =
+            concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), true);
+        debug_assert!(!matches!(placement, TextRetentionClass::RetainView));
+        if a.is_empty() {
+            if b.is_empty() {
+                return ConcatFastPath::ReuseHandle(c_h);
+            }
+            if c.is_empty() {
+                return ConcatFastPath::ReuseHandle(b_h);
+            }
+            return ConcatFastPath::Owned(concat_two_str(b, c));
+        }
+        if b.is_empty() {
+            if c.is_empty() {
+                return ConcatFastPath::ReuseHandle(a_h);
+            }
+            return ConcatFastPath::Owned(concat_two_str(a, c));
+        }
+        if c.is_empty() {
+            return ConcatFastPath::Owned(concat_two_str(a, b));
+        }
+        ConcatFastPath::Owned(concat_three_str(a, b, c))
+    })?;
+    Some(match plan {
+        ConcatFastPath::ReuseHandle(handle) => handle,
+        ConcatFastPath::Owned(text) => freeze_text_plan(TextPlan::from_owned(text)),
     })
 }
 
@@ -227,15 +257,9 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64, allow_handle_reuse: boo
     if a_h <= 0 || b_h <= 0 || c_h <= 0 {
         return None;
     }
-    let (a_obj, b_obj, c_obj) = handles::get3(a_h as u64, b_h as u64, c_h as u64);
-    let (Some(a_obj), Some(b_obj), Some(c_obj)) = (a_obj, b_obj, c_obj) else {
-        return None;
-    };
-    let (Some(a_span), Some(b_span), Some(c_span)) = (
-        resolve_string_span_from_obj(a_h, a_obj),
-        resolve_string_span_from_obj(b_h, b_obj),
-        resolve_string_span_from_obj(c_h, c_obj),
-    ) else {
+    let Some((a_span, b_span, c_span)) =
+        resolve_string_span_triplet_from_handles(a_h, b_h, c_h)
+    else {
         return None;
     };
     let a = a_span.as_str();
@@ -326,17 +350,18 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 {
         return None;
     }
-    handles::with_str_pair(a_h as u64, b_h as u64, |a, b| {
+    let plan = handles::with_str_pair(a_h as u64, b_h as u64, |a, b| {
         if a.is_empty() {
-            return b_h;
+            return ConcatFastPath::ReuseHandle(b_h);
         }
         if b.is_empty() {
-            return a_h;
+            return ConcatFastPath::ReuseHandle(a_h);
         }
-        freeze_text_plan(TextPlan::from_two(
-            TextPiece::Inline(a),
-            TextPiece::Inline(b),
-        ))
+        ConcatFastPath::Owned(concat_two_str(a, b))
+    })?;
+    Some(match plan {
+        ConcatFastPath::ReuseHandle(handle) => handle,
+        ConcatFastPath::Owned(text) => freeze_text_plan(TextPlan::from_owned(text)),
     })
 }
 

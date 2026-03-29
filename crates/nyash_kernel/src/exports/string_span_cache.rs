@@ -112,6 +112,36 @@ pub(super) fn string_span_cache_get_pair(
     })
 }
 
+pub(super) fn string_span_cache_get_triplet(
+    a_h: i64,
+    b_h: i64,
+    c_h: i64,
+    drop_epoch: u64,
+) -> (Option<StringSpan>, Option<StringSpan>, Option<StringSpan>) {
+    if !string_span_cache_enabled() {
+        return (None, None, None);
+    }
+    STRING_SPAN_CACHE.with(|cache| {
+        let mut state = cache.borrow_mut();
+        state.ensure_epoch(drop_epoch);
+        let slots = &mut state.slots;
+        let a_span = string_span_cache_lookup_promote(slots, a_h);
+        let b_span = if b_h == a_h {
+            a_span.clone()
+        } else {
+            string_span_cache_lookup_promote(slots, b_h)
+        };
+        let c_span = if c_h == a_h {
+            a_span.clone()
+        } else if c_h == b_h {
+            b_span.clone()
+        } else {
+            string_span_cache_lookup_promote(slots, c_h)
+        };
+        (a_span, b_span, c_span)
+    })
+}
+
 #[inline(always)]
 fn string_span_cache_lookup_promote(
     slots: &mut [Option<StringSpanCacheEntry>; STRING_SPAN_CACHE_SLOTS],

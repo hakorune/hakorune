@@ -93,6 +93,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - attempted canonical sink re-home: moving `freeze.str` into `string_store.rs` regressed stable main (`kilo_kernel_small_hk = 834 -> 909 ms` on back-to-back checks), so keep the explicit `freeze_text_plan(...)` sink helper in `string.rs` for now
   - landed planner cleanup: const-suffix / insert recipe helpers now live in `crates/nyash_kernel/src/exports/string_plan.rs`, leaving `string.rs` as the boundary/sink site
   - latest kept recheck after branch-check trim: `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_kernel_small_hk = 707 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - accepted concat3 lock-safe fast path:
+    - `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` no longer freeze while holding the host-handle read lock; they now return a reuse-or-owned decision first and freeze outside the lock
+    - `resolve_string_span_triplet_from_handles(...)` plus `string_span_cache_get_triplet(...)` now land the triple-span route
+    - latest recheck after this concat3 fix is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`, `kilo_kernel_small_hk = 704 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
   - same-artifact proof after the retained-boundary parent split stayed flat, so code-side `RetainedForm` split remains deferred unless fresh asm evidence appears
   - next fixed order is now:
     1. keep `BoundaryKind` and `RetainedForm` split as the parent retained-boundary contract
