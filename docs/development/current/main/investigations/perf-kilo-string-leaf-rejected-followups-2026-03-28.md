@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/transient-text-pieces-ssot.md
+  - docs/development/current/main/design/post-store-observer-facts-ssot.md
   - crates/nyash_kernel/src/exports/string.rs
   - crates/nyash_kernel/src/exports/string_view.rs
   - crates/nyash_kernel/src/plugin/array_string_slot.rs
@@ -88,6 +89,35 @@ reject
 
 - `concat_hs` / `array_set_by_index_string_handle_value` が top から退いた後
 - かつ `insert_hsi` / transient carrier が asm top reason に上がった後
+
+## Rejected Cut C
+
+### Name
+
+length-aware store-boundary classifier retry
+
+### Intent
+
+- classify `array.set(...)` plus one trailing `length()` observer as a combined store boundary in `has_direct_array_set_consumer(...)`
+- keep the direct-store candidate visible even when the follow-up read-only observer remains nearby
+
+### Result
+
+- stable `kilo_kernel_small_hk`: `746 ms` on `repeat=3`
+- stable `kilo_kernel_small_hk`: `757 ms` on `repeat=20`
+
+### Judgment
+
+reject
+
+### Why
+
+- the stricter direct-set-only guard still beat the combined store+observer boundary for this wave
+- `length()` is now recorded as a post-store observer fact instead of being merged into the store boundary
+
+### Reopen Condition
+
+- only if a future placement wave shows the trailing `length()` observer is the last blocker for keeping the direct-store recipe live
 
 ## Active Exact Leaf After Rejection
 

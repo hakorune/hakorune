@@ -65,14 +65,15 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - status: `active micro/kilo optimization`
 - scope: string materialization / array store memory motion
-- current SSOT:
-  - `docs/development/current/main/10-Now.md`
-  - `docs/development/current/main/design/kilo-meso-benchmark-ladder-ssot.md`
-  - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
-  - `docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md`
-  - `docs/development/current/main/design/string-birth-placement-ssot.md`
-  - `docs/development/current/main/design/string-birth-sink-ssot.md`
-  - `docs/development/current/main/design/transient-text-pieces-ssot.md`
+  - current SSOT:
+    - `docs/development/current/main/10-Now.md`
+    - `docs/development/current/main/design/kilo-meso-benchmark-ladder-ssot.md`
+    - `docs/development/current/main/design/recipe-scope-effect-policy-ssot.md`
+    - `docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md`
+    - `docs/development/current/main/design/post-store-observer-facts-ssot.md`
+    - `docs/development/current/main/design/string-birth-placement-ssot.md`
+    - `docs/development/current/main/design/string-birth-sink-ssot.md`
+    - `docs/development/current/main/design/transient-text-pieces-ssot.md`
   - `docs/tools/README.md`
   - current leaf status:
   - normalized transient text pieces (`TextPlan` / `PiecesN`) pilot landed
@@ -164,8 +165,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - active lane is now the upstream placement proof, not another leaf tweak:
   1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
-  2. attack `concat3_hhh` / `array_set` / trailing `length()` as one placement problem, not as isolated helper cuts
-  3. keep `array_set` as the consumer boundary / first `Store` proof while the placement proof is open
+  2. keep `array_set` as the consumer boundary / first `Store` proof while `post-store-observer-facts-ssot.md` owns the trailing `length()` observer
+  3. attack `concat3_hhh` / `array_set` placement as one upstream problem, but do not collapse the observer into the store boundary
   4. only after a same-artifact improvement is visible, revisit code-side `RetainedForm` wiring
 - keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
 - keep the landed meso benchmark ladder as the gate for the next string cut

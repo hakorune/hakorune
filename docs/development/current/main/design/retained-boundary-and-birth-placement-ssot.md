@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/recipe-scope-effect-policy-ssot.md
+  - docs/development/current/main/design/post-store-observer-facts-ssot.md
   - docs/development/current/main/design/transient-text-pieces-ssot.md
   - docs/development/current/main/design/string-birth-placement-ssot.md
   - docs/development/current/main/design/string-birth-sink-ssot.md
@@ -91,6 +92,7 @@ compile-time placement の結果は、概念上は次の 2 分岐で読む。
 - retained reason と retained result を分けること
 - `array_set` を first `Store` proof boundary として扱うこと
 - `placement` と `sink` の責務境界
+- post-store observer facts の親文書とつながること
 
 ### This doc does not own
 
@@ -104,7 +106,7 @@ compile-time placement の結果は、概念上は次の 2 分岐で読む。
 
 1. docs-first で `BoundaryKind` と `RetainedForm` の split を固定する
 2. `string_birth_placement.rs` は引き続き `TextRetentionClass` で動かしつつ、code-side mapping を明文化する
-3. first proof boundary は `array_set`
+3. first proof boundary は `array_set` で維持し、trailing `length()` は `post-store-observer-facts-ssot.md` で別扱いにする
 4. meso/main proof を先に見て、それでも必要なら code enum を split する
 
 ## Non-Goals

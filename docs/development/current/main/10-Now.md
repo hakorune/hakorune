@@ -110,8 +110,8 @@ Related:
       - `array_string_len_window reason=next_noncopy_not_len`
     - next exact work order is now placement-first:
       1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
-      2. attack `concat3_hhh` / `array_set` / trailing `length()` as one upstream placement problem, not as isolated leaf cuts
-      3. keep `array_set` as the first `Store` proof boundary while the placement proof is open
+      2. keep `array_set` as the first `Store` proof boundary while `post-store-observer-facts-ssot.md` owns the trailing `length()` observer
+      3. attack `concat3_hhh` / `array_set` placement as one upstream problem, but do not collapse the observer into the store boundary
       4. only after a same-artifact improvement is visible, revisit code-side `RetainedForm` wiring
     - `tools/perf/run_kilo_leaf_proof_ladder.sh` remains the acceptance lane for new observer/mutator leaves, but it is no longer the active perf lane for the current string-birth wave
     - current `leaf-proof micro` facts are still documented, but they are stop-line evidence for this wave:
@@ -203,6 +203,7 @@ Related:
           - accepted array string-length observer cut: `array_string_len_by_index(...)` now uses `handle_cache::with_array_box(...)` instead of `host_handles::with_handle(...) + ArrayBox` downcast, so `nyash.array.string_len_hi` stays on the typed handle-cache lane
           - latest `repeat=3` proof after this observer cut is `35 / 68 / 69` with `kilo_kernel_small_hk = 721 ms`; latest `repeat=20` WSL recheck is `36 / 67 / 68` with `kilo_kernel_small_hk = 688 ms`, so keep the cut and keep using `repeat=20` before closing noisy lanes
           - rejected length-aware store-boundary classifier retry: changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `746 ms` on `repeat=3` and `757 ms` on `repeat=20`; keep the direct-set-only guard for this wave
+          - post-store observer reading is now separated into `post-store-observer-facts-ssot.md`: `length()` after `array.set` is observer-after-store, not the store boundary itself
           - rejected short-slice owned materialize retry: changing the short freeze lane to `FreezeOwned(String)` and materializing inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `866 ms`; keep the span-backed short freeze contract for now
           - rejected follow-up: borrowed triple-span miss resolution via `handles::with3(...)` plus local `StringViewBox` flattening kept meso flat (`67 -> 68 ms`) and regressed stable main (`704 -> 745 -> 819 ms` on back-to-back checks); keep the explicit uncached miss wave in `resolve_string_span_triplet_from_handles(...)`
           - rejected follow-up: widening the C-side direct-store consumer test to tolerate one trailing `length()` observer after `array.set` kept the lane flat-to-worse (`36 / 70 / 70`, `kilo_kernel_small_hk = 706 ms` under `repeat=3`); keep the stricter store-only consumer guard

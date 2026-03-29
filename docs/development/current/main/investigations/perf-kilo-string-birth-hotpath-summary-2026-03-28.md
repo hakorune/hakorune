@@ -6,6 +6,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
+  - docs/development/current/main/design/post-store-observer-facts-ssot.md
   - docs/development/current/main/design/string-birth-sink-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/investigations/perf-kilo-string-leaf-rejected-followups-2026-03-28.md
@@ -59,6 +60,9 @@ Related:
   - latest `repeat=3` proof after this cut is `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 721 ms`
   - latest `repeat=20` WSL recheck is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`, `kilo_kernel_small_hk = 688 ms`
   - latest microasm still keeps `nyash.array.string_len_hi` in the hot tier (`6.34%`), so this generic observer cut is worth keeping even though the lane is still noisy
+- post-store observer facts landed
+  - `array.set` remains the first `Store` proof boundary, and trailing `length()` is now read as a post-store observer fact in `post-store-observer-facts-ssot.md`
+  - keep the stricter store-only consumer guard; do not merge the observer into the store boundary
 - concat3 reuse-only specialization landed
   - `concat3_plan_from_spans(...)` is fixed to the reuse-allowed lane, so the dead `allow_handle_reuse = false` branch is gone and span emptiness checks use byte-range length directly
   - latest same-artifact recheck after this specialization is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`, `kilo_kernel_small_hk = 668 ms`

@@ -7,6 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/retained-boundary-and-birth-placement-ssot.md
+  - docs/development/current/main/design/post-store-observer-facts-ssot.md
   - docs/development/current/main/design/string-transient-lifecycle-ssot.md
   - docs/development/current/main/design/transient-text-pieces-ssot.md
   - docs/development/current/main/design/string-birth-sink-ssot.md
@@ -107,6 +108,7 @@ compile-time placement は runtime helper ではなく、AOT consumer 側の dec
 - `StringBox::new`
 - `Registry::alloc/get`
 - `BoxBase::new`
+- trailing `length()` などの post-store observer facts
 
 ## Current Reading
 
