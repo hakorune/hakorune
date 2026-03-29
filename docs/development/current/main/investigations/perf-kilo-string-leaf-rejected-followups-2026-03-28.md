@@ -590,6 +590,66 @@ reject
 
 - only if a future placement wave keeps more than one substring/transient value live across the same store boundary and `substring_hii` remains a dominant residue afterward
 
+## Rejected Cut S
+
+### Name
+
+`len/is_empty` observer cache-first retry
+
+### Intent
+
+- flip `string_len_from_handle(...)` / `string_is_empty_from_handle(...)` to consult `string_len_impl(...)` / `string_is_empty_impl(...)` before the direct `handles::with_handle(...)` fast-string path
+- let repeated post-concat / post-insert observers reuse the span-cache-aware helper before falling back to the direct handle read
+- keep the cut generic and localized to the observer helpers without reopening sink-local `Registry::alloc/get`
+
+### Result
+
+- same-artifact proof: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 71 ms`
+- stable main: `kilo_kernel_small_hk = 764 ms` (`repeat=3`)
+- quick asm still kept `Registry::alloc`, `Registry::get`, `array_set_his`, `substring_hii`, and `concat3_hhh` above the observer helpers
+
+### Judgment
+
+reject
+
+### Why
+
+- the helper-order flip did not remove enough retained/store-boundary work to matter on main
+- meso stayed near the existing line, but stable main regressed badly enough that the cut is not keepable on this machine
+- this remains an observer-local tweak; it does not reduce birth density or boundary crossings in the way the current upstream placement lane needs
+
 ### Reopen Condition
 
-- only if a future asm read shows immediate post-birth observer traffic dominating and a stronger retained/store-boundary placement proof says the first observer should stay on cache
+- only if a future retained/store-boundary placement wave keeps more than one observer on the same transient carrier and a fresh asm read still shows `string_len_from_handle(...)` / `string_is_empty_from_handle(...)` dominating afterward
+
+## Rejected Cut T
+
+### Name
+
+latest+previous `handle_cache` widening with detached array-store lookup
+
+### Intent
+
+- widen `handle_cache` from one slot to a tiny latest+previous cache so alternating array/string handles can stay hot together
+- route `array_set_by_index_string_handle_value(...)` through a detached array cache helper, then look up the source string handle via `object_from_handle_cached(...)`
+- keep the cut generic and structural instead of adding another benchmark-shaped observer/helper split
+
+### Result
+
+- same-artifact proof: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 65 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`
+- stable main: `kilo_kernel_small_hk = 701 ms` (`repeat=3`)
+- quick asm still kept `Registry::alloc`, `Registry::get`, `array_set_his`, `substring_hii`, and `concat3_hhh` in the top tier
+
+### Judgment
+
+reject
+
+### Why
+
+- the wider cache trimmed meso slightly, but it still did not beat the kept `668 ms` line on main
+- making `array_set` use a detached cache helper introduced more structure without changing the retained/store-boundary contract enough to matter at `kilo_kernel_small_hk` scale
+- this remains a cache-local retry, not the larger upstream placement cut the current lane needs
+
+### Reopen Condition
+
+- only if a future upstream placement wave keeps both the array handle and more than one transient string handle live across the same store boundary, and a fresh asm read still shows `Registry::get` dominating afterward

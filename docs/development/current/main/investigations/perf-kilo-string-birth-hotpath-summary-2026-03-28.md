@@ -117,6 +117,14 @@ Interpretation:
   - making `borrowed_substring_plan_from_handle(...)` consult `string_span_cache_get(...)` before `handles::with_handle(...)` improved meso (`kilo_meso_substring_concat_len = 33 ms`, `kilo_meso_substring_concat_array_set = 64 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`)
   - the same artifact pair still left main at `kilo_kernel_small_hk = 706 ms`, and microasm kept `Registry::alloc`, `Registry::get`, `BoxBase::new`, `array_set_his`, and `substring_hii` ahead of the observer residue
   - keep the direct planner shape for now; the next win still needs a larger upstream placement cut, not just a cache-first substring lookup
+- rejected `len/is_empty` observer cache-first retry
+  - flipping `string_len_from_handle(...)` / `string_is_empty_from_handle(...)` so `string_len_impl(...)` / `string_is_empty_impl(...)` ran before the direct fast-string observer path kept meso at `35 / 68 / 71`
+  - the same artifact pair regressed main to `kilo_kernel_small_hk = 764 ms`, while the quick asm probe still showed `Registry::alloc`, `Registry::get`, `array_set_his`, `substring_hii`, `concat3_hhh`, and `string_handle_from_owned` above the residual observer helpers
+  - keep the current fast-str-first observer order; this wave still needs a larger upstream retained/store-boundary cut, not another observer-local cache retry
+- rejected latest+previous handle-cache widening
+  - widening `handle_cache` to keep the latest+previous handles and routing `array_set_by_index_string_handle_value(...)` through a detached array cache path lowered meso to `35 / 65 / 69`
+  - the same artifact pair still left main at `kilo_kernel_small_hk = 701 ms`, and the quick asm probe kept `Registry::alloc`, `Registry::get`, `array_set_his`, `substring_hii`, `nyash.array.string_len_hi`, and `concat3_hhh` above the cache helper residue
+  - keep the current one-slot cache; this wave does not remove enough retained/store-boundary work to matter on main
 - rejected `insert_hsi` one-resolve helper
   - the helper-backed single-decision route improved the first `repeat=3` probe (`kilo_kernel_small_hk = 694 ms`) but drifted back to `727 ms` under `repeat=20`
   - keep the current helper-backed `insert_hsi` lane and use the documented `repeat=20` recheck rule on WSL before closing similar slices
@@ -160,7 +168,7 @@ Interpretation:
 - `nyash_rust::runtime::global_hooks::gc_alloc` (`1.30%`)
 - `__memmove_avx512_unaligned_erms` (`0.89%`)
 
-The later birth-cache retry still left `string_len_from_handle` (`3.42%`) / `string_is_empty_from_handle` (`3.34%`) visible in the hot tier, but the `repeat=20` recheck did not hold, so that slice stays rejected.
+The later birth-cache retry still left `string_len_from_handle` (`3.42%`) / `string_is_empty_from_handle` (`3.34%`) visible in the hot tier, the follow-up observer-order retry still regressed main to `764 ms`, and the latest+previous handle-cache widening still stopped at `701 ms`, so the observer/cache-local slices stay rejected.
 
 読みとしては、sink-local leaf ではなく、`Registry::alloc/get` と birth-boundary / handle registry の組み合わせがまだ支配的だよ。
 ただし latest same-artifact proof が flat だったので、この lane では code-side `RetainedForm` split を再開しない。
