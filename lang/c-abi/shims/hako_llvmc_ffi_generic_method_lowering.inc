@@ -2,6 +2,7 @@
 #include "hako_llvmc_ffi_generic_method_has_policy.inc"
 #include "hako_llvmc_ffi_generic_method_len_policy.inc"
 #include "hako_llvmc_ffi_generic_method_push_policy.inc"
+#include "hako_llvmc_ffi_generic_method_substring_policy.inc"
 
       auto int try_emit_non_indexof_generic_method_call(
           FILE* f,
@@ -170,20 +171,9 @@
             return 1;
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_SUBSTRING:
-            if (try_emit_string_insert_mid_window_call(
-                    f, ii, ilen, insts, recv, dst, a0, a1, skip_inst)) {
-              return 1;
-            }
-            if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-            if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
-            if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.string.substring_hii\"(%s)\n", dst, ab);
-              set_type(dst, T_I64);
-              set_origin(dst, ORG_STRING);
-              set_scan_origin(dst, ORG_STRING);
-              remember_string_substring_call(dst, recv, a0, a1);
-            } else {
-              fprintf(f, "  call i64 @\"nyash.string.substring_hii\"(%s)\n", ab);
+            if (!emit_generic_method_substring_by_policy(
+                    f, ii, ilen, insts, recv, dst, a0, a1, skip_inst, ab, ab_cap)) {
+              return -1;
             }
             return 1;
 

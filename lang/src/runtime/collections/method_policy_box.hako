@@ -84,6 +84,14 @@ static box CollectionMethodPolicyBox {
     return "MapContainsAny"
   }
 
+  route_string_insert_mid_window() {
+    return "StringInsertMidWindow"
+  }
+
+  route_string_substring_call() {
+    return "StringSubstringCall"
+  }
+
   generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string) {
     if method_name == null { return me.emit_none() }
     if method_name == "birth" && arg0 == 0 && arg1 == 0 {
@@ -160,5 +168,12 @@ static box CollectionMethodPolicyBox {
       return me.route_map_contains_any()
     }
     return me.route_none()
+  }
+
+  substring_route(matches_insert_window) {
+    if matches_insert_window == 1 {
+      return me.route_string_insert_mid_window()
+    }
+    return me.route_string_substring_call()
   }
 }

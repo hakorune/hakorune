@@ -80,6 +80,7 @@ Related:
 - `hako_llvmc_ffi_generic_method_len_policy.inc` now mirrors the first generic method action route (`len`) so `generic_method_lowering.inc` no longer owns that route ladder directly.
 - `hako_llvmc_ffi_generic_method_push_policy.inc` now mirrors the second generic method action route (`push`) so append-route ownership is no longer owned inside `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_has_policy.inc` now mirrors the third generic method action route (`has`) so contains/probe ownership is no longer owned inside `generic_method_lowering.inc`.
+- `hako_llvmc_ffi_generic_method_substring_policy.inc` now mirrors the fourth generic method action route (`substring`) so insert-window vs direct substring ownership is no longer owned inside `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_lowering.inc` is mostly semantic owner plus final call emission.
 - `hako_llvmc_ffi_compiler_state.inc` now holds the shared copy/origin/type/const helper tables and is the first compiler-state seam landed.
 - `hako_llvmc_ffi_pure_compile.inc` is compiler orchestrator owner and still carries route decisions.
@@ -103,8 +104,9 @@ Related:
 13. Seventh code slice: mirror the generic method `len` action route in `hako_llvmc_ffi_generic_method_len_policy.inc`.
 14. Eighth code slice: mirror the generic method `push` action route in `hako_llvmc_ffi_generic_method_push_policy.inc`.
 15. Ninth code slice: mirror the generic method `has` action route in `hako_llvmc_ffi_generic_method_has_policy.inc`.
-16. Move remaining semantic owner and compiler-owner decisions into `.hako`.
-17. Shrink `.inc` to thin shim responsibilities only.
+16. Tenth code slice: mirror the generic method `substring` action route in `hako_llvmc_ffi_generic_method_substring_policy.inc`.
+17. Move remaining semantic owner and compiler-owner decisions into `.hako`.
+18. Shrink `.inc` to thin shim responsibilities only.
 
 ## Landed Slices
 
@@ -119,6 +121,7 @@ Related:
 - `hako_llvmc_ffi_generic_method_len_policy.inc`
 - `hako_llvmc_ffi_generic_method_push_policy.inc`
 - `hako_llvmc_ffi_generic_method_has_policy.inc`
+- `hako_llvmc_ffi_generic_method_substring_policy.inc`
 
 ## Non-Goals
 

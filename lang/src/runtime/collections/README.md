@@ -101,6 +101,9 @@ Rule:
   - `has_route(box_name, runtime_array_has, runtime_map_has)`
     -> third generic-method action route vocabulary for array contains / map probe
   - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_has_policy.inc`
+  - `substring_route(matches_insert_window)`
+    -> fourth generic-method action route vocabulary for insert-window vs direct `substring_hii`
+  - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_substring_policy.inc`
 
 ## Current proof lock
 
