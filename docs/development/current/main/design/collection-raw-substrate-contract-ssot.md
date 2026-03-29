@@ -190,7 +190,7 @@ Current third slice:
 - `lang/src/runtime/collections/map_state_core_box.hako` now owns vm-hako-visible `MapBox.{set,get,has,getField,setField,delete,keys,clear}` stateful routing
 - `lang/src/vm/boxes/mir_vm_s0_boxcall_builtin.hako` only delegates those method-shaped routes instead of owning inline map state semantics
 - transitional method-shaped Rust export still visible from `.hako`:
-  - `nyash.map.entry_count_h`
+  - `nyash.map.entry_count_i64`
 
 ### R1. Cleanup RuntimeData
 
@@ -216,7 +216,7 @@ Current second slice:
 
 - before reopening raw substrate perf, first inventory and demote the transitional method-shaped Rust exports that still sit in the daily `.hako` path
 - current exact transitional list:
-  - `nyash.map.entry_count_h`
+  - `nyash.map.entry_count_i64`
 - landed observer demotion:
   - daily `.hako` array observer path now uses `nyash.array.slot_len_h`
   - `nyash.array.len_h` remains compatibility-only
@@ -231,8 +231,8 @@ Current second slice:
   - adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`
   - `nyash.array.get_h` remains compatibility-only
 - landed map observer demotion:
-  - daily `.hako` map observer path now uses `nyash.map.entry_count_h`
-  - `nyash.map.size_h` remains compatibility-only
+  - daily `.hako` map observer path now uses `nyash.map.entry_count_i64`
+  - `nyash.map.entry_count_h` / `nyash.map.size_h` remain compatibility-only
 - landed compat/pure map retarget:
   - adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
   - `nyash.map.{get_h,set_h,has_h}` remain compatibility-only
@@ -244,7 +244,7 @@ Current second slice:
   - runtime-data array set shares the same raw store helper instead of visible `try_set_index_i64*()`
 - landed map hidden-residue slice:
   - `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
-  - `nyash.map.entry_count_h` now executes through `MapBox.entry_count_i64(...)`
+  - `nyash.map.entry_count_i64` now executes through `MapBox.entry_count_i64(...)`
 
 ## 4.6 Post-Stop-Line Next Lane
 
@@ -275,7 +275,7 @@ Current second slice:
    - daily route now targets `nyash.array.slot_append_hh`
 3. `B1c / map-observer`
    - landed: remove `nyash.map.size_h` from the daily `.hako` path
-   - daily route now targets `nyash.map.entry_count_h`
+   - daily route now targets `nyash.map.entry_count_i64`
 4. `B1k / compat-append-retarget`
    - landed: remove `nyash.array.push_h` from adapter defaults and historical pure `ArrayBox.push -> len` lowering
    - adapter/pure route now target `nyash.array.slot_append_hh`
@@ -290,8 +290,8 @@ Current second slice:
    - second slice landed: store now goes through `ArrayBox.slot_store_*_raw(...)`
    - remaining work is semantic, not method-shaped API leakage
 8. `B1e / map-hidden-residue`
-   - landed: move visible `get_opt/set/has/size`-shaped semantics out from under `nyash.map.slot_* / probe_*`
-   - inventory result: `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}` is acceptable as the kernel-side raw boundary for this slice
+  - landed: move visible `get_opt/set/has/size`-shaped semantics out from under `nyash.map.slot_* / probe_*`
+  - inventory result: `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}` is acceptable as the kernel-side raw boundary for this slice
 9. `B1f / aot-prep-lowering-residue`
    - landed: retarget active `collections_hot.hako` rewrites away from method-shaped collection exports where the raw seam already exists
    - landed set:

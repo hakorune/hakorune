@@ -68,7 +68,7 @@ Rule:
 - `map_core_box.hako`
   - `try_handle(seg, regs, mname)`
     -> visible owner for `MapBox.{set,get,has,size/len/length}` orchestration and current handler-side contract
-  - `size_i64(handle)` -> `runtime/substrate/raw_map/raw_map_core_box.hako` -> `nyash.map.entry_count_h`
+  - `size_i64(handle)` -> `runtime/substrate/raw_map/raw_map_core_box.hako` -> `nyash.map.entry_count_i64`
   - `RawMapCoreBox.cap_i64(handle)` now exists as the first truthful map capacity observer route, but `MapCoreBox` does not expose it as a visible collection method yet
   - `set_hhh(handle, key_any, val_any)` / `get_hh(handle, key_any)` / `has_hh(handle, key_any)`
     -> `runtime/substrate/raw_map/raw_map_core_box.hako` on the raw receiver-handle path
@@ -138,8 +138,8 @@ Rule:
   - landed: adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`
   - landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`
   - landed: `nyash.array.slot_store_hii` now executes through `ArrayBox.slot_store_*_raw(...)`
-  - landed: daily map observer route now uses `nyash.map.entry_count_h`
-  - `nyash.map.size_h` is compat-only
+  - landed: daily map observer route now uses `nyash.map.entry_count_i64`
+  - `nyash.map.entry_count_h` / `nyash.map.size_h` remain compat-only
   - landed: adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
   - landed: `nyash.map.slot_* / probe_*` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str}(...)`
   - worker inventory: those `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice

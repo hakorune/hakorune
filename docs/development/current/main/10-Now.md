@@ -318,7 +318,7 @@ Related:
 	            3. meso/main proof on the same artifact pair
 	            4. only then narrow sink-local tuning further if new asm evidence appears; keep `BoxBase::new` out unless the object layout itself shows up as the limiter
 	          - canonical sink re-home was attempted but rejected: moving `freeze.str` into `string_store.rs` regressed stable main (`kilo_kernel_small_hk = 834 -> 909 ms` on back-to-back checks), so keep the explicit `freeze_text_plan(...)` helper in `string.rs` for now
-	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_h`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
+	        - `P0-attrs` is now landed conservatively on proven read-only array/map observer aliases (`slot_load_hi` / `string_len_hi` / `string_indexof_hih` / `slot_len_h` / `probe_hh` / `entry_count_i64`); do not stamp hookable or mutating exports like `nyash.string.len_h` / `nyash.string.indexOf_hh` / `nyash.array.set_his`
 	        - current app contract now pins those attrs directly and rejects accidental `readonly` on `nyash.array.set_his`
 	        - latest attrs spot-check was noisy (`831 ms` via `tools/perf/run_kilo_hk_bench.sh diagnostic 1 3`), so treat `P0-attrs` as IR-quality groundwork only; no wall-clock win is claimed yet
 	        - `P0-copy-fold` is now landed in emit-side generic pure lowering:

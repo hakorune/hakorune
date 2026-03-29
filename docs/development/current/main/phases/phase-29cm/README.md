@@ -131,10 +131,10 @@ Related:
   - `substrate-capability-ladder-ssot.md`
   - `value-repr-and-abi-manifest-ssot.md`
   - capability docs/task lock lands before deeper `RawArray` / `RawMap` or allocator policy work
-- `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_h`, while `nyash.map.size_h` remains compat-only.
+- `B1c` landed: the daily `.hako` map observer path now uses `nyash.map.entry_count_i64`, while `nyash.map.entry_count_h` / `nyash.map.size_h` remain compat-only.
 - `B1d1` landed: `nyash.array.slot_append_hh` now executes through `ArrayBox.slot_append_box_raw(...)`, and compat append routes no longer call the visible `push()` method below the raw name.
 - `B1d2` landed: `nyash.array.slot_store_hii` and runtime-data array set now execute through `ArrayBox.slot_store_*_raw(...)`, while preserving the current append-at-end/rebox behavior.
-- `B1e` landed: `nyash.map.slot_* / probe_*` and `nyash.map.entry_count_h` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}(...)` instead of visible `get_opt/set/has/size`.
+- `B1e` landed: `nyash.map.slot_* / probe_*` and `nyash.map.entry_count_i64` now execute through `MapBox.{get_opt_key_str,insert_key_str,contains_key_str,entry_count_i64}(...)` instead of visible `get_opt/set/has/size`.
 - worker stop-line inventory says the new `MapBox` raw key-string helpers are acceptable as the kernel-side raw seam for this slice.
 - `B1h` landed: `runtime_data_map_dispatch.rs` now reuses accepted map raw seam helpers instead of visible `MapBox.get_opt/set/has`.
 - but the overall collection boundary is still not closed on the active daily path:
@@ -225,7 +225,7 @@ Move to `.hako`:
    - `B1k`: landed; adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`
    - `B1m`: landed; adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`
    - `B1l`: landed; adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`
-   - `B1c`: landed; daily `.hako` map observer path now uses `nyash.map.entry_count_h`
+   - `B1c`: landed; daily `.hako` map observer path now uses `nyash.map.entry_count_i64`
    - `B1d`: deepen hidden array write residue under `nyash.array.slot_append_hh` / `nyash.array.slot_store_hii`
    - `B1e`: landed; map raw helpers now call `MapBox` key-string/raw observer helpers instead of visible `get_opt/set/has/size`
    - `B1f`: landed; `collections_hot.hako` now uses raw seams for array `get/push` and map `get/set/has`

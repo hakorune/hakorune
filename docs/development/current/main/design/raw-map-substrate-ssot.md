@@ -29,6 +29,7 @@ Related:
 - `RawMap` は semantic owner ではない。
 - `RawMap` は capability substrate と minimum verifier を使う algorithm substrate である。
 - current phase では first live slice を landed とし、`MapCoreBox.size_i64` が `RawMapCoreBox.entry_count_i64` を通る。
+  - `RawMapCoreBox.entry_count_i64` now routes to `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains a compat alias only.
 - current widening also lands `probe/load/store` façade methods under `RawMapCoreBox`.
 - current live observer subset also lands `cap_i64(handle)`.
 - truthful widening guard now lives in:

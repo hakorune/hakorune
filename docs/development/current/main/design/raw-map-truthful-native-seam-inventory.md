@@ -47,7 +47,7 @@ Related:
 
 These are truthful today and are already exported/live:
 
-- `nyash.map.entry_count_h`
+- `nyash.map.entry_count_i64`
 - `nyash.map.cap_h`
 - `nyash.map.probe_hi`
 - `nyash.map.probe_hh`
@@ -63,6 +63,10 @@ These correspond to:
 - `MapBox.contains_key_str(...)`
 - `MapBox.get_opt_key_str(...)`
 - `MapBox.insert_key_str(...)`
+
+Compat wrapper still present for historical callers:
+
+- `nyash.map.entry_count_h`
 
 ### B. Truthful native helpers, but not substrate exports yet
 

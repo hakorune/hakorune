@@ -121,6 +121,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `pure_compile.inc` now delegates `mir_call` dispatch through `hako_llvmc_ffi_mir_call_dispatch.inc`
   - `RuntimeDataBox` generic fallback routes now reuse `nyash.runtime_data.{get,set,has,push}` through the method-policy seams instead of ad-hoc box-name ladders
   - `runtime_data_map_get_hh(...)` now preserves the mixed runtime i64/handle return contract; `runtime_data_map_get_keeps_mixed_runtime_i64_contract` pins the map-get facade behavior
+  - `MapCoreBox.size_i64(...)` now routes through `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains a compat alias only
 - next exact slice:
   - `runtime/meta/` is now the `.hako` owner home for compiler semantic tables; keep `kernel` for runtime behavior and `host` for transport only
   - generic `mir_call` receiver-family route ownership, prepass need vocabulary, and constructor/global/string-extern accept surfaces are now `.hako`-owned with native mirror seams

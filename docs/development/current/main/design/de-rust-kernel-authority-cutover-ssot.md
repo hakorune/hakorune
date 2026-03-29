@@ -93,14 +93,14 @@ Related:
   - the collection owner cutover acceptance set is green
   - `array` / `map` / `runtime_data` are parked unless a new exact blocker appears
   - next fixed order is boundary-deepen work on the remaining transitional exports:
-    - `nyash.map.entry_count_h`
+    - `nyash.map.entry_count_i64`
   - landed:
     - daily array observer route now uses `nyash.array.slot_len_h`
     - `nyash.array.len_h` is compat-only
     - daily array append route now uses `nyash.array.slot_append_hh`
     - `nyash.array.push_hh` is compat-only
-    - daily map observer route now uses `nyash.map.entry_count_h`
-    - `nyash.map.size_h` is compat-only
+    - daily map observer route now uses `nyash.map.entry_count_i64`
+    - `nyash.map.entry_count_h` / `nyash.map.size_h` are compat-only
   - raw substrate perf stays parked until that deeper boundary is fixed
 - raw boundary naming / demotion contract is pinned in:
   - `docs/development/current/main/design/collection-raw-substrate-contract-ssot.md`

@@ -67,7 +67,7 @@ Scope: `crates/nyash_kernel/src/plugin/{array,map,runtime_data}.rs` の Rust-sid
   - `nyash.array.slot_cap_h`
   - `nyash.array.slot_reserve_hi`
   - `nyash.array.slot_grow_hi`
-  - `nyash.map.entry_count_h`
+  - `nyash.map.entry_count_i64`
   - `nyash.map.slot_load_hi`
   - `nyash.map.slot_load_hh`
   - `nyash.map.slot_store_hih`

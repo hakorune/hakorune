@@ -8,6 +8,7 @@ Responsibilities:
   - `probe_i64(handle, key_i64)` / `probe_any(handle, key_any)`
   - `slot_load_i64(handle, key_i64)` / `slot_load_any(handle, key_any)`
   - `slot_store_i64_any(handle, key_i64, val_any)` / `slot_store_any(handle, key_any, val_any)`
+- The daily `MapBox.size/len` raw observer now calls `nyash.map.entry_count_i64`; the historical `nyash.map.entry_count_h` export remains a compat alias only.
 - Future home for the `RawMap` box shape:
   - bucket/capacity shape
   - probe walk

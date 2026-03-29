@@ -6,12 +6,12 @@ use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 
 pub(super) fn map_entry_count_raw(handle: i64) -> i64 {
     if map_debug_enabled() {
-        eprintln!("[MAP] entry_count_h(handle={})", handle);
+        eprintln!("[MAP] entry_count_i64(handle={})", handle);
     }
     with_map_box(handle, |map| {
         let size = map.entry_count_i64();
         if map_debug_enabled() {
-            eprintln!("[MAP] entry_count_h => {}", size);
+            eprintln!("[MAP] entry_count_i64 => {}", size);
         }
         size
     })
@@ -22,7 +22,13 @@ pub(super) fn map_capacity_raw(handle: i64) -> i64 {
     with_map_box(handle, |map| map.capacity_i64()).unwrap_or(0)
 }
 
-// entry_count: raw observer (handle) -> i64
+// entry_count_i64: raw observer (handle) -> i64
+#[export_name = "nyash.map.entry_count_i64"]
+pub extern "C" fn nyash_map_entry_count_i64(handle: i64) -> i64 {
+    map_entry_count_raw(handle)
+}
+
+// entry_count_h: compat alias for historical callers.
 #[export_name = "nyash.map.entry_count_h"]
 pub extern "C" fn nyash_map_entry_count_h(handle: i64) -> i64 {
     map_entry_count_raw(handle)

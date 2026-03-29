@@ -90,8 +90,10 @@ mod tests {
 
         assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_a, value), 1);
         assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_b, value), 1);
+        assert_eq!(nyash_map_entry_count_i64(handle), 2);
         assert_eq!(nyash_map_entry_count_h(handle), 2);
         assert_eq!(nyash_map_size_h(handle), 2);
+        assert_eq!(nyash_map_entry_count_i64(0), 0);
         assert_eq!(nyash_map_entry_count_h(0), 0);
     }
 
