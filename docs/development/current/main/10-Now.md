@@ -92,8 +92,9 @@ Related:
     11. sixth code slice: mirror generic method policy in `hako_llvmc_ffi_generic_method_policy.inc`
     12. seventh code slice: mirror generic method len route in `hako_llvmc_ffi_generic_method_len_policy.inc`
     13. eighth code slice: mirror generic method push route in `hako_llvmc_ffi_generic_method_push_policy.inc`
-    14. move remaining semantic owner decisions to `.hako`
-    15. thin shim cleanup and README sync
+    14. ninth code slice: mirror generic method has route in `hako_llvmc_ffi_generic_method_has_policy.inc`
+    15. move remaining semantic owner decisions to `.hako`
+    16. thin shim cleanup and README sync
   - landed so far:
     - `hako_llvmc_ffi_emit_seam.inc`
     - `hako_llvmc_ffi_generic_method_match.inc`
@@ -105,6 +106,7 @@ Related:
     - `hako_llvmc_ffi_generic_method_policy.inc`
     - `hako_llvmc_ffi_generic_method_len_policy.inc`
     - `hako_llvmc_ffi_generic_method_push_policy.inc`
+    - `hako_llvmc_ffi_generic_method_has_policy.inc`
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:

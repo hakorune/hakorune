@@ -1,4 +1,5 @@
 #include "hako_llvmc_ffi_generic_method_match.inc"
+#include "hako_llvmc_ffi_generic_method_has_policy.inc"
 #include "hako_llvmc_ffi_generic_method_len_policy.inc"
 #include "hako_llvmc_ffi_generic_method_push_policy.inc"
 
@@ -187,22 +188,8 @@
             return 1;
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_HAS:
-            if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-            if (runtime_array_has) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.array.has_hi\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.array.has_hi\"(%s)\n", ab);
-              }
-            } else if ((bname && !strcmp(bname, "MapBox")) || runtime_map_has) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.map.probe_hh\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.map.probe_hh\"(%s)\n", ab);
-              }
-            } else {
+            if (!emit_generic_method_has_by_policy(
+                    f, bname, dst, a0, &plan, ab, ab_cap)) {
               return -1;
             }
             return 1;

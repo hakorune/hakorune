@@ -76,6 +76,14 @@ static box CollectionMethodPolicyBox {
     return "ArrayAppendAny"
   }
 
+  route_array_contains_any() {
+    return "ArrayContainsAny"
+  }
+
+  route_map_contains_any() {
+    return "MapContainsAny"
+  }
+
   generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string) {
     if method_name == null { return me.emit_none() }
     if method_name == "birth" && arg0 == 0 && arg1 == 0 {
@@ -142,5 +150,15 @@ static box CollectionMethodPolicyBox {
 
   should_promote_array_string_birth_after_push(runtime_array_like, value_is_string_handle) {
     return me.should_promote_array_string_birth(runtime_array_like, value_is_string_handle)
+  }
+
+  has_route(box_name, runtime_array_has, runtime_map_has) {
+    if runtime_array_has == 1 {
+      return me.route_array_contains_any()
+    }
+    if box_name == "MapBox" || runtime_map_has == 1 {
+      return me.route_map_contains_any()
+    }
+    return me.route_none()
   }
 }
