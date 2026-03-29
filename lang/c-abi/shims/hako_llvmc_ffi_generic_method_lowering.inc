@@ -18,16 +18,18 @@
           char* ab,
           size_t ab_cap,
           unsigned char* skip_inst) {
-        int recv_org = route ? route->recv_org : ORG_NONE;
-        int runtime_array_len = route ? route->runtime_array_len : 0;
-        int runtime_array_get = route ? route->runtime_array_get : 0;
-        int runtime_array_push = route ? route->runtime_array_push : 0;
-        int runtime_array_has = route ? route->runtime_array_has : 0;
-        int runtime_string = route ? route->runtime_string : 0;
-        int runtime_array_string = route ? route->runtime_array_string : 0;
-        int runtime_map_get = route ? route->runtime_map_get : 0;
-        int runtime_map_size = route ? route->runtime_map_size : 0;
-        int runtime_map_has = route ? route->runtime_map_has : 0;
+        struct GenericMethodEmitPlan plan;
+        if (!classify_generic_method_emit_plan(bname, mname, route, a0, a1, &plan)) return 0;
+        int recv_org = plan.recv_org;
+        int runtime_array_len = plan.runtime_array_len;
+        int runtime_array_get = plan.runtime_array_get;
+        int runtime_array_push = plan.runtime_array_push;
+        int runtime_array_has = plan.runtime_array_has;
+        int runtime_string = plan.runtime_string;
+        int runtime_array_string = plan.runtime_array_string;
+        int runtime_map_get = plan.runtime_map_get;
+        int runtime_map_size = plan.runtime_map_size;
+        int runtime_map_has = plan.runtime_map_has;
 
         switch (emit_kind) {
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_BIRTH_ZERO:

@@ -90,6 +90,12 @@ Related:
 8. Move semantic owner and compiler-owner decisions into `.hako`.
 9. Shrink `.inc` to thin shim responsibilities only.
 
+## Landed Slices
+
+- `hako_llvmc_ffi_emit_seam.inc`
+- `hako_llvmc_ffi_generic_method_match.inc`
+- `hako_llvmc_ffi_compiler_state.inc`
+
 ## Non-Goals
 
 - Do not delete native keep in one wave.
