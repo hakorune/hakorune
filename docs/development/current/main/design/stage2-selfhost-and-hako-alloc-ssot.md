@@ -40,8 +40,9 @@ Related:
    - first-build / recovery / preservation lane
    - includes the maintained `llvmlite` compat/probe keep for stage0/bootstrap preservation
 2. `stage1`
-   - selfhost bridge line
+   - selfhost bridge/proof line
    - current dev/stable snapshot artifacts live here
+   - may complete domain phases such as Array / Map / RuntimeData cleanup, but remains bridge/proof rather than final mainline
 3. `stage2+`
    - truly-current `.hako` compiler/runtime/stdlib/kernel/plugin
    - future distribution target

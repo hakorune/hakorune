@@ -30,7 +30,7 @@ Related:
 - `kernel を .hako 化するか` を、wholesale rewrite の議論ではなく owner cutover の順番として固定する。
 - `hakorune` の独り立ちを「Rust source が 1 行も残らないこと」ではなく、「kernel meaning/policy の最終 owner が `.hako` であること」として定義する。
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
-- operational reading は `stage0 Rust bootstrap keep / stage2+ selfhost mainline` であり、kernel authority zero は後者の owner cutover を指す。
+- operational reading は `stage0 Rust bootstrap keep / stage1 bridge/proof line / stage2+ selfhost mainline` であり、kernel authority zero は後者の owner cutover を指す。
 - raw substrate micro-optimization と kernel owner cutover を混ぜて、測定や責務境界を濁さない。
 
 ## 0. Axis Lock
@@ -55,7 +55,7 @@ Related:
      - object layout
      - ABI/FFI substrate
      まで Rust/C から退役させる状態
-2. current active reading is that collection owner cutover (`array -> map -> runtime_data cleanup`) has reached its current done-enough stop line, but not end-state completion.
+2. current active reading is that collection owner cutover is expressed as `Array phase -> Map phase -> RuntimeData cleanup phase`; it has reached its current done-enough stop line, but not end-state completion.
 3. raw substrate micro-opt may reopen only after the boundary is deeper than the remaining method-shaped Rust exports still used by the daily `.hako` path, or those exports are explicitly accepted as the long-term substrate cut.
 4. `.hako` が先に持つべきなのは policy/contract であり、native substrate ではない。
 5. Rust ベースの buildability は migration 中も維持する。
@@ -81,6 +81,9 @@ Related:
 - stage0 first-build / recovery lane としての Rust bootstrap keep は、この wave の失敗条件ではない。
 - `string` は stop line 到達済みで parked。
 - current active kernel lane is collection owner cutover under `lang/src/runtime/collections/`:
+  - `Array phase`
+  - `Map phase`
+  - `RuntimeData cleanup phase`
   - `ArrayBox` semantics first
   - `MapBox` semantics second
   - `RuntimeDataBox` cleanup as protocol / facade only

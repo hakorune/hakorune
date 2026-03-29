@@ -35,7 +35,7 @@ Related:
 | Axis | Meaning | Keep / Target |
 | --- | --- | --- |
 | `stage0` | Rust bootstrap / first-build / recovery lane | explicit keep |
-| `stage1` | proof / artifact / intermediate selfhost line | proof-only or bring-up |
+| `stage1` | proof / bridge line for domain-phase owner slices | proof-only or bring-up |
 | `stage2+` | daily selfhost mainline / final distribution target | target mainline |
 
 ### 1.2 Owner axis
@@ -58,13 +58,14 @@ Related:
 7. `stage2+` は `.hako` authority mainline を意味するが、native zero や Rust source zero を意味しない。
 8. default distribution shape is `hakoruneup + self-contained release bundle`; stage axis reading と packaging shape を混線させない。
 9. boundary truth belongs to `hako.abi / hako.value_repr / ownership-layout manifest`, not to `.inc` partitions.
+10. `stage1` may complete domain phases such as `Array phase -> Map phase -> RuntimeData cleanup phase`, but that does not relabel stage1 as final mainline.
 
 ## 3. Current De-Rust Reading
 
 ### 3.1 Stage axis now
 
 - `stage0`: Rust bootstrap / recovery keep
-- `stage1`: proof / artifact line
+- `stage1`: bridge / proof line
 - `stage2+`: `.hako` mainline target / final distribution target
 
 ### 3.2 Owner axis now
@@ -73,6 +74,7 @@ Related:
 - kernel authority: owner-first bounded stop-line landed; current compiler semantic tables live under `runtime/meta/`
 - backend authority: queued / separate lane
 - substrate: Rust/C keep
+- current owner-phase reading on the kernel side is `Array phase -> Map phase -> RuntimeData cleanup phase`
 
 ## 4. Phase-29cm Interpretation
 

@@ -51,7 +51,7 @@ Non‑Goals
 - Policy（Phase 25.1 以降の想定）:
   - `target/selfhost/hakorune` で十分に安定したら、その成果物を `lang/bin/hakorune` に昇格させる（手動コピー or 専用スクリプト）。
   - `lang/bin/hakorune` は「last known good」の Stage1 コア EXE として扱い、配布や外部からの参照時は原則こちらを基準にする。
-  - ただしこれは stage1 snapshot/proof reading であり、final distribution truth ではない。
+  - ただしこれは stage1 bridge/proof reading であり、final distribution truth ではない。
 
 Notes
 - `lang/` 以下は「最終的に 1 つの Stage1 コア EXE（hakorune）を構成するソース群」という前提で整理する。
@@ -63,5 +63,6 @@ Notes
 - final distribution target は Stage2+ line であり、`lang/bin/hakorune` そのものを final 配布物の意味で読むのはやめる。
 - default distribution shape は `hakoruneup + self-contained release bundle` であり、単一の stage artifact をそのまま配布正本とは読まない。
 - stage/selfhost と `hako_core/alloc/std` の end-state は `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md` を正本にする。
+- stage1 may complete domain phases and still remain bridge/proof; stage2+ is the final mainline.
 - stage2+ は mostly `.hako` authority / thin native shim / native metal keep の読みで進める。
 - `.hako` complete は authority completion を意味し、kernel substrate や native keep の wholesale removal は意味しない。

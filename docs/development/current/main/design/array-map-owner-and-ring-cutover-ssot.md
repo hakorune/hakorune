@@ -19,6 +19,8 @@ Related:
 ## 0. Conclusion
 
 - `ArrayBox` / `MapBox` は `ring0` ではなく `ring1` の責務である。
+- stage0 は Rust bootstrap keep、stage1 は bridge / proof line、stage2+ は final mainline という stage 読みは別軸で固定する。
+- stage1 は `Array phase` / `Map phase` / `RuntimeData cleanup phase` を domain-by-domain に完了してよいが、stage2+ の final mainline そのものにはならない。
 - current active direction is to move `ArrayBox` / `MapBox` user-visible semantics into `.hako` ring1 collection core.
 - current status is done-enough owner shift, not end-state completion; raw substrate still remains Rust-owned.
 - `RuntimeDataBox` is not the target owner for collection semantics; it stays protocol / facade only.
@@ -184,16 +186,18 @@ Short rule:
   - this is not a `ring0` move and not a new `lang/src/runtime/kernel/{array,map}/` requirement.
   - `runtime_data` does not share that promotion; it stays facade-only.
 
-## 4. Fixed Cutover Order
+## 4. Phase Order
 
 1. current owner truth を docs で固定する
    - `ring1 accepted` と `still-Rust mainline` を同時に読めるようにする
-2. `array` の visible/mainline owner を `.hako ring1` collection core へ寄せる
+2. `Array phase`
+   - `ArrayCoreBox` / `array_state_core_box.hako` が visible/mainline owner になる
    - `ArrayCoreBox` / `array_state_core_box.hako` が user-visible semantics を持ち、Rust `array` plugin は raw substrate へ後退する
-3. `map` の visible/mainline owner を `.hako ring1` collection core へ寄せる
+3. `Map phase`
+   - `MapCoreBox` が visible/mainline owner になる
    - `MapCoreBox` が user-visible semantics を持ち、Rust `map` plugin は raw substrate へ後退する
    - current vm-hako-visible stateful methods now live in `lang/src/runtime/collections/map_state_core_box.hako`, not inline in `mir_vm_s0_boxcall_builtin.hako`
-4. `runtime_data` を protocol / facade に retarget する
+4. `RuntimeData cleanup phase`
    - `RuntimeDataCoreBox` は route/dynamic dispatch owner に留め、array/map semantics owner にはしない
    - current first slice: `crates/nyash_kernel/src/plugin/runtime_data.rs` is already a dispatch shell over `runtime_data_array_dispatch.rs` / `runtime_data_map_dispatch.rs`
 5. Rust concrete births/plugins/builtin residue を raw substrate / compat/archive keep に限定する

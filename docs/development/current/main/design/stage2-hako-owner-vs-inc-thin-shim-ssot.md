@@ -76,7 +76,7 @@ Related:
 
 ## Current Truth
 
-- current stage reading is `stage0 bootstrap keep / stage1 proof artifact / stage2+ .hako mainline and final distribution target`.
+- current stage reading is `stage0 bootstrap keep / stage1 bridge/proof line / stage2+ .hako mainline and final distribution target`.
 - current distribution reading is `hakoruneup + self-contained release bundle`; this doc does not redefine packaging as a single stage artifact.
 - `kernel authority zero` and `substrate zero` are separate end states; this doc only fixes the former owner-first migration.
 - Current `lang/c-abi/shims/*.inc` are not yet pure thin shims.

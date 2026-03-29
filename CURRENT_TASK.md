@@ -60,6 +60,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - status: `active bounded-3 stop-line landed`
 - scope: stage2+ を mostly `.hako` authority に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。current stop-line は reached なので、この lane は perf 復帰前の authority/shim boundary 固定として扱う。
+- stage1 may complete `Array phase` / `Map phase` / `RuntimeData cleanup phase` while remaining bridge/proof line; stage2+ stays the final mainline.
 - boundary truth:
   - SSOT is `hako.abi + hako.value_repr + ownership/layout manifest`
   - `c-abi/include/*.h`, `*.c`, and `*.inc` are boundary artifacts / thin emitted forms, not semantic owners

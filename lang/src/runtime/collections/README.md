@@ -1,6 +1,6 @@
 # lang/src/runtime/collections — Ring1 Collection Runtime Core
 
-Scope: `.hako` ring1 collection core for user-visible collection semantics during the done-enough owner shift from Rust-owned semantics to Rust-owned raw substrate.
+Scope: `.hako` ring1 collection core for user-visible collection semantics on the `Array phase -> Map phase -> RuntimeData cleanup phase` path. Stage1 can prove these slices here, but stage2+ remains the final mainline.
 
 ## Responsibility
 
@@ -13,6 +13,7 @@ Scope: `.hako` ring1 collection core for user-visible collection semantics durin
 
 - This folder is the visible owner frontier for `ArrayBox` / `MapBox` semantics.
 - Current mainline still delegates primitive storage/ops to Rust-owned ABI/plugin exports; the raw substrate remains Rust-owned until the boundary deepens.
+- Stage1 is bridge/proof for owner slices here; that does not relabel this folder as the final mainline.
 - Rust-side export surface is now split by strata:
   - `crates/nyash_kernel/src/plugin/array.rs` and `map.rs` are thin facades
   - actual Rust implementations live in:
@@ -119,17 +120,15 @@ Rule:
 - standalone RuntimeDataBox e2e smoke:
   - `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
 
-## First Cutover Order
+## Phase Order
 
-1. `ArrayCoreBox` / `array_state_core_box.hako`
-   - become the visible `ArrayBox` semantics owner
-2. Rust array helpers
-   - shrink to raw substrate verbs only
-3. `MapCoreBox`
-   - follows the same split
-4. `RuntimeDataCoreBox`
-  - cleanup to protocol / facade only
-5. `B1`
+1. `Array phase`
+   - `ArrayCoreBox` / `array_state_core_box.hako` become the visible `ArrayBox` semantics owner
+2. `Map phase`
+   - `MapCoreBox` follows the same split
+3. `RuntimeData cleanup phase`
+   - `RuntimeDataCoreBox` stays cleanup-only and protocol / facade only
+4. `B1`
   - landed: daily array observer route now uses `nyash.array.slot_len_h`
   - landed: daily array append route now uses `nyash.array.slot_append_hh`
   - landed: daily array `get/set/len/push` substrate hop now goes through `RawArrayCoreBox -> PtrCoreBox`
