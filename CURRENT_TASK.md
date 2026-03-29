@@ -74,7 +74,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `docs/development/current/main/design/string-birth-sink-ssot.md`
   - `docs/development/current/main/design/transient-text-pieces-ssot.md`
   - `docs/tools/README.md`
-- current leaf status:
+  - current leaf status:
   - normalized transient text pieces (`TextPlan` / `PiecesN`) pilot landed
   - `micro -> meso -> kilo` observation ladder landed
   - compile-time placement helper `string_birth_placement.rs` landed
@@ -125,6 +125,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - compile-time placement helper landed, so the next exact lane is upstream birth-density proof rather than more sink-local cuts
   - latest asm read keeps `Registry::alloc`, `Registry::get`, `BoxBase::new`, `substring_hii`, and `array_set_his` in the hot tier; that still confirms the next cut is upstream placement proof, not more sink-local tuning
   - rejected follow-up:
+    - ArrayBox / RuntimeDataBox string-pointer store boundary route (`nyash.array.set_his_p`) was wired through the LLVM-Py lowering path and unit-tested successfully, but the 2026-03-29 meso/main recheck stayed flat-to-worse (`kilo_meso_substring_concat_array_set = 69 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 73 ms`, `kilo_kernel_small_hk = 720 ms`, `aot_status=ok`) and the ASM probe still did not surface `nyash.array.set_his_p`; keep the route as a capability, but do not count it as an active perf lane yet
     - direct `concat_hs` / `concat3` copy materialization regressed stable `kilo_kernel_small_hk` (`736 -> 757 ms`) and did not improve micro; keep `TextPlan`-backed concat routes until new asm evidence appears
     - piece-preserving `insert_inline` plus store/freeze restructuring regressed stable `kilo_kernel_small_hk` to `895 ms`; do not reopen that cut without a fresh `concat_hs` / `array_set_by_index_string_handle_value` reason
     - blanket `#[inline(always)]` on host registry / hako forward string wrappers held stable main around `740 ms` and did not beat the current `736 ms` line; keep that slice reverted

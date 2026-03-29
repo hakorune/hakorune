@@ -379,3 +379,36 @@ reject
 ### Reopen Condition
 
 - only after fresh asm evidence shows the current StringBox-only borrow/retarget lane itself is the dominant cost
+
+## Rejected Cut L
+
+### Name
+
+ArrayBox / RuntimeDataBox string-pointer store boundary route (`nyash.array.set_his_p`)
+
+### Intent
+
+- keep the generic first Store boundary and let LLVM-Py pass string pointer carriers directly into the array store helper
+- add `nyash.array.set_his_p` on the Rust side and route ArrayBox / RuntimeDataBox `set` calls to it when the value VID is known string-pointer-backed
+- reduce the `array_set_by_index_string_handle_value(...)` hop by letting the caller hand the raw `i8*` carrier down
+
+### Result
+
+- same-artifact meso recheck stayed flat-to-worse: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 69 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 73 ms`
+- stable main stayed worse than the kept line: `kilo_kernel_small_hk = 720 ms`
+- ASM probe still showed the existing `Registry::get` / `Registry::alloc` / `BoxBase::new` / `array_set_his` tiers, but not the new `nyash.array.set_his_p` symbol in the hot set
+
+### Judgment
+
+reject
+
+### Why
+
+- the route is functionally correct and unit-tested, but it did not become part of the hot benchmark path on this machine
+- the benchmark's remaining cost is still upstream birth / handle motion, not this late array-store carrier hop
+- keeping this slice live would add complexity without a corresponding perf win
+
+### Reopen Condition
+
+- only if a fresh ASM probe shows the `set_his_p` alias on the hot path
+- and only if the same-artifact meso/main pair shows a measurable gain over the kept line
