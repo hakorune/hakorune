@@ -151,6 +151,16 @@ Related:
      - `symbol miss` を unexplained のままにしない
      - new leaf は bundle で `route -> MIR window -> IR -> symbol` が揃ってからだけ再試行する
 
+## Judgment Protocol
+
+この wave の keep / reject は、測定回数と ASM の両方で決める。
+
+- `repeat < 3` は probe-only だよ。keep / reject の判断に使わない。
+- keep / reject を決める時は、最低 3 runs を取り、あわせて `bench_micro_aot_asm.sh` の top symbols を軽く見る。
+- WSL の揺れが残る leaf や allocator / registry 寄りの hot path は、3-run probe のあとに `repeat=20` で再確認してから閉じる。
+- 1-run の好調/不調だけで採用・不採用を決めない。probe と decision を混ぜないこと。
+- same-artifact の repeat 条件を変える場合は、コード変更と同じコミットで書き残す。
+
 ## Tag Coverage
 
 最適化 tag / knob の到達範囲は [optimization-tag-flow-ssot.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/optimization-tag-flow-ssot.md) を正本にする。

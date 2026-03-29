@@ -2,6 +2,12 @@
 set -euo pipefail
 
 # Compare C / Python / Hakorune VM / Hakorune LLVM-AOT for a given bench key.
+#
+# Judgment policy:
+#   - repeat < 3 is probe-only
+#   - keep/reject decisions require at least 3 runs plus a quick ASM probe
+#   - WSL / allocator-like noisy lanes should be rechecked with repeat=20 before closing
+#
 # Usage: bench_compare_c_py_vs_hako.sh <bench_key> [warmup] [repeat]
 #   bench_key:
 #     chip8_kernel_small | chip8_kernel_small_hk | chip8_kernel_small_rk
@@ -32,6 +38,10 @@ set -euo pipefail
 KEY=${1:-}
 WARMUP=${2:-2}
 REPEAT=${3:-5}
+
+if (( REPEAT < 3 )); then
+  echo "[warn] repeat=${REPEAT} is below the perf judgment minimum (3); treat this run as probe-only" >&2
+fi
 
 if [[ -z "${KEY}" ]]; then
   echo "Usage: $0 <bench_key> [warmup] [repeat]" >&2

@@ -75,6 +75,7 @@ Related:
       - generic optimization unit is now fixed as `recipe family`, not benchmark name
       - `recipe / scope / effect / policy / leaf` split is now the preferred reading for future user-box and allocator optimization work
       - current perf slices may keep narrow leaf proofs, but they must not become permanent benchmark-keyed owners
+      - judgment policy: `repeat < 3` is probe-only; keep/reject decisions require at least 3 runs plus a quick ASM probe; if WSL jitter or allocator-like noise remains, recheck with `repeat=20` before closing the lane
       - `Stage1 MIR dialect split` is retired for the current kilo entry
       - `kilo_kernel_small_hk` is back to `pure-first + compat_replay=none + aot_status=ok`
       - docs-first proof-vocabulary lock is landed

@@ -127,12 +127,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `concat_hs` duplicate span-resolution removal plus span-resolver inlining regressed stable `kilo_kernel_small_hk` to `796 ms`; keep the existing `TextPlan::from_handle(...)` route until a new asm reason appears
     - specialized `StringBox`-only store leaf under `nyash.array.set_his` regressed the kept store-boundary line (`kilo_meso_substring_concat_array_set = 66 -> 69 ms`, `kilo_kernel_small_hk = 708 -> 791 ms`); keep the generic string-source helpers and the in-place source borrow cut only
     - borrowed triple-span miss resolution via `handles::with3(...)` plus local `StringViewBox` flattening kept meso flat (`67 -> 68 ms`) and regressed stable main (`704 -> 745 -> 819 ms` on back-to-back checks); keep the explicit uncached miss wave in `resolve_string_span_triplet_from_handles(...)`
-- notes:
-  - generic optimization unit is `recipe family`, not benchmark name
-  - keep the generalized scope/method machinery
-  - keep docs-first alignment between the transient carrier and the existing string docs
-  - the current pilot uses normalized `PiecesN` only for the targeted concat/insert path; keep the carrier backend-local and non-observable
-  - avoid reopening route / fallback policy until the memory-motion slice is exhausted
+  - notes:
+    - generic optimization unit is `recipe family`, not benchmark name
+    - keep the generalized scope/method machinery
+    - keep docs-first alignment between the transient carrier and the existing string docs
+    - the current pilot uses normalized `PiecesN` only for the targeted concat/insert path; keep the carrier backend-local and non-observable
+    - avoid reopening route / fallback policy until the memory-motion slice is exhausted
+    - judgment policy: `repeat < 3` is probe-only; keep/reject decisions require at least 3 runs plus a quick ASM probe; if WSL jitter or allocator-like noise remains, recheck with `repeat=20` before closing the lane
 
 ## Immediate Next Task
 
