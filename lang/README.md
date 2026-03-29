@@ -14,12 +14,14 @@ Principles
 
 Layout (initial)
 - `c-abi/` — C shim(s) and headers for the minimal kernel surface
+  - boundary artifact space, not semantic-owner space
   - `README.md` — responsibilities, build notes, platform caveats
   - `include/` — public headers (mirrored or thin wrappers)
   - `shims/` — libc-backed shim(s) for canaries and local testing
 - `src/runtime/kernel/` — `.hako` runtime kernel logic (default edit lane)
 - `src/runtime/host/` — host-call routing facade only
 - `src/runtime/meta/` — compiler semantic tables and stage2 owner-policy boxes
+  - runtime/kernel owns runtime behavior; runtime/meta owns compiler semantic tables
 - `src/hako_alloc/` — `.hako` alloc-layer (policy plane) helpers (e.g. `ArcBox`, `RefCellBox`)
 
 Build & Link (dev)

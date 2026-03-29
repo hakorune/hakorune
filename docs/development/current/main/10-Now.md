@@ -77,10 +77,11 @@ Related:
     - the new SSOT is `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
     - `.hako` complete in this lane means authority/mainline completion, not native zero
     - standard distribution reading is `hakoruneup + self-contained release bundle`, not a single stage artifact
+    - boundary truth is not owned by `.inc`; `.inc` remains thin artifact/shim space
     - `.inc` partitions are still mixed today, so the first task is classification, not code motion
     - `pure_compile` / `generic_method_lowering` / `string_concat_*` are the first semantic-owner-heavy candidates
     - `hako_llvmc_ffi_common.inc` stays thin boundary utility and native support
-  - fixed order:
+  - landed order / deferred end-state direction:
     1. docs-first owner/shim SSOT
     2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
     3. define compiler-state capability and lowering builder seam
@@ -99,6 +100,9 @@ Related:
     16. eleventh code slice: mirror generic method get fallback route in `hako_llvmc_ffi_generic_method_get_policy.inc`
     17. move remaining semantic owner decisions to `.hako`
     18. thin shim cleanup and README sync
+  - note:
+    - the list above is historical landed order plus deferred end-state direction; it is not the current active expansion plan
+    - docs cleanup may refine boundary-truth wording, but it must not reopen broad stage2 owner expansion before perf returns
   - landed so far:
     - `hako_llvmc_ffi_emit_seam.inc`
     - `hako_llvmc_ffi_generic_method_match.inc`

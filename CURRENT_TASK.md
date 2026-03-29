@@ -60,13 +60,17 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - status: `active bounded-3 stop-line landed`
 - scope: stage2+ を mostly `.hako` authority に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。current stop-line は reached なので、この lane は perf 復帰前の authority/shim boundary 固定として扱う。
+- boundary truth:
+  - SSOT is `hako.abi + hako.value_repr + ownership/layout manifest`
+  - `c-abi/include/*.h`, `*.c`, and `*.inc` are boundary artifacts / thin emitted forms, not semantic owners
+  - `.inc` is a transitional partition format, not the long-term architectural noun
 - current SSOT:
   - `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
   - `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
   - `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
   - `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
-- fixed order:
+- landed order / deferred end-state direction:
   1. docs-first owner/shim SSOT
   2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
   3. define compiler-state capability and lowering builder seam
@@ -85,6 +89,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   16. eleventh code slice: mirror generic method get fallback route in `hako_llvmc_ffi_generic_method_get_policy.inc`
   17. move remaining semantic owner decisions to `.hako`
   18. thin shim cleanup and README sync
+- note:
+  - the list above is historical landed order plus deferred end-state direction; it is not the current active expansion plan
+  - docs cleanup may refine boundary-truth wording, but it must not reopen broad stage2 owner expansion before perf returns
 - landed so far:
   - `hako_llvmc_ffi_emit_seam.inc`
   - `hako_llvmc_ffi_generic_method_match.inc`
@@ -118,6 +125,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - keep remaining live `GET` RMW / indexOf defer logic in `hako_llvmc_ffi_generic_method_get_window.inc` / `hako_llvmc_ffi_generic_method_get_lowering.inc`
   - keep producer/use/future-use analysis in `hako_llvmc_ffi_string_concat_window.inc` / `hako_llvmc_ffi_string_concat_match.inc`
   - treat `indexOf` observer families and `compile_json_compat_pure(...)` orchestration as native compiler-owner keep until the perf lane returns
+  - boundary truth is not owned by `.inc`; `.inc` remains thin artifact/shim space while `runtime/meta/` / `runtime/kernel/` own `.hako` semantic tables
   - next lane after this stop-line is `perf-kilo`, not another broad stage2 owner expansion
 - next exact leaf:
   - do not widen stage2 authority beyond the current bounded-3 stop-line before the perf lane returns

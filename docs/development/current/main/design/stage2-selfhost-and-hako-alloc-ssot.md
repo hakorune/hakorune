@@ -105,6 +105,9 @@ Native keep remains below those layers:
   - handle reuse policy
   - GC trigger threshold policy
   - stop-line for reserved-only `RawBuf / Layout / MaybeInit`
+- boundary artifacts are not semantic owners:
+  - headers/shims stay thin
+  - owner truth is fixed separately by `hako.abi` / `hako.value_repr` / ownership-layout manifests
 - current `.hako` kernel migration work lives on the owner/substrate axis and is allowed to proceed before Stage2 distribution packaging is active.
 - `.hako complete` in this doc means authority/mainline completion, not native zero.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.

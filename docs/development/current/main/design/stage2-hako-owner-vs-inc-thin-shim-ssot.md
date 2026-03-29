@@ -26,6 +26,12 @@ Related:
 - 評価軸は行数ではなく owner 比率で読む。
 - `.hako` complete は authority completion を意味し、native zero や substrate zero を意味しない。
 
+## Boundary Truth
+
+- SSOT is `hako.abi + hako.value_repr + ownership/layout manifest`.
+- `c-abi/include/*.h`, `*.c`, and `*.inc` are boundary artifacts / thin emitted forms, not semantic owners.
+- `.inc` is a transitional partition format, not the long-term architectural noun.
+
 ## Fixed Reading
 
 ### `.hako semantic owner`
@@ -103,9 +109,14 @@ Related:
   - `pure_compile.inc` owns orchestration and dispatch entry only
   - `runtime/meta/` owns compiler semantic tables for `mir_call` route/need/surface
   - analyzer-heavy `GET` windows, `indexOf` observers, and string producer-window analysis stay native compiler-state seams
+- The current bounded stop-line is the `runtime/meta/` + `mir_call` mirror landing; remaining steps below are end-state direction, not the current pre-perf expansion plan.
 - Therefore the migration problem is not “every `.inc` already fits `.hako` syntax”; the real gap is the missing split between compiler-state capability, lowering builder seam, and thin emit shim.
 
 ## Migration Order
+
+Note:
+- steps `21-22` below are deferred end-state direction, not the current bounded stop-line before `perf-kilo` returns
+- current stop-line before perf is the `runtime/meta/` + `mir_call` mirror landing with analyzer-heavy native seams explicitly parked
 
 1. Fix this SSOT and keep the existing stage2 / ABI SSOTs consistent.
 2. Classify `.inc` bodies into semantic owner, compiler owner, thin shim, and native leaf.

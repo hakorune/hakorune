@@ -57,6 +57,7 @@ Related:
 6. Rune のような declaration-contract layer は `.hako` compiler authority 側に属するが、substrate migration を意味しない。
 7. `stage2+` は `.hako` authority mainline を意味するが、native zero や Rust source zero を意味しない。
 8. default distribution shape is `hakoruneup + self-contained release bundle`; stage axis reading と packaging shape を混線させない。
+9. boundary truth belongs to `hako.abi / hako.value_repr / ownership-layout manifest`, not to `.inc` partitions.
 
 ## 3. Current De-Rust Reading
 
@@ -69,7 +70,7 @@ Related:
 ### 3.2 Owner axis now
 
 - compiler authority: separate active lane
-- kernel authority: active through `phase-29cm`
+- kernel authority: owner-first bounded stop-line landed; current compiler semantic tables live under `runtime/meta/`
 - backend authority: queued / separate lane
 - substrate: Rust/C keep
 

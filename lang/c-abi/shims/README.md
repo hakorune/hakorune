@@ -88,6 +88,8 @@ Rules:
 - Do not compile `*.inc` directly.
 - Keep `hako_llvmc_ffi.c` as the single compiled owner unless there is a
   deliberate ABI/linkage split.
+- Do not treat `*.inc` as long-term semantic-owner nouns.
+- Future boundary truth is owned by `hako.abi` / `hako.value_repr` / ABI or ownership-layout manifests; shims are thin emitted or partitioned forms.
 - Prefer adding new pure-first matcher families to a dedicated partition before
   widening the top-level owner shell.
 - During backend-owner cutover, flipped boundary shapes move out of daily ownership first; delete/archive timing is tracked in the phase-29x legacy ledger.

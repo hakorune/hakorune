@@ -3,6 +3,7 @@
 Scope:
 - Home for `.hako` runtime kernel logic (`*_hk` bench line).
 - Keep behavior/policy here; keep host-call transport in `../host/`.
+- Keep compiler semantic tables in `../meta/`; do not blur runtime kernel owner and compiler owner.
 - Migration plan SSOT: `docs/development/current/main/phases/phase-29cm/README.md`.
 
 Subdirectories:
