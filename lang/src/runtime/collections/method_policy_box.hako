@@ -72,6 +72,10 @@ static box CollectionMethodPolicyBox {
     return "ArrayStoreAny"
   }
 
+  route_array_append_any() {
+    return "ArrayAppendAny"
+  }
+
   generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string) {
     if method_name == null { return me.emit_none() }
     if method_name == "birth" && arg0 == 0 && arg1 == 0 {
@@ -127,5 +131,16 @@ static box CollectionMethodPolicyBox {
       return 1
     }
     return 0
+  }
+
+  push_route(box_name, runtime_array_push, runtime_array_string) {
+    if runtime_array_push == 1 || runtime_array_string == 1 || box_name == "ArrayBox" {
+      return me.route_array_append_any()
+    }
+    return me.route_none()
+  }
+
+  should_promote_array_string_birth_after_push(runtime_array_like, value_is_string_handle) {
+    return me.should_promote_array_string_birth(runtime_array_like, value_is_string_handle)
   }
 }

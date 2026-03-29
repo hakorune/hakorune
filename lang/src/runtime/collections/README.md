@@ -95,6 +95,9 @@ Rule:
   - `len_route(box_name, runtime_map_size, runtime_array_len, runtime_array_string, runtime_string)`
     -> first generic-method action route vocabulary
   - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_len_policy.inc`
+  - `push_route(box_name, runtime_array_push, runtime_array_string)` and `should_promote_array_string_birth_after_push(...)`
+    -> second generic-method action route vocabulary for append / array-string promotion
+  - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_push_policy.inc`
 
 ## Current proof lock
 

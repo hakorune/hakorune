@@ -48,6 +48,8 @@ Current partitions:
   - compiler-side mirror of `.hako` generic collection/runtime method vocabulary
 - `hako_llvmc_ffi_generic_method_len_policy.inc`
   - compiler-side mirror of `.hako` generic method `len` action route
+- `hako_llvmc_ffi_generic_method_push_policy.inc`
+  - compiler-side mirror of `.hako` generic method `push` action route
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
@@ -74,3 +76,4 @@ Rules:
 - `hako_llvmc_ffi_string_chain_policy.inc` is the compiler-side bridge to `lang/src/runtime/kernel/string/chain_policy.hako`; keep route names aligned and avoid reopening the `pure_compile` ladder.
 - `hako_llvmc_ffi_generic_method_policy.inc` is the compiler-side bridge to `lang/src/runtime/collections/method_policy_box.hako`; keep emit-kind names aligned and avoid re-growing `generic_method_match.inc`.
 - `hako_llvmc_ffi_generic_method_len_policy.inc` is the first generic-method action seam; keep `len` route ownership out of `generic_method_lowering.inc`.
+- `hako_llvmc_ffi_generic_method_push_policy.inc` is the second generic-method action seam; keep `push` route ownership out of `generic_method_lowering.inc`.

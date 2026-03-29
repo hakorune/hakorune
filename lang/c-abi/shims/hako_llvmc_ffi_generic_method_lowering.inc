@@ -1,5 +1,6 @@
 #include "hako_llvmc_ffi_generic_method_match.inc"
 #include "hako_llvmc_ffi_generic_method_len_policy.inc"
+#include "hako_llvmc_ffi_generic_method_push_policy.inc"
 
       auto int try_emit_non_indexof_generic_method_call(
           FILE* f,
@@ -161,36 +162,8 @@
             return 1;
 
           case HAKO_LLVMC_GENERIC_METHOD_EMIT_PUSH:
-            if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-            if (runtime_array_push) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
-              }
-              if (a0 && get_origin(a0) == ORG_STRING) {
-                promote_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-                if (recv) {
-                  set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-                  set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
-                }
-              }
-            } else if (runtime_array_string) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_append_hh\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
-              }
-              if (recv) {
-                set_origin(recv, ORG_ARRAY_STRING_BIRTH);
-                set_scan_origin(recv, ORG_ARRAY_STRING_BIRTH);
-              }
-            } else if (bname && !strcmp(bname, "ArrayBox")) {
-              fprintf(f, "  call i64 @\"nyash.array.slot_append_hh\"(%s)\n", ab);
-            } else {
+            if (!emit_generic_method_push_by_policy(
+                    f, bname, dst, recv, a0, &plan, ab, ab_cap)) {
               return -1;
             }
             return 1;
