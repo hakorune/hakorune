@@ -228,3 +228,35 @@ reject
 - 1 cut = 1 hot leaf に戻す
 - carrier redesign と leaf direct-copy cut を混ぜない
 - stable `kilo_kernel_small_hk` が悪化したら、その場で revert する
+
+## Rejected Cut G
+
+### Name
+
+borrowed triple-span miss resolution via `handles::with3(...)`
+
+### Intent
+
+- make `resolve_string_span_triplet_from_handles(...)` resolve triplet cache misses under one registry read lock
+- locally flatten `StringViewBox` chains without falling back to `handles::get(...)` on the hot miss wave
+- reduce `Registry::get` density on the `concat3` triple-span route without reopening sink-local tuning
+
+### Result
+
+- `kilo_meso_substring_concat_array_set`: `67 ms -> 68 ms`
+- stable `kilo_kernel_small_hk`: `704 ms -> 745 ms -> 819 ms` on back-to-back `1x3` checks
+
+### Judgment
+
+reject
+
+### Why
+
+- the meso store-boundary proof stayed flat
+- stable main regressed materially, so the narrower borrowed miss wave did not pay back on this machine
+- the accepted lock-safe `concat3` fast path remains the kept slice; further triplet miss rewiring is not justified right now
+
+### Reopen Condition
+
+- only if a fresh asm read shows `resolve_string_span_triplet_from_handles(...)` miss handling dominating again after the current accepted `concat3` lock-safe path
+- and only if the reopened cut proves a same-artifact improvement on both `kilo_meso_substring_concat_array_set` and `kilo_kernel_small_hk`

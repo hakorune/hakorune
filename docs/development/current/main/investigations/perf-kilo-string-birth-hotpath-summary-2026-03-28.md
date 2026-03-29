@@ -81,6 +81,8 @@ Interpretation:
 - specialized `StringBox`-only store leaf under `nyash.array.set_his`
 - short-slice threshold `<= 7 bytes` plus `StringViewBox` borrow expansion
   - lowering `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` to `7` and widening string-source borrowing to `StringViewBox` did not improve the current same-artifact lane; keep the flat `<= 8 bytes` policy for this wave
+- borrowed triple-span miss resolution via `handles::with3(...)` plus local `StringViewBox` flattening
+  - the narrow `resolve_string_span_triplet_from_handles(...)` borrow wave kept meso flat (`67 -> 68 ms`) and regressed stable main (`704 -> 745 -> 819 ms` on back-to-back checks); keep the explicit uncached miss path for triplet cache misses
 
 ## Current Stop-Line
 

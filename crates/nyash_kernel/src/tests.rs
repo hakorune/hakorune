@@ -690,6 +690,28 @@ fn string_concat3_hhh_contract() {
 }
 
 #[test]
+fn string_concat3_hhh_repeated_triplet_route_roundtrip() {
+    let base_h = string_handle("prefix-middle-suffix");
+    let left_h = nyash_string_substring_hii_export(base_h, 0, 6);
+    let middle_h = string_handle("::");
+    let right_h = nyash_string_substring_hii_export(base_h, 14, 20);
+
+    let out_h1 = nyash_string_concat3_hhh_export(left_h, middle_h, right_h);
+    let out_h2 = nyash_string_concat3_hhh_export(left_h, middle_h, right_h);
+
+    assert!(out_h1 > 0);
+    assert!(out_h2 > 0);
+    assert_eq!(
+        decode_string_like_handle(out_h1).as_deref(),
+        Some("prefix::suffix")
+    );
+    assert_eq!(
+        decode_string_like_handle(out_h2).as_deref(),
+        Some("prefix::suffix")
+    );
+}
+
+#[test]
 fn string_concat_hs_contract() {
     let lhs_h = string_handle("line-seed");
     let suffix = CString::new("ln").expect("CString");
