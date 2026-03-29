@@ -107,6 +107,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` no longer freeze while holding the host-handle read lock; they now return a reuse-or-owned decision first and freeze outside the lock
     - `resolve_string_span_triplet_from_handles(...)` plus `string_span_cache_get_triplet(...)` now land the triple-span route
     - latest recheck after this concat3 fix is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`, `kilo_kernel_small_hk = 704 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - rejected follow-up: concat3 reuse-only alias to earlier insert birth regressed stable main to `754-755 ms` under `repeat=3/20`; keep the current canonical birth split as-is until a fresh placement reason appears
+  - rejected follow-up: canonical `concat3_hhh` birth with later reuse alias regressed stable main to `723 ms` on `repeat=3` and `777 ms` on `repeat=20`; keep the current upstream placement lane open instead of forcing another birth-site alias
+  - rejected follow-up: rewriting the insert-mid route to emit `concat3_hhh` directly still regressed main to `775 ms` and tripped `build_failed_after_helper_retry` on the ladder lane; keep the current helper-backed insert route for now and do not treat the concat3 rewrite as the canonical birth
   - accepted short-slice substring freeze cut:
     - `BorrowedSubstringPlan` now returns `FreezeSpan(StringSpan)` for short freeze-only slices instead of wrapping them in `TextPlan::from_span(...)`
     - `substring_hii` materializes those short spans directly via `string_handle_from_span(...)`, keeping the current `<= 8 bytes` policy but removing one `TextPlan` / `into_owned()` hop
@@ -116,6 +119,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - latest `repeat=3` proof is `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 721 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
     - latest `repeat=20` WSL recheck is `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`, `kilo_kernel_small_hk = 688 ms` (`warmup=1 repeat=20`, `aot_status=ok`)
     - latest microasm still keeps `nyash.array.string_len_hi` in the hot tier (`6.34%`), so the observer route remains a real target but this typed-cache cut is generic and keepable
+  - rejected length-aware store-boundary classifier retry:
+    - changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `746 ms` on `repeat=3` and `757 ms` on `repeat=20`; keep the direct-set-only guard for this wave
   - rejected short-slice owned materialize retry:
     - changing the short freeze lane to `FreezeOwned(String)` and materializing inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `866 ms`; keep the span-backed short freeze contract for now
   - same-artifact proof after the retained-boundary parent split stayed flat, so code-side `RetainedForm` split remains deferred unless fresh asm evidence appears
@@ -157,13 +162,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Next Task
 
+- active lane is now the upstream placement proof, not another leaf tweak:
+  1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
+  2. attack `concat3_hhh` / `array_set` / trailing `length()` as one placement problem, not as isolated helper cuts
+  3. keep `array_set` as the consumer boundary / first `Store` proof while the placement proof is open
+  4. only after a same-artifact improvement is visible, revisit code-side `RetainedForm` wiring
 - keep rejected `concat_hs` / `insert_inline` perf cuts documented and out of the active lane
 - keep the landed meso benchmark ladder as the gate for the next string cut
-- next exact code sequence is fixed:
-  1. keep `retained-boundary-and-birth-placement-ssot.md` as the parent contract
-  2. keep `array_set` as the consumer boundary / first `Store` proof
-  3. same-artifact meso/main proof stayed flat, so keep code-side `RetainedForm` wiring deferred unless fresh asm evidence justifies it
-  4. only then revisit code-side `RetainedForm` wiring if fresh asm evidence justifies it
 - rejected follow-up:
   - canonicalizing `freeze.str` in `string_store.rs` regressed `kilo_kernel_small_hk` to `834 ms` and `909 ms` on back-to-back checks; keep the shared `freeze_text_plan(...)` helper local to `string.rs` until new asm evidence appears
 - do not reopen `set_his` helper splitting before the retained-boundary proof lands

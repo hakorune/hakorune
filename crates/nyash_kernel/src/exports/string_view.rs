@@ -1,4 +1,4 @@
-use super::string_birth_placement::{substring_retention_class, TextRetentionClass};
+use super::string_birth_placement::{substring_retention_class, RetainedForm};
 use super::string_span_cache::{
     string_span_cache_get, string_span_cache_get_pair, string_span_cache_get_triplet,
     string_span_cache_put,
@@ -220,13 +220,13 @@ pub(crate) fn borrowed_substring_plan_from_handle(
                 end: en_rel,
             };
             match placement {
-                TextRetentionClass::RetainView => {
+                RetainedForm::RetainView => {
                     return Some(BorrowedSubstringPlan::ViewSpan(span));
                 }
-                TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
+                RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
                     return Some(BorrowedSubstringPlan::FreezeSpan(span));
                 }
-                TextRetentionClass::ReturnHandle => {
+                RetainedForm::ReturnHandle => {
                     return Some(BorrowedSubstringPlan::ReturnHandle);
                 }
             }
@@ -258,13 +258,13 @@ pub(crate) fn borrowed_substring_plan_from_handle(
                 end: abs_en,
             };
             match placement {
-                TextRetentionClass::RetainView => {
+                RetainedForm::RetainView => {
                     return Some(BorrowedSubstringPlan::ViewSpan(span));
                 }
-                TextRetentionClass::MustFreeze(_) | TextRetentionClass::KeepTransient => {
+                RetainedForm::MustFreeze(_) | RetainedForm::KeepTransient => {
                     return Some(BorrowedSubstringPlan::FreezeSpan(span));
                 }
-                TextRetentionClass::ReturnHandle => {
+                RetainedForm::ReturnHandle => {
                     return Some(BorrowedSubstringPlan::ReturnHandle);
                 }
             }

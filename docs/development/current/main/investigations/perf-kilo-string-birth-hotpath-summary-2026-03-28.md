@@ -111,6 +111,9 @@ Interpretation:
 - rejected direct-store consumer widening
   - allowing the C-side concat lowering to treat `array.set(...)` followed by one trailing `length()` observer as the same direct-store consumer window kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 70 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 706 ms` under `repeat=3`)
   - keep the stricter store-only consumer guard for this wave
+- rejected length-aware store-boundary classifier retry
+  - changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `kilo_kernel_small_hk = 746 ms` on `repeat=3` and `757 ms` on `repeat=20`
+  - keep the direct-set-only guard for this wave; the longer classifier did not recover the upstream placement cost on this machine
 - rejected compiler-side insert-recipe length arithmetic
   - lowering `string.length()` on the insert-shaped concat recipe into `suffix_len + const_middle_len` improved meso (`kilo_meso_substring_concat_len = 33 ms`, `kilo_meso_substring_concat_array_set = 63 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`)
   - the same artifact pair still regressed main to `kilo_kernel_small_hk = 695 ms` versus the kept `668 ms` concat3 reuse-only line, so the arithmetic observer rewrite is not keepable on this machine

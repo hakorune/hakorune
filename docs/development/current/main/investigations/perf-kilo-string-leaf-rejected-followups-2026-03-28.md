@@ -444,6 +444,35 @@ reject
 
 - only if a future placement wave proves the trailing `length()` observer is the last reason the direct store recipe cannot stay live
 
+## Rejected Cut M1
+
+### Name
+
+length-aware store-boundary classifier retry
+
+### Intent
+
+- classify `array.set(...)` plus one trailing `length()` observer as a combined store boundary in `has_direct_array_set_consumer(...)`
+- keep the direct-store candidate visible even when the follow-up read-only observer remains nearby
+
+### Result
+
+- stable `kilo_kernel_small_hk = 746 ms` (`repeat=3`)
+- stable `kilo_kernel_small_hk = 757 ms` (`repeat=20`)
+
+### Judgment
+
+reject
+
+### Why
+
+- the longer classifier did not recover the upstream placement cost on this machine
+- the stricter direct-set-only guard still beats the combined store+observer boundary for this wave
+
+### Reopen Condition
+
+- only if a future placement wave shows the trailing `length()` observer is the last blocker for keeping the direct-store recipe live
+
 ## Rejected Cut N
 
 ### Name
@@ -685,3 +714,109 @@ reject
 ### Reopen Condition
 
 - only if a future upstream placement wave proves the first consumer is sufficient to keep a transient carrier alive across the store boundary without regressing the trailing observer, and a fresh asm read shows that the later `length()` observer has become the dominant residue
+
+## Rejected Cut V
+
+### Name
+
+concat3 reuse-only alias to earlier insert birth
+
+### Intent
+
+- treat the earlier `insert_hsi`-shaped birth as the canonical result for later `concat3_hhh`
+- alias the later `concat3_hhh` consumer to the earlier insert-birth value when the triple components match
+- collapse the apparent duplicate birth into a single insert-shaped canonical result
+
+### Result
+
+- stable main got worse under both probes:
+  - `repeat=3`: `kilo_kernel_small_hk = 755 ms`
+  - `repeat=20`: `kilo_kernel_small_hk = 754 ms`
+- meso stayed flat-to-worse:
+  - `kilo_meso_substring_concat_len = 36 ms`
+  - `kilo_meso_substring_concat_array_set = 67 ms`
+  - `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- the later `concat3_hhh` birth is not the right canonical place for this wave if the canonical result is forced through the earlier insert-shaped path
+- the current insert-shaped canonicalization keeps `TextPlan::into_owned`, `string_handle_from_owned`, and `insert_inline` hot enough that the whole-program line gets worse
+- the trace evidence shows the same logical triple can be seen twice, but the earlier birth form is not a free win on this machine
+
+### Reopen Condition
+
+- only if fresh asm evidence shows the insert-shaped canonical birth itself becoming cheaper than the concat3-shaped one
+- or if a caller/lowering placement change can move both consumers to a single later concat3 birth without extending lifetime pressure
+
+## Rejected Cut X
+
+### Name
+
+insert-mid route rewritten to emit `concat3_hhh`
+
+### Intent
+
+- keep the current direct-store detection, but change the hot insert-shaped emit site to produce `concat3_hhh` directly
+- let array-store consume the concat3-shaped birth instead of the older insert-shaped birth
+- keep the earlier substring / const / suffix checks intact
+
+### Result
+
+- 3-run main stayed worse: `kilo_kernel_small_hk = 775 ms`
+- `tools/perf/run_kilo_meso_machine_ladder.sh 1 3` hit `build_failed_after_helper_retry` on the AOT lane
+- the route trace still showed the same hot shape, but the new emit path did not produce a stable perf win on this machine
+
+### Judgment
+
+reject
+
+### Why
+
+- the change did not recover the kept `668 ms` line and introduced a stability regression in the ladder path
+- the earlier insert-shaped canonical birth is still not the right answer, but the concat3 rewrite alone was not enough to fix the placement problem
+- the current slice needs a larger upstream placement redesign, not another local emit rewrite
+
+### Reopen Condition
+
+- only if a future placement rewrite can choose the canonical birth earlier without tripping the helper-retry lane
+- or if a fresh asm read shows the concat3-shaped birth has become clearly cheaper than the current helper-backed insert route
+
+## Rejected Cut W
+
+### Name
+
+canonical `concat3_hhh` birth with later reuse alias
+
+### Intent
+
+- make `concat3_hhh` the canonical birth for the hot `left + "xx" + right` shape
+- keep the earlier array-set consumer on the same canonical birth instead of forcing the earlier `insert_hsi`-shaped materialization to own the lane
+- alias the later identical `concat3_hhh` consumer back to the earlier canonical result when the triple matches
+
+### Result
+
+- stable main got worse under both probes:
+  - `repeat=3`: `kilo_kernel_small_hk = 723 ms`
+  - `repeat=20`: `kilo_kernel_small_hk = 777 ms`
+- meso stayed flat-to-worse:
+  - `kilo_meso_substring_concat_len = 37 ms`
+  - `kilo_meso_substring_concat_array_set = 61 ms`
+  - `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- moving the canonical birth from the insert-shaped lane to the concat3-shaped lane did not buy back the whole-program cost on this machine
+- the current `TextPlan` / `string_handle_from_owned` / `insert_inline` / `concat3` balance still needs an upstream placement change, not another birth-site alias tweak
+- the main lane stayed worse even under the noisier 20-run guard, so this is not a WSL-only outlier
+
+### Reopen Condition
+
+- only if a fresh upstream placement proof shows the `array.set` consumer and the trailing observer can truly share a later concat3 birth without extending the `TextPlan::into_owned()` / `StringBox::new()` pressure

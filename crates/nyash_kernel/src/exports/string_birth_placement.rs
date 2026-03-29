@@ -9,7 +9,7 @@ pub(crate) enum BoundaryKind {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum TextRetentionClass {
+pub(crate) enum RetainedForm {
     ReturnHandle,
     KeepTransient,
     RetainView,
@@ -22,20 +22,20 @@ const SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES: usize = 8;
 pub(crate) fn substring_retention_class(
     view_enabled: bool,
     slice_len: usize,
-) -> TextRetentionClass {
+) -> RetainedForm {
     if !view_enabled || slice_len <= SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES {
-        TextRetentionClass::MustFreeze(BoundaryKind::Store)
+        RetainedForm::MustFreeze(BoundaryKind::Store)
     } else {
-        TextRetentionClass::RetainView
+        RetainedForm::RetainView
     }
 }
 
 #[inline(always)]
-pub(crate) fn concat_suffix_retention_class(suffix_is_empty: bool) -> TextRetentionClass {
+pub(crate) fn concat_suffix_retention_class(suffix_is_empty: bool) -> RetainedForm {
     if suffix_is_empty {
-        TextRetentionClass::ReturnHandle
+        RetainedForm::ReturnHandle
     } else {
-        TextRetentionClass::KeepTransient
+        RetainedForm::KeepTransient
     }
 }
 
@@ -43,13 +43,13 @@ pub(crate) fn concat_suffix_retention_class(suffix_is_empty: bool) -> TextRetent
 pub(crate) fn insert_middle_retention_class(
     source_is_empty: bool,
     middle_is_empty: bool,
-) -> TextRetentionClass {
+) -> RetainedForm {
     if middle_is_empty {
-        TextRetentionClass::ReturnHandle
+        RetainedForm::ReturnHandle
     } else if source_is_empty {
-        TextRetentionClass::MustFreeze(BoundaryKind::Store)
+        RetainedForm::MustFreeze(BoundaryKind::Store)
     } else {
-        TextRetentionClass::KeepTransient
+        RetainedForm::KeepTransient
     }
 }
 
@@ -59,13 +59,13 @@ pub(crate) fn concat3_retention_class(
     b_is_empty: bool,
     c_is_empty: bool,
     allow_handle_reuse: bool,
-) -> TextRetentionClass {
+) -> RetainedForm {
     if allow_handle_reuse
         && ((a_is_empty && b_is_empty) || (a_is_empty && c_is_empty) || (b_is_empty && c_is_empty))
     {
-        TextRetentionClass::ReturnHandle
+        RetainedForm::ReturnHandle
     } else {
-        TextRetentionClass::KeepTransient
+        RetainedForm::KeepTransient
     }
 }
 
@@ -74,17 +74,17 @@ mod tests {
     use super::{
         concat3_retention_class, concat_suffix_retention_class, insert_middle_retention_class,
     };
-    use super::{substring_retention_class, BoundaryKind, TextRetentionClass};
+    use super::{substring_retention_class, BoundaryKind, RetainedForm};
 
     #[test]
     fn substring_placement_distinguishes_view_and_freeze() {
         assert_eq!(
             substring_retention_class(true, 9),
-            TextRetentionClass::RetainView
+            RetainedForm::RetainView
         );
         assert_eq!(
             substring_retention_class(false, 9),
-            TextRetentionClass::MustFreeze(BoundaryKind::Store)
+            RetainedForm::MustFreeze(BoundaryKind::Store)
         );
     }
 
@@ -92,31 +92,31 @@ mod tests {
     fn concat_and_insert_placement_keep_transient_or_reuse_handle() {
         assert_eq!(
             concat_suffix_retention_class(true),
-            TextRetentionClass::ReturnHandle
+            RetainedForm::ReturnHandle
         );
         assert_eq!(
             concat_suffix_retention_class(false),
-            TextRetentionClass::KeepTransient
+            RetainedForm::KeepTransient
         );
         assert_eq!(
             insert_middle_retention_class(true, false),
-            TextRetentionClass::MustFreeze(BoundaryKind::Store)
+            RetainedForm::MustFreeze(BoundaryKind::Store)
         );
         assert_eq!(
             insert_middle_retention_class(false, true),
-            TextRetentionClass::ReturnHandle
+            RetainedForm::ReturnHandle
         );
         assert_eq!(
             insert_middle_retention_class(false, false),
-            TextRetentionClass::KeepTransient
+            RetainedForm::KeepTransient
         );
         assert_eq!(
             concat3_retention_class(false, false, false, true),
-            TextRetentionClass::KeepTransient
+            RetainedForm::KeepTransient
         );
         assert_eq!(
             concat3_retention_class(true, true, false, true),
-            TextRetentionClass::ReturnHandle
+            RetainedForm::ReturnHandle
         );
     }
 }
