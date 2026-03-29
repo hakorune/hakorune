@@ -64,6 +64,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
 
       // small helpers
       #define ARR_LEN(a) ((int)(sizeof(a)/sizeof((a)[0])))
+      auto long long read_int(yyjson_val* obj, const char* key);
+      auto const char* read_str(yyjson_val* obj, const char* key);
       #include "hako_llvmc_ffi_compiler_state.inc"
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<512){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
@@ -73,16 +75,20 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       int generic_walk_trace_budget = 24;
       int generic_call_trace_budget = 24;
       int generic_method_trace_budget = 24;
-      #include "hako_llvmc_ffi_generic_method_get_window.inc"
+      #include "hako_llvmc_ffi_indexof_observer_state.inc"
+      #include "hako_llvmc_ffi_indexof_observer_direct_match.inc"
+      #include "hako_llvmc_ffi_indexof_observer_block_match.inc"
       #include "hako_llvmc_ffi_indexof_observer_trace.inc"
       #include "hako_llvmc_ffi_indexof_observer_lowering.inc"
+      #include "hako_llvmc_ffi_string_chain_terms.inc"
+      #include "hako_llvmc_ffi_mir_call_surface_policy.inc"
       #include "hako_llvmc_ffi_string_concat_lowering.inc"
       #include "hako_llvmc_ffi_string_chain_policy.inc"
       #include "hako_llvmc_ffi_const_string_hoist.inc"
+      #include "hako_llvmc_ffi_mir_call_route_policy.inc"
+      #include "hako_llvmc_ffi_mir_call_need_policy.inc"
       #include "hako_llvmc_ffi_mir_call_prepass.inc"
       #include "hako_llvmc_ffi_mir_call_shell.inc"
-      #include "hako_llvmc_ffi_generic_method_match.inc"
-      #include "hako_llvmc_ffi_generic_method_lowering.inc"
       #define HAKO_LLVM_READONLY_ATTRS " nounwind readonly willreturn"
 
       // Pre-scan: consts + phis + needed method decls
@@ -125,6 +131,12 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
               if (dst) {
                 set_scan_origin(dst, ORG_ARRAY_BIRTH);
                 set_origin(dst, ORG_ARRAY_BIRTH);
+              }
+            } else if (tname && strcmp(tname, "MapBox") == 0) {
+              needs.map_birth = 1;
+              if (dst) {
+                set_scan_origin(dst, ORG_MAP_BIRTH);
+                set_origin(dst, ORG_MAP_BIRTH);
               }
             } else if (tname && strcmp(tname, "StringBox") == 0) {
               yyjson_val* nb_args = yyjson_obj_get(ins, "args");
@@ -264,6 +276,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (needs.map_get)   fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_has)   fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.map_size)  fprintf(f, "declare i64 @\"nyash.map.entry_count_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
+      fprintf(f, "declare i64 @\"nyash.runtime_data.get_hh\"(i64, i64)\n");
+      fprintf(f, "declare i64 @\"nyash.runtime_data.set_hhh\"(i64, i64, i64)\n");
+      fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
+      fprintf(f, "declare i64 @\"nyash.runtime_data.push_hh\"(i64, i64)\n");
       if (needs.arr_birth) fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
       if (needs.arr_push)  fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
       if (needs.arr_len)   fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
@@ -301,6 +317,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       // Emit blocks
       #define EMIT(...) do { fprintf(f, __VA_ARGS__); } while(0)
       #include "hako_llvmc_ffi_emit_seam.inc"
+      #include "hako_llvmc_ffi_generic_method_lowering.inc"
+      #include "hako_llvmc_ffi_mir_call_dispatch.inc"
       auto void emit_block_label(long long bid){ EMIT("bb%lld:\n", bid); }
       auto void emit_phi(long long dst, struct Incoming* in, int in_n){
         int phi_ty = get_type(dst);
@@ -372,6 +390,17 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 set_scan_origin(dst, ORG_ARRAY_BIRTH);
               } else {
                 EMIT("  call i64 @\"nyash.array.birth_h\"()\n");
+              }
+              continue;
+            }
+            if (tname && strcmp(tname, "MapBox") == 0) {
+              if (dst) {
+                EMIT("  %%r%lld = call i64 @\"nyash.map.birth_h\"()\n", dst);
+                set_type(dst, T_I64);
+                set_origin(dst, ORG_MAP_BIRTH);
+                set_scan_origin(dst, ORG_MAP_BIRTH);
+              } else {
+                EMIT("  call i64 @\"nyash.map.birth_h\"()\n");
               }
               continue;
             }
@@ -535,76 +564,25 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             continue;
           }
           if (strcmp(op, "mir_call")==0) {
-            yyjson_val* mc = yyjson_obj_get(ins, "mir_call"); yyjson_val* cal = mc? yyjson_obj_get(mc, "callee") : NULL; const char* ctype = cal? read_str(cal, "type") : NULL; const char* bname = cal? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL; const char* mname = cal? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL; long long dst = read_int(ins, "dst"); long long recv = read_int(cal, "receiver"); yyjson_val* args = mc? yyjson_obj_get(mc, "args") : NULL; long long a0=0,a1=0; if (args && yyjson_is_arr(args)) { if (yyjson_arr_size(args)>=1) a0=(long long)yyjson_get_sint(yyjson_arr_get(args,0)); if (yyjson_arr_size(args)>=2) a1=(long long)yyjson_get_sint(yyjson_arr_get(args,1)); }
-            char ab[256]; ab[0]='\0';
-            if (hako_llvmc_route_trace_enabled() && generic_call_trace_budget > 0) {
-              char extra[384];
-              snprintf(extra, sizeof(extra),
-                       "ii=%zu dst=%lld recv=%lld ctype=%s bname=%s mname=%s a0=%lld a1=%lld",
-                       ii, dst, recv,
-                       ctype ? ctype : "-",
-                       bname ? bname : "-",
-                       mname ? mname : "-",
-                       a0, a1);
-              hako_llvmc_emit_route_trace("mir_call", "seen", "enter", extra);
-              generic_call_trace_budget--;
+            yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+            yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+            const char* ctype = cal ? read_str(cal, "type") : NULL;
+            const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
+            const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
+            long long dst = read_int(ins, "dst");
+            long long recv = read_int(cal, "receiver");
+            yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+            long long a0 = 0, a1 = 0;
+            if (args && yyjson_is_arr(args)) {
+              if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
+              if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
             }
-            if (ctype && !strcmp(ctype, "Constructor")) {
-              if (emit_constructor_mir_call(f, bname, dst) < 0) { yyjson_doc_free(d); goto GEN_ABORT; }
-            } else if (ctype && !strcmp(ctype, "Method")) {
-              struct GenericMethodRouteState route =
-                  classify_generic_method_route(bid, ii, bname, mname, recv);
-              trace_generic_method_route_state(
-                  ii, dst, recv, ctype, bname, mname, a0, a1, &route);
-              enum GenericMethodEmitKind emit_kind =
-                  classify_generic_method_emit_kind(bname, mname, &route, a0, a1);
-              append_array_string_indexof_method_receiver_args(
-                  route.deferred_array_string_indexof,
-                  recv,
-                  ab,
-                  sizeof(ab));
-              {
-                int non_indexof_method_rc = try_emit_non_indexof_generic_method_call(
-                    f,
-                    blocks,
-                    bid,
-                    ii,
-                    ilen,
-                    insts,
-                    bname,
-                    mname,
-                    dst,
-                    recv,
-                    a0,
-                    a1,
-                    emit_kind,
-                    &route,
-                    ab,
-                    sizeof(ab),
-                    skip_inst);
-                if (non_indexof_method_rc < 0) { yyjson_doc_free(d); goto GEN_ABORT; }
-                if (non_indexof_method_rc > 0) continue;
-              }
-              if (mname && !strcmp(mname, "indexOf") && route.runtime_string) {
-                if (!emit_deferred_array_string_indexof_call(f, route.deferred_array_string_indexof, dst, ab)) {
-                  if (a0) append_i64_arg_ref(ab, sizeof(ab), a0, ab[0]=='\0');
-                  if (dst) {
-                    EMIT("  %%r%lld = call i64 @\"nyash.string.indexOf_hh\"(%s)\n", dst, ab);
-                    set_type(dst, T_I64);
-                  } else {
-                    EMIT("  call i64 @\"nyash.string.indexOf_hh\"(%s)\n", ab);
-                  }
-                }
-              }
-              else { yyjson_doc_free(d); goto GEN_ABORT; }
-            } else if (ctype && !strcmp(ctype, "Extern")) {
-              if (emit_supported_string_extern_mir_call(f, mname, dst, args) < 0) {
-                yyjson_doc_free(d);
-                goto GEN_ABORT;
-              }
-            } else if (ctype && !strcmp(ctype, "Global")) {
-              if (emit_global_mir_call(f, mname, a0) < 0) { yyjson_doc_free(d); goto GEN_ABORT; }
-            } else { yyjson_doc_free(d); goto GEN_ABORT; }
+            if (emit_mir_call_dispatch(
+                    f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
+                    dst, recv, args, a0, a1, skip_inst) < 0) {
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
             continue;
           }
           // any other op unsupported

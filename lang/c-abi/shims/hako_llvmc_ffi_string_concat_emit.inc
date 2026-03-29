@@ -270,16 +270,16 @@
 
       auto int emit_supported_string_extern_mir_call(
           FILE* f,
-          const char* mname,
+          enum MirCallStringExternSurfaceKind kind,
           long long dst,
           yyjson_val* args) {
         char ab[192];
         size_t argc = 0;
-        if (!(mname && args && yyjson_is_arr(args))) return -1;
+        if (!(args && yyjson_is_arr(args))) return -1;
         argc = yyjson_arr_size(args);
         ab[0] = '\0';
 
-        if (!strcmp(mname, "nyash.string.concat_hh")) {
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT_HH) {
           if (argc != 2) return -1;
           append_string_concat_arg_ref(
               ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 0)), 1);
@@ -298,7 +298,7 @@
           return 1;
         }
 
-        if (!strcmp(mname, "nyash.string.concat3_hhh")) {
+        if (kind == HAKO_LLVMC_MIR_CALL_STRING_EXTERN_SURFACE_CONCAT3_HHH) {
           if (argc != 3) return -1;
           append_string_concat_arg_ref(
               ab, sizeof(ab), (long long)yyjson_get_sint(yyjson_arr_get(args, 0)), 1);

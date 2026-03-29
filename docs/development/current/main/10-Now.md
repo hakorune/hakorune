@@ -71,7 +71,7 @@ Related:
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 
 - Stage2 `.hako` owner lane
-  - status: `active docs-first owner/shim split`
+  - status: `active bounded-3 stop-line landed`
   - current exact read:
     - stage2+ is now read as mostly `.hako` authority / thin `.inc` shim / native metal keep
     - the new SSOT is `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
@@ -113,18 +113,26 @@ Related:
     - `hako_llvmc_ffi_generic_method_has_policy.inc`
     - `hako_llvmc_ffi_generic_method_substring_policy.inc`
     - `hako_llvmc_ffi_generic_method_get_policy.inc`
-  - `hako_llvmc_ffi_generic_method_get_window.inc`
-  - `hako_llvmc_ffi_generic_method_get_lowering.inc`
-  - `hako_llvmc_ffi_string_concat_window.inc`
-  - `pure_compile.inc` dead GET-window remnants retired
-  - `string_concat_match.inc` dead helper copy block retired
+    - `hako_llvmc_ffi_generic_method_get_window.inc`
+    - `hako_llvmc_ffi_generic_method_get_lowering.inc`
+    - `hako_llvmc_ffi_string_concat_window.inc`
+    - `pure_compile.inc` dead GET-window remnants retired
+    - `string_concat_match.inc` dead helper copy block retired
+    - `runtime/meta/{mir_call_route_policy_box,mir_call_need_policy_box,mir_call_surface_policy_box}.hako`
+    - `hako_llvmc_ffi_mir_call_route_policy.inc`
+    - `hako_llvmc_ffi_mir_call_need_policy.inc`
+    - `hako_llvmc_ffi_mir_call_surface_policy.inc`
+    - `hako_llvmc_ffi_mir_call_dispatch.inc`
+    - `pure_compile.inc` now routes `mir_call` through `hako_llvmc_ffi_mir_call_dispatch.inc`
+    - `RuntimeDataBox` generic fallback routes now reuse `nyash.runtime_data.{get,set,has,push}` through the method-policy seams
+    - `runtime_data_map_get_hh(...)` now preserves the mixed runtime i64/handle return contract, so map-get facade parity stays pinned after the route-policy split
   - next exact slice:
-    - `GET` fallback seam is landed; `GET` window helpers are isolated in `hako_llvmc_ffi_generic_method_get_window.inc` and dispatch now routes through `hako_llvmc_ffi_generic_method_get_lowering.inc`
-    - `string_concat_match.inc` now shares producer-window helpers from `hako_llvmc_ffi_string_concat_window.inc`
-    - dead GET-window remnants are retired from `pure_compile.inc`; dead helper copies are retired from `string_concat_match.inc`
-    - keep remaining live `GET` RMW / indexOf defer logic in the mixed helper lane for now
-    - next semantic-owner candidates are the remaining compiler-owner decisions after those producer-side probes
-    - treat producer/use/future-use analysis as compiler-state-heavy until a later seam exists
+    - `runtime/meta/` is now the `.hako` owner home for compiler semantic tables; keep `kernel` for runtime behavior and `host` for transport only
+    - generic `mir_call` route family, prepass need vocabulary, and constructor/global/string-extern accept surfaces are now `.hako` owned through native mirror seams
+    - keep remaining live `GET` RMW / indexOf defer logic in `hako_llvmc_ffi_generic_method_get_window.inc` / `hako_llvmc_ffi_generic_method_get_lowering.inc`
+    - keep producer/use/future-use analysis in `hako_llvmc_ffi_string_concat_window.inc` / `hako_llvmc_ffi_string_concat_match.inc`
+    - keep `indexOf` observer families and `compile_json_compat_pure(...)` orchestration native until the perf lane returns
+    - next lane after this bounded stop-line is `perf-kilo`, not another broad authority wave
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:

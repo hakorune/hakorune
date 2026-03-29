@@ -1,24 +1,3 @@
-      struct GenericPureNeedFlags {
-        int map_birth;
-        int map_set;
-        int map_size;
-        int map_get;
-        int map_has;
-        int arr_birth;
-        int arr_push;
-        int arr_len;
-        int arr_set;
-        int arr_get;
-        int arr_has;
-        int arr_string_indexof;
-        int string_const_box;
-        int string_len;
-        int string_substring;
-        int string_indexof;
-        int string_concat;
-        int printf;
-      };
-
       auto void mark_array_string_indexof_need_flags(
           yyjson_val* blocks,
           size_t ii,
@@ -84,12 +63,13 @@
         if (!needs) return;
         if (ctype && !strcmp(ctype, "Constructor")) {
           long long dst = read_int(ins, "dst");
-          if (bname && !strcmp(bname, "MapBox")) {
-            needs->map_birth = 1;
+          enum MirCallNeedKind need_kind =
+              classify_mir_call_constructor_need_kind(bname);
+          apply_mir_call_need_kind(needs, need_kind);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_MAP_BIRTH) {
             if (dst) set_scan_origin(dst, ORG_MAP_BIRTH);
           }
-          if (bname && !strcmp(bname, "ArrayBox")) {
-            needs->arr_birth = 1;
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_BIRTH) {
             if (dst) set_scan_origin(dst, ORG_ARRAY_BIRTH);
           }
           return;
@@ -100,89 +80,51 @@
           yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
           long long a0 = 0;
           long long a1 = 0;
-          int scan_org = recv ? get_scan_origin(recv) : ORG_NONE;
+          struct GenericMethodRouteState route;
+          enum MirCallReceiverFamilyKind recv_family;
+          enum MirCallNeedKind need_kind;
           if (args && yyjson_is_arr(args)) {
             if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
             if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
           }
-
-          if (bname && !strcmp(bname, "MapBox")) {
-            if (!mname) return;
-            if (!strcmp(mname, "set")) needs->map_set = 1;
-            else if (!strcmp(mname, "size") || !strcmp(mname, "len")) needs->map_size = 1;
-            else if (!strcmp(mname, "get")) needs->map_get = 1;
-            else if (!strcmp(mname, "has")) needs->map_has = 1;
-            return;
-          }
-
-          if (bname && !strcmp(bname, "ArrayBox")) {
-            if (!mname) return;
-            if (!strcmp(mname, "push")) needs->arr_push = 1;
-            else if (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size")) needs->arr_len = 1;
-            else if (!strcmp(mname, "set")) needs->arr_set = 1;
-            else if (!strcmp(mname, "get")) needs->arr_get = 1;
-            return;
-          }
-
-          if (!(bname && !strcmp(bname, "RuntimeDataBox"))) return;
-
-          if (scan_org == ORG_ARRAY_BIRTH && mname && !strcmp(mname, "get")) needs->arr_get = 1;
-          if (scan_org == ORG_ARRAY_BIRTH && mname && !strcmp(mname, "push")) {
-            needs->arr_push = 1;
-            if (a0 && get_scan_origin(a0) == ORG_STRING) {
-              promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-            }
-          }
-          if (scan_org == ORG_ARRAY_BIRTH && mname &&
-              (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size"))) {
-            needs->arr_len = 1;
-          }
-          if (scan_org == ORG_ARRAY_BIRTH && mname && !strcmp(mname, "has")) needs->arr_has = 1;
-          if (scan_org == ORG_ARRAY_BIRTH && mname && !strcmp(mname, "set")) {
-            needs->arr_set = 1;
-            if (a1 && get_scan_origin(a1) == ORG_STRING) {
-              promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
-            }
-          }
-          if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && !strcmp(mname, "get")) {
+          route = classify_generic_method_route(bid, ii, bname, mname, recv);
+          recv_family = classify_mir_call_receiver_family(route.recv_org);
+          need_kind = classify_mir_call_method_need_kind(bname, mname, recv_family);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_STRING_INDEXOF) {
             mark_array_string_indexof_need_flags(
-                blocks, ii, ilen, insts, bname, mname, recv, a0, read_int(ins, "dst"),
-                scan_org, needs);
+                blocks, ii, ilen, insts, bname, mname, recv, a0,
+                read_int(ins, "dst"), route.recv_org, needs);
+            return;
           }
-          if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && !strcmp(mname, "push")) needs->arr_push = 1;
-          if (scan_org == ORG_ARRAY_STRING_BIRTH && mname && !strcmp(mname, "set")) needs->arr_set = 1;
-          if (scan_org == ORG_ARRAY_STRING_BIRTH && mname &&
-              (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size"))) {
-            needs->arr_len = 1;
+          apply_mir_call_need_kind(needs, need_kind);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_PUSH &&
+              route.recv_org == ORG_ARRAY_BIRTH &&
+              a0 && get_scan_origin(a0) == ORG_STRING) {
+            promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
           }
-          if (scan_org == ORG_MAP_BIRTH && mname && !strcmp(mname, "get")) needs->map_get = 1;
-          if (scan_org == ORG_MAP_BIRTH && mname &&
-              (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size"))) {
-            needs->map_size = 1;
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_ARRAY_SET &&
+              route.recv_org == ORG_ARRAY_BIRTH &&
+              a1 && get_scan_origin(a1) == ORG_STRING) {
+            promote_scan_origin_kind(ORG_ARRAY_BIRTH, ORG_ARRAY_STRING_BIRTH);
           }
-          if (scan_org == ORG_MAP_BIRTH && mname && !strcmp(mname, "has")) needs->map_has = 1;
-          if (scan_org == ORG_STRING && mname &&
-              (!strcmp(mname, "len") || !strcmp(mname, "length") || !strcmp(mname, "size"))) {
-            needs->string_len = 1;
-          }
-          if (scan_org == ORG_STRING && mname && !strcmp(mname, "substring")) {
-            needs->string_substring = 1;
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_STRING_SUBSTRING) {
             if (read_int(ins, "dst")) set_scan_origin(read_int(ins, "dst"), ORG_STRING);
           }
-          if (scan_org == ORG_STRING && mname && !strcmp(mname, "indexOf")) needs->string_indexof = 1;
           return;
         }
 
-        if (ctype && !strcmp(ctype, "Global") && mname && !strcmp(mname, "print")) {
-          needs->printf = 1;
+        if (ctype && !strcmp(ctype, "Global")) {
+          apply_mir_call_need_kind(needs, classify_mir_call_global_need_kind(mname));
           return;
         }
 
         if (ctype && !strcmp(ctype, "Extern") && mname) {
-          if (!strcmp(mname, "nyash.string.concat_hh") ||
-              !strcmp(mname, "nyash.string.concat3_hhh")) {
-            needs->string_concat = 1;
-            if (read_int(ins, "dst")) set_scan_origin(read_int(ins, "dst"), ORG_STRING);
+          enum MirCallNeedKind need_kind =
+              classify_mir_call_extern_need_kind(mname);
+          apply_mir_call_need_kind(needs, need_kind);
+          if (need_kind == HAKO_LLVMC_MIR_CALL_NEED_STRING_CONCAT &&
+              read_int(ins, "dst")) {
+            set_scan_origin(read_int(ins, "dst"), ORG_STRING);
           }
         }
       }

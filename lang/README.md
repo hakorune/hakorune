@@ -19,6 +19,7 @@ Layout (initial)
   - `shims/` — libc-backed shim(s) for canaries and local testing
 - `src/runtime/kernel/` — `.hako` runtime kernel logic (default edit lane)
 - `src/runtime/host/` — host-call routing facade only
+- `src/runtime/meta/` — compiler semantic tables and stage2 owner-policy boxes
 - `src/hako_alloc/` — `.hako` alloc-layer (policy plane) helpers (e.g. `ArcBox`, `RefCellBox`)
 
 Build & Link (dev)

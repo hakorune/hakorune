@@ -58,8 +58,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ### stage2-hako-owner
 
-- status: `active docs-first owner/shim split`
-- scope: stage2+ を mostly `.hako` authority に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。
+- status: `active bounded-3 stop-line landed`
+- scope: stage2+ を mostly `.hako` authority に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。current stop-line は reached なので、この lane は perf 復帰前の authority/shim boundary 固定として扱う。
 - current SSOT:
   - `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
   - `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
@@ -104,15 +104,23 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `hako_llvmc_ffi_generic_method_get_window.inc`
   - `hako_llvmc_ffi_generic_method_get_lowering.inc`
   - `hako_llvmc_ffi_string_concat_window.inc`
+  - `lang/src/runtime/meta/{mir_call_route_policy_box,mir_call_need_policy_box,mir_call_surface_policy_box}.hako`
+  - `hako_llvmc_ffi_mir_call_route_policy.inc`
+  - `hako_llvmc_ffi_mir_call_need_policy.inc`
+  - `hako_llvmc_ffi_mir_call_surface_policy.inc`
+  - `hako_llvmc_ffi_mir_call_dispatch.inc`
+  - `pure_compile.inc` now delegates `mir_call` dispatch through `hako_llvmc_ffi_mir_call_dispatch.inc`
+  - `RuntimeDataBox` generic fallback routes now reuse `nyash.runtime_data.{get,set,has,push}` through the method-policy seams instead of ad-hoc box-name ladders
+  - `runtime_data_map_get_hh(...)` now preserves the mixed runtime i64/handle return contract; `runtime_data_map_get_keeps_mixed_runtime_i64_contract` pins the map-get facade behavior
 - next exact slice:
-  - `GET` fallback seam is landed; `GET` window helpers are isolated in `hako_llvmc_ffi_generic_method_get_window.inc` and the dispatcher now calls `hako_llvmc_ffi_generic_method_get_lowering.inc`
-  - `string_concat_match.inc` now shares producer-window helpers from `hako_llvmc_ffi_string_concat_window.inc`
-  - dead GET-window remnants are retired from `pure_compile.inc`; dead helper copies are retired from `string_concat_match.inc`
-  - keep remaining live `GET` RMW / indexOf defer logic in the mixed helper lane for now
-  - next semantic-owner candidates are the remaining compiler-owner decisions after those producer-side probes
-  - treat producer/use/future-use analysis as compiler-state-heavy until a later seam exists
+  - `runtime/meta/` is now the `.hako` owner home for compiler semantic tables; keep `kernel` for runtime behavior and `host` for transport only
+  - generic `mir_call` receiver-family route ownership, prepass need vocabulary, and constructor/global/string-extern accept surfaces are now `.hako`-owned with native mirror seams
+  - keep remaining live `GET` RMW / indexOf defer logic in `hako_llvmc_ffi_generic_method_get_window.inc` / `hako_llvmc_ffi_generic_method_get_lowering.inc`
+  - keep producer/use/future-use analysis in `hako_llvmc_ffi_string_concat_window.inc` / `hako_llvmc_ffi_string_concat_match.inc`
+  - treat `indexOf` observer families and `compile_json_compat_pure(...)` orchestration as native compiler-owner keep until the perf lane returns
+  - next lane after this stop-line is `perf-kilo`, not another broad stage2 owner expansion
 - next exact leaf:
-  - do not touch runtime code until the owner/shim split is pinned in docs
+  - do not widen stage2 authority beyond the current bounded-3 stop-line before the perf lane returns
   - keep native metal leafs resident; this lane is about authority migration, not substrate zero or full source-zero
   - read final distribution as `hakoruneup + self-contained release bundle`, not as a single stage artifact
 

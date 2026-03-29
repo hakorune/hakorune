@@ -77,3 +77,37 @@
         if (get_scan_origin(r) != ORG_NONE) return 0;
         return get_str_const(r) == NULL;
       }
+      auto int inst_uses_reg(yyjson_val* ins, long long reg) {
+        if (!ins || !reg) return 0;
+        const char* op = read_str(ins, "op");
+        if (!op) return 0;
+        if (strcmp(op, "copy") == 0) return read_int(ins, "src") == reg;
+        if (strcmp(op, "binop") == 0) {
+          return read_int(ins, "lhs") == reg || read_int(ins, "rhs") == reg;
+        }
+        if (strcmp(op, "compare") == 0) {
+          return read_int(ins, "lhs") == reg || read_int(ins, "left") == reg ||
+                 read_int(ins, "rhs") == reg || read_int(ins, "right") == reg;
+        }
+        if (strcmp(op, "select") == 0) {
+          return read_int(ins, "cond") == reg ||
+                 read_int(ins, "then_val") == reg ||
+                 read_int(ins, "else_val") == reg;
+        }
+        if (strcmp(op, "branch") == 0) return read_int(ins, "cond") == reg;
+        if (strcmp(op, "ret") == 0) return read_int(ins, "value") == reg;
+        if (strcmp(op, "mir_call") == 0) {
+          yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
+          yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
+          if (cal && read_int(cal, "receiver") == reg) return 1;
+          yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
+          if (args && yyjson_is_arr(args)) {
+            size_t n = yyjson_arr_size(args);
+            for (size_t i = 0; i < n; i++) {
+              yyjson_val* a = yyjson_arr_get(args, i);
+              if (a && (long long)yyjson_get_sint(a) == reg) return 1;
+            }
+          }
+        }
+        return 0;
+      }

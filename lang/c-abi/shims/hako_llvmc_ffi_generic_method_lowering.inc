@@ -54,17 +54,45 @@
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
             if (a1) append_i64_arg_ref(ab, ab_cap, a1, 0);
             switch (set_route) {
+              case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY:
+                if (dst) {
+                  fprintf(f, "  %%r%lld = call i64 @\"nyash.runtime_data.set_hhh\"(%s)\n", dst, ab);
+                  set_type(dst, T_I64);
+                } else {
+                  fprintf(f, "  call i64 @\"nyash.runtime_data.set_hhh\"(%s)\n", ab);
+                }
+                break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY:
-                fprintf(f, "  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
+                if (dst) {
+                  fprintf(f, "  %%r%lld = call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", dst, ab);
+                  set_type(dst, T_I64);
+                } else {
+                  fprintf(f, "  call i64 @\"nyash.map.slot_store_hhh\"(%s)\n", ab);
+                }
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64:
-                fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
+                if (dst) {
+                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_store_hii\"(%s)\n", dst, ab);
+                  set_type(dst, T_I64);
+                } else {
+                  fprintf(f, "  call i64 @\"nyash.array.slot_store_hii\"(%s)\n", ab);
+                }
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING:
-                fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
+                if (dst) {
+                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.set_his\"(%s)\n", dst, ab);
+                  set_type(dst, T_I64);
+                } else {
+                  fprintf(f, "  call i64 @\"nyash.array.set_his\"(%s)\n", ab);
+                }
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY:
-                fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
+                if (dst) {
+                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.set_hih\"(%s)\n", dst, ab);
+                  set_type(dst, T_I64);
+                } else {
+                  fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
+                }
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE:
               default:

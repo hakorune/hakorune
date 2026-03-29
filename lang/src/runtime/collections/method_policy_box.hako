@@ -60,6 +60,10 @@ static box CollectionMethodPolicyBox {
     return "MapStoreAny"
   }
 
+  route_runtime_data_store_any() {
+    return "RuntimeDataStoreAny"
+  }
+
   route_array_store_i64() {
     return "ArrayStoreI64"
   }
@@ -84,6 +88,10 @@ static box CollectionMethodPolicyBox {
     return "MapContainsAny"
   }
 
+  route_runtime_data_contains_any() {
+    return "RuntimeDataContainsAny"
+  }
+
   route_string_insert_mid_window() {
     return "StringInsertMidWindow"
   }
@@ -98,6 +106,14 @@ static box CollectionMethodPolicyBox {
 
   route_array_slot_load_any() {
     return "ArraySlotLoadAny"
+  }
+
+  route_runtime_data_load_any() {
+    return "RuntimeDataLoadAny"
+  }
+
+  route_runtime_data_append_any() {
+    return "RuntimeDataAppendAny"
   }
 
   generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string) {
@@ -133,11 +149,22 @@ static box CollectionMethodPolicyBox {
     return me.route_none()
   }
 
-  set_route(box_name, runtime_array_string, value_is_i64, value_is_string_handle) {
+  set_route(box_name, recv_origin, runtime_array_string, value_is_i64, value_is_string_handle) {
+    if box_name == "RuntimeDataBox" {
+      return me.route_runtime_data_store_any()
+    }
     if box_name == "MapBox" {
       return me.route_map_store_any()
     }
+    if recv_origin == 2 {
+      return me.route_map_store_any()
+    }
     if box_name == "ArrayBox" {
+      if value_is_i64 == 1 { return me.route_array_store_i64() }
+      if value_is_string_handle == 1 { return me.route_array_store_string() }
+      return me.route_array_store_any()
+    }
+    if recv_origin == 3 || recv_origin == 5 {
       if value_is_i64 == 1 { return me.route_array_store_i64() }
       if value_is_string_handle == 1 { return me.route_array_store_string() }
       return me.route_array_store_any()
@@ -151,6 +178,9 @@ static box CollectionMethodPolicyBox {
   }
 
   get_route(box_name, runtime_map_get, runtime_array_get, runtime_array_string) {
+    if box_name == "RuntimeDataBox" {
+      return me.route_runtime_data_load_any()
+    }
     if box_name == "MapBox" || runtime_map_get == 1 {
       return me.route_map_load_any()
     }
@@ -168,6 +198,9 @@ static box CollectionMethodPolicyBox {
   }
 
   push_route(box_name, runtime_array_push, runtime_array_string) {
+    if box_name == "RuntimeDataBox" {
+      return me.route_runtime_data_append_any()
+    }
     if runtime_array_push == 1 || runtime_array_string == 1 || box_name == "ArrayBox" {
       return me.route_array_append_any()
     }
@@ -179,6 +212,9 @@ static box CollectionMethodPolicyBox {
   }
 
   has_route(box_name, runtime_array_has, runtime_map_has) {
+    if box_name == "RuntimeDataBox" {
+      return me.route_runtime_data_contains_any()
+    }
     if runtime_array_has == 1 {
       return me.route_array_contains_any()
     }

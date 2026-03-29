@@ -1,19 +1,5 @@
       #include "hako_llvmc_ffi_generic_method_policy.inc"
 
-      struct GenericMethodEmitPlan {
-        enum GenericMethodEmitKind kind;
-        int recv_org;
-        int runtime_array_len;
-        int runtime_array_get;
-        int runtime_array_push;
-        int runtime_array_has;
-        int runtime_string;
-        int runtime_array_string;
-        int runtime_map_get;
-        int runtime_map_size;
-        int runtime_map_has;
-      };
-
       auto int classify_generic_method_emit_plan(
           const char* bname,
           const char* mname,

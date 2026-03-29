@@ -1,0 +1,28 @@
+// MirCallSurfacePolicy — compiler semantic table for mir_call accept surfaces.
+
+static box MirCallSurfacePolicy {
+  accept_constructor(box_name){
+    return box_name == "MapBox" || box_name == "ArrayBox"
+  }
+
+  accept_global(name){
+    return name == "print"
+  }
+
+  accept_string_extern(name){
+    return name == "nyash.string.concat_hh" || name == "nyash.string.concat3_hhh"
+  }
+
+  accept_surface(ctype, box_name, method_name, extern_name){
+    if ctype == "Constructor" && me.accept_constructor(box_name) {
+      return "constructor"
+    }
+    if ctype == "Global" && me.accept_global(method_name) {
+      return "global"
+    }
+    if ctype == "Extern" && me.accept_string_extern(extern_name) {
+      return "string_extern"
+    }
+    return "none"
+  }
+}

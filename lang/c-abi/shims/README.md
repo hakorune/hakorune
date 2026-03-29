@@ -38,10 +38,20 @@ Current partitions:
   - thin wrapper for string concat lowering that now delegates emit details
 - `hako_llvmc_ffi_string_concat_emit.inc`
   - string concat chain state plus `concat_hh` / `concat3_hhh` emit helpers and route-adjacent trace hooks
+- `hako_llvmc_ffi_string_chain_terms.inc`
+  - shared string-chain enum/name terms used by policy and producer-window seams
 - `hako_llvmc_ffi_string_chain_policy.inc`
   - compiler-side mirror of `.hako` string-chain route / retained-form / post-store observer vocabulary used by pure-first concat lowering
+- `hako_llvmc_ffi_mir_call_route_policy.inc`
+  - compiler-side mirror of `.hako` generic `mir_call` receiver-family route vocabulary
+- `hako_llvmc_ffi_mir_call_need_policy.inc`
+  - compiler-side mirror of `.hako` `mir_call` prepass need-vocabulary
+- `hako_llvmc_ffi_mir_call_surface_policy.inc`
+  - compiler-side mirror of `.hako` constructor/global/string-extern accept surfaces
 - `hako_llvmc_ffi_mir_call_prepass.inc`
-  - `mir_call` prepass need-flag scan helpers used before generic pure lowering emits LLVM IR
+  - `mir_call` prepass scan/mutation helpers that consume the `.hako` need-vocabulary before generic pure lowering emits LLVM IR
+- `hako_llvmc_ffi_mir_call_dispatch.inc`
+  - native `mir_call` dispatcher seam that consumes route/surface policy mirrors plus generic method lowering
 - `hako_llvmc_ffi_generic_method_match.inc`
   - generic method match/plan helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_generic_method_policy.inc`
@@ -65,7 +75,7 @@ Current partitions:
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
-  - shared `mir_call` emit-shell helpers for constructor/global lowering and runtime route classification
+  - shared `mir_call` emit-shell helpers for constructor/global/string-extern lowering
 - `hako_llvmc_ffi_indexof_observer_trace.inc`
   - route-trace wrappers for `indexOf` observer families
 - `hako_llvmc_ffi_route.inc`
@@ -85,7 +95,10 @@ Rules:
 - First code slices now extracted emit primitives into `hako_llvmc_ffi_emit_seam.inc`, and generic-method routing/classification is being split toward `hako_llvmc_ffi_generic_method_match.inc`.
 - The shared compiler-state helper table is now landing in `hako_llvmc_ffi_compiler_state.inc`; keep route/placement decisions separate from raw state access.
 - String concat emit helpers now live in `hako_llvmc_ffi_string_concat_emit.inc`; keep concat routing thin and avoid re-growing the wrapper body.
+- `hako_llvmc_ffi_string_chain_terms.inc` is the shared term layer for string-chain policy/window seams; keep route-term definitions out of the heavy producer-window helpers.
 - `hako_llvmc_ffi_string_chain_policy.inc` is the compiler-side bridge to `lang/src/runtime/kernel/string/chain_policy.hako`; keep route / retained-form / post-store observer names aligned and avoid reopening the `pure_compile` ladder.
+- `hako_llvmc_ffi_mir_call_route_policy.inc`, `hako_llvmc_ffi_mir_call_need_policy.inc`, and `hako_llvmc_ffi_mir_call_surface_policy.inc` bridge to `lang/src/runtime/meta/`; keep compiler semantic tables out of `pure_compile.inc`.
+- `hako_llvmc_ffi_mir_call_dispatch.inc` is the only `mir_call` dispatcher seam that `pure_compile.inc` should call directly.
 - `hako_llvmc_ffi_generic_method_policy.inc` is the compiler-side bridge to `lang/src/runtime/collections/method_policy_box.hako`; keep emit-kind names aligned and avoid re-growing `generic_method_match.inc`.
 - `hako_llvmc_ffi_generic_method_len_policy.inc` is the first generic-method action seam; keep `len` route ownership out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_push_policy.inc` is the second generic-method action seam; keep `push` route ownership out of `generic_method_lowering.inc`.
@@ -95,3 +108,4 @@ Rules:
 - `hako_llvmc_ffi_generic_method_get_window.inc` is the `GET` producer-window helper bundle; keep its producer-side probe logic thin and avoid growing it back into `pure_compile.inc`.
 - `hako_llvmc_ffi_generic_method_get_lowering.inc` is the dispatcher seam for `GET`; keep the case body out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_string_concat_window.inc` is the producer-window helper seam for string concat; keep helper logic out of `string_concat_match.inc` once the migration settles.
+- Keep `hako_llvmc_ffi_generic_method_get_window.inc`, `hako_llvmc_ffi_string_concat_window.inc`, and the `indexOf` observer family native in this wave; they are compiler-state-heavy analyzers, not the next `.hako` owner tables.

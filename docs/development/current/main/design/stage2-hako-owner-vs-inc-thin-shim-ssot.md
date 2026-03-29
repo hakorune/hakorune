@@ -89,8 +89,20 @@ Related:
 - `hako_llvmc_ffi_generic_method_get_policy.inc` now mirrors that fallback route, so `generic_method_lowering.inc` keeps the producer-window probes but no longer owns the final `MapBox.get` vs `ArrayBox.get` decision directly.
 - `hako_llvmc_ffi_generic_method_lowering.inc` is mostly semantic owner plus final call emission.
 - `hako_llvmc_ffi_compiler_state.inc` now holds the shared copy/origin/type/const helper tables and is the first compiler-state seam landed.
-- `hako_llvmc_ffi_pure_compile.inc` is compiler orchestrator owner and still carries route decisions.
+- `lang/src/runtime/meta/` is now the `.hako` owner home for compiler semantic tables that are not kernel behavior and not host transport.
+- `lang/src/runtime/meta/mir_call_route_policy_box.hako` owns the generic `mir_call` receiver-family route vocabulary.
+- `lang/src/runtime/meta/mir_call_need_policy_box.hako` owns the semantic need-vocabulary used by the `mir_call` prepass.
+- `lang/src/runtime/meta/mir_call_surface_policy_box.hako` owns constructor/global/string-extern accept surfaces.
+- `hako_llvmc_ffi_mir_call_route_policy.inc`, `hako_llvmc_ffi_mir_call_need_policy.inc`, and `hako_llvmc_ffi_mir_call_surface_policy.inc` are the native mirrors of those `.hako` owner tables.
+- `hako_llvmc_ffi_mir_call_dispatch.inc` is now the single native dispatch seam consumed by `pure_compile.inc`.
+- `hako_llvmc_ffi_pure_compile.inc` remains the compiler orchestrator owner, but `mir_call` route/need/accept tables are no longer owned inline there.
+- `lang/src/runtime/collections/method_policy_box.hako` now also owns the fallback routes for `RuntimeDataBox` generic `get/set/has/push`, so runtime-data facade semantics stay in `.hako` owner vocabulary instead of re-growing box-name ladders inside the shim.
+- `nyash.runtime_data.get_hh` now preserves the mixed runtime i64/handle return contract for map reads, so the route-policy split does not silently narrow `RuntimeDataBox` facade semantics.
 - `lang/src/runtime/kernel/string/chain_policy.hako` is the first `.hako` semantic-owner landing for string-chain route / retained-form vocabulary.
+- Current bounded stop-line is now landed enough for a perf return:
+  - `pure_compile.inc` owns orchestration and dispatch entry only
+  - `runtime/meta/` owns compiler semantic tables for `mir_call` route/need/surface
+  - analyzer-heavy `GET` windows, `indexOf` observers, and string producer-window analysis stay native compiler-state seams
 - Therefore the migration problem is not “every `.inc` already fits `.hako` syntax”; the real gap is the missing split between compiler-state capability, lowering builder seam, and thin emit shim.
 
 ## Migration Order
@@ -136,6 +148,13 @@ Related:
 - `hako_llvmc_ffi_generic_method_get_window.inc`
 - `hako_llvmc_ffi_generic_method_get_lowering.inc`
 - `hako_llvmc_ffi_string_concat_window.inc`
+- `lang/src/runtime/meta/mir_call_route_policy_box.hako`
+- `lang/src/runtime/meta/mir_call_need_policy_box.hako`
+- `lang/src/runtime/meta/mir_call_surface_policy_box.hako`
+- `hako_llvmc_ffi_mir_call_route_policy.inc`
+- `hako_llvmc_ffi_mir_call_need_policy.inc`
+- `hako_llvmc_ffi_mir_call_surface_policy.inc`
+- `hako_llvmc_ffi_mir_call_dispatch.inc`
 
 ## Non-Goals
 
@@ -144,3 +163,4 @@ Related:
 - Do not add a third public ABI.
 - Do not force every `.inc` byte into `.hako` before the capability vocabulary is ready.
 - Do not mix this owner/shim cut with the perf-kilo hot-path lane.
+- Do not move `GET` window analyzers, `indexOf` observer analyzers, string producer/use/future-use analysis, or `compile_json_compat_pure(...)` orchestration into `.hako` in this wave.

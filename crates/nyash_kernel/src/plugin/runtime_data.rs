@@ -13,7 +13,7 @@ use super::runtime_data_map_dispatch::{
     runtime_data_map_get_hh, runtime_data_map_has_hh, runtime_data_map_set_hhh,
 };
 
-// nyash.runtime_data.get_hh(recv_h, key_any) -> value_handle (or 0)
+// nyash.runtime_data.get_hh(recv_h, key_any) -> mixed runtime i64/handle value (or 0)
 #[export_name = "nyash.runtime_data.get_hh"]
 pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
     with_array_or_map(
@@ -60,6 +60,15 @@ pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nyash_rust::box_trait::NyashBox;
+    use nyash_rust::boxes::map_box::MapBox;
+    use nyash_rust::runtime::host_handles as handles;
+    use std::sync::Arc;
+
+    fn new_map_handle() -> i64 {
+        let map: Arc<dyn NyashBox> = Arc::new(MapBox::new());
+        handles::to_handle_arc(map) as i64
+    }
 
     #[test]
     fn runtime_data_invalid_handle_returns_zero() {
@@ -67,5 +76,15 @@ mod tests {
         assert_eq!(nyash_runtime_data_set_hhh(0, 1, 2), 0);
         assert_eq!(nyash_runtime_data_has_hh(0, 1), 0);
         assert_eq!(nyash_runtime_data_push_hh(0, 1), 0);
+    }
+
+    #[test]
+    fn runtime_data_map_get_keeps_mixed_runtime_i64_contract() {
+        let handle = new_map_handle();
+        let key = -70001;
+
+        assert_eq!(nyash_runtime_data_set_hhh(handle, key, 42), 1);
+        assert_eq!(nyash_runtime_data_has_hh(handle, key), 1);
+        assert_eq!(nyash_runtime_data_get_hh(handle, key), 42);
     }
 }

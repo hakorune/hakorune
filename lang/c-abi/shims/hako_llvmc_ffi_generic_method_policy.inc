@@ -11,10 +11,25 @@
 
       enum GenericMethodSetRouteKind {
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE = 0,
+        HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY,
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY,
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64,
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING,
         HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY,
+      };
+
+      struct GenericMethodEmitPlan {
+        enum GenericMethodEmitKind kind;
+        int recv_org;
+        int runtime_array_len;
+        int runtime_array_get;
+        int runtime_array_push;
+        int runtime_array_has;
+        int runtime_string;
+        int runtime_array_string;
+        int runtime_map_get;
+        int runtime_map_size;
+        int runtime_map_has;
       };
 
       auto enum GenericMethodEmitKind classify_generic_method_emit_kind(
@@ -47,10 +62,23 @@
           const struct GenericMethodEmitPlan* plan,
           int value_is_i64,
           int value_is_string_handle) {
+        if (bname && !strcmp(bname, "RuntimeDataBox")) {
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY;
+        }
         if (bname && !strcmp(bname, "MapBox")) {
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
         }
+        if (plan && plan->recv_org == ORG_MAP_BIRTH) {
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
+        }
         if (bname && !strcmp(bname, "ArrayBox")) {
+          if (value_is_i64) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
+          if (value_is_string_handle) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
+        }
+        if (plan &&
+            (plan->recv_org == ORG_ARRAY_BIRTH ||
+             plan->recv_org == ORG_ARRAY_STRING_BIRTH)) {
           if (value_is_i64) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
           if (value_is_string_handle) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
