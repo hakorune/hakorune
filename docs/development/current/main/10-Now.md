@@ -173,14 +173,13 @@ Related:
 	          - landed narrow store-boundary cut:
 	            - `nyash.array.set_his` no longer clones a temporary source `Arc` before entering the array write closure; the hot branch now resolves the source handle in place
 	            - latest spot-check is `kilo_meso_substring_concat_array_set = 66 ms` and `kilo_kernel_small_hk = 708 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
-	          - landed small carrier cleanup:
-	            - `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` now send their owned fast paths directly through `string_handle_from_owned(...)`
-	            - `concat_const_suffix_plan_from_handle(...)` no longer repeats the `resolve_string_span_from_handle(...)` fallback after `TextPlan::from_handle(...)`
-	            - short-span retention in `borrowed_substring_plan_from_handle(...)` now uses the relative range length directly instead of re-reading the slice length
-	            - latest same-artifact proof after this cleanup is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`, `kilo_kernel_small_hk = 707 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
 	          - landed concat3 reuse-only specialization:
 	            - `concat3_plan_from_spans(...)` is now fixed to the reuse-allowed lane, so the dead `allow_handle_reuse = false` branch is gone and span emptiness checks use byte-range length directly
 	            - latest same-artifact proof after this specialization is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`, `kilo_kernel_small_hk = 668 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+	          - rejected small carrier cleanup retry:
+	            - sending owned fast paths directly through `string_handle_from_owned(...)`, removing the `resolve_string_span_from_handle(...)` fallback after `TextPlan::from_handle(...)`, and using the relative range length directly inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `777 ms`; keep the span-backed / helper-backed current lane for now
+	          - rejected pair span-length retry:
+	            - changing `concat_pair_from_spans(...)` to use span byte lengths instead of `as_str().is_empty()` regressed stable main to `904 ms`; keep the existing span-read check there for now
 	          - landed sink-local read-side cut: `Registry::get` now uses a direct clone path without the extra clone helper
 	          - current optimization summary lives in `docs/development/current/main/investigations/perf-kilo-string-birth-hotpath-summary-2026-03-28.md`
 	          - sink-local lane is exhausted; no further safe code cut is known without fresh upstream birth-density evidence

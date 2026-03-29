@@ -54,10 +54,6 @@ Related:
   - `BorrowedSubstringPlan` now returns `FreezeSpan(StringSpan)` for short freeze-only slices instead of wrapping them in `TextPlan::from_span(...)`
   - `substring_hii` materializes those short spans directly via `string_handle_from_span(...)`
   - latest same-artifact recheck after this cut is `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 704 ms`
-- small carrier cleanup landed
-  - `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` now send their owned fast paths directly through `string_handle_from_owned(...)`
-  - `concat_const_suffix_plan_from_handle(...)` no longer repeats the `resolve_string_span_from_handle(...)` fallback after `TextPlan::from_handle(...)`
-  - short-span retention in `borrowed_substring_plan_from_handle(...)` now uses the relative range length directly instead of re-reading the slice length
 - concat3 reuse-only specialization landed
   - `concat3_plan_from_spans(...)` is fixed to the reuse-allowed lane, so the dead `allow_handle_reuse = false` branch is gone and span emptiness checks use byte-range length directly
   - latest same-artifact recheck after this specialization is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`, `kilo_kernel_small_hk = 668 ms`
@@ -97,6 +93,10 @@ Interpretation:
   - lowering `SUBSTRING_VIEW_MATERIALIZE_MAX_BYTES` to `7` and widening string-source borrowing to `StringViewBox` did not improve the current same-artifact lane; keep the flat `<= 8 bytes` policy for this wave
 - borrowed triple-span miss resolution via `handles::with3(...)` plus local `StringViewBox` flattening
   - the narrow `resolve_string_span_triplet_from_handles(...)` borrow wave kept meso flat (`67 -> 68 ms`) and regressed stable main (`704 -> 745 -> 819 ms` on back-to-back checks); keep the explicit uncached miss path for triplet cache misses
+- rejected small carrier cleanup retry
+  - sending owned fast paths directly through `string_handle_from_owned(...)`, removing the `resolve_string_span_from_handle(...)` fallback after `TextPlan::from_handle(...)`, and using the relative range length directly inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `777 ms`; keep the span-backed / helper-backed current lane for now
+- rejected pair span-length retry
+  - changing `concat_pair_from_spans(...)` to use span byte lengths instead of `as_str().is_empty()` regressed stable main to `904 ms`; keep the existing span-read check there for now
 
 ## Current Stop-Line
 

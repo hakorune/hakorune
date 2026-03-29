@@ -294,3 +294,32 @@ reject
 
 - only if a fresh same-artifact proof shows the short freeze lane itself dominates after current accepted placement
 - and only if the direct owned materialize improves both `kilo_meso_substring_concat_len` and `kilo_kernel_small_hk` on the same artifact pair
+
+## Rejected Cut I
+
+### Name
+
+concat_pair span-length emptiness check
+
+### Intent
+
+- change `concat_pair_from_spans(...)` to use span byte lengths instead of `as_str().is_empty()`
+- avoid the extra `as_str()` read when deciding whether to reuse `a_h` or `b_h`
+
+### Result
+
+- stable `kilo_kernel_small_hk`: `668 ms -> 904 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- this lane does not hit the hot path cleanly enough to pay for its bookkeeping
+- the regression is large enough that the span-length simplification is not justified on this machine
+
+### Reopen Condition
+
+- only if a fresh same-artifact proof shows `concat_pair_from_spans(...)` itself becoming a dominant hot tier symbol
+- and only if the span-length emptiness check improves both meso and main on the same artifact pair
