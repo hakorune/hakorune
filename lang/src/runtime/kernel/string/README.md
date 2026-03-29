@@ -61,8 +61,10 @@ freeze.str
   - `post_store_use_len_observer() -> "LenObserver"`
   - `substring_retained_form(...) -> retained-form tag`
   - `concat_pair_route(...) -> route tag`
+  - `insert_mid_route(...) -> route tag`
   - `concat3_route(...) -> route tag`
   - first stage2 semantic-owner landing for concat / substring / post-store observer vocabulary
+  - current compiler-side mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_string_chain_policy.inc`
 
 ## Current Narrow Frontier
 

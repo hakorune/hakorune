@@ -75,14 +75,16 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   6. third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc`
   7. fourth code slice: split string concat emit helpers into `hako_llvmc_ffi_string_concat_emit.inc`
   8. first semantic-owner slice: land string-chain policy vocabulary in `.hako`
-  9. move remaining semantic owner decisions to `.hako`
-  10. thin shim cleanup and README sync
+  9. fifth code slice: mirror string-chain route policy in `hako_llvmc_ffi_string_chain_policy.inc`
+  10. move remaining semantic owner decisions to `.hako`
+  11. thin shim cleanup and README sync
 - landed so far:
   - `hako_llvmc_ffi_emit_seam.inc`
   - `hako_llvmc_ffi_generic_method_match.inc`
   - `hako_llvmc_ffi_compiler_state.inc`
   - `hako_llvmc_ffi_string_concat_emit.inc`
   - `lang/src/runtime/kernel/string/chain_policy.hako`
+  - `hako_llvmc_ffi_string_chain_policy.inc`
 - next exact leaf:
   - do not touch runtime code until the owner/shim split is pinned in docs
   - keep native metal leafs resident; this lane is about authority migration, not full source-zero
