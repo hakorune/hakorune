@@ -5,4 +5,5 @@ version = "1.0.0"
 [exports]
 KernelHub = "kernel_hub_box.hako"
 string.search = "string/search.hako"
+string.chain_policy = "string/chain_policy.hako"
 numeric.matrix_i64 = "numeric/matrix_i64.hako"

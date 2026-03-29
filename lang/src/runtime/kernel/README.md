@@ -14,6 +14,7 @@ Current migration order:
 - `string` is already landed via `string.search` (`string/search.hako`)
   - current public surface: `find_index` / `contains` / `starts_with` / `ends_with` / `split_once_index`
   - current authoring lane: `search.hako` helper extraction / control-structure cleanup only
+  - first stage2 owner/shim landing now also includes `string/chain_policy.hako` for concat / substring / post-store observer vocabulary
   - widening stays paused until a new exact blocker appears; if none appears, stop the lane and move to inventory or the next fixed order
 - `array/`
   - keep `ArrayBox.length/len/size` in `lang/src/runtime/collections/array_core_box.hako` while it stays wrapper-only

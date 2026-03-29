@@ -77,6 +77,7 @@ Related:
 - `hako_llvmc_ffi_generic_method_lowering.inc` is mostly semantic owner plus final call emission.
 - `hako_llvmc_ffi_compiler_state.inc` now holds the shared copy/origin/type/const helper tables and is the first compiler-state seam landed.
 - `hako_llvmc_ffi_pure_compile.inc` is compiler orchestrator owner and still carries route decisions.
+- `lang/src/runtime/kernel/string/chain_policy.hako` is the first `.hako` semantic-owner landing for string-chain route / retained-form vocabulary.
 - Therefore the migration problem is not “every `.inc` already fits `.hako` syntax”; the real gap is the missing split between compiler-state capability, lowering builder seam, and thin emit shim.
 
 ## Migration Order
@@ -89,8 +90,9 @@ Related:
 6. Second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc` so method routing is no longer mixed with emit logic.
 7. Third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc` so shared origin/type/const state is no longer in the orchestrator body.
 8. Fourth code slice: split string concat emit helpers into `hako_llvmc_ffi_string_concat_emit.inc` so concat lowering no longer owns the emit body.
-9. Move semantic owner and compiler-owner decisions into `.hako`.
-10. Shrink `.inc` to thin shim responsibilities only.
+9. First semantic-owner slice: land string-chain route / retained-form vocabulary under `lang/src/runtime/kernel/string/`.
+10. Move remaining semantic owner and compiler-owner decisions into `.hako`.
+11. Shrink `.inc` to thin shim responsibilities only.
 
 ## Landed Slices
 
@@ -98,6 +100,7 @@ Related:
 - `hako_llvmc_ffi_generic_method_match.inc`
 - `hako_llvmc_ffi_compiler_state.inc`
 - `hako_llvmc_ffi_string_concat_emit.inc`
+- `lang/src/runtime/kernel/string/chain_policy.hako`
 
 ## Non-Goals
 

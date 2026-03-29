@@ -56,6 +56,13 @@ freeze.str
   - `ends_with(hay, needle) -> i64`
   - `split_once_index(hay, needle) -> i64`
   - keep it narrow; no widening to the rest of the string kernel yet
+- `chain_policy.hako`
+  - `boundary_kind_store() -> "Store"`
+  - `post_store_use_len_observer() -> "LenObserver"`
+  - `substring_retained_form(...) -> retained-form tag`
+  - `concat_pair_route(...) -> route tag`
+  - `concat3_route(...) -> route tag`
+  - first stage2 semantic-owner landing for concat / substring / post-store observer vocabulary
 
 ## Current Narrow Frontier
 
@@ -66,6 +73,7 @@ freeze.str
 ## Examples
 
 - concat/substring/indexOf specialization policy
+- concat/substring/post-store observer route vocabulary
 - materialize/view boundary rules
 - `find_index` / `contains` / `starts_with` の control structure
 

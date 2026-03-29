@@ -1,0 +1,64 @@
+// StringChainPolicyBox — stage2 string-chain semantic owner vocabulary
+// Responsibility:
+// - own concat/substring/post-store observer policy names on the .hako side
+// - provide a stable authority surface for future route/placement migration
+// Non-responsibility:
+// - host handle allocation / registry
+// - raw copy / flatten / freeze leaf execution
+// - ABI entry shaping
+
+static box StringChainPolicyBox {
+  boundary_kind_store() {
+    return "Store"
+  }
+
+  post_store_use_none() {
+    return "None"
+  }
+
+  post_store_use_len_observer() {
+    return "LenObserver"
+  }
+
+  retained_form_keep_transient() {
+    return "KeepTransient"
+  }
+
+  retained_form_retain_view() {
+    return "RetainView"
+  }
+
+  retained_form_need_owned_handle() {
+    return "NeedOwnedHandle"
+  }
+
+  substring_retained_form(is_short_slice, boundary_kind, view_allowed) {
+    if boundary_kind == me.boundary_kind_store() && is_short_slice == 1 {
+      return me.retained_form_need_owned_handle()
+    }
+    if view_allowed == 1 {
+      return me.retained_form_retain_view()
+    }
+    return me.retained_form_keep_transient()
+  }
+
+  concat_pair_route(has_const_suffix, has_chain_consumer, has_direct_store_consumer) {
+    if has_chain_consumer == 1 {
+      return "defer_pair"
+    }
+    if has_const_suffix == 1 && has_direct_store_consumer != 1 {
+      return "const_suffix"
+    }
+    return "concat_hh"
+  }
+
+  concat3_route(lhs_has_pair, rhs_has_pair) {
+    if lhs_has_pair == 1 {
+      return "concat3_lhs_pair"
+    }
+    if rhs_has_pair == 1 {
+      return "concat3_rhs_pair"
+    }
+    return "concat3_fallback"
+  }
+}
