@@ -559,6 +559,37 @@ reject
 
 - only if a future placement wave materially changes the retained/store boundary and a fresh ASM read still shows the trailing `length()` observer as a dominant residue
 
+## Rejected Cut R
+
+### Name
+
+substring planner cache-first retry
+
+### Intent
+
+- make `borrowed_substring_plan_from_handle(...)` consult `string_span_cache_get(...)` before `handles::with_handle(...)`
+- reuse cached root spans for repeated `substring_hii` calls on the same source handle
+- keep the cut generic and upstream of the sink-local `Registry::alloc/get` stop-line
+
+### Result
+
+- same-artifact proof: `kilo_meso_substring_concat_len = 33 ms`, `kilo_meso_substring_concat_array_set = 64 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`
+- stable main: `kilo_kernel_small_hk = 706 ms` (`repeat=3`)
+- microasm: `nyash.string.substring_hii = 6.57%`, but `Registry::alloc`, `Registry::get`, `BoxBase::new`, and the store-boundary closures still dominated
+
+### Judgment
+
+reject
+
+### Why
+
+- the cache-first planner helped meso and reduced `substring_hii` share, but it still did not beat the kept `668 ms` line on main
+- this wave trims one repeated lookup, but it does not remove enough retained-store birth density to matter at `kilo_kernel_small_hk` scale
+
+### Reopen Condition
+
+- only if a future placement wave keeps more than one substring/transient value live across the same store boundary and `substring_hii` remains a dominant residue afterward
+
 ### Reopen Condition
 
 - only if a future asm read shows immediate post-birth observer traffic dominating and a stronger retained/store-boundary placement proof says the first observer should stay on cache

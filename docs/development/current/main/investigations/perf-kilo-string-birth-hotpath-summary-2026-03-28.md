@@ -113,6 +113,10 @@ Interpretation:
   - reopening the direct-store consumer window only for insert-shaped concat and pairing it with the arithmetic `length()` rewrite kept meso acceptable (`kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`)
   - the same artifact pair still regressed main to `kilo_kernel_small_hk = 732 ms`, so the combined compiler-side rewrite is still worse than the kept `668 ms` line
   - keep both slices rejected until a future placement wave changes the retained/store boundary enough to justify reopening them together
+- rejected substring planner cache-first retry
+  - making `borrowed_substring_plan_from_handle(...)` consult `string_span_cache_get(...)` before `handles::with_handle(...)` improved meso (`kilo_meso_substring_concat_len = 33 ms`, `kilo_meso_substring_concat_array_set = 64 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`)
+  - the same artifact pair still left main at `kilo_kernel_small_hk = 706 ms`, and microasm kept `Registry::alloc`, `Registry::get`, `BoxBase::new`, `array_set_his`, and `substring_hii` ahead of the observer residue
+  - keep the direct planner shape for now; the next win still needs a larger upstream placement cut, not just a cache-first substring lookup
 - rejected `insert_hsi` one-resolve helper
   - the helper-backed single-decision route improved the first `repeat=3` probe (`kilo_kernel_small_hk = 694 ms`) but drifted back to `727 ms` under `repeat=20`
   - keep the current helper-backed `insert_hsi` lane and use the documented `repeat=20` recheck rule on WSL before closing similar slices
