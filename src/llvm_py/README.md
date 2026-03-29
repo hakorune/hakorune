@@ -3,6 +3,7 @@
 ## 📝 概要
 `src/llvm_py/**` は current daily owner ではなく、llvmlite を使う compat/probe keep lane だよ。
 mainline backend route は `ny-llvm / ny-llvmc` に固定されていて、この Python lane は explicit opt-in 比較・検証用として保守する。
+`ny-llvmc` の daily caller route はここを通らない。ここに来るのは `--driver harness` か `NYASH_LLVM_USE_HARNESS=1` を明示した keep/replay 時だけだよ。
 
 ## 🎯 目的
 1. **検証ハーネス** - PHI/SSA構造の高速検証

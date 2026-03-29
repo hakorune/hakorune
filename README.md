@@ -70,7 +70,7 @@ Call system (unified by default)
 
 Execution Status (Feature Additions Pause)
 - Active
-  - `--backend llvm` (ny-llvmc crate backend; llvmlite harness is internal) — AOT object/EXE line
+  - `--backend llvm` (ny-llvmc crate backend; llvmlite harness is an explicit keep lane, not the default caller path) — AOT object/EXE line
   - `--backend vm` (VM / reference semantics)
 - Inactive/Sealed
   - `--backend cranelift`, `--jit-direct` (sealed; use LLVM harness)
@@ -341,7 +341,7 @@ tools/smoke_aot_vs_vm.sh examples/aot_min_string_len.hako
 The WASM/browser path is currently not maintained and is not part of CI. The older playground and guides are kept for historical reference only.
 
 - Source (archived): `projects/nyash-wasm/` (build not guaranteed)
-- Current focus: VM (Rust) and LLVM (ny-llvmc crate backend; llvmlite harness is internal)
+- Current focus: VM (Rust) and LLVM (ny-llvmc crate backend; llvmlite harness is an explicit keep lane)
 - If you experiment locally, see the project README and `projects/nyash-wasm/build.sh` (wasm-pack required). No support guarantees.
 
 ---
@@ -366,7 +366,7 @@ Key options (minimal)
 - `--target <triple>` (only when needed)
 
 Notes
-- LLVM AOT main line is the ny-llvmc crate backend. ny-llvmc internally delegates object emission to the Python llvmlite harness; end users should invoke ny-llvmc (or tools/ny_mir_builder.sh) rather than calling the harness directly.
+- LLVM AOT main line is the ny-llvmc crate backend. The default caller route stays on ny-llvmc's boundary route; llvmlite is only reached through explicit keep/replay lanes (for example `--driver harness` or `NYASH_LLVM_USE_HARNESS=1`). End users should invoke ny-llvmc (or tools/ny_mir_builder.sh) rather than calling the Python harness directly.
 - Ensure `ny-llvmc` is built (`cargo build -p nyash-llvm-compiler`) and Python3 is available for the internal harness. No `LLVM_SYS_180_PREFIX` required.
 - Apps that open a GUI may show a window during AOT emission; close it to continue.
 - On WSL if the window doesn’t show, see `docs/guides/cranelift_aot_egui_hello.md` (Wayland→X11).

@@ -7,6 +7,12 @@
 - backend-zero の final target は `native_driver.rs` そのものではなく、`.hako -> thin backend boundary` だよ。
 - backend-zero `BE0-min1` では、この文書を stable caller contract の入口にする。
 
+## Route at a Glance
+
+- daily mainline: `ny-llvmc` の default boundary route
+- explicit keep lane: `--driver harness` / `NYASH_LLVM_USE_HARNESS=1` で入る `llvmlite`
+- replay lane: `--driver native`（bootstrap/canary 用、mainline ではない）
+
 ## Stable Caller Contract
 
 次の flags は caller が依存してよい stable surface として固定する。

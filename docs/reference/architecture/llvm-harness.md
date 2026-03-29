@@ -5,6 +5,11 @@ Purpose
 - shared MIR / ABI / parity contract の確認を支える keep lane として維持する。
 - daily mainline backend owner は `ny-llvmc` であり、この文書は keep lane だけを扱う。
 
+Route at a glance
+- daily mainline: `.hako -> ny-llvmc (boundary default route) -> object/exe`
+- explicit keep lane: `.hako -> ny-llvmc --driver harness` or `NYASH_LLVM_USE_HARNESS=1 -> tools/llvmlite_harness.py -> src/llvm_py/**`
+- llvmlite is never the default route; it is only entered by explicit opt-in or replay.
+
 Switch
 - `NYASH_LLVM_USE_HARNESS=1` で explicit keep lane として起動する。
 - daily route から自動選択される mainline backend ではない。
