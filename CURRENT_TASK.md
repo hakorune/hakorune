@@ -93,6 +93,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - latest same-artifact proof after the retained-boundary parent split stayed flat: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 760 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
   - rejected StringViewBox stable-id retry:
     - replacing `StringViewBox::new(...)`'s `BoxBase::new()` with a derived stable id to dodge the atomic allocator regressed stable main to `814 ms` under `repeat=3`; keep the current atomic view birth until fresh evidence says otherwise
+  - rejected StringViewBox borrow/retarget expansion:
+    - extending `maybe_borrow_string_handle_with_epoch(...)` / `try_retarget_borrowed_string_slot_with_source(...)` to accept `StringViewBox` as a string source regressed stable main to `844 ms` under `repeat=3`; keep the current StringBox-only borrow/retarget lane for now
   - shared store-ready string materialization boundary
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`

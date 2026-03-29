@@ -351,3 +351,31 @@ reject
 ### Reopen Condition
 
 - only after fresh asm evidence shows the atomic id allocation itself is the main cost and view identity can be changed without regressing main
+
+## Rejected Cut K
+
+### Name
+
+`StringViewBox` borrow/retarget expansion at the store boundary
+
+### Intent
+
+- extend `maybe_borrow_string_handle_with_epoch(...)` and `try_retarget_borrowed_string_slot_with_source(...)` so `StringViewBox` is treated like `StringBox`
+- keep the consumer boundary otherwise unchanged
+
+### Result
+
+- stable `kilo_kernel_small_hk`: `814 ms -> 844 ms` under `repeat=3`
+
+### Judgment
+
+reject
+
+### Why
+
+- the widened borrow/retarget lane did not pay back on this machine
+- the consumer boundary already recognized `StringViewBox` as string-like, but extending the aliasing path did not reduce the hot birth / handle density enough
+
+### Reopen Condition
+
+- only after fresh asm evidence shows the current StringBox-only borrow/retarget lane itself is the dominant cost
