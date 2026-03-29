@@ -54,6 +54,8 @@ Current partitions:
   - compiler-side mirror of `.hako` generic method `has` action route
 - `hako_llvmc_ffi_generic_method_substring_policy.inc`
   - compiler-side mirror of `.hako` generic method `substring` action route
+- `hako_llvmc_ffi_generic_method_get_policy.inc`
+  - compiler-side mirror of `.hako` generic method `get` fallback route
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
@@ -83,3 +85,4 @@ Rules:
 - `hako_llvmc_ffi_generic_method_push_policy.inc` is the second generic-method action seam; keep `push` route ownership out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_has_policy.inc` is the third generic-method action seam; keep `has` route ownership out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_generic_method_substring_policy.inc` is the fourth generic-method action seam; keep `substring` route ownership out of `generic_method_lowering.inc`.
+- `hako_llvmc_ffi_generic_method_get_policy.inc` is the eleventh-stage fallback seam; keep only final `get` route ownership there and leave window/RMW/indexOf defer logic in compiler-state-heavy lowering for now.

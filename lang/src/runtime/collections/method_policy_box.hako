@@ -92,6 +92,14 @@ static box CollectionMethodPolicyBox {
     return "StringSubstringCall"
   }
 
+  route_map_load_any() {
+    return "MapLoadAny"
+  }
+
+  route_array_slot_load_any() {
+    return "ArraySlotLoadAny"
+  }
+
   generic_emit_kind(box_name, method_name, arg0, arg1, runtime_string) {
     if method_name == null { return me.emit_none() }
     if method_name == "birth" && arg0 == 0 && arg1 == 0 {
@@ -140,6 +148,16 @@ static box CollectionMethodPolicyBox {
     }
     if value_is_i64 == 1 { return me.route_array_store_i64() }
     return me.route_array_store_any()
+  }
+
+  get_route(box_name, runtime_map_get, runtime_array_get, runtime_array_string) {
+    if box_name == "MapBox" || runtime_map_get == 1 {
+      return me.route_map_load_any()
+    }
+    if box_name == "ArrayBox" || runtime_array_get == 1 || runtime_array_string == 1 {
+      return me.route_array_slot_load_any()
+    }
+    return me.route_none()
   }
 
   should_promote_array_string_birth(runtime_array_like, value_is_string_handle) {

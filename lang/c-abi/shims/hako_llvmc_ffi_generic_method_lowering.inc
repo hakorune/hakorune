@@ -1,5 +1,6 @@
 #include "hako_llvmc_ffi_generic_method_match.inc"
 #include "hako_llvmc_ffi_generic_method_has_policy.inc"
+#include "hako_llvmc_ffi_generic_method_get_policy.inc"
 #include "hako_llvmc_ffi_generic_method_len_policy.inc"
 #include "hako_llvmc_ffi_generic_method_push_policy.inc"
 #include "hako_llvmc_ffi_generic_method_substring_policy.inc"
@@ -132,26 +133,8 @@
               return 1;
             }
             if (a0) append_i64_arg_ref(ab, ab_cap, a0, ab[0]=='\0');
-            if ((bname && !strcmp(bname, "MapBox")) || runtime_map_get) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.map.slot_load_hh\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-                set_origin(dst, ORG_MAP_GET);
-              } else {
-                fprintf(f, "  call i64 @\"nyash.map.slot_load_hh\"(%s)\n", ab);
-              }
-            } else if ((bname && !strcmp(bname, "ArrayBox")) || runtime_array_get || runtime_array_string) {
-              if (dst) {
-                fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", dst, ab);
-                set_type(dst, T_I64);
-                if (runtime_array_string) {
-                  set_origin(dst, ORG_STRING);
-                  set_scan_origin(dst, ORG_STRING);
-                }
-              } else {
-                fprintf(f, "  call i64 @\"nyash.array.slot_load_hi\"(%s)\n", ab);
-              }
-            } else {
+            if (!emit_generic_method_get_fallback_by_policy(
+                    f, bname, dst, &plan, ab)) {
               return -1;
             }
             return 1;

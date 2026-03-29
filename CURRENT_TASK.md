@@ -82,8 +82,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   13. eighth code slice: mirror generic method push route in `hako_llvmc_ffi_generic_method_push_policy.inc`
   14. ninth code slice: mirror generic method has route in `hako_llvmc_ffi_generic_method_has_policy.inc`
   15. tenth code slice: mirror generic method substring route in `hako_llvmc_ffi_generic_method_substring_policy.inc`
-  16. move remaining semantic owner decisions to `.hako`
-  17. thin shim cleanup and README sync
+  16. eleventh code slice: mirror generic method get fallback route in `hako_llvmc_ffi_generic_method_get_policy.inc`
+  17. move remaining semantic owner decisions to `.hako`
+  18. thin shim cleanup and README sync
 - landed so far:
   - `hako_llvmc_ffi_emit_seam.inc`
   - `hako_llvmc_ffi_generic_method_match.inc`
@@ -97,6 +98,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `hako_llvmc_ffi_generic_method_push_policy.inc`
   - `hako_llvmc_ffi_generic_method_has_policy.inc`
   - `hako_llvmc_ffi_generic_method_substring_policy.inc`
+  - `hako_llvmc_ffi_generic_method_get_policy.inc`
+- next exact slice:
+  - `GET` fallback seam is landed; keep `GET` window / RMW / indexOf defer in `.inc`
+  - next semantic-owner candidates are the remaining compiler-owner decisions after those producer-side probes
+  - treat producer/use/future-use analysis as compiler-state-heavy until a later seam exists
 - next exact leaf:
   - do not touch runtime code until the owner/shim split is pinned in docs
   - keep native metal leafs resident; this lane is about authority migration, not full source-zero

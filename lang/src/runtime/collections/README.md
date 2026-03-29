@@ -104,6 +104,9 @@ Rule:
   - `substring_route(matches_insert_window)`
     -> fourth generic-method action route vocabulary for insert-window vs direct `substring_hii`
   - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_substring_policy.inc`
+  - `get_route(box_name, runtime_map_get, runtime_array_get, runtime_array_string)`
+    -> eleventh-stage fallback route vocabulary for generic `get`; compiler-state-heavy window probes stay outside this owner box
+  - compiler-side action mirror lives in `lang/c-abi/shims/hako_llvmc_ffi_generic_method_get_policy.inc`
 
 ## Current proof lock
 

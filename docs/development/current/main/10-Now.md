@@ -94,8 +94,9 @@ Related:
     13. eighth code slice: mirror generic method push route in `hako_llvmc_ffi_generic_method_push_policy.inc`
     14. ninth code slice: mirror generic method has route in `hako_llvmc_ffi_generic_method_has_policy.inc`
     15. tenth code slice: mirror generic method substring route in `hako_llvmc_ffi_generic_method_substring_policy.inc`
-    16. move remaining semantic owner decisions to `.hako`
-    17. thin shim cleanup and README sync
+    16. eleventh code slice: mirror generic method get fallback route in `hako_llvmc_ffi_generic_method_get_policy.inc`
+    17. move remaining semantic owner decisions to `.hako`
+    18. thin shim cleanup and README sync
   - landed so far:
     - `hako_llvmc_ffi_emit_seam.inc`
     - `hako_llvmc_ffi_generic_method_match.inc`
@@ -109,6 +110,11 @@ Related:
     - `hako_llvmc_ffi_generic_method_push_policy.inc`
     - `hako_llvmc_ffi_generic_method_has_policy.inc`
     - `hako_llvmc_ffi_generic_method_substring_policy.inc`
+    - `hako_llvmc_ffi_generic_method_get_policy.inc`
+  - next exact slice:
+    - `GET` fallback seam is landed; keep `GET` window / RMW / indexOf defer in `.inc`
+    - next semantic-owner candidates are the remaining compiler-owner decisions after those producer-side probes
+    - treat producer/use/future-use analysis as compiler-state-heavy until a later seam exists
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:
