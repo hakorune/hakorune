@@ -79,12 +79,16 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `micro -> meso -> kilo` observation ladder landed
   - compile-time placement helper `string_birth_placement.rs` landed
   - string export surface is now split by responsibility: `string.rs` (entrypoints/sink), `string_debug.rs`, `string_search.rs`, `string_plan.rs`, and `string_view.rs`
-- current sub-slice:
-  - meso first reading is fixed: `len = 37 ms`, `array_set = 69 ms`, `loopcarry = 69 ms` (`warmup=1 repeat=3`)
-  - the first large jump is `len -> array_set`, not `array_set -> loopcarry`
-  - landed narrow store-boundary cut: `array_set_by_index_string_handle_value` now resolves the source handle in-place inside the write closure instead of cloning a temporary `Arc` before the hot path
-  - latest store-boundary recheck: `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_kernel_small_hk = 708 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
-  - latest same-artifact proof after the retained-boundary parent split stayed flat: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 760 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - current sub-slice:
+    - meso first reading is fixed: `len = 37 ms`, `array_set = 69 ms`, `loopcarry = 69 ms` (`warmup=1 repeat=3`)
+    - the first large jump is `len -> array_set`, not `array_set -> loopcarry`
+    - landed narrow store-boundary cut: `array_set_by_index_string_handle_value` now resolves the source handle in-place inside the write closure instead of cloning a temporary `Arc` before the hot path
+    - latest store-boundary recheck: `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_kernel_small_hk = 708 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - landed small carrier cleanup: `concat3_plan_from_fast_str(...)` and `concat_pair_from_fast_str(...)` now send their owned fast paths directly through `string_handle_from_owned(...)`; `concat_const_suffix_plan_from_handle(...)` no longer repeats the `resolve_string_span_from_handle(...)` fallback after `TextPlan::from_handle(...)`; short-span retention in `borrowed_substring_plan_from_handle(...)` now uses the relative range length directly
+    - latest same-artifact proof after this cleanup is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`, `kilo_kernel_small_hk = 707 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - landed concat3 reuse-only specialization: `concat3_plan_from_spans(...)` is now fixed to the reuse-allowed lane, so the dead `allow_handle_reuse = false` branch is gone and span emptiness checks use byte-range length directly
+    - latest same-artifact proof after this specialization is `kilo_meso_substring_concat_len = 34 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`, `kilo_kernel_small_hk = 668 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+    - latest same-artifact proof after the retained-boundary parent split stayed flat: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 68 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 760 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
   - shared store-ready string materialization boundary
   - string-specific store helper for array/string hot paths
   - single handle/span resolution in `concat_const_suffix_fallback`

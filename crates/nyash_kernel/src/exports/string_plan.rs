@@ -280,9 +280,6 @@ pub(crate) fn concat_const_suffix_plan_from_handle<'a>(a_h: i64, suffix: &'a str
     if let Some(plan) = TextPlan::from_handle(a_h) {
         return plan.concat_inline(suffix);
     }
-    if let Some(span) = resolve_string_span_from_handle(a_h) {
-        return TextPlan::from_span(span).concat_inline(suffix);
-    }
     let lhs = super::string::to_owned_string_handle_arg(a_h);
     TextPlan::from_owned(lhs).concat_inline(suffix)
 }

@@ -209,10 +209,10 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             if st_rel == en_rel {
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
             }
-            let Some(sub_slice) = sb.value.get(st_rel..en_rel) else {
+            if sb.value.get(st_rel..en_rel).is_none() {
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
-            };
-            let placement = substring_retention_class(view_enabled, sub_slice.len());
+            }
+            let placement = substring_retention_class(view_enabled, en_rel - st_rel);
             let span = StringSpan {
                 base_handle: handle,
                 base_obj: obj.clone(),
@@ -247,10 +247,10 @@ pub(crate) fn borrowed_substring_plan_from_handle(
             }
             let abs_st = parent_st.saturating_add(st_rel);
             let abs_en = parent_st.saturating_add(en_rel);
-            let Some(sub_slice) = base_sb.value.get(abs_st..abs_en) else {
+            if base_sb.value.get(abs_st..abs_en).is_none() {
                 return Some(BorrowedSubstringPlan::ReturnEmpty);
-            };
-            let placement = substring_retention_class(view_enabled, sub_slice.len());
+            }
+            let placement = substring_retention_class(view_enabled, abs_en - abs_st);
             let span = StringSpan {
                 base_handle: view.base_handle,
                 base_obj: view.base_obj.clone(),

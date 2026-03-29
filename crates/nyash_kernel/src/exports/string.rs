@@ -264,12 +264,12 @@ fn concat3_plan_from_fast_str(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     })?;
     Some(match plan {
         ConcatFastPath::ReuseHandle(handle) => handle,
-        ConcatFastPath::Owned(text) => freeze_text_plan(TextPlan::from_owned(text)),
+        ConcatFastPath::Owned(text) => string_handle_from_owned(text),
     })
 }
 
 #[inline(always)]
-fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64, allow_handle_reuse: bool) -> Option<i64> {
+fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64) -> Option<i64> {
     if a_h <= 0 || b_h <= 0 || c_h <= 0 {
         return None;
     }
@@ -278,52 +278,26 @@ fn concat3_plan_from_spans(a_h: i64, b_h: i64, c_h: i64, allow_handle_reuse: boo
     else {
         return None;
     };
-    let a = a_span.as_str();
-    let b = b_span.as_str();
-    let c = c_span.as_str();
-    let placement =
-        concat3_retention_class(a.is_empty(), b.is_empty(), c.is_empty(), allow_handle_reuse);
-    debug_assert!(!matches!(placement, TextRetentionClass::RetainView));
-    if a.is_empty() {
-        if b.is_empty() {
-            return if allow_handle_reuse {
-                Some(c_h)
-            } else {
-                Some(freeze_concat3_plan(Concat3Plan::Materialize(
-                    TextPlan::from_two(TextPiece::Span(b_span), TextPiece::Inline(c)),
-                )))
-            };
+    if a_span.span_bytes_len() == 0 {
+        if b_span.span_bytes_len() == 0 {
+            return Some(c_h);
         }
-        if c.is_empty() {
-            return Some(if allow_handle_reuse {
-                b_h
-            } else {
-                freeze_concat3_plan(Concat3Plan::Materialize(TextPlan::from_two(
-                    TextPiece::Span(b_span),
-                    TextPiece::Inline(c),
-                )))
-            });
+        if c_span.span_bytes_len() == 0 {
+            return Some(b_h);
         }
         return Some(freeze_concat3_plan(Concat3Plan::Materialize(
             TextPlan::from_two(TextPiece::Span(b_span), TextPiece::Span(c_span)),
         )));
     }
-    if b.is_empty() {
-        if c.is_empty() {
-            return Some(if allow_handle_reuse {
-                a_h
-            } else {
-                freeze_concat3_plan(Concat3Plan::Materialize(TextPlan::from_two(
-                    TextPiece::Inline(a),
-                    TextPiece::Inline(c),
-                )))
-            });
+    if b_span.span_bytes_len() == 0 {
+        if c_span.span_bytes_len() == 0 {
+            return Some(a_h);
         }
         return Some(freeze_concat3_plan(Concat3Plan::Materialize(
             TextPlan::from_two(TextPiece::Span(a_span), TextPiece::Span(c_span)),
         )));
     }
-    if c.is_empty() {
+    if c_span.span_bytes_len() == 0 {
         return Some(freeze_concat3_plan(Concat3Plan::Materialize(
             TextPlan::from_two(TextPiece::Span(a_span), TextPiece::Span(b_span)),
         )));
@@ -377,7 +351,7 @@ fn concat_pair_from_fast_str(a_h: i64, b_h: i64) -> Option<i64> {
     })?;
     Some(match plan {
         ConcatFastPath::ReuseHandle(handle) => handle,
-        ConcatFastPath::Owned(text) => freeze_text_plan(TextPlan::from_owned(text)),
+        ConcatFastPath::Owned(text) => string_handle_from_owned(text),
     })
 }
 
@@ -515,7 +489,7 @@ fn concat3_fallback(a_h: i64, b_h: i64, c_h: i64) -> i64 {
     if let Some(plan) = concat3_plan_from_fast_str(a_h, b_h, c_h) {
         return plan;
     }
-    if let Some(plan) = concat3_plan_from_spans(a_h, b_h, c_h, true) {
+    if let Some(plan) = concat3_plan_from_spans(a_h, b_h, c_h) {
         return plan;
     }
 
