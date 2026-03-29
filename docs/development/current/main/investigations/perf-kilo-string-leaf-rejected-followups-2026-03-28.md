@@ -472,3 +472,32 @@ reject
 ### Reopen Condition
 
 - only if a future asm read shows `insert_hsi` helper decision density dominating after the current substring / concat3 observer cuts
+
+## Rejected Cut O
+
+### Name
+
+birth-time `string_span_cache` seeding from `materialize_owned_string(...)`
+
+### Intent
+
+- cache the full `StringSpan` immediately when `materialize_owned_string(...)` births a fresh `StringBox` handle
+- let the first `len/is_empty` observer after concat / insert hit the TLS span cache instead of resolving through the normal path
+
+### Result
+
+- promising first probe: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 69 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 71 ms`, `kilo_kernel_small_hk = 692 ms` (`repeat=3`)
+- WSL recheck: `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 70 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`, `kilo_kernel_small_hk = 730 ms` (`repeat=20`)
+
+### Judgment
+
+reject
+
+### Why
+
+- the first probe looked good, but the required `repeat=20` recheck did not hold
+- it also did not remove `string_len_from_handle` / `string_is_empty_from_handle` from the hot tier strongly enough to justify keeping the extra cache seed
+
+### Reopen Condition
+
+- only if a future asm read shows immediate post-birth observer traffic dominating and a stronger retained/store-boundary placement proof says the first observer should stay on cache

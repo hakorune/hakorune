@@ -108,6 +108,10 @@ Interpretation:
 - rejected `insert_hsi` one-resolve helper
   - the helper-backed single-decision route improved the first `repeat=3` probe (`kilo_kernel_small_hk = 694 ms`) but drifted back to `727 ms` under `repeat=20`
   - keep the current helper-backed `insert_hsi` lane and use the documented `repeat=20` recheck rule on WSL before closing similar slices
+- rejected birth-time string span cache seeding
+  - seeding `string_span_cache` directly from `materialize_owned_string(...)` improved the first `repeat=3` probe (`kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 69 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 71 ms`, `kilo_kernel_small_hk = 692 ms`)
+  - the required `repeat=20` WSL recheck drifted back to `kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 70 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 68 ms`, `kilo_kernel_small_hk = 730 ms`
+  - keep span-cache admission on resolve-side only for now
 
 ## Current Stop-Line
 
@@ -143,6 +147,8 @@ Interpretation:
 - `nyash_kernel::exports::string::string_handle_from_owned` (`2.30%`)
 - `nyash_rust::runtime::global_hooks::gc_alloc` (`1.30%`)
 - `__memmove_avx512_unaligned_erms` (`0.89%`)
+
+The later birth-cache retry still left `string_len_from_handle` (`3.42%`) / `string_is_empty_from_handle` (`3.34%`) visible in the hot tier, but the `repeat=20` recheck did not hold, so that slice stays rejected.
 
 読みとしては、sink-local leaf ではなく、`Registry::alloc/get` と birth-boundary / handle registry の組み合わせがまだ支配的だよ。
 ただし latest same-artifact proof が flat だったので、この lane では code-side `RetainedForm` split を再開しない。
