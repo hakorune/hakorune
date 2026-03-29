@@ -59,7 +59,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 ### stage2-hako-owner
 
 - status: `active docs-first owner/shim split`
-- scope: stage2 を mostly `.hako` owner に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。
+- scope: stage2+ を mostly `.hako` authority に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。
 - current SSOT:
   - `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
   - `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
@@ -113,7 +113,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - treat producer/use/future-use analysis as compiler-state-heavy until a later seam exists
 - next exact leaf:
   - do not touch runtime code until the owner/shim split is pinned in docs
-  - keep native metal leafs resident; this lane is about authority migration, not full source-zero
+  - keep native metal leafs resident; this lane is about authority migration, not substrate zero or full source-zero
+  - read final distribution as `hakoruneup + self-contained release bundle`, not as a single stage artifact
 
 ### phase-29ck
 

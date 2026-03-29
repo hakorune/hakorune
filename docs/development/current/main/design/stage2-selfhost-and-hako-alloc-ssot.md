@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-23
-Scope: `stage0/stage1/stage2/stage3` の bootstrap/distribution 軸と、`.hako core/alloc/std` の end-state layering を固定する。
+Scope: `stage0/stage1/stage2+/stage3` の bootstrap/distribution 軸と、`.hako core/alloc/std` の end-state layering を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -25,10 +25,10 @@ Related:
 
 ## Goal
 
-- `owner/substrate` 軸と `stage0/stage1/stage2/stage3` 軸を混線させない。
+- `owner/substrate` 軸と `stage0/stage1/stage2+/stage3` 軸を混線させない。
 - final end-state を `.hako` の `core/alloc/std` layering と thin native metal keep で固定する。
 - current `lang/bin/hakorune` / `target/selfhost/hakorune` を stage1 snapshot/proof line として読み、final distribution target と混同しない。
-- release / distribution shape が必要な場合は `hakoruneup-release-distribution-ssot.md` を future reference として読む。
+- standard distribution shape is `hakoruneup + self-contained release bundle`; detailed packaging policy は `hakoruneup-release-distribution-ssot.md` を正本にする。
 - shared artifact/lane vocabulary is owned by `execution-lanes-and-axis-separation-ssot.md`; this child doc owns stage/distribution layering and library layering.
 
 ## Fixed Reading
@@ -42,7 +42,7 @@ Related:
 2. `stage1`
    - selfhost bridge line
    - current dev/stable snapshot artifacts live here
-3. `stage2`
+3. `stage2+`
    - truly-current `.hako` compiler/runtime/stdlib/kernel/plugin
    - future distribution target
 4. `stage3`
@@ -58,7 +58,7 @@ Related:
 2. `stage1-cli`
    - Stage1 bootstrap output artifact for the reduced Stage1 lane
 3. These are artifact kinds, not stage numbers.
-4. `stage2` is not a build script artifact kind in the current flow.
+4. `stage2+` is not a build script artifact kind in the current flow.
    - It is the future distribution target / compare label, not a separate artifact-kind family.
 
 ### Library layering axis
@@ -93,7 +93,8 @@ Native keep remains below those layers:
 
 - `lang/bin/hakorune` is a Stage1 stable snapshot, not the final distribution truth.
 - `target/selfhost/hakorune` is the current Stage1 dev line, not the final distribution truth.
-- `launcher-exe` / `stage1-cli` are Stage1 artifact kinds; they do not define Stage2 distribution packaging.
+- `launcher-exe` / `stage1-cli` are Stage1 artifact kinds; they do not define Stage2+ distribution packaging.
+- standard distribution reading is `hakoruneup + self-contained release bundle`; a single stage artifact is not the default packaging truth.
 - `stage2-aot-native-thin-path-design-note.md` owns the AOT fast-lane rule:
   - source layering stays
   - execution layering may collapse only inside `AOT/native`
@@ -105,6 +106,7 @@ Native keep remains below those layers:
   - GC trigger threshold policy
   - stop-line for reserved-only `RawBuf / Layout / MaybeInit`
 - current `.hako` kernel migration work lives on the owner/substrate axis and is allowed to proceed before Stage2 distribution packaging is active.
+- `.hako complete` in this doc means authority/mainline completion, not native zero.
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.
 - `runtime/memory/**` is not the canonical home for alloc/policy helpers in the end-state layering.
 - Rune is a contract layer that sits beside `hako_core` / `hako_alloc` / `hako_std`; it does not replace those implementation layers.

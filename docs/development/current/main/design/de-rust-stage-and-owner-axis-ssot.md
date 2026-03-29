@@ -36,7 +36,7 @@ Related:
 | --- | --- | --- |
 | `stage0` | Rust bootstrap / first-build / recovery lane | explicit keep |
 | `stage1` | proof / artifact / intermediate selfhost line | proof-only or bring-up |
-| `stage2+` | daily selfhost mainline | target mainline |
+| `stage2+` | daily selfhost mainline / final distribution target | target mainline |
 
 ### 1.2 Owner axis
 
@@ -55,6 +55,8 @@ Related:
 4. `kernel authority zero` は `substrate zero` ではない。
 5. `buildability keep` は preservation-first で残してよいが、daily owner を逆流させてはいけない。
 6. Rune のような declaration-contract layer は `.hako` compiler authority 側に属するが、substrate migration を意味しない。
+7. `stage2+` は `.hako` authority mainline を意味するが、native zero や Rust source zero を意味しない。
+8. default distribution shape is `hakoruneup + self-contained release bundle`; stage axis reading と packaging shape を混線させない。
 
 ## 3. Current De-Rust Reading
 
@@ -62,7 +64,7 @@ Related:
 
 - `stage0`: Rust bootstrap / recovery keep
 - `stage1`: proof / artifact line
-- `stage2+`: `.hako` mainline target
+- `stage2+`: `.hako` mainline target / final distribution target
 
 ### 3.2 Owner axis now
 

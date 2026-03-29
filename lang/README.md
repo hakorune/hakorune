@@ -58,5 +58,7 @@ Notes
 - `Stage1` / `Stage2+` は artifact / proof / mainline の stage 軸であって、kernel owner/substrate 軸とは別だよ。
 - owner/substrate の current truth は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` と `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md` を正本にする。
 - final distribution target は Stage2+ line であり、`lang/bin/hakorune` そのものを final 配布物の意味で読むのはやめる。
+- default distribution shape は `hakoruneup + self-contained release bundle` であり、単一の stage artifact をそのまま配布正本とは読まない。
 - stage/selfhost と `hako_core/alloc/std` の end-state は `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md` を正本にする。
-- stage2 は mostly `.hako` owner / thin native shim / native metal keep の読みで進める。
+- stage2+ は mostly `.hako` authority / thin native shim / native metal keep の読みで進める。
+- `.hako` complete は authority completion を意味し、kernel substrate や native keep の wholesale removal は意味しない。

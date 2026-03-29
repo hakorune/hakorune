@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-29
-Scope: `stage2` の主体を `.hako` に寄せつつ、`.inc` を thin shim に収束させる owner / substrate boundary を固定する。
+Scope: `stage2+` の主体を `.hako` に寄せつつ、`.inc` を thin shim に収束させる owner / substrate boundary を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -20,10 +20,11 @@ Related:
 
 ## Goal
 
-- stage2 の主体を `.hako` に寄せる。
+- stage2+ の主体を `.hako` に寄せる。
 - `.inc` は ABI shaping / marshal / fail-fast の thin shim に薄化する。
 - native は metal keep として残し、ABI / alloc / GC / TLS / atomic / backend emission の最終 leaf だけを担う。
 - 評価軸は行数ではなく owner 比率で読む。
+- `.hako` complete は authority completion を意味し、native zero や substrate zero を意味しない。
 
 ## Fixed Reading
 
@@ -69,6 +70,9 @@ Related:
 
 ## Current Truth
 
+- current stage reading is `stage0 bootstrap keep / stage1 proof artifact / stage2+ .hako mainline and final distribution target`.
+- current distribution reading is `hakoruneup + self-contained release bundle`; this doc does not redefine packaging as a single stage artifact.
+- `kernel authority zero` and `substrate zero` are separate end states; this doc only fixes the former owner-first migration.
 - Current `lang/c-abi/shims/*.inc` are not yet pure thin shims.
 - `hako_llvmc_ffi_common.inc` is closest to a thin shim + native support bundle.
 - `hako_llvmc_ffi_string_concat_match.inc` is mostly compiler-state / semantic placement owner.
@@ -136,6 +140,7 @@ Related:
 ## Non-Goals
 
 - Do not delete native keep in one wave.
+- Do not treat `.hako` owner completion as native zero.
 - Do not add a third public ABI.
 - Do not force every `.inc` byte into `.hako` before the capability vocabulary is ready.
 - Do not mix this owner/shim cut with the perf-kilo hot-path lane.

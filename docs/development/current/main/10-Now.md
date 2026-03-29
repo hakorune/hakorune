@@ -73,8 +73,10 @@ Related:
 - Stage2 `.hako` owner lane
   - status: `active docs-first owner/shim split`
   - current exact read:
-    - stage2 is now read as mostly `.hako` owner / thin `.inc` shim / native metal keep
+    - stage2+ is now read as mostly `.hako` authority / thin `.inc` shim / native metal keep
     - the new SSOT is `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
+    - `.hako` complete in this lane means authority/mainline completion, not native zero
+    - standard distribution reading is `hakoruneup + self-contained release bundle`, not a single stage artifact
     - `.inc` partitions are still mixed today, so the first task is classification, not code motion
     - `pure_compile` / `generic_method_lowering` / `string_concat_*` are the first semantic-owner-heavy candidates
     - `hako_llvmc_ffi_common.inc` stays thin boundary utility and native support
