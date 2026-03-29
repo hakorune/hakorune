@@ -653,3 +653,35 @@ reject
 ### Reopen Condition
 
 - only if a future upstream placement wave keeps both the array handle and more than one transient string handle live across the same store boundary, and a fresh asm read still shows `Registry::get` dominating afterward
+
+## Rejected Cut U
+
+### Name
+
+compiler-local `has_direct_array_set_consumer(...)` first-use relaxation
+
+### Intent
+
+- relax the concat3/string-insert lowering predicate so `array.set` counts as the first consumer even when `out.length()` remains afterward
+- keep the change compiler-local, without adding a new runtime token or widening the runtime store boundary
+- let the `concat3` route remain backend-local until the first store boundary while preserving later observer uses
+
+### Result
+
+- same-artifact proof: `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 67 ms`
+- stable main back-to-back checks: `kilo_kernel_small_hk = 698 ms`, then `697 ms` (`repeat=3`)
+- quick asm still kept `Registry::alloc`, `Registry::get`, `BoxBase::new`, `substring_hii`, `array_set_his`, and `string_handle_from_owned` above the residual observer route
+
+### Judgment
+
+reject
+
+### Why
+
+- the relaxed first-use predicate still did not beat the kept `668 ms` main line
+- it trimmed a little compiler-side shape pressure, but not enough retained/store-boundary work to matter
+- the change is still only a lowering heuristic; it does not give the carrier a longer life past the handle-shaped `concat3_hhh` export surface
+
+### Reopen Condition
+
+- only if a future upstream placement wave proves the first consumer is sufficient to keep a transient carrier alive across the store boundary without regressing the trailing observer, and a fresh asm read shows that the later `length()` observer has become the dominant residue

@@ -125,6 +125,10 @@ Interpretation:
   - widening `handle_cache` to keep the latest+previous handles and routing `array_set_by_index_string_handle_value(...)` through a detached array cache path lowered meso to `35 / 65 / 69`
   - the same artifact pair still left main at `kilo_kernel_small_hk = 701 ms`, and the quick asm probe kept `Registry::alloc`, `Registry::get`, `array_set_his`, `substring_hii`, `nyash.array.string_len_hi`, and `concat3_hhh` above the cache helper residue
   - keep the current one-slot cache; this wave does not remove enough retained/store-boundary work to matter on main
+- rejected compiler-local first-use relaxation for `array.set`
+  - relaxing `has_direct_array_set_consumer(...)` so `array.set` counted as the first consumer even when `out.length()` remained afterward only reached `35 / 67 / 67` on meso
+  - back-to-back main checks stayed at `kilo_kernel_small_hk = 698 ms` and `697 ms`, so the stricter single-use predicate still wins on this machine
+  - keep the current compiler predicate; this is still only a first-use observer relaxation, not a real upstream placement win
 - rejected `insert_hsi` one-resolve helper
   - the helper-backed single-decision route improved the first `repeat=3` probe (`kilo_kernel_small_hk = 694 ms`) but drifted back to `727 ms` under `repeat=20`
   - keep the current helper-backed `insert_hsi` lane and use the documented `repeat=20` recheck rule on WSL before closing similar slices
@@ -168,7 +172,7 @@ Interpretation:
 - `nyash_rust::runtime::global_hooks::gc_alloc` (`1.30%`)
 - `__memmove_avx512_unaligned_erms` (`0.89%`)
 
-The later birth-cache retry still left `string_len_from_handle` (`3.42%`) / `string_is_empty_from_handle` (`3.34%`) visible in the hot tier, the follow-up observer-order retry still regressed main to `764 ms`, and the latest+previous handle-cache widening still stopped at `701 ms`, so the observer/cache-local slices stay rejected.
+The later birth-cache retry still left `string_len_from_handle` (`3.42%`) / `string_is_empty_from_handle` (`3.34%`) visible in the hot tier, the follow-up observer-order retry still regressed main to `764 ms`, the latest+previous handle-cache widening still stopped at `701 ms`, and the compiler-local first-use relaxation only reached `698 / 697 ms`, so the observer/cache/compiler-local slices stay rejected.
 
 読みとしては、sink-local leaf ではなく、`Registry::alloc/get` と birth-boundary / handle registry の組み合わせがまだ支配的だよ。
 ただし latest same-artifact proof が flat だったので、この lane では code-side `RetainedForm` split を再開しない。
