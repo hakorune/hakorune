@@ -101,6 +101,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `BorrowedSubstringPlan` now returns `FreezeSpan(StringSpan)` for short freeze-only slices instead of wrapping them in `TextPlan::from_span(...)`
     - `substring_hii` materializes those short spans directly via `string_handle_from_span(...)`, keeping the current `<= 8 bytes` policy but removing one `TextPlan` / `into_owned()` hop
     - latest same-artifact recheck after this cut is `kilo_meso_substring_concat_len = 35 ms`, `kilo_meso_substring_concat_array_set = 67 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 69 ms`, `kilo_kernel_small_hk = 704 ms` (`warmup=1 repeat=3`, `aot_status=ok`)
+  - rejected short-slice owned materialize retry:
+    - changing the short freeze lane to `FreezeOwned(String)` and materializing inside `borrowed_substring_plan_from_handle(...)` regressed stable main to `866 ms`; keep the span-backed short freeze contract for now
   - same-artifact proof after the retained-boundary parent split stayed flat, so code-side `RetainedForm` split remains deferred unless fresh asm evidence appears
   - next fixed order is now:
     1. keep `BoundaryKind` and `RetainedForm` split as the parent retained-boundary contract

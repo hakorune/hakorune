@@ -260,3 +260,37 @@ reject
 
 - only if a fresh asm read shows `resolve_string_span_triplet_from_handles(...)` miss handling dominating again after the current accepted `concat3` lock-safe path
 - and only if the reopened cut proves a same-artifact improvement on both `kilo_meso_substring_concat_array_set` and `kilo_kernel_small_hk`
+
+## Rejected Cut H
+
+### Name
+
+short-slice freeze direct owned materialization
+
+### Intent
+
+- change `BorrowedSubstringPlan` short freeze-only slices from `FreezeSpan(StringSpan)` to `FreezeOwned(String)`
+- materialize short substring slices inside `borrowed_substring_plan_from_handle(...)` instead of carrying a span out to `string.rs`
+- remove one `StringSpan` / `string_handle_from_span(...)` hop on the short freeze lane
+
+### Result
+
+- `kilo_meso_substring_concat_len`: `35 ms -> 35 ms` (flat)
+- `kilo_meso_substring_concat_array_set`: `67 ms -> 68 ms`
+- `kilo_meso_substring_concat_array_set_loopcarry`: `69 ms -> 66 ms`
+- stable `kilo_kernel_small_hk`: `704 ms -> 866 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- the direct owned materialize did not improve the meso store boundary
+- stable main regressed materially, so the short-slice freeze lane should keep the span-backed contract for now
+- the extra owned materialize hop was not the real limiter on this machine
+
+### Reopen Condition
+
+- only if a fresh same-artifact proof shows the short freeze lane itself dominates after current accepted placement
+- and only if the direct owned materialize improves both `kilo_meso_substring_concat_len` and `kilo_kernel_small_hk` on the same artifact pair
