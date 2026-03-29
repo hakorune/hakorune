@@ -69,6 +69,21 @@ Related:
       - the lookup family is landed; `RuntimeData` mutator `runtime_data_array_push_min_v1` is now also daily
       - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
+
+- Stage2 `.hako` owner lane
+  - status: `active docs-first owner/shim split`
+  - current exact read:
+    - stage2 is now read as mostly `.hako` owner / thin `.inc` shim / native metal keep
+    - the new SSOT is `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
+    - `.inc` partitions are still mixed today, so the first task is classification, not code motion
+    - `pure_compile` / `generic_method_lowering` / `string_concat_*` are the first semantic-owner-heavy candidates
+    - `hako_llvmc_ffi_common.inc` stays thin boundary utility and native support
+  - fixed order:
+    1. docs-first owner/shim SSOT
+    2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
+    3. define compiler-state capability and lowering builder seam
+    4. move semantic owner decisions to `.hako`
+    5. thin shim cleanup and README sync
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:

@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/perf-optimization-method-ssot.md
   - docs/development/current/main/design/rep-mir-string-lowering-ssot.md
+  - docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md
   - docs/development/current/main/design/recipe-scope-effect-policy-ssot.md
   - lang/README.md
   - lang/src/runtime/kernel/

@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/stage2-string-route-split-plan.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
+  - docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md

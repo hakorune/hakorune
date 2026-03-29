@@ -53,3 +53,4 @@ Rules:
 - Prefer adding new pure-first matcher families to a dedicated partition before
   widening the top-level owner shell.
 - During backend-owner cutover, flipped boundary shapes move out of daily ownership first; delete/archive timing is tracked in the phase-29x legacy ledger.
+- Current stage2 direction is moving owner decisions into `.hako`; treat these partitions as transitional thin shim surfaces, not permanent semantic owners.

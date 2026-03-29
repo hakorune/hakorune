@@ -56,6 +56,26 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - keep archive-later compare wrapper inventory closed and do not reopen daily ownership
   - treat delete/archive review as blocked until the remaining wrapper inventory actually reaches zero
 
+### stage2-hako-owner
+
+- status: `active docs-first owner/shim split`
+- scope: stage2 を mostly `.hako` owner に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。
+- current SSOT:
+  - `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
+  - `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
+  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+  - `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
+  - `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
+- fixed order:
+  1. docs-first owner/shim SSOT
+  2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
+  3. define compiler-state capability and lowering builder seam
+  4. move semantic owner decisions to `.hako`
+  5. thin shim cleanup and README sync
+- next exact leaf:
+  - do not touch runtime code until the owner/shim split is pinned in docs
+  - keep native metal leafs resident; this lane is about authority migration, not full source-zero
+
 ### phase-29ck
 
 - status: `monitor/evidence only`

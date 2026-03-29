@@ -16,6 +16,7 @@ Related:
   - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
+  - docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md
   - lang/README.md
   - lang/src/runtime/collections/README.md
 ---
