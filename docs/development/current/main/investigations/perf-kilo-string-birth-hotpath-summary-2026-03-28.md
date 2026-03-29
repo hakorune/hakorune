@@ -82,6 +82,12 @@ Interpretation:
 - concat3 lock-freezing is no longer on the critical path; the next step is still upstream birth-density proof
 - the reuse-only concat3 specialization improved the same-artifact lane a bit; the remaining gap is still mostly birth-density / registry motion
 
+## Current Trace Hooks
+
+- lowering trace is available under `NYASH_LLVM_ROUTE_TRACE=1`
+- the narrow placement tags are `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route`
+- use the trace only as a probe; do not treat it as a new acceptance lane
+
 ## Current Rejected Slices
 
 詳細は [perf-kilo-string-leaf-rejected-followups-2026-03-28.md](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/investigations/perf-kilo-string-leaf-rejected-followups-2026-03-28.md) に置く。

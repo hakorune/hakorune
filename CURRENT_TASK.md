@@ -152,6 +152,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - keep docs-first alignment between the transient carrier and the existing string docs
     - the current pilot uses normalized `PiecesN` only for the targeted concat/insert path; keep the carrier backend-local and non-observable
     - avoid reopening route / fallback policy until the memory-motion slice is exhausted
+    - compiler-local placement trace is available under `NYASH_LLVM_ROUTE_TRACE=1`; use the narrow stages `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route` when deciding the next placement cut
     - judgment policy: `repeat < 3` is probe-only; keep/reject decisions require at least 3 runs plus a quick ASM probe; if WSL jitter or allocator-like noise remains, recheck with `repeat=20` before closing the lane
 
 ## Immediate Next Task

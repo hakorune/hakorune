@@ -140,6 +140,7 @@ Related:
         - `C = 4 ms / 7.2M cycles`, daily `Nyash AOT seed owner = 7 ms / 22.3M cycles`, forced generic probe `= 9 ms / 33.0M cycles` (`warmup=1 repeat=5`)
         - daily seed-owner asm is already near the C loop shape (`and $0x3f`, `test $0xf`, direct `strstr@plt`, raw flip store)
         - forced generic probe no longer spends the bulk of its cycles in `Registry::with_handle` / `Registry::with_str_pair`; the narrow fast path now reads array slots directly, caches the const needle string per thread, and leaves the hot route dominated by local `array_string_indexof_by_index` work plus a small `set_hih` tail
+      - compiler-local placement trace is available under `NYASH_LLVM_ROUTE_TRACE=1`; use the narrow stages `string_direct_array_set_consumer`, `string_insert_mid_window`, and `string_concat_add_route` when you need to decide the next placement cut
       - the block-26 interleaved branch/select family is therefore fully observable on the same artifact, and the earlier registry-boundary perf blocker is retired for the current micro route
       - current post-cut reading is fixed:
         - same-artifact probe bundle still reports `owner_route=generic_probe first_blocker=array_rmw_window:const_not_1`

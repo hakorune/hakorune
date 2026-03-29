@@ -2017,19 +2017,103 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
             if (!irop) { yyjson_doc_free(d); goto GEN_ABORT; }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); long long rhs = read_int(ins, "rhs");
             if (!strcmp(irop, "add") && lhs_org == ORG_STRING && rhs_org == ORG_STRING) {
+              int direct_set = 0;
+              char route_extra[384];
+              if (hako_llvmc_route_trace_enabled()) {
+                direct_set = has_direct_array_set_consumer(ii, ilen, insts, dst);
+              }
               if (should_defer_string_concat_pair(ii, ilen, insts, dst)) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  snprintf(
+                      route_extra,
+                      sizeof(route_extra),
+                      "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                      ii,
+                      dst,
+                      lhs,
+                      rhs,
+                      direct_set);
+                  hako_llvmc_emit_route_trace(
+                      "string_concat_add_route",
+                      "defer_pair",
+                      "pair_chain",
+                      route_extra);
+                }
                 remember_string_concat_pair(dst, lhs, rhs);
                 finalize_string_concat_result(dst);
                 continue;
               }
               if (try_emit_string_concat_const_suffix_call(f, ii, ilen, insts, dst, lhs, rhs)) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  snprintf(
+                      route_extra,
+                      sizeof(route_extra),
+                      "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                      ii,
+                      dst,
+                      lhs,
+                      rhs,
+                      direct_set);
+                  hako_llvmc_emit_route_trace(
+                      "string_concat_add_route",
+                      "emit_concat_hs",
+                      "const_suffix",
+                      route_extra);
+                }
                 continue;
               }
               if (try_emit_string_insert_mid_const_call(f, ii, ilen, insts, dst, lhs, rhs)) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  snprintf(
+                      route_extra,
+                      sizeof(route_extra),
+                      "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                      ii,
+                      dst,
+                      lhs,
+                      rhs,
+                      direct_set);
+                  hako_llvmc_emit_route_trace(
+                      "string_concat_add_route",
+                      "emit_insert_hsi",
+                      "insert_mid_const",
+                      route_extra);
+                }
                 continue;
               }
               if (!try_emit_string_concat3_chain_call(f, dst, lhs, rhs)) {
+                if (hako_llvmc_route_trace_enabled()) {
+                  snprintf(
+                      route_extra,
+                      sizeof(route_extra),
+                      "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                      ii,
+                      dst,
+                      lhs,
+                      rhs,
+                      direct_set);
+                  hako_llvmc_emit_route_trace(
+                      "string_concat_add_route",
+                      "emit_concat_hh",
+                      "fallback_hh",
+                      route_extra);
+                }
                 emit_string_concat_hh_call(f, dst, lhs, rhs);
+              } else if (hako_llvmc_route_trace_enabled()) {
+                snprintf(
+                    route_extra,
+                    sizeof(route_extra),
+                    "ii=%zu dst=%lld lhs=%lld rhs=%lld direct_set=%d",
+                    ii,
+                    dst,
+                    lhs,
+                    rhs,
+                    direct_set);
+                hako_llvmc_emit_route_trace(
+                    "string_concat_add_route",
+                    "emit_concat3_hhh",
+                    "concat3_chain",
+                    route_extra);
               }
               continue;
             }
