@@ -72,8 +72,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   3. define compiler-state capability and lowering builder seam
   4. first code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc`
   5. second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc`
-  6. move semantic owner decisions to `.hako`
-  7. thin shim cleanup and README sync
+  6. third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc`
+  7. move semantic owner decisions to `.hako`
+  8. thin shim cleanup and README sync
 - next exact leaf:
   - do not touch runtime code until the owner/shim split is pinned in docs
   - keep native metal leafs resident; this lane is about authority migration, not full source-zero

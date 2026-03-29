@@ -74,6 +74,7 @@ Related:
 - `hako_llvmc_ffi_string_concat_match.inc` is mostly compiler-state / semantic placement owner.
 - `hako_llvmc_ffi_string_concat_lowering.inc` mixes semantic lowering owner with final emit glue.
 - `hako_llvmc_ffi_generic_method_lowering.inc` is mostly semantic owner plus final call emission.
+- `hako_llvmc_ffi_compiler_state.inc` now holds the shared copy/origin/type/const helper tables and is the first compiler-state seam landed.
 - `hako_llvmc_ffi_pure_compile.inc` is compiler orchestrator owner and still carries route decisions.
 - Therefore the migration problem is not “every `.inc` already fits `.hako` syntax”; the real gap is the missing split between compiler-state capability, lowering builder seam, and thin emit shim.
 
@@ -85,8 +86,9 @@ Related:
 4. Introduce a lowering builder seam so direct LLVM IR text emission is no longer the owner surface.
 5. First code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc` before any semantic owner migration.
 6. Second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc` so method routing is no longer mixed with emit logic.
-7. Move semantic owner and compiler-owner decisions into `.hako`.
-8. Shrink `.inc` to thin shim responsibilities only.
+7. Third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc` so shared origin/type/const state is no longer in the orchestrator body.
+8. Move semantic owner and compiler-owner decisions into `.hako`.
+9. Shrink `.inc` to thin shim responsibilities only.
 
 ## Non-Goals
 

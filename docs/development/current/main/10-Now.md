@@ -84,8 +84,9 @@ Related:
     3. define compiler-state capability and lowering builder seam
     4. first code slice: extract emit primitives into `hako_llvmc_ffi_emit_seam.inc`
     5. second code slice: split generic method classification into `hako_llvmc_ffi_generic_method_match.inc`
-    6. move semantic owner decisions to `.hako`
-    7. thin shim cleanup and README sync
+    6. third code slice: extract compiler-state helpers into `hako_llvmc_ffi_compiler_state.inc`
+    7. move semantic owner decisions to `.hako`
+    8. thin shim cleanup and README sync
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:
