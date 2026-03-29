@@ -498,6 +498,37 @@ reject
 - the first probe looked good, but the required `repeat=20` recheck did not hold
 - it also did not remove `string_len_from_handle` / `string_is_empty_from_handle` from the hot tier strongly enough to justify keeping the extra cache seed
 
+## Rejected Cut P
+
+### Name
+
+compiler-side insert-recipe `string.length()` arithmetic lowering
+
+### Intent
+
+- recognize `left + "xx" + right` when it is the insert-shaped substring recipe
+- replace the trailing `string.length()` observer with `suffix_len + const_middle_len`
+- keep the optimization generic and compiler-side instead of adding another runtime helper split
+
+### Result
+
+- same-artifact proof: `kilo_meso_substring_concat_len = 33 ms`, `kilo_meso_substring_concat_array_set = 63 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`
+- stable main: `kilo_kernel_small_hk = 695 ms` (`repeat=3`)
+- kept comparison line remains `kilo_kernel_small_hk = 668 ms`
+
+### Judgment
+
+reject
+
+### Why
+
+- the observer rewrite helped meso, but it still lost to the kept concat3 reuse-only line on main
+- this wave does not reduce retained-store birth density enough; it only changes one length observer after the store boundary
+
+### Reopen Condition
+
+- only if a future upstream placement wave proves the `out.length()` observer is still the dominant residue after retained/store boundary restructuring
+
 ### Reopen Condition
 
 - only if a future asm read shows immediate post-birth observer traffic dominating and a stronger retained/store-boundary placement proof says the first observer should stay on cache

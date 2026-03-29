@@ -105,6 +105,10 @@ Interpretation:
 - rejected direct-store consumer widening
   - allowing the C-side concat lowering to treat `array.set(...)` followed by one trailing `length()` observer as the same direct-store consumer window kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 36 ms`, `kilo_meso_substring_concat_array_set = 70 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 706 ms` under `repeat=3`)
   - keep the stricter store-only consumer guard for this wave
+- rejected compiler-side insert-recipe length arithmetic
+  - lowering `string.length()` on the insert-shaped concat recipe into `suffix_len + const_middle_len` improved meso (`kilo_meso_substring_concat_len = 33 ms`, `kilo_meso_substring_concat_array_set = 63 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 65 ms`)
+  - the same artifact pair still regressed main to `kilo_kernel_small_hk = 695 ms` versus the kept `668 ms` concat3 reuse-only line, so the arithmetic observer rewrite is not keepable on this machine
+  - keep the runtime `nyash.string.len_h` observer until a future upstream placement wave changes the retained/store boundary
 - rejected `insert_hsi` one-resolve helper
   - the helper-backed single-decision route improved the first `repeat=3` probe (`kilo_kernel_small_hk = 694 ms`) but drifted back to `727 ms` under `repeat=20`
   - keep the current helper-backed `insert_hsi` lane and use the documented `repeat=20` recheck rule on WSL before closing similar slices
