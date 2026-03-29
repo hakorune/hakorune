@@ -170,6 +170,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - canonical probe entrypoint: `tools/perf/run_kilo_string_trace_probe.sh`
       - it collects the unit trace contracts into one summary without touching timing lanes
       - bench compare stays timing-only; do not make it carry trace output
+    - trace+asm bundle entrypoint: `tools/perf/run_kilo_string_trace_asm_bundle.sh`
+      - it keeps trace and asm in the same out-dir while leaving bench compare timing-only
+      - the bundle resolves symbol names from `perf report` before annotate, so we no longer carry stale Rust-path guesses into the asm note files
+      - current bundle hot symbols are `nyash.string.concat_hh`, `nyash.string.concat3_hhh`, `nyash.string.substring_hii`, `nyash.array.set_his`, `nyash.array.string_len_hi`, `nyash_kernel::exports::string::string_handle_from_owned`, and `nyash_rust::box_trait::BoxBase::new`
     - trace probe results were frozen via `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel -- --nocapture` (bench compare still suppresses trace output):
       - `string_concat_hs_contract`: `placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> placement=return_handle`
       - `string_insert_hsi_contract`: `observer=fast_hit -> placement=keep_transient -> sink=freeze_plan -> sink=fresh_handle -> observer=fast_hit -> placement=return_handle`

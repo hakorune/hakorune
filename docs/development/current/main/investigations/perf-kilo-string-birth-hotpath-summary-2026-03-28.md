@@ -95,6 +95,10 @@ Interpretation:
 - canonical probe entrypoint: `tools/perf/run_kilo_string_trace_probe.sh`
   - bundles the unit trace contracts into one probe-only summary and keeps timing lanes clean
   - do not move trace capture back into `bench_compare_c_py_vs_hako.sh`
+- trace+asm bundle entrypoint: `tools/perf/run_kilo_string_trace_asm_bundle.sh`
+  - keeps trace and asm in the same out-dir while leaving `bench_compare` timing-only
+  - resolves annotate symbols from the perf report before emitting asm notes, so the note files stop relying on stale Rust-path guesses
+  - the latest bundle hot symbols are `nyash.string.concat_hh`, `nyash.string.concat3_hhh`, `nyash.string.substring_hii`, `nyash.array.set_his`, `nyash.array.string_len_hi`, `nyash_kernel::exports::string::string_handle_from_owned`, and `nyash_rust::box_trait::BoxBase::new`
 - use the trace only as a probe; do not treat it as a new acceptance lane
 - probe result snapshot:
   - `NYASH_LLVM_ROUTE_TRACE=1 cargo test -p nyash_kernel string_concat_hs_contract -- --nocapture`
