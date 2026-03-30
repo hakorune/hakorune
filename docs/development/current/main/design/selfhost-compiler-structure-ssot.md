@@ -3,6 +3,7 @@ Status: SSOT
 Scope: selfhost / MIR-direct / de-Rust mainline の compiler structure と ownership を `.hako` / Rust 横断で固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/phases/phase-29ch/README.md
@@ -66,12 +67,19 @@ restart / handoff では次の順に読む。
    - final goal と migration order
 3. `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
    - current route authority / compatibility boundaries / acceptance
-4. `docs/development/current/main/phases/phase-29ch/README.md`
+4. `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
+   - file-level keep/shrink/quarantine inventory and migration order
+5. `docs/development/current/main/phases/phase-29ch/README.md`
    - closeout-ready MIR-direct bootstrap unification slice
-5. `docs/development/current/main/phases/phase-29ci/README.md`
+6. `docs/development/current/main/phases/phase-29ci/README.md`
    - separate queued `Program(JSON v0)` retirement follow-up
-6. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+7. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
    - `.hako` / Rust ownership map（この文書）
+
+File-level split policy note:
+- this parent SSOT owns repo-wide ownership and structure vocabulary
+- exact file-by-file keep/shrink/facade/quarantine policy is owned by
+  `selfhost-authority-facade-compat-inventory-ssot.md`
 
 ## Ownership Map
 
@@ -194,7 +202,7 @@ Responsibility:
 - bootstrap-only `Program(JSON v0)` boundary
 - compiled stage1 artifact が still linked な provider / module dispatch support
 - current reduced authority の compat keep を narrow に維持する
-- `src/stage1/program_json_v0/authority.rs` が current `source -> Program(JSON v0)` authority owner を持つ
+- `src/stage1/program_json_v0/authority.rs` is a compat/bootstrap seam owner, not the current sole `source -> Program(JSON v0)` authority
 - `src/host_providers/mir_builder.rs` が current source-route handoff と shared `user_box_decls` shaping を持ち、`src/host_providers/mir_builder/lowering.rs` は test-only Program(JSON) evidence seams と shared `module_to_mir_json(...)` host seam を持つ
 - `module_to_mir_json(...)` は Rust host stop-line として扱い、次の authority-replacement wave は `.hako` owner が canonical MIR(JSON) text をこの seam の手前で作る方向に進める
 - `src/host_providers/mir_builder/lowering/ast_json.rs` は Phase-0 AST JSON compat keep であり、pure `.hako` blocker の主語とは分ける

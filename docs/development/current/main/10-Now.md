@@ -363,6 +363,20 @@ Related:
             3. compat isolation for Program(JSON v0) import-bundle behavior (`landed`)
             4. archive/delete readiness sync plus caller-surface reduction under `phase-29ci` / `phase-29cj` (`current`)
             5. public-surface cleanup / hard delete only after compat caller inventory reaches zero
+          - selfhost file-level inventory lock is the next exact structure front:
+            - `BuildBox.emit_program_json_v0(...)` = sole `source -> Program(JSON v0)` authority
+            - `compiler_stageb.hako` = Stage-B emit/adapter lane that should shrink toward entry-only behavior
+            - `launcher.hako` = CLI facade/orchestration keep that should shrink away from pipeline-detail ownership
+            - `stage1_cli_env.hako` = same-file stage1 env-entry authority cluster; forced file split is deferred
+            - `tools/selfhost/build_stage1.sh` = strategy shell
+            - `tools/selfhost/lib/stage1_contract.sh` = contract shell
+          - fixed migration order for that structure lane is:
+            1. authority unification: `compiler_stageb -> BuildBox`
+            2. launcher facade extraction
+            3. conditional `stage1_cli_env.hako` split only if steps 1/2 leave a real blocker
+            4. shell strategy/contract split
+            5. compat physical isolation
+            6. naming cleanup last
           - landed cleanup closures:
             - archive-ready monitor/probe/docs bucket is archive-only evidence now
             - `tools/smokes/v2/lib/test_runner_builder_helpers.sh` now has explicit direct-MIR detection + compat fallback helpers, so the mixed route probe bucket is closed
@@ -377,10 +391,11 @@ Related:
           - landed comment cleanup:
             - `tools/smokes/v2/lib/stageb_helpers.sh` and the small Hako quick canaries now describe Stage-B output as `Program(JSON v0)`, not `MIR(JSON v0)`
           - next exact leaf:
+            - land the file-level inventory SSOT and keep parent docs vocabulary-only
             - treat `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
             - keep `core_executor` as terminal execution owner only; do not reopen it as a compat boundary owner
             - keep `pipe_io` comment wording aligned with the loader split
-            - do not remove CLI flags yet
+            - do not remove CLI flags yet, and do not force a `stage1_cli_env.hako` file split in the same wave
           - rejected known-len propagation retry: threading `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 38 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 705 ms` on `repeat=3`; `692 ms` on `repeat=20`); keep `array_set` as the first Store boundary and keep trailing `length()` as a separate post-store observer fact
           - post-store observer reading is now separated into `post-store-observer-facts-ssot.md`: `length()` after `array.set` is observer-after-store, not the store boundary itself
           - next design front is now `concat3-array-store-placement-window-ssot.md`: treat `concat3_hhh -> array.set -> trailing length()` as one compiler-local placement window, while still keeping `array.set` and `length()` as separate semantic boundaries

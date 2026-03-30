@@ -3,6 +3,8 @@
 Pointers:
 - repo-wide selfhost compiler ownership map:
   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- file-level responsibility inventory:
+  - `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
 - current bootstrap/authority contract:
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - owner/proof reopen index:
@@ -15,6 +17,8 @@ Pointers:
   - Runner facade (`runner_facade.hako`) for entry selection and pre/post hooks.
   - Stage1 CLI launcher (`launcher.hako`) for top-level command dispatch.
 - Delegate actual execution to existing backends（Rust VM / LLVM / ny-llvmc）。既定挙動は変えない。
+- `launcher.hako` is the current CLI facade/orchestration keep, not a long-term pipeline-detail owner.
+- `stage1_cli_env.hako` is the current stage1 env-entry authority cluster; future file split is deferred until authority/facade cleanup proves a blocker.
 
 ## Files
 

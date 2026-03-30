@@ -2,6 +2,8 @@
 
 Status: current
 Scope: `Program(JSON v0)` compat routes and `MIR(JSON)` mainline routes
+Related:
+- docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md
 
 ## Artifact Families
 
@@ -13,6 +15,8 @@ Scope: `Program(JSON v0)` compat routes and `MIR(JSON)` mainline routes
   - compat/bootstrap-only artifact family
   - retire target
   - keep only as explicit bridge / convert / umbrella-intake residue
+  - file-level placement / authority cleanup is tracked separately in
+    `selfhost-authority-facade-compat-inventory-ssot.md`
 
 ## CLI Route Table
 

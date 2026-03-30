@@ -4,6 +4,11 @@ Purpose
 - Provide a minimal, fast path to compile Hako source via Hakorune Stage‑B to Program(JSON v0), and optionally run it via Core‑Direct (in‑proc).
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
 - Future: add MIR emit and ny-llvmc EXE build in small increments.
+- file-level responsibility inventory:
+  - `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
+- shell split reading:
+  - `tools/selfhost/build_stage1.sh` = strategy shell
+  - `tools/selfhost/lib/stage1_contract.sh` = contract shell
 - Stage/lane vocabulary note:
   - canonical stage/owner/artifact reading lives in `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
   - `stage0` = bootstrap keep
