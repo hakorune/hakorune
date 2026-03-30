@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 20
     env:
       HAKO_AOT_FFI_LIB: ${{ github.workspace }}/target/release/libhako_llvmc_ffi.so
+      NYASH_BOX_FACTORY_POLICY: builtin_first
     steps:
       - name: Checkout
         uses: actions/checkout@v4
