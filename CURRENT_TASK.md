@@ -274,6 +274,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     3. compat isolation: keep Program(JSON v0) import-bundle behavior behind the compat loader only (`landed`)
     4. archive/delete readiness sync plus caller-surface reduction under `phase-29ci` / `phase-29cj` (`current`)
     5. public surface cleanup and hard delete only after the compat caller inventory reaches zero
+  - remaining cleanup buckets are now explicit:
+    - `archive-ready monitor/probe/docs`
+    - `mixed route probe keep`
+    - `delete-last internal alias`
   - caller-surface rule is now:
     - direct `MIR(JSON)` file callers use `--mir-json-file`
     - remaining `--json-file` callers are compat-on-purpose only
@@ -283,10 +287,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - landed comment cleanup:
     - `tools/smokes/v2/lib/stageb_helpers.sh` and the small Hako quick canaries now describe Stage-B output as `Program(JSON v0)`, not `MIR(JSON v0)`
   - next exact leaf:
-    - finish caller-family bucketing in `phase-29ci/P0`
-    - archive monitor/probe/docs first
+    - archive-ready monitor/probe/docs bucket first
+    - keep `tools/smokes/v2/lib/test_runner_builder_helpers.sh` as the remaining mixed route probe keep until route detection is split
     - keep `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
     - keep `core_executor` as terminal execution owner only; do not reopen it as a compat boundary owner
+    - delete `run_json_v0(...)` / `pipe_io` comment seam only after caller inventory reaches zero
     - do not remove CLI flags yet
   - rejected follow-up: canonical `concat3_hhh` birth with later reuse alias regressed stable main to `723 ms` on `repeat=3` and `777 ms` on `repeat=20`; keep the current upstream placement lane open instead of forcing another birth-site alias
   - rejected follow-up: rewriting the insert-mid route to emit `concat3_hhh` directly still regressed main to `775 ms` and tripped `build_failed_after_helper_retry` on the ladder lane; keep the current helper-backed insert route for now and do not treat the concat3 rewrite as the canonical birth

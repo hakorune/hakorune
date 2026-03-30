@@ -363,6 +363,10 @@ Related:
             3. compat isolation for Program(JSON v0) import-bundle behavior (`landed`)
             4. archive/delete readiness sync plus caller-surface reduction under `phase-29ci` / `phase-29cj` (`current`)
             5. public-surface cleanup / hard delete only after compat caller inventory reaches zero
+          - remaining cleanup buckets are now explicit:
+            - `archive-ready monitor/probe/docs`
+            - `mixed route probe keep`
+            - `delete-last internal alias`
           - caller-surface rule is now:
             - direct `MIR(JSON)` file callers use `--mir-json-file`
             - remaining `--json-file` callers are compat-on-purpose only
@@ -372,10 +376,11 @@ Related:
           - landed comment cleanup:
             - `tools/smokes/v2/lib/stageb_helpers.sh` and the small Hako quick canaries now describe Stage-B output as `Program(JSON v0)`, not `MIR(JSON v0)`
           - next exact leaf:
-            - finish caller-family bucketing in `phase-29ci/P0`
-            - archive monitor/probe/docs first
+            - archive-ready monitor/probe/docs bucket first
+            - keep `tools/smokes/v2/lib/test_runner_builder_helpers.sh` as the remaining mixed route probe keep until route detection is split
             - treat `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
             - keep `core_executor` as terminal execution owner only; do not reopen it as a compat boundary owner
+            - delete `run_json_v0(...)` / `pipe_io` comment seam only after caller inventory reaches zero
             - do not remove CLI flags yet
           - rejected known-len propagation retry: threading `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 38 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 705 ms` on `repeat=3`; `692 ms` on `repeat=20`); keep `array_set` as the first Store boundary and keep trailing `length()` as a separate post-store observer fact
           - post-store observer reading is now separated into `post-store-observer-facts-ssot.md`: `length()` after `array.set` is observer-after-store, not the store boundary itself
