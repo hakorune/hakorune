@@ -1,5 +1,5 @@
 #!/bin/bash
-# gate_c_v1_file_vm.sh — Gate-C(Core) v1 JSON (file) parity smoke (opt-in)
+# gate_c_v1_file_vm.sh — direct MIR(JSON) v1 file parity smoke (opt-in)
 
 set -euo pipefail
 
@@ -13,7 +13,10 @@ ROOT="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)"
 if [ -z "$ROOT" ]; then
   ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 fi
-BIN="$ROOT/target/release/nyash"
+BIN="$ROOT/target/release/hakorune"
+if [ ! -x "$BIN" ]; then
+  BIN="$ROOT/target/release/nyash"
+fi
 
 if [ ! -x "$BIN" ]; then
   (cd "$ROOT" && cargo build --release >/dev/null 2>&1) || {
@@ -51,19 +54,20 @@ run_case() {
     env | grep -E 'NYASH|HAKO' >&2
   fi
 
-  output="$($BIN --json-file "$JSON_FILE" 2>&1)"
+  set +e
+  output="$($BIN --mir-json-file "$JSON_FILE" 2>&1)"
   rc=$?
-  last=$(printf '%s\n' "$output" | awk '/Result:/{val=$2} END{print val}')
+  set -e
 
-  if [ "$rc" -ne 0 ]; then
+  if [ "$rc" -ne 7 ]; then
     echo "$output" >&2
-    echo "[FAIL] $label (rc=$rc)" >&2
+    echo "[FAIL] $label (expected rc=7, got $rc)" >&2
     exit 1
   fi
 
-  if [ "$last" != "7" ]; then
+  if [ -n "$output" ]; then
     echo "$output" >&2
-    echo "[FAIL] $label (expected 7, got '$last')" >&2
+    echo "[FAIL] $label (expected no stdout on direct MIR intake)" >&2
     exit 1
   fi
 

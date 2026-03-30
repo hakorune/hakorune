@@ -124,6 +124,9 @@ Runner-side compat loading (`src/runner/json_artifact/program_json_v0_loader.rs`
 ## Current Read
 
 - this delete-order ledger is now `formal-close-synced` with the phase closeout
+- current caller-surface reduction is now fixed:
+  - direct MIR file callers should move to `--mir-json-file` immediately
+  - remaining `--json-file` callers must be compat-on-purpose, not default direct MIR intake
 - explicit keeps under this ledger are:
   - `phase2044/*` thin wrapper family
   - `phase2160/*` thin wrapper families

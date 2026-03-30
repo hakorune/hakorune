@@ -62,7 +62,7 @@ Unified Members (Phase‑15)
 
 CLI/Env cheatsheet
 - Pipe: `echo '{...}' | target/release/nyash --ny-parser-pipe`
-- File: `target/release/nyash --json-file sample.json`
+- File (compat intake): `target/release/nyash --json-file sample.json`
 - Verbose MIR dump: `NYASH_CLI_VERBOSE=1`
 - me dummy: `NYASH_BRIDGE_ME_DUMMY=1 NYASH_BRIDGE_ME_CLASS=ConsoleBox`
 

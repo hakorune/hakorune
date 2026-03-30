@@ -9,7 +9,10 @@ if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then
 else
   ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 fi
-BIN="$ROOT/target/release/nyash"
+BIN="$ROOT/target/release/hakorune"
+if [ ! -x "$BIN" ]; then
+  BIN="$ROOT/target/release/nyash"
+fi
 
 warn() { echo -e "[WARN] $*" >&2; }
 info() { echo -e "[INFO] $*" >&2; }
@@ -41,13 +44,14 @@ if ! strings "$BIN" 2>/dev/null | grep -q 'NyVmDispatcher'; then
   skip "binary lacks NyVmDispatcher symbols (wrapper likely not wired)"
 fi
 
-# Run via Gate-C to Interpreter (control), then (optionally) wrapper would be tested when wired
-out=$("$BIN" --json-file "$JSON_FILE" 2>&1 || true)
-last=$(printf '%s\n' "$out" | awk '/^(✅|ResultType|Result:)/{next} NF{last=$0} END{print last}')
-if [ "$last" = "7" ]; then
+# Run via direct MIR intake; this canary is not a Program(JSON v0) compat route.
+set +e
+out=$("$BIN" --mir-json-file "$JSON_FILE" 2>&1)
+rc=$?
+set -e
+if [ "$rc" -eq 7 ] && [ -z "$out" ]; then
   pass "nyvm_wrapper_module_json_vm"
 else
   echo "$out" >&2
-  fail "nyvm_wrapper_module_json_vm (expected 7, got '$last')"
+  fail "nyvm_wrapper_module_json_vm (expected rc=7 and no stdout, got rc=$rc)"
 fi
-

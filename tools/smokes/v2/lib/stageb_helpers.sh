@@ -1,5 +1,5 @@
 #!/bin/bash
-# stageb_helpers.sh — Helpers to compile Hako(Stage‑B) source to MIR(JSON v0)
+# stageb_helpers.sh — Helpers to compile Hako(Stage‑B) source to Program(JSON v0)
 
 stageb_compile_to_json() {
   # Args: HAKO_CODE
@@ -33,7 +33,7 @@ stageb_compile_to_json() {
       "$NYASH_BIN" --backend vm \
         "$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$(cat "$hako_tmp")"
   ) > "$raw" 2>&1 || true
-  # Require MIR JSON v0 header: {"version":0, "kind":"Program", ...}
+  # Require Program(JSON v0) header: {"version":0, "kind":"Program", ...}
   if awk '(/"version":0/ && /"kind":"Program"/) {print; found=1; exit} END{exit(found?0:1)}' "$raw" > "$json_out"; then
     rm -f "$raw" "$hako_tmp"
     echo "$json_out"
@@ -126,7 +126,7 @@ stageb_json_nonempty() {
   [ -s "$path" ]
 }
 
-# Execute a compiled Stage‑B JSON via Gate‑C(Core) and expect specific rc
+# Execute a compiled Stage‑B Program(JSON v0) via the compat umbrella intake and expect specific rc
 # Args: JSON_PATH EXPECTED_RC
 stageb_gatec_expect_rc() {
   local json="$1"; shift

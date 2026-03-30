@@ -272,13 +272,22 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     1. docs lock on artifact families and route map (`landed`)
     2. internal API split to `load_mir_json(...)`, `load_program_json_v0(...)`, `load_json_artifact_to_module(...)`, `execute_json_artifact(...)` (`landed`)
     3. compat isolation: keep Program(JSON v0) import-bundle behavior behind the compat loader only (`landed`)
-    4. archive/delete readiness sync under `phase-29ci` / `phase-29cj` (`next`)
+    4. archive/delete readiness sync plus caller-surface reduction under `phase-29ci` / `phase-29cj` (`current`)
     5. public surface cleanup and hard delete only after the compat caller inventory reaches zero
+  - caller-surface rule is now:
+    - direct `MIR(JSON)` file callers use `--mir-json-file`
+    - remaining `--json-file` callers are compat-on-purpose only
+  - landed direct-MIR rewrites:
+    - `tools/smokes/v2/profiles/quick/core/gate_c_v1_file_vm.sh`
+    - `tools/smokes/v2/profiles/quick/core/nyvm_wrapper_module_json_vm.sh`
+  - landed comment cleanup:
+    - `tools/smokes/v2/lib/stageb_helpers.sh` and the small Hako quick canaries now describe Stage-B output as `Program(JSON v0)`, not `MIR(JSON v0)`
   - next exact leaf:
-    - sync `phase-29ci` / `phase-29cj` delete-order docs to the landed `src/runner/json_artifact/**` boundary
-    - treat `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
+    - finish caller-family bucketing in `phase-29ci/P0`
+    - archive monitor/probe/docs first
+    - keep `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
     - keep `core_executor` as terminal execution owner only; do not reopen it as a compat boundary owner
-    - after that sync, review archive-first / hard-delete-later order without removing CLI flags yet
+    - do not remove CLI flags yet
   - rejected follow-up: canonical `concat3_hhh` birth with later reuse alias regressed stable main to `723 ms` on `repeat=3` and `777 ms` on `repeat=20`; keep the current upstream placement lane open instead of forcing another birth-site alias
   - rejected follow-up: rewriting the insert-mid route to emit `concat3_hhh` directly still regressed main to `775 ms` and tripped `build_failed_after_helper_retry` on the ladder lane; keep the current helper-backed insert route for now and do not treat the concat3 rewrite as the canonical birth
   - accepted short-slice substring freeze cut:

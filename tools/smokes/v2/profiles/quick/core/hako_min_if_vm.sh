@@ -31,8 +31,8 @@ require_hako() {
   fi
 }
 
-# Compile Hako code to MIR JSON v0 via Selfhost Compiler
-hako_compile_to_mir() {
+# Compile Hako code to Program(JSON v0) via Selfhost Compiler
+hako_compile_to_program_json() {
   local code="$1"
   local hako_tmp="/tmp/hako_if_$$.hako"
   local json_out="/tmp/hako_if_$$.mir.json"
@@ -64,8 +64,8 @@ hako_compile_to_mir() {
   return 0
 }
 
-# Execute MIR JSON v0 via Gate-C (--json-file)
-run_mir_via_gate_c() {
+# Execute Program(JSON v0) via the compat umbrella intake (`--json-file`)
+run_program_json_via_compat() {
   local json_path="$1"
 
   if [ ! -f "$json_path" ]; then
@@ -73,7 +73,7 @@ run_mir_via_gate_c() {
     return 1
   fi
 
-  # Gate-C execution (JSON v0 → MIR Interpreter)
+  # Compat execution (Program(JSON v0) -> lower -> execute)
   # Suppress noise for clean output
   NYASH_QUIET=1 \
   HAKO_QUIET=1 \
@@ -94,9 +94,9 @@ run_hako() {
   local code="$1"
 
   local json_path
-  json_path=$(hako_compile_to_mir "$code") || return 1
+  json_path=$(hako_compile_to_program_json "$code") || return 1
 
-  run_mir_via_gate_c "$json_path"
+  run_program_json_via_compat "$json_path"
   return $?
 }
 

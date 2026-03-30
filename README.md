@@ -14,7 +14,7 @@ target/release/hakorune --mir-json-file /tmp/program.mir.json
 
 Notes
 - The wrapper runs Stage‑B with `NYASH_JSON_ONLY=1` to keep the output clean (no `RC:` lines).
-- When the Hako MirBuilder fails (e.g., under development), it automatically falls back to `--program-json-to-mir` (no behavior change by default).
+- When the Hako MirBuilder fails (e.g., under development), it automatically falls back to the explicit compat bridge `--program-json-to-mir` (no behavior change by default).
 
 [Performance quickstart]
 - MIR emit bench (Stage‑B → MIR(JSON))
@@ -84,7 +84,7 @@ Quick pointers
 - Historical PyVM checks: `bash tools/historical/pyvm/pyvm_stage2_smoke.sh`.
 
 Program(JSON v0) → MIR(JSON)
-- Convert a Stage‑B Program(JSON v0) file to MIR(JSON):
+- Compat-only bridge route: convert a Stage‑B Program(JSON v0) file to MIR(JSON):
   - `$NYASH_BIN --json-file /path/program.json --program-json-to-mir /tmp/mir.json`
 
 Dev shortcuts (Operator Boxes & JSON smokes)
