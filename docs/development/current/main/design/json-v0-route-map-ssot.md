@@ -58,6 +58,8 @@ Scope: `Program(JSON v0)` compat routes and `MIR(JSON)` mainline routes
 4. archive/delete readiness
    - sync `phase-29ci` / `phase-29cj` delete order around the compat loader boundary
    - rewrite direct MIR file callers away from `--json-file`
+   - archive-ready monitor/probe/docs bucket is archive-only evidence
+   - mixed route probe helper split is explicit now; keep it inside compat-loader routing, not as a separate cleanup bucket
 5. public-surface cleanup
    - keep public mainline docs on `--emit-mir-json` / `--mir-json-file`
    - demote `--json-file` / `--program-json-to-mir` / `--emit-program-json-v0` to explicit compat guidance
@@ -68,7 +70,7 @@ Scope: `Program(JSON v0)` compat routes and `MIR(JSON)` mainline routes
 - if a caller already feeds `MIR(JSON)` directly, it should use `--mir-json-file`
 - `--json-file` should remain only for:
   - Program(JSON v0) intake
-  - mixed compat loader probes
+  - compat loader probes
   - v1/v0 fallback or downconvert coverage
   - import-bundle / bridge diagnostics
 

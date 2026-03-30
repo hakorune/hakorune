@@ -363,9 +363,10 @@ Related:
             3. compat isolation for Program(JSON v0) import-bundle behavior (`landed`)
             4. archive/delete readiness sync plus caller-surface reduction under `phase-29ci` / `phase-29cj` (`current`)
             5. public-surface cleanup / hard delete only after compat caller inventory reaches zero
-          - remaining cleanup buckets are now explicit:
-            - `archive-ready monitor/probe/docs`
-            - `mixed route probe keep`
+          - landed cleanup closures:
+            - archive-ready monitor/probe/docs bucket is archive-only evidence now
+            - `tools/smokes/v2/lib/test_runner_builder_helpers.sh` now has explicit direct-MIR detection + compat fallback helpers, so the mixed route probe bucket is closed
+          - remaining cleanup bucket is now explicit:
             - `delete-last internal alias`
           - caller-surface rule is now:
             - direct `MIR(JSON)` file callers use `--mir-json-file`
@@ -376,8 +377,6 @@ Related:
           - landed comment cleanup:
             - `tools/smokes/v2/lib/stageb_helpers.sh` and the small Hako quick canaries now describe Stage-B output as `Program(JSON v0)`, not `MIR(JSON v0)`
           - next exact leaf:
-            - archive-ready monitor/probe/docs bucket first
-            - keep `tools/smokes/v2/lib/test_runner_builder_helpers.sh` as the remaining mixed route probe keep until route detection is split
             - treat `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
             - keep `core_executor` as terminal execution owner only; do not reopen it as a compat boundary owner
             - delete `run_json_v0(...)` / `pipe_io` comment seam only after caller inventory reaches zero

@@ -127,6 +127,8 @@ Runner-side compat loading (`src/runner/json_artifact/program_json_v0_loader.rs`
 - current caller-surface reduction is now fixed:
   - direct MIR file callers should move to `--mir-json-file` immediately
   - remaining `--json-file` callers must be compat-on-purpose, not default direct MIR intake
+- archive-ready monitor/probe/docs evidence is now archive-only and no longer part of the live caller audit
+- `tools/smokes/v2/lib/test_runner_builder_helpers.sh` now has explicit direct-MIR detection plus compat fallback helpers, so the mixed route probe bucket is closed
 - explicit keeps under this ledger are:
   - `phase2044/*` thin wrapper family
   - `phase2160/*` thin wrapper families

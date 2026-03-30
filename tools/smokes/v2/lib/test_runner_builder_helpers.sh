@@ -1,5 +1,22 @@
 #!/bin/bash
 # test_runner_builder_helpers.sh - split from test_runner.sh
+json_artifact_file_is_mir_module() {
+    local json_path="$1"
+    grep -q '"functions"' "$json_path" 2>/dev/null && grep -q '"blocks"' "$json_path" 2>/dev/null
+}
+
+run_direct_mir_json_file_route() {
+    local json_path="$1"
+    "$NYASH_BIN" --mir-json-file "$json_path" >/dev/null 2>&1
+    return $?
+}
+
+run_compat_program_json_v0_route() {
+    local json_path="$1"
+    NYASH_GATE_C_CORE=1 HAKO_GATE_C_CORE=1 "$NYASH_BIN" --json-file "$json_path" >/dev/null 2>&1
+    return $?
+}
+
 verify_mir_rc() {
     local json_path="$1"
     # 20.36: hakovm を primary 既定へ（Core は診断 fallback）
@@ -7,10 +24,10 @@ verify_mir_rc() {
     if [ "$primary" = "hakovm" ]; then
         # For MIR JSON v1, try Hakovm v1 dispatcher first (default ON), fallback to Core on failure.
         # Allow forcing Core with HAKO_VERIFY_V1_FORCE_CORE=1
-        if grep -q '"schema_version"' "$json_path" 2>/dev/null; then
+        if json_artifact_file_is_mir_module "$json_path" && grep -q '"schema_version"' "$json_path" 2>/dev/null; then
           if [ "${HAKO_VERIFY_V1_FORCE_CORE:-0}" = "1" ]; then
             if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: core (rust)" >&2; fi
-            "$NYASH_BIN" --mir-json-file "$json_path" >/dev/null 2>&1; return $?
+            run_direct_mir_json_file_route "$json_path"; return $?
           fi
           # hv1 直行（main.rs 早期経路）。成功時は rc を採用、失敗時は Core にフォールバック。
           # ただしフロー検証（dispatcher flow / phi 実験）が有効な場合は Core を優先（hv1-inline は最小実装のため）。
@@ -32,7 +49,7 @@ verify_mir_rc() {
           fi
           # No include+preinclude fallback succeeded → Core にフォールバック
           if [ "${HAKO_TRACE_EXECUTION:-0}" = "1" ]; then echo "[trace] executor: core (rust)" >&2; fi
-          "$NYASH_BIN" --mir-json-file "$json_path" >/dev/null 2>&1
+          run_direct_mir_json_file_route "$json_path"
           return $?
         fi
         # Build a tiny driver to call MiniVmEntryBox.run_min with JSON literal embedded
@@ -106,13 +123,13 @@ HCODE
           echo "$code" > "$tmpwrap"
           NYASH_PREINCLUDE=1 run_nyash_vm "$tmpwrap" >/dev/null 2>&1; local r=$?; rm -f "$tmpwrap"; return $r
         fi
-        NYASH_GATE_C_CORE=1 HAKO_GATE_C_CORE=1 "$NYASH_BIN" --json-file "$json_path" >/dev/null 2>&1; return $?
+        run_compat_program_json_v0_route "$json_path"; return $?
     else
         # Core primary: detect MIR(JSON) vs Program(JSON v0)
-        if grep -q '"functions"' "$json_path" 2>/dev/null && grep -q '"blocks"' "$json_path" 2>/dev/null; then
-          "$NYASH_BIN" --mir-json-file "$json_path" >/dev/null 2>&1; return $?
+        if json_artifact_file_is_mir_module "$json_path"; then
+          run_direct_mir_json_file_route "$json_path"; return $?
         fi
-        NYASH_GATE_C_CORE=1 HAKO_GATE_C_CORE=1 "$NYASH_BIN" --json-file "$json_path" >/dev/null 2>&1; return $?
+        run_compat_program_json_v0_route "$json_path"; return $?
     fi
 }
 
@@ -886,4 +903,3 @@ run_verify_program_via_hako_primary_no_fallback_to_core() {
 
     run_verify_program_via_builder_to_core_with_env "$prog_json_path" 0 0 1 1 0
 }
-

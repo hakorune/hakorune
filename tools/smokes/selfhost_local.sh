@@ -17,6 +17,7 @@ SRC
 head -n1 tmp/selfhost_src_smoke.json | rg -q '"kind":"Program"'
 
 echo "[selfhost] Execute JSON via Rust VM ..." >&2
+# archive-only evidence: this stays as a compat loader monitor, not a current-facing direct-MIR route
 BIN=${NYASH_BIN:-./target/release/hakorune}
 "$BIN" --backend vm tmp/selfhost_src_smoke.json --json-file >/dev/null 2>&1 || true
 

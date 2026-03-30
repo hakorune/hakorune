@@ -15,6 +15,7 @@ echo '/*c*/ return 1+2*3 // ok' > tmp/selfhost_sample.hako
 head -n1 tmp/selfhost_sample.json | rg -q '"kind":"Program"' || { echo "error: not a Program" >&2; exit 2; }
 
 echo "[3/3] Execute via Rust VM ..." >&2
+# archive-only evidence: this stays as a compat loader monitor, not a current-facing direct-MIR route
 BIN=${NYASH_BIN:-./target/release/hakorune}
 "$BIN" --backend vm tmp/selfhost_sample.json --json-file >/dev/null 2>&1 || true
 echo "✅ selfhost_parser_json_smoke OK" >&2
