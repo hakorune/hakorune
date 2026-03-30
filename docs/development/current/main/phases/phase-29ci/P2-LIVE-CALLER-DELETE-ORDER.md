@@ -133,4 +133,5 @@ Runner-side compat loading (`src/runner/json_artifact/program_json_v0_loader.rs`
   - `phase2044/*` thin wrapper family
   - `phase2160/*` thin wrapper families
   - `phase2170/hv1_mircall_*`
+- `delete-last internal alias` is now closed and no longer part of the live caller audit
 - reopen only if a new exact caller bucket appears or boundary hard delete resumes

@@ -50,10 +50,6 @@ pub fn execute_json_artifact(runner: &NyashRunner, json: &str) -> i32 {
     }
 }
 
-pub fn run_json_v0(runner: &NyashRunner, json: &str) -> i32 {
-    execute_json_artifact(runner, json)
-}
-
 fn execute_loaded_mir_module(runner: &NyashRunner, module: &crate::mir::MirModule) -> i32 {
     super::json_v0_bridge::maybe_dump_mir(module);
     crate::runner::child_env::pre_run_reset_oob_if_strict();

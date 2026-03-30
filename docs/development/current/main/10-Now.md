@@ -354,7 +354,7 @@ Related:
           - accepted array string-length observer cut: `array_string_len_by_index(...)` now uses `handle_cache::with_array_box(...)` instead of `host_handles::with_handle(...) + ArrayBox` downcast, so `nyash.array.string_len_hi` stays on the typed handle-cache lane
           - latest `repeat=3` proof after this observer cut is `35 / 68 / 69` with `kilo_kernel_small_hk = 721 ms`; latest `repeat=20` WSL recheck is `36 / 67 / 68` with `kilo_kernel_small_hk = 688 ms`, so keep the cut and keep using `repeat=20` before closing noisy lanes
           - rejected length-aware store-boundary classifier retry: changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `746 ms` on `repeat=3` and `757 ms` on `repeat=20`; keep the direct-set-only guard for this wave
-          - landed JSON artifact split: `src/runner/json_artifact/` now owns artifact-family convergence, `program_json_v0_loader.rs` owns the compat import-bundle merge/trace, and `core_executor::execute_json_artifact(...)` is the terminal execution owner while `run_json_v0(...)` stays a thin compat alias
+          - landed JSON artifact split: `src/runner/json_artifact/` now owns artifact-family convergence, `program_json_v0_loader.rs` owns the compat import-bundle merge/trace, and `core_executor::execute_json_artifact(...)` is the terminal execution owner while the thin compat alias `run_json_v0(...)` has been deleted
           - JSON artifact family lock is now `MIR(JSON)` mainline vs `Program(JSON v0)` compat/bootstrap-only retire target
           - route reading is fixed: `--json-file` = compat umbrella intake, `--mir-json-file` = mainline direct intake
           - migration order is fixed:
@@ -366,8 +366,8 @@ Related:
           - landed cleanup closures:
             - archive-ready monitor/probe/docs bucket is archive-only evidence now
             - `tools/smokes/v2/lib/test_runner_builder_helpers.sh` now has explicit direct-MIR detection + compat fallback helpers, so the mixed route probe bucket is closed
-          - remaining cleanup bucket is now explicit:
-            - `delete-last internal alias`
+          - remaining cleanup bucket is now closed:
+            - runner-side compat alias layer has been deleted
           - caller-surface rule is now:
             - direct `MIR(JSON)` file callers use `--mir-json-file`
             - remaining `--json-file` callers are compat-on-purpose only
@@ -379,7 +379,7 @@ Related:
           - next exact leaf:
             - treat `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
             - keep `core_executor` as terminal execution owner only; do not reopen it as a compat boundary owner
-            - delete `run_json_v0(...)` / `pipe_io` comment seam only after caller inventory reaches zero
+            - keep `pipe_io` comment wording aligned with the loader split
             - do not remove CLI flags yet
           - rejected known-len propagation retry: threading `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 38 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 705 ms` on `repeat=3`; `692 ms` on `repeat=20`); keep `array_set` as the first Store boundary and keep trailing `length()` as a separate post-store observer fact
           - post-store observer reading is now separated into `post-store-observer-facts-ssot.md`: `length()` after `array.set` is observer-after-store, not the store boundary itself

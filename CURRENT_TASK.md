@@ -262,7 +262,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `src/runner/json_artifact/` now owns artifact-family convergence
     - `MIR(JSON)` mainline loading is separated from `Program(JSON v0)` compat loading
     - `Program(JSON v0)` import-bundle merge + trace now live only in `program_json_v0_loader.rs`
-    - `core_executor::execute_json_artifact(...)` is now the terminal execution owner; `run_json_v0(...)` remains a thin compat alias only
+    - `core_executor::execute_json_artifact(...)` is now the terminal execution owner; the thin compat alias `run_json_v0(...)` has been deleted
   - JSON artifact family lock is now:
     - `MIR(JSON)` = mainline artifact family
     - `Program(JSON v0)` = compat/bootstrap-only artifact family + retire target
@@ -277,8 +277,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - landed cleanup closures:
     - archive-ready monitor/probe/docs bucket is archive-only evidence now
     - `tools/smokes/v2/lib/test_runner_builder_helpers.sh` now has explicit direct-MIR detection + compat fallback helpers, so the mixed route probe bucket is closed
-  - remaining cleanup bucket is now explicit:
-    - `delete-last internal alias`
+  - remaining cleanup bucket is now closed:
+    - runner-side compat alias layer has been deleted
   - caller-surface rule is now:
     - direct `MIR(JSON)` file callers use `--mir-json-file`
     - remaining `--json-file` callers are compat-on-purpose only
@@ -290,7 +290,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - next exact leaf:
     - keep `src/runner/json_artifact/program_json_v0_loader.rs` as the compat loader owner for `--json-file`
     - keep `core_executor` as terminal execution owner only; do not reopen it as a compat boundary owner
-    - delete `run_json_v0(...)` / `pipe_io` comment seam only after caller inventory reaches zero
+    - keep `pipe_io` comment wording aligned with the loader split
     - do not remove CLI flags yet
   - rejected follow-up: canonical `concat3_hhh` birth with later reuse alias regressed stable main to `723 ms` on `repeat=3` and `777 ms` on `repeat=20`; keep the current upstream placement lane open instead of forcing another birth-site alias
   - rejected follow-up: rewriting the insert-mid route to emit `concat3_hhh` directly still regressed main to `775 ms` and tripped `build_failed_after_helper_retry` on the ladder lane; keep the current helper-backed insert route for now and do not treat the concat3 rewrite as the canonical birth

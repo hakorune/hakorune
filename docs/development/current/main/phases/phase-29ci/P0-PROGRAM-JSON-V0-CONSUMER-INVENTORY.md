@@ -30,7 +30,7 @@ Boundary class:
 
 Caller action bucket:
 
-- `delete-last internal alias`
+- closed in this slice
 
 ## Consumer Matrix
 
@@ -54,7 +54,7 @@ Caller action bucket:
 | `direct-mir rewrite now` | [`tools/smokes/v2/profiles/quick/core/gate_c_v1_file_vm.sh`](/home/tomoaki/git/hakorune-selfhost/tools/smokes/v2/profiles/quick/core/gate_c_v1_file_vm.sh), [`tools/smokes/v2/profiles/quick/core/nyvm_wrapper_module_json_vm.sh`](/home/tomoaki/git/hakorune-selfhost/tools/smokes/v2/profiles/quick/core/nyvm_wrapper_module_json_vm.sh) | direct `MIR(JSON)` file | rewrite to `--mir-json-file` now | these callers are not testing compat loader behavior |
 | `compat loader keep` | [`tools/smokes/v2/lib/stageb_helpers.sh`](/home/tomoaki/git/hakorune-selfhost/tools/smokes/v2/lib/stageb_helpers.sh), `tools/smokes/v2/profiles/quick/core/bridge/canonicalize_*`, `tools/smokes/v2/profiles/integration/core/phase2034/program_v0_*`, `tools/smokes/v2/profiles/integration/core_direct/*` | `Program(JSON v0)` or mixed compat-loader probe | keep on `--json-file` | purpose is Stage-B / bridge / import-bundle / downconvert / Gate-C coverage |
 | `explicit compat convert/emit keep` | [`tools/selfhost/selfhost_build.sh`](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/selfhost_build.sh), [`tools/selfhost_exe_stageb.sh`](/home/tomoaki/git/hakorune-selfhost/tools/selfhost_exe_stageb.sh), [`tools/selfhost/lib/identity_routes.sh`](/home/tomoaki/git/hakorune-selfhost/tools/selfhost/lib/identity_routes.sh), `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_*` | explicit Program(JSON v0) emit/convert | keep | this is the compat-only bridge/delegate lane |
-| `delete-last internal alias` | [`src/runner/core_executor.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/core_executor.rs) `run_json_v0(...)`, [`src/runner/pipe_io.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/pipe_io.rs) `--json-file` handling comment seam | internal compat alias / route wording | delete or rename last | only after caller inventory reaches zero |
+| `delete-last internal alias` | [`src/runner/core_executor.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/core_executor.rs) `run_json_v0(...)` (deleted), [`src/runner/pipe_io.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/pipe_io.rs) `--json-file` handling comment seam | internal compat alias / route wording | closed | runner alias deleted; keep pipe_io wording aligned with loader split |
 
 ## Archived Monitor Evidence
 
@@ -63,6 +63,10 @@ Caller action bucket:
 - [`tools/smokes/selfhost_local.sh`](/home/tomoaki/git/hakorune-selfhost/tools/smokes/selfhost_local.sh)
 - [`tools/selfhost_parser_json_smoke.sh`](/home/tomoaki/git/hakorune-selfhost/tools/selfhost_parser_json_smoke.sh)
 - status: archive-only evidence; no longer a current cleanup bucket
+
+## Closed In This Slice
+
+- `delete-last internal alias` bucket is now closed; the runner-side compat alias layer has been deleted
 
 ## Closed in This Slice
 
