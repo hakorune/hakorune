@@ -3,7 +3,7 @@
 // - Otherwise, act as a silent placeholder (return 0)
 
 // Phase 28.2 Quick Win 3: Direct import without alias
-// StageBDriverBox.compile() is the SSOT entry point for Stage-B compilation
+// StageBDriverBox.compile() is the thin Stage-B adapter over BuildBox authority
 using lang.compiler.entry.compiler_stageb
 
 static box Main {

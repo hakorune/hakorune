@@ -1,10 +1,10 @@
-// launcher.hako — Stage1 Hakorune CLI launcher (draft)
+// launcher.hako — Stage1 Hakorune CLI facade/orchestrator (draft)
 //
 // Responsibility
 // - Provide a thin, script-side CLI entrypoint for Stage1 hakorune.
 // - Parse top-level command/subcommand and delegate to dedicated handlers.
-// - Keep implementation fail-fast and minimal; real work is delegated to
-//   runner / compiler / AOT helpers and ultimately Stage0 (Rust) services.
+// - Keep implementation fail-fast and minimal; pipeline detail stays behind
+//   a local facade box and ultimately Stage0 (Rust) services.
 //
 // Notes
 // - CLI surface is specified in docs/development/runtime/cli-hakorune-stage1.md.
@@ -15,13 +15,35 @@ using lang.mir.builder.MirBuilderBox
 using lang.compiler.build.build_box as BuildBox
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 
+static box LauncherCompileFacadeBox {
+  method emit_program_json_v0(source_text) {
+    return BuildBox.emit_program_json_v0(source_text, null)
+  }
+
+  method emit_from_program_json_v0(program_json_text) {
+    return MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+  }
+
+  method emit_root_from_source_v0(source_text) {
+    return MirBuilderBox.emit_root_from_source_v0(source_text, null)
+  }
+
+  method compile_obj_root(root, mir_path) {
+    return LlvmBackendBox.compile_obj_root(root, mir_path)
+  }
+
+  method link_exe(obj_path, exe_path) {
+    return LlvmBackendBox.link_exe(obj_path, exe_path, null)
+  }
+}
+
 static box LauncherProgramJsonBuildBox {
   method emit_program_json_v0(tag, source_text) {
     return me._emit_program_json_v0_raw(tag, source_text)
   }
 
   method _emit_program_json_v0_raw(tag, source_text) {
-    local prog = BuildBox.emit_program_json_v0(source_text, null)
+    local prog = LauncherCompileFacadeBox.emit_program_json_v0(source_text)
     if prog != null { return prog }
     print(tag + ": BuildBox returned null")
     return null
@@ -34,7 +56,7 @@ static box LauncherProgramJsonMirBox {
   }
 
   method _emit_from_program_json_v0_raw(tag, program_json_text) {
-    local mir = MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+    local mir = LauncherCompileFacadeBox.emit_from_program_json_v0(program_json_text)
     if mir != null { return mir }
     print(tag + ": MirBuilderBox returned null")
     return null
@@ -650,13 +672,13 @@ static box HakoCli {
 
     local source_text = LauncherArtifactIoBox.read_file(tag, source_path)
     if source_text == null { return null }
-    local root = MirBuilderBox.emit_root_from_source_v0(source_text, null)
+    local root = LauncherCompileFacadeBox.emit_root_from_source_v0(source_text)
     if root == null {
       print(tag + ": MirBuilderBox.emit_root_from_source_v0 failed")
       return null
     }
 
-    local obj = LlvmBackendBox.compile_obj_root(root, mir_path)
+    local obj = LauncherCompileFacadeBox.compile_obj_root(root, mir_path)
     if me._non_empty_text(obj) != 1 {
       print(tag + ": env.codegen.compile_obj_root failed")
       return null
@@ -717,10 +739,9 @@ static box HakoCli {
     if obj_path == null { return null }
     local obj_text = me._coerce_text_compat(obj_path)
     if me._non_empty_text(exe_path) == 1 {
-      return LlvmBackendBox.link_exe(
+      return LauncherCompileFacadeBox.link_exe(
         obj_text,
-        me._coerce_text_compat(exe_path),
-        null
+        me._coerce_text_compat(exe_path)
       )
     }
     return null
