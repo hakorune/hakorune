@@ -102,11 +102,11 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: registry missing HAKO_ABI_ADAPTER_DEV dev canary"
     exit 1
   fi
-  if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+  if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, kinds, handle_regs, mname)' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler string core orchestration contract missing"
     exit 1
   fi
-  if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+  if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, kinds, mname)' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler array orchestration contract missing"
     exit 1
   fi
@@ -118,7 +118,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: array core raw-array append route contract missing"
     exit 1
   fi
-  if ! rg -F -q 'try_handle(seg, regs, mname)' "$ARRAY_CORE_FILE"; then
+  if ! rg -F -q 'try_handle(seg, regs, kinds, mname)' "$ARRAY_CORE_FILE"; then
     test_fail "$SMOKE_NAME: array core orchestration helper contract missing"
     exit 1
   fi
@@ -334,7 +334,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: string core extern route contract missing"
     exit 1
   fi
-  if ! rg -F -q 'try_handle(seg, regs, mname)' "$STRING_CORE_FILE"; then
+  if ! rg -F -q 'try_handle(seg, regs, kinds, handle_regs, mname)' "$STRING_CORE_FILE"; then
     test_fail "$SMOKE_NAME: string core orchestration helper contract missing"
     exit 1
   fi
@@ -342,7 +342,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: string core trace tag contract missing"
     exit 1
   fi
-  if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+  if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, handle_regs, mname)' "$HANDLER_FILE"; then
     test_fail "$SMOKE_NAME: handler map orchestration contract missing"
     exit 1
   fi
@@ -358,7 +358,7 @@ check_collection_adapter_route_contract() {
     test_fail "$SMOKE_NAME: raw map cap backend contract missing"
     exit 1
   fi
-  if ! rg -F -q 'try_handle(seg, regs, mname)' "$MAP_CORE_FILE"; then
+  if ! rg -F -q 'try_handle(seg, regs, handle_regs, mname)' "$MAP_CORE_FILE"; then
     test_fail "$SMOKE_NAME: map core orchestration helper contract missing"
     exit 1
   fi

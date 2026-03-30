@@ -112,9 +112,9 @@ Minimum stable tags (grep distance short):
 - BlockExpr 内での non-local exit（mini-CFG 化）
 - MapLiteral の identifier key（`%{ k => v }`）
 - truthiness の拡張（型変換の暗黙化）
-- optimization annotations（`@hint` / `@contract` / `@intrinsic_candidate`）
+- optimization metadata（canonical `@rune Hint/Contract/IntrinsicCandidate`; legacy `@hint` / `@contract` / `@intrinsic_candidate`）
   - 注釈導入方針は `optimization-hints-contracts-intrinsic-ssot.md` を正本とする。
-- Rune v0 declaration syntax / `attrs.runes`
+- Rune declaration syntax / `attrs.runes`
   - Rune 導入方針は `rune-v0-contract-rollout-ssot.md` を正本とする。
   - v1 freeze は Rune v0 grammar activation の blocker ではないが、Rune lane も v1 本体には含めない。
 

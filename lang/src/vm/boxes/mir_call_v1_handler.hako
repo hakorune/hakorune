@@ -17,6 +17,16 @@ using lang.runtime.collections.runtime_data_core_box as RuntimeDataCoreBox
 using lang.runtime.collections.string_core_box as StringCoreBox
 
 static box MirCallV1HandlerBox {
+  _recv_box_key(rid) {
+    if rid == null { return null }
+    return "__vm.recv.box:" + StringHelpers.int_to_str(rid)
+  }
+
+  _shadow_handle_key(rid) {
+    if rid == null { return null }
+    return "__vm.handle:" + StringHelpers.int_to_str(rid)
+  }
+
   // Strict integer scanner for vm adapter i64 routes
   _is_i64_text(s) {
     if s == null { return 0 }
@@ -49,6 +59,11 @@ static box MirCallV1HandlerBox {
     if handle_regs != null {
       local handle_text = MirVmS0StateOpsBox.handle_get(handle_regs, vid)
       if handle_text != null { return handle_text }
+    }
+    local shadow_key = me._shadow_handle_key(vid)
+    if shadow_key != null {
+      local shadow_text = MirVmS0StateOpsBox.storage_get_or_null(regs, shadow_key)
+      if shadow_text != null { return shadow_text }
     }
     return regs.getField(StringHelpers.int_to_str(vid))
   }
@@ -125,19 +140,35 @@ static box MirCallV1HandlerBox {
     return RuntimeDataCoreBox.try_handle(seg, regs, mname)
   }
 
-  _try_handle_string_size_alias(seg, regs, mname) {
-    return StringCoreBox.try_handle(seg, regs, mname)
+  _try_handle_string_size_alias(seg, regs, kinds, mname) {
+    return StringCoreBox.try_handle(seg, regs, kinds, null, mname)
+  }
+
+  _try_handle_collection_without_btype(seg, regs, handle_regs, mname) {
+    if mname == "get" || mname == "has" {
+      if MapCoreBox.try_handle(seg, regs, handle_regs, mname) == 1 { return 1 }
+      if ArrayCoreBox.try_handle(seg, regs, null, mname) == 1 { return 1 }
+      return 0
+    }
+    if mname != "set" { return 0 }
+    local arg0 = MiniMirV1Scan.first_arg_register(seg)
+    local arg0_text = me._read_reg_text_or_null(regs, handle_regs, arg0)
+    if arg0_text == null { return 0 }
+    if me._is_i64_text(arg0_text) == 1 { return 0 }
+    return MapCoreBox.try_handle(seg, regs, handle_regs, mname)
   }
 
   handle(seg, regs) {
-    return me.handle_with_state(seg, regs, null)
+    return me.handle_with_state(seg, regs, null, null)
   }
 
-    handle_with_state(seg, regs, handle_regs) {
+    handle_with_state(seg, regs, handle_regs, kinds) {
     // Constructor: keep simple constructor payloads observable in-registry.
     if seg.indexOf("\"type\":\"Constructor\"") >= 0 {
       local d0 = JsonFragBox.get_int(seg, "dst"); if d0 != null { regs.setField(StringHelpers.int_to_str(d0), "0") }
       local box_type = JsonFragBox.get_str(seg, "box_type")
+      local recv_key = me._recv_box_key(d0)
+      if recv_key != null && box_type != null { regs.setField(recv_key, "" + box_type) }
       if box_type == "StringBox" {
         local arg0_ctor = MiniMirV1Scan.first_arg_register(seg)
         local ctor_text = me._read_reg_text_or_null(regs, handle_regs, arg0_ctor)
@@ -154,6 +185,10 @@ static box MirCallV1HandlerBox {
       if mname != "" {
         // Try to resolve box type/name for logging/fallbacks
         local btype = JsonFragBox.get_str(seg, "box_name"); if btype == null { btype = JsonFragBox.get_str(seg, "box_type") }
+        if btype == null {
+          local recv_hint = me._recv_box_key(MiniMirV1Scan.receiver_id(seg))
+          if recv_hint != null { btype = regs.getField(recv_hint) }
+        }
         if btype == "ArrayBox" && mname == "birth" {
           return
         }
@@ -209,6 +244,25 @@ static box MirCallV1HandlerBox {
           return
         }
         if me._try_handle_runtime_data_box(seg, regs, btype, mname) == 1 { return }
+        if btype == "RuntimeDataBox" {
+          if mname == "indexOf" || mname == "lastIndexOf" || mname == "substring" || mname == "substr" {
+            if StringCoreBox.try_handle(seg, regs, kinds, handle_regs, mname) == 1 { return }
+          }
+        }
+        // Collection visible-owner route stays available even when the adapter
+        // registry is disabled; the adapter lane is only for symbol projection.
+        if btype == "ArrayBox" {
+          if ArrayCoreBox.try_handle(seg, regs, kinds, mname) == 1 { return }
+        }
+        if btype == "StringBox" {
+          if StringCoreBox.try_handle(seg, regs, kinds, handle_regs, mname) == 1 { return }
+        }
+        if btype == "MapBox" {
+          if MapCoreBox.try_handle(seg, regs, handle_regs, mname) == 1 { return }
+        }
+        if btype == null {
+          if me._try_handle_collection_without_btype(seg, regs, handle_regs, mname) == 1 { return }
+        }
         // Optional AdapterRegistry 経路（箱化）
         local use_adapter = env.get("HAKO_ABI_ADAPTER"); if use_adapter == null { use_adapter = "0" }
         if use_adapter == "1" {
@@ -217,25 +271,14 @@ static box MirCallV1HandlerBox {
           if btype != null { cfg = AbiAdapterRegistryBox.resolve(btype, mname) }
           // Adapter が見つかった場合、最小規則で size/push を優先実装、それ以外はスタブ
           if cfg != null {
-            if btype == "ArrayBox" {
-              if ArrayCoreBox.try_handle(seg, regs, mname) == 1 { return }
-            }
             // 受信者ID（size state のキーに使用）
             local rid = MiniMirV1Scan.receiver_id(seg)
             local per_recv = env.get("HAKO_VM_MIRCALL_SIZESTATE_PER_RECV"); if per_recv == null { per_recv = "0" }
             local key = MethodAliasPolicy.recv_len_key(per_recv, rid)
             local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
             local cur_len = JsonFragBox._str_to_int(cur_len_raw)
-            // 値状態トグル（既定OFF）
-            local value_state = env.get("HAKO_VM_MIRCALL_VALUESTATE"); if value_state == null { value_state = "0" }
-            if btype == "StringBox" {
-              if StringCoreBox.try_handle(seg, regs, mname) == 1 { return }
-            }
-            if btype == "MapBox" {
-              if MapCoreBox.try_handle(seg, regs, mname) == 1 { return }
-            }
             if MethodAliasPolicy.is_size_alias(mname) == 1 {
-              if me._try_handle_string_size_alias(seg, regs, mname) == 1 { return }
+              if me._try_handle_string_size_alias(seg, regs, kinds, mname) == 1 { return }
               local d_sz = JsonFragBox.get_int(seg, "dst"); if d_sz != null { regs.setField(StringHelpers.int_to_str(d_sz), StringHelpers.int_to_str(cur_len)) }
               return
             }
@@ -248,8 +291,11 @@ static box MirCallV1HandlerBox {
         // Stateful bridge (size/len/length/push) guarded by flag
         local size_state = env.get("HAKO_VM_MIRCALL_SIZESTATE"); if size_state == null { size_state = "0" }
         if size_state != "1" {
+          if btype == null {
+            if me._try_handle_collection_without_btype(seg, regs, handle_regs, mname) == 1 { return }
+          }
           if MethodAliasPolicy.is_size_alias(mname) == 1 {
-            if me._try_handle_string_size_alias(seg, regs, mname) == 1 { return }
+            if me._try_handle_string_size_alias(seg, regs, kinds, mname) == 1 { return }
           }
           local stub = env.get("HAKO_VM_MIRCALL_STUB"); if stub == null { stub = "1" }
           if stub == "1" { print("[vm/method/stub:" + mname + "]") }
@@ -267,10 +313,10 @@ static box MirCallV1HandlerBox {
         local cur_len_raw = regs.getField(key); if cur_len_raw == null { cur_len_raw = "0" }
         local cur_len = JsonFragBox._str_to_int(cur_len_raw)
         if btype == "ArrayBox" {
-          if ArrayCoreBox.try_handle(seg, regs, mname) == 1 { return }
+          if ArrayCoreBox.try_handle(seg, regs, kinds, mname) == 1 { return }
         }
         if btype == "MapBox" {
-          if MapCoreBox.try_handle(seg, regs, mname) == 1 { return }
+          if MapCoreBox.try_handle(seg, regs, handle_regs, mname) == 1 { return }
         }
         if mname == "push" {
           cur_len = cur_len + 1
@@ -279,7 +325,7 @@ static box MirCallV1HandlerBox {
           return
         }
         if MethodAliasPolicy.is_size_alias(mname) == 1 {
-          if me._try_handle_string_size_alias(seg, regs, mname) == 1 { return }
+          if me._try_handle_string_size_alias(seg, regs, kinds, mname) == 1 { return }
           local d2 = JsonFragBox.get_int(seg, "dst"); if d2 != null { regs.setField(StringHelpers.int_to_str(d2), StringHelpers.int_to_str(cur_len)) }
           return
         }
@@ -335,7 +381,15 @@ static box MirCallV1HandlerBox {
     if name == "env.console.log" || name == "nyash.console.log" || name == "print" ||
        name == "env.console.warn" || name == "nyash.console.warn" ||
        name == "env.console.error" || name == "nyash.console.error" {
-      local v = ""; if arg0id >= 0 { local raw = regs.getField(StringHelpers.int_to_str(arg0id)); v = "" + raw }
+      local v = ""
+      if arg0id >= 0 {
+        local raw_text = me._read_reg_text_or_null(regs, handle_regs, arg0id)
+        if raw_text != null { v = "" + raw_text }
+        else {
+          local raw = regs.getField(StringHelpers.int_to_str(arg0id))
+          v = "" + raw
+        }
+      }
       print(v)
       return
     }

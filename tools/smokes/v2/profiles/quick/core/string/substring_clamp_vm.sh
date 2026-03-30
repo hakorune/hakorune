@@ -29,6 +29,10 @@ EOT
 if [ "$out" = "$expected" ]; then
   echo "[PASS] substring_clamp_vm"
 else
-  echo "[FAIL] substring_clamp_vm" >&2; printf '--- expected ---\n%s--- got ---\n%s\n' "$expected" "$out" >&2; exit 1
+  echo "[FAIL] substring_clamp_vm" >&2
+  echo '--- expected ---' >&2
+  printf '%s\n' "$expected" >&2
+  echo '--- got ---' >&2
+  printf '%s\n' "$out" >&2
+  exit 1
 fi
-

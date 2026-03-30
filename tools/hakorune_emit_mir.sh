@@ -670,6 +670,10 @@ try_selfhost_builder_once() {
     cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
     return 1
   fi
+  if ! selfhost_builder_payload_is_canonical_enough "$out_path"; then
+    cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
+    return 1
+  fi
 
   cleanup_selfhost_builder_runner_temp "$tmp_hako" "$tmp_stdout"
   echo "[OK] MIR JSON written (selfhost-first): $out_path"
@@ -703,6 +707,26 @@ execute_selfhost_builder_runner() {
 capture_selfhost_builder_mir_payload() {
   local tmp_stdout="$1" out_path="$2"
   persist_mir_payload_from_stdout_file "$tmp_stdout" "$out_path"
+}
+
+selfhost_builder_payload_is_canonical_enough() {
+  local out_path="$1"
+  if [ ! -s "$out_path" ]; then
+    return 1
+  fi
+  if ! grep -q '"functions"' "$out_path"; then
+    return 1
+  fi
+  if ! grep -q '"blocks"' "$out_path"; then
+    return 1
+  fi
+  if grep -q '"functions_0"' "$out_path"; then
+    return 1
+  fi
+  if grep -q 'MapBox(size=' "$out_path"; then
+    return 1
+  fi
+  return 0
 }
 
 cleanup_selfhost_builder_runner_temp() {

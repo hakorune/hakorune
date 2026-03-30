@@ -10,6 +10,13 @@ use crate::parser::cursor::TokenCursor;
 use crate::parser::{NyashParser, ParseError, RuneAttr};
 use crate::tokenizer::TokenType;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum AnnotationSite {
+    TopLevel,
+    Member,
+    Statement,
+}
+
 /// Check if token cursor is enabled
 pub(super) fn cursor_enabled() -> bool {
     std::env::var("NYASH_PARSER_TOKEN_CURSOR").ok().as_deref() == Some("1")
@@ -24,7 +31,10 @@ impl NyashParser {
     /// - @intrinsic_candidate("symbol")
     ///
     /// Returns true when an annotation was consumed.
-    pub(crate) fn maybe_parse_opt_annotation_noop(&mut self) -> Result<bool, ParseError> {
+    pub(crate) fn maybe_parse_opt_annotation_noop(
+        &mut self,
+        site: AnnotationSite,
+    ) -> Result<bool, ParseError> {
         if !self.match_token(&TokenType::AT) {
             return Ok(false);
         }
@@ -48,9 +58,17 @@ impl NyashParser {
             return self.parse_rune_annotation();
         }
 
+        let rune = self.parse_legacy_annotation_as_rune(anno_name)?;
+        if self.legacy_annotation_should_normalize(site) {
+            self.push_pending_rune(rune);
+        }
+        Ok(true)
+    }
+
+    fn parse_legacy_annotation_as_rune(&mut self, anno_name: String) -> Result<RuneAttr, ParseError> {
         self.consume(TokenType::LPAREN)?;
 
-        match anno_name.as_str() {
+        let (name, arg) = match anno_name.as_str() {
             "hint" => {
                 let v = if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
                     name.clone()
@@ -72,6 +90,7 @@ impl NyashParser {
                     });
                 }
                 self.advance();
+                ("Hint".to_string(), v)
             }
             "contract" => {
                 let v = if let TokenType::IDENTIFIER(name) = &self.current_token().token_type {
@@ -96,6 +115,7 @@ impl NyashParser {
                     });
                 }
                 self.advance();
+                ("Contract".to_string(), v)
             }
             "intrinsic_candidate" => {
                 if let TokenType::STRING(s) = &self.current_token().token_type {
@@ -106,7 +126,9 @@ impl NyashParser {
                             line: self.current_token().line,
                         });
                     }
+                    let symbol = s.clone();
                     self.advance();
+                    ("IntrinsicCandidate".to_string(), symbol)
                 } else {
                     return Err(ParseError::UnexpectedToken {
                         found: self.current_token().token_type.clone(),
@@ -126,13 +148,170 @@ impl NyashParser {
                     line: self.current_token().line,
                 });
             }
-        }
+        };
 
         self.consume(TokenType::RPAREN)?;
         if self.match_token(&TokenType::SEMICOLON) {
             self.advance();
         }
-        Ok(true)
+
+        Ok(RuneAttr {
+            name,
+            args: vec![arg],
+        })
+    }
+
+    fn legacy_annotation_should_normalize(&self, site: AnnotationSite) -> bool {
+        if matches!(site, AnnotationSite::Statement) {
+            return false;
+        }
+
+        let mut idx = self.skip_annotation_trivia(self.current);
+        while matches!(
+            self.tokens.get(idx).map(|token| &token.token_type),
+            Some(TokenType::AT)
+        ) {
+            let Some(next_idx) = self.scan_annotation_end(idx) else {
+                return false;
+            };
+            idx = self.skip_annotation_trivia(next_idx);
+        }
+
+        match site {
+            AnnotationSite::TopLevel => self.top_level_callable_starts_at(idx),
+            AnnotationSite::Member => self.member_callable_starts_at(idx),
+            AnnotationSite::Statement => false,
+        }
+    }
+
+    fn skip_annotation_trivia(&self, mut idx: usize) -> usize {
+        while let Some(token) = self.tokens.get(idx) {
+            match token.token_type {
+                TokenType::NEWLINE | TokenType::SEMICOLON => idx += 1,
+                _ => break,
+            }
+        }
+        idx
+    }
+
+    fn scan_annotation_end(&self, start: usize) -> Option<usize> {
+        if !matches!(
+            self.tokens.get(start).map(|token| &token.token_type),
+            Some(TokenType::AT)
+        ) {
+            return Some(start);
+        }
+
+        let mut idx = start + 1;
+        let name = match self.tokens.get(idx).map(|token| &token.token_type) {
+            Some(TokenType::IDENTIFIER(name)) => {
+                idx += 1;
+                name.as_str()
+            }
+            _ => return None,
+        };
+
+        idx = self.skip_annotation_trivia(idx);
+        match name {
+            "rune" => {
+                if matches!(
+                    self.tokens.get(idx).map(|token| &token.token_type),
+                    Some(TokenType::IDENTIFIER(_)) | Some(TokenType::STRING(_))
+                ) {
+                    idx += 1;
+                }
+                idx = self.skip_annotation_trivia(idx);
+                if matches!(
+                    self.tokens.get(idx).map(|token| &token.token_type),
+                    Some(TokenType::LPAREN)
+                ) {
+                    idx += 1;
+                    while !matches!(
+                        self.tokens.get(idx).map(|token| &token.token_type),
+                        Some(TokenType::RPAREN) | Some(TokenType::EOF) | None
+                    ) {
+                        idx += 1;
+                    }
+                    if !matches!(
+                        self.tokens.get(idx).map(|token| &token.token_type),
+                        Some(TokenType::RPAREN)
+                    ) {
+                        return None;
+                    }
+                    idx += 1;
+                }
+            }
+            "hint" | "contract" | "intrinsic_candidate" => {
+                if !matches!(
+                    self.tokens.get(idx).map(|token| &token.token_type),
+                    Some(TokenType::LPAREN)
+                ) {
+                    return None;
+                }
+                idx += 1;
+                while !matches!(
+                    self.tokens.get(idx).map(|token| &token.token_type),
+                    Some(TokenType::RPAREN) | Some(TokenType::EOF) | None
+                ) {
+                    idx += 1;
+                }
+                if !matches!(
+                    self.tokens.get(idx).map(|token| &token.token_type),
+                    Some(TokenType::RPAREN)
+                ) {
+                    return None;
+                }
+                idx += 1;
+            }
+            _ => return None,
+        }
+
+        idx = self.skip_annotation_trivia(idx);
+        if matches!(
+            self.tokens.get(idx).map(|token| &token.token_type),
+            Some(TokenType::SEMICOLON)
+        ) {
+            idx += 1;
+        }
+        Some(idx)
+    }
+
+    fn top_level_callable_starts_at(&self, idx: usize) -> bool {
+        match self.tokens.get(idx).map(|token| &token.token_type) {
+            Some(TokenType::FUNCTION) => true,
+            Some(TokenType::STATIC) => {
+                let next = self.skip_annotation_trivia(idx + 1);
+                matches!(
+                    self.tokens.get(next).map(|token| &token.token_type),
+                    Some(TokenType::FUNCTION)
+                )
+            }
+            _ => false,
+        }
+    }
+
+    fn member_callable_starts_at(&self, idx: usize) -> bool {
+        let mut next = idx;
+        if matches!(
+            self.tokens.get(next).map(|token| &token.token_type),
+            Some(TokenType::OVERRIDE)
+        ) {
+            next = self.skip_annotation_trivia(next + 1);
+        }
+
+        match self.tokens.get(next).map(|token| &token.token_type) {
+            Some(TokenType::IDENTIFIER(_))
+            | Some(TokenType::INIT)
+            | Some(TokenType::PACK)
+            | Some(TokenType::BIRTH) => {
+                let after_name = self.skip_annotation_trivia(next + 1);
+                matches!(
+                    self.tokens.get(after_name).map(|token| &token.token_type),
+                    Some(TokenType::LPAREN)
+                )
+            }
+            _ => false,
+        }
     }
 
     fn parse_rune_annotation(&mut self) -> Result<bool, ParseError> {
@@ -153,21 +332,13 @@ impl NyashParser {
                 });
             };
 
-            let supported = matches!(
-                rune_name.as_str(),
-                "Public"
-                    | "Internal"
-                    | "FfiSafe"
-                    | "Symbol"
-                    | "CallConv"
-                    | "ReturnsOwned"
-                    | "FreeWith"
-                    | "Ownership"
-            );
-            if !supported {
+            if !RuneAttr::supported_name(&rune_name) {
                 return Err(ParseError::UnexpectedToken {
                     found: TokenType::IDENTIFIER(rune_name),
-                    expected: "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership".to_string(),
+                    expected: format!(
+                        "[freeze:contract][parser/rune] supported: {}",
+                        RuneAttr::supported_names_msg()
+                    ),
                     line: this.current_token().line,
                 });
             }
@@ -200,10 +371,7 @@ impl NyashParser {
                     break;
                 }
                 this.consume(TokenType::RPAREN)?;
-            } else if matches!(
-                rune_name.as_str(),
-                "Public" | "Internal" | "FfiSafe" | "ReturnsOwned"
-            ) {
+            } else if RuneAttr::noarg_name(&rune_name) {
                 // no-arg bare form
             } else {
                 let arg = if let TokenType::IDENTIFIER(name) = &this.current_token().token_type {
@@ -233,50 +401,42 @@ impl NyashParser {
         }
 
         let rune = parse_rune_name(self)?;
-        let supported = matches!(
-            rune.name.as_str(),
-            "Public"
-                | "Internal"
-                | "FfiSafe"
-                | "Symbol"
-                | "CallConv"
-                | "ReturnsOwned"
-                | "FreeWith"
-                | "Ownership"
-        );
-        if !supported {
+        if !RuneAttr::supported_name(&rune.name) {
             return Err(ParseError::UnexpectedToken {
                 found: TokenType::IDENTIFIER(rune.name),
-                expected: "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership".to_string(),
+                expected: format!(
+                    "[freeze:contract][parser/rune] supported: {}",
+                    RuneAttr::supported_names_msg()
+                ),
                 line: self.current_token().line,
             });
         }
-        match rune.name.as_str() {
-            "Public" | "Internal" | "FfiSafe" | "ReturnsOwned" => {
-                if !rune.args.is_empty() {
-                    return Err(ParseError::UnexpectedToken {
-                        found: self.current_token().token_type.clone(),
-                        expected: format!(
-                            "[freeze:contract][parser/rune] @rune({}) takes no args",
-                            rune.name
-                        ),
-                        line: self.current_token().line,
-                    });
-                }
-            }
-            "Symbol" | "CallConv" | "FreeWith" | "Ownership" => {
-                if rune.args.len() != 1 {
-                    return Err(ParseError::UnexpectedToken {
-                        found: self.current_token().token_type.clone(),
-                        expected: format!(
-                            "[freeze:contract][parser/rune] @rune({})(<ident|string>)",
-                            rune.name
-                        ),
-                        line: self.current_token().line,
-                    });
-                }
-            }
-            _ => {}
+        if RuneAttr::noarg_name(&rune.name) && !rune.args.is_empty() {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: format!(
+                    "[freeze:contract][parser/rune] @rune({}) takes no args",
+                    rune.name
+                ),
+                line: self.current_token().line,
+            });
+        }
+        if RuneAttr::single_arg_name(&rune.name) && rune.args.len() != 1 {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected: format!(
+                    "[freeze:contract][parser/rune] @rune({})(<ident|string>)",
+                    rune.name
+                ),
+                line: self.current_token().line,
+            });
+        }
+        if let Some(expected) = RuneAttr::value_contract_error(&rune.name, &rune.args) {
+            return Err(ParseError::UnexpectedToken {
+                found: self.current_token().token_type.clone(),
+                expected,
+                line: self.current_token().line,
+            });
         }
         self.push_pending_rune(rune);
 

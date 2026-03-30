@@ -6,12 +6,14 @@ Scope: stage axis と owner axis を混線させずに、kernel authority wave �
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/array-map-owner-and-ring-cutover-ssot.md
   - docs/development/current/main/design/collection-raw-substrate-contract-ssot.md
+  - docs/development/current/main/design/rune-v1-metadata-unification-ssot.md
   - lang/README.md
   - lang/src/runtime/README.md
   - lang/src/runtime/collections/README.md
@@ -39,6 +41,8 @@ Related:
 
 This SSOT is the canonical phase-plan entry for the collection-first kernel migration wave.
 
+Post-collection return is owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
+
 ## Fixed Boundaries
 
 - `lang/src/runtime/collections/**` is the current ring1 collection semantics owner frontier for this wave.
@@ -56,6 +60,9 @@ Rule:
 Goal:
 - visible `ArrayBox` method semantics are `.hako` owned (policy/contract/orchestration).
 - Rust remains raw substrate/compat (slot load/store, reserve/grow, layout, handle/cache).
+- the phase closes only after the `.hako` array path is compared against the current Rust array baseline on the same `kilo_micro_array_getset` family and remains in an acceptable band.
+- syntax audit note: the current `.hako` array/collections lane does not require the metadata annotation lane; canonical surface is `@rune`, legacy `@hint/@contract/@intrinsic_candidate` stay compat aliases, and this lane is not an Array-phase blocker.
+- surfaced v1 syntax gap remains the selfhost compiler `{ ident: expr }` / BlockExpr migration note; it is outside this collection owner lane.
 
 Stop line:
 - docs/readmes/smokes describe `ArrayBox` semantics without naming Rust helpers as meaning owners.
@@ -69,7 +76,7 @@ Goal:
 
 Stop line:
 - docs/readmes/smokes describe `MapBox` semantics without naming Rust helpers as meaning owners.
-- `nyash.map.entry_count_h` and other transitional observers are treated as boundary-deepen tasks, not owner logic.
+- `nyash.map.entry_count_i64` is the daily raw observer seam; compat aliases such as `nyash.map.entry_count_h` stay boundary-deepen tasks, not owner logic.
 
 ### 3. RuntimeData cleanup phase
 
@@ -86,6 +93,8 @@ Stop line:
 Rule:
 - do not reopen broad authority expansion while perf-kilo is active.
 - any further owner migration requires a new exact blocker and a dedicated SSOT update.
+- the first post-entry optimization wave is `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`.
+- Rune optimization metadata remains `parse/noop`, and backend-active consumption is out of scope for this return wave.
 
 ## Acceptance Gates (Docs + Smokes)
 
@@ -98,6 +107,10 @@ The phase plan is considered "done-enough to return to perf-kilo" when:
    - array provider smoke
    - map provider smoke
    - runtime-data dispatch e2e smoke
+5. Array phase perf gate is recorded against the Rust baseline:
+   - `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 3`
+   - `tools/perf/run_kilo_micro_machine_ladder.sh`
+   - read the result against the current Rust array baseline snapshot before Map phase opens
 
 ## Non-Goals
 
@@ -105,4 +118,3 @@ The phase plan is considered "done-enough to return to perf-kilo" when:
 - no "native zero" claim
 - no wholesale move of `array/map` into `runtime/kernel/{array,map}` without a trigger
 - no perf work inside this authority wave (perf is the next lane after phase closeout)
-

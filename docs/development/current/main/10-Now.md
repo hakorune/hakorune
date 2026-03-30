@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-29
+Date: 2026-03-30
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -71,18 +71,53 @@ Related:
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 
 - Stage2 `.hako` owner lane
-  - status: `active bounded-3 stop-line landed`
+  - status: `active bounded-3 stop-line landed / entry-task-pack sync`
   - current exact read:
     - stage2+ is now read as mostly `.hako` authority / thin `.inc` shim / native metal keep
-    - stage1 may complete `Array phase` / `Map phase` / `RuntimeData cleanup phase` while remaining bridge/proof line
+    - collection substrate cleanup is tracked on the owner/substrate axis; stage1 remains bridge/proof and stage2+ remains the final mainline
+    - stage/artifact/build-conduit wording is now synced:
+      - `execution-lanes-and-axis-separation-ssot.md` is the canonical vocabulary owner
+      - `stage1` has current concrete build/invoke conduits
+      - `stage2+` is target mainline/distribution reading, not a standalone build-script family
+      - `stage3` is a compare/sanity label only
+    - parent task pack is now `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`
+    - current collection cleanup SSOT is `stage2-collection-substrate-cleanup-ssot.md`
+    - Array phase closes only after the same-artifact `kilo_micro_array_getset` compare against the current Rust array baseline is acceptable
+    - syntax audit: canonical metadata surface is `@rune`; legacy `@hint/@contract/@intrinsic_candidate` remain compat aliases during the Rune v1 window; current `.hako` collection code does not depend on this lane
+    - surfaced v1 syntax gap remains the selfhost compiler `{ ident: expr }` / BlockExpr migration note; it does not block the current Array phase lane
     - the new SSOT is `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
     - phase plan SSOT is `kernel-implementation-phase-plan-ssot.md`
     - `.hako` complete in this lane means authority/mainline completion, not native zero
     - standard distribution reading is `hakoruneup + self-contained release bundle`, not a single stage artifact
     - boundary truth is not owned by `.inc`; `.inc` remains thin artifact/shim space
     - `.inc` partitions are still mixed today, so the first task is classification, not code motion
+    - first stage2+ optimization wave is fixed to `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
+    - stage2+ first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
+    - refreshed same-artifact `kilo_micro_array_getset` baseline is `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`
+    - refreshed direct bundle is `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-refresh/`:
+      - `mir_windows` stays on `Method:RuntimeDataBox.{push,get,set}`
+      - `owner_route=seed first_blocker=empty`
+      - `recipe_acceptance` remains empty
+      - hot-block scan still shows no `slot_load_hi` / `generic_box_call` / `hostbridge` / `runtime_data` residue
+      - `perf_top` is still dominated by `ny_main` (`92.61%`), so the current direct artifact does not expose a narrower route leaf yet
+    - `tools/perf/trace_optimization_bundle.sh` now auto-saves `perf_top_symbol.txt`, `perf_top_annotate.txt`, `perf_top_objdump.txt`, `perf_top_hot_insns.txt`, `perf_top_opcode_hist.txt`, and `perf_top_group_summary.txt` for the hottest in-binary symbol plus grouped residue
+    - probe bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-probe/` resolves that hottest symbol to `ny_main`; the annotate/objdump pair shows a tight stack-array loop (`cmp -> load -> inc -> store -> add -> inc`) with no surviving foreign calls in the hot block
+    - 20-run observe bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-observe20/` still samples only `cmp` / `inc` (`54.45% cmp`, `45.55% inc`), so the current direct artifact does not expose a richer subsymbol leaf yet
+    - grouped 3-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-groups/` reports `89.50% bundle / 5.98% loader / 1.47% runner`; use this grouped reading before opening any Array code slice on WSL
+    - repeated 3-run bundles still vary meaningfully under WSL:
+      - repeatA `92.66% bundle / 2.81% loader / 2.04% runner`
+      - repeatB `89.84% bundle / 5.82% loader / 3.09% libc / 1.20% runner`
+      - repeatC `74.02% bundle / 22.96% loader / 2.40% libc / 0.55% runner`
+      - treat `perf_top_group_summary` as a noise detector, not as the sole acceptance gate
+    - cold 1-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-cold1/` shifts more weight into loader/runner (`87.25% bundle / 6.90% loader / 5.84% runner`), so keep `3 runs + asm` as the decision gate and use 1-run only as startup-residue evidence
+    - C baseline loop-shape check shows the expected scalar loop body with samples spread across `and / mov / inc / mov / cmp`, while the AOT direct probe still concentrates on `cmp / inc`; treat the remaining gap as outside the old route/helper residue story unless a new boundary blocker appears
+    - lowered IR now exposes the exact remaining waste candidate more directly: `ny_main` keeps the loop induction variable `%i` in an `alloca` with per-iteration `load -> add -> store`, while the C baseline keeps its counter in a register; the `sum` alloca is intentional because the benchmark declares it `volatile`
+    - Rune optimization metadata remains `parse/noop`; backend-active consumption is deferred beyond this first wave
     - `pure_compile` / `generic_method_lowering` / `string_concat_*` are the first semantic-owner-heavy candidates
     - `hako_llvmc_ffi_common.inc` stays thin boundary utility and native support
+    - `stage1_cli_env` helper default now stays on `selfhost-first`; the strict stage1 probe is green and no longer falls back to `delegate:provider`
+    - canonical selfhost-first promotion no longer leaks collapsed `functions_0`; `MirSchemaBox.module(...)` now keeps only canonical `functions[]`
+    - explicit `HAKO_MIR_BUILDER_FUNCS=1` now lowers helper defs as a flat canonical `functions[]` splice
   - landed order / deferred end-state direction:
     1. docs-first owner/shim SSOT
     2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
@@ -132,13 +167,42 @@ Related:
     - `pure_compile.inc` now routes `mir_call` through `hako_llvmc_ffi_mir_call_dispatch.inc`
     - `RuntimeDataBox` generic fallback routes now reuse `nyash.runtime_data.{get,set,has,push}` through the method-policy seams
     - `runtime_data_map_get_hh(...)` now preserves the mixed runtime i64/handle return contract, so map-get facade parity stays pinned after the route-policy split
+    - manifest/inventory sync landed for the map observer seam:
+      - canonical daily `MapBox.size/len` now points at `nyash.map.entry_count_i64` in both manifest roots
+      - generated defaults and the ABI slice guard now enforce `entry_count_i64`; `entry_count_h` remains compat-only
+    - hako-vm collection routing fix landed:
+      - `MirCallV1HandlerBox` now routes `ArrayCoreBox` / `MapCoreBox` / `StringCoreBox` before the adapter gate, so `HAKO_ABI_ADAPTER=0` no longer forces `MapBox.set/get/has` into method stubs
+      - quick `map_basic_get_set_vm.sh` now pins the adapter-on `MapBox.set/get` route explicitly; builtin no-adapter VM contract remains `MapBox.len/size` only
+      - vm-hako payload normalize now keeps string-handle consts used by nested `mir_call.args` and rewrites `MapBox.{set,get,has,getField,setField,delete,size,len,length}` Method mir-calls into canonical `boxcall` payloads
+      - source quick `MapBox.get("a")` and `MapBox.size()` are green again on the vm-hako route; the old `[vm/method/stub:get]` residual is closed
+      - String source quick route is now green on vm-hako for `substring/indexOf`; `StringCoreBox` owns `substring/indexOf` directly and the old `[vm/method/stub:*]` residual is closed
+      - Array quick route is now green across vm-hako -> rust-vm driver execution:
+        - `hako.toml` / `nyash.toml` now expose `"selfhost.runtime" = "lang/src/runtime"` so the generated driver sees the collection/runtime roots
+        - vm-hako `newbox` now allocates live `ArrayBox` / `MapBox` handles instead of filebox-only tokens
+        - rust-vm extern dispatch now covers `nyash.{array,map}.birth_h`, array raw seams, and `nyash.box.from_i64`
+        - `ArrayCoreBox.push` now distinguishes scalar vs handle args and boxes scalar i64 before `slot_append_hh`
+        - quick `array_length_vm.sh`, `array_oob_set_tag_vm.sh`, and `array_empty_pop_tag_vm.sh` are green; the old `missing receiver for slot_append_any` residual is closed
+    - collection stop-line regression pack:
+      - active Array daily route is now mirrored across `.hako ll emit` and pure-first no-replay:
+        - `get -> nyash.array.slot_load_hi`
+        - `push -> nyash.array.slot_append_hh`
+        - `has -> nyash.runtime_data.has_hh`
+        - `set -> nyash.array.slot_store_hih / nyash.array.slot_store_hii` now uses raw substrate nouns on the active daily path
+        - compat-only aliases are now explicit: `set_hih` / `set_hii` / `get_hi` / `has_hi` / `push_h*` are no longer part of the active daily path
+      - `phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh` is green again under `pure-first + compat_replay=none`
+    - stage1 closeout landed:
+      - `stage1_cli_env` helper default now stays on `selfhost-first`; the strict stage1 probe is green and no longer falls back to `delegate:provider`
+      - canonical selfhost-first promotion no longer leaks collapsed `functions_0`; `MirSchemaBox.module(...)` now keeps only canonical `functions[]`
+      - explicit `HAKO_MIR_BUILDER_FUNCS=1` now lowers helper defs as a flat canonical `functions[]` splice
   - next exact slice:
-    - `runtime/meta/` is now the `.hako` owner home for compiler semantic tables; keep `kernel` for runtime behavior and `host` for transport only
-    - generic `mir_call` route family, prepass need vocabulary, and constructor/global/string-extern accept surfaces are now `.hako` owned through native mirror seams
-    - keep remaining live `GET` RMW / indexOf defer logic in `hako_llvmc_ffi_generic_method_get_window.inc` / `hako_llvmc_ffi_generic_method_get_lowering.inc`
-    - keep producer/use/future-use analysis in `hako_llvmc_ffi_string_concat_window.inc` / `hako_llvmc_ffi_string_concat_match.inc`
-    - keep `indexOf` observer families and `compile_json_compat_pure(...)` orchestration native until the perf lane returns
-    - next lane after this bounded stop-line is `perf-kilo`, not another broad authority wave
+    - treat `stage1_cli_env` selfhost-first strict green and explicit `HAKO_MIR_BUILDER_FUNCS=1` flat defs splice as landed evidence
+    - sync the master task pack across dashboard/stage docs
+    - close the `stage1 -> stage2+` entry gate on `.hako` canonical MIR authority and thin Rust transport only
+    - keep collection domains on regression-pack status
+    - keep the collection quick-vm closeout (`MapBox.get/size`, `String substring/indexOf`, `Array length/oob/pop`) as a regression pack only; do not reopen owner semantics in this lane
+    - reopen only the route/perf first wave, not broad authority expansion or Rune activation
+    - do not cut a blind code leaf while the refreshed direct bundle still collapses into `ny_main`; the next accepted slice needs a measurable leaf below `ny_main` from the same-artifact bundle
+    - do not reopen historical Rust helper splits from shell memory alone; the current direct probe no longer exposes them in the hot block
 - Secondary exact blocker lane: `phase-29ck`
   - status: `monitor/evidence while phase-29x owner-cutover prep is active`
     - current exact result:
@@ -236,7 +300,7 @@ Related:
         - whole-program main bundle now builds green with both live-after-get routes accepted, and the lowered IR carries `nyash.array.string_len_hi`, `nyash.array.string_indexof_hih`, and `nyash.array.set_his`
         - the former compile stoppers `array_string_len_window reason=post_len_uses_consumed_get_value` and the accepted-branch undefined `%r55` are retired by the new live-after-get pins
         - remaining main residue is no longer route acceptance; it is consumer cost around the two surviving `slot_load_hi` sites plus `nyash.string.concat_hh` / `memmove` / alloc pressure on the edit loop and branch loop
-        - first post-green store cut is landed: generic pure lowering now emits `nyash.array.set_his` for proven `ORG_STRING` array writes instead of generic `nyash.array.set_hih`
+        - first post-green store cut is landed: generic pure lowering now emits `nyash.array.set_his` for proven `ORG_STRING` array writes instead of generic `nyash.array.slot_store_hih`
         - first post-green concat cut is landed: `nyash.string.concat_hh` now prefers `host_handles::with_str_pair(...)` before the slower span/materialize fallbacks
         - concat3 parity cut is landed: legacy boundary lock `phase29ck_boundary_pure_string_concat3_extern_min.sh` still proves `Extern nyash.string.concat3_hhh` is pure-first accepted, and the daily main edit loop folds `prefix + "xx" + suffix` down to `concat3_hhh` on the lowered IR
         - the next exact concat cut is landed: string-concat defer now recognizes a `concat3` consumer even when the third operand arrives through an intervening string-preserving `copy`, so the edit loop no longer emits a dead intermediate `nyash.string.concat_hh` before `concat3_hhh`

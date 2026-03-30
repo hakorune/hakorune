@@ -10,6 +10,7 @@ else
 fi
 source "$ROOT/tools/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
+export HAKO_ABI_ADAPTER=${HAKO_ABI_ADAPTER:-1}
 
 code='static box Main { main() { local m=new MapBox(); m.set("a", 42); print(m.get("a")); return 0 } }'
 out=$(run_nyash_vm -c "$code")
@@ -18,4 +19,3 @@ if echo "$out" | grep -q "^42$"; then
 else
   echo "[FAIL] map_basic_get_set_vm" >&2; echo "$out" >&2; exit 1
 fi
-

@@ -9,6 +9,7 @@ Related:
 - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
+- docs/development/current/main/design/rune-v1-metadata-unification-ssot.md
 - docs/development/current/main/design/parser-extensions-param-implements-interface-generic-ssot.md
 - docs/development/current/main/phases/phase-29bq/29bq-90-selfhost-checklist.md
 - docs/development/current/main/phases/phase-29bq/29bq-91-mirbuilder-migration-progress-checklist.md
@@ -158,58 +159,39 @@ Removal order decision (accepted, docs-only):
 - full selfhost gate が緑。
 - その後に parser の追加移植へ進む（順序逆転しない）。
 
-## Parser Syntax Extension Contract（optimization annotations）
+## Parser Syntax Extension Contract（Rune metadata lane）
 
-`@hint` / `@contract` / `@intrinsic_candidate` を言語文法として導入する場合の順序を固定する。
+`@rune` declaration metadata を language grammar として有効化する場合の順序を固定する。
+current truth では `Hint` / `Contract` / `IntrinsicCandidate` も canonical `@rune` surface に含み、legacy `@hint` / `@contract` / `@intrinsic_candidate` は compat alias として読む。
 
 結論:
 
-- 文法拡張を有効化する最終状態では **Rust parser / .hako parser の両方が必要**。
-- ただし初手は parser 非依存（registry metadata のみ）で開始してよい。
+- final active grammar では **Rust parser / `.hako` parser の両方が必要**。
+- canonical docs surface は `@rune` に統一する。
+- compat window 中は `NYASH_FEATURES=rune` / `NYASH_FEATURES=opt-annotations` の両方が unified metadata parser path を有効にしてよい。
+- first backend-active slice は引き続き narrow で、optimization metadata は parse/noop keep、Rune v0 ABI metadata consumer は `ny-llvmc` selected-entry narrow slice に限定する。
 
 固定順序:
 
-1. docs-first（provisional）:
+1. docs-first（provisional）
+   - `rune-v0-contract-rollout-ssot.md`
+   - `rune-v1-metadata-unification-ssot.md`
    - `optimization-hints-contracts-intrinsic-ssot.md`
    - `docs/reference/language/EBNF.md`
-2. Rust parser 側で受理（flagged）し、Program(JSON v0) 属性出力を固定。
-3. `.hako` parser 側で同形を受理し、Program(JSON v0) 形状 parity を固定。
-4. parser parity gate が緑になってから、mirbuilder/lowering で注釈を本利用する。
+   - `docs/reference/ir/ast-json-v0.md`
+2. Rust parser 側で unified metadata grammar を受理し、declaration-local `attrs.runes` を保持する。
+3. `.hako` parser 側で同じ surface を受理し、selected-entry keep を含めて同形 metadata を保持する。
+4. AST / Program(JSON v0) / selected-entry parity gate を緑化する。
+5. parity 後に narrow backend consumer だけを有効化する。
 
 最小 gate:
 
 - `cargo test parser_opt_annotations -- --nocapture`
 - `bash tools/smokes/v2/profiles/integration/parser/parser_opt_annotations_dual_route_noop.sh`
+- `bash tools/smokes/v2/profiles/integration/parser/parser_rune_decl_local_attrs_selected_entry_trace.sh`
 
 禁止:
 
-- 片側 parser のみ受理した状態で既定ONにすること。
-- parser 差分を runtime 側 workaround で吸収すること。
-
-## Parser Syntax Extension Contract（Rune v0）
-
-`@rune` を language grammar として有効化する場合の順序を固定する。
-
-結論:
-
-- final active grammar では **Rust parser / `.hako` parser の両方が必要**。
-- first slice は contract-only で、backend consumer は `ny-llvmc` に限定する。
-- `llvmlite` は compat/noop keep のまま読む。
-
-固定順序:
-
-1. docs-first（provisional）
-   - `rune-and-stage2plus-final-shape-ssot.md`
-   - `rune-v0-contract-rollout-ssot.md`
-   - `docs/reference/language/EBNF.md`
-   - `docs/reference/ir/ast-json-v0.md`
-2. Rust parser 側で `NYASH_FEATURES=rune` を受理し、declaration metadata を保持する。
-3. `.hako` parser 側で同じ Rune surface を受理し、同形 metadata を保持する。
-4. AST / Program(JSON v0) parity gate を緑化する。
-5. parity 後に only `ny-llvmc` consumer を有効化する。
-
-禁止:
-
-- `.hako` parser だけ、または Rust parser だけで Rune grammar を active にすること。
-- parser parity 前に runtime/backend workaround を足して Rune 不在を吸収すること。
-- `llvmlite` parity を v0 の unblock 条件にすること。
+- `.hako` parser だけ、または Rust parser だけで metadata grammar を active にすること。
+- parser parity 前に runtime/backend workaround を足して metadata 不在を吸収すること。
+- `llvmlite` parity を Rune metadata lane の unblock 条件にすること。

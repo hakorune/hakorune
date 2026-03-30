@@ -17,6 +17,7 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
     }
 
     let (payload_env, payload_path) = prepare_payload_transport(filename, payload_json)?;
+    maybe_dump_payload_trace(payload_json);
 
     let exe = std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("hakorune"));
     let mut cmd = Command::new(&exe);
@@ -53,6 +54,29 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
     match status {
         Ok(st) => Ok(st.code().unwrap_or(1)),
         Err(e) => Err(("spawn-error", format!("file={} message={}", filename, e))),
+    }
+}
+
+fn maybe_dump_payload_trace(payload_json: &str) {
+    if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() != Some("1") {
+        return;
+    }
+    let dump_path = std::env::temp_dir().join(format!(
+        "vm_hako_{}_payload_dump_{}.json",
+        VM_HAKO_PHASE,
+        temp_seed()
+    ));
+    if let Err(e) = std::fs::write(&dump_path, payload_json) {
+        eprintln!(
+            "[vm-hako/payload-trace] failed to dump payload JSON to {}: {}",
+            dump_path.display(),
+            e
+        );
+    } else {
+        eprintln!(
+            "[vm-hako/payload-trace] dumped payload JSON to {}",
+            dump_path.display()
+        );
     }
 }
 

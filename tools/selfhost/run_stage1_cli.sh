@@ -4,6 +4,7 @@
 # Responsibilities
 # - Locate the Stage1 binary (default: target/selfhost/hakorune).
 # - Ensure NyRT emits clean JSON/stdout by default (NYASH_NYRT_SILENT_RESULT=1).
+# - Keep Stage1 emit mainline route pinned to canonical methodized/unified MIR defaults.
 # - Apply minimal runtime defaults so FileBox/hostbridge work without plugins.
 # - Forward all remaining arguments through `stage1_contract.sh` and propagate exit code.
 #
@@ -22,6 +23,8 @@ Defaults:
       NYASH_NYRT_SILENT_RESULT=1 (when unset)
       NYASH_DISABLE_PLUGINS=1    (when unset)
       NYASH_FILEBOX_MODE=core-ro (when unset)
+      HAKO_MIR_BUILDER_METHODIZE=1 (default export; emit mainline route hard-pins 1)
+      NYASH_MIR_UNIFIED_CALL=1     (default export; emit mainline route hard-pins 1)
 
 Examples:
   # preferred

@@ -180,6 +180,8 @@ stage1_contract_export_runner_defaults() {
   export NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}"
   export NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}"
   export NYASH_FILEBOX_MODE="${NYASH_FILEBOX_MODE:-core-ro}"
+  export HAKO_MIR_BUILDER_METHODIZE="${HAKO_MIR_BUILDER_METHODIZE:-1}"
+  export NYASH_MIR_UNIFIED_CALL="${NYASH_MIR_UNIFIED_CALL:-1}"
   export HAKO_SELFHOST_NO_DELEGATE="${HAKO_SELFHOST_NO_DELEGATE:-1}"
   export HAKO_MIR_BUILDER_DELEGATE="${HAKO_MIR_BUILDER_DELEGATE:-0}"
   export NYASH_STAGE1_EMIT_TIMEOUT_MS="${NYASH_STAGE1_EMIT_TIMEOUT_MS:-300000}"
@@ -195,10 +197,14 @@ stage1_contract_run_bin_with_env() {
   local emit_mir_flag="$6"
   local stdout_file="${7:-}"
   local stderr_file="${8:-}"
+  # Exact mainline lock: stage1 env-route emit must not let caller env degrade
+  # methodized/unified MIR back to legacy callsite dialect.
   local -a cmd_env=(
     "NYASH_NYRT_SILENT_RESULT=${NYASH_NYRT_SILENT_RESULT:-1}"
     "NYASH_DISABLE_PLUGINS=1"
     "NYASH_FILEBOX_MODE=core-ro"
+    "HAKO_MIR_BUILDER_METHODIZE=1"
+    "NYASH_MIR_UNIFIED_CALL=1"
     "HAKO_SELFHOST_NO_DELEGATE=${HAKO_SELFHOST_NO_DELEGATE:-1}"
     "HAKO_MIR_BUILDER_DELEGATE=${HAKO_MIR_BUILDER_DELEGATE:-0}"
     "NYASH_STAGE1_MODE=${mode}"

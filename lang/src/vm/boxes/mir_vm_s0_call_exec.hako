@@ -334,7 +334,15 @@ static box MirVmS0CallExecBox {
       local dst = me._find_int(seg, "dst")
       if dst != null {
         local box_type = me._find_str(seg, "type")
-        MirVmS0RegUtilsBox._reg_set(regs, dst, MirVmS0StateOpsBox.filebox_token_for_newbox(box_type, dst))
+        local box_value = MirVmS0StateOpsBox.filebox_token_for_newbox(box_type, dst)
+        if box_type == "ArrayBox" {
+          box_value = externcall "nyash.array.birth_h"()
+        } else {
+          if box_type == "MapBox" {
+            box_value = externcall "nyash.map.birth_h"()
+          }
+        }
+        MirVmS0RegUtilsBox._reg_set(regs, dst, box_value)
         MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "box")
         if box_type == "ArrayBox" {
           MirVmS0StateOpsBox.box_len_set(array_lens, dst, 0)

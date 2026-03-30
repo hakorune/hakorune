@@ -141,6 +141,24 @@ static box Main {
 }
 
 #[test]
+fn parser_accepts_body_position_legacy_annotations_as_noop_under_rune_gate() {
+    with_features(Some("stage3,rune"), || {
+        let src = r#"
+static box Main {
+  main() {
+    @contract(no_alloc)
+    local x = 1
+    return x
+  }
+}
+"#;
+        let ast = NyashParser::parse_from_string(src).expect("parse with legacy annotation under rune gate");
+        let body = find_method_body(&ast, "Main", "main");
+        assert_eq!(body.len(), 2, "body-position legacy annotations stay noop during compat window");
+    });
+}
+
+#[test]
 fn parser_rejects_unknown_hint_argument_fail_fast() {
     with_features(Some("stage3,opt-annotations"), || {
         let src = r#"
@@ -175,6 +193,118 @@ static box Main {
             ),
             "unexpected error: {msg}"
         );
+    });
+}
+
+#[test]
+fn parser_accepts_legacy_annotations_as_rune_metadata_on_callable_declarations() {
+    with_features(Some("stage3,rune"), || {
+        let src = r#"
+static box Main {
+  @hint(hot)
+  @contract(no_alloc)
+  @intrinsic_candidate("StringBox.length/0")
+  main() {
+    return 0
+  }
+}
+"#;
+        let (ast, metadata) =
+            NyashParser::parse_from_string_with_metadata(src).expect("parse with legacy declaration metadata");
+        let runes = find_runes(&metadata);
+        assert_eq!(
+            runes,
+            vec![
+                ("Hint".to_string(), vec!["hot".to_string()]),
+                ("Contract".to_string(), vec!["no_alloc".to_string()]),
+                (
+                    "IntrinsicCandidate".to_string(),
+                    vec!["StringBox.length/0".to_string()]
+                ),
+            ]
+        );
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(method_runes, runes);
+    });
+}
+
+#[test]
+fn parser_accepts_canonical_optimization_runes_and_preserves_metadata() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Hint(inline)
+  @rune Contract(no_alloc)
+  @rune IntrinsicCandidate("StringBox.length/0")
+  main() {
+    return 0
+  }
+}
+"#;
+        let (ast, metadata) =
+            NyashParser::parse_from_string_with_metadata(src).expect("parse with canonical rune families");
+        let runes = find_runes(&metadata);
+        assert_eq!(
+            runes,
+            vec![
+                ("Hint".to_string(), vec!["inline".to_string()]),
+                ("Contract".to_string(), vec!["no_alloc".to_string()]),
+                (
+                    "IntrinsicCandidate".to_string(),
+                    vec!["StringBox.length/0".to_string()]
+                ),
+            ]
+        );
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(method_runes, runes);
+    });
+}
+
+#[test]
+fn parser_accepts_mixed_legacy_aliases_and_canonical_runes_on_same_declaration() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Hint(hot)
+  @contract(no_alloc)
+  @intrinsic_candidate("StringBox.length/0")
+  @rune Symbol("main_sym")
+  @rune CallConv("c")
+  main() {
+    return 0
+  }
+}
+"#;
+        let ast = NyashParser::parse_from_string(src).expect("parse mixed metadata preamble");
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(
+            method_runes,
+            vec![
+                ("Hint".to_string(), vec!["hot".to_string()]),
+                ("Contract".to_string(), vec!["no_alloc".to_string()]),
+                (
+                    "IntrinsicCandidate".to_string(),
+                    vec!["StringBox.length/0".to_string()]
+                ),
+                ("Symbol".to_string(), vec!["main_sym".to_string()]),
+                ("CallConv".to_string(), vec!["c".to_string()]),
+            ]
+        );
+    });
+}
+
+#[test]
+fn parser_accepts_canonical_rune_surface_under_opt_annotations_gate() {
+    with_features(Some("stage3,opt-annotations"), || {
+        let src = r#"
+static box Main {
+  @rune Hint(hot)
+  main() { return 0 }
+}
+"#;
+        let ast = NyashParser::parse_from_string(src).expect("canonical rune surface should parse under compat gate");
+        let (_box_runes, method_runes) = find_box_and_method_runes(&ast, "Main", "main");
+        assert_eq!(method_runes, vec![("Hint".to_string(), vec!["hot".to_string()])]);
     });
 }
 
@@ -222,7 +352,7 @@ static box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership"
+                "[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate"
             ),
             "unexpected error: {msg}"
         );
@@ -236,6 +366,28 @@ fn parser_rejects_rune_on_non_declaration_statement() {
 static box Main {
   main() {
     @rune Public
+    local x = 1
+    return x
+  }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] declaration required after @rune")
+                || msg.contains("[freeze:contract][parser/rune] invalid placement"),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_canonical_optimization_rune_on_non_declaration_statement() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  main() {
+    @rune Hint(inline)
     local x = 1
     return x
   }
@@ -342,7 +494,7 @@ box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] instance method target supports only Public|Internal|Ownership"
+                "[freeze:contract][parser/rune] instance method target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate"
             ),
             "unexpected error: {msg}"
         );
@@ -362,7 +514,7 @@ box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] constructor target supports only Public|Internal|Ownership"
+                "[freeze:contract][parser/rune] constructor target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate"
             ),
             "unexpected error: {msg}"
         );
@@ -382,7 +534,65 @@ interface box Main {
         let msg = err.to_string();
         assert!(
             msg.contains(
-                "[freeze:contract][parser/rune] interface method target supports only Public|Internal|Ownership"
+                "[freeze:contract][parser/rune] interface method target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate"
+            ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_invalid_hint_rune_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Hint(fastest)
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("[freeze:contract][parser/rune] Hint(inline|noinline|hot|cold)"),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_invalid_contract_rune_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune Contract(mutable)
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains(
+                "[freeze:contract][parser/rune] Contract(pure|readonly|no_alloc|no_safepoint)"
+            ),
+            "unexpected error: {msg}"
+        );
+    });
+}
+
+#[test]
+fn parser_rejects_empty_intrinsic_candidate_rune_value() {
+    with_features(Some("rune"), || {
+        let src = r#"
+static box Main {
+  @rune IntrinsicCandidate("")
+  main() { return 0 }
+}
+"#;
+        let err = NyashParser::parse_from_string(src).expect_err("parse should fail");
+        let msg = err.to_string();
+        assert!(
+            msg.contains(
+                "[freeze:contract][parser/rune] IntrinsicCandidate(\"symbol\") with non-empty symbol"
             ),
             "unexpected error: {msg}"
         );

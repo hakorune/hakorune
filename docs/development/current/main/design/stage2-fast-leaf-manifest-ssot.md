@@ -133,8 +133,8 @@ V0 fast-leaf 対象は次で固定する。
 
 ### Map
 
-- `MapBox.size` -> `nyash.map.entry_count_h`
-- `MapBox.len` -> `nyash.map.entry_count_h`
+- `MapBox.size` -> `nyash.map.entry_count_i64`
+- `MapBox.len` -> `nyash.map.entry_count_i64`
 - `MapBox.get` -> `nyash.map.slot_load_hh`
 - `MapBox.set` -> `nyash.map.slot_store_hhh`
 - `MapBox.has` -> `nyash.map.probe_hh`
@@ -203,7 +203,7 @@ Reasoning is fixed like this.
    - first code slice
    - V0 route-table use is fixed for `slot_len/load/append` and `set_hih|set_hii`
 2. `Map hot path collapse` (landed)
-   - observer route is fixed on `nyash.map.entry_count_h`
+   - observer route is fixed on `nyash.map.entry_count_i64`
    - raw `slot_load_hh` / `slot_store_hhh` / `probe_hh` stay the direct seam
 3. `String search/slice route split` (landed)
 4. `String concat route split` (landed)

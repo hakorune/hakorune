@@ -270,7 +270,7 @@ class TestBoxcallPluginInvokeArgs(unittest.TestCase):
         builder.ret(ir.Constant(i64, 0))
 
         ir_text = str(module)
-        self.assertIn('call i64 @"nyash.array.set_hih"', ir_text)
+        self.assertIn('call i64 @"nyash.array.slot_store_hih"', ir_text)
         self.assertNotIn('call i64 @"nyash.map.set_hh"', ir_text)
 
     def test_filebox_boxcall_open_prefers_direct_export(self):

@@ -4,7 +4,12 @@ Purpose
 - Provide a minimal, fast path to compile Hako source via Hakorune Stage‑B to MIR(JSON), and optionally run it via Core‑Direct (in‑proc).
 - `Program(JSON v0)` routes are compat/internal keep, not the preferred external/bootstrap boundary.
 - Future: add MIR emit and ny-llvmc EXE build in small increments.
-- Stage axis note: `stage0`=bootstrap keep, `stage1`=current bootstrap artifacts / proof line, `stage2`=future distribution target, `stage3`=same-result sanity check.
+- Stage/lane vocabulary note:
+  - canonical stage/owner/artifact reading lives in `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+  - `stage0` = bootstrap keep
+  - `stage1` = current bootstrap artifacts / proof line
+  - `stage2+` = future mainline / distribution target
+  - `stage3` in this README is only the same-result compare/sanity label, not a standalone build-conduit family
 
 Script
 - tools/selfhost/run.sh
@@ -181,6 +186,7 @@ Helper — G1 Identity Check
 Helper — Stage3 Same-Result Check
 - `tools/selfhost/stage3_same_result_check.sh`
   - Stage3 is the bootstrap same-result sanity check, not the parser/bridge `Stage3` acceptance smoke.
+  - `stage2-bin` / `stage3-bin` in this helper are compare-artifact labels only; they are not separate artifact-kind families.
   - Build lane: re-emit Program(JSON v0) and MIR(JSON v0) snapshots twice from a known-good seed, then compare the snapshots plus `.artifact_kind`.
   - `--artifact-kind stage1-cli` is the working build lane today; `--seed-bin` can override the payload seed.
   - `--skip-build` compares an explicit prebuilt Stage2/Stage3 pair only.

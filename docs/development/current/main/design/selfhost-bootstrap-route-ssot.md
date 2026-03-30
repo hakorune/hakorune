@@ -33,6 +33,10 @@ End-state note:
 - operationally, `stage0` Rust bootstrap is allowed to remain as the first-build / recovery lane, while `stage2+` is the first `0rust` selfhost mainline
 - `Program(JSON v0)` / stage1 wrapper / surrogate provider はその途中にある bootstrap-only boundary で、authority ではなく最終 retire target だと扱う
 - stage/artifact/lane の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この文書は stage1 bootstrap route authority だけを扱う
+- build conduit note:
+  - current explicit build/invoke conduits are `tools/selfhost/build_stage1.sh` and `tools/selfhost/run_stage1_cli.sh` for the stage1 line
+  - this SSOT does not define a standalone `stage2+` build script family
+  - `Stage3` here is a compare/sanity label only (`tools/selfhost/stage3_same_result_check.sh`), not a primary build conduit
 
 Retirement reading:
 - `Program(JSON v0)` は current reduced authority からは退いているが、repo-wide で retire 完了したわけではない。
@@ -114,6 +118,7 @@ SSOT:
 - `stage1_cli_env.hako::Stage1InputContractBox` isolates the shared env/source resolution contract so authority/compat boxes do not need to duplicate input shaping
 - `stage1_cli_env.hako::Stage1SourceProgramAuthorityBox` now owns the exact source-only `emit-program` authority handoff: source text coercion, same-file using-prefix merge, and the checked `BuildBox.emit_program_json_v0(...)` call stay there, while output validation stays in `Stage1ProgramResultValidationBox`
 - `stage1_cli_env.hako::Stage1ProgramJsonMirCallerBox` isolates the checked `MirBuilderBox.emit_from_program_json_v0(...)` handoff shared by source authority and explicit Program(JSON) compat keep; `Stage1ProgramAuthorityBox` is historical and no longer part of the current contract
+- `MirBuilderBox` now treats root Program(JSON) and fragment lowering as separate contracts: non-empty `defs` marks a full-program input, defs lowering stays on the func-def gate, and registry/fallback lowers only inspect extracted `Program.body`
 - materialized Program(JSON) validation is isolated in `stage1_cli_env.hako::Stage1ProgramResultValidationBox`, keeping emit-program on the same thin-dispatch pattern
 - source-only authority case では `stage1_cli_env.hako::Stage1SourceMirAuthorityBox` が `MirBuilderBox.emit_from_source_v0(...)` を担当し、explicit supplied Program(JSON) text-only input がある時だけ `Stage1ProgramJsonCompatBox` が `Stage1ProgramJsonMirCallerBox` を再利用する
 - `stage1_cli_env.hako::Stage1ProgramJsonTextGuardBox` keeps the non-empty text guard in front of both Program(JSON) paths
@@ -173,7 +178,12 @@ Emit route wrappers（Program→MIR）:
   - `tools/hakorune_emit_mir_compat.sh <input.hako> <out.json>`
 - helper 実装:
   - `tools/hakorune_emit_mir.sh`
-  - `HAKO_EMIT_MIR_MAINLINE_ONLY=1` のとき、Stage-B 失敗/invalid payload で direct fallback せず fail-fast する。
+- `HAKO_EMIT_MIR_MAINLINE_ONLY=1` のとき、Stage-B 失敗/invalid payload で direct fallback せず fail-fast する。
+- selfhost-first promotion requires canonical MIR root shape; collapsed keeps such as `functions_0` and boxed textual residues are rejected before helper wrappers may report success.
+- current closeout truth:
+  - `stage1_cli_env` helper/default route now stays on selfhost-first and the strict stage1 probe is green
+  - `MirSchemaBox.module(...)` now keeps only canonical `functions[]`, so generic stringify paths cannot leak `functions_0`
+  - explicit `HAKO_MIR_BUILDER_FUNCS=1` now lowers helper defs as a flat canonical `functions[]` splice
 
 route contract note（fixed）:
 - helper 撤退は route/wrapper の集約を意味し、JSON v0 bridge contract の削除は含まない。
@@ -242,6 +252,11 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
 - **Stage1**: Stage0 で生成された `.hako` compiler。proof / handoff artifact として扱う
 - **Stage2**: Stage1 で同一ソースを再ビルドした `.hako` compiler。最初の `0rust` mainline artifact として扱う
 - **Stage3 (optional)**: known-good seed からの payload same-result 確認（`tools/selfhost/stage3_same_result_check.sh`）
+
+Reading note:
+- this section defines proof-stage vocabulary, not script families
+- current stage1 build artifact kinds remain `launcher-exe` / `stage1-cli`
+- `stage2+` is still the target mainline/distribution reading, not a current artifact-kind or wrapper family
 
 Directory note:
 - `Stage1` / `Stage2` here are artifact/proof stages, not Rust directory owners.

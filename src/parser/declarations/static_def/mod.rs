@@ -33,7 +33,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         while p.match_token(&TokenType::NEWLINE) {
             p.advance();
         }
-        if p.maybe_parse_opt_annotation_noop()? {
+        if p.maybe_parse_opt_annotation_noop(crate::parser::statements::helpers::AnnotationSite::Member)? {
             continue;
         }
         let trace = std::env::var("NYASH_PARSER_TRACE_STATIC").ok().as_deref() == Some("1");

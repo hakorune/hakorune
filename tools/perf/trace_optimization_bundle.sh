@@ -179,6 +179,12 @@ PERF_TOP_OUT="${OUT_DIR}/perf_top.txt"
 PERF_DATA="${OUT_DIR}/bundle.perf.data"
 PERF_ANNOTATE_OUT="${OUT_DIR}/perf_annotate.txt"
 OBJDUMP_OUT="${OUT_DIR}/objdump.txt"
+PERF_TOP_SYMBOL_OUT="${OUT_DIR}/perf_top_symbol.txt"
+PERF_TOP_ANNOTATE_OUT="${OUT_DIR}/perf_top_annotate.txt"
+PERF_TOP_OBJDUMP_OUT="${OUT_DIR}/perf_top_objdump.txt"
+PERF_TOP_HOT_INSNS_OUT="${OUT_DIR}/perf_top_hot_insns.txt"
+PERF_TOP_OPCODE_HIST_OUT="${OUT_DIR}/perf_top_opcode_hist.txt"
+PERF_TOP_GROUP_SUMMARY_OUT="${OUT_DIR}/perf_top_group_summary.txt"
 RUNNER_C="${OUT_DIR}/microasm_runner.c"
 RUNNER_BIN="${OUT_DIR}/microasm_runner.bin"
 
@@ -494,6 +500,142 @@ if [[ -f "${EXE_OUT}" ]]; then
   fi
 fi
 
+resolve_top_binary_symbol() {
+  local report_path="$1"
+  local exe_name
+  exe_name="$(basename "${EXE_OUT}")"
+  python3 - "${report_path}" "${exe_name}" <<'PY'
+import re
+import sys
+
+report_path, exe_name = sys.argv[1], sys.argv[2]
+pat = re.compile(r"^\s*[0-9.]+%\s+(\S+)\s+(\S+)\s+\[\.\]\s+(.+?)\s*$")
+fallback = None
+
+with open(report_path, "r", encoding="utf-8", errors="replace") as f:
+    for raw in f:
+        m = pat.match(raw)
+        if not m:
+            continue
+        command, shared_obj, symbol = m.groups()
+        if symbol == "[unknown]":
+            continue
+        if command == exe_name and shared_obj == exe_name:
+            print(symbol)
+            raise SystemExit(0)
+        if fallback is None:
+            fallback = symbol
+
+if fallback is not None:
+    print(fallback)
+PY
+}
+
+write_objdump_snippet() {
+  local symbol="$1"
+  local objdump_path="$2"
+  local out_path="$3"
+  local line_no=""
+  if [[ -n "${symbol}" ]]; then
+    line_no="$(grep -nF "${symbol}" "${objdump_path}" | head -n 1 | cut -d: -f1 || true)"
+  fi
+  if [[ -n "${line_no}" ]]; then
+    sed -n "${line_no},$((line_no + 120))p" "${objdump_path}" > "${out_path}"
+  else
+    printf '[microasm] objdump symbol match not found: %s\n' "${symbol}" > "${out_path}"
+  fi
+}
+
+summarize_hot_instructions() {
+  local annotate_path="$1"
+  local hot_insns_out="$2"
+  local opcode_hist_out="$3"
+  python3 - "${annotate_path}" "${hot_insns_out}" "${opcode_hist_out}" <<'PY'
+import re
+import sys
+from collections import defaultdict
+
+annotate_path, hot_insns_out, opcode_hist_out = sys.argv[1:4]
+line_pat = re.compile(r"^\s*([0-9]+(?:\.[0-9]+)?)\s*:\s*([0-9a-f]+):\s+(.*)$")
+
+rows = []
+opcode_totals = defaultdict(float)
+
+with open(annotate_path, "r", encoding="utf-8", errors="replace") as f:
+    for raw in f:
+        m = line_pat.match(raw.rstrip("\n"))
+        if not m:
+            continue
+        pct_s, addr, rest = m.groups()
+        pct = float(pct_s)
+        if pct <= 0.0:
+            continue
+        inst = rest.strip()
+        opcode = inst.split()[0] if inst else "<unknown>"
+        rows.append((pct, addr, opcode, inst))
+        opcode_totals[opcode] += pct
+
+with open(hot_insns_out, "w", encoding="utf-8") as out:
+    if not rows:
+        out.write("[microasm] no_positive_samples\n")
+    else:
+        for pct, addr, opcode, inst in sorted(rows, key=lambda row: (-row[0], row[1])):
+            out.write(f"{pct:6.2f}% {addr}: {inst}\n")
+
+with open(opcode_hist_out, "w", encoding="utf-8") as out:
+    if not opcode_totals:
+        out.write("[microasm] no_positive_samples\n")
+    else:
+        for opcode, pct in sorted(opcode_totals.items(), key=lambda item: (-item[1], item[0])):
+            out.write(f"{pct:6.2f}% {opcode}\n")
+PY
+}
+
+summarize_perf_groups() {
+  local report_path="$1"
+  local out_path="$2"
+  local exe_name
+  exe_name="$(basename "${EXE_OUT}")"
+  python3 - "${report_path}" "${exe_name}" "${out_path}" <<'PY'
+import re
+import sys
+from collections import defaultdict
+
+report_path, exe_name, out_path = sys.argv[1:4]
+pat = re.compile(r"^\s*([0-9]+(?:\.[0-9]+)?)%\s+(\S+)\s+(\S+)\s+\[\.\]\s+(.+?)\s*$")
+totals = defaultdict(float)
+
+def classify(command: str, shared_obj: str, symbol: str) -> str:
+    if command == exe_name and shared_obj == exe_name:
+        return "bundle"
+    if command == "microasm_runner":
+        return "runner"
+    if shared_obj.startswith("ld-linux"):
+        return "loader"
+    if shared_obj.startswith("libc") or shared_obj.startswith("libm"):
+        return "libc"
+    if shared_obj == "[unknown]" or symbol.startswith("[k]"):
+        return "kernel"
+    return "other"
+
+with open(report_path, "r", encoding="utf-8", errors="replace") as f:
+    for raw in f:
+        m = pat.match(raw.rstrip("\n"))
+        if not m:
+            continue
+        pct_s, command, shared_obj, symbol = m.groups()
+        pct = float(pct_s)
+        totals[classify(command, shared_obj, symbol)] += pct
+
+with open(out_path, "w", encoding="utf-8") as out:
+    if not totals:
+        out.write("[microasm] no_group_samples\n")
+    else:
+        for key, pct in sorted(totals.items(), key=lambda item: (-item[1], item[0])):
+            out.write(f"{pct:6.2f}% {key}\n")
+PY
+}
+
 if [[ "${MICROASM_RUNS}" -gt 0 && -f "${EXE_OUT}" && -x "${EXE_OUT}" ]]; then
   if command -v perf >/dev/null 2>&1 && command -v "${CC:-cc}" >/dev/null 2>&1; then
     cat >"${RUNNER_C}" <<'EOF'
@@ -545,11 +687,23 @@ EOF
       perf record -o "${PERF_DATA}" -F 999 -- "${RUNNER_BIN}" "${MICROASM_RUNS}" "${EXE_OUT}" >/dev/null 2>&1 || true
     if [[ -f "${PERF_DATA}" ]]; then
       perf report --stdio --no-children -i "${PERF_DATA}" > "${PERF_TOP_OUT}" || true
+      summarize_perf_groups "${PERF_TOP_OUT}" "${PERF_TOP_GROUP_SUMMARY_OUT}"
       if [[ -n "${SYMBOL}" ]]; then
         perf annotate --stdio -i "${PERF_DATA}" --symbol "${SYMBOL}" > "${PERF_ANNOTATE_OUT}" || true
       fi
       if command -v objdump >/dev/null 2>&1; then
         objdump -d --demangle "${EXE_OUT}" > "${OBJDUMP_OUT}" || true
+      fi
+      top_symbol="$(resolve_top_binary_symbol "${PERF_TOP_OUT}" || true)"
+      if [[ -n "${top_symbol}" ]]; then
+        printf '%s\n' "${top_symbol}" > "${PERF_TOP_SYMBOL_OUT}"
+        perf annotate --stdio -i "${PERF_DATA}" --symbol "${top_symbol}" > "${PERF_TOP_ANNOTATE_OUT}" || true
+        summarize_hot_instructions "${PERF_TOP_ANNOTATE_OUT}" "${PERF_TOP_HOT_INSNS_OUT}" "${PERF_TOP_OPCODE_HIST_OUT}"
+        if [[ -f "${OBJDUMP_OUT}" ]]; then
+          write_objdump_snippet "${top_symbol}" "${OBJDUMP_OUT}" "${PERF_TOP_OBJDUMP_OUT}"
+        fi
+      else
+        printf '[microasm] top binary symbol unresolved\n' > "${PERF_TOP_SYMBOL_OUT}"
       fi
     fi
   else
@@ -575,6 +729,24 @@ if [[ -f "${SYMBOLS_OUT}" ]]; then
 fi
 if [[ "${MICROASM_RUNS}" -gt 0 && -f "${PERF_TOP_OUT}" ]]; then
   echo "[bundle] perf_top=${PERF_TOP_OUT}"
+  if [[ -f "${PERF_TOP_SYMBOL_OUT}" ]]; then
+    echo "[bundle] perf_top_symbol=${PERF_TOP_SYMBOL_OUT}"
+  fi
+  if [[ -f "${PERF_TOP_ANNOTATE_OUT}" ]]; then
+    echo "[bundle] perf_top_annotate=${PERF_TOP_ANNOTATE_OUT}"
+  fi
+  if [[ -f "${PERF_TOP_OBJDUMP_OUT}" ]]; then
+    echo "[bundle] perf_top_objdump=${PERF_TOP_OBJDUMP_OUT}"
+  fi
+  if [[ -f "${PERF_TOP_HOT_INSNS_OUT}" ]]; then
+    echo "[bundle] perf_top_hot_insns=${PERF_TOP_HOT_INSNS_OUT}"
+  fi
+  if [[ -f "${PERF_TOP_OPCODE_HIST_OUT}" ]]; then
+    echo "[bundle] perf_top_opcode_hist=${PERF_TOP_OPCODE_HIST_OUT}"
+  fi
+  if [[ -f "${PERF_TOP_GROUP_SUMMARY_OUT}" ]]; then
+    echo "[bundle] perf_top_group_summary=${PERF_TOP_GROUP_SUMMARY_OUT}"
+  fi
 fi
 
 if [[ "${build_rc}" -ne 0 ]]; then

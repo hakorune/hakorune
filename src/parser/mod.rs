@@ -449,7 +449,9 @@ impl NyashParser {
                 continue;
             }
 
-            if self.maybe_parse_opt_annotation_noop()? {
+            if self.maybe_parse_opt_annotation_noop(
+                crate::parser::statements::helpers::AnnotationSite::TopLevel,
+            )? {
                 continue;
             }
 

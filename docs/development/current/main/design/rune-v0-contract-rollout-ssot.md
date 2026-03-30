@@ -1,11 +1,12 @@
 ---
 Status: Provisional SSOT
 Decision: provisional
-Date: 2026-03-25
+Date: 2026-03-30
 Scope: Rune v0 の syntax / parser parity / AST/direct MIR carrier / backend scope を current implementation truth に合わせて固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/rune-v1-metadata-unification-ssot.md
   - docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
   - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
@@ -28,6 +29,10 @@ Related:
 - historical Rune proposal を current repo で実装可能な narrow v0 slice に落とす。
 - parser scope, AST/direct MIR shape, backend scope を先に固定し、途中で正本を二重化しない。
 - Rune を contract-only first slice として始め、runtime semantics や substrate implementation に広げない。
+
+Note:
+- this document remains the base Rune v0 SSOT for visibility / ownership / ABI-facing families and carrier/backend scope
+- optimization metadata unification (`Hint` / `Contract` / `IntrinsicCandidate` + legacy alias normalization) is now owned by `rune-v1-metadata-unification-ssot.md`
 
 ## 1. Fixed Decisions
 
@@ -98,12 +103,15 @@ The following remain explicitly deferred:
 
 ## 4. Feature Gate
 
-- gate: `NYASH_FEATURES=rune`
+- canonical gate/docs surface: `NYASH_FEATURES=rune`
 - default: OFF
 - no new `NYASH_RUNE_*` env vars in v0
-- do not merge Rune v0 into the existing `opt-annotations` gate
-
-Existing `@hint`, `@contract`, and `@intrinsic_candidate` remain a separate provisional lane.
+- current parser-front-door truth after Rune v1 unification:
+  - `NYASH_FEATURES=opt-annotations` remains a compat alias gate for the unified metadata parser path during the compat window
+  - canonical optimization metadata syntax is `@rune Hint(...)`, `@rune Contract(...)`, `@rune IntrinsicCandidate("...")`
+  - legacy `@hint` / `@contract` / `@intrinsic_candidate` normalize to declaration-local `attrs.runes`
+  - statement-position legacy aliases stay compat/noop
+- this document's v0 family set and backend scope remain unchanged
 
 ## 5. Current Implementation Status
 

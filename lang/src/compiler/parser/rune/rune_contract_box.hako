@@ -8,6 +8,45 @@ using sh_core as StringHelpers
 using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
 
 static box RuneContractBox {
+  supported_names_msg() {
+    return "Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership|Hint|Contract|IntrinsicCandidate"
+  }
+
+  supported_name(rune_name) {
+    local name = "" + rune_name
+    if name == "Public" { return 1 }
+    if name == "Internal" { return 1 }
+    if name == "FfiSafe" { return 1 }
+    if name == "Symbol" { return 1 }
+    if name == "CallConv" { return 1 }
+    if name == "ReturnsOwned" { return 1 }
+    if name == "FreeWith" { return 1 }
+    if name == "Ownership" { return 1 }
+    if name == "Hint" { return 1 }
+    if name == "Contract" { return 1 }
+    if name == "IntrinsicCandidate" { return 1 }
+    return 0
+  }
+
+  noarg_name(rune_name) {
+    local name = "" + rune_name
+    if name == "Public" || name == "Internal" || name == "FfiSafe" || name == "ReturnsOwned" {
+      return 1
+    }
+    return 0
+  }
+
+  single_arg_name(rune_name) {
+    local name = "" + rune_name
+    if name == "Symbol" || name == "CallConv" || name == "FreeWith" || name == "Ownership" {
+      return 1
+    }
+    if name == "Hint" || name == "Contract" || name == "IntrinsicCandidate" {
+      return 1
+    }
+    return 0
+  }
+
   normalize_pending_json(runes_json) {
     if runes_json == null { return "[]" }
     local s = "" + runes_json
@@ -40,6 +79,24 @@ static box RuneContractBox {
     if name == "Ownership" {
       if arg0 != "owned" && arg0 != "borrowed" && arg0 != "shared" {
         return "[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)"
+      }
+    }
+
+    if name == "Hint" {
+      if arg0 != "inline" && arg0 != "noinline" && arg0 != "hot" && arg0 != "cold" {
+        return "[freeze:contract][parser/rune] Hint(inline|noinline|hot|cold)"
+      }
+    }
+
+    if name == "Contract" {
+      if arg0 != "pure" && arg0 != "readonly" && arg0 != "no_alloc" && arg0 != "no_safepoint" {
+        return "[freeze:contract][parser/rune] Contract(pure|readonly|no_alloc|no_safepoint)"
+      }
+    }
+
+    if name == "IntrinsicCandidate" {
+      if arg0 == "" {
+        return "[freeze:contract][parser/rune] IntrinsicCandidate(\"symbol\") with non-empty symbol"
       }
     }
 

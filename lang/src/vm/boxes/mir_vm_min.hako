@@ -8,10 +8,13 @@ using selfhost.vm.helpers.mini_map as MiniMap
 using selfhost.vm.helpers.compare_ops as CompareOpsBox
 using selfhost.vm.hakorune-vm.json_v1_reader as JsonV1ReaderBox
 using selfhost.vm.helpers.mir_call_v1_handler as MirCallV1HandlerBox
+using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 using selfhost.vm.helpers.ret_resolve as RetResolveSimpleBox
 using selfhost.vm.helpers.instruction_scanner as InstructionScannerBox
 
 static box MirVmMin {
+  _shadow_handle_key(id) { return "__vm.handle:" + me._int_to_str(id) }
+  _recv_box_key(id) { return "__vm.recv.box:" + me._int_to_str(id) }
   _tprint(msg) {
     // Only emit hard errors by default; avoid env dependencies in Mini‑VM
     // Coerce to string to avoid VoidBox receiver issues during early boot
@@ -83,6 +86,12 @@ static box MirVmMin {
   _handle_const_local(seg, regs) {
     local dst = JsonFragBox.get_int(seg, "dst")
     if dst == null { return }
+    local handle_text = MirVmS0JsonScanBox._find_const_handle_text(seg)
+    if handle_text != null {
+      regs.setField(me._int_to_str(dst), "0")
+      regs.setField(me._shadow_handle_key(dst), handle_text)
+      return
+    }
     local val = me._extract_const_i64(seg)
     regs.setField(me._int_to_str(dst), me._int_to_str(val))
   }
@@ -142,7 +151,17 @@ static box MirVmMin {
   }
 
   // local copy handler
-  _handle_copy(seg, regs){ local dst=JsonFragBox.get_int(seg,"dst") local src=JsonFragBox.get_int(seg,"src") if dst==null || src==null {return} local v=regs.getField(me._int_to_str(src)) regs.setField(me._int_to_str(dst), v) }
+  _handle_copy(seg, regs){
+    local dst=JsonFragBox.get_int(seg,"dst")
+    local src=JsonFragBox.get_int(seg,"src")
+    if dst==null || src==null {return}
+    local v=regs.getField(me._int_to_str(src))
+    regs.setField(me._int_to_str(dst), v)
+    local h = regs.getField(me._shadow_handle_key(src))
+    if h != null { regs.setField(me._shadow_handle_key(dst), h) }
+    local bt = regs.getField(me._recv_box_key(src))
+    if bt != null { regs.setField(me._recv_box_key(dst), bt) }
+  }
 
   // ret op handler
   _handle_ret_op(seg, regs, last_cmp_dst, last_cmp_val, gc_trace) {

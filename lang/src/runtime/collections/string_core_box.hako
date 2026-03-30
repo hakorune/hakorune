@@ -7,8 +7,15 @@ using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
+using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
+using selfhost.vm.boxes.mir_vm_s0_reg_utils as MirVmS0RegUtilsBox
 
 static box StringCoreBox {
+  _shadow_handle_key(vid) {
+    if vid == null || vid < 0 { return null }
+    return "__vm.handle:" + StringHelpers.int_to_str(vid)
+  }
+
   _is_i64_text(s) {
     if s == null { return 0 }
     local t = "" + s
@@ -35,8 +42,24 @@ static box StringCoreBox {
     return JsonFragBox._str_to_int("" + raw)
   }
 
-  _read_reg_text_or_null(regs, vid) {
+  _read_reg_int_or_zero(regs, vid) {
+    if vid == null || vid < 0 { return 0 }
+    local raw = regs.getField(StringHelpers.int_to_str(vid))
+    if me._is_i64_text(raw) != 1 { return 0 }
+    return JsonFragBox._str_to_int("" + raw)
+  }
+
+  _read_reg_text_or_null(regs, handle_regs, vid) {
     if vid == null || vid < 0 { return null }
+    if handle_regs != null {
+      local handle_text = MirVmS0StateOpsBox.handle_get(handle_regs, vid)
+      if handle_text != null { return handle_text }
+    }
+    local shadow_key = me._shadow_handle_key(vid)
+    if shadow_key != null {
+      local shadow_text = MirVmS0StateOpsBox.storage_get_or_null(regs, shadow_key)
+      if shadow_text != null { return shadow_text }
+    }
     return regs.getField(StringHelpers.int_to_str(vid))
   }
 
@@ -46,8 +69,41 @@ static box StringCoreBox {
     }
   }
 
+  _write_scalar_dst(regs, kinds, dst, value) {
+    me._write_i64_dst(regs, dst, value)
+    if kinds != null && dst != null {
+      MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "scalar")
+    }
+  }
+
   _trace(tag) {
     if env.get("HAKO_VM_MIRCALL_TRACE") == "1" { print(tag) }
+  }
+
+  _write_text_dst(regs, kinds, handle_regs, dst, text) {
+    if dst != null {
+      regs.setField(StringHelpers.int_to_str(dst), "0")
+      if kinds != null {
+        MirVmS0RegUtilsBox._reg_kind_set(kinds, dst, "handle")
+      }
+      if handle_regs != null {
+        if text == null { MirVmS0StateOpsBox.handle_set(handle_regs, dst, "") }
+        else { MirVmS0StateOpsBox.handle_set(handle_regs, dst, text) }
+      } else {
+        local shadow_key = me._shadow_handle_key(dst)
+        if shadow_key != null {
+          if text == null { regs.setField(shadow_key, "") }
+          else { regs.setField(shadow_key, "" + text) }
+        }
+      }
+    }
+  }
+
+  _clamp_index(idx, n) {
+    local out = idx
+    if out < 0 { out = 0 }
+    if out > n { out = n }
+    return out
   }
 
   len_i64(handle) {
@@ -60,21 +116,56 @@ static box StringCoreBox {
     return raw.length()
   }
 
-  try_handle(seg, regs, mname) {
-    if MethodAliasPolicy.is_size_alias(mname) != 1 { return 0 }
+  try_handle(seg, regs, kinds, handle_regs, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
-    local recv_h = me._read_reg_i64_or_null(regs, rid)
     local dst = JsonFragBox.get_int(seg, "dst")
-    local len_i64 = 0
-    if recv_h != null {
-      len_i64 = me.len_i64(recv_h)
-    } else {
-      local raw = me._read_reg_text_or_null(regs, rid)
-      if raw == null { return 0 }
-      len_i64 = ("" + raw).length()
+    if MethodAliasPolicy.is_size_alias(mname) == 1 {
+      local len_i64 = 0
+      local raw_len = me._read_reg_text_or_null(regs, handle_regs, rid)
+      if raw_len != null {
+        len_i64 = ("" + raw_len).length()
+      } else {
+        local recv_h = me._read_reg_i64_or_null(regs, rid)
+        if recv_h == null || recv_h <= 0 { return 0 }
+        len_i64 = me.len_i64(recv_h)
+      }
+      me._write_scalar_dst(regs, kinds, dst, len_i64)
+      me._trace("[vm/adapter/string_core:len_i64]")
+      return 1
     }
-    me._write_i64_dst(regs, dst, len_i64)
-    me._trace("[vm/adapter/string_core:len_i64]")
-    return 1
+    local raw = me._read_reg_text_or_null(regs, handle_regs, rid)
+    if raw == null { return 0 }
+    local text = "" + raw
+    if mname == "indexOf" {
+      local arg0 = MiniMirV1Scan.first_arg_register(seg)
+      local needle_raw = me._read_reg_text_or_null(regs, handle_regs, arg0)
+      local needle = needle_raw == null ? "" : ("" + needle_raw)
+      me._write_scalar_dst(regs, kinds, dst, text.indexOf(needle))
+      me._trace("[vm/adapter/string_core:indexof]")
+      return 1
+    }
+    if mname == "lastIndexOf" {
+      local arg0_rt = MiniMirV1Scan.first_arg_register(seg)
+      local needle_rt = me._read_reg_text_or_null(regs, handle_regs, arg0_rt)
+      local needle2 = needle_rt == null ? "" : ("" + needle_rt)
+      me._write_scalar_dst(regs, kinds, dst, text.lastIndexOf(needle2))
+      me._trace("[vm/adapter/string_core:lastindexof]")
+      return 1
+    }
+    if mname == "substring" || mname == "substr" {
+      local start_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.first_arg_register(seg))
+      local end_raw = me._read_reg_int_or_zero(regs, MiniMirV1Scan.nth_arg_register(seg, 1))
+      local n = text.length()
+      local start = me._clamp_index(start_raw, n)
+      local end = me._clamp_index(end_raw, n)
+      if start > end {
+        me._write_text_dst(regs, kinds, handle_regs, dst, "")
+      } else {
+        me._write_text_dst(regs, kinds, handle_regs, dst, text.substring(start, end))
+      }
+      me._trace("[vm/adapter/string_core:substring]")
+      return 1
+    }
+    return 0
   }
 }

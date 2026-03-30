@@ -692,11 +692,11 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ''
-        self.assertIn('call i64 @"nyash.array.set_hih"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.array.slot_store_hih"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.array.set_hhh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.runtime_data.set_hhh"', ir_txt, msg=ir_txt)
 
-    def test_mir_call_runtime_data_set_arrayish_integer_key_and_value_prefers_set_hii(self):
+    def test_mir_call_runtime_data_set_arrayish_integer_key_and_value_prefers_slot_store_hii(self):
         mir = {
             "functions": [
                 {
@@ -736,8 +736,8 @@ class TestStrlenFast(unittest.TestCase):
 
         b = NyashLLVMBuilder()
         ir_txt = b.build_from_mir(mir) or ""
-        self.assertIn('call i64 @"nyash.array.set_hii"', ir_txt, msg=ir_txt)
-        self.assertNotIn('call i64 @"nyash.array.set_hih"', ir_txt, msg=ir_txt)
+        self.assertIn('call i64 @"nyash.array.slot_store_hii"', ir_txt, msg=ir_txt)
+        self.assertNotIn('call i64 @"nyash.array.slot_store_hih"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.array.set_hhh"', ir_txt, msg=ir_txt)
         self.assertNotIn('call i64 @"nyash.runtime_data.set_hhh"', ir_txt, msg=ir_txt)
 

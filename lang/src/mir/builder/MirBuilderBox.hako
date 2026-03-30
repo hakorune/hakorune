@@ -103,29 +103,35 @@ static box MirBuilderBox {
     return BuilderFuncDefsGateBox.lower_if_enabled(program_json)
   }
 
-  method _emit_internal_program_json(program_json, func_defs_mir) {
-    local out_loop_force = BuilderLoopForceRouteBox.try_emit(func_defs_mir)
-    if out_loop_force != null { return out_loop_force }
+  method _finalize_internal_candidate(mir_json, func_defs_mir) {
+    local finalized = BuilderFinalizeChainBox.apply(mir_json, func_defs_mir)
+    if finalized == null { return null }
+    return BuilderFinalizeChainBox.coerce_promoted_mir_checked(finalized)
+  }
 
-    local out_reg = me._try_emit_registry_program_json(program_json, func_defs_mir)
+  method _emit_internal_program_json(program_json, program_body_json, func_defs_mir) {
+    local out_loop_force = BuilderLoopForceRouteBox.try_emit(func_defs_mir)
+    if out_loop_force != null { return BuilderFinalizeChainBox.coerce_promoted_mir_checked(out_loop_force) }
+
+    local out_reg = me._try_emit_registry_program_json(program_body_json, func_defs_mir)
     if out_reg != null { return out_reg }
 
-    local out_fallback = me._try_emit_fallback_program_json(program_json, func_defs_mir)
+    local out_fallback = me._try_emit_fallback_program_json(program_body_json, func_defs_mir)
     if out_fallback != null { return out_fallback }
 
-    return BuilderUnsupportedTailBox.fail(program_json, func_defs_mir)
+    return BuilderUnsupportedTailBox.fail(program_body_json, func_defs_mir)
   }
 
-  method _try_emit_registry_program_json(program_json, func_defs_mir) {
-    local out_reg = BuilderRegistryAuthorityBox.try_lower("" + program_json)
+  method _try_emit_registry_program_json(program_body_json, func_defs_mir) {
+    local out_reg = BuilderRegistryAuthorityBox.try_lower("" + program_body_json)
     if out_reg == null { return null }
-    return BuilderFinalizeChainBox.apply(out_reg, func_defs_mir)
+    return me._finalize_internal_candidate(out_reg, func_defs_mir)
   }
 
-  method _try_emit_fallback_program_json(program_json, func_defs_mir) {
-    local out_fallback = BuilderFallbackAuthorityBox.try_lower("" + program_json)
+  method _try_emit_fallback_program_json(program_body_json, func_defs_mir) {
+    local out_fallback = BuilderFallbackAuthorityBox.try_lower("" + program_body_json)
     if out_fallback == null { return null }
-    return BuilderFinalizeChainBox.apply(out_fallback, func_defs_mir)
+    return me._finalize_internal_candidate(out_fallback, func_defs_mir)
   }
 
   method _emit_delegate_program_json(program_json, func_defs_mir) {
@@ -155,13 +161,19 @@ static box MirBuilderBox {
 
     local s = BuilderProgramJsonInputContractBox.coerce_program_json_checked(program_json)
     if s == null { return null }
+    local program_shape = BuilderProgramJsonInputContractBox.classify_program_json(s)
+    local program_body_json = BuilderProgramJsonInputContractBox.extract_root_body_checked(s)
+    if program_body_json == null { return null }
+    if BuilderConfigBox.debug_enabled() == 1 {
+      print("[mirbuilder/program-shape:" + program_shape + "]")
+    }
     local func_defs_mir = me._lower_func_defs_if_enabled(s)
-    return me._emit_mir_from_program_json_text_checked(s, func_defs_mir)
+    return me._emit_mir_from_program_json_text_checked(s, program_body_json, func_defs_mir)
   }
 
-  method _emit_mir_from_program_json_text_checked(program_json, func_defs_mir) {
+  method _emit_mir_from_program_json_text_checked(program_json, program_body_json, func_defs_mir) {
     if BuilderConfigBox.internal_on() == 1 {
-      return me._emit_internal_program_json(program_json, func_defs_mir)
+      return me._emit_internal_program_json(program_json, program_body_json, func_defs_mir)
     }
     return me._emit_delegate_program_json(program_json, func_defs_mir)
   }

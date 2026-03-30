@@ -88,10 +88,10 @@
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY:
                 if (dst) {
-                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.set_hih\"(%s)\n", dst, ab);
+                  fprintf(f, "  %%r%lld = call i64 @\"nyash.array.slot_store_hih\"(%s)\n", dst, ab);
                   set_type(dst, T_I64);
                 } else {
-                  fprintf(f, "  call i64 @\"nyash.array.set_hih\"(%s)\n", ab);
+                  fprintf(f, "  call i64 @\"nyash.array.slot_store_hih\"(%s)\n", ab);
                 }
                 break;
               case HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE:

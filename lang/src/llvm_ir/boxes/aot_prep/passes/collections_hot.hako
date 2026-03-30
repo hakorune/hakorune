@@ -665,7 +665,7 @@ static box AotPrepCollectionsHotBox {
       local func = ""; local args = ""
       if is_arr {
         if mname == "get" { func = "nyash.array.slot_load_hi"; args = bvid + "," + a0 }
-        else if mname == "set" { func = "nyash.array.set_hih"; args = bvid + "," + a0 + "," + a1 }
+        else if mname == "set" { func = "nyash.array.slot_store_hih"; args = bvid + "," + a0 + "," + a1 }
         else if mname == "push" { func = "nyash.array.slot_append_hh"; args = bvid + "," + a0 }
         else if (mname == "len" || mname == "length" || mname == "size") { func = "nyash.array.slot_len_h"; args = bvid }
       } else if is_map {

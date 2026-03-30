@@ -3,6 +3,7 @@ Status: SSOT
 Scope: `kilo` / `micro kilo` を起点にした exe 最適化の測定順序・判断順序・止め線
 Related:
 - docs/development/current/main/DOCS_LAYOUT.md
+- docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md
 - docs/development/current/main/design/optimization-tag-flow-ssot.md
 - docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md
 - docs/development/current/main/design/optimization-ssot-string-helper-density.md
@@ -38,6 +39,7 @@ Related:
 ## Current Scheduling Status
 
 - `phase-21_5` perf reopen judgment is now landed with `reopen allowed`.
+- when read from the stage axis, the parent task pack is `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`: the first stage2+ optimization wave is `route/perf only`, and Rune optimization metadata remains `parse/noop` with backend-active consumption deferred.
 - reopen order is fixed like this:
   1. confirm the pre-perf runway in `phase-29ck/P7-PRE-PERF-RUNWAY-TASK-PACK.md` is closed
   2. confirm the boundary mainline route is stable on `.hako -> ny-llvmc(boundary) -> C ABI`
@@ -177,7 +179,7 @@ Related:
 
 この wave での短い読みは次。
 
-- language annotations (`@hint` / `@contract` / `@intrinsic_candidate`) are not backend-active yet
+- language annotations (`@rune Hint/Contract/IntrinsicCandidate`, plus compat aliases) remain `parse/noop` and are not backend-active yet
 - AotPrep knobs act before `ny-llvmc`
 - boundary compile/link knobs are the only tags that truly cross into `ny-llvmc(boundary)` / object / exe generation
 - perf-only knobs are measurement controls, not backend optimization tags
@@ -264,7 +266,7 @@ Hotspot は次の分類で読む。
 
 - env probe は leaf の形を変えずに固定費を落としやすい
 - dispatch / registry は多くの benchmark に横断で効く
-- language-level `@hint(inline)` is not backend-active in the current wave; only leaf-local native hints count here
+- language-level optimization metadata (`@rune Hint(inline)`, plus compat aliases) is not backend-active in the current wave; only leaf-local native hints count here
 
 ## Current Wave Snapshot
 
@@ -303,6 +305,51 @@ Hotspot は次の分類で読む。
   - `src/boxes/array/mod.rs::ArrayBox::try_set_index_i64_integer`
 - `crates/nyash_kernel/src/plugin/array_index_dispatch.rs` / `array_write_dispatch.rs` are now thin wrappers, so they are no longer the primary exact leaf target
 - fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=44`
+- current stage2+ evidence bundle for `kilo_micro_array_getset` is direct-route only: `target/perf_state/optimization_bundle/stage2plus-array-wave-direct/` records `Method:RuntimeDataBox.{push,get,set}` windows, `owner_route=generic_probe first_blocker=empty`, and a hot-block scan with no `slot_load_hi` / `generic_box_call` / `hostbridge` / `runtime_data` residue
+- current same-artifact microstat remains `c_ms=3 / ny_aot_ms=4 / ratio_ms=0.75`; keep that as the wave baseline until a fresh route/perf cut beats it
+- refreshed 2026-03-30 stage2+ direct bundle/compare lock is:
+  - `bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 3`
+    - `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`
+  - `run_kilo_micro_machine_ladder.sh 1 3`
+    - `kilo_micro_array_getset: c_ms=4 / ny_aot_ms=4 / ratio_instr=0.90 / ratio_cycles=0.69 / ratio_ms=1.00`
+  - refreshed direct bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-refresh/`
+    - `mir_windows` stays on `Method:RuntimeDataBox.{push,get,set}`
+    - `owner_route=seed first_blocker=empty`
+    - `recipe_acceptance` remains empty
+    - hot-block scan still has no `slot_load_hi` / `generic_box_call` / `hostbridge` / `runtime_data` residue
+    - `perf_top` is still dominated by `ny_main` (`92.61%`)
+  - tooling follow-up: `tools/perf/trace_optimization_bundle.sh` now auto-saves `perf_top_symbol.txt`, `perf_top_annotate.txt`, and `perf_top_objdump.txt`
+  - probe bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-probe/`
+    - hottest in-binary symbol resolves to `ny_main`
+    - annotate/objdump now show the hot loop directly as `cmp -> load -> inc -> store -> add -> inc`
+    - no surviving foreign calls appear in the hot block
+  - 20-run observe bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-observe20/`
+    - positive-sample instruction list still stays on `cmp` / `inc` only
+    - opcode histogram is `54.45% cmp`, `45.55% inc`
+  - grouped 3-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-groups/`
+    - `perf_top_group_summary` reads `89.50% bundle / 5.98% loader / 1.47% runner`
+    - this is the preferred WSL-friendly residue reading before any Array code slice
+  - repeated 3-run bundles under WSL still vary materially
+    - repeatA `92.66% bundle / 2.81% loader / 2.04% runner`
+    - repeatB `89.84% bundle / 5.82% loader / 3.09% libc / 1.20% runner`
+    - repeatC `74.02% bundle / 22.96% loader / 2.40% libc / 0.55% runner`
+    - therefore `perf_top_group_summary` is a noise detector, not a sole acceptance gate
+  - cold 1-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-cold1/`
+    - `perf_top_group_summary` reads `87.25% bundle / 6.90% loader / 5.84% runner`
+    - use this only as startup-residue evidence; do not replace the 3-run judge with it
+  - C baseline cross-check (`benchmarks/c/bench_kilo_micro_array_getset.c` + `perf annotate --symbol main`)
+    - loop body samples spread across `and / mov / inc / mov / cmp`
+    - this does not reveal a missing Array route call on the Nyash side; it only confirms that the current AOT direct probe has already collapsed to a loop-shaped artifact
+  - lowered IR cross-check (`target/perf_state/optimization_bundle/stage2plus-array-wave-direct-repeatA/lowered.ll`)
+    - `ny_main` keeps the induction variable `%i` in an `alloca` with `load -> add -> store` every iteration
+    - `sum` also remains in memory, but that is expected because the benchmark source declares it `volatile`
+    - the actionable remaining waste candidate is the `%i` spill chain, not route/helper residue
+- interpretation after the refresh:
+  - stage2+ first wave stays `Array only`
+  - fixed order stays `leaf-proof micro -> micro kilo -> main kilo`
+  - the refreshed same-artifact direct artifact does not expose a stable narrower route leaf below `ny_main`
+  - therefore the next accepted slice must start from a measurable leaf below `ny_main` or a stable boundary blocker that survives the micro proof
+  - do not reopen another blind helper split on the write/TLS seam while the direct bundle stays collapsed; the current direct probe no longer exposes `array_slot_store_i64` / `with_array_box` inside the hot block
 - rejected probes (reverted immediately):
   - dedicated i64 write helper: `47 ms`
   - `try_set_index_i64_integer` cold-split: `48 ms`

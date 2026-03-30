@@ -69,6 +69,14 @@ pub fn parser_rune_enabled() -> bool {
     feature_rune_enabled()
 }
 
+/// Unified parser gate for declaration metadata annotations during the compat window.
+///
+/// Canonical syntax is `@rune ...`, while `opt-annotations` remains a compat alias gate
+/// until the legacy surface is retired.
+pub fn parser_metadata_annotations_enabled() -> bool {
+    parser_rune_enabled() || parser_opt_annotations_enabled()
+}
+
 fn env_flag(var: &str) -> Option<bool> {
     std::env::var(var).ok().map(|v| {
         let lv = v.to_ascii_lowercase();

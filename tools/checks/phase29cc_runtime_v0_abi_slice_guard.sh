@@ -58,8 +58,8 @@ for file in \
   fi
 done
 
-if ! rg -F -q 'func = "nyash.array.set_hih"' "$COLLECTIONS_HOT_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] collections hot missing nyash.array.set_hih hot route" >&2
+if ! rg -F -q 'func = "nyash.array.slot_store_hih"' "$COLLECTIONS_HOT_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] collections hot missing nyash.array.slot_store_hih hot route" >&2
   exit 1
 fi
 if rg -F -q 'func = "nyash.array.set_h"' "$COLLECTIONS_HOT_FILE"; then
@@ -118,16 +118,16 @@ if ! rg -zq 'MapBox",\s*"has".*nyash\.map\.probe_hh' "$GENERATED_DEFAULTS_FILE";
   echo "[runtime-v0-abi-slice-guard] generated defaults missing MapBox.has -> probe_hh" >&2
   exit 1
 fi
-if ! rg -zq 'MapBox",\s*"size".*nyash\.map\.entry_count_h' "$GENERATED_DEFAULTS_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] generated defaults missing MapBox.size -> entry_count_h" >&2
+if ! rg -zq 'MapBox",\s*"size".*nyash\.map\.entry_count_i64' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing MapBox.size -> entry_count_i64" >&2
   exit 1
 fi
 if ! rg -zq 'ArrayBox",\s*"get".*nyash\.array\.slot_load_hi' "$GENERATED_DEFAULTS_FILE"; then
   echo "[runtime-v0-abi-slice-guard] generated defaults missing ArrayBox.get -> slot_load_hi" >&2
   exit 1
 fi
-if ! rg -zq 'ArrayBox",\s*"set".*nyash\.array\.set_hih' "$GENERATED_DEFAULTS_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] generated defaults missing ArrayBox.set -> set_hih" >&2
+if ! rg -zq 'ArrayBox",\s*"set".*nyash\.array\.slot_store_hih' "$GENERATED_DEFAULTS_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] generated defaults missing ArrayBox.set -> slot_store_hih" >&2
   exit 1
 fi
 if ! rg -zq 'ArrayBox",\s*"push".*nyash\.array\.slot_append_hh' "$GENERATED_DEFAULTS_FILE"; then
@@ -354,8 +354,8 @@ if ! rg -F -q 'cap_i64(handle)' "$RAW_MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] raw map core missing cap contract" >&2
   exit 1
 fi
-if ! rg -F -q 'externcall "nyash.map.entry_count_h"' "$RAW_MAP_CORE_FILE"; then
-  echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.entry_count_h extern route" >&2
+if ! rg -F -q 'externcall "nyash.map.entry_count_i64"' "$RAW_MAP_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] raw map core missing nyash.map.entry_count_i64 extern route" >&2
   exit 1
 fi
 if ! rg -F -q 'externcall "nyash.map.cap_h"' "$RAW_MAP_CORE_FILE"; then

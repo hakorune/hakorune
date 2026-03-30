@@ -151,7 +151,7 @@ impl NyashParser {
             if self.match_token(&TokenType::RBRACE) {
                 break;
             }
-            if self.maybe_parse_opt_annotation_noop()? {
+            if self.maybe_parse_opt_annotation_noop(helpers::AnnotationSite::Statement)? {
                 continue;
             }
             let mut statement = self.parse_statement()?;
@@ -233,7 +233,7 @@ impl NyashParser {
             if self.match_token(&TokenType::RBRACE) {
                 break;
             }
-            if self.maybe_parse_opt_annotation_noop()? {
+            if self.maybe_parse_opt_annotation_noop(helpers::AnnotationSite::Statement)? {
                 continue;
             }
             // Optional seam guard: if the upcoming tokens form a method head

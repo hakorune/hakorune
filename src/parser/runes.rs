@@ -170,11 +170,19 @@ fn validate_runes_for_target(
                 }
             }
             RuneTarget::InstanceMethod | RuneTarget::Constructor | RuneTarget::InterfaceMethod => {
-                if !matches!(rune.name.as_str(), "Public" | "Internal" | "Ownership") {
+                if !matches!(
+                    rune.name.as_str(),
+                    "Public"
+                        | "Internal"
+                        | "Ownership"
+                        | "Hint"
+                        | "Contract"
+                        | "IntrinsicCandidate"
+                ) {
                     return Err(ParseError::UnexpectedToken {
                         found: TokenType::IDENTIFIER(rune.name.clone()),
                         expected: format!(
-                            "[freeze:contract][parser/rune] {} target supports only Public|Internal|Ownership",
+                            "[freeze:contract][parser/rune] {} target supports only Public|Internal|Ownership|Hint|Contract|IntrinsicCandidate",
                             target_label(&target)
                         ),
                         line,
@@ -185,31 +193,12 @@ fn validate_runes_for_target(
             }
         }
 
-        match rune.name.as_str() {
-            "CallConv" => {
-                if rune.args.first().map(String::as_str) != Some("c") {
-                    return Err(ParseError::UnexpectedToken {
-                        found: TokenType::IDENTIFIER(rune.name.clone()),
-                        expected: "[freeze:contract][parser/rune] CallConv(\"c\")".to_string(),
-                        line,
-                    });
-                }
-            }
-            "Ownership" => {
-                let valid = matches!(
-                    rune.args.first().map(String::as_str),
-                    Some("owned") | Some("borrowed") | Some("shared")
-                );
-                if !valid {
-                    return Err(ParseError::UnexpectedToken {
-                        found: TokenType::IDENTIFIER(rune.name.clone()),
-                        expected: "[freeze:contract][parser/rune] Ownership(owned|borrowed|shared)"
-                            .to_string(),
-                        line,
-                    });
-                }
-            }
-            _ => {}
+        if let Some(expected) = RuneAttr::value_contract_error(&rune.name, &rune.args) {
+            return Err(ParseError::UnexpectedToken {
+                found: TokenType::IDENTIFIER(rune.name.clone()),
+                expected,
+                line,
+            });
         }
     }
 

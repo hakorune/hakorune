@@ -1,7 +1,16 @@
 // JSON.stringify minimal stub for Stage-B compiler
-// Provides: stringify_map, stringify_array
+// Provides: stringify, stringify_map, stringify_array
+
+using selfhost.shared.common.box_helpers as BoxHelpers
 
 static box JSON {
+  stringify(value) {
+    if value == null { return "null" }
+    if BoxHelpers.is_map(value) { return me.stringify_map(value) }
+    if BoxHelpers.is_array(value) { return me.stringify_array(value) }
+    return me._value_to_json(value)
+  }
+
   // Convert Map to JSON string
   stringify_map(obj) {
     if obj == null { return "null" }
@@ -43,6 +52,8 @@ static box JSON {
   // Convert value to JSON representation
   _value_to_json(v) {
     if v == null { return "null" }
+    if BoxHelpers.is_map(v) { return me.stringify_map(v) }
+    if BoxHelpers.is_array(v) { return me.stringify_array(v) }
     local t = "" + v
     // Check if it's a number (starts with digit or -)
     if t.length() > 0 {

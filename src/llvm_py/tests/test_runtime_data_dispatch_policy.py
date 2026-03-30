@@ -52,7 +52,7 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
             arg_vids=[2, 3],
             prefer_array_mono_route=True,
         )
-        self.assertEqual(spec[0], "nyash.array.set_hii")
+        self.assertEqual(spec[0], "nyash.array.slot_store_hii")
 
     def test_default_prefers_array_i64_get_raw_route_when_hints_match(self):
         resolver = _DummyResolver(
@@ -71,6 +71,24 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
             prefer_array_mono_route=True,
         )
         self.assertEqual(spec[0], "nyash.array.slot_load_hi")
+
+    def test_default_prefers_array_push_slot_append_when_hints_match(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "ArrayBox"},
+                2: {"kind": "handle", "box_type": "StringBox"},
+            },
+            integerish_ids=set(),
+        )
+        spec = select_runtime_data_call_spec(
+            method="push",
+            box_name="RuntimeDataBox",
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2],
+            prefer_array_mono_route=True,
+        )
+        self.assertEqual(spec[0], "nyash.array.slot_append_hh")
 
     def test_default_keeps_non_integer_array_get_on_runtime_data_facade(self):
         resolver = _DummyResolver(
@@ -126,6 +144,25 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
             prefer_array_mono_route=True,
         )
         self.assertEqual(spec[0], "nyash.runtime_data.has_hh")
+
+    def test_map_receiver_keeps_set_on_runtime_data_facade(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "MapBox"},
+                2: "i64",
+                3: "i64",
+            },
+            integerish_ids={2, 3},
+        )
+        spec = select_runtime_data_call_spec(
+            method="set",
+            box_name="RuntimeDataBox",
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2, 3],
+            prefer_array_mono_route=True,
+        )
+        self.assertEqual(spec[0], "nyash.runtime_data.set_hhh")
 
     def test_runtime_data_only_policy_disables_array_mono_route(self):
         resolver = _DummyResolver(

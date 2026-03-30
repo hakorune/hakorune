@@ -245,11 +245,10 @@ static box MirSchemaBox {
     local m = new MapBox()
     m.set("version", this.i(0))
     m.set("kind", "MIR")
-    // Avoid push() to sidestep host-slot gating; build as literal for determinism
+    // Keep the canonical functions[] root as the only schema field so generic
+    // JSON stringify paths cannot leak the old collapsed compat shadow.
     local funcs = [ fn_main ]
     m.set("functions", funcs)
-    // Fallback access path for environments where Array.size/1 is unreliable
-    m.set("functions_0", fn_main)
     return m
   }
 }

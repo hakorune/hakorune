@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-29
+Date: 2026-03-30
 Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -58,20 +58,23 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ### stage2-hako-owner
 
-- status: `active bounded-3 stop-line landed`
+- status: `active bounded-3 stop-line landed / entry-task-pack sync`
 - scope: stage2+ を mostly `.hako` authority に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。current stop-line は reached なので、この lane は perf 復帰前の authority/shim boundary 固定として扱う。
-- stage1 may complete `Array phase` / `Map phase` / `RuntimeData cleanup phase` while remaining bridge/proof line; stage2+ stays the final mainline.
+- collection substrate cleanup is tracked on the owner/substrate axis; stage1 remains bridge/proof and stage2+ stays the final mainline.
 - boundary truth:
   - SSOT is `hako.abi + hako.value_repr + ownership/layout manifest`
   - `c-abi/include/*.h`, `*.c`, and `*.inc` are boundary artifacts / thin emitted forms, not semantic owners
   - `.inc` is a transitional partition format, not the long-term architectural noun
 - current SSOT:
+  - `docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`
+  - `docs/development/current/main/design/stage2-collection-substrate-cleanup-ssot.md`
   - `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
   - `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   - `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md`
   - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
   - `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
   - `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
+  - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
 - landed order / deferred end-state direction:
   1. docs-first owner/shim SSOT
   2. classify `.inc` partitions into semantic owner / compiler owner / thin shim / native leaf
@@ -122,16 +125,74 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `RuntimeDataBox` generic fallback routes now reuse `nyash.runtime_data.{get,set,has,push}` through the method-policy seams instead of ad-hoc box-name ladders
   - `runtime_data_map_get_hh(...)` now preserves the mixed runtime i64/handle return contract; `runtime_data_map_get_keeps_mixed_runtime_i64_contract` pins the map-get facade behavior
   - `MapCoreBox.size_i64(...)` now routes through `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains a compat alias only
+  - manifest/inventory sync landed for the map observer seam:
+    - `runtime-decl-manifest-v0.toml` and `abi-export-manifest-v0.toml` now both point canonical daily `MapBox.size/len` at `nyash.map.entry_count_i64`
+    - generated defaults and `phase29cc_runtime_v0_abi_slice_guard.sh` now enforce `entry_count_i64`; `entry_count_h` remains compat-only
+  - hako-vm collection routing fix landed:
+    - `MirCallV1HandlerBox` now routes `ArrayCoreBox` / `MapCoreBox` / `StringCoreBox` before the adapter gate, so `HAKO_ABI_ADAPTER=0` no longer forces `MapBox.set/get/has` into `[vm/method/stub:*]`
+    - quick `map_basic_get_set_vm.sh` now pins the adapter-on `MapBox.set/get` route explicitly; builtin no-adapter VM contract remains `MapBox.len/size` only
+    - vm-hako payload normalize now keeps string-handle consts used by nested `mir_call.args` and rewrites `MapBox.{set,get,has,getField,setField,delete,size,len,length}` Method mir-calls into canonical `boxcall` payloads
+    - source quick `MapBox.get("a")` and `MapBox.size()` are green again on the vm-hako route; the old `[vm/method/stub:get]` residual is closed
+    - String source quick route is now green on vm-hako for `substring/indexOf`; `StringCoreBox` owns `substring/indexOf` directly and the old `[vm/method/stub:*]` residual is closed
+    - Array quick route is now green across vm-hako -> rust-vm driver execution:
+      - `hako.toml` / `nyash.toml` now expose `"selfhost.runtime" = "lang/src/runtime"` so the generated driver sees the collection/runtime roots
+      - vm-hako `newbox` now allocates live `ArrayBox` / `MapBox` handles instead of filebox-only tokens
+      - rust-vm extern dispatch now covers `nyash.{array,map}.birth_h`, array raw seams, and `nyash.box.from_i64`
+      - `ArrayCoreBox.push` now distinguishes scalar vs handle args and boxes scalar i64 before `slot_append_hh`
+      - quick `array_length_vm.sh`, `array_oob_set_tag_vm.sh`, and `array_empty_pop_tag_vm.sh` are green; the old `missing receiver for slot_append_any` residual is closed
+  - stage/artifact/build-conduit wording sync landed:
+    - `execution-lanes-and-axis-separation-ssot.md` remains the canonical stage/owner/artifact vocabulary
+    - `tools/selfhost/README.md`, `selfhost-bootstrap-route-ssot.md`, and `stage2-selfhost-and-hako-alloc-ssot.md` now all say the same thing:
+      - `stage1` has concrete build/invoke conduits today
+      - `stage2+` is target mainline/distribution reading, not a current standalone build-script family
+      - `stage3` is a compare/sanity label, not an artifact-kind family
+    - `tools/selfhost/stage3_same_result_check.sh` help now explicitly calls `stage2-bin` / `stage3-bin` compare-artifact labels only
+  - collection stop-line regression pack:
+    - active Array daily route is now mirrored across `.hako ll emit` and pure-first no-replay:
+      - `get -> nyash.array.slot_load_hi`
+      - `push -> nyash.array.slot_append_hh`
+      - `has -> nyash.runtime_data.has_hh`
+      - `set -> nyash.array.slot_store_hih / nyash.array.slot_store_hii` now uses raw substrate nouns on the active daily path
+      - compat-only aliases are now explicit: `set_hih` / `set_hii` / `get_hi` / `has_hi` / `push_h*` are no longer part of the active daily path
+    - `phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh` is green again under `pure-first + compat_replay=none`
+  - stage1 closeout landed:
+    - `stage1_cli_env` helper default now stays on `selfhost-first`; the strict stage1 probe is green and no longer falls back to `delegate:provider`
+    - canonical selfhost-first promotion no longer leaks collapsed `functions_0`; `MirSchemaBox.module(...)` now keeps only canonical `functions[]`
+    - explicit `HAKO_MIR_BUILDER_FUNCS=1` now lowers helper defs as a flat canonical `functions[]` splice
 - next exact slice:
-  - `runtime/meta/` is now the `.hako` owner home for compiler semantic tables; keep `kernel` for runtime behavior and `host` for transport only
-  - generic `mir_call` receiver-family route ownership, prepass need vocabulary, and constructor/global/string-extern accept surfaces are now `.hako`-owned with native mirror seams
-  - keep remaining live `GET` RMW / indexOf defer logic in `hako_llvmc_ffi_generic_method_get_window.inc` / `hako_llvmc_ffi_generic_method_get_lowering.inc`
-  - keep producer/use/future-use analysis in `hako_llvmc_ffi_string_concat_window.inc` / `hako_llvmc_ffi_string_concat_match.inc`
-  - treat `indexOf` observer families and `compile_json_compat_pure(...)` orchestration as native compiler-owner keep until the perf lane returns
-  - boundary truth is not owned by `.inc`; `.inc` remains thin artifact/shim space while `runtime/meta/` / `runtime/kernel/` own `.hako` semantic tables
-  - next lane after this stop-line is `perf-kilo`, not another broad stage2 owner expansion
+  - treat `stage1_cli_env` selfhost-first strict green and explicit `HAKO_MIR_BUILDER_FUNCS=1` flat defs splice as landed evidence
+  - sync the new master task pack across `CURRENT_TASK.md` / `10-Now.md` / stage docs so `stage0 keep / stage1 bridge+proof / stage2+ final mainline` reads the same everywhere
+  - lock the `stage1 -> stage2+` entry gate on `.hako` canonical MIR authority, thin Rust bridge/materializer, and stage1-first identity route
+  - freeze `Array / Map / RuntimeData cleanup` as regression packs only; do not reopen owner migration without a new exact blocker
+  - keep stage2+ entry on `.hako authority / .inc thin shim / native metal keep`, with `hako.abi + hako.value_repr + ownership/layout manifest` as the boundary truth
+  - first stage2+ optimization wave is `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
+  - keep the collection quick-vm closeout (`MapBox.get/size`, `String substring/indexOf`, `Array length/oob/pop`) as a regression pack only; do not reopen owner semantics in this lane
+  - stage2+ first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
+  - refreshed `kilo_micro_array_getset` same-artifact baseline is `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`
+  - refreshed direct-route bundle is `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-refresh/`:
+    - `mir_windows` stays on `Method:RuntimeDataBox.{push,get,set}`
+    - `owner_route=seed first_blocker=empty`
+    - `recipe_acceptance` remains empty
+    - hot-block scan still shows no `slot_load_hi` / `generic_box_call` / `hostbridge` / `runtime_data` residue
+    - `perf_top` is still dominated by `ny_main` (`92.61%`), so the current direct artifact does not expose a narrower route leaf yet
+  - `tools/perf/trace_optimization_bundle.sh` now auto-emits `perf_top_symbol.txt`, `perf_top_annotate.txt`, `perf_top_objdump.txt`, `perf_top_hot_insns.txt`, `perf_top_opcode_hist.txt`, and `perf_top_group_summary.txt`, so the next Array slice can read the hottest in-binary symbol plus its sampled instructions/opcodes and `bundle/loader/libc/runner/kernel` split from the bundle itself instead of shell history
+  - probe bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-probe/` resolves the hottest in-binary symbol to `ny_main`; the annotate/objdump pair shows a tight stack-array loop (`cmp -> load -> inc -> store -> add -> inc`) with no surviving foreign calls inside the hot block
+  - 20-run observe bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-observe20/` keeps the positive-sample instruction list at `cmp` / `inc` only (`54.45% cmp`, `45.55% inc`), so the current direct artifact still does not expose a richer subsymbol leaf
+  - grouped 3-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-groups/` reports `89.50% bundle / 5.98% loader / 1.47% runner`, which is now the preferred WSL-friendly reading before opening any Array code slice
+  - repeated 3-run bundles still vary meaningfully under WSL:
+    - repeatA `92.66% bundle / 2.81% loader / 2.04% runner`
+    - repeatB `89.84% bundle / 5.82% loader / 3.09% libc / 1.20% runner`
+    - repeatC `74.02% bundle / 22.96% loader / 2.40% libc / 0.55% runner`
+    - treat `perf_top_group_summary` as a noise detector, not as the sole acceptance gate
+  - cold 1-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-cold1/` shifts more weight into loader/runner (`87.25% bundle / 6.90% loader / 5.84% runner`), so keep `3 runs + asm` as the decision gate and use 1-run only as startup-residue evidence
+  - C baseline loop-shape check (`bench_kilo_micro_array_getset.c` + `perf annotate --symbol main`) shows the expected scalar loop body with samples spread across `and / mov / inc / mov / cmp`, while the AOT direct probe still concentrates on the loop counter `cmp / inc`; this strengthens the reading that the remaining gap is not a route residue inside the hot block
+  - lowered IR now exposes the exact remaining waste candidate more directly: `ny_main` keeps the loop induction variable `%i` in an `alloca` with per-iteration `load -> add -> store`, while the C baseline keeps its counter in a register; the `sum` alloca is intentional because the benchmark declares it `volatile`
+  - keep Rune optimization metadata `parse/noop`; backend-active consumption stays outside this task pack
 - next exact leaf:
-  - do not widen stage2 authority beyond the current bounded-3 stop-line before the perf lane returns
+  - do not cut a blind code leaf while the refreshed direct bundle still collapses into `ny_main`
+  - do not reopen Rust substrate helper splits (`array_slot_store_i64` / `with_array_box`) from historical evidence alone; the current same-artifact direct probe no longer exposes them in the hot block
+  - the next accepted slice, if we choose one, should target the loop-induction spill in `ny_main` rather than helper splits; the measurable leaf is the `%i` alloca/load/store chain in `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-repeatA/lowered.ll`
+  - docs-first sync only; no broad stage2 owner expansion before the entry task pack is closed
   - keep native metal leafs resident; this lane is about authority migration, not substrate zero or full source-zero
   - read final distribution as `hakoruneup + self-contained release bundle`, not as a single stage artifact
 

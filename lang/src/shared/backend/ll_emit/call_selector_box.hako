@@ -79,14 +79,19 @@ static box LlEmitCallSelectorBox {
         if args != null && args.size() == 1 {
           local value = args.get(0)
           if me._value_class(facts, value) == "imm_i64" {
-            direct = me._direct_call_row_by_symbol(facts, "nyash.array.push_hi")
+            direct = me._direct_call_row_by_symbol(facts, "nyash.array.slot_append_hh")
           } else {
-            direct = me._direct_call_row_by_symbol(facts, "nyash.runtime_data.push_hh")
+            direct = me._direct_call_row_by_symbol(facts, "nyash.array.slot_append_hh")
           }
         }
       } else {
         if callee_name == "set" {
-          direct = me._direct_call_row_by_symbol(facts, "nyash.array.set_hih")
+          local args = call.get("args")
+          if args != null && args.size() == 2 && me._value_class(facts, args.get(1)) == "imm_i64" {
+            direct = me._direct_call_row_by_symbol(facts, "nyash.array.slot_store_hii")
+          } else {
+            direct = me._direct_call_row_by_symbol(facts, "nyash.array.slot_store_hih")
+          }
         }
       }
     } else {

@@ -7,12 +7,12 @@
       auto enum GenericMethodPushRouteKind classify_generic_method_push_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
-        if (bname && !strcmp(bname, "RuntimeDataBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_RUNTIME_DATA_APPEND_ANY;
-        }
         if ((bname && !strcmp(bname, "ArrayBox")) ||
             (plan && (plan->runtime_array_push || plan->runtime_array_string))) {
           return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_ARRAY_APPEND_ANY;
+        }
+        if (bname && !strcmp(bname, "RuntimeDataBox")) {
+          return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_RUNTIME_DATA_APPEND_ANY;
         }
         return HAKO_LLVMC_GENERIC_METHOD_PUSH_ROUTE_NONE;
       }

@@ -18,7 +18,7 @@ if [ ! -x "$WRAPPER" ]; then
   exit 2
 fi
 
-FEATURES="${PARSER_ANNOTATION_FEATURES:-stage3,opt-annotations,no-try-compat}"
+FEATURE_SETS="${PARSER_ANNOTATION_FEATURE_SETS:-stage3,opt-annotations,no-try-compat|stage3,rune,no-try-compat}"
 TIMEOUT_SECS="${PARSER_ANNOTATION_SELFHOST_TIMEOUT_SECS:-30}"
 if ! [[ "$TIMEOUT_SECS" =~ ^[0-9]+$ ]]; then
   log_error "timeout must be integer: $TIMEOUT_SECS"
@@ -54,38 +54,41 @@ static box Main {
 }
 HK
 
-RUST_BASE_JSON="$TMPDIR/rust_base.json"
-RUST_ANNO_JSON="$TMPDIR/rust_anno.json"
-HAKO_BASE_LOG="$TMPDIR/hako_base.log"
-HAKO_ANNO_LOG="$TMPDIR/hako_anno.log"
-HAKO_BASE_JSON="$TMPDIR/hako_base.json"
-HAKO_ANNO_JSON="$TMPDIR/hako_anno.json"
+run_one_feature_set() {
+  local features="$1"
+  local label="$2"
+  local rust_base_json="$TMPDIR/rust_base_${label}.json"
+  local rust_anno_json="$TMPDIR/rust_anno_${label}.json"
+  local hako_base_log="$TMPDIR/hako_base_${label}.log"
+  local hako_anno_log="$TMPDIR/hako_anno_${label}.log"
+  local hako_base_json="$TMPDIR/hako_base_${label}.json"
+  local hako_anno_json="$TMPDIR/hako_anno_${label}.json"
 
-NYASH_FEATURES="$FEATURES" "$BIN" --emit-program-json-v0 "$RUST_BASE_JSON" "$BASE_SRC" >/dev/null
-NYASH_FEATURES="$FEATURES" "$BIN" --emit-program-json-v0 "$RUST_ANNO_JSON" "$ANNO_SRC" >/dev/null
+  NYASH_FEATURES="$features" "$BIN" --emit-program-json-v0 "$rust_base_json" "$BASE_SRC" >/dev/null
+  NYASH_FEATURES="$features" "$BIN" --emit-program-json-v0 "$rust_anno_json" "$ANNO_SRC" >/dev/null
 
-NYASH_FEATURES="$FEATURES" \
-  "$WRAPPER" --direct --source-file "$BASE_SRC" --timeout-secs "$TIMEOUT_SECS" \
-  >"$HAKO_BASE_LOG" 2>&1
-NYASH_FEATURES="$FEATURES" \
-  "$WRAPPER" --direct --source-file "$ANNO_SRC" --timeout-secs "$TIMEOUT_SECS" \
-  >"$HAKO_ANNO_LOG" 2>&1
+  NYASH_FEATURES="$features" \
+    "$WRAPPER" --direct --source-file "$BASE_SRC" --timeout-secs "$TIMEOUT_SECS" \
+    >"$hako_base_log" 2>&1
+  NYASH_FEATURES="$features" \
+    "$WRAPPER" --direct --source-file "$ANNO_SRC" --timeout-secs "$TIMEOUT_SECS" \
+    >"$hako_anno_log" 2>&1
 
-if ! awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(found?0:1)}' \
-  "$HAKO_BASE_LOG" >"$HAKO_BASE_JSON"; then
-  log_error "hako parser route did not emit Program(JSON v0) for baseline fixture"
-  tail -n 80 "$HAKO_BASE_LOG" >&2 || true
-  exit 1
-fi
+  if ! awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(found?0:1)}' \
+    "$hako_base_log" >"$hako_base_json"; then
+    log_error "hako parser route did not emit Program(JSON v0) for baseline fixture ($features)"
+    tail -n 80 "$hako_base_log" >&2 || true
+    exit 1
+  fi
 
-if ! awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(found?0:1)}' \
-  "$HAKO_ANNO_LOG" >"$HAKO_ANNO_JSON"; then
-  log_error "hako parser route did not emit Program(JSON v0) for annotated fixture"
-  tail -n 80 "$HAKO_ANNO_LOG" >&2 || true
-  exit 1
-fi
+  if ! awk '(/"version":0/ && /"kind":"Program"/){print;found=1;exit} END{exit(found?0:1)}' \
+    "$hako_anno_log" >"$hako_anno_json"; then
+    log_error "hako parser route did not emit Program(JSON v0) for annotated fixture ($features)"
+    tail -n 80 "$hako_anno_log" >&2 || true
+    exit 1
+  fi
 
-python3 - "$RUST_BASE_JSON" "$RUST_ANNO_JSON" "$HAKO_BASE_JSON" "$HAKO_ANNO_JSON" <<'PY'
+  python3 - "$rust_base_json" "$rust_anno_json" "$hako_base_json" "$hako_anno_json" <<'PY'
 import json
 import sys
 
@@ -115,12 +118,24 @@ rust_anno = load_norm(RUST_ANNO)
 hako_base = load_norm(HAKO_BASE)
 hako_anno = load_norm(HAKO_ANNO)
 
-if rust_base != rust_anno:
-    print("rust parser route changed Program(JSON v0) with annotations", file=sys.stderr)
+if rust_base.get("body") != rust_anno.get("body"):
+    print("rust parser route changed Program(JSON v0) body with annotations", file=sys.stderr)
     sys.exit(1)
-if hako_base != hako_anno:
-    print("hako parser route changed Program(JSON v0) with annotations", file=sys.stderr)
+if hako_base.get("body") != hako_anno.get("body"):
+    print("hako parser route changed Program(JSON v0) body with annotations", file=sys.stderr)
+    sys.exit(1)
+if rust_base.get("attrs") is not None or rust_anno.get("attrs") is not None:
+    print("rust parser route unexpectedly widened Program(JSON v0) root attrs", file=sys.stderr)
+    sys.exit(1)
+if hako_base.get("attrs") is not None or hako_anno.get("attrs") is not None:
+    print("hako parser route unexpectedly widened Program(JSON v0) root attrs", file=sys.stderr)
     sys.exit(1)
 PY
+}
+
+IFS='|' read -r -a FEATURE_SET_LIST <<< "$FEATURE_SETS"
+for idx in "${!FEATURE_SET_LIST[@]}"; do
+  run_one_feature_set "${FEATURE_SET_LIST[$idx]}" "$idx"
+done
 
 log_success "parser_opt_annotations_dual_route_noop"

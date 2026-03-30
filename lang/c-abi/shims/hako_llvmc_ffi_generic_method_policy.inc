@@ -62,35 +62,30 @@
           const struct GenericMethodEmitPlan* plan,
           int value_is_i64,
           int value_is_string_handle) {
-        if (bname && !strcmp(bname, "RuntimeDataBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY;
-        }
+        int arrayish = 0;
         if (bname && !strcmp(bname, "MapBox")) {
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
         }
-        if (plan && plan->recv_org == ORG_MAP_BIRTH) {
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_MAP_STORE_ANY;
-        }
         if (bname && !strcmp(bname, "ArrayBox")) {
-          if (value_is_i64) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
-          if (value_is_string_handle) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
+          arrayish = 1;
         }
         if (plan &&
             (plan->recv_org == ORG_ARRAY_BIRTH ||
-             plan->recv_org == ORG_ARRAY_STRING_BIRTH)) {
+             plan->recv_org == ORG_ARRAY_STRING_BIRTH ||
+             plan->runtime_array_string ||
+             plan->runtime_array_push ||
+             plan->runtime_array_get ||
+             plan->runtime_array_len ||
+             plan->runtime_array_has)) {
+          arrayish = 1;
+        }
+        if (arrayish) {
           if (value_is_i64) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
           if (value_is_string_handle) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
           return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
         }
-        if (plan && plan->runtime_array_string) {
-          if (value_is_string_handle) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_STRING;
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
-        }
-        if (value_is_i64) return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_I64;
-        if (plan && (plan->runtime_array_push || plan->runtime_array_get ||
-                     plan->runtime_array_len || plan->runtime_array_has)) {
-          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_ARRAY_STORE_ANY;
+        if (bname && !strcmp(bname, "RuntimeDataBox")) {
+          return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_RUNTIME_DATA_STORE_ANY;
         }
         return HAKO_LLVMC_GENERIC_METHOD_SET_ROUTE_NONE;
       }

@@ -40,6 +40,7 @@ Scope: `crates/nyash_kernel/src/plugin/{array,map,runtime_data}.rs` の Rust-sid
   - `nyash.map.set_h`
   - `nyash.map.has_h`
   - `nyash.map.size_h`
+  - `nyash.map.entry_count_h`
 
 ### runtime-facade
 
@@ -51,8 +52,8 @@ Scope: `crates/nyash_kernel/src/plugin/{array,map,runtime_data}.rs` の Rust-sid
   - `nyash.array.push_hh`
   - `nyash.array.push_hi`
   - `nyash.array.get_hi`
-  - `nyash.array.set_hih`
-  - `nyash.array.set_hii`
+  - `nyash.array.set_hih` (`slot_store_hih` compat alias)
+  - `nyash.array.set_hii` (`slot_store_hii` compat alias)
   - `nyash.array.set_his`
   - `nyash.array.has_hi`
 
@@ -61,6 +62,7 @@ Scope: `crates/nyash_kernel/src/plugin/{array,map,runtime_data}.rs` の Rust-sid
 - mainline daily raw seams
 - target:
   - `nyash.array.slot_load_hi`
+  - `nyash.array.slot_store_hih`
   - `nyash.array.slot_store_hii`
   - `nyash.array.slot_append_hh`
   - `nyash.array.slot_len_h`

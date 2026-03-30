@@ -78,7 +78,8 @@ static box FuncBodyBasicLowerBox {
 
   method _rebind(mir_json, func_name, box_name, params_arr, tag) {
     if mir_json == null { return null }
-    local s = "" + mir_json
+    local s = me._coerce_function_fragment("" + mir_json)
+    if s == null { return null }
     local target = me._build_func_name(box_name, func_name, params_arr)
     if target == null { return null }
 
@@ -104,6 +105,20 @@ static box FuncBodyBasicLowerBox {
       print(tag + " -> " + target)
     }
     return s
+  }
+
+  method _coerce_function_fragment(mir_json) {
+    if mir_json == null { return null }
+    local s = "" + mir_json
+    local funcs_idx = JsonFragBox.index_of_from(s, "\"functions\":[", 0)
+    if funcs_idx < 0 { return s }
+    local arr_start = JsonFragBox.index_of_from(s, "[", funcs_idx)
+    if arr_start < 0 { return s }
+    local first_obj_start = JsonFragBox.index_of_from(s, "{", arr_start)
+    if first_obj_start < 0 { return s }
+    local first_obj_end = me._seek_object_end(s, first_obj_start)
+    if first_obj_end < 0 { return null }
+    return s.substring(first_obj_start, first_obj_end + 1)
   }
 
   method _build_func_name(box_name, func_name, params_arr) {
@@ -138,10 +153,55 @@ static box FuncBodyBasicLowerBox {
     return params_json
   }
 
-  method _emit_single_block_module_json(insts) {
+  method _emit_single_block_function_json(insts) {
     local blocks = new ArrayBox()
     blocks.push(MirSchemaBox.block(0, insts))
-    return JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+    local module_json = JsonEmitBox.to_json(MirSchemaBox.module(MirSchemaBox.fn_main(blocks)))
+    return me._extract_first_function_fragment(module_json)
+  }
+
+  method _extract_first_function_fragment(module_json) {
+    if module_json == null { return null }
+    local s = "" + module_json
+    local funcs_idx = JsonFragBox.index_of_from(s, "\"functions\":[", 0)
+    if funcs_idx < 0 { return null }
+    local arr_start = JsonFragBox.index_of_from(s, "[", funcs_idx)
+    if arr_start < 0 { return null }
+    local first_obj_start = JsonFragBox.index_of_from(s, "{", arr_start)
+    if first_obj_start < 0 { return null }
+    local first_obj_end = me._seek_object_end(s, first_obj_start)
+    if first_obj_end < 0 { return null }
+    return s.substring(first_obj_start, first_obj_end + 1)
+  }
+
+  method _seek_object_end(text, lbrace_pos) {
+    if text == null { return -1 }
+    local s = "" + text
+    local n = s.length()
+    local depth = 0
+    local i = lbrace_pos
+    local in_str = 0
+    local esc = 0
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0  i = i + 1  continue }
+        if ch == "\\" { esc = 1  i = i + 1  continue }
+        if ch == "\"" { in_str = 0  i = i + 1  continue }
+        i = i + 1
+        continue
+      }
+      if ch == "\"" { in_str = 1  i = i + 1  continue }
+      if ch == "{" { depth = depth + 1  i = i + 1  continue }
+      if ch == "}" {
+        depth = depth - 1
+        if depth == 0 { return i }
+        i = i + 1
+        continue
+      }
+      i = i + 1
+    }
+    return -1
   }
 
   method _inst_mir_call_method_box(box_name, method_name, recv_reg, arg_ids, dst) {
@@ -552,7 +612,7 @@ static box FuncBodyBasicLowerBox {
       print(tag + target + " method=" + mname)
     }
 
-    local mir = me._emit_single_block_module_json(insts)
+    local mir = me._emit_single_block_function_json(insts)
     return me._rebind(mir, func_name, box_name, params_arr, "[funcs/basic:method." + kind + "]")
   }
 

@@ -58,6 +58,12 @@ box ParserBox {
     return 0
   }
 
+  metadata_annotations_enabled() {
+    if me.rune_enabled() == 1 { return 1 }
+    if me.opt_annotations_enabled() == 1 { return 1 }
+    return 0
+  }
+
   // Dev-only: enable coarse-grained parser trace when NYASH_PARSER_TRACE=1.
   trace_enabled() {
     local v = env.get("NYASH_PARSER_TRACE")

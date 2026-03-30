@@ -49,6 +49,9 @@ optimization bundle は最低でも次を 1 ディレクトリに残す。
 8. hot-block residue inventory
 9. symbol proof
 10. optional micro perf top report
+11. when micro perf is enabled, top in-binary symbol note + annotate + objdump snippet
+12. hot sampled instruction list + opcode histogram for that top symbol
+13. grouped perf residue summary (`bundle / loader / libc / runner / kernel / other`)
 
 保存先の既定は次。
 
@@ -142,6 +145,9 @@ bundle owner は次だよ。
 6. save hot-block residue inventory
 7. save symbol inventory
 8. optionally run micro perf on the same built exe
+9. auto-save the hottest in-binary symbol from that micro perf report as bundle-local evidence (`perf_top_symbol` / `perf_top_annotate` / `perf_top_objdump`)
+10. auto-save the positive-sample instruction list and opcode histogram for that symbol (`perf_top_hot_insns` / `perf_top_opcode_hist`)
+11. auto-save a grouped residue summary from `perf_top` so startup/loader noise can be distinguished from the hot in-binary path (`perf_top_group_summary`)
 
 ## Non-Goals
 

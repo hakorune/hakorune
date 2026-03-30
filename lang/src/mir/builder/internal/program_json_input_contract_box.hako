@@ -2,6 +2,8 @@
 // Scope: own null/header validation and text coercion for the outer Program(JSON) entry.
 // Non-goals: route sequencing, defs lowering, or source-entry compat.
 
+using selfhost.shared.json.utils.json_frag as JsonFragBox
+
 static box BuilderProgramJsonInputContractBox {
   method coerce_program_json_checked(program_json) {
     if me._program_json_input_present(program_json) != 1 {
@@ -29,5 +31,44 @@ static box BuilderProgramJsonInputContractBox {
     if !(program_json_text.contains("\"version\"")) { return 0 }
     if !(program_json_text.contains("\"kind\"")) { return 0 }
     return 1
+  }
+
+  method classify_program_json(program_json_text) {
+    if me.has_defs(program_json_text) == 1 { return "full_program" }
+    return "body_only"
+  }
+
+  method has_defs(program_json_text) {
+    local s = me._coerce_program_json_text(program_json_text)
+    local k_defs = JsonFragBox.index_of_from(s, "\"defs\":", 0)
+    if k_defs < 0 { return 0 }
+    local lb = JsonFragBox.index_of_from(s, "[", k_defs)
+    if lb < 0 { return 0 }
+    local rb = JsonFragBox._seek_array_end(s, lb)
+    if rb < 0 { return 0 }
+    local defs_seg = s.substring(lb + 1, rb)
+    if defs_seg == null || defs_seg == "" { return 0 }
+    if defs_seg.indexOf("\"name\":\"") < 0 { return 0 }
+    return 1
+  }
+
+  method extract_root_body_checked(program_json_text) {
+    local s = me._coerce_program_json_text(program_json_text)
+    local k_body = JsonFragBox.index_of_from(s, "\"body\":", 0)
+    if k_body < 0 {
+      print("[mirbuilder/input/invalid] missing program body")
+      return null
+    }
+    local lb = JsonFragBox.index_of_from(s, "[", k_body)
+    if lb < 0 {
+      print("[mirbuilder/input/invalid] malformed program body")
+      return null
+    }
+    local rb = JsonFragBox._seek_array_end(s, lb)
+    if rb < 0 {
+      print("[mirbuilder/input/invalid] malformed program body")
+      return null
+    }
+    return s.substring(lb, rb + 1)
   }
 }

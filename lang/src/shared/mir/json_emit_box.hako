@@ -355,18 +355,21 @@ static box JsonEmitBox {
 
   to_json(module) {
     if module == null { return "" }
-    // Prefer single-function fallbackを強化: has() 未実装環境でも repr チェックで検出
+    local funcs = module.get("functions")
+    if funcs != null && BoxHelpers.is_array(funcs) {
+      local n = BoxHelpers.array_len(funcs)
+      local body = me._emit_module_rec(funcs, 0, n)
+      if body != "" {
+        return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[" + body + "]}"
+      }
+    }
+    // Compat fallback: keep single-function access only when canonical functions[] is absent/unusable.
     local f0 = module.get("functions_0")
     if f0 != null {
       local one = me._emit_function(f0)
       return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[" + one + "]}"
     }
-    // Legacy path: try functions array if available
-    local funcs = module.get("functions")
-    if funcs == null { return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[]}" }
-    local n = BoxHelpers.array_len(funcs)
-    local body = me._emit_module_rec(funcs, 0, n)
-    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[" + body + "]}"
+    return "{\"kind\":\"MIR\",\"schema_version\":\"1.0\",\"functions\":[]}"
   }
   _emit_module_rec(funcs, idx, len) {
     // Defensive fallback: some environments report size=0 for host-managed arrays.

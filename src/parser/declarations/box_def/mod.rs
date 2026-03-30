@@ -156,7 +156,7 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
 
     let mut last_method_name: Option<String> = None;
     while !p.match_token(&TokenType::RBRACE) && !p.is_at_end() {
-        if p.maybe_parse_opt_annotation_noop()? {
+        if p.maybe_parse_opt_annotation_noop(crate::parser::statements::helpers::AnnotationSite::Member)? {
             continue;
         }
 

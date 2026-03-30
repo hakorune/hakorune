@@ -31,6 +31,7 @@ pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, Strin
         .cloned()
         .ok_or_else(|| "MissingBlocks".to_string())?;
     let blocks = prune_dead_string_handle_consts(&blocks);
+    let blocks = normalize_map_method_mir_calls(&blocks);
     let (blocks, used_dynamic_bridge) = normalize_dynamic_method_calls(&blocks);
     let blocks = normalize_print_calls(&blocks);
     let return_models = collect_function_return_models(functions);
@@ -366,6 +367,85 @@ fn canonical_print_externcall(arg0: u64) -> Value {
     })
 }
 
+fn canonical_map_boxcall_method(method: &str) -> Option<&'static str> {
+    match method {
+        "set" => Some("set"),
+        "get" => Some("get"),
+        "has" => Some("has"),
+        "getField" => Some("getField"),
+        "setField" => Some("setField"),
+        "delete" => Some("delete"),
+        "size" | "len" | "length" => Some("size"),
+        _ => None,
+    }
+}
+
+fn normalize_map_method_mir_calls(blocks: &Value) -> Value {
+    let Some(blocks_arr) = blocks.as_array() else {
+        return blocks.clone();
+    };
+
+    let mut out_blocks = Vec::new();
+    for block in blocks_arr {
+        let Some(mut obj) = block.as_object().cloned() else {
+            out_blocks.push(block.clone());
+            continue;
+        };
+        let Some(insts) = block.get("instructions").and_then(|v| v.as_array()) else {
+            out_blocks.push(block.clone());
+            continue;
+        };
+        let mut rewritten = Vec::new();
+        for inst in insts {
+            rewritten.push(normalize_map_method_mir_call_inst(inst));
+        }
+        obj.insert("instructions".to_string(), Value::Array(rewritten));
+        out_blocks.push(Value::Object(obj));
+    }
+    Value::Array(out_blocks)
+}
+
+fn normalize_map_method_mir_call_inst(inst: &Value) -> Value {
+    if inst.get("op").and_then(|v| v.as_str()) != Some("mir_call") {
+        return inst.clone();
+    }
+    let Some(payload) = inst.get("mir_call") else {
+        return inst.clone();
+    };
+    let Some(callee) = payload.get("callee") else {
+        return inst.clone();
+    };
+    if callee.get("type").and_then(|v| v.as_str()) != Some("Method") {
+        return inst.clone();
+    }
+    if callee.get("box_name").and_then(|v| v.as_str()) != Some("MapBox") {
+        return inst.clone();
+    }
+    let Some(method) = callee.get("name").and_then(|v| v.as_str()) else {
+        return inst.clone();
+    };
+    let Some(boxcall_method) = canonical_map_boxcall_method(method) else {
+        return inst.clone();
+    };
+    let Some(receiver) = callee.get("receiver").and_then(|v| v.as_u64()) else {
+        return inst.clone();
+    };
+    let args = payload
+        .get("args")
+        .cloned()
+        .unwrap_or_else(|| Value::Array(Vec::new()));
+
+    let mut out = serde_json::Map::new();
+    out.insert("op".to_string(), json!("boxcall"));
+    out.insert("box".to_string(), json!(receiver));
+    out.insert("method".to_string(), json!(boxcall_method));
+    out.insert("args".to_string(), args);
+    if let Some(dst) = inst.get("dst") {
+        out.insert("dst".to_string(), dst.clone());
+    }
+    Value::Object(out)
+}
+
 fn prune_dead_string_handle_consts(blocks: &Value) -> Value {
     let Some(blocks_arr) = blocks.as_array() else {
         return blocks.clone();
@@ -387,6 +467,22 @@ fn prune_dead_string_handle_consts(blocks: &Value) -> Value {
                     if let Some(reg) = arg.as_u64() {
                         used_regs.insert(reg);
                     }
+                }
+            }
+            if let Some(mir_call) = inst.get("mir_call") {
+                if let Some(args) = mir_call.get("args").and_then(|v| v.as_array()) {
+                    for arg in args {
+                        if let Some(reg) = arg.as_u64() {
+                            used_regs.insert(reg);
+                        }
+                    }
+                }
+                if let Some(receiver) = mir_call
+                    .get("callee")
+                    .and_then(|v| v.get("receiver"))
+                    .and_then(|v| v.as_u64())
+                {
+                    used_regs.insert(receiver);
                 }
             }
             if let Some(incoming) = inst.get("incoming").and_then(|v| v.as_array()) {

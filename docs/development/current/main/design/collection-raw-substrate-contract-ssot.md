@@ -162,9 +162,12 @@ Current first slice:
 - `ArrayCoreBox.set_i64` -> `nyash.array.slot_store_hii`
 - `ArrayCoreBox.len_i64` -> `nyash.array.slot_len_h`
 - `ArrayCoreBox.push_hh` -> `nyash.array.slot_append_hh`
-- legacy `nyash.array.get_hi` / `nyash.array.set_hii` stay as compatibility shell during the retarget wave
+- `nyash.array.get_hi` stays runtime-facade/compat shell only; current daily get path is `slot_load_hi`
+- `nyash.array.slot_store_hih` / `nyash.array.slot_store_hii` are now the active i64-key write seams on the daily path
+- `nyash.array.set_hih` / `nyash.array.set_hii` move to compat-only aliases
+- array `has` stays on `nyash.runtime_data.has_hh` until a narrower raw seam is explicitly accepted
 - transitional method-shaped Rust exports still visible from `.hako`:
-  - none in the current daily `.hako` owner path
+  - none on the active daily path; `nyash.array.set_hih` / `nyash.array.set_hii` remain compat-only
 
 ### M1. Repeat for Map
 
@@ -261,7 +264,7 @@ Current second slice:
 - landed runtime-data map hidden-residue slice:
   - `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
 - current remaining work after those explicit exports:
-  - active llvm-py lowering still keeps the i64-key array set path on method-shaped exports (`nyash.array.set_hih` / `nyash.array.set_hii`)
+  - active llvm-py lowering now uses raw array set exports (`nyash.array.slot_store_hih` / `nyash.array.slot_store_hii`)
 - `RuntimeDataBox` does not join that owner growth; it stays facade-only
 - raw substrate perf should stay parked until this deeper boundary is fixed or these exports are explicitly accepted as the long-term substrate cut
 
@@ -298,7 +301,7 @@ Current second slice:
      - `ArrayBox.get -> nyash.array.slot_load_hi`
      - `ArrayBox.push -> nyash.array.slot_append_hh`
      - `MapBox.get/set/has -> nyash.map.slot_load_* / slot_store_* / probe_*`
-   - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
+   - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.slot_store_hih`
    - contract pin:
      - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
 10. `B1g / llvm-py-lowering-residue`
@@ -325,7 +328,7 @@ Current second slice:
      - `bash tools/smokes/v2/profiles/integration/ring1_providers/ring1_map_provider_vm.sh`
 9. `B1i / array-non-i64-lowering-residue`
    - landed first slice: active lowering now uses `nyash.runtime_data.get_hh/has_hh/set_hhh` for array non-i64 shapes
-   - proven i64-key routes stay direct for now (`nyash.array.slot_load_hi`, `nyash.array.set_hih`, `nyash.array.set_hii`)
+   - proven i64-key routes stay direct for now (`nyash.array.slot_load_hi`, `nyash.array.slot_store_hih`, `nyash.array.slot_store_hii`)
    - contract pins:
      - `python3 -m unittest src.llvm_py.tests.test_runtime_data_dispatch_policy src.llvm_py.tests.test_strlen_fast src.llvm_py.tests.test_boxcall_plugin_invoke_args`
      - `bash tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
@@ -333,16 +336,15 @@ Current second slice:
 10. `B1j / array-i64-set-keep-inventory`
    - landed: keep the remaining active i64-key array set path as an explicit accepted substrate cut
    - accepted keep contract:
-     - `nyash.array.set_hii` stays the i64-key + i64-value specialized route
-     - `nyash.array.set_hih` stays the i64-key + handle/any-value fallback route
-     - do not add `slot_store_hih`; it would duplicate the accepted keep without reducing the daily-path surface
+     - `nyash.array.slot_store_hii` stays the i64-key + i64-value specialized route
+     - `nyash.array.slot_store_hih` stays the i64-key + handle/any-value fallback route
    - contract pins:
      - `cargo test -q -p nyash_kernel array_runtime_data_route_hi_contract_roundtrip --lib`
      - `cargo test -q -p nyash_kernel array_runtime_data_route_hii_contract_roundtrip --lib`
      - `python3 -m unittest src.llvm_py.tests.test_strlen_fast src.llvm_py.tests.test_boxcall_plugin_invoke_args`
      - `crates/nyash_kernel/src/plugin/array_slot_store.rs`
 11. `B1n / array-set-compat-retarget`
-   - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
+   - landed: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.slot_store_hih`
    - `nyash.array.set_h` remains compatibility-only
    - contract pins:
      - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`

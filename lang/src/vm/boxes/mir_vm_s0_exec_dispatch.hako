@@ -513,8 +513,8 @@ static box MirVmS0ExecDispatchBox {
     return MirVmS0BoxcallExecBox._exec_boxcall(seg, regs, kinds, array_lens, handle_regs, file_boxes, src)
   }
 
-  _exec_mir_call(seg, regs, handle_regs) {
-    MirCallV1HandlerBox.handle_with_state(seg, regs, handle_regs)
+  _exec_mir_call(seg, regs, kinds, handle_regs) {
+    MirCallV1HandlerBox.handle_with_state(seg, regs, handle_regs, kinds)
     return "__NEXT__"
   }
 
@@ -524,7 +524,7 @@ static box MirVmS0ExecDispatchBox {
 
   _exec_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, exec_cache, src) {
     if op == "mir_call" {
-      return me._exec_mir_call(seg, regs, handle_regs)
+      return me._exec_mir_call(seg, regs, kinds, handle_regs)
     }
     local data_next = me._exec_data_op(seg, op, regs, kinds, mem, array_lens, handle_regs, file_boxes, src)
     if data_next != "" {

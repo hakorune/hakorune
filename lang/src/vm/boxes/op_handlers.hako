@@ -5,6 +5,7 @@ using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.vm.helpers.compare_ops as CompareOpsBox
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.json.core.json_cursor as JsonCursorBox
+using selfhost.vm.helpers.mir_s0_json_scan as MirVmS0JsonScanBox
 // Prefer logical module names to avoid file-path using in strict profiles
 static box OpHandlersBox {
   _tprint(msg) {
@@ -57,6 +58,10 @@ static box OpHandlersBox {
     return me._find_str_in(seg, pat)
   }
 
+  _shadow_handle_key(id) {
+    return "__vm.handle:" + StringHelpers.int_to_str(id)
+  }
+
   _load_reg(regs, id) {
     local v = regs.getField(StringHelpers.int_to_str(id))
     if v == null { return 0 }
@@ -69,6 +74,12 @@ static box OpHandlersBox {
     // Prefer internal scanner to avoid resolver differences in strict profiles
     local dst = me._find_kv_int(seg, "dst")
     if dst == null { return }
+    local handle_text = MirVmS0JsonScanBox._find_const_handle_text(seg)
+    if handle_text != null {
+      regs.setField(StringHelpers.int_to_str(dst), 0)
+      regs.setField(me._shadow_handle_key(dst), handle_text)
+      return
+    }
     // Try direct value first
     local val = me._find_kv_int(seg, "value")
     if val == null {
@@ -102,6 +113,7 @@ static box OpHandlersBox {
         if vend > start {
           local s = seg.substring(start, vend)
           regs.setField(StringHelpers.int_to_str(dst), s)
+          regs.setField(me._shadow_handle_key(dst), s)
           return
         }
       }
@@ -116,6 +128,7 @@ static box OpHandlersBox {
         if vend > start {
           local s2 = seg.substring(start, vend)
           regs.setField(StringHelpers.int_to_str(dst), s2)
+          regs.setField(me._shadow_handle_key(dst), s2)
           return
         }
       }

@@ -14,24 +14,26 @@ Applies to: LLVM/AOT `RuntimeDataBox` method lowering
 
 These symbols are implemented in `crates/nyash_kernel/src/plugin/runtime_data.rs`.
 
-Array receiver が型確定している callsite では、mono-route として次の
-array専用 alias を使う場合がある（AS-03）:
+Array receiver が型確定している callsite では、array-specialized route
+（AS-03）を使う場合がある:
 
-- `nyash.array.get_hh(recv_h, key_any) -> i64`
-- `nyash.array.set_hhh(recv_h, key_any, val_any) -> i64`
-- `nyash.array.has_hh(recv_h, key_any) -> i64`
-- `nyash.array.slot_append_hh(recv_h, val_any) -> i64`
+- `push -> nyash.array.slot_append_hh(recv_h, val_any) -> i64`
+- `get -> nyash.runtime_data.get_hh(recv_h, key_any) -> i64`
+- `set -> nyash.runtime_data.set_hhh(recv_h, key_any, val_any) -> i64`
+- `has -> nyash.runtime_data.has_hh(recv_h, key_any) -> i64`
 
 さらに key が i64 と判定できる callsite では、
-array mono-route を整数キー版へ縮退できる（AS-03b）:
+array-specialized route を整数キー版へ縮退できる（AS-03b）:
 
-- `nyash.array.get_hi(recv_h, idx_i64) -> i64`
-- `nyash.array.set_hih(recv_h, idx_i64, val_any) -> i64`
-- `nyash.array.set_hii(recv_h, idx_i64, val_i64) -> i64`（AS-03c）
-- `nyash.array.has_hi(recv_h, idx_i64) -> i64`
-- `nyash.array.push_hi(recv_h, value_i64) -> i64`
+- `nyash.array.slot_load_hi(recv_h, idx_i64) -> i64`
+- `nyash.array.slot_store_hih(recv_h, idx_i64, val_any) -> i64`
+- `nyash.array.slot_store_hii(recv_h, idx_i64, val_i64) -> i64`（AS-03c）
+- `nyash.runtime_data.has_hh(recv_h, idx_i64) -> i64`
 
-これらは `crates/nyash_kernel/src/plugin/array.rs` で実装され、
+`push` は integer-key 縮退を持たず、AS-03 でも `nyash.array.slot_append_hh`
+を使う。`has` はこの wave では常に `nyash.runtime_data.has_hh` を使う。
+
+これらは array/runtime_data plugin surface で実装され、
 `runtime_data` の ArrayBox 契約と同一の戻り値意味を持つ。
 
 ## Receiver Dispatch
@@ -39,16 +41,15 @@ array mono-route を整数キー版へ縮退できる（AS-03b）:
 `recv_h` runtime type decides behavior:
 
 - `ArrayBox`
-  - `get_hh`: index read
-  - `set_hhh`: set/append (`idx == len` append)
-- `has_hh`: bounds check (`0/1`)
-- `push_hh`: append
-- `push_hi`: append integer value
+  - `runtime_data.get_hh`: index read
+  - `runtime_data.set_hhh`: set/append (`idx == len` append)
+  - `runtime_data.has_hh`: bounds check (`0/1`)
+  - `runtime_data.push_hh`: append
 - `MapBox`
-  - `get_hh`: key lookup (missing key returns `0`)
-  - `set_hhh`: key set
-  - `has_hh`: key existence check (`0/1`, missing key returns `0`)
-  - `push_hh`: unsupported (`0`)
+  - `runtime_data.get_hh`: key lookup (missing key returns `0`)
+  - `runtime_data.set_hhh`: key set
+  - `runtime_data.has_hh`: key existence check (`0/1`, missing key returns `0`)
+  - `runtime_data.push_hh`: unsupported (`0`)
 - other types: fail-fast return `0`
 
 ### Array index semantics (contract)
@@ -56,21 +57,21 @@ array mono-route を整数キー版へ縮退できる（AS-03b）:
 For `ArrayBox` receiver:
 
 - negative index:
-  - `get_hh` returns `0`
-  - `set_hhh` returns `0`
-  - `has_hh` returns `0`
+  - `runtime_data.get_hh` returns `0`
+  - `runtime_data.set_hhh` returns `0`
+  - `runtime_data.has_hh` returns `0`
 - index in range:
-  - `get_hh` returns element value (mixed i64/handle contract below)
-  - `set_hhh` returns `1`
-  - `has_hh` returns `1`
+  - `runtime_data.get_hh` returns element value (mixed i64/handle contract below)
+  - `runtime_data.set_hhh` returns `1`
+  - `runtime_data.has_hh` returns `1`
 - index == len:
-  - `set_hhh` appends and returns `1`
-  - `has_hh` returns `0`
+  - `runtime_data.set_hhh` appends and returns `1`
+  - `runtime_data.has_hh` returns `0`
 - index > len:
-  - `set_hhh` returns `0`
-  - `has_hh` returns `0`
+  - `runtime_data.set_hhh` returns `0`
+  - `runtime_data.has_hh` returns `0`
 
-Key decode contract for `_hh/_hhh` array routes:
+Key decode contract for `runtime_data.get_hh/set_hhh/has_hh` on `ArrayBox`:
 
 - `key_any <= 0`: treat as immediate index directly
 - `key_any > 0`:
@@ -113,11 +114,11 @@ LLVM lowerers must use shared dispatch helper (`runtime_data_dispatch.py`) and f
 
 - default: `nyash.runtime_data.*`
 - AS-03 成立時（ArrayBox receiver + arity/key条件）:
-  `nyash.array.*_hh/*_hhh` mono-route
+  `push -> nyash.array.slot_append_hh`, `get/set/has -> nyash.runtime_data.*`
 - AS-03b 成立時（AS-03 + key VID が i64/integerish）:
-  `get_hi/set_hih/has_hi` integer-key mono-route
+  `get -> slot_load_hi`, `set -> set_hih`, `has -> nyash.runtime_data.has_hh`
 - AS-03c 成立時（AS-03b + value VID も i64/integerish）:
-  `set_hii` integer-key+value mono-route
+  `set -> set_hii`
 
 Implemented in:
 - `src/llvm_py/instructions/mir_call/method_call.py`
@@ -133,6 +134,9 @@ The LLVM/AOT route is pinned with a prebuilt MIR fixture that forces
 - smoke: `tools/smokes/v2/profiles/integration/apps/phase29x_runtime_data_dispatch_llvm_e2e_vm.sh`
 
 Smoke checks:
-- IR contains dispatch symbols for each method:
-  - `nyash.runtime_data.*` または `nyash.array.*`（AS-03/AS-03b）
+- IR contains the pinned active symbols for each method:
+  - `push -> nyash.array.slot_append_hh`
+  - `has -> nyash.runtime_data.has_hh`
+  - `get -> nyash.runtime_data.get_hh` または `nyash.array.slot_load_hi`
+  - `set -> nyash.runtime_data.set_hhh` または `nyash.array.slot_store_hih/slot_store_hii`
 - compiled executable returns `rc=4`

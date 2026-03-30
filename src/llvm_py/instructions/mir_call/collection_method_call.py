@@ -61,10 +61,10 @@ def _lower_array_collection_method_call(
         value = _resolve_or_zero(resolve_arg, arg_ids, 1, zero)
         if prefer_array_i64_key_route(method_name, resolver, arg_ids):
             if prefer_array_i64_key_i64_value_route(method_name, resolver, arg_ids):
-                callee = declare("nyash.array.set_hii", i64, [i64, i64, i64])
-                return builder.call(callee, [recv_h, key, value], name="unified_array_set_hii")
-            callee = declare("nyash.array.set_hih", i64, [i64, i64, i64])
-            return builder.call(callee, [recv_h, key, value], name="unified_array_set_hih")
+                callee = declare("nyash.array.slot_store_hii", i64, [i64, i64, i64])
+                return builder.call(callee, [recv_h, key, value], name="unified_array_slot_store_hii")
+            callee = declare("nyash.array.slot_store_hih", i64, [i64, i64, i64])
+            return builder.call(callee, [recv_h, key, value], name="unified_array_slot_store_hih")
         callee = declare("nyash.runtime_data.set_hhh", i64, [i64, i64, i64])
         return builder.call(callee, [recv_h, key, value], name="unified_runtime_data_set_hhh")
 

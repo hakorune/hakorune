@@ -81,6 +81,7 @@ search_paths = ["target/release"]
 "lang.shared" = "lang/src/shared"
 "lang.vm" = "lang/src/vm"
 "lang.runtime" = "lang/src/runtime"
+"selfhost.runtime" = "lang/src/runtime"
 "lang.hako_alloc" = "lang/src/hako_alloc"
 "lang.runner" = "lang/src/runner"
 "lang.llvm_ir" = "lang/src/llvm_ir"

@@ -1,7 +1,7 @@
 ---
 Status: Active
 Decision: provisional
-Date: 2026-03-23
+Date: 2026-03-30
 Scope: `kernel-mainline`（`.hako` kernel）authority migration の fixed order と collection owner growth rule を 1 枚で固定する（中途半端な境界いじりを止める）。
 Related:
   - CURRENT_TASK.md
@@ -55,6 +55,9 @@ Related:
    - first active owner cutover
    - target: `.hako` ring1 collection core owns `ArrayBox.{get,set,push,len/length/size}`, bounds policy, index normalization, visible fallback/error contract
    - Rust side shrinks to raw storage/cache/load/store/downcast/layout substrate only
+   - perf acceptance for this phase is the same-artifact `kilo_micro_array_getset` compare against the current Rust array baseline before Map phase opens
+   - syntax audit: canonical metadata surface is `@rune`; legacy `@hint/@contract/@intrinsic_candidate` remain compat aliases during the Rune v1 window; current `.hako` array code does not depend on this lane
+   - surfaced v1 syntax gap remains the selfhost compiler `{ ident: expr }` / BlockExpr migration note; it is outside this collection owner lane
 
 3. `map`
    - second active owner cutover
@@ -126,6 +129,14 @@ Related:
 - `B1b` landed: the daily `.hako` array append path and arrayish runtime-data mono-route now use `nyash.array.slot_append_hh`, while `nyash.array.push_hh` remains compat-only.
 - `B1k` landed: adapter defaults and historical pure `ArrayBox.push -> len` lowering now use `nyash.array.slot_append_hh`, while `nyash.array.push_h` remains compat-only.
 - `B1m` landed: adapter defaults and historical pure `ArrayBox.get` lowering now use `nyash.array.slot_load_hi`, while `nyash.array.get_h` remains compat-only.
+- `B1n` landed: `.hako ll emit` and pure-first no-replay now agree on the active array route:
+  - `get -> nyash.array.slot_load_hi`
+  - `push -> nyash.array.slot_append_hh`
+  - `has -> nyash.runtime_data.has_hh`
+  - `set -> nyash.array.slot_store_hih / nyash.array.slot_store_hii`
+  - `nyash.array.set_hih` / `nyash.array.set_hii` moved off the active daily path and now stay compat-only
+  - `nyash.array.get_hi` / `nyash.array.has_hi` / `nyash.array.push_h*` stay compat-only
+  - `phase21_5_perf_kilo_runtime_data_array_route_contract_vm.sh` is green again
 - `B1l` landed: adapter defaults and historical pure `MapBox.{get,set,has}` lowering now use `nyash.map.slot_load_hh` / `nyash.map.slot_store_hhh` / `nyash.map.probe_hh`, while `nyash.map.{get_h,set_h,has_h}` remain compat-only.
 - post-stop-line next lane is `phase-29ct`:
   - `substrate-capability-ladder-ssot.md`
@@ -139,13 +150,13 @@ Related:
 - `B1h` landed: `runtime_data_map_dispatch.rs` now reuses accepted map raw seam helpers instead of visible `MapBox.get_opt/set/has`.
 - but the overall collection boundary is still not closed on the active daily path:
   - active lowering no longer uses array non-i64 `get/has` or non-i64 `set` exports on the daily path; those now go through `nyash.runtime_data.*`
-  - the last active array method-shaped keep was the i64-key set path; this slice now classifies it as an explicit accepted keep
+  - the proven i64-key array set path is now under `nyash.array.slot_store_hih / slot_store_hii`, so the active daily path no longer depends on method-shaped array set exports
 - next exact boundary-deepen task is:
   1. `B1f` landed: `collections_hot.hako` now retargets array `get/push` and map `get/set/has` to raw seams; `array set` stays on the current route until a raw non-i64-safe write seam is accepted
   2. `B1g` landed: llvm-py lowering now uses raw seams where they already exist (`array push`, `array i64 get`, `map get/set/has`); the remaining array keep was deferred to `B1i/B1j`
   3. `B1h` landed: runtime-data map hidden residue now delegates to accepted `map_slot_*` / `map_probe_*` helpers
   4. `B1i` first slice landed: demote array non-i64 lowering residue to the `RuntimeDataBox` facade while preserving the proven i64-key fast paths
-  5. `B1j` landed: accept `nyash.array.set_hih` / `nyash.array.set_hii` as the long-term substrate cut for the proven i64-key set path in this wave
+  5. `B1j` landed and was further deepened in the current slice: the proven i64-key set path now uses `nyash.array.slot_store_hih` / `nyash.array.slot_store_hii`, while `set_hih` / `set_hii` remain compat-only
 - acceptance pin for `B1f`:
   - `bash tools/smokes/v2/profiles/integration/apps/phase29cm_collections_hot_raw_route_contract_vm.sh`
 - acceptance pins for `B1g`:
@@ -232,8 +243,8 @@ Move to `.hako`:
    - `B1g`: landed; llvm-py lowering now uses raw seams where they already exist in `collection_method_call.py` / `boxcall_runtime_data.py` / `runtime_data_dispatch.py`
    - `B1h`: landed; `runtime_data_map_dispatch.rs` now delegates map behavior through accepted `map_slot_load_any` / `map_slot_store_any` / `map_probe_contains_any`
    - `B1i`: landed first slice; active lowering now uses `nyash.runtime_data.get_hh/has_hh/set_hhh` for array non-i64 shapes while keeping `slot_load_hi` / `set_hih` / `set_hii` for the proven i64-key routes
-   - `B1j`: landed accepted keep; `nyash.array.set_hii` remains the i64/i64-specialized route and `nyash.array.set_hih` remains the i64-key + handle/any-value fallback
-   - `B1n`: landed compat/pure set retarget; adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.set_hih`
+   - `B1j`: current daily route now uses `nyash.array.slot_store_hii` for i64/i64 and `nyash.array.slot_store_hih` for i64-key + any-value
+   - `B1n`: adapter defaults and historical pure `ArrayBox.set` lowering now use `nyash.array.slot_store_hih`
    - `B1r`: keep `RuntimeDataBox` facade-only; docs/task lock only unless an exact protocol/dispatch bug appears
    - the active daily path now has no unclassified collection residue; future keeps must either leave the daily path or be explicitly accepted before this phase is called finished
 7. `P1: Raw substrate perf reopen`

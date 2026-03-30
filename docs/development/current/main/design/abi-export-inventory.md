@@ -65,8 +65,9 @@ Related:
 | `push` | `nyash.array.push_hh` | `handle_owned, value_public` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | runtime-data style append route |
 | `push_i64` | `nyash.array.push_hi` | `handle_owned, imm_i64` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | proven integer append route |
 | `get_i64` | `nyash.array.get_hi` | `handle_owned, imm_i64` | `value_public` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | proven integer-key route |
-| `set_i64_any` | `nyash.array.set_hih` | `handle_owned, imm_i64, value_public` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | accepted keep |
-| `set_i64_i64` | `nyash.array.set_hii` | `handle_owned, imm_i64, imm_i64` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | accepted keep |
+| `slot_store_i64_any` | `nyash.array.slot_store_hih` | `handle_owned, imm_i64, value_public` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/array.rs` | canonical daily any-value store seam |
+| `set_i64_any` | `nyash.array.set_hih` | `handle_owned, imm_i64, value_public` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | compat-only alias after substrate cleanup |
+| `set_i64_i64` | `nyash.array.set_hii` | `handle_owned, imm_i64, imm_i64` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | compat-only alias after substrate cleanup |
 | `set_i64_string_handle` | `nyash.array.set_his` | `handle_owned, imm_i64, handle_owned` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | string-handle specialized route |
 | `has_i64` | `nyash.array.has_hi` | `handle_owned, imm_i64` | `imm_i64` | `runtime-facade` | `crates/nyash_kernel/src/plugin/array.rs` | proven integer-key route |
 | `get` | `nyash.array.get_h` | `handle_owned, imm_i64` | `value_public` | `compat-only` | `crates/nyash_kernel/src/plugin/array.rs` | historical compat alias |
@@ -78,14 +79,14 @@ Related:
 
 | method_view | symbol | args | ret | status | source | notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `entry_count` | `nyash.map.entry_count_h` | `handle_owned` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | canonical daily size observer |
+| `entry_count` | `nyash.map.entry_count_i64` | `handle_owned` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | canonical daily size observer |
 | `slot_load_i64` | `nyash.map.slot_load_hi` | `handle_owned, imm_i64` | `value_public` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | raw i64 key seam |
 | `slot_load_any` | `nyash.map.slot_load_hh` | `handle_owned, value_public` | `value_public` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | canonical daily `MapBox.get` target |
 | `slot_store_i64_any` | `nyash.map.slot_store_hih` | `handle_owned, imm_i64, value_public` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | raw i64 key seam |
 | `slot_store_any` | `nyash.map.slot_store_hhh` | `handle_owned, value_public, value_public` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | canonical daily `MapBox.set` target |
 | `probe_i64` | `nyash.map.probe_hi` | `handle_owned, imm_i64` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | raw i64 key seam |
 | `probe_any` | `nyash.map.probe_hh` | `handle_owned, value_public` | `imm_i64` | `mainline substrate` | `crates/nyash_kernel/src/plugin/map.rs` | canonical daily `MapBox.has` target |
-| `size` | `nyash.map.size_h` | `handle_owned` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | canonical observer is `entry_count_h` |
+| `size` | `nyash.map.size_h` | `handle_owned` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | canonical observer is `entry_count_i64` |
 | `get_i64` | `nyash.map.get_h` | `handle_owned, imm_i64` | `value_public` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | historical compat alias |
 | `get_any` | `nyash.map.get_hh` | `handle_owned, value_public` | `value_public` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | historical compat alias |
 | `set_i64` | `nyash.map.set_h` | `handle_owned, imm_i64, value_public` | `imm_i64` | `compat-only` | `crates/nyash_kernel/src/plugin/map.rs` | legacy return is fixed `0` |
@@ -124,12 +125,12 @@ Related:
 | `MapBox` | `set` | `nyash.map.slot_store_hhh` | `adapter-default consumer` | mainline raw seam を参照 |
 | `MapBox` | `get` | `nyash.map.slot_load_hh` | `adapter-default consumer` | current default unbox is `integer` |
 | `MapBox` | `has` | `nyash.map.probe_hh` | `adapter-default consumer` | mainline raw seam を参照 |
-| `MapBox` | `size` / `len` | `nyash.map.entry_count_h` | `adapter-default consumer` | canonical observer を参照 |
+| `MapBox` | `size` / `len` | `nyash.map.entry_count_i64` | `adapter-default consumer` | canonical observer を参照 |
 | `ArrayBox` | `birth` | `nyash.array.birth_h` | `adapter-default consumer` | mainline birth row を参照 |
 | `ArrayBox` | `push` | `nyash.array.slot_append_hh` | `adapter-default consumer` | canonical append seam を参照 |
 | `ArrayBox` | `len` / `length` / `size` | `nyash.array.slot_len_h` | `adapter-default consumer` | canonical observer を参照 |
 | `ArrayBox` | `get` | `nyash.array.slot_load_hi` | `adapter-default consumer` | canonical daily get seam を参照 |
-| `ArrayBox` | `set` | `nyash.array.set_hih` | `adapter-default consumer` | accepted keep/fallback route を参照 |
+| `ArrayBox` | `set` | `nyash.array.slot_store_hih` | `adapter-default consumer` | canonical daily any-value store seam を参照 |
 | `StringBox` | `len` / `length` / `size` | `nyash.string.len_h` | `adapter-default consumer` | canonical StringBox observer を参照 |
 
 ## Out Of Scope For This V0 Slice

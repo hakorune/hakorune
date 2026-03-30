@@ -36,7 +36,7 @@ perf AOT lane の正本ルートは次だけ。
 
 | Tag / Knob family | Primary examples | Effective zone | Crosses `ny-llvmc` boundary | Current reading |
 |---|---|---|---|---|
-| Language optimization annotations | `@hint(inline)`, `@contract(pure)`, `@intrinsic_candidate(...)` | parser / Program(JSON) metadata | No | parse/noop only; backend use is not active yet |
+| Language optimization annotations | `@rune Hint(inline)`, `@rune Contract(pure)`, `@rune IntrinsicCandidate(...)` (`@hint/@contract/@intrinsic_candidate` are compat aliases) | parser / Program(JSON) metadata | No | parse/noop only; backend use is not active yet |
 | AotPrep / MIR shaping | `NYASH_AOT_COLLECTIONS_HOT`, `NYASH_MIR_LOOP_HOIST`, `NYASH_AOT_MAP_KEY_MODE`, `NYASH_AOT_NUMERIC_CORE`, `HAKO_APPLY_AOT_PREP` | `.hako` / MIR before `ny-llvmc` | No | valid pre-boundary shaping knobs |
 | Boundary compile request | `HAKO_BACKEND_COMPILE_RECIPE`, `HAKO_BACKEND_COMPAT_REPLAY` | Rust/C boundary transport | Yes | reaches compile/link boundary as explicit route/profile request |
 | LLVM opt / link contract | `HAKO_LLVM_OPT_LEVEL`, `NYASH_LLVM_OPT_LEVEL`, `NYASH_EMIT_EXE_NYRT`, `HAKO_AOT_LDFLAGS` | object / exe generation | Yes | valid post-boundary knobs |
@@ -48,8 +48,9 @@ perf AOT lane の正本ルートは次だけ。
 
 ### 1. Language annotations
 
-- `@hint` / `@contract` / `@intrinsic_candidate` are not backend-active in the current wave.
-- They parse and survive as noop metadata only.
+- canonical optimization metadata surface is `@rune Hint/Contract/IntrinsicCandidate`.
+- legacy `@hint` / `@contract` / `@intrinsic_candidate` remain compat aliases during the current migration window.
+- they parse and survive as noop metadata only.
 - Do not use them as proof that `ny-llvmc` or LLVM is honoring a new optimization.
 
 正本:
@@ -117,7 +118,7 @@ backend optimization coverage の議論に混ぜない。
 今の exe optimization wave では、次の読みを固定する。
 
 1. route contract が壊れていない限り `llvm_py` keep lane を reopen しない
-2. `@hint` 系は backend-active ではないので、perf 差分の説明に使わない
+2. optimization rune families are not backend-active yet, so do not use them to explain perf deltas
 3. `array_getset` の next exact cut は Rust substrate leaf に置く
 4. tag を疑う前に、ASM top symbol owner を先に見る
 

@@ -6,8 +6,10 @@ Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
 - DropScope surface (`fini {}` / `local ... fini {}`) is part of Stage‑3 parser syntax.
-- Rune v0 declaration attributes are active on both Rust and `.hako` parsers; current direct MIR carriage is declaration-local on the Rust route, while the `.hako` source-route currently preserves selected-entry attrs via a transitional shim. Program(JSON v0) is not widened for Rune.
-- SSOT: `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
+- Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Hint` / `Contract` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` remain compat aliases. Program(JSON v0) is not widened for Rune metadata.
+- SSOT:
+  - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
+  - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
 program   := stmt* EOF
 
@@ -217,25 +219,29 @@ Enabled when `NYASH_PARSER_STAGE3=1` for the Rust parser (and via `--stage3`/`NY
 
 These constructs remain experimental; behaviour may degrade to no‑op in some backends until runtime support lands, as tracked in CURRENT_TASK.md.
 
-## Rune V0 Declaration Attributes (docs-locked)
+## Rune Declaration Metadata (docs-locked)
 
-The following fragment is docs-locked only. It does not mean current default grammar accepts Rune without the parser gate.
+The following fragment is docs-locked only. It does not mean current default grammar accepts metadata without the parser gate.
 
 ```
-rune_attr      := '@' 'rune' IDENT rune_arg_list?
-rune_arg_list  := '(' rune_arg (',' rune_arg)* ')'
-rune_arg       := STRING | IDENT
+metadata_attr      := rune_attr | legacy_opt_attr
+rune_attr          := '@' 'rune' IDENT rune_arg_list?
+legacy_opt_attr    := '@' ('hint' | 'contract' | 'intrinsic_candidate') '(' rune_arg (',' rune_arg)* ')'
+rune_arg_list      := '(' rune_arg (',' rune_arg)* ')'
+rune_arg           := STRING | IDENT
 
 ; abstract target set for v0
 ; concrete declaration grammar remains owned by the relevant parser lane
-rune_target    := box_decl
-                | method_decl
-                | function_decl
-                | extern_decl
+metadata_target    := box_decl
+                    | method_decl
+                    | function_decl
+                    | extern_decl
 ```
 
 Notes
-- v0 allows Rune only on declaration targets.
+- canonical docs surface is `@rune`.
+- declaration-leading legacy aliases normalize to declaration-local `attrs.runes`.
+- declaration metadata is allowed only on declaration targets.
 - active grammar requires Rust parser / `.hako` parser parity.
 - Rune metadata is declaration-local on AST/direct MIR; do not widen Program(JSON v0).
-- `@hint` / `@contract` / `@intrinsic_candidate` remain a separate provisional annotation lane.
+- body-position legacy aliases remain compat/noop during the current migration window.

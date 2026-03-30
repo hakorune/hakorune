@@ -8,15 +8,13 @@
       auto enum GenericMethodHasRouteKind classify_generic_method_has_route(
           const char* bname,
           const struct GenericMethodEmitPlan* plan) {
-        if (bname && !strcmp(bname, "RuntimeDataBox")) {
-          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY;
-        }
-        if (plan && plan->runtime_array_has) {
-          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY;
-        }
-        if ((bname && !strcmp(bname, "MapBox")) ||
-            (plan && plan->runtime_map_has)) {
+        if (bname && !strcmp(bname, "MapBox")) {
           return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY;
+        }
+        if ((bname && !strcmp(bname, "ArrayBox")) ||
+            (bname && !strcmp(bname, "RuntimeDataBox")) ||
+            (plan && (plan->runtime_array_has || plan->runtime_map_has))) {
+          return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_RUNTIME_DATA_CONTAINS_ANY;
         }
         return HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_NONE;
       }
@@ -40,13 +38,7 @@
             }
             return 1;
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_ARRAY_CONTAINS_ANY:
-            if (dst) {
-              fprintf(f, "  %%r%lld = call i64 @\"nyash.array.has_hi\"(%s)\n", dst, ab);
-              set_type(dst, T_I64);
-            } else {
-              fprintf(f, "  call i64 @\"nyash.array.has_hi\"(%s)\n", ab);
-            }
-            return 1;
+            return 0;
           case HAKO_LLVMC_GENERIC_METHOD_HAS_ROUTE_MAP_CONTAINS_ANY:
             if (dst) {
               fprintf(f, "  %%r%lld = call i64 @\"nyash.map.probe_hh\"(%s)\n", dst, ab);

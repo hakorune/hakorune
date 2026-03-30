@@ -304,6 +304,15 @@ mod tests {
             Self { saved }
         }
 
+        fn clear(keys: &[&'static str]) -> Self {
+            let mut saved = Vec::with_capacity(keys.len());
+            for key in keys {
+                saved.push((*key, std::env::var(key).ok()));
+                std::env::remove_var(key);
+            }
+            Self { saved }
+        }
+
         fn set_unified_off() -> Self {
             Self::set(&[("NYASH_MIR_UNIFIED_CALL", "0")])
         }
@@ -396,6 +405,32 @@ mod tests {
             v["mir_call"]["callee"]["type"].as_str(),
             Some("Method"),
             "methodized Stage1 route must stay on mir_call"
+        );
+    }
+
+    #[test]
+    fn method_call_defaults_to_mir_call_when_stage1_mainline_env_is_unset() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = EnvGuard::clear(&["NYASH_MIR_UNIFIED_CALL", "HAKO_MIR_BUILDER_METHODIZE"]);
+        let v = emit_call(
+            &Some(ValueId::new(9)),
+            &ValueId::INVALID,
+            Some(&Callee::Method {
+                box_name: "FileBox".to_string(),
+                method: "open".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            &[ValueId::new(2), ValueId::new(3)],
+            &EffectMask::IO,
+        )
+        .expect("must emit call");
+
+        assert_eq!(
+            v.get("op").and_then(|x| x.as_str()),
+            Some("mir_call"),
+            "Stage1 mainline defaults must stay on canonical mir_call"
         );
     }
 

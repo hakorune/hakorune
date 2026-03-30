@@ -106,7 +106,7 @@ class TestCollectionMethodCall(unittest.TestCase):
         self.assertIn("nyash.runtime_data.get_hh", ir_text)
         self.assertNotIn("nyash.map.slot_load_hh", ir_text)
 
-    def test_arraybox_set_with_i64_key_and_value_uses_array_set_hii(self):
+    def test_arraybox_set_with_i64_key_and_value_uses_array_slot_store_hii(self):
         i64, module, builder = _new_builder()
         resolver = _DummyResolver(value_types={2: "i64", 3: "i64"}, integerish_ids={2, 3})
 
@@ -123,7 +123,7 @@ class TestCollectionMethodCall(unittest.TestCase):
         builder.ret(result)
 
         ir_text = str(module)
-        self.assertIn("nyash.array.set_hii", ir_text)
+        self.assertIn("nyash.array.slot_store_hii", ir_text)
         self.assertNotIn("nyash.map.slot_store_hhh", ir_text)
         self.assertNotIn("nyash.runtime_data.set_hhh", ir_text)
 

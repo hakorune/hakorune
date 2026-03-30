@@ -20,7 +20,7 @@ json='{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"ins
   {"op":"ret","value":4}
 ]}]}]}'
 export _MIR_JSON="$json"
-phase2120_boundary_pure_require_kernel_symbol "$ROOT" "nyash.array.set_hih" "s3_link_run_llvmcapi_pure_array_set_get_canary_vm"
+phase2120_boundary_pure_require_kernel_symbol "$ROOT" "nyash.array.slot_store_hii" "s3_link_run_llvmcapi_pure_array_set_get_canary_vm"
 phase2120_boundary_pure_require_kernel_symbol "$ROOT" "nyash.array.slot_load_hi" "s3_link_run_llvmcapi_pure_array_set_get_canary_vm"
 phase2120_boundary_pure_run "$json" 7 "s3_exe_array_set_get_pure"
 echo "[PASS] s3_link_run_llvmcapi_pure_array_set_get_canary_vm"

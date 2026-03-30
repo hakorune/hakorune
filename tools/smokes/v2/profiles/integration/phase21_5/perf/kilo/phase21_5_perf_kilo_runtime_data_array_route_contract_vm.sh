@@ -4,7 +4,7 @@
 # Contract pin (LLVM-HOT-20 cleanup-8):
 # - RuntimeDataBox get/set in kilo main should prefer Array direct int-key route.
 # - main IR should use nyash.array.slot_load_hi plus Array set fast paths
-#   (`nyash.array.set_his` or `nyash.array.set_hih`).
+#   (`nyash.array.set_his` or `nyash.array.slot_store_hih`).
 # - main IR should not keep nyash.array.set_h or nyash.runtime_data.get_hh / set_hhh on this path.
 # - this contract uses the direct emit route as the canonical source owner for
 #   `bench_kilo_kernel_small`; helper/mainline Stage1 emit is out of scope here.
@@ -21,7 +21,7 @@ MIR_BUILDER="$NYASH_ROOT/tools/ny_mir_builder.sh"
 BENCH="$NYASH_ROOT/benchmarks/bench_kilo_kernel_small.hako"
 ROUTE_ARRAY_GET="nyash.array.slot_load_hi"
 ROUTE_ARRAY_SET_STRING="nyash.array.set_his"
-ROUTE_ARRAY_SET_GENERIC="nyash.array.set_hih"
+ROUTE_ARRAY_SET_GENERIC="nyash.array.slot_store_hih"
 LEGACY_ARRAY_GET="nyash.array.get_hi"
 LEGACY_ARRAY_GET_COMPAT="nyash.array.get_hh"
 LEGACY_ARRAY_SET="nyash.array.set_hhh"

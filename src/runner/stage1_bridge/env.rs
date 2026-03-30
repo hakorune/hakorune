@@ -159,6 +159,7 @@ mod tests {
             "NYASH_FILEBOX_MODE",
             "NYASH_BOX_FACTORY_POLICY",
             "HAKO_MIR_BUILDER_METHODIZE",
+            "NYASH_MIR_UNIFIED_CALL",
             "HAKO_STAGEB_APPLY_USINGS",
             "NYASH_ENABLE_USING",
             "HAKO_ENABLE_USING",
@@ -194,6 +195,10 @@ mod tests {
         );
         assert_eq!(
             envs.get("HAKO_MIR_BUILDER_METHODIZE"),
+            Some(&"1".to_string())
+        );
+        assert_eq!(
+            envs.get("NYASH_MIR_UNIFIED_CALL"),
             Some(&"1".to_string())
         );
         assert_eq!(
@@ -233,6 +238,8 @@ mod tests {
         let _lock = test_support::env_lock().lock().unwrap();
         let _clear = EnvGuard::clear(&[
             "NYASH_NYRT_SILENT_RESULT",
+            "HAKO_MIR_BUILDER_METHODIZE",
+            "NYASH_MIR_UNIFIED_CALL",
             "HAKO_STAGEB_APPLY_USINGS",
             "NYASH_ENABLE_USING",
             "HAKO_ENABLE_USING",
@@ -243,6 +250,8 @@ mod tests {
         ]);
         let _set = EnvGuard::set(&[
             ("NYASH_NYRT_SILENT_RESULT", "0"),
+            ("HAKO_MIR_BUILDER_METHODIZE", "0"),
+            ("NYASH_MIR_UNIFIED_CALL", "0"),
             ("HAKO_STAGEB_APPLY_USINGS", "1"),
             ("NYASH_ENABLE_USING", "0"),
             ("HAKO_ENABLE_USING", "0"),
@@ -258,6 +267,14 @@ mod tests {
         });
 
         assert!(!envs.contains_key("NYASH_NYRT_SILENT_RESULT"));
+        assert_eq!(
+            envs.get("HAKO_MIR_BUILDER_METHODIZE"),
+            Some(&"1".to_string())
+        );
+        assert_eq!(
+            envs.get("NYASH_MIR_UNIFIED_CALL"),
+            Some(&"1".to_string())
+        );
         assert!(!envs.contains_key("HAKO_STAGEB_APPLY_USINGS"));
         assert!(!envs.contains_key("NYASH_ENABLE_USING"));
         assert!(!envs.contains_key("HAKO_ENABLE_USING"));

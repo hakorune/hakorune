@@ -30,6 +30,7 @@ Behavior:
   - build mode: re-emit Program(JSON v0) and MIR(JSON v0) snapshots twice from a known-good bootstrap seed, then compare the snapshots plus .artifact_kind
   - build mode currently has a stable seed lane for stage1-cli only
   - compare mode: compare the provided Stage2/Stage3 pair only
+  - `stage2-bin` / `stage3-bin` are compare labels in this helper, not standalone artifact-kind families
 USAGE
 }
 

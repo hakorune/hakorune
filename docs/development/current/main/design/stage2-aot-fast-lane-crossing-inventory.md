@@ -49,7 +49,7 @@ Related:
 | Family | Current chain | Current mainline seam | Remaining layered crossing | Reading |
 | --- | --- | --- | --- | --- |
 | Array | `MirCallV1HandlerBox -> ArrayCoreBox -> RawArrayCoreBox -> PtrCoreBox -> nyash.array.slot_*` | `nyash.array.slot_load_hi`, `slot_store_hii`, `slot_len_h`, `slot_append_hh` | AOT route tables in `method_call.py` / `collection_method_call.py`, plus `hako_llvmc_ffi.c` dispatch | source owner is already correct; execution route still fans out |
-| Map | `MirCallV1HandlerBox -> MapCoreBox -> RawMapCoreBox -> nyash.map.entry_count_h / slot_* / probe_*` | `nyash.map.entry_count_h`, `slot_load_hh`, `slot_store_hhh`, `probe_hh` | AOT route tables in `method_call.py`, `runtime_data_dispatch.py`, `boxcall_runtime_data.py`, plus `hako_llvmc_ffi.c` dispatch | source owner is already correct; runtime-data mono-route is still layered |
+| Map | `MirCallV1HandlerBox -> MapCoreBox -> RawMapCoreBox -> nyash.map.entry_count_i64 / slot_* / probe_*` | `nyash.map.entry_count_i64`, `slot_load_hh`, `slot_store_hhh`, `probe_hh` | AOT route tables in `method_call.py`, `runtime_data_dispatch.py`, `boxcall_runtime_data.py`, plus `hako_llvmc_ffi.c` dispatch | source owner is already correct; runtime-data mono-route is still layered |
 | String | `MirCallV1HandlerBox -> StringCoreBox -> nyash.string.len_h` for observer; AOT routes `concat/substring/indexOf` through LLVM route tables into `exports/string.rs` / `plugin/string.rs` | `nyash.string.len_h`, `concat_hh`, `concat3_hhh`, `substring_hii`, `indexOf_hh`, `lastIndexOf_hh`, `concat_ss`, `substring_sii` | `binop.py`, `stringbox.py`, `string_console_method_call.py`, `hako_forward_bridge.rs`, `hako_llvmc_ffi.c` | owner split is mixed by design: observer in `.hako`, bulk/string leafs still backend-driven |
 
 ### Current exact truths
@@ -68,7 +68,7 @@ Related:
   - explicit `ArrayBox.{len,get,set,push}` AOT route selection now lowers to `nyash.array.slot_len_h` / `slot_load_hi` / `set_hih|set_hii` / `slot_append_hh`
   - non-i64 array `get/set/has` stays on `nyash.runtime_data.*` facade as the current cold/compat contract
 - landed Map slice:
-  - explicit `MapBox.{size,len,length}` observer route now lowers to `nyash.map.entry_count_h`
+  - explicit `MapBox.{size,len,length}` observer route now lowers to `nyash.map.entry_count_i64`
   - direct `MapBox.{get,set,has}` raw routes stay on `slot_load_hh` / `slot_store_hhh` / `probe_hh`
 - [`lang/src/vm/boxes/mir_call_v1_handler.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/vm/boxes/mir_call_v1_handler.hako) still owns the generic VM adapter/router shape and state flags.
 - [`src/llvm_py/instructions/mir_call/method_call.py`](/home/tomoaki/git/hakorune-selfhost/src/llvm_py/instructions/mir_call/method_call.py) still does layered route choice before reaching collection-specialized lowers.

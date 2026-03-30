@@ -3,7 +3,7 @@ RuntimeDataBox method dispatch helpers for MIR call lowering.
 
 This module keeps RuntimeDataBox method-to-kernel symbol mapping in one place
 to avoid drift between method_call and mir_call_legacy lowerers.
-Array receiver mono-route (AS-03) is selected here as well.
+Array receiver specialized routing (AS-03/03b/03c) is selected here as well.
 """
 
 import os
@@ -35,13 +35,13 @@ _RUNTIME_DATA_ARRAY_METHODS = {
 
 _RUNTIME_DATA_ARRAY_I64_KEY_METHODS = {
     "get": ("nyash.array.slot_load_hi", "unified_array_slot_load_hi", 1),
-    "set": ("nyash.array.set_hih", "unified_array_set_hih", 2),
+    "set": ("nyash.array.slot_store_hih", "unified_array_slot_store_hih", 2),
     "has": ("nyash.runtime_data.has_hh", "unified_runtime_data_has", 1),
 }
 
 
 _RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS = {
-    "set": ("nyash.array.set_hii", "unified_array_set_hii", 2),
+    "set": ("nyash.array.slot_store_hii", "unified_array_slot_store_hii", 2),
 }
 
 
@@ -56,7 +56,9 @@ def _runtime_data_array_route_policy():
     """
     RuntimeDataBox array-route policy SSOT.
 
-    - default (`array_mono`): keep current mono-route (`nyash.array.*`)
+    - default (`array_mono`): allow current array-specialized route
+      (`push -> slot_append_hh`, integer-key `get/set -> slot_load_hi/slot_store_hih|slot_store_hii`,
+      `has -> runtime_data.has_hh`)
     - `runtime_data_only`: force `nyash.runtime_data.*` even when array hints match
     """
     raw = str(os.getenv("NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY", "array_mono") or "array_mono")

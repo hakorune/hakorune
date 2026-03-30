@@ -6,6 +6,7 @@ Scope: `stage2+` の主体を `.hako` に寄せつつ、`.inc` を thin shim に
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
@@ -25,6 +26,7 @@ Related:
 - native は metal keep として残し、ABI / alloc / GC / TLS / atomic / backend emission の最終 leaf だけを担う。
 - 評価軸は行数ではなく owner 比率で読む。
 - `.hako` complete は authority completion を意味し、native zero や substrate zero を意味しない。
+- task order / acceptance bundle is owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`; this child doc owns the boundary reading only.
 
 ## Boundary Truth
 
@@ -78,6 +80,7 @@ Related:
 
 - current stage reading is `stage0 bootstrap keep / stage1 bridge/proof line / stage2+ .hako mainline and final distribution target`.
 - current distribution reading is `hakoruneup + self-contained release bundle`; this doc does not redefine packaging as a single stage artifact.
+- first stage2+ optimization wave is handled by the parent task pack and is limited to `route/perf only`.
 - `kernel authority zero` and `substrate zero` are separate end states; this doc only fixes the former owner-first migration.
 - Current `lang/c-abi/shims/*.inc` are not yet pure thin shims.
 - `hako_llvmc_ffi_common.inc` is closest to a thin shim + native support bundle.

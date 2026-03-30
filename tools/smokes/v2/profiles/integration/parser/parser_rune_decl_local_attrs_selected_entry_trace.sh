@@ -46,6 +46,9 @@ static box Main {
     return 0
   }
 
+  @rune Hint(hot)
+  @contract(no_alloc)
+  @intrinsic_candidate("StringBox.length/0")
   @rune Symbol("main_sym")
   @rune CallConv("c")
   main() {
@@ -56,6 +59,9 @@ HK
 
 cat >"$STAGEB_SRC" <<'HK'
 static box Main {
+  @rune Hint(hot)
+  @contract(no_alloc)
+  @intrinsic_candidate("StringBox.length/0")
   @rune Symbol("main_sym")
   @rune CallConv("c")
   main(args) {
@@ -209,13 +215,22 @@ if not isinstance(main_runes, list):
     sys.exit(1)
 
 main_names = [entry.get("name") for entry in main_runes if isinstance(entry, dict)]
-if main_names != ["Symbol", "CallConv"]:
+if main_names != ["Hint", "Contract", "IntrinsicCandidate", "Symbol", "CallConv"]:
     print(f"unexpected main rune names: {main_names}", file=sys.stderr)
     sys.exit(1)
 
 main_args0 = main_runes[0].get("args") if isinstance(main_runes[0], dict) else None
 main_args1 = main_runes[1].get("args") if isinstance(main_runes[1], dict) else None
-if main_args0 != ["main_sym"] or main_args1 != ["c"]:
+main_args2 = main_runes[2].get("args") if isinstance(main_runes[2], dict) else None
+main_args3 = main_runes[3].get("args") if isinstance(main_runes[3], dict) else None
+main_args4 = main_runes[4].get("args") if isinstance(main_runes[4], dict) else None
+if (
+    main_args0 != ["hot"]
+    or main_args1 != ["no_alloc"]
+    or main_args2 != ["StringBox.length/0"]
+    or main_args3 != ["main_sym"]
+    or main_args4 != ["c"]
+):
     print("unexpected main rune args on declaration-local attrs", file=sys.stderr)
     sys.exit(1)
 
@@ -278,13 +293,22 @@ if not isinstance(runes, list):
     sys.exit(1)
 
 names = [entry.get("name") for entry in runes if isinstance(entry, dict)]
-if names != ["Symbol", "CallConv"]:
+if names != ["Hint", "Contract", "IntrinsicCandidate", "Symbol", "CallConv"]:
     print(f"unexpected Stage-B carrier rune names: {names}", file=sys.stderr)
     sys.exit(1)
 
 args0 = runes[0].get("args") if isinstance(runes[0], dict) else None
 args1 = runes[1].get("args") if isinstance(runes[1], dict) else None
-if args0 != ["main_sym"] or args1 != ["c"]:
+args2 = runes[2].get("args") if isinstance(runes[2], dict) else None
+args3 = runes[3].get("args") if isinstance(runes[3], dict) else None
+args4 = runes[4].get("args") if isinstance(runes[4], dict) else None
+if (
+    args0 != ["hot"]
+    or args1 != ["no_alloc"]
+    or args2 != ["StringBox.length/0"]
+    or args3 != ["main_sym"]
+    or args4 != ["c"]
+):
     print("unexpected Stage-B carrier rune args", file=sys.stderr)
     sys.exit(1)
 PY
@@ -333,13 +357,22 @@ if not isinstance(main_runes, list):
     sys.exit(1)
 
 names = [entry.get("name") for entry in main_runes if isinstance(entry, dict)]
-if names != ["Symbol", "CallConv"]:
+if names != ["Hint", "Contract", "IntrinsicCandidate", "Symbol", "CallConv"]:
     print(f"unexpected MIR rune names: {names}", file=sys.stderr)
     sys.exit(1)
 
 main_args0 = main_runes[0].get("args") if isinstance(main_runes[0], dict) else None
 main_args1 = main_runes[1].get("args") if isinstance(main_runes[1], dict) else None
-if main_args0 != ["main_sym"] or main_args1 != ["c"]:
+main_args2 = main_runes[2].get("args") if isinstance(main_runes[2], dict) else None
+main_args3 = main_runes[3].get("args") if isinstance(main_runes[3], dict) else None
+main_args4 = main_runes[4].get("args") if isinstance(main_runes[4], dict) else None
+if (
+    main_args0 != ["hot"]
+    or main_args1 != ["no_alloc"]
+    or main_args2 != ["StringBox.length/0"]
+    or main_args3 != ["main_sym"]
+    or main_args4 != ["c"]
+):
     print("unexpected MIR rune args on main attrs", file=sys.stderr)
     sys.exit(1)
 
@@ -366,6 +399,9 @@ functions.insert(0, helper_entry)
 
 main["attrs"] = {
     "runes": [
+        {"name": "Hint", "args": ["hot"]},
+        {"name": "Contract", "args": ["no_alloc"]},
+        {"name": "IntrinsicCandidate", "args": ["StringBox.length/0"]},
         {"name": "Symbol", "args": ["main_sym"]},
         {"name": "CallConv", "args": ["c"]},
     ]

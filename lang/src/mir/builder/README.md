@@ -18,12 +18,14 @@ Interface (stable)
   - delegate branch now finalizes returned MIR locally by injecting `user_box_decls` before normalization; this is the first `.hako`-side ownership move inside the Program(JSON)->MIR path.
   - gate decisions (`internal_on`, `delegate_on`, `selfhost_no_delegate_on`, `methodize_on`, `jsonfrag_normalize_on`) are centralized in `hako.mir.builder.internal.builder_config`, so this file is the owner of route sequencing, not raw env reads.
   - outer Program(JSON) input validation/coercion now lives in `hako.mir.builder.internal.program_json_input_contract`, so this file no longer keeps null/header checks inline.
+  - root Program(JSON) shape/body extraction now also lives on `hako.mir.builder.internal.program_json_input_contract`, so registry/fallback lowers no longer scan full root text with `defs` mixed in.
   - dev-only loop-force routing now lives in `hako.mir.builder.internal.loop_force_route`, so this file no longer keeps minimal loop MIR assembly or its gate inline.
   - the normal registry-first Program(JSON)->MIR authority block now lives in `hako.mir.builder.internal.registry_authority`
   - the non-registry/internal fallback chain now lives in `hako.mir.builder.internal.fallback_authority`
   - the delegate/provider compat gate now lives in `hako.mir.builder.internal.delegate_provider`
   - the delegate-side `user_box_decls` finalize plus handoff into shared normalize now also live in `hako.mir.builder.internal.delegate_finalize`
   - the shared outer finalize chain now also lives in `hako.mir.builder.internal.finalize_chain`
+  - promoted selfhost-first MIR canonicality now also lives on the shared finalize owner (`hako.mir.builder.internal.finalize_chain`), so collapsed payload reject no longer depends on shell wrappers
   - this file keeps route sequencing and only the remaining outer compat tails around those internal owners
   - outer Program(JSON) entry validation now stays on the internal owner `BuilderProgramJsonInputContractBox`, while `_emit_mir_from_program_json_text_checked(...)` keeps route dispatch only
   - Program(JSON) fail-fast tiny leaves now stay on that internal input-contract owner instead of widening `MirBuilderBox.hako`
@@ -32,6 +34,7 @@ Interface (stable)
   - shared finalize chain is now internal via `BuilderFinalizeChainBox.apply(...)` and `BuilderFinalizeChainBox.log_fail(...)`, so route leaves no longer carry inject/methodize/normalize/fail-tag logic inline
   - the remaining source-entry compat tail stays owner-local via `_emit_program_json_from_source_raw(...)`, while the func-def pre-lowering gate now lives in `hako.mir.builder.internal.func_defs_gate`; those tiny leaves no longer mix inline with checked handoff
   - internal route leaves are owner-local via `BuilderLoopForceRouteBox.try_emit(...)`, `_try_emit_registry_program_json(...)`, `_try_emit_fallback_program_json(...)`, and `BuilderUnsupportedTailBox.fail(...)`, so `_emit_internal_program_json(...)` only shows loop-force / registry / fallback / fail-fast route order
+  - full Program(JSON) inputs are now split as `root body fragment + defs lane`; fragment lowers only inspect extracted `Program.body`, while defs stay on the func-def gate
   - generic unsupported/no-match decision now lives in `hako.mir.builder.internal.unsupported_tail`, so this file no longer keeps ternary detect or fail-reason selection inline
   - mini internal lowers are allowed to keep tiny owner-local stringify helpers such as `_coerce_text_compat(...)` when their only legacy `"" + x` usage is the Program(JSON) entry coercion
   - `builder_config` and `delegate_finalize` now also centralize env/program-json text coercion through owner-local `_coerce_text_compat(...)`, so route/config owners no longer repeat raw `"" + x` on their remaining compat seams
@@ -50,6 +53,10 @@ Tags (Fail‑Fast, stable)
 - `[builder/selfhost-first:unsupported:inject_funcs_null]` — internal lower 後の defs inject が null を返したため中止
 - `[builder/selfhost-first:unsupported:methodize_null]` — internal lower 後の methodize が null を返したため中止
 - `[builder/selfhost-first:unsupported:normalize_null]` — internal lower 後の normalizer が null を返したため中止
+- `[builder/selfhost-first:unsupported:promote_missing_functions]` — promoted selfhost-first MIR に canonical `functions` root がないため中止
+- `[builder/selfhost-first:unsupported:promote_missing_blocks]` — promoted selfhost-first MIR に `blocks` がないため中止
+- `[builder/selfhost-first:unsupported:promote_collapsed_functions]` — promoted selfhost-first MIR に collapsed keep (`functions_0`) が残ったため中止
+- `[builder/selfhost-first:unsupported:promote_boxed_residue]` — promoted selfhost-first MIR に boxed textual residue が残ったため中止
 - `[builder/funcs:unsupported:loopform]` — Loop を含むが LoopForm 制約に当てはまらないか、selfhost builder ではまだ扱えない Loop 構造のため中止（Rust provider に退避可能）
 - `[builder/funcs:fail:no-main]` — inject_funcs が main を含まない MIR に defs を差し込もうとしたため拒否（`HAKO_MIR_BUILDER_REQUIRE_MAIN=1` 時）
 - `[mirbuilder/delegate]` — delegate path selected（Runner/extern provider 経由）

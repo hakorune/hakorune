@@ -46,18 +46,13 @@ static box ParserStmtBox {
 
     if me.is_opt_annotation_prefix(src, j, ctx) == 1 {
       me.clear_annotation_contract()
-      if ctx.starts_with(src, j, "@rune") == 1 {
-        if ctx.rune_enabled() != 1 {
-          local msg_rune = "[freeze:contract][parser/rune] enable NYASH_FEATURES=rune"
-          me.fail_annotation_contract(msg_rune, src)
-          return msg_rune
+      if ctx.metadata_annotations_enabled() != 1 {
+        local msg_gate = "[freeze:contract][parser/annotation_reserved] enable NYASH_FEATURES=rune or opt-annotations"
+        if ctx.starts_with(src, j, "@rune") == 1 {
+          msg_gate = "[freeze:contract][parser/rune] enable NYASH_FEATURES=rune or opt-annotations"
         }
-      } else {
-        if ctx.opt_annotations_enabled() != 1 {
-          local msg_reserved = "[freeze:contract][parser/annotation_reserved] enable NYASH_FEATURES=opt-annotations"
-          me.fail_annotation_contract(msg_reserved, src)
-          return msg_reserved
-        }
+        me.fail_annotation_contract(msg_gate, src)
+        return msg_gate
       }
       local next_j = me.parse_opt_annotation(src, j, ctx)
       local anno_err = me.get_annotation_contract()
@@ -575,8 +570,8 @@ static box ParserStmtBox {
     k = ParserStringUtilsBox.skip_ws(src, k)
 
     if name == "rune" {
-      if ctx.rune_enabled() != 1 {
-        return me.fail_annotation_contract("[freeze:contract][parser/rune] enable NYASH_FEATURES=rune", src)
+      if ctx.metadata_annotations_enabled() != 1 {
+        return me.fail_annotation_contract("[freeze:contract][parser/rune] enable NYASH_FEATURES=rune or opt-annotations", src)
       }
 
       {
@@ -609,12 +604,13 @@ static box ParserStmtBox {
         return me.fail_annotation_contract("[freeze:contract][parser/rune] rune name after @rune", src)
       }
 
+      if RuneContractBox.supported_name(rune_name) != 1 {
+        return me.fail_annotation_contract("[freeze:contract][parser/rune] supported: " + RuneContractBox.supported_names_msg(), src)
+      }
+
       local args_json = "[]"
       local arg_count = 0
-      local noarg = 0
-      if rune_name == "Public" || rune_name == "Internal" || rune_name == "FfiSafe" || rune_name == "ReturnsOwned" {
-        noarg = 1
-      }
+      local noarg = RuneContractBox.noarg_name(rune_name)
 
       k = ParserStringUtilsBox.skip_ws(src, k)
       if k < src.length() && src.substring(k, k+1) == "(" {
@@ -671,19 +667,6 @@ static box ParserStmtBox {
       }
       if noarg == 0 && args_json == "[]" {
         return me.fail_annotation_contract("[freeze:contract][parser/rune] rune args required for this rune", src)
-      }
-
-      local supported = 0
-      if rune_name == "Public" { supported = 1 }
-      if rune_name == "Internal" { supported = 1 }
-      if rune_name == "FfiSafe" { supported = 1 }
-      if rune_name == "Symbol" { supported = 1 }
-      if rune_name == "CallConv" { supported = 1 }
-      if rune_name == "ReturnsOwned" { supported = 1 }
-      if rune_name == "FreeWith" { supported = 1 }
-      if rune_name == "Ownership" { supported = 1 }
-      if supported == 0 {
-        return me.fail_annotation_contract("[freeze:contract][parser/rune] supported: Public|Internal|FfiSafe|Symbol|CallConv|ReturnsOwned|FreeWith|Ownership", src)
       }
 
       local value_contract = RuneContractBox.validate_value_contract(rune_name, args_json)

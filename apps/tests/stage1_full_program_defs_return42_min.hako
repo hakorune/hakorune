@@ -1,0 +1,9 @@
+static box Main {
+  helper() {
+    return 7
+  }
+
+  main() {
+    return 42
+  }
+}

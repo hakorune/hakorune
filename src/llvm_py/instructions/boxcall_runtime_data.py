@@ -93,10 +93,10 @@ def try_lower_collection_boxcall(
                     resolver=resolver,
                     arg_vids=args,
                 ):
-                    callee = declare(module, "nyash.array.set_hii", i64, [i64, i64, i64])
-                    return builder.call(callee, [recv_h, k, v], name="array_set_hii")
-                callee = declare(module, "nyash.array.set_hih", i64, [i64, i64, i64])
-                return builder.call(callee, [recv_h, k, v], name="array_set_hih")
+                    callee = declare(module, "nyash.array.slot_store_hii", i64, [i64, i64, i64])
+                    return builder.call(callee, [recv_h, k, v], name="array_slot_store_hii")
+                callee = declare(module, "nyash.array.slot_store_hih", i64, [i64, i64, i64])
+                return builder.call(callee, [recv_h, k, v], name="array_slot_store_hih")
             callee = declare(module, "nyash.runtime_data.set_hhh", i64, [i64, i64, i64])
             return builder.call(callee, [recv_h, k, v], name="runtime_data_set_hhh")
         callee = declare(module, "nyash.map.slot_store_hhh", i64, [i64, i64, i64])

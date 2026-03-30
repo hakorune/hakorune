@@ -13,6 +13,7 @@ using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.runtime.collections.array_state_core_box as ArrayStateCoreBox
 using selfhost.runtime.substrate.raw_array.raw_array_core_box as RawArrayCoreBox
+using selfhost.vm.boxes.mir_vm_s0_reg_utils as MirVmS0RegUtilsBox
 
 static box ArrayCoreBox {
   _is_i64_text(s) {
@@ -46,6 +47,11 @@ static box ArrayCoreBox {
     local raw = regs.getField(StringHelpers.int_to_str(vid))
     if raw == null { return 0 }
     return JsonFragBox._str_to_int("" + raw)
+  }
+
+  _read_reg_kind_or_scalar(kinds, vid) {
+    if kinds == null || vid == null || vid < 0 { return "scalar" }
+    return MirVmS0RegUtilsBox._reg_kind_get(kinds, vid)
   }
 
   _write_i64_dst(regs, dst, value) {
@@ -90,6 +96,17 @@ static box ArrayCoreBox {
     return value_state
   }
 
+  _oob_strict_enabled() {
+    local strict = env.get("HAKO_OOB_STRICT")
+    if strict == null { strict = env.get("NYASH_OOB_STRICT") }
+    if strict == null { strict = "0" }
+    return strict == "1" ? 1 : 0
+  }
+
+  _emit_oob_tag(tag) {
+    if me._oob_strict_enabled() == 1 { print(tag) }
+  }
+
   _len_state_key(rid) {
     local per_recv = me._size_state_per_recv()
     return MethodAliasPolicy.recv_len_key(per_recv, rid)
@@ -121,6 +138,12 @@ static box ArrayCoreBox {
     local idx_i64 = me._read_reg_i64_or_null(regs, arg0_i)
     local val_i64 = me._read_reg_i64_or_null(regs, arg1_i)
     if idx_i64 != null && idx_i64 < 0 {
+      me._emit_oob_tag("[oob/array/set] index out of bounds")
+      me._write_zero_dst(regs, dst)
+      return 1
+    }
+    if idx_i64 != null && idx_i64 >= cur_len {
+      me._emit_oob_tag("[oob/array/set] index out of bounds")
       me._write_zero_dst(regs, dst)
       return 1
     }
@@ -185,11 +208,36 @@ static box ArrayCoreBox {
     return 0
   }
 
-  _try_handle_push(seg, regs, rid, per_recv, key, cur_len, recv_h, dst) {
+  _try_handle_pop(regs, rid, dst, recv_h) {
+    if recv_h != null && recv_h > 0 {
+      local len_i64 = me.len_i64(recv_h)
+      if len_i64 <= 0 {
+        me._emit_oob_tag("[array/empty/pop] empty array")
+        me._write_zero_dst(regs, dst)
+        return 1
+      }
+      return 0
+    }
+    local key = me._len_state_key(rid)
+    local cur_len = me._len_state_value(regs, key)
+    if cur_len <= 0 {
+      me._emit_oob_tag("[array/empty/pop] empty array")
+      me._write_zero_dst(regs, dst)
+      return 1
+    }
+    return 0
+  }
+
+  _try_handle_push(seg, regs, kinds, rid, per_recv, key, cur_len, recv_h, dst) {
     local arg0_i = MiniMirV1Scan.first_arg_register(seg)
     local val_any = me._read_reg_i64_or_null(regs, arg0_i)
+    local arg0_kind = me._read_reg_kind_or_scalar(kinds, arg0_i)
     if recv_h != null && val_any != null {
-      local next_len_rt = me.push_hh(recv_h, val_any)
+      local append_any = val_any
+      if arg0_kind != "handle" {
+        append_any = externcall "nyash.box.from_i64"(val_any)
+      }
+      local next_len_rt = me.push_hh(recv_h, append_any)
       if next_len_rt > 0 {
         local value_state_rt = me._value_state()
         local _next_len_state = ArrayStateCoreBox.record_push_state(regs, per_recv, rid, cur_len, value_state_rt, arg0_i)
@@ -206,7 +254,7 @@ static box ArrayCoreBox {
     return 1
   }
 
-  try_handle(seg, regs, mname) {
+  try_handle(seg, regs, kinds, mname) {
     local rid = MiniMirV1Scan.receiver_id(seg)
     local dst = JsonFragBox.get_int(seg, "dst")
     local recv_h = me._read_reg_i64_or_null(regs, rid)
@@ -233,7 +281,11 @@ static box ArrayCoreBox {
       local per_recv = me._size_state_per_recv()
       local key = me._len_state_key(rid)
       local cur_len = me._len_state_value(regs, key)
-      return me._try_handle_push(seg, regs, rid, per_recv, key, cur_len, recv_h, dst)
+      return me._try_handle_push(seg, regs, kinds, rid, per_recv, key, cur_len, recv_h, dst)
+    }
+
+    if mname == "pop" {
+      return me._try_handle_pop(regs, rid, dst, recv_h)
     }
 
     return 0

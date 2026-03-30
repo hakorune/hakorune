@@ -6,6 +6,7 @@ Scope: `stage0/stage1/stage2+/stage3` の bootstrap/distribution 軸と、`.hako
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md
   - docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md
   - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/rune-and-stage2plus-final-shape-ssot.md
@@ -31,6 +32,11 @@ Related:
 - current `lang/bin/hakorune` / `target/selfhost/hakorune` を stage1 snapshot/proof line として読み、final distribution target と混同しない。
 - standard distribution shape is `hakoruneup + self-contained release bundle`; detailed packaging policy は `hakoruneup-release-distribution-ssot.md` を正本にする。
 - shared artifact/lane vocabulary is owned by `execution-lanes-and-axis-separation-ssot.md`; this child doc owns stage/distribution layering and library layering.
+- stage2+ entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
+- conduit note:
+  - `stage1` has concrete build/invoke conduits today (`tools/selfhost/build_stage1.sh`, `tools/selfhost/run_stage1_cli.sh`)
+  - `stage2+` in this document is a target-mainline/distribution reading, not a current standalone build-script family
+  - `stage3` remains a compare/sanity label only
 
 ## Fixed Reading
 
@@ -43,7 +49,7 @@ Related:
 2. `stage1`
    - selfhost bridge/proof line
    - current dev/stable snapshot artifacts live here
-   - may complete domain phases such as Array / Map / RuntimeData cleanup, but remains bridge/proof rather than final mainline
+   - collection cleanup may progress on the separate owner/substrate axis, but stage1 itself remains bridge/proof rather than final mainline
 3. `stage2+`
    - truly-current `.hako` compiler/runtime/stdlib/kernel/plugin
    - future distribution target
@@ -52,6 +58,7 @@ Related:
    - build lane re-emits Program/MIR payload snapshots from a known-good seed
    - identity / reproducibility confidence lane
    - helper: `tools/selfhost/stage3_same_result_check.sh`
+   - not a dedicated artifact-kind family
 
 ### Artifact axis
 
@@ -62,6 +69,7 @@ Related:
 3. These are artifact kinds, not stage numbers.
 4. `stage2+` is not a build script artifact kind in the current flow.
    - It is the future distribution target / compare label, not a separate artifact-kind family.
+5. first stage2+ optimization wave is `route/perf only`; this doc does not promote Rune/backend-active optimization as part of stage2+ entry.
 
 ### Library layering axis
 

@@ -20,9 +20,8 @@ pub(super) fn apply(cmd: &mut Command) {
     if std::env::var("NYASH_BOX_FACTORY_POLICY").is_err() {
         cmd.env("NYASH_BOX_FACTORY_POLICY", "builtin_first");
     }
-    if std::env::var("HAKO_MIR_BUILDER_METHODIZE").is_err() {
-        cmd.env("HAKO_MIR_BUILDER_METHODIZE", "1");
-    }
+    cmd.env("HAKO_MIR_BUILDER_METHODIZE", "1");
+    cmd.env("NYASH_MIR_UNIFIED_CALL", "1");
 
     // Mainline lock: keep MirBuilder on internal-only route.
     // Delegate route (env.mirbuilder.emit) is treated as compatibility-only.

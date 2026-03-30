@@ -48,4 +48,26 @@ static box BuilderFinalizeChainBox {
     me.log_fail("normalize_null")
     return null
   }
+
+  method coerce_promoted_mir_checked(mir_json) {
+    if mir_json == null { return null }
+    local s = "" + mir_json
+    if s.indexOf("\"functions\":") < 0 {
+      me.log_fail("promote_missing_functions")
+      return null
+    }
+    if s.indexOf("\"blocks\":") < 0 {
+      me.log_fail("promote_missing_blocks")
+      return null
+    }
+    if s.indexOf("\"functions_0\"") >= 0 {
+      me.log_fail("promote_collapsed_functions")
+      return null
+    }
+    if s.indexOf("MapBox(size=") >= 0 {
+      me.log_fail("promote_boxed_residue")
+      return null
+    }
+    return s
+  }
 }

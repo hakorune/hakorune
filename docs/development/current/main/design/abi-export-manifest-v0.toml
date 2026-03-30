@@ -61,7 +61,7 @@ unbox = "none"
 [[rows]]
 box_type = "MapBox"
 method = "size"
-symbol = "nyash.map.entry_count_h"
+symbol = "nyash.map.entry_count_i64"
 args = ["handle_owned"]
 ret = "imm_i64"
 arg_ownership = "borrowed"
@@ -74,7 +74,7 @@ unbox = "none"
 [[rows]]
 box_type = "MapBox"
 method = "len"
-symbol = "nyash.map.entry_count_h"
+symbol = "nyash.map.entry_count_i64"
 args = ["handle_owned"]
 ret = "imm_i64"
 arg_ownership = "borrowed"
@@ -165,8 +165,8 @@ unbox = "none"
 [[rows]]
 box_type = "ArrayBox"
 method = "set"
-symbol = "nyash.array.set_hih"
-args = ["handle_owned", "imm_i64", "handle_owned"]
+symbol = "nyash.array.slot_store_hih"
+args = ["handle_owned", "imm_i64", "value_public"]
 ret = "imm_i64"
 arg_ownership = "borrowed"
 ret_ownership = "none"

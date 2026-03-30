@@ -83,10 +83,11 @@ string `+` lowering 時、以下を満たすとき `concat_hh` より `concat3_h
 
 route 変換:
 
-- `get` -> `nyash.array.get_hh`
-- `set` -> `nyash.array.set_hhh`
-- `has` -> `nyash.array.has_hh`
 - `push` -> `nyash.array.slot_append_hh`
+- `has` -> `nyash.runtime_data.has_hh`
+
+`get/set` はこの段では generic `nyash.runtime_data.*` route を維持し、
+整数キーが証明できるときだけ AS-03b / AS-03c の array fast path へ入る。
 
 不成立時は既存 `nyash.runtime_data.*` route に戻す（意味不変）。
 
@@ -102,9 +103,9 @@ AS-03 が成立し、かつ key VID が `i64` と判定できる場合、
 
 route 変換:
 
-- `get` -> `nyash.array.get_hi`
-- `set` -> `nyash.array.set_hih`
-- `has` -> `nyash.array.has_hi`
+- `get` -> `nyash.array.slot_load_hi`
+- `set` -> `nyash.array.slot_store_hih`
+- `has` -> `nyash.runtime_data.has_hh`
 
 `push` は `nyash.array.slot_append_hh` を使用する。
 不成立時は AS-03 (`*_hh/*_hhh`) へ戻す（意味不変）。
@@ -112,7 +113,7 @@ route 変換:
 ### rule AS-03c: runtime_data array integer-key + integer-value set route
 
 AS-03b の `set` で、key と value の両方が `i64` と判定できる場合、
-`set_hih` より `set_hii` を優先する。
+`slot_store_hih` より `slot_store_hii` を優先する。
 
 判定源（保守的）:
 
@@ -121,9 +122,9 @@ AS-03b の `set` で、key と value の両方が `i64` と判定できる場合
 
 route 変換:
 
-- `set` -> `nyash.array.set_hii`
+- `set` -> `nyash.array.slot_store_hii`
 
-不成立時は AS-03b (`set_hih`) へ戻す（意味不変）。
+不成立時は AS-03b (`slot_store_hih`) へ戻す（意味不変）。
 
 ## Fail-Fast / 安全性
 
