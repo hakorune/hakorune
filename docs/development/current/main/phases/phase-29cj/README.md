@@ -8,6 +8,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/README.md
   - docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md
   - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
+  - docs/development/current/main/design/json-v0-route-map-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
   - crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs
@@ -73,6 +74,10 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
   - `lang/src/runner/stage1_cli.hako`
   - `lang/src/runner/launcher.hako`
 - active implementation focus has returned to `phase-29cu`
+- runner-side JSON artifact split is already landed:
+  - `src/runner/json_artifact/program_json_v0_loader.rs` is the compat loader owner for `--json-file`
+  - `src/runner/core_executor.rs` is terminal execution only
+  - do not reopen executor reshaping inside this phase
 
 ## Immediate Next
 
@@ -92,6 +97,9 @@ shared helper / smoke-tail 側は `phase-29ci` で closeout-ready に固定し�
 5. reopen this phase only when:
    - a new exact disappearing leaf appears above the stop-line
    - or boundary deletion-prep explicitly resumes after the next active lane work
+6. when boundary deletion-prep resumes, start from the compat-loader / caller inventory sync
+   - archive monitor/probe/docs first
+   - keep hard delete behind `phase-29ci` caller-inventory zero
 
 ## Status Lock
 

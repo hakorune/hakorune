@@ -5,6 +5,7 @@ Date: 2026-03-13
 Scope: `Program(JSON v0)` bootstrap boundary の remaining consumer table。
 Related:
   - docs/development/current/main/phases/phase-29ci/README.md
+  - docs/development/current/main/design/json-v0-route-map-ssot.md
   - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P2-LIVE-CALLER-DELETE-ORDER.md
   - docs/development/current/main/phases/phase-29ci/P3-SHARED-SHELL-HELPER-AUDIT.md
@@ -32,6 +33,7 @@ Boundary class:
 | Bucket | Boundary class | Owner / caller | Surface | Note |
 | --- | --- | --- | --- | --- |
 | `current authority` | `internal-compat-keep` | [`src/host_providers/mir_builder.rs`](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder.rs), [`src/host_providers/mir_builder/handoff.rs`](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/handoff.rs), [`src/host_providers/mir_builder/decls.rs`](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/decls.rs), [`src/host_providers/mir_builder/lowering.rs`](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/lowering.rs) | `emit_program_json_v0_for_strict_authority_source(...)`, `program_json_to_mir_json(...)` | current source-route authority; `lowering.rs` stays test-only evidence |
+| `compat loader keep` | `internal-compat-keep` | [`src/runner/json_artifact/mod.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/json_artifact/mod.rs), [`src/runner/json_artifact/program_json_v0_loader.rs`](/home/tomoaki/git/hakorune-selfhost/src/runner/json_artifact/program_json_v0_loader.rs) | `load_json_artifact_to_module(...)`, `load_program_json_v0_to_module(...)` | `--json-file` compat umbrella intake; owns import-bundle alias collect / merge / trace |
 | `legacy AST JSON compat keep` | `internal-compat-keep` | [`src/host_providers/mir_builder/lowering/ast_json.rs`](/home/tomoaki/git/hakorune-selfhost/src/host_providers/mir_builder/lowering/ast_json.rs) | `program_json_to_mir_json(...)` legacy AST fallback branch | phase-0 compat fallback |
 | `build surrogate keep` | `internal-compat-keep` | [`crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs) | `emit_program_json_v0_for_current_stage1_build_box_mode(...)` | compiled-stage1 `BuildBox.emit_program_json_v0` dispatch shim |
 | `build surrogate test keep` | `internal-compat-keep` | [`crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs`](/home/tomoaki/git/hakorune-selfhost/crates/nyash_kernel/src/plugin/module_string_dispatch/build_surrogate.rs) | same as above | route-match / arg-decode / encode regression coverage |
@@ -44,8 +46,9 @@ Boundary class:
 ## Delete Order Guard
 
 1. do not touch `current authority` until a non-JSON authority path exists
-2. thin `build surrogate keep` and `future-retire bridge` as separate owner buckets
-3. keep `.hako` live/bootstrap callers and diagnostics/probes out of the same patch as Rust host caller deletion
+2. keep `compat loader keep` explicit and separate from `future-retire bridge`
+3. thin `build surrogate keep` and `future-retire bridge` as separate owner buckets
+4. keep `.hako` live/bootstrap callers and diagnostics/probes out of the same patch as Rust host caller deletion
 
 ## Detail Links
 

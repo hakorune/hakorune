@@ -7,6 +7,7 @@ Related:
   - docs/development/current/main/phases/phase-29ci/README.md
   - docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md
   - docs/development/current/main/phases/phase-29ci/P1-FUTURE-RETIRE-BRIDGE-DELETE-ORDER.md
+  - docs/development/current/main/design/json-v0-route-map-ssot.md
   - CURRENT_TASK.md
   - src/stage1/program_json_v0/README.md
 ---
@@ -23,6 +24,8 @@ Related:
 - test-only smoke tail
 
 へ分けて、Rust-only delete slice と混ざらない順序を固定する。
+
+Runner-side compat loading (`src/runner/json_artifact/program_json_v0_loader.rs`) is already separated from this outer-caller ledger. Do not count it as a `.hako` live caller, shell helper, or smoke-tail bucket.
 
 - This is the first outer caller wave: keep it separated from `P3-SHARED-SHELL-HELPER-AUDIT.md`, and do not mix shared shell helper edits into this bucket.
 
@@ -95,6 +98,7 @@ Related:
 ## Guardrails
 
 - `.hako` live/bootstrap owner と shared shell helper を同じ patch で消さない
+- runner-side compat loader seam (`src/runner/json_artifact/**`) を outer caller bucket に混ぜない
 - smoke tail 43 file を shared helper keep と誤って同一 bucket にしない
 - diagnostics/probe keep を live caller より先に retire しない
 - current authority (`emit_program_json_v0_for_strict_authority_source(...)`) には触らない

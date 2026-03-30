@@ -6,6 +6,7 @@ Scope: `phase-29ci` の `future-retire bridge` bucket を delete-order 目線で
 Related:
   - docs/development/current/main/phases/phase-29ci/README.md
   - docs/development/current/main/phases/phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md
+  - docs/development/current/main/design/json-v0-route-map-ssot.md
   - CURRENT_TASK.md
   - src/runner/stage1_bridge/README.md
   - src/runner/stage1_bridge/program_json_entry/README.md
@@ -24,6 +25,9 @@ Related:
 を delete-order の SSOT として固定する。
 
 ## Exact Bucket Boundary
+
+`src/runner/json_artifact/**` and `src/runner/core_executor.rs` are not part of this bucket.
+They now form the runner-side compat-loader / terminal-exec seam and should be tracked via `P0`, not folded back into the future-retire bridge cluster.
 
 ### Inner bridge cluster
 
@@ -64,6 +68,7 @@ Related:
 ## Guardrails
 
 - outer caller reshape を次 slice の目的にしない
+- `src/runner/json_artifact/**` を bridge cluster の一部として数えない
 - `.hako` / shell helper audit を inner bridge cleanup と同じ patch に混ぜない
 - `phase-29ch` authority migration を reopen しない
 - `MirBuilderBox.emit_from_source_v0(...)` を diagnostics/probe bucket へ落とさない
