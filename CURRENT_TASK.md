@@ -166,7 +166,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - freeze `Array / Map / RuntimeData cleanup` as regression packs only; do not reopen owner migration without a new exact blocker
   - keep stage2-mainline entry on `.hako authority`, `.inc` thin shim, and native metal keep, with `hako.abi + hako.value_repr + ownership/layout manifest` as the boundary truth
   - first stage2-mainline optimization wave is `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
-  - fast-smoke CI now stages built plugin artifacts into `plugins/*` after `cargo build --release`, so `ternary_basic` does not depend on prebuilt plugin .so availability on fresh runners
+  - fast-smoke CI now stages built plugin artifacts into `plugins/*` after `cargo build --release --workspace`, so `ternary_basic` does not depend on prebuilt plugin .so availability on fresh runners
   - keep the collection quick-vm closeout (`MapBox.get/size`, `String substring/indexOf`, `Array length/oob/pop`) as a regression pack only; do not reopen owner semantics in this lane
   - stage2-mainline first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
   - refreshed `kilo_micro_array_getset` same-artifact baseline is `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`

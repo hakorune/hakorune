@@ -38,9 +38,7 @@ jobs:
 
       - name: Build (release)
         run: |
-          cargo build --release -j 2
-          cargo build --release -p nyash-llvm-compiler -j 2
-          cargo build --release -p nyash_kernel -j 2
+          cargo build --release --workspace -j 2
           bash tools/build_hako_llvmc_ffi.sh
 
       - name: Stage plugin artifacts
