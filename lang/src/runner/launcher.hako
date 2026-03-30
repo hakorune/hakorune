@@ -37,32 +37,6 @@ static box LauncherCompileFacadeBox {
   }
 }
 
-static box LauncherProgramJsonBuildBox {
-  method emit_program_json_v0(tag, source_text) {
-    return me._emit_program_json_v0_raw(tag, source_text)
-  }
-
-  method _emit_program_json_v0_raw(tag, source_text) {
-    local prog = LauncherCompileFacadeBox.emit_program_json_v0(source_text)
-    if prog != null { return prog }
-    print(tag + ": BuildBox returned null")
-    return null
-  }
-}
-
-static box LauncherProgramJsonMirBox {
-  method emit_from_program_json_v0(tag, program_json_text) {
-    return me._emit_from_program_json_v0_raw(tag, program_json_text)
-  }
-
-  method _emit_from_program_json_v0_raw(tag, program_json_text) {
-    local mir = LauncherCompileFacadeBox.emit_from_program_json_v0(program_json_text)
-    if mir != null { return mir }
-    print(tag + ": MirBuilderBox returned null")
-    return null
-  }
-}
-
 static box LauncherInputContractBox {
   method parse_build_exe_request(args) {
     local argc = 0
@@ -312,7 +286,7 @@ static box LauncherArtifactIoBox {
     if prog_path != null && prog_path != "" {
       return me._load_program_json_from_path_checked(tag, prog_path)
     }
-    return HakoCli._emit_program_json_from_source_path_checked(tag, source_path)
+    return LauncherPayloadContractBox.emit_program_json_from_source_path_checked(tag, source_path)
   }
 
   method print_or_write_output(tag, path, content, quiet){
@@ -364,7 +338,7 @@ static box LauncherPayloadContractBox {
   }
 
   method emit_program_json_checked(tag, source_text){
-    local prog = LauncherProgramJsonBuildBox.emit_program_json_v0(tag, source_text)
+    local prog = LauncherCompileFacadeBox.emit_program_json_v0(source_text)
     if prog == null { return null }
     return me._coerce_program_json_output_checked(tag, prog)
   }
@@ -372,7 +346,7 @@ static box LauncherPayloadContractBox {
   method emit_mir_json_checked(tag, program_json){
     local prog = me._coerce_program_json_for_emit_mir_checked(tag, program_json)
     if prog == null { return null }
-    local mir = LauncherProgramJsonMirBox.emit_from_program_json_v0(tag, prog)
+    local mir = LauncherCompileFacadeBox.emit_from_program_json_v0(prog)
     if mir == null { return null }
     return me._coerce_mir_output_checked(tag, mir)
   }
@@ -554,7 +528,7 @@ static box HakoCli {
     local quiet = req.get("quiet")
 
     local tag = "[hakorune] emit program-json"
-    local ps = me._emit_program_json_from_source_path_checked(tag, path)
+    local ps = LauncherPayloadContractBox.emit_program_json_from_source_path_checked(tag, path)
     if ps == null { return 92 }
 
     if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ps, quiet) != 1 {
@@ -579,7 +553,7 @@ static box HakoCli {
     local prog_json = LauncherArtifactIoBox.load_program_json_from_path_or_source(tag, prog_path, source_path)
     if prog_json == null { return 92 }
 
-    local ms = me._emit_mir_json_checked(tag, prog_json)
+    local ms = LauncherPayloadContractBox.emit_mir_json_checked(tag, prog_json)
     if ms == null { return 92 }
     if LauncherArtifactIoBox.print_or_write_output(tag, out_path, ms, quiet) != 1 {
       return 92
@@ -594,31 +568,6 @@ static box HakoCli {
   method cmd_check(args){
     print("[hakorune] check: not implemented yet")
     return 93
-  }
-
-  method _emit_program_json_checked(tag, source_text){
-    return LauncherPayloadContractBox.emit_program_json_checked(tag, source_text)
-  }
-
-  method _emit_program_json_raw(tag, source_text){
-    return LauncherProgramJsonBuildBox.emit_program_json_v0(tag, source_text)
-  }
-
-  method _coerce_program_json_output_checked(tag, prog){
-    local ps = me._coerce_text_compat(prog)
-    if me._program_json_has_markers(ps) != 1 {
-      print(tag + ": unexpected Program(JSON) output (missing version/kind)")
-      return null
-    }
-    return ps
-  }
-
-  method _emit_program_json_from_source_path_checked(tag, source_path){
-    return LauncherPayloadContractBox.emit_program_json_from_source_path_checked(tag, source_path)
-  }
-
-  method _emit_mir_json_checked(tag, program_json){
-    return LauncherPayloadContractBox.emit_mir_json_checked(tag, program_json)
   }
 
   method _coerce_program_json_for_emit_mir_checked(tag, program_json){
@@ -647,10 +596,6 @@ static box HakoCli {
     return 1
   }
 
-  method _emit_mir_from_program_json_text_checked(tag, program_json_text){
-    return LauncherProgramJsonMirBox.emit_from_program_json_v0(tag, program_json_text)
-  }
-
   method _coerce_mir_output_checked(tag, mir){
     local ms = me._coerce_text_compat(mir)
     if ms.indexOf("\"functions\"") < 0 {
@@ -658,10 +603,6 @@ static box HakoCli {
       return null
     }
     return ms
-  }
-
-  method _emit_mir_json_from_source_path_checked(tag, source_path){
-    return LauncherPayloadContractBox.emit_mir_json_from_source_path_checked(tag, source_path)
   }
 
   method _emit_exe_from_source_root_checked(tag, source_path, requested_out_path){
@@ -729,7 +670,7 @@ static box HakoCli {
     local source_path = req.get("input_path")
     local out_path = req.get("out_path")
 
-    local ms = me._emit_mir_json_from_source_path_checked(tag, source_path)
+    local ms = LauncherPayloadContractBox.emit_mir_json_from_source_path_checked(tag, source_path)
     if ms == null { return 95 }
     if LauncherArtifactIoBox.write_file(tag, out_path, ms, 1) != 1 { return 95 }
     return 0

@@ -379,6 +379,9 @@ Related:
             4. shell strategy/contract split
             5. compat physical isolation
             6. naming cleanup last
+          - launcher facade extraction is now partially landed:
+            - `launcher.hako` no longer keeps separate Program(JSON) wrapper boxes; emit/build now route through `LauncherCompileFacadeBox` + payload-contract helpers directly
+            - keep shrinking launcher toward CLI/request dispatch only
           - landed cleanup closures:
             - archive-ready monitor/probe/docs bucket is archive-only evidence now
             - `tools/smokes/v2/lib/test_runner_builder_helpers.sh` now has explicit direct-MIR detection + compat fallback helpers, so the mixed route probe bucket is closed

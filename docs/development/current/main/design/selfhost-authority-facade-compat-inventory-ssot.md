@@ -53,7 +53,7 @@ selfhost lane で混線しやすい 3 軸
 | --- | --- | --- | --- | --- |
 | `lang/src/compiler/build/build_box.hako` | `source -> Program(JSON v0)` authority | `keep authority` | `BuildBox.emit_program_json_v0(...)` is the current source-to-Program authority | keep as the single authority owner |
 | `lang/src/compiler/entry/compiler_stageb.hako` | Stage-B emit entry | `shrink to adapter` | Stage-B entry currently still carries parse/body/defs/import shaping residue | shrink toward input adaptation + `BuildBox` handoff only |
-| `lang/src/runner/launcher.hako` | stage1 CLI facade/orchestration | `shrink to facade` | still touches Build/MirBuilder/LLVM backend details directly | extract a compile facade and keep CLI/request dispatch only |
+| `lang/src/runner/launcher.hako` | stage1 CLI facade/orchestration | `shrink to facade` | now routes build/emit through `LauncherCompileFacadeBox` and payload-contract helpers; direct Program(JSON) wrapper boxes are gone | keep shrinking toward CLI/request dispatch only |
 | `lang/src/runner/stage1_cli_env.hako` | stage1 env-entry authority cluster | `same-file cluster keep` | owner-local small boxes are already split, but same-file for now | defer file split until authority/facade cleanup proves a blocker |
 | `tools/selfhost/build_stage1.sh` | bootstrap strategy owner | `strategy shell` | chooses artifact/bootstrap/reuse/fallback strategy | keep strategy here and avoid compiler-authority growth |
 | `tools/selfhost/lib/stage1_contract.sh` | stage1 shell contract owner | `contract shell` | owns env inject / emit proof / capability verify | keep shell contract centralized here |
