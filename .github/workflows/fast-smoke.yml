@@ -15,7 +15,6 @@ jobs:
     timeout-minutes: 20
     env:
       HAKO_AOT_FFI_LIB: ${{ github.workspace }}/target/release/libhako_llvmc_ffi.so
-      NYASH_BOX_FACTORY_POLICY: builtin_first
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,6 +42,9 @@ jobs:
           cargo build --release -p nyash-llvm-compiler -j 2
           cargo build --release -p nyash_kernel -j 2
           bash tools/build_hako_llvmc_ffi.sh
+
+      - name: Stage plugin artifacts
+        run: bash tools/plugins/stage-built.sh
 
       - name: EXE smoke (ternary_basic -> 10)
         run: |
