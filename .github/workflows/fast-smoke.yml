@@ -38,6 +38,7 @@ jobs:
 
       - name: Build (release)
         run: |
+          cargo clean
           cargo build --release --workspace -j 2
           bash tools/build_hako_llvmc_ffi.sh
 
