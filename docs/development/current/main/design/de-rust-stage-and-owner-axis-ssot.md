@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-22
-Scope: `stage0/stage1/stage2+` の実行・証跡軸と、`owner/substrate` の責務軸を分離して、phase stop-line と end-state completion の混線を防ぐ。
+Scope: `stage0/stage1/stage2-mainline/stage2+` の実行・証跡軸と、`owner/substrate` の責務軸を分離して、phase stop-line と end-state completion の混線を防ぐ。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -23,7 +23,7 @@ Related:
 
 ## Purpose
 
-- `stage0/stage1/stage2+` と `owner/substrate` を同じ progress bar として読まない。
+- `stage0/stage1/stage2-mainline/stage2+` と `owner/substrate` を同じ progress bar として読まない。
 - phase の `done-enough stop line` と end-state の `finished` を分離する。
 - bootstrap/buildability の keep と `.hako` owner shift を別軸で読む。
 - artifact/lane の daily policy は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にする。
@@ -37,7 +37,8 @@ Related:
 | --- | --- | --- |
 | `stage0` | Rust bootstrap / first-build / recovery lane | explicit keep |
 | `stage1` | proof / bridge line for domain-phase owner slices | proof-only or bring-up |
-| `stage2+` | daily selfhost mainline / final distribution target | target mainline |
+| `stage2-mainline` | daily selfhost mainline / current distribution lane | target mainline |
+| `stage2+` | umbrella / end-state distribution target | umbrella reading |
 
 ### 1.2 Owner axis
 
@@ -51,28 +52,30 @@ Related:
 ## 2. Reading Rules
 
 1. `stage0` keep は owner migration の失敗を意味しない。
-2. `stage1` proof は `stage2+` daily mainline 完了を意味しない。
+2. `stage1` proof は `stage2-mainline` daily mainline 完了を意味しない。
 3. phase の `done-enough stop line` は owner axis 上の局所 closeout であり、end-state completion とは別。
 4. `kernel authority zero` は `substrate zero` ではない。
 5. `buildability keep` は preservation-first で残してよいが、daily owner を逆流させてはいけない。
 6. Rune のような declaration-contract layer は `.hako` compiler authority 側に属するが、substrate migration を意味しない。
-7. `stage2+` は `.hako` authority mainline を意味するが、native zero や Rust source zero を意味しない。
-8. default distribution shape is `hakoruneup + self-contained release bundle`; stage axis reading と packaging shape を混線させない。
-9. boundary truth belongs to `hako.abi / hako.value_repr / ownership-layout manifest`, not to `.inc` partitions.
-10. collection cleanup detail belongs to owner/substrate SSOTs; this doc keeps stage vocabulary only and does not use domain-phase progress as a stage definition.
-11. exact `stage1 -> stage2+` entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`; this doc owns axis vocabulary only.
+7. `stage2-mainline` は `.hako` authority mainline を意味するが、native zero や Rust source zero を意味しない。
+8. `stage2+` は umbrella / end-state 読みであり、daily lane 名ではない。
+9. default distribution shape is `hakoruneup + self-contained release bundle`; stage axis reading と packaging shape を混線させない。
+10. boundary truth belongs to `hako.abi / hako.value_repr / ownership-layout manifest`, not to `.inc` partitions.
+11. collection cleanup detail belongs to owner/substrate SSOTs; this doc keeps stage vocabulary only and does not use domain-phase progress as a stage definition.
+12. exact `stage1 -> stage2-mainline` entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`; this doc owns axis vocabulary only.
 
 ## 3. Current De-Rust Reading
 
 Canonical short read:
 
-- `stage0 keep / stage1 bridge+proof / stage2+ final mainline`
+- `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`
 
 ### 3.1 Stage axis now
 
 - `stage0`: Rust bootstrap / recovery keep
 - `stage1`: bridge / proof line
-- `stage2+`: `.hako` mainline target / final distribution target
+- `stage2-mainline`: `.hako` mainline target / daily distribution lane
+- `stage2+`: umbrella / end-state distribution target
 
 ### 3.2 Owner axis now
 
@@ -81,7 +84,7 @@ Canonical short read:
 - backend authority: queued / separate lane
 - substrate: Rust/C keep
 - current kernel-side owner/substrate detail is owned by `collection-raw-substrate-contract-ssot.md` and `stage2-collection-substrate-cleanup-ssot.md`
-- current stage2+ first-wave reading is `route/perf only`, with Rune optimization metadata still `parse/noop` and backend-active optimization deferred
+- current stage2-mainline first-wave reading is `route/perf only`, with Rune optimization metadata still `parse/noop` and backend-active optimization deferred
 
 ## 4. Phase-29cm Interpretation
 
@@ -115,6 +118,6 @@ If the residue is still method-shaped and still crossed by the daily `.hako` pat
 
 ## 6. Non-Goals
 
-- using `stage1` success as proof that `stage2+` owner migration is finished
+- using `stage1` success as proof that `stage2-mainline` owner migration is finished
 - using `done-enough` wording to mean `finished`
 - reopening perf merely because a phase acceptance set is green

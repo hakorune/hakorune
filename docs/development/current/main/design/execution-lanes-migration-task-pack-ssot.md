@@ -91,7 +91,7 @@ Related:
 ### W2
 
 - stage1 artifacts are consistently described as proof/snapshot/bridge only
-- distribution wording is stage2+ only
+- distribution wording is stage2-mainline daily lane, with stage2+ reserved for umbrella/end-state reading
 
 ### W3
 

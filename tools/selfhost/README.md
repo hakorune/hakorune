@@ -8,8 +8,10 @@ Purpose
   - canonical stage/owner/artifact reading lives in `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
   - `stage0` = bootstrap keep
   - `stage1` = current bootstrap artifacts / proof line
-  - `stage2+` = future mainline / distribution target
+  - `stage2-mainline` = daily mainline lane
+  - `stage2+` = future mainline / distribution umbrella
   - `stage3` in this README is only the same-result compare/sanity label, not a standalone build-conduit family
+  - new docs should prefer role-first labels such as `bridge-cli`, `proof-runner`, and `mainline-bundle`; historical stage-numbered artifact names remain compat labels
 
 Script
 - tools/selfhost/run.sh

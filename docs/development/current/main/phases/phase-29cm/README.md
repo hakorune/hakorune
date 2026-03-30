@@ -31,11 +31,11 @@ Related:
 
 ## Axis Lock
 
-- `stage0/stage1/stage2+` と `owner/substrate` は別軸で読む。
+- `stage0/stage1/stage2-mainline/stage2+` と `owner/substrate` は別軸で読む。
 - current matrix SSOT:
   - `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
 - this phase owns only the kernel owner axis.
-- `done-enough stop line` here means phase-local owner progress, not end-state completion for stage2+ mainline.
+- `done-enough stop line` here means phase-local owner progress, not end-state completion for stage2-mainline daily mainline.
 
 ## Non-Goals
 

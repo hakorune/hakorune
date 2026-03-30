@@ -35,7 +35,7 @@ Related:
 - parser parity / AST/direct MIR shape / backend scope を実装前に固定する。
 - Rune lane を `phase-29ct` substrate work や `phase-29y` runtime migration と混ぜない。
 - `Program(JSON v0)` は Rune で widen しない。
-- stage2+ / distribution policy の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この phase は Rune lane のみを owner とする。
+- stage2-mainline / stage2+ / distribution policy の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この phase は Rune lane のみを owner とする。ここでの `stage2-mainline` は daily lane、`stage2+` は umbrella / end-state reading だよ。
 
 ## Current Read
 

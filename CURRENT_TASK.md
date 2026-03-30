@@ -56,11 +56,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - keep archive-later compare wrapper inventory closed and do not reopen daily ownership
   - treat delete/archive review as blocked until the remaining wrapper inventory actually reaches zero
 
-### stage2-hako-owner
+### stage2-mainline
 
 - status: `active bounded-3 stop-line landed / entry-task-pack sync`
-- scope: stage2+ を mostly `.hako` authority に寄せ、`.inc` を thin shim に薄化する。native metal keep は残す。current stop-line は reached なので、この lane は perf 復帰前の authority/shim boundary 固定として扱う。
-- collection substrate cleanup is tracked on the owner/substrate axis; stage1 remains bridge/proof and stage2+ stays the final mainline.
+- scope: stage2-mainline を mostly `.hako` authority に寄せ、stage2+ umbrella は end-state 参照に残しつつ `.inc` を thin shim に薄化する。native metal keep は残す。current stop-line は reached なので、この lane は perf 復帰前の authority/shim boundary 固定として扱う。
+- collection substrate cleanup is tracked on the owner/substrate axis; stage1 remains bridge/proof and stage2-mainline is the daily mainline; stage2+ stays the umbrella / end-state reading.
 - boundary truth:
   - SSOT is `hako.abi + hako.value_repr + ownership/layout manifest`
   - `c-abi/include/*.h`, `*.c`, and `*.inc` are boundary artifacts / thin emitted forms, not semantic owners
@@ -144,7 +144,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `execution-lanes-and-axis-separation-ssot.md` remains the canonical stage/owner/artifact vocabulary
     - `tools/selfhost/README.md`, `selfhost-bootstrap-route-ssot.md`, and `stage2-selfhost-and-hako-alloc-ssot.md` now all say the same thing:
       - `stage1` has concrete build/invoke conduits today
-      - `stage2+` is target mainline/distribution reading, not a current standalone build-script family
+      - `stage2-mainline` is the daily mainline lane; `stage2+` is the umbrella / end-state distribution reading, not a current standalone build-script family
       - `stage3` is a compare/sanity label, not an artifact-kind family
     - `tools/selfhost/stage3_same_result_check.sh` help now explicitly calls `stage2-bin` / `stage3-bin` compare-artifact labels only
   - collection stop-line regression pack:
@@ -161,13 +161,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - explicit `HAKO_MIR_BUILDER_FUNCS=1` now lowers helper defs as a flat canonical `functions[]` splice
 - next exact slice:
   - treat `stage1_cli_env` selfhost-first strict green and explicit `HAKO_MIR_BUILDER_FUNCS=1` flat defs splice as landed evidence
-  - sync the new master task pack across `CURRENT_TASK.md` / `10-Now.md` / stage docs so `stage0 keep / stage1 bridge+proof / stage2+ final mainline` reads the same everywhere
-  - lock the `stage1 -> stage2+` entry gate on `.hako` canonical MIR authority, thin Rust bridge/materializer, and stage1-first identity route
+  - sync the new master task pack across `CURRENT_TASK.md` / `10-Now.md` / stage docs so `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella` reads the same everywhere
+  - lock the `stage1 -> stage2-mainline` entry gate on `.hako` canonical MIR authority, thin Rust bridge/materializer, and stage1-first identity route
   - freeze `Array / Map / RuntimeData cleanup` as regression packs only; do not reopen owner migration without a new exact blocker
-  - keep stage2+ entry on `.hako authority / .inc thin shim / native metal keep`, with `hako.abi + hako.value_repr + ownership/layout manifest` as the boundary truth
-  - first stage2+ optimization wave is `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
+  - keep stage2-mainline entry on `.hako authority`, `.inc` thin shim, and native metal keep, with `hako.abi + hako.value_repr + ownership/layout manifest` as the boundary truth
+  - first stage2-mainline optimization wave is `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
   - keep the collection quick-vm closeout (`MapBox.get/size`, `String substring/indexOf`, `Array length/oob/pop`) as a regression pack only; do not reopen owner semantics in this lane
-  - stage2+ first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
+  - stage2-mainline first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
   - refreshed `kilo_micro_array_getset` same-artifact baseline is `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`
   - refreshed direct-route bundle is `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-refresh/`:
     - `mir_windows` stays on `Method:RuntimeDataBox.{push,get,set}`
@@ -186,12 +186,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - treat `perf_top_group_summary` as a noise detector, not as the sole acceptance gate
   - cold 1-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-cold1/` shifts more weight into loader/runner (`87.25% bundle / 6.90% loader / 5.84% runner`), so keep `3 runs + asm` as the decision gate and use 1-run only as startup-residue evidence
   - C baseline loop-shape check (`bench_kilo_micro_array_getset.c` + `perf annotate --symbol main`) shows the expected scalar loop body with samples spread across `and / mov / inc / mov / cmp`, while the AOT direct probe still concentrates on the loop counter `cmp / inc`; this strengthens the reading that the remaining gap is not a route residue inside the hot block
-  - lowered IR now exposes the exact remaining waste candidate more directly: `ny_main` keeps the loop induction variable `%i` in an `alloca` with per-iteration `load -> add -> store`, while the C baseline keeps its counter in a register; the `sum` alloca is intentional because the benchmark declares it `volatile`
+  - llpath canonical emit contract landed: `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now canonicalizes pure-first IR with `opt -passes=mem2reg` before `llc` in the current implementation, and the Array micro seed keeps the benchmark sink honest via explicit volatile `sum` accesses
+  - landed proof bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-mem2reg-v2/` now shows `ny_main` registerizing the loop IV as SSA/PHI (`%i.1 = phi ...`) and the emitted asm drops the `%i` stack spill; sampled hot insns collapse to `and / inc` on the loop body, while `sum` remains the only intentional stack sink
+  - the latest 3-run residue summary is `93.66% bundle / 3.02% loader / 0.56% runner`; keep `3 runs + asm` as the judge and treat the grouped summary as a WSL noise detector
   - keep Rune optimization metadata `parse/noop`; backend-active consumption stays outside this task pack
 - next exact leaf:
-  - do not cut a blind code leaf while the refreshed direct bundle still collapses into `ny_main`
   - do not reopen Rust substrate helper splits (`array_slot_store_i64` / `with_array_box`) from historical evidence alone; the current same-artifact direct probe no longer exposes them in the hot block
-  - the next accepted slice, if we choose one, should target the loop-induction spill in `ny_main` rather than helper splits; the measurable leaf is the `%i` alloca/load/store chain in `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-repeatA/lowered.ll`
+  - the `%i` spill leaf is now closed by the boundary helper contract; leave the current Array lane at the accepted leaf boundary unless a new exact blocker appears
   - docs-first sync only; no broad stage2 owner expansion before the entry task pack is closed
   - keep native metal leafs resident; this lane is about authority migration, not substrate zero or full source-zero
   - read final distribution as `hakoruneup + self-contained release bundle`, not as a single stage artifact
@@ -257,6 +258,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `array_string_len_window` now carries `producer_kind=ArrayGet` / `boundary_kind=Store` / `post_store_use=LenObserver` / `known_len=-1`
     - timing-only recheck stayed in the same kept lane on this machine: `kilo_kernel_small_hk = 725 ms` (`warmup=1 repeat=3`) and `741 ms` (`warmup=1 repeat=20`), with `aot_status=ok`
   - rejected follow-up: concat3 reuse-only alias to earlier insert birth regressed stable main to `754-755 ms` under `repeat=3/20`; keep the current canonical birth split as-is until a fresh placement reason appears
+  - next exact leaf: bridge-side `Program(JSON v0)` import-bundle trace (`NYASH_JSON_V0_IMPORT_TRACE=1`); keep `string_concat` / `array_set` births as-is unless the trace shows the import bundle path is the hot leaf
   - rejected follow-up: canonical `concat3_hhh` birth with later reuse alias regressed stable main to `723 ms` on `repeat=3` and `777 ms` on `repeat=20`; keep the current upstream placement lane open instead of forcing another birth-site alias
   - rejected follow-up: rewriting the insert-mid route to emit `concat3_hhh` directly still regressed main to `775 ms` and tripped `build_failed_after_helper_retry` on the ladder lane; keep the current helper-backed insert route for now and do not treat the concat3 rewrite as the canonical birth
   - accepted short-slice substring freeze cut:

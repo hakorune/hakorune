@@ -14,7 +14,7 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 - perf lane は monitor-only（failure-driven restart）を維持する。
 - portability CI は cost-aware（macOS は常時必須にしない）。
 - Rune metadata lane は `@rune` を canonical surface とし、legacy `@hint/@contract/@intrinsic_candidate` は compat alias に格下げした。first backend-active consumer は引き続き narrow で、optimization metadata は parse/noop keep のままに固定する。
-- `stage2+` への entry task pack は `docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` を正本にし、`stage0 keep / stage1 bridge+proof / stage2+ final mainline` を canonical reading に固定する。first optimization wave は `.hako -> ny-llvmc(boundary) -> C ABI` の route/perf only に固定し、Rune optimization metadata は parse/noop keep のままにする。
+- `stage2-mainline` への entry task pack は `docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` を正本にし、`stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella` を canonical reading に固定する。first optimization wave は `.hako -> ny-llvmc(boundary) -> C ABI` の route/perf only に固定し、Rune optimization metadata は parse/noop keep のままにする。
 
 ## Migration Rule
 

@@ -141,6 +141,74 @@ static void hako_llvmc_maybe_dump_ir_file(const char* llpath) {
   fclose(src);
 }
 
+static int hako_llvmc_file_exists(const char* path);
+
+static int hako_llvmc_mem2reg_canonicalize_and_llc(
+    const char* llpath,
+    const char* obj_out) {
+  char canon_ll[1024];
+  char cmd[2048];
+  int n;
+  int rc;
+
+  if (!llpath || !llpath[0] || !obj_out || !obj_out[0]) {
+    hako_llvmc_emit_route_trace("mem2reg", "fail", "missing-path", "");
+    return -1;
+  }
+
+  n = snprintf(
+      canon_ll,
+      sizeof(canon_ll),
+      "%s/hako_pure_mem2reg_%d.ll",
+      hako_llvmc_tmp_dir_fallback(),
+      (int)getpid());
+  if (n <= 0 || (size_t)n >= sizeof(canon_ll)) {
+    hako_llvmc_emit_route_trace("mem2reg", "fail", "tmp-path-too-long", llpath);
+    return -1;
+  }
+
+  remove(canon_ll);
+  n = snprintf(
+      cmd,
+      sizeof(cmd),
+      "opt -passes=mem2reg -S -o \"%s\" \"%s\" 2>/dev/null",
+      canon_ll,
+      llpath);
+  if (n <= 0 || (size_t)n >= sizeof(cmd)) {
+    remove(canon_ll);
+    hako_llvmc_emit_route_trace("mem2reg", "fail", "opt-cmd-too-long", llpath);
+    return -1;
+  }
+
+  rc = system(cmd);
+  if (rc != 0 || !hako_llvmc_file_exists(canon_ll)) {
+    remove(canon_ll);
+    hako_llvmc_emit_route_trace("mem2reg", "fail", "opt", llpath);
+    return -1;
+  }
+
+  hako_llvmc_maybe_dump_ir_file(canon_ll);
+  n = snprintf(
+      cmd,
+      sizeof(cmd),
+      "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null",
+      obj_out,
+      canon_ll);
+  if (n <= 0 || (size_t)n >= sizeof(cmd)) {
+    remove(canon_ll);
+    hako_llvmc_emit_route_trace("llc", "fail", "cmd-too-long", canon_ll);
+    return -1;
+  }
+
+  rc = system(cmd);
+  remove(canon_ll);
+  if (rc != 0) {
+    hako_llvmc_emit_route_trace("llc", "fail", "mem2reg", llpath);
+    return -1;
+  }
+  return 0;
+}
+
 static int hako_llvmc_file_exists(const char* path) {
   FILE* f;
   if (!path || !path[0]) return 0;

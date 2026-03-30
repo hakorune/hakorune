@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-23
-Scope: `stage0/stage1/stage2+/stage3` の bootstrap/distribution 軸と、`.hako core/alloc/std` の end-state layering を固定する。
+Scope: `stage0/stage1/stage2-mainline/stage2+/stage3` の bootstrap/distribution 軸と、`.hako core/alloc/std` の end-state layering を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -27,15 +27,15 @@ Related:
 
 ## Goal
 
-- `owner/substrate` 軸と `stage0/stage1/stage2+/stage3` 軸を混線させない。
+- `owner/substrate` 軸と `stage0/stage1/stage2-mainline/stage2+/stage3` 軸を混線させない。
 - final end-state を `.hako` の `core/alloc/std` layering と thin native metal keep で固定する。
 - current `lang/bin/hakorune` / `target/selfhost/hakorune` を stage1 snapshot/proof line として読み、final distribution target と混同しない。
 - standard distribution shape is `hakoruneup + self-contained release bundle`; detailed packaging policy は `hakoruneup-release-distribution-ssot.md` を正本にする。
 - shared artifact/lane vocabulary is owned by `execution-lanes-and-axis-separation-ssot.md`; this child doc owns stage/distribution layering and library layering.
-- stage2+ entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
+- stage2-mainline entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
 - conduit note:
   - `stage1` has concrete build/invoke conduits today (`tools/selfhost/build_stage1.sh`, `tools/selfhost/run_stage1_cli.sh`)
-  - `stage2+` in this document is a target-mainline/distribution reading, not a current standalone build-script family
+  - `stage2-mainline` in this document is the daily mainline / target-mainline reading; `stage2+` is the umbrella end-state reading, not a current standalone build-script family
   - `stage3` remains a compare/sanity label only
 
 ## Fixed Reading
@@ -49,10 +49,12 @@ Related:
 2. `stage1`
    - selfhost bridge/proof line
    - current dev/stable snapshot artifacts live here
-   - collection cleanup may progress on the separate owner/substrate axis, but stage1 itself remains bridge/proof rather than final mainline
-3. `stage2+`
+  - collection cleanup may progress on the separate owner/substrate axis, but stage1 itself remains bridge/proof rather than stage2-mainline daily mainline
+3. `stage2-mainline`
    - truly-current `.hako` compiler/runtime/stdlib/kernel/plugin
-   - future distribution target
+   - daily distribution lane
+4. `stage2+`
+   - umbrella / end-state distribution target
 4. `stage3`
    - same-result sanity check
    - build lane re-emits Program/MIR payload snapshots from a known-good seed
@@ -67,9 +69,10 @@ Related:
 2. `stage1-cli`
    - Stage1 bootstrap output artifact for the reduced Stage1 lane
 3. These are artifact kinds, not stage numbers.
-4. `stage2+` is not a build script artifact kind in the current flow.
-   - It is the future distribution target / compare label, not a separate artifact-kind family.
-5. first stage2+ optimization wave is `route/perf only`; this doc does not promote Rune/backend-active optimization as part of stage2+ entry.
+4. `stage2-mainline` is not a build script artifact kind in the current flow.
+   - It is the daily distribution lane / compare label, not a separate artifact-kind family.
+5. `stage2+` remains the umbrella / end-state reading and is not a build script artifact kind in the current flow.
+6. first stage2-mainline optimization wave is `route/perf only`; this doc does not promote Rune/backend-active optimization as part of stage2-mainline entry.
 
 ### Library layering axis
 

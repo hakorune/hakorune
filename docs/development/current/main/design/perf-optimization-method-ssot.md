@@ -299,12 +299,9 @@ Hotspot は次の分類で読む。
 - `kilo_micro_substring_concat` が最厚
 - `kilo_micro_array_getset` が次
 - `kilo_micro_indexof_line` が一番マシ
-- `kilo_micro_array_getset` の current exact leaf is now Rust substrate: the first read-seam slice (`crates/nyash_kernel/src/plugin/array_slot_load.rs::array_slot_load_encoded_i64`) is landed, and the current probe target is the write/TLS seam:
-  - `crates/nyash_kernel/src/plugin/array_slot_store.rs::array_slot_store_i64`
-  - `crates/nyash_kernel/src/plugin/handle_cache.rs::with_array_box`
-  - `src/boxes/array/mod.rs::ArrayBox::try_set_index_i64_integer`
-- `crates/nyash_kernel/src/plugin/array_index_dispatch.rs` / `array_write_dispatch.rs` are now thin wrappers, so they are no longer the primary exact leaf target
-- fresh `kilo_micro_array_getset` recheck after the read-seam keep is `ny_aot_ms=44`
+- `kilo_micro_array_getset` exact leaf has now moved to the backend boundary under the llpath canonical emit contract: `lang/c-abi/shims/hako_llvmc_ffi_common.inc` canonicalizes pure-first IR with `opt -passes=mem2reg` before `llc` in the current implementation, the Array micro seed keeps the sink honest with explicit volatile `sum` accesses, and the judged proof bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-mem2reg-v2/` shows `ny_main` registerizing the loop IV as SSA/PHI (`%i.1 = phi ...`) with the `%i` stack spill removed from asm
+- `crates/nyash_kernel/src/plugin/array_index_dispatch.rs` / `array_write_dispatch.rs` remain thin wrappers, but they are no longer the primary exact leaf target
+- fresh `kilo_micro_array_getset` recheck after the read-seam keep was `ny_aot_ms=44`; the current post-boundary-helper judge is `c_ms=3 / ny_aot_ms=4 / ratio_instr=1.20 / ratio_cycles=0.68 / ratio_ms=0.75`
 - current stage2+ evidence bundle for `kilo_micro_array_getset` is direct-route only: `target/perf_state/optimization_bundle/stage2plus-array-wave-direct/` records `Method:RuntimeDataBox.{push,get,set}` windows, `owner_route=generic_probe first_blocker=empty`, and a hot-block scan with no `slot_load_hi` / `generic_box_call` / `hostbridge` / `runtime_data` residue
 - current same-artifact microstat remains `c_ms=3 / ny_aot_ms=4 / ratio_ms=0.75`; keep that as the wave baseline until a fresh route/perf cut beats it
 - refreshed 2026-03-30 stage2+ direct bundle/compare lock is:
@@ -312,6 +309,10 @@ Hotspot は次の分類で読む。
     - `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`
   - `run_kilo_micro_machine_ladder.sh 1 3`
     - `kilo_micro_array_getset: c_ms=4 / ny_aot_ms=4 / ratio_instr=0.90 / ratio_cycles=0.69 / ratio_ms=1.00`
+  - post-boundary-helper judge bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-mem2reg-v2/`
+    - `ny_main` now shows the loop IV as SSA/PHI in `lowered.ll` (`%i.1 = phi ...`)
+    - asm drops the `%i` spill and keeps the hot loop to `and / inc / mov / add` shape
+    - latest 3-run residue summary is `93.66% bundle / 3.02% loader / 0.56% runner`
   - refreshed direct bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-refresh/`
     - `mir_windows` stays on `Method:RuntimeDataBox.{push,get,set}`
     - `owner_route=seed first_blocker=empty`
@@ -343,19 +344,22 @@ Hotspot は次の分類で読む。
   - lowered IR cross-check (`target/perf_state/optimization_bundle/stage2plus-array-wave-direct-repeatA/lowered.ll`)
     - `ny_main` keeps the induction variable `%i` in an `alloca` with `load -> add -> store` every iteration
     - `sum` also remains in memory, but that is expected because the benchmark source declares it `volatile`
-    - the actionable remaining waste candidate is the `%i` spill chain, not route/helper residue
+    - that was the actionable waste candidate before the llpath canonical emit contract landed; it is now closed by the pure-first boundary canonicalization path (current implementation: `opt -passes=mem2reg`), and the current judged bundle shows `%i` promoted to SSA/PHI with the stack spill removed from asm
 - interpretation after the refresh:
   - stage2+ first wave stays `Array only`
   - fixed order stays `leaf-proof micro -> micro kilo -> main kilo`
-  - the refreshed same-artifact direct artifact does not expose a stable narrower route leaf below `ny_main`
-  - therefore the next accepted slice must start from a measurable leaf below `ny_main` or a stable boundary blocker that survives the micro proof
+  - the refreshed same-artifact direct artifact no longer exposes the old `%i` route/helper residue
+  - any further slice must now start from a new measurable leaf below `ny_main` or a stable boundary blocker that survives the micro proof
   - do not reopen another blind helper split on the write/TLS seam while the direct bundle stays collapsed; the current direct probe no longer exposes `array_slot_store_i64` / `with_array_box` inside the hot block
 - rejected probes (reverted immediately):
   - dedicated i64 write helper: `47 ms`
   - `try_set_index_i64_integer` cold-split: `48 ms`
   - `with_array_box` cache-hit inline probe: `46 ms`; asm top stayed on `array_slot_store_i64` closure + `LocalKey::with`
 - fresh microasm now concentrates on `array_slot_store_i64` closure + `LocalKey::with`, so the next cut must be measurement-led rather than another blind helper split
-- micro profile で見えている `std::env::_var_os` は、まず bridge 側の per-call probe を疑う
+- bridge-side `Program(JSON v0)` import-bundle trace (`NYASH_JSON_V0_IMPORT_TRACE=1`) は、まず hot/cold の切り分けに使う
+  - stable tag: `[json_v0/import_bundle] phase=<enter|skip|guard.set|restore|merge.begin|merge.done|fail> ...`
+  - trace が perf-kilo で複数回見えるなら bundle-scope にまとめる余地を検討する
+  - trace が cold なら bridge keep として閉じ、Array / String の birth lane へ戻る
 - `substring_concat` の current exact leaf は kernel/runtime owner に固定する
 - `crates/nyash_kernel/src/exports/string_view.rs` now owns `borrowed_substring_plan_from_handle(...)`, and `crates/nyash_kernel/src/exports/string.rs::substring_hii` is reduced to dispatch + match
 - `crates/nyash_kernel/src/exports/string.rs::concat3_hhh` is now split file-locally into transient planning (`concat3_plan_from_parts`, `concat3_plan_from_fast_str`, `concat3_plan_from_spans`) plus birth sink (`freeze_concat3_plan`)

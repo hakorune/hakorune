@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-25
-Scope: `stage2` hakorune の AOT/native fast-lane について、source layering を保ったまま execution layering だけを collapse する設計方向を固定する。
+Scope: `stage2-mainline` hakorune の AOT/native fast-lane について、source layering を保ったまま execution layering だけを collapse する設計方向を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
@@ -38,9 +38,10 @@ Related:
 
 ### Stage meaning
 
-- `stage2` は current repo では build artifact kind ではない。
-- `stage2` は `future distribution target / stage-axis label / compare label` として読む。
-- 現在の daily build artifact はまだ `stage1-cli` / `launcher-exe` 系で、`stage2` は packaging family ではない。
+- `stage2-mainline` は current repo では build artifact kind ではない。
+- `stage2-mainline` は daily mainline lane として読む。
+- `stage2+` は `future distribution target / stage-axis umbrella / compare label` として読む。
+- 現在の daily build artifact はまだ `stage1-cli` / `launcher-exe` 系で、`stage2-mainline` は packaging family ではない。
 
 ### Primary target
 

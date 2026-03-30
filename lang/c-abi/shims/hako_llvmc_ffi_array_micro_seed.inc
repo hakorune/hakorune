@@ -60,28 +60,22 @@ static int hako_llvmc_emit_array_getset_micro_ir(
   fprintf(f, "  %%v = load i64, ptr %%slot, align 8\n");
   fprintf(f, "  %%next = add i64 %%v, 1\n");
   fprintf(f, "  store i64 %%next, ptr %%slot, align 8\n");
-  fprintf(f, "  %%after = load i64, ptr %%slot, align 8\n");
-  fprintf(f, "  %%sum.cur = load i64, ptr %%sum, align 8\n");
-  fprintf(f, "  %%sum.next = add i64 %%sum.cur, %%after\n");
-  fprintf(f, "  store i64 %%sum.next, ptr %%sum, align 8\n");
+  fprintf(f, "  %%sum.cur = load volatile i64, ptr %%sum, align 8\n");
+  fprintf(f, "  %%sum.next = add i64 %%sum.cur, %%next\n");
+  fprintf(f, "  store volatile i64 %%sum.next, ptr %%sum, align 8\n");
   fprintf(f, "  %%i.next = add i64 %%i.cur, 1\n");
   fprintf(f, "  store i64 %%i.next, ptr %%i, align 8\n");
   fprintf(f, "  br label %%loop\n\n");
 
   fprintf(f, "exit:\n");
-  fprintf(f, "  %%sum.fin = load i64, ptr %%sum, align 8\n");
+  fprintf(f, "  %%sum.fin = load volatile i64, ptr %%sum, align 8\n");
   fprintf(f, "  %%ret = and i64 %%sum.fin, 255\n");
   fprintf(f, "  ret i64 %%ret\n");
   fprintf(f, "}\n");
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
-  {
-    char cmd[2048];
-    hako_llvmc_maybe_dump_ir_file(llpath);
-    snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-    rc = system(cmd);
-  }
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }

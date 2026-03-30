@@ -126,10 +126,7 @@ static int hako_llvmc_emit_indexof_line_ir(
 
   fclose(f);
   {
-    char cmd[2048];
-    hako_llvmc_maybe_dump_ir_file(llpath);
-    snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-    rc = system(cmd);
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
   }
   remove(llpath);
   return rc == 0 ? 0 : -1;
@@ -243,10 +240,7 @@ static int hako_llvmc_emit_indexof_leaf_ir(
 
   fclose(f);
   {
-    char cmd[2048];
-    hako_llvmc_maybe_dump_ir_file(llpath);
-    snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-    rc = system(cmd);
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
   }
   remove(llpath);
   return rc == 0 ? 0 : -1;

@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-23
-Scope: `stage2+` final shape と Rune の役割を current truth / clean end-state に分けて固定する。
+Scope: `stage2-mainline` daily shape と `stage2+` umbrella / Rune の役割を current truth / clean end-state に分けて固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -24,7 +24,7 @@ Related:
 ## Goal
 
 - current public-main truth と clean end-state を混ぜずに読む。
-- `stage0/stage1/stage2+` 軸と `owner/substrate` 軸の分離を Rune lane にも適用する。
+- `stage0/stage1/stage2-mainline/stage2+` 軸と `owner/substrate` 軸の分離を Rune lane にも適用する。
 - Rune を `.hako` owner growth のための contract layer として固定し、実装本体や metal/substrate と混線させない。
 
 ## 1. Current Truth
@@ -43,11 +43,12 @@ Related:
 | --- | --- | --- |
 | `stage0` | Rust bootstrap / recovery / first-build lane | explicit keep |
 | `stage1` | selfhost bridge / proof / migration artifact lane | keep while migrating |
-| `stage2+` | daily selfhost mainline / distribution target | target |
+| `stage2-mainline` | daily selfhost mainline / current distribution lane | target |
+| `stage2+` | umbrella / end-state distribution target | umbrella reading |
 
 ### 2.2 Owner / substrate split
 
-At `stage2+`, the target reading is:
+At `stage2-mainline`, the target reading is:
 
 - compiler / kernel / collection / plugin mainline: `.hako` owner
 - native metal keep only:

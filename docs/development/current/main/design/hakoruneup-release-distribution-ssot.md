@@ -23,7 +23,7 @@ Related:
 - LLVM は一般ユーザー向けには同梱物として隠し、別インストール要求を原則なくす。
 - system LLVM は開発者向けの explicit opt-in モードとしてだけ残す。
 - 既存の kernel migration / thin backend / de-rust lanes と矛盾しない配布形を先に固定する。
-- this doc assumes the parent reading that stage1 artifacts are proof/snapshot only and stage2+ is the final distribution target.
+- this doc assumes the parent reading that stage1 artifacts are proof/snapshot only and stage2-mainline is the daily distribution lane while stage2+ stays the final distribution umbrella/target.
 
 ## Final Shape
 

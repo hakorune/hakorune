@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-30
-Scope: `stage1 -> stage2+` entry gate と、stage2+ 初回最適化 wave の fixed order を task-pack として固定する。
+Scope: `stage1 -> stage2-mainline` entry gate と、stage2-mainline 初回最適化 wave の fixed order を task-pack として固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -24,8 +24,8 @@ Related:
 
 ## Goal
 
-- `stage1 bridge/proof` から `stage2+ final mainline` へ入るための exact gate を 1 枚で読む。
-- collection owner stop-line と stage2+ entry、first optimization wave を同じ fixed order に束ねる。
+- `stage1 bridge/proof` から `stage2-mainline daily mainline` へ入るための exact gate を 1 枚で読む。
+- collection owner stop-line と stage2-mainline entry、first optimization wave を同じ fixed order に束ねる。
 - broad optimization / Rune backend-active 化を混ぜず、first wave を `route/perf only` に固定する。
 
 ## Fixed Reading
@@ -33,7 +33,8 @@ Related:
 - stage axis:
   - `stage0` = Rust bootstrap / recovery keep
   - `stage1` = bridge / proof line
-  - `stage2+` = final `.hako` mainline / distribution target
+- `stage2-mainline` = daily `.hako` mainline / current distribution lane
+- `stage2+` = umbrella / end-state distribution target
 - owner/substrate axis:
   - `.hako` owns meaning / policy / route / acceptance / control
   - `.inc` is thin shim / boundary artifact only
@@ -44,13 +45,15 @@ Related:
 - first optimization wave reading:
   - `route/perf only`
   - mainline route is `.hako -> ny-llvmc(boundary) -> C ABI`
+  - boundary contract is `llpath canonical emit`; current implementation uses `opt -passes=mem2reg` before `llc`
+  - `HAKO_CAPI_TM` stays explicit bypass / compat-probe keep
   - Rune optimization metadata stays `parse/noop` in this wave
 
 ## Parent / Child Ownership
 
 This task pack owns:
 
-- exact order from stage1 exit gate to stage2+ entry
+- exact order from stage1 exit gate to stage2-mainline entry
 - fixed scope of the first optimization wave
 - dashboard / pointer sync
 - acceptance bundle across stage1, collection regression, and first-wave perf
@@ -66,7 +69,7 @@ Child SSOTs keep detailed contracts:
 - `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
   - `.hako authority / .inc thin shim / native keep` boundary
 - `stage2-selfhost-and-hako-alloc-ssot.md`
-  - stage2+ layering / artifact / distribution reading
+  - stage2-mainline layering / artifact / distribution reading; `stage2+` remains the umbrella reading
 - `perf-optimization-method-ssot.md`
   - measurement order and keep/reject method once the first wave is open
 - `optimization-hints-contracts-intrinsic-ssot.md`
@@ -74,7 +77,7 @@ Child SSOTs keep detailed contracts:
 
 ## Stage x Domain Handoff Matrix
 
-| domain | `stage0` keep | `stage1` bridge / proof | `stage2+` final mainline |
+| domain | `stage0` keep | `stage1` bridge / proof | `stage2-mainline` daily mainline |
 | --- | --- | --- | --- |
 | compiler | Rust bootstrap / recovery compiler keep | `.hako` canonical MIR authority; Rust bridge/materializer is transport-only proof lane | `.hako` compiler mainline |
 | kernel | Rust runtime/kernel substrate keep | `Array -> Map -> RuntimeData cleanup` are regression packs; visible collection owner already sits on `.hako` | `.hako` kernel/runtime mainline |
@@ -86,18 +89,18 @@ Child SSOTs keep detailed contracts:
 ### 1. Vocabulary Sync
 
 - sync all stage docs and dashboards to:
-  - `stage0 keep / stage1 bridge+proof / stage2+ final mainline`
-- keep `stage2+` out of artifact-kind vocabulary
+  - `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`
+- keep `stage2-mainline` and `stage2+` out of artifact-kind vocabulary
 - keep standard distribution reading as `hakoruneup + self-contained release bundle`
 
 ### 2. Stage1 Exit Gate
 
-Lock the following as prerequisites for stage2+ entry:
+Lock the following as prerequisites for stage2-mainline entry:
 
 - `.hako` is the canonical MIR authority
 - Rust `stage1_bridge` is thin materializer / transport only
 - stage1-first identity route remains the default proof route
-- stage1 success is not read as stage2+ completion
+- stage1 success is not read as stage2-mainline completion
 
 ### 3. Collection Regression Freeze
 
@@ -105,9 +108,9 @@ Lock the following as prerequisites for stage2+ entry:
 - do not reopen owner migration in this pack unless a new exact blocker appears
 - keep Array perf acceptance pinned to same-artifact compare against the current Rust baseline
 
-### 4. Stage2+ Entry Lock
+### 4. Stage2-mainline Entry Lock
 
-- lock stage2+ entry as:
+- lock stage2-mainline entry as:
   - `.hako semantic owner`
   - `.inc thin shim`
   - native metal keep
@@ -144,7 +147,7 @@ Do not include:
 
 - Rune/backend-active optimization metadata
 - broad generic optimization beyond route/perf
-- deeper native/substrate cut after stage2+ entry and first-wave proof
+- deeper native/substrate cut after stage2-mainline entry and first-wave proof
 
 ## Acceptance Bundle
 
@@ -171,7 +174,7 @@ Do not include:
 ## Non-Goals
 
 - no new public ABI
-- no `stage2+` artifact-kind creation
+- no `stage2-mainline` or `stage2+` artifact-kind creation
 - no Rune backend-active optimization in this pack
 - no reopening of collection owner migration without a new exact blocker
 - no native zero / source zero claim

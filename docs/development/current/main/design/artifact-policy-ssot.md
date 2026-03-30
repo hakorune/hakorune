@@ -18,6 +18,7 @@ Related:
 - artifact policy と owner proof を分けて読む。
 - current `vm-hako` を co-mainline と誤読しない。
 - future interpreter artifact 候補を current `vm-hako` promotion と混ぜない。
+- new docs should prefer role-first labels such as `bridge-cli`, `proof-runner`, and `mainline-bundle`; stage-numbered artifact names remain compat aliases only.
 
 ## 1. Active Artifact Roles
 
@@ -26,6 +27,8 @@ Related:
 | `llvm-exe` | daily / CI / distribution artifact | 唯一の mainline |
 | current `vm-hako` | semantic witness / debug / bootstrap-proof artifact | internal reference lane |
 | `rust-vm` | bootstrap / recovery / compat artifact | explicit keep |
+
+The `llvm-exe` daily lane is the operational artifact reading for `stage2-mainline`; `stage2+` stays the umbrella / end-state stage label.
 
 Operational rules:
 

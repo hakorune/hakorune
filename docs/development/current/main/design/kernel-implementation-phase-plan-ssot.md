@@ -28,7 +28,8 @@ Related:
 - stage reading:
   - `stage0` = Rust bootstrap / recovery keep
   - `stage1` = bridge / proof line
-  - `stage2+` = final `.hako` mainline / distribution target
+  - `stage2-mainline` = daily `.hako` mainline / current distribution lane
+  - `stage2+` = final `.hako` umbrella / distribution target
 - owner reading:
   - `.hako` owns meaning / policy / route / acceptance / control
   - `.inc` is thin shim / boundary artifact (not a semantic owner noun)
@@ -100,7 +101,7 @@ Rule:
 
 The phase plan is considered "done-enough to return to perf-kilo" when:
 
-1. stage docs agree on: `stage0 keep / stage1 bridge+proof / stage2+ final mainline`.
+1. stage docs agree on: `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`.
 2. owner docs agree on: `.hako authority / .inc thin shim / native metal keep`.
 3. collection docs agree on: `Array phase -> Map phase -> RuntimeData cleanup phase`.
 4. daily proof locks remain green:

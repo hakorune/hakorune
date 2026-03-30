@@ -70,15 +70,15 @@ Related:
       - remaining active owner-flip targets are 0 shapes; `indexof_line_pure_min_v1` and `substring_concat_loop_pure_min_v1` are now daily and their boundary locks are retired into `phase29ck-boundary-legacy.txt`
     - only structural perf is in scope during this prep (`attrs` SSOT, facts visibility, copy-transparency, verifier/compare ledger)
 
-- Stage2 `.hako` owner lane
+- Stage2-mainline lane
   - status: `active bounded-3 stop-line landed / entry-task-pack sync`
   - current exact read:
-    - stage2+ is now read as mostly `.hako` authority / thin `.inc` shim / native metal keep
-    - collection substrate cleanup is tracked on the owner/substrate axis; stage1 remains bridge/proof and stage2+ remains the final mainline
+    - stage2-mainline is now read as mostly `.hako` authority / thin `.inc` shim / native metal keep; stage2+ remains the umbrella / end-state reading
+    - collection substrate cleanup is tracked on the owner/substrate axis; stage1 remains bridge/proof and stage2-mainline remains the daily mainline
     - stage/artifact/build-conduit wording is now synced:
       - `execution-lanes-and-axis-separation-ssot.md` is the canonical vocabulary owner
       - `stage1` has current concrete build/invoke conduits
-      - `stage2+` is target mainline/distribution reading, not a standalone build-script family
+      - `stage2-mainline` is the daily mainline lane; `stage2+` is the umbrella / end-state distribution reading, not a standalone build-script family
       - `stage3` is a compare/sanity label only
     - parent task pack is now `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`
     - current collection cleanup SSOT is `stage2-collection-substrate-cleanup-ssot.md`
@@ -91,8 +91,8 @@ Related:
     - standard distribution reading is `hakoruneup + self-contained release bundle`, not a single stage artifact
     - boundary truth is not owned by `.inc`; `.inc` remains thin artifact/shim space
     - `.inc` partitions are still mixed today, so the first task is classification, not code motion
-    - first stage2+ optimization wave is fixed to `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
-    - stage2+ first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
+    - first stage2-mainline optimization wave is fixed to `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
+    - stage2-mainline first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
     - refreshed same-artifact `kilo_micro_array_getset` baseline is `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`
     - refreshed direct bundle is `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-refresh/`:
       - `mir_windows` stays on `Method:RuntimeDataBox.{push,get,set}`
@@ -111,7 +111,9 @@ Related:
       - treat `perf_top_group_summary` as a noise detector, not as the sole acceptance gate
     - cold 1-run residue probe `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-cold1/` shifts more weight into loader/runner (`87.25% bundle / 6.90% loader / 5.84% runner`), so keep `3 runs + asm` as the decision gate and use 1-run only as startup-residue evidence
     - C baseline loop-shape check shows the expected scalar loop body with samples spread across `and / mov / inc / mov / cmp`, while the AOT direct probe still concentrates on `cmp / inc`; treat the remaining gap as outside the old route/helper residue story unless a new boundary blocker appears
-    - lowered IR now exposes the exact remaining waste candidate more directly: `ny_main` keeps the loop induction variable `%i` in an `alloca` with per-iteration `load -> add -> store`, while the C baseline keeps its counter in a register; the `sum` alloca is intentional because the benchmark declares it `volatile`
+    - llpath canonical emit contract landed: `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now canonicalizes pure-first IR with `opt -passes=mem2reg` before `llc` in the current implementation, and the Array micro seed keeps the benchmark sink honest via explicit volatile `sum` accesses
+    - landed proof bundle `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-mem2reg-v2/` now shows `ny_main` registerizing the loop IV as SSA/PHI (`%i.1 = phi ...`) and the emitted asm drops the `%i` stack spill; sampled hot insns collapse to `and / inc` on the loop body, while `sum` remains the only intentional stack sink
+    - the latest 3-run residue summary is `93.66% bundle / 3.02% loader / 0.56% runner`; keep `3 runs + asm` as the judge and treat the grouped summary as a WSL noise detector
     - Rune optimization metadata remains `parse/noop`; backend-active consumption is deferred beyond this first wave
     - `pure_compile` / `generic_method_lowering` / `string_concat_*` are the first semantic-owner-heavy candidates
     - `hako_llvmc_ffi_common.inc` stays thin boundary utility and native support
@@ -197,7 +199,7 @@ Related:
   - next exact slice:
     - treat `stage1_cli_env` selfhost-first strict green and explicit `HAKO_MIR_BUILDER_FUNCS=1` flat defs splice as landed evidence
     - sync the master task pack across dashboard/stage docs
-    - close the `stage1 -> stage2+` entry gate on `.hako` canonical MIR authority and thin Rust transport only
+    - close the `stage1 -> stage2-mainline` entry gate on `.hako` canonical MIR authority and thin Rust transport only
     - keep collection domains on regression-pack status
     - keep the collection quick-vm closeout (`MapBox.get/size`, `String substring/indexOf`, `Array length/oob/pop`) as a regression pack only; do not reopen owner semantics in this lane
     - reopen only the route/perf first wave, not broad authority expansion or Rune activation
@@ -352,6 +354,7 @@ Related:
           - accepted array string-length observer cut: `array_string_len_by_index(...)` now uses `handle_cache::with_array_box(...)` instead of `host_handles::with_handle(...) + ArrayBox` downcast, so `nyash.array.string_len_hi` stays on the typed handle-cache lane
           - latest `repeat=3` proof after this observer cut is `35 / 68 / 69` with `kilo_kernel_small_hk = 721 ms`; latest `repeat=20` WSL recheck is `36 / 67 / 68` with `kilo_kernel_small_hk = 688 ms`, so keep the cut and keep using `repeat=20` before closing noisy lanes
           - rejected length-aware store-boundary classifier retry: changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `746 ms` on `repeat=3` and `757 ms` on `repeat=20`; keep the direct-set-only guard for this wave
+          - next exact leaf: bridge-side `Program(JSON v0)` import-bundle trace (`NYASH_JSON_V0_IMPORT_TRACE=1`); keep `string_concat` / `array_set` births as-is unless the trace shows the import bundle path is the hot leaf
           - rejected known-len propagation retry: threading `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 38 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 705 ms` on `repeat=3`; `692 ms` on `repeat=20`); keep `array_set` as the first Store boundary and keep trailing `length()` as a separate post-store observer fact
           - post-store observer reading is now separated into `post-store-observer-facts-ssot.md`: `length()` after `array.set` is observer-after-store, not the store boundary itself
           - next design front is now `concat3-array-store-placement-window-ssot.md`: treat `concat3_hhh -> array.set -> trailing length()` as one compiler-local placement window, while still keeping `array.set` and `length()` as separate semantic boundaries

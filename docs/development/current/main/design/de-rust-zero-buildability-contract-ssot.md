@@ -59,5 +59,5 @@ Related:
 - meaning owner は `.hako` にある
 - Rust は build/bootstrap / substrate / compat keep として再実行可能である
 - `stage0` first build / recovery lane として Rust を残してよい
-- `stage2+` daily mainline build は `.hako` owner で回り、Rust は normal dependency ではない
+- `stage2-mainline` daily mainline build は `.hako` owner で回り、Rust は normal dependency ではない。`stage2+` は umbrella / end-state 読みである
 - migration slice を切った後でも、Rust から build できることを確認できる

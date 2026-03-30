@@ -21,7 +21,7 @@ Related:
 
 ## Purpose
 
-- `stage0/stage1/stage2+` と `owner/substrate` と `artifact/lane` を別々に読む。
+- `stage0/stage1/stage2-mainline/stage2+` と `owner/substrate` と `artifact/lane` を別々に読む。
 - `stage1 artifact が動く` を `daily mainline` や `distribution truth` と誤読しない。
 - `vm-hako` の semantic/reference lane と `llvm-exe` の daily lane を混ぜない。
 - `rust-vm keep` を owner migration failure と誤読しない。
@@ -35,12 +35,15 @@ Related:
 | --- | --- | --- |
 | `stage0` | Rust bootstrap / first-build / recovery lane | explicit keep |
 | `stage1` | `.hako` bridge / proof / native-proof line | proof/snapshot only |
-| `stage2+` | `.hako` owner mainline + distribution target | target mainline |
+| `stage2-mainline` | daily `.hako` mainline lane | daily mainline |
+| `stage2+` | umbrella / end-state distribution target | target mainline |
 
 Concrete reading:
 
 - `target/selfhost/hakorune`, `stage1-cli`, `launcher-exe`, `lang/bin/hakorune` are `stage1` artifacts.
 - They may be runnable, but they are not final distribution truth.
+- `stage2-mainline` is the daily operational lane for the current selfhost/mainline docs.
+- `stage2+` is the umbrella label for the full target state; it is not the daily lane label.
 
 ### 1.2 Owner/substrate axis
 
@@ -72,14 +75,15 @@ Important:
 
 1. `artifact proof != owner proof`
    - `.hako` artifact だからといって `.hako` owner proof とは限らない。
-2. `stage1 success != stage2+ complete`
+2. `stage1 success != stage2-mainline complete`
    - bridge/proof line が green でも daily mainline completion ではない。
 3. `vm-hako green != mainline promotion`
    - `vm-hako` は reference/debug/bootstrap-proof lane のまま読む。
 4. `rust-vm keep != owner migration failure`
    - `stage0` recovery/bootstrap keep は許可された residue。
-5. `distribution truth starts at stage2+`
+5. `distribution truth starts at stage2-mainline`
    - stage1 snapshot/stable artifacts are not final package/distribution truth.
+   - `stage2+` remains the umbrella / end-state reading, not the daily lane name.
 
 ## 3. Child Ownership Map
 
@@ -93,7 +97,7 @@ Important:
 - `de-rust-lane-map-ssot.md` and `phase-29y/README.md`
   - own runtime operation policy and reopen rules
 - `hakoruneup-release-distribution-ssot.md`
-  - owns stage2+ package/distribution shape
+  - owns stage2-mainline package/distribution shape and the `stage2+` umbrella reading
 - `artifact-policy-ssot.md`
   - owns artifact-role detail and future interpreter reservation
 - `execution-lanes-migration-task-pack-ssot.md`

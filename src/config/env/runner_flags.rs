@@ -74,6 +74,15 @@ pub fn emit_mir_trace() -> bool {
     env_bool("NYASH_EMIT_MIR_TRACE")
 }
 
+/// Program(JSON v0) import-bundle trace (debug/diagnostic only).
+///
+/// Env:
+/// - `NYASH_JSON_V0_IMPORT_TRACE=1` emits stable one-line trace events for
+///   the bridge-side import-bundle path.
+pub fn json_v0_import_bundle_trace_enabled() -> bool {
+    env_bool("NYASH_JSON_V0_IMPORT_TRACE")
+}
+
 pub fn deps_json_path() -> Option<String> {
     env_string("NYASH_DEPS_JSON")
 }
@@ -223,5 +232,11 @@ mod tests {
     fn wasm_route_trace_defaults_off_contract() {
         std::env::remove_var("NYASH_WASM_ROUTE_TRACE");
         assert!(!wasm_route_trace_enabled());
+    }
+
+    #[test]
+    fn json_v0_import_bundle_trace_defaults_off_contract() {
+        std::env::remove_var("NYASH_JSON_V0_IMPORT_TRACE");
+        assert!(!json_v0_import_bundle_trace_enabled());
     }
 }

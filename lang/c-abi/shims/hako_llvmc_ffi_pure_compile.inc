@@ -681,10 +681,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       }
 #endif
 
-      hako_llvmc_maybe_dump_ir_file(llpath);
       if (rc != 0) {
-        char cmd[2048]; snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-        rc = system(cmd);
+        rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
       }
       remove(llpath);
       yyjson_doc_free(d);
@@ -764,8 +762,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "}\n");
           hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
-          char cmd[2048]; hako_llvmc_maybe_dump_ir_file(llpath); snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-          int rc = system(cmd); remove(llpath); yyjson_doc_free(d0);
+          int rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out); remove(llpath); yyjson_doc_free(d0);
           if (rc == 0) return 0;
           // else continue to try pattern #2 or fallback
         } else {
@@ -866,8 +863,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
                 fprintf(f, "bb_merge:\n  %%r = phi i64 [ %lld, %%bb_then ], [ %lld, %%bb_else ]\n  ret i64 %%r\n}\n", then_const, else_const);
                 hako_llvmc_emit_entry_alias_if_needed(f, &selection);
                 fclose(f);
-                char cmd[2048]; hako_llvmc_maybe_dump_ir_file(llpath); snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-                int rc = system(cmd);
+                int rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
                 remove(llpath);
                 yyjson_doc_free(doc);
                 if (rc != 0) {
@@ -950,8 +946,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "  ret i64 %%sz\n}\n");
           hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
-          char cmd[2048]; hako_llvmc_maybe_dump_ir_file(llpath); snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-          int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
+          int rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out); remove(llpath); yyjson_doc_free(doc);
           if (rc == 0) return 0;
         } else {
           yyjson_doc_free(doc);
@@ -1018,8 +1013,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "  ret i64 %%len\n}\n");
           hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
-          char cmd[2048]; hako_llvmc_maybe_dump_ir_file(llpath); snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-          int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
+          int rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out); remove(llpath); yyjson_doc_free(doc);
           if (rc == 0) return 0;
         } else {
           yyjson_doc_free(doc);
@@ -1100,8 +1094,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "}\n");
           hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
-          char cmd[2048]; hako_llvmc_maybe_dump_ir_file(llpath); snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-          int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
+          int rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out); remove(llpath); yyjson_doc_free(doc);
           if (rc == 0) return 0;
         } else {
           yyjson_doc_free(doc);
@@ -1203,8 +1196,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
           fprintf(f, "}\n");
           hako_llvmc_emit_entry_alias_if_needed(f, &selection);
           fclose(f);
-          char cmd[2048]; hako_llvmc_maybe_dump_ir_file(llpath); snprintf(cmd, sizeof(cmd), "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null", obj_out, llpath);
-          int rc = system(cmd); remove(llpath); yyjson_doc_free(doc);
+          int rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out); remove(llpath); yyjson_doc_free(doc);
           if (rc == 0) return 0;
         } else {
           yyjson_doc_free(doc);

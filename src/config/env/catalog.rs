@@ -330,6 +330,12 @@ pub fn env_vars() -> Vec<EnvVarMeta> {
             default: None,
         },
         EnvVarMeta {
+            name: "NYASH_JSON_V0_IMPORT_TRACE",
+            description: "Trace Program(JSON v0) import-bundle merge phases (1=true)",
+            applies_to: AppliesTo::Compiler,
+            default: None,
+        },
+        EnvVarMeta {
             name: "NYASH_USING_DYLIB_AUTOLOAD",
             description: "Auto-load [using.*] dylib packages (1=true)",
             applies_to: AppliesTo::Compiler,

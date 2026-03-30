@@ -111,3 +111,5 @@ Rules:
 - `hako_llvmc_ffi_generic_method_get_lowering.inc` is the dispatcher seam for `GET`; keep the case body out of `generic_method_lowering.inc`.
 - `hako_llvmc_ffi_string_concat_window.inc` is the producer-window helper seam for string concat; keep helper logic out of `string_concat_match.inc` once the migration settles.
 - Keep `hako_llvmc_ffi_generic_method_get_window.inc`, `hako_llvmc_ffi_string_concat_window.inc`, and the `indexOf` observer family native in this wave; they are compiler-state-heavy analyzers, not the next `.hako` owner tables.
+- For pure-first lanes, the formal boundary contract is `llpath canonical emit`: promotable scalar stack slots are canonicalized before object emission, and the current implementation does that with `opt -passes=mem2reg` before `llc`.
+- `HAKO_CAPI_TM` is an explicit bypass / compat-probe keep lane; do not treat it as the canonical mainline contract.

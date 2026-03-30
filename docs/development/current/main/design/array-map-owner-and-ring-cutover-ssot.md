@@ -20,15 +20,15 @@ Related:
 ## 0. Conclusion
 
 - `ArrayBox` / `MapBox` は `ring0` ではなく `ring1` の責務である。
-- stage0 は Rust bootstrap keep、stage1 は bridge/proof line、stage2+ は final mainline という stage 読みは別軸で固定する。
-- stage1 は `Array phase` / `Map phase` / `RuntimeData cleanup phase` を domain-by-domain に完了してよいが、stage2+ の final mainline そのものにはならない。
+- stage0 は Rust bootstrap keep、stage1 は bridge/proof line、stage2-mainline は daily mainline、stage2+ は umbrella / end-state という stage 読みは別軸で固定する。
+- stage1 は `Array phase` / `Map phase` / `RuntimeData cleanup phase` を domain-by-domain に完了してよいが、stage2-mainline の daily mainline そのものにはならない。
 - current active direction is to move `ArrayBox` / `MapBox` user-visible semantics into `.hako` ring1 collection core.
 - current status is done-enough owner shift, not end-state completion; raw substrate still remains Rust-owned.
 - `RuntimeDataBox` is not the target owner for collection semantics; it stays protocol / facade only.
 - `0rust` の target は `ring0` へ移すことではない。
   - `ring0` は OS API abstraction に限定する。
   - collection mainline owner は `.hako` ring1 collection layer へ寄せる。
-- final stage/selfhost end-state では、この ring1 collection owner growth is part of future `hako_alloc`, not a claim that current Stage1 snapshots are already Stage2 distribution truth.
+- final stage/selfhost end-state では、この ring1 collection owner growth is part of future `hako_alloc`, not a claim that current Stage1 snapshots are already stage2-mainline distribution truth.
 - Rust の `ArrayBox` / `MapBox` / kernel plugin / builtin residue は、daily owner から外したあとに raw substrate / compat/archive keep へ後退させる。
 
 ## 1. Ring Lock
