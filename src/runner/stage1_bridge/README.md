@@ -7,11 +7,15 @@ Scope: Rust-side Stage-1 bridge glue in `src/runner/stage1_bridge/`.
 - future retire target
 - not current MIR-direct authority
 - explicit `emit-program-json-v0` route is compat-only / deprecated-now on the public boundary
+- public route-family SSOT is `docs/development/current/main/design/json-v0-route-map-ssot.md`
 - keep bridge logic thin and explicit
 - `Stage1` / `Stage2` are artifact/proof names in `tools/selfhost/**`, not a reason to create parallel Rust owner directories here
 - keep physical split as `src/stage1/**` (authority/bootstrap boundary) vs `src/runner/stage1_bridge/**` (future-retire bridge shell)
 
 ## Program JSON Rule
+
+- treat `Program(JSON v0)` as compat/bootstrap-only and retire-target
+- do not describe this route as the mainline JSON boundary; mainline boundary is `MIR(JSON)`
 
 - Stage1 bridge mode classification is fixed in `args.rs::Stage1ArgsMode`
 - backend CLI hint extraction is fixed in `args.rs::Stage1Args::backend_cli_hint()`

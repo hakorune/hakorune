@@ -258,7 +258,22 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `array_string_len_window` now carries `producer_kind=ArrayGet` / `boundary_kind=Store` / `post_store_use=LenObserver` / `known_len=-1`
     - timing-only recheck stayed in the same kept lane on this machine: `kilo_kernel_small_hk = 725 ms` (`warmup=1 repeat=3`) and `741 ms` (`warmup=1 repeat=20`), with `aot_status=ok`
   - rejected follow-up: concat3 reuse-only alias to earlier insert birth regressed stable main to `754-755 ms` under `repeat=3/20`; keep the current canonical birth split as-is until a fresh placement reason appears
-  - next exact leaf: bridge-side `Program(JSON v0)` import-bundle trace (`NYASH_JSON_V0_IMPORT_TRACE=1`); keep `string_concat` / `array_set` births as-is unless the trace shows the import bundle path is the hot leaf
+  - landed JSON artifact split:
+    - `src/runner/json_artifact/` now owns artifact-family convergence
+    - `MIR(JSON)` mainline loading is separated from `Program(JSON v0)` compat loading
+    - `Program(JSON v0)` import-bundle merge + trace now live only in `program_json_v0_loader.rs`
+    - `core_executor::execute_json_artifact(...)` is now the terminal execution owner; `run_json_v0(...)` remains a thin compat alias only
+  - JSON artifact family lock is now:
+    - `MIR(JSON)` = mainline artifact family
+    - `Program(JSON v0)` = compat/bootstrap-only artifact family + retire target
+    - `--json-file` = compat umbrella intake
+    - `--mir-json-file` = mainline direct intake
+  - JSON artifact migration order is fixed:
+    1. docs lock on artifact families and route map (`landed`)
+    2. internal API split to `load_mir_json(...)`, `load_program_json_v0(...)`, `load_json_artifact_to_module(...)`, `execute_json_artifact(...)` (`landed`)
+    3. compat isolation: keep Program(JSON v0) import-bundle behavior behind the compat loader only (`landed`)
+    4. archive/delete readiness sync under `phase-29ci` / `phase-29cj` (`next`)
+    5. public surface cleanup and hard delete only after the compat caller inventory reaches zero
   - rejected follow-up: canonical `concat3_hhh` birth with later reuse alias regressed stable main to `723 ms` on `repeat=3` and `777 ms` on `repeat=20`; keep the current upstream placement lane open instead of forcing another birth-site alias
   - rejected follow-up: rewriting the insert-mid route to emit `concat3_hhh` directly still regressed main to `775 ms` and tripped `build_failed_after_helper_retry` on the ladder lane; keep the current helper-backed insert route for now and do not treat the concat3 rewrite as the canonical birth
   - accepted short-slice substring freeze cut:

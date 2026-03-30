@@ -27,6 +27,7 @@ pub mod mir_json {
 }
 pub mod core_executor;
 pub mod hv1_inline;
+pub(crate) mod json_artifact;
 pub mod mir_json_emit;
 mod mir_json_v0;
 pub mod modes;
@@ -138,16 +139,20 @@ impl NyashRunner {
             // Phase 90-A: fs 系移行
             let ring0 = crate::runtime::ring0::get_global_ring0();
             match ring0.fs.read_to_string(std::path::Path::new(path)) {
-                Ok(text) => match Self::parse_mir_json_text_with_v0_fallback(&text, path) {
-                    Ok(module) => {
-                        let rc = self.execute_mir_module_quiet_exit(&module);
-                        std::process::exit(rc);
+                Ok(text) => {
+                    match crate::runner::json_artifact::parse_direct_mir_json_text_with_v0_fallback(
+                        &text, path,
+                    ) {
+                        Ok(module) => {
+                            let rc = self.execute_mir_module_quiet_exit(&module);
+                            std::process::exit(rc);
+                        }
+                        Err(e) => {
+                            eprintln!("❌ MIR JSON parse error: {}", e);
+                            std::process::exit(1);
+                        }
                     }
-                    Err(e) => {
-                        eprintln!("❌ MIR JSON parse error: {}", e);
-                        std::process::exit(1);
-                    }
-                },
+                }
                 Err(e) => {
                     eprintln!("❌ Error reading MIR JSON {}: {}", path, e);
                     std::process::exit(1);
@@ -192,34 +197,6 @@ impl NyashRunner {
     }
 
     // ---- Helpers (extracted from original run) ----
-
-    fn parse_mir_json_text_with_v0_fallback(
-        text: &str,
-        path: &str,
-    ) -> Result<crate::mir::function::MirModule, String> {
-        let looks_like_v0 = text.contains("\"functions\"") && text.contains("\"blocks\"");
-        match crate::runner::json_v1_bridge::try_parse_v1_to_module(text) {
-            Ok(Some(module)) => Ok(module),
-            Ok(None) => {
-                if looks_like_v0 {
-                    crate::runner::mir_json_v0::parse_mir_v0_to_module(text)
-                        .map_err(|e_v0| format!("v0({}): {}", path, e_v0))
-                } else {
-                    Err(format!("unsupported shape ({})", path))
-                }
-            }
-            Err(e_v1) => {
-                if looks_like_v0 {
-                    match crate::runner::mir_json_v0::parse_mir_v0_to_module(text) {
-                        Ok(module) => Ok(module),
-                        Err(e_v0) => Err(format!("v1({}): {}; v0({}): {}", path, e_v1, path, e_v0)),
-                    }
-                } else {
-                    Err(format!("v1({}): {}", path, e_v1))
-                }
-            }
-        }
-    }
 
     fn preprocess_usings_and_directives(&self, groups: &crate::cli::CliGroups) {
         use pipeline::resolve_using_target;

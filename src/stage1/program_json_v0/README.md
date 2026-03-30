@@ -2,6 +2,8 @@
 
 Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local modules。
 
+Public route-family SSOT: `docs/development/current/main/design/json-v0-route-map-ssot.md`
+
 ## Responsibility Split
 
 - `src/stage1/program_json_v0.rs`
@@ -28,6 +30,7 @@ Scope: `src/stage1/program_json_v0.rs` façade と、その配下の owner-local
 ## Invariants
 
 - repo-wide external/bootstrap boundary is `MIR(JSON v0)`, not this cluster
+- `Program(JSON v0)` is compat/bootstrap-only and remains a retire target
 - strict parse stays crate-local (`source_to_program_json_v0_strict(...)`)
 - relaxed compat keep stays owner-local (`source_to_program_json_v0_relaxed(...)`)
 - future-retire `stage1_bridge` uses crate-local facade helper `emit_program_json_v0_for_stage1_bridge_emit_program_json(...)`

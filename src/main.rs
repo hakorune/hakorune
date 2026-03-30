@@ -43,7 +43,7 @@ fn main() {
             let ring0 = nyash_rust::runtime::get_global_ring0();
             ring0.log.debug("[hv1-direct] early-exit (main)");
         }
-        let rc = nyash_rust::runner::core_executor::run_json_v0(&runner, &json);
+        let rc = nyash_rust::runner::core_executor::execute_json_artifact(&runner, &json);
         println!("{}", rc);
         std::process::exit(rc);
     }

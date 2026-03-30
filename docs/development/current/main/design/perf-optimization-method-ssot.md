@@ -356,7 +356,7 @@ Hotspot は次の分類で読む。
   - `try_set_index_i64_integer` cold-split: `48 ms`
   - `with_array_box` cache-hit inline probe: `46 ms`; asm top stayed on `array_slot_store_i64` closure + `LocalKey::with`
 - fresh microasm now concentrates on `array_slot_store_i64` closure + `LocalKey::with`, so the next cut must be measurement-led rather than another blind helper split
-- bridge-side `Program(JSON v0)` import-bundle trace (`NYASH_JSON_V0_IMPORT_TRACE=1`) は、まず hot/cold の切り分けに使う
+- bridge-side `Program(JSON v0)` import-bundle trace (`NYASH_JSON_V0_IMPORT_TRACE=1`) は、compat loader observation として hot/cold の切り分けに使う。summary は default-visible、detail は `NYASH_RING0_LOG_LEVEL=DEBUG` のときだけ出す。
   - stable tag: `[json_v0/import_bundle] phase=<enter|skip|guard.set|restore|merge.begin|merge.done|fail> ...`
   - trace が perf-kilo で複数回見えるなら bundle-scope にまとめる余地を検討する
   - trace が cold なら bridge keep として閉じ、Array / String の birth lane へ戻る

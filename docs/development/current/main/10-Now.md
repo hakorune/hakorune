@@ -354,7 +354,15 @@ Related:
           - accepted array string-length observer cut: `array_string_len_by_index(...)` now uses `handle_cache::with_array_box(...)` instead of `host_handles::with_handle(...) + ArrayBox` downcast, so `nyash.array.string_len_hi` stays on the typed handle-cache lane
           - latest `repeat=3` proof after this observer cut is `35 / 68 / 69` with `kilo_kernel_small_hk = 721 ms`; latest `repeat=20` WSL recheck is `36 / 67 / 68` with `kilo_kernel_small_hk = 688 ms`, so keep the cut and keep using `repeat=20` before closing noisy lanes
           - rejected length-aware store-boundary classifier retry: changing `has_direct_array_set_consumer(...)` to classify `array.set` plus trailing `length()` as a combined store boundary regressed stable main to `746 ms` on `repeat=3` and `757 ms` on `repeat=20`; keep the direct-set-only guard for this wave
-          - next exact leaf: bridge-side `Program(JSON v0)` import-bundle trace (`NYASH_JSON_V0_IMPORT_TRACE=1`); keep `string_concat` / `array_set` births as-is unless the trace shows the import bundle path is the hot leaf
+          - landed JSON artifact split: `src/runner/json_artifact/` now owns artifact-family convergence, `program_json_v0_loader.rs` owns the compat import-bundle merge/trace, and `core_executor::execute_json_artifact(...)` is the terminal execution owner while `run_json_v0(...)` stays a thin compat alias
+          - JSON artifact family lock is now `MIR(JSON)` mainline vs `Program(JSON v0)` compat/bootstrap-only retire target
+          - route reading is fixed: `--json-file` = compat umbrella intake, `--mir-json-file` = mainline direct intake
+          - migration order is fixed:
+            1. docs lock on artifact families and route map (`landed`)
+            2. internal API split to `load_mir_json(...)`, `load_program_json_v0(...)`, `load_json_artifact_to_module(...)`, `execute_json_artifact(...)` (`landed`)
+            3. compat isolation for Program(JSON v0) import-bundle behavior (`landed`)
+            4. archive/delete readiness sync under `phase-29ci` / `phase-29cj` (`next`)
+            5. public-surface cleanup / hard delete only after compat caller inventory reaches zero
           - rejected known-len propagation retry: threading `known_len` / post-store facts from `concat_hs` / `array.set` into `length()` lowering kept the lane flat-to-worse (`kilo_meso_substring_concat_len = 38 ms`, `kilo_meso_substring_concat_array_set = 66 ms`, `kilo_meso_substring_concat_array_set_loopcarry = 70 ms`, `kilo_kernel_small_hk = 705 ms` on `repeat=3`; `692 ms` on `repeat=20`); keep `array_set` as the first Store boundary and keep trailing `length()` as a separate post-store observer fact
           - post-store observer reading is now separated into `post-store-observer-facts-ssot.md`: `length()` after `array.set` is observer-after-store, not the store boundary itself
           - next design front is now `concat3-array-store-placement-window-ssot.md`: treat `concat3_hhh -> array.set -> trailing length()` as one compiler-local placement window, while still keeping `array.set` and `length()` as separate semantic boundaries

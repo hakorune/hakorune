@@ -66,8 +66,8 @@ impl NyashRunner {
             std::process::exit(0);
         }
 
-        // Unified: delegate to CoreExecutor (boxed)
-        let rc = crate::runner::core_executor::run_json_v0(self, &json);
+        // Unified: delegate to JSON artifact executor.
+        let rc = crate::runner::core_executor::execute_json_artifact(self, &json);
         std::process::exit(rc);
     }
 }
