@@ -92,7 +92,8 @@ Related:
     - boundary truth is not owned by `.inc`; `.inc` remains thin artifact/shim space
     - `.inc` partitions are still mixed today, so the first task is classification, not code motion
     - first stage2-mainline optimization wave is fixed to `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`
-    - fast-smoke CI now does a clean rebuild (`cargo clean` before `cargo build --release --workspace`) and stages built plugin artifacts into `plugins/*`, so `ternary_basic` does not depend on cached build outputs or prebuilt plugin .so availability on fresh runners
+- fast-smoke CI now does a clean rebuild (`cargo clean` before `cargo build --release --workspace`) and stages built plugin artifacts into `plugins/*`, so `ternary_basic` does not depend on cached build outputs or prebuilt plugin .so availability on fresh runners
+- fast-smoke CI now also pins `NYASH_NY_LLVM_OPT_TOOL=opt-18` and `NYASH_NY_LLVM_LLC_TOOL=llc-18`; the pure-first shim resolves LLVM tools by env override or PATH fallback so GitHub runner tool naming does not break the `mem2reg -> llc` lane
     - stage2-mainline first perf wave is now explicitly `Array only`, and the fixed order is `leaf-proof micro -> micro kilo -> main kilo`
     - refreshed same-artifact `kilo_micro_array_getset` baseline is `c_ms=3 / ny_aot_ms=3 / ratio_instr=0.90 / ratio_cycles=0.68 / ratio_ms=1.00`
     - refreshed direct bundle is `target/perf_state/optimization_bundle/stage2plus-array-wave-direct-refresh/`:

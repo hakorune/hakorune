@@ -143,11 +143,63 @@ static void hako_llvmc_maybe_dump_ir_file(const char* llpath) {
 
 static int hako_llvmc_file_exists(const char* path);
 
+static int hako_llvmc_tool_exists(const char* tool) {
+  const char* path;
+  char candidate[4096];
+  const char* cursor;
+  const char* sep;
+  size_t dir_len;
+
+  if (!tool || !tool[0]) return 0;
+  if (strchr(tool, '/')) {
+#if defined(_WIN32)
+    return _access(tool, 0) == 0;
+#else
+    return access(tool, X_OK) == 0;
+#endif
+  }
+
+  path = getenv("PATH");
+  if (!path || !path[0]) return 0;
+  cursor = path;
+  while (cursor && *cursor) {
+    sep = strchr(cursor, ':');
+    dir_len = sep ? (size_t)(sep - cursor) : strlen(cursor);
+    if (dir_len == 0) {
+      snprintf(candidate, sizeof(candidate), "%s", tool);
+    } else {
+      snprintf(candidate, sizeof(candidate), "%.*s/%s", (int)dir_len, cursor, tool);
+    }
+    if (candidate[0]) {
+#if defined(_WIN32)
+      if (_access(candidate, 0) == 0) return 1;
+#else
+      if (access(candidate, X_OK) == 0) return 1;
+#endif
+    }
+    if (!sep) break;
+    cursor = sep + 1;
+  }
+  return 0;
+}
+
+static const char* hako_llvmc_resolve_tool(const char* env_key, const char* primary, const char* fallback) {
+  const char* configured = env_key ? getenv(env_key) : NULL;
+  if (configured && configured[0] && hako_llvmc_tool_exists(configured)) {
+    return configured;
+  }
+  if (hako_llvmc_tool_exists(primary)) return primary;
+  if (fallback && hako_llvmc_tool_exists(fallback)) return fallback;
+  return NULL;
+}
+
 static int hako_llvmc_mem2reg_canonicalize_and_llc(
     const char* llpath,
     const char* obj_out) {
   char canon_ll[1024];
   char cmd[2048];
+  const char* opt_tool;
+  const char* llc_tool;
   int n;
   int rc;
 
@@ -167,11 +219,23 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
     return -1;
   }
 
+  opt_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18");
+  llc_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18");
+  if (!opt_tool) {
+    hako_llvmc_emit_route_trace("mem2reg", "fail", "opt-missing", llpath);
+    return -1;
+  }
+  if (!llc_tool) {
+    hako_llvmc_emit_route_trace("llc", "fail", "llc-missing", llpath);
+    return -1;
+  }
+
   remove(canon_ll);
   n = snprintf(
       cmd,
       sizeof(cmd),
-      "opt -passes=mem2reg -S -o \"%s\" \"%s\" 2>/dev/null",
+      "%s -passes=mem2reg -S -o \"%s\" \"%s\" 2>/dev/null",
+      opt_tool,
       canon_ll,
       llpath);
   if (n <= 0 || (size_t)n >= sizeof(cmd)) {
@@ -191,7 +255,8 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   n = snprintf(
       cmd,
       sizeof(cmd),
-      "llc -filetype=obj -o \"%s\" \"%s\" 2>/dev/null",
+      "%s -filetype=obj -o \"%s\" \"%s\" 2>/dev/null",
+      llc_tool,
       obj_out,
       canon_ll);
   if (n <= 0 || (size_t)n >= sizeof(cmd)) {

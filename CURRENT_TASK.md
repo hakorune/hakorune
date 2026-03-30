@@ -16,6 +16,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - `git status -sb`
 - `tools/checks/dev_gate.sh quick`
 
+## CI Notes
+
+- fast-smoke CI now pins `NYASH_NY_LLVM_OPT_TOOL=opt-18` and `NYASH_NY_LLVM_LLC_TOOL=llc-18`, and the pure-first shim resolves `opt/llc` by env override or PATH fallback so GitHub runner LLVM tool naming does not break the mem2reg/llc lane.
+
 ## Current Lanes
 
 ### phase-29bq
