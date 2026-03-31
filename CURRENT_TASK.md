@@ -18,14 +18,16 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work:整理フェーズの入口を確定する。
-- 調査結果の読み:
-  - `tmp/`・`docs/private/`・`docs/archive/`・`archive/` はまず棚卸し対象
-  - `run_all.sh` は phase-local suite を除くと root/compat 側の命名整理が主
-  - `src/mir/join_ir/lowering/loop_routes/` と `src/tests/*` に `#[ignore]` が密集
-  - `loop_routes` と bridge/debug harness の ignore 理由は具体化済みで、今は残存 ignore の棚卸し段階
-  - `src/runner/mir_json_v0.rs`, `src/backend/wasm/shape_table.rs`, `src/backend/mir_interpreter/handlers/calls/method.rs`, `src/runner/modes/vm_hako/tests/boxcall_contract.rs`, `src/bin/rc_insertion_selfcheck.rs` は分割済み
+- Active work: `stage2-mainline` の `Array` first optimization wave に戻る。
+- 読み:
+  - `kilo_micro_array_getset` が current exact wave
+  - landed read slice は `crates/nyash_kernel/src/plugin/array_slot_load.rs`
+  - current probe target は `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/handle_cache.rs`, `src/boxes/array/mod.rs`
+  - judge order は `leaf-proof micro -> micro kilo -> main kilo`
+  - `Array -> Map -> RuntimeData cleanup` は regression pack として固定
+  - `loop_routes` / `src/tests/*` の ignore 整理と repo cleanup は完了済み
 - Landed already:
+  - warning cleanup commit `c49375eb0` is landed
   - `docs/private/papers-archive/paper-a-mir13-ir-design/out/mir13-paper.pdf` は `docs/private/out/` へ move-out 済み
   - `docs/private/roadmap2/CURRENT_TASK_2025-11-29_full.md` は `docs/private/roadmap2/archive/` へ移動済み
   - root build scripts は `tools/build/` を canonical にして root は shim 化済み
@@ -51,10 +53,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` は topic 別サブモジュールに分離済み
   - `lang/src/runner/launcher.hako` は dispatch を `launcher/dispatch.hako` に、入力契約を `launcher/input_contract.hako` に、入出力契約を `launcher/artifact_io.hako` / `launcher/payload_contract.hako` に分離済み
 - First-cut order:
-  1. `docs/private/` の archive/move-out は安全な生成物から進める
-  2. root build scripts を `tools/build/` に寄せる
-  3. 大きい `src/` 実装ファイルを切る
-  4. `#[ignore]` テストを `loop_routes` と `src/tests/*` から整理する
+  1. `kilo_micro_array_getset` same-artifact compare を current Rust baseline に合わせる
+  2. `array_slot_store.rs` / `handle_cache.rs` の残りを測定で切る
+  3. `Array -> Map -> RuntimeData` を regression pack として固定する
+  4. `tools/perf/trace_optimization_bundle.sh` と `run_kilo_micro_machine_ladder.sh` を judge に使う
 - Keep / defer:
   - `tools/selfhost/run_all.sh` と phase-local `run_all.sh` は keep
   - `apps/tests/` は fixture bank として当面 keep
@@ -63,10 +65,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako` / `lang/src/compiler/entry/func_scanner.hako` / `lang/src/compiler/mirbuilder/stmt_handlers/return_stmt_handler.hako` / `lang/src/runner/stage1_cli.hako` は分割済み
   - `stage1_cli.stage2` exact emit compat probe は green になり、`stage1_cli` 本体は run-only bootstrap output のまま維持する
   - `launcher` は `dispatch` / `input_contract` / `artifact_io` / `payload_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
-  - `src/tests/mir_joinir_if_select.rs` は `mir_joinir_if_select/{mod,tests}.rs` に分割済み
-  - `src/bin/rc_insertion_selfcheck/cases.rs` は `cases/{mod,basic,jump,misc}.rs` に分割済み
-  - `handlers` は `generic` route を外し、残りの route table 整理は別ステップで続ける
-  - 次は `src/mir/builder/control_flow/plan/parts/loop_.rs` か `lang/src/runner/launcher/artifact_io.hako` へ進む
+  - `Array` wave は `crates/nyash_kernel/src/plugin/array_slot_store.rs` と `crates/nyash_kernel/src/plugin/handle_cache.rs` を current exact leaf として追う
+  - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` 以降の cleanup splits は landed で固定
+  - 次は `kilo_micro_array_getset` の same-artifact compare を更新するか、`array_slot_store.rs` を測定で切る
 
 ## CI Notes
 
