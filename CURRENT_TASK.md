@@ -79,6 +79,12 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Parked: broad `Map` structural expansion
   - `Map` は regression/evidence pack として keep
 
+### Execution Waves
+
+1. Rune primitive control plane sync
+2. `K2-core` RawArray pilot
+3. Map evidence/regression pack keep
+
 ### Small Tasks
 
 - Active: docs ladder sync

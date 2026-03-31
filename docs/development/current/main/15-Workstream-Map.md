@@ -28,6 +28,7 @@ Related:
    - keep Rune primitive control plane docs (`@rune` canonical surface / `attrs.runes`) synchronized with the current lane
    - `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` is the next structural target
    - `Map` optimization is parked as regression/evidence, not the next structural lane
+   - execution order is Rune primitive control plane first, then `K2-core` RawArray pilot, then Map parked
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

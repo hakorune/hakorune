@@ -47,6 +47,7 @@ bash tools/selfhost/run_lane_a_daily.sh
   - verify `stage` axis and compressed `K-axis` reading in `CURRENT_TASK.md` first
   - verify `@rune` canonical surface and declaration-local `attrs.runes` carrier next
   - keep `K2-core = RawArray first truthful substrate pilot` as the next structural target
+  - keep execution order as Rune primitive control plane first, then `K2-core` RawArray pilot, then Map parked
   - treat `Map` perf as regression/evidence until a new exact blocker says otherwise
 
 ## 保守レーン（必要時のみ）
