@@ -1,6 +1,6 @@
 use super::array_guard::valid_handle;
-use super::array_index_dispatch::array_get_by_index;
-use super::array_write_dispatch::array_set_by_index_i64_value;
+use super::array_slot_load::array_slot_load_encoded_i64;
+use super::array_slot_store::array_slot_store_i64;
 use super::array_handle_cache::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
 
@@ -36,7 +36,7 @@ pub extern "C" fn nyash_array_get_h(handle: i64, idx: i64) -> i64 {
     if cli_verbose_enabled() {
         eprintln!("[ARR] get_h(handle={}, idx={})", handle, idx);
     }
-    let out = array_get_by_index(handle, idx);
+    let out = array_slot_load_encoded_i64(handle, idx);
     if cli_verbose_enabled() {
         eprintln!("[ARR] get_h => {}", out);
     }
@@ -49,7 +49,7 @@ pub extern "C" fn nyash_array_set_h(handle: i64, idx: i64, val: i64) -> i64 {
     if cli_verbose_enabled() {
         eprintln!("[ARR] set_h(handle={}, idx={}, val={})", handle, idx, val);
     }
-    let applied = array_set_by_index_i64_value(handle, idx, val);
+    let applied = array_slot_store_i64(handle, idx, val);
     if cli_verbose_enabled() {
         eprintln!("[ARR] set_h applied={} (legacy return=0)", applied);
     }

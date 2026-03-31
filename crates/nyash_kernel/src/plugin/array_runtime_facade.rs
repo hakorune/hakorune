@@ -1,10 +1,16 @@
 use super::array_guard::valid_handle;
 use super::array_compat::append_integer_raw;
-use super::array_index_dispatch::{array_get_by_index, array_has_by_index, decode_index_key};
 use super::array_slot_append::array_slot_append_any;
-use super::array_write_dispatch::{
-    array_set_by_index, array_set_by_index_i64_value, array_set_by_index_string_handle_value,
+use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
+use super::array_slot_store::{
+    array_slot_store_any, array_slot_store_i64, array_slot_store_string_handle,
 };
+use super::value_codec::any_arg_to_index;
+
+#[inline(always)]
+fn decode_index_key(key_any: i64) -> Option<i64> {
+    any_arg_to_index(key_any)
+}
 
 // Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
 // These are not the canonical `.hako` collection-owner symbols.
@@ -15,7 +21,7 @@ pub(super) fn array_runtime_get_any_key(handle: i64, key_any: i64) -> i64 {
     let Some(idx) = decode_index_key(key_any) else {
         return 0;
     };
-    array_get_by_index(handle, idx)
+    array_slot_load_encoded_i64(handle, idx)
 }
 
 pub(super) fn array_runtime_set_any_key(handle: i64, key_any: i64, val_any: i64) -> i64 {
@@ -25,7 +31,7 @@ pub(super) fn array_runtime_set_any_key(handle: i64, key_any: i64, val_any: i64)
     let Some(idx) = decode_index_key(key_any) else {
         return 0;
     };
-    array_set_by_index(handle, idx, val_any)
+    array_slot_store_any(handle, idx, val_any)
 }
 
 pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
@@ -35,7 +41,7 @@ pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
     let Some(idx) = decode_index_key(key_any) else {
         return 0;
     };
-    array_has_by_index(handle, idx)
+    array_slot_has_index(handle, idx)
 }
 
 pub(super) fn array_runtime_push_any(handle: i64, val_any: i64) -> i64 {
@@ -74,25 +80,25 @@ pub extern "C" fn nyash_array_push_hi_alias(handle: i64, value_i64: i64) -> i64 
 // These routes are selected by lowering when key VID is proven i64/non-negative.
 #[export_name = "nyash.array.get_hi"]
 pub extern "C" fn nyash_array_get_hi_alias(handle: i64, idx: i64) -> i64 {
-    array_get_by_index(handle, idx)
+    array_slot_load_encoded_i64(handle, idx)
 }
 
 #[export_name = "nyash.array.set_hih"]
 pub extern "C" fn nyash_array_set_hih_alias(handle: i64, idx: i64, val_any: i64) -> i64 {
-    array_set_by_index(handle, idx, val_any)
+    array_slot_store_any(handle, idx, val_any)
 }
 
 #[export_name = "nyash.array.set_hii"]
 pub extern "C" fn nyash_array_set_hii_alias(handle: i64, idx: i64, value_i64: i64) -> i64 {
-    array_set_by_index_i64_value(handle, idx, value_i64)
+    array_slot_store_i64(handle, idx, value_i64)
 }
 
 #[export_name = "nyash.array.set_his"]
 pub extern "C" fn nyash_array_set_his_alias(handle: i64, idx: i64, value_h: i64) -> i64 {
-    array_set_by_index_string_handle_value(handle, idx, value_h)
+    array_slot_store_string_handle(handle, idx, value_h)
 }
 
 #[export_name = "nyash.array.has_hi"]
 pub extern "C" fn nyash_array_has_hi_alias(handle: i64, idx: i64) -> i64 {
-    array_has_by_index(handle, idx)
+    array_slot_has_index(handle, idx)
 }
