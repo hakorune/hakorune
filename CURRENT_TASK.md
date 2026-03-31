@@ -17,9 +17,19 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - `git status -sb`
 - `tools/checks/dev_gate.sh quick`
 
+## Order at a Glance
+
+1. Rune primitive control plane sync
+2. `K0 -> (K1 + K2)` kernel migration line
+3. Map parked as evidence/regression only
+
+- `K0 / K1 / K2(core|wide)` stays the replacement reading.
+- `K1` / `K2` stay separate acceptance gates, but the engineering line can be read as one post-`K0` migration.
+- perf and historical evidence below are appendix material only; they do not change the order above.
+
 ## Immediate Handoff (2026-03-31)
 
-- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読みを dashboard/SSOT に同期する。
+- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読みと、`K0 -> (K1 + K2)` の一本線を dashboard/SSOT に同期する。
 - Stage axis:
   - `stage0` = bootstrap / recovery keep
   - `stage1` = same-boundary swap proof line
@@ -33,16 +43,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `K2-wide` = `RawMap second + capability widening + metal review`
 - Current repo read:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1 done-enough`
+  - `K1` と `K2` は separate gates だが、実装工程は `K0` のあとに one migration line として読める
   - 次の structural target は `K2-core RawArray first`
   - `RawMap` は `K2-wide` の second target
   - `RuntimeDataBox` は facade-only keep
   - same-boundary daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に限定する
   - default daily/distribution target は `zero-rust` だが、bootstrap/recovery/reference/buildability と native metal keep は explicit keep
-- Parked evidence:
-  - `kilo_leaf_map_get_missing 0` は map evidence pack として `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
-  - `kilo_leaf_map_getset_has -1` は regression pack として `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
-  - `kilo_micro_array_getset` は baseline regression pack として `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
-  - `Array -> Map -> RuntimeData cleanup` は owner rewrite reopen ではなく regression/evidence pack に固定
+- Evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - Next exact read order:
   1. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
   2. `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
@@ -82,7 +89,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 ### Execution Waves
 
 1. Rune primitive control plane sync
-2. `K2-core` RawArray pilot
+2. `K0 -> (K1 + K2)` kernel migration line
 3. Map evidence/regression pack keep
 
 ### Small Tasks
@@ -108,11 +115,12 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 ### First 3 Actions
 
 1. Rune primitive surface を `@rune` 単一表現で固定する
-2. `K2-core` の acceptance criteria を design SSOT へ書く
-3. `Map` を regression/evidence pack として固定し続ける
+2. `K0 -> (K1 + K2)` の工程を docs で読みやすく揃える
+3. `K2-core` の acceptance criteria を design SSOT へ書く
 - Landed already:
   - `crates/nyash_kernel/src/plugin/runtime_data.rs` now routes array dispatch through handle-based RawArray substrate helpers, and map any-key paths materialize owned key strings before map ops so handle-registry borrow overlap is avoided
   - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs` now short-circuits invalid array handles before index resolution, keeping RawArray facade-only and preserving the handle-based substrate path
+  - RawArray guard sites now share `array_guard::{valid_handle, valid_handle_idx}` across dispatch, slot, compat, and capacity/string helper boundaries
   - Rune canonical surface coverage is now pinned in tests: `@rune Public/FfiSafe/ReturnsOwned/FreeWith/Symbol/CallConv/Hint/Contract/IntrinsicCandidate` roundtrips through parser metadata, AST JSON, and MIR bridge attrs
   - warning cleanup commit `c49375eb0` is landed
   - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now accepts `NYASH_NY_LLVM_LLC_FLAGS` and defaults to `-O3 -mcpu=native`
@@ -161,6 +169,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - asm diff / bundle save / flags matrix の3導線は landed
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` 以降の cleanup splits は landed で固定
   - 次は map provider / boundary smoke を見て、`MapBox.get/has` の exact slice が立つか判断する
+
+## Evidence Appendix
+
+- `kilo_leaf_map_get_missing 0` は map evidence pack として `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
+- `kilo_leaf_map_getset_has -1` は regression pack として `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
+- `kilo_micro_array_getset` は baseline regression pack として `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
+- `Array -> Map -> RuntimeData cleanup` は owner rewrite reopen ではなく regression/evidence pack に固定
 
 ## CI Notes
 

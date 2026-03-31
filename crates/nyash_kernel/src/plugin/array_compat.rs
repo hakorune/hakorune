@@ -1,3 +1,4 @@
+use super::array_guard::valid_handle;
 use super::array_index_dispatch::array_get_by_index;
 use super::array_write_dispatch::array_set_by_index_i64_value;
 use super::handle_cache::with_array_box;
@@ -18,7 +19,7 @@ pub(super) fn cli_verbose_enabled() -> bool {
 
 #[inline(always)]
 pub(super) fn append_integer_raw(handle: i64, value_i64: i64) -> i64 {
-    if handle <= 0 {
+    if !valid_handle(handle) {
         return 0;
     }
     with_array_box(handle, |arr| {

@@ -65,6 +65,14 @@ Replacement progress must not overload those names.
 - old `K3 capability widening` maps to `K2-wide`
 - old `K4 metal split review` maps to `K2-wide`
 
+## Implementation Flow
+
+- the engineering line after `K0` can be read as one `K1 + K2` migration track.
+- `K1` and `K2` remain separate gates / acceptance checkpoints.
+- `K1` still means semantic owner swap.
+- `K2` still means substrate era.
+- the point of the compression is to make the build order feel like one post-`K0` line while keeping the gates distinct.
+
 ## Responsibility Split
 
 ### `.hako owner`

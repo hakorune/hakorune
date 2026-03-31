@@ -30,6 +30,10 @@ Related:
 ## Immediate Resume
 
 - current lane is docs/policy refresh for the kernel replacement axis.
+- visible order:
+  1. Rune primitive control plane sync
+  2. `K0 -> (K1 + K2)` kernel migration line
+  3. Map parked as evidence/regression only
 - stage axis:
   - `stage0 = bootstrap/recovery keep`
   - `stage1 = same-boundary swap proof`
@@ -41,17 +45,17 @@ Related:
   - `K2 = Substrate Era`
     - `K2-core = RawArray first`
     - `K2-wide = RawMap second + capability widening + metal review`
+- implementation note:
+  - the engineering line after `K0` can be read as one `K1 + K2` migration track
+  - `K1` and `K2` remain separate gates / acceptance checkpoints
 - current repo read:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) is `K1 done-enough`
+  - post-`K0` engineering line is read as `K1 + K2` on one migration track
   - next structural target is `K2-core RawArray first`
   - `RawMap` is `K2-wide` second and `RuntimeDataBox` stays facade-only
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
-- parked evidence:
-  - `kilo_leaf_map_get_missing 0` = `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
-  - `kilo_leaf_map_getset_has -1` = `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
-  - `kilo_micro_array_getset 1x7` = `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
-  - `runtime_data` array dispatch now goes through handle-based RawArray substrate helpers, and map any-key paths materialize owned keys before map ops to avoid handle-registry borrow overlap
+- evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - next horizon inventory:
   - big: Rune primitive control plane; `K2-core` RawArray pilot; policy stabilization; zero-rust default operationalization
   - parked big: `K2-wide` follow-up; broad `Map` structural expansion
@@ -70,6 +74,7 @@ Related:
   - `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   - `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
 - Already landed: `docs/private/papers-archive/paper-a-mir13-ir-design/out/mir13-paper.pdf` has been moved to `docs/private/out/`, `docs/private/roadmap2/CURRENT_TASK_2025-11-29_full.md` has been archived under `docs/private/roadmap2/archive/`, the root build scripts are shimmed to `tools/build/`, `src/runner/mir_json_v0.rs` has been split into helper/call/tests submodules, `src/backend/wasm/shape_table.rs` has been split into `native/p10/tests` submodules, `src/backend/mir_interpreter/handlers/calls/method.rs` has been split into `dispatch/tests` submodules, `src/runner/modes/vm_hako/tests/boxcall_contract.rs` has been split into `subset/compile` submodules, `src/bin/rc_insertion_selfcheck.rs` has been split into `helpers` plus `cases/{mod,basic,jump,misc}` submodules, `src/mir/passes/rc_insertion_helpers.rs` has been split into `cleanup/contracts/cycles/plan/apply/types/util` submodules, `src/mir/builder/control_flow/plan/composer/coreloop_v1_tests.rs` has been split into scenario submodules, `src/mir/optimizer.rs` has been split with a `diagnostics` submodule, `src/runner/modes/vm_hako/subset_check.rs` has been split into `shapes/boxcalls/externcalls` submodules, `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs` has been split into `extract/tests` submodules, `src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns.rs` has been split into `returns/breaks/guard_break` submodules, `src/mir/builder/control_flow/plan/composer/coreloop_v0_tests.rs` has been split into `simple_while/scan_with_init/split_scan` submodules, and `src/backend/mir_interpreter/handlers/extern_provider.rs` has been split into lane submodules.
+- Already landed: `crates/nyash_kernel/src/plugin/runtime_data.rs` now routes array dispatch through handle-based RawArray substrate helpers, `runtime_data_array_dispatch.rs` short-circuits invalid handles before index resolution, and RawArray guard sites now share `array_guard::{valid_handle, valid_handle_idx}` across dispatch, slot, compat, and capacity/string helper boundaries; map any-key paths still materialize owned key strings before map ops so handle-registry borrow overlap is avoided.
 - Also landed: `src/mir/control_tree/normalized_shadow/loop_true_break_once.rs` has its tests moved to `loop_true_break_once/tests.rs`, `src/macro/ast_json/joinir_compat.rs` has its helper functions moved to `joinir_compat/helpers.rs`, `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs` has `generic` route functions moved to `handlers/generic.rs`, and `lang/src/runner/launcher.hako` has dispatch/input-contract helper boxes moved into `launcher/dispatch.hako` and `launcher/input_contract.hako`.
 - tmp cleanup note: the zero-reference `apps/` `tmp_*.hako` files are deleted.
 - Ignore cleanup note: `loop_routes` and bridge/debug harness comments were normalized; remaining `#[ignore]` work is now a candidate-by-candidate shelfing pass, not a blanket TODO cleanup.
@@ -82,6 +87,13 @@ Related:
 - `handlers` has the generic route leaf split out; the next cleanup slice is the remaining handler route table or `artifact_io` depending on which lane proves cheaper.
 - Next step is to keep the map lookup cache reproducible on the Map micro lane, use the asm diff helper when the hot symbol changes, and only revisit `NYASH_NY_LLVM_LLC_FLAGS` if it shows a stable win.
 
+## Evidence Appendix
+
+- `kilo_leaf_map_get_missing 0` = `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
+- `kilo_leaf_map_getset_has -1` = `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
+- `kilo_micro_array_getset 1x7` = `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
+- `runtime_data` array dispatch now goes through handle-based RawArray substrate helpers, and map any-key paths materialize owned keys before map ops to avoid handle-registry borrow overlap
+
 ## Current Read
 
 - Active lane: `policy-refresh`
@@ -89,6 +101,7 @@ Related:
   - purpose:
     - keep `stage` as build/distribution vocabulary
     - keep compressed `K-axis` as replacement progress vocabulary
+    - read the post-`K0` implementation line as `K1 + K2`, not as one merged acceptance gate
     - pin `K2-core = RawArray first truthful substrate pilot`
     - park Map optimization as regression/evidence, not structural next step
 - Active code lane: `phase-29bq`

@@ -1,3 +1,4 @@
+use super::array_guard::valid_handle_idx;
 use super::value_codec::{
     is_string_handle_source, store_string_box_from_source, store_string_box_from_string_source,
     try_retarget_borrowed_string_slot_with_source,
@@ -18,7 +19,7 @@ thread_local! {
 }
 
 pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
-    if handle <= 0 || idx < 0 {
+    if !valid_handle_idx(handle, idx) {
         return 0;
     }
     super::handle_cache::with_array_box(handle, |arr| {
@@ -100,7 +101,7 @@ fn with_cached_needle_str<R>(needle_h: i64, f: impl FnOnce(&str) -> R) -> R {
 #[inline(always)]
 pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64) -> i64 {
     with_cached_needle_str(needle_h, |needle| {
-        if handle <= 0 || idx < 0 {
+        if !valid_handle_idx(handle, idx) {
             return if needle.is_empty() { 0 } else { -1 };
         }
         if needle.is_empty() {
@@ -121,7 +122,7 @@ pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64
 }
 
 pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, value_h: i64) -> i64 {
-    if handle <= 0 || idx < 0 || value_h <= 0 {
+    if !valid_handle_idx(handle, idx) || value_h <= 0 {
         return 0;
     }
     let drop_epoch = handles::drop_epoch();

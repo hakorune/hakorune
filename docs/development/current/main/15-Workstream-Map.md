@@ -24,11 +24,12 @@ Related:
 
 1. `policy-refresh`
    - active docs/policy lane
+   - visible sequence: Rune primitive control plane -> `K0 -> (K1 + K2)` kernel migration line -> Map parked as evidence/regression only
    - keep `stage` vocabulary fixed and add compressed `K-axis` as the current operational reading
    - keep Rune primitive control plane docs (`@rune` canonical surface / `attrs.runes`) synchronized with the current lane
    - `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` is the next structural target
    - `Map` optimization is parked as regression/evidence, not the next structural lane
-   - execution order is Rune primitive control plane first, then `K2-core` RawArray pilot, then Map parked
+   - execution order is Rune primitive control plane first, then the post-`K0` `K1 + K2` migration line, then Map parked
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
