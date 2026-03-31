@@ -18,8 +18,8 @@ use super::runtime_data_map_dispatch::{
 pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |arr| runtime_data_array_get_hh(arr, key_any),
-        |_map| runtime_data_map_get_hh(recv_h, key_any),
+        |_| runtime_data_array_get_hh(recv_h, key_any),
+        |_| runtime_data_map_get_hh(recv_h, key_any),
     )
     .unwrap_or(0)
 }
@@ -29,8 +29,8 @@ pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
 pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |arr| runtime_data_array_set_hhh(arr, key_any, val_any),
-        |_map| runtime_data_map_set_hhh(recv_h, key_any, val_any),
+        |_| runtime_data_array_set_hhh(recv_h, key_any, val_any),
+        |_| runtime_data_map_set_hhh(recv_h, key_any, val_any),
     )
     .unwrap_or(0)
 }
@@ -40,8 +40,8 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
 pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |arr| runtime_data_array_has_hh(arr, key_any),
-        |_map| runtime_data_map_has_hh(recv_h, key_any),
+        |_| runtime_data_array_has_hh(recv_h, key_any),
+        |_| runtime_data_map_has_hh(recv_h, key_any),
     )
     .unwrap_or(0)
 }
@@ -51,8 +51,8 @@ pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
 pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |arr| runtime_data_array_push_hh(arr, val_any),
-        |_map| 0,
+        |_| runtime_data_array_push_hh(recv_h, val_any),
+        |_| 0,
     )
     .unwrap_or(0)
 }
@@ -61,6 +61,8 @@ pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
 mod tests {
     use super::*;
     use nyash_rust::box_trait::NyashBox;
+    use nyash_rust::boxes::array::ArrayBox;
+    use nyash_rust::boxes::basic::IntegerBox;
     use nyash_rust::boxes::map_box::MapBox;
     use nyash_rust::runtime::host_handles as handles;
     use std::sync::Arc;
@@ -68,6 +70,16 @@ mod tests {
     fn new_map_handle() -> i64 {
         let map: Arc<dyn NyashBox> = Arc::new(MapBox::new());
         handles::to_handle_arc(map) as i64
+    }
+
+    fn new_array_handle() -> i64 {
+        let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
+        handles::to_handle_arc(arr) as i64
+    }
+
+    fn new_int_handle(value: i64) -> i64 {
+        let integer: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(value));
+        handles::to_handle_arc(integer) as i64
     }
 
     #[test]
@@ -79,11 +91,26 @@ mod tests {
     }
 
     #[test]
+    fn runtime_data_array_round_trip_keeps_rawarray_contract() {
+        let handle = new_array_handle();
+        let value_h = new_int_handle(11);
+        let updated_h = new_int_handle(22);
+
+        assert_eq!(nyash_runtime_data_push_hh(handle, value_h), 1);
+        assert_eq!(nyash_runtime_data_has_hh(handle, 0), 1);
+        assert_eq!(nyash_runtime_data_get_hh(handle, 0), 11);
+        assert_eq!(nyash_runtime_data_set_hhh(handle, 0, updated_h), 1);
+        assert_eq!(nyash_runtime_data_get_hh(handle, 0), 22);
+        assert_eq!(nyash_runtime_data_get_hh(handle, -1), 0);
+    }
+
+    #[test]
     fn runtime_data_map_get_keeps_mixed_runtime_i64_contract() {
         let handle = new_map_handle();
         let key = -70001;
+        let value = new_int_handle(42);
 
-        assert_eq!(nyash_runtime_data_set_hhh(handle, key, 42), 1);
+        assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
         assert_eq!(nyash_runtime_data_has_hh(handle, key), 1);
         assert_eq!(nyash_runtime_data_get_hh(handle, key), 42);
     }

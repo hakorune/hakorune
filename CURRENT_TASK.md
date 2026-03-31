@@ -111,6 +111,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 2. `K2-core` の acceptance criteria を design SSOT へ書く
 3. `Map` を regression/evidence pack として固定し続ける
 - Landed already:
+  - `crates/nyash_kernel/src/plugin/runtime_data.rs` now routes array dispatch through handle-based RawArray substrate helpers, and map any-key paths materialize owned key strings before map ops so handle-registry borrow overlap is avoided
   - warning cleanup commit `c49375eb0` is landed
   - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now accepts `NYASH_NY_LLVM_LLC_FLAGS` and defaults to `-O3 -mcpu=native`
   - `benchmarks/bench_kilo_leaf_map_get_missing.hako` / `benchmarks/c/bench_kilo_leaf_map_get_missing.c` は missing-key `MapBox.get` leaf を可観測化するために追加済み

@@ -2,6 +2,7 @@ use super::value_codec::{any_arg_to_box_with_profile, CodecProfile};
 use std::cell::RefCell;
 use nyash_rust::runtime::host_handles as handles;
 
+#[allow(dead_code)]
 struct ImmediateKeyCache {
     key: i64,
     text: String,
@@ -23,6 +24,7 @@ pub(crate) fn map_key_string_from_any(key_any: i64) -> String {
         .value
 }
 
+#[allow(dead_code)]
 #[inline(always)]
 pub(crate) fn map_key_with_any_str_ref<T, F>(key_any: i64, f: F) -> T
 where
@@ -42,18 +44,24 @@ where
         });
     }
     IMMEDIATE_KEY_CACHE.with(|slot| {
-        let mut cache = slot.borrow_mut();
-        if let Some(entry) = cache.as_mut() {
-            if entry.key == key_any {
-                return f(entry.text.as_str());
+        let text = {
+            let mut cache = slot.borrow_mut();
+            if let Some(entry) = cache.as_ref() {
+                if entry.key == key_any {
+                    return f(entry.text.as_str());
+                }
             }
-        }
-        let text = key_any.to_string();
-        *cache = Some(ImmediateKeyCache {
-            key: key_any,
-            text,
-        });
-        let entry = cache.as_ref().expect("immediate key cache just stored");
-        f(entry.text.as_str())
+            let text = key_any.to_string();
+            *cache = Some(ImmediateKeyCache {
+                key: key_any,
+                text,
+            });
+            cache
+                .as_ref()
+                .expect("immediate key cache just stored")
+                .text
+                .clone()
+        };
+        f(text.as_str())
     })
 }

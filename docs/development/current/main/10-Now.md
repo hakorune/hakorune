@@ -51,6 +51,7 @@ Related:
   - `kilo_leaf_map_get_missing 0` = `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
   - `kilo_leaf_map_getset_has -1` = `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
   - `kilo_micro_array_getset 1x7` = `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
+  - `runtime_data` array dispatch now goes through handle-based RawArray substrate helpers, and map any-key paths materialize owned keys before map ops to avoid handle-registry borrow overlap
 - next horizon inventory:
   - big: Rune primitive control plane; `K2-core` RawArray pilot; policy stabilization; zero-rust default operationalization
   - parked big: `K2-wide` follow-up; broad `Map` structural expansion
