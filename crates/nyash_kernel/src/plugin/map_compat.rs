@@ -1,7 +1,8 @@
 use super::handle_cache::with_map_box;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
-use super::value_codec::{any_arg_to_box, box_to_handle, int_arg_to_box};
+use super::map_key_codec::map_key_with_any_str_ref;
+use super::value_codec::{box_to_handle, int_arg_to_box};
 
 #[inline]
 pub(super) fn map_debug_enabled() -> bool {
@@ -19,12 +20,14 @@ fn map_get_compat_i64(handle: i64, key_i64: i64) -> i64 {
 
 #[inline]
 fn map_get_compat_any(handle: i64, key_any: i64) -> i64 {
-    with_map_box(handle, |map| {
-        let key_box = any_arg_to_box(key_any);
-        let value = map.get(key_box);
-        box_to_handle(value)
+    map_key_with_any_str_ref(key_any, |key_str| {
+        with_map_box(handle, |map| {
+            let value = map.get_opt_key_str(key_str)?;
+            Some(box_to_handle(value))
+        })
+        .flatten()
+        .unwrap_or(0)
     })
-    .unwrap_or(0)
 }
 
 // Compat-only exports consumed by historical pure/legacy surfaces.

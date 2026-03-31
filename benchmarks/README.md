@@ -32,6 +32,8 @@ Leaf-proof cases (run these first when adding/changing one observer/mutator leaf
 - `kilo_leaf_array_rmw_add1`: integer `get -> +1 -> set` without trailing reread
 - `kilo_leaf_array_string_len`: array string `get -> length` observer only
 - `kilo_leaf_array_string_indexof_const`: array string `get -> indexOf("line")` observer only
+- `kilo_leaf_map_getset_has`: string-key `MapBox.get -> set -> has` on a stable key array
+- `kilo_leaf_map_get_missing`: missing-key `MapBox.get` on a stable integer key
 
 Fixed micro cases (files live in `benchmarks/` + `benchmarks/c/`):
 

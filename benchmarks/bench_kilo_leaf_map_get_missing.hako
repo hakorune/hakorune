@@ -1,0 +1,20 @@
+// kilo/map leaf-proof microbench:
+// stable missing-key map get on a single integer key.
+static box Main {
+  main() {
+    local ops = 2000000
+    local map = new MapBox()
+    local i = 0
+    local sum = 0
+
+    loop (i < ops) {
+      local v = map.get(99)
+      if (v == null) {
+        sum = sum + 1
+      }
+      i = i + 1
+    }
+
+    return sum
+  }
+}

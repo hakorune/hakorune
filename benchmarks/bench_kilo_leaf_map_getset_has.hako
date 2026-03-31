@@ -1,0 +1,23 @@
+// kilo/map leaf-proof microbench:
+// stable negative integer key map get -> set -> has on a single key.
+static box Main {
+  main() {
+    local ops = 2000000
+    local map = new MapBox()
+    local key = -1
+    local i = 0
+
+    map.set(key, 1)
+
+    local sum = 0
+    loop (i < ops) {
+      local v = map.get(key)
+      if (map.has(key)) {
+        sum = sum + v
+      }
+      i = i + 1
+    }
+
+    return sum + map.get(key)
+  }
+}

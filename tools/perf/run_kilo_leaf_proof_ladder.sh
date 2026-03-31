@@ -21,6 +21,7 @@ cases=(
   kilo_leaf_array_rmw_add1
   kilo_leaf_array_string_len
   kilo_leaf_array_string_indexof_const
+  kilo_leaf_map_get_missing
 )
 
 for key in "${cases[@]}"; do

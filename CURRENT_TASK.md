@@ -18,14 +18,14 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: `stage2-mainline` の `Array` first optimization wave で、今の live leaf は `kilo_leaf_array_rmw_add1`。
+- Active work: `stage2-mainline` の `Map` optimization wave で、今の live leaf は `kilo_leaf_map_get_missing`。
 - 読み:
-  - `kilo_leaf_array_rmw_add1` の current hot symbol は `ny_main`
-  - leaf fast-path は `nyash.array.birth_h` / `nyash.array.rmw_add1_hi` を hot block から外した direct lowering になっている
-  - current measurable lever は `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の leaf-proof fast-path
-  - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam は follow-up lever だが、現状の flags matrix は横並び
-  - `kilo_leaf_array_rmw_add1 1x7` は `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.82` まで到達
+  - `kilo_leaf_map_get_missing` の current hot symbol は `nyash.runtime_data.get_hh`
+  - current measurable lever は `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs` と `handle_cache.rs`
+  - `kilo_leaf_map_get_missing 99` は `c_ms=3 / ny_aot_ms=61 / ratio_cycles=0.01` まで到達
+  - `kilo_leaf_map_getset_has -1` は `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00` の regression pack として凍結
   - `kilo_micro_array_getset` は regression pack に固定し、`c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94` を守る
+  - 次の探索候補は `runtime_data_map_get_min` 系の map provider / boundary smoke
   - 観測導線は `tools/perf/save_micro_bundle.sh` / `tools/perf/diff_micro_c_vs_aot_asm.sh` / `tools/perf/run_micro_llc_flags_matrix.sh` を使う
   - judge order は `leaf-proof micro -> micro kilo -> main kilo`
   - `Array -> Map -> RuntimeData cleanup` は regression pack として固定
@@ -33,6 +33,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Landed already:
   - warning cleanup commit `c49375eb0` is landed
   - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now accepts `NYASH_NY_LLVM_LLC_FLAGS` and defaults to `-O3 -mcpu=native`
+  - `benchmarks/bench_kilo_leaf_map_get_missing.hako` / `benchmarks/c/bench_kilo_leaf_map_get_missing.c` は missing-key `MapBox.get` leaf を可観測化するために追加済み
   - `docs/private/papers-archive/paper-a-mir13-ir-design/out/mir13-paper.pdf` は `docs/private/out/` へ move-out 済み
   - `docs/private/roadmap2/CURRENT_TASK_2025-11-29_full.md` は `docs/private/roadmap2/archive/` へ移動済み
   - root build scripts は `tools/build/` を canonical にして root は shim 化済み
@@ -58,8 +59,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` は topic 別サブモジュールに分離済み
   - `lang/src/runner/launcher.hako` は dispatch を `launcher/dispatch.hako` に、入力契約を `launcher/input_contract.hako` に、入出力契約を `launcher/artifact_io.hako` / `launcher/payload_contract.hako` に分離済み
 - First-cut order:
-  1. `kilo_leaf_array_rmw_add1` の direct fast-path を regression pack と分けて保つ
-  2. `ny_main` の asm 差分、とくに hot loop の branch 形と frame setup を読む
+  1. `kilo_leaf_map_get_missing` の direct fast-path を regression pack と分けて保つ
+  2. `ny_main` の asm 差分、とくに `nyash.runtime_data.get_hh` の hot branch を読む
   3. `NYASH_NY_LLVM_LLC_FLAGS` は follow-up matrix に回したまま、決定打だけ残す
   4. `kilo_micro_array_getset` は baseline regression pack として固定する
   5. `Array -> Map -> RuntimeData` は regression pack として固定する
@@ -73,9 +74,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `launcher` は `dispatch` / `input_contract` / `artifact_io` / `payload_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
   - `Array` wave の current hot leaf は `kilo_leaf_array_rmw_add1` で、helper residue は hot ではない
   - `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の leaf-proof fast-path が current exact lever
+  - 次の探索候補は `MapBox.get/has` と `runtime_data_map_get_min` 系の map provider / boundary smoke
   - asm diff / bundle save / flags matrix の3導線は landed
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` 以降の cleanup splits は landed で固定
-  - 次は `ny_main` の frame setup と branch 形を見て、leaf fast-path を C に寄せられるか判断する
+  - 次は map provider / boundary smoke を見て、`MapBox.get/has` の exact slice が立つか判断する
 
 ## CI Notes
 

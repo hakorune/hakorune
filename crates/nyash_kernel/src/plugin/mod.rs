@@ -20,6 +20,7 @@ pub mod invoke;
 pub mod invoke_core;
 pub mod map;
 mod map_compat;
+mod map_key_codec;
 mod map_probe;
 mod map_slot_load;
 mod map_slot_store;
