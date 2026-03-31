@@ -19,6 +19,7 @@ Pointers:
 - Delegate actual execution to existing backends（Rust VM / LLVM / ny-llvmc）。既定挙動は変えない。
 - `launcher.hako` is the current CLI facade/orchestration keep, not a long-term pipeline-detail owner.
 - `stage1_cli_env.hako` is the current stage1 env-entry authority cluster; future file split is deferred until authority/facade cleanup proves a blocker.
+- `launcher_native_entry.hako` / `stage1_cli_env_entry.hako` are thin bootstrap entry stubs for `tools/selfhost/build_stage1.sh`; they keep no CLI policy and exist only to wrap the bootstrap artifact entry surface.
 
 ## Files
 

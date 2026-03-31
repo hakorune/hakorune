@@ -36,6 +36,7 @@ End-state note:
 - stage/artifact/lane の共有語彙は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にし、この文書は stage1 bootstrap route authority だけを扱う
 - build conduit note:
   - current explicit build/invoke conduits are `tools/selfhost/build_stage1.sh` and `tools/selfhost/run_stage1_cli.sh` for the stage1 line
+  - `build_stage1.sh` artifact entries are thin stubs (`lang/src/runner/launcher_native_entry.hako`, `lang/src/runner/stage1_cli_env_entry.hako`); logical CLI owners stay in `launcher.hako` / `stage1_cli_env.hako`
   - this SSOT does not define a standalone `stage2-mainline` build script family
   - `Stage3` here is a compare/sanity label only (`tools/selfhost/stage3_same_result_check.sh`), not a primary build conduit
 

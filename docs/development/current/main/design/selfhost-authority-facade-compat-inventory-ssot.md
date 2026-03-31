@@ -42,6 +42,8 @@ selfhost lane で混線しやすい 3 軸
   - build/reuse/bootstrap strategy を選ぶ shell
 - `contract shell`
   - env / proof / capability contract を pin する shell
+- `thin entry stub`
+  - bootstrap artifact entry only; no CLI or pipeline policy
 - `compat quarantine`
   - explicit compat keep / retire target
 - `legacy naming keep`
@@ -55,6 +57,8 @@ selfhost lane で混線しやすい 3 軸
 | `lang/src/compiler/entry/compiler_stageb.hako` | Stage-B emit entry | `shrink to adapter` | Stage-B entry currently still carries parse/body/defs/import shaping residue | shrink toward input adaptation + `BuildBox` handoff only |
 | `lang/src/runner/launcher.hako` | stage1 CLI facade/orchestration | `shrink to facade` | now routes build/emit through `LauncherCompileFacadeBox` and payload-contract helpers; direct Program(JSON) wrapper boxes are gone | keep shrinking toward CLI/request dispatch only |
 | `lang/src/runner/stage1_cli_env.hako` | stage1 env-entry authority cluster | `same-file cluster keep` | owner-local small boxes are already split, but same-file for now | defer file split until authority/facade cleanup proves a blocker |
+| `lang/src/runner/launcher_native_entry.hako` | launcher bootstrap entry stub | `thin entry stub` | run-only bootstrap shell for `build_stage1.sh` launcher-exe; carries no CLI policy | keep thin; logical owner stays in `launcher.hako` |
+| `lang/src/runner/stage1_cli_env_entry.hako` | stage1-cli bootstrap entry stub | `thin entry stub` | run-only bootstrap shell for `build_stage1.sh` stage1-cli; carries no CLI policy | keep thin; logical owner stays in `stage1_cli_env.hako` |
 | `tools/selfhost/build_stage1.sh` | bootstrap strategy owner | `strategy shell` | chooses artifact/bootstrap/reuse/fallback strategy | keep strategy here and avoid compiler-authority growth |
 | `tools/selfhost/lib/stage1_contract.sh` | stage1 shell contract owner | `contract shell` | owns env inject / emit proof / capability verify | keep shell contract centralized here |
 | `Program(JSON v0)` route/surfaces | bootstrap-only compat family | `compat quarantine` | compat/bootstrap keep + retire target | keep quarantined; do not reopen as mainline |
