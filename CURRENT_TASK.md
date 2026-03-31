@@ -18,16 +18,14 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: `stage2-mainline` の `Array` first optimization wave に戻る。
+- Active work: `stage2-mainline` の `Array` first optimization wave で、今の live leaf は `kilo_leaf_array_rmw_add1`。
 - 読み:
-  - `kilo_micro_array_getset` の current hot symbol は `ny_main`
-  - direct bundle の hot block には `slot_load_hi` / `generic_box_call` / `runtime_data` residue が残っていない
-  - current measurable lever は `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の `alloca` align 64
-  - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam は follow-up lever
-  - `array_slot_store.rs` / `handle_cache.rs` は helper residue としては hot ではない
-  - `array-align64-check/lowered.ll` は `%arr = alloca [128 x i64], align 64` を確認済み
-  - `kilo_micro_array_getset 1x7` は `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94` まで寄った
-  - `--stackrealign` 系は決定打ではなく、`ny_main` の frame / alloca alignment が本線
+  - `kilo_leaf_array_rmw_add1` の current hot symbol は `ny_main`
+  - leaf fast-path は `nyash.array.birth_h` / `nyash.array.rmw_add1_hi` を hot block から外した direct lowering になっている
+  - current measurable lever は `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の leaf-proof fast-path
+  - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam は follow-up lever だが、現状の flags matrix は横並び
+  - `kilo_leaf_array_rmw_add1 1x7` は `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.82` まで到達
+  - `kilo_micro_array_getset` は regression pack に固定し、`c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94` を守る
   - 観測導線は `tools/perf/save_micro_bundle.sh` / `tools/perf/diff_micro_c_vs_aot_asm.sh` / `tools/perf/run_micro_llc_flags_matrix.sh` を使う
   - judge order は `leaf-proof micro -> micro kilo -> main kilo`
   - `Array -> Map -> RuntimeData cleanup` は regression pack として固定
@@ -60,10 +58,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` は topic 別サブモジュールに分離済み
   - `lang/src/runner/launcher.hako` は dispatch を `launcher/dispatch.hako` に、入力契約を `launcher/input_contract.hako` に、入出力契約を `launcher/artifact_io.hako` / `launcher/payload_contract.hako` に分離済み
 - First-cut order:
-  1. `alloca align 64` の再現性を `kilo_micro_array_getset` で保つ
-  2. `ny_main` の asm 差分、とくに stack alignment / frame setup を読む
-  3. `NYASH_NY_LLVM_LLC_FLAGS` は follow-up matrix に回し、決定打だけ残す
-  4. `array_slot_store.rs` / `handle_cache.rs` は residue が戻った時だけ再調査する
+  1. `kilo_leaf_array_rmw_add1` の direct fast-path を regression pack と分けて保つ
+  2. `ny_main` の asm 差分、とくに hot loop の branch 形と frame setup を読む
+  3. `NYASH_NY_LLVM_LLC_FLAGS` は follow-up matrix に回したまま、決定打だけ残す
+  4. `kilo_micro_array_getset` は baseline regression pack として固定する
   5. `Array -> Map -> RuntimeData` は regression pack として固定する
 - Keep / defer:
   - `tools/selfhost/run_all.sh` と phase-local `run_all.sh` は keep
@@ -73,11 +71,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako` / `lang/src/compiler/entry/func_scanner.hako` / `lang/src/compiler/mirbuilder/stmt_handlers/return_stmt_handler.hako` / `lang/src/runner/stage1_cli.hako` は分割済み
   - `stage1_cli.stage2` exact emit compat probe は green になり、`stage1_cli` 本体は run-only bootstrap output のまま維持する
   - `launcher` は `dispatch` / `input_contract` / `artifact_io` / `payload_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
-  - `Array` wave の current hot leaf は `ny_main` で、helper residue は見えていない
-  - `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の `alloca align 64` が current exact lever
+  - `Array` wave の current hot leaf は `kilo_leaf_array_rmw_add1` で、helper residue は hot ではない
+  - `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の leaf-proof fast-path が current exact lever
   - asm diff / bundle save / flags matrix の3導線は landed
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` 以降の cleanup splits は landed で固定
-  - 次は `ny_main` の frame setup を見て、`alloca align 64` を他の Array wave に広げるか判断する
+  - 次は `ny_main` の frame setup と branch 形を見て、leaf fast-path を C に寄せられるか判断する
 
 ## CI Notes
 
