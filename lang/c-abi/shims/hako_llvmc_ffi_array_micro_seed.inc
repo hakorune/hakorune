@@ -25,7 +25,7 @@ static int hako_llvmc_emit_array_getset_micro_ir(
 
   hako_llvmc_emit_entry_header(f, selection);
   fprintf(f, "entry:\n");
-  fprintf(f, "  %%arr = alloca [128 x i64], align 8\n");
+  fprintf(f, "  %%arr = alloca [128 x i64], align 64\n");
   fprintf(f, "  %%i = alloca i64, align 8\n");
   fprintf(f, "  %%sum = alloca i64, align 8\n");
   fprintf(f, "  %%arr.ptr = getelementptr inbounds [128 x i64], ptr %%arr, i64 0, i64 0\n");

@@ -22,8 +22,12 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - 読み:
   - `kilo_micro_array_getset` の current hot symbol は `ny_main`
   - direct bundle の hot block には `slot_load_hi` / `generic_box_call` / `runtime_data` residue が残っていない
-  - current measurable lever は `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam
+  - current measurable lever は `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の `alloca` align 64
+  - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam は follow-up lever
   - `array_slot_store.rs` / `handle_cache.rs` は helper residue としては hot ではない
+  - `array-align64-check/lowered.ll` は `%arr = alloca [128 x i64], align 64` を確認済み
+  - `kilo_micro_array_getset 1x7` は `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94` まで寄った
+  - `--stackrealign` 系は決定打ではなく、`ny_main` の frame / alloca alignment が本線
   - judge order は `leaf-proof micro -> micro kilo -> main kilo`
   - `Array -> Map -> RuntimeData cleanup` は regression pack として固定
   - `loop_routes` / `src/tests/*` の ignore 整理と repo cleanup は完了済み
@@ -55,10 +59,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` は topic 別サブモジュールに分離済み
   - `lang/src/runner/launcher.hako` は dispatch を `launcher/dispatch.hako` に、入力契約を `launcher/input_contract.hako` に、入出力契約を `launcher/artifact_io.hako` / `launcher/payload_contract.hako` に分離済み
 - First-cut order:
-  1. `kilo_micro_array_getset` same-artifact compare を C baseline と同等以上に保つ
-  2. `llc` flags seam の効果を `1x3` / `run_kilo_micro_machine_ladder.sh` で再確認する
-  3. `array_slot_store.rs` / `handle_cache.rs` は residue が戻った時だけ再調査する
-  4. `Array -> Map -> RuntimeData` は regression pack として固定する
+  1. `alloca align 64` の再現性を `kilo_micro_array_getset` で保つ
+  2. `ny_main` の asm 差分、とくに stack alignment / frame setup を読む
+  3. `NYASH_NY_LLVM_LLC_FLAGS` は follow-up matrix に回し、決定打だけ残す
+  4. `array_slot_store.rs` / `handle_cache.rs` は residue が戻った時だけ再調査する
+  5. `Array -> Map -> RuntimeData` は regression pack として固定する
 - Keep / defer:
   - `tools/selfhost/run_all.sh` と phase-local `run_all.sh` は keep
   - `apps/tests/` は fixture bank として当面 keep
@@ -68,9 +73,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `stage1_cli.stage2` exact emit compat probe は green になり、`stage1_cli` 本体は run-only bootstrap output のまま維持する
   - `launcher` は `dispatch` / `input_contract` / `artifact_io` / `payload_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
   - `Array` wave の current hot leaf は `ny_main` で、helper residue は見えていない
-  - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam を先に追う
+  - `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の `alloca align 64` が current exact lever
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` 以降の cleanup splits は landed で固定
-  - 次は `kilo_micro_array_getset` の same-artifact compare を維持するか、`llc` flags seam の値を詰める
+  - 次は `ny_main` の frame setup を見て、`alloca align 64` を他の Array wave に広げるか判断する
 
 ## CI Notes
 

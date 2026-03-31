@@ -13,8 +13,11 @@ use crate::mir::ValueId;
 use super::super::super::router::{lower_verified_core_plan, LoopRouteContext};
 use super::{
     debug_log_recipe_entry, emit_planner_first,
-    loop_break_recipe_needs_flowbox_adopt_tag_in_strict, release_allows_loop_cond_break_continue,
-    release_allows_loop_cond_continue_only, release_skips_nested_loop, route_standard,
+};
+use super::super::utils::loop_break_recipe_needs_flowbox_adopt_tag_in_strict;
+use super::{
+    release_allows_loop_cond_break_continue, release_allows_loop_cond_continue_only,
+    release_skips_nested_loop, route_standard,
 };
 use super::super::types::{route_labels, PlannerFirstMode, RouterEnv, StandardEntry};
 
