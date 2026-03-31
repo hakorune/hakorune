@@ -36,7 +36,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 ## 今日の再開点（active lane）
 
 - Active next: `policy-refresh`
-- visible order: Rune primitive control plane sync -> `K0 -> (K1 + K2)` kernel migration line -> Map parked as evidence/regression only
+- visible order: `Rune lane (parallel)` -> `K0 -> K-migration` -> `RawMap deferred in K2-wide`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
@@ -47,10 +47,11 @@ bash tools/selfhost/run_lane_a_daily.sh
 - immediate action:
   - verify `stage` axis and compressed `K-axis` reading in `CURRENT_TASK.md` first
   - verify `@rune` canonical surface and declaration-local `attrs.runes` carrier next
-  - read the post-`K0` engineering line as one `K1 + K2` migration track, not one merged acceptance gate
+  - read `Rune` as a parallel compiler-contract lane, not a serial step inside `K-axis`
+  - read the post-`K0` engineering line as `K-migration`, not one merged acceptance gate
   - keep `K2-core = RawArray first truthful substrate pilot` as the next structural target
-  - keep execution order as Rune primitive control plane first, then the post-`K0` `K1 + K2` migration line, then Map parked
-  - treat `Map` perf as regression/evidence until a new exact blocker says otherwise
+  - keep execution order as `Rune lane (parallel)` plus `K0 -> K-migration`
+  - keep `RawMap` deferred in `K2-wide`; treat map perf as regression/evidence until a new exact blocker says otherwise
 
 ## 保守レーン（必要時のみ）
 

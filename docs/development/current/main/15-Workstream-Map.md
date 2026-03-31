@@ -24,12 +24,12 @@ Related:
 
 1. `policy-refresh`
    - active docs/policy lane
-   - visible sequence: Rune primitive control plane -> `K0 -> (K1 + K2)` kernel migration line -> Map parked as evidence/regression only
+   - visible sequence: `Rune lane (parallel)` -> `K0 -> K-migration` -> `RawMap deferred in K2-wide`
    - keep `stage` vocabulary fixed and add compressed `K-axis` as the current operational reading
-   - keep Rune primitive control plane docs (`@rune` canonical surface / `attrs.runes`) synchronized with the current lane
+   - keep `Rune lane` docs (`@rune` canonical surface / `attrs.runes`) synchronized as a parallel compiler-contract lane
    - `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` is the next structural target
-   - `Map` optimization is parked as regression/evidence, not the next structural lane
-   - execution order is Rune primitive control plane first, then the post-`K0` `K1 + K2` migration line, then Map parked
+   - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence, not the next structural lane
+   - execution order is `Rune lane (parallel)` plus `K0 -> K-migration`; `RawMap` remains deferred in `K2-wide`
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -73,8 +73,8 @@ Related:
 ## Next Horizon Inventory
 
 - Active big tasks:
-  - Rune primitive control plane
-  - `K2-core` RawArray pilot
+  - `Rune lane (parallel, compiler-contract side)`
+  - `K-migration` with `K2-core RawArray first`
   - policy stabilization for the compressed `K-axis`
   - zero-rust default operationalization for daily/distribution
 - Parked big tasks:
@@ -132,6 +132,7 @@ Related:
 - active reading:
   - keep `stage0/stage1/stage2-mainline/stage2+` as build/distribution vocabulary
   - keep `K0/K1/K2(core|wide)` as replacement-progress vocabulary
+  - keep `Rune` visible as a parallel compiler-contract lane, not a serial step inside `K-axis`
   - freeze current collection wave as `K1 done-enough`
   - prep `K2-core RawArray` as the next structural target
 - current lane rule:

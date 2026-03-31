@@ -19,17 +19,17 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Order at a Glance
 
-1. Rune primitive control plane sync
-2. `K0 -> (K1 + K2)` kernel migration line
-3. Map parked as evidence/regression only
+1. `Rune lane (parallel, compiler-contract side)`
+2. `K0 -> K-migration`
+3. `RawMap` deferred in `K2-wide`; map perf stays evidence/regression only
 
 - `K0 / K1 / K2(core|wide)` stays the replacement reading.
-- `K1` / `K2` stay separate acceptance gates, but the engineering line can be read as one post-`K0` migration.
+- the post-`K0` engineering line is one `K-migration`, but `K1` / `K2` remain separate acceptance gates.
 - perf and historical evidence below are appendix material only; they do not change the order above.
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読みと、`K0 -> (K1 + K2)` の一本線を dashboard/SSOT に同期する。
+- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読み、`Rune lane (parallel)`、`K0 -> K-migration` の visible order を dashboard/SSOT に同期する。
 - Stage axis:
   - `stage0` = bootstrap / recovery keep
   - `stage1` = same-boundary swap proof line
@@ -38,14 +38,16 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Replacement axis:
   - `K0` = Boundary Lock
   - `K1` = Semantic Owner Swap
+    - public reading: semantic kernel is complete on the `.hako` side
   - `K2` = Substrate Era
     - `K2-core` = `RawArray first`
     - `K2-wide` = `RawMap second + capability widening + metal review`
 - Current repo read:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1 done-enough`
-  - `K1` と `K2` は separate gates だが、実装工程は `K0` のあとに one migration line として読める
+  - `Rune` は `K-axis` と直列に混ぜず、parallel compiler-contract lane として読む
+  - `K1` と `K2` は separate gates だが、実装工程は `K0` のあとに one `K-migration` line として読める
   - 次の structural target は `K2-core RawArray first`
-  - `RawMap` は `K2-wide` の second target
+  - `RawMap` は `K2-wide` の second target で、今は deferred
   - `RuntimeDataBox` は facade-only keep
   - same-boundary daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に限定する
   - default daily/distribution target は `zero-rust` だが、bootstrap/recovery/reference/buildability と native metal keep は explicit keep
@@ -67,13 +69,16 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ### Big Tasks
 
-- Active: Rune primitive control plane
+- Active: `Rune lane (parallel, compiler-contract side)`
   - `@rune` を canonical surface として固定する
   - `attrs.runes` を単一 carrier として保つ
   - `inline` / `contract` / `intrinsic_candidate` は Rune vocabulary に寄せる
-- Active: `K2-core` RawArray pilot
+- Active: `K-migration`
+  - `K1` collection wave is done-enough and remains the owner gate
   - first truthful daily `.hako substrate` owner を作る
+  - next structural target is `K2-core RawArray first`
   - `RuntimeDataBox` facade-only keep を壊さない
+  - `RawMap` stays deferred in `K2-wide`
   - acceptance criteria は design SSOT 側で先に固定する
 - Active: policy stabilization
   - `K0 / K1 / K2(core|wide)` を public reading として薄く保つ
@@ -84,13 +89,13 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Parked: `K2-wide` follow-up
   - `RawMap`, capability widening, metal review は `K2-core` 安定後に回す
 - Parked: broad `Map` structural expansion
-  - `Map` は regression/evidence pack として keep
+  - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence pack
 
 ### Execution Waves
 
-1. Rune primitive control plane sync
-2. `K0 -> (K1 + K2)` kernel migration line
-3. Map evidence/regression pack keep
+1. `Rune lane (parallel, compiler-contract side)`
+2. `K0 -> K-migration`
+3. `RawMap` deferred in `K2-wide`; map perf evidence/regression pack keep
 
 ### Small Tasks
 
@@ -115,7 +120,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 ### First 3 Actions
 
 1. Rune primitive surface を `@rune` 単一表現で固定する
-2. `K0 -> (K1 + K2)` の工程を docs で読みやすく揃える
+2. `Rune lane (parallel)` と `K0 -> K-migration` の visible order を docs で揃える
 3. `K2-core` の acceptance criteria を design SSOT へ書く
 - Landed already:
   - `crates/nyash_kernel/src/plugin/runtime_data.rs` now routes array dispatch through handle-based RawArray substrate helpers, and map any-key paths materialize owned key strings before map ops so handle-registry borrow overlap is avoided

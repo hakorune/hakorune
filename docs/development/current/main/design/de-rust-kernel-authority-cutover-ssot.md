@@ -33,6 +33,7 @@ Related:
 - `hakorune` の独り立ちを「Rust source が 1 行も残らないこと」ではなく、「kernel meaning/policy の最終 owner が `.hako` であること」として定義する。
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 bridge/proof line / stage2-mainline daily mainline / stage2+ umbrella` であり、kernel authority zero は owner cutover 軸を指す。
+- visible engineering reading is `Rune lane (parallel)` plus `K0 -> K-migration`.
 - `K2` substrate era は future note ではなく、本物の replacement milestone として扱う。
 - raw substrate micro-optimization と kernel owner cutover を混ぜて、測定や責務境界を濁さない。
 - phase plan SSOT is `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
@@ -87,6 +88,7 @@ Related:
 - stage0 first-build / recovery lane としての Rust bootstrap keep は、この wave の失敗条件ではない。
 - `string` は stop line 到達済みで parked。
 - current replacement reading is `K1 done-enough / K2-core RawArray pilot not yet entered`.
+- `K1` keeps the canonical noun `Semantic Owner Swap`; public wording may describe it as the gate where the semantic kernel is complete on the `.hako` side.
 - current active kernel lane is collection owner cutover under `lang/src/runtime/collections/`:
   - `Array phase`
   - `Map phase`
@@ -181,6 +183,7 @@ string kernel について言い換えると、`.hako` が algorithm/control own
    - docs / smoke / acceptance row の truth を `.hako` 側へ寄せる
    - `.hako` 側で同じ contract を持つ shadow kernel owner を置き、visible owner を `.hako` に切り替える
    - Rust は substrate / compat keep に降格する
+   - public roadmap wording may describe this gate as semantic kernel completion on the `.hako` side
 3. `K2 Substrate Era`
    - `K2-core`: `RawArray` を first truthful pilot にする
    - `K2-wide`: `RawMap` を second target にする

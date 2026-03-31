@@ -41,6 +41,11 @@ Related:
     - `K2-core` = `RawArray first`
     - `K2-wide` = `RawMap second + capability widening + metal review`
   - `RuntimeDataBox` stays facade-only across both `K1` and `K2`
+- visible engineering reading:
+  - `Rune lane (parallel, compiler-contract side)`
+  - `K0 -> K-migration`
+  - `K1` remains the owner gate
+  - `K2-core` is the first substrate gate
 
 This SSOT is the canonical phase-plan entry for the collection-first `K1` wave and the `K2` substrate-era handoff.
 
@@ -81,6 +86,7 @@ Goal:
 Stop line:
 - docs/readmes/smokes describe `MapBox` semantics without naming Rust helpers as meaning owners.
 - `nyash.map.entry_count_i64` is the daily raw observer seam; compat aliases such as `nyash.map.entry_count_h` stay boundary-deepen tasks, not owner logic.
+- do not describe this as `Map parked`; semantic `MapBox` work is `K1 done-enough`, while `RawMap` substrate work is deferred to `K2-wide`.
 
 ### 3. `K1` RuntimeData cleanup phase
 
@@ -121,6 +127,7 @@ Stop line:
 
 Rule:
 - `Array -> Map -> RuntimeData cleanup` remains a regression/evidence pack while `K2` is being prepared.
+- map perf remains evidence/monitor-only while `RawMap` stays deferred in `K2-wide`.
 - do not reopen broad authority expansion while route/perf evidence is active.
 - any further owner migration requires a new exact blocker and a dedicated SSOT update.
 - the first post-entry optimization wave is `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`.

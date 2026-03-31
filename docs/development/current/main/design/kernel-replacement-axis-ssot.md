@@ -27,6 +27,7 @@ Related:
 
 - `stage0/stage1/stage2-mainline/stage2+` を置換進捗の語に流用しない。
 - kernel の本当の置換進捗は、`K0 / K1 / K2(core|wide)` replacement axis で読む。
+- visible engineering order is `Rune lane (parallel)` plus `K0 -> K-migration`.
 - 責務分割は変えず、`K2` を substrate era として昇格する。
 - default target を `zero-rust` に寄せるが、bootstrap/recovery/reference/buildability keep と native metal keep は明示 keep にする。
 
@@ -50,6 +51,9 @@ Replacement progress must not overload those names.
 | `K1` | Semantic Owner Swap | method contract / route / acceptance / fallback / orchestration の daily owner が `.hako` に移る |
 | `K2` | Substrate Era | `.hako substrate module` が daily owner に入り始め、widening と metal review がこの era の中で進む |
 
+`K1` keeps its canonical noun as `Semantic Owner Swap`.
+Public-facing roadmap text may explain `K1` as the point where the semantic kernel is complete on the `.hako` side.
+
 ### `K2` internal states
 
 - `K2-core`
@@ -67,7 +71,8 @@ Replacement progress must not overload those names.
 
 ## Implementation Flow
 
-- the engineering line after `K0` can be read as one `K1 + K2` migration track.
+- `Rune` is a parallel compiler-contract lane, not a serial step inside `K-axis`.
+- the engineering line after `K0` is one `K-migration` track.
 - `K1` and `K2` remain separate gates / acceptance checkpoints.
 - `K1` still means semantic owner swap.
 - `K2` still means substrate era.
@@ -188,6 +193,11 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
   - `K0` partially locked
   - `K1` active and done-enough on the collection semantic-owner wave
   - `K2-core` not yet entered as a daily owner replacement lane
+- visible order therefore reads as:
+  - `Rune lane (parallel, compiler-contract side)`
+  - `K0 -> K-migration`
+  - `K2-core RawArray first`
+  - `RawMap` deferred in `K2-wide`
 - therefore the next structural step is not another broad owner rename.
 - the next structural step is to make `RawArray` the first truthful `K2-core` pilot.
 

@@ -31,9 +31,9 @@ Related:
 
 - current lane is docs/policy refresh for the kernel replacement axis.
 - visible order:
-  1. Rune primitive control plane sync
-  2. `K0 -> (K1 + K2)` kernel migration line
-  3. Map parked as evidence/regression only
+  1. `Rune lane (parallel, compiler-contract side)`
+  2. `K0 -> K-migration`
+  3. `RawMap` deferred in `K2-wide`; map perf stays evidence/regression only
 - stage axis:
   - `stage0 = bootstrap/recovery keep`
   - `stage1 = same-boundary swap proof`
@@ -42,22 +42,24 @@ Related:
 - replacement axis:
   - `K0 = Boundary Lock`
   - `K1 = Semantic Owner Swap`
+    - public reading: semantic kernel is complete on the `.hako` side
   - `K2 = Substrate Era`
     - `K2-core = RawArray first`
     - `K2-wide = RawMap second + capability widening + metal review`
 - implementation note:
-  - the engineering line after `K0` can be read as one `K1 + K2` migration track
+  - the engineering line after `K0` is one `K-migration` track
   - `K1` and `K2` remain separate gates / acceptance checkpoints
 - current repo read:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) is `K1 done-enough`
-  - post-`K0` engineering line is read as `K1 + K2` on one migration track
+  - `Rune` stays a parallel compiler-contract lane, not a step inside `K-axis`
+  - post-`K0` engineering line is read as one `K-migration` track
   - next structural target is `K2-core RawArray first`
-  - `RawMap` is `K2-wide` second and `RuntimeDataBox` stays facade-only
+  - `RawMap` is `K2-wide` second and stays deferred while `RuntimeDataBox` remains facade-only
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
 - evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - next horizon inventory:
-  - big: Rune primitive control plane; `K2-core` RawArray pilot; policy stabilization; zero-rust default operationalization
+  - big: `Rune lane (parallel)`; `K-migration` with `K2-core RawArray first`; policy stabilization; zero-rust default operationalization
   - parked big: `K2-wide` follow-up; broad `Map` structural expansion
   - small: docs ladder sync; Rune docs/tag sync; Map evidence bundle maintenance
   - lane-local cleanup candidates only:
@@ -65,7 +67,7 @@ Related:
     - RawArray lane: `crates/nyash_kernel/src/plugin/handle_cache.rs`, `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
     - broader `src/backend/*`, `src/bid/*`, and non-active `crates/nyash_kernel/*` cleanup stays parked
   - parked small: warning debt sweep; TODO cleanup / ignore triage; code-hotspot cleanup outside the active pilot boundary
-  - execution order: Rune primitive control plane first, then `K2-core` RawArray pilot, then Map stays parked
+  - execution order: `Rune lane (parallel)` plus `K0 -> K-migration`; `RawMap` remains deferred in `K2-wide`
 - next exact docs:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
@@ -101,9 +103,10 @@ Related:
   - purpose:
     - keep `stage` as build/distribution vocabulary
     - keep compressed `K-axis` as replacement progress vocabulary
-    - read the post-`K0` implementation line as `K1 + K2`, not as one merged acceptance gate
+    - read the post-`K0` implementation line as `K-migration`, not as one merged acceptance gate
+    - keep `Rune` visible as a parallel compiler-contract lane
     - pin `K2-core = RawArray first truthful substrate pilot`
-    - park Map optimization as regression/evidence, not structural next step
+    - keep `RawMap` deferred in `K2-wide` and map perf as regression/evidence, not structural next step
 - Active code lane: `phase-29bq`
   - status: `active (failure-driven; blocker=none)`
   - purpose:
