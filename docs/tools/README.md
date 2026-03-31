@@ -160,6 +160,21 @@ bash tools/perf/run_kilo_meso_machine_ladder.sh 1 3
 - `meso` は `len -> array_set -> loopcarry` で `micro` と `kilo_kernel_small_hk` の gap を分離して読む
 - C/AOT 比較は `tools/perf/bench_micro_c_vs_aot_stat.sh <bench_key> 1 3` を使う
 
+## 8.6. Array Lane Debug Helpers
+
+Array optimization wave の観測・比較用の薄い導線:
+
+```bash
+tools/perf/save_micro_bundle.sh kilo_micro_array_getset
+tools/perf/diff_micro_c_vs_aot_asm.sh kilo_micro_array_getset
+tools/perf/run_micro_llc_flags_matrix.sh kilo_micro_array_getset --warmup 0 --repeat 1
+```
+
+役割:
+- `save_micro_bundle.sh`: `lowered.ll` / `objdump.txt` / perf bundle を benchmark key ごとに保存する
+- `diff_micro_c_vs_aot_asm.sh`: C baseline と Nyash AOT の asm 差分をその場で見る
+- `run_micro_llc_flags_matrix.sh`: `NYASH_NY_LLVM_LLC_FLAGS` の小さな A/B matrix を回す
+
 ## 9. Dev Gate Bundle (3-tier)
 
 日常の「多すぎるコマンド」を 1 本にまとめた導線:

@@ -28,6 +28,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `array-align64-check/lowered.ll` は `%arr = alloca [128 x i64], align 64` を確認済み
   - `kilo_micro_array_getset 1x7` は `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94` まで寄った
   - `--stackrealign` 系は決定打ではなく、`ny_main` の frame / alloca alignment が本線
+  - 観測導線は `tools/perf/save_micro_bundle.sh` / `tools/perf/diff_micro_c_vs_aot_asm.sh` / `tools/perf/run_micro_llc_flags_matrix.sh` を使う
   - judge order は `leaf-proof micro -> micro kilo -> main kilo`
   - `Array -> Map -> RuntimeData cleanup` は regression pack として固定
   - `loop_routes` / `src/tests/*` の ignore 整理と repo cleanup は完了済み
@@ -74,6 +75,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `launcher` は `dispatch` / `input_contract` / `artifact_io` / `payload_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
   - `Array` wave の current hot leaf は `ny_main` で、helper residue は見えていない
   - `lang/c-abi/shims/hako_llvmc_ffi_array_micro_seed.inc` の `alloca align 64` が current exact lever
+  - asm diff / bundle save / flags matrix の3導線は landed
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` 以降の cleanup splits は landed で固定
   - 次は `ny_main` の frame setup を見て、`alloca align 64` を他の Array wave に広げるか判断する
 
