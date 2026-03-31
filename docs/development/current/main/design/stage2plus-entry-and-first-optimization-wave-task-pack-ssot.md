@@ -118,7 +118,7 @@ Lock the following as prerequisites for stage2-mainline entry:
 ### 4. Stage2-mainline Entry Lock
 
 - lock stage2-mainline entry as:
-  - `.hako semantic owner`
+  - `hako_kernel`
   - `.inc thin shim`
   - native metal keep
 - boundary truth is:

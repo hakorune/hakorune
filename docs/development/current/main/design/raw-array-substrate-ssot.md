@@ -18,7 +18,7 @@ Related:
 
 ## Goal
 
-- `RawArray` を `.hako algorithm substrate` の最初の concrete box として固定する。
+- `RawArray` を `hako_substrate` の最初の concrete box として固定する。
 - `hako.mem` / `hako.buf` / `hako.ptr` / minimum verifier の上に乗る最初の consumer を明確にする。
 - `ArrayCoreBox` の visible owner を崩さず、future low-level array policy の受け皿だけを docs-first で決める。
 

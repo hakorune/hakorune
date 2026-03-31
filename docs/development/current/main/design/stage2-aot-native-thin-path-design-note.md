@@ -60,8 +60,8 @@ Related:
 ### Adopted direction
 
 - source layering は current repo の reading をそのまま採る。
-  - `.hako semantic owner`
-  - `.hako algorithm/capability substrate`
+  - `hako_kernel`
+  - `hako_substrate` + capability floor
   - `native metal keep`
 - collapse するのは execution layering だけだよ。
   - `AOT/native` では monomorphic route を早めに確定し、hot path の wrapper 連鎖を backend-private fast lane に潰す
@@ -70,13 +70,13 @@ Related:
 
 ## Current Boundary Map
 
-### 1. `.hako` semantic owner
+### 1. `hako_kernel`
 
 - current visible owner は `lang/src/runtime/collections/` にある。
 - `ArrayCoreBox` / `MapCoreBox` / `RuntimeDataCoreBox` / `StringCoreBox` が user-visible semantics を持つ。
 - `lang/src/runtime/kernel/` は string search や numeric loop などの pure control/algorithm owner で、host/plugin/ABI crossing の主戦場ではない。
 
-### 2. `.hako` capability substrate
+### 2. `hako_substrate` + capability floor
 
 - current substrate staging root は `lang/src/runtime/substrate/` だよ。
 - `raw_array` / `raw_map` / `mem` / `buf` / `ptr` / verifier boxes が、collection owner の一段下にある narrow capability seam を持つ。
@@ -99,11 +99,11 @@ Related:
 
 ### Source layering stays
 
-1. `.hako semantic owner`
+1. `hako_kernel`
    - collection semantics
    - allocator policy
    - route/fallback/contract
-2. `.hako algorithm/capability substrate`
+2. `hako_substrate` + capability floor
    - `hako.mem`
    - `hako.buf`
    - `hako.ptr`
@@ -120,8 +120,8 @@ Related:
 ### Execution layering collapses in AOT only
 
 - `AOT/native` hot path は次の形を目標にする。
-  - `.hako semantic owner`
-  - `.hako substrate seam`
+  - `hako_kernel`
+  - `hako_substrate` seam
   - backend-private fast leaf
   - native metal keep
 - daily/mainline consumer は `ny-llvm(boundary/native)` だけだよ。

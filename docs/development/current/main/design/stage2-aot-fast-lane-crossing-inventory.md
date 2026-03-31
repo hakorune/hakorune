@@ -29,8 +29,8 @@ Related:
 ## Fixed Reading
 
 - current repo の source layering は正しい前提で読む。
-  - `.hako semantic owner`
-  - `.hako algorithm/capability substrate`
+  - `hako_kernel`
+  - `hako_substrate` + capability floor
   - `native metal keep`
 - したがって、この inventory は「どこを `.hako` に移すか」ではなく、「どこを AOT hot path から外すか」を数える。
 - backend lane は dual-lane で読む。

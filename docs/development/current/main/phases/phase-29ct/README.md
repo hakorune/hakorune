@@ -38,10 +38,10 @@ Related:
 
 ## Final Shape
 
-1. `.hako semantic owner`
+1. `hako_kernel`
    - collection/runtime/allocator policy
    - visible contract/fallback
-2. `.hako algorithm substrate`
+2. `hako_substrate`
    - `RawArray`
    - `RawMap`
    - future allocator state machine

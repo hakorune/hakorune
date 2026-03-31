@@ -25,8 +25,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 4. `K2-wide` deferred follow-up
 5. `zero-rust` default operationalization
 
-- replacement progress stays `K0 / K1 / K2(core|wide)`.
-- current replacement order is `K0 -> K1 -> K2-core`, while `K1` / `K2` remain separate acceptance gates.
+- `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
+- current stage progression reads as `K0 -> K1 -> K2`, while `K2-core` / `K2-wide` are task packs inside `K2`.
 - `Rune` is landed as the canonical primitive control plane and is no longer the active blocker lane.
 - next structural step is `K2-core acceptance lock` for `RawArray`, while `RuntimeDataBox` stays facade-only.
 - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests:
@@ -46,22 +46,32 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `stage1` = same-boundary swap proof line
   - `stage2-mainline` = daily mainline / distribution lane
   - `stage2+` = umbrella / end-state label
-- Replacement axis:
-  - `K0` = Boundary Lock
-  - `K1` = Semantic Owner Swap
-    - public reading: semantic kernel is complete on the `.hako` side
-  - `K2` = Substrate Era
+- K-axis:
+  - `K0` = all-Rust hakorune
+  - `K1` = `.hako kernel` migration stage
+  - `K2` = `.hako kernel` mainline / `zero-rust` daily-distribution stage
     - `K2-core` = `RawArray first`
     - `K2-wide` = `RawMap second + capability widening + metal review`
+- Task packs stay separate from `K-axis`:
+  - boundary lock
+  - semantic owner swap
+  - `RawArray`
+  - `RawMap`
+  - capability widening
+  - metal keep shrink
 - Current repo read:
-  - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1 done-enough`
+  - `K0` is the all-Rust baseline / bootstrap reference reading
+  - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1` migration stage の current done-enough stop-line
   - `Rune` は canonical primitive control plane として landed/keep に置き、active blocker lane には戻さない
-  - replacement order は `K0 -> K1 -> K2-core` として読み、`K1` と `K2` は separate gates のまま保つ
-  - 次の structural target は `K2-core acceptance lock`
+  - stage progression は `K0 -> K1 -> K2` として読み、`K2-core` と `K2-wide` は `K2` 内 task packs として扱う
+  - 次の structural target は `K2` の first task pack である `K2-core acceptance lock`
   - `RawMap` は `K2-wide` の second target で、今は deferred
   - `RuntimeDataBox` は facade-only keep
   - same-boundary daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に限定する
   - default daily/distribution target は `zero-rust` だが、bootstrap/recovery/reference/buildability と native metal keep は explicit keep
+  - artifact reading:
+    - current repo reality still uses `target/release/hakorune`, `target/selfhost/hakorune`, and `lang/bin/hakorune`
+    - target contract is `target/k0|k1/`, promoted `artifacts/k0|k1/`, and `dist/k2/<channel>/<triple>/bundle/`
 - Evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - Next exact read order:
   1. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
@@ -83,7 +93,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - Active: `stage / docs / naming` fixation
   - `stage` は build/distribution vocabulary のままにする
-  - replacement progress は `K0 / K1 / K2(core|wide)` に固定する
+  - `K-axis` は `K0 / K1 / K2` build/runtime stage reading に固定する
+  - `K2-core` / `K2-wide` は `K2` 内 task pack reading に固定する
   - `plugin` は cold loader lane だけの語に限定する
 - Active: `K1 done-enough` stop-line fixation
   - `K1` collection wave is done-enough and remains the owner gate
@@ -97,6 +108,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Active: zero-rust default operationalization
   - daily/distribution を原則 Rust/Cargo 非依存で読む
   - bootstrap / recovery / reference / buildability / native metal keep は明示 keep
+  - artifact contract is read as `K0/K1 = binary`, `K2 = bundle`
 - Landed/keep: `Rune` primitive control plane
   - `@rune` を canonical surface として固定する
   - `@hint` / `@contract` / `@intrinsic_candidate` は compat alias のまま keep する

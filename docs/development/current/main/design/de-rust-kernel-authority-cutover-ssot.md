@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-31
-Scope: `hakorune` の独り立ちを「repo から Rust を即 delete すること」ではなく、kernel meaning/policy の owner を `.hako` 側へ移し、`K2 substrate era` を本物の replacement milestone として読む policy に固定する。
+Scope: `hakorune` の独り立ちを「repo から Rust を即 delete すること」ではなく、kernel meaning/policy の owner を `.hako` 側へ移し、`K-axis` / task pack / owner cutover の読みを混線させない policy に固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/kernel-replacement-axis-ssot.md
@@ -33,8 +33,8 @@ Related:
 - `hakorune` の独り立ちを「Rust source が 1 行も残らないこと」ではなく、「kernel meaning/policy の最終 owner が `.hako` であること」として定義する。
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 bridge/proof line / stage2-mainline daily mainline / stage2+ umbrella` であり、kernel authority zero は owner cutover 軸を指す。
-- replacement reading is `K0 -> K1 -> K2-core`, and the current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
-- `K2` substrate era は future note ではなく、本物の replacement milestone として扱う。
+- `K-axis` reading is `K0 = all-Rust hakorune / K1 = .hako kernel migration stage / K2 = .hako kernel mainline / zero-rust daily-distribution stage`.
+- `K2-core` / `K2-wide` are task packs inside `K2`, and the current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
 - raw substrate micro-optimization と kernel owner cutover を混ぜて、測定や責務境界を濁さない。
 - phase plan SSOT is `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
 
@@ -72,12 +72,12 @@ Related:
 - The preferred final shape is: `.hako` owns kernel meaning/policy/control, while native substrate shrinks to the minimum required for bootstrap, ABI/transport, raw leaf memory, handle registry, GC hooks, and LLVM backend emission.
 - The preferred design reading is also `meaning / scope / effect / policy` in `.hako`, with native code reduced to hidden leaf.
 - The next step after the current collection stop-line is a capability ladder:
-  - `.hako semantic owner`
-  - `.hako algorithm substrate`
+  - `hako_kernel` as the `.hako` semantic owner
+  - `hako_substrate` as the `.hako` algorithm substrate
   - capability substrate (`hako.abi`, `hako.value_repr`, `hako.mem`, `hako.buf`, `hako.ptr`, `hako.atomic`, `hako.tls`, `hako.gc`, `hako.osvm`)
   - native metal keep
 - If a concern can be expressed as policy, route, or control structure, prefer `.hako`.
-- same-boundary の daily replacement code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に残す。
+- same-boundary の daily replacement code は `hako_kernel` / `hako_substrate` と呼び、`plugin` は cold loader lane に残す。
 - Keep LLVM as the primary backend substrate unless a separate SSOT says otherwise.
 
 ## 2. Current Truth
@@ -87,8 +87,7 @@ Related:
 - backend-zero SSOT でも final shape は `.hako -> thin boundary` であって、Rust 全消しを immediate goal にはしていない。
 - stage0 first-build / recovery lane としての Rust bootstrap keep は、この wave の失敗条件ではない。
 - `string` は stop line 到達済みで parked。
-- current replacement reading is `K1 done-enough / K2-core RawArray pilot not yet entered`.
-- `K1` keeps the canonical noun `Semantic Owner Swap`; public wording may describe it as the gate where the semantic kernel is complete on the `.hako` side.
+- current `K-axis` reading is `K0 baseline / K1 done-enough on the current collection wave / K2-core RawArray pilot not yet entered`.
 - current active kernel lane is collection owner cutover under `lang/src/runtime/collections/`:
   - `Array phase`
   - `Map phase`
@@ -176,18 +175,17 @@ string kernel について言い換えると、`.hako` が algorithm/control own
 
 ## 5. Fixed Order
 
-1. `K0 Boundary Lock`
-   - current kernel meaning/policy owner と substrate owner を分離して棚卸しする
+1. `K0 = all-Rust hakorune`
+   - current kernel meaning/policy owner と substrate owner を Rust baseline 上で棚卸しする
    - `hako.abi` / `hako.value_repr` / ownership-layout / fail-fast verifier contract を swap truth に固定する
-2. `K1 Semantic Owner Swap`
+2. `K1 = .hako kernel migration stage`
    - docs / smoke / acceptance row の truth を `.hako` 側へ寄せる
-   - `.hako` 側で同じ contract を持つ shadow kernel owner を置き、visible owner を `.hako` に切り替える
+   - `.hako` 側で同じ contract を持つ semantic kernel owner を置き、visible owner を `.hako` に切り替える
    - Rust は substrate / compat keep に降格する
-   - public roadmap wording may describe this gate as semantic kernel completion on the `.hako` side
-3. `K2 Substrate Era`
+3. `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
    - `K2-core`: `RawArray` を first truthful pilot にする
    - `K2-wide`: `RawMap` を second target にする
-   - `K2-wide`: capability widening と metal keep review を同じ era の中で進める
+   - `K2-wide`: capability widening と metal keep review を同じ stage 内 task pack として進める
    - `RuntimeDataBox` は facade-only のままに固定する
 
 ## 6. Active Trigger

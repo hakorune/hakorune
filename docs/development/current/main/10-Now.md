@@ -41,25 +41,35 @@ Related:
   - `stage1 = same-boundary swap proof`
   - `stage2-mainline = daily mainline / distribution lane`
   - `stage2+ = umbrella / end-state label`
-- replacement axis:
-  - `K0 = Boundary Lock`
-  - `K1 = Semantic Owner Swap`
-    - public reading: semantic kernel is complete on the `.hako` side
-  - `K2 = Substrate Era`
+- `K-axis`:
+  - `K0 = all-Rust hakorune`
+  - `K1 = .hako kernel migration stage`
+  - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
     - `K2-core = RawArray first`
     - `K2-wide = RawMap second + capability widening + metal review`
+- task packs stay separate from `K-axis`:
+  - boundary lock
+  - semantic owner swap
+  - `RawArray`
+  - `RawMap`
+  - capability widening
+  - metal keep shrink
 - implementation note:
-  - the current replacement order is `K0 -> K1 -> K2-core`
-  - `K1` and `K2` remain separate gates / acceptance checkpoints
+  - the current stage progression is `K0 -> K1 -> K2`
+  - `K2-core` and `K2-wide` are task packs inside `K2`
 - current repo read:
-  - collection wave (`Array -> Map -> RuntimeData cleanup`) is `K1 done-enough`
+  - `K0` stays the all-Rust baseline / bootstrap reference reading
+  - collection wave (`Array -> Map -> RuntimeData cleanup`) is the current done-enough stop-line inside `K1`
   - `Rune` is landed as the canonical primitive control plane and is no longer the active blocker lane
-  - replacement order is read as `K0 -> K1 -> K2-core`
-  - next structural step is `K2-core acceptance lock`
+  - stage progression is read as `K0 -> K1 -> K2`
+  - next structural step is `K2`'s first task pack, `K2-core acceptance lock`
   - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests (`runtime_data_invalid_handle_returns_zero`, `runtime_data_array_round_trip_keeps_rawarray_contract`, `legacy_set_h_returns_zero_but_applies_value`, `hi_hii_aliases_keep_fail_safe_contract`, `slot_load_store_raw_aliases_keep_contract`, `slot_append_raw_alias_keeps_contract`)
   - `RawMap` is `K2-wide` second and stays deferred while `RuntimeDataBox` remains facade-only
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
+  - artifact reading:
+    - current repo reality still uses `target/release/hakorune`, `target/selfhost/hakorune`, and `lang/bin/hakorune`
+    - target contract is `target/k0|k1/`, promoted `artifacts/k0|k1/`, and `dist/k2/<channel>/<triple>/bundle/`
 - evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - next horizon inventory:
   - big: `stage / docs / naming` fixation; `K1 done-enough` stop-line fixation; `K2-core`; `zero-rust` default operationalization
@@ -67,10 +77,10 @@ Related:
   - small: docs ladder sync; Rune docs/tag keep; Map evidence bundle maintenance
   - lane-local cleanup candidates only:
     - Rune lane: `src/parser/runes.rs`, `src/parser/statements/helpers.rs`, `src/stage1/program_json_v0.rs`, `src/macro/ast_json/roundtrip.rs`
-    - RawArray lane: `crates/nyash_kernel/src/plugin/handle_cache.rs`, `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
+    - RawArray lane: `crates/nyash_kernel/src/plugin/runtime_data.rs`, `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
     - broader `src/backend/*`, `src/bid/*`, and non-active `crates/nyash_kernel/*` cleanup stays parked
   - parked small: warning debt sweep; TODO cleanup / ignore triage; code-hotspot cleanup outside the active pilot boundary
-  - execution order: `K0 -> K1 -> K2-core`; `RawMap` remains deferred in `K2-wide`
+  - execution order: `K0 -> K1 -> K2`; `K2-core` is the next task pack and `RawMap` remains deferred in `K2-wide`
 - next exact docs:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
@@ -105,10 +115,10 @@ Related:
   - status: `active`
   - purpose:
     - keep `stage` as build/distribution vocabulary
-    - keep compressed `K-axis` as replacement progress vocabulary
-    - read the replacement order as `K0 -> K1 -> K2-core`
+    - keep `K-axis` as build/runtime stage vocabulary
+    - read the stage progression as `K0 -> K1 -> K2`
     - keep `Rune` as landed/keep, not as an active blocker lane
-    - pin `K2-core = RawArray first truthful substrate pilot`
+    - pin `K2-core = RawArray first truthful substrate pilot` as the first `K2` task pack
     - keep `RawMap` deferred in `K2-wide` and map perf as regression/evidence, not structural next step
 - Active code lane: `phase-29bq`
   - status: `active (failure-driven; blocker=none)`

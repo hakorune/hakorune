@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-31
-Scope: `stage0/stage1/stage2-mainline/stage2+` の実行・証跡軸と、`owner/substrate` の責務軸を分離して、phase stop-line と end-state completion の混線を防ぐ。
+Scope: `stage0/stage1/stage2-mainline/stage2+` の実行・証跡軸、`K0/K1/K2` build/runtime stage 軸、`owner/substrate` の責務軸を分離して、phase stop-line と end-state completion の混線を防ぐ。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -25,7 +25,7 @@ Related:
 ## Purpose
 
 - `stage0/stage1/stage2-mainline/stage2+` と `owner/substrate` を同じ progress bar として読まない。
-- replacement progress は `K0 / K1 / K2(core|wide)` の別軸で読み、stage 名に上書きしない。
+- `K-axis` は `K0 / K1 / K2` build/runtime stage 軸として読み、task pack 名や `stage0/stage1/stage2-mainline/stage2+` に上書きしない。
 - phase の `done-enough stop line` と end-state の `finished` を分離する。
 - bootstrap/buildability の keep と `.hako` owner shift を別軸で読む。
 - artifact/lane の daily policy は parent SSOT `execution-lanes-and-axis-separation-ssot.md` を正本にする。
@@ -51,16 +51,16 @@ Related:
 | backend authority | backend daily owner | `.hako -> thin boundary` |
 | substrate | bootstrap / ABI / raw memory / handle / GC / LLVM leaf | native keep unless separately retired |
 
-### 1.3 Replacement axis (peer reading)
+### 1.3 K-axis (peer reading)
 
-- replacement progress is owned by `kernel-replacement-axis-ssot.md`.
+- `K-axis` is owned by `kernel-replacement-axis-ssot.md`.
 - canonical reading is:
-  - `K0` = Boundary Lock
-  - `K1` = Semantic Owner Swap
-  - `K2` = Substrate Era
-    - `K2-core` = first daily `.hako substrate`
-    - `K2-wide` = widening packs + metal review
-- this doc keeps `stage` and `owner` vocabulary only.
+  - `K0` = all-Rust hakorune
+  - `K1` = `.hako kernel` migration stage
+  - `K2` = `.hako kernel` mainline / `zero-rust` daily-distribution stage
+    - `K2-core` = first task pack inside `K2` (`RawArray first`)
+    - `K2-wide` = second task pack inside `K2` (`RawMap second + capability widening + metal review`)
+- task packs (`boundary lock`, semantic owner swap, `RawArray`, `RawMap`, capability widening, metal keep shrink) are tracked separately from both `stage` and `K-axis`.
 
 ## 2. Reading Rules
 
@@ -76,14 +76,14 @@ Related:
 10. boundary truth belongs to `hako.abi / hako.value_repr / ownership-layout manifest`, not to `.inc` partitions.
 11. collection cleanup detail belongs to owner/substrate SSOTs; this doc keeps stage vocabulary only and does not use domain-phase progress as a stage definition.
 12. exact `stage1 -> stage2-mainline` entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`; this doc owns axis vocabulary only.
-13. `K0 / K1 / K2(core|wide)` replacement progress belongs to `kernel-replacement-axis-ssot.md`; do not reuse `stage0/stage1/stage2-mainline/stage2+` as replacement milestone nouns.
+13. `K-axis` belongs to `kernel-replacement-axis-ssot.md`; do not reuse `stage0/stage1/stage2-mainline/stage2+` as `K0/K1/K2` synonyms, and do not reuse task-pack nouns as stage names.
 
 ## 3. Current De-Rust Reading
 
 Canonical short read:
 
 - `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`
-- replacement progress is reported separately as `K-axis`, not stage alias.
+- `K-axis` is reported separately as `K0 / K1 / K2`, not as a stage alias.
 
 ### 3.1 Stage axis now
 
@@ -98,7 +98,10 @@ Canonical short read:
 - kernel authority: owner-first bounded stop-line landed; current compiler semantic tables live under `runtime/meta/`
 - backend authority: queued / separate lane
 - substrate: Rust/C keep
-- replacement progress: `K1 done-enough on the current collection semantic-owner wave / K2-core not entered yet`
+- `K-axis` reading:
+  - `K0` stays the all-Rust baseline / bootstrap reference
+  - the current collection semantic-owner wave is a `K1 done-enough` stop-line
+  - `K2-core` is the next structural task pack inside `K2`
 - current kernel-side owner/substrate detail is owned by `collection-raw-substrate-contract-ssot.md` and `stage2-collection-substrate-cleanup-ssot.md`
 - current stage2-mainline first-wave reading is `route/perf only`, with Rune optimization metadata still `parse/noop` and backend-active optimization deferred
 
@@ -137,4 +140,5 @@ If the residue is still method-shaped and still crossed by the daily `.hako` pat
 - using `stage1` success as proof that `stage2-mainline` owner migration is finished
 - using `done-enough` wording to mean `finished`
 - reopening perf merely because a phase acceptance set is green
-- using `stage0/stage1/stage2-mainline/stage2+` as synonyms for `K0 / K1 / K2(core|wide)`
+- using `stage0/stage1/stage2-mainline/stage2+` as synonyms for `K0 / K1 / K2`
+- using task-pack nouns (`boundary lock`, semantic owner swap, `RawArray`, `RawMap`) as if they were the `K-axis` definitions

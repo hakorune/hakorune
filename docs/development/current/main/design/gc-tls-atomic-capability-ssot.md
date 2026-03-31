@@ -25,6 +25,7 @@ Related:
 - `RawArray` / `RawMap` の次に必要な capability widening を docs-first で固定する。
 - `hako.atomic` / `hako.tls` / `hako.gc` の責務を分けて、allocator/runtime policy owner と混ざらないようにする。
 - `Hakozuna portability layer` の前提になる最小 capability vocabulary を決める。
+- `hako.sys` のような catch-all unsafe shelf は作らず、capability family のまま widening する。
 
 ## Fixed Order
 
@@ -89,6 +90,7 @@ current implementation order is seam-first:
   - `TlsCoreBox.last_error_text_h()`
   - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
+- `hako_kernel` / `hako_substrate` と競合する owner noun にしない
 - truthful seam guard now lives in:
   - `atomic-tls-gc-truthful-native-seam-inventory.md`
 - final TLS end-state guard now lives in:

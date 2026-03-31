@@ -18,11 +18,20 @@ Layout (initial)
   - `README.md` — responsibilities, build notes, platform caveats
   - `include/` — public headers (mirrored or thin wrappers)
   - `shims/` — libc-backed shim(s) for canaries and local testing
-- `src/runtime/kernel/` — `.hako` runtime kernel logic (default edit lane)
+- `src/runtime/kernel/` — logical `hako_kernel` runtime semantic owner lane
+- `src/runtime/substrate/` — logical `hako_substrate` runtime algorithm substrate lane
 - `src/runtime/host/` — host-call routing facade only
 - `src/runtime/meta/` — compiler semantic tables and stage2 owner-policy boxes
   - runtime/kernel owns runtime behavior; runtime/meta owns compiler semantic tables
 - `src/hako_alloc/` — `.hako` alloc-layer (policy plane) helpers (e.g. `ArcBox`, `RefCellBox`)
+
+Layering contract
+- public layering: `hako_core / hako_alloc / hako_std`
+- runtime internal layering: `hako_kernel / hako_substrate`
+- capability floor: `hako.abi / hako.value_repr / hako.mem / hako.buf / hako.ptr / hako.atomic / hako.tls / hako.gc / hako.osvm`
+- native metal keep: final ABI stubs, alloc/free backend, root snapshot, reachability walk, final GC hooks, TLS/atomic fallback, OS VM glue, backend emission
+- do not introduce `hako.sys` as a catch-all layer noun
+- do not use `hako.rt` as a competing kernel-owner noun
 
 Build & Link (dev)
 - C shim: build a shared library to satisfy symbols for the LLVM line canaries.
@@ -59,11 +68,27 @@ Notes
 - stage/artifact/lane の親SSOTは `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`。
 - artifact-role detail と future interpreter reservation は `docs/development/current/main/design/artifact-policy-ssot.md` を正本にする。
 - `Stage1` / `Stage2+` は artifact / proof / mainline の stage 軸であって、kernel owner/substrate 軸とは別だよ。
+- `K-axis` is a separate build/runtime stage axis:
+  - `K0 = all-Rust hakorune`
+  - `K1 = .hako kernel migration stage`
+  - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
+  - `K2-core` / `K2-wide` are task packs inside `K2`
 - owner/substrate の current truth は `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md` と `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md` を正本にする。
 - kernel implementation phase plan SSOT is `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
 - final distribution target は Stage2+ line であり、`lang/bin/hakorune` そのものを final 配布物の意味で読むのはやめる。
 - default distribution shape は `hakoruneup + self-contained release bundle` であり、単一の stage artifact をそのまま配布正本とは読まない。
 - stage/selfhost と `hako_core/alloc/std` の end-state は `docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md` を正本にする。
+- current artifact reality:
+  - `target/release/hakorune`
+  - `target/selfhost/hakorune`
+  - `lang/bin/hakorune`
+- target artifact contract:
+  - `target/k0/hakorune`
+  - `target/k1/hakorune`
+  - `artifacts/k0/hakorune`
+  - `artifacts/k1/hakorune`
+  - `dist/k2/<channel>/<triple>/bundle/`
+- read `K0/K1` primarily as binaries and `K2` primarily as a bundle.
 - stage1 may complete domain phases and still remain bridge/proof; stage2+ is the final mainline.
 - stage2+ は mostly `.hako` authority / thin native shim / native metal keep の読みで進める。
 - `.hako` complete は authority completion を意味し、kernel substrate や native keep の wholesale removal は意味しない。

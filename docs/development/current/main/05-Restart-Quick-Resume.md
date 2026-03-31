@@ -37,6 +37,8 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `policy-refresh`
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`
+- `K-axis` is read as `K0 / K1 / K2` build/runtime stages
+- `K2-core` / `K2-wide` are task packs inside `K2`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
@@ -47,7 +49,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md` first
   - fix `stage / docs / naming` order before reopening deeper implementation lanes
-  - read the replacement order as `K0 -> K1 -> K2-core`
+  - read the `K-axis` stage progression as `K0 -> K1 -> K2`; treat `K2-core` as the first task pack inside `K2`
   - treat `Rune` as landed keep (`@rune` canonical surface, legacy aliases compat keep), not as the current blocker lane
   - keep `K2-core acceptance lock` as the next structural step and read its smoke/evidence gate from the existing `nyash_kernel` RawArray contract tests
   - keep `K1 done-enough` fixed before promoting `K2-core`

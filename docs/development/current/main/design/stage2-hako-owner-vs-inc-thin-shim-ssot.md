@@ -39,7 +39,7 @@ Related:
 
 ## Fixed Reading
 
-### `.hako semantic owner`
+### `hako_kernel`
 
 - meaning
 - policy
@@ -49,7 +49,7 @@ Related:
 - box orchestration
 - string / collection low-level algorithm control
 
-### `.hako capability substrate`
+### `hako_substrate` + capability floor
 
 - `hako.value_repr`
 - `hako.mem`

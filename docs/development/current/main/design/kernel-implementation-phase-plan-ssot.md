@@ -36,15 +36,16 @@ Related:
   - `.inc` is thin shim / boundary artifact (not a semantic owner noun)
   - native keeps metal / substrate (ABI/alloc/GC/TLS/atomic/backend emission)
 - replacement reading:
-  - `K1` = collection semantic-owner wave (`Array -> Map -> RuntimeData cleanup`)
-  - `K2` = substrate era
+  - `K0` = all-Rust hakorune
+  - `K1` = `.hako kernel` migration stage
+  - `K2` = `.hako kernel` mainline / `zero-rust` daily-distribution stage
     - `K2-core` = `RawArray first`
     - `K2-wide` = `RawMap second + capability widening + metal review`
+  - task packs (`boundary lock`, semantic owner swap, `RawArray`, `RawMap`, capability widening, metal keep shrink) stay separate from `K-axis`
   - `RuntimeDataBox` stays facade-only across both `K1` and `K2`
 - visible engineering reading:
-  - `K0`
-  - `K1`
-  - `K2-core` is the first substrate gate
+  - `K0 -> K1 -> K2`
+  - `K2-core` is the first substrate task pack inside `K2`
 - current active order:
   - `stage / docs / naming` fixation
   - `K1 done-enough` stop-line fixation
@@ -52,7 +53,7 @@ Related:
   - `K2-wide` deferred follow-up
   - `zero-rust` default operationalization
 
-This SSOT is the canonical phase-plan entry for the collection-first `K1` wave and the `K2` substrate-era handoff.
+This SSOT is the canonical phase-plan entry for the collection-first `K1` wave and the `K2` substrate handoff.
 
 Post-collection return is owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
 
@@ -103,7 +104,7 @@ Stop line:
 - runtime-data dispatch remains narrow and explicit.
 - no doc suggests that `RuntimeDataBox` is the "collection owner".
 
-### 4. `K2` Substrate Era
+### 4. `K2` substrate task packs
 
 #### `K2-core`
 
@@ -157,7 +158,7 @@ Rule:
 The phase plan is considered "done-enough to return to perf-kilo" when:
 
 1. stage docs agree on: `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`.
-2. replacement docs agree on: `K0 Boundary Lock / K1 Semantic Owner Swap / K2 Substrate Era (core=RawArray first)`.
+2. replacement docs agree on: `K0 all-Rust hakorune / K1 .hako kernel migration stage / K2 .hako kernel mainline-zero-rust daily-distribution stage`.
    - `K2-core acceptance lock` is the next structural gate before any `K2-wide` widening.
 3. owner docs agree on: `.hako authority / .inc thin shim / native metal keep`.
 4. collection docs agree on: `Array phase -> Map phase -> RuntimeData cleanup phase`.

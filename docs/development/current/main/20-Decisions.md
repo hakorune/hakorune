@@ -11,12 +11,13 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 ## Public Summary
 
 - Selfhost / de-rust mainline priority を維持する。
-- `stage0 / stage1 / stage2-mainline / stage2+` は build/distribution vocabulary のまま固定し、replacement progress は `K0 / K1 / K2(core|wide)` の別軸で読む。
+- `stage0 / stage1 / stage2-mainline / stage2+` は build/distribution vocabulary のまま固定し、`K-axis` は `K0 / K1 / K2` build/runtime stage 読みで別管理にする。
 - current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
-- replacement reading is `K0 -> K1 -> K2-core`; `K1` / `K2` are kept as separate gates.
-- `K2` は substrate era として扱い、`K2-core = RawArray first`、`K2-wide = RawMap second + capability widening + metal review` に固定する。
-- `K1` の canonical noun は `Semantic Owner Swap` のまま維持し、public reading では `.hako` 側で semantic kernel が完了する gate と読む。
+- `K-axis` の canonical reading は `K0 = all-Rust hakorune`, `K1 = .hako kernel migration stage`, `K2 = .hako kernel mainline / zero-rust daily-distribution stage` に固定する。
+- `K2-core = RawArray first` と `K2-wide = RawMap second + capability widening + metal review` は `K2` 内 task pack として読む。
+- `boundary lock` / semantic owner swap / `RawArray` / `RawMap` / capability widening / metal keep shrink は `K-axis` 定義ではなく task pack 読みで固定する。
 - `zero-rust` は default daily/distribution policy として扱う。ただし bootstrap/recovery/reference/buildability keep と native metal keep は常設 keep にする。
+- artifact reading は `K0/K1 = binary`, `K2 = bundle` に固定し、current reality (`target/release/hakorune`, `target/selfhost/hakorune`, `lang/bin/hakorune`) と target contract (`target/k0|k1/`, promoted `artifacts/k0|k1/`, `dist/k2/<channel>/<triple>/bundle/`) を分けて書く。
 - same-boundary の daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane の語に限定する。
 - perf lane は monitor-only（failure-driven restart）を維持する。
 - Array/Map perf evidence は appendix/monitor-only で、task order を決める材料にはしない。

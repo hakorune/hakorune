@@ -24,6 +24,7 @@ Related:
 - system LLVM は開発者向けの explicit opt-in モードとしてだけ残す。
 - 既存の kernel migration / thin backend / de-rust lanes と矛盾しない配布形を先に固定する。
 - this doc assumes the parent reading that stage1 artifacts are proof/snapshot only and stage2-mainline is the daily distribution lane while stage2+ stays the final distribution umbrella/target.
+- under the `K-axis` reading, `K0/K1` remain binary stages and `K2` is the bundle stage.
 
 ## Final Shape
 
@@ -35,6 +36,15 @@ Related:
 | system LLVM dev mode | explicit opt-in | developer-only host LLVM selection for debugging / advanced workflows | non-default |
 
 ## Bundle Contract
+
+- current repo reality still includes `target/release/hakorune`, `target/selfhost/hakorune`, and `lang/bin/hakorune`.
+- target contract is:
+  - `target/k0/hakorune`
+  - `target/k1/hakorune`
+  - `artifacts/k0/hakorune`
+  - `artifacts/k1/hakorune`
+  - `dist/k2/<channel>/<triple>/bundle/`
+- `dist/k2/<channel>/<triple>/bundle/` is the intended distribution truth; the current binary paths are input realities, not the final `K2` packaging truth.
 
 - default user path:
   - `hakoruneup` launches against a self-contained release bundle.

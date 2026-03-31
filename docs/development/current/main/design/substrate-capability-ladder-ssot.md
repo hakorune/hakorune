@@ -35,11 +35,11 @@ Related:
 
 この lane の最終形は 4 層で読む。
 
-1. `.hako semantic owner`
+1. `hako_kernel`
    - user-visible collection/runtime/allocator policy
    - grow / split / append / probe / reclaim の algorithmic low-level
    - route/fallback/contract
-2. `.hako algorithm substrate`
+2. `hako_substrate`
    - `RawArray` / `RawMap` / future allocator state machine
    - capability module を使う low-level control structure
 3. capability substrate
@@ -68,6 +68,7 @@ Related:
   - `.hako` owns meaning/policy/control
   - capability substrate exposes the minimum unsafe power required to express low-level algorithms
   - native keeps only OS/ABI/GC metal
+- do not introduce `hako.sys` as a monolithic unsafe shelf; keep the capability family split and name the two `.hako` owner layers as `hako_kernel` and `hako_substrate`.
 
 ## Capability Modules
 

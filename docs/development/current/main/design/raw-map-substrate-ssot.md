@@ -20,7 +20,7 @@ Related:
 
 ## Goal
 
-- `RawMapCoreBox` を `.hako algorithm substrate` の次の concrete box として固定する。
+- `RawMapCoreBox` を `hako_substrate` の次の concrete box として固定する。
 - `RawArray` のあとに来る hash/probe substrate の役割を、まず `observer + probe/load/store` slice で live にする。
 - `MapCoreBox` の visible owner を崩さず、future low-level map policy の受け皿だけを決める。
 

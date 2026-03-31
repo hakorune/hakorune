@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-31
-Scope: `stage` 軸を build/distribution 用語のまま固定しつつ、kernel の本当の置換進捗を `K0 / K1 / K2(core|wide)` replacement axis で読む。
+Scope: `stage` 軸を build/distribution 用語のまま固定しつつ、`K0 / K1 / K2` を hakorune の build/runtime stage axis として読み、`K2-core` / `K2-wide` を `K2` 内 task pack として扱う。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -26,9 +26,11 @@ Related:
 ## Goal
 
 - `stage0/stage1/stage2-mainline/stage2+` を置換進捗の語に流用しない。
-- kernel の本当の置換進捗は、`K0 / K1 / K2(core|wide)` replacement axis で読む。
+- `K-axis` は hakorune の build/runtime stage axis として読む。
+- `K-axis` は task ledger ではない。
+- task packs (`boundary lock`, semantic owner swap, `RawArray`, `RawMap`, capability widening, metal keep shrink) は別軸で追う。
 - current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
-- 責務分割は変えず、`K2` を substrate era として昇格する。
+- 責務分割は変えず、`K2` を `.hako kernel` mainline / `zero-rust` daily-distribution stage として読む。
 - default target を `zero-rust` に寄せるが、bootstrap/recovery/reference/buildability keep と native metal keep は明示 keep にする。
 
 ## Fixed Reading
@@ -41,20 +43,26 @@ Related:
 - `stage2+` = umbrella / end-state label
 
 Stage axis is for buildability, proof, and distribution reading only.
-Replacement progress must not overload those names.
+`K-axis` must not overload those names.
 
-### Replacement axis
+### `K-axis`
 
 | Axis | Meaning | Success reading |
 | --- | --- | --- |
-| `K0` | Boundary Lock | `hako.abi` / `hako.value_repr` / ownership-layout / fail-fast contract が固定され、same-boundary swap の判定基準が docs で 1 枚に読める |
-| `K1` | Semantic Owner Swap | method contract / route / acceptance / fallback / orchestration の daily owner が `.hako` に移る |
-| `K2` | Substrate Era | `.hako substrate module` が daily owner に入り始め、widening と metal review がこの era の中で進む |
+| `K0` | all-Rust hakorune | Rust-built hakorune が baseline / bootstrap reference / comparison keep として読める |
+| `K1` | `.hako kernel` migration stage | semantic kernel の daily owner が `.hako` 側へ移り始め、Rust keep と並走しながら current migration wave が回る |
+| `K2` | `.hako kernel` mainline / `zero-rust` daily-distribution stage | daily/distribution の normal path が `.hako kernel` mainline で読み取れ、`K2-core` / `K2-wide` task packs がこの stage の中で進む |
 
-`K1` keeps its canonical noun as `Semantic Owner Swap`.
-Public-facing roadmap text may explain `K1` as the point where the semantic kernel is complete on the `.hako` side.
+### Task packs stay separate
 
-### `K2` internal states
+- boundary lock
+- semantic owner swap
+- `RawArray`
+- `RawMap`
+- capability widening
+- metal keep shrink
+
+### `K2` internal task packs
 
 - `K2-core`
   - first daily `.hako substrate`
@@ -65,19 +73,13 @@ Public-facing roadmap text may explain `K1` as the point where the semantic kern
   - capability widening packs
   - metal keep review
 
-### Legacy mapping
-
-- old `K3 capability widening` maps to `K2-wide`
-- old `K4 metal split review` maps to `K2-wide`
-
 ## Implementation Flow
 
 - `Rune` is the canonical primitive control plane and is landed/keep, not the current blocker lane.
-- current replacement order is `K0 -> K1 -> K2-core`.
-- `K1` and `K2` remain separate gates / acceptance checkpoints.
-- `K1` still means semantic owner swap.
-- `K2` still means substrate era.
-- the point of the current reshaping is to make the visible replacement order read directly as `K0 -> K1 -> K2-core` while keeping the gates distinct.
+- current stage progression is `K0 -> K1 -> K2`.
+- `K2-core` and `K2-wide` are separate task packs / acceptance checkpoints inside `K2`.
+- `K0` is the all-Rust baseline, `K1` is the migration stage, and `K2` is the mainline/daily stage.
+- the point of the current reshaping is to keep stage progression, task packs, and stage/build vocabulary separate.
 
 ## Responsibility Split
 
@@ -134,29 +136,44 @@ Do not mix this bucket into runtime kernel owner/substrate docs.
 
 Do not use `plugin` as the noun for daily kernel/substrate replacement.
 
+## Artifact Contract
+
+### Current repo reality
+
+- Cargo/Rust artifacts still appear as:
+  - `target/release/hakorune`
+  - `target/selfhost/hakorune`
+  - `lang/bin/hakorune`
+
+### Target contract
+
+- `K0` / `K1` are read primarily as binaries:
+  - dev/current outputs live under `target/k0/` and `target/k1/`
+  - promoted snapshots live under `artifacts/k0/` and `artifacts/k1/`
+- `K2` is read primarily as a distribution bundle:
+  - `dist/k2/<channel>/<triple>/bundle/`
+- `K2` bundle reading does not imply `native zero`; it fixes the distribution unit, not metal deletion.
+
 ## Operational Order
 
-### `K0` Boundary Lock
+### `K0` all-Rust hakorune
 
-- boundary truth belongs to:
-  - `hako.abi`
-  - `hako.value_repr`
-  - ownership/layout manifest
-  - fail-fast / verifier contract
-- `.inc` is not the boundary truth; it is a transitional thin artifact/shim.
+- Rust implementation remains the kernel owner.
+- use `K0` as the all-Rust baseline / bootstrap reference / comparison keep.
+- boundary lock belongs to the task axis, not to the `K0` stage definition.
 
-### `K1` Semantic Owner Swap
+### `K1` `.hako kernel` migration stage
 
-- current collection-first wave is read as `K1`.
-- `Array -> Map -> RuntimeData cleanup` is the visible semantic-owner wave.
+- current collection-first wave is read as the current migration slice inside `K1`.
+- `Array -> Map -> RuntimeData cleanup` is the visible current done-enough stop-line inside `K1`.
 - `RuntimeDataBox` stays facade-only throughout `K1`.
 
-### `K2` Substrate Era
+### `K2` `.hako kernel` mainline / `zero-rust` daily-distribution stage
 
 #### `K2-core`
 
-- `K2-core` is the first real replacement milestone.
-- entering `K2-core` means a capability-backed `.hako substrate module` becomes daily owner, not just a future note.
+- `K2-core` is the first task pack inside `K2`.
+- entering `K2-core` means a capability-backed `.hako substrate module` becomes the first truthful `K2` substrate owner, not just a future note.
 - first concrete `K2-core` pilot is `RawArray`.
 
 #### `K2-wide`
@@ -171,7 +188,7 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
 
 ## Zero-Rust Default
 
-- default daily/distribution target is `zero-rust`.
+- default daily/distribution target inside `K2` is `zero-rust`.
 - in this document, `zero-rust` means:
   - normal daily operation does not require Rust/Cargo as a user-facing dependency
   - standard distribution is read as self-contained delivery, not Cargo-first workflow
@@ -191,9 +208,9 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
 ## Current Reading
 
 - current repo state is:
-  - `K0` partially locked
-  - `K1` active and done-enough on the collection semantic-owner wave
-  - `K2-core` not yet entered as a daily owner replacement lane
+  - `K0` is the all-Rust baseline / bootstrap reference reading
+  - `K1` is active and done-enough on the collection migration wave
+  - `K2` is not yet entered as the daily owner stage
 - visible order therefore reads as:
   - `K0`
   - `K1`
@@ -205,8 +222,8 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
   - `K2-core acceptance lock`
   - `K2-wide` deferred follow-up
   - `zero-rust` default operationalization
-- therefore the next structural step is not another broad owner rename.
-- the next structural step is to make `RawArray` the first truthful `K2-core` pilot.
+- therefore the next structural step is not another broad stage rename.
+- the next structural step is to make `RawArray` the first truthful `K2-core` pilot inside `K2`.
 
 ## Non-Goals
 

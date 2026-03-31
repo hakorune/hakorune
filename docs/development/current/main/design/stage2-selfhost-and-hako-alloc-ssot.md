@@ -30,6 +30,7 @@ Related:
 - `owner/substrate` 軸と `stage0/stage1/stage2-mainline/stage2+/stage3` 軸を混線させない。
 - final end-state を `.hako` の `core/alloc/std` layering と thin native metal keep で固定する。
 - current `lang/bin/hakorune` / `target/selfhost/hakorune` を stage1 snapshot/proof line として読み、final distribution target と混同しない。
+- runtime internal layering は `hako_kernel / hako_substrate / capability floor / native metal keep` に固定する。
 - standard distribution shape is `hakoruneup + self-contained release bundle`; detailed packaging policy は `hakoruneup-release-distribution-ssot.md` を正本にする。
 - shared artifact/lane vocabulary is owned by `execution-lanes-and-axis-separation-ssot.md`; this child doc owns stage/distribution layering and library layering.
 - stage2-mainline entry order and the first optimization wave are owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
@@ -90,6 +91,32 @@ Related:
 3. `hako_std`
    - process / env / fs / time / net / plugin-host / C ABI convenience
 
+### Runtime internal layering axis
+
+1. `hako_kernel`
+   - semantic owner
+   - route / acceptance / orchestration / visible policy
+   - logical home is `lang/src/runtime/kernel/`
+2. `hako_substrate`
+   - `RawArray` / `RawMap` / capability-backed low-level control
+   - logical home is `lang/src/runtime/substrate/`
+3. capability floor
+   - `hako.abi`
+   - `hako.value_repr`
+   - `hako.mem`
+   - `hako.buf`
+   - `hako.ptr`
+   - `hako.atomic`
+   - `hako.tls`
+   - `hako.gc`
+   - `hako.osvm`
+
+Naming rule:
+
+- do not introduce `hako.sys` as a catch-all layer noun
+- do not use `hako.rt` as a competing kernel-owner noun
+- `file/process/time/net` live under `hako_std`, while page reserve/commit/decommit stays under `hako.osvm`
+
 ### Native keep
 
 Native keep remains below those layers:
@@ -106,8 +133,21 @@ Native keep remains below those layers:
 
 - `lang/bin/hakorune` is a Stage1 stable snapshot, not the final distribution truth.
 - `target/selfhost/hakorune` is the current Stage1 dev line, not the final distribution truth.
+- current repo reality also includes `target/release/hakorune` as the Cargo/Rust build output; this is current reality, not the architectural truth for `K-axis`.
 - `launcher-exe` / `stage1-cli` are Stage1 artifact kinds; they do not define Stage2+ distribution packaging.
 - standard distribution reading is `hakoruneup + self-contained release bundle`; a single stage artifact is not the default packaging truth.
+- artifact contract is:
+  - `K0/K1 = binary`
+  - `K2 = bundle`
+  - `target/` = ephemeral dev output
+  - `artifacts/` = promoted snapshots
+  - `dist/` = distribution truth
+- target path contract is:
+  - `target/k0/hakorune`
+  - `target/k1/hakorune`
+  - `artifacts/k0/hakorune`
+  - `artifacts/k1/hakorune`
+  - `dist/k2/<channel>/<triple>/bundle/`
 - `stage2-aot-native-thin-path-design-note.md` owns the AOT fast-lane rule:
   - source layering stays
   - execution layering may collapse only inside `AOT/native`
