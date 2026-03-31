@@ -67,6 +67,23 @@ Related:
 8. `phase-29ct`
    - stop-line reached
 
+## Next Horizon Inventory
+
+- Active big tasks:
+  - `K2-core` RawArray pilot
+  - policy stabilization for the compressed `K-axis`
+  - zero-rust default operationalization for daily/distribution
+- Parked big tasks:
+  - `K2-wide` follow-up (`RawMap`, capability widening, metal review)
+  - broad `Map` structural expansion
+- Active small tasks:
+  - docs ladder sync
+  - Map evidence bundle maintenance
+- Parked small tasks:
+  - warning debt sweep
+  - TODO cleanup / ignore triage
+  - code-hotspot cleanup outside the active pilot boundary
+
 ## Boundary-Retire Snapshot
 
 - live stop-line: `src/host_providers/mir_builder.rs::module_to_mir_json(...)`

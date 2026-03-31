@@ -51,6 +51,11 @@ Related:
   - `kilo_leaf_map_get_missing 0` = `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
   - `kilo_leaf_map_getset_has -1` = `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
   - `kilo_micro_array_getset 1x7` = `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
+- next horizon inventory:
+  - big: `K2-core` RawArray pilot; policy stabilization; zero-rust default operationalization
+  - parked big: `K2-wide` follow-up; broad `Map` structural expansion
+  - small: docs ladder sync; Map evidence bundle maintenance
+  - parked small: warning debt sweep; TODO cleanup / ignore triage; code-hotspot cleanup outside the active pilot boundary
 - next exact docs:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
   - `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`

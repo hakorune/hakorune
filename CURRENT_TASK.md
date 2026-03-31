@@ -53,6 +53,45 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   2. `K1` collection wave を current done-enough stop-line として固定する
   3. `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` を canonical reading にする
   4. map/array perf lane は regression/evidence pack として keep し、new exact blocker が出るまで主線に戻さない
+
+## Next Horizon Inventory
+
+### Big Tasks
+
+- Active: `K2-core` RawArray pilot
+  - first truthful daily `.hako substrate` owner を作る
+  - `RuntimeDataBox` facade-only keep を壊さない
+  - acceptance criteria は design SSOT 側で先に固定する
+- Active: policy stabilization
+  - `K0 / K1 / K2(core|wide)` を public reading として薄く保つ
+  - `stage` は build/distribution vocabulary のままにする
+- Active: zero-rust default operationalization
+  - daily/distribution を原則 Rust/Cargo 非依存で読む
+  - bootstrap / recovery / reference / buildability / native metal keep は明示 keep
+- Parked: `K2-wide` follow-up
+  - `RawMap`, capability widening, metal review は `K2-core` 安定後に回す
+- Parked: broad `Map` structural expansion
+  - `Map` は regression/evidence pack として keep
+
+### Small Tasks
+
+- Active: docs ladder sync
+  - `CURRENT_TASK`, `10-Now`, `15-Workstream-Map`, `20-Decisions`, design SSOT を同じ読みに保つ
+  - `plugin` は cold loader lane だけの語に限定する
+- Active: Map evidence bundle maintenance
+  - asm diff helper / bundle save / flags matrix は supporting artifact として keep
+- Parked: warning debt sweep
+  - `#[allow(dead_code)]` の広域整理は active lane に触るときだけ
+- Parked: TODO cleanup / ignore triage
+  - broad TODO sweep と大きい `#[ignore]` triage は当面棚上げ
+- Parked: code-hotspot cleanup
+  - `src/mir/join_ir_vm_bridge/*`, `src/backend/*`, `src/bid/*`, `crates/nyash_kernel/*` は active pilot boundary 以外では触らない
+
+### First 3 Actions
+
+1. `K2-core` の acceptance criteria を design SSOT へ書く
+2. `Map` を regression/evidence pack として固定し続ける
+3. active lane に触る TODO / warning だけを小さく拾う
 - Landed already:
   - warning cleanup commit `c49375eb0` is landed
   - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now accepts `NYASH_NY_LLVM_LLC_FLAGS` and defaults to `-O3 -mcpu=native`
