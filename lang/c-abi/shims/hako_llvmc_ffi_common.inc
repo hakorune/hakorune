@@ -193,6 +193,14 @@ static const char* hako_llvmc_resolve_tool(const char* env_key, const char* prim
   return NULL;
 }
 
+static const char* hako_llvmc_llc_flags(void) {
+  const char* value = getenv("NYASH_NY_LLVM_LLC_FLAGS");
+  if (value && value[0]) {
+    return value;
+  }
+  return "-O3 -mcpu=native";
+}
+
 static int hako_llvmc_mem2reg_canonicalize_and_llc(
     const char* llpath,
     const char* obj_out) {
@@ -200,6 +208,7 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   char cmd[2048];
   const char* opt_tool;
   const char* llc_tool;
+  const char* llc_flags;
   int n;
   int rc;
 
@@ -221,6 +230,7 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
 
   opt_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18");
   llc_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18");
+  llc_flags = hako_llvmc_llc_flags();
   if (!opt_tool) {
     hako_llvmc_emit_route_trace("mem2reg", "fail", "opt-missing", llpath);
     return -1;
@@ -255,8 +265,9 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
   n = snprintf(
       cmd,
       sizeof(cmd),
-      "%s -filetype=obj -o \"%s\" \"%s\" 2>/dev/null",
+      "%s %s -filetype=obj -o \"%s\" \"%s\" 2>/dev/null",
       llc_tool,
+      llc_flags,
       obj_out,
       canon_ll);
   if (n <= 0 || (size_t)n >= sizeof(cmd)) {

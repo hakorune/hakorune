@@ -20,14 +20,16 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - Active work: `stage2-mainline` の `Array` first optimization wave に戻る。
 - 読み:
-  - `kilo_micro_array_getset` が current exact wave
-  - landed read slice は `crates/nyash_kernel/src/plugin/array_slot_load.rs`
-  - current probe target は `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/handle_cache.rs`, `src/boxes/array/mod.rs`
+  - `kilo_micro_array_getset` の current hot symbol は `ny_main`
+  - direct bundle の hot block には `slot_load_hi` / `generic_box_call` / `runtime_data` residue が残っていない
+  - current measurable lever は `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam
+  - `array_slot_store.rs` / `handle_cache.rs` は helper residue としては hot ではない
   - judge order は `leaf-proof micro -> micro kilo -> main kilo`
   - `Array -> Map -> RuntimeData cleanup` は regression pack として固定
   - `loop_routes` / `src/tests/*` の ignore 整理と repo cleanup は完了済み
 - Landed already:
   - warning cleanup commit `c49375eb0` is landed
+  - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now accepts `NYASH_NY_LLVM_LLC_FLAGS` and defaults to `-O3 -mcpu=native`
   - `docs/private/papers-archive/paper-a-mir13-ir-design/out/mir13-paper.pdf` は `docs/private/out/` へ move-out 済み
   - `docs/private/roadmap2/CURRENT_TASK_2025-11-29_full.md` は `docs/private/roadmap2/archive/` へ移動済み
   - root build scripts は `tools/build/` を canonical にして root は shim 化済み
@@ -53,10 +55,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` は topic 別サブモジュールに分離済み
   - `lang/src/runner/launcher.hako` は dispatch を `launcher/dispatch.hako` に、入力契約を `launcher/input_contract.hako` に、入出力契約を `launcher/artifact_io.hako` / `launcher/payload_contract.hako` に分離済み
 - First-cut order:
-  1. `kilo_micro_array_getset` same-artifact compare を current Rust baseline に合わせる
-  2. `array_slot_store.rs` / `handle_cache.rs` の残りを測定で切る
-  3. `Array -> Map -> RuntimeData` を regression pack として固定する
-  4. `tools/perf/trace_optimization_bundle.sh` と `run_kilo_micro_machine_ladder.sh` を judge に使う
+  1. `kilo_micro_array_getset` same-artifact compare を C baseline と同等以上に保つ
+  2. `llc` flags seam の効果を `1x3` / `run_kilo_micro_machine_ladder.sh` で再確認する
+  3. `array_slot_store.rs` / `handle_cache.rs` は residue が戻った時だけ再調査する
+  4. `Array -> Map -> RuntimeData` は regression pack として固定する
 - Keep / defer:
   - `tools/selfhost/run_all.sh` と phase-local `run_all.sh` は keep
   - `apps/tests/` は fixture bank として当面 keep
@@ -65,9 +67,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako` / `lang/src/compiler/entry/func_scanner.hako` / `lang/src/compiler/mirbuilder/stmt_handlers/return_stmt_handler.hako` / `lang/src/runner/stage1_cli.hako` は分割済み
   - `stage1_cli.stage2` exact emit compat probe は green になり、`stage1_cli` 本体は run-only bootstrap output のまま維持する
   - `launcher` は `dispatch` / `input_contract` / `artifact_io` / `payload_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
-  - `Array` wave は `crates/nyash_kernel/src/plugin/array_slot_store.rs` と `crates/nyash_kernel/src/plugin/handle_cache.rs` を current exact leaf として追う
+  - `Array` wave の current hot leaf は `ny_main` で、helper residue は見えていない
+  - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` の `llc` flags seam を先に追う
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` 以降の cleanup splits は landed で固定
-  - 次は `kilo_micro_array_getset` の same-artifact compare を更新するか、`array_slot_store.rs` を測定で切る
+  - 次は `kilo_micro_array_getset` の same-artifact compare を維持するか、`llc` flags seam の値を詰める
 
 ## CI Notes
 
