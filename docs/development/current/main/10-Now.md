@@ -55,6 +55,10 @@ Related:
   - big: Rune primitive control plane; `K2-core` RawArray pilot; policy stabilization; zero-rust default operationalization
   - parked big: `K2-wide` follow-up; broad `Map` structural expansion
   - small: docs ladder sync; Rune docs/tag sync; Map evidence bundle maintenance
+  - lane-local cleanup candidates only:
+    - Rune lane: `src/parser/runes.rs`, `src/parser/statements/helpers.rs`, `src/stage1/program_json_v0.rs`, `src/macro/ast_json/roundtrip.rs`
+    - RawArray lane: `crates/nyash_kernel/src/plugin/handle_cache.rs`, `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
+    - broader `src/backend/*`, `src/bid/*`, and non-active `crates/nyash_kernel/*` cleanup stays parked
   - parked small: warning debt sweep; TODO cleanup / ignore triage; code-hotspot cleanup outside the active pilot boundary
 - next exact docs:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`

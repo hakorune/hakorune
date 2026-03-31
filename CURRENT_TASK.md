@@ -88,6 +88,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `rune-v0` / `rune-v1` / optimization tag SSOT の wording を同じ表現に揃える
 - Active: Map evidence bundle maintenance
   - asm diff helper / bundle save / flags matrix は supporting artifact として keep
+- Active: lane-local cleanup candidates only
+  - Rune lane: `src/parser/runes.rs`, `src/parser/statements/helpers.rs`, `src/stage1/program_json_v0.rs`, `src/macro/ast_json/roundtrip.rs`
+  - RawArray lane: `crates/nyash_kernel/src/plugin/handle_cache.rs`, `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
+  - broader `src/backend/*`, `src/bid/*`, and non-active `crates/nyash_kernel/*` cleanup stays parked
 - Parked: warning debt sweep
   - `#[allow(dead_code)]` の広域整理は active lane に触るときだけ
 - Parked: TODO cleanup / ignore triage

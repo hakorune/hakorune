@@ -82,6 +82,9 @@ Related:
   - docs ladder sync
   - Rune docs/tag sync
   - Map evidence bundle maintenance
+  - lane-local cleanup candidates only:
+    - Rune lane: `src/parser/runes.rs`, `src/parser/statements/helpers.rs`, `src/stage1/program_json_v0.rs`, `src/macro/ast_json/roundtrip.rs`
+    - RawArray lane: `crates/nyash_kernel/src/plugin/handle_cache.rs`, `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
 - Parked small tasks:
   - warning debt sweep
   - TODO cleanup / ignore triage
