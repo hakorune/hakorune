@@ -49,7 +49,7 @@ bash tools/selfhost/run_lane_a_daily.sh
   - verify `@rune` canonical surface and declaration-local `attrs.runes` carrier next
   - read `Rune` as a parallel compiler-contract lane, not a serial step inside `K-axis`
   - read the post-`K0` engineering line as `K-migration`, not one merged acceptance gate
-  - keep `K2-core = RawArray first truthful substrate pilot` as the next structural target
+  - keep `K2-core acceptance lock` as the next structural step
   - keep execution order as `Rune lane (parallel)` plus `K0 -> K-migration`
   - keep `RawMap` deferred in `K2-wide`; treat map perf as regression/evidence until a new exact blocker says otherwise
 

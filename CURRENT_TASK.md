@@ -25,6 +25,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - `K0 / K1 / K2(core|wide)` stays the replacement reading.
 - the post-`K0` engineering line is one `K-migration`, but `K1` / `K2` remain separate acceptance gates.
+- next structural step is `K2-core acceptance lock` for `RawArray`, while `RuntimeDataBox` stays facade-only.
 - perf and historical evidence below are appendix material only; they do not change the order above.
 
 ## Immediate Handoff (2026-03-31)
@@ -46,7 +47,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1 done-enough`
   - `Rune` は `K-axis` と直列に混ぜず、parallel compiler-contract lane として読む
   - `K1` と `K2` は separate gates だが、実装工程は `K0` のあとに one `K-migration` line として読める
-  - 次の structural target は `K2-core RawArray first`
+  - 次の structural target は `K2-core acceptance lock`
   - `RawMap` は `K2-wide` の second target で、今は deferred
   - `RuntimeDataBox` は facade-only keep
   - same-boundary daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に限定する
@@ -62,7 +63,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Next exact work:
   1. `K0 / K1 / K2(core|wide)` の vocabulary を dashboard / restart docs / design index に同期する
   2. `K1` collection wave を current done-enough stop-line として固定する
-  3. `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` を canonical reading にする
+  3. `K2-core acceptance lock` を canonical reading にする
   4. map/array perf lane は regression/evidence pack として keep し、new exact blocker が出るまで主線に戻さない
 
 ## Next Horizon Inventory
@@ -76,7 +77,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Active: `K-migration`
   - `K1` collection wave is done-enough and remains the owner gate
   - first truthful daily `.hako substrate` owner を作る
-  - next structural target is `K2-core RawArray first`
+  - next structural step is `K2-core acceptance lock`
   - `RuntimeDataBox` facade-only keep を壊さない
   - `RawMap` stays deferred in `K2-wide`
   - acceptance criteria は design SSOT 側で先に固定する
@@ -121,7 +122,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 1. Rune primitive surface を `@rune` 単一表現で固定する
 2. `Rune lane (parallel)` と `K0 -> K-migration` の visible order を docs で揃える
-3. `K2-core` の acceptance criteria を design SSOT へ書く
+3. `K2-core acceptance lock` を design SSOT へ固定する
 - Landed already:
   - `crates/nyash_kernel/src/plugin/runtime_data.rs` now routes array dispatch through handle-based RawArray substrate helpers, and map any-key paths materialize owned key strings before map ops so handle-registry borrow overlap is avoided
   - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs` now short-circuits invalid array handles before index resolution, keeping RawArray facade-only and preserving the handle-based substrate path

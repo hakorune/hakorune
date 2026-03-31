@@ -53,13 +53,13 @@ Related:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) is `K1 done-enough`
   - `Rune` stays a parallel compiler-contract lane, not a step inside `K-axis`
   - post-`K0` engineering line is read as one `K-migration` track
-  - next structural target is `K2-core RawArray first`
+  - next structural step is `K2-core acceptance lock`
   - `RawMap` is `K2-wide` second and stays deferred while `RuntimeDataBox` remains facade-only
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
 - evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - next horizon inventory:
-  - big: `Rune lane (parallel)`; `K-migration` with `K2-core RawArray first`; policy stabilization; zero-rust default operationalization
+  - big: `Rune lane (parallel)`; `K-migration` with `K2-core acceptance lock`; policy stabilization; zero-rust default operationalization
   - parked big: `K2-wide` follow-up; broad `Map` structural expansion
   - small: docs ladder sync; Rune docs/tag sync; Map evidence bundle maintenance
   - lane-local cleanup candidates only:

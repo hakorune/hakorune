@@ -27,7 +27,7 @@ Related:
    - visible sequence: `Rune lane (parallel)` -> `K0 -> K-migration` -> `RawMap deferred in K2-wide`
    - keep `stage` vocabulary fixed and add compressed `K-axis` as the current operational reading
    - keep `Rune lane` docs (`@rune` canonical surface / `attrs.runes`) synchronized as a parallel compiler-contract lane
-   - `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` is the next structural target
+   - `K2-core acceptance lock` is the next structural step; `RawArray` remains first and `RuntimeData facade-only` stays fixed
    - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence, not the next structural lane
    - execution order is `Rune lane (parallel)` plus `K0 -> K-migration`; `RawMap` remains deferred in `K2-wide`
 2. `phase-29bq`
@@ -74,7 +74,7 @@ Related:
 
 - Active big tasks:
   - `Rune lane (parallel, compiler-contract side)`
-  - `K-migration` with `K2-core RawArray first`
+  - `K-migration` with `K2-core acceptance lock`
   - policy stabilization for the compressed `K-axis`
   - zero-rust default operationalization for daily/distribution
 - Parked big tasks:

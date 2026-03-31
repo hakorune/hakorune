@@ -107,6 +107,11 @@ Goal:
 - the pilot stays same-boundary and capability-backed.
 - the pilot does not redefine stage vocabulary or packaging.
 
+Acceptance lock:
+- `hako.abi / hako.value_repr / ownership-layout / fail-fast verifier` are the contract baseline.
+- `RuntimeDataBox` stays facade/protocol only while `RawArray` is the daily owner.
+- the pilot can be accepted without widening `Map` or reopening `K1` owner scope.
+
 Stop line:
 - `RawArray` has explicit contract baseline under `hako.abi / hako.value_repr / ownership-layout / fail-fast verifier`.
 - the daily owner reading is `.hako substrate module`, not hidden Rust helper ownership.
@@ -139,6 +144,7 @@ The phase plan is considered "done-enough to return to perf-kilo" when:
 
 1. stage docs agree on: `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`.
 2. replacement docs agree on: `K0 Boundary Lock / K1 Semantic Owner Swap / K2 Substrate Era (core=RawArray first)`.
+   - `K2-core acceptance lock` is the next structural gate before any `K2-wide` widening.
 3. owner docs agree on: `.hako authority / .inc thin shim / native metal keep`.
 4. collection docs agree on: `Array phase -> Map phase -> RuntimeData cleanup phase`.
 5. daily proof locks remain green:
