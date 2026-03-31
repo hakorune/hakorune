@@ -45,9 +45,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `Array -> Map -> RuntimeData cleanup` は owner rewrite reopen ではなく regression/evidence pack に固定
 - Next exact read order:
   1. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
-  2. `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
-  3. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
-  4. `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
+  2. `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
+  3. `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
+  4. `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
+  5. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
+  6. `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
 - Next exact work:
   1. `K0 / K1 / K2(core|wide)` の vocabulary を dashboard / restart docs / design index に同期する
   2. `K1` collection wave を current done-enough stop-line として固定する
@@ -58,6 +60,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ### Big Tasks
 
+- Active: Rune primitive control plane
+  - `@rune` を canonical surface として固定する
+  - `attrs.runes` を単一 carrier として保つ
+  - `inline` / `contract` / `intrinsic_candidate` は Rune vocabulary に寄せる
 - Active: `K2-core` RawArray pilot
   - first truthful daily `.hako substrate` owner を作る
   - `RuntimeDataBox` facade-only keep を壊さない
@@ -78,6 +84,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Active: docs ladder sync
   - `CURRENT_TASK`, `10-Now`, `15-Workstream-Map`, `20-Decisions`, design SSOT を同じ読みに保つ
   - `plugin` は cold loader lane だけの語に限定する
+- Active: Rune docs/tag sync
+  - `rune-v0` / `rune-v1` / optimization tag SSOT の wording を同じ表現に揃える
 - Active: Map evidence bundle maintenance
   - asm diff helper / bundle save / flags matrix は supporting artifact として keep
 - Parked: warning debt sweep
@@ -89,9 +97,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ### First 3 Actions
 
-1. `K2-core` の acceptance criteria を design SSOT へ書く
-2. `Map` を regression/evidence pack として固定し続ける
-3. active lane に触る TODO / warning だけを小さく拾う
+1. Rune primitive surface を `@rune` 単一表現で固定する
+2. `K2-core` の acceptance criteria を design SSOT へ書く
+3. `Map` を regression/evidence pack として固定し続ける
 - Landed already:
   - warning cleanup commit `c49375eb0` is landed
   - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now accepts `NYASH_NY_LLVM_LLC_FLAGS` and defaults to `-O3 -mcpu=native`

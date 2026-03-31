@@ -29,6 +29,7 @@ Related:
 - historical Rune proposal を current repo で実装可能な narrow v0 slice に落とす。
 - parser scope, AST/direct MIR shape, backend scope を先に固定し、途中で正本を二重化しない。
 - Rune を contract-only first slice として始め、runtime semantics や substrate implementation に広げない。
+- this is the first contract slice of the existing-language primitive control plane; it does not add a second runtime semantics carrier.
 
 Note:
 - this document remains the base Rune v0 SSOT for visibility / ownership / ABI-facing families and carrier/backend scope

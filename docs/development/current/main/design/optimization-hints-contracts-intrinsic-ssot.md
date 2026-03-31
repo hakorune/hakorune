@@ -16,6 +16,7 @@ Related:
 ## Goal
 
 helper 境界コストが支配するワークロードに対して、特別処理を散らさずに最小の注釈面を導入する。
+`@rune` は既存言語上の primitive control plane として使い、`inline` を含む最適化ヒントはここに統一する。
 
 ## Current Syntax Truth (2026-03-30)
 

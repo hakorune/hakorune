@@ -52,12 +52,14 @@ Related:
   - `kilo_leaf_map_getset_has -1` = `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
   - `kilo_micro_array_getset 1x7` = `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
 - next horizon inventory:
-  - big: `K2-core` RawArray pilot; policy stabilization; zero-rust default operationalization
+  - big: Rune primitive control plane; `K2-core` RawArray pilot; policy stabilization; zero-rust default operationalization
   - parked big: `K2-wide` follow-up; broad `Map` structural expansion
-  - small: docs ladder sync; Map evidence bundle maintenance
+  - small: docs ladder sync; Rune docs/tag sync; Map evidence bundle maintenance
   - parked small: warning debt sweep; TODO cleanup / ignore triage; code-hotspot cleanup outside the active pilot boundary
 - next exact docs:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+  - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
+  - `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
   - `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
   - `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   - `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`

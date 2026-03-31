@@ -25,6 +25,7 @@ Related:
 1. `policy-refresh`
    - active docs/policy lane
    - keep `stage` vocabulary fixed and add compressed `K-axis` as the current operational reading
+   - keep Rune primitive control plane docs (`@rune` canonical surface / `attrs.runes`) synchronized with the current lane
    - `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` is the next structural target
    - `Map` optimization is parked as regression/evidence, not the next structural lane
 2. `phase-29bq`
@@ -70,6 +71,7 @@ Related:
 ## Next Horizon Inventory
 
 - Active big tasks:
+  - Rune primitive control plane
   - `K2-core` RawArray pilot
   - policy stabilization for the compressed `K-axis`
   - zero-rust default operationalization for daily/distribution
@@ -78,6 +80,7 @@ Related:
   - broad `Map` structural expansion
 - Active small tasks:
   - docs ladder sync
+  - Rune docs/tag sync
   - Map evidence bundle maintenance
 - Parked small tasks:
   - warning debt sweep

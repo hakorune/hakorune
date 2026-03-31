@@ -39,10 +39,13 @@ bash tools/selfhost/run_lane_a_daily.sh
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
-  3. `docs/development/current/main/15-Workstream-Map.md`
-  4. `docs/development/current/main/10-Now.md`
+  3. `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
+  4. `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
+  5. `docs/development/current/main/15-Workstream-Map.md`
+  6. `docs/development/current/main/10-Now.md`
 - immediate action:
   - verify `stage` axis and compressed `K-axis` reading in `CURRENT_TASK.md` first
+  - verify `@rune` canonical surface and declaration-local `attrs.runes` carrier next
   - keep `K2-core = RawArray first truthful substrate pilot` as the next structural target
   - treat `Map` perf as regression/evidence until a new exact blocker says otherwise
 

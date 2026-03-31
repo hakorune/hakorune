@@ -29,6 +29,7 @@ Related:
 - declaration metadata の canonical surface を `@rune` に統一する。
 - legacy `@hint` / `@contract` / `@intrinsic_candidate` は compat alias として受理し、内部では同じ `attrs.runes` に正規化する。
 - carrier / Program(JSON v0) / backend scope は widen せず、parser/front-door だけを一本化する。
+- Rune は既存言語上の primitive control plane として扱い、追加の metadata truth を増やさない。
 
 ## Fixed Decisions
 
