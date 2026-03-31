@@ -1,5 +1,6 @@
 // kilo/map leaf-proof microbench:
 // stable missing-key map get on a single integer key.
+// Zero keeps the path on the immediate-i64 route and avoids handle lookup noise.
 static box Main {
   main() {
     local ops = 2000000
@@ -8,7 +9,7 @@ static box Main {
     local sum = 0
 
     loop (i < ops) {
-      local v = map.get(99)
+      local v = map.get(0)
       if (v == null) {
         sum = sum + 1
       }

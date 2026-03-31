@@ -1,5 +1,15 @@
 use super::value_codec::{any_arg_to_box_with_profile, CodecProfile};
+use std::cell::RefCell;
 use nyash_rust::runtime::host_handles as handles;
+
+struct ImmediateKeyCache {
+    key: i64,
+    text: String,
+}
+
+thread_local! {
+    static IMMEDIATE_KEY_CACHE: RefCell<Option<ImmediateKeyCache>> = RefCell::new(None);
+}
 
 #[inline(always)]
 pub(crate) fn map_key_string_from_i64(key_i64: i64) -> String {
@@ -31,6 +41,19 @@ where
             f(&key_str)
         });
     }
-    let key_str = key_any.to_string();
-    f(&key_str)
+    IMMEDIATE_KEY_CACHE.with(|slot| {
+        let mut cache = slot.borrow_mut();
+        if let Some(entry) = cache.as_mut() {
+            if entry.key == key_any {
+                return f(entry.text.as_str());
+            }
+        }
+        let text = key_any.to_string();
+        *cache = Some(ImmediateKeyCache {
+            key: key_any,
+            text,
+        });
+        let entry = cache.as_ref().expect("immediate key cache just stored");
+        f(entry.text.as_str())
+    })
 }

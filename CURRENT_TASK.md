@@ -22,7 +22,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - 読み:
   - `kilo_leaf_map_get_missing` の current hot symbol は `nyash.runtime_data.get_hh`
   - current measurable lever は `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs` と `handle_cache.rs`
-  - `kilo_leaf_map_get_missing 99` は `c_ms=3 / ny_aot_ms=61 / ratio_cycles=0.01` まで到達
+  - `kilo_leaf_map_get_missing 0` は `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07` まで到達
   - `kilo_leaf_map_getset_has -1` は `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00` の regression pack として凍結
   - `kilo_micro_array_getset` は regression pack に固定し、`c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94` を守る
   - 次の探索候補は `runtime_data_map_get_min` 系の map provider / boundary smoke
@@ -59,7 +59,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `src/runner/modes/vm_hako/tests/boxcall_contract/subset.rs` は topic 別サブモジュールに分離済み
   - `lang/src/runner/launcher.hako` は dispatch を `launcher/dispatch.hako` に、入力契約を `launcher/input_contract.hako` に、入出力契約を `launcher/artifact_io.hako` / `launcher/payload_contract.hako` に分離済み
 - First-cut order:
-  1. `kilo_leaf_map_get_missing` の direct fast-path を regression pack と分けて保つ
+  1. `kilo_leaf_map_get_missing` の immediate-i64 fast-path を regression pack と分けて保つ
   2. `ny_main` の asm 差分、とくに `nyash.runtime_data.get_hh` の hot branch を読む
   3. `NYASH_NY_LLVM_LLC_FLAGS` は follow-up matrix に回したまま、決定打だけ残す
   4. `kilo_micro_array_getset` は baseline regression pack として固定する

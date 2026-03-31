@@ -34,7 +34,7 @@ Related:
 - Current hot symbol: `nyash.runtime_data.get_hh`.
 - Current measurable lever: `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs` plus `handle_cache.rs`.
 - Follow-up lever: `lang/c-abi/shims/hako_llvmc_ffi_common.inc` `llc` flags seam, which still accepts `NYASH_NY_LLVM_LLC_FLAGS` and now shows no stable matrix win.
-- Current read: `kilo_leaf_map_get_missing 99` landed at `c_ms=3 / ny_aot_ms=61 / ratio_cycles=0.01`, while `kilo_micro_array_getset 1x7` remains the regression pack at `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`.
+- Current read: `kilo_leaf_map_get_missing 0` landed at `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`, while `kilo_micro_array_getset 1x7` remains the regression pack at `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`.
 - Next search lane: `runtime_data_map_get_min` family, starting from the existing map provider / boundary smoke set.
 - Observability helpers: `tools/perf/save_micro_bundle.sh`, `tools/perf/diff_micro_c_vs_aot_asm.sh`, `tools/perf/run_micro_llc_flags_matrix.sh`.
 - Judge order: `leaf-proof micro -> micro kilo -> main kilo`, with `kilo_leaf_array_rmw_add1` first and `kilo_micro_array_getset` as the regression pack.

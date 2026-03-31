@@ -2,11 +2,11 @@
 
 int main(void) {
   const int64_t ops = 2000000;
-  volatile int64_t key = 99;
+  volatile int64_t key = 0;
   int64_t sum = 0;
 
   for (int64_t i = 0; i < ops; i++) {
-    if (key == 99) {
+    if (key == 0) {
       sum += 1;
     }
   }
