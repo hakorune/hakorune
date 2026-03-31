@@ -4,11 +4,11 @@
 // host boxes (ArrayBox/MapBox) without relying on static box-name guesses.
 // Manifest reading: all `nyash.runtime_data.*` rows are runtime-facade only.
 
-use super::handle_cache::with_array_or_map;
-use super::runtime_data_array_dispatch::{
-    runtime_data_array_get_hh, runtime_data_array_has_hh, runtime_data_array_push_hh,
-    runtime_data_array_set_hhh,
+use super::array_runtime_facade::{
+    array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_push_any,
+    array_runtime_set_any_key,
 };
+use super::handle_cache::with_array_or_map;
 use super::runtime_data_map_dispatch::{
     runtime_data_map_get_hh, runtime_data_map_has_hh, runtime_data_map_set_hhh,
 };
@@ -18,7 +18,7 @@ use super::runtime_data_map_dispatch::{
 pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |_| runtime_data_array_get_hh(recv_h, key_any),
+        |_| array_runtime_get_any_key(recv_h, key_any),
         |_| runtime_data_map_get_hh(recv_h, key_any),
     )
     .unwrap_or(0)
@@ -29,7 +29,7 @@ pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
 pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |_| runtime_data_array_set_hhh(recv_h, key_any, val_any),
+        |_| array_runtime_set_any_key(recv_h, key_any, val_any),
         |_| runtime_data_map_set_hhh(recv_h, key_any, val_any),
     )
     .unwrap_or(0)
@@ -40,7 +40,7 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
 pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |_| runtime_data_array_has_hh(recv_h, key_any),
+        |_| array_runtime_has_any_key(recv_h, key_any),
         |_| runtime_data_map_has_hh(recv_h, key_any),
     )
     .unwrap_or(0)
@@ -51,7 +51,7 @@ pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
 pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
     with_array_or_map(
         recv_h,
-        |_| runtime_data_array_push_hh(recv_h, val_any),
+        |_| array_runtime_push_any(recv_h, val_any),
         |_| 0,
     )
     .unwrap_or(0)

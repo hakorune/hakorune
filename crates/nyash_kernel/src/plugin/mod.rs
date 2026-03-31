@@ -27,7 +27,6 @@ mod map_slot_store;
 mod map_substrate;
 pub(crate) mod module_string_dispatch;
 pub mod runtime_data;
-mod runtime_data_array_dispatch;
 mod runtime_data_map_dispatch;
 pub mod semantics;
 pub mod string;

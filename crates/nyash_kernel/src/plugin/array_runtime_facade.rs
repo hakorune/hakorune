@@ -10,39 +10,30 @@ use super::array_string_slot::{array_string_indexof_by_index, array_string_len_b
 use super::value_codec::any_arg_to_index;
 
 #[inline(always)]
-fn decode_index_key(key_any: i64) -> Option<i64> {
-    any_arg_to_index(key_any)
-}
-
-#[inline(always)]
-fn decode_runtime_index(handle: i64, key_any: i64) -> Option<i64> {
+fn with_runtime_index_or_zero(handle: i64, key_any: i64, f: impl FnOnce(i64) -> i64) -> i64 {
     if !valid_handle(handle) {
-        return None;
+        return 0;
     }
-    decode_index_key(key_any)
+    let Some(idx) = any_arg_to_index(key_any) else {
+        return 0;
+    };
+    f(idx)
 }
 
 // Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
 // These are not the canonical `.hako` collection-owner symbols.
 pub(super) fn array_runtime_get_any_key(handle: i64, key_any: i64) -> i64 {
-    let Some(idx) = decode_runtime_index(handle, key_any) else {
-        return 0;
-    };
-    array_runtime_get_idx(handle, idx)
+    with_runtime_index_or_zero(handle, key_any, |idx| array_runtime_get_idx(handle, idx))
 }
 
 pub(super) fn array_runtime_set_any_key(handle: i64, key_any: i64, val_any: i64) -> i64 {
-    let Some(idx) = decode_runtime_index(handle, key_any) else {
-        return 0;
-    };
-    array_runtime_set_idx_any(handle, idx, val_any)
+    with_runtime_index_or_zero(handle, key_any, |idx| {
+        array_runtime_set_idx_any(handle, idx, val_any)
+    })
 }
 
 pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
-    let Some(idx) = decode_runtime_index(handle, key_any) else {
-        return 0;
-    };
-    array_runtime_has_idx(handle, idx)
+    with_runtime_index_or_zero(handle, key_any, |idx| array_runtime_has_idx(handle, idx))
 }
 
 pub(super) fn array_runtime_push_any(handle: i64, val_any: i64) -> i64 {
