@@ -32,6 +32,7 @@ mod increment;
 mod loop_true_early_exit;
 mod walk;
 
+#[allow(unused_imports)]
 pub(crate) use condition::{extract_loop_variable, is_true_literal};
 #[allow(unused_imports)]
 pub(crate) use control_flow::{
@@ -40,6 +41,7 @@ pub(crate) use control_flow::{
     ControlFlowCounts, ControlFlowDetector,
 };
 pub(crate) use increment::extract_loop_increment_plan;
+#[allow(unused_imports)]
 pub(crate) use loop_true_early_exit::{validate_break_in_simple_if, validate_continue_at_end};
 pub(crate) use walk::{flatten_stmt_list, strip_trailing_continue_view, walk_stmt_list};
 

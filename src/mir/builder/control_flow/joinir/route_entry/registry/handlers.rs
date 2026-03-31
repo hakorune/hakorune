@@ -1,20 +1,12 @@
-use crate::mir::builder::control_flow::plan::composer;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_types::LoopCondBreakAcceptKind;
-use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
-use crate::mir::builder::control_flow::plan::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlanBuildOutcome};
-use crate::mir::builder::control_flow::plan::recipe_tree::RecipeComposer;
-use crate::mir::builder::control_flow::plan::single_planner::{
-    planner_rule_route_label, PlanRuleId,
-};
-use crate::mir::builder::control_flow::plan::verifier::PlanVerifier;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 use super::super::router::{lower_verified_core_plan, LoopRouteContext};
-use super::types::{route_labels, PlannerFirstMode, RouterEnv, StandardEntry};
-use super::utils::{emit_planner_first, loop_break_recipe_needs_flowbox_adopt_tag_in_strict};
+use super::types::{RouterEnv, StandardEntry};
+use super::utils::emit_planner_first;
 
 mod generic;
 pub(crate) use generic::{route_generic_loop_v0, route_generic_loop_v1};

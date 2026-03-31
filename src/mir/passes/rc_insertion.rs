@@ -2,6 +2,7 @@
 //!
 //! Facade module. The implementation lives in `rc_insertion_helpers`.
 
+#[cfg(not(feature = "rc-insertion-minimal"))]
 use crate::mir::MirModule;
 
 pub use super::rc_insertion_helpers::RcInsertionStats;
