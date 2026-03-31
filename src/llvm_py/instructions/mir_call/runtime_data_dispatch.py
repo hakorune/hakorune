@@ -25,7 +25,7 @@ _RUNTIME_DATA_METHODS = {
 }
 
 
-_RUNTIME_DATA_ARRAY_METHODS = {
+_ARRAY_COLLECTION_METHODS = {
     "get": ("nyash.runtime_data.get_hh", "unified_runtime_data_get", 1),
     "push": ("nyash.array.slot_append_hh", "unified_array_slot_append_hh", 1),
     "set": ("nyash.runtime_data.set_hhh", "unified_runtime_data_set", 2),
@@ -33,14 +33,14 @@ _RUNTIME_DATA_ARRAY_METHODS = {
 }
 
 
-_RUNTIME_DATA_ARRAY_I64_KEY_METHODS = {
+_ARRAY_COLLECTION_I64_KEY_METHODS = {
     "get": ("nyash.array.slot_load_hi", "unified_array_slot_load_hi", 1),
     "set": ("nyash.array.slot_store_hih", "unified_array_slot_store_hih", 2),
     "has": ("nyash.runtime_data.has_hh", "unified_runtime_data_has", 1),
 }
 
 
-_RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS = {
+_ARRAY_COLLECTION_I64_KEY_I64_VALUE_METHODS = {
     "set": ("nyash.array.slot_store_hii", "unified_array_slot_store_hii", 2),
 }
 
@@ -81,6 +81,44 @@ def _reset_runtime_data_array_route_policy_cache_for_tests():
     _runtime_data_array_route_policy.cache_clear()
 
 
+def _select_array_collection_call_spec(*, method_name, resolver=None, arg_vids=None):
+    if prefer_runtime_data_array_i64_key_route(
+        method=method_name,
+        resolver=resolver,
+        arg_vids=arg_vids,
+    ):
+        if prefer_runtime_data_array_i64_key_i64_value_route(
+            method=method_name,
+            resolver=resolver,
+            arg_vids=arg_vids,
+        ):
+            spec = _ARRAY_COLLECTION_I64_KEY_I64_VALUE_METHODS.get(method_name)
+            if spec is None:
+                spec = _ARRAY_COLLECTION_I64_KEY_METHODS.get(method_name)
+        else:
+            spec = _ARRAY_COLLECTION_I64_KEY_METHODS.get(method_name)
+        if spec is None:
+            spec = _ARRAY_COLLECTION_METHODS.get(method_name)
+    else:
+        spec = _ARRAY_COLLECTION_METHODS.get(method_name)
+    return spec
+
+
+def select_array_collection_call_spec(*, method, resolver=None, arg_vids=None):
+    """
+    Canonical daily ArrayBox symbol table for the K2-core RawArray seam.
+
+    This keeps ArrayBox lowering and RuntimeDataBox(array-specialized) lowering on
+    the same `nyash.array.slot_*` contract while leaving fallback on the
+    `nyash.runtime_data.*` facade when proof is insufficient.
+    """
+    return _select_array_collection_call_spec(
+        method_name=str(method or ""),
+        resolver=resolver,
+        arg_vids=arg_vids,
+    )
+
+
 def select_runtime_data_call_spec(
     *,
     method,
@@ -112,25 +150,11 @@ def select_runtime_data_call_spec(
         receiver_vid=receiver_vid,
         arg_vids=arg_vids,
     ):
-        if prefer_runtime_data_array_i64_key_route(
-            method=method_name,
+        spec = _select_array_collection_call_spec(
+            method_name=method_name,
             resolver=resolver,
             arg_vids=arg_vids,
-        ):
-            if prefer_runtime_data_array_i64_key_i64_value_route(
-                method=method_name,
-                resolver=resolver,
-                arg_vids=arg_vids,
-            ):
-                spec = _RUNTIME_DATA_ARRAY_I64_KEY_I64_VALUE_METHODS.get(method_name)
-                if spec is None:
-                    spec = _RUNTIME_DATA_ARRAY_I64_KEY_METHODS.get(method_name)
-            else:
-                spec = _RUNTIME_DATA_ARRAY_I64_KEY_METHODS.get(method_name)
-            if spec is None:
-                spec = _RUNTIME_DATA_ARRAY_METHODS.get(method_name)
-        else:
-            spec = _RUNTIME_DATA_ARRAY_METHODS.get(method_name)
+        )
     else:
         spec = _RUNTIME_DATA_METHODS.get(method_name)
     return spec

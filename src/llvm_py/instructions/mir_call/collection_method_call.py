@@ -9,11 +9,10 @@ from typing import Callable, List, Optional
 
 from llvmlite import ir
 
-from .auto_specialize import (
-    prefer_array_i64_key_i64_value_route,
-    prefer_array_i64_key_route,
+from .runtime_data_dispatch import (
+    lower_runtime_data_method_call,
+    select_array_collection_call_spec,
 )
-from .runtime_data_dispatch import lower_runtime_data_method_call
 
 
 def _resolve_or_zero(
@@ -22,6 +21,34 @@ def _resolve_or_zero(
     if index >= len(arg_ids):
         return zero
     return resolve_arg(arg_ids[index]) or zero
+
+
+def _lower_call_spec(
+    *,
+    builder: ir.IRBuilder,
+    declare: Callable,
+    spec,
+    recv_h,
+    arg_ids: List[int],
+    resolve_arg: Callable[[int], Optional[ir.Value]],
+):
+    i64 = ir.IntType(64)
+    zero = ir.Constant(i64, 0)
+    symbol, call_name, arity = spec
+    if arity == 1:
+        if not arg_ids:
+            return zero
+        arg0 = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
+        callee = declare(symbol, i64, [i64, i64])
+        return builder.call(callee, [recv_h, arg0], name=call_name)
+    if arity == 2:
+        if len(arg_ids) < 2:
+            return recv_h
+        arg0 = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
+        arg1 = _resolve_or_zero(resolve_arg, arg_ids, 1, zero)
+        callee = declare(symbol, i64, [i64, i64, i64])
+        return builder.call(callee, [recv_h, arg0, arg1], name=call_name)
+    return None
 
 
 def _lower_array_collection_method_call(
@@ -37,45 +64,31 @@ def _lower_array_collection_method_call(
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
 
-    if method_name == "get":
-        key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
-        if not arg_ids:
-            return zero
-        if prefer_array_i64_key_route(method_name, resolver, arg_ids):
-            callee = declare("nyash.array.slot_load_hi", i64, [i64, i64])
-            return builder.call(callee, [recv_h, key], name="unified_array_slot_load_hi")
-        callee = declare("nyash.runtime_data.get_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, key], name="unified_runtime_data_get_hh")
+    # Preserve the existing fail-safe return shape for missing arguments.
+    if method_name in ("get", "has") and not arg_ids:
+        return zero
+    if method_name in ("push", "set") and (
+        (method_name == "push" and not arg_ids) or (method_name == "set" and len(arg_ids) < 2)
+    ):
+        return recv_h
 
-    if method_name == "push":
-        value = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
-        if not arg_ids:
-            return recv_h
-        callee = declare("nyash.array.slot_append_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, value], name="unified_array_slot_append_hh")
-
-    if method_name == "set":
-        if len(arg_ids) < 2:
-            return recv_h
-        key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
-        value = _resolve_or_zero(resolve_arg, arg_ids, 1, zero)
-        if prefer_array_i64_key_route(method_name, resolver, arg_ids):
-            if prefer_array_i64_key_i64_value_route(method_name, resolver, arg_ids):
-                callee = declare("nyash.array.slot_store_hii", i64, [i64, i64, i64])
-                return builder.call(callee, [recv_h, key, value], name="unified_array_slot_store_hii")
-            callee = declare("nyash.array.slot_store_hih", i64, [i64, i64, i64])
-            return builder.call(callee, [recv_h, key, value], name="unified_array_slot_store_hih")
-        callee = declare("nyash.runtime_data.set_hhh", i64, [i64, i64, i64])
-        return builder.call(callee, [recv_h, key, value], name="unified_runtime_data_set_hhh")
-
-    if method_name == "has":
-        key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
-        if not arg_ids:
-            return zero
-        callee = declare("nyash.runtime_data.has_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, key], name="unified_runtime_data_has_hh")
-
-    return None
+    # Keep ArrayBox and RuntimeDataBox(array-specialized) on the same canonical
+    # RawArray symbol table so lowering truth cannot drift across entrypoints.
+    spec = select_array_collection_call_spec(
+        method=method_name,
+        resolver=resolver,
+        arg_vids=arg_ids,
+    )
+    if spec is None:
+        return None
+    return _lower_call_spec(
+        builder=builder,
+        declare=declare,
+        spec=spec,
+        recv_h=recv_h,
+        arg_ids=arg_ids,
+        resolve_arg=resolve_arg,
+    )
 
 
 def _lower_map_collection_method_call(

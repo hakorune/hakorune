@@ -10,12 +10,11 @@ from typing import Callable, Optional
 from llvmlite import ir
 
 from instructions.mir_call.auto_specialize import (
-    prefer_runtime_data_array_i64_key_i64_value_route,
-    prefer_runtime_data_array_i64_key_route,
     receiver_is_arrayish,
     receiver_is_mapish,
     receiver_is_stringish,
 )
+from instructions.mir_call.runtime_data_dispatch import select_array_collection_call_spec
 from utils.resolver_helpers import get_box_type
 
 
@@ -35,6 +34,27 @@ def try_lower_collection_boxcall(
     i64 = ir.IntType(64)
     recv_h = ensure_handle(recv_val)
 
+    def _call_from_spec(spec):
+        if spec is None:
+            return None
+        symbol, call_name, arity = spec
+        if arity == 1:
+            value = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
+            if value is None:
+                value = ir.Constant(i64, 0)
+            callee = declare(module, symbol, i64, [i64, i64])
+            return builder.call(callee, [recv_h, value], name=call_name)
+        if arity == 2:
+            key = resolve_arg(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
+            if key is None:
+                key = ir.Constant(i64, 0)
+            value = resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
+            if value is None:
+                value = ir.Constant(i64, 0)
+            callee = declare(module, symbol, i64, [i64, i64, i64])
+            return builder.call(callee, [recv_h, key, value], name=call_name)
+        return None
+
     if method_name == "size":
         known_box_name = get_box_type(resolver, box_vid)
         if receiver_is_stringish(resolver, box_vid):
@@ -50,66 +70,62 @@ def try_lower_collection_boxcall(
         return builder.call(callee, [recv_h], name="any_size_h")
 
     if method_name == "get":
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
+            return _call_from_spec(
+                select_array_collection_call_spec(
+                    method=method_name,
+                    resolver=resolver,
+                    arg_vids=args,
+                )
+            )
         k = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
         if k is None:
             k = ir.Constant(i64, 0)
-        known_box_name = get_box_type(resolver, box_vid)
-        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
-            if prefer_runtime_data_array_i64_key_route(
-                method=method_name,
-                resolver=resolver,
-                arg_vids=args,
-            ):
-                callee = declare(module, "nyash.array.slot_load_hi", i64, [i64, i64])
-                return builder.call(callee, [recv_h, k], name="array_slot_load_hi")
-            callee = declare(module, "nyash.runtime_data.get_hh", i64, [i64, i64])
-            return builder.call(callee, [recv_h, k], name="runtime_data_get_hh")
         callee = declare(module, "nyash.map.slot_load_hh", i64, [i64, i64])
         return builder.call(callee, [recv_h, k], name="map_slot_load_hh")
 
     if method_name == "push":
-        v0 = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
-        if v0 is None:
-            v0 = ir.Constant(i64, 0)
-        callee = declare(module, "nyash.array.slot_append_hh", i64, [i64, i64])
-        return builder.call(callee, [recv_h, v0], name="arr_slot_append_hh")
+        return _call_from_spec(
+            select_array_collection_call_spec(
+                method=method_name,
+                resolver=resolver,
+                arg_vids=args,
+            )
+        )
 
     if method_name == "set":
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
+            return _call_from_spec(
+                select_array_collection_call_spec(
+                    method=method_name,
+                    resolver=resolver,
+                    arg_vids=args,
+                )
+            )
         k = resolve_arg(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
         if k is None:
             k = ir.Constant(i64, 0)
         v = resolve_arg(args[1]) if len(args) > 1 else ir.Constant(i64, 0)
         if v is None:
             v = ir.Constant(i64, 0)
-        known_box_name = get_box_type(resolver, box_vid)
-        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
-            if prefer_runtime_data_array_i64_key_route(
-                method=method_name,
-                resolver=resolver,
-                arg_vids=args,
-            ):
-                if prefer_runtime_data_array_i64_key_i64_value_route(
-                    method=method_name,
-                    resolver=resolver,
-                    arg_vids=args,
-                ):
-                    callee = declare(module, "nyash.array.slot_store_hii", i64, [i64, i64, i64])
-                    return builder.call(callee, [recv_h, k, v], name="array_slot_store_hii")
-                callee = declare(module, "nyash.array.slot_store_hih", i64, [i64, i64, i64])
-                return builder.call(callee, [recv_h, k, v], name="array_slot_store_hih")
-            callee = declare(module, "nyash.runtime_data.set_hhh", i64, [i64, i64, i64])
-            return builder.call(callee, [recv_h, k, v], name="runtime_data_set_hhh")
         callee = declare(module, "nyash.map.slot_store_hhh", i64, [i64, i64, i64])
         return builder.call(callee, [recv_h, k, v], name="map_slot_store_hhh")
 
     if method_name == "has":
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
+            return _call_from_spec(
+                select_array_collection_call_spec(
+                    method=method_name,
+                    resolver=resolver,
+                    arg_vids=args,
+                )
+            )
         k = resolve_arg(args[0]) if args else ir.Constant(i64, 0)
         if k is None:
             k = ir.Constant(i64, 0)
-        known_box_name = get_box_type(resolver, box_vid)
-        if known_box_name == "ArrayBox" or receiver_is_arrayish(resolver, box_vid):
-            callee = declare(module, "nyash.runtime_data.has_hh", i64, [i64, i64])
-            return builder.call(callee, [recv_h, k], name="runtime_data_has_hh")
         callee = declare(module, "nyash.map.probe_hh", i64, [i64, i64])
         return builder.call(callee, [recv_h, k], name="map_probe_hh")
 

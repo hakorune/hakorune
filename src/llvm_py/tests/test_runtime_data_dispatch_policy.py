@@ -8,6 +8,7 @@ from src.llvm_py.instructions.mir_call.runtime_data_dispatch import (
     _prefer_array_mono_route_default,
     _reset_runtime_data_array_route_policy_cache_for_tests,
     lower_runtime_data_field_call,
+    select_array_collection_call_spec,
     select_runtime_data_call_spec,
 )
 
@@ -142,6 +143,36 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
             receiver_vid=1,
             arg_vids=[2],
             prefer_array_mono_route=True,
+        )
+        self.assertEqual(spec[0], "nyash.runtime_data.has_hh")
+
+    def test_array_collection_selector_prefers_slot_load_for_i64_get(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "ArrayBox"},
+                2: "i64",
+            },
+            integerish_ids={2},
+        )
+        spec = select_array_collection_call_spec(
+            method="get",
+            resolver=resolver,
+            arg_vids=[2],
+        )
+        self.assertEqual(spec[0], "nyash.array.slot_load_hi")
+
+    def test_array_collection_selector_keeps_runtime_data_has(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "ArrayBox"},
+                2: "i64",
+            },
+            integerish_ids={2},
+        )
+        spec = select_array_collection_call_spec(
+            method="has",
+            resolver=resolver,
+            arg_vids=[2],
         )
         self.assertEqual(spec[0], "nyash.runtime_data.has_hh")
 
