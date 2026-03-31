@@ -55,7 +55,7 @@ Related:
   - `Rune` stays a parallel compiler-contract lane, not a step inside `K-axis`
   - post-`K0` engineering line is read as one `K-migration` track
   - next structural step is `K2-core acceptance lock`
-  - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests (`runtime_data_invalid_handle_returns_zero`, `runtime_data_array_round_trip_keeps_rawarray_contract`, `legacy_set_h_returns_zero_but_applies_value`, `hi_hii_aliases_keep_fail_safe_contract`, `slot_load_store_raw_aliases_keep_contract`, `slot_append_raw_aliases_keep_contract`)
+  - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests (`runtime_data_invalid_handle_returns_zero`, `runtime_data_array_round_trip_keeps_rawarray_contract`, `legacy_set_h_returns_zero_but_applies_value`, `hi_hii_aliases_keep_fail_safe_contract`, `slot_load_store_raw_aliases_keep_contract`, `slot_append_raw_alias_keeps_contract`)
   - `RawMap` is `K2-wide` second and stays deferred while `RuntimeDataBox` remains facade-only
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps

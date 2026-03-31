@@ -381,20 +381,28 @@ mod tests {
 
     #[test]
     fn mir_builder_stageb_program_json_returns_mir_json_handle() {
-        let recv = module_handle(MIR_BUILDER_MODULE);
-        let program_json = encode_string_handle(
-            r#"{"body":[{"expr":{"args":[{"name":"args","type":"Var"}],"name":"StageBDriverBox.main","type":"Call"},"type":"Return"}],"kind":"Program","version":0}"#,
+        with_env_vars(
+            &[
+                ("HAKO_MIR_BUILDER_INTERNAL", "1"),
+                ("HAKO_SELFHOST_NO_DELEGATE", "0"),
+            ],
+            || {
+                let recv = module_handle(MIR_BUILDER_MODULE);
+                let program_json = encode_string_handle(
+                    r#"{"body":[{"expr":{"args":[{"name":"args","type":"Var"}],"name":"StageBDriverBox.main","type":"Call"},"type":"Return"}],"kind":"Program","version":0}"#,
+                );
+                let out = try_dispatch(recv, "emit_from_program_json_v0", 1, program_json, 0)
+                    .expect("dispatch result");
+                assert!(out > 0, "dispatch must return a string handle");
+                let message = decode_result(out);
+                assert!(
+                    message.starts_with('{'),
+                    "expected MIR json payload, got: {}",
+                    message
+                );
+                assert!(message.contains("functions"));
+            },
         );
-        let out = try_dispatch(recv, "emit_from_program_json_v0", 1, program_json, 0)
-            .expect("dispatch result");
-        assert!(out > 0, "dispatch must return a string handle");
-        let message = decode_result(out);
-        assert!(
-            message.starts_with('{'),
-            "expected MIR json payload, got: {}",
-            message
-        );
-        assert!(message.contains("functions"));
     }
 
     #[test]

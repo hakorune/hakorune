@@ -118,7 +118,7 @@ Smoke / evidence gate:
 - `legacy_set_h_returns_zero_but_applies_value`
 - `hi_hii_aliases_keep_fail_safe_contract`
 - `slot_load_store_raw_aliases_keep_contract`
-- `slot_append_raw_aliases_keep_contract`
+- `slot_append_raw_alias_keeps_contract`
 - treat those as the existing `nyash_kernel` RawArray contract evidence for `K2-core acceptance lock`.
 
 Stop line:
@@ -162,7 +162,7 @@ The phase plan is considered "done-enough to return to perf-kilo" when:
   - `legacy_set_h_returns_zero_but_applies_value`
   - `hi_hii_aliases_keep_fail_safe_contract`
   - `slot_load_store_raw_aliases_keep_contract`
-  - `slot_append_raw_aliases_keep_contract`
+  - `slot_append_raw_alias_keeps_contract`
   - `runtime_data_map_get_keeps_mixed_runtime_i64_contract` stays evidence-only for the parked map lane
 6. regression/perf evidence stays recorded against the current Rust baseline:
   - `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 3`

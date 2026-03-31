@@ -33,7 +33,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `legacy_set_h_returns_zero_but_applies_value`
   - `hi_hii_aliases_keep_fail_safe_contract`
   - `slot_load_store_raw_aliases_keep_contract`
-  - `slot_append_raw_aliases_keep_contract`
+  - `slot_append_raw_alias_keeps_contract`
 - perf and historical evidence below are appendix material only; they do not change the order above.
 
 ## Immediate Handoff (2026-03-31)
