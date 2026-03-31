@@ -1,14 +1,13 @@
-use super::array_compat::nyash_array_length_h;
 use super::array_runtime_facade::{
-    array_runtime_cap, array_runtime_get_idx, array_runtime_grow, array_runtime_push_any,
-    array_runtime_reserve, array_runtime_rmw_add1_idx, array_runtime_set_idx_any,
+    array_runtime_cap, array_runtime_get_idx, array_runtime_grow, array_runtime_len,
+    array_runtime_push_any, array_runtime_reserve, array_runtime_rmw_add1_idx, array_runtime_set_idx_any,
     array_runtime_set_idx_i64, array_runtime_string_indexof_at, array_runtime_string_len_at,
 };
 
 // Mainline substrate aliases used by `.hako` collection owners and adapter defaults.
 #[export_name = "nyash.array.slot_len_h"]
 pub extern "C" fn nyash_array_slot_len_h_alias(handle: i64) -> i64 {
-    nyash_array_length_h(handle)
+    array_runtime_len(handle)
 }
 
 #[export_name = "nyash.array.slot_cap_h"]

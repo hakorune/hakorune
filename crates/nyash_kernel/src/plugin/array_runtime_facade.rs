@@ -1,5 +1,5 @@
 use super::array_guard::valid_handle;
-use super::array_compat::append_integer_raw;
+use super::array_compat::{append_integer_raw, nyash_array_length_h};
 use super::array_slot_append::array_slot_append_any;
 use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
 use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
@@ -75,7 +75,11 @@ pub(super) fn array_runtime_rmw_add1_idx(handle: i64, idx: i64) -> i64 {
     array_slot_rmw_add1_i64(handle, idx)
 }
 
-// Capacity facade.
+// Length/capacity facade.
+pub(super) fn array_runtime_len(handle: i64) -> i64 {
+    nyash_array_length_h(handle)
+}
+
 pub(super) fn array_runtime_cap(handle: i64) -> i64 {
     array_slot_cap_i64(handle)
 }

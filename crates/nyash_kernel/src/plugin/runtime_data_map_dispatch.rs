@@ -1,6 +1,4 @@
-use super::handle_cache::{
-    clear_map_lookup_cache, map_lookup_cache_hit, with_map_lookup_cached,
-};
+use super::handle_cache::{map_lookup_cache_hit, with_map_lookup_cached};
 use super::map_key_codec::map_key_string_from_any;
 use super::map_probe::map_probe_contains_str;
 use super::map_slot_store::map_slot_store_any;
@@ -24,7 +22,6 @@ pub(super) fn runtime_data_map_get_hh(handle: i64, key_any: i64) -> i64 {
 
 #[inline(always)]
 pub(super) fn runtime_data_map_set_hhh(handle: i64, key_any: i64, val_any: i64) -> i64 {
-    clear_map_lookup_cache();
     map_slot_store_any(handle, key_any, val_any)
 }
 
