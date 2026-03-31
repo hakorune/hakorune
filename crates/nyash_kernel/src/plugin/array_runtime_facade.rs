@@ -1,10 +1,12 @@
 use super::array_guard::valid_handle;
 use super::array_compat::append_integer_raw;
 use super::array_slot_append::array_slot_append_any;
+use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
 use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
 use super::array_slot_store::{
     array_slot_store_any, array_slot_store_i64, array_slot_store_string_handle,
 };
+use super::array_string_slot::{array_string_indexof_by_index, array_string_len_by_index};
 use super::value_codec::any_arg_to_index;
 
 #[inline(always)]
@@ -12,33 +14,32 @@ fn decode_index_key(key_any: i64) -> Option<i64> {
     any_arg_to_index(key_any)
 }
 
+#[inline(always)]
+fn decode_runtime_index(handle: i64, key_any: i64) -> Option<i64> {
+    if !valid_handle(handle) {
+        return None;
+    }
+    decode_index_key(key_any)
+}
+
 // Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
 // These are not the canonical `.hako` collection-owner symbols.
 pub(super) fn array_runtime_get_any_key(handle: i64, key_any: i64) -> i64 {
-    if !valid_handle(handle) {
-        return 0;
-    }
-    let Some(idx) = decode_index_key(key_any) else {
+    let Some(idx) = decode_runtime_index(handle, key_any) else {
         return 0;
     };
     array_slot_load_encoded_i64(handle, idx)
 }
 
 pub(super) fn array_runtime_set_any_key(handle: i64, key_any: i64, val_any: i64) -> i64 {
-    if !valid_handle(handle) {
-        return 0;
-    }
-    let Some(idx) = decode_index_key(key_any) else {
+    let Some(idx) = decode_runtime_index(handle, key_any) else {
         return 0;
     };
     array_slot_store_any(handle, idx, val_any)
 }
 
 pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
-    if !valid_handle(handle) {
-        return 0;
-    }
-    let Some(idx) = decode_index_key(key_any) else {
+    let Some(idx) = decode_runtime_index(handle, key_any) else {
         return 0;
     };
     array_slot_has_index(handle, idx)
@@ -49,6 +50,26 @@ pub(super) fn array_runtime_push_any(handle: i64, val_any: i64) -> i64 {
         return 0;
     }
     array_slot_append_any(handle, val_any)
+}
+
+pub(super) fn array_runtime_cap(handle: i64) -> i64 {
+    array_slot_cap_i64(handle)
+}
+
+pub(super) fn array_runtime_reserve(handle: i64, additional: i64) -> i64 {
+    array_slot_reserve_i64(handle, additional)
+}
+
+pub(super) fn array_runtime_grow(handle: i64, target_capacity: i64) -> i64 {
+    array_slot_grow_i64(handle, target_capacity)
+}
+
+pub(super) fn array_runtime_string_len_at(handle: i64, idx: i64) -> i64 {
+    array_string_len_by_index(handle, idx)
+}
+
+pub(super) fn array_runtime_string_indexof_at(handle: i64, idx: i64, needle_h: i64) -> i64 {
+    array_string_indexof_by_index(handle, idx, needle_h)
 }
 
 #[export_name = "nyash.array.get_hh"]
