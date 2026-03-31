@@ -2,7 +2,7 @@
 pub mod mir_joinir_funcscanner_append_defs;
 #[path = "../../mir_joinir_funcscanner_trim.rs"]
 pub mod mir_joinir_funcscanner_trim;
-#[path = "../../mir_joinir_if_select.rs"]
+#[path = "../../mir_joinir_if_select/mod.rs"]
 pub mod mir_joinir_if_select;
 #[path = "../../mir_joinir_min.rs"]
 pub mod mir_joinir_min;

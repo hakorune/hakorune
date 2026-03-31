@@ -34,7 +34,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `src/backend/wasm/shape_table.rs` は `src/backend/wasm/shape_table/{native,p10,tests}.rs` に分割済み
   - `src/backend/mir_interpreter/handlers/calls/method.rs` は dispatch/tests を `src/backend/mir_interpreter/handlers/calls/method/{dispatch,tests}.rs` に分割済み
   - `src/runner/modes/vm_hako/tests/boxcall_contract.rs` は `subset/compile` を `src/runner/modes/vm_hako/tests/boxcall_contract/{subset,compile}.rs` に分割済み
-  - `src/bin/rc_insertion_selfcheck.rs` は `helpers/cases` に分割済み
+  - `src/bin/rc_insertion_selfcheck.rs` は `helpers` と `cases/{mod,basic,jump,misc}` に分割済み
   - `src/mir/passes/rc_insertion_helpers.rs` は `cleanup/contracts/cycles/plan/apply/types/util` を外出し済み
   - `src/mir/builder/control_flow/plan/composer/coreloop_v1_tests.rs` は scenario 別サブモジュールに分割済み
   - `src/mir/optimizer.rs` は diagnostics ヘルパーを `src/mir/optimizer/diagnostics.rs` に分割済み
@@ -63,9 +63,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako` / `lang/src/compiler/entry/func_scanner.hako` / `lang/src/compiler/mirbuilder/stmt_handlers/return_stmt_handler.hako` / `lang/src/runner/stage1_cli.hako` は分割済み
   - `stage1_cli.stage2` exact emit compat probe は green になり、`stage1_cli` 本体は run-only bootstrap output のまま維持する
   - `launcher` は `dispatch` / `input_contract` / `artifact_io` / `payload_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
-  - 次は `src/tests/mir_joinir_if_select.rs` か `src/bin/rc_insertion_selfcheck/cases.rs` の整理が自然
+  - `src/tests/mir_joinir_if_select.rs` は `mir_joinir_if_select/{mod,tests}.rs` に分割済み
+  - `src/bin/rc_insertion_selfcheck/cases.rs` は `cases/{mod,basic,jump,misc}.rs` に分割済み
   - `handlers` は `generic` route を外し、残りの route table 整理は別ステップで続ける
-  - 次は `lang/src/runner/launcher/artifact_io.hako` か `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs` の残り整理へ進む
+  - 次は `src/mir/builder/control_flow/plan/parts/loop_.rs` か `lang/src/runner/launcher/artifact_io.hako` へ進む
 
 ## CI Notes
 
