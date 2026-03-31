@@ -175,8 +175,14 @@ run_quick() {
   run_step "cargo check" \
     cargo check --bin hakorune
 
+  run_step "ABI/decl codegen drift guard" \
+    bash -lc 'python3 tools/abi_manifest_codegen.py --check && python3 tools/backend_runtime_decl_manifest_codegen.py --check'
+
   run_step "llvm_py unittest (strlen_fast)" \
     env PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
+
+  run_step "llvm_py unittest (rawarray manifest lock)" \
+    env PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_rawarray_manifest_lock.py
 
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
