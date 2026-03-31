@@ -218,6 +218,7 @@ hakorune emit mir-json [-o <out>] [--quiet] <source.hako>
   - `emit program-json` wrapper は retired で、mainline proof には使わない。raw direct `stage1_cli.hako emit program-json` lane は diagnostics-only pin として扱う。
   - 直接 EXE を叩く場合も同じ環境変数を手動で設定すること（`NYASH_NYRT_SILENT_RESULT=1 ./target/selfhost/hakorune ...`）。  
     これにより、stdout は JSON のみを返し、終了コードで成否を判別できる（llvmlite ハーネスと同一の契約）。
+  - `tools/selfhost/build_stage1.sh` の Stage1 artifact kinds は `launcher_native_entry.hako` / `stage1_cli_env_entry.hako` の薄い entry stub を使う。実際の CLI ロジックは `launcher.hako` / `stage1_cli_env.hako` 側に残す。
 - 現状の制約（2025-11-15 時点）:
   - `launcher.hako` の Stage‑B Program(JSON) と `--program-json-to-mir` route は、現在は `HakoCli.*` defs と root `user_box_decls` を保持する。`Unknown Box type: HakoCli` は current blocker ではない。
   - `launcher.hako` の `build exe` source lane は root-first compile へ lower されるので、temp MIR JSON path が日常 transport を担うことはない。

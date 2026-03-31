@@ -135,11 +135,13 @@ Script
   - Builds a selfhost executable from a Nyash/Hako entry point.
   - Artifact kinds:
     - `launcher-exe` (default): run-oriented launcher artifact
-      - entry: `lang/src/runner/launcher.hako`
+      - entry: `lang/src/runner/launcher_native_entry.hako`
       - output: `target/selfhost/hakorune`
     - `stage1-cli`: bootstrap output artifact for the reduced Stage1 lane
-      - entry: `lang/src/runner/stage1_cli_env.hako`
+      - entry: `lang/src/runner/stage1_cli_env_entry.hako`
       - output: `target/selfhost/hakorune.stage1_cli`
+  - These entry files are thin run-only stubs; the logical CLI owners stay in
+    `lang/src/runner/launcher.hako` and `lang/src/runner/stage1_cli_env.hako`.
   - Writes sidecar metadata: `<out>.artifact_kind`
 
 Usage
