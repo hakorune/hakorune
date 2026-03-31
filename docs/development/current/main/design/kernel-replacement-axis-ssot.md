@@ -27,7 +27,7 @@ Related:
 
 - `stage0/stage1/stage2-mainline/stage2+` を置換進捗の語に流用しない。
 - kernel の本当の置換進捗は、`K0 / K1 / K2(core|wide)` replacement axis で読む。
-- visible engineering order is `Rune lane (parallel)` plus `K0 -> K-migration`.
+- current active order is `stage / docs / naming` -> `K1 done-enough` -> `K2-core` -> `K2-wide deferred` -> `zero-rust default`.
 - 責務分割は変えず、`K2` を substrate era として昇格する。
 - default target を `zero-rust` に寄せるが、bootstrap/recovery/reference/buildability keep と native metal keep は明示 keep にする。
 
@@ -72,12 +72,12 @@ Public-facing roadmap text may explain `K1` as the point where the semantic kern
 
 ## Implementation Flow
 
-- `Rune` is a parallel compiler-contract lane, not a serial step inside `K-axis`.
-- the engineering line after `K0` is one `K-migration` track.
+- `Rune` is the canonical primitive control plane and is landed/keep, not the current blocker lane.
+- current replacement order is `K0 -> K1 -> K2-core`.
 - `K1` and `K2` remain separate gates / acceptance checkpoints.
 - `K1` still means semantic owner swap.
 - `K2` still means substrate era.
-- the point of the compression is to make the build order feel like one post-`K0` line while keeping the gates distinct.
+- the point of the current reshaping is to make the visible replacement order read directly as `K0 -> K1 -> K2-core` while keeping the gates distinct.
 
 ## Responsibility Split
 
@@ -195,10 +195,16 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
   - `K1` active and done-enough on the collection semantic-owner wave
   - `K2-core` not yet entered as a daily owner replacement lane
 - visible order therefore reads as:
-  - `Rune lane (parallel, compiler-contract side)`
-  - `K0 -> K-migration`
+  - `K0`
+  - `K1`
   - `K2-core acceptance lock`
   - `RawMap` deferred in `K2-wide`
+- current active order is:
+  - `stage / docs / naming` fixation
+  - `K1 done-enough` stop-line fixation
+  - `K2-core acceptance lock`
+  - `K2-wide` deferred follow-up
+  - `zero-rust` default operationalization
 - therefore the next structural step is not another broad owner rename.
 - the next structural step is to make `RawArray` the first truthful `K2-core` pilot.
 

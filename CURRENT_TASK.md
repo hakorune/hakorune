@@ -19,13 +19,15 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Order at a Glance
 
-1. `Rune lane (parallel, compiler-contract side)`
-2. `K0 -> K-migration`
+1. `stage / docs / naming` fixation
+2. `K1 done-enough` stop-line fixation
 3. `K2-core acceptance lock`
-4. `RawMap` deferred in `K2-wide`; map perf stays evidence/regression only
+4. `K2-wide` deferred follow-up
+5. `zero-rust` default operationalization
 
-- `K0 / K1 / K2(core|wide)` stays the replacement reading.
-- the post-`K0` engineering line is one `K-migration`, but `K1` / `K2` remain separate acceptance gates.
+- replacement progress stays `K0 / K1 / K2(core|wide)`.
+- current replacement order is `K0 -> K1 -> K2-core`, while `K1` / `K2` remain separate acceptance gates.
+- `Rune` is landed as the canonical primitive control plane and is no longer the active blocker lane.
 - next structural step is `K2-core acceptance lock` for `RawArray`, while `RuntimeDataBox` stays facade-only.
 - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests:
   - `runtime_data_invalid_handle_returns_zero`
@@ -38,7 +40,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読み、`Rune lane (parallel)`、`K0 -> K-migration`、`K2-core acceptance lock` の visible order を dashboard/SSOT に同期する。
+- Active work: kernel replacement axis の policy refresh を主線にして、`stage / docs / naming`、`K1 done-enough`、`K2-core acceptance lock`、`K2-wide deferred`、`zero-rust default` の順を dashboard/SSOT に同期する。
 - Stage axis:
   - `stage0` = bootstrap / recovery keep
   - `stage1` = same-boundary swap proof line
@@ -53,8 +55,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
     - `K2-wide` = `RawMap second + capability widening + metal review`
 - Current repo read:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1 done-enough`
-  - `Rune` は `K-axis` と直列に混ぜず、parallel compiler-contract lane として読む
-  - `K1` と `K2` は separate gates だが、実装工程は `K0` のあとに one `K-migration` line として読める
+  - `Rune` は canonical primitive control plane として landed/keep に置き、active blocker lane には戻さない
+  - replacement order は `K0 -> K1 -> K2-core` として読み、`K1` と `K2` は separate gates のまま保つ
   - 次の structural target は `K2-core acceptance lock`
   - `RawMap` は `K2-wide` の second target で、今は deferred
   - `RuntimeDataBox` は facade-only keep
@@ -69,32 +71,36 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   5. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   6. `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
 - Next exact work:
-  1. `K0 / K1 / K2(core|wide)` の vocabulary を dashboard / restart docs / design index に同期する
+  1. `stage / docs / naming` を fixed order で揃える
   2. `K1` collection wave を current done-enough stop-line として固定する
   3. `K2-core acceptance lock` を canonical reading にする
-  4. map/array perf lane は regression/evidence pack として keep し、new exact blocker が出るまで主線に戻さない
+  4. `K2-wide` は deferred follow-up として固定する
+  5. `zero-rust` を daily/distribution default として運用 reading に固定する
 
 ## Next Horizon Inventory
 
 ### Big Tasks
 
-- Active: `Rune lane (parallel, compiler-contract side)`
-  - `@rune` を canonical surface として固定する
-  - `attrs.runes` を単一 carrier として保つ
-  - `inline` / `contract` / `intrinsic_candidate` は Rune vocabulary に寄せる
-- Active: `K-migration`
+- Active: `stage / docs / naming` fixation
+  - `stage` は build/distribution vocabulary のままにする
+  - replacement progress は `K0 / K1 / K2(core|wide)` に固定する
+  - `plugin` は cold loader lane だけの語に限定する
+- Active: `K1 done-enough` stop-line fixation
   - `K1` collection wave is done-enough and remains the owner gate
+  - `Array -> Map -> RuntimeData cleanup` を current stop-line として固定する
+- Active: `K2-core`
   - first truthful daily `.hako substrate` owner を作る
   - next structural step is `K2-core acceptance lock`
   - `RuntimeDataBox` facade-only keep を壊さない
   - `RawMap` stays deferred in `K2-wide`
   - acceptance criteria は design SSOT 側で先に固定する
-- Active: policy stabilization
-  - `K0 / K1 / K2(core|wide)` を public reading として薄く保つ
-  - `stage` は build/distribution vocabulary のままにする
 - Active: zero-rust default operationalization
   - daily/distribution を原則 Rust/Cargo 非依存で読む
   - bootstrap / recovery / reference / buildability / native metal keep は明示 keep
+- Landed/keep: `Rune` primitive control plane
+  - `@rune` を canonical surface として固定する
+  - `@hint` / `@contract` / `@intrinsic_candidate` は compat alias のまま keep する
+  - `inline` / `contract` / `intrinsic_candidate` は Rune vocabulary に寄せた current reading を保つ
 - Parked: `K2-wide` follow-up
   - `RawMap`, capability widening, metal review は `K2-core` 安定後に回す
 - Parked: broad `Map` structural expansion
@@ -102,18 +108,19 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ### Execution Waves
 
-1. `Rune lane (parallel, compiler-contract side)`
-2. `K0 -> K-migration`
+1. `stage / docs / naming` fixation
+2. `K1 done-enough` stop-line fixation
 3. `K2-core acceptance lock`
-4. `RawMap` deferred in `K2-wide`; map perf evidence/regression pack keep
+4. `K2-wide` deferred follow-up
+5. `zero-rust` default operationalization
 
 ### Small Tasks
 
 - Active: docs ladder sync
   - `CURRENT_TASK`, `10-Now`, `15-Workstream-Map`, `20-Decisions`, design SSOT を同じ読みに保つ
   - `plugin` は cold loader lane だけの語に限定する
-- Active: Rune docs/tag sync
-  - `rune-v0` / `rune-v1` / optimization tag SSOT の wording を同じ表現に揃える
+- Keep: Rune docs/tag sync
+  - `rune-v0` / `rune-v1` / optimization tag SSOT の wording を landed/keep reading に保つ
 - Active: Map evidence bundle maintenance
   - asm diff helper / bundle save / flags matrix は supporting artifact として keep
 - Active: lane-local cleanup candidates only
@@ -129,9 +136,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ### First 3 Actions
 
-1. Rune primitive surface を `@rune` 単一表現で固定する
-2. `Rune lane (parallel)` と `K0 -> K-migration` の visible order を docs で揃える
-3. `K2-core acceptance lock` を design SSOT へ固定する
+1. `stage / docs / naming` の order を docs で揃える
+2. `K1 done-enough` stop-line を current reading に固定する
+3. `K2-core acceptance lock` の reading を design SSOT へ固定する
 - Landed already:
   - `crates/nyash_kernel/src/plugin/runtime_data.rs` now routes array dispatch through handle-based RawArray substrate helpers, and map any-key paths materialize owned key strings before map ops so handle-registry borrow overlap is avoided
   - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs` now short-circuits invalid array handles before index resolution, keeping RawArray facade-only and preserving the handle-based substrate path

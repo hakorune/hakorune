@@ -24,13 +24,13 @@ Related:
 
 1. `policy-refresh`
    - active docs/policy lane
-   - visible sequence: `Rune lane (parallel)` -> `K0 -> K-migration` -> `K2-core acceptance lock` -> `RawMap deferred in K2-wide`
-   - keep `stage` vocabulary fixed and add compressed `K-axis` as the current operational reading
-   - keep `Rune lane` docs (`@rune` canonical surface / `attrs.runes`) synchronized as a parallel compiler-contract lane
+   - active sequence: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`
+   - keep `stage` vocabulary fixed and keep `K0 / K1 / K2(core|wide)` as the current operational reading
+   - keep `Rune` docs (`@rune` canonical surface / `attrs.runes`) in landed/keep state; do not read them as the active blocker lane
    - `K2-core acceptance lock` is the next structural step; `RawArray` remains first and `RuntimeData facade-only` stays fixed
    - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract test set, not a new benchmark lane
    - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence, not the next structural lane
-   - execution order is `Rune lane (parallel)` plus `K0 -> K-migration`; `K2-core acceptance lock` sits before `RawMap` in `K2-wide`
+   - execution order is `K0 -> K1 -> K2-core`; `RawMap` remains deferred in `K2-wide`
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -74,16 +74,18 @@ Related:
 ## Next Horizon Inventory
 
 - Active big tasks:
-  - `Rune lane (parallel, compiler-contract side)`
-  - `K-migration` with `K2-core acceptance lock`
-  - policy stabilization for the compressed `K-axis`
+  - `stage / docs / naming` fixation
+  - `K1 done-enough` stop-line fixation
+  - `K2-core` RawArray pilot prep
   - zero-rust default operationalization for daily/distribution
+- Keep big tasks:
+  - `Rune` primitive control plane keep
 - Parked big tasks:
   - `K2-wide` follow-up (`RawMap`, capability widening, metal review)
   - broad `Map` structural expansion
 - Active small tasks:
   - docs ladder sync
-  - Rune docs/tag sync
+  - Rune docs/tag keep
   - Map evidence bundle maintenance
   - lane-local cleanup candidates only:
     - Rune lane: `src/parser/runes.rs`, `src/parser/statements/helpers.rs`, `src/stage1/program_json_v0.rs`, `src/macro/ast_json/roundtrip.rs`
@@ -121,7 +123,7 @@ Related:
 
 ## Exact Next
 
-1. keep `policy-refresh` first until compressed `K-axis` / `zero-rust by default` / `plugin=cold lane only` wording is synced
+1. keep `policy-refresh` first until `stage / docs / naming` / `K1 done-enough` / `K2-core` / `zero-rust by default` wording is synced
 2. keep `phase-29bq` active as failure-driven / blocker-none lane
 3. keep `phase-29ck` focused on `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md` until the live-route debug bundle and semantic `array_rmw_window` proof are fixed
 4. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
@@ -133,7 +135,7 @@ Related:
 - active reading:
   - keep `stage0/stage1/stage2-mainline/stage2+` as build/distribution vocabulary
   - keep `K0/K1/K2(core|wide)` as replacement-progress vocabulary
-  - keep `Rune` visible as a parallel compiler-contract lane, not a serial step inside `K-axis`
+  - keep `Rune` landed as the canonical primitive control plane, not as a serial active lane inside `K-axis`
   - freeze current collection wave as `K1 done-enough`
   - prep `K2-core RawArray` as the next structural target
 - current lane rule:

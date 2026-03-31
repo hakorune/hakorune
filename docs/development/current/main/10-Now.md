@@ -30,11 +30,12 @@ Related:
 ## Immediate Resume
 
 - current lane is docs/policy refresh for the kernel replacement axis.
-- visible order:
-  1. `Rune lane (parallel, compiler-contract side)`
-  2. `K0 -> K-migration`
+- active order:
+  1. `stage / docs / naming` fixation
+  2. `K1 done-enough` stop-line fixation
   3. `K2-core acceptance lock`
-  4. `RawMap` deferred in `K2-wide`; map perf stays evidence/regression only
+  4. `K2-wide` deferred follow-up
+  5. `zero-rust` default operationalization
 - stage axis:
   - `stage0 = bootstrap/recovery keep`
   - `stage1 = same-boundary swap proof`
@@ -48,12 +49,12 @@ Related:
     - `K2-core = RawArray first`
     - `K2-wide = RawMap second + capability widening + metal review`
 - implementation note:
-  - the engineering line after `K0` is one `K-migration` track
+  - the current replacement order is `K0 -> K1 -> K2-core`
   - `K1` and `K2` remain separate gates / acceptance checkpoints
 - current repo read:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) is `K1 done-enough`
-  - `Rune` stays a parallel compiler-contract lane, not a step inside `K-axis`
-  - post-`K0` engineering line is read as one `K-migration` track
+  - `Rune` is landed as the canonical primitive control plane and is no longer the active blocker lane
+  - replacement order is read as `K0 -> K1 -> K2-core`
   - next structural step is `K2-core acceptance lock`
   - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests (`runtime_data_invalid_handle_returns_zero`, `runtime_data_array_round_trip_keeps_rawarray_contract`, `legacy_set_h_returns_zero_but_applies_value`, `hi_hii_aliases_keep_fail_safe_contract`, `slot_load_store_raw_aliases_keep_contract`, `slot_append_raw_alias_keeps_contract`)
   - `RawMap` is `K2-wide` second and stays deferred while `RuntimeDataBox` remains facade-only
@@ -61,15 +62,15 @@ Related:
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
 - evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - next horizon inventory:
-  - big: `Rune lane (parallel)`; `K-migration` with `K2-core acceptance lock`; policy stabilization; zero-rust default operationalization
+  - big: `stage / docs / naming` fixation; `K1 done-enough` stop-line fixation; `K2-core`; `zero-rust` default operationalization
   - parked big: `K2-wide` follow-up; broad `Map` structural expansion
-  - small: docs ladder sync; Rune docs/tag sync; Map evidence bundle maintenance
+  - small: docs ladder sync; Rune docs/tag keep; Map evidence bundle maintenance
   - lane-local cleanup candidates only:
     - Rune lane: `src/parser/runes.rs`, `src/parser/statements/helpers.rs`, `src/stage1/program_json_v0.rs`, `src/macro/ast_json/roundtrip.rs`
     - RawArray lane: `crates/nyash_kernel/src/plugin/handle_cache.rs`, `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
     - broader `src/backend/*`, `src/bid/*`, and non-active `crates/nyash_kernel/*` cleanup stays parked
   - parked small: warning debt sweep; TODO cleanup / ignore triage; code-hotspot cleanup outside the active pilot boundary
-  - execution order: `Rune lane (parallel)` plus `K0 -> K-migration`; `RawMap` remains deferred in `K2-wide`
+  - execution order: `K0 -> K1 -> K2-core`; `RawMap` remains deferred in `K2-wide`
 - next exact docs:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
@@ -105,8 +106,8 @@ Related:
   - purpose:
     - keep `stage` as build/distribution vocabulary
     - keep compressed `K-axis` as replacement progress vocabulary
-    - read the post-`K0` implementation line as `K-migration`, not as one merged acceptance gate
-    - keep `Rune` visible as a parallel compiler-contract lane
+    - read the replacement order as `K0 -> K1 -> K2-core`
+    - keep `Rune` as landed/keep, not as an active blocker lane
     - pin `K2-core = RawArray first truthful substrate pilot`
     - keep `RawMap` deferred in `K2-wide` and map perf as regression/evidence, not structural next step
 - Active code lane: `phase-29bq`

@@ -29,7 +29,7 @@
 - De-Rust compiler thin-rust roadmap（selfhost closeout 後の境界縮退SSOT）: `docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md`
 - De-Rust post-G1 runtime plan（runtime lane の実行順序/保守契約SSOT）: `docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md`
 - Hako runtime C ABI cutover order（`.hako` 完結へ向けた移行順SSOT）: `docs/development/current/main/design/hako-runtime-c-abi-cutover-order-ssot.md`
-- Kernel replacement axis（`K0 / K1 / K2(core|wide)` replacement progress / visible reading is `Rune lane (parallel)` plus `K0 -> K-migration` / `stage` build-distribution axis とは別管理）: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+- Kernel replacement axis（`K0 / K1 / K2(core|wide)` replacement progress / current active order is `stage / docs / naming` -> `K1 done-enough` -> `K2-core` -> `K2-wide deferred` -> `zero-rust default` / `stage` build-distribution axis とは別管理）: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
 - Stage2 `.hako` owner vs `.inc` thin shim（stage2 主体化 / thin boundary SSOT）: `docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md`
 - Hako fullstack host-ABI completion（意味論`.hako`集約 + host最小ABIの最終形SSOT）: `docs/development/current/main/design/hako-fullstack-host-abi-completion-ssot.md`
 - Execution lanes and axis separation（stage/owner/artifact-lane の親SSOT）: `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`

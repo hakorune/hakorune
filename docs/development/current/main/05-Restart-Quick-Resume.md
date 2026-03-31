@@ -36,7 +36,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 ## 今日の再開点（active lane）
 
 - Active next: `policy-refresh`
-- visible order: `Rune lane (parallel)` -> `K0 -> K-migration` -> `K2-core acceptance lock` -> `RawMap deferred in K2-wide`
+- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
@@ -45,12 +45,12 @@ bash tools/selfhost/run_lane_a_daily.sh
   5. `docs/development/current/main/15-Workstream-Map.md`
   6. `docs/development/current/main/10-Now.md`
 - immediate action:
-  - verify `stage` axis and compressed `K-axis` reading in `CURRENT_TASK.md` first
-  - verify `@rune` canonical surface and declaration-local `attrs.runes` carrier next
-  - read `Rune` as a parallel compiler-contract lane, not a serial step inside `K-axis`
-  - read the post-`K0` engineering line as `K-migration`, not one merged acceptance gate
+  - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md` first
+  - fix `stage / docs / naming` order before reopening deeper implementation lanes
+  - read the replacement order as `K0 -> K1 -> K2-core`
+  - treat `Rune` as landed keep (`@rune` canonical surface, legacy aliases compat keep), not as the current blocker lane
   - keep `K2-core acceptance lock` as the next structural step and read its smoke/evidence gate from the existing `nyash_kernel` RawArray contract tests
-  - keep execution order as `Rune lane (parallel)` plus `K0 -> K-migration`
+  - keep `K1 done-enough` fixed before promoting `K2-core`
   - keep `RawMap` deferred in `K2-wide`; treat map perf as regression/evidence until a new exact blocker says otherwise
 
 ## 保守レーン（必要時のみ）

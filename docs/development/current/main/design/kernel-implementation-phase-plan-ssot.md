@@ -42,10 +42,15 @@ Related:
     - `K2-wide` = `RawMap second + capability widening + metal review`
   - `RuntimeDataBox` stays facade-only across both `K1` and `K2`
 - visible engineering reading:
-  - `Rune lane (parallel, compiler-contract side)`
-  - `K0 -> K-migration`
-  - `K1` remains the owner gate
+  - `K0`
+  - `K1`
   - `K2-core` is the first substrate gate
+- current active order:
+  - `stage / docs / naming` fixation
+  - `K1 done-enough` stop-line fixation
+  - `K2-core acceptance lock`
+  - `K2-wide` deferred follow-up
+  - `zero-rust` default operationalization
 
 This SSOT is the canonical phase-plan entry for the collection-first `K1` wave and the `K2` substrate-era handoff.
 
