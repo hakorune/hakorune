@@ -9,19 +9,148 @@ using lang.compiler.build.build_box as BuildBox
 using lang.mir.builder.MirBuilderBox as MirBuilderBox
 static box Main {
   main() {
-    local mode = Stage1ModeContractBox.resolve_mode()
+    local mode = ""
+
+    local explicit = env.get("NYASH_STAGE1_MODE")
+    if explicit == null || "" + explicit == "" {
+      explicit = env.get("HAKO_STAGE1_MODE")
+    }
+    if explicit != null {
+      local explicit_text = "" + explicit
+      if explicit_text != "" {
+        if explicit_text == "emit_program_json" || explicit_text == "emit-program-json" {
+          mode = "emit-program"
+        } else if explicit_text == "emit_mir_json" || explicit_text == "emit-mir-json" {
+          mode = "emit-mir"
+        } else {
+          mode = explicit_text
+        }
+      }
+    }
+
+    if mode == "" {
+      local emit_program = env.get("STAGE1_EMIT_PROGRAM_JSON")
+      if emit_program != null && "" + emit_program == "1" {
+        mode = "emit-program"
+      }
+    }
+    if mode == "" {
+      local emit_mir = env.get("STAGE1_EMIT_MIR_JSON")
+      if emit_mir != null && "" + emit_mir == "1" {
+        mode = "emit-mir"
+      }
+    }
+    if mode == "" {
+      local use_cli = env.get("NYASH_USE_STAGE1_CLI")
+      if use_cli != null && "" + use_cli == "1" {
+        mode = "run"
+      }
+    }
+
+    if mode == "" {
+      return 97
+    }
+
     if mode == "emit-program" {
-      return me._run_emit_program_mode()
+      local tag = "[freeze:contract][stage1-cli/emit-program]"
+      local source_text = env.get("STAGE1_SOURCE_TEXT")
+      if source_text == null || "" + source_text == "" {
+        print("[stage1-cli] emit program-json: STAGE1_SOURCE_TEXT is required")
+        return 96
+      }
+
+      local prog = BuildBox.emit_program_json_v0("" + source_text, null)
+      if prog == null {
+        print(tag + " BuildBox.emit_program_json_v0 returned null")
+        return 96
+      }
+
+      local prog_text = "" + prog
+      if prog_text.substring(0, 1) != "{" {
+        print(tag + " output is not Program JSON")
+        print(prog_text)
+        return 96
+      }
+      if prog_text.indexOf("\"version\":0") < 0 || prog_text.indexOf("\"kind\":\"Program\"") < 0 {
+        print(tag + " output missing Program(JSON v0) markers")
+        print(prog_text)
+        return 96
+      }
+
+      print(prog_text)
+      return 0
     }
-    if mode == "emit-mir" {
-      return me._run_emit_mir_mode("[freeze:contract][stage1-cli/emit-mir]")
+
+    if mode == "emit-mir" || mode == "run" {
+      local tag = "[freeze:contract][stage1-cli/emit-mir]"
+      if mode == "run" {
+        tag = "[freeze:contract][stage1-cli/run]"
+      }
+
+      local supplied_program_json_text = env.get("STAGE1_PROGRAM_JSON_TEXT")
+      if supplied_program_json_text != null && "" + supplied_program_json_text != "" {
+        print(tag + " explicit program-json text requires emit-mir-program mode")
+        return 96
+      }
+
+      local source_text = env.get("STAGE1_SOURCE_TEXT")
+      if source_text == null || "" + source_text == "" {
+        print(tag + " input missing source/program-json contract")
+        return 96
+      }
+
+      local mir = MirBuilderBox.emit_from_source_v0("" + source_text, null)
+      if mir == null {
+        print(tag + " MirBuilderBox.emit_from_source_v0 returned null")
+        return 96
+      }
+
+      local mir_text = "" + mir
+      if mir_text.substring(0, 1) != "{" {
+        print("[freeze:contract][stage1-cli/emit-mir] output is not MIR JSON")
+        print(mir_text)
+        return 96
+      }
+      if mir_text.indexOf("\"functions\"") < 0 {
+        print("[freeze:contract][stage1-cli/emit-mir] output missing MIR functions marker")
+        print(mir_text)
+        return 96
+      }
+
+      print(mir_text)
+      return 0
     }
+
     if mode == "emit-mir-program" {
-      return me._run_emit_mir_program_json_compat_mode("[freeze:contract][stage1-cli/emit-mir-program]")
+      local tag = "[freeze:contract][stage1-cli/emit-mir-program]"
+      local program_json_text = env.get("STAGE1_SOURCE_TEXT")
+      if program_json_text == null || "" + program_json_text == "" {
+        print(tag + " input missing program-json contract")
+        return 96
+      }
+
+      local mir = MirBuilderBox.emit_from_program_json_v0("" + program_json_text, null)
+      if mir == null {
+        print(tag + " MirBuilderBox.emit_from_program_json_v0 returned null")
+        return 96
+      }
+
+      local mir_text = "" + mir
+      if mir_text.substring(0, 1) != "{" {
+        print("[freeze:contract][stage1-cli/emit-mir-program] output is not MIR JSON")
+        print(mir_text)
+        return 96
+      }
+      if mir_text.indexOf("\"functions\"") < 0 {
+        print("[freeze:contract][stage1-cli/emit-mir-program] output missing MIR functions marker")
+        print(mir_text)
+        return 96
+      }
+
+      print(mir_text)
+      return 0
     }
-    if mode == "run" {
-      return me._run_emit_mir_mode("[freeze:contract][stage1-cli/run]")
-    }
+
     return 97
   }
 

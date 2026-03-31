@@ -92,9 +92,7 @@ run_emit_mir_json() {
 
 run_emit_mir_json_from_source() {
   local entry="$1"
-  local source_text
-  source_text="$(read_entry_source_text "$entry")"
-  stage1_contract_exec_mode "$BIN" "emit-mir" "$entry" "$source_text"
+  stage1_contract_exec_direct_emit_mode "$ROOT_DIR/target/release/hakorune" "emit-mir" "$entry"
 }
 
 while [[ $# -gt 0 ]]; do

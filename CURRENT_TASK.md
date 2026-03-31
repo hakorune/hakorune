@@ -16,6 +16,18 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - `git status -sb`
 - `tools/checks/dev_gate.sh quick`
 
+## Immediate Handoff (2026-03-31)
+
+- Active work: stage1 bootstrap wrapper cleanup / thin entry stubs.
+- Build status: `bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` PASS, `bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --force-rebuild` PASS.
+- Smoke status: `tools/selfhost/run_stage1_cli.sh emit mir-json apps/tests/hello_simple_llvm.hako` PASS.
+- Current shape:
+  - `lang/src/runner/launcher_native_entry.hako` = minimal run-only stub
+  - `lang/src/runner/stage1_cli_env_entry.hako` = minimal run-only stub
+  - `run_stage1_cli.sh emit mir-json` now goes through bootstrap `hakorune` directly
+- Next resume step:
+  - decide whether to commit this slice as-is or further normalize the legacy `lang/src/runner/stage1_cli_env.hako` / `lang/src/runner/launcher.hako` files
+
 ## CI Notes
 
 - fast-smoke CI now pins `NYASH_NY_LLVM_OPT_TOOL=opt-18` and `NYASH_NY_LLVM_LLC_TOOL=llc-18`, and the pure-first shim resolves `opt/llc` by env override or PATH fallback so GitHub runner LLVM tool naming does not break the mem2reg/llc lane.

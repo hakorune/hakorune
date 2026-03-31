@@ -27,6 +27,13 @@ Related:
 - Quick restart: `docs/development/current/main/05-Restart-Quick-Resume.md`
 - Layout contract: `docs/development/current/main/DOCS_LAYOUT.md`
 
+## Immediate Resume
+
+- stage1 bootstrap wrapper cleanup landed.
+- `stage1-cli` and `launcher-exe` build passes are green.
+- Emit routes now use bootstrap `hakorune`; the reduced `stage1-cli` artifact is run-only.
+- Resume next by reviewing/committing the current diff set or normalizing the remaining legacy `.hako` files.
+
 ## Current Read
 
 - Active lane: `phase-29bq`

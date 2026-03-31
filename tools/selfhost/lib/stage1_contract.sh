@@ -358,20 +358,12 @@ stage1_contract_exec_program_json_text() {
   local entry="$2"
   local program_json_text="$3"
   local mode="${4:-$(stage1_contract_program_json_compat_mode)}"
-  local emit_program_flag=0
-  local emit_mir_flag=0
 
-  stage1_contract_export_runner_defaults
-
-  read -r emit_program_flag emit_mir_flag < <(stage1_contract_emit_flags_for_mode "$mode")
-
-  stage1_contract_exec_checked_mode \
+  stage1_contract_exec_mode \
     "$bin" \
     "$mode" \
     "$entry" \
-    "$program_json_text" \
-    "$emit_program_flag" \
-    "$emit_mir_flag"
+    "$program_json_text"
 }
 
 # Exact-only compat helper for the current live shell contract.
@@ -403,14 +395,16 @@ stage1_contract_exec_mode() {
   read -r emit_program_flag emit_mir_flag < <(stage1_contract_emit_flags_for_mode "$mode")
 
   if [[ "$artifact_kind" == "stage1-cli" ]]; then
-    stage1_contract_exec_checked_mode \
-      "$bin" \
-      "$mode" \
-      "$entry" \
-      "$source_text_for_mode" \
-      "$emit_program_flag" \
-      "$emit_mir_flag"
-    return $?
+    case "$mode" in
+      run)
+        "$bin" run "$source_text_for_mode"
+        return $?
+        ;;
+      emit-program|emit_program_json|emit-program-json|emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
+        echo "[stage1-contract] stage1-cli reduced artifact is run-only; use bootstrap direct emit for emit routes" >&2
+        return 97
+        ;;
+    esac
   fi
 
   if [[ "$emit_program_flag" -eq 1 || "$emit_mir_flag" -eq 1 ]]; then

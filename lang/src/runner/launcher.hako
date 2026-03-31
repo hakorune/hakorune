@@ -705,7 +705,75 @@ static box Main {
   // Bootstrap callers use HAKORUNE_BOOTSTRAP_* env; non-bootstrap falls back to
   // the regular CLI with a null argv and fails fast on missing command.
   method main(){
-    local cli = new HakoCli()
-    return cli.run_native_entry()
+    local mode_raw = env.get("HAKORUNE_BOOTSTRAP_MODE")
+    local mode = ""
+    if mode_raw != null {
+      mode = "" + mode_raw
+    }
+
+    if mode == "" {
+      print("[hakorune] usage: hakorune <command> [options]")
+      return 1
+    }
+
+    if mode != "emit-mir" {
+      print("[hakorune/bootstrap] unsupported mode: " + mode)
+      return 95
+    }
+
+    local input_path = ""
+    local input_raw = env.get("HAKORUNE_BOOTSTRAP_INPUT")
+    if input_raw != null {
+      input_path = "" + input_raw
+    }
+    if input_path == "" {
+      print("[hakorune/bootstrap emit mir]: HAKORUNE_BOOTSTRAP_INPUT is required")
+      return 95
+    }
+
+    local out_path = ""
+    local out_raw = env.get("HAKORUNE_BOOTSTRAP_OUT")
+    if out_raw != null {
+      out_path = "" + out_raw
+    }
+    if out_path == "" {
+      print("[hakorune/bootstrap emit mir]: HAKORUNE_BOOTSTRAP_OUT is required")
+      return 95
+    }
+
+    local fb = new FileBox()
+    local ok = fb.open(input_path, "r")
+    if ok != 1 {
+      print("[hakorune/bootstrap emit mir]: failed to open " + input_path)
+      return 95
+    }
+    local source_text = fb.read()
+    fb.close()
+    if source_text == null || source_text == "" {
+      print("[hakorune/bootstrap emit mir]: source is empty")
+      return 95
+    }
+
+    local prog = BuildBox.emit_program_json_v0("" + source_text, null)
+    if prog == null {
+      print("[hakorune/bootstrap emit mir]: BuildBox.emit_program_json_v0 returned null")
+      return 95
+    }
+
+    local mir = MirBuilderBox.emit_from_program_json_v0("" + prog, null)
+    if mir == null {
+      print("[hakorune/bootstrap emit mir]: MirBuilderBox.emit_from_program_json_v0 returned null")
+      return 95
+    }
+
+    local fb_out = new FileBox()
+    local ok_out = fb_out.open(out_path, "w")
+    if ok_out != 1 {
+      print("[hakorune/bootstrap emit mir]: failed to open output " + out_path)
+      return 95
+    }
+    fb_out.write("" + mir)
+    fb_out.close()
+    return 0
   }
 }
