@@ -13,176 +13,11 @@
 
 using lang.mir.builder.MirBuilderBox
 using lang.compiler.build.build_box as BuildBox
-using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 using lang.runner.launcher.input_contract as LauncherInputContractBox
 using lang.runner.launcher.dispatch as LauncherDispatchBox
-
-static box LauncherCompileFacadeBox {
-  method emit_program_json_v0(source_text) {
-    return BuildBox.emit_program_json_v0(source_text, null)
-  }
-
-  method emit_from_program_json_v0(program_json_text) {
-    return MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
-  }
-
-  method emit_root_from_source_v0(source_text) {
-    return MirBuilderBox.emit_root_from_source_v0(source_text, null)
-  }
-
-  method compile_obj_root(root, mir_path) {
-    return LlvmBackendBox.compile_obj_root(root, mir_path)
-  }
-
-  method link_exe(obj_path, exe_path) {
-    return LlvmBackendBox.link_exe(obj_path, exe_path, null)
-  }
-}
-
-static box LauncherArtifactIoBox {
-  method read_file(tag, path){
-    if path == null || path == "" {
-      print(tag + ": source path is required")
-      return null
-    }
-    local fb = new FileBox()
-    local ok = fb.open(path, "r")
-    if ok != 1 {
-      print(tag + ": failed to open " + path)
-      return null
-    }
-    local content = fb.read()
-    fb.close()
-    if content == null || content == "" {
-      print(tag + ": source is empty")
-      return null
-    }
-    return me._coerce_text_compat(content)
-  }
-
-  method load_program_json_from_path_or_source(tag, prog_path, source_path){
-    if prog_path != null && prog_path != "" {
-      return me._load_program_json_from_path_checked(tag, prog_path)
-    }
-    return LauncherPayloadContractBox.emit_program_json_from_source_path_checked(tag, source_path)
-  }
-
-  method print_or_write_output(tag, path, content, quiet){
-    if path != null && path != "" {
-      return me._write_output_checked(tag, path, content, quiet)
-    }
-    return me._print_output_checked(content)
-  }
-
-  method write_file(tag, path, content, quiet){
-    if path == null || path == "" { return 1 }
-    local fb = new FileBox()
-    local ok = fb.open(path, "w")
-    if ok != 1 {
-      print(tag + ": failed to open output " + path)
-      return 0
-    }
-    fb.write(content)
-    fb.close()
-    if quiet != 1 {
-      print(tag + ": written " + path)
-    }
-    return 1
-  }
-
-  method _load_program_json_from_path_checked(tag, prog_path){
-    return me.read_file(tag, prog_path)
-  }
-
-  method _print_output_checked(content){
-    print(content)
-    return 1
-  }
-
-  method _write_output_checked(tag, path, content, quiet){
-    return me.write_file(tag, path, content, quiet)
-  }
-
-  method _coerce_text_compat(value){
-    return "" + value
-  }
-}
-
-static box LauncherPayloadContractBox {
-  method emit_program_json_from_source_path_checked(tag, source_path){
-    local src = LauncherArtifactIoBox.read_file(tag, source_path)
-    if src == null { return null }
-    return me.emit_program_json_checked(tag, src)
-  }
-
-  method emit_program_json_checked(tag, source_text){
-    local prog = LauncherCompileFacadeBox.emit_program_json_v0(source_text)
-    if prog == null { return null }
-    return me._coerce_program_json_output_checked(tag, prog)
-  }
-
-  method emit_mir_json_checked(tag, program_json){
-    local prog = me._coerce_program_json_for_emit_mir_checked(tag, program_json)
-    if prog == null { return null }
-    local mir = LauncherCompileFacadeBox.emit_from_program_json_v0(prog)
-    if mir == null { return null }
-    return me._coerce_mir_output_checked(tag, mir)
-  }
-
-  method emit_mir_json_from_source_path_checked(tag, source_path){
-    local prog_json = me.emit_program_json_from_source_path_checked(tag, source_path)
-    if prog_json == null { return null }
-    return me.emit_mir_json_checked(tag, prog_json)
-  }
-
-  method _coerce_program_json_output_checked(tag, prog){
-    local ps = me._coerce_text_compat(prog)
-    if me._program_json_has_markers(ps) != 1 {
-      print(tag + ": unexpected Program(JSON) output (missing version/kind)")
-      return null
-    }
-    return ps
-  }
-
-  method _coerce_program_json_for_emit_mir_checked(tag, program_json){
-    if program_json == null {
-      print(tag + ": program_json is null")
-      return null
-    }
-    local prog = me._coerce_text_compat(program_json)
-    if me._program_json_has_markers(prog) != 1 {
-      print(tag + ": input missing Program(JSON v0) markers")
-      return null
-    }
-    return prog
-  }
-
-  method _program_json_text_present(input_text){
-    if input_text != null && input_text != "" { return 1 }
-    return 0
-  }
-
-  method _program_json_has_markers(program_json_text){
-    if me._program_json_text_present(program_json_text) != 1 { return 0 }
-    if program_json_text.indexOf("\"version\":0") < 0 || program_json_text.indexOf("\"kind\":\"Program\"") < 0 {
-      return 0
-    }
-    return 1
-  }
-
-  method _coerce_mir_output_checked(tag, mir){
-    local ms = me._coerce_text_compat(mir)
-    if ms.indexOf("\"functions\"") < 0 {
-      print(tag + ": output missing MIR functions marker")
-      return null
-    }
-    return ms
-  }
-
-  method _coerce_text_compat(value){
-    return "" + value
-  }
-}
+using lang.runner.launcher.artifact_io as LauncherArtifactIoBox
+using lang.runner.launcher.payload_contract as LauncherPayloadContractBox
+using lang.runner.launcher.compile_facade_impl as LauncherCompileFacadeImplBox
 
 static box HakoCli {
   // Entry from Main.main(args)
@@ -294,7 +129,7 @@ static box HakoCli {
     local quiet = req.get("quiet")
 
     local tag = "[hakorune] emit mir-json"
-    local prog_json = LauncherArtifactIoBox.load_program_json_from_path_or_source(tag, prog_path, source_path)
+    local prog_json = LauncherPayloadContractBox.load_program_json_from_path_or_source(tag, prog_path, source_path)
     if prog_json == null { return 92 }
 
     local ms = LauncherPayloadContractBox.emit_mir_json_checked(tag, prog_json)
@@ -314,41 +149,6 @@ static box HakoCli {
     return 93
   }
 
-  method _coerce_program_json_for_emit_mir_checked(tag, program_json){
-    if program_json == null {
-      print(tag + ": program_json is null")
-      return null
-    }
-    local prog = me._coerce_text_compat(program_json)
-    if me._program_json_has_markers(prog) != 1 {
-      print(tag + ": input missing Program(JSON v0) markers")
-      return null
-    }
-    return prog
-  }
-
-  method _program_json_text_present(input_text){
-    if input_text != null && input_text != "" { return 1 }
-    return 0
-  }
-
-  method _program_json_has_markers(program_json_text){
-    if me._program_json_text_present(program_json_text) != 1 { return 0 }
-    if program_json_text.indexOf("\"version\":0") < 0 || program_json_text.indexOf("\"kind\":\"Program\"") < 0 {
-      return 0
-    }
-    return 1
-  }
-
-  method _coerce_mir_output_checked(tag, mir){
-    local ms = me._coerce_text_compat(mir)
-    if ms.indexOf("\"functions\"") < 0 {
-      print(tag + ": output missing MIR functions marker")
-      return null
-    }
-    return ms
-  }
-
   method _emit_exe_from_source_root_checked(tag, source_path, requested_out_path){
     local exe_path = me._resolve_build_exe_out_path(source_path, requested_out_path)
     if exe_path == null { return null }
@@ -357,13 +157,13 @@ static box HakoCli {
 
     local source_text = LauncherArtifactIoBox.read_file(tag, source_path)
     if source_text == null { return null }
-    local root = LauncherCompileFacadeBox.emit_root_from_source_v0(source_text)
+    local root = LauncherCompileFacadeImplBox.emit_root_from_source_v0(source_text)
     if root == null {
       print(tag + ": MirBuilderBox.emit_root_from_source_v0 failed")
       return null
     }
 
-    local obj = LauncherCompileFacadeBox.compile_obj_root(root, mir_path)
+    local obj = LauncherCompileFacadeImplBox.compile_obj_root(root, mir_path)
     if me._non_empty_text(obj) != 1 {
       print(tag + ": env.codegen.compile_obj_root failed")
       return null
@@ -424,7 +224,7 @@ static box HakoCli {
     if obj_path == null { return null }
     local obj_text = me._coerce_text_compat(obj_path)
     if me._non_empty_text(exe_path) == 1 {
-      return LauncherCompileFacadeBox.link_exe(
+      return LauncherCompileFacadeImplBox.link_exe(
         obj_text,
         me._coerce_text_compat(exe_path)
       )

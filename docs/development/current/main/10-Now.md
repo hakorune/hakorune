@@ -38,9 +38,9 @@ Related:
 - Keep `tools/selfhost/run_all.sh`, phase-local `run_all.sh`, and `apps/tests/` as compat/fixture surfaces for now.
 - `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako`, `lang/src/compiler/entry/func_scanner.hako`, `lang/src/compiler/mirbuilder/stmt_handlers/return_stmt_handler.hako`, and `lang/src/runner/stage1_cli.hako` are split already.
 - `stage1_cli.stage2` exact emit compat probe is green again; `stage1_cli` itself remains the run-only bootstrap output.
-- `launcher` is now split into dispatch/input-contract helpers; the thin bootstrap proof is being shifted to `launcher_native_entry.hako`, and the next cleanup slice is the remaining `artifact_io` / `payload_contract` helper boxes.
+- `launcher` is now split into dispatch/input-contract/artifact_io/payload_contract helpers; the thin bootstrap proof is being shifted to `launcher_native_entry.hako`, and the remaining cleanup slice is launcher compile facade thinning or the route-entry handler table.
 - `handlers` has the generic route leaf split out; the next cleanup slice is the remaining handler route table or `artifact_io` depending on which lane proves cheaper.
-- Next step is `lang/src/runner/launcher/artifact_io.hako`, unless the `handlers` lane surfaces a smaller exact blocker first.
+- Next step is `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs`, unless the launcher compile facade lane surfaces a smaller exact blocker first.
 
 ## Current Read
 

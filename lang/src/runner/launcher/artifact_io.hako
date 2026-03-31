@@ -1,0 +1,63 @@
+// launcher/artifact_io.hako — file and output helpers for Stage1 launcher
+
+static box LauncherArtifactIoBox {
+  method read_file(tag, path){
+    if path == null || path == "" {
+      print(tag + ": source path is required")
+      return null
+    }
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 {
+      print(tag + ": failed to open " + path)
+      return null
+    }
+    local content = fb.read()
+    fb.close()
+    if content == null || content == "" {
+      print(tag + ": source is empty")
+      return null
+    }
+    return me._coerce_text_compat(content)
+  }
+
+  method print_or_write_output(tag, path, content, quiet){
+    if path != null && path != "" {
+      return me._write_output_checked(tag, path, content, quiet)
+    }
+    return me._print_output_checked(content)
+  }
+
+  method write_file(tag, path, content, quiet){
+    if path == null || path == "" { return 1 }
+    local fb = new FileBox()
+    local ok = fb.open(path, "w")
+    if ok != 1 {
+      print(tag + ": failed to open output " + path)
+      return 0
+    }
+    fb.write(content)
+    fb.close()
+    if quiet != 1 {
+      print(tag + ": written " + path)
+    }
+    return 1
+  }
+
+  method _load_program_json_from_path_checked(tag, prog_path){
+    return me.read_file(tag, prog_path)
+  }
+
+  method _print_output_checked(content){
+    print(content)
+    return 1
+  }
+
+  method _write_output_checked(tag, path, content, quiet){
+    return me.write_file(tag, path, content, quiet)
+  }
+
+  method _coerce_text_compat(value){
+    return "" + value
+  }
+}
