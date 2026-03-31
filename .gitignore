@@ -26,6 +26,8 @@ build/
 !lang/src/compiler/build/
 !lang/src/compiler/build/*.hako
 !lang/src/compiler/build/README.md
+!tools/build/
+!tools/build/**
 dist/
 *.egg-info/
 

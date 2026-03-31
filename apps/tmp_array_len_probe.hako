@@ -1,5 +1,0 @@
-static box Main { main() {
-  a = new ArrayBox()
-  print(a.length().toString())
-  return 0
-} }

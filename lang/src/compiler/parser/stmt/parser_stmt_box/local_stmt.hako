@@ -1,0 +1,48 @@
+// ParserStmtLocalBox — minimal local declaration parser
+//
+// This keeps the statement parser split intact while preserving the common
+// `local name = expr` lowering shape.
+
+using sh_core as StringHelpers
+
+static box ParserStmtLocalBox {
+  method parse_or_null(src, i, stmt_start, ctx) {
+    local j = i
+    if ctx.starts_with_kw(src, j, "local") != 1 { return null }
+
+    j = j + 5
+    j = ctx.skip_ws(src, j)
+    if j >= src.length() || ctx.is_alpha(src.substring(j, j + 1)) != 1 {
+      return null
+    }
+
+    local ident = ctx.read_ident2(src, j)
+    local at = ident.lastIndexOf("@")
+    local name = ident
+    if at >= 0 {
+      name = ident.substring(0, at)
+      j = ctx.to_int(ident.substring(at + 1, ident.length()))
+    }
+
+    j = ctx.skip_ws(src, j)
+
+    local expr_json = "{\"type\":\"Int\",\"value\":0}"
+    if j < src.length() && src.substring(j, j + 1) == "=" {
+      j = j + 1
+      j = ctx.skip_ws(src, j)
+      if j < src.length() {
+        local ahead = src.substring(j, j + 1)
+        if ahead != "}" && ahead != ";" {
+          expr_json = ctx.parse_expr2(src, j)
+          j = ctx.gpos_get()
+        }
+      }
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    return "{\"type\":\"Local\",\"name\":\"" + name + "\",\"expr\":" + expr_json + "}"
+  }
+}

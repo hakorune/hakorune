@@ -7,6 +7,8 @@
 // モジュール化方針:
 // - このファイルは自己完結（削除時はこのファイル + mod.rs 1行 + vm.rs 分岐のみ）
 // - 必要なヘルパー・定数は全てこのファイル内に閉じ込め
+// - `#[ignore]` の 4 テストは manual bridge harness。ArrayBox/MapBox の実引数経路が
+//   安定してから常時実行へ昇格させる。
 //
 // Implementation Status:
 // - Phase 30.x: Stage-1 UsingResolver minimal A/B test
@@ -102,7 +104,7 @@ static box Runner {
 "#;
 
 #[test]
-#[ignore]
+#[ignore] // manual bridge harness; requires NYASH_JOINIR_VM_BRIDGE=1 and the VM bridge path enabled
 fn joinir_vm_bridge_stage1_usingresolver_empty_entries() {
     if !require_experiment_toggle() {
         return;
@@ -142,9 +144,8 @@ fn joinir_vm_bridge_stage1_usingresolver_empty_entries() {
     let join_module = lower_stage1_usingresolver_to_joinir(&compiled.module)
         .expect("lower_stage1_usingresolver_to_joinir failed");
 
-    // 空配列、n=0、空Map、空Map、prefix="init" を引数として渡す
-    // JoinValue で表現可能な引数のみ（ArrayBox/MapBox は現状未サポート）
-    // このテストは JoinIR lowering の構造検証が主目的
+    // ここは manual bridge harness。
+    // Route C は構造検証が主目的で、ArrayBox/MapBox の実引数サポートは前提にしない。
     eprintln!(
         "[joinir_vm_bridge_test/stage1] Note: JoinIR bridge with ArrayBox requires VM-side support"
     );
@@ -186,7 +187,7 @@ fn joinir_vm_bridge_stage1_usingresolver_empty_entries() {
 }
 
 #[test]
-#[ignore]
+#[ignore] // manual bridge harness; requires NYASH_JOINIR_VM_BRIDGE=1 and the VM bridge path enabled
 fn joinir_vm_bridge_stage1_usingresolver_with_entries() {
     if !require_experiment_toggle() {
         return;
@@ -257,7 +258,7 @@ fn joinir_vm_bridge_stage1_usingresolver_with_entries() {
 /// Step 2: Route B テスト - JoinIR → VM bridge を実際に実行
 /// 目的: どこで panic/unimplemented! が出るかを特定する
 #[test]
-#[ignore]
+#[ignore] // manual bridge harness; requires NYASH_JOINIR_VM_BRIDGE=1 and the VM bridge path enabled
 fn joinir_vm_bridge_stage1_usingresolver_route_b_execution() {
     if !require_experiment_toggle() {
         return;
@@ -283,7 +284,9 @@ fn joinir_vm_bridge_stage1_usingresolver_route_b_execution() {
         join_module.functions.len()
     );
 
-    eprintln!("[joinir_vm_bridge_test/stage1/route_b] Attempting run_joinir_via_vm with n=0 (Array/Map supported)");
+    eprintln!(
+        "[joinir_vm_bridge_test/stage1/route_b] Attempting run_joinir_via_vm with n=0 (manual bridge harness)"
+    );
 
     let result = run_joinir_via_vm(
         &join_module,
@@ -303,7 +306,7 @@ fn joinir_vm_bridge_stage1_usingresolver_route_b_execution() {
                 "[joinir_vm_bridge_test/stage1/route_b] ✅ Execution succeeded: {:?}",
                 value
             );
-            // n=0 の場合、ループは実行されず prefix_init がそのまま返るはず
+            // n=0 の場合、ループは実行されず prefix_init がそのまま返るはず。
             match &value {
                 JoinValue::Str(s) => {
                     eprintln!("[joinir_vm_bridge_test/stage1/route_b] Result: {:?}", s);
@@ -335,7 +338,7 @@ fn joinir_vm_bridge_stage1_usingresolver_route_b_execution() {
 /// Step 2b: Route B テスト - n>0 で実際に ArrayBox.get を呼び出す
 /// 目的: JoinValue に ArrayBox がない場合、どうエラーになるか確認
 #[test]
-#[ignore]
+#[ignore] // manual bridge harness; requires NYASH_JOINIR_VM_BRIDGE=1 and the VM bridge path enabled
 fn joinir_vm_bridge_stage1_usingresolver_route_b_with_entries() {
     if !require_experiment_toggle() {
         return;
@@ -363,12 +366,14 @@ fn joinir_vm_bridge_stage1_usingresolver_route_b_with_entries() {
         join_module.functions.len()
     );
 
-    // n=3 の場合、ループが実行され、entries.get(i) が呼ばれる
-    // JoinValue::Int(0) を entries に渡すと、get メソッド呼び出しで失敗するはず
+    // n=3 の場合、ループが実行され、entries.get(i) が呼ばれる。
+    // この経路は ArrayBox/MapBox の実引数ブリッジが安定してから常時化する。
     eprintln!(
         "[joinir_vm_bridge_test/stage1/route_b_with_entries] Attempting run_joinir_via_vm with n=3"
     );
-    eprintln!("[joinir_vm_bridge_test/stage1/route_b_with_entries] Note: ArrayBox passed as Int(0) - expecting failure at get() call");
+    eprintln!(
+        "[joinir_vm_bridge_test/stage1/route_b_with_entries] Note: bridge path remains manual until VM argument support lands"
+    );
 
     let result = run_joinir_via_vm(
         &join_module,

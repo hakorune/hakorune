@@ -1,0 +1,175 @@
+// mir_json_v0_shape_box_recipe_seq.hako
+// Responsibility:
+// - Recipe sequence scanning and shape classification for MirJsonV0ShapeBox.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+using lang.compiler.mirbuilder.mir_json_v0_shape_box_helpers as MirJsonV0ShapeHelpers
+
+static box MirJsonV0ShapeRecipeSeq {
+  _recipe_stmt_seq(recipe_root, tag) {
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
+      return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] missing recipe root", MirJsonV0ShapeHelpers._empty_array())
+    }
+    if RecipeItemBox.kind_of(recipe_root) != "Seq" {
+      return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe root must be Seq", MirJsonV0ShapeHelpers._empty_array())
+    }
+
+    local items = BoxHelpers.map_get(recipe_root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe root is missing items", MirJsonV0ShapeHelpers._empty_array())
+    }
+
+    local seq = MirJsonV0ShapeHelpers._empty_array()
+    local i = 0
+    local n = BoxHelpers.array_len(items)
+    loop(i < n) {
+      local child = BoxHelpers.array_get(items, i)
+      if child == null || BoxHelpers.is_map(child) != 1 {
+        return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child is not a map", MirJsonV0ShapeHelpers._empty_array())
+      }
+      if RecipeItemBox.kind_of(child) != "Seq" {
+        return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child kind must be Seq", MirJsonV0ShapeHelpers._empty_array())
+      }
+      local leaf_kind = "" + BoxHelpers.map_get(child, "leaf_kind")
+      if leaf_kind != "Stmt" {
+        return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child leaf_kind must be Stmt", MirJsonV0ShapeHelpers._empty_array())
+      }
+      local stmt_kind = "" + BoxHelpers.map_get(child, "stmt_kind")
+      if stmt_kind == "" {
+        return MirJsonV0ShapeHelpers._seq_result(1, tag + "[cap_missing/recipe_root] recipe child missing stmt_kind", MirJsonV0ShapeHelpers._empty_array())
+      }
+      seq.push(stmt_kind)
+      i = i + 1
+    }
+    return MirJsonV0ShapeHelpers._seq_result(0, "", seq)
+  }
+
+  _seq_signature(seq) {
+    if seq == null || BoxHelpers.is_array(seq) != 1 { return "" }
+    local s = ""
+    local i = 0
+    local n = BoxHelpers.array_len(seq)
+    loop(i < n) {
+      if i > 0 { s = s + ">" }
+      s = s + ("" + BoxHelpers.array_get(seq, i))
+      i = i + 1
+    }
+    return s
+  }
+
+  _shape_kind_from_recipe(seq_sig, state, tag) {
+    local print_kind = "" + BoxHelpers.map_get(state, "print_kind")
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local assign_rhs_kind = "" + BoxHelpers.map_get(state, "assign_rhs_kind")
+    if assign_rhs_kind == "null" { assign_rhs_kind = "" }
+    local retv = BoxHelpers.map_get(state, "retv")
+
+    if seq_sig == "Return" {
+      if return_kind == "Int" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase1_return_int", 0, 0, 0, 1)
+      }
+      if return_kind == "NewBox" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase12_return_newbox", 0, 0, 0, 1)
+      }
+      if return_kind == "NewBoxStringAbc" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase16_return_newbox_stringbox_abc", 0, 0, 0, 1)
+      }
+      if return_kind == "CallId0" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase13_return_call_id0", 0, 0, 0, 1)
+      }
+      if return_kind == "CallId1Int9" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase15_return_call_id1_int9", 0, 0, 0, 1)
+      }
+      if return_kind == "CallId1Int7" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase18_return_call_id1_int7", 0, 0, 0, 1)
+      }
+      if return_kind == "MethodStringBoxLengthAbc" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase14_return_boxcall_stringbox_length_abc", 0, 0, 0, 1)
+      }
+      if return_kind == "MethodStringBoxIndexOfBAbc" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase17_return_boxcall_stringbox_indexof_b_abc", 0, 0, 0, 1)
+      }
+      return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] Return seq requires Return(Int, NewBox, New(StringBox(\"abc\")), Call(id()), Call(id(9|7)), Method(New(StringBox(\"abc\")).length()), or Method(New(StringBox(\"abc\")).indexOf(\"b\")))")
+    }
+
+    if seq_sig == "Local>Return" {
+      if return_kind != "Var" {
+        return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] Local>Return seq requires Return(Var)")
+      }
+      return MirJsonV0ShapeHelpers._shape_ok("phase2_local_return_var", 0, 1, 0, 1)
+    }
+
+    if seq_sig == "Print>Return" {
+      if print_kind != "Int" || return_kind != "Int" {
+        return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] Print>Return seq requires Print(Int) + Return(Int)")
+      }
+      return MirJsonV0ShapeHelpers._shape_ok("phase2_print_int_return_int", 1, 0, 0, 1)
+    }
+
+    if seq_sig == "Local>Assignment>Return" {
+      if return_kind != "Var" {
+        return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] Local>Assignment>Return seq requires Return(Var)")
+      }
+      if assign_rhs_kind == "Int" {
+        return MirJsonV0ShapeHelpers._shape_ok("phase20_store_assignment_int_return_var", 0, 1, 1, 1)
+      }
+      if assign_rhs_kind != "" && assign_rhs_kind != "AddVarInt" {
+        return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] Local>Assignment>Return seq requires assign_rhs_kind Int or AddVarInt")
+      }
+      return MirJsonV0ShapeHelpers._shape_ok("phase2_inc_return_var", 0, 1, 1, 1)
+    }
+
+    if seq_sig == "Local>Local>Return" {
+      if return_kind != "Var" {
+        return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] Local>Local>Return seq requires Return(Var)")
+      }
+      return MirJsonV0ShapeHelpers._shape_ok("phase19_load_local_var_return_var", 0, 1, 0, 1)
+    }
+
+    if seq_sig == "Local>Print>Return" {
+      if print_kind == "Var" {
+        if return_kind == "Var" {
+          return MirJsonV0ShapeHelpers._shape_ok("phase5_local_print_var_return_var", 1, 1, 0, 1)
+        }
+        if return_kind == "Int" {
+          if StringHelpers.to_i64(retv) == 0 {
+            return MirJsonV0ShapeHelpers._shape_ok("phase4_local_print_var_return0", 1, 1, 0, 1)
+          }
+          return MirJsonV0ShapeHelpers._shape_ok("phase4_local_print_var_return_int", 1, 1, 0, 1)
+        }
+      }
+
+      if print_kind == "BinaryVarInt" && return_kind == "Int" {
+        if StringHelpers.to_i64(retv) == 0 {
+          return MirJsonV0ShapeHelpers._shape_ok("phase9_print_binop_return0", 1, 1, 0, 1)
+        }
+        return MirJsonV0ShapeHelpers._shape_ok("phase9_print_binop_return_int", 1, 1, 0, 1)
+      }
+      return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] unsupported Local>Print>Return variant")
+    }
+
+    if seq_sig == "Local>Local>Print>Return" {
+      if print_kind == "Var" && return_kind == "Int" {
+        if StringHelpers.to_i64(retv) == 0 {
+          return MirJsonV0ShapeHelpers._shape_ok("phase4_local_print_var_return0", 1, 1, 0, 1)
+        }
+        return MirJsonV0ShapeHelpers._shape_ok("phase4_local_print_var_return_int", 1, 1, 0, 1)
+      }
+      return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] unsupported Local>Local>Print>Return variant")
+    }
+
+    if seq_sig == "Local>Assignment>Print>Return" {
+      if print_kind != "Var" || return_kind != "Int" {
+        return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] Local>Assignment>Print>Return seq requires Print(Var) + Return(Int)")
+      }
+      if StringHelpers.to_i64(retv) == 0 {
+        return MirJsonV0ShapeHelpers._shape_ok("phase7_inc_print_return0", 1, 1, 1, 1)
+      }
+      return MirJsonV0ShapeHelpers._shape_ok("phase7_inc_print_return_int", 1, 1, 1, 1)
+    }
+
+    return MirJsonV0ShapeHelpers._shape_err(tag, "[cap_missing/recipe_shape] unsupported recipe stmt sequence: " + seq_sig)
+  }
+}

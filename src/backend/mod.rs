@@ -26,11 +26,6 @@ pub mod wasm;
 #[cfg(feature = "wasm-backend")]
 pub mod wasm_v2;
 
-// #[cfg(feature = "llvm-inkwell-legacy")]
-// pub mod llvm_legacy;
-// #[cfg(feature = "llvm-inkwell-legacy")]
-// pub mod llvm;
-
 // Public aliases to make the role of the VM clear in runner/tests
 pub use mir_interpreter::MirInterpreter;
 /// Primary Rust VM executor alias (preferred name)

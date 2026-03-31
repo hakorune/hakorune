@@ -1,0 +1,575 @@
+// mir_json_v0_shape_box_recipe_control.hako
+// Responsibility:
+// - Control-shape recipe matching (If/Loop variants) for MirJsonV0ShapeBox.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.recipe_item_box as RecipeItemBox
+using lang.compiler.mirbuilder.mir_json_v0_shape_box_helpers as MirJsonV0ShapeHelpers
+
+static box MirJsonV0ShapeRecipeControl {
+  _recipe_shape_try_control(recipe_root, state, tag) {
+    local if_merge_shape = me._if_merge_shape_from_recipe(recipe_root, state, tag)
+    local if_merge_err = StringHelpers.to_i64(BoxHelpers.map_get(if_merge_shape, "err"))
+    if if_merge_err == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_err("" + BoxHelpers.map_get(if_merge_shape, "err_line"))
+    }
+    if StringHelpers.to_i64(BoxHelpers.map_get(if_merge_shape, "matched")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_match(if_merge_shape)
+    }
+
+    local if_shape = me._if_shape_from_recipe(recipe_root, state, tag)
+    local if_err = StringHelpers.to_i64(BoxHelpers.map_get(if_shape, "err"))
+    if if_err == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_err("" + BoxHelpers.map_get(if_shape, "err_line"))
+    }
+    if StringHelpers.to_i64(BoxHelpers.map_get(if_shape, "matched")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_match(if_shape)
+    }
+
+    local loop_if_shape = me._loop_if_shape_from_recipe(recipe_root, state, tag)
+    local loop_if_err = StringHelpers.to_i64(BoxHelpers.map_get(loop_if_shape, "err"))
+    if loop_if_err == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_err("" + BoxHelpers.map_get(loop_if_shape, "err_line"))
+    }
+    if StringHelpers.to_i64(BoxHelpers.map_get(loop_if_shape, "matched")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_match(loop_if_shape)
+    }
+
+    local loop_shape = me._loop_shape_from_recipe(recipe_root, state, tag)
+    local loop_err = StringHelpers.to_i64(BoxHelpers.map_get(loop_shape, "err"))
+    if loop_err == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_err("" + BoxHelpers.map_get(loop_shape, "err_line"))
+    }
+    if StringHelpers.to_i64(BoxHelpers.map_get(loop_shape, "matched")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_control_try_match(loop_shape)
+    }
+
+    return MirJsonV0ShapeHelpers._recipe_control_try_no_match()
+  }
+
+  _if_merge_assign_rhs_or_error(stmt_item, local_name, tag, branch_label) {
+    if stmt_item == null || BoxHelpers.is_map(stmt_item) != 1 || RecipeItemBox.kind_of(stmt_item) != "Seq" {
+      return %{
+        "err" => 1,
+        "err_line" => "[cap_missing/recipe_shape] If " + branch_label + " item must be Seq(Assignment)"
+      }
+    }
+    if ("" + BoxHelpers.map_get(stmt_item, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(stmt_item, "stmt_kind")) != "Assignment" {
+      return %{
+        "err" => 1,
+        "err_line" => "[cap_missing/recipe_shape] If " + branch_label + " item must be Assignment stmt"
+      }
+    }
+    local facts = BoxHelpers.map_get(stmt_item, "facts")
+    if facts == null || BoxHelpers.is_map(facts) != 1 {
+      return %{
+        "err" => 1,
+        "err_line" => "[cap_missing/recipe_shape] If " + branch_label + " Assignment facts missing"
+      }
+    }
+    local assign_name = "" + BoxHelpers.map_get(facts, "assign_name")
+    if assign_name == "" || assign_name != local_name {
+      return %{
+        "err" => 1,
+        "err_line" => "[cap_missing/recipe_shape] If " + branch_label + " assign_name must match Local var"
+      }
+    }
+    local assign_rhs_kind = "" + BoxHelpers.map_get(facts, "assign_rhs_kind")
+    if assign_rhs_kind != "Int" {
+      return %{
+        "err" => 1,
+        "err_line" => "[cap_missing/recipe_shape] If " + branch_label + " assign_rhs_kind must be Int"
+      }
+    }
+    local assign_rhs_int = BoxHelpers.map_get(facts, "assign_rhs")
+    if assign_rhs_int == null {
+      return %{
+        "err" => 1,
+        "err_line" => "[cap_missing/recipe_shape] If " + branch_label + " assign_rhs missing"
+      }
+    }
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "assign_rhs_int" => assign_rhs_int
+    }
+  }
+
+  _if_merge_shape_from_recipe(recipe_root, state, tag) {
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if RecipeItemBox.kind_of(recipe_root) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    local items = BoxHelpers.map_get(recipe_root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local has_if = 0
+    local i = 0
+    local n = BoxHelpers.array_len(items)
+    loop(i < n) {
+      local item = BoxHelpers.array_get(items, i)
+      if item != null && BoxHelpers.is_map(item) == 1 {
+        if RecipeItemBox.kind_of(item) == "If" { has_if = 1 }
+      }
+      i = i + 1
+    }
+    if has_if != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if n != 3 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local local_stmt = BoxHelpers.array_get(items, 0)
+    local if_item = BoxHelpers.array_get(items, 1)
+    local final_return_stmt = BoxHelpers.array_get(items, 2)
+    if local_stmt == null || BoxHelpers.is_map(local_stmt) != 1 || RecipeItemBox.kind_of(local_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if if_item == null || BoxHelpers.is_map(if_item) != 1 || RecipeItemBox.kind_of(if_item) != "If" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if final_return_stmt == null || BoxHelpers.is_map(final_return_stmt) != 1 || RecipeItemBox.kind_of(final_return_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    if ("" + BoxHelpers.map_get(local_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(local_stmt, "stmt_kind")) != "Local" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if ("" + BoxHelpers.map_get(final_return_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(final_return_stmt, "stmt_kind")) != "Return" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
+    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local local_name = "" + BoxHelpers.map_get(state, "local_name")
+    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 || has_return != 1 || return_kind != "Var" || local_name == "" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if ret_var_name != local_name {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local cond_facts = BoxHelpers.map_get(if_item, "cond_facts")
+    if cond_facts == null || BoxHelpers.is_map(cond_facts) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if ("" + BoxHelpers.map_get(cond_facts, "cond_kind")) != "VarEqInt" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    local cond_var_name = "" + BoxHelpers.map_get(cond_facts, "cond_var_name")
+    if cond_var_name == "" || cond_var_name != local_name {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    local cond_rhs_int = BoxHelpers.map_get(cond_facts, "cond_rhs_int")
+    if cond_rhs_int == null {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local then_item = BoxHelpers.map_get(if_item, "then_item")
+    local else_item = BoxHelpers.map_get(if_item, "else_item")
+    if then_item == null || BoxHelpers.is_map(then_item) != 1 || RecipeItemBox.kind_of(then_item) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if else_item == null || BoxHelpers.is_map(else_item) != 1 || RecipeItemBox.kind_of(else_item) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local then_items = BoxHelpers.map_get(then_item, "items")
+    local else_items = BoxHelpers.map_get(else_item, "items")
+    if then_items == null || BoxHelpers.is_array(then_items) != 1 || BoxHelpers.array_len(then_items) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if else_items == null || BoxHelpers.is_array(else_items) != 1 || BoxHelpers.array_len(else_items) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local then_assign_out = me._if_merge_assign_rhs_or_error(BoxHelpers.array_get(then_items, 0), local_name, tag, "then")
+    if StringHelpers.to_i64(BoxHelpers.map_get(then_assign_out, "err")) == 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    local else_assign_out = me._if_merge_assign_rhs_or_error(BoxHelpers.array_get(else_items, 0), local_name, tag, "else")
+    if StringHelpers.to_i64(BoxHelpers.map_get(else_assign_out, "err")) == 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    return MirJsonV0ShapeHelpers._if_merge_shape_ok(
+      cond_rhs_int,
+      BoxHelpers.map_get(then_assign_out, "assign_rhs_int"),
+      BoxHelpers.map_get(else_assign_out, "assign_rhs_int")
+    )
+  }
+
+  _if_shape_from_recipe(recipe_root, state, tag) {
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    if RecipeItemBox.kind_of(recipe_root) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+    local items = BoxHelpers.map_get(recipe_root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    local has_if = 0
+    local i = 0
+    local n = BoxHelpers.array_len(items)
+    loop(i < n) {
+      local item = BoxHelpers.array_get(items, i)
+      if item != null && BoxHelpers.is_map(item) == 1 {
+        if RecipeItemBox.kind_of(item) == "If" { has_if = 1 }
+      }
+      i = i + 1
+    }
+    if has_if != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_no_match()
+    }
+
+    if n != 3 {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If recipe expects Local>If>Return")
+    }
+    local local_stmt = BoxHelpers.array_get(items, 0)
+    local if_item = BoxHelpers.array_get(items, 1)
+    local final_return_stmt = BoxHelpers.array_get(items, 2)
+
+    if local_stmt == null || BoxHelpers.is_map(local_stmt) != 1 || RecipeItemBox.kind_of(local_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If recipe first item must be Seq(Local)")
+    }
+    if if_item == null || BoxHelpers.is_map(if_item) != 1 || RecipeItemBox.kind_of(if_item) != "If" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If recipe second item must be If")
+    }
+    if final_return_stmt == null || BoxHelpers.is_map(final_return_stmt) != 1 || RecipeItemBox.kind_of(final_return_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If recipe third item must be Seq(Return)")
+    }
+
+    if ("" + BoxHelpers.map_get(local_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(local_stmt, "stmt_kind")) != "Local" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If recipe first item must be Local stmt")
+    }
+    if ("" + BoxHelpers.map_get(final_return_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(final_return_stmt, "stmt_kind")) != "Return" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If recipe third item must be Return stmt")
+    }
+
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
+    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local local_name = "" + BoxHelpers.map_get(state, "local_name")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 || return_kind != "Int" || local_name == "" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If state requires Local only + final Return(Int)")
+    }
+
+    local cond_facts = BoxHelpers.map_get(if_item, "cond_facts")
+    if cond_facts == null || BoxHelpers.is_map(cond_facts) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If recipe missing cond_facts")
+    }
+    if ("" + BoxHelpers.map_get(cond_facts, "cond_kind")) != "VarEqInt" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If cond_kind must be VarEqInt")
+    }
+    local cond_var_name = "" + BoxHelpers.map_get(cond_facts, "cond_var_name")
+    if cond_var_name == "" || cond_var_name != local_name {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If cond_var_name must match Local var")
+    }
+    local cond_rhs_int = BoxHelpers.map_get(cond_facts, "cond_rhs_int")
+
+    local then_item = BoxHelpers.map_get(if_item, "then_item")
+    if then_item == null || BoxHelpers.is_map(then_item) != 1 || RecipeItemBox.kind_of(then_item) != "Exit" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If then_item must be Exit(Return)")
+    }
+    if ("" + BoxHelpers.map_get(then_item, "exit_kind")) != "Return" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If then Exit kind must be Return")
+    }
+    local payload = BoxHelpers.map_get(then_item, "payload")
+    if payload == null || BoxHelpers.is_map(payload) != 1 {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If then Return payload missing")
+    }
+    if ("" + BoxHelpers.map_get(payload, "return_kind")) != "Int" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If then Return payload kind must be Int")
+    }
+    local then_retv = BoxHelpers.map_get(payload, "retv")
+
+    local else_item = BoxHelpers.map_get(if_item, "else_item")
+    if else_item == null || BoxHelpers.is_map(else_item) != 1 || RecipeItemBox.kind_of(else_item) != "Seq" {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If else_item must be empty Seq")
+    }
+    local else_items = BoxHelpers.map_get(else_item, "items")
+    if else_items == null || BoxHelpers.is_array(else_items) != 1 || BoxHelpers.array_len(else_items) != 0 {
+      return MirJsonV0ShapeHelpers._if_shape_err(tag, "[cap_missing/recipe_shape] If else_item must be empty Seq")
+    }
+
+    return MirJsonV0ShapeHelpers._if_shape_ok(cond_rhs_int, then_retv)
+  }
+
+  _loop_shape_from_recipe(recipe_root, state, tag) {
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+    if RecipeItemBox.kind_of(recipe_root) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+    local items = BoxHelpers.map_get(recipe_root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+
+    local has_loop = 0
+    local i = 0
+    local n = BoxHelpers.array_len(items)
+    loop(i < n) {
+      local item = BoxHelpers.array_get(items, i)
+      if item != null && BoxHelpers.is_map(item) == 1 {
+        if RecipeItemBox.kind_of(item) == "Loop" { has_loop = 1 }
+      }
+      i = i + 1
+    }
+    if has_loop != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+
+    if n != 3 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe expects Local>Loop>Return")
+    }
+    local local_stmt = BoxHelpers.array_get(items, 0)
+    local loop_item = BoxHelpers.array_get(items, 1)
+    local final_return_stmt = BoxHelpers.array_get(items, 2)
+
+    if local_stmt == null || BoxHelpers.is_map(local_stmt) != 1 || RecipeItemBox.kind_of(local_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe first item must be Seq(Local)")
+    }
+    if loop_item == null || BoxHelpers.is_map(loop_item) != 1 || RecipeItemBox.kind_of(loop_item) != "Loop" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe second item must be Loop")
+    }
+    if final_return_stmt == null || BoxHelpers.is_map(final_return_stmt) != 1 || RecipeItemBox.kind_of(final_return_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe third item must be Seq(Return)")
+    }
+
+    if ("" + BoxHelpers.map_get(local_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(local_stmt, "stmt_kind")) != "Local" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe first item must be Local stmt")
+    }
+    if ("" + BoxHelpers.map_get(final_return_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(final_return_stmt, "stmt_kind")) != "Return" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe third item must be Return stmt")
+    }
+
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
+    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local local_name = "" + BoxHelpers.map_get(state, "local_name")
+    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 || has_return != 1 || local_name == "" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop state requires Local only + Return(Var|Int)")
+    }
+    if return_kind != "Var" && return_kind != "Int" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop final Return must be Var or Int")
+    }
+    if return_kind == "Var" && ret_var_name != local_name {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop Return(Var) must use Local var")
+    }
+
+    local cond_facts = BoxHelpers.map_get(loop_item, "cond_facts")
+    if cond_facts == null || BoxHelpers.is_map(cond_facts) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe missing cond_facts")
+    }
+    if ("" + BoxHelpers.map_get(cond_facts, "cond_kind")) != "VarLtInt" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop cond_kind must be VarLtInt")
+    }
+    local cond_var_name = "" + BoxHelpers.map_get(cond_facts, "cond_var_name")
+    if cond_var_name == "" || cond_var_name != local_name {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop cond_var_name must match Local var")
+    }
+    local cond_rhs_int = BoxHelpers.map_get(cond_facts, "cond_rhs_int")
+
+    local body_item = BoxHelpers.map_get(loop_item, "body_item")
+    if body_item == null || BoxHelpers.is_map(body_item) != 1 || RecipeItemBox.kind_of(body_item) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body_item must be Seq")
+    }
+    local body_items = BoxHelpers.map_get(body_item, "items")
+    if body_items == null || BoxHelpers.is_array(body_items) != 1 || BoxHelpers.array_len(body_items) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body_item must contain one stmt")
+    }
+    local body_stmt = BoxHelpers.array_get(body_items, 0)
+    if body_stmt == null || BoxHelpers.is_map(body_stmt) != 1 || RecipeItemBox.kind_of(body_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body stmt must be Seq(Assignment)")
+    }
+    if ("" + BoxHelpers.map_get(body_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(body_stmt, "stmt_kind")) != "Assignment" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body stmt must be Assignment")
+    }
+    local body_facts = BoxHelpers.map_get(body_stmt, "facts")
+    if body_facts == null || BoxHelpers.is_map(body_facts) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body Assignment facts missing")
+    }
+    local assign_name = "" + BoxHelpers.map_get(body_facts, "assign_name")
+    if assign_name == "" || assign_name != local_name {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body assign_name must match Local var")
+    }
+    local step_int = BoxHelpers.map_get(body_facts, "step_int")
+    if StringHelpers.to_i64(step_int) <= 0 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop step_int must be positive")
+    }
+
+    return MirJsonV0ShapeHelpers._loop_shape_ok(cond_rhs_int, step_int)
+  }
+
+  _loop_if_shape_from_recipe(recipe_root, state, tag) {
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+    if RecipeItemBox.kind_of(recipe_root) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+    local items = BoxHelpers.map_get(recipe_root, "items")
+    if items == null || BoxHelpers.is_array(items) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+
+    local has_loop = 0
+    local i = 0
+    local n = BoxHelpers.array_len(items)
+    loop(i < n) {
+      local item = BoxHelpers.array_get(items, i)
+      if item != null && BoxHelpers.is_map(item) == 1 {
+        if RecipeItemBox.kind_of(item) == "Loop" { has_loop = 1 }
+      }
+      i = i + 1
+    }
+    if has_loop != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_no_match()
+    }
+
+    if n != 3 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe expects Local>Loop>Return")
+    }
+    local local_stmt = BoxHelpers.array_get(items, 0)
+    local loop_item = BoxHelpers.array_get(items, 1)
+    local final_return_stmt = BoxHelpers.array_get(items, 2)
+
+    if local_stmt == null || BoxHelpers.is_map(local_stmt) != 1 || RecipeItemBox.kind_of(local_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe first item must be Seq(Local)")
+    }
+    if loop_item == null || BoxHelpers.is_map(loop_item) != 1 || RecipeItemBox.kind_of(loop_item) != "Loop" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe second item must be Loop")
+    }
+    if final_return_stmt == null || BoxHelpers.is_map(final_return_stmt) != 1 || RecipeItemBox.kind_of(final_return_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe third item must be Seq(Return)")
+    }
+    if ("" + BoxHelpers.map_get(local_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(local_stmt, "stmt_kind")) != "Local" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe first item must be Local stmt")
+    }
+    if ("" + BoxHelpers.map_get(final_return_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(final_return_stmt, "stmt_kind")) != "Return" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe third item must be Return stmt")
+    }
+
+    local has_local = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_local"))
+    local has_print = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_print"))
+    local has_assignment = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_assignment"))
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local local_name = "" + BoxHelpers.map_get(state, "local_name")
+    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
+    if has_local != 1 || has_print != 0 || has_assignment != 0 || has_return != 1 || local_name == "" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If state requires Local only + Return(Var|Int)")
+    }
+    if return_kind != "Var" && return_kind != "Int" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If final Return must be Var or Int")
+    }
+    if return_kind == "Var" && ret_var_name != local_name {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If Return(Var) must use Local var")
+    }
+
+    local cond_facts = BoxHelpers.map_get(loop_item, "cond_facts")
+    if cond_facts == null || BoxHelpers.is_map(cond_facts) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop recipe missing cond_facts")
+    }
+    if ("" + BoxHelpers.map_get(cond_facts, "cond_kind")) != "VarLtInt" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop cond_kind must be VarLtInt")
+    }
+    local cond_var_name = "" + BoxHelpers.map_get(cond_facts, "cond_var_name")
+    if cond_var_name == "" || cond_var_name != local_name {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop cond_var_name must match Local var")
+    }
+    local cond_rhs_int = BoxHelpers.map_get(cond_facts, "cond_rhs_int")
+
+    local body_item = BoxHelpers.map_get(loop_item, "body_item")
+    if body_item == null || BoxHelpers.is_map(body_item) != 1 || RecipeItemBox.kind_of(body_item) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop body_item must be Seq")
+    }
+    local body_items = BoxHelpers.map_get(body_item, "items")
+    if body_items == null || BoxHelpers.is_array(body_items) != 1 || BoxHelpers.array_len(body_items) != 2 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If body_item must contain two stmts")
+    }
+    local if_stmt = BoxHelpers.array_get(body_items, 0)
+    local assign_stmt = BoxHelpers.array_get(body_items, 1)
+    if if_stmt == null || BoxHelpers.is_map(if_stmt) != 1 || RecipeItemBox.kind_of(if_stmt) != "If" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If first stmt must be If")
+    }
+    if assign_stmt == null || BoxHelpers.is_map(assign_stmt) != 1 || RecipeItemBox.kind_of(assign_stmt) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If second stmt must be Seq(Assignment)")
+    }
+    if ("" + BoxHelpers.map_get(assign_stmt, "leaf_kind")) != "Stmt" || ("" + BoxHelpers.map_get(assign_stmt, "stmt_kind")) != "Assignment" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If second stmt must be Assignment")
+    }
+
+    local if_cond_facts = BoxHelpers.map_get(if_stmt, "cond_facts")
+    if if_cond_facts == null || BoxHelpers.is_map(if_cond_facts) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If cond_facts missing")
+    }
+    if ("" + BoxHelpers.map_get(if_cond_facts, "cond_kind")) != "VarLtInt" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If cond_kind must be VarLtInt")
+    }
+    local if_cond_var_name = "" + BoxHelpers.map_get(if_cond_facts, "cond_var_name")
+    if if_cond_var_name == "" || if_cond_var_name != local_name {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If cond_var_name must match Local var")
+    }
+    local if_cond_rhs_int = BoxHelpers.map_get(if_cond_facts, "cond_rhs_int")
+
+    local then_item = BoxHelpers.map_get(if_stmt, "then_item")
+    if then_item == null || BoxHelpers.is_map(then_item) != 1 || RecipeItemBox.kind_of(then_item) != "Exit" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If then_item must be Exit(Return)")
+    }
+    if ("" + BoxHelpers.map_get(then_item, "exit_kind")) != "Return" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If then_item must be Return")
+    }
+    local then_payload = BoxHelpers.map_get(then_item, "payload")
+    if then_payload == null || BoxHelpers.is_map(then_payload) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If Return payload missing")
+    }
+    if ("" + BoxHelpers.map_get(then_payload, "return_kind")) != "Int" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If Return payload must be Int")
+    }
+    local then_retv = BoxHelpers.map_get(then_payload, "retv")
+
+    local else_item = BoxHelpers.map_get(if_stmt, "else_item")
+    if else_item == null || BoxHelpers.is_map(else_item) != 1 || RecipeItemBox.kind_of(else_item) != "Seq" {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If else_item must be empty Seq")
+    }
+    local else_items = BoxHelpers.map_get(else_item, "items")
+    if else_items == null || BoxHelpers.is_array(else_items) != 1 || BoxHelpers.array_len(else_items) != 0 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop If else_item must be empty Seq")
+    }
+
+    local assign_facts = BoxHelpers.map_get(assign_stmt, "facts")
+    if assign_facts == null || BoxHelpers.is_map(assign_facts) != 1 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop Assignment facts missing")
+    }
+    local assign_name = "" + BoxHelpers.map_get(assign_facts, "assign_name")
+    if assign_name == "" || assign_name != local_name {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop Assignment assign_name must match Local var")
+    }
+    local step_int = BoxHelpers.map_get(assign_facts, "step_int")
+    if StringHelpers.to_i64(step_int) <= 0 {
+      return MirJsonV0ShapeHelpers._loop_shape_err(tag, "[cap_missing/recipe_shape] Loop step_int must be positive")
+    }
+
+    return MirJsonV0ShapeHelpers._loop_if_shape_ok(cond_rhs_int, if_cond_rhs_int, then_retv, step_int)
+  }
+}

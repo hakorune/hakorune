@@ -1,0 +1,78 @@
+// ParserStmtAnnotationBox — lightweight annotation gate for statement parsing
+//
+// Responsibility:
+// - Detect opt annotation prefixes in statement position.
+// - Hold a transient annotation contract message for callers.
+// - Consume annotation text without changing the statement parser contract.
+
+using sh_core as StringHelpers
+
+static box ParserStmtAnnotationBox {
+  method _contract_key() {
+    return "HAKO_STAGEB_STMT_ANNOTATION_CONTRACT"
+  }
+
+  method clear_annotation_contract() {
+    env.set(me._contract_key(), "")
+    return 0
+  }
+
+  method get_annotation_contract() {
+    local msg = env.get(me._contract_key())
+    if msg == null { return "" }
+    return "" + msg
+  }
+
+  method fail_annotation_contract(msg, _src) {
+    env.set(me._contract_key(), "" + msg)
+    return 0
+  }
+
+  method is_opt_annotation_prefix(src, i, ctx) {
+    if src == null || ctx == null { return 0 }
+    if i < 0 || i >= src.length() { return 0 }
+    if ctx.starts_with(src, i, "@") != 1 { return 0 }
+    return 1
+  }
+
+  method parse_opt_annotation(src, i, ctx) {
+    local j = i
+    if me.is_opt_annotation_prefix(src, j, ctx) != 1 { return j }
+
+    // Consume a single annotation token conservatively.
+    // We do not attach metadata here; the caller only needs a stable advance.
+    local n = src.length()
+    local depth = 0
+    local started = 0
+    loop(j < n) {
+      local ch = src.substring(j, j + 1)
+      if ch == "(" {
+        depth = depth + 1
+        started = 1
+        j = j + 1
+        continue
+      }
+      if ch == ")" && depth > 0 {
+        depth = depth - 1
+        j = j + 1
+        if depth == 0 && started == 1 {
+          break
+        }
+        continue
+      }
+      if depth == 0 && (ch == ";" || ch == "\n" || ch == "\r") {
+        break
+      }
+      if depth == 0 && (ch == " " || ch == "\t") {
+        j = j + 1
+        continue
+      }
+      j = j + 1
+    }
+
+    if j <= i {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    return j
+  }
+}

@@ -1,0 +1,124 @@
+// stage1_cli/program_json_input.hako
+using lang.compiler.entry.using_resolver_box as Stage1UsingResolverBox
+using lang.runner.stage1_cli.program_json_build as Stage1CliProgramJsonBuildBox
+
+static box Stage1CliProgramJsonInputBox {
+  method resolve_source_path_or_inline_placeholder(source, source_text) {
+    local source_path = source
+    if (source_path == null || source_path == "") && source_text != null && source_text != "" {
+      return "__stage1_inline_source__"
+    }
+    return source_path
+  }
+
+  method resolve_emit_program_source_text(tag, source, source_text) {
+    local src_text = source_text
+    if src_text != null && src_text != "" {
+      return src_text
+    }
+
+    local source_path = me.resolve_source_path_or_inline_placeholder(source, source_text)
+    if source_path == null || source_path == "" || source_path == "__stage1_inline_source__" {
+      print(tag + ": STAGE1_SOURCE is required")
+      return null
+    }
+    return me._read_file(tag, source_path)
+  }
+
+  method load_program_json_from_path_or_source(tag, prog_path, source_path, source_text) {
+    if prog_path != null && prog_path != "" {
+      return me._read_file(tag, prog_path)
+    }
+    return me.emit_program_json_from_source_input(
+      "[stage1-cli] emit program-json",
+      "[stage1-cli] emit program-json",
+      source_path,
+      source_text,
+      1
+    )
+  }
+
+  method resolve_program_json_for_emit_mir(source, source_text) {
+    local prog_json = source_text
+    if me._materialized_program_json_payload(prog_json) == 1 {
+      return prog_json
+    }
+
+    local source_for_emit = me.resolve_source_path_or_inline_placeholder(source, source_text)
+    if source_for_emit == null || source_for_emit == "" {
+      source_for_emit = "__stage1_inline_source__"
+    }
+    return me.emit_program_json_from_source_input(
+      "[stage1-cli] emit program-json",
+      "[stage1-cli] emit program-json",
+      source_for_emit,
+      source_text,
+      1
+    )
+  }
+
+  method resolve_program_json_for_run(source, source_text, prog_path) {
+    local prog_path_s = prog_path
+    local source_path = me.resolve_source_path_or_inline_placeholder(source, source_text)
+    if prog_path_s == null || prog_path_s == "" {
+      if source_path == null || source_path == "" {
+        print("[stage1-cli] run: source path is required (set STAGE1_SOURCE)")
+        return null
+      }
+    }
+    return me.load_program_json_from_path_or_source(
+      "[stage1-cli] run",
+      prog_path_s,
+      source_path,
+      source_text
+    )
+  }
+
+  method emit_program_json_from_source_input(input_tag, emit_tag, source, source_text, with_debug) {
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      print("[stage1-cli/debug] emit_program_json ENTRY")
+    }
+    local src = me.resolve_emit_program_source_text(input_tag, source, source_text)
+    if src == null { return null }
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+      if source_text != null && source_text != "" {
+        print("[stage1-cli/debug] emit_program_json: STAGE1_SOURCE_TEXT provided")
+      } else if src != null {
+        print("[stage1-cli/debug] emit_program_json: source loaded")
+      }
+    }
+
+    local prefix = Stage1UsingResolverBox.resolve_for_source(src)
+    if prefix == null { prefix = "" }
+    local merged = prefix + src
+    return Stage1CliProgramJsonBuildBox.emit_program_json_from_source_text_checked(
+      emit_tag,
+      merged,
+      with_debug
+    )
+  }
+
+  method _materialized_program_json_payload(input_text) {
+    return Stage1CliProgramJsonBuildBox.has_materialized_program_json_payload(input_text)
+  }
+
+  method _read_file(tag, path) {
+    if path == null || path == "" {
+      print(tag + ": source path is required")
+      return null
+    }
+    local fb = new FileBox()
+    local ok = fb.open(path, "r")
+    if ok != 1 {
+      print(tag + ": failed to open " + path)
+      return null
+    }
+    local content = fb.read()
+    fb.close()
+    if content == null || content == "" {
+      print(tag + ": source is empty")
+      return null
+    }
+    return content
+  }
+}

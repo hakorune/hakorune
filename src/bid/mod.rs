@@ -10,8 +10,6 @@ pub mod plugin_api;
 pub mod plugins;
 pub mod tlv;
 pub mod types;
-// pub mod registry;  // legacy - v2 plugin system uses BoxFactoryRegistry instead
-// pub mod plugin_box;  // legacy - FileBox専用実装
 pub mod generic_plugin_box;
 
 pub use bridge::*;
@@ -22,8 +20,6 @@ pub use metadata::*;
 pub use plugin_api::*;
 pub use tlv::*;
 pub use types::*;
-// pub use registry::*;  // legacy - v2 plugin system uses BoxFactoryRegistry instead
-// pub use plugin_box::*;  // legacy
 pub use generic_plugin_box::*;
 
 /// BID-1 version constant

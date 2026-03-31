@@ -1,0 +1,130 @@
+// stage1_cli/raw_subcommand_input.hako
+
+static box Stage1CliRawSubcommandInputBox {
+  method parse_emit_mir_json_request(args) {
+    local argc = 0
+    if args != null { argc = args.size() }
+
+    local req = new MapBox()
+    local prog_path = null
+    local source_path = null
+    local arg = ""
+
+    local i = 2
+    loop(i < argc) {
+      arg = me._coerce_text_compat(args.get(i))
+      if arg == "--from-program-json" {
+        if i + 1 >= argc {
+          print("[stage1-cli] emit mir-json: --from-program-json requires a path")
+          return null
+        }
+        prog_path = me._coerce_text_compat(args.get(i + 1))
+        i = i + 2
+        continue
+      }
+
+      if source_path == null {
+        source_path = arg
+        i = i + 1
+        continue
+      }
+
+      print("[stage1-cli] emit mir-json: unexpected extra argument: " + arg)
+      return null
+    }
+
+    if prog_path != null && prog_path != "" && source_path != null && source_path != "" {
+      print("[stage1-cli] emit mir-json: specify either --from-program-json or <source.hako>")
+      return null
+    }
+    if (prog_path == null || prog_path == "") && (source_path == null || source_path == "") {
+      print("[stage1-cli] emit mir-json: require --from-program-json <file> or <source.hako>")
+      return null
+    }
+
+    req.set("program_json_path", prog_path)
+    req.set("source_path", source_path)
+    return req
+  }
+
+  method parse_run_request(args) {
+    local argc = 0
+    if args != null { argc = args.size() }
+
+    local req = new MapBox()
+    local backend = "vm"
+    local source_path = null
+    local script_args_json = ""
+    local arg = ""
+
+    local i = 1
+    loop(i < argc) {
+      arg = me._coerce_text_compat(args.get(i))
+      if arg == "--backend" {
+        if i + 1 >= argc {
+          print("[stage1-cli] run: --backend requires a value (vm|llvm|pyvm)")
+          return null
+        }
+        backend = me._coerce_text_compat(args.get(i + 1))
+        i = i + 2
+        continue
+      }
+
+      source_path = arg
+      i = i + 1
+      script_args_json = me._build_script_args_json(args, i)
+      i = argc
+    }
+
+    if source_path == null || source_path == "" {
+      print("[stage1-cli] run: source path is required")
+      return null
+    }
+
+    req.set("backend", backend)
+    req.set("source_path", source_path)
+    req.set("script_args_json", script_args_json)
+    return req
+  }
+
+  method _build_script_args_json(args, start_idx) {
+    local argc = 0
+    if args != null { argc = args.size() }
+    if start_idx >= argc { return "" }
+
+    local json = "["
+    local i = start_idx
+    local first = 1
+    loop(i < argc) {
+      if first != 1 { json = json + "," }
+      local s = me._coerce_text_compat(args.get(i))
+      json = json + "\"" + me._escape_json_string(s) + "\""
+      first = 0
+      i = i + 1
+    }
+    json = json + "]"
+    return json
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+
+  method _escape_json_string(s) {
+    local out = ""
+    if s == null { return out }
+    local i = 0
+    local n = s.length()
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if ch == "\\" { out = out + "\\\\" }
+      else if ch == "\"" { out = out + "\\\"" }
+      else if ch == "\n" { out = out + "\\n" }
+      else if ch == "\r" { out = out + "\\r" }
+      else if ch == "\t" { out = out + "\\t" }
+      else { out = out + ch }
+      i = i + 1
+    }
+    return out
+  }
+}

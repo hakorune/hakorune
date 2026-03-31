@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-03-30
+Date: 2026-03-31
 Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/development/current/main/` を正本とする。
 
 ## Purpose
@@ -18,15 +18,52 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: stage1 bootstrap wrapper cleanup / thin entry stubs.
-- Build status: `bash tools/selfhost/build_stage1.sh --artifact-kind stage1-cli --force-rebuild` PASS, `bash tools/selfhost/build_stage1.sh --artifact-kind launcher-exe --force-rebuild` PASS.
-- Smoke status: `tools/selfhost/run_stage1_cli.sh emit mir-json apps/tests/hello_simple_llvm.hako` PASS.
-- Current shape:
-  - `lang/src/runner/launcher_native_entry.hako` = minimal run-only stub
-  - `lang/src/runner/stage1_cli_env_entry.hako` = minimal run-only stub
-  - `run_stage1_cli.sh emit mir-json` now goes through bootstrap `hakorune` directly
+- Active work:整理フェーズの入口を確定する。
+- 調査結果の読み:
+  - `tmp/`・`docs/private/`・`docs/archive/`・`archive/` はまず棚卸し対象
+  - `run_all.sh` は phase-local suite を除くと root/compat 側の命名整理が主
+  - `src/mir/join_ir/lowering/loop_routes/` と `src/tests/*` に `#[ignore]` が密集
+  - `loop_routes` と bridge/debug harness の ignore 理由は具体化済みで、今は残存 ignore の棚卸し段階
+  - `src/runner/mir_json_v0.rs`, `src/backend/wasm/shape_table.rs`, `src/backend/mir_interpreter/handlers/calls/method.rs`, `src/runner/modes/vm_hako/tests/boxcall_contract.rs`, `src/bin/rc_insertion_selfcheck.rs` は分割済み
+- Landed already:
+  - `docs/private/papers-archive/paper-a-mir13-ir-design/out/mir13-paper.pdf` は `docs/private/out/` へ move-out 済み
+  - `docs/private/roadmap2/CURRENT_TASK_2025-11-29_full.md` は `docs/private/roadmap2/archive/` へ移動済み
+  - root build scripts は `tools/build/` を canonical にして root は shim 化済み
+  - `apps/` の `tmp_*.hako` 参照ゼロ群は削除済み
+  - `src/runner/mir_json_v0.rs` は helper/call/tests を `src/runner/mir_json_v0/{helpers,call,tests}.rs` に分割済み
+  - `src/backend/wasm/shape_table.rs` は `src/backend/wasm/shape_table/{native,p10,tests}.rs` に分割済み
+  - `src/backend/mir_interpreter/handlers/calls/method.rs` は dispatch/tests を `src/backend/mir_interpreter/handlers/calls/method/{dispatch,tests}.rs` に分割済み
+  - `src/runner/modes/vm_hako/tests/boxcall_contract.rs` は `subset/compile` を `src/runner/modes/vm_hako/tests/boxcall_contract/{subset,compile}.rs` に分割済み
+  - `src/bin/rc_insertion_selfcheck.rs` は `helpers/cases` に分割済み
+  - `src/mir/passes/rc_insertion_helpers.rs` は `cleanup/contracts/cycles/plan/apply/types/util` を外出し済み
+  - `src/mir/builder/control_flow/plan/composer/coreloop_v1_tests.rs` は scenario 別サブモジュールに分割済み
+  - `src/mir/optimizer.rs` は diagnostics ヘルパーを `src/mir/optimizer/diagnostics.rs` に分割済み
+  - `src/runner/modes/vm_hako/subset_check.rs` は `shapes/boxcalls/externcalls` に分割済み
+  - `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs` は `extract/tests` に分割済み
+  - `src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns.rs` は `returns/breaks/guard_break` に分割済み
+  - `src/mir/builder/control_flow/plan/composer/coreloop_v0_tests.rs` は `simple_while/scan_with_init/split_scan` に分割済み
+  - `src/backend/mir_interpreter/handlers/extern_provider.rs` は lane 別サブモジュールに分割済み
+  - `src/backend/mir_interpreter/handlers/calls/mod.rs` の stale 注記を 1 行削除済み
+  - `src/mir/control_tree/normalized_shadow/loop_true_break_once.rs` は tests を `loop_true_break_once/tests.rs` に分離済み
+  - `src/macro/ast_json/joinir_compat.rs` は helper 群を `joinir_compat/helpers.rs` に分離済み
+  - `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs` は generic route を `handlers/generic.rs` に分離済み
+  - `lang/src/runner/launcher.hako` は dispatch を `launcher/dispatch.hako` に、入力契約を `launcher/input_contract.hako` に分離済み
+- First-cut order:
+  1. `docs/private/` の archive/move-out は安全な生成物から進める
+  2. root build scripts を `tools/build/` に寄せる
+  3. 大きい `src/` 実装ファイルを切る
+  4. `#[ignore]` テストを `loop_routes` と `src/tests/*` から整理する
+- Keep / defer:
+  - `tools/selfhost/run_all.sh` と phase-local `run_all.sh` は keep
+  - `apps/tests/` は fixture bank として当面 keep
+  - `docs/private` の keep 大物は触らず、参照更新だけ先に確認する
 - Next resume step:
-  - decide whether to commit this slice as-is or further normalize the legacy `lang/src/runner/stage1_cli_env.hako` / `lang/src/runner/launcher.hako` files
+  - `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako` / `lang/src/compiler/entry/func_scanner.hako` / `lang/src/compiler/mirbuilder/stmt_handlers/return_stmt_handler.hako` / `lang/src/runner/stage1_cli.hako` は分割済み
+  - `stage1_cli.stage2` exact emit compat probe は green になり、`stage1_cli` 本体は run-only bootstrap output のまま維持する
+  - `launcher` は `dispatch` / `input_contract` を外し、thin bootstrap proof は `launcher_native_entry.hako` 側へ寄せるのが自然
+  - 次は `artifact_io` / `payload_contract` を切るのが自然
+  - `handlers` は `generic` route を外し、残りの route table 整理は別ステップで続ける
+  - 次は `lang/src/runner/launcher/artifact_io.hako` か `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs` の残り整理へ進む
 
 ## CI Notes
 

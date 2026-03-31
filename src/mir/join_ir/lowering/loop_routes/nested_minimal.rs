@@ -325,9 +325,9 @@ fn has_break_or_continue(_loop_form: &LoopForm) -> bool {
 #[cfg(test)]
 mod tests {
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // nested lowering is still a stub; keep ignored until Phase 188.1 lands a real implementation
     fn test_nested_loop_minimal_lowering_success() {
-        // TODO: Add integration test for NestedLoopMinimal route lowering
+        // Placeholder: add integration test for NestedLoopMinimal route lowering
         // Step 1: Create mock LoopForm for NestedLoopMinimal route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_nested_loop_minimal_to_joinir()
@@ -336,27 +336,27 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // nested lowering is still a stub; keep ignored until Phase 188.1 lands a real implementation
     fn test_nested_loop_minimal_rejects_outer_break() {
-        // TODO: Add test that rejects outer loop with break
+        // Placeholder: add test that rejects outer loop with break
         // Step 1: Create mock LoopForm with break in outer loop
         // Step 2: Call lower_nested_loop_minimal_to_joinir()
         // Step 3: Assert returns None (unsupported route shape)
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // nested lowering is still a stub; keep ignored until Phase 188.1 lands a real implementation
     fn test_nested_loop_minimal_rejects_inner_continue() {
-        // TODO: Add test that rejects inner loop with continue
+        // Placeholder: add test that rejects inner loop with continue
         // Step 1: Create mock LoopForm with continue in inner loop
         // Step 2: Call lower_nested_loop_minimal_to_joinir()
         // Step 3: Assert returns None (unsupported route shape)
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // nested lowering is still a stub; keep ignored until Phase 188.1 lands a real implementation
     fn test_nested_loop_minimal_rejects_2level_nesting() {
-        // TODO: Add test that rejects 2+ level nesting
+        // Placeholder: add test that rejects 2+ level nesting
         // Step 1: Create mock LoopForm with loop { loop { loop {} } }
         // Step 2: Call lower_nested_loop_minimal_to_joinir()
         // Step 3: Assert returns None (depth exceeded)

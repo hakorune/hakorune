@@ -1,0 +1,99 @@
+// stage1_cli/config.hako
+
+// Stage-1 CLI Config Box - Environment variable parsing and configuration management
+static box Stage1CliConfigBox {
+  // Parse all env vars into a Config map (MapBox)
+  method from_env() {
+    local cfg = new MapBox()
+    cfg.set("mode", me._resolve_mode())
+    cfg.set("backend", me._resolve_backend())
+    cfg.set("source_path", me._resolve_source_path())
+    cfg.set("source_text", me._clean_env_value(env.get("STAGE1_SOURCE_TEXT")))
+    cfg.set("program_json_path", me._resolve_program_json_path())
+
+    // Dev flags
+    cfg.set("debug", env.get("STAGE1_CLI_DEBUG"))
+    cfg.set("to_i64_force_zero", env.get("NYASH_TO_I64_FORCE_ZERO"))
+
+    return cfg
+  }
+
+  method _resolve_mode() {
+    local explicit = me._clean_env_value(env.get("NYASH_STAGE1_MODE"))
+    if explicit == "" {
+      explicit = me._clean_env_value(env.get("HAKO_STAGE1_MODE"))
+    }
+    if explicit != "" {
+      return me._normalize_mode(explicit)
+    }
+    if me._clean_env_value(env.get("STAGE1_EMIT_PROGRAM_JSON")) == "1" {
+      return "emit-program"
+    }
+    if me._clean_env_value(env.get("STAGE1_EMIT_MIR_JSON")) == "1" {
+      return "emit-mir"
+    }
+    if me._clean_env_value(env.get("NYASH_USE_STAGE1_CLI")) == "1" {
+      return "run"
+    }
+    return "disabled"
+  }
+
+  method _normalize_mode(mode) {
+    if mode == "emit-program" || mode == "emit-mir" || mode == "run" || mode == "disabled" {
+      return mode
+    }
+    if mode == "emit_program_json" || mode == "emit-program-json" {
+      return "emit-program"
+    }
+    if mode == "emit_mir_json" || mode == "emit-mir-json" {
+      return "emit-mir"
+    }
+    return "run"
+  }
+
+  method _resolve_backend() {
+    local backend = me._clean_env_value(env.get("NYASH_STAGE1_BACKEND"))
+    if backend == "" {
+      backend = me._clean_env_value(env.get("STAGE1_BACKEND"))
+    }
+    if backend == "" { return "vm" }
+    return backend
+  }
+
+  method _resolve_source_path() {
+    local source = me._clean_env_value(env.get("HAKO_STAGE1_INPUT"))
+    if source == "" {
+      source = me._clean_env_value(env.get("NYASH_STAGE1_INPUT"))
+    }
+    if source == "" {
+      source = me._clean_env_value(env.get("STAGE1_SOURCE"))
+    }
+    if source == "" {
+      source = me._clean_env_value(env.get("STAGE1_INPUT"))
+    }
+    return source
+  }
+
+  method _resolve_program_json_path() {
+    local prog_path = me._clean_env_value(env.get("HAKO_STAGE1_PROGRAM_JSON"))
+    if prog_path == "" {
+      prog_path = me._clean_env_value(env.get("NYASH_STAGE1_PROGRAM_JSON"))
+    }
+    if prog_path == "" {
+      prog_path = me._clean_env_value(env.get("STAGE1_PROGRAM_JSON"))
+    }
+    return prog_path
+  }
+
+  method _clean_env_value(v) {
+    local s = me._coerce_text_compat(v)
+    if s == "null" || s == "Null" || s == "void" || s == "Void" {
+      return ""
+    }
+    return s
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}

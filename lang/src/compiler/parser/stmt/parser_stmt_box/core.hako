@@ -1,0 +1,338 @@
+// ParserStmtCoreBox — statement parser coordinator (implementation)
+//
+// Split owner for `lang.compiler.parser.stmt.parser_stmt_box`.
+
+using sh_core as StringHelpers  // Required: using chain resolution not implemented
+using lang.compiler.parser.stmt.parser_control_box
+using lang.compiler.parser.stmt.parser_exception_box
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+using lang.compiler.parser.stmt.parser_stmt_box.annotations as ParserStmtAnnotationBox
+using lang.compiler.parser.stmt.parser_stmt_box.extern_c as ParserStmtExternCBox
+using lang.compiler.parser.stmt.parser_stmt_box.local_stmt as ParserStmtLocalBox
+using lang.compiler.parser.stmt.parser_stmt_box.using_stmt as ParserStmtUsingBox
+
+static box ParserStmtCoreBox {
+  // API: parse(src, i, ctx) -> JSON string
+  parse(src, i, ctx) {
+    // Shallow recursion guard: prevent ParserStmtBox.parse from recursively
+    // re-entering itself on the same VM stack（Stage-B/selfhost 安全弁）。
+    {
+      local depth = env.get("HAKO_STAGEB_STMT_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] ParserStmtBox.parse recursion detected")
+        // Allow re-entry: reset depth to 1 and continue（ドロップしない）
+        env.set("HAKO_STAGEB_STMT_DEPTH", "1")
+      } else {
+        env.set("HAKO_STAGEB_STMT_DEPTH", "1")
+      }
+    }
+
+    local j = ParserStringUtilsBox.skip_ws(src, i)
+    // VM 差分で skip_ws が前進しないパスがあったため、手動で最小限の空白スキップをフォローする。
+    {
+      local n = src.length()
+      local jj = j
+      loop(jj < n) {
+        local ch = src.substring(jj, jj+1)
+        if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" { jj = jj + 1 } else { break }
+      }
+      j = jj
+    }
+    {
+      local tr = env.get("NYASH_PARSER_TRACE")
+      if tr != null && ("" + tr) == "1" {
+        local ch0 = ""
+        if j < src.length() { ch0 = src.substring(j, j+1) }
+        print("[parser/stmt] enter j=" + ("" + j) + " ch=\"" + ch0 + "\"")
+      }
+    }
+    local stmt_start = j
+
+    if ParserStmtAnnotationBox.is_opt_annotation_prefix(src, j, ctx) == 1 {
+      ParserStmtAnnotationBox.clear_annotation_contract()
+      if ctx.metadata_annotations_enabled() != 1 {
+        local msg_gate = "[freeze:contract][parser/annotation_reserved] enable NYASH_FEATURES=rune or opt-annotations"
+        if ctx.starts_with(src, j, "@rune") == 1 {
+          msg_gate = "[freeze:contract][parser/rune] enable NYASH_FEATURES=rune or opt-annotations"
+        }
+        ParserStmtAnnotationBox.fail_annotation_contract(msg_gate, src)
+        return msg_gate
+      }
+      local next_j = ParserStmtAnnotationBox.parse_opt_annotation(src, j, ctx)
+      local anno_err = ParserStmtAnnotationBox.get_annotation_contract()
+      if anno_err.length() > 0 {
+        ctx.gpos_set(src.length())
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return anno_err
+      }
+      if next_j <= stmt_start {
+        if stmt_start < src.length() { next_j = stmt_start + 1 } else { next_j = src.length() }
+      }
+      ctx.gpos_set(next_j)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return ""
+    }
+
+    {
+      local out_extern_c = ParserStmtExternCBox.parse_or_null(src, j, stmt_start, ctx)
+      if out_extern_c != null {
+        return out_extern_c
+      }
+    }
+
+    {
+      local out_using = ParserStmtUsingBox.parse_or_null(src, j, stmt_start, ctx)
+      if out_using != null {
+        return out_using
+      }
+    }
+
+    // return statement
+    if ctx.starts_with_kw(src, j, "return") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=return j=" + ("" + j))
+        }
+      }
+      j = j + 6
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      local default_ret = "{\"type\":\"Int\",\"value\":0}"
+      local expr_json_ret = default_ret
+      local end_pos_ret = j
+      if j < src.length() {
+        local ahead_ret = src.substring(j, j+1)
+        if ahead_ret != "}" && ahead_ret != ";" {
+          expr_json_ret = ctx.parse_expr2(src, j)
+          end_pos_ret = ctx.gpos_get()
+        }
+      }
+      j = end_pos_ret
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return "{\"type\":\"Return\",\"expr\":" + expr_json_ret + "}"
+    }
+
+    // print statement (lower to env.console.log extern)
+    // This keeps Program(JSON v0) runnable under --json-file even when plugins are disabled.
+    if ctx.starts_with_kw(src, j, "print") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=print j=" + ("" + j))
+        }
+      }
+      j = j + 5
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == "(" { j = j + 1 }
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      local expr_json = "{\"type\":\"Int\",\"value\":0}"
+      local end_pos = j
+      if j < src.length() {
+        local ahead = src.substring(j, j+1)
+        if ahead != ")" && ahead != "}" && ahead != ";" {
+          expr_json = ctx.parse_expr2(src, j)
+          end_pos = ctx.gpos_get()
+        }
+      }
+      j = end_pos
+      j = ParserStringUtilsBox.skip_ws(src, j)
+      if j < src.length() && src.substring(j, j+1) == ")" { j = j + 1 }
+      if j <= stmt_start {
+        if j < src.length() { j = j + 1 } else { j = src.length() }
+      }
+      ctx.gpos_set(j)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return "{\"type\":\"Extern\",\"iface\":\"env.console\",\"method\":\"log\",\"args\":[" + expr_json + "]}"
+    }
+
+    {
+      local out_local = ParserStmtLocalBox.parse_or_null(src, j, stmt_start, ctx)
+      if out_local != null {
+        return out_local
+      }
+    }
+
+    // Delegate to specialized boxes
+    if ctx.starts_with_kw(src, j, "if") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=if j=" + ("" + j))
+        }
+      }
+      local out_if = ParserControlBox.parse_if(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_if
+    }
+
+    if ctx.starts_with_kw(src, j, "loop") == 1 {
+      // Guard: require an actual loop header `loop (...)` (keyword boundary is not enough).
+      // This prevents false positives like `loop_depth_before = 0` inside Stage-B compiler code.
+      local k_loop = j + 4
+      k_loop = ParserStringUtilsBox.skip_ws(src, k_loop)
+      if k_loop >= src.length() || src.substring(k_loop, k_loop+1) != "(" {
+        // Not a loop statement; fall through to assignment / expr.
+      } else {
+        {
+          local tr = env.get("NYASH_PARSER_TRACE")
+          if tr != null && ("" + tr) == "1" {
+            print("[parser/stmt] kind=loop j=" + ("" + j))
+          }
+        }
+        local out_loop = ParserControlBox.parse_loop(src, j, stmt_start, ctx)
+        env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+        return out_loop
+      }
+    }
+
+    if ctx.starts_with_kw(src, j, "break") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=break j=" + ("" + j))
+        }
+      }
+      local out_break = ParserControlBox.parse_break(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_break
+    }
+
+    if ctx.starts_with_kw(src, j, "continue") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=continue j=" + ("" + j))
+        }
+      }
+      local out_cont = ParserControlBox.parse_continue(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_cont
+    }
+
+    if ctx.starts_with_kw(src, j, "throw") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=throw j=" + ("" + j))
+        }
+      }
+      local out_throw = ParserExceptionBox.parse_throw(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_throw
+    }
+
+    if ctx.starts_with_kw(src, j, "try") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=try j=" + ("" + j))
+        }
+      }
+      local out_try = ParserExceptionBox.parse_try(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_try
+    }
+
+    if ctx.starts_with_kw(src, j, "fini") == 1 {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=fini j=" + ("" + j))
+        }
+      }
+      local out_fini = ParserExceptionBox.parse_fini(src, j, stmt_start, ctx)
+      env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+      return out_fini
+    }
+
+    // Stage-3: try-less postfix handler path.
+    // Route only `{ ... } catch/cleanup ...` here; plain `{ ... }` stays on expr fallback path.
+    if ctx.stage3_enabled() == 1 {
+      if j < src.length() && src.substring(j, j+1) == "{" {
+        local has_postfix_kw = 0
+        if ctx.index_of(src, j, "cleanup") >= 0 { has_postfix_kw = 1 }
+        if has_postfix_kw == 0 {
+          if ctx.index_of(src, j, "catch") >= 0 { has_postfix_kw = 1 }
+        }
+        if has_postfix_kw == 1 {
+          {
+            local tr = env.get("NYASH_PARSER_TRACE")
+            if tr != null && ("" + tr) == "1" {
+              print("[parser/stmt] kind=block-postfix-stage3 j=" + ("" + j))
+            }
+          }
+          local out_block_postfix = ParserExceptionBox.parse_block_postfix(src, j, stmt_start, ctx)
+          if out_block_postfix != null && out_block_postfix.length() > 0 {
+            env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+            return out_block_postfix
+          }
+        }
+      }
+    }
+
+    // assignment: IDENT '=' expr（キーワードより後段に配置して、'loop' などを誤認しないようにする）
+    if j < src.length() && ctx.is_alpha(src.substring(j, j+1)) {
+      {
+        local tr = env.get("NYASH_PARSER_TRACE")
+        if tr != null && ("" + tr) == "1" {
+          print("[parser/stmt] kind=assign-or-local j=" + ("" + j))
+        }
+      }
+      local idp0 = ctx.read_ident2(src, j)
+      local at0 = idp0.lastIndexOf("@")
+      if at0 > 0 {
+        local name0 = idp0.substring(0, at0)
+        local k0 = ctx.to_int(idp0.substring(at0+1, idp0.length()))
+        k0 = ParserStringUtilsBox.skip_ws(src, k0)
+        if k0 < src.length() && src.substring(k0, k0+1) == "=" {
+          local eq_two = "="
+          if k0 + 1 < src.length() { eq_two = src.substring(k0, k0+2) }
+          if eq_two != "==" {
+            k0 = k0 + 1
+            k0 = ParserStringUtilsBox.skip_ws(src, k0)
+            local default_local = "{\"type\":\"Int\",\"value\":0}"
+            local expr_json0 = default_local
+            local end_pos0 = k0
+            if k0 < src.length() {
+              local ahead = src.substring(k0, k0+1)
+              if ahead != "}" && ahead != ";" {
+                expr_json0 = ctx.parse_expr2(src, k0)
+                end_pos0 = ctx.gpos_get()
+              }
+            }
+            k0 = end_pos0
+            if k0 <= stmt_start {
+              if k0 < src.length() { k0 = k0 + 1 } else { k0 = src.length() }
+            }
+            ctx.gpos_set(k0)
+            env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+            return "{\"type\":\"Local\",\"name\":\"" + name0 + "\",\"expr\":" + expr_json0 + "}"
+          }
+        }
+      }
+    }
+
+    // Fallback: expression or unknown token
+    {
+      local tr = env.get("NYASH_PARSER_TRACE")
+      if tr != null && ("" + tr) == "1" {
+        print("[parser/stmt] kind=expr j=" + ("" + j))
+      }
+    }
+    local expr_start = j
+    local e = ctx.parse_expr2(src, j)
+    j = ctx.gpos_get()
+    if j <= expr_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    env.set("HAKO_STAGEB_STMT_DEPTH", "0")
+    return "{\"type\":\"Expr\",\"expr\":" + e + "}"
+  }
+}
+

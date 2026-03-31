@@ -49,7 +49,7 @@ Canonical proofs:
 - `bash tools/dev/phase29ch_program_json_cold_compat_probe.sh`
 - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli_env.hako /tmp/stage1_cli_env_probe.mir.json`
 - `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/stage1_cli.hako /tmp/stage1_cli_probe.mir.json`
-- `bash tools/hakorune_emit_mir_mainline.sh lang/src/runner/launcher.hako /tmp/launcher_probe.mir.json`
+- `bash tools/hakorune_emit_mir.sh lang/src/runner/launcher_native_entry.hako /tmp/launcher_probe.mir.json`
 
 ## 3. Shell Contract Owner
 

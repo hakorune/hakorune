@@ -1,0 +1,31 @@
+// compile_facade_impl.hako
+//
+// Implementation owner for launcher compile facade.
+// Public wrapper lives in lang/src/runner/launcher.hako.
+
+using lang.mir.builder.MirBuilderBox
+using lang.compiler.build.build_box as BuildBox
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+
+static box LauncherCompileFacadeImplBox {
+  method emit_program_json_v0(source_text) {
+    return BuildBox.emit_program_json_v0(source_text, null)
+  }
+
+  method emit_from_program_json_v0(program_json_text) {
+    return MirBuilderBox.emit_from_program_json_v0(program_json_text, null)
+  }
+
+  method emit_root_from_source_v0(source_text) {
+    return MirBuilderBox.emit_root_from_source_v0(source_text, null)
+  }
+
+  method compile_obj_root(root, mir_path) {
+    return LlvmBackendBox.compile_obj_root(root, mir_path)
+  }
+
+  method link_exe(obj_path, exe_path) {
+    return LlvmBackendBox.link_exe(obj_path, exe_path, null)
+  }
+}
+

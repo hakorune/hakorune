@@ -6,6 +6,7 @@
 using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+using lang.compiler.mirbuilder.stmt_handlers.return_stmt_handler_simple as ReturnStmtHandlerSimpleBox
 
 static box ReturnStmtHandler {
   // Handle Return statement node and return updated state map.
@@ -62,76 +63,7 @@ static box ReturnStmtHandler {
     local expr_type = "" + BoxHelpers.map_get(expr_info, "type")
 
     if expr_type == "Int" {
-      local out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", expr_start)
-      if out == null {
-        return %{
-          "err" => 1,
-          "err_line" => tag + "[cap_missing/program_json_v0] Return Int missing value",
-          "next_idx" => next_idx,
-          "has_return" => has_return,
-          "return_kind" => return_kind,
-          "retv" => retv,
-          "ret_var_name" => ret_var_name,
-          "ret_box_type" => ret_box_type
-        }
-      }
-      retv = BoxHelpers.map_get(out, "value")
-      return_kind = "Int"
-      ret_var_name = ""
-      ret_box_type = ""
-      return %{
-        "err" => 0,
-        "err_line" => "",
-        "next_idx" => next_idx,
-        "has_return" => 1,
-        "return_kind" => return_kind,
-        "retv" => retv,
-        "ret_var_name" => ret_var_name,
-        "ret_box_type" => ret_box_type
-      }
-    }
-
-    if expr_type == "Var" {
-      local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", expr_start)
-      if out == null {
-        return %{
-          "err" => 1,
-          "err_line" => tag + "[cap_missing/program_json_v0] Return Var missing name",
-          "next_idx" => next_idx,
-          "has_return" => has_return,
-          "return_kind" => return_kind,
-          "retv" => retv,
-          "ret_var_name" => ret_var_name,
-          "ret_box_type" => ret_box_type
-        }
-      }
-      local v = "" + BoxHelpers.map_get(out, "value")
-      if v == "" {
-        return %{
-          "err" => 1,
-          "err_line" => tag + "[cap_missing/expr:Var] Return(Var) name is empty",
-          "next_idx" => next_idx,
-          "has_return" => has_return,
-          "return_kind" => return_kind,
-          "retv" => retv,
-          "ret_var_name" => ret_var_name,
-          "ret_box_type" => ret_box_type
-        }
-      }
-      ret_var_name = v
-      return_kind = "Var"
-      ret_box_type = ""
-      retv = 0
-      return %{
-        "err" => 0,
-        "err_line" => "",
-        "next_idx" => next_idx,
-        "has_return" => 1,
-        "return_kind" => return_kind,
-        "retv" => retv,
-        "ret_var_name" => ret_var_name,
-        "ret_box_type" => ret_box_type
-      }
+      return ReturnStmtHandlerSimpleBox.handle(program_json, next_idx, tag, state, expr_start, expr_type)
     }
 
     if expr_type == "Call" {

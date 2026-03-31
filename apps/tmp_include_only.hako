@@ -1,8 +1,0 @@
-static box Main {
-  main() {
-    local S
-    using "apps/std/string.hako" as S
-    print("inc-ok")
-    return 0
-  }
-}

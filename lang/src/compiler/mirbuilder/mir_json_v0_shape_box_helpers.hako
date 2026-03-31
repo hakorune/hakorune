@@ -1,0 +1,201 @@
+// mir_json_v0_shape_box_helpers.hako
+// Responsibility:
+// - Common helpers and shape result builders for MirJsonV0ShapeBox.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+
+static box MirJsonV0ShapeHelpers {
+  _tag(tag) {
+    if tag == null || ("" + tag) == "" { return "[freeze:contract][hako_mirbuilder]" }
+    return "" + tag
+  }
+
+  _fail(tag, msg) {
+    tag = me._tag(tag)
+    return %{"err" => 1, "err_line" => tag + msg, "mir_json" => ""}
+  }
+
+  _shape_ok(shape_kind, has_print, has_local, has_assignment, has_return) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "shape_kind" => "" + shape_kind,
+      "has_print" => has_print,
+      "has_local" => has_local,
+      "has_assignment" => has_assignment,
+      "has_return" => has_return
+    }
+  }
+
+  _shape_err(tag, msg) {
+    return %{
+      "err" => 1,
+      "err_line" => me._tag(tag) + msg,
+      "shape_kind" => ""
+    }
+  }
+
+  _seq_result(err, err_line, seq) {
+    return %{
+      "err" => err,
+      "err_line" => err_line,
+      "seq" => seq
+    }
+  }
+
+  _empty_array() {
+    return []
+  }
+
+  _if_shape_no_match() {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 0
+    }
+  }
+
+  _if_shape_err(tag, msg) {
+    return %{
+      "err" => 1,
+      "err_line" => me._tag(tag) + msg,
+      "matched" => 1
+    }
+  }
+
+  _if_shape_ok(cond_rhs_int, then_retv) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 1,
+      "shape_kind" => "phase10_local_if_vareqint_then_return_int_fallthrough_return_int",
+      "has_print" => 0,
+      "has_local" => 1,
+      "has_assignment" => 0,
+      "has_return" => 1,
+      "cond_rhs_int" => cond_rhs_int,
+      "then_retv" => then_retv
+    }
+  }
+
+  _if_merge_shape_ok(cond_rhs_int, then_assign_rhs_int, else_assign_rhs_int) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 1,
+      "shape_kind" => "phase22_local_if_vareqint_then_assign_int_else_assign_int_return_var",
+      "has_print" => 0,
+      "has_local" => 1,
+      "has_assignment" => 0,
+      "has_return" => 1,
+      "cond_rhs_int" => cond_rhs_int,
+      "then_assign_rhs_int" => then_assign_rhs_int,
+      "else_assign_rhs_int" => else_assign_rhs_int
+    }
+  }
+
+  _loop_shape_no_match() {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 0
+    }
+  }
+
+  _loop_shape_err(tag, msg) {
+    return %{
+      "err" => 1,
+      "err_line" => me._tag(tag) + msg,
+      "matched" => 1
+    }
+  }
+
+  _loop_shape_ok(cond_rhs_int, step_int) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 1,
+      "shape_kind" => "phase11_local_loop_varltint_body_inc_return_var_or_int",
+      "has_print" => 0,
+      "has_local" => 1,
+      "has_assignment" => 0,
+      "has_return" => 1,
+      "loop_cond_rhs_int" => cond_rhs_int,
+      "loop_step_int" => step_int
+    }
+  }
+
+  _loop_if_shape_ok(loop_cond_rhs_int, loop_if_cond_rhs_int, loop_if_then_retv, step_int) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 1,
+      "shape_kind" => "phase21_local_loop_if_varltint_then_return_int_body_inc_return_var_or_int",
+      "has_print" => 0,
+      "has_local" => 1,
+      "has_assignment" => 0,
+      "has_return" => 1,
+      "loop_cond_rhs_int" => loop_cond_rhs_int,
+      "loop_step_int" => step_int,
+      "loop_if_cond_rhs_int" => loop_if_cond_rhs_int,
+      "loop_if_then_retv" => loop_if_then_retv
+    }
+  }
+
+  _recipe_shape_result_err(err_line) {
+    return %{
+      "err" => 1,
+      "err_line" => err_line,
+      "used_recipe" => 1
+    }
+  }
+
+  _recipe_shape_result_match(shape_out) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "used_recipe" => 1,
+      "shape_kind" => BoxHelpers.map_get(shape_out, "shape_kind"),
+      "has_print" => BoxHelpers.map_get(shape_out, "has_print"),
+      "has_local" => BoxHelpers.map_get(shape_out, "has_local"),
+      "has_assignment" => BoxHelpers.map_get(shape_out, "has_assignment"),
+      "has_return" => BoxHelpers.map_get(shape_out, "has_return"),
+      "cond_rhs_int" => BoxHelpers.map_get(shape_out, "cond_rhs_int"),
+      "then_retv" => BoxHelpers.map_get(shape_out, "then_retv"),
+      "then_assign_rhs_int" => BoxHelpers.map_get(shape_out, "then_assign_rhs_int"),
+      "else_assign_rhs_int" => BoxHelpers.map_get(shape_out, "else_assign_rhs_int"),
+      "loop_cond_rhs_int" => BoxHelpers.map_get(shape_out, "loop_cond_rhs_int"),
+      "loop_step_int" => BoxHelpers.map_get(shape_out, "loop_step_int"),
+      "loop_if_cond_rhs_int" => BoxHelpers.map_get(shape_out, "loop_if_cond_rhs_int"),
+      "loop_if_then_retv" => BoxHelpers.map_get(shape_out, "loop_if_then_retv")
+    }
+  }
+
+  _recipe_control_try_no_match() {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 0,
+      "shape_out" => null
+    }
+  }
+
+  _recipe_control_try_match(shape_out) {
+    return %{
+      "err" => 0,
+      "err_line" => "",
+      "matched" => 1,
+      "shape_out" => shape_out
+    }
+  }
+
+  _recipe_control_try_err(err_line) {
+    return %{
+      "err" => 1,
+      "err_line" => err_line,
+      "matched" => 0,
+      "shape_out" => null
+    }
+  }
+}

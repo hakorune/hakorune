@@ -1,0 +1,47 @@
+// ParserStmtExternCBox — minimal extern_c statement consumer
+//
+// This keeps the statement parser split intact while preserving the existing
+// "consume and continue" behavior for extern_c-like declarations.
+
+using sh_core as StringHelpers
+
+static box ParserStmtExternCBox {
+  method parse_or_null(src, i, stmt_start, ctx) {
+    local j = i
+    if ctx.starts_with_kw(src, j, "extern_c") != 1 { return null }
+
+    j = j + 8
+    j = ctx.skip_ws(src, j)
+
+    // Conservative consume: allow optional parenthesized payload or a single line.
+    local depth = 0
+    local started = 0
+    loop(j < src.length()) {
+      local ch = src.substring(j, j + 1)
+      if ch == "(" {
+        depth = depth + 1
+        started = 1
+        j = j + 1
+        continue
+      }
+      if ch == ")" && depth > 0 {
+        depth = depth - 1
+        j = j + 1
+        if depth == 0 && started == 1 {
+          break
+        }
+        continue
+      }
+      if depth == 0 && (ch == ";" || ch == "\n" || ch == "\r") {
+        break
+      }
+      j = j + 1
+    }
+
+    if j <= stmt_start {
+      if j < src.length() { j = j + 1 } else { j = src.length() }
+    }
+    ctx.gpos_set(j)
+    return ""
+  }
+}

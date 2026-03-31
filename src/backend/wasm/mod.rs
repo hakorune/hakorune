@@ -11,12 +11,10 @@ mod extern_contract;
 mod memory;
 mod runtime;
 mod shape_table;
-// mod executor; // TODO: Fix WASM executor build errors
 
 pub use codegen::{WasmCodegen, WasmModule};
 pub use memory::{BoxLayout, MemoryManager};
 pub use runtime::RuntimeImports;
-// pub use executor::WasmExecutor; // TODO: Fix WASM executor build errors
 
 use self::binary_writer::LoopExternImport;
 use crate::mir::MirModule;

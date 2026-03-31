@@ -84,9 +84,9 @@ mod tests {
     // ========================================================================
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
     fn test_loop_simple_while_lowering_success() {
-        // TODO: Add integration test for LoopSimpleWhile route lowering
+        // Placeholder: add integration test for LoopSimpleWhile route lowering
         // Step 1: Create mock LoopForm for LoopSimpleWhile route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_simple_while_to_joinir()
@@ -95,9 +95,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
     fn test_loop_simple_while_rejects_break() {
-        // TODO: Add test that rejects loop with break
+        // Placeholder: add test that rejects loop with break
         // Step 1: Create mock LoopForm with break
         // Step 2: Call lower_simple_while_to_joinir()
         // Step 3: Assert returns None (unsupported route shape)
@@ -108,9 +108,9 @@ mod tests {
     // ========================================================================
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
     fn test_loop_break_lowering_success() {
-        // TODO: Add integration test for LoopBreak route lowering
+        // Placeholder: add integration test for LoopBreak route lowering
         // Step 1: Create mock LoopForm for LoopBreak route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_loop_with_break_to_joinir()
@@ -119,9 +119,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
     fn test_loop_break_exit_phi_correct() {
-        // TODO: Add test that verifies k_exit receives correct exit values
+        // Placeholder: add test that verifies k_exit receives correct exit values
         // Step 1: Create mock LoopForm for LoopBreak route
         // Step 2: Call lower_loop_with_break_to_joinir()
         // Step 3: Verify k_exit params = [i_exit]
@@ -133,9 +133,9 @@ mod tests {
     // ========================================================================
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
     fn test_if_phi_join_lowering_success() {
-        // TODO: Add integration test for IfPhiJoin route lowering
+        // Placeholder: add integration test for IfPhiJoin route lowering
         // Step 1: Create mock LoopForm for IfPhiJoin route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_loop_with_conditional_phi_to_joinir()
@@ -144,9 +144,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
     fn test_if_phi_join_multiple_carriers() {
-        // TODO: Add test that verifies multiple carrier variables
+        // Placeholder: add test that verifies multiple carrier variables
         // Step 1: Create mock LoopForm with i + sum carriers
         // Step 2: Call lower_loop_with_conditional_phi_to_joinir()
         // Step 3: Verify loop_step params = [i, sum]
@@ -154,9 +154,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // route test body is still a stub; keep ignored until real JoinIR assertions are wired
     fn test_if_phi_join_lowering_integration() {
-        // TODO: Add test that verifies If lowering integration
+        // Placeholder: add test that verifies If lowering integration
         // Step 1: Create mock LoopForm with if-else
         // Step 2: Call lower_loop_with_conditional_phi_to_joinir()
         // Step 3: Verify Select instruction is generated
@@ -168,9 +168,9 @@ mod tests {
     // ========================================================================
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // continue route is still a stub; keep ignored until LoopContinueOnly lowering is implemented
     fn test_loop_continue_only_lowering_success() {
-        // TODO: Add integration test for LoopContinueOnly route lowering
+        // Placeholder: add integration test for LoopContinueOnly route lowering
         // Step 1: Create mock LoopForm for LoopContinueOnly route
         // Step 2: Create mock LoopToJoinLowerer
         // Step 3: Call lower_loop_with_continue_to_joinir()
@@ -179,9 +179,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // continue route is still a stub; keep ignored until LoopContinueOnly lowering is implemented
     fn test_loop_continue_only_jump_correct() {
-        // TODO: Add test that verifies continue jumps to loop_step
+        // Placeholder: add test that verifies continue jumps to loop_step
         // Step 1: Create mock LoopForm for LoopContinueOnly route
         // Step 2: Call lower_loop_with_continue_to_joinir()
         // Step 3: Verify conditional Jump targets loop_step
@@ -189,9 +189,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Implement test after lowering logic is complete
+    #[ignore] // continue route is still a stub; keep ignored until LoopContinueOnly lowering is implemented
     fn test_loop_continue_only_multiple_carriers() {
-        // TODO: Add test that verifies multiple carrier variables
+        // Placeholder: add test that verifies multiple carrier variables
         // Step 1: Create mock LoopForm with i + sum carriers
         // Step 2: Call lower_loop_with_continue_to_joinir()
         // Step 3: Verify loop_step params = [i, sum]

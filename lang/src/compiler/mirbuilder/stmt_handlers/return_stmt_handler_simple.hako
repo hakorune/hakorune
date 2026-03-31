@@ -1,0 +1,99 @@
+// ReturnStmtHandlerSimple — Handle Int/Var return expressions.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.program_json_v0_scanner_box as ProgramJsonV0ScannerBox
+
+static box ReturnStmtHandlerSimpleBox {
+  handle(program_json, next_idx, tag, state, expr_start, expr_type) {
+    local has_return = StringHelpers.to_i64(BoxHelpers.map_get(state, "has_return"))
+    local return_kind = "" + BoxHelpers.map_get(state, "return_kind")
+    local retv = BoxHelpers.map_get(state, "retv")
+    local ret_var_name = "" + BoxHelpers.map_get(state, "ret_var_name")
+    local ret_box_type = "" + BoxHelpers.map_get(state, "ret_box_type")
+
+    if expr_type == "Int" {
+      local out = ProgramJsonV0ScannerBox.read_int_field_in_obj(program_json, "value", expr_start)
+      if out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Int missing value",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      retv = BoxHelpers.map_get(out, "value")
+      return_kind = "Int"
+      ret_var_name = ""
+      ret_box_type = ""
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "next_idx" => next_idx,
+        "has_return" => 1,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    if expr_type == "Var" {
+      local out = ProgramJsonV0ScannerBox.read_string_field_first_in_obj(program_json, "name", expr_start)
+      if out == null {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/program_json_v0] Return Var missing name",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      local v = "" + BoxHelpers.map_get(out, "value")
+      if v == "" {
+        return %{
+          "err" => 1,
+          "err_line" => tag + "[cap_missing/expr:Var] Return(Var) name is empty",
+          "next_idx" => next_idx,
+          "has_return" => has_return,
+          "return_kind" => return_kind,
+          "retv" => retv,
+          "ret_var_name" => ret_var_name,
+          "ret_box_type" => ret_box_type
+        }
+      }
+      ret_var_name = v
+      return_kind = "Var"
+      ret_box_type = ""
+      retv = 0
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "next_idx" => next_idx,
+        "has_return" => 1,
+        "return_kind" => return_kind,
+        "retv" => retv,
+        "ret_var_name" => ret_var_name,
+        "ret_box_type" => ret_box_type
+      }
+    }
+
+    return %{
+      "err" => 1,
+      "err_line" => tag + "[cap_missing/expr:Int] Return expr is not supported (expected Int, Var, New(Box, []), New(StringBox(\"abc\")), Call(id()), Call(id(9|7)), Method(New(StringBox(\"abc\")).length()), or Method(New(StringBox(\"abc\")).indexOf(\"b\")))",
+      "next_idx" => next_idx,
+      "has_return" => has_return,
+      "return_kind" => return_kind,
+      "retv" => retv,
+      "ret_var_name" => ret_var_name,
+      "ret_box_type" => ret_box_type
+    }
+  }
+}

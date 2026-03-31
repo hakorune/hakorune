@@ -8,10 +8,12 @@
  *   verify 結果と、ssa.rs 側の `[ssa-undef-debug]` ログだけにフォーカスする。
  *
  * 注意:
- * - 現時点では FuncScannerBox.scan_all_boxes/1 まわりに既知の UndefinedValue があるため
- *   このテストは #[ignore] 付き（デバッグ専用）だよ。
- * - 修正が完了して UndefinedValue が出なくなったら、将来的に #[ignore] を外すか、
- *   ベースラインフィルタを挟んで常時検証テストへ昇格させる想定。
+ * - `mir_funcscanner_fib_min_ssa_debug` は FuncScannerBox.scan_all_boxes/1 まわりの
+ *   既知の UndefinedValue を再現するデバッグハーネスなので、常時実行にはしない。
+ *   解決条件は scan_all_boxes/1 の未定義値が消えること、または baseline フィルタが
+ *   追加されて期待差分だけを検証できるようになること。
+ * - `mir_funcscanner_skip_ws_vm_debug_flaky` は variable_map(HashMap) の順序非決定性で
+ *   揺れる既知 flaky。BTreeMap 化か、出力正規化が入るまでは #[ignore] のままにする。
  */
 
 use crate::ast::ASTNode;
@@ -31,7 +33,7 @@ fn ensure_stage3_env() {
 /// - MirVerifier の UndefinedValue を拾いつつ、ssa.rs 側の `[ssa-undef-debug]` ログで
 ///   どの命令が %0 や未定義 ValueId を使っているかを観測する。
 #[test]
-#[ignore]
+#[ignore] // debug harness for known UndefinedValue until scan_all_boxes/baseline filtering lands
 fn mir_funcscanner_fib_min_ssa_debug() {
     ensure_stage3_env();
 
@@ -98,15 +100,12 @@ fn mir_funcscanner_scan_methods_ssa_debug() {
 
 /// Dev-only: FuncScannerBox.skip_whitespace/2 の VM 実行観測テスト
 ///
-/// - Option C (LoopForm v2 + LoopSnapshotMergeBox + BTree* 化) 適用後、
-///   267/268 テストは安定して緑になっているが、このテストだけ
-///   ValueId / BasicBlockId の非決定的な揺れが残っている。
-/// - 根本原因は variable_map(HashMap<String, ValueId>) の順序非決定性
-///   に起因する可能性が高く、Phase 25.3 では「既知の flakiness」として扱う。
-/// - 後続フェーズ（BoxCompilationContext / variable_map の BTreeMap 化）で
-///   構造的に解消する予定のため、ここでは #[ignore] で通常テストから外す。
+/// - ここは VM 実行の観測用ハーネスで、結果そのものよりも __mir__ ログ確認が目的。
+/// - 既知の flakiness は `variable_map(HashMap<String, ValueId>)` の順序非決定性に由来する。
+/// - BoxCompilationContext / variable_map の BTreeMap 化、またはログ正規化が入るまで
+///   #[ignore] のまま維持する。
 #[test]
-#[ignore]
+#[ignore] // dev-only flaky harness; keep ignored until variable_map order is stabilized or logs are normalized
 fn mir_funcscanner_skip_ws_vm_debug_flaky() {
     // このテストは、FuncScannerBox.skip_whitespace/2 を経由する最小ケースを
     // VM + NYASH_MIR_DEBUG_LOG 付きで実行し、__mir__ ログから挙動を目視確認するための

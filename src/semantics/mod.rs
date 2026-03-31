@@ -83,6 +83,4 @@ pub trait SemanticsExt: Semantics {
 }
 
 impl<T: Semantics> SemanticsExt for T {}
-
-// pub mod clif_adapter; // ARCHIVED: moved to archive/jit-cranelift/
 pub mod vm_impl;

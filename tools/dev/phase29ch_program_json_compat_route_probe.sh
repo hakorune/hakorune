@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 source "${ROOT}/tools/selfhost/lib/identity_routes.sh"
 source "${ROOT}/tools/selfhost/lib/stage1_contract.sh"
 
-BIN="${ROOT}/target/selfhost/hakorune.stage1_cli"
+BIN="${ROOT}/target/selfhost/hakorune.stage1_cli.stage2"
 ENTRY="${ROOT}/apps/tests/hello_simple_llvm.hako"
 
 usage() {

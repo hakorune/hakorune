@@ -1,0 +1,225 @@
+// launcher/input_contract.hako — argument and bootstrap request parsing
+
+static box LauncherInputContractBox {
+  method parse_build_exe_request(args) {
+    local argc = 0
+    if args { argc = args.size() }
+    if argc < 3 {
+      print("[hakorune] build exe: usage: hakorune build exe [-o <out>] [--quiet] <source.hako>")
+      return null
+    }
+
+    local req = new MapBox()
+    local out_path = null
+    local quiet = 0
+    local source_path = null
+
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = me._coerce_text_compat(arg_raw)
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] build exe: -o/--out requires a path")
+          return null
+        }
+        local op_raw = args.get(i + 1)
+        out_path = me._coerce_text_compat(op_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+        continue
+      }
+
+      if source_path == null {
+        source_path = arg
+        i = i + 1
+        continue
+      }
+
+      print("[hakorune] build exe: unexpected extra argument: " + arg)
+      return null
+    }
+
+    if source_path == null || source_path == "" {
+      print("[hakorune] build exe: source path is required")
+      return null
+    }
+
+    req.set("source_path", source_path)
+    req.set("out_path", out_path)
+    req.set("quiet", quiet)
+    return req
+  }
+
+  method parse_emit_program_json_request(args) {
+    local argc = 0
+    if args { argc = args.size() }
+    if argc < 3 {
+      print("[hakorune] emit program-json: usage: hakorune emit program-json [-o <out>] [--quiet] <source.hako>")
+      return null
+    }
+
+    local req = new MapBox()
+    local source_path = null
+    local out_path = null
+    local quiet = 0
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = me._coerce_text_compat(arg_raw)
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] emit program-json: -o/--out requires a path")
+          return null
+        }
+        local op_raw = args.get(i + 1)
+        out_path = me._coerce_text_compat(op_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+        continue
+      }
+
+      if source_path == null {
+        source_path = arg
+        i = i + 1
+        continue
+      }
+
+      print("[hakorune] emit program-json: unexpected extra argument: " + arg)
+      return null
+    }
+
+    if source_path == null || source_path == "" {
+      print("[hakorune] emit program-json: source path is required")
+      return null
+    }
+
+    req.set("source_path", source_path)
+    req.set("out_path", out_path)
+    req.set("quiet", quiet)
+    return req
+  }
+
+  method parse_emit_mir_json_request(args) {
+    local argc = 0
+    if args { argc = args.size() }
+
+    local req = new MapBox()
+    local prog_path = null
+    local source_path = null
+    local out_path = null
+    local quiet = 0
+    local i = 2
+    loop(i < argc) {
+      local arg_raw = args.get(i)
+      local arg = me._coerce_text_compat(arg_raw)
+      if arg == "--from-program-json" {
+        if i + 1 >= argc {
+          print("[hakorune] emit mir-json: --from-program-json requires a path")
+          return null
+        }
+        local p_raw = args.get(i + 1)
+        prog_path = me._coerce_text_compat(p_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "-o" || arg == "--out" {
+        if i + 1 >= argc {
+          print("[hakorune] emit mir-json: -o/--out requires a path")
+          return null
+        }
+        local op_raw = args.get(i + 1)
+        out_path = me._coerce_text_compat(op_raw)
+        i = i + 2
+        continue
+      }
+
+      if arg == "--quiet" {
+        quiet = 1
+        i = i + 1
+        continue
+      }
+
+      if source_path == null {
+        source_path = arg
+        i = i + 1
+        continue
+      }
+
+      print("[hakorune] emit mir-json: unknown or unsupported flag: " + arg)
+      return null
+    }
+
+    if prog_path != null && prog_path != "" && source_path != null && source_path != "" {
+      print("[hakorune] emit mir-json: specify either --from-program-json or <source.hako>, not both")
+      return null
+    }
+
+    if (prog_path == null || prog_path == "") && (source_path == null || source_path == "") {
+      print("[hakorune] emit mir-json: require --from-program-json <file> or <source.hako>")
+      return null
+    }
+
+    req.set("program_json_path", prog_path)
+    req.set("source_path", source_path)
+    req.set("out_path", out_path)
+    req.set("quiet", quiet)
+    return req
+  }
+
+  method bootstrap_requested() {
+    return me._non_empty_text(env.get("HAKORUNE_BOOTSTRAP_MODE"))
+  }
+
+  method parse_bootstrap_request() {
+    local mode_raw = env.get("HAKORUNE_BOOTSTRAP_MODE")
+    if me._non_empty_text(mode_raw) != 1 {
+      print("[hakorune/bootstrap] HAKORUNE_BOOTSTRAP_MODE is required")
+      return null
+    }
+    local mode = me._coerce_text_compat(mode_raw)
+    if mode != "emit-mir" {
+      print("[hakorune/bootstrap] unsupported mode: " + mode)
+      return null
+    }
+
+    local tag = "[hakorune/bootstrap emit mir]"
+    local input_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_INPUT"))
+    if input_path == "" {
+      print(tag + ": HAKORUNE_BOOTSTRAP_INPUT is required")
+      return null
+    }
+    local out_path = me._coerce_text_compat(env.get("HAKORUNE_BOOTSTRAP_OUT"))
+    if out_path == "" {
+      print(tag + ": HAKORUNE_BOOTSTRAP_OUT is required")
+      return null
+    }
+
+    local req = new MapBox()
+    req.set("mode", mode)
+    req.set("input_path", input_path)
+    req.set("out_path", out_path)
+    return req
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+
+  method _non_empty_text(value) {
+    if value == null { return 0 }
+    if me._coerce_text_compat(value) == "" { return 0 }
+    return 1
+  }
+}

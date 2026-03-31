@@ -401,8 +401,14 @@ stage1_contract_exec_mode() {
         return $?
         ;;
       emit-program|emit_program_json|emit-program-json|emit-mir|emit_mir_json|emit-mir-json|emit-mir-program)
-        echo "[stage1-contract] stage1-cli reduced artifact is run-only; use bootstrap direct emit for emit routes" >&2
-        return 97
+        stage1_contract_exec_checked_mode \
+          "$bin" \
+          "$mode" \
+          "$entry" \
+          "$source_text_for_mode" \
+          "$emit_program_flag" \
+          "$emit_mir_flag"
+        return $?
         ;;
     esac
   fi

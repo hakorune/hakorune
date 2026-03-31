@@ -1,6 +1,6 @@
 #!/bin/bash
 # phase29ci_stage1_cli_exact_emit_contract_vm.sh
-# Exact reduced-artifact emit contract smoke for stage1-cli:
+# Exact reduced-artifact emit contract smoke for the current stage1-cli.stage2 artifact:
 # - `run_stage1_cli.sh emit program-json` must now fail with the explicit wrapper-retired redirect
 # - `run_stage1_cli.sh emit mir-json` must succeed on the same artifact and fixture
 # - explicit Program(JSON) compat proof must still succeed via the compat probe helper
@@ -13,7 +13,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../../../../.." && pwd)"
 source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
 
-BIN="${1:-$NYASH_ROOT/target/selfhost/hakorune.stage1_cli}"
+BIN="${1:-$NYASH_ROOT/target/selfhost/hakorune.stage1_cli.stage2}"
 ENTRY="${2:-$NYASH_ROOT/apps/tests/hello_simple_llvm.hako}"
 
 if [[ "$BIN" != /* ]]; then

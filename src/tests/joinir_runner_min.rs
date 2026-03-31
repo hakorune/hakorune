@@ -23,7 +23,7 @@ fn require_experiment_toggle() -> bool {
 }
 
 #[test]
-#[ignore] // PHI/LoopForm バグあり - Phase 30 の PHI canary として据え置き
+#[ignore] // JoinIR runner canary: keep ignored until PHI/LoopForm parity is stable on both skip_ws and trim_min routes
 fn joinir_runner_minimal_skip_ws_executes() {
     if !require_experiment_toggle() {
         return;
@@ -81,7 +81,7 @@ static box Runner {
 }
 
 #[test]
-#[ignore]
+#[ignore] // same canary: requires the direct VM + JoinIR A/B result to stay stable before unignoring
 fn joinir_runner_funcscanner_trim_executes() {
     if !require_experiment_toggle() {
         return;

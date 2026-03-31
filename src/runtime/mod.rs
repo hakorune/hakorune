@@ -29,8 +29,6 @@ pub mod runtime_profile; // Phase 109: RuntimeProfile enum (Default/NoFs)
 pub mod scheduler;
 pub mod semantics;
 pub mod unified_registry; // Deprecation warnings with warn-once guards
-                          // pub mod plugin_box;  // legacy - 古いPluginBox
-                          // pub mod plugin_loader;  // legacy - Host VTable使用
 pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub mod host_api; // C ABI: plugins -> host 逆呼び出しAPI（TLSでVMに橋渡し）
 pub mod host_handles; // C ABI(TLV) 向け HostHandle レジストリ（ユーザー/内蔵Box受け渡し）
@@ -62,9 +60,6 @@ pub use scheduler::{Scheduler, SingleThreadScheduler};
 pub use unified_registry::{
     get_global_unified_registry, init_global_unified_registry, register_user_defined_factory,
 };
-// pub use plugin_box::PluginBox;  // legacy
-// Use unified plugin loader (formerly v2)
-// pub use plugin_loader::{PluginLoaderV2 as PluginLoader, get_global_loader_v2 as get_global_loader};  // legacy
 
 // Phase 95: CoreServices 用 global accessor
 use std::sync::{Arc, OnceLock};

@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-03-30
+Date: 2026-03-31
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -29,10 +29,18 @@ Related:
 
 ## Immediate Resume
 
-- stage1 bootstrap wrapper cleanup landed.
-- `stage1-cli` and `launcher-exe` build passes are green.
-- Emit routes now use bootstrap `hakorune`; the reduced `stage1-cli` artifact is run-only.
-- Resume next by reviewing/committing the current diff set or normalizing the remaining legacy `.hako` files.
+- stage1 bootstrap wrapper cleanup is closed and the next phase is repo整理.
+- First-cut order: safe `docs/private` archive/move-out, root build scripts canonicalization, large `src/` splits, then `#[ignore]` test cleanup.
+- Already landed: `docs/private/papers-archive/paper-a-mir13-ir-design/out/mir13-paper.pdf` has been moved to `docs/private/out/`, `docs/private/roadmap2/CURRENT_TASK_2025-11-29_full.md` has been archived under `docs/private/roadmap2/archive/`, the root build scripts are shimmed to `tools/build/`, `src/runner/mir_json_v0.rs` has been split into helper/call/tests submodules, `src/backend/wasm/shape_table.rs` has been split into `native/p10/tests` submodules, `src/backend/mir_interpreter/handlers/calls/method.rs` has been split into `dispatch/tests` submodules, `src/runner/modes/vm_hako/tests/boxcall_contract.rs` has been split into `subset/compile` submodules, `src/bin/rc_insertion_selfcheck.rs` has been split into `helpers/cases` submodules, `src/mir/passes/rc_insertion_helpers.rs` has been split into `cleanup/contracts/cycles/plan/apply/types/util` submodules, `src/mir/builder/control_flow/plan/composer/coreloop_v1_tests.rs` has been split into scenario submodules, `src/mir/optimizer.rs` has been split with a `diagnostics` submodule, `src/runner/modes/vm_hako/subset_check.rs` has been split into `shapes/boxcalls/externcalls` submodules, `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs` has been split into `extract/tests` submodules, `src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns.rs` has been split into `returns/breaks/guard_break` submodules, `src/mir/builder/control_flow/plan/composer/coreloop_v0_tests.rs` has been split into `simple_while/scan_with_init/split_scan` submodules, and `src/backend/mir_interpreter/handlers/extern_provider.rs` has been split into lane submodules.
+- Also landed: `src/mir/control_tree/normalized_shadow/loop_true_break_once.rs` has its tests moved to `loop_true_break_once/tests.rs`, `src/macro/ast_json/joinir_compat.rs` has its helper functions moved to `joinir_compat/helpers.rs`, `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs` has `generic` route functions moved to `handlers/generic.rs`, and `lang/src/runner/launcher.hako` has dispatch/input-contract helper boxes moved into `launcher/dispatch.hako` and `launcher/input_contract.hako`.
+- tmp cleanup note: the zero-reference `apps/` `tmp_*.hako` files are deleted.
+- Ignore cleanup note: `loop_routes` and bridge/debug harness comments were normalized; remaining `#[ignore]` work is now a candidate-by-candidate shelfing pass, not a blanket TODO cleanup.
+- Keep `tools/selfhost/run_all.sh`, phase-local `run_all.sh`, and `apps/tests/` as compat/fixture surfaces for now.
+- `lang/src/compiler/mirbuilder/mir_json_v0_shape_box.hako`, `lang/src/compiler/entry/func_scanner.hako`, `lang/src/compiler/mirbuilder/stmt_handlers/return_stmt_handler.hako`, and `lang/src/runner/stage1_cli.hako` are split already.
+- `stage1_cli.stage2` exact emit compat probe is green again; `stage1_cli` itself remains the run-only bootstrap output.
+- `launcher` is now split into dispatch/input-contract helpers; the thin bootstrap proof is being shifted to `launcher_native_entry.hako`, and the next cleanup slice is the remaining `artifact_io` / `payload_contract` helper boxes.
+- `handlers` has the generic route leaf split out; the next cleanup slice is the remaining handler route table or `artifact_io` depending on which lane proves cheaper.
+- Next step is `lang/src/runner/launcher/artifact_io.hako`, unless the `handlers` lane surfaces a smaller exact blocker first.
 
 ## Current Read
 

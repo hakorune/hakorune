@@ -16,6 +16,9 @@ use super::super::router::{lower_verified_core_plan, LoopRouteContext};
 use super::types::{route_labels, PlannerFirstMode, RouterEnv, StandardEntry};
 use super::utils::{emit_planner_first, loop_break_recipe_needs_flowbox_adopt_tag_in_strict};
 
+mod generic;
+pub(crate) use generic::{route_generic_loop_v0, route_generic_loop_v1};
+
 fn debug_log_recipe_entry(route_label: &str, env: &RouterEnv) {
     if !crate::config::env::joinir_dev::debug_enabled() {
         return;
@@ -724,88 +727,4 @@ pub(crate) fn route_loop_cond_return_in_body(
         flowbox_via_release: FlowboxVia::Shadow,
     };
     route_standard(builder, ctx, outcome, env, &ENTRY)
-}
-
-pub(crate) fn route_generic_loop_v1(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
-) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V1, env);
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    if facts.facts.generic_loop_v1().is_none() {
-        return Ok(None);
-    }
-    let core_plan = match RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx) {
-        Ok(core_plan) => core_plan,
-        Err(_err) if !env.strict_or_dev => return Ok(None),
-        Err(err) => return Err(err.to_string()),
-    };
-    // In strict/dev, nested loops must emit the FlowBox shadow-adopt tag.
-    if env.strict_or_dev && facts.nested_loop {
-        return lower_verified_core_plan(
-            builder,
-            ctx,
-            env.strict_or_dev,
-            outcome.facts.as_ref(),
-            core_plan,
-            FlowboxVia::Shadow,
-        );
-    }
-    if !env.strict_or_dev {
-        if PlanVerifier::verify(&core_plan).is_err() {
-            return Ok(None);
-        }
-        return match PlanLowerer::lower(builder, core_plan, ctx) {
-            Ok(value) => Ok(value),
-            Err(_) => Ok(None),
-        };
-    }
-    // Preserve the pre-plan adopt behavior for non-nested generic loops.
-    PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-    PlanLowerer::lower(builder, core_plan, ctx)
-}
-
-pub(crate) fn route_generic_loop_v0(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    outcome: &PlanBuildOutcome,
-    env: &RouterEnv,
-) -> Result<Option<ValueId>, String> {
-    debug_log_recipe_entry(route_labels::GENERIC_LOOP_V0, env);
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    if facts.facts.generic_loop_v0().is_none() {
-        return Ok(None);
-    }
-    let core_plan = match RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx) {
-        Ok(core_plan) => core_plan,
-        Err(_err) if !env.strict_or_dev => return Ok(None),
-        Err(err) => return Err(err.to_string()),
-    };
-    if env.strict_or_dev && facts.nested_loop {
-        return lower_verified_core_plan(
-            builder,
-            ctx,
-            env.strict_or_dev,
-            outcome.facts.as_ref(),
-            core_plan,
-            FlowboxVia::Shadow,
-        );
-    }
-    if !env.strict_or_dev {
-        if PlanVerifier::verify(&core_plan).is_err() {
-            return Ok(None);
-        }
-        return match PlanLowerer::lower(builder, core_plan, ctx) {
-            Ok(value) => Ok(value),
-            Err(_) => Ok(None),
-        };
-    }
-    PlanVerifier::verify(&core_plan).map_err(|e| e.to_string())?;
-    PlanLowerer::lower(builder, core_plan, ctx)
 }

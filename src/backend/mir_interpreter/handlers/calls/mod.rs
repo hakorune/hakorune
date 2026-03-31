@@ -1,13 +1,12 @@
 //! Call handling (split from handlers/calls.rs)
 //! - Route by Callee kind
-//! - Keep legacy path isolated for phased removal
+//! - By-name fallback remains for compatibility when Callee is absent
 
 use super::*;
 
 mod externs;
 mod global;
 mod method;
-// legacy by-name resolver has been removed (Phase 2 complete)
 
 impl MirInterpreter {
     pub(crate) fn handle_call(
@@ -92,7 +91,7 @@ impl MirInterpreter {
         let call_result = if let Some(callee_type) = callee {
             self.execute_callee_call(callee_type, args)?
         } else {
-            // Fast path: allow exact module function calls without legacy resolver.
+            // Fast path: allow exact module function calls when Callee is absent.
             let name_val = self.reg_load(func)?;
             if let VMValue::String(ref s) = name_val {
                 if let Some(f) = self.functions.get(s).cloned() {

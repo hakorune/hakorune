@@ -1,0 +1,86 @@
+// stage1_cli/program_json_build.hako
+using lang.compiler.build.build_box as BuildBox
+
+static box Stage1CliProgramJsonBuildBox {
+  method emit_program_json_from_source_text_checked(tag, merged_source, with_debug) {
+    local prog = me._emit_program_json_raw_with_debug(tag, merged_source, with_debug)
+    if prog == null {
+      return me._fail_emit_program_json_null(tag, with_debug)
+    }
+    return me._coerce_program_json_output_checked(tag, prog, with_debug)
+  }
+
+  method emit_program_json_v0(tag, source_text) {
+    return me._emit_program_json_v0_raw(tag, source_text)
+  }
+
+  method has_materialized_program_json_payload(input_text) {
+    if me.program_json_text_present(input_text) != 1 { return 0 }
+    return me.program_json_has_markers(input_text)
+  }
+
+  method program_json_text_present(input_text) {
+    if input_text != null && input_text != "" { return 1 }
+    return 0
+  }
+
+  method program_json_has_markers(program_json_text) {
+    if me.program_json_text_present(program_json_text) != 1 { return 0 }
+    if program_json_text.indexOf("\"version\":0") < 0 || program_json_text.indexOf("\"kind\":\"Program\"") < 0 {
+      return 0
+    }
+    return 1
+  }
+
+  method _emit_program_json_raw_with_debug(tag, merged_source, with_debug) {
+    local dbg = env.get("STAGE1_CLI_DEBUG")
+    if with_debug == 1 && dbg == "1" {
+      print("[stage1-cli/debug] emit_program_json: calling BuildBox.emit_program_json_v0")
+    }
+
+    local prog = me.emit_program_json_v0(tag, merged_source)
+    if with_debug == 1 && dbg == "1" {
+      local status = "null"
+      if prog != null { status = "non-null" }
+      print("[stage1-cli/debug] emit_program_json: BuildBox.emit_program_json_v0 returned, prog=" + status)
+    }
+    return prog
+  }
+
+  method _fail_emit_program_json_null(tag, with_debug) {
+    if with_debug == 1 {
+      print(tag + ": BuildBox returned null")
+    } else {
+      print(tag + " BuildBox.emit_program_json_v0 returned null")
+    }
+    return null
+  }
+
+  method _coerce_program_json_output_checked(tag, prog, with_debug) {
+    local ps = me._coerce_text_compat(prog)
+    if me.program_json_has_markers(ps) != 1 {
+      if with_debug == 1 {
+        print(tag + ": unexpected Program(JSON) output (missing version/kind)")
+      } else {
+        print(tag + " BuildBox output missing Program(JSON v0) markers")
+      }
+      return null
+    }
+    local dbg = env.get("STAGE1_CLI_DEBUG")
+    if with_debug == 1 && dbg == "1" {
+      print("[stage1-cli/debug] emit_program_json: validation passed")
+    }
+    return ps
+  }
+
+  method _emit_program_json_v0_raw(tag, source_text) {
+    local prog = BuildBox.emit_program_json_v0(source_text, null)
+    if prog != null { return prog }
+    print(tag + ": BuildBox returned null")
+    return null
+  }
+
+  method _coerce_text_compat(value) {
+    return "" + value
+  }
+}

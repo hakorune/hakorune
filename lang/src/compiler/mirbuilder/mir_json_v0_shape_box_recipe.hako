@@ -1,0 +1,49 @@
+// mir_json_v0_shape_box_recipe.hako
+// Responsibility:
+// - Recipe verification and shape derivation for MirJsonV0ShapeBox.
+
+using selfhost.shared.common.string_helpers as StringHelpers
+using selfhost.shared.common.box_helpers as BoxHelpers
+using lang.compiler.mirbuilder.recipe.recipe_verifier_box as RecipeVerifierBox
+using lang.compiler.mirbuilder.mir_json_v0_shape_box_helpers as MirJsonV0ShapeHelpers
+using lang.compiler.mirbuilder.mir_json_v0_shape_box_recipe_control as MirJsonV0ShapeRecipeControl
+using lang.compiler.mirbuilder.mir_json_v0_shape_box_recipe_seq as MirJsonV0ShapeRecipeSeq
+
+static box MirJsonV0ShapeRecipe {
+  _recipe_shape(state, tag) {
+    local recipe_root = BoxHelpers.map_get(state, "recipe_root")
+    if recipe_root == null || BoxHelpers.is_map(recipe_root) != 1 {
+      return %{
+        "err" => 0,
+        "err_line" => "",
+        "used_recipe" => 0
+      }
+    }
+
+    local verify = RecipeVerifierBox.verify(recipe_root, tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(verify, "err")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_shape_result_err("" + BoxHelpers.map_get(verify, "err_line"))
+    }
+
+    local control_shape = MirJsonV0ShapeRecipeControl._recipe_shape_try_control(recipe_root, state, tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(control_shape, "err")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_shape_result_err("" + BoxHelpers.map_get(control_shape, "err_line"))
+    }
+    if StringHelpers.to_i64(BoxHelpers.map_get(control_shape, "matched")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_shape_result_match(BoxHelpers.map_get(control_shape, "shape_out"))
+    }
+
+    local seq_out = MirJsonV0ShapeRecipeSeq._recipe_stmt_seq(recipe_root, tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(seq_out, "err")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_shape_result_err("" + BoxHelpers.map_get(seq_out, "err_line"))
+    }
+
+    local seq_sig = MirJsonV0ShapeRecipeSeq._seq_signature(BoxHelpers.map_get(seq_out, "seq"))
+    local shape_out = MirJsonV0ShapeRecipeSeq._shape_kind_from_recipe(seq_sig, state, tag)
+    if StringHelpers.to_i64(BoxHelpers.map_get(shape_out, "err")) == 1 {
+      return MirJsonV0ShapeHelpers._recipe_shape_result_err("" + BoxHelpers.map_get(shape_out, "err_line"))
+    }
+
+    return MirJsonV0ShapeHelpers._recipe_shape_result_match(shape_out)
+  }
+}
