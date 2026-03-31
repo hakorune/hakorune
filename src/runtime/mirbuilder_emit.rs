@@ -97,8 +97,14 @@ static box Main {
         let src = r#"
 @rune Public
 static box Main {
+  @rune FfiSafe
+  @rune ReturnsOwned
+  @rune FreeWith("cleanup_main")
   @rune Symbol("main_sym")
   @rune CallConv("c")
+  @rune Hint(inline)
+  @rune Contract(no_alloc)
+  @rune IntrinsicCandidate("Main.main/0")
   main() {
     return 0
   }
@@ -127,10 +133,22 @@ static box Main {
         let runes = main_fn["attrs"]["runes"]
             .as_array()
             .expect("attrs.runes array");
-        assert_eq!(runes.len(), 2);
-        assert_eq!(runes[0]["name"], "Symbol");
-        assert_eq!(runes[0]["args"], serde_json::json!(["main_sym"]));
-        assert_eq!(runes[1]["name"], "CallConv");
-        assert_eq!(runes[1]["args"], serde_json::json!(["c"]));
+        assert_eq!(runes.len(), 8);
+        assert_eq!(runes[0]["name"], "FfiSafe");
+        assert_eq!(runes[0]["args"], serde_json::json!([]));
+        assert_eq!(runes[1]["name"], "ReturnsOwned");
+        assert_eq!(runes[1]["args"], serde_json::json!([]));
+        assert_eq!(runes[2]["name"], "FreeWith");
+        assert_eq!(runes[2]["args"], serde_json::json!(["cleanup_main"]));
+        assert_eq!(runes[3]["name"], "Symbol");
+        assert_eq!(runes[3]["args"], serde_json::json!(["main_sym"]));
+        assert_eq!(runes[4]["name"], "CallConv");
+        assert_eq!(runes[4]["args"], serde_json::json!(["c"]));
+        assert_eq!(runes[5]["name"], "Hint");
+        assert_eq!(runes[5]["args"], serde_json::json!(["inline"]));
+        assert_eq!(runes[6]["name"], "Contract");
+        assert_eq!(runes[6]["args"], serde_json::json!(["no_alloc"]));
+        assert_eq!(runes[7]["name"], "IntrinsicCandidate");
+        assert_eq!(runes[7]["args"], serde_json::json!(["Main.main/0"]));
     }
 }

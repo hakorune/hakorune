@@ -602,6 +602,7 @@ Related:
     - `.hako` compiler/mirbuilder state now carries a generic function-rune map instead of `entry_runes_json`
     - `.hako` MIR attrs injection is function-name driven instead of `main` hardcode
     - `.hako` Stage-B source route now carries root-entry Rune attrs through a real `Main.main` def instead of a synthetic transport shim
+    - parser/roundtrip/MIR bridge tests now pin the canonical `@rune` surface for `Public/FfiSafe/ReturnsOwned/FreeWith/Symbol/CallConv/Hint/Contract/IntrinsicCandidate`
   - planned future reopen only:
     - `.hako` declaration-local full Rune carrier parity beyond root-entry transport
 - Bootstrap-retire lane: `phase-29cj`
