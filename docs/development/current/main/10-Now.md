@@ -40,7 +40,7 @@ Related:
 - `stage1_cli.stage2` exact emit compat probe is green again; `stage1_cli` itself remains the run-only bootstrap output.
 - `launcher` is now split into dispatch/input-contract/artifact_io/payload_contract helpers; the thin bootstrap proof is being shifted to `launcher_native_entry.hako`, and the remaining cleanup slice is launcher compile facade thinning or the route-entry handler table.
 - `handlers` has the generic route leaf split out; the next cleanup slice is the remaining handler route table or `artifact_io` depending on which lane proves cheaper.
-- Next step is `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs`, unless the launcher compile facade lane surfaces a smaller exact blocker first.
+- Next step is `src/mir/builder/control_flow/plan/parts/loop_.rs`, unless the launcher compile facade lane surfaces a smaller exact blocker first.
 
 ## Current Read
 
