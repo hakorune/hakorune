@@ -24,12 +24,13 @@ Related:
 
 1. `policy-refresh`
    - active docs/policy lane
-   - visible sequence: `Rune lane (parallel)` -> `K0 -> K-migration` -> `RawMap deferred in K2-wide`
+   - visible sequence: `Rune lane (parallel)` -> `K0 -> K-migration` -> `K2-core acceptance lock` -> `RawMap deferred in K2-wide`
    - keep `stage` vocabulary fixed and add compressed `K-axis` as the current operational reading
    - keep `Rune lane` docs (`@rune` canonical surface / `attrs.runes`) synchronized as a parallel compiler-contract lane
    - `K2-core acceptance lock` is the next structural step; `RawArray` remains first and `RuntimeData facade-only` stays fixed
+   - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract test set, not a new benchmark lane
    - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence, not the next structural lane
-   - execution order is `Rune lane (parallel)` plus `K0 -> K-migration`; `RawMap` remains deferred in `K2-wide`
+   - execution order is `Rune lane (parallel)` plus `K0 -> K-migration`; `K2-core acceptance lock` sits before `RawMap` in `K2-wide`
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

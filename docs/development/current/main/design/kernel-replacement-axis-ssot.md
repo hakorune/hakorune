@@ -59,6 +59,7 @@ Public-facing roadmap text may explain `K1` as the point where the semantic kern
 - `K2-core`
   - first daily `.hako substrate`
   - first concrete pilot is `RawArray`
+  - acceptance lock: existing `nyash_kernel` RawArray contract tests (`runtime_data_invalid_handle_returns_zero`, `runtime_data_array_round_trip_keeps_rawarray_contract`, `legacy_set_h_returns_zero_but_applies_value`, `hi_hii_aliases_keep_fail_safe_contract`, `slot_load_store_raw_aliases_keep_contract`, `slot_append_raw_alias_keeps_contract`)
 - `K2-wide`
   - `RawMap` second
   - capability widening packs
@@ -196,7 +197,7 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
 - visible order therefore reads as:
   - `Rune lane (parallel, compiler-contract side)`
   - `K0 -> K-migration`
-  - `K2-core RawArray first`
+  - `K2-core acceptance lock`
   - `RawMap` deferred in `K2-wide`
 - therefore the next structural step is not another broad owner rename.
 - the next structural step is to make `RawArray` the first truthful `K2-core` pilot.

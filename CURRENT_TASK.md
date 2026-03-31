@@ -21,16 +21,24 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 1. `Rune lane (parallel, compiler-contract side)`
 2. `K0 -> K-migration`
-3. `RawMap` deferred in `K2-wide`; map perf stays evidence/regression only
+3. `K2-core acceptance lock`
+4. `RawMap` deferred in `K2-wide`; map perf stays evidence/regression only
 
 - `K0 / K1 / K2(core|wide)` stays the replacement reading.
 - the post-`K0` engineering line is one `K-migration`, but `K1` / `K2` remain separate acceptance gates.
 - next structural step is `K2-core acceptance lock` for `RawArray`, while `RuntimeDataBox` stays facade-only.
+- `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests:
+  - `runtime_data_invalid_handle_returns_zero`
+  - `runtime_data_array_round_trip_keeps_rawarray_contract`
+  - `legacy_set_h_returns_zero_but_applies_value`
+  - `hi_hii_aliases_keep_fail_safe_contract`
+  - `slot_load_store_raw_aliases_keep_contract`
+  - `slot_append_raw_aliases_keep_contract`
 - perf and historical evidence below are appendix material only; they do not change the order above.
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読み、`Rune lane (parallel)`、`K0 -> K-migration` の visible order を dashboard/SSOT に同期する。
+- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読み、`Rune lane (parallel)`、`K0 -> K-migration`、`K2-core acceptance lock` の visible order を dashboard/SSOT に同期する。
 - Stage axis:
   - `stage0` = bootstrap / recovery keep
   - `stage1` = same-boundary swap proof line
@@ -96,7 +104,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 1. `Rune lane (parallel, compiler-contract side)`
 2. `K0 -> K-migration`
-3. `RawMap` deferred in `K2-wide`; map perf evidence/regression pack keep
+3. `K2-core acceptance lock`
+4. `RawMap` deferred in `K2-wide`; map perf evidence/regression pack keep
 
 ### Small Tasks
 

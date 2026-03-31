@@ -112,6 +112,15 @@ Acceptance lock:
 - `RuntimeDataBox` stays facade/protocol only while `RawArray` is the daily owner.
 - the pilot can be accepted without widening `Map` or reopening `K1` owner scope.
 
+Smoke / evidence gate:
+- `runtime_data_invalid_handle_returns_zero`
+- `runtime_data_array_round_trip_keeps_rawarray_contract`
+- `legacy_set_h_returns_zero_but_applies_value`
+- `hi_hii_aliases_keep_fail_safe_contract`
+- `slot_load_store_raw_aliases_keep_contract`
+- `slot_append_raw_aliases_keep_contract`
+- treat those as the existing `nyash_kernel` RawArray contract evidence for `K2-core acceptance lock`.
+
 Stop line:
 - `RawArray` has explicit contract baseline under `hako.abi / hako.value_repr / ownership-layout / fail-fast verifier`.
 - the daily owner reading is `.hako substrate module`, not hidden Rust helper ownership.
@@ -148,9 +157,13 @@ The phase plan is considered "done-enough to return to perf-kilo" when:
 3. owner docs agree on: `.hako authority / .inc thin shim / native metal keep`.
 4. collection docs agree on: `Array phase -> Map phase -> RuntimeData cleanup phase`.
 5. daily proof locks remain green:
-  - array provider smoke
-  - map provider smoke
-  - runtime-data dispatch e2e smoke
+  - `runtime_data_invalid_handle_returns_zero`
+  - `runtime_data_array_round_trip_keeps_rawarray_contract`
+  - `legacy_set_h_returns_zero_but_applies_value`
+  - `hi_hii_aliases_keep_fail_safe_contract`
+  - `slot_load_store_raw_aliases_keep_contract`
+  - `slot_append_raw_aliases_keep_contract`
+  - `runtime_data_map_get_keeps_mixed_runtime_i64_contract` stays evidence-only for the parked map lane
 6. regression/perf evidence stays recorded against the current Rust baseline:
   - `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 3`
   - `tools/perf/run_kilo_micro_machine_ladder.sh`
