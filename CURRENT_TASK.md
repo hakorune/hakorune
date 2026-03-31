@@ -13,23 +13,46 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - `docs/development/current/main/05-Restart-Quick-Resume.md`
 - `docs/development/current/main/15-Workstream-Map.md`
+- `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
 - `git status -sb`
 - `tools/checks/dev_gate.sh quick`
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: `stage2-mainline` の `Map` optimization wave で、今の live leaf は `kilo_leaf_map_get_missing`。
-- 読み:
-  - `kilo_leaf_map_get_missing` の current hot symbol は `nyash.runtime_data.get_hh`
-  - current measurable lever は `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs` と `handle_cache.rs`
-  - `kilo_leaf_map_get_missing 0` は `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07` まで到達
-  - `kilo_leaf_map_getset_has -1` は `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00` の regression pack として凍結
-  - `kilo_micro_array_getset` は regression pack に固定し、`c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94` を守る
-  - 次の探索候補は `runtime_data_map_get_min` 系の map provider / boundary smoke
-  - 観測導線は `tools/perf/save_micro_bundle.sh` / `tools/perf/diff_micro_c_vs_aot_asm.sh` / `tools/perf/run_micro_llc_flags_matrix.sh` を使う
-  - judge order は `leaf-proof micro -> micro kilo -> main kilo`
-  - `Array -> Map -> RuntimeData cleanup` は regression pack として固定
-  - `loop_routes` / `src/tests/*` の ignore 整理と repo cleanup は完了済み
+- Active work: kernel replacement axis の policy refresh を主線にして、`stage` と圧縮版 `K-axis` の読みを dashboard/SSOT に同期する。
+- Stage axis:
+  - `stage0` = bootstrap / recovery keep
+  - `stage1` = same-boundary swap proof line
+  - `stage2-mainline` = daily mainline / distribution lane
+  - `stage2+` = umbrella / end-state label
+- Replacement axis:
+  - `K0` = Boundary Lock
+  - `K1` = Semantic Owner Swap
+  - `K2` = Substrate Era
+    - `K2-core` = `RawArray first`
+    - `K2-wide` = `RawMap second + capability widening + metal review`
+- Current repo read:
+  - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1 done-enough`
+  - 次の structural target は `K2-core RawArray first`
+  - `RawMap` は `K2-wide` の second target
+  - `RuntimeDataBox` は facade-only keep
+  - same-boundary daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に限定する
+  - default daily/distribution target は `zero-rust` だが、bootstrap/recovery/reference/buildability と native metal keep は explicit keep
+- Parked evidence:
+  - `kilo_leaf_map_get_missing 0` は map evidence pack として `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
+  - `kilo_leaf_map_getset_has -1` は regression pack として `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
+  - `kilo_micro_array_getset` は baseline regression pack として `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
+  - `Array -> Map -> RuntimeData cleanup` は owner rewrite reopen ではなく regression/evidence pack に固定
+- Next exact read order:
+  1. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+  2. `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
+  3. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
+  4. `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
+- Next exact work:
+  1. `K0 / K1 / K2(core|wide)` の vocabulary を dashboard / restart docs / design index に同期する
+  2. `K1` collection wave を current done-enough stop-line として固定する
+  3. `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` を canonical reading にする
+  4. map/array perf lane は regression/evidence pack として keep し、new exact blocker が出るまで主線に戻さない
 - Landed already:
   - warning cleanup commit `c49375eb0` is landed
   - `lang/c-abi/shims/hako_llvmc_ffi_common.inc` now accepts `NYASH_NY_LLVM_LLC_FLAGS` and defaults to `-O3 -mcpu=native`
@@ -84,6 +107,20 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - fast-smoke CI now pins `NYASH_NY_LLVM_OPT_TOOL=opt-18` and `NYASH_NY_LLVM_LLC_TOOL=llc-18`, and the pure-first shim resolves `opt/llc` by env override or PATH fallback so GitHub runner LLVM tool naming does not break the mem2reg/llc lane.
 
 ## Current Lanes
+
+### policy-refresh
+
+- status: `active`
+- scope: stage/build vocabulary を維持したまま `K-axis` replacement reading を main docs に反映する
+- current SSOT:
+  - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+  - `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
+  - `docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md`
+  - `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
+- next exact slice:
+  - keep `K2-core = RawArray first truthful substrate pilot`
+  - keep `Map` as narrow facade + regression/evidence pack
+  - keep `zero-rust` defined as daily/distribution non-Cargo default, not native-zero
 
 ### phase-29bq
 

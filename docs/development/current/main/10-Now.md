@@ -29,17 +29,33 @@ Related:
 
 ## Immediate Resume
 
-- stage1 bootstrap wrapper cleanup and warning cleanup are closed; the current lane is `stage2-mainline` Map first optimization.
-- Current live leaf: `kilo_leaf_map_get_missing`.
-- Current hot symbol: `nyash.runtime_data.get_hh`.
-- Current measurable lever: `crates/nyash_kernel/src/plugin/runtime_data_map_dispatch.rs` plus `handle_cache.rs`.
-- Follow-up lever: `lang/c-abi/shims/hako_llvmc_ffi_common.inc` `llc` flags seam, which still accepts `NYASH_NY_LLVM_LLC_FLAGS` and now shows no stable matrix win.
-- Current read: `kilo_leaf_map_get_missing 0` landed at `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`, while `kilo_micro_array_getset 1x7` remains the regression pack at `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`.
-- Next search lane: `runtime_data_map_get_min` family, starting from the existing map provider / boundary smoke set.
-- Observability helpers: `tools/perf/save_micro_bundle.sh`, `tools/perf/diff_micro_c_vs_aot_asm.sh`, `tools/perf/run_micro_llc_flags_matrix.sh`.
-- Judge order: `leaf-proof micro -> micro kilo -> main kilo`, with `kilo_leaf_array_rmw_add1` first and `kilo_micro_array_getset` as the regression pack.
-- Map follows Array: keep the Array leaf frozen, then move to `runtime_data_map_get_min` as the next exact slice.
-- Keep `Array -> Map -> RuntimeData cleanup` as regression packs.
+- current lane is docs/policy refresh for the kernel replacement axis.
+- stage axis:
+  - `stage0 = bootstrap/recovery keep`
+  - `stage1 = same-boundary swap proof`
+  - `stage2-mainline = daily mainline / distribution lane`
+  - `stage2+ = umbrella / end-state label`
+- replacement axis:
+  - `K0 = Boundary Lock`
+  - `K1 = Semantic Owner Swap`
+  - `K2 = Substrate Era`
+    - `K2-core = RawArray first`
+    - `K2-wide = RawMap second + capability widening + metal review`
+- current repo read:
+  - collection wave (`Array -> Map -> RuntimeData cleanup`) is `K1 done-enough`
+  - next structural target is `K2-core RawArray first`
+  - `RawMap` is `K2-wide` second and `RuntimeDataBox` stays facade-only
+  - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
+  - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
+- parked evidence:
+  - `kilo_leaf_map_get_missing 0` = `c_ms=3 / ny_aot_ms=46 / ratio_cycles=0.07`
+  - `kilo_leaf_map_getset_has -1` = `c_ms=2 / ny_aot_ms=87 / ratio_cycles=0.00`
+  - `kilo_micro_array_getset 1x7` = `c_ms=3 / ny_aot_ms=3 / ratio_cycles=0.94`
+- next exact docs:
+  - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+  - `docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md`
+  - `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
+  - `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
 - Already landed: `docs/private/papers-archive/paper-a-mir13-ir-design/out/mir13-paper.pdf` has been moved to `docs/private/out/`, `docs/private/roadmap2/CURRENT_TASK_2025-11-29_full.md` has been archived under `docs/private/roadmap2/archive/`, the root build scripts are shimmed to `tools/build/`, `src/runner/mir_json_v0.rs` has been split into helper/call/tests submodules, `src/backend/wasm/shape_table.rs` has been split into `native/p10/tests` submodules, `src/backend/mir_interpreter/handlers/calls/method.rs` has been split into `dispatch/tests` submodules, `src/runner/modes/vm_hako/tests/boxcall_contract.rs` has been split into `subset/compile` submodules, `src/bin/rc_insertion_selfcheck.rs` has been split into `helpers` plus `cases/{mod,basic,jump,misc}` submodules, `src/mir/passes/rc_insertion_helpers.rs` has been split into `cleanup/contracts/cycles/plan/apply/types/util` submodules, `src/mir/builder/control_flow/plan/composer/coreloop_v1_tests.rs` has been split into scenario submodules, `src/mir/optimizer.rs` has been split with a `diagnostics` submodule, `src/runner/modes/vm_hako/subset_check.rs` has been split into `shapes/boxcalls/externcalls` submodules, `src/mir/join_ir/lowering/loop_with_if_phi_if_sum.rs` has been split into `extract/tests` submodules, `src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns.rs` has been split into `returns/breaks/guard_break` submodules, `src/mir/builder/control_flow/plan/composer/coreloop_v0_tests.rs` has been split into `simple_while/scan_with_init/split_scan` submodules, and `src/backend/mir_interpreter/handlers/extern_provider.rs` has been split into lane submodules.
 - Also landed: `src/mir/control_tree/normalized_shadow/loop_true_break_once.rs` has its tests moved to `loop_true_break_once/tests.rs`, `src/macro/ast_json/joinir_compat.rs` has its helper functions moved to `joinir_compat/helpers.rs`, `src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs` has `generic` route functions moved to `handlers/generic.rs`, and `lang/src/runner/launcher.hako` has dispatch/input-contract helper boxes moved into `launcher/dispatch.hako` and `launcher/input_contract.hako`.
 - tmp cleanup note: the zero-reference `apps/` `tmp_*.hako` files are deleted.
@@ -55,7 +71,14 @@ Related:
 
 ## Current Read
 
-- Active lane: `phase-29bq`
+- Active lane: `policy-refresh`
+  - status: `active`
+  - purpose:
+    - keep `stage` as build/distribution vocabulary
+    - keep compressed `K-axis` as replacement progress vocabulary
+    - pin `K2-core = RawArray first truthful substrate pilot`
+    - park Map optimization as regression/evidence, not structural next step
+- Active code lane: `phase-29bq`
   - status: `active (failure-driven; blocker=none)`
   - purpose:
     - keep selfhost `.hako` migration on `mirbuilder first / parser later`

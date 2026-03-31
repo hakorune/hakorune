@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-03-27
+Date: 2026-03-31
 Scope: current mainline / secondary lanes / parked lanes の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -22,7 +22,12 @@ Related:
 
 ## Current Order
 
-1. `phase-29bq`
+1. `policy-refresh`
+   - active docs/policy lane
+   - keep `stage` vocabulary fixed and add compressed `K-axis` as the current operational reading
+   - `K2-core RawArray first / K2-wide RawMap second / RuntimeData facade-only` is the next structural target
+   - `Map` optimization is parked as regression/evidence, not the next structural lane
+2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
    - current blocker: `none`
@@ -36,7 +41,7 @@ Related:
      - `29bq-113-hako-recipe-first-migration-lane.md`
      - `29bq-114-hako-cleanup-integration-prep-lane.md`
      - `29bq-115-selfhost-to-go-checklist.md`
-2. `phase-29ck`
+3. `phase-29ck`
    - active follow-up / docs-first exact front
    - `Stage0 = llvmlite` keep lane / `Stage1 = ny-llvmc(boundary pure-first)` mainline split is fixed
    - current route-correction blocker: retired for the current kilo entry
@@ -44,7 +49,7 @@ Related:
    - current reading: route correction is landed, and next work is docs-first live-route debug bundle + semantic window proof before another array leaf attempt on `ny-llvmc(boundary)`
    - `.hako` remains the preferred Stage1 canonical MIR authority and Rust stays a thin seam target
    - current `vm-hako` LLVM/exe proof is manual monitor only, not active acceptance
-3. `phase-29ci`
+4. `phase-29ci`
    - formally close-synced
    - `Program(JSON v0)` boundary retirement / `MIR(JSON v0)` line unification is complete for the accepted keep set
    - helper-local slices through W14 are landed
@@ -53,13 +58,13 @@ Related:
    - `phase2170` default MIR-file verify wrappers are landed
    - legacy `hv1_mircall_*` wrappers remain explicit keeps
    - reopen only on a new exact gap or explicit hard-delete resumption
-4. `phase-29cu`
+5. `phase-29cu`
    - formally close-synced
-5. `phase-29cj`
+6. `phase-29cj`
    - formally close-synced
-6. `phase-29y`
+7. `phase-29y`
    - parked / monitor-only
-7. `phase-29ct`
+8. `phase-29ct`
    - stop-line reached
 
 ## Boundary-Retire Snapshot
@@ -90,25 +95,27 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-29bq` active as failure-driven / blocker-none lane
-2. keep `phase-29ck` focused on `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md` until the live-route debug bundle and semantic `array_rmw_window` proof are fixed
-3. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
-4. treat `phase2044` / `phase2160` thin wrapper families and `phase2170/hv1_mircall_*` as explicit keeps, not active caller-debt buckets
+1. keep `policy-refresh` first until compressed `K-axis` / `zero-rust by default` / `plugin=cold lane only` wording is synced
+2. keep `phase-29bq` active as failure-driven / blocker-none lane
+3. keep `phase-29ck` focused on `P18-LIVE-ROUTE-DEBUG-BUNDLE-LOCK.md` until the live-route debug bundle and semantic `array_rmw_window` proof are fixed
+4. keep `phase-29ci` / `phase-29cu` / `phase-29cj` closed unless an exact gap reappears
+5. treat `phase2044` / `phase2160` thin wrapper families and `phase2170/hv1_mircall_*` as explicit keeps, not active caller-debt buckets
 
 ## Active Lane
 
-- `phase-29bq` is active again
+- `policy-refresh` is active
 - active reading:
-  - selfhost `.hako` migration remains `mirbuilder first / parser later`
-  - current blocker is `none`
-  - promotion is failure-driven only
+  - keep `stage0/stage1/stage2-mainline/stage2+` as build/distribution vocabulary
+  - keep `K0/K1/K2(core|wide)` as replacement-progress vocabulary
+  - freeze current collection wave as `K1 done-enough`
+  - prep `K2-core RawArray` as the next structural target
 - current lane rule:
-  - use `29bq-90/91/92/113/114/115` as the operational SSOT set
-  - keep the lane blocker-none until the next exact blocker is captured
-  - do not promote a broader leaf without first pinning the next blocker
+  - read `kernel-replacement-axis-ssot.md` first
+  - keep `Map` perf as regression/evidence; do not promote it into the next structural replacement lane
+  - keep `plugin` as the cold dynamic loader noun only
 - guard rails:
-  - keep compiler-expressivity-first policy
-  - keep selfhost migration docs-first / failure-driven
+  - keep stage/build vocabulary and replacement vocabulary separate
+  - keep selfhost migration docs-first / failure-driven on the secondary lane
   - do not reopen `phase-29ci` helper-local work without a new exact gap
 
 ## Parked / Stop-Line
@@ -139,4 +146,5 @@ Related:
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
 3. `docs/development/current/main/10-Now.md`
-4. active phase README
+4. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+5. active phase README

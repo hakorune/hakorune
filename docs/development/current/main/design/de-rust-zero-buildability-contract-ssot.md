@@ -1,10 +1,11 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-19
-Scope: `0rust` を「Rust meaning owner zero」と定義し、Rust ベースの build/bootstrap route を常時保持する契約を固定する。
+Date: 2026-03-31
+Scope: `0rust` を「Rust meaning owner zero」と定義し、daily/distribution を原則 Rust/Cargo 非依存にしつつ、Rust ベースの build/bootstrap route を常時保持する契約を固定する。
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/design/kernel-replacement-axis-ssot.md
   - docs/development/current/main/phases/phase-29cm/README.md
   - docs/development/current/main/design/de-rust-backend-zero-fixed-order-and-buildability-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
@@ -19,8 +20,10 @@ Related:
 ## Purpose
 
 - `0rust` は Rust を意味の owner から降ろすための定義であり、Rust の buildability を消すための定義ではない。
+- `0rust` の default reading は、daily/distribution が通常運用で Rust/Cargo を要求しないこと。
 - daily mainline の owner が `.hako` 側へ移っても、repo は Rust ベースの build/bootstrap route を常時保持する。
-- operational reading は `stage0 Rust bootstrap keep / stage1 proof / stage2+ 0rust mainline` で固定する。
+- この default は `K2-core` と `K2-wide` の両方で維持する。
+- operational reading は `stage0 Rust bootstrap keep / stage1 proof line / stage2-mainline zero-rust daily mainline / stage2+ umbrella` で固定する。
 - buildability は workaround ではなく contract である。
 
 ## Boundary Lock
@@ -29,13 +32,15 @@ Related:
 2. Rust は build/bootstrap / substrate / compat keep として残してよい。
 3. Rust ベースの build route は、migration slice の前後でいつでも再実行できる状態を保つ。
 4. daily owner が Rust から外れても、Rust build route を silent delete しない。
-5. `stage0` は Rust bootstrap でよいが、`stage2+` の mainline build は Rust dependency ではない状態を target にする。
+5. `stage0` は Rust bootstrap でよいが、`stage2-mainline` daily mainline と standard distribution は Rust/Cargo dependency ではない状態を default target にする。
+6. bootstrap / recovery / reference / archive / canary routes は explicit keep として残してよい。
 
 ## What Must Remain Buildable
 
 - stage0 / bootstrap build paths
 - stage1 proof artifact build paths
-- stage2+ selfhost mainline rebuild path
+- stage2-mainline daily mainline rebuild path
+- stage2-mainline daily mainline の reference rebuild path
 - compat / canary build paths
 - `.hako` mainline を Rust から再構築するための最小導線
 - archive / preservation-first restore path
@@ -45,6 +50,7 @@ Related:
 - `Rust source を全消しする` policy ではない
 - `build only from .hako` に固定することではない
 - buildability を失う代わりに LOC を減らすことではない
+- `native zero` や `metal zero` の意味ではない
 - ring0 へ semantics を押し込むことではない
 - `stage0 bootstrap まで Rust-free` を immediate acceptance にすることではない
 
@@ -59,5 +65,5 @@ Related:
 - meaning owner は `.hako` にある
 - Rust は build/bootstrap / substrate / compat keep として再実行可能である
 - `stage0` first build / recovery lane として Rust を残してよい
-- `stage2-mainline` daily mainline build は `.hako` owner で回り、Rust は normal dependency ではない。`stage2+` は umbrella / end-state 読みである
+- `stage2-mainline` daily mainline build と standard distribution は `.hako` owner で回り、Rust/Cargo は user-facing normal dependency ではない。`stage2+` は umbrella / end-state 読みである
 - migration slice を切った後でも、Rust から build できることを確認できる

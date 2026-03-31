@@ -1,11 +1,12 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-29
+Date: 2026-03-31
 Scope: `stage2-mainline` の主体を `.hako` に寄せつつ、`.inc` を thin shim に収束させる owner / substrate boundary を固定する。`stage2+` は umbrella / end-state reading として残す。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/kernel-replacement-axis-ssot.md
   - docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md
   - docs/development/current/main/design/stage2-selfhost-and-hako-alloc-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
@@ -26,6 +27,7 @@ Related:
 - native は metal keep として残し、ABI / alloc / GC / TLS / atomic / backend emission の最終 leaf だけを担う。
 - 評価軸は行数ではなく owner 比率で読む。
 - `.hako` complete は authority completion を意味し、native zero や substrate zero を意味しない。
+- replacement progress is read by `kernel-replacement-axis-ssot.md`; this doc fixes the boundary reading for `K1` side and the `K2-core` handoff only.
 - task order / acceptance bundle is owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`; this child doc owns the boundary reading only.
 
 ## Boundary Truth
@@ -33,6 +35,7 @@ Related:
 - SSOT is `hako.abi + hako.value_repr + ownership/layout manifest`.
 - `c-abi/include/*.h`, `*.c`, and `*.inc` are boundary artifacts / thin emitted forms, not semantic owners.
 - `.inc` is a transitional partition format, not the long-term architectural noun.
+- same-boundary daily replacement code is not called `plugin`; that noun is reserved for the cold loader lane under `runtime/host`.
 
 ## Fixed Reading
 
@@ -79,6 +82,7 @@ Related:
 ## Current Truth
 
 - current stage reading is `stage0 bootstrap keep / stage1 bridge/proof line / stage2-mainline .hako mainline and daily distribution lane / stage2+ umbrella`.
+- replacement reading is `K1 bounded stop-line landed enough for regression/perf return`; `K2-core` substrate replacement is still a separate lane and `K2-wide` stays deferred.
 - current distribution reading is `hakoruneup + self-contained release bundle`; this doc does not redefine packaging as a single stage artifact.
 - first stage2-mainline optimization wave is handled by the parent task pack and is limited to `route/perf only`.
 - `kernel authority zero` and `substrate zero` are separate end states; this doc only fixes the former owner-first migration.
@@ -114,6 +118,7 @@ Related:
   - analyzer-heavy `GET` windows, `indexOf` observers, and string producer-window analysis stay native compiler-state seams
 - The current bounded stop-line is the `runtime/meta/` + `mir_call` mirror landing; remaining steps below are end-state direction, not the current pre-perf expansion plan.
 - Therefore the migration problem is not “every `.inc` already fits `.hako` syntax”; the real gap is the missing split between compiler-state capability, lowering builder seam, and thin emit shim.
+- same-boundary daily code should be named `.hako kernel module` / `.hako substrate module`; do not reuse `plugin` for this path.
 
 ## Migration Order
 
@@ -178,3 +183,4 @@ Note:
 - Do not force every `.inc` byte into `.hako` before the capability vocabulary is ready.
 - Do not mix this owner/shim cut with the perf-kilo hot-path lane.
 - Do not move `GET` window analyzers, `indexOf` observer analyzers, string producer/use/future-use analysis, or `compile_json_compat_pure(...)` orchestration into `.hako` in this wave.
+- Do not use this doc as the replacement-progress ledger; substrate-era progress belongs to `kernel-replacement-axis-ssot.md`.

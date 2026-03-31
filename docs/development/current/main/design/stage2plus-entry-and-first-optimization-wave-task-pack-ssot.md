@@ -1,12 +1,13 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-30
+Date: 2026-03-31
 Scope: `stage1 -> stage2-mainline` entry gate と、stage2-mainline 初回最適化 wave の fixed order を task-pack として固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/20-Decisions.md
+  - docs/development/current/main/design/kernel-replacement-axis-ssot.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/stage1-mir-authority-boundary-ssot.md
   - docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md
@@ -27,6 +28,7 @@ Related:
 - `stage1 bridge/proof` から `stage2-mainline daily mainline` へ入るための exact gate を 1 枚で読む。
 - collection owner stop-line と stage2-mainline entry、first optimization wave を同じ fixed order に束ねる。
 - broad optimization / Rune backend-active 化を混ぜず、first wave を `route/perf only` に固定する。
+- broad substrate redesign はこの task pack に含めず、`K2` substrate era へ分離する。
 
 ## Fixed Reading
 
@@ -42,6 +44,10 @@ Related:
 - collection wave reading:
   - `Array -> Map -> RuntimeData cleanup` is already `done-enough` on the owner axis
   - treat those domains as regression packs during this task pack, not as the next owner rewrite
+- replacement axis reading:
+  - current task pack is post-`K1` regression/perf evidence
+  - `K2-core RawArray` substrate replacement is a separate structural lane
+  - `K2-wide` widening stays deferred beyond this pack
 - first optimization wave reading:
   - `route/perf only`
   - mainline route is `.hako -> ny-llvmc(boundary) -> C ABI`
@@ -106,6 +112,7 @@ Lock the following as prerequisites for stage2-mainline entry:
 
 - keep `Array`, `Map`, and `RuntimeData cleanup` at regression-pack status
 - do not reopen owner migration in this pack unless a new exact blocker appears
+- keep current Map micro work as evidence/regression only; do not elevate it into the next structural replacement milestone
 - keep Array perf acceptance pinned to same-artifact compare against the current Rust baseline
 
 ### 4. Stage2-mainline Entry Lock
@@ -142,6 +149,8 @@ Do not include:
 - new ABI surface
 - broad generic optimizer widening
 - deeper substrate redesign beyond the capability/manifest lock
+- `K2-core RawArray` substrate replacement itself
+- `K2-wide` widening / metal review
 
 ### 6. Deferred Lanes
 
@@ -178,3 +187,4 @@ Do not include:
 - no Rune backend-active optimization in this pack
 - no reopening of collection owner migration without a new exact blocker
 - no native zero / source zero claim
+- no treating this pack as the `K2` substrate-era ledger

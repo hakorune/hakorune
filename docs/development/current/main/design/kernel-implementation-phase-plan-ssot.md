@@ -1,11 +1,12 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-30
+Date: 2026-03-31
 Scope: stage axis と owner axis を混線させずに、kernel authority wave の実装フェーズ順を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
+  - docs/development/current/main/design/kernel-replacement-axis-ssot.md
   - docs/development/current/main/design/stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
@@ -34,13 +35,14 @@ Related:
   - `.hako` owns meaning / policy / route / acceptance / control
   - `.inc` is thin shim / boundary artifact (not a semantic owner noun)
   - native keeps metal / substrate (ABI/alloc/GC/TLS/atomic/backend emission)
-- kernel authority wave is collection-first and proceeds domain-by-domain:
-  1. `Array phase`
-  2. `Map phase`
-  3. `RuntimeData cleanup phase`
-  4. return to `perf-kilo`
+- replacement reading:
+  - `K1` = collection semantic-owner wave (`Array -> Map -> RuntimeData cleanup`)
+  - `K2` = substrate era
+    - `K2-core` = `RawArray first`
+    - `K2-wide` = `RawMap second + capability widening + metal review`
+  - `RuntimeDataBox` stays facade-only across both `K1` and `K2`
 
-This SSOT is the canonical phase-plan entry for the collection-first kernel migration wave.
+This SSOT is the canonical phase-plan entry for the collection-first `K1` wave and the `K2` substrate-era handoff.
 
 Post-collection return is owned by `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`.
 
@@ -50,13 +52,14 @@ Post-collection return is owned by `stage2plus-entry-and-first-optimization-wave
 - `lang/src/runtime/kernel/**` is runtime behavior/policy owner (string search, numeric loops, etc).
 - `lang/src/runtime/meta/**` owns compiler semantic tables only.
 - `lang/src/runtime/host/**` stays transport only.
+- `RuntimeDataBox` stays facade/protocol only and must not regrow as collection owner during `K2-core` or `K2-wide`.
 
 Rule:
 - do not interpret "kernel .hako-ization" as "native zero" or "substrate wholesale rewrite".
 
 ## Phase Order
 
-### 1. Array phase
+### 1. `K1` Array phase
 
 Goal:
 - visible `ArrayBox` method semantics are `.hako` owned (policy/contract/orchestration).
@@ -69,7 +72,7 @@ Stop line:
 - docs/readmes/smokes describe `ArrayBox` semantics without naming Rust helpers as meaning owners.
 - array path stays in `runtime/collections` (do not force-push into `runtime/kernel/array/` unless a concrete trigger fires).
 
-### 2. Map phase
+### 2. `K1` Map phase
 
 Goal:
 - visible `MapBox` method semantics are `.hako` owned (policy/contract/orchestration).
@@ -79,7 +82,7 @@ Stop line:
 - docs/readmes/smokes describe `MapBox` semantics without naming Rust helpers as meaning owners.
 - `nyash.map.entry_count_i64` is the daily raw observer seam; compat aliases such as `nyash.map.entry_count_h` stay boundary-deepen tasks, not owner logic.
 
-### 3. RuntimeData cleanup phase
+### 3. `K1` RuntimeData cleanup phase
 
 Goal:
 - `RuntimeDataBox` stays protocol/facade only.
@@ -89,10 +92,36 @@ Stop line:
 - runtime-data dispatch remains narrow and explicit.
 - no doc suggests that `RuntimeDataBox` is the "collection owner".
 
-### 4. Return to perf-kilo
+### 4. `K2` Substrate Era
+
+#### `K2-core`
+
+Goal:
+- `RawArray` becomes the first truthful `.hako substrate module` daily owner.
+- the pilot stays same-boundary and capability-backed.
+- the pilot does not redefine stage vocabulary or packaging.
+
+Stop line:
+- `RawArray` has explicit contract baseline under `hako.abi / hako.value_repr / ownership-layout / fail-fast verifier`.
+- the daily owner reading is `.hako substrate module`, not hidden Rust helper ownership.
+- the pilot can be judged without reopening broad collection semantic-owner work.
+
+#### `K2-wide`
+
+Goal:
+- open only after the `RawArray` pilot is operationally stable.
+- keep `MapBox` visible semantics on the existing `.hako` owner frontier while substrate replacement is still narrow.
+- absorb capability widening and metal review into the same era instead of exposing new public milestones.
+
+Stop line:
+- treat `Map` as narrow façade + regression pack until the `RawArray` pilot is accepted.
+- keep `RawMap second / RuntimeData facade-only` while widening.
+
+### 5. Regression / perf pack
 
 Rule:
-- do not reopen broad authority expansion while perf-kilo is active.
+- `Array -> Map -> RuntimeData cleanup` remains a regression/evidence pack while `K2` is being prepared.
+- do not reopen broad authority expansion while route/perf evidence is active.
 - any further owner migration requires a new exact blocker and a dedicated SSOT update.
 - the first post-entry optimization wave is `route/perf only` on `.hako -> ny-llvmc(boundary) -> C ABI`.
 - Rune optimization metadata remains `parse/noop`, and backend-active consumption is out of scope for this return wave.
@@ -102,20 +131,22 @@ Rule:
 The phase plan is considered "done-enough to return to perf-kilo" when:
 
 1. stage docs agree on: `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`.
-2. owner docs agree on: `.hako authority / .inc thin shim / native metal keep`.
-3. collection docs agree on: `Array phase -> Map phase -> RuntimeData cleanup phase`.
-4. daily proof locks remain green:
-   - array provider smoke
-   - map provider smoke
-   - runtime-data dispatch e2e smoke
-5. Array phase perf gate is recorded against the Rust baseline:
-   - `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 3`
-   - `tools/perf/run_kilo_micro_machine_ladder.sh`
-   - read the result against the current Rust array baseline snapshot before Map phase opens
+2. replacement docs agree on: `K0 Boundary Lock / K1 Semantic Owner Swap / K2 Substrate Era (core=RawArray first)`.
+3. owner docs agree on: `.hako authority / .inc thin shim / native metal keep`.
+4. collection docs agree on: `Array phase -> Map phase -> RuntimeData cleanup phase`.
+5. daily proof locks remain green:
+  - array provider smoke
+  - map provider smoke
+  - runtime-data dispatch e2e smoke
+6. regression/perf evidence stays recorded against the current Rust baseline:
+  - `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 3`
+  - `tools/perf/run_kilo_micro_machine_ladder.sh`
+  - `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_leaf_map_get_missing 0 1`
+  - read those as regression/evidence packs while `RawArray` remains the first `K2-core` structural pilot
 
 ## Non-Goals
 
 - no new public ABI
 - no "native zero" claim
 - no wholesale move of `array/map` into `runtime/kernel/{array,map}` without a trigger
-- no perf work inside this authority wave (perf is the next lane after phase closeout)
+- no treating `Map` optimization evidence as the next structural replacement milestone ahead of `K2-core RawArray`
