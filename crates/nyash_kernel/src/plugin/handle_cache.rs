@@ -3,13 +3,12 @@
 // Responsibilities:
 // - short-lived TLS cache keyed by `(handle, drop_epoch)`
 // - typed downcast helpers for ArrayBox / MapBox / InstanceBox
-// - array i64 read/re-encode helper for raw substrate paths
+// - shared typed cache entry reuse for array/map/instance routes
 //
 // Non-goals:
 // - ABI manifest truth
 // - value representation policy ownership
 // - array/map algorithm policy
-use super::value_codec::runtime_i64_from_box_ref;
 use nyash_rust::{
     box_trait::NyashBox,
     boxes::{array::ArrayBox, map_box::MapBox},
@@ -18,7 +17,7 @@ use nyash_rust::{
 };
 use std::{cell::RefCell, ptr::NonNull, sync::Arc};
 
-struct HandleCacheEntry {
+pub(super) struct HandleCacheEntry {
     handle: i64,
     drop_epoch: u64,
     obj: Arc<dyn NyashBox>,
@@ -37,7 +36,7 @@ struct MapLookupCache {
 
 impl HandleCacheEntry {
     #[inline(always)]
-    fn array_ref(&self) -> Option<&ArrayBox> {
+    pub(super) fn array_ref(&self) -> Option<&ArrayBox> {
         let ptr = self.array_ptr?;
         // SAFETY: pointers are created from `self.obj` and remain valid
         // while this cache entry keeps the Arc alive.
@@ -86,12 +85,12 @@ thread_local! {
 
 #[cfg(test)]
 #[inline(always)]
-fn clear_cache_slot() {
+pub(crate) fn clear_cache_slot() {
     HANDLE_CACHE.with(|slot| *slot.borrow_mut() = None);
 }
 
 #[inline(always)]
-fn with_cache_entry<R>(
+pub(super) fn with_cache_entry<R>(
     handle: i64,
     drop_epoch: u64,
     f: impl FnOnce(&HandleCacheEntry) -> Option<R>,
@@ -107,7 +106,7 @@ fn with_cache_entry<R>(
 }
 
 #[inline(always)]
-fn cache_store(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) {
+pub(super) fn cache_store(handle: i64, drop_epoch: u64, obj: Arc<dyn NyashBox>) {
     HANDLE_CACHE.with(|slot| {
         *slot.borrow_mut() = Some(build_cache_entry(handle, drop_epoch, obj));
     });
@@ -141,43 +140,6 @@ pub(crate) fn map_lookup_cache_hit(handle: i64, key_str: &str) -> Option<(i64, b
         }
         Some((lookup.value, lookup.present))
     })
-}
-
-#[inline(always)]
-fn encode_array_item_to_i64(item: &dyn NyashBox, drop_epoch: u64) -> i64 {
-    // Keep scalar/bool before borrowed-handle reuse so immediate classes stay canonical.
-    if let Some(iv) = item.as_i64_fast() {
-        return iv;
-    }
-    if let Some(bv) = item.as_bool_fast() {
-        return if bv { 1 } else { 0 };
-    }
-    if let Some((source_handle, source_drop_epoch)) = item.borrowed_handle_source_fast() {
-        if source_drop_epoch == drop_epoch {
-            return source_handle;
-        }
-    }
-    runtime_i64_from_box_ref(item)
-}
-
-#[inline(always)]
-pub(crate) fn array_get_index_encoded_i64(handle: i64, idx: i64) -> Option<i64> {
-    if handle <= 0 || idx < 0 {
-        return None;
-    }
-    let idx_usize = idx as usize;
-    let drop_epoch = handles::drop_epoch();
-    if let Some(out) = with_array_box(handle, |arr| {
-        arr.with_items_read(|items| {
-            let item = items.get(idx_usize)?;
-            Some(encode_array_item_to_i64(item.as_ref(), drop_epoch))
-        })
-    })
-    .flatten()
-    {
-        return Some(out);
-    }
-    None
 }
 
 #[inline(always)]
@@ -217,30 +179,6 @@ fn with_object_from_handle_cached_with_epoch<R>(
 #[inline(always)]
 fn object_from_handle_cached_with_epoch(handle: i64, drop_epoch: u64) -> Option<Arc<dyn NyashBox>> {
     with_object_from_handle_cached_with_epoch(handle, drop_epoch, |obj| Some(obj.clone()))
-}
-
-#[inline(always)]
-pub(crate) fn with_array_box<R>(handle: i64, f: impl FnOnce(&ArrayBox) -> R) -> Option<R> {
-    // Array-specialized fast path keeps the same contract as with_typed_box:
-    // invalid handle or type mismatch returns None.
-    if handle <= 0 {
-        return None;
-    }
-    let drop_epoch = handles::drop_epoch();
-    let mut f = Some(f);
-    if let Some(out) = with_cache_entry(handle, drop_epoch, |entry| {
-        let arr = entry.array_ref()?;
-        let f = f.take().expect("array callback");
-        Some(f(arr))
-    }) {
-        return Some(out);
-    }
-
-    let obj = handles::get(handle as u64)?;
-    let arr = obj.as_any().downcast_ref::<ArrayBox>()?;
-    cache_store(handle, drop_epoch, obj.clone());
-    let f = f.take().expect("array callback");
-    Some(f(arr))
 }
 
 #[inline(always)]
@@ -337,6 +275,7 @@ pub(crate) fn with_array_or_map<R>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::plugin::array_handle_cache::with_array_box;
     use nyash_rust::box_trait::IntegerBox;
 
     #[test]
@@ -396,24 +335,5 @@ mod tests {
         assert!(with_map_box(-1, |_| 1).is_none());
         assert!(with_instance_box(-1, |_| 1).is_none());
         assert!(with_array_or_map(-1, |_| 1, |_| 2).is_none());
-    }
-
-    #[test]
-    fn array_get_index_fail_safe_contract() {
-        clear_cache_slot();
-
-        let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
-        let handle = handles::to_handle_arc(arr.clone()) as i64;
-        assert_eq!(array_get_index_encoded_i64(handle, -1), None);
-        assert_eq!(array_get_index_encoded_i64(handle, 0), None);
-
-        let array_box = arr
-            .as_any()
-            .downcast_ref::<ArrayBox>()
-            .expect("array downcast");
-        let _ = array_box.push(Box::new(IntegerBox::new(42)));
-
-        assert_eq!(array_get_index_encoded_i64(handle, 0), Some(42));
-        assert_eq!(array_get_index_encoded_i64(handle, 1), None);
     }
 }

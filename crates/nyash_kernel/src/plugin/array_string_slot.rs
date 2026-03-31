@@ -22,7 +22,7 @@ pub(super) fn array_string_len_by_index(handle: i64, idx: i64) -> i64 {
     if !valid_handle_idx(handle, idx) {
         return 0;
     }
-    super::handle_cache::with_array_box(handle, |arr| {
+    super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_read(|items| {
             let Some(item) = items.get(idx) else {
@@ -107,7 +107,7 @@ pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64
         if needle.is_empty() {
             return 0;
         }
-        super::handle_cache::with_array_box(handle, |arr| {
+        super::array_handle_cache::with_array_box(handle, |arr| {
             let idx = idx as usize;
             arr.with_items_read(|items| {
                 items
@@ -126,7 +126,7 @@ pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, valu
         return 0;
     }
     let drop_epoch = handles::drop_epoch();
-    super::handle_cache::with_array_box(handle, |arr| {
+    super::array_handle_cache::with_array_box(handle, |arr| {
         let idx = idx as usize;
         arr.with_items_write(|items| {
             if idx > items.len() {

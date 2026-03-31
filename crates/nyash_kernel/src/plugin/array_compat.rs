@@ -1,7 +1,7 @@
 use super::array_guard::valid_handle;
 use super::array_index_dispatch::array_get_by_index;
 use super::array_write_dispatch::array_set_by_index_i64_value;
-use super::handle_cache::with_array_box;
+use super::array_handle_cache::with_array_box;
 use nyash_rust::box_trait::IntegerBox;
 
 #[inline(always)]

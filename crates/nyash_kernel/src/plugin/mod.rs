@@ -1,5 +1,6 @@
 pub mod array;
 mod array_guard;
+mod array_handle_cache;
 mod array_compat;
 mod array_index_dispatch;
 mod array_runtime_facade;

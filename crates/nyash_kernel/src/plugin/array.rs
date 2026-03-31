@@ -3,7 +3,7 @@ pub use super::array_runtime_facade::*;
 pub use super::array_substrate::*;
 
 #[cfg(test)]
-use super::handle_cache::with_array_box;
+use super::array_handle_cache::with_array_box;
 
 #[cfg(test)]
 mod tests {

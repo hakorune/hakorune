@@ -1,4 +1,4 @@
-use super::handle_cache::{array_get_index_encoded_i64, with_array_box};
+use super::array_handle_cache::{array_get_index_encoded_i64, with_array_box};
 use super::array_guard::valid_handle_idx;
 
 #[inline(always)]
