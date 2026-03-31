@@ -121,7 +121,7 @@ pub(super) fn array_string_indexof_by_index(handle: i64, idx: i64, needle_h: i64
     })
 }
 
-pub(super) fn array_set_by_index_string_handle_value(handle: i64, idx: i64, value_h: i64) -> i64 {
+pub(super) fn array_string_store_handle_at(handle: i64, idx: i64, value_h: i64) -> i64 {
     if !valid_handle_idx(handle, idx) || value_h <= 0 {
         return 0;
     }

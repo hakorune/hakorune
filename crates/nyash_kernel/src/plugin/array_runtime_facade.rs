@@ -4,7 +4,7 @@ use super::array_slot_append::array_slot_append_any;
 use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
 use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
 use super::array_slot_store::{
-    array_slot_store_any, array_slot_store_i64, array_slot_store_string_handle,
+    array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64, array_slot_store_string_handle,
 };
 use super::array_string_slot::{array_string_indexof_by_index, array_string_len_by_index};
 use super::value_codec::any_arg_to_index;
@@ -28,21 +28,21 @@ pub(super) fn array_runtime_get_any_key(handle: i64, key_any: i64) -> i64 {
     let Some(idx) = decode_runtime_index(handle, key_any) else {
         return 0;
     };
-    array_slot_load_encoded_i64(handle, idx)
+    array_runtime_get_idx(handle, idx)
 }
 
 pub(super) fn array_runtime_set_any_key(handle: i64, key_any: i64, val_any: i64) -> i64 {
     let Some(idx) = decode_runtime_index(handle, key_any) else {
         return 0;
     };
-    array_slot_store_any(handle, idx, val_any)
+    array_runtime_set_idx_any(handle, idx, val_any)
 }
 
 pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
     let Some(idx) = decode_runtime_index(handle, key_any) else {
         return 0;
     };
-    array_slot_has_index(handle, idx)
+    array_runtime_has_idx(handle, idx)
 }
 
 pub(super) fn array_runtime_push_any(handle: i64, val_any: i64) -> i64 {
@@ -70,6 +70,30 @@ pub(super) fn array_runtime_string_len_at(handle: i64, idx: i64) -> i64 {
 
 pub(super) fn array_runtime_string_indexof_at(handle: i64, idx: i64, needle_h: i64) -> i64 {
     array_string_indexof_by_index(handle, idx, needle_h)
+}
+
+pub(super) fn array_runtime_get_idx(handle: i64, idx: i64) -> i64 {
+    array_slot_load_encoded_i64(handle, idx)
+}
+
+pub(super) fn array_runtime_set_idx_any(handle: i64, idx: i64, val_any: i64) -> i64 {
+    array_slot_store_any(handle, idx, val_any)
+}
+
+pub(super) fn array_runtime_set_idx_i64(handle: i64, idx: i64, value_i64: i64) -> i64 {
+    array_slot_store_i64(handle, idx, value_i64)
+}
+
+pub(super) fn array_runtime_set_idx_string_handle(handle: i64, idx: i64, value_h: i64) -> i64 {
+    array_slot_store_string_handle(handle, idx, value_h)
+}
+
+pub(super) fn array_runtime_has_idx(handle: i64, idx: i64) -> i64 {
+    array_slot_has_index(handle, idx)
+}
+
+pub(super) fn array_runtime_rmw_add1_idx(handle: i64, idx: i64) -> i64 {
+    array_slot_rmw_add1_i64(handle, idx)
 }
 
 #[export_name = "nyash.array.get_hh"]
@@ -101,25 +125,25 @@ pub extern "C" fn nyash_array_push_hi_alias(handle: i64, value_i64: i64) -> i64 
 // These routes are selected by lowering when key VID is proven i64/non-negative.
 #[export_name = "nyash.array.get_hi"]
 pub extern "C" fn nyash_array_get_hi_alias(handle: i64, idx: i64) -> i64 {
-    array_slot_load_encoded_i64(handle, idx)
+    array_runtime_get_idx(handle, idx)
 }
 
 #[export_name = "nyash.array.set_hih"]
 pub extern "C" fn nyash_array_set_hih_alias(handle: i64, idx: i64, val_any: i64) -> i64 {
-    array_slot_store_any(handle, idx, val_any)
+    array_runtime_set_idx_any(handle, idx, val_any)
 }
 
 #[export_name = "nyash.array.set_hii"]
 pub extern "C" fn nyash_array_set_hii_alias(handle: i64, idx: i64, value_i64: i64) -> i64 {
-    array_slot_store_i64(handle, idx, value_i64)
+    array_runtime_set_idx_i64(handle, idx, value_i64)
 }
 
 #[export_name = "nyash.array.set_his"]
 pub extern "C" fn nyash_array_set_his_alias(handle: i64, idx: i64, value_h: i64) -> i64 {
-    array_slot_store_string_handle(handle, idx, value_h)
+    array_runtime_set_idx_string_handle(handle, idx, value_h)
 }
 
 #[export_name = "nyash.array.has_hi"]
 pub extern "C" fn nyash_array_has_hi_alias(handle: i64, idx: i64) -> i64 {
-    array_slot_has_index(handle, idx)
+    array_runtime_has_idx(handle, idx)
 }
