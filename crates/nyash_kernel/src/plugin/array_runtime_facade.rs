@@ -20,6 +20,14 @@ fn with_runtime_index_or_zero(handle: i64, key_any: i64, f: impl FnOnce(i64) -> 
     f(idx)
 }
 
+#[inline(always)]
+fn with_runtime_handle_or_zero(handle: i64, f: impl FnOnce() -> i64) -> i64 {
+    if !valid_handle(handle) {
+        return 0;
+    }
+    f()
+}
+
 // Runtime-facade aliases used by RuntimeData-style dispatch and proven key-shape routes.
 // These are not the canonical `.hako` collection-owner symbols.
 pub(super) fn array_runtime_get_any_key(handle: i64, key_any: i64) -> i64 {
@@ -37,30 +45,7 @@ pub(super) fn array_runtime_has_any_key(handle: i64, key_any: i64) -> i64 {
 }
 
 pub(super) fn array_runtime_push_any(handle: i64, val_any: i64) -> i64 {
-    if !valid_handle(handle) {
-        return 0;
-    }
-    array_slot_append_any(handle, val_any)
-}
-
-pub(super) fn array_runtime_cap(handle: i64) -> i64 {
-    array_slot_cap_i64(handle)
-}
-
-pub(super) fn array_runtime_reserve(handle: i64, additional: i64) -> i64 {
-    array_slot_reserve_i64(handle, additional)
-}
-
-pub(super) fn array_runtime_grow(handle: i64, target_capacity: i64) -> i64 {
-    array_slot_grow_i64(handle, target_capacity)
-}
-
-pub(super) fn array_runtime_string_len_at(handle: i64, idx: i64) -> i64 {
-    array_string_len_by_index(handle, idx)
-}
-
-pub(super) fn array_runtime_string_indexof_at(handle: i64, idx: i64, needle_h: i64) -> i64 {
-    array_string_indexof_by_index(handle, idx, needle_h)
+    with_runtime_handle_or_zero(handle, || array_slot_append_any(handle, val_any))
 }
 
 pub(super) fn array_runtime_get_idx(handle: i64, idx: i64) -> i64 {
@@ -85,6 +70,26 @@ pub(super) fn array_runtime_has_idx(handle: i64, idx: i64) -> i64 {
 
 pub(super) fn array_runtime_rmw_add1_idx(handle: i64, idx: i64) -> i64 {
     array_slot_rmw_add1_i64(handle, idx)
+}
+
+pub(super) fn array_runtime_cap(handle: i64) -> i64 {
+    array_slot_cap_i64(handle)
+}
+
+pub(super) fn array_runtime_reserve(handle: i64, additional: i64) -> i64 {
+    array_slot_reserve_i64(handle, additional)
+}
+
+pub(super) fn array_runtime_grow(handle: i64, target_capacity: i64) -> i64 {
+    array_slot_grow_i64(handle, target_capacity)
+}
+
+pub(super) fn array_runtime_string_len_at(handle: i64, idx: i64) -> i64 {
+    array_string_len_by_index(handle, idx)
+}
+
+pub(super) fn array_runtime_string_indexof_at(handle: i64, idx: i64, needle_h: i64) -> i64 {
+    array_string_indexof_by_index(handle, idx, needle_h)
 }
 
 #[export_name = "nyash.array.get_hh"]

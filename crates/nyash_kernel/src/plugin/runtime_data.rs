@@ -8,18 +8,35 @@ use super::array_runtime_facade::{
     array_runtime_get_any_key, array_runtime_has_any_key, array_runtime_push_any,
     array_runtime_set_any_key,
 };
-use super::handle_cache::with_array_or_map;
+use super::handle_cache::object_from_handle_cached;
 use super::runtime_data_map_dispatch::{
     runtime_data_map_get_hh, runtime_data_map_has_hh, runtime_data_map_set_hhh,
 };
+use nyash_rust::boxes::{array::ArrayBox, map_box::MapBox};
+
+#[inline(always)]
+fn with_runtime_data_route<R>(
+    recv_h: i64,
+    on_array: impl FnOnce() -> R,
+    on_map: impl FnOnce() -> R,
+) -> Option<R> {
+    let obj = object_from_handle_cached(recv_h)?;
+    if obj.as_any().downcast_ref::<ArrayBox>().is_some() {
+        return Some(on_array());
+    }
+    if obj.as_any().downcast_ref::<MapBox>().is_some() {
+        return Some(on_map());
+    }
+    None
+}
 
 // nyash.runtime_data.get_hh(recv_h, key_any) -> mixed runtime i64/handle value (or 0)
 #[export_name = "nyash.runtime_data.get_hh"]
 pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
-    with_array_or_map(
+    with_runtime_data_route(
         recv_h,
-        |_| array_runtime_get_any_key(recv_h, key_any),
-        |_| runtime_data_map_get_hh(recv_h, key_any),
+        || array_runtime_get_any_key(recv_h, key_any),
+        || runtime_data_map_get_hh(recv_h, key_any),
     )
     .unwrap_or(0)
 }
@@ -27,10 +44,10 @@ pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
 // nyash.runtime_data.set_hhh(recv_h, key_any, val_any) -> 0/1
 #[export_name = "nyash.runtime_data.set_hhh"]
 pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any: i64) -> i64 {
-    with_array_or_map(
+    with_runtime_data_route(
         recv_h,
-        |_| array_runtime_set_any_key(recv_h, key_any, val_any),
-        |_| runtime_data_map_set_hhh(recv_h, key_any, val_any),
+        || array_runtime_set_any_key(recv_h, key_any, val_any),
+        || runtime_data_map_set_hhh(recv_h, key_any, val_any),
     )
     .unwrap_or(0)
 }
@@ -38,10 +55,10 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
 // nyash.runtime_data.has_hh(recv_h, key_any) -> 0/1
 #[export_name = "nyash.runtime_data.has_hh"]
 pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
-    with_array_or_map(
+    with_runtime_data_route(
         recv_h,
-        |_| array_runtime_has_any_key(recv_h, key_any),
-        |_| runtime_data_map_has_hh(recv_h, key_any),
+        || array_runtime_has_any_key(recv_h, key_any),
+        || runtime_data_map_has_hh(recv_h, key_any),
     )
     .unwrap_or(0)
 }
@@ -49,10 +66,10 @@ pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
 // nyash.runtime_data.push_hh(recv_h, val_any) -> new_len (array) / 0
 #[export_name = "nyash.runtime_data.push_hh"]
 pub extern "C" fn nyash_runtime_data_push_hh(recv_h: i64, val_any: i64) -> i64 {
-    with_array_or_map(
+    with_runtime_data_route(
         recv_h,
-        |_| array_runtime_push_any(recv_h, val_any),
-        |_| 0,
+        || array_runtime_push_any(recv_h, val_any),
+        || 0,
     )
     .unwrap_or(0)
 }

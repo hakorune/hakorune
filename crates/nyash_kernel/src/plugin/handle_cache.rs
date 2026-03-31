@@ -255,23 +255,6 @@ pub(crate) fn with_instance_box<R>(handle: i64, f: impl FnOnce(&InstanceBox) -> 
     })
 }
 
-#[inline(always)]
-pub(crate) fn with_array_or_map<R>(
-    handle: i64,
-    on_array: impl FnOnce(&ArrayBox) -> R,
-    on_map: impl FnOnce(&MapBox) -> R,
-) -> Option<R> {
-    // RuntimeData-style dynamic dispatch is intentionally limited to ArrayBox/MapBox only.
-    let obj = object_from_handle_cached(handle)?;
-    if let Some(arr) = obj.as_any().downcast_ref::<ArrayBox>() {
-        return Some(on_array(arr));
-    }
-    if let Some(map) = obj.as_any().downcast_ref::<MapBox>() {
-        return Some(on_map(map));
-    }
-    None
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -304,7 +287,7 @@ mod tests {
     }
 
     #[test]
-    fn cached_handle_lookup_still_resolves_type_routes() {
+    fn cached_handle_lookup_still_rehydrates_container_types() {
         clear_cache_slot();
 
         let arr: Arc<dyn NyashBox> = Arc::new(ArrayBox::new());
@@ -312,18 +295,18 @@ mod tests {
         let arr_h = handles::to_handle_arc(arr) as i64;
         let map_h = handles::to_handle_arc(map) as i64;
 
-        let arr_value = with_array_or_map(arr_h, |_| 10, |_| 20).expect("array route");
-        assert_eq!(arr_value, 10);
+        let arr_obj = object_from_handle_cached(arr_h).expect("array object");
+        assert!(arr_obj.as_any().downcast_ref::<ArrayBox>().is_some());
 
-        let map_value = with_array_or_map(map_h, |_| 10, |_| 20).expect("map route");
-        assert_eq!(map_value, 20);
+        let map_obj = object_from_handle_cached(map_h).expect("map object");
+        assert!(map_obj.as_any().downcast_ref::<MapBox>().is_some());
 
         // Touch cache with non-container handle then re-check route dispatch.
         let scalar: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(7));
         let scalar_h = handles::to_handle_arc(scalar) as i64;
         assert!(object_from_handle_cached(scalar_h).is_some());
-        let arr_value2 = with_array_or_map(arr_h, |_| 30, |_| 40).expect("array route 2");
-        assert_eq!(arr_value2, 30);
+        let arr_obj2 = object_from_handle_cached(arr_h).expect("array object 2");
+        assert!(arr_obj2.as_any().downcast_ref::<ArrayBox>().is_some());
     }
 
     #[test]
@@ -334,6 +317,5 @@ mod tests {
         assert!(with_array_box(-1, |_| 1).is_none());
         assert!(with_map_box(-1, |_| 1).is_none());
         assert!(with_instance_box(-1, |_| 1).is_none());
-        assert!(with_array_or_map(-1, |_| 1, |_| 2).is_none());
     }
 }
