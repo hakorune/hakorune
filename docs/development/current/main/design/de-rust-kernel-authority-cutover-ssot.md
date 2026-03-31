@@ -33,7 +33,7 @@ Related:
 - `hakorune` の独り立ちを「Rust source が 1 行も残らないこと」ではなく、「kernel meaning/policy の最終 owner が `.hako` であること」として定義する。
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 bridge/proof line / stage2-mainline daily mainline / stage2+ umbrella` であり、kernel authority zero は owner cutover 軸を指す。
-- replacement reading is `K0 -> K1 -> K2-core`, and the current active order is `stage / docs / naming` -> `K1 done-enough` -> `K2-core` -> `K2-wide deferred` -> `zero-rust default`.
+- replacement reading is `K0 -> K1 -> K2-core`, and the current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
 - `K2` substrate era は future note ではなく、本物の replacement milestone として扱う。
 - raw substrate micro-optimization と kernel owner cutover を混ぜて、測定や責務境界を濁さない。
 - phase plan SSOT is `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.

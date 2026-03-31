@@ -112,7 +112,7 @@ Important:
 | `phase-29ct` | stage0/native substrate reading |
 | `phase-29ci` | stage1 bridge/proof boundary |
 | `phase-29y` | runtime lane policy |
-| `phase-29cu` | Rune lane only; not general distribution policy |
+| `phase-29cu` | Rune close-synced keep only; not general distribution policy |
 
 ## Non-Goals
 

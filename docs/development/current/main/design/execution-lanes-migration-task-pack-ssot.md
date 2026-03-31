@@ -30,7 +30,7 @@ Related:
 | `phase-29ct` | stage0/native substrate reading |
 | `phase-29ci` | stage1 bridge/proof/snapshot boundary |
 | `phase-29y` | runtime operation policy |
-| `phase-29cu` | Rune lane only |
+| `phase-29cu` | Rune close-synced keep only |
 
 ## Fixed Order
 

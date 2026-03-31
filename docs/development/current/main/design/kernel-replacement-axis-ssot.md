@@ -27,7 +27,7 @@ Related:
 
 - `stage0/stage1/stage2-mainline/stage2+` を置換進捗の語に流用しない。
 - kernel の本当の置換進捗は、`K0 / K1 / K2(core|wide)` replacement axis で読む。
-- current active order is `stage / docs / naming` -> `K1 done-enough` -> `K2-core` -> `K2-wide deferred` -> `zero-rust default`.
+- current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
 - 責務分割は変えず、`K2` を substrate era として昇格する。
 - default target を `zero-rust` に寄せるが、bootstrap/recovery/reference/buildability keep と native metal keep は明示 keep にする。
 
