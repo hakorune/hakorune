@@ -20,6 +20,8 @@ fn with_runtime_data_route<R>(
     on_array: impl FnOnce() -> R,
     on_map: impl FnOnce() -> R,
 ) -> Option<R> {
+    // RuntimeData stays facade-only: it owns the Array/Map branch decision here,
+    // then delegates behavior to the array/map runtime facades.
     let obj = object_from_handle_cached(recv_h)?;
     if obj.as_any().downcast_ref::<ArrayBox>().is_some() {
         return Some(on_array());
