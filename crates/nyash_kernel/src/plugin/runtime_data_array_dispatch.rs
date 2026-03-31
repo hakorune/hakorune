@@ -10,6 +10,9 @@ fn resolve_array_index_key(key_any: i64) -> Option<i64> {
 
 #[inline(always)]
 pub(super) fn runtime_data_array_get_hh(handle: i64, key_any: i64) -> i64 {
+    if handle <= 0 {
+        return 0;
+    }
     let Some(idx) = resolve_array_index_key(key_any) else {
         return 0;
     };
@@ -18,6 +21,9 @@ pub(super) fn runtime_data_array_get_hh(handle: i64, key_any: i64) -> i64 {
 
 #[inline(always)]
 pub(super) fn runtime_data_array_set_hhh(handle: i64, key_any: i64, val_any: i64) -> i64 {
+    if handle <= 0 {
+        return 0;
+    }
     let Some(idx) = resolve_array_index_key(key_any) else {
         return 0;
     };
@@ -26,6 +32,9 @@ pub(super) fn runtime_data_array_set_hhh(handle: i64, key_any: i64, val_any: i64
 
 #[inline(always)]
 pub(super) fn runtime_data_array_has_hh(handle: i64, key_any: i64) -> i64 {
+    if handle <= 0 {
+        return 0;
+    }
     let Some(idx) = resolve_array_index_key(key_any) else {
         return 0;
     };
@@ -34,5 +43,8 @@ pub(super) fn runtime_data_array_has_hh(handle: i64, key_any: i64) -> i64 {
 
 #[inline(always)]
 pub(super) fn runtime_data_array_push_hh(handle: i64, val_any: i64) -> i64 {
+    if handle <= 0 {
+        return 0;
+    }
     array_slot_append_any(handle, val_any)
 }
