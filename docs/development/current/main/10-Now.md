@@ -28,17 +28,7 @@ Related:
 ## Immediate Resume
 
 - current lane is still `policy-refresh`
-- active order:
-  1. `stage / docs / naming` fixation
-  2. `K1 done-enough` stop-line fixation
-  3. `K2-core` accepted stop-line
-  4. `K2-wide` next structural follow-up
-  5. `zero-rust` default operationalization
-- stage axis:
-  - `stage0 = bootstrap/recovery keep`
-  - `stage1 = same-boundary swap proof`
-  - `stage2-mainline = daily mainline / distribution lane`
-  - `stage2+ = umbrella / end-state label`
+- exact current order is owned by `CURRENT_TASK.md` and `15-Workstream-Map.md`
 - `K-axis`:
   - `K0 = all-Rust hakorune`
   - `K1 = .hako kernel migration stage`
@@ -49,21 +39,8 @@ Related:
 
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
 - next structural step is `K2-wide`.
-- current `K2-wide` sequence reads:
-  1. `RawMapCoreBox`
-  2. `hako.atomic`
-  3. `hako.tls`
-  4. `hako.gc`
-  5. `hako.osvm`
-  6. `hako_alloc` policy/state rows
-  7. metal keep review / boundary-shrink planning
-- landed rows already visible in code/tests:
-  - `AtomicCoreBox.fence_i64()`
-  - `TlsCoreBox.last_error_text_h()`
-  - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
-  - `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
-  - `hako_alloc` handle reuse policy
-  - `hako_alloc` GC trigger threshold policy
+- current `K2-wide` focus is metal keep review / boundary-shrink planning.
+- landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
   - `.hako` owns capability facades
   - final OS VM / TLS / atomic / GC leaf glue stays native keep

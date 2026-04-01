@@ -58,17 +58,13 @@ Related:
 
 - Active big tasks:
   - `stage / docs / naming` fixation
-  - `K1 done-enough` stop-line fixation
   - `K2-wide` follow-up
   - `zero-rust` default operationalization
   - artifact contract sync for `K0/K1` binaries vs `K2` bundle reading
-- Keep big tasks:
-  - `Rune` primitive control plane keep
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
 - Active small tasks:
-  - docs ladder sync
   - Map evidence bundle maintenance
   - current metal keep inventory / boundary-shrink planning
 - Parked small tasks:
@@ -111,12 +107,8 @@ Related:
 - `K2-core` accepted stop-line is closed
 - `K2-wide` landed rows now include:
   - `RawMap` first slice
-  - `hako.atomic`
-  - `hako.tls`
-  - `hako.gc`
-  - `hako.osvm`
-  - `hako_alloc` handle reuse policy
-  - `hako_alloc` GC trigger threshold policy
+  - capability rows through `hako.osvm`
+  - `hako_alloc` handle reuse and GC trigger policy rows
 - current follow-up is metal keep inventory / boundary-shrink planning
 
 ## Read Order

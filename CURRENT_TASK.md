@@ -29,9 +29,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
-- `Rune` is landed as the canonical primitive control plane and is not the active blocker lane.
-- `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
-- next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening.
+- `K2-core` is closed.
+- `K2-wide` is the active structural lane.
 
 ## Immediate Handoff
 
@@ -42,19 +41,13 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
   - `K2-core = RawArray first`
   - `K2-wide = RawMap second + capability widening + metal review`
-- Current `K2-wide` row order:
-  1. `RawMapCoreBox` narrow substrate widening
-  2. `hako.atomic`
-  3. `hako.tls`
-  4. `hako.gc`
-  5. `hako.osvm`
-  6. `hako_alloc` policy/state rows
-  7. metal keep review / boundary-shrink planning
-- Landed `K2-wide` rows:
-  - `AtomicCoreBox.fence_i64()`
-  - `TlsCoreBox.last_error_text_h()`
-  - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
-  - `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
+- current `K2-wide` focus is metal keep review / boundary-shrink planning
+- landed rows already accepted:
+  - `RawMap` first slice
+  - `hako.atomic`
+  - `hako.tls`
+  - `hako.gc`
+  - `hako.osvm`
   - `hako_alloc` handle reuse policy
   - `hako_alloc` GC trigger threshold policy
 - Portability rule:
