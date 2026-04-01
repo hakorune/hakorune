@@ -119,6 +119,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - not a daily route and not a current owner.
   - direct invoker is `tools/selfhost/run_compat_pure_selfhost.sh`.
   - current root-first replacement proof exists only on the `.hako VM -> LlvmBackendBox -> C-API -> exe` lane (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`), not as a drop-in for this historical safe-vm wrapper.
+  - therefore this caller remains archive-later until the compat wrapper either gains a root-first equivalent or is retired as a whole.
   - cleanup target: demote or archive once proof/example coverage moves to the root-first route.
 - `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
   - provider-first canary/proof stub only; not a daily owner.

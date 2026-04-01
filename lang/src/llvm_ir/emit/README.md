@@ -28,3 +28,4 @@ Notes
 - Box‑First: keep provider behind a single Plugin v2 method `LLVMCodegenBox.emit_object/2`.
 - `opts` is currently compat-stub only; this box validates MIR shape, resolves provider, and forwards to the compat bridge.
 - Environments must not change defaults silently; Fail‑Fast with stable tags.
+- root-first daily caller ownership already lives in `lang/src/shared/backend/llvm_backend_box.hako`; `LLVMEmitBox` remains compat/proof keep until those provider-first callers disappear or move to archive.

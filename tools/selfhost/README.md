@@ -113,6 +113,15 @@ Explicit compat boundary probe:
 bash tools/dev/phase29ch_program_json_compat_route_probe.sh
 ```
 
+Historical pure selfhost helper:
+```bash
+bash tools/selfhost/run_compat_pure_selfhost.sh <mir.json> [exe_out]
+```
+
+- This helper is compat-only and still exercises the legacy `CodegenBridgeBox` example route.
+- The root-first replacement proof is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`.
+- That proof runs on `--backend vm-hako`, so it is not a drop-in replacement for the compat wrapper yet.
+
 Notes
 - Stage‑B emit uses either the Stage‑B entry or BuildBox（HAKO_USE_BUILDBOX=1 for emit-only）
 - raw `selfhost_build.sh --in ...` whole-script routes are not the current helper-local acceptance line; use the focused probe above for the EXE consumer seam while upstream Stage-B source-route freezes remain

@@ -2,6 +2,10 @@
 set -euo pipefail
 
 # Historical pure-lowering selfhost helper.
+# This is compat-only and still uses the legacy CodegenBridgeBox example route.
+# The root-first proof lives on the separate vm-hako owner lane
+# (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`) and is not a drop-in
+# replacement for this wrapper yet.
 # Usage:
 #   tools/selfhost/run_compat_pure_selfhost.sh <json_file_or_-'stdin'> [exe_out]
 # Env toggles:
