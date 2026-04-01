@@ -2,6 +2,7 @@
 // This is a thin compat route payload, not a daily backend owner.
 // It exists so `run_compat_pure_selfhost.sh` can exercise the legacy
 // CodegenBridgeBox emit/link route end-to-end.
+// Keep the direct invoker at the shell wrapper; this file is the proof payload.
 // Usage (env):
 //   _MIR_JSON: v1 JSON text
 //   _EXE_OUT : output path for linked executable

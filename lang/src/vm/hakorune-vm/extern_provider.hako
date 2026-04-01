@@ -1,6 +1,7 @@
 // extern_provider.hako — HakoruneExternProviderBox
-// Responsibility: minimal extern/global call handling on Hako side.
-// Scope (20.38準備): env.get / console.log のみ（C‑ABI導線は後段で接続）。
+// Responsibility: minimal compat/proof extern/global call handling on Hako side.
+// Scope: env.get / console.log remain the owner surface; gated legacy codegen
+// arms stay compat-only until a root-first proof exists.
 
 using selfhost.vm.hakorune-vm.str_cast as StrCast
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
@@ -40,7 +41,7 @@ static box HakoruneExternProviderBox {
       return ""
     }
     if name == "env.codegen.emit_object" {
-      // Optional C‑ABI bridge（既定OFF）: Rust 側 extern_provider に最小接続
+      // compat/proof only: keep the legacy codegen arm gated by C-ABI.
       if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
         // 追跡は任意（決定性のため既定はOFF）
         if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:codegen.emit_object]") }
