@@ -66,7 +66,7 @@ Related:
 | `src/host_providers/llvm_codegen/transport.rs` 内 ll-emit branch | mixed bridge residue | split out then delete old branch | dedicated `ll_emit_bridge.rs` landed | archive-later | route/policy を持たせない |
 | `src/host_providers/llvm_codegen/ll_emit_bridge.rs` | explicit bridge orchestration | keep while compare bridge is needed | compare bridge retirement | keep | temporary bridge, not permanent route |
 | `src/host_providers/llvm_codegen/ll_emit_compare_driver.rs` | compare/debug orchestration | archive-later compare residue | compare bridge retirement | archive-later | VM execution + stdout contract parse only |
-| `src/host_providers/llvm_codegen/ll_emit_compare_source.rs` | compare source materialization | archive-later compare residue | compare bridge retirement | archive-later | MIR(JSON) to compare driver source only |
+| `src/host_providers/llvm_codegen/ll_emit_compare_source.rs` | compare source rendering | archive-later compare residue | compare bridge retirement | archive-later | MIR(JSON) to compare driver source only; temp-path materialization is in transport helpers |
 | `src/host_providers/llvm_codegen/provider_keep.rs` | explicit provider keep lanes | archive-later compare residue | transport split | archive-later | ny-llvmc / llvmlite helper lanes only |
 | `src/host_providers/llvm_codegen/capi_transport.rs` | explicit CAPI helpers | next transport split | transport.rs CAPI split | archive-later | compile/link CAPI helpers only |
 | `src/host_providers/llvm_codegen/legacy_json.rs` | legacy MIR(JSON) front door | archive-later | compare/archive callers only | archive-later | daily root-first compile bypasses this surface |

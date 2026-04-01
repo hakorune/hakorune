@@ -1,20 +1,4 @@
-use std::fs;
-use std::path::{Path, PathBuf};
-
 use serde_json::Value;
-
-fn temporary_hako_driver_source_path(out_path: &Path, lane_tag: &str) -> PathBuf {
-    let filename = out_path
-        .file_name()
-        .and_then(|name| name.to_str())
-        .unwrap_or("hako_ll_bridge");
-    std::env::temp_dir().join(format!(
-        "{}.{}.{}.driver.hako",
-        filename,
-        std::process::id(),
-        lane_tag
-    ))
-}
 
 fn escape_hako_string_literal(text: &str) -> String {
     text.replace('\\', "\\\\").replace('"', "\\\"")
@@ -85,15 +69,14 @@ fn render_hako_root_builder(mir_json: &str) -> Result<String, String> {
     Ok(body)
 }
 
-pub(super) fn prepare_hako_driver_source(
+pub(super) fn render_hako_driver_source(
     mir_json: &str,
-    out_path: &Path,
     lane_tag: &str,
     acceptance_case: &str,
     legacy_daily_allowed: &str,
-) -> Result<PathBuf, String> {
-    let template = PathBuf::from("lang/src/shared/backend/ll_emit/driver.hako");
-    let source = fs::read_to_string(&template).map_err(|e| {
+) -> Result<String, String> {
+    let template = std::path::PathBuf::from("lang/src/shared/backend/ll_emit/driver.hako");
+    let source = std::fs::read_to_string(&template).map_err(|e| {
         format!(
             "[llvmemit/hako-ll/template-read-failed] path={} error={}",
             template.display(),
@@ -109,13 +92,5 @@ pub(super) fn prepare_hako_driver_source(
         .replace("__HAKO_LL_LANE__", lane_tag)
         .replace("__HAKO_LL_ACCEPTANCE_CASE__", acceptance_case)
         .replace("__HAKO_LL_LEGACY_DAILY_ALLOWED__", legacy_daily_allowed);
-    let out = temporary_hako_driver_source_path(out_path, lane_tag);
-    fs::write(&out, rendered).map_err(|e| {
-        format!(
-            "[llvmemit/hako-ll/template-write-failed] path={} error={}",
-            out.display(),
-            e
-        )
-    })?;
-    Ok(out)
+    Ok(rendered)
 }

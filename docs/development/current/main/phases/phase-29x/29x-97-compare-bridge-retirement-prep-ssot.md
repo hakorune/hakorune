@@ -69,7 +69,7 @@ Related:
 
 ## Live Caller Inventory
 
-The code-side `compile_json_path` inventory is now empty. The remaining archive-later surfaces are compare source materialization, compare driver orchestration, explicit provider keep lanes, CAPI helpers, plus the legacy JSON / transport temp-path wrappers.
+The code-side `compile_json_path` inventory is now empty. The remaining archive-later surfaces are compare source rendering, compare driver orchestration, explicit provider keep lanes, CAPI helpers, plus the legacy JSON / transport temp-path wrappers.
 
 | Surface | Bucket | Note |
 | --- | --- | --- |
@@ -78,7 +78,7 @@ The code-side `compile_json_path` inventory is now empty. The remaining archive-
 | `src/host_providers/llvm_codegen/ll_emit_compare_driver.rs` | archive-later | compare/debug orchestration only |
 | `src/host_providers/llvm_codegen/ll_emit_compare_vm.rs` | archive-later | compare VM helper only |
 | `src/host_providers/llvm_codegen/ll_emit_compare_stdout.rs` | archive-later | compare stdout helper only |
-| `src/host_providers/llvm_codegen/ll_emit_compare_source.rs` | archive-later | compare source materialization only |
+| `src/host_providers/llvm_codegen/ll_emit_compare_source.rs` | archive-later | compare source rendering only; temp-path materialization is in transport helpers |
 | `src/host_providers/llvm_codegen/provider_keep.rs` | archive-later | explicit provider keep lanes only |
 | `src/host_providers/llvm_codegen/capi_transport.rs` | archive-later | explicit CAPI compile/link helpers only |
 | `src/host_providers/llvm_codegen/transport_paths.rs` | archive-later | temp-path path resolution helpers only |
@@ -99,7 +99,7 @@ Recently retired from the code-side compare/compile front-door:
 
 Next compare-source retirement slice:
 
-- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, `ll_emit_compare_stdout.rs`, and `ll_emit_compare_source.rs`, while explicit provider keep lanes are split into `provider_keep.rs`; the legacy JSON path now survives only as the string-based `emit_object_from_mir_json(...)` helper, so the next cleanup focus is compare/archive wrapper thinning after the temp-path helper split in `transport_paths.rs` / `transport_io.rs`
+- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, `ll_emit_compare_stdout.rs`, and `ll_emit_compare_source.rs`, while explicit provider keep lanes are split into `provider_keep.rs`; the legacy JSON path now survives only as the string-based `emit_object_from_mir_json(...)` helper, and compare-source temp-path materialization is now held by `transport_paths.rs` / `transport_io.rs`, so the next cleanup focus is compare/archive wrapper thinning
 
 ## Retirement Order
 
@@ -125,7 +125,7 @@ Slice 2 status:
 - the pass-through `compile_json_path` arms in `src/backend/mir_interpreter/handlers/calls/global.rs` and `src/backend/mir_interpreter/handlers/externals.rs` are retired
 - explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
 - builder / wrapper surfaces remain live, so delete is still not ready
-- the dedicated compare/debug helper module is retired; `ll_emit_compare_driver.rs` now carries the archive-later compare orchestration surface while `ll_emit_compare_vm.rs` carries VM spawn and `ll_emit_compare_stdout.rs` carries stdout extraction, `ll_emit_compare_source.rs` carries source materialization, `provider_keep.rs` carries explicit provider keep lanes, `capi_transport.rs` owns explicit CAPI helpers, and `transport_paths.rs` / `transport_io.rs` own the temp-path helpers
+- the dedicated compare/debug helper module is retired; `ll_emit_compare_driver.rs` now carries the archive-later compare orchestration surface while `ll_emit_compare_vm.rs` carries VM spawn and `ll_emit_compare_stdout.rs` carries stdout extraction, `ll_emit_compare_source.rs` carries source rendering, `provider_keep.rs` carries explicit provider keep lanes, `capi_transport.rs` owns explicit CAPI helpers, and `transport_paths.rs` / `transport_io.rs` own the temp-path helpers and compare-source temp-file materialization
 - the legacy MIR(JSON) wrapper surface is now isolated in `legacy_json.rs`
 
 ## Why Delete Is Not Ready
