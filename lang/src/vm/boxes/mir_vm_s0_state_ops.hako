@@ -80,6 +80,11 @@ static box MirVmS0StateOpsBox {
     handle_regs.set("" + id, "" + text)
   }
 
+  handle_clear(handle_regs, id) {
+    if handle_regs == null { return }
+    handle_regs.set("" + id, null)
+  }
+
   handle_copy(handle_regs, dst, src) {
     local v = me.handle_get(handle_regs, src)
     if v != null {

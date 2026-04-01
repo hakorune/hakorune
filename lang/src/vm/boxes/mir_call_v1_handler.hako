@@ -27,6 +27,38 @@ static box MirCallV1HandlerBox {
     return "__vm.handle:" + StringHelpers.int_to_str(rid)
   }
 
+  _write_scalar_dst(regs, kinds, handle_regs, dst, value) {
+    if dst == null { return }
+    local dst_key = StringHelpers.int_to_str(dst)
+    regs.setField(dst_key, "" + value)
+    if kinds != null {
+      kinds.setField(dst_key, "scalar")
+    }
+    if handle_regs != null {
+      MirVmS0StateOpsBox.handle_clear(handle_regs, dst)
+    }
+    local shadow_key = me._shadow_handle_key(dst)
+    if shadow_key != null {
+      regs.setField(shadow_key, null)
+    }
+  }
+
+  _write_text_dst(regs, kinds, handle_regs, dst, text) {
+    if dst == null { return }
+    local dst_key = StringHelpers.int_to_str(dst)
+    regs.setField(dst_key, "0")
+    if kinds != null {
+      kinds.setField(dst_key, "handle")
+    }
+    if handle_regs != null {
+      MirVmS0StateOpsBox.handle_set(handle_regs, dst, "" + text)
+    }
+    local shadow_key = me._shadow_handle_key(dst)
+    if shadow_key != null {
+      regs.setField(shadow_key, "" + text)
+    }
+  }
+
   // Strict integer scanner for vm adapter i64 routes
   _is_i64_text(s) {
     if s == null { return 0 }
@@ -66,6 +98,23 @@ static box MirCallV1HandlerBox {
       if shadow_text != null { return shadow_text }
     }
     return regs.getField(StringHelpers.int_to_str(vid))
+  }
+
+  _read_optional_reg_text_or_null(regs, handle_regs, kinds, vid) {
+    if vid == null || vid < 0 { return null }
+    local text = me._read_reg_text_or_null(regs, handle_regs, vid)
+    if text == null { return null }
+    local dst_key = StringHelpers.int_to_str(vid)
+    local kind = null
+    if kinds != null {
+      kind = kinds.getField(dst_key)
+    }
+    if kind == null || ("" + kind) == "" || ("" + kind) == "scalar" {
+      if me._read_reg_i64_or_null(regs, vid) == 0 {
+        return null
+      }
+    }
+    return text
   }
 
   _mem_alloc_next_key() {
@@ -198,16 +247,16 @@ static box MirCallV1HandlerBox {
           local arg0_codegen = MiniMirV1Scan.first_arg_register(seg)
           local path_text = me._read_reg_text_or_null(regs, handle_regs, arg0_codegen)
           if path_text == null {
-            regs.setField(StringHelpers.int_to_str(dst_codegen), "0")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_codegen, 0)
             return
           }
           local out = LlvmBackendBox.compile_obj("" + path_text)
           if out == null || ("" + out) == "" {
             print("[llvmbackend/emit/failed] LlvmBackendBox.compile_obj returned empty")
-            regs.setField(StringHelpers.int_to_str(dst_codegen), "0")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_codegen, 0)
             return
           }
-          regs.setField(StringHelpers.int_to_str(dst_codegen), "" + out)
+          me._write_text_dst(regs, kinds, handle_regs, dst_codegen, out)
           return
         }
         if btype == "LlvmBackendBox" && mname == "link_exe" {
@@ -218,9 +267,9 @@ static box MirCallV1HandlerBox {
           local arg2_link = me._third_arg_register(seg)
           local obj_text = me._read_reg_text_or_null(regs, handle_regs, arg0_link)
           local out_text = me._read_reg_text_or_null(regs, handle_regs, arg1_link)
-          local libs_text = me._read_reg_text_or_null(regs, handle_regs, arg2_link)
+          local libs_text = me._read_optional_reg_text_or_null(regs, handle_regs, kinds, arg2_link)
           if obj_text == null || out_text == null {
-            regs.setField(StringHelpers.int_to_str(dst_codegen_link), "0")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_codegen_link, 0)
             return
           }
           local args_link = new ArrayBox()
@@ -232,15 +281,15 @@ static box MirCallV1HandlerBox {
           local exe = CodegenBridgeBox.link_object_args(args_link)
           if exe == null || ("" + exe) == "" {
             print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
-            regs.setField(StringHelpers.int_to_str(dst_codegen_link), "0")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_codegen_link, 0)
             return
           }
           if ("" + exe) != ("" + out_text) {
             print("[llvmbackend/link/path-mismatch] expected=" + out_text + " got=" + ("" + exe))
-            regs.setField(StringHelpers.int_to_str(dst_codegen_link), "0")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_codegen_link, 0)
             return
           }
-          regs.setField(StringHelpers.int_to_str(dst_codegen_link), "1")
+          me._write_scalar_dst(regs, kinds, handle_regs, dst_codegen_link, 1)
           return
         }
         if me._try_handle_runtime_data_box(seg, regs, btype, mname) == 1 { return }

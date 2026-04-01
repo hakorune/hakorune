@@ -7,6 +7,20 @@ using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0CodegenBox {
+  _write_handle_result(dst_box, regs, kinds, handle_regs, text) {
+    regs.set("" + dst_box, "0")
+    kinds.set("" + dst_box, "handle")
+    MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "" + text)
+    return "__NEXT__"
+  }
+
+  _write_scalar_result(dst_box, regs, kinds, handle_regs, value) {
+    regs.set("" + dst_box, "" + value)
+    kinds.set("" + dst_box, "scalar")
+    MirVmS0StateOpsBox.handle_clear(handle_regs, dst_box)
+    return "__NEXT__"
+  }
+
   apply_compile_obj(arg0_reg, dst_box, regs, kinds, handle_regs) {
     if arg0_reg == null { return "[vm-hako/contract][boxcall-arg0-missing]" }
     local path_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg0_reg)
@@ -16,13 +30,9 @@ static box MirVmS0CodegenBox {
     local obj = LlvmBackendBox.compile_obj("" + path_text)
     if obj == null || ("" + obj) == "" {
       print("[llvmbackend/emit/failed] LlvmBackendBox.compile_obj returned empty")
-      return me._write_null_result(dst_box, regs, kinds)
+      return me._write_scalar_result(dst_box, regs, kinds, handle_regs, 0)
     }
-
-    regs.set("" + dst_box, "0")
-    kinds.set("" + dst_box, "handle")
-    MirVmS0StateOpsBox.handle_set(handle_regs, dst_box, "" + obj)
-    return "__NEXT__"
+    return me._write_handle_result(dst_box, regs, kinds, handle_regs, obj)
   }
 
   apply_link_exe(arg0_reg, arg1_reg, arg2_reg, dst_box, regs, kinds, handle_regs) {
@@ -49,21 +59,12 @@ static box MirVmS0CodegenBox {
     local exe = CodegenBridgeBox.link_object_args(args)
     if exe == null || ("" + exe) == "" {
       print("[llvmbackend/link/failed] env.codegen.link_object returned empty")
-      return me._write_null_result(dst_box, regs, kinds)
+      return me._write_scalar_result(dst_box, regs, kinds, handle_regs, 0)
     }
     if ("" + exe) != ("" + out_text) {
       print("[llvmbackend/link/path-mismatch] expected=" + out_text + " got=" + ("" + exe))
-      return me._write_null_result(dst_box, regs, kinds)
+      return me._write_scalar_result(dst_box, regs, kinds, handle_regs, 0)
     }
-
-    regs.set("" + dst_box, "1")
-    kinds.set("" + dst_box, "scalar")
-    return "__NEXT__"
-  }
-
-  _write_null_result(dst_box, regs, kinds) {
-    regs.set("" + dst_box, "0")
-    kinds.set("" + dst_box, "scalar")
-    return "__NEXT__"
+    return me._write_scalar_result(dst_box, regs, kinds, handle_regs, 1)
   }
 }

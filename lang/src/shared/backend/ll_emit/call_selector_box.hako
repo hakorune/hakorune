@@ -11,6 +11,13 @@ static box LlEmitCallSelectorBox {
     return 0
   }
 
+  _map_string_or_empty(map, key) {
+    if me._map_has(map, key) != 1 { return "" }
+    local value = map.get("" + key)
+    if value == null { return "" }
+    return "" + value
+  }
+
   _resolve_alias(facts, reg_id) {
     if facts == null { return reg_id }
     local aliases = facts.get("copy_alias")
@@ -72,9 +79,13 @@ static box LlEmitCallSelectorBox {
       return "" + direct.get("symbol")
     }
     local callee_type = "" + callee.get("type")
-    local callee_name = "" + callee.get("name")
+    local callee_name = me._map_string_or_empty(callee, "name")
+    local method_name = me._map_string_or_empty(callee, "method")
+    if method_name == "" {
+      method_name = callee_name
+    }
     if callee_type == "Method" && me._box_type(facts, callee.get("receiver")) == "ArrayBox" {
-      if callee_name == "push" {
+      if method_name == "push" {
         local args = call.get("args")
         if args != null && args.size() == 1 {
           local value = args.get(0)
@@ -85,7 +96,7 @@ static box LlEmitCallSelectorBox {
           }
         }
       } else {
-        if callee_name == "set" {
+        if method_name == "set" {
           local args = call.get("args")
           if args != null && args.size() == 2 && me._value_class(facts, args.get(1)) == "imm_i64" {
             direct = me._direct_call_row_by_symbol(facts, "nyash.array.slot_store_hii")

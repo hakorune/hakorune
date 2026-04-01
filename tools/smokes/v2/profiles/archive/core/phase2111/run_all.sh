@@ -26,7 +26,7 @@ if [[ "$ffi_found" != "1" ]]; then
   exit 0
 fi
 
-bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter 'phase2111/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh'
-bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter 'phase2111/s3_link_run_llvmcapi_map_set_size_canary_vm.sh'
+bash "$ROOT/tools/smokes/v2/run.sh" --profile archive --filter 'core/phase2111/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh'
+bash "$ROOT/tools/smokes/v2/run.sh" --profile archive --filter 'core/phase2111/s3_link_run_llvmcapi_map_set_size_canary_vm.sh'
 
 echo "[phase2111] Done."
