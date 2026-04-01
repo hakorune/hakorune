@@ -11,7 +11,6 @@ Related:
   - tools/smokes/v2/profiles/integration/core/phase2120/README.md
   - tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh
   - tools/selfhost/run_all.sh
-  - tools/selfhost/run_hako_llvm_selfhost.sh
 ---
 
 # P5: Compat Pure Pack Lock
@@ -35,7 +34,7 @@ Related:
    - owner pack:
      - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
      - `tools/selfhost/run_all.sh`
-     - `tools/selfhost/run_hako_llvm_selfhost.sh`
+     - `tools/selfhost/run_compat_pure_selfhost.sh`
    - required env:
      - `NYASH_LLVM_USE_CAPI=1`
      - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
@@ -57,14 +56,11 @@ Related:
 1. `tools/selfhost/run_all.sh`
    - compatibility wrapper only
    - must print that it delegates to the compat pure pack
-2. `tools/selfhost/run_hako_llvm_selfhost.sh`
-   - compatibility wrapper only
-   - must print that it is a historical pure selfhost helper
-3. `tools/selfhost/run_compat_pure_selfhost.sh`
+2. `tools/selfhost/run_compat_pure_selfhost.sh`
    - compatibility wrapper only
    - still depends on the legacy `CodegenBridgeBox` example caller
    - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
-4. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+3. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
    - historical pure/TM pack entry
    - must self-identify as compat-only
    - category map lives in `tools/smokes/v2/profiles/integration/core/phase2120/README.md`

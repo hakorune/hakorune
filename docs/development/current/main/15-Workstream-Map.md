@@ -43,7 +43,7 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-98` proof/example caller archive sequencing after `phase2111` archive (`CodegenBridgeBox` has no daily dependency) |
+     | Next | `29x-98` selfhost wrapper / llvmlite proof keep-archive conditions after `phase251` quarantine (`CodegenBridgeBox` has no daily dependency) |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

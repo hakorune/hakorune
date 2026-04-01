@@ -100,8 +100,8 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_const42_canary_vm.sh` | proof-only | llvmlite provider canary |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh` | archived proof-only | explicit emit/link proof on legacy lane; superseded by `phase29ck` runtime proof |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_map_set_size_canary_vm.sh` | archived proof-only | explicit emit/link proof on legacy lane; superseded by `phase29ck` runtime proof |
-| `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_provider_vm.sh` | proof-only | selfhost lowering proof for legacy extern name |
-| `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_vm.sh` | proof-only | selfhost lowering proof for legacy extern name |
+| `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_provider_vm.sh` | archived proof-only | selfhost lowering probe for the legacy extern name; currently hard-skipped |
+| `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_vm.sh` | archived proof-only | selfhost lowering probe for the legacy extern name; currently hard-skipped |
 
 ## Direct Caller Findings
 
@@ -113,11 +113,13 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - only active when `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; otherwise it returns an empty compat stub.
   - treat as compat/proof only, not daily/mainline.
   - dead alias `env.codegen.emit_object_ny` is retired; the gated stub now accepts only `env.codegen.emit_object`.
-  - cleanup target: remove upstream `env.codegen.emit_object` compat callers first, then retire this gated stub.
+  - the old `phase251` lowering canaries are now quarantined under `tools/smokes/v2/profiles/archive/core/phase251/` because they are inactive hard-skips, not active suite coverage.
+  - cleanup target: pin a root-first selfhost lowering proof first, then retire this gated stub.
 - `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
   - explicit proof/example caller that still demonstrates `emit_object_args(...)` plus `link_object_args(...)`.
   - not a daily route and not a current owner.
   - direct invoker is `tools/selfhost/run_compat_pure_selfhost.sh`.
+  - old alias `tools/selfhost/run_hako_llvm_selfhost.sh` is retired; keep the canonical compat wrapper singular.
   - current root-first replacement proof exists only on the `.hako VM -> LlvmBackendBox -> C-API -> exe` lane (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`), not as a drop-in for this historical safe-vm wrapper.
   - therefore this caller remains archive-later until the compat wrapper either gains a root-first equivalent or is retired as a whole.
   - cleanup target: demote or archive once proof/example coverage moves to the root-first route.
@@ -150,7 +152,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | --- | --- | --- | --- |
 | `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | active proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `emit_object_from_mir_json(...)` remains archive-later |
-| `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | active proof-only lowering evidence for the legacy extern name | none | archive when selfhost lowering proof moves to the root-first route and the helper caller inventory reaches zero |
+| `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archived proof-only lowering evidence for the legacy extern name | none | keep as quarantine evidence until a root-first selfhost lowering proof exists |
 
 ## Archive Sequencing Matrix
 
@@ -158,7 +160,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | --- | --- | --- | --- |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived explicit legacy emit/link proof | exact root-first replacements are green in `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh`; manual replay now lives in `tools/smokes/v2/profiles/archive/core/phase2111/run_all.sh` | archived; keep only as replay evidence |
 | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` + `tools/selfhost/run_compat_pure_selfhost.sh` | historical compat selfhost wrapper proof | root-first runtime proof exists only on the separate vm-hako owner lane: `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | archive-later, but not drop-in replaceable yet |
-| `lang/src/vm/hakorune-vm/extern_provider.hako` + `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | legacy extern lowering proof | no root-first selfhost lowering proof is pinned yet | keep until a root-first lowering proof exists |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` + `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | legacy extern lowering proof with archived quarantine canaries | no root-first selfhost lowering proof is pinned yet | keep `extern_provider.hako` until a root-first lowering proof exists; archived `phase251` pair remains evidence only |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
 
 ## Phase2111 Replacement Closure
@@ -214,7 +216,7 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 2. keep `CodegenBridgeBox.emit_object_args(...)` fixed as an archive-later producer; do not treat it as a daily route.
 3. confirm proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers remain proof-only and not daily dependencies.
 4. record archive conditions for the remaining proof/compat caller surfaces before touching `CodegenBridgeBox` or Rust dispatch residues.
-   - `phase2111` explicit emit/link pair is already archived; the next archive sequencing target is the remaining proof/example caller set.
+   - `phase2111` explicit emit/link pair is archived and `phase251` legacy lowering pair is quarantined; the next sequencing target is the selfhost wrapper plus the remaining `phase2044` llvmlite canaries.
 5. keep the legacy helper archive-later until the caller set reaches zero.
 6. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
 7. when the caller set reaches zero, delete `emit_object_from_mir_json(...)`, then collapse the Rust dispatch residues and phase docs.

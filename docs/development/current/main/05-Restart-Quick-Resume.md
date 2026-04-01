@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 proof/example caller archive sequencing after phase2111 archive (CodegenBridgeBox has no daily dependency)`
+- Exact focus: `29x-98 selfhost wrapper / llvmlite proof keep-archive conditions after phase251 quarantine (CodegenBridgeBox has no daily dependency)`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -58,7 +58,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front
-  - keep `LLVMEmitBox` fixed as compat/proof keep, treat `CodegenBridgeBox` as archive-later producer only, and continue caller-by-caller archive sequencing after the `phase2111` legacy emit/link pair
+  - keep `LLVMEmitBox` fixed as compat/proof keep, treat `CodegenBridgeBox` as archive-later producer only, and continue caller-by-caller sequencing with the remaining selfhost wrapper and llvmlite proof surfaces after the `phase251` quarantine
   - keep portability split explicit: `.hako` capability facade, native keep leaf glue
   - keep migration task notes in root/docs/phase owners; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
 
