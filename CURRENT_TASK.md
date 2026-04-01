@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 W2 mixed-file split pass / 99G split extern_provider.hako`
+- Exact focus: `29x-99 W2 mixed-file split pass / 99H split src/host_providers/llvm_codegen.rs`
   - phase2120 pure canary bucket is now split by suites: `phase2120-pure-keep` for the 2 active keep pins and `phase2120-pure-historical` for archive-backed replay evidence
   - phase2044 semantics are now at the intended endpoint: the llvmlite trio is `monitor-only keep`, its dedicated suite manifest is the final live keep bucket, and the other two groups stay bucket-runner only
   - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
@@ -83,8 +83,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
   - `29x-98` still owns helper deletion and exact stop-line; no low-blast caller reduction is visible now
   - `29x-99` now owns beauty-first cleanup planning, with `W2 mixed-file split pass` active
-  - current active micro task is `99G split extern_provider.hako`
-  - next queued micro task is `99G1 suites / directory semantic recut`
+  - current active micro task is `99H split src/host_providers/llvm_codegen.rs`
+  - next queued micro task is `99I split LlvmBackendBox`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -116,9 +116,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
-| Next | `W2 mixed-file split pass` (`99G`) | first low-blast implementation slice after docs-first inventory |
-| Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
+| Now | `src/host_providers/llvm_codegen.rs` split | current mixed-file split slice |
+| Next | `99I split LlvmBackendBox` | next low-blast implementation slice after docs-first inventory |
+| Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
 

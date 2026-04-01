@@ -44,8 +44,8 @@ Related:
      - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
      - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now
      - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W2 mixed-file split pass` is active
-     - current active micro task is `99G split extern_provider.hako`
-     - next queued micro task is `99G1 suites / directory semantic recut`
+     - current active micro task is `99H split src/host_providers/llvm_codegen.rs`
+     - next queued micro task is `99I split LlvmBackendBox`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -60,7 +60,7 @@ Related:
      | --- | --- |
      | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack |
      | Next | `W2 mixed-file split pass` (`99G`) |
-     | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
+     | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
    - cleanup waves:
 
      | Wave | Status | Read as |

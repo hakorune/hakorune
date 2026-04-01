@@ -45,9 +45,9 @@ Related:
 
 - active macro wave: `W2 mixed-file split pass`
 - active micro-task:
-  - `99G split extern_provider.hako`
+  - `99H split src/host_providers/llvm_codegen.rs`
 - next queued micro-task:
-  - `99G1 suites / directory semantic recut`
+  - `99I split LlvmBackendBox`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -90,8 +90,8 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99G` | active | split `extern_provider.hako` into runtime owner surface and compat codegen shim | owner arms and compat/proof arms no longer live in one file |
-| `99H` | pending | split `src/host_providers/llvm_codegen.rs` into thin tool boundary and legacy MIR front door | `ll_text_to_object` no longer shares a home with `emit_object_from_mir_json(...)` |
+| `99G` | landed | split `extern_provider.hako` into runtime owner surface and compat codegen shim | owner arms and compat/proof arms no longer live in one file |
+| `99H` | active | split `src/host_providers/llvm_codegen.rs` into thin tool boundary and legacy MIR front door | `ll_text_to_object` no longer shares a home with `emit_object_from_mir_json(...)` |
 | `99I` | pending | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
 | `99J` | pending | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
 
