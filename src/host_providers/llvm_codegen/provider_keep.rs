@@ -2,47 +2,10 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use super::normalize;
+use super::route::{resolve_llvmlite_harness, resolve_ny_llvmc, resolve_python3};
 use super::transport_io;
 use super::transport_paths;
 use super::Opts;
-
-pub(super) fn resolve_ny_llvmc() -> PathBuf {
-    if let Some(s) = crate::config::env::ny_llvm_compiler_path() {
-        return PathBuf::from(s);
-    }
-    if let Ok(p) = which::which("ny-llvmc") {
-        return p;
-    }
-    PathBuf::from("target/release/ny-llvmc")
-}
-
-pub(super) fn resolve_python3() -> Option<PathBuf> {
-    if let Ok(p) = which::which("python3") {
-        return Some(p);
-    }
-    if let Ok(p) = which::which("python") {
-        return Some(p);
-    }
-    None
-}
-
-pub(super) fn resolve_llvmlite_harness() -> Option<PathBuf> {
-    if let Some(root) = crate::config::env::nyash_root() {
-        let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
-        if p.exists() {
-            return Some(p);
-        }
-    }
-    let p = PathBuf::from("tools/llvmlite_harness.py");
-    if p.exists() {
-        return Some(p);
-    }
-    let p2 = PathBuf::from("../tools/llvmlite_harness.py");
-    if p2.exists() {
-        return Some(p2);
-    }
-    None
-}
 
 pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
     normalize::validate_backend_mir_shape(mir_json)?;

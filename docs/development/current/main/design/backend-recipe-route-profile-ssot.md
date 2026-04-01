@@ -121,7 +121,7 @@ Related:
 - Explicit compat keep callers should ask `BackendRecipeBox.compile_keep_profile(..., "harness")`.
 - `LlvmBackendBox` should validate the returned profile field values against `BackendRecipeBox` owner names and route evidence, then:
   - compile `hako_ll_emitter` daily profiles through `root -> facts -> ll text -> env.codegen.compile_ll_text(...)`
-  - keep explicit legacy/compat callers on the legacy MIR(JSON) front door (`src/host_providers/llvm_codegen/legacy_json.rs`)
+  - keep explicit legacy/compat callers on the legacy MIR(JSON) front door (`src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`)
   - keep link handoff on `env.codegen.link_object(...)`
 - `LlvmBackendBox` should mirror `acceptance_case`, `transport_owner`, and `legacy_daily_allowed` through env only at the backend handoff; bridge/provider layers must treat them as read-only payload.
 - Rust and C layers may mirror the same policy names, but they must not invent new policy names.

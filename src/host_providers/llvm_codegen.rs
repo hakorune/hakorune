@@ -29,10 +29,8 @@ pub struct Opts {
 
 mod capi_transport;
 mod defaults;
-mod legacy_json;
 mod ll_emit_compare_driver;
 mod ll_emit_compare_source;
-mod ll_emit_compare_stdout;
 mod ll_emit_compare_vm;
 mod ll_tool_driver;
 mod normalize;
@@ -41,7 +39,6 @@ mod route;
 mod transport_io;
 mod transport_paths;
 pub use defaults::boundary_default_object_opts;
-pub use legacy_json::emit_object_from_mir_json;
 
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.
 pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {
@@ -49,6 +46,26 @@ pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {
     transport_io::ensure_backend_output_parent(&out_path);
     ll_tool_driver::ll_text_to_object(ll_text, &out_path, "ll-text")?;
     Ok(out_path)
+}
+
+/// Legacy MIR(JSON) helper kept as an archive-later compare/archive front door.
+pub fn emit_object_from_mir_json(mir_json: &str, opts: Opts) -> Result<PathBuf, String> {
+    let mir_json = normalize::normalize_mir_json_for_backend(mir_json)?;
+    if let Some(out_path) = route::try_compile_via_hako_ll_bridge(&mir_json, &opts)? {
+        return Ok(out_path);
+    }
+    if let Some(out_path) = route::try_compile_via_capi_keep(&mir_json, &opts)? {
+        return Ok(out_path);
+    }
+    if let Some(out_path) = route::try_compile_via_explicit_provider_keep(&mir_json, &opts)? {
+        return Ok(out_path);
+    }
+    if let Some(out_path) = route::try_compile_via_boundary_default(&mir_json, &opts)? {
+        return Ok(out_path);
+    }
+    let tag = route::boundary_default_unavailable_tag();
+    llvm_emit_error!("{}", tag);
+    Err(tag)
 }
 
 /// Link an object to an executable via C-API FFI bundle.

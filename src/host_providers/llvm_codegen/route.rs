@@ -42,6 +42,44 @@ fn llvm_route_trace_enabled() -> bool {
     )
 }
 
+pub(super) fn resolve_ny_llvmc() -> PathBuf {
+    if let Some(s) = crate::config::env::ny_llvm_compiler_path() {
+        return PathBuf::from(s);
+    }
+    if let Ok(p) = which::which("ny-llvmc") {
+        return p;
+    }
+    PathBuf::from("target/release/ny-llvmc")
+}
+
+pub(super) fn resolve_python3() -> Option<PathBuf> {
+    if let Ok(p) = which::which("python3") {
+        return Some(p);
+    }
+    if let Ok(p) = which::which("python") {
+        return Some(p);
+    }
+    None
+}
+
+pub(super) fn resolve_llvmlite_harness() -> Option<PathBuf> {
+    if let Some(root) = crate::config::env::nyash_root() {
+        let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
+        if p.exists() {
+            return Some(p);
+        }
+    }
+    let p = PathBuf::from("tools/llvmlite_harness.py");
+    if p.exists() {
+        return Some(p);
+    }
+    let p2 = PathBuf::from("../tools/llvmlite_harness.py");
+    if p2.exists() {
+        return Some(p2);
+    }
+    None
+}
+
 fn required_hako_ll_context_field(
     field_name: &str,
     value: Option<String>,

@@ -5,6 +5,25 @@ use super::defaults;
 use super::Opts;
 
 #[cfg(feature = "plugins")]
+fn resolve_ffi_library_path() -> Result<PathBuf, String> {
+    let mut candidates: Vec<PathBuf> = Vec::new();
+    if let Some(p) = crate::config::env::aot_ffi_lib_path() {
+        candidates.push(PathBuf::from(p));
+    }
+    candidates.extend(defaults::ffi_library_default_candidates());
+    candidates
+        .into_iter()
+        .find(|p| p.exists())
+        .ok_or_else(|| "FFI library not found (set HAKO_AOT_FFI_LIB)".to_string())
+}
+
+#[cfg(feature = "plugins")]
+fn load_ffi_library() -> Result<libloading::Library, String> {
+    let lib_path = resolve_ffi_library_path()?;
+    unsafe { libloading::Library::new(lib_path).map_err(|e| format!("dlopen failed: {}", e)) }
+}
+
+#[cfg(feature = "plugins")]
 pub(super) fn compile_via_capi(
     json_in: &Path,
     obj_out: &Path,
@@ -13,7 +32,6 @@ pub(super) fn compile_via_capi(
     compat_replay: Option<&str>,
     opts: &Opts,
 ) -> Result<(), String> {
-    use libloading::Library;
     use std::os::raw::{c_char, c_int, c_void};
 
     extern "C" {
@@ -21,16 +39,7 @@ pub(super) fn compile_via_capi(
     }
 
     unsafe {
-        let mut candidates: Vec<PathBuf> = Vec::new();
-        if let Some(p) = crate::config::env::aot_ffi_lib_path() {
-            candidates.push(PathBuf::from(p));
-        }
-        candidates.extend(defaults::ffi_library_default_candidates());
-        let lib_path = candidates
-            .into_iter()
-            .find(|p| p.exists())
-            .ok_or_else(|| "FFI library not found (set HAKO_AOT_FFI_LIB)".to_string())?;
-        let lib = Library::new(lib_path).map_err(|e| format!("dlopen failed: {}", e))?;
+        let lib = load_ffi_library()?;
         type CompileFn =
             unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
         let func: libloading::Symbol<CompileFn> = lib
@@ -138,7 +147,6 @@ pub(super) fn link_via_capi(
     exe_out: &Path,
     extra_ldflags: Option<&str>,
 ) -> Result<(), String> {
-    use libloading::Library;
     use std::os::raw::{c_char, c_int, c_void};
 
     extern "C" {
@@ -146,16 +154,7 @@ pub(super) fn link_via_capi(
     }
 
     unsafe {
-        let mut candidates: Vec<PathBuf> = Vec::new();
-        if let Some(p) = crate::config::env::aot_ffi_lib_path() {
-            candidates.push(PathBuf::from(p));
-        }
-        candidates.extend(defaults::ffi_library_default_candidates());
-        let lib_path = candidates
-            .into_iter()
-            .find(|p| p.exists())
-            .ok_or_else(|| "FFI library not found (set HAKO_AOT_FFI_LIB)".to_string())?;
-        let lib = Library::new(lib_path).map_err(|e| format!("dlopen failed: {}", e))?;
+        let lib = load_ffi_library()?;
         type LinkFn = unsafe extern "C" fn(
             *const c_char,
             *const c_char,

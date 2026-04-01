@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use super::ll_emit_compare_source;
-use super::ll_emit_compare_stdout;
 use super::ll_emit_compare_vm;
 use super::ll_tool_driver;
 use super::normalize;
@@ -11,12 +10,64 @@ use super::Opts;
 
 const COMPARE_TAG: &str = "compare";
 
+fn resolve_hakorune_bin() -> PathBuf {
+    if let Ok(bin) = std::env::var("NYASH_BIN") {
+        let trimmed = bin.trim();
+        if !trimmed.is_empty() {
+            return PathBuf::from(trimmed);
+        }
+    }
+    if let Ok(cur) = std::env::current_exe() {
+        return cur;
+    }
+    let hakorune = PathBuf::from("target/release/hakorune");
+    if hakorune.exists() {
+        return hakorune;
+    }
+    PathBuf::from("target/release/nyash")
+}
+
+fn extract_ll(stdout: &str) -> Result<String, String> {
+    let begin = "[hako-ll/ll-begin]\n";
+    let end = "\n[hako-ll/ll-end]";
+    let start = stdout.find(begin).ok_or_else(|| {
+        format!(
+            "[llvmemit/hako-ll/ll-begin-missing] stdout=`{}`",
+            stdout.trim()
+        )
+    })?;
+    let content_start = start + begin.len();
+    let tail = &stdout[content_start..];
+    let end_offset = tail.find(end).ok_or_else(|| {
+        format!(
+            "[llvmemit/hako-ll/ll-end-missing] stdout=`{}`",
+            stdout.trim()
+        )
+    })?;
+    Ok(tail[..end_offset].to_string())
+}
+
+fn extract_contract_line(stdout: &str, lane_tag: &str) -> Result<String, String> {
+    let prefix = format!("[hako-ll/{}] ", lane_tag);
+    stdout
+        .lines()
+        .find(|line| line.starts_with(&prefix))
+        .map(|line| line.to_string())
+        .ok_or_else(|| {
+            format!(
+                "[llvmemit/hako-ll/contract-line-missing] lane={} stdout=`{}`",
+                lane_tag,
+                stdout.trim()
+            )
+        })
+}
+
 pub(super) fn mir_json_to_object_hako_ll_compare(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<PathBuf, String> {
     normalize::validate_backend_mir_shape(mir_json)?;
-    let hakorune = ll_emit_compare_vm::resolve_hakorune_bin();
+    let hakorune = resolve_hakorune_bin();
     if !hakorune.exists() {
         return Err(format!(
             "[llvmemit/hako-ll/not-found] path={}",
@@ -40,8 +91,8 @@ pub(super) fn mir_json_to_object_hako_ll_compare(
     transport_io::write_backend_text_file(&source_path, &source)?;
     let result = (|| -> Result<PathBuf, String> {
         let stdout = ll_emit_compare_vm::run_driver_via_vm(&hakorune, &source_path)?;
-        let contract_line = ll_emit_compare_stdout::extract_contract_line(&stdout, COMPARE_TAG)?;
-        let ll_text = ll_emit_compare_stdout::extract_ll(&stdout)?;
+        let contract_line = extract_contract_line(&stdout, COMPARE_TAG)?;
+        let ll_text = extract_ll(&stdout)?;
         println!("{}", contract_line);
         ll_tool_driver::ll_text_to_object(&ll_text, &out_path, COMPARE_TAG)?;
         Ok(out_path)
