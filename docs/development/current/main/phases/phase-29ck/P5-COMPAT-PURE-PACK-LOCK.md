@@ -32,7 +32,7 @@ Related:
      - `HAKO_CAPI_PURE=1` を要求しない
 2. compat-only pure pack
    - owner pack:
-     - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+     - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
      - `tools/selfhost/run_compat_pure_pack.sh`
      - `tools/selfhost/run_compat_pure_selfhost.sh`
    - required env:
@@ -57,13 +57,15 @@ Related:
    - retired alias; do not reintroduce
 2. `tools/selfhost/run_compat_pure_pack.sh`
    - canonical historical compat pack wrapper
-   - shells into `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh` and `tools/selfhost/run_compat_pure_selfhost.sh`
+   - shells into `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` and `tools/selfhost/run_compat_pure_selfhost.sh`
 3. `tools/selfhost/run_compat_pure_selfhost.sh`
    - compatibility wrapper only
    - still depends on the legacy `CodegenBridgeBox` example caller
    - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
 4. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
-   - historical pure/TM pack entry
+   - full legacy-cluster entry
+   - orchestrates the pure C-API bucket and the VM-adapter legacy cluster as separate child runners
+   - not the canonical compat pure-pack owner anymore
    - must self-identify as compat-only
    - category map lives in `tools/smokes/v2/profiles/integration/core/phase2120/README.md`
    - pure C-API canaries in this pack must use `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; retired direct `hostbridge.extern_invoke("env.codegen", ...)` is outside the pack contract

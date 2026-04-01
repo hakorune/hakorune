@@ -170,11 +170,15 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 
 - `tools/selfhost/run_compat_pure_pack.sh` is the only remaining historical compat-pack wrapper entry.
 - current direct dependencies are:
-  - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+  - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
   - `tools/selfhost/run_compat_pure_selfhost.sh`
+- `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh` is now only an orchestrator; the pack is split into:
+  - `run_pure_capi_canaries.sh`
+  - `run_vm_adapter_legacy_cluster.sh`
 - current blockers are:
   - `tools/selfhost/run_compat_pure_selfhost.sh` still demonstrates the old `CodegenBridgeBox.emit_object_args(...)` plus `link_object_args(...)` route.
-  - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh` still owns active historical pure/TM canaries.
+  - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` still owns active historical pure C-API canaries.
+  - `tools/smokes/v2/profiles/integration/core/phase2120/run_vm_adapter_legacy_cluster.sh` is still a separate legacy cluster under the same phase directory.
   - `HAKO_CAPI_PURE=1` is still documented as a compat-only route, not as removed/no-op.
 - archive-ready only when all three hold:
   1. the phase2120 active pure canaries are either replaced by current root-first/native proofs or moved under archive-only replay.

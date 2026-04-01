@@ -9,7 +9,7 @@ export HAKO_V1_EXTERN_PROVIDER_C_ABI=${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}
 export HAKO_CAPI_PURE=${HAKO_CAPI_PURE:-1}
 # Optional: set HAKO_CAPI_TM=1 to exercise TargetMachine path
 
-bash "$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh"
+bash "$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh"
 
 echo "[selfhost/compat] Running historical .hako -> LLVM selfhost helper"
 TMP_JSON="/tmp/hako_min44_$$.json"

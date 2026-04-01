@@ -27,8 +27,13 @@
 
 ## Official Entry
 
-- historical compat pack entry:
+- full legacy cluster entry:
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+  - orchestrates:
+    - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
+    - `tools/smokes/v2/profiles/integration/core/phase2120/run_vm_adapter_legacy_cluster.sh`
+- historical compat pure-pack entry:
+  - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
   - filter contract inside the pack is `--profile integration --filter 'core/phase2120/...sh'` for active pins
   - archive-backed pins are invoked via `--profile archive --filter 'core/phase2120/...sh'`
 - shell wrapper:
