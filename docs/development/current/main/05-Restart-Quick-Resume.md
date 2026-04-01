@@ -35,7 +35,11 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 ## 今日の再開点（active lane）
 
-- Restart handoff: commit `6d56898ea`, worktree clean, `RawMap.clear` landed, next is `RawMap.remove/delete`.
+- Restart handoff: commit `6d56898ea`, worktree clean, `RawMap.clear` landed, next is `RawMap.remove/delete` and boundary-shrink planning.
+- LLVM lane split:
+  - `llvmlite` = compat/probe keep lane
+  - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
+  - if the next job is mainline work, it should be filed under `ny-llvm`, not under `llvmlite`
 
 - Active next: `policy-refresh`
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`

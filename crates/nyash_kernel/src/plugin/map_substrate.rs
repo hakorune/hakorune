@@ -1,8 +1,8 @@
 use super::map_compat::map_debug_enabled;
 use super::map_runtime_facade::{
-    map_runtime_cap, map_runtime_clear, map_runtime_entry_count, map_runtime_load_any,
-    map_runtime_load_i64, map_runtime_probe_any, map_runtime_probe_i64, map_runtime_store_any,
-    map_runtime_store_i64_any,
+    map_runtime_cap, map_runtime_clear, map_runtime_delete_any, map_runtime_entry_count,
+    map_runtime_load_any, map_runtime_load_i64, map_runtime_probe_any, map_runtime_probe_i64,
+    map_runtime_store_any, map_runtime_store_i64_any,
 };
 
 pub(super) fn map_entry_count_raw(handle: i64) -> i64 {
@@ -40,6 +40,11 @@ pub extern "C" fn nyash_map_cap_h(handle: i64) -> i64 {
 #[export_name = "nyash.map.clear_h"]
 pub extern "C" fn nyash_map_clear_h(handle: i64) -> i64 {
     map_runtime_clear(handle)
+}
+
+#[export_name = "nyash.map.delete_hh"]
+pub extern "C" fn nyash_map_delete_hh_alias(handle: i64, key_any: i64) -> i64 {
+    map_runtime_delete_any(handle, key_any)
 }
 
 // Mainline substrate aliases used by collection-owner cutover and adapter defaults.

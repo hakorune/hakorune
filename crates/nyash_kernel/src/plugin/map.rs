@@ -125,4 +125,21 @@ mod tests {
         assert_eq!(nyash_runtime_data_has_hh(handle, key), 0);
         assert_eq!(nyash_map_clear_h(0), 0);
     }
+
+    #[test]
+    fn delete_raw_alias_keeps_contract() {
+        let handle = new_map_handle();
+        let key = string_handle("delete-key");
+        let value = string_handle("delete-value");
+
+        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key, value), 1);
+        assert_eq!(nyash_map_entry_count_i64(handle), 1);
+        assert_eq!(nyash_map_delete_hh_alias(handle, key), 1);
+        assert_eq!(nyash_map_entry_count_i64(handle), 0);
+        assert_eq!(nyash_map_probe_hh_alias(handle, key), 0);
+        assert_eq!(nyash_map_slot_load_hh_alias(handle, key), 0);
+        assert_eq!(nyash_runtime_data_has_hh(handle, key), 0);
+        assert_eq!(nyash_map_delete_hh_alias(handle, key), 0);
+        assert_eq!(nyash_map_delete_hh_alias(0, key), 0);
+    }
 }

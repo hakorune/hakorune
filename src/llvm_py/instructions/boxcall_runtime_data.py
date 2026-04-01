@@ -137,6 +137,17 @@ def try_lower_collection_boxcall(
             callee = declare(module, "nyash.map.clear_h", i64, [i64])
             return builder.call(callee, [recv_h], name="map_clear_h")
 
+    if method_name == "delete":
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "MapBox" or receiver_is_mapish(resolver, box_vid):
+            if not args:
+                return ir.Constant(i64, 0)
+            key = resolve_arg(args[0]) if len(args) > 0 else ir.Constant(i64, 0)
+            if key is None:
+                key = ir.Constant(i64, 0)
+            callee = declare(module, "nyash.map.delete_hh", i64, [i64, i64])
+            return builder.call(callee, [recv_h, key], name="map_delete_hh")
+
     return None
 
 

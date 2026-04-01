@@ -30,6 +30,20 @@ pub(super) fn map_runtime_clear(handle: i64) -> i64 {
     0
 }
 
+pub(super) fn map_runtime_delete_any(handle: i64, key_any: i64) -> i64 {
+    clear_map_lookup_cache();
+    let key_str = map_key_string_from_any(key_any);
+    with_map_box(handle, |map| {
+        let removed = map.get_data().write().unwrap().remove(&key_str);
+        if removed.is_some() {
+            1
+        } else {
+            0
+        }
+    })
+    .unwrap_or(0)
+}
+
 // Probe/load/store substrate facade.
 pub(super) fn map_runtime_probe_i64(handle: i64, key_i64: i64) -> i64 {
     map_probe_contains_i64(handle, key_i64)

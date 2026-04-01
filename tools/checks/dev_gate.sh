@@ -38,6 +38,7 @@ list_profiles() {
     - tools/checks/k2_core_rawarray_acceptance_guard.sh
     - tools/checks/k2_wide_rawmap_first_slice_guard.sh
     - tools/checks/k2_wide_rawmap_clear_guard.sh
+    - tools/checks/k2_wide_rawmap_delete_guard.sh
     - tools/checks/k2_wide_atomic_first_row_guard.sh
     - tools/checks/k2_wide_tls_first_row_guard.sh
     - tools/checks/k2_wide_gc_first_row_guard.sh
@@ -199,6 +200,9 @@ run_quick() {
 
   run_step "K2-wide RawMap clear guard" \
     bash tools/checks/k2_wide_rawmap_clear_guard.sh
+
+  run_step "K2-wide RawMap delete guard" \
+    bash tools/checks/k2_wide_rawmap_delete_guard.sh
 
   run_step "K2-wide Atomic first-row guard" \
     bash tools/checks/k2_wide_atomic_first_row_guard.sh

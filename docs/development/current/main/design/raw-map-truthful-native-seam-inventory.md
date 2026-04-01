@@ -82,7 +82,8 @@ These are truthful at the native helper level. `clear` now has a dedicated raw e
 - `MapBox.delete(...)`
   - truthful delete exists
   - current interface still mixes key normalization and visible `"Key not found"` / deleted-value behavior
-  - do not promote as raw substrate without a dedicated raw helper
+  - dedicated raw helper exists for the any-key narrow row: `nyash.map.delete_hh`
+  - keep visible owner contract separate from the raw helper
 - `MapBox.keys()` / `MapBox.values()`
   - truthful visible helpers
   - not a good `RawMap` substrate face in the current ladder
@@ -123,7 +124,7 @@ Reason:
 If `RawMap` widens again before `GC/TLS/atomic`, the next truthful candidate is:
 
 1. `remove/delete`
-   - only after a dedicated raw delete helper exists
+   - narrow raw helper is now live as `nyash.map.delete_hh`
    - keep visible `"missing/deleted"` message contract out of the substrate row
 
 ## Non-Goals

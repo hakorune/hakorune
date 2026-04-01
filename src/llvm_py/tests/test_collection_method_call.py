@@ -190,6 +190,24 @@ class TestCollectionMethodCall(unittest.TestCase):
         self.assertIn("nyash.map.clear_h", ir_text)
         self.assertNotIn("nyash.map.entry_count_h", ir_text)
 
+    def test_mapbox_delete_uses_delete_hh(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            box_name="MapBox",
+            method_name="delete",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.delete_hh", ir_text)
+        self.assertNotIn("nyash.runtime_data.delete_hh", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -36,6 +36,10 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Restart handoff: commit `6d56898ea`, worktree clean, `RawMap.clear` is landed, next slice is `RawMap.remove/delete`.
 - Active lane: `policy-refresh`
+- LLVM lane split:
+  - `llvmlite` = stage0 / compat / probe keep lane
+  - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
+  - `llvmlite` work stops at keep/probe parity; mainline follow-up work belongs to `ny-llvm`
 - Current read:
   - `K0 = all-Rust hakorune`
   - `K1 = .hako kernel migration stage`
@@ -68,6 +72,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   - keep `RuntimeDataBox` facade-only
   - keep `K2-wide` widening on capability modules, not ad hoc native escape hatches
   - keep `hako_alloc` closed until a concrete backend-private consumer appears
+- LLVM task rule:
+  - keep `llvmlite` as compat/probe only
+  - queue `ny-llvm` follow-up slices separately, by bucket
+  - do not mix `llvmlite` keep work into `ny-llvm` mainline implementation notes
 
 ## Canonical Owners
 

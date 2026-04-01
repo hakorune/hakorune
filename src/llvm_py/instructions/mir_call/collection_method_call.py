@@ -112,6 +112,15 @@ def _lower_map_collection_method_call(
         callee = declare("nyash.map.clear_h", i64, [i64])
         return builder.call(callee, [recv_h], name="unified_map_clear_h")
 
+    if method_name == "delete":
+        if str(box_name or "") != "MapBox":
+            return None
+        if len(arg_ids) < 1:
+            return zero
+        key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
+        callee = declare("nyash.map.delete_hh", i64, [i64, i64])
+        return builder.call(callee, [recv_h, key], name="unified_map_delete_hh")
+
     if method_name == "get":
         key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
         if not arg_ids:

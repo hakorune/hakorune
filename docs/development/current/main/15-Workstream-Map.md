@@ -33,6 +33,10 @@ Related:
      - `K2-core` is closed
      - `K2-wide` is now the next structural lane
      - current `K2-wide` focus is RawMap remove/delete / boundary-shrink planning
+     - LLVM lane split:
+       - `llvmlite` is compat/probe keep only
+       - `ny-llvm` / `ny-llvmc` is the daily mainline AOT lane
+       - route / ABI follow-up tasks should be bucketed under `ny-llvm`, not mixed into `llvmlite`
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -61,6 +65,9 @@ Related:
   - `K2-wide` follow-up
   - `zero-rust` default operationalization
   - artifact contract sync for `K0/K1` binaries vs `K2` bundle reading
+- Active LLVM tasks:
+  - `llvmlite` keep/probe parity and explicit opt-in replay only
+  - `ny-llvm` collection / allocator-handle / dynamic-fallback buckets
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
