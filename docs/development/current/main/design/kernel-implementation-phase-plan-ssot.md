@@ -135,11 +135,20 @@ Acceptance lock:
 Smoke / evidence gate:
 - `runtime_data_invalid_handle_returns_zero`
 - `runtime_data_array_round_trip_keeps_rawarray_contract`
+- `runtime_data_array_has_keeps_runtime_facade_fail_safe_contract`
+- `runtime_data_array_non_i64_keys_keep_fail_safe_fallback_contract`
+- `runtime_data_scalar_handle_keeps_facade_only_contract`
 - `legacy_set_h_returns_zero_but_applies_value`
 - `hi_hii_aliases_keep_fail_safe_contract`
 - `slot_load_store_raw_aliases_keep_contract`
 - `slot_append_raw_alias_keeps_contract`
-- treat those as the existing `nyash_kernel` RawArray contract evidence for `K2-core acceptance lock`.
+- `slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity`
+- lowering/manifest drift pack:
+  - `test_runtime_data_dispatch_policy`
+  - `test_collection_method_call`
+  - `test_boxcall_collection_policy`
+  - `test_rawarray_manifest_lock`
+- treat those as the explicit `K2-core` acceptance pack.
 
 Stop line:
 - `RawArray` has explicit contract baseline under `hako.abi / hako.value_repr / ownership-layout / fail-fast verifier`.
@@ -186,10 +195,18 @@ The phase plan is considered "done-enough to return to perf-kilo" when:
 5. daily proof locks remain green:
   - `runtime_data_invalid_handle_returns_zero`
   - `runtime_data_array_round_trip_keeps_rawarray_contract`
+  - `runtime_data_array_has_keeps_runtime_facade_fail_safe_contract`
+  - `runtime_data_array_non_i64_keys_keep_fail_safe_fallback_contract`
+  - `runtime_data_scalar_handle_keeps_facade_only_contract`
   - `legacy_set_h_returns_zero_but_applies_value`
   - `hi_hii_aliases_keep_fail_safe_contract`
   - `slot_load_store_raw_aliases_keep_contract`
   - `slot_append_raw_alias_keeps_contract`
+  - `slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity`
+  - `test_runtime_data_dispatch_policy`
+  - `test_collection_method_call`
+  - `test_boxcall_collection_policy`
+  - `test_rawarray_manifest_lock`
   - `runtime_data_map_get_keeps_mixed_runtime_i64_contract` stays evidence-only for the parked map lane
 6. regression/perf evidence stays recorded against the current Rust baseline:
   - `tools/perf/bench_micro_c_vs_aot_stat.sh kilo_micro_array_getset 1 3`

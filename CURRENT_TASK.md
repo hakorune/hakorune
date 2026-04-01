@@ -30,13 +30,23 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - current stage progression reads as `K0 -> K1 -> K2`, while `K2-core` / `K2-wide` are task packs inside `K2`.
 - `Rune` is landed as the canonical primitive control plane and is no longer the active blocker lane.
 - next structural step is `K2-core acceptance lock` for `RawArray`, while `RuntimeDataBox` stays facade-only.
-- `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests:
+- `K2-core` acceptance pack is:
+  - Rust/kernel RawArray acceptance tests:
   - `runtime_data_invalid_handle_returns_zero`
   - `runtime_data_array_round_trip_keeps_rawarray_contract`
+  - `runtime_data_array_has_keeps_runtime_facade_fail_safe_contract`
+  - `runtime_data_array_non_i64_keys_keep_fail_safe_fallback_contract`
+  - `runtime_data_scalar_handle_keeps_facade_only_contract`
   - `legacy_set_h_returns_zero_but_applies_value`
   - `hi_hii_aliases_keep_fail_safe_contract`
   - `slot_load_store_raw_aliases_keep_contract`
   - `slot_append_raw_alias_keeps_contract`
+  - `slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity`
+  - lowering/manifest drift pack:
+    - `test_runtime_data_dispatch_policy`
+    - `test_collection_method_call`
+    - `test_boxcall_collection_policy`
+    - `test_rawarray_manifest_lock`
 - perf and historical evidence below are appendix material only; they do not change the order above.
 
 ## Immediate Handoff (2026-03-31)

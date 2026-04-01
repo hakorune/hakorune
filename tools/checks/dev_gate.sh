@@ -184,6 +184,9 @@ run_quick() {
   run_step "llvm_py unittest (rawarray manifest lock)" \
     env PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_rawarray_manifest_lock.py
 
+  run_step "K2-core RawArray acceptance guard" \
+    bash tools/checks/k2_core_rawarray_acceptance_guard.sh
+
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
       bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
