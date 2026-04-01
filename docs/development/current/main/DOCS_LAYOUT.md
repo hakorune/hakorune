@@ -9,6 +9,30 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - “Phase 文書が増えても” SSOT が埋もれないようにする。
 - 大規模移動はしない（リンク切れ回避）。以後の追加分から秩序を作る。
 
+## Current Ownership Contract
+
+- `CURRENT_TASK.md`
+  - root restart anchor
+  - current order / current next / canonical owner links only
+- `10-Now.md`
+  - docs-side thin mirror/dashboard
+  - summary + links only
+- `15-Workstream-Map.md`
+  - one-screen operational work-order mirror
+- `05-Restart-Quick-Resume.md`
+  - fastest reboot path only
+- `design/kernel-implementation-phase-plan-ssot.md`
+  - canonical rough task-order SSOT
+- `design/kernel-replacement-axis-ssot.md`
+  - `K-axis` / artifact / task-placement vocabulary owner
+- `main/phases/**`
+  - execution detail / blocker history / narrow ledgers
+
+Rule:
+
+- do not let `CURRENT_TASK.md` or `10-Now.md` regrow into landed-history ledgers.
+- if a block already has a better owner, replace it with a short summary plus a link.
+
 ## ディレクトリの役割（推奨）
 
 ### `docs/development/current/main/`（入口・現状）
@@ -93,4 +117,5 @@ Moved to: docs/development/current/main/phases/phase-131/131-03-llvm-lowering-in
 - 設計図（SSOT）は `main/design/` に寄せる（Phase の完了サマリと混ぜない）。
 - `10-Now.md` は「現状の要約＋正本リンク」に徹し、詳細ログの本文は抱え込まない。
 - `CURRENT_TASK.md` は root anchor なので、重要な blocker / current priority はまずそこへ置く。
+- `15-Workstream-Map.md` は rough order の one-screen mirror に徹し、phase detail は抱え込まない。
 - `phase-29cc` の詳細進捗は `docs/development/current/main/phases/phase-29cc/README.md` を正本に集約し、`CURRENT_TASK.md` / `10-Now.md` は要約のみを保持する。

@@ -5,6 +5,28 @@
 - 原則: “Phaseの作業ログ/完了報告” は `../phases/` に置く。
 - 原則: “不具合調査ログ” は `../investigations/` に置く。
 
+## Read First Now
+
+- current restart anchor: `CURRENT_TASK.md`
+- one-screen work order: `docs/development/current/main/15-Workstream-Map.md`
+- canonical rough task order: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
+- current axis / artifact / task placement: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+- current `K2-wide` technical detail:
+  - `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
+  - `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
+  - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
+
+## Current Kernel Replacement Docs
+
+- `kernel-implementation-phase-plan-ssot.md`
+- `kernel-replacement-axis-ssot.md`
+- `execution-lanes-and-axis-separation-ssot.md`
+- `stage2-selfhost-and-hako-alloc-ssot.md`
+- `stage2-hako-owner-vs-inc-thin-shim-ssot.md`
+- `final-metal-split-ssot.md`
+
+## Full Design Inventory
+
 ## 現役の設計図（入口）
 
 - JoinIR の地図（navigation SSOT）: `docs/development/current/main/design/joinir-design-map.md`

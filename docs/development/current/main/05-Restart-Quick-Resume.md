@@ -41,25 +41,14 @@ bash tools/selfhost/run_lane_a_daily.sh
 - `K2-core` / `K2-wide` are task packs inside `K2`
 - exact next:
   1. `CURRENT_TASK.md`
-  2. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
-  3. `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
-  4. `docs/development/current/main/design/optimization-hints-contracts-intrinsic-ssot.md`
-  5. `docs/development/current/main/15-Workstream-Map.md`
-  6. `docs/development/current/main/10-Now.md`
+  2. `docs/development/current/main/15-Workstream-Map.md`
+  3. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
+  4. active slice SSOT
 - immediate action:
-  - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md` first
-  - fix `stage / docs / naming` order before reopening deeper implementation lanes
-  - read the `K-axis` stage progression as `K0 -> K1 -> K2`; treat `K2-core` as the first task pack inside `K2`
-  - treat `Rune` as landed keep (`@rune` canonical surface, legacy aliases compat keep), not as the current blocker lane
-  - keep `K2-core` as the accepted stop-line and read it as an explicit acceptance pack:
-    - Rust/kernel RawArray acceptance tests
-    - lowering/manifest drift pack
-    - full list stays in `CURRENT_TASK.md` and `design/kernel-implementation-phase-plan-ssot.md`
-  - the next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening
-  - keep the capability/native split explicit because Linux / Windows (`WSL`/`cmd.exe`) / macOS portability still requires final OS VM / TLS / atomic / GC leaf glue in native keep
-  - keep migration task notes in `CURRENT_TASK.md`, `15-Workstream-Map.md`, `design/kernel-implementation-phase-plan-ssot.md`, and phase docs; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
-  - keep `K1 done-enough` fixed before widening into `K2-wide`
-  - keep `RawMap` deferred in `K2-wide`; treat map perf as regression/evidence until a new exact blocker says otherwise
+  - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
+  - keep `K2-core` closed and move only on the current `K2-wide` slice
+  - keep portability split explicit: `.hako` capability facade, native keep leaf glue
+  - keep migration task notes in root/docs/phase owners; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
 
 ## 保守レーン（必要時のみ）
 
