@@ -30,6 +30,7 @@ Related:
   - docs/development/current/main/phases/phase-29x/29x-93-optimization-parity-fixtures-lock-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-94-optimization-gate-integration-rollback-lock-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-95-optional-gc-lane-bootstrap-ssot.md
+  - docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md
   - docs/development/current/main/design/hako-module-cache-build-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
@@ -38,7 +39,47 @@ Related:
 
 # Phase 29x — Task Board (Detailed)
 
-## 0. Task table
+## 0. Current task tables
+
+This section is the current docs-first cleanup queue. Historical X-series tasks remain below as landed ledger/history.
+
+| Wave | Status | Goal | Owner doc |
+| --- | --- | --- | --- |
+| `W1 docs-first path-truth pass` | active | lock target buckets, names, and move order | `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W2 mixed-file split pass` | next | split owner-looking mixed files before behavior changes | `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W3 smoke/proof filesystem recut` | pending | move live proof and archive evidence into semantic homes | `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W4 Hako-side caller drain prep` | blocked-on-proof | exact root-first replacement proof for direct `.hako` callers | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after caller inventory reaches zero | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
+
+## 0.1 Current micro-task queue
+
+| ID | Wave | Status | Task | Acceptance |
+| --- | --- | --- | --- | --- |
+| `99A` | W1 | landed | `phase2044` semantic bucket docs/manifest lock | llvmlite trio is the final live keep bucket |
+| `99B` | W1 | landed | `phase2120` keep/historical docs + suite split lock | pure keep and pure historical are canonical |
+| `99C` | W1 | landed | compat selfhost stack wording lock | `payload -> transport wrapper -> pack orchestrator` is fixed |
+| `99D` | W1 | landed | direct caller vs wrapper inventory lock | `29x-98` separates direct callers from wrappers |
+| `99E` | W1 | active | split-target inventory lock | target split homes are fixed for mixed owner/compat surfaces |
+| `99F` | W1 | active | file-move / shim order lock | docs say move-first, shim-second, delete-last |
+| `99E1` | W1 | active | lock `extern_provider.hako` split target | runtime owner and compat codegen stub are separated on paper |
+| `99E2` | W1 | active | lock `llvm_codegen.rs` split target | thin tool boundary and legacy MIR front door are separated on paper |
+| `99E3` | W1 | active | lock `LlvmBackendBox` split target | owner API and evidence adapter are separated on paper |
+| `99E4` | W1 | active | lock compat proof-box homes | `CodegenBridgeBox` / `LLVMEmitBox` leave owner-looking paths on paper |
+| `99F1` | W1 | active | move payload / wrapper paths first | compat payload and wrapper homes move before behavior changes |
+| `99F2` | W1 | active | move proof boxes with re-export only | old paths keep thin shims only if required |
+| `99F3` | W1 | active | keep behavior stable until references update | discovery / runner imports stay green before delete |
+| `99F4` | W1 | active | delete old entrypoints last | only after caller inventory and archive evidence are explicit |
+| `99G` | W2 | pending | split `extern_provider.hako` | runtime owner and compat codegen shim no longer share one file |
+| `99H` | W2 | pending | split `llvm_codegen.rs` | thin tool boundary and legacy MIR front door no longer share one file |
+| `99I` | W2 | pending | split `LlvmBackendBox` | owner API and evidence adapter no longer share one file |
+| `99J` | W2 | pending | move `CodegenBridgeBox` / `LLVMEmitBox` | compat/proof surfaces leave owner-looking paths |
+| `99K` | W3 | pending | recut `phase2044` physically | semantic proof buckets get separate homes |
+| `99L` | W3 | pending | recut `phase2120` physically | semantic proof/history buckets get separate homes |
+| `99M` | W3 | pending | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
+| `99N-99P` | W4 | blocked-on-proof | exact root-first replacement proof and Hako-side caller drain prep | direct `.hako` callers can leave `CodegenBridgeBox.emit_object_args(...)` |
+| `99Q-99S` | W5 | pending-after-W4 | Rust compat receiver collapse | receiver spread is reduced to one chokepoint |
+| `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |
 
 | ID | Lane | Task | Est. | Depends | Acceptance |
 | --- | --- | --- | --- | --- | --- |

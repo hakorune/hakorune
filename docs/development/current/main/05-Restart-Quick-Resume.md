@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-03-31
+Date: 2026-04-02
 Scope: 再起動直後に 2〜5 分で開発再開するための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 proof-only caller keep/evidence split / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
+- Exact focus: `29x-99 docs-first structure recut wave planning (29x-98 stop-line unchanged)`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -55,22 +55,26 @@ bash tools/selfhost/run_lane_a_daily.sh
   4. `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
   5. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
   6. `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
+  7. `docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md`
 - cleanup bands:
 
   | Band | State |
   | --- | --- |
   | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack |
-  | Next | exact root-first replacement proof |
+  | Next | `W1 docs-first path-truth pass` (`99E` / `99F`) |
   | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket; the other `phase2044` groups stay bucket-runner only. `phase2111` / `phase251` archive proofs share one replay-evidence suite; `phase2120` pure canaries now split by suites, with `phase2120-pure-keep` for the live pair and `phase2120-pure-historical` for archive-backed replay evidence; the selfhost compat stack is now read as `payload -> transport wrapper -> pack orchestrator`, and the root-first proof candidate inventory is pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof.
 - direct live callers are fixed at 5 surfaces; `run_compat_pure_selfhost.sh` and `run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
-- no low-blast caller reduction is visible now; hold the stop-line until an exact root-first replacement proof exists.
+- `29x-98` still owns delete-readiness and stop-line; `29x-99` now owns docs-first beauty-first cleanup waves.
+- active micro tasks are `99E split-target inventory lock` and `99F file-move / shim order lock`.
+- active micro-task detail is `99E1`-`99E4` and `99F1`-`99F4`.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front
   - keep `phase2044` on the new bucket runners; do not treat the whole directory as one llvmlite lane
   - keep `LLVMEmitBox` fixed as compat/proof keep, treat `CodegenBridgeBox` as archive-later producer only, and continue caller-by-caller sequencing with the remaining selfhost wrapper and llvmlite proof surfaces after the `phase251` quarantine
+  - use `29x-99` for macro wave / micro-task planning before any file move
   - keep portability split explicit: `.hako` capability facade, native keep leaf glue
   - keep migration task notes in root/docs/phase owners; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
 

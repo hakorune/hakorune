@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-04-01
+Date: 2026-04-02
 Scope: investigate delete readiness for the remaining explicit legacy/compat callers rooted at `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`, including the compiled-stage1 surrogate caller.
 Related:
   - CURRENT_TASK.md
@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29x/README.md
   - docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md
+  - docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md
   - docs/development/current/main/design/backend-owner-cutover-ssot.md
 ---
 
@@ -20,6 +21,12 @@ Related:
 - no new daily caller may be added to `emit_object_from_mir_json(...)`.
 - investigation is caller-by-caller; do not reopen compare bridge daily ownership.
 - the helper stays archive-later while any explicit legacy/compat caller remains.
+
+## Relationship To 29x-99
+
+- `29x-98` owns stop-line and delete-readiness.
+- `29x-99` owns beauty-first path / namespace / filesystem recut planning.
+- `29x-99` does not authorize helper deletion early; it only raises task granularity and move order clarity.
 
 ## Keep
 

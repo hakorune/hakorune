@@ -1,7 +1,7 @@
 ---
 Status: Active
 Decision: provisional
-Date: 2026-04-01
+Date: 2026-04-02
 Scope: de-Rust runtime integration lane の active front page。failure-driven selfhost lane と structure-first runtime cutover lane を分離しつつ統合運用する。
 Related:
   - docs/development/current/main/design/backend-owner-cutover-ssot.md
@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md
+  - docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
 ---
@@ -28,6 +29,7 @@ Related:
 - current active front is `backend owner cutover prep`
 - canonical seam stays MIR
 - do not open `AST -> LLVM` direct lowering in this wave
+- docs-first beauty-first cleanup planning is allowed while `29x-98` stop-line stays unchanged
 - fixed order is:
   1. `backend-owner-cutover-ssot.md`
   2. `runtime-decl-manifest-v0.toml`
@@ -92,6 +94,8 @@ Current operational truth:
   - `29x-97-compare-bridge-retirement-prep-ssot.md`
 - legacy route retirement investigation:
   - `29x-98-legacy-route-retirement-investigation-ssot.md`
+- structure recut wave plan:
+  - `29x-99-structure-recut-wave-plan-ssot.md`
 - cache extension sequence:
   - `29x-67` through `29x-72`
 - runtime handoff sequence:
@@ -120,7 +124,9 @@ Current operational truth:
 2. keep compare bridge explicit and archive-only
 3. keep legacy owner inventory/demotion in `29x-96`
 4. keep temp-path / compare-bridge retirement prep in `29x-97`
-5. reopen deeper runtime core work only after the current narrow owner-cutover front is closed
+5. keep `29x-98` as the stop-line owner for delete-readiness
+6. use `29x-99` for macro cleanup waves and micro-task sequencing
+7. reopen deeper runtime core work only after the current narrow owner-cutover front is closed
 
 ## Acceptance Summary
 
@@ -139,6 +145,7 @@ Current operational truth:
 5. `29x-96-backend-owner-legacy-ledger-ssot.md`
 6. `29x-97-compare-bridge-retirement-prep-ssot.md`
 7. `29x-98-legacy-route-retirement-investigation-ssot.md`
+8. `29x-99-structure-recut-wave-plan-ssot.md`
 
 ## Detail Owners
 

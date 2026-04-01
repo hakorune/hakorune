@@ -1,13 +1,14 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-28
+Date: 2026-04-02
 Scope: `MIR -> backend owner` の切り直しを structure-first で進めるための正本。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/phases/phase-29x/README.md
   - docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md
+  - docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/design/de-rust-stage-and-owner-axis-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
@@ -33,6 +34,12 @@ Related:
 3. current wave では distinct `AOT-Core MIR` layer を追加しない。
 4. current wave では public ABI も public MIR JSON schema も増やさない。
 5. compat `lang/src/llvm_ir/**` は daily owner に戻さない。
+
+## Path Truth Rule
+
+- physical path and module names should read as `owner / compat / proof / archive`, not as historical phase residue.
+- docs-first recut sequencing lives in `phase-29x/29x-99-structure-recut-wave-plan-ssot.md`.
+- move/rename/shim is preferred before helper deletion if both reach the same end-state.
 
 ## End-State Shape
 
