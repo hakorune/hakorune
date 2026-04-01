@@ -2,6 +2,9 @@ use std::ffi::{CStr, CString};
 use std::path::{Path, PathBuf};
 
 use super::defaults;
+use super::normalize;
+use super::transport_io;
+use super::transport_paths;
 use super::Opts;
 
 #[cfg(feature = "plugins")]
@@ -21,13 +24,6 @@ fn resolve_ffi_library_path() -> Result<PathBuf, String> {
 fn load_ffi_library() -> Result<libloading::Library, String> {
     let lib_path = resolve_ffi_library_path()?;
     unsafe { libloading::Library::new(lib_path).map_err(|e| format!("dlopen failed: {}", e)) }
-}
-
-fn ensure_artifact_written(artifact: &Path, kind: &str) -> Result<(), String> {
-    if artifact.exists() {
-        return Ok(());
-    }
-    Err(format!("{} not produced", kind))
 }
 
 #[cfg(feature = "plugins")]
@@ -129,9 +125,31 @@ pub(super) fn compile_via_capi(
             }
             return Err(msg);
         }
-        ensure_artifact_written(obj_out, "object")?;
+        transport_io::ensure_backend_artifact_written(obj_out, "object")?;
         Ok(())
     }
+}
+
+pub(super) fn compile_via_capi_keep(
+    mir_json: &str,
+    compile_symbol: &[u8],
+    compile_recipe: Option<&str>,
+    compat_replay: Option<&str>,
+    opts: &Opts,
+) -> Result<PathBuf, String> {
+    normalize::validate_backend_mir_shape(mir_json)?;
+    let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
+    let out_path = transport_paths::resolve_backend_object_output(opts);
+    transport_io::ensure_backend_output_parent(&out_path);
+    compile_via_capi(
+        &in_path,
+        &out_path,
+        compile_symbol,
+        compile_recipe,
+        compat_replay,
+        opts,
+    )?;
+    Ok(out_path)
 }
 
 #[cfg(not(feature = "plugins"))]
@@ -198,7 +216,7 @@ pub(super) fn link_via_capi(
             }
             return Err(msg);
         }
-        ensure_artifact_written(exe_out, "exe")?;
+        transport_io::ensure_backend_artifact_written(exe_out, "exe")?;
         Ok(())
     }
 }

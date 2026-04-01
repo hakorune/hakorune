@@ -32,3 +32,10 @@ pub(super) fn ensure_backend_output_parent(out_path: &Path) {
         let _ = fs::create_dir_all(parent);
     }
 }
+
+pub(super) fn ensure_backend_artifact_written(path: &Path, kind: &str) -> Result<(), String> {
+    if path.exists() {
+        return Ok(());
+    }
+    Err(format!("{} not produced", kind))
+}

@@ -1,12 +1,10 @@
 use std::path::PathBuf;
 
-use super::capi_transport::compile_via_capi;
+use super::capi_transport::compile_via_capi_keep;
 use super::defaults::COMPILE_SYMBOL_DEFAULT;
 use super::ll_emit_compare_driver::mir_json_to_object_hako_ll_compare;
 use super::normalize::validate_backend_mir_shape;
 use super::provider_keep::{mir_json_to_object_llvmlite, mir_json_to_object_ny_llvmc};
-use super::transport_io::{ensure_backend_output_parent, prepare_backend_input_json_file};
-use super::transport_paths::resolve_backend_object_output;
 use super::Opts;
 
 const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
@@ -40,44 +38,6 @@ fn llvm_route_trace_enabled() -> bool {
         std::env::var("NYASH_LLVM_ROUTE_TRACE").ok().as_deref(),
         Some("1" | "on" | "true" | "yes")
     )
-}
-
-pub(super) fn resolve_ny_llvmc() -> PathBuf {
-    if let Some(s) = crate::config::env::ny_llvm_compiler_path() {
-        return PathBuf::from(s);
-    }
-    if let Ok(p) = which::which("ny-llvmc") {
-        return p;
-    }
-    PathBuf::from("target/release/ny-llvmc")
-}
-
-pub(super) fn resolve_python3() -> Option<PathBuf> {
-    if let Ok(p) = which::which("python3") {
-        return Some(p);
-    }
-    if let Ok(p) = which::which("python") {
-        return Some(p);
-    }
-    None
-}
-
-pub(super) fn resolve_llvmlite_harness() -> Option<PathBuf> {
-    if let Some(root) = crate::config::env::nyash_root() {
-        let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
-        if p.exists() {
-            return Some(p);
-        }
-    }
-    let p = PathBuf::from("tools/llvmlite_harness.py");
-    if p.exists() {
-        return Some(p);
-    }
-    let p2 = PathBuf::from("../tools/llvmlite_harness.py");
-    if p2.exists() {
-        return Some(p2);
-    }
-    None
 }
 
 fn required_hako_ll_context_field(
@@ -189,22 +149,17 @@ pub(super) fn try_compile_via_capi_keep(
 }
 
 fn compile_via_capi_keep_internal(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
-    validate_backend_mir_shape(mir_json)?;
-    let in_path = prepare_backend_input_json_file(mir_json)?;
-    let out_path = resolve_backend_object_output(opts);
-    ensure_backend_output_parent(&out_path);
     let compile_recipe = opts.compile_recipe.clone();
     let compat_replay = opts.compat_replay.clone();
     let compile_symbol = compile_symbol_for_keep_recipe(compile_recipe.as_deref());
-    match compile_via_capi(
-        &in_path,
-        &out_path,
+    match compile_via_capi_keep(
+        mir_json,
         compile_symbol,
         compile_recipe.as_deref(),
         compat_replay.as_deref(),
         opts,
     ) {
-        Ok(()) => Ok(out_path),
+        Ok(out_path) => Ok(out_path),
         Err(e) => Err(e),
     }
 }

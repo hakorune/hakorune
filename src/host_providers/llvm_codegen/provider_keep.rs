@@ -1,8 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Command;
 
 use super::normalize;
-use super::route::{resolve_llvmlite_harness, resolve_ny_llvmc, resolve_python3};
 use super::transport_io;
 use super::transport_paths;
 use super::Opts;
@@ -15,13 +14,42 @@ fn prepare_provider_io(mir_json: &str, opts: &Opts) -> Result<(PathBuf, PathBuf)
     Ok((in_path, out_path))
 }
 
-fn ensure_object_output_exists(out_path: &Path) -> Result<PathBuf, String> {
-    if !out_path.exists() {
-        let tag = format!("[llvmemit/output/missing] {}", out_path.display());
-        llvm_emit_error!("{}", tag);
-        return Err(tag);
+fn resolve_ny_llvmc() -> PathBuf {
+    if let Some(s) = crate::config::env::ny_llvm_compiler_path() {
+        return PathBuf::from(s);
     }
-    Ok(out_path.to_path_buf())
+    if let Ok(p) = which::which("ny-llvmc") {
+        return p;
+    }
+    PathBuf::from("target/release/ny-llvmc")
+}
+
+fn resolve_python3() -> Option<PathBuf> {
+    if let Ok(p) = which::which("python3") {
+        return Some(p);
+    }
+    if let Ok(p) = which::which("python") {
+        return Some(p);
+    }
+    None
+}
+
+fn resolve_llvmlite_harness() -> Option<PathBuf> {
+    if let Some(root) = crate::config::env::nyash_root() {
+        let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
+        if p.exists() {
+            return Some(p);
+        }
+    }
+    let p = PathBuf::from("tools/llvmlite_harness.py");
+    if p.exists() {
+        return Some(p);
+    }
+    let p2 = PathBuf::from("../tools/llvmlite_harness.py");
+    if p2.exists() {
+        return Some(p2);
+    }
+    None
 }
 
 pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
@@ -57,7 +85,8 @@ pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result
         llvm_emit_error!("{}", tag);
         return Err(tag);
     }
-    ensure_object_output_exists(&out_path)
+    transport_io::ensure_backend_artifact_written(&out_path, "object")?;
+    Ok(out_path)
 }
 
 pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
@@ -87,5 +116,6 @@ pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result
         llvm_emit_error!("{}", tag);
         return Err(tag);
     }
-    ensure_object_output_exists(&out_path)
+    transport_io::ensure_backend_artifact_written(&out_path, "object")?;
+    Ok(out_path)
 }
