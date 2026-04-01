@@ -120,7 +120,7 @@ bash tools/selfhost/run_compat_pure_pack.sh
 ```
 
 - `run_compat_pure_selfhost.sh` is the canonical compat wrapper and still exercises the legacy `CodegenBridgeBox` example route.
-- `run_compat_pure_pack.sh` is the historical compat pack entry that shells into `phase2120` and then the wrapper above.
+- `run_compat_pure_pack.sh` is the historical compat pure-pack entry that shells into `phase2120/run_pure_capi_canaries.sh` and then the wrapper above.
 - old alias `run_all.sh` is retired; keep the compat pack entry singular.
 - The root-first replacement proof is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`.
 - That proof runs on `--backend vm-hako`, so it is not a drop-in replacement for the compat wrapper yet.
