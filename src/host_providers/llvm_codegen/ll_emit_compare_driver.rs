@@ -1,7 +1,7 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use super::ll_emit_compare_source;
-use super::ll_emit_compare_vm;
 use super::ll_tool_driver;
 use super::normalize;
 use super::transport_io;
@@ -25,6 +25,23 @@ fn resolve_hakorune_bin() -> PathBuf {
         return hakorune;
     }
     PathBuf::from("target/release/nyash")
+}
+
+fn run_driver_via_vm(hakorune: &Path, source_path: &Path) -> Result<String, String> {
+    let output = Command::new(hakorune)
+        .arg("--backend")
+        .arg("vm")
+        .arg(source_path)
+        .output()
+        .map_err(|e| format!("[llvmemit/hako-ll/vm-spawn-failed] {}", e))?;
+    if !output.status.success() {
+        return Err(format!(
+            "[llvmemit/hako-ll/vm-failed] stdout=`{}` stderr=`{}`",
+            String::from_utf8_lossy(&output.stdout).trim(),
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).to_string())
 }
 
 fn extract_ll(stdout: &str) -> Result<String, String> {
@@ -90,7 +107,7 @@ pub(super) fn mir_json_to_object_hako_ll_compare(
     let source_path = transport_paths::build_backend_compare_source_path(&out_path, COMPARE_TAG);
     transport_io::write_backend_text_file(&source_path, &source)?;
     let result = (|| -> Result<PathBuf, String> {
-        let stdout = ll_emit_compare_vm::run_driver_via_vm(&hakorune, &source_path)?;
+        let stdout = run_driver_via_vm(&hakorune, &source_path)?;
         let contract_line = extract_contract_line(&stdout, COMPARE_TAG)?;
         let ll_text = extract_ll(&stdout)?;
         println!("{}", contract_line);

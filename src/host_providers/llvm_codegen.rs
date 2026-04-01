@@ -31,7 +31,6 @@ mod capi_transport;
 mod defaults;
 mod ll_emit_compare_driver;
 mod ll_emit_compare_source;
-mod ll_emit_compare_vm;
 mod ll_tool_driver;
 mod normalize;
 mod provider_keep;

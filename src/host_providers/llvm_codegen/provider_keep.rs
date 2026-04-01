@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use super::normalize;
@@ -7,18 +7,31 @@ use super::transport_io;
 use super::transport_paths;
 use super::Opts;
 
-pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
+fn prepare_provider_io(mir_json: &str, opts: &Opts) -> Result<(PathBuf, PathBuf), String> {
     normalize::validate_backend_mir_shape(mir_json)?;
+    let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
+    let out_path = transport_paths::resolve_backend_object_output(opts);
+    transport_io::ensure_backend_output_parent(&out_path);
+    Ok((in_path, out_path))
+}
+
+fn ensure_object_output_exists(out_path: &Path) -> Result<PathBuf, String> {
+    if !out_path.exists() {
+        let tag = format!("[llvmemit/output/missing] {}", out_path.display());
+        llvm_emit_error!("{}", tag);
+        return Err(tag);
+    }
+    Ok(out_path.to_path_buf())
+}
+
+pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
+    let (in_path, out_path) = prepare_provider_io(mir_json, opts)?;
     let ny_llvmc = resolve_ny_llvmc();
     if !ny_llvmc.exists() {
         let tag = format!("[llvmemit/ny-llvmc/not-found] path={}", ny_llvmc.display());
         llvm_emit_error!("{}", tag);
         return Err(tag);
     }
-
-    let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
-    let out_path = transport_paths::resolve_backend_object_output(opts);
-    transport_io::ensure_backend_output_parent(&out_path);
 
     let mut cmd = Command::new(&ny_llvmc);
     cmd.arg("--in")
@@ -44,16 +57,11 @@ pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result
         llvm_emit_error!("{}", tag);
         return Err(tag);
     }
-    if !out_path.exists() {
-        let tag = format!("[llvmemit/output/missing] {}", out_path.display());
-        llvm_emit_error!("{}", tag);
-        return Err(tag);
-    }
-    Ok(out_path)
+    ensure_object_output_exists(&out_path)
 }
 
 pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
-    normalize::validate_backend_mir_shape(mir_json)?;
+    let (in_path, out_path) = prepare_provider_io(mir_json, opts)?;
     let py = resolve_python3().ok_or_else(|| {
         let tag = String::from("[llvmemit/llvmlite/python-not-found]");
         llvm_emit_error!("{}", tag);
@@ -64,10 +72,6 @@ pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result
         llvm_emit_error!("{}", tag);
         tag
     })?;
-
-    let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
-    let out_path = transport_paths::resolve_backend_object_output(opts);
-    transport_io::ensure_backend_output_parent(&out_path);
 
     let status = Command::new(&py)
         .arg(&harness)
@@ -83,10 +87,5 @@ pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result
         llvm_emit_error!("{}", tag);
         return Err(tag);
     }
-    if !out_path.exists() {
-        let tag = format!("[llvmemit/output/missing] {}", out_path.display());
-        llvm_emit_error!("{}", tag);
-        return Err(tag);
-    }
-    Ok(out_path)
+    ensure_object_output_exists(&out_path)
 }

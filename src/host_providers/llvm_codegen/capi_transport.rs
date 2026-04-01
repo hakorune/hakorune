@@ -23,6 +23,13 @@ fn load_ffi_library() -> Result<libloading::Library, String> {
     unsafe { libloading::Library::new(lib_path).map_err(|e| format!("dlopen failed: {}", e)) }
 }
 
+fn ensure_artifact_written(artifact: &Path, kind: &str) -> Result<(), String> {
+    if artifact.exists() {
+        return Ok(());
+    }
+    Err(format!("{} not produced", kind))
+}
+
 #[cfg(feature = "plugins")]
 pub(super) fn compile_via_capi(
     json_in: &Path,
@@ -122,9 +129,7 @@ pub(super) fn compile_via_capi(
             }
             return Err(msg);
         }
-        if !obj_out.exists() {
-            return Err("object not produced".into());
-        }
+        ensure_artifact_written(obj_out, "object")?;
         Ok(())
     }
 }
@@ -193,9 +198,7 @@ pub(super) fn link_via_capi(
             }
             return Err(msg);
         }
-        if !exe_out.exists() {
-            return Err("exe not produced".into());
-        }
+        ensure_artifact_written(exe_out, "exe")?;
         Ok(())
     }
 }
