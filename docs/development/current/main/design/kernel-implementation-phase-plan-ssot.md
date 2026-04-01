@@ -180,6 +180,8 @@ Stop line:
 - current helper-shaped capability-row pack is `hako.tls` via `TlsCoreBox.last_error_text_h()`
 - current capability-row pack is `hako.gc` via `GcCoreBox.write_barrier_i64(handle_or_ptr)`
 - next capability-row pack is `hako.osvm` via `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
+- next policy/state row pack after `hako.osvm` is `hako_alloc` handle reuse policy
+- second policy/state row after that is `hako_alloc` GC trigger threshold policy
 
 ### 5. Regression / perf pack
 

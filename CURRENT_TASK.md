@@ -136,6 +136,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - current helper-shaped capability row is `hako.tls` truthful `last_error_text_h()`
   - current capability row is `hako.gc` truthful `write_barrier_i64(handle_or_ptr)`
   - next capability row is `hako.osvm` truthful `reserve_bytes_i64(len_bytes)`
+  - next policy/state row after `hako.osvm` is `hako_alloc` truthful `handle reuse policy`
+  - second policy/state row after that is `GC trigger threshold policy`
   - broader capability widening と metal review は narrow slices のあとに進める
   - first-slice acceptance pack is:
     - Rust/kernel RawMap acceptance tests

@@ -36,6 +36,13 @@ Related:
 
 ## First Concrete Policy Rows
 
+Implementation order is fixed narrowly:
+
+1. handle reuse policy
+2. GC trigger threshold policy
+
+Do not merge these two rows into one broad allocator wave.
+
 ### Handle policy
 
 - policy owner:
@@ -85,12 +92,20 @@ These remain docs/root-reserved only in this wave.
 
 ## Acceptance
 
+First-row acceptance (`handle reuse policy`):
+
 - `cargo test host_handle_alloc_policy_invalid_value_panics -- --nocapture`
 - `cargo test host_reverse_call_map_slots -- --nocapture`
 - `cargo test -p nyash_kernel cache_invalidates_on_drop_epoch_when_handle_is_reused -- --nocapture`
 - `cargo test -p nyash_kernel invalid_handle_short_circuits_all_routes -- --nocapture`
 - `cargo test -p nyash_kernel string_indexof_hh_cached_pair_route_roundtrip -- --nocapture`
+
+Second-row acceptance (`GC trigger threshold policy`):
+
 - `cargo test gc_trigger_policy_ -- --nocapture`
+
+Umbrella gate:
+
 - `bash tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
 - `bash tools/checks/dev_gate.sh quick`
 
