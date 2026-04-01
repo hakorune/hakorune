@@ -2,7 +2,7 @@ Status: Completed (Blocked by Phase 255)
 Scope: Phase 254 (`--profile quick` 回帰: JoinIR 未対応 loop パターン（StringUtils.index_of/2）)
 Related:
 - docs/development/current/main/10-Now.md
-- docs/development/current/main/phases/phase-253/README.md
+- docs/development/current/main/phases/archive/phase-253/README.md
 - docs/development/current/main/phases/phase-255/README.md (次フェーズ: multi-param loop wiring)
 
 # Phase 254: `StringUtils.index_of/2` の loop shape を JoinIR で受理する

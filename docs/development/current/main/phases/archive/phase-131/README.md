@@ -4,7 +4,7 @@ Status: DONE
 Scope: loop(true) break-once Normalized（StepTree → Normalized shadow pipeline）
 Related:
 - Entry: `docs/development/current/main/10-Now.md`
-- Phase 130 (if-only post_k): `docs/development/current/main/phases/phase-130/README.md`
+- Phase 130 (if-only post_k): `docs/development/current/main/phases/archive/phase-130/README.md`
 - ControlTree SSOT: `docs/development/current/main/design/control-tree.md`
 
 ## Goal

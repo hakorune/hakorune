@@ -214,16 +214,16 @@ Pattern9 (AccumConstLoop) を Plan/Frag SSOT に移行完了。PHI 2本（loop_v
   - `if/loop` はここ、条件の中身は ConditionLowererBox に委譲
 
 - Phase 139: if-only `post_k` の return lowering を `ReturnValueLowererBox` に統一（DONE）
-  - `docs/development/current/main/phases/phase-139/README.md`
+  - `docs/development/current/main/phases/archive/phase-139/README.md`
 - Phase 140: `NormalizedExprLowererBox` 初版（pure expression のみ）（DONE）
   - SSOT: `docs/development/current/main/design/normalized-expr-lowering.md`
-  - `docs/development/current/main/phases/phase-140/README.md`
+  - `docs/development/current/main/phases/archive/phase-140/README.md`
 - Phase 141 P0: impure 拡張点（contract）を SSOT 化（Call/MethodCall はまだ out-of-scope）（DONE）
-  - `docs/development/current/main/phases/phase-141/README.md`
+  - `docs/development/current/main/phases/archive/phase-141/README.md`
 - Phase 141 P1: “既知 intrinsic だけ” を許可して段階投入（DONE）
-  - `docs/development/current/main/phases/phase-141/README.md`
+  - `docs/development/current/main/phases/archive/phase-141/README.md`
 - Phase 141 P1.5: known intrinsic registry + available_inputs 3-source merge + diagnostics（DONE）
-  - `docs/development/current/main/phases/phase-141/README.md`
+  - `docs/development/current/main/phases/archive/phase-141/README.md`
 - Phase 142-loopstmt P0: 正規化単位を statement（loop 1個）へ寄せる（DONE）
   - `docs/development/current/main/phases/phase-142-loopstmt/README.md`
 - Phase 142-loopstmt P1: LLVM EXE smoke（同 fixture）を追加（DONE）

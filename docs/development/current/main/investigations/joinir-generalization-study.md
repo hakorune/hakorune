@@ -4,7 +4,7 @@ Related:
 - SSOT (roadmap): `docs/development/current/main/10-Now.md`
 - SSOT (decisions): `docs/development/current/main/20-Decisions.md`
 - SSOT (design): `docs/development/current/main/design/normalized-expr-lowering.md`
-- phases: `docs/development/current/main/phases/phase-139/README.md`, `docs/development/current/main/phases/phase-140/README.md`
+- phases: `docs/development/current/main/phases/archive/phase-139/README.md`, `docs/development/current/main/phases/archive/phase-140/README.md`
 
 # Hakorune JoinIR 設計 - ChatGPT Pro 用コンテキスト
 

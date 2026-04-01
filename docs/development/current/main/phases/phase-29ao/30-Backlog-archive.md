@@ -80,7 +80,7 @@ Related:
 - **Phase 284（✅ COMPLETE）: Return as ExitKind SSOT（patternに散らさない）**
   - 目的: `return` を “pattern最適化の個別実装” にせず、`ExitKind` と `compose::*` / `emit_frag()` に収束させる
   - ねらい: 移行期間中の「二重ルール」「検出の穴」を減らし、将来の pattern 増殖を防ぐ
-  - 入口: `docs/development/current/main/phases/phase-284/README.md`
+  - 入口: `docs/development/current/main/phases/archive/phase-284/README.md`
   - P0（docs-only）: `docs/development/current/main/phases/phase-284/P0-INSTRUCTIONS.md`
   - SSOT:
     - Composition: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
@@ -377,7 +377,7 @@ Related:
     - unit tests + `cargo test -p nyash-rust --lib` PASS
   - **P1（延期）**:
     - "層を跨がない実適用"は候補が抽象化層へ委譲済みのため、Phase 268 で体系的に適用する方針
-  - **詳細**: `docs/development/current/main/phases/phase-267/README.md`
+  - **詳細**: `docs/development/current/main/phases/archive/phase-267/README.md`
 
 - **（✅ 完了）Phase 268: if_form.rs への Frag 適用 + entry edge-args SSOT化**
   - **目的**: EdgeCFG Fragment を層を跨がずに実戦投入し、compose::if_() の edge-args を SSOT 化

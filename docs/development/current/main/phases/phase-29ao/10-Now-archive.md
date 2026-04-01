@@ -802,7 +802,7 @@ Next: Phase 29ao P37（TBD）
 
 ### 2025-12-23
 
-- Phase 283（bugfix）: JoinIR if-condition remap fix: `docs/development/current/main/phases/phase-283/README.md`
+- Phase 283（bugfix）: JoinIR if-condition remap fix: `docs/development/current/main/phases/archive/phase-283/README.md`
 - Phase 282（Router shrinkage + extraction-based migration + extractor refactor P0–P9a）: `docs/development/current/main/phases/phase-282/README.md`
 - Phase 280（Frag composition SSOT positioning）: `docs/development/current/main/phases/phase-280/README.md`
 - Phase 281（Pattern6/7 compose adoption, P0–P3）: `docs/development/current/main/phases/phase-281/README.md`
@@ -984,7 +984,7 @@ Next: Phase 29ao P37（TBD）
 - ✅ `cargo test -p nyash-rust --lib` PASS
 
 **注意（P1）**: NormalizedShadow/JoinIR への実適用は層ミスマッチがあるため Phase 268 に繰り越し
-**詳細**: `docs/development/current/main/phases/phase-267/README.md`
+**詳細**: `docs/development/current/main/phases/archive/phase-267/README.md`
 
 ## 2025-12-21：Phase 268 P1（compose::if_ entry edge-args SSOT化）✅
 
@@ -1251,7 +1251,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-21：Phase 259 P0（Pattern8 BoolPredicateScan）✅
 
-- Phase 259 README: `docs/development/current/main/phases/phase-259/README.md`
+- Phase 259 README: `docs/development/current/main/phases/archive/phase-259/README.md`
 - Result: `StringUtils.is_integer/1` を Pattern8（新規）で受理
 - Fixtures:
   - `apps/tests/phase259_p0_is_integer_min.hako`（expected exit 7）
@@ -1303,7 +1303,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-19：Phase 252 P0/P1（Pattern2 break 条件: `this.methodcall`）✅
 
-- Phase 252 README: `docs/development/current/main/phases/phase-252/README.md`
+- Phase 252 README: `docs/development/current/main/phases/archive/phase-252/README.md`
 - Status:
   - `cargo check` は通過（0 errors）
   - `--profile quick` は次の FAIL が残る → Phase 253（`[joinir/mutable-acc-spec]`）
@@ -1350,7 +1350,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-20：Phase 259（is_integer nested-if + loop）🔜
 
-- Phase 259 README: `docs/development/current/main/phases/phase-259/README.md`
+- Phase 259 README: `docs/development/current/main/phases/archive/phase-259/README.md`
 
 ## 2025-12-19：Phase 254（index_of loop pattern）✅ 完了（Blocked by Phase 255）
 
@@ -1370,7 +1370,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 
 ## 2025-12-19：Phase 253（mutable-acc-spec）✅
 
-- Phase 253 README: `docs/development/current/main/phases/phase-253/README.md`
+- Phase 253 README: `docs/development/current/main/phases/archive/phase-253/README.md`
 - Goal: `--profile quick` を緑に戻す（対処療法なし、analyzer 契約の整理で直す）
 
 ## 2025-12-19：Phase 145-anf P0/P1/P2 完了 ✅
@@ -1523,7 +1523,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Smoke tests:
   - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase141_p1_if_only_post_k_return_length_vm.sh`
   - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase141_p1_if_only_post_k_return_length_llvm_exe.sh`
-- 入口: `docs/development/current/main/phases/phase-141/README.md`
+- 入口: `docs/development/current/main/phases/archive/phase-141/README.md`
 
 ## 2025-12-19：Phase 141 P0 完了 ✅
 
@@ -1533,7 +1533,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
   - `src/mir/control_tree/normalized_shadow/common/expr_lowering_contract.rs`
   - `src/mir/control_tree/normalized_shadow/common/expr_lowerer_box.rs`
 - 仕様: Call/MethodCall は引き続き `Ok(None)`（既定挙動不変）
-- 入口: `docs/development/current/main/phases/phase-141/README.md`
+- 入口: `docs/development/current/main/phases/archive/phase-141/README.md`
 
 ## 2025-12-19：Phase 140 完了 ✅
 
@@ -1545,7 +1545,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - 仕様:
   - pure のみ（Variable / Integer&Bool literal / unary(not,-) / arith(+,-,*,/) / compare(==,!=,<,<=,>,>=)）
   - Call/MethodCall など impure は `Ok(None)`（Phase 141+）
-- 入口: `docs/development/current/main/phases/phase-140/README.md`
+- 入口: `docs/development/current/main/phases/archive/phase-140/README.md`
 
 ## 2025-12-19：Phase 139 完了 ✅
 
@@ -1559,7 +1559,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - Smoke tests:
   - VM: `tools/smokes/v2/profiles/integration/apps/archive/phase139_if_only_post_k_return_add_vm.sh`
   - LLVM EXE: `tools/smokes/v2/profiles/integration/apps/archive/phase139_if_only_post_k_return_add_llvm_exe.sh`
-- 入口: `docs/development/current/main/phases/phase-139/README.md`
+- 入口: `docs/development/current/main/phases/archive/phase-139/README.md`
 
 ## 2025-12-18：Phase 138 完了 ✅
 
@@ -1711,7 +1711,7 @@ Phase 263（Pattern2 LoopBodyLocal “seg”）が片付いたら、Pattern2 の
 - LLVM EXE smoke: `phase130_if_only_post_if_add_llvm_exe.sh`（LLVM 前提が無い環境では SKIP）
 - Regression: Phase 129/128 維持確認（全 PASS）
 - Unit tests: 1155/1155 PASS
-- 入口: `docs/development/current/main/phases/phase-130/README.md`
+- 入口: `docs/development/current/main/phases/archive/phase-130/README.md`
 
 ## 2025-12-18：Phase 129-C 完了 ✅
 

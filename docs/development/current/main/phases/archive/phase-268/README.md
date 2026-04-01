@@ -126,7 +126,7 @@ set_branch_with_edge_args() / set_jump_with_edge_args() (Phase 260 SSOT)
 - **設計図**: `docs/development/current/main/design/edgecfg-fragments.md`
 - **現在のタスク**: `docs/development/current/main/10-Now.md`
 - **バックログ**: `docs/development/current/main/30-Backlog.md`
-- **Phase 267**: `docs/development/current/main/phases/phase-267/README.md`
+- **Phase 267**: `docs/development/current/main/phases/archive/phase-267/README.md`
 
 ## 受け入れ基準（全達成）
 

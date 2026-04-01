@@ -572,7 +572,7 @@ Phase 267: Scan/Split/Predicate routes への展開
   - ✅ BasicBlockId 層で unit test により PoC 証明
   - ❌ NormalizedShadow/JoinIR への実適用は Phase 268 に繰り越し（層境界維持）
 
-詳細: `docs/development/current/main/phases/phase-267/README.md`
+詳細: `docs/development/current/main/phases/archive/phase-267/README.md`
 
 ## Phase 268（完了）: if_form.rs への Frag 適用 + compose::if_ Entry Edge-args SSOT化
 

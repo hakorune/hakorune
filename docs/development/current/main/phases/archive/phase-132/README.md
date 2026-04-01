@@ -25,7 +25,7 @@ All previous Phase 132 work is complete and documented in commit history.
 Related:
 - Entry: `docs/development/current/main/10-Now.md`
 - Phase 131 (loop baseline): `docs/development/current/main/phases/phase-131/README.md`
-- Phase 130 (post_k pattern): `docs/development/current/main/phases/phase-130/README.md`
+- Phase 130 (post_k pattern): `docs/development/current/main/phases/archive/phase-130/README.md`
 - ControlTree SSOT: `docs/development/current/main/design/control-tree.md`
 
 ### Goal

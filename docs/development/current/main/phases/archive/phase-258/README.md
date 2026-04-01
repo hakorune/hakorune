@@ -3,7 +3,7 @@ Scope: `StringUtils.index_of_string/2`（dynamic window scan）を JoinIR で受
 Related:
 - Now: `docs/development/current/main/10-Now.md`
 - Phase 257: `docs/development/current/main/phases/phase-257/README.md`
-- Phase 259 (Next): `docs/development/current/main/phases/phase-259/README.md`
+- Phase 259 (Next): `docs/development/current/main/phases/archive/phase-259/README.md`
 - Design goal: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 
 # Phase 258: `StringUtils.index_of_string/2` (dynamic window scan)

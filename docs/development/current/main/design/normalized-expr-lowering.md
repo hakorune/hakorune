@@ -5,8 +5,8 @@ Scope: Normalized shadow での expression lowering（pure のみ）を、パタ
 Related:
 - `docs/development/current/main/30-Backlog.md`
 - `docs/development/current/main/phases/phase-138/README.md`
-- `docs/development/current/main/phases/phase-140/README.md`
-- `docs/development/current/main/phases/phase-141/README.md`
+- `docs/development/current/main/phases/archive/phase-140/README.md`
+- `docs/development/current/main/phases/archive/phase-141/README.md`
 - `src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs`
 - `src/mir/control_tree/normalized_shadow/common/expr_lowerer_box.rs`
 - `src/mir/control_tree/normalized_shadow/common/expr_lowering_contract.rs`
