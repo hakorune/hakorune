@@ -166,6 +166,17 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 
 - the three `phase2044` llvmlite canaries are live through integration-profile discovery (`tools/smokes/v2/run.sh --profile integration --filter 'phase2044/...$' --dry-run --skip-preflight`), not through a dedicated suite manifest.
 
+## Phase2044 Directory Semantics
+
+- `tools/smokes/v2/profiles/integration/core/phase2044/` is currently a mixed directory.
+- only these three files belong to the llvmlite monitor-only keep surface:
+  - `codegen_provider_llvmlite_canary_vm.sh`
+  - `codegen_provider_llvmlite_compare_branch_canary_vm.sh`
+  - `codegen_provider_llvmlite_const42_canary_vm.sh`
+- the `hako_primary_no_fallback_*` scripts are a separate core-exec proof bucket.
+- the `mirbuilder_provider_*` scripts are a separate mirbuilder-provider proof bucket.
+- near-term cleanup should fix directory semantics in docs first, then split paths only if `phase2044/...` discovery filters can be updated safely.
+
 ## Compat Pack Archive Conditions
 
 - `tools/selfhost/run_compat_pure_pack.sh` is the only remaining historical compat-pack wrapper entry.
@@ -192,16 +203,18 @@ Ranked from lowest blast radius to higher dependency risk:
 
 1. `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
    - keep now as integration discovery-live monitor-only proofs
-   - archive-later once legacy helper callers reach zero and llvmlite evidence is no longer needed
+   - first isolate them as a distinct `phase2044` bucket in docs; archive-later once legacy helper callers reach zero and llvmlite evidence is no longer needed
 2. `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
    - keep now as compat/proof only
    - archive-later after the provider-first proof surface is archived or moved to root-first
 3. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
    - correct producer to retire later
    - blocked until the remaining proof/compat callers drain
-4. `lang/src/vm/hakorune-vm/extern_provider.hako`
+4. `tools/selfhost/run_compat_pure_selfhost.sh` and `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
+   - archive-later compat wrapper proof; document and sequence before touching producer deletion
+5. `lang/src/vm/hakorune-vm/extern_provider.hako`
    - blocked on a root-first selfhost lowering proof
-5. Rust dispatch residues under `src/backend/mir_interpreter/handlers/extern_provider/*` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+6. Rust dispatch residues under `src/backend/mir_interpreter/handlers/extern_provider/*` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
    - blocked until upstream `.hako` callers stop generating `env.codegen.emit_object`
 
 ## Phase2111 Replacement Closure
@@ -257,7 +270,7 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 2. keep `CodegenBridgeBox.emit_object_args(...)` fixed as an archive-later producer; do not treat it as a daily route.
 3. confirm proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers remain proof-only and not daily dependencies.
 4. record archive conditions for the remaining proof/compat caller surfaces before touching `CodegenBridgeBox` or Rust dispatch residues.
-   - `phase2111` explicit emit/link pair is archived and `phase251` legacy lowering pair is quarantined; the next sequencing target is the selfhost wrapper plus the remaining `phase2044` llvmlite canaries.
+   - `phase2111` explicit emit/link pair is archived and `phase251` legacy lowering pair is quarantined; the next sequencing target is `phase2044` directory semantics plus the selfhost wrapper archive conditions.
 5. keep the legacy helper archive-later until the caller set reaches zero.
 6. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
 7. when the caller set reaches zero, delete `emit_object_from_mir_json(...)`, then collapse the Rust dispatch residues and phase docs.
