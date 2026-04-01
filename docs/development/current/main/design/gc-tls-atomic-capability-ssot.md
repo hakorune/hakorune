@@ -96,6 +96,10 @@ current implementation order is seam-first:
   - vm-hako subset accepts `externcall(hako_barrier_touch_i64/1)`
   - vm-hako subset accepts `boxcall(AtomicCoreBox.fence_i64)`
   - substrate/vm route lock keeps `AtomicCoreBox.fence_i64()` on `hako_barrier_touch_i64`
+- first-row acceptance for `hako.tls` is:
+  - vm-hako subset accepts `externcall(hako_last_error/1)`
+  - vm-hako subset accepts `boxcall(TlsCoreBox.last_error_text_h)`
+  - substrate/vm route lock keeps `TlsCoreBox.last_error_text_h()` on `hako_last_error -> nyash.box.from_i8_string`
 - `hako.osvm` remains part of the same capability family even when its first truthful rows are still docs-first / narrow
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
 - `hako_kernel` / `hako_substrate` と競合する owner noun にしない

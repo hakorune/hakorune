@@ -190,6 +190,9 @@ run_quick() {
   run_step "K2-wide Atomic first-row guard" \
     bash tools/checks/k2_wide_atomic_first_row_guard.sh
 
+  run_step "K2-wide TLS first-row guard" \
+    bash tools/checks/k2_wide_tls_first_row_guard.sh
+
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
       bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh

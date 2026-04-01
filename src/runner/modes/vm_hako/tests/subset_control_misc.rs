@@ -487,6 +487,37 @@ fn subset_accepts_externcall_hako_last_error() {
 }
 
 #[test]
+fn subset_accepts_boxcall_tlscore_last_error_text_h() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "TlsCoreBox"
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "last_error_text_h",
+                        "box": 1,
+                        "dst": 2,
+                        "args": []
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_externcall_hako_barrier_touch_i64() {
     let mir_json = json!({
         "functions": [{
