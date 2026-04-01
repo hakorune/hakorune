@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # ny_mir_builder.sh — Minimal MIR Builder CLI (shell wrapper)
-# Purpose: consume Nyash JSON IR and emit {obj|exe|ll|json} via the ny-llvmc crate backend by default.
+# Purpose: consume Nyash JSON IR and emit {obj|exe|ll|json} via the ny-llvmc mainline backend by default.
 # Notes:
-# - daily route is crate -> ny-llvmc(boundary)
-# - llvmlite harness remains internal compat/debug keep only; choose it explicitly with NYASH_LLVM_BACKEND=llvmlite when debugging.
-# - native is an explicit replay/canary lane only; choose it explicitly with NYASH_LLVM_BACKEND=native.
+# - daily route is ny-llvmc(boundary) and remains the default entrypoint for object/exe emission.
+# - llvmlite harness remains explicit compat/debug keep only; choose it with NYASH_LLVM_BACKEND=llvmlite when debugging.
+# - native remains an explicit replay/canary lane only; choose it with NYASH_LLVM_BACKEND=native.
 
 set -euo pipefail
 [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]] && set -x
@@ -14,7 +14,7 @@ usage() {
 Usage: tools/ny_mir_builder.sh [--in <file>|--stdin] [--emit {obj|exe|ll|json}] -o <out> [--target <triple>] [--nyrt <path>] [--quiet] [--verify-llvm]
 
 Notes:
-  - This wrapper defaults to the ny-llvmc crate backend.
+  - This wrapper defaults to the ny-llvmc mainline backend.
   - llvmlite remains an explicit compat/debug keep selected with NYASH_LLVM_BACKEND=llvmlite.
   - native remains an explicit replay/canary keep selected with NYASH_LLVM_BACKEND=native.
   - Input must be Nyash JSON IR (v0/v1). When --stdin is used, reads from stdin.
@@ -46,8 +46,8 @@ NYRT_DIR=""
 VERIFY=0
 QUIET=0
 TMP_FILES=()
-# Backend selection: default to 'crate' when ny-llvmc is available.
-# llvmlite and native are explicit lanes selected with NYASH_LLVM_BACKEND.
+# Backend selection: default to the ny-llvmc mainline backend.
+# llvmlite and native are explicit keep lanes selected with NYASH_LLVM_BACKEND.
 if [[ -n "${NYASH_LLVM_BACKEND:-}" ]]; then
   BACKEND="${NYASH_LLVM_BACKEND}"
 else
@@ -104,7 +104,7 @@ if [[ "$SKIP_BUILD" != "1" ]]; then
   else
     timeout "$BUILD_TIMEOUT" cargo build --release -j 24 --features "${LLVM_FEATURE}" >/dev/null
   fi
-  # Prebuild ny-llvmc when using crate backend
+  # Prebuild ny-llvmc when using the mainline backend
   if [[ "$BACKEND" == "crate" ]]; then
     (cd "$(dirname "$0")/.." && timeout "$BUILD_TIMEOUT" cargo build --release -j 24 -p nyash-llvm-compiler >/dev/null) || true
   fi
