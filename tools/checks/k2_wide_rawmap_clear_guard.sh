@@ -40,7 +40,7 @@ rg -F -q 'pub(super) fn map_runtime_clear(handle: i64) -> i64' "$MAP_RUNTIME_FAC
 rg -F -q 'nyash.map.clear_h' "$MAP_SUBSTRATE_FILE"
 rg -F -q 'method_name == "clear"' "$MIR_COLLECTION_FILE"
 rg -F -q 'method_name == "clear"' "$BOXCALL_COLLECTION_FILE"
-rg -F -q 'method in {"get", "push", "set", "has", "clear"}' "$METHOD_CALL_FILE"
+rg -F -q 'method in {"get", "push", "set", "has", "clear", "delete"}' "$METHOD_CALL_FILE"
 rg -F -q 'method in {"get", "push", "set", "has", "clear"}' "$METHOD_CALL_LEGACY_FILE"
 rg -F -q 'method = "clear"' "$MANIFEST_FILE"
 rg -F -q 'symbol = "nyash.map.clear_h"' "$MANIFEST_FILE"
