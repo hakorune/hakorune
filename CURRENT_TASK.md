@@ -73,7 +73,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `zero-rust default operationalization` |
   | Stop line | `K2-wide boundary-shrink lock-down` is landed; `RuntimeDataBox` stays facade-only and delete stays on `MapBox` / `RawMap` |
-  | Next | `artifact contract sync for K0/K1 binaries vs K2 bundle reading` |
+  | Next | `stage2plus entry / first optimization wave` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

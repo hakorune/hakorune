@@ -39,7 +39,7 @@ Related:
      | --- | --- |
      | Now | `zero-rust default operationalization` |
      | Stop line | `K2-wide boundary-shrink lock-down` is landed; `RuntimeDataBox` stays facade-only and delete stays on `MapBox` / `RawMap` |
-     | Next | `artifact contract sync for K0/K1 binaries vs K2 bundle reading` |
+     | Next | `stage2plus entry / first optimization wave` |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -66,7 +66,7 @@ Related:
 - Active big tasks:
   - `stage / docs / naming` fixation
   - `zero-rust` default operationalization
-  - artifact contract sync for `K0/K1` binaries vs `K2` bundle reading
+  - `stage2plus` entry / first optimization wave
 - Active LLVM tasks:
   - `llvmlite` keep/probe parity
   - `ny-llvm` collection / allocator-handle / dynamic-fallback buckets
