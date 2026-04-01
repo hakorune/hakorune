@@ -5,11 +5,12 @@
 
 ## Categories
 
-1. active pure C-API canaries
+1. active pure C-API keep pins
    - `core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh`
    - `core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh`
    - `HAKO_CAPI_PURE=1` 必須
    - historical pure-lowering evidence
+   - no exact root-first replacement exists yet, so these two remain keep
    - caller path is `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; do not depend on the retired direct `hostbridge.extern_invoke("env.codegen", ...)` lane here
    - symbol-changing slices must fail fast on stale `target/release/libnyash_kernel.a` instead of surfacing as opaque link errors
 2. archive-backed pure C-API historical pins

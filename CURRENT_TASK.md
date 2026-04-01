@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
 - Exact focus: `29x-98 compat pack archive conditions / legacy cleanup candidate inventory (CodegenBridgeBox has no daily dependency)`
-  - phase2120 pure canary bucket is now 2 active pins + archive-backed historical pins; `ternary_collect` / `map_set_size` moved to archive replay
+  - phase2120 pure canary bucket is now 2 active keep pins + archive-backed historical pins; `ternary_collect` / `map_set_size` moved to archive replay
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
