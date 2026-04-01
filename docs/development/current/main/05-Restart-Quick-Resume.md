@@ -35,6 +35,8 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 ## 今日の再開点（active lane）
 
+- Restart handoff: commit `6d56898ea`, worktree clean, `RawMap.clear` landed, next is `RawMap.remove/delete`.
+
 - Active next: `policy-refresh`
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
