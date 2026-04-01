@@ -56,3 +56,22 @@ pub(super) fn validate_single_arg_externcall_shape(inst: &Value, label: &str) ->
     }
     Ok(())
 }
+
+pub(super) fn validate_two_arg_externcall_shape(inst: &Value, label: &str) -> Result<(), String> {
+    let args = inst
+        .get("args")
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| format!("externcall({}:malformed)", label))?;
+    if args.len() != 2 {
+        return Err(format!("externcall({}:args!=2)", label));
+    }
+    if args.iter().any(|v| v.as_u64().is_none()) {
+        return Err(format!("externcall({}:args:non-reg)", label));
+    }
+    if let Some(dst) = inst.get("dst") {
+        if !(dst.is_u64() || dst.is_null()) {
+            return Err(format!("externcall({}:dst:non-reg)", label));
+        }
+    }
+    Ok(())
+}

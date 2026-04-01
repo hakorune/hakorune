@@ -24,7 +24,7 @@ rg -F -q 'current live implementation row is `GC trigger threshold policy`' "$AL
 rg -F -q 'There is no third live allocator row yet' "$ALLOC_DOC"
 rg -F -q 'metal keep review as truthful seam inventory + boundary-shrink planning' "$PHASE_PLAN_DOC"
 rg -F -q '`hako.osvm` is the capability facade only; raw OS VM syscall glue remains native keep' "$FINAL_METAL_DOC"
-rg -F -q '`hako.osvm` names the `.hako` capability surface; the reserve-only first row is already landed, and final OS VM syscall glue and platform-specific body stay native keep until a later dedicated retirement wave says otherwise' "$STAGE2_ALLOC_DOC"
+rg -F -q '`hako.osvm` names the `.hako` capability surface; the reserve/commit/decommit rows are already landed, and final OS VM syscall glue and platform-specific body stay native keep until a later dedicated retirement wave says otherwise' "$STAGE2_ALLOC_DOC"
 rg -F -q 'final OS VM syscall glue, TLS/atomic platform glue, and other platform-specific leaf bodies remain native keep' "$AXIS_DOC"
 
 echo "[k2-wide-metal-keep-inventory] ok"

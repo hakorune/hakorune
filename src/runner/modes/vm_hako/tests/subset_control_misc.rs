@@ -644,7 +644,155 @@ fn subset_accepts_boxcall_osvmcore_reserve_bytes_i64() {
 }
 
 #[test]
-fn subset_rejects_boxcall_osvmcore_commit_bytes_i64() {
+fn subset_accepts_boxcall_osvmcore_commit_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "OsVmCoreBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 3,
+                        "value": { "type": "i64", "value": 8192 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "commit_bytes_i64",
+                        "box": 1,
+                        "dst": 4,
+                        "args": [2, 3]
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_externcall_hako_osvm_commit_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 8192 }
+                    },
+                    {
+                        "op": "externcall",
+                        "func": "hako_osvm_commit_bytes_i64/2",
+                        "args": [1, 2],
+                        "dst": 3
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_boxcall_osvmcore_decommit_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "OsVmCoreBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 3,
+                        "value": { "type": "i64", "value": 8192 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "decommit_bytes_i64",
+                        "box": 1,
+                        "dst": 4,
+                        "args": [2, 3]
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_externcall_hako_osvm_decommit_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 8192 }
+                    },
+                    {
+                        "op": "externcall",
+                        "func": "hako_osvm_decommit_bytes_i64/2",
+                        "args": [1, 2],
+                        "dst": 3
+                    }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_rejects_boxcall_osvmcore_page_size_i64() {
     let mir_json = json!({
         "functions": [{
             "name": "main",
@@ -659,7 +807,7 @@ fn subset_rejects_boxcall_osvmcore_commit_bytes_i64() {
                     },
                     {
                         "op": "boxcall",
-                        "method": "commit_bytes_i64",
+                        "method": "page_size_i64",
                         "box": 1,
                         "dst": 2,
                         "args": []
@@ -675,13 +823,13 @@ fn subset_rejects_boxcall_osvmcore_commit_bytes_i64() {
         Err((
             "main".to_string(),
             0,
-            "boxcall(osvm:commit_bytes_i64)".to_string()
+            "boxcall(osvm:page_size_i64)".to_string()
         ))
     );
 }
 
 #[test]
-fn subset_rejects_externcall_hako_osvm_commit_bytes_i64() {
+fn subset_rejects_externcall_hako_osvm_page_size_i64() {
     let mir_json = json!({
         "functions": [{
             "name": "main",
@@ -696,8 +844,8 @@ fn subset_rejects_externcall_hako_osvm_commit_bytes_i64() {
                     },
                     {
                         "op": "externcall",
-                        "func": "hako_osvm_commit_bytes_i64/1",
-                        "args": [1],
+                        "func": "hako_osvm_page_size_i64/0",
+                        "args": [],
                         "dst": 2
                     }
                 ]
@@ -711,7 +859,7 @@ fn subset_rejects_externcall_hako_osvm_commit_bytes_i64() {
         Err((
             "main".to_string(),
             0,
-            "externcall(hako_osvm_commit_bytes_i64/1)".to_string()
+            "externcall(hako_osvm_page_size_i64/0)".to_string()
         ))
     );
 }

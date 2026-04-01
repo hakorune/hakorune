@@ -352,12 +352,40 @@ if ! rg -F -q 'reserve_bytes_i64(len_bytes)' "$OSVM_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] osvm core missing reserve_bytes contract" >&2
   exit 1
 fi
+if ! rg -F -q 'commit_bytes_i64(base, len_bytes)' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing commit_bytes contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'decommit_bytes_i64(base, len_bytes)' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing decommit_bytes contract" >&2
+  exit 1
+fi
 if ! rg -F -q 'externcall "hako_osvm_reserve_bytes_i64"(len_bytes)' "$OSVM_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] osvm core missing hako_osvm_reserve_bytes_i64 route" >&2
   exit 1
 fi
+if ! rg -F -q 'externcall "hako_osvm_commit_bytes_i64"(base, len_bytes)' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing hako_osvm_commit_bytes_i64 route" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_osvm_decommit_bytes_i64"(base, len_bytes)' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing hako_osvm_decommit_bytes_i64 route" >&2
+  exit 1
+fi
 if ! rg -F -q '[vm/adapter/osvm:reserve_bytes_i64]' "$OSVM_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] osvm core missing reserve_bytes trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/osvm:commit_bytes_i64]' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing commit_bytes trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/osvm:decommit_bytes_i64]' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing decommit_bytes trace tag" >&2
+  exit 1
+fi
+if rg -F -q 'page_size_i64' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core unexpectedly exposes page_size" >&2
   exit 1
 fi
 if ! rg -F -q 'entry_count_i64(handle)' "$RAW_MAP_CORE_FILE"; then

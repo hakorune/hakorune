@@ -1,11 +1,13 @@
 # lang/src/runtime/substrate/osvm — OS VM Capability Staging
 
 Responsibilities:
-- Current home for the reserve-only first truthful `hako.osvm` row, which is already landed.
-- Future home for:
+- Current home for the first truthful `hako.osvm` rows, which are already landed.
+- Live rows:
   - page reserve
   - page commit
   - page decommit
+- Future home for:
+  - page_size vocabulary
   - OS VM capability-facing vocabulary
 
 Rules:
@@ -15,10 +17,12 @@ Rules:
 Current live subset:
 - `osvm_core_box.hako`
   - `reserve_bytes_i64(len_bytes)`
-  - already-landed reserve-only row over `hako_osvm_reserve_bytes_i64`
+  - `commit_bytes_i64(base, len_bytes)`
+  - `decommit_bytes_i64(base, len_bytes)`
+  - already-landed rows over `hako_osvm_reserve_bytes_i64` / `hako_osvm_commit_bytes_i64` / `hako_osvm_decommit_bytes_i64`
 
 Non-goals:
-- No `commit/decommit` API in this wave.
+- No `page_size` API in this wave.
 - No allocator policy here.
 - No final OS VM rewrite here.
-- The reserve-only row is the complete current pilot; `commit/decommit/page_size` stay parked.
+- The reserve/commit/decommit rows are the complete current pilot; `page_size` stays parked.

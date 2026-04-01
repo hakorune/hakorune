@@ -38,7 +38,7 @@ Related:
 
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
 - next structural step is `K2-wide`.
-- current `K2-wide` focus is boundary-shrink lock-down; reserve-only `hako.osvm.reserve_bytes_i64` is already landed.
+- current `K2-wide` focus is boundary-shrink lock-down; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.

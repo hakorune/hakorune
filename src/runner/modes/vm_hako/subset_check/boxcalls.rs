@@ -139,6 +139,24 @@ fn validate_boxcall_zero_or_one_reg_shape(
     Ok(())
 }
 
+fn validate_boxcall_two_reg_shape(
+    inst: &Value,
+    args: &[Value],
+    method: &str,
+) -> Result<(), String> {
+    if args.len() != 2 {
+        return Err(format!("boxcall({}:args!=2)", method));
+    }
+    if args.iter().any(|v| v.as_u64().is_none()) {
+        return Err(format!("boxcall({}:args:non-reg)", method));
+    }
+    ensure_u64_fields(
+        inst,
+        &[("dst", "boxcall(missing-dst)"), ("box", "boxcall(missing-box)")],
+    )?;
+    Ok(())
+}
+
 const BOXCALL_INDEXOF_ARGS_TAG: &str = "boxcall(indexOf:args!=1or2)";
 const BOXCALL_INDEXOF_ARG0_NON_REG_TAG: &str = "boxcall(indexOf:arg0:non-reg)";
 const BOXCALL_INDEXOF_ARG1_NON_REG_TAG: &str = "boxcall(indexOf:arg1:non-reg)";
@@ -186,6 +204,9 @@ pub(super) fn validate_boxcall_shape(inst: &Value) -> Result<(), String> {
         "push" => validate_boxcall_push_shape(inst, args),
         "open" => validate_boxcall_open_shape(inst, args),
         "link_exe" => validate_boxcall_link_exe_shape(inst, args),
+        "commit_bytes_i64" | "decommit_bytes_i64" => {
+            validate_boxcall_two_reg_shape(inst, args, method)
+        }
         "set" | "setField" => validate_boxcall_set_shape(inst, args, method),
         "read" | "close" => validate_boxcall_zero_or_one_reg_shape(inst, args, method),
         "length" => validate_boxcall_noarg_shape(inst, args, method),

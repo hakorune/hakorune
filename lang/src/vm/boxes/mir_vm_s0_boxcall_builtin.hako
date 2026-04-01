@@ -272,6 +272,30 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
+    if method == "commit_bytes_i64" {
+      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
+      local base_arg = me._args_first(seg)
+      local len_arg = me._args_second(seg)
+      if base_arg == null || len_arg == null { return "[vm-hako/contract][boxcall-commit_bytes_i64-arg-missing]" }
+      local dst_osvm = me._find_int(seg, "dst")
+      if dst_osvm == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_osvm, "0")
+      kinds.set("" + dst_osvm, "scalar")
+      return "__NEXT__"
+    }
+
+    if method == "decommit_bytes_i64" {
+      if me._args_has_third(seg) { return "[vm-hako/unimplemented op=boxcall args>2]" }
+      local base_arg = me._args_first(seg)
+      local len_arg = me._args_second(seg)
+      if base_arg == null || len_arg == null { return "[vm-hako/contract][boxcall-decommit_bytes_i64-arg-missing]" }
+      local dst_osvm = me._find_int(seg, "dst")
+      if dst_osvm == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_osvm, "0")
+      kinds.set("" + dst_osvm, "scalar")
+      return "__NEXT__"
+    }
+
     if method == "write_barrier_i64" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local barrier_arg = me._args_first(seg)

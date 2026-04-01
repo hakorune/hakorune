@@ -34,7 +34,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Handoff
 
-- Restart handoff: commit `41e114977`, worktree clean, `RawMap.clear`, `RawMap.remove/delete`, and `hako.osvm.reserve_bytes_i64` are landed, next slice is `boundary-shrink lock-down`.
+- Restart handoff: commit `41e114977`, worktree clean, `RawMap.clear`, `RawMap.remove/delete`, and `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are landed, next slice is `boundary-shrink lock-down`.
 - Active lane: `policy-refresh`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -52,7 +52,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `hako.atomic.fence_i64`
   - `hako.tls.last_error_text_h`
   - `hako.gc.write_barrier_i64`
-  - `hako.osvm.reserve_bytes_i64` (reserve-only first live row)
+  - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` (first live osvm rows)
   - `hako_alloc` handle reuse policy
   - `hako_alloc` GC trigger threshold policy
 - Portability rule:

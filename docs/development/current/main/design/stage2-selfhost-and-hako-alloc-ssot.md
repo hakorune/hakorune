@@ -117,8 +117,8 @@ Naming rule:
 
 - do not introduce `hako.sys` as a catch-all layer noun
 - do not use `hako.rt` as a competing kernel-owner noun
-- `file/process/time/net` live under `hako_std`, while page reserve stays under `hako.osvm` and commit/decommit remain parked
-- `hako.osvm` names the `.hako` capability surface; the reserve-only first row is already landed, and final OS VM syscall glue and platform-specific body stay native keep until a later dedicated retirement wave says otherwise
+- `file/process/time/net` live under `hako_std`, while page reserve/commit/decommit stay under `hako.osvm` and `page_size` remains parked
+- `hako.osvm` names the `.hako` capability surface; the reserve/commit/decommit rows are already landed, and final OS VM syscall glue and platform-specific body stay native keep until a later dedicated retirement wave says otherwise
 - do not collapse `hako_substrate` or `hako_std` into a single giant OS facade; keep PAL-like control split by capability family and library family
 
 ### Native keep

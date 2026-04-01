@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 #include <time.h>
 #if defined(_WIN32)
 #include <windows.h>
@@ -31,6 +32,24 @@ int64_t hako_time_now_ms(void);
 
 // ---- Shared diagnostics + memory (libc-backed)
 #include "hako_diag_mem_shared_impl.inc"
+
+static uint64_t hako_osvm_page_size_bytes(void) {
+#if defined(_WIN32)
+  SYSTEM_INFO si;
+  GetSystemInfo(&si);
+  uint64_t page = (uint64_t)si.dwPageSize;
+  return page > 0 ? page : 4096ULL;
+#elif defined(_SC_PAGESIZE)
+  long page_raw = sysconf(_SC_PAGESIZE);
+  return (page_raw > 0) ? (uint64_t)page_raw : 4096ULL;
+#else
+  return 4096ULL;
+#endif
+}
+
+static uint64_t hako_osvm_round_up_bytes(uint64_t size, uint64_t page) {
+  return ((size + page - 1) / page) * page;
+}
 
 // ---- GC read-only externs
 // Returns a newly allocated JSON string with basic counters (dummy values).
@@ -132,11 +151,9 @@ int64_t hako_osvm_reserve_bytes_i64(int64_t len_bytes) {
     return 0;
   }
 #if defined(_WIN32)
-  SYSTEM_INFO si;
-  GetSystemInfo(&si);
-  uint64_t page = (uint64_t)si.dwPageSize;
+  uint64_t page = hako_osvm_page_size_bytes();
   uint64_t size = (uint64_t)len_bytes;
-  uint64_t rounded = ((size + page - 1) / page) * page;
+  uint64_t rounded = hako_osvm_round_up_bytes(size, page);
   void* p = VirtualAlloc(NULL, (SIZE_T)rounded, MEM_RESERVE, PAGE_NOACCESS);
   if (!p) {
     hako_set_last_error("OOM");
@@ -145,10 +162,9 @@ int64_t hako_osvm_reserve_bytes_i64(int64_t len_bytes) {
   hako_set_last_error(NULL);
   return (int64_t)(intptr_t)p;
 #elif defined(MAP_PRIVATE) && defined(MAP_ANONYMOUS)
-  long page_raw = sysconf(_SC_PAGESIZE);
-  uint64_t page = (page_raw > 0) ? (uint64_t)page_raw : 4096ULL;
+  uint64_t page = hako_osvm_page_size_bytes();
   uint64_t size = (uint64_t)len_bytes;
-  uint64_t rounded = ((size + page - 1) / page) * page;
+  uint64_t rounded = hako_osvm_round_up_bytes(size, page);
   void* p = mmap(NULL, (size_t)rounded, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   if (p == MAP_FAILED) {
     hako_set_last_error("OOM");
@@ -159,6 +175,74 @@ int64_t hako_osvm_reserve_bytes_i64(int64_t len_bytes) {
 #else
   hako_set_last_error("UNSUPPORTED");
   return 0;
+#endif
+}
+
+int64_t hako_osvm_commit_bytes_i64(int64_t base, int64_t len_bytes) {
+  if (base <= 0 || len_bytes <= 0) {
+    hako_set_last_error("VALIDATION");
+    return HAKO_VALIDATION;
+  }
+#if defined(_WIN32)
+  uint64_t page = hako_osvm_page_size_bytes();
+  uint64_t size = (uint64_t)len_bytes;
+  uint64_t rounded = hako_osvm_round_up_bytes(size, page);
+  void* p = VirtualAlloc((LPVOID)(intptr_t)base, (SIZE_T)rounded, MEM_COMMIT, PAGE_READWRITE);
+  if (!p) {
+    hako_set_last_error("OOM");
+    return HAKO_OOM;
+  }
+  hako_set_last_error(NULL);
+  return HAKO_OK;
+#elif defined(MAP_PRIVATE) && defined(MAP_ANONYMOUS)
+  uint64_t page = hako_osvm_page_size_bytes();
+  uint64_t size = (uint64_t)len_bytes;
+  uint64_t rounded = hako_osvm_round_up_bytes(size, page);
+  void* ptr = (void*)(intptr_t)base;
+  if (mprotect(ptr, (size_t)rounded, PROT_READ | PROT_WRITE) != 0) {
+    hako_set_last_error(errno == ENOMEM ? "OOM" : "VALIDATION");
+    return errno == ENOMEM ? HAKO_OOM : HAKO_VALIDATION;
+  }
+  hako_set_last_error(NULL);
+  return HAKO_OK;
+#else
+  hako_set_last_error("UNSUPPORTED");
+  return HAKO_UNSUPPORTED;
+#endif
+}
+
+int64_t hako_osvm_decommit_bytes_i64(int64_t base, int64_t len_bytes) {
+  if (base <= 0 || len_bytes <= 0) {
+    hako_set_last_error("VALIDATION");
+    return HAKO_VALIDATION;
+  }
+#if defined(_WIN32)
+  uint64_t page = hako_osvm_page_size_bytes();
+  uint64_t size = (uint64_t)len_bytes;
+  uint64_t rounded = hako_osvm_round_up_bytes(size, page);
+  if (!VirtualFree((LPVOID)(intptr_t)base, (SIZE_T)rounded, MEM_DECOMMIT)) {
+    hako_set_last_error("VALIDATION");
+    return HAKO_VALIDATION;
+  }
+  hako_set_last_error(NULL);
+  return HAKO_OK;
+#elif defined(MAP_PRIVATE) && defined(MAP_ANONYMOUS)
+  uint64_t page = hako_osvm_page_size_bytes();
+  uint64_t size = (uint64_t)len_bytes;
+  uint64_t rounded = hako_osvm_round_up_bytes(size, page);
+  void* ptr = (void*)(intptr_t)base;
+  if (mprotect(ptr, (size_t)rounded, PROT_NONE) != 0) {
+    hako_set_last_error(errno == ENOMEM ? "OOM" : "VALIDATION");
+    return errno == ENOMEM ? HAKO_OOM : HAKO_VALIDATION;
+  }
+#if defined(MADV_DONTNEED)
+  (void)madvise(ptr, (size_t)rounded, MADV_DONTNEED);
+#endif
+  hako_set_last_error(NULL);
+  return HAKO_OK;
+#else
+  hako_set_last_error("UNSUPPORTED");
+  return HAKO_UNSUPPORTED;
 #endif
 }
 

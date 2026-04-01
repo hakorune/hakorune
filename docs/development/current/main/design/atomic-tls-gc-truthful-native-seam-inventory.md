@@ -45,7 +45,13 @@ These have a truthful substrate-facing seam today:
   - already the first `hako.gc` live row
 - `hako_osvm_reserve_bytes_i64`
   - implemented at `lang/c-abi/shims/hako_kernel.c`
-  - already the first reserve-only `hako.osvm` live row
+  - already the first `hako.osvm` live row
+- `hako_osvm_commit_bytes_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - already the second `hako.osvm` live row
+- `hako_osvm_decommit_bytes_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - already the third `hako.osvm` live row
 
 ### B. Truthful native helpers, but not substrate rows yet
 
@@ -76,7 +82,7 @@ These remain parked until a truthful exported/native seam exists:
 - `hako.gc.root_scope`
 - `hako.gc.pin/unpin`
 - `hako.gc.collect/start/stop`
-- broad `hako.osvm.commit/decommit/page_size`
+- broad `hako.osvm.page_size`
 
 ## Implementation Reading
 
@@ -87,7 +93,7 @@ These remain parked until a truthful exported/native seam exists:
   4. `osvm`
 - current implementation order is seam-first:
   1. truthful seam inventory
-  2. first truthful rows (`gc`, helper-shaped `tls` / `atomic`, reserve-only `osvm`)
+  2. first truthful rows (`gc`, helper-shaped `tls` / `atomic`, reserve/commit/decommit `osvm`)
   3. generic `atomic` / `tls` remain parked until truthful seams exist
   4. `hako_alloc` policy/state rows widen beside this inventory, not inside it
 
@@ -98,5 +104,7 @@ These remain parked until a truthful exported/native seam exists:
   - `hako.tls.last_error_text_h`
   - `hako.gc.write_barrier_i64`
   - `hako.osvm.reserve_bytes_i64`
+  - `hako.osvm.commit_bytes_i64`
+  - `hako.osvm.decommit_bytes_i64`
 - generic atomics, final language-level TLS, and broad OS VM vocabulary are not implemented in `.hako` in this wave.
 - no false generic `atomic/tls/osvm` substrate rows are introduced just to satisfy the conceptual order.

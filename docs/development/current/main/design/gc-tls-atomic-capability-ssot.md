@@ -94,6 +94,8 @@ current implementation order is seam-first:
   - `TlsCoreBox.last_error_text_h()`
   - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
   - `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
+  - `OsVmCoreBox.commit_bytes_i64(base, len_bytes)`
+  - `OsVmCoreBox.decommit_bytes_i64(base, len_bytes)`
 - first-row acceptance for `hako.atomic` is:
   - vm-hako subset accepts `externcall(hako_barrier_touch_i64/1)`
   - vm-hako subset accepts `boxcall(AtomicCoreBox.fence_i64)`
@@ -106,13 +108,19 @@ current implementation order is seam-first:
   - vm-hako subset accepts `externcall(nyash.gc.barrier_write/1)`
   - vm-hako subset accepts `boxcall(GcCoreBox.write_barrier_i64)`
   - substrate/vm route lock keeps `GcCoreBox.write_barrier_i64()` on `nyash.gc.barrier_write`
-- first-row landed lock for `hako.osvm` is:
+- first live `hako.osvm` rows are:
   - vm-hako subset accepts `externcall(hako_osvm_reserve_bytes_i64/1)`
+  - vm-hako subset accepts `externcall(hako_osvm_commit_bytes_i64/2)`
+  - vm-hako subset accepts `externcall(hako_osvm_decommit_bytes_i64/2)`
   - vm-hako subset accepts `boxcall(OsVmCoreBox.reserve_bytes_i64)`
+  - vm-hako subset accepts `boxcall(OsVmCoreBox.commit_bytes_i64)`
+  - vm-hako subset accepts `boxcall(OsVmCoreBox.decommit_bytes_i64)`
   - compile v0 emits `mir_call(Extern:hako_osvm_reserve_bytes_i64)`
-  - substrate/vm route lock keeps `OsVmCoreBox.reserve_bytes_i64()` on `hako_osvm_reserve_bytes_i64`
-- this reserve-only row is already landed; `commit/decommit/page_size` stay parked
-- `hako.osvm` remains part of the same capability family even when only its reserve-only first truthful row is live
+  - compile v0 emits `mir_call(Extern:hako_osvm_commit_bytes_i64)`
+  - compile v0 emits `mir_call(Extern:hako_osvm_decommit_bytes_i64)`
+  - substrate/vm route lock keeps `OsVmCoreBox.reserve_bytes_i64()`, `commit_bytes_i64()`, and `decommit_bytes_i64()` on their respective `hako_osvm_*` symbols
+- these rows are already landed; `page_size` stays parked
+- `hako.osvm` remains part of the same capability family even when its reserve/commit/decommit first truthful rows are live
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
 - `hako_kernel` / `hako_substrate` と競合する owner noun にしない
 - allocator/TLS/GC policy-owner widening lives beside this wave under `hako_alloc` policy/state rows; do not merge that owner reading into capability modules

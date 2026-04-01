@@ -1,9 +1,9 @@
 // OsVmCoreBox — first live `hako.osvm` capability facade for phase-29ct.
 // Responsibility:
-// - expose the narrowest truthful OS VM reserve row under `runtime/substrate/`
+// - expose the narrowest truthful OS VM reserve/commit/decommit rows under `runtime/substrate/`
 // - keep direct OS VM symbol knowledge out of future owner/policy boxes
 // Non-responsibility:
-// - commit/decommit vocabulary
+// - page_size vocabulary
 // - allocator policy
 // - final platform VM strategy
 
@@ -15,6 +15,18 @@ static box OsVmCoreBox {
   reserve_bytes_i64(len_bytes) {
     local out = externcall "hako_osvm_reserve_bytes_i64"(len_bytes)
     me._trace("[vm/adapter/osvm:reserve_bytes_i64]")
+    return out
+  }
+
+  commit_bytes_i64(base, len_bytes) {
+    local out = externcall "hako_osvm_commit_bytes_i64"(base, len_bytes)
+    me._trace("[vm/adapter/osvm:commit_bytes_i64]")
+    return out
+  }
+
+  decommit_bytes_i64(base, len_bytes) {
+    local out = externcall "hako_osvm_decommit_bytes_i64"(base, len_bytes)
+    me._trace("[vm/adapter/osvm:decommit_bytes_i64]")
     return out
   }
 }
