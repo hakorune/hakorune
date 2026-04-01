@@ -17,6 +17,7 @@ Related:
   - docs/development/current/main/design/substrate-capability-ladder-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
+  - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - docs/development/current/main/design/stage2-hako-owner-vs-inc-thin-shim-ssot.md
   - lang/README.md
@@ -46,7 +47,7 @@ Related:
 1. `stage0`
    - Rust bootstrap keep
    - first-build / recovery / preservation lane
-   - includes the maintained `llvmlite` compat/probe keep for stage0/bootstrap preservation
+   - includes the maintained `llvmlite` compat/probe keep; backend-lane detail is canonical in `stage2-aot-fast-lane-crossing-inventory.md`
 2. `stage1`
    - selfhost bridge/proof line
    - current dev/stable snapshot artifacts live here
@@ -152,8 +153,7 @@ Native keep remains below those layers:
 - `stage2-aot-native-thin-path-design-note.md` owns the AOT fast-lane rule:
   - source layering stays
   - execution layering may collapse only inside `AOT/native`
-  - daily/mainline AOT lane is `ny-llvm` / `ny-llvmc`
-  - `llvmlite` remains stage0/compat/probe keep
+  - backend-lane detail is canonical in `stage2-aot-fast-lane-crossing-inventory.md`
   - this parent doc does not re-decide that route policy
 - `hako-alloc-policy-state-contract-ssot.md` owns the first concrete allocator policy/state rows:
   - handle reuse policy

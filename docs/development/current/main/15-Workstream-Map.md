@@ -28,15 +28,10 @@ Related:
      - `K2-wide next structural follow-up`
      - `zero-rust default`
    - current read:
-     - `K-axis` is `K0 / K1 / K2`
-     - `K2-core` / `K2-wide` are task packs inside `K2`
      - `K2-core` is closed
      - `K2-wide` is now the next structural lane
-     - current `K2-wide` focus is RawMap remove/delete / boundary-shrink planning
-     - LLVM lane split:
-       - `llvmlite` is compat/probe keep only
-       - `ny-llvm` / `ny-llvmc` is the daily mainline AOT lane
-       - route / ABI follow-up tasks should be bucketed under `ny-llvm`, not mixed into `llvmlite`
+     - current `K2-wide` focus is boundary-shrink planning
+     - axis and lane detail is canonical in the SSOTs and backend-lane docs
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -66,14 +61,14 @@ Related:
   - `zero-rust` default operationalization
   - artifact contract sync for `K0/K1` binaries vs `K2` bundle reading
 - Active LLVM tasks:
-  - `llvmlite` keep/probe parity and explicit opt-in replay only
+  - `llvmlite` keep/probe parity
   - `ny-llvm` collection / allocator-handle / dynamic-fallback buckets
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
 - Active small tasks:
   - Map evidence bundle maintenance
-  - current RawMap remove/delete / boundary-shrink planning
+  - current boundary-shrink planning
 - Parked small tasks:
   - warning debt sweep
   - TODO cleanup / ignore triage
@@ -97,6 +92,7 @@ Related:
   - keep `RuntimeDataBox` facade-only
   - keep `.hako` capability facades distinct from native keep leaf glue
   - keep artifact roots binary/bundle only; migration task notes stay in root/docs/phase owners
+  - keep backend lane vocabulary in the backend-lane docs
 
 ## Parked / Stop-Line
 
@@ -115,9 +111,10 @@ Related:
 - `K2-wide` landed rows now include:
   - `RawMap` first slice
   - `RawMap` clear
+  - `RawMap` remove/delete
   - capability rows through `hako.osvm`
   - `hako_alloc` handle reuse and GC trigger policy rows
-- current follow-up is RawMap remove/delete / boundary-shrink planning
+- current follow-up is boundary-shrink planning
 
 ## Read Order
 

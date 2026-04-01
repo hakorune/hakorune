@@ -33,9 +33,10 @@ Related:
   - `hako_substrate` + capability floor
   - `native metal keep`
 - したがって、この inventory は「どこを `.hako` に移すか」ではなく、「どこを AOT hot path から外すか」を数える。
-- backend lane は dual-lane で読む。
+- backend lane は mainline / keep / replay の 3 lane で読む。
   - `ny-llvm` / `ny-llvmc` = daily/mainline AOT lane
   - `llvmlite` = stage0/compat/probe keep
+  - `native` = explicit replay/canary lane
 - implementation bucket は `ny-llvm first` で切り、`llvmlite` は shared contract keep としてだけ追従確認する。
 - bucket は次の 3 本に固定する。
   1. `collection op`

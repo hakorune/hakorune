@@ -4,6 +4,7 @@ Purpose
 - Python + llvmlite による compat/probe/canary 経路を提供する。
 - shared MIR / ABI / parity contract の確認を支える keep lane として維持する。
 - daily mainline backend owner は `ny-llvmc` であり、この文書は keep lane だけを扱う。
+- backend lane taxonomy itself is owned by `docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md`.
 
 Route at a glance
 - daily mainline: `.hako -> ny-llvmc (boundary default route) -> object/exe`

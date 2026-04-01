@@ -6,6 +6,7 @@
 - current implementation は `backend helper / compat wrapper` だけど、caller は内部実装ではなく CLI contract だけに依存する。
 - backend-zero の final target は `native_driver.rs` そのものではなく、`.hako -> thin backend boundary` だよ。
 - backend-zero `BE0-min1` では、この文書を stable caller contract の入口にする。
+- backend lane taxonomy itself is owned by `docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md`; this README only fixes the `ny-llvmc` contract.
 
 ## Route at a Glance
 
@@ -68,7 +69,7 @@
   - `const(i64)`, `ret`, and `mir_call(print/1)`
   - object emission via `llc`
   - executable emission via the existing static-first link line
-  - direct `ny-llvmc --driver native` replay only; runner/build wrappers no longer select it through `NYASH_LLVM_BACKEND=native`
+  - direct `ny-llvmc --driver native` replay only; the main build wrapper (`tools/build_llvm.sh`) no longer selects it through `NYASH_LLVM_BACKEND=native`
 
 ## Minimal Examples
 

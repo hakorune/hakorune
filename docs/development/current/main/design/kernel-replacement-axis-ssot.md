@@ -18,6 +18,9 @@ Related:
   - docs/development/current/main/design/value-repr-and-abi-manifest-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/hakoruneup-release-distribution-ssot.md
+  - docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md
+  - docs/reference/architecture/llvm-harness.md
+  - crates/nyash-llvm-compiler/README.md
   - lang/src/runtime/host/README.md
 ---
 

@@ -98,6 +98,10 @@ Important:
   - owns the `stage vs owner` split
 - `stage2-selfhost-and-hako-alloc-ssot.md`
   - owns stage/distribution layering plus `hako_core/alloc/std` reading
+- `stage2-aot-fast-lane-crossing-inventory.md`
+  - owns backend lane vocabulary and AOT hot-path bucketing
+- `docs/reference/architecture/llvm-harness.md`
+  - owns explicit llvmlite keep-lane usage
 - `selfhost-bootstrap-route-ssot.md`
   - owns stage1 bootstrap route authority and proof boundaries
 - `de-rust-lane-map-ssot.md` and `phase-29y/README.md`

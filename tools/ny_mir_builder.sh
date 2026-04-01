@@ -4,6 +4,7 @@
 # Notes:
 # - daily route is crate -> ny-llvmc(boundary)
 # - llvmlite harness remains internal compat/debug keep only; choose it explicitly with NYASH_LLVM_BACKEND=llvmlite when debugging.
+# - native is an explicit replay/canary lane only; choose it explicitly with NYASH_LLVM_BACKEND=native.
 
 set -euo pipefail
 [[ "${NYASH_CLI_VERBOSE:-0}" == "1" ]] && set -x
@@ -15,6 +16,7 @@ Usage: tools/ny_mir_builder.sh [--in <file>|--stdin] [--emit {obj|exe|ll|json}] 
 Notes:
   - This wrapper defaults to the ny-llvmc crate backend.
   - llvmlite remains an explicit compat/debug keep selected with NYASH_LLVM_BACKEND=llvmlite.
+  - native remains an explicit replay/canary keep selected with NYASH_LLVM_BACKEND=native.
   - Input must be Nyash JSON IR (v0/v1). When --stdin is used, reads from stdin.
   - For --emit exe, kernel runtime must be built (crates/nyash_kernel). Use default paths if --nyrt omitted.
 USAGE
@@ -44,16 +46,13 @@ NYRT_DIR=""
 VERIFY=0
 QUIET=0
 TMP_FILES=()
-# Backend selection (21.13): default to 'crate' when ny-llvmc is available,
-# otherwise use 'native' when llc exists. llvmlite is deprecated from auto-select
-# and must be requested explicitly via NYASH_LLVM_BACKEND=llvmlite.
+# Backend selection: default to 'crate' when ny-llvmc is available.
+# llvmlite and native are explicit lanes selected with NYASH_LLVM_BACKEND.
 if [[ -n "${NYASH_LLVM_BACKEND:-}" ]]; then
   BACKEND="${NYASH_LLVM_BACKEND}"
 else
   if [[ -x "./target/release/ny-llvmc" ]]; then
     BACKEND="crate"
-  elif command -v llc >/dev/null 2>&1; then
-    BACKEND="native"
   else
     BACKEND="crate"  # keep for downstream case handling; will error gracefully later
   fi

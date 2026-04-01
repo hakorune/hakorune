@@ -35,13 +35,13 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 ## 今日の再開点（active lane）
 
-- Restart handoff: commit `6d56898ea`, worktree clean, `RawMap.clear` landed, next is `RawMap.remove/delete` and boundary-shrink planning.
-- LLVM lane split:
+- Restart handoff: commit `639f0c402`, worktree clean, `RawMap.clear` and `RawMap.remove/delete` are landed, next slice is `boundary-shrink planning`.
+- backend lane detail is canonical in the backend-lane docs:
   - `llvmlite` = compat/probe keep lane
   - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
-  - if the next job is mainline work, it should be filed under `ny-llvm`, not under `llvmlite`
+  - `native` = explicit replay/canary lane
 
-- Active next: `policy-refresh`
+- Active next: `K2-wide` boundary-shrink planning
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
 - `K2-core` / `K2-wide` are task packs inside `K2`
@@ -49,7 +49,7 @@ bash tools/selfhost/run_lane_a_daily.sh
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/15-Workstream-Map.md`
   3. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
-  4. active slice SSOT
+  4. `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `K2-core` closed and move only on the current `K2-wide` slice

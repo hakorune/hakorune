@@ -29,24 +29,17 @@ Related:
 
 - current lane is still `policy-refresh`
 - exact current order is owned by `CURRENT_TASK.md` and `15-Workstream-Map.md`
-- LLVM lane split is explicit:
-  - `llvmlite` stays compat/probe keep only
-  - `ny-llvm` / `ny-llvmc` owns the daily mainline AOT route
-  - this mirror should not mix those two lanes in one task row
-- `K-axis`:
-  - `K0 = all-Rust hakorune`
-  - `K1 = .hako kernel migration stage`
-  - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
-  - `K2-core` / `K2-wide` are task packs inside `K2`
+- axis details are canonical in:
+  - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+  - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+  - `docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md`
 
 ## Current Read
 
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
 - next structural step is `K2-wide`.
-- current `K2-wide` focus is RawMap remove/delete / boundary-shrink planning.
-- current LLVM follow-up is organized separately from `K2-wide`:
-  - `llvmlite` = keep/probe
-  - `ny-llvm` = mainline buckets
+- current `K2-wide` focus is boundary-shrink planning.
+- current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
   - `.hako` owns capability facades

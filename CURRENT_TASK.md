@@ -34,22 +34,21 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Handoff
 
-- Restart handoff: commit `6d56898ea`, worktree clean, `RawMap.clear` is landed, next slice is `RawMap.remove/delete`.
+- Restart handoff: commit `639f0c402`, worktree clean, `RawMap.clear` and `RawMap.remove/delete` are landed, next slice is `boundary-shrink planning`.
 - Active lane: `policy-refresh`
-- LLVM lane split:
-  - `llvmlite` = stage0 / compat / probe keep lane
-  - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
-  - `llvmlite` work stops at keep/probe parity; mainline follow-up work belongs to `ny-llvm`
+- Axis and lane detail is canonical in:
+  - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+  - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
+  - `docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md`
+  - `docs/reference/architecture/llvm-harness.md`
 - Current read:
-  - `K0 = all-Rust hakorune`
-  - `K1 = .hako kernel migration stage`
-  - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
-  - `K2-core = RawArray first`
-  - `K2-wide = RawMap second + capability widening + metal review`
-- current `K2-wide` focus is RawMap remove/delete / boundary-shrink planning
+  - `K2-core` is closed
+  - `K2-wide` is the active structural lane
+  - current `K2-wide` focus is boundary-shrink planning
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap` clear
+  - `RawMap` remove/delete
   - `hako.atomic`
   - `hako.tls`
   - `hako.gc`
@@ -62,7 +61,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `K2-wide` RawMap remove/delete / boundary-shrink planning
+- Active next: `K2-wide` boundary-shrink planning
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
@@ -73,9 +72,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - keep `K2-wide` widening on capability modules, not ad hoc native escape hatches
   - keep `hako_alloc` closed until a concrete backend-private consumer appears
 - LLVM task rule:
-  - keep `llvmlite` as compat/probe only
-  - queue `ny-llvm` follow-up slices separately, by bucket
-  - do not mix `llvmlite` keep work into `ny-llvm` mainline implementation notes
+  - keep backend lane follow-up in the backend lane docs
+  - do not mix keep-lane notes into `K2-wide` implementation notes
 
 ## Canonical Owners
 
