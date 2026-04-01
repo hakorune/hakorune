@@ -94,12 +94,12 @@ Recently retired from the code-side compare/compile front-door:
 
 Next compare-source retirement slice:
 
-- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs` and `ll_emit_compare_source.rs`, while explicit provider keep lanes and provider path resolution are split into `provider_keep.rs`; the legacy JSON path now survives only as the string-based `emit_object_from_mir_json(...)` helper, and compare-source temp-path materialization is now held by `transport_paths.rs` / `transport_io.rs`, so the next cleanup focus is compare/archive wrapper thinning
+- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs` and `ll_emit_compare_source.rs`, while explicit provider keep lanes and provider path resolution are split into `provider_keep.rs`; the legacy JSON path now survives only as the string-based `emit_object_from_mir_json(...)` helper, and compare-source temp-path materialization is now held by `transport_paths.rs` / `transport_io.rs`, so the next cleanup focus is compare/archive wrapper thinning; delete-readiness investigation is split into `29x-98`
 
 Ordered TODO:
 
 1. keep `provider_keep.rs` / `capi_transport.rs` as narrow keep lanes, then reassess whether any helper can move behind `route.rs`
-2. keep `emit_object_from_mir_json(...)` archive-later until the caller inventory goes to zero, then decide delete readiness
+2. keep `emit_object_from_mir_json(...)` archive-later until the caller inventory goes to zero; delete readiness is tracked in `29x-98`
 
 ## Retirement Order
 
@@ -133,3 +133,4 @@ Slice 2 status:
 - live callers still exist in both the Hako host bridge and Rust runtime dispatch layers.
 - compare bridge is already archive-later only, but the legacy tool path is still needed by explicit callers.
 - removing the API now would reopen the compare bridge and violate the archive-home sufficient rule.
+- `29x-98` is the delete-readiness investigation phase once the caller inventory is revalidated.

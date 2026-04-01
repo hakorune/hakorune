@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-29x/29x-91-task-board.md
   - docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md
+  - docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
 ---
@@ -89,6 +90,8 @@ Current operational truth:
   - `29x-96-backend-owner-legacy-ledger-ssot.md`
 - compare bridge retirement prep:
   - `29x-97-compare-bridge-retirement-prep-ssot.md`
+- legacy route retirement investigation:
+  - `29x-98-legacy-route-retirement-investigation-ssot.md`
 - cache extension sequence:
   - `29x-67` through `29x-72`
 - runtime handoff sequence:
@@ -135,6 +138,7 @@ Current operational truth:
 4. `runtime-decl-manifest-v0.toml`
 5. `29x-96-backend-owner-legacy-ledger-ssot.md`
 6. `29x-97-compare-bridge-retirement-prep-ssot.md`
+7. `29x-98-legacy-route-retirement-investigation-ssot.md`
 
 ## Detail Owners
 

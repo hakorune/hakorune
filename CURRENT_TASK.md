@@ -44,6 +44,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
   - `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
   - `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
+  - `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
   - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
   - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
 - Current read:
@@ -76,8 +77,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   4. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
   5. `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
   6. `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
-  7. `docs/development/current/main/design/backend-owner-cutover-ssot.md`
-  8. `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
+  7. `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
+  8. `docs/development/current/main/design/backend-owner-cutover-ssot.md`
+  9. `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
 - K2-wide lock-down table:
 
   | Item | State |
