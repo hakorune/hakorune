@@ -23,18 +23,18 @@ Scope: repo root から current order / current blocker / next exact read に最
 1. `stage / docs / naming` fixation
 2. `K1 done-enough` stop-line fixation
 3. `K2-core` accepted stop-line
-4. `K2-wide` boundary-shrink lock-down
+4. `K2-wide` boundary-shrink lock-down (closed)
 5. `zero-rust` default operationalization
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` is the active structural lane.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; current active lane is `zero-rust` default operationalization.
 
 ## Immediate Handoff
 
-- Restart handoff: commit `41e114977`, worktree clean, `RawMap.clear`, `RawMap.remove/delete`, and `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are landed, next slice is `boundary-shrink lock-down`.
+- Restart handoff: commit `41e114977`, worktree clean, `RawMap.clear`, `RawMap.remove/delete`, and `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are landed, next slice is `zero-rust default operationalization`.
 - Active lane: `policy-refresh`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -43,8 +43,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/reference/architecture/llvm-harness.md`
 - Current read:
   - `K2-core` is closed
-  - `K2-wide` is the active structural lane
-  - current `K2-wide` focus is boundary-shrink lock-down
+  - `K2-wide` lock-down is closed enough for handoff
+  - current active lane is `zero-rust` default operationalization
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -61,7 +61,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `K2-wide` boundary-shrink lock-down
+- Active next: `zero-rust` default operationalization
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
@@ -71,9 +71,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
   | Item | State |
   | --- | --- |
-  | Now | `K2-wide boundary-shrink lock-down` |
-  | Stop line | `RuntimeDataBox` stays facade-only; delete stays on `MapBox` / `RawMap` |
-  | Next | `zero-rust default operationalization` |
+  | Now | `zero-rust default operationalization` |
+  | Stop line | `K2-wide boundary-shrink lock-down` is landed; `RuntimeDataBox` stays facade-only and delete stays on `MapBox` / `RawMap` |
+  | Next | `artifact contract sync for K0/K1 binaries vs K2 bundle reading` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

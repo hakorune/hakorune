@@ -27,7 +27,7 @@ Related:
 
 ## Immediate Resume
 
-- current lane is still `policy-refresh`
+- current lane is `zero-rust default operationalization`
 - exact current order is owned by `CURRENT_TASK.md` and `15-Workstream-Map.md`
 - axis details are canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -37,8 +37,8 @@ Related:
 ## Current Read
 
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
-- next structural step is `K2-wide`.
-- current `K2-wide` focus is boundary-shrink lock-down; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
+- `K2-wide` boundary-shrink lock-down is closed enough for handoff.
+- current active step is `zero-rust default operationalization`; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.

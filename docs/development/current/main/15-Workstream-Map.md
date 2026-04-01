@@ -25,22 +25,21 @@ Related:
      - `stage / docs / naming`
      - `K1 done-enough stop-line`
      - `K2-core accepted stop-line`
-     - `K2-wide boundary-shrink lock-down`
      - `zero-rust default operationalization`
    - current read:
      - `K2-core` is closed
-     - `K2-wide` is now the next structural lane
-     - current `K2-wide` focus is boundary-shrink lock-down
+     - `K2-wide` boundary-shrink lock-down is closed enough for handoff
+     - current active lane is `zero-rust default operationalization`
       - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
       - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
       - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - K2-wide lock-down table:
+   - zero-rust default operationalization table:
 
      | Item | State |
      | --- | --- |
-     | Now | `K2-wide boundary-shrink lock-down` |
-     | Stop line | `RuntimeDataBox` stays facade-only; delete stays on `MapBox` / `RawMap` |
-     | Next | `zero-rust default operationalization` |
+     | Now | `zero-rust default operationalization` |
+     | Stop line | `K2-wide boundary-shrink lock-down` is landed; `RuntimeDataBox` stays facade-only and delete stays on `MapBox` / `RawMap` |
+     | Next | `artifact contract sync for K0/K1 binaries vs K2 bundle reading` |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -66,7 +65,6 @@ Related:
 
 - Active big tasks:
   - `stage / docs / naming` fixation
-  - `K2-wide` follow-up
   - `zero-rust` default operationalization
   - artifact contract sync for `K0/K1` binaries vs `K2` bundle reading
 - Active LLVM tasks:
@@ -77,7 +75,7 @@ Related:
   - broad `Map` structural expansion
 - Active small tasks:
   - Map evidence bundle maintenance
-  - current boundary-shrink lock-down
+  - current `zero-rust` entrypoint sync
 - Parked small tasks:
   - warning debt sweep
   - TODO cleanup / ignore triage
@@ -85,11 +83,10 @@ Related:
 
 ## Exact Next
 
-1. keep `policy-refresh` first until stage / naming / order wording stays synced
-2. keep `K2-wide` on narrow slices only; do not reopen broad widening
-3. keep `phase-29bq` active as failure-driven / blocker-none lane
-4. keep `phase-29x` and `phase-29ck` exact and docs-first
-5. keep closed lanes closed unless a new exact gap appears
+1. keep `zero-rust` default operationalization first until entrypoint / wording stays synced
+2. keep `phase-29bq` active as failure-driven / blocker-none lane
+3. keep `phase-29x` and `phase-29ck` exact and docs-first
+4. keep closed lanes closed unless a new exact gap appears
 
 ## Active Lane
 
