@@ -160,13 +160,14 @@ Stop line:
 Goal:
 - open only after the `RawArray` pilot is operationally stable.
 - keep `MapBox` visible semantics on the existing `.hako` owner frontier while substrate replacement is still narrow.
-- absorb capability widening and metal review into the same era instead of exposing new public milestones.
-- treat the internal work order as:
-  1. `RawMapCoreBox` narrow substrate widening (`entry_count / cap / probe / slot_load / slot_store`)
-  2. capability widening packs (`hako.atomic` -> `hako.tls` -> `hako.gc` -> `hako.osvm`)
-  3. `hako_alloc` policy/state rows plus allocator/TLS/GC policy-owner widening
-  4. metal keep review as truthful seam inventory + boundary-shrink planning
-     - current narrow follow-up row is `RawMap.clear`; the next candidate after that is `remove/delete`
+  - absorb capability widening and metal review into the same era instead of exposing new public milestones.
+  - treat the internal work order as:
+    1. `RawMapCoreBox` narrow substrate widening (`entry_count / cap / probe / slot_load / slot_store`)
+    2. capability widening packs (`hako.atomic` -> `hako.tls` -> `hako.gc` -> `hako.osvm`)
+    3. `hako_alloc` policy/state rows plus allocator/TLS/GC policy-owner widening
+    4. metal keep review as truthful seam inventory + boundary-shrink planning
+     - current landed narrow rows are `RawMap.clear` and `RawMap.remove/delete`
+     - boundary-shrink planning is the lock-down pass, not a future candidate row
 
 Stop line:
 - treat `Map` as narrow façade + regression pack until the `RawArray` pilot is accepted.
@@ -184,7 +185,7 @@ Stop line:
 - current policy/state row pack after capability widening is `hako_alloc` GC trigger threshold policy
 - handle reuse policy is landed below it, and no third live `hako_alloc` row is open yet
 - current metal keep review pack is the truthful seam inventory + boundary-shrink planning lock, machine-owned by `k2_wide_metal_keep_inventory_guard.sh`
-- current `RawMap` narrow follow-up row is `clear`; the next candidate after that is `remove/delete`
+- current `RawMap` landed narrow rows are `clear` and `remove/delete`; no additional narrow row is pending in this phase-plan lock
 
 ### 5. Regression / perf pack
 
