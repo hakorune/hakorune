@@ -44,7 +44,7 @@ The current caller inventory is three keep lanes plus one archive-later surrogat
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `lang/src/vm/hakorune-vm/extern_provider.hako` | keep the compat/proof stub explicit until a root-first proof exists |
+| Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
 | Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers | keep them proof-only and sequence them before helper deletion |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 

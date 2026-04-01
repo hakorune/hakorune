@@ -37,7 +37,7 @@ Related:
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - phase2120 pure canaries are now split by suites: `phase2120-pure-keep` for the 2 active keep pins and `phase2120-pure-historical` for archive-backed replay evidence
-     - phase2044 semantics are split by bucket runner; only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest
+     - phase2044 semantics are split by bucket runner; only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest, and the other groups stay bucket-runner only
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -47,13 +47,13 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-98` proof/example caller sequencing -> upstream caller drain |
+     | Next | `29x-98` stop-line surfaces (`extern_provider` + compat selfhost wrapper) -> proof/example caller sequencing |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
-     | Next | `lang/src/vm/hakorune-vm/extern_provider.hako` |
+     | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack |
+     | Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
      | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 2. `phase-29bq`
    - active selfhost lane
