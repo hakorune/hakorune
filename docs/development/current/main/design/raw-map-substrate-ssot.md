@@ -28,6 +28,7 @@ Related:
 
 - `RawMap` は semantic owner ではない。
 - `RawMap` は capability substrate と minimum verifier を使う algorithm substrate である。
+- current repo reading treats this doc as the first concrete `K2-wide` substrate slice after `K2-core`.
 - current phase では first live slice を landed とし、`MapCoreBox.size_i64` が `RawMapCoreBox.entry_count_i64` を通る。
   - `RawMapCoreBox.entry_count_i64` now routes to `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains a compat alias only.
 - current widening also lands `probe/load/store` façade methods under `RawMapCoreBox`.
@@ -111,8 +112,14 @@ This phase now lands the first substrate slice through `observer + probe/load/st
 After this live observer slice, the next widening remains:
 
 1. truthful RawMap narrow widening only after inventory review
-2. `GC/TLS/atomic` capability lock
+2. `K2-wide` capability widening packs:
+   - `hako.atomic`
+   - `hako.tls`
+   - `hako.gc`
+   - `hako.osvm`
+3. `hako_alloc` policy/state rows plus allocator/TLS/GC policy-owner widening
 
 docs/task lock now lives at:
 
 - [`gc-tls-atomic-capability-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/gc-tls-atomic-capability-ssot.md)
+- [`hako-alloc-policy-state-contract-ssot.md`](/home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md)

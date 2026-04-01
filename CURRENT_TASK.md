@@ -52,6 +52,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `K2` = `.hako kernel` mainline / `zero-rust` daily-distribution stage
     - `K2-core` = `RawArray first`
     - `K2-wide` = `RawMap second + capability widening + metal review`
+      - `RawMapCoreBox` first live substrate slice (`entry_count / cap / probe / slot_load / slot_store`)
+      - capability widening packs: `hako.atomic`, `hako.tls`, `hako.gc`, `hako.osvm`
+      - `hako_alloc` policy/state rows and allocator/TLS/GC policy-owner widening
+      - metal keep review limited to truthful seam inventory and boundary shrink planning
 - Task packs stay separate from `K-axis`:
   - boundary lock
   - semantic owner swap
@@ -66,6 +70,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - stage progression は `K0 -> K1 -> K2` として読み、`K2-core` と `K2-wide` は `K2` 内 task packs として扱う
   - 次の structural target は `K2` の first task pack である `K2-core acceptance lock`
   - `RawMap` は `K2-wide` の second target で、今は deferred
+  - `K2-wide` widening は `RawMap` のあとに `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` と `hako_alloc` policy/state rows を narrow widening する読みで固定する
   - `RuntimeDataBox` は facade-only keep
   - same-boundary daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に限定する
   - default daily/distribution target は `zero-rust` だが、bootstrap/recovery/reference/buildability と native metal keep は explicit keep

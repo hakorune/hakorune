@@ -12,6 +12,7 @@ Related:
   - docs/development/current/main/design/thread-and-tls-capability-ssot.md
   - docs/development/current/main/design/raw-array-substrate-ssot.md
   - docs/development/current/main/design/raw-map-substrate-ssot.md
+  - docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md
   - lang/src/runtime/substrate/README.md
   - lang/src/runtime/substrate/atomic/README.md
   - lang/src/runtime/substrate/tls/README.md
@@ -23,6 +24,7 @@ Related:
 ## Goal
 
 - `RawArray` / `RawMap` の次に必要な capability widening を docs-first で固定する。
+- current repo reading treats this doc as the capability-widening subset inside `K2-wide`, not as a separate `K3`.
 - `hako.atomic` / `hako.tls` / `hako.gc` の責務を分けて、allocator/runtime policy owner と混ざらないようにする。
 - `Hakozuna portability layer` の前提になる最小 capability vocabulary を決める。
 - `hako.sys` のような catch-all unsafe shelf は作らず、capability family のまま widening する。
@@ -34,6 +36,7 @@ Related:
 1. `hako.atomic`
 2. `hako.tls`
 3. `hako.gc`
+4. `hako.osvm`
 
 ## Current Implementation Order
 
@@ -89,8 +92,10 @@ current implementation order is seam-first:
   - `AtomicCoreBox.fence_i64()`
   - `TlsCoreBox.last_error_text_h()`
   - `GcCoreBox.write_barrier_i64(handle_or_ptr)`
+- `hako.osvm` remains part of the same capability family even when its first truthful rows are still docs-first / narrow
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
 - `hako_kernel` / `hako_substrate` と競合する owner noun にしない
+- allocator/TLS/GC policy-owner widening lives beside this wave under `hako_alloc` policy/state rows; do not merge that owner reading into capability modules
 - truthful seam guard now lives in:
   - `atomic-tls-gc-truthful-native-seam-inventory.md`
 - final TLS end-state guard now lives in:
@@ -110,7 +115,7 @@ current staging roots are reserved at:
 - `RawArray` / `RawMap` implementation body
 - moving collection owner logic into `runtime/substrate/`
 - final metal split
-- OS VM rewrite
+- OS VM rewrite beyond the narrow `hako.osvm` capability surface
 - final allocator backend rewrite
 - unrestricted unsafe surface
 - minimum verifier broadening beyond the current docs lock
@@ -126,3 +131,5 @@ After this docs lock, the next widening remains:
 1. generic TLS end-state design (`thread_local` / `TlsCell<T>`) stays docs-first until lowering exists
 2. truthful generic `atomic` / `tls` seam extraction
 3. broad `gc` widening after new native seam exists
+4. `hako.osvm` truthful seam extraction stays in the same `K2-wide` pack
+5. allocator/TLS/GC policy-owner widening stays in `hako_alloc-policy-state-contract-ssot.md`

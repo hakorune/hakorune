@@ -47,6 +47,10 @@ Related:
   - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
     - `K2-core = RawArray first`
     - `K2-wide = RawMap second + capability widening + metal review`
+      - `RawMapCoreBox` first live substrate slice (`entry_count / cap / probe / slot_load / slot_store`)
+      - capability widening packs: `hako.atomic`, `hako.tls`, `hako.gc`, `hako.osvm`
+      - `hako_alloc` policy/state rows and allocator/TLS/GC policy-owner widening
+      - metal keep review limited to truthful seam inventory and boundary shrink planning
 - task packs stay separate from `K-axis`:
   - boundary lock
   - semantic owner swap
@@ -65,6 +69,7 @@ Related:
   - next structural step is `K2`'s first task pack, `K2-core acceptance lock`
   - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract tests (`runtime_data_invalid_handle_returns_zero`, `runtime_data_array_round_trip_keeps_rawarray_contract`, `legacy_set_h_returns_zero_but_applies_value`, `hi_hii_aliases_keep_fail_safe_contract`, `slot_load_store_raw_aliases_keep_contract`, `slot_append_raw_alias_keeps_contract`)
   - `RawMap` is `K2-wide` second and stays deferred while `RuntimeDataBox` remains facade-only
+  - `K2-wide` widening is read as `RawMap` first, then narrow widening of `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm`, plus `hako_alloc` policy/state rows
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
   - artifact reading:

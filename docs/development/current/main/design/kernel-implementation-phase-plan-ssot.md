@@ -138,10 +138,17 @@ Goal:
 - open only after the `RawArray` pilot is operationally stable.
 - keep `MapBox` visible semantics on the existing `.hako` owner frontier while substrate replacement is still narrow.
 - absorb capability widening and metal review into the same era instead of exposing new public milestones.
+- treat the internal work order as:
+  1. `RawMapCoreBox` narrow substrate widening (`entry_count / cap / probe / slot_load / slot_store`)
+  2. capability widening packs (`hako.atomic` -> `hako.tls` -> `hako.gc` -> `hako.osvm`)
+  3. `hako_alloc` policy/state rows plus allocator/TLS/GC policy-owner widening
+  4. metal keep review as truthful seam inventory + boundary-shrink planning
 
 Stop line:
 - treat `Map` as narrow façade + regression pack until the `RawArray` pilot is accepted.
 - keep `RawMap second / RuntimeData facade-only` while widening.
+- do not widen through ad hoc native escape hatches; widening must stay on capability modules.
+- do not call this `K3`; the widening remains the second task pack inside `K2`.
 
 ### 5. Regression / perf pack
 

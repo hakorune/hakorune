@@ -70,8 +70,15 @@ Stage axis is for buildability, proof, and distribution reading only.
   - acceptance lock: existing `nyash_kernel` RawArray contract tests (`runtime_data_invalid_handle_returns_zero`, `runtime_data_array_round_trip_keeps_rawarray_contract`, `legacy_set_h_returns_zero_but_applies_value`, `hi_hii_aliases_keep_fail_safe_contract`, `slot_load_store_raw_aliases_keep_contract`, `slot_append_raw_alias_keeps_contract`)
 - `K2-wide`
   - `RawMap` second
-  - capability widening packs
-  - metal keep review
+  - `RawMapCoreBox` first live substrate slice is the narrow map entry point (`entry_count / cap / probe / slot_load / slot_store`)
+  - capability widening packs:
+    - `hako.atomic`
+    - `hako.tls`
+    - `hako.gc`
+    - `hako.osvm`
+  - `hako_alloc` policy/state rows and allocator/TLS/GC policy-owner widening
+  - metal keep review is limited to truthful seam inventory and boundary-shrink planning
+  - keep `RuntimeDataBox` facade-only and do not widen through ad hoc native escape hatches
 
 ## Implementation Flow
 
@@ -98,6 +105,12 @@ Stage axis is for buildability, proof, and distribution reading only.
 - `RawArray`
 - `RawMap`
 - future allocator/runtime policy state machine
+- widening surface inside `K2-wide`:
+  - `hako.atomic`
+  - `hako.tls`
+  - `hako.gc`
+  - `hako.osvm`
+  - `hako_alloc` policy/state rows
 
 ### compiler/lowering owner
 
