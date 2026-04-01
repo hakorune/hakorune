@@ -119,8 +119,8 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - explicit proof/example caller that still demonstrates `emit_object_args(...)` plus `link_object_args(...)`.
   - not a daily route and not a current owner.
   - direct invoker is `tools/selfhost/run_compat_pure_selfhost.sh`.
-  - `tools/selfhost/run_compat_pure_pack.sh` and `tools/selfhost/run_all.sh` are only thin wrappers above that canonical compat wrapper; they are not separate proof owners.
-  - old alias `tools/selfhost/run_hako_llvm_selfhost.sh` is retired; keep the canonical compat wrapper singular.
+  - `tools/selfhost/run_compat_pure_pack.sh` is the only remaining thin wrapper above that canonical compat wrapper; it is not a separate proof owner.
+  - old aliases `tools/selfhost/run_hako_llvm_selfhost.sh` and `tools/selfhost/run_all.sh` are retired; keep the compat pack entry singular.
   - current root-first replacement proof exists only on the `.hako VM -> LlvmBackendBox -> C-API -> exe` lane (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`), not as a drop-in for this historical safe-vm wrapper.
   - therefore this caller remains archive-later until the compat wrapper either gains a root-first equivalent or is retired as a whole.
   - cleanup target: demote or archive once proof/example coverage moves to the root-first route.

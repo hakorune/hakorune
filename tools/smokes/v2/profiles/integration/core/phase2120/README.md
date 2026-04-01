@@ -33,6 +33,7 @@
   - archive-backed pins are invoked via `--profile archive --filter 'core/phase2120/...sh'`
 - shell wrapper:
   - `tools/selfhost/run_compat_pure_pack.sh`
+  - old alias `tools/selfhost/run_all.sh` is retired
 - SSOT:
   - `docs/development/current/main/phases/phase-29ck/P5-COMPAT-PURE-PACK-LOCK.md`
 

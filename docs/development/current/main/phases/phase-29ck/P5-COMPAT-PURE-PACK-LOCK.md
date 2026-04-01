@@ -10,7 +10,7 @@ Related:
   - docs/reference/environment-variables.md
   - tools/smokes/v2/profiles/integration/core/phase2120/README.md
   - tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh
-  - tools/selfhost/run_all.sh
+  - tools/selfhost/run_compat_pure_pack.sh
 ---
 
 # P5: Compat Pure Pack Lock
@@ -33,7 +33,7 @@ Related:
 2. compat-only pure pack
    - owner pack:
      - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
-     - `tools/selfhost/run_all.sh`
+     - `tools/selfhost/run_compat_pure_pack.sh`
      - `tools/selfhost/run_compat_pure_selfhost.sh`
    - required env:
      - `NYASH_LLVM_USE_CAPI=1`
@@ -54,13 +54,15 @@ Related:
 ## Script Contract
 
 1. `tools/selfhost/run_all.sh`
-   - compatibility wrapper only
-   - must print that it delegates to the compat pure pack
-2. `tools/selfhost/run_compat_pure_selfhost.sh`
+   - retired alias; do not reintroduce
+2. `tools/selfhost/run_compat_pure_pack.sh`
+   - canonical historical compat pack wrapper
+   - shells into `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh` and `tools/selfhost/run_compat_pure_selfhost.sh`
+3. `tools/selfhost/run_compat_pure_selfhost.sh`
    - compatibility wrapper only
    - still depends on the legacy `CodegenBridgeBox` example caller
    - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
-3. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+4. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
    - historical pure/TM pack entry
    - must self-identify as compat-only
    - category map lives in `tools/smokes/v2/profiles/integration/core/phase2120/README.md`
