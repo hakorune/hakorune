@@ -35,7 +35,7 @@ Thin Rust bridge for backend object emission.
 - `legacy_json.rs`
   - legacy MIR(JSON) front door for compare/archive callers
   - routes through `route.rs` and stays out of the daily root-first tool seam
-  - direct runtime callers have been moved onto a helper alias; keep this module archive-later until the compare bridge itself is thinned further
+  - direct runtime callers have moved to the string-based `emit_object_from_mir_json(...)` front door; keep this module archive-later until the compare bridge itself is thinned further
 - stage0 harness object emit is direct llvmlite keep lane
   - Rust helper writes a temp MIR JSON file and spawns `tools/llvmlite_harness.py --in <mir.json> --out <obj.o>`
   - no Rust-side MIR JSON reparse or legacy front-door round-trip
@@ -55,4 +55,4 @@ Thin Rust bridge for backend object emission.
 - compare/debug residue is now split: `ll_emit_compare_source.rs` owns source materialization, `ll_emit_compare_driver.rs` owns orchestration, `ll_emit_compare_vm.rs` owns VM spawn, `ll_emit_compare_stdout.rs` owns stdout extraction, `provider_keep.rs` owns explicit provider keep lanes, and the separate `hako_ll_driver.rs` / `ll_emit_bridge.rs` helpers have been retired
 - legacy JSON wrapper residue now lives in `legacy_json.rs`; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
 - stage0 object emit now goes straight from the Rust helper to `tools/llvmlite_harness.py`; the old Rust-side object-emit JSON round-trip is retired
-- direct runtime caller retirement for `mir_json_to_object(...)` is landed; the next thin task is the Rust-side stage0 object-emit JSON round-trip after the temp-path helper split
+- direct runtime caller retirement for the file-based `mir_json_file_to_object(...)` front door is landed; the remaining wrapper is the string-based `emit_object_from_mir_json(...)` compare/archive helper

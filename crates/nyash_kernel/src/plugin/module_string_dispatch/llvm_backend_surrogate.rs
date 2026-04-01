@@ -1,3 +1,4 @@
+use std::fs;
 use super::{decode_string_handle, encode_string_handle, trace_log};
 use std::path::Path;
 
@@ -84,8 +85,10 @@ fn trace_route_error_and_zero(route_label: &str, error_text: String) -> i64 {
 }
 
 fn compile_obj_from_json_path(mir_path: &str) -> Result<std::path::PathBuf, String> {
-    nyash_rust::host_providers::llvm_codegen::mir_json_file_to_object(
-        Path::new(mir_path),
+    let mir_json = fs::read_to_string(Path::new(mir_path))
+        .map_err(|e| format!("[llvmemit/input/read-failed] {}", e))?;
+    nyash_rust::host_providers::llvm_codegen::emit_object_from_mir_json(
+        &mir_json,
         compile_obj_opts_from_env(),
     )
 }

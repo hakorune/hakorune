@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: accepted
 Date: 2026-03-28
-Scope: keep the retirement order for the remaining compare bridge / archive wrapper surfaces after launcher root-first cut, compile_json_path retirement, and archive-home move.
+Scope: keep the retirement order for the remaining compare bridge / archive wrapper surfaces after launcher root-first cut, compile_json_path retirement, and the file-based `mir_json_file_to_object(...)` front-door retirement.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -56,6 +56,7 @@ Related:
 ## Landed Front-Door Demotion Slice
 
 - `lang/src/runtime/host/host_facade_box.hako` no longer forwards `codegen.compile_json_path`; the Hako front-door bridge has been removed from the live caller set.
+- the compiled-stage1 surrogate now loads MIR(JSON) locally and forwards the text into the string-based `emit_object_from_mir_json(...)` helper.
 - `compile_json_path` no longer exists in the code-side caller inventory.
 - archive compare smoke now hydrates MIR roots directly and no longer depends on `compile_json_path` for the compare bridge proof path.
 
@@ -64,7 +65,7 @@ Related:
 - `src/backend/mir_interpreter/handlers/extern_provider.rs`, `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`, and `src/mir/builder/calls/extern_calls.rs` have retired `compile_json_path` from code.
 - daily Rust runtime dispatcher traffic no longer follows `compile_json_path`.
 - `src/host_providers/llvm_codegen/hako_ll_driver.rs` has been retired by folding the compare helper surface into `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, and `ll_emit_compare_stdout.rs`.
-- `src/backend/mir_interpreter/handlers/extern_provider.rs` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` have retired direct `mir_json_to_object(...)` ownership by delegating through the legacy JSON helper alias instead.
+- `src/backend/mir_interpreter/handlers/extern_provider.rs` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` now reach the string-based legacy JSON helper only; the old file-based `mir_json_file_to_object(...)` front door has been retired from the compiled-stage1 surrogate.
 
 ## Live Caller Inventory
 
@@ -82,7 +83,7 @@ The code-side `compile_json_path` inventory is now empty. The remaining archive-
 | `src/host_providers/llvm_codegen/capi_transport.rs` | archive-later | explicit CAPI compile/link helpers only |
 | `src/host_providers/llvm_codegen/transport_paths.rs` | archive-later | temp-path path resolution helpers only |
 | `src/host_providers/llvm_codegen/transport_io.rs` | archive-later | temp-path file I/O helpers only |
-| `src/host_providers/llvm_codegen/legacy_json.rs` | archive-later | legacy MIR(JSON) front door only |
+| `src/host_providers/llvm_codegen/legacy_json.rs` | archive-later | string-based legacy MIR(JSON) helper only; file-based front door retired |
 | `src/host_providers/llvm_codegen.rs` | archive-later | legacy object emission helpers only |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
 
@@ -98,7 +99,7 @@ Recently retired from the code-side compare/compile front-door:
 
 Next compare-source retirement slice:
 
-- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, `ll_emit_compare_stdout.rs`, and `ll_emit_compare_source.rs`, while explicit provider keep lanes are split into `provider_keep.rs`, so the next cleanup focus is the Rust-side stage0 object-emit JSON round-trip after the temp-path helper split in `transport_paths.rs` / `transport_io.rs`
+- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, `ll_emit_compare_stdout.rs`, and `ll_emit_compare_source.rs`, while explicit provider keep lanes are split into `provider_keep.rs`; the legacy JSON path now survives only as the string-based `emit_object_from_mir_json(...)` helper, so the next cleanup focus is compare/archive wrapper thinning after the temp-path helper split in `transport_paths.rs` / `transport_io.rs`
 
 ## Retirement Order
 

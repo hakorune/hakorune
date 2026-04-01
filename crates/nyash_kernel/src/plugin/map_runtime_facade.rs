@@ -1,8 +1,8 @@
 use super::handle_cache::{
-    clear_map_lookup_cache, map_lookup_cache_hit, with_map_box, with_map_lookup_cached,
+    clear_map_lookup_cache, with_map_box,
 };
 use super::map_key_codec::map_key_string_from_any;
-use super::map_probe::{map_probe_contains_any, map_probe_contains_i64, map_probe_contains_str};
+use super::map_probe::{map_probe_contains_any, map_probe_contains_i64};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
 use super::map_slot_store::{map_slot_store_any, map_slot_store_i64_any};
 use super::value_codec::runtime_i64_from_box_ref;

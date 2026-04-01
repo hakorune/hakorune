@@ -19,7 +19,7 @@ Related:
 - `daily から外す` と `delete する` は別判定だよ。
 - preservation-first SSOT を満たさない surface は、demote はしても即 delete しない。
 - archive-home is sufficient for the current compare/retired smoke routes; `delete-ready` is none until live callers are gone.
-- the remaining live `compile_json_path` caller retirement inventory is tracked in `29x-97-compare-bridge-retirement-prep-ssot.md`.
+- the remaining compare/archive wrapper retirement inventory is tracked in `29x-97-compare-bridge-retirement-prep-ssot.md`.
 
 ## Current Ledger
 
@@ -58,7 +58,7 @@ Related:
 | `tools/smokes/v2/suites/integration/phase29ck-boundary.txt` | active boundary suite with flipped owner locks removed | active boundary suite only | none | preserve | keep focused on unflipped boundary coverage and active pure-first canaries |
 | `tools/smokes/v2/suites/integration/phase29ck-boundary-legacy.txt` | temporary legacy suite for flipped owner locks | archive-later | compare bridge retirement + preservation bundle ready | archive-later | default suite から外した retired locks だけを置く |
 | `lang/c-abi/shims/hako_llvmc_ffi*` | legacy daily owner for unflipped shapes | compare/compat only | shape-by-shape daily flip | demote first, delete later | delete は preservation-first 条件を満たした後だけ |
-| `env.codegen.compile_json_path` / `src/host_providers/llvm_codegen::{mir_json_to_object,mir_json_file_to_object}` | legacy tool path only | evidence/legacy tool path only | compare/archive only; launcher already root-first | demote first, delete later | flipped `.hako ll emitter` daily profiles and launcher mainline now bypass this path; keep it only for explicit compare/archive callers |
+| `env.codegen.compile_json_path` / `src/host_providers/llvm_codegen::{mir_json_to_object,mir_json_file_to_object}` | legacy tool path only | evidence/legacy tool path only | compare/archive only; launcher already root-first | demote first, delete later | flipped `.hako ll emitter` daily profiles and launcher mainline now bypass this path; the compiled-stage1 surrogate now loads MIR(JSON) locally and forwards the text into the string-based `emit_object_from_mir_json(...)` helper; keep the file-based front door only as retired history |
 | `src/host_providers/llvm_codegen/ll_tool_driver.rs` | thin `.ll` tool seam | preserve as mainline tool boundary | none | preserve | verifier + llc only; no route/policy owner |
 | `src/host_providers/llvm_codegen/hako_ll_driver.rs` | retired compare/debug driver adapter | compare bridge retirement | helper surface folded into `ll_emit_compare_driver.rs`, `ll_emit_compare_vm.rs`, `ll_emit_compare_stdout.rs`, and `ll_emit_compare_source.rs` | retired | keep template/VM residue out of mainline tool boundary |
 | `src/host_providers/llvm_codegen/transport_paths.rs` | temp-path path resolution helpers | split from `transport.rs` | temp-path split | archive-later | compile/link helpers do not live here |
