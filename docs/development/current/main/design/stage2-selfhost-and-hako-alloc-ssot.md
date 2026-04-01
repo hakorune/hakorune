@@ -91,6 +91,7 @@ Related:
    - physical root reservation: `lang/src/hako_alloc/` (first wave: policy-plane helpers such as `ArcBox` / `RefCellBox`)
 3. `hako_std`
    - process / env / fs / time / net / plugin-host / C ABI convenience
+   - reserved future layer; do not assume a physical `lang/src/hako_std/` root exists yet
 
 ### Runtime internal layering axis
 
@@ -169,6 +170,7 @@ Native keep remains below those layers:
 - collection owner growth belongs under `hako_alloc` / ring1 collection runtime, not ring0.
 - `runtime/memory/**` is not the canonical home for alloc/policy helpers in the end-state layering.
 - Rune is a contract layer that sits beside `hako_core` / `hako_alloc` / `hako_std`; it does not replace those implementation layers.
+- logical library layers are not directory names; the physical roots today are `lang/src/runtime/kernel/`, `lang/src/runtime/substrate/`, and `lang/src/hako_alloc/`
 
 ## Non-Goals
 

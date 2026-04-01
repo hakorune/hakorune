@@ -49,6 +49,7 @@ Related:
   - current reality: `target/release/hakorune`, `target/selfhost/hakorune`, `lang/bin/hakorune`
   - target contract: `target/k0|k1/`, `artifacts/k0|k1/`, `dist/k2/<channel>/<triple>/bundle/`
   - migration tasks do not live in artifact roots
+- before the next optimization wave, sync folder structure and smoke taxonomy docs; that prep is separate from `K2-wide`
 
 ## Exact Links
 
@@ -64,6 +65,11 @@ Related:
   - `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
   - `docs/development/current/main/design/final-metal-split-ssot.md`
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
+- folder / smoke layout:
+  - `lang/README.md`
+  - `docs/development/current/main/design/smoke-taxonomy-and-discovery-ssot.md`
+  - `docs/development/testing/smoke-tests-v2.md`
+  - `docs/how-to/smokes.md`
 - current phase detail:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29bq/README.md`

@@ -62,6 +62,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 ## Immediate Next Task
 
 - Active next: `K2-wide` boundary-shrink lock-down
+- pre-optimization prep: folder structure / smoke taxonomy docs sync
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`

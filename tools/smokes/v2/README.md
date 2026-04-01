@@ -9,18 +9,22 @@ Smokes v2 — Minimal Runner and Policy
 - **Excluded**: Heavy selfhost/Stage-B, crate exe, S3/LLVM integration, long-running tests (>0.4s)
 
 ### integration
-- **Purpose**: Integration and heavier tests
-- **Contents**: Selfhost canaries, Stage-B, crate exe, S3/LLVM, phase-specific comprehensive tests
+- **Purpose**: Curated integration and heavier tests
+- **Contents**: Selfhost canaries, Stage-B, crate exe, S3/LLVM, phase-specific comprehensive tests and suites
 - **Run**: `./tools/smokes/v2/run.sh --profile integration`
 
-### full
-- **Purpose**: Complete regression coverage
-- **Contents**: All tests (network of quick + integration + additional)
-- **Run**: `./tools/smokes/v2/run.sh --profile full`
+### strict
+- **Purpose**: Narrow fail-fast gate for policy-sensitive checks
+- **Contents**: live strict pins and blocker-focused coverage
+- **Run**: `./tools/smokes/v2/run.sh --profile strict`
 
 ### plugins
 - **Purpose**: Plugin-specific tests (dynamic loading, etc.)
 - **Run**: `./tools/smokes/v2/run.sh --profile plugins`
+
+### archive
+- **Purpose**: Manual replay / retired pins
+- **Run**: `./tools/smokes/v2/run.sh --profile archive`
 
 Policy
 - Use [SKIP:<reason>] prefix for environment/host dependent skips.
@@ -43,9 +47,10 @@ Helpers
 Notes
 - Avoid running heavy integration smokes in CI by default. Use `--profile quick`.
 - When a test depends on external tools (e.g., LLVM), prefer `[SKIP:<reason>]` over failure.
-- Stage‑B/selfhost canaries（`stage1_launcher_*`, `phase251*` など）は Stage‑3 デフォルト環境で安定しないため、quick プロファイルでは `[SKIP:stageb]` として扱い、必要に応じて別プロファイル（integration/full）で個別に実行する。
+- Stage‑B/selfhost canaries（`stage1_launcher_*`, `phase251*` など）は Stage‑3 デフォルト環境で安定しないため、quick プロファイルでは `[SKIP:stageb]` として扱い、必要に応じて別プロファイル（integration/strict/archive）で個別に実行する。
 - Selfhost quick カバレッジは最小 1 本（`core/selfhost_minimal.sh`）に絞り、Stage‑3 + JoinIR 前提で Stage‑B→VM を通るかだけを確認する。
 - S3 backend 向けの長尺テスト群も quick 向きではないため、timeout を短く保ちたい場合は `[SKIP:slow]` にして別途ローカルで回すことを推奨する。
+- `full` is legacy compatibility vocabulary in older docs/configs; current live profile roots are `quick`, `integration`, `strict`, `plugins`, and `archive`.
 
 Quick tips
 - EXE-heavy cases (e.g., `phase2100/*`) may take longer. When running quick with these tests, pass a larger timeout like `--timeout 120`.

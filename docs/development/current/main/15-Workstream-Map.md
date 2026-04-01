@@ -78,6 +78,7 @@ Related:
 - Active small tasks:
   - Map evidence bundle maintenance
   - current boundary-shrink lock-down
+  - folder / smoke docs sync
 - Parked small tasks:
   - warning debt sweep
   - TODO cleanup / ignore triage

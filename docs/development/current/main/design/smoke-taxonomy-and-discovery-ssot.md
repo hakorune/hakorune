@@ -102,9 +102,12 @@ Smoke split work is parked while the kernel migration lane resumes; the suite li
 
 - `profiles/quick/`
 - `profiles/integration/`
-- `profiles/full/`
+- `profiles/strict/`
 - `profiles/plugins/`
 - `profiles/archive/`
+- `profiles/full/` is legacy compatibility vocabulary only; do not treat it as the current live root unless a dedicated tree is reintroduced
+
+`strict` is the live narrow fail-fast gate tier. `quick` stays fast, `integration` stays curated, `plugins` stays plugin-only, and `archive` stays manual replay / retired pins.
 
 ### Rule 2: second level is semantic domain
 

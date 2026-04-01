@@ -7,12 +7,12 @@ Scope: `.hako` ring1 collection core for user-visible collection semantics on th
 - Own user-visible `ArrayBox` / `MapBox` collection semantics in `.hako` ring1.
 - Provide collection-facing `.hako` routing for VM core without pushing collection semantics into ring0.
 - Keep std-layer helpers (`apps/std/*`) out of VM low-level execution path.
-- Delegate raw storage/primitive operations to Rust-owned substrate symbols (`nyash.array.*`, etc.) after the `.hako` layer decides method semantics; Rust keeps the raw substrate for now.
+- Delegate raw storage/primitive operations to Rust-owned substrate symbols (`nyash.array.*`, etc.) after the `.hako` layer decides method semantics; the widening raw substrate now lives under `runtime/substrate/` and the remaining seam keeps shrinking there.
 
 ## Current Truth
 
 - This folder is the visible owner frontier for `ArrayBox` / `MapBox` semantics.
-- Current mainline still delegates primitive storage/ops to Rust-owned ABI/plugin exports; the raw substrate remains Rust-owned until the boundary deepens.
+- Current mainline still delegates some primitive storage/ops to Rust-owned ABI/plugin exports; the widening raw substrate already has live rows under `runtime/substrate/`, and the remaining gaps stay delegated until the boundary deepens.
 - Stage1 is bridge/proof for owner slices here; that does not relabel this folder as the final mainline.
 - Phase plan SSOT: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
 - Rust-side export surface is now split by strata:

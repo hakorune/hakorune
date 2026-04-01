@@ -13,13 +13,15 @@ Phase 15.5でCore Box完全削除後のNyashテストシステム。すべての
 # 統合テスト
 ./tools/smokes/v2/run.sh --profile integration
 
+# narrow fail-fast gate
+./tools/smokes/v2/run.sh --profile strict
+
 # integration の curated suite（推奨）
 ./tools/smokes/v2/run.sh --profile integration --suite presubmit
 ./tools/smokes/v2/run.sh --profile integration --suite collection-core
-
-# 完全テスト
-./tools/smokes/v2/run.sh --profile full
 ```
+
+`full` は legacy compatibility label としてのみ扱い、現在の live profile root とは分けて読む。
 
 ## 📊 現在の状況（2025-09-24）
 
@@ -87,7 +89,7 @@ tools/smokes/v2/
 ├── profiles/                 # テストプロファイル
 │   ├── quick/                # 1-2分の高速テスト
 │   ├── integration/          # 5-10分の統合テスト
-│   ├── full/                 # 15-30分の完全テスト
+│   ├── strict/               # narrow fail-fast gate
 │   ├── plugins/              # plugin専用
 │   └── archive/              # manual replay / retired pins
 ├── lib/                      # 共通ライブラリ
@@ -107,6 +109,7 @@ tools/smokes/v2/
 - 新しい意味階層は `profile -> domain -> intent` を優先する
 - curated daily/presubmit 実行は `tools/smokes/v2/suites/<profile>/<suite>.txt` を使う
 - `--suite` は live discovery を置き換えず、allowlist intersection として働く
+- `strict` is the live narrow gate tier; `full` is legacy compatibility vocabulary only.
 
 ## 🧪 テストの作成方法
 

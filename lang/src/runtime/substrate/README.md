@@ -1,7 +1,7 @@
 # lang/src/runtime/substrate — Substrate Capability Staging Root
 
 Responsibilities:
-- Physical staging root for future capability substrate modules.
+- Physical staging root for live capability substrate modules and future widenings.
 - Home for the `.hako` surface of:
   - `hako.abi`
   - `hako.value_repr`
@@ -16,9 +16,10 @@ Responsibilities:
 
 Current phase reading:
 - This directory is docs-first and namespace-first.
-- It exists to reserve the substrate root and keep future files out of `collections/`.
+- It exists to reserve the substrate root, keep future files out of `collections/`, and host the live first rows already landed here.
 - Current implementation owner remains:
   - `runtime/collections/` for collection owner boxes
+  - `runtime/substrate/` for capability-facing rows and low-level helpers
   - native/Rust substrate for metal helpers and low-level host services
 - First staged capability order is fixed as:
   - `mem`
@@ -60,7 +61,7 @@ Native keep stays outside this directory:
 
 Relationship to existing runtime boxes:
 - `runtime/collections/` keeps current owner boxes (`ArrayCoreBox`, `MapCoreBox`, `RuntimeDataCoreBox`, `StringCoreBox`).
-- `runtime/substrate/` is the future home for capability-facing building blocks those owners may call later.
+- `runtime/substrate/` is the live home for capability-facing building blocks and the lower-level helpers those owners may call later.
 - Do not move collection owner logic here just because a lower-level helper exists.
 
 Non-goals:

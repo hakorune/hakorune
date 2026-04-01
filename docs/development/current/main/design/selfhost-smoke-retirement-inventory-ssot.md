@@ -20,6 +20,7 @@ smokes so future cleanup does not delete live profile entries by mistake.
 - Do not delete selfhost smoke scripts only because repo grep shows few or zero callers.
 - `tools/smokes/v2/run.sh` auto-discovers `*.sh` under a profile directory, but support buckets
   named `archive/lib/tmp/fixtures` are pruned from live discovery.
+- `profiles/strict/` is a live fail-fast gate profile; do not treat it as an archive candidate.
 - Profile members stay live until they either:
   - move into a discovery-pruned support bucket or archive profile, or
   - are replaced by a documented semantic successor and removed from active docs/gates.

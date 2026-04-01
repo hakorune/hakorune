@@ -129,6 +129,7 @@ Keep artifact roots, source roots, task packs, and phase logs separate.
    - `lang/src/**`
    - `crates/**`
    - own implementation modules by responsibility name (`hako_kernel`, `hako_substrate`, `hako_alloc`, etc.)
+   - physical roots today are `lang/src/runtime/kernel/`, `lang/src/runtime/substrate/`, and `lang/src/hako_alloc/`; keep the logical nouns in docs, not in `K0/K1/K2` source trees
    - do not create `K0/K1/K2` source trees
 3. task-pack docs
    - `CURRENT_TASK.md`

@@ -6,7 +6,7 @@ Responsibilities:
 - `collections/`, `numeric/`, `gc/`: low-level runtime helper boxes.
 - `meta/`: compiler semantic tables and owner-policy boxes for stage2 cutover.
 - alloc/policy-plane helpers belong to the `hako_alloc` layer (top-level root: `lang/src/hako_alloc/**`).
-- `substrate/`: future capability substrate staging root (`hako.mem` / `hako.ptr` / etc).
+- `substrate/`: current capability substrate staging root (`hako.mem` / `hako.ptr` / etc).
 
 Rules:
 - Put new `.hako` kernel behavior under `runtime/kernel/**`.
@@ -14,7 +14,7 @@ Rules:
 - Do not add host routing logic under `runtime/kernel/**`.
 - Do not add kernel policy logic under `runtime/host/**`.
 - Do not add kernel runtime behavior under `runtime/meta/**`.
-- Do not move collection owner boxes into `runtime/substrate/**` before the capability modules are explicitly staged.
+- Do not move collection owner boxes into `runtime/substrate/**` just because the root exists; use it for staged capability modules and lower-level helpers only.
 - `runtime/memory/**` is legacy and not the canonical home for alloc/policy helpers.
 - stage1 is bridge/proof for owner slices; stage2+ is the final mainline.
 - Phase plan SSOT: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.

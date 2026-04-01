@@ -25,6 +25,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - canonical rough task-order SSOT
 - `design/kernel-replacement-axis-ssot.md`
   - `K-axis` / artifact / task-placement vocabulary owner
+- `lang/README.md`
+  - source-root / logical-layer placement contract
+- `tools/smokes/v2/README.md`
+  - smoke profile / suite placement contract
 - `main/phases/**`
   - execution detail / blocker history / narrow ledgers
 

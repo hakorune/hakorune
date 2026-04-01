@@ -11,12 +11,15 @@
 1) クイック確認（VM/動的プラグイン）
    - 実行: `tools/smokes/v2/run.sh --profile quick`
    - 代表的な言語機能・using の確認。冗長ログはフィルタ済み
-2) プラグイン検証（VM/動的）
+2) ストリクト確認（narrow fail-fast gate）
+   - 実行: `tools/smokes/v2/run.sh --profile strict`
+   - policy-sensitive な blocker pin を最短で確認する narrow gate
+3) プラグイン検証（VM/動的）
    - 実行: `tools/smokes/v2/run.sh --profile plugins`
    - フィクスチャ .so は自動ビルド・配置を試行（無ければ SKIP）
-3) 統合確認（LLVM/LlvmLite ハーネス含む）
+4) 統合確認（curated suites）
    - 実行: `tools/smokes/v2/run.sh --profile integration`
-   - 必要に応じて PHI-on/off の比較や AOT 代表ケースを実行
+   - 必要に応じて suite-first で curated coverage を回す
 
 手動スモーク（例）
 - Core (LLVM): `examples/llvm11_core_smoke.hako`
@@ -33,6 +36,7 @@
 
 アーカイブ（非推奨）
 - 旧ランナー（JIT/Cranelift 時代）は削除または archive に移動済み。v2 ランナーのみを使用
+- `full` は legacy compatibility label としてのみ扱う。現在の live profile root は `quick / integration / strict / plugins / archive`。
 
 便利フラグ
 - `NYASH_LLVM_USE_HARNESS=1`: integration プロファイルで llvmlite ハーネスを使う
