@@ -1,0 +1,3 @@
+core/phase2044/codegen_provider_llvmlite_canary_vm.sh
+core/phase2044/codegen_provider_llvmlite_compare_branch_canary_vm.sh
+core/phase2044/codegen_provider_llvmlite_const42_canary_vm.sh

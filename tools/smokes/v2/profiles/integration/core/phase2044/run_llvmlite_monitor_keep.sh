@@ -2,17 +2,18 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../../../../../../.." && pwd)"
+MANIFEST="$ROOT/tools/smokes/v2/profiles/integration/core/phase2044/llvmlite_monitor_keep.txt"
 
 echo "[phase2044] llvmlite monitor-only keep"
 
-FILTERS=(
-  'core/phase2044/codegen_provider_llvmlite_canary_vm.sh'
-  'core/phase2044/codegen_provider_llvmlite_compare_branch_canary_vm.sh'
-  'core/phase2044/codegen_provider_llvmlite_const42_canary_vm.sh'
-)
+if [[ ! -f "$MANIFEST" ]]; then
+  echo "[phase2044] missing manifest: $MANIFEST" >&2
+  exit 2
+fi
 
-for filter in "${FILTERS[@]}"; do
+while IFS= read -r filter; do
+  [[ -z "$filter" || "${filter:0:1}" == "#" ]] && continue
   bash "$ROOT/tools/smokes/v2/run.sh" --profile integration --filter "$filter"
-done
+done < "$MANIFEST"
 
 echo "[phase2044] llvmlite monitor-only keep done."

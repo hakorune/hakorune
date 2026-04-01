@@ -174,6 +174,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - `codegen_provider_llvmlite_canary_vm.sh`
   - `codegen_provider_llvmlite_compare_branch_canary_vm.sh`
   - `codegen_provider_llvmlite_const42_canary_vm.sh`
+- the canonical manifest is `tools/smokes/v2/profiles/integration/core/phase2044/llvmlite_monitor_keep.txt`.
 - the `hako_primary_no_fallback_*` scripts are a separate core-exec proof bucket.
 - the `mirbuilder_provider_*` scripts are a separate mirbuilder-provider proof bucket.
 - near-term cleanup separates these semantics with bucket runners first:

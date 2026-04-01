@@ -24,6 +24,8 @@ This directory is not one semantic lane.
 
 ## Bucket Runners
 
+- `tools/smokes/v2/profiles/integration/core/phase2044/llvmlite_monitor_keep.txt`
+  - canonical manifest for the llvmlite keep trio
 - `tools/smokes/v2/profiles/integration/core/phase2044/run_llvmlite_monitor_keep.sh`
   - runs only the llvmlite monitor-only keep trio
 - `tools/smokes/v2/profiles/integration/core/phase2044/run_hako_primary_no_fallback_bucket.sh`
@@ -35,5 +37,5 @@ This directory is not one semantic lane.
 
 - docs should treat the llvmlite trio as a distinct keep bucket
 - do not describe the whole `phase2044/` directory as one llvmlite lane
-- bucket runners separate the semantics without changing discovery paths
+- the manifest plus runner separate the semantics without changing discovery paths
 - if paths are ever split physically, update discovery filters and archive references together
