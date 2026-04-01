@@ -52,6 +52,12 @@ Concrete reading:
 | semantic owner | visible meaning / policy / contract / orchestration | `.hako` |
 | substrate owner | ABI / handle / GC / object layout / raw leaf / LLVM metal | native keep unless separately retired |
 
+Portability rule:
+
+- keep the capability/native split explicit while Linux, Windows (`WSL`/`cmd.exe`), and macOS remain supported daily lanes
+- `.hako` should own semantic/substrate-facing capability facades
+- final OS VM syscall glue, TLS/atomic platform glue, and other platform-specific leaf bodies remain native keep unless a later dedicated retirement wave replaces them
+
 Child SSOTs:
 
 - stage vs owner split: `de-rust-stage-and-owner-axis-ssot.md`
@@ -134,6 +140,7 @@ Reading rule:
 - `K0/K1/K2` folders are for artifact placement only.
 - migration tasks stay under task-pack docs and phase logs.
 - rough task order should not be duplicated into a new artifact-oriented SSOT.
+- portability/ABI/native-keep rationale belongs in stage/owner/capability docs, not in artifact roots.
 
 ## 4. Phase Mapping
 

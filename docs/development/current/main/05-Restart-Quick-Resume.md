@@ -56,6 +56,8 @@ bash tools/selfhost/run_lane_a_daily.sh
     - lowering/manifest drift pack
     - full list stays in `CURRENT_TASK.md` and `design/kernel-implementation-phase-plan-ssot.md`
   - the next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening
+  - keep the capability/native split explicit because Linux / Windows (`WSL`/`cmd.exe`) / macOS portability still requires final OS VM / TLS / atomic / GC leaf glue in native keep
+  - keep migration task notes in `CURRENT_TASK.md`, `15-Workstream-Map.md`, `design/kernel-implementation-phase-plan-ssot.md`, and phase docs; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
   - keep `K1 done-enough` fixed before widening into `K2-wide`
   - keep `RawMap` deferred in `K2-wide`; treat map perf as regression/evidence until a new exact blocker says otherwise
 

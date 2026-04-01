@@ -36,6 +36,8 @@ Related:
      - canonical full list stays in `CURRENT_TASK.md` and `design/kernel-implementation-phase-plan-ssot.md`
    - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence, not the next structural lane
    - stage progression is `K0 -> K1 -> K2`; the next structural lane is `K2-wide` beginning with `RawMapCoreBox`
+   - artifact roots stay binary/bundle only; migration task order remains in `CURRENT_TASK.md`, `design/kernel-implementation-phase-plan-ssot.md`, and phase docs
+   - keep the capability/native split explicit because Linux / Windows (`WSL`/`cmd.exe`) / macOS portability still requires final OS VM / TLS / atomic / GC leaf glue in native keep
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

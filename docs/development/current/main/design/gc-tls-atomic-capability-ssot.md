@@ -28,6 +28,7 @@ Related:
 - `hako.atomic` / `hako.tls` / `hako.gc` の責務を分けて、allocator/runtime policy owner と混ざらないようにする。
 - `Hakozuna portability layer` の前提になる最小 capability vocabulary を決める。
 - `hako.sys` のような catch-all unsafe shelf は作らず、capability family のまま widening する。
+- `.hako` から raw syscall や final platform glue を散らして呼ばず、capability facade と native keep leaf を分けたまま Linux / Windows (`WSL`/`cmd.exe`) / macOS portability を保つ。
 
 ## Fixed Order
 
@@ -114,6 +115,7 @@ current implementation order is seam-first:
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
 - `hako_kernel` / `hako_substrate` と競合する owner noun にしない
 - allocator/TLS/GC policy-owner widening lives beside this wave under `hako_alloc` policy/state rows; do not merge that owner reading into capability modules
+- `hako.osvm` is the `.hako` capability facade, not the final raw OS entry; Linux / Windows / macOS platform glue stays native keep in the current reading
 - truthful seam guard now lives in:
   - `atomic-tls-gc-truthful-native-seam-inventory.md`
 - final TLS end-state guard now lives in:

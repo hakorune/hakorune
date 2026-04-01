@@ -39,7 +39,7 @@ Related:
 | locality/cache | TLS cache policy | platform TLS fallback | live TLS substrate body |
 | concurrency | atomic/TLS/GC policy usage | platform atomics fallback, final GC integration hooks | live capability body |
 | observability | telemetry/profile policy | final ABI/export stubs for host integration | runtime metrics implementation |
-| virtual memory | none | OS VM syscall glue | `hako.osvm` implementation body |
+| virtual memory | `hako.osvm` capability surface | OS VM syscall glue | `hako.osvm` implementation body |
 
 ## Litmus
 
@@ -60,6 +60,7 @@ Related:
 - platform TLS fallback
 - platform atomics fallback
 - final GC integration hook
+- `hako.osvm` is the capability facade only; raw OS VM syscall glue remains native keep in the current reading
 
 ## Fail-Fast Reading
 

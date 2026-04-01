@@ -95,12 +95,14 @@ Related:
   - the current capability row is `hako.osvm` via `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
   - the current policy/state row after `hako.osvm` is `hako_alloc` GC trigger threshold policy
   - `handle reuse policy` is landed below it, and no third live `hako_alloc` row is open yet
+  - keep the capability/native split explicit: `.hako` owns the capability facade, while final OS VM / TLS / atomic / GC platform glue stays native keep for Linux, Windows (WSL/cmd), and macOS portability
   - `K2-wide` widening is read as `RawMap` first, then narrow widening of `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm`, then `hako_alloc` policy/state rows beginning with handle reuse policy
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
   - artifact reading:
     - current repo reality still uses `target/release/hakorune`, `target/selfhost/hakorune`, and `lang/bin/hakorune`
     - target contract is `target/k0|k1/`, promoted `artifacts/k0|k1/`, and `dist/k2/<channel>/<triple>/bundle/`
+    - migration tasks stay in `CURRENT_TASK.md`, `15-Workstream-Map.md`, `design/kernel-implementation-phase-plan-ssot.md`, and phase docs; artifact roots remain binaries/bundles only
 - evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - next horizon inventory:
   - big: `stage / docs / naming` fixation; `K1 done-enough` stop-line fixation; `K2-wide` follow-up; `zero-rust` default operationalization
