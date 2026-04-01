@@ -17,11 +17,19 @@ echo "[k2-wide-osvm-first-row] --- vm-hako subset acceptance ---"
 cargo test -q subset_accepts_externcall_hako_osvm_reserve_bytes_i64 -- --nocapture
 cargo test -q subset_accepts_boxcall_osvmcore_reserve_bytes_i64 -- --nocapture
 cargo test -q compile_v0_emits_mir_call_extern_hako_osvm_reserve_bytes_i64 -- --nocapture
+cargo test -q subset_rejects_boxcall_osvmcore_commit_bytes_i64 -- --nocapture
+cargo test -q subset_rejects_externcall_hako_osvm_commit_bytes_i64 -- --nocapture
 
 echo "[k2-wide-osvm-first-row] --- substrate/vm/abi route lock ---"
 rg -F -q 'reserve_bytes_i64(len_bytes)' "$OSVM_CORE_FILE"
 rg -F -q 'externcall "hako_osvm_reserve_bytes_i64"(len_bytes)' "$OSVM_CORE_FILE"
 rg -F -q '[vm/adapter/osvm:reserve_bytes_i64]' "$OSVM_CORE_FILE"
+if rg -F -q 'commit_bytes_i64' "$OSVM_CORE_FILE" || \
+   rg -F -q 'decommit_bytes_i64' "$OSVM_CORE_FILE" || \
+   rg -F -q 'page_size_i64' "$OSVM_CORE_FILE"; then
+  echo "[k2-wide-osvm-first-row] osvm core widened beyond reserve-only row" >&2
+  exit 1
+fi
 rg -F -q '&& box_type != "OsVmCoreBox"' "$VM_SUBSET_FILE"
 rg -F -q 'if func == "hako_osvm_reserve_bytes_i64"' "$VM_SUBSET_FILE"
 rg -F -q '|| func == "hako_osvm_reserve_bytes_i64/1"' "$VM_SUBSET_FILE"

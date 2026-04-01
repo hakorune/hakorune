@@ -66,6 +66,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
             .and_then(|v| v.as_array())
             .ok_or_else(|| (func_name.clone(), bb, "MissingInstructions".to_string()))?;
         let mut handle_by_reg: HashMap<u64, String> = HashMap::new();
+        let mut box_type_by_reg: HashMap<u64, String> = HashMap::new();
 
         for inst in insts {
             let op = inst.get("op").and_then(|v| v.as_str()).unwrap_or("");
@@ -198,6 +199,14 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                 }
                 "copy" => {
                     update_handle_bindings_from_const_or_copy(inst, &mut handle_by_reg);
+                    if let (Some(dst), Some(src)) = (
+                        inst.get("dst").and_then(|v| v.as_u64()),
+                        inst.get("src").and_then(|v| v.as_u64()),
+                    ) {
+                        if let Some(box_type) = box_type_by_reg.get(&src).cloned() {
+                            box_type_by_reg.insert(dst, box_type);
+                        }
+                    }
                 }
                 "unop" => {
                     let raw = inst
@@ -225,10 +234,25 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                     {
                         return Err((func_name.clone(), bb, format!("newbox({})", box_type)));
                     }
+                    if let Some(dst) = inst.get("dst").and_then(|v| v.as_u64()) {
+                        box_type_by_reg.insert(dst, box_type.to_string());
+                    }
                 }
                 "boxcall" => {
                     if let Err(reason) = boxcalls::validate_boxcall_shape(inst) {
                         return Err((func_name.clone(), bb, reason));
+                    }
+                    let method = inst.get("method").and_then(|v| v.as_str()).unwrap_or("");
+                    if let Some(box_reg) = inst.get("box").and_then(|v| v.as_u64()) {
+                        if let Some(box_type) = box_type_by_reg.get(&box_reg) {
+                            if box_type == "OsVmCoreBox" && method != "reserve_bytes_i64" {
+                                return Err((
+                                    func_name.clone(),
+                                    bb,
+                                    format!("boxcall(osvm:{})", method),
+                                ));
+                            }
+                        }
                     }
                     continue;
                 }
@@ -346,6 +370,13 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                             return Err((func_name.clone(), bb, reason));
                         }
                         continue;
+                    }
+                    if func.starts_with("hako_osvm_") {
+                        return Err((
+                            func_name.clone(),
+                            bb,
+                            format!("externcall({})", func),
+                        ));
                     }
                     if func == "nyash.gc.barrier_write" || func == "nyash.gc.barrier_write/1" {
                         if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
