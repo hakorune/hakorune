@@ -278,10 +278,7 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 4. record archive conditions for the remaining proof/compat caller surfaces before touching `CodegenBridgeBox` or Rust dispatch residues.
   - `phase2111` explicit emit/link pair is archived and `phase251` legacy lowering pair is quarantined.
   - `phase2044` bucket semantics and compat selfhost wrapper ownership are explicitized.
-  - the next sequencing target is the llvmlite monitor-only keep bucket cleanup:
-    - `tools/smokes/v2/profiles/integration/core/phase2044/run_llvmlite_monitor_keep.sh`
-    - `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
-  - after that cleanup, continue with the remaining proof/example callers:
+  - `phase2044` llvmlite monitor-only keep bucket cleanup is complete; the next sequencing target is the remaining proof/example callers:
     - `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
     - `lang/src/vm/hakorune-vm/extern_provider.hako`
 5. keep the legacy helper archive-later until the caller set reaches zero.

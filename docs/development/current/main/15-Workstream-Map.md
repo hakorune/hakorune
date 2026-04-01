@@ -45,7 +45,7 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `phase2044` llvmlite keep bucket cleanup -> proof/example caller drain |
+     | Next | `29x-98` proof/example caller sequencing -> upstream caller drain |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
