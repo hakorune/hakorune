@@ -14,28 +14,27 @@ tools/test_something_smoke.sh   # ❌ ダメ
 # プロファイル別に配置
 tools/smokes/v2/profiles/quick/feature_name/test.sh      # 1-2分テスト
 tools/smokes/v2/profiles/integration/feature_name/test.sh # 5-10分テスト
-tools/smokes/v2/profiles/full/feature_name/test.sh       # 完全テスト
+tools/smokes/v2/profiles/strict/feature_name/test.sh      # fail-fast gate
+tools/smokes/v2/profiles/archive/feature_name/test.sh     # manual replay / retired pins
 ```
 
 ### 📁 現在の構造
 ```
 v2/
 ├── profiles/
-│   ├── quick/
-│   │   ├── using/        # using systemテスト
-│   │   │   ├── named_packages.sh
-│   │   │   └── minimal_test.hako
-│   │   ├── boxes/        # Box関連テスト
-│   │   └── core/         # コア機能テスト
-│   ├── integration/
-│   └── full/
+│   ├── quick/        # development-time fast checks
+│   ├── integration/  # curated integration / heavier tests
+│   ├── strict/       # fail-fast gate coverage
+│   ├── plugins/      # plugin-loader / plugin-contract tests
+│   ├── archive/      # manual replay / retired pins
+│   └── lib/          # shared helpers
 ├── configs/              # テスト設定
-│   └── using_tests.conf
+├── suites/               # curated suite manifests
 └── run.sh               # 統一エントリポイント
 ```
 
 ### 🎯 新しいテスト追加時の手順
-1. まず適切なprofile/ディレクトリを選ぶ（quick/integration/full）
+1. まず適切なprofile/ディレクトリを選ぶ（quick/integration/strict/plugins/archive）
 2. 機能名のサブディレクトリを作る
 3. テストスクリプトまたは.hakoファイルを配置
 4. configs/に設定ファイルを追加（オプション）

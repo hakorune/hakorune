@@ -49,7 +49,7 @@ Related:
   - current reality: `target/release/hakorune`, `target/selfhost/hakorune`, `lang/bin/hakorune`
   - target contract: `target/k0|k1/`, `artifacts/k0|k1/`, `dist/k2/<channel>/<triple>/bundle/`
   - migration tasks do not live in artifact roots
-- before the next optimization wave, sync folder structure and smoke taxonomy docs; that prep is separate from `K2-wide`
+- folder structure and smoke taxonomy docs are synced; the next optimization wave can read the current layout without extra prep
 
 ## Exact Links
 

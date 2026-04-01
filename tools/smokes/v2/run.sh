@@ -1,6 +1,6 @@
 #!/bin/bash
 # run.sh - スモークテストv2 単一エントリポイント
-# Usage: ./run.sh --profile {quick|integration|full} [options]
+# Usage: ./run.sh --profile {quick|integration|strict|plugins|archive} [options]
 
 set -euo pipefail
 
@@ -60,7 +60,9 @@ Usage:
 Profiles:
   quick        Development-time fast checks (1-2 min)
   integration  Basic VM ↔ LLVM parity checks (5-10 min)
-  full         Complete matrix testing (15-30 min)
+  strict       Narrow fail-fast gate and blocker checks
+  plugins      Plugin-loader and plugin-contract coverage
+  archive      Manual replay / retired pins
 
 Options:
   --profile PROFILE         Test profile to run
@@ -90,8 +92,8 @@ Examples:
   # Integration suite manifest
   ./run.sh --profile integration --suite presubmit
 
-  # Full testing with JSON output
-  ./run.sh --profile full --format json --jobs 4 --timeout 300
+  # Strict gate with JSON output
+  ./run.sh --profile strict --format json --jobs 4 --timeout 300
 
   # Dry run to see what would be tested
   ./run.sh --profile integration --dry-run
@@ -166,11 +168,11 @@ parse_arguments() {
 
     # プロファイル検証
     case "$PROFILE" in
-        quick|integration|full|plugins)
+        quick|integration|strict|plugins|archive)
             ;;
         *)
             log_error "Invalid profile: $PROFILE"
-            log_error "Valid profiles: quick, integration, full, plugins"
+            log_error "Valid profiles: quick, integration, strict, plugins, archive"
             exit 1
             ;;
     esac

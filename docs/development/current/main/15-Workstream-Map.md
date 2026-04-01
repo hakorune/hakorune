@@ -26,7 +26,7 @@ Related:
      - `K1 done-enough stop-line`
      - `K2-core accepted stop-line`
      - `K2-wide boundary-shrink lock-down`
-     - `zero-rust default`
+     - `zero-rust default operationalization`
    - current read:
      - `K2-core` is closed
      - `K2-wide` is now the next structural lane
@@ -78,7 +78,6 @@ Related:
 - Active small tasks:
   - Map evidence bundle maintenance
   - current boundary-shrink lock-down
-  - folder / smoke docs sync
 - Parked small tasks:
   - warning debt sweep
   - TODO cleanup / ignore triage
