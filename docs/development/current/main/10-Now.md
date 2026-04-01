@@ -41,7 +41,7 @@ Related:
 - `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-29x backend owner cutover prep`.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
-- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green and the next exact focus is `29x-98 legacy-route cleanup conditions (`stage1_cli` / `extern_provider` keep; proof/example archive-later; `LLVMEmitBox` keep)`.
+- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green and the next exact focus is `29x-98 legacy-route cleanup conditions (`extern_provider` keep -> proof/example archive-later -> `LLVMEmitBox` keep)`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:

@@ -87,7 +87,6 @@ Direct code callers currently in tree:
 
 | Caller | Bucket | Note |
 | --- | --- | --- |
-| `lang/src/runner/stage1_cli/core.hako` | compat/proof | legacy Stage1 CLI LLVM path still pushes MIR(JSON) into `CodegenBridgeBox.emit_object_args(...)`; current authority is no longer this file |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/proof keep | provider-first stub / canary-only surface; not a daily owner |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` gated compatibility stub only |
 | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` | example/proof | explicit proof/example caller, not a daily route |
@@ -107,10 +106,9 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 ## Direct Caller Findings
 
 - `lang/src/runner/stage1_cli/core.hako`
-  - the legacy `backend == "llvm"` branch still pushes MIR(JSON) into `CodegenBridgeBox.emit_object_args(...)`.
-  - treat as compat/proof bootstrap lane, not daily/mainline.
-  - live stage1 artifact authority now sits at `lang/src/runner/stage1_cli_env.hako`; daily backend callers should stop at `lang/src/shared/backend/llvm_backend_box.hako`.
-  - cleanup target: move the legacy Stage1 CLI llvm branch away from MIR(JSON) bridge ownership before retiring this caller.
+  - the legacy `backend == "llvm"` branch is now retired from this raw compat lane.
+  - the file no longer calls `CodegenBridgeBox.emit_object_args(...)`; it fail-fasts with an explicit unsupported-backend marker instead.
+  - live stage1 artifact authority stays at `lang/src/runner/stage1_cli_env.hako`; daily backend callers still stop at `lang/src/shared/backend/llvm_backend_box.hako`.
 - `lang/src/vm/hakorune-vm/extern_provider.hako`
   - only active when `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; otherwise it returns an empty compat stub.
   - treat as compat/proof only, not daily/mainline.
@@ -151,6 +149,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 ## Ordered Investigation Queue
 
 1. `lang/src/runner/stage1_cli/core.hako`
+   - landed: raw compat llvm branch retired; no longer a direct caller.
 2. `lang/src/vm/hakorune-vm/extern_provider.hako`
 3. `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
 4. proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers

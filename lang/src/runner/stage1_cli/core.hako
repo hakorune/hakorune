@@ -5,7 +5,6 @@ using lang.runner.stage1_cli.program_json_input as Stage1CliProgramJsonInputBox
 using lang.runner.stage1_cli.program_json_mir as Stage1CliProgramJsonMirBox
 using lang.runner.stage1_cli.raw_subcommand_input as Stage1CliRawSubcommandInputBox
 using lang.runner.stage1_cli.dispatch as Stage1CliDispatchBox
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
 
 static box Stage1Cli {
   // Source(.hako) → Program(JSON v0)
@@ -26,9 +25,9 @@ static box Stage1Cli {
     return me._emit_mir_json_from_program_json_checked(tag, program_json)
   }
 
-  // Run Program(JSON v0) on selected backend (vm|llvm|pyvm)
+  // Run Program(JSON v0) on selected backend (vm|pyvm)
   // - vm/pyvm: convert to MIR(JSON) and print to stdout（実行 path は未配線）
-  // - llvm   : emit object via env.codegen; TODO: link+exec in後続フェーズ
+  // - llvm   : retired from this raw compat lane; daily/backend-zero callers stop at LlvmBackendBox
   method run_program_json(program_json, backend) {
     local tag = "[stage1-cli] run program-json"
     if program_json == null {
@@ -41,15 +40,14 @@ static box Stage1Cli {
     if mir == null { return 98 }
 
     if backend == "llvm" {
-      local args = new ArrayBox()
-      args.push(mir)
-      local obj = CodegenBridgeBox.emit_object_args(args)
-      if obj == null || obj == "" {
-        print(tag + ": env.codegen.emit_object failed")
-        return 98
-      }
-      print("[stage1-cli] llvm object: " + obj)
-      return 0
+      print(tag + ": unsupported backend for legacy stage1 raw route: llvm")
+      print("             use stage1_cli_env.hako / LlvmBackendBox for root-first compile")
+      return 96
+    }
+
+    if !(backend == "vm" || backend == "pyvm") {
+      print(tag + ": unsupported backend: " + backend)
+      return 96
     }
 
     // vm / pyvm: 現状は MIR(JSON) を吐いて終了（実行は Stage0 側に後続で橋渡し）
