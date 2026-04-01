@@ -70,6 +70,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
+- Exact focus: `29x-98 legacy-route cleanup conditions (`stage1_cli` / `extern_provider` keep; proof/example archive-later; `LLVMEmitBox` keep)`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -86,7 +87,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `phase-29x` daily gate and backend-owner cutover prep |
+  | Next | `29x-98` cleanup conditions (`stage1_cli` / `extern_provider` keep; proof/example archive-later; `LLVMEmitBox` keep) |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

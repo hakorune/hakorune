@@ -43,7 +43,7 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `phase-29x` daily gate / backend-owner cutover prep |
+     | Next | `29x-98` cleanup conditions (`stage1_cli` / `extern_provider` keep; proof/example archive-later; `LLVMEmitBox` keep) |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

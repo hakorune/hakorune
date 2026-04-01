@@ -43,6 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
+- Exact focus: `29x-98 legacy-route cleanup conditions (`stage1_cli` / `extern_provider` keep; proof/example archive-later; `LLVMEmitBox` keep)`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -53,9 +54,11 @@ bash tools/selfhost/run_lane_a_daily.sh
   3. `docs/development/current/main/phases/phase-29x/README.md`
   4. `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
   5. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
+  6. `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front
+  - keep compat callers explicit and record archive conditions for proof/example callers before touching `emit_object_from_mir_json(...)`
   - keep portability split explicit: `.hako` capability facade, native keep leaf glue
   - keep migration task notes in root/docs/phase owners; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
 

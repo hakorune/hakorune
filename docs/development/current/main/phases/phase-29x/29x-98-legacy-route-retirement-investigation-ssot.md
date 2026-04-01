@@ -81,6 +81,66 @@ The canonical successor family is the root-first daily route, concretely `env.co
   - cleanup target is the compiled-stage1/module-dispatch caller set, not the surrogate file first.
   - current upstream owner is `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` via `try_dispatch(...)`, with compat/proof callers on `selfhost.shared.backend.llvm_backend.{compile_obj,link_exe}`.
 
+## `CodegenBridgeBox.emit_object_args(...)` Caller Inventory
+
+Direct code callers currently in tree:
+
+| Caller | Bucket | Note |
+| --- | --- | --- |
+| `lang/src/runner/stage1_cli/core.hako` | compat/proof | legacy Stage1 CLI LLVM path still pushes MIR(JSON) into `CodegenBridgeBox.emit_object_args(...)`; current authority is no longer this file |
+| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/proof keep | provider-first stub / canary-only surface; not a daily owner |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` gated compatibility stub only |
+| `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` | example/proof | explicit proof/example caller, not a daily route |
+
+Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers currently in tree:
+
+| Caller | Bucket | Note |
+| --- | --- | --- |
+| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_compare_branch_canary_vm.sh` | proof-only | llvmlite compare/provider canary |
+| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_canary_vm.sh` | proof-only | llvmlite provider canary |
+| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_const42_canary_vm.sh` | proof-only | llvmlite provider canary |
+| `tools/smokes/v2/profiles/integration/core/phase2111/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh` | proof-only | explicit emit/link proof on legacy lane |
+| `tools/smokes/v2/profiles/integration/core/phase2111/s3_link_run_llvmcapi_map_set_size_canary_vm.sh` | proof-only | explicit emit/link proof on legacy lane |
+| `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_provider_vm.sh` | proof-only | selfhost lowering proof for legacy extern name |
+| `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_vm.sh` | proof-only | selfhost lowering proof for legacy extern name |
+
+## Direct Caller Findings
+
+- `lang/src/runner/stage1_cli/core.hako`
+  - the legacy `backend == "llvm"` branch still pushes MIR(JSON) into `CodegenBridgeBox.emit_object_args(...)`.
+  - treat as compat/proof bootstrap lane, not daily/mainline.
+  - live stage1 artifact authority now sits at `lang/src/runner/stage1_cli_env.hako`; daily backend callers should stop at `lang/src/shared/backend/llvm_backend_box.hako`.
+  - cleanup target: move the legacy Stage1 CLI llvm branch away from MIR(JSON) bridge ownership before retiring this caller.
+- `lang/src/vm/hakorune-vm/extern_provider.hako`
+  - only active when `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; otherwise it returns an empty compat stub.
+  - treat as compat/proof only, not daily/mainline.
+  - cleanup target: remove upstream `env.codegen.emit_object` compat callers first, then retire this gated stub.
+- `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
+  - explicit proof/example caller that still demonstrates `emit_object_args(...)` plus `link_object_args(...)`.
+  - not a daily route and not a current owner.
+  - direct invoker is `tools/selfhost/run_compat_pure_selfhost.sh`.
+  - cleanup target: demote or archive once proof/example coverage moves to the root-first route.
+- `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
+  - provider-first canary/proof stub only; not a daily owner.
+  - `HAKO_LLVM_EMIT_PROVIDER` remains a canary selector, not a daily backend selector.
+  - cleanup target: keep explicit as compat/proof keep until the canary surface moves to `LlvmBackendBox` or is archived.
+
+## Proof-Only Caller Findings
+
+| Surface group | Status | Daily-route dependency | Cleanup / archive condition |
+| --- | --- | --- | --- |
+| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | active proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
+| `tools/smokes/v2/profiles/integration/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | active proof-only coverage on the legacy emit/link lane | none | archive when root-first compile/link coverage replaces these explicit emit/link proofs |
+| `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | active proof-only lowering evidence for the legacy extern name | none | archive when selfhost lowering proof moves to the root-first route and the helper caller inventory reaches zero |
+
+## Ordered Investigation Queue
+
+1. `lang/src/runner/stage1_cli/core.hako`
+2. `lang/src/vm/hakorune-vm/extern_provider.hako`
+3. `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
+4. proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers
+5. `lang/src/llvm_ir/emit/LLVMEmitBox.hako` keep/archive decision
+
 ## Retirement Order
 
 1. keep `hostbridge.rs`, `loader_cold.rs`, and `extern_functions.rs` as explicit compat callers until their upstream callers stop owning MIR(JSON) and switch to the root-first daily route.
