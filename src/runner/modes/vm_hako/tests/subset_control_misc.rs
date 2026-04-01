@@ -548,6 +548,36 @@ fn subset_accepts_externcall_hako_barrier_touch_i64() {
 }
 
 #[test]
+fn subset_accepts_externcall_nyash_gc_barrier_write() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 0 }
+                    },
+                    {
+                        "op": "externcall",
+                        "func": "nyash.gc.barrier_write/1",
+                        "args": [1],
+                        "dst": 2
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_boxcall_atomiccore_fence_i64() {
     let mir_json = json!({
         "functions": [{
@@ -569,6 +599,42 @@ fn subset_accepts_boxcall_atomiccore_fence_i64() {
                         "args": []
                     },
                     { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_boxcall_gccore_write_barrier_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "GcCoreBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 0 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "write_barrier_i64",
+                        "box": 1,
+                        "dst": 3,
+                        "args": [2]
+                    },
+                    { "op": "ret", "value": 3 }
                 ]
             }]
         }]

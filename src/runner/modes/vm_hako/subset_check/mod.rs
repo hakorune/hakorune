@@ -219,6 +219,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         && box_type != "LlvmBackendBox"
                         && box_type != "TlsCoreBox"
                         && box_type != "AtomicCoreBox"
+                        && box_type != "GcCoreBox"
                         && box_type != "Main"
                     {
                         return Err((func_name.clone(), bb, format!("newbox({})", box_type)));
@@ -329,6 +330,15 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
                             inst,
                             "hako_barrier_touch_i64",
+                        ) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "nyash.gc.barrier_write" || func == "nyash.gc.barrier_write/1" {
+                        if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
+                            inst,
+                            "nyash.gc.barrier_write",
                         ) {
                             return Err((func_name.clone(), bb, reason));
                         }

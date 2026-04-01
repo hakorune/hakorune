@@ -177,7 +177,8 @@ Stop line:
   - MapBox lowering lock
   - raw-map ABI/substrate route lock
 - current capability-row pack starts with `hako.atomic` and `AtomicCoreBox.fence_i64()`
-- next capability-row pack is helper-shaped `hako.tls` via `TlsCoreBox.last_error_text_h()`
+- current helper-shaped capability-row pack is `hako.tls` via `TlsCoreBox.last_error_text_h()`
+- next capability-row pack is `hako.gc` via `GcCoreBox.write_barrier_i64(handle_or_ptr)`
 
 ### 5. Regression / perf pack
 

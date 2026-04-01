@@ -100,6 +100,10 @@ current implementation order is seam-first:
   - vm-hako subset accepts `externcall(hako_last_error/1)`
   - vm-hako subset accepts `boxcall(TlsCoreBox.last_error_text_h)`
   - substrate/vm route lock keeps `TlsCoreBox.last_error_text_h()` on `hako_last_error -> nyash.box.from_i8_string`
+- first-row acceptance for `hako.gc` is:
+  - vm-hako subset accepts `externcall(nyash.gc.barrier_write/1)`
+  - vm-hako subset accepts `boxcall(GcCoreBox.write_barrier_i64)`
+  - substrate/vm route lock keeps `GcCoreBox.write_barrier_i64()` on `nyash.gc.barrier_write`
 - `hako.osvm` remains part of the same capability family even when its first truthful rows are still docs-first / narrow
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
 - `hako_kernel` / `hako_substrate` と競合する owner noun にしない
