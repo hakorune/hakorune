@@ -8,6 +8,8 @@
 1. active pure C-API keep pins
    - `core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh`
    - `core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh`
+   - canonical manifest: `tools/smokes/v2/profiles/integration/core/phase2120/pure_keep.txt`
+   - dedicated suite manifest: `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`
    - `HAKO_CAPI_PURE=1` 必須
    - historical pure-lowering evidence
    - no exact root-first replacement exists yet, so these two remain keep
@@ -41,7 +43,7 @@
     - `tools/smokes/v2/profiles/integration/core/phase2120/run_vm_adapter_legacy_cluster.sh`
 - historical compat pure-pack entry:
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
-  - active pins are now the two `array_set_get` / `loop_count` canaries under `--profile integration --filter 'core/phase2120/...sh'`
+  - active keep pins now run via `--profile integration --suite phase2120-pure-keep`
   - archive-backed pins are invoked via `--profile archive --filter 'core/phase2120/...sh'`
 - shell wrapper:
   - `tools/selfhost/run_compat_pure_pack.sh`

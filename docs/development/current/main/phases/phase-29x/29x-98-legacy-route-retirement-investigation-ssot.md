@@ -206,7 +206,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - `run_vm_adapter_legacy_cluster.sh`
 - current blockers are:
   - `tools/selfhost/run_compat_pure_selfhost.sh` still demonstrates the old `CodegenBridgeBox.emit_object_args(...)` plus `link_object_args(...)` route.
-  - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` still owns the two active historical pure C-API keep pins (`array_set_get`, `loop_count`); `ternary_collect` / `map_set_size` are archive-backed historical evidence.
+  - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` still owns the two active historical pure C-API keep pins (`array_set_get`, `loop_count`), now locked by `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`; `ternary_collect` / `map_set_size` are archive-backed historical evidence.
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_vm_adapter_legacy_cluster.sh` is still a separate legacy cluster under the same phase directory.
   - `HAKO_CAPI_PURE=1` is still documented as a compat-only route, not as removed/no-op.
 - archive-ready only when all three hold:

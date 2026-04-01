@@ -36,7 +36,7 @@ Related:
      - current active lane is `phase-29x backend owner cutover prep`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
-     - phase2120 pure canaries are now 2 active keep pins plus archive-backed historical pins; `ternary_collect` / `map_set_size` moved to archive replay
+     - phase2120 pure canaries are now 2 active keep pins plus archive-backed historical pins; the live keep pair is locked by `phase2120-pure-keep`, and `ternary_collect` / `map_set_size` moved to archive replay
      - phase2044 semantics are split by bucket runner; only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
