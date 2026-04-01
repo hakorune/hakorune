@@ -100,6 +100,7 @@ Related:
    - logical home is `lang/src/runtime/kernel/`
 2. `hako_substrate`
    - `RawArray` / `RawMap` / capability-backed low-level control
+   - PAL-like `.hako substrate` role above the final libc / platform leaf
    - logical home is `lang/src/runtime/substrate/`
 3. capability floor
    - `hako.abi`
@@ -118,6 +119,7 @@ Naming rule:
 - do not use `hako.rt` as a competing kernel-owner noun
 - `file/process/time/net` live under `hako_std`, while page reserve/commit/decommit stays under `hako.osvm`
 - `hako.osvm` names the `.hako` capability surface; final OS VM syscall glue and platform-specific body stay native keep until a later dedicated retirement wave says otherwise
+- do not collapse `hako_substrate` or `hako_std` into a single giant OS facade; keep PAL-like control split by capability family and library family
 
 ### Native keep
 

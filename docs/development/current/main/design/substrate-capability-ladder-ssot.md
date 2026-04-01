@@ -42,6 +42,7 @@ Related:
 2. `hako_substrate`
    - `RawArray` / `RawMap` / future allocator state machine
    - capability module を使う low-level control structure
+   - PAL-like `.hako substrate` layer that owns low-level control shape while leaving final libc / OS glue below
 3. capability substrate
    - `hako.abi`
    - `hako.value_repr`
@@ -66,9 +67,11 @@ Related:
 - preferred target is not `native metal zero`.
 - preferred target is:
   - `.hako` owns meaning/policy/control
+  - `hako_substrate` owns the PAL-like low-level control role
   - capability substrate exposes the minimum unsafe power required to express low-level algorithms
   - native keeps only OS/ABI/GC metal
 - do not introduce `hako.sys` as a monolithic unsafe shelf; keep the capability family split and name the two `.hako` owner layers as `hako_kernel` and `hako_substrate`.
+- do not mirror a single `std::sys::pal`-style giant OS layer under `.hako`; split future OS-facing substrate work by capability family and keep final libc / platform glue below that seam.
 
 ## Capability Modules
 
@@ -109,6 +112,12 @@ logical module family は次で固定する。
 - `hako.osvm`
   - page reserve/commit/decommit facade
 
+Future OS-facing surface stays split by family as well:
+
+- `hako.osvm` for page/virtual-memory capability
+- `hako_std` families for file/process/time/env/net-facing facades
+- no monolithic `.hako` OS shelf that mixes those responsibilities
+
 physical staging path は、当面 `lang/src/runtime/substrate/` に置く読みで固定する。
 logical `hako.*` 名が先で、directory 名はそれに従わせる。
 
@@ -129,6 +138,7 @@ current root lock is:
 - final GC integration points
 
 `native keep` は policy owner ではなく、metal service provider として扱う。
+It is the final libc / syscall / platform-difference absorber for Linux, Windows, and macOS leaf behavior.
 
 ## Safety Lock
 

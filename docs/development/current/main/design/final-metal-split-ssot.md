@@ -28,6 +28,7 @@ Related:
 - この slice は docs-only。
 - physical staging root はまだ増やさない。
 - `C5` は deferred future item として fixed order 上に残すが、current implementation target ではない。
+- preferred shape is `.hako owner -> .hako substrate/PAL-like layer -> thin libc/OS glue -> platform`, not a single monolithic `.hako` OS layer.
 
 ## Final Split Table
 
@@ -51,6 +52,7 @@ Related:
 - reclaim decisions
 - size/bin classification
 - telemetry/profile decisions
+- PAL-like capability facades and low-level control structure above the final OS/libc leaf
 
 ### Keep It Native
 
@@ -61,6 +63,7 @@ Related:
 - platform atomics fallback
 - final GC integration hook
 - `hako.osvm` is the capability facade only; raw OS VM syscall glue remains native keep in the current reading
+- Linux / Windows / macOS leaf differences stay here unless a later dedicated retirement wave replaces them
 
 ## Fail-Fast Reading
 
