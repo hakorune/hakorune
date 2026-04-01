@@ -46,8 +46,12 @@ Related:
 - active macro wave: `W2 mixed-file split pass`
 - active micro-task:
   - `99G split extern_provider.hako`
+- next queued micro-task:
+  - `99G1 suites / directory semantic recut`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
+  - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
+  - `99E4` is absorbed into `W2` `99I` owner API / evidence adapter split.
 
 ## Micro Tasks
 
@@ -95,6 +99,7 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
+| `99G1` | pending | suites / directory semantic recut | `phase2044` / `phase2120` / archive suites read as semantic homes instead of phase-number homes |
 | `99K` | pending | physically recut `phase2044` into semantic buckets | llvmlite keep, hako-primary-no-fallback, and mirbuilder-provider stop sharing one live directory |
 | `99L` | pending | physically recut `phase2120` into semantic buckets | pure-keep / pure-historical-replay / vm-adapter-legacy / native-reference get separate homes |
 | `99M` | pending | bundle archive proof surfaces semantically | `phase2111` + `phase251` replay evidence can be read as one archive bundle |

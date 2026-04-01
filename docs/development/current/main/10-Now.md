@@ -45,6 +45,7 @@ Related:
 - direct live callers are fixed at 5 surfaces; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now.
 - `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99G split extern_provider.hako`.
+- next queued micro task is `99G1 suites / directory semantic recut`.
 - immediate cleanup order is `compat selfhost wrapper archive conditions -> upstream caller drain`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.

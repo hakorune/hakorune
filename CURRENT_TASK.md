@@ -84,6 +84,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `29x-98` still owns helper deletion and exact stop-line; no low-blast caller reduction is visible now
   - `29x-99` now owns beauty-first cleanup planning, with `W2 mixed-file split pass` active
   - current active micro task is `99G split extern_provider.hako`
+  - next queued micro task is `99G1 suites / directory semantic recut`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`

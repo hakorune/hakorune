@@ -68,6 +68,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 - direct live callers are fixed at 5 surfaces; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; `29x-99` now owns beauty-first cleanup waves.
 - active micro task is `99G split extern_provider.hako`.
+- next queued micro task is `99G1 suites / directory semantic recut`.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front
