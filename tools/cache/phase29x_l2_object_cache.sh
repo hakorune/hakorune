@@ -76,12 +76,12 @@ if [ ! -f "$INPUT_PATH" ]; then
   exit 2
 fi
 
-if [ ! -x "$KEY_TOOL" ]; then
+if [ ! -f "$KEY_TOOL" ]; then
   echo "phase29x_l2_object_cache: key tool missing: $KEY_TOOL" >&2
   exit 2
 fi
 
-if [ ! -x "$L1_TOOL" ]; then
+if [ ! -f "$L1_TOOL" ]; then
   echo "phase29x_l2_object_cache: l1 tool missing: $L1_TOOL" >&2
   exit 2
 fi
@@ -98,14 +98,14 @@ else
 fi
 
 # L2 contract depends on L1 artifact existence.
-L1_OUT="$("$L1_TOOL" --input "$INPUT_PATH" --profile "$PROFILE" --backend "$BACKEND" --target "$TARGET" --cache-root "$CACHE_ROOT")"
+L1_OUT="$(bash "$L1_TOOL" --input "$INPUT_PATH" --profile "$PROFILE" --backend "$BACKEND" --target "$TARGET" --cache-root "$CACHE_ROOT")"
 L1_STATUS="$(printf "%s\n" "$L1_OUT" | awk -F= '$1 == "cache_status" { print $2 }')"
 
 KEY_ARGS=(--input "$INPUT_PATH" --profile "$PROFILE" --backend "$BACKEND" --target "$TARGET")
 if [ -n "$ABI_BOUNDARY_DIGEST" ]; then
   KEY_ARGS+=(--abi-boundary-digest "$ABI_BOUNDARY_DIGEST")
 fi
-KEY_INFO="$("$KEY_TOOL" "${KEY_ARGS[@]}")"
+KEY_INFO="$(bash "$KEY_TOOL" "${KEY_ARGS[@]}")"
 
 key_of() {
   local name="$1"

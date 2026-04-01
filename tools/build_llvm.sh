@@ -219,10 +219,17 @@ fi
 # Ensure output directory exists
 mkdir -p "$(dirname "$OUT")"
 echo "[4/4] Linking $OUT ..."
+LINK_NO_PIE_FLAG=()
+if [[ "$(uname -s)" == Linux* ]]; then
+  # GNU/Linux toolchains commonly default to PIE. This path links a raw LLVM
+  # object that expects a non-PIE final link, matching the AOT runtime shim.
+  LINK_NO_PIE_FLAG=(-no-pie)
+fi
 cc "$OBJ" \
   -L "$CARGO_TARGET_DIR_EFFECTIVE/release" \
   -L crates/nyash_kernel/target/release \
   -Wl,--whole-archive -lnyash_kernel -Wl,--no-whole-archive \
+  "${LINK_NO_PIE_FLAG[@]}" \
   -lpthread -ldl -lm -o "$OUT"
 
 echo "✅ Done: $OUT"

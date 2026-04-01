@@ -83,12 +83,12 @@ if [ ! -f "$INPUT_PATH" ]; then
   exit 2
 fi
 
-if [ ! -x "$KEY_TOOL" ]; then
+if [ ! -f "$KEY_TOOL" ]; then
   echo "phase29x_l3_link_cache: key tool missing: $KEY_TOOL" >&2
   exit 2
 fi
 
-if [ ! -x "$L2_TOOL" ]; then
+if [ ! -f "$L2_TOOL" ]; then
   echo "phase29x_l3_link_cache: l2 tool missing: $L2_TOOL" >&2
   exit 2
 fi
@@ -102,7 +102,7 @@ L2_ARGS=(--input "$INPUT_PATH" --profile "$PROFILE" --backend "$BACKEND" --targe
 if [ -n "$ABI_BOUNDARY_DIGEST" ]; then
   L2_ARGS+=(--abi-boundary-digest "$ABI_BOUNDARY_DIGEST")
 fi
-L2_OUT="$("$L2_TOOL" "${L2_ARGS[@]}")"
+L2_OUT="$(bash "$L2_TOOL" "${L2_ARGS[@]}")"
 
 l2_of() {
   local name="$1"

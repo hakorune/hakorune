@@ -193,4 +193,26 @@ mod tests {
         assert_eq!(nyash_runtime_data_get_hh(handle, key), 77);
         assert_eq!(nyash_runtime_data_get_hh(handle, new_string_handle("missing")), 0);
     }
+
+    #[test]
+    fn runtime_data_map_immediate_zero_key_keeps_shared_facade_contract() {
+        let handle = new_map_handle();
+        let value = new_int_handle(88);
+
+        assert_eq!(nyash_runtime_data_set_hhh(handle, 0, value), 1);
+        assert_eq!(nyash_runtime_data_has_hh(handle, 0), 1);
+        assert_eq!(nyash_runtime_data_get_hh(handle, 0), 88);
+    }
+
+    #[test]
+    fn runtime_data_array_result_can_feed_map_zero_key_contract() {
+        let array_handle = new_array_handle();
+        assert_eq!(nyash_runtime_data_push_hh(array_handle, 0), 1);
+        let array_value = nyash_runtime_data_get_hh(array_handle, 0);
+
+        let map_handle = new_map_handle();
+        assert_eq!(nyash_runtime_data_set_hhh(map_handle, 0, array_value), 1);
+        assert_eq!(nyash_runtime_data_has_hh(map_handle, 0), 1);
+        assert_eq!(nyash_runtime_data_get_hh(map_handle, 0), array_value);
+    }
 }

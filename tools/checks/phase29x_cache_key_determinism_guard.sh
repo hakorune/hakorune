@@ -5,8 +5,8 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 KEY_TOOL="$ROOT_DIR/tools/cache/phase29x_cache_keys.sh"
 FIXTURE="$ROOT_DIR/apps/tests/hello_simple_llvm.hako"
 
-if [ ! -x "$KEY_TOOL" ]; then
-  echo "[cache-key-guard] ERROR: key tool missing or not executable: $KEY_TOOL"
+if [ ! -f "$KEY_TOOL" ]; then
+  echo "[cache-key-guard] ERROR: key tool missing: $KEY_TOOL"
   exit 1
 fi
 
@@ -33,7 +33,7 @@ extract_key() {
 run_keygen() {
   local out_file="$1"
   shift
-  "$KEY_TOOL" --input "$FIXTURE" "$@" >"$out_file"
+  bash "$KEY_TOOL" --input "$FIXTURE" "$@" >"$out_file"
 }
 
 echo "[cache-key-guard] run baseline #1"
