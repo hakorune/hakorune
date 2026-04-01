@@ -208,6 +208,25 @@ class TestCollectionMethodCall(unittest.TestCase):
         self.assertIn("nyash.map.delete_hh", ir_text)
         self.assertNotIn("nyash.runtime_data.delete_hh", ir_text)
 
+    def test_runtime_data_delete_stays_unrouted_on_facade(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            box_name="RuntimeDataBox",
+            method_name="delete",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[2],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+        )
+        builder.ret(result if result is not None else ir.Constant(i64, 0))
+
+        ir_text = str(module)
+        self.assertIsNone(result)
+        self.assertNotIn("nyash.runtime_data.delete_hh", ir_text)
+        self.assertNotIn("nyash.map.delete_hh", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

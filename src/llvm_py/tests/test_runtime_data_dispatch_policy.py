@@ -8,6 +8,7 @@ from src.llvm_py.instructions.mir_call.runtime_data_dispatch import (
     _prefer_array_mono_route_default,
     _reset_runtime_data_array_route_policy_cache_for_tests,
     lower_runtime_data_field_call,
+    lower_runtime_data_method_call,
     select_array_collection_call_spec,
     select_runtime_data_call_spec,
 )
@@ -223,6 +224,42 @@ class TestRuntimeDataDispatchPolicy(unittest.TestCase):
             arg_vids=[1],
         )
         self.assertIsNone(spec)
+
+    def test_runtime_data_delete_stays_unrouted_on_facade(self):
+        resolver = _DummyResolver(
+            value_types={
+                1: {"kind": "handle", "box_type": "RuntimeDataBox"},
+                2: "i64",
+            },
+            integerish_ids={2},
+        )
+
+        spec = select_runtime_data_call_spec(
+            method="delete",
+            box_name="RuntimeDataBox",
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2],
+            prefer_array_mono_route=True,
+        )
+        self.assertIsNone(spec)
+
+        def _guard_declare(*args, **kwargs):
+            raise AssertionError("RuntimeDataBox.delete must not lower through runtime_data_dispatch")
+
+        lowered = lower_runtime_data_method_call(
+            builder=None,
+            declare=_guard_declare,
+            box_name="RuntimeDataBox",
+            method="delete",
+            recv_h=None,
+            args=[None],
+            resolver=resolver,
+            receiver_vid=1,
+            arg_vids=[2],
+            prefer_array_mono_route=True,
+        )
+        self.assertIsNone(lowered)
 
     def test_policy_default_is_array_mono(self):
         os.environ.pop("NYASH_RUNTIME_DATA_ARRAY_ROUTE_POLICY", None)
