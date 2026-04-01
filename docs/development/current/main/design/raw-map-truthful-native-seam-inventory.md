@@ -35,6 +35,7 @@ Related:
   - entry count
   - capacity observer
   - visible `clear` / `delete` helpers
+  - raw `clear` substrate helper/export
 - therefore current backend does **not** truthfully expose:
   - tombstone count
   - explicit rehash trigger
@@ -55,6 +56,7 @@ These are truthful today and are already exported/live:
 - `nyash.map.slot_load_hh`
 - `nyash.map.slot_store_hih`
 - `nyash.map.slot_store_hhh`
+- `nyash.map.clear_h`
 
 These correspond to:
 
@@ -68,14 +70,15 @@ Compat wrapper still present for historical callers:
 
 - `nyash.map.entry_count_h`
 
-### B. Truthful native helpers, but not substrate exports yet
+### B. Truthful native helpers, with a dedicated raw export
 
-These are truthful at the native helper level, but are still owned by visible/owner-facing contracts and are not yet clean substrate rows:
+These are truthful at the native helper level. `clear` now has a dedicated raw export; the rest are still owned by visible/owner-facing contracts and are not yet clean substrate rows:
 
 - `MapBox.clear()`
   - truthful operation exists
   - current return contract is visible-owner shaped (`"Map cleared"`)
-  - if widened later, use a dedicated raw helper / raw ABI row instead of reusing the visible contract
+  - dedicated raw helper/export exists: `nyash.map.clear_h`
+  - visible owner contract stays separate
 - `MapBox.delete(...)`
   - truthful delete exists
   - current interface still mixes key normalization and visible `"Key not found"` / deleted-value behavior
@@ -106,6 +109,7 @@ Reason:
 - `RawMapCoreBox` is currently truthful for:
   - observer
   - capacity observer
+  - clear
   - probe
   - slot load
   - slot store
@@ -118,14 +122,7 @@ Reason:
 
 If `RawMap` widens again before `GC/TLS/atomic`, the next truthful candidate is:
 
-1. `clear`
-   - add a dedicated raw helper in `MapBox`
-   - export a dedicated raw ABI row
-   - keep visible owner contract separate
-
-The next candidate after that is:
-
-2. `remove/delete`
+1. `remove/delete`
    - only after a dedicated raw delete helper exists
    - keep visible `"missing/deleted"` message contract out of the substrate row
 

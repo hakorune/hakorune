@@ -32,7 +32,7 @@ Related:
      - `K2-core` / `K2-wide` are task packs inside `K2`
      - `K2-core` is closed
      - `K2-wide` is now the next structural lane
-     - current `K2-wide` focus is metal keep review / boundary-shrink planning
+     - current `K2-wide` focus is RawMap clear / boundary-shrink planning
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -66,7 +66,7 @@ Related:
   - broad `Map` structural expansion
 - Active small tasks:
   - Map evidence bundle maintenance
-  - current metal keep inventory / boundary-shrink planning
+  - current RawMap clear / boundary-shrink planning
 - Parked small tasks:
   - warning debt sweep
   - TODO cleanup / ignore triage
@@ -107,9 +107,10 @@ Related:
 - `K2-core` accepted stop-line is closed
 - `K2-wide` landed rows now include:
   - `RawMap` first slice
+  - `RawMap` clear
   - capability rows through `hako.osvm`
   - `hako_alloc` handle reuse and GC trigger policy rows
-- current follow-up is metal keep inventory / boundary-shrink planning
+- current follow-up is RawMap clear / boundary-shrink planning
 
 ## Read Order
 

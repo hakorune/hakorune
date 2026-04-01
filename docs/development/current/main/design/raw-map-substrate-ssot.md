@@ -33,6 +33,7 @@ Related:
   - `RawMapCoreBox.entry_count_i64` now routes to `nyash.map.entry_count_i64`; `nyash.map.entry_count_h` remains a compat alias only.
 - current widening also lands `probe/load/store` façade methods under `RawMapCoreBox`.
 - current live observer subset also lands `cap_i64(handle)`.
+- current live helper row also lands `clear(handle)`.
 - truthful widening guard now lives in:
   - `raw-map-truthful-native-seam-inventory.md`
 
@@ -55,6 +56,7 @@ Related:
 - current live slice:
   - `entry_count_i64`
   - `cap_i64`
+  - `clear`
   - `probe_i64` / `probe_any`
   - `slot_load_i64` / `slot_load_any`
   - `slot_store_i64_any` / `slot_store_any`
@@ -96,7 +98,7 @@ current staging root is reserved at:
 - [`lang/src/runtime/substrate/raw_map/README.md`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/README.md)
 - [`lang/src/runtime/substrate/raw_map/raw_map_core_box.hako`](/home/tomoaki/git/hakorune-selfhost/lang/src/runtime/substrate/raw_map/raw_map_core_box.hako)
 
-This phase now lands the first substrate slice through `observer + probe/load/store + cap observer`; rehash/tombstone shape stays future-facing.
+This phase now lands the first substrate slice through `observer + probe/load/store + cap observer + clear`; rehash/tombstone shape stays future-facing.
 
 ## Non-Goals
 
@@ -115,13 +117,16 @@ This phase now lands the first substrate slice through `observer + probe/load/st
   - `runtime_data_map_*` facade behavior
   - `slot_load/store/probe_*` fail-safe and hh/hi contracts
   - `entry_count_i64` / `cap_h` observer contract
+  - `clear_raw_alias_keeps_contract`
 - MapBox lowering lock keeps direct `MapBox.{get,set,has}` on:
   - `nyash.map.slot_load_hh`
   - `nyash.map.slot_store_hhh`
   - `nyash.map.probe_hh`
+- MapBox lowering lock also keeps direct `MapBox.clear` on:
+  - `nyash.map.clear_h`
 - raw-map ABI/substrate route lock keeps:
-  - generated adapter defaults on `MapBox.{get,set,has,size}`
-  - `RawMapCoreBox` extern routes on `entry_count_i64 / cap_h / slot_load_hh / slot_store_hhh / probe_hh`
+  - generated adapter defaults on `MapBox.{get,set,has,clear,size}`
+  - `RawMapCoreBox` extern routes on `entry_count_i64 / cap_h / clear_h / slot_load_hh / slot_store_hhh / probe_hh`
 
 After this live observer slice, the next widening remains:
 

@@ -129,6 +129,14 @@ def try_lower_collection_boxcall(
         callee = declare(module, "nyash.map.probe_hh", i64, [i64, i64])
         return builder.call(callee, [recv_h, k], name="map_probe_hh")
 
+    if method_name == "clear":
+        known_box_name = get_box_type(resolver, box_vid)
+        if known_box_name == "MapBox" or receiver_is_mapish(resolver, box_vid):
+            if args:
+                return ir.Constant(i64, 0)
+            callee = declare(module, "nyash.map.clear_h", i64, [i64])
+            return builder.call(callee, [recv_h], name="map_clear_h")
+
     return None
 
 

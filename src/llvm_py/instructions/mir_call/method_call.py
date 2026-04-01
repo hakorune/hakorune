@@ -244,7 +244,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         # `ArrayBox.birth()` in MIR is an initializer marker only.
         result = ir.Constant(i64, 0)
 
-    elif method in {"get", "push", "set", "has"}:
+    elif method in {"get", "push", "set", "has", "clear"}:
         result = lower_collection_method_call(
             builder=builder,
             declare=_declare,

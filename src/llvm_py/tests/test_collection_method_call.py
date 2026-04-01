@@ -172,6 +172,24 @@ class TestCollectionMethodCall(unittest.TestCase):
         self.assertIn("nyash.runtime_data.has_hh", ir_text)
         self.assertNotIn("nyash.map.probe_hh", ir_text)
 
+    def test_mapbox_clear_uses_clear_h(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            box_name="MapBox",
+            method_name="clear",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.clear_h", ir_text)
+        self.assertNotIn("nyash.map.entry_count_h", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

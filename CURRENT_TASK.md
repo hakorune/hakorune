@@ -41,9 +41,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `K2 = .hako kernel mainline / zero-rust daily-distribution stage`
   - `K2-core = RawArray first`
   - `K2-wide = RawMap second + capability widening + metal review`
-- current `K2-wide` focus is metal keep review / boundary-shrink planning
+- current `K2-wide` focus is RawMap clear / boundary-shrink planning
 - landed rows already accepted:
   - `RawMap` first slice
+  - `RawMap` clear
   - `hako.atomic`
   - `hako.tls`
   - `hako.gc`
@@ -56,7 +57,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `K2-wide` metal keep review / boundary-shrink planning
+- Active next: `K2-wide` RawMap clear / boundary-shrink planning
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`

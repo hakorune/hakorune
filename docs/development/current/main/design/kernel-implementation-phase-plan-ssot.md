@@ -166,6 +166,7 @@ Goal:
   2. capability widening packs (`hako.atomic` -> `hako.tls` -> `hako.gc` -> `hako.osvm`)
   3. `hako_alloc` policy/state rows plus allocator/TLS/GC policy-owner widening
   4. metal keep review as truthful seam inventory + boundary-shrink planning
+     - current narrow follow-up row is `RawMap.clear`; the next candidate after that is `remove/delete`
 
 Stop line:
 - treat `Map` as narrow façade + regression pack until the `RawArray` pilot is accepted.
@@ -183,6 +184,7 @@ Stop line:
 - current policy/state row pack after capability widening is `hako_alloc` GC trigger threshold policy
 - handle reuse policy is landed below it, and no third live `hako_alloc` row is open yet
 - current metal keep review pack is the truthful seam inventory + boundary-shrink planning lock, machine-owned by `k2_wide_metal_keep_inventory_guard.sh`
+- current `RawMap` narrow follow-up row is `clear`; the next candidate after that is `remove/delete`
 
 ### 5. Regression / perf pack
 

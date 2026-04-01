@@ -39,7 +39,7 @@ Related:
 
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
 - next structural step is `K2-wide`.
-- current `K2-wide` focus is metal keep review / boundary-shrink planning.
+- current `K2-wide` focus is RawMap clear / boundary-shrink planning.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
   - `.hako` owns capability facades
@@ -57,6 +57,8 @@ Related:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
 - current `K2-wide` technical detail:
+  - `docs/development/current/main/design/raw-map-substrate-ssot.md`
+  - `docs/development/current/main/design/raw-map-truthful-native-seam-inventory.md`
   - `docs/development/current/main/design/gc-tls-atomic-capability-ssot.md`
   - `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
   - `docs/development/current/main/design/final-metal-split-ssot.md`

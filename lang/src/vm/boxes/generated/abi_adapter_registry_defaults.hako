@@ -10,6 +10,7 @@ static box AbiAdapterRegistryDefaultsBox {
     AbiAdapterRegistryBox._put(reg, "MapBox", "set", "nyash.map.slot_store_hhh", "h", "none")
     AbiAdapterRegistryBox._put(reg, "MapBox", "get", "nyash.map.slot_load_hh", "h", "integer")
     AbiAdapterRegistryBox._put(reg, "MapBox", "has", "nyash.map.probe_hh", "h", "none")
+    AbiAdapterRegistryBox._put(reg, "MapBox", "clear", "nyash.map.clear_h", "h", "none")
     AbiAdapterRegistryBox._put(reg, "MapBox", "size", "nyash.map.entry_count_i64", "h", "none")
     AbiAdapterRegistryBox._put(reg, "MapBox", "len", "nyash.map.entry_count_i64", "h", "none")
     AbiAdapterRegistryBox._put(reg, "ArrayBox", "birth", "nyash.array.birth_h", "h", "none")

@@ -74,6 +74,22 @@ class TestRawMapFirstSliceLock(unittest.TestCase):
 
         self.assertIn("nyash.map.probe_hh", str(module))
 
+    def test_mapbox_clear_uses_clear_h(self):
+        i64, module, builder = _new_builder()
+
+        result = lower_collection_method_call(
+            builder=builder,
+            declare=lambda name, ret, args: _declare(module, name, ret, args),
+            box_name="MapBox",
+            method_name="clear",
+            recv_h=ir.Constant(i64, 1),
+            arg_ids=[],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+        )
+        builder.ret(result)
+
+        self.assertIn("nyash.map.clear_h", str(module))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -7,6 +7,7 @@ mod tests {
     use nyash_rust::box_trait::{NyashBox, StringBox};
     use nyash_rust::boxes::map_box::MapBox;
     use nyash_rust::runtime::host_handles as handles;
+    use crate::nyash_runtime_data_has_hh;
     use std::sync::Arc;
 
     fn new_map_handle() -> i64 {
@@ -108,5 +109,20 @@ mod tests {
         assert_eq!(nyash_map_slot_store_hhh_alias(handle, key_b, value), 1);
         assert!(nyash_map_cap_h(handle) >= nyash_map_entry_count_h(handle));
         assert_eq!(nyash_map_cap_h(0), 0);
+    }
+
+    #[test]
+    fn clear_raw_alias_keeps_contract() {
+        let handle = new_map_handle();
+        let key = string_handle("clear-key");
+        let value = string_handle("clear-value");
+
+        assert_eq!(nyash_map_slot_store_hhh_alias(handle, key, value), 1);
+        assert_eq!(nyash_runtime_data_has_hh(handle, key), 1);
+        assert_eq!(nyash_map_clear_h(handle), 0);
+        assert_eq!(nyash_map_entry_count_i64(handle), 0);
+        assert_eq!(nyash_map_probe_hh_alias(handle, key), 0);
+        assert_eq!(nyash_runtime_data_has_hh(handle, key), 0);
+        assert_eq!(nyash_map_clear_h(0), 0);
     }
 }

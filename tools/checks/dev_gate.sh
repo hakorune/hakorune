@@ -35,7 +35,16 @@ list_profiles() {
     - tools/checks/route_no_fallback_guard.sh
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
+    - tools/checks/k2_core_rawarray_acceptance_guard.sh
+    - tools/checks/k2_wide_rawmap_first_slice_guard.sh
+    - tools/checks/k2_wide_rawmap_clear_guard.sh
+    - tools/checks/k2_wide_atomic_first_row_guard.sh
+    - tools/checks/k2_wide_tls_first_row_guard.sh
+    - tools/checks/k2_wide_gc_first_row_guard.sh
+    - tools/checks/k2_wide_osvm_first_row_guard.sh
+    - tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
     - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
+    - tools/checks/k2_wide_metal_keep_inventory_guard.sh
     - phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
   hotpath:
     - quick
@@ -187,6 +196,9 @@ run_quick() {
 
   run_step "K2-wide RawMap first-slice guard" \
     bash tools/checks/k2_wide_rawmap_first_slice_guard.sh
+
+  run_step "K2-wide RawMap clear guard" \
+    bash tools/checks/k2_wide_rawmap_clear_guard.sh
 
   run_step "K2-wide Atomic first-row guard" \
     bash tools/checks/k2_wide_atomic_first_row_guard.sh

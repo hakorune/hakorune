@@ -275,7 +275,7 @@ def lower_method_call(builder, module, box_name, method, receiver, args, dst_vid
         callee = _declare("nyash.any.length_h", i64, [i64])
         result = builder.call(callee, [recv_h], name="unified_size")
 
-    elif method in {"get", "push", "set", "has"}:
+    elif method in {"get", "push", "set", "has", "clear"}:
         result = lower_collection_method_call(
             builder=builder,
             declare=_declare,

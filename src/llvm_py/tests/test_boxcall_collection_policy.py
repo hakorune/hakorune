@@ -109,6 +109,28 @@ class TestBoxcallCollectionPolicy(unittest.TestCase):
         self.assertIn("nyash.runtime_data.has_hh", ir_text)
         self.assertNotIn("nyash.array.slot_load_hi", ir_text)
 
+    def test_map_clear_uses_clear_h(self):
+        i64, module, builder = _new_builder()
+        resolver = _DummyResolver(value_types={1: {"kind": "handle", "box_type": "MapBox"}})
+
+        result = try_lower_collection_boxcall(
+            builder=builder,
+            module=module,
+            method_name="clear",
+            recv_val=ir.Constant(i64, 1),
+            box_vid=1,
+            args=[],
+            resolve_arg=lambda vid: ir.Constant(i64, vid),
+            ensure_handle=lambda value: value,
+            declare=_declare,
+            resolver=resolver,
+        )
+        builder.ret(result)
+
+        ir_text = str(module)
+        self.assertIn("nyash.map.clear_h", ir_text)
+        self.assertNotIn("nyash.map.probe_hh", ir_text)
+
 
 if __name__ == "__main__":
     unittest.main()

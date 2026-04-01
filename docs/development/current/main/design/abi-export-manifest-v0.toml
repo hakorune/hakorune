@@ -60,6 +60,19 @@ unbox = "none"
 
 [[rows]]
 box_type = "MapBox"
+method = "clear"
+symbol = "nyash.map.clear_h"
+args = ["handle_owned"]
+ret = "imm_i64"
+arg_ownership = "borrowed"
+ret_ownership = "none"
+failure_contract = "fail-fast"
+compat_status = "adapter-default"
+call_shape = "h"
+unbox = "none"
+
+[[rows]]
+box_type = "MapBox"
 method = "size"
 symbol = "nyash.map.entry_count_i64"
 args = ["handle_owned"]

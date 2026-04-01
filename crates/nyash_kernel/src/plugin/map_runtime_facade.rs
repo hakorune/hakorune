@@ -1,4 +1,6 @@
-use super::handle_cache::{map_lookup_cache_hit, with_map_box, with_map_lookup_cached};
+use super::handle_cache::{
+    clear_map_lookup_cache, map_lookup_cache_hit, with_map_box, with_map_lookup_cached,
+};
 use super::map_key_codec::map_key_string_from_any;
 use super::map_probe::{map_probe_contains_any, map_probe_contains_i64, map_probe_contains_str};
 use super::map_slot_load::{map_slot_load_any, map_slot_load_i64};
@@ -15,6 +17,17 @@ pub(super) fn map_runtime_entry_count(handle: i64) -> i64 {
 
 pub(super) fn map_runtime_cap(handle: i64) -> i64 {
     with_map_box(handle, |map| map.capacity_i64()).unwrap_or(0)
+}
+
+pub(super) fn map_runtime_clear(handle: i64) -> i64 {
+    if with_map_box(handle, |map| {
+        map.get_data().write().unwrap().clear();
+    })
+    .is_some()
+    {
+        clear_map_lookup_cache();
+    }
+    0
 }
 
 // Probe/load/store substrate facade.

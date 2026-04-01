@@ -1,7 +1,7 @@
 """
 Shared collection-style method lowering for MIR call lowerers.
 
-This module owns the common `get/push/set/has` route order shared by
+This module owns the common `get/push/set/has/clear` route order shared by
 `method_call.py` and `mir_call_legacy.py`.
 """
 
@@ -95,6 +95,7 @@ def _lower_map_collection_method_call(
     *,
     builder: ir.IRBuilder,
     declare: Callable,
+    box_name,
     method_name: str,
     recv_h,
     arg_ids: List[int],
@@ -102,6 +103,14 @@ def _lower_map_collection_method_call(
 ):
     i64 = ir.IntType(64)
     zero = ir.Constant(i64, 0)
+
+    if method_name == "clear":
+        if str(box_name or "") != "MapBox":
+            return None
+        if arg_ids:
+            return zero
+        callee = declare("nyash.map.clear_h", i64, [i64])
+        return builder.call(callee, [recv_h], name="unified_map_clear_h")
 
     if method_name == "get":
         key = _resolve_or_zero(resolve_arg, arg_ids, 0, zero)
@@ -177,6 +186,7 @@ def lower_collection_method_call(
     return _lower_map_collection_method_call(
         builder=builder,
         declare=declare,
+        box_name=box_name,
         method_name=method_name,
         recv_h=recv_h,
         arg_ids=arg_ids,
