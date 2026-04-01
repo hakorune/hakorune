@@ -23,7 +23,7 @@ Related:
 
 - `stage0/stage1/stage2-mainline/stage2+` と `owner/substrate` と `artifact/lane` を別々に読む。
 - `stage1 artifact が動く` を `daily mainline` や `distribution truth` と誤読しない。
-- `vm-hako` の semantic/reference lane と `llvm-exe` の daily lane を混ぜない。
+- `vm-hako` の semantic/reference lane と `mainline bundle` の daily lane を混ぜない。
 - `rust-vm keep` を owner migration failure と誤読しない。
 - artifact-role detail は child SSOT `artifact-policy-ssot.md` に集約する。
 
