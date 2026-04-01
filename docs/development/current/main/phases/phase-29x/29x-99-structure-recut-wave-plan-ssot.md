@@ -45,9 +45,9 @@ Related:
 
 - active macro wave: `W2 mixed-file split pass`
 - active micro-task:
-  - `99I split LlvmBackendBox`
-- next queued micro-task:
   - `99J move CodegenBridgeBox / LLVMEmitBox`
+- next queued micro-task:
+  - `99K physically recut phase2044`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -73,8 +73,8 @@ Related:
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | `runtime_extern_provider` + `compat_codegen_extern_provider` | `lang/src/vm/hakorune-vm/` | runtime owner vs compat stub |
 | `src/host_providers/llvm_codegen.rs` | thin tool boundary + legacy MIR front door | `src/host_providers/llvm_codegen/` or `src/compat/codegen/` | daily tool seam vs legacy knot |
 | `lang/src/shared/backend/llvm_backend_box.hako` | owner API + evidence adapter | `lang/src/shared/backend/` | canonical owner vs evidence entry |
-| `lang/src/shared/host_bridge/codegen_bridge_box.hako` | compat/codegen namespace | `lang/src/compat/codegen/` | compat bridge, not owner |
-| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/codegen namespace | `lang/src/compat/codegen/` | compat/proof box, not owner |
+| `lang/src/shared/host_bridge/codegen_bridge_box.hako` | legacy shim only | `lang/src/compat/codegen/legacy_emit_object_bridge_box.hako` | shim path only; compat bridge is no longer owner-looking |
+| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | legacy shim only | `lang/src/compat/codegen/llvm_emit_compat_box.hako` | shim path only; compat/proof box is no longer owner-looking |
 | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | transport wrapper only | `tools/compat/legacy-codegen/` | wrapper/orchestrator, not direct caller |
 | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | compat payload only | `tools/compat/legacy-codegen/` | proof/example payload |
 
@@ -92,8 +92,8 @@ Related:
 | --- | --- | --- | --- |
 | `99G` | landed | split `extern_provider.hako` into runtime owner surface and compat codegen shim | owner arms and compat/proof arms no longer live in one file |
 | `99H` | landed | split `src/host_providers/llvm_codegen.rs` into thin tool boundary and legacy MIR front door | `ll_text_to_object` no longer shares a home with `emit_object_from_mir_json(...)` |
-| `99I` | active | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
-| `99J` | pending | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
+| `99I` | landed | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
+| `99J` | active | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
 
 ### W3. Smoke/Proof Filesystem Recut
 
@@ -151,7 +151,7 @@ Related:
 | `lang/src/shared/backend/llvm_backend_box.hako` | owner API + evidence adapter | canonical root-first owner vs evidence-only entry |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | compat/codegen namespace | not a daily owner surface |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/codegen namespace | compat/proof box, not owner |
-| `tools/selfhost/compat/**` | compat/legacy-codegen payload / wrapper / orchestrator buckets | stop mixing selfhost core and legacy-codegen proof |
+| `tools/compat/legacy-codegen/**` | compat/legacy-codegen payload / wrapper / orchestrator buckets | stop mixing selfhost core and legacy-codegen proof |
 | `tools/smokes/v2/profiles/integration/core/phase2044/**` | semantic proof buckets | stop using phase number as live semantic home |
 | `tools/smokes/v2/profiles/integration/core/phase2120/**` | semantic proof + archive buckets | same as above |
 
@@ -164,8 +164,8 @@ This table freezes the intended destination before any path move happens.
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | runtime owner + compat codegen stub | `runtime_extern_provider.hako` + `compat_codegen_extern_provider.hako` | yes, thin re-export during transition | this is the main mixed-file split target |
 | `src/host_providers/llvm_codegen.rs` | thin boundary + legacy MIR front door | `src/host_providers/llvm_tool_boundary.rs` + `src/compat/codegen/legacy_mir_codegen.rs` | yes, thin compat bridge | `ll_text_to_object` and `emit_object_from_mir_json(...)` should stop sharing one home |
 | `lang/src/shared/backend/llvm_backend_box.hako` | owner API + evidence adapter | `llvm_backend_box.hako` + `llvm_backend_evidence_adapter_box.hako` | maybe, if caller imports need a bridge | keep the owner spine readable |
-| `lang/src/shared/host_bridge/codegen_bridge_box.hako` | compat/proof bridge in owner-looking path | `compat/codegen/legacy_emit_object_bridge_box.hako` | yes, re-export from old path only if needed | path should stop implying daily ownership |
-| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/proof box in owner-looking path | `compat/codegen/llvm_emit_compat_box.hako` | yes, re-export only | keep the box explicit as compat/proof |
+| `lang/src/shared/host_bridge/codegen_bridge_box.hako` | legacy shim in owner-looking path | `compat/codegen/legacy_emit_object_bridge_box.hako` | yes, re-export only | path should stop implying daily ownership |
+| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | legacy shim in owner-looking path | `compat/codegen/llvm_emit_compat_box.hako` | yes, re-export only | keep the box explicit as compat/proof |
 | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | proof/example payload | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | maybe, if wrapper path remains stable | keep selfhost core and legacy-codegen proof separate |
 | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | transport wrapper | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | no, path rename only | wrapper/orchestrator should read as compat only |
 | `tools/compat/legacy-codegen/run_compat_pure_pack.sh` | pack orchestrator | `tools/compat/legacy-codegen/run_compat_pure_pack.sh` | no, path rename only | keep pack orchestration out of selfhost core |

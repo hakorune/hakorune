@@ -7,7 +7,7 @@ using selfhost.shared.common.string_helpers as StringHelpers
 using selfhost.vm.helpers.mini_mir_v1_scan as MiniMirV1Scan
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox

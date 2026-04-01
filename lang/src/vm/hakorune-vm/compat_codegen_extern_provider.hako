@@ -2,7 +2,7 @@
 // Responsibility: gated compat/proof codegen and mirbuilder extern arms only.
 // Scope: env.mirbuilder.emit / env.codegen.emit_object stay here; runtime env / console owner stays in extern_provider.hako.
 
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
 using lang.runtime.host.host_facade_box as HostFacadeBox
 
 static box HakoruneCompatCodegenExternProviderBox {

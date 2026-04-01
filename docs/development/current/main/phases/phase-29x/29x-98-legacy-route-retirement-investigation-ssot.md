@@ -157,7 +157,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - not a daily route and not a current owner.
   - direct invoker is `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`.
   - the shell wrapper is transport only; the `.hako` file is the actual proof/example caller surface.
-  - the payload now lives under `tools/selfhost/compat/` so `tools/selfhost/examples/` stays generator-first.
+  - the payload now lives under `tools/compat/legacy-codegen/` so `tools/selfhost/examples/` stays generator-first.
   - `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the only remaining thin wrapper above that canonical compat wrapper; it is not a separate proof owner.
   - old aliases `tools/selfhost/run_hako_llvm_selfhost.sh` and `tools/selfhost/run_all.sh` are retired; keep the compat pack entry singular.
   - current root-first replacement proof exists only on the `.hako VM -> LlvmBackendBox -> C-API -> exe` lane (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`), not as a drop-in for this historical safe-vm wrapper.

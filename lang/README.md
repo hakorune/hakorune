@@ -23,6 +23,7 @@ Layout (initial)
 - `src/runtime/host/` — host-call routing facade only
 - `src/runtime/meta/` — compiler semantic tables and stage2 owner-policy boxes
   - runtime/kernel owns runtime behavior; runtime/meta owns compiler semantic tables
+- `src/compat/` — compat/proof and legacy bridge surfaces
 - `src/hako_alloc/` — `.hako` alloc-layer (policy plane) helpers (e.g. `ArcBox`, `RefCellBox`)
 - `src/hako_std/` — reserved future library root for process/env/fs/time/net/plugin-host/C ABI facades
 
@@ -66,6 +67,7 @@ Non‑Goals
 Notes
 - `lang/` 以下は「最終的に 1 つの Stage1 コア EXE（hakorune）を構成するソース群」という前提で整理する。
 - `hako_core / hako_alloc / hako_std` are logical library layers; the physical roots today are `lang/src/runtime/kernel/`, `lang/src/runtime/substrate/`, and `lang/src/hako_alloc/`.
+- compat/proof payloads live under `lang/src/compat/` so owner-looking paths can stay thin.
 - `hako_kernel` / `hako_substrate` are logical owner nouns; do not read them as same-named physical directories.
 - `hako_std` is reserved as a logical future layer until a physical `lang/src/hako_std/` root is intentionally materialized.
 - `target/selfhost/hakorune` は開発中の最新版、`lang/bin/hakorune` は安定版スナップショットという役割分担にする。

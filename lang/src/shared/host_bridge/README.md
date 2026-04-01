@@ -9,14 +9,14 @@ Scope:
 - `HostBridgeBox.box_call`
 - convenience wrappers (`box_new0`, `box_call0`, `box_call1`) for existing call sites.
   - `CodegenBridgeBox`
-  - temporary bridge for `env.codegen.*`
+  - legacy shim for `env.codegen.*`
   - args-only helpers are `emit_object_args` and `link_object_args`
   - shared payload normalization helper is `array_arg_or_null`
   - 1-arg convenience wrappers were removed so caller normalization stays explicit
   - do not treat as final backend-zero daily caller stop-point
   - caller-side backend recipe defaults are centralized in `src/config/env/llvm_provider_flags.rs::backend_codegen_request_defaults(...)`; this bridge may mirror compat names, but it does not own a hidden daily route and daily callers should stay explicit at `LlvmBackendBox`
-  - this bridge now owns the legacy optional-arg `env.codegen.*` normalization used by `HostFacadeBox` / `MirVmS0BoxcallExecBox`, so the caller shape lives in one place instead of being duplicated
-  - the remaining `emit_object_args(...)` callers are compat/proof or example/proof only; no non-proof daily route depends on this bridge
+  - the actual compat/proof implementation now lives under `lang/src/compat/codegen/legacy_emit_object_bridge_box.hako`; this path is retained only as a shim for historical imports
+  - the remaining `emit_object_args(...)` callers are compat/proof or example/proof only; no non-proof daily route depends on this shim
   - shared host/vm compile-link helpers now lower directly to canonical `env.codegen.*` extern calls; do not reintroduce `hostbridge.extern_invoke(...)` for daily backend compile/link routes
   - `HostFacadeBox` / `MirVmS0BoxcallExecBox` remain legacy keep callers, but they delegate their optional-arg normalization directly to `CodegenBridgeBox.*_args`; new daily callers should stay explicit at `LlvmBackendBox`, and omitted recipe/compat fields should be read as legacy compat entry only
 

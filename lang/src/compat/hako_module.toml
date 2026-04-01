@@ -1,0 +1,10 @@
+[module]
+name = "selfhost.compat"
+version = "1.0.0"
+
+[exports]
+codegen.legacy_emit_object_bridge = "codegen/legacy_emit_object_bridge_box.hako"
+codegen.llvm_emit_compat = "codegen/llvm_emit_compat_box.hako"
+
+[dependencies]
+"selfhost.shared" = "^1.0.0"

@@ -1,53 +1,15 @@
-// codegen_bridge_box.hako — Thin wrapper for env.codegen extern calls
-// Responsibility:
-//   - Provide env.codegen helpers instead of duplicating loader/runtime
-//     payload normalization everywhere.
-//   - backend-zero B1 rule: this box is a temporary bridge owner only.
-//     New daily callers should stop at LlvmBackendBox instead.
+// codegen_bridge_box.hako — legacy shim only
+// Keep the owner-looking path thin. Actual compat/proof implementation lives in
+// `selfhost.compat.codegen.legacy_emit_object_bridge`.
 
-using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
+using selfhost.compat.codegen.legacy_emit_object_bridge as LegacyEmitObjectBridgeBox
 
 static box CodegenBridgeBox {
   method emit_object_args(args) {
-    local arr = me._ensure_array(args)
-    local mir_json = me.array_arg_or_null(arr, 0)
-    if mir_json == null { return null }
-    return me._emit_object_legacy(mir_json)
+    return LegacyEmitObjectBridgeBox.emit_object_args(args)
   }
 
   method link_object_args(args) {
-    local arr = me._ensure_array(args)
-    local obj_path = me.array_arg_or_null(arr, 0)
-    if obj_path == null { return null }
-    local exe_path = me.array_arg_or_null(arr, 1)
-    if exe_path == null { return me._link_object_legacy(obj_path, null, null) }
-    local extra_ldflags = me.array_arg_or_null(arr, 2)
-    return me._link_object_legacy(obj_path, exe_path, extra_ldflags)
-  }
-
-  method array_arg_or_null(arr, idx) {
-    if arr == null { return null }
-    if idx == null { return null }
-    if arr.length() <= idx { return null }
-    return arr.get(idx)
-  }
-
-  method _ensure_array(value) {
-    if value != null && BoxTypeInspectorBox.is_array(value) {
-      return value
-    }
-    local arr = new ArrayBox()
-    if value != null { arr.push(value) }
-    return arr
-  }
-
-  _emit_object_legacy(mir_json) {
-    return env.codegen.emit_object(mir_json)
-  }
-
-  _link_object_legacy(obj_path, exe_path, extra_ldflags) {
-    if exe_path == null { return env.codegen.link_object(obj_path) }
-    if extra_ldflags == null { return env.codegen.link_object(obj_path, exe_path) }
-    return env.codegen.link_object(obj_path, exe_path, extra_ldflags)
+    return LegacyEmitObjectBridgeBox.link_object_args(args)
   }
 }

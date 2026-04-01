@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 W2 mixed-file split pass / 99I split LlvmBackendBox`
+- Exact focus: `29x-99 W2 mixed-file split pass / 99J move CodegenBridgeBox / LLVMEmitBox`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,15 +60,15 @@ bash tools/selfhost/run_lane_a_daily.sh
 
   | Band | State |
   | --- | --- |
-  | Now | `99I split LlvmBackendBox` |
-  | Next | `99J move CodegenBridgeBox / LLVMEmitBox` |
+  | Now | `99J move CodegenBridgeBox / LLVMEmitBox` |
+  | Next | `99K physically recut phase2044` |
   | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
 
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket; the other `phase2044` groups stay bucket-runner only. `phase2111` / `phase251` archive proofs share one replay-evidence suite; `phase2120` pure canaries now split by suites, with `phase2120-pure-keep` for the live pair and `phase2120-pure-historical` for archive-backed replay evidence; the selfhost compat stack is now read as `payload -> transport wrapper -> pack orchestrator`, and the root-first proof candidate inventory is pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof.
 - direct live callers are fixed at 5 surfaces; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; `29x-99` now owns beauty-first cleanup waves.
-- active micro task is `99I split LlvmBackendBox`.
-- next queued micro task is `99J move CodegenBridgeBox / LLVMEmitBox`.
+- active micro task is `99J move CodegenBridgeBox / LLVMEmitBox`.
+- next queued micro task is `99K physically recut phase2044`.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front

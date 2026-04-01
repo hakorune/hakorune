@@ -13,7 +13,7 @@ Live surfaces
 - `instructions/**`
   - quick/smoke の self-param helper
 - `emit/LLVMEmitBox.hako`
-  - compat keep の emit facade
+  - legacy shim to `lang/src/compat/codegen/llvm_emit_compat_box.hako`
   - legacy phase2034 canary scripts are deleted; this box is not an active smoke gate
   - root-first daily replacement lives in `lang/src/shared/backend/llvm_backend_box.hako`, but that does not replace the provider-first compat/proof canary surface yet
   - repo-local direct import callers are gone; the remaining live surface is explicit proof/canary coverage plus the compat bridge

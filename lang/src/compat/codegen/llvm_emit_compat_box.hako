@@ -1,0 +1,63 @@
+// LLVMEmitCompatBox — MIR(JSON v0) → Object (.o) compat/proof surface
+// Contract:
+// - Keep this under compat/codegen, not under an owner-looking path.
+// - llvmlite stays on direct provider canaries; this box routes only ny-llvmc compat.
+
+using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
+
+static box LLVMEmitProviderBox {
+  // Availability probe (for canaries)
+  is_available() {
+    return me._provider_is_supported(env.get("HAKO_LLVM_EMIT_PROVIDER"))
+  }
+
+  // Main entry
+  method emit_object(mir_json, opts) {
+    local validated = me._validate_mir_json(mir_json)
+    if validated == null { return null }
+    return me._dispatch_provider_emit(validated)
+  }
+
+  method _validate_mir_json(mir_json) {
+    if mir_json == null {
+      print("[llvmemit/input/null] mir_json is null")
+      return null
+    }
+    local s = "" + mir_json
+    if !(s.contains("\"functions\"")) || !(s.contains("\"blocks\"")) {
+      print("[llvmemit/input/invalid] missing functions/blocks keys")
+      return null
+    }
+    return s
+  }
+
+  method _dispatch_provider_emit(validated_mir_json) {
+    local p = env.get("HAKO_LLVM_EMIT_PROVIDER")
+    if p == null {
+      print("[llvmemit/provider/missing] set HAKO_LLVM_EMIT_PROVIDER=ny-llvmc|llvmlite")
+      return null
+    }
+    local pv = "" + p
+    if pv == "ny-llvmc" {
+      // env.codegen.emit_object(mir_json)
+      local args = new ArrayBox()
+      args.push(validated_mir_json)
+      return CodegenBridgeBox.emit_object_args(args)
+    }
+    if pv == "llvmlite" {
+      // This compat/proof box does not own the llvmlite lane.
+      // The remaining llvmlite evidence lives on direct provider canaries.
+      print("[llvmemit/skip] llvmlite is not routed through LLVMEmitBox")
+      return null
+    }
+    print("[llvmemit/provider/unsupported] " + pv)
+    return null
+  }
+
+  method _provider_is_supported(provider_name) {
+    if provider_name == null { return 0 }
+    local v = "" + provider_name
+    if v == "ny-llvmc" || v == "llvmlite" { return 1 }
+    return 0
+  }
+}

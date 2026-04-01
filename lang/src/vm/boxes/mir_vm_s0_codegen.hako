@@ -4,6 +4,7 @@
 // focused on codegen bridge writes only.
 
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0CodegenBox {
