@@ -181,9 +181,6 @@ run_quick() {
   run_step "llvm_py unittest (strlen_fast)" \
     env PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
 
-  run_step "llvm_py unittest (rawarray manifest lock)" \
-    env PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_rawarray_manifest_lock.py
-
   run_step "K2-core RawArray acceptance guard" \
     bash tools/checks/k2_core_rawarray_acceptance_guard.sh
 

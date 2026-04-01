@@ -51,7 +51,10 @@ bash tools/selfhost/run_lane_a_daily.sh
   - fix `stage / docs / naming` order before reopening deeper implementation lanes
   - read the `K-axis` stage progression as `K0 -> K1 -> K2`; treat `K2-core` as the first task pack inside `K2`
   - treat `Rune` as landed keep (`@rune` canonical surface, legacy aliases compat keep), not as the current blocker lane
-  - keep `K2-core acceptance lock` as the next structural step and read its smoke/evidence gate from the existing `nyash_kernel` RawArray contract tests
+  - keep `K2-core acceptance lock` as the next structural step and read it as an explicit acceptance pack:
+    - Rust/kernel RawArray acceptance tests
+    - lowering/manifest drift pack
+    - full list stays in `CURRENT_TASK.md` and `design/kernel-implementation-phase-plan-ssot.md`
   - keep `K1 done-enough` fixed before promoting `K2-core`
   - keep `RawMap` deferred in `K2-wide`; treat map perf as regression/evidence until a new exact blocker says otherwise
 

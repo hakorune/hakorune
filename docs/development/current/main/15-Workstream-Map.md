@@ -30,7 +30,10 @@ Related:
    - keep `K2-core` / `K2-wide` as task-pack names inside `K2`, not as top-level stage names
    - keep `Rune` docs (`@rune` canonical surface / `attrs.runes`) in landed/keep state; do not read them as the active blocker lane
    - `K2-core acceptance lock` is the next structural step inside `K2`; `RawArray` remains first and `RuntimeData facade-only` stays fixed
-   - `K2-core` smoke/evidence gate is the existing `nyash_kernel` RawArray contract test set, not a new benchmark lane
+   - `K2-core` gate is an explicit acceptance pack:
+     - Rust/kernel RawArray acceptance tests
+     - lowering/manifest drift pack
+     - canonical full list stays in `CURRENT_TASK.md` and `design/kernel-implementation-phase-plan-ssot.md`
    - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence, not the next structural lane
    - stage progression is `K0 -> K1 -> K2`; `RawMap` remains deferred in `K2-wide`
 2. `phase-29bq`

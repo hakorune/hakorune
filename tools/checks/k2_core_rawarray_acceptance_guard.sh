@@ -17,11 +17,22 @@ TESTS=(
   slot_reserve_and_grow_raw_aliases_keep_length_and_expand_capacity
 )
 
-echo "[k2-core-rawarray-acceptance] running explicit RawArray acceptance tests"
+PYTHON_TESTS=(
+  src.llvm_py.tests.test_runtime_data_dispatch_policy
+  src.llvm_py.tests.test_collection_method_call
+  src.llvm_py.tests.test_boxcall_collection_policy
+  src.llvm_py.tests.test_rawarray_manifest_lock
+)
+
+echo "[k2-core-rawarray-acceptance] running explicit RawArray acceptance pack"
+echo "[k2-core-rawarray-acceptance] --- Rust/kernel RawArray acceptance ---"
 
 for test_name in "${TESTS[@]}"; do
   echo "[k2-core-rawarray-acceptance] >>> ${test_name}"
   cargo test -q -p nyash_kernel "${test_name}" -- --nocapture
 done
+
+echo "[k2-core-rawarray-acceptance] --- Python lowering/manifest drift pack ---"
+env PYTHONPATH=src/llvm_py:src python3 -m unittest "${PYTHON_TESTS[@]}"
 
 echo "[k2-core-rawarray-acceptance] ok"
