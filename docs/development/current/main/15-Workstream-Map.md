@@ -43,7 +43,7 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-98` `LLVMEmitBox` keep/archive decision (proof/example callers remain archive-later) |
+     | Next | `29x-98` proof/compat caller archive sequencing (`CodegenBridgeBox` has no daily dependency) |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
