@@ -20,6 +20,7 @@ Rules:
 - wave A-C landed:
   - `phase-29ao`, `phase-29cc`, `phase-29cd`, `phase-29ce`, `phase-29cf`, `phase-29cg`, `phase-29ch`, `phase-29ci`, `phase-29cj`, `phase-29cl`, `phase-29cn`, `phase-29cr`, `phase-29cs`, `phase-29cu`
 - older historical pass landed:
+  - `phase-29al`, `phase-29am`, `phase-29an`, `phase-29ap`, `phase-29aq`
   - `phase-131`, `phase-132`, `phase-137`, `phase-142`, `phase-143`, `phase-145-anf`, `phase-188.1`, `phase-188.3`
   - `phase-255`, `phase-256`, `phase-257`, `phase-258`, `phase-265`, `phase-266`, `phase-268`, `phase-269`, `phase-270`
   - `phase-273`, `phase-275`, `phase-276`, `phase-278`, `phase-279`, `phase-281`, `phase-285`, `phase-286`, `phase-288`
@@ -47,11 +48,6 @@ Pass D is the next archive candidate table. It is not an automatic move list.
 
 These are archive candidates once the high-confidence set is moved:
 
-- `phase-29al`
-- `phase-29am`
-- `phase-29an`
-- `phase-29ap`
-- `phase-29aq`
 - `phase-29ar`
 - `phase-29as`
 - `phase-29at`

@@ -103,7 +103,7 @@ Candidate next (after selfhost canary / Stage-1):
 - Facts から emit/merge を助けるための再解析を前提にした “不足した Facts” を作る
 
 直近の入口（SSOT）:
-- Phase 29an: `docs/development/current/main/phases/phase-29an/README.md`
+- Phase 29an: `docs/development/current/main/phases/archive/phase-29an/README.md`
 
 ### Step B.5: 合成入口（Facts/Recipe→CorePlan）を 1 箇所に固定（未接続）
 
