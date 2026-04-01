@@ -106,11 +106,12 @@ current implementation order is seam-first:
   - vm-hako subset accepts `externcall(nyash.gc.barrier_write/1)`
   - vm-hako subset accepts `boxcall(GcCoreBox.write_barrier_i64)`
   - substrate/vm route lock keeps `GcCoreBox.write_barrier_i64()` on `nyash.gc.barrier_write`
-- first-row acceptance for `hako.osvm` is:
+- first-row landed lock for `hako.osvm` is:
   - vm-hako subset accepts `externcall(hako_osvm_reserve_bytes_i64/1)`
   - vm-hako subset accepts `boxcall(OsVmCoreBox.reserve_bytes_i64)`
   - compile v0 emits `mir_call(Extern:hako_osvm_reserve_bytes_i64)`
   - substrate/vm route lock keeps `OsVmCoreBox.reserve_bytes_i64()` on `hako_osvm_reserve_bytes_i64`
+- this reserve-only row is already landed; `commit/decommit/page_size` stay parked
 - `hako.osvm` remains part of the same capability family even when only its reserve-only first truthful row is live
 - `atomic` / `tls` / `gc` は substrate capability であり、semantic owner ではない
 - `hako_kernel` / `hako_substrate` と競合する owner noun にしない

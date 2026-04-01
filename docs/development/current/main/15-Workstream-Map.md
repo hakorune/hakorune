@@ -31,8 +31,9 @@ Related:
      - `K2-core` is closed
      - `K2-wide` is now the next structural lane
      - current `K2-wide` focus is boundary-shrink lock-down
-     - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
-     - axis and lane detail is canonical in the SSOTs and backend-lane docs
+      - reserve-only `hako.osvm.reserve_bytes_i64` is already landed
+      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
+      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - K2-wide lock-down table:
 
      | Item | State |
@@ -116,12 +117,15 @@ Related:
 ## Recently Landed
 
 - `K2-core` accepted stop-line is closed
-- `K2-wide` landed rows now include:
-  - `RawMap` first slice
-  - `RawMap` clear
-  - `RawMap` remove/delete
-  - capability rows through `hako.osvm`
-  - `hako_alloc` handle reuse and GC trigger policy rows
+  - `K2-wide` landed rows now include:
+    - `RawMap` first slice
+    - `RawMap.clear`
+    - `RawMap.remove/delete`
+    - `hako.atomic.fence_i64`
+    - `hako.tls.last_error_text_h`
+    - `hako.gc.write_barrier_i64`
+    - reserve-only `hako.osvm.reserve_bytes_i64`
+    - `hako_alloc` handle reuse and GC trigger policy rows
 - current follow-up is boundary-shrink lock-down
 
 ## Read Order

@@ -35,17 +35,17 @@ These have a truthful substrate-facing seam today:
 
 - `hako_barrier_touch_i64`
   - implemented at `lang/c-abi/shims/hako_kernel.c`
-  - suitable as the first helper-shaped `hako.atomic` live row
+  - already the first helper-shaped `hako.atomic` live row
 - `hako_last_error`
   - implemented at `lang/c-abi/shims/hako_diag_mem_shared_impl.inc`
-  - suitable as the first helper-shaped `hako.tls` live row
+  - already the first helper-shaped `hako.tls` live row
 - `nyash.gc.barrier_write`
   - implemented at `crates/nyash_kernel/src/exports/runtime.rs`
   - forwards to runtime GC hooks
-  - suitable as the first `hako.gc` live row
+  - already the first `hako.gc` live row
 - `hako_osvm_reserve_bytes_i64`
   - implemented at `lang/c-abi/shims/hako_kernel.c`
-  - suitable as the first reserve-only `hako.osvm` live row
+  - already the first reserve-only `hako.osvm` live row
 
 ### B. Truthful native helpers, but not substrate rows yet
 

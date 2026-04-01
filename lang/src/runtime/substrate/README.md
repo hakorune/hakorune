@@ -49,7 +49,7 @@ Current live capability subset:
 - `atomic` now has a live `fence_i64` helper-shaped facade.
 - `tls` now has a live `last_error_text_h` helper-shaped facade.
 - `gc` now has a live `write_barrier_i64` facade.
-- `osvm` now has a live `reserve_bytes_i64` facade.
+- `osvm` now has an already-landed reserve-only `reserve_bytes_i64` facade; `commit/decommit/page_size` stay parked.
 
 Native keep stays outside this directory:
 - OS virtual memory

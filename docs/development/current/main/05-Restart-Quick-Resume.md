@@ -35,7 +35,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 ## 今日の再開点（active lane）
 
-- Restart handoff: commit `639f0c402`, worktree clean, `RawMap.clear` and `RawMap.remove/delete` are landed, next slice is `boundary-shrink lock-down`.
+- Restart handoff: commit `41e114977`, worktree clean, `RawMap.clear`, `RawMap.remove/delete`, and `hako.osvm.reserve_bytes_i64` are landed, next slice is `boundary-shrink lock-down`.
 - backend lane detail is canonical in the backend-lane docs:
   - `llvmlite` = compat/probe keep lane
   - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
