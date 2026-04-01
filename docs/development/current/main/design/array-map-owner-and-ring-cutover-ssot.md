@@ -200,7 +200,7 @@ Short rule:
    - current vm-hako-visible stateful methods now live in `lang/src/runtime/collections/map_state_core_box.hako`, not inline in `mir_vm_s0_boxcall_builtin.hako`
 4. `RuntimeData cleanup phase`
    - `RuntimeDataCoreBox` は route/dynamic dispatch owner に留め、array/map semantics owner にはしない
-   - current first slice: `crates/nyash_kernel/src/plugin/runtime_data.rs` is already a dispatch shell over `runtime_data_array_dispatch.rs` / `runtime_data_map_dispatch.rs`
+   - current first slice: `crates/nyash_kernel/src/plugin/runtime_data.rs` is already a dispatch shell over `array_runtime_facade.rs` / `map_runtime_facade.rs`
 5. Rust concrete births/plugins/builtin residue を raw substrate / compat/archive keep に限定する
 6. preservation-first rule を満たした後だけ delete/retire を再判定する
 

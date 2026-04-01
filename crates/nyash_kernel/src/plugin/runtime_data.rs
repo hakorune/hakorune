@@ -9,8 +9,8 @@ use super::array_runtime_facade::{
     array_runtime_set_any_key,
 };
 use super::handle_cache::object_from_handle_cached;
-use super::runtime_data_map_dispatch::{
-    runtime_data_map_get_hh, runtime_data_map_has_hh, runtime_data_map_set_hhh,
+use super::map_runtime_facade::{
+    map_runtime_data_get_any_key, map_runtime_data_has_any_key, map_runtime_data_set_any_key,
 };
 use nyash_rust::boxes::{array::ArrayBox, map_box::MapBox};
 
@@ -38,7 +38,7 @@ pub extern "C" fn nyash_runtime_data_get_hh(recv_h: i64, key_any: i64) -> i64 {
     with_runtime_data_route(
         recv_h,
         || array_runtime_get_any_key(recv_h, key_any),
-        || runtime_data_map_get_hh(recv_h, key_any),
+        || map_runtime_data_get_any_key(recv_h, key_any),
     )
     .unwrap_or(0)
 }
@@ -49,7 +49,7 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
     with_runtime_data_route(
         recv_h,
         || array_runtime_set_any_key(recv_h, key_any, val_any),
-        || runtime_data_map_set_hhh(recv_h, key_any, val_any),
+        || map_runtime_data_set_any_key(recv_h, key_any, val_any),
     )
     .unwrap_or(0)
 }
@@ -62,7 +62,7 @@ pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
     with_runtime_data_route(
         recv_h,
         || array_runtime_has_any_key(recv_h, key_any),
-        || runtime_data_map_has_hh(recv_h, key_any),
+        || map_runtime_data_has_any_key(recv_h, key_any),
     )
     .unwrap_or(0)
 }
