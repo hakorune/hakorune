@@ -226,7 +226,7 @@ lane-specific precondition below is also satisfied.
 | `tools/smokes/v2/profiles/integration/joinir/phase29aw_flowbox_tag_coverage_gate_vm.sh` | compat wrapper target for flowbox coverage gate | `flowbox_tag_coverage_gate_vm.sh` is the only current caller |
 | `tools/smokes/v2/profiles/integration/joinir/phase29bi/phase29bj/phase29bl/phase29bn/phase29bo_*pack_vm.sh` | legacy planner-pack stems | semantic planner-pack wrappers are the only remaining callers |
 | `tools/smokes/v2/profiles/integration/apps/archive/{phase29ai_pattern2_break_plan_subset_ok_min_vm,phase263_pattern2_seg_realworld_min_vm,phase29ab_pattern2_loopbodylocal_min_vm,phase29ab_pattern2_loopbodylocal_seg_min_vm,phase118_pattern3_if_sum_vm,phase286_pattern5_break_vm}.sh` | archived replay forwarders | active docs/packs/manual lanes no longer need the archived basename as a replay handle |
-| `tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` / `phase286_pattern9_legacy_pack.sh` | archived legacy pack stems | retained only until historical phase docs/archive references are explicitly retired |
+| `tools/smokes/v2/profiles/archive/joinir/phase143_legacy_pack.sh` / `phase286_pattern9_legacy_pack.sh` | archived legacy pack stems | retained only until historical phase docs/archive references are explicitly retired |
 
 ### Decision
 
@@ -243,14 +243,14 @@ archive/manual-lane decision.
 
 | Script | Classification | Current canonical reference |
 | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/joinir/phase29bq_mir_preflight_lowered_away_reject_vm.sh` | historical compat wrapper | `phase29bq_mir_preflight_unsupported_reject_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/phase29bq_continue_target_header_planner_required_vm.sh` | one-case semantic wrapper | `phase29bq_fast_gate_vm.sh --only continue_target_header` |
-| `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase5_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase7_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase9_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
+| `tools/smokes/v2/profiles/archive/joinir/phase29bq_mir_preflight_lowered_away_reject_vm.sh` | historical compat wrapper | `phase29bq_mir_preflight_unsupported_reject_vm.sh` |
+| `tools/smokes/v2/profiles/archive/joinir/phase29bq_continue_target_header_planner_required_vm.sh` | one-case semantic wrapper | `phase29bq_fast_gate_vm.sh --only continue_target_header` |
+| `tools/smokes/v2/profiles/archive/joinir/phase29bq_hako_mirbuilder_phase5_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
+| `tools/smokes/v2/profiles/archive/joinir/phase29bq_hako_mirbuilder_phase7_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
+| `tools/smokes/v2/profiles/archive/joinir/phase29bq_hako_mirbuilder_phase9_min_vm.sh` | manual single-fixture pin | `phase29bq_hako_mirbuilder_quick_suite_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/phase29bq_joinir_port02_if_merge_minimal_vm.sh` | historical standalone probe | later if-merge ports in fast-gate / current route docs |
 | `tools/smokes/v2/profiles/integration/joinir/phase29bq_loop_conditional_update_release_route_vm.sh` | manual release-route probe | `phase29bq_conditional_update_join_planner_required_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/phase1883_nested_minimal_vm.sh` | historical compat wrapper | `nested_loop_minimal_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/archive/joinir/phase1883_nested_minimal_vm.sh` | historical compat wrapper | `nested_loop_minimal_strict_shadow_vm.sh` |
 
 Operational rule:
 - keep these scripts as long as current docs or manual replay instructions still point at them

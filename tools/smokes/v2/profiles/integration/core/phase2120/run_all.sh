@@ -23,13 +23,16 @@ if [[ "$ffi_found" != "1" ]]; then
   exit 0
 fi
 
-PURE_CANARIES=(
+ACTIVE_PURE_CANARIES=(
   'core/phase2120/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh'
+)
+
+ARCHIVE_PURE_CANARIES=(
   'core/phase2120/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh'
-  'core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh'
 )
 
@@ -44,9 +47,14 @@ ADAPTER_CANARIES=(
   'core/phase2120/s3_vm_adapter_map_length_alias_state_canary_vm.sh'
 )
 
-echo "[phase2120/compat] pure-lowering canaries"
-for filter in "${PURE_CANARIES[@]}"; do
+echo "[phase2120/compat] integration pure-lowering canaries"
+for filter in "${ACTIVE_PURE_CANARIES[@]}"; do
   bash "$ROOT/tools/smokes/v2/run.sh" --profile integration --filter "$filter"
+done
+
+echo "[phase2120/compat] archive-backed historical pure canaries"
+for filter in "${ARCHIVE_PURE_CANARIES[@]}"; do
+  bash "$ROOT/tools/smokes/v2/run.sh" --profile archive --filter "$filter"
 done
 
 # VM adapter reps are legacy cluster mates, not mainline backend-zero proof.

@@ -54,7 +54,7 @@ Note:
 - ねらい: JoinIR 回帰の gate を `phase29ae_regression_pack_vm.sh` に固定し、phase143_* は対象外を明記
 - 対象外理由: LoopBuilder 撤去 / plugin disable 固定 / LLVM exe 期待が古い
 - 完了: phase143_* を legacy pack に隔離し、SSOT の受け入れは JoinIR pack のみに統一
-- 検証: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` (SKIP)
+- 検証: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/archive/joinir/phase143_legacy_pack.sh` (SKIP)
 
 ## P7: bool_predicate_scan planner-first（subset）
 

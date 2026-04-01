@@ -344,8 +344,8 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-29: Phase 29aj P9 完了** ✅
 - 目的: phase286_pattern9_frag_poc を legacy pack (SKIP) に隔離して SSOT を固定
-- 実装: `tools/smokes/v2/profiles/integration/joinir/phase286_pattern9_legacy_pack.sh` / `docs/development/current/main/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
-- 検証: `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/integration/joinir/phase286_pattern9_legacy_pack.sh` (SKIP)
+- 実装: `tools/smokes/v2/profiles/archive/joinir/phase286_pattern9_legacy_pack.sh` / `docs/development/current/main/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
+- 検証: `./tools/smokes/v2/run.sh --profile quick` / `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/archive/joinir/phase286_pattern9_legacy_pack.sh` (SKIP)
 
 **2025-12-29: Phase 29aj P8 完了** ✅
 - 目的: Pattern9（AccumConstLoop）を Facts→Planner-first に移行（仕様不変）
@@ -359,8 +359,8 @@ Next: Phase 29ao P37（TBD）
 
 **2025-12-29: Phase 29aj P6 完了** ✅
 - 目的: JoinIR 回帰の integration gate を phase29ae pack に固定し、phase143_* を隔離
-- 実装: `tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` / `docs/development/current/main/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
-- 検証: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/integration/joinir/phase143_legacy_pack.sh` (SKIP)
+- 実装: `tools/smokes/v2/profiles/archive/joinir/phase143_legacy_pack.sh` / `docs/development/current/main/phases/phase-29aj/README.md` / `docs/development/current/main/phases/phase-29ae/README.md`
+- 検証: `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` / `./tools/smokes/v2/profiles/archive/joinir/phase143_legacy_pack.sh` (SKIP)
 
 **2025-12-29: Phase 29aj P5 完了** ✅
 - 目的: Pattern5（Infinite Early Exit）を Facts→Planner-first に移行（仕様不変）
