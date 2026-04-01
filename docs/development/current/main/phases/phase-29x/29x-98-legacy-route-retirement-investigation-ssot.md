@@ -207,6 +207,7 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
   - `codegen_provider_llvmlite_const42_canary_vm.sh`
 - the canonical manifest is `tools/smokes/v2/profiles/integration/core/phase2044/llvmlite_monitor_keep.txt`.
 - the dedicated suite manifest is `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt`.
+- this dedicated suite manifest is the final live keep bucket for `phase2044`.
 - the `hako_primary_no_fallback_*` scripts are a separate core-exec proof bucket.
 - the `mirbuilder_provider_*` scripts are a separate mirbuilder-provider proof bucket.
 - near-term cleanup separates these semantics with bucket runners first:
@@ -214,6 +215,7 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
   - `run_hako_primary_no_fallback_bucket.sh`
   - `run_mirbuilder_provider_bucket.sh`
 - physical path splitting stays parked until `phase2044/...` discovery filters can be updated safely.
+- no further low-blast split is warranted here; keep the llvmlite trio suite-locked and leave the remaining groups bucket-runner only.
 
 ## Compat Pack Archive Conditions
 

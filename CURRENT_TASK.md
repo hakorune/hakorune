@@ -72,7 +72,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Current blocker: `none`
 - Exact focus: `29x-98 proof-only caller keep/evidence split / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
   - phase2120 pure canary bucket is now split by suites: `phase2120-pure-keep` for the 2 active keep pins and `phase2120-pure-historical` for archive-backed replay evidence
-  - phase2044 semantics are now at the intended endpoint: only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest; the other two groups stay bucket-runner only
+  - phase2044 semantics are now at the intended endpoint: the llvmlite trio is `monitor-only keep`, its dedicated suite manifest is the final live keep bucket, and the other two groups stay bucket-runner only
   - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
   - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
   - selfhost compat stack wording is now locked as `payload -> transport wrapper -> pack orchestrator`
