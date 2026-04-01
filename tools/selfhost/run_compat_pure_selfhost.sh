@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Historical pure-lowering selfhost helper.
-# This is compat-only and still uses the legacy CodegenBridgeBox example route.
+# Archive-later compat wrapper for the example/proof selfhost driver.
+# This is compat-only and still shells into the legacy CodegenBridgeBox
+# example route; it is not a daily backend owner.
 # The root-first proof lives on the separate vm-hako owner lane
 # (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`) and is not a drop-in
 # replacement for this wrapper yet.
@@ -15,6 +16,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 JSON_IN="${1:-}"
 EXE_OUT="${2:-/tmp/hako_selfhost_exe}"
+DRIVER_HAKO="$ROOT/tools/selfhost/examples/hako_llvm_selfhost_driver.hako"
 
 if [[ -z "$JSON_IN" ]]; then
   echo "Usage: $0 <json_file_or_-'stdin'> [exe_out]" >&2
@@ -39,7 +41,12 @@ fi
 export _MIR_JSON="$MIR_JSON"
 export _EXE_OUT="$EXE_OUT"
 
-CODE_CONTENT="$(cat "$ROOT/tools/selfhost/examples/hako_llvm_selfhost_driver.hako")"
+if [[ ! -f "$DRIVER_HAKO" ]]; then
+  echo "[ERR] missing compat selfhost driver: $DRIVER_HAKO" >&2
+  exit 5
+fi
+
+CODE_CONTENT="$(cat "$DRIVER_HAKO")"
 OUT="$(bash "$ROOT/tools/dev/hako_debug_run.sh" --safe -c "$CODE_CONTENT" 2>/dev/null)" || true
 EXE_PATH="$(echo "$OUT" | tail -n1 | tr -d '\r')"
 if [[ ! -f "$EXE_PATH" ]]; then

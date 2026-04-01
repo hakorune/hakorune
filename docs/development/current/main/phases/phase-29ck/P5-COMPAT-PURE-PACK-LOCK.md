@@ -59,9 +59,11 @@ Related:
 2. `tools/selfhost/run_compat_pure_pack.sh`
    - canonical historical compat pack wrapper
    - shells into `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` and `tools/selfhost/run_compat_pure_selfhost.sh`
+   - pack orchestration only; not a separate proof owner
 3. `tools/selfhost/run_compat_pure_selfhost.sh`
    - compatibility wrapper only
    - archive-later compat wrapper, not a daily owner
+   - transport-only shell shim around `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
    - still depends on the legacy `CodegenBridgeBox` example caller
    - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
 4. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`

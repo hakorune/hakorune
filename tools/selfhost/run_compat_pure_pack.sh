@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Historical compat pure-pack wrapper.
+# This shells into the active phase2120 pure keep pins and then the canonical
+# archive-later compat selfhost wrapper. It is not a separate proof owner.
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+PURE_KEEP_RUNNER="$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh"
+SELFHOST_COMPAT_WRAPPER="$ROOT/tools/selfhost/run_compat_pure_selfhost.sh"
 
 echo "[selfhost/compat] Running historical pure/TM pack"
 export NYASH_LLVM_USE_CAPI=${NYASH_LLVM_USE_CAPI:-1}
@@ -9,7 +15,16 @@ export HAKO_V1_EXTERN_PROVIDER_C_ABI=${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1}
 export HAKO_CAPI_PURE=${HAKO_CAPI_PURE:-1}
 # Optional: set HAKO_CAPI_TM=1 to exercise TargetMachine path
 
-bash "$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh"
+if [[ ! -f "$PURE_KEEP_RUNNER" ]]; then
+  echo "[ERR] missing pure keep runner: $PURE_KEEP_RUNNER" >&2
+  exit 2
+fi
+if [[ ! -f "$SELFHOST_COMPAT_WRAPPER" ]]; then
+  echo "[ERR] missing compat selfhost wrapper: $SELFHOST_COMPAT_WRAPPER" >&2
+  exit 3
+fi
+
+bash "$PURE_KEEP_RUNNER"
 
 echo "[selfhost/compat] Running historical .hako -> LLVM selfhost helper"
 TMP_JSON="/tmp/hako_min44_$$.json"
@@ -23,7 +38,7 @@ JSON
 EXE="/tmp/hako_selfhost_min_exe_$$"
 set +e
 HAKO_CAPI_PURE=${HAKO_CAPI_PURE:-1} NYASH_LLVM_USE_CAPI=${NYASH_LLVM_USE_CAPI:-1} HAKO_V1_EXTERN_PROVIDER_C_ABI=${HAKO_V1_EXTERN_PROVIDER_C_ABI:-1} \
-  bash "$ROOT/tools/selfhost/run_compat_pure_selfhost.sh" "$TMP_JSON" "$EXE"
+  bash "$SELFHOST_COMPAT_WRAPPER" "$TMP_JSON" "$EXE"
 RC=$?
 set -e
 echo "[selfhost/compat] exe=$EXE rc=$RC"

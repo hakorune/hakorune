@@ -1,4 +1,7 @@
-// hako_llvm_selfhost_driver.hako — minimal driver to emit+link via C‑API from Hako
+// hako_llvm_selfhost_driver.hako — archive-later proof/example driver
+// This is a thin compat route payload, not a daily backend owner.
+// It exists so `run_compat_pure_selfhost.sh` can exercise the legacy
+// CodegenBridgeBox emit/link route end-to-end.
 // Usage (env):
 //   _MIR_JSON: v1 JSON text
 //   _EXE_OUT : output path for linked executable
