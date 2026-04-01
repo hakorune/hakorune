@@ -126,6 +126,7 @@ bash tools/selfhost/run_compat_pure_pack.sh
 - old alias `run_all.sh` is retired; keep the compat pack entry singular.
 - The root-first replacement proof is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`.
 - That proof runs on `--backend vm-hako`, so it is not a drop-in replacement for the compat wrapper yet.
+- `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes
 - Stage‑B emit uses either the Stage‑B entry or BuildBox（HAKO_USE_BUILDBOX=1 for emit-only）

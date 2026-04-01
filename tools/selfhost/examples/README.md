@@ -2,6 +2,14 @@
 
 This directory is mixed.
 
+## Cleanup Bands
+
+| Band | State |
+| --- | --- |
+| Now | `hako_llvm_selfhost_driver.hako` |
+| Next | `lang/src/vm/hakorune-vm/extern_provider.hako` |
+| Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
+
 ## General Generators
 
 - `gen_v1_*.sh`
