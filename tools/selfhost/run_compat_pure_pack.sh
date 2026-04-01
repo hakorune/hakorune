@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Historical compat pure-pack wrapper.
-# This shells into the active phase2120 pure keep pins and then the canonical
-# archive-later compat selfhost wrapper. It is not a separate proof owner.
+# Historical compat pure-pack orchestrator.
+# This shells into the active phase2120 pure keep suite and then the canonical
+# archive-later compat selfhost transport wrapper. It is not a separate proof
+# owner.
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PURE_KEEP_RUNNER="$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh"

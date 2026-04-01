@@ -63,7 +63,7 @@ bash tools/selfhost/run_lane_a_daily.sh
   | Next | `lang/src/vm/hakorune-vm/extern_provider.hako` |
   | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 
-- `phase2044` llvmlite trio is monitor-only keep and now has a dedicated suite manifest; `phase2111` / `phase251` archive proofs share one replay-evidence suite; `phase2120` pure canaries now split by suites, with `phase2120-pure-keep` for the live pair and `phase2120-pure-historical` for archive-backed replay evidence.
+- `phase2044` llvmlite trio is monitor-only keep and now has a dedicated suite manifest; `phase2111` / `phase251` archive proofs share one replay-evidence suite; `phase2120` pure canaries now split by suites, with `phase2120-pure-keep` for the live pair and `phase2120-pure-historical` for archive-backed replay evidence; the selfhost compat stack is now read as `payload -> transport wrapper -> pack orchestrator`.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front

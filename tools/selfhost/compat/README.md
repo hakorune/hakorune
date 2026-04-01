@@ -2,7 +2,7 @@
 
 This directory holds archive-later compat/proof payloads.
 
-## Current Payloads
+## Current Surface
 
 - `hako_llvm_selfhost_driver.hako`
 - proof/example payload behind `tools/selfhost/run_compat_pure_selfhost.sh`
@@ -11,3 +11,15 @@ This directory holds archive-later compat/proof payloads.
 - not a daily backend owner
 - keep until the compat wrapper gains a root-first replacement or is retired as
   a whole
+
+## Layering
+
+- payload:
+  - `hako_llvm_selfhost_driver.hako`
+- transport wrapper:
+  - `tools/selfhost/run_compat_pure_selfhost.sh`
+- pack orchestrator:
+  - `tools/selfhost/run_compat_pure_pack.sh`
+
+Read this directory as payload-only. The shell scripts above are the transport
+and orchestration layers that still sit on top of it.

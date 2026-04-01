@@ -7,7 +7,7 @@ This directory is now generators-first.
 | Band | State |
 | --- | --- |
 | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` |
-| Next | `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` |
+| Next | `tools/selfhost/run_compat_pure_selfhost.sh` + `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 
 ## General Generators

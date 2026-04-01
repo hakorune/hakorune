@@ -75,6 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - phase2044 semantics are now split by bucket runner; only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest
   - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
   - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
+  - selfhost compat stack wording is now locked as `payload -> transport wrapper -> pack orchestrator`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`

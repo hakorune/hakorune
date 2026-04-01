@@ -1,7 +1,7 @@
 // extern_provider.hako — HakoruneExternProviderBox
 // Responsibility: minimal compat/proof extern/global call handling on Hako side.
 // Scope: env.get / console.log remain the owner surface; gated legacy codegen
-// arms stay compat-only until a root-first proof exists.
+// arms stay explicit compat/proof stubs until a root-first lowering proof exists.
 
 using selfhost.vm.hakorune-vm.str_cast as StrCast
 using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
@@ -46,7 +46,7 @@ static box HakoruneExternProviderBox {
       return ""
     }
     if name == "env.codegen.emit_object" {
-      // compat/proof only: keep the legacy codegen arm gated by C-ABI.
+      // compat/proof only: keep the legacy codegen arm as a gated stub.
       if c_abi_enabled {
         // 追跡は任意（決定性のため既定はOFF）
         if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:codegen.emit_object]") }
