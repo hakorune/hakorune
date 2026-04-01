@@ -6,15 +6,21 @@
 ## Categories
 
 1. active pure C-API canaries
-   - `s3_link_run_llvmcapi_pure_*.sh`
+   - `core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh`
+   - `core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh`
    - `HAKO_CAPI_PURE=1` 必須
    - historical pure-lowering evidence
    - caller path is `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; do not depend on the retired direct `hostbridge.extern_invoke("env.codegen", ...)` lane here
    - symbol-changing slices must fail fast on stale `target/release/libnyash_kernel.a` instead of surfacing as opaque link errors
 2. archive-backed pure C-API historical pins
+   - `core/phase2120/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh`
+   - `core/phase2120/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh`
    - `core/phase2120/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh`
    - `core/phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh`
    - `core/phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh`
+   - `phase29ck` root-first replacements:
+     - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_ternary_collect_runtime_proof.sh`
+     - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_map_set_size_runtime_proof.sh`
    - profile entry is `./tools/smokes/v2/run.sh --profile archive --filter "core/phase2120/<basename>"`
 3. VM adapter canaries
    - `s3_vm_adapter_*.sh`
@@ -34,7 +40,7 @@
     - `tools/smokes/v2/profiles/integration/core/phase2120/run_vm_adapter_legacy_cluster.sh`
 - historical compat pure-pack entry:
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
-  - filter contract inside the pack is `--profile integration --filter 'core/phase2120/...sh'` for active pins
+  - active pins are now the two `array_set_get` / `loop_count` canaries under `--profile integration --filter 'core/phase2120/...sh'`
   - archive-backed pins are invoked via `--profile archive --filter 'core/phase2120/...sh'`
 - shell wrapper:
   - `tools/selfhost/run_compat_pure_pack.sh`

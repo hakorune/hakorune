@@ -24,13 +24,13 @@ if [[ "$ffi_found" != "1" ]]; then
 fi
 
 ACTIVE_PURE_CANARIES=(
-  'core/phase2120/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh'
-  'core/phase2120/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh'
 )
 
 ARCHIVE_PURE_CANARIES=(
+  'core/phase2120/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh'
+  'core/phase2120/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh'
   'core/phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh'
