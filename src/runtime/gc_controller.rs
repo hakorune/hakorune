@@ -234,3 +234,84 @@ impl GcController {
         self.trial_reason_last.load(Ordering::Relaxed)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Mutex;
+
+    static GC_TRIGGER_ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    fn with_gc_trigger_env<F: FnOnce()>(
+        collect_sp: Option<&str>,
+        collect_alloc: Option<&str>,
+        f: F,
+    ) {
+        let _guard = GC_TRIGGER_ENV_LOCK.lock().expect("env lock");
+        let prev_sp = std::env::var("NYASH_GC_COLLECT_SP").ok();
+        let prev_alloc = std::env::var("NYASH_GC_COLLECT_ALLOC").ok();
+
+        match collect_sp {
+            Some(value) => std::env::set_var("NYASH_GC_COLLECT_SP", value),
+            None => std::env::remove_var("NYASH_GC_COLLECT_SP"),
+        }
+        match collect_alloc {
+            Some(value) => std::env::set_var("NYASH_GC_COLLECT_ALLOC", value),
+            None => std::env::remove_var("NYASH_GC_COLLECT_ALLOC"),
+        }
+
+        f();
+
+        match prev_sp {
+            Some(value) => std::env::set_var("NYASH_GC_COLLECT_SP", value),
+            None => std::env::remove_var("NYASH_GC_COLLECT_SP"),
+        }
+        match prev_alloc {
+            Some(value) => std::env::set_var("NYASH_GC_COLLECT_ALLOC", value),
+            None => std::env::remove_var("NYASH_GC_COLLECT_ALLOC"),
+        }
+    }
+
+    #[test]
+    fn gc_controller_triggers_collection_on_safepoint_threshold() {
+        with_gc_trigger_env(Some("1"), None, || {
+            let controller = GcController::new(GcMode::RcCycle);
+            controller.safepoint();
+            assert_eq!(controller.collection_totals(), (1, 1, 0));
+            assert_eq!(controller.trial_reason_last_bits(), 1);
+        });
+    }
+
+    #[test]
+    fn gc_controller_triggers_collection_on_alloc_threshold_after_safepoint() {
+        with_gc_trigger_env(None, Some("64"), || {
+            let controller = GcController::new(GcMode::RcCycle);
+            controller.alloc(64);
+            controller.safepoint();
+            assert_eq!(controller.collection_totals(), (1, 0, 1));
+            assert_eq!(controller.trial_reason_last_bits(), 2);
+        });
+    }
+
+    #[test]
+    fn gc_controller_triggers_collection_on_both_thresholds() {
+        with_gc_trigger_env(Some("1"), Some("64"), || {
+            let controller = GcController::new(GcMode::RcCycle);
+            controller.alloc(64);
+            controller.safepoint();
+            assert_eq!(controller.collection_totals(), (1, 1, 1));
+            assert_eq!(controller.trial_reason_last_bits(), 3);
+        });
+    }
+
+    #[test]
+    fn gc_controller_off_mode_ignores_trigger_thresholds() {
+        with_gc_trigger_env(Some("1"), Some("64"), || {
+            let controller = GcController::new(GcMode::Off);
+            controller.alloc(64);
+            controller.safepoint();
+            assert_eq!(controller.collection_totals(), (0, 0, 0));
+            assert_eq!(controller.trial_reason_last_bits(), 0);
+        });
+    }
+}

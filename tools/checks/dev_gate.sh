@@ -35,6 +35,7 @@ list_profiles() {
     - tools/checks/route_no_fallback_guard.sh
     - cargo check --bin hakorune
     - PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
+    - tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
     - phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
   hotpath:
     - quick
@@ -201,6 +202,9 @@ run_quick() {
 
   run_step "K2-wide hako_alloc handle policy guard" \
     bash tools/checks/k2_wide_hako_alloc_handle_policy_guard.sh
+
+  run_step "K2-wide hako_alloc GC trigger policy guard" \
+    bash tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
 
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \

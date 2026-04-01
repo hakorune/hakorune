@@ -42,8 +42,8 @@ Implementation order is fixed narrowly:
 2. GC trigger threshold policy
 
 Do not merge these two rows into one broad allocator wave.
-The current live implementation row is `handle reuse policy`.
-The next row after that is `GC trigger threshold policy`.
+The current live implementation row is `GC trigger threshold policy`.
+There is no third live allocator row yet; later allocator work stays reserved-only until a concrete backend-private consumer appears.
 
 ### Handle policy
 
@@ -105,6 +105,11 @@ First-row acceptance (`handle reuse policy`):
 Second-row acceptance (`GC trigger threshold policy`):
 
 - `cargo test gc_trigger_policy_ -- --nocapture`
+- `cargo test gc_controller_triggers_collection_on_safepoint_threshold -- --nocapture`
+- `cargo test gc_controller_triggers_collection_on_alloc_threshold_after_safepoint -- --nocapture`
+- `cargo test gc_controller_triggers_collection_on_both_thresholds -- --nocapture`
+- `cargo test gc_controller_off_mode_ignores_trigger_thresholds -- --nocapture`
+- `bash tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh`
 
 Umbrella gate:
 
