@@ -42,7 +42,7 @@ Related:
   - meaning:
     - historical pure-lowering and old selfhost helper routes
     - `HAKO_CAPI_PURE=1` is a historical alias only when no explicit backend recipe is present; explicit `HAKO_BACKEND_COMPILE_RECIPE=*` keeps precedence
-    - current phase2120 active pure canaries are the two live keep pins (`array_set_get`, `loop_count`), locked by `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`; the moved `ternary_collect` / `map_set_size` pins are archive-backed historical evidence
+    - current phase2120 active pure canaries are the two live keep pins (`array_set_get`, `loop_count`), locked by `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`; the historical archive-backed pins are locked by `tools/smokes/v2/suites/archive/phase2120-pure-historical.txt`
   - non-goal:
     - current backend-zero acceptance / promotion owner ではない
 

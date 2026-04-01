@@ -21,10 +21,12 @@
    - `core/phase2120/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh`
    - `core/phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh`
    - `core/phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh`
+   - canonical manifest: `tools/smokes/v2/profiles/archive/core/phase2120/pure_historical.txt`
+   - dedicated suite manifest: `tools/smokes/v2/suites/archive/phase2120-pure-historical.txt`
    - `phase29ck` root-first replacements:
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_ternary_collect_runtime_proof.sh`
      - `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_map_set_size_runtime_proof.sh`
-   - profile entry is `./tools/smokes/v2/run.sh --profile archive --filter "core/phase2120/<basename>"`
+   - profile entry is `./tools/smokes/v2/run.sh --profile archive --suite phase2120-pure-historical`
 3. VM adapter canaries
    - `s3_vm_adapter_*.sh`
    - Hako VM adapter / state alias の観測
@@ -44,7 +46,7 @@
 - historical compat pure-pack entry:
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
   - active keep pins now run via `--profile integration --suite phase2120-pure-keep`
-  - archive-backed pins are invoked via `--profile archive --filter 'core/phase2120/...sh'`
+  - archive-backed pins now run via `--profile archive --suite phase2120-pure-historical`
 - shell wrapper:
   - `tools/selfhost/run_compat_pure_pack.sh`
   - old alias `tools/selfhost/run_all.sh` is retired

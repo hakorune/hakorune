@@ -10,6 +10,8 @@ This directory holds historical pure C-API canary pins that were retired from th
 - `core/phase2120/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh`
 - `core/phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh`
 - `core/phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh`
+- canonical manifest: `tools/smokes/v2/profiles/archive/core/phase2120/pure_historical.txt`
+- dedicated suite manifest: `tools/smokes/v2/suites/archive/phase2120-pure-historical.txt`
 
 ## Root-First Replacements
 
@@ -21,7 +23,7 @@ This directory holds historical pure C-API canary pins that were retired from th
 Use:
 
 ```bash
-./tools/smokes/v2/run.sh --profile archive --filter "core/phase2120/<basename>"
+./tools/smokes/v2/run.sh --profile archive --suite phase2120-pure-historical
 ```
 
 These pins are historical evidence only. They are not part of the active integration gate.

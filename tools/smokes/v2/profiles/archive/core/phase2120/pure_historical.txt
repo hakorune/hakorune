@@ -1,0 +1,7 @@
+# Phase2120 archive-backed pure C-API historical pins
+# Replay-only evidence retired from the live integration keep bucket.
+core/phase2120/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh
+core/phase2120/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh
+core/phase2120/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh
+core/phase2120/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh
+core/phase2120/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh

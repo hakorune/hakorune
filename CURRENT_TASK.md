@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
 - Exact focus: `29x-98 proof-only caller keep/evidence split / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
-  - phase2120 pure canary bucket is now 2 active keep pins + archive-backed historical pins; the active pins are locked by `phase2120-pure-keep`, and `ternary_collect` / `map_set_size` moved to archive replay
+  - phase2120 pure canary bucket is now split by suites: `phase2120-pure-keep` for the 2 active keep pins and `phase2120-pure-historical` for archive-backed replay evidence
   - phase2044 semantics are now split by bucket runner; only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest
   - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
   - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
@@ -110,7 +110,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 - `phase2044` llvmlite trio is monitor-only keep.
-- `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `phase2120-pure-keep`, `ternary_collect` / `map_set_size` archive-backed historical pins.
+- `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `phase2120-pure-keep`, archive-backed historical pins via `phase2120-pure-historical`.
 
 ## Canonical Owners
 
