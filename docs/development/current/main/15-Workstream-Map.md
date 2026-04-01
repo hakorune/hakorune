@@ -31,6 +31,7 @@ Related:
      - `K2-core` is closed
      - `K2-wide` is now the next structural lane
      - current `K2-wide` focus is boundary-shrink planning
+     - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
 2. `phase-29bq`
    - active selfhost lane

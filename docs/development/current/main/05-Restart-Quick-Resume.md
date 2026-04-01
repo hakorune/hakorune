@@ -42,6 +42,7 @@ bash tools/selfhost/run_lane_a_daily.sh
   - `native` = explicit replay/canary lane
 
 - Active next: `K2-wide` boundary-shrink planning
+- boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
 - `K2-core` / `K2-wide` are task packs inside `K2`

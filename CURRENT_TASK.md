@@ -69,6 +69,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   4. `docs/development/current/main/design/final-metal-split-ssot.md`
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
+  - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
   - keep `K2-wide` widening on capability modules, not ad hoc native escape hatches
   - keep `hako_alloc` closed until a concrete backend-private consumer appears
 - LLVM task rule:
