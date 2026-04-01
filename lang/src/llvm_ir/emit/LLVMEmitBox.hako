@@ -53,8 +53,9 @@ static box LLVMEmitProviderBox {
       return CodegenBridgeBox.emit_object_args(args)
     }
     if pv == "llvmlite" {
-      // Not wired yet for llvmlite provider
-      print("[llvmemit/skip] provider stub; implement llvmlite Plugin v2 call")
+      // This compat/proof box does not own the llvmlite lane.
+      // The remaining llvmlite evidence lives on direct provider canaries.
+      print("[llvmemit/skip] llvmlite is not routed through LLVMEmitBox")
       return null
     }
     print("[llvmemit/provider/unsupported] " + pv)
