@@ -112,6 +112,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 - `lang/src/vm/hakorune-vm/extern_provider.hako`
   - only active when `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; otherwise it returns an empty compat stub.
   - treat as compat/proof only, not daily/mainline.
+  - dead alias `env.codegen.emit_object_ny` is retired; the gated stub now accepts only `env.codegen.emit_object`.
   - cleanup target: remove upstream `env.codegen.emit_object` compat callers first, then retire this gated stub.
 - `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
   - explicit proof/example caller that still demonstrates `emit_object_args(...)` plus `link_object_args(...)`.

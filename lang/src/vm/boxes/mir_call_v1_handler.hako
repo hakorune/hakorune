@@ -362,7 +362,7 @@ static box MirCallV1HandlerBox {
         HakoruneExternProviderBox.get(name, keyv)
         return
       }
-      if name == "env.mirbuilder.emit" || name == "env.codegen.emit_object" || name == "env.codegen.emit_object_ny" {
+      if name == "env.mirbuilder.emit" || name == "env.codegen.emit_object" {
         // Call provider to emit optional C‑ABI tag; provider returns empty string
         local dstp = JsonFragBox.get_int(seg, "dst")
         local aval = null; if arg0id >= 0 { aval = regs.getField(StringHelpers.int_to_str(arg0id)) }

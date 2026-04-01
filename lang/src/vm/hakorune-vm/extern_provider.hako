@@ -39,14 +39,13 @@ static box HakoruneExternProviderBox {
       // Default: return empty string (verify/dev stub keeps rc=0)
       return ""
     }
-    if name == "env.codegen.emit_object" || name == "env.codegen.emit_object_ny" {
+    if name == "env.codegen.emit_object" {
       // Optional C‑ABI bridge（既定OFF）: Rust 側 extern_provider に最小接続
       if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
         // 追跡は任意（決定性のため既定はOFF）
         if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:codegen.emit_object]") }
         // Call through to Core extern dispatcher and return produced object path
         // 現段階では Core 側で C-API/llvmlite の切替を行う。
-        // 互換のため *_ny も最終的に emit_object へ委譲する。
         local out = CodegenBridgeBox.emit_object_args(args)
         if out == null { return null }
         return "" + out
