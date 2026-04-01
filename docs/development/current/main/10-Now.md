@@ -92,10 +92,10 @@ Related:
   - the current first capability row after `RawMapCoreBox` is `hako.atomic` via `AtomicCoreBox.fence_i64()`
   - the current helper-shaped capability row is `hako.tls` via `TlsCoreBox.last_error_text_h()`
   - the current capability row is `hako.gc` via `GcCoreBox.write_barrier_i64(handle_or_ptr)`
-  - the next capability row is `hako.osvm` via `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
-  - the next policy/state row after `hako.osvm` is `hako_alloc` handle reuse policy
-  - the second policy/state row after that is `hako_alloc` GC trigger threshold policy
-  - `K2-wide` widening is read as `RawMap` first, then narrow widening of `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm`, then `hako_alloc` policy/state rows
+  - the current capability row is `hako.osvm` via `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
+  - the current policy/state row after `hako.osvm` is `hako_alloc` handle reuse policy
+  - the next policy/state row after that is `hako_alloc` GC trigger threshold policy
+  - `K2-wide` widening is read as `RawMap` first, then narrow widening of `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm`, then `hako_alloc` policy/state rows beginning with handle reuse policy
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
   - artifact reading:

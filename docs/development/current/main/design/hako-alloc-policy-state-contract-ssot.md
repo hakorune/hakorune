@@ -42,6 +42,8 @@ Implementation order is fixed narrowly:
 2. GC trigger threshold policy
 
 Do not merge these two rows into one broad allocator wave.
+The current live implementation row is `handle reuse policy`.
+The next row after that is `GC trigger threshold policy`.
 
 ### Handle policy
 

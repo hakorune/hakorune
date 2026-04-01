@@ -11,8 +11,9 @@ Principles
 - Do not move OS VM, LLVM, or other thin native keep concerns here.
 - Treat `runtime/memory/` as historical location only; new work should land under `hako_alloc/`.
 - Current stop-line:
+  - current live implementation row is handle reuse policy
+  - next exact implementation row is GC trigger threshold policy
   - first landed policy rows are handle reuse policy and GC trigger threshold policy
-  - next exact implementation order is `handle reuse policy` first, then `GC trigger threshold policy`
   - live Rust bodies still remain under `src/runtime/**`
   - `RawBuf / Layout / MaybeInit` stay reserved-only for now
 

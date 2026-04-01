@@ -114,24 +114,19 @@ impl Registry {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
 
-        if matches!(policy_mode, HostHandleAllocPolicyMode::Lifo) {
-            if let Some(h) = table.free.pop() {
-                let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
-                ensure_slot_vacant_or_panic(
-                    &table,
-                    idx,
-                    "[host_handles] reusable handle out of slots range",
-                    "[host_handles] reusable handle points to occupied slot",
-                );
-                table.slots[idx] = Some(obj);
-                return h;
-            }
+        if let Some(h) = host_handles_policy::take_reusable_handle(policy_mode, &mut table.free) {
+            let idx = handle_index_or_panic(h, "[host_handles] reusable handle overflow");
+            ensure_slot_vacant_or_panic(
+                &table,
+                idx,
+                "[host_handles] reusable handle out of slots range",
+                "[host_handles] reusable handle points to occupied slot",
+            );
+            table.slots[idx] = Some(obj);
+            return h;
         }
 
-        let h = table.next;
-        table.next = h
-            .checked_add(1)
-            .expect("[host_handles] fresh handle counter overflow");
+        let h = host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next);
         let idx = handle_index_or_panic(h, "[host_handles] fresh handle overflow");
         if idx == table.slots.len() {
             table.slots.push(Some(obj));
@@ -377,4 +372,52 @@ pub fn drop_handle(h: u64) {
 #[inline(always)]
 pub fn drop_epoch() -> u64 {
     reg().drop_epoch()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::box_trait::IntegerBox;
+    use std::sync::Mutex;
+
+    static HOST_HANDLE_POLICY_ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    fn with_host_handle_policy_env<F: FnOnce()>(value: &str, f: F) {
+        let _guard = HOST_HANDLE_POLICY_ENV_LOCK.lock().expect("env lock");
+        let prev = std::env::var("NYASH_HOST_HANDLE_ALLOC_POLICY").ok();
+        std::env::set_var("NYASH_HOST_HANDLE_ALLOC_POLICY", value);
+        f();
+        if let Some(v) = prev {
+            std::env::set_var("NYASH_HOST_HANDLE_ALLOC_POLICY", v);
+        } else {
+            std::env::remove_var("NYASH_HOST_HANDLE_ALLOC_POLICY");
+        }
+    }
+
+    fn int_box(value: i64) -> Arc<dyn NyashBox> {
+        Arc::new(IntegerBox::new(value))
+    }
+
+    #[test]
+    fn host_handles_registry_lifo_reuses_dropped_handle() {
+        with_host_handle_policy_env("lifo", || {
+            let registry = Registry::new();
+            let first = registry.alloc(int_box(1));
+            registry.drop_handle(first);
+            let second = registry.alloc(int_box(2));
+            assert_eq!(second, first);
+        });
+    }
+
+    #[test]
+    fn host_handles_registry_none_issues_fresh_handle_after_drop() {
+        with_host_handle_policy_env("none", || {
+            let registry = Registry::new();
+            let first = registry.alloc(int_box(1));
+            registry.drop_handle(first);
+            let second = registry.alloc(int_box(2));
+            assert!(second > first);
+            assert_ne!(second, first);
+        });
+    }
 }
