@@ -255,7 +255,8 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
   - `K2-wide` boundary-shrink lock-down (closed)
   - `zero-rust` default operationalization
 - therefore the next structural step is not another broad stage rename.
-- the next structural step is `zero-rust default operationalization`, beginning with artifact contract / entrypoint sync.
+- `zero-rust default operationalization` is the active lane and has already completed artifact contract / entrypoint sync.
+- the next structural step is `stage2plus entry / first optimization wave`.
 
 ## Non-Goals
 
