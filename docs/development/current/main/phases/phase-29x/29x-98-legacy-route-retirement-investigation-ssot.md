@@ -51,11 +51,33 @@ The canonical successor family is the root-first daily route, concretely `env.co
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | keep | plugin loader `emit_object` arm for MIR(JSON) | same root-first daily compile route family | same legacy MIR(JSON) entry contract |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate reads MIR(JSON) file and calls the legacy helper | compiled-stage1 should eventually bypass the legacy helper once a new front-door exists | helper still required for bootstrap/compat |
 
+## Inventory Findings
+
+- `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`
+  - current contract is `env.codegen.emit_object(mir_json_string) -> object path`.
+  - this file already carries `compile_ll_text` and `link_object` branches, but the `emit_object` arm still owns MIR(JSON), so it cannot flip to the canonical route without an upstream caller change.
+- `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`
+  - current contract is also `env.codegen.emit_object(mir_json_string) -> object path`.
+  - this arm patches missing MIR version fields before calling the legacy helper, so a direct retarget would also need a replacement for that normalization step.
+- `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - current contract is plugin-side `emit_object(mir_json) -> object path`.
+  - this file has `compile_ll_text`, but it still lacks caller-side route/profile ownership and does not hold LL text on the `emit_object` arm.
+- `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+  - current contract is `compile_obj(mir_path) -> object path`.
+  - this is a compiled-stage1/bootstrap surrogate; it reads MIR(JSON) from disk and cannot cleanly jump to the root-first route without moving the owner upward into `.hako`.
+
+## Retirement Order
+
+1. keep `hostbridge.rs`, `loader_cold.rs`, and `extern_functions.rs` as explicit compat callers until their upstream callers stop owning MIR(JSON) and switch to the root-first daily route.
+2. keep `llvm_backend_surrogate.rs` as archive-later until the compiled-stage1/bootstrap path has a cleaner front door than `emit_object_from_mir_json(...)`.
+3. only when all four caller surfaces are gone: delete `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`.
+
 ## Investigation TODO
 
 1. confirm the caller inventory stays at exactly these four surfaces.
 2. keep the legacy helper archive-later until the caller set reaches zero.
-3. when the caller set reaches zero, delete `emit_object_from_mir_json(...)` and collapse the phase docs.
+3. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
+4. when the caller set reaches zero, delete `emit_object_from_mir_json(...)` and collapse the phase docs.
 
 ## Delete Condition
 
