@@ -163,8 +163,8 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | Surface group | Status | Daily-route dependency | Cleanup / archive condition |
 | --- | --- | --- | --- |
 | `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | integration proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
-| `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `emit_object_from_mir_json(...)` remains archive-later |
-| `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archived proof-only lowering evidence for the legacy extern name | none | keep as quarantine evidence until a root-first selfhost lowering proof exists |
+| `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `emit_object_from_mir_json(...)` remains archive-later; replay bundle is `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt` |
+| `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archived proof-only lowering evidence for the legacy extern name | none | keep as quarantine evidence until a root-first selfhost lowering proof exists; replay bundle is `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt` |
 
 ## Archive Sequencing Matrix
 
@@ -176,6 +176,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
 
 - the three `phase2044` llvmlite canaries are live through the dedicated suite manifest `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt` and still match integration-profile discovery filters.
+- the archived `phase2111` + `phase251` evidence now share the replay bundle `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`.
 
 ## Phase2044 Directory Semantics
 
@@ -221,17 +222,20 @@ Ranked from lowest blast radius to higher dependency risk:
 1. `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
    - keep now as integration monitor-only proofs
    - bucket semantics are now isolated by dedicated runner plus dedicated suite manifest; archive-later once legacy helper callers reach zero and llvmlite evidence is no longer needed
-2. `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
+2. `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`
+   - archive replay bundle for `phase2111` and `phase251`
+   - keep as evidence-only carrier while the helper and compat/proof callers remain
+3. `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
    - keep now as compat/proof only
    - archive-later after the provider-first proof surface is archived or moved to root-first
-3. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+4. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
    - correct producer to retire later
    - blocked until the remaining proof/compat callers drain
-4. `tools/selfhost/run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
+5. `tools/selfhost/run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
    - archive-later compat wrapper proof; document and sequence before touching producer deletion
-5. `lang/src/vm/hakorune-vm/extern_provider.hako`
+6. `lang/src/vm/hakorune-vm/extern_provider.hako`
    - blocked on a root-first selfhost lowering proof
-6. Rust dispatch residues under `src/backend/mir_interpreter/handlers/extern_provider/*` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+7. Rust dispatch residues under `src/backend/mir_interpreter/handlers/extern_provider/*` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
    - blocked until upstream `.hako` callers stop generating `env.codegen.emit_object`
 
 ## Phase2111 Replacement Closure

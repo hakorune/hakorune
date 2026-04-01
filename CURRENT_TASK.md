@@ -70,9 +70,10 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 proof-only caller bucket lock / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
+- Exact focus: `29x-98 proof-only caller keep/evidence split / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
   - phase2120 pure canary bucket is now 2 active keep pins + archive-backed historical pins; `ternary_collect` / `map_set_size` moved to archive replay
   - phase2044 semantics are now split by bucket runner; only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest
+  - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
   - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -104,7 +105,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers | keep them proof-only and sequence them before helper deletion |
+| Now | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers | keep live keep and archive evidence separated before helper deletion |
 | Next | `lang/src/vm/hakorune-vm/extern_provider.hako` | keep the compat/proof stub explicit until a root-first proof exists |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
