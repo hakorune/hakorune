@@ -166,6 +166,40 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 
 - the three `phase2044` llvmlite canaries are live through integration-profile discovery (`tools/smokes/v2/run.sh --profile integration --filter 'phase2044/...$' --dry-run --skip-preflight`), not through a dedicated suite manifest.
 
+## Compat Pack Archive Conditions
+
+- `tools/selfhost/run_compat_pure_pack.sh` is the only remaining historical compat-pack wrapper entry.
+- current direct dependencies are:
+  - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+  - `tools/selfhost/run_compat_pure_selfhost.sh`
+- current blockers are:
+  - `tools/selfhost/run_compat_pure_selfhost.sh` still demonstrates the old `CodegenBridgeBox.emit_object_args(...)` plus `link_object_args(...)` route.
+  - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh` still owns active historical pure/TM canaries.
+  - `HAKO_CAPI_PURE=1` is still documented as a compat-only route, not as removed/no-op.
+- archive-ready only when all three hold:
+  1. the phase2120 active pure canaries are either replaced by current root-first/native proofs or moved under archive-only replay.
+  2. the selfhost compat wrapper either gains a root-first drop-in replacement or is retired as a whole.
+  3. current docs no longer need `HAKO_CAPI_PURE=1` as a live compat entry toggle.
+- delete-ready is still `none`.
+
+## Low-Blast Cleanup Candidates
+
+Ranked from lowest blast radius to higher dependency risk:
+
+1. `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
+   - keep now as integration discovery-live monitor-only proofs
+   - archive-later once legacy helper callers reach zero and llvmlite evidence is no longer needed
+2. `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
+   - keep now as compat/proof only
+   - archive-later after the provider-first proof surface is archived or moved to root-first
+3. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
+   - correct producer to retire later
+   - blocked until the remaining proof/compat callers drain
+4. `lang/src/vm/hakorune-vm/extern_provider.hako`
+   - blocked on a root-first selfhost lowering proof
+5. Rust dispatch residues under `src/backend/mir_interpreter/handlers/extern_provider/*` and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+   - blocked until upstream `.hako` callers stop generating `env.codegen.emit_object`
+
 ## Phase2111 Replacement Closure
 
 Exact root-first replacements for the two `phase2111` payloads are green.
