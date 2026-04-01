@@ -6,7 +6,7 @@ Scope: `stage1-cli` bootstrap rebuild の payload proof を stage0 bootstrap rou
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
-  - docs/development/current/main/design/selfhost-bootstrap-route-evidence-and-legacy-lanes.md
+  - docs/development/current/main/design/archive/selfhost-bootstrap-route-evidence-and-legacy-lanes.md
   - docs/development/current/main/phases/phase-29co/README.md
   - tools/selfhost/lib/stage1_contract.sh
   - tools/selfhost/lib/identity_routes.sh

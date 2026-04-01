@@ -28,4 +28,4 @@ Status: Historical / direct-only
 ## Notes
 
 - Environment variable status is tracked in `docs/reference/environment-variables.md`.
-- Retreat policy SSOT is `docs/development/current/main/design/pyvm-retreat-ssot.md`.
+- Retreat policy SSOT is `docs/development/current/main/design/archive/pyvm-retreat-ssot.md`.

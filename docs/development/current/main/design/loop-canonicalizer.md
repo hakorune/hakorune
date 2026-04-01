@@ -45,7 +45,7 @@ loop_canonicalizer/
     LoopSkeleton + RoutingDecision
          ↓
     Route Router (active module surface `joinir::route_entry::router`;
-    legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照)
+    legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照)
          ↓
     Route Lowerer (semantic route modules)
 ```

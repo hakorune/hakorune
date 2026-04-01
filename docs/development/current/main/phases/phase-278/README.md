@@ -1,20 +1,11 @@
-# Phase 278 P0: Remove deprecated PHI debug env vars
+Status: Historical
+Moved to: `docs/development/current/main/phases/archive/phase-278/README.md`
+Related:
+- `CURRENT_TASK.md`
+- `docs/development/current/main/15-Workstream-Map.md`
 
-Status: ✅ completed (2025-12-22)
+# Moved
 
-Goal: remove legacy PHI debug environment variables that were consolidated in Phase 277 P2, so the ecosystem converges to a single, memorable set.
+This phase front moved to:
 
-Reference:
-- Consolidation doc: `docs/development/current/main/phases/phase-277/P2-COMPLETION.md`
-- Env var reference: `docs/reference/environment-variables.md` (PHI デバッグ関連)
-
-Target SSOT (post-Phase 278):
-- `NYASH_LLVM_DEBUG_PHI=1`
-- `NYASH_LLVM_DEBUG_PHI_TRACE=1`
-- `NYASH_LLVM_PHI_STRICT=1`
-
-Implementation guide:
-- `docs/development/current/main/phases/phase-278/P0-INSTRUCTIONS.md`
-
-Completion:
-- `docs/development/current/main/phases/phase-278/P0-COMPLETION.md`
+- `docs/development/current/main/phases/archive/phase-278/README.md`

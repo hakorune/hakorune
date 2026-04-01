@@ -211,7 +211,7 @@ MIR → [VM: MirInterpreter]
 
 - **JoinIR Architecture Overview**: [joinir-architecture-overview.md](./joinir-architecture-overview.md) - 全体アーキテクチャのSSOT
 - **JoinIR Design Map**: [joinir-design-map.md](./joinir-design-map.md) - 実装導線の地図
-- **Phase 286 README**: [../phases/phase-286/README.md](../phases/phase-286/README.md) - フェーズ進捗
+- **Phase 286 README**: [../docs/development/current/main/phases/archive/phase-286/README.md](../docs/development/current/main/phases/archive/phase-286/README.md) - フェーズ進捗
 - Post-PHI final form: `docs/development/current/main/design/post-phi-final-form-ssot.md`
 - Effect classification: `docs/development/current/main/design/effect-classification-ssot.md`
 

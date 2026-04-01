@@ -148,7 +148,7 @@ Throw surface policy:
 
 PyVM position:
 - 日常運用は Rust VM / LLVM を使う（PyVM は historical / direct-only）。
-- 退避ポリシーSSOT: `docs/development/current/main/design/pyvm-retreat-ssot.md`
+- 退避ポリシーSSOT: `docs/development/current/main/design/archive/pyvm-retreat-ssot.md`
 
 direct-v0 bridge policy:
 - `--parser ny` は mainline 入口から削除済み（CLI で reject）。

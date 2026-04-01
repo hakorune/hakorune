@@ -44,7 +44,7 @@ This is the ordered task map for compiler cleanliness. Use this order unless a n
 6) Residue cleanup (historical domain wording / legacy route extractors)
    - historical planner-payload wording / Normalizer 残骸・未参照 route extractor などを “掃除” として最後にまとめて削る。
    - ここで新しい受理形を増やさない（BoxCount を混ぜない）。
-   - active module surface `joinir::route_entry` は最終的に「薄い入口/ルーティング層」に縮退させる（legacy physical path lane の扱いは `route-physical-path-legacy-lane-ssot.md` を参照）。
+   - active module surface `joinir::route_entry` は最終的に「薄い入口/ルーティング層」に縮退させる（legacy physical path lane の扱いは `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照）。
      - ルーティングの SSOT は Facts/Recipe/Verifier に寄せ、`route_entry` 層は “どの入口を呼ぶか” だけにする。
      - ただし release 挙動は変えない（構造整理で fail-fast 位置を動かす場合は strict/dev(+planner_required) 限定）。
 
@@ -162,7 +162,7 @@ RecipeBlock/IfV2/LoopV0 を **直接組み立てる** 形へ収束する（Recip
 - verifier always-on scope decision
 - join/phi contract mechanical checks
 
-### E. route-entry layer cleanup（active module surface: `joinir::route_entry`; legacy physical path lane は `route-physical-path-legacy-lane-ssot.md`）
+### E. route-entry layer cleanup（active module surface: `joinir::route_entry`; legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md`）
 
 目標: active module surface `joinir::route_entry` を “薄いディスパッチャ” に縮退させ、意味論/契約は Recipe/Verifier/Parts に集約する。
 

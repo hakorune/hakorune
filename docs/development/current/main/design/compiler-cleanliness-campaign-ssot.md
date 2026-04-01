@@ -96,7 +96,7 @@ Wave 3 の小タスク（ordered; docs-first）
    - 追記先: JoinIR map SSOT（`joinir-design-map.md`）か、legacy README を “退避専用” に明記
 3) compatibility-lane normalizer residue と recipe composer の入口順序を SSOT 固定
    - 対象例: active module surface `crate::mir::builder::control_flow::joinir::route_entry::router`
-     （legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照）,
+     （legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照）,
      `src/mir/builder/control_flow/plan/recipe_tree/*_composer.rs`
    - 追記先: 本書 + `recipe-tree-and-parts-ssot.md`
 4) CondBlockView 生成の “許可入口一覧” を SSOT に追加（Facts 直生成の棚卸し）

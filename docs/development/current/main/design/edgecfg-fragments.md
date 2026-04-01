@@ -618,7 +618,7 @@ Frag 構築 + compose::if_() + emit_frag() (EdgeCFG Fragment API)
 set_branch_with_edge_args() / set_jump_with_edge_args() (Phase 260 SSOT)
 ```
 
-詳細: `docs/development/current/main/phases/phase-268/README.md`
+詳細: `docs/development/current/main/phases/archive/phase-268/README.md`
 
 Phase 267: JoinIR route への適用
 - NormalizedShadow への Frag 適用

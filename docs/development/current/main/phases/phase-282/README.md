@@ -15,8 +15,8 @@ Goal:
 - Frag/emit SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
 - Composition SSOT: `src/mir/builder/control_flow/edgecfg/api/compose/mod.rs`
 - JoinIR overview: `docs/development/current/main/joinir-architecture-overview.md`
-- Plan line（scan_with_init / split_scan; historical labels 6/7）: `docs/development/current/main/phases/phase-273/README.md`
-- Composition adoption（scan_with_init / split_scan; historical labels 6/7）: `docs/development/current/main/phases/phase-281/README.md`
+- Plan line（scan_with_init / split_scan; historical labels 6/7）: `docs/development/current/main/phases/archive/phase-273/README.md`
+- Composition adoption（scan_with_init / split_scan; historical labels 6/7）: `docs/development/current/main/phases/archive/phase-281/README.md`
 
 ## Problem
 

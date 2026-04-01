@@ -168,8 +168,8 @@ SSOT（設計目標）:
 
 | 領域 | 役割（何を決めるか） | 主な入口/箱（SSOT寄り） | 主な出力 | Fail-Fast（典型） |
 |---|---|---|---|---|
-| Route判定 | ループ形を分類し、どの recipe/composer 経路に渡すか決める | active module surface `crate::mir::builder::control_flow::joinir::route_entry::router`, active module surface `crate::mir::builder::control_flow::joinir::route_entry::registry`, [`src/mir/builder/control_flow/plan/ast_feature_extractor.rs`](../../../../../src/mir/builder/control_flow/plan/ast_feature_extractor.rs), [`src/mir/builder/control_flow/plan/policies/`](../../../../../src/mir/builder/control_flow/plan/policies/), active module surface `crate::mir::loop_route_detection`（legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照） | `LoopRouteKind` / route hint / recipe entry | 「分類不能」→ 明示的に Err（サイレントな非JoinIR退避は禁止） |
-| route contract / verifier | 「この route なら lower/merge 契約が成立する」を保証する | [`src/mir/builder/control_flow/plan/verifier/mod.rs`](../../../../../src/mir/builder/control_flow/plan/verifier/mod.rs), [`src/mir/builder/control_flow/plan/composer/coreloop_gates.rs`](../../../../../src/mir/builder/control_flow/plan/composer/coreloop_gates.rs), active module surface `crate::mir::builder::control_flow::joinir::route_entry::registry::predicates`（legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照） | verified route contract / 詳細診断 | 契約不一致を握りつぶさず Err |
+| Route判定 | ループ形を分類し、どの recipe/composer 経路に渡すか決める | active module surface `crate::mir::builder::control_flow::joinir::route_entry::router`, active module surface `crate::mir::builder::control_flow::joinir::route_entry::registry`, [`src/mir/builder/control_flow/plan/ast_feature_extractor.rs`](../../../../../src/mir/builder/control_flow/plan/ast_feature_extractor.rs), [`src/mir/builder/control_flow/plan/policies/`](../../../../../src/mir/builder/control_flow/plan/policies/), active module surface `crate::mir::loop_route_detection`（legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照） | `LoopRouteKind` / route hint / recipe entry | 「分類不能」→ 明示的に Err（サイレントな非JoinIR退避は禁止） |
+| route contract / verifier | 「この route なら lower/merge 契約が成立する」を保証する | [`src/mir/builder/control_flow/plan/verifier/mod.rs`](../../../../../src/mir/builder/control_flow/plan/verifier/mod.rs), [`src/mir/builder/control_flow/plan/composer/coreloop_gates.rs`](../../../../../src/mir/builder/control_flow/plan/composer/coreloop_gates.rs), active module surface `crate::mir::builder::control_flow::joinir::route_entry::registry::predicates`（legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照） | verified route contract / 詳細診断 | 契約不一致を握りつぶさず Err |
 | lowering | JoinIR/MIR へ機械的に落とす | [`src/mir/join_ir/lowering/mod.rs`](../../../../../src/mir/join_ir/lowering/mod.rs), [`src/mir/builder/control_flow/plan/composer/mod.rs`](../../../../../src/mir/builder/control_flow/plan/composer/mod.rs), [`src/mir/builder/control_flow/plan/lowerer/mod.rs`](../../../../../src/mir/builder/control_flow/plan/lowerer/mod.rs) | `JoinModule` / MIR frag | 未対応の構造は `error_tags::freeze(...)` 等で Err |
 | merge | JoinIR→MIR 変換後、ホスト関数に統合する | [`src/mir/builder/control_flow/plan/conversion_pipeline.rs`](../../../../../src/mir/builder/control_flow/plan/conversion_pipeline.rs), [`src/mir/builder/control_flow/joinir/merge/mod.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/mod.rs) | ホスト MIR のブロック/ValueId 更新 | ValueId 競合、ExitLine 未接続、PHI 破綻を Err |
 | ExitMeta | 「出口でどの carrier をどの host slot に戻すか」のメタ | [`src/mir/join_ir/lowering/carrier_info.rs`](../../../../../src/mir/join_ir/lowering/carrier_info.rs), [`src/mir/builder/control_flow/joinir/merge/exit_line/meta_collector.rs`](../../../../../src/mir/builder/control_flow/joinir/merge/exit_line/meta_collector.rs) | `ExitMeta` / `exit_bindings` | carrier 不整合（不足/過剰）を Err |
@@ -189,8 +189,8 @@ SSOT（設計目標）:
 - Router（builder 入口）: [`src/mir/builder/control_flow/joinir/routing.rs`](../../../../../src/mir/builder/control_flow/joinir/routing.rs)
   - `MirBuilder::try_cf_loop_joinir(...)`（JoinIR ルートへ入る最初の関数）
   - `MirBuilder::cf_loop_joinir_impl(...)`（route classification → recipe-first router → plan lowering）
-- Route router: active module surface `joinir::route_entry::router`（legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照）
-- registry: active module surface `joinir::route_entry::registry`（legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照）
+- Route router: active module surface `joinir::route_entry::router`（legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照）
+- registry: active module surface `joinir::route_entry::registry`（legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照）
 - Feature extraction: [`src/mir/builder/control_flow/plan/ast_feature_extractor.rs`](../../../../../src/mir/builder/control_flow/plan/ast_feature_extractor.rs)
 - Planner/Composer/Lowerer（代表）:
   - [`src/mir/builder/control_flow/plan/single_planner/mod.rs`](../../../../../src/mir/builder/control_flow/plan/single_planner/mod.rs)
@@ -277,7 +277,7 @@ Box を新規実装・変更した際は以下を必ず確認：
    - `apps/tests/` または `apps/smokes/` に最小の `.hako` を追加（対象形が一目で分かるもの）
 2. Route/feature を追加（検出）
    - `src/mir/builder/control_flow/plan/ast_feature_extractor.rs`（必要なら feature 抽出を拡張）
-   - active module surface `crate::mir::loop_route_detection`（legacy physical path lane は `route-physical-path-legacy-lane-ssot.md` を参照。分類/補助解析が必要ならここに追加）
+   - active module surface `crate::mir::loop_route_detection`（legacy physical path lane は `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md` を参照。分類/補助解析が必要ならここに追加）
 3. shape guard を追加（契約の固定）
    - 形状・前提条件を validator として分離し、失敗は Err にする
 4. lower を追加（JoinIR を生成）

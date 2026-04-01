@@ -227,4 +227,4 @@ Phase 29y lane gate:
 ## Related
 
 - lifecycle semantics SSOT: `docs/reference/language/lifecycle.md`
-- Phase 285（weak conformance / hidden root 根治）: `docs/development/current/main/phases/phase-285/README.md`
+- Phase 285（weak conformance / hidden root 根治）: `docs/development/current/main/phases/archive/phase-285/README.md`

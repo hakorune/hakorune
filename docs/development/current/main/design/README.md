@@ -30,8 +30,6 @@
 ## 現役の設計図（入口）
 
 - JoinIR の地図（navigation SSOT）: `docs/development/current/main/design/joinir-design-map.md`
-- route physical path lane / historical token ledger: `docs/development/current/main/design/route-physical-path-legacy-lane-ssot.md`
-- loop route detection physical-path retirement: `docs/development/current/main/design/loop-route-detection-physical-path-retirement-ssot.md`
 - JoinIR 拡張の固定順序（dual-route 契約 SSOT）: `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
 - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 - Compiler Pipeline（north star; 箱の責務/入口の最終形SSOT）: `docs/development/current/main/design/compiler-pipeline-ssot.md`
@@ -71,7 +69,6 @@
 - Atomic/TLS/GC truthful native seam inventory（seam-first widening の棚卸し）: `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
 - Hako host facade contract（HostFacade 単一入口/I-F/昇格ゲートSSOT）: `docs/development/current/main/design/hako-host-facade-contract-ssot.md`
 - WASM `.hako`-only output roadmap（WASM出力の Rust->`.hako` 移行順SSOT）: `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
-- PyVM retreat（historical/opt-in 契約SSOT）: `docs/development/current/main/design/pyvm-retreat-ssot.md`
 - Planner Entry Guards（Facts の reject_reason/handoff 構造化）: `docs/development/current/main/design/planner-entry-guards-ssot.md`
 - Type System Policy（MirType/RuntimeTypeTag/TypeView の責務分離SSOT）: `docs/development/current/main/design/type-system-policy-ssot.md`
 - Campaign: compiler cleanliness（compiler-first / BoxShape-first の運用SSOT）: `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -91,16 +88,19 @@
 
 ## Retirement / Inventory Supporting Docs
 
-- `route-physical-path-legacy-lane-ssot.md`
-- `loop-route-detection-physical-path-retirement-ssot.md`
 - `execution-lanes-legacy-retirement-inventory-ssot.md`
 - `selfhost-smoke-retirement-inventory-ssot.md`
 - `joinir-smoke-legacy-stem-retirement-ssot.md`
 - `joinir-legacy-fixture-pin-inventory-ssot.md`
 - `joinir-frontend-legacy-fixture-key-retirement-ssot.md`
 - `mir-callsite-retire-lane-ssot.md`
-- `pyvm-retreat-ssot.md`
-- `selfhost-bootstrap-route-evidence-and-legacy-lanes.md`
+
+## Archived Supporting Docs
+
+- `docs/development/current/main/design/archive/route-physical-path-legacy-lane-ssot.md`
+- `docs/development/current/main/design/archive/loop-route-detection-physical-path-retirement-ssot.md`
+- `docs/development/current/main/design/archive/pyvm-retreat-ssot.md`
+- `docs/development/current/main/design/archive/selfhost-bootstrap-route-evidence-and-legacy-lanes.md`
 
 ## Diagnostics / Contracts（入口）
 

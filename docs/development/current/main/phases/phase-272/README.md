@@ -3,8 +3,8 @@ Date: 2025-12-22
 Scope: `scan_with_init` / `split_scan`（historical labels `6/7`）を `Frag + emit_frag()` へ段階吸収（numbered-label 列挙の増殖を止める）
 Related:
 - Design SSOT: `docs/development/current/main/design/edgecfg-fragments.md`
-- Phase 269（BoolPredicateScan Frag; historical label: `8`）: `docs/development/current/main/phases/phase-269/README.md`
-- Phase 270（AccumConstLoop bridge; historical label: `9`）: `docs/development/current/main/phases/phase-270/README.md`
+- Phase 269（BoolPredicateScan Frag; historical label: `8`）: `docs/development/current/main/phases/archive/phase-269/README.md`
+- Phase 270（AccumConstLoop bridge; historical label: `9`）: `docs/development/current/main/phases/archive/phase-270/README.md`
 
 # Phase 272（P0）: scan_with_init / split_scan を Frag+emit_frag へ吸収（段階適用）
 
