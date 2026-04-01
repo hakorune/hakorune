@@ -32,7 +32,7 @@ Related:
 - `K-axis` は hakorune の build/runtime stage axis として読む。
 - `K-axis` は task ledger ではない。
 - task packs (`boundary lock`, semantic owner swap, `RawArray`, `RawMap`, capability widening, metal keep shrink) は別軸で追う。
-- current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`.
+- current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization`.
 - 責務分割は変えず、`K2` を `.hako kernel` mainline / `zero-rust` daily-distribution stage として読む。
 - default target を `zero-rust` に寄せるが、bootstrap/recovery/reference/buildability keep と native metal keep は明示 keep にする。
 
@@ -242,20 +242,20 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
 - current repo state is:
   - `K0` is the all-Rust baseline / bootstrap reference reading
   - `K1` is active and done-enough on the collection migration wave
-  - `K2` is now entered at the `K2-core` accepted stop-line
+  - `K2` is entered at the `K2-core` accepted stop-line
 - visible order therefore reads as:
   - `K0`
   - `K1`
   - `K2-core` accepted stop-line
-  - `K2-wide` next structural follow-up
+  - `K2-wide` boundary-shrink lock-down (closed)
 - current active order is:
   - `stage / docs / naming` fixation
   - `K1 done-enough` stop-line fixation
   - `K2-core` accepted stop-line
-  - `K2-wide` next structural follow-up
+  - `K2-wide` boundary-shrink lock-down (closed)
   - `zero-rust` default operationalization
 - therefore the next structural step is not another broad stage rename.
-- the next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening.
+- the next structural step is `zero-rust default operationalization`, beginning with artifact contract / entrypoint sync.
 
 ## Non-Goals
 
