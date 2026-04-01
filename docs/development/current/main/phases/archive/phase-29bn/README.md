@@ -41,7 +41,7 @@ Related:
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh`（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 
-Default dev entry: `./tools/smokes/v2/profiles/integration/joinir/phase29bn_planner_required_dev_gate_v2_vm.sh`
+Default dev entry: `./tools/smokes/v2/profiles/archive/joinir/phase29bn_planner_required_dev_gate_v2_vm.sh`
 
 ## Acceptance criteria (RC)
 

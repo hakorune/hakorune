@@ -11,6 +11,13 @@ This directory holds historical JoinIR pack stems that were retired from the act
 - `phase29bq_hako_mirbuilder_phase7_min_vm.sh`
 - `phase29bq_hako_mirbuilder_phase9_min_vm.sh`
 - `phase1883_nested_minimal_vm.sh`
+- `phase29ao_pattern2_release_adopt_vm.sh`
+- `phase29ao_pattern3_release_adopt_vm.sh`
+- `phase29ao_pattern5_release_adopt_vm.sh`
+- `phase29ao_pattern6_release_adopt_vm.sh`
+- `phase29ao_pattern7_release_adopt_vm.sh`
+- `phase29ap_pattern6_nested_strict_shadow_vm.sh`
+- `phase29bn_planner_required_dev_gate_v2_vm.sh`
 - `phase143_legacy_pack.sh`
 - `phase286_pattern9_legacy_pack.sh`
 
