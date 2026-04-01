@@ -71,8 +71,8 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99F3` | W1 | active | keep behavior stable until references update | discovery / runner imports stay green before delete |
 | `99F4` | W1 | active | delete old entrypoints last | only after caller inventory and archive evidence are explicit |
 | `99G` | W2 | landed | split `extern_provider.hako` | runtime owner and compat codegen shim no longer share one file |
-| `99H` | W2 | active | split `llvm_codegen.rs` | thin tool boundary and legacy MIR front door no longer share one file |
-| `99I` | W2 | pending | split `LlvmBackendBox` | owner API and evidence adapter no longer share one file |
+| `99H` | W2 | landed | split `llvm_codegen.rs` | thin tool boundary and legacy MIR front door no longer share one file |
+| `99I` | W2 | active | split `LlvmBackendBox` | owner API and evidence adapter no longer share one file |
 | `99J` | W2 | pending | move `CodegenBridgeBox` / `LLVMEmitBox` | compat/proof surfaces leave owner-looking paths |
 | `99K` | W3 | pending | recut `phase2044` physically | semantic proof buckets get separate homes |
 | `99L` | W3 | pending | recut `phase2120` physically | semantic proof/history buckets get separate homes |

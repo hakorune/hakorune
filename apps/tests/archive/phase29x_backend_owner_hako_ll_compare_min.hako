@@ -1,4 +1,4 @@
-using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+using selfhost.shared.backend.llvm_backend_evidence_adapter as LlvmBackendEvidenceAdapterBox
 
 static box Main {
   main(args) {
@@ -8,7 +8,7 @@ static box Main {
     }
     local mir_path = "" + args.get(0)
     local obj_out = "" + args.get(1)
-    local obj = LlvmBackendBox.compile_obj_compare_hako_ll(mir_path, obj_out)
+    local obj = LlvmBackendEvidenceAdapterBox.compile_obj_compare_hako_ll(mir_path, obj_out)
     if obj == null || ("" + obj) == "" {
       print("[backend-owner-compare] compare route failed")
       return 2

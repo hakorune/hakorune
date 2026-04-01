@@ -1,0 +1,69 @@
+using selfhost.shared.backend.recipe as BackendRecipeBox
+using selfhost.shared.backend.ll_emit.recipe_facts_v0 as RecipeFactsV0Box
+using selfhost.shared.backend.ll_emit.ll_text_emit as LlTextEmitBox
+using selfhost.shared.mir.root_hydrator as MirRootHydratorBox
+
+// LlvmBackendEvidenceAdapterBox — compare/evidence surface for legacy root-first proof lanes
+// Keep this box separate from the owner boundary so the owner file stays thin.
+
+static box LlvmBackendEvidenceAdapterBox {
+  compile_obj_compare_hako_ll(json_path, out_path) {
+    local profile = BackendRecipeBox.compile_compare_profile(json_path)
+    if profile == null { return null }
+    local root = MirRootHydratorBox.hydrate_file(json_path)
+    if root == null {
+      return me._fail("[llvmbackend/root-hydrate-failed] json_path=" + ("" + json_path))
+    }
+    local facts = RecipeFactsV0Box.analyze_root(root)
+    local accepted = "" + facts.get("accepted")
+    local first_blocker = "" + facts.get("first_blocker")
+    local acceptance_case = "" + profile.get("acceptance_case")
+    local legacy_daily_allowed = "" + profile.get("legacy_daily_allowed")
+    local owner = "hako-ll-min-v0"
+    if accepted != "min-v0" {
+      print(
+        "[hako-ll/reject] chosen_owner=" + owner +
+        " accepted=" + accepted +
+        " first_blocker=" + first_blocker +
+        " acceptance_case=" + acceptance_case +
+        " legacy_daily_allowed=" + legacy_daily_allowed
+      )
+      return null
+    }
+
+    local ll_text = LlTextEmitBox.emit_module(root, facts)
+    if ll_text == null || ("" + ll_text) == "" {
+      print(
+        "[hako-ll/reject] chosen_owner=" + owner +
+        " accepted=min-v0 first_blocker=emit_failed acceptance_case=" + acceptance_case +
+        " legacy_daily_allowed=" + legacy_daily_allowed
+      )
+      return null
+    }
+
+    local obj = ""
+    if out_path == null || ("" + out_path) == "" {
+      obj = env.codegen.compile_ll_text(ll_text)
+    } else {
+      obj = env.codegen.compile_ll_text(ll_text, "" + out_path)
+    }
+    if obj == null || ("" + obj) == "" {
+      return me._fail("[llvmbackend/emit/failed] env.codegen.compile_ll_text returned empty")
+    }
+
+    print(
+      "[hako-ll/compare] chosen_owner=" + owner +
+      " accepted=min-v0 first_blocker=none acceptance_case=" + acceptance_case +
+      " legacy_daily_allowed=" + legacy_daily_allowed
+    )
+    if out_path != null && ("" + out_path) != "" && ("" + obj) != ("" + out_path) {
+      return me._fail("[llvmbackend/compare/path-mismatch] expected=" + ("" + out_path) + " got=" + ("" + obj))
+    }
+    return "" + obj
+  }
+
+  _fail(tag) {
+    print("" + tag)
+    return null
+  }
+}
