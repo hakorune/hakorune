@@ -10,6 +10,9 @@ using lang.runtime.host.host_facade_box as HostFacadeBox
 static box HakoruneExternProviderBox {
   get(name, args) {
     // name: string like "env.get" or "env.console.log"
+    local c_abi_enabled = env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1"
+
+    // Owner surface: runtime env and console helpers.
     if name == "env.get" {
       if args == null { return null }
       // args: single string key
@@ -29,20 +32,22 @@ static box HakoruneExternProviderBox {
       if args == null { return HostFacadeBox.call("runtime", "console.error", "") }
       return HostFacadeBox.call("runtime", "console.error", "" + args)
     }
+
+    // Compat/proof C-ABI arms: keep explicit until root-first replacements exist.
     if name == "env.mirbuilder.emit" {
       // Optional C‑ABI bridge（既定OFF）: タグを出力しつつ、Rust 側 extern_provider に最小接続
-        if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
-          print("[extern/c-abi:mirbuilder.emit]")
-          // Call through HostFacade loader route and return produced JSON (v1)
-          local out = HostFacadeBox.call("loader", "mirbuilder.emit", args)
-          return "" + out
+      if c_abi_enabled {
+        print("[extern/c-abi:mirbuilder.emit]")
+        // Call through HostFacade loader route and return produced JSON (v1)
+        local out = HostFacadeBox.call("loader", "mirbuilder.emit", args)
+        return "" + out
       }
       // Default: return empty string (verify/dev stub keeps rc=0)
       return ""
     }
     if name == "env.codegen.emit_object" {
       // compat/proof only: keep the legacy codegen arm gated by C-ABI.
-      if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
+      if c_abi_enabled {
         // 追跡は任意（決定性のため既定はOFF）
         if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:codegen.emit_object]") }
         // Call through to Core extern dispatcher and return produced object path
@@ -55,7 +60,7 @@ static box HakoruneExternProviderBox {
       return ""
     }
     if name == "env.box_introspect.kind" {
-      if env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1" {
+      if c_abi_enabled {
         if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:box_introspect.kind]") }
         local out = HostFacadeBox.call("loader", "box_introspect.kind", args)
         return "" + out

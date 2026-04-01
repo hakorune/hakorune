@@ -50,8 +50,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `29x-98 proof/example caller drain` |
-     | Next | `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` |
+     | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` |
+     | Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
      | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 2. `phase-29bq`
    - active selfhost lane

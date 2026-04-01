@@ -44,8 +44,8 @@ The current caller inventory is three keep lanes plus one archive-later surrogat
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` | drain the explicit proof/example caller first |
-| Next | `lang/src/vm/hakorune-vm/extern_provider.hako` | keep the compat/proof stub explicit until a root-first proof exists |
+| Now | `lang/src/vm/hakorune-vm/extern_provider.hako` | keep the compat/proof stub explicit until a root-first proof exists |
+| Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers | keep them proof-only and sequence them before helper deletion |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Replacement Matrix
@@ -121,6 +121,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - only active when `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; otherwise it returns an empty compat stub.
   - treat as compat/proof only, not daily/mainline.
   - dead alias `env.codegen.emit_object_ny` is retired; the gated stub now accepts only `env.codegen.emit_object`.
+  - owner-surface arms and compat/proof C-ABI arms are now grouped explicitly in the file; no behavior change was made.
   - the old `phase251` lowering canaries are now quarantined under `tools/smokes/v2/profiles/archive/core/phase251/` because they are inactive hard-skips, not active suite coverage.
   - cleanup target: pin a root-first selfhost lowering proof first, then retire this gated stub.
 - `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
@@ -128,6 +129,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - not a daily route and not a current owner.
   - direct invoker is `tools/selfhost/run_compat_pure_selfhost.sh`.
   - the shell wrapper is transport only; the `.hako` file is the actual proof/example caller surface.
+  - the payload now lives under `tools/selfhost/compat/` so `tools/selfhost/examples/` stays generator-first.
   - `tools/selfhost/run_compat_pure_pack.sh` is the only remaining thin wrapper above that canonical compat wrapper; it is not a separate proof owner.
   - old aliases `tools/selfhost/run_hako_llvm_selfhost.sh` and `tools/selfhost/run_all.sh` are retired; keep the compat pack entry singular.
   - current root-first replacement proof exists only on the `.hako VM -> LlvmBackendBox -> C-API -> exe` lane (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`), not as a drop-in for this historical safe-vm wrapper.

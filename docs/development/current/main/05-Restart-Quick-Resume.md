@@ -59,8 +59,8 @@ bash tools/selfhost/run_lane_a_daily.sh
 
   | Band | State |
   | --- | --- |
-  | Now | `29x-98 proof/example caller drain` |
-  | Next | `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` |
+  | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` |
+  | Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
   | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 
 - `phase2044` llvmlite trio is monitor-only keep; `phase2120` pure canaries stay split between keep pins and archive-backed pins.

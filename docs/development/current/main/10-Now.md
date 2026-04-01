@@ -58,8 +58,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `29x-98 proof/example caller drain` | remove the remaining proof/example callers in order |
-| Next | `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof surfaces that remain explicit for now |
+| Now | `lang/src/vm/hakorune-vm/extern_provider.hako` | keep the compat/proof stub explicit until a root-first proof exists |
+| Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers | keep them proof-only and sequence them before helper deletion |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Exact Links
