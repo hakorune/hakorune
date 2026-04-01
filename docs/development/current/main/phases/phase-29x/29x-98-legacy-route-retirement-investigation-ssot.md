@@ -162,7 +162,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 
 | Surface group | Status | Daily-route dependency | Cleanup / archive condition |
 | --- | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | integration discovery-live proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
+| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | integration proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `emit_object_from_mir_json(...)` remains archive-later |
 | `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archived proof-only lowering evidence for the legacy extern name | none | keep as quarantine evidence until a root-first selfhost lowering proof exists |
 
@@ -175,7 +175,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | `lang/src/vm/hakorune-vm/extern_provider.hako` + `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | legacy extern lowering proof with archived quarantine canaries | no root-first selfhost lowering proof is pinned yet | keep `extern_provider.hako` until a root-first lowering proof exists; archived `phase251` pair remains evidence only |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
 
-- the three `phase2044` llvmlite canaries are live through integration-profile discovery (`tools/smokes/v2/run.sh --profile integration --filter 'phase2044/...$' --dry-run --skip-preflight`), not through a dedicated suite manifest.
+- the three `phase2044` llvmlite canaries are live through the dedicated suite manifest `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt` and still match integration-profile discovery filters.
 
 ## Phase2044 Directory Semantics
 
@@ -185,6 +185,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - `codegen_provider_llvmlite_compare_branch_canary_vm.sh`
   - `codegen_provider_llvmlite_const42_canary_vm.sh`
 - the canonical manifest is `tools/smokes/v2/profiles/integration/core/phase2044/llvmlite_monitor_keep.txt`.
+- the dedicated suite manifest is `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt`.
 - the `hako_primary_no_fallback_*` scripts are a separate core-exec proof bucket.
 - the `mirbuilder_provider_*` scripts are a separate mirbuilder-provider proof bucket.
 - near-term cleanup separates these semantics with bucket runners first:
@@ -218,8 +219,8 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 Ranked from lowest blast radius to higher dependency risk:
 
 1. `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
-   - keep now as integration discovery-live monitor-only proofs
-   - bucket semantics are now isolated by dedicated runner; archive-later once legacy helper callers reach zero and llvmlite evidence is no longer needed
+   - keep now as integration monitor-only proofs
+   - bucket semantics are now isolated by dedicated runner plus dedicated suite manifest; archive-later once legacy helper callers reach zero and llvmlite evidence is no longer needed
 2. `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
    - keep now as compat/proof only
    - archive-later after the provider-first proof surface is archived or moved to root-first

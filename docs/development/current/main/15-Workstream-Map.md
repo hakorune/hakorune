@@ -37,7 +37,7 @@ Related:
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - phase2120 pure canaries are now 2 active keep pins plus archive-backed historical pins; `ternary_collect` / `map_set_size` moved to archive replay
-     - phase2044 semantics are split by bucket runner; only the llvmlite trio is `monitor-only keep`
+     - phase2044 semantics are split by bucket runner; only the llvmlite trio is `monitor-only keep`, owned by a dedicated suite manifest
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -50,8 +50,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` |
-     | Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
+     | Now | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
+     | Next | `lang/src/vm/hakorune-vm/extern_provider.hako` |
      | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 2. `phase-29bq`
    - active selfhost lane

@@ -10,3 +10,5 @@
 - keep purpose:
   - preserve the legacy lowering probe as replay evidence
   - keep the blocker visible while `extern_provider.hako` remains compat-only keep
+- active direct proof-only keep now lives separately in:
+  - `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt`
