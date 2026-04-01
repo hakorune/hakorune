@@ -12,7 +12,7 @@ static box HakoruneExternProviderBox {
     // name: string like "env.get" or "env.console.log"
     local c_abi_enabled = env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1"
 
-    // Owner surface: runtime env and console helpers.
+    // Stable runtime surface: env and console helpers.
     if name == "env.get" {
       if args == null { return null }
       // args: single string key
