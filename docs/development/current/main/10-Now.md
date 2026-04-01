@@ -27,7 +27,7 @@ Related:
 
 ## Immediate Resume
 
-- current lane is `stage2plus entry / first optimization wave`
+- current lane is `phase-29x backend owner cutover prep`
 - exact current order is owned by `CURRENT_TASK.md` and `15-Workstream-Map.md`
 - axis details are canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -39,8 +39,9 @@ Related:
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
 - `K2-wide` boundary-shrink lock-down is closed enough for handoff.
 - `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
+- `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-29x backend owner cutover prep`.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
-- current active step is `stage2plus entry / first optimization wave`; the planner-required Stage-B gate is green and the next exact focus is the acceptance bundle.
+- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green and the next exact focus is the backend-owner cutover prep lane.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -74,6 +75,8 @@ Related:
 - current phase detail:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29bq/README.md`
+  - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
+  - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
 
 ## Restart Reminder
 

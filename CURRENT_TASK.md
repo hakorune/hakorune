@@ -25,27 +25,30 @@ Scope: repo root から current order / current blocker / next exact read に最
 3. `K2-core` accepted stop-line
 4. `K2-wide` boundary-shrink lock-down (closed)
 5. `zero-rust` default operationalization (landed)
-6. `stage2plus entry / first optimization wave`
+6. `stage2plus entry / first optimization wave` (accepted)
+7. `phase-29x backend owner cutover prep`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, and current active lane is `stage2plus entry / first optimization wave`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, and current active lane is `phase-29x backend owner cutover prep`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, and `stage2plus` has the planner-required Stage-B gate back to green.
-- Active lane: `stage2plus-entry`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, and the current active front is `phase-29x backend owner cutover prep`.
+- Active lane: `phase-29x-backend-owner-cutover`
 - Axis and lane detail is canonical in:
-  - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
-  - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
-  - `docs/development/current/main/design/stage2-aot-fast-lane-crossing-inventory.md`
-  - `docs/reference/architecture/llvm-harness.md`
+  - `docs/development/current/main/phases/phase-29x/README.md`
+  - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
+  - `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
+  - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
+  - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
 - Current read:
   - `K2-core` is closed
   - `K2-wide` lock-down is closed enough for handoff
-  - current active lane is `stage2plus entry / first optimization wave`
+  - `stage2plus entry / first optimization wave` is accepted
+  - current active lane is `phase-29x backend owner cutover prep`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -62,20 +65,22 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `stage2plus entry / first optimization wave`
-- Current blocker: `none` (`stage2plus` planner-required Stage-B gate is green)
+- Active next: `phase-29x backend owner cutover prep`
+- Current blocker: `none`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
-  3. `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
-  4. `docs/development/current/main/design/final-metal-split-ssot.md`
+  2. `docs/development/current/main/phases/phase-29x/README.md`
+  3. `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
+  4. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
+  5. `docs/development/current/main/design/backend-owner-cutover-ssot.md`
+  6. `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
 - K2-wide lock-down table:
 
   | Item | State |
   | --- | --- |
-  | Now | `stage2plus entry / first optimization wave` |
-  | Blocker | `none` (`stage2plus` planner-required Stage-B gate is green) |
-  | Next | `stage2plus entry / first optimization wave` acceptance bundle |
+  | Now | `phase-29x backend owner cutover prep` |
+  | Blocker | `none` |
+  | Next | `phase-29x` daily gate and backend-owner cutover prep |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -112,6 +117,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - current phase-order context:
   - `docs/development/current/main/phases/phase-29x/README.md`
+  - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
+  - `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
+  - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
+  - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
   - `docs/development/current/main/phases/phase-29bq/README.md`
 
 ## Notes

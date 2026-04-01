@@ -25,37 +25,37 @@ git status -sb
 tools/checks/dev_gate.sh quick
 ```
 
-- `phase-29bq` や code lane を触る日は、必要に応じて次も追加で回す:
+- `phase-29x` や code lane を触る日は、必要に応じて次も追加で回す:
 
 ```bash
-bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq
+bash tools/smokes/v2/profiles/integration/apps/phase29x_llvm_only_daily_gate.sh
 bash tools/selfhost/run_lane_a_daily.sh
 ./tools/selfhost/run.sh --gate --planner-required 1 --max-cases 5 --jobs 4
 ```
 
 ## 今日の再開点（active lane）
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, and `stage2plus` has the planner-required Stage-B gate back to green.
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, and `phase-29x` is the active front.
 - backend lane detail is canonical in the backend-lane docs:
   - `llvmlite` = compat/probe keep lane
   - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
   - `native` = explicit replay/canary lane
 
-- Active next: `stage2plus entry / first optimization wave`
-- Current blocker: `none` (`stage2plus` planner-required Stage-B gate is green)
+- Active next: `phase-29x backend owner cutover prep`
+- Current blocker: `none`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
-- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave`
+- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
 - `K2-core` / `K2-wide` are task packs inside `K2`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/15-Workstream-Map.md`
-  3. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
-  4. `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
-  5. `lang/src/compiler/entry/compiler_stageb.hako`
+  3. `docs/development/current/main/phases/phase-29x/README.md`
+  4. `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
+  5. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
-  - keep `K2-core` closed and move only on the current `K2-wide` slice
+  - keep `phase-29x backend owner cutover prep` as the current front
   - keep portability split explicit: `.hako` capability facade, native keep leaf glue
   - keep migration task notes in root/docs/phase owners; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
 
@@ -73,4 +73,4 @@ cargo build --release --bin hakorune
 2. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
 4. `docs/development/current/main/10-Now.md`
-5. `docs/development/current/main/phases/phase-29bq/README.md`
+5. `docs/development/current/main/phases/phase-29x/README.md`

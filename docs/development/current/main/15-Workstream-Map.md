@@ -26,22 +26,24 @@ Related:
      - `K1 done-enough stop-line`
      - `K2-core accepted stop-line`
      - `zero-rust default operationalization` (landed)
-     - `stage2plus entry / first optimization wave`
+     - `stage2plus entry / first optimization wave` (accepted)
+     - `phase-29x backend owner cutover prep`
    - current read:
      - `K2-core` is closed
      - `K2-wide` boundary-shrink lock-down is closed enough for handoff
      - `zero-rust default operationalization` is landed
-     - current active lane is `stage2plus entry / first optimization wave`
-      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
-      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
-      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - stage2plus entry / first optimization wave table:
+     - `stage2plus entry / first optimization wave` is accepted
+     - current active lane is `phase-29x backend owner cutover prep`
+     - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
+     - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
+     - axis and lane detail is canonical in the SSOTs and backend-lane docs
+   - phase-29x backend owner cutover prep table:
 
      | Item | State |
      | --- | --- |
-     | Now | `stage2plus entry / first optimization wave` |
-     | Blocker | `none` (`stage2plus` planner-required Stage-B gate is green) |
-     | Next | `stage2plus entry / first optimization wave` acceptance bundle |
+     | Now | `phase-29x backend owner cutover prep` |
+     | Blocker | `none` |
+     | Next | `phase-29x` daily gate / backend-owner cutover prep |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -68,7 +70,8 @@ Related:
 - Active big tasks:
   - `stage / docs / naming` fixation
   - `zero-rust` default operationalization (landed)
-  - `stage2plus` entry / first optimization wave
+  - `stage2plus` entry / first optimization wave (accepted)
+  - `phase-29x` backend owner cutover prep
 - Active LLVM tasks:
   - `llvmlite` keep/probe parity
   - `ny-llvm` collection / allocator-handle / dynamic-fallback buckets
@@ -85,9 +88,9 @@ Related:
 
 ## Exact Next
 
-1. keep `stage2plus entry / first optimization wave` first until the Stage-B blocker is removed
+1. keep `phase-29x` exact and docs-first
 2. keep `phase-29bq` active as failure-driven / blocker-none lane
-3. keep `phase-29x` and `phase-29ck` exact and docs-first
+3. keep `phase-29ck` exact and docs-first
 4. keep closed lanes closed unless a new exact gap appears
 
 ## Active Lane
