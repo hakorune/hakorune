@@ -51,26 +51,26 @@ script stems remain available as compatibility entrypoints until all callers mov
 
 | Active semantic wrapper | Compat target |
 | --- | --- |
-| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern1_strict_shadow_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_subset_reject_extra_stmt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern1_subset_reject_extra_stmt_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_break_release_adopt_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern2_release_adopt_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase118_pattern3_if_sum_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_release_adopt_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern3_release_adopt_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/loop_continue_only_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern4_continue_min_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_continue_only_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ap_pattern4_continue_min_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_continue_only_multidelta_planner_required_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bq_pattern4continue_multidelta_planner_required_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_vm.sh` | `tools/smokes/v2/profiles/integration/apps/archive/phase286_pattern5_break_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern5_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern5_strict_shadow_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/loop_true_early_exit_release_adopt_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern5_release_adopt_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern6_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/scan_with_init_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern6_strict_shadow_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/scan_with_init_release_adopt_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern6_release_adopt_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/scan_with_init_regression_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ae_pattern6_scan_with_init_pack_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/nested_loop_minimal_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ap_pattern6_nested_release_adopt_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/nested_loop_minimal_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ap_pattern6_nested_strict_shadow_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/split_scan_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ao_pattern7_strict_shadow_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/split_scan_strict_shadow_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern7_strict_shadow_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/split_scan_release_adopt_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ao_pattern7_release_adopt_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/split_scan_regression_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ae_pattern7_scan_split_pack_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_tolower_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ap_stringutils_tolower_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_join_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ap_stringutils_join_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_tolower_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ap_stringutils_tolower_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_simple_while_stringutils_join_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29ap_stringutils_join_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/stdlib_string_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29aq_stdlib_pack_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/string_is_integer_strict_reject_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_min_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/string_is_integer_release_adopt_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29ar_string_is_integer_release_adopt_vm.sh` |
@@ -154,11 +154,11 @@ Current closeout decision:
 
 | Active semantic wrapper | Legacy pack stem |
 | --- | --- |
-| `tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/scan_split_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bj_planner_required_scan_split_pack_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh` |
 | `tools/smokes/v2/profiles/integration/joinir/if_phi_join_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bn_planner_required_pattern3_pack_vm.sh` |
-| `tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/integration/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` |
+| `tools/smokes/v2/profiles/integration/joinir/bool_predicate_accum_planner_required_pack_vm.sh` | `tools/smokes/v2/profiles/archive/joinir/phase29bo_planner_required_pattern8_9_pack_vm.sh` |
 
 Current semantic planner-case lists:
 - `tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_cases.tsv`

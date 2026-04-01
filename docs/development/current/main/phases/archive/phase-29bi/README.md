@@ -42,15 +42,15 @@ planner-first が通る状態を増やす。release 既定は不変、JoinIR reg
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh`（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`）
+- `./tools/smokes/v2/profiles/archive/joinir/phase29bi_planner_required_pattern2_pack_vm.sh`（legacy wrapper token details live in `joinir-smoke-legacy-stem-retirement-ssot.md`）
 
-Note: `loop_break_planner_required_pack_vm.sh` は stdout を SSOT とし、exit code は 0-255 に丸められるため case-by-case の allow_rc を使う。
+Note: `phase29bi_planner_required_pattern2_pack_vm.sh` は stdout を SSOT とし、exit code は 0-255 に丸められるため case-by-case の allow_rc を使う。
 
 ## Acceptance criteria (RC)
 
 - `./tools/hako_check_loopless_gate.sh` -> RC=0
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` -> RC=0
-- `./tools/smokes/v2/profiles/integration/joinir/loop_break_planner_required_pack_vm.sh` -> RC=0
+- `./tools/smokes/v2/profiles/archive/joinir/phase29bi_planner_required_pattern2_pack_vm.sh` -> RC=0
 
 ## Policy
 
@@ -58,4 +58,4 @@ Note: `loop_break_planner_required_pack_vm.sh` は stdout を SSOT とし、exit
 - planner miss は Freeze、silent fallback は禁止
 - parse_integer 系は stdout が SSOT。OS exit code は 0-255 に丸められるため、gate は case-by-case で allow_rc を持つ（例: 12345 -> 57）。
 
-Status note: loop_break_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
+Status note: phase29bi_planner_required_pattern2_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。

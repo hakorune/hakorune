@@ -39,13 +39,13 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 
 - `./tools/hako_check_loopless_gate.sh`
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh`
-- `./tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_pack_vm.sh`
+- `./tools/smokes/v2/profiles/archive/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh`
 
 ## Acceptance criteria (RC)
 
 - `./tools/hako_check_loopless_gate.sh` -> RC=0
 - `./tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh` -> RC=0
-- `./tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_pack_vm.sh` -> RC=0
+- `./tools/smokes/v2/profiles/archive/joinir/phase29bl_planner_required_pattern1_4_5_pack_vm.sh` -> RC=0
 
 ## Policy
 
@@ -54,7 +54,7 @@ planner-first が通る状態に拡張する。release 既定は不変、JoinIR 
 - stdout が SSOT。exit code が 0-255 に丸められる場合は allow_rc を使う
 
 P2 note: representative label-5 break fixture token は stdout なし、RC=3 のため allow_rc を使用（cases では __EMPTY__ で表現）。
-Status note: core_loop_routes_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
+Status note: phase29bl_planner_required_pattern1_4_5_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
 
 P2 note: representative label-5 break fixture token は stdout なし、RC=3 のため allow_rc を使用。
-Status note: core_loop_routes_planner_required_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
+Status note: phase29bl_planner_required_pattern1_4_5_pack_vm + phase29ae_regression_pack_vm が緑（post-change）。
