@@ -14,6 +14,8 @@ This directory is not one semantic lane.
    - note:
      - this is the only `phase2044` surface tracked by `29x-98` as a remaining proof-only direct `env.codegen.emit_object` caller
      - this dedicated suite manifest is the final live keep bucket for `phase2044`
+     - no file in this trio is archive-ready on current replacement coverage
+     - `compare_branch` and `const42` are only merge-later candidates; they are not exact duplicates today
 
 2. `hako_primary_no_fallback_*`
    - separate core-exec proof bucket

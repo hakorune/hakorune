@@ -198,6 +198,10 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
 | archived legacy emit/link proof | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archive evidence | replay-only evidence for the old direct emit/link lane |
 | archived selfhost lowering probe | `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archive evidence | replay-only evidence while `extern_provider.hako` still has no root-first lowering replacement |
 
+- within the live `phase2044` trio:
+  - `codegen_provider_llvmlite_canary_vm.sh` stays the irreducible provider-plumbing keep
+  - `codegen_provider_llvmlite_compare_branch_canary_vm.sh` and `codegen_provider_llvmlite_const42_canary_vm.sh` are merge-later candidates only; neither is archive-ready on current replacement coverage
+
 ## Phase2044 Directory Semantics
 
 - `tools/smokes/v2/profiles/integration/core/phase2044/` is currently a mixed directory.
@@ -216,6 +220,7 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
   - `run_mirbuilder_provider_bucket.sh`
 - physical path splitting stays parked until `phase2044/...` discovery filters can be updated safely.
 - no further low-blast split is warranted here; keep the llvmlite trio suite-locked and leave the remaining groups bucket-runner only.
+- no file in the llvmlite trio is currently archive-ready; any future reduction should be a merge of `compare_branch` / `const42`, not an archive move.
 
 ## Compat Pack Archive Conditions
 
