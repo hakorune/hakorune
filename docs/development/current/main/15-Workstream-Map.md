@@ -25,21 +25,23 @@ Related:
      - `stage / docs / naming`
      - `K1 done-enough stop-line`
      - `K2-core accepted stop-line`
-     - `zero-rust default operationalization`
+     - `zero-rust default operationalization` (landed)
+     - `stage2plus entry / first optimization wave`
    - current read:
      - `K2-core` is closed
      - `K2-wide` boundary-shrink lock-down is closed enough for handoff
-     - current active lane is `zero-rust default operationalization`
+     - `zero-rust default operationalization` is landed
+     - current active lane is `stage2plus entry / first optimization wave`
       - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
       - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
       - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - zero-rust default operationalization table:
+   - stage2plus entry / first optimization wave table:
 
      | Item | State |
      | --- | --- |
-     | Now | `zero-rust default operationalization` |
-     | Stop line | `K2-wide boundary-shrink lock-down` is landed; `RuntimeDataBox` stays facade-only and delete stays on `MapBox` / `RawMap` |
-     | Next | `stage2plus entry / first optimization wave` |
+     | Now | `stage2plus entry / first optimization wave` |
+     | Blocker | `none` (`stage2plus` planner-required Stage-B gate is green) |
+     | Next | `stage2plus entry / first optimization wave` acceptance bundle |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -65,7 +67,7 @@ Related:
 
 - Active big tasks:
   - `stage / docs / naming` fixation
-  - `zero-rust` default operationalization
+  - `zero-rust` default operationalization (landed)
   - `stage2plus` entry / first optimization wave
 - Active LLVM tasks:
   - `llvmlite` keep/probe parity
@@ -83,7 +85,7 @@ Related:
 
 ## Exact Next
 
-1. keep `zero-rust` default operationalization first until entrypoint / wording stays synced
+1. keep `stage2plus entry / first optimization wave` first until the Stage-B blocker is removed
 2. keep `phase-29bq` active as failure-driven / blocker-none lane
 3. keep `phase-29x` and `phase-29ck` exact and docs-first
 4. keep closed lanes closed unless a new exact gap appears

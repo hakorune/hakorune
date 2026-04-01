@@ -35,15 +35,16 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 ## 今日の再開点（active lane）
 
-- Restart handoff: commit `41e114977`, worktree clean, `RawMap.clear`, `RawMap.remove/delete`, and `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are landed, next slice is `boundary-shrink lock-down`.
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, and `stage2plus` has the planner-required Stage-B gate back to green.
 - backend lane detail is canonical in the backend-lane docs:
   - `llvmlite` = compat/probe keep lane
   - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
   - `native` = explicit replay/canary lane
 
-- Active next: `zero-rust` default operationalization
+- Active next: `stage2plus entry / first optimization wave`
+- Current blocker: `none` (`stage2plus` planner-required Stage-B gate is green)
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
-- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization`
+- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
 - `K2-core` / `K2-wide` are task packs inside `K2`
 - exact next:
@@ -51,6 +52,7 @@ bash tools/selfhost/run_lane_a_daily.sh
   2. `docs/development/current/main/15-Workstream-Map.md`
   3. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   4. `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
+  5. `lang/src/compiler/entry/compiler_stageb.hako`
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `K2-core` closed and move only on the current `K2-wide` slice

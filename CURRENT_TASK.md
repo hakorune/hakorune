@@ -24,18 +24,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 2. `K1 done-enough` stop-line fixation
 3. `K2-core` accepted stop-line
 4. `K2-wide` boundary-shrink lock-down (closed)
-5. `zero-rust` default operationalization
+5. `zero-rust` default operationalization (landed)
+6. `stage2plus entry / first optimization wave`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; current active lane is `zero-rust` default operationalization.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, and current active lane is `stage2plus entry / first optimization wave`.
 
 ## Immediate Handoff
 
-- Restart handoff: commit `41e114977`, worktree clean, `RawMap.clear`, `RawMap.remove/delete`, and `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are landed, next slice is `zero-rust default operationalization`.
-- Active lane: `policy-refresh`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, and `stage2plus` has the planner-required Stage-B gate back to green.
+- Active lane: `stage2plus-entry`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
@@ -44,7 +45,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Current read:
   - `K2-core` is closed
   - `K2-wide` lock-down is closed enough for handoff
-  - current active lane is `zero-rust` default operationalization
+  - current active lane is `stage2plus entry / first optimization wave`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -61,7 +62,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `zero-rust` default operationalization
+- Active next: `stage2plus entry / first optimization wave`
+- Current blocker: `none` (`stage2plus` planner-required Stage-B gate is green)
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
@@ -71,9 +73,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
   | Item | State |
   | --- | --- |
-  | Now | `zero-rust default operationalization` |
-  | Stop line | `K2-wide boundary-shrink lock-down` is landed; `RuntimeDataBox` stays facade-only and delete stays on `MapBox` / `RawMap` |
-  | Next | `stage2plus entry / first optimization wave` |
+  | Now | `stage2plus entry / first optimization wave` |
+  | Blocker | `none` (`stage2plus` planner-required Stage-B gate is green) |
+  | Next | `stage2plus entry / first optimization wave` acceptance bundle |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

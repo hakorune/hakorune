@@ -27,7 +27,7 @@ Related:
 
 ## Immediate Resume
 
-- current lane is `zero-rust default operationalization`
+- current lane is `stage2plus entry / first optimization wave`
 - exact current order is owned by `CURRENT_TASK.md` and `15-Workstream-Map.md`
 - axis details are canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -38,8 +38,9 @@ Related:
 
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
 - `K2-wide` boundary-shrink lock-down is closed enough for handoff.
-- current active step is `zero-rust default operationalization`; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
+- `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
+- current active step is `stage2plus entry / first optimization wave`; the planner-required Stage-B gate is green and the next exact focus is the acceptance bundle.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -80,3 +81,4 @@ Related:
 2. read `15-Workstream-Map.md`
 3. read the current SSOT for the active slice
 4. run `tools/checks/dev_gate.sh quick`
+5. if working on the blocker, inspect `lang/src/compiler/entry/compiler_stageb.hako` and the latest Stage-B gate log
