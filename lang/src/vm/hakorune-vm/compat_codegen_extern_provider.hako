@@ -1,0 +1,33 @@
+// compat_codegen_extern_provider.hako — HakoruneCompatCodegenExternProviderBox
+// Responsibility: gated compat/proof codegen and mirbuilder extern arms only.
+// Scope: env.mirbuilder.emit / env.codegen.emit_object stay here; runtime env / console owner stays in extern_provider.hako.
+
+using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using lang.runtime.host.host_facade_box as HostFacadeBox
+
+static box HakoruneCompatCodegenExternProviderBox {
+  get(name, args) {
+    local c_abi_enabled = env.get("HAKO_V1_EXTERN_PROVIDER_C_ABI") == "1"
+
+    if name == "env.mirbuilder.emit" {
+      if c_abi_enabled {
+        print("[extern/c-abi:mirbuilder.emit]")
+        local out = HostFacadeBox.call("loader", "mirbuilder.emit", args)
+        return "" + out
+      }
+      return ""
+    }
+
+    if name == "env.codegen.emit_object" {
+      if c_abi_enabled {
+        if env.get("HAKO_CABI_TRACE") == "1" { print("[extern/c-abi:codegen.emit_object]") }
+        local out = CodegenBridgeBox.emit_object_args(args)
+        if out == null { return null }
+        return "" + out
+      }
+      return ""
+    }
+
+    return null
+  }
+}

@@ -41,11 +41,10 @@ Related:
 - `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-29x backend owner cutover prep`.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
-- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green, `LLVMEmitBox` stays compat/proof keep, `CodegenBridgeBox` has no daily dependency, `phase2111` explicit emit/link proofs are archived, `phase251` lowering canaries are quarantined, `phase2044` semantics are separated by bucket runners, the llvmlite trio is suite-locked monitor-only keep and that dedicated suite is now the final live keep bucket, `phase2120` pure canaries are now split by the `phase2120-pure-keep` and `phase2120-pure-historical` suites, `phase2111` / `phase251` archive proofs share one replay-evidence suite, the selfhost compat stack wording is locked as `payload -> transport wrapper -> pack orchestrator`, the root-first proof candidate inventory is pinned, and docs-first cleanup planning now lives in `29x-99` with `W1 docs-first path-truth pass` active.
-- direct live callers are fixed at 5 surfaces; `run_compat_pure_selfhost.sh` and `run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
+- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green, `LLVMEmitBox` stays compat/proof keep, `CodegenBridgeBox` has no daily dependency, `phase2111` explicit emit/link proofs are archived, `phase251` lowering canaries are quarantined, `phase2044` semantics are separated by bucket runners, the llvmlite trio is suite-locked monitor-only keep and that dedicated suite is now the final live keep bucket, `phase2120` pure canaries are now split by the `phase2120-pure-keep` and `phase2120-pure-historical` suites, `phase2111` / `phase251` archive proofs share one replay-evidence suite, the selfhost compat stack wording is locked as `payload -> transport wrapper -> pack orchestrator`, the root-first proof candidate inventory is pinned, and docs-first cleanup planning now lives in `29x-99` with `W2 mixed-file split pass` active.
+- direct live callers are fixed at 5 surfaces; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now.
-- `29x-99` owns macro cleanup waves and micro tasks; active micro tasks are `99E split-target inventory lock` and `99F file-move / shim order lock`.
-- active micro-task detail is `99E1`-`99E4` and `99F1`-`99F4`.
+- `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99G split extern_provider.hako`.
 - immediate cleanup order is `compat selfhost wrapper archive conditions -> upstream caller drain`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
@@ -63,15 +62,15 @@ Related:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
-| Next | `W1 docs-first path-truth pass` (`99E` / `99F`) | raise task granularity before any file move or caller drain |
+| Next | `W2 mixed-file split pass` (`99G`) | first low-blast implementation slice after docs-first inventory |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `W1 docs-first path-truth pass` | active | target buckets and move order |
-| `W2 mixed-file split pass` | next | split owner-looking mixed files |
+| `W1 docs-first path-truth pass` | landed | target buckets and move order |
+| `W2 mixed-file split pass` | active | split owner-looking mixed files |
 | `W3 smoke/proof filesystem recut` | pending | semantic homes replace phase-number homes |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |

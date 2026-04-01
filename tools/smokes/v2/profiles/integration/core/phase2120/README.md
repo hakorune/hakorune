@@ -48,7 +48,7 @@
   - active keep pins now run via `--profile integration --suite phase2120-pure-keep`
   - archive-backed pins now run via `--profile archive --suite phase2120-pure-historical`
 - shell wrapper:
-  - `tools/selfhost/run_compat_pure_pack.sh`
+  - `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
   - old alias `tools/selfhost/run_all.sh` is retired
 - SSOT:
   - `docs/development/current/main/phases/phase-29ck/P5-COMPAT-PURE-PACK-LOCK.md`

@@ -34,8 +34,8 @@ Related:
 
 | Wave | Status | Goal | Why it exists now |
 | --- | --- | --- | --- |
-| `W1 docs-first path-truth pass` | active | lock final buckets, names, and move order before code moves | current repo truth is semantically cleaner than its paths |
-| `W2 mixed-file split pass` | next | split files that still mix owner and compat/proof roles | biggest readability gain per file touched |
+| `W1 docs-first path-truth pass` | landed | lock final buckets, names, and move order before code moves | current repo truth is semantically cleaner than its paths |
+| `W2 mixed-file split pass` | active | split files that still mix owner and compat/proof roles | biggest readability gain per file touched |
 | `W3 smoke/proof filesystem recut` | pending | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | replace direct `.hako` callers with exact root-first proofs | needed before `CodegenBridgeBox.emit_object_args(...)` can die |
 | `W5 Rust compat receiver collapse` | pending | reduce `env.codegen.*` legacy receivers to one compat chokepoint | current receiver logic is spread across multiple Rust files |
@@ -43,13 +43,10 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `W1 docs-first path-truth pass`
-- active micro-task pair:
-  - `99E split-target inventory lock`
-  - `99F file-move / shim order lock`
-- active micro-task detail:
-  - `99E1` / `99E2` / `99E3` / `99E4`
-  - `99F1` / `99F2` / `99F3` / `99F4`
+- active macro wave: `W2 mixed-file split pass`
+- active micro-task:
+  - `99G split extern_provider.hako`
+- docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
 
 ## Micro Tasks
@@ -62,8 +59,8 @@ Related:
 | `99B` | landed | `phase2120` keep/historical docs + suite split lock | `phase2120-pure-keep` / `phase2120-pure-historical` are canonical |
 | `99C` | landed | compat selfhost stack wording lock | `payload -> transport wrapper -> pack orchestrator` is fixed across docs |
 | `99D` | landed | direct caller vs wrapper inventory lock | `29x-98` keeps direct callers and wrappers separate |
-| `99E` | active | split-target inventory lock | target split inventory exists for `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, `CodegenBridgeBox`, `LLVMEmitBox`, and `tools/selfhost` |
-| `99F` | active | file-move / shim order lock | docs say what moves first, what gets a thin shim, and what must not change behavior in the same slice |
+| `99E` | landed | split-target inventory lock | target split inventory exists for `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, `CodegenBridgeBox`, `LLVMEmitBox`, and `tools/selfhost` |
+| `99F` | landed | file-move / shim order lock | docs say what moves first, what gets a thin shim, and what must not change behavior in the same slice |
 
 #### `99E` split-target inventory
 
@@ -74,8 +71,8 @@ Related:
 | `lang/src/shared/backend/llvm_backend_box.hako` | owner API + evidence adapter | `lang/src/shared/backend/` | canonical owner vs evidence entry |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | compat/codegen namespace | `lang/src/compat/codegen/` | compat bridge, not owner |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/codegen namespace | `lang/src/compat/codegen/` | compat/proof box, not owner |
-| `tools/selfhost/run_compat_pure_selfhost.sh` | transport wrapper only | `tools/selfhost/compat/` or `tools/compat/` | wrapper/orchestrator, not direct caller |
-| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` | compat payload only | `tools/selfhost/compat/` | proof/example payload |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | transport wrapper only | `tools/compat/legacy-codegen/` | wrapper/orchestrator, not direct caller |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | compat payload only | `tools/compat/legacy-codegen/` | proof/example payload |
 
 #### `99F` file-move / shim order
 
@@ -89,7 +86,7 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99G` | pending | split `extern_provider.hako` into runtime owner surface and compat codegen shim | owner arms and compat/proof arms no longer live in one file |
+| `99G` | active | split `extern_provider.hako` into runtime owner surface and compat codegen shim | owner arms and compat/proof arms no longer live in one file |
 | `99H` | pending | split `src/host_providers/llvm_codegen.rs` into thin tool boundary and legacy MIR front door | `ll_text_to_object` no longer shares a home with `emit_object_from_mir_json(...)` |
 | `99I` | pending | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
 | `99J` | pending | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
@@ -120,7 +117,7 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99N` | blocked-on-proof | exact root-first proof for compat selfhost wrapper stack | a drop-in replacement exists for `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` + wrapper path |
+| `99N` | blocked-on-proof | exact root-first proof for compat selfhost wrapper stack | a drop-in replacement exists for `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + wrapper path |
 | `99O` | blocked-on-proof | exact root-first proof for `extern_provider.hako` compat codegen stub | direct replacement exists for the current compat/proof lowering surface |
 | `99P` | blocked-on-proof | demote direct `.hako` callers from `CodegenBridgeBox.emit_object_args(...)` | direct Hako callers are zero or archive-only |
 
@@ -164,9 +161,9 @@ This table freezes the intended destination before any path move happens.
 | `lang/src/shared/backend/llvm_backend_box.hako` | owner API + evidence adapter | `llvm_backend_box.hako` + `llvm_backend_evidence_adapter.hako` | maybe, if caller imports need a bridge | keep the owner spine readable |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | compat/proof bridge in owner-looking path | `compat/codegen/legacy_emit_object_bridge_box.hako` | yes, re-export from old path only if needed | path should stop implying daily ownership |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/proof box in owner-looking path | `compat/codegen/llvm_emit_compat_box.hako` | yes, re-export only | keep the box explicit as compat/proof |
-| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` | proof/example payload | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | maybe, if wrapper path remains stable | keep selfhost core and legacy-codegen proof separate |
-| `tools/selfhost/run_compat_pure_selfhost.sh` | transport wrapper | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | no, path rename only | wrapper/orchestrator should read as compat only |
-| `tools/selfhost/run_compat_pure_pack.sh` | pack orchestrator | `tools/compat/legacy-codegen/run_compat_pure_pack.sh` | no, path rename only | keep pack orchestration out of selfhost core |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | proof/example payload | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | maybe, if wrapper path remains stable | keep selfhost core and legacy-codegen proof separate |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | transport wrapper | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | no, path rename only | wrapper/orchestrator should read as compat only |
+| `tools/compat/legacy-codegen/run_compat_pure_pack.sh` | pack orchestrator | `tools/compat/legacy-codegen/run_compat_pure_pack.sh` | no, path rename only | keep pack orchestration out of selfhost core |
 
 ## Move-Order Rule
 
@@ -180,9 +177,9 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 ## 99F Move / Shim Order
 
 1. move the payload and wrapper paths first
-   - `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
-   - `tools/selfhost/run_compat_pure_selfhost.sh`
-   - `tools/selfhost/run_compat_pure_pack.sh`
+   - `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
+   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
+   - `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
 2. split mixed owner/compat modules next with thin shims only
    - `lang/src/vm/hakorune-vm/extern_provider.hako`
    - `src/host_providers/llvm_codegen.rs`

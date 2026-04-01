@@ -10,7 +10,7 @@ Related:
   - docs/reference/environment-variables.md
   - tools/smokes/v2/profiles/integration/core/phase2120/README.md
   - tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh
-  - tools/selfhost/run_compat_pure_pack.sh
+  - tools/compat/legacy-codegen/run_compat_pure_pack.sh
 ---
 
 # P5: Compat Pure Pack Lock
@@ -33,8 +33,8 @@ Related:
 2. compat-only pure pack
    - owner pack:
      - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
-     - `tools/selfhost/run_compat_pure_pack.sh`
-     - `tools/selfhost/run_compat_pure_selfhost.sh`
+     - `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
+     - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
    - required env:
      - `NYASH_LLVM_USE_CAPI=1`
      - `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`
@@ -56,14 +56,14 @@ Related:
 
 1. `tools/selfhost/run_all.sh`
    - retired alias; do not reintroduce
-2. `tools/selfhost/run_compat_pure_pack.sh`
+2. `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
    - canonical historical compat pack wrapper
-   - shells into `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` and `tools/selfhost/run_compat_pure_selfhost.sh`
+   - shells into `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` and `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
    - pack orchestration only; not a separate proof owner
-3. `tools/selfhost/run_compat_pure_selfhost.sh`
+3. `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
    - compatibility wrapper only
    - archive-later compat wrapper, not a daily owner
-   - transport-only shell shim around `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
+   - transport-only shell shim around `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
    - still depends on the legacy `CodegenBridgeBox` example caller
    - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
 4. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`

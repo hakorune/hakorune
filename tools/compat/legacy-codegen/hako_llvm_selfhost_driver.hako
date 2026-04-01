@@ -1,8 +1,10 @@
 // hako_llvm_selfhost_driver.hako — archive-later proof/example driver
 // This is a thin compat route payload, not a daily backend owner.
-// It exists so `run_compat_pure_selfhost.sh` can exercise the legacy
+// It exists so `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` can exercise the legacy
 // CodegenBridgeBox emit/link route end-to-end.
 // Keep the direct invoker at the shell wrapper; this file is the proof payload.
+// The physical home is `tools/compat/legacy-codegen/` so the payload no longer
+// sits under `tools/selfhost/`.
 // Usage (env):
 //   _MIR_JSON: v1 JSON text
 //   _EXE_OUT : output path for linked executable

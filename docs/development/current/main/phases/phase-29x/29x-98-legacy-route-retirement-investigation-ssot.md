@@ -53,13 +53,13 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 
 | Surface | Layer | Status | Read as |
 | --- | --- | --- | --- |
-| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload; still calls `CodegenBridgeBox.emit_object_args(...)` |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload; still calls `CodegenBridgeBox.emit_object_args(...)` |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub; still calls `CodegenBridgeBox.emit_object_args(...)` |
 | `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
 | `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
-| `tools/selfhost/run_compat_pure_selfhost.sh` | wrapper | archive-later | transport wrapper only; not a direct `emit_object` caller |
-| `tools/selfhost/run_compat_pure_pack.sh` | orchestrator | archive-later | historical pack owner only; not a direct `emit_object` caller |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | wrapper | archive-later | transport wrapper only; not a direct `emit_object` caller |
+| `tools/compat/legacy-codegen/run_compat_pure_pack.sh` | orchestrator | archive-later | historical pack owner only; not a direct `emit_object` caller |
 
 ## Current Reduction Verdict
 
@@ -125,7 +125,7 @@ Direct code callers currently in tree:
 | --- | --- | --- |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | archive-later compat/proof | provider-first stub / canary-only surface; not a daily owner |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later compat/proof | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` gated compatibility stub only |
-| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` | archive-later example/proof | explicit proof/example caller, not a daily route |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | archive-later example/proof | explicit proof/example caller, not a daily route |
 
 Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers currently in tree:
 
@@ -152,13 +152,13 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - owner-surface arms and compat/proof C-ABI arms are now grouped explicitly in the file; no behavior change was made.
   - the old `phase251` lowering canaries are now quarantined under `tools/smokes/v2/profiles/archive/core/phase251/` because they are inactive hard-skips, not active suite coverage.
   - cleanup target: pin a root-first selfhost lowering proof first, then retire this gated stub.
-- `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
+- `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
   - explicit proof/example caller that still demonstrates `emit_object_args(...)` plus `link_object_args(...)`.
   - not a daily route and not a current owner.
-  - direct invoker is `tools/selfhost/run_compat_pure_selfhost.sh`.
+  - direct invoker is `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`.
   - the shell wrapper is transport only; the `.hako` file is the actual proof/example caller surface.
   - the payload now lives under `tools/selfhost/compat/` so `tools/selfhost/examples/` stays generator-first.
-  - `tools/selfhost/run_compat_pure_pack.sh` is the only remaining thin wrapper above that canonical compat wrapper; it is not a separate proof owner.
+  - `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the only remaining thin wrapper above that canonical compat wrapper; it is not a separate proof owner.
   - old aliases `tools/selfhost/run_hako_llvm_selfhost.sh` and `tools/selfhost/run_all.sh` are retired; keep the compat pack entry singular.
   - current root-first replacement proof exists only on the `.hako VM -> LlvmBackendBox -> C-API -> exe` lane (`phase29ck_vmhako_llvm_backend_runtime_proof.sh`), not as a drop-in for this historical safe-vm wrapper.
   - therefore this caller remains archive-later until the compat wrapper either gains a root-first equivalent or is retired as a whole.
@@ -182,7 +182,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 - the remaining direct callers are all archive-later proof/compat surfaces:
   - `lang/src/llvm_ir/emit/LLVMEmitBox.hako`
   - `lang/src/vm/hakorune-vm/extern_provider.hako`
-  - `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
+  - `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
 - delete-readiness still stays `none` because those proof/compat surfaces are still live.
 - next cleanup is archive sequencing for those caller surfaces, not deleting `CodegenBridgeBox` first.
 
@@ -199,7 +199,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | Surface | Current role | Replacement proof status | Sequence |
 | --- | --- | --- | --- |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived explicit legacy emit/link proof | exact root-first replacements are green in `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh`; manual replay now lives in `tools/smokes/v2/profiles/archive/core/phase2111/run_all.sh` | archived; keep only as replay evidence |
-| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` + `tools/selfhost/run_compat_pure_selfhost.sh` | historical compat selfhost wrapper proof | root-first runtime proof exists only on the separate vm-hako owner lane: `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | archive-later, but not drop-in replaceable yet |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | historical compat selfhost wrapper proof | root-first runtime proof exists only on the separate vm-hako owner lane: `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | archive-later, but not drop-in replaceable yet |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` + `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | legacy extern lowering proof with archived quarantine canaries | no root-first selfhost lowering proof is pinned yet | keep `extern_provider.hako` until a root-first lowering proof exists; archived `phase251` pair remains evidence only |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
 
@@ -212,7 +212,7 @@ This matrix is only about the current `29x-98` stop-line surfaces. It does not r
 
 | Surface | Candidate root-first proof | What it proves today | Drop-in replacement? | Blocker |
 | --- | --- | --- | --- | --- |
-| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` + `tools/selfhost/run_compat_pure_selfhost.sh` | `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | `.hako VM -> LlvmBackendBox -> C-API -> exe` works on the vm-hako owner lane | no | the compat wrapper still demonstrates `CodegenBridgeBox.emit_object_args(...)` + `link_object_args(...)` on the historical safe-vm route |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | `.hako VM -> LlvmBackendBox -> C-API -> exe` works on the vm-hako owner lane | no | the compat wrapper still demonstrates `CodegenBridgeBox.emit_object_args(...)` + `link_object_args(...)` on the historical safe-vm route |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | none pinned yet | only the gated compat/proof stub is proven; archived `phase251` keeps the old lowering evidence visible | no | there is still no root-first selfhost lowering proof for `env.codegen.emit_object` replacement on this surface |
 | archived `phase2111` emit/link pair | `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh` | exact root-first replacements are already green | yes, for the archived pair only | replacement is exact for those two payloads, not for the compat selfhost wrapper or `extern_provider.hako` |
 
@@ -252,15 +252,15 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
 
 ## Compat Pack Archive Conditions
 
-- `tools/selfhost/run_compat_pure_pack.sh` is the only remaining historical compat-pack wrapper entry.
+- `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the only remaining historical compat-pack wrapper entry.
 - current direct dependencies are:
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
-  - `tools/selfhost/run_compat_pure_selfhost.sh`
+  - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh` is now only an orchestrator; the pack is split into:
   - `run_pure_capi_canaries.sh`
   - `run_vm_adapter_legacy_cluster.sh`
 - current blockers are:
-  - `tools/selfhost/run_compat_pure_selfhost.sh` still demonstrates the old `CodegenBridgeBox.emit_object_args(...)` plus `link_object_args(...)` route.
+  - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` still demonstrates the old `CodegenBridgeBox.emit_object_args(...)` plus `link_object_args(...)` route.
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` still owns the two active historical pure C-API keep pins (`array_set_get`, `loop_count`), now locked by `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`; the archive-backed historical pins are now locked by `tools/smokes/v2/suites/archive/phase2120-pure-historical.txt`.
   - `tools/smokes/v2/profiles/integration/core/phase2120/run_vm_adapter_legacy_cluster.sh` is still a separate legacy cluster under the same phase directory.
   - `HAKO_CAPI_PURE=1` is still documented as a compat-only route, not as removed/no-op.
@@ -286,7 +286,7 @@ Ranked from lowest blast radius to higher dependency risk:
 4. `lang/src/shared/host_bridge/codegen_bridge_box.hako`
    - correct producer to retire later
    - blocked until the remaining proof/compat callers drain
-5. `tools/selfhost/run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
+5. `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
    - archive-later compat wrapper proof; document and sequence before touching producer deletion
 6. `lang/src/vm/hakorune-vm/extern_provider.hako`
    - blocked on a root-first selfhost lowering proof
@@ -324,7 +324,7 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 1. `lang/src/runner/stage1_cli/core.hako`
    - landed: raw compat llvm branch retired; no longer a direct caller.
 2. `lang/src/vm/hakorune-vm/extern_provider.hako`
-3. `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
+3. `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
 4. proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers
 5. `lang/src/llvm_ir/emit/LLVMEmitBox.hako` keep/archive decision
    - landed: keep as compat/proof keep; no repo-local direct import callers remain.
@@ -349,7 +349,7 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
   - `phase2111` explicit emit/link pair is archived and `phase251` legacy lowering pair is quarantined.
   - `phase2044` bucket semantics and compat selfhost wrapper ownership are explicitized.
   - `phase2044` llvmlite monitor-only keep bucket cleanup is complete; the next sequencing target is the remaining proof/example callers:
-    - `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`
+    - `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
     - `lang/src/vm/hakorune-vm/extern_provider.hako`
 5. keep the legacy helper archive-later until the caller set reaches zero.
 6. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.

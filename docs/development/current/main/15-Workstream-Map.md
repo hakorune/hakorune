@@ -41,11 +41,10 @@ Related:
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
      - root-first proof candidate inventory is pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof
-     - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `run_compat_pure_selfhost.sh` / `run_compat_pure_pack.sh` are only wrapper/orchestrator layers
+     - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
      - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now
-     - `29x-99` now owns docs-first macro cleanup waves and micro tasks; `W1 docs-first path-truth pass` is active
-     - current active micro tasks are `99E split-target inventory lock` and `99F file-move / shim order lock`
-     - current active micro-task detail is `99E1`-`99E4` and `99F1`-`99F4`
+     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W2 mixed-file split pass` is active
+     - current active micro task is `99G split extern_provider.hako`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -53,20 +52,20 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-99` docs-first wave planning -> `29x-98` stop-line stays fixed until exact replacement proof exists |
+     | Next | `29x-99` W2 mixed-file split pass -> `29x-98` stop-line stays fixed until exact replacement proof exists |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
      | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack |
-     | Next | `W1 docs-first path-truth pass` (`99E` / `99F`) |
+     | Next | `W2 mixed-file split pass` (`99G`) |
      | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
    - cleanup waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
-     | `W1 docs-first path-truth pass` | active | target buckets and move order |
-     | `W2 mixed-file split pass` | next | split owner-looking mixed files |
+     | `W1 docs-first path-truth pass` | landed | target buckets and move order |
+     | `W2 mixed-file split pass` | active | split owner-looking mixed files |
      | `W3 smoke/proof filesystem recut` | pending | semantic homes replace phase-number homes |
      | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
      | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |

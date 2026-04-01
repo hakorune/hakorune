@@ -71,20 +71,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 docs-first structure recut wave planning (29x-98 stop-line unchanged)`
+- Exact focus: `29x-99 W2 mixed-file split pass / 99G split extern_provider.hako`
   - phase2120 pure canary bucket is now split by suites: `phase2120-pure-keep` for the 2 active keep pins and `phase2120-pure-historical` for archive-backed replay evidence
   - phase2044 semantics are now at the intended endpoint: the llvmlite trio is `monitor-only keep`, its dedicated suite manifest is the final live keep bucket, and the other two groups stay bucket-runner only
   - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
   - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
-  - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
+  - compat selfhost wrapper stays archive-later; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
   - selfhost compat stack wording is now locked as `payload -> transport wrapper -> pack orchestrator`
   - root-first proof candidate inventory is now pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof
-  - direct live callers are fixed at 5 surfaces: `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
-  - `run_compat_pure_selfhost.sh` and `run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
+  - direct live callers are fixed at 5 surfaces: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
   - `29x-98` still owns helper deletion and exact stop-line; no low-blast caller reduction is visible now
-  - `29x-99` now owns docs-first beauty-first cleanup planning, with `W1 docs-first path-truth pass` active
-  - current active micro tasks are `99E split-target inventory lock` and `99F file-move / shim order lock`
-  - current active micro-task detail is `99E1`-`99E4` and `99F1`-`99F4`
+  - `29x-99` now owns beauty-first cleanup planning, with `W2 mixed-file split pass` active
+  - current active micro task is `99G split extern_provider.hako`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -102,7 +101,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `29x-99` docs-first wave planning -> `29x-98` stop-line stays fixed until exact replacement proof exists |
+  | Next | `29x-99` W2 mixed-file split pass -> `29x-98` stop-line stays fixed until exact replacement proof exists |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -117,15 +116,15 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
-| Next | `W1 docs-first path-truth pass` (`99E` / `99F`) | raise task granularity before any file move or caller drain |
+| Next | `W2 mixed-file split pass` (`99G`) | first low-blast implementation slice after docs-first inventory |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `W1 docs-first path-truth pass` | active | lock target buckets, names, and move order |
-| `W2 mixed-file split pass` | next | split owner-looking mixed files before behavior change |
+| `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order |
+| `W2 mixed-file split pass` | active | split owner-looking mixed files before behavior change |
 | `W3 smoke/proof filesystem recut` | pending | phase-number homes become semantic homes |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy receiver spread to one chokepoint |
@@ -135,9 +134,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `99E split-target inventory lock` | active | freeze target split homes before any move |
-| `99F file-move / shim order lock` | active | define move-first, shim-second, delete-last order |
-| `99G-99J mixed-file split targets` | pending | `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, compat boxes |
+| `99E split-target inventory lock` | landed | freeze target split homes before any move |
+| `99F file-move / shim order lock` | landed | define move-first, shim-second, delete-last order |
+| `99G-99J mixed-file split targets` | active | `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, compat boxes |
 | `99K-99M smoke/proof filesystem recut` | pending | `phase2044`, `phase2120`, archive evidence bundle |
 
 - `phase2044` llvmlite trio is monitor-only keep.
