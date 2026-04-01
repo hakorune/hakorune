@@ -96,6 +96,7 @@ Related:
   - the current policy/state row after `hako.osvm` is `hako_alloc` GC trigger threshold policy
   - `handle reuse policy` is landed below it, and no third live `hako_alloc` row is open yet
   - keep the capability/native split explicit: `.hako` owns the capability facade, while final OS VM / TLS / atomic / GC platform glue stays native keep for Linux, Windows (WSL/cmd), and macOS portability
+  - the current metal keep review pack is the truthful seam inventory + boundary-shrink planning lock, machine-owned by `k2_wide_metal_keep_inventory_guard.sh`
   - `K2-wide` widening is read as `RawMap` first, then narrow widening of `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm`, then `hako_alloc` policy/state rows beginning with handle reuse policy
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps

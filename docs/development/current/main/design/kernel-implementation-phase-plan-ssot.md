@@ -182,6 +182,7 @@ Stop line:
 - current capability-row pack is `hako.osvm` via `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
 - current policy/state row pack after capability widening is `hako_alloc` GC trigger threshold policy
 - handle reuse policy is landed below it, and no third live `hako_alloc` row is open yet
+- current metal keep review pack is the truthful seam inventory + boundary-shrink planning lock, machine-owned by `k2_wide_metal_keep_inventory_guard.sh`
 
 ### 5. Regression / perf pack
 

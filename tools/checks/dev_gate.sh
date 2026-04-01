@@ -206,6 +206,9 @@ run_quick() {
   run_step "K2-wide hako_alloc GC trigger policy guard" \
     bash tools/checks/k2_wide_hako_alloc_gc_trigger_policy_guard.sh
 
+  run_step "K2-wide metal keep inventory guard" \
+    bash tools/checks/k2_wide_metal_keep_inventory_guard.sh
+
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
       bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh

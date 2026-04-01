@@ -139,6 +139,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - current policy/state row after capability widening is `hako_alloc` truthful `GC trigger threshold policy`
   - `handle reuse policy` is landed below it, and no third live `hako_alloc` row is open yet
   - keep the capability/native split explicit: `.hako` owns the capability facade, while final OS VM / TLS / atomic / GC platform glue stays native keep for Linux, Windows (WSL/cmd), and macOS portability
+  - current metal keep review pack is the truthful seam inventory + boundary-shrink planning lock, machine-owned by `k2_wide_metal_keep_inventory_guard.sh`
   - broader capability widening と metal review は narrow slices のあとに進める
   - first-slice acceptance pack is:
     - Rust/kernel RawMap acceptance tests

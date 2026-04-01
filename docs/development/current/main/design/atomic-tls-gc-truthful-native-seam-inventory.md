@@ -1,8 +1,8 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-03-23
-Scope: `phase-29ct` の I10 として、`hako.atomic` / `hako.tls` / `hako.gc` の truthful native seam を棚卸しし、live に進める面と parked に残す面を固定する。
+Date: 2026-04-01
+Scope: `K2-wide` metal keep review の truthful seam inventory として、`hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` の live 面と parked 面を固定する。
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -18,13 +18,14 @@ Related:
   - lang/c-abi/README.md
 ---
 
-# Atomic/TLS/GC Truthful Native Seam Inventory
+# Atomic/TLS/GC/OSVM Truthful Native Seam Inventory
 
 ## Goal
 
-- `hako.atomic` / `hako.tls` / `hako.gc` を docs 名だけで live 化せず、current native seam の truth に合わせて widening 順を固定する。
+- `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` を docs 名だけで live 化せず、current native seam の truth に合わせて widening 順を固定する。
 - `GC` は current truthful seam があるので first live slice に進める。
-- `atomic` / `tls` は current backend/helper reality のまま parked に保つ。
+- `atomic` / `tls` / `osvm` は truthful seam から narrow rows だけ live にし、 broad vocabulary は parked に保つ。
+- `hako_alloc` policy/state rows は sibling SSOT で管理し、この inventory では capability/native seam だけを扱う。
 
 ## Current Truth Classes
 
@@ -42,6 +43,9 @@ These have a truthful substrate-facing seam today:
   - implemented at `crates/nyash_kernel/src/exports/runtime.rs`
   - forwards to runtime GC hooks
   - suitable as the first `hako.gc` live row
+- `hako_osvm_reserve_bytes_i64`
+  - implemented at `lang/c-abi/shims/hako_kernel.c`
+  - suitable as the first reserve-only `hako.osvm` live row
 
 ### B. Truthful native helpers, but not substrate rows yet
 
@@ -72,6 +76,7 @@ These remain parked until a truthful exported/native seam exists:
 - `hako.gc.root_scope`
 - `hako.gc.pin/unpin`
 - `hako.gc.collect/start/stop`
+- broad `hako.osvm.commit/decommit/page_size`
 
 ## Implementation Reading
 
@@ -79,11 +84,12 @@ These remain parked until a truthful exported/native seam exists:
   1. `atomic`
   2. `tls`
   3. `gc`
+  4. `osvm`
 - current implementation order is seam-first:
   1. truthful seam inventory
-  2. `gc` first live row
-  3. helper-shaped first truthful `tls` / `atomic` rows
-  4. generic `atomic` / `tls` remain parked until truthful seams exist
+  2. first truthful rows (`gc`, helper-shaped `tls` / `atomic`, reserve-only `osvm`)
+  3. generic `atomic` / `tls` remain parked until truthful seams exist
+  4. `hako_alloc` policy/state rows widen beside this inventory, not inside it
 
 ## Decision
 
@@ -91,5 +97,6 @@ These remain parked until a truthful exported/native seam exists:
   - `hako.atomic.fence_i64`
   - `hako.tls.last_error_text_h`
   - `hako.gc.write_barrier_i64`
-- generic atomics and final language-level TLS are not implemented in `.hako` in this wave.
-- no false generic `atomic/tls` substrate rows are introduced just to satisfy the conceptual order.
+  - `hako.osvm.reserve_bytes_i64`
+- generic atomics, final language-level TLS, and broad OS VM vocabulary are not implemented in `.hako` in this wave.
+- no false generic `atomic/tls/osvm` substrate rows are introduced just to satisfy the conceptual order.
