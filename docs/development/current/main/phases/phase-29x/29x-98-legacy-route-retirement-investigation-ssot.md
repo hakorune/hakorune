@@ -178,6 +178,26 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 - the three `phase2044` llvmlite canaries are live through the dedicated suite manifest `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt` and still match integration-profile discovery filters.
 - the archived `phase2111` + `phase251` evidence now share the replay bundle `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`.
 
+## Root-First Proof Candidate Matrix
+
+This matrix is only about the current `29x-98` stop-line surfaces. It does not reopen daily ownership.
+
+| Surface | Candidate root-first proof | What it proves today | Drop-in replacement? | Blocker |
+| --- | --- | --- | --- | --- |
+| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` + `tools/selfhost/run_compat_pure_selfhost.sh` | `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | `.hako VM -> LlvmBackendBox -> C-API -> exe` works on the vm-hako owner lane | no | the compat wrapper still demonstrates `CodegenBridgeBox.emit_object_args(...)` + `link_object_args(...)` on the historical safe-vm route |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | none pinned yet | only the gated compat/proof stub is proven; archived `phase251` keeps the old lowering evidence visible | no | there is still no root-first selfhost lowering proof for `env.codegen.emit_object` replacement on this surface |
+| archived `phase2111` emit/link pair | `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh` | exact root-first replacements are already green | yes, for the archived pair only | replacement is exact for those two payloads, not for the compat selfhost wrapper or `extern_provider.hako` |
+
+## Proof-Only Direct Caller Group Recheck
+
+The direct `env.codegen.emit_object` caller groups are now stable enough to read as three buckets:
+
+| Group | Files | Status | Meaning |
+| --- | --- | --- | --- |
+| active monitor-only keep | `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{canary,compare_branch,const42}_canary_vm.sh` | keep | only live proof-only direct caller group still under integration |
+| archived legacy emit/link proof | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archive evidence | replay-only evidence for the old direct emit/link lane |
+| archived selfhost lowering probe | `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archive evidence | replay-only evidence while `extern_provider.hako` still has no root-first lowering replacement |
+
 ## Phase2044 Directory Semantics
 
 - `tools/smokes/v2/profiles/integration/core/phase2044/` is currently a mixed directory.

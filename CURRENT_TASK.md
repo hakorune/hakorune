@@ -76,6 +76,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
   - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
   - selfhost compat stack wording is now locked as `payload -> transport wrapper -> pack orchestrator`
+  - root-first proof candidate inventory is now pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
