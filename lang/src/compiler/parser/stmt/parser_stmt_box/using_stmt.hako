@@ -60,8 +60,7 @@ static box ParserStmtUsingBox {
 
     // Consume through the end of the line / statement.
     loop(j < src.length()) {
-      local ch2 = src.substring(j, j + 1)
-      if ch2 == ";" || ch2 == "\n" || ch2 == "\r" { break }
+      if src.substring(j, j + 1) == ";" || src.substring(j, j + 1) == "\n" || src.substring(j, j + 1) == "\r" { break }
       j = j + 1
     }
 

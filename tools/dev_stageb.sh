@@ -29,7 +29,7 @@ RAW="/tmp/stageb_raw_$$.txt"
 OUT="/tmp/stageb_v0_$$.json"
 trap 'rm -f "$RAW" "$OUT"' EXIT
 
-# Stage‑B: compiler.hako に --stage-b --source を渡して JSON v0 を 1 行出力
+# Stage‑B: compiler_stageb.hako に --source を渡して JSON v0 を 1 行出力
 # 必要な開発ENV（using/file許可とStage3）を付与
 NYASH_PARSER_ALLOW_SEMICOLON=1 \
 NYASH_SYNTAX_SUGAR_LEVEL=full \
@@ -38,7 +38,7 @@ HAKO_ALLOW_USING_FILE=1 NYASH_ALLOW_USING_FILE=1 \
 NYASH_FEATURES=stage3 NYASH_FEATURES=stage3 \
 NYASH_VARMAP_GUARD_STRICT=0 NYASH_BLOCK_SCHEDULE_VERIFY=0 NYASH_PHI_VERIFY=0 \
 NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 \
-"$BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler.hako" -- --stage-b --source "$CODE" >"$RAW" 2>&1 || true
+"$BIN" --backend vm "$ROOT/lang/src/compiler/entry/compiler_stageb.hako" -- --source "$CODE" >"$RAW" 2>&1 || true
 
 if ! awk '/"version":0/ && /"kind":"Program"/ {print > out; found=1; exit} END{exit (!found)}' out="$OUT" "$RAW"; then
   echo "[warn] Stage‑B emit failed or empty; falling back to Stage‑A" >&2
@@ -50,4 +50,3 @@ NYASH_QUIET=1 HAKO_QUIET=1 NYASH_CLI_VERBOSE=0 NYASH_NYRT_SILENT_RESULT=1 \
 "$BIN" --json-file "$OUT"
 
 exit $?
-

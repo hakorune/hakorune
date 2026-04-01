@@ -2,7 +2,6 @@
 // Responsibility: build defs JSON and convert usings to imports.
 
 using selfhost.shared.common.string_helpers as StringHelpers
-using selfhost.shared.common.box_helpers as BoxHelpers
 using lang.compiler.entry.stageb.stageb_rune_box as StageBRuneBox
 
 static box StageBJsonBuilderBox {
@@ -127,7 +126,7 @@ static box StageBJsonBuilderBox {
 
   method _map_s_or_empty(map, key) {
     if map == null { return "" }
-    local value = BoxHelpers.map_get(map, key)
+    local value = map.get(key)
     if value == null { return "" }
     local text = "" + value
     if me._is_map_missing_sentinel(text) == 1 { return "" }

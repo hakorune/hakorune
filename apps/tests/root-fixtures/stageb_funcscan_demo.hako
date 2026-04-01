@@ -1,10 +1,10 @@
-using lang.compiler.entry.compiler_stageb as StageBMod
+using lang.compiler.entry.func_scanner as FuncScannerBox
 
 static box Main {
   method main(args) {
     local src = "\n\nstatic box TestBox {\nmethod fib(n) {\nlocal i = 0\nlocal a = 0\nlocal b = 1\nloop(i < n) {\nlocal t = a + b\na = b\nb = t\ni = i + 1\n}\nreturn b\n}\n}\n\nstatic box Main {\nmethod main(args) {\nlocal t = new TestBox()\nreturn t.fib(6)\n}\n}\n"
 
-    local defs = StageBMod.StageBFuncScannerBox.scan_all_boxes(src)
+    local defs = FuncScannerBox.scan_all_boxes(src)
         print("[funcscan/demo] defs.len=" + ("" + defs.length()))
     local i = 0
     local n = defs.length()

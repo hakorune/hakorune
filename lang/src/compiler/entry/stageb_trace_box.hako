@@ -2,7 +2,7 @@
 // - Enabled when HAKO_STAGEB_TRACE=1
 // - Keeps Stage-B behavior unchanged（ログのみ追加）
 
-box StageBTraceBox {
+static box StageBTraceBox {
   log(label) {
     local flag = env.get("HAKO_STAGEB_TRACE")
     if flag == null { return 0 }
@@ -15,4 +15,3 @@ box StageBTraceBox {
     return 0
   }
 }
-

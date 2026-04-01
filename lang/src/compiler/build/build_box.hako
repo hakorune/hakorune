@@ -1,12 +1,9 @@
 // build_box.hako — BuildBox (Phase‑20.33 minimal)
 
-using lang.compiler.parser.box as ParserBox
+using lang.compiler.parser.parser_box as ParserBox
 using lang.compiler.parser.using.using_collector_box as UsingCollectorBox
-using lang.compiler.entry.bundle_resolver as BundleResolver
-using lang.compiler.entry.body_extraction_box as BodyExtractionBox
 using lang.compiler.entry.func_scanner as FuncScannerBox
-using lang.compiler.entry.stageb.stageb_json_builder_box as StageBJsonBuilderBox
-using sh_core as StringHelpers
+using selfhost.shared.common.string_helpers as StringHelpers
 
 static box BuildBox {
   // Return: Program(JSON v0) string or tagged error
@@ -36,11 +33,249 @@ static box BuildBox {
     return 1
   }
 
+  method _resolve_bundles(bundle_srcs, bundle_names, bundle_mod_srcs, require_mods) {
+    {
+      local depth = env.get("HAKO_STAGEB_BUNDLE_DEPTH")
+      if depth != null && ("" + depth) != "0" {
+        print("[stageb/recursion] BundleResolver.resolve recursion detected")
+        return null
+      }
+      env.set("HAKO_STAGEB_BUNDLE_DEPTH", "1")
+    }
+
+    local table = env.get("HAKO_BUNDLE_ALIAS_TABLE")
+    if table == null || table == "" { table = env.get("NYASH_BUNDLE_ALIAS_TABLE") }
+    if table != null && table != "" {
+      if bundle_names == null { bundle_names = new ArrayBox() }
+      if bundle_mod_srcs == null { bundle_mod_srcs = new ArrayBox() }
+
+      local entries = new ArrayBox()
+      local start_box = new ArrayBox()
+      start_box.push(0)
+      local len = table.length()
+      local i = 0
+      loop(i < len) {
+        local start = start_box.get(0)
+        if i >= start && i + 3 <= len && table.substring(i, i + 3) == "|||" && table.substring(start, i) != "" {
+          entries.push(table.substring(start, i))
+          start_box.set(0, i + 3)
+        }
+        if i >= start && i + 3 <= len && table.substring(i, i + 3) == "|||" && table.substring(start, i) == "" {
+          start_box.set(0, i + 3)
+        }
+        i = i + 1
+      }
+      local start_final = start_box.get(0)
+      local tail = table.substring(start_final, len)
+      if tail != "" { entries.push(tail) }
+
+      local errors = new ArrayBox()
+      local name_box = new ArrayBox()
+      local code_box = new ArrayBox()
+      name_box.push("")
+      code_box.push("")
+      local e = 0
+      loop(e < entries.length()) {
+        if errors.length() > 0 { break }
+        local seg = entries.get(e)
+        local pos = seg.indexOf(":")
+        name_box.set(0, "")
+        code_box.set(0, "")
+        if pos >= 0 {
+          name_box.set(0, seg.substring(0, pos))
+          code_box.set(0, seg.substring(pos + 1, seg.length()))
+        }
+        if seg != "" && (name_box.get(0) == "" || code_box.get(0) == "") {
+          errors.push("[bundle/alias-table/bad] " + seg)
+        }
+        if seg != "" && name_box.get(0) != "" && code_box.get(0) != "" {
+          bundle_names.push(name_box.get(0))
+          bundle_mod_srcs.push(code_box.get(0))
+        }
+        e = e + 1
+      }
+      if errors.length() > 0 {
+        print(errors.get(0))
+        return null
+      }
+    }
+
+    local name_map = new MapBox()
+    local dup_error = new ArrayBox()
+    if bundle_names != null && bundle_names.length() > 0 {
+      local i = 0
+      loop(i < bundle_names.length()) {
+        local name_i = "" + bundle_names.get(i)
+        if name_map.has(name_i) == true { dup_error.push("[bundle/duplicate] " + name_i) }
+        if dup_error.length() > 0 { break }
+        name_map.set(name_i, 1)
+        i = i + 1
+      }
+    }
+    if dup_error.length() > 0 {
+      print(dup_error.get(0))
+      return null
+    }
+
+    if require_mods != null {
+      if bundle_names == null { bundle_names = new ArrayBox() }
+      if bundle_mod_srcs == null { bundle_mod_srcs = new ArrayBox() }
+      local alias_box = new ArrayBox()
+      alias_box.push("")
+      local i0 = 0
+      loop(i0 < require_mods.length()) {
+        local need = "" + require_mods.get(i0)
+        local alias_key = "HAKO_BUNDLE_ALIAS_" + need
+        alias_box.set(0, env.get(alias_key))
+        if alias_box.get(0) == null || alias_box.get(0) == "" {
+          alias_box.set(0, env.get("NYASH_BUNDLE_ALIAS_" + need))
+        }
+        local code = alias_box.get(0)
+        if name_map.has(need) == false && code != null && code != "" {
+          bundle_names.push(need)
+          bundle_mod_srcs.push("" + code)
+          name_map.set(need, 1)
+        }
+        i0 = i0 + 1
+      }
+    }
+
+    if require_mods != null && require_mods.length() > 0 {
+      local miss_error = new ArrayBox()
+      local idx = 0
+      loop(idx < require_mods.length()) {
+        local need = "" + require_mods.get(idx)
+        if name_map.has(need) == false { miss_error.push("[bundle/missing] " + need) }
+        if miss_error.length() > 0 { break }
+        idx = idx + 1
+      }
+      if miss_error.length() > 0 {
+        print(miss_error.get(0))
+        return null
+      }
+    }
+
+    local merged = ""
+    if bundle_srcs != null {
+      local i = 0
+      loop(i < bundle_srcs.length()) {
+        merged = merged + bundle_srcs.get(i) + "\n"
+        i = i + 1
+      }
+    }
+    if bundle_mod_srcs != null {
+      local i2 = 0
+      loop(i2 < bundle_mod_srcs.length()) {
+        merged = merged + bundle_mod_srcs.get(i2) + "\n"
+        i2 = i2 + 1
+      }
+    }
+    env.set("HAKO_STAGEB_BUNDLE_DEPTH", "0")
+    return merged
+  }
+
+  method _find_main_position(src) {
+    if src == null { return -1 }
+    local s = "" + src
+    local k0 = me._find_pattern(s, "method main", 0)
+    if k0 >= 0 { return k0 }
+    local kbox = me._find_pattern(s, "box Main", 0)
+    if kbox >= 0 {
+      local kmain = me._find_pattern(s, "main(", kbox)
+      if kmain >= 0 { return kmain }
+    }
+    return me._find_pattern(s, "main(", 0)
+  }
+
+  method _find_char_skipping_strings(src, start, target_char) {
+    if src == null { return -1 }
+    local s = "" + src
+    local n = s.length()
+    local j = start
+    local in_str = 0
+    local esc = 0
+
+    loop(j < n) {
+      local ch = s.substring(j, j + 1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0  j = j + 1  continue }
+        if ch == "\\" { esc = 1  j = j + 1  continue }
+        if ch == "\"" { in_str = 0  j = j + 1  continue }
+        j = j + 1
+        continue
+      }
+      if ch == "\"" { in_str = 1  j = j + 1  continue }
+      if ch == target_char { return j }
+      j = j + 1
+    }
+    return -1
+  }
+
+  method _extract_balanced_body(src, open_brace_pos) {
+    if src == null { return null }
+    local s = "" + src
+    local n = s.length()
+
+    if open_brace_pos < 0 || open_brace_pos >= n { return null }
+    if s.substring(open_brace_pos, open_brace_pos + 1) != "{" { return null }
+
+    local depth = 0
+    local i = open_brace_pos
+    local in_str = 0
+    local esc = 0
+
+    loop(i < n) {
+      local ch = s.substring(i, i + 1)
+      if in_str == 1 {
+        if esc == 1 { esc = 0  i = i + 1  continue }
+        if ch == "\\" { esc = 1  i = i + 1  continue }
+        if ch == "\"" { in_str = 0  i = i + 1  continue }
+        i = i + 1
+        continue
+      }
+      if ch == "\"" { in_str = 1  i = i + 1  continue }
+      if ch == "{" { depth = depth + 1  i = i + 1  continue }
+      if ch == "}" {
+        depth = depth - 1
+        if depth == 0 { return s.substring(open_brace_pos + 1, i) }
+        i = i + 1
+        continue
+      }
+      i = i + 1
+    }
+    return null
+  }
+
+  method _extract_main_body(src) {
+    if src == null { return null }
+    local s = "" + src
+    local k0 = me._find_main_position(s)
+    if k0 < 0 { return null }
+    local k1 = me._find_char_skipping_strings(s, k0, "(")
+    if k1 < 0 { return null }
+    local k2 = me._find_char_skipping_strings(s, k1, ")")
+    if k2 < 0 { return null }
+    local k3 = me._find_char_skipping_strings(s, k2, "{")
+    if k3 < 0 { return null }
+    return me._extract_balanced_body(s, k3)
+  }
+
+  method _find_pattern(s, pat, start) {
+    local n = s.length()
+    local m = pat.length()
+    local i = start
+    loop(i + m <= n) {
+      if s.substring(i, i + m) == pat { return i }
+      i = i + 1
+    }
+    return -1
+  }
+
   method _prepare_scan_src(src, opts) {
     local result = me._new_prepare_scan_src_result(src)
     // Optional: env-driven alias/require bundling (lightweight)
     // HAKO_BUNDLE_ALIAS_TABLE='Name:code|||Name2:code2', HAKO_REQUIRE_MODS='U1,U2'
-    // BuildBox では BundleResolver.resolve を使って前置連結のみを行う（Fail‑Fastタグは箱外へ伝播）
+    // BuildBox では _resolve_bundles を使って前置連結のみを行う（Fail‑Fastタグは箱外へ伝播）
     local bundle_ctx = me._collect_bundle_inputs(opts)
     if bundle_ctx.has("error") == true {
       return me._fail_prepare_scan_src(result, bundle_ctx.get("error"))
@@ -84,7 +319,7 @@ static box BuildBox {
   }
 
   method _resolve_scan_src_from_bundle_ctx(src, bundle_ctx) {
-    local merged = BundleResolver.resolve(bundle_ctx.get("bundles"), bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), bundle_ctx.get("require_mods"))
+    local merged = me._resolve_bundles(bundle_ctx.get("bundles"), bundle_ctx.get("bundle_names"), bundle_ctx.get("bundle_srcs"), bundle_ctx.get("require_mods"))
     if merged == null { return null }
     return merged + src
   }
@@ -296,7 +531,7 @@ static box BuildBox {
 
   method _inject_defs_fragment_if_present(ast_json, defs_json) {
     if defs_json == "" || defs_json.length() <= 0 { return ast_json }
-    return StageBJsonBuilderBox.inject_json_fragment(ast_json, defs_json)
+    return me.inject_json_fragment(ast_json, defs_json)
   }
 
   method _build_defs_fragment_json(scan_src, ast_json) {
@@ -304,7 +539,7 @@ static box BuildBox {
     // 元の src だけを見ると using/prefix helper boxes が defs に載らず、
     // bridge-first Stage2 build で helper symbol closure が崩れる。
     local methods = FuncScannerBox.scan_all_boxes(scan_src)
-    return StageBJsonBuilderBox.build_defs_json_with_source(methods, scan_src)
+    return me._build_defs_json_with_source(methods)
   }
 
   method _inject_imports_json(ast_json, scan_src) {
@@ -312,18 +547,130 @@ static box BuildBox {
     return me._inject_imports_fragment_if_present(ast_json, imports_frag)
   }
 
+  method _build_defs_json_with_source(methods) {
+    local defs = methods
+    if defs == null { defs = new ArrayBox() }
+    return me._build_defs_json(defs)
+  }
+
+  method _build_defs_json(defs) {
+    if defs == null { return "" }
+    local cnt = defs.length()
+    if cnt == 0 { return "" }
+
+    local out = ",\"defs\":["
+    local i = 0
+    loop(i < cnt) {
+      local def = defs.get(i)
+      if def == null {
+        i = i + 1
+        continue
+      }
+      local def_str = "" + def
+      if def_str == def {
+        i = i + 1
+        continue
+      }
+
+      local mname = "" + def.get("name")
+      local mparams = def.get("params")
+      local mbody = "" + def.get("body_json")
+      local mbox = "" + def.get("box")
+      local wrapped_body = "{\"version\":0,\"kind\":\"Program\",\"body\":" + mbody + "}"
+      local params_arr = me._build_params_json(mparams)
+      if i > 0 { out = out + "," }
+      out = out + "{\"name\":\"" + mname + "\",\"params\":" + params_arr + ",\"body\":" + wrapped_body + ",\"box\":\"" + mbox + "\"}"
+      i = i + 1
+    }
+    out = out + "]"
+    return out
+  }
+
+  method _build_params_json(mparams) {
+    local params_arr = "["
+    if mparams != null {
+      local pi = 0
+      local pn = mparams.length()
+      loop(pi < pn) {
+        if pi > 0 { params_arr = params_arr + "," }
+        params_arr = params_arr + "\"" + ("" + mparams.get(pi)) + "\""
+        pi = pi + 1
+      }
+    }
+    params_arr = params_arr + "]"
+    return params_arr
+  }
+
   method _build_imports_fragment_json(scan_src) {
     local usings_json = UsingCollectorBox.collect(scan_src)
     if usings_json == null || usings_json == "[]" || usings_json == "" { return "" }
-
-    local imports_obj = StageBJsonBuilderBox.convert_usings_to_imports(usings_json)
+    local imports_obj = me.convert_usings_to_imports(usings_json)
     if imports_obj == null || imports_obj == "{}" || imports_obj == "" { return "" }
     return ",\"imports\":" + imports_obj
   }
 
+  method convert_usings_to_imports(usings_json) {
+    if usings_json == null || usings_json == "[]" || usings_json == "" {
+      return "{}"
+    }
+    local out = "{"
+    local count = 0
+    local pos = 0
+    local n = usings_json.length()
+
+    loop(pos < n) {
+      local name_idx = StringHelpers.index_of(usings_json, pos, "\"name\":\"")
+      if name_idx < 0 { break }
+
+      local name_start = name_idx + 8
+      local name_end = StringHelpers.index_of(usings_json, name_start, "\"")
+      if name_end < 0 { break }
+      local name = usings_json.substring(name_start, name_end)
+
+      local entry_end = StringHelpers.index_of(usings_json, name_idx, "}")
+      if entry_end < 0 { entry_end = n }
+
+      local path_idx = StringHelpers.index_of(usings_json, name_idx, "\"path\":\"")
+      local path = null
+      if path_idx >= 0 && path_idx < entry_end {
+        local path_start = path_idx + 8
+        local path_end = StringHelpers.index_of(usings_json, path_start, "\"")
+        if path_end >= 0 && path_end < entry_end {
+          path = usings_json.substring(path_start, path_end)
+        }
+      }
+
+      if path != null && path != "" {
+        if count > 0 { out = out + "," }
+        out = out + "\"" + name + "\":\"" + path + "\""
+        count = count + 1
+      }
+
+      pos = entry_end + 1
+    }
+
+    out = out + "}"
+    return out
+  }
+
+  method inject_json_fragment(json, fragment) {
+    if fragment == null || fragment == "" { return json }
+    local ajson = "" + json
+    local close_pos = -1
+    local j = ajson.length() - 1
+    loop(j >= 0) {
+      if ajson.substring(j, j + 1) == "}" { close_pos = j  break }
+      j = j - 1
+    }
+    if close_pos >= 0 {
+      return ajson.substring(0, close_pos) + fragment + ajson.substring(close_pos, ajson.length())
+    }
+    return json
+  }
+
   method _inject_imports_fragment_if_present(ast_json, imports_frag) {
     if imports_frag == "" || imports_frag.length() <= 0 { return ast_json }
-    return StageBJsonBuilderBox.inject_json_fragment(ast_json, imports_frag)
+    return me.inject_json_fragment(ast_json, imports_frag)
   }
 
   method _is_freeze_tag(text) {
@@ -339,7 +686,7 @@ static box BuildBox {
   }
 
   method _main_body_parse_src_if_present(scan_src) {
-    local body_src = BodyExtractionBox.extract_main_body(scan_src)
+    local body_src = me._extract_main_body(scan_src)
     if body_src != null && body_src != "" { return body_src }
     return null
   }

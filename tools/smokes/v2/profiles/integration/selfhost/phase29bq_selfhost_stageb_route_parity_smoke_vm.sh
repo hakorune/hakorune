@@ -8,7 +8,7 @@ source "$ROOT_DIR/smokes/v2/lib/test_runner.sh"
 require_env || exit 2
 
 WRAPPER="$NYASH_ROOT/tools/selfhost/run.sh"
-COMPILER="$NYASH_ROOT/lang/src/compiler/entry/compiler.hako"
+COMPILER="$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako"
 FIXTURE="${1:-$NYASH_ROOT/apps/tests/selfhost_cleanup_only_min.hako}"
 TIMEOUT_SECS="${SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS:-${RUN_TIMEOUT_SECS:-20}}"
 
@@ -107,7 +107,7 @@ HAKO_SRC="$(cat "$FIXTURE")" \
   HAKO_STAGEB_MODULE_ROOTS_LIST="$HAKO_STAGEB_MODULE_ROOTS_LIST" \
   NYASH_QUIET=0 HAKO_QUIET=0 NYASH_CLI_VERBOSE=0 \
   timeout "$TIMEOUT_SECS" \
-  "$NYASH_BIN" --backend vm "$COMPILER" -- --stage-b --stage3 \
+  "$NYASH_BIN" --backend vm "$COMPILER" -- --source "$(cat "$FIXTURE")" \
   > "$direct_log" 2>&1
 direct_rc=$?
 set -e

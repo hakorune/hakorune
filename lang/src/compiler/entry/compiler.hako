@@ -2,9 +2,9 @@
 // - When invoked with --min-json, emit minimal Program JSON v0 to stdout
 // - Otherwise, act as a silent placeholder (return 0)
 
-// Phase 28.2 Quick Win 3: Direct import without alias
-// StageBDriverBox.compile() is the thin Stage-B adapter over BuildBox authority
-using lang.compiler.entry.compiler_stageb
+// Phase 28.2 Quick Win 3: Namespace import to keep Stage-B helper boxes isolated
+// StageBMod.StageBDriverBox.main() is the thin Stage-B adapter over Stage-B authority
+using lang.compiler.entry.compiler_stageb as StageBMod
 
 static box Main {
   _parse_signed_int(raw) {
@@ -493,7 +493,7 @@ static box Main {
       env.error("[compiler/main] enter stage-b args=" + ("" + args))  // dev trace
       print("[compiler/main] stage-b entry")
       env.error("[compiler/main] stage-b entry")  // dev trace
-      local rc = StageBDriverBox.main(args)
+      local rc = StageBMod.StageBDriverBox.main(args)
       print("[compiler/main] stage-b ret=" + ("" + rc))
       env.error("[compiler/main] stage-b ret=" + ("" + rc))  // dev trace
       return rc

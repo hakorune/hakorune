@@ -12,8 +12,8 @@ static box ParserIdentScanBox {
     j = j + 1
     // MirBuilder-friendly: explicit continue instead of if-else
     loop(j < n) {
-      local ch2 = src.substring(j, j+1)
-      if ParserStringUtilsBox.is_alpha(ch2) || ParserStringUtilsBox.is_digit(ch2) || ch2 == "_" {
+      local ch = src.substring(j, j+1)
+      if ParserStringUtilsBox.is_alpha(ch) || ParserStringUtilsBox.is_digit(ch) || ch == "_" {
         j = j + 1
         continue
       }
@@ -23,4 +23,3 @@ static box ParserIdentScanBox {
     return s + "@" + ParserStringUtilsBox.i2s(j)
   }
 }
-

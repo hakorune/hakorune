@@ -10,7 +10,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 NYASH_ROOT="${NYASH_ROOT:-$ROOT_DIR}"
 NYASH_BIN="${NYASH_BIN:-$NYASH_ROOT/target/release/hakorune}"
-COMPILER="${SELFHOST_COMPILER_ENTRY:-$NYASH_ROOT/lang/src/compiler/entry/compiler.hako}"
+COMPILER="${SELFHOST_COMPILER_ENTRY:-$NYASH_ROOT/lang/src/compiler/entry/compiler_stageb.hako}"
 
 SOURCE_FILE=""
 TIMEOUT_SECS="${SMOKES_SELFHOST_STAGEB_TIMEOUT_SECS:-${RUN_TIMEOUT_SECS:-20}}"
