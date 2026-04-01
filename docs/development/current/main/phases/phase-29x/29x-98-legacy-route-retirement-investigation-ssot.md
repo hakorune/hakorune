@@ -133,6 +133,21 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | `tools/smokes/v2/profiles/integration/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | active proof-only coverage on the legacy emit/link lane | none | archive when root-first compile/link coverage replaces these explicit emit/link proofs |
 | `tools/smokes/v2/profiles/integration/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | active proof-only lowering evidence for the legacy extern name | none | archive when selfhost lowering proof moves to the root-first route and the helper caller inventory reaches zero |
 
+## Upstream Producer Findings
+
+- `.hako`-side producer shape
+  - true upstream owner is `lang/src/shared/host_bridge/codegen_bridge_box.hako`.
+  - `CodegenBridgeBox.emit_object_args(...)` normalizes the payload and still issues `env.codegen.emit_object(mir_json)`.
+  - current `.hako` callers that reach this producer are compat/proof or proof/example only; no new daily caller should be added.
+- Rust-side dispatch shape
+  - `src/backend/mir_interpreter/handlers/calls/global.rs` and `src/backend/mir_interpreter/handlers/externals.rs` still accept `env.codegen.emit_object`, but only as legacy extern dispatch surfaces.
+  - `src/backend/mir_interpreter/handlers/extern_provider/lane.rs` classifies `env.codegen.emit_object` as `LoaderCold`, not a daily fast lane.
+  - `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` and `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` still reach the helper, but they are receivers for existing compat/proof callers, not the cleanup starting point.
+- cleanup rule
+  - do not start by deleting Rust dispatch files.
+  - first remove the upstream callers that still generate `env.codegen.emit_object`.
+  - after the upstream caller inventory reaches zero, collapse the Rust dispatch residues and then delete `emit_object_from_mir_json(...)`.
+
 ## Ordered Investigation Queue
 
 1. `lang/src/runner/stage1_cli/core.hako`
@@ -140,19 +155,22 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 3. `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
 4. proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers
 5. `lang/src/llvm_ir/emit/LLVMEmitBox.hako` keep/archive decision
+6. Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`) only after upstream caller inventory reaches zero
 
 ## Retirement Order
 
 1. keep `hostbridge.rs`, `loader_cold.rs`, and `extern_functions.rs` as explicit compat callers until their upstream callers stop owning MIR(JSON) and switch to the root-first daily route.
 2. keep `llvm_backend_surrogate.rs` as archive-later until the compiled-stage1/bootstrap path has a cleaner front door than `emit_object_from_mir_json(...)`.
-3. only when all four caller surfaces are gone: delete `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`.
+3. once upstream `.hako` callers and proof/example callers stop generating `env.codegen.emit_object`, collapse the Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`).
+4. only when all caller surfaces are gone: delete `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`.
 
 ## Investigation TODO
 
-1. confirm the caller inventory stays at exactly these four surfaces.
-2. keep the legacy helper archive-later until the caller set reaches zero.
-3. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
-4. when the caller set reaches zero, delete `emit_object_from_mir_json(...)` and collapse the phase docs.
+1. confirm the direct caller inventory stays at exactly these four surfaces.
+2. confirm proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers remain proof-only and not daily dependencies.
+3. keep the legacy helper archive-later until the caller set reaches zero.
+4. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
+5. when the caller set reaches zero, delete `emit_object_from_mir_json(...)`, then collapse the Rust dispatch residues and phase docs.
 
 ## Delete Condition
 
