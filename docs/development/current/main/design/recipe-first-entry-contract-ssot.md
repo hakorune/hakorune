@@ -3,7 +3,7 @@ Scope: Recipe-first entry contract (Facts → Recipe → Verify → Lower)
 Related:
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
 - `docs/development/current/main/design/planfrag-freeze-taxonomy.md`
-- `docs/development/current/main/design/domainplan-thinning-ssot.md`
+- `docs/development/current/main/design/archive/domainplan-thinning-ssot.md`
 
 # Recipe-first Entry Contract (SSOT)
 
@@ -144,7 +144,7 @@ Note: Phase C* sections below use route names as canonical labels, and keep migr
 ## Historical migration notes
 
 - Phase-by-phase migration notes for the legacy planner payload -> recipe-first migration were moved to:
-  - `docs/development/current/main/design/recipe-first-entry-contract-history.md`
+  - `docs/development/current/main/design/archive/recipe-first-entry-contract-history.md`
 - Current runtime contract is defined by the sections above plus:
   - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
   - `CURRENT_TASK.md`

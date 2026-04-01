@@ -9,9 +9,9 @@ Related:
   - docs/development/current/main/design/artifact-policy-ssot.md
   - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/execution-lanes-legacy-retirement-inventory-ssot.md
-  - docs/development/current/main/phases/phase-29ci/README.md
+  - docs/development/current/main/phases/archive/phase-29ci/README.md
   - docs/development/current/main/phases/phase-29ct/README.md
-  - docs/development/current/main/phases/phase-29cu/README.md
+  - docs/development/current/main/phases/archive/phase-29cu/README.md
   - docs/development/current/main/phases/phase-29y/README.md
 ---
 

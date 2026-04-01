@@ -38,7 +38,7 @@ Allowed Normalizer residue（現状の限定リスト）:
 
 Drift checks:
 - `rg -n "PlanNormalizer::normalize_" src/mir/builder/control_flow/plan --glob '!*.md'`（依存が増えていないこと）
-- planner-payload residue audit is tracked in `domainplan-residue-ssot.md` and must stay at 0 hit in runtime source（runtime path は domain-free を維持）
+- planner-payload residue audit is tracked in `docs/development/current/main/design/archive/domainplan-residue-ssot.md` and must stay at 0 hit in runtime source（runtime path は domain-free を維持）
 
 ## Goal: acceptance by composability (Loop)
 

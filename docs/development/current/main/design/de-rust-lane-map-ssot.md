@@ -20,7 +20,7 @@ Related:
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
-  - docs/development/current/main/phases/phase-29cf/README.md
+  - docs/development/current/main/phases/archive/phase-29cf/README.md
   - docs/development/current/main/phases/phase-29y/80-RUST-VM-FEATURE-AUDIT-AND-HAKO-PORT-SSOT.md
   - docs/development/current/main/phases/phase-29y/81-RUST-VM-TO-HAKO-VM-FEATURE-MATRIX.md
   - docs/development/current/main/phases/phase-29bq/29bq-116-emit-mir-entry-order-blocker.md

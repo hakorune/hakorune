@@ -69,7 +69,7 @@ Related:
    - final architecture boundary is locked in `de-rust-backend-zero-boundary-lock-ssot.md`
    - execution order / buildability gate is fixed in `de-rust-backend-zero-fixed-order-and-buildability-ssot.md`
    - phase-29ck が `task pack / acceptance / reopen rule` を owner する
-   - post-B1/B3 by-name retirement follow-up is owned by `docs/development/current/main/phases/phase-29cl/README.md`
+   - post-B1/B3 by-name retirement follow-up is owned by `docs/development/current/main/phases/archive/phase-29cl/README.md`
    - `native_driver.rs` は bootstrap seam only であり、done shape ではない。
    - migration slice は Rust ベースの buildability を保持することを前提にする。
 4. remaining Rust bucket snapshot:
@@ -126,7 +126,7 @@ Related:
   - `docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md`
   - `docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md`
   - `docs/development/current/main/phases/phase-29ck/README.md`
-  - `docs/development/current/main/phases/phase-29cl/README.md`
+  - `docs/development/current/main/phases/archive/phase-29cl/README.md`
   - `docs/development/current/main/phases/phase-29ck/P1-NY-LLVMC-NATIVE-EMITTER-TASK-PACK.md`
   - `docs/development/current/main/phases/phase-29ck/P2-NATIVE-EMITTER-ACCEPTANCE-AND-REOPEN-RULE.md`
 - current gap:

@@ -6,10 +6,10 @@ Related:
   - docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md
   - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
-  - docs/development/current/main/phases/phase-29ch/README.md
-  - docs/development/current/main/phases/phase-29ci/README.md
-  - docs/development/current/main/phases/phase-29cg/README.md
-  - docs/development/current/main/phases/phase-29cc/README.md
+  - docs/development/current/main/phases/archive/phase-29ch/README.md
+  - docs/development/current/main/phases/archive/phase-29ci/README.md
+  - docs/development/current/main/phases/archive/phase-29cg/README.md
+  - docs/development/current/main/phases/archive/phase-29cc/README.md
   - lang/src/compiler/README.md
   - lang/src/compiler/mirbuilder/README.md
   - src/mir/builder/README.md
@@ -69,9 +69,9 @@ restart / handoff では次の順に読む。
    - current route authority / compatibility boundaries / acceptance
 4. `docs/development/current/main/design/selfhost-authority-facade-compat-inventory-ssot.md`
    - file-level keep/shrink/quarantine inventory and migration order
-5. `docs/development/current/main/phases/phase-29ch/README.md`
+5. `docs/development/current/main/phases/archive/phase-29ch/README.md`
    - closeout-ready MIR-direct bootstrap unification slice
-6. `docs/development/current/main/phases/phase-29ci/README.md`
+6. `docs/development/current/main/phases/archive/phase-29ci/README.md`
    - separate queued `Program(JSON v0)` retirement follow-up
 7. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
    - `.hako` / Rust ownership map（この文書）

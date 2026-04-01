@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
-  - docs/development/current/main/phases/phase-29cc/README.md
+  - docs/development/current/main/phases/archive/phase-29cc/README.md
   - docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md
   - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
   - CURRENT_TASK.md

@@ -84,10 +84,23 @@
 
 ## Historical Migration Ledgers
 
-- Historical payload-lane cleanup tracker: `docs/development/current/main/design/domainplan-thinning-ssot.md`
-- Historical payload-lane residue ledger: `docs/development/current/main/design/domainplan-residue-ssot.md`
-- Historical recipe-first entry migration notes: `docs/development/current/main/design/recipe-first-entry-contract-history.md`
-- Historical recipe-first phased proposal: `docs/development/current/main/design/recipe-first-migration-phased-plan-proposal.md`
+- Historical payload-lane cleanup tracker: `docs/development/current/main/design/archive/domainplan-thinning-ssot.md`
+- Historical payload-lane residue ledger: `docs/development/current/main/design/archive/domainplan-residue-ssot.md`
+- Historical recipe-first entry migration notes: `docs/development/current/main/design/archive/recipe-first-entry-contract-history.md`
+- Historical recipe-first phased proposal: `docs/development/current/main/design/archive/recipe-first-migration-phased-plan-proposal.md`
+
+## Retirement / Inventory Supporting Docs
+
+- `route-physical-path-legacy-lane-ssot.md`
+- `loop-route-detection-physical-path-retirement-ssot.md`
+- `execution-lanes-legacy-retirement-inventory-ssot.md`
+- `selfhost-smoke-retirement-inventory-ssot.md`
+- `joinir-smoke-legacy-stem-retirement-ssot.md`
+- `joinir-legacy-fixture-pin-inventory-ssot.md`
+- `joinir-frontend-legacy-fixture-key-retirement-ssot.md`
+- `mir-callsite-retire-lane-ssot.md`
+- `pyvm-retreat-ssot.md`
+- `selfhost-bootstrap-route-evidence-and-legacy-lanes.md`
 
 ## Diagnostics / Contracts（入口）
 

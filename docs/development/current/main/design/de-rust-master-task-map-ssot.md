@@ -13,13 +13,13 @@ Related:
   - docs/development/current/main/design/de-rust-scope-decision-ssot.md
   - docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
-  - docs/development/current/main/phases/phase-29cc/README.md
+  - docs/development/current/main/phases/archive/phase-29cc/README.md
   - docs/development/current/main/phases/phase-29cc/29cc-92-non-plugin-rust-residue-task-set.md
   - docs/development/current/main/phases/phase-29cc/29cc-94-derust-non-plugin-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-95-plugin-lane-bootstrap-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-96-plugin-abi-loader-acceptance-lock-ssot.md
   - docs/development/current/main/phases/phase-29cc/29cc-97-plugin-gate-pack-lock-ssot.md
-  - docs/development/current/main/phases/phase-29cf/README.md
+  - docs/development/current/main/phases/archive/phase-29cf/README.md
   - docs/development/current/main/phases/phase-29x/29x-45-rust-optional-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29x/29x-62-derust-done-sync-ssot.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
@@ -140,4 +140,4 @@ Milestone (closeout evidence):
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/10-Now.md`
 3. `docs/development/current/main/design/de-rust-lane-map-ssot.md`
-4. `docs/development/current/main/phases/phase-29cc/README.md`
+4. `docs/development/current/main/phases/archive/phase-29cc/README.md`

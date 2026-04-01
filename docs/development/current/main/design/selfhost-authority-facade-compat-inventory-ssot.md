@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/design/selfhost-compiler-structure-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/json-v0-route-map-ssot.md
-  - docs/development/current/main/phases/phase-29ci/README.md
+  - docs/development/current/main/phases/archive/phase-29ci/README.md
   - lang/src/compiler/README.md
   - lang/src/runner/README.md
   - tools/selfhost/README.md

@@ -7,7 +7,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
   - docs/development/current/main/design/selfhost-bootstrap-route-evidence-and-legacy-lanes.md
-  - docs/development/current/main/phases/phase-29cn/README.md
+  - docs/development/current/main/phases/archive/phase-29cn/README.md
   - tools/selfhost/build_stage1.sh
   - tools/build_hako_llvmc_ffi.sh
   - lang/c-abi/shims/hako_json_v1.c

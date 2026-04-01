@@ -12,7 +12,7 @@ Related:
   - docs/development/current/main/design/thread-and-tls-capability-ssot.md
   - docs/development/current/main/design/final-metal-split-ssot.md
   - docs/development/current/main/design/rune-v0-contract-rollout-ssot.md
-  - docs/development/current/main/phases/phase-29cu/README.md
+  - docs/development/current/main/phases/archive/phase-29cu/README.md
   - lang/README.md
   - lang/src/runtime/collections/README.md
   - docs/private/roadmap/phases/phase-23-type-system/rune-design.md

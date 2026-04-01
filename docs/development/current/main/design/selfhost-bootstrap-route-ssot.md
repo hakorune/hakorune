@@ -16,9 +16,9 @@ Related:
 - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
 - docs/development/current/main/design/hako-mirbuilder-migration-phase0-entry-contract-ssot.md
 - docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md
-- docs/development/current/main/phases/phase-29cf/README.md
-- docs/development/current/main/phases/phase-29ch/README.md
-- docs/development/current/main/phases/phase-29ci/README.md
+- docs/development/current/main/phases/archive/phase-29cf/README.md
+- docs/development/current/main/phases/archive/phase-29ch/README.md
+- docs/development/current/main/phases/archive/phase-29ci/README.md
 - docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md
 - docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md
 - docs/development/current/main/design/pyvm-retreat-ssot.md
@@ -65,11 +65,11 @@ Restart / handoff では次の順で読む。
    - current route authority and compatibility boundaries
 4. `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
    - `.hako` / Rust ownership map and mainline structure
-5. `docs/development/current/main/phases/phase-29ch/README.md`
+5. `docs/development/current/main/phases/archive/phase-29ch/README.md`
    - current authority lock / closeout-ready MIR-direct bootstrap unification slice
-6. `docs/development/current/main/phases/phase-29ci/README.md`
+6. `docs/development/current/main/phases/archive/phase-29ci/README.md`
    - separate future-wave JSON v0 retirement pointer
-7. `docs/development/current/main/phases/phase-29cg/README.md`
+7. `docs/development/current/main/phases/archive/phase-29cg/README.md`
    - solved reduced slice that must stay closed
 
 ## Policy (Steady State)
@@ -116,7 +116,7 @@ SSOT:
   - `.hako` / Rust ownership map:
     - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
   - active phase truth:
-    - `docs/development/current/main/phases/phase-29ch/README.md`
+    - `docs/development/current/main/phases/archive/phase-29ch/README.md`
   - detailed evidence / diagnostics probes:
     - `docs/development/current/main/phases/phase-29ch/29ch-20-route-evidence-and-probes.md`
   - legacy lane / binary-only / blocker capture supplement:

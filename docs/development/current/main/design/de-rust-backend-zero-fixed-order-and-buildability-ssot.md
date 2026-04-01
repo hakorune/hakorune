@@ -15,7 +15,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P1-NY-LLVMC-NATIVE-EMITTER-TASK-PACK.md
   - docs/development/current/main/phases/phase-29ck/P2-NATIVE-EMITTER-ACCEPTANCE-AND-REOPEN-RULE.md
-  - docs/development/current/main/phases/phase-29cl/README.md
+  - docs/development/current/main/phases/archive/phase-29cl/README.md
 ---
 
 # De-Rust Backend-Zero Fixed Order And Buildability (SSOT)

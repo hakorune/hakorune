@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md
   - docs/development/current/main/design/code-retirement-history-policy-ssot.md
   - docs/development/current/main/design/selfhost-smoke-retirement-inventory-ssot.md
-  - docs/development/current/main/phases/phase-29ci/README.md
+  - docs/development/current/main/phases/archive/phase-29ci/README.md
   - docs/development/current/main/phases/phase-29y/README.md
 ---
 

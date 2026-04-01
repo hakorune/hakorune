@@ -8,9 +8,9 @@ Related:
   - docs/development/current/main/design/de-rust-kernel-authority-cutover-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-remaining-rust-inventory-ssot.md
   - docs/development/current/main/design/de-rust-full-rust-zero-roadmap-ssot.md
-  - docs/development/current/main/phases/phase-29cj/README.md
+  - docs/development/current/main/phases/archive/phase-29cj/README.md
   - docs/development/current/main/phases/phase-29ck/README.md
-  - docs/development/current/main/phases/phase-29cl/README.md
+  - docs/development/current/main/phases/archive/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
 ---
 
@@ -314,7 +314,7 @@ rule:
 ### B5. by-name retirement cutover
 
 - phase owner:
-  - `docs/development/current/main/phases/phase-29cl/README.md`
+  - `docs/development/current/main/phases/archive/phase-29cl/README.md`
 - exact work:
   - lock `no-new-mainline` on `nyash.plugin.invoke_by_name_i64`
   - move visible daily callers off module-string / method-name by-name routes before kernel delete

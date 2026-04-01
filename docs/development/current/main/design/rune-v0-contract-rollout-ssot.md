@@ -13,7 +13,7 @@ Related:
   - docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md
   - docs/reference/language/EBNF.md
   - docs/reference/ir/ast-json-v0.md
-  - docs/development/current/main/phases/phase-29cu/README.md
+  - docs/development/current/main/phases/archive/phase-29cu/README.md
   - src/parser/statements/helpers.rs
   - lang/src/compiler/parser/stmt/parser_stmt_box.hako
   - src/config/env/parser_flags.rs

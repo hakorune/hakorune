@@ -10,9 +10,9 @@ Related:
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/de-rust-backend-zero-provisional-inventory-ssot.md
-  - docs/development/current/main/phases/phase-29cj/README.md
+  - docs/development/current/main/phases/archive/phase-29cj/README.md
   - docs/development/current/main/phases/phase-29ck/README.md
-  - docs/development/current/main/phases/phase-29cl/README.md
+  - docs/development/current/main/phases/archive/phase-29cl/README.md
   - docs/development/current/main/phases/phase-29y/60-NEXT-TASK-PLAN.md
 ---
 
@@ -247,7 +247,7 @@ Related:
    - `src/llvm_py/instructions/mir_call_legacy.py`
    - dynamic-fallback `by_name` path inside `lang/c-abi/shims/hako_llvmc_ffi.c`
 6. phase owner
-   - retire order is owned by `docs/development/current/main/phases/phase-29cl/README.md`
+   - retire order is owned by `docs/development/current/main/phases/archive/phase-29cl/README.md`
    - this inventory is intentionally separate from `phase-29ce` frontend fixture-key / semantic by-name history
 
 ## 4. Fixed Remaining Order

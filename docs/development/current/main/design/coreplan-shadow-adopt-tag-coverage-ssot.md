@@ -3,7 +3,7 @@ Status: Deprecated
 Scope: Historical - replaced by FlowBox schema tags
 Related:
 - docs/development/current/main/phases/phase-29ae/README.md
-- docs/development/current/main/phases/phase-29ao/README.md
+- docs/development/current/main/phases/archive/phase-29ao/README.md
 - docs/development/current/main/design/coreplan-migration-roadmap-ssot.md
 - docs/development/current/main/design/flowbox-tag-coverage-map-ssot.md
 - docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md

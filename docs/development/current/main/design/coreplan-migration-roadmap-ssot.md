@@ -73,7 +73,7 @@ Candidate next (after selfhost canary / Stage-1):
 - [x] A0. JoinIR regression pack green (`phase29ae_regression_pack_vm.sh`) — evidence: `10-Now.md` L68 — role: baseline establishment
 - [x] A1. CorePlan 語彙の lower/verify 最小セットが green（Phase 29am 完了条件） — evidence: `phases/phase-29am/README.md` (Status: Complete)
 - [ ] B1. Remaining compatibility-lane normalizers を skeleton+feature へ移行 — evidence: `src/mir/builder/control_flow/plan/REGISTRY.md` L106-127 ("Remaining legacy normalizers" table)
-- [x] B2. Facts/Recipe→CorePlan 合成入口を 1 箇所に固定（Phase 29ao） — evidence: `phases/phase-29ao/README.md` (Status: Closeout)
+- [x] B2. Facts/Recipe→CorePlan 合成入口を 1 箇所に固定（Phase 29ao） — evidence: `docs/development/current/main/phases/archive/phase-29ao/README.md` (Status: Closeout)
 - [ ] C1. Planner の骨格一意化が strict/dev で fail-fast する（曖昧形は Freeze） — evidence: `single_planner/` — done: `Ok(None)` silent fallback = 0 in strict mode
 - [ ] D1. Normalizer が「合成だけ」に縮退（再解析なし） — evidence: `plan/lowerer/` — done: `rg "ASTNode::" plan/normalizer/` = 0
 - [ ] E1. compatibility fallback を 0 にする（planner-first only） — evidence: `REGISTRY.md` L106-127 — done: "Remaining legacy normalizers" table が空
@@ -111,7 +111,7 @@ Candidate next (after selfhost canary / Stage-1):
 - Facts/Recipe→CorePlan 合成の入口を “1ファイル” に集約し、以後の実装を合成側へ閉じ込める
 
 入口:
-- Phase 29ao: `docs/development/current/main/phases/phase-29ao/README.md`
+- Phase 29ao: `docs/development/current/main/phases/archive/phase-29ao/README.md`
 
 ### Step C: Planner を「骨格の一意化→特徴付与→Freeze」へ
 
@@ -149,7 +149,7 @@ Candidate next (after selfhost canary / Stage-1):
 
 このドキュメントは「移行の定義 / 不変条件 / Done 判定」を SSOT として固定する。
 
-- 実装順・進捗の SSOT: `docs/development/current/main/phases/phase-29ao/README.md`
+- 実装順・進捗の SSOT: `docs/development/current/main/phases/archive/phase-29ao/README.md`
 - Gate（SSOT）: `docs/development/current/main/phases/phase-29ae/README.md`
 
 ## 5.1 Post-Migration: CorePlan Role Shrink / Rename
