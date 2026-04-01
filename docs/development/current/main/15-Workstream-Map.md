@@ -25,14 +25,21 @@ Related:
      - `stage / docs / naming`
      - `K1 done-enough stop-line`
      - `K2-core accepted stop-line`
-     - `K2-wide next structural follow-up`
+     - `K2-wide boundary-shrink lock-down`
      - `zero-rust default`
    - current read:
      - `K2-core` is closed
      - `K2-wide` is now the next structural lane
-     - current `K2-wide` focus is boundary-shrink planning
+     - current `K2-wide` focus is boundary-shrink lock-down
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
+   - K2-wide lock-down table:
+
+     | Item | State |
+     | --- | --- |
+     | Now | `K2-wide boundary-shrink lock-down` |
+     | Stop line | `RuntimeDataBox` stays facade-only; delete stays on `MapBox` / `RawMap` |
+     | Next | `zero-rust default operationalization` |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -69,7 +76,7 @@ Related:
   - broad `Map` structural expansion
 - Active small tasks:
   - Map evidence bundle maintenance
-  - current boundary-shrink planning
+  - current boundary-shrink lock-down
 - Parked small tasks:
   - warning debt sweep
   - TODO cleanup / ignore triage
@@ -115,7 +122,7 @@ Related:
   - `RawMap` remove/delete
   - capability rows through `hako.osvm`
   - `hako_alloc` handle reuse and GC trigger policy rows
-- current follow-up is boundary-shrink planning
+- current follow-up is boundary-shrink lock-down
 
 ## Read Order
 

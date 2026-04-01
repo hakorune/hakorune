@@ -35,15 +35,15 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 ## 今日の再開点（active lane）
 
-- Restart handoff: commit `639f0c402`, worktree clean, `RawMap.clear` and `RawMap.remove/delete` are landed, next slice is `boundary-shrink planning`.
+- Restart handoff: commit `639f0c402`, worktree clean, `RawMap.clear` and `RawMap.remove/delete` are landed, next slice is `boundary-shrink lock-down`.
 - backend lane detail is canonical in the backend-lane docs:
   - `llvmlite` = compat/probe keep lane
   - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
   - `native` = explicit replay/canary lane
 
-- Active next: `K2-wide` boundary-shrink planning
+- Active next: `K2-wide` boundary-shrink lock-down
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
-- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`
+- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down` -> `zero-rust default`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
 - `K2-core` / `K2-wide` are task packs inside `K2`
 - exact next:

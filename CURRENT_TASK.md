@@ -23,7 +23,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 1. `stage / docs / naming` fixation
 2. `K1 done-enough` stop-line fixation
 3. `K2-core` accepted stop-line
-4. `K2-wide` next structural follow-up
+4. `K2-wide` boundary-shrink lock-down
 5. `zero-rust` default operationalization
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
@@ -34,7 +34,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Handoff
 
-- Restart handoff: commit `639f0c402`, worktree clean, `RawMap.clear` and `RawMap.remove/delete` are landed, next slice is `boundary-shrink planning`.
+- Restart handoff: commit `639f0c402`, worktree clean, `RawMap.clear` and `RawMap.remove/delete` are landed, next slice is `boundary-shrink lock-down`.
 - Active lane: `policy-refresh`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -44,7 +44,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Current read:
   - `K2-core` is closed
   - `K2-wide` is the active structural lane
-  - current `K2-wide` focus is boundary-shrink planning
+  - current `K2-wide` focus is boundary-shrink lock-down
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap` clear
@@ -61,12 +61,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `K2-wide` boundary-shrink planning
+- Active next: `K2-wide` boundary-shrink lock-down
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   3. `docs/development/current/main/design/atomic-tls-gc-truthful-native-seam-inventory.md`
   4. `docs/development/current/main/design/final-metal-split-ssot.md`
+- K2-wide lock-down table:
+
+  | Item | State |
+  | --- | --- |
+  | Now | `K2-wide boundary-shrink lock-down` |
+  | Stop line | `RuntimeDataBox` stays facade-only; delete stays on `MapBox` / `RawMap` |
+  | Next | `zero-rust default operationalization` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
