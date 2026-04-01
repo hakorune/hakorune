@@ -172,6 +172,10 @@ Stop line:
 - keep `RawMap second / RuntimeData facade-only` while widening.
 - do not widen through ad hoc native escape hatches; widening must stay on capability modules.
 - do not call this `K3`; the widening remains the second task pack inside `K2`.
+- first-slice acceptance pack is:
+  - Rust/kernel RawMap acceptance tests
+  - MapBox lowering lock
+  - raw-map ABI/substrate route lock
 
 ### 5. Regression / perf pack
 

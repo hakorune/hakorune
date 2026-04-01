@@ -181,4 +181,16 @@ mod tests {
         assert_eq!(nyash_runtime_data_has_hh(handle, key), 1);
         assert_eq!(nyash_runtime_data_get_hh(handle, key), 42);
     }
+
+    #[test]
+    fn runtime_data_map_any_key_keeps_shared_facade_contract() {
+        let handle = new_map_handle();
+        let key = new_string_handle("map-any-key");
+        let value = new_int_handle(77);
+
+        assert_eq!(nyash_runtime_data_set_hhh(handle, key, value), 1);
+        assert_eq!(nyash_runtime_data_has_hh(handle, key), 1);
+        assert_eq!(nyash_runtime_data_get_hh(handle, key), 77);
+        assert_eq!(nyash_runtime_data_get_hh(handle, new_string_handle("missing")), 0);
+    }
 }

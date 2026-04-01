@@ -109,6 +109,20 @@ This phase now lands the first substrate slice through `observer + probe/load/st
 
 ## Follow-Up
 
+## Acceptance Pack
+
+- Rust/kernel RawMap acceptance tests cover:
+  - `runtime_data_map_*` facade behavior
+  - `slot_load/store/probe_*` fail-safe and hh/hi contracts
+  - `entry_count_i64` / `cap_h` observer contract
+- MapBox lowering lock keeps direct `MapBox.{get,set,has}` on:
+  - `nyash.map.slot_load_hh`
+  - `nyash.map.slot_store_hhh`
+  - `nyash.map.probe_hh`
+- raw-map ABI/substrate route lock keeps:
+  - generated adapter defaults on `MapBox.{get,set,has,size}`
+  - `RawMapCoreBox` extern routes on `entry_count_i64 / cap_h / slot_load_hh / slot_store_hhh / probe_hh`
+
 After this live observer slice, the next widening remains:
 
 1. truthful RawMap narrow widening only after inventory review

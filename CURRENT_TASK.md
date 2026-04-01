@@ -133,6 +133,10 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Active: `K2-wide` next structural follow-up
   - first slice は `RawMapCoreBox` narrow substrate widening
   - broader capability widening と metal review は narrow slices のあとに進める
+  - first-slice acceptance pack is:
+    - Rust/kernel RawMap acceptance tests
+    - MapBox lowering lock
+    - raw-map ABI/substrate route lock
 - Parked: broad `Map` structural expansion
   - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence pack
 

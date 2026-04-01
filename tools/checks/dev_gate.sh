@@ -184,6 +184,9 @@ run_quick() {
   run_step "K2-core RawArray acceptance guard" \
     bash tools/checks/k2_core_rawarray_acceptance_guard.sh
 
+  run_step "K2-wide RawMap first-slice guard" \
+    bash tools/checks/k2_wide_rawmap_first_slice_guard.sh
+
   run_step "chip8 crosslang contract smoke" \
     env NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
       bash tools/smokes/v2/profiles/integration/phase21_5/perf/chip8/phase21_5_perf_chip8_kernel_crosslang_contract_vm.sh
