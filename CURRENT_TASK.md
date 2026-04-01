@@ -100,6 +100,17 @@ Scope: repo root から current order / current blocker / next exact read に最
   - keep backend lane follow-up in the backend lane docs
   - do not mix keep-lane notes into `K2-wide` implementation notes
 
+## Cleanup Bands
+
+| Band | State | Read as |
+| --- | --- | --- |
+| Now | `29x-98 proof/example caller drain` | drain the remaining proof/example callers before any helper delete |
+| Next | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof surfaces that stay explicit until root-first proof exists |
+| Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
+
+- `phase2044` llvmlite trio is monitor-only keep.
+- `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep, `ternary_collect` / `map_set_size` archive-backed historical pins.
+
 ## Canonical Owners
 
 ### Restart / Mirrors

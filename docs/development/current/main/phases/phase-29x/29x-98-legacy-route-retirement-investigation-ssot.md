@@ -40,6 +40,14 @@ The current caller inventory is three keep lanes plus one archive-later surrogat
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate caller; keeps the helper alive but is not a daily route |
 
+## Cleanup Bands
+
+| Band | State | Read as |
+| --- | --- | --- |
+| Now | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` | drain the explicit proof/example caller first |
+| Next | `lang/src/vm/hakorune-vm/extern_provider.hako` | keep the compat/proof stub explicit until a root-first proof exists |
+| Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
+
 ## Replacement Matrix
 
 The canonical successor family is the root-first daily route, concretely `env.codegen.compile_ll_text(...)` plus `env.codegen.link_object(...)` where the caller already owns LL text. The current legacy callers still consume MIR(JSON), so the successor is not a 1:1 drop-in yet.

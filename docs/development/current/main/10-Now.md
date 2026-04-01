@@ -54,6 +54,14 @@ Related:
   - migration tasks do not live in artifact roots
 - folder structure and smoke taxonomy docs are synced; the next optimization wave can read the current layout without extra prep
 
+## Cleanup Bands
+
+| Band | State | Read as |
+| --- | --- | --- |
+| Now | `29x-98 proof/example caller drain` | remove the remaining proof/example callers in order |
+| Next | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof surfaces that remain explicit for now |
+| Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
+
 ## Exact Links
 
 - rough order / next slices:

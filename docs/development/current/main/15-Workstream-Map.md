@@ -46,6 +46,13 @@ Related:
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
      | Next | `29x-98` proof/example caller sequencing -> upstream caller drain |
+   - cleanup bands:
+
+     | Band | State |
+     | --- | --- |
+     | Now | `29x-98 proof/example caller drain` |
+     | Next | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` |
+     | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

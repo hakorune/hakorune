@@ -55,6 +55,15 @@ bash tools/selfhost/run_lane_a_daily.sh
   4. `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
   5. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
   6. `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
+- cleanup bands:
+
+  | Band | State |
+  | --- | --- |
+  | Now | `29x-98 proof/example caller drain` |
+  | Next | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` |
+  | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
+
+- `phase2044` llvmlite trio is monitor-only keep; `phase2120` pure canaries stay split between keep pins and archive-backed pins.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front
