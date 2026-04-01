@@ -66,6 +66,21 @@ The canonical successor family is the root-first daily route, concretely `env.co
   - current contract is `compile_obj(mir_path) -> object path`.
   - this is a compiled-stage1/bootstrap surrogate; it reads MIR(JSON) from disk and cannot cleanly jump to the root-first route without moving the owner upward into `.hako`.
 
+## Upstream Cleanup Targets
+
+- `hostbridge.rs`
+  - cleanup target is upstream compat caller removal, not `hostbridge.rs` first.
+  - current upstream owner is `lang/src/shared/host_bridge/codegen_bridge_box.hako::emit_object_args(...)`, plus legacy `hostbridge.extern_invoke(...)` proof callers.
+- `loader_cold.rs`
+  - cleanup target is upstream caller removal, not `loader_cold.rs` first.
+  - current upstream owners are the `env.codegen.emit_object` extern lanes reached from `src/backend/mir_interpreter/handlers/calls/global.rs`, `src/backend/mir_interpreter/handlers/externals.rs`, and the legacy `CodegenBridgeBox` / `ExternCallLowerBox` call shape that still produces `env.codegen.emit_object`.
+- `extern_functions.rs`
+  - cleanup target is upstream caller removal, not `extern_functions.rs` first.
+  - current upstream owner is still the legacy `CodegenBridgeBox.emit_object_args(...)` / `env.codegen.emit_object` route; daily callers should stop at `LlvmBackendBox`.
+- `llvm_backend_surrogate.rs`
+  - cleanup target is the compiled-stage1/module-dispatch caller set, not the surrogate file first.
+  - current upstream owner is `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` via `try_dispatch(...)`, with compat/proof callers on `selfhost.shared.backend.llvm_backend.{compile_obj,link_exe}`.
+
 ## Retirement Order
 
 1. keep `hostbridge.rs`, `loader_cold.rs`, and `extern_functions.rs` as explicit compat callers until their upstream callers stop owning MIR(JSON) and switch to the root-first daily route.
