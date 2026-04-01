@@ -22,8 +22,18 @@ This directory is not one semantic lane.
    - separate mirbuilder-provider proof bucket
    - not part of the llvmlite keep lane
 
+## Bucket Runners
+
+- `tools/smokes/v2/profiles/integration/core/phase2044/run_llvmlite_monitor_keep.sh`
+  - runs only the llvmlite monitor-only keep trio
+- `tools/smokes/v2/profiles/integration/core/phase2044/run_hako_primary_no_fallback_bucket.sh`
+  - runs only the `hako_primary_no_fallback_*` bucket
+- `tools/smokes/v2/profiles/integration/core/phase2044/run_mirbuilder_provider_bucket.sh`
+  - runs only the `mirbuilder_provider_*` bucket
+
 ## Cleanup Rule
 
 - docs should treat the llvmlite trio as a distinct keep bucket
 - do not describe the whole `phase2044/` directory as one llvmlite lane
+- bucket runners separate the semantics without changing discovery paths
 - if paths are ever split physically, update discovery filters and archive references together
