@@ -132,6 +132,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `inline` / `contract` / `intrinsic_candidate` は Rune vocabulary に寄せた current reading を保つ
 - Active: `K2-wide` next structural follow-up
   - first slice は `RawMapCoreBox` narrow substrate widening
+  - next capability row is `hako.atomic` first truthful `fence_i64()`
   - broader capability widening と metal review は narrow slices のあとに進める
   - first-slice acceptance pack is:
     - Rust/kernel RawMap acceptance tests

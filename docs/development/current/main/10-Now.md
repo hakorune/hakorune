@@ -89,6 +89,7 @@ Related:
     - Rust/kernel RawMap acceptance tests
     - MapBox lowering lock
     - raw-map ABI/substrate route lock
+  - the next capability row after `RawMapCoreBox` is `hako.atomic` via `AtomicCoreBox.fence_i64()`
   - `K2-wide` widening is read as `RawMap` first, then narrow widening of `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm`, plus `hako_alloc` policy/state rows
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps

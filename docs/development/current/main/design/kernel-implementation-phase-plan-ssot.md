@@ -176,6 +176,7 @@ Stop line:
   - Rust/kernel RawMap acceptance tests
   - MapBox lowering lock
   - raw-map ABI/substrate route lock
+- next capability-row pack starts with `hako.atomic` and `AtomicCoreBox.fence_i64()`
 
 ### 5. Regression / perf pack
 
