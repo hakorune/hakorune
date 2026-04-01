@@ -464,33 +464,35 @@ Runner Configuration
 Note: Provider/Type 分離（型名は不変で提供者のみを切替）については ADR を参照。  
 docs/development/adr/adr-001-no-corebox-everything-is-plugin.md
 
-## 🔬 Quick Smokes（AST + Profiles）
+## 🔬 Quick Smokes（Using Profiles）
 
-開発・CIで最小コストに確認できるスモークを用意しています。AST プレリュードとプロファイル（dev/prod）の基本動作をカバーします。
+開発・CIで最小コストに確認できるスモークを用意しています。`using` のファイル解決とプロファイル（dev/prod）の基本動作をカバーします。
 
-- dev: `using "file"` 許可 + AST マージ
+- dev: `using "file"` 許可
 - prod: `using "file"` 禁止（toml へ誘導） / alias・package は許可
 
 実行例（quick プロファイル）
 
 ```
-# 1) dev で file using が通る（AST マージ）
-./tools/smokes/v2/run.sh --profile quick --filter "using_profiles_ast.sh$"
-
-# 2) 相対パス using（サブディレクトリ）
+# dev で相対パス using が通る（サブディレクトリ）
 ./tools/smokes/v2/run.sh --profile quick --filter "using_relative_file_ast.sh$"
-
-# 3) 複数プレリュード（toml packages）+ 依存（B→A）
-./tools/smokes/v2/run.sh --profile quick --filter "using_multi_prelude_dep_ast.sh$"
 ```
 
 テストソース
-- `tools/smokes/v2/profiles/quick/core/using_profiles_ast.sh`
 - `tools/smokes/v2/profiles/quick/core/using_relative_file_ast.sh`
-- `tools/smokes/v2/profiles/quick/core/using_multi_prelude_dep_ast.sh`
+
+Archived historical pins
+- `tools/smokes/v2/profiles/archive/using/using_profiles_ast.sh`
+- `tools/smokes/v2/profiles/archive/using/using_multi_prelude_dep_ast.sh`
+
+Archive examples
+```bash
+./tools/smokes/v2/run.sh --profile archive --filter "using_profiles_ast.sh$"
+./tools/smokes/v2/run.sh --profile archive --filter "using_multi_prelude_dep_ast.sh$"
+```
 
 注意
-- ログに `[using] stripped line:` が出力されますが、これは AST マージ前の using 行の除去ログです（機能上問題ありません）。
+- ログに `[using] stripped line:` が出力されますが、これは using 行の除去ログです（機能上問題ありません）。
 - 実行バイナリは `target/release/nyash` を前提とします。未ビルド時は `cargo build --release` を実行してください。
 
 ## 🔗 関連ドキュメント

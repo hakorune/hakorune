@@ -1,11 +1,10 @@
 #!/bin/bash
-# Phase 124: hako_check JoinIR-only test (legacy path removed)
+# Phase 124: archived hako_check JoinIR-only pin (legacy path removed)
 
 set -e
 
-# Profile metadata
 PROFILE_NAME="hako_check_joinir"
-DESCRIPTION="Test hako_check with JoinIR-only path (Phase 124 consolidation)"
+DESCRIPTION="Archived hako_check JoinIR-only pin (Phase 124 consolidation)"
 
 # Color codes
 GREEN='\033[0;32m'
@@ -66,7 +65,7 @@ done
 
 echo ""
 echo "=========================================="
-echo " Test Results Summary"
+echo " Archived Pin Summary"
 echo "=========================================="
 echo ""
 echo "JoinIR-Only Path (Phase 124):"
@@ -77,7 +76,7 @@ echo ""
 # Determine overall result
 if [ $joinir_fail -eq 0 ]; then
     echo -e "${GREEN}✓ All tests PASSED (JoinIR-only)${NC}"
-    echo "Phase 124: hako_check successfully consolidated to JoinIR-only architecture"
+    echo "Archived Phase 124: hako_check JoinIR-only pin replay completed"
     exit 0
 else
     echo -e "${RED}✗ Some tests failed${NC}"

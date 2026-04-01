@@ -1,13 +1,10 @@
 #!/bin/bash
-# using_profiles_ast.sh - using プロファイル（dev/prod）× AST プレリュードの基本動作チェック
+# using_profiles_ast.sh - archived using AST prelude pin (dev/prod × file/alias policy)
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 
 require_env || exit 2
 preflight_plugins || exit 2
-
-# Quick policy: AST prelude merge is experimental; cover in integration/full
-test_skip "using_profiles_ast (quick)" "AST prelude merge experimental; run in integration/full" && exit 0
 
 setup_tmp_dir() {
   TEST_DIR="/tmp/using_profiles_ast_$$"

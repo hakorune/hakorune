@@ -1,13 +1,10 @@
 #!/bin/bash
-# using_multi_prelude_dep_ast.sh - 複数プレリュード（toml パッケージ）と依存解決（ASTマージ）
+# using_multi_prelude_dep_ast.sh - archived using AST pin for multi-prelude package resolution
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"
 
 require_env || exit 2
 preflight_plugins || exit 2
-
-# Quick policy: AST prelude merge is experimental; cover in integration/full
-test_skip "using_multi_prelude_dep_ast (quick)" "AST prelude merge experimental; run in integration/full" && exit 0
 
 setup_tmp_dir() {
   TEST_DIR="/tmp/using_multi_prelude_$$"

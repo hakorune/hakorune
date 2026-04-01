@@ -1,11 +1,13 @@
 # Hakorune Smoke Tests v2 — Guide (Nyash-compatible)
 
 Overview
-- Entry: `tools/smokes/v2/run.sh` — unified runner for quick/integration/full.
+- Entry: `tools/smokes/v2/run.sh` — unified runner for quick/integration/strict/plugins/archive.
 - Profiles:
   - `quick` — fast developer checks.
   - `integration` — VM↔LLVM parity, basic stability.
-  - `full` — comprehensive matrix.
+  - `strict` — narrow fail-fast gate.
+  - `plugins` — plugin-loader and plugin-contract coverage.
+  - `archive` — manual replay / retired pins.
 
 ## 🎯 Two Baselines (Runbook)
 

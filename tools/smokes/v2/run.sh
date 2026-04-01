@@ -341,9 +341,20 @@ dump_fail_env() {
 find_test_files() {
     local profile_dir="$SCRIPT_DIR/profiles/$PROFILE"
     local test_files=()
-    local prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS:-archive:lib:tmp:fixtures}"
-    if [ -n "$SUITE" ]; then
-        prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS_WITH_SUITE:-lib:tmp:fixtures}"
+    local prune_dirs=""
+    # archive profile keeps the archive root visible; other profiles prune legacy archive buckets.
+    if [ "$PROFILE" = "archive" ]; then
+        if [ -n "$SUITE" ]; then
+            prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS_WITH_SUITE_FOR_ARCHIVE:-lib:tmp:fixtures}"
+        else
+            prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS_FOR_ARCHIVE:-lib:tmp:fixtures}"
+        fi
+    else
+        if [ -n "$SUITE" ]; then
+            prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS_WITH_SUITE:-lib:tmp:fixtures}"
+        else
+            prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS:-archive:lib:tmp:fixtures}"
+        fi
     fi
     local -a prune_names=()
     local -a find_expr=()
