@@ -140,15 +140,15 @@ if ! rg -zq 'StringBox",\s*"length".*nyash\.string\.len_h' "$GENERATED_DEFAULTS_
   echo "[runtime-v0-abi-slice-guard] generated defaults missing StringBox.length -> nyash.string.len_h" >&2
   exit 1
 fi
-if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+if ! rg -F -q 'StringCoreBox.try_handle(seg, regs, kinds, handle_regs, mname)' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing StringCoreBox orchestration route" >&2
   exit 1
 fi
-if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+if ! rg -F -q 'MapCoreBox.try_handle(seg, regs, handle_regs, mname)' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing MapCoreBox orchestration route" >&2
   exit 1
 fi
-if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, mname)' "$HANDLER_FILE"; then
+if ! rg -F -q 'ArrayCoreBox.try_handle(seg, regs, kinds, mname)' "$HANDLER_FILE"; then
   echo "[runtime-v0-abi-slice-guard] handler missing ArrayCoreBox orchestration route" >&2
   exit 1
 fi
@@ -156,7 +156,7 @@ if ! rg -F -q 'externcall "nyash.string.len_h"' "$STRING_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] string core missing nyash.string.len_h extern route" >&2
   exit 1
 fi
-if ! rg -F -q 'try_handle(seg, regs, mname)' "$STRING_CORE_FILE"; then
+if ! rg -F -q 'try_handle(seg, regs, kinds, handle_regs, mname)' "$STRING_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] string core missing try_handle contract" >&2
   exit 1
 fi
@@ -280,7 +280,7 @@ if ! rg -F -q 'get_state_value(regs, per_recv, rid, idx)' "$ARRAY_STATE_CORE_FIL
   echo "[runtime-v0-abi-slice-guard] array state core missing get-state helper contract" >&2
   exit 1
 fi
-if ! rg -F -q 'try_handle(seg, regs, mname)' "$ARRAY_CORE_FILE"; then
+if ! rg -F -q 'try_handle(seg, regs, kinds, mname)' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing try_handle contract" >&2
   exit 1
 fi
@@ -292,7 +292,7 @@ if ! rg -F -q 'me.get_i64(recv_h, idx_i64)' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing get_i64 dispatch contract" >&2
   exit 1
 fi
-if ! rg -F -q 'me.push_hh(recv_h, val_any)' "$ARRAY_CORE_FILE"; then
+if ! rg -F -q 'me.push_hh(recv_h, append_any)' "$ARRAY_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] array core missing push_hh dispatch contract" >&2
   exit 1
 fi
@@ -428,7 +428,7 @@ if ! rg -F -q 'has_state_value(regs, per_recv, rid, key_str)' "$MAP_CORE_FILE"; 
   echo "[runtime-v0-abi-slice-guard] map core missing has-state helper contract" >&2
   exit 1
 fi
-if ! rg -F -q 'try_handle(seg, regs, mname)' "$MAP_CORE_FILE"; then
+if ! rg -F -q 'try_handle(seg, regs, handle_regs, mname)' "$MAP_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] map core missing try_handle contract" >&2
   exit 1
 fi
