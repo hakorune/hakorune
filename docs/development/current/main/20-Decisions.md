@@ -12,7 +12,7 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 
 - Selfhost / de-rust mainline priority を維持する。
 - `stage0 / stage1 / stage2-mainline / stage2+` は build/distribution vocabulary のまま固定し、`K-axis` は `K0 / K1 / K2` build/runtime stage 読みで別管理にする。
-- current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
+- current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`.
 - `K-axis` の canonical reading は `K0 = all-Rust hakorune`, `K1 = .hako kernel migration stage`, `K2 = .hako kernel mainline / zero-rust daily-distribution stage` に固定する。
 - `K2-core = RawArray first` と `K2-wide = RawMap second + capability widening + metal review` は `K2` 内 task pack として読む。
 - `boundary lock` / semantic owner swap / `RawArray` / `RawMap` / capability widening / metal keep shrink は `K-axis` 定義ではなく task pack 読みで固定する。

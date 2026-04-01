@@ -22,14 +22,15 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 1. `stage / docs / naming` fixation
 2. `K1 done-enough` stop-line fixation
-3. `K2-core acceptance lock`
-4. `K2-wide` deferred follow-up
+3. `K2-core` accepted stop-line
+4. `K2-wide` next structural follow-up
 5. `zero-rust` default operationalization
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`, while `K2-core` / `K2-wide` are task packs inside `K2`.
 - `Rune` is landed as the canonical primitive control plane and is no longer the active blocker lane.
-- next structural step is `K2-core acceptance lock` for `RawArray`, while `RuntimeDataBox` stays facade-only.
+- `K2-core` is now the accepted stop-line for `RawArray`, while `RuntimeDataBox` stays facade-only.
+- next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening.
 - `K2-core` acceptance pack is:
   - Rust/kernel RawArray acceptance tests:
   - `runtime_data_invalid_handle_returns_zero`
@@ -51,7 +52,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 ## Immediate Handoff (2026-03-31)
 
-- Active work: kernel replacement axis の policy refresh を主線にして、`stage / docs / naming`、`K1 done-enough`、`K2-core acceptance lock`、`K2-wide deferred`、`zero-rust default` の順を dashboard/SSOT に同期する。
+- Active work: kernel replacement axis の policy refresh を主線にして、`stage / docs / naming`、`K1 done-enough`、`K2-core accepted stop-line`、`K2-wide next`、`zero-rust default` の順を dashboard/SSOT に同期する。
 - Stage axis:
   - `stage0` = bootstrap / recovery keep
   - `stage1` = same-boundary swap proof line
@@ -79,8 +80,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - collection wave (`Array -> Map -> RuntimeData cleanup`) は `K1` migration stage の current done-enough stop-line
   - `Rune` は canonical primitive control plane として landed/keep に置き、active blocker lane には戻さない
   - stage progression は `K0 -> K1 -> K2` として読み、`K2-core` と `K2-wide` は `K2` 内 task packs として扱う
-  - 次の structural target は `K2` の first task pack である `K2-core acceptance lock`
-  - `RawMap` は `K2-wide` の second target で、今は deferred
+  - `K2-core` は `RawArray first truthful substrate` の accepted stop-line として読む
+  - 次の structural target は `K2-wide` の first slice である `RawMapCoreBox` narrow substrate widening
+  - `RawMap` は `K2-wide` の second task pack entry として次に進む
   - `K2-wide` widening は `RawMap` のあとに `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm` と `hako_alloc` policy/state rows を narrow widening する読みで固定する
   - `RuntimeDataBox` は facade-only keep
   - same-boundary daily swap code は `.hako kernel module` / `.hako substrate module` と呼び、`plugin` は cold loader lane に限定する
@@ -97,11 +99,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   5. `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
   6. `docs/development/current/main/design/de-rust-zero-buildability-contract-ssot.md`
 - Next exact work:
-  1. `stage / docs / naming` を fixed order で揃える
-  2. `K1` collection wave を current done-enough stop-line として固定する
-  3. `K2-core acceptance lock` を canonical reading にする
-  4. `K2-wide` は deferred follow-up として固定する
-  5. `zero-rust` を daily/distribution default として運用 reading に固定する
+1. `stage / docs / naming` を fixed order で揃える
+2. `K1` collection wave を current done-enough stop-line として固定する
+3. `K2-core` accepted stop-line を canonical reading にする
+4. `K2-wide` を next structural follow-up として固定する
+5. `zero-rust` を daily/distribution default として運用 reading に固定する
 
 ## Next Horizon Inventory
 
@@ -115,12 +117,11 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 - Active: `K1 done-enough` stop-line fixation
   - `K1` collection wave is done-enough and remains the owner gate
   - `Array -> Map -> RuntimeData cleanup` を current stop-line として固定する
-- Active: `K2-core`
-  - first truthful daily `.hako substrate` owner を作る
-  - next structural step is `K2-core acceptance lock`
+- Landed/keep: `K2-core` accepted stop-line
+  - `RawArray first truthful substrate` は accepted stop-line として固定済み
   - `RuntimeDataBox` facade-only keep を壊さない
-  - `RawMap` stays deferred in `K2-wide`
-  - acceptance criteria は design SSOT 側で先に固定する
+  - acceptance criteria は current design SSOT と machine guard で固定済み
+  - next structural step は `K2-wide` の `RawMapCoreBox` narrow substrate widening
 - Active: zero-rust default operationalization
   - daily/distribution を原則 Rust/Cargo 非依存で読む
   - bootstrap / recovery / reference / buildability / native metal keep は明示 keep
@@ -129,8 +130,9 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
   - `@rune` を canonical surface として固定する
   - `@hint` / `@contract` / `@intrinsic_candidate` は compat alias のまま keep する
   - `inline` / `contract` / `intrinsic_candidate` は Rune vocabulary に寄せた current reading を保つ
-- Parked: `K2-wide` follow-up
-  - `RawMap`, capability widening, metal review は `K2-core` 安定後に回す
+- Active: `K2-wide` next structural follow-up
+  - first slice は `RawMapCoreBox` narrow substrate widening
+  - broader capability widening と metal review は narrow slices のあとに進める
 - Parked: broad `Map` structural expansion
   - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence pack
 
@@ -138,8 +140,8 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 1. `stage / docs / naming` fixation
 2. `K1 done-enough` stop-line fixation
-3. `K2-core acceptance lock`
-4. `K2-wide` deferred follow-up
+3. `K2-core` accepted stop-line
+4. `K2-wide` next structural follow-up
 5. `zero-rust` default operationalization
 
 ### Small Tasks
@@ -166,7 +168,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 1. `stage / docs / naming` の order を docs で揃える
 2. `K1 done-enough` stop-line を current reading に固定する
-3. `K2-core acceptance lock` の reading を design SSOT へ固定する
+3. `K2-core` accepted stop-line の reading を design SSOT へ固定する
 - Landed already:
   - `crates/nyash_kernel/src/plugin/runtime_data.rs` now routes array dispatch through handle-based RawArray substrate helpers, and map any-key paths materialize owned key strings before map ops so handle-registry borrow overlap is avoided
   - `crates/nyash_kernel/src/plugin/runtime_data_array_dispatch.rs` now short-circuits invalid array handles before index resolution, keeping RawArray facade-only and preserving the handle-based substrate path

@@ -36,7 +36,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 ## 今日の再開点（active lane）
 
 - Active next: `policy-refresh`
-- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`
+- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
 - `K2-core` / `K2-wide` are task packs inside `K2`
 - exact next:
@@ -51,11 +51,12 @@ bash tools/selfhost/run_lane_a_daily.sh
   - fix `stage / docs / naming` order before reopening deeper implementation lanes
   - read the `K-axis` stage progression as `K0 -> K1 -> K2`; treat `K2-core` as the first task pack inside `K2`
   - treat `Rune` as landed keep (`@rune` canonical surface, legacy aliases compat keep), not as the current blocker lane
-  - keep `K2-core acceptance lock` as the next structural step and read it as an explicit acceptance pack:
+  - keep `K2-core` as the accepted stop-line and read it as an explicit acceptance pack:
     - Rust/kernel RawArray acceptance tests
     - lowering/manifest drift pack
     - full list stays in `CURRENT_TASK.md` and `design/kernel-implementation-phase-plan-ssot.md`
-  - keep `K1 done-enough` fixed before promoting `K2-core`
+  - the next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening
+  - keep `K1 done-enough` fixed before widening into `K2-wide`
   - keep `RawMap` deferred in `K2-wide`; treat map perf as regression/evidence until a new exact blocker says otherwise
 
 ## 保守レーン（必要時のみ）

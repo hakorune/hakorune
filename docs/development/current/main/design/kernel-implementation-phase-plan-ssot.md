@@ -49,8 +49,8 @@ Related:
 - current active order:
   - `stage / docs / naming` fixation
   - `K1 done-enough` stop-line fixation
-  - `K2-core acceptance lock`
-  - `K2-wide` deferred follow-up
+  - `K2-core` accepted stop-line
+  - `K2-wide` next structural follow-up
   - `zero-rust` default operationalization
 - this document is the canonical rough task-order SSOT for the kernel replacement line.
 - do not create a separate "rough order" SSOT unless this file becomes structurally overloaded.
@@ -74,8 +74,8 @@ Rule:
 
 - coarse kernel-replacement order lives here:
   1. `K1 done-enough` stop-line
-  2. `K2-core` acceptance lock
-  3. `K2-wide`
+  2. `K2-core` accepted stop-line
+  3. `K2-wide` next structural follow-up
   4. `zero-rust` default operationalization
 - `CURRENT_TASK.md` is the restart anchor only.
 - `15-Workstream-Map.md` is the one-screen operational mirror only.
@@ -189,7 +189,7 @@ The phase plan is considered "done-enough to return to perf-kilo" when:
 
 1. stage docs agree on: `stage0 keep / stage1 bridge+proof / stage2-mainline daily mainline / stage2+ umbrella`.
 2. replacement docs agree on: `K0 all-Rust hakorune / K1 .hako kernel migration stage / K2 .hako kernel mainline-zero-rust daily-distribution stage`.
-   - `K2-core acceptance lock` is the next structural gate before any `K2-wide` widening.
+   - `K2-core` accepted stop-line is closed before any `K2-wide` widening.
 3. owner docs agree on: `.hako authority / .inc thin shim / native metal keep`.
 4. collection docs agree on: `Array phase -> Map phase -> RuntimeData cleanup phase`.
 5. daily proof locks remain green:

@@ -25,17 +25,17 @@ Related:
 
 1. `policy-refresh`
    - active docs/policy lane
-   - active sequence: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`
+   - active sequence: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`
    - keep `stage` vocabulary fixed and keep `K0 / K1 / K2` as the current operational build/runtime stage reading
    - keep `K2-core` / `K2-wide` as task-pack names inside `K2`, not as top-level stage names
    - keep `Rune` docs (`@rune` canonical surface / `attrs.runes`) in landed/keep state; do not read them as the active blocker lane
-   - `K2-core acceptance lock` is the next structural step inside `K2`; `RawArray` remains first and `RuntimeData facade-only` stays fixed
+   - `K2-core` is the accepted stop-line inside `K2`; `RawArray` remains first and `RuntimeData facade-only` stays fixed
    - `K2-core` gate is an explicit acceptance pack:
      - Rust/kernel RawArray acceptance tests
      - lowering/manifest drift pack
      - canonical full list stays in `CURRENT_TASK.md` and `design/kernel-implementation-phase-plan-ssot.md`
    - semantic `MapBox` work is already `K1 done-enough`; map perf stays regression/evidence, not the next structural lane
-   - stage progression is `K0 -> K1 -> K2`; `RawMap` remains deferred in `K2-wide`
+   - stage progression is `K0 -> K1 -> K2`; the next structural lane is `K2-wide` beginning with `RawMapCoreBox`
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -81,13 +81,13 @@ Related:
 - Active big tasks:
   - `stage / docs / naming` fixation
   - `K1 done-enough` stop-line fixation
-  - `K2-core` RawArray pilot prep
+  - `K2-wide` follow-up (`RawMapCoreBox` first)
   - zero-rust default operationalization for daily/distribution
   - artifact contract sync for `K0/K1` binaries vs `K2` bundle reading
 - Keep big tasks:
   - `Rune` primitive control plane keep
 - Parked big tasks:
-  - `K2-wide` follow-up (`RawMap`, capability widening, metal review)
+  - broad `RawMap` / capability widening / metal review beyond the first `K2-wide` slice
   - broad `Map` structural expansion
 - Active small tasks:
   - docs ladder sync
@@ -144,7 +144,7 @@ Related:
   - keep task packs separate from `K-axis` (`boundary lock`, semantic owner swap, `RawArray`, `RawMap`, capability widening, metal keep shrink)
   - keep `Rune` landed as the canonical primitive control plane, not as a serial active lane inside `K-axis`
   - freeze current collection wave as the current done-enough stop-line inside `K1`
-  - prep `K2-core RawArray` as the next structural target inside `K2`
+  - treat `K2-core RawArray` as the accepted stop-line and move the next structural target to `K2-wide`
 - current lane rule:
   - read `kernel-replacement-axis-ssot.md` first
   - keep `Map` perf as regression/evidence; do not promote it into the next structural replacement lane

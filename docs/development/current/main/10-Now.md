@@ -33,8 +33,8 @@ Related:
 - active order:
   1. `stage / docs / naming` fixation
   2. `K1 done-enough` stop-line fixation
-  3. `K2-core acceptance lock`
-  4. `K2-wide` deferred follow-up
+  3. `K2-core` accepted stop-line
+  4. `K2-wide` next structural follow-up
   5. `zero-rust` default operationalization
 - stage axis:
   - `stage0 = bootstrap/recovery keep`
@@ -66,7 +66,7 @@ Related:
   - collection wave (`Array -> Map -> RuntimeData cleanup`) is the current done-enough stop-line inside `K1`
   - `Rune` is landed as the canonical primitive control plane and is no longer the active blocker lane
   - stage progression is read as `K0 -> K1 -> K2`
-  - next structural step is `K2`'s first task pack, `K2-core acceptance lock`
+  - `K2-core` is now the accepted stop-line for the first `K2` task pack
   - `K2-core` acceptance pack is:
     - Rust/kernel RawArray acceptance tests:
       - `runtime_data_invalid_handle_returns_zero`
@@ -84,7 +84,7 @@ Related:
       - `test_collection_method_call`
       - `test_boxcall_collection_policy`
       - `test_rawarray_manifest_lock`
-  - `RawMap` is `K2-wide` second and stays deferred while `RuntimeDataBox` remains facade-only
+  - next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening, while `RuntimeDataBox` remains facade-only
   - `K2-wide` widening is read as `RawMap` first, then narrow widening of `hako.atomic` / `hako.tls` / `hako.gc` / `hako.osvm`, plus `hako_alloc` policy/state rows
   - same-boundary daily swap code should be called `.hako kernel module` / `.hako substrate module`; `plugin` remains cold loader lane vocabulary
   - default daily/distribution target is `zero-rust`, meaning non-Cargo user-facing normal operation; bootstrap/recovery/reference/buildability and native metal keep are explicit keeps
@@ -93,15 +93,15 @@ Related:
     - target contract is `target/k0|k1/`, promoted `artifacts/k0|k1/`, and `dist/k2/<channel>/<triple>/bundle/`
 - evidence appendix below keeps the map/array perf snapshots as support only; they do not change the order above.
 - next horizon inventory:
-  - big: `stage / docs / naming` fixation; `K1 done-enough` stop-line fixation; `K2-core`; `zero-rust` default operationalization
-  - parked big: `K2-wide` follow-up; broad `Map` structural expansion
+  - big: `stage / docs / naming` fixation; `K1 done-enough` stop-line fixation; `K2-wide` follow-up; `zero-rust` default operationalization
+  - parked big: broad `Map` structural expansion
   - small: docs ladder sync; Rune docs/tag keep; Map evidence bundle maintenance
   - lane-local cleanup candidates only:
     - Rune lane: `src/parser/runes.rs`, `src/parser/statements/helpers.rs`, `src/stage1/program_json_v0.rs`, `src/macro/ast_json/roundtrip.rs`
     - RawArray lane: `crates/nyash_kernel/src/plugin/runtime_data.rs`, `crates/nyash_kernel/src/plugin/array_runtime_facade.rs`, `crates/nyash_kernel/src/plugin/array_slot_load.rs`, `crates/nyash_kernel/src/plugin/array_slot_store.rs`, `crates/nyash_kernel/src/plugin/array_slot_append.rs`
     - broader `src/backend/*`, `src/bid/*`, and non-active `crates/nyash_kernel/*` cleanup stays parked
   - parked small: warning debt sweep; TODO cleanup / ignore triage; code-hotspot cleanup outside the active pilot boundary
-  - execution order: `K0 -> K1 -> K2`; `K2-core` is the next task pack and `RawMap` remains deferred in `K2-wide`
+  - execution order: `K0 -> K1 -> K2`; `K2-core` is closed as the accepted stop-line and `K2-wide` is now the next task pack
 - next exact docs:
   - `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`

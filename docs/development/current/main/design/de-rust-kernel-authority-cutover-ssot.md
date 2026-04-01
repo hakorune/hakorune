@@ -34,7 +34,7 @@ Related:
 - `0rust` は meaning owner zero を意味するが、Rust build/bootstrap route zero を意味しない。
 - operational reading は `stage0 Rust bootstrap keep / stage1 bridge/proof line / stage2-mainline daily mainline / stage2+ umbrella` であり、kernel authority zero は owner cutover 軸を指す。
 - `K-axis` reading is `K0 = all-Rust hakorune / K1 = .hako kernel migration stage / K2 = .hako kernel mainline / zero-rust daily-distribution stage`.
-- `K2-core` / `K2-wide` are task packs inside `K2`, and the current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
+- `K2-core` / `K2-wide` are task packs inside `K2`, and the current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`.
 - raw substrate micro-optimization と kernel owner cutover を混ぜて、測定や責務境界を濁さない。
 - phase plan SSOT is `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`.
 

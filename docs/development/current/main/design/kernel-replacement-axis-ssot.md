@@ -29,7 +29,7 @@ Related:
 - `K-axis` は hakorune の build/runtime stage axis として読む。
 - `K-axis` は task ledger ではない。
 - task packs (`boundary lock`, semantic owner swap, `RawArray`, `RawMap`, capability widening, metal keep shrink) は別軸で追う。
-- current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core acceptance lock` -> `K2-wide deferred` -> `zero-rust default`.
+- current active order is `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide next structural follow-up` -> `zero-rust default`.
 - 責務分割は変えず、`K2` を `.hako kernel` mainline / `zero-rust` daily-distribution stage として読む。
 - default target を `zero-rust` に寄せるが、bootstrap/recovery/reference/buildability keep と native metal keep は明示 keep にする。
 
@@ -239,20 +239,20 @@ Do not use `plugin` as the noun for daily kernel/substrate replacement.
 - current repo state is:
   - `K0` is the all-Rust baseline / bootstrap reference reading
   - `K1` is active and done-enough on the collection migration wave
-  - `K2` is not yet entered as the daily owner stage
+  - `K2` is now entered at the `K2-core` accepted stop-line
 - visible order therefore reads as:
   - `K0`
   - `K1`
-  - `K2-core acceptance lock`
-  - `RawMap` deferred in `K2-wide`
+  - `K2-core` accepted stop-line
+  - `K2-wide` next structural follow-up
 - current active order is:
   - `stage / docs / naming` fixation
   - `K1 done-enough` stop-line fixation
-  - `K2-core acceptance lock`
-  - `K2-wide` deferred follow-up
+  - `K2-core` accepted stop-line
+  - `K2-wide` next structural follow-up
   - `zero-rust` default operationalization
 - therefore the next structural step is not another broad stage rename.
-- the next structural step is to make `RawArray` the first truthful `K2-core` pilot inside `K2`.
+- the next structural step is `K2-wide`, beginning with `RawMapCoreBox` narrow substrate widening.
 
 ## Non-Goals
 
