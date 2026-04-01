@@ -19,6 +19,7 @@ Related:
 - current lane の順番と残りの見通しだけを 1 画面で読む。
 - 実装 detail や長い履歴は phase README に逃がす。
 - `CURRENT_TASK.md` は root anchor、この文書は docs 側の作業順 map。
+- canonical rough task order is owned by `design/kernel-implementation-phase-plan-ssot.md`; this file is the one-screen mirror, not a competing SSOT.
 
 ## Current Order
 

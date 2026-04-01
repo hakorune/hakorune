@@ -105,6 +105,36 @@ Important:
 - `execution-lanes-legacy-retirement-inventory-ssot.md`
   - owns migration-discovered legacy/delete-candidate triage
 
+## 3.5 Placement Rule
+
+Keep artifact roots, source roots, task packs, and phase logs separate.
+
+1. artifact roots
+   - `target/**`
+   - `artifacts/**`
+   - `dist/**`
+   - own binaries / bundles / promoted snapshots only
+   - do not store migration-task notes or implementation-order logs here
+2. source roots
+   - `lang/src/**`
+   - `crates/**`
+   - own implementation modules by responsibility name (`hako_kernel`, `hako_substrate`, `hako_alloc`, etc.)
+   - do not create `K0/K1/K2` source trees
+3. task-pack docs
+   - `CURRENT_TASK.md`
+   - `docs/development/current/main/15-Workstream-Map.md`
+   - `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
+   - own current task order / next structural step / acceptance stop-lines
+4. phase logs
+   - `docs/development/current/main/phases/**`
+   - own narrow slice history, blockers, and reopen rules
+
+Reading rule:
+
+- `K0/K1/K2` folders are for artifact placement only.
+- migration tasks stay under task-pack docs and phase logs.
+- rough task order should not be duplicated into a new artifact-oriented SSOT.
+
 ## 4. Phase Mapping
 
 | phase/doc owner | role in this policy |

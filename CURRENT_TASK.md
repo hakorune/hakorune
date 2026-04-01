@@ -8,6 +8,7 @@ Scope: repo root の再起動入口。詳細の status / phase 進捗は `docs/d
 
 - root から最短で current blocker / active lane / next fixed order に到達する。
 - 本ファイルは薄い入口に保ち、長い phase 履歴や retired lane detail は phase README / design SSOT へ逃がす。
+- artifact roots (`target/**`, `artifacts/**`, `dist/**`) are for binaries/bundles only; migration task order stays in `design/kernel-implementation-phase-plan-ssot.md` and phase docs.
 
 ## Quick Restart Pointer
 

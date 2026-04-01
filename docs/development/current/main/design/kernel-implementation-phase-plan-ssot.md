@@ -52,6 +52,8 @@ Related:
   - `K2-core acceptance lock`
   - `K2-wide` deferred follow-up
   - `zero-rust` default operationalization
+- this document is the canonical rough task-order SSOT for the kernel replacement line.
+- do not create a separate "rough order" SSOT unless this file becomes structurally overloaded.
 
 This SSOT is the canonical phase-plan entry for the collection-first `K1` wave and the `K2` substrate handoff.
 
@@ -67,6 +69,18 @@ Post-collection return is owned by `stage2plus-entry-and-first-optimization-wave
 
 Rule:
 - do not interpret "kernel .hako-ization" as "native zero" or "substrate wholesale rewrite".
+
+## Task-Order Ownership
+
+- coarse kernel-replacement order lives here:
+  1. `K1 done-enough` stop-line
+  2. `K2-core` acceptance lock
+  3. `K2-wide`
+  4. `zero-rust` default operationalization
+- `CURRENT_TASK.md` is the restart anchor only.
+- `15-Workstream-Map.md` is the one-screen operational mirror only.
+- detailed slice history stays in `docs/development/current/main/phases/**`.
+- therefore a separate top-level SSOT for the same rough order is not needed right now.
 
 ## Phase Order
 
