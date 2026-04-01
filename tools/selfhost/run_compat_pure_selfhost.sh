@@ -16,7 +16,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 JSON_IN="${1:-}"
 EXE_OUT="${2:-/tmp/hako_selfhost_exe}"
-DRIVER_HAKO="$ROOT/tools/selfhost/examples/hako_llvm_selfhost_driver.hako"
+DRIVER_HAKO="$ROOT/tools/selfhost/compat/hako_llvm_selfhost_driver.hako"
 
 if [[ -z "$JSON_IN" ]]; then
   echo "Usage: $0 <json_file_or_-'stdin'> [exe_out]" >&2

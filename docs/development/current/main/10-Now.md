@@ -59,7 +59,7 @@ Related:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `29x-98 proof/example caller drain` | remove the remaining proof/example callers in order |
-| Next | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof surfaces that remain explicit for now |
+| Next | `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof surfaces that remain explicit for now |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Exact Links

@@ -120,7 +120,7 @@ bash tools/selfhost/run_compat_pure_pack.sh
 ```
 
 - `run_compat_pure_selfhost.sh` is the canonical archive-later compat wrapper and still exercises the legacy `CodegenBridgeBox` example route.
-- it is only a shell shim around `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`; treat the `.hako` file as the proof/example caller and the wrapper as transport only.
+- it is only a shell shim around `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`; treat the `.hako` file as the proof/example caller and the wrapper as transport only.
 - `run_compat_pure_pack.sh` is the historical compat pure-pack entry that shells into `phase2120/run_pure_capi_canaries.sh` and then the wrapper above.
 - treat `run_compat_pure_pack.sh` as one level higher again: pack orchestration only, not a separate proof surface.
 - old alias `run_all.sh` is retired; keep the compat pack entry singular.

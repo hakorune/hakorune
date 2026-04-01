@@ -73,7 +73,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 - Exact focus: `29x-98 proof/example caller sequencing / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
   - phase2120 pure canary bucket is now 2 active keep pins + archive-backed historical pins; `ternary_collect` / `map_set_size` moved to archive replay
   - phase2044 semantics are now split by bucket runner; only the llvmlite trio is `monitor-only keep`
-  - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `hako_llvm_selfhost_driver.hako` are not daily owners
+  - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -105,7 +105,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `29x-98 proof/example caller drain` | drain the remaining proof/example callers before any helper delete |
-| Next | `tools/selfhost/examples/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof surfaces that stay explicit until root-first proof exists |
+| Next | `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` / `lang/src/vm/hakorune-vm/extern_provider.hako` | compat/proof surfaces that stay explicit until root-first proof exists |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 - `phase2044` llvmlite trio is monitor-only keep.
