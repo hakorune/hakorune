@@ -78,6 +78,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
   - selfhost compat stack wording is now locked as `payload -> transport wrapper -> pack orchestrator`
   - root-first proof candidate inventory is now pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof
+  - direct live callers are fixed at 5 surfaces: `tools/selfhost/compat/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - `run_compat_pure_selfhost.sh` and `run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
+  - no low-blast caller reduction is visible now; keep the stop-line fixed until an exact root-first replacement proof exists
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -94,7 +97,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `29x-98` proof/example caller sequencing -> upstream caller drain |
+  | Next | `29x-98` stop-line lock -> wait for exact root-first replacement proof before helper deletion |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -109,7 +112,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
-| Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers | keep live keep and archive evidence separated before helper deletion |
+| Next | exact root-first replacement proof | required before any direct caller drain beyond the current stop-line |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 - `phase2044` llvmlite trio is monitor-only keep.

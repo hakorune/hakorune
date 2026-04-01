@@ -60,10 +60,12 @@ bash tools/selfhost/run_lane_a_daily.sh
   | Band | State |
   | --- | --- |
   | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack |
-  | Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
+  | Next | exact root-first replacement proof |
   | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket; the other `phase2044` groups stay bucket-runner only. `phase2111` / `phase251` archive proofs share one replay-evidence suite; `phase2120` pure canaries now split by suites, with `phase2120-pure-keep` for the live pair and `phase2120-pure-historical` for archive-backed replay evidence; the selfhost compat stack is now read as `payload -> transport wrapper -> pack orchestrator`, and the root-first proof candidate inventory is pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof.
+- direct live callers are fixed at 5 surfaces; `run_compat_pure_selfhost.sh` and `run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
+- no low-blast caller reduction is visible now; hold the stop-line until an exact root-first replacement proof exists.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
   - keep `phase-29x backend owner cutover prep` as the current front

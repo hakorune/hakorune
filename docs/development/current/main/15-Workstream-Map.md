@@ -41,6 +41,8 @@ Related:
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
      - root-first proof candidate inventory is pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof
+     - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `run_compat_pure_selfhost.sh` / `run_compat_pure_pack.sh` are only wrapper/orchestrator layers
+     - no low-blast caller reduction is visible now; next progress depends on an exact root-first replacement proof
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -48,13 +50,13 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-98` stop-line surfaces (`extern_provider` + compat selfhost wrapper) -> proof/example caller sequencing |
+     | Next | `29x-98` stop-line lock -> exact root-first replacement proof or no further low-blast reduction |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
      | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack |
-     | Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers |
+     | Next | exact root-first replacement proof |
      | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues |
 2. `phase-29bq`
    - active selfhost lane

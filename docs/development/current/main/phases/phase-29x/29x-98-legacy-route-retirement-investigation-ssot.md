@@ -31,7 +31,7 @@ Related:
 
 ## Current Caller Inventory
 
-The current caller inventory is three keep lanes plus one archive-later surrogate caller.
+The current `emit_object_from_mir_json(...)` caller inventory is three keep lanes plus one archive-later surrogate caller.
 
 | Caller | Bucket | Note |
 | --- | --- | --- |
@@ -40,12 +40,33 @@ The current caller inventory is three keep lanes plus one archive-later surrogat
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate caller; keeps the helper alive but is not a daily route |
 
+## Direct Callers vs Wrapper Layers
+
+Keep the direct caller inventory separate from wrapper/orchestrator layers.
+
+| Surface | Layer | Status | Read as |
+| --- | --- | --- | --- |
+| `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload; still calls `CodegenBridgeBox.emit_object_args(...)` |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub; still calls `CodegenBridgeBox.emit_object_args(...)` |
+| `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
+| `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
+| `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
+| `tools/selfhost/run_compat_pure_selfhost.sh` | wrapper | archive-later | transport wrapper only; not a direct `emit_object` caller |
+| `tools/selfhost/run_compat_pure_pack.sh` | orchestrator | archive-later | historical pack owner only; not a direct `emit_object` caller |
+
+## Current Reduction Verdict
+
+- no archive-ready direct caller exists today.
+- no low-blast caller reduction is visible on the current proof set.
+- the next real movement requires an exact root-first replacement proof, not more wrapper trimming.
+- helper deletion remains blocked until the direct caller inventory reaches zero.
+
 ## Cleanup Bands
 
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
-| Next | proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers | keep them proof-only and sequence them before helper deletion |
+| Next | exact root-first replacement proof | required before any direct caller drain beyond the current stop-line |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Replacement Matrix
