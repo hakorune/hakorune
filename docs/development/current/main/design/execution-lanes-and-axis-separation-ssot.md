@@ -68,7 +68,7 @@ Child SSOTs:
 
 | lane | role | default posture | non-goal |
 | --- | --- | --- | --- |
-| `llvm-exe` | daily / CI / distribution artifact lane | default operational lane | not bootstrap proof bookkeeping |
+| `mainline bundle` | daily / CI / distribution artifact lane | default operational lane | not bootstrap proof bookkeeping |
 | `vm-hako` | semantic parity / reference / debug / bootstrap-proof lane | monitor-only unless exact blocker reopens it | not daily performance lane |
 | `rust-vm` | bootstrap / recovery / compat lane | explicit keep | not daily feature-growth lane |
 

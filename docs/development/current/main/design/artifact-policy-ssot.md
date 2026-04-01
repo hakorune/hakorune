@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-03-24
-Scope: artifact/lane policy の detail owner。`llvm-exe` / current `vm-hako` / `rust-vm` の役割を固定し、owner proof と future interpreter 候補を混線させない。
+Scope: artifact/lane policy の detail owner。`mainline bundle` / current `vm-hako` / `rust-vm` の役割を固定し、owner proof と future interpreter 候補を混線させない。
 Related:
   - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md
@@ -24,15 +24,15 @@ Related:
 
 | artifact/lane | role | fixed reading |
 | --- | --- | --- |
-| `llvm-exe` | daily / CI / distribution artifact | 唯一の mainline |
+| `mainline bundle` | daily / CI / distribution artifact | 唯一の mainline distribution unit |
 | current `vm-hako` | semantic witness / debug / bootstrap-proof artifact | internal reference lane |
 | `rust-vm` | bootstrap / recovery / compat artifact | explicit keep |
 
-The `llvm-exe` daily lane is the operational artifact reading for `stage2-mainline`; `stage2+` stays the umbrella / end-state stage label.
+The `mainline bundle` daily lane is the operational artifact reading for `stage2-mainline`; `stage2+` stays the umbrella / end-state stage label.
 
 Operational rules:
 
-- `llvm-exe` is the only production/mainline artifact.
+- `mainline bundle` is the only production/mainline distribution artifact.
 - current `vm-hako` is not a co-mainline candidate in the current policy.
 - current `vm-hako` acceptance is gate-backed; archived throughput/probe smokes do not change its role.
 - current `vm-hako` LLVM/exe bridge proofs are manual monitor evidence only, not mainline acceptance.
@@ -57,7 +57,7 @@ Current non-goals:
 
 - promoting current `vm-hako` to co-mainline
 - treating current `vm-hako` as a user-facing production artifact
-- treating current `vm-hako` as the owner of LLVM backend / exe-build responsibilities
+- treating current `vm-hako` as the owner of LLVM backend / bundle-build responsibilities
 - defining future interpreter promotion criteria now
 - changing raw CLI backend tokens or defaults in this doc
 
