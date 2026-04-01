@@ -5,7 +5,7 @@ Related:
 - docs/development/current/main/design/coreplan-flowbox-interface-ssot.md
 - docs/development/current/main/design/coreplan-skeleton-feature-model.md
 - docs/development/current/main/design/coreloop-composer-v0-v1-boundary-ssot.md
-- docs/development/current/main/phases/phase-29bb/README.md
+- docs/development/current/main/phases/archive/phase-29bb/README.md
 ---
 
 # CoreLoopComposer single entry SSOT

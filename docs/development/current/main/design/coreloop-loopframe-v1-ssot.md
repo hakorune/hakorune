@@ -4,7 +4,7 @@ Scope: CorePlan LoopFrame v1 (Loop structural box with Break/Continue depth)
 Related:
 - docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md
 - docs/development/current/main/design/compiler-expressivity-first-policy.md
-- docs/development/current/main/phases/phase-29bs/README.md
+- docs/development/current/main/phases/archive/phase-29bs/README.md
 ---
 
 # CoreLoop LoopFrame v1 (SSOT)

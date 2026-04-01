@@ -114,7 +114,7 @@ Lower: `src/mir/builder/control_flow/plan/lowerer/`
 - `nested_loop_depth1_break_continue_pure` は break/continue を含む depth=1 の nested loop を単独受理する（call無し、末尾continueを許可）。
 - `nested_loop_depth1_no_break_or_continue` は break/continue を含まない depth=1 の nested loop を単独受理する（call stmt を含む場合のみ）。
 - `nested_loop_depth1_no_break_or_continue_pure` は break/continue と call を含まない depth=1 の nested loop を単独受理する。
-- Phase 29bv targets (SSOT): scan/split normalizer cleanup (`normalizer/pattern_scan_with_init.rs`, `normalizer/pattern_split_scan.rs`; 入口: `docs/development/current/main/phases/phase-29bv/README.md`)。
+- Phase 29bv targets (SSOT): scan/split normalizer cleanup (`normalizer/pattern_scan_with_init.rs`, `normalizer/pattern_split_scan.rs`; 入口: `docs/development/current/main/phases/archive/phase-29bv/README.md`)。
 
 ## Decomposition candidates (planned cleanup)
 

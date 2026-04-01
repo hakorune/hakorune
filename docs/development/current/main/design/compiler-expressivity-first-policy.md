@@ -5,7 +5,7 @@ Related:
 - docs/development/current/main/10-Now.md
 - docs/development/current/main/20-Decisions.md
 - docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md
-- docs/development/current/main/phases/phase-29br/README.md
+- docs/development/current/main/phases/archive/phase-29br/README.md
 ---
 
 # Policy: Compiler expressivity first (pause selfhost workarounds)

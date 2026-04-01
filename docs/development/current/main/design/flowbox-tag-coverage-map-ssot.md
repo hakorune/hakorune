@@ -5,7 +5,7 @@ Related:
 - docs/development/current/main/design/flowbox-observability-tags-ssot.md
 - docs/development/current/main/design/flowbox-adopt-tag-migration-ssot.md
 - docs/development/current/main/design/joinir-smoke-legacy-stem-retirement-ssot.md
-- docs/development/current/main/phases/phase-29aw/README.md
+- docs/development/current/main/phases/archive/phase-29aw/README.md
 - docs/development/current/main/phases/phase-29ae/README.md
 ---
 
