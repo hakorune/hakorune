@@ -55,6 +55,8 @@ pub extern "C" fn nyash_runtime_data_set_hhh(recv_h: i64, key_any: i64, val_any:
 }
 
 // nyash.runtime_data.has_hh(recv_h, key_any) -> 0/1
+// K2-core keeps array `has` on the runtime facade until a narrower raw seam is
+// explicitly accepted. Array bounds/missing-key remain fail-safe here.
 #[export_name = "nyash.runtime_data.has_hh"]
 pub extern "C" fn nyash_runtime_data_has_hh(recv_h: i64, key_any: i64) -> i64 {
     with_runtime_data_route(
@@ -101,6 +103,12 @@ mod tests {
         handles::to_handle_arc(integer) as i64
     }
 
+    fn new_string_handle(value: &str) -> i64 {
+        let string: Arc<dyn NyashBox> =
+            Arc::new(nyash_rust::box_trait::StringBox::new(value.to_string()));
+        handles::to_handle_arc(string) as i64
+    }
+
     #[test]
     fn runtime_data_invalid_handle_returns_zero() {
         assert_eq!(nyash_runtime_data_get_hh(0, 1), 0);
@@ -121,6 +129,46 @@ mod tests {
         assert_eq!(nyash_runtime_data_set_hhh(handle, 0, updated_h), 1);
         assert_eq!(nyash_runtime_data_get_hh(handle, 0), 22);
         assert_eq!(nyash_runtime_data_get_hh(handle, -1), 0);
+    }
+
+    #[test]
+    fn runtime_data_array_has_keeps_runtime_facade_fail_safe_contract() {
+        let handle = new_array_handle();
+        let string_key = new_string_handle("not-an-index");
+
+        assert_eq!(nyash_runtime_data_push_hh(handle, new_int_handle(11)), 1);
+
+        assert_eq!(nyash_runtime_data_has_hh(handle, 0), 1);
+        assert_eq!(nyash_runtime_data_has_hh(handle, 1), 0);
+        assert_eq!(nyash_runtime_data_has_hh(handle, -1), 0);
+        assert_eq!(nyash_runtime_data_has_hh(handle, string_key), 0);
+    }
+
+    #[test]
+    fn runtime_data_array_non_i64_keys_keep_fail_safe_fallback_contract() {
+        let handle = new_array_handle();
+        let string_key = new_string_handle("not-an-index");
+        let original_h = new_int_handle(11);
+        let updated_h = new_int_handle(22);
+
+        assert_eq!(nyash_runtime_data_push_hh(handle, original_h), 1);
+
+        // K2-core keeps non-i64 array keys on the runtime-data facade.
+        // The current fallback contract remains fail-safe and must not mutate
+        // the array when the key cannot be treated as an index.
+        assert_eq!(nyash_runtime_data_get_hh(handle, string_key), 0);
+        assert_eq!(nyash_runtime_data_set_hhh(handle, string_key, updated_h), 0);
+        assert_eq!(nyash_runtime_data_get_hh(handle, 0), 11);
+    }
+
+    #[test]
+    fn runtime_data_scalar_handle_keeps_facade_only_contract() {
+        let scalar_h = new_int_handle(7);
+
+        assert_eq!(nyash_runtime_data_get_hh(scalar_h, 0), 0);
+        assert_eq!(nyash_runtime_data_set_hhh(scalar_h, 0, new_int_handle(11)), 0);
+        assert_eq!(nyash_runtime_data_has_hh(scalar_h, 0), 0);
+        assert_eq!(nyash_runtime_data_push_hh(scalar_h, new_int_handle(11)), 0);
     }
 
     #[test]
