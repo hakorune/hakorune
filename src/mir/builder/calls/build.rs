@@ -420,7 +420,10 @@ impl MirBuilder {
         })?;
         let arg_values = self.build_call_args(&args[1..])?;
         let return_type = match extern_name.as_str() {
-            "hako_mem_alloc" | "hako_mem_realloc" | "hako_mem_free" => MirType::Integer,
+            "hako_mem_alloc"
+            | "hako_mem_realloc"
+            | "hako_mem_free"
+            | "hako_osvm_reserve_bytes_i64" => MirType::Integer,
             "nyash.box.from_i8_string" => MirType::Box("StringBox".to_string()),
             _ => MirType::Unknown,
         };

@@ -261,6 +261,17 @@ static box MirVmS0BoxcallBuiltinBox {
       return "__NEXT__"
     }
 
+    if method == "reserve_bytes_i64" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local reserve_arg = me._args_first(seg)
+      if reserve_arg == null { return "[vm-hako/contract][boxcall-reserve_bytes_i64-arg0-missing]" }
+      local dst_osvm = me._find_int(seg, "dst")
+      if dst_osvm == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      regs.set("" + dst_osvm, "0")
+      kinds.set("" + dst_osvm, "scalar")
+      return "__NEXT__"
+    }
+
     if method == "write_barrier_i64" {
       if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
       local barrier_arg = me._args_first(seg)

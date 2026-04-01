@@ -178,7 +178,8 @@ Stop line:
   - raw-map ABI/substrate route lock
 - current capability-row pack starts with `hako.atomic` and `AtomicCoreBox.fence_i64()`
 - current helper-shaped capability-row pack is `hako.tls` via `TlsCoreBox.last_error_text_h()`
-- next capability-row pack is `hako.gc` via `GcCoreBox.write_barrier_i64(handle_or_ptr)`
+- current capability-row pack is `hako.gc` via `GcCoreBox.write_barrier_i64(handle_or_ptr)`
+- next capability-row pack is `hako.osvm` via `OsVmCoreBox.reserve_bytes_i64(len_bytes)`
 
 ### 5. Regression / perf pack
 

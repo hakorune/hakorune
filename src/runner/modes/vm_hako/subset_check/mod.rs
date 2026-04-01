@@ -217,6 +217,7 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         && box_type != "StringBox"
                         && box_type != "FileBox"
                         && box_type != "LlvmBackendBox"
+                        && box_type != "OsVmCoreBox"
                         && box_type != "TlsCoreBox"
                         && box_type != "AtomicCoreBox"
                         && box_type != "GcCoreBox"
@@ -330,6 +331,17 @@ pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, 
                         if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
                             inst,
                             "hako_barrier_touch_i64",
+                        ) {
+                            return Err((func_name.clone(), bb, reason));
+                        }
+                        continue;
+                    }
+                    if func == "hako_osvm_reserve_bytes_i64"
+                        || func == "hako_osvm_reserve_bytes_i64/1"
+                    {
+                        if let Err(reason) = externcalls::validate_single_arg_externcall_shape(
+                            inst,
+                            "hako_osvm_reserve_bytes_i64",
                         ) {
                             return Err((func_name.clone(), bb, reason));
                         }

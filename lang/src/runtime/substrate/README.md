@@ -34,9 +34,11 @@ Current phase reading:
 - The following algorithm-substrate consumer now has a live observer slice at:
   - `raw_map/README.md`
   - `raw_map/raw_map_core_box.hako`
-- The next capability-widening lock is docs-first, and its physical reservations live at `atomic/README.md`, `tls/README.md`, and `gc/README.md`.
+- The current capability-widening locks live at `atomic/README.md`, `tls/README.md`, `gc/README.md`, and `osvm/README.md`.
 - `gc` now also has a first live box at:
   - `gc/gc_core_box.hako`
+- `osvm` now also has a first live box at:
+  - `osvm/osvm_core_box.hako`
 
 Current live capability subset:
 - `mem` now has a live `alloc/realloc/free` facade.
@@ -47,6 +49,7 @@ Current live capability subset:
 - `atomic` now has a live `fence_i64` helper-shaped facade.
 - `tls` now has a live `last_error_text_h` helper-shaped facade.
 - `gc` now has a live `write_barrier_i64` facade.
+- `osvm` now has a live `reserve_bytes_i64` facade.
 
 Native keep stays outside this directory:
 - OS virtual memory

@@ -20,6 +20,7 @@ RAW_MAP_CORE_FILE="lang/src/runtime/substrate/raw_map/raw_map_core_box.hako"
 ATOMIC_CORE_FILE="lang/src/runtime/substrate/atomic/atomic_core_box.hako"
 TLS_CORE_FILE="lang/src/runtime/substrate/tls/tls_core_box.hako"
 GC_CORE_FILE="lang/src/runtime/substrate/gc/gc_core_box.hako"
+OSVM_CORE_FILE="lang/src/runtime/substrate/osvm/osvm_core_box.hako"
 INITIALIZED_RANGE_CORE_FILE="lang/src/runtime/substrate/verifier/initialized_range/initialized_range_core_box.hako"
 OWNERSHIP_CORE_FILE="lang/src/runtime/substrate/verifier/ownership/ownership_core_box.hako"
 BUF_CORE_FILE="lang/src/runtime/substrate/buf/buf_core_box.hako"
@@ -45,6 +46,7 @@ for file in \
   "$ATOMIC_CORE_FILE" \
   "$TLS_CORE_FILE" \
   "$GC_CORE_FILE" \
+  "$OSVM_CORE_FILE" \
   "$INITIALIZED_RANGE_CORE_FILE" \
   "$OWNERSHIP_CORE_FILE" \
   "$BUF_CORE_FILE" \
@@ -344,6 +346,18 @@ if ! rg -F -q 'externcall "nyash.gc.barrier_write"(handle_or_ptr)' "$GC_CORE_FIL
 fi
 if ! rg -F -q '[vm/adapter/gc:write_barrier_i64]' "$GC_CORE_FILE"; then
   echo "[runtime-v0-abi-slice-guard] gc core missing write_barrier trace tag" >&2
+  exit 1
+fi
+if ! rg -F -q 'reserve_bytes_i64(len_bytes)' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing reserve_bytes contract" >&2
+  exit 1
+fi
+if ! rg -F -q 'externcall "hako_osvm_reserve_bytes_i64"(len_bytes)' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing hako_osvm_reserve_bytes_i64 route" >&2
+  exit 1
+fi
+if ! rg -F -q '[vm/adapter/osvm:reserve_bytes_i64]' "$OSVM_CORE_FILE"; then
+  echo "[runtime-v0-abi-slice-guard] osvm core missing reserve_bytes trace tag" >&2
   exit 1
 fi
 if ! rg -F -q 'entry_count_i64(handle)' "$RAW_MAP_CORE_FILE"; then

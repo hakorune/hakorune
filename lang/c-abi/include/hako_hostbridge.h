@@ -119,6 +119,8 @@ void        hako_console_error(const char* s);
 void        hako_console_log_i64(int64_t x);
 // Bench barrier: very light side-effect to prevent over-aggressive optimization
 void        hako_barrier_touch_i64(int64_t x);
+// OS virtual memory: reserve address space and return a pointer-like i64, or 0 on failure.
+int64_t     hako_osvm_reserve_bytes_i64(int64_t len_bytes);
 // Time: current wall-clock ms (dev canary; precision depends on platform)
 int64_t     hako_time_now_ms(void);
 // String: duplicate C string to heap; caller must free with hako_mem_free.

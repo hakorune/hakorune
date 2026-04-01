@@ -548,6 +548,36 @@ fn subset_accepts_externcall_hako_barrier_touch_i64() {
 }
 
 #[test]
+fn subset_accepts_externcall_hako_osvm_reserve_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "externcall",
+                        "func": "hako_osvm_reserve_bytes_i64/1",
+                        "args": [1],
+                        "dst": 2
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
 fn subset_accepts_externcall_nyash_gc_barrier_write() {
     let mir_json = json!({
         "functions": [{
@@ -568,6 +598,42 @@ fn subset_accepts_externcall_nyash_gc_barrier_write() {
                         "dst": 2
                     },
                     { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_boxcall_osvmcore_reserve_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "newbox",
+                        "dst": 1,
+                        "type": "OsVmCoreBox"
+                    },
+                    {
+                        "op": "const",
+                        "dst": 2,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "boxcall",
+                        "method": "reserve_bytes_i64",
+                        "box": 1,
+                        "dst": 3,
+                        "args": [2]
+                    },
+                    { "op": "ret", "value": 3 }
                 ]
             }]
         }]
@@ -694,6 +760,40 @@ fn subset_accepts_mir_call_extern_hako_mem_alloc() {
                         "dst": 2,
                         "mir_call": {
                             "callee": { "type": "Extern", "name": "hako_mem_alloc" },
+                            "args": [1],
+                            "effects": ["IO"],
+                            "flags": {}
+                        }
+                    },
+                    { "op": "ret", "value": 2 }
+                ]
+            }]
+        }]
+    })
+    .to_string();
+    let out = check_vm_hako_subset_json(&mir_json);
+    assert_eq!(out, Ok(()));
+}
+
+#[test]
+fn subset_accepts_mir_call_extern_hako_osvm_reserve_bytes_i64() {
+    let mir_json = json!({
+        "functions": [{
+            "name": "main",
+            "entry_block": 0,
+            "blocks": [{
+                "id": 0,
+                "instructions": [
+                    {
+                        "op": "const",
+                        "dst": 1,
+                        "value": { "type": "i64", "value": 4096 }
+                    },
+                    {
+                        "op": "mir_call",
+                        "dst": 2,
+                        "mir_call": {
+                            "callee": { "type": "Extern", "name": "hako_osvm_reserve_bytes_i64" },
                             "args": [1],
                             "effects": ["IO"],
                             "flags": {}

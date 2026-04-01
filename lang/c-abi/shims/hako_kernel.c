@@ -10,10 +10,12 @@
 #include <stdio.h>
 #include <time.h>
 #if defined(_WIN32)
+#include <windows.h>
 #include <process.h>
 #define GETPID _getpid
 #else
 #include <unistd.h>
+#include <sys/mman.h>
 #define GETPID getpid
 #endif
 
@@ -121,6 +123,42 @@ void hako_bench_use_value_i64(int64_t x) {
   __asm__ __volatile__("" :: "r"(x) : "memory");
 #else
   (void)x;
+#endif
+}
+
+int64_t hako_osvm_reserve_bytes_i64(int64_t len_bytes) {
+  if (len_bytes <= 0) {
+    hako_set_last_error("VALIDATION");
+    return 0;
+  }
+#if defined(_WIN32)
+  SYSTEM_INFO si;
+  GetSystemInfo(&si);
+  uint64_t page = (uint64_t)si.dwPageSize;
+  uint64_t size = (uint64_t)len_bytes;
+  uint64_t rounded = ((size + page - 1) / page) * page;
+  void* p = VirtualAlloc(NULL, (SIZE_T)rounded, MEM_RESERVE, PAGE_NOACCESS);
+  if (!p) {
+    hako_set_last_error("OOM");
+    return 0;
+  }
+  hako_set_last_error(NULL);
+  return (int64_t)(intptr_t)p;
+#elif defined(MAP_PRIVATE) && defined(MAP_ANONYMOUS)
+  long page_raw = sysconf(_SC_PAGESIZE);
+  uint64_t page = (page_raw > 0) ? (uint64_t)page_raw : 4096ULL;
+  uint64_t size = (uint64_t)len_bytes;
+  uint64_t rounded = ((size + page - 1) / page) * page;
+  void* p = mmap(NULL, (size_t)rounded, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  if (p == MAP_FAILED) {
+    hako_set_last_error("OOM");
+    return 0;
+  }
+  hako_set_last_error(NULL);
+  return (int64_t)(intptr_t)p;
+#else
+  hako_set_last_error("UNSUPPORTED");
+  return 0;
 #endif
 }
 

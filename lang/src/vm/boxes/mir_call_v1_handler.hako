@@ -431,6 +431,13 @@ static box MirCallV1HandlerBox {
       }
       return
     }
+    if name == "hako_osvm_reserve_bytes_i64" || name == "hako_osvm_reserve_bytes_i64/1" {
+      local dst_osvm = JsonFragBox.get_int(seg, "dst")
+      if dst_osvm != null {
+        regs.setField(StringHelpers.int_to_str(dst_osvm), "0")
+      }
+      return
+    }
     if name == "hako_bench_noop_i64" || name == "hako_bench_use_value_i64" { return }
     // Unknown extern: error tag
     print("[ERROR] extern not supported: " + name)

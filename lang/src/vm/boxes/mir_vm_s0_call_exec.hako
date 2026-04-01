@@ -327,6 +327,17 @@ static box MirVmS0CallExecBox {
         }
         return "__NEXT__"
       }
+      if func == "hako_osvm_reserve_bytes_i64" || func == "hako_osvm_reserve_bytes_i64/1" {
+        if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(hako_osvm_reserve_bytes_i64) args>1]" }
+        local arg0_osvm = me._args_first(seg)
+        if arg0_osvm == null { return "[vm-hako/contract][externcall-hako_osvm_reserve_bytes_i64-arg0-missing]" }
+        local dst_osvm = me._find_int(seg, "dst")
+        if dst_osvm != null {
+          MirVmS0RegUtilsBox._reg_set(regs, dst_osvm, 0)
+          MirVmS0RegUtilsBox._reg_kind_set(kinds, dst_osvm, "scalar")
+        }
+        return "__NEXT__"
+      }
       if func == "nyash.gc.barrier_write" || func == "nyash.gc.barrier_write/1" {
         if me._args_has_second(seg) { return "[vm-hako/unimplemented op=externcall(nyash.gc.barrier_write) args>1]" }
         local arg0_gc_barrier = me._args_first(seg)
