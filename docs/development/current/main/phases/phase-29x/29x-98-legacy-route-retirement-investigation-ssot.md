@@ -275,7 +275,12 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 2. keep `CodegenBridgeBox.emit_object_args(...)` fixed as an archive-later producer; do not treat it as a daily route.
 3. confirm proof-only direct `hostbridge.extern_invoke(..., "emit_object", ...)` callers remain proof-only and not daily dependencies.
 4. record archive conditions for the remaining proof/compat caller surfaces before touching `CodegenBridgeBox` or Rust dispatch residues.
-   - `phase2111` explicit emit/link pair is archived and `phase251` legacy lowering pair is quarantined; the next sequencing target is the selfhost wrapper archive conditions after the `phase2044` bucket split.
+  - `phase2111` explicit emit/link pair is archived and `phase251` legacy lowering pair is quarantined.
+  - `phase2044` bucket semantics and compat selfhost wrapper ownership are explicitized.
+  - the next sequencing target is the remaining proof/example callers:
+    - `tools/selfhost/examples/hako_llvm_selfhost_driver.hako`
+    - `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
+    - `lang/src/vm/hakorune-vm/extern_provider.hako`
 5. keep the legacy helper archive-later until the caller set reaches zero.
 6. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
 7. when the caller set reaches zero, delete `emit_object_from_mir_json(...)`, then collapse the Rust dispatch residues and phase docs.

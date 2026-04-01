@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 compat wrapper archive conditions / legacy cleanup candidate inventory (CodegenBridgeBox has no daily dependency)`
+- Exact focus: `29x-98 proof/example caller sequencing / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages

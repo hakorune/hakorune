@@ -70,7 +70,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 compat wrapper archive conditions / legacy cleanup candidate inventory (CodegenBridgeBox has no daily dependency)`
+- Exact focus: `29x-98 proof/example caller sequencing / upstream caller drain prep (CodegenBridgeBox has no daily dependency)`
   - phase2120 pure canary bucket is now 2 active keep pins + archive-backed historical pins; `ternary_collect` / `map_set_size` moved to archive replay
   - phase2044 semantics are now split by bucket runner; only the llvmlite trio is `monitor-only keep`
   - compat selfhost wrapper stays archive-later; `run_compat_pure_selfhost.sh` and `hako_llvm_selfhost_driver.hako` are not daily owners
@@ -90,7 +90,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `29x-98` compat wrapper archive conditions -> upstream caller drain |
+  | Next | `29x-98` proof/example caller sequencing -> upstream caller drain |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
