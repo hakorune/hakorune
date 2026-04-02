@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xD3 plugin/smoke orchestrator freeze`
+- Exact focus: `30xE1 README/README.ja prep`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep (landed)` -> `phase-30x backend surface simplification`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,8 +60,8 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 | Band | State |
 | --- | --- |
-| Now | `30xD3 plugin/smoke orchestrator freeze` |
-| Next | `30xE1 README/README.ja prep` |
+| Now | `30xE1 README/README.ja prep` |
+| Next | `30xE2 CLI/help wording prep` |
 | Later | `30xE2-30xG` |
 
 - `phase-29x` W4/W5/W6 is landed and helper deletion is closed.
@@ -77,9 +77,10 @@ bash tools/selfhost/run_lane_a_daily.sh
 - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`.
 - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces.
 - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces.
+- `30xD3` landed as docs-first orchestrator freeze.
 - root mirrors already read `phase-30x` as current; remaining drift is front docs/help plus manual residue scripts.
-- active micro task is `30xD3 plugin/smoke orchestrator freeze`.
-- next queued micro task is `30xE1 README/README.ja prep`.
+- active micro task is `30xE1 README/README.ja prep`.
+- next queued micro task is `30xE2 CLI/help wording prep`.
 - legacy residue policy:
   - keep if it is still an engineering/bootstrap contract
   - rewrite in `30xE` if it still carries old main narrative

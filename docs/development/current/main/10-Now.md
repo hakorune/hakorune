@@ -56,9 +56,10 @@ Related:
 - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`.
 - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces.
 - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces.
+- `30xD3` landed as docs-first orchestrator freeze.
 - root mirrors are already phase-30x-first; remaining drift sits in front docs/help and manual residue scripts.
-- current active micro task is `30xD3 plugin/smoke orchestrator freeze`.
-- next queued micro task is `30xE1 README/README.ja prep`.
+- current active micro task is `30xE1 README/README.ja prep`.
+- next queued micro task is `30xE2 CLI/help wording prep`.
 - legacy residue reads as:
   - explicit engineering keep
   - rewrite in `30xE`
@@ -83,8 +84,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
-| Next | `30xE1 README/README.ja prep` | start user-facing main switch wording |
+| Now | `30xE1 README/README.ja prep` | start user-facing main switch wording |
+| Next | `30xE2 CLI/help wording prep` | keep role-first wording while raw defaults stay frozen |
 | Later | `30xE2-30xG` | help/guides rewrite, backend default gate, and legacy archive/delete sweep |
 
 ## Backend Surface Waves
@@ -94,8 +95,8 @@ Related:
 | `30xA role taxonomy lock` | landed | current lane, labels, and mirrors |
 | `30xB smoke taxonomy split` | landed | role-first gate/smoke reading |
 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure map |
-| `30xD dangerous-early-flip lock` | active | launcher/default/orchestrator freeze |
-| `30xE user-facing main switch prep` | queued | `llvm/exe` first docs/help/examples |
+| `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator freeze |
+| `30xE user-facing main switch prep` | active | `llvm/exe` first docs/help/examples |
 | `30xF backend default decision gate` | queued | raw CLI default/backend flip decision last |
 | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces |
 

@@ -48,8 +48,8 @@ Related:
 | `30xA role taxonomy lock` | landed | docs と mirrors の backend role labels を揃える | active lane と role-first reading が root docs で一致する |
 | `30xB smoke taxonomy split` | landed | smoke を `product / engineering / reference / experimental` の見え方へ寄せる | role-first buckets と suites の方針が固定される |
 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure を category ごとに固定する | bootstrap/selfhost/plugin/macro/smoke/doc の pressure map が揃う |
-| `30xD dangerous-early-flip lock` | active | 先に変えると壊れる launcher/default/orchestrator を固定する | early-flip denylist が task board で explicit |
-| `30xE user-facing main switch prep` | queued | README/help/examples を `llvm/exe` first に寄せる準備をする | default を変えずに main narrative だけ切り替える差分範囲が固まる |
+| `30xD dangerous-early-flip lock` | landed | 先に変えると壊れる launcher/default/orchestrator を固定する | early-flip denylist が task board で explicit |
+| `30xE user-facing main switch prep` | active | README/help/examples を `llvm/exe` first に寄せる準備をする | default を変えずに main narrative だけ切り替える差分範囲が固まる |
 | `30xF backend default decision gate` | queued | CLI default/backend flip の可否を最後に判定する | taxonomy、smoke split、dependency inventory が landed している |
 | `30xG legacy disposition sweep` | queued | manual residue / stale snapshot / old compare helpers を archive か delete に寄せる | open-ended watch が archive/delete/explicit keep のいずれかへ収束する |
 
@@ -86,13 +86,13 @@ Related:
 | --- | --- | --- | --- |
 | `30xD1` | landed | default/dispatch freeze | CLI default and central dispatch are marked `do not flip early` |
 | `30xD2` | landed | selfhost/bootstrap freeze | selfhost/stage1 wrappers and scripts are explicit no-touch-first surfaces |
-| `30xD3` | active | plugin/smoke orchestrator freeze | plugin and smoke orchestrators are explicit no-touch-first surfaces |
+| `30xD3` | landed | plugin/smoke orchestrator freeze | plugin and smoke orchestrators are explicit no-touch-first surfaces |
 
 ### `30xE` user-facing main switch prep
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `30xE1` | queued | README/README.ja prep | product main reads `llvm/exe` first while `rust-vm` stays engineering keep |
+| `30xE1` | active | README/README.ja prep | product main reads `llvm/exe` first while `rust-vm` stays engineering keep |
 | `30xE2` | queued | CLI/help wording prep | `docs/tools/*` stop reading `vm` as the main narrative |
 | `30xE3` | queued | stage1/runtime guide prep | runtime/stage1 guides stop implying `rust-vm` is the product main |
 | `30xE4` | queued | vm-hako/wasm wording prep | `vm-hako` stays reference and `wasm` stays experimental in user-facing docs |
@@ -123,8 +123,8 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `30xD dangerous-early-flip lock`
-- next queued wave: `30xE user-facing main switch prep`
+- active macro wave: `30xE user-facing main switch prep`
+- next queued wave: `30xF backend default decision gate`
 - later disposition wave: `30xG legacy disposition sweep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
@@ -345,9 +345,9 @@ Plugin/smoke orchestrator freeze findings (`30xD3`):
 
 Plugin/smoke orchestrator freeze result (`30xD3`):
 
-- no code changes
+- landed as docs-first only
 - no-touch-first orchestrators stay live engineering keeps
-- manual residue scripts are not delete-ready; they are queued for archive/delete review in `30xG`
+- manual residue scripts are not delete-ready; they move to the archive-later queue reviewed in `30xG`
 
 ## Dangerous Early Flips
 

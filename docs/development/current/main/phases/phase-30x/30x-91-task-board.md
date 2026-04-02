@@ -20,8 +20,8 @@ Related:
 | 1 | `30xA role taxonomy lock` | landed | role labels and active lane wording |
 | 2 | `30xB smoke taxonomy split` | landed | role-first smoke buckets and suite reading |
 | 3 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure by category |
-| 4 | `30xD dangerous-early-flip lock` | active | launcher/default/orchestrator denylist |
-| 5 | `30xE user-facing main switch prep` | queued | README/help/examples move to `llvm/exe` first |
+| 4 | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator denylist |
+| 5 | `30xE user-facing main switch prep` | active | README/help/examples move to `llvm/exe` first |
 | 6 | `30xF backend default decision gate` | queued | decide raw CLI default only after the above |
 | 7 | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces after main switch |
 
@@ -41,10 +41,11 @@ Related:
 | 10 | `30xC4` | landed | `rust-vm` docs/help pressure |
 | 11 | `30xD1` | landed | default/dispatch do-not-flip-early lock |
 | 12 | `30xD2` | landed | selfhost/bootstrap freeze |
-| 13 | `30xD3` | active | plugin/orchestrator freeze |
-| 14 | `30xE1-30xE4` | queued | user-facing main switch prep |
-| 15 | `30xF1-30xF2` | queued | backend default decision last |
-| 16 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
+| 13 | `30xD3` | landed | plugin/orchestrator freeze |
+| 14 | `30xE1` | active | README/README.ja prep |
+| 15 | `30xE2-30xE4` | queued | remaining user-facing main switch prep |
+| 16 | `30xF1-30xF2` | queued | backend default decision last |
+| 17 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 
 ## Evidence Commands
 
@@ -139,9 +140,9 @@ Smoke/test archive/delete result:
 
 Plugin/smoke orchestrator freeze result:
 
-- `30xD3` is docs-first only
+- `30xD3` is landed as docs-first only
 - no-touch-first orchestrators stay live engineering keeps
-- manual residue scripts are queued for archive/delete review in `30xG`
+- manual residue scripts are queued as archive-later review in `30xG`
 
 ### Docs / help keep vs rewrite vs watch
 
@@ -275,8 +276,23 @@ Bootstrap/selfhost archive/delete result:
 - explicit recheck before archive/delete:
   - `tools/smoke_aot_vs_vm.sh`
   - `docs/tools/nyash-help.md`
+- current archive blockers to clear in `30xE`:
+  - `README.md` / `README.ja.md` still point at `tools/selfhost_vm_smoke.sh` and `tools/smoke_aot_vs_vm.sh`
+  - `docs/development/selfhosting/quickstart.md` still points at `tools/selfhost_smoke.sh`
+  - `docs/guides/selfhost-pilot.md` still points at `tools/bootstrap_selfhost_smoke.sh`
+  - `docs/guides/exceptions-stage3.md` still points at `tools/selfhost_stage3_accept_smoke.sh`
+  - `docs/releases/21.0-full-selfhosting.md` still points at `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+  - `tools/smokes/jit-migration-plan.md` still lists `tools/cross_backend_smoke.sh` and `tools/async_smokes.sh`
 - delete-ready now:
   - `none`
+
+## Current Exact Next
+
+1. `30xE1` rewrite `README.md` / `README.ja.md` to `llvm/exe` first
+2. `30xE2` fix CLI/help wording without flipping raw defaults
+3. `30xE3-E4` move stage1/runtime and `vm-hako`/`wasm` wording to role-first
+4. `30xF` decide whether docs-only demotion is enough or a raw default flip is justified
+5. `30xG` archive/delete residual manual surfaces
 
 ## Exit Condition For Phase Entry
 

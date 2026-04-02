@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xD3 plugin/smoke orchestrator freeze`
+- Exact focus: `30xE1 README/README.ja prep`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -91,13 +91,14 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
 - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
 - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
+- `30xD3` landed as docs-first orchestrator freeze; plugin/smoke wrappers stay explicit engineering keeps
 - root mirrors are already phase-30x-first; remaining drift is mostly front docs/help and manual residue scripts
-- active micro task is `30xD3 plugin/smoke orchestrator freeze`
-- next queued micro task is `30xE1 README/README.ja prep`
+- active micro task is `30xE1 README/README.ja prep`
+- next queued micro task is `30xE2 CLI/help wording prep`
 - legacy residue policy is now explicit:
   - keep if it is still an engineering/bootstrap contract
   - rewrite if it still presents old main narrative
-  - archive/delete later if it is a manual residue with no live owner
+  - archive-later if it is a manual residue with no live owner
 - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
   - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
   - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
@@ -116,7 +117,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xD3 plugin/smoke orchestrator freeze` |
+  | Next | `30xE1 README/README.ja prep` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -130,8 +131,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
-| Next | `30xE1 README/README.ja prep` | start user-facing main switch wording |
+| Now | `30xE1 README/README.ja prep` | start user-facing main switch wording |
+| Next | `30xE2 CLI/help wording prep` | keep role-first wording while raw defaults stay frozen |
 | Later | `30xE2-30xG` | help/guides rewrite, backend default gate, and legacy archive/delete sweep |
 
 ## Backend Surface Waves
@@ -141,8 +142,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xA role taxonomy lock` | landed | lock the role-first reading in root docs and phase docs |
 | `30xB smoke taxonomy split` | landed | separate product / engineering / reference / experimental smoke reading |
 | `30xC rust-vm dependency inventory` | landed | map internal `--backend vm` pressure before any flip |
-| `30xD dangerous-early-flip lock` | active | freeze launcher/default/orchestrator sites that must not move early |
-| `30xE user-facing main switch prep` | queued | move README/help/examples toward `llvm/exe` first without flipping defaults |
+| `30xD dangerous-early-flip lock` | landed | freeze launcher/default/orchestrator sites that must not move early |
+| `30xE user-facing main switch prep` | active | move README/help/examples toward `llvm/exe` first without flipping defaults |
 | `30xF backend default decision gate` | queued | decide the raw CLI default only after the previous slices land |
 | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces after main switch |
 
@@ -162,9 +163,11 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xC4` | landed | docs/help `rust-vm` pressure inventory |
 | `30xD1` | landed | default/dispatch dangerous early flip lock |
 | `30xD2` | landed | selfhost/bootstrap dangerous early flip lock |
-| `30xD3` | active | plugin/smoke dangerous early flip lock |
-| `30xE1-30xE4` | queued | user-facing main switch is prepared without a raw default flip |
+| `30xD3` | landed | plugin/smoke dangerous early flip lock |
+| `30xE1` | active | README/README.ja are rewritten toward `llvm/exe` first |
+| `30xE2-30xE4` | queued | remaining user-facing main switch prep without a raw default flip |
 | `30xF1-30xF2` | queued | backend default decision gate stays last |
+| `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.
