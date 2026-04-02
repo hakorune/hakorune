@@ -33,8 +33,9 @@ Related:
 - `31xB1` landed: `tools/engineering/run_vm_stats.sh` now holds the actual script
 - `31xB2` landed: `tools/engineering/parity.sh` now holds the actual script
 - `31xC` landed: shared helper family is fixed as `keep here`, not low-blast rehome
-- active micro task: `31xD1 orchestrator keep vs rehome split`
-- next micro task: `31xD2 docs and live path repoint`
+- `31xD` landed: selfhost-only smoke wrappers moved under `tools/selfhost/**` and old top-level paths are shim-only
+- active micro task: `31xE1 delete drained compatibility shims`
+- next micro task: `31xE2 archive stale top-level wrappers`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

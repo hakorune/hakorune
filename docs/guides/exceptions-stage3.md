@@ -156,7 +156,7 @@ Env flags
 - Legacy: `NYASH_BRIDGE_TRY_ENABLE`, `NYASH_BRIDGE_THROW_ENABLE` remain but are bypassed in Result‑mode.
 
 Testing
-- Selfhost acceptance (JSON v0 → Bridge; PyVM route is legacy opt-in): `tools/selfhost_stage3_accept_smoke.sh`
+- Selfhost acceptance (JSON v0 → Bridge; PyVM route is legacy opt-in): `tools/selfhost/selfhost_stage3_accept_smoke.sh`
 - Curated LLVM (non‑throw path confirmation): `tools/smokes/curated_llvm_stage3.sh`
 
 Notes

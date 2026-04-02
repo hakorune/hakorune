@@ -66,7 +66,7 @@ Notes:
 Run a minimal engineering smoke that tries to emit JSON (best‑effort) and verifies VM outputs match with Known rewrite ON/OFF:
 
 ```
-tools/selfhost_smoke.sh
+tools/selfhost/selfhost_smoke.sh
 ```
 
 It does not modify defaults and is safe to run locally.

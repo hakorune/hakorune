@@ -101,7 +101,7 @@ Phase‑15（2025‑09）アップデート
 ## 🧪 Self-Hosting（自己ホスト開発）
 - ガイド: `docs/how-to/self-hosting.md`
 - Engineering bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- Engineering smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost_vm_smoke.sh`
+- Engineering smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost/selfhost_vm_smoke.sh`
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 
 MIR注記: Core‑13 最小カーネルは既定で有効（NYASH_MIR_CORE13=1）。旧命令は正規化されます（Array/Ref→BoxCall、TypeCheck/Cast/Barrier/WeakRefの統一）。

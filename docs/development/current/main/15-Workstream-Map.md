@@ -53,8 +53,9 @@ Related:
      - `31xB1` landed and moved `run_vm_stats.sh`
      - `31xB2` landed and moved `parity.sh`
      - `31xC` landed and fixed the shared helper family as `keep here`
-     - current active micro task is `31xD1 orchestrator keep vs rehome split`
-     - next queued micro task is `31xD2 docs and live path repoint`
+     - `31xD` landed and moved selfhost-only smoke wrappers under `tools/selfhost/**`
+     - current active micro task is `31xE1 delete drained compatibility shims`
+     - next queued micro task is `31xE2 archive stale top-level wrappers`
      - cleanup rule is `rehome -> shim -> drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -64,14 +65,14 @@ Related:
      | --- | --- |
      | Now | `phase-31x engineering lane isolation` |
      | Blocker | `none` |
-     | Next | `31xD1 orchestrator keep vs rehome split` |
+     | Next | `31xE1 delete drained compatibility shims` |
    - engineering isolation bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `31xD orchestrator isolation prep` |
-     | Next | `31xE shim drain and legacy sweep` |
-     | Later | `shared helper follow-up` |
+     | Now | `31xE shim drain and legacy sweep` |
+     | Next | `shared helper follow-up` |
+     | Later | `deep orchestrator follow-up` |
    - engineering isolation waves:
 
      | Wave | Status | Read as |
@@ -79,8 +80,8 @@ Related:
      | `31xA engineering home lock` | landed | switch active lane and fix `tools/engineering/**` as canonical home |
      | `31xB low-blast tool rehome` | landed | move low-blast engineering tools off the top-level front |
      | `31xC shared helper family inventory` | landed | decide keep / rehome / archive for helper family |
-     | `31xD orchestrator isolation prep` | active | split no-touch-first orchestrators into keep vs later rehome |
-     | `31xE shim drain and legacy sweep` | queued | delete/archive after moved paths are drained |
+     | `31xD orchestrator isolation prep` | landed | split no-touch-first orchestrators into keep vs later rehome |
+     | `31xE shim drain and legacy sweep` | active | delete/archive after moved paths are drained |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -111,9 +112,9 @@ Related:
   - `phase-30x` backend surface simplification (landed precursor)
   - `phase-31x` engineering lane isolation
 - Active backend surface tasks:
-  - `31xD orchestrator isolation prep`
-- Queued backend surface tasks:
   - `31xE shim drain and legacy sweep`
+- Queued backend surface tasks:
+  - `shared helper follow-up`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -127,7 +128,7 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-31x` exact and orchestrator-first after the shared-helper keep decision
+1. keep `phase-31x` exact and shim-drain-first after the selfhost smoke move
 2. keep `phase-30x` landed as the ownership-flip precursor
 3. keep `phase-29x` landed as the backend-owner precursor lane
 4. keep `phase-29bq` active as failure-driven / blocker-none lane

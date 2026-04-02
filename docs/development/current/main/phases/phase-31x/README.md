@@ -54,5 +54,6 @@ Related:
 - low-blast engineering tools move under `tools/engineering/**`
 - old top-level entrypoints become explicit compatibility shims only
 - current docs point to engineering homes instead of the top-level copies
+- selfhost-only smoke wrappers can move under `tools/selfhost/**` while keeping top-level shims
 - selfhost/bootstrap/orchestrator surfaces stay explicit no-touch-first keeps
 - delete/archive happens only after shim drain is explicit
