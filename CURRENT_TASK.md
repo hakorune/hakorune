@@ -89,7 +89,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-33x shared helper family recut`
 - Current blocker: `none`
-- Exact focus: `33xD1 closeout/docs cleanup`
+- Exact focus: `phase-33x closeout review`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - current next cleanup is helper-family path truth, not `vm.rs` deletion
   - current backend reading stays role-first:
@@ -99,7 +99,7 @@ Scope: repo root から current order / current blocker / next exact read に最
     - `wasm` = `experimental`
   - current cleanup rule is `split/rehome/drain -> delete`
   - landed in `32xA-G`: `build.rs` / `phase2100` split, top-level orchestrator rehome, `core_executor` direct-MIR seam, shared helper gate, and raw default/token defer
-  - active in `33xA1`: helper family caller inventory is fixed for `hako_check` and `emit_mir`
+  - landed in `33xA1`: helper family caller inventory is fixed for `hako_check` and `emit_mir`
   - landed in `33xB1`: `tools/hako_check/deadblocks_smoke.sh` is the canonical deadblocks family home and the old top-level path is shim-only
   - landed in `33xC1`: thin `emit_mir` wrappers have a low-blast caller inventory
   - landed in `33xC2`: thin `emit_mir` wrappers stay as top-level route-preset compatibility shims, and routing truth stays in `tools/smokes/v2/lib/emit_mir_route.sh`
@@ -118,7 +118,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-33x shared helper family recut` |
   | Blocker | `none` |
-  | Next | `33xD1 closeout/docs cleanup` |
+  | Next | `phase-33x closeout review` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -132,8 +132,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `33xD1 closeout/docs cleanup` | close the helper-family recut after broad keep truth is fixed |
-| Next | `phase-33x closeout review` | verify no stale helper-family wording remains |
+| Now | `phase-33x closeout review` | verify helper-family work is fully landed and choose the successor lane |
+| Next | `successor lane selection` | choose between dedicated helper follow-up and deeper source/smoke split |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred until deeper source/smoke split requires it |
 
 ## Shared Helper Family Waves
@@ -141,9 +141,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Wave | Status | Read as |
 | --- | --- | --- |
 | `33xA helper family inventory` | landed | fix exact keep/rehome/shim-only reading |
-| `33xB hako_check family path truth` | active | move family-local smoke helpers under `tools/hako_check/**` |
-| `33xC emit_mir thin wrapper path truth` | active | truthify thin wrappers as route-preset shims before broad helper keep |
-| `33xD closeout/docs cleanup` | active | close the helper-family recut after broad keep truth is fixed |
+| `33xB hako_check family path truth` | landed | move family-local smoke helpers under `tools/hako_check/**` |
+| `33xC emit_mir thin wrapper path truth` | landed | truthify thin wrappers as route-preset shims before broad helper keep |
+| `33xD closeout/docs cleanup` | landed | close the helper-family recut after broad keep truth is fixed |
 
 ## Phase-33x Micro Tasks
 
@@ -155,7 +155,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory |
 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock |
 | `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate |
-| `33xD1` | active | closeout/docs cleanup |
+| `33xD1` | landed | closeout/docs cleanup |
 
 ## Canonical Owners
 

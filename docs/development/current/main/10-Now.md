@@ -32,8 +32,8 @@ Related:
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
 - `33xA1` landed: helper family caller inventory is fixed for `hako_check` and `emit_mir`
-- active micro task: `33xD1 closeout/docs cleanup`
-- next micro task: `phase-33x closeout review`
+- active micro task: `phase-33x closeout review`
+- next micro task: `successor lane selection`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

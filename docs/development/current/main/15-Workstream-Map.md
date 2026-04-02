@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-32x product / engineering split`
+     - current active lane is `phase-33x shared helper family recut`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -57,7 +57,8 @@ Related:
         - `33xC2` landed and fixed thin `emit_mir` wrappers as top-level route-preset shims
         - `33xC3` landed and fixed the broad keep reason for `tools/hakorune_emit_mir.sh`
         - `33xB2` landed and fixed the broad keep reason for `tools/hako_check.sh`
-        - current active micro task is `33xD1 closeout/docs cleanup`
+        - `33xD1` landed and current/public docs now reflect the helper-family truth
+        - current active micro task is `phase-33x closeout review`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -67,22 +68,22 @@ Related:
      | --- | --- |
      | Now | `phase-33x shared helper family recut` |
      | Blocker | `none` |
-     | Next | `33xD1 closeout/docs cleanup` |
+     | Next | `phase-33x closeout review` |
    - shared helper family bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `33xD1 closeout/docs cleanup` |
-     | Next | `phase-33x closeout review` |
+     | Now | `phase-33x closeout review` |
+     | Next | `successor lane selection` |
      | Later | `raw backend default/token follow-up lane` |
    - shared helper family waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
      | `33xA helper family inventory` | landed | fix exact keep/rehome/shim-only reading |
-     | `33xB hako_check family path truth` | active | move family-local smoke helpers under `tools/hako_check/**` |
-     | `33xC emit_mir thin wrapper path truth` | active | fix thin wrappers as route-preset shims before touching broad helper keep |
-     | `33xD closeout/docs cleanup` | active | close the helper-family recut after broad keep truth is fixed |
+     | `33xB hako_check family path truth` | landed | move family-local smoke helpers under `tools/hako_check/**` |
+     | `33xC emit_mir thin wrapper path truth` | landed | fix thin wrappers as route-preset shims before touching broad helper keep |
+     | `33xD closeout/docs cleanup` | landed | close the helper-family recut after broad keep truth is fixed |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -115,8 +116,8 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-33x` shared helper family recut
 - Active backend surface tasks:
-  - `33xD1 closeout/docs cleanup`
   - `phase-33x closeout review`
+  - `successor lane selection`
 - Queued backend surface tasks:
   - `shared helper dedicated phase`
 - Parked big tasks:

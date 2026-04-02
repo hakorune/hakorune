@@ -17,8 +17,8 @@ Related:
 | --- | --- | --- | --- |
 | 1 | `33xA helper family inventory` | landed | exact keep/rehome/shim-only reading |
 | 2 | `33xB hako_check family path truth` | landed | family-local smoke helpers move first and keep reason is fixed |
-| 3 | `33xC emit_mir thin wrapper path truth` | active | thin wrappers stay truthful route-preset shims before broad helper keep |
-| 4 | `33xD closeout/docs cleanup` | active | landed helper-family truth is reflected in current/public docs |
+| 3 | `33xC emit_mir thin wrapper path truth` | landed | thin wrappers stay truthful route-preset shims before broad helper keep |
+| 4 | `33xD closeout/docs cleanup` | landed | landed helper-family truth is reflected in current/public docs |
 
 ## Ordered Slice Detail
 
@@ -30,7 +30,7 @@ Related:
 | 4 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory |
 | 5 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock |
 | 6 | `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate |
-| 7 | `33xD1` | active | closeout/docs cleanup |
+| 7 | `33xD1` | landed | closeout/docs cleanup |
 
 ## Evidence Commands
 
@@ -78,5 +78,8 @@ bash -n \
 - `33xC3` landed:
   - `tools/hakorune_emit_mir.sh` remains top-level keep because route-owner, perf, check/debug, proof, and current-doc pressure are still broad
   - drain condition stays `route-selecting callers -> emit_mir_route`, then revisit the helper later
+- `33xD1` landed:
+  - current/root mirrors now read `phase-33x` as the active lane and helper-family tasks as landed
+  - stale `phase-32x active` / `33xB active` / `33xC active` wording is removed
 - current front:
-  - `33xD1 closeout/docs cleanup`
+  - `phase-33x closeout review`

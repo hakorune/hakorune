@@ -34,8 +34,8 @@ Related:
 | --- | --- | --- | --- |
 | `33xA helper family inventory` | landed | exact caller pressure and canonical homes を固定する | `hako_check` / `emit_mir` family の `keep / rehome / shim-only` が読める |
 | `33xB hako_check family path truth` | landed | family-local smoke helper を `tools/hako_check/**` に寄せる | deadcode/deadblocks 系の canonical home が family path になり `hako_check.sh` keep reason も固定される |
-| `33xC emit_mir thin wrapper path truth` | active | thin compat/mainline wrappers の truthful role を固定する | top-level thin wrappers は route-preset compatibility wrappers と読め、routing truth は `emit_mir_route.sh` に寄る |
-| `33xD closeout/docs cleanup` | active | current/public docs を helper-family truth に揃える | landed keep/rehome/shim-only 読みが root/current docs に揃う |
+| `33xC emit_mir thin wrapper path truth` | landed | thin compat/mainline wrappers の truthful role を固定する | top-level thin wrappers は route-preset compatibility wrappers と読め、routing truth は `emit_mir_route.sh` に寄る |
+| `33xD closeout/docs cleanup` | landed | current/public docs を helper-family truth に揃える | landed keep/rehome/shim-only 読みが root/current docs に揃う |
 
 ## Micro Tasks
 
@@ -47,14 +47,30 @@ Related:
 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory | `mainline` / `compat` wrapper の exact live callers が読める |
 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock | wrappers stay top-level thin compatibility shims and operational routing truth is `tools/smokes/v2/lib/emit_mir_route.sh` |
 | `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate | broad live integration が exact keep reason として固定される |
-| `33xD1` | active | closeout/docs cleanup | current/public docs が truthful family paths に揃う |
+| `33xD1` | landed | closeout/docs cleanup | current/public docs が truthful family paths に揃う |
 
 ## Current Focus
 
-- active macro wave: `33xC emit_mir thin wrapper path truth`
-- active micro task: `33xD1 closeout/docs cleanup`
-- next queued micro task: `phase-33x closeout review`
+- active macro wave: `phase-33x closeout review`
+- active micro task: `phase-33x closeout review`
+- next queued micro task: `successor lane selection`
 - current blocker: `none`
+
+## 33xD1 Result
+
+- current/root mirrors now reflect the landed helper-family reading:
+  - `CURRENT_TASK.md`
+  - `docs/development/current/main/05-Restart-Quick-Resume.md`
+  - `docs/development/current/main/10-Now.md`
+  - `docs/development/current/main/15-Workstream-Map.md`
+- stale wording was removed:
+  - `phase-32x` is no longer described as the current active backend lane
+  - `33xB` / `33xC` are no longer shown as active waves
+- remaining work is not another helper-family micro task; it is deciding the successor lane
+
+Read as:
+- `phase-33x` implementation work is closed enough.
+- the next action is a closeout review and successor-lane decision, not more helper-family recut.
 
 ## 33xA1 Result
 

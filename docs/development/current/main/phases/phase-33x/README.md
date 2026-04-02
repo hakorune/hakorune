@@ -57,3 +57,9 @@ Related:
 - `emit_mir` thin wrappers stay as top-level route-preset compatibility wrappers; operational routing truth stays in `tools/smokes/v2/lib/emit_mir_route.sh`
 - `tools/hako_check.sh` and `tools/hakorune_emit_mir.sh` remain explicit top-level keep until caller drain is exact
 - current/public docs point at truthful family homes where blast is low
+
+## Current State
+
+- helper-family micro tasks are landed through `33xD1`
+- current front is `phase-33x closeout review`
+- next lane is not opened yet; keep this phase active until the successor lane is fixed

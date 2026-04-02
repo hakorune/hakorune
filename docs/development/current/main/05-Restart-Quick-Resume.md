@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-33x shared helper family recut`
-- active micro task: `33xD1 closeout/docs cleanup`
-- next micro task: `phase-33x closeout review`
+- active micro task: `phase-33x closeout review`
+- next micro task: `successor lane selection`
 - raw backend default flip stays deferred beyond `phase-33x`
 
 ## Read Next
