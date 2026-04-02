@@ -45,11 +45,13 @@ Related:
 - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper is `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
 - remaining explicit helper caller inventory is two surfaces: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`.
 - watch split is explicit: `compat_codegen_receiver.rs` is the keep chokepoint watch; `module_string_dispatch/compat/llvm_backend_surrogate.rs` is the archive-later surrogate watch.
+- adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first, then `watch-2` as `json_path -> read_to_string -> same primitive`.
 - `29x-98` owns the final helper-deletion watch; `29x-99` keeps the landed re-cut history and move order.
 - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
 - current active micro task is `99W1 lock watch-1 caller groups`; next queued micro task is `99W2 lock watch-1 replacement contract gap`.
+- queued after that are `99X1` and `99X2`, which shrink the surrogate into a file-wrapper over the same primitive.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
-- immediate cleanup order is `99W1 lock watch-1 caller groups -> 99W2 lock watch-1 replacement contract gap -> 99X1/99X2 surrogate watch -> next optimization restart`.
+- immediate cleanup order is `99W1 -> 99W2 -> 99X1 -> 99X2 -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -66,8 +68,8 @@ Related:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `99W1 lock watch-1 caller groups` | make the remaining Rust chokepoint inventory explicit by contract group |
-| Next | `99W2 lock watch-1 replacement contract gap` | write the Rust-side replacement checklist before any demotion attempt |
-| Later | `none` | no additional cleanup wave is queued before the watch resolves |
+| Next | `99W2 lock watch-1 replacement contract gap` | lock the no-helper Rust text primitive contract before any demotion attempt |
+| Later | `99X1` / `99X2` | shrink the compiled-stage1 surrogate into a file-wrapper over the same primitive |
 
 ## Cleanup Waves
 

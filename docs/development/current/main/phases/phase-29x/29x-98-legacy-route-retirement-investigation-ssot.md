@@ -52,6 +52,14 @@ Treat the last two caller surfaces as separate watches with different unblock co
 | `watch-1` | `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep chokepoint for `emit_object(mir_json_text) -> object path` | contract-preserving Rust root-first replacement for the `emit_object` branch | watch-only |
 | `watch-2` | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later compiled-stage1 surrogate for `compile_obj(json_path)` | cleaner compiled-stage1 front door than the explicit compat helper | watch-only |
 
+## Preferred End State
+
+- do not solve `watch-1` and `watch-2` with different new helpers.
+- first create one Rust-side no-helper root-first primitive for `MIR(JSON text) -> object path`.
+- close `watch-1` on top of that primitive first.
+- then shrink `watch-2` to `json_path -> read_to_string -> same primitive`.
+- do not promote `LlvmBackendEvidenceAdapterBox` into a new daily/compat front door; it stays evidence/proof only.
+
 ## Watch-1 Caller Groups
 
 `compat_codegen_receiver.rs` is the one Rust keep chokepoint, but its upstream callers still arrive through distinct contracts.
@@ -62,14 +70,22 @@ Treat the last two caller surfaces as separate watches with different unblock co
 | MirInterpreter hostbridge dispatch | `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` via `dispatch_loader_hostbridge_codegen_invoke(...)` | `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` | compat dispatch bridge into the same chokepoint |
 | MirInterpreter loader-cold extern | `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` via `dispatch_loader_cold_codegen_extern(...)` | `env.codegen.emit_object` extern | legacy extern acceptance into the same chokepoint |
 
+## Watch-1 Caller Reduction Order
+
+| Order | Group | Why first / last |
+| --- | --- | --- |
+| `1` | MirInterpreter loader-cold extern | most legacy-specific accept path; still owns version-patching pressure |
+| `2` | MirInterpreter hostbridge dispatch | compat dispatch bridge; daily compile/link no longer depends on this path |
+| `3` | plugin-loader env.codegen | retire `emit_object` last so `env.codegen` can collapse into compile/link-only live seam |
+
 ## Watch-1 Replacement Gap
 
 | Contract item | Current owner | What must replace it before demotion | Verdict |
 | --- | --- | --- | --- |
-| MIR(JSON text) input | `compat_codegen_receiver::emit_object(...)` | a Rust-side root-first/evidence-safe entry that still accepts text input | missing |
-| version patching for old payloads | `compat_codegen_receiver::patch_mir_json_version(...)` | preserved or retired by explicit upstream contract change | missing |
+| MIR(JSON text) input | `compat_codegen_receiver::emit_object(...)` | one Rust-side no-helper root-first primitive that still accepts text input | missing |
+| version patching for old payloads | `compat_codegen_receiver::patch_mir_json_version(...)` | moved into the legacy wrapper path or retired by explicit upstream contract change | missing |
 | trace / observability point | `compat_codegen_receiver::trace_call/trace_result` | preserved at the replacement chokepoint | available, but tied to current owner |
-| `emit_object(mir_json_text) -> object path` result contract | `compat_codegen_receiver::emit_object(...)` | contract-preserving replacement | missing |
+| `emit_object(mir_json_text) -> object path` result contract | `compat_codegen_receiver::emit_object(...)` | contract-preserving replacement over the single Rust text primitive | missing |
 
 ## Watch-2 Caller Groups
 
@@ -84,8 +100,8 @@ Treat the last two caller surfaces as separate watches with different unblock co
 
 | Contract item | Current owner | What must replace it before demotion | Verdict |
 | --- | --- | --- | --- |
-| MIR(JSON file path) input | `llvm_backend_surrogate::compile_obj_from_json_path(...)` | cleaner compiled-stage1 front door than `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` | missing |
-| file read + string helper bridge | `llvm_backend_surrogate::compile_obj_from_json_path(...)` | compiled-stage1 owner moved upward into `.hako` or another explicit compat/evidence bridge | missing |
+| MIR(JSON file path) input | `llvm_backend_surrogate::compile_obj_from_json_path(...)` | `json_path -> read_to_string -> same Rust text primitive used by watch-1` | missing |
+| file read + string helper bridge | `llvm_backend_surrogate::compile_obj_from_json_path(...)` | file-wrapper shim over the shared text primitive, or a cleaner compiled-stage1 front door | missing |
 | object-path return contract | surrogate string-handle return | contract-preserving replacement in compiled-stage1 dispatch | missing |
 
 ## Direct Callers vs Wrapper Layers
@@ -114,7 +130,7 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `watch-1 compat_codegen_receiver replacement watch` | keep the explicit helper until the Rust `emit_object` contract has a replacement |
-| Next | `watch-2 surrogate replacement watch` | keep the explicit helper until the compiled-stage1 surrogate has a cleaner front door |
+| Next | `watch-2 surrogate replacement watch` | shrink the surrogate into `json_path -> read_to_string -> same text primitive` after `watch-1` closes |
 | Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Replacement Matrix

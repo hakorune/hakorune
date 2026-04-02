@@ -62,15 +62,19 @@ bash tools/selfhost/run_lane_a_daily.sh
   | --- | --- |
   | Now | `99W1 lock watch-1 caller groups` |
   | Next | `99W2 lock watch-1 replacement contract gap` |
-  | Later | `none` |
+  | Later | `99X1` / `99X2` |
 
 - W4 / W5 / W6 are landed. Path truth, semantic proof/archive homes, and the Rust compat-codegen chokepoint are fixed.
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket.
 - `phase2120` pure keep and historical replay now live in separate semantic homes.
 - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
 - remaining explicit helper caller inventory is two surfaces: `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`.
+- adopted watch shape is:
+  - first, one Rust-side no-helper `MIR(JSON text) -> object path` primitive closes `watch-1`
+  - then, `watch-2` becomes `json_path -> read_to_string -> same primitive`
 - active micro task is `99W1 lock watch-1 caller groups`.
 - next queued micro task is `99W2 lock watch-1 replacement contract gap`.
+- caller reduction order inside `watch-1` is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`.
 - both watches are currently `watch-only`, not demotable now.
 - detailed W4/W5/W6 landed history stays in `29x-99`, not in this restart mirror.
 - immediate action:

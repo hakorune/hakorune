@@ -48,6 +48,13 @@ Related:
   - `99W1 lock watch-1 caller groups`
 - next queued micro-task:
   - `99W2 lock watch-1 replacement contract gap`
+- queued after that:
+  - `99X1 lock watch-2 caller groups`
+  - `99X2 lock watch-2 replacement contract gap`
+- adopted watch strategy:
+  - one Rust-side no-helper `MIR(JSON text) -> object path` primitive closes `watch-1`
+  - `watch-2` then becomes `json_path -> read_to_string -> same primitive`
+  - caller reduction order inside `watch-1` is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, the compat selfhost wrapper stack has been materialized onto `vm-hako`, and the Hako-side bridge is now archive-only; the next collapse is on the Rust receiver side.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -57,10 +64,10 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99W1` | active | lock watch-1 caller groups | `compat_codegen_receiver.rs` upstream groups are explicit as `plugin-loader env.codegen`, `MirInterpreter hostbridge dispatch`, and `MirInterpreter loader-cold extern` |
-| `99W2` | queued | lock watch-1 replacement contract gap | the Rust-side `emit_object(mir_json_text) -> object path` contract has an explicit replacement checklist and watch-only verdict |
-| `99X1` | queued | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch` |
-| `99X2` | queued | lock watch-2 replacement contract gap | the surrogate `compile_obj(json_path) -> object path` contract has an explicit replacement checklist and watch-only verdict |
+| `99W1` | active | lock watch-1 caller groups | `compat_codegen_receiver.rs` upstream groups and reduction order are explicit as `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen` |
+| `99W2` | queued | lock watch-1 replacement contract gap | one Rust-side no-helper text primitive is the explicit replacement target for `emit_object(mir_json_text) -> object path` |
+| `99X1` | queued | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch`, and reduction stays after `watch-1` |
+| `99X2` | queued | lock watch-2 replacement contract gap | the surrogate shrinks to `json_path -> read_to_string -> same text primitive` before helper deletion is reconsidered |
 
 ## Review Intake
 
