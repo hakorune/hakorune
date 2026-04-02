@@ -63,7 +63,7 @@ fn emit_hints_for(missing: &[String]) {
         ring0
             .log
             .warn("[plugin/hint] FileBox plugin is required for file I/O (new FileBox/open/read).");
-        ring0.log.warn("[plugin/hint] Build and load plugin: see tools/plugin_v2_smoke.sh or configure nyash.toml [libraries.*.FileBox].");
+        ring0.log.warn("[plugin/hint] Build and load plugin: see tools/plugins/plugin_v2_smoke.sh or configure nyash.toml [libraries.*.FileBox].");
         ring0
             .log
             .warn("[plugin/hint] Ensure LD_LIBRARY_PATH (or platform equivalent) includes the plugin directory.");

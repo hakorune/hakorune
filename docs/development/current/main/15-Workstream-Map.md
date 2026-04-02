@@ -56,8 +56,10 @@ Related:
         - `32xB2` landed and thinned `src/runner/build.rs` by helper-first extraction
         - `32xC1` landed and fixed the exact `phase2100` role buckets
         - `32xC2` landed and made `phase2100/run_all.sh` a thin meta-runner over role sub-runners
-        - current active micro task is `32xD1 bootstrap_selfhost_smoke caller drain map`
-        - next queued micro task is `32xD2 plugin_v2_smoke caller drain map`
+        - `32xD1` landed and rehomed bootstrap smoke to `tools/selfhost/bootstrap_selfhost_smoke.sh`
+        - `32xD2` landed and rehomed plugin smoke to `tools/plugins/plugin_v2_smoke.sh`
+        - current active micro task is `32xE1 child.rs / stage1_cli direct-route gap inventory`
+        - next queued micro task is `32xE2 core_executor takeover seam lock`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -67,13 +69,13 @@ Related:
      | --- | --- |
      | Now | `phase-32x product / engineering split` |
      | Blocker | `none` |
-     | Next | `32xD1 bootstrap_selfhost_smoke caller drain map` |
+     | Next | `32xE1 child.rs / stage1_cli direct-route gap inventory` |
    - product / engineering split bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `32xD1 bootstrap_selfhost_smoke caller drain map` |
-     | Next | `32xD2 plugin_v2_smoke caller drain map` |
+     | Now | `32xE1 child.rs / stage1_cli direct-route gap inventory` |
+     | Next | `32xE2 core_executor takeover seam lock` |
      | Later | `32xD1/D2 top-level orchestrator rehome prep` |
    - product / engineering split waves:
 
@@ -82,8 +84,8 @@ Related:
      | `32xA mixed-owner inventory` | landed | inventory exact mixed-owner source/smoke targets |
      | `32xB build.rs split plan` | landed | split product build and engineering build ownership |
      | `32xC phase2100 role split plan` | landed | split the thick smoke aggregator by role |
-     | `32xD top-level orchestrator rehome prep` | active | drain callers before moving remaining top-level keeps |
-     | `32xE direct-route takeover prep` | queued | reduce shell-based `--backend vm` residues behind dedicated seams |
+     | `32xD top-level orchestrator rehome prep` | landed | drain callers before moving remaining top-level keeps |
+     | `32xE direct-route takeover prep` | active | reduce shell-based `--backend vm` residues behind dedicated seams |
      | `32xF shared helper follow-up gate` | queued | reopen helper-family recut only on a dedicated lane |
 2. `phase-29bq`
    - active selfhost lane
@@ -116,9 +118,9 @@ Related:
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split
 - Active backend surface tasks:
-  - `32xD1 bootstrap_selfhost_smoke caller drain map`
+  - `32xE1 child.rs / stage1_cli direct-route gap inventory`
 - Queued backend surface tasks:
-  - `32xD2 plugin_v2_smoke caller drain map`
+  - `32xE2 core_executor takeover seam lock`
   - `32xD2 plugin_v2_smoke caller drain map`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices

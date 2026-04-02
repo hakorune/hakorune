@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-32x product / engineering split`
-- active micro task: `32xD1 bootstrap_selfhost_smoke caller drain map`
-- next micro task: `32xD2 plugin_v2_smoke caller drain map`
+- active micro task: `32xE1 child.rs / stage1_cli direct-route gap inventory`
+- next micro task: `32xE2 core_executor takeover seam lock`
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next

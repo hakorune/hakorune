@@ -40,8 +40,8 @@ Related:
 | `32xA mixed-owner inventory` | landed | exact mixed-owner surfaces を inventory する | `build.rs` と `phase2100/run_all.sh` の mixed roles が docs で読める |
 | `32xB build.rs split plan` | landed | product build と engineering build の split target を固定する | `build.rs` の shared / product / engineering seams が分かれた計画になる |
 | `32xC phase2100 role split plan` | landed | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental / shared の thin meta-runner 形が固定される |
-| `32xD top-level orchestrator rehome prep` | active | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定する | top-level keep surfaces の canonical next home が読める |
-| `32xE direct-route takeover prep` | queued | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
+| `32xD top-level orchestrator rehome prep` | landed | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定し canonical home へ repoint する | current/public callers が canonical home へ切り替わり top-level は shim-only になる |
+| `32xE direct-route takeover prep` | active | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
 | `32xF shared helper follow-up gate` | queued | helper family を別 phase へ回す gate を決める | shared helpers are either explicit keep or reopened under a dedicated phase |
 | `32xG raw default/token gate` | deferred | default/token rewrite の可否を最後に判定する | source split 後まで `args.rs` / `dispatch.rs` が untouched のまま保たれる |
 
@@ -55,8 +55,8 @@ Related:
 | `32xB2` | landed | `build.rs` implementation slice order | helper-first / owner-split / caller-preserve の順が固定される |
 | `32xC1` | landed | `phase2100` role bucket lock | selfhost / probe / product / experimental / shared bucket と exact script set が固定される |
 | `32xC2` | landed | `phase2100` thin meta-runner plan | top-level aggregator が meta-runner only に縮み、role sub-runners が live になる |
-| `32xD1` | active | `bootstrap_selfhost_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
-| `32xD2` | queued | `plugin_v2_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
+| `32xD1` | landed | `bootstrap_selfhost_smoke.sh` caller drain map | canonical home が `tools/selfhost/bootstrap_selfhost_smoke.sh` に固定され current/public caller が repoint される |
+| `32xD2` | landed | `plugin_v2_smoke.sh` caller drain map | canonical home が `tools/plugins/plugin_v2_smoke.sh` に固定され current/public caller が repoint される |
 | `32xE1` | queued | `child.rs` / `stage1_cli` direct-route gap inventory | direct `--backend vm` shell residues の exact gap が読める |
 | `32xE2` | queued | `core_executor` takeover seam lock | direct MIR/core route に寄せる seam が固定される |
 | `32xF1` | queued | shared helper follow-up gate | `hako_check*` / `hakorune_emit_mir.sh` は dedicated helper phase まで keep のままと固定する |
@@ -94,9 +94,9 @@ Read as:
 
 ## Current Focus
 
-- active macro wave: `32xD top-level orchestrator rehome prep`
-- active micro task: `32xD1 bootstrap_selfhost_smoke.sh caller drain map`
-- next queued micro task: `32xD2 plugin_v2_smoke.sh caller drain map`
+- active macro wave: `32xE direct-route takeover prep`
+- active micro task: `32xE1 child.rs / stage1_cli direct-route gap inventory`
+- next queued micro task: `32xE2 core_executor takeover seam lock`
 - current blocker: `none`
 
 ## 32xB1 Result
@@ -236,6 +236,42 @@ Read as:
   - `SMOKES_CURRENT_PROFILE=quick bash .../phase2100/run_all.sh` kept the expected quick skip
   - `bash .../phase2100/run_always_on_shared.sh` passed
   - `HAKO_PHASE2100_ENABLE_HV1=0 SMOKES_ENABLE_SELFHOST=0 bash .../phase2100/run_engineering_selfhost.sh` passed
+
+## 32xD1 Result
+
+### `bootstrap_selfhost_smoke.sh`
+
+- live/public caller surface before drain:
+  - `Makefile`
+  - `docs/guides/selfhost-pilot.md`
+  - `dev/selfhosting/README.md`
+- historical/private refs remain in older phase/archive docs and are not rewritten in this slice.
+- canonical home is now:
+  - `tools/selfhost/bootstrap_selfhost_smoke.sh`
+- old top-level path:
+  - `tools/bootstrap_selfhost_smoke.sh`
+  - reduced to a compatibility shim only
+
+Read as:
+- selfhost bootstrap smoke is no longer a top-level live owner.
+- current/public callers now point to the selfhost home.
+
+## 32xD2 Result
+
+### `plugin_v2_smoke.sh`
+
+- live/public caller surface before drain:
+  - `src/runner/modes/common_util/plugin_guard.rs`
+- current phase docs were also repointed as part of this slice.
+- canonical home is now:
+  - `tools/plugins/plugin_v2_smoke.sh`
+- old top-level path:
+  - `tools/plugin_v2_smoke.sh`
+  - reduced to a compatibility shim only
+
+Read as:
+- plugin smoke is no longer a top-level live owner.
+- plugin hint surface now points at the plugin home.
 
 ## Delete / Archive Gate
 

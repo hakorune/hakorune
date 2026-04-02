@@ -19,7 +19,7 @@ Related:
 
 - `vm-rust` を delete/archive 方向ではなく `engineering(stage0/bootstrap + tooling keep)` に固定したまま、product ownership と engineering residue が同居している source/smoke を split する。
 - first target は `src/runner/build.rs` と `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`。
-- top-level engineering keeps は caller drain の計画を先に固定し、あとで rehome する。
+- top-level engineering keeps は caller drain を固定して canonical home へ rehome し、その後に deeper shell residue へ進む。
 
 ## Fixed Reading
 
@@ -54,7 +54,7 @@ Related:
 
 - `build.rs` mixed ownership is inventoried and split target is fixed
 - `phase2100/run_all.sh` mixed aggregator is inventoried and split into role sub-runners behind the stable public path
-- current front moved from smoke-role split to top-level orchestrator drain planning
+- current front moved past top-level orchestrator rehome and into direct-route takeover prep
 - bootstrap/plugin top-level keeps get explicit caller-drain plans
 - direct `--backend vm` shell residues are reduced only behind dedicated split tasks
 - raw backend default remains deferred until mixed-owner surfaces are thinned

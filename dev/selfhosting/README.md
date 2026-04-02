@@ -15,7 +15,7 @@ Quickstart
 - Using/Resolver E2E sample (optional):
   - `./tools/using_e2e_smoke.sh` (requires `--enable-using`)
 - Bootstrap c0→c1→c1' (optional):
-  - `./tools/bootstrap_selfhost_smoke.sh`
+  - `./tools/selfhost/bootstrap_selfhost_smoke.sh`
 
 Docs
 

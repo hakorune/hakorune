@@ -28,7 +28,7 @@ smoke-selfhost:
 	bash tools/selfhost/selfhost_vm_smoke.sh
 
 bootstrap:
-	bash tools/bootstrap_selfhost_smoke.sh
+	bash tools/selfhost/bootstrap_selfhost_smoke.sh
 
 roundtrip:
 	bash tools/ny_roundtrip_smoke.sh
