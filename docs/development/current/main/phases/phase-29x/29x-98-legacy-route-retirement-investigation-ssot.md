@@ -191,9 +191,6 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 
 | Caller | Bucket | Note |
 | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_compare_branch_canary_vm.sh` | proof-only | llvmlite compare/provider canary |
-| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_canary_vm.sh` | proof-only | llvmlite provider canary |
-| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_const42_canary_vm.sh` | proof-only | llvmlite provider canary |
 | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh` | archived proof-only | explicit emit/link proof on legacy lane; superseded by `phase29ck` runtime proof |
 | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_map_set_size_canary_vm.sh` | archived proof-only | explicit emit/link proof on legacy lane; superseded by `phase29ck` runtime proof |
 | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_provider_vm.sh` | archived proof-only | selfhost lowering probe for the legacy extern name; currently hard-skipped |
@@ -263,7 +260,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived explicit legacy emit/link proof | exact root-first replacements are green in `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh`; manual replay now lives in `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/run_all.sh` | archived; keep only as replay evidence |
 | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | historical compat selfhost wrapper proof | wrapper now runs on `vm-hako`, but it still demonstrates the provider stop-line rather than the pure owner lane; owner-lane evidence stays `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | archive-later until the provider caller is demoted |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` + `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | legacy extern lowering proof with archived quarantine canaries | no root-first selfhost lowering proof is pinned yet | keep `extern_provider.hako` until a root-first lowering proof exists; archived `phase251` pair remains evidence only |
-| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
+| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider stop-line llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
 
 - the three `phase2044` llvmlite canaries are live through the dedicated suite manifest `tools/smokes/v2/suites/integration/compat/llvmlite-monitor-keep.txt` and still match integration-profile discovery filters.
 - the archived `phase2111` + `phase251` evidence now share the replay bundle `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt`.
@@ -331,16 +328,16 @@ This matrix is only about the current `29x-98` stop-line surfaces. It does not r
 
 ## Proof-Only Direct Caller Group Recheck
 
-The direct `env.codegen.emit_object` caller groups are now stable enough to read as three buckets:
+The legacy codegen proof/canary caller groups are now stable enough to read as three buckets:
 
 | Group | Files | Status | Meaning |
 | --- | --- | --- | --- |
-| active monitor-only keep | `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{canary,compare_branch,const42}_canary_vm.sh` | keep | only live proof-only direct caller group still under integration |
+| active monitor-only keep | `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{canary,compare_branch,const42}_canary_vm.sh` | keep | only live proof-only llvmlite provider stop-line keep group still under integration |
 | archived legacy emit/link proof | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archive evidence | replay-only evidence for the old direct emit/link lane |
 | archived selfhost lowering probe | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archive evidence | replay-only evidence while `extern_provider.hako` still has no root-first lowering replacement |
 
 - within the live `phase2044` trio:
-  - `codegen_provider_llvmlite_canary_vm.sh` stays the irreducible provider-plumbing keep
+  - `codegen_provider_llvmlite_canary_vm.sh` stays the irreducible provider stop-line plumbing keep
   - `codegen_provider_llvmlite_compare_branch_canary_vm.sh` and `codegen_provider_llvmlite_const42_canary_vm.sh` are merge-later candidates only; neither is archive-ready on current replacement coverage
 
 ## Phase2044 Directory Semantics

@@ -11,10 +11,11 @@ It lives under `integration/compat` because it is keep-only proof coverage, not 
    - `codegen_provider_llvmlite_compare_branch_canary_vm.sh`
    - `codegen_provider_llvmlite_const42_canary_vm.sh`
    - purpose:
-     - provider-first llvmlite proof/canary coverage
+     - provider stop-line llvmlite proof/canary coverage
      - integration discovery-live monitor-only keep
    - note:
      - this is the only live keep bucket in this semantic home
+     - current route is `vm-hako -> LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...) -> compat/provider stop-line -> llvmlite keep`
      - `compare_branch` and `const42` are merge-later candidates only; they are not exact duplicates today
      - no file in this trio is archive-ready on current replacement coverage
 
