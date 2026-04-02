@@ -38,10 +38,11 @@ Related:
 | 8 | `30xC2` | landed | `rust-vm` plugin/macro/tooling pressure |
 | 9 | `30xC3` | landed | `rust-vm` smoke/test pressure |
 | 10 | `30xC4` | landed | `rust-vm` docs/help pressure |
-| 11 | `30xD1` | active | default/dispatch do-not-flip-early lock |
-| 12 | `30xD2-30xD3` | queued | selfhost/plugin/orchestrator freeze |
-| 13 | `30xE1-30xE4` | queued | user-facing main switch prep |
-| 14 | `30xF1-30xF2` | queued | backend default decision last |
+| 11 | `30xD1` | landed | default/dispatch do-not-flip-early lock |
+| 12 | `30xD2` | active | selfhost/bootstrap freeze |
+| 13 | `30xD3` | queued | plugin/orchestrator freeze |
+| 14 | `30xE1-30xE4` | queued | user-facing main switch prep |
+| 15 | `30xF1-30xF2` | queued | backend default decision last |
 
 ## Evidence Commands
 
@@ -131,6 +132,21 @@ Docs/help archive/delete result:
 
 - `none`
 - root README/help rewrites belong to `30xE`; stale help snapshot stays watch-only until replacement exists
+
+### Default / dispatch freeze
+
+- `src/cli/args.rs`
+  - raw backend token/default stays `vm` for now
+  - no early flip before `30xF`
+- `src/runner/dispatch.rs`
+  - central dispatch still carries `vm`, `vm-hako`, and `llvm`
+  - no early route rewrite before `30xF`
+
+Default/dispatch freeze result:
+
+- `30xD1` is docs-first only
+- no code edits in this slice
+- raw token/default change is explicitly deferred to `30xF`
 
 ### Bootstrap/selfhost keep details
 

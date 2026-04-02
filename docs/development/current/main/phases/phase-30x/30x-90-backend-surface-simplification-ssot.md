@@ -83,8 +83,8 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `30xD1` | queued | default/dispatch freeze | CLI default and central dispatch are marked `do not flip early` |
-| `30xD2` | queued | selfhost/bootstrap freeze | selfhost/stage1 wrappers and scripts are explicit no-touch-first surfaces |
+| `30xD1` | landed | default/dispatch freeze | CLI default and central dispatch are marked `do not flip early` |
+| `30xD2` | active | selfhost/bootstrap freeze | selfhost/stage1 wrappers and scripts are explicit no-touch-first surfaces |
 | `30xD3` | queued | plugin/smoke orchestrator freeze | plugin and smoke orchestrators are explicit no-touch-first surfaces |
 
 ### `30xE` user-facing main switch prep
@@ -105,8 +105,8 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `30xC rust-vm dependency inventory`
-- next queued wave: `30xD dangerous-early-flip lock`
+- active macro wave: `30xD dangerous-early-flip lock`
+- next queued wave: `30xE user-facing main switch prep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
 
@@ -319,6 +319,22 @@ Do not change these before `30xB-30xD` land.
 - `tools/plugin_v2_smoke.sh`
 - `tools/selfhost_smoke.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+
+Default/dispatch findings (`30xD1`):
+
+- `src/cli/args.rs`
+  - raw CLI `--backend` still defaults to `vm`
+  - option help still enumerates `vm`, `vm-hako`, `llvm`, and `interpreter`
+  - this token/default surface stays frozen until `30xF`; changing it earlier would blur inventory vs policy
+- `src/runner/dispatch.rs`
+  - central file dispatch still routes `vm`, `vm-hako`, and `llvm`, with `compile-wasm`/AOT gates adjacent
+  - this dispatch surface stays frozen until `30xF`; changing it earlier would mix role taxonomy work with runtime ownership changes
+
+Default/dispatch freeze result (`30xD1`):
+
+- no code changes
+- `src/cli/args.rs` and `src/runner/dispatch.rs` are explicit do-not-flip-early surfaces
+- raw token/default decision remains blocked on `30xE` plus `30xF`
 
 ## Worker Re-Inventory Notes
 

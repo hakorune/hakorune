@@ -49,8 +49,9 @@ Related:
      - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` plus `manual residue watch`
      - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`
      - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
-     - current active micro task is `30xD1 default/dispatch freeze`
-     - next queued micro task is `30xD2 selfhost/bootstrap freeze`
+     - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
+     - current active micro task is `30xD2 selfhost/bootstrap freeze`
+     - next queued micro task is `30xD3 plugin/smoke orchestrator freeze`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
      - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only
@@ -63,14 +64,14 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xD1 default/dispatch freeze` |
+     | Next | `30xD2 selfhost/bootstrap freeze` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xD1 default/dispatch freeze` |
-     | Next | `30xD2 selfhost/bootstrap freeze` |
-     | Later | `30xD3-30xF` |
+     | Now | `30xD2 selfhost/bootstrap freeze` |
+     | Next | `30xD3 plugin/smoke orchestrator freeze` |
+     | Later | `30xE-30xF` |
    - cleanup waves:
 
      | Wave | Status | Read as |

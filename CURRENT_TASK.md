@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xD1 default/dispatch freeze`
+- Exact focus: `30xD2 selfhost/bootstrap freeze`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -85,12 +85,13 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `rust-vm` is still deep in bootstrap/selfhost/plugin/macro/smoke paths; do not force-remove it before inventory and smoke split
   - current docs mostly use the label `rust-vm`, not `vm-rust`
   - dangerous early flips are launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, `tools/selfhost/run.sh`, and `tools/plugin_v2_smoke.sh`
-  - `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, `30xC2`, `30xC3`, and `30xC4` are landed
+  - `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, `30xC2`, `30xC3`, `30xC4`, and `30xD1` are landed
   - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` and `manual residue watch`
   - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`
   - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
-  - active micro task is `30xD1 default/dispatch freeze`
-  - next queued micro task is `30xD2 selfhost/bootstrap freeze`
+  - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
+  - active micro task is `30xD2 selfhost/bootstrap freeze`
+  - next queued micro task is `30xD3 plugin/smoke orchestrator freeze`
   - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
   - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
   - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
@@ -109,7 +110,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xD1 default/dispatch freeze` |
+  | Next | `30xD2 selfhost/bootstrap freeze` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -123,9 +124,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xD1 default/dispatch freeze` | lock CLI default and dispatch as do-not-flip-early |
-| Next | `30xD2 selfhost/bootstrap freeze` | lock wrapper and stage1 no-touch-first surfaces |
-| Later | `30xD3-30xF` | plugin freeze, user-facing main switch, backend default gate |
+| Now | `30xD2 selfhost/bootstrap freeze` | lock wrapper and stage1 no-touch-first surfaces |
+| Next | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
+| Later | `30xE-30xF` | user-facing main switch and backend default gate |
 
 ## Backend Surface Waves
 
@@ -152,8 +153,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xC2` | landed | plugin/macro/tooling `rust-vm` pressure inventory |
 | `30xC3` | landed | smoke/test `rust-vm` pressure inventory |
 | `30xC4` | landed | docs/help `rust-vm` pressure inventory |
-| `30xD1` | active | default/dispatch dangerous early flip lock |
-| `30xD1-30xD3` | queued | dangerous early flips are frozen explicitly |
+| `30xD1` | landed | default/dispatch dangerous early flip lock |
+| `30xD2` | active | selfhost/bootstrap dangerous early flip lock |
+| `30xD3` | queued | plugin/smoke dangerous early flip lock |
 | `30xE1-30xE4` | queued | user-facing main switch is prepared without a raw default flip |
 | `30xF1-30xF2` | queued | backend default decision gate stays last |
 

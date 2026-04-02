@@ -50,12 +50,13 @@ Related:
   - `wasm` = `experimental`
 - `rust-vm` still has deep pressure in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help.
 - dangerous early flips stay frozen around launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, and `tools/selfhost/run.sh`.
-- `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, `30xC2`, `30xC3`, and `30xC4` are landed.
+- `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, `30xC2`, `30xC3`, `30xC4`, and `30xD1` are landed.
 - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` and `manual residue watch`.
 - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`.
 - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`.
-- current active micro task is `30xD1 default/dispatch freeze`.
-- next queued micro task is `30xD2 selfhost/bootstrap freeze`.
+- `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces.
+- current active micro task is `30xD2 selfhost/bootstrap freeze`.
+- next queued micro task is `30xD3 plugin/smoke orchestrator freeze`.
 - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence.
 - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence.
 - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only.
@@ -76,9 +77,9 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xD1 default/dispatch freeze` | lock CLI default and dispatch as do-not-flip-early |
-| Next | `30xD2 selfhost/bootstrap freeze` | lock wrapper and stage1 no-touch-first surfaces |
-| Later | `30xD3-30xF` | plugin freeze, user-facing main switch, backend default gate |
+| Now | `30xD2 selfhost/bootstrap freeze` | lock wrapper and stage1 no-touch-first surfaces |
+| Next | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
+| Later | `30xE-30xF` | user-facing main switch and backend default gate |
 
 ## Backend Surface Waves
 
