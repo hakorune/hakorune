@@ -43,18 +43,19 @@ Related:
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
 - current active step is `phase-29x backend owner cutover prep`; `W4`, `W5`, and `W6` are landed, semantic proof/archive homes are fixed, and the remaining legacy helper is now explicit and compat-only.
 - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper is `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
-- remaining direct helper caller inventory is one surface: `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`.
+- direct helper caller inventory is now zero.
 - `compat_codegen_receiver.rs` no longer calls the helper directly; it now keeps the text contract on top of the shared no-helper primitive.
+- `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive.
 - watch split is explicit: `compat_codegen_receiver.rs` is the keep chokepoint watch; `module_string_dispatch/compat/llvm_backend_surrogate.rs` is the archive-later surrogate watch.
 - adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first, then `watch-2` as `json_path -> read_to_string -> same primitive`.
 - `29x-98` owns the final helper-deletion watch; `29x-99` keeps the landed re-cut history and move order.
 - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
 - `99W1` is landed: upstream groups and reduction order are fixed.
 - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and the compat chokepoint now uses it.
-- current active micro task is `99X1 lock watch-2 caller groups`; next queued micro task is `99X2 lock watch-2 replacement contract gap`.
-- queued after that is `next optimization restart`.
+- `99X1` and `99X2` are landed.
+- current active micro task is `99Y final explicit helper deletion decision`; next queued micro task is `next optimization restart`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
-- immediate cleanup order is `99W2 -> 99X1 -> 99X2 -> next optimization restart`.
+- immediate cleanup order is `99W2 -> 99X1 -> 99X2 -> 99Y -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -70,9 +71,9 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99X1 lock watch-2 caller groups` | keep the remaining surrogate helper caller explicit and isolated |
-| Next | `99X2` | shrink the compiled-stage1 surrogate into a file-wrapper over the same primitive |
-| Later | `next optimization restart` | restart after the last direct helper caller watch is fully locked |
+| Now | `99Y final explicit helper deletion decision` | helper code-side caller inventory is zero; choose delete-now or archive-only explicit residue |
+| Next | `next optimization restart` | restart after the explicit helper decision is closed |
+| Later | `none` | no additional helper-watch slice is queued after `99Y` |
 
 ## Cleanup Waves
 

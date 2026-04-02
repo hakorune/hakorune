@@ -85,11 +85,11 @@ fn trace_route_error_and_zero(route_label: &str, error_text: String) -> i64 {
 }
 
 fn compile_obj_from_json_path(mir_path: &str) -> Result<std::path::PathBuf, String> {
-    // Compiled-stage1/archive-later residue: this surrogate is still file-path based,
-    // so it keeps the explicit compat helper until a cleaner front door exists here.
+    // Compiled-stage1/archive-later residue: keep only the file-path contract here.
+    // The compile core now reuses the same no-helper text primitive as watch-1.
     let mir_json = fs::read_to_string(Path::new(mir_path))
         .map_err(|e| format!("[llvmemit/input/read-failed] {}", e))?;
-    nyash_rust::host_providers::llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(
+    nyash_rust::host_providers::llvm_codegen::compat_text_primitive::compile_object_from_mir_json_text_no_helper(
         &mir_json,
         compile_obj_opts_from_env(),
     )

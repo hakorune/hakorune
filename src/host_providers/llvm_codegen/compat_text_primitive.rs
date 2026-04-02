@@ -9,7 +9,7 @@ use super::Opts;
 /// This keeps the remaining Rust-side `emit_object(mir_json_text) -> object path`
 /// contract off the legacy front-door helper while preserving the explicit
 /// provider-keep / CAPI keep semantics that still back monitor-only proof lanes.
-pub(crate) fn compile_object_from_mir_json_text_no_helper(
+pub fn compile_object_from_mir_json_text_no_helper(
     mir_json: &str,
     opts: Opts,
 ) -> Result<PathBuf, String> {

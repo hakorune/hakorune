@@ -40,13 +40,15 @@ Related:
      - the selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
      - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining direct helper caller is the archive-later surrogate under `module_string_dispatch/compat/`
      - `compat_codegen_receiver.rs` no longer calls the helper directly; it now keeps the text contract on top of the shared no-helper primitive
+     - `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive
      - `29x-98` owns the final helper-deletion watch, now split into the keep chokepoint watch and the archive-later surrogate watch; `29x-99` owns landed re-cut history and move order
      - the adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first; the surrogate follows later as `json_path -> read_to_string -> same primitive`
      - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
      - `99W1` is landed: caller groups and reduction order are fixed
      - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and the keep chokepoint uses it
-     - current active micro task is `99X1 lock watch-2 caller groups`
-     - next queued micro task is `99X2 lock watch-2 replacement contract gap`
+     - `99X1` and `99X2` are landed
+     - current active micro task is `99Y final explicit helper deletion decision`
+     - next queued micro task is `next optimization restart`
      - watch-1 caller reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
      - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -56,14 +58,14 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `99W2 -> 99X1 -> 99X2 -> next optimization restart` |
+     | Next | `99Y -> next optimization restart` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `99X1 lock watch-2 caller groups` |
-     | Next | `99X2` |
-     | Later | `next optimization restart` |
+     | Now | `99Y final explicit helper deletion decision` |
+     | Next | `next optimization restart` |
+     | Later | `none` |
    - cleanup waves:
 
      | Wave | Status | Read as |

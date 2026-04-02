@@ -45,11 +45,9 @@ Related:
 
 - active macro wave: `post-W6 residual cleanup and helper watch`
 - active micro-task:
-  - `99X1 lock watch-2 caller groups`
+  - `99Y final explicit helper deletion decision`
 - next queued micro-task:
-  - `99X2 lock watch-2 replacement contract gap`
-- queued after that:
-  - `99X2 lock watch-2 replacement contract gap`
+  - `next optimization restart`
 - adopted watch strategy:
   - one Rust-side no-helper `MIR(JSON text) -> object path` primitive closes `watch-1`
   - `watch-2` then becomes `json_path -> read_to_string -> same primitive`
@@ -65,8 +63,9 @@ Related:
 | --- | --- | --- | --- |
 | `99W1` | landed | lock watch-1 caller groups | `compat_codegen_receiver.rs` upstream groups and reduction order are explicit as `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen` |
 | `99W2` | landed | lock watch-1 replacement contract gap | one Rust-side no-helper text primitive is explicit and the compat chokepoint now uses it |
-| `99X1` | active | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch`, and reduction stays after `watch-1` |
-| `99X2` | queued | lock watch-2 replacement contract gap | the surrogate shrinks to `json_path -> read_to_string -> same text primitive` before helper deletion is reconsidered |
+| `99X1` | landed | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch`, and reduction stays after `watch-1` |
+| `99X2` | landed | lock watch-2 replacement contract gap | the surrogate now shrinks to `json_path -> read_to_string -> same text primitive`; direct helper callers are zero |
+| `99Y` | active | final explicit helper deletion decision | code-side caller inventory is zero; either delete `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` or freeze it as archive-only residue explicitly |
 
 ## Review Intake
 

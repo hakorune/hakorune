@@ -28,7 +28,7 @@ pub struct Opts {
 }
 
 mod capi_transport;
-pub(crate) mod compat_text_primitive;
+pub mod compat_text_primitive;
 mod defaults;
 mod ll_emit_compare_driver;
 mod ll_emit_compare_source;
