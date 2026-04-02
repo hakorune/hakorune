@@ -140,13 +140,8 @@ impl NyashRunner {
             let ring0 = crate::runtime::ring0::get_global_ring0();
             match ring0.fs.read_to_string(std::path::Path::new(path)) {
                 Ok(text) => {
-                    match crate::runner::json_artifact::parse_direct_mir_json_text_with_v0_fallback(
-                        &text, path,
-                    ) {
-                        Ok(module) => {
-                            let rc = self.execute_mir_module_quiet_exit(&module);
-                            std::process::exit(rc);
-                        }
+                    match crate::runner::core_executor::execute_mir_json_text(self, &text, path) {
+                        Ok(rc) => std::process::exit(rc),
                         Err(e) => {
                             eprintln!("❌ MIR JSON parse error: {}", e);
                             std::process::exit(1);

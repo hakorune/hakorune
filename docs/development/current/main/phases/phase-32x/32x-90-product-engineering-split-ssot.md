@@ -41,8 +41,8 @@ Related:
 | `32xB build.rs split plan` | landed | product build と engineering build の split target を固定する | `build.rs` の shared / product / engineering seams が分かれた計画になる |
 | `32xC phase2100 role split plan` | landed | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental / shared の thin meta-runner 形が固定される |
 | `32xD top-level orchestrator rehome prep` | landed | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定し canonical home へ repoint する | current/public callers が canonical home へ切り替わり top-level は shim-only になる |
-| `32xE direct-route takeover prep` | active | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
-| `32xF shared helper follow-up gate` | queued | helper family を別 phase へ回す gate を決める | shared helpers are either explicit keep or reopened under a dedicated phase |
+| `32xE direct-route takeover prep` | landed | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
+| `32xF shared helper follow-up gate` | active | helper family を別 phase へ回す gate を決める | shared helpers are either explicit keep or reopened under a dedicated phase |
 | `32xG raw default/token gate` | deferred | default/token rewrite の可否を最後に判定する | source split 後まで `args.rs` / `dispatch.rs` が untouched のまま保たれる |
 
 ## Micro Tasks
@@ -58,8 +58,8 @@ Related:
 | `32xD1` | landed | `bootstrap_selfhost_smoke.sh` caller drain map | canonical home が `tools/selfhost/bootstrap_selfhost_smoke.sh` に固定され current/public caller が repoint される |
 | `32xD2` | landed | `plugin_v2_smoke.sh` caller drain map | canonical home が `tools/plugins/plugin_v2_smoke.sh` に固定され current/public caller が repoint される |
 | `32xE1` | landed | `child.rs` / `stage1_cli` direct-route gap inventory | direct `--backend vm` shell residues と stage1 raw compat branches の exact gap が読める |
-| `32xE2` | active | `core_executor` takeover seam lock | direct MIR/core route に寄せる seam が固定される |
-| `32xF1` | queued | shared helper follow-up gate | `hako_check*` / `hakorune_emit_mir.sh` は dedicated helper phase まで keep のままと固定する |
+| `32xE2` | landed | `core_executor` takeover seam lock | direct MIR/core route に寄せる seam が固定される |
+| `32xF1` | active | shared helper follow-up gate | `hako_check*` / `hakorune_emit_mir.sh` は dedicated helper phase まで keep のままと固定する |
 | `32xG1` | deferred | raw backend default/token decision remains last | `args.rs` / `dispatch.rs` are still do-not-flip-early |
 
 ## 32xA Result
@@ -94,9 +94,9 @@ Read as:
 
 ## Current Focus
 
-- active macro wave: `32xE direct-route takeover prep`
-- active micro task: `32xE2 core_executor takeover seam lock`
-- next queued micro task: `32xF1 shared helper follow-up gate`
+- active macro wave: `32xF shared helper follow-up gate`
+- active micro task: `32xF1 shared helper follow-up gate`
+- next queued micro task: `32xG1 raw backend default/token remains last`
 - current blocker: `none`
 
 ## 32xB1 Result
@@ -329,6 +329,32 @@ Read as:
   1. spawn/timeout/capture out of `child.rs`
   2. keep raw line selection above the executor seam
   3. define a narrow `core_executor` entry for already-materialized MIR(JSON)
+
+## 32xE2 Result
+
+### `core_executor`
+
+- `core_executor` now exposes a narrow direct-MIR seam:
+  - `execute_mir_json_text(runner, json, source_label)`
+- terminal execution remains:
+  - `execute_loaded_mir_module(...)`
+- generic artifact intake stays separate:
+  - `execute_json_artifact(...)`
+  - `json_artifact::load_json_artifact_to_module(...)`
+
+Read as:
+- `json_artifact` keeps family classification and compat lowering ownership.
+- `core_executor` owns `MIR(JSON)` / `MirModule` execution, not `Program(JSON)` import routes.
+
+### direct MIR caller repoint
+
+- `runner/mod.rs` direct `--mir-json-file` path now delegates to:
+  - `core_executor::execute_mir_json_text(...)`
+- this removes one ad hoc direct-MIR parse/execute path from the runner body.
+
+Read as:
+- direct MIR entry is now routed through the same narrow owner as future core takeovers.
+- `stage1_cli` and `child.rs` stay archive-later compat and were not widened.
 
 ## Delete / Archive Gate
 

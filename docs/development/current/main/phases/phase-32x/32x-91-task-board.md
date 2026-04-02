@@ -19,8 +19,8 @@ Related:
 | 2 | `32xB build.rs split plan` | landed | split source owner first |
 | 3 | `32xC phase2100 role split plan` | landed | split thick smoke aggregator by role |
 | 4 | `32xD top-level orchestrator rehome prep` | landed | drain callers before moving top-level keeps |
-| 5 | `32xE direct-route takeover prep` | active | reduce shell-based `--backend vm` residues carefully |
-| 6 | `32xF shared helper follow-up gate` | queued | defer helper-family recut to a dedicated lane |
+| 5 | `32xE direct-route takeover prep` | landed | reduce shell-based `--backend vm` residues carefully |
+| 6 | `32xF shared helper follow-up gate` | active | defer helper-family recut to a dedicated lane |
 | 7 | `32xG raw default/token gate` | deferred | decide backend default only after owner split |
 
 ## Ordered Slice Detail
@@ -36,8 +36,8 @@ Related:
 | 7 | `32xD1` | landed | `bootstrap_selfhost_smoke` caller drain map |
 | 8 | `32xD2` | landed | `plugin_v2_smoke` caller drain map |
 | 9 | `32xE1` | landed | `child.rs` / `stage1_cli` direct-route gap inventory |
-| 10 | `32xE2` | active | `core_executor` takeover seam lock |
-| 11 | `32xF1` | queued | shared helper follow-up gate |
+| 10 | `32xE2` | landed | `core_executor` takeover seam lock |
+| 11 | `32xF1` | active | shared helper follow-up gate |
 | 12 | `32xG1` | deferred | raw backend default/token remains last |
 
 ## Evidence Commands
@@ -94,5 +94,9 @@ rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
   - `child.rs` residue is concentrated in `run_ny_program_capture_json_v0`
   - `stage1_cli/core.hako` residue is concentrated in `run_program_json` and `_run_raw_request`
   - thread branching should not enter those compat branches
+- `32xE2` landed:
+  - `core_executor::execute_mir_json_text(...)` is now the narrow direct-MIR seam
+  - `execute_json_artifact(...)` stays the generic artifact/classifier entry
+  - direct `--mir-json-file` runner path now delegates through `core_executor`
 - current front:
-  - `32xE2 core_executor takeover seam lock`
+  - `32xF1 shared helper follow-up gate`
