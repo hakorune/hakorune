@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 watch-1 compat_codegen_receiver replacement watch`
+- Exact focus: `99W1 lock watch-1 caller groups`
   - W4, W5, and W6 landed; path truth, semantic proof/archive homes, and one Rust compat-codegen chokepoint are in place
   - `phase2044` lives under `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`
   - `phase2120` lives under `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
@@ -83,8 +83,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - compat selfhost wrapper layers are not helper callers; they stay `payload -> transport wrapper -> pack orchestrator`
   - `CodegenBridgeBox.emit_object_args(...)` is deleted; the owner-looking path is shim-only for `link_object_args(...)`
   - `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-  - current active micro task is `29x-98 watch-1 compat_codegen_receiver replacement watch`
-  - next queued micro task is `29x-98 watch-2 surrogate replacement watch`
+  - current active micro task is `99W1 lock watch-1 caller groups`
+  - next queued micro task is `99W2 lock watch-1 replacement contract gap`
   - post-watch step is `next optimization restart`
   - review intake owner remains `29x-99`; mirror docs now carry only the live watch state
 - Exact read order:
@@ -118,8 +118,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `29x-98 watch-1 compat_codegen_receiver replacement watch` | keep the chokepoint explicit until a contract-preserving Rust root-first replacement exists |
-| Next | `29x-98 watch-2 surrogate replacement watch` | keep the compiled-stage1 surrogate explicit until a cleaner front door exists there |
+| Now | `99W1 lock watch-1 caller groups` | make the remaining Rust chokepoint inventory explicit by contract group |
+| Next | `99W2 lock watch-1 replacement contract gap` | write the Rust-side replacement checklist before any demotion attempt |
 | Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Cleanup Waves

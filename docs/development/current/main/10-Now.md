@@ -47,9 +47,9 @@ Related:
 - watch split is explicit: `compat_codegen_receiver.rs` is the keep chokepoint watch; `module_string_dispatch/compat/llvm_backend_surrogate.rs` is the archive-later surrogate watch.
 - `29x-98` owns the final helper-deletion watch; `29x-99` keeps the landed re-cut history and move order.
 - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
-- current active micro task is `29x-98 watch-1 compat_codegen_receiver replacement watch`; next queued micro task is `29x-98 watch-2 surrogate replacement watch`.
+- current active micro task is `99W1 lock watch-1 caller groups`; next queued micro task is `99W2 lock watch-1 replacement contract gap`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
-- immediate cleanup order is `29x-98 watch-1 compat_codegen_receiver replacement watch -> 29x-98 watch-2 surrogate replacement watch -> next optimization restart`.
+- immediate cleanup order is `99W1 lock watch-1 caller groups -> 99W2 lock watch-1 replacement contract gap -> 99X1/99X2 surrogate watch -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -65,8 +65,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `29x-98 watch-1 compat_codegen_receiver replacement watch` | keep the chokepoint explicit until a contract-preserving Rust root-first replacement exists |
-| Next | `29x-98 watch-2 surrogate replacement watch` | keep the compiled-stage1 surrogate explicit until a cleaner front door exists there |
+| Now | `99W1 lock watch-1 caller groups` | make the remaining Rust chokepoint inventory explicit by contract group |
+| Next | `99W2 lock watch-1 replacement contract gap` | write the Rust-side replacement checklist before any demotion attempt |
 | Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Cleanup Waves

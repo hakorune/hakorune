@@ -97,6 +97,10 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99T` | W6 | landed | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
 | `99U` | W6 | landed | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
 | `99V` | W6 | landed | retire the generic legacy MIR front-door export and sync final compat/archive residue | the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` |
+| `99W1` | post-W6 watch | active | lock watch-1 caller groups | `compat_codegen_receiver.rs` upstream groups are explicit and separate from the surrogate watch |
+| `99W2` | post-W6 watch | queued | lock watch-1 replacement contract gap | `emit_object(mir_json_text) -> object path` replacement conditions are explicit |
+| `99X1` | post-W6 watch | queued | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch` |
+| `99X2` | post-W6 watch | queued | lock watch-2 replacement contract gap | surrogate replacement conditions are explicit |
 
 ## 0.2 Review intake
 

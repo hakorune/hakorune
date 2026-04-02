@@ -52,6 +52,42 @@ Treat the last two caller surfaces as separate watches with different unblock co
 | `watch-1` | `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep chokepoint for `emit_object(mir_json_text) -> object path` | contract-preserving Rust root-first replacement for the `emit_object` branch | watch-only |
 | `watch-2` | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later compiled-stage1 surrogate for `compile_obj(json_path)` | cleaner compiled-stage1 front door than the explicit compat helper | watch-only |
 
+## Watch-1 Caller Groups
+
+`compat_codegen_receiver.rs` is the one Rust keep chokepoint, but its upstream callers still arrive through distinct contracts.
+
+| Group | Current upstreams | Current contract | Read as |
+| --- | --- | --- | --- |
+| plugin-loader env.codegen | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | `env.codegen.emit_object(mir_json_text)` | direct plugin-loader compat entry |
+| MirInterpreter hostbridge dispatch | `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` via `dispatch_loader_hostbridge_codegen_invoke(...)` | `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` | compat dispatch bridge into the same chokepoint |
+| MirInterpreter loader-cold extern | `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` via `dispatch_loader_cold_codegen_extern(...)` | `env.codegen.emit_object` extern | legacy extern acceptance into the same chokepoint |
+
+## Watch-1 Replacement Gap
+
+| Contract item | Current owner | What must replace it before demotion | Verdict |
+| --- | --- | --- | --- |
+| MIR(JSON text) input | `compat_codegen_receiver::emit_object(...)` | a Rust-side root-first/evidence-safe entry that still accepts text input | missing |
+| version patching for old payloads | `compat_codegen_receiver::patch_mir_json_version(...)` | preserved or retired by explicit upstream contract change | missing |
+| trace / observability point | `compat_codegen_receiver::trace_call/trace_result` | preserved at the replacement chokepoint | available, but tied to current owner |
+| `emit_object(mir_json_text) -> object path` result contract | `compat_codegen_receiver::emit_object(...)` | contract-preserving replacement | missing |
+
+## Watch-2 Caller Groups
+
+`llvm_backend_surrogate.rs` is not a generic runtime lane. It is a compiled-stage1 residue behind module-string dispatch.
+
+| Group | Current upstreams | Current contract | Read as |
+| --- | --- | --- | --- |
+| compiled-stage1 module dispatch | `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` via `try_dispatch(...)` | `selfhost.shared.backend.llvm_backend.compile_obj(json_path)` | live bootstrap/compiled-stage1 residue |
+| compiled-stage1 link path | `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` via `try_dispatch(...)` | `selfhost.shared.backend.llvm_backend.link_exe(obj_path, exe_path)` | same surrogate cluster; not the helper blocker |
+
+## Watch-2 Replacement Gap
+
+| Contract item | Current owner | What must replace it before demotion | Verdict |
+| --- | --- | --- | --- |
+| MIR(JSON file path) input | `llvm_backend_surrogate::compile_obj_from_json_path(...)` | cleaner compiled-stage1 front door than `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` | missing |
+| file read + string helper bridge | `llvm_backend_surrogate::compile_obj_from_json_path(...)` | compiled-stage1 owner moved upward into `.hako` or another explicit compat/evidence bridge | missing |
+| object-path return contract | surrogate string-handle return | contract-preserving replacement in compiled-stage1 dispatch | missing |
+
 ## Direct Callers vs Wrapper Layers
 
 Keep the direct caller inventory separate from wrapper/orchestrator layers.

@@ -41,8 +41,8 @@ Related:
      - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper callers are `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`
      - `29x-98` owns the final helper-deletion watch, now split into the keep chokepoint watch and the archive-later surrogate watch; `29x-99` owns landed re-cut history and move order
      - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-     - current active micro task is `29x-98 watch-1 compat_codegen_receiver replacement watch`
-     - next queued micro task is `29x-98 watch-2 surrogate replacement watch`
+     - current active micro task is `99W1 lock watch-1 caller groups`
+     - next queued micro task is `99W2 lock watch-1 replacement contract gap`
      - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
@@ -51,13 +51,13 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-98 watch-1 compat_codegen_receiver replacement watch` -> `29x-98 watch-2 surrogate replacement watch` -> `next optimization restart` |
+     | Next | `99W1 lock watch-1 caller groups` -> `99W2 lock watch-1 replacement contract gap` -> `99X1/99X2 surrogate watch` -> `next optimization restart` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `29x-98 watch-1 compat_codegen_receiver replacement watch` |
-     | Next | `29x-98 watch-2 surrogate replacement watch` |
+     | Now | `99W1 lock watch-1 caller groups` |
+     | Next | `99W2 lock watch-1 replacement contract gap` |
      | Later | `none` |
    - cleanup waves:
 

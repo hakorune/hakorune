@@ -45,13 +45,22 @@ Related:
 
 - active macro wave: `post-W6 residual cleanup and helper watch`
 - active micro-task:
-  - `29x-98 watch-1 compat_codegen_receiver replacement watch`
+  - `99W1 lock watch-1 caller groups`
 - next queued micro-task:
-  - `29x-98 watch-2 surrogate replacement watch`
+  - `99W2 lock watch-1 replacement contract gap`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, the compat selfhost wrapper stack has been materialized onto `vm-hako`, and the Hako-side bridge is now archive-only; the next collapse is on the Rust receiver side.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
   - `99E4` is absorbed into `W2` `99I` owner API / evidence adapter split.
+
+## Post-W6 Watch Tasks
+
+| ID | Status | Task | Acceptance |
+| --- | --- | --- | --- |
+| `99W1` | active | lock watch-1 caller groups | `compat_codegen_receiver.rs` upstream groups are explicit as `plugin-loader env.codegen`, `MirInterpreter hostbridge dispatch`, and `MirInterpreter loader-cold extern` |
+| `99W2` | queued | lock watch-1 replacement contract gap | the Rust-side `emit_object(mir_json_text) -> object path` contract has an explicit replacement checklist and watch-only verdict |
+| `99X1` | queued | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch` |
+| `99X2` | queued | lock watch-2 replacement contract gap | the surrogate `compile_obj(json_path) -> object path` contract has an explicit replacement checklist and watch-only verdict |
 
 ## Review Intake
 
@@ -386,6 +395,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `post-W6 owner/evidence readability follow-up`
-  - micro: `29x-98 watch-1 compat_codegen_receiver replacement watch`
-  - next: `29x-98 watch-2 surrogate replacement watch`
+  - micro: `99W1 lock watch-1 caller groups`
+  - next: `99W2 lock watch-1 replacement contract gap`
   - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, `99Q1-99S1` landed for the Rust chokepoint collapse, and `99T-99V` landed for legacy bridge naming truth plus generic helper export retirement
