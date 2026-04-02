@@ -49,8 +49,9 @@ Related:
 | 18 | `30xF1` | landed | backend default flip is still blocked after 30xE |
 | 19 | `30xF2` | landed | docs-only demotion is enough; raw token/default change stays later |
 | 20 | `30xG1` | landed | low-blast manual smoke residues archived or reclassified |
-| 21 | `30xG2` | active | stale help snapshot replacement/archive |
-| 22 | `30xG3-G4` | queued | remaining helper archive/delete sweep |
+| 21 | `30xG2` | landed | stale help snapshot replacement/archive |
+| 22 | `30xG3` | active | compare/manual helper archive pass |
+| 23 | `30xG4` | queued | post-switch docs cleanup |
 
 ## Evidence Commands
 
@@ -96,7 +97,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `wasm` remains experimental
 - follow-up rule:
   - any raw change to `src/cli/args.rs` or `src/runner/dispatch.rs` is a later gate, not part of this phase
-- active next is `30xG2`
+- active next is `30xG3`
 
 ## 30xG1 Result
 
@@ -109,7 +110,17 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
 - explicit keep:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - active next:
-  - `30xG2`
+  - `30xG3`
+
+## 30xG2 Result
+
+- `docs/tools/nyash-help.md` is now a thin current stub
+- historical capture moved to `docs/archive/tools/nyash-help.md`
+- current CLI truth stays on:
+  - `docs/tools/cli-options.md`
+  - `src/cli/args.rs`
+- active next:
+  - `30xG3`
 
 ## Role Touchpoints
 
@@ -208,13 +219,15 @@ Plugin/smoke orchestrator freeze result:
   - `docs/tools/cli-options.md`
   - `docs/development/runtime/cli-hakorune-stage1.md`
   - `docs/guides/testing-guide.md`
-- watch:
+- archive/stub:
   - `docs/tools/nyash-help.md`
+  - `docs/archive/tools/nyash-help.md`
 
 Docs/help archive/delete result:
 
-- `none`
-- root README/help rewrites belong to `30xE`; stale help snapshot stays watch-only until replacement exists
+- landed in `30xG2`:
+  - `docs/tools/nyash-help.md` reduced to a thin current stub
+  - `docs/archive/tools/nyash-help.md` now carries the historical capture
 
 ### Rewrite in `30xE`
 
@@ -223,11 +236,10 @@ Docs/help archive/delete result:
 - `docs/development/selfhosting/quickstart.md`
 - `docs/guides/selfhost-pilot.md`
 
-### Stale wording to fix or archive
+### Stale wording archived or replaced
 
 - `docs/tools/nyash-help.md`
-  - replace in `30xE2` if a fresh help snapshot is ready
-  - otherwise archive in `30xG2`
+  - now points to current CLI truth and archive path
 
 ### Default / dispatch freeze
 
@@ -329,7 +341,6 @@ Bootstrap/selfhost archive/delete result:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - explicit recheck before archive/delete:
   - `tools/smoke_aot_vs_vm.sh`
-  - `docs/tools/nyash-help.md`
 - current archive blockers to clear in `30xE`:
   - `README.md` / `README.ja.md` still point at `tools/selfhost_vm_smoke.sh` and `tools/smoke_aot_vs_vm.sh`
   - `docs/development/selfhosting/quickstart.md` still points at `tools/selfhost_smoke.sh`
@@ -342,9 +353,8 @@ Bootstrap/selfhost archive/delete result:
 
 ## Current Exact Next
 
-1. `30xG2` stale help snapshot replacement/archive
-2. `30xG3` compare/manual helper archive pass
-3. `30xG4` post-switch docs cleanup
+1. `30xG3` compare/manual helper archive pass
+2. `30xG4` post-switch docs cleanup
 
 ## Exit Condition For Phase Entry
 

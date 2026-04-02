@@ -35,8 +35,9 @@ Related:
 - `30xF1` landed: raw default flip is still blocked by launcher/default/orchestrator surfaces
 - `30xF2` landed: phase-30x keeps raw backend token/default stable and treats ownership flip as sufficient
 - `30xG1` landed: low-blast manual smoke residues moved under `tools/archive/manual-smokes/`
-- active micro task: `30xG2 stale help snapshot replacement/archive`
-- next micro task: `30xG3 compare/manual helper archive pass`
+- `30xG2` landed: `docs/tools/nyash-help.md` is now a thin stub and the historical snapshot lives under `docs/archive/tools/`
+- active micro task: `30xG3 compare/manual helper archive pass`
+- next micro task: `30xG4 post-switch docs cleanup`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

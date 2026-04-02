@@ -154,9 +154,18 @@ Related:
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `30xG1` | landed | manual smoke residue archive pass | manual residue scripts are either archived or reclassified as explicit engineering keeps |
-| `30xG2` | active | stale help snapshot replacement/archive | `docs/tools/nyash-help.md` is replaced by fresh help text or archived as historical capture |
-| `30xG3` | queued | compare/manual helper archive pass | legacy compare/manual helpers such as `tools/smoke_aot_vs_vm.sh` are either kept with explicit engineering meaning or archived |
+| `30xG2` | landed | stale help snapshot replacement/archive | `docs/tools/nyash-help.md` is reduced to a thin current stub and the old capture moves to archive |
+| `30xG3` | active | compare/manual helper archive pass | legacy compare/manual helpers such as `tools/smoke_aot_vs_vm.sh` are either kept with explicit engineering meaning or archived |
 | `30xG4` | queued | post-switch docs cleanup | root/phase docs stop carrying open-ended `watch` wording for settled residues |
+
+#### `30xG2` result
+
+- `docs/tools/nyash-help.md` now stays as a thin current-entry stub
+- the old captured help text moved to `docs/archive/tools/nyash-help.md`
+- current CLI truth remains:
+  - `docs/tools/cli-options.md`
+  - `src/cli/args.rs`
+- remaining residue review moves to `30xG3`
 
 ## Legacy Disposition Rules
 
@@ -169,7 +178,7 @@ Related:
 ## Current Focus
 
 - active macro wave: `30xG legacy disposition sweep`
-- next queued wave: `30xG2 stale help snapshot replacement/archive`
+- next queued wave: `30xG3 compare/manual helper archive pass`
 - later disposition wave: `30xG legacy disposition sweep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
@@ -280,7 +289,7 @@ Plugin/macro/tooling archive/delete result (`30xC2`):
   - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
   - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
   - `tools/archive/manual-smokes/async_smokes.sh`
-- root-level manual residue is reduced; remaining archive/delete work moves to `30xG2-30xG3`
+- root-level manual residue is reduced; remaining archive/delete work moves to `30xG3-30xG4`
 
 ### Smoke / test
 
@@ -398,7 +407,7 @@ Plugin/smoke orchestrator freeze result (`30xD3`):
 - no-touch-first orchestrators stay live engineering keeps
 - `30xG1` archived low-blast root-level manual smoke residues under `tools/archive/manual-smokes/`
 - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh` remains an explicit engineering/test-local keep
-- remaining helper/archive work moves to `30xG2-30xG3`
+- remaining helper/archive work moves to `30xG3-30xG4`
 
 ## Dangerous Early Flips
 
