@@ -39,7 +39,7 @@ Related:
 | --- | --- | --- | --- |
 | `32xA mixed-owner inventory` | landed | exact mixed-owner surfaces を inventory する | `build.rs` と `phase2100/run_all.sh` の mixed roles が docs で読める |
 | `32xB build.rs split plan` | landed | product build と engineering build の split target を固定する | `build.rs` の shared / product / engineering seams が分かれた計画になる |
-| `32xC phase2100 role split plan` | queued | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental の sub-runner 形が固定される |
+| `32xC phase2100 role split plan` | active | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental / shared の sub-runner 形が固定される |
 | `32xD top-level orchestrator rehome prep` | queued | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定する | top-level keep surfaces の canonical next home が読める |
 | `32xE direct-route takeover prep` | queued | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
 | `32xF shared helper follow-up gate` | queued | helper family を別 phase へ回す gate を決める | shared helpers are either explicit keep or reopened under a dedicated phase |
@@ -53,8 +53,8 @@ Related:
 | `32xA2` | landed | `phase2100` mixed aggregator inventory | selfhost / llvmlite probe / crate product / native experimental reps が exact に読める |
 | `32xB1` | landed | `build.rs` split target lock | product build owner, engineering build owner, shared prelude が docs で分かれる |
 | `32xB2` | landed | `build.rs` implementation slice order | helper-first / owner-split / caller-preserve の順が固定される |
-| `32xC1` | active | `phase2100` role bucket lock | selfhost / probe / product / experimental の sub-runner names が固定される |
-| `32xC2` | queued | `phase2100` thin meta-runner plan | top-level aggregator が meta-runner only に縮む計画を固定する |
+| `32xC1` | landed | `phase2100` role bucket lock | selfhost / probe / product / experimental / shared bucket と exact script set が固定される |
+| `32xC2` | active | `phase2100` thin meta-runner plan | top-level aggregator が meta-runner only に縮む計画を固定する |
 | `32xD1` | queued | `bootstrap_selfhost_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
 | `32xD2` | queued | `plugin_v2_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
 | `32xE1` | queued | `child.rs` / `stage1_cli` direct-route gap inventory | direct `--backend vm` shell residues の exact gap が読める |
@@ -83,11 +83,10 @@ Read as:
 
 - current aggregator mixes:
   - engineering selfhost canaries
-  - optional hv1 inline selfhost reps
   - deprecated/opt-in llvmlite probe reps
   - crate `ny-llvmc` product canaries
   - native experimental reps
-  - one always-on SSOT relative inference rep
+  - always-on/shared reps
 
 Read as:
 - live home is correct, but the file is a thick mixed aggregator.
@@ -96,8 +95,8 @@ Read as:
 ## Current Focus
 
 - active macro wave: `32xC phase2100 role split plan`
-- active micro task: `32xC1 phase2100 role bucket lock`
-- next queued micro task: `32xC2 phase2100 thin meta-runner plan`
+- active micro task: `32xC2 phase2100 thin meta-runner plan`
+- next queued micro task: `32xD1 bootstrap_selfhost_smoke.sh caller drain map`
 - current blocker: `none`
 
 ## 32xB1 Result
@@ -145,6 +144,78 @@ Read as:
 Read as:
 - `build.rs` is now thinner without changing default/token policy.
 - next cleanup should move to the smoke side (`phase2100`) before reopening deeper direct-route work.
+
+## 32xC1 Result
+
+### Fixed role buckets
+
+- `engineering-selfhost`
+  - `phase2100/selfhost_canary_minimal.sh`
+  - `phase2048/s1s2s3_repeat_const_canary_vm.sh`
+  - `phase2048/s1s2s3_repeat_compare_cfg_canary_vm.sh`
+  - `phase2048/s1s2s3_repeat_threeblock_collect_canary_vm.sh`
+  - `phase2051/selfhost_v1_primary_rc42_canary_vm.sh` when `HAKO_PHASE2100_ENABLE_HV1=1`
+  - `phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh` when `HAKO_PHASE2100_ENABLE_HV1=1`
+  - `tools/exe_first_smoke.sh` when `SMOKES_ENABLE_SELFHOST=1` and LLVM18 exists
+  - `tools/exe_first_runner_smoke.sh` when `SMOKES_ENABLE_SELFHOST=1` and LLVM18 exists
+- `probe-llvmlite`
+  - `phase2049/s3_link_run_llvmlite_map_set_size_canary_vm.sh`
+  - `phase2049/s3_link_run_llvmlite_print_canary_vm.sh`
+  - `phase2049/s3_link_run_llvmlite_ternary_collect_canary_vm.sh`
+  - gated by `NYASH_LLVM_RUN_LLVMLITE=1` and LLVM18 availability
+- `product-crate-exe`
+  - `phase2100/s3_backend_selector_crate_exe_return42_canary_vm.sh`
+  - `phase2100/s3_backend_selector_crate_exe_compare_eq_true_canary_vm.sh`
+  - `phase2100/s3_backend_selector_crate_exe_binop_return_canary_vm.sh`
+  - gated by `target/release/ny-llvmc` probe success
+- `experimental-native`
+  - `phase2120/native_backend_return42_canary_vm.sh`
+  - `phase2120/native_backend_binop_add_canary_vm.sh`
+  - `phase2120/native_backend_compare_eq_canary_vm.sh`
+  - gated by `llc` presence
+- `always-on/shared`
+  - `phase2211/ssot_relative_unique_canary_vm.sh`
+
+### Fixed reading
+
+- `phase2100/run_all.sh` path stays as the public aggregator entry.
+- `phase2100/run_all.sh` should shrink to a thin meta-runner, not disappear.
+- bucket split is role-first:
+  - selfhost
+  - probe
+  - product
+  - experimental
+  - shared
+
+### Direct caller surface
+
+- direct live caller pressure is low.
+- current public references are mostly:
+  - `docs/releases/21.0-full-selfhosting.md`
+  - `tools/smokes/v2/README.md`
+  - `tools/smokes/v2/run.sh`
+- read as:
+  - keep the existing `phase2100/run_all.sh` path
+  - split the body behind that path first
+
+## 32xC2 Plan
+
+- target shape is one thin meta-runner plus role sub-runners in the same directory:
+  - `phase2100/run_engineering_selfhost.sh`
+  - `phase2100/run_probe_llvmlite.sh`
+  - `phase2100/run_product_crate_exe.sh`
+  - `phase2100/run_experimental_native.sh`
+  - `phase2100/run_always_on_shared.sh`
+- `run_all.sh` remains the stable public entry and only orchestrates:
+  - quick/timeout guard
+  - env gate summaries
+  - role sub-runner dispatch
+  - final done line
+- exact implementation order:
+  1. add the five role sub-runners without changing `run_all.sh` contract
+  2. move exact smoke filters into the sub-runners
+  3. reduce `run_all.sh` to guard + dispatch only
+  4. keep direct caller path unchanged until `32xD` starts
 
 ## Delete / Archive Gate
 

@@ -31,8 +31,8 @@ Related:
 | 2 | `32xA2` | landed | `phase2100` mixed aggregator inventory |
 | 3 | `32xB1` | landed | `build.rs` split target lock |
 | 4 | `32xB2` | landed | `build.rs` implementation slice order |
-| 5 | `32xC1` | active | `phase2100` role bucket lock |
-| 6 | `32xC2` | queued | `phase2100` thin meta-runner plan |
+| 5 | `32xC1` | landed | `phase2100` role bucket lock |
+| 6 | `32xC2` | active | `phase2100` thin meta-runner plan |
 | 7 | `32xD1` | queued | `bootstrap_selfhost_smoke` caller drain map |
 | 8 | `32xD2` | queued | `plugin_v2_smoke` caller drain map |
 | 9 | `32xE1` | queued | `child.rs` / `stage1_cli` direct-route gap inventory |
@@ -48,6 +48,7 @@ git status -sb
 git diff --check
 sed -n '1,260p' src/runner/build.rs
 sed -n '1,260p' tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh
+ls -1 tools/smokes/v2/profiles/integration/core/phase2100
 rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
   src/runner/build.rs \
   tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh \
@@ -66,5 +67,12 @@ rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
   - product llvm build+emit
   - engineering vm/cranelift build+emit
 - `32xB2` landed helper-first extraction inside `src/runner/build.rs` without changing owner behavior.
+- `32xC1` fixed the exact role buckets:
+  - `engineering-selfhost`
+  - `probe-llvmlite`
+  - `product-crate-exe`
+  - `experimental-native`
+  - `always-on/shared`
+- `32xC2` now owns the thin meta-runner plan.
 - current front:
-  - `32xC1 phase2100 role bucket lock`
+  - `32xC2 phase2100 thin meta-runner plan`

@@ -84,7 +84,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-32x product / engineering split`
 - Current blocker: `none`
-- Exact focus: `32xC1 phase2100 role bucket lock`
+- Exact focus: `32xC2 phase2100 thin meta-runner plan`
   - `phase-31x` is landed; low-blast engineering rehome and shim drain are complete
   - current next cleanup is not `vm.rs` deletion; it is mixed-owner source/smoke split
   - current backend reading stays role-first:
@@ -96,8 +96,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `32xA`: `build.rs` and `phase2100` mixed-owner inventory
   - landed in `32xB1`: shared vs product vs engineering target split for `src/runner/build.rs`
   - landed in `32xB2`: helper-first extraction inside `src/runner/build.rs`
-  - active in `32xC1`: role-bucket split for `phase2100/run_all.sh`
-  - raw backend default remains deferred; no-touch-first still includes `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, `tools/selfhost/selfhost_build.sh`, and `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+  - landed in `32xC1`: role buckets for `phase2100/run_all.sh` are fixed
+  - active in `32xC2`: thin meta-runner plan for `phase2100/run_all.sh`
+  - raw backend default remains deferred; no-touch-first still includes `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, `tools/selfhost/selfhost_build.sh`, and the public `phase2100/run_all.sh` path
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-32x/README.md`
@@ -110,7 +111,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-32x product / engineering split` |
   | Blocker | `none` |
-  | Next | `32xC1 phase2100 role bucket lock` |
+  | Next | `32xC2 phase2100 thin meta-runner plan` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -124,9 +125,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `32xC1 phase2100 role bucket lock` | split the thick smoke aggregator by role |
-| Next | `32xC2 phase2100 thin meta-runner plan` | shrink the aggregator to a thin meta-runner |
-| Later | `32xD1/D2 top-level orchestrator rehome prep` | drain callers before moving remaining top-level keeps |
+| Now | `32xC2 phase2100 thin meta-runner plan` | shrink the aggregator to a thin meta-runner |
+| Next | `32xD1/D2 top-level orchestrator rehome prep` | drain callers before moving remaining top-level keeps |
+| Later | `32xE1/E2 direct-route takeover prep` | reduce shell-based `--backend vm` residues behind dedicated seams |
 
 ## Product / Engineering Split Waves
 
@@ -147,8 +148,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `32xA2` | landed | `phase2100` mixed aggregator inventory |
 | `32xB1` | landed | `build.rs` split target lock |
 | `32xB2` | landed | `build.rs` implementation slice order |
-| `32xC1` | active | `phase2100` role bucket lock |
-| `32xC2` | queued | `phase2100` thin meta-runner plan |
+| `32xC1` | landed | `phase2100` role bucket lock |
+| `32xC2` | active | `phase2100` thin meta-runner plan |
 | `32xD1` | queued | `bootstrap_selfhost_smoke` caller drain map |
 | `32xD2` | queued | `plugin_v2_smoke` caller drain map |
 | `32xE1` | queued | `child.rs` / `stage1_cli` direct-route gap inventory |

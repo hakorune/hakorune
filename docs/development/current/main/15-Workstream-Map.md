@@ -54,8 +54,9 @@ Related:
         - `32xA1` landed and fixed `build.rs` as the first mixed-owner source target
         - `32xA2` landed and fixed `phase2100/run_all.sh` as the first thick smoke-aggregator target
         - `32xB2` landed and thinned `src/runner/build.rs` by helper-first extraction
-        - current active micro task is `32xC1 phase2100 role bucket lock`
-        - next queued micro task is `32xC2 phase2100 thin meta-runner plan`
+        - `32xC1` landed and fixed the exact `phase2100` role buckets
+        - current active micro task is `32xC2 phase2100 thin meta-runner plan`
+        - next queued micro task is `32xD1 bootstrap_selfhost_smoke caller drain map`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -65,13 +66,13 @@ Related:
      | --- | --- |
      | Now | `phase-32x product / engineering split` |
      | Blocker | `none` |
-     | Next | `32xC1 phase2100 role bucket lock` |
+     | Next | `32xC2 phase2100 thin meta-runner plan` |
    - product / engineering split bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `32xC1 phase2100 role bucket lock` |
-     | Next | `32xC2 phase2100 thin meta-runner plan` |
+     | Now | `32xC2 phase2100 thin meta-runner plan` |
+     | Next | `32xD1 bootstrap_selfhost_smoke caller drain map` |
      | Later | `32xD1/D2 top-level orchestrator rehome prep` |
    - product / engineering split waves:
 
@@ -114,9 +115,10 @@ Related:
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split
 - Active backend surface tasks:
-  - `32xC1 phase2100 role bucket lock`
-- Queued backend surface tasks:
   - `32xC2 phase2100 thin meta-runner plan`
+- Queued backend surface tasks:
+  - `32xD1 bootstrap_selfhost_smoke caller drain map`
+  - `32xD2 plugin_v2_smoke caller drain map`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
