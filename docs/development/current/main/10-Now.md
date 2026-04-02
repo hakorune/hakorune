@@ -33,8 +33,8 @@ Related:
 - `32xA1` landed: `build.rs` mixed ownership inventory is fixed
 - `32xA2` landed: `phase2100` mixed aggregator inventory is fixed
 - `32xB2` landed: helper-first extraction thinned `src/runner/build.rs` without changing owner behavior
-- active micro task: `32xC2 phase2100 thin meta-runner plan`
-- next micro task: `32xD1 bootstrap_selfhost_smoke caller drain map`
+- active micro task: `32xD1 bootstrap_selfhost_smoke caller drain map`
+- next micro task: `32xD2 plugin_v2_smoke caller drain map`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

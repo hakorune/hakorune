@@ -53,8 +53,8 @@ Related:
 ## Acceptance Summary
 
 - `build.rs` mixed ownership is inventoried and split target is fixed
-- `phase2100/run_all.sh` mixed aggregator is inventoried and role buckets are fixed
-- `run_all.sh` path stays stable while the body shrinks behind role sub-runners
+- `phase2100/run_all.sh` mixed aggregator is inventoried and split into role sub-runners behind the stable public path
+- current front moved from smoke-role split to top-level orchestrator drain planning
 - bootstrap/plugin top-level keeps get explicit caller-drain plans
 - direct `--backend vm` shell residues are reduced only behind dedicated split tasks
 - raw backend default remains deferred until mixed-owner surfaces are thinned

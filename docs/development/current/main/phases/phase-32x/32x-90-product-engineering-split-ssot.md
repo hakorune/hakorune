@@ -39,8 +39,8 @@ Related:
 | --- | --- | --- | --- |
 | `32xA mixed-owner inventory` | landed | exact mixed-owner surfaces を inventory する | `build.rs` と `phase2100/run_all.sh` の mixed roles が docs で読める |
 | `32xB build.rs split plan` | landed | product build と engineering build の split target を固定する | `build.rs` の shared / product / engineering seams が分かれた計画になる |
-| `32xC phase2100 role split plan` | active | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental / shared の sub-runner 形が固定される |
-| `32xD top-level orchestrator rehome prep` | queued | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定する | top-level keep surfaces の canonical next home が読める |
+| `32xC phase2100 role split plan` | landed | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental / shared の thin meta-runner 形が固定される |
+| `32xD top-level orchestrator rehome prep` | active | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定する | top-level keep surfaces の canonical next home が読める |
 | `32xE direct-route takeover prep` | queued | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
 | `32xF shared helper follow-up gate` | queued | helper family を別 phase へ回す gate を決める | shared helpers are either explicit keep or reopened under a dedicated phase |
 | `32xG raw default/token gate` | deferred | default/token rewrite の可否を最後に判定する | source split 後まで `args.rs` / `dispatch.rs` が untouched のまま保たれる |
@@ -54,8 +54,8 @@ Related:
 | `32xB1` | landed | `build.rs` split target lock | product build owner, engineering build owner, shared prelude が docs で分かれる |
 | `32xB2` | landed | `build.rs` implementation slice order | helper-first / owner-split / caller-preserve の順が固定される |
 | `32xC1` | landed | `phase2100` role bucket lock | selfhost / probe / product / experimental / shared bucket と exact script set が固定される |
-| `32xC2` | active | `phase2100` thin meta-runner plan | top-level aggregator が meta-runner only に縮む計画を固定する |
-| `32xD1` | queued | `bootstrap_selfhost_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
+| `32xC2` | landed | `phase2100` thin meta-runner plan | top-level aggregator が meta-runner only に縮み、role sub-runners が live になる |
+| `32xD1` | active | `bootstrap_selfhost_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
 | `32xD2` | queued | `plugin_v2_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
 | `32xE1` | queued | `child.rs` / `stage1_cli` direct-route gap inventory | direct `--backend vm` shell residues の exact gap が読める |
 | `32xE2` | queued | `core_executor` takeover seam lock | direct MIR/core route に寄せる seam が固定される |
@@ -94,9 +94,9 @@ Read as:
 
 ## Current Focus
 
-- active macro wave: `32xC phase2100 role split plan`
-- active micro task: `32xC2 phase2100 thin meta-runner plan`
-- next queued micro task: `32xD1 bootstrap_selfhost_smoke.sh caller drain map`
+- active macro wave: `32xD top-level orchestrator rehome prep`
+- active micro task: `32xD1 bootstrap_selfhost_smoke.sh caller drain map`
+- next queued micro task: `32xD2 plugin_v2_smoke.sh caller drain map`
 - current blocker: `none`
 
 ## 32xB1 Result
@@ -216,6 +216,26 @@ Read as:
   2. move exact smoke filters into the sub-runners
   3. reduce `run_all.sh` to guard + dispatch only
   4. keep direct caller path unchanged until `32xD` starts
+
+## 32xC2 Result
+
+- added role sub-runners:
+  - `phase2100/run_engineering_selfhost.sh`
+  - `phase2100/run_probe_llvmlite.sh`
+  - `phase2100/run_product_crate_exe.sh`
+  - `phase2100/run_experimental_native.sh`
+  - `phase2100/run_always_on_shared.sh`
+- `phase2100/run_all.sh` now keeps only:
+  - quick/timeout guard
+  - role sub-runner dispatch
+  - final done line
+- public path stayed the same:
+  - direct callers still use `phase2100/run_all.sh`
+- validation:
+  - `bash -n` on `run_all.sh` plus the five sub-runners passed
+  - `SMOKES_CURRENT_PROFILE=quick bash .../phase2100/run_all.sh` kept the expected quick skip
+  - `bash .../phase2100/run_always_on_shared.sh` passed
+  - `HAKO_PHASE2100_ENABLE_HV1=0 SMOKES_ENABLE_SELFHOST=0 bash .../phase2100/run_engineering_selfhost.sh` passed
 
 ## Delete / Archive Gate
 

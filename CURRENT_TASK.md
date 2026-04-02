@@ -84,7 +84,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-32x product / engineering split`
 - Current blocker: `none`
-- Exact focus: `32xC2 phase2100 thin meta-runner plan`
+- Exact focus: `32xD1 bootstrap_selfhost_smoke caller drain map`
   - `phase-31x` is landed; low-blast engineering rehome and shim drain are complete
   - current next cleanup is not `vm.rs` deletion; it is mixed-owner source/smoke split
   - current backend reading stays role-first:
@@ -97,7 +97,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `32xB1`: shared vs product vs engineering target split for `src/runner/build.rs`
   - landed in `32xB2`: helper-first extraction inside `src/runner/build.rs`
   - landed in `32xC1`: role buckets for `phase2100/run_all.sh` are fixed
-  - active in `32xC2`: thin meta-runner plan for `phase2100/run_all.sh`
+  - landed in `32xC2`: `phase2100/run_all.sh` is now a thin meta-runner over role sub-runners
+  - active in `32xD1`: caller-drain map for `tools/bootstrap_selfhost_smoke.sh`
   - raw backend default remains deferred; no-touch-first still includes `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, `tools/selfhost/selfhost_build.sh`, and the public `phase2100/run_all.sh` path
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -111,7 +112,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-32x product / engineering split` |
   | Blocker | `none` |
-  | Next | `32xC2 phase2100 thin meta-runner plan` |
+  | Next | `32xD1 bootstrap_selfhost_smoke caller drain map` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -125,8 +126,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `32xC2 phase2100 thin meta-runner plan` | shrink the aggregator to a thin meta-runner |
-| Next | `32xD1/D2 top-level orchestrator rehome prep` | drain callers before moving remaining top-level keeps |
+| Now | `32xD1 bootstrap_selfhost_smoke caller drain map` | drain top-level keep callers before rehome |
+| Next | `32xD2 plugin_v2_smoke caller drain map` | drain plugin-lane callers before rehome |
 | Later | `32xE1/E2 direct-route takeover prep` | reduce shell-based `--backend vm` residues behind dedicated seams |
 
 ## Product / Engineering Split Waves
@@ -135,8 +136,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- | --- |
 | `32xA mixed-owner inventory` | landed | inventory exact mixed-owner source/smoke targets |
 | `32xB build.rs split plan` | landed | split product build and engineering build ownership |
-| `32xC phase2100 role split plan` | active | split the thick smoke aggregator by role |
-| `32xD top-level orchestrator rehome prep` | queued | drain callers before moving remaining top-level keeps |
+| `32xC phase2100 role split plan` | landed | split the thick smoke aggregator by role |
+| `32xD top-level orchestrator rehome prep` | active | drain callers before moving remaining top-level keeps |
 | `32xE direct-route takeover prep` | queued | reduce shell-based `--backend vm` residues behind dedicated seams |
 | `32xF shared helper follow-up gate` | queued | reopen helper-family recut only on a dedicated lane |
 
@@ -149,8 +150,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `32xB1` | landed | `build.rs` split target lock |
 | `32xB2` | landed | `build.rs` implementation slice order |
 | `32xC1` | landed | `phase2100` role bucket lock |
-| `32xC2` | active | `phase2100` thin meta-runner plan |
-| `32xD1` | queued | `bootstrap_selfhost_smoke` caller drain map |
+| `32xC2` | landed | `phase2100` thin meta-runner plan |
+| `32xD1` | active | `bootstrap_selfhost_smoke` caller drain map |
 | `32xD2` | queued | `plugin_v2_smoke` caller drain map |
 | `32xE1` | queued | `child.rs` / `stage1_cli` direct-route gap inventory |
 | `32xE2` | queued | `core_executor` takeover seam lock |

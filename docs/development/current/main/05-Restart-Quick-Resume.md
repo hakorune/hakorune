@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-32x product / engineering split`
-- active micro task: `32xC2 phase2100 thin meta-runner plan`
-- next micro task: `32xD1 bootstrap_selfhost_smoke caller drain map`
+- active micro task: `32xD1 bootstrap_selfhost_smoke caller drain map`
+- next micro task: `32xD2 plugin_v2_smoke caller drain map`
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next
