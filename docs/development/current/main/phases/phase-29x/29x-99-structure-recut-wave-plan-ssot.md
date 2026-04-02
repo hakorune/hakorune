@@ -36,18 +36,18 @@ Related:
 | --- | --- | --- | --- |
 | `W1 docs-first path-truth pass` | landed | lock final buckets, names, and move order before code moves | current repo truth is semantically cleaner than its paths |
 | `W2 mixed-file split pass` | landed | split files that still mix owner and compat/proof roles | biggest readability gain per file touched |
-| `W3 smoke/proof filesystem recut` | active | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
+| `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | replace direct `.hako` callers with exact root-first proofs | needed before `CodegenBridgeBox.emit_object_args(...)` can die |
 | `W5 Rust compat receiver collapse` | pending | reduce `env.codegen.*` legacy receivers to one compat chokepoint | current receiver logic is spread across multiple Rust files |
 | `W6 final delete/archive sweep` | pending | delete legacy helper fronts and leave archive evidence only | last sweep after caller inventory reaches zero |
 
 ## Current Focus
 
-- active macro wave: `W3 smoke/proof filesystem recut`
+- active macro wave: `W4 Hako-side caller drain prep`
 - active micro-task:
-  - `99G1 suites / directory semantic recut`
-- next queued micro-task:
   - `99N-99P Hako-side caller drain prep`
+- next queued micro-task:
+  - `99Q-99S Rust compat receiver collapse`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -209,7 +209,7 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `phase-29x/README.md` and `29x-91-task-board.md` show both macro waves and micro tasks.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
-  - macro: `W3 smoke/proof filesystem recut`
-  - micro: `99G1 suites / directory semantic recut`
-  - next: `99N-99P Hako-side caller drain prep`
-  - detail: `99G1`, `99M`, and the W4 stop-line remain separate
+  - macro: `W4 Hako-side caller drain prep`
+  - micro: `99N-99P Hako-side caller drain prep`
+  - next: `99Q-99S Rust compat receiver collapse`
+  - detail: `99N-99P`, `99Q-99S`, and the W4 stop-line remain separate

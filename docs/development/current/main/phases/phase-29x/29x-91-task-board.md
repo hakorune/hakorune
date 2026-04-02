@@ -47,7 +47,7 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | --- | --- | --- | --- |
 | `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior changes | `29x-99-structure-recut-wave-plan-ssot.md` |
-| `W3 smoke/proof filesystem recut` | active | move live proof and archive evidence into semantic homes | `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact root-first replacement proof for direct `.hako` callers | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after caller inventory reaches zero | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
@@ -77,7 +77,7 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99K` | W3 | landed | recut `phase2044` physically | semantic proof buckets get separate homes |
 | `99L` | W3 | landed | recut `phase2120` physically | semantic proof/history buckets get separate homes |
 | `99M` | W3 | landed | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
-| `99G1` | W3 | active | suites / directory semantic recut | phase-number homes are replaced by semantic homes in the proof/archive tree |
+| `99G1` | W3 | landed | suites / directory semantic recut | phase-number homes are replaced by semantic homes in the proof/archive tree |
 | `99N-99P` | W4 | blocked-on-proof | exact root-first replacement proof and Hako-side caller drain prep | direct `.hako` callers can leave `CodegenBridgeBox.emit_object_args(...)` |
 | `99Q-99S` | W5 | pending-after-W4 | Rust compat receiver collapse | receiver spread is reduced to one chokepoint |
 | `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |

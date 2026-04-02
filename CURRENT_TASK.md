@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 W3 smoke/proof filesystem recut / 99G1 suites / directory semantic recut`
+- Exact focus: `29x-99 W4 Hako-side caller drain prep / 99N-99P exact root-first replacement proof and Hako-side caller drain prep`
   - phase2120 pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`; the legacy cluster orchestrator is runner-only
   - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is monitor-only keep and the proof buckets are runner-only
   - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
@@ -82,9 +82,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - direct live callers are fixed at 5 surfaces: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
   - `29x-98` still owns helper deletion and exact stop-line; no low-blast caller reduction is visible now
-  - `29x-99` now owns beauty-first cleanup planning, with `W3 smoke/proof filesystem recut` active
-  - current active micro task is `99G1 suites / directory semantic recut`
-  - next queued micro task is `99N-99P Hako-side caller drain prep`
+  - `29x-99` now owns beauty-first cleanup planning, with `W4 Hako-side caller drain prep` active and `W3 smoke/proof filesystem recut` landed
+  - current active micro task is `99N-99P Hako-side caller drain prep`
+  - next queued micro task is `99Q-99S Rust compat receiver collapse`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -116,8 +116,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99G1 suites / directory semantic recut` | phase-number homes are replaced by semantic homes |
-| Next | `99N-99P Hako-side caller drain prep` | exact root-first proof still blocks caller drain |
+| Now | `99N-99P Hako-side caller drain prep` | exact root-first proof still blocks caller drain |
+| Next | `99Q-99S Rust compat receiver collapse` | receiver spread is reduced to one chokepoint |
 | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
@@ -126,7 +126,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- | --- |
 | `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order |
 | `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior change |
-| `W3 smoke/proof filesystem recut` | active | phase-number homes become semantic homes |
+| `W3 smoke/proof filesystem recut` | landed | phase-number homes become semantic homes |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy receiver spread to one chokepoint |
 | `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after inventory reaches zero |

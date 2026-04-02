@@ -43,9 +43,9 @@ Related:
      - root-first proof candidate inventory is pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` still has no exact root-first lowering proof
      - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
      - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now
-     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W3 smoke/proof filesystem recut` is active
-     - current active micro task is `99G1 suites / directory semantic recut`
-     - next queued micro task is `99N-99P Hako-side caller drain prep`
+     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4 Hako-side caller drain prep` is active and `W3 smoke/proof filesystem recut` is landed
+     - current active micro task is `99N-99P Hako-side caller drain prep`
+     - next queued micro task is `99Q-99S Rust compat receiver collapse`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -58,8 +58,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `99G1 suites / directory semantic recut` |
-     | Next | `99N-99P Hako-side caller drain prep` |
+     | Now | `99N-99P Hako-side caller drain prep` |
+     | Next | `99Q-99S Rust compat receiver collapse` |
      | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
    - cleanup waves:
 
@@ -67,7 +67,7 @@ Related:
      | --- | --- | --- |
      | `W1 docs-first path-truth pass` | landed | target buckets and move order |
      | `W2 mixed-file split pass` | active | split owner-looking mixed files |
-     | `W3 smoke/proof filesystem recut` | pending | semantic homes replace phase-number homes |
+     | `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
      | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
      | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |
      | `W6 final delete/archive sweep` | pending-after-W5 | helper deletion after zero callers |

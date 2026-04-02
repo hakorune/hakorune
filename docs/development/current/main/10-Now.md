@@ -41,11 +41,11 @@ Related:
 - `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-29x backend owner cutover prep`.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
-- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green, `LLVMEmitBox` stays compat/proof keep, `CodegenBridgeBox` has no daily dependency, `phase2111` explicit emit/link proofs are archived, `phase251` lowering canaries are quarantined, `phase2044` has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`, the llvmlite trio is suite-locked monitor-only keep and that dedicated suite is now the final live keep bucket, `phase2120` pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`, `phase2111` / `phase251` archive proofs share one replay-evidence suite, the selfhost compat stack wording is locked as `payload -> transport wrapper -> pack orchestrator`, the root-first proof candidate inventory is pinned, and docs-first cleanup planning now lives in `29x-99` with `W3 smoke/proof filesystem recut` active.
+- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green, `LLVMEmitBox` stays compat/proof keep, `CodegenBridgeBox` has no daily dependency, `phase2111` explicit emit/link proofs are archived, `phase251` lowering canaries are quarantined, `phase2044` has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`, the llvmlite trio is suite-locked monitor-only keep and that dedicated suite is now the final live keep bucket, `phase2120` pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`, `phase2111` / `phase251` archive proofs share one replay-evidence suite, the selfhost compat stack wording is locked as `payload -> transport wrapper -> pack orchestrator`, the root-first proof candidate inventory is pinned, and docs-first cleanup planning now lives in `29x-99` with `W4 Hako-side caller drain prep` active and `W3 smoke/proof filesystem recut` landed.
 - direct live callers are fixed at 5 surfaces; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now.
-- `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99G1 suites / directory semantic recut`.
-- next queued micro task is `99N-99P Hako-side caller drain prep`.
+- `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99N-99P Hako-side caller drain prep`.
+- next queued micro task is `99Q-99S Rust compat receiver collapse`.
 - immediate cleanup order is `compat selfhost wrapper archive conditions -> archive proof bundle -> directory semantic recut`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
@@ -62,8 +62,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99G1 suites / directory semantic recut` | phase-number homes are replaced by semantic homes |
-| Next | `99N-99P Hako-side caller drain prep` | exact root-first proof still blocks caller drain |
+| Now | `99N-99P Hako-side caller drain prep` | exact root-first proof still blocks caller drain |
+| Next | `99Q-99S Rust compat receiver collapse` | receiver spread is reduced to one chokepoint |
 | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
@@ -72,7 +72,7 @@ Related:
 | --- | --- | --- |
 | `W1 docs-first path-truth pass` | landed | target buckets and move order |
 | `W2 mixed-file split pass` | active | split owner-looking mixed files |
-| `W3 smoke/proof filesystem recut` | pending | semantic homes replace phase-number homes |
+| `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |
 | `W6 final delete/archive sweep` | pending-after-W5 | helper deletion after zero callers |
