@@ -70,18 +70,18 @@ Call system (unified by default)
 
 Execution Status (Feature Additions Pause)
 - Active
-  - `--backend llvm` (ny-llvmc crate backend; llvmlite harness is an explicit keep lane, not the default caller path) — AOT object/EXE line
-  - `--backend vm` (VM / reference semantics)
+  - `--backend llvm` (ny-llvmc crate backend; product main for AOT object/EXE)
+  - `--backend vm` (engineering/bootstrap lane; keep for selfhost, recovery, and tooling)
 - Inactive/Sealed
   - `--backend cranelift`, `--jit-direct` (sealed; use LLVM harness)
-  - AST interpreter (legacy) is gated by feature `interpreter-legacy` and excluded from default builds (Rust VM + LLVM are the two main lines)
+  - AST interpreter (legacy) is gated by feature `interpreter-legacy` and excluded from default builds (LLVM is product main; Rust VM is engineering/bootstrap)
 
 Quick pointers
 - Emit object/EXE with crate backend:
   - `tools/ny_mir_builder.sh --in /path/mir.json --emit obj -o a.o`
   - `tools/ny_mir_builder.sh --in /path/mir.json --emit exe -o a.out`
   - auto-selects `ny-llvmc` when present（`NYASH_LLVM_BACKEND=crate` 明示でも可）
-- Historical PyVM checks: `bash tools/historical/pyvm/pyvm_stage2_smoke.sh`.
+- Historical / engineering PyVM parity check: `bash tools/historical/pyvm/pyvm_stage2_smoke.sh`.
 
 Program(JSON v0) → MIR(JSON)
 - Compat-only bridge route: convert a Stage‑B Program(JSON v0) file to MIR(JSON):
@@ -171,16 +171,16 @@ Specs & Constraints
 - Comparison with other languages: `docs/guides/comparison/nyash-vs-others.md`
 
 ## Table of Contents
-- [Self‑Hosting (Dev Focus)](#self-hosting)
+- [Self-Hosting (Engineering Bootstrap)](#self-hosting)
 - [🌟 Property System Revolution](#-property-system-revolution-september-18-2025)
 - [Language Features](#-language-features)
 - [Plugin System](#-revolutionary-plugin-system-typebox-architecture)
 
 <a id="self-hosting"></a>
-## 🧪 Self‑Hosting (Dev Focus)
+## 🧪 Self‑Hosting (Engineering Bootstrap)
 - Guide: `docs/how-to/self-hosting.md`
-- Minimal E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- Smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost_vm_smoke.sh`
+- Engineering bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
+- Engineering smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost_vm_smoke.sh`
 - JSON (Operator Boxes, dev): `./tools/opbox-json.sh` / `./tools/opbox-quick.sh`
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 
@@ -263,7 +263,7 @@ local py = new PyRuntimeBox()       // Python plugin
 Important: JIT runtime execution is sealed for now. Use Rust VM for running, and Cranelift AOT/LLVM AOT for native executables.
 
 Phase‑15 (Self‑Hosting): Legacy VM/Interpreter are feature‑gated
-- Default build runs Rust VM for `--backend vm`
+- Default build runs Rust VM for `--backend vm` as the engineering/bootstrap lane
 - PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`
 - To enable legacy Rust VM/Interpreter, build with:
   ```bash
@@ -280,19 +280,19 @@ $NYASH_BIN program.hako
 - Full debug information
 - Perfect for development
 
-### 2. **VM Mode (Rust VM default / PyVM historical direct route)**
+### 2. **VM Mode (engineering/bootstrap lane)**
 ```bash
-# Default: Rust VM
+# Engineering/bootstrap default: Rust VM
 $NYASH_BIN --backend vm program.hako
 
 # Historical PyVM parity route
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 ```
-- Default: Rust VM executes MIR directly
+- Default: Rust VM executes MIR directly for engineering/bootstrap
 - Legacy PyVM: executes MIR(JSON) via `tools/historical/pyvm/pyvm_runner.py`
 - Legacy VM: 13.5x over interpreter (historical); kept for comparison and plugin tests
 
-### 3. **Native Binary (Cranelift AOT)** (Distribution)
+### 3. **Native Binary (Cranelift AOT)** (Distribution / non-primary native path)
 ```bash
 # Build once (Cranelift)
 cargo build --release --features cranelift-jit
@@ -304,7 +304,7 @@ cargo build --release --features cranelift-jit
 - Maximum performance
 - Easy distribution
 
-### 4. **Native Binary (LLVM AOT, ny-llvmc crate backend)**
+### 4. **Native Binary (LLVM AOT, ny-llvmc crate backend, product main)**
 ```bash
 # Build harness + CLI (no LLVM_SYS_180_PREFIX needed)
 cargo build --release -p nyash-llvm-compiler && cargo build --release --features llvm
@@ -325,23 +325,23 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 ./myapp
 ```
 
-Quick smoke test (VM vs EXE):
+Quick comparison smoke (engineering parity, VM vs EXE):
 ```bash
 tools/smoke_aot_vs_vm.sh examples/aot_min_string_len.hako
 ```
 
 ### LLVM Backend Notes
-- `NYASH_LLVM_OBJ_OUT`: Path to emit `.o` when running `--backend llvm`.
+- `NYASH_LLVM_OBJ_OUT`: Path to emit `.o` when running `--backend llvm` (product main).
   - Example: `NYASH_LLVM_OBJ_OUT=$PWD/nyash_llvm_temp.o $NYASH_BIN --backend llvm apps/ny-llvm-smoke/main.hako`
 - Previously available `NYASH_LLVM_ALLOW_BY_NAME=1`: Removed - all plugin calls now use method_id by default.
   - The LLVM backend only supports method_id-based plugin calls for better performance and type safety.
 
 
-### 5. **WebAssembly (Browser)** — Status: Paused / Unmaintained
-The WASM/browser path is currently not maintained and is not part of CI. The older playground and guides are kept for historical reference only.
+### 5. **WebAssembly (Browser)** — Status: Experimental / monitor-only
+The WASM/browser path is experimental and not part of the product mainline or default CI. The older playground and guides are kept for historical reference only.
 
 - Source (archived): `projects/nyash-wasm/` (build not guaranteed)
-- Current focus: VM (Rust) and LLVM (ny-llvmc crate backend; llvmlite harness is an explicit keep lane)
+- Current role: experimental / monitor-only, separate from the product main and engineering bootstrap lanes
 - If you experiment locally, see the project README and `projects/nyash-wasm/build.sh` (wasm-pack required). No support guarantees.
 
 ---
@@ -366,7 +366,7 @@ Key options (minimal)
 - `--target <triple>` (only when needed)
 
 Notes
-- LLVM AOT main line is the ny-llvmc crate backend. The default caller route stays on ny-llvmc's boundary route; llvmlite is only reached through explicit keep/replay lanes (for example `--driver harness` or `NYASH_LLVM_USE_HARNESS=1`). End users should invoke ny-llvmc (or tools/ny_mir_builder.sh) rather than calling the Python harness directly.
+- LLVM AOT main line is the ny-llvmc crate backend and the product main. The default caller route stays on ny-llvmc's boundary route; llvmlite is only reached through explicit keep/replay lanes (for example `--driver harness` or `NYASH_LLVM_USE_HARNESS=1`). End users should invoke ny-llvmc (or tools/ny_mir_builder.sh) rather than calling the Python harness directly.
 - Ensure `ny-llvmc` is built (`cargo build -p nyash-llvm-compiler`) and Python3 is available for the internal harness. No `LLVM_SYS_180_PREFIX` required.
 - Apps that open a GUI may show a window during AOT emission; close it to continue.
 - On WSL if the window doesn’t show, see `docs/guides/cranelift_aot_egui_hello.md` (Wayland→X11).

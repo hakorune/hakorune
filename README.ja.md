@@ -71,7 +71,7 @@ ExternCall（env.*）と println 正規化: `docs/reference/runtime/externcall.m
 詳細: `docs/guides/perf/benchmarks.md`
 
 Phase‑15（2025‑09）アップデート
-- LLVM は ny‑llvmc（クレート backend）が主線。llvmlite は内部ハーネスとして ny‑llvmc から呼び出されます（利用者は ny‑llvmc/スクリプトを使えばOK）。
+- LLVM は ny‑llvmc（クレート backend）が product main。llvmlite は内部ハーネスとして ny‑llvmc から呼び出されます（利用者は ny‑llvmc/スクリプトを使えばOK）。
 - パーサの改行処理は TokenCursor に統一中（`NYASH_PARSER_TOKEN_CURSOR=1`）。
 - if/else の PHI は実際の遷移元（exit）を pred として使用（VM/LLVM パリティ緑）。
 - 自己ホスト準備として Ny 製 JSON ライブラリと Ny Executor（最小命令）を既定OFFトグルで段階導入予定。
@@ -92,14 +92,14 @@ Phase‑15（2025‑09）アップデート
   - 例: `$NYASH_BIN --profile dev --backend vm apps/tests/ternary_basic.hako`
 
 ## 目次
-- [Self-Hosting（自己ホスト開発）](#self-hosting)
+- [Self-Hosting（engineering/bootstrap）](#self-hosting)
 - [🚀 速報: ネイティブEXE達成！](#-速報-ネイティブexe達成)
 
 <a id="self-hosting"></a>
 ## 🧪 Self-Hosting（自己ホスト開発）
 - ガイド: `docs/how-to/self-hosting.md`
-- 最小E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
-- スモーク: `bash tools/jit_smoke.sh` / `bash tools/selfhost_vm_smoke.sh`
+- Engineering bootstrap E2E: `$NYASH_BIN --backend vm apps/selfhost-minimal/main.hako`
+- Engineering smokes: `bash tools/jit_smoke.sh` / `bash tools/selfhost_vm_smoke.sh`
 - Makefile: `make run-minimal`, `make smoke-selfhost`
 
 MIR注記: Core‑13 最小カーネルは既定で有効（NYASH_MIR_CORE13=1）。旧命令は正規化されます（Array/Ref→BoxCall、TypeCheck/Cast/Barrier/WeakRefの統一）。
@@ -174,10 +174,10 @@ local py = new PyRuntimeBox()       // Pythonプラグイン
 
 ## 🏗️ **複数の実行モード**
 
-重要: 現在、JIT ランタイム実行は封印中です。実行は Rust VM（MIR）、配布は LLVM AOT（ハーネス）が主軸です。ASTインタープリタはレガシー扱いでデフォルト無効（`interpreter-legacy` feature）。
+重要: 現在、JIT ランタイム実行は封印中です。配布は LLVM AOT（ny‑llvmc）が product main、Rust VM は engineering/bootstrap の実行線です。ASTインタープリタはレガシー扱いでデフォルト無効（`interpreter-legacy` feature）。
 
 Phase‑15（自己ホスト期）: ASTインタープリタは任意featureで明示ON
-- 既定ビルド: `--backend vm` は Rust VM（MIR）
+- 既定ビルド: `--backend vm` は Rust VM（engineering/bootstrap）
 - PyVM 経路は historical/direct-only で、`tools/historical/pyvm/pyvm_runner.py` に委譲
 - レガシー AST インタープリタを有効化するには（通常は不要）:
   ```bash
@@ -192,20 +192,20 @@ $NYASH_BIN program.hako
 - 完全なデバッグ情報
 - 開発に最適
 
-### 2. **VMモード（既定は Rust VM／PyVM は historical direct route）**
+### 2. **VMモード（engineering/bootstrap lane）**
 ```bash
-# 既定: Rust VM
+# Engineering/bootstrap 既定: Rust VM
 $NYASH_BIN --backend vm program.hako
 
 # historical PyVM パリティ確認
 bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
 ```
-- 既定: Rust VM が MIR を直接実行
+- 既定: Rust VM が MIR を直接実行する engineering/bootstrap lane
 - legacy PyVM: MIR(JSON) を `tools/historical/pyvm/pyvm_runner.py` で実行
 - レガシー VM: インタープリター比で 13.5x（歴史的実測）。比較・検証用途で維持
  - 補足: `--benchmark` はレガシー VM（`vm-legacy`）が必要です。実行前に `cargo build --release --features vm-legacy` を行ってください。
 
-### 3. **ネイティブバイナリ（Cranelift AOT）** （配布用）
+### 3. **ネイティブバイナリ（Cranelift AOT）** （配布用 / 非 primary native path）
 ```bash
 # 事前ビルド（Cranelift）
 cargo build --release --features cranelift-jit
@@ -217,7 +217,7 @@ cargo build --release --features cranelift-jit
 - 最高性能
 - 簡単配布
 
-### 4. **ネイティブバイナリ（LLVM AOT, ny‑llvmc クレート backend）**
+### 4. **ネイティブバイナリ（LLVM AOT, ny‑llvmc クレート backend, product main）**
 ```bash
 # ny‑llvmc（クレート）＋CLI をビルド（LLVM_SYS_180_PREFIX不要）
 cargo build --release -p nyash-llvm-compiler && cargo build --release --features llvm
@@ -238,24 +238,24 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 ./myapp
 ```
 
-簡易スモークテスト（VM と EXE の出力一致確認）:
+簡易比較スモーク（engineering parity, VM と EXE の出力一致確認）:
 ```bash
 tools/smoke_aot_vs_vm.sh examples/aot_min_string_len.hako
 ```
 
 ### LLVM バックエンドの補足
-- 本線は ny‑llvmc（クレート backend）。内部で Python llvmlite ハーネスを呼び出してオブジェクトを生成します。利用者は ny‑llvmc（または `tools/ny_mir_builder.sh`）を使えば十分です。Python3 は内部ハーネスのために必要です。`LLVM_SYS_180_PREFIX` は不要です。
+- 本線は ny‑llvmc（クレート backend）で、product main です。内部で Python llvmlite ハーネスを呼び出してオブジェクトを生成します。利用者は ny‑llvmc（または `tools/ny_mir_builder.sh`）を使えば十分です。Python3 は内部ハーネスのために必要です。`LLVM_SYS_180_PREFIX` は不要です。
 - `NYASH_LLVM_OBJ_OUT`: `--backend llvm` 実行時に `.o` を出力するパス。
   - 例: `NYASH_LLVM_OBJ_OUT=$PWD/nyash_llvm_temp.o $NYASH_BIN --backend llvm apps/ny-llvm-smoke/main.hako`
 - 削除された `NYASH_LLVM_ALLOW_BY_NAME=1`: すべてのプラグイン呼び出しがmethod_idベースに統一。
   - LLVMバックエンドは性能と型安全性のため、method_idベースのプラグイン呼び出しのみ対応。
 
 
-### 5. **WebAssembly（ブラウザ）** — 現状: 一時停止 / 未整備
-WASM/ブラウザ経路は現在メンテ対象外です（CI未対象）。古いプレイグラウンド/ガイドは歴史的資料として残置しています。
+### 5. **WebAssembly（ブラウザ）** — 現状: Experimental / monitor-only
+WASM/ブラウザ経路は experimental で、product mainline や default CI の対象ではありません。古いプレイグラウンド/ガイドは歴史的資料として残置しています。
 
 - ソース（アーカイブ）: `projects/nyash-wasm/`（ビルド保証なし）
-- 現在の主線: VM（Rust）と LLVM（ny‑llvmc クレート backend。llvmlite は内部ハーネス）
+- 現在の役割: experimental / monitor-only。product main と engineering/bootstrap lanes から分離
 - ローカルで試す場合は `projects/nyash-wasm/README.md` と `projects/nyash-wasm/build.sh` を参照（wasm-pack 必須、サポート無保証）。
 
 ---
