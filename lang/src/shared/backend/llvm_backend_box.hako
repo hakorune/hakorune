@@ -6,8 +6,8 @@ using selfhost.shared.mir.json_emit as JsonEmitBox
 
 // LlvmBackendBox — official thin backend boundary
 // Current split:
-// - compat/daily wrapper may still accept MIR(JSON v0) file handoff
-// - root-first callers may stop here with a hydrated MIR root
+// - `compile_obj(json_path)` stays only as a compatibility path-entry shim
+// - root-first callers should stop here with a hydrated MIR root
 // Both paths end at the thin LLVM tool seam and link to EXE from here.
 // Final target: `.hako` callers stop at this facade (and/or lang/c-abi helper),
 // not at a Rust-only lowering owner. Current implementation is still external-tool driven.
@@ -15,17 +15,6 @@ using selfhost.shared.mir.json_emit as JsonEmitBox
 // is not the owner for new backend-zero work.
 
 static box LlvmBackendBox {
-  // Returns object path on success, or null on fail-fast error.
-  compile_obj(json_path) {
-    local profile = BackendRecipeBox.compile_route_profile(json_path)
-    if profile == null { return null }
-    local obj = me._compile_obj_daily(json_path, "", profile)
-    if obj == null || ("" + obj) == "" {
-      return me._fail("[llvmbackend/emit/failed] daily compile returned empty")
-    }
-    return "" + obj
-  }
-
   compile_obj_root(root, evidence_json_path) {
     local profile = BackendRecipeBox.compile_root_profile(evidence_json_path)
     if profile == null { return null }
@@ -36,15 +25,22 @@ static box LlvmBackendBox {
     return "" + obj
   }
 
-  _compile_obj_daily(json_path, out_path, profile) {
-    if me._profile_transport_owner(profile) == "hako_ll_emitter" {
-      local root = MirRootHydratorBox.hydrate_file(json_path)
-      if root == null {
-        return me._fail("[llvmbackend/root-hydrate-failed] json_path=" + ("" + json_path))
-      }
-      return me._compile_obj_root_with_profile(root, null, out_path, profile, "daily")
+  // Compatibility path-entry shim.
+  // Root-first callers should prefer `compile_obj_root(...)`.
+  compile_obj(json_path) {
+    local path = BackendRecipeBox.require_non_empty_field("compile_obj", "json_path", json_path)
+    if path == null { return null }
+    local profile = BackendRecipeBox.compile_route_profile(path)
+    if profile == null { return null }
+    local root = MirRootHydratorBox.hydrate_file(path)
+    if root == null {
+      return me._fail("[llvmbackend/root-hydrate-failed] json_path=" + ("" + path))
     }
-    return me._compile_obj_legacy_with_profile(json_path, out_path, profile)
+    local obj = me._compile_obj_root_with_profile(root, null, "", profile, me._compile_obj_path_lane(profile))
+    if obj == null || ("" + obj) == "" {
+      return me._fail("[llvmbackend/emit/failed] path shim returned empty")
+    }
+    return "" + obj
   }
 
   _compile_obj_root_with_profile(root, evidence_json_path, out_path, profile, lane) {
@@ -95,14 +91,6 @@ static box LlvmBackendBox {
     return "" + obj
   }
 
-  _compile_obj_legacy_with_profile(json_path, out_path, profile) {
-    local root = MirRootHydratorBox.hydrate_file(json_path)
-    if root == null {
-      return me._fail("[llvmbackend/root-hydrate-failed] json_path=" + ("" + json_path))
-    }
-    return me._compile_obj_root_with_profile(root, null, out_path, profile, "legacy")
-  }
-
   _compile_ll_text(ll_text, out_path) {
     local out = ""
     if out_path != null { out = "" + out_path }
@@ -127,11 +115,12 @@ static box LlvmBackendBox {
     return 1
   }
 
-  _profile_transport_owner(profile) {
+  _compile_obj_path_lane(profile) {
     if profile == null { return "" }
     local owner = profile.get("transport_owner")
-    if owner == null { return "" }
-    return "" + owner
+    if owner == null { return "legacy" }
+    if ("" + owner) == "hako_ll_emitter" { return "daily" }
+    return "legacy"
   }
 
   // Links an exe. Returns 1 on success, or null on fail-fast error.

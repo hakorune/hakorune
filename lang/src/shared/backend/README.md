@@ -6,7 +6,7 @@
 
 Current owner
   - `llvm_backend_box.hako`
-  - thin backend boundary の caller facade
+  - thin backend boundary の owner facade; `compile_obj(json_path)` is only the compatibility path-entry shim
   - `llvm_backend_evidence_adapter_box.hako`
   - compare/evidence-only adapter; keep compare callers and provider-stop-line proof hooks out of the owner facade
   - `backend_recipe_box.hako`
@@ -43,8 +43,8 @@ Current owner
   - MIR normalization (`schema_version: "1.0"` / `metadata.extern_c`) is owned by Rust backend boundary `src/host_providers/llvm_codegen.rs::normalize_mir_json_for_backend(...)`
   - `emit_object` remains compat keep for legacy/provider probes only
   - public first-cut contract:
-    - `compile_obj(json_path)` -> object path or `null` with `[llvmbackend/*]`
-    - `compile_obj_root(root, evidence_json_path)` -> object path or `null` with `[llvmbackend/*]`
+    - `compile_obj_root(root, evidence_json_path)` -> object path or `null` with `[llvmbackend/*]` (owner-facing root-first entry)
+    - `compile_obj(json_path)` -> object path or `null` with `[llvmbackend/*]` (compatibility path-entry shim)
     - `link_exe(obj_path, out_path, libs)` -> `1` or `null` with `[llvmbackend/*]`
       - non-empty `libs` is currently forwarded as a single extra-ldflags string
       - empty `libs` still falls back to `HAKO_AOT_LDFLAGS` under the C boundary

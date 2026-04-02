@@ -43,11 +43,11 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `post-W6 owner/evidence readability follow-up`
+- active macro wave: `post-W6 residual cleanup and helper watch`
 - active micro-task:
-  - `LlvmBackendBox owner-facade slimming follow-up`
-- next queued micro-task:
   - `residual docs cleanup`
+- next queued micro-task:
+  - `29x-98 final helper deletion watch`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, the compat selfhost wrapper stack has been materialized onto `vm-hako`, and the Hako-side bridge is now archive-only; the next collapse is on the Rust receiver side.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -122,9 +122,9 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 | `99I` | landed | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
 | `99J` | landed | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
 
-- `99I` follow-up remains queued after `W4`:
-  - slim `LlvmBackendBox` until `compile_obj(json_path)` no longer makes the owner facade look like the evidence/file entry home
-  - keep that rename/surface pass separate from current proof-gated caller-drain work
+- `99I` follow-up is landed:
+  - `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
+  - `compile_obj_root(root, evidence_json_path)` remains the owner-facing root-first entry
 
 ### W3. Smoke/Proof Filesystem Recut
 
@@ -386,6 +386,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `post-W6 owner/evidence readability follow-up`
-  - micro: `LlvmBackendBox owner-facade slimming follow-up`
-  - next: `LlvmBackendBox owner-facade slimming follow-up`
+  - micro: `residual docs cleanup`
+  - next: `29x-98 final helper deletion watch`
   - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, `99Q1-99S1` landed for the Rust chokepoint collapse, and `99T-99U` landed for legacy bridge naming truth plus bridge entrypoint deletion

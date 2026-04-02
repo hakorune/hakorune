@@ -68,9 +68,9 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `LlvmBackendBox owner-facade slimming follow-up` | finish the owner/evidence readability pass after the W6 path-truth pass |
-| Next | `legacy_mir_front_door` physical helper deletion when caller inventory reaches zero | keep the remaining helper explicit and compat-only |
-| Later | `residual docs cleanup` | only after the remaining explicit helper callers are gone |
+| Now | `legacy_mir_front_door` physical helper deletion watch | keep the remaining helper explicit and compat-only until the two-caller inventory reaches zero |
+| Next | `residual docs cleanup` | trim phase wording once the helper watch no longer changes |
+| Later | `next optimization restart` | only after the remaining explicit helper callers are gone |
 
 ## Replacement Matrix
 

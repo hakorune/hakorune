@@ -50,9 +50,10 @@ Related:
 - `99S1` is landed: the stage1 surrogate now lives under `module_string_dispatch/compat/`, not an owner-looking home.
 - `99T` is landed: the compat implementation now names the bridge truthfully as `LegacyEmitObjectBridgeBox`, while the owner-looking `CodegenBridgeBox` path stays shim-only.
 - `99U` is landed: `CodegenBridgeBox.emit_object_args(...)` is deleted; only the shim-only `link_object_args(...)` export remains.
-- current active micro task is `LlvmBackendBox owner-facade slimming follow-up`; next queued micro task is `residual docs cleanup`.
+- owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
+- current active micro task is `residual docs cleanup`; next queued micro task is `29x-98 final helper deletion watch`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
-- immediate cleanup order is `owner-facade slimming -> residual docs cleanup -> 29x-98 final helper deletion watch`.
+- immediate cleanup order is `residual docs cleanup -> 29x-98 final helper deletion watch -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -68,9 +69,9 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `LlvmBackendBox owner-facade slimming follow-up` | finish the owner/evidence readability pass after the W6 path-truth pass |
-| Next | `residual docs cleanup` | trim the mirrors after the owner/evidence pass settles |
-| Later | `29x-98 final helper deletion watch` | only after the remaining explicit helper caller inventory reaches zero |
+| Now | `residual docs cleanup` | trim the mirrors after the owner/evidence pass settled |
+| Next | `29x-98 final helper deletion watch` | only after the remaining explicit helper caller inventory reaches zero |
+| Later | `next optimization restart` | only after the compat helper watch no longer blocks forward cleanup |
 
 ## Cleanup Waves
 

@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 post-W6 owner-facade slimming follow-up`
+- Exact focus: `29x-99 residual docs cleanup`
   - phase2120 pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`; the legacy cluster orchestrator is runner-only
   - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is monitor-only keep and the proof buckets are runner-only
   - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
@@ -98,8 +98,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `99Q2 reduce MirInterpreter receivers to thin adapters` is landed
   - `99Q3 reduce plugin-loader receiver to a thin adapter` is landed
   - `99R1 collapse route ownership into one compat namespace` is landed
-  - current active micro task is `LlvmBackendBox owner-facade slimming follow-up`
-  - next queued micro task is `residual docs cleanup`
+  - owner-facade slimming is landed: `compile_obj(json_path)` is now an explicit compatibility path-entry shim over the root-first compile core
+  - current active micro task is `residual docs cleanup`
+  - next queued micro task is `29x-98 final helper deletion watch`
   - review intake owner is `29x-99`; mirror docs only carry the open deltas, not the full intake table
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -118,7 +119,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `29x-99` owner-facade slimming follow-up -> residual docs cleanup |
+  | Next | `29x-99` residual docs cleanup -> `29x-98` final helper deletion watch |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -132,9 +133,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `LlvmBackendBox owner-facade slimming follow-up` | finish the owner/evidence readability pass after the W6 path-truth pass |
-| Next | `residual docs cleanup` | trim the mirrors after the owner/evidence pass settles |
-| Later | `29x-98 final helper deletion watch` | only when the remaining explicit helper caller inventory reaches zero |
+| Now | `residual docs cleanup` | trim the mirrors after the owner/evidence pass settled |
+| Next | `29x-98 final helper deletion watch` | only when the remaining explicit helper caller inventory reaches zero |
+| Later | `next optimization restart` | only after the compat helper watch no longer blocks forward cleanup |
 
 ## Cleanup Waves
 

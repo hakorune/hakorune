@@ -53,10 +53,11 @@ Related:
      - `hostbridge.rs` / `loader_cold.rs` are forwarding adapters and `extern_functions.rs` no longer owns direct codegen behavior
      - `99T` is landed: the compat implementation now names the bridge truthfully as `LegacyEmitObjectBridgeBox`, while the owner-looking `CodegenBridgeBox` path stays shim-only
      - `99U` is landed: `CodegenBridgeBox.emit_object_args(...)` is deleted; only the shim-only `link_object_args(...)` export remains
-     - current active micro task is `LlvmBackendBox owner-facade slimming follow-up`
-     - next queued micro task is `residual docs cleanup`
-     - post-docs watch is `29x-98 final helper deletion`
-     - review intake detail lives in `29x-99`; the open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
+     - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
+     - current active micro task is `residual docs cleanup`
+     - next queued micro task is `29x-98 final helper deletion watch`
+     - post-watch step is `next optimization restart`
+     - review intake detail lives in `29x-99`; the remaining live watch is the final explicit compat helper inventory under `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -64,14 +65,14 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-99` owner-facade slimming follow-up -> residual docs cleanup |
+     | Next | `29x-99` residual docs cleanup -> `29x-98` final helper deletion watch |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `LlvmBackendBox owner-facade slimming follow-up` |
-     | Next | `residual docs cleanup` |
-     | Later | `29x-98 final helper deletion watch` |
+     | Now | `residual docs cleanup` |
+     | Next | `29x-98 final helper deletion watch` |
+     | Later | `next optimization restart` |
    - cleanup waves:
 
      | Wave | Status | Read as |

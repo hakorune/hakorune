@@ -74,8 +74,8 @@ if ! grep -q '"name": "link_exe"' "$OUT_MIR"; then
   exit 1
 fi
 
-if ! grep -Fq 'MirRootHydratorBox.hydrate_file(json_path)' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
-  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer hydrates MIR JSON through MirRootHydratorBox.hydrate_file(json_path))" >&2
+if ! grep -Fq 'MirRootHydratorBox.hydrate_file(path)' "$ROOT_DIR/lang/src/shared/backend/llvm_backend_box.hako"; then
+  echo "[FAIL] phase29ck_llvm_backend_box_capi_link_min (owner no longer hydrates MIR JSON through MirRootHydratorBox.hydrate_file(path))" >&2
   exit 1
 fi
 

@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 post-W6 owner-facade slimming follow-up`
+- Exact focus: `29x-99 residual docs cleanup`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,9 +60,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 
   | Band | State |
   | --- | --- |
-  | Now | `LlvmBackendBox owner-facade slimming follow-up` |
-  | Next | `residual docs cleanup` |
-  | Later | `29x-98 final helper deletion watch` |
+  | Now | `residual docs cleanup` |
+  | Next | `29x-98 final helper deletion watch` |
+  | Later | `next optimization restart` |
 
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket; the other `phase2044` groups stay bucket-runner only. `phase2111` / `phase251` archive proofs share one replay-evidence suite; `phase2120` pure canaries now split by suites, with `compat/pure-keep` for the live pair and `archive/pure-historical` for archive-backed replay evidence; the selfhost compat stack is now read as `payload -> transport wrapper -> pack orchestrator`, the wrapper now materializes its payload onto `vm-hako`, and `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`.
 - `99V` is landed: the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper callers are `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`.
@@ -77,8 +77,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 - `99S1` is landed: the stage1 surrogate now lives under `module_string_dispatch/compat/`.
 - `99T` is landed: the compat implementation now names the bridge truthfully as `LegacyEmitObjectBridgeBox`, while the owner-looking `CodegenBridgeBox` path stays shim-only.
 - `99U` is landed: `CodegenBridgeBox.emit_object_args(...)` is deleted; only the shim-only `link_object_args(...)` export remains.
-- active micro task is `LlvmBackendBox owner-facade slimming follow-up`.
-- next queued micro task is `residual docs cleanup`.
+- owner-facade slimming is landed: `compile_obj(json_path)` is now an explicit compatibility path-entry shim over the root-first compile core.
+- active micro task is `residual docs cleanup`.
+- next queued micro task is `29x-98 final helper deletion watch`.
 - detailed review intake and fine-grained W4/W5 queue live in `29x-99`, not in this restart mirror.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
