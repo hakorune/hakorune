@@ -36,8 +36,8 @@ Related:
 | 6 | `30xB4` | landed | smoke matrix/guide cleanup |
 | 7 | `30xC1` | landed | `rust-vm` bootstrap/selfhost pressure |
 | 8 | `30xC2` | landed | `rust-vm` plugin/macro/tooling pressure |
-| 9 | `30xC3` | active | `rust-vm` smoke/test pressure |
-| 10 | `30xC4` | queued | `rust-vm` docs/help pressure |
+| 9 | `30xC3` | landed | `rust-vm` smoke/test pressure |
+| 10 | `30xC4` | active | `rust-vm` docs/help pressure |
 | 11 | `30xD1-30xD3` | queued | do-not-flip-early lock |
 | 12 | `30xE1-30xE4` | queued | user-facing main switch prep |
 | 13 | `30xF1-30xF2` | queued | backend default decision last |
@@ -92,7 +92,25 @@ rg -n 'rust-vm|vm-hako|llvm-exe|ny-llvm|ny-llvmc|compile-wasm|wasm-backend' \
 Plugin/macro/tooling archive/delete result:
 
 - `none`
-- hard delete/archive is blocked in `30xC2`; `30xC3` and `30xD` must land first
+- hard delete/archive is blocked in `30xC2`; `30xD` and `30xE` must land first
+
+### Smoke / test keep vs watch
+
+- keep:
+  - `tools/selfhost_smoke.sh`
+  - `tools/selfhost_vm_smoke.sh`
+  - `tools/selfhost_stage3_accept_smoke.sh`
+  - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+  - `tools/smoke_aot_vs_vm.sh`
+- watch:
+  - `tools/cross_backend_smoke.sh`
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+  - `tools/selfhost_stage2_smoke.sh`
+
+Smoke/test archive/delete result:
+
+- `none`
+- hard delete/archive is blocked in `30xC3`; `30xD` and `30xE` must land first
 
 ### Bootstrap/selfhost keep details
 

@@ -76,8 +76,8 @@ Related:
 | --- | --- | --- | --- |
 | `30xC1` | landed | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
 | `30xC2` | landed | plugin/macro/tooling inventory | macro child, plugin smoke, and dev tooling are grouped into keep vs watch |
-| `30xC3` | active | smoke/test inventory | vm-backed smoke/test orchestrators are listed separately from product/reference suites |
-| `30xC4` | queued | docs/help inventory | README/help/guides that still center `--backend vm` are explicit |
+| `30xC3` | landed | smoke/test inventory | engineering smoke keeps, mixed orchestrators, and manual residues are separated |
+| `30xC4` | active | docs/help inventory | README/help/guides that still center `--backend vm` are explicit |
 
 ### `30xD` dangerous-early-flip lock
 
@@ -203,10 +203,10 @@ Plugin/macro/tooling findings (`30xC2`):
   - watch as manual residue; do not delete in `30xC2`
 - `tools/async_smokes.sh`
   - older async helper still appears in migration-plan material
-  - watch as manual residue until `30xC3/30xD` clarifies smoke ownership
+  - watch as manual residue until `30xD/30xE` clarifies smoke ownership
 - `tools/parity.sh`
   - parity helper still has current doc references and mixed backend vocabulary
-  - keep for now as engineering/tooling pressure; revisit only after `30xC3`
+  - keep for now as engineering/tooling pressure; revisit only after `30xD`
 
 Plugin/macro/tooling archive/delete result (`30xC2`):
 
@@ -221,6 +221,44 @@ Plugin/macro/tooling archive/delete result (`30xC2`):
 - `tools/cross_backend_smoke.sh`
 - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+- `tools/selfhost_vm_smoke.sh`
+- `tools/selfhost_stage2_smoke.sh`
+- `tools/selfhost_stage3_accept_smoke.sh`
+- `tools/smoke_aot_vs_vm.sh`
+
+Smoke/test findings (`30xC3`):
+
+- `tools/selfhost_smoke.sh`
+  - current selfhosting quickstart still points at this dev smoke
+  - keep as engineering/selfhost smoke surface
+- `tools/selfhost_vm_smoke.sh`
+  - current root README/README.ja and `Makefile` still point at this script
+  - keep as engineering smoke surface
+- `tools/selfhost_stage3_accept_smoke.sh`
+  - current Stage-3 acceptance guide still points at this bridge/selfhost smoke
+  - keep as engineering smoke surface
+- `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+  - mixed `vm`/`llvm` aggregator stays a do-not-flip-early orchestrator
+  - keep as mixed orchestrator surface; do not archive in `30xC3`
+- `tools/smoke_aot_vs_vm.sh`
+  - current root README still presents this compare smoke
+  - keep for now; revisit wording in `30xC4` because it also pulls user-facing docs pressure
+- `tools/cross_backend_smoke.sh`
+  - current live reference is migration-plan material, not active product/reference docs
+  - watch as manual residue; candidate for archive-later after `30xD/30xE`
+- `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+  - isolated syntax-torture cross-backend harness with no current main docs hook
+  - watch as manual residue; do not delete in `30xC3`
+- `tools/selfhost_stage2_smoke.sh`
+  - isolated manual selfhost acceptance smoke with direct `--backend vm`
+  - watch as manual residue until selfhost smoke ownership is simplified
+
+Smoke/test archive/delete result (`30xC3`):
+
+- none
+- current hard-delete or archive move would be premature in this bucket
+- engineering smoke keeps remain live
+- mixed orchestrators and manual residues stay watch-only until `30xD` and `30xE`
 
 ### Docs / help / taxonomy
 
