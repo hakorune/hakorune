@@ -115,8 +115,7 @@ Related:
 | `tools/smokes/v2/profiles/archive/pure-historical/s3_link_run_llvmcapi_pure_*` archive-backed pins | `tools/smokes/v2/profiles/archive/pure-historical/` | archive-backed replay evidence |
 | `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/s3_vm_adapter_*` | `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/` | legacy VM adapter cluster |
 | `tools/smokes/v2/profiles/integration/proof/native-reference/native_backend_*` | `tools/smokes/v2/profiles/integration/proof/native-reference/` | native reference canaries |
-| `tools/smokes/v2/profiles/archive/core/phase2111/*` | `tools/smokes/v2/profiles/archive/core/phase29x-legacy-emit-object-evidence/` | archive replay bundle |
-| `tools/smokes/v2/profiles/archive/core/phase251/*` | same archive replay bundle | archived lowering evidence |
+| `tools/smokes/v2/profiles/archive/core/phase29x-legacy-emit-object-evidence/*` | `tools/smokes/v2/profiles/archive/core/phase29x-legacy-emit-object-evidence/` | archive replay bundle for both legacy emit/link canaries and archived selfhost lowering probes |
 
 ### W4. Hako-Side Caller Drain Prep
 

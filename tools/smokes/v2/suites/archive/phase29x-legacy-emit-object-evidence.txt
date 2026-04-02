@@ -1,6 +1,6 @@
 # Archive phase29x legacy emit_object evidence suite
 # Replay-only proof surfaces that still document the old env.codegen.emit_object lane.
-core/phase2111/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh
-core/phase2111/s3_link_run_llvmcapi_map_set_size_canary_vm.sh
-core/phase251/selfhost_mir_extern_codegen_basic_vm.sh
-core/phase251/selfhost_mir_extern_codegen_basic_provider_vm.sh
+core/phase29x-legacy-emit-object-evidence/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh
+core/phase29x-legacy-emit-object-evidence/s3_link_run_llvmcapi_map_set_size_canary_vm.sh
+core/phase29x-legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_vm.sh
+core/phase29x-legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_provider_vm.sh

@@ -1,7 +1,7 @@
-# Phase 2120 Legacy Cluster Orchestrator
+# Phase 2120 Legacy Cluster Index
 
-このディレクトリは phase2120 の legacy cluster を束ねる orchestrator だよ。
-実体の bucket は semantic homes に分かれているので、ここはまとめ役だけを持つ。
+This directory is the index-only orchestrator for the phase2120 legacy cluster.
+The actual coverage lives in semantic homes; this file only points at them.
 
 ## Categories
 
