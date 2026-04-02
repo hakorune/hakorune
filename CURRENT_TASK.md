@@ -95,6 +95,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `99R1 collapse route ownership into one compat namespace` is landed
   - current active micro task is `99R2 align tracing / observability at the chokepoint`
   - next queued micro task is `99S1 move surrogate caller to compat/evidence adapter home`
+  - post-`99S1` queued micro task is `99T truthify legacy emit bridge naming and keep shim-only export`
   - review intake owner is `29x-99`; mirror docs only carry the open deltas, not the full intake table
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`

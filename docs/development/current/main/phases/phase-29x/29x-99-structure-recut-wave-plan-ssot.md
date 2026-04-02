@@ -67,6 +67,19 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 | Rust legacy/codegen receivers still read as a spread surface | adopt-next | `99Q1-99S1` | receiver-body split landed; one chokepoint collapse remains open |
 | `CodegenBridgeBox.emit_object_args(...)` / `emit_object_from_mir_json(...)` should die only after path truth and proof replacement exist | confirmed | `29x-98` + `99N1-99P3` | stop-line stays proof-gated |
 
+### 2026-04-02 Re-Cut Proposal Mapping
+
+This table maps the later beauty-first re-cut proposal onto the current tree so we do not reopen already-landed slices.
+
+| Proposal item | Verdict | Task home | Read as |
+| --- | --- | --- | --- |
+| new compat bridge for `MIR(JSON text) -> root-first compile` | stale-in-review | `99P2` + `llvm_emit_compat_box` landed | bridge role is already absorbed by current compat root-first callers; no new bridge file is required now |
+| compat selfhost payload root-first conversion | landed | `99P1` | payload now proves the provider stop-line through the evidence adapter on `vm-hako` |
+| `compat_codegen_extern_provider.hako` root-first conversion | landed | `99P2` | gated compat stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)` |
+| truthify legacy emit bridge naming / shim role | adopt-next | `99T` | compat implementation name should stop presenting `CodegenBridgeBox` as the primary truth |
+| one Rust compat-codegen chokepoint | landed and advancing | `99R2` | canonical shared receiver exists; next work is tracing / observability alignment |
+| surrogate move to compat/evidence home | adopt-next | `99S1` | surrogate still lives under an owner-looking path and should move after tracing is aligned |
+
 ## Micro Tasks
 
 ### W1. Docs-First Path-Truth Pass
@@ -283,9 +296,9 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99T` | pending-after-W5 | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
-| `99U` | pending-after-W5 | delete `emit_object_from_mir_json(...)` | caller inventory is zero and archive evidence is preserved elsewhere |
-| `99V` | pending-after-W5 | collapse final compat/archive residue and sync docs | `owner / compat / proof / archive` reads cleanly in tree and docs |
+| `99T` | pending-after-S1 | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
+| `99U` | pending-after-T | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
+| `99V` | pending-after-U | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and `owner / compat / proof / archive` reads cleanly in tree and docs |
 
 ## Split Targets
 

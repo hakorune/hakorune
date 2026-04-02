@@ -74,6 +74,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 - `99R1` is landed: plugin-loader `env.codegen` now enters `compat_codegen_receiver.rs` directly, so route ownership is visible in one compat namespace.
 - active micro task is `99R2 align tracing / observability at the chokepoint`.
 - next queued micro task is `99S1 move surrogate caller to compat/evidence adapter home`.
+- post-`99S1` queued micro task is `99T truthify legacy emit bridge naming and keep shim-only export`.
 - detailed review intake and fine-grained W4/W5 queue live in `29x-99`, not in this restart mirror.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`

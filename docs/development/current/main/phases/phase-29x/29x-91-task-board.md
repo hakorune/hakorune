@@ -93,8 +93,10 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99Q3` | W5 | landed | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` no longer owns direct codegen behavior |
 | `99R1` | W5 | landed | collapse route ownership into one compat namespace | route ownership is visible in one Rust home |
 | `99R2` | W5 | active | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
-| `99S1` | W5 | pending-after-W4 | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
-| `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |
+| `99S1` | W5 | pending-after-R2 | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
+| `99T` | W6 | pending-after-S1 | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
+| `99U` | W6 | pending-after-T | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
+| `99V` | W6 | pending-after-U | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and tree/docs read cleanly |
 
 ## 0.2 Review intake
 
@@ -109,6 +111,9 @@ This table is not a new plan. It classifies the 2026-04-02 beauty-first review a
 | slimmer `LlvmBackendBox` owner facade | adopt next | post-`W4` follow-up on `99I` |
 | one explicit Rust compat-codegen chokepoint | adopt next | `99Q1-99S1` |
 | old `tools/selfhost/examples/` compat payload home | stale in review | current live home is `tools/compat/legacy-codegen/` |
+| new explicit compat MIR(JSON)-to-root-first bridge file | stale in review | current bridge role is already absorbed by landed compat root-first callers |
+| legacy bridge naming truth (`CodegenBridgeBox` still reads primary) | adopt next | `99T` |
+| surrogate move to compat/evidence home | adopt next | `99S1` |
 
 | ID | Lane | Task | Est. | Depends | Acceptance |
 | --- | --- | --- | --- | --- | --- |

@@ -47,6 +47,7 @@ Related:
 - `29x-99` owns macro cleanup waves and micro tasks; `99N1-99N3`, `99O1-99O4`, `99P1`, `99P2`, `99P3`, `99Q1`, `99Q2`, and `99Q3` are landed.
 - `99R1` is landed: route ownership is now visible from `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`, `hostbridge.rs` / `loader_cold.rs` are forwarding adapters, and `extern_functions.rs` no longer owns direct codegen behavior.
 - current active micro task is `99R2 align tracing / observability at the chokepoint`; next queued micro task is `99S1 move surrogate caller to compat/evidence adapter home`.
+- after `99S1`, the next cleanup is `99T truthify legacy emit bridge naming and keep shim-only export`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
 - immediate cleanup order is `extern_provider caller demotion -> CodegenBridgeBox archive-only -> Rust chokepoint collapse`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.

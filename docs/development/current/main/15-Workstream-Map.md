@@ -53,6 +53,7 @@ Related:
      - `hostbridge.rs` / `loader_cold.rs` are forwarding adapters and `extern_functions.rs` no longer owns direct codegen behavior
      - current active micro task is `99R2 align tracing / observability at the chokepoint`
      - next queued micro task is `99S1 move surrogate caller to compat/evidence adapter home`
+     - post-`99S1` queued micro task is `99T truthify legacy emit bridge naming and keep shim-only export`
      - review intake detail lives in `29x-99`; the open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
