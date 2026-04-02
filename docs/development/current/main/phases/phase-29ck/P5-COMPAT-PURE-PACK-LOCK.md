@@ -9,7 +9,7 @@ Related:
   - docs/development/current/main/phases/phase-29ck/P3-THIN-BACKEND-CUTOVER-LOCK.md
   - docs/reference/environment-variables.md
   - tools/smokes/v2/profiles/integration/compat/pure-keep/README.md
-  - tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/README.md
+  - tools/smokes/v2/profiles/integration/proof/pure-legacy-cluster/README.md
   - tools/compat/legacy-codegen/run_compat_pure_pack.sh
 ---
 
@@ -67,12 +67,12 @@ Related:
    - transport-only shell shim around `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
    - still depends on the legacy `CodegenBridgeBox` example caller
    - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
-4. `tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/run_all.sh`
+4. `tools/smokes/v2/profiles/integration/proof/pure-legacy-cluster/run_all.sh`
    - full legacy-cluster entry
    - orchestrates the pure keep bucket, archive historical bucket, VM-adapter legacy cluster, and native reference bucket as separate child runners
    - not the canonical compat pure-pack owner anymore
    - must self-identify as compat-only
-   - category map lives in `tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/README.md`
+   - category map lives in `tools/smokes/v2/profiles/integration/proof/pure-legacy-cluster/README.md`
    - pure C-API canaries in this pack must use `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; retired direct `hostbridge.extern_invoke("env.codegen", ...)` is outside the pack contract
 5. `tools/smokes/v2/suites/integration/compat/pure-keep.txt`
    - canonical suite manifest for the two active pure C-API keep pins

@@ -1,4 +1,4 @@
-# Phase 29x Legacy Emit Object Evidence Bundle
+# Legacy Emit Object Evidence Bundle
 
 This directory is the archive replay bundle for legacy emit_object evidence.
 It is replay-only coverage, not owner code.
@@ -20,14 +20,14 @@ It is replay-only coverage, not owner code.
 
 ## Canonical Manifest
 
-- `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`
+- `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt`
 
 ## Runner
 
-- `tools/smokes/v2/profiles/archive/core/phase29x-legacy-emit-object-evidence/run_all.sh`
+- `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/run_all.sh`
 
 Use:
 
 ```bash
-./tools/smokes/v2/run.sh --profile archive --suite phase29x-legacy-emit-object-evidence
+./tools/smokes/v2/run.sh --profile archive --suite legacy-emit-object-evidence
 ```

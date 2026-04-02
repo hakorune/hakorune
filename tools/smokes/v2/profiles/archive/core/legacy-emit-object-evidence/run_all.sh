@@ -2,9 +2,9 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../../../../../.." && pwd)"
 
-suite="phase29x-legacy-emit-object-evidence"
+suite="legacy-emit-object-evidence"
 
-echo "[archive/phase29x-legacy-emit-object-evidence] legacy emit_object replay bundle"
+echo "[archive/legacy-emit-object-evidence] legacy emit_object replay bundle"
 
 # C-API トグルを明示ON（llvmliteは保守と比較用途で残す）
 export NYASH_LLVM_USE_CAPI=1
@@ -22,12 +22,12 @@ for c in "${ffi_candidates[@]}"; do
 done
 
 if [[ "$ffi_found" != "1" ]]; then
-  echo "[archive/phase29x-legacy-emit-object-evidence] SKIP (C-API FFI library not found). Build libhako_llvmc_ffi.so first." >&2
-  echo "[archive/phase29x-legacy-emit-object-evidence] Tried: ${ffi_candidates[*]}" >&2
-  echo "[archive/phase29x-legacy-emit-object-evidence] Hint: bash tools/build_hako_llvmc_ffi.sh" >&2
+  echo "[archive/legacy-emit-object-evidence] SKIP (C-API FFI library not found). Build libhako_llvmc_ffi.so first." >&2
+  echo "[archive/legacy-emit-object-evidence] Tried: ${ffi_candidates[*]}" >&2
+  echo "[archive/legacy-emit-object-evidence] Hint: bash tools/build_hako_llvmc_ffi.sh" >&2
   exit 0
 fi
 
 bash "$ROOT/tools/smokes/v2/run.sh" --profile archive --suite "$suite"
 
-echo "[archive/phase29x-legacy-emit-object-evidence] Done."
+echo "[archive/legacy-emit-object-evidence] Done."

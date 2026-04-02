@@ -45,9 +45,9 @@ Related:
 
 - active macro wave: `W3 smoke/proof filesystem recut`
 - active micro-task:
-  - `99M bundle archive proof surfaces semantically`
-- next queued micro-task:
   - `99G1 suites / directory semantic recut`
+- next queued micro-task:
+  - `99N-99P Hako-side caller drain prep`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -99,10 +99,10 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99G1` | pending | suites / directory semantic recut | `phase2044` / `phase2120` / archive suites read as semantic homes instead of phase-number homes |
+| `99G1` | active | suites / directory semantic recut | `phase2044` / `phase2120` / archive suites read as semantic homes instead of phase-number homes |
 | `99K` | landed | physically recut `phase2044` into semantic buckets | llvmlite keep, hako-primary-no-fallback, and mirbuilder-provider stop sharing one live directory |
 | `99L` | landed | physically recut `phase2120` into semantic buckets | compat/pure-keep / pure-historical / vm-adapter-legacy / native-reference get separate homes |
-| `99M` | active | bundle archive proof surfaces semantically | `phase2111` + `phase251` replay evidence can be read as one archive bundle |
+| `99M` | landed | bundle archive proof surfaces semantically | `phase2111` + `phase251` replay evidence can be read as one archive bundle |
 
 #### `99K-99M` filesystem recut inventory
 
@@ -115,7 +115,7 @@ Related:
 | `tools/smokes/v2/profiles/archive/pure-historical/s3_link_run_llvmcapi_pure_*` archive-backed pins | `tools/smokes/v2/profiles/archive/pure-historical/` | archive-backed replay evidence |
 | `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/s3_vm_adapter_*` | `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/` | legacy VM adapter cluster |
 | `tools/smokes/v2/profiles/integration/proof/native-reference/native_backend_*` | `tools/smokes/v2/profiles/integration/proof/native-reference/` | native reference canaries |
-| `tools/smokes/v2/profiles/archive/core/phase29x-legacy-emit-object-evidence/*` | `tools/smokes/v2/profiles/archive/core/phase29x-legacy-emit-object-evidence/` | archive replay bundle for both legacy emit/link canaries and archived selfhost lowering probes |
+| `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/*` | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/` | archive replay bundle for both legacy emit/link canaries and archived selfhost lowering probes |
 
 ### W4. Hako-Side Caller Drain Prep
 
@@ -210,6 +210,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `W3 smoke/proof filesystem recut`
-  - micro: `99M bundle archive proof surfaces semantically`
-  - next: `99G1 suites / directory semantic recut`
+  - micro: `99G1 suites / directory semantic recut`
+  - next: `99N-99P Hako-side caller drain prep`
   - detail: `99G1`, `99M`, and the W4 stop-line remain separate

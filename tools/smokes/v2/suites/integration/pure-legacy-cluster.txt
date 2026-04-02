@@ -1,0 +1,3 @@
+# Integration pure legacy cluster suite
+# Index-only orchestrator for the semantic homes below.
+proof/pure-legacy-cluster/run_all.sh

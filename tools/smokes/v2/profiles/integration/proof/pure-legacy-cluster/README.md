@@ -1,6 +1,6 @@
-# Phase 2120 Legacy Cluster Index
+# Pure Legacy Cluster Index
 
-This directory is the index-only orchestrator for the phase2120 legacy cluster.
+This directory is the index-only orchestrator for the pure legacy cluster.
 The actual coverage lives in semantic homes; this file only points at them.
 
 ## Categories
@@ -37,8 +37,10 @@ The actual coverage lives in semantic homes; this file only points at them.
 
 ## Official Entry
 
+- canonical suite manifest:
+  - `tools/smokes/v2/suites/integration/pure-legacy-cluster.txt`
 - full legacy cluster entry:
-  - `tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/run_all.sh`
+  - `tools/smokes/v2/profiles/integration/proof/pure-legacy-cluster/run_all.sh`
   - orchestrates:
     - `tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh`
     - `tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh`

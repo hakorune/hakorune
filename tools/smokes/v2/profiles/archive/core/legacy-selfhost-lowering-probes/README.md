@@ -1,4 +1,4 @@
-`phase251` legacy extern-lowering canaries are quarantined here.
+Legacy selfhost lowering probes are quarantined here.
 
 - archived surfaces:
   - `selfhost_mir_extern_codegen_basic_vm.sh`
@@ -13,4 +13,4 @@
 - active direct proof-only keep now lives separately in:
   - `tools/smokes/v2/suites/integration/compat/llvmlite-monitor-keep.txt`
 - archive replay bundle:
-  - `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`
+  - `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt`

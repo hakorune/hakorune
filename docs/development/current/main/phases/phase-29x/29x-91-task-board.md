@@ -76,8 +76,8 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99J` | W2 | landed | move `CodegenBridgeBox` / `LLVMEmitBox` | compat/proof surfaces leave owner-looking paths |
 | `99K` | W3 | landed | recut `phase2044` physically | semantic proof buckets get separate homes |
 | `99L` | W3 | landed | recut `phase2120` physically | semantic proof/history buckets get separate homes |
-| `99M` | W3 | active | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
-| `99G1` | W3 | pending | suites / directory semantic recut | phase-number homes are replaced by semantic homes in the proof/archive tree |
+| `99M` | W3 | landed | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
+| `99G1` | W3 | active | suites / directory semantic recut | phase-number homes are replaced by semantic homes in the proof/archive tree |
 | `99N-99P` | W4 | blocked-on-proof | exact root-first replacement proof and Hako-side caller drain prep | direct `.hako` callers can leave `CodegenBridgeBox.emit_object_args(...)` |
 | `99Q-99S` | W5 | pending-after-W4 | Rust compat receiver collapse | receiver spread is reduced to one chokepoint |
 | `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |

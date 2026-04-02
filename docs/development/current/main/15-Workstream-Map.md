@@ -44,8 +44,8 @@ Related:
      - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
      - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now
      - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W3 smoke/proof filesystem recut` is active
-     - current active micro task is `99M bundle archive proof surfaces semantically`
-     - next queued micro task is `99G1 suites / directory semantic recut`
+     - current active micro task is `99G1 suites / directory semantic recut`
+     - next queued micro task is `99N-99P Hako-side caller drain prep`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -58,8 +58,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `99M bundle archive proof surfaces semantically` |
-     | Next | `99G1 suites / directory semantic recut` |
+     | Now | `99G1 suites / directory semantic recut` |
+     | Next | `99N-99P Hako-side caller drain prep` |
      | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
    - cleanup waves:
 

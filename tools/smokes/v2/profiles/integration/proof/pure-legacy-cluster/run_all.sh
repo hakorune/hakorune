@@ -7,4 +7,4 @@ bash "$ROOT/tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical
 bash "$ROOT/tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/run_vm_adapter_legacy_cluster.sh"
 bash "$ROOT/tools/smokes/v2/profiles/integration/proof/native-reference/run_native_reference_bucket.sh"
 
-echo "[phase2120] legacy cluster done."
+echo "[pure-legacy-cluster] legacy cluster done."
