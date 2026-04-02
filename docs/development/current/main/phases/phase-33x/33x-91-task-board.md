@@ -26,10 +26,10 @@ Related:
 | --- | --- | --- | --- |
 | 1 | `33xA1` | landed | helper family caller inventory |
 | 2 | `33xB1` | landed | `hako_check_deadblocks_smoke` family-home rehome |
-| 3 | `33xB2` | queued | `hako_check.sh` top-level keep gate |
+| 3 | `33xB2` | active | `hako_check.sh` top-level keep gate |
 | 4 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory |
 | 5 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock |
-| 6 | `33xC3` | active | `hakorune_emit_mir.sh` top-level keep gate |
+| 6 | `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate |
 | 7 | `33xD1` | queued | closeout/docs cleanup |
 
 ## Evidence Commands
@@ -72,5 +72,8 @@ bash -n \
 - `33xC2` landed:
   - thin wrappers stay as top-level route-preset compatibility wrappers
   - operational routing truth stays in `tools/smokes/v2/lib/emit_mir_route.sh`
+- `33xC3` landed:
+  - `tools/hakorune_emit_mir.sh` remains top-level keep because route-owner, perf, check/debug, proof, and current-doc pressure are still broad
+  - drain condition stays `route-selecting callers -> emit_mir_route`, then revisit the helper later
 - current front:
-  - `33xC3 hakorune_emit_mir top-level keep gate`
+  - `33xB2 hako_check.sh top-level keep gate`

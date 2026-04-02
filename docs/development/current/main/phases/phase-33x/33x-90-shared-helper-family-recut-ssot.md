@@ -43,16 +43,16 @@ Related:
 | --- | --- | --- | --- |
 | `33xA1` | landed | helper family caller inventory | current/live caller map と canonical home candidates が読める |
 | `33xB1` | landed | `hako_check_deadblocks_smoke.sh` family-home rehome | `tools/hako_check/deadblocks_smoke.sh` が canonical で top-level は shim-only |
-| `33xB2` | queued | `hako_check.sh` top-level keep gate | broad live caller pressure と future drain 条件が固定される |
+| `33xB2` | active | `hako_check.sh` top-level keep gate | broad live caller pressure と future drain 条件が固定される |
 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory | `mainline` / `compat` wrapper の exact live callers が読める |
 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock | wrappers stay top-level thin compatibility shims and operational routing truth is `tools/smokes/v2/lib/emit_mir_route.sh` |
-| `33xC3` | active | `hakorune_emit_mir.sh` top-level keep gate | broad live integration が exact keep reason として固定される |
+| `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate | broad live integration が exact keep reason として固定される |
 | `33xD1` | queued | closeout/docs cleanup | current/public docs が truthful family paths に揃う |
 
 ## Current Focus
 
 - active macro wave: `33xC emit_mir thin wrapper path truth`
-- active micro task: `33xC3 hakorune_emit_mir top-level keep gate`
+- active micro task: `33xB2 hako_check.sh top-level keep gate`
 - next queued micro task: `33xD1 closeout/docs cleanup`
 - current blocker: `none`
 
@@ -134,3 +134,35 @@ Read as:
 Read as:
 - `emit_mir` thin wrappers are truthful as thin top-level compatibility wrappers; they are not the right family-home rehome target.
 - remaining `emit_mir` work is about documenting/pinning the wrapper role, then gating the broad helper `tools/hakorune_emit_mir.sh`.
+
+## 33xC3 Result
+
+- executable caller pressure stays broad across multiple roles:
+  - route owner:
+    - `tools/smokes/v2/lib/emit_mir_route.sh`
+  - perf:
+    - `tools/perf/bench_hakorune_emit_mir.sh`
+  - check/debug helper:
+    - `tools/checks/route_env_probe.sh`
+  - explicit proof canary:
+    - `tools/smokes/v2/profiles/integration/apps/phase29cl_by_name_lock_vm.sh`
+- source/diagnostic pressure remains:
+  - `src/mir/builder/builder_build.rs`
+  - `src/runner/mir_json_emit/helpers.rs`
+  - `src/runner/mir_json_emit/mod.rs`
+- current-doc pressure remains broad:
+  - `tools/selfhost/README.md`
+  - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
+  - `docs/development/current/main/design/frontend-owner-proof-index.md`
+  - current `phase-29bq` proof/checklist docs
+- therefore `tools/hakorune_emit_mir.sh` stays top-level keep in this phase
+
+Future drain conditions:
+- route-selecting scripts keep converging on `tools/smokes/v2/lib/emit_mir_route.sh`
+- direct helper references in current docs are limited to explicit proof/troubleshooting lanes
+- perf/check callers either stay as explicit helper-local keep or are moved behind route-owned helpers
+- only after that drain should rehome/archive be reconsidered
+
+Read as:
+- `tools/hakorune_emit_mir.sh` is still a broad shared helper, not a low-blast move target.
+- `phase-33x` should not force a no-op path recut for this helper; it should only pin why the helper still stays top-level.
