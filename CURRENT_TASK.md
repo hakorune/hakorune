@@ -82,6 +82,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - direct live callers are fixed at 5 surfaces: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
   - `29x-98` still owns helper deletion and exact stop-line; no low-blast caller reduction is visible now
+  - W5 prep has started: codegen receiver bodies are now split into dedicated modules, but the chokepoint collapse itself is still pending after `W4`
   - `29x-99` now owns beauty-first cleanup planning, with `W4 Hako-side caller drain prep` active and `W3 smoke/proof filesystem recut` landed
   - current active micro task is `99N-99P Hako-side caller drain prep`
   - next queued micro task is `99Q-99S Rust compat receiver collapse`

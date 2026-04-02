@@ -46,6 +46,7 @@ Related:
      - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4 Hako-side caller drain prep` is active and `W3 smoke/proof filesystem recut` is landed
      - current active micro task is `99N-99P Hako-side caller drain prep`
      - next queued micro task is `99Q-99S Rust compat receiver collapse`
+     - W5 prep is partially landed: codegen receiver bodies now live in dedicated modules, but the one-chokepoint collapse itself is still pending after W4
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 

@@ -133,6 +133,11 @@ Related:
 | `99R` | pending-after-W4 | collapse legacy receiver ownership into one compat namespace | route ownership for legacy codegen entry is visible in one place |
 | `99S` | pending-after-W4 | move surrogate caller to compat/evidence adapter home | `llvm_backend_surrogate.rs` no longer extends the old helper from an owner-looking surface |
 
+- W5 prep is now partially landed:
+  - MirInterpreter codegen receiver bodies live in `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs`
+  - plugin loader `env.codegen` receiver body lives in `src/runtime/plugin_loader_v2/enabled/codegen.rs`
+  - the remaining collapse work is still call-site / ownership reduction, so `W4` stays blocked-on-proof
+
 ### W6. Final Delete/Archive Sweep
 
 | ID | Status | Task | Acceptance |

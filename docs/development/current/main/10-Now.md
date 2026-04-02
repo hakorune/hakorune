@@ -46,6 +46,7 @@ Related:
 - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now.
 - `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99N-99P Hako-side caller drain prep`.
 - next queued micro task is `99Q-99S Rust compat receiver collapse`.
+- W5 prep is partially landed: codegen receiver bodies now live in dedicated modules, but the one-chokepoint collapse itself is still pending after W4.
 - immediate cleanup order is `compat selfhost wrapper archive conditions -> archive proof bundle -> directory semantic recut`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
