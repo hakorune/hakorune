@@ -1,15 +1,22 @@
 # vm_hako_caps smoke family
 
-Capability matrix smokes for the vm-hako lane.
+Capability matrix smokes for the `vm-hako` reference/conformance lane.
 
-Active lane acceptance is the phase29y gate only:
+This family is not a product-mainline lane and not an engineering/bootstrap
+default. Read it as the explicit reference bucket that keeps semantic witness
+and conformance coverage visible.
+
+Reference-lane acceptance is the phase29y gate only:
 
 - `tools/smokes/v2/profiles/integration/vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`
 - `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
 
-Non-gating blocked/probe cases are archived under `tools/smokes/v2/profiles/archive/**` and do not reopen the lane by themselves.
+Non-gating blocked/probe cases are archived under `tools/smokes/v2/profiles/archive/**`
+and do not reopen the lane by themselves.
 
-This family was split out of `tools/smokes/v2/profiles/integration/apps/` so the active capability surface can be navigated by meaning instead of by a flat prefix bucket.
+This family was split out of `tools/smokes/v2/profiles/integration/apps/` so the
+reference capability surface can be navigated by meaning instead of by a flat
+prefix bucket.
 
 ## Layout
 
@@ -28,6 +35,7 @@ This family was split out of `tools/smokes/v2/profiles/integration/apps/` so the
 ## Suite
 
 - `tools/smokes/v2/suites/integration/vm-hako-caps.txt`
+- `tools/smokes/v2/suites/integration/vm-hako-core.txt`
 - archive monitor buckets:
   - `tools/smokes/v2/profiles/archive/vm_hako_caps/**`
   - `tools/smokes/v2/profiles/archive/core/phase2160/registry_optin_method_arraymap_direct_canary_vm.sh`

@@ -62,6 +62,11 @@ This is still too dense for casual human navigation, especially under `integrati
 - `--profile` remains the compatibility floor and coarse lane selector.
 - `--suite` is additive: it applies an allowlist intersection over the live profile set.
 - recursive discovery remains as a compatibility mechanism for uncatalogued profile runs, not as the long-term organization model.
+- role-first reading is preferred when a semantic lane is already explicit:
+  - `llvm/exe` = product
+  - `rust-vm` = engineering/bootstrap
+  - `vm-hako` = reference/conformance
+  - `wasm` = experimental
 
 Current seeded suites:
 
@@ -73,6 +78,18 @@ Current seeded suites:
 - `integration/joinir-bq`
 
 Smoke split work is parked while the kernel migration lane resumes; the suite list below remains the future-facing organization map for any later smoke wave.
+
+Reference-lane note:
+
+- `integration/vm-hako-core` and `integration/vm-hako-caps` are reference/conformance suites.
+- They are not product-mainline packs and should not be used as evidence that
+  `vm-hako` became a main lane.
+
+Experimental-lane note:
+
+- `integration/phase29cc_wsm/**` families are experimental smoke families.
+- They are not product-mainline packs and should not be used as evidence that
+  `wasm` became a co-main runtime.
 
 ## Discovery fallback contract
 

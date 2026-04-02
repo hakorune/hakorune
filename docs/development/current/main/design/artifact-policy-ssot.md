@@ -1,8 +1,8 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-24
-Scope: artifact/lane policy の detail owner。`mainline bundle` / current `vm-hako` / `rust-vm` の役割を固定し、owner proof と future interpreter 候補を混線させない。
+Date: 2026-04-02
+Scope: artifact/lane policy の detail owner。`llvm/exe` / current `vm-hako` / `rust-vm` / `wasm` の役割を固定し、owner proof と future interpreter 候補を混線させない。
 Related:
   - docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md
   - docs/development/current/main/design/execution-lanes-migration-task-pack-ssot.md
@@ -24,19 +24,21 @@ Related:
 
 | artifact/lane | role | fixed reading |
 | --- | --- | --- |
-| `mainline bundle` | daily / CI / distribution artifact | 唯一の mainline distribution unit |
+| `llvm/exe` mainline bundle | daily / CI / distribution artifact | 唯一の product/mainline distribution unit |
 | current `vm-hako` | semantic witness / debug / bootstrap-proof artifact | internal reference lane |
-| `rust-vm` | bootstrap / recovery / compat artifact | explicit keep |
+| `rust-vm` | bootstrap / recovery / compat artifact | engineering keep |
+| `wasm` | experimental compile/distribution target | explicit experimental lane |
 
 The `mainline bundle` daily lane is the operational artifact reading for `stage2-mainline`; `stage2+` stays the umbrella / end-state stage label.
 
 Operational rules:
 
-- `mainline bundle` is the only production/mainline distribution artifact.
+- `llvm/exe` mainline bundle is the only production/mainline distribution artifact.
 - current `vm-hako` is not a co-mainline candidate in the current policy.
 - current `vm-hako` acceptance is gate-backed; archived throughput/probe smokes do not change its role.
 - current `vm-hako` LLVM/exe bridge proofs are manual monitor evidence only, not mainline acceptance.
-- `rust-vm` may remain as bootstrap/recovery residue without affecting owner-migration reading.
+- `rust-vm` may remain as bootstrap/recovery residue without affecting product-main reading.
+- `wasm` remains experimental until an independent test matrix and promotion gate exist.
 
 ## 2. Owner Proof Boundary
 
@@ -58,6 +60,7 @@ Current non-goals:
 - promoting current `vm-hako` to co-mainline
 - treating current `vm-hako` as a user-facing production artifact
 - treating current `vm-hako` as the owner of LLVM backend / bundle-build responsibilities
+- promoting `wasm` to co-mainline in this policy
 - defining future interpreter promotion criteria now
 - changing raw CLI backend tokens or defaults in this doc
 

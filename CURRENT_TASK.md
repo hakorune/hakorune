@@ -26,18 +26,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 4. `K2-wide` boundary-shrink lock-down (closed)
 5. `zero-rust` default operationalization (landed)
 6. `stage2plus entry / first optimization wave` (accepted)
-7. `phase-29x backend owner cutover prep`
+7. `phase-29x backend owner cutover prep` (landed)
+8. `phase-30x backend surface simplification`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, and current active lane is `phase-29x backend owner cutover prep`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, and current active lane is `phase-30x backend surface simplification`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, and the current active front is `phase-29x backend owner cutover prep`.
-- Active lane: `phase-29x-backend-owner-cutover`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, and the current active front is `phase-30x backend surface simplification`.
+- Active lane: `phase-30x-backend-surface-simplification`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -46,13 +47,16 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
   - `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
   - `docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md`
+  - `docs/development/current/main/phases/phase-30x/README.md`
+  - `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
+  - `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
   - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
   - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
 - Current read:
   - `K2-core` is closed
   - `K2-wide` lock-down is closed enough for handoff
   - `stage2plus entry / first optimization wave` is accepted
-  - current active lane is `phase-29x backend owner cutover prep`
+  - current active lane is `phase-30x backend surface simplification`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -69,52 +73,38 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-29x backend owner cutover prep`
+- Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `next optimization restart`
-  - W4, W5, and W6 landed; path truth, semantic proof/archive homes, and one Rust compat-codegen chokepoint are in place
-  - `phase2044` lives under `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`
-  - `phase2120` lives under `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
-  - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and the explicit helper module is deleted
-  - direct helper caller inventory is 0 and the explicit helper deletion is landed
-  - `compat_codegen_receiver.rs` is no longer a direct helper caller; it now preserves the text contract over the shared no-helper primitive
-  - `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive
-  - watch split is explicit:
-    - `watch-1` keep chokepoint = `compat_codegen_receiver.rs`; helper pressure is gone, but the upstream `emit_object(mir_json_text) -> object path` contract still retires in fixed order
-    - `watch-2` archive-later surrogate = `module_string_dispatch/compat/llvm_backend_surrogate.rs`; helper pressure is gone, but the compiled-stage1 file-path shim remains explicit
-  - adopted watch strategy:
-    - one Rust-side no-helper `MIR(JSON text) -> object path` primitive closes `watch-1`
-    - `watch-2` then shrinks to `json_path -> read_to_string -> same primitive`
-    - caller reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
-  - compat selfhost wrapper layers are not helper callers; they stay `payload -> transport wrapper -> pack orchestrator`
-  - `CodegenBridgeBox.emit_object_args(...)` is deleted; the owner-looking path is shim-only for `link_object_args(...)`
-  - `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-  - `99W1` is landed: upstream groups and reduction order are fixed as `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
-  - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and `compat_codegen_receiver.rs` now uses it
-  - `99X1` and `99X2` are landed
-  - `99Y` is landed
-  - current active micro task is `next optimization restart`
-  - next queued micro task is `none`
-  - post-watch step is `next optimization restart`
-  - review intake owner remains `29x-99`; mirror docs now carry only the live watch state
+- Exact focus: `30xB2 wasm experimental smoke lock`
+  - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
+  - current backend reading is role-first:
+    - `llvm/exe` = `product`
+    - `rust-vm` = `engineering/bootstrap`
+    - `vm-hako` = `reference/conformance`
+    - `wasm` = `experimental`
+  - `rust-vm` is still deep in bootstrap/selfhost/plugin/macro/smoke paths; do not force-remove it before inventory and smoke split
+  - current docs mostly use the label `rust-vm`, not `vm-rust`
+  - dangerous early flips are launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, `tools/selfhost/run.sh`, and `tools/plugin_v2_smoke.sh`
+  - `30xA1` and `30xA2` are landed
+  - `30xB1` is landed
+  - active micro task is `30xB2 wasm experimental smoke lock`
+  - next queued micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
+  - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-29x/README.md`
-  3. `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
-  4. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
-  5. `docs/development/current/main/phases/phase-29x/29x-96-backend-owner-legacy-ledger-ssot.md`
-  6. `docs/development/current/main/phases/phase-29x/29x-97-compare-bridge-retirement-prep-ssot.md`
-  7. `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
-  8. `docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md`
-  9. `docs/development/current/main/design/backend-owner-cutover-ssot.md`
-  10. `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
-- K2-wide lock-down table:
+  2. `docs/development/current/main/phases/phase-30x/README.md`
+  3. `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
+  4. `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
+  5. `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+  6. `docs/development/current/main/design/artifact-policy-ssot.md`
+  7. `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
+- backend surface table:
 
   | Item | State |
   | --- | --- |
-     | Now | `phase-29x backend owner cutover prep` |
-     | Blocker | `none` |
-     | Next | `next optimization restart` |
+  | Now | `phase-30x backend surface simplification` |
+  | Blocker | `none` |
+  | Next | `30xB2 wasm experimental smoke lock` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -124,40 +114,38 @@ Scope: repo root から current order / current blocker / next exact read に最
   - keep backend lane follow-up in the backend lane docs
   - do not mix keep-lane notes into `K2-wide` implementation notes
 
-## Cleanup Bands
+## Backend Surface Bands
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99Y final explicit helper deletion decision` | helper code-side caller inventory is zero; decide whether to delete or freeze explicit residue |
-| Next | `next optimization restart` | restart after the explicit helper decision is closed |
-| Later | `none` | no additional helper-watch slice is queued after `99Y` |
+| Now | `30xB2 wasm experimental smoke lock` | pin `wasm` suites/readmes as experimental only |
+| Next | `30xB3 llvm/exe vs llvmlite boundary lock` | keep product mainline and compat/probe keep distinct |
+| Later | `30xB4-30xF` | matrix cleanup, inventory, dangerous flip lock, main switch, backend default gate |
 
-## Cleanup Waves
+## Backend Surface Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order |
-| `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior change |
-| `W3 smoke/proof filesystem recut` | landed | phase-number homes become semantic homes |
-| `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
-| `W5 Rust compat receiver collapse` | landed | reduce legacy receiver spread to one chokepoint |
-| `W6 final delete/archive sweep` | landed | generic legacy front-door naming/export is retired; remaining compat helper stays explicit under `29x-98` |
+| `30xA role taxonomy lock` | landed | lock the role-first reading in root docs and phase docs |
+| `30xB smoke taxonomy split` | active | separate product / engineering / reference / experimental smoke reading |
+| `30xC rust-vm dependency inventory` | queued | map internal `--backend vm` pressure before any flip |
+| `30xD dangerous-early-flip lock` | queued | freeze launcher/default/orchestrator sites that must not move early |
+| `30xE user-facing main switch prep` | queued | move README/help/examples toward `llvm/exe` first without flipping defaults |
+| `30xF backend default decision gate` | queued | decide the raw CLI default only after the previous slices land |
 
-## Cleanup Micro Tasks
+## Phase-30x Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `99E split-target inventory lock` | landed | freeze target split homes before any move |
-| `99F file-move / shim order lock` | landed | define move-first, shim-second, delete-last order |
-| `99G-99J mixed-file split targets` | landed | `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, compat boxes |
-| `99K-99M smoke/proof filesystem recut` | landed | `phase2044`, `phase2120`, archive evidence bundle |
-| `99N1-99N3 compat wrapper contract/gap lock` | landed | drop-in contract and proof gap are fixed for the compat selfhost wrapper stack |
-| `99O1-99O3 extern_provider contract/proof-target/prereq lock` | landed | compat codegen stub contract, exact proof target, and demotion order are fixed |
-| `99O4 minimal root-first lowering proof smoke` | landed | exact `vm-hako` proof is green for the `extern_provider` stop-line |
-| `99P1 compat selfhost payload demotion` | landed | compat payload is materialized onto `vm-hako` and no longer calls `CodegenBridgeBox.emit_object_args(...)` |
-| `99P2 extern_provider compat codegen caller demotion` | landed | the gated provider caller now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)` |
-| `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` | landed | live Hako direct callers are zero; the bridge is archive-only |
-| `99Q1-99S1 Rust compat receiver collapse` | landed | canonical shared receiver, route ownership, tracing, and surrogate home are aligned |
+| `30xA1` | landed | root mirrors use the same role-first labels |
+| `30xA2` | landed | design role SSOTs use the same role-first labels |
+| `30xB1` | landed | `vm-hako` reference smoke lock |
+| `30xB2` | active | `wasm` experimental smoke lock |
+| `30xB3-30xB4` | queued | product-vs-probe and matrix/guide smoke taxonomy follow-ups |
+| `30xC1-30xC4` | queued | internal `--backend vm` pressure is grouped by category |
+| `30xD1-30xD3` | queued | dangerous early flips are frozen explicitly |
+| `30xE1-30xE4` | queued | user-facing main switch is prepared without a raw default flip |
+| `30xF1-30xF2` | queued | backend default decision gate stays last |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.
@@ -188,6 +176,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `hako_alloc` rows:
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - current phase-order context:
+  - `docs/development/current/main/phases/phase-30x/README.md`
+  - `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
+  - `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
   - `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`

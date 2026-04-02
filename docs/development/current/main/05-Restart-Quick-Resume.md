@@ -35,56 +35,53 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 ## 今日の再開点（active lane）
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, and `phase-29x` is the active front.
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, and `phase-30x` is the active front.
 - backend lane detail is canonical in the backend-lane docs:
   - `llvmlite` = compat/probe keep lane
   - `ny-llvm` / `ny-llvmc` = daily mainline AOT lane
   - `native` = explicit replay/canary lane
 
-- Active next: `phase-29x backend owner cutover prep`
+- Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `99Y final explicit helper deletion decision`
+- Exact focus: `30xB2 wasm experimental smoke lock`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
-- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
+- active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep (landed)` -> `phase-30x backend surface simplification`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
 - `K2-core` / `K2-wide` are task packs inside `K2`
 - exact next:
   1. `CURRENT_TASK.md`
   2. `docs/development/current/main/15-Workstream-Map.md`
-  3. `docs/development/current/main/phases/phase-29x/README.md`
-  4. `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
-  5. `docs/development/current/main/phases/phase-29x/29x-91-task-board.md`
-  6. `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
-  7. `docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md`
-- cleanup bands:
+  3. `docs/development/current/main/phases/phase-30x/README.md`
+  4. `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
+  5. `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
+  6. `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
+  7. `docs/development/current/main/design/artifact-policy-ssot.md`
+- backend surface bands:
 
-  | Band | State |
-  | --- | --- |
-| Now | `99Y final explicit helper deletion decision` |
-| Next | `next optimization restart` |
-| Later | `none` |
+| Band | State |
+| --- | --- |
+| Now | `30xB2 wasm experimental smoke lock` |
+| Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
+| Later | `30xB4-30xF` |
 
-- W4 / W5 / W6 are landed. Path truth, semantic proof/archive homes, and the Rust compat-codegen chokepoint are fixed.
-- `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket.
-- `phase2120` pure keep and historical replay now live in separate semantic homes.
-- the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and the explicit legacy helper module is deleted.
-- direct helper caller inventory is now zero.
-- `compat_codegen_receiver.rs` no longer calls the helper directly; it now owns the text contract over the shared no-helper primitive.
-- `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive.
-- adopted watch shape is:
-  - landed: one Rust-side no-helper `MIR(JSON text) -> object path` primitive now backs `compat_codegen_receiver.rs`
-  - landed: `watch-2` now is `json_path -> read_to_string -> same primitive`
-- `99W1`, `99W2`, `99X1`, and `99X2` are landed.
-- active micro task is `99Y final explicit helper deletion decision`.
-- caller reduction order inside `watch-1` is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`.
-- both watches remain contract watches, but helper pressure is gone from both.
-- detailed W4/W5/W6 landed history stays in `29x-99`, not in this restart mirror.
+- `phase-29x` W4/W5/W6 is landed and helper deletion is closed.
+- current backend reading is now role-first:
+  - `llvm/exe` = `product`
+  - `rust-vm` = `engineering/bootstrap`
+  - `vm-hako` = `reference/conformance`
+  - `wasm` = `experimental`
+- `rust-vm` remains deep in bootstrap/selfhost/plugin/macro/smoke lanes, so forced removal is out-of-scope in the first slice.
+- `30xA1`, `30xA2`, and `30xB1` are landed.
+- active micro task is `30xB2 wasm experimental smoke lock`.
+- next queued micro task is `30xB3 llvm/exe vs llvmlite boundary lock`.
+- `phase29cc_wsm` families are experimental smoke lanes, not co-main evidence.
+- detailed backend-surface order stays in `phase-30x`, not in this restart mirror.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`
-  - keep `phase-29x backend owner cutover prep` as the current front
-  - keep `phase2044` on the new bucket runners; do not treat the whole directory as one llvmlite lane
-  - keep `LLVMEmitBox` fixed as compat/proof keep, treat `CodegenBridgeBox` as archive-later producer only, and continue caller-by-caller sequencing with the remaining selfhost wrapper and llvmlite proof surfaces after the `phase251` quarantine
-  - use `29x-99` for macro wave / micro-task planning before any file move
+  - keep `phase-30x backend surface simplification` as the current front
+  - keep `phase-29x` as landed precursor, not the active optimization lane
+  - use `phase-30x` for role taxonomy, smoke taxonomy, and internal `rust-vm` dependency inventory
+  - do not flip raw CLI default or strip `rust-vm` launcher/orchestrator paths early
   - keep portability split explicit: `.hako` capability facade, native keep leaf glue
   - keep migration task notes in root/docs/phase owners; `target/**`, `artifacts/**`, `dist/**` stay binaries/bundles only
 
@@ -102,4 +99,4 @@ cargo build --release --bin hakorune
 2. `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
 3. `docs/development/current/main/15-Workstream-Map.md`
 4. `docs/development/current/main/10-Now.md`
-5. `docs/development/current/main/phases/phase-29x/README.md`
+5. `docs/development/current/main/phases/phase-30x/README.md`

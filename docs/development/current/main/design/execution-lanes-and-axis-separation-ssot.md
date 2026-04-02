@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: provisional
-Date: 2026-03-24
+Date: 2026-04-02
 Scope: `stage axis` / `owner-substrate axis` / `artifact-lane axis` を 1 枚で切り分け、stage1 昇格 drift と runtime lane の混線を防ぐ。
 Related:
   - CURRENT_TASK.md
@@ -68,14 +68,16 @@ Child SSOTs:
 
 | lane | role | default posture | non-goal |
 | --- | --- | --- | --- |
-| `mainline bundle` | daily / CI / distribution artifact lane | default operational lane | not bootstrap proof bookkeeping |
+| `llvm/exe` mainline bundle | daily / CI / distribution artifact lane | default operational lane | not bootstrap proof bookkeeping |
 | `vm-hako` | semantic parity / reference / debug / bootstrap-proof lane | monitor-only unless exact blocker reopens it | not daily performance lane |
 | `rust-vm` | bootstrap / recovery / compat lane | explicit keep | not daily feature-growth lane |
+| `wasm` | feature-gated experimental target | explicit experimental lane | not co-mainline or default lane |
 
 Important:
 
 - `default lane` in this document means docs/wrappers/CI operational default.
 - It does not automatically mean the raw CLI backend token/default has already been flipped.
+- `phase-30x` is the docs-first owner for product/engineering/reference/experimental surface separation; this parent SSOT keeps the shared vocabulary only.
 
 ## 2. Reading Rules
 

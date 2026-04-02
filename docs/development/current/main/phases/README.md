@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Phase 29x（ACTIVE）**: de-Rust runtime 統合実行ボード（RC insertion 拡張 / observability 5カテゴリ / VM route cutover）
+- **Phase 30x（ACTIVE）**: backend surface simplification（`llvm/exe` product main / `rust-vm` engineering / `vm-hako` reference / `wasm` experimental）
+- **Phase 29x（LANDED）**: backend owner cutover / explicit helper deletion / semantic proof-home recut
 - **Phase 29cc（ACTIVE）**: Rust -> .hako migration orchestration（M0-M4 fixed order）
 - **Phase 139（DONE）**: post-if `post_k` の return lowering を `ReturnValueLowererBox` に統一（出口 SSOT 完成）
 - **Phase 140（DONE）**: `NormalizedExprLowererBox` 初版（pure expression のみ）

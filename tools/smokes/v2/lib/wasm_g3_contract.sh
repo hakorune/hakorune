@@ -1,6 +1,7 @@
 #!/bin/bash
 # wasm_g3_contract.sh
 # Shared runner for WSM-G3 canvas contract smokes.
+# This helper belongs to the `wasm` experimental lane and is not a product-mainline gate.
 
 run_wasm_g3_contract_smoke() {
   local smoke_name="$1"

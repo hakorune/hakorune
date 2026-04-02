@@ -1,6 +1,7 @@
 # Integration vm-hako-caps suite
-# Active vm-hako acceptance cases only. Keep this file in exact sync with
-# `vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`.
+# Reference/conformance acceptance cases only. Keep this file in exact sync
+# with `vm_hako_caps/gate/phase29y_vm_hako_caps_gate_vm.sh`.
+# This suite is not a product-mainline pack and not an engineering default.
 vm_hako_caps/file/filebox_newbox_vm.sh
 vm_hako_caps/args/args_vm.sh
 vm_hako_caps/file/file_error_vm.sh

@@ -27,7 +27,7 @@ Related:
 
 ## Immediate Resume
 
-- current lane is `phase-29x backend owner cutover prep`
+- current lane is `phase-30x backend surface simplification`
 - exact current order is owned by `CURRENT_TASK.md` and `15-Workstream-Map.md`
 - axis details are canonical in:
   - `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
@@ -39,22 +39,23 @@ Related:
 - `K2-core` is closed as the accepted `RawArray first truthful substrate` stop-line.
 - `K2-wide` boundary-shrink lock-down is closed enough for handoff.
 - `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
-- `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-29x backend owner cutover prep`.
+- `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-30x backend surface simplification`.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
-- current active step is `phase-29x backend owner cutover prep`; `W4`, `W5`, and `W6` are landed, semantic proof/archive homes are fixed, and the explicit legacy helper is deleted.
-- the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and direct helper caller inventory is zero.
-- `compat_codegen_receiver.rs` no longer calls the helper directly; it now keeps the text contract on top of the shared no-helper primitive.
-- `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive.
-- watch split is explicit: `compat_codegen_receiver.rs` is the keep chokepoint watch; `module_string_dispatch/compat/llvm_backend_surrogate.rs` is the archive-later surrogate watch.
-- adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first, then `watch-2` as `json_path -> read_to_string -> same primitive`.
-- `29x-98` owns the final helper-deletion watch; `29x-99` keeps the landed re-cut history and move order.
-- owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
-- `99W1` is landed: upstream groups and reduction order are fixed.
-- `99W2` is landed: the single Rust-side no-helper text primitive is explicit and the compat chokepoint now uses it.
-- `99X1` and `99X2` are landed.
-- `99Y` is landed; current active micro task is `next optimization restart`.
-- review intake lives in `29x-99`; this mirror only carries the open deltas.
-- immediate cleanup order is `99W2 -> 99X1 -> 99X2 -> 99Y -> next optimization restart`.
+- `phase-29x` W4/W5/W6 is landed; explicit helper deletion is closed and the active docs front is no longer `29x`.
+- current active step is `phase-30x backend surface simplification`.
+- current backend reading is role-first:
+  - `llvm/exe` = `product`
+  - `rust-vm` = `engineering/bootstrap`
+  - `vm-hako` = `reference/conformance`
+  - `wasm` = `experimental`
+- `rust-vm` still has deep pressure in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help.
+- dangerous early flips stay frozen around launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, and `tools/selfhost/run.sh`.
+- `30xA1` and `30xA2` are landed.
+- `30xB1` is landed.
+- current active micro task is `30xB2 wasm experimental smoke lock`.
+- next queued micro task is `30xB3 llvm/exe vs llvmlite boundary lock`.
+- `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence.
+- review intake lives in `phase-30x`; this mirror only carries the open deltas.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -66,24 +67,24 @@ Related:
   - migration tasks do not live in artifact roots
 - folder structure and smoke taxonomy docs are synced; the next optimization wave can read the current layout without extra prep
 
-## Cleanup Bands
+## Backend Surface Bands
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `next optimization restart` | explicit helper deletion watch is closed; restart the next optimization slice on the cleaned backend-owner lane |
-| Next | `none` | no helper-watch slice remains |
-| Later | `none` | no additional helper-watch slice is queued after `99Y` |
+| Now | `30xB2 wasm experimental smoke lock` | pin `wasm` suites/readmes as experimental only |
+| Next | `30xB3 llvm/exe vs llvmlite boundary lock` | keep product mainline and compat/probe keep distinct |
+| Later | `30xB4-30xF` | matrix cleanup, inventory, dangerous flip lock, user-facing main switch, backend default gate |
 
-## Cleanup Waves
+## Backend Surface Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `W1 docs-first path-truth pass` | landed | target buckets and move order |
-| `W2 mixed-file split pass` | landed | split owner-looking mixed files |
-| `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
-| `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
-| `W5 Rust compat receiver collapse` | landed | one compat receiver chokepoint |
-| `W6 final delete/archive sweep` | landed | misleading legacy front-door naming/export is gone and the explicit helper module is deleted |
+| `30xA role taxonomy lock` | landed | current lane, labels, and mirrors |
+| `30xB smoke taxonomy split` | active | role-first gate/smoke reading |
+| `30xC rust-vm dependency inventory` | queued | internal `--backend vm` pressure map |
+| `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator freeze |
+| `30xE user-facing main switch prep` | queued | `llvm/exe` first docs/help/examples |
+| `30xF backend default decision gate` | queued | raw CLI default/backend flip decision last |
 
 ## Exact Links
 
@@ -105,8 +106,10 @@ Related:
   - `docs/development/testing/smoke-tests-v2.md`
   - `docs/how-to/smokes.md`
 - current phase detail:
+  - `docs/development/current/main/phases/phase-30x/README.md`
+  - `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
+  - `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
   - `docs/development/current/main/phases/phase-29x/README.md`
-  - `docs/development/current/main/phases/phase-29x/29x-99-structure-recut-wave-plan-ssot.md`
   - `docs/development/current/main/phases/phase-29bq/README.md`
   - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
   - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
@@ -117,4 +120,4 @@ Related:
 2. read `15-Workstream-Map.md`
 3. read the current SSOT for the active slice
 4. run `tools/checks/dev_gate.sh quick`
-5. if working on the active blocker-free lane, inspect `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`
+5. if working on the active blocker-free lane, inspect `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`

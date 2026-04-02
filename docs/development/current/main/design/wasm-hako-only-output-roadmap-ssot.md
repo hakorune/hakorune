@@ -61,6 +61,7 @@ Rust 側はランナー/ポータビリティ維持の thin layer とし、WASM 
 1. 現在の WASM codegen/runtime の主実装は Rust (`src/backend/wasm/*`)。
 2. `.hako` 側は段階移行中で、契約固定（fixture/smoke/SSOT）が主役。
 3. したがって現時点では Rust 依存は必要。無理に切り離さず、契約を先に固定する。
+4. `phase-30x` の backend role taxonomy では、WASM は `experimental` target として扱う。product main や co-main と誤読させない。
 
 ## Rust WASM Lifecycle (fixed: Stop -> Freeze -> Retire)
 Rust WASM（`src/backend/wasm/*`）は以下の 3 段階で扱う。big-bang での即削除は禁止。

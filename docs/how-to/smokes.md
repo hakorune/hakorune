@@ -21,6 +21,18 @@
    - 実行: `tools/smokes/v2/run.sh --profile integration`
    - 必要に応じて suite-first で curated coverage を回す
 
+role-first の読み:
+- `llvm/exe` 系 = product
+- `rust-vm` 系 = engineering/bootstrap
+- `vm-hako` 系 = reference/conformance
+- `wasm` 系 = experimental
+
+例:
+- reference/conformance: `tools/smokes/v2/run.sh --profile integration --suite vm-hako-caps`
+- reference/conformance (small pack): `tools/smokes/v2/run.sh --profile integration --suite vm-hako-core`
+- experimental: `tools/checks/dev_gate.sh wasm-freeze-core`
+- experimental families under `tools/smokes/v2/profiles/integration/phase29cc_wsm/` are wasm-only validation lanes, not co-main evidence
+
 手動スモーク（例）
 - Core (LLVM): `examples/llvm11_core_smoke.hako`
 - Async (LLVM only):

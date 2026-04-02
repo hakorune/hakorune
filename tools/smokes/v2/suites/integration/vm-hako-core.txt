@@ -1,5 +1,6 @@
 # Integration vm-hako-core suite
-# Core vm-hako capabilities and contract fixtures.
+# Core reference-lane vm-hako capability and contract fixtures.
+# Keep this suite as a small reference/conformance pack.
 vm_hako_caps/app1/app1_summary_contract_ported_vm.sh
 vm_hako_caps/args/args_vm.sh
 vm_hako_caps/args/boxcall_args_gt1_ported_vm.sh

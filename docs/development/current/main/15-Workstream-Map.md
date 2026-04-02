@@ -27,63 +27,61 @@ Related:
      - `K2-core accepted stop-line`
      - `zero-rust default operationalization` (landed)
      - `stage2plus entry / first optimization wave` (accepted)
-     - `phase-29x backend owner cutover prep`
+     - `phase-29x backend owner cutover prep` (landed)
+     - `phase-30x backend surface simplification`
    - current read:
      - `K2-core` is closed
      - `K2-wide` boundary-shrink lock-down is closed enough for handoff
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
-     - current active lane is `phase-29x backend owner cutover prep`
+     - current active lane is `phase-30x backend surface simplification`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
-     - semantic proof/archive recut is landed: `phase2044`, `phase2120`, and archive replay evidence now live in semantic homes
-     - the selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
-     - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and the explicit helper module is deleted
-     - `compat_codegen_receiver.rs` no longer calls the helper directly; it now keeps the text contract on top of the shared no-helper primitive
-     - `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive
-     - `29x-98` owns the final helper-deletion watch, now split into the keep chokepoint watch and the archive-later surrogate watch; `29x-99` owns landed re-cut history and move order
-     - the adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first; the surrogate follows later as `json_path -> read_to_string -> same primitive`
-     - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-     - `99W1` is landed: caller groups and reduction order are fixed
-     - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and the keep chokepoint uses it
-     - `99X1` and `99X2` are landed
-     - `99Y` is landed
-     - current active micro task is `next optimization restart`
-     - next queued micro task is `none`
-     - watch-1 caller reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
-     - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
+     - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
+     - current backend surface is role-first:
+       - `llvm/exe` = `product`
+       - `rust-vm` = `engineering/bootstrap`
+       - `vm-hako` = `reference/conformance`
+       - `wasm` = `experimental`
+     - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
+     - dangerous early flips remain around launcher/default/orchestrator sites
+     - `30xA1`, `30xA2`, and `30xB1` are landed
+     - current active micro task is `30xB2 wasm experimental smoke lock`
+     - next queued micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
+     - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
+     - review intake detail stays in `phase-30x`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-29x backend owner cutover prep table:
+   - phase-30x backend surface simplification table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-29x backend owner cutover prep` |
+     | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `next optimization restart` |
+     | Next | `30xB2 wasm experimental smoke lock` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `next optimization restart` |
-     | Next | `none` |
-     | Later | `none` |
+     | Now | `30xB2 wasm experimental smoke lock` |
+     | Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
+     | Later | `30xB4-30xF` |
    - cleanup waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
-     | `W1 docs-first path-truth pass` | landed | target buckets and move order |
-     | `W2 mixed-file split pass` | landed | split owner-looking mixed files |
-     | `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
-     | `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
-     | `W5 Rust compat receiver collapse` | landed | one compat receiver chokepoint |
-     | `W6 final delete/archive sweep` | landed | misleading legacy front-door naming/export is gone and the explicit helper module is deleted |
+     | `30xA role taxonomy lock` | landed | root docs and phase docs use the same backend roles |
+     | `30xB smoke taxonomy split` | active | role-first smoke/gate reading |
+     | `30xC rust-vm dependency inventory` | queued | internal `--backend vm` pressure map |
+     | `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator freeze |
+     | `30xE user-facing main switch prep` | queued | `llvm/exe` first docs/help/examples |
+     | `30xF backend default decision gate` | queued | decide raw CLI default last |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
    - current blocker: `none`
    - failure-driven steady-state
 3. `phase-29x`
-   - active structure-first owner-cutover lane
+   - landed precursor lane
    - keep exact detail in phase README and backend-owner SSOT
 4. `phase-29ck`
    - active follow-up / docs-first exact front
@@ -104,10 +102,11 @@ Related:
   - `stage / docs / naming` fixation
   - `zero-rust` default operationalization (landed)
   - `stage2plus` entry / first optimization wave (accepted)
-  - `phase-29x` backend owner cutover prep
-- Active LLVM tasks:
-  - `llvmlite` keep/probe parity
-  - `ny-llvm` collection / allocator-handle / dynamic-fallback buckets
+  - `phase-30x` backend surface simplification
+- Active backend surface tasks:
+  - `30xA role taxonomy lock`
+  - `30xB smoke taxonomy split`
+  - `30xC rust-vm dependency inventory`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -121,9 +120,9 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-29x` exact and docs-first
-2. keep `phase-29bq` active as failure-driven / blocker-none lane
-3. keep `phase-29ck` exact and docs-first
+1. keep `phase-30x` exact and docs-first
+2. keep `phase-29x` landed as the precursor lane
+3. keep `phase-29bq` active as failure-driven / blocker-none lane
 4. keep closed lanes closed unless a new exact gap appears
 
 ## Active Lane
@@ -133,6 +132,7 @@ Related:
   - keep `stage0/stage1/stage2-mainline/stage2+` as build/distribution vocabulary
   - keep `K0/K1/K2` as build/runtime stage vocabulary
   - keep task packs separate from `K-axis`
+  - keep backend surfaces role-first: `product / engineering / reference / experimental`
   - keep `RuntimeDataBox` facade-only
   - keep `.hako` capability facades distinct from native keep leaf glue
   - keep artifact roots binary/bundle only; migration task notes stay in root/docs/phase owners

@@ -1,8 +1,14 @@
 # Integration phase29cc_wsm family
 
+This family is the live `wasm` experimental smoke home.
+
+- Read it as `experimental`, not `product` and not `co-main`.
+- Keep wasm progression and parity evidence here without implying that `wasm`
+  became a default runtime lane.
+
 This family is the next live semantic split after `vm_hako_caps`, and it currently hosts the `g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, and `p8` subfamilies.
 
-## Active Split
+## Experimental Split
 
 - `g3_canvas/`
   - Canvas contract smokes (`arc`, `beginpath`, `clear`, `drawline`, `fill`, `fillcircle`, `setfillstyle`, `setlinewidth`, `setstrokestyle`, `stroke`, `strokerect`)
@@ -34,3 +40,4 @@ This family is the next live semantic split after `vm_hako_caps`, and it current
 - The remaining `phase29cc_wsm_*` scripts still live under `tools/smokes/v2/profiles/integration/apps/`.
 - Keep new `phase29cc_wsm` work under this family tree; do not add more `phase29cc_wsm_*` files to `apps/`.
 - `p8/` is now split out; the next live family to inspect after it is `phase21_5/perf`.
+- This family is evidence for the `wasm` experimental lane only.
