@@ -21,8 +21,8 @@ Related:
 | 2 | `30xB smoke taxonomy split` | landed | role-first smoke buckets and suite reading |
 | 3 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure by category |
 | 4 | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator denylist |
-| 5 | `30xE user-facing main switch prep` | active | README/help/examples move to `llvm/exe` first |
-| 6 | `30xF backend default decision gate` | queued | decide raw CLI default only after the above |
+| 5 | `30xE user-facing main switch prep` | landed | README/help/examples move to `llvm/exe` first |
+| 6 | `30xF backend default decision gate` | active | decide raw CLI default only after the above |
 | 7 | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces after main switch |
 
 ## Ordered Slice Detail
@@ -45,7 +45,7 @@ Related:
 | 14 | `30xE1` | landed | README/README.ja prep |
 | 15 | `30xE2` | landed | CLI/help wording prep |
 | 16 | `30xE3` | landed | stage1/runtime guide prep |
-| 17 | `30xE4` | active | remaining user-facing main switch prep |
+| 17 | `30xE4` | landed | remaining user-facing main switch prep |
 | 18 | `30xF1-30xF2` | queued | backend default decision last |
 | 19 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 

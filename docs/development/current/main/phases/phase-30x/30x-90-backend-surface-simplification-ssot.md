@@ -49,8 +49,8 @@ Related:
 | `30xB smoke taxonomy split` | landed | smoke を `product / engineering / reference / experimental` の見え方へ寄せる | role-first buckets と suites の方針が固定される |
 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure を category ごとに固定する | bootstrap/selfhost/plugin/macro/smoke/doc の pressure map が揃う |
 | `30xD dangerous-early-flip lock` | landed | 先に変えると壊れる launcher/default/orchestrator を固定する | early-flip denylist が task board で explicit |
-| `30xE user-facing main switch prep` | active | README/help/examples を `llvm/exe` first に寄せる準備をする | default を変えずに main narrative だけ切り替える差分範囲が固まる |
-| `30xF backend default decision gate` | queued | CLI default/backend flip の可否を最後に判定する | taxonomy、smoke split、dependency inventory が landed している |
+| `30xE user-facing main switch prep` | landed | README/help/examples を `llvm/exe` first に寄せる準備をする | default を変えずに main narrative だけ切り替える差分範囲が固まる |
+| `30xF backend default decision gate` | active | CLI default/backend flip の可否を最後に判定する | taxonomy、smoke split、dependency inventory、front docs rewrite が landed している |
 | `30xG legacy disposition sweep` | queued | manual residue / stale snapshot / old compare helpers を archive か delete に寄せる | open-ended watch が archive/delete/explicit keep のいずれかへ収束する |
 
 ## Micro Tasks
@@ -95,7 +95,7 @@ Related:
 | `30xE1` | landed | README/README.ja prep | root front docs read `llvm/exe` first while `rust-vm` stays engineering keep |
 | `30xE2` | landed | CLI/help wording prep | `docs/tools/*` stop reading `vm` as the main narrative and stale help is marked historical |
 | `30xE3` | landed | stage1/runtime guide prep | runtime/stage1 guides stop implying `rust-vm` is the product main |
-| `30xE4` | active | vm-hako/wasm wording prep | `vm-hako` stays reference and `wasm` stays experimental in user-facing docs |
+| `30xE4` | landed | vm-hako/wasm wording prep | `vm-hako` stays reference and `wasm` stays experimental in user-facing docs |
 
 ### `30xF` backend default decision gate
 
@@ -123,8 +123,8 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `30xE user-facing main switch prep`
-- next queued wave: `30xF backend default decision gate`
+- active macro wave: `30xF backend default decision gate`
+- next queued wave: `30xG legacy disposition sweep`
 - later disposition wave: `30xG legacy disposition sweep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front

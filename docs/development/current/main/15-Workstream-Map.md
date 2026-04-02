@@ -56,8 +56,9 @@ Related:
      - `30xE1` landed and rewrote `README.md` / `README.ja.md` toward `llvm/exe` first
      - `30xE2` landed and moved CLI/help docs to role-first wording
      - `30xE3` landed and moved stage1/runtime guides to engineering/bootstrap wording
-     - current active micro task is `30xE4 vm-hako/wasm wording prep`
-     - next queued micro task is `30xF1 backend default gate checklist`
+     - `30xE4` landed and fixed `vm-hako`/`wasm` user-facing wording
+     - current active micro task is `30xF1 backend default gate checklist`
+     - next queued micro task is `30xF2 backend token/default decision`
      - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
@@ -71,14 +72,14 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xE4 vm-hako/wasm wording prep` |
+     | Next | `30xF1 backend default gate checklist` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xE4 vm-hako/wasm wording prep` |
-     | Next | `30xF1 backend default gate checklist` |
-     | Later | `30xF-30xG` |
+     | Now | `30xF1 backend default gate checklist` |
+     | Next | `30xF2 backend token/default decision` |
+     | Later | `30xG` |
    - cleanup waves:
 
      | Wave | Status | Read as |
@@ -87,8 +88,8 @@ Related:
      | `30xB smoke taxonomy split` | landed | role-first smoke/gate reading |
      | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure map |
      | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator freeze |
-     | `30xE user-facing main switch prep` | active | `llvm/exe` first docs/help/examples |
-     | `30xF backend default decision gate` | queued | decide raw CLI default last |
+     | `30xE user-facing main switch prep` | landed | `llvm/exe` first docs/help/examples |
+     | `30xF backend default decision gate` | active | decide raw CLI default last |
      | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces |
 2. `phase-29bq`
    - active selfhost lane

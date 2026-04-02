@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xE4 vm-hako/wasm wording prep`
+- Exact focus: `30xF1 backend default gate checklist`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -96,8 +96,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `30xE1` rewrote `README.md` / `README.ja.md` to `llvm/exe` first while keeping `rust-vm` as engineering/bootstrap keep
 - `30xE2` rewrote `docs/tools/cli-options.md` and marked `docs/tools/nyash-help.md` as a historical capture
 - `30xE3` rewrote stage1/runtime guides to read `rust-vm` as engineering/bootstrap keep and `llvm/exe` as product
-- active micro task is `30xE4 vm-hako/wasm wording prep`
-- next queued micro task is `30xF1 backend default gate checklist`
+- `30xE4` fixed user-facing `vm-hako` / `wasm` wording so reference and experimental lanes no longer read as co-main
+- active micro task is `30xF1 backend default gate checklist`
+- next queued micro task is `30xF2 backend token/default decision`
 - legacy residue policy is now explicit:
   - keep if it is still an engineering/bootstrap contract
   - rewrite if it still presents old main narrative
@@ -120,7 +121,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xE4 vm-hako/wasm wording prep` |
+  | Next | `30xF1 backend default gate checklist` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -134,9 +135,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xE4 vm-hako/wasm wording prep` | keep reference/experimental lanes out of co-main wording |
-| Next | `30xF1 backend default gate checklist` | decide whether docs-first demotion is enough before any raw flip |
-| Later | `30xF-30xG` | backend default gate and legacy archive/delete sweep |
+| Now | `30xF1 backend default gate checklist` | verify whether raw default flip is still blocked after 30xE landed |
+| Next | `30xF2 backend token/default decision` | decide docs-only demotion vs raw token/default change |
+| Later | `30xG` | legacy archive/delete sweep |
 
 ## Backend Surface Waves
 
@@ -146,8 +147,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xB smoke taxonomy split` | landed | separate product / engineering / reference / experimental smoke reading |
 | `30xC rust-vm dependency inventory` | landed | map internal `--backend vm` pressure before any flip |
 | `30xD dangerous-early-flip lock` | landed | freeze launcher/default/orchestrator sites that must not move early |
-| `30xE user-facing main switch prep` | active | move README/help/examples toward `llvm/exe` first without flipping defaults |
-| `30xF backend default decision gate` | queued | decide the raw CLI default only after the previous slices land |
+| `30xE user-facing main switch prep` | landed | move README/help/examples toward `llvm/exe` first without flipping defaults |
+| `30xF backend default decision gate` | active | decide the raw CLI default only after the previous slices land |
 | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces after main switch |
 
 ## Phase-30x Micro Tasks
@@ -170,7 +171,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xE1` | landed | README/README.ja now read `llvm/exe` first and demote `rust-vm` to engineering keep |
 | `30xE2` | landed | CLI/help wording now reads role-first; `nyash-help` is explicit historical capture |
 | `30xE3` | landed | stage1/runtime guides now treat `rust-vm` as engineering/bootstrap keep |
-| `30xE4` | active | vm-hako/wasm wording prep without a raw default flip |
+| `30xE4` | landed | vm-hako stays reference and wasm stays experimental in user-facing docs |
 | `30xF1-30xF2` | queued | backend default decision gate stays last |
 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 

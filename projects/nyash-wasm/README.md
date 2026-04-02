@@ -1,8 +1,8 @@
-# 🌐 Nyash WebAssembly Project
+# 🌐 Hakorune WebAssembly Project
 
-Status: `WSM-G4-min6` まで固定済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の Console baseline / canvas primer / webcanvas+canvas_advanced の fixture+headless parity を lock 済み。wasm lane は monitor-only。
+Status: `WSM-G4-min6` まで固定済み。`projects/nyash-wasm/bridge` を wasm build のSSOTとし、`nyash_playground.html` の Console baseline / canvas primer / webcanvas+canvas_advanced の fixture+headless parity を lock 済み。wasm lane は experimental / monitor-only で、product main や default CI の主線ではない。
 
-## 🚀 Quick Start (experimental)
+## 🚀 Quick Start (experimental / local-only)
 
 ```bash
 # Install wasm-pack (if not already installed)
@@ -32,6 +32,11 @@ cd projects/nyash-wasm && python3 -m http.server 8001
 - **🧪 Headless two-example parity smoke** - `phase29cc_wsm_g4_min5_headless_two_examples_vm.sh`
 - **🧪 G4 closeout smoke** - `phase29cc_wsm_g4_min6_gate_promotion_closeout_vm.sh`
 - **🎮 Interactive Playground** - `nyash_playground.html` の Run ボタンで prebuilt demo 実行
+
+Current role:
+- experimental / monitor-only browser lane
+- separate from `llvm/exe` product main and `rust-vm` engineering/bootstrap keep
+- useful for local demos, playground fixtures, and smoke-locked browser contracts
 
 ## 📁 File Structure
 
@@ -83,7 +88,7 @@ WebAssembly.instantiate + env imports
 - `prebuilt/` 生成物は playground配信契約の一部としてコミット運用する。
 - ソース更新時は `bash projects/nyash-wasm/build.sh` を実行し、`pkg/` と `prebuilt/` を同期する。
 
-## 🎉 Coming Soon
+## 🎉 Coming Soon (experimental backlog)
 
 - **DOMBox** - DOM manipulation from Nyash
 - **CanvasBox** - Graphics and games
@@ -93,4 +98,4 @@ WebAssembly.instantiate + env imports
 
 ---
 
-**Everything is Box, even in the browser! 🐱**
+This project stays experimental / monitor-only until a separate promotion gate exists.

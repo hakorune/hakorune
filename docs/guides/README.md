@@ -22,9 +22,9 @@ Quick Links
 - ベストプラクティス
 
 ### wasm-guide/
-- WebAssemblyビルドガイド
+- experimental / monitor-only な WebAssembly ガイド
 - ブラウザープレイグラウンドの使い方
-- Webアプリケーション開発
+- product main ではない browser demo / local validation lane
 
 ## 🎯 学習順序
 1. `getting-started.md` から始める

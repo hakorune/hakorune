@@ -2,6 +2,11 @@
 
 最終更新: 2025-08-13
 
+位置づけ:
+- この playground は `projects/nyash-wasm/` にある experimental / monitor-only ブラウザ経路です。
+- product main (`llvm/exe`) や engineering/bootstrap keep (`rust-vm`) の代替ではありません。
+- デモ共有や fixture 確認に使う user-facing reference です。
+
 ## リンク
 - Playground: https://moe-charm.github.io/nyash/projects/nyash-wasm/nyash_playground.html
 
@@ -99,4 +104,3 @@ make()  # => Thing.fini (scope)
 - 論文やREADMEから本ガイドへリンクし、コピー＆ペーストで再現
 - 期待ログ（例: `Thing.fini`）を明記して、挙動の確認を容易に
 - 比較のため「weakなし版」と「weakあり版」を並記
-
