@@ -74,8 +74,8 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `30xC1` | active | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
-| `30xC2` | queued | plugin/macro/tooling inventory | macro child, plugin smoke, bridge accept, parity tools are grouped explicitly |
+| `30xC1` | landed | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
+| `30xC2` | active | plugin/macro/tooling inventory | macro child, plugin smoke, bridge accept, parity tools are grouped explicitly |
 | `30xC3` | queued | smoke/test inventory | vm-backed smoke/test orchestrators are listed separately from product/reference suites |
 | `30xC4` | queued | docs/help inventory | README/help/guides that still center `--backend vm` are explicit |
 
@@ -124,6 +124,39 @@ Related:
 - `tools/selfhost/selfhost_build.sh`
 - `tools/selfhost/run_stageb_compiler_vm.sh`
 - `Makefile`
+
+Bootstrap/selfhost findings (`30xC1`):
+
+- `src/cli/args.rs`
+  - raw CLI default still reads `--backend vm` as the default token
+  - this remains an early-flip denylist surface, not a first-slice edit target
+- `src/runner/dispatch.rs`
+  - runtime backend selection still exposes `vm`, `vm-hako`, and `llvm`
+  - backend token wording stays frozen until `30xF`
+- `src/runner/modes/common_util/selfhost/child.rs`
+  - selfhost child capture is explicitly `nyash --backend vm <program>`
+  - this is bootstrap/runtime glue, not product-mainline evidence
+- `lang/src/runner/stage1_cli/core.hako`
+  - raw compat route still accepts `vm|pyvm`
+  - `llvm` is explicitly retired from this raw stage1 lane
+- `tools/selfhost/run.sh`
+  - runtime/direct selfhost paths still execute with `--backend vm`
+  - this is engineering/bootstrap keep, not a stale path
+- `tools/selfhost/selfhost_build.sh`
+  - BuildBox and Stage-B wrappers still call `--backend vm`
+  - these remain bootstrap/selfhost surfaces, not delete candidates
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+  - explicit shared Stage-B compiler route on Rust VM core lane
+  - keep as bootstrap/selfhost contract surface
+- `Makefile`
+  - `run-minimal` still uses `--backend vm`
+  - keep as engineering quick target; do not flip in this slice
+
+Bootstrap/selfhost archive/delete result (`30xC1`):
+
+- none
+- every direct `--backend vm` hit in this bucket still belongs to live bootstrap/selfhost or launcher pressure
+- archive/delete review should wait until `30xD` denylist and `30xE/F` default/main-switch decisions
 
 ### Plugin / macro / dev tooling
 

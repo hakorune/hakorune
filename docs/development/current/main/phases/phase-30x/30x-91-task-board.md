@@ -34,11 +34,12 @@ Related:
 | 4 | `30xB2` | landed | `wasm` experimental smoke lock |
 | 5 | `30xB3` | landed | `llvm/exe` product vs `llvmlite` probe boundary lock |
 | 6 | `30xB4` | landed | smoke matrix/guide cleanup |
-| 7 | `30xC1` | active | `rust-vm` bootstrap/selfhost pressure |
-| 8 | `30xC2-30xC4` | queued | remaining `rust-vm` pressure by category |
-| 9 | `30xD1-30xD3` | queued | do-not-flip-early lock |
-| 10 | `30xE1-30xE4` | queued | user-facing main switch prep |
-| 11 | `30xF1-30xF2` | queued | backend default decision last |
+| 7 | `30xC1` | landed | `rust-vm` bootstrap/selfhost pressure |
+| 8 | `30xC2` | active | `rust-vm` plugin/macro/tooling pressure |
+| 9 | `30xC3-30xC4` | queued | remaining `rust-vm` pressure by category |
+| 10 | `30xD1-30xD3` | queued | do-not-flip-early lock |
+| 11 | `30xE1-30xE4` | queued | user-facing main switch prep |
+| 12 | `30xF1-30xF2` | queued | backend default decision last |
 
 ## Evidence Commands
 
@@ -70,6 +71,30 @@ rg -n 'rust-vm|vm-hako|llvm-exe|ny-llvm|ny-llvmc|compile-wasm|wasm-backend' \
 - `tools/bootstrap_selfhost_smoke.sh`
 - `tools/selfhost_smoke.sh`
 - `src/macro/macro_box_ny.rs`
+
+### Bootstrap/selfhost keep details
+
+- `src/cli/args.rs`
+  - raw default token remains `vm`
+- `src/runner/dispatch.rs`
+  - backend selector still carries `vm`, `vm-hako`, `llvm`
+- `src/runner/modes/common_util/selfhost/child.rs`
+  - child capture route is explicit `--backend vm`
+- `lang/src/runner/stage1_cli/core.hako`
+  - raw stage1 compat route still accepts `vm|pyvm`
+- `tools/selfhost/run.sh`
+  - runtime/direct selfhost paths still force `--backend vm`
+- `tools/selfhost/selfhost_build.sh`
+  - build wrappers still use `--backend vm`
+- `tools/selfhost/run_stageb_compiler_vm.sh`
+  - shared Stage-B compiler route is explicit Rust VM keep
+- `Makefile`
+  - `run-minimal` still uses `--backend vm`
+
+Bootstrap/selfhost archive/delete result:
+
+- `none`
+- all current hits are live bootstrap/selfhost pressure and stay keep surfaces in `30xC1`
 
 ### Reference
 
