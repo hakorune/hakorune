@@ -85,19 +85,19 @@ NYASH_VM_PIC_DEBUG=1       # PICヒットのしきい値通過時にログ
 
 ## E2E 実行例（HTTPのResult挙動）
 
-代表ケースを `tools/run_vm_stats.sh` で実行できます。`--vm-stats-json` により命令プロファイルも取得可能です。
+代表ケースを `tools/engineering/run_vm_stats.sh` で実行できます。`--vm-stats-json` により命令プロファイルも取得可能です。
 
 ```bash
 # 別ターミナルでサーバ起動
 ./target/release/nyash local_tests/http_server_statuses.hako
 
 # クライアント（別ターミナル）
-tools/run_vm_stats.sh local_tests/vm_stats_http_ok.hako vm_stats_ok.json
-tools/run_vm_stats.sh local_tests/vm_stats_http_404.hako vm_stats_404.json
-tools/run_vm_stats.sh local_tests/vm_stats_http_500.hako vm_stats_500.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_ok.hako vm_stats_ok.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_404.hako vm_stats_404.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_500.hako vm_stats_500.json
 
 # 到達不能（サーバ不要）
-tools/run_vm_stats.sh local_tests/vm_stats_http_err.hako vm_stats_err.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_err.hako vm_stats_err.json
 ```
 
 期待されるResultモデル

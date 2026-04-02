@@ -14,8 +14,8 @@ Collect VM instruction stats (JSON) to guide optimization and instruction set di
 # JSON for tooling
 ./target/release/nyash --backend vm --vm-stats --vm-stats-json local_tests/vm_stats_http_ok.hako > vm_stats_ok.json
 
-# Or via helper script
-tools/run_vm_stats.sh local_tests/vm_stats_http_ok.hako vm_stats_ok.json
+# Or via engineering helper
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_ok.hako vm_stats_ok.json
 ```
 
 ## Sample Programs

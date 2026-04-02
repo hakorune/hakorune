@@ -27,18 +27,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 5. `zero-rust` default operationalization (landed)
 6. `stage2plus entry / first optimization wave` (accepted)
 7. `phase-29x backend owner cutover prep` (landed)
-8. `phase-30x backend surface simplification`
+8. `phase-30x backend surface simplification` (landed)
+9. `phase-31x engineering lane isolation`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, and current active lane is `phase-30x backend surface simplification`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, and current active lane is `phase-31x engineering lane isolation`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, and the current active front is `phase-30x backend surface simplification`.
-- Active lane: `phase-30x-backend-surface-simplification`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, and the current active front is `phase-31x engineering lane isolation`.
+- Active lane: `phase-31x-engineering-lane-isolation`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -50,13 +51,17 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-30x/README.md`
   - `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
   - `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-31x/README.md`
+  - `docs/development/current/main/phases/phase-31x/31x-90-engineering-lane-isolation-ssot.md`
+  - `docs/development/current/main/phases/phase-31x/31x-91-task-board.md`
   - `docs/development/current/main/design/backend-owner-cutover-ssot.md`
   - `docs/development/current/main/design/runtime-decl-manifest-v0.toml`
 - Current read:
   - `K2-core` is closed
   - `K2-wide` lock-down is closed enough for handoff
   - `stage2plus entry / first optimization wave` is accepted
-  - current active lane is `phase-30x backend surface simplification`
+  - `phase-30x backend surface simplification` is landed
+  - current active lane is `phase-31x engineering lane isolation`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -73,61 +78,34 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-30x backend surface simplification`
+- Active next: `phase-31x engineering lane isolation`
 - Current blocker: `none`
-- Exact focus: `phase-30x closeout review`
-  - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
-  - current backend reading is role-first:
+- Exact focus: `31xD1 orchestrator keep vs rehome split`
+  - `phase-30x` is landed; ownership flip is complete and `phase-31x` is the first source/smoke rehome lane
+  - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
     - `vm-hako` = `reference/conformance`
     - `wasm` = `experimental`
-  - `rust-vm` is still deep in bootstrap/selfhost/plugin/macro/smoke paths; do not force-remove it before inventory and smoke split
-  - current docs mostly use the label `rust-vm`, not `vm-rust`
-  - dangerous early flips are launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, `tools/selfhost/run.sh`, and `tools/plugin_v2_smoke.sh`
-  - `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, `30xC2`, `30xC3`, `30xC4`, and `30xD1` are landed
-  - `30xC2` separated engineering/tooling keep from archived manual residue
-  - `30xC3` separated engineering smoke keep from archived residue and explicit test-local keep
-  - `30xC4` separated rewrite targets, engineering docs keep, and historical snapshot handling
-- `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
-- `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
-- `30xD3` landed as docs-first orchestrator freeze; plugin/smoke wrappers stay explicit engineering keeps
-- root mirrors are already phase-30x-first; remaining drift is mostly front docs/help and manual residue scripts
-- `30xE1` rewrote `README.md` / `README.ja.md` to `llvm/exe` first while keeping `rust-vm` as engineering/bootstrap keep
-- `30xE2` rewrote `docs/tools/cli-options.md` and marked `docs/tools/nyash-help.md` as a historical capture
-- `30xE3` rewrote stage1/runtime guides to read `rust-vm` as engineering/bootstrap keep and `llvm/exe` as product
-- `30xE4` fixed user-facing `vm-hako` / `wasm` wording so reference and experimental lanes no longer read as co-main
-- `30xF1` landed: raw default flip is still blocked by `args.rs`, `dispatch.rs`, selfhost child, and engineering wrappers/orchestrators
-- `30xF2` landed: phase-30x keeps raw backend token/default stable and treats docs/artifact/smoke ownership flip as sufficient
-- `30xG1` landed: low-blast manual smoke residues moved to `tools/archive/manual-smokes/`
-- `30xG2` landed: `docs/tools/nyash-help.md` is now a thin stub and the historical capture moved to `docs/archive/tools/nyash-help.md`
-- `30xG3` landed: `tools/smoke_aot_vs_vm.sh` moved to `tools/archive/manual-smokes/` and left `run_spec_smoke.sh` as explicit keep
-- `30xG4` landed: root and phase docs no longer leave unsettled residue wording for already-settled outcomes
-- active micro task is `none`
-- next queued micro task is `none`
-- legacy residue policy is now explicit:
-  - keep if it is still an engineering/bootstrap contract
-  - rewrite if it still presents old main narrative
-  - archive if it is a manual residue with no live owner
-- `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
-  - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
-  - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
-  - `30xC1` fixed bootstrap/selfhost keep surfaces and found no archive/delete candidate in that bucket
+  - current cleanup rule is `rehome -> shim -> drain -> delete`
+  - landed in `31xA`: phase switch and `tools/engineering/**` home lock
+  - landed in `31xB`: `tools/engineering/run_vm_stats.sh` and `tools/engineering/parity.sh`; old top-level paths are compatibility shims only
+  - landed in `31xC`: `tools/hako_check.sh`, `tools/hako_check_deadcode_smoke.sh`, and `tools/hakorune_emit_mir.sh` are fixed as shared-helper `keep here`
+  - active in `31xD1`: keep-vs-rehome split for bootstrap/plugin/selfhost orchestrators
+  - raw backend default remains deferred; no-touch-first still includes `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, `tools/selfhost/selfhost_build.sh`, and `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-30x/README.md`
-  3. `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
-  4. `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
-  5. `docs/development/current/main/design/execution-lanes-and-axis-separation-ssot.md`
-  6. `docs/development/current/main/design/artifact-policy-ssot.md`
-  7. `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
-- backend surface table:
+  2. `docs/development/current/main/phases/phase-31x/README.md`
+  3. `docs/development/current/main/phases/phase-31x/31x-90-engineering-lane-isolation-ssot.md`
+  4. `docs/development/current/main/phases/phase-31x/31x-91-task-board.md`
+  5. `docs/development/current/main/phases/phase-30x/README.md`
+- engineering isolation table:
 
   | Item | State |
   | --- | --- |
-  | Now | `phase-30x backend surface simplification` |
+  | Now | `phase-31x engineering lane isolation` |
   | Blocker | `none` |
-  | Next | `phase-30x closeout review` |
+  | Next | `31xD1 orchestrator keep vs rehome split` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -137,56 +115,38 @@ Scope: repo root から current order / current blocker / next exact read に最
   - keep backend lane follow-up in the backend lane docs
   - do not mix keep-lane notes into `K2-wide` implementation notes
 
-## Backend Surface Bands
+## Engineering Isolation Bands
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-30x closeout review` | confirm the role-first split and archive/keep disposition are settled |
-| Next | `none` | next phase starts after closeout |
-| Later | `none` | legacy disposition sweep is landed |
+| Now | `31xD orchestrator isolation prep` | keep-vs-rehome split for no-touch-first orchestrators |
+| Next | `31xE shim drain and legacy sweep` | delete/archive only after shim drain is explicit |
+| Later | `shared helper follow-up` | only reopen on a dedicated helper-local cleanup lane |
 
-## Backend Surface Waves
+## Engineering Isolation Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `30xA role taxonomy lock` | landed | lock the role-first reading in root docs and phase docs |
-| `30xB smoke taxonomy split` | landed | separate product / engineering / reference / experimental smoke reading |
-| `30xC rust-vm dependency inventory` | landed | map internal `--backend vm` pressure before any flip |
-| `30xD dangerous-early-flip lock` | landed | freeze launcher/default/orchestrator sites that must not move early |
-| `30xE user-facing main switch prep` | landed | move README/help/examples toward `llvm/exe` first without flipping defaults |
-| `30xF backend default decision gate` | landed | keep the raw CLI default stable and finish ownership flip first |
-| `30xG legacy disposition sweep` | landed | archive/delete residual manual surfaces after main switch |
+| `31xA engineering home lock` | landed | switch active lane and fix `tools/engineering/**` as canonical home |
+| `31xB low-blast tool rehome` | landed | move low-blast engineering tools out of the top-level front |
+| `31xC shared helper family inventory` | landed | decide keep / rehome / archive for helper family |
+| `31xD orchestrator isolation prep` | active | split no-touch-first orchestrators into keep vs later rehome |
+| `31xE shim drain and legacy sweep` | queued | delete/archive only after moved paths are drained |
 
-## Phase-30x Micro Tasks
+## Phase-31x Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `30xA1` | landed | root mirrors use the same role-first labels |
-| `30xA2` | landed | design role SSOTs use the same role-first labels |
-| `30xB1` | landed | `vm-hako` reference smoke lock |
-| `30xB2` | landed | `wasm` experimental smoke lock |
-| `30xB3` | landed | `llvm/exe` product vs `llvmlite` probe boundary lock |
-| `30xB4` | landed | matrix/guide smoke taxonomy cleanup |
-| `30xC1` | landed | bootstrap/selfhost `rust-vm` pressure inventory |
-| `30xC2` | landed | plugin/macro/tooling `rust-vm` pressure inventory |
-| `30xC3` | landed | smoke/test `rust-vm` pressure inventory |
-| `30xC4` | landed | docs/help `rust-vm` pressure inventory |
-| `30xD1` | landed | default/dispatch dangerous early flip lock |
-| `30xD2` | landed | selfhost/bootstrap dangerous early flip lock |
-| `30xD3` | landed | plugin/smoke dangerous early flip lock |
-| `30xE1` | landed | README/README.ja now read `llvm/exe` first and demote `rust-vm` to engineering keep |
-| `30xE2` | landed | CLI/help wording now reads role-first; `nyash-help` is explicit historical capture |
-| `30xE3` | landed | stage1/runtime guides now treat `rust-vm` as engineering/bootstrap keep |
-| `30xE4` | landed | vm-hako stays reference and wasm stays experimental in user-facing docs |
-| `30xF1` | landed | backend default flip remains blocked after docs-first demotion landed |
-| `30xF2` | landed | phase-30x keeps raw backend token/default stable |
-| `30xG1` | landed | low-blast manual smoke residues archived |
-| `30xG2` | landed | stale help snapshot archived behind a thin stub |
-| `30xG3` | landed | compare/manual helper archived or reduced to explicit keep |
-| `30xG4` | landed | post-switch docs no longer carry unsettled residue wording for settled outcomes |
-
-- `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
-- `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.
+| `31xA1` | landed | root/current mirrors and phase index switch to `phase-31x` |
+| `31xA2` | landed | `tools/engineering/**` is the canonical home |
+| `31xB1` | landed | `run_vm_stats.sh` actual move + shim |
+| `31xB2` | landed | `parity.sh` actual move + shim |
+| `31xC1` | landed | inventory shared helper family |
+| `31xC2` | landed | choose shared helper disposition |
+| `31xD1` | active | orchestrator keep vs rehome split |
+| `31xD2` | queued | docs/live path repoint for moved orchestrators |
+| `31xE1` | queued | delete drained compatibility shims |
+| `31xE2` | queued | archive stale top-level wrappers |
 
 ## Canonical Owners
 
@@ -214,6 +174,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `hako_alloc` rows:
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - current phase-order context:
+  - `docs/development/current/main/phases/phase-31x/README.md`
+  - `docs/development/current/main/phases/phase-31x/31x-90-engineering-lane-isolation-ssot.md`
+  - `docs/development/current/main/phases/phase-31x/31x-91-task-board.md`
   - `docs/development/current/main/phases/phase-30x/README.md`
   - `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
   - `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`

@@ -28,13 +28,15 @@ Related:
      - `zero-rust default operationalization` (landed)
      - `stage2plus entry / first optimization wave` (accepted)
      - `phase-29x backend owner cutover prep` (landed)
-     - `phase-30x backend surface simplification`
+     - `phase-30x backend surface simplification` (landed)
+     - `phase-31x engineering lane isolation`
    - current read:
      - `K2-core` is closed
      - `K2-wide` boundary-shrink lock-down is closed enough for handoff
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
-     - current active lane is `phase-30x backend surface simplification`
+     - `phase-30x backend surface simplification` is landed
+     - current active lane is `phase-31x engineering lane isolation`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -45,58 +47,40 @@ Related:
        - `wasm` = `experimental`
      - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
      - dangerous early flips remain around launcher/default/orchestrator sites
-     - `30xA1`, `30xA2`, `30xB1-30xB4`, and `30xC1` are landed
-     - `30xC2` grouped plugin/macro/tooling pressure into engineering keeps plus archived/manual residue
-     - `30xC3` grouped smoke/test pressure into engineering keeps plus explicit archive/keep outcomes
-     - `30xC4` grouped docs/help pressure into rewrite targets, engineering docs keep, and historical snapshot handling
-     - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
-     - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
-     - `30xD3` landed as docs-first orchestrator freeze
-     - root mirrors already read `phase-30x` as current; remaining drift sits in front docs/help and manual residue scripts
-     - `30xE1` landed and rewrote `README.md` / `README.ja.md` toward `llvm/exe` first
-     - `30xE2` landed and moved CLI/help docs to role-first wording
-     - `30xE3` landed and moved stage1/runtime guides to engineering/bootstrap wording
-     - `30xE4` landed and fixed `vm-hako`/`wasm` user-facing wording
-     - `30xF1` landed and confirmed raw default flip is still blocked
-     - `30xF2` landed and kept raw backend token/default stable for this phase
-     - `30xG1` landed and moved low-blast manual smoke residues under `tools/archive/manual-smokes/`
-     - `30xG2` landed and moved the stale help snapshot behind a thin stub under `docs/tools/`
-     - `30xG3` landed and moved `tools/smoke_aot_vs_vm.sh` under `tools/archive/manual-smokes/`
-     - `30xG4` landed and cleaned unsettled residue wording from current root/phase docs
-     - current active micro task is `none`
-     - next queued micro task is `none`
-     - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
-     - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
-     - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
-     - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only
-     - `30xC1` found no archive/delete candidate in bootstrap/selfhost
-     - review intake detail stays in `phase-30x`
+     - `phase-30x` settled ownership and docs/artifact/smoke reading
+     - `phase-31x` now handles actual source/smoke cleanup
+     - `31xA` landed and fixed `tools/engineering/**` as the engineering home
+     - `31xB1` landed and moved `run_vm_stats.sh`
+     - `31xB2` landed and moved `parity.sh`
+     - `31xC` landed and fixed the shared helper family as `keep here`
+     - current active micro task is `31xD1 orchestrator keep vs rehome split`
+     - next queued micro task is `31xD2 docs and live path repoint`
+     - cleanup rule is `rehome -> shim -> drain -> delete`
+     - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-30x backend surface simplification table:
+   - phase-31x engineering lane isolation table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-30x backend surface simplification` |
+     | Now | `phase-31x engineering lane isolation` |
      | Blocker | `none` |
-     | Next | `phase-30x closeout review` |
-   - cleanup bands:
+     | Next | `31xD1 orchestrator keep vs rehome split` |
+   - engineering isolation bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-30x closeout review` |
-     | Next | `none` |
-     | Later | `none` |
-   - cleanup waves:
+     | Now | `31xD orchestrator isolation prep` |
+     | Next | `31xE shim drain and legacy sweep` |
+     | Later | `shared helper follow-up` |
+   - engineering isolation waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
-     | `30xA role taxonomy lock` | landed | root docs and phase docs use the same backend roles |
-     | `30xB smoke taxonomy split` | landed | role-first smoke/gate reading |
-     | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure map |
-     | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator freeze |
-     | `30xE user-facing main switch prep` | landed | `llvm/exe` first docs/help/examples |
-     | `30xF backend default decision gate` | landed | keep raw CLI default stable and finish ownership flip first |
-     | `30xG legacy disposition sweep` | landed | archive/delete residual manual surfaces |
+     | `31xA engineering home lock` | landed | switch active lane and fix `tools/engineering/**` as canonical home |
+     | `31xB low-blast tool rehome` | landed | move low-blast engineering tools off the top-level front |
+     | `31xC shared helper family inventory` | landed | decide keep / rehome / archive for helper family |
+     | `31xD orchestrator isolation prep` | active | split no-touch-first orchestrators into keep vs later rehome |
+     | `31xE shim drain and legacy sweep` | queued | delete/archive after moved paths are drained |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -124,11 +108,12 @@ Related:
   - `stage / docs / naming` fixation
   - `zero-rust` default operationalization (landed)
   - `stage2plus` entry / first optimization wave (accepted)
-  - `phase-30x` backend surface simplification
+  - `phase-30x` backend surface simplification (landed precursor)
+  - `phase-31x` engineering lane isolation
 - Active backend surface tasks:
-  - `phase-30x closeout review`
+  - `31xD orchestrator isolation prep`
 - Queued backend surface tasks:
-  - `none`
+  - `31xE shim drain and legacy sweep`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -142,10 +127,10 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-30x` exact and docs-first
-2. keep `phase-29x` landed as the precursor lane
-3. keep `phase-29bq` active as failure-driven / blocker-none lane
-4. keep closed lanes closed unless a new exact gap appears
+1. keep `phase-31x` exact and orchestrator-first after the shared-helper keep decision
+2. keep `phase-30x` landed as the ownership-flip precursor
+3. keep `phase-29x` landed as the backend-owner precursor lane
+4. keep `phase-29bq` active as failure-driven / blocker-none lane
 
 ## Active Lane
 

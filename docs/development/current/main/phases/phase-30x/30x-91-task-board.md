@@ -1,6 +1,6 @@
 ---
-Status: Active
-Decision: provisional
+Status: Landed
+Decision: settled
 Date: 2026-04-02
 Scope: `phase-30x backend surface simplification` の concrete task order と evidence command をまとめる。
 Related:
@@ -379,6 +379,6 @@ Bootstrap/selfhost archive/delete result:
 
 ## Exit Condition For Phase Entry
 
-- root docs read `phase-30x backend surface simplification` as the active lane
+- root docs read `phase-30x backend surface simplification` as a landed precursor lane
 - role-first taxonomy is explicit in mirrors and child SSOTs
-- `phase-29x` is read as landed precursor, not the current optimization front
+- `phase-31x engineering lane isolation` is the active follow-up lane

@@ -22,18 +22,18 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-30x backend surface simplification`
-- active micro task: `none`
-- next micro task: `none`
+- lane: `phase-31x engineering lane isolation`
+- active micro task: `31xD1 orchestrator keep vs rehome split`
+- next micro task: `31xD2 docs and live path repoint`
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-30x/README.md`
-4. `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
-5. `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-31x/README.md`
+4. `docs/development/current/main/phases/phase-31x/31x-90-engineering-lane-isolation-ssot.md`
+5. `docs/development/current/main/phases/phase-31x/31x-91-task-board.md`
 
 ## Optional Checks
 

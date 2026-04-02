@@ -4,10 +4,10 @@
 
 ## 実行方法（代表）
 ```bash
-tools/run_vm_stats.sh local_tests/vm_stats_http_ok.hako vm_stats_ok.json
-tools/run_vm_stats.sh local_tests/vm_stats_http_err.hako vm_stats_err.json
-tools/run_vm_stats.sh local_tests/vm_stats_http_404.hako vm_stats_404.json
-tools/run_vm_stats.sh local_tests/vm_stats_http_500.hako vm_stats_500.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_ok.hako vm_stats_ok.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_err.hako vm_stats_err.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_404.hako vm_stats_404.json
+tools/engineering/run_vm_stats.sh local_tests/vm_stats_http_500.hako vm_stats_500.json
 ```
 
 ## 戻り値モデル

@@ -1,6 +1,6 @@
 ---
-Status: Active
-Decision: provisional
+Status: Landed
+Decision: settled
 Date: 2026-04-02
 Scope: backend surface を role-first に整理し、`llvm/exe` を product main、`rust-vm` を engineering/bootstrap、`vm-hako` を reference、`wasm` を experimental として分離する。
 Related:
@@ -29,7 +29,7 @@ Related:
 ## Fixed Reading
 
 - `phase-29x backend owner cutover prep` は landed precursor として読む。
-- `phase-30x` は backend の役割と surface を整理する docs-first phase。
+- `phase-30x` は backend の役割と surface を整理した landed docs-first phase。
 - 先に taxonomy と smoke split を固定し、raw CLI default や deep launcher plumbing は後ろに回す。
 - raw default flip より先に、artifact/docs/smoke ownership を role-first に切り替える。
 

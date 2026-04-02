@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Decision: provisional
+Decision: settled
 Date: 2026-04-02
 Scope: backend surface simplification の role taxonomy、fixed order、dangerous early flips を固定する。
 Related:
@@ -195,7 +195,7 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `phase-30x closeout review`
+- active macro wave: `phase-30x landed closeout`
 - next queued wave: `none`
 - later disposition wave: `none`
 - current blocker: `none`

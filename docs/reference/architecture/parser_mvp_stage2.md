@@ -52,7 +52,7 @@ Acceptance
   - `apps/tests/min_str_cat_loop/main.hako`
   - `apps/tests/esc_dirname_smoke.hako`
   - Stage-2 new smokes (ternary nested, peek return)
-- `tools/parity.sh --lhs pyvm --rhs llvmlite --show-diff <app>` → green
+- `tools/engineering/parity.sh --lhs pyvm --rhs llvmlite --show-diff <app>` → green
 
 Notes
 - Keep Stage-2 additive and test-driven; avoid broad refactors.

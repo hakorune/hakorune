@@ -27,31 +27,27 @@ Related:
 
 ## Current
 
-- lane: `phase-30x backend surface simplification`
-- `30xE1` landed: `README.md` / `README.ja.md` now read `llvm/exe` first, `rust-vm` engineering keep, `vm-hako` reference, `wasm` experimental
-- `30xE2` landed: `cli-options.md` is role-first and `nyash-help.md` is explicitly historical
-- `30xE3` landed: stage1/runtime guides now read `rust-vm` as engineering/bootstrap keep
-- `30xE4` landed: user-facing wasm/reference docs no longer read as co-main
-- `30xF1` landed: raw default flip is still blocked by launcher/default/orchestrator surfaces
-- `30xF2` landed: phase-30x keeps raw backend token/default stable and treats ownership flip as sufficient
-- `30xG1` landed: low-blast manual smoke residues moved under `tools/archive/manual-smokes/`
-- `30xG2` landed: `docs/tools/nyash-help.md` is now a thin stub and the historical snapshot lives under `docs/archive/tools/`
-- `30xG3` landed: `tools/smoke_aot_vs_vm.sh` moved under `tools/archive/manual-smokes/`
-- `30xG4` landed: settled residue wording is cleaned from current root/phase docs
-- active micro task: `none`
-- next micro task: `none`
+- lane: `phase-31x engineering lane isolation`
+- `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
+- `31xA` landed: active lane switched and `tools/engineering/**` is the canonical home
+- `31xB1` landed: `tools/engineering/run_vm_stats.sh` now holds the actual script
+- `31xB2` landed: `tools/engineering/parity.sh` now holds the actual script
+- `31xC` landed: shared helper family is fixed as `keep here`, not low-blast rehome
+- active micro task: `31xD1 orchestrator keep vs rehome split`
+- next micro task: `31xD2 docs and live path repoint`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
 - raw backend default flip stays deferred beyond `phase-30x`
-- legacy residue stays on `explicit keep / rewrite in 30xE / archive-delete in 30xG`
+- source/smoke cleanup rule:
+  - `rehome -> shim -> drain -> delete`
 
 ## Read Next
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-30x/README.md`
-4. read `docs/development/current/main/phases/phase-30x/30x-90-backend-surface-simplification-ssot.md`
-5. read `docs/development/current/main/phases/phase-30x/30x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-31x/README.md`
+4. read `docs/development/current/main/phases/phase-31x/31x-90-engineering-lane-isolation-ssot.md`
+5. read `docs/development/current/main/phases/phase-31x/31x-91-task-board.md`
