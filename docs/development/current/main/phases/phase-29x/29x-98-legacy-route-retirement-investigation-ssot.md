@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-04-02
-Scope: investigate delete readiness for the remaining explicit legacy/compat callers rooted at `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)`, including the compiled-stage1 surrogate caller.
+Scope: investigate delete readiness for the remaining explicit legacy/compat callers rooted at `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)`, including the compiled-stage1 surrogate caller.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -18,7 +18,7 @@ Related:
 ## Rule
 
 - delete-ready remains none until the caller inventory reaches zero.
-- no new daily caller may be added to `emit_object_from_mir_json(...)`.
+- no new daily caller may be added to `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
 - investigation is caller-by-caller; do not reopen compare bridge daily ownership.
 - the helper stays archive-later while any explicit legacy/compat caller remains.
 
@@ -30,21 +30,17 @@ Related:
 
 ## Keep
 
-- `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)`
-- `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`
-- `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`
-- `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+- `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)`
+- `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
 - `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` (archive-later surrogate caller)
 
 ## Current Caller Inventory
 
-The current `emit_object_from_mir_json(...)` caller inventory is three keep lanes plus one archive-later surrogate caller.
+The current explicit helper caller inventory is one keep chokepoint plus one archive-later surrogate caller.
 
 | Caller | Bucket | Note |
 | --- | --- | --- |
-| `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
-| `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
-| `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
+| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep | canonical Rust compat-codegen chokepoint; still owns the explicit MIR(JSON) text helper call |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate caller; keeps the helper alive but is not a daily route |
 
 ## Direct Callers vs Wrapper Layers
@@ -53,28 +49,28 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 
 | Surface | Layer | Status | Read as |
 | --- | --- | --- | --- |
-| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload; now materialized onto `vm-hako` and routed through `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` |
-| `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub; its codegen arm now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)` |
-| `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
-| `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
-| `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
+| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | direct caller | keep | canonical Rust compat-codegen chokepoint; still owns the explicit MIR(JSON) text helper call |
+| `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | direct caller | archive-later | compiled-stage1/archive-later surrogate still calls the explicit helper from a compat home |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload, but now routed through `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)`, not the legacy Rust helper |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub, but now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`, not the legacy Rust helper |
 | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | wrapper | archive-later | transport wrapper only; not a direct `emit_object` caller |
 | `tools/compat/legacy-codegen/run_compat_pure_pack.sh` | orchestrator | archive-later | historical pack owner only; not a direct `emit_object` caller |
 
 ## Current Reduction Verdict
 
-- no archive-ready direct caller exists today.
-- low-blast Hako-side caller reduction is now landed on both stop-line surfaces; the remaining bridge work is archive-only containment.
-- the exact root-first replacement proof is now landed on the Hako-side stop-line; the next real movement is Rust-side namespace collapse and tracing alignment.
-- helper deletion remains blocked until the direct caller inventory reaches zero.
+- no archive-ready explicit helper caller exists today.
+- low-blast Hako-side caller reduction is landed; selfhost payload and `extern_provider.hako` no longer call the legacy Rust helper.
+- Rust receiver collapse is landed; the remaining keep lane is the single `compat_codegen_receiver.rs` chokepoint.
+- the generic `llvm_codegen::emit_object_from_mir_json(...)` symbol/export is deleted; the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+- physical helper deletion remains blocked until the remaining two-caller inventory reaches zero.
 
 ## Cleanup Bands
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` final front-door deletion | the archive-only bridge entrypoint is gone; helper deletion can continue on the Rust front door |
-| Next | `LlvmBackendBox owner-facade slimming follow-up` | finish the owner/evidence readability pass after helper deletion |
-| Later | `residual docs cleanup` | only after legacy helper surfaces are gone |
+| Now | `LlvmBackendBox owner-facade slimming follow-up` | finish the owner/evidence readability pass after the W6 path-truth pass |
+| Next | `legacy_mir_front_door` physical helper deletion when caller inventory reaches zero | keep the remaining helper explicit and compat-only |
+| Later | `residual docs cleanup` | only after the remaining explicit helper callers are gone |
 
 ## Replacement Matrix
 
@@ -82,37 +78,27 @@ The canonical successor family is the root-first daily route, concretely `env.co
 
 | Current caller | Bucket | Current behavior | Likely successor family | Blocker |
 | --- | --- | --- | --- | --- |
-| `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | keep | `env.codegen.emit_object` dispatch from MIR interpreter | root-first daily compile route (`env.codegen.compile_ll_text(...)` / `env.codegen.link_object(...)`) once the caller stops owning MIR(JSON) | still enters through legacy MIR(JSON) emit path |
-| `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | keep | loader-cold lane for `env.codegen.emit_object` with MIR JSON version patching | same root-first daily compile route family | same legacy MIR(JSON) entry contract |
-| `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | keep | plugin loader `emit_object` arm for MIR(JSON) | same root-first daily compile route family | same legacy MIR(JSON) entry contract |
+| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep | shared Rust `emit_object(mir_json) -> object path` chokepoint for plugin loader and MIR interpreter | direct root-first adapter or no-helper compat receiver path | still owns MIR(JSON) text normalization plus route selection |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate reads MIR(JSON) file and calls the legacy helper | compiled-stage1 should eventually bypass the legacy helper once a new front-door exists | helper still required for bootstrap/compat |
 
 ## Inventory Findings
 
-- `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`
-  - current contract is `env.codegen.emit_object(mir_json_string) -> object path`.
-  - this file already carries `compile_ll_text` and `link_object` branches, but the `emit_object` arm still owns MIR(JSON), so it cannot flip to the canonical route without an upstream caller change.
-- `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`
-  - current contract is also `env.codegen.emit_object(mir_json_string) -> object path`.
-  - this arm patches missing MIR version fields before calling the legacy helper, so a direct retarget would also need a replacement for that normalization step.
-- `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
-  - current contract is plugin-side `emit_object(mir_json) -> object path`.
-  - this file has `compile_ll_text`, but it still lacks caller-side route/profile ownership and does not hold LL text on the `emit_object` arm.
+- `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
+  - current contract is shared `emit_object(mir_json_string) -> object path`.
+  - this file now owns MIR(JSON) version patching, trace emission, and the explicit helper call on behalf of both plugin-loader and MIR-interpreter adapter paths.
+  - direct retarget requires either a root-first adapter that preserves this contract or whole-helper retirement for that lane.
 - `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
   - current contract is `compile_obj(mir_path) -> object path`.
   - this is a compiled-stage1/bootstrap surrogate; it reads MIR(JSON) from disk and cannot cleanly jump to the root-first route without moving the owner upward into `.hako`.
 
 ## Upstream Cleanup Targets
 
-- `hostbridge.rs`
-  - cleanup target is upstream compat caller removal, not `hostbridge.rs` first.
-  - current upstream owner is `lang/src/shared/host_bridge/codegen_bridge_box.hako::emit_object_args(...)`, plus legacy `hostbridge.extern_invoke(...)` proof callers.
-- `loader_cold.rs`
-  - cleanup target is upstream caller removal, not `loader_cold.rs` first.
-  - current upstream owners are the `env.codegen.emit_object` extern lanes reached from `src/backend/mir_interpreter/handlers/calls/global.rs`, `src/backend/mir_interpreter/handlers/externals.rs`, and the legacy `CodegenBridgeBox` / `ExternCallLowerBox` call shape that still produces `env.codegen.emit_object`.
-- `extern_functions.rs`
-  - cleanup target is upstream caller removal, not `extern_functions.rs` first.
-  - current upstream owner is still the legacy `CodegenBridgeBox.emit_object_args(...)` / `env.codegen.emit_object` route for the remaining compat/proof callers; daily callers should stop at `LlvmBackendBox`.
+- `compat_codegen_receiver.rs`
+  - cleanup target is contract-preserving replacement, not adapter split again.
+  - current upstream owners are the thin MIR-interpreter and plugin-loader adapters:
+    - `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs`
+    - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - daily callers should continue to stop at `LlvmBackendBox`; this chokepoint remains compat-only.
 - `compat/llvm_backend_surrogate.rs`
   - cleanup target is the compiled-stage1/module-dispatch caller set, not the surrogate file first.
   - current upstream owner is `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` via `try_dispatch(...)`, with compat/proof callers on `selfhost.shared.backend.llvm_backend.{compile_obj,link_exe}`.
@@ -191,7 +177,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | Surface group | Status | Daily-route dependency | Cleanup / archive condition |
 | --- | --- | --- | --- |
 | `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | integration proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
-| `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `emit_object_from_mir_json(...)` remains archive-later; replay bundle is `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt` |
+| `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` remains archive-later; replay bundle is `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt` |
 | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archived proof-only lowering evidence for the legacy extern name | none | keep as quarantine evidence until a root-first selfhost lowering proof exists; replay bundle is `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt` |
 
 ## Archive Sequencing Matrix
@@ -366,32 +352,27 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 - Rust-side dispatch shape
   - `src/backend/mir_interpreter/handlers/calls/global.rs` and `src/backend/mir_interpreter/handlers/externals.rs` still accept `env.codegen.emit_object`, but only as legacy extern dispatch surfaces.
   - `src/backend/mir_interpreter/handlers/extern_provider/lane.rs` classifies `env.codegen.emit_object` as `LoaderCold`, not a daily fast lane.
-  - `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` and `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` still reach the helper, but they are receivers for existing compat/proof callers, not the cleanup starting point.
+  - `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` and `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` now forward into `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`; they are not direct helper callers anymore.
 - cleanup rule
   - do not start by deleting Rust dispatch files.
-  - first remove the upstream callers that still generate `env.codegen.emit_object`.
-  - after the upstream caller inventory reaches zero, collapse the Rust dispatch residues and then delete `emit_object_from_mir_json(...)`.
+  - first remove the remaining explicit helper callers or replace them with root-first/evidence-safe equivalents.
+  - after the upstream caller inventory reaches zero, collapse the Rust dispatch residues and then delete `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
 
 ## Ordered Investigation Queue
 
-1. `lang/src/runner/stage1_cli/core.hako`
-   - landed: raw compat llvm branch retired; no longer a direct caller.
-2. `lang/src/vm/hakorune-vm/extern_provider.hako`
-3. `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
-4. proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers
-5. `lang/src/llvm_ir/emit/LLVMEmitBox.hako` keep/archive decision
-   - landed: keep as compat/proof keep; no repo-local direct import callers remain.
-6. `lang/src/shared/host_bridge/codegen_bridge_box.hako` upstream producer keep/archive conditions
-   - landed: no non-proof/non-compat daily dependency remains; remaining direct callers are archive-later proof/compat surfaces.
-7. archive sequencing for the remaining proof/compat caller surfaces
-8. Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`) only after upstream caller inventory reaches zero
+1. `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
+   - keep chokepoint; still owns the explicit helper call.
+2. `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
+   - archive-later surrogate; still owns the compiled-stage1 helper call.
+3. archive sequencing for the remaining proof/compat caller surfaces
+4. Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`) only after upstream caller inventory reaches zero
 
 ## Retirement Order
 
-1. keep `hostbridge.rs`, `loader_cold.rs`, and `extern_functions.rs` as explicit compat callers until their upstream callers stop owning MIR(JSON) and switch to the root-first daily route.
-2. keep `compat/llvm_backend_surrogate.rs` as archive-later until the compiled-stage1/bootstrap path has a cleaner front door than `emit_object_from_mir_json(...)`.
-3. once upstream `.hako` callers and proof/example callers stop generating `env.codegen.emit_object`, collapse the Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`).
-4. only when all caller surfaces are gone: delete `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)`.
+1. keep `compat_codegen_receiver.rs` as the explicit Rust compat caller until its MIR(JSON) contract is replaced by a root-first/evidence-safe equivalent.
+2. keep `compat/llvm_backend_surrogate.rs` as archive-later until the compiled-stage1/bootstrap path has a cleaner front door than `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+3. once the explicit helper caller inventory reaches zero, collapse the Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`).
+4. only when all caller surfaces are gone: delete `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)`.
 
 ## Investigation TODO
 
@@ -404,15 +385,16 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
   - `phase2044` llvmlite monitor-only keep bucket cleanup is complete; the next sequencing target is the remaining proof/example callers:
     - `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
     - `lang/src/vm/hakorune-vm/extern_provider.hako`
-5. keep the legacy helper archive-later until the caller set reaches zero.
+5. keep the explicit helper archive-later until the caller set reaches zero.
 6. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
-7. when the caller set reaches zero, delete `emit_object_from_mir_json(...)`, then collapse the Rust dispatch residues and phase docs.
+7. when the caller set reaches zero, delete `compile_object_from_legacy_mir_json(...)`, then collapse the Rust dispatch residues and phase docs.
 
 ## Delete Condition
 
 - all explicit callers have moved to root-first or daily route surfaces.
 - compare/archive proof coverage is preserved in archive assets.
-- `emit_object_from_mir_json(...)` no longer appears in code-side caller inventory.
+- the generic `emit_object_from_mir_json(...)` symbol/export no longer appears in code-side caller inventory.
+- `compile_object_from_legacy_mir_json(...)` no longer appears in code-side caller inventory.
 
 ## Non-Goals
 

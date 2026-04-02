@@ -50,7 +50,7 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W4 Hako-side caller drain prep` | landed | exact root-first proof is green; direct `.hako` caller demotion is complete | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W5 Rust compat receiver collapse` | landed | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
-| `W6 final delete/archive sweep` | active | delete helpers only after caller inventory reaches zero | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W6 final delete/archive sweep` | landed | retire misleading bridge/front-door naming and leave the remaining helper explicit under `29x-98` | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
 
 ## 0.1 Current micro-task queue
 
@@ -96,7 +96,7 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99S1` | W5 | landed | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
 | `99T` | W6 | landed | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
 | `99U` | W6 | landed | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
-| `99V` | W6 | active | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and tree/docs read cleanly |
+| `99V` | W6 | landed | delete the generic `emit_object_from_mir_json(...)` symbol/export and sync final compat/archive residue | root module no longer exports the helper and remaining callers use the explicit compat/evidence home |
 
 ## 0.2 Review intake
 

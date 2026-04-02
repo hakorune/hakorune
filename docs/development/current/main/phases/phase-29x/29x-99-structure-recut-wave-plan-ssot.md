@@ -39,15 +39,15 @@ Related:
 | `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
 | `W4 Hako-side caller drain prep` | landed | replace direct `.hako` callers with exact root-first proofs | one exact proof is green; direct caller demotion is complete |
 | `W5 Rust compat receiver collapse` | landed | reduce `env.codegen.*` legacy receivers to one compat chokepoint | current receiver logic is no longer spread across multiple Rust files |
-| `W6 final delete/archive sweep` | active | delete legacy helper fronts and leave archive evidence only | last sweep after caller inventory reaches zero |
+| `W6 final delete/archive sweep` | landed | retire misleading legacy helper fronts and leave the remaining compat residue explicit | the generic bridge/front-door names are gone; `29x-98` keeps the final physical deletion watch |
 
 ## Current Focus
 
-- active macro wave: `W6 final delete/archive sweep`
+- active macro wave: `post-W6 owner/evidence readability follow-up`
 - active micro-task:
-  - `99V delete emit_object_from_mir_json(...) and sync final compat/archive residue`
-- next queued micro-task:
   - `LlvmBackendBox owner-facade slimming follow-up`
+- next queued micro-task:
+  - `residual docs cleanup`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, the compat selfhost wrapper stack has been materialized onto `vm-hako`, and the Hako-side bridge is now archive-only; the next collapse is on the Rust receiver side.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -65,7 +65,7 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 | `phase2044` / `phase2120` were still phase-number semantic homes | landed | `99K-99M` landed | live proof/archive buckets now have semantic homes |
 | `LlvmBackendBox` still reads as both owner facade and file/evidence entry | adopt-next | `99I` follow-up after `W4` | split is partial; owner facade slimming remains open |
 | Rust legacy/codegen receivers still read as a spread surface | adopt-next | `99Q1-99S1` | receiver-body split landed; one chokepoint collapse remains open |
-| `CodegenBridgeBox.emit_object_args(...)` / `emit_object_from_mir_json(...)` should die only after path truth and proof replacement exist | confirmed | `29x-98` + `99N1-99P3` | stop-line stays proof-gated |
+| `CodegenBridgeBox.emit_object_args(...)` / generic `emit_object_from_mir_json(...)` should die only after path truth and proof replacement exist | confirmed | `29x-98` + `99N1-99P3` | stop-line stays proof-gated; the remaining helper now sits behind an explicit compat module path |
 
 ### 2026-04-02 Re-Cut Proposal Mapping
 
@@ -118,7 +118,7 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `99G` | landed | split `extern_provider.hako` into runtime owner surface and compat codegen shim | owner arms and compat/proof arms no longer live in one file |
-| `99H` | landed | split `src/host_providers/llvm_codegen.rs` into thin tool boundary and legacy MIR front door | `ll_text_to_object` no longer shares a home with `emit_object_from_mir_json(...)` |
+| `99H` | landed | split `src/host_providers/llvm_codegen.rs` into thin tool boundary and legacy MIR front door | `ll_text_to_object` no longer shares a home with the legacy MIR front-door module |
 | `99I` | landed | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
 | `99J` | landed | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
 
@@ -226,7 +226,7 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 | `99O1` is landed | the `extern_provider` stop-line must be explicit before it can be replaced |
 | `99O2` is landed with one named proof target | there must be one exact proof lane to gate the demotion work |
 | direct caller inventory remains explicit in `29x-98` | do not blur direct callers with wrappers/orchestrators during demotion |
-| no helper deletion | `CodegenBridgeBox.emit_object_args(...)` and `emit_object_from_mir_json(...)` stay live until `99Q1-99S1` make the Rust chokepoint explicit |
+| no helper deletion | `CodegenBridgeBox.emit_object_args(...)` and the generic `emit_object_from_mir_json(...)` export stayed live until `99Q1-99S1` made the Rust chokepoint explicit; only the explicit compat helper remains now |
 
 #### `99O4` minimal root-first lowering proof implementation target
 
@@ -315,7 +315,7 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 | --- | --- | --- | --- |
 | `99T` | landed | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
 | `99U` | landed | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
-| `99V` | active | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and `owner / compat / proof / archive` reads cleanly in tree and docs |
+| `99V` | landed | delete the generic `emit_object_from_mir_json(...)` symbol/export and sync final compat/archive residue | remaining callers use the explicit `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` helper |
 
 ## Split Targets
 
@@ -337,7 +337,7 @@ This table freezes the intended destination before any path move happens.
 | Surface | From | To | Shim needed | Notes |
 | --- | --- | --- | --- | --- |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | runtime owner + compat codegen stub | `runtime_extern_provider.hako` + `compat_codegen_extern_provider.hako` | yes, thin re-export during transition | this is the main mixed-file split target |
-| `src/host_providers/llvm_codegen.rs` | thin boundary + legacy MIR front door | `src/host_providers/llvm_tool_boundary.rs` + `src/compat/codegen/legacy_mir_codegen.rs` | yes, thin compat bridge | `ll_text_to_object` and `emit_object_from_mir_json(...)` should stop sharing one home |
+| `src/host_providers/llvm_codegen.rs` | thin boundary + legacy MIR front door | `src/host_providers/llvm_tool_boundary.rs` + `src/compat/codegen/legacy_mir_codegen.rs` | yes, thin compat bridge | `ll_text_to_object` and the generic legacy front-door export should stop sharing one home |
 | `lang/src/shared/backend/llvm_backend_box.hako` | owner API + evidence adapter | `llvm_backend_box.hako` + `llvm_backend_evidence_adapter_box.hako` | maybe, if caller imports need a bridge | keep the owner spine readable |
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | legacy shim in owner-looking path | `compat/codegen/legacy_emit_object_bridge_box.hako` | yes, re-export only | path should stop implying daily ownership |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | legacy shim in owner-looking path | `compat/codegen/llvm_emit_compat_box.hako` | yes, re-export only | keep the box explicit as compat/proof |
@@ -377,7 +377,7 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 | `extern_provider.hako` compat codegen arm | keep | exact root-first selfhost lowering proof |
 | compat selfhost wrapper stack | archive-later | exact root-first drop-in proof or explicit whole-stack retirement |
 | `CodegenBridgeBox.emit_object_args(...)` | keep | direct Hako caller inventory reaches zero |
-| `emit_object_from_mir_json(...)` | archive-later | direct caller inventory reaches zero |
+| `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` | archive-later | direct caller inventory reaches zero |
 
 ## Acceptance
 
@@ -385,7 +385,7 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `phase-29x/README.md` and `29x-91-task-board.md` show both macro waves and micro tasks.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
-  - macro: `W6 final delete/archive sweep`
-  - micro: `99V delete emit_object_from_mir_json(...) and sync final compat/archive residue`
+  - macro: `post-W6 owner/evidence readability follow-up`
+  - micro: `LlvmBackendBox owner-facade slimming follow-up`
   - next: `LlvmBackendBox owner-facade slimming follow-up`
   - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, `99Q1-99S1` landed for the Rust chokepoint collapse, and `99T-99U` landed for legacy bridge naming truth plus bridge entrypoint deletion

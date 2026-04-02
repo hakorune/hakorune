@@ -32,15 +32,13 @@ mod defaults;
 mod ll_emit_compare_driver;
 mod ll_emit_compare_source;
 mod ll_tool_driver;
-mod legacy_mir_front_door;
+pub mod legacy_mir_front_door;
 mod normalize;
 mod provider_keep;
 mod route;
 mod transport_io;
 mod transport_paths;
 pub use defaults::boundary_default_object_opts;
-pub use legacy_mir_front_door::emit_object_from_mir_json;
-
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.
 pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {
     let out_path = transport_paths::resolve_backend_object_output(&opts);

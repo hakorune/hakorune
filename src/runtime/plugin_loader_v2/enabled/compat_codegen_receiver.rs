@@ -59,7 +59,11 @@ pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String,
     } else {
         mir_json.to_string()
     };
-    let result = crate::host_providers::llvm_codegen::emit_object_from_mir_json(&input, codegen_opts(None))
+    let result =
+        crate::host_providers::llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(
+            &input,
+            codegen_opts(None),
+        )
         .map(|p| p.to_string_lossy().into_owned())
         .map_err(|e| e.to_string());
     trace_result("emit_object", &result);

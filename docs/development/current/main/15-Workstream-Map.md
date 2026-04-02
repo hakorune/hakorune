@@ -41,9 +41,9 @@ Related:
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
      - root-first proof candidate inventory is pinned: the compat selfhost wrapper now materializes its payload onto `vm-hako`, while `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`
-     - live stop-line surfaces are fixed at 5; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
-     - `29x-98` still owns delete-readiness and stop-line; the Hako-side bridge is now archive-only, but helper deletion stays closed
-     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4` and `W5` are landed and `W6 final delete/archive sweep` is active
+     - `99V` is landed: the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper callers are `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`
+     - `29x-98` still owns physical helper deletion and stop-line; the remaining compat helper stays explicit until that two-caller inventory reaches zero
+     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4`, `W5`, and `W6` are landed
      - `99N1-99N3` are landed for the compat selfhost wrapper stack
      - `99O1-99O2` are landed for the `extern_provider` stop-line
      - `99P1 compat selfhost payload demotion` is landed
@@ -53,9 +53,9 @@ Related:
      - `hostbridge.rs` / `loader_cold.rs` are forwarding adapters and `extern_functions.rs` no longer owns direct codegen behavior
      - `99T` is landed: the compat implementation now names the bridge truthfully as `LegacyEmitObjectBridgeBox`, while the owner-looking `CodegenBridgeBox` path stays shim-only
      - `99U` is landed: `CodegenBridgeBox.emit_object_args(...)` is deleted; only the shim-only `link_object_args(...)` export remains
-     - current active micro task is `99V delete emit_object_from_mir_json(...) and sync final compat/archive residue`
-     - next queued micro task is `LlvmBackendBox owner-facade slimming follow-up`
-     - post-`LlvmBackendBox` queued micro task is `residual docs cleanup`
+     - current active micro task is `LlvmBackendBox owner-facade slimming follow-up`
+     - next queued micro task is `residual docs cleanup`
+     - post-docs watch is `29x-98 final helper deletion`
      - review intake detail lives in `29x-99`; the open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
@@ -64,14 +64,14 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-99` W6 naming truth -> bridge deletion -> legacy front-door deletion |
+     | Next | `29x-99` owner-facade slimming follow-up -> residual docs cleanup |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `99V delete emit_object_from_mir_json(...) and sync final compat/archive residue` |
-     | Next | `LlvmBackendBox owner-facade slimming follow-up` |
-     | Later | `residual docs cleanup` |
+     | Now | `LlvmBackendBox owner-facade slimming follow-up` |
+     | Next | `residual docs cleanup` |
+     | Later | `29x-98 final helper deletion watch` |
    - cleanup waves:
 
      | Wave | Status | Read as |
@@ -81,7 +81,7 @@ Related:
      | `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
      | `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
      | `W5 Rust compat receiver collapse` | landed | one compat receiver chokepoint |
-     | `W6 final delete/archive sweep` | active | helper deletion after zero callers |
+     | `W6 final delete/archive sweep` | landed | misleading legacy front-door naming/export is gone; remaining compat helper stays explicit under `29x-98` |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

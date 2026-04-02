@@ -20,7 +20,7 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate only
   - frozen exact owner for the backend boundary residue bucket; docs/inventory closeout only until caller-proof says removable
   - owner of the backend boundary route match/dispatch contract and its regression coverage
-  - compile side now loads MIR(JSON) locally and forwards the text into `emit_object_from_mir_json(...)`; the file-based front door has been retired from this surrogate
+  - compile side now loads MIR(JSON) locally and forwards the text into `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`; the file-based front door has been retired from this surrogate
   - latest shrink keeps path decode / compile opts / link arg decode behind owner-local helpers; parent modules still probe only via `try_dispatch(...)`
   - does not become the final backend owner; it remains a compiled-stage1 stop-gap until daily callers stop at the thin backend C boundary directly
 
