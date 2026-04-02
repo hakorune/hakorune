@@ -8,8 +8,9 @@ payload bucket lives under `tools/compat/legacy-codegen/`.
 - canonical payload: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
 - old payload path: `tools/selfhost/compat/hako_llvm_selfhost_driver.hako` (retired alias)
 - archive-later payload behind `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
-- exercises the legacy `CodegenBridgeBox.emit_object_args(...)` and
-  `CodegenBridgeBox.link_object_args(...)` route
+- wrapper materializes the payload onto `vm-hako`
+- payload proves the provider stop-line through `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)`
+- payload links through `LlvmBackendBox.link_exe(...)`
 - non-owner compat surface
 - keep until the compat wrapper gains a root-first replacement or is retired as
   a whole

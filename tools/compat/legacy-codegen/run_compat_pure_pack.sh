@@ -6,7 +6,7 @@ set -euo pipefail
 # replay bucket, and then the canonical archive-later compat selfhost transport
 # wrapper. It is not a separate proof owner.
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 PURE_KEEP_RUNNER="$ROOT/tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh"
 PURE_HISTORICAL_RUNNER="$ROOT/tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh"
 SELFHOST_COMPAT_WRAPPER="$ROOT/tools/compat/legacy-codegen/run_compat_pure_selfhost.sh"

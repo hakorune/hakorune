@@ -119,7 +119,7 @@ bash tools/compat/legacy-codegen/run_compat_pure_selfhost.sh <mir.json> [exe_out
 bash tools/compat/legacy-codegen/run_compat_pure_pack.sh
 ```
 
-- `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` is the canonical archive-later compat wrapper and still exercises the legacy `CodegenBridgeBox` example route.
+- `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` is the canonical archive-later compat wrapper and now materializes the payload onto `vm-hako` while preserving the historical shell contract.
 - the old `tools/selfhost/run_compat_pure_selfhost.sh` path is a thin backward-compat shim.
 - treat `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` as the archive-later payload and the wrapper as transport only.
 - `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the historical compat pure-pack entry that shells into `phase2120/run_pure_capi_canaries.sh` and then the transport wrapper above.
@@ -130,8 +130,8 @@ bash tools/compat/legacy-codegen/run_compat_pure_pack.sh
 - the old `tools/selfhost/run_compat_pure_*` paths are wrapper shims only.
 - `run_compat_pure_pack.sh` is pack orchestration only, not a separate proof surface.
 - old alias `run_all.sh` is retired; keep the compat pack entry singular.
-- The root-first replacement proof is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`.
-- That proof runs on `--backend vm-hako`, so it is not a drop-in replacement for the compat wrapper yet.
+- The owner-lane replacement proof is `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh`.
+- The compat wrapper now also runs on `--backend vm-hako`, but it still proves the provider stop-line rather than the pure owner lane.
 - `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes

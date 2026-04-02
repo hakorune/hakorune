@@ -8,6 +8,11 @@ Canonical home for historical compat-codegen payloads and wrappers.
 - `run_compat_pure_selfhost.sh`
 - `run_compat_pure_pack.sh`
 
+The wrapper now preserves the historical shell contract while materializing the
+payload onto `vm-hako`. The rendered payload proves the provider stop-line via
+`LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` and then
+links through `LlvmBackendBox.link_exe(...)`.
+
 ## Layering
 
 - payload:

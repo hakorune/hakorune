@@ -65,8 +65,9 @@ Related:
    - compatibility wrapper only
    - archive-later compat wrapper, not a daily owner
    - transport-only shell shim around `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
-   - still depends on the legacy `CodegenBridgeBox` example caller
-   - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
+   - now materializes the payload onto `vm-hako`
+   - payload proves the provider stop-line via `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)`
+   - still not a pure owner-lane wrapper; `extern_provider` demotion remains the next W4 step
 4. `tools/smokes/v2/profiles/integration/proof/pure-legacy-cluster/run_all.sh`
    - full legacy-cluster entry
    - orchestrates the pure keep bucket, archive historical bucket, VM-adapter legacy cluster, and native reference bucket as separate child runners

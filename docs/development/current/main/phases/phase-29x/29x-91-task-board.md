@@ -85,8 +85,8 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99O2` | W4 | landed | pin minimal root-first lowering proof target | one exact proof lane/fixture is named |
 | `99O3` | W4 | landed | lock direct-caller demotion prerequisites | Hako-side demotion order is explicit |
 | `99O4` | W4 | landed | implement minimal root-first lowering proof smoke | one `vm-hako` proof is green for the compat provider stop-line |
-| `99P1` | W4 | active | demote compat selfhost payload direct caller | payload no longer calls `CodegenBridgeBox.emit_object_args(...)` |
-| `99P2` | W4 | pending-after-P1 | demote `extern_provider.hako` compat codegen caller | compat codegen stub no longer calls `CodegenBridgeBox.emit_object_args(...)` |
+| `99P1` | W4 | landed | demote compat selfhost payload direct caller | payload is materialized onto `vm-hako` and no longer calls `CodegenBridgeBox.emit_object_args(...)` |
+| `99P2` | W4 | active | demote `extern_provider.hako` compat codegen caller | compat codegen stub no longer calls `CodegenBridgeBox.emit_object_args(...)` |
 | `99P3` | W4 | pending-after-P2 | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
 | `99Q1` | W5 | pending-after-W4 | lock one Rust compat-codegen chokepoint contract | one receiver module owns the legacy accept path |
 | `99Q2` | W5 | pending-after-W4 | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` / `loader_cold.rs` stop being receiver homes |

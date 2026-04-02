@@ -40,14 +40,15 @@ Related:
      - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is `monitor-only keep`, its dedicated suite manifest is the final live keep bucket, and the other groups stay bucket-runner only
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
-     - root-first proof candidate inventory is pinned: the compat selfhost wrapper only has the separate `phase29ck_vmhako_llvm_backend_runtime_proof` lane as a non-drop-in candidate, while `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`
+     - root-first proof candidate inventory is pinned: the compat selfhost wrapper now materializes its payload onto `vm-hako`, while `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`
      - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
      - `29x-98` still owns delete-readiness and stop-line; caller demotion is now visible, but helper deletion stays closed
      - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4 Hako-side caller drain prep` is active and `W3 smoke/proof filesystem recut` is landed
      - `99N1-99N3` are landed for the compat selfhost wrapper stack
      - `99O1-99O2` are landed for the `extern_provider` stop-line
-     - current active micro task is `99P1 compat selfhost payload demotion`
-     - next queued micro task is `99P2 extern_provider compat codegen caller demotion`
+     - `99P1 compat selfhost payload demotion` is landed
+     - current active micro task is `99P2 extern_provider compat codegen caller demotion`
+     - next queued micro task is `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only`
      - W5 prep is partially landed: codegen receiver bodies now live in dedicated modules, but the one-chokepoint collapse itself is still pending after W4
      - review intake detail lives in `29x-99`; the open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -57,13 +58,13 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-99` W4 caller demotion lane -> `29x-98` stop-line stays fixed until `99P1-99P3` land |
+     | Next | `29x-99` W4 caller demotion lane -> `29x-98` stop-line stays fixed until `99P2-99P3` land |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `99P1 compat selfhost payload demotion` |
-     | Next | `99P2-99P3 Hako-side caller demotion` |
+     | Now | `99P2 extern_provider compat codegen caller demotion` |
+     | Next | `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` |
      | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
    - cleanup waves:
 

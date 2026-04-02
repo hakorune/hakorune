@@ -1,33 +1,23 @@
-// hako_llvm_selfhost_driver.hako — archive-later proof/example driver
+// hako_llvm_selfhost_driver.hako — archive-later proof/example payload template
 // This is a thin compat route payload, not a daily backend owner.
-// It exists so `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` can exercise the legacy
-// CodegenBridgeBox emit/link route end-to-end.
-// Keep the direct invoker at the shell wrapper; this file is the proof payload.
-// The physical home is `tools/compat/legacy-codegen/` so the payload no longer
-// sits under `tools/selfhost/`.
-// Usage (env):
-//   _MIR_JSON: v1 JSON text
-//   _EXE_OUT : output path for linked executable
-// Prints the exe path to stdout.
+// `run_compat_pure_selfhost.sh` materializes this template with MIR JSON and exe
+// path literals before running it on `vm-hako`.
+// The payload now proves the provider stop-line via the evidence adapter, not the
+// legacy `CodegenBridgeBox.emit_object_args(...)` bridge.
 
-using selfhost.vm.helpers.mir_call_v1_handler as MirCallV1HandlerBox // not required but keeps linker alive
-using selfhost.shared.host_bridge.codegen_bridge as CodegenBridgeBox
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+using selfhost.shared.backend.llvm_backend_evidence_adapter as LlvmBackendEvidenceAdapterBox
 
 static box Main {
   method main(args) {
-    local j = env.get("_MIR_JSON")
-    local exe_out = env.get("_EXE_OUT")
-    if j == null { print("[ERR] _MIR_JSON not set"); return 1 }
-    if exe_out == null { exe_out = "/tmp/hako_selfhost_exe" }
-    // emit object
-    local a = new ArrayBox(); a.push(j)
-    local obj = CodegenBridgeBox.emit_object_args(a)
-    if obj == null { print("[ERR] emit_object failed"); return 2 }
-    // link exe
-    local b = new ArrayBox(); b.push(obj); b.push(exe_out)
-    local exe = CodegenBridgeBox.link_object_args(b)
-    if exe == null { print("[ERR] link_object failed"); return 3 }
-    print("" + exe)
+    local j = __MIR_JSON_LITERAL__
+    local exe_out = __EXE_OUT_LITERAL__
+    if j == null || j == "" { print("[ERR] _MIR_JSON not set"); return 1 }
+    local obj = LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(j)
+    if obj == null || obj == "" { print("[ERR] emit_object failed"); return 2 }
+    local ok = LlvmBackendBox.link_exe(obj, exe_out, null)
+    if ok != 1 { print("[ERR] link_object failed"); return 3 }
+    print("" + exe_out)
     return 0
   }
 }

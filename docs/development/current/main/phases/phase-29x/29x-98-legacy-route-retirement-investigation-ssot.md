@@ -53,7 +53,7 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 
 | Surface | Layer | Status | Read as |
 | --- | --- | --- | --- |
-| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload; still calls `CodegenBridgeBox.emit_object_args(...)` |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload; now materialized onto `vm-hako` and routed through `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub; still calls `CodegenBridgeBox.emit_object_args(...)` |
 | `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
 | `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
@@ -153,10 +153,11 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - the old `phase251` lowering canaries are now quarantined under `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/` because they are inactive hard-skips, not active suite coverage.
   - cleanup target: pin a root-first selfhost lowering proof first, then retire this gated stub.
 - `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
-  - explicit proof/example caller that still demonstrates `emit_object_args(...)` plus `link_object_args(...)`.
+  - explicit proof/example caller materialized by the wrapper onto `vm-hako`.
   - not a daily route and not a current owner.
   - direct invoker is `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`.
   - the shell wrapper is transport only; the `.hako` file is the actual proof/example caller surface.
+  - the payload now proves `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` plus `LlvmBackendBox.link_exe(...)`.
   - the payload now lives under `tools/compat/legacy-codegen/` so `tools/selfhost/examples/` stays generator-first.
   - `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the only remaining thin wrapper above that canonical compat wrapper; it is not a separate proof owner.
   - old aliases `tools/selfhost/run_hako_llvm_selfhost.sh` and `tools/selfhost/run_all.sh` are retired; keep the compat pack entry singular.
@@ -199,7 +200,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | Surface | Current role | Replacement proof status | Sequence |
 | --- | --- | --- | --- |
 | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived explicit legacy emit/link proof | exact root-first replacements are green in `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh`; manual replay now lives in `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/run_all.sh` | archived; keep only as replay evidence |
-| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | historical compat selfhost wrapper proof | root-first runtime proof exists only on the separate vm-hako owner lane: `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | archive-later, but not drop-in replaceable yet |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | historical compat selfhost wrapper proof | wrapper now runs on `vm-hako`, but it still demonstrates the provider stop-line rather than the pure owner lane; owner-lane evidence stays `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | archive-later until the provider caller is demoted |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` + `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | legacy extern lowering proof with archived quarantine canaries | no root-first selfhost lowering proof is pinned yet | keep `extern_provider.hako` until a root-first lowering proof exists; archived `phase251` pair remains evidence only |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
 
@@ -216,8 +217,8 @@ The current stop-line for the compat selfhost wrapper is a drop-in shell/payload
 | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | required env stays `NYASH_LLVM_USE_CAPI=1`, `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`, `HAKO_CAPI_PURE=1`; `HAKO_CAPI_TM=1` stays optional |
 | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | wrapper must export `_MIR_JSON` and `_EXE_OUT`, print the produced exe path, run that exe, and return the exe rc |
 | `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | failure codes stay explicit: usage `2`, env mismatch `3`, exe missing `4`, driver missing `5` |
-| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | payload keeps `_MIR_JSON` required and `_EXE_OUT` optional with `/tmp/hako_selfhost_exe` fallback |
-| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | payload keeps the legacy two-step `emit_object_args(...)` then `link_object_args(...)`, prints exe path, and returns `0/1/2/3` as today |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | payload is a template materialized by the wrapper with MIR JSON and exe path literals |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | payload now proves `compile_obj_provider_stopline(...) -> link_exe(...)`, prints exe path, and returns `0/1/2/3` as today |
 
 ## Compat Selfhost Wrapper Proof Gap
 
@@ -225,8 +226,8 @@ The pinned root-first proof candidate proves the new owner lane, but not the cur
 
 | Checkpoint | Compat wrapper today | Root-first candidate today | Gap |
 | --- | --- | --- | --- |
-| entrypoint | shell wrapper around `hako_debug_run.sh --safe -c` | temporary `.hako` file run by `target/release/hakorune --backend vm-hako` | different transport shape |
-| payload route | `CodegenBridgeBox.emit_object_args(...)` + `link_object_args(...)` | `LlvmBackendBox.compile_obj(...)` + `link_exe(...)` | legacy bridge path is not covered |
+| entrypoint | shell wrapper materializes a payload template and runs `target/release/hakorune --backend vm-hako` | temporary `.hako` file run by `target/release/hakorune --backend vm-hako` | wrapper still owns CLI/stdout/rc, candidate is harness-only |
+| payload route | `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` + `LlvmBackendBox.link_exe(...)` | `LlvmBackendBox.compile_obj(...)` + `link_exe(...)` | provider stop-line is still in the compat wrapper path |
 | input contract | MIR JSON file or stdin via `_MIR_JSON` | fixed fixture file path | not CLI-compatible |
 | output contract | print exe path, run exe, return exe rc | smoke harness checks exe creation and execution | wrapper stdout/rc contract is not proven |
 | env contract | requires `HAKO_CAPI_PURE=1` plus C-ABI/CAPI guards | only C-ABI/CAPI guards are pinned in the proof | env contract is narrower |
@@ -263,7 +264,7 @@ This matrix is only about the current `29x-98` stop-line surfaces. It does not r
 
 | Surface | Candidate root-first proof | What it proves today | Drop-in replacement? | Blocker |
 | --- | --- | --- | --- | --- |
-| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | `.hako VM -> LlvmBackendBox -> C-API -> exe` works on the vm-hako owner lane | no | the compat wrapper still demonstrates `CodegenBridgeBox.emit_object_args(...)` + `link_object_args(...)` on the historical safe-vm route |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | `.hako VM -> LlvmBackendBox -> C-API -> exe` works on the vm-hako owner lane | no | the compat wrapper now runs on `vm-hako`, but it still proves the provider stop-line through `compile_obj_provider_stopline(...)` rather than the pure owner lane |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | `tools/smokes/v2/profiles/integration/compat/extern-provider-stop-line-proof/extern_provider_codegen_emit_object_root_first_vm.sh` | exact `vm-hako` proof now shows the gated provider surface can produce an object path and linked executable | not yet | direct caller demotion (`99P1-99P3`) is still pending |
 | archived `phase2111` emit/link pair | `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh` | exact root-first replacements are already green | yes, for the archived pair only | replacement is exact for those two payloads, not for the compat selfhost wrapper or `extern_provider.hako` |
 
@@ -313,7 +314,7 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
   - `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/run_vm_adapter_legacy_cluster.sh`
   - `tools/smokes/v2/profiles/integration/proof/native-reference/run_native_reference_bucket.sh`
 - current blockers are:
-  - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` still demonstrates the old `CodegenBridgeBox.emit_object_args(...)` plus `link_object_args(...)` route.
+  - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` now materializes the payload onto `vm-hako`; it keeps the shell contract but no longer demonstrates the old bridge route directly.
   - `tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh` still owns the two active historical pure C-API keep pins (`array_set_get`, `loop_count`), now locked by `tools/smokes/v2/suites/integration/compat/pure-keep.txt`; the archive-backed historical pins are now locked by `tools/smokes/v2/suites/archive/pure-historical.txt`.
   - `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/run_vm_adapter_legacy_cluster.sh` is a separate legacy cluster under the proof directory, and `tools/smokes/v2/profiles/integration/proof/native-reference/run_native_reference_bucket.sh` is its native reference companion.
   - `HAKO_CAPI_PURE=1` is still documented as a compat-only route, not as removed/no-op.
