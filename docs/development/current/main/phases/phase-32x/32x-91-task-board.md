@@ -35,8 +35,8 @@ Related:
 | 6 | `32xC2` | landed | `phase2100` thin meta-runner plan |
 | 7 | `32xD1` | landed | `bootstrap_selfhost_smoke` caller drain map |
 | 8 | `32xD2` | landed | `plugin_v2_smoke` caller drain map |
-| 9 | `32xE1` | active | `child.rs` / `stage1_cli` direct-route gap inventory |
-| 10 | `32xE2` | queued | `core_executor` takeover seam lock |
+| 9 | `32xE1` | landed | `child.rs` / `stage1_cli` direct-route gap inventory |
+| 10 | `32xE2` | active | `core_executor` takeover seam lock |
 | 11 | `32xF1` | queued | shared helper follow-up gate |
 | 12 | `32xG1` | deferred | raw backend default/token remains last |
 
@@ -90,5 +90,9 @@ rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
   - canonical home is `tools/plugins/plugin_v2_smoke.sh`
   - `plugin_guard.rs` now points there
   - old top-level path is shim-only
+- `32xE1` landed:
+  - `child.rs` residue is concentrated in `run_ny_program_capture_json_v0`
+  - `stage1_cli/core.hako` residue is concentrated in `run_program_json` and `_run_raw_request`
+  - thread branching should not enter those compat branches
 - current front:
-  - `32xE1 child.rs / stage1_cli direct-route gap inventory`
+  - `32xE2 core_executor takeover seam lock`

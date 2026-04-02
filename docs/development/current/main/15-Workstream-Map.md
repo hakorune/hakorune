@@ -58,8 +58,9 @@ Related:
         - `32xC2` landed and made `phase2100/run_all.sh` a thin meta-runner over role sub-runners
         - `32xD1` landed and rehomed bootstrap smoke to `tools/selfhost/bootstrap_selfhost_smoke.sh`
         - `32xD2` landed and rehomed plugin smoke to `tools/plugins/plugin_v2_smoke.sh`
-        - current active micro task is `32xE1 child.rs / stage1_cli direct-route gap inventory`
-        - next queued micro task is `32xE2 core_executor takeover seam lock`
+        - `32xE1` landed and fixed the thick compat residue in `child.rs` and `stage1_cli/core.hako`
+        - current active micro task is `32xE2 core_executor takeover seam lock`
+        - next queued micro task is `32xF1 shared helper follow-up gate`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -69,13 +70,13 @@ Related:
      | --- | --- |
      | Now | `phase-32x product / engineering split` |
      | Blocker | `none` |
-     | Next | `32xE1 child.rs / stage1_cli direct-route gap inventory` |
+     | Next | `32xE2 core_executor takeover seam lock` |
    - product / engineering split bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `32xE1 child.rs / stage1_cli direct-route gap inventory` |
-     | Next | `32xE2 core_executor takeover seam lock` |
+     | Now | `32xE2 core_executor takeover seam lock` |
+     | Next | `32xF1 shared helper follow-up gate` |
      | Later | `32xD1/D2 top-level orchestrator rehome prep` |
    - product / engineering split waves:
 
@@ -118,9 +119,9 @@ Related:
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split
 - Active backend surface tasks:
-  - `32xE1 child.rs / stage1_cli direct-route gap inventory`
-- Queued backend surface tasks:
   - `32xE2 core_executor takeover seam lock`
+- Queued backend surface tasks:
+  - `32xF1 shared helper follow-up gate`
   - `32xD2 plugin_v2_smoke caller drain map`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices

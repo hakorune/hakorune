@@ -84,7 +84,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-32x product / engineering split`
 - Current blocker: `none`
-- Exact focus: `32xE1 child.rs / stage1_cli direct-route gap inventory`
+- Exact focus: `32xE2 core_executor takeover seam lock`
   - `phase-31x` is landed; low-blast engineering rehome and shim drain are complete
   - current next cleanup is not `vm.rs` deletion; it is mixed-owner source/smoke split
   - current backend reading stays role-first:
@@ -100,7 +100,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `32xC2`: `phase2100/run_all.sh` is now a thin meta-runner over role sub-runners
   - landed in `32xD1`: `tools/selfhost/bootstrap_selfhost_smoke.sh` is the canonical bootstrap smoke home and the old top-level path is shim-only
   - landed in `32xD2`: `tools/plugins/plugin_v2_smoke.sh` is the canonical plugin smoke home and the old top-level path is shim-only
-  - active in `32xE1`: direct `--backend vm` shell residue inventory for `child.rs` and `stage1_cli`
+  - landed in `32xE1`: shell residue is concentrated in `run_ny_program_capture_json_v0` and `run_program_json` / `_run_raw_request`
+  - active in `32xE2`: lock the narrow `core_executor` takeover seam before any thread/runtime widening
   - raw backend default remains deferred; no-touch-first still includes `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, `tools/selfhost/selfhost_build.sh`, and the public `phase2100/run_all.sh` path
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -114,7 +115,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-32x product / engineering split` |
   | Blocker | `none` |
-  | Next | `32xE1 child.rs / stage1_cli direct-route gap inventory` |
+  | Next | `32xE2 core_executor takeover seam lock` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -128,9 +129,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `32xE1 child.rs / stage1_cli direct-route gap inventory` | inventory direct shell residues before core takeover |
-| Next | `32xE2 core_executor takeover seam lock` | lock the direct MIR/core takeover seam |
-| Later | `32xF1 shared helper follow-up gate` | keep helper-family recut on a dedicated lane |
+| Now | `32xE2 core_executor takeover seam lock` | lock the direct MIR/core takeover seam |
+| Next | `32xF1 shared helper follow-up gate` | keep helper-family recut on a dedicated lane |
+| Later | `32xG1 raw backend default/token remains last` | keep raw default and selector freeze until owner split is done |
 
 ## Product / Engineering Split Waves
 
@@ -155,8 +156,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `32xC2` | landed | `phase2100` thin meta-runner plan |
 | `32xD1` | landed | `bootstrap_selfhost_smoke` caller drain map |
 | `32xD2` | landed | `plugin_v2_smoke` caller drain map |
-| `32xE1` | active | `child.rs` / `stage1_cli` direct-route gap inventory |
-| `32xE2` | queued | `core_executor` takeover seam lock |
+| `32xE1` | landed | `child.rs` / `stage1_cli` direct-route gap inventory |
+| `32xE2` | active | `core_executor` takeover seam lock |
 | `32xF1` | queued | shared helper follow-up gate |
 | `32xG1` | deferred | raw backend default/token remains last |
 

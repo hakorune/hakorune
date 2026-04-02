@@ -33,8 +33,8 @@ Related:
 - `32xA1` landed: `build.rs` mixed ownership inventory is fixed
 - `32xA2` landed: `phase2100` mixed aggregator inventory is fixed
 - `32xB2` landed: helper-first extraction thinned `src/runner/build.rs` without changing owner behavior
-- active micro task: `32xE1 child.rs / stage1_cli direct-route gap inventory`
-- next micro task: `32xE2 core_executor takeover seam lock`
+- active micro task: `32xE2 core_executor takeover seam lock`
+- next micro task: `32xF1 shared helper follow-up gate`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-32x product / engineering split`
-- active micro task: `32xE1 child.rs / stage1_cli direct-route gap inventory`
-- next micro task: `32xE2 core_executor takeover seam lock`
+- active micro task: `32xE2 core_executor takeover seam lock`
+- next micro task: `32xF1 shared helper follow-up gate`
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next

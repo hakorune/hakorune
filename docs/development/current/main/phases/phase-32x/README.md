@@ -54,7 +54,7 @@ Related:
 
 - `build.rs` mixed ownership is inventoried and split target is fixed
 - `phase2100/run_all.sh` mixed aggregator is inventoried and split into role sub-runners behind the stable public path
-- current front moved past top-level orchestrator rehome and into direct-route takeover prep
+- current front is now `core_executor` takeover seam planning for the remaining shell residue
 - bootstrap/plugin top-level keeps get explicit caller-drain plans
 - direct `--backend vm` shell residues are reduced only behind dedicated split tasks
 - raw backend default remains deferred until mixed-owner surfaces are thinned

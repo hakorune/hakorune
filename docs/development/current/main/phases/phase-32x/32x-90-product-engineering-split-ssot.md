@@ -57,8 +57,8 @@ Related:
 | `32xC2` | landed | `phase2100` thin meta-runner plan | top-level aggregator が meta-runner only に縮み、role sub-runners が live になる |
 | `32xD1` | landed | `bootstrap_selfhost_smoke.sh` caller drain map | canonical home が `tools/selfhost/bootstrap_selfhost_smoke.sh` に固定され current/public caller が repoint される |
 | `32xD2` | landed | `plugin_v2_smoke.sh` caller drain map | canonical home が `tools/plugins/plugin_v2_smoke.sh` に固定され current/public caller が repoint される |
-| `32xE1` | queued | `child.rs` / `stage1_cli` direct-route gap inventory | direct `--backend vm` shell residues の exact gap が読める |
-| `32xE2` | queued | `core_executor` takeover seam lock | direct MIR/core route に寄せる seam が固定される |
+| `32xE1` | landed | `child.rs` / `stage1_cli` direct-route gap inventory | direct `--backend vm` shell residues と stage1 raw compat branches の exact gap が読める |
+| `32xE2` | active | `core_executor` takeover seam lock | direct MIR/core route に寄せる seam が固定される |
 | `32xF1` | queued | shared helper follow-up gate | `hako_check*` / `hakorune_emit_mir.sh` は dedicated helper phase まで keep のままと固定する |
 | `32xG1` | deferred | raw backend default/token decision remains last | `args.rs` / `dispatch.rs` are still do-not-flip-early |
 
@@ -95,8 +95,8 @@ Read as:
 ## Current Focus
 
 - active macro wave: `32xE direct-route takeover prep`
-- active micro task: `32xE1 child.rs / stage1_cli direct-route gap inventory`
-- next queued micro task: `32xE2 core_executor takeover seam lock`
+- active micro task: `32xE2 core_executor takeover seam lock`
+- next queued micro task: `32xF1 shared helper follow-up gate`
 - current blocker: `none`
 
 ## 32xB1 Result
@@ -272,6 +272,63 @@ Read as:
 Read as:
 - plugin smoke is no longer a top-level live owner.
 - plugin hint surface now points at the plugin home.
+
+## 32xE1 Result
+
+### `child.rs`
+
+- shell residue is concentrated in:
+  - `run_ny_program_capture_json_v0`
+- current responsibilities inside that one function:
+  - spawn `nyash --backend vm <program>`
+  - apply selfhost compiler env
+  - manage timeout loop
+  - capture stdout/stderr via temp files
+  - select first `program_line` / `mir_line` from stdout
+- thin wrappers on top:
+  - `run_ny_program_capture_json`
+  - `run_ny_program_capture_mir_json`
+
+Read as:
+- `child.rs` still owns too much execution logic for a helper.
+- first cut should move spawn/timeout/capture away before touching route names.
+
+### `stage1_cli/core.hako`
+
+- direct-route residue is concentrated in:
+  - `run_program_json`
+  - `_mode_run`
+  - `_run_raw_request`
+  - `_cmd_emit_mir_json`
+- exact compat residue inside `run_program_json`:
+  - `backend == null` defaults to `vm`
+  - `llvm` is explicitly rejected
+  - only `vm|pyvm` are accepted
+  - vm/pyvm path prints MIR(JSON) and returns instead of owning execution
+- exact raw compatibility residue inside `_run_raw_request`:
+  - parses backend/source request
+  - mutates `NYASH_SCRIPT_ARGS_JSON`
+  - emits Program(JSON)
+  - then calls `run_program_json`
+
+Read as:
+- `run_program_json` is the thickest raw compat branch.
+- adding thread/runtime branching here would widen the compat matrix in the wrong layer.
+
+### Thread-growth warning
+
+- do not add thread branching to:
+  - `run_program_json`
+  - `_run_raw_request`
+  - `_cmd_emit_mir_json`
+- if thread support is needed later, it should enter below raw compat routing, not inside stage1 raw mode selection.
+
+### First-cut takeaway for `32xE2`
+
+- move execution responsibilities before route naming:
+  1. spawn/timeout/capture out of `child.rs`
+  2. keep raw line selection above the executor seam
+  3. define a narrow `core_executor` entry for already-materialized MIR(JSON)
 
 ## Delete / Archive Gate
 
