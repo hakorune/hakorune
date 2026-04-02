@@ -38,7 +38,7 @@ Related:
 | Wave | Status | Goal | Acceptance |
 | --- | --- | --- | --- |
 | `32xA mixed-owner inventory` | landed | exact mixed-owner surfaces を inventory する | `build.rs` と `phase2100/run_all.sh` の mixed roles が docs で読める |
-| `32xB build.rs split plan` | active | product build と engineering build の split target を固定する | `build.rs` の shared / product / engineering seams が分かれた計画になる |
+| `32xB build.rs split plan` | landed | product build と engineering build の split target を固定する | `build.rs` の shared / product / engineering seams が分かれた計画になる |
 | `32xC phase2100 role split plan` | queued | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental の sub-runner 形が固定される |
 | `32xD top-level orchestrator rehome prep` | queued | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定する | top-level keep surfaces の canonical next home が読める |
 | `32xE direct-route takeover prep` | queued | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
@@ -52,8 +52,8 @@ Related:
 | `32xA1` | landed | `build.rs` mixed ownership inventory | object emit / feature build / link flow の product vs engineering 同居が exact に読める |
 | `32xA2` | landed | `phase2100` mixed aggregator inventory | selfhost / llvmlite probe / crate product / native experimental reps が exact に読める |
 | `32xB1` | landed | `build.rs` split target lock | product build owner, engineering build owner, shared prelude が docs で分かれる |
-| `32xB2` | active | `build.rs` implementation slice order | helper-first / owner-split / caller-preserve の順が固定される |
-| `32xC1` | queued | `phase2100` role bucket lock | selfhost / probe / product / experimental の sub-runner names が固定される |
+| `32xB2` | landed | `build.rs` implementation slice order | helper-first / owner-split / caller-preserve の順が固定される |
+| `32xC1` | active | `phase2100` role bucket lock | selfhost / probe / product / experimental の sub-runner names が固定される |
 | `32xC2` | queued | `phase2100` thin meta-runner plan | top-level aggregator が meta-runner only に縮む計画を固定する |
 | `32xD1` | queued | `bootstrap_selfhost_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
 | `32xD2` | queued | `plugin_v2_smoke.sh` caller drain map | rehome blocker と canonical future home が読める |
@@ -95,9 +95,9 @@ Read as:
 
 ## Current Focus
 
-- active macro wave: `32xB build.rs split plan`
-- active micro task: `32xB2 build.rs implementation slice order`
-- next queued micro task: `32xC1 phase2100 role bucket lock`
+- active macro wave: `32xC phase2100 role split plan`
+- active micro task: `32xC1 phase2100 role bucket lock`
+- next queued micro task: `32xC2 phase2100 thin meta-runner plan`
 - current blocker: `none`
 
 ## 32xB1 Result
@@ -124,6 +124,27 @@ Read as:
 Read as:
 - first cut is not file deletion. It is shared-vs-owner separation inside `build.rs`.
 - owner split should happen before any default/token discussion.
+
+## 32xB2 Result
+
+- helper-first extraction landed inside the same file:
+  - `load_build_doc`
+  - `apply_env_overrides`
+  - `build_plugins`
+  - `build_core`
+  - `resolve_app_entry`
+  - `emit_object`
+  - `emit_llvm_object`
+  - `emit_engineering_object`
+  - `ensure_object_exists`
+- behavior stayed the same:
+  - product emit still uses `--backend llvm`
+  - engineering emit still uses `--backend vm`
+  - link/output flow stayed shared
+
+Read as:
+- `build.rs` is now thinner without changing default/token policy.
+- next cleanup should move to the smoke side (`phase2100`) before reopening deeper direct-route work.
 
 ## Delete / Archive Gate
 

@@ -16,8 +16,8 @@ Related:
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
 | 1 | `32xA mixed-owner inventory` | landed | exact mixed-owner surfaces are locked |
-| 2 | `32xB build.rs split plan` | active | split source owner first |
-| 3 | `32xC phase2100 role split plan` | queued | split thick smoke aggregator by role |
+| 2 | `32xB build.rs split plan` | landed | split source owner first |
+| 3 | `32xC phase2100 role split plan` | active | split thick smoke aggregator by role |
 | 4 | `32xD top-level orchestrator rehome prep` | queued | drain callers before moving top-level keeps |
 | 5 | `32xE direct-route takeover prep` | queued | reduce shell-based `--backend vm` residues carefully |
 | 6 | `32xF shared helper follow-up gate` | queued | defer helper-family recut to a dedicated lane |
@@ -30,8 +30,8 @@ Related:
 | 1 | `32xA1` | landed | `build.rs` mixed ownership inventory |
 | 2 | `32xA2` | landed | `phase2100` mixed aggregator inventory |
 | 3 | `32xB1` | landed | `build.rs` split target lock |
-| 4 | `32xB2` | active | `build.rs` implementation slice order |
-| 5 | `32xC1` | queued | `phase2100` role bucket lock |
+| 4 | `32xB2` | landed | `build.rs` implementation slice order |
+| 5 | `32xC1` | active | `phase2100` role bucket lock |
 | 6 | `32xC2` | queued | `phase2100` thin meta-runner plan |
 | 7 | `32xD1` | queued | `bootstrap_selfhost_smoke` caller drain map |
 | 8 | `32xD2` | queued | `plugin_v2_smoke` caller drain map |
@@ -65,5 +65,6 @@ rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
   - shared prelude/link
   - product llvm build+emit
   - engineering vm/cranelift build+emit
+- `32xB2` landed helper-first extraction inside `src/runner/build.rs` without changing owner behavior.
 - current front:
-  - `32xB2 build.rs implementation slice order`
+  - `32xC1 phase2100 role bucket lock`

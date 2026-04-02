@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-32x product / engineering split`
-- active micro task: `32xB2 build.rs implementation slice order`
-- next micro task: `32xC1 phase2100 role bucket lock`
+- active micro task: `32xC1 phase2100 role bucket lock`
+- next micro task: `32xC2 phase2100 thin meta-runner plan`
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next

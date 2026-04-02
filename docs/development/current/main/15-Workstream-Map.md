@@ -53,8 +53,9 @@ Related:
         - `phase-32x` now handles mixed-owner source/smoke split
         - `32xA1` landed and fixed `build.rs` as the first mixed-owner source target
         - `32xA2` landed and fixed `phase2100/run_all.sh` as the first thick smoke-aggregator target
-        - current active micro task is `32xB2 build.rs implementation slice order`
-        - next queued micro task is `32xC1 phase2100 role bucket lock`
+        - `32xB2` landed and thinned `src/runner/build.rs` by helper-first extraction
+        - current active micro task is `32xC1 phase2100 role bucket lock`
+        - next queued micro task is `32xC2 phase2100 thin meta-runner plan`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -64,21 +65,21 @@ Related:
      | --- | --- |
      | Now | `phase-32x product / engineering split` |
      | Blocker | `none` |
-     | Next | `32xB2 build.rs implementation slice order` |
+     | Next | `32xC1 phase2100 role bucket lock` |
    - product / engineering split bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `32xB2 build.rs implementation slice order` |
-     | Next | `32xC1 phase2100 role bucket lock` |
+     | Now | `32xC1 phase2100 role bucket lock` |
+     | Next | `32xC2 phase2100 thin meta-runner plan` |
      | Later | `32xD1/D2 top-level orchestrator rehome prep` |
    - product / engineering split waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
      | `32xA mixed-owner inventory` | landed | inventory exact mixed-owner source/smoke targets |
-     | `32xB build.rs split plan` | active | split product build and engineering build ownership |
-     | `32xC phase2100 role split plan` | queued | split the thick smoke aggregator by role |
+     | `32xB build.rs split plan` | landed | split product build and engineering build ownership |
+     | `32xC phase2100 role split plan` | active | split the thick smoke aggregator by role |
      | `32xD top-level orchestrator rehome prep` | queued | drain callers before moving remaining top-level keeps |
      | `32xE direct-route takeover prep` | queued | reduce shell-based `--backend vm` residues behind dedicated seams |
      | `32xF shared helper follow-up gate` | queued | reopen helper-family recut only on a dedicated lane |
@@ -113,9 +114,9 @@ Related:
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split
 - Active backend surface tasks:
-  - `32xB2 build.rs implementation slice order`
-- Queued backend surface tasks:
   - `32xC1 phase2100 role bucket lock`
+- Queued backend surface tasks:
+  - `32xC2 phase2100 thin meta-runner plan`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

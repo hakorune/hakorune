@@ -32,8 +32,9 @@ Related:
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `32xA1` landed: `build.rs` mixed ownership inventory is fixed
 - `32xA2` landed: `phase2100` mixed aggregator inventory is fixed
-- active micro task: `32xB2 build.rs implementation slice order`
-- next micro task: `32xC1 phase2100 role bucket lock`
+- `32xB2` landed: helper-first extraction thinned `src/runner/build.rs` without changing owner behavior
+- active micro task: `32xC1 phase2100 role bucket lock`
+- next micro task: `32xC2 phase2100 thin meta-runner plan`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
