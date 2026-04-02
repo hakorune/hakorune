@@ -35,19 +35,19 @@ Related:
 | Wave | Status | Goal | Why it exists now |
 | --- | --- | --- | --- |
 | `W1 docs-first path-truth pass` | landed | lock final buckets, names, and move order before code moves | current repo truth is semantically cleaner than its paths |
-| `W2 mixed-file split pass` | active | split files that still mix owner and compat/proof roles | biggest readability gain per file touched |
-| `W3 smoke/proof filesystem recut` | pending | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
+| `W2 mixed-file split pass` | landed | split files that still mix owner and compat/proof roles | biggest readability gain per file touched |
+| `W3 smoke/proof filesystem recut` | active | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | replace direct `.hako` callers with exact root-first proofs | needed before `CodegenBridgeBox.emit_object_args(...)` can die |
 | `W5 Rust compat receiver collapse` | pending | reduce `env.codegen.*` legacy receivers to one compat chokepoint | current receiver logic is spread across multiple Rust files |
 | `W6 final delete/archive sweep` | pending | delete legacy helper fronts and leave archive evidence only | last sweep after caller inventory reaches zero |
 
 ## Current Focus
 
-- active macro wave: `W2 mixed-file split pass`
+- active macro wave: `W3 smoke/proof filesystem recut`
 - active micro-task:
-  - `99J move CodegenBridgeBox / LLVMEmitBox`
-- next queued micro-task:
   - `99K physically recut phase2044`
+- next queued micro-task:
+  - `99L physically recut phase2120`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -93,14 +93,14 @@ Related:
 | `99G` | landed | split `extern_provider.hako` into runtime owner surface and compat codegen shim | owner arms and compat/proof arms no longer live in one file |
 | `99H` | landed | split `src/host_providers/llvm_codegen.rs` into thin tool boundary and legacy MIR front door | `ll_text_to_object` no longer shares a home with `emit_object_from_mir_json(...)` |
 | `99I` | landed | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
-| `99J` | active | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
+| `99J` | landed | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
 
 ### W3. Smoke/Proof Filesystem Recut
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `99G1` | pending | suites / directory semantic recut | `phase2044` / `phase2120` / archive suites read as semantic homes instead of phase-number homes |
-| `99K` | pending | physically recut `phase2044` into semantic buckets | llvmlite keep, hako-primary-no-fallback, and mirbuilder-provider stop sharing one live directory |
+| `99K` | active | physically recut `phase2044` into semantic buckets | llvmlite keep, hako-primary-no-fallback, and mirbuilder-provider stop sharing one live directory |
 | `99L` | pending | physically recut `phase2120` into semantic buckets | pure-keep / pure-historical-replay / vm-adapter-legacy / native-reference get separate homes |
 | `99M` | pending | bundle archive proof surfaces semantically | `phase2111` + `phase251` replay evidence can be read as one archive bundle |
 
@@ -108,9 +108,9 @@ Related:
 
 | Current home | Proposed home | Read as |
 | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_*` | `tools/smokes/v2/profiles/compat/llvmlite-monitor-keep/` | final live keep bucket |
-| `tools/smokes/v2/profiles/integration/core/phase2044/hako_primary_no_fallback_*` | `tools/smokes/v2/profiles/proof/hako-primary-no-fallback/` | separate core-exec proof bucket |
-| `tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_*` | `tools/smokes/v2/profiles/proof/mirbuilder-provider/` | separate mirbuilder-provider proof bucket |
+| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_*` | `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/` | final live keep bucket |
+| `tools/smokes/v2/profiles/integration/proof/hako-primary-no-fallback/hako_primary_no_fallback_*` | `tools/smokes/v2/profiles/integration/proof/hako-primary-no-fallback/` | separate core-exec proof bucket |
+| `tools/smokes/v2/profiles/integration/proof/mirbuilder-provider/mirbuilder_provider_*` | `tools/smokes/v2/profiles/integration/proof/mirbuilder-provider/` | separate mirbuilder-provider proof bucket |
 | `tools/smokes/v2/profiles/integration/core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh` + `...loop_count...` | `tools/smokes/v2/profiles/integration/core/phase2120/pure-keep/` | active keep pins |
 | `tools/smokes/v2/profiles/integration/core/phase2120/s3_link_run_llvmcapi_pure_*` archive-backed pins | `tools/smokes/v2/profiles/archive/core/phase2120/pure-historical/` | archive-backed replay evidence |
 | `tools/smokes/v2/profiles/integration/core/phase2120/s3_vm_adapter_*` | `tools/smokes/v2/profiles/proof/vm-adapter-legacy/` | legacy VM adapter cluster |
@@ -152,7 +152,7 @@ Related:
 | `lang/src/shared/host_bridge/codegen_bridge_box.hako` | compat/codegen namespace | not a daily owner surface |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | compat/codegen namespace | compat/proof box, not owner |
 | `tools/compat/legacy-codegen/**` | compat/legacy-codegen payload / wrapper / orchestrator buckets | stop mixing selfhost core and legacy-codegen proof |
-| `tools/smokes/v2/profiles/integration/core/phase2044/**` | semantic proof buckets | stop using phase number as live semantic home |
+| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/**` + `tools/smokes/v2/profiles/integration/proof/hako-primary-no-fallback/**` + `tools/smokes/v2/profiles/integration/proof/mirbuilder-provider/**` | semantic proof buckets | stop using phase number as live semantic home |
 | `tools/smokes/v2/profiles/integration/core/phase2120/**` | semantic proof + archive buckets | same as above |
 
 ## 99E Split Target Inventory

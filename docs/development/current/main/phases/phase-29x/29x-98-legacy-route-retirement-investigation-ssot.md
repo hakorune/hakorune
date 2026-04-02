@@ -131,9 +131,9 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 
 | Caller | Bucket | Note |
 | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_compare_branch_canary_vm.sh` | proof-only | llvmlite compare/provider canary |
-| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_canary_vm.sh` | proof-only | llvmlite provider canary |
-| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_const42_canary_vm.sh` | proof-only | llvmlite provider canary |
+| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_compare_branch_canary_vm.sh` | proof-only | llvmlite compare/provider canary |
+| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_canary_vm.sh` | proof-only | llvmlite provider canary |
+| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_const42_canary_vm.sh` | proof-only | llvmlite provider canary |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_ternary_collect_canary_vm.sh` | archived proof-only | explicit emit/link proof on legacy lane; superseded by `phase29ck` runtime proof |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_map_set_size_canary_vm.sh` | archived proof-only | explicit emit/link proof on legacy lane; superseded by `phase29ck` runtime proof |
 | `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_provider_vm.sh` | archived proof-only | selfhost lowering probe for the legacy extern name; currently hard-skipped |
@@ -190,7 +190,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 
 | Surface group | Status | Daily-route dependency | Cleanup / archive condition |
 | --- | --- | --- | --- |
-| `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | integration proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
+| `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | integration proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `emit_object_from_mir_json(...)` remains archive-later; replay bundle is `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt` |
 | `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archived proof-only lowering evidence for the legacy extern name | none | keep as quarantine evidence until a root-first selfhost lowering proof exists; replay bundle is `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt` |
 
@@ -201,9 +201,9 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived explicit legacy emit/link proof | exact root-first replacements are green in `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh`; manual replay now lives in `tools/smokes/v2/profiles/archive/core/phase2111/run_all.sh` | archived; keep only as replay evidence |
 | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | historical compat selfhost wrapper proof | root-first runtime proof exists only on the separate vm-hako owner lane: `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | archive-later, but not drop-in replaceable yet |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` + `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | legacy extern lowering proof with archived quarantine canaries | no root-first selfhost lowering proof is pinned yet | keep `extern_provider.hako` until a root-first lowering proof exists; archived `phase251` pair remains evidence only |
-| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
+| `lang/src/llvm_ir/emit/LLVMEmitBox.hako` + `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | provider-first llvmlite proof/canary surface | no root-first llvmlite provider proof replaces this exact surface | keep until llvmlite proof demand disappears or moves to archive |
 
-- the three `phase2044` llvmlite canaries are live through the dedicated suite manifest `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt` and still match integration-profile discovery filters.
+- the three `phase2044` llvmlite canaries are live through the dedicated suite manifest `tools/smokes/v2/suites/integration/compat/llvmlite-monitor-keep.txt` and still match integration-profile discovery filters.
 - the archived `phase2111` + `phase251` evidence now share the replay bundle `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`.
 
 ## Root-First Proof Candidate Matrix
@@ -222,7 +222,7 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
 
 | Group | Files | Status | Meaning |
 | --- | --- | --- | --- |
-| active monitor-only keep | `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{canary,compare_branch,const42}_canary_vm.sh` | keep | only live proof-only direct caller group still under integration |
+| active monitor-only keep | `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{canary,compare_branch,const42}_canary_vm.sh` | keep | only live proof-only direct caller group still under integration |
 | archived legacy emit/link proof | `tools/smokes/v2/profiles/archive/core/phase2111/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archive evidence | replay-only evidence for the old direct emit/link lane |
 | archived selfhost lowering probe | `tools/smokes/v2/profiles/archive/core/phase251/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archive evidence | replay-only evidence while `extern_provider.hako` still has no root-first lowering replacement |
 
@@ -232,22 +232,22 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
 
 ## Phase2044 Directory Semantics
 
-- `tools/smokes/v2/profiles/integration/core/phase2044/` is currently a mixed directory.
+- `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/`, `tools/smokes/v2/profiles/integration/proof/hako-primary-no-fallback/`, and `tools/smokes/v2/profiles/integration/proof/mirbuilder-provider/` are the semantic homes for the recut phase2044 buckets.
 - only these three files belong to the llvmlite monitor-only keep surface:
   - `codegen_provider_llvmlite_canary_vm.sh`
   - `codegen_provider_llvmlite_compare_branch_canary_vm.sh`
   - `codegen_provider_llvmlite_const42_canary_vm.sh`
-- the canonical manifest is `tools/smokes/v2/profiles/integration/core/phase2044/llvmlite_monitor_keep.txt`.
-- the dedicated suite manifest is `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt`.
-- this dedicated suite manifest is the final live keep bucket for `phase2044`.
-- the `hako_primary_no_fallback_*` scripts are a separate core-exec proof bucket.
-- the `mirbuilder_provider_*` scripts are a separate mirbuilder-provider proof bucket.
+- the canonical manifest is `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/llvmlite_monitor_keep.txt`.
+- the dedicated suite manifest is `tools/smokes/v2/suites/integration/compat/llvmlite-monitor-keep.txt`.
+- this dedicated suite manifest is the final live keep bucket for the llvmlite surface.
+- the `hako_primary_no_fallback_*` scripts live under `tools/smokes/v2/profiles/integration/proof/hako-primary-no-fallback/`.
+- the `mirbuilder_provider_*` scripts live under `tools/smokes/v2/profiles/integration/proof/mirbuilder-provider/`.
 - near-term cleanup separates these semantics with bucket runners first:
   - `run_llvmlite_monitor_keep.sh`
   - `run_hako_primary_no_fallback_bucket.sh`
   - `run_mirbuilder_provider_bucket.sh`
-- physical path splitting stays parked until `phase2044/...` discovery filters can be updated safely.
-- no further low-blast split is warranted here; keep the llvmlite trio suite-locked and leave the remaining groups bucket-runner only.
+- physical path splitting has landed; keep the discovery filters and archive references aligned with the new homes.
+- keep the llvmlite trio suite-locked and leave the remaining groups bucket-runner only.
 - no file in the llvmlite trio is currently archive-ready; any future reduction should be a merge of `compare_branch` / `const42`, not an archive move.
 
 ## Compat Pack Archive Conditions
@@ -274,7 +274,7 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
 
 Ranked from lowest blast radius to higher dependency risk:
 
-1. `tools/smokes/v2/profiles/integration/core/phase2044/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
+1. `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh`
    - keep now as integration monitor-only proofs
    - bucket semantics are now isolated by dedicated runner plus dedicated suite manifest; archive-later once legacy helper callers reach zero and llvmlite evidence is no longer needed
 2. `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`

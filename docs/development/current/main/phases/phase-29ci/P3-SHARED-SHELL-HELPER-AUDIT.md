@@ -151,7 +151,7 @@ shared shell helper keep として残っている 3 file について、
 - exact W17 proof now lives in `tools/dev/phase29ci_verify_primary_core_route_probe.sh`
 - the W18 `phase2170` default MIR-file verify wrapper pack is landed too: repeated hakovm MIR-call env stacks now live behind `apply_verify_mir_route_env()`, `run_verify_mir_rc_with_env()`, and the named `run_verify_mir_via_hakovm_*` helpers in `tools/smokes/v2/lib/test_runner.sh`, and the default `phase2170` wrappers now collapse onto `run_verify_mir_canary_and_expect_rc()` while legacy `hv1_mircall_*` wrappers remain explicit keeps
 - do not mix that `test_runner.sh` lane work with the 43-file smoke tail; the shared harness still stays the owner and the tail remains caller-audit-only
-- the old `phase2044` blocker is closed: early alias warnings no longer panic before Ring0 init, the Rust Program(JSON)->MIR route no longer emits `main.params=[1]`, and `tools/smokes/v2/profiles/integration/core/phase2044/mirbuilder_provider_emit_core_exec_canary_vm.sh` is green again
+- the old `phase2044` blocker is closed: early alias warnings no longer panic before Ring0 init, the Rust Program(JSON)->MIR route no longer emits `main.params=[1]`, and `tools/smokes/v2/profiles/integration/proof/mirbuilder-provider/mirbuilder_provider_emit_core_exec_canary_vm.sh` is green again
 
 ## Immediate Next
 

@@ -53,5 +53,5 @@ if [ ! -f "$path" ]; then
   echo "[FAIL] output object not found: $path" >&2
   exit 1
 fi
-echo "[PASS] phase2044/codegen_provider_llvmlite_compare_branch_canary_vm ($path)"
+echo "[PASS] compat/llvmlite-monitor-keep/codegen_provider_llvmlite_compare_branch_canary_vm ($path)"
 exit 0

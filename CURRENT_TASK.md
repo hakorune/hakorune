@@ -71,9 +71,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 W2 mixed-file split pass / 99J move CodegenBridgeBox / LLVMEmitBox`
+- Exact focus: `29x-99 W3 smoke/proof filesystem recut / 99K physically recut phase2044`
   - phase2120 pure canary bucket is now split by suites: `phase2120-pure-keep` for the 2 active keep pins and `phase2120-pure-historical` for archive-backed replay evidence
-  - phase2044 semantics are now at the intended endpoint: the llvmlite trio is `monitor-only keep`, its dedicated suite manifest is the final live keep bucket, and the other two groups stay bucket-runner only
+  - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is monitor-only keep and the proof buckets are runner-only
   - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
   - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
   - compat selfhost wrapper stays archive-later; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
@@ -82,9 +82,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - direct live callers are fixed at 5 surfaces: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
   - `29x-98` still owns helper deletion and exact stop-line; no low-blast caller reduction is visible now
-  - `29x-99` now owns beauty-first cleanup planning, with `W2 mixed-file split pass` active
-  - current active micro task is `99J move CodegenBridgeBox / LLVMEmitBox`
-  - next queued micro task is `99K physically recut phase2044`
+  - `29x-99` now owns beauty-first cleanup planning, with `W3 smoke/proof filesystem recut` active
+  - current active micro task is `99K physically recut phase2044`
+  - next queued micro task is `99L physically recut phase2120`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -116,8 +116,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99J move CodegenBridgeBox / LLVMEmitBox` | compat/proof surfaces leave owner-looking paths |
-| Next | `99K physically recut phase2044` | semantic proof buckets get separate homes |
+| Now | `99K physically recut phase2044` | semantic proof buckets get separate homes |
+| Next | `99L physically recut phase2120` | semantic proof/history buckets get separate homes |
 | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
@@ -125,8 +125,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | Wave | Status | Read as |
 | --- | --- | --- |
 | `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order |
-| `W2 mixed-file split pass` | active | split owner-looking mixed files before behavior change |
-| `W3 smoke/proof filesystem recut` | pending | phase-number homes become semantic homes |
+| `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior change |
+| `W3 smoke/proof filesystem recut` | active | phase-number homes become semantic homes |
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy receiver spread to one chokepoint |
 | `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after inventory reaches zero |
@@ -137,10 +137,10 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- | --- |
 | `99E split-target inventory lock` | landed | freeze target split homes before any move |
 | `99F file-move / shim order lock` | landed | define move-first, shim-second, delete-last order |
-| `99G-99J mixed-file split targets` | active | `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, compat boxes |
-| `99K-99M smoke/proof filesystem recut` | pending | `phase2044`, `phase2120`, archive evidence bundle |
+| `99G-99J mixed-file split targets` | landed | `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, compat boxes |
+| `99K-99M smoke/proof filesystem recut` | active | `phase2044`, `phase2120`, archive evidence bundle |
 
-- `phase2044` llvmlite trio is monitor-only keep.
+- `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `phase2120-pure-keep`, archive-backed historical pins via `phase2120-pure-historical`.
 
 ## Canonical Owners

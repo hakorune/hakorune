@@ -7,6 +7,6 @@
   - replay the legacy `hostbridge.extern_invoke("env.codegen", "emit_object"/"link_object", ...)` lane on demand
   - preserve proof evidence while `emit_object_from_mir_json(...)` remains archive-later
 - active direct proof-only keep now lives separately in:
-  - `tools/smokes/v2/suites/integration/phase2044-llvmlite-monitor-keep.txt`
+  - `tools/smokes/v2/suites/integration/compat/llvmlite-monitor-keep.txt`
 - archive replay bundle:
   - `tools/smokes/v2/suites/archive/phase29x-legacy-emit-object-evidence.txt`
