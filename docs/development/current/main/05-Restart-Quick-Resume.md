@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-33x shared helper family recut`
-- active micro task: `33xB2 hako_check.sh top-level keep gate`
-- next micro task: `33xD1 closeout/docs cleanup`
+- active micro task: `33xD1 closeout/docs cleanup`
+- next micro task: `phase-33x closeout review`
 - raw backend default flip stays deferred beyond `phase-33x`
 
 ## Read Next

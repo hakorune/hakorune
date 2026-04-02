@@ -33,9 +33,9 @@ Related:
 | Wave | Status | Goal | Acceptance |
 | --- | --- | --- | --- |
 | `33xA helper family inventory` | landed | exact caller pressure and canonical homes を固定する | `hako_check` / `emit_mir` family の `keep / rehome / shim-only` が読める |
-| `33xB hako_check family path truth` | active | family-local smoke helper を `tools/hako_check/**` に寄せる | deadcode/deadblocks 系の canonical home が family path になる |
+| `33xB hako_check family path truth` | landed | family-local smoke helper を `tools/hako_check/**` に寄せる | deadcode/deadblocks 系の canonical home が family path になり `hako_check.sh` keep reason も固定される |
 | `33xC emit_mir thin wrapper path truth` | active | thin compat/mainline wrappers の truthful role を固定する | top-level thin wrappers は route-preset compatibility wrappers と読め、routing truth は `emit_mir_route.sh` に寄る |
-| `33xD top-level keep gate` | queued | `hako_check.sh` / `hakorune_emit_mir.sh` の keep 条件を固定する | broad live callers が drain されるまで top-level keep を維持する根拠が明文化される |
+| `33xD closeout/docs cleanup` | active | current/public docs を helper-family truth に揃える | landed keep/rehome/shim-only 読みが root/current docs に揃う |
 
 ## Micro Tasks
 
@@ -43,17 +43,17 @@ Related:
 | --- | --- | --- | --- |
 | `33xA1` | landed | helper family caller inventory | current/live caller map と canonical home candidates が読める |
 | `33xB1` | landed | `hako_check_deadblocks_smoke.sh` family-home rehome | `tools/hako_check/deadblocks_smoke.sh` が canonical で top-level は shim-only |
-| `33xB2` | active | `hako_check.sh` top-level keep gate | broad live caller pressure と future drain 条件が固定される |
+| `33xB2` | landed | `hako_check.sh` top-level keep gate | broad live caller pressure と future drain 条件が固定される |
 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory | `mainline` / `compat` wrapper の exact live callers が読める |
 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock | wrappers stay top-level thin compatibility shims and operational routing truth is `tools/smokes/v2/lib/emit_mir_route.sh` |
 | `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate | broad live integration が exact keep reason として固定される |
-| `33xD1` | queued | closeout/docs cleanup | current/public docs が truthful family paths に揃う |
+| `33xD1` | active | closeout/docs cleanup | current/public docs が truthful family paths に揃う |
 
 ## Current Focus
 
 - active macro wave: `33xC emit_mir thin wrapper path truth`
-- active micro task: `33xB2 hako_check.sh top-level keep gate`
-- next queued micro task: `33xD1 closeout/docs cleanup`
+- active micro task: `33xD1 closeout/docs cleanup`
+- next queued micro task: `phase-33x closeout review`
 - current blocker: `none`
 
 ## 33xA1 Result
@@ -106,6 +106,29 @@ Read as:
 Read as:
 - `hako_check` family-local smoke helpers now share one truthful home under `tools/hako_check/**`.
 - remaining top-level `hako_check` work is about the broad entry `tools/hako_check.sh`, not the smoke helper pair.
+
+## 33xB2 Result
+
+- executable caller pressure is still present:
+  - family-local helper:
+    - `tools/hako_check/deadblocks_smoke.sh`
+  - analyze smoke:
+    - `tools/smokes/v2/profiles/integration/analyze/dot_cluster_smoke.sh`
+- current-doc pressure keeps the path user-facing:
+  - `docs/tools/script-index.md`
+  - `docs/development/current/main/design/selfhost-coreplan-unblocking-policy.md`
+  - current and historical phase bringup docs still name `tools/hako_check.sh` as the analyzer entry
+- therefore `tools/hako_check.sh` stays top-level keep in this phase
+
+Future drain conditions:
+- a dedicated `tools/hako_check/**` family entry is accepted as the canonical analyzer path
+- current/public docs and script index are repointed to that family entry
+- the analyze smoke either follows that family entry or is re-cut behind a narrower helper
+- only after that drain should shim-only/archive be reconsidered
+
+Read as:
+- `tools/hako_check.sh` is still the canonical analyzer entry, not just a leftover wrapper.
+- `phase-33x` should pin that keep reason instead of forcing a cosmetic rehome.
 
 ## 33xC1 Result
 

@@ -16,9 +16,9 @@ Related:
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
 | 1 | `33xA helper family inventory` | landed | exact keep/rehome/shim-only reading |
-| 2 | `33xB hako_check family path truth` | landed | family-local smoke helpers move first |
+| 2 | `33xB hako_check family path truth` | landed | family-local smoke helpers move first and keep reason is fixed |
 | 3 | `33xC emit_mir thin wrapper path truth` | active | thin wrappers stay truthful route-preset shims before broad helper keep |
-| 4 | `33xD top-level keep gate` | queued | broad helper keeps are justified and deferred |
+| 4 | `33xD closeout/docs cleanup` | active | landed helper-family truth is reflected in current/public docs |
 
 ## Ordered Slice Detail
 
@@ -26,11 +26,11 @@ Related:
 | --- | --- | --- | --- |
 | 1 | `33xA1` | landed | helper family caller inventory |
 | 2 | `33xB1` | landed | `hako_check_deadblocks_smoke` family-home rehome |
-| 3 | `33xB2` | active | `hako_check.sh` top-level keep gate |
+| 3 | `33xB2` | landed | `hako_check.sh` top-level keep gate |
 | 4 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory |
 | 5 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock |
 | 6 | `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate |
-| 7 | `33xD1` | queued | closeout/docs cleanup |
+| 7 | `33xD1` | active | closeout/docs cleanup |
 
 ## Evidence Commands
 
@@ -67,6 +67,9 @@ bash -n \
   - canonical deadblocks home is `tools/hako_check/deadblocks_smoke.sh`
   - old top-level path is shim-only
   - current/live policy docs now point at the family home
+- `33xB2` landed:
+  - `tools/hako_check.sh` remains top-level keep because it is still the canonical analyzer entry, plus one family helper and one analyze smoke still call it
+  - drain condition stays `family analyzer entry + doc/script-index repoint`, then revisit rehome later
 - `33xC1` landed:
   - thin wrapper live callers are current-docs/proof oriented and low blast
 - `33xC2` landed:
@@ -76,4 +79,4 @@ bash -n \
   - `tools/hakorune_emit_mir.sh` remains top-level keep because route-owner, perf, check/debug, proof, and current-doc pressure are still broad
   - drain condition stays `route-selecting callers -> emit_mir_route`, then revisit the helper later
 - current front:
-  - `33xB2 hako_check.sh top-level keep gate`
+  - `33xD1 closeout/docs cleanup`
