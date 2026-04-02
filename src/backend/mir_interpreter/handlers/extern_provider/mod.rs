@@ -45,28 +45,6 @@ impl MirInterpreter {
         }
     }
 
-    fn codegen_object_opts(
-        out: Option<std::path::PathBuf>,
-        compile_recipe: Option<String>,
-        compat_replay: Option<String>,
-    ) -> crate::host_providers::llvm_codegen::Opts {
-        let (compile_recipe, compat_replay) =
-            crate::config::env::backend_codegen_request_defaults(compile_recipe, compat_replay);
-        crate::host_providers::llvm_codegen::Opts {
-            out,
-            nyrt: std::env::var("NYASH_EMIT_EXE_NYRT")
-                .ok()
-                .map(std::path::PathBuf::from),
-            opt_level: std::env::var("HAKO_LLVM_OPT_LEVEL")
-                .ok()
-                .or_else(|| std::env::var("NYASH_LLVM_OPT_LEVEL").ok())
-                .or(Some("0".to_string())),
-            timeout_ms: None,
-            compile_recipe,
-            compat_replay,
-        }
-    }
-
     fn optional_codegen_text(text: String) -> Option<String> {
         if text.is_empty() || text == "null" {
             None

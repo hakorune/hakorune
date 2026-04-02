@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 W4 Hako-side caller drain prep / 99P2 extern_provider compat codegen caller demotion`
+- Exact focus: `29x-99 W5 Rust compat receiver collapse / 99R1 collapse route ownership into one compat namespace`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,16 +60,19 @@ bash tools/selfhost/run_lane_a_daily.sh
 
   | Band | State |
   | --- | --- |
-  | Now | `99P2 extern_provider compat codegen caller demotion` |
-  | Next | `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` |
+  | Now | `99R1 collapse route ownership into one compat namespace` |
+  | Next | `99R2 align tracing / observability at the chokepoint` |
   | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
 
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket; the other `phase2044` groups stay bucket-runner only. `phase2111` / `phase251` archive proofs share one replay-evidence suite; `phase2120` pure canaries now split by suites, with `compat/pure-keep` for the live pair and `archive/pure-historical` for archive-backed replay evidence; the selfhost compat stack is now read as `payload -> transport wrapper -> pack orchestrator`, the wrapper now materializes its payload onto `vm-hako`, and `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`.
-- direct live callers are fixed at 5 surfaces; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
+- live stop-line surfaces are fixed at 5; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; `29x-99` now owns beauty-first cleanup waves.
 - `99P1 compat selfhost payload demotion` is landed.
-- active micro task is `99P2 extern_provider compat codegen caller demotion`.
-- next queued micro task is `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only`.
+- `99P2 extern_provider compat codegen caller demotion` is landed; the compat codegen stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`.
+- `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` is landed; live Hako direct callers are now zero.
+- `99Q1` / `99Q2` / `99Q3` are landed: canonical shared receiver is named, MirInterpreter adapters are thin, and plugin-loader direct receiver ownership is gone.
+- active micro task is `99R1 collapse route ownership into one compat namespace`.
+- next queued micro task is `99R2 align tracing / observability at the chokepoint`.
 - detailed review intake and fine-grained W4/W5 queue live in `29x-99`, not in this restart mirror.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`

@@ -54,7 +54,7 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 | Surface | Layer | Status | Read as |
 | --- | --- | --- | --- |
 | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload; now materialized onto `vm-hako` and routed through `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` |
-| `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub; still calls `CodegenBridgeBox.emit_object_args(...)` |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub; its codegen arm now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)` |
 | `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
 | `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | direct caller | keep | explicit legacy receiver for `emit_object_from_mir_json(...)` |
@@ -64,8 +64,8 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 ## Current Reduction Verdict
 
 - no archive-ready direct caller exists today.
-- no low-blast caller reduction is visible on the current proof set.
-- the next real movement requires an exact root-first replacement proof, not more wrapper trimming.
+- low-blast Hako-side caller reduction is now landed on both stop-line surfaces; the remaining bridge work is archive-only containment.
+- the exact root-first replacement proof is now landed on the Hako-side stop-line; the next real movement is Rust-side namespace collapse and tracing alignment.
 - helper deletion remains blocked until the direct caller inventory reaches zero.
 
 ## Cleanup Bands
@@ -73,7 +73,7 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
-| Next | exact root-first replacement proof | required before any direct caller drain beyond the current stop-line |
+| Next | one explicit Rust compat-codegen namespace with aligned tracing | required before helper deletion can resume on the Rust side |
 | Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Replacement Matrix
@@ -112,7 +112,7 @@ The canonical successor family is the root-first daily route, concretely `env.co
   - current upstream owners are the `env.codegen.emit_object` extern lanes reached from `src/backend/mir_interpreter/handlers/calls/global.rs`, `src/backend/mir_interpreter/handlers/externals.rs`, and the legacy `CodegenBridgeBox` / `ExternCallLowerBox` call shape that still produces `env.codegen.emit_object`.
 - `extern_functions.rs`
   - cleanup target is upstream caller removal, not `extern_functions.rs` first.
-  - current upstream owner is still the legacy `CodegenBridgeBox.emit_object_args(...)` / `env.codegen.emit_object` route; daily callers should stop at `LlvmBackendBox`.
+  - current upstream owner is still the legacy `CodegenBridgeBox.emit_object_args(...)` / `env.codegen.emit_object` route for the remaining compat/proof callers; daily callers should stop at `LlvmBackendBox`.
 - `llvm_backend_surrogate.rs`
   - cleanup target is the compiled-stage1/module-dispatch caller set, not the surrogate file first.
   - current upstream owner is `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` via `try_dispatch(...)`, with compat/proof callers on `selfhost.shared.backend.llvm_backend.{compile_obj,link_exe}`.
@@ -124,8 +124,6 @@ Direct code callers currently in tree:
 | Caller | Bucket | Note |
 | --- | --- | --- |
 | `lang/src/llvm_ir/emit/LLVMEmitBox.hako` | archive-later compat/proof | provider-first stub / canary-only surface; not a daily owner |
-| `lang/src/vm/hakorune-vm/extern_provider.hako` | archive-later compat/proof | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` gated compatibility stub only |
-| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | archive-later example/proof | explicit proof/example caller, not a daily route |
 
 Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` callers currently in tree:
 
@@ -149,9 +147,10 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
   - only active when `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`; otherwise it returns an empty compat stub.
   - treat as compat/proof only, not daily/mainline.
   - dead alias `env.codegen.emit_object_ny` is retired; the gated stub now accepts only `env.codegen.emit_object`.
-  - owner-surface arms and compat/proof C-ABI arms are now grouped explicitly in the file; no behavior change was made.
+  - owner-surface arms and compat/proof C-ABI arms are now grouped explicitly in the file.
+  - the gated compat codegen arm no longer calls `CodegenBridgeBox.emit_object_args(...)`; it now hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(root, null)`.
   - the old `phase251` lowering canaries are now quarantined under `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/` because they are inactive hard-skips, not active suite coverage.
-  - cleanup target: pin a root-first selfhost lowering proof first, then retire this gated stub.
+  - cleanup target: keep this stub explicit until an exact lowering replacement exists, then retire it after the bridge goes archive-only.
 - `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
   - explicit proof/example caller materialized by the wrapper onto `vm-hako`.
   - not a daily route and not a current owner.
@@ -265,7 +264,7 @@ This matrix is only about the current `29x-98` stop-line surfaces. It does not r
 | Surface | Candidate root-first proof | What it proves today | Drop-in replacement? | Blocker |
 | --- | --- | --- | --- | --- |
 | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | `tools/smokes/v2/profiles/integration/apps/phase29ck_vmhako_llvm_backend_runtime_proof.sh` | `.hako VM -> LlvmBackendBox -> C-API -> exe` works on the vm-hako owner lane | no | the compat wrapper now runs on `vm-hako`, but it still proves the provider stop-line through `compile_obj_provider_stopline(...)` rather than the pure owner lane |
-| `lang/src/vm/hakorune-vm/extern_provider.hako` | `tools/smokes/v2/profiles/integration/compat/extern-provider-stop-line-proof/extern_provider_codegen_emit_object_root_first_vm.sh` | exact `vm-hako` proof now shows the gated provider surface can produce an object path and linked executable | not yet | direct caller demotion (`99P1-99P3`) is still pending |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | `tools/smokes/v2/profiles/integration/compat/extern-provider-stop-line-proof/extern_provider_codegen_emit_object_root_first_vm.sh` | exact `vm-hako` proof now shows the gated provider surface can produce an object path and linked executable | not yet | Rust-side chokepoint collapse and final helper retirement are still pending |
 | archived `phase2111` emit/link pair | `tools/smokes/v2/profiles/integration/apps/phase29ck_llvm_backend_{ternary_collect,map_set_size}_runtime_proof.sh` | exact root-first replacements are already green | yes, for the archived pair only | replacement is exact for those two payloads, not for the compat selfhost wrapper or `extern_provider.hako` |
 
 ## Proof-Only Direct Caller Group Recheck

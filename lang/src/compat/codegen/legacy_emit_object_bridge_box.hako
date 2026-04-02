@@ -4,6 +4,8 @@ using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 // Responsibility:
 //   - Keep env.codegen arg normalization out of owner-looking paths.
 //   - New daily callers should stop at LlvmBackendBox instead.
+//   - `emit_object_args(...)` is now archive-only; live Hako callers should use
+//     root-first owner or explicit compat shims instead.
 
 static box CodegenBridgeBox {
   method emit_object_args(args) {

@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 W4 Hako-side caller drain prep / 99P2 extern_provider compat codegen caller demotion`
+- Exact focus: `29x-99 W5 Rust compat receiver collapse / 99R1 collapse route ownership into one compat namespace`
   - phase2120 pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`; the legacy cluster orchestrator is runner-only
   - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is monitor-only keep and the proof buckets are runner-only
   - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
@@ -79,14 +79,21 @@ Scope: repo root から current order / current blocker / next exact read に最
   - compat selfhost wrapper stays archive-later; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
   - selfhost compat stack wording is now locked as `payload -> transport wrapper -> pack orchestrator`
   - root-first proof candidate inventory is now pinned: the compat selfhost wrapper now materializes its payload onto `vm-hako`, while `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`
-  - direct live callers are fixed at 5 surfaces: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
+  - live stop-line surfaces are fixed at 5: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`, `lang/src/vm/hakorune-vm/extern_provider.hako`, `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`, `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`, and `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrappers/orchestrators, not direct `emit_object` callers
-  - `29x-98` still owns helper deletion and exact stop-line; caller demotion is now visible, but helper deletion stays closed
-  - W5 prep has started: codegen receiver bodies are now split into dedicated modules, but the chokepoint collapse itself is still pending after `W4`
-  - `29x-99` now owns beauty-first cleanup planning, with `W4 Hako-side caller drain prep` active and `W3 smoke/proof filesystem recut` landed
+  - `29x-98` still owns helper deletion and exact stop-line; the Hako-side bridge is now archive-only, but helper deletion stays closed
+  - W5 shared receiver collapse is now partially landed: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` is the canonical compat-codegen home
+  - `hostbridge.rs` and `loader_cold.rs` now forward `env.codegen.*` into adapter-stage homes instead of carrying direct `link_object` behavior
+  - `extern_functions.rs` now forwards `env.codegen` into the shared compat receiver path; plugin-loader direct receiver ownership is gone
+  - `29x-99` now owns beauty-first cleanup planning, with `W4 Hako-side caller drain prep` landed and `W5 Rust compat receiver collapse` active
   - `99P1 compat selfhost payload demotion` is landed
-  - current active micro task is `99P2 extern_provider compat codegen caller demotion`
-  - next queued micro task is `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only`
+  - `99P2 extern_provider compat codegen caller demotion` is landed; the compat codegen stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`
+  - `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` is landed; live Hako direct callers are now zero
+  - `99Q1 lock one Rust compat-codegen chokepoint contract` is landed
+  - `99Q2 reduce MirInterpreter receivers to thin adapters` is landed
+  - `99Q3 reduce plugin-loader receiver to a thin adapter` is landed
+  - current active micro task is `99R1 collapse route ownership into one compat namespace`
+  - next queued micro task is `99R2 align tracing / observability at the chokepoint`
   - review intake owner is `29x-99`; mirror docs only carry the open deltas, not the full intake table
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -105,7 +112,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `29x-99` W4 caller demotion lane -> `29x-98` stop-line stays fixed until `99P2-99P3` land |
+  | Next | `29x-99` W5 route collapse -> observability align -> surrogate move |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -119,8 +126,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99P2 extern_provider compat codegen caller demotion` | the compat selfhost payload is off the bridge; the gated provider caller is next |
-| Next | `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` | once the provider caller is off the bridge, the bridge becomes archive-only |
+| Now | `99R1 collapse route ownership into one compat namespace` | shared receiver exists; collapse remaining adapter-stage route ownership into the compat namespace |
+| Next | `99R2 align tracing / observability at the chokepoint` | after route ownership is collapsed, keep legacy codegen acceptance observable in one place |
 | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
@@ -130,8 +137,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order |
 | `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior change |
 | `W3 smoke/proof filesystem recut` | landed | phase-number homes become semantic homes |
-| `W4 Hako-side caller drain prep` | active | exact replacement proof is green; caller demotion is now in progress |
-| `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy receiver spread to one chokepoint |
+| `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
+| `W5 Rust compat receiver collapse` | active | reduce legacy receiver spread to one chokepoint |
 | `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after inventory reaches zero |
 
 ## Cleanup Micro Tasks
@@ -146,9 +153,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `99O1-99O3 extern_provider contract/proof-target/prereq lock` | landed | compat codegen stub contract, exact proof target, and demotion order are fixed |
 | `99O4 minimal root-first lowering proof smoke` | landed | exact `vm-hako` proof is green for the `extern_provider` stop-line |
 | `99P1 compat selfhost payload demotion` | landed | compat payload is materialized onto `vm-hako` and no longer calls `CodegenBridgeBox.emit_object_args(...)` |
-| `99P2 extern_provider compat codegen caller demotion` | active | move the gated provider caller off `CodegenBridgeBox.emit_object_args(...)` |
-| `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` | pending-after-P2 | remaining direct Hako callers are zero or archive-only |
-| `99Q1-99S1 Rust compat receiver collapse` | pending-after-W4 | reduce Rust legacy codegen acceptance to one chokepoint |
+| `99P2 extern_provider compat codegen caller demotion` | landed | the gated provider caller now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)` |
+| `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` | landed | live Hako direct callers are zero; the bridge is archive-only |
+| `99Q1-99S1 Rust compat receiver collapse` | active | canonical shared receiver is landed; route ownership / tracing collapse remains |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.

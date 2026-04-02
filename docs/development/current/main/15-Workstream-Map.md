@@ -41,15 +41,18 @@ Related:
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
      - root-first proof candidate inventory is pinned: the compat selfhost wrapper now materializes its payload onto `vm-hako`, while `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`
-     - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
-     - `29x-98` still owns delete-readiness and stop-line; caller demotion is now visible, but helper deletion stays closed
-     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4 Hako-side caller drain prep` is active and `W3 smoke/proof filesystem recut` is landed
+     - live stop-line surfaces are fixed at 5; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
+     - `29x-98` still owns delete-readiness and stop-line; the Hako-side bridge is now archive-only, but helper deletion stays closed
+     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4 Hako-side caller drain prep` is landed and `W5 Rust compat receiver collapse` is active
      - `99N1-99N3` are landed for the compat selfhost wrapper stack
      - `99O1-99O2` are landed for the `extern_provider` stop-line
      - `99P1 compat selfhost payload demotion` is landed
-     - current active micro task is `99P2 extern_provider compat codegen caller demotion`
-     - next queued micro task is `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only`
-     - W5 prep is partially landed: codegen receiver bodies now live in dedicated modules, but the one-chokepoint collapse itself is still pending after W4
+     - `99P2 extern_provider compat codegen caller demotion` is landed; the compat codegen stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`
+     - `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` is landed; live Hako direct callers are now zero
+     - `99Q1`, `99Q2`, and `99Q3` are landed; the canonical shared receiver now lives in `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
+     - `hostbridge.rs` / `loader_cold.rs` are forwarding adapters and `extern_functions.rs` no longer owns direct codegen behavior
+     - current active micro task is `99R1 collapse route ownership into one compat namespace`
+     - next queued micro task is `99R2 align tracing / observability at the chokepoint`
      - review intake detail lives in `29x-99`; the open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
@@ -58,13 +61,13 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-99` W4 caller demotion lane -> `29x-98` stop-line stays fixed until `99P2-99P3` land |
+     | Next | `29x-99` W5 route collapse -> observability align -> surrogate move |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `99P2 extern_provider compat codegen caller demotion` |
-     | Next | `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` |
+     | Now | `99R1 collapse route ownership into one compat namespace` |
+     | Next | `99R2 align tracing / observability at the chokepoint` |
      | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
    - cleanup waves:
 
@@ -73,8 +76,8 @@ Related:
      | `W1 docs-first path-truth pass` | landed | target buckets and move order |
      | `W2 mixed-file split pass` | landed | split owner-looking mixed files |
      | `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
-     | `W4 Hako-side caller drain prep` | active | exact replacement proof is green; caller demotion is underway |
-     | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |
+     | `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
+     | `W5 Rust compat receiver collapse` | active | one compat receiver chokepoint |
      | `W6 final delete/archive sweep` | pending-after-W5 | helper deletion after zero callers |
 2. `phase-29bq`
    - active selfhost lane

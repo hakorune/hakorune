@@ -48,8 +48,8 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior changes | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | `29x-99-structure-recut-wave-plan-ssot.md` |
-| `W4 Hako-side caller drain prep` | active | exact root-first proof is green; direct `.hako` caller demotion is now in progress | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
-| `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W4 Hako-side caller drain prep` | landed | exact root-first proof is green; direct `.hako` caller demotion is complete | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W5 Rust compat receiver collapse` | active | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after caller inventory reaches zero | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
 
 ## 0.1 Current micro-task queue
@@ -86,13 +86,13 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99O3` | W4 | landed | lock direct-caller demotion prerequisites | Hako-side demotion order is explicit |
 | `99O4` | W4 | landed | implement minimal root-first lowering proof smoke | one `vm-hako` proof is green for the compat provider stop-line |
 | `99P1` | W4 | landed | demote compat selfhost payload direct caller | payload is materialized onto `vm-hako` and no longer calls `CodegenBridgeBox.emit_object_args(...)` |
-| `99P2` | W4 | active | demote `extern_provider.hako` compat codegen caller | compat codegen stub no longer calls `CodegenBridgeBox.emit_object_args(...)` |
-| `99P3` | W4 | pending-after-P2 | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
-| `99Q1` | W5 | pending-after-W4 | lock one Rust compat-codegen chokepoint contract | one receiver module owns the legacy accept path |
-| `99Q2` | W5 | pending-after-W4 | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` / `loader_cold.rs` stop being receiver homes |
-| `99Q3` | W5 | pending-after-W4 | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` stops being a receiver home |
-| `99R1` | W5 | pending-after-W4 | collapse route ownership into one compat namespace | route ownership is visible in one Rust home |
-| `99R2` | W5 | pending-after-W4 | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
+| `99P2` | W4 | landed | demote `extern_provider.hako` compat codegen caller | compat codegen stub root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)` |
+| `99P3` | W4 | landed | make `CodegenBridgeBox.emit_object_args(...)` archive-only | live Hako direct callers are zero |
+| `99Q1` | W5 | landed | lock one Rust compat-codegen chokepoint contract | canonical home is fixed at `compat_codegen_receiver.rs` |
+| `99Q2` | W5 | landed | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` / `loader_cold.rs` forward into adapter-stage homes only |
+| `99Q3` | W5 | landed | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` no longer owns direct codegen behavior |
+| `99R1` | W5 | active | collapse route ownership into one compat namespace | route ownership is visible in one Rust home |
+| `99R2` | W5 | pending-after-R1 | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
 | `99S1` | W5 | pending-after-W4 | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
 | `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |
 

@@ -30,13 +30,9 @@ impl MirInterpreter {
                 let program_json = self.reg_load(args[0])?.to_string();
                 self.emit_mirbuilder_program_json(&program_json)
             }
-            "env.codegen.emit_object" => {
-                return self.dispatch_loader_cold_codegen_extern(extern_name, args);
-            }
-            "env.codegen.compile_ll_text" => {
-                return self.dispatch_loader_cold_codegen_extern(extern_name, args);
-            }
-            "env.codegen.link_object" => {
+            "env.codegen.emit_object"
+            | "env.codegen.compile_ll_text"
+            | "env.codegen.link_object" => {
                 return self.dispatch_loader_cold_codegen_extern(extern_name, args);
             }
             "env.box_introspect.kind" => {

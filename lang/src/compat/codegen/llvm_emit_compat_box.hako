@@ -3,7 +3,8 @@
 // - Keep this under compat/codegen, not under an owner-looking path.
 // - llvmlite stays on direct provider canaries; this box routes only ny-llvmc compat.
 
-using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
+using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+using selfhost.shared.mir.root_hydrator as MirRootHydratorBox
 
 static box LLVMEmitProviderBox {
   // Availability probe (for canaries)
@@ -39,10 +40,7 @@ static box LLVMEmitProviderBox {
     }
     local pv = "" + p
     if pv == "ny-llvmc" {
-      // env.codegen.emit_object(mir_json)
-      local args = new ArrayBox()
-      args.push(validated_mir_json)
-      return CodegenBridgeBox.emit_object_args(args)
+      return me._emit_via_root_first(validated_mir_json)
     }
     if pv == "llvmlite" {
       // This compat/proof box does not own the llvmlite lane.
@@ -52,6 +50,15 @@ static box LLVMEmitProviderBox {
     }
     print("[llvmemit/provider/unsupported] " + pv)
     return null
+  }
+
+  method _emit_via_root_first(validated_mir_json) {
+    local root = MirRootHydratorBox.hydrate(validated_mir_json)
+    if root == null {
+      print("[llvmemit/root-hydrate-failed] invalid MIR(JSON) for root-first ny-llvmc compat")
+      return null
+    }
+    return LlvmBackendBox.compile_obj_root(root, null)
   }
 
   method _provider_is_supported(provider_name) {
