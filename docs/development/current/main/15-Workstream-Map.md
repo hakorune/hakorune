@@ -61,8 +61,9 @@ Related:
      - `30xF2` landed and kept raw backend token/default stable for this phase
      - `30xG1` landed and moved low-blast manual smoke residues under `tools/archive/manual-smokes/`
      - `30xG2` landed and moved the stale help snapshot behind a thin stub under `docs/tools/`
-     - current active micro task is `30xG3 compare/manual helper archive pass`
-     - next queued micro task is `30xG4 post-switch docs cleanup`
+     - `30xG3` landed and moved `tools/smoke_aot_vs_vm.sh` under `tools/archive/manual-smokes/`
+     - current active micro task is `30xG4 post-switch docs cleanup`
+     - next queued micro task is `none`
      - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
@@ -76,13 +77,13 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xG3 compare/manual helper archive pass` |
+     | Next | `30xG4 post-switch docs cleanup` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xG3 compare/manual helper archive pass` |
-     | Next | `30xG4 post-switch docs cleanup` |
+     | Now | `30xG4 post-switch docs cleanup` |
+     | Next | `none` |
      | Later | `30xG` |
    - cleanup waves:
 

@@ -307,11 +307,6 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 ./myapp
 ```
 
-Quick comparison smoke (engineering parity, VM vs EXE):
-```bash
-tools/smoke_aot_vs_vm.sh examples/aot_min_string_len.hako
-```
-
 ### LLVM Backend Notes
 - `NYASH_LLVM_OBJ_OUT`: Path to emit `.o` when running `--backend llvm` (product main).
   - Example: `NYASH_LLVM_OBJ_OUT=$PWD/nyash_llvm_temp.o $NYASH_BIN --backend llvm apps/ny-llvm-smoke/main.hako`

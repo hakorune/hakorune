@@ -155,8 +155,8 @@ Related:
 | --- | --- | --- | --- |
 | `30xG1` | landed | manual smoke residue archive pass | manual residue scripts are either archived or reclassified as explicit engineering keeps |
 | `30xG2` | landed | stale help snapshot replacement/archive | `docs/tools/nyash-help.md` is reduced to a thin current stub and the old capture moves to archive |
-| `30xG3` | active | compare/manual helper archive pass | legacy compare/manual helpers such as `tools/smoke_aot_vs_vm.sh` are either kept with explicit engineering meaning or archived |
-| `30xG4` | queued | post-switch docs cleanup | root/phase docs stop carrying open-ended `watch` wording for settled residues |
+| `30xG3` | landed | compare/manual helper archive pass | legacy compare/manual helpers such as `tools/smoke_aot_vs_vm.sh` are either kept with explicit engineering meaning or archived |
+| `30xG4` | active | post-switch docs cleanup | root/phase docs stop carrying open-ended `watch` wording for settled residues |
 
 #### `30xG2` result
 
@@ -165,7 +165,15 @@ Related:
 - current CLI truth remains:
   - `docs/tools/cli-options.md`
   - `src/cli/args.rs`
-- remaining residue review moves to `30xG3`
+- remaining residue review moves to `30xG4`
+
+#### `30xG3` result
+
+- `tools/smoke_aot_vs_vm.sh` moved to `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
+- root README and README.ja no longer present the old parity helper as a front-door example
+- explicit compare/manual keep after `30xG3`:
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+- remaining cleanup work moves to `30xG4`
 
 ## Legacy Disposition Rules
 
@@ -178,7 +186,7 @@ Related:
 ## Current Focus
 
 - active macro wave: `30xG legacy disposition sweep`
-- next queued wave: `30xG3 compare/manual helper archive pass`
+- next queued wave: `30xG4 post-switch docs cleanup`
 - later disposition wave: `30xG legacy disposition sweep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
@@ -289,7 +297,7 @@ Plugin/macro/tooling archive/delete result (`30xC2`):
   - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
   - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
   - `tools/archive/manual-smokes/async_smokes.sh`
-- root-level manual residue is reduced; remaining archive/delete work moves to `30xG3-30xG4`
+- root-level manual residue is reduced; remaining archive/delete work moves to `30xG4`
 
 ### Smoke / test
 
@@ -300,7 +308,7 @@ Plugin/macro/tooling archive/delete result (`30xC2`):
 - `tools/selfhost_vm_smoke.sh`
 - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
 - `tools/selfhost_stage3_accept_smoke.sh`
-- `tools/smoke_aot_vs_vm.sh`
+- `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
 
 Smoke/test findings (`30xC3`):
 
@@ -316,9 +324,8 @@ Smoke/test findings (`30xC3`):
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
   - mixed `vm`/`llvm` aggregator stays a do-not-flip-early orchestrator
   - keep as mixed orchestrator surface; do not archive in `30xC3`
-- `tools/smoke_aot_vs_vm.sh`
-  - current root README still presents this compare smoke
-  - keep for now; revisit wording in `30xC4` because it also pulls user-facing docs pressure
+- `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
+  - archived in `30xG3`; old parity helper no longer belongs in root front docs
 - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - archived in `30xG1`; only stale migration-plan material referenced it
 - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
@@ -329,11 +336,12 @@ Smoke/test findings (`30xC3`):
 
 Smoke/test archive/delete result (`30xC3`):
 
-- none
 - live engineering smoke keeps remain in place
 - archived in `30xG1`:
   - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+- archived in `30xG3`:
+  - `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
 - explicit keep:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 
@@ -370,17 +378,16 @@ Docs/help findings (`30xC4`):
     - stage1/bootstrap design doc; `backend=vm` here is engineering/stage0 semantics, not product narrative
   - `docs/guides/testing-guide.md`
     - testing/diagnostics guide; `--backend vm` examples belong to engineering lane
-- stale help snapshot watch:
+- stale help snapshot result:
   - `docs/tools/nyash-help.md`
-    - old help snapshot still says default backend is `interpreter` and `--compile-native` is wasmtime/AOT
-    - keep temporarily as captured snapshot, but rewrite or replace in `30xE2`
+    - thin current stub in `docs/tools/`
+    - historical capture moved to `docs/archive/tools/nyash-help.md`
 
 Docs/help archive/delete result (`30xC4`):
 
-- none
 - root README/help rewrites belong to `30xE`, not this inventory slice
 - stage1/testing/selfhost guides stay engineering keeps
-- stale help snapshot stays watch-only until a fresh help snapshot or rewritten help doc exists
+- stale help snapshot was archived in `30xG2`
 
 Plugin/smoke orchestrator freeze findings (`30xD3`):
 
@@ -391,14 +398,13 @@ Plugin/smoke orchestrator freeze findings (`30xD3`):
   - `tools/selfhost_vm_smoke.sh`
   - `tools/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-- keep until `30xE/G` clarifies product-vs-engineering wording:
-  - `tools/smoke_aot_vs_vm.sh`
 - manual residue archive-later queue:
   - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
   - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
   - `tools/archive/manual-smokes/async_smokes.sh`
   - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+  - `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 
 Plugin/smoke orchestrator freeze result (`30xD3`):
@@ -406,8 +412,9 @@ Plugin/smoke orchestrator freeze result (`30xD3`):
 - landed as docs-first only
 - no-touch-first orchestrators stay live engineering keeps
 - `30xG1` archived low-blast root-level manual smoke residues under `tools/archive/manual-smokes/`
+- `30xG3` archived `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
 - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh` remains an explicit engineering/test-local keep
-- remaining helper/archive work moves to `30xG3-30xG4`
+- remaining helper/archive work moves to `30xG4`
 
 ## Dangerous Early Flips
 

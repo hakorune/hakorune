@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-30x backend surface simplification`
-- active micro task: `30xG3 compare/manual helper archive pass`
-- next micro task: `30xG4 post-switch docs cleanup`
+- active micro task: `30xG4 post-switch docs cleanup`
+- next micro task: `none`
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next

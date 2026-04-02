@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xG3 compare/manual helper archive pass`
+- Exact focus: `30xG4 post-switch docs cleanup`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -101,8 +101,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `30xF2` landed: phase-30x keeps raw backend token/default stable and treats docs/artifact/smoke ownership flip as sufficient
 - `30xG1` landed: low-blast manual smoke residues moved to `tools/archive/manual-smokes/`
 - `30xG2` landed: `docs/tools/nyash-help.md` is now a thin stub and the historical capture moved to `docs/archive/tools/nyash-help.md`
-- active micro task is `30xG3 compare/manual helper archive pass`
-- next queued micro task is `30xG4 post-switch docs cleanup`
+- `30xG3` landed: `tools/smoke_aot_vs_vm.sh` moved to `tools/archive/manual-smokes/` and left `run_spec_smoke.sh` as explicit keep
+- active micro task is `30xG4 post-switch docs cleanup`
+- next queued micro task is `none`
 - legacy residue policy is now explicit:
   - keep if it is still an engineering/bootstrap contract
   - rewrite if it still presents old main narrative
@@ -125,7 +126,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xG3 compare/manual helper archive pass` |
+  | Next | `30xG4 post-switch docs cleanup` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -139,8 +140,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xG3 compare/manual helper archive pass` | archive or keep remaining manual compare helpers |
-| Next | `30xG4 post-switch docs cleanup` | remove settled watch wording from root and phase docs |
+| Now | `30xG4 post-switch docs cleanup` | remove settled watch wording from root and phase docs |
+| Next | `none` | final closeout is decided after `30xG4` lands |
 | Later | `30xG` | legacy archive/delete sweep |
 
 ## Backend Surface Waves
@@ -180,7 +181,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xF2` | landed | phase-30x keeps raw backend token/default stable |
 | `30xG1` | landed | low-blast manual smoke residues archived |
 | `30xG2` | landed | stale help snapshot archived behind a thin stub |
-| `30xG3-30xG4` | active | legacy residue archive/delete sweep |
+| `30xG3` | landed | compare/manual helper archived or reduced to explicit keep |
+| `30xG4` | active | legacy residue archive/delete sweep |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.

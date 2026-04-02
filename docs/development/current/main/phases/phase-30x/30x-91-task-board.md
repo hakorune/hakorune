@@ -50,8 +50,8 @@ Related:
 | 19 | `30xF2` | landed | docs-only demotion is enough; raw token/default change stays later |
 | 20 | `30xG1` | landed | low-blast manual smoke residues archived or reclassified |
 | 21 | `30xG2` | landed | stale help snapshot replacement/archive |
-| 22 | `30xG3` | active | compare/manual helper archive pass |
-| 23 | `30xG4` | queued | post-switch docs cleanup |
+| 22 | `30xG3` | landed | compare/manual helper archive pass |
+| 23 | `30xG4` | active | post-switch docs cleanup |
 
 ## Evidence Commands
 
@@ -97,7 +97,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `wasm` remains experimental
 - follow-up rule:
   - any raw change to `src/cli/args.rs` or `src/runner/dispatch.rs` is a later gate, not part of this phase
-- active next is `30xG3`
+- active next is `30xG4`
 
 ## 30xG1 Result
 
@@ -110,7 +110,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
 - explicit keep:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - active next:
-  - `30xG3`
+  - `30xG4`
 
 ## 30xG2 Result
 
@@ -120,7 +120,16 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `docs/tools/cli-options.md`
   - `src/cli/args.rs`
 - active next:
-  - `30xG3`
+  - `30xG4`
+
+## 30xG3 Result
+
+- `tools/smoke_aot_vs_vm.sh` moved to `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
+- root README and README.ja no longer present the old parity helper as a front-door example
+- explicit keep after `30xG3`:
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+- active next:
+  - `30xG4`
 
 ## Role Touchpoints
 
@@ -172,7 +181,6 @@ Plugin/macro/tooling archive/delete result:
   - `tools/selfhost_vm_smoke.sh`
   - `tools/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-  - `tools/smoke_aot_vs_vm.sh`
 - watch:
   - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
@@ -183,6 +191,8 @@ Smoke/test archive/delete result:
 - archived in `30xG1`:
   - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+- archived in `30xG3`:
+  - `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
 - explicit keep:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 
@@ -195,18 +205,16 @@ Smoke/test archive/delete result:
   - `tools/selfhost_vm_smoke.sh`
   - `tools/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-- keep until `30xE/G` clarifies wording:
-  - `tools/smoke_aot_vs_vm.sh`
 - archive-later queue:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
-  - `tools/smoke_aot_vs_vm.sh`
 
 Plugin/smoke orchestrator freeze result:
 
 - `30xD3` is landed as docs-first only
 - no-touch-first orchestrators stay live engineering keeps
 - low-blast manual residues moved to `tools/archive/manual-smokes/` in `30xG1`
-- remaining residue review is `run_spec_smoke.sh` keep plus `smoke_aot_vs_vm.sh`/`nyash-help.md` follow-up
+- `30xG3` archived `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
+- remaining residue review is `run_spec_smoke.sh` keep plus post-switch docs cleanup
 
 ### Docs / help keep vs rewrite vs watch
 
@@ -337,12 +345,13 @@ Bootstrap/selfhost archive/delete result:
   - `tools/archive/manual-smokes/async_smokes.sh`
   - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+  - `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
 - explicit keep:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - explicit recheck before archive/delete:
-  - `tools/smoke_aot_vs_vm.sh`
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - current archive blockers to clear in `30xE`:
-  - `README.md` / `README.ja.md` still point at `tools/selfhost_vm_smoke.sh` and `tools/smoke_aot_vs_vm.sh`
+  - `README.md` / `README.ja.md` still point at `tools/selfhost_vm_smoke.sh`
   - `docs/development/selfhosting/quickstart.md` still points at `tools/selfhost_smoke.sh`
   - `docs/guides/selfhost-pilot.md` still points at `tools/bootstrap_selfhost_smoke.sh`
   - `docs/guides/exceptions-stage3.md` still points at `tools/selfhost_stage3_accept_smoke.sh`
@@ -353,8 +362,7 @@ Bootstrap/selfhost archive/delete result:
 
 ## Current Exact Next
 
-1. `30xG3` compare/manual helper archive pass
-2. `30xG4` post-switch docs cleanup
+1. `30xG4` post-switch docs cleanup
 
 ## Exit Condition For Phase Entry
 

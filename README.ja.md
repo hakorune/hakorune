@@ -217,11 +217,6 @@ cc nyash_llvm_temp.o -L crates/nyrt/target/release -Wl,--whole-archive -lnyrt -W
 ./myapp
 ```
 
-簡易比較スモーク（engineering parity, VM と EXE の出力一致確認）:
-```bash
-tools/smoke_aot_vs_vm.sh examples/aot_min_string_len.hako
-```
-
 ### LLVM バックエンドの補足
 - 本線は ny‑llvmc（クレート backend）で、product main です。内部で Python llvmlite ハーネスを呼び出してオブジェクトを生成します。利用者は ny‑llvmc（または `tools/ny_mir_builder.sh`）を使えば十分です。Python3 は内部ハーネスのために必要です。`LLVM_SYS_180_PREFIX` は不要です。
 - `NYASH_LLVM_OBJ_OUT`: `--backend llvm` 実行時に `.o` を出力するパス。
