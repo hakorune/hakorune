@@ -28,8 +28,9 @@ Related:
 ## Current
 
 - lane: `phase-30x backend surface simplification`
-- active micro task: `30xE1 README/README.ja prep`
-- next micro task: `30xE2 CLI/help wording prep`
+- `30xE1` landed: `README.md` / `README.ja.md` now read `llvm/exe` first, `rust-vm` engineering keep, `vm-hako` reference, `wasm` experimental
+- active micro task: `30xE2 CLI/help wording prep`
+- next micro task: `30xE3 stage1/runtime guide prep`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

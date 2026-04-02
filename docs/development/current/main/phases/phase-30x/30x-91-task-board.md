@@ -42,10 +42,11 @@ Related:
 | 11 | `30xD1` | landed | default/dispatch do-not-flip-early lock |
 | 12 | `30xD2` | landed | selfhost/bootstrap freeze |
 | 13 | `30xD3` | landed | plugin/orchestrator freeze |
-| 14 | `30xE1` | active | README/README.ja prep |
-| 15 | `30xE2-30xE4` | queued | remaining user-facing main switch prep |
-| 16 | `30xF1-30xF2` | queued | backend default decision last |
-| 17 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
+| 14 | `30xE1` | landed | README/README.ja prep |
+| 15 | `30xE2` | active | CLI/help wording prep |
+| 16 | `30xE3-30xE4` | queued | remaining user-facing main switch prep |
+| 17 | `30xF1-30xF2` | queued | backend default decision last |
+| 18 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 
 ## Evidence Commands
 

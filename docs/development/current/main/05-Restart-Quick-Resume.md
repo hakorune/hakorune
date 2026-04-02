@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-30x backend surface simplification`
-- active micro task: `30xE1 README/README.ja prep`
-- next micro task: `30xE2 CLI/help wording prep`
+- active micro task: `30xE2 CLI/help wording prep`
+- next micro task: `30xE3 stage1/runtime guide prep`
 - raw backend default flip is still deferred to `30xF`
 
 ## Read Next

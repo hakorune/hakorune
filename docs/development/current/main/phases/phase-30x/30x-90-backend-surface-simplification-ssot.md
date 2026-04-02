@@ -92,8 +92,8 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `30xE1` | active | README/README.ja prep | product main reads `llvm/exe` first while `rust-vm` stays engineering keep |
-| `30xE2` | queued | CLI/help wording prep | `docs/tools/*` stop reading `vm` as the main narrative |
+| `30xE1` | landed | README/README.ja prep | root front docs read `llvm/exe` first while `rust-vm` stays engineering keep |
+| `30xE2` | active | CLI/help wording prep | `docs/tools/*` stop reading `vm` as the main narrative |
 | `30xE3` | queued | stage1/runtime guide prep | runtime/stage1 guides stop implying `rust-vm` is the product main |
 | `30xE4` | queued | vm-hako/wasm wording prep | `vm-hako` stays reference and `wasm` stays experimental in user-facing docs |
 

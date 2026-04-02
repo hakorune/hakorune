@@ -53,8 +53,9 @@ Related:
      - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
      - `30xD3` landed as docs-first orchestrator freeze
      - root mirrors already read `phase-30x` as current; remaining drift sits in front docs/help and manual residue scripts
-     - current active micro task is `30xE1 README/README.ja prep`
-     - next queued micro task is `30xE2 CLI/help wording prep`
+     - `30xE1` landed and rewrote `README.md` / `README.ja.md` toward `llvm/exe` first
+     - current active micro task is `30xE2 CLI/help wording prep`
+     - next queued micro task is `30xE3 stage1/runtime guide prep`
      - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
@@ -68,14 +69,14 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xE1 README/README.ja prep` |
+     | Next | `30xE2 CLI/help wording prep` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xE1 README/README.ja prep` |
-     | Next | `30xE2 CLI/help wording prep` |
-     | Later | `30xE2-30xG` |
+     | Now | `30xE2 CLI/help wording prep` |
+     | Next | `30xE3 stage1/runtime guide prep` |
+     | Later | `30xE3-30xG` |
    - cleanup waves:
 
      | Wave | Status | Read as |

@@ -2,7 +2,7 @@
 > Note: the project binary and user‑visible brand have been renamed to “Hakorune”.
 > The legacy `nyash` binary is deprecated (use `hakorune`). Config prefers `hako.toml` (fallback: `nyash.toml`). In scripts and docs, prefer `$NYASH_BIN` which points to `target/release/hakorune` when available.
 **A Seriously-Crafted Hobby Language**  
-**From Zero to Native Binary in 20 Days - The AI-Powered Language Revolution**
+**Product main: LLVM/EXE. Engineering keep: Rust VM.**
 
 Quick — Emit MIR (Hako‑first helper)
 - Generate MIR(JSON) from a Hako file using the Stage‑B parser + MirBuilder (wrapper falls back to the Rust CLI builder on failure to keep runs green):
@@ -33,7 +33,7 @@ See also: docs/guides/perf/benchmarks.md
 [![Core Smoke](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml/badge.svg)](https://github.com/moe-charm/nyash/actions/workflows/smoke.yml)
 [![Everything is Box](https://img.shields.io/badge/Philosophy-Everything%20is%20Box-blue.svg)](#philosophy)
 [![Performance](https://img.shields.io/badge/Performance-13.5x%20Faster-ff6b6b.svg)](#performance)
-[![JIT Ready](https://img.shields.io/badge/JIT-Cranelift%20Powered%20(runtime%20disabled)-orange.svg)](#execution-modes)
+[![Backend Roles](https://img.shields.io/badge/Backend-LLVM%20product%20main-orange.svg)](#execution-modes)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](#license)
 
 ---
@@ -68,13 +68,17 @@ Call system (unified by default)
 - Extern arity normalization: names with arity suffix (e.g., `env.get/1`) are accepted and normalized to their base form (`env.get`).
   See environment knobs and policies in `docs/ENV_VARS.md`.
 
-Execution Status (Feature Additions Pause)
-- Active
-  - `--backend llvm` (ny-llvmc crate backend; product main for AOT object/EXE)
-  - `--backend vm` (engineering/bootstrap lane; keep for selfhost, recovery, and tooling)
-- Inactive/Sealed
-  - `--backend cranelift`, `--jit-direct` (sealed; use LLVM harness)
-  - AST interpreter (legacy) is gated by feature `interpreter-legacy` and excluded from default builds (LLVM is product main; Rust VM is engineering/bootstrap)
+Current Backend Roles
+- Product
+  - `--backend llvm` (ny-llvmc crate backend; native object/EXE ownership)
+- Engineering / bootstrap
+  - `--backend vm` (selfhost, recovery, plugin, macro, and tooling keep)
+- Reference / conformance
+  - `--backend vm-hako`
+- Experimental / monitor-only
+  - `wasm` / browser lane
+- Historical / sealed
+  - `--backend cranelift`, `--jit-direct`, and the AST interpreter legacy path
 
 Quick pointers
 - Emit object/EXE with crate backend:
@@ -172,6 +176,7 @@ Specs & Constraints
 
 ## Table of Contents
 - [Self-Hosting (Engineering Bootstrap)](#self-hosting)
+- [Historical Milestones (Nyash Era)](#-historical-milestones-nyash-era)
 - [🌟 Property System Revolution](#-property-system-revolution-september-18-2025)
 - [Language Features](#-language-features)
 - [Plugin System](#-revolutionary-plugin-system-typebox-architecture)
@@ -188,16 +193,18 @@ MIR note: Core‑13 minimal kernel is enforced by default (NYASH_MIR_CORE13=1). 
 
 Pure mode: set `NYASH_MIR_CORE13_PURE=1` to enable strict Core‑13. The optimizer rewrites a few ops (Load/Store/NewBox/Unary) to Core‑13 forms, and the compiler rejects any remaining non‑Core‑13 ops. This may break execution temporarily by design to surface MIR violations early.
 
-Note: JIT runtime execution is currently disabled to reduce debugging overhead. Use Interpreter/VM for running and AOT (Cranelift/LLVM) for distribution.
+Note: JIT runtime execution is currently disabled. Treat this section as engineering/bootstrap guidance; product-facing native output lives on the LLVM AOT line below.
 
-## 🚀 **Breaking News: Self-Hosting Revolution!**
+## 🚀 **Historical Milestones (Nyash Era)**
+
+These milestones explain how the project got here. They are not the current backend priority order.
 
 **September 2, 2025** - 🔥 **ABI as a Box!** Nyash ABI itself implemented as TypeBox (C language) - path to self-hosting clear!
 **September 1, 2025** - Revolutionary TypeBox ABI unification achieved! C ABI + Nyash ABI seamlessly integrated.
 **August 29, 2025** - Just 20 days after inception, Nyash can now compile to native executables!
 
 ```bash
-# From Nyash source to native binary (Cranelift required)
+# Historical Cranelift-native route (non-primary today)
 cargo build --release --features cranelift-jit
 ./tools/build_aot.sh program.hako -o app         # Native EXE
 ./app                                             # Standalone execution!
@@ -216,7 +223,7 @@ cargo build --release --features cranelift-jit
 
 ---
 
-## ✨ **Why Nyash?**
+## ✨ **Why Hakorune?**
 
 ### 🎯 **Everything is Box Philosophy**
 ```nyash
@@ -260,51 +267,26 @@ local py = new PyRuntimeBox()       // Python plugin
 
 ## 🏗️ **Multiple Execution Modes**
 
-Important: JIT runtime execution is sealed for now. Use Rust VM for running, and Cranelift AOT/LLVM AOT for native executables.
+Important current reading:
+- Product main: LLVM AOT (`--backend llvm`, `ny-llvmc`)
+- Engineering/bootstrap keep: Rust VM (`--backend vm`)
+- Reference/conformance: `vm-hako`
+- Experimental / monitor-only: WASM
 
-Phase‑15 (Self‑Hosting): Legacy VM/Interpreter are feature‑gated
-- Default build runs Rust VM for `--backend vm` as the engineering/bootstrap lane
-- PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`
+Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical
+- Raw CLI default is still `--backend vm`; do not read that as product ownership.
+- `--backend vm` is the Rust VM engineering/bootstrap lane.
+- `--backend llvm` is the product native object/EXE lane.
+- `--backend vm-hako` is the reference/conformance lane.
+- PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`.
 - To enable legacy Rust VM/Interpreter, build with:
   ```bash
   cargo build --release --features vm-legacy,interpreter-legacy
   ```
   Then `--backend vm`/`--backend interpreter` use the legacy paths.
- - Note: `--benchmark` requires the legacy VM. Build with `--features vm-legacy` before running benchmarks.
+- `--benchmark` requires the legacy VM. Build with `--features vm-legacy` before running benchmarks.
 
-### 1. **Interpreter Mode** (Development)
-```bash
-$NYASH_BIN program.hako
-```
-- Instant execution
-- Full debug information
-- Perfect for development
-
-### 2. **VM Mode (engineering/bootstrap lane)**
-```bash
-# Engineering/bootstrap default: Rust VM
-$NYASH_BIN --backend vm program.hako
-
-# Historical PyVM parity route
-bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
-```
-- Default: Rust VM executes MIR directly for engineering/bootstrap
-- Legacy PyVM: executes MIR(JSON) via `tools/historical/pyvm/pyvm_runner.py`
-- Legacy VM: 13.5x over interpreter (historical); kept for comparison and plugin tests
-
-### 3. **Native Binary (Cranelift AOT)** (Distribution / non-primary native path)
-```bash
-# Build once (Cranelift)
-cargo build --release --features cranelift-jit
-
-./tools/build_aot.sh program.hako -o myapp
-./myapp  # Standalone executable!
-```
-- Zero dependencies
-- Maximum performance
-- Easy distribution
-
-### 4. **Native Binary (LLVM AOT, ny-llvmc crate backend, product main)**
+### 1. **Native Binary (LLVM AOT, ny-llvmc crate backend, product main)**
 ```bash
 # Build harness + CLI (no LLVM_SYS_180_PREFIX needed)
 cargo build --release -p nyash-llvm-compiler && cargo build --release --features llvm
@@ -336,8 +318,48 @@ tools/smoke_aot_vs_vm.sh examples/aot_min_string_len.hako
 - Previously available `NYASH_LLVM_ALLOW_BY_NAME=1`: Removed - all plugin calls now use method_id by default.
   - The LLVM backend only supports method_id-based plugin calls for better performance and type safety.
 
+### 2. **VM Mode (engineering/bootstrap lane)**
+```bash
+# Engineering/bootstrap default: Rust VM
+$NYASH_BIN --backend vm program.hako
 
-### 5. **WebAssembly (Browser)** — Status: Experimental / monitor-only
+# Historical PyVM parity route
+bash tools/historical/pyvm/pyvm_vs_llvmlite.sh program.hako
+```
+- Default: Rust VM executes MIR directly for engineering/bootstrap
+- Legacy PyVM: executes MIR(JSON) via `tools/historical/pyvm/pyvm_runner.py`
+- Legacy VM: 13.5x over interpreter (historical); kept for comparison and plugin tests
+
+### 3. **vm-hako (reference / conformance lane)**
+```bash
+$NYASH_BIN --backend vm-hako program.hako
+tools/smokes/v2/run.sh --profile integration --suite vm-hako-caps --skip-preflight
+```
+- Semantic witness and conformance lane
+- Kept for reference/debug capability checks
+- Not a product mainline or default product runtime
+
+### 4. **Native Binary (Cranelift AOT)** (historical non-primary native path)
+```bash
+# Build once (Cranelift)
+cargo build --release --features cranelift-jit
+
+./tools/build_aot.sh program.hako -o myapp
+./myapp  # Standalone executable!
+```
+- Zero dependencies
+- Maximum performance
+- Easy distribution
+
+### 5. **Legacy Interpreter** (feature-gated / non-default)
+```bash
+cargo build --release --features interpreter-legacy
+$NYASH_BIN --backend interpreter program.hako
+```
+- Legacy debug/development route
+- Excluded from default builds
+
+### 6. **WebAssembly (Browser)** — Status: Experimental / monitor-only
 The WASM/browser path is experimental and not part of the product mainline or default CI. The older playground and guides are kept for historical reference only.
 
 - Source (archived): `projects/nyash-wasm/` (build not guaranteed)
