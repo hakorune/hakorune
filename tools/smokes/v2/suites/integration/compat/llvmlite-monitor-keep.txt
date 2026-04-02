@@ -1,5 +1,6 @@
 # Integration phase2044 llvmlite monitor-only keep suite
 # Proof-only provider stop-line llvmlite canaries that stay monitor-only keep.
+# Compat/probe keep only; not llvm/exe product-mainline evidence.
 compat/llvmlite-monitor-keep/codegen_provider_llvmlite_canary_vm.sh
 compat/llvmlite-monitor-keep/codegen_provider_llvmlite_compare_branch_canary_vm.sh
 compat/llvmlite-monitor-keep/codegen_provider_llvmlite_const42_canary_vm.sh

@@ -31,8 +31,8 @@ Related:
 | 1 | `30xA1` | landed | root mirrors use `product / engineering / reference / experimental` |
 | 2 | `30xA2` | landed | design role SSOT alignment |
 | 3 | `30xB1` | landed | `vm-hako` reference smoke lock |
-| 4 | `30xB2` | active | `wasm` experimental smoke lock |
-| 5 | `30xB3` | queued | `llvm/exe` product vs `llvmlite` probe boundary lock |
+| 4 | `30xB2` | landed | `wasm` experimental smoke lock |
+| 5 | `30xB3` | active | `llvm/exe` product vs `llvmlite` probe boundary lock |
 | 6 | `30xB4` | queued | smoke matrix/guide cleanup |
 | 7 | `30xC1-30xC4` | queued | `rust-vm` pressure by category |
 | 8 | `30xD1-30xD3` | queued | do-not-flip-early lock |
@@ -82,6 +82,12 @@ rg -n 'rust-vm|vm-hako|llvm-exe|ny-llvm|ny-llvmc|compile-wasm|wasm-backend' \
 - `tools/smokes/v2/profiles/integration/phase29cc_wsm/README.md`
 - `tools/smokes/v2/lib/wasm_g3_contract.sh`
 - `tools/smokes/v2/configs/matrix.conf`
+
+### Compat / probe keep
+
+- `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/README.md`
+- `tools/smokes/v2/suites/integration/compat/llvmlite-monitor-keep.txt`
+- `docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md`
 
 ## Do-Not-Flip-Early Set
 

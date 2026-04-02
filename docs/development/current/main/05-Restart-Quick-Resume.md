@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xB2 wasm experimental smoke lock`
+- Exact focus: `30xB3 llvm/exe vs llvmlite boundary lock`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep (landed)` -> `phase-30x backend surface simplification`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,9 +60,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 | Band | State |
 | --- | --- |
-| Now | `30xB2 wasm experimental smoke lock` |
-| Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
-| Later | `30xB4-30xF` |
+| Now | `30xB3 llvm/exe vs llvmlite boundary lock` |
+| Next | `30xB4 smoke matrix/guide cleanup` |
+| Later | `30xC-30xF` |
 
 - `phase-29x` W4/W5/W6 is landed and helper deletion is closed.
 - current backend reading is now role-first:
@@ -71,10 +71,11 @@ bash tools/selfhost/run_lane_a_daily.sh
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
 - `rust-vm` remains deep in bootstrap/selfhost/plugin/macro/smoke lanes, so forced removal is out-of-scope in the first slice.
-- `30xA1`, `30xA2`, and `30xB1` are landed.
-- active micro task is `30xB2 wasm experimental smoke lock`.
-- next queued micro task is `30xB3 llvm/exe vs llvmlite boundary lock`.
+- `30xA1`, `30xA2`, `30xB1`, and `30xB2` are landed.
+- active micro task is `30xB3 llvm/exe vs llvmlite boundary lock`.
+- next queued micro task is `30xB4 smoke matrix/guide cleanup`.
 - `phase29cc_wsm` families are experimental smoke lanes, not co-main evidence.
+- `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence.
 - detailed backend-surface order stays in `phase-30x`, not in this restart mirror.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`

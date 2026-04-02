@@ -66,8 +66,8 @@ Related:
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `30xB1` | landed | reference smoke lock | `vm-hako` suites/readmes read as `reference`, not active mainline |
-| `30xB2` | active | experimental smoke lock | `wasm` suites/readmes read as `experimental`, not co-main |
-| `30xB3` | queued | product/probe boundary lock | `llvm/exe` product lane and `llvmlite` compat/probe keep are not mixed |
+| `30xB2` | landed | experimental smoke lock | `wasm` suites/readmes read as `experimental`, not co-main |
+| `30xB3` | active | product/probe boundary lock | `llvm/exe` product lane and `llvmlite` compat/probe keep are not mixed |
 | `30xB4` | queued | matrix/guide cleanup | smoke discovery docs and matrix config use the same role-first reading |
 
 ### `30xC` rust-vm dependency inventory

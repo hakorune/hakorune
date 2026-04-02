@@ -39,6 +39,7 @@ Operational rules:
 - current `vm-hako` LLVM/exe bridge proofs are manual monitor evidence only, not mainline acceptance.
 - `rust-vm` may remain as bootstrap/recovery residue without affecting product-main reading.
 - `wasm` remains experimental until an independent test matrix and promotion gate exist.
+- `llvmlite` keep/probe suites are compat evidence only; they do not promote `llvm/exe` or act as product-mainline acceptance.
 
 ## 2. Owner Proof Boundary
 

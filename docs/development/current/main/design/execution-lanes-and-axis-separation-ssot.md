@@ -92,6 +92,8 @@ Important:
 5. `distribution truth starts at stage2-mainline`
    - stage1 snapshot/stable artifacts are not final package/distribution truth.
    - `stage2+` remains the umbrella / end-state reading, not the daily lane name.
+6. `llvmlite keep/probe green != llvm/exe product acceptance`
+   - compat/probe keep buckets remain observer evidence only and do not become the product smoke home.
 
 ## 3. Child Ownership Map
 

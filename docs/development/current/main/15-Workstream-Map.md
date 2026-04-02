@@ -45,10 +45,11 @@ Related:
        - `wasm` = `experimental`
      - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
      - dangerous early flips remain around launcher/default/orchestrator sites
-     - `30xA1`, `30xA2`, and `30xB1` are landed
-     - current active micro task is `30xB2 wasm experimental smoke lock`
-     - next queued micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
+     - `30xA1`, `30xA2`, `30xB1`, and `30xB2` are landed
+     - current active micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
+     - next queued micro task is `30xB4 smoke matrix/guide cleanup`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
+     - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
      - review intake detail stays in `phase-30x`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-30x backend surface simplification table:
@@ -57,14 +58,14 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xB2 wasm experimental smoke lock` |
+     | Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xB2 wasm experimental smoke lock` |
-     | Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
-     | Later | `30xB4-30xF` |
+     | Now | `30xB3 llvm/exe vs llvmlite boundary lock` |
+     | Next | `30xB4 smoke matrix/guide cleanup` |
+     | Later | `30xC-30xF` |
    - cleanup waves:
 
      | Wave | Status | Read as |

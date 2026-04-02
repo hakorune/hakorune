@@ -32,6 +32,8 @@ role-first の読み:
 - reference/conformance (small pack): `tools/smokes/v2/run.sh --profile integration --suite vm-hako-core`
 - experimental: `tools/checks/dev_gate.sh wasm-freeze-core`
 - experimental families under `tools/smokes/v2/profiles/integration/phase29cc_wsm/` are wasm-only validation lanes, not co-main evidence
+- compat/probe keep: `tools/smokes/v2/run.sh --profile integration --suite compat/llvmlite-monitor-keep`
+- `compat/llvmlite-monitor-keep` is not `llvm/exe` product-mainline evidence
 
 手動スモーク（例）
 - Core (LLVM): `examples/llvm11_core_smoke.hako`

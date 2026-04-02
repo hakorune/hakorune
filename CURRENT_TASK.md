@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xB2 wasm experimental smoke lock`
+- Exact focus: `30xB3 llvm/exe vs llvmlite boundary lock`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -85,11 +85,11 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `rust-vm` is still deep in bootstrap/selfhost/plugin/macro/smoke paths; do not force-remove it before inventory and smoke split
   - current docs mostly use the label `rust-vm`, not `vm-rust`
   - dangerous early flips are launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, `tools/selfhost/run.sh`, and `tools/plugin_v2_smoke.sh`
-  - `30xA1` and `30xA2` are landed
-  - `30xB1` is landed
-  - active micro task is `30xB2 wasm experimental smoke lock`
-  - next queued micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
+  - `30xA1`, `30xA2`, `30xB1`, and `30xB2` are landed
+  - active micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
+  - next queued micro task is `30xB4 smoke matrix/guide cleanup`
   - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
+  - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-30x/README.md`
@@ -104,7 +104,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xB2 wasm experimental smoke lock` |
+  | Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -118,9 +118,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xB2 wasm experimental smoke lock` | pin `wasm` suites/readmes as experimental only |
-| Next | `30xB3 llvm/exe vs llvmlite boundary lock` | keep product mainline and compat/probe keep distinct |
-| Later | `30xB4-30xF` | matrix cleanup, inventory, dangerous flip lock, main switch, backend default gate |
+| Now | `30xB3 llvm/exe vs llvmlite boundary lock` | keep product mainline and compat/probe keep distinct |
+| Next | `30xB4 smoke matrix/guide cleanup` | align role-first wording across smoke discovery docs |
+| Later | `30xC-30xF` | inventory, dangerous flip lock, main switch, backend default gate |
 
 ## Backend Surface Waves
 
@@ -140,8 +140,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xA1` | landed | root mirrors use the same role-first labels |
 | `30xA2` | landed | design role SSOTs use the same role-first labels |
 | `30xB1` | landed | `vm-hako` reference smoke lock |
-| `30xB2` | active | `wasm` experimental smoke lock |
-| `30xB3-30xB4` | queued | product-vs-probe and matrix/guide smoke taxonomy follow-ups |
+| `30xB2` | landed | `wasm` experimental smoke lock |
+| `30xB3` | active | `llvm/exe` product vs `llvmlite` probe boundary lock |
+| `30xB4` | queued | matrix/guide smoke taxonomy cleanup |
 | `30xC1-30xC4` | queued | internal `--backend vm` pressure is grouped by category |
 | `30xD1-30xD3` | queued | dangerous early flips are frozen explicitly |
 | `30xE1-30xE4` | queued | user-facing main switch is prepared without a raw default flip |

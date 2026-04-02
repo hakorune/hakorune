@@ -91,6 +91,12 @@ Experimental-lane note:
 - They are not product-mainline packs and should not be used as evidence that
   `wasm` became a co-main runtime.
 
+Compat/probe-lane note:
+
+- `integration/compat/llvmlite-monitor-keep` is a compat/probe keep suite family.
+- It is not product-mainline evidence for `llvm/exe`, and it should not be
+  read as the product smoke home for LLVM.
+
 ## Discovery fallback contract
 
 - `tools/smokes/v2/run.sh` auto-discovers `*.sh` under `profiles/$PROFILE`.

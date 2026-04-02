@@ -4,6 +4,11 @@ This bucket is the semantic home for the llvmlite keep trio.
 
 It lives under `integration/compat` because it is keep-only proof coverage, not owner code.
 
+- Read this bucket as `compat/probe keep`.
+- Do not read it as `llvm/exe` product-mainline evidence.
+- Green here means the explicit llvmlite keep surface still works; it does not
+  mean the product lane runs through llvmlite.
+
 ## Bucket
 
 1. llvmlite monitor-only keep
