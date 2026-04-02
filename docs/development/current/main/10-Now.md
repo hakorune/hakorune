@@ -45,7 +45,7 @@ Related:
 - current active step is `phase-30x backend surface simplification`.
 - current backend reading is role-first:
   - `llvm/exe` = `product`
-  - `rust-vm` = `engineering/bootstrap`
+  - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
 - `rust-vm` still has deep pressure in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help.
@@ -56,8 +56,13 @@ Related:
 - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`.
 - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces.
 - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces.
+- root mirrors are already phase-30x-first; remaining drift sits in front docs/help and manual residue scripts.
 - current active micro task is `30xD3 plugin/smoke orchestrator freeze`.
 - next queued micro task is `30xE1 README/README.ja prep`.
+- legacy residue reads as:
+  - explicit engineering keep
+  - rewrite in `30xE`
+  - archive/delete in `30xG`
 - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence.
 - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence.
 - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only.
@@ -80,7 +85,7 @@ Related:
 | --- | --- | --- |
 | Now | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
 | Next | `30xE1 README/README.ja prep` | start user-facing main switch wording |
-| Later | `30xE2-30xF` | help/guides rewrite and backend default gate |
+| Later | `30xE2-30xG` | help/guides rewrite, backend default gate, and legacy archive/delete sweep |
 
 ## Backend Surface Waves
 
@@ -88,10 +93,11 @@ Related:
 | --- | --- | --- |
 | `30xA role taxonomy lock` | landed | current lane, labels, and mirrors |
 | `30xB smoke taxonomy split` | landed | role-first gate/smoke reading |
-| `30xC rust-vm dependency inventory` | active | internal `--backend vm` pressure map |
-| `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator freeze |
+| `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure map |
+| `30xD dangerous-early-flip lock` | active | launcher/default/orchestrator freeze |
 | `30xE user-facing main switch prep` | queued | `llvm/exe` first docs/help/examples |
 | `30xF backend default decision gate` | queued | raw CLI default/backend flip decision last |
+| `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces |
 
 ## Exact Links
 

@@ -79,7 +79,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
-    - `rust-vm` = `engineering/bootstrap`
+    - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
     - `vm-hako` = `reference/conformance`
     - `wasm` = `experimental`
   - `rust-vm` is still deep in bootstrap/selfhost/plugin/macro/smoke paths; do not force-remove it before inventory and smoke split
@@ -88,12 +88,17 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, `30xC2`, `30xC3`, `30xC4`, and `30xD1` are landed
   - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` and `manual residue watch`
   - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`
-  - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
-  - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
-  - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
-  - active micro task is `30xD3 plugin/smoke orchestrator freeze`
-  - next queued micro task is `30xE1 README/README.ja prep`
-  - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
+- `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
+- `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
+- `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
+- root mirrors are already phase-30x-first; remaining drift is mostly front docs/help and manual residue scripts
+- active micro task is `30xD3 plugin/smoke orchestrator freeze`
+- next queued micro task is `30xE1 README/README.ja prep`
+- legacy residue policy is now explicit:
+  - keep if it is still an engineering/bootstrap contract
+  - rewrite if it still presents old main narrative
+  - archive/delete later if it is a manual residue with no live owner
+- `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
   - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
   - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
   - `30xC1` fixed bootstrap/selfhost keep surfaces and found no archive/delete candidate in that bucket
@@ -127,7 +132,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- | --- |
 | Now | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
 | Next | `30xE1 README/README.ja prep` | start user-facing main switch wording |
-| Later | `30xE2-30xF` | help/guides rewrite and backend default gate |
+| Later | `30xE2-30xG` | help/guides rewrite, backend default gate, and legacy archive/delete sweep |
 
 ## Backend Surface Waves
 
@@ -135,10 +140,11 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- | --- |
 | `30xA role taxonomy lock` | landed | lock the role-first reading in root docs and phase docs |
 | `30xB smoke taxonomy split` | landed | separate product / engineering / reference / experimental smoke reading |
-| `30xC rust-vm dependency inventory` | active | map internal `--backend vm` pressure before any flip |
-| `30xD dangerous-early-flip lock` | queued | freeze launcher/default/orchestrator sites that must not move early |
+| `30xC rust-vm dependency inventory` | landed | map internal `--backend vm` pressure before any flip |
+| `30xD dangerous-early-flip lock` | active | freeze launcher/default/orchestrator sites that must not move early |
 | `30xE user-facing main switch prep` | queued | move README/help/examples toward `llvm/exe` first without flipping defaults |
 | `30xF backend default decision gate` | queued | decide the raw CLI default only after the previous slices land |
+| `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces after main switch |
 
 ## Phase-30x Micro Tasks
 

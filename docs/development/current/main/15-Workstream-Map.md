@@ -40,7 +40,7 @@ Related:
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
      - current backend surface is role-first:
        - `llvm/exe` = `product`
-       - `rust-vm` = `engineering/bootstrap`
+       - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
        - `vm-hako` = `reference/conformance`
        - `wasm` = `experimental`
      - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
@@ -51,8 +51,10 @@ Related:
      - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
      - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
      - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
+     - root mirrors already read `phase-30x` as current; remaining drift sits in front docs/help and manual residue scripts
      - current active micro task is `30xD3 plugin/smoke orchestrator freeze`
      - next queued micro task is `30xE1 README/README.ja prep`
+     - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
      - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only
@@ -72,17 +74,18 @@ Related:
      | --- | --- |
      | Now | `30xD3 plugin/smoke orchestrator freeze` |
      | Next | `30xE1 README/README.ja prep` |
-     | Later | `30xE2-30xF` |
+     | Later | `30xE2-30xG` |
    - cleanup waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
      | `30xA role taxonomy lock` | landed | root docs and phase docs use the same backend roles |
      | `30xB smoke taxonomy split` | landed | role-first smoke/gate reading |
-     | `30xC rust-vm dependency inventory` | active | internal `--backend vm` pressure map |
-     | `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator freeze |
+     | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure map |
+     | `30xD dangerous-early-flip lock` | active | launcher/default/orchestrator freeze |
      | `30xE user-facing main switch prep` | queued | `llvm/exe` first docs/help/examples |
      | `30xF backend default decision gate` | queued | decide raw CLI default last |
+     | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -112,9 +115,9 @@ Related:
   - `stage2plus` entry / first optimization wave (accepted)
   - `phase-30x` backend surface simplification
 - Active backend surface tasks:
-  - `30xA role taxonomy lock`
-  - `30xB smoke taxonomy split`
-  - `30xC rust-vm dependency inventory`
+  - `30xD dangerous-early-flip lock`
+  - `30xE user-facing main switch prep`
+  - `30xG legacy disposition sweep`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

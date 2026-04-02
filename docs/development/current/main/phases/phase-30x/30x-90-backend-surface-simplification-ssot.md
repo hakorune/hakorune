@@ -20,7 +20,7 @@ Related:
 
 - backend を `product / engineering / reference / experimental` の 4 役に固定する。
 - `llvm/exe` を user-facing main に寄せる。
-- `rust-vm` は bootstrap/recovery/compat lane として explicit keep にする。
+- `rust-vm` は engineering(stage0/bootstrap + tooling keep) lane として explicit keep にする。
 - `vm-hako` は reference/conformance lane として残し、mainline と混ぜない。
 - `wasm` は experimental target として扱い、promotion 判定を分離する。
 
@@ -29,7 +29,7 @@ Related:
 | Surface | Role | Fixed reading |
 | --- | --- | --- |
 | `llvm/exe` / `ny-llvm` / `ny-llvmc` | `product` | daily mainline / CI / distribution target |
-| `rust-vm` (`--backend vm`) | `engineering` | bootstrap / recovery / compat lane |
+| `rust-vm` (`--backend vm`) | `engineering` | stage0/bootstrap / recovery / compat / tooling keep |
 | `vm-hako` | `reference` | semantic witness / conformance / debug |
 | `wasm` / `--compile-wasm` | `experimental` | feature-gated compile target |
 
@@ -46,11 +46,12 @@ Related:
 | Wave | Status | Goal | Acceptance |
 | --- | --- | --- | --- |
 | `30xA role taxonomy lock` | landed | docs と mirrors の backend role labels を揃える | active lane と role-first reading が root docs で一致する |
-| `30xB smoke taxonomy split` | active | smoke を `product / engineering / reference / experimental` の見え方へ寄せる | role-first buckets と suites の方針が固定される |
-| `30xC rust-vm dependency inventory` | queued | internal `--backend vm` pressure を category ごとに固定する | bootstrap/selfhost/plugin/macro/smoke/doc の pressure map が揃う |
-| `30xD dangerous-early-flip lock` | queued | 先に変えると壊れる launcher/default/orchestrator を固定する | early-flip denylist が task board で explicit |
+| `30xB smoke taxonomy split` | landed | smoke を `product / engineering / reference / experimental` の見え方へ寄せる | role-first buckets と suites の方針が固定される |
+| `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure を category ごとに固定する | bootstrap/selfhost/plugin/macro/smoke/doc の pressure map が揃う |
+| `30xD dangerous-early-flip lock` | active | 先に変えると壊れる launcher/default/orchestrator を固定する | early-flip denylist が task board で explicit |
 | `30xE user-facing main switch prep` | queued | README/help/examples を `llvm/exe` first に寄せる準備をする | default を変えずに main narrative だけ切り替える差分範囲が固まる |
 | `30xF backend default decision gate` | queued | CLI default/backend flip の可否を最後に判定する | taxonomy、smoke split、dependency inventory が landed している |
+| `30xG legacy disposition sweep` | queued | manual residue / stale snapshot / old compare helpers を archive か delete に寄せる | open-ended watch が archive/delete/explicit keep のいずれかへ収束する |
 
 ## Micro Tasks
 
@@ -103,10 +104,28 @@ Related:
 | `30xF1` | queued | backend default gate checklist | raw default flip is blocked until `30xB-30xE` are landed |
 | `30xF2` | queued | backend token/default decision | decide whether docs-only demotion is enough or a raw default flip is justified |
 
+### `30xG` legacy disposition sweep
+
+| ID | Status | Task | Acceptance |
+| --- | --- | --- | --- |
+| `30xG1` | queued | manual smoke residue archive pass | manual residue scripts are either archived or reclassified as explicit engineering keeps |
+| `30xG2` | queued | stale help snapshot replacement/archive | `docs/tools/nyash-help.md` is replaced by fresh help text or archived as historical capture |
+| `30xG3` | queued | compare/manual helper archive pass | legacy compare/manual helpers such as `tools/smoke_aot_vs_vm.sh` are either kept with explicit engineering meaning or archived |
+| `30xG4` | queued | post-switch docs cleanup | root/phase docs stop carrying open-ended `watch` wording for settled residues |
+
+## Legacy Disposition Rules
+
+- `watch` は仮置きでしか使わない。
+- `watch` に入った surface は `30xE-30xG` の中で `rewrite / explicit keep / archive / delete` のどれかへ落とす。
+- `rust-vm` を使っていても engineering/bootstrap の live contract なら keep に残す。
+- product/main narrative から外れた manual residue は archive/delete を優先する。
+- delete-ready が出るまでは archive-later に置き、owner-facing docs からは外す。
+
 ## Current Focus
 
 - active macro wave: `30xD dangerous-early-flip lock`
 - next queued wave: `30xE user-facing main switch prep`
+- later disposition wave: `30xG legacy disposition sweep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
 
@@ -156,7 +175,7 @@ Bootstrap/selfhost archive/delete result (`30xC1`):
 
 - none
 - every direct `--backend vm` hit in this bucket still belongs to live bootstrap/selfhost or launcher pressure
-- archive/delete review should wait until `30xD` denylist and `30xE/F` default/main-switch decisions
+- archive/delete review should wait until `30xD` denylist plus `30xE-30xF` main-switch/default decisions
 
 ### Plugin / macro / dev tooling
 
@@ -305,9 +324,34 @@ Docs/help archive/delete result (`30xC4`):
 - stage1/testing/selfhost guides stay engineering keeps
 - stale help snapshot stays watch-only until a fresh help snapshot or rewritten help doc exists
 
+Plugin/smoke orchestrator freeze findings (`30xD3`):
+
+- explicit no-touch-first keep:
+  - `tools/bootstrap_selfhost_smoke.sh`
+  - `tools/plugin_v2_smoke.sh`
+  - `tools/selfhost_smoke.sh`
+  - `tools/selfhost_vm_smoke.sh`
+  - `tools/selfhost_stage3_accept_smoke.sh`
+  - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+- keep until `30xE/G` clarifies product-vs-engineering wording:
+  - `tools/smoke_aot_vs_vm.sh`
+- manual residue archive-later queue:
+  - `tools/ny_stage1_asi_smoke.sh`
+  - `tools/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/async_smokes.sh`
+  - `tools/cross_backend_smoke.sh`
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+  - `tools/selfhost_stage2_smoke.sh`
+
+Plugin/smoke orchestrator freeze result (`30xD3`):
+
+- no code changes
+- no-touch-first orchestrators stay live engineering keeps
+- manual residue scripts are not delete-ready; they are queued for archive/delete review in `30xG`
+
 ## Dangerous Early Flips
 
-Do not change these before `30xB-30xD` land.
+Do not change these before `30xD` freeze plus `30xF` default-gate decisions land.
 
 - `src/cli/args.rs`
 - `src/runner/dispatch.rs`
@@ -346,7 +390,7 @@ Bootstrap/selfhost freeze findings (`30xD2`):
   - this remains a bootstrap/stage1 contract surface, not a user-facing default target
 - `tools/selfhost/run.sh`
   - unified selfhost entrypoint still shells out through `--backend vm` in runtime/direct paths
-  - this remains a no-touch-first wrapper until `30xE/F` clarify the main switch and raw default gate
+  - this remains a no-touch-first wrapper until `30xE-30xF` clarify the main switch and raw default gate
 - `tools/selfhost/selfhost_build.sh`
   - selfhost build wrapper still invokes `--backend vm` for BuildBox/Stage-B steps
   - this remains a bootstrap wrapper surface, not an archive/delete target

@@ -62,12 +62,12 @@ bash tools/selfhost/run_lane_a_daily.sh
 | --- | --- |
 | Now | `30xD3 plugin/smoke orchestrator freeze` |
 | Next | `30xE1 README/README.ja prep` |
-| Later | `30xE2-30xF` |
+| Later | `30xE2-30xG` |
 
 - `phase-29x` W4/W5/W6 is landed and helper deletion is closed.
 - current backend reading is now role-first:
   - `llvm/exe` = `product`
-  - `rust-vm` = `engineering/bootstrap`
+  - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
 - `rust-vm` remains deep in bootstrap/selfhost/plugin/macro/smoke lanes, so forced removal is out-of-scope in the first slice.
@@ -77,8 +77,13 @@ bash tools/selfhost/run_lane_a_daily.sh
 - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`.
 - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces.
 - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces.
+- root mirrors already read `phase-30x` as current; remaining drift is front docs/help plus manual residue scripts.
 - active micro task is `30xD3 plugin/smoke orchestrator freeze`.
 - next queued micro task is `30xE1 README/README.ja prep`.
+- legacy residue policy:
+  - keep if it is still an engineering/bootstrap contract
+  - rewrite in `30xE` if it still carries old main narrative
+  - archive/delete in `30xG` if it is only manual residue
 - `phase29cc_wsm` families are experimental smoke lanes, not co-main evidence.
 - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence.
 - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only.

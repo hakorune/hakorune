@@ -19,10 +19,11 @@ Related:
 | --- | --- | --- | --- |
 | 1 | `30xA role taxonomy lock` | landed | role labels and active lane wording |
 | 2 | `30xB smoke taxonomy split` | landed | role-first smoke buckets and suite reading |
-| 3 | `30xC rust-vm dependency inventory` | active | internal `--backend vm` pressure by category |
-| 4 | `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator denylist |
+| 3 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure by category |
+| 4 | `30xD dangerous-early-flip lock` | active | launcher/default/orchestrator denylist |
 | 5 | `30xE user-facing main switch prep` | queued | README/help/examples move to `llvm/exe` first |
 | 6 | `30xF backend default decision gate` | queued | decide raw CLI default only after the above |
+| 7 | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces after main switch |
 
 ## Ordered Slice Detail
 
@@ -43,6 +44,7 @@ Related:
 | 13 | `30xD3` | active | plugin/orchestrator freeze |
 | 14 | `30xE1-30xE4` | queued | user-facing main switch prep |
 | 15 | `30xF1-30xF2` | queued | backend default decision last |
+| 16 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 
 ## Evidence Commands
 
@@ -53,6 +55,8 @@ tools/checks/dev_gate.sh quick
 rg -n -- '--backend vm' src lang tools Makefile
 rg -n 'rust-vm|vm-hako|llvm-exe|ny-llvm|ny-llvmc|compile-wasm|wasm-backend' \
   README.md README.ja.md docs/development/current/main docs/tools
+rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_stage3_bridge_accept|smoke_aot_vs_vm|nyash-help' \
+  tools tests docs
 ```
 
 ## Role Touchpoints
@@ -114,6 +118,31 @@ Smoke/test archive/delete result:
 - `none`
 - hard delete/archive is blocked in `30xC3`; `30xD` and `30xE` must land first
 
+### Plugin / smoke orchestrator freeze
+
+- explicit no-touch-first keep:
+  - `tools/bootstrap_selfhost_smoke.sh`
+  - `tools/plugin_v2_smoke.sh`
+  - `tools/selfhost_smoke.sh`
+  - `tools/selfhost_vm_smoke.sh`
+  - `tools/selfhost_stage3_accept_smoke.sh`
+  - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+- keep until `30xE/G` clarifies wording:
+  - `tools/smoke_aot_vs_vm.sh`
+- archive-later queue:
+  - `tools/ny_stage1_asi_smoke.sh`
+  - `tools/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/async_smokes.sh`
+  - `tools/cross_backend_smoke.sh`
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+  - `tools/selfhost_stage2_smoke.sh`
+
+Plugin/smoke orchestrator freeze result:
+
+- `30xD3` is docs-first only
+- no-touch-first orchestrators stay live engineering keeps
+- manual residue scripts are queued for archive/delete review in `30xG`
+
 ### Docs / help keep vs rewrite vs watch
 
 - rewrite in `30xE`:
@@ -132,6 +161,19 @@ Docs/help archive/delete result:
 
 - `none`
 - root README/help rewrites belong to `30xE`; stale help snapshot stays watch-only until replacement exists
+
+### Rewrite in `30xE`
+
+- `README.md`
+- `README.ja.md`
+- `docs/development/selfhosting/quickstart.md`
+- `docs/guides/selfhost-pilot.md`
+
+### Stale wording to fix or archive
+
+- `docs/tools/nyash-help.md`
+  - replace in `30xE2` if a fresh help snapshot is ready
+  - otherwise archive in `30xG2`
 
 ### Default / dispatch freeze
 
@@ -220,6 +262,21 @@ Bootstrap/selfhost archive/delete result:
 - `tools/plugin_v2_smoke.sh`
 - `tools/selfhost_smoke.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+
+## Legacy Disposition Queue
+
+- archive-later after `30xE-30xG`:
+  - `tools/ny_stage1_asi_smoke.sh`
+  - `tools/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/async_smokes.sh`
+  - `tools/cross_backend_smoke.sh`
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+  - `tools/selfhost_stage2_smoke.sh`
+- explicit recheck before archive/delete:
+  - `tools/smoke_aot_vs_vm.sh`
+  - `docs/tools/nyash-help.md`
+- delete-ready now:
+  - `none`
 
 ## Exit Condition For Phase Entry
 

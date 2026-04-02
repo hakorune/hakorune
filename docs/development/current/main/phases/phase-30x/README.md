@@ -21,15 +21,17 @@ Related:
 ## Goal
 
 - user-facing main を `llvm/exe` に寄せる。
-- `rust-vm` を無理に剥がさず、engineering/bootstrap lane として責務を固定する。
+- `rust-vm` を無理に剥がさず、engineering(stage0/bootstrap + tooling keep) lane として責務を固定する。
 - `vm-hako` を reference/conformance lane として main narrative から分離する。
 - `wasm` は experimental target のまま扱い、co-main に誤読させない。
+- legacy residue は open-ended watch にせず、`rewrite / archive / delete` の順で片付ける。
 
 ## Fixed Reading
 
 - `phase-29x backend owner cutover prep` は landed precursor として読む。
 - `phase-30x` は backend の役割と surface を整理する docs-first phase。
 - 先に taxonomy と smoke split を固定し、raw CLI default や deep launcher plumbing は後ろに回す。
+- raw default flip より先に、artifact/docs/smoke ownership を role-first に切り替える。
 
 ## Non-Goals
 
@@ -59,3 +61,4 @@ Related:
 - `rust-vm` internal pressure map is explicit before any default/backend flip
 - smoke taxonomy is split by role before any broad launcher change
 - `llvm/exe` becomes the docs/help main narrative without forcing early bootstrap breakage
+- manual legacy residue ends up as explicit engineering keep or archive/delete, not indefinite `watch`
