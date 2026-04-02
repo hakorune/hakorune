@@ -37,14 +37,15 @@ Related:
 - `30xG1` landed: low-blast manual smoke residues moved under `tools/archive/manual-smokes/`
 - `30xG2` landed: `docs/tools/nyash-help.md` is now a thin stub and the historical snapshot lives under `docs/archive/tools/`
 - `30xG3` landed: `tools/smoke_aot_vs_vm.sh` moved under `tools/archive/manual-smokes/`
-- active micro task: `30xG4 post-switch docs cleanup`
+- `30xG4` landed: settled residue wording is cleaned from current root/phase docs
+- active micro task: `none`
 - next micro task: `none`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default flip stays deferred to `30xF`
+- raw backend default flip stays deferred beyond `phase-30x`
 - legacy residue stays on `explicit keep / rewrite in 30xE / archive-delete in 30xG`
 
 ## Read Next

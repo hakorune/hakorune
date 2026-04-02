@@ -46,9 +46,9 @@ Related:
      - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
      - dangerous early flips remain around launcher/default/orchestrator sites
      - `30xA1`, `30xA2`, `30xB1-30xB4`, and `30xC1` are landed
-     - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` plus `manual residue watch`
-     - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`
-     - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
+     - `30xC2` grouped plugin/macro/tooling pressure into engineering keeps plus archived/manual residue
+     - `30xC3` grouped smoke/test pressure into engineering keeps plus explicit archive/keep outcomes
+     - `30xC4` grouped docs/help pressure into rewrite targets, engineering docs keep, and historical snapshot handling
      - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
      - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
      - `30xD3` landed as docs-first orchestrator freeze
@@ -62,7 +62,8 @@ Related:
      - `30xG1` landed and moved low-blast manual smoke residues under `tools/archive/manual-smokes/`
      - `30xG2` landed and moved the stale help snapshot behind a thin stub under `docs/tools/`
      - `30xG3` landed and moved `tools/smoke_aot_vs_vm.sh` under `tools/archive/manual-smokes/`
-     - current active micro task is `30xG4 post-switch docs cleanup`
+     - `30xG4` landed and cleaned unsettled residue wording from current root/phase docs
+     - current active micro task is `none`
      - next queued micro task is `none`
      - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
@@ -77,14 +78,14 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xG4 post-switch docs cleanup` |
+     | Next | `phase-30x closeout review` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xG4 post-switch docs cleanup` |
+     | Now | `phase-30x closeout review` |
      | Next | `none` |
-     | Later | `30xG` |
+     | Later | `none` |
    - cleanup waves:
 
      | Wave | Status | Read as |
@@ -95,7 +96,7 @@ Related:
      | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator freeze |
      | `30xE user-facing main switch prep` | landed | `llvm/exe` first docs/help/examples |
      | `30xF backend default decision gate` | landed | keep raw CLI default stable and finish ownership flip first |
-     | `30xG legacy disposition sweep` | active | archive/delete residual manual surfaces |
+     | `30xG legacy disposition sweep` | landed | archive/delete residual manual surfaces |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -125,10 +126,9 @@ Related:
   - `stage2plus` entry / first optimization wave (accepted)
   - `phase-30x` backend surface simplification
 - Active backend surface tasks:
-  - `30xE user-facing main switch prep`
+  - `phase-30x closeout review`
 - Queued backend surface tasks:
-  - `30xF backend default decision gate`
-  - `30xG legacy disposition sweep`
+  - `none`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

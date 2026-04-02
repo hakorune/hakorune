@@ -23,7 +23,7 @@ Related:
 | 4 | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator denylist |
 | 5 | `30xE user-facing main switch prep` | landed | README/help/examples move to `llvm/exe` first |
 | 6 | `30xF backend default decision gate` | landed | keep raw default stable and finish ownership flip first |
-| 7 | `30xG legacy disposition sweep` | active | archive/delete residual manual surfaces after main switch |
+| 7 | `30xG legacy disposition sweep` | landed | archive/delete residual manual surfaces after main switch |
 
 ## Ordered Slice Detail
 
@@ -51,7 +51,7 @@ Related:
 | 20 | `30xG1` | landed | low-blast manual smoke residues archived or reclassified |
 | 21 | `30xG2` | landed | stale help snapshot replacement/archive |
 | 22 | `30xG3` | landed | compare/manual helper archive pass |
-| 23 | `30xG4` | active | post-switch docs cleanup |
+| 23 | `30xG4` | landed | post-switch docs cleanup |
 
 ## Evidence Commands
 
@@ -97,7 +97,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `wasm` remains experimental
 - follow-up rule:
   - any raw change to `src/cli/args.rs` or `src/runner/dispatch.rs` is a later gate, not part of this phase
-- active next is `30xG4`
+- active next is `none`
 
 ## 30xG1 Result
 
@@ -110,7 +110,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
 - explicit keep:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - active next:
-  - `30xG4`
+  - `none`
 
 ## 30xG2 Result
 
@@ -120,7 +120,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `docs/tools/cli-options.md`
   - `src/cli/args.rs`
 - active next:
-  - `30xG4`
+  - `none`
 
 ## 30xG3 Result
 
@@ -129,7 +129,20 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
 - explicit keep after `30xG3`:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - active next:
-  - `30xG4`
+  - `none`
+
+## 30xG4 Result
+
+- root mirrors and phase docs no longer carry unsettled residue wording for already-settled outcomes
+- settled residue vocabulary is now:
+  - explicit keep
+  - rewrite
+  - archive
+  - delete
+- explicit keep after `30xG4`:
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+- active next:
+  - `none`
 
 ## Role Touchpoints
 
@@ -151,7 +164,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
 - `tools/selfhost_smoke.sh`
 - `src/macro/macro_box_ny.rs`
 
-### Plugin / macro / tooling keep vs watch
+### Plugin / macro / tooling disposition
 
 - keep:
   - `src/macro/macro_box_ny.rs`
@@ -162,7 +175,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `tools/hako_check_deadcode_smoke.sh`
   - `tools/hakorune_emit_mir.sh`
   - `tools/parity.sh`
-- watch:
+- archived/manual residue:
   - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
   - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
   - `tools/archive/manual-smokes/async_smokes.sh`
@@ -174,14 +187,14 @@ Plugin/macro/tooling archive/delete result:
   - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
   - `tools/archive/manual-smokes/async_smokes.sh`
 
-### Smoke / test keep vs watch
+### Smoke / test disposition
 
 - keep:
   - `tools/selfhost_smoke.sh`
   - `tools/selfhost_vm_smoke.sh`
   - `tools/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-- watch:
+- explicit keep / archived residue:
   - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
   - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
@@ -205,7 +218,7 @@ Smoke/test archive/delete result:
   - `tools/selfhost_vm_smoke.sh`
   - `tools/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-- archive-later queue:
+- explicit keep after disposition:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 
 Plugin/smoke orchestrator freeze result:
@@ -214,9 +227,9 @@ Plugin/smoke orchestrator freeze result:
 - no-touch-first orchestrators stay live engineering keeps
 - low-blast manual residues moved to `tools/archive/manual-smokes/` in `30xG1`
 - `30xG3` archived `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
-- remaining residue review is `run_spec_smoke.sh` keep plus post-switch docs cleanup
+- remaining explicit keep is `run_spec_smoke.sh`
 
-### Docs / help keep vs rewrite vs watch
+### Docs / help disposition
 
 - rewrite in `30xE`:
   - `README.md`

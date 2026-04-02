@@ -51,7 +51,7 @@ Related:
 | `30xD dangerous-early-flip lock` | landed | 先に変えると壊れる launcher/default/orchestrator を固定する | early-flip denylist が task board で explicit |
 | `30xE user-facing main switch prep` | landed | README/help/examples を `llvm/exe` first に寄せる準備をする | default を変えずに main narrative だけ切り替える差分範囲が固まる |
 | `30xF backend default decision gate` | landed | CLI default/backend flip の可否を最後に判定する | raw default は据え置き、ownership flip を phase-30x の結論にする |
-| `30xG legacy disposition sweep` | active | manual residue / stale snapshot / old compare helpers を archive か delete に寄せる | open-ended watch が archive/delete/explicit keep のいずれかへ収束する |
+| `30xG legacy disposition sweep` | landed | manual residue / stale snapshot / old compare helpers を archive か delete に寄せる | open residue is settled as archive/delete/explicit keep |
 
 ## Micro Tasks
 
@@ -76,7 +76,7 @@ Related:
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `30xC1` | landed | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
-| `30xC2` | landed | plugin/macro/tooling inventory | macro child, plugin smoke, and dev tooling are grouped into keep vs watch |
+| `30xC2` | landed | plugin/macro/tooling inventory | macro child, plugin smoke, and dev tooling are grouped into explicit keep vs archived/manual residue |
 | `30xC3` | landed | smoke/test inventory | engineering smoke keeps, mixed orchestrators, and manual residues are separated |
 | `30xC4` | landed | docs/help inventory | rewrite targets, engineering keeps, and stale snapshots are separated |
 
@@ -156,7 +156,7 @@ Related:
 | `30xG1` | landed | manual smoke residue archive pass | manual residue scripts are either archived or reclassified as explicit engineering keeps |
 | `30xG2` | landed | stale help snapshot replacement/archive | `docs/tools/nyash-help.md` is reduced to a thin current stub and the old capture moves to archive |
 | `30xG3` | landed | compare/manual helper archive pass | legacy compare/manual helpers such as `tools/smoke_aot_vs_vm.sh` are either kept with explicit engineering meaning or archived |
-| `30xG4` | active | post-switch docs cleanup | root/phase docs stop carrying open-ended `watch` wording for settled residues |
+| `30xG4` | landed | post-switch docs cleanup | root/phase docs stop carrying unsettled residue wording for resolved residues |
 
 #### `30xG2` result
 
@@ -165,7 +165,6 @@ Related:
 - current CLI truth remains:
   - `docs/tools/cli-options.md`
   - `src/cli/args.rs`
-- remaining residue review moves to `30xG4`
 
 #### `30xG3` result
 
@@ -173,21 +172,32 @@ Related:
 - root README and README.ja no longer present the old parity helper as a front-door example
 - explicit compare/manual keep after `30xG3`:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
-- remaining cleanup work moves to `30xG4`
+
+#### `30xG4` result
+
+- root mirrors and phase docs now read settled residues as:
+  - explicit keep
+  - rewrite
+  - archive
+  - delete
+- temporary residue wording is no longer used for already-settled manual/doc residues in phase-30x docs
+- remaining explicit keep after `30xG4`:
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+- phase-30x is now in closeout review, not active residue triage
 
 ## Legacy Disposition Rules
 
-- `watch` は仮置きでしか使わない。
-- `watch` に入った surface は `30xE-30xG` の中で `rewrite / explicit keep / archive / delete` のどれかへ落とす。
+- legacy residue は implicit に残さない。
+- residue surface は `rewrite / explicit keep / archive / delete` のどれかで固定する。
 - `rust-vm` を使っていても engineering/bootstrap の live contract なら keep に残す。
 - product/main narrative から外れた manual residue は archive/delete を優先する。
-- delete-ready が出るまでは archive-later に置き、owner-facing docs からは外す。
+- delete-ready が出ない場合でも owner-facing docs からは外し、archive か explicit keep に寄せる。
 
 ## Current Focus
 
-- active macro wave: `30xG legacy disposition sweep`
-- next queued wave: `30xG4 post-switch docs cleanup`
-- later disposition wave: `30xG legacy disposition sweep`
+- active macro wave: `phase-30x closeout review`
+- next queued wave: `none`
+- later disposition wave: `none`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
 
@@ -398,7 +408,7 @@ Plugin/smoke orchestrator freeze findings (`30xD3`):
   - `tools/selfhost_vm_smoke.sh`
   - `tools/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-- manual residue archive-later queue:
+- archived/manual residue set:
   - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
   - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
   - `tools/archive/manual-smokes/async_smokes.sh`

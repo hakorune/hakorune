@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xG4 post-switch docs cleanup`
+- Exact focus: `phase-30x closeout review`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -86,9 +86,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - current docs mostly use the label `rust-vm`, not `vm-rust`
   - dangerous early flips are launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, `tools/selfhost/run.sh`, and `tools/plugin_v2_smoke.sh`
   - `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, `30xC2`, `30xC3`, `30xC4`, and `30xD1` are landed
-  - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` and `manual residue watch`
-  - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`
-- `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
+  - `30xC2` separated engineering/tooling keep from archived manual residue
+  - `30xC3` separated engineering smoke keep from archived residue and explicit test-local keep
+  - `30xC4` separated rewrite targets, engineering docs keep, and historical snapshot handling
 - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
 - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
 - `30xD3` landed as docs-first orchestrator freeze; plugin/smoke wrappers stay explicit engineering keeps
@@ -102,12 +102,13 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `30xG1` landed: low-blast manual smoke residues moved to `tools/archive/manual-smokes/`
 - `30xG2` landed: `docs/tools/nyash-help.md` is now a thin stub and the historical capture moved to `docs/archive/tools/nyash-help.md`
 - `30xG3` landed: `tools/smoke_aot_vs_vm.sh` moved to `tools/archive/manual-smokes/` and left `run_spec_smoke.sh` as explicit keep
-- active micro task is `30xG4 post-switch docs cleanup`
+- `30xG4` landed: root and phase docs no longer leave unsettled residue wording for already-settled outcomes
+- active micro task is `none`
 - next queued micro task is `none`
 - legacy residue policy is now explicit:
   - keep if it is still an engineering/bootstrap contract
   - rewrite if it still presents old main narrative
-  - archive-later if it is a manual residue with no live owner
+  - archive if it is a manual residue with no live owner
 - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
   - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
   - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
@@ -126,7 +127,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xG4 post-switch docs cleanup` |
+  | Next | `phase-30x closeout review` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -140,9 +141,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xG4 post-switch docs cleanup` | remove settled watch wording from root and phase docs |
-| Next | `none` | final closeout is decided after `30xG4` lands |
-| Later | `30xG` | legacy archive/delete sweep |
+| Now | `phase-30x closeout review` | confirm the role-first split and archive/keep disposition are settled |
+| Next | `none` | next phase starts after closeout |
+| Later | `none` | legacy disposition sweep is landed |
 
 ## Backend Surface Waves
 
@@ -154,7 +155,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xD dangerous-early-flip lock` | landed | freeze launcher/default/orchestrator sites that must not move early |
 | `30xE user-facing main switch prep` | landed | move README/help/examples toward `llvm/exe` first without flipping defaults |
 | `30xF backend default decision gate` | landed | keep the raw CLI default stable and finish ownership flip first |
-| `30xG legacy disposition sweep` | active | archive/delete residual manual surfaces after main switch |
+| `30xG legacy disposition sweep` | landed | archive/delete residual manual surfaces after main switch |
 
 ## Phase-30x Micro Tasks
 
@@ -182,7 +183,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xG1` | landed | low-blast manual smoke residues archived |
 | `30xG2` | landed | stale help snapshot archived behind a thin stub |
 | `30xG3` | landed | compare/manual helper archived or reduced to explicit keep |
-| `30xG4` | active | legacy residue archive/delete sweep |
+| `30xG4` | landed | post-switch docs no longer carry unsettled residue wording for settled outcomes |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.
