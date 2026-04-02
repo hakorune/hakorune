@@ -44,10 +44,10 @@ Related:
      - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
      - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now
      - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4 Hako-side caller drain prep` is active and `W3 smoke/proof filesystem recut` is landed
-     - current active micro task is `99N-99P Hako-side caller drain prep`
-     - next queued micro task is `99Q-99S Rust compat receiver collapse`
+     - current active micro task is `99N1 compat selfhost replacement contract lock`
+     - next queued micro task is `99O1 extern_provider replacement contract lock`
      - W5 prep is partially landed: codegen receiver bodies now live in dedicated modules, but the one-chokepoint collapse itself is still pending after W4
-     - review intake is fixed as `landed already / adopt next / stale in review`; the main open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
+     - review intake detail lives in `29x-99`; the open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -60,8 +60,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `99N-99P Hako-side caller drain prep` |
-     | Next | `99Q-99S Rust compat receiver collapse` |
+     | Now | `99N1-99O3 replacement contract / proof-gap lock` |
+     | Next | `99P1-99P3 Hako-side caller demotion` |
      | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
    - cleanup waves:
 
@@ -73,13 +73,6 @@ Related:
      | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
      | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |
      | `W6 final delete/archive sweep` | pending-after-W5 | helper deletion after zero callers |
-   - review intake:
-
-     | Bucket | State |
-     | --- | --- |
-     | Landed already | compat payload canonical home; `extern_provider.hako` split; `llvm_codegen.rs` split; semantic proof/archive recut |
-     | Adopt next | `LlvmBackendBox` owner-facade slimming; one explicit Rust compat-codegen chokepoint |
-     | Stale in review | old `tools/selfhost/examples/` compat payload home |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

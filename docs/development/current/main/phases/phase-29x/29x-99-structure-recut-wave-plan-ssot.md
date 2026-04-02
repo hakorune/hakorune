@@ -45,9 +45,9 @@ Related:
 
 - active macro wave: `W4 Hako-side caller drain prep`
 - active micro-task:
-  - `99N-99P Hako-side caller drain prep`
+  - `99N1 compat selfhost replacement contract lock`
 - next queued micro-task:
-  - `99Q-99S Rust compat receiver collapse`
+  - `99O1 extern_provider replacement contract lock`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -64,8 +64,8 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 | `llvm_codegen.rs` still mixed thin boundary and legacy MIR front door | landed | `99H` landed | legacy front door now lives in `legacy_mir_front_door.rs` |
 | `phase2044` / `phase2120` were still phase-number semantic homes | landed | `99K-99M` landed | live proof/archive buckets now have semantic homes |
 | `LlvmBackendBox` still reads as both owner facade and file/evidence entry | adopt-next | `99I` follow-up after `W4` | split is partial; owner facade slimming remains open |
-| Rust legacy/codegen receivers still read as a spread surface | adopt-next | `99Q-99S` | receiver-body split landed; one chokepoint collapse remains open |
-| `CodegenBridgeBox.emit_object_args(...)` / `emit_object_from_mir_json(...)` should die only after path truth and proof replacement exist | confirmed | `29x-98` + `99N-99P` | stop-line stays proof-gated |
+| Rust legacy/codegen receivers still read as a spread surface | adopt-next | `99Q1-99S1` | receiver-body split landed; one chokepoint collapse remains open |
+| `CodegenBridgeBox.emit_object_args(...)` / `emit_object_from_mir_json(...)` should die only after path truth and proof replacement exist | confirmed | `29x-98` + `99N1-99P3` | stop-line stays proof-gated |
 
 ## Micro Tasks
 
@@ -139,17 +139,26 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99N` | blocked-on-proof | exact root-first proof for compat selfhost wrapper stack | a drop-in replacement exists for `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` + wrapper path |
-| `99O` | blocked-on-proof | exact root-first proof for `extern_provider.hako` compat codegen stub | direct replacement exists for the current compat/proof lowering surface |
-| `99P` | blocked-on-proof | demote direct `.hako` callers from `CodegenBridgeBox.emit_object_args(...)` | direct Hako callers are zero or archive-only |
+| `99N1` | active | lock compat selfhost wrapper replacement contract | wrapper input/output/env contract is written down as the drop-in target |
+| `99N2` | queued | lock compat payload invariants | `hako_llvm_selfhost_driver.hako` required behavior and allowed drift are explicit |
+| `99N3` | queued | map current root-first proof gap for compat selfhost wrapper | `phase29ck_vmhako_llvm_backend_runtime_proof` is compared against the drop-in contract line by line |
+| `99O1` | queued | lock `extern_provider.hako` replacement contract | current compat codegen stub contract is explicit enough to judge replacement |
+| `99O2` | queued | pin minimal root-first lowering proof target | one exact proof fixture/lane is named for the `extern_provider.hako` replacement |
+| `99O3` | queued | lock direct-caller demotion prerequisites | preconditions for removing `.hako` direct callers are explicit and ordered |
+| `99P1` | blocked-on-proof | demote compat selfhost payload direct caller | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` no longer needs `CodegenBridgeBox.emit_object_args(...)` |
+| `99P2` | blocked-on-proof | demote `extern_provider.hako` compat codegen caller | `compat_codegen_extern_provider.hako` no longer needs `CodegenBridgeBox.emit_object_args(...)` |
+| `99P3` | blocked-on-proof | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
 
 ### W5. Rust Compat Receiver Collapse
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99Q` | pending-after-W4 | extract one compat codegen receiver chokepoint | `hostbridge.rs`, `loader_cold.rs`, and `extern_functions.rs` stop being parallel receiver homes |
-| `99R` | pending-after-W4 | collapse legacy receiver ownership into one compat namespace | route ownership for legacy codegen entry is visible in one place |
-| `99S` | pending-after-W4 | move surrogate caller to compat/evidence adapter home | `llvm_backend_surrogate.rs` no longer extends the old helper from an owner-looking surface |
+| `99Q1` | pending-after-W4 | lock one Rust compat-codegen chokepoint contract | one receiver module owns the legacy codegen accept path contract |
+| `99Q2` | pending-after-W4 | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` and `loader_cold.rs` only forward into the chokepoint |
+| `99Q3` | pending-after-W4 | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` only forwards into the chokepoint |
+| `99R1` | pending-after-W4 | collapse route ownership into one compat namespace | route ownership for legacy codegen entry is visible in one Rust home |
+| `99R2` | pending-after-W4 | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
+| `99S1` | pending-after-W4 | move surrogate caller to compat/evidence adapter home | `llvm_backend_surrogate.rs` no longer extends the old helper from an owner-looking surface |
 
 - W5 prep is now partially landed:
   - MirInterpreter codegen receiver bodies live in `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs`
@@ -233,6 +242,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `W4 Hako-side caller drain prep`
-  - micro: `99N-99P Hako-side caller drain prep`
-  - next: `99Q-99S Rust compat receiver collapse`
-  - detail: `99N-99P`, `99Q-99S`, and the W4 stop-line remain separate
+  - micro: `99N1 compat selfhost replacement contract lock`
+  - next: `99O1 extern_provider replacement contract lock`
+  - detail: `99N1-99O3` lock replacement contracts first, `99P1-99P3` demote callers only after proof, then `99Q1-99S1`

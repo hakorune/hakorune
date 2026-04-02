@@ -78,8 +78,21 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99L` | W3 | landed | recut `phase2120` physically | semantic proof/history buckets get separate homes |
 | `99M` | W3 | landed | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
 | `99G1` | W3 | landed | suites / directory semantic recut | phase-number homes are replaced by semantic homes in the proof/archive tree |
-| `99N-99P` | W4 | blocked-on-proof | exact root-first replacement proof and Hako-side caller drain prep | direct `.hako` callers can leave `CodegenBridgeBox.emit_object_args(...)` |
-| `99Q-99S` | W5 | pending-after-W4 | Rust compat receiver collapse | receiver spread is reduced to one chokepoint |
+| `99N1` | W4 | active | lock compat selfhost wrapper replacement contract | drop-in wrapper contract is explicit |
+| `99N2` | W4 | queued | lock compat payload invariants | payload behavior and allowed drift are explicit |
+| `99N3` | W4 | queued | map current root-first proof gap for compat selfhost wrapper | proof gap is explicit and line-by-line |
+| `99O1` | W4 | queued | lock `extern_provider.hako` replacement contract | current lowering contract is explicit |
+| `99O2` | W4 | queued | pin minimal root-first lowering proof target | one exact proof lane/fixture is named |
+| `99O3` | W4 | queued | lock direct-caller demotion prerequisites | Hako-side demotion order is explicit |
+| `99P1` | W4 | blocked-on-proof | demote compat selfhost payload direct caller | payload no longer calls `CodegenBridgeBox.emit_object_args(...)` |
+| `99P2` | W4 | blocked-on-proof | demote `extern_provider.hako` compat codegen caller | compat codegen stub no longer calls `CodegenBridgeBox.emit_object_args(...)` |
+| `99P3` | W4 | blocked-on-proof | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
+| `99Q1` | W5 | pending-after-W4 | lock one Rust compat-codegen chokepoint contract | one receiver module owns the legacy accept path |
+| `99Q2` | W5 | pending-after-W4 | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` / `loader_cold.rs` stop being receiver homes |
+| `99Q3` | W5 | pending-after-W4 | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` stops being a receiver home |
+| `99R1` | W5 | pending-after-W4 | collapse route ownership into one compat namespace | route ownership is visible in one Rust home |
+| `99R2` | W5 | pending-after-W4 | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
+| `99S1` | W5 | pending-after-W4 | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
 | `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |
 
 ## 0.2 Review intake
@@ -93,7 +106,7 @@ This table is not a new plan. It classifies the 2026-04-02 beauty-first review a
 | `llvm_codegen.rs` thin boundary / legacy front-door split | landed already | `99H` |
 | semantic proof/archive recut for `phase2044` / `phase2120` | landed already | `99K-99M` |
 | slimmer `LlvmBackendBox` owner facade | adopt next | post-`W4` follow-up on `99I` |
-| one explicit Rust compat-codegen chokepoint | adopt next | `99Q-99S` |
+| one explicit Rust compat-codegen chokepoint | adopt next | `99Q1-99S1` |
 | old `tools/selfhost/examples/` compat payload home | stale in review | current live home is `tools/compat/legacy-codegen/` |
 
 | ID | Lane | Task | Est. | Depends | Acceptance |

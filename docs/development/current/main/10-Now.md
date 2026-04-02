@@ -44,10 +44,10 @@ Related:
 - current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green, `LLVMEmitBox` stays compat/proof keep, `CodegenBridgeBox` has no daily dependency, `phase2111` explicit emit/link proofs are archived, `phase251` lowering canaries are quarantined, `phase2044` has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`, the llvmlite trio is suite-locked monitor-only keep and that dedicated suite is now the final live keep bucket, `phase2120` pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`, `phase2111` / `phase251` archive proofs share one replay-evidence suite, the selfhost compat stack wording is locked as `payload -> transport wrapper -> pack orchestrator`, the root-first proof candidate inventory is pinned, and docs-first cleanup planning now lives in `29x-99` with `W4 Hako-side caller drain prep` active and `W3 smoke/proof filesystem recut` landed.
 - direct live callers are fixed at 5 surfaces; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now.
-- `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99N-99P Hako-side caller drain prep`.
-- next queued micro task is `99Q-99S Rust compat receiver collapse`.
+- `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99N1 compat selfhost replacement contract lock`.
+- next queued micro task is `99O1 extern_provider replacement contract lock`; Rust-side collapse starts at `99Q1` only after W4 proof gates open.
 - W5 prep is partially landed: codegen receiver bodies now live in dedicated modules, but the one-chokepoint collapse itself is still pending after W4.
-- review intake is now normalized in `29x-99`: landed already = compat payload canonical home + `extern_provider.hako` split + `llvm_codegen.rs` split + semantic proof recut; adopt-next = slimmer `LlvmBackendBox` owner facade + one explicit Rust compat-codegen chokepoint.
+- review intake lives in `29x-99`; this mirror only carries the open deltas.
 - immediate cleanup order is `compat selfhost wrapper archive conditions -> archive proof bundle -> directory semantic recut`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
@@ -64,8 +64,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99N-99P Hako-side caller drain prep` | exact root-first proof still blocks caller drain |
-| Next | `99Q-99S Rust compat receiver collapse` | receiver spread is reduced to one chokepoint |
+| Now | `99N1-99O3 replacement contract / proof-gap lock` | exact replacement contract is being pinned before caller demotion |
+| Next | `99P1-99P3 Hako-side caller demotion` | direct `.hako` callers leave the bridge only after proof exists |
 | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
@@ -78,14 +78,6 @@ Related:
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |
 | `W6 final delete/archive sweep` | pending-after-W5 | helper deletion after zero callers |
-
-## Review Intake
-
-| Bucket | Read as |
-| --- | --- |
-| Landed already | payload home / split targets / semantic proof buckets now match the beauty-first review direction |
-| Adopt next | `LlvmBackendBox` owner-facade slimming and one Rust compat-codegen chokepoint remain open |
-| Stale in review | `tools/selfhost/examples/` is no longer the live compat payload home |
 
 ## Exact Links
 

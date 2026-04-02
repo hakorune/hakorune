@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 W4 Hako-side caller drain prep / 99N-99P exact root-first replacement proof and Hako-side caller drain prep`
+- Exact focus: `29x-99 W4 Hako-side caller drain prep / 99N1-99O3 replacement contract and proof-gap lock`
   - phase2120 pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`; the legacy cluster orchestrator is runner-only
   - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is monitor-only keep and the proof buckets are runner-only
   - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
@@ -84,12 +84,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `29x-98` still owns helper deletion and exact stop-line; no low-blast caller reduction is visible now
   - W5 prep has started: codegen receiver bodies are now split into dedicated modules, but the chokepoint collapse itself is still pending after `W4`
   - `29x-99` now owns beauty-first cleanup planning, with `W4 Hako-side caller drain prep` active and `W3 smoke/proof filesystem recut` landed
-  - current active micro task is `99N-99P Hako-side caller drain prep`
-  - next queued micro task is `99Q-99S Rust compat receiver collapse`
-  - review intake is now classified in `29x-99`:
-    - landed already: compat payload canonical home, `extern_provider.hako` split, `llvm_codegen.rs` split, semantic proof/archive recut
-    - adopt next: `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
-    - stale-in-review: old `tools/selfhost/examples/` payload home is no longer live
+  - current active micro task is `99N1 compat selfhost replacement contract lock`
+  - next queued micro task is `99O1 extern_provider replacement contract lock`
+  - review intake owner is `29x-99`; mirror docs only carry the open deltas, not the full intake table
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -121,8 +118,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99N-99P Hako-side caller drain prep` | exact root-first proof still blocks caller drain |
-| Next | `99Q-99S Rust compat receiver collapse` | receiver spread is reduced to one chokepoint |
+| Now | `99N1-99O3 replacement contract / proof-gap lock` | exact root-first replacement contract is being pinned before demotion |
+| Next | `99P1-99P3 Hako-side caller demotion` | direct `.hako` callers leave `CodegenBridgeBox.emit_object_args(...)` only after proof exists |
 | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves
@@ -143,15 +140,10 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `99E split-target inventory lock` | landed | freeze target split homes before any move |
 | `99F file-move / shim order lock` | landed | define move-first, shim-second, delete-last order |
 | `99G-99J mixed-file split targets` | landed | `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, compat boxes |
-| `99K-99M smoke/proof filesystem recut` | active | `phase2044`, `phase2120`, archive evidence bundle |
-
-## Review Intake
-
-| Bucket | State | Read as |
-| --- | --- | --- |
-| Landed already | compat payload canonicalized; `extern_provider.hako` split; `llvm_codegen.rs` split; semantic proof/archive recut | review confirms the current re-cut direction |
-| Adopt next | `LlvmBackendBox` owner-facade slimming; one Rust compat-codegen chokepoint | open beauty deltas after `W4` proof gate |
-| Stale in review | old `tools/selfhost/examples/` compat payload home | current tree already points wrappers at `tools/compat/legacy-codegen/` |
+| `99K-99M smoke/proof filesystem recut` | landed | `phase2044`, `phase2120`, archive evidence bundle |
+| `99N1-99O3 replacement contract lock` | active | define exact drop-in proof targets for the two W4 stop-line surfaces |
+| `99P1-99P3 Hako-side caller demotion` | blocked-on-proof | demote direct `.hako` callers only after exact replacement proof exists |
+| `99Q1-99S1 Rust compat receiver collapse` | pending-after-W4 | reduce Rust legacy codegen acceptance to one chokepoint |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.
