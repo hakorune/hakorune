@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `99W1 lock watch-1 caller groups`
+- Exact focus: `99W2 lock watch-1 replacement contract gap`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,9 +60,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 
   | Band | State |
   | --- | --- |
-  | Now | `99W1 lock watch-1 caller groups` |
-  | Next | `99W2 lock watch-1 replacement contract gap` |
-  | Later | `99X1` / `99X2` |
+  | Now | `99W2 lock watch-1 replacement contract gap` |
+  | Next | `99X1 lock watch-2 caller groups` |
+  | Later | `99X2` |
 
 - W4 / W5 / W6 are landed. Path truth, semantic proof/archive homes, and the Rust compat-codegen chokepoint are fixed.
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket.
@@ -72,8 +72,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 - adopted watch shape is:
   - first, one Rust-side no-helper `MIR(JSON text) -> object path` primitive closes `watch-1`
   - then, `watch-2` becomes `json_path -> read_to_string -> same primitive`
-- active micro task is `99W1 lock watch-1 caller groups`.
-- next queued micro task is `99W2 lock watch-1 replacement contract gap`.
+- `99W1` is landed: caller groups and reduction order are fixed.
+- active micro task is `99W2 lock watch-1 replacement contract gap`.
+- next queued micro task is `99X1 lock watch-2 caller groups`.
 - caller reduction order inside `watch-1` is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`.
 - both watches are currently `watch-only`, not demotable now.
 - detailed W4/W5/W6 landed history stays in `29x-99`, not in this restart mirror.

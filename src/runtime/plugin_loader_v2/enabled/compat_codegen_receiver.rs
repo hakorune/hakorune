@@ -48,6 +48,12 @@ pub(super) fn handle_codegen(
 pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String, String> {
     // Explicit compat chokepoint: this branch still owns the MIR(JSON text) -> object
     // contract until a contract-preserving Rust root-first replacement exists.
+    // The remaining upstream groups are fixed as:
+    // 1. loader-cold extern
+    // 2. hostbridge dispatch
+    // 3. plugin-loader env.codegen
+    // The first replacement should preserve this text contract once, then let those
+    // groups retire in that order.
     trace_call(
         "emit_object",
         format!(

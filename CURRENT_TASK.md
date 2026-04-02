@@ -71,7 +71,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `99W1 lock watch-1 caller groups`
+- Exact focus: `99W2 lock watch-1 replacement contract gap`
   - W4, W5, and W6 landed; path truth, semantic proof/archive homes, and one Rust compat-codegen chokepoint are in place
   - `phase2044` lives under `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`
   - `phase2120` lives under `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
@@ -87,9 +87,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   - compat selfhost wrapper layers are not helper callers; they stay `payload -> transport wrapper -> pack orchestrator`
   - `CodegenBridgeBox.emit_object_args(...)` is deleted; the owner-looking path is shim-only for `link_object_args(...)`
   - `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-  - current active micro task is `99W1 lock watch-1 caller groups`
-  - next queued micro task is `99W2 lock watch-1 replacement contract gap`
-  - queued after that are `99X1` and `99X2`
+  - `99W1` is landed: upstream groups and reduction order are fixed as `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
+  - current active micro task is `99W2 lock watch-1 replacement contract gap`
+  - next queued micro task is `99X1 lock watch-2 caller groups`
+  - queued after that is `99X2 lock watch-2 replacement contract gap`
   - post-watch step is `next optimization restart`
   - review intake owner remains `29x-99`; mirror docs now carry only the live watch state
 - Exact read order:
@@ -123,9 +124,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99W1 lock watch-1 caller groups` | make the remaining Rust chokepoint inventory explicit by contract group |
-| Next | `99W2 lock watch-1 replacement contract gap` | lock the single Rust text primitive before any demotion attempt |
-| Later | `99X1` / `99X2` | shrink the surrogate into a file-wrapper over the same primitive, then re-check helper deletion |
+| Now | `99W2 lock watch-1 replacement contract gap` | lock the single Rust text primitive before any demotion attempt |
+| Next | `99X1 lock watch-2 caller groups` | keep the surrogate follow-up behind the watch-1 replacement contract |
+| Later | `99X2` | shrink the surrogate into a file-wrapper over the same primitive, then re-check helper deletion |
 
 ## Cleanup Waves
 

@@ -42,8 +42,9 @@ Related:
      - `29x-98` owns the final helper-deletion watch, now split into the keep chokepoint watch and the archive-later surrogate watch; `29x-99` owns landed re-cut history and move order
      - the adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first; the surrogate follows later as `json_path -> read_to_string -> same primitive`
      - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-     - current active micro task is `99W1 lock watch-1 caller groups`
-     - next queued micro task is `99W2 lock watch-1 replacement contract gap`
+     - `99W1` is landed: caller groups and reduction order are fixed
+     - current active micro task is `99W2 lock watch-1 replacement contract gap`
+     - next queued micro task is `99X1 lock watch-2 caller groups`
      - watch-1 caller reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
      - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -53,14 +54,14 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `99W1 -> 99W2 -> 99X1 -> 99X2 -> next optimization restart` |
+     | Next | `99W2 -> 99X1 -> 99X2 -> next optimization restart` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `99W1 lock watch-1 caller groups` |
-     | Next | `99W2 lock watch-1 replacement contract gap` |
-     | Later | `99X1` / `99X2` |
+     | Now | `99W2 lock watch-1 replacement contract gap` |
+     | Next | `99X1 lock watch-2 caller groups` |
+     | Later | `99X2` |
    - cleanup waves:
 
      | Wave | Status | Read as |

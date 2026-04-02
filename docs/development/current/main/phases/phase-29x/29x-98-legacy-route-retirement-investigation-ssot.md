@@ -78,6 +78,12 @@ Treat the last two caller surfaces as separate watches with different unblock co
 | `2` | MirInterpreter hostbridge dispatch | compat dispatch bridge; daily compile/link no longer depends on this path |
 | `3` | plugin-loader env.codegen | retire `emit_object` last so `env.codegen` can collapse into compile/link-only live seam |
 
+## 99W1 Verdict
+
+- landed: `watch-1` caller groups are explicit and ordered.
+- the exact reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`.
+- next task is `99W2`: define one Rust-side no-helper `MIR(JSON text) -> object path` primitive before any demotion attempt.
+
 ## Watch-1 Replacement Gap
 
 | Contract item | Current owner | What must replace it before demotion | Verdict |

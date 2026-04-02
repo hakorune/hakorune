@@ -48,10 +48,11 @@ Related:
 - adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first, then `watch-2` as `json_path -> read_to_string -> same primitive`.
 - `29x-98` owns the final helper-deletion watch; `29x-99` keeps the landed re-cut history and move order.
 - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
-- current active micro task is `99W1 lock watch-1 caller groups`; next queued micro task is `99W2 lock watch-1 replacement contract gap`.
-- queued after that are `99X1` and `99X2`, which shrink the surrogate into a file-wrapper over the same primitive.
+- `99W1` is landed: upstream groups and reduction order are fixed.
+- current active micro task is `99W2 lock watch-1 replacement contract gap`; next queued micro task is `99X1 lock watch-2 caller groups`.
+- queued after that is `99X2`, which shrinks the surrogate into a file-wrapper over the same primitive.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
-- immediate cleanup order is `99W1 -> 99W2 -> 99X1 -> 99X2 -> next optimization restart`.
+- immediate cleanup order is `99W2 -> 99X1 -> 99X2 -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -67,9 +68,9 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99W1 lock watch-1 caller groups` | make the remaining Rust chokepoint inventory explicit by contract group |
-| Next | `99W2 lock watch-1 replacement contract gap` | lock the no-helper Rust text primitive contract before any demotion attempt |
-| Later | `99X1` / `99X2` | shrink the compiled-stage1 surrogate into a file-wrapper over the same primitive |
+| Now | `99W2 lock watch-1 replacement contract gap` | lock the no-helper Rust text primitive contract before any demotion attempt |
+| Next | `99X1 lock watch-2 caller groups` | keep surrogate follow-up behind the watch-1 replacement contract |
+| Later | `99X2` | shrink the compiled-stage1 surrogate into a file-wrapper over the same primitive |
 
 ## Cleanup Waves
 
