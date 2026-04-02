@@ -185,6 +185,7 @@ Emit route wrappers（Program→MIR）:
 - legacy thin wrappers（互換用途）:
   - `tools/hakorune_emit_mir_mainline.sh <input.hako> <out.json>`
   - `tools/hakorune_emit_mir_compat.sh <input.hako> <out.json>`
+- these wrappers are top-level thin route-preset compatibility wrappers, not family-home rehome targets
 - helper 実装:
   - `tools/hakorune_emit_mir.sh`
 - `HAKO_EMIT_MIR_MAINLINE_ONLY=1` のとき、Stage-B 失敗/invalid payload で direct fallback せず fail-fast する。

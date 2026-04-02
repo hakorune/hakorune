@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-33x shared helper family recut`
-- active micro task: `33xC2 emit_mir thin wrapper route-preset lock`
-- next micro task: `33xC3 hakorune_emit_mir top-level keep gate`
+- active micro task: `33xC3 hakorune_emit_mir top-level keep gate`
+- next micro task: `33xD1 closeout/docs cleanup`
 - raw backend default flip stays deferred beyond `phase-33x`
 
 ## Read Next

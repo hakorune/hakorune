@@ -193,7 +193,8 @@ How it works
 - Pipeline:
   1) Stage‑B + MirBuilder:
      - `tools/hakorune_emit_mir.sh <entry.hako> <mir.json>`
-     - internal-only mainline route: `tools/hakorune_emit_mir_mainline.sh <entry.hako> <mir.json>`
+     - top-level thin mainline preset wrapper: `tools/hakorune_emit_mir_mainline.sh <entry.hako> <mir.json>`
+     - operational route SSOT for new scripts stays on `tools/smokes/v2/lib/emit_mir_route.sh`
   2) LLVM EXE build:
      - `tools/ny_mir_builder.sh --in <mir.json> --emit exe -o <exe>`
 - The Rust binary (Stage0) is resolved via the existing helpers inside `hakorune_emit_mir.sh` / `ny_mir_builder.sh`:

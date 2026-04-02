@@ -28,8 +28,8 @@ Related:
 | 2 | `33xB1` | landed | `hako_check_deadblocks_smoke` family-home rehome |
 | 3 | `33xB2` | queued | `hako_check.sh` top-level keep gate |
 | 4 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory |
-| 5 | `33xC2` | active | `emit_mir` thin wrapper route-preset lock |
-| 6 | `33xC3` | queued | `hakorune_emit_mir.sh` top-level keep gate |
+| 5 | `33xC2` | landed | `emit_mir` thin wrapper route-preset lock |
+| 6 | `33xC3` | active | `hakorune_emit_mir.sh` top-level keep gate |
 | 7 | `33xD1` | queued | closeout/docs cleanup |
 
 ## Evidence Commands
@@ -69,8 +69,8 @@ bash -n \
   - current/live policy docs now point at the family home
 - `33xC1` landed:
   - thin wrapper live callers are current-docs/proof oriented and low blast
-- `33xC2` active:
+- `33xC2` landed:
   - thin wrappers stay as top-level route-preset compatibility wrappers
   - operational routing truth stays in `tools/smokes/v2/lib/emit_mir_route.sh`
 - current front:
-  - `33xC2 emit_mir thin wrapper route-preset lock`
+  - `33xC3 hakorune_emit_mir top-level keep gate`

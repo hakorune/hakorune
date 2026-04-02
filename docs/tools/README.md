@@ -125,6 +125,7 @@ route の意味:
 - `hako-helper`: helper 既定経路（診断/互換向け）
 
 補足:
+- 新規の smoke/check/perf/dev script は `emit_mir_route.sh` を使う。
 - `tools/hakorune_emit_mir_mainline.sh` / `tools/hakorune_emit_mir_compat.sh` は薄い互換ラッパとして維持。
 - `tools/hakorune_emit_mir.sh` は内部実装であり、新規スクリプトからの直呼びは行わない。
 

@@ -45,15 +45,15 @@ Related:
 | `33xB1` | landed | `hako_check_deadblocks_smoke.sh` family-home rehome | `tools/hako_check/deadblocks_smoke.sh` が canonical で top-level は shim-only |
 | `33xB2` | queued | `hako_check.sh` top-level keep gate | broad live caller pressure と future drain 条件が固定される |
 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory | `mainline` / `compat` wrapper の exact live callers が読める |
-| `33xC2` | active | `emit_mir` thin wrapper route-preset lock | wrappers stay top-level thin compatibility shims and operational routing truth is `tools/smokes/v2/lib/emit_mir_route.sh` |
-| `33xC3` | queued | `hakorune_emit_mir.sh` top-level keep gate | broad live integration が exact keep reason として固定される |
+| `33xC2` | landed | `emit_mir` thin wrapper route-preset lock | wrappers stay top-level thin compatibility shims and operational routing truth is `tools/smokes/v2/lib/emit_mir_route.sh` |
+| `33xC3` | active | `hakorune_emit_mir.sh` top-level keep gate | broad live integration が exact keep reason として固定される |
 | `33xD1` | queued | closeout/docs cleanup | current/public docs が truthful family paths に揃う |
 
 ## Current Focus
 
 - active macro wave: `33xC emit_mir thin wrapper path truth`
-- active micro task: `33xC2 emit_mir thin wrapper route-preset lock`
-- next queued micro task: `33xC3 hakorune_emit_mir top-level keep gate`
+- active micro task: `33xC3 hakorune_emit_mir top-level keep gate`
+- next queued micro task: `33xD1 closeout/docs cleanup`
 - current blocker: `none`
 
 ## 33xA1 Result
@@ -129,7 +129,7 @@ Read as:
 - operational routing truth stays in:
   - `tools/smokes/v2/lib/emit_mir_route.sh`
 - no executable caller pressure justifies a family-home move right now
-- current/live docs should keep pointing at the top-level thin wrapper paths unless they need the deeper route contract
+- current/live docs now explicitly read these wrappers as route presets while keeping `emit_mir_route.sh` as the operational entry for new scripts
 
 Read as:
 - `emit_mir` thin wrappers are truthful as thin top-level compatibility wrappers; they are not the right family-home rehome target.

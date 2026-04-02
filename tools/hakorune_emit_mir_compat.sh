@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# hakorune_emit_mir_compat.sh — Program→MIR compat route (delegate/fallback allowed)
+# hakorune_emit_mir_compat.sh — Program→MIR helper route preset (delegate/fallback allowed)
 #
 # Usage: tools/hakorune_emit_mir_compat.sh <input.hako> <out.json>
+# Notes:
+#   - thin top-level compatibility wrapper only
+#   - operational route SSOT is tools/smokes/v2/lib/emit_mir_route.sh --route hako-helper
 
 set -euo pipefail
 

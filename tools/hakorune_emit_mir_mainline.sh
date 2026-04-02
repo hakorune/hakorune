@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# hakorune_emit_mir_mainline.sh — Program→MIR mainline route (no compat fallback)
+# hakorune_emit_mir_mainline.sh — Program→MIR mainline route preset (no compat fallback)
 #
 # Usage: tools/hakorune_emit_mir_mainline.sh <input.hako> <out.json>
+# Notes:
+#   - thin top-level compatibility wrapper only
+#   - operational route SSOT is tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline
 
 set -euo pipefail
 

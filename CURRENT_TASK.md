@@ -89,7 +89,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-33x shared helper family recut`
 - Current blocker: `none`
-- Exact focus: `33xC2 emit_mir thin wrapper route-preset lock`
+- Exact focus: `33xC3 hakorune_emit_mir top-level keep gate`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - current next cleanup is helper-family path truth, not `vm.rs` deletion
   - current backend reading stays role-first:
@@ -102,8 +102,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - active in `33xA1`: helper family caller inventory is fixed for `hako_check` and `emit_mir`
   - landed in `33xB1`: `tools/hako_check/deadblocks_smoke.sh` is the canonical deadblocks family home and the old top-level path is shim-only
   - landed in `33xC1`: thin `emit_mir` wrappers have a low-blast caller inventory
-  - active in `33xC2`: thin `emit_mir` wrappers stay as top-level route-preset compatibility shims, and routing truth stays in `tools/smokes/v2/lib/emit_mir_route.sh`
-  - queued in `33xC3`: `tools/hakorune_emit_mir.sh` broad top-level keep will be gated after wrapper role truth is fixed
+  - landed in `33xC2`: thin `emit_mir` wrappers stay as top-level route-preset compatibility shims, and routing truth stays in `tools/smokes/v2/lib/emit_mir_route.sh`
+  - active in `33xC3`: `tools/hakorune_emit_mir.sh` broad top-level keep is being gated after wrapper role truth was fixed
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -117,7 +117,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-33x shared helper family recut` |
   | Blocker | `none` |
-  | Next | `33xC2 emit_mir thin wrapper route-preset lock` |
+  | Next | `33xC3 hakorune_emit_mir top-level keep gate` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -131,8 +131,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `33xC2 emit_mir thin wrapper route-preset lock` | fix thin wrapper truth before touching the broad helper |
-| Next | `33xC3 hakorune_emit_mir top-level keep gate` | lock broad live integration after wrapper role is fixed |
+| Now | `33xC3 hakorune_emit_mir top-level keep gate` | lock broad live integration after wrapper role is fixed |
+| Next | `33xD1 closeout/docs cleanup` | close the helper-family recut after broad keep truth is fixed |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred until deeper source/smoke split requires it |
 
 ## Shared Helper Family Waves
@@ -152,8 +152,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `33xB1` | landed | `hako_check_deadblocks_smoke` family-home rehome |
 | `33xB2` | queued | `hako_check.sh` top-level keep gate |
 | `33xC1` | landed | `emit_mir` thin wrapper caller inventory |
-| `33xC2` | active | `emit_mir` thin wrapper route-preset lock |
-| `33xC3` | queued | `hakorune_emit_mir.sh` top-level keep gate |
+| `33xC2` | landed | `emit_mir` thin wrapper route-preset lock |
+| `33xC3` | active | `hakorune_emit_mir.sh` top-level keep gate |
 | `33xD1` | queued | closeout/docs cleanup |
 
 ## Canonical Owners

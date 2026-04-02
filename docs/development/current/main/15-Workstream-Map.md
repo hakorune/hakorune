@@ -54,8 +54,8 @@ Related:
         - `phase-33x` now handles shared helper family recut
         - `33xA1` landed and fixed helper-family caller inventory for `hako_check` and `emit_mir`
         - `33xB1` landed and rehomed `deadblocks_smoke` under `tools/hako_check/**`
-        - `33xC2` is active and fixes thin `emit_mir` wrappers as top-level route-preset shims
-        - current active micro task is `33xC2 emit_mir thin wrapper route-preset lock`
+        - `33xC2` landed and fixed thin `emit_mir` wrappers as top-level route-preset shims
+        - current active micro task is `33xC3 hakorune_emit_mir top-level keep gate`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -65,13 +65,13 @@ Related:
      | --- | --- |
      | Now | `phase-33x shared helper family recut` |
      | Blocker | `none` |
-     | Next | `33xC2 emit_mir thin wrapper route-preset lock` |
+     | Next | `33xC3 hakorune_emit_mir top-level keep gate` |
    - shared helper family bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `33xC2 emit_mir thin wrapper route-preset lock` |
-     | Next | `33xC3 hakorune_emit_mir top-level keep gate` |
+     | Now | `33xC3 hakorune_emit_mir top-level keep gate` |
+     | Next | `33xD1 closeout/docs cleanup` |
      | Later | `raw backend default/token follow-up lane` |
    - shared helper family waves:
 
@@ -113,8 +113,8 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-33x` shared helper family recut
 - Active backend surface tasks:
-  - `33xC2 emit_mir thin wrapper route-preset lock`
   - `33xC3 hakorune_emit_mir top-level keep gate`
+  - `33xD1 closeout/docs cleanup`
 - Queued backend surface tasks:
   - `shared helper dedicated phase`
 - Parked big tasks:
