@@ -22,8 +22,8 @@ Related:
 | 3 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure by category |
 | 4 | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator denylist |
 | 5 | `30xE user-facing main switch prep` | landed | README/help/examples move to `llvm/exe` first |
-| 6 | `30xF backend default decision gate` | active | decide raw CLI default only after the above |
-| 7 | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces after main switch |
+| 6 | `30xF backend default decision gate` | landed | keep raw default stable and finish ownership flip first |
+| 7 | `30xG legacy disposition sweep` | active | archive/delete residual manual surfaces after main switch |
 
 ## Ordered Slice Detail
 
@@ -46,8 +46,9 @@ Related:
 | 15 | `30xE2` | landed | CLI/help wording prep |
 | 16 | `30xE3` | landed | stage1/runtime guide prep |
 | 17 | `30xE4` | landed | remaining user-facing main switch prep |
-| 18 | `30xF1-30xF2` | queued | backend default decision last |
-| 19 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
+| 18 | `30xF1` | landed | backend default flip is still blocked after 30xE |
+| 19 | `30xF2` | landed | docs-only demotion is enough; raw token/default change stays later |
+| 20 | `30xG1-30xG4` | active | legacy residue archive/delete sweep |
 
 ## Evidence Commands
 
@@ -61,6 +62,39 @@ rg -n 'rust-vm|vm-hako|llvm-exe|ny-llvm|ny-llvmc|compile-wasm|wasm-backend' \
 rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_stage3_bridge_accept|smoke_aot_vs_vm|nyash-help' \
   tools tests docs
 ```
+
+## 30xF1 Result
+
+- landed prerequisites:
+  - `30xB`
+  - `30xC`
+  - `30xD`
+  - `30xE`
+- still-blocking default-flip surfaces:
+  - `src/cli/args.rs`
+  - `src/runner/dispatch.rs`
+  - `src/runner/modes/common_util/selfhost/child.rs`
+  - `tools/selfhost/run.sh`
+  - `tools/selfhost/selfhost_build.sh`
+  - `tools/bootstrap_selfhost_smoke.sh`
+  - `tools/plugin_v2_smoke.sh`
+  - `tools/selfhost_smoke.sh`
+  - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+- `30xF1` conclusion:
+  - raw default flip is still blocked
+  - active next is `30xF2`
+
+## 30xF2 Decision
+
+- phase-30x closes without a raw backend token/default flip
+- fixed reading:
+  - `llvm/exe` is product by docs/artifact/smoke ownership
+  - `rust-vm` remains explicit engineering(stage0/bootstrap + tooling keep)
+  - `vm-hako` remains reference
+  - `wasm` remains experimental
+- follow-up rule:
+  - any raw change to `src/cli/args.rs` or `src/runner/dispatch.rs` is a later gate, not part of this phase
+- active next is `30xG1`
 
 ## Role Touchpoints
 

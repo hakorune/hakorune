@@ -50,8 +50,8 @@ Related:
 | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure を category ごとに固定する | bootstrap/selfhost/plugin/macro/smoke/doc の pressure map が揃う |
 | `30xD dangerous-early-flip lock` | landed | 先に変えると壊れる launcher/default/orchestrator を固定する | early-flip denylist が task board で explicit |
 | `30xE user-facing main switch prep` | landed | README/help/examples を `llvm/exe` first に寄せる準備をする | default を変えずに main narrative だけ切り替える差分範囲が固まる |
-| `30xF backend default decision gate` | active | CLI default/backend flip の可否を最後に判定する | taxonomy、smoke split、dependency inventory、front docs rewrite が landed している |
-| `30xG legacy disposition sweep` | queued | manual residue / stale snapshot / old compare helpers を archive か delete に寄せる | open-ended watch が archive/delete/explicit keep のいずれかへ収束する |
+| `30xF backend default decision gate` | landed | CLI default/backend flip の可否を最後に判定する | raw default は据え置き、ownership flip を phase-30x の結論にする |
+| `30xG legacy disposition sweep` | active | manual residue / stale snapshot / old compare helpers を archive か delete に寄せる | open-ended watch が archive/delete/explicit keep のいずれかへ収束する |
 
 ## Micro Tasks
 
@@ -101,8 +101,53 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `30xF1` | queued | backend default gate checklist | raw default flip is blocked until `30xB-30xE` are landed |
-| `30xF2` | queued | backend token/default decision | decide whether docs-only demotion is enough or a raw default flip is justified |
+| `30xF1` | landed | backend default gate checklist | raw default flip remains blocked even after `30xB-30xE` landed |
+| `30xF2` | landed | backend token/default decision | docs-first demotion is enough for phase-30x; raw token/default flip stays deferred |
+
+#### `30xF1` gate checklist result
+
+- landed prerequisites:
+  - `30xB` smoke taxonomy split
+  - `30xC` rust-vm dependency inventory
+  - `30xD` dangerous-early-flip lock
+  - `30xE` user-facing main switch prep
+- still-blocking surfaces:
+  - `src/cli/args.rs`
+    - raw backend default is still `vm`
+    - help text still says `Backend: vm (default), vm-hako (S0 frame), llvm, interpreter`
+  - `src/runner/dispatch.rs`
+    - central backend selector still routes `vm` / `vm-hako` / `llvm` as raw tokens
+    - unknown-backend and dispatch semantics would all change at once if the default flips now
+  - `src/runner/modes/common_util/selfhost/child.rs`
+    - child capture still shells out with `--backend vm`
+  - engineering wrappers/orchestrators:
+    - `tools/selfhost/run.sh`
+    - `tools/selfhost/selfhost_build.sh`
+    - `tools/bootstrap_selfhost_smoke.sh`
+    - `tools/plugin_v2_smoke.sh`
+    - `tools/selfhost_smoke.sh`
+    - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+- result:
+  - `30xF1` does **not** permit a raw default flip
+  - `30xF2` decides whether docs-first demotion is already enough, or whether a deliberate raw token/default change is worth the blast radius
+
+#### `30xF2` decision result
+
+- phase-30x decision:
+  - docs-first demotion is enough
+  - raw backend token/default flip stays deferred beyond phase-30x
+- fixed reading:
+  - `llvm/exe` owns the product narrative through artifacts, docs, and smoke ownership
+  - `rust-vm` stays the explicit engineering(stage0/bootstrap + tooling keep) runtime
+  - `vm-hako` stays reference/conformance
+  - `wasm` stays experimental/monitor-only
+- why raw flip is still deferred:
+  - `args.rs` and `dispatch.rs` still define the deep runtime token/default semantics
+  - selfhost/bootstrap/plugin orchestrators still carry live `--backend vm` contracts
+  - changing the default now would mix ownership cleanup with launcher/runtime behavior change
+- phase-30x conclusion:
+  - ownership flip lands in docs/artifacts/smokes
+  - raw default/backend token change is a later, separate gate
 
 ### `30xG` legacy disposition sweep
 
@@ -123,8 +168,8 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `30xF backend default decision gate`
-- next queued wave: `30xG legacy disposition sweep`
+- active macro wave: `30xG legacy disposition sweep`
+- next queued wave: `post-30x backend default/token revisit`
 - later disposition wave: `30xG legacy disposition sweep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front

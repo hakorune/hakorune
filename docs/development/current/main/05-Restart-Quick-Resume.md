@@ -23,9 +23,9 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-30x backend surface simplification`
-- active micro task: `30xF1 backend default gate checklist`
-- next micro task: `30xF2 backend token/default decision`
-- raw backend default flip is still deferred to `30xF`
+- active micro task: `30xG1 manual smoke residue archive pass`
+- next micro task: `30xG2 stale help snapshot replacement/archive`
+- raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next
 

@@ -57,8 +57,10 @@ Related:
      - `30xE2` landed and moved CLI/help docs to role-first wording
      - `30xE3` landed and moved stage1/runtime guides to engineering/bootstrap wording
      - `30xE4` landed and fixed `vm-hako`/`wasm` user-facing wording
-     - current active micro task is `30xF1 backend default gate checklist`
-     - next queued micro task is `30xF2 backend token/default decision`
+     - `30xF1` landed and confirmed raw default flip is still blocked
+     - `30xF2` landed and kept raw backend token/default stable for this phase
+     - current active micro task is `30xG1 manual smoke residue archive pass`
+     - next queued micro task is `30xG2 stale help snapshot replacement/archive`
      - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
@@ -72,13 +74,13 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xF1 backend default gate checklist` |
+     | Next | `30xG1 manual smoke residue archive pass` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xF1 backend default gate checklist` |
-     | Next | `30xF2 backend token/default decision` |
+     | Now | `30xG1 manual smoke residue archive pass` |
+     | Next | `30xG2 stale help snapshot replacement/archive` |
      | Later | `30xG` |
    - cleanup waves:
 
@@ -89,8 +91,8 @@ Related:
      | `30xC rust-vm dependency inventory` | landed | internal `--backend vm` pressure map |
      | `30xD dangerous-early-flip lock` | landed | launcher/default/orchestrator freeze |
      | `30xE user-facing main switch prep` | landed | `llvm/exe` first docs/help/examples |
-     | `30xF backend default decision gate` | active | decide raw CLI default last |
-     | `30xG legacy disposition sweep` | queued | archive/delete residual manual surfaces |
+     | `30xF backend default decision gate` | landed | keep raw CLI default stable and finish ownership flip first |
+     | `30xG legacy disposition sweep` | active | archive/delete residual manual surfaces |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`

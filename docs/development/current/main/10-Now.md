@@ -32,8 +32,10 @@ Related:
 - `30xE2` landed: `cli-options.md` is role-first and `nyash-help.md` is explicitly historical
 - `30xE3` landed: stage1/runtime guides now read `rust-vm` as engineering/bootstrap keep
 - `30xE4` landed: user-facing wasm/reference docs no longer read as co-main
-- active micro task: `30xF1 backend default gate checklist`
-- next micro task: `30xF2 backend token/default decision`
+- `30xF1` landed: raw default flip is still blocked by launcher/default/orchestrator surfaces
+- `30xF2` landed: phase-30x keeps raw backend token/default stable and treats ownership flip as sufficient
+- active micro task: `30xG1 manual smoke residue archive pass`
+- next micro task: `30xG2 stale help snapshot replacement/archive`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
