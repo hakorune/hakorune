@@ -6,8 +6,8 @@ Purpose:
 
 Rules:
 - actual engineering helpers live here
-- old top-level paths may stay as thin compatibility shims for a while
-- delete shims only after current docs and live callers stop pointing at them
+- top-level compatibility shims were drained and removed in `phase-31x / 31xE1`
+- reintroduce a top-level alias only when a concrete external contract requires it
 
 Current residents:
 - `run_vm_stats.sh`

@@ -44,7 +44,7 @@ Related:
 | `31xB low-blast tool rehome` | landed | low-blast engineering tools を top-level から rehome する | actual scripts live under `tools/engineering/**` and old top-level paths are shim-only |
 | `31xC shared helper family inventory` | landed | helper family を `keep / rehome / archive` に分ける | `hako_check` / `deadcode smoke` / `emit_mir` family has an exact disposition map |
 | `31xD orchestrator isolation prep` | landed | no-touch-first orchestrators の rehome 可否を exact に固定する | bootstrap/selfhost/plugin orchestrators are split into `keep here` vs `rehome later`, and selfhost-only smokes land under `tools/selfhost/**` |
-| `31xE shim drain and legacy sweep` | active | drained shims と stale top-level wrappers を archive/delete する | drained wrappers leave top-level or become explicit archive-only residue |
+| `31xE shim drain and legacy sweep` | landed | drained shims と stale top-level wrappers を archive/delete する | no stale top-level compatibility wrapper remains on the current/public surface |
 
 ## Micro Tasks
 
@@ -58,14 +58,14 @@ Related:
 | `31xC2` | landed | choose shared helper disposition | each helper is fixed as `keep here / rehome / archive later` |
 | `31xD1` | landed | orchestrator keep vs rehome split | bootstrap/selfhost/plugin smokes are fixed as `keep top-level`, `move to dedicated selfhost home`, or `stay in profile home` |
 | `31xD2` | landed | docs and live path repoint for moved orchestrators | current public docs point at `tools/selfhost/**` for moved selfhost smokes |
-| `31xE1` | active | delete drained compatibility shims | shim deletion starts only after live callers/docs are zero |
-| `31xE2` | queued | archive stale top-level wrappers | wrappers that should not stay live move under archive/historical homes |
+| `31xE1` | landed | delete drained compatibility shims | drained top-level shims are deleted after live callers/docs reach zero |
+| `31xE2` | landed | archive stale top-level wrappers | no stale top-level wrapper remained; deletion closed the sweep without an extra archive move |
 
 ## Current Focus
 
-- active macro wave: `31xE shim drain and legacy sweep`
-- active micro task: `31xE1 delete drained compatibility shims`
-- next queued micro task: `31xE2 archive stale top-level wrappers`
+- active macro wave: `phase-31x closeout review`
+- active micro task: `closeout review`
+- next queued micro task: `none`
 - current blocker: `none`
 
 ## 31xA Result
@@ -79,9 +79,6 @@ Related:
 - rehomed:
   - `tools/engineering/run_vm_stats.sh`
   - `tools/engineering/parity.sh`
-- compatibility shims remain at:
-  - `tools/run_vm_stats.sh`
-  - `tools/parity.sh`
 - current/public docs can move to engineering-home paths without breaking historical callers
 
 ## 31xC Result
@@ -103,14 +100,30 @@ Related:
 | --- | --- | --- |
 | `tools/plugin_v2_smoke.sh` | keep top-level | plugin lane smoke is still referenced by plugin guard hints and current plugin-lane docs |
 | `tools/bootstrap_selfhost_smoke.sh` | keep top-level | bootstrap smoke is still called from `Makefile` and selfhost-pilot docs |
-| `tools/selfhost_smoke.sh` | moved to `tools/selfhost/selfhost_smoke.sh` + shim | dedicated selfhost smoke belongs under the selfhost home |
-| `tools/selfhost_vm_smoke.sh` | moved to `tools/selfhost/selfhost_vm_smoke.sh` + shim | dedicated selfhost VM smoke belongs under the selfhost home |
-| `tools/selfhost_stage3_accept_smoke.sh` | moved to `tools/selfhost/selfhost_stage3_accept_smoke.sh` + shim | dedicated selfhost stage3 acceptance smoke belongs under the selfhost home |
+| `tools/selfhost/selfhost_smoke.sh` | keep in dedicated selfhost home | dedicated selfhost smoke belongs under the selfhost home |
+| `tools/selfhost/selfhost_vm_smoke.sh` | keep in dedicated selfhost home | dedicated selfhost VM smoke belongs under the selfhost home |
+| `tools/selfhost/selfhost_stage3_accept_smoke.sh` | keep in dedicated selfhost home | dedicated selfhost stage3 acceptance smoke belongs under the selfhost home |
 | `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh` | keep in profile home | mixed aggregator spans product/probe/native/selfhost lanes and is not an engineering-home candidate |
 
 - `31xD1` fixed the orchestrator split.
 - `31xD2` moved the selfhost-only smoke trio under `tools/selfhost/**` and repointed current public docs there.
-- remaining top-level wrappers are explicit compatibility shims, not canonical homes.
+- drained top-level wrappers are ready for deletion once current/public references are zero.
+
+## 31xE Result
+
+- deleted drained top-level compatibility wrappers for:
+  - `run_vm_stats`
+  - `parity`
+  - `selfhost_smoke`
+  - `selfhost_vm_smoke`
+  - `selfhost_stage3_accept_smoke`
+- repointed remaining current/public references to canonical homes:
+  - `tools/engineering/run_vm_stats.sh`
+  - `tools/engineering/parity.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_vm_smoke.sh`
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
+- no stale top-level compatibility wrapper remains on the current/public surface.
 
 ## Delete / Archive Gate
 

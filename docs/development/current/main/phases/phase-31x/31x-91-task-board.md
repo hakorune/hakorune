@@ -19,7 +19,7 @@ Related:
 | 2 | `31xB low-blast tool rehome` | landed | actual move of low-blast engineering tools |
 | 3 | `31xC shared helper family inventory` | landed | exact `keep / rehome / archive` map for helper family |
 | 4 | `31xD orchestrator isolation prep` | landed | no-touch-first orchestrator keep vs rehome split |
-| 5 | `31xE shim drain and legacy sweep` | active | delete/archive after rehome drain is explicit |
+| 5 | `31xE shim drain and legacy sweep` | landed | delete/archive after rehome drain is explicit |
 
 ## Ordered Slice Detail
 
@@ -33,8 +33,8 @@ Related:
 | 6 | `31xC2` | landed | shared helper disposition |
 | 7 | `31xD1` | landed | orchestrator keep vs rehome split |
 | 8 | `31xD2` | landed | docs/live path repoint for moved orchestrators |
-| 9 | `31xE1` | active | drained shim deletion |
-| 10 | `31xE2` | queued | stale wrapper archive/delete |
+| 9 | `31xE1` | landed | drained shim deletion |
+| 10 | `31xE2` | landed | stale wrapper archive/delete |
 
 ## Evidence Commands
 
@@ -42,13 +42,11 @@ Related:
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
 git diff --check
-rg -n 'tools/(run_vm_stats|parity|hako_check|hako_check_deadcode_smoke|hakorune_emit_mir|bootstrap_selfhost_smoke|plugin_v2_smoke|selfhost_smoke|selfhost_vm_smoke|selfhost_stage3_accept_smoke|selfhost/selfhost_smoke|selfhost/selfhost_vm_smoke|selfhost/selfhost_stage3_accept_smoke)\.sh' \
+rg -n 'tools/(engineering/run_vm_stats|engineering/parity|hako_check|hako_check_deadcode_smoke|hakorune_emit_mir|bootstrap_selfhost_smoke|plugin_v2_smoke|selfhost/selfhost_smoke|selfhost/selfhost_vm_smoke|selfhost/selfhost_stage3_accept_smoke)\.sh' \
   README.md README.ja.md docs tools src Makefile
-bash -n tools/engineering/run_vm_stats.sh tools/engineering/parity.sh tools/run_vm_stats.sh tools/parity.sh \
-  tools/selfhost/selfhost_smoke.sh tools/selfhost/selfhost_vm_smoke.sh tools/selfhost/selfhost_stage3_accept_smoke.sh \
-  tools/selfhost_smoke.sh tools/selfhost_vm_smoke.sh tools/selfhost_stage3_accept_smoke.sh
+bash -n tools/engineering/run_vm_stats.sh tools/engineering/parity.sh \
+  tools/selfhost/selfhost_smoke.sh tools/selfhost/selfhost_vm_smoke.sh tools/selfhost/selfhost_stage3_accept_smoke.sh
 bash tools/engineering/parity.sh --help >/dev/null
-bash tools/parity.sh --help >/dev/null
 ```
 
 ## 31xB Result
@@ -56,11 +54,8 @@ bash tools/parity.sh --help >/dev/null
 - moved actual scripts:
   - `tools/engineering/run_vm_stats.sh`
   - `tools/engineering/parity.sh`
-- old top-level paths now act as compatibility shims:
-  - `tools/run_vm_stats.sh`
-  - `tools/parity.sh`
 - active next:
-  - `31xE1`
+  - `phase-31x closeout review`
 
 ## 31xC Result
 
@@ -84,3 +79,15 @@ bash tools/parity.sh --help >/dev/null
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - result:
   - `31xE1` is the current front
+
+## 31xE Result
+
+- deleted drained top-level shims for:
+  - `run_vm_stats`
+  - `parity`
+  - `selfhost_smoke`
+  - `selfhost_vm_smoke`
+  - `selfhost_stage3_accept_smoke`
+- no stale top-level wrapper remained for an extra archive move
+- current front:
+  - `phase-31x closeout review`

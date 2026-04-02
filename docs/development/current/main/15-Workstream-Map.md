@@ -54,8 +54,9 @@ Related:
      - `31xB2` landed and moved `parity.sh`
      - `31xC` landed and fixed the shared helper family as `keep here`
      - `31xD` landed and moved selfhost-only smoke wrappers under `tools/selfhost/**`
-     - current active micro task is `31xE1 delete drained compatibility shims`
-     - next queued micro task is `31xE2 archive stale top-level wrappers`
+     - `31xE` landed and deleted drained top-level compatibility shims
+     - current active micro task is `phase-31x closeout review`
+     - next queued micro task is `none`
      - cleanup rule is `rehome -> shim -> drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -65,12 +66,12 @@ Related:
      | --- | --- |
      | Now | `phase-31x engineering lane isolation` |
      | Blocker | `none` |
-     | Next | `31xE1 delete drained compatibility shims` |
+     | Next | `phase-31x closeout review` |
    - engineering isolation bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `31xE shim drain and legacy sweep` |
+     | Now | `phase-31x closeout review` |
      | Next | `shared helper follow-up` |
      | Later | `deep orchestrator follow-up` |
    - engineering isolation waves:
@@ -81,7 +82,7 @@ Related:
      | `31xB low-blast tool rehome` | landed | move low-blast engineering tools off the top-level front |
      | `31xC shared helper family inventory` | landed | decide keep / rehome / archive for helper family |
      | `31xD orchestrator isolation prep` | landed | split no-touch-first orchestrators into keep vs later rehome |
-     | `31xE shim drain and legacy sweep` | active | delete/archive after moved paths are drained |
+     | `31xE shim drain and legacy sweep` | landed | delete/archive after moved paths are drained |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -112,7 +113,7 @@ Related:
   - `phase-30x` backend surface simplification (landed precursor)
   - `phase-31x` engineering lane isolation
 - Active backend surface tasks:
-  - `31xE shim drain and legacy sweep`
+  - `phase-31x closeout review`
 - Queued backend surface tasks:
   - `shared helper follow-up`
 - Parked big tasks:
@@ -128,7 +129,7 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-31x` exact and shim-drain-first after the selfhost smoke move
+1. keep `phase-31x` exact through closeout review after the shim-drain sweep
 2. keep `phase-30x` landed as the ownership-flip precursor
 3. keep `phase-29x` landed as the backend-owner precursor lane
 4. keep `phase-29bq` active as failure-driven / blocker-none lane

@@ -34,8 +34,9 @@ Related:
 - `31xB2` landed: `tools/engineering/parity.sh` now holds the actual script
 - `31xC` landed: shared helper family is fixed as `keep here`, not low-blast rehome
 - `31xD` landed: selfhost-only smoke wrappers moved under `tools/selfhost/**` and old top-level paths are shim-only
-- active micro task: `31xE1 delete drained compatibility shims`
-- next micro task: `31xE2 archive stale top-level wrappers`
+- `31xE` landed: drained top-level compatibility shims were deleted and current/public docs now point at canonical homes
+- active micro task: `phase-31x closeout review`
+- next micro task: `none`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

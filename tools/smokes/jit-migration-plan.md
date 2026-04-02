@@ -36,7 +36,7 @@ tools/apps_tri_backend_smoke.sh
 tools/ny_roundtrip_smoke.sh
 tools/ny_parser_bridge_smoke.sh
 tools/bootstrap_selfhost_smoke.sh
-tools/selfhost_vm_smoke.sh
+tools/selfhost/selfhost_vm_smoke.sh
 tools/dev_selfhost_loop.sh
 
 # using system関連（codex実装中）

@@ -286,7 +286,7 @@ Use semantic substring guidance from `joinir-planner-required-gates-ssot.md` / `
 ### Session Update (2026-02-06, single-entry adoption follow-up)
 
 - [x] route smoke を `tools/selfhost/run.sh` 経由へ統一（`stageb parity` / `runtime route`）
-- [x] stage smoke の Stage-B JSON 生成を `tools/selfhost/run.sh --direct` 経由へ統一（`tools/selfhost_stage2_bridge_smoke.sh` / `tools/selfhost_stage3_accept_smoke.sh`）
+- [x] stage smoke の Stage-B JSON 生成を `tools/selfhost/run.sh --direct` 経由へ統一（`tools/selfhost_stage2_bridge_smoke.sh` / `tools/selfhost/selfhost_stage3_accept_smoke.sh`）
 - [x] selfhost README/SSOT wording を direct-only/historical 方針に同期
 - [x] verify: `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh` PASS
 - [x] verify: `bash tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_runtime_route_smoke_vm.sh` PASS

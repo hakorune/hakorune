@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Bootstrap Stage3 same-result sanity gate.
 # This is separate from the parser/bridge Stage3 acceptance smoke in
-# tools/selfhost_stage3_accept_smoke.sh.
+# tools/selfhost/selfhost_stage3_accept_smoke.sh.
 
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
 ARTIFACT_KIND="stage1-cli"

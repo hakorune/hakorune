@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-31x engineering lane isolation`
-- active micro task: `31xE1 delete drained compatibility shims`
-- next micro task: `31xE2 archive stale top-level wrappers`
+- active micro task: `phase-31x closeout review`
+- next micro task: `none`
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next

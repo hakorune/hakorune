@@ -125,7 +125,7 @@ Related:
     - `tools/selfhost/selfhost_build.sh`
     - `tools/bootstrap_selfhost_smoke.sh`
     - `tools/plugin_v2_smoke.sh`
-    - `tools/selfhost_smoke.sh`
+    - `tools/selfhost/selfhost_smoke.sh`
     - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - result:
   - `30xF1` does **not** permit a raw default flip
@@ -256,8 +256,8 @@ Bootstrap/selfhost archive/delete result (`30xC1`):
 - `tools/plugin_v2_smoke.sh`
 - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
 - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
-- `tools/run_vm_stats.sh`
-- `tools/parity.sh`
+- `tools/engineering/run_vm_stats.sh`
+- `tools/engineering/parity.sh`
 - `tools/hako_check.sh`
 - `tools/hako_check_deadcode_smoke.sh`
 - `tools/archive/manual-smokes/async_smokes.sh`
@@ -274,7 +274,7 @@ Plugin/macro/tooling findings (`30xC2`):
 - `tools/plugin_v2_smoke.sh`
   - explicit plugin V2 smoke still exercises `--backend vm`
   - keep as engineering/plugin tooling surface
-- `tools/run_vm_stats.sh`
+- `tools/engineering/run_vm_stats.sh`
   - explicit VM stats helper and cookbook surface
   - keep as engineering/tooling surface
 - `tools/hako_check.sh`
@@ -295,7 +295,7 @@ Plugin/macro/tooling findings (`30xC2`):
 - `tools/archive/manual-smokes/async_smokes.sh`
   - archived in `30xG1`; old cranelift/JIT manual helper is no longer a current entrypoint
   - `tools/smokes/jit-migration-plan.md` now reads it as historical, not live keep
-- `tools/parity.sh`
+- `tools/engineering/parity.sh`
   - parity helper still has current doc references and mixed backend vocabulary
   - keep for now as engineering/tooling pressure; revisit only after `30xD`
 
@@ -311,24 +311,24 @@ Plugin/macro/tooling archive/delete result (`30xC2`):
 
 ### Smoke / test
 
-- `tools/selfhost_smoke.sh`
+- `tools/selfhost/selfhost_smoke.sh`
 - `tools/archive/manual-smokes/cross_backend_smoke.sh`
 - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-- `tools/selfhost_vm_smoke.sh`
+- `tools/selfhost/selfhost_vm_smoke.sh`
 - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
-- `tools/selfhost_stage3_accept_smoke.sh`
+- `tools/selfhost/selfhost_stage3_accept_smoke.sh`
 - `tools/archive/manual-smokes/smoke_aot_vs_vm.sh`
 
 Smoke/test findings (`30xC3`):
 
-- `tools/selfhost_smoke.sh`
+- `tools/selfhost/selfhost_smoke.sh`
   - current selfhosting quickstart still points at this dev smoke
   - keep as engineering/selfhost smoke surface
-- `tools/selfhost_vm_smoke.sh`
+- `tools/selfhost/selfhost_vm_smoke.sh`
   - current root README/README.ja and `Makefile` still point at this script
   - keep as engineering smoke surface
-- `tools/selfhost_stage3_accept_smoke.sh`
+- `tools/selfhost/selfhost_stage3_accept_smoke.sh`
   - current Stage-3 acceptance guide still points at this bridge/selfhost smoke
   - keep as engineering smoke surface
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
@@ -404,9 +404,9 @@ Plugin/smoke orchestrator freeze findings (`30xD3`):
 - explicit no-touch-first keep:
   - `tools/bootstrap_selfhost_smoke.sh`
   - `tools/plugin_v2_smoke.sh`
-  - `tools/selfhost_smoke.sh`
-  - `tools/selfhost_vm_smoke.sh`
-  - `tools/selfhost_stage3_accept_smoke.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_vm_smoke.sh`
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - archived/manual residue set:
   - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
@@ -438,7 +438,7 @@ Do not change these before `30xD` freeze plus `30xF` default-gate decisions land
 - `tools/selfhost/selfhost_build.sh`
 - `tools/bootstrap_selfhost_smoke.sh`
 - `tools/plugin_v2_smoke.sh`
-- `tools/selfhost_smoke.sh`
+- `tools/selfhost/selfhost_smoke.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 
 Default/dispatch findings (`30xD1`):

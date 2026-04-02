@@ -25,7 +25,7 @@ smoke-core:
 	bash tools/jit_smoke.sh
 
 smoke-selfhost:
-	bash tools/selfhost_vm_smoke.sh
+	bash tools/selfhost/selfhost_vm_smoke.sh
 
 bootstrap:
 	bash tools/bootstrap_selfhost_smoke.sh

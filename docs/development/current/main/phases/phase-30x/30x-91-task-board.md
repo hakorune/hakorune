@@ -81,7 +81,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `tools/selfhost/selfhost_build.sh`
   - `tools/bootstrap_selfhost_smoke.sh`
   - `tools/plugin_v2_smoke.sh`
-  - `tools/selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - `30xF1` conclusion:
   - raw default flip is still blocked
@@ -161,7 +161,7 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
 - `tools/selfhost/run.sh`
 - `tools/plugin_v2_smoke.sh`
 - `tools/bootstrap_selfhost_smoke.sh`
-- `tools/selfhost_smoke.sh`
+- `tools/selfhost/selfhost_smoke.sh`
 - `src/macro/macro_box_ny.rs`
 
 ### Plugin / macro / tooling disposition
@@ -170,11 +170,11 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `src/macro/macro_box_ny.rs`
   - `tools/bootstrap_selfhost_smoke.sh`
   - `tools/plugin_v2_smoke.sh`
-  - `tools/run_vm_stats.sh`
+  - `tools/engineering/run_vm_stats.sh`
   - `tools/hako_check.sh`
   - `tools/hako_check_deadcode_smoke.sh`
   - `tools/hakorune_emit_mir.sh`
-  - `tools/parity.sh`
+  - `tools/engineering/parity.sh`
 - archived/manual residue:
   - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
   - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
@@ -190,9 +190,9 @@ Plugin/macro/tooling archive/delete result:
 ### Smoke / test disposition
 
 - keep:
-  - `tools/selfhost_smoke.sh`
-  - `tools/selfhost_vm_smoke.sh`
-  - `tools/selfhost_stage3_accept_smoke.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_vm_smoke.sh`
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - explicit keep / archived residue:
   - `tools/archive/manual-smokes/cross_backend_smoke.sh`
@@ -214,9 +214,9 @@ Smoke/test archive/delete result:
 - explicit no-touch-first keep:
   - `tools/bootstrap_selfhost_smoke.sh`
   - `tools/plugin_v2_smoke.sh`
-  - `tools/selfhost_smoke.sh`
-  - `tools/selfhost_vm_smoke.sh`
-  - `tools/selfhost_stage3_accept_smoke.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_vm_smoke.sh`
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - explicit keep after disposition:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
@@ -347,7 +347,7 @@ Bootstrap/selfhost archive/delete result:
 - `tools/selfhost/selfhost_build.sh`
 - `tools/bootstrap_selfhost_smoke.sh`
 - `tools/plugin_v2_smoke.sh`
-- `tools/selfhost_smoke.sh`
+- `tools/selfhost/selfhost_smoke.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 
 ## Legacy Disposition Queue
@@ -364,10 +364,10 @@ Bootstrap/selfhost archive/delete result:
 - explicit recheck before archive/delete:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - current archive blockers to clear in `30xE`:
-  - `README.md` / `README.ja.md` still point at `tools/selfhost_vm_smoke.sh`
-  - `docs/development/selfhosting/quickstart.md` still points at `tools/selfhost_smoke.sh`
+  - `README.md` / `README.ja.md` later repointed to `tools/selfhost/selfhost_vm_smoke.sh`
+  - `docs/development/selfhosting/quickstart.md` later repointed to `tools/selfhost/selfhost_smoke.sh`
   - `docs/guides/selfhost-pilot.md` still points at `tools/bootstrap_selfhost_smoke.sh`
-  - `docs/guides/exceptions-stage3.md` still points at `tools/selfhost_stage3_accept_smoke.sh`
+  - `docs/guides/exceptions-stage3.md` later repointed to `tools/selfhost/selfhost_stage3_accept_smoke.sh`
   - `docs/releases/21.0-full-selfhosting.md` still points at `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
   - `tools/smokes/jit-migration-plan.md` is historical and points at archived paths
 - delete-ready now:

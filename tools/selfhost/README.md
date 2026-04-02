@@ -38,10 +38,10 @@ Script
   - Emits optional JSON via the selfhost compiler route, then compares VM outputs with rewrite ON/OFF.
 - tools/selfhost/selfhost_vm_smoke.sh
   - Dedicated selfhost-minimal VM smoke.
-  - Historical top-level path `tools/selfhost_vm_smoke.sh` is now a compatibility shim.
+  - Historical top-level alias was retired in `phase-31x / 31xE1`.
 - tools/selfhost/selfhost_stage3_accept_smoke.sh
   - Stage3 acceptance smoke for JSON v0 -> Bridge execution.
-  - Historical top-level path `tools/selfhost_stage3_accept_smoke.sh` is now a compatibility shim.
+  - Historical top-level alias was retired in `phase-31x / 31xE1`.
 - tools/selfhost/selfhost_build.sh
   - --in <file.hako>: input Hako source
   - --json <out.json>: retired wrapper surface; use `--mir` for day-to-day flow and raw compat probes/flags for Program(JSON)

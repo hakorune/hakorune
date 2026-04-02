@@ -80,7 +80,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-31x engineering lane isolation`
 - Current blocker: `none`
-- Exact focus: `31xE1 delete drained compatibility shims`
+- Exact focus: `phase-31x closeout review`
   - `phase-30x` is landed; ownership flip is complete and `phase-31x` is the first source/smoke rehome lane
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
@@ -91,8 +91,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `31xA`: phase switch and `tools/engineering/**` home lock
   - landed in `31xB`: `tools/engineering/run_vm_stats.sh` and `tools/engineering/parity.sh`; old top-level paths are compatibility shims only
   - landed in `31xC`: `tools/hako_check.sh`, `tools/hako_check_deadcode_smoke.sh`, and `tools/hakorune_emit_mir.sh` are fixed as shared-helper `keep here`
-  - landed in `31xD`: `tools/selfhost_smoke.sh`, `tools/selfhost_vm_smoke.sh`, and `tools/selfhost_stage3_accept_smoke.sh` moved under `tools/selfhost/**`; `plugin_v2` and `bootstrap_selfhost` stay top-level keep
-  - active in `31xE1`: drain top-level compatibility shims only after live docs/callers drop to zero
+  - landed in `31xD`: selfhost-only smokes moved under `tools/selfhost/**`; `plugin_v2` and `bootstrap_selfhost` stay top-level keep
+  - landed in `31xE`: drained top-level compatibility shims were deleted after current/public references were repointed to canonical homes
   - raw backend default remains deferred; no-touch-first still includes `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, `tools/selfhost/selfhost_build.sh`, and `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -106,7 +106,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-31x engineering lane isolation` |
   | Blocker | `none` |
-  | Next | `31xE1 delete drained compatibility shims` |
+  | Next | `phase-31x closeout review` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -120,7 +120,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `31xE shim drain and legacy sweep` | delete/archive only after shim drain is explicit |
+| Now | `phase-31x closeout review` | confirm landed sweep and decide whether a follow-up phase is needed |
 | Next | `shared helper follow-up` | only reopen on a dedicated helper-local cleanup lane |
 | Later | `deep orchestrator follow-up` | reopen only if top-level keep surfaces get replacement homes |
 
@@ -132,7 +132,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `31xB low-blast tool rehome` | landed | move low-blast engineering tools out of the top-level front |
 | `31xC shared helper family inventory` | landed | decide keep / rehome / archive for helper family |
 | `31xD orchestrator isolation prep` | landed | split no-touch-first orchestrators into keep vs later rehome |
-| `31xE shim drain and legacy sweep` | active | delete/archive only after moved paths are drained |
+| `31xE shim drain and legacy sweep` | landed | delete/archive only after moved paths are drained |
 
 ## Phase-31x Micro Tasks
 
@@ -146,8 +146,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `31xC2` | landed | choose shared helper disposition |
 | `31xD1` | landed | orchestrator keep vs rehome split |
 | `31xD2` | landed | docs/live path repoint for moved orchestrators |
-| `31xE1` | active | delete drained compatibility shims |
-| `31xE2` | queued | archive stale top-level wrappers |
+| `31xE1` | landed | delete drained compatibility shims |
+| `31xE2` | landed | archive stale top-level wrappers |
 
 ## Canonical Owners
 
