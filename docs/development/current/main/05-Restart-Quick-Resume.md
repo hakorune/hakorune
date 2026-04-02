@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `99W2 lock watch-1 replacement contract gap`
+- Exact focus: `99X1 lock watch-2 caller groups`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,21 +60,22 @@ bash tools/selfhost/run_lane_a_daily.sh
 
   | Band | State |
   | --- | --- |
-  | Now | `99W2 lock watch-1 replacement contract gap` |
-  | Next | `99X1 lock watch-2 caller groups` |
-  | Later | `99X2` |
+| Now | `99X1 lock watch-2 caller groups` |
+| Next | `99X2` |
+| Later | `next optimization restart` |
 
 - W4 / W5 / W6 are landed. Path truth, semantic proof/archive homes, and the Rust compat-codegen chokepoint are fixed.
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket.
 - `phase2120` pure keep and historical replay now live in separate semantic homes.
 - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
-- remaining explicit helper caller inventory is two surfaces: `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`.
+- remaining direct helper caller inventory is one surface: the archive-later surrogate under `module_string_dispatch/compat/`.
+- `compat_codegen_receiver.rs` no longer calls the helper directly; it now owns the text contract over the shared no-helper primitive.
 - adopted watch shape is:
-  - first, one Rust-side no-helper `MIR(JSON text) -> object path` primitive closes `watch-1`
-  - then, `watch-2` becomes `json_path -> read_to_string -> same primitive`
-- `99W1` is landed: caller groups and reduction order are fixed.
-- active micro task is `99W2 lock watch-1 replacement contract gap`.
-- next queued micro task is `99X1 lock watch-2 caller groups`.
+  - landed: one Rust-side no-helper `MIR(JSON text) -> object path` primitive now backs `compat_codegen_receiver.rs`
+  - next: `watch-2` becomes `json_path -> read_to_string -> same primitive`
+- `99W1` and `99W2` are landed.
+- active micro task is `99X1 lock watch-2 caller groups`.
+- next queued micro task is `99X2 lock watch-2 replacement contract gap`.
 - caller reduction order inside `watch-1` is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`.
 - both watches are currently `watch-only`, not demotable now.
 - detailed W4/W5/W6 landed history stays in `29x-99`, not in this restart mirror.

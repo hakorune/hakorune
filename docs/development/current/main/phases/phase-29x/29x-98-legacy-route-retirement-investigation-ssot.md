@@ -36,11 +36,11 @@ Related:
 
 ## Current Caller Inventory
 
-The current explicit helper caller inventory is one keep chokepoint plus one archive-later surrogate caller.
+The current direct helper caller inventory is one archive-later surrogate caller. The Rust keep chokepoint remains open as a contract watch, but it no longer calls the helper directly.
 
 | Caller | Bucket | Note |
 | --- | --- | --- |
-| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep | canonical Rust compat-codegen chokepoint; still owns the explicit MIR(JSON) text helper call |
+| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep | canonical Rust compat-codegen chokepoint; now preserves the text contract on top of the shared no-helper primitive |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate caller; keeps the helper alive but is not a daily route |
 
 ## Final Helper Watch Split
@@ -49,13 +49,13 @@ Treat the last two caller surfaces as separate watches with different unblock co
 
 | Watch | Surface | Current role | Unblock condition | Verdict |
 | --- | --- | --- | --- | --- |
-| `watch-1` | `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep chokepoint for `emit_object(mir_json_text) -> object path` | contract-preserving Rust root-first replacement for the `emit_object` branch | watch-only |
+| `watch-1` | `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep chokepoint for `emit_object(mir_json_text) -> object path` | retire upstream `emit_object` accept paths in the fixed order | watch-only |
 | `watch-2` | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later compiled-stage1 surrogate for `compile_obj(json_path)` | cleaner compiled-stage1 front door than the explicit compat helper | watch-only |
 
 ## Preferred End State
 
 - do not solve `watch-1` and `watch-2` with different new helpers.
-- first create one Rust-side no-helper root-first primitive for `MIR(JSON text) -> object path`.
+- first create one Rust-side no-helper text primitive for `MIR(JSON text) -> object path`.
 - close `watch-1` on top of that primitive first.
 - then shrink `watch-2` to `json_path -> read_to_string -> same primitive`.
 - do not promote `LlvmBackendEvidenceAdapterBox` into a new daily/compat front door; it stays evidence/proof only.
@@ -82,16 +82,22 @@ Treat the last two caller surfaces as separate watches with different unblock co
 
 - landed: `watch-1` caller groups are explicit and ordered.
 - the exact reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`.
-- next task is `99W2`: define one Rust-side no-helper `MIR(JSON text) -> object path` primitive before any demotion attempt.
+- next task was `99W2`: define one Rust-side no-helper `MIR(JSON text) -> object path` primitive before any demotion attempt.
 
 ## Watch-1 Replacement Gap
 
 | Contract item | Current owner | What must replace it before demotion | Verdict |
 | --- | --- | --- | --- |
-| MIR(JSON text) input | `compat_codegen_receiver::emit_object(...)` | one Rust-side no-helper root-first primitive that still accepts text input | missing |
-| version patching for old payloads | `compat_codegen_receiver::patch_mir_json_version(...)` | moved into the legacy wrapper path or retired by explicit upstream contract change | missing |
-| trace / observability point | `compat_codegen_receiver::trace_call/trace_result` | preserved at the replacement chokepoint | available, but tied to current owner |
-| `emit_object(mir_json_text) -> object path` result contract | `compat_codegen_receiver::emit_object(...)` | contract-preserving replacement over the single Rust text primitive | missing |
+| MIR(JSON text) input | `compat_text_primitive::compile_object_from_mir_json_text_no_helper(...)` | shared no-helper primitive that still accepts text input | landed |
+| version patching for old payloads | `compat_codegen_receiver::patch_mir_json_version(...)` | stays in the legacy wrapper path until upstream contract retirement | locked |
+| trace / observability point | `compat_codegen_receiver::trace_call/trace_result` | preserved at the replacement chokepoint | locked |
+| `emit_object(mir_json_text) -> object path` result contract | `compat_codegen_receiver::emit_object(...)` over the shared primitive | contract-preserving replacement over the single Rust text primitive | landed |
+
+## 99W2 Verdict
+
+- landed: the single Rust-side no-helper `MIR(JSON text) -> object path` primitive now exists at `src/host_providers/llvm_codegen/compat_text_primitive.rs`.
+- landed: `compat_codegen_receiver.rs` no longer calls `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` directly.
+- active helper-deletion watch now moves to `watch-2`; `watch-1` remains an upstream contract-retirement follow-up, not a direct helper-caller watch.
 
 ## Watch-2 Caller Groups
 
@@ -116,7 +122,7 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 
 | Surface | Layer | Status | Read as |
 | --- | --- | --- | --- |
-| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | direct caller | keep | canonical Rust compat-codegen chokepoint; still owns the explicit MIR(JSON) text helper call |
+| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | direct caller | keep | canonical Rust compat-codegen chokepoint; keeps the text contract over the shared no-helper primitive |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | direct caller | archive-later | compiled-stage1/archive-later surrogate still calls the explicit helper from a compat home |
 | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | direct caller | keep | explicit compat payload, but now routed through `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)`, not the legacy Rust helper |
 | `lang/src/vm/hakorune-vm/extern_provider.hako` | direct caller | keep | gated compat/proof stub, but now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`, not the legacy Rust helper |
@@ -129,15 +135,16 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 - low-blast Hako-side caller reduction is landed; selfhost payload and `extern_provider.hako` no longer call the legacy Rust helper.
 - Rust receiver collapse is landed; the remaining keep lane is the single `compat_codegen_receiver.rs` chokepoint.
 - the generic `llvm_codegen::emit_object_from_mir_json(...)` symbol/export is deleted; the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
-- physical helper deletion remains blocked until the remaining two-caller inventory reaches zero.
+- `99W2` is landed; the Rust keep chokepoint no longer calls the helper directly.
+- physical helper deletion remains blocked until the remaining direct helper caller inventory reaches zero.
 
 ## Cleanup Bands
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `watch-1 compat_codegen_receiver replacement watch` | keep the explicit helper until the Rust `emit_object` contract has a replacement |
-| Next | `watch-2 surrogate replacement watch` | shrink the surrogate into `json_path -> read_to_string -> same text primitive` after `watch-1` closes |
-| Later | `none` | no additional cleanup wave is queued before the watch resolves |
+| Now | `watch-2 surrogate replacement watch` | shrink the surrogate into `json_path -> read_to_string -> same text primitive` now that `watch-1` is off the helper |
+| Next | `next optimization restart` | restart after the last direct helper caller watch is fully locked |
+| Later | `none` | no additional helper-deletion wave is queued before the surrogate watch resolves |
 
 ## Replacement Matrix
 

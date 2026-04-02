@@ -16,6 +16,9 @@ Thin Rust bridge for backend object emission.
 - `provider_keep.rs`
   - archive-later explicit provider keep lanes
   - `ny-llvmc` / `llvmlite` path resolution and object emission helpers only
+- `compat_text_primitive.rs`
+  - explicit no-helper compat text primitive
+  - Rust-side `MIR(JSON text) -> object path` replacement target for the final helper watch
 - `capi_transport.rs`
   - explicit CAPI helper split from the legacy transport helper surface
   - compile/link CAPI helpers only
@@ -50,3 +53,4 @@ Thin Rust bridge for backend object emission.
 - legacy JSON wrapper residue now lives in `legacy_mir_front_door.rs`; the root facade stays thin and daily code only stops at `compile_ll_text(...)` / `ll_text_to_object(...)`
 - stage0 object emit now goes straight from the Rust helper to `tools/llvmlite_harness.py`; the old Rust-side object-emit JSON round-trip is retired
 - direct runtime caller retirement for the file-based `mir_json_file_to_object(...)` front door is landed; the remaining Rust-side wrapper is the explicit compat helper `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`
+- the Rust compat chokepoint now uses the internal `compat_text_primitive.rs` primitive instead of calling the legacy front-door helper directly; the remaining direct helper caller is the compiled-stage1 surrogate

@@ -45,9 +45,9 @@ Related:
 
 - active macro wave: `post-W6 residual cleanup and helper watch`
 - active micro-task:
-  - `99W2 lock watch-1 replacement contract gap`
-- next queued micro-task:
   - `99X1 lock watch-2 caller groups`
+- next queued micro-task:
+  - `99X2 lock watch-2 replacement contract gap`
 - queued after that:
   - `99X2 lock watch-2 replacement contract gap`
 - adopted watch strategy:
@@ -64,8 +64,8 @@ Related:
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `99W1` | landed | lock watch-1 caller groups | `compat_codegen_receiver.rs` upstream groups and reduction order are explicit as `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen` |
-| `99W2` | active | lock watch-1 replacement contract gap | one Rust-side no-helper text primitive is the explicit replacement target for `emit_object(mir_json_text) -> object path` |
-| `99X1` | queued | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch`, and reduction stays after `watch-1` |
+| `99W2` | landed | lock watch-1 replacement contract gap | one Rust-side no-helper text primitive is explicit and the compat chokepoint now uses it |
+| `99X1` | active | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch`, and reduction stays after `watch-1` |
 | `99X2` | queued | lock watch-2 replacement contract gap | the surrogate shrinks to `json_path -> read_to_string -> same text primitive` before helper deletion is reconsidered |
 
 ## Review Intake

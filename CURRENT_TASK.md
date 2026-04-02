@@ -71,14 +71,15 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `99W2 lock watch-1 replacement contract gap`
+- Exact focus: `99X1 lock watch-2 caller groups`
   - W4, W5, and W6 landed; path truth, semantic proof/archive homes, and one Rust compat-codegen chokepoint are in place
   - `phase2044` lives under `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`
   - `phase2120` lives under `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
   - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`
-  - remaining explicit helper caller inventory is 2: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
+  - remaining direct helper caller inventory is 1: `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
+  - `compat_codegen_receiver.rs` is no longer a direct helper caller; it now preserves the text contract over the shared no-helper primitive
   - watch split is explicit:
-    - `watch-1` keep chokepoint = `compat_codegen_receiver.rs`; not demotable until a contract-preserving Rust root-first replacement exists for `emit_object(mir_json_text) -> object path`
+    - `watch-1` keep chokepoint = `compat_codegen_receiver.rs`; helper pressure is gone, but the upstream `emit_object(mir_json_text) -> object path` contract still retires in fixed order
     - `watch-2` archive-later surrogate = `module_string_dispatch/compat/llvm_backend_surrogate.rs`; not demotable until compiled-stage1 has a cleaner front door than the explicit compat helper
   - adopted watch strategy:
     - one Rust-side no-helper `MIR(JSON text) -> object path` primitive closes `watch-1`
@@ -88,9 +89,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `CodegenBridgeBox.emit_object_args(...)` is deleted; the owner-looking path is shim-only for `link_object_args(...)`
   - `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
   - `99W1` is landed: upstream groups and reduction order are fixed as `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
-  - current active micro task is `99W2 lock watch-1 replacement contract gap`
-  - next queued micro task is `99X1 lock watch-2 caller groups`
-  - queued after that is `99X2 lock watch-2 replacement contract gap`
+  - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and `compat_codegen_receiver.rs` now uses it
+  - current active micro task is `99X1 lock watch-2 caller groups`
+  - next queued micro task is `99X2 lock watch-2 replacement contract gap`
+  - queued after that is `next optimization restart`
   - post-watch step is `next optimization restart`
   - review intake owner remains `29x-99`; mirror docs now carry only the live watch state
 - Exact read order:
@@ -108,9 +110,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
   | Item | State |
   | --- | --- |
-  | Now | `phase-29x backend owner cutover prep` |
-  | Blocker | `none` |
-  | Next | `99W1 -> 99W2 -> 99X1 -> 99X2 -> next optimization restart` |
+     | Now | `phase-29x backend owner cutover prep` |
+     | Blocker | `none` |
+     | Next | `99X1 -> 99X2 -> next optimization restart` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -124,9 +126,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99W2 lock watch-1 replacement contract gap` | lock the single Rust text primitive before any demotion attempt |
-| Next | `99X1 lock watch-2 caller groups` | keep the surrogate follow-up behind the watch-1 replacement contract |
-| Later | `99X2` | shrink the surrogate into a file-wrapper over the same primitive, then re-check helper deletion |
+| Now | `99X1 lock watch-2 caller groups` | keep the surrogate follow-up explicit now that watch-1 no longer calls the helper directly |
+| Next | `99X2` | shrink the surrogate into a file-wrapper over the same primitive, then re-check helper deletion |
+| Later | `next optimization restart` | restart after the remaining direct helper caller watch is fully locked |
 
 ## Cleanup Waves
 

@@ -47,7 +47,9 @@ pub(super) fn handle_codegen(
 
 pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String, String> {
     // Explicit compat chokepoint: this branch still owns the MIR(JSON text) -> object
-    // contract until a contract-preserving Rust root-first replacement exists.
+    // contract until upstream accept paths retire in order. The legacy helper is
+    // no longer called here directly; this chokepoint now sits on a dedicated
+    // no-helper text primitive.
     // The remaining upstream groups are fixed as:
     // 1. loader-cold extern
     // 2. hostbridge dispatch
@@ -67,13 +69,12 @@ pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String,
     } else {
         mir_json.to_string()
     };
-    let result =
-        crate::host_providers::llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(
-            &input,
-            codegen_opts(None),
-        )
-        .map(|p| p.to_string_lossy().into_owned())
-        .map_err(|e| e.to_string());
+    let result = crate::host_providers::llvm_codegen::compat_text_primitive::compile_object_from_mir_json_text_no_helper(
+        &input,
+        codegen_opts(None),
+    )
+    .map(|p| p.to_string_lossy().into_owned())
+    .map_err(|e| e.to_string());
     trace_result("emit_object", &result);
     result
 }

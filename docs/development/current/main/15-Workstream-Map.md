@@ -38,13 +38,15 @@ Related:
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - semantic proof/archive recut is landed: `phase2044`, `phase2120`, and archive replay evidence now live in semantic homes
      - the selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
-     - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper callers are `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`
+     - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining direct helper caller is the archive-later surrogate under `module_string_dispatch/compat/`
+     - `compat_codegen_receiver.rs` no longer calls the helper directly; it now keeps the text contract on top of the shared no-helper primitive
      - `29x-98` owns the final helper-deletion watch, now split into the keep chokepoint watch and the archive-later surrogate watch; `29x-99` owns landed re-cut history and move order
      - the adopted watch strategy is one Rust-side no-helper `MIR(JSON text) -> object path` primitive first; the surrogate follows later as `json_path -> read_to_string -> same primitive`
      - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
      - `99W1` is landed: caller groups and reduction order are fixed
-     - current active micro task is `99W2 lock watch-1 replacement contract gap`
-     - next queued micro task is `99X1 lock watch-2 caller groups`
+     - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and the keep chokepoint uses it
+     - current active micro task is `99X1 lock watch-2 caller groups`
+     - next queued micro task is `99X2 lock watch-2 replacement contract gap`
      - watch-1 caller reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
      - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -59,9 +61,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `99W2 lock watch-1 replacement contract gap` |
-     | Next | `99X1 lock watch-2 caller groups` |
-     | Later | `99X2` |
+     | Now | `99X1 lock watch-2 caller groups` |
+     | Next | `99X2` |
+     | Later | `next optimization restart` |
    - cleanup waves:
 
      | Wave | Status | Read as |
