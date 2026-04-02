@@ -35,11 +35,12 @@ Related:
 | 5 | `30xB3` | landed | `llvm/exe` product vs `llvmlite` probe boundary lock |
 | 6 | `30xB4` | landed | smoke matrix/guide cleanup |
 | 7 | `30xC1` | landed | `rust-vm` bootstrap/selfhost pressure |
-| 8 | `30xC2` | active | `rust-vm` plugin/macro/tooling pressure |
-| 9 | `30xC3-30xC4` | queued | remaining `rust-vm` pressure by category |
-| 10 | `30xD1-30xD3` | queued | do-not-flip-early lock |
-| 11 | `30xE1-30xE4` | queued | user-facing main switch prep |
-| 12 | `30xF1-30xF2` | queued | backend default decision last |
+| 8 | `30xC2` | landed | `rust-vm` plugin/macro/tooling pressure |
+| 9 | `30xC3` | active | `rust-vm` smoke/test pressure |
+| 10 | `30xC4` | queued | `rust-vm` docs/help pressure |
+| 11 | `30xD1-30xD3` | queued | do-not-flip-early lock |
+| 12 | `30xE1-30xE4` | queued | user-facing main switch prep |
+| 13 | `30xF1-30xF2` | queued | backend default decision last |
 
 ## Evidence Commands
 
@@ -71,6 +72,27 @@ rg -n 'rust-vm|vm-hako|llvm-exe|ny-llvm|ny-llvmc|compile-wasm|wasm-backend' \
 - `tools/bootstrap_selfhost_smoke.sh`
 - `tools/selfhost_smoke.sh`
 - `src/macro/macro_box_ny.rs`
+
+### Plugin / macro / tooling keep vs watch
+
+- keep:
+  - `src/macro/macro_box_ny.rs`
+  - `tools/bootstrap_selfhost_smoke.sh`
+  - `tools/plugin_v2_smoke.sh`
+  - `tools/run_vm_stats.sh`
+  - `tools/hako_check.sh`
+  - `tools/hako_check_deadcode_smoke.sh`
+  - `tools/hakorune_emit_mir.sh`
+  - `tools/parity.sh`
+- watch:
+  - `tools/ny_stage1_asi_smoke.sh`
+  - `tools/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/async_smokes.sh`
+
+Plugin/macro/tooling archive/delete result:
+
+- `none`
+- hard delete/archive is blocked in `30xC2`; `30xC3` and `30xD` must land first
 
 ### Bootstrap/selfhost keep details
 

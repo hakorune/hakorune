@@ -50,9 +50,10 @@ Related:
   - `wasm` = `experimental`
 - `rust-vm` still has deep pressure in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help.
 - dangerous early flips stay frozen around launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, and `tools/selfhost/run.sh`.
-- `30xA1`, `30xA2`, `30xB1-30xB4`, and `30xC1` are landed.
-- current active micro task is `30xC2 rust-vm plugin/macro/tooling inventory`.
-- next queued micro task is `30xC3 rust-vm smoke/test inventory`.
+- `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, and `30xC2` are landed.
+- `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` and `manual residue watch`.
+- current active micro task is `30xC3 rust-vm smoke/test inventory`.
+- next queued micro task is `30xC4 rust-vm docs/help inventory`.
 - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence.
 - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence.
 - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only.
@@ -73,9 +74,9 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xC2 rust-vm plugin/macro/tooling inventory` | group macro child, plugin smoke, and dev tooling pressure |
-| Next | `30xC3 rust-vm smoke/test inventory` | group vm-backed smoke/test orchestrators separately |
-| Later | `30xC4-30xF` | docs/help inventory, dangerous flip lock, user-facing main switch, backend default gate |
+| Now | `30xC3 rust-vm smoke/test inventory` | group vm-backed smoke/test orchestrators separately |
+| Next | `30xC4 rust-vm docs/help inventory` | group stale main-narrative docs/help pressure |
+| Later | `30xD-30xF` | dangerous flip lock, user-facing main switch, backend default gate |
 
 ## Backend Surface Waves
 

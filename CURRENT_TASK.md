@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xC2 rust-vm plugin/macro/tooling inventory`
+- Exact focus: `30xC3 rust-vm smoke/test inventory`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -85,9 +85,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `rust-vm` is still deep in bootstrap/selfhost/plugin/macro/smoke paths; do not force-remove it before inventory and smoke split
   - current docs mostly use the label `rust-vm`, not `vm-rust`
   - dangerous early flips are launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, `tools/selfhost/run.sh`, and `tools/plugin_v2_smoke.sh`
-  - `30xA1`, `30xA2`, `30xB1-30xB4`, and `30xC1` are landed
-  - active micro task is `30xC2 rust-vm plugin/macro/tooling inventory`
-  - next queued micro task is `30xC3 rust-vm smoke/test inventory`
+  - `30xA1`, `30xA2`, `30xB1-30xB4`, `30xC1`, and `30xC2` are landed
+  - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` and `manual residue watch`
+  - active micro task is `30xC3 rust-vm smoke/test inventory`
+  - next queued micro task is `30xC4 rust-vm docs/help inventory`
   - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
   - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
   - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
@@ -120,9 +121,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xC2 rust-vm plugin/macro/tooling inventory` | group macro child, plugin smoke, and dev tooling pressure |
-| Next | `30xC3 rust-vm smoke/test inventory` | group vm-backed smoke/test orchestrators separately |
-| Later | `30xC4-30xF` | docs/help inventory, dangerous flip lock, main switch, backend default gate |
+| Now | `30xC3 rust-vm smoke/test inventory` | group vm-backed smoke/test orchestrators separately |
+| Next | `30xC4 rust-vm docs/help inventory` | group stale main-narrative docs/help pressure |
+| Later | `30xD-30xF` | dangerous flip lock, user-facing main switch, backend default gate |
 
 ## Backend Surface Waves
 
@@ -146,8 +147,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xB3` | landed | `llvm/exe` product vs `llvmlite` probe boundary lock |
 | `30xB4` | landed | matrix/guide smoke taxonomy cleanup |
 | `30xC1` | landed | bootstrap/selfhost `rust-vm` pressure inventory |
-| `30xC2` | active | plugin/macro/tooling `rust-vm` pressure inventory |
-| `30xC3-30xC4` | queued | remaining internal `--backend vm` pressure groups |
+| `30xC2` | landed | plugin/macro/tooling `rust-vm` pressure inventory |
+| `30xC3` | active | smoke/test `rust-vm` pressure inventory |
+| `30xC4` | queued | docs/help `rust-vm` pressure inventory |
 | `30xD1-30xD3` | queued | dangerous early flips are frozen explicitly |
 | `30xE1-30xE4` | queued | user-facing main switch is prepared without a raw default flip |
 | `30xF1-30xF2` | queued | backend default decision gate stays last |

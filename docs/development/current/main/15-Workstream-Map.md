@@ -46,8 +46,9 @@ Related:
      - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
      - dangerous early flips remain around launcher/default/orchestrator sites
      - `30xA1`, `30xA2`, `30xB1-30xB4`, and `30xC1` are landed
-     - current active micro task is `30xC2 rust-vm plugin/macro/tooling inventory`
-     - next queued micro task is `30xC3 rust-vm smoke/test inventory`
+     - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` plus `manual residue watch`
+     - current active micro task is `30xC3 rust-vm smoke/test inventory`
+     - next queued micro task is `30xC4 rust-vm docs/help inventory`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
      - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only
@@ -60,14 +61,14 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xC2 rust-vm plugin/macro/tooling inventory` |
+     | Next | `30xC3 rust-vm smoke/test inventory` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xC2 rust-vm plugin/macro/tooling inventory` |
-     | Next | `30xC3 rust-vm smoke/test inventory` |
-     | Later | `30xC4-30xF` |
+     | Now | `30xC3 rust-vm smoke/test inventory` |
+     | Next | `30xC4 rust-vm docs/help inventory` |
+     | Later | `30xD-30xF` |
    - cleanup waves:
 
      | Wave | Status | Read as |

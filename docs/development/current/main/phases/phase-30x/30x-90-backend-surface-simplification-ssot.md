@@ -75,8 +75,8 @@ Related:
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `30xC1` | landed | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
-| `30xC2` | active | plugin/macro/tooling inventory | macro child, plugin smoke, bridge accept, parity tools are grouped explicitly |
-| `30xC3` | queued | smoke/test inventory | vm-backed smoke/test orchestrators are listed separately from product/reference suites |
+| `30xC2` | landed | plugin/macro/tooling inventory | macro child, plugin smoke, and dev tooling are grouped into keep vs watch |
+| `30xC3` | active | smoke/test inventory | vm-backed smoke/test orchestrators are listed separately from product/reference suites |
 | `30xC4` | queued | docs/help inventory | README/help/guides that still center `--backend vm` are explicit |
 
 ### `30xD` dangerous-early-flip lock
@@ -171,6 +171,49 @@ Bootstrap/selfhost archive/delete result (`30xC1`):
 - `tools/hako_check_deadcode_smoke.sh`
 - `tools/async_smokes.sh`
 - `tools/hakorune_emit_mir.sh`
+
+Plugin/macro/tooling findings (`30xC2`):
+
+- `src/macro/macro_box_ny.rs`
+  - macro child route still documents `nyash --backend vm ...`
+  - keep as engineering/macro tooling pressure; not a product-mainline surface
+- `tools/bootstrap_selfhost_smoke.sh`
+  - explicit bootstrap smoke on Rust VM lane
+  - keep as engineering/bootstrap-tooling surface
+- `tools/plugin_v2_smoke.sh`
+  - explicit plugin V2 smoke still exercises `--backend vm`
+  - keep as engineering/plugin tooling surface
+- `tools/run_vm_stats.sh`
+  - explicit VM stats helper and cookbook surface
+  - keep as engineering/tooling surface
+- `tools/hako_check.sh`
+  - current helper/lint route still exercises Rust VM
+  - keep as engineering/tooling surface
+- `tools/hako_check_deadcode_smoke.sh`
+  - deadcode helper smoke is still part of current tooling/docs flow
+  - keep as engineering/tooling surface
+- `tools/hakorune_emit_mir.sh`
+  - current MIR emission helper remains live and docs-referenced
+  - keep as engineering/tooling surface
+- `tools/ny_stage1_asi_smoke.sh`
+  - isolated manual stage smoke with direct `--backend vm`
+  - watch as manual residue; do not delete in `30xC2`
+- `tools/ny_stage3_bridge_accept_smoke.sh`
+  - isolated manual bridge-accept smoke with direct `--backend vm`
+  - watch as manual residue; do not delete in `30xC2`
+- `tools/async_smokes.sh`
+  - older async helper still appears in migration-plan material
+  - watch as manual residue until `30xC3/30xD` clarifies smoke ownership
+- `tools/parity.sh`
+  - parity helper still has current doc references and mixed backend vocabulary
+  - keep for now as engineering/tooling pressure; revisit only after `30xC3`
+
+Plugin/macro/tooling archive/delete result (`30xC2`):
+
+- none
+- current hard-delete or archive move would be premature in this bucket
+- keep surfaces stay live engineering/tooling pressure
+- manual residues stay watch-only until smoke/test and early-flip slices land
 
 ### Smoke / test
 
