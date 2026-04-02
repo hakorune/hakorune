@@ -86,6 +86,10 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `29x-99` now owns beauty-first cleanup planning, with `W4 Hako-side caller drain prep` active and `W3 smoke/proof filesystem recut` landed
   - current active micro task is `99N-99P Hako-side caller drain prep`
   - next queued micro task is `99Q-99S Rust compat receiver collapse`
+  - review intake is now classified in `29x-99`:
+    - landed already: compat payload canonical home, `extern_provider.hako` split, `llvm_codegen.rs` split, semantic proof/archive recut
+    - adopt next: `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
+    - stale-in-review: old `tools/selfhost/examples/` payload home is no longer live
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -140,6 +144,14 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `99F file-move / shim order lock` | landed | define move-first, shim-second, delete-last order |
 | `99G-99J mixed-file split targets` | landed | `extern_provider.hako`, `llvm_codegen.rs`, `LlvmBackendBox`, compat boxes |
 | `99K-99M smoke/proof filesystem recut` | active | `phase2044`, `phase2120`, archive evidence bundle |
+
+## Review Intake
+
+| Bucket | State | Read as |
+| --- | --- | --- |
+| Landed already | compat payload canonicalized; `extern_provider.hako` split; `llvm_codegen.rs` split; semantic proof/archive recut | review confirms the current re-cut direction |
+| Adopt next | `LlvmBackendBox` owner-facade slimming; one Rust compat-codegen chokepoint | open beauty deltas after `W4` proof gate |
+| Stale in review | old `tools/selfhost/examples/` compat payload home | current tree already points wrappers at `tools/compat/legacy-codegen/` |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.

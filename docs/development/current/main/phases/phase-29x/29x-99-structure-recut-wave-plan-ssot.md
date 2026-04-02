@@ -53,6 +53,20 @@ Related:
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
   - `99E4` is absorbed into `W2` `99I` owner API / evidence adapter split.
 
+## Review Intake
+
+The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a new competing plan.
+
+| Review point | Verdict | Task home | Read as |
+| --- | --- | --- | --- |
+| compat selfhost payload home was duplicated | stale-in-review | `99F1` landed | wrapper now points at `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` |
+| `extern_provider.hako` still mixed runtime owner and compat codegen | landed | `99G` landed | runtime owner and compat codegen stub are already split |
+| `llvm_codegen.rs` still mixed thin boundary and legacy MIR front door | landed | `99H` landed | legacy front door now lives in `legacy_mir_front_door.rs` |
+| `phase2044` / `phase2120` were still phase-number semantic homes | landed | `99K-99M` landed | live proof/archive buckets now have semantic homes |
+| `LlvmBackendBox` still reads as both owner facade and file/evidence entry | adopt-next | `99I` follow-up after `W4` | split is partial; owner facade slimming remains open |
+| Rust legacy/codegen receivers still read as a spread surface | adopt-next | `99Q-99S` | receiver-body split landed; one chokepoint collapse remains open |
+| `CodegenBridgeBox.emit_object_args(...)` / `emit_object_from_mir_json(...)` should die only after path truth and proof replacement exist | confirmed | `29x-98` + `99N-99P` | stop-line stays proof-gated |
+
 ## Micro Tasks
 
 ### W1. Docs-First Path-Truth Pass
@@ -95,6 +109,10 @@ Related:
 | `99I` | landed | split `LlvmBackendBox` owner API and evidence adapter | canonical MIR/root-first APIs and JSON/evidence entrypoints are no longer mixed |
 | `99J` | landed | move `CodegenBridgeBox` and `LLVMEmitBox` out of owner-looking paths | compat/proof surfaces stop living under misleading owner paths |
 
+- `99I` follow-up remains queued after `W4`:
+  - slim `LlvmBackendBox` until `compile_obj(json_path)` no longer makes the owner facade look like the evidence/file entry home
+  - keep that rename/surface pass separate from current proof-gated caller-drain work
+
 ### W3. Smoke/Proof Filesystem Recut
 
 | ID | Status | Task | Acceptance |
@@ -136,7 +154,7 @@ Related:
 - W5 prep is now partially landed:
   - MirInterpreter codegen receiver bodies live in `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs`
   - plugin loader `env.codegen` receiver body lives in `src/runtime/plugin_loader_v2/enabled/codegen.rs`
-  - the remaining collapse work is still call-site / ownership reduction, so `W4` stays blocked-on-proof
+  - the remaining collapse work is still call-site / ownership reduction to one explicit compat-codegen chokepoint, so `W4` stays blocked-on-proof
 
 ### W6. Final Delete/Archive Sweep
 

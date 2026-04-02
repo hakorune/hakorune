@@ -82,6 +82,20 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99Q-99S` | W5 | pending-after-W4 | Rust compat receiver collapse | receiver spread is reduced to one chokepoint |
 | `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |
 
+## 0.2 Review intake
+
+This table is not a new plan. It classifies the 2026-04-02 beauty-first review against the current tree.
+
+| Review point | Verdict | Owner |
+| --- | --- | --- |
+| compat payload canonical home | landed already | `99F1` |
+| `extern_provider.hako` runtime/compat split | landed already | `99G` |
+| `llvm_codegen.rs` thin boundary / legacy front-door split | landed already | `99H` |
+| semantic proof/archive recut for `phase2044` / `phase2120` | landed already | `99K-99M` |
+| slimmer `LlvmBackendBox` owner facade | adopt next | post-`W4` follow-up on `99I` |
+| one explicit Rust compat-codegen chokepoint | adopt next | `99Q-99S` |
+| old `tools/selfhost/examples/` compat payload home | stale in review | current live home is `tools/compat/legacy-codegen/` |
+
 | ID | Lane | Task | Est. | Depends | Acceptance |
 | --- | --- | --- | --- | --- | --- |
 | X1 | docs | 29x docs bootstrap（README/checklist/board） | 30m | - | 3ファイル作成 + 入口リンク更新 |

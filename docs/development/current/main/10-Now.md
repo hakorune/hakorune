@@ -47,6 +47,7 @@ Related:
 - `29x-99` owns macro cleanup waves and micro tasks; active micro task is `99N-99P Hako-side caller drain prep`.
 - next queued micro task is `99Q-99S Rust compat receiver collapse`.
 - W5 prep is partially landed: codegen receiver bodies now live in dedicated modules, but the one-chokepoint collapse itself is still pending after W4.
+- review intake is now normalized in `29x-99`: landed already = compat payload canonical home + `extern_provider.hako` split + `llvm_codegen.rs` split + semantic proof recut; adopt-next = slimmer `LlvmBackendBox` owner facade + one explicit Rust compat-codegen chokepoint.
 - immediate cleanup order is `compat selfhost wrapper archive conditions -> archive proof bundle -> directory semantic recut`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
@@ -77,6 +78,14 @@ Related:
 | `W4 Hako-side caller drain prep` | blocked-on-proof | exact replacement proof required |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | one compat receiver chokepoint |
 | `W6 final delete/archive sweep` | pending-after-W5 | helper deletion after zero callers |
+
+## Review Intake
+
+| Bucket | Read as |
+| --- | --- |
+| Landed already | payload home / split targets / semantic proof buckets now match the beauty-first review direction |
+| Adopt next | `LlvmBackendBox` owner-facade slimming and one Rust compat-codegen chokepoint remain open |
+| Stale in review | `tools/selfhost/examples/` is no longer the live compat payload home |
 
 ## Exact Links
 
