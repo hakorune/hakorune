@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xB3 llvm/exe vs llvmlite boundary lock`
+- Exact focus: `30xC1 rust-vm bootstrap/selfhost inventory`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -85,11 +85,12 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `rust-vm` is still deep in bootstrap/selfhost/plugin/macro/smoke paths; do not force-remove it before inventory and smoke split
   - current docs mostly use the label `rust-vm`, not `vm-rust`
   - dangerous early flips are launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, `tools/selfhost/run.sh`, and `tools/plugin_v2_smoke.sh`
-  - `30xA1`, `30xA2`, `30xB1`, and `30xB2` are landed
-  - active micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
-  - next queued micro task is `30xB4 smoke matrix/guide cleanup`
+  - `30xA1`, `30xA2`, and `30xB1-30xB4` are landed
+  - active micro task is `30xC1 rust-vm bootstrap/selfhost inventory`
+  - next queued micro task is `30xC2 rust-vm plugin/macro/tooling inventory`
   - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
   - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
+  - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-30x/README.md`
@@ -104,7 +105,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
+  | Next | `30xC1 rust-vm bootstrap/selfhost inventory` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -118,17 +119,17 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xB3 llvm/exe vs llvmlite boundary lock` | keep product mainline and compat/probe keep distinct |
-| Next | `30xB4 smoke matrix/guide cleanup` | align role-first wording across smoke discovery docs |
-| Later | `30xC-30xF` | inventory, dangerous flip lock, main switch, backend default gate |
+| Now | `30xC1 rust-vm bootstrap/selfhost inventory` | group launcher, stage1, and selfhost pressure before any flip |
+| Next | `30xC2 rust-vm plugin/macro/tooling inventory` | group macro child, plugin smoke, and dev tooling pressure |
+| Later | `30xC3-30xF` | remaining inventory, dangerous flip lock, main switch, backend default gate |
 
 ## Backend Surface Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
 | `30xA role taxonomy lock` | landed | lock the role-first reading in root docs and phase docs |
-| `30xB smoke taxonomy split` | active | separate product / engineering / reference / experimental smoke reading |
-| `30xC rust-vm dependency inventory` | queued | map internal `--backend vm` pressure before any flip |
+| `30xB smoke taxonomy split` | landed | separate product / engineering / reference / experimental smoke reading |
+| `30xC rust-vm dependency inventory` | active | map internal `--backend vm` pressure before any flip |
 | `30xD dangerous-early-flip lock` | queued | freeze launcher/default/orchestrator sites that must not move early |
 | `30xE user-facing main switch prep` | queued | move README/help/examples toward `llvm/exe` first without flipping defaults |
 | `30xF backend default decision gate` | queued | decide the raw CLI default only after the previous slices land |
@@ -141,9 +142,10 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xA2` | landed | design role SSOTs use the same role-first labels |
 | `30xB1` | landed | `vm-hako` reference smoke lock |
 | `30xB2` | landed | `wasm` experimental smoke lock |
-| `30xB3` | active | `llvm/exe` product vs `llvmlite` probe boundary lock |
-| `30xB4` | queued | matrix/guide smoke taxonomy cleanup |
-| `30xC1-30xC4` | queued | internal `--backend vm` pressure is grouped by category |
+| `30xB3` | landed | `llvm/exe` product vs `llvmlite` probe boundary lock |
+| `30xB4` | landed | matrix/guide smoke taxonomy cleanup |
+| `30xC1` | active | bootstrap/selfhost `rust-vm` pressure inventory |
+| `30xC2-30xC4` | queued | remaining internal `--backend vm` pressure groups |
 | `30xD1-30xD3` | queued | dangerous early flips are frozen explicitly |
 | `30xE1-30xE4` | queued | user-facing main switch is prepared without a raw default flip |
 | `30xF1-30xF2` | queued | backend default decision gate stays last |

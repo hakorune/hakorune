@@ -23,6 +23,13 @@ Phase 15.5でCore Box完全削除後のNyashテストシステム。すべての
 
 `full` は legacy compatibility label としてのみ扱い、現在の live profile root とは分けて読む。
 
+role-first の読み:
+- `llvm/exe` 系 = product
+- `rust-vm` 系 = engineering/bootstrap
+- `vm-hako` 系 = reference/conformance
+- `wasm` 系 = experimental
+- `tools/smokes/v2/configs/matrix.conf` の backend axis は `rust-vm` と `llvm/exe` だけを対象にし、`vm-hako` / `wasm` は混ぜない
+
 ## 📊 現在の状況（2025-09-24）
 
 ### ✅ 動作確認済み
@@ -110,6 +117,9 @@ tools/smokes/v2/
 - curated daily/presubmit 実行は `tools/smokes/v2/suites/<profile>/<suite>.txt` を使う
 - `--suite` は live discovery を置き換えず、allowlist intersection として働く
 - `strict` is the live narrow gate tier; `full` is legacy compatibility vocabulary only.
+- `vm-hako` suite は reference/conformance の証跡であり、mainline smoke ではない
+- `phase29cc_wsm` family は experimental smoke であり、co-main evidence ではない
+- `compat/llvmlite-monitor-keep` は compat/probe keep であり、`llvm/exe` product acceptance ではない
 
 ## 🧪 テストの作成方法
 

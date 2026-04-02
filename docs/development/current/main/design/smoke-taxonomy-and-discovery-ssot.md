@@ -79,6 +79,13 @@ Current seeded suites:
 
 Smoke split work is parked while the kernel migration lane resumes; the suite list below remains the future-facing organization map for any later smoke wave.
 
+Matrix note:
+
+- `tools/smokes/v2/configs/matrix.conf` currently exercises only the
+  `product`/`engineering` backend axis (`llvm` / `vm`).
+- `vm-hako` reference suites and `wasm` experimental families stay outside the
+  matrix backend axis until a separate role-specific matrix is defined.
+
 Reference-lane note:
 
 - `integration/vm-hako-core` and `integration/vm-hako-caps` are reference/conformance suites.

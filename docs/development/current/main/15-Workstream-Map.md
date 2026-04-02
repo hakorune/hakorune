@@ -45,11 +45,12 @@ Related:
        - `wasm` = `experimental`
      - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
      - dangerous early flips remain around launcher/default/orchestrator sites
-     - `30xA1`, `30xA2`, `30xB1`, and `30xB2` are landed
-     - current active micro task is `30xB3 llvm/exe vs llvmlite boundary lock`
-     - next queued micro task is `30xB4 smoke matrix/guide cleanup`
+     - `30xA1`, `30xA2`, and `30xB1-30xB4` are landed
+     - current active micro task is `30xC1 rust-vm bootstrap/selfhost inventory`
+     - next queued micro task is `30xC2 rust-vm plugin/macro/tooling inventory`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
+     - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only
      - review intake detail stays in `phase-30x`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-30x backend surface simplification table:
@@ -58,21 +59,21 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xB3 llvm/exe vs llvmlite boundary lock` |
+     | Next | `30xC1 rust-vm bootstrap/selfhost inventory` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xB3 llvm/exe vs llvmlite boundary lock` |
-     | Next | `30xB4 smoke matrix/guide cleanup` |
-     | Later | `30xC-30xF` |
+     | Now | `30xC1 rust-vm bootstrap/selfhost inventory` |
+     | Next | `30xC2 rust-vm plugin/macro/tooling inventory` |
+     | Later | `30xC3-30xF` |
    - cleanup waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
      | `30xA role taxonomy lock` | landed | root docs and phase docs use the same backend roles |
-     | `30xB smoke taxonomy split` | active | role-first smoke/gate reading |
-     | `30xC rust-vm dependency inventory` | queued | internal `--backend vm` pressure map |
+     | `30xB smoke taxonomy split` | landed | role-first smoke/gate reading |
+     | `30xC rust-vm dependency inventory` | active | internal `--backend vm` pressure map |
      | `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator freeze |
      | `30xE user-facing main switch prep` | queued | `llvm/exe` first docs/help/examples |
      | `30xF backend default decision gate` | queued | decide raw CLI default last |

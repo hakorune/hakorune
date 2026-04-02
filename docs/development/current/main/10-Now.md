@@ -50,11 +50,12 @@ Related:
   - `wasm` = `experimental`
 - `rust-vm` still has deep pressure in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help.
 - dangerous early flips stay frozen around launcher/default/orchestrator sites such as `src/cli/args.rs`, `src/runner/dispatch.rs`, `src/runner/modes/common_util/selfhost/child.rs`, `lang/src/runner/stage1_cli/core.hako`, and `tools/selfhost/run.sh`.
-- `30xA1`, `30xA2`, `30xB1`, and `30xB2` are landed.
-- current active micro task is `30xB3 llvm/exe vs llvmlite boundary lock`.
-- next queued micro task is `30xB4 smoke matrix/guide cleanup`.
+- `30xA1`, `30xA2`, and `30xB1-30xB4` are landed.
+- current active micro task is `30xC1 rust-vm bootstrap/selfhost inventory`.
+- next queued micro task is `30xC2 rust-vm plugin/macro/tooling inventory`.
 - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence.
 - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence.
+- `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only.
 - review intake lives in `phase-30x`; this mirror only carries the open deltas.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
@@ -71,17 +72,17 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xB3 llvm/exe vs llvmlite boundary lock` | keep product mainline and compat/probe keep distinct |
-| Next | `30xB4 smoke matrix/guide cleanup` | align role-first wording across smoke discovery docs |
-| Later | `30xC-30xF` | inventory, dangerous flip lock, user-facing main switch, backend default gate |
+| Now | `30xC1 rust-vm bootstrap/selfhost inventory` | group launcher, stage1, and selfhost pressure before any flip |
+| Next | `30xC2 rust-vm plugin/macro/tooling inventory` | group macro child, plugin smoke, and dev tooling pressure |
+| Later | `30xC3-30xF` | remaining inventory, dangerous flip lock, user-facing main switch, backend default gate |
 
 ## Backend Surface Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
 | `30xA role taxonomy lock` | landed | current lane, labels, and mirrors |
-| `30xB smoke taxonomy split` | active | role-first gate/smoke reading |
-| `30xC rust-vm dependency inventory` | queued | internal `--backend vm` pressure map |
+| `30xB smoke taxonomy split` | landed | role-first gate/smoke reading |
+| `30xC rust-vm dependency inventory` | active | internal `--backend vm` pressure map |
 | `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator freeze |
 | `30xE user-facing main switch prep` | queued | `llvm/exe` first docs/help/examples |
 | `30xF backend default decision gate` | queued | raw CLI default/backend flip decision last |

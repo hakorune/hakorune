@@ -67,14 +67,14 @@ Related:
 | --- | --- | --- | --- |
 | `30xB1` | landed | reference smoke lock | `vm-hako` suites/readmes read as `reference`, not active mainline |
 | `30xB2` | landed | experimental smoke lock | `wasm` suites/readmes read as `experimental`, not co-main |
-| `30xB3` | active | product/probe boundary lock | `llvm/exe` product lane and `llvmlite` compat/probe keep are not mixed |
-| `30xB4` | queued | matrix/guide cleanup | smoke discovery docs and matrix config use the same role-first reading |
+| `30xB3` | landed | product/probe boundary lock | `llvm/exe` product lane and `llvmlite` compat/probe keep are not mixed |
+| `30xB4` | landed | matrix/guide cleanup | smoke discovery docs and matrix config use the same role-first reading |
 
 ### `30xC` rust-vm dependency inventory
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `30xC1` | queued | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
+| `30xC1` | active | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
 | `30xC2` | queued | plugin/macro/tooling inventory | macro child, plugin smoke, bridge accept, parity tools are grouped explicitly |
 | `30xC3` | queued | smoke/test inventory | vm-backed smoke/test orchestrators are listed separately from product/reference suites |
 | `30xC4` | queued | docs/help inventory | README/help/guides that still center `--backend vm` are explicit |
@@ -105,8 +105,8 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `30xB smoke taxonomy split`
-- next queued wave: `30xC rust-vm dependency inventory`
+- active macro wave: `30xC rust-vm dependency inventory`
+- next queued wave: `30xD dangerous-early-flip lock`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
 

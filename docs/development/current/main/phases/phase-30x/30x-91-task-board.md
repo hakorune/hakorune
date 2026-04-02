@@ -18,8 +18,8 @@ Related:
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
 | 1 | `30xA role taxonomy lock` | landed | role labels and active lane wording |
-| 2 | `30xB smoke taxonomy split` | active | role-first smoke buckets and suite reading |
-| 3 | `30xC rust-vm dependency inventory` | queued | internal `--backend vm` pressure by category |
+| 2 | `30xB smoke taxonomy split` | landed | role-first smoke buckets and suite reading |
+| 3 | `30xC rust-vm dependency inventory` | active | internal `--backend vm` pressure by category |
 | 4 | `30xD dangerous-early-flip lock` | queued | launcher/default/orchestrator denylist |
 | 5 | `30xE user-facing main switch prep` | queued | README/help/examples move to `llvm/exe` first |
 | 6 | `30xF backend default decision gate` | queued | decide raw CLI default only after the above |
@@ -32,12 +32,13 @@ Related:
 | 2 | `30xA2` | landed | design role SSOT alignment |
 | 3 | `30xB1` | landed | `vm-hako` reference smoke lock |
 | 4 | `30xB2` | landed | `wasm` experimental smoke lock |
-| 5 | `30xB3` | active | `llvm/exe` product vs `llvmlite` probe boundary lock |
-| 6 | `30xB4` | queued | smoke matrix/guide cleanup |
-| 7 | `30xC1-30xC4` | queued | `rust-vm` pressure by category |
-| 8 | `30xD1-30xD3` | queued | do-not-flip-early lock |
-| 9 | `30xE1-30xE4` | queued | user-facing main switch prep |
-| 10 | `30xF1-30xF2` | queued | backend default decision last |
+| 5 | `30xB3` | landed | `llvm/exe` product vs `llvmlite` probe boundary lock |
+| 6 | `30xB4` | landed | smoke matrix/guide cleanup |
+| 7 | `30xC1` | active | `rust-vm` bootstrap/selfhost pressure |
+| 8 | `30xC2-30xC4` | queued | remaining `rust-vm` pressure by category |
+| 9 | `30xD1-30xD3` | queued | do-not-flip-early lock |
+| 10 | `30xE1-30xE4` | queued | user-facing main switch prep |
+| 11 | `30xF1-30xF2` | queued | backend default decision last |
 
 ## Evidence Commands
 
