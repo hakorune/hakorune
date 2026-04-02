@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-03
 Scope: shared helper family の path-truth を進め、low-blast helper だけ family home に寄せ、`emit_mir` thin wrapper は route-preset thin shim として truthify する。
@@ -62,4 +62,4 @@ Related:
 
 - helper-family micro tasks are landed through `33xD1`
 - current front is `phase-33x closeout review`
-- next lane is not opened yet; keep this phase active until the successor lane is fixed
+- successor lane is `phase-34x stage0 shell residue split`

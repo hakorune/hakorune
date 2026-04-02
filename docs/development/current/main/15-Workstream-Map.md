@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-02
+Date: 2026-04-03
 Scope: current mainline / secondary lanes / parked lanes の one-screen map。
 Related:
   - CURRENT_TASK.md
@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-33x shared helper family recut`
+     - current active lane is `phase-34x stage0 shell residue split`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -51,30 +51,28 @@ Related:
      - `phase-30x` settled ownership and docs/artifact/smoke reading
         - `phase-31x` landed low-blast engineering rehome and shim drain
         - `phase-32x` landed mixed-owner source/smoke split and raw default/token defer
-        - `phase-33x` now handles shared helper family recut
-        - `33xA1` landed and fixed helper-family caller inventory for `hako_check` and `emit_mir`
-        - `33xB1` landed and rehomed `deadblocks_smoke` under `tools/hako_check/**`
-        - `33xC2` landed and fixed thin `emit_mir` wrappers as top-level route-preset shims
-        - `33xC3` landed and fixed the broad keep reason for `tools/hakorune_emit_mir.sh`
-        - `33xB2` landed and fixed the broad keep reason for `tools/hako_check.sh`
-        - `33xD1` landed and current/public docs now reflect the helper-family truth
-        - current active micro task is `phase-33x closeout review`
+        - `phase-33x` landed and fixed helper-family path truth
+        - `phase-34x` now handles stage0 shell residue split
+        - `34xA1` is active and locks exact `child.rs` shell/process/capture residue
+        - `34xA2` is queued and locks `stage1_cli/core.hako` raw compat residue
+        - `34xA3` is queued and pins `core_executor` as the direct `MIR(JSON)` owner
+        - current active micro task is `34xA1 child.rs exact residue lock`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-33x shared helper family recut table:
+   - phase-34x stage0 shell residue split table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-33x shared helper family recut` |
+     | Now | `phase-34x stage0 shell residue split` |
      | Blocker | `none` |
-     | Next | `phase-33x closeout review` |
+     | Next | `34xA2 stage1_cli/core.hako exact residue lock` |
    - shared helper family bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-33x closeout review` |
-     | Next | `successor lane selection` |
+     | Now | `34xA1 child.rs exact residue lock` |
+     | Next | `34xA2 stage1_cli/core.hako exact residue lock` |
      | Later | `raw backend default/token follow-up lane` |
    - shared helper family waves:
 
@@ -114,12 +112,13 @@ Related:
   - `phase-30x` backend surface simplification (landed precursor)
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split (landed precursor)
-  - `phase-33x` shared helper family recut
+  - `phase-34x` stage0 shell residue split
 - Active backend surface tasks:
-  - `phase-33x closeout review`
-  - `successor lane selection`
+  - `34xA1 child.rs exact residue lock`
+  - `34xA2 stage1_cli/core.hako exact residue lock`
 - Queued backend surface tasks:
-  - `shared helper dedicated phase`
+  - `34xA3 core_executor takeover seam lock`
+  - `34xB1 child runner thinning`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -133,11 +132,11 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-33x` exact through the helper-family recut
-2. keep `phase-32x` landed as the mixed-owner split precursor
-3. keep `phase-31x` landed as the engineering rehome precursor
-4. keep `phase-30x` landed as the ownership-flip precursor
-5. keep `phase-29x` landed as the backend-owner precursor lane
+1. keep `phase-34x` exact through the stage0 shell residue split
+2. keep `phase-33x` landed as the helper-family precursor
+3. keep `phase-32x` landed as the mixed-owner split precursor
+4. keep `phase-31x` landed as the engineering rehome precursor
+5. keep `phase-30x` landed as the ownership-flip precursor
 
 ## Active Lane
 

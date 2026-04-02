@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-02
+Date: 2026-04-03
 Scope: main ラインの current summary と正本リンクだけを置く薄い mirror/dashboard。
 Related:
   - CURRENT_TASK.md
@@ -27,19 +27,19 @@ Related:
 
 ## Current
 
-- lane: `phase-33x shared helper family recut`
+- lane: `phase-34x stage0 shell residue split`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
-- `33xA1` landed: helper family caller inventory is fixed for `hako_check` and `emit_mir`
-- active micro task: `phase-33x closeout review`
-- next micro task: `successor lane selection`
+- `phase-33x` landed: helper-family path truth and broad keep gates are fixed
+- active micro task: `34xA1 child.rs exact residue lock`
+- next micro task: `34xA2 stage1_cli/core.hako exact residue lock`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-33x`
+- raw backend default/token rewrite stays deferred beyond `phase-34x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 
@@ -47,6 +47,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-33x/README.md`
-4. read `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
-5. read `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-34x/README.md`
+4. read `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
+5. read `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`

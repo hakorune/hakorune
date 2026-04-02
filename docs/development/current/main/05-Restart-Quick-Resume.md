@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-04-02
+Date: 2026-04-03
 Scope: 再起動直後に 2〜5 分で開発再開するための最短手順。
 Related:
   - CURRENT_TASK.md
@@ -22,18 +22,18 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-33x shared helper family recut`
-- active micro task: `phase-33x closeout review`
-- next micro task: `successor lane selection`
-- raw backend default flip stays deferred beyond `phase-33x`
+- lane: `phase-34x stage0 shell residue split`
+- active micro task: `34xA1 child.rs exact residue lock`
+- next micro task: `34xA2 stage1_cli/core.hako exact residue lock`
+- raw backend default flip stays deferred beyond `phase-34x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-33x/README.md`
-4. `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
-5. `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-34x/README.md`
+4. `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
+5. `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
 
 ## Optional Checks
 

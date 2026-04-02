@@ -1,7 +1,7 @@
 # CURRENT_TASK (root pointer)
 
 Status: SSOT
-Date: 2026-04-02
+Date: 2026-04-03
 Scope: repo root から current order / current blocker / next exact read に最短で戻るための restart anchor。詳細の進捗・履歴・設計本文は `docs/development/current/main/` 側を正本とする。
 
 ## Purpose
@@ -30,18 +30,19 @@ Scope: repo root から current order / current blocker / next exact read に最
 8. `phase-30x backend surface simplification` (landed)
 9. `phase-31x engineering lane isolation` (landed)
 10. `phase-32x product / engineering split` (landed)
-11. `phase-33x shared helper family recut`
+11. `phase-33x shared helper family recut` (landed)
+12. `phase-34x stage0 shell residue split`
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, and current active lane is `phase-33x shared helper family recut`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, and current active lane is `phase-34x stage0 shell residue split`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, and the current active front is `phase-33x shared helper family recut`.
-- Active lane: `phase-33x-shared-helper-family-recut`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, and the current active front is `phase-34x stage0 shell residue split`.
+- Active lane: `phase-34x-stage0-shell-residue-split`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -56,6 +57,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/phases/phase-31x/README.md`
   - `docs/development/current/main/phases/phase-31x/31x-90-engineering-lane-isolation-ssot.md`
   - `docs/development/current/main/phases/phase-31x/31x-91-task-board.md`
+  - `docs/development/current/main/phases/phase-34x/README.md`
+  - `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
+  - `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
   - `docs/development/current/main/phases/phase-33x/README.md`
   - `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
   - `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
@@ -70,7 +74,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `phase-33x shared helper family recut`
+  - current active lane is `phase-34x stage0 shell residue split`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -87,11 +91,12 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `phase-33x shared helper family recut`
+- Active next: `phase-34x stage0 shell residue split`
 - Current blocker: `none`
-- Exact focus: `phase-33x closeout review`
+- Exact focus: `34xA1 child.rs exact residue lock`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
-  - current next cleanup is helper-family path truth, not `vm.rs` deletion
+  - `phase-33x` is landed; helper-family path truth and keep gates are fixed
+  - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -99,26 +104,22 @@ Scope: repo root から current order / current blocker / next exact read に最
     - `wasm` = `experimental`
   - current cleanup rule is `split/rehome/drain -> delete`
   - landed in `32xA-G`: `build.rs` / `phase2100` split, top-level orchestrator rehome, `core_executor` direct-MIR seam, shared helper gate, and raw default/token defer
-  - landed in `33xA1`: helper family caller inventory is fixed for `hako_check` and `emit_mir`
-  - landed in `33xB1`: `tools/hako_check/deadblocks_smoke.sh` is the canonical deadblocks family home and the old top-level path is shim-only
-  - landed in `33xC1`: thin `emit_mir` wrappers have a low-blast caller inventory
-  - landed in `33xC2`: thin `emit_mir` wrappers stay as top-level route-preset compatibility shims, and routing truth stays in `tools/smokes/v2/lib/emit_mir_route.sh`
-  - landed in `33xC3`: `tools/hakorune_emit_mir.sh` stays top-level keep because route-owner, perf, check/debug, proof, and current-doc pressure are still broad
-  - landed in `33xB2`: `tools/hako_check.sh` stays top-level keep because it is still the canonical analyzer entry with family/analyze smoke pressure
+  - landed in `33xA-D`: helper-family path truth is fixed; `hako_check` and `emit_mir` keep gates are explicit
+  - `34xA` turns accepted residue inventory into exact owner split for `child.rs` / `stage1_cli/core.hako` / `core_executor`
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-33x/README.md`
-  3. `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
-  4. `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
-  5. `docs/development/current/main/phases/phase-32x/README.md`
-- product / engineering split table:
+  2. `docs/development/current/main/phases/phase-34x/README.md`
+  3. `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
+  4. `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
+  5. `docs/development/current/main/phases/phase-33x/README.md`
+- stage0 shell residue table:
 
   | Item | State |
   | --- | --- |
-  | Now | `phase-33x shared helper family recut` |
+  | Now | `phase-34x stage0 shell residue split` |
   | Blocker | `none` |
-  | Next | `phase-33x closeout review` |
+  | Next | `34xA2 stage1_cli/core.hako exact residue lock` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -128,34 +129,33 @@ Scope: repo root から current order / current blocker / next exact read に最
   - keep backend lane follow-up in the backend lane docs
   - do not mix keep-lane notes into `K2-wide` implementation notes
 
-## Shared Helper Family Bands
+## Stage0 Shell Residue Bands
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `phase-33x closeout review` | verify helper-family work is fully landed and choose the successor lane |
-| Next | `successor lane selection` | choose between dedicated helper follow-up and deeper source/smoke split |
-| Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred until deeper source/smoke split requires it |
+| Now | `34xA1 child.rs exact residue lock` | fix exact shell/process/capture ownership before any new runtime work |
+| Next | `34xA2 stage1_cli/core.hako exact residue lock` | keep raw compat branch narrow and explicit |
+| Later | `34xB child runner thinning` | split spawn/timeout/capture only after owner reading is exact |
 
-## Shared Helper Family Waves
+## Phase-34x Waves
 
 | Wave | Status | Read as |
 | --- | --- | --- |
-| `33xA helper family inventory` | landed | fix exact keep/rehome/shim-only reading |
-| `33xB hako_check family path truth` | landed | move family-local smoke helpers under `tools/hako_check/**` |
-| `33xC emit_mir thin wrapper path truth` | landed | truthify thin wrappers as route-preset shims before broad helper keep |
-| `33xD closeout/docs cleanup` | landed | close the helper-family recut after broad keep truth is fixed |
+| `34xA residue owner lock` | active | fix exact shell residue / owner split first |
+| `34xB child runner thinning` | queued | make `child.rs` process helper thinner without widening routes |
+| `34xC stage1 raw compat narrowing` | queued | keep raw compat branch narrow and non-growing |
+| `34xD direct core handoff` | queued | pin already-materialized `MIR(JSON)` execution to `core_executor` |
 
-## Phase-33x Micro Tasks
+## Phase-34x Micro Tasks
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `33xA1` | landed | helper family caller inventory |
-| `33xB1` | landed | `hako_check_deadblocks_smoke` family-home rehome |
-| `33xB2` | landed | `hako_check.sh` top-level keep gate |
-| `33xC1` | landed | `emit_mir` thin wrapper caller inventory |
-| `33xC2` | landed | `emit_mir` thin wrapper route-preset lock |
-| `33xC3` | landed | `hakorune_emit_mir.sh` top-level keep gate |
-| `33xD1` | landed | closeout/docs cleanup |
+| `34xA1` | active | `child.rs` exact residue lock |
+| `34xA2` | queued | `stage1_cli/core.hako` exact residue lock |
+| `34xA3` | queued | `core_executor` takeover seam lock |
+| `34xB1` | queued | split spawn/timeout/capture from `child.rs` |
+| `34xC1` | queued | `run_program_json` no-widen lock |
+| `34xD1` | queued | direct `MIR(JSON)` proof path |
 
 ## Canonical Owners
 
@@ -183,6 +183,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `hako_alloc` rows:
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
 - current phase-order context:
+  - `docs/development/current/main/phases/phase-34x/README.md`
+  - `docs/development/current/main/phases/phase-34x/34x-90-stage0-shell-residue-split-ssot.md`
+  - `docs/development/current/main/phases/phase-34x/34x-91-task-board.md`
   - `docs/development/current/main/phases/phase-33x/README.md`
   - `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
   - `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`

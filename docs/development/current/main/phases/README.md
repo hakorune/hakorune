@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Phase 33x（ACTIVE）**: shared helper family recut（`hako_check` / `emit_mir` thin wrapper first）
+- **Phase 34x（ACTIVE）**: stage0 shell residue split（`child.rs` / `stage1_cli` / `core_executor` first）
+- **Phase 33x（LANDED）**: shared helper family recut（`hako_check` / `emit_mir` helper-family truth fixed）
 - **Phase 32x（LANDED）**: product / engineering split（mixed-owner source/smoke split, `build.rs` / `phase2100` first）
 - **Phase 31x（LANDED）**: engineering lane isolation（`tools/engineering/**` への rehome / shim drain / source-smoke sweep）
 - **Phase 30x（LANDED）**: backend surface simplification（`llvm/exe` product main / `rust-vm` engineering / `vm-hako` reference / `wasm` experimental）
