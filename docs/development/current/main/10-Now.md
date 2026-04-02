@@ -30,8 +30,9 @@ Related:
 - lane: `phase-30x backend surface simplification`
 - `30xE1` landed: `README.md` / `README.ja.md` now read `llvm/exe` first, `rust-vm` engineering keep, `vm-hako` reference, `wasm` experimental
 - `30xE2` landed: `cli-options.md` is role-first and `nyash-help.md` is explicitly historical
-- active micro task: `30xE3 stage1/runtime guide prep`
-- next micro task: `30xE4 vm-hako/wasm wording prep`
+- `30xE3` landed: stage1/runtime guides now read `rust-vm` as engineering/bootstrap keep
+- active micro task: `30xE4 vm-hako/wasm wording prep`
+- next micro task: `30xF1 backend default gate checklist`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

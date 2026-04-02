@@ -55,8 +55,9 @@ Related:
      - root mirrors already read `phase-30x` as current; remaining drift sits in front docs/help and manual residue scripts
      - `30xE1` landed and rewrote `README.md` / `README.ja.md` toward `llvm/exe` first
      - `30xE2` landed and moved CLI/help docs to role-first wording
-     - current active micro task is `30xE3 stage1/runtime guide prep`
-     - next queued micro task is `30xE4 vm-hako/wasm wording prep`
+     - `30xE3` landed and moved stage1/runtime guides to engineering/bootstrap wording
+     - current active micro task is `30xE4 vm-hako/wasm wording prep`
+     - next queued micro task is `30xF1 backend default gate checklist`
      - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
@@ -70,13 +71,13 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xE3 stage1/runtime guide prep` |
+     | Next | `30xE4 vm-hako/wasm wording prep` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xE3 stage1/runtime guide prep` |
-     | Next | `30xE4 vm-hako/wasm wording prep` |
+     | Now | `30xE4 vm-hako/wasm wording prep` |
+     | Next | `30xF1 backend default gate checklist` |
      | Later | `30xF-30xG` |
    - cleanup waves:
 

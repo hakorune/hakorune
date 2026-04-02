@@ -2,7 +2,12 @@ Status: SSOT, Active
 
 # Self‑Hosting Quickstart (Phase 15 — Resume)
 
-This note shows how to run the Nyash self‑host compiler MVP to emit MIR(JSON v0) and execute it with the current VM line. The flow keeps defaults unchanged and uses small, opt‑in flags for development.
+This note shows how to run the Hakorune self‑host compiler MVP. Read the current lanes as:
+- product main: `llvm/exe`
+- engineering/bootstrap keep: `rust-vm`
+- reference/conformance: `vm-hako`
+
+The flow below keeps raw defaults unchanged and uses small, opt‑in flags for development.
 
 ## Layout (migrated)
 - Compiler entry (Stage‑B): `lang/src/compiler/entry/compiler_stageb.hako`
@@ -30,9 +35,9 @@ NYASH_SELFHOST_READ_TMP=1 ./target/release/nyash lang/src/compiler/entry/compile
 ```
 
 ## Execute MIR(JSON v0)
-Use Rust VM by default. Historical PyVM checks are direct-only scripts.
+Use Rust VM as the engineering/bootstrap lane. Product native output lives on the LLVM/EXE line. Historical PyVM checks are direct-only scripts.
 
-Rust VM (default):
+Rust VM (engineering/bootstrap keep):
 ```
 ./target/release/nyash --backend vm apps/examples/json_query/main.hako
 ```
@@ -47,11 +52,18 @@ LLVM harness (llvmlite):
 NYASH_LLVM_USE_HARNESS=1 ./target/release/nyash --backend llvm apps/examples/json_query/main.hako
 ```
 
+Product EXE line:
+```
+./target/release/hakorune --backend llvm --emit-exe /tmp/app apps/examples/json_query/main.hako
+/tmp/app
+```
+
 Notes:
 - For self‑host emitted JSON, route the file to your runner pipeline or a small loader script (dev only). Keep defaults unchanged in CI (no new jobs required).
+- `--backend vm` remains the raw engineering/bootstrap default for now; do not read it as product ownership.
 
 ## One‑shot dev smoke
-Run a minimal end‑to‑end smoke that tries to emit JSON (best‑effort) and verifies VM outputs match with Known rewrite ON/OFF:
+Run a minimal engineering smoke that tries to emit JSON (best‑effort) and verifies VM outputs match with Known rewrite ON/OFF:
 
 ```
 tools/selfhost_smoke.sh

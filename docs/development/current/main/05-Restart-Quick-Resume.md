@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-30x backend surface simplification`
-- active micro task: `30xE3 stage1/runtime guide prep`
-- next micro task: `30xE4 vm-hako/wasm wording prep`
+- active micro task: `30xE4 vm-hako/wasm wording prep`
+- next micro task: `30xF1 backend default gate checklist`
 - raw backend default flip is still deferred to `30xF`
 
 ## Read Next
