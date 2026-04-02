@@ -71,17 +71,21 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 final helper deletion watch`
+- Exact focus: `29x-98 watch-1 compat_codegen_receiver replacement watch`
   - W4, W5, and W6 landed; path truth, semantic proof/archive homes, and one Rust compat-codegen chokepoint are in place
   - `phase2044` lives under `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`
   - `phase2120` lives under `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
   - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`
   - remaining explicit helper caller inventory is 2: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
+  - watch split is explicit:
+    - `watch-1` keep chokepoint = `compat_codegen_receiver.rs`; not demotable until a contract-preserving Rust root-first replacement exists for `emit_object(mir_json_text) -> object path`
+    - `watch-2` archive-later surrogate = `module_string_dispatch/compat/llvm_backend_surrogate.rs`; not demotable until compiled-stage1 has a cleaner front door than the explicit compat helper
   - compat selfhost wrapper layers are not helper callers; they stay `payload -> transport wrapper -> pack orchestrator`
   - `CodegenBridgeBox.emit_object_args(...)` is deleted; the owner-looking path is shim-only for `link_object_args(...)`
   - `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-  - current active micro task is `29x-98 final helper deletion watch`
-  - next queued micro task is `next optimization restart`
+  - current active micro task is `29x-98 watch-1 compat_codegen_receiver replacement watch`
+  - next queued micro task is `29x-98 watch-2 surrogate replacement watch`
+  - post-watch step is `next optimization restart`
   - review intake owner remains `29x-99`; mirror docs now carry only the live watch state
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -100,7 +104,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `29x-98 final helper deletion watch` -> `next optimization restart` |
+  | Next | `29x-98 watch-1 compat_codegen_receiver replacement watch` -> `29x-98 watch-2 surrogate replacement watch` -> `next optimization restart` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -114,8 +118,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `29x-98 final helper deletion watch` | keep the remaining helper explicit until the two-caller inventory reaches zero |
-| Next | `next optimization restart` | only after the explicit helper inventory reaches zero |
+| Now | `29x-98 watch-1 compat_codegen_receiver replacement watch` | keep the chokepoint explicit until a contract-preserving Rust root-first replacement exists |
+| Next | `29x-98 watch-2 surrogate replacement watch` | keep the compiled-stage1 surrogate explicit until a cleaner front door exists there |
 | Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Cleanup Waves

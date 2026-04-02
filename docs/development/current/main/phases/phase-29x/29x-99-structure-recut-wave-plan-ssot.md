@@ -45,9 +45,9 @@ Related:
 
 - active macro wave: `post-W6 residual cleanup and helper watch`
 - active micro-task:
-  - `residual docs cleanup`
+  - `29x-98 watch-1 compat_codegen_receiver replacement watch`
 - next queued micro-task:
-  - `29x-98 final helper deletion watch`
+  - `29x-98 watch-2 surrogate replacement watch`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, the compat selfhost wrapper stack has been materialized onto `vm-hako`, and the Hako-side bridge is now archive-only; the next collapse is on the Rust receiver side.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -386,6 +386,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `post-W6 owner/evidence readability follow-up`
-  - micro: `29x-98 final helper deletion watch`
-  - next: `next optimization restart`
+  - micro: `29x-98 watch-1 compat_codegen_receiver replacement watch`
+  - next: `29x-98 watch-2 surrogate replacement watch`
   - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, `99Q1-99S1` landed for the Rust chokepoint collapse, and `99T-99V` landed for legacy bridge naming truth plus generic helper export retirement

@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-98 final helper deletion watch`
+- Exact focus: `29x-98 watch-1 compat_codegen_receiver replacement watch`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,8 +60,8 @@ bash tools/selfhost/run_lane_a_daily.sh
 
   | Band | State |
   | --- | --- |
-  | Now | `29x-98 final helper deletion watch` |
-  | Next | `next optimization restart` |
+  | Now | `29x-98 watch-1 compat_codegen_receiver replacement watch` |
+  | Next | `29x-98 watch-2 surrogate replacement watch` |
   | Later | `none` |
 
 - W4 / W5 / W6 are landed. Path truth, semantic proof/archive homes, and the Rust compat-codegen chokepoint are fixed.
@@ -69,8 +69,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 - `phase2120` pure keep and historical replay now live in separate semantic homes.
 - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
 - remaining explicit helper caller inventory is two surfaces: `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`.
-- active micro task is `29x-98 final helper deletion watch`.
-- next queued micro task is `next optimization restart`.
+- active micro task is `29x-98 watch-1 compat_codegen_receiver replacement watch`.
+- next queued micro task is `29x-98 watch-2 surrogate replacement watch`.
+- both watches are currently `watch-only`, not demotable now.
 - detailed W4/W5/W6 landed history stays in `29x-99`, not in this restart mirror.
 - immediate action:
   - verify `stage` axis / replacement axis / naming split in `CURRENT_TASK.md`

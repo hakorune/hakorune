@@ -39,10 +39,10 @@ Related:
      - semantic proof/archive recut is landed: `phase2044`, `phase2120`, and archive replay evidence now live in semantic homes
      - the selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
      - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper callers are `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`
-     - `29x-98` owns the final helper-deletion watch; `29x-99` owns landed re-cut history and move order
+     - `29x-98` owns the final helper-deletion watch, now split into the keep chokepoint watch and the archive-later surrogate watch; `29x-99` owns landed re-cut history and move order
      - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-     - current active micro task is `29x-98 final helper deletion watch`
-     - next queued micro task is `next optimization restart`
+     - current active micro task is `29x-98 watch-1 compat_codegen_receiver replacement watch`
+     - next queued micro task is `29x-98 watch-2 surrogate replacement watch`
      - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
@@ -51,13 +51,13 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-98 final helper deletion watch` -> `next optimization restart` |
+     | Next | `29x-98 watch-1 compat_codegen_receiver replacement watch` -> `29x-98 watch-2 surrogate replacement watch` -> `next optimization restart` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `29x-98 final helper deletion watch` |
-     | Next | `next optimization restart` |
+     | Now | `29x-98 watch-1 compat_codegen_receiver replacement watch` |
+     | Next | `29x-98 watch-2 surrogate replacement watch` |
      | Later | `none` |
    - cleanup waves:
 

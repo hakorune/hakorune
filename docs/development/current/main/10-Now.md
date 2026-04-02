@@ -44,11 +44,12 @@ Related:
 - current active step is `phase-29x backend owner cutover prep`; `W4`, `W5`, and `W6` are landed, semantic proof/archive homes are fixed, and the remaining legacy helper is now explicit and compat-only.
 - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper is `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
 - remaining explicit helper caller inventory is two surfaces: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`.
+- watch split is explicit: `compat_codegen_receiver.rs` is the keep chokepoint watch; `module_string_dispatch/compat/llvm_backend_surrogate.rs` is the archive-later surrogate watch.
 - `29x-98` owns the final helper-deletion watch; `29x-99` keeps the landed re-cut history and move order.
 - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
-- current active micro task is `29x-98 final helper deletion watch`; next queued micro task is `next optimization restart`.
+- current active micro task is `29x-98 watch-1 compat_codegen_receiver replacement watch`; next queued micro task is `29x-98 watch-2 surrogate replacement watch`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
-- immediate cleanup order is `residual docs cleanup -> 29x-98 final helper deletion watch -> next optimization restart`.
+- immediate cleanup order is `29x-98 watch-1 compat_codegen_receiver replacement watch -> 29x-98 watch-2 surrogate replacement watch -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
 - landed rows are tracked in `CURRENT_TASK.md` and the technical SSOTs below.
 - portability split stays explicit:
@@ -64,8 +65,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `29x-98 final helper deletion watch` | keep the remaining helper explicit until the two-caller inventory reaches zero |
-| Next | `next optimization restart` | only after the explicit helper inventory reaches zero |
+| Now | `29x-98 watch-1 compat_codegen_receiver replacement watch` | keep the chokepoint explicit until a contract-preserving Rust root-first replacement exists |
+| Next | `29x-98 watch-2 surrogate replacement watch` | keep the compiled-stage1 surrogate explicit until a cleaner front door exists there |
 | Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Cleanup Waves

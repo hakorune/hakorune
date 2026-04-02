@@ -43,6 +43,15 @@ The current explicit helper caller inventory is one keep chokepoint plus one arc
 | `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep | canonical Rust compat-codegen chokepoint; still owns the explicit MIR(JSON) text helper call |
 | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate caller; keeps the helper alive but is not a daily route |
 
+## Final Helper Watch Split
+
+Treat the last two caller surfaces as separate watches with different unblock conditions.
+
+| Watch | Surface | Current role | Unblock condition | Verdict |
+| --- | --- | --- | --- | --- |
+| `watch-1` | `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | keep chokepoint for `emit_object(mir_json_text) -> object path` | contract-preserving Rust root-first replacement for the `emit_object` branch | watch-only |
+| `watch-2` | `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later compiled-stage1 surrogate for `compile_obj(json_path)` | cleaner compiled-stage1 front door than the explicit compat helper | watch-only |
+
 ## Direct Callers vs Wrapper Layers
 
 Keep the direct caller inventory separate from wrapper/orchestrator layers.
@@ -68,8 +77,8 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `legacy_mir_front_door` physical helper deletion watch | keep the remaining helper explicit and compat-only until the two-caller inventory reaches zero |
-| Next | `next optimization restart` | only after the remaining explicit helper callers are gone |
+| Now | `watch-1 compat_codegen_receiver replacement watch` | keep the explicit helper until the Rust `emit_object` contract has a replacement |
+| Next | `watch-2 surrogate replacement watch` | keep the explicit helper until the compiled-stage1 surrogate has a cleaner front door |
 | Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Replacement Matrix
@@ -87,9 +96,11 @@ The canonical successor family is the root-first daily route, concretely `env.co
   - current contract is shared `emit_object(mir_json_string) -> object path`.
   - this file now owns MIR(JSON) version patching, trace emission, and the explicit helper call on behalf of both plugin-loader and MIR-interpreter adapter paths.
   - direct retarget requires either a root-first adapter that preserves this contract or whole-helper retirement for that lane.
+  - watch verdict: not demotable now; this is the correct keep chokepoint until a Rust-side replacement exists.
 - `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
   - current contract is `compile_obj(mir_path) -> object path`.
   - this is a compiled-stage1/bootstrap surrogate; it reads MIR(JSON) from disk and cannot cleanly jump to the root-first route without moving the owner upward into `.hako`.
+  - watch verdict: not demotable now; this stays archive-later until compiled-stage1 has a cleaner front door.
 
 ## Upstream Cleanup Targets
 

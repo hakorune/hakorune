@@ -46,6 +46,8 @@ pub(super) fn handle_codegen(
 }
 
 pub(crate) fn emit_object(mir_json: &str, patch_version: bool) -> Result<String, String> {
+    // Explicit compat chokepoint: this branch still owns the MIR(JSON text) -> object
+    // contract until a contract-preserving Rust root-first replacement exists.
     trace_call(
         "emit_object",
         format!(
