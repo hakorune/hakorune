@@ -77,7 +77,7 @@ Related:
 | `30xC1` | landed | bootstrap/selfhost inventory | launcher, stage1, selfhost wrappers are grouped explicitly |
 | `30xC2` | landed | plugin/macro/tooling inventory | macro child, plugin smoke, and dev tooling are grouped into keep vs watch |
 | `30xC3` | landed | smoke/test inventory | engineering smoke keeps, mixed orchestrators, and manual residues are separated |
-| `30xC4` | active | docs/help inventory | README/help/guides that still center `--backend vm` are explicit |
+| `30xC4` | landed | docs/help inventory | rewrite targets, engineering keeps, and stale snapshots are separated |
 
 ### `30xD` dangerous-early-flip lock
 
@@ -268,6 +268,42 @@ Smoke/test archive/delete result (`30xC3`):
 - `docs/tools/nyash-help.md`
 - `docs/development/runtime/cli-hakorune-stage1.md`
 - `docs/guides/testing-guide.md`
+- `docs/development/selfhosting/quickstart.md`
+- `docs/guides/selfhost-pilot.md`
+
+Docs/help findings (`30xC4`):
+
+- rewrite in `30xE`:
+  - `README.md`
+    - still presents `--backend vm` and `selfhost_vm_smoke.sh` as the user-facing default narrative
+    - product/main wording should move to `llvm/exe` first
+  - `README.ja.md`
+    - same main-narrative pressure as the English root README
+  - `docs/development/selfhosting/quickstart.md`
+    - still says `Use Rust VM by default` and keeps `rust-vm` as the quickstart主語
+    - user-facing selfhost quickstart should move to role-first wording in `30xE`
+  - `docs/guides/selfhost-pilot.md`
+    - still presents pilot runner examples around `--backend vm`
+    - user-facing pilot guide should move to role-first wording in `30xE`
+- engineering docs keep:
+  - `docs/tools/cli-options.md`
+    - CLI reference sheet is an engineering/operator surface, not a product main narrative
+    - keep and refresh wording later without treating it as main-switch front matter
+  - `docs/development/runtime/cli-hakorune-stage1.md`
+    - stage1/bootstrap design doc; `backend=vm` here is engineering/stage0 semantics, not product narrative
+  - `docs/guides/testing-guide.md`
+    - testing/diagnostics guide; `--backend vm` examples belong to engineering lane
+- stale help snapshot watch:
+  - `docs/tools/nyash-help.md`
+    - old help snapshot still says default backend is `interpreter` and `--compile-native` is wasmtime/AOT
+    - keep temporarily as captured snapshot, but rewrite or replace in `30xE2`
+
+Docs/help archive/delete result (`30xC4`):
+
+- none
+- root README/help rewrites belong to `30xE`, not this inventory slice
+- stage1/testing/selfhost guides stay engineering keeps
+- stale help snapshot stays watch-only until a fresh help snapshot or rewritten help doc exists
 
 ## Dangerous Early Flips
 

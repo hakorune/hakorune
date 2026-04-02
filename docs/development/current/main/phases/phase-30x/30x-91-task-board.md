@@ -37,10 +37,11 @@ Related:
 | 7 | `30xC1` | landed | `rust-vm` bootstrap/selfhost pressure |
 | 8 | `30xC2` | landed | `rust-vm` plugin/macro/tooling pressure |
 | 9 | `30xC3` | landed | `rust-vm` smoke/test pressure |
-| 10 | `30xC4` | active | `rust-vm` docs/help pressure |
-| 11 | `30xD1-30xD3` | queued | do-not-flip-early lock |
-| 12 | `30xE1-30xE4` | queued | user-facing main switch prep |
-| 13 | `30xF1-30xF2` | queued | backend default decision last |
+| 10 | `30xC4` | landed | `rust-vm` docs/help pressure |
+| 11 | `30xD1` | active | default/dispatch do-not-flip-early lock |
+| 12 | `30xD2-30xD3` | queued | selfhost/plugin/orchestrator freeze |
+| 13 | `30xE1-30xE4` | queued | user-facing main switch prep |
+| 14 | `30xF1-30xF2` | queued | backend default decision last |
 
 ## Evidence Commands
 
@@ -111,6 +112,25 @@ Smoke/test archive/delete result:
 
 - `none`
 - hard delete/archive is blocked in `30xC3`; `30xD` and `30xE` must land first
+
+### Docs / help keep vs rewrite vs watch
+
+- rewrite in `30xE`:
+  - `README.md`
+  - `README.ja.md`
+  - `docs/development/selfhosting/quickstart.md`
+  - `docs/guides/selfhost-pilot.md`
+- keep as engineering docs:
+  - `docs/tools/cli-options.md`
+  - `docs/development/runtime/cli-hakorune-stage1.md`
+  - `docs/guides/testing-guide.md`
+- watch:
+  - `docs/tools/nyash-help.md`
+
+Docs/help archive/delete result:
+
+- `none`
+- root README/help rewrites belong to `30xE`; stale help snapshot stays watch-only until replacement exists
 
 ### Bootstrap/selfhost keep details
 

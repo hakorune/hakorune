@@ -48,8 +48,9 @@ Related:
      - `30xA1`, `30xA2`, `30xB1-30xB4`, and `30xC1` are landed
      - `30xC2` grouped plugin/macro/tooling pressure into `engineering/tooling keep` plus `manual residue watch`
      - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`
-     - current active micro task is `30xC4 rust-vm docs/help inventory`
-     - next queued micro task is `30xD1 default/dispatch freeze`
+     - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
+     - current active micro task is `30xD1 default/dispatch freeze`
+     - next queued micro task is `30xD2 selfhost/bootstrap freeze`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
      - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only
@@ -62,14 +63,14 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xC4 rust-vm docs/help inventory` |
+     | Next | `30xD1 default/dispatch freeze` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xC4 rust-vm docs/help inventory` |
-     | Next | `30xD1 default/dispatch freeze` |
-     | Later | `30xD2-30xF` |
+     | Now | `30xD1 default/dispatch freeze` |
+     | Next | `30xD2 selfhost/bootstrap freeze` |
+     | Later | `30xD3-30xF` |
    - cleanup waves:
 
      | Wave | Status | Read as |
