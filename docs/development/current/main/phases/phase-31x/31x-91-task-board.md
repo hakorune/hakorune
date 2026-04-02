@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-02
 Scope: `phase-31x engineering lane isolation` の concrete task order と evidence command をまとめる。
@@ -55,7 +55,7 @@ bash tools/engineering/parity.sh --help >/dev/null
   - `tools/engineering/run_vm_stats.sh`
   - `tools/engineering/parity.sh`
 - active next:
-  - `phase-31x closeout review`
+  - `phase-32x product / engineering split`
 
 ## 31xC Result
 
@@ -89,5 +89,5 @@ bash tools/engineering/parity.sh --help >/dev/null
   - `selfhost_vm_smoke`
   - `selfhost_stage3_accept_smoke`
 - no stale top-level wrapper remained for an extra archive move
-- current front:
-  - `phase-31x closeout review`
+- successor front:
+  - `phase-32x product / engineering split`

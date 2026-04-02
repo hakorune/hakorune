@@ -27,16 +27,13 @@ Related:
 
 ## Current
 
-- lane: `phase-31x engineering lane isolation`
+- lane: `phase-32x product / engineering split`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
-- `31xA` landed: active lane switched and `tools/engineering/**` is the canonical home
-- `31xB1` landed: `tools/engineering/run_vm_stats.sh` now holds the actual script
-- `31xB2` landed: `tools/engineering/parity.sh` now holds the actual script
-- `31xC` landed: shared helper family is fixed as `keep here`, not low-blast rehome
-- `31xD` landed: selfhost-only smoke wrappers moved under `tools/selfhost/**` and old top-level paths are shim-only
-- `31xE` landed: drained top-level compatibility shims were deleted and current/public docs now point at canonical homes
-- active micro task: `phase-31x closeout review`
-- next micro task: `none`
+- `phase-31x` landed: low-blast engineering rehome and shim drain are complete
+- `32xA1` landed: `build.rs` mixed ownership inventory is fixed
+- `32xA2` landed: `phase2100` mixed aggregator inventory is fixed
+- active micro task: `32xB2 build.rs implementation slice order`
+- next micro task: `32xC1 phase2100 role bucket lock`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -44,12 +41,12 @@ Related:
   - `wasm` = `experimental`
 - raw backend default flip stays deferred beyond `phase-30x`
 - source/smoke cleanup rule:
-  - `rehome -> shim -> drain -> delete`
+  - `split/rehome/drain -> delete`
 
 ## Read Next
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-31x/README.md`
-4. read `docs/development/current/main/phases/phase-31x/31x-90-engineering-lane-isolation-ssot.md`
-5. read `docs/development/current/main/phases/phase-31x/31x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-32x/README.md`
+4. read `docs/development/current/main/phases/phase-32x/32x-90-product-engineering-split-ssot.md`
+5. read `docs/development/current/main/phases/phase-32x/32x-91-task-board.md`

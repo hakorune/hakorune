@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Decision: provisional
 Date: 2026-04-02
 Scope: engineering/bootstrap keep を live top-level から分離し、`tools/engineering/**` へ rehome しながら product/reference/experimental の front を薄くする。
@@ -57,3 +57,11 @@ Related:
 - selfhost-only smoke wrappers can move under `tools/selfhost/**` while keeping top-level shims
 - selfhost/bootstrap/orchestrator surfaces stay explicit no-touch-first keeps
 - delete/archive happens only after shim drain is explicit
+
+## Successor
+
+- successor lane: `phase-32x product / engineering split`
+- read next:
+  - `../phase-32x/README.md`
+  - `../phase-32x/32x-90-product-engineering-split-ssot.md`
+  - `../phase-32x/32x-91-task-board.md`

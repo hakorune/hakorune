@@ -1,5 +1,5 @@
 ---
-Status: SSOT
+Status: Landed
 Decision: provisional
 Date: 2026-04-02
 Scope: engineering lane isolation の fixed order、home rules、no-touch-first surfaces、delete/archive gate を固定する。
@@ -63,14 +63,12 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `phase-31x closeout review`
-- active micro task: `closeout review`
-- next queued micro task: `none`
+- successor lane: `phase-32x product / engineering split`
 - current blocker: `none`
 
 ## 31xA Result
 
-- `phase-31x engineering lane isolation` is now the active lane
+- `phase-31x engineering lane isolation` was the active lane for the engineering rehome sweep
 - `phase-30x` is a landed precursor
 - `tools/engineering/**` is the canonical home for rehomed engineering-only tools
 

@@ -4,7 +4,8 @@
 
 ## 現在の Phase
 
-- **Phase 31x（ACTIVE）**: engineering lane isolation（`tools/engineering/**` への rehome / shim drain / source-smoke sweep）
+- **Phase 32x（ACTIVE）**: product / engineering split（mixed-owner source/smoke split, `build.rs` / `phase2100` first）
+- **Phase 31x（LANDED）**: engineering lane isolation（`tools/engineering/**` への rehome / shim drain / source-smoke sweep）
 - **Phase 30x（LANDED）**: backend surface simplification（`llvm/exe` product main / `rust-vm` engineering / `vm-hako` reference / `wasm` experimental）
 - **Phase 29x（LANDED）**: backend owner cutover / explicit helper deletion / semantic proof-home recut
 - **Phase 29cc（ACTIVE）**: Rust -> .hako migration orchestration（M0-M4 fixed order）

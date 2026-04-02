@@ -29,14 +29,15 @@ Related:
      - `stage2plus entry / first optimization wave` (accepted)
      - `phase-29x backend owner cutover prep` (landed)
      - `phase-30x backend surface simplification` (landed)
-     - `phase-31x engineering lane isolation`
+        - `phase-31x engineering lane isolation` (landed)
+        - `phase-32x product / engineering split`
    - current read:
      - `K2-core` is closed
      - `K2-wide` boundary-shrink lock-down is closed enough for handoff
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-31x engineering lane isolation`
+     - current active lane is `phase-32x product / engineering split`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -48,41 +49,39 @@ Related:
      - `rust-vm` internal pressure is still deep in bootstrap/selfhost, plugin/macro/dev tooling, smoke/test, and docs/help
      - dangerous early flips remain around launcher/default/orchestrator sites
      - `phase-30x` settled ownership and docs/artifact/smoke reading
-     - `phase-31x` now handles actual source/smoke cleanup
-     - `31xA` landed and fixed `tools/engineering/**` as the engineering home
-     - `31xB1` landed and moved `run_vm_stats.sh`
-     - `31xB2` landed and moved `parity.sh`
-     - `31xC` landed and fixed the shared helper family as `keep here`
-     - `31xD` landed and moved selfhost-only smoke wrappers under `tools/selfhost/**`
-     - `31xE` landed and deleted drained top-level compatibility shims
-     - current active micro task is `phase-31x closeout review`
-     - next queued micro task is `none`
-     - cleanup rule is `rehome -> shim -> drain -> delete`
+        - `phase-31x` landed low-blast engineering rehome and shim drain
+        - `phase-32x` now handles mixed-owner source/smoke split
+        - `32xA1` landed and fixed `build.rs` as the first mixed-owner source target
+        - `32xA2` landed and fixed `phase2100/run_all.sh` as the first thick smoke-aggregator target
+        - current active micro task is `32xB2 build.rs implementation slice order`
+        - next queued micro task is `32xC1 phase2100 role bucket lock`
+        - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-31x engineering lane isolation table:
+   - phase-32x product / engineering split table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-31x engineering lane isolation` |
+     | Now | `phase-32x product / engineering split` |
      | Blocker | `none` |
-     | Next | `phase-31x closeout review` |
-   - engineering isolation bands:
+     | Next | `32xB2 build.rs implementation slice order` |
+   - product / engineering split bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-31x closeout review` |
-     | Next | `shared helper follow-up` |
-     | Later | `deep orchestrator follow-up` |
-   - engineering isolation waves:
+     | Now | `32xB2 build.rs implementation slice order` |
+     | Next | `32xC1 phase2100 role bucket lock` |
+     | Later | `32xD1/D2 top-level orchestrator rehome prep` |
+   - product / engineering split waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
-     | `31xA engineering home lock` | landed | switch active lane and fix `tools/engineering/**` as canonical home |
-     | `31xB low-blast tool rehome` | landed | move low-blast engineering tools off the top-level front |
-     | `31xC shared helper family inventory` | landed | decide keep / rehome / archive for helper family |
-     | `31xD orchestrator isolation prep` | landed | split no-touch-first orchestrators into keep vs later rehome |
-     | `31xE shim drain and legacy sweep` | landed | delete/archive after moved paths are drained |
+     | `32xA mixed-owner inventory` | landed | inventory exact mixed-owner source/smoke targets |
+     | `32xB build.rs split plan` | active | split product build and engineering build ownership |
+     | `32xC phase2100 role split plan` | queued | split the thick smoke aggregator by role |
+     | `32xD top-level orchestrator rehome prep` | queued | drain callers before moving remaining top-level keeps |
+     | `32xE direct-route takeover prep` | queued | reduce shell-based `--backend vm` residues behind dedicated seams |
+     | `32xF shared helper follow-up gate` | queued | reopen helper-family recut only on a dedicated lane |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -111,11 +110,12 @@ Related:
   - `zero-rust` default operationalization (landed)
   - `stage2plus` entry / first optimization wave (accepted)
   - `phase-30x` backend surface simplification (landed precursor)
-  - `phase-31x` engineering lane isolation
+  - `phase-31x` engineering lane isolation (landed precursor)
+  - `phase-32x` product / engineering split
 - Active backend surface tasks:
-  - `phase-31x closeout review`
+  - `32xB2 build.rs implementation slice order`
 - Queued backend surface tasks:
-  - `shared helper follow-up`
+  - `32xC1 phase2100 role bucket lock`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion
@@ -129,10 +129,11 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-31x` exact through closeout review after the shim-drain sweep
-2. keep `phase-30x` landed as the ownership-flip precursor
-3. keep `phase-29x` landed as the backend-owner precursor lane
-4. keep `phase-29bq` active as failure-driven / blocker-none lane
+1. keep `phase-32x` exact through the mixed-owner split plan
+2. keep `phase-31x` landed as the engineering rehome precursor
+3. keep `phase-30x` landed as the ownership-flip precursor
+4. keep `phase-29x` landed as the backend-owner precursor lane
+5. keep `phase-29bq` active as failure-driven / blocker-none lane
 
 ## Active Lane
 
