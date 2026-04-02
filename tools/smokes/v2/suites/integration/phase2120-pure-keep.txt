@@ -1,4 +1,0 @@
-# Integration phase2120 pure keep suite
-# Active historical pure C-API keep pins that still lack exact root-first replacements.
-core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh
-core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh

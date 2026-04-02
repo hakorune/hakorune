@@ -1,4 +1,0 @@
-# Phase2120 active pure C-API keep pins
-# Historical pure-lowering evidence that remains discovery-live under integration.
-core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh
-core/phase2120/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh

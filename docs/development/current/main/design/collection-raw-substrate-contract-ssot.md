@@ -349,7 +349,7 @@ Current second slice:
    - contract pins:
      - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
      - `bash tools/smokes/v2/profiles/integration/apps/phase29cc_runtime_v0_adapter_fixtures_vm.sh`
-     - `bash tools/smokes/v2/profiles/integration/core/phase2120/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh`
+     - `bash tools/smokes/v2/profiles/integration/compat/pure-keep/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh`
 11. `B1r / runtime_data lock`
    - no active code task; only reopen on an exact protocol/dispatch bug
 

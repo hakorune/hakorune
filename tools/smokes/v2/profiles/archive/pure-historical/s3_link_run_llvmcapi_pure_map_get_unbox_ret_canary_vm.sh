@@ -8,7 +8,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"; if ROOT_GIT=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null); then ROOT="$ROOT_GIT"; else ROOT="$(cd "$SCRIPT_DIR/../../../../../../../../.." && pwd)"; fi
-source "$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/boundary_pure_helper.sh"
+source "$ROOT/tools/smokes/v2/lib/phase2120_boundary_pure_helper.sh"
 phase2120_boundary_pure_prepare "$ROOT" "s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm"
 phase2120_boundary_pure_require_kernel_symbol "$ROOT" "nyash.map.slot_store_hhh" "s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm"
 phase2120_boundary_pure_require_kernel_symbol "$ROOT" "nyash.map.slot_load_hh" "s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm"

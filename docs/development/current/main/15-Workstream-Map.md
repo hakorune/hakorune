@@ -36,7 +36,7 @@ Related:
      - current active lane is `phase-29x backend owner cutover prep`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
-     - phase2120 pure canaries are now split by suites: `phase2120-pure-keep` for the 2 active keep pins and `phase2120-pure-historical` for archive-backed replay evidence
+     - phase2120 pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
      - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is `monitor-only keep`, its dedicated suite manifest is the final live keep bucket, and the other groups stay bucket-runner only
      - phase2111 and phase251 archive proofs share one replay-evidence suite
      - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
@@ -44,8 +44,8 @@ Related:
      - direct live callers are fixed at 5 surfaces; the compat selfhost driver and `extern_provider.hako` stay stop-line surfaces, while `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` / `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are only wrapper/orchestrator layers
      - `29x-98` still owns delete-readiness and stop-line; no low-blast caller reduction is visible now
      - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W3 smoke/proof filesystem recut` is active
-     - current active micro task is `99K physically recut phase2044`
-     - next queued micro task is `99L physically recut phase2120`
+     - current active micro task is `99M bundle archive proof surfaces semantically`
+     - next queued micro task is `99G1 suites / directory semantic recut`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -58,8 +58,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `99K physically recut phase2044` |
-     | Next | `99L physically recut phase2120` |
+     | Now | `99M bundle archive proof surfaces semantically` |
+     | Next | `99G1 suites / directory semantic recut` |
      | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
    - cleanup waves:
 

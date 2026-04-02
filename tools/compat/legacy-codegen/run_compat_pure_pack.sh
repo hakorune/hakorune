@@ -2,12 +2,13 @@
 set -euo pipefail
 
 # Historical compat pure-pack orchestrator.
-# This shells into the active phase2120 pure keep suite and then the canonical
-# archive-later compat selfhost transport wrapper. It is not a separate proof
-# owner.
+# This shells into the active compat/pure-keep suite, the archive/pure-historical
+# replay bucket, and then the canonical archive-later compat selfhost transport
+# wrapper. It is not a separate proof owner.
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-PURE_KEEP_RUNNER="$ROOT/tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh"
+PURE_KEEP_RUNNER="$ROOT/tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh"
+PURE_HISTORICAL_RUNNER="$ROOT/tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh"
 SELFHOST_COMPAT_WRAPPER="$ROOT/tools/compat/legacy-codegen/run_compat_pure_selfhost.sh"
 
 echo "[selfhost/compat] Running historical pure/TM pack"
@@ -20,12 +21,18 @@ if [[ ! -f "$PURE_KEEP_RUNNER" ]]; then
   echo "[ERR] missing pure keep runner: $PURE_KEEP_RUNNER" >&2
   exit 2
 fi
+if [[ ! -f "$PURE_HISTORICAL_RUNNER" ]]; then
+  echo "[ERR] missing pure historical runner: $PURE_HISTORICAL_RUNNER" >&2
+  exit 2
+fi
 if [[ ! -f "$SELFHOST_COMPAT_WRAPPER" ]]; then
   echo "[ERR] missing compat selfhost wrapper: $SELFHOST_COMPAT_WRAPPER" >&2
   exit 3
 fi
 
 bash "$PURE_KEEP_RUNNER"
+
+bash "$PURE_HISTORICAL_RUNNER"
 
 echo "[selfhost/compat] Running historical .hako -> LLVM selfhost helper"
 TMP_JSON="/tmp/hako_min44_$$.json"

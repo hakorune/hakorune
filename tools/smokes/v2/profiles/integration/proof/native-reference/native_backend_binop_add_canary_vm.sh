@@ -48,4 +48,3 @@ if [ "$rc" -eq 42 ]; then
 fi
 echo "[FAIL] native_backend_binop_add_canary_vm (rc=$rc)" >&2
 exit 1
-

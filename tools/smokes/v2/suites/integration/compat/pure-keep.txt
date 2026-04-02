@@ -1,0 +1,4 @@
+# Integration compat/pure-keep suite
+# Active phase2120 pure C-API keep pins that still lack exact root-first replacements.
+compat/pure-keep/s3_link_run_llvmcapi_pure_array_set_get_canary_vm.sh
+compat/pure-keep/s3_link_run_llvmcapi_pure_loop_count_canary_vm.sh

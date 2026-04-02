@@ -57,7 +57,7 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | ID | Wave | Status | Task | Acceptance |
 | --- | --- | --- | --- | --- |
 | `99A` | W1 | landed | `phase2044` semantic bucket docs/manifest lock | llvmlite trio is the final live keep bucket |
-| `99B` | W1 | landed | `phase2120` keep/historical docs + suite split lock | pure keep and pure historical are canonical |
+| `99B` | W1 | landed | `phase2120` keep/historical docs + suite split lock | `compat/pure-keep` and `archive/pure-historical` are canonical |
 | `99C` | W1 | landed | compat selfhost stack wording lock | `payload -> transport wrapper -> pack orchestrator` is fixed |
 | `99D` | W1 | landed | direct caller vs wrapper inventory lock | `29x-98` separates direct callers from wrappers |
 | `99E` | W1 | landed | split-target inventory lock | target split homes are fixed for mixed owner/compat surfaces |
@@ -74,9 +74,9 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99H` | W2 | landed | split `llvm_codegen.rs` | thin tool boundary and legacy MIR front door no longer share one file |
 | `99I` | W2 | landed | split `LlvmBackendBox` | owner API and evidence adapter no longer share one file |
 | `99J` | W2 | landed | move `CodegenBridgeBox` / `LLVMEmitBox` | compat/proof surfaces leave owner-looking paths |
-| `99K` | W3 | active | recut `phase2044` physically | semantic proof buckets get separate homes |
-| `99L` | W3 | pending | recut `phase2120` physically | semantic proof/history buckets get separate homes |
-| `99M` | W3 | pending | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
+| `99K` | W3 | landed | recut `phase2044` physically | semantic proof buckets get separate homes |
+| `99L` | W3 | landed | recut `phase2120` physically | semantic proof/history buckets get separate homes |
+| `99M` | W3 | active | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
 | `99G1` | W3 | pending | suites / directory semantic recut | phase-number homes are replaced by semantic homes in the proof/archive tree |
 | `99N-99P` | W4 | blocked-on-proof | exact root-first replacement proof and Hako-side caller drain prep | direct `.hako` callers can leave `CodegenBridgeBox.emit_object_args(...)` |
 | `99Q-99S` | W5 | pending-after-W4 | Rust compat receiver collapse | receiver spread is reduced to one chokepoint |

@@ -1,0 +1,7 @@
+# Archive pure-historical suite
+# Replay-only evidence retired from the live integration keep bucket.
+pure-historical/s3_link_run_llvmcapi_pure_ternary_collect_canary_vm.sh
+pure-historical/s3_link_run_llvmcapi_pure_map_set_size_canary_vm.sh
+pure-historical/s3_link_run_llvmcapi_pure_array_get_ret_canary_vm.sh
+pure-historical/s3_link_run_llvmcapi_pure_map_get_unbox_ret_canary_vm.sh
+pure-historical/s3_link_run_llvmcapi_pure_map_set_get_has_canary_vm.sh

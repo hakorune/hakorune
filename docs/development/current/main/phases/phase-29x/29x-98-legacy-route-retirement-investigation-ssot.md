@@ -254,15 +254,17 @@ The direct `env.codegen.emit_object` caller groups are now stable enough to read
 
 - `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the only remaining historical compat-pack wrapper entry.
 - current direct dependencies are:
-  - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
+  - `tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh`
   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
-- `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh` is now only an orchestrator; the pack is split into:
-  - `run_pure_capi_canaries.sh`
-  - `run_vm_adapter_legacy_cluster.sh`
+- `tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/run_all.sh` is now only an orchestrator; the legacy cluster is split into:
+  - `tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh`
+  - `tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh`
+  - `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/run_vm_adapter_legacy_cluster.sh`
+  - `tools/smokes/v2/profiles/integration/proof/native-reference/run_native_reference_bucket.sh`
 - current blockers are:
   - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` still demonstrates the old `CodegenBridgeBox.emit_object_args(...)` plus `link_object_args(...)` route.
-  - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` still owns the two active historical pure C-API keep pins (`array_set_get`, `loop_count`), now locked by `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`; the archive-backed historical pins are now locked by `tools/smokes/v2/suites/archive/phase2120-pure-historical.txt`.
-  - `tools/smokes/v2/profiles/integration/core/phase2120/run_vm_adapter_legacy_cluster.sh` is still a separate legacy cluster under the same phase directory.
+  - `tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh` still owns the two active historical pure C-API keep pins (`array_set_get`, `loop_count`), now locked by `tools/smokes/v2/suites/integration/compat/pure-keep.txt`; the archive-backed historical pins are now locked by `tools/smokes/v2/suites/archive/pure-historical.txt`.
+  - `tools/smokes/v2/profiles/integration/proof/vm-adapter-legacy/run_vm_adapter_legacy_cluster.sh` is a separate legacy cluster under the proof directory, and `tools/smokes/v2/profiles/integration/proof/native-reference/run_native_reference_bucket.sh` is its native reference companion.
   - `HAKO_CAPI_PURE=1` is still documented as a compat-only route, not as removed/no-op.
 - archive-ready only when all three hold:
   1. the phase2120 active pure canaries are either replaced by current root-first/native proofs or moved under archive-only replay; no replacement exists yet for `array_set_get` / `loop_count`, so they stay keep.

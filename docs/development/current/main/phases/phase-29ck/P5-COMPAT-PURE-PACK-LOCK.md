@@ -8,8 +8,8 @@ Related:
   - docs/development/current/main/phases/phase-29ck/README.md
   - docs/development/current/main/phases/phase-29ck/P3-THIN-BACKEND-CUTOVER-LOCK.md
   - docs/reference/environment-variables.md
-  - tools/smokes/v2/profiles/integration/core/phase2120/README.md
-  - tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh
+  - tools/smokes/v2/profiles/integration/compat/pure-keep/README.md
+  - tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/README.md
   - tools/compat/legacy-codegen/run_compat_pure_pack.sh
 ---
 
@@ -32,7 +32,8 @@ Related:
      - `HAKO_CAPI_PURE=1` を要求しない
 2. compat-only pure pack
    - owner pack:
-     - `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh`
+     - `tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh`
+     - `tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh`
      - `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
      - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
    - required env:
@@ -42,7 +43,7 @@ Related:
   - meaning:
     - historical pure-lowering and old selfhost helper routes
     - `HAKO_CAPI_PURE=1` is a historical alias only when no explicit backend recipe is present; explicit `HAKO_BACKEND_COMPILE_RECIPE=*` keeps precedence
-    - current phase2120 active pure canaries are the two live keep pins (`array_set_get`, `loop_count`), locked by `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`; the historical archive-backed pins are locked by `tools/smokes/v2/suites/archive/phase2120-pure-historical.txt`
+    - current phase2120 active pure canaries are the two live keep pins (`array_set_get`, `loop_count`), locked by `tools/smokes/v2/suites/integration/compat/pure-keep.txt`; the historical archive-backed pins are locked by `tools/smokes/v2/suites/archive/pure-historical.txt`
   - non-goal:
     - current backend-zero acceptance / promotion owner ではない
 
@@ -58,7 +59,7 @@ Related:
    - retired alias; do not reintroduce
 2. `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
    - canonical historical compat pack wrapper
-   - shells into `tools/smokes/v2/profiles/integration/core/phase2120/run_pure_capi_canaries.sh` and `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
+   - shells into `tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh`, `tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh`, and `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
    - pack orchestration only; not a separate proof owner
 3. `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
    - compatibility wrapper only
@@ -66,14 +67,14 @@ Related:
    - transport-only shell shim around `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
    - still depends on the legacy `CodegenBridgeBox` example caller
    - root-first replacement proof exists only on the separate `vm-hako -> LlvmBackendBox` owner lane and is not a drop-in replacement for this wrapper
-4. `tools/smokes/v2/profiles/integration/core/phase2120/run_all.sh`
+4. `tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/run_all.sh`
    - full legacy-cluster entry
-   - orchestrates the pure C-API bucket and the VM-adapter legacy cluster as separate child runners
+   - orchestrates the pure keep bucket, archive historical bucket, VM-adapter legacy cluster, and native reference bucket as separate child runners
    - not the canonical compat pure-pack owner anymore
    - must self-identify as compat-only
-   - category map lives in `tools/smokes/v2/profiles/integration/core/phase2120/README.md`
+   - category map lives in `tools/smokes/v2/profiles/integration/proof/phase2120-legacy-cluster/README.md`
    - pure C-API canaries in this pack must use `boundary_pure_helper.sh -> ny-llvmc --driver boundary`; retired direct `hostbridge.extern_invoke("env.codegen", ...)` is outside the pack contract
-5. `tools/smokes/v2/suites/integration/phase2120-pure-keep.txt`
+5. `tools/smokes/v2/suites/integration/compat/pure-keep.txt`
    - canonical suite manifest for the two active pure C-API keep pins
    - keeps the live keep bucket explicit without re-promoting the compat pack to a mainline owner
 

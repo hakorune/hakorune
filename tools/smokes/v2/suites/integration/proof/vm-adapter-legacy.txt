@@ -1,0 +1,10 @@
+# Integration proof/vm-adapter-legacy suite
+# Phase2120 legacy VM adapter canaries.
+proof/vm-adapter-legacy/s3_vm_adapter_array_len_canary_vm.sh
+proof/vm-adapter-legacy/s3_vm_adapter_array_length_alias_canary_vm.sh
+proof/vm-adapter-legacy/s3_vm_adapter_array_size_alias_canary_vm.sh
+proof/vm-adapter-legacy/s3_vm_adapter_array_len_per_recv_canary_vm.sh
+proof/vm-adapter-legacy/s3_vm_adapter_map_size_struct_canary_vm.sh
+proof/vm-adapter-legacy/s3_vm_adapter_register_userbox_length_canary_vm.sh
+proof/vm-adapter-legacy/s3_vm_adapter_map_len_alias_state_canary_vm.sh
+proof/vm-adapter-legacy/s3_vm_adapter_map_length_alias_state_canary_vm.sh

@@ -1,0 +1,7 @@
+# Integration proof/native-reference suite
+# Phase2120 native backend reference canaries.
+proof/native-reference/native_backend_binop_add_canary_vm.sh
+proof/native-reference/native_backend_branch_eq_canary_vm.sh
+proof/native-reference/native_backend_compare_eq_canary_vm.sh
+proof/native-reference/native_backend_compare_lt_canary_vm.sh
+proof/native-reference/native_backend_return42_canary_vm.sh
