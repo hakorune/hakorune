@@ -69,8 +69,8 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `legacy_mir_front_door` physical helper deletion watch | keep the remaining helper explicit and compat-only until the two-caller inventory reaches zero |
-| Next | `residual docs cleanup` | trim phase wording once the helper watch no longer changes |
-| Later | `next optimization restart` | only after the remaining explicit helper callers are gone |
+| Next | `next optimization restart` | only after the remaining explicit helper callers are gone |
+| Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Replacement Matrix
 

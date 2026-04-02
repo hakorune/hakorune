@@ -36,28 +36,14 @@ Related:
      - current active lane is `phase-29x backend owner cutover prep`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
-     - phase2120 pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
-     - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is `monitor-only keep`, its dedicated suite manifest is the final live keep bucket, and the other groups stay bucket-runner only
-     - phase2111 and phase251 archive proofs share one replay-evidence suite
-     - selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
-     - root-first proof candidate inventory is pinned: the compat selfhost wrapper now materializes its payload onto `vm-hako`, while `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`
-     - `99V` is landed: the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper callers are `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`
-     - `29x-98` still owns physical helper deletion and stop-line; the remaining compat helper stays explicit until that two-caller inventory reaches zero
-     - `29x-99` now owns beauty-first macro cleanup waves and micro tasks; `W4`, `W5`, and `W6` are landed
-     - `99N1-99N3` are landed for the compat selfhost wrapper stack
-     - `99O1-99O2` are landed for the `extern_provider` stop-line
-     - `99P1 compat selfhost payload demotion` is landed
-     - `99P2 extern_provider compat codegen caller demotion` is landed; the compat codegen stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`
-     - `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` is landed; live Hako direct callers are now zero
-     - `99Q1`, `99Q2`, `99Q3`, `99R1`, `99R2`, and `99S1` are landed; the canonical shared receiver now lives in `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
-     - `hostbridge.rs` / `loader_cold.rs` are forwarding adapters and `extern_functions.rs` no longer owns direct codegen behavior
-     - `99T` is landed: the compat implementation now names the bridge truthfully as `LegacyEmitObjectBridgeBox`, while the owner-looking `CodegenBridgeBox` path stays shim-only
-     - `99U` is landed: `CodegenBridgeBox.emit_object_args(...)` is deleted; only the shim-only `link_object_args(...)` export remains
+     - semantic proof/archive recut is landed: `phase2044`, `phase2120`, and archive replay evidence now live in semantic homes
+     - the selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
+     - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper callers are `compat_codegen_receiver.rs` and the archive-later surrogate under `module_string_dispatch/compat/`
+     - `29x-98` owns the final helper-deletion watch; `29x-99` owns landed re-cut history and move order
      - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
-     - current active micro task is `residual docs cleanup`
-     - next queued micro task is `29x-98 final helper deletion watch`
-     - post-watch step is `next optimization restart`
-     - review intake detail lives in `29x-99`; the remaining live watch is the final explicit compat helper inventory under `29x-98`
+     - current active micro task is `29x-98 final helper deletion watch`
+     - next queued micro task is `next optimization restart`
+     - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
 
@@ -65,14 +51,14 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `29x-99` residual docs cleanup -> `29x-98` final helper deletion watch |
+     | Next | `29x-98 final helper deletion watch` -> `next optimization restart` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `residual docs cleanup` |
-     | Next | `29x-98 final helper deletion watch` |
-     | Later | `next optimization restart` |
+     | Now | `29x-98 final helper deletion watch` |
+     | Next | `next optimization restart` |
+     | Later | `none` |
    - cleanup waves:
 
      | Wave | Status | Read as |

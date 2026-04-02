@@ -71,37 +71,18 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `29x-99 residual docs cleanup`
-  - phase2120 pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`; the legacy cluster orchestrator is runner-only
-  - phase2044 has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`; the llvmlite trio is monitor-only keep and the proof buckets are runner-only
-  - inside the llvmlite trio, nothing is archive-ready; `compare_branch` / `const42` are merge-later only
-  - phase2111 and phase251 archive proofs are now grouped under one replay-evidence suite
-  - compat selfhost wrapper stays archive-later; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` are not daily owners, and the driver now lives in the compat bucket instead of `tools/selfhost/examples/`
-  - selfhost compat stack wording is now locked as `payload -> transport wrapper -> pack orchestrator`
-  - root-first proof candidate inventory is now pinned: the compat selfhost wrapper now materializes its payload onto `vm-hako`, while `extern_provider.hako` now has one exact proof lane under `integration/compat/extern-provider-stop-line-proof`
-  - `99V` is landed: the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining compat residue is explicit at `llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`
-  - remaining explicit helper caller inventory is now 2: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` as the keep chokepoint and `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` as the archive-later surrogate caller
-  - `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrappers/orchestrators only, not helper callers
-  - `29x-98` still owns physical helper deletion and exact stop-line; W6 landed as a path-truth pass, but final helper removal remains caller-inventory gated
-  - W5 shared receiver collapse is now partially landed: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` is the canonical compat-codegen home and plugin-loader `env.codegen` now enters there directly
-  - `hostbridge.rs` and `loader_cold.rs` now forward `env.codegen.*` into adapter-stage homes instead of carrying direct `link_object` behavior
-  - `extern_functions.rs` now forwards `env.codegen` into the shared compat receiver path; plugin-loader direct receiver ownership is gone
-  - `99R2` is landed: legacy codegen route tracing now emits from `compat_codegen_receiver.rs`, so chokepoint observability is no longer split across receiver homes
-  - `99S1` is landed: `llvm_backend_surrogate.rs` now lives under `module_string_dispatch/compat/`, not an owner-looking home
-  - `99T` is landed: the compat implementation now names the bridge truthfully as `LegacyEmitObjectBridgeBox`, while the owner-looking `CodegenBridgeBox` path stays shim-only
-  - `99U` is landed: `CodegenBridgeBox.emit_object_args(...)` is deleted; only the shim-only `link_object_args(...)` export remains
-  - `29x-99` now owns beauty-first cleanup planning, with `W4`, `W5`, and `W6` landed
-  - `99P1 compat selfhost payload demotion` is landed
-  - `99P2 extern_provider compat codegen caller demotion` is landed; the compat codegen stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`
-  - `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` is landed; live Hako direct callers are now zero
-  - `99Q1 lock one Rust compat-codegen chokepoint contract` is landed
-  - `99Q2 reduce MirInterpreter receivers to thin adapters` is landed
-  - `99Q3 reduce plugin-loader receiver to a thin adapter` is landed
-  - `99R1 collapse route ownership into one compat namespace` is landed
-  - owner-facade slimming is landed: `compile_obj(json_path)` is now an explicit compatibility path-entry shim over the root-first compile core
-  - current active micro task is `residual docs cleanup`
-  - next queued micro task is `29x-98 final helper deletion watch`
-  - review intake owner is `29x-99`; mirror docs only carry the open deltas, not the full intake table
+- Exact focus: `29x-98 final helper deletion watch`
+  - W4, W5, and W6 landed; path truth, semantic proof/archive homes, and one Rust compat-codegen chokepoint are in place
+  - `phase2044` lives under `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`
+  - `phase2120` lives under `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
+  - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`
+  - remaining explicit helper caller inventory is 2: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
+  - compat selfhost wrapper layers are not helper callers; they stay `payload -> transport wrapper -> pack orchestrator`
+  - `CodegenBridgeBox.emit_object_args(...)` is deleted; the owner-looking path is shim-only for `link_object_args(...)`
+  - `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core
+  - current active micro task is `29x-98 final helper deletion watch`
+  - next queued micro task is `next optimization restart`
+  - review intake owner remains `29x-99`; mirror docs now carry only the live watch state
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
   2. `docs/development/current/main/phases/phase-29x/README.md`
@@ -119,7 +100,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-29x backend owner cutover prep` |
   | Blocker | `none` |
-  | Next | `29x-99` residual docs cleanup -> `29x-98` final helper deletion watch |
+  | Next | `29x-98 final helper deletion watch` -> `next optimization restart` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -133,9 +114,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `residual docs cleanup` | trim the mirrors after the owner/evidence pass settled |
-| Next | `29x-98 final helper deletion watch` | only when the remaining explicit helper caller inventory reaches zero |
-| Later | `next optimization restart` | only after the compat helper watch no longer blocks forward cleanup |
+| Now | `29x-98 final helper deletion watch` | keep the remaining helper explicit until the two-caller inventory reaches zero |
+| Next | `next optimization restart` | only after the explicit helper inventory reaches zero |
+| Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Cleanup Waves
 

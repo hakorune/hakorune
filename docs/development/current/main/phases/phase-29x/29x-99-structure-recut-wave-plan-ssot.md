@@ -386,6 +386,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `post-W6 owner/evidence readability follow-up`
-  - micro: `residual docs cleanup`
-  - next: `29x-98 final helper deletion watch`
-  - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, `99Q1-99S1` landed for the Rust chokepoint collapse, and `99T-99U` landed for legacy bridge naming truth plus bridge entrypoint deletion
+  - micro: `29x-98 final helper deletion watch`
+  - next: `next optimization restart`
+  - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, `99Q1-99S1` landed for the Rust chokepoint collapse, and `99T-99V` landed for legacy bridge naming truth plus generic helper export retirement

@@ -96,7 +96,7 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99S1` | W5 | landed | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
 | `99T` | W6 | landed | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
 | `99U` | W6 | landed | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
-| `99V` | W6 | landed | delete the generic `emit_object_from_mir_json(...)` symbol/export and sync final compat/archive residue | root module no longer exports the helper and remaining callers use the explicit compat/evidence home |
+| `99V` | W6 | landed | retire the generic legacy MIR front-door export and sync final compat/archive residue | the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` |
 
 ## 0.2 Review intake
 

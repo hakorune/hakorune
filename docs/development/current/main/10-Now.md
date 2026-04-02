@@ -41,17 +41,12 @@ Related:
 - `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-29x backend owner cutover prep`.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
-- current active step is `phase-29x backend owner cutover prep`; the phase29x LLVM-only daily gate is green, `LLVMEmitBox` stays compat/proof keep, `CodegenBridgeBox` has no daily dependency, `phase2111` explicit emit/link proofs are archived, `phase251` lowering canaries are quarantined, `phase2044` has been physically recut into `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`, the llvmlite trio is suite-locked monitor-only keep and that dedicated suite is now the final live keep bucket, `phase2120` pure and proof buckets are now physically recut into `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`, `phase2111` / `phase251` archive proofs share one replay-evidence suite, the selfhost compat stack wording is locked as `payload -> transport wrapper -> pack orchestrator`, the compat selfhost payload is now materialized onto `vm-hako`, and docs-first cleanup planning now lives in `29x-99` with `W4`, `W5`, and `W6` landed.
-- `99V` is landed: the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone, and the remaining explicit helper callers are `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` plus `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`.
-- `29x-98` still owns physical helper deletion and stop-line; the remaining compat helper stays explicit until that two-caller inventory reaches zero.
-- `29x-99` owns macro cleanup waves and micro tasks; `99N1-99N3`, `99O1-99O4`, `99P1`, `99P2`, `99P3`, `99Q1`, `99Q2`, `99Q3`, `99R1`, `99R2`, `99S1`, `99T`, `99U`, and `99V` are landed.
-- `99R1` is landed: route ownership is now visible from `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`, `hostbridge.rs` / `loader_cold.rs` are forwarding adapters, and `extern_functions.rs` no longer owns direct codegen behavior.
-- `99R2` is landed: legacy codegen route tracing now emits from `compat_codegen_receiver.rs`, so chokepoint observability is aligned.
-- `99S1` is landed: the stage1 surrogate now lives under `module_string_dispatch/compat/`, not an owner-looking home.
-- `99T` is landed: the compat implementation now names the bridge truthfully as `LegacyEmitObjectBridgeBox`, while the owner-looking `CodegenBridgeBox` path stays shim-only.
-- `99U` is landed: `CodegenBridgeBox.emit_object_args(...)` is deleted; only the shim-only `link_object_args(...)` export remains.
+- current active step is `phase-29x backend owner cutover prep`; `W4`, `W5`, and `W6` are landed, semantic proof/archive homes are fixed, and the remaining legacy helper is now explicit and compat-only.
+- the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper is `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+- remaining explicit helper caller inventory is two surfaces: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` and `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`.
+- `29x-98` owns the final helper-deletion watch; `29x-99` keeps the landed re-cut history and move order.
 - owner-facade slimming is landed: `compile_obj(json_path)` now reads as an explicit compatibility path-entry shim over the root-first compile core.
-- current active micro task is `residual docs cleanup`; next queued micro task is `29x-98 final helper deletion watch`.
+- current active micro task is `29x-98 final helper deletion watch`; next queued micro task is `next optimization restart`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
 - immediate cleanup order is `residual docs cleanup -> 29x-98 final helper deletion watch -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
@@ -69,9 +64,9 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `residual docs cleanup` | trim the mirrors after the owner/evidence pass settled |
-| Next | `29x-98 final helper deletion watch` | only after the remaining explicit helper caller inventory reaches zero |
-| Later | `next optimization restart` | only after the compat helper watch no longer blocks forward cleanup |
+| Now | `29x-98 final helper deletion watch` | keep the remaining helper explicit until the two-caller inventory reaches zero |
+| Next | `next optimization restart` | only after the explicit helper inventory reaches zero |
+| Later | `none` | no additional cleanup wave is queued before the watch resolves |
 
 ## Cleanup Waves
 
