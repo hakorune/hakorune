@@ -49,8 +49,8 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior changes | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W4 Hako-side caller drain prep` | landed | exact root-first proof is green; direct `.hako` caller demotion is complete | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
-| `W5 Rust compat receiver collapse` | active | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
-| `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after caller inventory reaches zero | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W5 Rust compat receiver collapse` | landed | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W6 final delete/archive sweep` | active | delete helpers only after caller inventory reaches zero | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
 
 ## 0.1 Current micro-task queue
 
@@ -92,11 +92,11 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99Q2` | W5 | landed | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` / `loader_cold.rs` forward into adapter-stage homes only |
 | `99Q3` | W5 | landed | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` no longer owns direct codegen behavior |
 | `99R1` | W5 | landed | collapse route ownership into one compat namespace | route ownership is visible in one Rust home |
-| `99R2` | W5 | active | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
-| `99S1` | W5 | pending-after-R2 | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
-| `99T` | W6 | pending-after-S1 | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
-| `99U` | W6 | pending-after-T | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
-| `99V` | W6 | pending-after-U | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and tree/docs read cleanly |
+| `99R2` | W5 | landed | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
+| `99S1` | W5 | landed | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
+| `99T` | W6 | landed | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
+| `99U` | W6 | landed | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
+| `99V` | W6 | active | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and tree/docs read cleanly |
 
 ## 0.2 Review intake
 
@@ -109,11 +109,11 @@ This table is not a new plan. It classifies the 2026-04-02 beauty-first review a
 | `llvm_codegen.rs` thin boundary / legacy front-door split | landed already | `99H` |
 | semantic proof/archive recut for `phase2044` / `phase2120` | landed already | `99K-99M` |
 | slimmer `LlvmBackendBox` owner facade | adopt next | post-`W4` follow-up on `99I` |
-| one explicit Rust compat-codegen chokepoint | adopt next | `99Q1-99S1` |
+| one explicit Rust compat-codegen chokepoint | landed | `99Q1-99S1` |
 | old `tools/selfhost/examples/` compat payload home | stale in review | current live home is `tools/compat/legacy-codegen/` |
 | new explicit compat MIR(JSON)-to-root-first bridge file | stale in review | current bridge role is already absorbed by landed compat root-first callers |
 | legacy bridge naming truth (`CodegenBridgeBox` still reads primary) | adopt next | `99T` |
-| surrogate move to compat/evidence home | adopt next | `99S1` |
+| surrogate move to compat/evidence home | landed | `99S1` |
 
 | ID | Lane | Task | Est. | Depends | Acceptance |
 | --- | --- | --- | --- | --- | --- |

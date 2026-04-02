@@ -72,15 +72,18 @@ impl MirInterpreter {
                                 let idx1: Box<dyn crate::box_trait::NyashBox> =
                                     Box::new(crate::box_trait::IntegerBox::new(1));
                                 let s1 = ab.get(idx1).to_string_box().value;
-                                Self::optional_codegen_text(s1).map(std::path::PathBuf::from)
+                                crate::runtime::plugin_loader_v2::compat_codegen_receiver::optional_codegen_text(s1)
+                                    .map(std::path::PathBuf::from)
                             } else {
                                 let text = b.to_string_box().value;
-                                Self::optional_codegen_text(text).map(std::path::PathBuf::from)
+                                crate::runtime::plugin_loader_v2::compat_codegen_receiver::optional_codegen_text(text)
+                                    .map(std::path::PathBuf::from)
                             }
                         }
                         other => {
                             let text = other.to_string();
-                            Self::optional_codegen_text(text).map(std::path::PathBuf::from)
+                            crate::runtime::plugin_loader_v2::compat_codegen_receiver::optional_codegen_text(text)
+                                .map(std::path::PathBuf::from)
                         }
                     }
                 } else {
@@ -112,13 +115,13 @@ impl MirInterpreter {
                                 let idx1: Box<dyn crate::box_trait::NyashBox> =
                                     Box::new(crate::box_trait::IntegerBox::new(1));
                                 let s1 = ab.get(idx1).to_string_box().value;
-                                if let Some(s1) = Self::optional_codegen_text(s1) {
+                                if let Some(s1) = crate::runtime::plugin_loader_v2::compat_codegen_receiver::optional_codegen_text(s1) {
                                     exe_s = Some(s1);
                                 }
                                 let idx2: Box<dyn crate::box_trait::NyashBox> =
                                     Box::new(crate::box_trait::IntegerBox::new(2));
                                 let s2 = ab.get(idx2).to_string_box().value;
-                                if let Some(s2) = Self::optional_codegen_text(s2) {
+                                if let Some(s2) = crate::runtime::plugin_loader_v2::compat_codegen_receiver::optional_codegen_text(s2) {
                                     extra_s = Some(s2);
                                 }
                             } else {

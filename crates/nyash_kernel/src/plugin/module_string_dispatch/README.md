@@ -16,7 +16,7 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
   - owner of the surrogate route match/dispatch contract, typed source decode, and encoded result handoff
   - build-box / launcher handoff regression coverage lives in `src/stage1/program_json_v0.rs` tests
   - the surrogate handler and route match stay owner-local; parent modules only probe via `try_dispatch(...)`
-- `llvm_backend_surrogate.rs`
+- `compat/llvm_backend_surrogate.rs`
   - compiled-stage1 `selfhost.shared.backend.llvm_backend::{compile_obj,link_exe}` surrogate only
   - frozen exact owner for the backend boundary residue bucket; docs/inventory closeout only until caller-proof says removable
   - owner of the backend boundary route match/dispatch contract and its regression coverage
@@ -29,4 +29,4 @@ Scope: compiled-stage1 string-module dispatch helpers under `crates/nyash_kernel
 - do not mix `build_surrogate.rs` retirement with `stage1_bridge` or `.hako` live/bootstrap caller deletion
 - if the surrogate still cannot be removed, record that retreat in `phase-29ci/P0-PROGRAM-JSON-V0-CONSUMER-INVENTORY.md`
 - treat the shared `emit_from_program_json_v0` / `emit_from_source_v0` gate-decode helpers as thin-floor support code, not as a new authority owner
-- treat `build_surrogate.rs` and `llvm_backend_surrogate.rs` as frozen exact owners; do not reopen either without caller-proof
+- treat `build_surrogate.rs` and `compat/llvm_backend_surrogate.rs` as frozen exact owners; do not reopen either without caller-proof

@@ -3,7 +3,7 @@
 // `run_compat_pure_selfhost.sh` materializes this template with MIR JSON and exe
 // path literals before running it on `vm-hako`.
 // The payload now proves the provider stop-line via the evidence adapter, not the
-// legacy `CodegenBridgeBox.emit_object_args(...)` bridge.
+// legacy `CodegenBridgeBox.emit_object_args(...)` bridge is retired.
 
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
 using selfhost.shared.backend.llvm_backend_evidence_adapter as LlvmBackendEvidenceAdapterBox

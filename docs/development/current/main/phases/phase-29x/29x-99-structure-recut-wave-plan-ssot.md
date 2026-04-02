@@ -38,16 +38,16 @@ Related:
 | `W2 mixed-file split pass` | landed | split files that still mix owner and compat/proof roles | biggest readability gain per file touched |
 | `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
 | `W4 Hako-side caller drain prep` | landed | replace direct `.hako` callers with exact root-first proofs | one exact proof is green; direct caller demotion is complete |
-| `W5 Rust compat receiver collapse` | active | reduce `env.codegen.*` legacy receivers to one compat chokepoint | current receiver logic is spread across multiple Rust files |
-| `W6 final delete/archive sweep` | pending | delete legacy helper fronts and leave archive evidence only | last sweep after caller inventory reaches zero |
+| `W5 Rust compat receiver collapse` | landed | reduce `env.codegen.*` legacy receivers to one compat chokepoint | current receiver logic is no longer spread across multiple Rust files |
+| `W6 final delete/archive sweep` | active | delete legacy helper fronts and leave archive evidence only | last sweep after caller inventory reaches zero |
 
 ## Current Focus
 
-- active macro wave: `W5 Rust compat receiver collapse`
+- active macro wave: `W6 final delete/archive sweep`
 - active micro-task:
-  - `99R2 align tracing / observability at the chokepoint`
+  - `99V delete emit_object_from_mir_json(...) and sync final compat/archive residue`
 - next queued micro-task:
-  - `99S1 move surrogate caller to compat/evidence adapter home`
+  - `LlvmBackendBox owner-facade slimming follow-up`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, the compat selfhost wrapper stack has been materialized onto `vm-hako`, and the Hako-side bridge is now archive-only; the next collapse is on the Rust receiver side.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -76,9 +76,9 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 | new compat bridge for `MIR(JSON text) -> root-first compile` | stale-in-review | `99P2` + `llvm_emit_compat_box` landed | bridge role is already absorbed by current compat root-first callers; no new bridge file is required now |
 | compat selfhost payload root-first conversion | landed | `99P1` | payload now proves the provider stop-line through the evidence adapter on `vm-hako` |
 | `compat_codegen_extern_provider.hako` root-first conversion | landed | `99P2` | gated compat stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)` |
-| truthify legacy emit bridge naming / shim role | adopt-next | `99T` | compat implementation name should stop presenting `CodegenBridgeBox` as the primary truth |
-| one Rust compat-codegen chokepoint | landed and advancing | `99R2` | canonical shared receiver exists; next work is tracing / observability alignment |
-| surrogate move to compat/evidence home | adopt-next | `99S1` | surrogate still lives under an owner-looking path and should move after tracing is aligned |
+| truthify legacy emit bridge naming / shim role | landed | `99T` | compat implementation now uses `LegacyEmitObjectBridgeBox`; owner-looking path stays shim-only |
+| one Rust compat-codegen chokepoint | landed | `99Q1-99R2` | canonical shared receiver exists and tracing is aligned there |
+| surrogate move to compat/evidence home | landed | `99S1` | surrogate now lives under `module_string_dispatch/compat/` |
 
 ## Micro Tasks
 
@@ -130,7 +130,7 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99G1` | active | suites / directory semantic recut | `phase2044` / `phase2120` / archive suites read as semantic homes instead of phase-number homes |
+| `99G1` | landed | suites / directory semantic recut | `phase2044` / `phase2120` / archive suites read as semantic homes instead of phase-number homes |
 | `99K` | landed | physically recut `phase2044` into semantic buckets | llvmlite keep, hako-primary-no-fallback, and mirbuilder-provider stop sharing one live directory |
 | `99L` | landed | physically recut `phase2120` into semantic buckets | compat/pure-keep / pure-historical / vm-adapter-legacy / native-reference get separate homes |
 | `99M` | landed | bundle archive proof surfaces semantically | `phase2111` + `phase251` replay evidence can be read as one archive bundle |
@@ -248,8 +248,8 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 | `99Q2` | landed | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` and `loader_cold.rs` only forward into the chokepoint |
 | `99Q3` | landed | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` only forwards into the chokepoint |
 | `99R1` | landed | collapse route ownership into one compat namespace | route ownership for legacy codegen entry is visible in one Rust home |
-| `99R2` | active | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
-| `99S1` | pending-after-R2 | move surrogate caller to compat/evidence adapter home | `llvm_backend_surrogate.rs` no longer extends the old helper from an owner-looking surface |
+| `99R2` | landed | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
+| `99S1` | landed | move surrogate caller to compat/evidence adapter home | `llvm_backend_surrogate.rs` no longer extends the old helper from an owner-looking surface |
 
 - W5 prep is now partially landed:
   - MirInterpreter codegen receiver bodies live in `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs`
@@ -257,7 +257,11 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
   - shared Rust compat receiver now lives in `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
   - `hostbridge.rs` / `loader_cold.rs` now forward `env.codegen.*` into adapter-stage homes only
   - `extern_functions.rs` no longer owns direct codegen behavior
-  - route ownership is now collapsed into one explicit compat-codegen namespace, so `99R2` is now the active micro-task
+  - route ownership is now collapsed into one explicit compat-codegen namespace
+  - tracing / observability for legacy codegen acceptance now emits from `compat_codegen_receiver.rs`
+  - `99S1` is landed: the stage1 surrogate now lives under `module_string_dispatch/compat/`
+  - `99T` is landed: the compat implementation now uses `LegacyEmitObjectBridgeBox`, while the owner-looking export stays shim-only
+  - `99U` is now the active micro-task
 
 #### `99Q1` one explicit Rust compat-codegen chokepoint contract
 
@@ -292,13 +296,26 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
   - adapter-stage files are visibly translation-only and do not compete as owners
   - the next step (`99R2`) can align tracing without reopening namespace ownership
 
+#### `99R2` align tracing / observability at the chokepoint
+
+| Trace surface | Current state | Target read |
+| --- | --- | --- |
+| `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | emits route entry/result traces for `emit_object`, `compile_ll_text`, and `link_object` | canonical legacy codegen observability home |
+| `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` | keeps only adapter-specific arg-shape trace (`link_object` third arg) | adapter detail only; not route ownership |
+| `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | keeps generic provider entry/dispatch traces | outer adapter entry only |
+
+- acceptance for `99R2`:
+  - the canonical route traces for legacy codegen acceptance come from `compat_codegen_receiver.rs`
+  - adapter-level traces stay additive and do not compete as the canonical observability home
+  - the next step (`99S1`) can move the surrogate without reopening tracing ownership
+
 ### W6. Final Delete/Archive Sweep
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99T` | pending-after-S1 | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
-| `99U` | pending-after-T | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
-| `99V` | pending-after-U | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and `owner / compat / proof / archive` reads cleanly in tree and docs |
+| `99T` | landed | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
+| `99U` | landed | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
+| `99V` | active | delete `emit_object_from_mir_json(...)` and sync final compat/archive residue | caller inventory is zero and `owner / compat / proof / archive` reads cleanly in tree and docs |
 
 ## Split Targets
 
@@ -368,7 +385,7 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `phase-29x/README.md` and `29x-91-task-board.md` show both macro waves and micro tasks.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
-  - macro: `W5 Rust compat receiver collapse`
-  - micro: `99R2 align tracing / observability at the chokepoint`
-  - next: `99S1 move surrogate caller to compat/evidence adapter home`
-  - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, and `99Q1-99S1` now collapse the Rust accept path to one compat chokepoint
+  - macro: `W6 final delete/archive sweep`
+  - micro: `99V delete emit_object_from_mir_json(...) and sync final compat/archive residue`
+  - next: `LlvmBackendBox owner-facade slimming follow-up`
+  - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, `99Q1-99S1` landed for the Rust chokepoint collapse, and `99T-99U` landed for legacy bridge naming truth plus bridge entrypoint deletion

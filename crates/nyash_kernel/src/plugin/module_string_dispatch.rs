@@ -7,7 +7,7 @@ use std::sync::OnceLock;
 
 #[path = "module_string_dispatch/build_surrogate.rs"]
 mod build_surrogate;
-#[path = "module_string_dispatch/llvm_backend_surrogate.rs"]
+#[path = "module_string_dispatch/compat/llvm_backend_surrogate.rs"]
 mod llvm_backend_surrogate;
 
 const USING_RESOLVER_BOX_MODULE: &str = "lang.compiler.entry.using_resolver_box";

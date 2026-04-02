@@ -45,14 +45,6 @@ impl MirInterpreter {
         }
     }
 
-    fn optional_codegen_text(text: String) -> Option<String> {
-        if text.is_empty() || text == "null" {
-            None
-        } else {
-            Some(text)
-        }
-    }
-
     fn emit_mirbuilder_program_json(&mut self, program_json: &str) -> Result<VMValue, VMError> {
         match crate::runtime::mirbuilder_emit::emit_program_json_to_mir_json_with_env_imports(
             program_json,

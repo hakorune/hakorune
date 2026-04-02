@@ -4,17 +4,11 @@ using selfhost.shared.common.box_type_inspector as BoxTypeInspectorBox
 // Responsibility:
 //   - Keep env.codegen arg normalization out of owner-looking paths.
 //   - New daily callers should stop at LlvmBackendBox instead.
-//   - `emit_object_args(...)` is now archive-only; live Hako callers should use
-//     root-first owner or explicit compat shims instead.
+//   - Only the compat `link_object_args(...)` shim remains live here.
+//   - `emit_object_args(...)` is retired; root-first owner or explicit compat
+//     shims now cover the former Hako-side emit path.
 
-static box CodegenBridgeBox {
-  method emit_object_args(args) {
-    local arr = me._ensure_array(args)
-    local mir_json = me.array_arg_or_null(arr, 0)
-    if mir_json == null { return null }
-    return me._emit_object_legacy(mir_json)
-  }
-
+static box LegacyEmitObjectBridgeBox {
   method link_object_args(args) {
     local arr = me._ensure_array(args)
     local obj_path = me.array_arg_or_null(arr, 0)
@@ -39,10 +33,6 @@ static box CodegenBridgeBox {
     local arr = new ArrayBox()
     if value != null { arr.push(value) }
     return arr
-  }
-
-  _emit_object_legacy(mir_json) {
-    return env.codegen.emit_object(mir_json)
   }
 
   _link_object_legacy(obj_path, exe_path, extra_ldflags) {

@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-04-02
-Scope: investigate delete readiness for the remaining explicit legacy/compat callers rooted at `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`, including the compiled-stage1 surrogate caller.
+Scope: investigate delete readiness for the remaining explicit legacy/compat callers rooted at `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)`, including the compiled-stage1 surrogate caller.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -30,11 +30,11 @@ Related:
 
 ## Keep
 
-- `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`
+- `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)`
 - `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs`
 - `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs`
 - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
-- `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` (archive-later surrogate caller)
+- `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` (archive-later surrogate caller)
 
 ## Current Caller Inventory
 
@@ -45,7 +45,7 @@ The current `emit_object_from_mir_json(...)` caller inventory is three keep lane
 | `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
 | `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | keep | explicit legacy/compat caller; keep until a replacement daily route exists |
-| `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate caller; keeps the helper alive but is not a daily route |
+| `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate caller; keeps the helper alive but is not a daily route |
 
 ## Direct Callers vs Wrapper Layers
 
@@ -72,9 +72,9 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `lang/src/vm/hakorune-vm/extern_provider.hako` + compat selfhost wrapper stack | current stop-line surfaces after bucket cleanup |
-| Next | one explicit Rust compat-codegen namespace with aligned tracing | required before helper deletion can resume on the Rust side |
-| Later | `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)` / `CodegenBridgeBox.emit_object_args(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
+| Now | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` final front-door deletion | the archive-only bridge entrypoint is gone; helper deletion can continue on the Rust front door |
+| Next | `LlvmBackendBox owner-facade slimming follow-up` | finish the owner/evidence readability pass after helper deletion |
+| Later | `residual docs cleanup` | only after legacy helper surfaces are gone |
 
 ## Replacement Matrix
 
@@ -85,7 +85,7 @@ The canonical successor family is the root-first daily route, concretely `env.co
 | `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | keep | `env.codegen.emit_object` dispatch from MIR interpreter | root-first daily compile route (`env.codegen.compile_ll_text(...)` / `env.codegen.link_object(...)`) once the caller stops owning MIR(JSON) | still enters through legacy MIR(JSON) emit path |
 | `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | keep | loader-cold lane for `env.codegen.emit_object` with MIR JSON version patching | same root-first daily compile route family | same legacy MIR(JSON) entry contract |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | keep | plugin loader `emit_object` arm for MIR(JSON) | same root-first daily compile route family | same legacy MIR(JSON) entry contract |
-| `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate reads MIR(JSON) file and calls the legacy helper | compiled-stage1 should eventually bypass the legacy helper once a new front-door exists | helper still required for bootstrap/compat |
+| `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` | archive-later | compiled-stage1 surrogate reads MIR(JSON) file and calls the legacy helper | compiled-stage1 should eventually bypass the legacy helper once a new front-door exists | helper still required for bootstrap/compat |
 
 ## Inventory Findings
 
@@ -98,7 +98,7 @@ The canonical successor family is the root-first daily route, concretely `env.co
 - `src/runtime/plugin_loader_v2/enabled/extern_functions.rs`
   - current contract is plugin-side `emit_object(mir_json) -> object path`.
   - this file has `compile_ll_text`, but it still lacks caller-side route/profile ownership and does not hold LL text on the `emit_object` arm.
-- `crates/nyash_kernel/src/plugin/module_string_dispatch/llvm_backend_surrogate.rs`
+- `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs`
   - current contract is `compile_obj(mir_path) -> object path`.
   - this is a compiled-stage1/bootstrap surrogate; it reads MIR(JSON) from disk and cannot cleanly jump to the root-first route without moving the owner upward into `.hako`.
 
@@ -113,7 +113,7 @@ The canonical successor family is the root-first daily route, concretely `env.co
 - `extern_functions.rs`
   - cleanup target is upstream caller removal, not `extern_functions.rs` first.
   - current upstream owner is still the legacy `CodegenBridgeBox.emit_object_args(...)` / `env.codegen.emit_object` route for the remaining compat/proof callers; daily callers should stop at `LlvmBackendBox`.
-- `llvm_backend_surrogate.rs`
+- `compat/llvm_backend_surrogate.rs`
   - cleanup target is the compiled-stage1/module-dispatch caller set, not the surrogate file first.
   - current upstream owner is `crates/nyash_kernel/src/plugin/module_string_dispatch.rs` via `try_dispatch(...)`, with compat/proof callers on `selfhost.shared.backend.llvm_backend.{compile_obj,link_exe}`.
 
@@ -389,9 +389,9 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 ## Retirement Order
 
 1. keep `hostbridge.rs`, `loader_cold.rs`, and `extern_functions.rs` as explicit compat callers until their upstream callers stop owning MIR(JSON) and switch to the root-first daily route.
-2. keep `llvm_backend_surrogate.rs` as archive-later until the compiled-stage1/bootstrap path has a cleaner front door than `emit_object_from_mir_json(...)`.
+2. keep `compat/llvm_backend_surrogate.rs` as archive-later until the compiled-stage1/bootstrap path has a cleaner front door than `emit_object_from_mir_json(...)`.
 3. once upstream `.hako` callers and proof/example callers stop generating `env.codegen.emit_object`, collapse the Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`).
-4. only when all caller surfaces are gone: delete `src/host_providers/llvm_codegen.rs::emit_object_from_mir_json(...)`.
+4. only when all caller surfaces are gone: delete `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)`.
 
 ## Investigation TODO
 

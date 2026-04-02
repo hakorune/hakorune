@@ -5,10 +5,6 @@
 using selfhost.compat.codegen.legacy_emit_object_bridge as LegacyEmitObjectBridgeBox
 
 static box CodegenBridgeBox {
-  method emit_object_args(args) {
-    return LegacyEmitObjectBridgeBox.emit_object_args(args)
-  }
-
   method link_object_args(args) {
     return LegacyEmitObjectBridgeBox.link_object_args(args)
   }
