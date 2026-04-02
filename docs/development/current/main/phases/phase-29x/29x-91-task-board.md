@@ -48,7 +48,7 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `W1 docs-first path-truth pass` | landed | lock target buckets, names, and move order | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W2 mixed-file split pass` | landed | split owner-looking mixed files before behavior changes | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | `29x-99-structure-recut-wave-plan-ssot.md` |
-| `W4 Hako-side caller drain prep` | blocked-on-proof | exact root-first replacement proof for direct `.hako` callers | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
+| `W4 Hako-side caller drain prep` | active | exact root-first proof is green; direct `.hako` caller demotion is now in progress | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W5 Rust compat receiver collapse` | pending-after-W4 | reduce legacy Rust receiver spread to one compat chokepoint | `29x-99-structure-recut-wave-plan-ssot.md` |
 | `W6 final delete/archive sweep` | pending-after-W5 | delete helpers only after caller inventory reaches zero | `29x-98-legacy-route-retirement-investigation-ssot.md` + `29x-99-structure-recut-wave-plan-ssot.md` |
 
@@ -78,15 +78,16 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99L` | W3 | landed | recut `phase2120` physically | semantic proof/history buckets get separate homes |
 | `99M` | W3 | landed | bundle archive proof surfaces semantically | archive replay evidence reads as one bundle |
 | `99G1` | W3 | landed | suites / directory semantic recut | phase-number homes are replaced by semantic homes in the proof/archive tree |
-| `99N1` | W4 | active | lock compat selfhost wrapper replacement contract | drop-in wrapper contract is explicit |
-| `99N2` | W4 | queued | lock compat payload invariants | payload behavior and allowed drift are explicit |
-| `99N3` | W4 | queued | map current root-first proof gap for compat selfhost wrapper | proof gap is explicit and line-by-line |
-| `99O1` | W4 | queued | lock `extern_provider.hako` replacement contract | current lowering contract is explicit |
-| `99O2` | W4 | queued | pin minimal root-first lowering proof target | one exact proof lane/fixture is named |
-| `99O3` | W4 | queued | lock direct-caller demotion prerequisites | Hako-side demotion order is explicit |
-| `99P1` | W4 | blocked-on-proof | demote compat selfhost payload direct caller | payload no longer calls `CodegenBridgeBox.emit_object_args(...)` |
-| `99P2` | W4 | blocked-on-proof | demote `extern_provider.hako` compat codegen caller | compat codegen stub no longer calls `CodegenBridgeBox.emit_object_args(...)` |
-| `99P3` | W4 | blocked-on-proof | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
+| `99N1` | W4 | landed | lock compat selfhost wrapper replacement contract | drop-in wrapper contract is explicit |
+| `99N2` | W4 | landed | lock compat payload invariants | payload behavior and allowed drift are explicit |
+| `99N3` | W4 | landed | map current root-first proof gap for compat selfhost wrapper | proof gap is explicit and line-by-line |
+| `99O1` | W4 | landed | lock `extern_provider.hako` replacement contract | current lowering contract is explicit |
+| `99O2` | W4 | landed | pin minimal root-first lowering proof target | one exact proof lane/fixture is named |
+| `99O3` | W4 | landed | lock direct-caller demotion prerequisites | Hako-side demotion order is explicit |
+| `99O4` | W4 | landed | implement minimal root-first lowering proof smoke | one `vm-hako` proof is green for the compat provider stop-line |
+| `99P1` | W4 | active | demote compat selfhost payload direct caller | payload no longer calls `CodegenBridgeBox.emit_object_args(...)` |
+| `99P2` | W4 | pending-after-P1 | demote `extern_provider.hako` compat codegen caller | compat codegen stub no longer calls `CodegenBridgeBox.emit_object_args(...)` |
+| `99P3` | W4 | pending-after-P2 | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
 | `99Q1` | W5 | pending-after-W4 | lock one Rust compat-codegen chokepoint contract | one receiver module owns the legacy accept path |
 | `99Q2` | W5 | pending-after-W4 | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` / `loader_cold.rs` stop being receiver homes |
 | `99Q3` | W5 | pending-after-W4 | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` stops being a receiver home |

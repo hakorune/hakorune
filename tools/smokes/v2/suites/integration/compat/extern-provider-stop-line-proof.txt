@@ -1,0 +1,2 @@
+# Integration exact W4 proof lane for the extern-provider stop-line
+compat/extern-provider-stop-line-proof/extern_provider_codegen_emit_object_root_first_vm.sh

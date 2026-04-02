@@ -37,7 +37,7 @@ Related:
 | `W1 docs-first path-truth pass` | landed | lock final buckets, names, and move order before code moves | current repo truth is semantically cleaner than its paths |
 | `W2 mixed-file split pass` | landed | split files that still mix owner and compat/proof roles | biggest readability gain per file touched |
 | `W3 smoke/proof filesystem recut` | landed | move live proof and archive evidence into semantic homes | phase-number directories still hide meaning |
-| `W4 Hako-side caller drain prep` | blocked-on-proof | replace direct `.hako` callers with exact root-first proofs | needed before `CodegenBridgeBox.emit_object_args(...)` can die |
+| `W4 Hako-side caller drain prep` | active | replace direct `.hako` callers with exact root-first proofs | one exact proof is green; direct caller demotion is now unblocked |
 | `W5 Rust compat receiver collapse` | pending | reduce `env.codegen.*` legacy receivers to one compat chokepoint | current receiver logic is spread across multiple Rust files |
 | `W6 final delete/archive sweep` | pending | delete legacy helper fronts and leave archive evidence only | last sweep after caller inventory reaches zero |
 
@@ -45,11 +45,11 @@ Related:
 
 - active macro wave: `W4 Hako-side caller drain prep`
 - active micro-task:
-  - `99N1 compat selfhost replacement contract lock`
+  - `99P1 compat selfhost payload demotion`
 - next queued micro-task:
-  - `99O1 extern_provider replacement contract lock`
+  - `99P2 extern_provider compat codegen caller demotion`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
-- code reduction remains blocked by `29x-98`: no exact root-first replacement proof yet for `extern_provider.hako` or the compat selfhost wrapper stack.
+- code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, but the compat selfhost wrapper stack still lacks a drop-in replacement proof.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
   - `99E4` is absorbed into `W2` `99I` owner API / evidence adapter split.
 
@@ -139,15 +139,93 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `99N1` | active | lock compat selfhost wrapper replacement contract | wrapper input/output/env contract is written down as the drop-in target |
-| `99N2` | queued | lock compat payload invariants | `hako_llvm_selfhost_driver.hako` required behavior and allowed drift are explicit |
-| `99N3` | queued | map current root-first proof gap for compat selfhost wrapper | `phase29ck_vmhako_llvm_backend_runtime_proof` is compared against the drop-in contract line by line |
-| `99O1` | queued | lock `extern_provider.hako` replacement contract | current compat codegen stub contract is explicit enough to judge replacement |
-| `99O2` | queued | pin minimal root-first lowering proof target | one exact proof fixture/lane is named for the `extern_provider.hako` replacement |
-| `99O3` | queued | lock direct-caller demotion prerequisites | preconditions for removing `.hako` direct callers are explicit and ordered |
-| `99P1` | blocked-on-proof | demote compat selfhost payload direct caller | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` no longer needs `CodegenBridgeBox.emit_object_args(...)` |
-| `99P2` | blocked-on-proof | demote `extern_provider.hako` compat codegen caller | `compat_codegen_extern_provider.hako` no longer needs `CodegenBridgeBox.emit_object_args(...)` |
-| `99P3` | blocked-on-proof | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
+| `99N1` | landed | lock compat selfhost wrapper replacement contract | wrapper input/output/env contract is written down as the drop-in target |
+| `99N2` | landed | lock compat payload invariants | `hako_llvm_selfhost_driver.hako` required behavior and allowed drift are explicit |
+| `99N3` | landed | map current root-first proof gap for compat selfhost wrapper | `phase29ck_vmhako_llvm_backend_runtime_proof` is compared against the drop-in contract line by line |
+| `99O1` | landed | lock `extern_provider.hako` replacement contract | current compat codegen stub contract is explicit enough to judge replacement |
+| `99O2` | landed | pin minimal root-first lowering proof target | one exact proof fixture/lane is named for the `extern_provider.hako` replacement |
+| `99O3` | landed | lock direct-caller demotion prerequisites | preconditions for removing `.hako` direct callers are explicit and ordered |
+| `99O4` | landed | implement minimal root-first lowering proof smoke | one `vm-hako` proof is green for the `extern_provider` stop-line surface |
+| `99P1` | active | demote compat selfhost payload direct caller | `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` no longer needs `CodegenBridgeBox.emit_object_args(...)` |
+| `99P2` | pending-after-P1 | demote `extern_provider.hako` compat codegen caller | `compat_codegen_extern_provider.hako` no longer needs `CodegenBridgeBox.emit_object_args(...)` |
+| `99P3` | pending-after-P2 | make `CodegenBridgeBox.emit_object_args(...)` archive-only | direct Hako callers are zero or archive-only |
+
+#### `99N1` compat selfhost wrapper replacement contract
+
+| Surface | Contract |
+| --- | --- |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | positional CLI stays `<json_file_or_-'stdin'> [exe_out]` |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | required env guard stays `NYASH_LLVM_USE_CAPI=1`, `HAKO_V1_EXTERN_PROVIDER_C_ABI=1`, `HAKO_CAPI_PURE=1`; `HAKO_CAPI_TM=1` stays optional |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | wrapper must still export `_MIR_JSON` and `_EXE_OUT` before invoking the payload |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | success contract stays `stdout prints exe path`, then the produced executable is run, and wrapper exit code matches executable exit code |
+| `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` | failure contract stays explicit: usage `2`, env mismatch `3`, exe missing `4`, driver missing `5` |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | payload contract stays `_MIR_JSON` required, `_EXE_OUT` optional with `/tmp/hako_selfhost_exe` fallback |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | payload success contract stays `emit object -> link exe -> print exe path -> return 0` |
+| `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` | payload failure contract stays `_MIR_JSON missing -> 1`, `emit fail -> 2`, `link fail -> 3` |
+
+#### `99N2` compat payload invariants
+
+| Invariant | Why it stays fixed now |
+| --- | --- |
+| `hako_llvm_selfhost_driver.hako` remains a proof/example payload, not a daily owner | keep stop-line semantics explicit |
+| payload remains the direct `.hako` caller surface; wrapper remains transport only | direct caller vs wrapper inventory must stay readable in `29x-98` |
+| payload still demonstrates the legacy two-step `emit_object_args(...)` then `link_object_args(...)` route | this is the exact legacy behavior the drop-in replacement must cover |
+| wrapper continues to resolve the payload from `tools/compat/legacy-codegen/` only | do not re-open the old `tools/selfhost/examples/` duplicate home |
+| `run_compat_pure_pack.sh` remains an orchestrator above the canonical wrapper, not a proof owner | sequencing must stay stable while replacement proof is missing |
+
+#### `99N3` root-first proof gap map for compat selfhost wrapper
+
+| Checkpoint | Current compat wrapper lane | Current root-first proof candidate | Gap |
+| --- | --- | --- | --- |
+| entrypoint | shell wrapper around `hako_debug_run.sh --safe -c` | temporary `.hako` source run by `target/release/hakorune --backend vm-hako` | entry transport is different |
+| payload | legacy `CodegenBridgeBox.emit_object_args(...)` / `link_object_args(...)` | direct `LlvmBackendBox.compile_obj(...)` / `link_exe(...)` | bridge route is not exercised by the proof |
+| input contract | MIR JSON file or stdin, exported as `_MIR_JSON` | fixed MIR fixture path in the proof script | no drop-in CLI/input parity yet |
+| output contract | wrapper prints exe path, then runs the exe and returns the exe rc | proof script asserts exe exists and runs it inside the smoke harness | shell-wrapper stdout/rc contract is not proven |
+| env contract | requires `HAKO_CAPI_PURE=1` in addition to C-ABI/CAPI guards | candidate proof only pins `NYASH_LLVM_USE_CAPI=1` and `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` | env surface is narrower in the proof |
+| replacement verdict | archive-later compat wrapper | valid root-first owner-lane proof | not a drop-in replacement today |
+
+#### `99O1` extern-provider replacement contract
+
+| Surface | Contract |
+| --- | --- |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | runtime owner surface keeps `env.get` and `env.console.*` behavior unchanged while compat codegen/mirbuilder arms stay explicitly gated |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` remains the explicit gate that enables compat codegen/mirbuilder delegation |
+| `lang/src/vm/hakorune-vm/extern_provider.hako` | `env.codegen.emit_object` and `env.mirbuilder.emit` are not owner arms; they remain explicit compat/proof delegation surfaces |
+| `lang/src/vm/hakorune-vm/compat_codegen_extern_provider.hako` | accepts `name` plus `args`, and keeps `env.codegen.emit_object` on the legacy bridge route while the stop-line remains active |
+| `lang/src/vm/hakorune-vm/compat_codegen_extern_provider.hako` | gate-out behavior stays stub-like (`""` or `null`), not fail-open into a new daily route |
+| `lang/src/vm/hakorune-vm/compat_codegen_extern_provider.hako` | exact replacement must preserve the gated `env.codegen.emit_object` surface name and its `args -> object path / null` behavior until the proof is accepted |
+
+#### `99O2` minimal root-first lowering proof target
+
+| Item | Target |
+| --- | --- |
+| proof lane shape | a small `vm-hako` smoke that directly exercises the `extern_provider` surface, not the shell compat wrapper |
+| fixture shape | one `.hako` fixture that reaches `env.codegen.emit_object` through the current compat provider surface under `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` |
+| success contract | root-first route produces an object path and links/runs an executable without reopening `CodegenBridgeBox.emit_object_args(...)` as a daily owner |
+| relation to `phase29ck_vmhako_llvm_backend_runtime_proof.sh` | reuse the root-first owner lane as implementation evidence, but do not treat it as a drop-in wrapper proof |
+| non-goal | do not prove wrapper CLI/env/stdout parity here; that belongs to `99N1-99N3` |
+
+#### `99O3` direct-caller demotion prerequisites
+
+| Prerequisite | Why it must be true first |
+| --- | --- |
+| `99N1-99N3` are landed | compat selfhost wrapper contract/gap must be fixed before any demotion decision |
+| `99O1` is landed | the `extern_provider` stop-line must be explicit before it can be replaced |
+| `99O2` is landed with one named proof target | there must be one exact proof lane to gate the demotion work |
+| direct caller inventory remains explicit in `29x-98` | do not blur direct callers with wrappers/orchestrators during demotion |
+| no helper deletion | `CodegenBridgeBox.emit_object_args(...)` and `emit_object_from_mir_json(...)` stay live until `99P1-99P3` are complete |
+
+#### `99O4` minimal root-first lowering proof implementation target
+
+| Item | Implementation target |
+| --- | --- |
+| fixture | one small `.hako` fixture that reaches `env.codegen.emit_object` through the current compat provider surface |
+| runner lane | `vm-hako` |
+| env gate | `HAKO_V1_EXTERN_PROVIDER_C_ABI=1` plus the current C-API owner-lane guards |
+| evidence shape | prove object-path creation and linked executable creation/run |
+| implemented lane | `tools/smokes/v2/profiles/integration/compat/extern-provider-stop-line-proof/extern_provider_codegen_emit_object_root_first_vm.sh` |
+| implementation note | `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` is the proof-only adapter that keeps the owner facade thin while the stop-line still exists |
+| non-goal | do not replace the shell compat wrapper; do not prove wrapper CLI/stdout parity here |
 
 ### W5. Rust Compat Receiver Collapse
 
@@ -163,7 +241,7 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 - W5 prep is now partially landed:
   - MirInterpreter codegen receiver bodies live in `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs`
   - plugin loader `env.codegen` receiver body lives in `src/runtime/plugin_loader_v2/enabled/codegen.rs`
-  - the remaining collapse work is still call-site / ownership reduction to one explicit compat-codegen chokepoint, so `W4` stays blocked-on-proof
+  - the remaining collapse work is still call-site / ownership reduction to one explicit compat-codegen chokepoint, so `W5` stays queued behind `99P1-99P3`
 
 ### W6. Final Delete/Archive Sweep
 
@@ -242,6 +320,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `W4 Hako-side caller drain prep`
-  - micro: `99N1 compat selfhost replacement contract lock`
-  - next: `99O1 extern_provider replacement contract lock`
-  - detail: `99N1-99O3` lock replacement contracts first, `99P1-99P3` demote callers only after proof, then `99Q1-99S1`
+  - micro: `99P1 compat selfhost payload demotion`
+  - next: `99P2 extern_provider compat codegen caller demotion`
+  - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` now demote callers in order, then `99Q1-99S1`

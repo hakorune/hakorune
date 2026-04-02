@@ -4,10 +4,20 @@
 // focused on codegen bridge writes only.
 
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+using selfhost.shared.backend.llvm_backend_evidence_adapter as LlvmBackendEvidenceAdapterBox
 using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
 using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 
 static box MirVmS0CodegenBox {
+  _read_text_arg(arg_reg, regs, handle_regs) {
+    if arg_reg == null { return null }
+    local handle_text = MirVmS0StateOpsBox.handle_get(handle_regs, arg_reg)
+    if handle_text != null { return handle_text }
+    local raw = regs.get("" + arg_reg)
+    if raw == null { return null }
+    return "" + raw
+  }
+
   _write_handle_result(dst_box, regs, kinds, handle_regs, text) {
     regs.set("" + dst_box, "0")
     kinds.set("" + dst_box, "handle")
@@ -31,6 +41,19 @@ static box MirVmS0CodegenBox {
     local obj = LlvmBackendBox.compile_obj("" + path_text)
     if obj == null || ("" + obj) == "" {
       print("[llvmbackend/emit/failed] LlvmBackendBox.compile_obj returned empty")
+      return me._write_scalar_result(dst_box, regs, kinds, handle_regs, 0)
+    }
+    return me._write_handle_result(dst_box, regs, kinds, handle_regs, obj)
+  }
+
+  apply_compile_obj_provider_stopline(arg0_reg, dst_box, regs, kinds, handle_regs) {
+    local mir_json = me._read_text_arg(arg0_reg, regs, handle_regs)
+    if mir_json == null || ("" + mir_json) == "" {
+      return "[vm-hako/contract][llvmbackend-provider-stopline-arg-missing]"
+    }
+    local obj = LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline("" + mir_json)
+    if obj == null || ("" + obj) == "" {
+      print("[llvmbackend/provider-stopline/emit-failed] LlvmBackendEvidenceAdapterBox returned empty")
       return me._write_scalar_result(dst_box, regs, kinds, handle_regs, 0)
     }
     return me._write_handle_result(dst_box, regs, kinds, handle_regs, obj)

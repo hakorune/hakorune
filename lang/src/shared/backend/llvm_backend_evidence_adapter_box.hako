@@ -2,11 +2,23 @@ using selfhost.shared.backend.recipe as BackendRecipeBox
 using selfhost.shared.backend.ll_emit.recipe_facts_v0 as RecipeFactsV0Box
 using selfhost.shared.backend.ll_emit.ll_text_emit as LlTextEmitBox
 using selfhost.shared.mir.root_hydrator as MirRootHydratorBox
+using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
 
 // LlvmBackendEvidenceAdapterBox — compare/evidence surface for legacy root-first proof lanes
 // Keep this box separate from the owner boundary so the owner file stays thin.
 
 static box LlvmBackendEvidenceAdapterBox {
+  compile_obj_provider_stopline(mir_json) {
+    if mir_json == null || ("" + mir_json) == "" {
+      return me._fail("[llvmbackend/provider-stopline/input-missing] mir_json")
+    }
+    local obj = HakoruneExternProviderBox.get("env.codegen.emit_object", "" + mir_json)
+    if obj == null || ("" + obj) == "" {
+      return me._fail("[llvmbackend/provider-stopline/emit-failed] extern provider returned empty")
+    }
+    return "" + obj
+  }
+
   compile_obj_compare_hako_ll(json_path, out_path) {
     local profile = BackendRecipeBox.compile_compare_profile(json_path)
     if profile == null { return null }

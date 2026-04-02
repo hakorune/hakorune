@@ -9,6 +9,7 @@ using selfhost.vm.helpers.mir_s0_state_ops as MirVmS0StateOpsBox
 using selfhost.vm.hakorune-vm.extern_provider as HakoruneExternProviderBox
 using selfhost.compat.codegen.legacy_emit_object_bridge as CodegenBridgeBox
 using selfhost.shared.backend.llvm_backend as LlvmBackendBox
+using selfhost.shared.backend.llvm_backend_evidence_adapter as LlvmBackendEvidenceAdapterBox
 using selfhost.vm.helpers.method_alias_policy as MethodAliasPolicy
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
 using lang.runtime.collections.array_core_box as ArrayCoreBox
@@ -257,6 +258,24 @@ static box MirCallV1HandlerBox {
             return
           }
           me._write_text_dst(regs, kinds, handle_regs, dst_codegen, out)
+          return
+        }
+        if btype == "LlvmBackendEvidenceAdapterBox" && mname == "compile_obj_provider_stopline" {
+          local dst_provider_codegen = JsonFragBox.get_int(seg, "dst")
+          if dst_provider_codegen == null { return }
+          local arg0_provider_codegen = MiniMirV1Scan.first_arg_register(seg)
+          local mir_json = me._read_reg_text_or_null(regs, handle_regs, arg0_provider_codegen)
+          if mir_json == null || ("" + mir_json) == "" {
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_provider_codegen, 0)
+            return
+          }
+          local out_provider = LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline("" + mir_json)
+          if out_provider == null || ("" + out_provider) == "" {
+            print("[llvmbackend/provider-stopline/emit-failed] LlvmBackendEvidenceAdapterBox returned empty")
+            me._write_scalar_dst(regs, kinds, handle_regs, dst_provider_codegen, 0)
+            return
+          }
+          me._write_text_dst(regs, kinds, handle_regs, dst_provider_codegen, out_provider)
           return
         }
         if btype == "LlvmBackendBox" && mname == "link_exe" {

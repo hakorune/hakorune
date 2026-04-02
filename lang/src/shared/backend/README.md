@@ -8,7 +8,7 @@ Current owner
   - `llvm_backend_box.hako`
   - thin backend boundary の caller facade
   - `llvm_backend_evidence_adapter_box.hako`
-  - compare/evidence-only adapter; keep compare callers out of the owner facade
+  - compare/evidence-only adapter; keep compare callers and provider-stop-line proof hooks out of the owner facade
   - `backend_recipe_box.hako`
   - caller-side compile recipe and evidence owner; prepare route/policy, but do not own transport calls
   - `backend_daily_owner_policy_box.hako`
@@ -25,6 +25,7 @@ Current owner
   - flipped daily profiles now hydrate MIR(JSON) into a root, run `RecipeFactsV0Box -> LlTextEmitBox`, and cross the Rust tool seam via `env.codegen.compile_ll_text(...)`
   - launcher/mainline compile is now root-first; the legacy compare/archive transport is isolated in the `emit_object_from_mir_json(...)` facade helper in `src/host_providers/llvm_codegen/legacy_mir_front_door.rs` and no longer the daily transport
   - explicit compare callers may use `BackendRecipeBox.compile_compare_profile(...)` and `LlvmBackendEvidenceAdapterBox.compile_obj_compare_hako_ll(...)` to exercise the `.hako ll emitter` bridge without changing the default owner; the proof smoke is archived out of the active suite
+  - W4 exact proof uses `LlvmBackendEvidenceAdapterBox.compile_obj_provider_stopline(...)` so the current `extern_provider` stop-line can be proven on `vm-hako` without reopening the owner facade
   - stage0 harness object emit is a direct llvmlite keep lane: the Rust helper writes a temp MIR JSON file and spawns `tools/llvmlite_harness.py --in <mir.json> --out <obj.o>` without reparsing the JSON back into the legacy front door
   - daily `compile_route_profile(...)` now keeps legacy `pure-first + compat_replay=none` for unflipped shapes, while `ret_const_min_v1`, `bool_phi_branch_min_v1`, `hello_simple_llvm_native_probe_v1`, `string_length_ascii_min_v1`, `string_indexof_ascii_min_v1`, and `string_concat3_extern_min_v1` use `hako-ll-min-v0` as narrow daily owner
   - `BackendRecipeBox.compile_route_profile(...)` validates the exact owner names and evidence labels before returning the daily profile, so `LlvmBackendBox` can stay transport-focused when calling `env.codegen.*`

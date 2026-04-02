@@ -80,6 +80,14 @@ static box MirVmS0BoxcallExecBox {
       return MirVmS0CodegenBox.apply_compile_obj(compile_arg0, dst_compile, regs, kinds, handle_regs)
     }
 
+    if method == "compile_obj_provider_stopline" {
+      if me._args_has_second(seg) { return "[vm-hako/unimplemented op=boxcall args>1]" }
+      local dst_provider = me._find_int(seg, "dst")
+      if dst_provider == null { return "[vm-hako/contract][boxcall-missing-dst]" }
+      local provider_arg0 = me._args_first(seg)
+      return MirVmS0CodegenBox.apply_compile_obj_provider_stopline(provider_arg0, dst_provider, regs, kinds, handle_regs)
+    }
+
     if method == "link_exe" {
       if me._args_has_third(seg) == 0 { return "[vm-hako/unimplemented op=boxcall args<3]" }
       local dst_link = me._find_int(seg, "dst")
