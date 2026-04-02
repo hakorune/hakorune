@@ -45,9 +45,9 @@ Related:
 
 - active macro wave: `W5 Rust compat receiver collapse`
 - active micro-task:
-  - `99R1 collapse route ownership into one compat namespace`
-- next queued micro-task:
   - `99R2 align tracing / observability at the chokepoint`
+- next queued micro-task:
+  - `99S1 move surrogate caller to compat/evidence adapter home`
 - docs-for-structure lock remains in `99E` / `99F` and their detail rows.
 - code reduction remains partially proof-gated by `29x-98`: `extern_provider.hako` now has one exact proof lane, the compat selfhost wrapper stack has been materialized onto `vm-hako`, and the Hako-side bridge is now archive-only; the next collapse is on the Rust receiver side.
   - `99E3` is absorbed into `W5` `99Q / 99R` Rust compat receiver collapse.
@@ -234,17 +234,17 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 | `99Q1` | landed | lock one Rust compat-codegen chokepoint contract | one receiver module owns the legacy codegen accept path contract |
 | `99Q2` | landed | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` and `loader_cold.rs` only forward into the chokepoint |
 | `99Q3` | landed | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` only forwards into the chokepoint |
-| `99R1` | active | collapse route ownership into one compat namespace | route ownership for legacy codegen entry is visible in one Rust home |
-| `99R2` | pending-after-R1 | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
+| `99R1` | landed | collapse route ownership into one compat namespace | route ownership for legacy codegen entry is visible in one Rust home |
+| `99R2` | active | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
 | `99S1` | pending-after-R2 | move surrogate caller to compat/evidence adapter home | `llvm_backend_surrogate.rs` no longer extends the old helper from an owner-looking surface |
 
 - W5 prep is now partially landed:
   - MirInterpreter codegen receiver bodies live in `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs`
-  - plugin loader `env.codegen` adapter lives in `src/runtime/plugin_loader_v2/enabled/codegen.rs`
+  - plugin loader `env.codegen` now enters `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` directly
   - shared Rust compat receiver now lives in `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
   - `hostbridge.rs` / `loader_cold.rs` now forward `env.codegen.*` into adapter-stage homes only
   - `extern_functions.rs` no longer owns direct codegen behavior
-  - the remaining collapse work is route ownership / tracing reduction to one explicit compat-codegen namespace, so `99R1` is now the active micro-task
+  - route ownership is now collapsed into one explicit compat-codegen namespace, so `99R2` is now the active micro-task
 
 #### `99Q1` one explicit Rust compat-codegen chokepoint contract
 
@@ -254,7 +254,7 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 | owned legacy accept path | `env.codegen.emit_object`, `env.codegen.compile_ll_text`, `env.codegen.link_object` |
 | MirInterpreter adapters | `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` and `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` become thin forwarders only |
 | plugin-loader adapter | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` keeps routing `env.codegen` into the chokepoint only |
-| interim split bodies | `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` and `src/runtime/plugin_loader_v2/enabled/codegen.rs` are adapter-stage homes around the shared receiver |
+| interim split bodies | `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` is the remaining adapter-stage home around the shared receiver |
 | lane policy | `src/backend/mir_interpreter/handlers/extern_provider/lane.rs` stays classification-only; it does not become the codegen owner |
 | non-goal | do not mix `env.mirbuilder.emit`, helper deletion, or route-policy widening into `99Q1` |
 
@@ -269,13 +269,13 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 | --- | --- | --- |
 | `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` | canonical shared receiver | explicit compat-codegen namespace owner |
 | `src/backend/mir_interpreter/handlers/extern_provider/codegen.rs` | adapter-stage home for `ValueId -> String/Path` translation | no route policy; forwarding adapter only |
-| `src/runtime/plugin_loader_v2/enabled/codegen.rs` | adapter-stage home for `NyashBox -> String` translation | no route policy; forwarding adapter only |
 | `src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs` | forwarding-only surface after `99Q2` | never owns `env.codegen` behavior |
 | `src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs` | forwarding-only surface after `99Q2` | never owns `env.codegen` behavior |
 | `src/runtime/plugin_loader_v2/enabled/extern_functions.rs` | forwarding-only surface after `99Q3` | never owns `env.codegen` behavior |
 
 - acceptance for `99R1`:
   - route policy for legacy codegen acceptance is readable from `compat_codegen_receiver.rs`
+  - plugin-loader route ownership no longer depends on a separate `enabled/codegen.rs`
   - adapter-stage files are visibly translation-only and do not compete as owners
   - the next step (`99R2`) can align tracing without reopening namespace ownership
 
@@ -356,6 +356,6 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 - `29x-98` remains the delete-readiness owner; `29x-99` remains the path-truth / recut owner.
 - current active work is readable as:
   - macro: `W5 Rust compat receiver collapse`
-  - micro: `99R1 collapse route ownership into one compat namespace`
-  - next: `99R2 align tracing / observability at the chokepoint`
+  - micro: `99R2 align tracing / observability at the chokepoint`
+  - next: `99S1 move surrogate caller to compat/evidence adapter home`
   - detail: `99N1-99N3` landed for the compat wrapper stack, `99O1-99O4` landed for the extern-provider stop-line and exact proof lane, `99P1-99P3` landed for the Hako-side caller drain, and `99Q1-99S1` now collapse the Rust accept path to one compat chokepoint

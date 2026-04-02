@@ -45,8 +45,8 @@ Related:
 - live stop-line surfaces are fixed at 5; `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` and `tools/compat/legacy-codegen/run_compat_pure_pack.sh` are wrapper/orchestrator layers only, not direct `emit_object` callers.
 - `29x-98` still owns delete-readiness and stop-line; the Hako-side bridge is now archive-only, but helper deletion stays closed.
 - `29x-99` owns macro cleanup waves and micro tasks; `99N1-99N3`, `99O1-99O4`, `99P1`, `99P2`, `99P3`, `99Q1`, `99Q2`, and `99Q3` are landed.
-- current active micro task is `99R1 collapse route ownership into one compat namespace`; next queued micro task is `99R2 align tracing / observability at the chokepoint`.
-- W5 shared receiver is now real, not just planned: `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs` is the canonical compat-codegen home, `hostbridge.rs` / `loader_cold.rs` are forwarding adapters, and `extern_functions.rs` no longer owns direct codegen behavior.
+- `99R1` is landed: route ownership is now visible from `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`, `hostbridge.rs` / `loader_cold.rs` are forwarding adapters, and `extern_functions.rs` no longer owns direct codegen behavior.
+- current active micro task is `99R2 align tracing / observability at the chokepoint`; next queued micro task is `99S1 move surrogate caller to compat/evidence adapter home`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
 - immediate cleanup order is `extern_provider caller demotion -> CodegenBridgeBox archive-only -> Rust chokepoint collapse`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
@@ -64,8 +64,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99R1 collapse route ownership into one compat namespace` | shared receiver is canonical; collapse remaining adapter-stage route ownership into that namespace |
-| Next | `99R2 align tracing / observability at the chokepoint` | keep legacy codegen acceptance observable in one place after the route collapse |
+| Now | `99R2 align tracing / observability at the chokepoint` | route ownership is collapsed; keep legacy codegen acceptance observable in one place |
+| Next | `99S1 move surrogate caller to compat/evidence adapter home` | after tracing is aligned, move the surrogate off the old helper-looking surface |
 | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues | delete only after caller inventory reaches zero |
 
 ## Cleanup Waves

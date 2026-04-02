@@ -91,8 +91,8 @@ This section is the current docs-first cleanup queue. Historical X-series tasks 
 | `99Q1` | W5 | landed | lock one Rust compat-codegen chokepoint contract | canonical home is fixed at `compat_codegen_receiver.rs` |
 | `99Q2` | W5 | landed | reduce MirInterpreter receivers to thin adapters | `hostbridge.rs` / `loader_cold.rs` forward into adapter-stage homes only |
 | `99Q3` | W5 | landed | reduce plugin-loader receiver to a thin adapter | `extern_functions.rs` no longer owns direct codegen behavior |
-| `99R1` | W5 | active | collapse route ownership into one compat namespace | route ownership is visible in one Rust home |
-| `99R2` | W5 | pending-after-R1 | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
+| `99R1` | W5 | landed | collapse route ownership into one compat namespace | route ownership is visible in one Rust home |
+| `99R2` | W5 | active | align tracing / observability at the chokepoint | legacy codegen acceptance is observable in one place |
 | `99S1` | W5 | pending-after-W4 | move surrogate caller to compat/evidence adapter home | surrogate no longer extends the old helper from an owner-looking surface |
 | `99T-99V` | W6 | pending-after-W5 | final helper deletion and archive sweep | legacy helpers are deleted after zero callers |
 

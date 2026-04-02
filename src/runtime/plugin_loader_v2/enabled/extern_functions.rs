@@ -40,7 +40,7 @@ pub fn extern_call(
         "env.runtime" => handle_runtime(method_name, args),
         "env.future" => handle_future(method_name, args),
         "env.mirbuilder" => handle_mirbuilder(method_name, args),
-        "env.codegen" => super::codegen::handle_codegen(method_name, args),
+        "env.codegen" => super::compat_codegen_receiver::handle_codegen(method_name, args),
         "env.box_introspect" => handle_box_introspect(method_name, args),
         _ => reject_unknown(iface_name, method_name),
     }

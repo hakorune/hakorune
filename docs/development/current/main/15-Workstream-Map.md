@@ -49,10 +49,10 @@ Related:
      - `99P1 compat selfhost payload demotion` is landed
      - `99P2 extern_provider compat codegen caller demotion` is landed; the compat codegen stub now root-hydrates MIR(JSON) and calls `LlvmBackendBox.compile_obj_root(...)`
      - `99P3 make CodegenBridgeBox.emit_object_args(...) archive-only` is landed; live Hako direct callers are now zero
-     - `99Q1`, `99Q2`, and `99Q3` are landed; the canonical shared receiver now lives in `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
+     - `99Q1`, `99Q2`, `99Q3`, and `99R1` are landed; the canonical shared receiver now lives in `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
      - `hostbridge.rs` / `loader_cold.rs` are forwarding adapters and `extern_functions.rs` no longer owns direct codegen behavior
-     - current active micro task is `99R1 collapse route ownership into one compat namespace`
-     - next queued micro task is `99R2 align tracing / observability at the chokepoint`
+     - current active micro task is `99R2 align tracing / observability at the chokepoint`
+     - next queued micro task is `99S1 move surrogate caller to compat/evidence adapter home`
      - review intake detail lives in `29x-99`; the open beauty deltas are `LlvmBackendBox` owner-facade slimming and one explicit Rust compat-codegen chokepoint
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
    - phase-29x backend owner cutover prep table:
@@ -66,8 +66,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `99R1 collapse route ownership into one compat namespace` |
-     | Next | `99R2 align tracing / observability at the chokepoint` |
+     | Now | `99R2 align tracing / observability at the chokepoint` |
+     | Next | `99S1 move surrogate caller to compat/evidence adapter home` |
      | Later | `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::emit_object_from_mir_json(...)` / Rust dispatch residues |
    - cleanup waves:
 
