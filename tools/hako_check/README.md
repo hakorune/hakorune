@@ -8,7 +8,9 @@ Quick entry (toolbox index):
 Canonical helpers
 - `bash tools/hako_check/run_tests.sh`
 - `bash tools/hako_check/deadcode_smoke.sh`
+- `bash tools/hako_check/deadblocks_smoke.sh`
 - top-level `tools/hako_check_deadcode_smoke.sh` remains a compatibility shim only
+- top-level `tools/hako_check_deadblocks_smoke.sh` remains a compatibility shim only
 
 Diagnostics schema (typed)
 - Map fields:

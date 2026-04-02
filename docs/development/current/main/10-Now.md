@@ -27,20 +27,19 @@ Related:
 
 ## Current
 
-- lane: `phase-32x product / engineering split`
+- lane: `phase-33x shared helper family recut`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
-- `32xA1` landed: `build.rs` mixed ownership inventory is fixed
-- `32xA2` landed: `phase2100` mixed aggregator inventory is fixed
-- `32xB2` landed: helper-first extraction thinned `src/runner/build.rs` without changing owner behavior
-- active micro task: `phase-32x closeout review`
-- next micro task: `dedicated helper phase` (only if caller drain becomes exact)
+- `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed
+- `33xA1` landed: helper family caller inventory is fixed for `hako_check` and `emit_mir`
+- active micro task: `33xC2 emit_mir thin wrapper route-preset lock`
+- next micro task: `33xC3 hakorune_emit_mir top-level keep gate`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default/token rewrite stays deferred beyond `phase-32x`
+- raw backend default/token rewrite stays deferred beyond `phase-33x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 
@@ -48,6 +47,6 @@ Related:
 
 1. read `CURRENT_TASK.md`
 2. read `15-Workstream-Map.md`
-3. read `docs/development/current/main/phases/phase-32x/README.md`
-4. read `docs/development/current/main/phases/phase-32x/32x-90-product-engineering-split-ssot.md`
-5. read `docs/development/current/main/phases/phase-32x/32x-91-task-board.md`
+3. read `docs/development/current/main/phases/phase-33x/README.md`
+4. read `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
+5. read `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`

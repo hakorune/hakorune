@@ -50,46 +50,37 @@ Related:
      - dangerous early flips remain around launcher/default/orchestrator sites
      - `phase-30x` settled ownership and docs/artifact/smoke reading
         - `phase-31x` landed low-blast engineering rehome and shim drain
-        - `phase-32x` now handles mixed-owner source/smoke split
-        - `32xA1` landed and fixed `build.rs` as the first mixed-owner source target
-        - `32xA2` landed and fixed `phase2100/run_all.sh` as the first thick smoke-aggregator target
-        - `32xB2` landed and thinned `src/runner/build.rs` by helper-first extraction
-        - `32xC1` landed and fixed the exact `phase2100` role buckets
-        - `32xC2` landed and made `phase2100/run_all.sh` a thin meta-runner over role sub-runners
-        - `32xD1` landed and rehomed bootstrap smoke to `tools/selfhost/bootstrap_selfhost_smoke.sh`
-        - `32xD2` landed and rehomed plugin smoke to `tools/plugins/plugin_v2_smoke.sh`
-        - `32xE1` landed and fixed the thick compat residue in `child.rs` and `stage1_cli/core.hako`
-        - `32xE2` landed and fixed `core_executor` as the narrow direct-MIR owner
-        - `32xF1` landed and fixed shared helper family disposition
-        - `32xG1` landed and fixed raw backend default/token as a last-step follow-up only
-        - current active micro task is `phase-32x closeout review`
+        - `phase-32x` landed mixed-owner source/smoke split and raw default/token defer
+        - `phase-33x` now handles shared helper family recut
+        - `33xA1` landed and fixed helper-family caller inventory for `hako_check` and `emit_mir`
+        - `33xB1` landed and rehomed `deadblocks_smoke` under `tools/hako_check/**`
+        - `33xC2` is active and fixes thin `emit_mir` wrappers as top-level route-preset shims
+        - current active micro task is `33xC2 emit_mir thin wrapper route-preset lock`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-32x product / engineering split table:
+   - phase-33x shared helper family recut table:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-32x product / engineering split` |
+     | Now | `phase-33x shared helper family recut` |
      | Blocker | `none` |
-     | Next | `phase-32x closeout review` |
-   - product / engineering split bands:
+     | Next | `33xC2 emit_mir thin wrapper route-preset lock` |
+   - shared helper family bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-32x closeout review` |
-     | Next | `shared helper dedicated phase` |
+     | Now | `33xC2 emit_mir thin wrapper route-preset lock` |
+     | Next | `33xC3 hakorune_emit_mir top-level keep gate` |
      | Later | `raw backend default/token follow-up lane` |
-   - product / engineering split waves:
+   - shared helper family waves:
 
      | Wave | Status | Read as |
      | --- | --- | --- |
-     | `32xA mixed-owner inventory` | landed | inventory exact mixed-owner source/smoke targets |
-     | `32xB build.rs split plan` | landed | split product build and engineering build ownership |
-     | `32xC phase2100 role split plan` | landed | split the thick smoke aggregator by role |
-     | `32xD top-level orchestrator rehome prep` | landed | drain callers before moving remaining top-level keeps |
-     | `32xE direct-route takeover prep` | landed | reduce shell-based `--backend vm` residues behind dedicated seams |
-     | `32xF shared helper follow-up gate` | landed | reopen helper-family recut only on a dedicated lane |
+     | `33xA helper family inventory` | landed | fix exact keep/rehome/shim-only reading |
+     | `33xB hako_check family path truth` | active | move family-local smoke helpers under `tools/hako_check/**` |
+     | `33xC emit_mir thin wrapper path truth` | active | fix thin wrappers as route-preset shims before touching broad helper keep |
+     | `33xD top-level keep gate` | queued | lock broad keep conditions for `hako_check.sh` and `hakorune_emit_mir.sh` |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -119,9 +110,11 @@ Related:
   - `stage2plus` entry / first optimization wave (accepted)
   - `phase-30x` backend surface simplification (landed precursor)
   - `phase-31x` engineering lane isolation (landed precursor)
-  - `phase-32x` product / engineering split
+  - `phase-32x` product / engineering split (landed precursor)
+  - `phase-33x` shared helper family recut
 - Active backend surface tasks:
-  - `phase-32x closeout review`
+  - `33xC2 emit_mir thin wrapper route-preset lock`
+  - `33xC3 hakorune_emit_mir top-level keep gate`
 - Queued backend surface tasks:
   - `shared helper dedicated phase`
 - Parked big tasks:
@@ -137,11 +130,11 @@ Related:
 
 ## Exact Next
 
-1. keep `phase-32x` exact through the mixed-owner split plan
-2. keep `phase-31x` landed as the engineering rehome precursor
-3. keep `phase-30x` landed as the ownership-flip precursor
-4. keep `phase-29x` landed as the backend-owner precursor lane
-5. keep `phase-29bq` active as failure-driven / blocker-none lane
+1. keep `phase-33x` exact through the helper-family recut
+2. keep `phase-32x` landed as the mixed-owner split precursor
+3. keep `phase-31x` landed as the engineering rehome precursor
+4. keep `phase-30x` landed as the ownership-flip precursor
+5. keep `phase-29x` landed as the backend-owner precursor lane
 
 ## Active Lane
 

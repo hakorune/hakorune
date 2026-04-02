@@ -45,7 +45,7 @@ Scope: Selfhost bringup / hako_check
 
 - `cargo build --release`
 - `./tools/hako_check/deadcode_smoke.sh`
-- `./tools/hako_check_deadblocks_smoke.sh`
+- `./tools/hako_check/deadblocks_smoke.sh`
 - `./tools/hako_check/run_tests.sh`
 - `./tools/hako_check.sh apps/selfhost-runtime/boxes_std.hako`
 

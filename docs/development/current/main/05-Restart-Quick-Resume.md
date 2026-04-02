@@ -22,18 +22,18 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-32x product / engineering split`
-- active micro task: `phase-32x closeout review`
-- next micro task: `dedicated helper phase` (only if caller drain becomes exact)
-- raw backend default flip stays deferred beyond `phase-30x`
+- lane: `phase-33x shared helper family recut`
+- active micro task: `33xC2 emit_mir thin wrapper route-preset lock`
+- next micro task: `33xC3 hakorune_emit_mir top-level keep gate`
+- raw backend default flip stays deferred beyond `phase-33x`
 
 ## Read Next
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-32x/README.md`
-4. `docs/development/current/main/phases/phase-32x/32x-90-product-engineering-split-ssot.md`
-5. `docs/development/current/main/phases/phase-32x/32x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-33x/README.md`
+4. `docs/development/current/main/phases/phase-33x/33x-90-shared-helper-family-recut-ssot.md`
+5. `docs/development/current/main/phases/phase-33x/33x-91-task-board.md`
 
 ## Optional Checks
 
