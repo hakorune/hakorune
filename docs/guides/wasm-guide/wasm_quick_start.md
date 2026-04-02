@@ -14,9 +14,9 @@
 
 ---
 
-## 履歴資料（旧プロトタイプ手順）
+## 旧プロトタイプ手順（historical reference）
 
-このガイドは歴史的資料です。WASM/ブラウザ経路は現在メンテ対象外で、記載手順は最新のNyashと一致しない場合があります。実験する場合は `projects/nyash-wasm/` を参考に自己責任でお試しください。
+この節より下は旧プロトタイプの実装メモです。WASM/ブラウザ経路そのものは experimental / monitor-only の live lane ですが、以下の手順は current quick start ではありません。実験する場合は先頭の最短手順か `projects/nyash-wasm/README.md` を優先してください。
 
 ## Step 1: Cargo.toml修正
 

@@ -1,4 +1,4 @@
-# Nyash Playground Guide（ブラウザデモ活用ガイド）
+# Hakorune Playground Guide（ブラウザデモ活用ガイド）
 
 最終更新: 2025-08-13
 

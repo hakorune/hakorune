@@ -1,6 +1,6 @@
-# 🌐 Nyash WASM ガイド
+# 🌐 Hakorune WASM ガイド
 
-Nyash WebAssembly（WASM）実行に関する包括的ガイド
+Hakorune WebAssembly（WASM）実行に関するガイドです。現在の operational entry は `projects/nyash-wasm/README.md` と `projects/nyash-wasm/build.sh` で、このディレクトリ配下には current quick start と historical/reference notes が混在します。
 
 ## ✅ 現行の運用入口（G2固定）
 
@@ -14,6 +14,11 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
   - `docs/development/current/main/phases/phase-29cc/29cc-134-wsm-g2-min1-bridge-run-loop-lock-ssot.md`
   - `docs/development/current/main/phases/phase-29cc/29cc-135-wsm-g2-min2-headless-run-lock-ssot.md`
   - `docs/development/current/main/design/wasm-hako-only-output-roadmap-ssot.md`
+
+Role note:
+- experimental / monitor-only browser lane
+- not product main (`llvm/exe`) and not engineering/bootstrap keep (`rust-vm`)
+- use this guide family for local demos, browser fixtures, and smoke-locked playground contracts
 
 ## 📖 ドキュメント一覧
 
@@ -65,7 +70,7 @@ Nyash WebAssembly（WASM）実行に関する包括的ガイド
 
 ## 🚀 クイックスタート
 
-> 注記: 下記の `--compile-wasm` / `--aot` は長期目標の一般経路。現時点で日常運用する browser demo は上の「現行の運用入口（G2固定）」を使うこと。
+> 注記: 下記の `--compile-wasm` / `--aot` は historical/general background を含む長期目標メモです。現時点で日常運用する browser demo は上の「現行の運用入口（G2固定）」を使うこと。
 
 ### WASM コンパイル
 ```bash

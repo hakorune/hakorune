@@ -266,9 +266,9 @@ $NYASH_BIN --backend interpreter program.hako
 - デフォルトビルドからは外れている
 
 ### 6. **WebAssembly（ブラウザ）** — 現状: Experimental / monitor-only
-WASM/ブラウザ経路は experimental で、product mainline や default CI の対象ではありません。古いプレイグラウンド/ガイドは歴史的資料として残置しています。
+WASM/ブラウザ経路は experimental で、product mainline や default CI の対象ではありません。local/demo 用の独立 lane として、別の smoke / promotion gate を持っています。
 
-- ソース（アーカイブ）: `projects/nyash-wasm/`（ビルド保証なし）
+- ソース: `projects/nyash-wasm/`（experimental / local-only）
 - 現在の役割: experimental / monitor-only。product main と engineering/bootstrap lanes から分離
 - ローカルで試す場合は `projects/nyash-wasm/README.md` と `projects/nyash-wasm/build.sh` を参照（wasm-pack 必須、サポート無保証）。
 

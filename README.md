@@ -355,9 +355,9 @@ $NYASH_BIN --backend interpreter program.hako
 - Excluded from default builds
 
 ### 6. **WebAssembly (Browser)** — Status: Experimental / monitor-only
-The WASM/browser path is experimental and not part of the product mainline or default CI. The older playground and guides are kept for historical reference only.
+The WASM/browser path is experimental and not part of the product mainline or default CI. It remains a separate local/demo lane with its own smoke and promotion gates.
 
-- Source (archived): `projects/nyash-wasm/` (build not guaranteed)
+- Source: `projects/nyash-wasm/` (experimental / local-only)
 - Current role: experimental / monitor-only, separate from the product main and engineering bootstrap lanes
 - If you experiment locally, see the project README and `projects/nyash-wasm/build.sh` (wasm-pack required). No support guarantees.
 

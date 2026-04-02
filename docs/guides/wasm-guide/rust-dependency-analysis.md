@@ -1,9 +1,9 @@
-# 🔍 Nyash WASM実行におけるRust依存性分析
+# 🔍 Hakorune WASM実行におけるRust依存性分析
 
 ## 📅 最終更新: 2025-08-15
 
 ## 🎯 概要
-Nyash WASMの実行時Rust依存性について、Phase 9.77（手動実装）とPhase 9.8+（FFI基盤）を比較分析し、真のRust依存脱却の実現方法を解説。
+Hakorune WASMの実行時Rust依存性について、Phase 9.77（手動実装）とPhase 9.8+（FFI基盤）を比較分析し、真のRust依存脱却の実現方法を解説。
 
 ## 🔍 重要な発見: 実行時Rust依存性は**ゼロ**
 
