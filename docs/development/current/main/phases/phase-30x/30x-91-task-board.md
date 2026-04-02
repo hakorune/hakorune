@@ -39,8 +39,8 @@ Related:
 | 9 | `30xC3` | landed | `rust-vm` smoke/test pressure |
 | 10 | `30xC4` | landed | `rust-vm` docs/help pressure |
 | 11 | `30xD1` | landed | default/dispatch do-not-flip-early lock |
-| 12 | `30xD2` | active | selfhost/bootstrap freeze |
-| 13 | `30xD3` | queued | plugin/orchestrator freeze |
+| 12 | `30xD2` | landed | selfhost/bootstrap freeze |
+| 13 | `30xD3` | active | plugin/orchestrator freeze |
 | 14 | `30xE1-30xE4` | queued | user-facing main switch prep |
 | 15 | `30xF1-30xF2` | queued | backend default decision last |
 
@@ -147,6 +147,23 @@ Default/dispatch freeze result:
 - `30xD1` is docs-first only
 - no code edits in this slice
 - raw token/default change is explicitly deferred to `30xF`
+
+### Selfhost / bootstrap freeze
+
+- `src/runner/modes/common_util/selfhost/child.rs`
+  - child capture route stays hard-wired to `--backend vm`
+- `lang/src/runner/stage1_cli/core.hako`
+  - raw stage1 compat lane still accepts `vm|pyvm`
+- `tools/selfhost/run.sh`
+  - unified selfhost wrapper still shells through `--backend vm`
+- `tools/selfhost/selfhost_build.sh`
+  - build wrapper still shells through `--backend vm`
+
+Selfhost/bootstrap freeze result:
+
+- `30xD2` is docs-first only
+- no code edits in this slice
+- selfhost/bootstrap wrapper changes are explicitly deferred until after `30xE` and `30xF`
 
 ### Bootstrap/selfhost keep details
 

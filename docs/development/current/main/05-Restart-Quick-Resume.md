@@ -43,7 +43,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xD2 selfhost/bootstrap freeze`
+- Exact focus: `30xD3 plugin/smoke orchestrator freeze`
 - boundary audit result: `RuntimeDataBox` remains facade-only; delete stays on `MapBox` / `RawMap` only
 - active order: `stage / docs / naming` -> `K1 done-enough stop-line` -> `K2-core accepted stop-line` -> `K2-wide boundary-shrink lock-down (closed)` -> `zero-rust default operationalization (landed)` -> `stage2plus entry / first optimization wave (accepted)` -> `phase-29x backend owner cutover prep (landed)` -> `phase-30x backend surface simplification`
 - `K-axis` is read as `K0 / K1 / K2` build/runtime stages
@@ -60,9 +60,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 
 | Band | State |
 | --- | --- |
-| Now | `30xD2 selfhost/bootstrap freeze` |
-| Next | `30xD3 plugin/smoke orchestrator freeze` |
-| Later | `30xE-30xF` |
+| Now | `30xD3 plugin/smoke orchestrator freeze` |
+| Next | `30xE1 README/README.ja prep` |
+| Later | `30xE2-30xF` |
 
 - `phase-29x` W4/W5/W6 is landed and helper deletion is closed.
 - current backend reading is now role-first:
@@ -76,8 +76,9 @@ bash tools/selfhost/run_lane_a_daily.sh
 - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`.
 - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`.
 - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces.
-- active micro task is `30xD2 selfhost/bootstrap freeze`.
-- next queued micro task is `30xD3 plugin/smoke orchestrator freeze`.
+- `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces.
+- active micro task is `30xD3 plugin/smoke orchestrator freeze`.
+- next queued micro task is `30xE1 README/README.ja prep`.
 - `phase29cc_wsm` families are experimental smoke lanes, not co-main evidence.
 - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence.
 - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only.

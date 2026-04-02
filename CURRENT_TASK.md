@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xD2 selfhost/bootstrap freeze`
+- Exact focus: `30xD3 plugin/smoke orchestrator freeze`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -90,8 +90,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `30xC3` grouped smoke/test pressure into `engineering smoke keep`, `mixed orchestrator keep`, and `manual residue watch`
   - `30xC4` grouped docs/help pressure into `rewrite in 30xE`, `engineering docs keep`, and `stale help snapshot watch`
   - `30xD1` froze raw CLI default token and central dispatch as no-touch-first surfaces
-  - active micro task is `30xD2 selfhost/bootstrap freeze`
-  - next queued micro task is `30xD3 plugin/smoke orchestrator freeze`
+  - `30xD2` froze selfhost/stage1 wrappers as no-touch-first bootstrap surfaces
+  - active micro task is `30xD3 plugin/smoke orchestrator freeze`
+  - next queued micro task is `30xE1 README/README.ja prep`
   - `phase29cc_wsm` families are read as `experimental`, not product-mainline or co-main
   - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
   - `tools/smokes/v2/configs/matrix.conf` now reads `vm/llvm` as engineering/product only; `vm-hako` and `wasm` stay outside the matrix axis
@@ -110,7 +111,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xD2 selfhost/bootstrap freeze` |
+  | Next | `30xD3 plugin/smoke orchestrator freeze` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -124,9 +125,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xD2 selfhost/bootstrap freeze` | lock wrapper and stage1 no-touch-first surfaces |
-| Next | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
-| Later | `30xE-30xF` | user-facing main switch and backend default gate |
+| Now | `30xD3 plugin/smoke orchestrator freeze` | lock plugin and mixed smoke orchestrators |
+| Next | `30xE1 README/README.ja prep` | start user-facing main switch wording |
+| Later | `30xE2-30xF` | help/guides rewrite and backend default gate |
 
 ## Backend Surface Waves
 
@@ -154,8 +155,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xC3` | landed | smoke/test `rust-vm` pressure inventory |
 | `30xC4` | landed | docs/help `rust-vm` pressure inventory |
 | `30xD1` | landed | default/dispatch dangerous early flip lock |
-| `30xD2` | active | selfhost/bootstrap dangerous early flip lock |
-| `30xD3` | queued | plugin/smoke dangerous early flip lock |
+| `30xD2` | landed | selfhost/bootstrap dangerous early flip lock |
+| `30xD3` | active | plugin/smoke dangerous early flip lock |
 | `30xE1-30xE4` | queued | user-facing main switch is prepared without a raw default flip |
 | `30xF1-30xF2` | queued | backend default decision gate stays last |
 

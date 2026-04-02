@@ -84,8 +84,8 @@ Related:
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
 | `30xD1` | landed | default/dispatch freeze | CLI default and central dispatch are marked `do not flip early` |
-| `30xD2` | active | selfhost/bootstrap freeze | selfhost/stage1 wrappers and scripts are explicit no-touch-first surfaces |
-| `30xD3` | queued | plugin/smoke orchestrator freeze | plugin and smoke orchestrators are explicit no-touch-first surfaces |
+| `30xD2` | landed | selfhost/bootstrap freeze | selfhost/stage1 wrappers and scripts are explicit no-touch-first surfaces |
+| `30xD3` | active | plugin/smoke orchestrator freeze | plugin and smoke orchestrators are explicit no-touch-first surfaces |
 
 ### `30xE` user-facing main switch prep
 
@@ -335,6 +335,27 @@ Default/dispatch freeze result (`30xD1`):
 - no code changes
 - `src/cli/args.rs` and `src/runner/dispatch.rs` are explicit do-not-flip-early surfaces
 - raw token/default decision remains blocked on `30xE` plus `30xF`
+
+Bootstrap/selfhost freeze findings (`30xD2`):
+
+- `src/runner/modes/common_util/selfhost/child.rs`
+  - child capture hard-codes `nyash --backend vm <program>`
+  - this remains bootstrap/runtime glue, not a first-slice backend switch target
+- `lang/src/runner/stage1_cli/core.hako`
+  - raw compat stage1 route still accepts `vm|pyvm` and explicitly rejects `llvm` on the legacy raw lane
+  - this remains a bootstrap/stage1 contract surface, not a user-facing default target
+- `tools/selfhost/run.sh`
+  - unified selfhost entrypoint still shells out through `--backend vm` in runtime/direct paths
+  - this remains a no-touch-first wrapper until `30xE/F` clarify the main switch and raw default gate
+- `tools/selfhost/selfhost_build.sh`
+  - selfhost build wrapper still invokes `--backend vm` for BuildBox/Stage-B steps
+  - this remains a bootstrap wrapper surface, not an archive/delete target
+
+Bootstrap/selfhost freeze result (`30xD2`):
+
+- no code changes
+- selfhost/stage1 wrappers stay explicit do-not-flip-early surfaces
+- bootstrap wrapper/default changes remain blocked on `30xE` plus `30xF`
 
 ## Worker Re-Inventory Notes
 
