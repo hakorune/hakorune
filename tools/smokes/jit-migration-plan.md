@@ -1,5 +1,12 @@
 # JIT依存スモークテスト移行計画
 
+Historical note:
+
+- `tools/cross_backend_smoke.sh` and `tools/async_smokes.sh` were archived in
+  `tools/archive/manual-smokes/` during `phase-30x / 30xG1`.
+- This file is kept as a historical migration note, not as a current
+  engineering entrypoint.
+
 ## 📊 現状分析（2025-09-24）
 
 ### JIT依存テスト数
@@ -20,9 +27,7 @@ tools/build_python_aot.sh
 ```bash
 tools/smoke_plugins.sh
 tools/modules_smoke.sh
-tools/cross_backend_smoke.sh
 tools/apps_tri_backend_smoke.sh
-tools/async_smokes.sh
 ```
 
 ### 3. 重要テスト（修正して維持）
@@ -49,7 +54,7 @@ tools/using_unresolved_smoke.sh
 3. ⏳ AOT系3ファイル → archive/
 
 ### Phase 2: ビルド修正（コメントアウト）
-- [ ] 5個のスモークでcranelift-jitビルドをコメントアウト
+- [ ] 3個のスモークでcranelift-jitビルドをコメントアウト
 - [ ] VM/LLVMビルドのみ残す
 
 ### Phase 3: v2統合

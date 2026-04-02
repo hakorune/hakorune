@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xG1 manual smoke residue archive pass`
+- Exact focus: `30xG2 stale help snapshot replacement/archive`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -99,8 +99,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `30xE4` fixed user-facing `vm-hako` / `wasm` wording so reference and experimental lanes no longer read as co-main
 - `30xF1` landed: raw default flip is still blocked by `args.rs`, `dispatch.rs`, selfhost child, and engineering wrappers/orchestrators
 - `30xF2` landed: phase-30x keeps raw backend token/default stable and treats docs/artifact/smoke ownership flip as sufficient
-- active micro task is `30xG1 manual smoke residue archive pass`
-- next queued micro task is `30xG2 stale help snapshot replacement/archive`
+- `30xG1` landed: low-blast manual smoke residues moved to `tools/archive/manual-smokes/`
+- active micro task is `30xG2 stale help snapshot replacement/archive`
+- next queued micro task is `30xG3 compare/manual helper archive pass`
 - legacy residue policy is now explicit:
   - keep if it is still an engineering/bootstrap contract
   - rewrite if it still presents old main narrative
@@ -123,7 +124,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xG1 manual smoke residue archive pass` |
+  | Next | `30xG2 stale help snapshot replacement/archive` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -137,8 +138,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xG1 manual smoke residue archive pass` | classify manual smoke residue as explicit keep, archive, or delete |
-| Next | `30xG2 stale help snapshot replacement/archive` | replace or archive stale help capture |
+| Now | `30xG2 stale help snapshot replacement/archive` | replace or archive stale help capture |
+| Next | `30xG3 compare/manual helper archive pass` | archive or keep remaining manual compare helpers |
 | Later | `30xG` | legacy archive/delete sweep |
 
 ## Backend Surface Waves
@@ -176,7 +177,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xE4` | landed | vm-hako stays reference and wasm stays experimental in user-facing docs |
 | `30xF1` | landed | backend default flip remains blocked after docs-first demotion landed |
 | `30xF2` | landed | phase-30x keeps raw backend token/default stable |
-| `30xG1-30xG4` | active | legacy residue archive/delete sweep |
+| `30xG1` | landed | low-blast manual smoke residues archived |
+| `30xG2-30xG4` | active | legacy residue archive/delete sweep |
 
 - `phase2044` llvmlite trio is monitor-only keep under `integration/compat/llvmlite-monitor-keep`.
 - `phase2120` pure canaries stay split: `array_set_get` / `loop_count` keep via `compat/pure-keep`, archive-backed historical pins via `archive/pure-historical`.

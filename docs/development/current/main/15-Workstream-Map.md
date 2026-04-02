@@ -59,8 +59,9 @@ Related:
      - `30xE4` landed and fixed `vm-hako`/`wasm` user-facing wording
      - `30xF1` landed and confirmed raw default flip is still blocked
      - `30xF2` landed and kept raw backend token/default stable for this phase
-     - current active micro task is `30xG1 manual smoke residue archive pass`
-     - next queued micro task is `30xG2 stale help snapshot replacement/archive`
+     - `30xG1` landed and moved low-blast manual smoke residues under `tools/archive/manual-smokes/`
+     - current active micro task is `30xG2 stale help snapshot replacement/archive`
+     - next queued micro task is `30xG3 compare/manual helper archive pass`
      - legacy residue is now read as `explicit keep / rewrite in 30xE / archive-delete in 30xG`
      - `phase29cc_wsm` families are experimental smoke lanes, not product-mainline evidence
      - `compat/llvmlite-monitor-keep` is compat/probe keep only, not `llvm/exe` product evidence
@@ -74,13 +75,13 @@ Related:
      | --- | --- |
      | Now | `phase-30x backend surface simplification` |
      | Blocker | `none` |
-     | Next | `30xG1 manual smoke residue archive pass` |
+     | Next | `30xG2 stale help snapshot replacement/archive` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `30xG1 manual smoke residue archive pass` |
-     | Next | `30xG2 stale help snapshot replacement/archive` |
+     | Now | `30xG2 stale help snapshot replacement/archive` |
+     | Next | `30xG3 compare/manual helper archive pass` |
      | Later | `30xG` |
    - cleanup waves:
 

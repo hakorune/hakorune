@@ -48,7 +48,9 @@ Related:
 | 17 | `30xE4` | landed | remaining user-facing main switch prep |
 | 18 | `30xF1` | landed | backend default flip is still blocked after 30xE |
 | 19 | `30xF2` | landed | docs-only demotion is enough; raw token/default change stays later |
-| 20 | `30xG1-30xG4` | active | legacy residue archive/delete sweep |
+| 20 | `30xG1` | landed | low-blast manual smoke residues archived or reclassified |
+| 21 | `30xG2` | active | stale help snapshot replacement/archive |
+| 22 | `30xG3-G4` | queued | remaining helper archive/delete sweep |
 
 ## Evidence Commands
 
@@ -94,7 +96,20 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `wasm` remains experimental
 - follow-up rule:
   - any raw change to `src/cli/args.rs` or `src/runner/dispatch.rs` is a later gate, not part of this phase
-- active next is `30xG1`
+- active next is `30xG2`
+
+## 30xG1 Result
+
+- archived in `tools/archive/manual-smokes/`:
+  - `ny_stage1_asi_smoke.sh`
+  - `ny_stage3_bridge_accept_smoke.sh`
+  - `async_smokes.sh`
+  - `cross_backend_smoke.sh`
+  - `selfhost_stage2_smoke.sh`
+- explicit keep:
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
+- active next:
+  - `30xG2`
 
 ## Role Touchpoints
 
@@ -128,14 +143,16 @@ rg -n 'selfhost_stage2_smoke|cross_backend_smoke|async_smokes|ny_stage1_asi|ny_s
   - `tools/hakorune_emit_mir.sh`
   - `tools/parity.sh`
 - watch:
-  - `tools/ny_stage1_asi_smoke.sh`
-  - `tools/ny_stage3_bridge_accept_smoke.sh`
-  - `tools/async_smokes.sh`
+  - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/archive/manual-smokes/async_smokes.sh`
 
 Plugin/macro/tooling archive/delete result:
 
-- `none`
-- hard delete/archive is blocked in `30xC2`; `30xD` and `30xE` must land first
+- archived in `30xG1`:
+  - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/archive/manual-smokes/async_smokes.sh`
 
 ### Smoke / test keep vs watch
 
@@ -146,14 +163,17 @@ Plugin/macro/tooling archive/delete result:
   - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
   - `tools/smoke_aot_vs_vm.sh`
 - watch:
-  - `tools/cross_backend_smoke.sh`
+  - `tools/archive/manual-smokes/cross_backend_smoke.sh`
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
-  - `tools/selfhost_stage2_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
 
 Smoke/test archive/delete result:
 
-- `none`
-- hard delete/archive is blocked in `30xC3`; `30xD` and `30xE` must land first
+- archived in `30xG1`:
+  - `tools/archive/manual-smokes/cross_backend_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+- explicit keep:
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 
 ### Plugin / smoke orchestrator freeze
 
@@ -167,18 +187,15 @@ Smoke/test archive/delete result:
 - keep until `30xE/G` clarifies wording:
   - `tools/smoke_aot_vs_vm.sh`
 - archive-later queue:
-  - `tools/ny_stage1_asi_smoke.sh`
-  - `tools/ny_stage3_bridge_accept_smoke.sh`
-  - `tools/async_smokes.sh`
-  - `tools/cross_backend_smoke.sh`
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
-  - `tools/selfhost_stage2_smoke.sh`
+  - `tools/smoke_aot_vs_vm.sh`
 
 Plugin/smoke orchestrator freeze result:
 
 - `30xD3` is landed as docs-first only
 - no-touch-first orchestrators stay live engineering keeps
-- manual residue scripts are queued as archive-later review in `30xG`
+- low-blast manual residues moved to `tools/archive/manual-smokes/` in `30xG1`
+- remaining residue review is `run_spec_smoke.sh` keep plus `smoke_aot_vs_vm.sh`/`nyash-help.md` follow-up
 
 ### Docs / help keep vs rewrite vs watch
 
@@ -302,13 +319,14 @@ Bootstrap/selfhost archive/delete result:
 
 ## Legacy Disposition Queue
 
-- archive-later after `30xE-30xG`:
-  - `tools/ny_stage1_asi_smoke.sh`
-  - `tools/ny_stage3_bridge_accept_smoke.sh`
-  - `tools/async_smokes.sh`
-  - `tools/cross_backend_smoke.sh`
+- archived in `30xG1`:
+  - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/archive/manual-smokes/async_smokes.sh`
+  - `tools/archive/manual-smokes/cross_backend_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+- explicit keep:
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
-  - `tools/selfhost_stage2_smoke.sh`
 - explicit recheck before archive/delete:
   - `tools/smoke_aot_vs_vm.sh`
   - `docs/tools/nyash-help.md`
@@ -318,17 +336,15 @@ Bootstrap/selfhost archive/delete result:
   - `docs/guides/selfhost-pilot.md` still points at `tools/bootstrap_selfhost_smoke.sh`
   - `docs/guides/exceptions-stage3.md` still points at `tools/selfhost_stage3_accept_smoke.sh`
   - `docs/releases/21.0-full-selfhosting.md` still points at `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
-  - `tools/smokes/jit-migration-plan.md` still lists `tools/cross_backend_smoke.sh` and `tools/async_smokes.sh`
+  - `tools/smokes/jit-migration-plan.md` is historical and points at archived paths
 - delete-ready now:
   - `none`
 
 ## Current Exact Next
 
-1. `30xE1` rewrite `README.md` / `README.ja.md` to `llvm/exe` first
-2. `30xE2` fix CLI/help wording without flipping raw defaults
-3. `30xE3-E4` move stage1/runtime and `vm-hako`/`wasm` wording to role-first
-4. `30xF` decide whether docs-only demotion is enough or a raw default flip is justified
-5. `30xG` archive/delete residual manual surfaces
+1. `30xG2` stale help snapshot replacement/archive
+2. `30xG3` compare/manual helper archive pass
+3. `30xG4` post-switch docs cleanup
 
 ## Exit Condition For Phase Entry
 

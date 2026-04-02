@@ -34,8 +34,9 @@ Related:
 - `30xE4` landed: user-facing wasm/reference docs no longer read as co-main
 - `30xF1` landed: raw default flip is still blocked by launcher/default/orchestrator surfaces
 - `30xF2` landed: phase-30x keeps raw backend token/default stable and treats ownership flip as sufficient
-- active micro task: `30xG1 manual smoke residue archive pass`
-- next micro task: `30xG2 stale help snapshot replacement/archive`
+- `30xG1` landed: low-blast manual smoke residues moved under `tools/archive/manual-smokes/`
+- active micro task: `30xG2 stale help snapshot replacement/archive`
+- next micro task: `30xG3 compare/manual helper archive pass`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

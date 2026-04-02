@@ -153,8 +153,8 @@ Related:
 
 | ID | Status | Task | Acceptance |
 | --- | --- | --- | --- |
-| `30xG1` | queued | manual smoke residue archive pass | manual residue scripts are either archived or reclassified as explicit engineering keeps |
-| `30xG2` | queued | stale help snapshot replacement/archive | `docs/tools/nyash-help.md` is replaced by fresh help text or archived as historical capture |
+| `30xG1` | landed | manual smoke residue archive pass | manual residue scripts are either archived or reclassified as explicit engineering keeps |
+| `30xG2` | active | stale help snapshot replacement/archive | `docs/tools/nyash-help.md` is replaced by fresh help text or archived as historical capture |
 | `30xG3` | queued | compare/manual helper archive pass | legacy compare/manual helpers such as `tools/smoke_aot_vs_vm.sh` are either kept with explicit engineering meaning or archived |
 | `30xG4` | queued | post-switch docs cleanup | root/phase docs stop carrying open-ended `watch` wording for settled residues |
 
@@ -169,7 +169,7 @@ Related:
 ## Current Focus
 
 - active macro wave: `30xG legacy disposition sweep`
-- next queued wave: `post-30x backend default/token revisit`
+- next queued wave: `30xG2 stale help snapshot replacement/archive`
 - later disposition wave: `30xG legacy disposition sweep`
 - current blocker: `none`
 - predecessor lane: `phase-29x backend owner cutover prep` is landed enough and no longer the active docs front
@@ -227,13 +227,13 @@ Bootstrap/selfhost archive/delete result (`30xC1`):
 - `src/macro/macro_box_ny.rs`
 - `tools/bootstrap_selfhost_smoke.sh`
 - `tools/plugin_v2_smoke.sh`
-- `tools/ny_stage1_asi_smoke.sh`
-- `tools/ny_stage3_bridge_accept_smoke.sh`
+- `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
+- `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
 - `tools/run_vm_stats.sh`
 - `tools/parity.sh`
 - `tools/hako_check.sh`
 - `tools/hako_check_deadcode_smoke.sh`
-- `tools/async_smokes.sh`
+- `tools/archive/manual-smokes/async_smokes.sh`
 - `tools/hakorune_emit_mir.sh`
 
 Plugin/macro/tooling findings (`30xC2`):
@@ -259,15 +259,15 @@ Plugin/macro/tooling findings (`30xC2`):
 - `tools/hakorune_emit_mir.sh`
   - current MIR emission helper remains live and docs-referenced
   - keep as engineering/tooling surface
-- `tools/ny_stage1_asi_smoke.sh`
-  - isolated manual stage smoke with direct `--backend vm`
-  - watch as manual residue; do not delete in `30xC2`
-- `tools/ny_stage3_bridge_accept_smoke.sh`
-  - isolated manual bridge-accept smoke with direct `--backend vm`
-  - watch as manual residue; do not delete in `30xC2`
-- `tools/async_smokes.sh`
-  - older async helper still appears in migration-plan material
-  - watch as manual residue until `30xD/30xE` clarifies smoke ownership
+- `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
+  - archived in `30xG1` from the old root-level manual smoke slot
+  - no current live owner remained outside phase docs
+- `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
+  - archived in `30xG1` from the old root-level manual smoke slot
+  - no current live owner remained outside phase docs
+- `tools/archive/manual-smokes/async_smokes.sh`
+  - archived in `30xG1`; old cranelift/JIT manual helper is no longer a current entrypoint
+  - `tools/smokes/jit-migration-plan.md` now reads it as historical, not live keep
 - `tools/parity.sh`
   - parity helper still has current doc references and mixed backend vocabulary
   - keep for now as engineering/tooling pressure; revisit only after `30xD`
@@ -275,18 +275,21 @@ Plugin/macro/tooling findings (`30xC2`):
 Plugin/macro/tooling archive/delete result (`30xC2`):
 
 - none
-- current hard-delete or archive move would be premature in this bucket
-- keep surfaces stay live engineering/tooling pressure
-- manual residues stay watch-only until smoke/test and early-flip slices land
+- live engineering/tooling keeps remain in place
+- archived in `30xG1`:
+  - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/archive/manual-smokes/async_smokes.sh`
+- root-level manual residue is reduced; remaining archive/delete work moves to `30xG2-30xG3`
 
 ### Smoke / test
 
 - `tools/selfhost_smoke.sh`
-- `tools/cross_backend_smoke.sh`
+- `tools/archive/manual-smokes/cross_backend_smoke.sh`
 - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 - `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
 - `tools/selfhost_vm_smoke.sh`
-- `tools/selfhost_stage2_smoke.sh`
+- `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
 - `tools/selfhost_stage3_accept_smoke.sh`
 - `tools/smoke_aot_vs_vm.sh`
 
@@ -307,22 +310,23 @@ Smoke/test findings (`30xC3`):
 - `tools/smoke_aot_vs_vm.sh`
   - current root README still presents this compare smoke
   - keep for now; revisit wording in `30xC4` because it also pulls user-facing docs pressure
-- `tools/cross_backend_smoke.sh`
-  - current live reference is migration-plan material, not active product/reference docs
-  - watch as manual residue; candidate for archive-later after `30xD/30xE`
+- `tools/archive/manual-smokes/cross_backend_smoke.sh`
+  - archived in `30xG1`; only stale migration-plan material referenced it
 - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
-  - isolated syntax-torture cross-backend harness with no current main docs hook
-  - watch as manual residue; do not delete in `30xC3`
-- `tools/selfhost_stage2_smoke.sh`
-  - isolated manual selfhost acceptance smoke with direct `--backend vm`
-  - watch as manual residue until selfhost smoke ownership is simplified
+  - explicit test-local manual parity harness with a local README
+  - keep as engineering/test-local residue, not archive/delete target in `30xG1`
+- `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+  - archived in `30xG1`; isolated manual selfhost acceptance smoke with no current live owner
 
 Smoke/test archive/delete result (`30xC3`):
 
 - none
-- current hard-delete or archive move would be premature in this bucket
-- engineering smoke keeps remain live
-- mixed orchestrators and manual residues stay watch-only until `30xD` and `30xE`
+- live engineering smoke keeps remain in place
+- archived in `30xG1`:
+  - `tools/archive/manual-smokes/cross_backend_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
+- explicit keep:
+  - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
 
 ### Docs / help / taxonomy
 
@@ -381,18 +385,20 @@ Plugin/smoke orchestrator freeze findings (`30xD3`):
 - keep until `30xE/G` clarifies product-vs-engineering wording:
   - `tools/smoke_aot_vs_vm.sh`
 - manual residue archive-later queue:
-  - `tools/ny_stage1_asi_smoke.sh`
-  - `tools/ny_stage3_bridge_accept_smoke.sh`
-  - `tools/async_smokes.sh`
-  - `tools/cross_backend_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage1_asi_smoke.sh`
+  - `tools/archive/manual-smokes/ny_stage3_bridge_accept_smoke.sh`
+  - `tools/archive/manual-smokes/async_smokes.sh`
+  - `tools/archive/manual-smokes/cross_backend_smoke.sh`
+  - `tools/archive/manual-smokes/selfhost_stage2_smoke.sh`
   - `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh`
-  - `tools/selfhost_stage2_smoke.sh`
 
 Plugin/smoke orchestrator freeze result (`30xD3`):
 
 - landed as docs-first only
 - no-touch-first orchestrators stay live engineering keeps
-- manual residue scripts are not delete-ready; they move to the archive-later queue reviewed in `30xG`
+- `30xG1` archived low-blast root-level manual smoke residues under `tools/archive/manual-smokes/`
+- `tests/nyash_syntax_torture_20250916/run_spec_smoke.sh` remains an explicit engineering/test-local keep
+- remaining helper/archive work moves to `30xG2-30xG3`
 
 ## Dangerous Early Flips
 
