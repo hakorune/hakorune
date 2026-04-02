@@ -1,10 +1,22 @@
-# Nyash CLI Options Quick Reference
+# Hakorune CLI Options Quick Reference
 
-最終更新: 2026-02-16
+最終更新: 2026-04-02
+
+## 現在のバックエンド読み
+
+- `--backend llvm`: product main。`ny-llvmc` 経由の object / EXE 出力ライン
+- `--backend vm`: engineering/bootstrap keep。selfhost、recovery、tooling のために残す current raw default
+- `--backend vm-hako`: reference / conformance
+- `--compile-wasm`: experimental / monitor-only
+- `--backend interpreter` / `--compile-native` / `--aot`: historical / non-primary route
+
+注意:
+- raw CLI default はまだ `vm` ですが、これは product ownership を意味しません。
+- user-facing main narrative は `llvm/exe` first です。default flip は別 gate (`phase-30x / 30xF`) で最後に判断します。
 
 ## 基本
 - `file`: 実行するNyashファイル（位置引数）
-- `--backend {interpreter|vm|llvm}`: 実行バックエンド選択（既定: interpreter）
+- `--backend {vm|vm-hako|llvm|interpreter}`: 実行バックエンド選択（current raw default: `vm`）
 - `--debug-fuel {N|unlimited}`: パーサーのデバッグ燃料（無限ループ対策）
 - `--parser`: removed（M4 tail cleanup で削除済み）。指定時は CLI で reject される。
 
@@ -28,9 +40,12 @@
   - `NYASH_GC_METRICS`
   - 詳細: `docs/reference/runtime/gc.md`
 
-## WASM/AOT
-- `--compile-wasm`: WASMバイナリ（`.wasm`）を出力（wat2wasm bridge経由）
-- `--compile-native` / `--aot`: AOT実行ファイル出力（要wasm-backend）
+## Product / Experimental Output
+- `--emit-exe FILE`: `ny-llvmc` 経由で product main のネイティブ EXE を生成
+- `--emit-exe-nyrt DIR`: `--emit-exe` で使う `libnyash_kernel.a` の場所を指定
+- `--emit-exe-libs FLAGS`: `--emit-exe` 時の追加リンカフラグ
+- `--compile-wasm`: WASMバイナリ（`.wasm`）を出力（experimental / monitor-only）
+- `--compile-native` / `--aot`: historical AOT実行ファイル出力（要wasm-backend）
 - `--output, -o FILE`: 出力先を指定
 
 ## ベンチマーク
@@ -39,14 +54,20 @@
 
 ## 使用例
 ```bash
-# インタープリターで実行
-nyash program.hako
+# Product main: LLVM EXE を生成
+nyash --backend llvm --emit-exe myapp program.hako
 
-# VMで実行 + 統計をJSON出力
+# Engineering/bootstrap: Rust VM で実行 + 統計をJSON出力
 nyash --backend vm --vm-stats --vm-stats-json program.hako
+
+# Reference/conformance: vm-hako
+nyash --backend vm-hako program.hako
 
 # MIRを出力
 nyash --dump-mir --mir-verbose program.hako
+
+# Experimental: WASM
+nyash --compile-wasm -o program.wasm program.hako
 
 # ベンチマーク
 nyash --benchmark --iterations 100
@@ -59,4 +80,5 @@ nyash --benchmark --iterations 100
 - 旧 ENV `NYASH_USE_NY_PARSER=1` は mainline では無効（direct-v0 route を起動しない）。
 
 ## 参考: `nyash --help` スナップショット
-- docs/tools/nyash-help.md
+- `docs/tools/nyash-help.md`
+- これは historical capture です。current source truth は `src/cli/args.rs` を優先してください。

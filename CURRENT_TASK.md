@@ -75,7 +75,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-30x backend surface simplification`
 - Current blocker: `none`
-- Exact focus: `30xE2 CLI/help wording prep`
+- Exact focus: `30xE3 stage1/runtime guide prep`
   - `phase-29x` W4/W5/W6 is landed; explicit helper deletion and path-truth cleanup are closed
   - current backend reading is role-first:
     - `llvm/exe` = `product`
@@ -94,8 +94,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 - `30xD3` landed as docs-first orchestrator freeze; plugin/smoke wrappers stay explicit engineering keeps
 - root mirrors are already phase-30x-first; remaining drift is mostly front docs/help and manual residue scripts
 - `30xE1` rewrote `README.md` / `README.ja.md` to `llvm/exe` first while keeping `rust-vm` as engineering/bootstrap keep
-- active micro task is `30xE2 CLI/help wording prep`
-- next queued micro task is `30xE3 stage1/runtime guide prep`
+- `30xE2` rewrote `docs/tools/cli-options.md` and marked `docs/tools/nyash-help.md` as a historical capture
+- active micro task is `30xE3 stage1/runtime guide prep`
+- next queued micro task is `30xE4 vm-hako/wasm wording prep`
 - legacy residue policy is now explicit:
   - keep if it is still an engineering/bootstrap contract
   - rewrite if it still presents old main narrative
@@ -118,7 +119,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-30x backend surface simplification` |
   | Blocker | `none` |
-  | Next | `30xE2 CLI/help wording prep` |
+  | Next | `30xE3 stage1/runtime guide prep` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -132,9 +133,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `30xE2 CLI/help wording prep` | remove `vm`-first reading from CLI/help docs without flipping raw defaults |
-| Next | `30xE3 stage1/runtime guide prep` | keep runtime/stage1 docs aligned with engineering/bootstrap reading |
-| Later | `30xE3-30xG` | guide rewrites, backend default gate, and legacy archive/delete sweep |
+| Now | `30xE3 stage1/runtime guide prep` | align stage1/runtime guides to engineering bootstrap wording without touching raw defaults |
+| Next | `30xE4 vm-hako/wasm wording prep` | keep reference/experimental lanes out of co-main wording |
+| Later | `30xF-30xG` | backend default gate and legacy archive/delete sweep |
 
 ## Backend Surface Waves
 
@@ -166,8 +167,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 | `30xD2` | landed | selfhost/bootstrap dangerous early flip lock |
 | `30xD3` | landed | plugin/smoke dangerous early flip lock |
 | `30xE1` | landed | README/README.ja now read `llvm/exe` first and demote `rust-vm` to engineering keep |
-| `30xE2` | active | CLI/help wording prep without a raw default flip |
-| `30xE3-30xE4` | queued | remaining user-facing main switch prep without a raw default flip |
+| `30xE2` | landed | CLI/help wording now reads role-first; `nyash-help` is explicit historical capture |
+| `30xE3` | active | stage1/runtime guide prep without a raw default flip |
+| `30xE4` | queued | vm-hako/wasm wording prep without a raw default flip |
 | `30xF1-30xF2` | queued | backend default decision gate stays last |
 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 

@@ -1,7 +1,18 @@
-# `nyash --help` Snapshot
+# `nyash --help` Snapshot (historical capture)
 
 Captured: 2025-08-23
 Source: Built-in clap help from the `nyash` binary
+
+Current reading (phase-30x):
+- `llvm/exe` = product main
+- `vm` = engineering/bootstrap keep
+- `vm-hako` = reference/conformance
+- `wasm` = experimental / monitor-only
+
+Known drift from current source:
+- this snapshot still says `interpreter` is the default backend
+- current source truth in `src/cli/args.rs` defaults to `vm` and also exposes `vm-hako`
+- treat the block below as a historical capture, not the current ownership story
 
 ```
 🦀 Nyash Programming Language - Everything is Box in Rust! 🦀

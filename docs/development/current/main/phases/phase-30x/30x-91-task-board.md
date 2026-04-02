@@ -43,10 +43,11 @@ Related:
 | 12 | `30xD2` | landed | selfhost/bootstrap freeze |
 | 13 | `30xD3` | landed | plugin/orchestrator freeze |
 | 14 | `30xE1` | landed | README/README.ja prep |
-| 15 | `30xE2` | active | CLI/help wording prep |
-| 16 | `30xE3-30xE4` | queued | remaining user-facing main switch prep |
-| 17 | `30xF1-30xF2` | queued | backend default decision last |
-| 18 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
+| 15 | `30xE2` | landed | CLI/help wording prep |
+| 16 | `30xE3` | active | stage1/runtime guide prep |
+| 17 | `30xE4` | queued | remaining user-facing main switch prep |
+| 18 | `30xF1-30xF2` | queued | backend default decision last |
+| 19 | `30xG1-30xG4` | queued | legacy residue archive/delete sweep |
 
 ## Evidence Commands
 
