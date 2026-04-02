@@ -33,14 +33,14 @@ Related:
 - `32xA1` landed: `build.rs` mixed ownership inventory is fixed
 - `32xA2` landed: `phase2100` mixed aggregator inventory is fixed
 - `32xB2` landed: helper-first extraction thinned `src/runner/build.rs` without changing owner behavior
-- active micro task: `32xF1 shared helper follow-up gate`
-- next micro task: `32xG1 raw backend default/token remains last`
+- active micro task: `phase-32x closeout review`
+- next micro task: `dedicated helper phase` (only if caller drain becomes exact)
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
   - `vm-hako` = `reference/conformance`
   - `wasm` = `experimental`
-- raw backend default flip stays deferred beyond `phase-30x`
+- raw backend default/token rewrite stays deferred beyond `phase-32x`
 - source/smoke cleanup rule:
   - `split/rehome/drain -> delete`
 

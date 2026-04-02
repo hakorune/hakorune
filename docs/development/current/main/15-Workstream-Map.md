@@ -60,8 +60,9 @@ Related:
         - `32xD2` landed and rehomed plugin smoke to `tools/plugins/plugin_v2_smoke.sh`
         - `32xE1` landed and fixed the thick compat residue in `child.rs` and `stage1_cli/core.hako`
         - `32xE2` landed and fixed `core_executor` as the narrow direct-MIR owner
-        - current active micro task is `32xF1 shared helper follow-up gate`
-        - next queued micro task is `32xG1 raw backend default/token remains last`
+        - `32xF1` landed and fixed shared helper family disposition
+        - `32xG1` landed and fixed raw backend default/token as a last-step follow-up only
+        - current active micro task is `phase-32x closeout review`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -71,14 +72,14 @@ Related:
      | --- | --- |
      | Now | `phase-32x product / engineering split` |
      | Blocker | `none` |
-     | Next | `32xF1 shared helper follow-up gate` |
+     | Next | `phase-32x closeout review` |
    - product / engineering split bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `32xF1 shared helper follow-up gate` |
-     | Next | `32xG1 raw backend default/token remains last` |
-     | Later | `shared helper dedicated phase or closeout review` |
+     | Now | `phase-32x closeout review` |
+     | Next | `shared helper dedicated phase` |
+     | Later | `raw backend default/token follow-up lane` |
    - product / engineering split waves:
 
      | Wave | Status | Read as |
@@ -88,7 +89,7 @@ Related:
      | `32xC phase2100 role split plan` | landed | split the thick smoke aggregator by role |
      | `32xD top-level orchestrator rehome prep` | landed | drain callers before moving remaining top-level keeps |
      | `32xE direct-route takeover prep` | landed | reduce shell-based `--backend vm` residues behind dedicated seams |
-     | `32xF shared helper follow-up gate` | active | reopen helper-family recut only on a dedicated lane |
+     | `32xF shared helper follow-up gate` | landed | reopen helper-family recut only on a dedicated lane |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
@@ -120,9 +121,9 @@ Related:
   - `phase-31x` engineering lane isolation (landed precursor)
   - `phase-32x` product / engineering split
 - Active backend surface tasks:
-  - `32xF1 shared helper follow-up gate`
+  - `phase-32x closeout review`
 - Queued backend surface tasks:
-  - `32xG1 raw backend default/token remains last`
+  - `shared helper dedicated phase`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

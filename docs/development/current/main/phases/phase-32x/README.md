@@ -40,8 +40,9 @@ Related:
 
 1. `32x-90-product-engineering-split-ssot.md`
 2. `32x-91-task-board.md`
-3. `src/runner/build.rs`
-4. `tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh`
+3. `src/cli/args.rs`
+4. `src/runner/dispatch.rs`
+5. `tools/hako_check/deadcode_smoke.sh`
 
 ## Canonical Child Docs
 
@@ -54,7 +55,7 @@ Related:
 
 - `build.rs` mixed ownership is inventoried and split target is fixed
 - `phase2100/run_all.sh` mixed aggregator is inventoried and split into role sub-runners behind the stable public path
-- current front is now the shared-helper follow-up gate after the `core_executor` direct-MIR seam was fixed
+- current front is now the phase closeout review after the shared-helper family was classified and the raw default/token gate was deferred
 - bootstrap/plugin top-level keeps get explicit caller-drain plans
 - direct `--backend vm` shell residues are reduced only behind dedicated split tasks
-- raw backend default remains deferred until mixed-owner surfaces are thinned
+- raw backend default/token rewrite remains deferred until a later lane that truthifies `args.rs` / `dispatch.rs` together

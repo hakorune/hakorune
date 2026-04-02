@@ -42,8 +42,8 @@ Related:
 | `32xC phase2100 role split plan` | landed | mixed aggregator を role buckets へ切る | selfhost / probe / product / experimental / shared の thin meta-runner 形が固定される |
 | `32xD top-level orchestrator rehome prep` | landed | `bootstrap_selfhost` / `plugin_v2` の caller drain を固定し canonical home へ repoint する | current/public callers が canonical home へ切り替わり top-level は shim-only になる |
 | `32xE direct-route takeover prep` | landed | child/stage1 shell residues を core route へ寄せる準備をする | `core_executor` takeover seam と direct shell gap が固定される |
-| `32xF shared helper follow-up gate` | active | helper family を別 phase へ回す gate を決める | shared helpers are either explicit keep or reopened under a dedicated phase |
-| `32xG raw default/token gate` | deferred | default/token rewrite の可否を最後に判定する | source split 後まで `args.rs` / `dispatch.rs` が untouched のまま保たれる |
+| `32xF shared helper follow-up gate` | landed | helper family を別 phase へ回す gate を決める | shared helpers are either explicit keep or reopened under a dedicated phase |
+| `32xG raw default/token gate` | landed | default/token rewrite の可否を最後に判定する | source split 後まで `args.rs` / `dispatch.rs` が untouched のまま保たれ、rewrite は later lane へ deferred される |
 
 ## Micro Tasks
 
@@ -59,8 +59,8 @@ Related:
 | `32xD2` | landed | `plugin_v2_smoke.sh` caller drain map | canonical home が `tools/plugins/plugin_v2_smoke.sh` に固定され current/public caller が repoint される |
 | `32xE1` | landed | `child.rs` / `stage1_cli` direct-route gap inventory | direct `--backend vm` shell residues と stage1 raw compat branches の exact gap が読める |
 | `32xE2` | landed | `core_executor` takeover seam lock | direct MIR/core route に寄せる seam が固定される |
-| `32xF1` | active | shared helper follow-up gate | `hako_check*` / `hakorune_emit_mir.sh` は dedicated helper phase まで keep のままと固定する |
-| `32xG1` | deferred | raw backend default/token decision remains last | `args.rs` / `dispatch.rs` are still do-not-flip-early |
+| `32xF1` | landed | shared helper follow-up gate | shared helper family is fixed as `keep here`, `family-home rehome`, or `dedicated phase keep` |
+| `32xG1` | landed | raw backend default/token decision remains last | `args.rs` / `dispatch.rs` are still do-not-flip-early |
 
 ## 32xA Result
 
@@ -94,9 +94,9 @@ Read as:
 
 ## Current Focus
 
-- active macro wave: `32xF shared helper follow-up gate`
-- active micro task: `32xF1 shared helper follow-up gate`
-- next queued micro task: `32xG1 raw backend default/token remains last`
+- active macro wave: `phase-32x closeout review`
+- active micro task: `phase-32x closeout review`
+- next queued micro task: `dedicated helper phase` (only if caller drain becomes exact)
 - current blocker: `none`
 
 ## 32xB1 Result
@@ -355,6 +355,40 @@ Read as:
 Read as:
 - direct MIR entry is now routed through the same narrow owner as future core takeovers.
 - `stage1_cli` and `child.rs` stay archive-later compat and were not widened.
+
+## 32xF1 Result
+
+| Helper | Disposition | Read as |
+| --- | --- | --- |
+| `tools/hako_check.sh` | keep here | shared analysis entry with live smoke and docs callers |
+| `tools/hako_check/deadcode_smoke.sh` | family-home rehome | deadcode smoke belongs with the `tools/hako_check/**` family |
+| `tools/hako_check_deadcode_smoke.sh` | shim-only | compatibility path kept while historical/current docs drain |
+| `tools/hakorune_emit_mir.sh` | keep here | shared route/helper with broad live script/docs integration |
+
+- `hako_check_deadcode_smoke.sh` moved to:
+  - `tools/hako_check/deadcode_smoke.sh`
+- live family caller updated:
+  - `tools/hako_check_loopless_gate.sh`
+- `hako_check.sh` stays top-level because live script/docs callers still treat it as the canonical analysis entry.
+- `hakorune_emit_mir.sh` stays top-level because `emit_mir_route`, perf, selfhost docs, and runner diagnostics still integrate through that path.
+
+## 32xG1 Result
+
+- `src/cli/args.rs` still exposes:
+  - backend help text: `vm (default), vm-hako (S0 frame), llvm, interpreter`
+  - default value: `vm`
+- `src/runner/dispatch.rs` still exposes:
+  - routed tokens: `mir`, `vm`, `vm-hako`, `jit-direct`, `llvm`
+  - unknown-backend hint: `vm`, `vm-hako`, `llvm`
+- `lang/src/runner/stage1_cli/core.hako` still exposes raw compat semantics:
+  - null backend defaults to `vm`
+  - raw route accepts `vm|pyvm`
+  - `llvm` remains rejected in the raw stage1 path
+
+Read as:
+- backend token/help/default surfaces are still intentionally inconsistent across CLI, dispatch, and stage1 raw compat.
+- `phase-32x` closes with that mismatch explicitly deferred.
+- any truthification of backend token/default/help must happen on a later lane that edits `args.rs`, `dispatch.rs`, and stage1 raw compat together.
 
 ## Delete / Archive Gate
 

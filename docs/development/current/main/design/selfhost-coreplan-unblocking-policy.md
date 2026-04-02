@@ -44,7 +44,7 @@ Scope: Selfhost bringup / hako_check
 最終的に以下を満たすこと。
 
 - `cargo build --release`
-- `./tools/hako_check_deadcode_smoke.sh`
+- `./tools/hako_check/deadcode_smoke.sh`
 - `./tools/hako_check_deadblocks_smoke.sh`
 - `./tools/hako_check/run_tests.sh`
 - `./tools/hako_check.sh apps/selfhost-runtime/boxes_std.hako`
@@ -54,4 +54,3 @@ Scope: Selfhost bringup / hako_check
 - `tools/hako_check/cli.hako` が `using selfhost.shared.common.string_helpers` を読み込む
 - `StringHelpers.*` のループ形状が未対応で `[joinir/freeze]` になった
   - → `.hako` ではなく CorePlan を拡張して吸収し、gate を緑に戻す
-

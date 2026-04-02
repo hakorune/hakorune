@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-32x product / engineering split`
-- active micro task: `32xF1 shared helper follow-up gate`
-- next micro task: `32xG1 raw backend default/token remains last`
+- active micro task: `phase-32x closeout review`
+- next micro task: `dedicated helper phase` (only if caller drain becomes exact)
 - raw backend default flip stays deferred beyond `phase-30x`
 
 ## Read Next

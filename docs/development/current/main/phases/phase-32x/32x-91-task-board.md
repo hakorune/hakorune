@@ -20,8 +20,8 @@ Related:
 | 3 | `32xC phase2100 role split plan` | landed | split thick smoke aggregator by role |
 | 4 | `32xD top-level orchestrator rehome prep` | landed | drain callers before moving top-level keeps |
 | 5 | `32xE direct-route takeover prep` | landed | reduce shell-based `--backend vm` residues carefully |
-| 6 | `32xF shared helper follow-up gate` | active | defer helper-family recut to a dedicated lane |
-| 7 | `32xG raw default/token gate` | deferred | decide backend default only after owner split |
+| 6 | `32xF shared helper follow-up gate` | landed | defer helper-family recut to a dedicated lane |
+| 7 | `32xG raw default/token gate` | landed | decide backend default only after owner split |
 
 ## Ordered Slice Detail
 
@@ -37,8 +37,8 @@ Related:
 | 8 | `32xD2` | landed | `plugin_v2_smoke` caller drain map |
 | 9 | `32xE1` | landed | `child.rs` / `stage1_cli` direct-route gap inventory |
 | 10 | `32xE2` | landed | `core_executor` takeover seam lock |
-| 11 | `32xF1` | active | shared helper follow-up gate |
-| 12 | `32xG1` | deferred | raw backend default/token remains last |
+| 11 | `32xF1` | landed | shared helper follow-up gate |
+| 12 | `32xG1` | landed | raw backend default/token remains last |
 
 ## Evidence Commands
 
@@ -52,10 +52,11 @@ ls -1 tools/smokes/v2/profiles/integration/core/phase2100
 rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
   src/runner/build.rs \
   tools/smokes/v2/profiles/integration/core/phase2100/run_all.sh \
-  tools/bootstrap_selfhost_smoke.sh \
-  tools/plugin_v2_smoke.sh \
   tools/selfhost/bootstrap_selfhost_smoke.sh \
   tools/plugins/plugin_v2_smoke.sh \
+  tools/hako_check/deadcode_smoke.sh \
+  src/cli/args.rs \
+  src/runner/dispatch.rs \
   src/runner/modes/common_util/selfhost/child.rs \
   lang/src/runner/stage1_cli/core.hako
 ```
@@ -98,5 +99,15 @@ rg -n -- '--backend vm|--backend llvm|cranelift|ny-llvmc|llvmlite|phase2100' \
   - `core_executor::execute_mir_json_text(...)` is now the narrow direct-MIR seam
   - `execute_json_artifact(...)` stays the generic artifact/classifier entry
   - direct `--mir-json-file` runner path now delegates through `core_executor`
+- `32xF1` landed:
+  - `tools/hako_check.sh` stays top-level keep
+  - `tools/hako_check/deadcode_smoke.sh` is the canonical family home
+  - `tools/hako_check_deadcode_smoke.sh` is shim-only
+  - `tools/hakorune_emit_mir.sh` stays top-level keep
+- `32xG1` landed:
+  - `args.rs` still defaults to `vm` and still advertises `interpreter`
+  - `dispatch.rs` routes `mir` / `vm` / `vm-hako` / `jit-direct` / `llvm` but unknown-backend help is narrower
+  - stage1 raw compat still defaults null backend to `vm` and accepts only `vm|pyvm`
+  - raw backend default/token rewrite stays deferred to a later lane
 - current front:
-  - `32xF1 shared helper follow-up gate`
+  - `phase-32x closeout review`

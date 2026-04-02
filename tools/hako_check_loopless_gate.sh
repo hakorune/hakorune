@@ -54,7 +54,7 @@ case "$ONLY" in
   all)
     run_step quick "$ROOT/tools/smokes/v2/run.sh" --profile quick
     run_step joinir "$ROOT/tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh"
-    run_step deadcode "$ROOT/tools/hako_check_deadcode_smoke.sh"
+    run_step deadcode "$ROOT/tools/hako_check/deadcode_smoke.sh"
     run_step run_tests bash "$ROOT/tools/hako_check/run_tests.sh"
     ;;
   quick)
@@ -64,7 +64,7 @@ case "$ONLY" in
     run_step joinir "$ROOT/tools/smokes/v2/profiles/integration/joinir/phase29ae_regression_pack_vm.sh"
     ;;
   deadcode)
-    run_step deadcode "$ROOT/tools/hako_check_deadcode_smoke.sh"
+    run_step deadcode "$ROOT/tools/hako_check/deadcode_smoke.sh"
     ;;
   run_tests)
     run_step run_tests bash "$ROOT/tools/hako_check/run_tests.sh"

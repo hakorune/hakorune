@@ -5,6 +5,11 @@ This tool lints .hako sources and emits diagnostics.
 Quick entry (toolbox index):
 - `docs/tools/README.md`
 
+Canonical helpers
+- `bash tools/hako_check/run_tests.sh`
+- `bash tools/hako_check/deadcode_smoke.sh`
+- top-level `tools/hako_check_deadcode_smoke.sh` remains a compatibility shim only
+
 Diagnostics schema (typed)
 - Map fields:
   - `rule`: string like "HC011"
