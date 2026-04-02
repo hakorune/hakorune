@@ -33,7 +33,6 @@ mod defaults;
 mod ll_emit_compare_driver;
 mod ll_emit_compare_source;
 mod ll_tool_driver;
-pub mod legacy_mir_front_door;
 mod normalize;
 mod provider_keep;
 mod route;
@@ -61,5 +60,5 @@ pub fn link_object_capi(
 }
 
 pub fn normalize_mir_json_for_backend(mir_json: &str) -> Result<String, String> {
-    legacy_mir_front_door::normalize_mir_json_for_backend(mir_json)
+    normalize::normalize_mir_json_for_backend(mir_json)
 }

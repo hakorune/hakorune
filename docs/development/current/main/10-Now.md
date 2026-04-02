@@ -41,9 +41,8 @@ Related:
 - `zero-rust default operationalization` is landed; `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed and `page_size` stays parked.
 - `stage2plus entry / first optimization wave` is accepted; the active front has moved to `phase-29x backend owner cutover prep`.
 - boundary audit result: `RuntimeDataBox` remains facade-only and delete stays on `MapBox` / `RawMap`.
-- current active step is `phase-29x backend owner cutover prep`; `W4`, `W5`, and `W6` are landed, semantic proof/archive homes are fixed, and the remaining legacy helper is now explicit and compat-only.
-- the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining explicit helper is `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
-- direct helper caller inventory is now zero.
+- current active step is `phase-29x backend owner cutover prep`; `W4`, `W5`, and `W6` are landed, semantic proof/archive homes are fixed, and the explicit legacy helper is deleted.
+- the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and direct helper caller inventory is zero.
 - `compat_codegen_receiver.rs` no longer calls the helper directly; it now keeps the text contract on top of the shared no-helper primitive.
 - `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive.
 - watch split is explicit: `compat_codegen_receiver.rs` is the keep chokepoint watch; `module_string_dispatch/compat/llvm_backend_surrogate.rs` is the archive-later surrogate watch.
@@ -53,7 +52,7 @@ Related:
 - `99W1` is landed: upstream groups and reduction order are fixed.
 - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and the compat chokepoint now uses it.
 - `99X1` and `99X2` are landed.
-- current active micro task is `99Y final explicit helper deletion decision`; next queued micro task is `next optimization restart`.
+- `99Y` is landed; current active micro task is `next optimization restart`.
 - review intake lives in `29x-99`; this mirror only carries the open deltas.
 - immediate cleanup order is `99W2 -> 99X1 -> 99X2 -> 99Y -> next optimization restart`.
 - current LLVM follow-up is organized separately from `K2-wide`; see backend lane docs for the live lane names.
@@ -71,8 +70,8 @@ Related:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `99Y final explicit helper deletion decision` | helper code-side caller inventory is zero; choose delete-now or archive-only explicit residue |
-| Next | `next optimization restart` | restart after the explicit helper decision is closed |
+| Now | `next optimization restart` | explicit helper deletion watch is closed; restart the next optimization slice on the cleaned backend-owner lane |
+| Next | `none` | no helper-watch slice remains |
 | Later | `none` | no additional helper-watch slice is queued after `99Y` |
 
 ## Cleanup Waves
@@ -84,7 +83,7 @@ Related:
 | `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
 | `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
 | `W5 Rust compat receiver collapse` | landed | one compat receiver chokepoint |
-| `W6 final delete/archive sweep` | landed | misleading legacy front-door naming/export is gone; remaining compat helper stays explicit under `29x-98` |
+| `W6 final delete/archive sweep` | landed | misleading legacy front-door naming/export is gone and the explicit helper module is deleted |
 
 ## Exact Links
 

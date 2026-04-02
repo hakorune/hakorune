@@ -71,12 +71,12 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-29x backend owner cutover prep`
 - Current blocker: `none`
-- Exact focus: `99Y final explicit helper deletion decision`
+- Exact focus: `next optimization restart`
   - W4, W5, and W6 landed; path truth, semantic proof/archive homes, and one Rust compat-codegen chokepoint are in place
   - `phase2044` lives under `integration/compat/llvmlite-monitor-keep`, `integration/proof/hako-primary-no-fallback`, and `integration/proof/mirbuilder-provider`
   - `phase2120` lives under `integration/compat/pure-keep`, `archive/pure-historical`, `integration/proof/vm-adapter-legacy`, and `integration/proof/native-reference`
-  - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `llvm_codegen::legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`
-  - direct helper caller inventory is now 0
+  - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and the explicit helper module is deleted
+  - direct helper caller inventory is 0 and the explicit helper deletion is landed
   - `compat_codegen_receiver.rs` is no longer a direct helper caller; it now preserves the text contract over the shared no-helper primitive
   - `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive
   - watch split is explicit:
@@ -92,8 +92,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `99W1` is landed: upstream groups and reduction order are fixed as `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
   - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and `compat_codegen_receiver.rs` now uses it
   - `99X1` and `99X2` are landed
-  - current active micro task is `99Y final explicit helper deletion decision`
-  - next queued micro task is `next optimization restart`
+  - `99Y` is landed
+  - current active micro task is `next optimization restart`
+  - next queued micro task is `none`
   - post-watch step is `next optimization restart`
   - review intake owner remains `29x-99`; mirror docs now carry only the live watch state
 - Exact read order:
@@ -113,7 +114,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `99Y -> next optimization restart` |
+     | Next | `next optimization restart` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

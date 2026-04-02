@@ -53,7 +53,7 @@ Related:
 ## Landed Front-Door Demotion Slice
 
 - `lang/src/runtime/host/host_facade_box.hako` no longer forwards `codegen.compile_json_path`; the Hako front-door bridge has been removed from the live caller set.
-- the compiled-stage1 surrogate now loads MIR(JSON) locally and forwards the text into `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+- the compiled-stage1 surrogate now loads MIR(JSON) locally and forwards the text into the shared no-helper text primitive.
 - `compile_json_path` no longer exists in the code-side caller inventory.
 - archive compare smoke now hydrates MIR roots directly and no longer depends on `compile_json_path` for the compare bridge proof path.
 
@@ -78,7 +78,7 @@ The code-side `compile_json_path` inventory is now empty. The remaining archive-
 | `src/host_providers/llvm_codegen/capi_transport.rs` | archive-later | explicit CAPI compile/link helpers only |
 | `src/host_providers/llvm_codegen/transport_paths.rs` | archive-later | temp-path path resolution helpers only |
 | `src/host_providers/llvm_codegen/transport_io.rs` | archive-later | temp-path file I/O helpers only |
-| `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)` | archive-later | string-based legacy MIR(JSON) helper only; file-based front door retired |
+| deleted explicit helper module | landed | helper was removed after caller inventory reached zero |
 | `src/host_providers/llvm_codegen.rs` | archive-later | legacy object emission helpers only |
 | `src/host_providers/llvm_codegen/route.rs` | keep | compare/archive selector only; not a delete target yet |
 
@@ -94,12 +94,12 @@ Recently retired from the code-side compare/compile front-door:
 
 Next compare-source retirement slice:
 
-- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs` and `ll_emit_compare_source.rs`, while explicit provider keep lanes and provider path resolution are split into `provider_keep.rs`; the legacy JSON path now survives only as the explicit compat helper `compile_object_from_legacy_mir_json(...)`, and compare-source temp-path materialization is now held by `transport_paths.rs` / `transport_io.rs`, so the next cleanup focus is compare/archive wrapper thinning; delete-readiness investigation is split into `29x-98`
+- direct `mir_json_to_object(...)` ownership has been retired from runtime dispatchers; the remaining compare residue is now split between `ll_emit_compare_driver.rs` and `ll_emit_compare_source.rs`, while explicit provider keep lanes and provider path resolution are split into `provider_keep.rs`; compare-source temp-path materialization is now held by `transport_paths.rs` / `transport_io.rs`, and the remaining cleanup focus is compare/archive wrapper thinning plus residual watch/doc closure in `29x-98`
 
 Ordered TODO:
 
 1. keep `provider_keep.rs` / `capi_transport.rs` as narrow keep lanes, then reassess whether any helper can move behind `route.rs`
-2. keep `compile_object_from_legacy_mir_json(...)` archive-later until the caller inventory goes to zero; delete readiness is tracked in `29x-98`
+2. the explicit helper deletion is landed; keep only the shared no-helper text primitive and archive replay evidence while `29x-98` closes the residual watch/docs
 
 ## Retirement Order
 
@@ -126,7 +126,7 @@ Slice 2 status:
 - explicit legacy/archive callers using `hako-ll-compare-v0` still reach the archive-later helper path
 - builder / wrapper surfaces remain live, so delete is still not ready
 - the dedicated compare/debug helper module is retired; `ll_emit_compare_driver.rs` now carries the archive-later compare orchestration surface plus VM spawn and stdout/LL extraction, `ll_emit_compare_source.rs` carries source rendering, `provider_keep.rs` carries explicit provider keep lanes and provider path resolution, `capi_transport.rs` owns explicit CAPI helpers, and `transport_paths.rs` / `transport_io.rs` own the temp-path helpers and compare-source temp-file materialization
-- the legacy MIR(JSON) wrapper surface now lives as `compile_object_from_legacy_mir_json(...)` in `src/host_providers/llvm_codegen/legacy_mir_front_door.rs`
+- the legacy MIR(JSON) wrapper surface is deleted; remaining compat acceptance lives in the shared no-helper text primitive
 
 ## Why Delete Is Not Ready
 

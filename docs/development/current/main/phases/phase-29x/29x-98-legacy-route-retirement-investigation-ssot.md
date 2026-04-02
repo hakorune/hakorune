@@ -2,7 +2,7 @@
 Status: SSOT
 Decision: provisional
 Date: 2026-04-02
-Scope: investigate delete readiness for the remaining explicit legacy/compat callers rooted at `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)`, including the compiled-stage1 surrogate caller.
+Scope: investigate and retire the explicit legacy/compat MIR(JSON) helper surfaces, including the compiled-stage1 surrogate caller and the final helper deletion watch.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
@@ -18,7 +18,7 @@ Related:
 ## Rule
 
 - delete-ready remains none until the caller inventory reaches zero.
-- no new daily caller may be added to `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+- no new daily caller may be added to the shared no-helper text primitive as a new generic daily front door.
 - investigation is caller-by-caller; do not reopen compare bridge daily ownership.
 - the helper stays archive-later while any explicit legacy/compat caller remains.
 
@@ -30,7 +30,7 @@ Related:
 
 ## Keep
 
-- `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)`
+- deleted explicit helper: `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)`
 - `src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs`
 - `crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs` (archive-later surrogate caller)
 
@@ -96,7 +96,7 @@ Treat the last two caller surfaces as separate watches with different unblock co
 ## 99W2 Verdict
 
 - landed: the single Rust-side no-helper `MIR(JSON text) -> object path` primitive now exists at `src/host_providers/llvm_codegen/compat_text_primitive.rs`.
-- landed: `compat_codegen_receiver.rs` no longer calls `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` directly.
+- landed: `compat_codegen_receiver.rs` no longer calls any explicit legacy helper; it uses the shared no-helper text primitive.
 - `watch-1` remains an upstream contract-retirement follow-up, not a direct helper-caller watch.
 
 ## Watch-2 Caller Groups
@@ -141,7 +141,7 @@ Keep the direct caller inventory separate from wrapper/orchestrator layers.
 - no archive-ready explicit helper caller exists today.
 - low-blast Hako-side caller reduction is landed; selfhost payload and `extern_provider.hako` no longer call the legacy Rust helper.
 - Rust receiver collapse is landed; the remaining keep lane is the single `compat_codegen_receiver.rs` chokepoint.
-- the generic `llvm_codegen::emit_object_from_mir_json(...)` symbol/export is deleted; the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+- the generic `llvm_codegen::emit_object_from_mir_json(...)` symbol/export is deleted and the explicit helper module is deleted.
 - `99W2` is landed; the Rust keep chokepoint no longer calls the helper directly.
 - `99X1` and `99X2` are landed; the compiled-stage1 surrogate now reads the MIR(JSON) file and forwards text into the same no-helper primitive.
 - direct helper caller inventory is zero; the next task is the final explicit helper deletion decision.
@@ -258,7 +258,7 @@ Proof-only direct `hostbridge.extern_invoke("env.codegen", "emit_object", ...)` 
 | Surface group | Status | Daily-route dependency | Cleanup / archive condition |
 | --- | --- | --- | --- |
 | `tools/smokes/v2/profiles/integration/compat/llvmlite-monitor-keep/codegen_provider_llvmlite_{compare_branch,canary,const42}_canary_vm.sh` | integration proof-only coverage; monitor-only keep | none | archive when the legacy helper caller inventory reaches zero and llvmlite canary evidence is no longer needed |
-| `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence while `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` remains archive-later; replay bundle is `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt` |
+| `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/s3_link_run_llvmcapi_{ternary_collect,map_set_size}_canary_vm.sh` | archived proof-only coverage on the legacy emit/link lane | none | keep as replay evidence after helper deletion; replay bundle is `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt` |
 | `tools/smokes/v2/profiles/archive/core/legacy-emit-object-evidence/selfhost_mir_extern_codegen_basic_{provider,vm}.sh` | archived proof-only lowering evidence for the legacy extern name | none | keep as quarantine evidence until a root-first selfhost lowering proof exists; replay bundle is `tools/smokes/v2/suites/archive/legacy-emit-object-evidence.txt` |
 
 ## Archive Sequencing Matrix
@@ -437,7 +437,7 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 - cleanup rule
   - do not start by deleting Rust dispatch files.
   - first remove the remaining explicit helper callers or replace them with root-first/evidence-safe equivalents.
-  - after the upstream caller inventory reaches zero, collapse the Rust dispatch residues and then delete `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+  - after the upstream caller inventory reaches zero, delete the explicit helper and collapse the remaining watch/docs residue.
 
 ## Ordered Investigation Queue
 
@@ -451,9 +451,9 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
 ## Retirement Order
 
 1. keep `compat_codegen_receiver.rs` as the explicit Rust compat caller until its MIR(JSON) contract is replaced by a root-first/evidence-safe equivalent.
-2. keep `compat/llvm_backend_surrogate.rs` as archive-later until the compiled-stage1/bootstrap path has a cleaner front door than `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+2. keep `compat/llvm_backend_surrogate.rs` as archive-later only while the compiled-stage1/bootstrap path still needs a file-path shim over the shared no-helper text primitive.
 3. once the explicit helper caller inventory reaches zero, collapse the Rust dispatch residues (`global.rs` / `externals.rs` / `extern_provider/*`).
-4. only when all caller surfaces are gone: delete `src/host_providers/llvm_codegen/legacy_mir_front_door.rs::compile_object_from_legacy_mir_json(...)`.
+4. all caller surfaces are gone and the explicit helper module is deleted.
 
 ## Investigation TODO
 
@@ -468,14 +468,14 @@ The legacy emit/link pair has been moved under `tools/smokes/v2/profiles/archive
     - `lang/src/vm/hakorune-vm/extern_provider.hako`
 5. keep the explicit helper archive-later until the caller set reaches zero.
 6. push new daily callers through `LlvmBackendBox -> env.codegen.compile_ll_text(...) -> env.codegen.link_object(...)`, not through `env.codegen.emit_object`.
-7. when the caller set reaches zero, delete `compile_object_from_legacy_mir_json(...)`, then collapse the Rust dispatch residues and phase docs.
+7. with caller set at zero, keep only the shared no-helper text primitive plus the surrogate file wrapper watch, then collapse phase docs.
 
 ## Delete Condition
 
 - all explicit callers have moved to root-first or daily route surfaces.
 - compare/archive proof coverage is preserved in archive assets.
 - the generic `emit_object_from_mir_json(...)` symbol/export no longer appears in code-side caller inventory.
-- `compile_object_from_legacy_mir_json(...)` no longer appears in code-side caller inventory.
+- the deleted helper no longer appears in code-side caller inventory.
 
 ## Non-Goals
 

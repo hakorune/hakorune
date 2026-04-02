@@ -65,7 +65,7 @@ Related:
 | `99W2` | landed | lock watch-1 replacement contract gap | one Rust-side no-helper text primitive is explicit and the compat chokepoint now uses it |
 | `99X1` | landed | lock watch-2 caller groups | compiled-stage1 surrogate upstream groups are explicit under `module_string_dispatch`, and reduction stays after `watch-1` |
 | `99X2` | landed | lock watch-2 replacement contract gap | the surrogate now shrinks to `json_path -> read_to_string -> same text primitive`; direct helper callers are zero |
-| `99Y` | active | final explicit helper deletion decision | code-side caller inventory is zero; either delete `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` or freeze it as archive-only residue explicitly |
+| `99Y` | landed | final explicit helper deletion decision | code-side caller inventory reached zero; the explicit helper module is deleted |
 
 ## Review Intake
 
@@ -75,7 +75,7 @@ The 2026-04-02 beauty-first review is adopted as a path-truth check, not as a ne
 | --- | --- | --- | --- |
 | compat selfhost payload home was duplicated | stale-in-review | `99F1` landed | wrapper now points at `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` |
 | `extern_provider.hako` still mixed runtime owner and compat codegen | landed | `99G` landed | runtime owner and compat codegen stub are already split |
-| `llvm_codegen.rs` still mixed thin boundary and legacy MIR front door | landed | `99H` landed | legacy front door now lives in `legacy_mir_front_door.rs` |
+| `llvm_codegen.rs` still mixed thin boundary and legacy MIR front door | landed | `99H` landed | thin boundary stayed in `llvm_codegen.rs`; the temporary legacy front door was split first and later deleted |
 | `phase2044` / `phase2120` were still phase-number semantic homes | landed | `99K-99M` landed | live proof/archive buckets now have semantic homes |
 | `LlvmBackendBox` still reads as both owner facade and file/evidence entry | adopt-next | `99I` follow-up after `W4` | split is partial; owner facade slimming remains open |
 | Rust legacy/codegen receivers still read as a spread surface | adopt-next | `99Q1-99S1` | receiver-body split landed; one chokepoint collapse remains open |
@@ -329,7 +329,7 @@ This table maps the later beauty-first re-cut proposal onto the current tree so 
 | --- | --- | --- | --- |
 | `99T` | landed | truthify legacy emit bridge naming and keep shim-only export | compat implementation no longer presents `CodegenBridgeBox` as the primary truth |
 | `99U` | landed | delete `CodegenBridgeBox.emit_object_args(...)` | no live direct caller remains |
-| `99V` | landed | delete the generic `emit_object_from_mir_json(...)` symbol/export and sync final compat/archive residue | remaining callers use the explicit `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` helper |
+| `99V` | landed | delete the generic `emit_object_from_mir_json(...)` symbol/export and sync final compat/archive residue | remaining callers use the shared no-helper text primitive |
 
 ## Split Targets
 
@@ -391,7 +391,7 @@ Do not combine `move + semantic change + helper deletion` in one slice.
 | `extern_provider.hako` compat codegen arm | keep | exact root-first selfhost lowering proof |
 | compat selfhost wrapper stack | archive-later | exact root-first drop-in proof or explicit whole-stack retirement |
 | `CodegenBridgeBox.emit_object_args(...)` | keep | direct Hako caller inventory reaches zero |
-| `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)` | archive-later | direct caller inventory reaches zero |
+| deleted explicit helper module | landed | direct caller inventory reached zero and the helper was removed |
 
 ## Acceptance
 

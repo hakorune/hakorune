@@ -67,7 +67,7 @@ bash tools/selfhost/run_lane_a_daily.sh
 - W4 / W5 / W6 are landed. Path truth, semantic proof/archive homes, and the Rust compat-codegen chokepoint are fixed.
 - `phase2044` llvmlite trio is monitor-only keep and its dedicated suite manifest is the final live keep bucket.
 - `phase2120` pure keep and historical replay now live in separate semantic homes.
-- the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining helper is explicit at `legacy_mir_front_door::compile_object_from_legacy_mir_json(...)`.
+- the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and the explicit legacy helper module is deleted.
 - direct helper caller inventory is now zero.
 - `compat_codegen_receiver.rs` no longer calls the helper directly; it now owns the text contract over the shared no-helper primitive.
 - `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive.

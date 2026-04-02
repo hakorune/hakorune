@@ -38,7 +38,7 @@ Related:
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - semantic proof/archive recut is landed: `phase2044`, `phase2120`, and archive replay evidence now live in semantic homes
      - the selfhost compat stack wording is fixed as `payload -> transport wrapper -> pack orchestrator`
-     - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone; the remaining direct helper caller is the archive-later surrogate under `module_string_dispatch/compat/`
+     - the generic `llvm_codegen::emit_object_from_mir_json(...)` export is gone and the explicit helper module is deleted
      - `compat_codegen_receiver.rs` no longer calls the helper directly; it now keeps the text contract on top of the shared no-helper primitive
      - `compat/llvm_backend_surrogate.rs` also no longer calls the helper directly; it now reads the MIR(JSON) file and forwards text into the same primitive
      - `29x-98` owns the final helper-deletion watch, now split into the keep chokepoint watch and the archive-later surrogate watch; `29x-99` owns landed re-cut history and move order
@@ -47,8 +47,9 @@ Related:
      - `99W1` is landed: caller groups and reduction order are fixed
      - `99W2` is landed: the single Rust-side no-helper text primitive is explicit and the keep chokepoint uses it
      - `99X1` and `99X2` are landed
-     - current active micro task is `99Y final explicit helper deletion decision`
-     - next queued micro task is `next optimization restart`
+     - `99Y` is landed
+     - current active micro task is `next optimization restart`
+     - next queued micro task is `none`
      - watch-1 caller reduction order is `loader-cold extern -> hostbridge dispatch -> plugin-loader env.codegen`
      - review intake detail stays in `29x-99`; the live watch stays in `29x-98`
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -58,13 +59,13 @@ Related:
      | --- | --- |
      | Now | `phase-29x backend owner cutover prep` |
      | Blocker | `none` |
-     | Next | `99Y -> next optimization restart` |
+     | Next | `next optimization restart` |
    - cleanup bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `99Y final explicit helper deletion decision` |
-     | Next | `next optimization restart` |
+     | Now | `next optimization restart` |
+     | Next | `none` |
      | Later | `none` |
    - cleanup waves:
 
@@ -75,7 +76,7 @@ Related:
      | `W3 smoke/proof filesystem recut` | landed | semantic homes replace phase-number homes |
      | `W4 Hako-side caller drain prep` | landed | exact replacement proof is green; direct Hako caller demotion is complete |
      | `W5 Rust compat receiver collapse` | landed | one compat receiver chokepoint |
-     | `W6 final delete/archive sweep` | landed | misleading legacy front-door naming/export is gone; remaining compat helper stays explicit under `29x-98` |
+     | `W6 final delete/archive sweep` | landed | misleading legacy front-door naming/export is gone and the explicit helper module is deleted |
 2. `phase-29bq`
    - active selfhost lane
    - `mirbuilder first / parser later`
