@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-34x stage0 shell residue split`
-- active micro task: `34xC1 run_program_json no-widen lock`
-- next micro task: `34xD1 direct MIR(JSON) proof path`
+- active micro task: `34xD1 direct MIR(JSON) proof path`
+- next micro task: `34xD closeout/docs cleanup`
 - raw backend default flip stays deferred beyond `phase-34x`
 
 ## Read Next

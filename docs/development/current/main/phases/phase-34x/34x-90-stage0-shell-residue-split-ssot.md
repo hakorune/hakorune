@@ -44,14 +44,14 @@ Related:
 | `34xA2` | landed | `stage1_cli/core.hako` exact residue lock | `run_program_json` / `_run_raw_request` の compat residue と dispatch split が exact に読める |
 | `34xA3` | landed | `core_executor` takeover seam lock | direct `MIR(JSON)` owner が shell route と分離して読める |
 | `34xB1` | landed | split spawn/timeout/capture from `child.rs` | shell helper が route-neutral helper へ縮む |
-| `34xC1` | active | `run_program_json` no-widen lock | raw compat lane が execution-capability widening を受けない |
-| `34xD1` | queued | direct `MIR(JSON)` proof path | already-materialized `MIR(JSON)` run path が `core_executor` 側に pin される |
+| `34xC1` | landed | `run_program_json` no-widen lock | raw compat lane が execution-capability widening を受けない |
+| `34xD1` | active | direct `MIR(JSON)` proof path | already-materialized `MIR(JSON)` run path が `core_executor` 側に pin される |
 
 ## Current Focus
 
-- active macro wave: `34xC stage1 raw compat narrowing`
-- active micro task: `34xC1 run_program_json no-widen lock`
-- next queued micro task: `34xD1 direct MIR(JSON) proof path`
+- active macro wave: `34xD direct core handoff`
+- active micro task: `34xD1 direct MIR(JSON) proof path`
+- next queued micro task: `34xD closeout/docs cleanup`
 - current blocker: `none`
 - exact residue reading:
   - `child.rs` shell/process residue is concentrated in `run_ny_program_capture_json_v0`
@@ -73,6 +73,8 @@ Related:
     - `dispatch_emit` drives `_cmd_emit_mir_json`
     - `dispatch_run` drives `_run_raw_request`
     - `run_program_json` keeps default `vm`, accepts only `vm|pyvm`, and rejects `llvm`
+    - `_mode_run` and `_run_raw_request` stay thin raw compat adapters only
+    - thread/runtime capability work must not land in `run_program_json` or `_run_raw_request`
   - `core_executor` direct seam is fixed:
     - `execute_json_artifact(...)` stays artifact-family convergence entry
     - `execute_mir_json_text(...)` is the direct MIR(JSON) handoff

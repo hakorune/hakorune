@@ -57,7 +57,8 @@ Related:
         - `34xA2` landed and fixed `stage1_cli/core.hako` raw compat residue and dispatch split
         - `34xA3` landed and pinned `core_executor` as the direct `MIR(JSON)` owner
         - `34xB1` landed and split `child.rs` shell residue into route-neutral private helpers
-        - current active micro task is `34xC1 run_program_json no-widen lock`
+        - `34xC1` landed and fixed raw compat no-widen on `run_program_json`
+        - current active micro task is `34xD1 direct MIR(JSON) proof path`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -67,14 +68,14 @@ Related:
      | --- | --- |
      | Now | `phase-34x stage0 shell residue split` |
      | Blocker | `none` |
-     | Next | `34xD1 direct MIR(JSON) proof path` |
+     | Next | `34xD closeout/docs cleanup` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `34xC1 run_program_json no-widen lock` |
-     | Next | `34xD1 direct MIR(JSON) proof path` |
-     | Later | `34xD closeout/docs cleanup` |
+     | Now | `34xD1 direct MIR(JSON) proof path` |
+     | Next | `34xD closeout/docs cleanup` |
+     | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -115,9 +116,9 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-34x` stage0 shell residue split
 - Active backend surface tasks:
-  - `34xC1 run_program_json no-widen lock`
-- Queued backend surface tasks:
   - `34xD1 direct MIR(JSON) proof path`
+- Queued backend surface tasks:
+  - `34xD closeout/docs cleanup`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

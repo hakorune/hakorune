@@ -17,8 +17,8 @@ Related:
 | --- | --- | --- | --- |
 | 1 | `34xA residue owner lock` | landed | exact shell residue/owner split first |
 | 2 | `34xB child runner thinning` | landed | process/shell helper gets thinner before new runtime work |
-| 3 | `34xC stage1 raw compat narrowing` | active | raw compat branch stays narrow |
-| 4 | `34xD direct core handoff` | queued | direct `MIR(JSON)` owner is `core_executor` |
+| 3 | `34xC stage1 raw compat narrowing` | landed | raw compat branch stays narrow |
+| 4 | `34xD direct core handoff` | active | direct `MIR(JSON)` owner is `core_executor` |
 
 ## Ordered Slice Detail
 
@@ -28,8 +28,8 @@ Related:
 | 2 | `34xA2` | landed | `stage1_cli/core.hako` exact residue lock |
 | 3 | `34xA3` | landed | `core_executor` takeover seam lock |
 | 4 | `34xB1` | landed | split spawn/timeout/capture from `child.rs` |
-| 5 | `34xC1` | active | `run_program_json` no-widen lock |
-| 6 | `34xD1` | queued | direct `MIR(JSON)` proof path |
+| 5 | `34xC1` | landed | `run_program_json` no-widen lock |
+| 6 | `34xD1` | active | direct `MIR(JSON)` proof path |
 
 ## Evidence Commands
 
@@ -49,11 +49,12 @@ cargo check --bin hakorune
 ## Current Result
 
 - current front:
-  - `34xC1 run_program_json no-widen lock`
+  - `34xD1 direct MIR(JSON) proof path`
 - worker-confirmed residue concentration:
   - `child.rs::run_ny_program_capture_json_v0` owns spawn / timeout / stdout-stderr capture / first-line JSON extraction
   - `selfhost.rs` is the shared v0 caller; `stage_a_compat_bridge.rs` is the MIR-only selector caller
   - `stage1_cli/core.hako::run_program_json` and `_run_raw_request` own the raw compat residue and must stay narrow
+  - `run_program_json` / `_mode_run` / `_run_raw_request` are now explicitly no-widen: no thread/runtime capability work lands there
   - `dispatch_env_mode` / `dispatch_emit` / `dispatch_run` are the thin dispatch-side callers; `stage1_main` stays dispatcher-only
   - `core_executor::execute_mir_json_text` and `execute_loaded_mir_module` are the direct MIR(JSON) owner seam; `execute_json_artifact` remains the family classifier
   - `child.rs` now splits private helper ownership into command setup, capture wiring, timeout/wait, output readback, and JSON-line selection while public selectors stay unchanged
