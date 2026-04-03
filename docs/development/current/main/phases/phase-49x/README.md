@@ -47,9 +47,9 @@ Related:
    - `49xA2` top-level docs compat wording rewrite (landed)
 2. `49xB` guide cleanup
    - `49xB1` current guides compat wording rewrite (landed)
-   - `49xB2` example-command stale-route sweep (active)
+   - `49xB2` example-command stale-route sweep (landed)
 3. `49xC` runtime / helper clarity
-   - `49xC1` runtime `stage-a` compat label lock
+   - `49xC1` runtime `stage-a` compat label lock (active)
    - `49xC2` helper comment stale-route cleanup
 4. `49xD` proof / closeout
    - `49xD1` proof / closeout
