@@ -56,8 +56,8 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `44xA2 selfhost_build_stageb.sh direct/core-first cutover`
-- next micro task: `44xB1 selfhost_run_routes.sh runtime default cutover`
+- active micro task: `45xC2 run_stageb_compiler_vm.sh proof-only gate reinforcement`
+- next micro task: `45xD1 proof / closeout`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep
