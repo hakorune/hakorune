@@ -35,7 +35,8 @@ Related:
 - `47xB2` landed: selfhost_run_routes.sh runtime default cutover
 - `47xB3` landed: run.sh explicit vm compat mode lock
 - `47xD3` landed: run_stageb_compiler_vm.sh proof-only local keep
-- `48xA1` active: residual vm surface inventory lock
+- `48xA1` landed: residual vm surface inventory lock
+- `48xA2` active: proof-only / compat keep classification
 - `47xC1` landed: stage0_capture_route.rs non-VM builder add
 - `47xC2` landed: stage_a_route.rs source->MIR first switch
 - `47xC3` landed: stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink
@@ -71,9 +72,9 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `48xA1 residual vm surface inventory lock`
-- next micro task: `48xA2 proof-only / compat keep classification`
-- after next: `48xB1 smoke script stale-route cleanup`
+- active micro task: `48xA2 proof-only / compat keep classification`
+- next micro task: `48xB1 smoke script stale-route cleanup`
+- after next: `48xB2 proof-only smoke gate lock`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

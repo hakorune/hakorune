@@ -8,9 +8,8 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/README.md
-  - docs/development/current/main/phases/phase-47x/README.md
-  - docs/development/current/main/phases/phase-47x/47x-90-stage0-runtime-direct-core-finalization-ssot.md
-  - docs/development/current/main/phases/phase-47x/47x-91-task-board.md
+  - docs/development/current/main/phases/phase-48x/48x-90-smoke-source-cleanup-ssot.md
+  - docs/development/current/main/phases/phase-48x/48x-91-task-board.md
 ---
 
 # Phase 48x: Smoke/Source Cleanup
@@ -25,6 +24,7 @@ Related:
 ## Plain Reading
 
 - `phase-47x` finished direct/core finalization.
+- `48xA1` locked the inventory of remaining VM-facing smoke/source surfaces.
 - the remaining `--backend vm` references are mostly proof-only or compat keeps, plus stale doc/example noise.
 - this lane classifies what stays, what is proof-only, and what should be archived or rewritten.
 
@@ -44,8 +44,8 @@ Related:
 ## Big Tasks
 
 1. `48xA` inventory and classify
-   - `48xA1` residual vm surface inventory lock
-   - `48xA2` proof-only / compat keep classification
+   - `48xA1` residual vm surface inventory lock (landed)
+   - `48xA2` proof-only / compat keep classification (active)
 2. `48xB` smoke cleanup
    - `48xB1` smoke script stale-route cleanup
    - `48xB2` proof-only smoke gate lock

@@ -17,8 +17,8 @@ Date: 2026-04-04
 
 | Task | Status | Read as |
 | --- | --- | --- |
-| `48xA1` | active | residual vm surface inventory lock |
-| `48xA2` | queued | proof-only / compat keep classification |
+| `48xA1` | landed | residual vm surface inventory lock |
+| `48xA2` | active | proof-only / compat keep classification |
 | `48xB1` | queued | smoke script stale-route cleanup |
 | `48xB2` | queued | proof-only smoke gate lock |
 | `48xC1` | queued | source helper stale-route cleanup |
@@ -31,7 +31,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `48xA1 residual vm surface inventory lock` |
+| Now | `48xA2 proof-only / compat keep classification` |
 | Blocker | `none` |
-| Next | `48xA2 proof-only / compat keep classification` |
-| After Next | `48xB1 smoke script stale-route cleanup` |
+| Next | `48xB1 smoke script stale-route cleanup` |
+| After Next | `48xB2 proof-only smoke gate lock` |

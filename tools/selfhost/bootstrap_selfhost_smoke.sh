@@ -10,7 +10,7 @@ if [ ! -x "$BIN" ]; then
   cargo build --release --features cranelift-jit >/dev/null
 fi
 
-echo "[bootstrap] c0 (rust) -> c1 (ny) -> c1' parity (JIT-only)" >&2
+echo "[bootstrap] c0 (rust) -> c1 (ny) -> c1' parity (proof-only JIT bootstrap)" >&2
 
 timeout -s KILL 20s env NYASH_DISABLE_PLUGINS=1 NYASH_CLI_VERBOSE=1 \
   "$BIN" --backend vm "$ROOT_DIR/apps/examples/string_p0.hako" > /tmp/nyash-c0.out

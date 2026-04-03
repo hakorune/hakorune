@@ -25,7 +25,7 @@ if ! head -n1 dist/nyash_compiler/sample.json | grep -q '"kind":"Program"'; then
   exit 2
 fi
 
-echo "[4/4] Executing via bridge (pipe) to verify semantics ..."
+echo "[4/4] Executing via bridge (pipe) to verify semantics (compat bridge) ..."
 # Keep core minimal and deterministic
 export NYASH_DISABLE_PLUGINS=1
 BIN=${NYASH_BIN:-./target/release/hakorune}
