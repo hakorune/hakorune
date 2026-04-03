@@ -21,14 +21,14 @@ Date: 2026-04-04
 | `49xB1` | landed | current guides compat wording rewrite |
 | `49xB2` | landed | example-command stale-route sweep |
 | `49xC1` | landed | runtime `stage-a` compat label lock |
-| `49xC2` | active | helper comment stale-route cleanup |
-| `49xD1` | queued | proof / closeout |
+| `49xC2` | landed | helper comment stale-route cleanup |
+| `49xD1` | active | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `49xC2 helper comment stale-route cleanup` |
+| Now | `49xD1 proof / closeout` |
 | Blocker | `none` |
-| Next | `49xD1 proof / closeout` |
+| Next | `none` |
 | After Next | `none` |
