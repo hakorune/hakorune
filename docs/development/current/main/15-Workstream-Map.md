@@ -129,16 +129,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `phase-50x rust-vm source/archive cleanup` |
+     | Now | `next source lane selection` |
       | Blocker | `none` |
-     | Next | `50xD1 proof / closeout` |
+     | Next | `phase-51x selection` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `phase-50x rust-vm source/archive cleanup` |
-     | Next | `50xD1 proof / closeout` |
-     | Later | `next source lane selection` |
+     | Now | `next source lane selection` |
+     | Next | `phase-51x selection` |
+     | Later | `TBD` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -182,10 +182,10 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
   - `phase-41x` stage0 direct/core route hardening (landed)
      - Active backend surface tasks:
-     - `phase-50x rust-vm source/archive cleanup`
-     - Queued backend surface tasks:
-     - `50xD1 proof / closeout`
      - `next source lane selection`
+      - Queued backend surface tasks:
+     - `phase-51x selection`
+     - `TBD`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep

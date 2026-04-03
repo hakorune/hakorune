@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 Scope: inventory the remaining rust-vm / vm-gated source and helper surfaces, classify proof-only keep / compat keep / archive-later / delete-ready, and archive only drained surfaces.
 Related:
@@ -53,7 +53,7 @@ Related:
    - `50xC1` archive-ready docs/examples move (landed)
    - `50xC2` historical PyVM / legacy wrapper archival sweep (landed)
 4. `50xD` proof / closeout
-   - `50xD1` proof / closeout (active)
+  - `50xD1` proof / closeout (landed)
 
 ## Boundaries
 

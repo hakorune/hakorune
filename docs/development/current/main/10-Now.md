@@ -35,7 +35,8 @@ Related:
 - `50xB2` landed: route-comment stale wording cleanup
 - `50xC1` landed: archive-ready docs/examples move
 - `50xC2` landed: historical PyVM / legacy wrapper archival sweep
-- `50xD1` active: proof / closeout
+- `50xD1` landed: proof / closeout
+- `next source lane selection` active
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock

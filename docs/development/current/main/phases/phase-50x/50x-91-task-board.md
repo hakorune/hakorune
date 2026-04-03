@@ -8,9 +8,9 @@ Date: 2026-04-04
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
 | 1 | `50xA residual rust-vm inventory` | landed | inventory remaining rust-vm / vm-gated source and helper surfaces |
-| 2 | `50xB stale helper cleanup` | active | rewrite stale helper/comment wording so vm is explicit keep only |
-| 3 | `50xC archive-ready move` | queued | move drained docs/examples/historical wrappers out of the live surface |
-| 4 | `50xD proof / closeout` | queued | prove cleanup stays green and hand off cleanly |
+| 2 | `50xB stale helper cleanup` | landed | rewrite stale helper/comment wording so vm is explicit keep only |
+| 3 | `50xC archive-ready move` | landed | move drained docs/examples/historical wrappers out of the live surface |
+| 4 | `50xD proof / closeout` | landed | prove cleanup stays green and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -22,13 +22,13 @@ Date: 2026-04-04
 | `50xB2` | landed | route-comment stale wording cleanup |
 | `50xC1` | landed | archive-ready docs/examples move |
 | `50xC2` | landed | historical PyVM / legacy wrapper archival sweep |
-| `50xD1` | active | proof / closeout |
+| `50xD1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `50xD1 proof / closeout` |
+| Now | `next source lane selection` |
 | Blocker | `none` |
-| Next | `next source lane selection` |
-| After Next | `phase-51x selection` |
+| Next | `phase-51x selection` |
+| After Next | `TBD` |
