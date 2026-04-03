@@ -138,7 +138,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `45xB2` landed: vm_fallback.rs / shared vm helper drain
   - `45xC1` landed: core.hako compat hold line refresh
   - `45xC2` landed: run_stageb_compiler_vm.sh proof-only gate reinforcement
-  - `45xD1` active: proof / closeout
+  - `45xD1` landed: proof / closeout
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - `41xA1` landed: remaining direct/core route facades and caller families are inventoried
