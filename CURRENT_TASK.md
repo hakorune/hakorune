@@ -47,17 +47,18 @@ Scope: repo root から current order / current blocker / next exact read に最
 25. `phase-48x smoke/source cleanup` (landed)
 26. `phase-49x legacy wording / compat route cleanup` (landed)
 27. `phase-50x rust-vm source/archive cleanup` (landed)
+28. `phase-51x compat-codegen archival sweep` (active)
 
 - `K-axis` stays `K0 / K1 / K2` and is read as a build/runtime stage axis, not a task axis.
 - current stage progression reads as `K0 -> K1 -> K2`.
 - `K2-core` / `K2-wide` are task packs inside `K2`.
 - `K2-core` is closed.
-- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, `phase-44x proof / closeout` is landed, `phase-45x vm residual cleanup` is landed, `phase-46x next source lane selection` is landed, `phase-47x stage0/runtime direct-core finalization` is landed, `phase-48x smoke/source cleanup` is landed, `phase-49x legacy wording / compat route cleanup` is landed, and the current active front is `next source lane selection`.
+- `K2-wide` boundary-shrink lock-down is landed enough to hand off; `zero-rust` default operationalization is landed, `stage2plus entry / first optimization wave` is accepted, `phase-29x backend owner cutover prep` is landed, `phase-30x backend surface simplification` is landed, `phase-31x engineering lane isolation` is landed, `phase-32x product / engineering split` is landed, `phase-33x shared helper family recut` is landed, `phase-34x stage0 shell residue split` is landed, `phase-35x stage-a compat route thinning` is landed, `phase-36x selfhost source / stage1 bridge split` is landed, `phase-37x bootstrap owner split` is landed, `phase-38x cleanup/archive sweep` is landed, `phase-39x stage0 vm gate thinning` is landed, `phase-40x stage0 vm archive candidate selection` is landed, `phase-41x stage0 direct/core route hardening` is landed, `phase-42x vm caller starvation / direct-core owner migration` is landed, `phase-43x next source lane selection` is landed, `phase-44x proof / closeout` is landed, `phase-45x vm residual cleanup` is landed, `phase-46x next source lane selection` is landed, `phase-47x stage0/runtime direct-core finalization` is landed, `phase-48x smoke/source cleanup` is landed, `phase-49x legacy wording / compat route cleanup` is landed, `phase-50x rust-vm source/archive cleanup` is landed, and the current active front is `phase-51x compat-codegen archival sweep`.
 
 ## Immediate Handoff
 
-- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, `phase-42x` vm caller starvation / direct-core owner migration is landed, `phase-43x` next source lane selection is landed, `phase-44x` proof / closeout is landed, `phase-45x` vm residual cleanup is landed, `phase-46x` next source lane selection is landed, `phase-47x` stage0/runtime direct-core finalization is landed, `phase-48x` smoke/source cleanup is landed, `phase-49x` legacy wording / compat route cleanup is landed, and the current active front is `next source lane selection`.
-- Active lane: `phase-50x-rust-vm-source-archive-cleanup`
+- Restart handoff: landed `K2-wide` / `zero-rust` rows stay accepted, `stage2plus` acceptance bundle is complete, `phase-29x` cleanup is closed, `phase-30x` ownership flip is landed, `phase-31x` engineering rehome sweep is landed, `phase-32x` mixed-owner split is landed, `phase-33x` helper-family recut is landed, `phase-34x` shell-residue split is landed, `phase-35x` stage-a compat route thinning is landed, `phase-36x` selfhost source / stage1 bridge split is landed, `phase-37x` bootstrap owner split is landed, `phase-38x` cleanup/archive sweep is landed, `phase-39x` stage0 vm gate thinning is landed, `phase-40x` stage0 vm archive candidate selection is landed, `phase-41x` stage0 direct/core route hardening is landed, `phase-42x` vm caller starvation / direct-core owner migration is landed, `phase-43x` next source lane selection is landed, `phase-44x` proof / closeout is landed, `phase-45x` vm residual cleanup is landed, `phase-46x` next source lane selection is landed, `phase-47x` stage0/runtime direct-core finalization is landed, `phase-48x` smoke/source cleanup is landed, `phase-49x` legacy wording / compat route cleanup is landed, `phase-50x` rust-vm source/archive cleanup is landed, and the current active front is `phase-51x compat-codegen archival sweep`.
+- Active lane: `phase-51x-compat-codegen-archival-sweep`
 - Axis and lane detail is canonical in:
   - `docs/development/current/main/phases/phase-29x/README.md`
   - `docs/development/current/main/phases/phase-29x/29x-90-integration-checklist.md`
@@ -116,7 +117,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `stage2plus entry / first optimization wave` is accepted
   - `phase-30x backend surface simplification` is landed
   - `phase-32x product / engineering split` is landed
-  - current active lane is `phase-50x rust-vm source/archive cleanup`
+  - current active lane is `phase-51x compat-codegen archival sweep`
 - landed rows already accepted:
   - `RawMap` first slice
   - `RawMap.clear`
@@ -133,17 +134,17 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `next source lane selection`
+- Active next: `phase-51x compat-codegen archival sweep`
 - Current blocker: `none`
-- Exact focus: `next source lane selection`
-- exact phase-50x order:
-  1. `50xA1` residual rust-vm surface inventory lock (landed)
-  2. `50xA2` proof-only / compat keep classification (landed)
-  3. `50xB1` smoke/helper stale-route cleanup (landed)
-  4. `50xB2` route-comment stale wording cleanup (landed)
-  5. `50xC1` archive-ready docs/examples move (landed)
-  6. `50xC2` historical PyVM / legacy wrapper archival sweep (landed)
-  7. `50xD1` proof / closeout (landed)
+- Exact focus: `phase-51x compat-codegen archival sweep`
+- exact phase-51x order:
+  1. `51xA1` compat-codegen caller inventory lock
+  2. `51xA2` proof-only / archive-later classification
+  3. `51xB1` archive payload / transport wrapper
+  4. `51xB2` archive pack orchestrator / live alias cleanup
+  5. `51xC1` live docs / alias rewrite
+  6. `51xC2` archive README / example cleanup
+  7. `51xD1` proof / closeout
 
 Carry-over context:
 
@@ -220,24 +221,24 @@ Carry-over context:
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
-  2. `docs/development/current/main/phases/phase-50x/README.md`
-  3. `docs/development/current/main/phases/phase-50x/50x-90-rust-vm-source-archive-cleanup-ssot.md`
-  4. `docs/development/current/main/phases/phase-50x/50x-91-task-board.md`
+  2. `docs/development/current/main/phases/phase-51x/README.md`
+  3. `docs/development/current/main/phases/phase-51x/51x-90-compat-codegen-archival-sweep-ssot.md`
+  4. `docs/development/current/main/phases/phase-51x/51x-91-task-board.md`
   5. `cargo check --manifest-path Cargo.toml --bin hakorune`
 - Plain reading:
   - every live `--backend vm` bootstrap route is still a future feature tax on `rust-vm`
   - `phase-41x` is a route-hardening wave that keeps stage0/bootstrap mainline on `hakorune` binary direct/core routes
   - success means keeping the proof-only VM gate set frozen, hardening `selfhost_build.sh` / `run.sh` as facades, and shrinking `vm.rs` only after caller drain
   - failure means letting selfhost/bootstrap mainline or stage1 compat/raw routes absorb new feature work again
-- `kilo` optimization is still a far-future lane; it is not the current `next source lane selection` order and does not change the rust-vm cleanup order
+- `kilo` optimization is still a far-future lane; it is not the current `phase-51x compat-codegen archival sweep` order and does not change the compat-codegen archival order
 - `40xB1` is landed; the small proof-only VM gate set remains frozen as `do-not-grow`
 - stage0 shell residue table:
 
 | Item | State |
 | --- | --- |
-| Now | `next source lane selection` |
+| Now | `phase-51x compat-codegen archival sweep` |
 | Blocker | `none` |
-| Next | `phase-51x selection` |
+| Next | `51xA2 proof-only / archive-later classification` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -251,9 +252,9 @@ Carry-over context:
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `next source lane selection` | choose the next cleanup or hardening lane after phase-50x |
-| Next | `phase-51x selection` | pick the next lane after the rust-vm cleanup handoff |
-| Later | `TBD` | fill after the lane is chosen |
+| Now | `phase-51x compat-codegen archival sweep` | archive the canonical compat-codegen bucket into `tools/archive/legacy-selfhost/compat-codegen/` |
+| Next | `51xA2 proof-only / archive-later classification` | freeze proof-only keeps and archive-later surfaces explicitly |
+| Later | `51xB1 archive payload / transport wrapper` | move the canonical payload / transport wrapper bundle into archive |
 
 ## Phase-34x Waves
 

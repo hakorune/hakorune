@@ -37,7 +37,7 @@ Related:
      - `zero-rust default operationalization` is landed
      - `stage2plus entry / first optimization wave` is accepted
      - `phase-30x backend surface simplification` is landed
-     - current active lane is `phase-50x rust-vm source/archive cleanup`
+     - current active lane is `phase-51x compat-codegen archival sweep`
      - `hako.osvm.reserve_bytes_i64` / `commit_bytes_i64` / `decommit_bytes_i64` are already landed
      - boundary audit result: `RuntimeDataBox.delete` is still absent; delete stays on the `MapBox -> RawMap -> nyash.map.delete_hh` lane
      - `phase-29x` cleanup is landed: semantic proof/archive recut, helper deletion, and owner-facade slimming are closed
@@ -125,20 +125,20 @@ Related:
         - temporary smoke red is acceptable inside `37xA` / `37xB`; compile/diff checks stay mandatory
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
-   - phase-50x rust-vm source/archive cleanup table:
+   - phase-51x compat-codegen archival sweep table:
 
      | Item | State |
      | --- | --- |
-     | Now | `next source lane selection` |
+     | Now | `51xA2 proof-only / archive-later classification` |
       | Blocker | `none` |
-     | Next | `phase-51x selection` |
+     | Next | `51xB1 archive payload / transport wrapper` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `next source lane selection` |
-     | Next | `phase-51x selection` |
-     | Later | `TBD` |
+     | Now | `51xA2 proof-only / archive-later classification` |
+     | Next | `51xB1 archive payload / transport wrapper` |
+     | Later | `51xB2 archive pack orchestrator / live alias cleanup` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -182,10 +182,10 @@ Related:
 - `phase-39x` stage0 vm gate thinning (landed precursor)
   - `phase-41x` stage0 direct/core route hardening (landed)
      - Active backend surface tasks:
-     - `next source lane selection`
+     - `51xA2 proof-only / archive-later classification`
       - Queued backend surface tasks:
-     - `phase-51x selection`
-     - `TBD`
+     - `51xB1 archive payload / transport wrapper`
+     - `51xB2 archive pack orchestrator / live alias cleanup`
     - `kilo` optimization wave (far future; not the next lane)
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep

@@ -22,11 +22,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-50x rust-vm source/archive cleanup`
+- lane: `phase-51x compat-codegen archival sweep`
 - landed micro task: `49xD1 proof / closeout`
-- active micro task: `next source lane selection`
-- next micro task: `phase-51x selection`
-- after next: `TBD`
+- active micro task: `51xA2 proof-only / archive-later classification`
+- next micro task: `51xB1 archive payload / transport wrapper`
+- after next: `51xB2 archive pack orchestrator / live alias cleanup`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -34,9 +34,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-50x/README.md`
-4. `docs/development/current/main/phases/phase-50x/50x-90-rust-vm-source-archive-cleanup-ssot.md`
-5. `docs/development/current/main/phases/phase-50x/50x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-51x/README.md`
+4. `docs/development/current/main/phases/phase-51x/51x-90-compat-codegen-archival-sweep-ssot.md`
+5. `docs/development/current/main/phases/phase-51x/51x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

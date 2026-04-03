@@ -9,7 +9,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 PURE_KEEP_RUNNER="$ROOT/tools/smokes/v2/profiles/integration/compat/pure-keep/run_pure_keep.sh"
 PURE_HISTORICAL_RUNNER="$ROOT/tools/smokes/v2/profiles/archive/pure-historical/run_pure_historical.sh"
-SELFHOST_COMPAT_WRAPPER="$ROOT/tools/compat/legacy-codegen/run_compat_pure_selfhost.sh"
+SELFHOST_COMPAT_WRAPPER="$ROOT/tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_selfhost.sh"
 
 echo "[selfhost/compat] Running historical pure/TM pack"
 export NYASH_LLVM_USE_CAPI=${NYASH_LLVM_USE_CAPI:-1}

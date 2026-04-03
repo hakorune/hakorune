@@ -124,18 +124,18 @@ bash tools/dev/phase29ch_program_json_compat_route_probe.sh
 
 Historical pure selfhost helper:
 ```bash
-bash tools/compat/legacy-codegen/run_compat_pure_selfhost.sh <mir.json> [exe_out]
-bash tools/compat/legacy-codegen/run_compat_pure_pack.sh
+bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_selfhost.sh <mir.json> [exe_out]
+bash tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh
 ```
 
-- `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh` is the canonical archive-later compat wrapper and now materializes the payload onto `vm-hako` while preserving the historical shell contract.
+- `tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_selfhost.sh` is the archived compat wrapper and preserves the historical shell contract while materializing the payload onto `vm-hako`.
 - the old `tools/selfhost/run_compat_pure_selfhost.sh` path is archived under `tools/archive/legacy-selfhost/`.
-- treat `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako` as the archive-later payload and the wrapper as transport only.
-- `tools/compat/legacy-codegen/run_compat_pure_pack.sh` is the historical compat pure-pack entry that shells into `phase2120/run_pure_capi_canaries.sh` and then the transport wrapper above.
+- treat `tools/archive/legacy-selfhost/compat-codegen/hako_llvm_selfhost_driver.hako` as the archive-later payload and the wrapper as transport only.
+- `tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh` is the historical compat pure-pack entry that shells into `phase2120/run_pure_capi_canaries.sh` and then the transport wrapper above.
 - read the stack in this order:
-  - payload: `tools/compat/legacy-codegen/hako_llvm_selfhost_driver.hako`
-  - transport wrapper: `tools/compat/legacy-codegen/run_compat_pure_selfhost.sh`
-  - pack orchestrator: `tools/compat/legacy-codegen/run_compat_pure_pack.sh`
+  - payload: `tools/archive/legacy-selfhost/compat-codegen/hako_llvm_selfhost_driver.hako`
+  - transport wrapper: `tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_selfhost.sh`
+  - pack orchestrator: `tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_pack.sh`
 - the old `tools/selfhost/run_compat_pure_*` paths are archived shim copies under `tools/archive/legacy-selfhost/`.
 - `run_compat_pure_pack.sh` is pack orchestration only, not a separate proof surface.
 - old alias `run_all.sh` is retired; keep the compat pack entry singular.

@@ -1,6 +1,6 @@
-# tools/compat/legacy-codegen
+# tools/archive/legacy-selfhost/compat-codegen
 
-Canonical home for historical compat-codegen payloads and wrappers.
+Archived home for historical compat-codegen payloads and wrappers.
 
 ## Current Surface
 
@@ -22,6 +22,6 @@ links through `LlvmBackendBox.link_exe(...)`.
 - pack orchestrator:
   - `run_compat_pure_pack.sh`
 
-Read this directory as the canonical compat-codegen bucket. The old
+Read this directory as the archived compat-codegen bucket. The old
 `tools/selfhost/run_compat_pure_*` entrypoints are thin backward-compat shims
 that exec into this directory.

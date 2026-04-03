@@ -2,5 +2,5 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-# Backward-compat shim; canonical wrapper lives in tools/compat/legacy-codegen/.
-exec "$ROOT/tools/compat/legacy-codegen/run_compat_pure_selfhost.sh" "$@"
+# Backward-compat shim; canonical wrapper now lives in tools/archive/legacy-selfhost/compat-codegen/.
+exec "$ROOT/tools/archive/legacy-selfhost/compat-codegen/run_compat_pure_selfhost.sh" "$@"

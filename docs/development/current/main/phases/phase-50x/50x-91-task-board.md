@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -28,7 +28,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `next source lane selection` |
+| Now | `handoff complete` |
 | Blocker | `none` |
-| Next | `phase-51x selection` |
-| After Next | `TBD` |
+| Next | `phase-51x compat-codegen archival sweep` |
+| After Next | `51xA1 compat-codegen caller inventory lock` |

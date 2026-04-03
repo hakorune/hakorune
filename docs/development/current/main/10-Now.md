@@ -27,7 +27,7 @@ Related:
 
 ## Current
 
-- lane: `phase-50x rust-vm source/archive cleanup`
+- lane: `phase-51x compat-codegen archival sweep`
 - `49xD1` landed: proof / closeout
 - `50xA1` landed: residual rust-vm surface inventory lock
 - `50xA2` landed: proof-only / compat keep classification
@@ -36,7 +36,9 @@ Related:
 - `50xC1` landed: archive-ready docs/examples move
 - `50xC2` landed: historical PyVM / legacy wrapper archival sweep
 - `50xD1` landed: proof / closeout
-- `next source lane selection` active
+- `51xA2 proof-only / archive-later classification` active
+- `51xB1 archive payload / transport wrapper` next
+- `51xB2 archive pack orchestrator / live alias cleanup` after next
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock

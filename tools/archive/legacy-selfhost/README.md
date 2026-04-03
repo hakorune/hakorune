@@ -6,3 +6,5 @@
 - Archived compat shims now also live here:
   - `run_compat_pure_selfhost.sh`
   - `run_compat_pure_pack.sh`
+- Archived compat-codegen bucket now lives under:
+  - `compat-codegen/`
