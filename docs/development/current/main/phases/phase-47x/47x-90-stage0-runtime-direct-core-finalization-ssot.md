@@ -34,8 +34,8 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs` has the staged non-VM builder body for the upcoming Stage-A source->MIR cutover
 - helper-route live defaults still leak VM ownership:
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
-  - `src/runner/modes/common_util/selfhost/stage_a_route.rs`
-  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs`
+  - `src/runner/modes/common_util/selfhost/stage_a_route.rs` now uses the non-VM builder on the source->MIR mainline
+  - `src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs` now uses the non-VM builder on the explicit Program(JSON) compat fallback
   - `tools/selfhost/lib/selfhost_build_stageb.sh`
 - explicit proof-only keep already exists:
   - `tools/selfhost/run_stageb_compiler_vm.sh`
@@ -65,11 +65,11 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
    - keep VM route explicit-only on the facade and stop silent rediscovery
 7. `47xC1 stage0_capture_route.rs non-VM builder add` (landed)
    - keep capture plumbing neutral and move route policy into selectable builders
-8. `47xC2 stage_a_route.rs source->MIR first switch` (active)
+8. `47xC2 stage_a_route.rs source->MIR first switch` (landed)
    - move Stage-A first path to direct MIR capture/build
-9. `47xC3 stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink`
+9. `47xC3 stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink` (landed)
    - keep Program(JSON v0) bridge explicit compat only
-10. `47xD1 selfhost_build_stageb.sh MIR mainline artifact contract lock`
+10. `47xD1 selfhost_build_stageb.sh MIR mainline artifact contract lock` (active)
    - define exact Stage-B mainline artifact contract before draining old callers
 11. `47xD2 selfhost_build_stageb.sh default-caller drain`
    - stop default Stage-B paths from rediscovering `run_stageb_compiler_vm.sh`

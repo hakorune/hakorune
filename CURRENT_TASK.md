@@ -133,7 +133,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-47x stage0/runtime direct-core finalization`
 - Current blocker: `none`
-- Exact focus: `47xC2 stage_a_route.rs source->MIR first switch`
+- Exact focus: `47xD1 selfhost_build_stageb.sh MIR mainline artifact contract lock`
 - exact phase-47x order:
   1. `47xA1` runtime/default contract lock
   2. `47xA2` stage1 source->MIR contract lock
@@ -142,9 +142,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   5. `47xB2` `selfhost_run_routes.sh` runtime default cutover (landed)
   6. `47xB3` `run.sh` explicit vm compat mode lock (landed)
   7. `47xC1` `stage0_capture_route.rs` non-VM builder add (landed)
-  8. `47xC2` `stage_a_route.rs` source->MIR first switch (active)
-  9. `47xC3` `stage_a_compat_bridge.rs` explicit Program(JSON) fallback shrink
-  10. `47xD1` `selfhost_build_stageb.sh` MIR mainline artifact contract lock
+  8. `47xC2` `stage_a_route.rs` source->MIR first switch (landed)
+  9. `47xC3` `stage_a_compat_bridge.rs` explicit Program(JSON) fallback shrink (landed)
+  10. `47xD1` `selfhost_build_stageb.sh` MIR mainline artifact contract lock (active)
   11. `47xD2` `selfhost_build_stageb.sh` default-caller drain
   12. `47xD3` `run_stageb_compiler_vm.sh` proof-only local keep
   13. `47xE1` proof / closeout

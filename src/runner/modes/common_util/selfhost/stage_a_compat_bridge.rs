@@ -88,7 +88,9 @@ pub(crate) fn resolve_program_payload_to_mir(
     }
 
     let envs = [("HAKO_PROGRAM_JSON", program_line)];
-    let cmd = stage0_capture_route::build_stage0_vm_capture_command(
+    // Compat fallback stays explicit, but the capture route itself should not
+    // default back to `--backend vm`.
+    let cmd = stage0_capture_route::build_stage0_non_vm_capture_command(
         exe,
         mir_builder_prog,
         &[],

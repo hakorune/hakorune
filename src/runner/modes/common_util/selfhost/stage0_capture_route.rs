@@ -10,6 +10,7 @@ use std::path::Path;
 use std::process::Command;
 
 /// Build a stage0 capture command for the requested backend.
+#[allow(dead_code)]
 pub(crate) fn build_stage0_capture_command(
     backend: &str,
     exe: &Path,
@@ -62,6 +63,7 @@ pub(crate) fn build_stage0_non_vm_capture_command(
 }
 
 /// Convenience builder for the current VM-backed stage0 capture route.
+#[allow(dead_code)]
 pub(crate) fn build_stage0_vm_capture_command(
     exe: &Path,
     program: &Path,

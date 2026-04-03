@@ -46,7 +46,10 @@ pub(crate) fn try_capture_stage_a_module(
         .map(|(k, v)| (k.as_str(), v.as_str()))
         .collect();
 
-    let cmd = stage0_capture_route::build_stage0_vm_capture_command(
+    // Stage-A source path is now direct/core-first.
+    // Keep the compat-only Program(JSON) bridge for fallback, but do not
+    // anchor the mainline capture on `--backend vm`.
+    let cmd = stage0_capture_route::build_stage0_non_vm_capture_command(
         exe,
         parser_prog,
         &extra,
