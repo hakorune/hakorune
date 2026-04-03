@@ -1,5 +1,5 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
 ---
 
@@ -10,8 +10,8 @@ Date: 2026-04-04
 | 1 | `47xA contract lock` | landed | fix exact direct/core-first contracts before cutting helper defaults |
 | 2 | `47xB runtime default cutover` | landed | move day-to-day runtime off `--backend vm` |
 | 3 | `47xC stage-a source->MIR first` | landed | make Stage-A direct MIR first and keep Program(JSON) compat explicit |
-| 4 | `47xD stage-b caller drain` | active | remove default dependence on the VM proof gate |
-| 5 | `47xE closeout` | queued | prove the lane and hand off cleanly |
+| 4 | `47xD stage-b caller drain` | landed | remove default dependence on the VM proof gate |
+| 5 | `47xE closeout` | landed | prove the lane and hand off cleanly |
 
 ## Exact Micro Tasks
 
@@ -28,14 +28,14 @@ Date: 2026-04-04
 | `47xC3` | landed | `stage_a_compat_bridge.rs` explicit Program(JSON) fallback shrink |
 | `47xD1` | landed | `selfhost_build_stageb.sh` MIR mainline artifact contract lock |
 | `47xD2` | landed | `selfhost_build_stageb.sh` default-caller drain |
-| `47xD3` | active | `run_stageb_compiler_vm.sh` proof-only local keep |
-| `47xE1` | queued | proof / closeout |
+| `47xD3` | landed | `run_stageb_compiler_vm.sh` proof-only local keep |
+| `47xE1` | landed | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `47xD3 run_stageb_compiler_vm.sh proof-only local keep` |
+| Now | `phase-47x landed / handoff complete` |
 | Blocker | `none` |
-| Next | `47xE1 proof / closeout` |
-| After Next | `next source lane selection` |
+| Next | `48xA1 residual vm surface inventory lock` |
+| After Next | `48xA2 proof-only / compat keep classification` |

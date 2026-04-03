@@ -4,8 +4,9 @@
 
 ## 現在の Phase
 
-- **Current (ACTIVE)**: Phase 47x stage0/runtime direct-core finalization
-- **Phase 47x（ACTIVE）**: stage0/runtime direct-core finalization（残っている live helper-route defaults を `--backend vm` から外す）
+- **Current (ACTIVE)**: Phase 48x smoke/source cleanup
+- **Phase 48x（ACTIVE）**: smoke/source cleanup（残っている `--backend vm` smoke / helper / docs examples を inventory して clean up する）
+- **Phase 47x（LANDED）**: stage0/runtime direct-core finalization（day-to-day helper-route defaults are now off `--backend vm`）
 - **Phase 46x（LANDED）**: next source lane selection（残っている live VM pressure を棚卸しして、後継 lane に `stage0/runtime direct-core finalization` を選んだ）
 - **Phase 45x（LANDED）**: vm residual cleanup（`rust-vm` の残り owner surfaces を proof/oracle/compat keep に縮める）
 - **Phase 44x（LANDED）**: stage0 direct/core follow-up（live stage0/selfhost owners を direct/core route 側へ寄せた）

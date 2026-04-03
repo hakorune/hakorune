@@ -22,13 +22,11 @@ tools/checks/dev_gate.sh quick
 
 ## Current
 
-- lane: `phase-47x stage0/runtime direct-core finalization`
-- landed micro task: `47xA1 runtime/default contract lock`
-- landed micro task: `47xA2 stage1 source->MIR contract lock`
-- landed micro task: `47xA3 Stage-A direct/core contract lock`
-- active micro task: `47xB1 selfhost_run_routes.sh runtime temp-MIR handoff helper`
-- next micro task: `47xB2 selfhost_run_routes.sh runtime default cutover`
-- after next: `47xB3 run.sh explicit vm compat mode lock`
+- lane: `phase-48x smoke/source cleanup`
+- landed micro task: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
+- active micro task: `48xA1 residual vm surface inventory lock`
+- next micro task: `48xA2 proof-only / compat keep classification`
+- after next: `48xB1 smoke script stale-route cleanup`
 - post-`44xE1`: `phase-44x proof / closeout` (landed)
 - raw backend default flip stays deferred; vm residual cleanup stays below direct/core mainline
 
@@ -36,9 +34,9 @@ tools/checks/dev_gate.sh quick
 
 1. `CURRENT_TASK.md`
 2. `docs/development/current/main/15-Workstream-Map.md`
-3. `docs/development/current/main/phases/phase-47x/README.md`
-4. `docs/development/current/main/phases/phase-47x/47x-90-stage0-runtime-direct-core-finalization-ssot.md`
-5. `docs/development/current/main/phases/phase-47x/47x-91-task-board.md`
+3. `docs/development/current/main/phases/phase-48x/README.md`
+4. `docs/development/current/main/phases/phase-48x/48x-90-smoke-source-cleanup-ssot.md`
+5. `docs/development/current/main/phases/phase-48x/48x-91-task-board.md`
 6. `cargo check --manifest-path Cargo.toml --bin hakorune`
 
 ## Optional Checks

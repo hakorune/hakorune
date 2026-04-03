@@ -27,19 +27,21 @@ Related:
 
 ## Current
 
-- lane: `phase-47x stage0/runtime direct-core finalization`
+- lane: `phase-48x smoke/source cleanup`
 - `47xA1` landed: runtime/default contract lock
 - `47xA2` landed: stage1 source->MIR contract lock
 - `47xA3` landed: Stage-A direct/core contract lock
 - `47xB1` landed: selfhost_run_routes.sh runtime temp-MIR handoff helper
 - `47xB2` landed: selfhost_run_routes.sh runtime default cutover
 - `47xB3` landed: run.sh explicit vm compat mode lock
+- `47xD3` landed: run_stageb_compiler_vm.sh proof-only local keep
+- `48xA1` active: residual vm surface inventory lock
 - `47xC1` landed: stage0_capture_route.rs non-VM builder add
 - `47xC2` landed: stage_a_route.rs source->MIR first switch
 - `47xC3` landed: stage_a_compat_bridge.rs explicit Program(JSON) fallback shrink
 - `47xD1` landed: selfhost_build_stageb.sh MIR mainline artifact contract lock
 - `47xD2` landed: selfhost_build_stageb.sh default-caller drain
-- `47xD3` active: run_stageb_compiler_vm.sh proof-only local keep
+- `47xD3` landed: run_stageb_compiler_vm.sh proof-only local keep
 - `45xA1` landed: residual vm owner inventory lock
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
@@ -69,9 +71,9 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `47xD3 run_stageb_compiler_vm.sh proof-only local keep`
-- next micro task: `47xE1 proof / closeout`
-- after next: `next source lane selection`
+- active micro task: `48xA1 residual vm surface inventory lock`
+- next micro task: `48xA2 proof-only / compat keep classification`
+- after next: `48xB1 smoke script stale-route cleanup`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

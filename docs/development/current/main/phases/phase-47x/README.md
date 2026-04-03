@@ -1,16 +1,16 @@
 ---
-Status: Active
+Status: Landed
 Date: 2026-04-04
-Scope: remove the remaining live `--backend vm` helper-route defaults from stage0/runtime and keep `rust-vm` on explicit proof/oracle/compat rails.
+Scope: stage0/runtime direct-core finalization is landed; remaining proof-only VM keeps are frozen and handoff moved to phase-48x smoke/source cleanup.
 Related:
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/15-Workstream-Map.md
   - docs/development/current/main/phases/README.md
-  - docs/development/current/main/phases/phase-46x/README.md
-  - docs/development/current/main/phases/phase-46x/46x-90-next-source-lane-selection-ssot.md
-  - docs/development/current/main/phases/phase-46x/46x-91-task-board.md
+  - docs/development/current/main/phases/phase-48x/README.md
+  - docs/development/current/main/phases/phase-48x/48x-90-smoke-source-cleanup-ssot.md
+  - docs/development/current/main/phases/phase-48x/48x-91-task-board.md
 ---
 
 # Phase 47x: Stage0/Runtime Direct-Core Finalization
@@ -27,6 +27,7 @@ Related:
 - the first job is to stop `tools/selfhost/lib/selfhost_run_routes.sh` from using `--backend vm` as the day-to-day runtime default.
 - the second job is to make Stage-A source->MIR first, so compat `Program(JSON v0)` stays explicit fallback only.
 - the third job is to drain `run_stageb_compiler_vm.sh` out of default Stage-B callers without deleting the proof gate.
+- this lane is landed; the remaining smoke/source cleanup work continues in phase-48x.
 
 ## A1 Runtime Contract
 
