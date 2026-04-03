@@ -79,5 +79,5 @@ Related:
 7. `src/runner/modes/common_util/vm_source_prepare.rs`
 8. `lang/src/runner/stage1_cli/core.hako`
 
-- current active micro task: `42xC4 core.hako compat hold line`
-- next micro task: `42xD1 proof / closeout`
+- current active micro task: `42xD1 proof / closeout`
+- next micro task: `next source lane selection`

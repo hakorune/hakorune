@@ -138,7 +138,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `42xC1` landed: `child.rs` shell-only drain
   - `42xC2` landed: `vm.rs` preflight/source-prepare split
   - `42xC3` landed: `vm_user_factory` / `vm_fallback` drain
-  - `42xC4` current: `core.hako` compat hold line
+  - `42xC4` landed: `core.hako` compat hold line
+  - `42xD1` current: `proof / closeout`
   - current backend reading stays role-first:
     - `llvm/exe` = `product`
     - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`
@@ -198,7 +199,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xC4 core.hako compat hold line` |
+| Next | `42xD1 proof / closeout` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only

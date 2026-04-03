@@ -1,4 +1,8 @@
 // stage1_cli/raw_subcommand_emit_mir.hako
+// 42xC4 compat hold line:
+// - raw emit mir-json stays thin and non-growing
+// - direct/core work belongs below stage0
+// - keep request parse, materialize, emit, and stdout contract only
 using lang.runner.stage1_cli.program_json_input as Stage1CliProgramJsonInputBox
 using lang.runner.stage1_cli.program_json_mir as Stage1CliProgramJsonMirBox
 using lang.runner.stage1_cli.raw_subcommand_input as Stage1CliRawSubcommandInputBox

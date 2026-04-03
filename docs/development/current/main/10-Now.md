@@ -40,7 +40,8 @@ Related:
 - `42xC1` landed: `child.rs` shell-only drain
 - `42xC2` landed: `vm.rs` preflight/source-prepare split
 - `42xC3` landed: `vm_user_factory` / `vm_fallback` drain
-- `42xC4` current: `core.hako` compat hold line
+- `42xC4` landed: `core.hako` compat hold line
+- `42xD1` current: `proof / closeout`
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
 - `phase-32x` landed: mixed-owner source/smoke split and raw default/token defer are fixed

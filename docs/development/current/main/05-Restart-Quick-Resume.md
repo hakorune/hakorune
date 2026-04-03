@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-42x vm caller starvation / direct-core owner migration`
-- active micro task: `42xC4 core.hako compat hold line`
-- next micro task: `42xD1 proof / closeout`
+- active micro task: `42xD1 proof / closeout`
+- next micro task: `next source lane selection`
 - post-`41xD1`: `phase-42x vm caller starvation / direct-core owner migration`
 - raw backend default flip stays deferred beyond `phase-42x`
 

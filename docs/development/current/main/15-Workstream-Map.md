@@ -68,7 +68,8 @@ Related:
      - `42xC1` landed: drain `child.rs` until it owns spawn/capture/timeout/JSON selection only
      - `42xC2` landed: split `vm.rs` preflight/source-prepare ownership out of the broad execution path
      - `42xC3` landed: move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers
-     - `42xC4` current: hold `core.hako` compat lane as explicit no-widen while direct/core routes take new work
+     - `42xC4` landed: hold `core.hako` compat lane as explicit no-widen while direct/core routes take new work
+     - `42xD1` current: proof / closeout
      - plain reading: keep `rust-vm` as proof/compat keep, not mainline ownership
      - success condition: keep direct/core routes canonical, keep proof-only VM gates frozen, and stop day-to-day callers from feeding vm routes
         - `39xA1` landed and fixed caller inventory for `selfhost_build.sh` / `run_stageb_compiler_vm.sh` / `run.sh`
@@ -108,7 +109,7 @@ Related:
      | --- | --- |
      | Now | `phase-42x vm caller starvation / direct-core owner migration` |
      | Blocker | `none` |
-     | Next | `42xC4 core.hako compat hold line` |
+     | Next | `42xD1 proof / closeout` |
    - stage0 shell residue bands:
 
      | Band | State |

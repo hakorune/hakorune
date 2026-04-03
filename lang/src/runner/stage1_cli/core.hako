@@ -1,4 +1,8 @@
 // stage1_cli/core.hako
+// 42xC4 compat hold line:
+// - keep legacy raw compat narrow and non-growing
+// - direct/core routes own new capability work
+// - do not widen backend policy here
 using lang.runner.stage1_cli.config as Stage1CliConfigBox
 using lang.runner.stage1_cli.program_json_build as Stage1CliProgramJsonBuildBox
 using lang.runner.stage1_cli.program_json_input as Stage1CliProgramJsonInputBox

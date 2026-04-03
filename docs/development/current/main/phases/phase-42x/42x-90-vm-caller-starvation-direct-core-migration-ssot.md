@@ -69,7 +69,7 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | --- | --- |
 | Now | `phase-42x vm caller starvation / direct-core owner migration` |
 | Blocker | `none` |
-| Next | `42xC4 core.hako compat hold line` |
+| Next | `42xD1 proof / closeout` |
 
 - `phase-41x` landed: direct/core route hardening and `vm.rs` proof/oracle shrink are complete enough for handoff
 - `42xA1` locked the active migration surfaces and the exact proof-only keep set
@@ -94,5 +94,5 @@ Scope: `rust-vm` を即削除せず、live caller を starvation して direct/c
 | `42xC1` | landed | drain `child.rs` until it owns spawn/capture/timeout/JSON selection only |
 | `42xC2` | landed | split `vm.rs` preflight/source-prepare ownership out of the broad execution path |
 | `42xC3` | landed | move shared vm user-factory ownership out of `vm.rs` / `vm_fallback.rs` and drain fallback callers |
-| `42xC4` | active | hold `core.hako` compat lane as explicit no-widen while direct/core routes take new work |
-| `42xD1` | queued | proof / closeout |
+| `42xC4` | landed | hold `core.hako` compat lane as explicit no-widen while direct/core routes take new work |
+| `42xD1` | active | proof / closeout |

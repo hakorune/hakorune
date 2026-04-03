@@ -1,4 +1,8 @@
 // stage1_cli/raw_subcommand_run.hako
+// 42xC4 compat hold line:
+// - raw run stays thin and non-growing
+// - backend policy remains in `core.hako/run_program_json`
+// - direct/core work belongs below stage0
 using lang.runner.stage1_cli.program_json_input as Stage1CliProgramJsonInputBox
 using lang.runner.stage1_cli.raw_subcommand_input as Stage1CliRawSubcommandInputBox
 
