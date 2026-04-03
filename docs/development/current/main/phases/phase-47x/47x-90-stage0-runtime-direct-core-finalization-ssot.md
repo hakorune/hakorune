@@ -13,6 +13,15 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
 - produce `MIR(JSON v0)` on the `.hako`/stage1 side and hand it to stage0 `hakorune` through direct/core seams
 - keep `Program(JSON v0)` explicit compat fallback, not mainline artifact authority
 
+## Runtime Contract (A1)
+
+- public day-to-day runtime entry is `tools/selfhost/run.sh --runtime`
+- default runtime mode is `exe`
+- `stage-a` is explicit compat-only and is not the day-to-day owner boundary
+- `--backend vm` is kept as a helper/internal detail until later tasks drain it from default callers
+- `run.sh --direct` stays proof-oriented and is not the default runtime boundary
+- the A1 lock is about fixing these boundaries before helper-default bodies are changed
+
 ## Current Reading
 
 - direct/core receiver already exists:
@@ -34,6 +43,7 @@ Scope: finalize the migration from live VM-backed helper defaults to stage0/runt
 - hand off to stage0 `hakorune` via `--mir-json-file` / `core_executor`
 - keep `Program(JSON v0)` compat-only and non-growing
 - keep proof-only VM gates explicit and opt-in
+- preserve the user-facing `run.sh --runtime` contract while moving the implementation under it
 
 ## Ordered Tasks
 

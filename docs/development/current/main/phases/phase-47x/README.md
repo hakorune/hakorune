@@ -28,8 +28,17 @@ Related:
 - the second job is to make Stage-A source->MIR first, so compat `Program(JSON v0)` stays explicit fallback only.
 - the third job is to drain `run_stageb_compiler_vm.sh` out of default Stage-B callers without deleting the proof gate.
 
+## A1 Runtime Contract
+
+- user-facing day-to-day runtime entry is `tools/selfhost/run.sh --runtime`.
+- default runtime mode is `exe`; `stage-a` is an explicit compat-only mode.
+- the contract for this lane is that future helper changes must preserve the facade shape and success semantics while the implementation is moved under it.
+- `--backend vm` is not a day-to-day caller contract for this lane; if it still appears in implementation, it is an intermediate/helper detail to be drained later.
+- `run.sh --direct` remains a proof-oriented Stage-B route and is not the default runtime boundary.
+
 ## Success Conditions
 
+- runtime contract is explicit and stable before helper-default cutover begins
 - runtime default no longer executes `hakorune --backend vm` for day-to-day selfhost runs
 - Stage-A first path is source->MIR first and `Program(JSON v0)` remains explicit compat fallback
 - default Stage-B callers no longer depend on `run_stageb_compiler_vm.sh`
