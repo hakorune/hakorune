@@ -33,6 +33,21 @@ Scope: residual rust-vm owner cleanup after direct/core follow-up; keep VM live 
   - `src/runner/modes/common_util/selfhost/stage0_capture.rs`
   - `src/runner/modes/common_util/selfhost/stage0_capture_route.rs`
 
+## Proof-Only Keep Boundary
+
+- proof-only VM gates:
+  - `tools/selfhost/run_stageb_compiler_vm.sh`
+  - `tools/selfhost/selfhost_smoke.sh`
+  - `tools/selfhost/bootstrap_selfhost_smoke.sh`
+  - `tools/selfhost/selfhost_stage3_accept_smoke.sh`
+- proof-adjacent direct VM utilities that still stay outside the mainline route:
+  - `tools/selfhost/program_analyze.sh`
+  - `tools/selfhost/gen_v1_min.sh`
+- boundary rule:
+  - proof-only gates stay explicit and non-growing
+  - day-to-day callers must not discover new VM-backed defaults through these scripts
+  - anything that needs to grow capability should move to direct/core or a dedicated non-VM route instead of enlarging this boundary
+
 ## Inventory
 
 | Surface | Current role | Inventory read |
@@ -74,6 +89,7 @@ Scope: residual rust-vm owner cleanup after direct/core follow-up; keep VM live 
 - `vm_fallback.rs` is explicit fallback keep only
 - `core.hako` remains compat hold line, not a growth point
 - `run_stageb_compiler_vm.sh` remains proof-only keep
+- proof-only VM gates stay explicit and non-growing
 - `cargo check --bin hakorune` stays green
 
 ## Big Tasks

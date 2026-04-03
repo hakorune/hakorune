@@ -29,8 +29,9 @@ Related:
 
 - lane: `phase-45x vm residual cleanup`
 - `45xA1` landed: residual vm owner inventory lock
-- `45xA2` active: proof-only keep boundary freeze
-- `45xB1` next: vm.rs broad owner shrink
+- `45xA2` landed: proof-only keep boundary freeze
+- `45xB1` active: vm.rs broad owner shrink
+- `45xB2` next: vm_fallback.rs / shared vm helper drain
 - `44xE1` landed: proof / closeout
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete
