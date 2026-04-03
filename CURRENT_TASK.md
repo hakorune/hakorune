@@ -242,6 +242,8 @@ Scope: repo root から current order / current blocker / next exact read に最
   - `docs/development/current/main/design/final-metal-split-ssot.md`
 - `hako_alloc` rows:
   - `docs/development/current/main/design/hako-alloc-policy-state-contract-ssot.md`
+- optimization history hub:
+  - `docs/development/current/main/design/optimization/README.md`
 - current phase-order context:
   - `docs/development/current/main/phases/phase-41x/README.md`
   - `docs/development/current/main/phases/phase-41x/41x-90-stage0-direct-core-route-hardening-ssot.md`
