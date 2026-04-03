@@ -4,6 +4,8 @@ using lang.runner.stage1_cli.program_json_build as Stage1CliProgramJsonBuildBox
 using lang.runner.stage1_cli.program_json_input as Stage1CliProgramJsonInputBox
 using lang.runner.stage1_cli.program_json_mir as Stage1CliProgramJsonMirBox
 using lang.runner.stage1_cli.raw_subcommand_input as Stage1CliRawSubcommandInputBox
+using lang.runner.stage1_cli.raw_subcommand_emit_mir as Stage1CliRawSubcommandEmitMirBox
+using lang.runner.stage1_cli.raw_subcommand_run as Stage1CliRawSubcommandRunBox
 using lang.runner.stage1_cli.dispatch as Stage1CliDispatchBox
 
 static box Stage1Cli {
@@ -226,31 +228,10 @@ static box Stage1Cli {
   }
 
   // Raw subcommand residue for `emit mir-json`.
-  // Keep ownership here limited to request parse -> path/source load -> emit -> stdout.
+  // Keep `core.hako` on thin adapter ownership only.
+  // Request parse -> path/source load -> emit -> stdout lives in `raw_subcommand_emit_mir.hako`.
   method _cmd_emit_mir_json(args){
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-    }
-    local req = Stage1CliRawSubcommandInputBox.parse_emit_mir_json_request(args)
-    if req == null { return 96 }
-    local prog_path = req.get("program_json_path")
-    local source_path = req.get("source_path")
-
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      print("[stage1-cli/debug] _cmd_emit_mir_json: source_path=" + source_path + " prog_path=" + prog_path)
-    }
-
-    local prog_json = me._load_program_json_from_path_or_source("[stage1-cli] emit mir-json", prog_path, source_path)
-    if prog_json == null { return 96 }
-
-    local mir = me.emit_mir_json(prog_json)
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-      local status = "null"
-      if mir != null { status = "non-null" }
-      print("[stage1-cli/debug] _cmd_emit_mir_json: emit_mir_json returned, mir=" + status)
-    }
-    if mir == null { return 96 }
-    print(mir)
-    return 0
+    return Stage1CliRawSubcommandEmitMirBox.handle_emit_mir_json(args)
   }
 
   // hakorune run --backend <b> <source.hako> [-- args...]
@@ -263,18 +244,10 @@ static box Stage1Cli {
   // Do not widen this branch with backend policy beyond the legacy vm|pyvm compat contract.
   // Thread/runtime capability work must not land here.
   method _run_raw_request(args) {
-    if env.get("STAGE1_CLI_DEBUG") == "1" {
-    }
-    local req = Stage1CliRawSubcommandInputBox.parse_run_request(args)
+    local req = Stage1CliRawSubcommandRunBox.resolve_run_request(args)
     if req == null { return 96 }
     local backend = req.get("backend")
-    local source_path = req.get("source_path")
-    local script_args_json = req.get("script_args_json")
-    if script_args_json != null && script_args_json != "" {
-      env.set("NYASH_SCRIPT_ARGS_JSON", script_args_json)
-    }
-
-    local prog_json = me.emit_program_json(source_path)
+    local prog_json = req.get("program_json")
     if prog_json == null { return 96 }
     return me.run_program_json(prog_json, backend)
   }

@@ -1,0 +1,38 @@
+// stage1_cli/raw_subcommand_run.hako
+using lang.runner.stage1_cli.program_json_input as Stage1CliProgramJsonInputBox
+using lang.runner.stage1_cli.raw_subcommand_input as Stage1CliRawSubcommandInputBox
+
+static box Stage1CliRawSubcommandRunBox {
+  // Thin owner for legacy raw `run`.
+  // Keep this limited to:
+  // - request parse
+  // - script-args env materialization
+  // - Program(JSON) materialization via existing input owner
+  // Backend compat policy stays in `core.hako/run_program_json`.
+  method resolve_run_request(args) {
+    if env.get("STAGE1_CLI_DEBUG") == "1" {
+    }
+    local req = Stage1CliRawSubcommandInputBox.parse_run_request(args)
+    if req == null { return null }
+    local backend = req.get("backend")
+    local source_path = req.get("source_path")
+    local script_args_json = req.get("script_args_json")
+    if script_args_json != null && script_args_json != "" {
+      env.set("NYASH_SCRIPT_ARGS_JSON", script_args_json)
+    }
+
+    local prog_json = Stage1CliProgramJsonInputBox.emit_program_json_from_source_input(
+      "[stage1-cli] emit program-json",
+      "[stage1-cli] emit program-json",
+      source_path,
+      env.get("STAGE1_SOURCE_TEXT"),
+      1
+    )
+    if prog_json == null { return null }
+
+    local out = new MapBox()
+    out.set("backend", backend)
+    out.set("program_json", prog_json)
+    return out
+  }
+}

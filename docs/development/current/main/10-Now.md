@@ -44,8 +44,11 @@ Related:
 - `35xC1` landed: direct-vs-compat Stage-A route is proof-pinned by evidence commands and focused tests
 - `36xA1` landed: `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
 - `36xA2` landed: `selfhost.rs` is explicitly route ordering / macro gate / terminal accept owner
-- active micro task: `36xB1 stage1 emit-mir raw adapter split`
-- next micro task: `36xB2 stage1 run raw adapter split`
+- `36xB1` landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
+- `36xB2` landed: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
+- `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
+- active micro task: `phase-36x closeout review`
+- next micro task: `successor lane selection`
 - backend reading:
   - `llvm/exe` = `product`
   - `rust-vm` = `engineering(stage0/bootstrap + tooling keep)`

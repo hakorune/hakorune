@@ -67,7 +67,10 @@ Related:
         - `35xC1` landed and proof-pins the direct-vs-compat Stage-A route
         - `36xA1` landed and moves source extension/read/merge/tmp staging into `source_prepare.rs`
         - `36xA2` landed and fixes `selfhost.rs` as route ordering / macro gate / terminal accept owner
-        - current active micro task is `36xB1 stage1 emit-mir raw adapter split`
+        - `36xB1` landed and moves raw `emit mir-json` glue into `raw_subcommand_emit_mir.hako`
+        - `36xB2` landed and moves raw `run` glue into `raw_subcommand_run.hako`
+        - `36xC1` landed and fixes the split as evidence instead of reopening compat ownership
+        - current active micro task is `phase-36x closeout review`
         - cleanup rule is `split/rehome/drain -> delete`
      - no-touch-first remains on default/dispatch/selfhost/orchestrator surfaces
      - axis and lane detail is canonical in the SSOTs and backend-lane docs
@@ -77,13 +80,13 @@ Related:
      | --- | --- |
      | Now | `phase-36x selfhost source / stage1 bridge split` |
      | Blocker | `none` |
-     | Next | `36xB1 stage1 emit-mir raw adapter split` |
+     | Next | `phase-36x closeout review` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `36xB1 stage1 emit-mir raw adapter split` |
-     | Next | `36xB2 stage1 run raw adapter split` |
+     | Now | `phase-36x closeout review` |
+     | Next | `successor lane selection` |
      | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
@@ -125,9 +128,9 @@ Related:
   - `phase-32x` product / engineering split (landed precursor)
   - `phase-36x` selfhost source / stage1 bridge split
 - Active backend surface tasks:
-  - `36xB1 stage1 emit-mir raw adapter split`
+  - `phase-36x closeout review`
 - Queued backend surface tasks:
-  - `36xB2 stage1 run raw adapter split`
+  - `successor lane selection`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

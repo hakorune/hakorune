@@ -41,19 +41,23 @@ Related:
 | --- | --- | --- | --- |
 | `36xA1` | landed | selfhost source prepare split | `source_prepare.rs` が extension gate / source read / using merge / preexpand / tmp staging を持つ |
 | `36xA2` | landed | selfhost orchestration-only reread | `selfhost.rs` は route ordering / macro pre-expand gate / terminal accept 中心に読める |
-| `36xB1` | active | stage1 emit-mir raw adapter split | `_cmd_emit_mir_json` が thin adapter になり、materialization owner が box 側に寄る |
-| `36xB2` | queued | stage1 run raw adapter split | `_run_raw_request` が thin adapter になり、Program(JSON) materialization owner が box 側に寄る |
-| `36xC1` | queued | proof/closeout | selfhost source split と stage1 raw bridge split が evidence command まで固定される |
+| `36xB1` | landed | stage1 emit-mir raw adapter split | `_cmd_emit_mir_json` が thin adapter になり、materialization owner が box 側に寄る |
+| `36xB2` | landed | stage1 run raw adapter split | `_run_raw_request` が thin adapter になり、Program(JSON) materialization owner が box 側に寄る |
+| `36xC1` | landed | proof/closeout | selfhost source split と stage1 raw bridge split が evidence command まで固定される |
 
 ## Current Focus
 
-- active macro wave: `36xA selfhost source split`
-- active micro task: `36xB1 stage1 emit-mir raw adapter split`
-- next queued micro task: `36xB2 stage1 run raw adapter split`
+- active macro wave: `phase-36x closeout review`
+- active micro task: `phase-36x closeout review`
+- next queued micro task: `successor lane selection`
 - current blocker: `none`
 - exact reading:
   - `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
   - `selfhost.rs` keeps macro pre-expand gate, fallback ordering, and terminal accept
   - `stage_a_route.rs` already owns Stage-A child spawn/setup and captured payload handoff
   - `stage1_cli/program_json_input.hako` already owns most source/program-json materialization helpers
-  - `stage1_cli/core.hako` still owns raw subcommand adapter glue around `_cmd_emit_mir_json` and `_run_raw_request`
+  - `stage1_cli/raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request parse / materialization / emit glue
+  - `stage1_cli/raw_subcommand_run.hako` now owns raw `run` request parse / script-args env / Program(JSON) materialization
+  - `stage1_cli/core.hako` keeps only thin adapter handoff into `run_program_json`
+  - `cargo check --bin hakorune` and `git diff --check` are green after the split
+  - `tools/stage1_smoke.sh mir-json` is still red with the pre-existing embedded `BuildBox` parse failure; current evidence does not localize that failure to `raw_subcommand_*`

@@ -53,5 +53,8 @@ Related:
 
 - `36xA1` is landed: `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
 - `36xA2` is landed: `selfhost.rs` is now explicitly route ordering / macro gate / terminal accept owner
-- current front is `36xB1 stage1 emit-mir raw adapter split`
+- `36xB1` is landed: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request parse / materialize / emit / stdout
+- `36xB2` is landed: `raw_subcommand_run.hako` now owns raw `run` request parse / script-args env / Program(JSON) materialization
+- `36xC1` is landed: proof/closeout fixes the split as evidence instead of reopening compat ownership
+- current front is `phase-36x closeout review`
 - predecessor lane is `phase-35x stage-a compat route thinning`

@@ -23,8 +23,8 @@ tools/checks/dev_gate.sh quick
 ## Current
 
 - lane: `phase-36x selfhost source / stage1 bridge split`
-- active micro task: `36xB1 stage1 emit-mir raw adapter split`
-- next micro task: `36xB2 stage1 run raw adapter split`
+- active micro task: `phase-36x closeout review`
+- next micro task: `successor lane selection`
 - raw backend default flip stays deferred beyond `phase-36x`
 
 ## Read Next

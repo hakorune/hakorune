@@ -101,7 +101,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-36x selfhost source / stage1 bridge split`
 - Current blocker: `none`
-- Exact focus: `36xB1 stage1 emit-mir raw adapter split`
+- Exact focus: `phase-36x closeout review`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
   - `phase-33x` is landed; helper-family path truth and keep gates are fixed
   - current next cleanup is stage0 shell residue thinning, not `vm.rs` deletion
@@ -126,7 +126,9 @@ Scope: repo root から current order / current blocker / next exact read に最
   - landed in `35xC1`: direct-vs-compat Stage-A route is evidence-pinned by focused tests and proof commands
   - landed in `36xA1`: `source_prepare.rs` now owns source extension gate / source read / using merge / preexpand / tmp staging
   - landed in `36xA2`: `selfhost.rs` is fixed as route ordering / macro pre-expand gate / terminal accept owner
-  - active in `36xB1`: `stage1_cli` still owns raw `emit mir-json` adapter glue and this thins next
+  - landed in `36xB1`: `raw_subcommand_emit_mir.hako` now owns raw `emit mir-json` request/materialize/emit glue
+  - landed in `36xB2`: `raw_subcommand_run.hako` now owns raw `run` request/script-args env/Program(JSON) materialization glue
+  - landed in `36xC1`: proof/closeout fixes the split as evidence instead of reopening raw compat ownership
   - raw backend default still stays deferred; no-touch-first remains on `src/cli/args.rs`, `src/runner/dispatch.rs`, `tools/selfhost/run.sh`, and `tools/selfhost/selfhost_build.sh`
 - Exact read order:
   1. `docs/development/current/main/15-Workstream-Map.md`
@@ -140,7 +142,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-36x selfhost source / stage1 bridge split` |
   | Blocker | `none` |
-  | Next | `36xB1 stage1 emit-mir raw adapter split` |
+  | Next | `phase-36x closeout review` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -154,8 +156,8 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `36xB1 stage1 emit-mir raw adapter split` | thin `_cmd_emit_mir_json` so stage1 raw adapter stays narrow |
-| Next | `36xB2 stage1 run raw adapter split` | thin `_run_raw_request` without widening runtime policy |
+| Now | `phase-36x closeout review` | verify the split is fixed enough to hand off without reopening stage0/stage1 residue |
+| Next | `successor lane selection` | choose the next thinning/design lane after phase-36x handoff |
 | Later | `raw backend default/token follow-up lane` | keep token/default truthification deferred beyond the shell-residue split |
 
 ## Phase-34x Waves
