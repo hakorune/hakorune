@@ -17,8 +17,8 @@ Date: 2026-04-04
 | Task | Status | Read as |
 | --- | --- | --- |
 | `51xA1` | landed | compat-codegen caller inventory lock |
-| `51xA2` | active | proof-only / archive-later classification |
-| `51xB1` | queued | archive payload / transport wrapper |
+| `51xA2` | landed | proof-only / archive-later classification |
+| `51xB1` | active | archive payload / transport wrapper |
 | `51xB2` | queued | archive pack orchestrator / live alias cleanup |
 | `51xC1` | queued | live docs / alias rewrite |
 | `51xC2` | queued | archive README / example cleanup |
@@ -28,7 +28,7 @@ Date: 2026-04-04
 
 | Item | State |
 | --- | --- |
-| Now | `51xA2 proof-only / archive-later classification` |
+| Now | `51xB1 archive payload / transport wrapper` |
 | Blocker | `none` |
-| Next | `51xB1 archive payload / transport wrapper` |
-| After Next | `51xB2 archive pack orchestrator / live alias cleanup` |
+| Next | `51xB2 archive pack orchestrator / live alias cleanup` |
+| After Next | `51xC1 live docs / alias rewrite` |

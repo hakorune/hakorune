@@ -12,7 +12,7 @@ Related:
   - docs/development/current/main/phases/phase-50x/50x-91-task-board.md
   - tools/compat/README.md
   - tools/selfhost/README.md
-  - tools/selfhost/compat/README.md
+  - tools/archive/legacy-selfhost/compat-codegen/README.md
   - tools/archive/legacy-selfhost/README.md
 ---
 

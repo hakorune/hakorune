@@ -129,16 +129,16 @@ Related:
 
      | Item | State |
      | --- | --- |
-     | Now | `51xA2 proof-only / archive-later classification` |
+     | Now | `51xB1 archive payload / transport wrapper` |
       | Blocker | `none` |
-     | Next | `51xB1 archive payload / transport wrapper` |
+     | Next | `51xB2 archive pack orchestrator / live alias cleanup` |
    - stage0 shell residue bands:
 
      | Band | State |
      | --- | --- |
-     | Now | `51xA2 proof-only / archive-later classification` |
-     | Next | `51xB1 archive payload / transport wrapper` |
-     | Later | `51xB2 archive pack orchestrator / live alias cleanup` |
+     | Now | `51xB1 archive payload / transport wrapper` |
+     | Next | `51xB2 archive pack orchestrator / live alias cleanup` |
+     | Later | `51xC1 live docs / alias rewrite` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |

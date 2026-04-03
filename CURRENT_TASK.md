@@ -238,7 +238,7 @@ Carry-over context:
 | --- | --- |
 | Now | `phase-51x compat-codegen archival sweep` |
 | Blocker | `none` |
-| Next | `51xA2 proof-only / archive-later classification` |
+| Next | `51xB1 archive payload / transport wrapper` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -253,8 +253,8 @@ Carry-over context:
 | Band | State | Read as |
 | --- | --- | --- |
 | Now | `phase-51x compat-codegen archival sweep` | archive the canonical compat-codegen bucket into `tools/archive/legacy-selfhost/compat-codegen/` |
-| Next | `51xA2 proof-only / archive-later classification` | freeze proof-only keeps and archive-later surfaces explicitly |
-| Later | `51xB1 archive payload / transport wrapper` | move the canonical payload / transport wrapper bundle into archive |
+| Next | `51xB1 archive payload / transport wrapper` | move the canonical payload / transport wrapper bundle into archive |
+| Later | `51xB2 archive pack orchestrator / live alias cleanup` | continue draining pack orchestration and alias cleanup |
 
 ## Phase-34x Waves
 
