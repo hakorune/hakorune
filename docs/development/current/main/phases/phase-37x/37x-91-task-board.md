@@ -32,8 +32,8 @@ Related:
 | 5 | `37xB1` | landed | `build.rs` shared prelude freeze |
 | 6 | `37xB2` | landed | product build wrapper split |
 | 7 | `37xB3` | landed | engineering build wrapper split |
-| 8 | `37xC1` | active | explicit keep freeze |
-| 9 | `37xC2` | queued | child.rs caller drain map |
+| 8 | `37xC1` | landed | explicit keep freeze |
+| 9 | `37xC2` | active | child.rs caller drain map |
 | 10 | `37xD1` | queued | proof/closeout |
 
 ## Speed-First Acceptance
@@ -64,9 +64,9 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `37xC1 explicit keep freeze`
+  - `37xC2 child.rs caller drain map`
 - exact next:
-  - freeze explicit engineering keep before caller drain
+  - drain callers after the keep freeze
 - explicit reading:
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`

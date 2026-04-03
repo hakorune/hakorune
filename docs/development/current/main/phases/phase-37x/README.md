@@ -56,8 +56,8 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `src/runner/build.rs`
 
-- current active micro task: `37xC1 explicit keep freeze`
-- next queued micro task: `37xC2 child.rs caller drain map`
+- current active micro task: `37xC2 child.rs caller drain map`
+- next queued micro task: `37xD1 proof/closeout`
 
 ## Acceptance Summary
 

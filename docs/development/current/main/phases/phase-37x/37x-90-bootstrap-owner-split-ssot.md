@@ -62,19 +62,23 @@ Related:
 | `37xB1` | landed | `build.rs` shared prelude freeze | shared config/env/app/link prelude を no-touch-first で固定 |
 | `37xB2` | landed | product build wrapper split | `build_core(..., llvm)` + `emit_llvm_object(...)` が product owner に寄る |
 | `37xB3` | landed | engineering build wrapper split | `build_core(..., cranelift)` + `emit_engineering_object(...)` が engineering owner に寄る |
-| `37xC1` | active | explicit keep freeze | bootstrap vm keep scripts を “残すもの” として先に固定する |
-| `37xC2` | queued | child.rs caller drain map | owner split 後に減らす caller を exact にする |
+| `37xC1` | landed | explicit keep freeze | bootstrap vm keep scripts を “残すもの” として先に固定する |
+| `37xC2` | active | child.rs caller drain map | owner split 後に減らす caller を exact にする |
 | `37xD1` | queued | proof/closeout | canonical smoke / evidence command を戻して handoff |
 
 ## Current Focus
 
 - active macro wave: `37xA selfhost_build owner split`
-- active micro task: `37xC1 explicit keep freeze`
-- next queued micro task: `37xC2 child.rs caller drain map`
+- active micro task: `37xC2 child.rs caller drain map`
+- next queued micro task: `37xD1 proof/closeout`
 - current blocker: `none`
 - exact reading:
   - `selfhost_build.sh` is the biggest mixed-owner shell surface
   - `build.rs` is the biggest mixed-owner source surface
-  - `bootstrap_selfhost_smoke.sh` and `run_stageb_compiler_vm.sh` are explicit engineering keep, not first-cut cleanup targets
+  - explicit engineering keep is frozen as:
+    - `bootstrap_selfhost_smoke.sh`
+    - `run_stageb_compiler_vm.sh`
+    - `selfhost_vm_smoke.sh`
+  - these keeps are not first-cut cleanup targets
   - temporary smoke red is acceptable during `37xA` / `37xB` / `37xC` if owner split moves forward and compile/diff checks stay green
   - after `37xD1`, cleanup/archive sweep targets drained shims, legacy embedded Stage1 smoke, and stale compat wrappers first
