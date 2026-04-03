@@ -144,7 +144,7 @@ bash tools/compat/legacy-codegen/run_compat_pure_pack.sh
 - `phase-29x` cleanup bands are mirrored in `docs/development/current/main/phases/phase-29x/29x-98-legacy-route-retirement-investigation-ssot.md`; the proof/example driver stays archive-later until the compat wrapper gains a root-first equivalent or is retired as a whole.
 
 Notes
-- Stage‑B emit uses the Stage‑B entry by default; BuildBox emit-only is retired from the day-to-day caller path
+- Stage‑B emit uses the Stage‑B entry by default; BuildBox emit-only stays explicit compat/proof only and is retired from the day-to-day caller path
 - raw `selfhost_build.sh --in ...` whole-script routes are not the current helper-local acceptance line; use the focused probe above for the EXE consumer seam while upstream Stage-B source-route freezes remain
 - Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
 - PyVM は historical / direct-only 扱い（既定導線は Rust VM）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。

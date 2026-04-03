@@ -20,15 +20,15 @@ Date: 2026-04-04
 | `49xA2` | landed | top-level docs compat wording rewrite |
 | `49xB1` | landed | current guides compat wording rewrite |
 | `49xB2` | landed | example-command stale-route sweep |
-| `49xC1` | active | runtime `stage-a` compat label lock |
-| `49xC2` | queued | helper comment stale-route cleanup |
+| `49xC1` | landed | runtime `stage-a` compat label lock |
+| `49xC2` | active | helper comment stale-route cleanup |
 | `49xD1` | queued | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `49xC1 runtime stage-a compat label lock` |
+| Now | `49xC2 helper comment stale-route cleanup` |
 | Blocker | `none` |
-| Next | `49xC2 helper comment stale-route cleanup` |
-| After Next | `49xD1 proof / closeout` |
+| Next | `49xD1 proof / closeout` |
+| After Next | `none` |

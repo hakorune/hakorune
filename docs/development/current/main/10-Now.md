@@ -72,9 +72,9 @@ Related:
 - `36xC1` landed: proof/closeout evidence is fixed; raw bridge split does not reopen compat ownership
 - `40xA1` landed: archive candidate caller inventory is fixed
 - `40xA2` landed: route classes are fixed as `must-split-first`, `proof-only keep`, `compat keep`, `archive-later`, and `direct-owner target`
-- active micro task: `49xC1 runtime stage-a compat label lock`
-- next micro task: `49xC2 helper comment stale-route cleanup`
-- after next: `49xD1 proof / closeout`
+- active micro task: `49xC2 helper comment stale-route cleanup`
+- next micro task: `49xD1 proof / closeout`
+- after next: `none`
 - plain reading:
   - if a bootstrap route stays on `--backend vm`, new capability work still tends to imply `rust-vm` support
   - `phase-41x` hardened the remaining direct/core mainline and kept vm as proof/compat keep

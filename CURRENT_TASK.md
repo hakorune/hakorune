@@ -134,7 +134,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 - Active next: `phase-49x legacy wording / compat route cleanup`
 - Current blocker: `none`
-- Exact focus: `49xC1 runtime stage-a compat label lock`
+- Exact focus: `49xC2 helper comment stale-route cleanup`
 - exact phase-49x order:
   1. `49xA1` current-doc stale wording inventory lock
   2. `49xA2` top-level docs compat wording rewrite
