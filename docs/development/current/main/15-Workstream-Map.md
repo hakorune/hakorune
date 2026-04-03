@@ -71,7 +71,7 @@ Related:
         - `36xB1` landed and moves raw `emit mir-json` glue into `raw_subcommand_emit_mir.hako`
         - `36xB2` landed and moves raw `run` glue into `raw_subcommand_run.hako`
         - `36xC1` landed and fixes the split as evidence instead of reopening compat ownership
-        - current active micro task is `37xB3 engineering build wrapper split`
+        - current active micro task is `37xC1 explicit keep freeze`
         - `37xA` prioritizes `selfhost_build.sh` owner split over broader cleanup
         - `37xB` follows with `build.rs` product/engineering split
         - `37xC` freezes explicit engineering keep before caller-drain work
@@ -92,9 +92,9 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `37xB3 engineering build wrapper split` |
-     | Next | `37xC1 explicit keep freeze` |
-     | Later | `37xC2 child.rs caller drain map` |
+     | Now | `37xC1 explicit keep freeze` |
+     | Next | `37xC2 child.rs caller drain map` |
+     | Later | `37xD1 proof/closeout` |
    - stage0 shell residue waves:
 
      | Wave | Status | Read as |
@@ -136,9 +136,9 @@ Related:
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (active)
 - Active backend surface tasks:
-  - `37xB3 engineering build wrapper split`
-- Queued backend surface tasks:
   - `37xC1 explicit keep freeze`
+- Queued backend surface tasks:
+  - `37xC2 child.rs caller drain map`
 - Post-`37xD1` cleanup:
   - drained shim / legacy embedded smoke archive sweep
 - Parked big tasks:

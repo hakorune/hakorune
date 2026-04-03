@@ -103,7 +103,7 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 ## Immediate Next Task
 
-- Active next: `37xB3 engineering build wrapper split`
+- Active next: `37xC1 explicit keep freeze`
 - Current blocker: `none`
 - Exact focus: `phase-37x bootstrap owner split`
   - `phase-32x` is landed; mixed-owner source/smoke split and raw default/token defer are fixed
@@ -151,7 +151,7 @@ Scope: repo root から current order / current blocker / next exact read に最
   | --- | --- |
   | Now | `phase-37x bootstrap owner split` |
   | Blocker | `none` |
-  | Next | `37xB3 engineering build wrapper split` |
+  | Next | `37xC1 explicit keep freeze` |
 - Exact implementation rule:
   - keep `RuntimeDataBox` facade-only
   - boundary audit result: `RuntimeDataBox.delete` does not exist; delete stays on `MapBox` / `RawMap` only
@@ -165,9 +165,9 @@ Scope: repo root から current order / current blocker / next exact read に最
 
 | Band | State | Read as |
 | --- | --- | --- |
-| Now | `37xB3 engineering build wrapper split` | isolate engineering build ownership from the shared prelude |
-| Next | `37xC1 explicit keep freeze` | freeze explicit engineering keep before caller drain |
-| Later | `37xC2 child.rs caller drain map` | drain callers only after keep freeze |
+| Now | `37xC1 explicit keep freeze` | freeze explicit engineering keep before caller drain |
+| Next | `37xC2 child.rs caller drain map` | drain callers only after keep freeze |
+| Later | `37xD1 proof/closeout` | restore canonical proof/smoke after the speed-first split |
 | After `37xD1` | `cleanup/archive sweep` | move drained shims and legacy embedded smoke out of the live surface |
 
 ## Phase-34x Waves

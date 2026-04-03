@@ -16,8 +16,8 @@ Related:
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
 | 1 | `37xA selfhost_build owner split` | active | shell owner split を最優先で取る |
-| 2 | `37xB build.rs owner split` | queued | source owner split を product/engineering に切る |
-| 3 | `37xC explicit keep freeze + drain map` | queued | cleanup しない keep 面と次 drain を分ける |
+| 2 | `37xB build.rs owner split` | landed | source owner split を product/engineering に切る |
+| 3 | `37xC explicit keep freeze + drain map` | active | cleanup しない keep 面と次 drain を分ける |
 | 4 | `37xD proof/closeout` | queued | canonical evidence を戻して handoff する |
 | 5 | `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す |
 
@@ -31,14 +31,14 @@ Related:
 | 4 | `37xA4` | landed | dispatcher slimming |
 | 5 | `37xB1` | landed | `build.rs` shared prelude freeze |
 | 6 | `37xB2` | landed | product build wrapper split |
-| 7 | `37xB3` | active | engineering build wrapper split |
-| 8 | `37xC1` | queued | explicit keep freeze |
+| 7 | `37xB3` | landed | engineering build wrapper split |
+| 8 | `37xC1` | active | explicit keep freeze |
 | 9 | `37xC2` | queued | child.rs caller drain map |
 | 10 | `37xD1` | queued | proof/closeout |
 
 ## Speed-First Acceptance
 
-- during `37xA` / `37xB`, temporary smoke red is acceptable
+- during `37xA` / `37xB` / `37xC`, temporary smoke red is acceptable
 - required green checks during split:
 
 ```bash
@@ -64,9 +64,9 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `37xB3 engineering build wrapper split`
+  - `37xC1 explicit keep freeze`
 - exact next:
-  - split engineering wrapper before explicit keep freeze
+  - freeze explicit engineering keep before caller drain
 - explicit reading:
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`

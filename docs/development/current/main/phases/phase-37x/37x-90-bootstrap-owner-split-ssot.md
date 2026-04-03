@@ -46,8 +46,8 @@ Related:
 | Wave | Status | Goal | Acceptance |
 | --- | --- | --- | --- |
 | `37xA selfhost_build owner split` | active | `selfhost_build.sh` を producer / direct-run / exe-artifact / dispatcher に切る | shell script が lane owner ごとに読める |
-| `37xB build.rs owner split` | queued | `build.rs` を product build / engineering build に切る | source owner が path/function で読める |
-| `37xC explicit keep freeze + drain map` | queued | explicit engineering keep と next drain を固定 | `vm必須 keep` と `next caller drain` が混ざらない |
+| `37xB build.rs owner split` | landed | `build.rs` を product build / engineering build に切る | source owner が path/function で読める |
+| `37xC explicit keep freeze + drain map` | active | explicit engineering keep と next drain を固定 | `vm必須 keep` と `next caller drain` が混ざらない |
 | `37xD proof/closeout` | queued | speed-first split を canonical proof に戻す | next phase が `child.rs` drain に集中できる |
 | `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す | archive/delete 対象が proof 後の state で読める |
 
@@ -61,20 +61,20 @@ Related:
 | `37xA4` | landed | dispatcher slimming | primary/downstream dispatcher が lane router に縮む |
 | `37xB1` | landed | `build.rs` shared prelude freeze | shared config/env/app/link prelude を no-touch-first で固定 |
 | `37xB2` | landed | product build wrapper split | `build_core(..., llvm)` + `emit_llvm_object(...)` が product owner に寄る |
-| `37xB3` | active | engineering build wrapper split | `build_core(..., cranelift)` + `emit_engineering_object(...)` が engineering owner に寄る |
-| `37xC1` | queued | explicit keep freeze | bootstrap vm keep scripts を “残すもの” として先に固定する |
+| `37xB3` | landed | engineering build wrapper split | `build_core(..., cranelift)` + `emit_engineering_object(...)` が engineering owner に寄る |
+| `37xC1` | active | explicit keep freeze | bootstrap vm keep scripts を “残すもの” として先に固定する |
 | `37xC2` | queued | child.rs caller drain map | owner split 後に減らす caller を exact にする |
 | `37xD1` | queued | proof/closeout | canonical smoke / evidence command を戻して handoff |
 
 ## Current Focus
 
 - active macro wave: `37xA selfhost_build owner split`
-- active micro task: `37xB3 engineering build wrapper split`
-- next queued micro task: `37xC1 explicit keep freeze`
+- active micro task: `37xC1 explicit keep freeze`
+- next queued micro task: `37xC2 child.rs caller drain map`
 - current blocker: `none`
 - exact reading:
   - `selfhost_build.sh` is the biggest mixed-owner shell surface
   - `build.rs` is the biggest mixed-owner source surface
   - `bootstrap_selfhost_smoke.sh` and `run_stageb_compiler_vm.sh` are explicit engineering keep, not first-cut cleanup targets
-  - temporary smoke red is acceptable during `37xA` / `37xB` if owner split moves forward and compile/diff checks stay green
+  - temporary smoke red is acceptable during `37xA` / `37xB` / `37xC` if owner split moves forward and compile/diff checks stay green
   - after `37xD1`, cleanup/archive sweep targets drained shims, legacy embedded Stage1 smoke, and stale compat wrappers first
