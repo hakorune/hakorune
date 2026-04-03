@@ -45,10 +45,10 @@ Related:
 
 | Wave | Status | Goal | Acceptance |
 | --- | --- | --- | --- |
-| `37xA selfhost_build owner split` | active | `selfhost_build.sh` を producer / direct-run / exe-artifact / dispatcher に切る | shell script が lane owner ごとに読める |
+| `37xA selfhost_build owner split` | landed | `selfhost_build.sh` を producer / direct-run / exe-artifact / dispatcher に切る | shell script が lane owner ごとに読める |
 | `37xB build.rs owner split` | landed | `build.rs` を product build / engineering build に切る | source owner が path/function で読める |
-| `37xC explicit keep freeze + drain map` | active | explicit engineering keep と next drain を固定 | `vm必須 keep` と `next caller drain` が混ざらない |
-| `37xD proof/closeout` | queued | speed-first split を canonical proof に戻す | next phase が `child.rs` drain に集中できる |
+| `37xC explicit keep freeze + drain map` | landed | explicit engineering keep と next drain を固定 | `vm必須 keep` と `next caller drain` が混ざらない |
+| `37xD proof/closeout` | active | speed-first split を canonical proof に戻す | next phase が cleanup/archive sweep に集中できる |
 | `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す | archive/delete 対象が proof 後の state で読める |
 
 ## Micro Tasks
@@ -68,7 +68,7 @@ Related:
 
 ## Current Focus
 
-- active macro wave: `37xA selfhost_build owner split`
+- active macro wave: `37xD proof/closeout`
 - active micro task: `37xD1 proof/closeout`
 - next queued micro task: `post-37x cleanup/archive sweep`
 - current blocker: `none`

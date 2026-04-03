@@ -15,10 +15,10 @@ Related:
 
 | Order | Task | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `37xA selfhost_build owner split` | active | shell owner split を最優先で取る |
+| 1 | `37xA selfhost_build owner split` | landed | shell owner split を最優先で取る |
 | 2 | `37xB build.rs owner split` | landed | source owner split を product/engineering に切る |
-| 3 | `37xC explicit keep freeze + drain map` | active | cleanup しない keep 面と次 drain を分ける |
-| 4 | `37xD proof/closeout` | queued | canonical evidence を戻して handoff する |
+| 3 | `37xC explicit keep freeze + drain map` | landed | cleanup しない keep 面と次 drain を分ける |
+| 4 | `37xD proof/closeout` | active | canonical evidence を戻して handoff する |
 | 5 | `post-37x cleanup/archive sweep` | queued-next | drained shim / legacy embedded smoke / stale compat wrapper を live surface から外す |
 
 ## Ordered Slice Detail
