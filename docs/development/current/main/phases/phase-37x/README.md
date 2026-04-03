@@ -55,6 +55,9 @@ Related:
 3. `tools/selfhost/selfhost_build.sh`
 4. `src/runner/build.rs`
 
+- current active micro task: `37xA2 direct MIR / core-direct split`
+- next queued micro task: `37xA3 ny-llvmc / exe artifact split`
+
 ## Acceptance Summary
 
 - `selfhost_build.sh` が `producer / direct-run / exe-artifact / dispatcher` で読める

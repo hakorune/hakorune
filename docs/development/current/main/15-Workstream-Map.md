@@ -71,7 +71,7 @@ Related:
         - `36xB1` landed and moves raw `emit mir-json` glue into `raw_subcommand_emit_mir.hako`
         - `36xB2` landed and moves raw `run` glue into `raw_subcommand_run.hako`
         - `36xC1` landed and fixes the split as evidence instead of reopening compat ownership
-        - current active micro task is `37xA1 Stage-B producer isolation`
+        - current active micro task is `37xA2 direct MIR / core-direct split`
         - `37xA` prioritizes `selfhost_build.sh` owner split over broader cleanup
         - `37xB` follows with `build.rs` product/engineering split
         - `37xC` freezes explicit engineering keep before caller-drain work
@@ -91,8 +91,8 @@ Related:
 
      | Band | State |
      | --- | --- |
-     | Now | `37xA1 Stage-B producer isolation` |
-     | Next | `37xA2 direct MIR / core-direct split` |
+     | Now | `37xA2 direct MIR / core-direct split` |
+     | Next | `37xA3 ny-llvmc / exe artifact split` |
      | Later | `raw backend default/token follow-up lane` |
    - stage0 shell residue waves:
 
@@ -135,9 +135,9 @@ Related:
   - `phase-36x` selfhost source / stage1 bridge split (landed precursor)
   - `phase-37x` bootstrap owner split (active)
 - Active backend surface tasks:
-  - `37xA1 Stage-B producer isolation`
-- Queued backend surface tasks:
   - `37xA2 direct MIR / core-direct split`
+- Queued backend surface tasks:
+  - `37xA3 ny-llvmc / exe artifact split`
 - Parked big tasks:
   - broad widening beyond the current `K2-wide` narrow slices
   - broad `Map` structural expansion

@@ -24,8 +24,8 @@ Related:
 
 | Order | Slice | Status | Read as |
 | --- | --- | --- | --- |
-| 1 | `37xA1` | active | Stage-B producer isolation |
-| 2 | `37xA2` | queued | direct MIR / core-direct split |
+| 1 | `37xA1` | landed | Stage-B producer isolation |
+| 2 | `37xA2` | active | direct MIR / core-direct split |
 | 3 | `37xA3` | queued | `ny-llvmc` / exe artifact split |
 | 4 | `37xA4` | queued | dispatcher slimming |
 | 5 | `37xB1` | queued | `build.rs` shared prelude freeze |
@@ -62,9 +62,9 @@ git diff --check
 ## Current Result
 
 - current front:
-  - `37xA1 Stage-B producer isolation`
+  - `37xA2 direct MIR / core-direct split`
 - exact next:
-  - split `selfhost_build.sh` around Stage-B producer ownership before touching direct-run and EXE lanes
+  - split `selfhost_build.sh` around the direct MIR / core-direct seam before touching EXE lanes
 - explicit reading:
   - first speed gain comes from making mixed owner surfaces readable
   - not from deleting `vm.rs`
