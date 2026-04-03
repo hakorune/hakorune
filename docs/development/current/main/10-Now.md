@@ -32,7 +32,8 @@ Related:
 - `45xA2` landed: proof-only keep boundary freeze
 - `45xB1` landed: vm.rs broad owner shrink
 - `45xB2` landed: vm_fallback.rs / shared vm helper drain
-- `45xC1` active: core.hako compat hold line refresh
+- `45xC1` landed: core.hako compat hold line refresh
+- `45xC2` active: run_stageb_compiler_vm.sh proof-only gate reinforcement
 - `44xE1` landed: proof / closeout
 - `phase-30x` landed: backend roles and docs/artifact/smoke ownership are settled
 - `phase-31x` landed: low-blast engineering rehome and shim drain are complete

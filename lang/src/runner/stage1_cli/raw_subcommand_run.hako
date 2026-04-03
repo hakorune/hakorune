@@ -1,5 +1,5 @@
 // stage1_cli/raw_subcommand_run.hako
-// 42xC4 compat hold line:
+// 45xC1 compat hold line:
 // - raw run stays thin and non-growing
 // - backend policy remains in `core.hako/run_program_json`
 // - direct/core work belongs below stage0

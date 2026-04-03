@@ -20,14 +20,14 @@ Date: 2026-04-03
 | `45xA2` | landed | proof-only keep boundary freeze |
 | `45xB1` | landed | `vm.rs` broad owner shrink |
 | `45xB2` | landed | `vm_fallback.rs` / shared vm helper drain |
-| `45xC1` | active | `core.hako` compat hold line refresh |
-| `45xC2` | queued | `run_stageb_compiler_vm.sh` proof-only gate reinforcement |
+| `45xC1` | landed | `core.hako` compat hold line refresh |
+| `45xC2` | active | `run_stageb_compiler_vm.sh` proof-only gate reinforcement |
 | `45xD1` | queued | proof / closeout |
 
 ## Current Front
 
 | Item | State |
 | --- | --- |
-| Now | `45xC1 core.hako compat hold line refresh` |
+| Now | `45xC2 run_stageb_compiler_vm.sh proof-only gate reinforcement` |
 | Blocker | `none` |
-| Next | `45xC2 run_stageb_compiler_vm.sh proof-only gate reinforcement` |
+| Next | `45xD1 proof / closeout` |

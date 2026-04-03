@@ -1,5 +1,5 @@
 // stage1_cli/core.hako
-// 42xC4 compat hold line:
+// 45xC1 compat hold line:
 // - keep legacy raw compat narrow and non-growing
 // - direct/core routes own new capability work
 // - do not widen backend policy here
