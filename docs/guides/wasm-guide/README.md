@@ -100,7 +100,7 @@ Role note:
 | 用途 | 方式 | コマンド |
 |------|------|----------|
 | **開発・テスト** | インタープリター | `nyash program.hako` |
-| **高速実行** | VM | `nyash --backend vm program.hako` |
+| **高速実行** | VM（compat/proof keep） | `nyash --backend vm program.hako` |
 | **Web配布** | WASM | `nyash --compile-wasm program.hako` |
 | **ネイティブ配布** | AOT | `nyash --aot program.hako` |
 

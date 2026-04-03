@@ -1,6 +1,7 @@
 # Examples Quick Start (Minimal)
 
 このページはPhase 10.10の再起動用ミニ手順です。3つだけ確かめればOK。
+ここに残る `--backend vm` は explicit compat/proof keep で、日常路ではありません。
 
 - 事前ビルド: `cargo build --release -j32`
 - 実行は `./target/release/hakorune` を使用
@@ -10,7 +11,7 @@
 - 実行:
 ```
 NYASH_JIT_EXEC=1 NYASH_JIT_THRESHOLD=1 NYASH_JIT_HOSTCALL=1 NYASH_JIT_EVENTS=1 \
-  ./target/release/hakorune --backend vm examples/jit_map_get_param_hh.hako
+  ./target/release/hakorune --backend vm examples/jit_map_get_param_hh.hako  # explicit compat/proof keep
 ```
 - 期待: `allow id: nyash.map.get_hh` イベントが出る。戻り値は `value1`。
 
@@ -19,7 +20,7 @@ NYASH_JIT_EXEC=1 NYASH_JIT_THRESHOLD=1 NYASH_JIT_HOSTCALL=1 NYASH_JIT_EVENTS=1 \
 - 実行:
 ```
 NYASH_JIT_EXEC=1 NYASH_JIT_THRESHOLD=1 NYASH_JIT_HOSTCALL=1 NYASH_JIT_EVENTS=1 \
-  ./target/release/hakorune --backend vm examples/jit_policy_optin_mutating.hako
+  ./target/release/hakorune --backend vm examples/jit_policy_optin_mutating.hako  # explicit compat/proof keep
 ```
 - 期待: 1回目は `policy_denied_mutating` でfallback、whitelist後の2回目はallow。
 
@@ -36,7 +37,7 @@ NYASH_JIT_EVENTS_RUNTIME=1 NYASH_JIT_EVENTS_PATH=events.jsonl ...
 - 目的: GCのカウント/トレース/バリア観測の導線確認（VM経路）。
 - 実行:
 ```
-./target/release/hakorune --backend vm examples/gc_counting_demo.hako
+  ./target/release/hakorune --backend vm examples/gc_counting_demo.hako  # explicit compat/proof keep
 ```
 - Tips: 詳細ログは `NYASH_GC_COUNTING=1 NYASH_GC_TRACE=2` を併用。
 
@@ -45,7 +46,7 @@ NYASH_JIT_EVENTS_RUNTIME=1 NYASH_JIT_EVENTS_PATH=events.jsonl ...
 - 実行（しきい値=1を明示／またはDebugConfigBoxでapply後にRunnerが自動設定）:
 ```
 NYASH_JIT_THRESHOLD=1 NYASH_JIT_HOSTCALL=1 \
-  ./target/release/hakorune --backend vm examples/jit_policy_whitelist_demo.hako
+  ./target/release/hakorune --backend vm examples/jit_policy_whitelist_demo.hako  # explicit compat/proof keep
 ```
 - 期待: `policy_events.jsonl` に `phase:"lower"`（計画）と `phase:"execute"`（実績）が出る。
 
@@ -75,6 +76,6 @@ NYASH_JIT_THRESHOLD=1 NYASH_JIT_HOSTCALL=1 \
 - 実行（デモ）:
 ```
 NYASH_SCHED_DEMO=1 NYASH_SCHED_POLL_BUDGET=2 \
-  ./target/release/hakorune --backend vm examples/scheduler_demo.hako
+  ./target/release/hakorune --backend vm examples/scheduler_demo.hako  # explicit compat/proof keep
 ```
 - 期待: `[SCHED] immediate task ran at safepoint` と `[SCHED] delayed task ran at safepoint` が出力

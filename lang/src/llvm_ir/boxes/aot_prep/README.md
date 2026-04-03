@@ -71,6 +71,6 @@ Stage-3 キーワード要件
 - **手動実行時**: 以下のENVを明示的に付与してください。
   ```bash
   NYASH_PARSER_STAGE3=1 HAKO_PARSER_STAGE3=1 NYASH_PARSER_ALLOW_SEMICOLON=1 \
-  ./target/release/hakorune --backend vm your_file.hako
+  ./target/release/hakorune --backend vm your_file.hako  # explicit compat/proof keep
   ```
 - **診断**: `NYASH_TOK_TRACE=1` を追加すると、Stage-3キーワードが識別子に降格される様子が `[tok-stage3]` ログで確認できます。

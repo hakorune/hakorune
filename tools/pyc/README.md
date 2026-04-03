@@ -11,7 +11,7 @@
 ```bash
 # 1) NYASH_PY_CODE に Python コードを入れる（Parserプラグインが拾う）
 NYASH_PY_CODE=$'def main():\n    return 0' \
-  ./target/release/hakorune --backend vm tools/pyc/pyc.hako
+  ./target/release/hakorune --backend vm tools/pyc/pyc.hako  # explicit compat/proof keep
 ```
 
 出力
